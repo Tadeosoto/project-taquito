@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://bombdcr6oghau"]
+
+[ext_resource type="Script" uid="uid://o523pvivybm" path="res://scripts/player.gd" id="1_4flbx"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_5tlb1"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5tlb1"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_5tlb1"]
+
+[node name="Player" type="CharacterBody3D" unique_id=1681743161]
+script = ExtResource("1_4flbx")
+
+[node name="Frijol" type="MeshInstance3D" parent="." unique_id=1584414054]
+mesh = SubResource("CapsuleMesh_5tlb1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=483136960]
+shape = SubResource("CapsuleShape3D_5tlb1")
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=1098878388]
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot" unique_id=727579845]
+transform = Transform3D(1, 0, 0, 0, 0.9659258, 0.25881904, 0, -0.25881904, 0.9659258, 0, 0, 0)
+spring_length = 4.0
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1208943951]
+transform = Transform3D(1, 0, 0, 0, 0.9835443, 0.18066838, 0, -0.1806684, 0.98354405, 0, 2.5000014, 5.000002)
+
+[node name="Pointer" type="MeshInstance3D" parent="." unique_id=1416040653]
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.5, -0.6)
+mesh = SubResource("PrismMesh_5tlb1")

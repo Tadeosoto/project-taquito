@@ -1,0 +1,544 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 26,
+      "max": [
+        1.9115850925445557,
+        2.1792917251586914,
+        2.3183112144470215
+      ],
+      "min": [
+        -0.923071026802063,
+        -2.1792993545532227,
+        -2.3183112144470215
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 312,
+      "componentType": 5126,
+      "count": 26,
+      "max": [
+        1.0,
+        0.842724621295929,
+        0.8642355799674988
+      ],
+      "min": [
+        -1.0,
+        -0.8427244424819946,
+        -0.8642357587814331
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 26,
+      "max": [
+        0.9871061444282532,
+        0.9896723628044128
+      ],
+      "min": [
+        0.43220388889312744,
+        0.6050441265106201
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 96,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 624,
+      "componentType": 5126,
+      "count": 34,
+      "max": [
+        3.0503950119018555,
+        2.283421039581299,
+        2.4947519302368164
+      ],
+      "min": [
+        -3.0503950119018555,
+        -2.283421516418457,
+        -2.494752883911133
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 1032,
+      "componentType": 5126,
+      "count": 34,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 208,
+      "componentType": 5126,
+      "count": 34,
+      "max": [
+        0.8267866373062134,
+        0.7991107702255249
+      ],
+      "min": [
+        0.39740312099456787,
+        0.6051912903785706
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 384,
+      "componentType": 5125,
+      "count": 144,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 1440,
+      "componentType": 5126,
+      "count": 23,
+      "max": [
+        1.8576397895812988,
+        1.3609029054641724,
+        2.4947524070739746
+      ],
+      "min": [
+        -1.1927545070648193,
+        -0.8149303197860718,
+        -2.4947524070739746
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 1716,
+      "componentType": 5126,
+      "count": 23,
+      "max": [
+        0.8903980851173401,
+        0.8881277441978455,
+        0.7707535028457642
+      ],
+      "min": [
+        -0.771641194820404,
+        -0.6360580921173096,
+        -0.7707533836364746
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 480,
+      "componentType": 5126,
+      "count": 23,
+      "max": [
+        0.9934914112091064,
+        0.9900428056716919
+      ],
+      "min": [
+        0.411058247089386,
+        0.6113373041152954
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 960,
+      "componentType": 5125,
+      "count": 60,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 1992,
+      "componentType": 5126,
+      "count": 104,
+      "max": [
+        13.408946990966797,
+        6.028185844421387,
+        2.490973472595215
+      ],
+      "min": [
+        -13.408944129943848,
+        -3.954146146774292,
+        -2.531066417694092
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 3240,
+      "componentType": 5126,
+      "count": 104,
+      "max": [
+        0.9407721757888794,
+        0.9903870224952698,
+        0.9965476989746094
+      ],
+      "min": [
+        -0.9407724142074585,
+        -1.0,
+        -0.9956730008125305
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 664,
+      "componentType": 5126,
+      "count": 104,
+      "max": [
+        0.982925534248352,
+        0.9962782263755798
+      ],
+      "min": [
+        0.0068643540143966675,
+        0.0019458234310150146
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 1200,
+      "componentType": 5125,
+      "count": 108,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Bonvikt (https://sketchfab.com/Bonvikt)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/taco-psx-9b31879f530f4dd48211e762ba4dd28c",
+      "title": "Taco PSX"
+    },
+    "generator": "Sketchfab-16.65.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 1632,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 1496,
+      "byteOffset": 1632,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 4488,
+      "byteOffset": 3128,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 7616,
+      "uri": "scene.bin"
+    }
+  ],
+  "extensionsUsed": [
+    "KHR_materials_unlit"
+  ],
+  "images": [
+    {
+      "uri": "textures/TacoLemon_baseColor.png"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_unlit": {}
+      },
+      "name": "TacoLemon",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicFactor": 0.0
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "HalfLemon_Taco&Lemon_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Lemon_Taco&Lemon_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 5,
+            "POSITION": 4,
+            "TEXCOORD_0": 6
+          },
+          "indices": 7,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "QuarterLemon_Taco&Lemon_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 9,
+            "POSITION": 8,
+            "TEXCOORD_0": 10
+          },
+          "indices": 11,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Taco_Taco&Lemon_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 13,
+            "POSITION": 12,
+            "TEXCOORD_0": 14
+          },
+          "indices": 15,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        -1.608122622957729e-16,
+        -1.6081226229577294e-16,
+        0.0,
+        -1.6081226229577292e-16,
+        6.123234262925839e-17,
+        -1.0,
+        0.0,
+        1.6081226229577292e-16,
+        1.0,
+        6.123234262925839e-17,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009999999776482582,
+        0.0,
+        0.0,
+        -0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "dc8cfe396d844b64a149d98680fed6ca.fbx"
+    },
+    {
+      "children": [
+        3,
+        5,
+        7,
+        9
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        -0.414778103693636,
+        -0.8661480777341568,
+        -0.278830616906484,
+        0.0,
+        -0.718846342276787,
+        0.49978734261292584,
+        -0.4831898479375454,
+        0.0,
+        0.5578700042862222,
+        1.980022763479562e-05,
+        -0.8299282732359194,
+        0.0,
+        10.22050952911377,
+        1.6558805704116821,
+        4.239408493041992,
+        1.0
+      ],
+      "name": "HalfLemon"
+    },
+    {
+      "mesh": 0,
+      "name": "HalfLemon_Taco&Lemon_0"
+    },
+    {
+      "children": [
+        6
+      ],
+      "matrix": [
+        0.8710040964691043,
+        -0.21107878646260805,
+        -0.44361863196920187,
+        0.0,
+        0.18808825979325433,
+        0.9774690484072502,
+        -0.09579700378284252,
+        0.0,
+        0.4538441973518981,
+        1.262253708065615e-07,
+        0.8910809869594959,
+        0.0,
+        6.658971309661865,
+        2.232407808303833,
+        -0.05132085829973221,
+        1.0
+      ],
+      "name": "Lemon"
+    },
+    {
+      "mesh": 1,
+      "name": "Lemon_Taco&Lemon_0"
+    },
+    {
+      "children": [
+        8
+      ],
+      "matrix": [
+        0.6516301540006102,
+        -4.318669730839473e-15,
+        -0.7585368431375902,
+        0.0,
+        -1.2358132463149312e-07,
+        0.9999999999999867,
+        -1.061640217590352e-07,
+        0.0,
+        0.7585368431375802,
+        1.6292066570489876e-07,
+        0.6516301540006015,
+        0.0,
+        3.6661360263824463,
+        0.8152520060539246,
+        5.328922748565674,
+        1.0
+      ],
+      "name": "QuarterLemon"
+    },
+    {
+      "mesh": 2,
+      "name": "QuarterLemon_Taco&Lemon_0"
+    },
+    {
+      "children": [
+        10
+      ],
+      "matrix": [
+        0.83386205446912,
+        0.0,
+        -0.5519728925559103,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.5519728925559103,
+        0.0,
+        0.83386205446912,
+        0.0,
+        -1.9950042963027954,
+        3.9544925689697266,
+        -5.971122741699219,
+        1.0
+      ],
+      "name": "Taco"
+    },
+    {
+      "mesh": 3,
+      "name": "Taco_Taco&Lemon_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9728,
+      "minFilter": 9986,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    }
+  ]
+}
