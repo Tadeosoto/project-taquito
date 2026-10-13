@@ -27,7 +27,6 @@ transform = Transform3D(1, 0, 0, 0, 0.9659258, 0.25881904, 0, -0.25881904, 0.965
 spring_length = 4.0
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1208943951]
-transform = Transform3D(1, 0, 0, 0, 0.9835443, 0.18066838, 0, -0.1806684, 0.98354405, 0, 2.5000014, 5.000002)
 
 [node name="Pointer" type="MeshInstance3D" parent="." unique_id=1416040653]
 transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.5, -0.6)
