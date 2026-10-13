@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://8bqqad2usjj6"]
+
+[ext_resource type="Shader" uid="uid://5ffny5hm78ie" path="res://shaders/jittershader.gdshader" id="1_vo683"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_vo683")
+shader_parameter/snap_resolution = 160.0
+shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
+shader_parameter/tint = Color(0.4449301, 0.3418238, 0.33067602, 1)

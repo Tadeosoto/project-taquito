@@ -1,10 +1,33 @@
 [gd_scene format=3 uid="uid://c2iut07k626j5"]
 
 [ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://player.tscn" id="1_f3sb7"]
+[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="1_k3n1d"]
 [ext_resource type="PackedScene" uid="uid://b1a3f6gnkpllh" path="res://models/box.glb" id="2_fj7yv"]
+[ext_resource type="Shader" uid="uid://5ffny5hm78ie" path="res://shaders/jittershader.gdshader" id="2_pkg7o"]
 [ext_resource type="PackedScene" uid="uid://50kfx3yq88ee" path="res://models/Untitled.glb" id="3_tlwt5"]
 [ext_resource type="PackedScene" uid="uid://drp61fuojtmyp" path="res://models/test.glb" id="4_aqk2v"]
 [ext_resource type="PackedScene" uid="uid://bvrfruccopfec" path="res://models/scene.gltf" id="5_036b0"]
+[ext_resource type="PackedScene" uid="uid://bgijk6bpv8a20" path="res://models/elpunto_test.glb" id="7_pkg7o"]
+[ext_resource type="Texture2D" uid="uid://db4fl0x8y3q0a" path="res://models/textures/elpunto_Building_Texture.png" id="8_gbfbk"]
+[ext_resource type="Texture2D" uid="uid://bx0n62p1e23e7" path="res://models/elpunto_Building_Texture.png" id="9_ioo17"]
+[ext_resource type="Material" uid="uid://8bqqad2usjj6" path="res://shaders/new_shader_material.tres" id="10_ic0uy"]
+[ext_resource type="Texture2D" uid="uid://drlqxq5g2bc5b" path="res://textures/Building_Texture.png" id="10_wse8f"]
+
+[sub_resource type="Environment" id="Environment_5tlb1"]
+background_mode = 1
+background_color = Color(0.30240002, 0.31872, 0.36, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.30490562, 0.46390456, 0.6044849, 1)
+ambient_light_energy = 0.3
+fog_enabled = true
+fog_light_color = Color(0.54521054, 0.5537622, 0.53505677, 1)
+fog_sun_scatter = 0.1
+fog_density = 0.0196
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wtxds"]
+shader = ExtResource("1_k3n1d")
+shader_parameter/color_levels = 32.0
+shader_parameter/dither_strenght = 0.35
 
 [sub_resource type="BoxMesh" id="BoxMesh_qhrn2"]
 size = Vector3(20, 0.2, 20)
@@ -14,6 +37,13 @@ size = Vector3(20, 0.2, 20)
 
 [sub_resource type="BoxMesh" id="BoxMesh_5tlb1"]
 size = Vector3(6.5270996, 8.448242, 0.9667969)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dwbse"]
+render_priority = 0
+shader = ExtResource("2_pkg7o")
+shader_parameter/snap_resolution = 100.0
+shader_parameter/base_color = Color(0.92240787, 0.18868259, 0.6421083, 1)
+shader_parameter/tint = Color(0, 0.73491126, 0.42598096, 1)
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_f3sb7"]
 data = PackedVector3Array(-3.2635, 4.2241, 0.4834, 3.2635, 4.2241, 0.4834, -3.2635, -4.2241, 0.4834, 3.2635, 4.2241, 0.4834, 3.2635, -4.2241, 0.4834, -3.2635, -4.2241, 0.4834, 3.2635, 4.2241, -0.4834, -3.2635, 4.2241, -0.4834, 3.2635, -4.2241, -0.4834, -3.2635, 4.2241, -0.4834, -3.2635, -4.2241, -0.4834, 3.2635, -4.2241, -0.4834, 3.2635, 4.2241, 0.4834, 3.2635, 4.2241, -0.4834, 3.2635, -4.2241, 0.4834, 3.2635, 4.2241, -0.4834, 3.2635, -4.2241, -0.4834, 3.2635, -4.2241, 0.4834, -3.2635, 4.2241, -0.4834, -3.2635, 4.2241, 0.4834, -3.2635, -4.2241, -0.4834, -3.2635, 4.2241, 0.4834, -3.2635, -4.2241, 0.4834, -3.2635, -4.2241, -0.4834, 3.2635, 4.2241, 0.4834, -3.2635, 4.2241, 0.4834, 3.2635, 4.2241, -0.4834, -3.2635, 4.2241, 0.4834, -3.2635, 4.2241, -0.4834, 3.2635, 4.2241, -0.4834, -3.2635, -4.2241, 0.4834, 3.2635, -4.2241, 0.4834, -3.2635, -4.2241, -0.4834, 3.2635, -4.2241, 0.4834, 3.2635, -4.2241, -0.4834, -3.2635, -4.2241, -0.4834)
@@ -27,8 +57,22 @@ data = PackedVector3Array(-0.5, 4.2418, 3.4961, 0.5, 4.2418, 3.4961, -0.5, -4.24
 [sub_resource type="BoxMesh" id="BoxMesh_xs1l0"]
 size = Vector3(1.9545898, 1.9306641, 1.9086914)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gbfbk"]
+render_priority = 0
+shader = ExtResource("2_pkg7o")
+shader_parameter/snap_resolution = 80.0
+shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
+shader_parameter/tint = Color(0.8316646, 4.3317675e-07, 0.41928408, 1)
+
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_tlwt5"]
 data = PackedVector3Array(-0.9773, 0.96529996, 0.9543, 0.9773, 0.96529996, 0.9543, -0.9773, -0.96529996, 0.9543, 0.9773, 0.96529996, 0.9543, 0.9773, -0.96529996, 0.9543, -0.9773, -0.96529996, 0.9543, 0.9773, 0.96529996, -0.9543, -0.9773, 0.96529996, -0.9543, 0.9773, -0.96529996, -0.9543, -0.9773, 0.96529996, -0.9543, -0.9773, -0.96529996, -0.9543, 0.9773, -0.96529996, -0.9543, 0.9773, 0.96529996, 0.9543, 0.9773, 0.96529996, -0.9543, 0.9773, -0.96529996, 0.9543, 0.9773, 0.96529996, -0.9543, 0.9773, -0.96529996, -0.9543, 0.9773, -0.96529996, 0.9543, -0.9773, 0.96529996, -0.9543, -0.9773, 0.96529996, 0.9543, -0.9773, -0.96529996, -0.9543, -0.9773, 0.96529996, 0.9543, -0.9773, -0.96529996, 0.9543, -0.9773, -0.96529996, -0.9543, 0.9773, 0.96529996, 0.9543, -0.9773, 0.96529996, 0.9543, 0.9773, 0.96529996, -0.9543, -0.9773, 0.96529996, 0.9543, -0.9773, 0.96529996, -0.9543, 0.9773, 0.96529996, -0.9543, -0.9773, -0.96529996, 0.9543, 0.9773, -0.96529996, 0.9543, -0.9773, -0.96529996, -0.9543, 0.9773, -0.96529996, 0.9543, 0.9773, -0.96529996, -0.9543, -0.9773, -0.96529996, -0.9543)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pkg7o"]
+render_priority = 0
+shader = ExtResource("2_pkg7o")
+shader_parameter/snap_resolution = 90.0
+shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
+shader_parameter/tint = Color(0.24705882, 0.3254902, 0.6156863, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_036b0"]
 texture_filter = 0
@@ -39,7 +83,65 @@ size = Vector3(6.264038, 1.5180664, 4.5064697)
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_aqk2v"]
 data = PackedVector3Array(-3.132, 0.759, 2.2532, 3.132, 0.759, 2.2532, -3.132, -0.759, 2.2532, 3.132, 0.759, 2.2532, 3.132, -0.759, 2.2532, -3.132, -0.759, 2.2532, 3.132, 0.759, -2.2532, -3.132, 0.759, -2.2532, 3.132, -0.759, -2.2532, -3.132, 0.759, -2.2532, -3.132, -0.759, -2.2532, 3.132, -0.759, -2.2532, 3.132, 0.759, 2.2532, 3.132, 0.759, -2.2532, 3.132, -0.759, 2.2532, 3.132, 0.759, -2.2532, 3.132, -0.759, -2.2532, 3.132, -0.759, 2.2532, -3.132, 0.759, -2.2532, -3.132, 0.759, 2.2532, -3.132, -0.759, -2.2532, -3.132, 0.759, 2.2532, -3.132, -0.759, 2.2532, -3.132, -0.759, -2.2532, 3.132, 0.759, 2.2532, -3.132, 0.759, 2.2532, 3.132, 0.759, -2.2532, -3.132, 0.759, 2.2532, -3.132, 0.759, -2.2532, 3.132, 0.759, -2.2532, -3.132, -0.759, 2.2532, 3.132, -0.759, 2.2532, -3.132, -0.759, -2.2532, 3.132, -0.759, 2.2532, 3.132, -0.759, -2.2532, -3.132, -0.759, -2.2532)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5tlb1"]
+render_priority = 0
+shader = ExtResource("2_pkg7o")
+shader_parameter/albedo_texture = ExtResource("8_gbfbk")
+shader_parameter/snap_resolution = 46.0
+shader_parameter/base_color = Color(0.003921569, 0.003921569, 0.003921569, 0)
+shader_parameter/tint = Color(1, 1, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_k3n1d"]
+render_priority = 0
+shader = ExtResource("2_pkg7o")
+shader_parameter/albedo_texture = ExtResource("9_ioo17")
+shader_parameter/snap_resolution = 80.0
+shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
+shader_parameter/tint = Color(1, 1, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_70uel"]
+render_priority = 0
+shader = ExtResource("2_pkg7o")
+shader_parameter/snap_resolution = 74.0
+shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
+shader_parameter/tint = Color(0.72065055, 0.23526716, 0.30202287, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2o6r5"]
+render_priority = 0
+shader = ExtResource("2_pkg7o")
+shader_parameter/albedo_texture = ExtResource("10_wse8f")
+shader_parameter/snap_resolution = 74.0
+shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
+shader_parameter/tint = Color(0.99486405, 0.19780403, 0.45354748, 1)
+
 [node name="World" type="Node3D" unique_id=1586220694]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2001018490]
+environment = SubResource("Environment_5tlb1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1146372202]
+transform = Transform3D(-0.3326426, 0.8513836, -0.40557972, -0.70441604, 0.061628435, 0.7071068, 0.6270144, 0.52091074, 0.579228, -14.95536, 14.954965, -1.016016)
+light_color = Color(0.9282061, 0.8841801, 0.82615525, 1)
+light_energy = 0.8
+light_indirect_energy = 0.0
+light_specular = 0.2
+shadow_enabled = true
+shadow_reverse_cull_face = true
+shadow_opacity = 0.86
+shadow_blur = 0.0
+
+[node name="PS1_Postprocess" type="CanvasLayer" parent="." unique_id=1711169371]
+
+[node name="Dither" type="ColorRect" parent="PS1_Postprocess" unique_id=453483399]
+material = SubResource("ShaderMaterial_wtxds")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Player" parent="." unique_id=1681743161 instance=ExtResource("1_f3sb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.719238, 3.2831602)
 
 [node name="Floor" type="StaticBody3D" parent="." unique_id=1829368055]
 
@@ -50,18 +152,13 @@ mesh = SubResource("BoxMesh_qhrn2")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=1963974869]
 shape = SubResource("BoxShape3D_5tlb1")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1146372202]
-transform = Transform3D(0.8660254, 0.3535534, -0.3535534, 0, 0.7071068, 0.7071068, 0.5, -0.61237246, 0.61237246, 0, 10.578153, 0)
-
-[node name="Player" parent="." unique_id=1681743161 instance=ExtResource("1_f3sb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.719238, 3.2831602)
-
 [node name="Wall_1" type="StaticBody3D" parent="." unique_id=1883555230]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3196225, 1.2984719, -5.7383738)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Wall_1" unique_id=1927793171]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 1.2, 0)
 mesh = SubResource("BoxMesh_5tlb1")
+surface_material_override/0 = SubResource("ShaderMaterial_dwbse")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Wall_1" unique_id=1542622149]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 1.2, 0)
@@ -84,8 +181,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7.4568043)
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Box" unique_id=1015607880]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.270239, 0.46533203, 0.4543457)
 mesh = SubResource("BoxMesh_xs1l0")
+surface_material_override/0 = SubResource("ShaderMaterial_gbfbk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Box" unique_id=1801613116]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.270239, 0.46533203, 0.4543457)
+shape = SubResource("ConcavePolygonShape3D_tlwt5")
+
+[node name="Box2" type="StaticBody3D" parent="." unique_id=260877258]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.268055)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Box2" unique_id=827113889]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.270239, 0.46533203, 0.4543457)
+mesh = SubResource("BoxMesh_xs1l0")
+surface_material_override/0 = SubResource("ShaderMaterial_pkg7o")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Box2" unique_id=1038038884]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.270239, 0.46533203, 0.4543457)
 shape = SubResource("ConcavePolygonShape3D_tlwt5")
 
@@ -109,3 +219,72 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.389908, 0, 0)
 
 [node name="Sketchfab_Scene" parent="." unique_id=1454300067 instance=ExtResource("5_036b0")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2962484, 1.1310298, -0.2867458)
+
+[node name="elpunto_test" parent="." unique_id=1325294856 instance=ExtResource("7_pkg7o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5761347, 2.1151562, -7.468524)
+
+[node name="Bottom_Still" parent="elpunto_test" index="0" unique_id=1360502675]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="Bottom_Still_001" parent="elpunto_test" index="1" unique_id=1889612475]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="Building_01" parent="elpunto_test" index="2" unique_id=736588849]
+material_override = SubResource("ShaderMaterial_5tlb1")
+surface_material_override/0 = SubResource("ShaderMaterial_k3n1d")
+
+[node name="CollisionShape3D" parent="elpunto_test/Building_01/StaticBody3D" parent_id_path=PackedInt32Array(1325294856, 388966995) index="0" unique_id=1003737349]
+visible = false
+
+[node name="Cube" parent="elpunto_test" index="3" unique_id=186168298]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="Cube_001" parent="elpunto_test" index="4" unique_id=1445359610]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="Cube_003" parent="elpunto_test" index="6" unique_id=202245288]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="Cube_004" parent="elpunto_test" index="7" unique_id=90457083]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.196652, 3.089332, -1.486721)
+surface_material_override/0 = SubResource("ShaderMaterial_70uel")
+
+[node name="Cube_006" parent="elpunto_test" index="9" unique_id=945007962]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.525939, 0.2997713, -0.085184574)
+
+[node name="Cube_007" parent="elpunto_test" index="10" unique_id=926676483]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6001062, 0.6526089, -0.085184574)
+
+[node name="Cube_008" parent="elpunto_test" index="11" unique_id=1324308215]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5758724, -0.040475607, -0.085184574)
+
+[node name="Cube_009" parent="elpunto_test" index="12" unique_id=607920632]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5607119, 0.26226854, -0.085184574)
+
+[node name="Foundation" parent="elpunto_test" index="14" unique_id=1476277120]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="Left_Frame" parent="elpunto_test" index="15" unique_id=341298205]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="Left_Frame_001" parent="elpunto_test" index="16" unique_id=465753645]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="R_Frame" parent="elpunto_test" index="17" unique_id=2082310436]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="R_Frame_001" parent="elpunto_test" index="18" unique_id=1407418341]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="Roof_1" parent="elpunto_test" index="19" unique_id=335880320]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9637918, 0)
+surface_material_override/0 = SubResource("ShaderMaterial_2o6r5")
+
+[node name="Top_Frame" parent="elpunto_test" index="22" unique_id=80411491]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[node name="Top_Frame_001" parent="elpunto_test" index="23" unique_id=600282784]
+surface_material_override/0 = ExtResource("10_ic0uy")
+
+[editable path="test"]
+[editable path="elpunto_test"]
