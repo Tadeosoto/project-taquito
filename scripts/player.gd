@@ -8,6 +8,7 @@ var rotation_speed = 5
 var speed = 5.0
 var gravity = 20.0
 var acceleration = 15.0
+var jump_velocity: float = 13.0
 
 func _physics_process(delta):
 		var input_direction = Input.get_vector(
@@ -82,5 +83,12 @@ func _physics_process(delta):
 			velocity.y -= gravity * delta
 		else:
 			velocity.y = 0.0
+
+		if Input.is_action_just_pressed("jump") and is_on_floor():
+			velocity.y = jump_velocity
 		
 		move_and_slide()
+
+		var ninja := $Frijol/Ninja
+		if ninja.has_method("update_animation"):
+			ninja.update_animation(direction.length_squared() > 0.01, not is_on_floor())

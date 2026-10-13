@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://bombdcr6oghau"]
 
 [ext_resource type="Script" uid="uid://o523pvivybm" path="res://scripts/player.gd" id="1_4flbx"]
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_5tlb1"]
+[ext_resource type="PackedScene" path="res://models/ninja_male.fbx" id="2_ninja"]
+[ext_resource type="Script" uid="uid://cqninjamale01" path="res://scripts/character_animation.gd" id="3_anim"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5tlb1"]
 
@@ -11,8 +11,11 @@
 [node name="Player" type="CharacterBody3D" unique_id=1681743161]
 script = ExtResource("1_4flbx")
 
-[node name="Frijol" type="MeshInstance3D" parent="." unique_id=1584414054]
-mesh = SubResource("CapsuleMesh_5tlb1")
+[node name="Frijol" type="Node3D" parent="." unique_id=1584414054]
+
+[node name="Ninja" parent="Frijol" unique_id=1902847561 instance=ExtResource("2_ninja")]
+transform = Transform3D(-0.55, 0, 0, 0, 0.55, 0, 0, 0, -0.55, 0, -1, 0)
+script = ExtResource("3_anim")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=483136960]
 shape = SubResource("CapsuleShape3D_5tlb1")
