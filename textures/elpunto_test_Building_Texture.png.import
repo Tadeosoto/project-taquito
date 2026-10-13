@@ -2,17 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cpugibjyfeoi0"
-path.s3tc="res://.godot/imported/TacoLemon_baseColor.png-4d517e716189fe610bbfc3dd55c71b9a.s3tc.ctex"
+uid="uid://3iu1tqvradf2"
+path.s3tc="res://.godot/imported/elpunto_test_Building_Texture.png-97b6d8ba5edc554adf9b5eecc13c767a.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "7bd93db4d2547c8b161ec86cb7b90280"
+}
 
 [deps]
 
-source_file="res://models/textures/TacoLemon_baseColor.png"
-dest_files=["res://.godot/imported/TacoLemon_baseColor.png-4d517e716189fe610bbfc3dd55c71b9a.s3tc.ctex"]
+source_file="res://textures/elpunto_test_Building_Texture.png"
+dest_files=["res://.godot/imported/elpunto_test_Building_Texture.png-97b6d8ba5edc554adf9b5eecc13c767a.s3tc.ctex"]
 
 [params]
 

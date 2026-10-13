@@ -5,6 +5,6 @@
 [resource]
 render_priority = 0
 shader = ExtResource("1_vo683")
-shader_parameter/snap_resolution = 160.0
+shader_parameter/snap_resolution = 80.0
 shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
-shader_parameter/tint = Color(0.4449301, 0.3418238, 0.33067602, 1)
+shader_parameter/tint = Color(0.7027421, 0.22791082, 0.22136313, 1)
