@@ -1,0 +1,177 @@
+[gd_scene format=3 uid="uid://cnpcscene0001"]
+
+[ext_resource type="Script" uid="uid://bnpcgdscript1" path="res://scripts/npc.gd" id="1_npc"]
+[ext_resource type="PackedScene" path="res://models/ninja_male.fbx" id="2_ninja"]
+[ext_resource type="Script" uid="uid://bnpbubble0001" path="res://scripts/npc_bubble.gd" id="3_bubble"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_talk"]
+radius = 2.5
+
+[sub_resource type="SystemFont" id="SystemFont_prompt"]
+font_names = PackedStringArray("Segoe UI", "Arial")
+font_weight = 600
+
+[sub_resource type="SystemFont" id="SystemFont_bubble"]
+font_names = PackedStringArray("Segoe UI", "Arial")
+font_weight = 700
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.07, 0.07, 0.09, 0.82)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+corner_detail = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_key"]
+content_margin_left = 16.0
+content_margin_top = 6.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+bg_color = Color(0.28, 0.28, 0.32, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.86, 0.86, 0.9, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+corner_detail = 6
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 1
+shadow_offset = Vector2(0, 3)
+
+[node name="Npc" type="Node3D"]
+script = ExtResource("1_npc")
+
+[node name="Model" parent="." instance=ExtResource("2_ninja")]
+transform = Transform3D(-0.55, 0, 0, 0, 0.55, 0, 0, 0, -0.55, 0, 0, 0)
+
+[node name="TalkArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 1
+monitoring = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TalkArea"]
+shape = SubResource("SphereShape3D_talk")
+
+[node name="PromptViewport" type="SubViewport" parent="."]
+transparent_bg = true
+gui_disable_input = true
+size = Vector2i(720, 120)
+render_target_update_mode = 4
+
+[node name="Center" type="CenterContainer" parent="PromptViewport"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Bar" type="PanelContainer" parent="PromptViewport/Center"]
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bar")
+
+[node name="Row" type="HBoxContainer" parent="PromptViewport/Center/Bar"]
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Lead" type="Label" parent="PromptViewport/Center/Bar/Row"]
+mouse_filter = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = SubResource("SystemFont_prompt")
+theme_override_font_sizes/font_size = 32
+text = "presiona"
+vertical_alignment = 1
+
+[node name="Key" type="PanelContainer" parent="PromptViewport/Center/Bar/Row"]
+custom_minimum_size = Vector2(52, 48)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_key")
+
+[node name="KeyLabel" type="Label" parent="PromptViewport/Center/Bar/Row/Key"]
+mouse_filter = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = SubResource("SystemFont_prompt")
+theme_override_font_sizes/font_size = 30
+text = "X"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Trail" type="Label" parent="PromptViewport/Center/Bar/Row"]
+mouse_filter = 2
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = SubResource("SystemFont_prompt")
+theme_override_font_sizes/font_size = 32
+text = "para hablar"
+vertical_alignment = 1
+
+[node name="Prompt" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 0)
+visible = false
+billboard = 1
+transparent = true
+shaded = false
+double_sided = true
+no_depth_test = true
+alpha_cut = 0
+texture_filter = 1
+pixel_size = 0.0065
+
+[node name="BubbleViewport" type="SubViewport" parent="."]
+transparent_bg = true
+gui_disable_input = true
+size = Vector2i(560, 230)
+render_target_update_mode = 4
+
+[node name="BubbleRoot" type="Control" parent="BubbleViewport"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_bubble")
+
+[node name="Dialogue" type="Label" parent="BubbleViewport/BubbleRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 20.0
+offset_right = -28.0
+offset_bottom = -52.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = SubResource("SystemFont_bubble")
+theme_override_font_sizes/font_size = 36
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Bubble" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+visible = false
+billboard = 1
+transparent = true
+shaded = false
+double_sided = true
+no_depth_test = true
+alpha_cut = 0
+texture_filter = 1
+pixel_size = 0.0052

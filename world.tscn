@@ -12,6 +12,7 @@
 [ext_resource type="Shader" uid="uid://dsqfsiysflgtq" path="res://shaders/vertex_wobble.gdshader" id="5_wse8f"]
 [ext_resource type="Material" uid="uid://8bqqad2usjj6" path="res://shaders/new_shader_material.tres" id="7_gbfbk"]
 [ext_resource type="PackedScene" uid="uid://bgijk6bpv8a20" path="res://models/elpunto_test.glb" id="7_pkg7o"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://npc.tscn" id="9_npc"]
 [ext_resource type="Texture2D" uid="uid://3iu1tqvradf2" path="res://textures/elpunto_test_Building_Texture.png" id="8_ioo17"]
 
 [sub_resource type="Environment" id="Environment_5tlb1"]
@@ -295,6 +296,16 @@ surface_material_override/0 = SubResource("ShaderMaterial_ioo17")
 
 [node name="Window_L_001" parent="elpunto_test" index="25" unique_id=1411098450]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6939833, 0.16391659, 2.07056)
+
+[node name="NpcRojo" parent="." instance=ExtResource("9_npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.15, 2)
+tint = Color(1, 0.18, 0.18, 1)
+dialogue = "Hola! Soy Pendejin"
+
+[node name="NpcAzul" parent="." instance=ExtResource("9_npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.15, 5)
+tint = Color(0.2, 0.35, 1, 1)
+dialogue = "Hola!, Soy  Pendejon"
 
 [editable path="test"]
 [editable path="elpunto_test"]
