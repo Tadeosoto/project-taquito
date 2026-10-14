@@ -3,8 +3,9 @@ class_name Player
 
 @export var camera_sensitivity: float = 2.5
 @export var mouse_sensitivity: float = 0.0025
-@export var rotation_speed: float = 5.0
+@export var rotation_speed: float = 16.0
 @export var speed: float = 5.0
+@export var sprint_speed: float = 9.0
 @export var gravity: float = 40.0
 @export var acceleration: float = 15.0
 @export var jump_velocity: float = 13.0
@@ -52,16 +53,32 @@ func _physics_process(delta: float) -> void:
 
 	var direction: Vector3 = right * input_direction.x + forward * -input_direction.y
 
-	if direction.length_squared() > 0.01:
+	var is_moving: bool = direction.length_squared() > 0.01
+	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint")
+	var move_speed: float = sprint_speed if is_sprinting else speed
+	var target_horizontal := Vector3.ZERO
+	if is_moving:
 		var look_target: Vector3 = frijol.global_position + direction
 		var target_transform: Transform3D = frijol.global_transform.looking_at(look_target, Vector3.UP)
 		frijol.global_transform = frijol.global_transform.interpolate_with(
 			target_transform,
-			rotation_speed * delta
+			clampf(rotation_speed * delta, 0.0, 1.0)
 		)
+		var facing: Vector3 = -frijol.global_transform.basis.z
+		facing.y = 0.0
+		facing = facing.normalized()
+		target_horizontal = facing * move_speed
 
-	velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
-	velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
+	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
+	var braking: bool = not is_moving or horizontal.length() > target_horizontal.length() + 0.05
+	if not braking and horizontal.length_squared() > 0.01 and target_horizontal.length_squared() > 0.01:
+		braking = horizontal.normalized().dot(target_horizontal.normalized()) < 0.92
+	if braking:
+		velocity.x = target_horizontal.x
+		velocity.z = target_horizontal.z
+	else:
+		velocity.x = move_toward(velocity.x, target_horizontal.x, acceleration * delta)
+		velocity.z = move_toward(velocity.z, target_horizontal.z, acceleration * delta)
 
 	# Gravity is applied exactly once per frame; on the floor we snap to zero.
 	if is_on_floor():
@@ -84,9 +101,26 @@ func _physics_process(delta: float) -> void:
 	spring_arm.rotation_degrees.x = camera_pitch
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = jump_velocity
+		var npc := _nearby_npc()
+		if npc != null:
+			npc.interact()
+		else:
+			velocity.y = jump_velocity
 
 	move_and_slide()
 
 	if ninja.has_method("update_animation"):
-		ninja.update_animation(direction.length_squared() > 0.01, not is_on_floor())
+		ninja.update_animation(is_moving, not is_on_floor(), is_sprinting)
+
+
+func _nearby_npc() -> Node:
+	var closest: Node = null
+	var closest_distance := INF
+	for npc in get_tree().get_nodes_in_group("npc"):
+		if not npc.has_method("is_player_inside") or not npc.is_player_inside():
+			continue
+		var distance := global_position.distance_squared_to(npc.global_position)
+		if distance < closest_distance:
+			closest_distance = distance
+			closest = npc
+	return closest
