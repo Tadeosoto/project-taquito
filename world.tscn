@@ -3,8 +3,13 @@
 [ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://player.tscn" id="1_f3sb7"]
 [ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="1_k3n1d"]
 [ext_resource type="Shader" uid="uid://5ffny5hm78ie" path="res://shaders/jittershader.gdshader" id="2_pkg7o"]
+[ext_resource type="Shader" uid="uid://bpmkrtay5h8db" path="res://shaders/ps1_combined.gdshader" id="3_k3n1d"]
+[ext_resource type="Texture2D" uid="uid://cpugibjyfeoi0" path="res://textures/TacoLemon_baseColor.png" id="4_2o6r5"]
 [ext_resource type="PackedScene" uid="uid://drp61fuojtmyp" path="res://models/test.glb" id="4_aqk2v"]
+[ext_resource type="Shader" uid="uid://ca8hwmkjvodot" path="res://shaders/affine_warp.gdshader" id="4_ioo17"]
+[ext_resource type="Texture2D" uid="uid://chewd06p8phko" path="res://icon.svg" id="5_2o6r5"]
 [ext_resource type="PackedScene" uid="uid://bvrfruccopfec" path="res://models/scene.gltf" id="5_036b0"]
+[ext_resource type="Shader" uid="uid://dsqfsiysflgtq" path="res://shaders/vertex_wobble.gdshader" id="5_wse8f"]
 [ext_resource type="Material" uid="uid://8bqqad2usjj6" path="res://shaders/new_shader_material.tres" id="7_gbfbk"]
 [ext_resource type="PackedScene" uid="uid://bgijk6bpv8a20" path="res://models/elpunto_test.glb" id="7_pkg7o"]
 [ext_resource type="Texture2D" uid="uid://3iu1tqvradf2" path="res://textures/elpunto_test_Building_Texture.png" id="8_ioo17"]
@@ -28,24 +33,55 @@ shader_parameter/dither_strenght = 0.35
 [sub_resource type="BoxMesh" id="BoxMesh_qhrn2"]
 size = Vector3(20, 0.2, 20)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xs1l0"]
+render_priority = 0
+shader = ExtResource("3_k3n1d")
+shader_parameter/albedo_texture = ExtResource("4_2o6r5")
+shader_parameter/base_color = Color(0.57341814, 0.5409146, 0.5366149, 1)
+shader_parameter/tint = Color(0.43426865, 0.5238716, 1, 1)
+shader_parameter/jitter_enabled = true
+shader_parameter/snap_resolution = 160.0
+shader_parameter/wobble_enabled = true
+shader_parameter/wobble_resolution = 40.0
+shader_parameter/affine_enabled = false
+shader_parameter/warp_strength = 30.0
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_5tlb1"]
 size = Vector3(20, 0.2, 20)
 
 [sub_resource type="BoxMesh" id="BoxMesh_5tlb1"]
 size = Vector3(6.5270996, 8.448242, 0.9667969)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_dwbse"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_k3n1d"]
 render_priority = 0
-shader = ExtResource("2_pkg7o")
-shader_parameter/snap_resolution = 100.0
-shader_parameter/base_color = Color(0.92240787, 0.18868259, 0.6421083, 1)
-shader_parameter/tint = Color(0, 0.73491126, 0.42598096, 1)
+shader = ExtResource("3_k3n1d")
+shader_parameter/albedo_texture = ExtResource("5_2o6r5")
+shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/jitter_enabled = true
+shader_parameter/snap_resolution = 160.0
+shader_parameter/wobble_enabled = true
+shader_parameter/wobble_resolution = 40.0
+shader_parameter/affine_enabled = true
+shader_parameter/warp_strength = 1.0
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_f3sb7"]
 data = PackedVector3Array(-3.2635, 4.2241, 0.4834, 3.2635, 4.2241, 0.4834, -3.2635, -4.2241, 0.4834, 3.2635, 4.2241, 0.4834, 3.2635, -4.2241, 0.4834, -3.2635, -4.2241, 0.4834, 3.2635, 4.2241, -0.4834, -3.2635, 4.2241, -0.4834, 3.2635, -4.2241, -0.4834, -3.2635, 4.2241, -0.4834, -3.2635, -4.2241, -0.4834, 3.2635, -4.2241, -0.4834, 3.2635, 4.2241, 0.4834, 3.2635, 4.2241, -0.4834, 3.2635, -4.2241, 0.4834, 3.2635, 4.2241, -0.4834, 3.2635, -4.2241, -0.4834, 3.2635, -4.2241, 0.4834, -3.2635, 4.2241, -0.4834, -3.2635, 4.2241, 0.4834, -3.2635, -4.2241, -0.4834, -3.2635, 4.2241, 0.4834, -3.2635, -4.2241, 0.4834, -3.2635, -4.2241, -0.4834, 3.2635, 4.2241, 0.4834, -3.2635, 4.2241, 0.4834, 3.2635, 4.2241, -0.4834, -3.2635, 4.2241, 0.4834, -3.2635, 4.2241, -0.4834, 3.2635, 4.2241, -0.4834, -3.2635, -4.2241, 0.4834, 3.2635, -4.2241, 0.4834, -3.2635, -4.2241, -0.4834, 3.2635, -4.2241, 0.4834, 3.2635, -4.2241, -0.4834, -3.2635, -4.2241, -0.4834)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wtxds"]
 size = Vector3(1, 8.4835205, 6.9921265)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5tlb1"]
+render_priority = 0
+shader = ExtResource("3_k3n1d")
+shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
+shader_parameter/tint = Color(0.645742, 0, 0.2303864, 1)
+shader_parameter/jitter_enabled = true
+shader_parameter/snap_resolution = 80.0
+shader_parameter/wobble_enabled = true
+shader_parameter/wobble_resolution = 80.0
+shader_parameter/affine_enabled = true
+shader_parameter/warp_strength = 80.0
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_fj7yv"]
 data = PackedVector3Array(-0.5, 4.2418, 3.4961, 0.5, 4.2418, 3.4961, -0.5, -4.2418, 3.4961, 0.5, 4.2418, 3.4961, 0.5, -4.2418, 3.4961, -0.5, -4.2418, 3.4961, 0.5, 4.2418, -3.4961, -0.5, 4.2418, -3.4961, 0.5, -4.2418, -3.4961, -0.5, 4.2418, -3.4961, -0.5, -4.2418, -3.4961, 0.5, -4.2418, -3.4961, 0.5, 4.2418, 3.4961, 0.5, 4.2418, -3.4961, 0.5, -4.2418, 3.4961, 0.5, 4.2418, -3.4961, 0.5, -4.2418, -3.4961, 0.5, -4.2418, 3.4961, -0.5, 4.2418, -3.4961, -0.5, 4.2418, 3.4961, -0.5, -4.2418, -3.4961, -0.5, 4.2418, 3.4961, -0.5, -4.2418, 3.4961, -0.5, -4.2418, -3.4961, 0.5, 4.2418, 3.4961, -0.5, 4.2418, 3.4961, 0.5, 4.2418, -3.4961, -0.5, 4.2418, 3.4961, -0.5, 4.2418, -3.4961, 0.5, 4.2418, -3.4961, -0.5, -4.2418, 3.4961, 0.5, -4.2418, 3.4961, -0.5, -4.2418, -3.4961, 0.5, -4.2418, 3.4961, 0.5, -4.2418, -3.4961, -0.5, -4.2418, -3.4961)
@@ -56,7 +92,7 @@ size = Vector3(1.9545898, 1.9306641, 1.9086914)
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gbfbk"]
 render_priority = 0
 shader = ExtResource("2_pkg7o")
-shader_parameter/snap_resolution = 80.0
+shader_parameter/snap_resolution = 100.0
 shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
 shader_parameter/tint = Color(0.8316646, 4.3317675e-07, 0.41928408, 1)
 
@@ -66,23 +102,35 @@ data = PackedVector3Array(-0.9773, 0.96529996, 0.9543, 0.9773, 0.96529996, 0.954
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pkg7o"]
 render_priority = 0
 shader = ExtResource("2_pkg7o")
-shader_parameter/snap_resolution = 90.0
+shader_parameter/snap_resolution = 100.0
 shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
 shader_parameter/tint = Color(0.24705882, 0.3254902, 0.6156863, 1)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_g63h3"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_34qb0"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wse8f"]
 render_priority = 0
-shader = ExtResource("2_pkg7o")
+shader = ExtResource("5_wse8f")
+shader_parameter/snap_resolution = 20.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qhrn2"]
+render_priority = 0
+shader = ExtResource("3_k3n1d")
 shader_parameter/albedo_texture = ExtResource("8_ioo17")
+shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/jitter_enabled = true
 shader_parameter/snap_resolution = 80.0
-shader_parameter/base_color = Color(0.9760973, 0, 0.569677, 1)
-shader_parameter/tint = Color(1, 1, 1, 0)
+shader_parameter/wobble_enabled = true
+shader_parameter/wobble_resolution = 80.0
+shader_parameter/affine_enabled = false
+shader_parameter/warp_strength = 3.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cl15p"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_5tlb1"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ioo17"]
+render_priority = 0
+shader = ExtResource("4_ioo17")
+shader_parameter/albedo_texture = ExtResource("8_ioo17")
+shader_parameter/warp_strength = 20.0
 
 [node name="World" type="Node3D" unique_id=1586220694]
 
@@ -117,8 +165,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.719238, 3.2831602)
 [node name="Floor" type="StaticBody3D" parent="." unique_id=1829368055]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=1456239338]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00048565865, -0.02306366, -0.0028498173)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021719694, 0.046681404, -0.015726328)
 mesh = SubResource("BoxMesh_qhrn2")
+surface_material_override/0 = SubResource("ShaderMaterial_xs1l0")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=1963974869]
 shape = SubResource("BoxShape3D_5tlb1")
@@ -129,21 +178,24 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3196225, 1.2984719, -5.7383
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Wall_1" unique_id=1927793171]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 1.2, 0)
 mesh = SubResource("BoxMesh_5tlb1")
-surface_material_override/0 = SubResource("ShaderMaterial_dwbse")
+surface_material_override/0 = SubResource("ShaderMaterial_k3n1d")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Wall_1" unique_id=1542622149]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 1.2, 0)
+visible = false
 shape = SubResource("ConcavePolygonShape3D_f3sb7")
 
 [node name="Wall_2" type="StaticBody3D" parent="." unique_id=1670260290]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7.4568043)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Wall_2" unique_id=1521303565]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7, -1.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.10896486, 3.2787647, -2.0393095)
 mesh = SubResource("BoxMesh_wtxds")
+surface_material_override/0 = SubResource("ShaderMaterial_5tlb1")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Wall_2" unique_id=982363174]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7, -1.1999998)
+visible = false
 shape = SubResource("ConcavePolygonShape3D_fj7yv")
 
 [node name="Box" type="StaticBody3D" parent="." unique_id=1347464106]
@@ -156,6 +208,7 @@ surface_material_override/0 = SubResource("ShaderMaterial_gbfbk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Box" unique_id=1801613116]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.270239, 0.46533203, 0.4543457)
+visible = false
 shape = SubResource("ConcavePolygonShape3D_tlwt5")
 
 [node name="Box2" type="StaticBody3D" parent="." unique_id=260877258]
@@ -168,13 +221,14 @@ surface_material_override/0 = SubResource("ShaderMaterial_pkg7o")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Box2" unique_id=1038038884]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.270239, 0.46533203, 0.4543457)
+visible = false
 shape = SubResource("ConcavePolygonShape3D_tlwt5")
 
 [node name="test" parent="." unique_id=82421953 instance=ExtResource("4_aqk2v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.389908, 0, 0)
 
 [node name="Cube" parent="test" index="0" unique_id=1742573857]
-surface_material_override/0 = SubResource("ShaderMaterial_g63h3")
+surface_material_override/0 = SubResource("ShaderMaterial_wse8f")
 
 [node name="Sketchfab_Scene" parent="." unique_id=1454300067 instance=ExtResource("5_036b0")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.261089, 1.1310298, -0.2867458)
@@ -189,7 +243,7 @@ surface_material_override/0 = ExtResource("7_gbfbk")
 surface_material_override/0 = ExtResource("7_gbfbk")
 
 [node name="Building_01" parent="elpunto_test" index="2" unique_id=2066347760]
-surface_material_override/0 = SubResource("ShaderMaterial_34qb0")
+surface_material_override/0 = SubResource("ShaderMaterial_qhrn2")
 
 [node name="Cube" parent="elpunto_test" index="3" unique_id=1904509131]
 surface_material_override/0 = ExtResource("7_gbfbk")
@@ -237,7 +291,7 @@ surface_material_override/0 = ExtResource("7_gbfbk")
 
 [node name="Window_L" parent="elpunto_test" index="24" unique_id=1820769512]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8325362, 0.16391659, 2.07056)
-material_override = SubResource("ShaderMaterial_5tlb1")
+surface_material_override/0 = SubResource("ShaderMaterial_ioo17")
 
 [node name="Window_L_001" parent="elpunto_test" index="25" unique_id=1411098450]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6939833, 0.16391659, 2.07056)

@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://d3blyfgnfnkrw"]
+
+[ext_resource type="Shader" uid="uid://ca8hwmkjvodot" path="res://shaders/affine_warp.gdshader" id="1_r0t8u"]
+[ext_resource type="Texture2D" uid="uid://3iu1tqvradf2" path="res://textures/elpunto_test_Building_Texture.png" id="2_vnprc"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_r0t8u")
+shader_parameter/albedo_texture = ExtResource("2_vnprc")
+shader_parameter/warp_strength = 20.0
