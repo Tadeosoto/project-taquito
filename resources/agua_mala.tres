@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3 uid="uid://c5ln8wwu517ql"]
+
+[ext_resource type="PackedScene" uid="uid://nao71k8gx1xq" path="res://scenes/aguamala_preview.tscn" id="1_55wdr"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="1_e73bl"]
+
+[resource]
+script = ExtResource("1_e73bl")
+item_name = "Caguama Agua Mala"
+description = "Una cerveza barata que dice contener agua de manantial local. Restaura algo de vida. test"
+inspection_model = ExtResource("1_55wdr")
+metadata/_custom_type_script = "uid://s387l0w3an5w"
