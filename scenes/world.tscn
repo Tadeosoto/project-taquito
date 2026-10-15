@@ -1,19 +1,19 @@
 [gd_scene format=3 uid="uid://c2iut07k626j5"]
 
-[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://player.tscn" id="1_f3sb7"]
-[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="1_k3n1d"]
-[ext_resource type="Shader" uid="uid://5ffny5hm78ie" path="res://shaders/jittershader.gdshader" id="2_pkg7o"]
-[ext_resource type="Shader" uid="uid://bpmkrtay5h8db" path="res://shaders/ps1_combined.gdshader" id="3_k3n1d"]
-[ext_resource type="Texture2D" uid="uid://cpugibjyfeoi0" path="res://textures/TacoLemon_baseColor.png" id="4_2o6r5"]
-[ext_resource type="PackedScene" uid="uid://drp61fuojtmyp" path="res://models/test.glb" id="4_aqk2v"]
-[ext_resource type="Shader" uid="uid://ca8hwmkjvodot" path="res://shaders/affine_warp.gdshader" id="4_ioo17"]
-[ext_resource type="Texture2D" uid="uid://chewd06p8phko" path="res://icon.svg" id="5_2o6r5"]
-[ext_resource type="PackedScene" uid="uid://bvrfruccopfec" path="res://models/scene.gltf" id="5_036b0"]
-[ext_resource type="Shader" uid="uid://dsqfsiysflgtq" path="res://shaders/vertex_wobble.gdshader" id="5_wse8f"]
-[ext_resource type="Material" uid="uid://8bqqad2usjj6" path="res://shaders/new_shader_material.tres" id="7_gbfbk"]
-[ext_resource type="PackedScene" uid="uid://bgijk6bpv8a20" path="res://models/elpunto_test.glb" id="7_pkg7o"]
-[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://npc.tscn" id="9_npc"]
-[ext_resource type="Texture2D" uid="uid://3iu1tqvradf2" path="res://textures/elpunto_test_Building_Texture.png" id="8_ioo17"]
+[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="1_o8fc1"]
+[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://player.tscn" id="2_xo05s"]
+[ext_resource type="Shader" uid="uid://bpmkrtay5h8db" path="res://shaders/ps1_combined.gdshader" id="3_dss4m"]
+[ext_resource type="Texture2D" uid="uid://cpugibjyfeoi0" path="res://textures/TacoLemon_baseColor.png" id="4_7t5mc"]
+[ext_resource type="Texture2D" uid="uid://chewd06p8phko" path="res://icon.svg" id="5_lakw3"]
+[ext_resource type="Shader" uid="uid://5ffny5hm78ie" path="res://shaders/jittershader.gdshader" id="6_pm21f"]
+[ext_resource type="PackedScene" uid="uid://drp61fuojtmyp" path="res://models/test.glb" id="7_2lf6f"]
+[ext_resource type="Shader" uid="uid://dsqfsiysflgtq" path="res://shaders/vertex_wobble.gdshader" id="8_7iits"]
+[ext_resource type="PackedScene" uid="uid://bvrfruccopfec" path="res://models/scene.gltf" id="9_oo54l"]
+[ext_resource type="PackedScene" uid="uid://bgijk6bpv8a20" path="res://models/elpunto_test.glb" id="10_kpybi"]
+[ext_resource type="Material" uid="uid://8bqqad2usjj6" path="res://shaders/new_shader_material.tres" id="11_ctatt"]
+[ext_resource type="Texture2D" uid="uid://3iu1tqvradf2" path="res://textures/elpunto_test_Building_Texture.png" id="12_xgqkh"]
+[ext_resource type="Shader" uid="uid://ca8hwmkjvodot" path="res://shaders/affine_warp.gdshader" id="13_munwf"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://npc.tscn" id="14_ts3gi"]
 
 [sub_resource type="Environment" id="Environment_5tlb1"]
 background_mode = 1
@@ -27,7 +27,7 @@ fog_sun_scatter = 0.1
 fog_density = 0.0196
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wtxds"]
-shader = ExtResource("1_k3n1d")
+shader = ExtResource("1_o8fc1")
 shader_parameter/color_levels = 32.0
 shader_parameter/dither_strenght = 0.35
 
@@ -36,8 +36,8 @@ size = Vector3(20, 0.2, 20)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xs1l0"]
 render_priority = 0
-shader = ExtResource("3_k3n1d")
-shader_parameter/albedo_texture = ExtResource("4_2o6r5")
+shader = ExtResource("3_dss4m")
+shader_parameter/albedo_texture = ExtResource("4_7t5mc")
 shader_parameter/base_color = Color(0.57341814, 0.5409146, 0.5366149, 1)
 shader_parameter/tint = Color(0.43426865, 0.5238716, 1, 1)
 shader_parameter/jitter_enabled = true
@@ -55,8 +55,8 @@ size = Vector3(6.5270996, 8.448242, 0.9667969)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_k3n1d"]
 render_priority = 0
-shader = ExtResource("3_k3n1d")
-shader_parameter/albedo_texture = ExtResource("5_2o6r5")
+shader = ExtResource("3_dss4m")
+shader_parameter/albedo_texture = ExtResource("5_lakw3")
 shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
 shader_parameter/tint = Color(1, 1, 1, 1)
 shader_parameter/jitter_enabled = true
@@ -74,7 +74,7 @@ size = Vector3(1, 8.4835205, 6.9921265)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5tlb1"]
 render_priority = 0
-shader = ExtResource("3_k3n1d")
+shader = ExtResource("3_dss4m")
 shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
 shader_parameter/tint = Color(0.645742, 0, 0.2303864, 1)
 shader_parameter/jitter_enabled = true
@@ -92,7 +92,7 @@ size = Vector3(1.9545898, 1.9306641, 1.9086914)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gbfbk"]
 render_priority = 0
-shader = ExtResource("2_pkg7o")
+shader = ExtResource("6_pm21f")
 shader_parameter/snap_resolution = 100.0
 shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
 shader_parameter/tint = Color(0.8316646, 4.3317675e-07, 0.41928408, 1)
@@ -102,20 +102,20 @@ data = PackedVector3Array(-0.9773, 0.96529996, 0.9543, 0.9773, 0.96529996, 0.954
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pkg7o"]
 render_priority = 0
-shader = ExtResource("2_pkg7o")
+shader = ExtResource("6_pm21f")
 shader_parameter/snap_resolution = 100.0
 shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
 shader_parameter/tint = Color(0.24705882, 0.3254902, 0.6156863, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wse8f"]
 render_priority = 0
-shader = ExtResource("5_wse8f")
+shader = ExtResource("8_7iits")
 shader_parameter/snap_resolution = 20.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qhrn2"]
 render_priority = 0
-shader = ExtResource("3_k3n1d")
-shader_parameter/albedo_texture = ExtResource("8_ioo17")
+shader = ExtResource("3_dss4m")
+shader_parameter/albedo_texture = ExtResource("12_xgqkh")
 shader_parameter/base_color = Color(0.55, 0.55, 0.55, 1)
 shader_parameter/tint = Color(1, 1, 1, 1)
 shader_parameter/jitter_enabled = true
@@ -129,8 +129,8 @@ shader_parameter/warp_strength = 3.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ioo17"]
 render_priority = 0
-shader = ExtResource("4_ioo17")
-shader_parameter/albedo_texture = ExtResource("8_ioo17")
+shader = ExtResource("13_munwf")
+shader_parameter/albedo_texture = ExtResource("12_xgqkh")
 shader_parameter/warp_strength = 20.0
 
 [node name="World" type="Node3D" unique_id=1586220694]
@@ -160,7 +160,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Player" parent="." unique_id=1681743161 instance=ExtResource("1_f3sb7")]
+[node name="Player" parent="." unique_id=1681743161 instance=ExtResource("2_xo05s")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.719238, 3.2831602)
 
 [node name="Floor" type="StaticBody3D" parent="." unique_id=1829368055]
@@ -225,38 +225,38 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.270239, 0.46533203, 0.45434
 visible = false
 shape = SubResource("ConcavePolygonShape3D_tlwt5")
 
-[node name="test" parent="." unique_id=82421953 instance=ExtResource("4_aqk2v")]
+[node name="test" parent="." unique_id=82421953 instance=ExtResource("7_2lf6f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.389908, 0, 0)
 
 [node name="Cube" parent="test" index="0" unique_id=1742573857]
 surface_material_override/0 = SubResource("ShaderMaterial_wse8f")
 
-[node name="Sketchfab_Scene" parent="." unique_id=1454300067 instance=ExtResource("5_036b0")]
+[node name="Sketchfab_Scene" parent="." unique_id=1454300067 instance=ExtResource("9_oo54l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.261089, 1.1310298, -0.2867458)
 
-[node name="elpunto_test" parent="." unique_id=1997434631 instance=ExtResource("7_pkg7o")]
+[node name="elpunto_test" parent="." unique_id=1997434631 instance=ExtResource("10_kpybi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.659224, 2.3148088, -7.455412)
 
 [node name="Bottom_Still" parent="elpunto_test" index="0" unique_id=1166440003]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Bottom_Still_001" parent="elpunto_test" index="1" unique_id=1212380192]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Building_01" parent="elpunto_test" index="2" unique_id=2066347760]
 surface_material_override/0 = SubResource("ShaderMaterial_qhrn2")
 
 [node name="Cube" parent="elpunto_test" index="3" unique_id=1904509131]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Cube_001" parent="elpunto_test" index="4" unique_id=1091170710]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Cube_003" parent="elpunto_test" index="6" unique_id=1751490537]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Cube_004" parent="elpunto_test" index="7" unique_id=710634606]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Cube_005" parent="elpunto_test" index="8" unique_id=1677759860]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.210919, 0.2997713, -0.085184574)
@@ -269,26 +269,26 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.3297648, 0.2997713, -0.085
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4353108, 0.31067586, -0.085184574)
 
 [node name="Foundation" parent="elpunto_test" index="14" unique_id=1608753877]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Left_Frame" parent="elpunto_test" index="15" unique_id=1869449217]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="R_Frame" parent="elpunto_test" index="17" unique_id=497230066]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="R_Frame_001" parent="elpunto_test" index="18" unique_id=75831860]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Roof_1" parent="elpunto_test" index="19" unique_id=479338224]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9735713, 0)
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Top_Frame" parent="elpunto_test" index="22" unique_id=1612296770]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Top_Frame_001" parent="elpunto_test" index="23" unique_id=340877010]
-surface_material_override/0 = ExtResource("7_gbfbk")
+surface_material_override/0 = ExtResource("11_ctatt")
 
 [node name="Window_L" parent="elpunto_test" index="24" unique_id=1820769512]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8325362, 0.16391659, 2.07056)
@@ -297,12 +297,12 @@ surface_material_override/0 = SubResource("ShaderMaterial_ioo17")
 [node name="Window_L_001" parent="elpunto_test" index="25" unique_id=1411098450]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6939833, 0.16391659, 2.07056)
 
-[node name="NpcRojo" parent="." instance=ExtResource("9_npc")]
+[node name="NpcRojo" parent="." unique_id=1248953498 instance=ExtResource("14_ts3gi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.15, 2)
 tint = Color(1, 0.18, 0.18, 1)
 dialogue = "Hola! Soy Pendejin"
 
-[node name="NpcAzul" parent="." instance=ExtResource("9_npc")]
+[node name="NpcAzul" parent="." unique_id=1219732479 instance=ExtResource("14_ts3gi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.15, 5)
 tint = Color(0.2, 0.35, 1, 1)
 dialogue = "Hola!, Soy  Pendejon"
