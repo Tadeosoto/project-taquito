@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3 uid="uid://cw3bneq43coxd"]
+
+[ext_resource type="PackedScene" uid="uid://ceara7pux0un6" path="res://models/taco_pastor.glb" id="1_8eym7"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_h5llw"]
+
+[resource]
+script = ExtResource("2_h5llw")
+item_name = "Taco al Pastor"
+description = "Un taco callejero, frío y grasiento. Tiene un olor sospechoso. Recupera algo de energia"
+inspection_model = ExtResource("1_8eym7")
+metadata/_custom_type_script = "uid://s387l0w3an5w"
