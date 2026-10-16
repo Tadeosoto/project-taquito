@@ -2,12 +2,14 @@
 
 [ext_resource type="Script" uid="uid://51xkaf0digic" path="res://scenes/InventoryUI.gd" id="1_l5txx"]
 [ext_resource type="Script" uid="uid://3ld5127p8qfq" path="res://scripts/InventoryInspectViewer.gd" id="1_wqexf"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_67gaj"]
 [ext_resource type="Resource" uid="uid://c5ln8wwu517ql" path="res://resources/agua_mala.tres" id="2_rp0l5"]
+[ext_resource type="Resource" uid="uid://cw3bneq43coxd" path="res://resources/taco_pastor.tres" id="4_rhf62"]
 
 [node name="InventoryUI" type="CanvasLayer" unique_id=984314711]
 process_mode = 3
 script = ExtResource("1_l5txx")
-test_item = ExtResource("2_rp0l5")
+inventory_items = Array[ExtResource("2_67gaj")]([ExtResource("2_rp0l5"), ExtResource("4_rhf62")])
 
 [node name="MainPanel" type="Control" parent="." unique_id=199812465]
 layout_mode = 3
@@ -31,10 +33,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 63.0
-offset_top = -15.0
-offset_right = -65.0
-offset_bottom = 17.0
+offset_left = 71.0
+offset_top = -76.0
+offset_right = -57.0
+offset_bottom = -44.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -74,24 +76,38 @@ text = "Una cerveza barata que dice contener agua de manantial local. Restaura a
 
 [node name="InspecHint" type="Label" parent="MainPanel" unique_id=1302680916]
 layout_mode = 0
-offset_left = 533.0
-offset_top = 40.0
-offset_right = 632.0
-offset_bottom = 63.0
-text = "Examinar"
+offset_left = 122.0
+offset_top = 295.0
+offset_right = 374.0
+offset_bottom = 328.0
 
 [node name="CombineHint" type="Label" parent="MainPanel" unique_id=654539869]
 layout_mode = 0
-offset_left = 533.0
-offset_top = 63.0
-offset_right = 632.0
-offset_bottom = 86.0
+offset_left = 500.0
+offset_top = 65.0
+offset_right = 599.0
+offset_bottom = 88.0
 text = "Combinar"
 
 [node name="UseHint" type="Label" parent="MainPanel" unique_id=434452821]
 layout_mode = 0
-offset_left = 533.0
-offset_top = 86.0
-offset_right = 632.0
-offset_bottom = 109.0
+offset_left = 501.0
+offset_top = 88.0
+offset_right = 600.0
+offset_bottom = 111.0
 text = "Utilizar"
+
+[node name="ItemCount" type="Label" parent="MainPanel" unique_id=2070876859]
+layout_mode = 0
+offset_left = 21.0
+offset_top = 436.0
+offset_right = 94.0
+offset_bottom = 459.0
+
+[node name="InspectButton" type="Button" parent="MainPanel" unique_id=1826877857]
+layout_mode = 0
+offset_left = 497.0
+offset_top = 34.0
+offset_right = 579.0
+offset_bottom = 65.0
+text = "Examinar"

@@ -4,7 +4,12 @@ extends Node3D
 
 @export var rotation_speed: float = 120.0
 
+var inspection_active: bool = false
+
 func _process(delta: float) -> void:
+	
+	if not inspection_active:
+			return
 	
 	var rotation_input := Input.get_vector(
 		"inspect_left",
@@ -30,3 +35,6 @@ func _process(delta: float) -> void:
 		-85,
 		85
 	)
+
+func set_inspection_active(active: bool) -> void:
+	inspection_active = active
