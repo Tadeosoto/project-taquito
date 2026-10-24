@@ -1,15 +1,11 @@
 [gd_scene format=3 uid="uid://copf6g6b47r4d"]
 
-[ext_resource type="Script" uid="uid://51xkaf0digic" path="res://scenes/InventoryUI.gd" id="1_l5txx"]
+[ext_resource type="Script" uid="uid://51xkaf0digic" path="res://scripts/InventoryUI.gd" id="1_l5txx"]
 [ext_resource type="Script" uid="uid://3ld5127p8qfq" path="res://scripts/InventoryInspectViewer.gd" id="1_wqexf"]
-[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_67gaj"]
-[ext_resource type="Resource" uid="uid://c5ln8wwu517ql" path="res://resources/agua_mala.tres" id="2_rp0l5"]
-[ext_resource type="Resource" uid="uid://cw3bneq43coxd" path="res://resources/taco_pastor.tres" id="4_rhf62"]
 
 [node name="InventoryUI" type="CanvasLayer" unique_id=984314711]
 process_mode = 3
 script = ExtResource("1_l5txx")
-inventory_items = Array[ExtResource("2_67gaj")]([ExtResource("2_rp0l5"), ExtResource("4_rhf62")])
 
 [node name="MainPanel" type="Control" parent="." unique_id=199812465]
 layout_mode = 3
