@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://c2iut07k626j5"]
 
 [ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="1_o8fc1"]
-[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://player.tscn" id="2_xo05s"]
+[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="2_xo05s"]
 [ext_resource type="Shader" uid="uid://bpmkrtay5h8db" path="res://shaders/ps1_combined.gdshader" id="3_dss4m"]
+[ext_resource type="Texture2D" uid="uid://dwbygc24qpqky" path="res://textures/taco_pastor_TacoLemon_baseColor.png" id="4_o8fc1"]
 [ext_resource type="Texture2D" uid="uid://chewd06p8phko" path="res://icon.svg" id="5_lakw3"]
 [ext_resource type="Shader" uid="uid://5ffny5hm78ie" path="res://shaders/jittershader.gdshader" id="6_pm21f"]
 [ext_resource type="PackedScene" uid="uid://drp61fuojtmyp" path="res://models/test.glb" id="7_2lf6f"]
@@ -12,7 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://3iu1tqvradf2" path="res://textures/elpunto_test_Building_Texture.png" id="12_xgqkh"]
 [ext_resource type="PackedScene" uid="uid://ceara7pux0un6" path="res://models/taco_pastor.glb" id="13_jhx03"]
 [ext_resource type="Shader" uid="uid://ca8hwmkjvodot" path="res://shaders/affine_warp.gdshader" id="13_munwf"]
-[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://npc.tscn" id="14_ts3gi"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="14_ts3gi"]
 
 [sub_resource type="Environment" id="Environment_5tlb1"]
 background_mode = 1
@@ -33,13 +34,10 @@ shader_parameter/dither_strenght = 0.35
 [sub_resource type="BoxMesh" id="BoxMesh_qhrn2"]
 size = Vector3(20, 0.2, 20)
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_o8fc1"]
-load_path = "res://.godot/imported/TacoLemon_baseColor.png-527ac88968c3f18e617a89a5bbe5ba22.s3tc.ctex"
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xs1l0"]
 render_priority = 0
 shader = ExtResource("3_dss4m")
-shader_parameter/albedo_texture = SubResource("CompressedTexture2D_o8fc1")
+shader_parameter/albedo_texture = ExtResource("4_o8fc1")
 shader_parameter/base_color = Color(0.57341814, 0.5409146, 0.5366149, 1)
 shader_parameter/tint = Color(0.43426865, 0.5238716, 1, 1)
 shader_parameter/jitter_enabled = true
