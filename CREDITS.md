@@ -7,6 +7,10 @@
 - Modelo 3D generado con [OSM2World](https://osm2world.org/) (MIT), con su estilo estándar y texturas CC0.
 - Tiendas, puestos y farmacias del mapa: INEGI, *Directorio Estadístico Nacional de Unidades Económicas* (DENUE) 05/2026, [Términos de Libre Uso de la Información del INEGI](https://www.inegi.org.mx/inegi/terminos.html).
 
+## Texturas de fachadas (`textures/map/`, estilo "fotos")
+
+- Aplanado, puerta, cortinas y azoteas recortados de texturas de [Poly Haven](https://polyhaven.com) (CC0): white_stucco, rough_pine_door, painted_metal_shutter, worn_shutter, red_plaster_weathered y painted_plaster_wall; el suelo (dirt_floor) y las banquetas (dirty_concrete). Las ventanas y la herrería son dibujos propios (`tools/map_import/make_textures.py`).
+
 ## Tiendas (`models/tiendas/`, Sketchfab)
 
 - [Mexican Store (Tienda 3B) - Low Poly PSX Asset](https://sketchfab.com/3d-models/e3c3ac9a198349479429d5bcee2f39c9) de Mezaiah la cabra, licencia CC Attribution (`models/tiendas/tienda_3b/`).

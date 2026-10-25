@@ -15,8 +15,10 @@ uniform float wobble_resolution = 40.0;
 uniform bool affine_enabled = true;
 uniform float warp_strength = 80.0;
 
-// Applies wobble to `vertex`, writes the affine UV and returns the jittered
-// clip position (only meaningful when jitter_enabled is true).
+// Applies wobble to `vertex`, writes the affine UV and returns the clip
+// position (snapped when jitter_enabled). Callers must always write it to
+// POSITION: a shader that writes POSITION only sometimes leaves the vertex
+// at the origin otherwise and the mesh disappears.
 vec4 ps1_vertex(inout vec3 vertex, vec2 uv, mat4 modelview, mat4 projection, out vec2 affine_uv_out) {
 	// Depth (view-space z) is sampled before anything else so the affine UV
 	// and the jitter both use the original geometry position.
@@ -40,6 +42,9 @@ vec4 ps1_vertex(inout vec3 vertex, vec2 uv, mat4 modelview, mat4 projection, out
 
 	// 3. Screen-space vertex jitter (PS1 vertex snapping).
 	vec4 clip_position = projection * modelview * vec4(vertex, 1.0);
+	if (!jitter_enabled) {
+		return clip_position;
+	}
 	vec2 screen_position = clip_position.xy / clip_position.w;
 	screen_position =
 		round(screen_position * snap_resolution)

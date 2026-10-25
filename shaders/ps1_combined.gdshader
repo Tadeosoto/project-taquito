@@ -20,9 +20,7 @@ void vertex() {
 	vec4 clip_position = ps1_vertex(vertex, UV, MODELVIEW_MATRIX, PROJECTION_MATRIX, uv_out);
 	VERTEX = vertex;
 	affine_uv = uv_out;
-	if (jitter_enabled) {
-		POSITION = clip_position;
-	}
+	POSITION = clip_position;
 }
 
 void fragment() {

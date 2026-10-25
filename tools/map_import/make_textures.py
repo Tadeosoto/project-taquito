@@ -6,17 +6,45 @@ Cada mosaico mide TILE px y equivale a 2.5 x 2.5 m (un piso de OSM2World).
 - textures/map/fachadas_mascara.png: blanco = pared (se pinta del color de la
   casa), negro = ventana/puerta/cortina (se queda con su color).
 - textures/map/azoteas.png: 2 mosaicos, impermeabilizante rojo y losa gris.
+- textures/map/suelo.png: tierra para el piso entre casas (shaders/ps1_suelo y el
+  terreno de OSM2World) y textures/map/banqueta.png (MapPostImport.GROUND_TEXTURES).
 
-Son dibujos propios (sin licencia de terceros); se pueden reemplazar por fotos
-recortadas al mismo acomodo. Uso: python3 -I tools/map_import/make_textures.py
+Dos estilos:
+- dibujado (default): todo son dibujos propios, sin licencia de terceros.
+- fotos: el aplanado, la puerta, las cortinas y las azoteas salen de texturas
+  CC0 de Poly Haven (FOTOS, se bajan a tools/map_import/bin/texturas_cc0/);
+  las ventanas con herreria se siguen dibujando encima.
+
+Uso: python3 -I tools/map_import/make_textures.py [--estilo fotos]
+Despues: borrar .godot/imported/zona_mapa.glb-*, reimportar y correr
+split_cuadros.gd (los materiales de los cuadros copian estas texturas).
 """
 
+import argparse
+import json
 import os
 import subprocess
+import urllib.request
 
 TILE = 64
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_DIR = os.path.join(ROOT, "textures", "map")
+CC0_DIR = os.path.join(ROOT, "tools", "map_import", "bin", "texturas_cc0")
+
+# Texturas CC0 de https://polyhaven.com para el estilo "fotos"
+FOTOS = {
+	"aplanado": "white_stucco",
+	"puerta": "rough_pine_door",
+	"cortina": "painted_metal_shutter",
+	"zaguan": "worn_shutter",
+	"impermeabilizante": "red_plaster_weathered",
+	"losa": "painted_plaster_wall",
+	"suelo": "dirt_floor",
+	"banqueta": "dirty_concrete",
+}
+
+# Lado (px) de textures/map/suelo.png; el shader ps1_suelo la repite cada 3 m
+SUELO_PX = 128
 
 FRAME = "#cfc9be"
 GLASS = "#2c3a48"
@@ -62,6 +90,12 @@ TILES = {
 	(3, 1): [("#2a2d31", 3, 12, 60, 15)] + striped(4, 15, 59, 63, "#3b3f45", "#2a2d31", 4, vertical=True),
 }
 
+# En el estilo fotos, ("foto:<clave de FOTOS>", x0, y0, x1, y1) pega un recorte de la foto
+TILES_FOTOS = dict(TILES)
+TILES_FOTOS[(0, 1)] = [(FRAME, 19, 15, 44, 63), ("foto:puerta", 22, 18, 41, 63), ("#d9b44a", 38, 40, 39, 41)]
+TILES_FOTOS[(1, 1)] = [("#e0b030", 3, 3, 60, 11), ("#55585b", 4, 12, 59, 17), ("foto:cortina", 6, 17, 57, 63)]
+TILES_FOTOS[(3, 1)] = [("#2a2d31", 3, 12, 60, 15), ("foto:zaguan", 4, 15, 59, 63)]
+
 ROOF_TILES = [
 	("#a5432f", "#8e3826"),  # impermeabilizante rojo
 	("#9a9a96", "#7f7f7b"),  # losa de concreto
@@ -72,11 +106,48 @@ def magick(*args) -> None:
 	subprocess.run(["magick", *args], check=True)
 
 
+def foto_path(key: str) -> str:
+	"""Baja (una vez) el color 1k de una textura de Poly Haven."""
+	asset = FOTOS[key]
+	path = os.path.join(CC0_DIR, f"{asset}.jpg")
+	if not os.path.exists(path):
+		os.makedirs(CC0_DIR, exist_ok=True)
+		request = urllib.request.Request(f"https://api.polyhaven.com/files/{asset}",
+			headers={"User-Agent": "taquito-map-import/1.0"})
+		with urllib.request.urlopen(request, timeout=60) as response:
+			url = json.load(response)["Diffuse"]["1k"]["jpg"]["url"]
+		print(f"  bajando {asset}...")
+		urllib.request.urlretrieve(url, path)
+	return path
+
+
+def foto_tile(key: str, size: int) -> str:
+	"""La foto completa achicada: las de Poly Haven se repiten sin costura, un recorte no."""
+	out = os.path.join(CC0_DIR, f"_{key}_{size}.png")
+	magick(foto_path(key), "-resize", f"{size}x{size}!", "-type", "TrueColor", out)
+	return out
+
+
+def foto_crop(key: str, width: int, height: int) -> str:
+	"""Recorte de la foto ya al tamano del hueco (pixel art: sin suavizar de mas)."""
+	out = os.path.join(CC0_DIR, f"_{key}_{width}x{height}.png")
+	magick(foto_path(key), "-gravity", "center", "-crop", "70%x70%+0+0", "+repage",
+		"-resize", f"{width}x{height}!", "-type", "TrueColor", out)
+	return out
+
+
 def draw_args(shapes, ox, oy, color_override=None):
 	args = []
 	for color, x0, y0, x1, y1 in shapes:
 		fill = color_override if color_override else color
 		if color_override and color == "#00000000":
+			continue
+		if color.startswith("foto:"):
+			if color_override:
+				args += ["-fill", fill, "-draw", f"rectangle {ox + x0},{oy + y0} {ox + x1},{oy + y1}"]
+			else:
+				crop = foto_crop(color[5:], x1 - x0 + 1, y1 - y0 + 1)
+				args += ["-draw", f"image over {ox + x0},{oy + y0} 0,0 '{crop}'"]
 			continue
 		if x0 == x1 or y0 == y1:
 			args += ["-stroke", fill, "-draw", f"line {ox + x0},{oy + y0} {ox + x1},{oy + y1}", "-stroke", "none"]
@@ -86,32 +157,66 @@ def draw_args(shapes, ox, oy, color_override=None):
 
 
 def main() -> None:
+	parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+	parser.add_argument("--estilo", choices=["dibujado", "fotos"], default="dibujado")
+	estilo = parser.parse_args().estilo
 	os.makedirs(OUT_DIR, exist_ok=True)
 	width, height = TILE * 4, TILE * 2
 
-	# Color: aplanado claro con un poco de ruido, mas sucio abajo en planta baja
-	color_args = ["-size", f"{width}x{height}", "xc:#e8e4dc", "-seed", "7",
-		"-attenuate", "0.25", "+noise", "Uniform", "-colorspace", "sRGB",
-		"-fill", "#c9c1b2", "-draw", f"rectangle 0,{height - 5} {width},{height}"]
+	if estilo == "fotos":
+		# Aplanado de foto en gris claro: el shader lo pinta del color de la casa
+		tiles = TILES_FOTOS
+		base = ["(", foto_path("aplanado"), "-resize", f"{TILE * 2}x{TILE * 2}!", "-colorspace", "gray",
+			"-auto-level", "+level", "72%,100%", "-colorspace", "sRGB", "-write", "mpr:aplanado", "+delete", ")",
+			"-size", f"{width}x{height}", "tile:mpr:aplanado"]
+	else:
+		# Aplanado claro con un poco de ruido
+		tiles = TILES
+		base = ["-size", f"{width}x{height}", "xc:#e8e4dc", "-seed", "7",
+			"-attenuate", "0.25", "+noise", "Uniform", "-colorspace", "sRGB"]
+	# Mas sucio abajo en planta baja
+	color_args = base + ["-fill", "#c9c1b2", "-draw", f"rectangle 0,{height - 5} {width},{height}"]
 	mask_args = ["-size", f"{width}x{height}", "xc:white"]
-	for (col, row), shapes in TILES.items():
+	for (col, row), shapes in tiles.items():
 		color_args += draw_args(shapes, col * TILE, row * TILE)
 		mask_args += draw_args(shapes, col * TILE, row * TILE, color_override="black")
 	magick(*color_args, "-type", "TrueColor", "-depth", "8", os.path.join(OUT_DIR, "fachadas.png"))
 	magick(*mask_args, "-type", "Grayscale", "-depth", "8", os.path.join(OUT_DIR, "fachadas_mascara.png"))
 
-	# Azoteas: base con ruido y juntas cada 16 px
-	roof_args = ["-size", f"{TILE * len(ROOF_TILES)}x{TILE}", "xc:black"]
-	for i, (base, seam) in enumerate(ROOF_TILES):
-		ox = i * TILE
-		roof_args += ["-fill", base, "-draw", f"rectangle {ox},0 {ox + TILE - 1},{TILE - 1}"]
-		for k in range(0, TILE, 16):
-			roof_args += ["-stroke", seam, "-draw", f"line {ox + k},0 {ox + k},{TILE - 1}",
-				"-draw", f"line {ox},{k} {ox + TILE - 1},{k}", "-stroke", "none"]
-	roof_args += ["-seed", "3", "-attenuate", "0.2", "+noise", "Uniform", "-colorspace", "sRGB", "-type", "TrueColor", "-depth", "8"]
-	magick(*roof_args, os.path.join(OUT_DIR, "azoteas.png"))
+	roof_path = os.path.join(OUT_DIR, "azoteas.png")
+	if estilo == "fotos":
+		# Impermeabilizante rojo y losa: recortes de foto lado a lado
+		magick(foto_tile("impermeabilizante", TILE), foto_tile("losa", TILE), "+append",
+			"-type", "TrueColor", "-depth", "8", roof_path)
+	else:
+		# Azoteas: base con ruido y juntas cada 16 px
+		roof_args = ["-size", f"{TILE * len(ROOF_TILES)}x{TILE}", "xc:black"]
+		for i, (base_color, seam) in enumerate(ROOF_TILES):
+			ox = i * TILE
+			roof_args += ["-fill", base_color, "-draw", f"rectangle {ox},0 {ox + TILE - 1},{TILE - 1}"]
+			for k in range(0, TILE, 16):
+				roof_args += ["-stroke", seam, "-draw", f"line {ox + k},0 {ox + k},{TILE - 1}",
+					"-draw", f"line {ox},{k} {ox + TILE - 1},{k}", "-stroke", "none"]
+		roof_args += ["-seed", "3", "-attenuate", "0.2", "+noise", "Uniform", "-colorspace", "sRGB", "-type", "TrueColor", "-depth", "8"]
+		magick(*roof_args, roof_path)
 
-	print(f"OK: texturas en {OUT_DIR}")
+	suelo_path = os.path.join(OUT_DIR, "suelo.png")
+	banqueta_path = os.path.join(OUT_DIR, "banqueta.png")
+	if estilo == "fotos":
+		magick(foto_tile("suelo", SUELO_PX), "-depth", "8", suelo_path)
+		magick(foto_tile("banqueta", SUELO_PX), "-depth", "8", banqueta_path)
+	else:
+		# Tierra: cafe con ruido y unas piedritas
+		magick("-size", f"{SUELO_PX}x{SUELO_PX}", "xc:#7a6248", "-seed", "11", "-attenuate", "0.6",
+			"+noise", "Uniform", "-colorspace", "sRGB", "-fill", "#9a8a72", "-draw", "point 20,30",
+			"-draw", "point 90,70", "-draw", "point 50,110", "-type", "TrueColor", "-depth", "8", suelo_path)
+		# Banqueta: concreto gris con juntas
+		magick("-size", f"{SUELO_PX}x{SUELO_PX}", "xc:#a9a59c", "-seed", "5", "-attenuate", "0.3",
+			"+noise", "Uniform", "-colorspace", "sRGB", "-stroke", "#8a867e",
+			"-draw", f"line 0,0 {SUELO_PX},0", "-draw", f"line 0,0 0,{SUELO_PX}",
+			"-type", "TrueColor", "-depth", "8", banqueta_path)
+
+	print(f"OK: texturas ({estilo}) en {OUT_DIR}")
 
 
 if __name__ == "__main__":

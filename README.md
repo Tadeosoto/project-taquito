@@ -53,7 +53,7 @@ La zona va de **20.606286, −103.423463** a **20.590700, −103.406515** (Zapop
   - La geometría sale de [OpenStreetMap](https://www.openstreetmap.org), convertida a 3D con [OSM2World](https://osm2world.org).
   - OSM solo tiene ~970 casas en la zona; el resto viene de [Google Open Buildings](https://sites.research.google/open-buildings/) (huellas detectadas por satélite).
   - Las casas sin datos salen de 1–2 pisos, con techo plano y un color de fachada.
-- **Fachadas mexicanas**: un shader pinta en cada tramo de pared ventanas con herrería, puertas, cortinas metálicas y zaguanes, del color de cada casa. Las azoteas salen con impermeabilizante rojo o losa gris. Las texturas son dibujos propios (`tools/map_import/make_textures.py`).
+- **Fachadas mexicanas**: un shader pinta en cada tramo de pared ventanas con herrería, puertas, cortinas metálicas y zaguanes, del color de cada casa. Las azoteas salen con impermeabilizante rojo o losa gris. Las texturas salen de `tools/map_import/make_textures.py`: con `--estilo fotos` (el actual) usa fotos CC0 de [Poly Haven](https://polyhaven.com) para aplanado, puertas, cortinas y azoteas; con `--estilo dibujado` todo es dibujo propio. El suelo de tierra y las banquetas también son fotos de Poly Haven.
 - **Negocios reales**: 85 negocios del [DENUE del INEGI](https://www.inegi.org.mx/app/descarga/?ti=6) (tiendas, taquerías, OXXO, farmacias, tortillerías, puestos y una gasolinera).
   - De varios negocios del mismo giro muy juntos, solo se deja uno: a menos de 80 m, o 150 m en tiendas de abarrotes.
   - Cada tienda ocupa el lote de una casa y mira hacia la calle.
@@ -100,11 +100,11 @@ SKETCHFAB_TOKEN=xxxx python3 -I tools/map_import/fetch_sketchfab.py
 scenes/         escenas (.tscn)
 scripts/        GDScript del juego
 scripts/map/    mapa real: post-import, streaming, tiendas, dron
-shaders/        shaders PS1 (ps1_combined, ps1_facade y ps1_vertex.gdshaderinc, compartido)
+shaders/        shaders PS1 (ps1_combined, ps1_facade, ps1_suelo y ps1_vertex.gdshaderinc, compartido)
 models/         modelos 3D; models/tiendas/ = modelos de Sketchfab
 resources/      items del inventario (.tres); resources/map/ = mapa generado
 data/map/       datos de entrada del mapa (OSM, Google, DENUE, correcciones a mano)
-textures/map/   texturas de fachadas y azoteas
+textures/map/   texturas de fachadas, azoteas, suelo y banquetas
 tools/map_import/  scripts para generar el mapa
 ```
 

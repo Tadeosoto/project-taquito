@@ -5,6 +5,8 @@
 [ext_resource type="Shader" uid="uid://bpmkrtay5h8db" path="res://shaders/ps1_combined.gdshader" id="3_ps1"]
 [ext_resource type="Script" path="res://scripts/map/MapStreamer.gd" id="4_streamer"]
 [ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="10_dron"]
+[ext_resource type="Shader" path="res://shaders/ps1_suelo.gdshader" id="11_suelo"]
+[ext_resource type="Texture2D" uid="uid://btfh1d6mytpei" path="res://textures/map/suelo.png" id="12_suelo_tex"]
 [ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="5_puntos"]
 [ext_resource type="PackedScene" uid="uid://777ox0vha2uj" path="res://models/tiendas/oxxo/scene.gltf" id="6_oxxo"]
 [ext_resource type="PackedScene" uid="uid://cnex0skop3mbk" path="res://models/tiendas/tienda_3b/scene.gltf" id="7_tienda"]
@@ -31,8 +33,10 @@ shader_parameter/dither_strenght = 0.35
 size = Vector2(1900, 1900)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_suelo"]
-shader = ExtResource("3_ps1")
-shader_parameter/tint = Color(0.52, 0.48, 0.4, 1)
+shader = ExtResource("11_suelo")
+shader_parameter/albedo_texture = ExtResource("12_suelo_tex")
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/tile_size = 3.0
 shader_parameter/jitter_enabled = false
 shader_parameter/snap_resolution = 160.0
 shader_parameter/wobble_enabled = false
@@ -74,7 +78,7 @@ mouse_filter = 2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Suelo"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_suelo")
 surface_material_override/0 = SubResource("ShaderMaterial_suelo")
