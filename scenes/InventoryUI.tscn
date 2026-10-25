@@ -54,6 +54,12 @@ transform = Transform3D(0.70710677, -0.49999997, 0.49999997, 0, 0.70710677, 0.70
 
 [node name="ItemPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=1604028138]
 
+[node name="RightPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=708181006]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -0.5)
+
+[node name="LeftPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=84776279]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -0.5)
+
 [node name="ItemName" type="Label" parent="MainPanel" unique_id=607519557]
 layout_mode = 0
 offset_left = 50.0
