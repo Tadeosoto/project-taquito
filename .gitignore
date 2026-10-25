@@ -3,3 +3,10 @@
 /android/
 addons/
 icon.svg.import
+
+# Mapa: OSM2World (~450 MB) y el .osm intermedio se bajan/generan con tools/map_import/build_glb.sh
+tools/map_import/bin/
+# El mapa .glb (~47 MB) se genera con build_glb.sh; el juego usa resources/map/cuadros/
+models/zona_mapa.glb
+models/zona_mapa.glb.import
+__pycache__/

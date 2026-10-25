@@ -1,0 +1,70 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+"Guadalajaja" — a Godot 4.7 (Forward Plus, Jolt Physics) third-person 3D prototype with a PS1-style look. All gameplay code is GDScript; there is no build system, linter or test suite. Code comments and in-game UI text are in (informal) Spanish — keep new player-facing strings in Spanish.
+
+## Commands
+
+Godot 4.7 is installed as `godot`.
+
+```bash
+godot --path . --editor            # open in the editor
+godot --path .                     # run the main scene (scenes/world.tscn)
+godot --path . scenes/InventoryUI.tscn   # run a single scene in isolation
+godot --path . --headless --import # (re)import assets / regenerate .godot cache
+godot --path . --headless --check-only --script res://scripts/player.gd  # parse-check one script
+```
+
+## Architecture
+
+- **Main scene**: `scenes/world.tscn` (referenced by UID `uid://c2iut07k626j5` in `project.godot`). It instances `player.tscn`, two `npc.tscn` instances (configured per-instance via exported `tint` and `dialogue`), level geometry from `models/*.glb`, and a `PS1_Postprocess` CanvasLayer whose full-screen ColorRect runs `shaders/dittershader.gdshader` over the screen texture. Render resolution is 640×480 with `viewport` stretch mode and nearest texture filtering — this is intentional for the retro look.
+- **Player** (`scripts/player.gd`, `class_name Player`): CharacterBody3D. Movement is camera-relative (`CameraPivot` yaw + `SpringArm3D` pitch); the visual body is the child `Frijol`, which is rotated toward the movement direction separately from the physics body. The `jump` action doubles as "interact": if any node in the `npc` group reports `is_player_inside()`, the nearest one gets `interact()` instead of jumping. Animation is delegated to `Frijol/Ninja` via duck-typed `update_animation(is_moving, is_airborne, is_sprinting)` (`scripts/character_animation.gd`).
+- **Animation clips** are looked up by suffix (`"Idle"` matches `"...|Idle"`) because the imported FBX (`models/ninja_male.fbx`) prefixes clip names; loop mode is forced in code. Both player and NPC share this model.
+- **NPC** (`scripts/npc.gd`): registers itself in group `npc`; a `TalkArea` Area3D detects the `Player`. The interaction prompt and speech bubble are 2D UIs rendered into SubViewports and displayed on `Sprite3D`s. The prompt key label switches between keyboard ("Space") and gamepad ("X") based on the last input device.
+- **Inventory system**:
+  - `Inventory` autoload (`scripts/Inventory.gd`) holds `items: Array[InventoryItemData]` and emits `inventory_changed` on every mutation. `_ready()` currently seeds temporary test items from `resources/*.tres`.
+  - `InventoryItemData` (`scripts/InventoryItemData.gd`) is a `Resource` with name, description, icon and `inspection_model` (a PackedScene whose root must be `Node3D`). Items are authored as `.tres` files in `resources/`, each pointing at a `scenes/*_preview.tscn` wrapper around a model.
+  - `scenes/InventoryUI.tscn` / `scripts/InventoryUI.gd`: CanvasLayer with a NAVIGATING/INSPECTING state machine; Q/E cycle items, Enter inspects, Esc goes back. The 3D preview lives in a SubViewport whose `PreviewWorld` node runs `InventoryInspectViewer.gd` (arrow-key rotation of `ItemPivot`, PageUp/PageDown or mouse-wheel zoom).
+  - `scripts/WorldItem.gd`: pickup that adds its `item_data` to `Inventory` on `interact()` and frees itself.
+  - Current wiring gaps: `InventoryUI.tscn` is not instanced in `world.tscn`, and the player's interact logic only queries the `npc` group, so `WorldItem.interact()` is not yet called by anything.
+- **Shaders** (`shaders/`): `ps1_combined.gdshader` merges the three standalone experiments (`jittershader` screen-space vertex snap, `vertex_wobble` view-space snap, `affine_warp` affine UVs) with per-effect toggles — prefer it for new materials.
+
+## Real-world map pipeline (`tools/map_import/`)
+
+`models/zona_mapa.glb` is a real area of Zapopan built from OpenStreetMap with OSM2World 0.4.0 (Java). It is gitignored (~47 MB): the game only loads the chunks in `resources/map/cuadros/`, which are committed. Regenerate the .glb with the commands below before running `split_cuadros.gd`. The bbox lives in `tools/map_import/area.env`. `README.md` has the user-facing (Spanish) overview.
+
+```bash
+bash tools/map_import/fetch_osm.sh      # Overpass -> data/map/area.osm (needs a User-Agent; falls back to mirrors on 504)
+python3 -I tools/map_import/fetch_denue.py  # INEGI DENUE -> data/map/denue_puntos.json (stores/puestos)
+python3 -I tools/map_import/fetch_google_buildings.py  # streams Google Open Buildings tile 843 (~1.7 GB, ~3 min), keeps only the bbox -> data/map/google_buildings.csv
+bash tools/map_import/build_glb.sh      # downloads OSM2World to tools/map_import/bin/ (gitignored, ~450 MB), runs prepare_osm.py, writes the .glb
+godot --path . --headless --import      # runs scripts/map/MapPostImport.gd on the .glb
+godot --path . --headless -s tools/map_import/split_cuadros.gd  # one .scn per chunk -> resources/map/cuadros/ (what the game loads)
+godot --path . scenes/map_test.tscn     # walk the map
+```
+
+- `prepare_osm.py` crops ways to the bbox (+30 m), gives buildings without height 1–2 levels, a flat roof and a facade color (deterministic per OSM id), applies `data/map/overrides.json` (`"way/<id>": {tag: value|null}` — manual fixes from looking at Street View), and writes `<bounds>` so the model origin is the bbox center.
+- `tools/map_import/osm2world.properties` is appended to OSM2World's `standard.properties`; OSM2World must run from its own folder because texture paths are relative.
+- `build_glb.sh` runs OSM2World with `--lod 1` (no 3D windows; LOD 0 gives the same result) and, once, downsizes OSM2World's own textures to 256 px with ImageMagick. Result: ~40k triangles, ~11 MB. `tools/map_import/bin/.gdignore` keeps Godot from importing OSM2World's bundled models/textures. OSM2World skips meshes that fail instead of exiting with an error, so the script checks `bin/osm2world.log` and fails if the .glb has no `Building` nodes.
+- `MapPostImport.gd` (set as `import_script/path` in `zona_mapa.glb.import`) swaps every material for a `ps1_combined` ShaderMaterial (tint = original albedo color, `use_vertex_color = true` because OSM2World stores each house's `building:colour` as vertex color), adds trimesh collision except to vegetation, and sets `visibility_range_end`. The import keeps textures embedded (`gltf/embedded_image_handling=3`).
+- Editing `MapPostImport.gd` does **not** trigger a reimport, and neither does `touch`: delete `.godot/imported/zona_mapa.glb-*` and run `--import` again. If an import fails, Godot writes `valid=false` into `zona_mapa.glb.import` and never retries; delete that line.
+- OSM only has ~970 buildings here (one housing development north of the center); Microsoft footprints have even fewer (~140). `prepare_osm.py` fills the gaps with Google Open Buildings (CC BY 4.0): it keeps confidence ≥ 0.70 and area ≥ 20 m², skips any footprint that overlaps an OSM building, and adds the rest as ways with ids from `2*10**15` and `source=Google Open Buildings v3`. Result: ~7,900 buildings.
+- The post-import merges the ~18k OSM2World meshes into 128 m chunks (one ArrayMesh per material per chunk, vegetation in a separate chunk without collision): ~200 nodes, ~85 draw calls. Per-building nodes and OSM ids don't survive the import.
+- **Streaming**: `map_test.tscn` does not instance `zona_mapa.glb`. `split_cuadros.gd` saves each chunk as `resources/map/cuadros/cuadro_<x>_<z>[_vegetacion].scn`, shares the 15 materials as `materiales/*.res`, and writes `indice.json` with each chunk's real XZ extent. A mesh is assigned to the chunk of its center, so long roads and power lines make some chunks up to ~1.2 km wide. `scripts/map/MapStreamer.gd` (`Mapa` node, `target_path` = Player) loads synchronously the chunks within `load_radius` (300 m, measured to the extent rectangle) at start, then loads the rest with `ResourceLoader.load_threaded_request`, and frees the ones beyond `unload_radius` (400 m). About 40 of the 201 chunks are loaded at a time. `MapPuntos` streams stores the same way at runtime (250/320 m) but shows all of them in the editor. The chunks must be regenerated after every reimport of the .glb. In the editor, `map_test.tscn` shows no map, because MapStreamer is not `@tool`.
+- **Drone mode**: the `Dron` node (`scripts/map/MapDron.gd`) in `map_test.tscn` starts active (`iniciar_en_dron`). It flies at a fixed `altura` (30 m) at `velocidad` (15 m/s, Shift ×3) with the camera pitched down; WASD moves it, and mouse or Q/E rotates it. Fog drops to `niebla_dron` while flying. **V** switches to the player, who is frozen while flying and lands under the drone via a downward raycast (street or roof). `MapStreamer` and `MapPuntos` use `Dron` as `target_path`; when not flying, the drone follows the player.
+- The OSM2World textures are downsized to 256 px and forced to PNG32 or color JPG; gray+alpha PNGs make Java fail with `Unknown image type 0` and OSM2World silently drops every mesh using the texture atlas.
+- **Facades**: `MapPostImport.BUILDING_ROLES` maps the only two building materials at LOD 1 (`Plaster002` walls, `Concrete034` flat roofs; Concrete034 is also used by sidewalks, so it only applies to meshes under a `Building*` node) to `shaders/ps1_facade.gdshader`. That shader picks a random tile per 2.5 m bay and level from `textures/map/fachadas.png` (row 1 = ground floor: door/cortina/window/zaguán) and tints the wall part (`fachadas_mascara.png`) with the vertex color. The textures are drawn by `python3 -I tools/map_import/make_textures.py`. The PS1 vertex stage is shared through `shaders/ps1_vertex.gdshaderinc`, which `ps1_combined` also includes.
+- **Stores (puntos)**: `python3 -I tools/map_import/fetch_denue.py` downloads INEGI's DENUE for Jalisco (~40 MB zip, Latin-1 CSV), keeps the bbox and maps SCIAN codes to tipos (`TIPOS_SCIAN`; `Semifijo` = puesto, OXXO by name) -> `data/map/denue_puntos.json`. Google Maps/Places can't be used: their terms forbid extracting places. `data/map/puntos.json` is for manual points plus an `omitir` list of `origen` ids to drop bad DENUE/OSM points; `prepare_osm.py` also takes shop/amenity points from OSM. It keeps only one point per tipo within 80 m (150 m for `tienda`, `DUPLICATE_DIST_TIPO`) (priority manual > DENUE > OSM), snaps each store to the house it's in or the nearest one within 15 m (houses > 300 m² are skipped: Google merges whole rows), turns it to face the nearest street (prefab front = +Z) and removes that house; `puesto*` don't remove houses and are moved to 4.5 m from the street centerline. The result goes to `resources/map/puntos_mapa.json` with local x/z, `rotacion_y`, and the lot's `ancho`/`fondo`. `scripts/map/MapPuntos.gd` (`Puntos` node in `map_test.tscn`) instantiates `prefabs[tipo]`, or a colored placeholder box, at runtime; its children are not saved to the scene. Changing puntos requires rerunning `build_glb.sh` and reimporting, because the replaced houses disappear from the .glb.
+- **Store models**: `SKETCHFAB_TOKEN=... python3 -I tools/map_import/fetch_sketchfab.py` downloads the CC-BY models listed in `MODELS` to `models/tiendas/<folder>/scene.gltf`, shrinks their textures to 256 px, writes a `.import` with `scripts/map/TiendaPostImport.gd` (swaps materials for `ps1_combined`, albedo only) and appends the credits to `CREDITS.md`. They are assigned in `map_test.tscn` → `Puntos.prefabs` (oxxo, tienda = Tienda 3B, farmacia = Farmacia Guadalajara, puesto_tacos) with `prefab_rotacion` in degrees so the storefront faces +Z. `MapPuntos` stretches each model to the lot's `ancho`/`fondo` (height follows the larger of the two scales), adds a box collision, and turns off its shadows beyond 250 m. `oxxo_abandonado`, `oxxo_letrero`, `oxxo_mexican`, `barrio_mexicano` and `tacos_props` are downloaded but unused (`tacos_props` is a scattered prop collection).
+- `data/.gdignore` exists because Godot would otherwise import `google_buildings.csv` as a translation file.
+- Map data is ODbL; keep the attribution in `CREDITS.md`. Don't use Google Maps or Street View data for geometry: their terms forbid it, so Street View is only a visual reference for writing overrides.
+
+## Conventions / gotchas
+
+- Input actions are defined in `project.godot` (`move_*`, `camera_*`, `jump`, `sprint`, `inspect_*`, `inventory_*`). Note `E` is bound to both `camera_right` and `inventory_next`, and arrow keys to both `move_*` and `inspect_*`.
+- Resources are referenced by `uid://`; keep each `.gd.uid` file alongside its script when moving/renaming, or edit via the Godot editor.
+- `scenes/world.tscn` and `scripts/Inventory.gd.uid` are listed in `.gitignore` but are already tracked, so changes to them still show up in git.
+- `scenes/InventoryUI.tscn*.tmp` files are editor save leftovers, not real scenes.

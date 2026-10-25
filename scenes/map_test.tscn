@@ -1,0 +1,109 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="1_dither"]
+[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="Shader" uid="uid://bpmkrtay5h8db" path="res://shaders/ps1_combined.gdshader" id="3_ps1"]
+[ext_resource type="Script" path="res://scripts/map/MapStreamer.gd" id="4_streamer"]
+[ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="10_dron"]
+[ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="5_puntos"]
+[ext_resource type="PackedScene" uid="uid://777ox0vha2uj" path="res://models/tiendas/oxxo/scene.gltf" id="6_oxxo"]
+[ext_resource type="PackedScene" uid="uid://cnex0skop3mbk" path="res://models/tiendas/tienda_3b/scene.gltf" id="7_tienda"]
+[ext_resource type="PackedScene" uid="uid://cekhipohkmehn" path="res://models/tiendas/farmacia_guadalajara/scene.gltf" id="8_farmacia"]
+[ext_resource type="PackedScene" uid="uid://c72ywiiy0ycan" path="res://models/tiendas/puesto_tacos/scene.gltf" id="9_puesto"]
+
+[sub_resource type="Environment" id="Environment_mapa"]
+background_mode = 1
+background_color = Color(0.30240002, 0.31872, 0.36, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.30490562, 0.46390456, 0.6044849, 1)
+ambient_light_energy = 0.3
+fog_enabled = true
+fog_light_color = Color(0.54521054, 0.5537622, 0.53505677, 1)
+fog_sun_scatter = 0.1
+fog_density = 0.0196
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
+shader = ExtResource("1_dither")
+shader_parameter/color_levels = 32.0
+shader_parameter/dither_strenght = 0.35
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_suelo"]
+size = Vector2(1900, 1900)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_suelo"]
+shader = ExtResource("3_ps1")
+shader_parameter/tint = Color(0.52, 0.48, 0.4, 1)
+shader_parameter/jitter_enabled = false
+shader_parameter/snap_resolution = 160.0
+shader_parameter/wobble_enabled = false
+shader_parameter/wobble_resolution = 40.0
+shader_parameter/affine_enabled = false
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_suelo"]
+size = Vector3(1900, 0.2, 1900)
+
+[node name="MapTest" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_mapa")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.3326426, 0.8513836, -0.40557972, -0.70441604, 0.061628435, 0.7071068, 0.6270144, 0.52091074, 0.579228, 0, 40, 0)
+light_color = Color(0.9282061, 0.8841801, 0.82615525, 1)
+light_energy = 0.8
+light_indirect_energy = 0.0
+light_specular = 0.2
+shadow_enabled = true
+shadow_reverse_cull_face = true
+shadow_opacity = 0.86
+shadow_blur = 0.0
+directional_shadow_max_distance = 80.0
+
+[node name="PS1_Postprocess" type="CanvasLayer" parent="."]
+
+[node name="Dither" type="ColorRect" parent="PS1_Postprocess"]
+material = SubResource("ShaderMaterial_dither")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Suelo" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Suelo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_suelo")
+surface_material_override/0 = SubResource("ShaderMaterial_suelo")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Suelo"]
+shape = SubResource("BoxShape3D_suelo")
+
+[node name="Mapa" type="Node3D" parent="."]
+script = ExtResource("4_streamer")
+target_path = NodePath("../Dron")
+
+[node name="Puntos" type="Node3D" parent="."]
+script = ExtResource("5_puntos")
+target_path = NodePath("../Dron")
+prefabs = Dictionary[String, PackedScene]({
+"farmacia": ExtResource("8_farmacia"),
+"oxxo": ExtResource("6_oxxo"),
+"puesto_tacos": ExtResource("9_puesto"),
+"tienda": ExtResource("7_tienda")
+})
+prefab_rotacion = Dictionary[String, float]({
+"puesto_tacos": 90.0,
+"tienda": -90.0
+})
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(0.7189, 0, -0.6951, 0, 1, 0, 0.6951, 0, 0.7189, 194.82, 3, 527.31)
+
+[node name="Dron" type="Node3D" parent="."]
+script = ExtResource("10_dron")
+player_path = NodePath("../Player")
+environment_path = NodePath("../WorldEnvironment")

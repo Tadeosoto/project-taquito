@@ -1,0 +1,14 @@
+{
+	"_ayuda": [
+		"Tiendas y puestos agregados a mano. La mayoria ya vienen de data/map/denue_puntos.json (INEGI, fetch_denue.py).",
+		"lat/lon: clic derecho en Google Maps (solo para ubicar el punto; no se copian datos de Google).",
+		"Para tiendas pon el punto sobre el techo de la casa: esa casa se quita y la tienda ocupa su lote.",
+		"Los tipos puesto_tacos y puesto se recorren a la banqueta y no quitan casas.",
+		"Opcional: \"rotacion\" en grados (si no, la fachada ve a la calle mas cercana), \"reemplaza_casa\": false.",
+		"Tipos con caja de color: oxxo, tienda, farmacia, taqueria, tortilleria, puesto_tacos, puesto, gasolinera (otro tipo sale gris).",
+		"\"omitir\": lista de \"origen\" (ver resources/map/puntos_mapa.json) para quitar puntos del DENUE u OSM que esten mal.",
+		"Despues de editar: bash tools/map_import/build_glb.sh"
+	],
+	"omitir": [],
+	"puntos": []
+}

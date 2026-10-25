@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mexican Oxxo
+* source:	https://sketchfab.com/3d-models/mexican-oxxo-07f02fc1feee42e380a528f75c44613b
+* author:	daftvid (https://sketchfab.com/daftvid)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mexican Oxxo" (https://sketchfab.com/3d-models/mexican-oxxo-07f02fc1feee42e380a528f75c44613b) by daftvid (https://sketchfab.com/daftvid) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
