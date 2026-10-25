@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low Poly Street Food Cart
+* source:	https://sketchfab.com/3d-models/low-poly-street-food-cart-a74ed86472c945328f3f2cf98fb26977
+* author:	chongdashu (https://sketchfab.com/chongdashu)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low Poly Street Food Cart" (https://sketchfab.com/3d-models/low-poly-street-food-cart-a74ed86472c945328f3f2cf98fb26977) by chongdashu (https://sketchfab.com/chongdashu) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

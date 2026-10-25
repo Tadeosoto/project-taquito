@@ -4,9 +4,11 @@ extends Node3D
 # Coloca las tiendas y puestos del mapa (OXXO, farmacias, taquerias...).
 # Las posiciones vienen de resources/map/puntos_mapa.json, que genera
 # tools/map_import/prepare_osm.py a partir de data/map/puntos.json.
-# Si un tipo tiene modelo en `prefabs` se usa ese, escalado al lote (girado con
-# `prefab_rotacion` si su fachada no ve a +Z; modelos: tools/map_import/fetch_sketchfab.py);
-# si no, sale una caja de color del tamano del lote con un letrero.
+# Si un tipo tiene modelo en `prefabs` se usa ese, con sus proporciones y el frente
+# de `prefab_ancho` (girado con `prefab_rotacion` si su fachada no ve a +Z; modelos:
+# tools/map_import/fetch_sketchfab.py); puede encimarse en las casas vecinas;
+# los tipos de LOCALES salen como un local de colonia (cortina abierta, mostrador
+# y letrero pintado); lo demas, como una caja de color del tamano del lote.
 # En el editor se ven todas; en el juego solo existen las que estan a menos de
 # load_radius del jugador (target_path), igual que los cuadros de MapStreamer.
 
@@ -29,6 +31,23 @@ const TIPO_COLORS := {
 	"puesto": Color(0.75, 0.35, 0.6),
 }
 
+# Locales de colonia armados con cajas (no hay modelos de taquerias en Sketchfab):
+# letrero generico (si el nombre no cabe o es "Sin Nombre") y color de la lona
+# (null = sin lona)
+const LOCALES := {
+	"taqueria": {"letrero": "TAQUERÍA", "lona": Color(0.8, 0.12, 0.1)},
+	"tortilleria": {"letrero": "TORTILLERÍA", "lona": null},
+}
+const LOCAL_HEIGHT := 3.2
+const LOCAL_FONDO_CORTINA := 1.0  # lo que se mete la entrada (m)
+# Tamano minimo de un local (m): en lotes angostos se sale a los lados y hacia atras
+const LOCAL_MIN := Vector2(4.5, 6.0)
+# Colores de pared de colonia; cada local toma uno segun su nombre
+const PARED_COLORS := [
+	Color(0.93, 0.85, 0.55), Color(0.85, 0.35, 0.45), Color(0.45, 0.7, 0.55),
+	Color(0.4, 0.6, 0.8), Color(0.85, 0.55, 0.35), Color(0.92, 0.9, 0.85),
+]
+
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
 
 # tipo -> escena del modelo (ej. "oxxo" -> res://models/oxxo.glb)
@@ -36,6 +55,11 @@ const TIPO_COLORS := {
 
 # tipo -> grados extra para que la fachada del modelo vea a +Z
 @export var prefab_rotacion: Dictionary[String, float] = {}
+
+# tipo -> metros de frente del modelo. Se escala parejo, sin deformarlo, aunque
+# se salga del lote (los lotes de Google a veces son tiras angostas y apachurraban
+# los modelos). Sin valor, el frente es el ancho del lote.
+@export var prefab_ancho: Dictionary[String, float] = {}
 
 # El jugador; sin el se crean todas las tiendas de una vez
 @export var target_path: NodePath
@@ -96,11 +120,14 @@ func _make_punto(punto: Dictionary) -> Node3D:
 	var tipo: String = punto["tipo"]
 	if prefabs.has(tipo) and prefabs[tipo] != null:
 		return _make_prefab(punto)
+	if LOCALES.has(tipo):
+		return _make_local(punto)
 	return _make_placeholder(punto)
 
 
-# El modelo se gira prefab_rotacion[tipo] grados (para que su fachada vea a +Z)
-# y se escala parejo para caber en el lote (ancho x fondo), apoyado en el piso.
+# El modelo se gira prefab_rotacion[tipo] grados (para que su fachada vea a +Z),
+# se escala parejo a prefab_ancho[tipo] metros de frente y se apoya en el piso con
+# la fachada en la orilla del lote que da a la calle; crece hacia atras.
 func _make_prefab(punto: Dictionary) -> Node3D:
 	var tipo: String = punto["tipo"]
 	var holder := Node3D.new()
@@ -112,15 +139,10 @@ func _make_prefab(punto: Dictionary) -> Node3D:
 
 	var aabb := _mesh_aabb(model, model.transform)
 	if aabb.size.x > 0.01 and aabb.size.z > 0.01:
-		# Ancho y fondo del lote; la altura sigue a la escala mayor de las dos para
-		# que un lote angosto no deje la tienda chaparra
-		var fit_x: float = punto["ancho"] / aabb.size.x
-		var fit_z: float = punto["fondo"] / aabb.size.z
-		var fit := Vector3(fit_x, maxf(fit_x, fit_z), fit_z)
-		model.scale = model.scale * Vector3(
-				fit.x, fit.y, fit.z).rotated(Vector3.UP, model.rotation.y).abs()
-		var center := aabb.get_center() * fit
-		model.position = Vector3(-center.x, -aabb.position.y * fit.y, -center.z)
+		var fit: float = prefab_ancho.get(tipo, punto["ancho"]) / aabb.size.x
+		var front: float = punto["fondo"] / 2.0
+		model.scale *= fit
+		model.position = Vector3(-aabb.get_center().x * fit, -aabb.position.y * fit, front - aabb.end.z * fit)
 		_set_far_mesh_options(model)
 
 		# Colision de caja del tamano del modelo (las mallas de Sketchfab no traen)
@@ -129,7 +151,7 @@ func _make_prefab(punto: Dictionary) -> Node3D:
 		var box_shape := BoxShape3D.new()
 		box_shape.size = aabb.size * fit
 		shape.shape = box_shape
-		shape.position.y = box_shape.size.y / 2.0
+		shape.position = Vector3(0.0, box_shape.size.y / 2.0, front - box_shape.size.z / 2.0)
 		body.add_child(shape)
 		holder.add_child(body)
 	return holder
@@ -206,3 +228,88 @@ func _make_placeholder(punto: Dictionary) -> Node3D:
 	label.outline_size = 12
 	body.add_child(label)
 	return body
+
+
+# Local de colonia del tamano del lote (minimo LOCAL_MIN): fachada con la entrada
+# metida, cortina enrollada arriba, mostrador, letrero pintado y, en taquerias, lona.
+# La fachada ve a +Z, como los prefabs, en la orilla del lote.
+func _make_local(punto: Dictionary) -> Node3D:
+	var tipo: String = punto["tipo"]
+	var nombre: String = punto.get("nombre", "")
+	var info: Dictionary = LOCALES[tipo]
+	var w: float = maxf(punto["ancho"], LOCAL_MIN.x)
+	var d: float = maxf(punto["fondo"], LOCAL_MIN.y)
+	var h := LOCAL_HEIGHT
+	var front: float = punto["fondo"] / 2.0
+	var hondo := LOCAL_FONDO_CORTINA
+	var entrada := clampf(w * 0.6, 2.4, 5.0)
+	entrada = minf(entrada, w - 0.6)
+	var pilar := (w - entrada) / 2.0
+	var pared: Color = PARED_COLORS[absi(nombre.hash()) % PARED_COLORS.size()]
+
+	var body := StaticBody3D.new()
+	body.name = "%s_%s" % [tipo, nombre]
+	# Cuerpo, pilares a los lados de la entrada y dintel encima
+	_local_box(body, Vector3(w, h, d - hondo), Vector3(0.0, h / 2.0, front - hondo - (d - hondo) / 2.0), pared, true)
+	for side in [-1.0, 1.0]:
+		_local_box(body, Vector3(pilar, h, hondo),
+			Vector3(side * (entrada + pilar) / 2.0, h / 2.0, front - hondo / 2.0), pared, true)
+	_local_box(body, Vector3(entrada, h - 2.5, hondo),
+		Vector3(0.0, 2.5 + (h - 2.5) / 2.0, front - hondo / 2.0), pared, false)
+	# Adentro oscuro, cortina enrollada y mostrador
+	_local_box(body, Vector3(entrada, 2.5, 0.05), Vector3(0.0, 1.25, front - hondo + 0.03), Color(0.1, 0.08, 0.07), false)
+	_local_box(body, Vector3(entrada, 0.25, 0.25), Vector3(0.0, 2.37, front - 0.15), Color(0.55, 0.57, 0.6), false)
+	_local_box(body, Vector3(minf(entrada - 0.6, 2.4), 1.0, 0.5), Vector3(0.0, 0.5, front - 0.4), Color(0.85, 0.85, 0.82), true)
+
+	var lona = info["lona"]
+	if lona != null:
+		var awning := _local_box(body, Vector3(entrada + 0.6, 0.06, 1.3), Vector3(0.0, 2.45, front + 0.6), lona, false)
+		awning.rotation.x = deg_to_rad(15.0)
+
+	# Letrero pintado sobre el dintel, con el nombre si cabe
+	var texto: String = nombre.to_upper()
+	if texto == "" or texto.length() > 22 or texto.contains("SIN NOMBRE"):
+		texto = info["letrero"]
+	_local_box(body, Vector3(entrada + pilar, 0.6, 0.02), Vector3(0.0, h - 0.4, front + 0.01), Color(0.97, 0.95, 0.88), false)
+	var label := Label3D.new()
+	label.text = texto
+	label.font_size = 64
+	label.outline_size = 0
+	label.modulate = Color(0.75, 0.1, 0.08) if lona != null else Color(0.1, 0.4, 0.2)
+	# Que el texto quepa en el letrero (~0.6 del font_size por letra)
+	label.pixel_size = minf(0.008, (entrada + pilar - 0.3) / (texto.length() * 38.0))
+	label.position = Vector3(0.0, h - 0.4, front + 0.03)
+	label.visibility_range_end = 80.0
+	body.add_child(label)
+	return body
+
+
+# Una caja del local; con `solid` tambien lleva colision
+func _local_box(body: StaticBody3D, size: Vector3, pos: Vector3, color: Color, solid: bool) -> MeshInstance3D:
+	var box := BoxMesh.new()
+	box.size = size
+	box.material = _color_material(color)
+	var mesh := MeshInstance3D.new()
+	mesh.mesh = box
+	mesh.position = pos
+	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mesh.visibility_range_end = PREFAB_VISIBILITY_RANGE
+	body.add_child(mesh)
+	if solid:
+		var shape := CollisionShape3D.new()
+		var box_shape := BoxShape3D.new()
+		box_shape.size = size
+		shape.shape = box_shape
+		shape.position = pos
+		body.add_child(shape)
+	return mesh
+
+
+func _color_material(color: Color) -> ShaderMaterial:
+	if not _box_materials.has(color):
+		var material := ShaderMaterial.new()
+		material.shader = PS1_SHADER
+		material.set_shader_parameter("tint", color)
+		material.set_shader_parameter("affine_enabled", false)
+		_box_materials[color] = material
+	return _box_materials[color]

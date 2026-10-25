@@ -49,6 +49,8 @@ MODELS = {
 	"barrio_mexicano": "bd02bfb9db374065a53b1eeb168ef925",    # Small Mexican Neighborhood, 9k
 	"puesto_tacos": "03046667e027461baaaa47697d502e74",       # Cara1 Puesto de Tacos, 40k
 	"tacos_props": "f8bbafe18488483f8ab79bc52d1edc79",        # Tacos_ Props, 25k
+	"pemex": "1e070d51657e4c169c517f81de973e41",              # Pemex Low Poly, 3.6k
+	"carrito": "a74ed86472c945328f3f2cf98fb26977",            # Low Poly Street Food Cart, 3.7k
 }
 
 
@@ -71,10 +73,13 @@ def get_json(url: str, token: str | None = None) -> dict:
 		return json.load(response)
 
 
-def prepare_for_godot(dest: str) -> None:
-	"""Achica las texturas y hace que Godot importe con TiendaPostImport (shader PS1)."""
-	textures = glob.glob(os.path.join(dest, "textures", "*"))
-	if textures:
+def prepare_for_godot(dest: str, shrink: bool) -> None:
+	"""Achica las texturas (solo recien bajadas: mogrify reescribe el archivo aunque
+	no cambie de tamano) y hace que Godot importe con TiendaPostImport (shader PS1)."""
+	# Solo imagenes: despues de abrir Godot tambien hay .png.import ahi
+	textures = [path for path in glob.glob(os.path.join(dest, "textures", "*"))
+		if path.lower().endswith((".png", ".jpg", ".jpeg"))]
+	if shrink and textures:
 		subprocess.run(["magick", "mogrify", "-resize", f"{MAX_TEXTURE}x{MAX_TEXTURE}>", *textures], check=True)
 	import_path = os.path.join(dest, "scene.gltf.import")
 	if not os.path.exists(import_path):
@@ -95,7 +100,7 @@ def main() -> None:
 			f"licencia {license_label} (`models/tiendas/{folder}/`).")
 		if os.path.exists(dest):
 			print(f"  ya estaba: {folder}")
-			prepare_for_godot(dest)
+			prepare_for_godot(dest, shrink=False)
 			continue
 
 		download = get_json(f"https://api.sketchfab.com/v3/models/{uid}/download", token)
@@ -114,7 +119,7 @@ def main() -> None:
 		license_txt = os.path.join(dest, "license.txt")
 		if os.path.exists(license_txt):
 			os.rename(license_txt, os.path.join(dest, "LICENSE_sketchfab.txt"))
-		prepare_for_godot(dest)
+		prepare_for_godot(dest, shrink=True)
 
 	credits_path = os.path.join(ROOT, "CREDITS.md")
 	with open(credits_path, encoding="utf-8") as f:

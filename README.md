@@ -57,7 +57,8 @@ La zona va de **20.606286, −103.423463** a **20.590700, −103.406515** (Zapop
 - **Negocios reales**: 85 negocios del [DENUE del INEGI](https://www.inegi.org.mx/app/descarga/?ti=6) (tiendas, taquerías, OXXO, farmacias, tortillerías, puestos y una gasolinera).
   - De varios negocios del mismo giro muy juntos, solo se deja uno: a menos de 80 m, o 150 m en tiendas de abarrotes.
   - Cada tienda ocupa el lote de una casa y mira hacia la calle.
-  - Los OXXO, tiendas, farmacias y puestos de tacos usan modelos low-poly de Sketchfab (CC BY). Los demás giros salen como cajas de color con letrero.
+  - Los OXXO, tiendas, farmacias, puestos, puestos de tacos y la gasolinera usan modelos low-poly de Sketchfab (CC BY), con sus proporciones originales y un tamaño fijo por giro (pueden encimarse en las casas de al lado).
+  - Las taquerías y tortillerías son locales armados en código: cortina abierta, mostrador, letrero con su nombre y, en taquerías, lona.
 - **Carga por partes (streaming)**: el mapa está partido en cuadros de 128 m y solo se cargan los cercanos al jugador (o al dron), en segundo plano. Lo mismo con las tiendas. Hay unos 40 de 201 cuadros en memoria a la vez.
 
 No se usan imágenes ni datos de Google Maps o Street View: sus términos lo prohíben. Street View solo sirve como referencia visual para corregir cosas a mano.
@@ -68,7 +69,7 @@ No se usan imágenes ni datos de Google Maps o Street View: sus términos lo pro
 |---|---|
 | `data/map/overrides.json` | Cambiar etiquetas de una casa de OSM, por ejemplo pisos o color: `"way/<id>": {"building:levels": "3"}`. |
 | `data/map/puntos.json` | Agregar tiendas o puestos con `{tipo, nombre, lat, lon}`, o quitar negocios mal ubicados con `"omitir"` (usa el `origen` que sale en `resources/map/puntos_mapa.json`). |
-| `scenes/map_test.tscn` → nodo `Puntos` | Elegir qué modelo usa cada tipo de negocio (`prefabs`) y cómo girarlo (`prefab_rotacion`). |
+| `scenes/map_test.tscn` → nodo `Puntos` | Elegir qué modelo usa cada tipo de negocio (`prefabs`), cómo girarlo (`prefab_rotacion`) y cuántos metros de frente tiene (`prefab_ancho`). |
 | `scenes/map_test.tscn` → nodo `Dron` | Altura, velocidad e inclinación del dron. |
 
 Después de editar `overrides.json` o `puntos.json` hay que regenerar el mapa (ver abajo).
@@ -113,7 +114,7 @@ tools/map_import/  scripts para generar el mapa
 - `InventoryUI.tscn` todavía no está en `world.tscn`, y el jugador solo interactúa con NPCs (no con `WorldItem`).
 - Mapa:
   - Pasar las mecánicas de `world.tscn` al mapa real.
-  - Faltan modelos para taquerías, tortillerías, otros puestos y la gasolinera.
+  - Todos los puestos (frutas, ropa, llantera...) usan el mismo carrito de comida.
   - Las 33 tiendas usan el mismo modelo.
   - Hay un pequeño tirón cuando se carga un cuadro.
 

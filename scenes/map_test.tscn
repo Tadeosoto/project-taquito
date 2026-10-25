@@ -12,6 +12,8 @@
 [ext_resource type="PackedScene" uid="uid://cnex0skop3mbk" path="res://models/tiendas/tienda_3b/scene.gltf" id="7_tienda"]
 [ext_resource type="PackedScene" uid="uid://cekhipohkmehn" path="res://models/tiendas/farmacia_guadalajara/scene.gltf" id="8_farmacia"]
 [ext_resource type="PackedScene" uid="uid://c72ywiiy0ycan" path="res://models/tiendas/puesto_tacos/scene.gltf" id="9_puesto"]
+[ext_resource type="PackedScene" uid="uid://papgemo6sv2k" path="res://models/tiendas/pemex/scene.gltf" id="13_pemex"]
+[ext_resource type="PackedScene" uid="uid://cr188m71svnsd" path="res://models/tiendas/carrito/scene.gltf" id="14_carrito"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -95,13 +97,24 @@ script = ExtResource("5_puntos")
 target_path = NodePath("../Dron")
 prefabs = Dictionary[String, PackedScene]({
 "farmacia": ExtResource("8_farmacia"),
+"gasolinera": ExtResource("13_pemex"),
 "oxxo": ExtResource("6_oxxo"),
+"puesto": ExtResource("14_carrito"),
 "puesto_tacos": ExtResource("9_puesto"),
 "tienda": ExtResource("7_tienda")
 })
 prefab_rotacion = Dictionary[String, float]({
+"gasolinera": -90.0,
 "puesto_tacos": 90.0,
 "tienda": -90.0
+})
+prefab_ancho = Dictionary[String, float]({
+"farmacia": 10.0,
+"gasolinera": 14.0,
+"oxxo": 14.0,
+"puesto": 2.5,
+"puesto_tacos": 3.5,
+"tienda": 8.0
 })
 
 [node name="Player" parent="." instance=ExtResource("2_player")]

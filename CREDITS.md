@@ -22,3 +22,5 @@
 - [Small Mexican Neighborhood](https://sketchfab.com/3d-models/bd02bfb9db374065a53b1eeb168ef925) de Ivan Boz, licencia CC Attribution (`models/tiendas/barrio_mexicano/`).
 - [Cara1 Puesto de Tacos PI Cubo Mexicano 2022](https://sketchfab.com/3d-models/03046667e027461baaaa47697d502e74) de Felipe Samma, licencia CC Attribution (`models/tiendas/puesto_tacos/`).
 - [Tacos_ Props](https://sketchfab.com/3d-models/f8bbafe18488483f8ab79bc52d1edc79) de Elbolillo, licencia CC Attribution (`models/tiendas/tacos_props/`).
+- [Pemex Low Poly](https://sketchfab.com/3d-models/1e070d51657e4c169c517f81de973e41) de VladimirLaruso, licencia CC Attribution (`models/tiendas/pemex/`).
+- [Low Poly Street Food Cart](https://sketchfab.com/3d-models/a74ed86472c945328f3f2cf98fb26977) de chongdashu, licencia CC Attribution (`models/tiendas/carrito/`).
