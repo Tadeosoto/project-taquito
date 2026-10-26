@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mexican House 3
+* source:	https://sketchfab.com/3d-models/mexican-house-3-8f7b73d6ba1e4642b3230ed15f3db421
+* author:	Hollow_Soul_09 (https://sketchfab.com/Hollow_Soul_09)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mexican House 3" (https://sketchfab.com/3d-models/mexican-house-3-8f7b73d6ba1e4642b3230ed15f3db421) by Hollow_Soul_09 (https://sketchfab.com/Hollow_Soul_09) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -14,17 +14,27 @@
 [ext_resource type="PackedScene" uid="uid://c72ywiiy0ycan" path="res://models/tiendas/puesto_tacos/scene.gltf" id="9_puesto"]
 [ext_resource type="PackedScene" uid="uid://papgemo6sv2k" path="res://models/tiendas/pemex/scene.gltf" id="13_pemex"]
 [ext_resource type="PackedScene" uid="uid://cr188m71svnsd" path="res://models/tiendas/carrito/scene.gltf" id="14_carrito"]
+[ext_resource type="PackedScene" uid="uid://dttfeaprng3n8" path="res://models/props/alto/scene.gltf" id="18_alto"]
+[ext_resource type="Script" path="res://scripts/map/MapCasas.gd" id="19_casas"]
+[ext_resource type="PackedScene" uid="uid://cksos1hnr1n31" path="res://models/casas/urbi/scene.gltf" id="20_urbi"]
+[ext_resource type="PackedScene" uid="uid://cx8b541k1ho17" path="res://models/casas/semi_residencial/scene.gltf" id="21_semi"]
+[ext_resource type="PackedScene" uid="uid://dcu1k7jr5bhj1" path="res://models/casas/mexican_house_3/scene.gltf" id="23_mexican3"]
+[ext_resource type="Script" path="res://scripts/map/MapMinimapa.gd" id="24_minimapa"]
+[ext_resource type="Texture2D" path="res://textures/map/minimapa.png" id="25_minimapa_tex"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
 background_color = Color(0.30240002, 0.31872, 0.36, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.30490562, 0.46390456, 0.6044849, 1)
-ambient_light_energy = 0.3
+ambient_light_color = Color(0.62, 0.66, 0.72, 1)
+ambient_light_energy = 0.7
 fog_enabled = true
 fog_light_color = Color(0.54521054, 0.5537622, 0.53505677, 1)
 fog_sun_scatter = 0.1
 fog_density = 0.0196
+adjustment_enabled = true
+adjustment_contrast = 1.1
+adjustment_saturation = 1.35
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
 shader = ExtResource("1_dither")
@@ -56,7 +66,7 @@ environment = SubResource("Environment_mapa")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.3326426, 0.8513836, -0.40557972, -0.70441604, 0.061628435, 0.7071068, 0.6270144, 0.52091074, 0.579228, 0, 40, 0)
 light_color = Color(0.9282061, 0.8841801, 0.82615525, 1)
-light_energy = 0.8
+light_energy = 1.15
 light_indirect_energy = 0.0
 light_specular = 0.2
 shadow_enabled = true
@@ -96,6 +106,7 @@ target_path = NodePath("../Dron")
 script = ExtResource("5_puntos")
 target_path = NodePath("../Dron")
 prefabs = Dictionary[String, PackedScene]({
+"alto": ExtResource("18_alto"),
 "farmacia": ExtResource("8_farmacia"),
 "gasolinera": ExtResource("13_pemex"),
 "oxxo": ExtResource("6_oxxo"),
@@ -104,11 +115,13 @@ prefabs = Dictionary[String, PackedScene]({
 "tienda": ExtResource("7_tienda")
 })
 prefab_rotacion = Dictionary[String, float]({
+"alto": 90.0,
 "gasolinera": -90.0,
 "puesto_tacos": 90.0,
 "tienda": -90.0
 })
 prefab_ancho = Dictionary[String, float]({
+"alto": 0.75,
 "farmacia": 10.0,
 "gasolinera": 14.0,
 "oxxo": 14.0,
@@ -117,10 +130,78 @@ prefab_ancho = Dictionary[String, float]({
 "tienda": 8.0
 })
 
+[node name="Casas" type="Node3D" parent="."]
+script = ExtResource("19_casas")
+modelos = Dictionary[String, PackedScene]({
+"mexican_house_3": ExtResource("23_mexican3"),
+"semi_residencial": ExtResource("21_semi"),
+"urbi_1p_a": ExtResource("20_urbi"),
+"urbi_1p_b": ExtResource("20_urbi"),
+"urbi_1p_c": ExtResource("20_urbi"),
+"urbi_2p_a": ExtResource("20_urbi"),
+"urbi_2p_b": ExtResource("20_urbi"),
+"urbi_2p_c": ExtResource("20_urbi")
+})
+modelo_rango_x = Dictionary[String, Vector2]({
+"urbi_1p_a": Vector2(-22.3, -14.75),
+"urbi_1p_b": Vector2(-14.75, -7.75),
+"urbi_1p_c": Vector2(-7.75, -0.25),
+"urbi_2p_a": Vector2(-0.25, 7),
+"urbi_2p_b": Vector2(7, 14.5),
+"urbi_2p_c": Vector2(14.5, 22.7)
+})
+nucleo = Dictionary[String, float]({
+"urbi_1p_a": 0.62,
+"urbi_1p_b": 0.62,
+"urbi_1p_c": 0.62,
+"urbi_2p_a": 0.72,
+"urbi_2p_b": 0.72,
+"urbi_2p_c": 0.72
+})
+modelo_escala = Dictionary[String, float]({
+"mexican_house_3": 1.5
+})
+modelo_rotacion = Dictionary[String, float]({
+"urbi_1p_a": 180.0,
+"urbi_1p_b": 180.0,
+"urbi_1p_c": 180.0,
+"urbi_2p_a": 180.0,
+"urbi_2p_b": 180.0,
+"urbi_2p_c": 180.0
+})
+muro_key = Dictionary[String, Color]({
+"mexican_house_3": Color(0.89, 0.52, 0.51, 1),
+"semi_residencial": Color(0.87, 0.865, 0.86, 1),
+"urbi_1p_a": Color(0.88, 0.88, 0.86, 1),
+"urbi_1p_b": Color(0.88, 0.88, 0.86, 1),
+"urbi_1p_c": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_a": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_b": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_c": Color(0.88, 0.88, 0.86, 1)
+})
+muro_tol = Dictionary[String, float]({
+"mexican_house_3": 0.3
+})
+quitar_piso = Array[String](["mexican_house_3", "urbi_1p_a", "urbi_1p_b", "urbi_1p_c", "urbi_2p_a", "urbi_2p_b", "urbi_2p_c"])
+target_path = NodePath("../Dron")
+
 [node name="Player" parent="." instance=ExtResource("2_player")]
-transform = Transform3D(0.7189, 0, -0.6951, 0, 1, 0, 0.6951, 0, 0.7189, 194.82, 3, 527.31)
+transform = Transform3D(0.7189, 0, -0.6951, 0, 1, 0, 0.6951, 0, 0.7189, -491.94, 3, -350.99)
+speed = 10.0
+sprint_speed = 18.0
 
 [node name="Dron" type="Node3D" parent="."]
 script = ExtResource("10_dron")
 player_path = NodePath("../Player")
 environment_path = NodePath("../WorldEnvironment")
+iniciar_en_dron = false
+
+[node name="Minimapa" type="CanvasLayer" parent="."]
+layer = 2
+script = ExtResource("24_minimapa")
+mapa = ExtResource("25_minimapa_tex")
+player_path = NodePath("../Player")
+dron_path = NodePath("../Dron")
+tamano = 136.0
+radio_metros = 150.0
+radio_dron = 320.0

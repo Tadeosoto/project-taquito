@@ -77,6 +77,10 @@ func _process(delta: float) -> void:
 	global_position.y = altura
 
 
+func volando() -> bool:
+	return _active
+
+
 func _set_active(active: bool) -> void:
 	_active = active
 	if active:

@@ -1,0 +1,570 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 344,
+      "max": [
+        -0.4409438967704773,
+        210.54888916015625,
+        0.7944278717041016
+      ],
+      "min": [
+        -2.464146614074707,
+        208.95997619628906,
+        -0.7944278120994568
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 4128,
+      "componentType": 5126,
+      "count": 344,
+      "max": [
+        1.0,
+        0.929302990436554,
+        0.9293097853660583
+      ],
+      "min": [
+        -1.0,
+        -0.9293427467346191,
+        -0.9293172359466553
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 344,
+      "max": [
+        0.6483401656150818,
+        0.29320526123046875
+      ],
+      "min": [
+        0.37008804082870483,
+        0.015123812481760979
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 1044,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 8256,
+      "componentType": 5126,
+      "count": 425,
+      "max": [
+        -1.6089979410171509,
+        271.6463623046875,
+        35.9399299621582
+      ],
+      "min": [
+        -2.160668134689331,
+        199.76649475097656,
+        -35.9399299621582
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 13356,
+      "componentType": 5126,
+      "count": 425,
+      "max": [
+        1.0,
+        0.9801738858222961,
+        0.9801337718963623
+      ],
+      "min": [
+        -1.0,
+        -0.9800171852111816,
+        -0.9800705313682556
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 425,
+      "max": [
+        0.9999996423721313,
+        1.0,
+        0.9999751448631287,
+        1.0
+      ],
+      "min": [
+        -0.006879608612507582,
+        -0.9999512434005737,
+        -0.9999783039093018,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 2752,
+      "componentType": 5126,
+      "count": 425,
+      "max": [
+        0.9946208596229553,
+        0.9607967138290405
+      ],
+      "min": [
+        0.32569220662117004,
+        0.003918737173080444
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 4176,
+      "componentType": 5125,
+      "count": 1620,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 18456,
+      "componentType": 5126,
+      "count": 344,
+      "max": [
+        -0.4409453272819519,
+        262.8470153808594,
+        0.7944278717041016
+      ],
+      "min": [
+        -2.4641458988189697,
+        261.25811767578125,
+        -0.7944278120994568
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 22584,
+      "componentType": 5126,
+      "count": 344,
+      "max": [
+        1.0,
+        0.9293033480644226,
+        0.9293027520179749
+      ],
+      "min": [
+        -1.0,
+        -0.9293042421340942,
+        -0.929323136806488
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 6152,
+      "componentType": 5126,
+      "count": 344,
+      "max": [
+        0.6533992290496826,
+        0.5954160690307617
+      ],
+      "min": [
+        0.36502891778945923,
+        0.30722254514694214
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 10656,
+      "componentType": 5125,
+      "count": 1044,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 26712,
+      "componentType": 5126,
+      "count": 120,
+      "max": [
+        1.5997122526168823,
+        265.7652893066406,
+        1.9898507595062256
+      ],
+      "min": [
+        -1.5997129678726196,
+        -0.005707204341888428,
+        -1.9898507595062256
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 28152,
+      "componentType": 5126,
+      "count": 120,
+      "max": [
+        0.9990977644920349,
+        0.9977399110794067,
+        0.9984683990478516
+      ],
+      "min": [
+        -0.9990977644920349,
+        -0.9977400302886963,
+        -0.9984683990478516
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 8904,
+      "componentType": 5126,
+      "count": 120,
+      "max": [
+        0.3196166157722473,
+        0.9930346012115479
+      ],
+      "min": [
+        0.014446690678596497,
+        0.004195988178253174
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 14832,
+      "componentType": 5125,
+      "count": 324,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "VictorGram (https://sketchfab.com/VictorGram)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/senal-alto-d2de3788e5f24c3e8189001d2a1f6e92",
+      "title": "Señal Alto"
+    },
+    "generator": "Sketchfab-12.68.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 16128,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 9864,
+      "byteOffset": 16128,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 29592,
+      "byteOffset": 25992,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 6800,
+      "byteOffset": 55584,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 62384,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/Tornillo_Screw_baseColor.png"
+    },
+    {
+      "uri": "textures/Tornillo_Screw_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Seal_Sign_baseColor.png"
+    },
+    {
+      "uri": "textures/Seal_Sign_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Seal_Sign_normal.png"
+    },
+    {
+      "uri": "textures/Tubo_Pole_baseColor.png"
+    },
+    {
+      "uri": "textures/Tubo_Pole_metallicRoughness.png"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "Tornillo_Screw",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "Seal_Sign",
+      "normalTexture": {
+        "index": 4
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 2
+        },
+        "metallicRoughnessTexture": {
+          "index": 3
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "Tubo_Pole",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 5
+        },
+        "metallicRoughnessTexture": {
+          "index": 6
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "polySurface1_Tornillo_Screw_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "polySurface2_Se�al_Sign_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 5,
+            "POSITION": 4,
+            "TANGENT": 6,
+            "TEXCOORD_0": 7
+          },
+          "indices": 8,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "polySurface3_Tornillo_Screw_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 10,
+            "POSITION": 9,
+            "TEXCOORD_0": 11
+          },
+          "indices": 12,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "polySurface4_Tubo_Pole_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 14,
+            "POSITION": 13,
+            "TEXCOORD_0": 15
+          },
+          "indices": 16,
+          "material": 2,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        0.01011014636605978,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.244903455585985e-18,
+        -0.01011014636605978,
+        0.0,
+        0.0,
+        0.01011014636605978,
+        2.244903455585985e-18,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "01bc0d6699c74da49f0de106a8fecd2c.fbx"
+    },
+    {
+      "children": [
+        3
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4,
+        6,
+        8,
+        10
+      ],
+      "name": "Se��al_Alto"
+    },
+    {
+      "children": [
+        5
+      ],
+      "name": "polySurface1"
+    },
+    {
+      "mesh": 0,
+      "name": "polySurface1_Tornillo_Screw_0"
+    },
+    {
+      "children": [
+        7
+      ],
+      "name": "polySurface2"
+    },
+    {
+      "mesh": 1,
+      "name": "polySurface2_Se�al_Sign_0"
+    },
+    {
+      "children": [
+        9
+      ],
+      "name": "polySurface3"
+    },
+    {
+      "mesh": 2,
+      "name": "polySurface3_Tornillo_Screw_0"
+    },
+    {
+      "children": [
+        11
+      ],
+      "name": "polySurface4"
+    },
+    {
+      "mesh": 3,
+      "name": "polySurface4_Tubo_Pole_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    },
+    {
+      "sampler": 0,
+      "source": 4
+    },
+    {
+      "sampler": 0,
+      "source": 5
+    },
+    {
+      "sampler": 0,
+      "source": 6
+    }
+  ]
+}

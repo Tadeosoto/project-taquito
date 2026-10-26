@@ -24,3 +24,20 @@
 - [Tacos_ Props](https://sketchfab.com/3d-models/f8bbafe18488483f8ab79bc52d1edc79) de Elbolillo, licencia CC Attribution (`models/tiendas/tacos_props/`).
 - [Pemex Low Poly](https://sketchfab.com/3d-models/1e070d51657e4c169c517f81de973e41) de VladimirLaruso, licencia CC Attribution (`models/tiendas/pemex/`).
 - [Low Poly Street Food Cart](https://sketchfab.com/3d-models/a74ed86472c945328f3f2cf98fb26977) de chongdashu, licencia CC Attribution (`models/tiendas/carrito/`).
+
+## Casas (`models/casas/`, Sketchfab)
+
+- [Casa Urbi / Infonavit](https://sketchfab.com/3d-models/641be90fcbd14bcb997dac56671081a8) de ChicaliModz2k21, licencia CC Attribution (`models/casas/urbi/`).
+- [Casa Tipo Semi Residencial](https://sketchfab.com/3d-models/4431db9690aa4d6ea23f50b8fdfa0cd3) de alecsvaldez, licencia CC Attribution (`models/casas/semi_residencial/`).
+- [Mexican House 3](https://sketchfab.com/3d-models/8f7b73d6ba1e4642b3230ed15f3db421) de Hollow_Soul_09, licencia CC Attribution (`models/casas/mexican_house_3/`).
+- [Edificio multifamiliar](https://sketchfab.com/3d-models/afff4fd9e05549f6b1d5668b9eb36af7) de alecsvaldez, licencia CC Attribution (`models/casas/multifamiliar/`).
+
+## Props de calle (`models/props/`, Sketchfab)
+
+- [Señal Alto](https://sketchfab.com/3d-models/d2de3788e5f24c3e8189001d2a1f6e92) de VictorGram, licencia CC Attribution (`models/props/alto/`).
+
+## Objetos (`models/objetos/`, Sketchfab)
+
+- [Takis Fuego - México](https://sketchfab.com/3d-models/7426e5fa188344668ec3b9dbab348bae) de Luiss Maker, licencia CC Attribution (`models/objetos/takis/`).
+- [1 Peso MXN - Moneda - Coin](https://sketchfab.com/3d-models/5b0b33e49fa84d96b6e0d82beac694f3) de Diego G., licencia CC Attribution (`models/objetos/moneda_peso/`).
+- [Jarritos Grapefruit Soda - FBX - Film Grain](https://sketchfab.com/3d-models/44a5150acb0b4109af1378c74bfdde5c) de Connor Lawson, licencia CC Attribution (`models/objetos/jarritos/`).

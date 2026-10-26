@@ -10,3 +10,5 @@ tools/map_import/bin/
 models/zona_mapa.glb
 models/zona_mapa.glb.import
 __pycache__/
+# Debug de prepare_osm.py --png-colonias
+data/map/colonias_debug.png

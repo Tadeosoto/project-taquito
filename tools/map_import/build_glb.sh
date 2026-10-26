@@ -41,7 +41,9 @@ fi
 
 # 2. Recortar la zona, agregar casas de Google (si ya corriste
 #    fetch_google_buildings.py), rellenar pisos/colores/overrides y colocar
-#    las tiendas del DENUE (fetch_denue.py) y de puntos.json (quitando la casa que reemplazan)
+#    las tiendas del DENUE (fetch_denue.py) y de puntos.json (quitando la casa que reemplazan),
+#    altos; partir en manzanas con su colonia y cambiar las casas de
+#    las colonias de casas.json por modelos (resources/map/casas_mapa.json)
 python3 -I "$ROOT/tools/map_import/prepare_osm.py" \
 	--bbox "$SOUTH" "$WEST" "$NORTH" "$EAST" \
 	--osm "$ROOT/data/map/area.osm" \
@@ -50,7 +52,12 @@ python3 -I "$ROOT/tools/map_import/prepare_osm.py" \
 	--google "$ROOT/data/map/google_buildings.csv" \
 	--puntos "$ROOT/data/map/denue_puntos.json" \
 	--puntos "$ROOT/data/map/puntos.json" \
-	--salida-puntos "$ROOT/resources/map/puntos_mapa.json"
+	--salida-puntos "$ROOT/resources/map/puntos_mapa.json" \
+	--colonias-denue "$ROOT/data/map/denue_colonias.json" \
+	--colonias "$ROOT/data/map/colonias.json" \
+	--casas "$ROOT/data/map/casas.json" \
+	--salida-casas "$ROOT/resources/map/casas_mapa.json" \
+	--png-colonias "$ROOT/data/map/colonias_debug.png"
 
 # 3. Config = estilo estandar + nuestros ajustes (las rutas de texturas son
 #    relativas a la carpeta de OSM2World, por eso corremos desde ahi)
@@ -102,3 +109,6 @@ fi
 echo "OK: $OUT ($(du -h "$OUT" | cut -f1))"
 echo "Ahora: rm -f \"$ROOT\"/.godot/imported/zona_mapa.glb-* && godot --path \"$ROOT\" --headless --import"
 echo "  y despues: godot --path \"$ROOT\" --headless -s tools/map_import/split_cuadros.gd  (cuadros para MapStreamer)"
+
+# 5. Minimapa (radar de MapMinimapa.gd) con las calles y casas que acaban de salir
+python3 -I "$ROOT/tools/map_import/make_minimapa.py"

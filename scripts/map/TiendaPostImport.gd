@@ -5,8 +5,23 @@ extends EditorScenePostImport
 # tools/map_import/fetch_sketchfab.py): cambia sus materiales por el shader PS1
 # del proyecto para que combinen con el mapa. Solo se usa el color base; normal,
 # roughness y emission de Sketchfab se ignoran (y el vidrio sale opaco).
+# Tambien lo usan models/casas, models/props y models/objetos.
+# Los modelos pesados (escaneos) se reducen aqui con meshoptimizer (el mismo
+# simplificador de los LOD de Godot, respeta las costuras de UV), y los que
+# traen una escena entera se pueden recortar a la parte que se usa (RECORTES).
 
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
+
+# Carpeta del modelo -> maximo de triangulos de todo el modelo
+const MAX_TRIANGULOS := {
+	"takis": 4000,
+	"jarritos": 3000,
+}
+
+# Carpeta -> caja (coordenadas del glTF) de lo que se queda: mallas con centro
+# dentro y de menos de RECORTE_MAX m. Hoy ningun modelo lo usa.
+const RECORTES := {}
+const RECORTE_MAX := 5.0
 
 var _materials := {}
 var _white: ImageTexture
@@ -16,8 +31,81 @@ func _post_import(scene: Node) -> Object:
 	var image := Image.create(1, 1, false, Image.FORMAT_RGB8)
 	image.fill(Color.WHITE)
 	_white = ImageTexture.create_from_image(image)
+	var carpeta := get_source_file().get_base_dir().get_file()
+	if RECORTES.has(carpeta):
+		_recortar(scene, scene, Transform3D.IDENTITY, RECORTES[carpeta])
+	if MAX_TRIANGULOS.has(carpeta):
+		var total := _contar_triangulos(scene)
+		if total > MAX_TRIANGULOS[carpeta]:
+			_reducir(scene, float(MAX_TRIANGULOS[carpeta]) / total)
+			print("TiendaPostImport: %s de %d a %d triangulos" % [carpeta, total, _contar_triangulos(scene)])
 	_convert(scene)
 	return scene
+
+
+# Borra las mallas fuera de `caja` (las demas se quedan donde estan)
+func _recortar(node: Node, owner_node: Node, xform: Transform3D, caja: AABB) -> void:
+	for child in node.get_children():
+		var child_xform := xform
+		if child is Node3D:
+			child_xform = xform * (child as Node3D).transform
+		if child is MeshInstance3D and (child as MeshInstance3D).mesh:
+			var aabb := child_xform * (child as MeshInstance3D).mesh.get_aabb()
+			if not caja.has_point(aabb.get_center()) or aabb.size[aabb.get_longest_axis_index()] > RECORTE_MAX:
+				node.remove_child(child)
+				child.free()
+				continue
+		_recortar(child, owner_node, child_xform, caja)
+
+
+func _contar_triangulos(node: Node) -> int:
+	var total := 0
+	if node is MeshInstance3D and (node as MeshInstance3D).mesh:
+		var mesh := (node as MeshInstance3D).mesh
+		for surface in mesh.get_surface_count():
+			var arrays := mesh.surface_get_arrays(surface)
+			var indices = arrays[Mesh.ARRAY_INDEX]
+			total += (indices.size() if indices else arrays[Mesh.ARRAY_VERTEX].size()) / 3
+	for child in node.get_children():
+		total += _contar_triangulos(child)
+	return total
+
+
+# Cada superficie se queda con ~`ratio` de sus triangulos: se generan los LOD de
+# Godot (ImporterMesh, meshoptimizer: cuida UV y normales) y se toma el primero
+# que cabe. Si el error crece demasiado meshoptimizer se detiene antes (los
+# escaneos llenos de costuras no bajan mas de ~1/8).
+func _reducir(node: Node, ratio: float) -> void:
+	if node is MeshInstance3D and (node as MeshInstance3D).mesh is ArrayMesh:
+		var source := (node as MeshInstance3D).mesh as ArrayMesh
+		var importer := ImporterMesh.new()
+		for surface in source.get_surface_count():
+			var arrays := source.surface_get_arrays(surface)
+			if arrays[Mesh.ARRAY_INDEX] == null:
+				var indices := PackedInt32Array()
+				for i in arrays[Mesh.ARRAY_VERTEX].size():
+					indices.append(i)
+				arrays[Mesh.ARRAY_INDEX] = indices
+			importer.add_surface(source.surface_get_primitive_type(surface), arrays, [], {},
+				source.surface_get_material(surface), source.surface_get_name(surface))
+		importer.generate_lods(25.0, 60.0, [])
+		var result := ArrayMesh.new()
+		for surface in importer.get_surface_count():
+			var arrays := importer.get_surface_arrays(surface)
+			# Los canales custom vienen sin su formato y truenan add_surface_from_arrays
+			for custom in [Mesh.ARRAY_CUSTOM0, Mesh.ARRAY_CUSTOM1, Mesh.ARRAY_CUSTOM2, Mesh.ARRAY_CUSTOM3]:
+				arrays[custom] = null
+			var target := int(arrays[Mesh.ARRAY_INDEX].size() * ratio)
+			for lod in importer.get_surface_lod_count(surface):
+				var indices := importer.get_surface_lod_indices(surface, lod)
+				arrays[Mesh.ARRAY_INDEX] = indices
+				if indices.size() <= target:
+					break
+			result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+			result.surface_set_material(surface, importer.get_surface_material(surface))
+		(node as MeshInstance3D).mesh = result
+	for child in node.get_children():
+		_reducir(child, ratio)
 
 
 func _convert(node: Node) -> void:

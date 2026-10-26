@@ -1,0 +1,11 @@
+Model Information:
+* title:	Casa Urbi / Infonavit
+* source:	https://sketchfab.com/3d-models/casa-urbi-infonavit-641be90fcbd14bcb997dac56671081a8
+* author:	ChicaliModz2k21 (https://sketchfab.com/ChicaliModz2k21)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Casa Urbi / Infonavit" (https://sketchfab.com/3d-models/casa-urbi-infonavit-641be90fcbd14bcb997dac56671081a8) by ChicaliModz2k21 (https://sketchfab.com/ChicaliModz2k21) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

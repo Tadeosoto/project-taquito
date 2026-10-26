@@ -53,12 +53,17 @@ La zona va de **20.606286, −103.423463** a **20.590700, −103.406515** (Zapop
   - La geometría sale de [OpenStreetMap](https://www.openstreetmap.org), convertida a 3D con [OSM2World](https://osm2world.org).
   - OSM solo tiene ~970 casas en la zona; el resto viene de [Google Open Buildings](https://sites.research.google/open-buildings/) (huellas detectadas por satélite).
   - Las casas sin datos salen de 1–2 pisos, con techo plano y un color de fachada.
+- **Casas modelo por colonia**: en Haciendas de San José y Parques de Santa María las casas son modelos de la Casa Urbi/Infonavit (de 1 y 2 pisos) y de la Casa Semi Residencial; en Parques del Bosque, Semi Residencial y Mexican House 3; en las demás colonias, 1 de cada 10 casas es la Mexican House 3.
+  - La colonia de cada manzana sale de los negocios del DENUE que hay en ella, así que nunca se mezclan dos colonias en una manzana. `data/map/colonias_debug.png` muestra las manzanas pintadas por colonia.
+  - Las hileras de casas se parten en lotes de 6.5 m y todas las fachadas de una cuadra quedan alineadas sobre la misma línea, aunque sean modelos distintos.
+  - Cada casa pinta su muro de un color al azar, sin tocar puertas, ventanas ni herrería.
 - **Fachadas mexicanas**: un shader pinta en cada tramo de pared ventanas con herrería, puertas, cortinas metálicas y zaguanes, del color de cada casa. Las azoteas salen con impermeabilizante rojo o losa gris. Las texturas salen de `tools/map_import/make_textures.py`: con `--estilo fotos` (el actual) usa fotos CC0 de [Poly Haven](https://polyhaven.com) para aplanado, puertas, cortinas y azoteas; con `--estilo dibujado` todo es dibujo propio. El suelo de tierra y las banquetas también son fotos de Poly Haven.
 - **Negocios reales**: 85 negocios del [DENUE del INEGI](https://www.inegi.org.mx/app/descarga/?ti=6) (tiendas, taquerías, OXXO, farmacias, tortillerías, puestos y una gasolinera).
   - De varios negocios del mismo giro muy juntos, solo se deja uno: a menos de 80 m, o 150 m en tiendas de abarrotes.
   - Cada tienda ocupa el lote de una casa y mira hacia la calle.
   - Los OXXO, tiendas, farmacias, puestos, puestos de tacos y la gasolinera usan modelos low-poly de Sketchfab (CC BY), con sus proporciones originales y un tamaño fijo por giro (pueden encimarse en las casas de al lado).
   - Las taquerías y tortillerías son locales armados en código: cortina abierta, mostrador, letrero con su nombre y, en taquerías, lona.
+- **Calle**: una señal de alto en 1 de cada 20 esquinas.
 - **Carga por partes (streaming)**: el mapa está partido en cuadros de 128 m y solo se cargan los cercanos al jugador (o al dron), en segundo plano. Lo mismo con las tiendas. Hay unos 40 de 201 cuadros en memoria a la vez.
 
 No se usan imágenes ni datos de Google Maps o Street View: sus términos lo prohíben. Street View solo sirve como referencia visual para corregir cosas a mano.
@@ -68,11 +73,13 @@ No se usan imágenes ni datos de Google Maps o Street View: sus términos lo pro
 | Archivo | Para qué |
 |---|---|
 | `data/map/overrides.json` | Cambiar etiquetas de una casa de OSM, por ejemplo pisos o color: `"way/<id>": {"building:levels": "3"}`. |
+| `data/map/casas.json` | Qué modelos de casa van en cada colonia, por número de pisos y con un peso. |
+| `data/map/colonias.json` | Corregir la colonia de una manzana: `"lat,lon de un punto de la manzana": "COLONIA"`. |
 | `data/map/puntos.json` | Agregar tiendas o puestos con `{tipo, nombre, lat, lon}`, o quitar negocios mal ubicados con `"omitir"` (usa el `origen` que sale en `resources/map/puntos_mapa.json`). |
 | `scenes/map_test.tscn` → nodo `Puntos` | Elegir qué modelo usa cada tipo de negocio (`prefabs`), cómo girarlo (`prefab_rotacion`) y cuántos metros de frente tiene (`prefab_ancho`). |
 | `scenes/map_test.tscn` → nodo `Dron` | Altura, velocidad e inclinación del dron. |
 
-Después de editar `overrides.json` o `puntos.json` hay que regenerar el mapa (ver abajo).
+Después de editar `overrides.json`, `puntos.json`, `casas.json` o `colonias.json` hay que regenerar el mapa (ver abajo).
 
 ### Regenerar el mapa
 
@@ -87,7 +94,7 @@ rm -f .godot/imported/zona_mapa.glb-* && godot --path . --headless --import
 godot --path . --headless -s tools/map_import/split_cuadros.gd   # parte el mapa en resources/map/cuadros/
 ```
 
-Los modelos de tiendas ya vienen en `models/tiendas/`. Para volver a bajarlos se necesita un token de Sketchfab:
+Los modelos de tiendas, casas y props ya vienen en `models/`. Para volver a bajarlos se necesita un token de Sketchfab:
 
 ```bash
 SKETCHFAB_TOKEN=xxxx python3 -I tools/map_import/fetch_sketchfab.py

@@ -9,15 +9,25 @@
 - Coloca las tiendas y puestos de data/map/denue_puntos.json (INEGI, ver
   fetch_denue.py), data/map/puntos.json (a mano) y los que ya trae OSM:
   quita la casa que esta debajo y escribe sus posiciones en metros para Godot.
+  Tambien pone altos en las esquinas.
+- Parte la zona en manzanas (lo que encierran las calles) y le da a cada una la
+  colonia que mas negocios del DENUE tiene ahi (data/map/denue_colonias.json).
+- En las colonias de data/map/casas.json cambia las casas por modelos 3D: parte
+  las hileras en lotes, alinea las fachadas de cada cuadra y escribe
+  resources/map/casas_mapa.json para MapCasas.gd.
 
 Uso: ver build_glb.sh (python3 prepare_osm.py --help)
 """
 
 import argparse
+import array
+import collections
 import csv
 import json
 import math
 import os
+import random
+import struct
 import sys
 import xml.etree.ElementTree as ET
 import zlib
@@ -35,6 +45,21 @@ PALETTE = [
 	"#e3b448",  # amarillo
 	"#9fb8c9",  # azul palido
 	"#d4b3a3",  # rosa viejo
+]
+
+# Colores de las casas modelo (MapCasas): mas vivos que PALETTE, porque el shader
+# los multiplica por la sombra de la textura y la niebla los deslava
+CASA_PALETTE = [
+	"#e05a47",  # rojo
+	"#f2994a",  # naranja
+	"#f2c94c",  # amarillo
+	"#7cc06a",  # verde
+	"#3fa7b5",  # turquesa
+	"#5b8fd9",  # azul
+	"#d9608f",  # rosa mexicano
+	"#a47ad1",  # morado
+	"#e8d7b9",  # crema
+	"#f7f4ec",  # blanco
 ]
 
 HEIGHT_KEYS = ("height", "building:levels", "levels")
@@ -80,6 +105,40 @@ MAX_SHOP_LOT = 300.0
 DUPLICATE_DIST = 80.0
 # Radio propio para tipos que sobran aun con DUPLICATE_DIST
 DUPLICATE_DIST_TIPO = {"tienda": 150.0}
+
+
+# Calles que separan manzanas (las de servicio y andadores quedan dentro de los cotos)
+BLOCK_STREET_TYPES = {"primary", "secondary", "tertiary", "unclassified", "residential", "living_street"}
+# Resolucion (m por celda) y medio grosor (m) de las calles al dibujar las manzanas.
+# Las calles se engordan para cerrar los huecos donde OSM no une dos calles.
+BLOCK_CELL = 1.0
+BLOCK_STREET_HALF = 4.0
+# Las privadas sin salida dejarian manzanas enormes: se alargan hasta la calle
+# siguiente si esta a menos de esto (m)
+BLOCK_DEAD_END = 50.0
+
+# Votacion de la colonia: negocios mas cercanos que cuentan y distancia maxima (m)
+COLONIA_VECINOS = 9
+COLONIA_MAX_DIST = 250.0
+
+# Casas modelo: frente tipico de un lote Infonavit (m). Una huella con mas
+# frente que LOTE_PARTIR * ANCHO_LOTE es una hilera que Google junto: se parte.
+ANCHO_LOTE = 6.5
+LOTE_PARTIR = 1.6
+# La fachada nunca se pega mas que esto al eje de la calle (m)
+SETBACK_MIN = 3.5
+# Casas mas lejos de una calle que esto (m) se quedan como estan
+CASA_MAX_CALLE = 30.0
+# Huellas fuera de este rango (m2) no son casas (tinacos, bodegas, escuelas)
+CASA_AREA = (25.0, 1500.0)
+CASA_FONDO_MIN = 6.0
+
+# Altos: uno de cada ALTO_CADA esquinas, ALTO_ANTES m antes del cruce
+ALTO_CADA = 20
+ALTO_ANTES = 6.0
+
+# Semilla fija: los altos salen igual en cada corrida
+SEMILLA_PROPS = 2026
 
 
 def seed(osm_id: str) -> int:
@@ -335,6 +394,336 @@ def place_puntos(puntos, kept_ways, pos, lat0, lon0) -> list:
 	return placed
 
 
+def street_lines(kept_ways, pos, lat0, lon0, types) -> list:
+	"""[(way_id, [(x, z), ...], [node_id, ...])] de las calles de esos tipos."""
+	lines = []
+	for way_id, way in kept_ways.items():
+		if tags_of(way).get("highway") in types:
+			refs = [nd.get("ref") for nd in way.findall("nd")]
+			lines.append((way_id, [local_xz(*pos[r], lat0, lon0) for r in refs], refs))
+	return lines
+
+
+class Manzanas:
+	"""Las calles dibujadas en una rejilla de BLOCK_CELL m; cada region que
+	encierran es una manzana (se etiquetan con una inundacion)."""
+
+	def __init__(self, lines, x0, z0, x1, z1):
+		self.x0, self.z0 = x0, z0
+		self.w = int((x1 - x0) / BLOCK_CELL) + 1
+		self.h = int((z1 - z0) / BLOCK_CELL) + 1
+		street = bytearray(self.w * self.h)
+		self.street = street
+		for _, line, _ in lines:
+			for a, b in zip(line, line[1:]):
+				self._draw(a, b)
+
+		# Privadas: extremos de calle que no tocan otra calle se alargan en su
+		# misma direccion hasta topar con una calle
+		grado = collections.Counter()
+		for _, _, refs in lines:
+			grado[refs[0]] += 1
+			grado[refs[-1]] += 1
+			for r in refs[1:-1]:
+				grado[r] += 2
+		for _, line, refs in lines:
+			for end, prev, ref in ((line[-1], line[-2], refs[-1]), (line[0], line[1], refs[0])):
+				if grado[ref] != 1:
+					continue
+				length = math.hypot(end[0] - prev[0], end[1] - prev[1])
+				if length < 1e-6:
+					continue
+				dx, dz = (end[0] - prev[0]) / length, (end[1] - prev[1]) / length
+				d = BLOCK_STREET_HALF + 1.5
+				while d <= BLOCK_DEAD_END:
+					cx, cz = self.cell(end[0] + dx * d, end[1] + dz * d)
+					if not (0 <= cx < self.w and 0 <= cz < self.h):
+						break
+					if street[cz * self.w + cx]:
+						self._draw(end, (end[0] + dx * d, end[1] + dz * d))
+						break
+					d += BLOCK_CELL / 2
+		# 0 = calle, 1.. = manzana
+		labels = array.array("i", bytes(4 * self.w * self.h))
+		count = 0
+		w, h = self.w, self.h
+		for start in range(w * h):
+			if street[start] or labels[start]:
+				continue
+			count += 1
+			labels[start] = count
+			stack = [start]
+			while stack:
+				i = stack.pop()
+				x = i % w
+				for j in (i - 1 if x > 0 else -1, i + 1 if x < w - 1 else -1, i - w, i + w):
+					if 0 <= j < w * h and not street[j] and not labels[j]:
+						labels[j] = count
+						stack.append(j)
+		self.labels = labels
+		self.count = count
+
+	def _draw(self, a, b) -> None:
+		r = int(math.ceil(BLOCK_STREET_HALF / BLOCK_CELL))
+		(ax, az), (bx, bz) = a, b
+		steps = int(math.hypot(bx - ax, bz - az) / (BLOCK_CELL / 2)) + 1
+		for i in range(steps + 1):
+			t = i / steps
+			cx, cz = self.cell(ax + (bx - ax) * t, az + (bz - az) * t)
+			for dz in range(-r, r + 1):
+				for dx in range(-r, r + 1):
+					if 0 <= cx + dx < self.w and 0 <= cz + dz < self.h:
+						self.street[(cz + dz) * self.w + cx + dx] = 1
+
+	def cell(self, x, z) -> tuple:
+		return int((x - self.x0) / BLOCK_CELL), int((z - self.z0) / BLOCK_CELL)
+
+	def at(self, x, z) -> int:
+		"""Manzana del punto; si cae en la calle, la mas cercana (hasta 6 celdas)."""
+		cx, cz = self.cell(x, z)
+		for radius in range(7):
+			for dz in range(-radius, radius + 1):
+				for dx in range(-radius, radius + 1):
+					if max(abs(dx), abs(dz)) != radius:
+						continue
+					if 0 <= cx + dx < self.w and 0 <= cz + dz < self.h:
+						label = self.labels[(cz + dz) * self.w + cx + dx]
+						if label:
+							return label
+		return 0
+
+
+def colonias_por_manzana(manzanas, negocios, casas_xz, manuales) -> dict:
+	"""Manzana -> colonia. Gana la colonia con mas negocios del DENUE dentro de la
+	manzana; si no tiene, votan sus casas con sus negocios mas cercanos."""
+	votos = collections.defaultdict(collections.Counter)
+	for x, z, colonia in negocios:
+		label = manzanas.at(x, z)
+		if label:
+			votos[label][colonia] += 1
+	result = {label: c.most_common(1)[0][0] for label, c in votos.items()}
+
+	grid = collections.defaultdict(list)
+	for x, z, colonia in negocios:
+		grid[(int(x // 100), int(z // 100))].append((x, z, colonia))
+	sin_negocios = collections.defaultdict(collections.Counter)
+	for x, z in casas_xz:
+		label = manzanas.at(x, z)
+		if not label or label in result:
+			continue
+		cerca = []
+		for radius in range(1, 4):
+			cx, cz = int(x // 100), int(z // 100)
+			cerca = [(math.hypot(nx - x, nz - z), colonia)
+				for dx in range(-radius, radius + 1) for dz in range(-radius, radius + 1)
+				for nx, nz, colonia in grid.get((cx + dx, cz + dz), ())]
+			if len(cerca) >= COLONIA_VECINOS:
+				break
+		cerca.sort()
+		cerca = [c for c in cerca[:COLONIA_VECINOS] if c[0] <= COLONIA_MAX_DIST]
+		if cerca:
+			sin_negocios[label][collections.Counter(c for _, c in cerca).most_common(1)[0][0]] += 1
+	for label, c in sin_negocios.items():
+		result[label] = c.most_common(1)[0][0]
+	for (x, z), colonia in manuales:
+		label = manzanas.at(x, z)
+		if label:
+			result[label] = colonia
+	return result
+
+
+def write_png(path, width, height, rgb: bytearray) -> None:
+	raw = b"".join(b"\0" + bytes(rgb[y * width * 3:(y + 1) * width * 3]) for y in range(height))
+
+	def chunk(kind, data):
+		body = kind + data
+		return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body))
+
+	with open(path, "wb") as f:
+		f.write(b"\x89PNG\r\n\x1a\n")
+		f.write(chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)))
+		f.write(chunk(b"IDAT", zlib.compress(raw, 6)))
+		f.write(chunk(b"IEND", b""))
+
+
+def png_colonias(path, manzanas, colonia_de, casas) -> None:
+	"""Manzanas pintadas por colonia (calles negras, casas mas oscuras)."""
+	nombres = sorted(set(colonia_de.values()))
+	colores = {}
+	for nombre in nombres:
+		s = seed(nombre)
+		colores[nombre] = (80 + s % 160, 80 + (s >> 8) % 160, 80 + (s >> 16) % 160)
+	w, h = manzanas.w, manzanas.h
+	rgb = bytearray(w * h * 3)
+	por_label = [(235, 235, 235)] * (manzanas.count + 1)
+	for label, nombre in colonia_de.items():
+		por_label[label] = colores[nombre]
+	for i in range(w * h):
+		if manzanas.street[i]:
+			continue
+		rgb[i * 3:i * 3 + 3] = bytes(por_label[manzanas.labels[i]])
+	for ring in casas:
+		xs = [p[0] for p in ring]
+		zs = [p[1] for p in ring]
+		ax, az = manzanas.cell(min(xs), min(zs))
+		bx, bz = manzanas.cell(max(xs), max(zs))
+		for cz in range(max(az, 0), min(bz + 1, h)):
+			for cx in range(max(ax, 0), min(bx + 1, w)):
+				x = manzanas.x0 + (cx + 0.5) * BLOCK_CELL
+				z = manzanas.z0 + (cz + 0.5) * BLOCK_CELL
+				if point_in_polygon(x, z, ring):
+					i = (cz * w + cx) * 3
+					rgb[i:i + 3] = bytes(c * 3 // 5 for c in rgb[i:i + 3])
+	write_png(path, w, h, rgb)
+	print(f"  Colonias: {path}")
+	for nombre in nombres:
+		print(f"    rgb{colores[nombre]}  {nombre}")
+
+
+def ring_area(local) -> float:
+	return abs(sum(ax * bz - bx * az for (ax, az), (bx, bz) in zip(local, local[1:]))) / 2
+
+
+def nearest_segment(px, pz, lines, max_dist):
+	"""(dist, way_id, (ax, az), (dx, dz) unitario) del tramo de calle mas cercano."""
+	best = None
+	for way_id, line, _ in lines:
+		for (ax, az), (bx, bz) in zip(line, line[1:]):
+			if min(ax, bx) - max_dist > px or px > max(ax, bx) + max_dist:
+				continue
+			if min(az, bz) - max_dist > pz or pz > max(az, bz) + max_dist:
+				continue
+			dx, dz = bx - ax, bz - az
+			length = math.hypot(dx, dz)
+			if length < 1e-6:
+				continue
+			t = max(0.0, min(length, ((px - ax) * dx + (pz - az) * dz) / length))
+			cx, cz = ax + dx / length * t, az + dz / length * t
+			d = math.hypot(cx - px, cz - pz)
+			if d <= max_dist and (best is None or d < best[0]):
+				best = (d, way_id, (ax, az), (dx / length, dz / length))
+	return best
+
+
+def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas) -> list:
+	"""Cambia por modelos las casas de las colonias de `reglas` (data/map/casas.json).
+	Cada huella se mide en los ejes de su calle; las hileras se parten en lotes y
+	todas las fachadas de una cuadra (misma calle, mismo lado, misma manzana) se
+	ponen a la misma distancia del eje de la calle: la mediana de sus casas."""
+	casas = []
+	for way_id, way in kept_ways.items():
+		tags = tags_of(way)
+		if tags.get("building") not in ("yes", "house", "residential") or "name" in tags or "shop" in tags or "amenity" in tags:
+			continue
+		local = [local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")]
+		area = ring_area(local)
+		if not CASA_AREA[0] <= area <= CASA_AREA[1]:
+			continue
+		cx, cz = centroid(local[:-1])
+		calle = nearest_segment(cx, cz, lines, CASA_MAX_CALLE)
+		if calle is None:
+			continue
+		_, street_id, (ax, az), (dx, dz) = calle
+		# n: de la calle hacia la casa
+		nx, nz = -dz, dx
+		if (cx - ax) * nx + (cz - az) * nz < 0:
+			nx, nz = -nx, -nz
+		us = [(x - ax) * dx + (z - az) * dz for x, z in local]
+		vs = [(x - ax) * nx + (z - az) * nz for x, z in local]
+		casas.append({
+			"way_id": way_id, "tags": tags,
+			"manzana": manzanas.at(cx, cz),
+			"grupo": (street_id, nx * dz - nz * dx > 0, manzanas.at(cx, cz)),
+			"a": (ax, az), "d": (dx, dz), "n": (nx, nz),
+			"u0": min(us), "u1": max(us), "frente": min(vs), "fondo": max(vs),
+		})
+
+	# Alineacion: mediana del frente de todas las casas de la cuadra (tambien las
+	# que no se cambian, para que los modelos queden al pano con las vecinas)
+	frentes = collections.defaultdict(list)
+	for casa in casas:
+		frentes[casa["grupo"]].append(casa["frente"])
+	setback = {g: max(SETBACK_MIN, sorted(f)[len(f) // 2]) for g, f in frentes.items()}
+
+	placed = []
+	replaced = []
+	for casa in casas:
+		colonia = colonia_de.get(casa["manzana"], "")
+		regla = reglas.get(colonia) or reglas.get("*")
+		if not regla:
+			continue
+		s_casa = seed("casa/" + casa["way_id"])
+		if (s_casa % 1000) / 1000.0 >= regla.get("_proporcion", 1.0):
+			continue
+		frontage = casa["u1"] - casa["u0"]
+		n_lotes = max(1, round(frontage / ANCHO_LOTE)) if frontage > LOTE_PARTIR * ANCHO_LOTE else 1
+		ancho = frontage / n_lotes
+		frente = setback[casa["grupo"]]
+		fondo = max(CASA_FONDO_MIN, casa["fondo"] - frente)
+		(ax, az), (dx, dz), (nx, nz) = casa["a"], casa["d"], casa["n"]
+		rot = math.atan2(-nx, -nz)
+		levels_tag = casa["tags"].get("building:levels")
+		for i in range(n_lotes):
+			s = seed(f"way/{casa['way_id']}#{i}")
+			pisos = int(levels_tag) if levels_tag and levels_tag.isdigit() else 1 + s % 2
+			opciones = regla.get(str(pisos)) or regla.get("*")
+			if not opciones:
+				continue
+			total = sum(peso for _, peso in opciones)
+			pick = ((s >> 8) % 10000) / 10000.0 * total
+			for modelo, peso in opciones:
+				pick -= peso
+				if pick < 0:
+					break
+			u = casa["u0"] + (i + 0.5) * ancho
+			placed.append({
+				"modelo": modelo,
+				"x": round(ax + dx * u + nx * frente, 2), "z": round(az + dz * u + nz * frente, 2),
+				"rotacion_y": round(rot, 4),
+				"ancho": round(ancho, 2), "fondo": round(fondo, 2),
+				"pisos": pisos,
+				"color": CASA_PALETTE[(s >> 4) % len(CASA_PALETTE)],
+				"colonia": colonia,
+			})
+		replaced.append(casa["way_id"])
+	for way_id in replaced:
+		del kept_ways[way_id]
+	return placed
+
+
+def place_altos(lines, inside) -> tuple:
+	"""Un alto en una de cada ALTO_CADA esquinas (nodos donde llegan 3 o mas tramos
+	de calle), en la banqueta derecha antes del cruce, viendo al trafico."""
+	vecinos = collections.defaultdict(set)
+	xz = {}
+	for _, line, refs in lines:
+		for (a, ra), (b, rb) in zip(zip(line, refs), zip(line[1:], refs[1:])):
+			vecinos[ra].add(rb)
+			vecinos[rb].add(ra)
+			xz[ra], xz[rb] = a, b
+	esquinas = sorted(n for n, v in vecinos.items() if len(v) >= 3 and inside(*xz[n]))
+	rng = random.Random(SEMILLA_PROPS)
+	rng.shuffle(esquinas)
+	placed = []
+	for node in esquinas[::ALTO_CADA]:
+		x, z = xz[node]
+		llega = sorted(vecinos[node])[seed(node) % len(vecinos[node])]
+		lx, lz = xz[llega]
+		length = math.hypot(x - lx, z - lz)
+		if length < ALTO_ANTES + 2.0:
+			continue
+		dx, dz = (x - lx) / length, (z - lz) / length  # sentido del trafico que llega
+		rx, rz = -dz, dx  # derecha del conductor (x = este, z = sur)
+		placed.append({
+			"tipo": "alto", "nombre": "Alto",
+			"x": round(x - dx * ALTO_ANTES + rx * PUESTO_STREET_DIST, 3),
+			"z": round(z - dz * ALTO_ANTES + rz * PUESTO_STREET_DIST, 3),
+			"rotacion_y": round(math.atan2(-dx, -dz), 4),
+			"ancho": 0.6, "fondo": 0.2, "casa_reemplazada": None, "origen": f"esquina node/{node}",
+		})
+	return placed, len(esquinas)
+
+
 def main() -> None:
 	parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 	parser.add_argument("--bbox", nargs=4, type=float, required=True, metavar=("SOUTH", "WEST", "NORTH", "EAST"))
@@ -345,6 +734,11 @@ def main() -> None:
 	parser.add_argument("--puntos", action="append", default=[],
 		help="JSON de tiendas/puestos (se puede repetir: denue_puntos.json, puntos.json)")
 	parser.add_argument("--salida-puntos", help="JSON con los puntos ya en metros, para Godot")
+	parser.add_argument("--colonias-denue", help="data/map/denue_colonias.json (fetch_denue.py)")
+	parser.add_argument("--colonias", help="data/map/colonias.json: correcciones a mano por manzana")
+	parser.add_argument("--casas", help="data/map/casas.json: que modelos de casa van en cada colonia")
+	parser.add_argument("--salida-casas", help="JSON con las casas modelo, para Godot (MapCasas.gd)")
+	parser.add_argument("--png-colonias", help="PNG de debug con las manzanas pintadas por colonia")
 	args = parser.parse_args()
 	south, west, north, east = args.bbox
 	src, overrides_path, dst, google_path = args.osm, args.overrides, args.salida, args.google
@@ -438,6 +832,35 @@ def main() -> None:
 			if node.get("id") not in pos:
 				pos[node.get("id")] = (float(node.get("lat")), float(node.get("lon")))
 
+	def inside_local(x, z):
+		return min_x <= x <= max_x and min_z <= z <= max_z
+
+	min_x, max_z = local_xz(south, west, lat0, lon0)
+	max_x, min_z = local_xz(north, east, lat0, lon0)
+
+	# Manzanas y colonias (antes de las tiendas: las tiendas quitan casas)
+	manzanas = colonia_de = None
+	if args.colonias_denue and os.path.exists(args.colonias_denue):
+		block_lines = street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)
+		mx0, mz0 = local_xz(south - dlat, west - dlon, lat0, lon0)
+		mx1, mz1 = local_xz(north + dlat, east + dlon, lat0, lon0)
+		manzanas = Manzanas(block_lines, mx0, min(mz0, mz1), mx1, max(mz0, mz1))
+		with open(args.colonias_denue, encoding="utf-8") as f:
+			negocios = [(*local_xz(lat, lon, lat0, lon0), colonia) for lat, lon, colonia in json.load(f)["negocios"]]
+		manuales = []
+		if args.colonias and os.path.exists(args.colonias):
+			with open(args.colonias, encoding="utf-8") as f:
+				for key, colonia in json.load(f).items():
+					if not key.startswith("_"):
+						lat, lon = map(float, key.split(","))
+						manuales.append((local_xz(lat, lon, lat0, lon0), colonia))
+		building_rings = [[local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")]
+			for way in kept_ways.values() if "building" in tags_of(way)]
+		colonia_de = colonias_por_manzana(manzanas, negocios, [centroid(r[:-1]) for r in building_rings], manuales)
+		print(f"  Manzanas: {manzanas.count}, con colonia: {len(colonia_de)}")
+		if args.png_colonias:
+			png_colonias(args.png_colonias, manzanas, colonia_de, building_rings)
+
 	# Tiendas y puestos: los de puntos.json mas los que ya estan en OSM
 	if args.salida_puntos:
 		puntos = []
@@ -464,11 +887,28 @@ def main() -> None:
 				kept_puntos.append((p, px, pz))
 		print(f"  Puntos repetidos (mismo tipo a < {DUPLICATE_DIST:.0f} m, tiendas a < {DUPLICATE_DIST_TIPO['tienda']:.0f} m): {len(puntos) - len(kept_puntos)} quitados")
 		placed = place_puntos([p for p, _, _ in kept_puntos], kept_ways, pos, lat0, lon0)
+		prop_lines = street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)
+		altos, n_esquinas = place_altos(prop_lines, inside_local)
+		placed += altos
+		print(f"  Altos: {len(altos)} de {n_esquinas} esquinas")
 		os.makedirs(os.path.dirname(args.salida_puntos), exist_ok=True)
 		with open(args.salida_puntos, "w", encoding="utf-8") as f:
 			json.dump({"puntos": placed}, f, ensure_ascii=False, indent="\t")
 		replaced = sum(1 for p in placed if p["casa_reemplazada"])
 		print(f"  Puntos: {len(placed)} ({replaced} reemplazan una casa) -> {args.salida_puntos}")
+
+	# Casas modelo por colonia (despues de las tiendas, que ya tomaron sus lotes)
+	if args.casas and args.salida_casas and colonia_de is not None:
+		with open(args.casas, encoding="utf-8") as f:
+			reglas = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
+		casa_lines = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
+		casas = place_casas(kept_ways, pos, lat0, lon0, casa_lines, manzanas, colonia_de, reglas)
+		os.makedirs(os.path.dirname(args.salida_casas), exist_ok=True)
+		with open(args.salida_casas, "w", encoding="utf-8") as f:
+			f.write('{"casas": [\n' + ",\n".join(json.dumps(c, ensure_ascii=False) for c in casas) + "\n]}\n")
+		print(f"  Casas modelo: {len(casas)} -> {args.salida_casas}")
+		for (colonia, modelo), n in sorted(collections.Counter((c["colonia"], c["modelo"]) for c in casas).items()):
+			print(f"    {colonia or '(sin colonia)'}: {modelo} x{n}")
 
 	filled = 0
 	for way in kept_ways.values():
