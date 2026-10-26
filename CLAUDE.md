@@ -34,7 +34,7 @@ godot --path . --headless --check-only --script res://scripts/player.gd  # parse
 
 ## Real-world map pipeline (`tools/map_import/`)
 
-`models/zona_mapa.glb` is a real area of Zapopan built from OpenStreetMap with OSM2World 0.4.0 (Java). It is gitignored (~47 MB): the game only loads the chunks in `resources/map/cuadros/`, which are committed. Regenerate the .glb with the commands below before running `split_cuadros.gd`. The bbox lives in `tools/map_import/area.env`. `README.md` has the user-facing (Spanish) overview.
+`models/zona_mapa.glb` is a real area of Zapopan built from OpenStreetMap with OSM2World 0.4.0 (Java). It is gitignored (~47 MB): the game only loads the chunks in `resources/map/cuadros/`, which are committed. Regenerate the .glb with the commands below before running `split_cuadros.gd`. The bbox lives in `tools/map_import/area.env`. `README.md` has the user-facing (Spanish) project overview and `docs/mapa/README.md` the full map guide (keep it in sync when the map changes; `docs/.gdignore` keeps its screenshots out of the Godot import).
 
 ```bash
 bash tools/map_import/fetch_osm.sh      # Overpass -> data/map/area.osm (needs a User-Agent; falls back to mirrors on 504)
