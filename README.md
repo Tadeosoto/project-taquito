@@ -26,7 +26,7 @@ La primera vez, abre el proyecto en el editor (o corre `godot --path . --headles
 | Acción | Teclado |
 |---|---|
 | Moverse | WASD / flechas |
-| Cámara | Mouse o Q / E |
+| Cámara | Mouse (en `map_test.tscn` también Q / E) |
 | Correr | Shift |
 | Saltar / hablar con NPC | Espacio |
 | Inventario: anterior / siguiente | Q / E |

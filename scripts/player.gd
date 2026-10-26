@@ -9,6 +9,8 @@ class_name Player
 @export var gravity: float = 40.0
 @export var acceleration: float = 15.0
 @export var jump_velocity: float = 13.0
+# Q / E giran la camara (lo prende map_test.tscn; en world.tscn Q es del inventario)
+@export var girar_con_qe: bool = false
 
 # Initial downward pitch. Includes the +10.4 deg that used to be baked into the
 # Camera3D node's transform, so removing that offset keeps the same view.
@@ -94,6 +96,9 @@ func _physics_process(delta: float) -> void:
 		"camera_down",
 		0.2
 	)
+	if girar_con_qe:
+		var teclas := float(Input.is_physical_key_pressed(KEY_E)) - float(Input.is_physical_key_pressed(KEY_Q))
+		camera_input.x = clampf(camera_input.x + teclas, -1.0, 1.0)
 	if camera_input.length() > 0.2:
 		camera_pivot.rotation.y -= camera_input.x * camera_sensitivity * delta
 		camera_pitch -= camera_input.y * camera_sensitivity * 50.0 * delta
