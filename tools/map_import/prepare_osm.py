@@ -140,6 +140,31 @@ ALTO_ANTES = 6.0
 # Semilla fija: los altos salen igual en cada corrida
 SEMILLA_PROPS = 2026
 
+# Calles: ancho del arroyo (m, sin banquetas) y de cada banqueta por tipo. Si las
+# fachadas de la calle estan mas cerca, se angostan (primero la banqueta, hasta
+# BANQUETA_MIN, luego el arroyo, hasta ARROYO_MIN_MEDIO de cada lado del eje)
+ANCHO_CALLE = {
+	"primary": 14.0, "primary_link": 7.0, "secondary": 12.0, "tertiary": 10.0,
+	"residential": 7.0, "unclassified": 6.0, "living_street": 6.0, "service": 4.0,
+}
+BANQUETA = {"primary": 2.0, "secondary": 2.0, "tertiary": 2.0, "residential": 1.5,
+	"unclassified": 1.2, "living_street": 1.2}
+BANQUETA_MIN = 0.9
+ARROYO_MIN_MEDIO = 2.5
+# Espacio que se deja entre la banqueta y la fachada (m)
+FACHADA_HOLGURA = 0.3
+
+# Camellones: dos calles de un sentido, con el mismo nombre, en sentidos opuestos
+# y a esta distancia (m) entre ejes. Cada una lleva la mitad del arroyo mas 1 m.
+CAMELLON_DIST = (6.0, 40.0)
+CAMELLON_MUESTRA = 4.0
+# No se dibuja camellon a menos de esto (m) de una calle que lo atraviesa
+CAMELLON_CRUCE = 6.0
+CAMELLON_ANCHO_MIN = 1.0
+# Guarnicion del camellon: una barda de concreto bajita
+CAMELLON_GUARNICION = 0.12
+CAMELLON_ID_START = 3 * 10**15
+
 
 def seed(osm_id: str) -> int:
 	return zlib.crc32(osm_id.encode())
@@ -306,13 +331,13 @@ def ring_distance(px: float, pz: float, ring: list) -> float:
 	return best
 
 
-def place_puntos(puntos, kept_ways, pos, lat0, lon0) -> list:
+def place_puntos(puntos, kept_ways, pos, lat0, lon0, perfil=None) -> list:
 	"""Calcula posicion, giro y tamano de cada punto en el mapa. Si un punto cae
 	sobre una casa, la quita de kept_ways para que la tienda ocupe su lote."""
 	streets = []
-	for way in kept_ways.values():
+	for way_id, way in kept_ways.items():
 		if tags_of(way).get("highway") in STREET_TYPES:
-			streets.append([local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")])
+			streets.append((way_id, [local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")]))
 
 	buildings = {}
 	for way_id, way in kept_ways.items():
@@ -336,7 +361,7 @@ def place_puntos(puntos, kept_ways, pos, lat0, lon0) -> list:
 
 		# La fachada (+Z del modelo) ve hacia la calle mas cercana
 		best = None
-		for line in streets:
+		for street_id, line in streets:
 			for (ax, az), (bx, bz) in zip(line, line[1:]):
 				dx, dz = bx - ax, bz - az
 				length2 = dx * dx + dz * dz or 1e-9
@@ -344,17 +369,20 @@ def place_puntos(puntos, kept_ways, pos, lat0, lon0) -> list:
 				cx, cz = ax + t * dx, az + t * dz
 				d2 = (cx - px) ** 2 + (cz - pz) ** 2
 				if best is None or d2 < best[0]:
-					best = (d2, cx, cz)
+					best = (d2, cx, cz, street_id)
 		rot = math.atan2(best[1] - px, best[2] - pz) if best else 0.0
 		if "rotacion" in punto:
 			rot = math.radians(punto["rotacion"])
 		forward = (math.sin(rot), math.cos(rot))
 		right = (math.cos(rot), -math.sin(rot))
 
-		# Los puestos se recorren a la banqueta, de frente a la calle
-		if tipo in NO_REPLACE_TIPOS and best and best[0] > PUESTO_STREET_DIST ** 2:
-			px = best[1] - forward[0] * PUESTO_STREET_DIST
-			pz = best[2] - forward[1] * PUESTO_STREET_DIST
+		# Los puestos se recorren a la banqueta, de frente a la calle (pasando la guarnicion)
+		dist = PUESTO_STREET_DIST
+		if best and perfil and best[3] in perfil:
+			dist = max(dist, perfil[best[3]][0] + 1.2)
+		if tipo in NO_REPLACE_TIPOS and best and best[0] > dist ** 2:
+			px = best[1] - forward[0] * dist
+			pz = best[2] - forward[1] * dist
 
 		ancho, fondo = DEFAULT_SIZE.get(tipo, FALLBACK_SIZE)
 		reemplazada = None
@@ -392,6 +420,69 @@ def place_puntos(puntos, kept_ways, pos, lat0, lon0) -> list:
 			"origen": punto.get("origen", "puntos.json"),
 		})
 	return placed
+
+
+# Lo que se encoge la huella de un negocio antes de buscar casas encimadas (m), para
+# no quitar la vecina que solo toca la orilla
+HUELLA_MARGEN = 0.3
+
+
+def huella_negocio(punto, huellas):
+	"""Esquinas (x, z) de lo que ocupa un negocio en el juego (como MapPuntos.gd): el
+	modelo escalado a su frente, o el local armado, con la fachada en la orilla del
+	lote que da a la calle y creciendo hacia atras. None para los altos."""
+	tipo = punto["tipo"]
+	if tipo == "alto":
+		return None
+	ancho, fondo = punto["ancho"], punto["fondo"]
+	if tipo in huellas.get("modelos", {}):
+		w, d = huellas["modelos"][tipo]
+	elif tipo in huellas.get("_locales", []):
+		w, d = max(ancho, huellas["_local_min"][0]), max(fondo, huellas["_local_min"][1])
+	else:
+		w, d = ancho, fondo
+	frente = fondo / 2.0
+	return rectangulo(punto["x"], punto["z"], punto["rotacion_y"], w - 2 * HUELLA_MARGEN,
+		frente - HUELLA_MARGEN, frente - d + HUELLA_MARGEN)
+
+
+def rectangulo(x, z, rot, ancho, z_frente, z_fondo) -> list:
+	"""Esquinas de un rectangulo en los ejes de un lote girado `rot` (+Z = frente)."""
+	c, s = math.cos(rot), math.sin(rot)
+	return [(x + lx * c + lz * s, z - lx * s + lz * c)
+		for lx, lz in ((-ancho / 2, z_frente), (ancho / 2, z_frente), (ancho / 2, z_fondo), (-ancho / 2, z_fondo))]
+
+
+def se_enciman(a, b) -> bool:
+	"""Si dos poligonos (listas de (x, z), sin repetir el primero) se tocan por dentro."""
+	if max(p[0] for p in a) < min(p[0] for p in b) or max(p[0] for p in b) < min(p[0] for p in a) \
+			or max(p[1] for p in a) < min(p[1] for p in b) or max(p[1] for p in b) < min(p[1] for p in a):
+		return False
+	if any(point_in_polygon(x, z, b) for x, z in a) or any(point_in_polygon(x, z, a) for x, z in b):
+		return True
+
+	def cruza(p1, p2, p3, p4):
+		def lado(o, p, q):
+			return (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0])
+		return lado(p3, p4, p1) * lado(p3, p4, p2) < 0 and lado(p1, p2, p3) * lado(p1, p2, p4) < 0
+
+	return any(cruza(a[i], a[(i + 1) % len(a)], b[j], b[(j + 1) % len(b)])
+		for i in range(len(a)) for j in range(len(b)))
+
+
+def quitar_casas_bajo_negocios(kept_ways, pos, lat0, lon0, huellas_negocios) -> int:
+	"""Quita de kept_ways los edificios que se enciman con algun negocio."""
+	quitar = []
+	for way_id, way in kept_ways.items():
+		if "building" not in tags_of(way):
+			continue
+		ring = [local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")]
+		ring = ring[:-1] if ring[0] == ring[-1] else ring
+		if any(se_enciman(ring, h) for h in huellas_negocios):
+			quitar.append(way_id)
+	for way_id in quitar:
+		del kept_ways[way_id]
+	return len(quitar)
 
 
 def street_lines(kept_ways, pos, lat0, lon0, types) -> list:
@@ -605,7 +696,288 @@ def nearest_segment(px, pz, lines, max_dist):
 	return best
 
 
-def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas) -> list:
+class Tramos:
+	"""Indice por celdas de los tramos de calle, para buscar el mas cercano rapido."""
+
+	CELDA = 40.0
+
+	def __init__(self, lines):
+		self.celdas = collections.defaultdict(list)
+		for way_id, line, refs in lines:
+			for i, ((ax, az), (bx, bz)) in enumerate(zip(line, line[1:])):
+				for cx in range(int(min(ax, bx) // self.CELDA), int(max(ax, bx) // self.CELDA) + 1):
+					for cz in range(int(min(az, bz) // self.CELDA), int(max(az, bz) // self.CELDA) + 1):
+						self.celdas[(cx, cz)].append((way_id, (ax, az), (bx, bz), refs[i], refs[i + 1]))
+
+	def cercanos(self, px, pz, max_dist):
+		"""[(dist, way_id, (cx, cz) punto mas cercano, (dx, dz) unitario)], de cada tramo a menos de max_dist."""
+		out = []
+		vistos = set()
+		r = int(max_dist // self.CELDA) + 1
+		cx0, cz0 = int(px // self.CELDA), int(pz // self.CELDA)
+		for cx in range(cx0 - r, cx0 + r + 1):
+			for cz in range(cz0 - r, cz0 + r + 1):
+				for tramo in self.celdas.get((cx, cz), ()):
+					if id(tramo) in vistos:
+						continue
+					vistos.add(id(tramo))
+					way_id, (ax, az), (bx, bz), _, _ = tramo
+					dx, dz = bx - ax, bz - az
+					length = math.hypot(dx, dz)
+					if length < 1e-6:
+						continue
+					dx, dz = dx / length, dz / length
+					t = max(0.0, min(length, (px - ax) * dx + (pz - az) * dz))
+					qx, qz = ax + dx * t, az + dz * t
+					d = math.hypot(qx - px, qz - pz)
+					if d <= max_dist:
+						out.append((d, way_id, (qx, qz), (dx, dz)))
+		return out
+
+
+def muestras(line, paso):
+	"""Puntos cada `paso` m sobre la linea: [(x, z, dx, dz)]."""
+	out = []
+	for (ax, az), (bx, bz) in zip(line, line[1:]):
+		length = math.hypot(bx - ax, bz - az)
+		if length < 1e-6:
+			continue
+		dx, dz = (bx - ax) / length, (bz - az) / length
+		n = max(1, int(length // paso))
+		for i in range(n):
+			t = (i + 0.5) * length / n
+			out.append((ax + dx * t, az + dz * t, dx, dz))
+	return out
+
+
+def calles_y_banquetas(root, kept_ways, pos, lat0, lon0) -> tuple:
+	"""Pone ancho y banquetas a las calles y agrega los camellones.
+
+	- Ancho del arroyo y banquetas segun ANCHO_CALLE/BANQUETA, angostados si la
+	  mediana de las fachadas de la calle esta mas cerca del eje.
+	- Las avenidas con camellon (dos calles de un sentido paralelas) llevan
+	  banqueta solo del lado de afuera; entre las dos se agrega un camellon de
+	  pasto (landuse=grass) con guarnicion.
+	Regresa ({way_id: (medio_arroyo, banqueta_izq, banqueta_der)}, [camellones en metros])."""
+	lines = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
+	tramos = Tramos(lines)
+	tags_way = {way_id: tags_of(kept_ways[way_id]) for way_id, _, _ in lines}
+	linea_de = {way_id: line for way_id, line, _ in lines}
+
+	def un_sentido(way_id):
+		return tags_way[way_id].get("oneway") in ("yes", "1", "-1")
+
+	def misma_avenida(a, b):
+		ta, tb = tags_way[a], tags_way[b]
+		if ta.get("name") or tb.get("name"):
+			return ta.get("name") == tb.get("name")
+		return ta.get("highway") == tb.get("highway")
+
+	# Pares con camellon: por cada muestra de una calle de un sentido, la calle
+	# hermana mas cercana del otro lado
+	lado_camellon = {}  # way_id -> "left"/"right": de que lado queda el camellon
+	pares = collections.defaultdict(list)  # way_id -> [(x, z, dx, dz, qx, qz, otra)]
+	for way_id, line, _ in lines:
+		if not un_sentido(way_id):
+			continue
+		votos = collections.Counter()
+		ss = muestras(line, CAMELLON_MUESTRA)
+		for x, z, dx, dz in ss:
+			best = None
+			for d, otra, (qx, qz), (ox, oz) in tramos.cercanos(x, z, CAMELLON_DIST[1]):
+				if otra == way_id or d < CAMELLON_DIST[0] or not un_sentido(otra) or not misma_avenida(way_id, otra):
+					continue
+				if dx * ox + dz * oz > -0.8:  # tienen que ir en sentidos opuestos
+					continue
+				if best is None or d < best[0]:
+					best = (d, otra, qx, qz)
+			if best:
+				_, otra, qx, qz = best
+				# izquierda del sentido de la calle = (dz, -dx)
+				votos["left" if (qx - x) * dz - (qz - z) * dx > 0 else "right"] += 1
+				pares[way_id].append((x, z, dx, dz, qx, qz, otra))
+		if ss and sum(votos.values()) >= 0.6 * len(ss):
+			lado_camellon[way_id] = votos.most_common(1)[0][0]
+
+	# Cortes del camellon: nodos de una avenida con camellon donde otra calle sale hacia
+	# el lado del camellon (lo atraviesa: cruce o retorno). Las calles que llegan por
+	# fuera (cruce en T) no lo cortan.
+	vias_nodo = collections.defaultdict(list)  # nodo -> [(way_id, indice)]
+	xz_nodo = {}
+	for way_id, line, refs in lines:
+		for i, r in enumerate(refs):
+			vias_nodo[r].append((way_id, i))
+			xz_nodo[r] = line[i]
+	cortes = collections.defaultdict(list)
+	for way_id, line, refs in lines:
+		lado = lado_camellon.get(way_id)
+		if not lado:
+			continue
+		for i, r in enumerate(refs):
+			if len(vias_nodo[r]) < 2:
+				continue
+			a, b = line[max(i - 1, 0)], line[min(i + 1, len(line) - 1)]
+			length = math.hypot(b[0] - a[0], b[1] - a[1])
+			if length < 1e-6:
+				continue
+			dx, dz = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+			x, z = line[i]
+			for otra, j in vias_nodo[r]:
+				if otra == way_id or (otra in lado_camellon and misma_avenida(way_id, otra)):
+					continue
+				otra_line = linea_de[otra]
+				for k in (j - 1, j + 1):
+					if 0 <= k < len(otra_line):
+						vx, vz = otra_line[k][0] - x, otra_line[k][1] - z
+						# izquierda del sentido de la calle = (dz, -dx)
+						if ("left" if vx * dz - vz * dx > 0 else "right") == lado:
+							cortes[(int(x // 20), int(z // 20))].append((x, z))
+
+	def cerca_de_cruce(x, z, dist):
+		cx, cz = int(x // 20), int(z // 20)
+		return any(math.hypot(x - ox, z - oz) < dist
+			for dx in (-1, 0, 1) for dz in (-1, 0, 1) for ox, oz in cortes.get((cx + dx, cz + dz), ()))
+
+	# Fachadas: distancia del eje de cada calle a la casa mas cercana de cada lado
+	frentes = collections.defaultdict(list)  # (way_id, lado) -> [dist]
+	for way in kept_ways.values():
+		tags = tags_of(way)
+		if "building" not in tags:
+			continue
+		local = [local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")]
+		if not CASA_AREA[0] <= ring_area(local) <= CASA_AREA[1]:
+			continue
+		cx, cz = centroid(local[:-1])
+		cerca = tramos.cercanos(cx, cz, CASA_MAX_CALLE)
+		if not cerca:
+			continue
+		_, way_id, (qx, qz), (dx, dz) = min(cerca)
+		lado = "left" if (cx - qx) * dz - (cz - qz) * dx > 0 else "right"
+		nx, nz = (dz, -dx) if lado == "left" else (-dz, dx)
+		frente = min((x - qx) * nx + (z - qz) * nz for x, z in local)
+		if frente > 0.5:
+			frentes[(way_id, lado)].append(frente)
+
+	perfil = {}
+	con_banqueta = 0
+	for way_id, line, _ in lines:
+		way = kept_ways[way_id]
+		tags = tags_way[way_id]
+		hw = tags.get("highway")
+		arroyo = ANCHO_CALLE.get(hw, 6.0)
+		banqueta = BANQUETA.get(hw, 0.0) if hw in BLOCK_STREET_TYPES else 0.0
+		camellon = lado_camellon.get(way_id)
+		if camellon:
+			arroyo = arroyo / 2 + 1.0
+		medio = arroyo / 2
+		lados = {}
+		for lado in ("left", "right"):
+			sw = 0.0 if lado == camellon else banqueta
+			f = frentes.get((way_id, lado))
+			if f and sw > 0:
+				disponible = sorted(f)[len(f) // 2] - FACHADA_HOLGURA
+				if disponible < medio + sw:
+					sw = max(BANQUETA_MIN, disponible - medio)
+			lados[lado] = sw
+		# Si aun asi no cabe, se angosta el arroyo
+		for lado in ("left", "right"):
+			f = frentes.get((way_id, lado))
+			if f and lados[lado] > 0:
+				disponible = sorted(f)[len(f) // 2] - FACHADA_HOLGURA
+				medio = max(ARROYO_MIN_MEDIO, min(medio, disponible - lados[lado]))
+		perfil[way_id] = (medio, lados["left"], lados["right"])
+
+		if "width" not in tags:
+			set_tag(way, "width", f"{2 * medio + lados['left'] + lados['right']:.1f}")
+		if not any(k.startswith("sidewalk") for k in tags) and (lados["left"] or lados["right"]):
+			con_banqueta += 1
+			if lados["left"] and lados["right"]:
+				set_tag(way, "sidewalk", "both")
+			else:
+				set_tag(way, "sidewalk", "left" if lados["left"] else "right")
+			for lado in ("left", "right"):
+				if lados[lado]:
+					set_tag(way, f"sidewalk:{lado}:width", f"{lados[lado]:.1f}")
+					set_tag(way, f"sidewalk:{lado}:surface", "concrete")
+		elif tags.get("sidewalk") in ("both", "left", "right"):
+			for lado in ("left", "right") if tags["sidewalk"] == "both" else (tags["sidewalk"],):
+				if f"sidewalk:{lado}:surface" not in tags and "sidewalk:both:surface" not in tags:
+					set_tag(way, f"sidewalk:{lado}:surface", "concrete")
+
+	# Camellones: entre cada muestra y su hermana, del borde de un arroyo al del otro.
+	# Solo los dibuja la calle con id menor del par, para no repetirlos.
+	camellones = []
+	for way_id, ss in pares.items():
+		if way_id not in lado_camellon:
+			continue
+		corrida = []
+
+		def cerrar():
+			if len(corrida) >= 3:
+				camellones.append([p for p, _ in corrida] + [q for _, q in reversed(corrida)])
+			corrida.clear()
+
+		for x, z, dx, dz, qx, qz, otra in ss:
+			if otra not in lado_camellon or int(way_id) > int(otra):
+				cerrar()
+				continue
+			d = math.hypot(qx - x, qz - z)
+			ux, uz = (qx - x) / d, (qz - z) / d
+			a = perfil[way_id][0] + 0.3
+			b = perfil[otra][0] + 0.3
+			if d - a - b < CAMELLON_ANCHO_MIN or cerca_de_cruce(x, z, CAMELLON_CRUCE + d / 2) \
+					or cerca_de_cruce(qx, qz, CAMELLON_CRUCE + d / 2):
+				cerrar()
+				continue
+			# Muestras salteadas (la calle hermana cambia de tramo) cortan el camellon
+			if corrida and math.hypot(corrida[-1][0][0] - (x + ux * a), corrida[-1][0][1] - (z + uz * a)) > 3 * CAMELLON_MUESTRA:
+				cerrar()
+			corrida.append(((x + ux * a, z + uz * a), (qx - ux * b, qz - uz * b)))
+		cerrar()
+
+	# Al .osm: nodos en lat/lon (inverso de local_xz) y dos ways por camellon
+	scale = math.cos(math.radians(lat0))
+	merc_y0 = EARTH_RADIUS * math.log(math.tan(math.pi / 4 + math.radians(lat0) / 2))
+	node_id = way_id = CAMELLON_ID_START
+	nuevos = []
+	for ring in camellones:
+		refs = []
+		for x, z in ring:
+			lon = lon0 + math.degrees(x / scale / EARTH_RADIUS)
+			lat = math.degrees(2 * math.atan(math.exp((merc_y0 - z / scale) / EARTH_RADIUS)) - math.pi / 2)
+			ET.SubElement(root, "node", id=str(node_id), version="1", lat=f"{lat:.7f}", lon=f"{lon:.7f}")
+			pos[str(node_id)] = (lat, lon)
+			refs.append(str(node_id))
+			node_id += 1
+		for kind in ("pasto", "guarnicion"):
+			way = ET.Element("way", id=str(way_id), version="1")
+			for r in refs + refs[:1]:
+				ET.SubElement(way, "nd", ref=r)
+			if kind == "pasto":
+				ET.SubElement(way, "tag", k="landuse", v="grass")
+			else:
+				ET.SubElement(way, "tag", k="barrier", v="wall")
+				ET.SubElement(way, "tag", k="height", v=str(CAMELLON_GUARNICION))
+				ET.SubElement(way, "tag", k="width", v="0.2")
+				ET.SubElement(way, "tag", k="material", v="concrete")
+			ET.SubElement(way, "tag", k="source", v="camellon taquito")
+			kept_ways[str(way_id)] = way
+			nuevos.append(way)
+			way_id += 1
+	print(f"  Calles: {len(lines)} con ancho, {con_banqueta} con banquetas nuevas, "
+		f"{len(lado_camellon)} con camellon, {len(camellones)} camellones")
+	return perfil, camellones
+
+
+def borde_banqueta(perfil, way_id, izquierda: bool, default: float) -> float:
+	"""Distancia del eje de la calle al borde de afuera de su banqueta (m)."""
+	if way_id not in perfil:
+		return default
+	medio, izq, der = perfil[way_id]
+	return medio + (izq if izquierda else der)
+
+
+def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas, perfil=None) -> list:
 	"""Cambia por modelos las casas de las colonias de `reglas` (data/map/casas.json).
 	Cada huella se mide en los ejes de su calle; las hileras se parten en lotes y
 	todas las fachadas de una cuadra (misma calle, mismo lado, misma manzana) se
@@ -643,7 +1015,9 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas)
 	frentes = collections.defaultdict(list)
 	for casa in casas:
 		frentes[casa["grupo"]].append(casa["frente"])
-	setback = {g: max(SETBACK_MIN, sorted(f)[len(f) // 2]) for g, f in frentes.items()}
+	# Nunca encima de la banqueta
+	setback = {g: max(borde_banqueta(perfil or {}, g[0], g[1], SETBACK_MIN) + FACHADA_HOLGURA, sorted(f)[len(f) // 2])
+		for g, f in frentes.items()}
 
 	placed = []
 	replaced = []
@@ -691,16 +1065,18 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas)
 	return placed
 
 
-def place_altos(lines, inside) -> tuple:
+def place_altos(lines, inside, perfil=None) -> tuple:
 	"""Un alto en una de cada ALTO_CADA esquinas (nodos donde llegan 3 o mas tramos
 	de calle), en la banqueta derecha antes del cruce, viendo al trafico."""
 	vecinos = collections.defaultdict(set)
 	xz = {}
-	for _, line, refs in lines:
+	calle_de = {}
+	for way_id, line, refs in lines:
 		for (a, ra), (b, rb) in zip(zip(line, refs), zip(line[1:], refs[1:])):
 			vecinos[ra].add(rb)
 			vecinos[rb].add(ra)
 			xz[ra], xz[rb] = a, b
+			calle_de[(ra, rb)] = calle_de[(rb, ra)] = way_id
 	esquinas = sorted(n for n, v in vecinos.items() if len(v) >= 3 and inside(*xz[n]))
 	rng = random.Random(SEMILLA_PROPS)
 	rng.shuffle(esquinas)
@@ -714,10 +1090,14 @@ def place_altos(lines, inside) -> tuple:
 			continue
 		dx, dz = (x - lx) / length, (z - lz) / length  # sentido del trafico que llega
 		rx, rz = -dz, dx  # derecha del conductor (x = este, z = sur)
+		# En la banqueta, junto a la guarnicion
+		lado = PUESTO_STREET_DIST
+		if perfil and calle_de[(llega, node)] in perfil:
+			lado = perfil[calle_de[(llega, node)]][0] + 0.4
 		placed.append({
 			"tipo": "alto", "nombre": "Alto",
-			"x": round(x - dx * ALTO_ANTES + rx * PUESTO_STREET_DIST, 3),
-			"z": round(z - dz * ALTO_ANTES + rz * PUESTO_STREET_DIST, 3),
+			"x": round(x - dx * ALTO_ANTES + rx * lado, 3),
+			"z": round(z - dz * ALTO_ANTES + rz * lado, 3),
 			"rotacion_y": round(math.atan2(-dx, -dz), 4),
 			"ancho": 0.6, "fondo": 0.2, "casa_reemplazada": None, "origen": f"esquina node/{node}",
 		})
@@ -739,6 +1119,7 @@ def main() -> None:
 	parser.add_argument("--casas", help="data/map/casas.json: que modelos de casa van en cada colonia")
 	parser.add_argument("--salida-casas", help="JSON con las casas modelo, para Godot (MapCasas.gd)")
 	parser.add_argument("--png-colonias", help="PNG de debug con las manzanas pintadas por colonia")
+	parser.add_argument("--huellas", help="data/map/huellas_tiendas.json (huellas_tiendas.gd): lo que ocupa cada modelo de negocio")
 	args = parser.parse_args()
 	south, west, north, east = args.bbox
 	src, overrides_path, dst, google_path = args.osm, args.overrides, args.salida, args.google
@@ -835,11 +1216,15 @@ def main() -> None:
 	def inside_local(x, z):
 		return min_x <= x <= max_x and min_z <= z <= max_z
 
+	# Anchos, banquetas y camellones (antes de casas y tiendas, que se alinean a la banqueta)
+	perfil, _ = calles_y_banquetas(root, kept_ways, pos, lat0, lon0)
+
 	min_x, max_z = local_xz(south, west, lat0, lon0)
 	max_x, min_z = local_xz(north, east, lat0, lon0)
 
 	# Manzanas y colonias (antes de las tiendas: las tiendas quitan casas)
 	manzanas = colonia_de = None
+	huellas_negocios = []
 	if args.colonias_denue and os.path.exists(args.colonias_denue):
 		block_lines = street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)
 		mx0, mz0 = local_xz(south - dlat, west - dlon, lat0, lon0)
@@ -886,11 +1271,18 @@ def main() -> None:
 					for q, qx, qz in kept_puntos):
 				kept_puntos.append((p, px, pz))
 		print(f"  Puntos repetidos (mismo tipo a < {DUPLICATE_DIST:.0f} m, tiendas a < {DUPLICATE_DIST_TIPO['tienda']:.0f} m): {len(puntos) - len(kept_puntos)} quitados")
-		placed = place_puntos([p for p, _, _ in kept_puntos], kept_ways, pos, lat0, lon0)
+		placed = place_puntos([p for p, _, _ in kept_puntos], kept_ways, pos, lat0, lon0, perfil)
 		prop_lines = street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)
-		altos, n_esquinas = place_altos(prop_lines, inside_local)
+		altos, n_esquinas = place_altos(prop_lines, inside_local, perfil)
 		placed += altos
 		print(f"  Altos: {len(altos)} de {n_esquinas} esquinas")
+		# Casas encimadas en un negocio (los modelos crecen hacia atras y a los lados): se quitan
+		if args.huellas and os.path.exists(args.huellas):
+			with open(args.huellas, encoding="utf-8") as f:
+				huellas = json.load(f)
+			huellas_negocios = [h for h in (huella_negocio(p, huellas) for p in placed) if h]
+			quitadas = quitar_casas_bajo_negocios(kept_ways, pos, lat0, lon0, huellas_negocios)
+			print(f"  Casas debajo de un negocio: {quitadas} quitadas")
 		os.makedirs(os.path.dirname(args.salida_puntos), exist_ok=True)
 		with open(args.salida_puntos, "w", encoding="utf-8") as f:
 			json.dump({"puntos": placed}, f, ensure_ascii=False, indent="\t")
@@ -902,7 +1294,13 @@ def main() -> None:
 		with open(args.casas, encoding="utf-8") as f:
 			reglas = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
 		casa_lines = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
-		casas = place_casas(kept_ways, pos, lat0, lon0, casa_lines, manzanas, colonia_de, reglas)
+		casas = place_casas(kept_ways, pos, lat0, lon0, casa_lines, manzanas, colonia_de, reglas, perfil)
+		# Un lote de casa modelo que se mete en un negocio tampoco va
+		antes = len(casas)
+		casas = [c for c in casas if not any(se_enciman(rectangulo(c["x"], c["z"], c["rotacion_y"], c["ancho"], 0.0, -c["fondo"]), h)
+			for h in huellas_negocios)]
+		if antes != len(casas):
+			print(f"  Casas modelo encimadas en un negocio: {antes - len(casas)} quitadas")
 		os.makedirs(os.path.dirname(args.salida_casas), exist_ok=True)
 		with open(args.salida_casas, "w", encoding="utf-8") as f:
 			f.write('{"casas": [\n' + ",\n".join(json.dumps(c, ensure_ascii=False) for c in casas) + "\n]}\n")
@@ -913,8 +1311,12 @@ def main() -> None:
 	filled = 0
 	for way in kept_ways.values():
 		filled += fill_building(way, "way")
+		# Sin ventanas: las pinta ps1_facade. Asi el LOD 2 (que trae las banquetas) no agrega vidrios
+		if "building" in tags_of(way) or "building:part" in tags_of(way):
+			set_tag(way, "window", "no")
 	for rel in kept_relations:
 		filled += fill_building(rel, "relation")
+		set_tag(rel, "window", "no")
 
 	# Correcciones a mano: {"way/123": {"building:levels": "2", "building:colour": "#c96f4a"}}
 	# Un valor null borra la etiqueta. Las llaves que empiezan con "_" se ignoran.

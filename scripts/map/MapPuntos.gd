@@ -125,6 +125,22 @@ func _make_punto(punto: Dictionary) -> Node3D:
 	return _make_placeholder(punto)
 
 
+# Frente y fondo (m) que ocupa el modelo de `tipo` ya escalado (Vector2.ZERO si no
+# tiene modelo). Lo usa tools/map_import/huellas_tiendas.gd para que prepare_osm.py
+# quite las casas que quedan debajo del negocio.
+func huella_modelo(tipo: String) -> Vector2:
+	if not prefabs.has(tipo) or prefabs[tipo] == null or not prefab_ancho.has(tipo):
+		return Vector2.ZERO
+	var model := prefabs[tipo].instantiate() as Node3D
+	model.rotation.y = deg_to_rad(prefab_rotacion.get(tipo, 0.0))
+	var aabb := _mesh_aabb(model, model.transform)
+	model.free()
+	if aabb.size.x <= 0.01:
+		return Vector2.ZERO
+	var fit: float = prefab_ancho[tipo] / aabb.size.x
+	return Vector2(aabb.size.x, aabb.size.z) * fit
+
+
 # El modelo se gira prefab_rotacion[tipo] grados (para que su fachada vea a +Z),
 # se escala parejo a prefab_ancho[tipo] metros de frente y se apoya en el piso con
 # la fachada en la orilla del lote que da a la calle; crece hacia atras.

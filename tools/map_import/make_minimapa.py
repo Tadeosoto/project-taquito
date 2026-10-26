@@ -24,6 +24,9 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OSM = os.path.join(ROOT, "tools/map_import/bin/area_prepared.osm")
 CASAS = os.path.join(ROOT, "resources/map/casas_mapa.json")
 PUNTOS = os.path.join(ROOT, "resources/map/puntos_mapa.json")
+# De make_vegetacion.py (si ya se corrio): pasto del satelite y arboles
+PASTO = os.path.join(ROOT, "textures/map/pasto_mascara.png")
+ARBOLES = os.path.join(ROOT, "resources/map/arboles_mapa.json")
 SALIDA_PNG = os.path.join(ROOT, "textures/map/minimapa.png")
 SALIDA_JSON = os.path.join(ROOT, "resources/map/minimapa.json")
 
@@ -33,6 +36,7 @@ MARGEN = 30.0
 FONDO = (58, 64, 52)
 EDIFICIO = (104, 106, 112)
 VERDE = (64, 102, 56)
+ARBOL = (44, 78, 40)
 AGUA = (58, 104, 160)
 ESTACIONAMIENTO = (82, 84, 84)
 
@@ -131,10 +135,23 @@ def main():
 		if all(r in pos for r in refs):
 			ways.append((tags_of(way), [pos[r] for r in refs], refs[0] == refs[-1]))
 
+	if os.path.exists(PASTO):
+		from make_vegetacion import read_png
+		w, h, ch, pasto = read_png(PASTO)
+		if (w, h) == (lienzo.w, lienzo.h):
+			verde = bytes(VERDE)
+			for i in range(w * h):
+				if pasto[i * ch] >= 128:
+					lienzo.rgb[i * 3:i * 3 + 3] = verde
 	for key, values, color in AREAS:
 		for tags, line, closed in ways:
 			if closed and tags.get(key) in values:
 				lienzo.poligono(line, color)
+	if os.path.exists(ARBOLES):
+		with open(ARBOLES, encoding="utf-8") as f:
+			for x, z, _, radio, _ in json.load(f)["arboles"]:
+				copa = [(x + radio * math.cos(a * math.pi / 4), z + radio * math.sin(a * math.pi / 4)) for a in range(8)]
+				lienzo.poligono(copa, ARBOL)
 	edificios = 0
 	for tags, line, closed in ways:
 		if closed and ("building" in tags or "building:part" in tags):

@@ -5,11 +5,13 @@
 - Datos de mapa © colaboradores de [OpenStreetMap](https://www.openstreetmap.org/copyright), disponibles bajo la licencia ODbL.
 - Huellas de edificios de [Google Open Buildings](https://sites.research.google/open-buildings/) v3, licencia [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (las casas que OSM no tiene en la zona).
 - Modelo 3D generado con [OSM2World](https://osm2world.org/) (MIT), con su estilo estándar y texturas CC0.
+- Árboles: [Meta/WRI High Resolution Canopy Height](https://registry.opendata.aws/dataforgood-fb-forests/) v1, licencia [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Pasto: contiene datos modificados de Copernicus Sentinel (2023–2025), vía [Earth Search](https://earth-search.aws.element84.com/v1) (Sentinel-2 L2A).
 - Tiendas, puestos y farmacias del mapa: INEGI, *Directorio Estadístico Nacional de Unidades Económicas* (DENUE) 05/2026, [Términos de Libre Uso de la Información del INEGI](https://www.inegi.org.mx/inegi/terminos.html).
 
 ## Texturas de fachadas (`textures/map/`, estilo "fotos")
 
-- Aplanado, puerta, cortinas y azoteas recortados de texturas de [Poly Haven](https://polyhaven.com) (CC0): white_stucco, rough_pine_door, painted_metal_shutter, worn_shutter, red_plaster_weathered y painted_plaster_wall; el suelo (dirt_floor) y las banquetas (dirty_concrete). Las ventanas y la herrería son dibujos propios (`tools/map_import/make_textures.py`).
+- Aplanado, puerta, cortinas y azoteas recortados de texturas de [Poly Haven](https://polyhaven.com) (CC0): white_stucco, rough_pine_door, painted_metal_shutter, worn_shutter, red_plaster_weathered y painted_plaster_wall; las banquetas (dirty_concrete), el pasto (leafy_grass, withered_grass; también el piso verde oscuro), el asfalto (asphalt_02) y el empedrado (cobblestone_floor_05). Las ventanas y la herrería son dibujos propios (`tools/map_import/make_textures.py`).
 
 ## Tiendas (`models/tiendas/`, Sketchfab)
 

@@ -21,6 +21,8 @@
 [ext_resource type="PackedScene" uid="uid://dcu1k7jr5bhj1" path="res://models/casas/mexican_house_3/scene.gltf" id="23_mexican3"]
 [ext_resource type="Script" path="res://scripts/map/MapMinimapa.gd" id="24_minimapa"]
 [ext_resource type="Texture2D" path="res://textures/map/minimapa.png" id="25_minimapa_tex"]
+[ext_resource type="Script" path="res://scripts/map/MapArboles.gd" id="26_arboles"]
+[ext_resource type="Script" path="res://scripts/map/MapPasto.gd" id="27_pasto"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -184,6 +186,16 @@ muro_tol = Dictionary[String, float]({
 })
 quitar_piso = Array[String](["mexican_house_3", "urbi_1p_a", "urbi_1p_b", "urbi_1p_c", "urbi_2p_a", "urbi_2p_b", "urbi_2p_c"])
 target_path = NodePath("../Dron")
+
+[node name="Arboles" type="Node3D" parent="."]
+script = ExtResource("26_arboles")
+target_path = NodePath("../Dron")
+
+[node name="Pasto" type="Node3D" parent="."]
+script = ExtResource("27_pasto")
+target_path = NodePath("../Player")
+dron_path = NodePath("../Dron")
+suelo_path = NodePath("../Suelo/MeshInstance3D")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(0.7189, 0, -0.6951, 0, 1, 0, 0.6951, 0, 0.7189, 194.82, 3, 527.31)

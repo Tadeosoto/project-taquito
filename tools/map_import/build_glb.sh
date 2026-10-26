@@ -7,9 +7,10 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 source "$ROOT/tools/map_import/area.env"
 
 O2W_VERSION=0.4.0
-# Nivel de detalle de OSM2World (0 = minimo, 4 = maximo). Con 1 no salen
-# ventanas en 3D: para el look PS1 sobra y el .glb baja muchisimo.
-LOD="${LOD:-1}"
+# Nivel de detalle de OSM2World (0 = minimo, 4 = maximo). Desde 2 las calles
+# llevan banquetas con guarnicion; las ventanas 3D que agrega el 2 se apagan con
+# window=no en cada edificio (prepare_osm.py), las pinta ps1_facade.
+LOD="${LOD:-2}"
 O2W_DIR="$ROOT/tools/map_import/bin/osm2world-$O2W_VERSION"
 PREPARED="$ROOT/tools/map_import/bin/area_prepared.osm"
 OUT="$ROOT/models/zona_mapa.glb"
@@ -38,12 +39,23 @@ if [ ! -f "$MARKER" ]; then
 		-exec magick mogrify -resize "${TEX_SIZE}x${TEX_SIZE}>" -type TrueColor {} +
 	touch "$MARKER"
 fi
+# Algunas JPG traen un perfil ICC gris con 3 canales y Java truena al leerlas
+# ("Numbers of source Raster bands and source color space components do not match").
+# Con LOD 1 no se usaban; con LOD 2 si (Plastic010).
+MARKER_ICC="$O2W_DIR/.texturas_sin_icc"
+if [ ! -f "$MARKER_ICC" ]; then
+	find "$O2W_DIR/textures" -type f -iname '*.jpg' -exec magick mogrify -strip {} +
+	touch "$MARKER_ICC"
+fi
 
 # 2. Recortar la zona, agregar casas de Google (si ya corriste
 #    fetch_google_buildings.py), rellenar pisos/colores/overrides y colocar
 #    las tiendas del DENUE (fetch_denue.py) y de puntos.json (quitando la casa que reemplazan),
 #    altos; partir en manzanas con su colonia y cambiar las casas de
 #    las colonias de casas.json por modelos (resources/map/casas_mapa.json)
+# Lo que ocupa cada modelo de negocio en el juego (para quitar las casas que quedan debajo)
+godot --path "$ROOT" --headless -s tools/map_import/huellas_tiendas.gd > /dev/null 2>&1 \
+	|| echo "AVISO: no se pudo correr huellas_tiendas.gd (godot); se usa el data/map/huellas_tiendas.json que ya estaba"
 python3 -I "$ROOT/tools/map_import/prepare_osm.py" \
 	--bbox "$SOUTH" "$WEST" "$NORTH" "$EAST" \
 	--osm "$ROOT/data/map/area.osm" \
@@ -57,7 +69,8 @@ python3 -I "$ROOT/tools/map_import/prepare_osm.py" \
 	--colonias "$ROOT/data/map/colonias.json" \
 	--casas "$ROOT/data/map/casas.json" \
 	--salida-casas "$ROOT/resources/map/casas_mapa.json" \
-	--png-colonias "$ROOT/data/map/colonias_debug.png"
+	--png-colonias "$ROOT/data/map/colonias_debug.png" \
+	--huellas "$ROOT/data/map/huellas_tiendas.json"
 
 # 3. Config = estilo estandar + nuestros ajustes (las rutas de texturas son
 #    relativas a la carpeta de OSM2World, por eso corremos desde ahi)
@@ -110,5 +123,7 @@ echo "OK: $OUT ($(du -h "$OUT" | cut -f1))"
 echo "Ahora: rm -f \"$ROOT\"/.godot/imported/zona_mapa.glb-* && godot --path \"$ROOT\" --headless --import"
 echo "  y despues: godot --path \"$ROOT\" --headless -s tools/map_import/split_cuadros.gd  (cuadros para MapStreamer)"
 
-# 5. Minimapa (radar de MapMinimapa.gd) con las calles y casas que acaban de salir
+# 5. Pasto y arboles del satelite (fetch_satelite.py) recortados a las calles y casas
+#    que acaban de salir, y el minimapa (radar de MapMinimapa.gd)
+python3 -I "$ROOT/tools/map_import/make_vegetacion.py"
 python3 -I "$ROOT/tools/map_import/make_minimapa.py"

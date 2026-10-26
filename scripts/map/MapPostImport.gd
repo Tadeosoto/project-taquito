@@ -9,6 +9,7 @@ extends EditorScenePostImport
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 const FACADE_SHADER := preload("res://shaders/ps1_facade.gdshader")
 const GROUND_SHADER := preload("res://shaders/ps1_suelo.gdshader")
+const SUELO_PASTO := preload("res://scripts/map/SueloPasto.gd")
 
 # Materiales de OSM2World que en las casas se cambian por fachada/azotea PS1
 # (Concrete034 tambien es la banqueta, por eso solo se cambia dentro de un Building)
@@ -17,16 +18,22 @@ const BUILDING_ROLES := {"Plaster002": "fachada", "Concrete034": "azotea"}
 # Pisos de OSM2World que se dibujan con ps1_suelo (textura de textures/map/,
 # make_textures.py) igual que el plano Suelo de map_test: misma repeticion en
 # coordenadas de mundo, asi donde se enciman no parpadean, y con mipmaps.
-# Concrete034 fuera de las casas es la banqueta.
+# material -> [textura, metros por repeticion, modo de ps1_suelo]. Concrete034
+# fuera de las casas es la banqueta. La tierra (modo 1) lleva pasto donde la
+# mascara satelital lo dice; GRASS (jardines de OSM y camellones) es todo pasto.
 const GROUND_TEXTURES := {
-	"TERRAIN_DEFAULT": "res://textures/map/suelo.png",
-	"Concrete034": "res://textures/map/banqueta.png",
+	"TERRAIN_DEFAULT": ["res://textures/map/suelo.png", 3.0, 1],
+	"Concrete034": ["res://textures/map/banqueta.png", 3.0, 0],
+	"ASPHALT": ["res://textures/map/asfalto.png", 4.0, 0],
+	"PAVING_STONE": ["res://textures/map/empedrado.png", 2.5, 0],
+	"SETT": ["res://textures/map/empedrado.png", 2.5, 0],
+	"GRASS": ["res://textures/map/suelo.png", 3.0, 2],
 }
 
-# Los demas pisos planos (calles, pasto, agua) siguen con ps1_combined pero sin
+# Los demas pisos planos (agua, guarnicion) siguen con ps1_combined pero sin
 # temblor PS1: el wobble los sube o baja hasta 2.5 cm y a lo lejos se hunden
 # bajo la tierra y la banqueta de al lado, que no tiemblan, y parpadean
-const FLAT_GROUND := ["ASPHALT", "PAVING_STONE", "SETT", "GRASS", "EARTH", "WATER", "SCRUB"]
+const FLAT_GROUND := ["ASPHALT", "PAVING_STONE", "SETT", "GRASS", "EARTH", "WATER", "SCRUB", "KERB"]
 
 # Mallas que no llevan colision (los arboles nomas estorban)
 const NO_COLLISION_WORDS := ["tree", "forest", "wood", "vegetation"]
@@ -167,11 +174,12 @@ func _ps1_material(source: Variant) -> Material:
 	return material
 
 
-func _ground_material(texture_path: String) -> ShaderMaterial:
+func _ground_material(ground: Array) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = GROUND_SHADER
-	material.set_shader_parameter("albedo_texture", load(texture_path))
-	material.set_shader_parameter("tile_size", 3.0)
+	material.set_shader_parameter("albedo_texture", load(ground[0]))
+	material.set_shader_parameter("tile_size", ground[1])
+	SUELO_PASTO.configurar(material, ground[2])
 	# Los pisos son poligonos enormes: el temblor PS1 los deforma cerca de la camara
 	material.set_shader_parameter("jitter_enabled", false)
 	material.set_shader_parameter("wobble_enabled", false)

@@ -12,3 +12,7 @@ models/zona_mapa.glb.import
 __pycache__/
 # Debug de prepare_osm.py --png-colonias
 data/map/colonias_debug.png
+# Debug de fetch_satelite.py / make_vegetacion.py
+data/map/satelite_rgb.png
+data/map/satelite_chm.png
+data/map/calles_debug.png

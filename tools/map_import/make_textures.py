@@ -6,8 +6,12 @@ Cada mosaico mide TILE px y equivale a 2.5 x 2.5 m (un piso de OSM2World).
 - textures/map/fachadas_mascara.png: blanco = pared (se pinta del color de la
   casa), negro = ventana/puerta/cortina (se queda con su color).
 - textures/map/azoteas.png: 2 mosaicos, impermeabilizante rojo y losa gris.
-- textures/map/suelo.png: tierra para el piso entre casas (shaders/ps1_suelo y el
+- textures/map/suelo.png: pasto verde oscuro para el piso entre casas (shaders/ps1_suelo y el
   terreno de OSM2World) y textures/map/banqueta.png (MapPostImport.GROUND_TEXTURES).
+- textures/map/pasto.png y pasto_seco.png (ps1_suelo los mezcla donde la mascara
+  satelital dice pasto), asfalto.png y empedrado.png (calles).
+- textures/map/mata_pasto.png: una mata con transparencia (MapPasto.gd) y
+  textures/map/arbol.png: corteza a la izquierda, hojas a la derecha (MapArboles.gd).
 
 Dos estilos:
 - dibujado (default): todo son dibujos propios, sin licencia de terceros.
@@ -23,6 +27,7 @@ split_cuadros.gd (los materiales de los cuadros copian estas texturas).
 import argparse
 import json
 import os
+import random
 import subprocess
 import urllib.request
 
@@ -39,8 +44,11 @@ FOTOS = {
 	"zaguan": "worn_shutter",
 	"impermeabilizante": "red_plaster_weathered",
 	"losa": "painted_plaster_wall",
-	"suelo": "dirt_floor",
 	"banqueta": "dirty_concrete",
+	"pasto": "leafy_grass",
+	"pasto_seco": "withered_grass",
+	"asfalto": "asphalt_02",
+	"empedrado": "cobblestone_floor_05",
 }
 
 # Lado (px) de textures/map/suelo.png; el shader ps1_suelo la repite cada 3 m
@@ -203,12 +211,13 @@ def main() -> None:
 	suelo_path = os.path.join(OUT_DIR, "suelo.png")
 	banqueta_path = os.path.join(OUT_DIR, "banqueta.png")
 	if estilo == "fotos":
-		magick(foto_tile("suelo", SUELO_PX), "-depth", "8", suelo_path)
+		# Piso base: pasto verde oscuro (la zona no es desierto); el pasto del satelite va encima mas claro
+		magick(foto_tile("pasto", SUELO_PX), *verde("#1c2e16", "#4f7038"), "-depth", "8", suelo_path)
 		magick(foto_tile("banqueta", SUELO_PX), "-depth", "8", banqueta_path)
 	else:
-		# Tierra: cafe con ruido y unas piedritas
-		magick("-size", f"{SUELO_PX}x{SUELO_PX}", "xc:#7a6248", "-seed", "11", "-attenuate", "0.6",
-			"+noise", "Uniform", "-colorspace", "sRGB", "-fill", "#9a8a72", "-draw", "point 20,30",
+		# Piso base: verde oscuro con ruido y unas piedritas
+		magick("-size", f"{SUELO_PX}x{SUELO_PX}", "xc:#34502a", "-seed", "11", "-attenuate", "0.6",
+			"+noise", "Uniform", "-colorspace", "sRGB", "-fill", "#6a6a52", "-draw", "point 20,30",
 			"-draw", "point 90,70", "-draw", "point 50,110", "-type", "TrueColor", "-depth", "8", suelo_path)
 		# Banqueta: concreto gris con juntas
 		magick("-size", f"{SUELO_PX}x{SUELO_PX}", "xc:#a9a59c", "-seed", "5", "-attenuate", "0.3",
@@ -216,7 +225,63 @@ def main() -> None:
 			"-draw", f"line 0,0 {SUELO_PX},0", "-draw", f"line 0,0 0,{SUELO_PX}",
 			"-type", "TrueColor", "-depth", "8", banqueta_path)
 
+	pisos = {
+		# nombre: (color base, color del ruido, intensidad del ruido)
+		"pasto": ("#5f7a3a", "#3f5a28", 0.5),
+		"pasto_seco": ("#9a8a52", "#7a6a3e", 0.5),
+		"asfalto": ("#4a4a4c", "#2e2e30", 0.35),
+		"empedrado": ("#8a7e70", "#5e554a", 0.4),
+	}
+	for nombre, (color, oscuro, ruido) in pisos.items():
+		path = os.path.join(OUT_DIR, f"{nombre}.png")
+		if estilo == "fotos":
+			# Las fotos de pasto salen cafes: se pasan a gris y se pintan de verde
+			ajuste = {"pasto": verde("#2f4a22", "#86ad5c"), "pasto_seco": verde("#4a5228", "#a8ac68")}.get(nombre, [])
+			magick(foto_tile(nombre, SUELO_PX), *ajuste, "-depth", "8", path)
+		else:
+			magick("-size", f"{SUELO_PX}x{SUELO_PX}", f"xc:{color}", "-seed", str(len(nombre)), "-attenuate", str(ruido),
+				"+noise", "Uniform", "-colorspace", "sRGB", "-fill", oscuro, "-draw", "point 30,40",
+				"-type", "TrueColor", "-depth", "8", path)
+	mata_pasto(os.path.join(OUT_DIR, "mata_pasto.png"))
+	arbol(os.path.join(OUT_DIR, "arbol.png"))
+
 	print(f"OK: texturas ({estilo}) en {OUT_DIR}")
+
+
+def verde(oscuro: str, claro: str) -> list:
+	"""Argumentos de magick que pasan una foto a gris y la pintan entre dos colores."""
+	return ["-colorspace", "gray", "-auto-level", "-colorspace", "sRGB", "+level-colors", f"{oscuro},{claro}"]
+
+
+def mata_pasto(path: str) -> None:
+	"""Hojas de pasto en abanico sobre fondo transparente (32 x 32, pixel art)."""
+	rng = random.Random(4)
+	args = ["-size", "32x32", "xc:none", "-strokewidth", "1"]
+	verdes = ["#4f6e2c", "#6b8a3a", "#829c48", "#a39a58", "#3d5a24"]
+	for _ in range(22):
+		x0 = rng.uniform(9, 23)
+		x1 = x0 + rng.uniform(-9, 9)
+		y1 = rng.uniform(2, 14)
+		args += ["-stroke", rng.choice(verdes), "-draw", f"line {x0:.0f},31 {x1:.0f},{y1:.0f}"]
+	magick(*args, "-type", "TrueColorAlpha", "-depth", "8", path)
+
+
+def arbol(path: str) -> None:
+	"""Atlas de 128 x 64: corteza (izquierda) y hojas (derecha). Las hojas van en gris
+	verdoso claro porque ps1_arbol las multiplica por el verde de cada arbol."""
+	args = ["-size", "64x64", "xc:#6a5442", "-seed", "21", "-attenuate", "0.5", "+noise", "Uniform",
+		"-colorspace", "sRGB", "-stroke", "#4a3a2e"]
+	for x in range(3, 64, 9):
+		args += ["-draw", f"line {x},0 {x + 2},63"]
+	# Hojas: ruido gris con manchas oscuras (huecos entre hojas), luego a verde grisaceo
+	args += ["(", "-size", "64x64", "xc:gray50", "-seed", "22", "+noise", "Random", "-level", "-20%,110%",
+		"-colorspace", "gray", "-fill", "gray35"]
+	rng = random.Random(9)
+	for _ in range(30):
+		x, y = rng.randrange(64), rng.randrange(64)
+		args += ["-draw", f"circle {x},{y} {x + rng.randint(1, 2)},{y}"]
+	args += ["-colorspace", "sRGB", "+level-colors", "#4a5a3e,#e8f0d8", ")", "+append"]
+	magick(*args, "-type", "TrueColor", "-depth", "8", path)
 
 
 if __name__ == "__main__":

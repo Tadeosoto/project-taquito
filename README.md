@@ -51,17 +51,19 @@ Un pedazo real de Zapopan (~1.7 × 1.7 km) hecho con OpenStreetMap, Google Open 
 
 Todo lo del mapa (qué tiene, cómo corregirlo y cómo regenerarlo) está en **[`docs/mapa/README.md`](docs/mapa/README.md)**.
 
+`models/zona_mapa.glb` no está en GitHub **a propósito**: el juego no lo usa, carga los cuadros de `resources/map/cuadros/`, que sí están. Para jugar el mapa no hay que generar nada. Solo quien cambie el mapa necesita regenerarlo; ver [¿Por qué `zona_mapa.glb` no está en GitHub?](docs/mapa/README.md#por-qué-modelszona_mapaglb-no-está-en-github).
+
 ## Estructura
 
 ```
 scenes/         escenas (.tscn)
 scripts/        GDScript del juego
 scripts/map/    mapa real: post-import, streaming, tiendas, casas modelo, dron, minimapa
-shaders/        shaders PS1 (ps1_combined, ps1_facade, ps1_casa, ps1_suelo, minimapa y ps1_vertex.gdshaderinc, compartido)
+shaders/        shaders PS1 (ps1_combined, ps1_facade, ps1_casa, ps1_suelo, ps1_arbol, ps1_pasto, minimapa y ps1_vertex.gdshaderinc, compartido)
 models/         modelos 3D; tiendas/, casas/, props/ y objetos/ = modelos de Sketchfab
 resources/      items del inventario (.tres); resources/map/ = mapa generado
 data/map/       datos de entrada del mapa (OSM, Google, DENUE, correcciones a mano)
-textures/map/   texturas de fachadas, azoteas, suelo, banquetas y minimapa
+textures/map/   texturas de fachadas, azoteas, suelo, pasto, asfalto, banquetas, árboles y minimapa
 tools/map_import/  scripts para generar el mapa
 docs/mapa/      README y capturas del mapa
 ```
