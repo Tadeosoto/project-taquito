@@ -186,7 +186,7 @@ quitar_piso = Array[String](["mexican_house_3", "urbi_1p_a", "urbi_1p_b", "urbi_
 target_path = NodePath("../Dron")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-transform = Transform3D(0.7189, 0, -0.6951, 0, 1, 0, 0.6951, 0, 0.7189, -491.94, 3, -350.99)
+transform = Transform3D(0.7189, 0, -0.6951, 0, 1, 0, 0.6951, 0, 0.7189, 194.82, 3, 527.31)
 speed = 10.0
 sprint_speed = 18.0
 
