@@ -2,6 +2,12 @@
 
 [ext_resource type="Script" uid="uid://51xkaf0digic" path="res://scripts/InventoryUI.gd" id="1_l5txx"]
 [ext_resource type="Script" uid="uid://3ld5127p8qfq" path="res://scripts/InventoryInspectViewer.gd" id="1_wqexf"]
+[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="3_l5txx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5tlb1"]
+shader = ExtResource("3_l5txx")
+shader_parameter/color_levels = 32.0
+shader_parameter/dither_strenght = 1.0000000149012
 
 [node name="InventoryUI" type="CanvasLayer" unique_id=984314711]
 process_mode = 3
@@ -113,3 +119,14 @@ offset_top = 34.0
 offset_right = 579.0
 offset_bottom = 65.0
 text = "Examinar"
+
+[node name="Rect" type="BackBufferCopy" parent="." unique_id=328297110]
+copy_mode = 2
+
+[node name="DitherFilter" type="ColorRect" parent="." unique_id=2104997594]
+material = SubResource("ShaderMaterial_5tlb1")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
