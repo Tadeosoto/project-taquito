@@ -1,6 +1,6 @@
 extends SceneTree
 
-# Guarda una captura de cada modelo bajado de Sketchfab: preview.png en la
+# Guarda una captura de cada modelo horneado (.scn) de Sketchfab: preview.png en la
 # carpeta del modelo (models/<grupo>/<modelo>/) y <nombre>_preview.png junto a
 # cada .scn suelta (piezas del starter pack, la botarga del Simi). Sirve para
 # ver que hay sin abrir el editor y de icono provisional del inventario.
@@ -58,8 +58,6 @@ func _buscar_trabajos(todas: bool) -> Array:
 			var carpeta := base + modelo + "/"
 			# <modelo>.scn es el modelo horneado (hornear_modelos.gd); las demas
 			# .scn son piezas sueltas (starter pack, botarga del Simi)
-			if not FileAccess.file_exists(carpeta + modelo + ".scn") and FileAccess.file_exists(carpeta + "scene.gltf"):
-				trabajos.append([carpeta + "scene.gltf", carpeta + "preview.png"])
 			for archivo in DirAccess.get_files_at(carpeta):
 				if archivo.get_extension() != "scn":
 					continue

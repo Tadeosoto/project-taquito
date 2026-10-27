@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bjcqsc1p42ha8"
-path="res://.godot/imported/Material_27_transmission.png-419484d50f8f99e2494eaf572de66a17.ctex"
+uid="uid://djps2oiwrce3y"
+path="res://.godot/imported/Material_24_baseColor.png-6908f8d4af247dfcd1abb5e63c8cb1bb.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,8 +11,8 @@ generator_parameters={}
 
 [deps]
 
-source_file="res://models/objetos/mexican_starter_pack/textures/Material_27_transmission.png"
-dest_files=["res://.godot/imported/Material_27_transmission.png-419484d50f8f99e2494eaf572de66a17.ctex"]
+source_file="res://models/objetos/tachas/textures/Material_24_baseColor.png"
+dest_files=["res://.godot/imported/Material_24_baseColor.png-6908f8d4af247dfcd1abb5e63c8cb1bb.ctex"]
 
 [params]
 

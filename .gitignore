@@ -28,3 +28,8 @@ models/*/*/textures/*_emissive.*
 models/*/*/textures/*_occlusion.*
 models/*/*/textures/*_specularf0.*
 models/*/*/textures/*_specularGlossiness.*
+models/*/*/textures/*_transmission.*
+# Del Mexican Starter Pack solo se usan la mochila y el mazapan
+models/objetos/mexican_starter_pack/textures/*
+!models/objetos/mexican_starter_pack/textures/Material_25_baseColor.jpeg*
+!models/objetos/mexican_starter_pack/textures/Material_27_baseColor.png*

@@ -65,8 +65,8 @@ MODELS = {
 	"objetos/takis": "7426e5fa188344668ec3b9dbab348bae",            # Takis Fuego, 44k
 	"objetos/moneda_peso": "5b0b33e49fa84d96b6e0d82beac694f3",      # 1 Peso MXN, 2k
 	"objetos/jarritos": "44a5150acb0b4109af1378c74bfdde5c",         # Jarritos Grapefruit, 141k
-	# Sketchfab solo baja el pack entero (mochila, caguama, Maruchan, mazapan,
-	# veladora, rosario, concha); se separa en Godot (separar_pack.gd)
+	# Sketchfab solo baja el pack entero; separar_pack.gd saca la mochila y el
+	# mazapan (lo demas no se usa)
 	"objetos/mexican_starter_pack": "8a0b37c7d64448c1aa9b533cdea0283a",  # Mexican Starter Pack!, 46k
 	"personajes/soldado": "7ef42de5636443399f3f06ff8b98d5a7",       # soldado del ejercito mexicano, 6.6k
 	"personajes/amerindios": "cdb4d27bd4154712968eb3f0961bb375",    # Free ps2 style isthmid amerindian characters, 8.1k, rig
@@ -94,27 +94,19 @@ MODELS = {
 	"armas/bate": "f3c3c73529e14dc59d525a9a6a2220cd",               # Bloody post-apo baseball bat, 1.6k
 	"armas/balas": "bb1f5649dfa74315977e9706d5079a6f",              # Ammo Boxes Pack, 9.9k
 	"objetos/botella": "03d9062085214988b2e984470c7c0d28",          # Dusty Beer Bottle, 1.4k (molotov)
-	"objetos/paloma": "afdeba9d18be43eeadf361daee165c68",           # Festive Firecracker, 700
 	"objetos/galon_agua": "9d69e59b7eeb4d7e9e2e5388960fdd9f",       # gallon of water, 4k
-	"objetos/botella_agua": "66fa33a67d2f44eca01c6ad3c0d39c17",     # Bottled Water, 1.7k
 	"objetos/cigarro": "27d7beefb2314e2c970f0622b5ca8752",          # Marlboro Gold, 20
 	"objetos/bocina": "d9f19a9ddce04dac8586b34869d0c1ba",           # Low Poly Boombox PS1/PS2, 194
-	"objetos/lampara": "4776f56179af4891ac856316892c4cd8",          # Flashlight, 60
-	"objetos/celular": "42f74bc6e3d7421795ece5e542e614e3",          # PSX Style Flip Phone, 520
 	"objetos/vaporub": "9e1a3cfe9ad947cb88c483495bc0cf5c",          # Vick Vaporub (bajo poligono), 162
 	"objetos/cloralex": "5b227d8679544e4bb3ce8e992e830787",         # Bleach bottle, 1.9k
 	"objetos/cinta": "f80243ec33674f0f9d96c09fa2e19abe",            # Blue Electrical Tape, 184
 	"objetos/tablas": "4859a76994cc49e2ba451d204e24574d",           # Stylized Wood Pack, 696
 	"objetos/botiquin": "4f27c0f45c704cdb9858c073fe961ade",         # Soviet first aid kit, 2.1k
-	"objetos/maquinita": "a0804f3975964221b9332af15f0beda5",        # Slot Machine, 1k, 1 animacion
 	# Objetos de misiones y NPCs (especificaciones.md, secciones 5 y 6)
 	"objetos/paquete": "e2bfa6f3822241a49553b44c55ef3082",          # Cardboard Boxes Pack - Taped, 2.8k
-	"objetos/pastel": "e2315d81af8f44f48b3fddb65764ba9f",           # Low Poly Dessert platter, 1.3k
 	"objetos/garrafon": "a6933b112dc84ce983221d7072952b5d",         # Plastic Water Jug, 8k
-	"objetos/botella_sucia": "8c86a495c46c4b30b0ea42a61b417d05",    # Low Poly Dirty Plastic Bottle, 942
 	"objetos/patito": "3100647808744cadb13a6847eb721e3b",           # Rubber duck, 72
-	"objetos/tachas": "429536ff8dd84e538168c17ce6e82e28",           # Pills, 348
-	"objetos/tequila": "3b9a718d686247d5bd36d14898186047",          # Zafiro Anejo Bottle, 12k
+	"objetos/tachas": "4892b8f61b0c4b27a65b0dfd489d6af5",           # CC0 - Pill, 1.3k (pastilla suelta)
 	"objetos/llave": "a2ba7ef56ec04eaebf3acda251101442",            # PSX Tower Key, 264
 	"objetos/refrescos": "00c7ef57a8544b9b9ba0c42fda7a47e2",        # Soda & Energy Drink Pack, 440
 	"objetos/carrito_super": "b96f896453b240ae804d0399f1faf027",    # Shopping Cart, 2.2k

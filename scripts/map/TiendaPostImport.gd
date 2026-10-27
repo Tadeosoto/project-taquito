@@ -27,7 +27,6 @@ const MAX_TRIANGULOS := {
 	"balas": 3000,
 	"galon_agua": 1500,
 	"garrafon": 1500,
-	"tequila": 1500,
 	"resortera": 1500,
 	"mostrador": 1500,
 	"m3_mart": 4000,
@@ -41,6 +40,10 @@ const MAX_TRIANGULOS := {
 const RECORTES := {}
 const RECORTE_MAX := 5.0
 
+# Carpetas sin wobble: el wobble acomoda los vertices en una reticula de
+# 1/wobble_resolution (2.5 cm) y los objetos de 1-2 cm quedan hechos un triangulo
+const SIN_WOBBLE := ["tachas"]
+
 # Carpeta -> {parte del nombre del material: color liso} para repintar piezas
 # (se ignora la textura de ese material)
 const TINTES := {
@@ -53,6 +56,8 @@ const TINTES := {
 
 var _materials := {}
 var _tintes := {}
+var _convertidas := {}
+var _sin_wobble := false
 var _white: ImageTexture
 
 
@@ -69,6 +74,7 @@ func _post_import(scene: Node) -> Object:
 		if total > MAX_TRIANGULOS[carpeta]:
 			_reducir(scene, float(MAX_TRIANGULOS[carpeta]) / total)
 			print("TiendaPostImport: %s de %d a %d triangulos" % [carpeta, total, _contar_triangulos(scene)])
+	_sin_wobble = carpeta in SIN_WOBBLE
 	_convert(scene)
 	return scene
 
@@ -138,19 +144,24 @@ func _reducir(node: Node, ratio: float) -> void:
 		_reducir(child, ratio)
 
 
+# El material PS1 reemplaza al original dentro de la malla (no como override):
+# asi el original, con sus mapas normal/roughness que no van en git, no queda
+# guardado en las .scn horneadas. Varias instancias pueden compartir malla.
 func _convert(node: Node) -> void:
-	if node is MeshInstance3D and node.mesh:
+	if node is MeshInstance3D and node.mesh and not _convertidas.has(node.mesh):
 		var mesh_instance := node as MeshInstance3D
+		_convertidas[mesh_instance.mesh] = true
 		for surface in mesh_instance.mesh.get_surface_count():
 			var source := mesh_instance.get_active_material(surface)
 			var has_colors: bool = mesh_instance.mesh.surface_get_format(surface) & Mesh.ARRAY_FORMAT_COLOR != 0
-			mesh_instance.set_surface_override_material(surface, _ps1_material(source, has_colors))
+			mesh_instance.mesh.surface_set_material(surface, _ps1_material(source, has_colors))
+			mesh_instance.set_surface_override_material(surface, null)
 	for child in node.get_children():
 		_convert(child)
 
 
 func _ps1_material(source: Material, has_colors: bool) -> Material:
-	var key := [source, has_colors]
+	var key := [source, has_colors, _sin_wobble]
 	if _materials.has(key):
 		return _materials[key]
 
@@ -172,6 +183,9 @@ func _ps1_material(source: Material, has_colors: bool) -> Material:
 	material.set_shader_parameter("use_vertex_color", has_colors)
 	# El warp afin deforma mucho las fachadas grandes
 	material.set_shader_parameter("affine_enabled", false)
+	if _sin_wobble:
+		material.set_shader_parameter("wobble_enabled", false)
 
 	_materials[key] = material
 	return material
+

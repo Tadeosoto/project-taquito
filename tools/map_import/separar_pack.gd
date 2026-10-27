@@ -3,7 +3,8 @@ extends SceneTree
 # Sketchfab solo baja el Mexican Starter Pack entero; esto guarda cada objeto
 # como su propia escena en models/objetos/mexican_starter_pack/<objeto>.scn,
 # centrado en X/Z y apoyado en y = 0, con el material PS1 del import. El pack
-# viene en otra unidad: todo se escala igual para que la caguama mida ALTO_CAGUAMA.
+# viene en otra unidad: todo se escala igual para que la caguama del pack (que
+# no se guarda) mida ALTO_CAGUAMA.
 #
 #   godot --path . --headless -s tools/map_import/separar_pack.gd
 #
@@ -13,16 +14,12 @@ extends SceneTree
 const PACK := "res://models/objetos/mexican_starter_pack/scene.gltf"
 const SALIDA := "res://models/objetos/mexican_starter_pack/"
 const ALTO_CAGUAMA := 0.32
+const CAGUAMA := ["Caguama"]
 
 # Objeto -> prefijos de los nodos de malla del glTF
 const OBJETOS := {
 	"mochila": ["Mochila", "Line"],
 	"mazapan": ["Mazapan", "Envoltura_Mazapan"],
-	"maruchan": ["Maruchan"],
-	"concha": ["pan", "cremoso"],
-	"caguama": ["Caguama"],
-	"veladora": ["Vela_Baso", "Cera", "Mecha"],
-	"rosario": ["Sphere001", "Box001"],
 }
 
 
@@ -31,7 +28,7 @@ func _init() -> void:
 	# _init corre antes de entrar al arbol: las transformaciones se acumulan a mano
 	var mallas := {}
 	_juntar(pack, Transform3D.IDENTITY, mallas)
-	var caguama := _caja(mallas, OBJETOS["caguama"])
+	var caguama := _caja(mallas, CAGUAMA)
 	var escala := ALTO_CAGUAMA / caguama.size.y
 	for objeto in OBJETOS:
 		var raiz := Node3D.new()

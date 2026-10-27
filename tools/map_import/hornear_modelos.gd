@@ -15,6 +15,8 @@ extends SceneTree
 # triplicaban el tamano) y el archivo va comprimido.
 
 const GRUPOS := ["tiendas", "casas", "props", "objetos", "personajes", "armas", "interiores"]
+# Modelos que no se hornean enteros: solo se usan sus piezas (separar_pack.gd)
+const SOLO_PIEZAS := ["mexican_starter_pack"]
 
 
 func _init() -> void:
@@ -23,7 +25,7 @@ func _init() -> void:
 		var base := "res://models/%s/" % grupo
 		for modelo in DirAccess.get_directories_at(base):
 			var origen := base + modelo + "/scene.gltf"
-			if not FileAccess.file_exists(origen):
+			if not FileAccess.file_exists(origen) or modelo in SOLO_PIEZAS:
 				continue
 			var escena := load(origen) as PackedScene
 			if escena == null:

@@ -47,26 +47,17 @@
 - [Jarritos Grapefruit Soda - FBX - Film Grain](https://sketchfab.com/3d-models/44a5150acb0b4109af1378c74bfdde5c) de Connor Lawson, licencia CC Attribution (`models/objetos/jarritos/`).
 - [Mexican Starter Pack!](https://sketchfab.com/3d-models/8a0b37c7d64448c1aa9b533cdea0283a) de Franci5coJavier, licencia CC Attribution (`models/objetos/mexican_starter_pack/`).
 - [Dusty Beer Bottle](https://sketchfab.com/3d-models/03d9062085214988b2e984470c7c0d28) de Coozy, licencia CC Attribution (`models/objetos/botella/`).
-- [Festive Firecracker](https://sketchfab.com/3d-models/afdeba9d18be43eeadf361daee165c68) de farooq.smurf, licencia CC Attribution (`models/objetos/paloma/`).
 - [gallon of water](https://sketchfab.com/3d-models/9d69e59b7eeb4d7e9e2e5388960fdd9f) de Mex Guillen, licencia CC Attribution (`models/objetos/galon_agua/`).
-- [Bottled Water](https://sketchfab.com/3d-models/66fa33a67d2f44eca01c6ad3c0d39c17) de luapqq, licencia CC Attribution (`models/objetos/botella_agua/`).
 - [Marlboro Gold](https://sketchfab.com/3d-models/27d7beefb2314e2c970f0622b5ca8752) de Tiago Lopes, licencia CC Attribution (`models/objetos/cigarro/`).
 - [Low Poly Boombox (PS1/PS2 Style)](https://sketchfab.com/3d-models/d9f19a9ddce04dac8586b34869d0c1ba) de Drillimpact, licencia CC Attribution (`models/objetos/bocina/`).
-- [Flashlight](https://sketchfab.com/3d-models/4776f56179af4891ac856316892c4cd8) de SketchyBot, licencia CC Attribution (`models/objetos/lampara/`).
-- [PSX Style Flip Phone](https://sketchfab.com/3d-models/42f74bc6e3d7421795ece5e542e614e3) de wooolvie, licencia CC Attribution (`models/objetos/celular/`).
 - [Vick Vaporub(bajo poligono)](https://sketchfab.com/3d-models/9e1a3cfe9ad947cb88c483495bc0cf5c) de KeriNon, licencia CC Attribution (`models/objetos/vaporub/`).
 - [Bleach bottle](https://sketchfab.com/3d-models/5b227d8679544e4bb3ce8e992e830787) de Art by RAN, licencia CC Attribution (`models/objetos/cloralex/`).
 - [Blue Electrical Tape](https://sketchfab.com/3d-models/f80243ec33674f0f9d96c09fa2e19abe) de Coozy, licencia CC Attribution (`models/objetos/cinta/`).
 - [Stylized Wood Pack](https://sketchfab.com/3d-models/4859a76994cc49e2ba451d204e24574d) de Pasindu.Anjana, licencia CC Attribution (`models/objetos/tablas/`).
 - [Soviet first aid kit (free download)](https://sketchfab.com/3d-models/4f27c0f45c704cdb9858c073fe961ade) de cglib.team, licencia CC Attribution (`models/objetos/botiquin/`).
-- [Slot Machine](https://sketchfab.com/3d-models/a0804f3975964221b9332af15f0beda5) de carlin.chu, licencia CC Attribution (`models/objetos/maquinita/`).
 - [Cardboard Boxes Pack – Taped, 100 Sizes](https://sketchfab.com/3d-models/e2bfa6f3822241a49553b44c55ef3082) de Alex human, licencia CC Attribution (`models/objetos/paquete/`).
-- [Low Poly Dessert platter](https://sketchfab.com/3d-models/e2315d81af8f44f48b3fddb65764ba9f) de Shareen, licencia CC Attribution (`models/objetos/pastel/`).
 - [Plastic Water Jug](https://sketchfab.com/3d-models/a6933b112dc84ce983221d7072952b5d) de Aparicio Silva 3D, licencia CC Attribution (`models/objetos/garrafon/`).
-- [Low Poly Dirty Plastic Bottle - Game Ready](https://sketchfab.com/3d-models/8c86a495c46c4b30b0ea42a61b417d05) de -Arthur-, licencia CC Attribution (`models/objetos/botella_sucia/`).
 - [Rubber duck](https://sketchfab.com/3d-models/3100647808744cadb13a6847eb721e3b) de IniRiza, licencia CC Attribution (`models/objetos/patito/`).
-- [Pills](https://sketchfab.com/3d-models/429536ff8dd84e538168c17ce6e82e28) de Dawndragon, licencia CC Attribution (`models/objetos/tachas/`).
-- [Zafiro Añejo Bottle from Breaking Bad [PBR]](https://sketchfab.com/3d-models/3b9a718d686247d5bd36d14898186047) de Saandy, licencia CC Attribution (`models/objetos/tequila/`).
 - [PSX Tower Key – Rusty Radio Tower Key](https://sketchfab.com/3d-models/a2ba7ef56ec04eaebf3acda251101442) de ZwiebelGames, licencia CC Attribution (`models/objetos/llave/`).
 - [Soda & Energy Drink Pack - Low Poly Meme Props](https://sketchfab.com/3d-models/00c7ef57a8544b9b9ba0c42fda7a47e2) de Vlaxled, licencia CC Attribution (`models/objetos/refrescos/`).
 - [Shopping Cart](https://sketchfab.com/3d-models/b96f896453b240ae804d0399f1faf027) de AdrianXY, licencia CC Attribution (`models/objetos/carrito_super/`).
@@ -74,6 +65,7 @@
 - [Worn Flip Flop](https://sketchfab.com/3d-models/000074a334c541878360457c672b6c2e) de inciprocal, licencia CC Attribution (`models/objetos/chancla/`).
 - [White Towel](https://sketchfab.com/3d-models/35b76b90614d49a3aa92eeeb6afec60f) de Anežka Hájková, licencia CC Attribution (`models/objetos/trapo/`).
 - [Iced Coffee](https://sketchfab.com/3d-models/654c719c6bf0487c9b392d1dfad8ac6d) de Emily O'Masters, licencia CC Attribution (`models/objetos/tejuino/`).
+- [CC0 - Pill](https://sketchfab.com/3d-models/4892b8f61b0c4b27a65b0dfd489d6af5) de plaggy, licencia CC Attribution (`models/objetos/tachas/`).
 
 ## Personajes (`models/personajes/`, Sketchfab)
 - [soldado del ejercito mexicano low poly](https://sketchfab.com/3d-models/7ef42de5636443399f3f06ff8b98d5a7) de Juan pablo, licencia CC Attribution (`models/personajes/soldado/`).

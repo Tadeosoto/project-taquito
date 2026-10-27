@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://hlplpm1ad3h2"
-path="res://.godot/imported/Material.002_baseColor.png-811f9fa938d8457b0f555daf48720f80.ctex"
+uid="uid://t3ehtnikn4ii"
+path="res://.godot/imported/Pill3_baseColor.png-a40b1ce6c3756fc45d10af6cf51dd105.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,8 +11,8 @@ generator_parameters={}
 
 [deps]
 
-source_file="res://models/objetos/botella_agua/textures/Material.002_baseColor.png"
-dest_files=["res://.godot/imported/Material.002_baseColor.png-811f9fa938d8457b0f555daf48720f80.ctex"]
+source_file="res://models/objetos/tachas/textures/Pill3_baseColor.png"
+dest_files=["res://.godot/imported/Pill3_baseColor.png-a40b1ce6c3756fc45d10af6cf51dd105.ctex"]
 
 [params]
 
