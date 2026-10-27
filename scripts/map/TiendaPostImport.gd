@@ -26,7 +26,6 @@ const MAX_TRIANGULOS := {
 	"cuerno_de_chivo": 2000,
 	"balas": 3000,
 	"galon_agua": 1500,
-	"garrafon": 1500,
 	"resortera": 1500,
 	"mostrador": 1500,
 	"m3_mart": 4000,

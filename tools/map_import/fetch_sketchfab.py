@@ -104,7 +104,6 @@ MODELS = {
 	"objetos/botiquin": "4f27c0f45c704cdb9858c073fe961ade",         # Soviet first aid kit, 2.1k
 	# Objetos de misiones y NPCs (especificaciones.md, secciones 5 y 6)
 	"objetos/paquete": "e2bfa6f3822241a49553b44c55ef3082",          # Cardboard Boxes Pack - Taped, 2.8k
-	"objetos/garrafon": "a6933b112dc84ce983221d7072952b5d",         # Plastic Water Jug, 8k
 	"objetos/patito": "3100647808744cadb13a6847eb721e3b",           # Rubber duck, 72
 	"objetos/tachas": "4892b8f61b0c4b27a65b0dfd489d6af5",           # CC0 - Pill, 1.3k (pastilla suelta)
 	"objetos/llave": "a2ba7ef56ec04eaebf3acda251101442",            # PSX Tower Key, 264

@@ -56,7 +56,6 @@
 - [Stylized Wood Pack](https://sketchfab.com/3d-models/4859a76994cc49e2ba451d204e24574d) de Pasindu.Anjana, licencia CC Attribution (`models/objetos/tablas/`).
 - [Soviet first aid kit (free download)](https://sketchfab.com/3d-models/4f27c0f45c704cdb9858c073fe961ade) de cglib.team, licencia CC Attribution (`models/objetos/botiquin/`).
 - [Cardboard Boxes Pack – Taped, 100 Sizes](https://sketchfab.com/3d-models/e2bfa6f3822241a49553b44c55ef3082) de Alex human, licencia CC Attribution (`models/objetos/paquete/`).
-- [Plastic Water Jug](https://sketchfab.com/3d-models/a6933b112dc84ce983221d7072952b5d) de Aparicio Silva 3D, licencia CC Attribution (`models/objetos/garrafon/`).
 - [Rubber duck](https://sketchfab.com/3d-models/3100647808744cadb13a6847eb721e3b) de IniRiza, licencia CC Attribution (`models/objetos/patito/`).
 - [PSX Tower Key – Rusty Radio Tower Key](https://sketchfab.com/3d-models/a2ba7ef56ec04eaebf3acda251101442) de ZwiebelGames, licencia CC Attribution (`models/objetos/llave/`).
 - [Soda & Energy Drink Pack - Low Poly Meme Props](https://sketchfab.com/3d-models/00c7ef57a8544b9b9ba0c42fda7a47e2) de Vlaxled, licencia CC Attribution (`models/objetos/refrescos/`).
