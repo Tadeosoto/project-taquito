@@ -1,0 +1,11 @@
+Model Information:
+* title:	Gansito Modelado 3d
+* source:	https://sketchfab.com/3d-models/gansito-modelado-3d-ba692654d1ae417cb2e72da0aaf9445b
+* author:	juangoyen24 (https://sketchfab.com/juangoyen24)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Gansito Modelado 3d" (https://sketchfab.com/3d-models/gansito-modelado-3d-ba692654d1ae417cb2e72da0aaf9445b) by juangoyen24 (https://sketchfab.com/juangoyen24) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

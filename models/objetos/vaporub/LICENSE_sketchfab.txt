@@ -1,0 +1,11 @@
+Model Information:
+* title:	Vick Vaporub(bajo poligono)
+* source:	https://sketchfab.com/3d-models/vick-vaporubbajo-poligono-9e1a3cfe9ad947cb88c483495bc0cf5c
+* author:	KeriNon (https://sketchfab.com/KeriNon)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Vick Vaporub(bajo poligono)" (https://sketchfab.com/3d-models/vick-vaporubbajo-poligono-9e1a3cfe9ad947cb88c483495bc0cf5c) by KeriNon (https://sketchfab.com/KeriNon) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

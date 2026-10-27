@@ -1,0 +1,11 @@
+Model Information:
+* title:	Dusty Beer Bottle
+* source:	https://sketchfab.com/3d-models/dusty-beer-bottle-03d9062085214988b2e984470c7c0d28
+* author:	GameDev Nick (https://sketchfab.com/GameDevNick)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Dusty Beer Bottle" (https://sketchfab.com/3d-models/dusty-beer-bottle-03d9062085214988b2e984470c7c0d28) by GameDev Nick (https://sketchfab.com/GameDevNick) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

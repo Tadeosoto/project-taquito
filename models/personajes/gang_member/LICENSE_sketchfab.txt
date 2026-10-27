@@ -1,0 +1,11 @@
+Model Information:
+* title:	Gang Member
+* source:	https://sketchfab.com/3d-models/gang-member-d696194c574241f6bb8f08f5f89e8718
+* author:	Dakta.Grower.Nzl (https://sketchfab.com/Dakta.Grower.Nzl)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Gang Member" (https://sketchfab.com/3d-models/gang-member-d696194c574241f6bb8f08f5f89e8718) by Dakta.Grower.Nzl (https://sketchfab.com/Dakta.Grower.Nzl) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

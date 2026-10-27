@@ -1,0 +1,11 @@
+Model Information:
+* title:	gallon of water
+* source:	https://sketchfab.com/3d-models/gallon-of-water-9d69e59b7eeb4d7e9e2e5388960fdd9f
+* author:	Mex Guillen (https://sketchfab.com/Mexguillen)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "gallon of water" (https://sketchfab.com/3d-models/gallon-of-water-9d69e59b7eeb4d7e9e2e5388960fdd9f) by Mex Guillen (https://sketchfab.com/Mexguillen) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

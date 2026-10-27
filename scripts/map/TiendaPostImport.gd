@@ -5,7 +5,8 @@ extends EditorScenePostImport
 # tools/map_import/fetch_sketchfab.py): cambia sus materiales por el shader PS1
 # del proyecto para que combinen con el mapa. Solo se usa el color base; normal,
 # roughness y emission de Sketchfab se ignoran (y el vidrio sale opaco).
-# Tambien lo usan models/casas, models/props y models/objetos.
+# Tambien lo usan models/casas, models/props, models/objetos,
+# models/personajes, models/armas y models/interiores.
 # Los modelos pesados (escaneos) se reducen aqui con meshoptimizer (el mismo
 # simplificador de los LOD de Godot, respeta las costuras de UV), y los que
 # traen una escena entera se pueden recortar a la parte que se usa (RECORTES).
@@ -16,6 +17,23 @@ const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 const MAX_TRIANGULOS := {
 	"takis": 4000,
 	"jarritos": 3000,
+	"mexican_starter_pack": 7000,
+	"soldado": 3000,
+	"dr_simi": 10000,
+	"indian_gangster": 3000,
+	"gangster_dealer": 3000,
+	"gang_member": 3000,
+	"cuerno_de_chivo": 2000,
+	"balas": 3000,
+	"galon_agua": 1500,
+	"garrafon": 1500,
+	"tequila": 1500,
+	"resortera": 1500,
+	"mostrador": 1500,
+	"m3_mart": 4000,
+	"gansito": 1500,
+	"chancla": 1000,
+	"garrafonero": 4000,
 }
 
 # Carpeta -> caja (coordenadas del glTF) de lo que se queda: mallas con centro
@@ -23,7 +41,18 @@ const MAX_TRIANGULOS := {
 const RECORTES := {}
 const RECORTE_MAX := 5.0
 
+# Carpeta -> {parte del nombre del material: color liso} para repintar piezas
+# (se ignora la textura de ese material)
+const TINTES := {
+	# Vaso de Iced Coffee: el plastico es transparente y aqui saldria blanco
+	# opaco, asi que el vaso y la bebida se pintan cafe de tejuino
+	"tejuino": {"color_-1023739142": Color(0.62, 0.42, 0.24), "color_14860437": Color(0.5, 0.32, 0.17)},
+	# Toalla blanca -> trapo sucio de la molotov
+	"trapo": {"Scene_-_Root": Color(0.58, 0.5, 0.38)},
+}
+
 var _materials := {}
+var _tintes := {}
 var _white: ImageTexture
 
 
@@ -32,6 +61,7 @@ func _post_import(scene: Node) -> Object:
 	image.fill(Color.WHITE)
 	_white = ImageTexture.create_from_image(image)
 	var carpeta := get_source_file().get_base_dir().get_file()
+	_tintes = TINTES.get(carpeta, {})
 	if RECORTES.has(carpeta):
 		_recortar(scene, scene, Transform3D.IDENTITY, RECORTES[carpeta])
 	if MAX_TRIANGULOS.has(carpeta):
@@ -133,6 +163,10 @@ func _ps1_material(source: Material, has_colors: bool) -> Material:
 		color = base.albedo_color
 		if base.albedo_texture != null:
 			texture = base.albedo_texture
+	for parte in _tintes:
+		if source != null and source.resource_name.contains(parte):
+			color = _tintes[parte]
+			texture = _white
 	material.set_shader_parameter("albedo_texture", texture)
 	material.set_shader_parameter("tint", color)
 	material.set_shader_parameter("use_vertex_color", has_colors)

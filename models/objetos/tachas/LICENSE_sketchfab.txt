@@ -1,0 +1,11 @@
+Model Information:
+* title:	Pills
+* source:	https://sketchfab.com/3d-models/pills-429536ff8dd84e538168c17ce6e82e28
+* author:	Dawndragon (https://sketchfab.com/Dawndragon)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pills" (https://sketchfab.com/3d-models/pills-429536ff8dd84e538168c17ce6e82e28) by Dawndragon (https://sketchfab.com/Dawndragon) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

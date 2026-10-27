@@ -1,0 +1,11 @@
+Model Information:
+* title:	Cop Character PSX Style
+* source:	https://sketchfab.com/3d-models/cop-character-psx-style-5576b8cbd33343f998c8b86d8bcfda48
+* author:	vinrax (https://sketchfab.com/vinrax)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Cop Character PSX Style" (https://sketchfab.com/3d-models/cop-character-psx-style-5576b8cbd33343f998c8b86d8bcfda48) by vinrax (https://sketchfab.com/vinrax) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

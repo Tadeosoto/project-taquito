@@ -1,0 +1,11 @@
+Model Information:
+* title:	Bleach bottle
+* source:	https://sketchfab.com/3d-models/bleach-bottle-5b227d8679544e4bb3ce8e992e830787
+* author:	art by RAN (https://sketchfab.com/ultramonsterranthings)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Bleach bottle" (https://sketchfab.com/3d-models/bleach-bottle-5b227d8679544e4bb3ce8e992e830787) by art by RAN (https://sketchfab.com/ultramonsterranthings) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

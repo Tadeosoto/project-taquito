@@ -16,3 +16,15 @@ data/map/colonias_debug.png
 data/map/satelite_rgb.png
 data/map/satelite_chm.png
 data/map/calles_debug.png
+# Modelos de Sketchfab: el juego usa models/<grupo>/<modelo>/<modelo>.scn (hornear_modelos.gd).
+# Los originales se vuelven a bajar con tools/map_import/fetch_sketchfab.py
+models/*/*/scene.gltf
+models/*/*/scene.gltf.import
+models/*/*/scene.bin
+# TiendaPostImport solo usa el color base: los demas mapas no los usa Godot
+models/*/*/textures/*_normal.*
+models/*/*/textures/*_metallicRoughness.*
+models/*/*/textures/*_emissive.*
+models/*/*/textures/*_occlusion.*
+models/*/*/textures/*_specularf0.*
+models/*/*/textures/*_specularGlossiness.*

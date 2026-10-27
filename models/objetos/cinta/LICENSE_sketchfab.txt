@@ -1,0 +1,11 @@
+Model Information:
+* title:	Blue Electrical Tape
+* source:	https://sketchfab.com/3d-models/blue-electrical-tape-f80243ec33674f0f9d96c09fa2e19abe
+* author:	GameDev Nick (https://sketchfab.com/GameDevNick)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Blue Electrical Tape" (https://sketchfab.com/3d-models/blue-electrical-tape-f80243ec33674f0f9d96c09fa2e19abe) by GameDev Nick (https://sketchfab.com/GameDevNick) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

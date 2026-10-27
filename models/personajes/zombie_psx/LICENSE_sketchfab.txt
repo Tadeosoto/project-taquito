@@ -1,0 +1,11 @@
+Model Information:
+* title:	PSX style zombie
+* source:	https://sketchfab.com/3d-models/psx-style-zombie-e5780c5c161c461783d978aee98a865b
+* author:	Luigi (https://sketchfab.com/Weegee123)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "PSX style zombie" (https://sketchfab.com/3d-models/psx-style-zombie-e5780c5c161c461783d978aee98a865b) by Luigi (https://sketchfab.com/Weegee123) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

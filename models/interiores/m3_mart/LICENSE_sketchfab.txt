@@ -1,0 +1,11 @@
+Model Information:
+* title:	M3 Mart
+* source:	https://sketchfab.com/3d-models/m3-mart-833699c4a15b4d1ab3e3d79068972431
+* author:	m3org (https://sketchfab.com/m3org)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "M3 Mart" (https://sketchfab.com/3d-models/m3-mart-833699c4a15b4d1ab3e3d79068972431) by m3org (https://sketchfab.com/m3org) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

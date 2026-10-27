@@ -37,9 +37,84 @@
 ## Props de calle (`models/props/`, Sketchfab)
 
 - [Señal Alto](https://sketchfab.com/3d-models/d2de3788e5f24c3e8189001d2a1f6e92) de VictorGram, licencia CC Attribution (`models/props/alto/`).
+- [water dispenser](https://sketchfab.com/3d-models/25bdfe807c8e437885ed3be6ec0d11d8) de ChoboiAssets, licencia CC Attribution (`models/props/despachador_agua/`).
+- [Manhole](https://sketchfab.com/3d-models/bbf5c9aa04c24fbaba328728d955777d) de DJMaesen, licencia CC Attribution (`models/props/coladera/`).
 
 ## Objetos (`models/objetos/`, Sketchfab)
 
 - [Takis Fuego - México](https://sketchfab.com/3d-models/7426e5fa188344668ec3b9dbab348bae) de Luiss Maker, licencia CC Attribution (`models/objetos/takis/`).
 - [1 Peso MXN - Moneda - Coin](https://sketchfab.com/3d-models/5b0b33e49fa84d96b6e0d82beac694f3) de Diego G., licencia CC Attribution (`models/objetos/moneda_peso/`).
 - [Jarritos Grapefruit Soda - FBX - Film Grain](https://sketchfab.com/3d-models/44a5150acb0b4109af1378c74bfdde5c) de Connor Lawson, licencia CC Attribution (`models/objetos/jarritos/`).
+- [Mexican Starter Pack!](https://sketchfab.com/3d-models/8a0b37c7d64448c1aa9b533cdea0283a) de Franci5coJavier, licencia CC Attribution (`models/objetos/mexican_starter_pack/`).
+- [Dusty Beer Bottle](https://sketchfab.com/3d-models/03d9062085214988b2e984470c7c0d28) de Coozy, licencia CC Attribution (`models/objetos/botella/`).
+- [Festive Firecracker](https://sketchfab.com/3d-models/afdeba9d18be43eeadf361daee165c68) de farooq.smurf, licencia CC Attribution (`models/objetos/paloma/`).
+- [gallon of water](https://sketchfab.com/3d-models/9d69e59b7eeb4d7e9e2e5388960fdd9f) de Mex Guillen, licencia CC Attribution (`models/objetos/galon_agua/`).
+- [Bottled Water](https://sketchfab.com/3d-models/66fa33a67d2f44eca01c6ad3c0d39c17) de luapqq, licencia CC Attribution (`models/objetos/botella_agua/`).
+- [Marlboro Gold](https://sketchfab.com/3d-models/27d7beefb2314e2c970f0622b5ca8752) de Tiago Lopes, licencia CC Attribution (`models/objetos/cigarro/`).
+- [Low Poly Boombox (PS1/PS2 Style)](https://sketchfab.com/3d-models/d9f19a9ddce04dac8586b34869d0c1ba) de Drillimpact, licencia CC Attribution (`models/objetos/bocina/`).
+- [Flashlight](https://sketchfab.com/3d-models/4776f56179af4891ac856316892c4cd8) de SketchyBot, licencia CC Attribution (`models/objetos/lampara/`).
+- [PSX Style Flip Phone](https://sketchfab.com/3d-models/42f74bc6e3d7421795ece5e542e614e3) de wooolvie, licencia CC Attribution (`models/objetos/celular/`).
+- [Vick Vaporub(bajo poligono)](https://sketchfab.com/3d-models/9e1a3cfe9ad947cb88c483495bc0cf5c) de KeriNon, licencia CC Attribution (`models/objetos/vaporub/`).
+- [Bleach bottle](https://sketchfab.com/3d-models/5b227d8679544e4bb3ce8e992e830787) de Art by RAN, licencia CC Attribution (`models/objetos/cloralex/`).
+- [Blue Electrical Tape](https://sketchfab.com/3d-models/f80243ec33674f0f9d96c09fa2e19abe) de Coozy, licencia CC Attribution (`models/objetos/cinta/`).
+- [Stylized Wood Pack](https://sketchfab.com/3d-models/4859a76994cc49e2ba451d204e24574d) de Pasindu.Anjana, licencia CC Attribution (`models/objetos/tablas/`).
+- [Soviet first aid kit (free download)](https://sketchfab.com/3d-models/4f27c0f45c704cdb9858c073fe961ade) de cglib.team, licencia CC Attribution (`models/objetos/botiquin/`).
+- [Slot Machine](https://sketchfab.com/3d-models/a0804f3975964221b9332af15f0beda5) de carlin.chu, licencia CC Attribution (`models/objetos/maquinita/`).
+- [Cardboard Boxes Pack – Taped, 100 Sizes](https://sketchfab.com/3d-models/e2bfa6f3822241a49553b44c55ef3082) de Alex human, licencia CC Attribution (`models/objetos/paquete/`).
+- [Low Poly Dessert platter](https://sketchfab.com/3d-models/e2315d81af8f44f48b3fddb65764ba9f) de Shareen, licencia CC Attribution (`models/objetos/pastel/`).
+- [Plastic Water Jug](https://sketchfab.com/3d-models/a6933b112dc84ce983221d7072952b5d) de Aparicio Silva 3D, licencia CC Attribution (`models/objetos/garrafon/`).
+- [Low Poly Dirty Plastic Bottle - Game Ready](https://sketchfab.com/3d-models/8c86a495c46c4b30b0ea42a61b417d05) de -Arthur-, licencia CC Attribution (`models/objetos/botella_sucia/`).
+- [Rubber duck](https://sketchfab.com/3d-models/3100647808744cadb13a6847eb721e3b) de IniRiza, licencia CC Attribution (`models/objetos/patito/`).
+- [Pills](https://sketchfab.com/3d-models/429536ff8dd84e538168c17ce6e82e28) de Dawndragon, licencia CC Attribution (`models/objetos/tachas/`).
+- [Zafiro Añejo Bottle from Breaking Bad [PBR]](https://sketchfab.com/3d-models/3b9a718d686247d5bd36d14898186047) de Saandy, licencia CC Attribution (`models/objetos/tequila/`).
+- [PSX Tower Key – Rusty Radio Tower Key](https://sketchfab.com/3d-models/a2ba7ef56ec04eaebf3acda251101442) de ZwiebelGames, licencia CC Attribution (`models/objetos/llave/`).
+- [Soda & Energy Drink Pack - Low Poly Meme Props](https://sketchfab.com/3d-models/00c7ef57a8544b9b9ba0c42fda7a47e2) de Vlaxled, licencia CC Attribution (`models/objetos/refrescos/`).
+- [Shopping Cart](https://sketchfab.com/3d-models/b96f896453b240ae804d0399f1faf027) de AdrianXY, licencia CC Attribution (`models/objetos/carrito_super/`).
+- [Gansito Modelado 3d](https://sketchfab.com/3d-models/ba692654d1ae417cb2e72da0aaf9445b) de juangoyen24, licencia CC Attribution (`models/objetos/gansito/`).
+- [Worn Flip Flop](https://sketchfab.com/3d-models/000074a334c541878360457c672b6c2e) de inciprocal, licencia CC Attribution (`models/objetos/chancla/`).
+- [White Towel](https://sketchfab.com/3d-models/35b76b90614d49a3aa92eeeb6afec60f) de Anežka Hájková, licencia CC Attribution (`models/objetos/trapo/`).
+- [Iced Coffee](https://sketchfab.com/3d-models/654c719c6bf0487c9b392d1dfad8ac6d) de Emily O'Masters, licencia CC Attribution (`models/objetos/tejuino/`).
+
+## Personajes (`models/personajes/`, Sketchfab)
+- [soldado del ejercito mexicano low poly](https://sketchfab.com/3d-models/7ef42de5636443399f3f06ff8b98d5a7) de Juan pablo, licencia CC Attribution (`models/personajes/soldado/`).
+- [Free ps2 style isthmid amerindian characters](https://sketchfab.com/3d-models/cdb4d27bd4154712968eb3f0961bb375) de Humans of the World, licencia CC Attribution (`models/personajes/amerindios/`).
+- [Farmica Similares Dr Simi](https://sketchfab.com/3d-models/00e3a472abf546bd97adcc83f29b82bf) de Mateo.amaya.com, licencia CC Attribution (`models/personajes/dr_simi/`).
+- [cholo](https://sketchfab.com/3d-models/e6de11b017104307b1940e2f178d5bda) de Diddy_Blud_117, licencia CC Attribution (`models/personajes/cholo/`).
+- [psx man](https://sketchfab.com/3d-models/41b0580d4d5c4cc183cfeae523ea0a09) de petya-petyavich, licencia CC Attribution (`models/personajes/psx_man/`).
+- [Cop Character PSX Style](https://sketchfab.com/3d-models/5576b8cbd33343f998c8b86d8bcfda48) de vinrax, licencia CC Attribution (`models/personajes/policia/`).
+- [Indian Gangster](https://sketchfab.com/3d-models/76553b4f0dc84c6386e997c80b9b0017) de Nodeaxis Interactive, licencia CC Attribution (`models/personajes/indian_gangster/`).
+- [Gangster Dealer Musculo](https://sketchfab.com/3d-models/1eed0758ec3d45a7ae5613db8b59eb7b) de EntropyNine, licencia CC Attribution (`models/personajes/gangster_dealer/`).
+- [Gang Member](https://sketchfab.com/3d-models/d696194c574241f6bb8f08f5f89e8718) de Dakta.Grower.Nzl, licencia CC Attribution (`models/personajes/gang_member/`).
+- [Ripper Zombie (FREE DOWNLOAD)](https://sketchfab.com/3d-models/c5a77a38545543ce9c64eaa534afc23b) de NZFawkes, licencia CC Attribution (`models/personajes/zombie_ripper/`).
+- [PSX style zombie](https://sketchfab.com/3d-models/e5780c5c161c461783d978aee98a865b) de Luigi, licencia CC Attribution (`models/personajes/zombie_psx/`).
+- [Fat Man Zombie](https://sketchfab.com/3d-models/d21f6917d40944a7b92b56a94d474d1e) de MakeCrow, licencia CC Attribution (`models/personajes/zombie_gordo/`).
+- [dr_simi_muneco](https://sketchfab.com/3d-models/42c358b269d74533909bb2835f812ac5) de Mateo.amaya.com, licencia CC Attribution (`models/personajes/simi_muneco/`).
+- [PSX GRAPHICS | Low Poly Woman | Free Download](https://sketchfab.com/3d-models/08dea1dcd280451da4a8e621588409a3) de murilo.kleine, licencia CC Attribution (`models/personajes/mujer_psx/`).
+- [PSX Alt Girl](https://sketchfab.com/3d-models/07986f66480e46a8a8182adb35d6e7e8) de xylvnking, licencia CC Attribution (`models/personajes/chava_psx/`).
+- [[PS1/PSX/Retro] Male Base (Version 2)](https://sketchfab.com/3d-models/f9acca1dc1ec411699ffd6337889e058) de Firewarden3D, licencia CC Attribution (`models/personajes/hombre_psx/`).
+- [French Bulldog PSX](https://sketchfab.com/3d-models/647fa9e3f53b4898826ef398f0a9f6dd) de Bonvikt, licencia CC Attribution (`models/personajes/perro/`).
+- [Chef Erik (Walking)](https://sketchfab.com/3d-models/452927fd544d476eaf2c00a11e18965c) de robnewman76, licencia CC Attribution (`models/personajes/taquero/`).
+- [Female Secretary Character PSX](https://sketchfab.com/3d-models/8898a87225604a1fb335b47efff9c088) de vinrax, licencia CC Attribution (`models/personajes/encargada/`).
+- [Half-Life Scientist Luther](https://sketchfab.com/3d-models/b6b7e7f4f6774354941bc1e84833c302) de Homeless_Models, licencia CC Attribution (`models/personajes/cientifico/`).
+- [Construction Worker In A Blue Jacket](https://sketchfab.com/3d-models/a9eff8aee05e48d8b1f31cafd408215f) de restore50, licencia CC Attribution (`models/personajes/garrafonero/`).
+
+## Armas (`models/armas/`, Sketchfab)
+- [PS1 Style Machete](https://sketchfab.com/3d-models/bec7ee80bac24cc19b1e79cf8b57c50a) de Falxxx, licencia CC Attribution (`models/armas/machete/`).
+- [Retro / PSX-like Horror Melee Weapons Pack](https://sketchfab.com/3d-models/79cae670d515469a947617d18e5a6c89) de turnip_liker, licencia CC Attribution (`models/armas/melee_psx/`).
+- [MK23 SOCOM - Low Poly PS1](https://sketchfab.com/3d-models/a2f7ab3209a1409f8ea932c7851f1a20) de Wersaus33, licencia CC Attribution (`models/armas/pistola_mk23/`).
+- [LOWPOLY - COLT M1911 - PS1 / PSX STYLE](https://sketchfab.com/3d-models/f9fc36a1f07b47faaadb761702f703b0) de Colin.Greenall, licencia CC Attribution (`models/armas/pistola_colt/`).
+- [Low-Poly AK-47 Type 2](https://sketchfab.com/3d-models/a7260926fb0a40f8bba5f651b03d23f1) de TastyTony, licencia CC Attribution (`models/armas/cuerno_de_chivo/`).
+- [Medieval crossbow 01](https://sketchfab.com/3d-models/3a2010edc90346448017be61940eedfc) de Chellew, licencia CC Attribution (`models/armas/ballesta/`).
+- [Bloody post-apo baseball bat](https://sketchfab.com/3d-models/f3c3c73529e14dc59d525a9a6a2220cd) de Miłosz Ignaszak, licencia CC Attribution (`models/armas/bate/`).
+- [Ammo Boxes Pack (low-poly, game-ready)](https://sketchfab.com/3d-models/bb1f5649dfa74315977e9706d5079a6f) de TampaJoey, licencia CC Attribution (`models/armas/balas/`).
+- [Slingshot](https://sketchfab.com/3d-models/7c00a1667b2c4413b4dcb24500f05892) de justincrazyeyes, licencia CC Attribution (`models/armas/resortera/`).
+
+## Animaciones (`models/animaciones/`, CC0)
+- [Universal Animation Library (Standard) de Quaternius](https://opengameart.org/content/universal-animation-library), licencia CC0 (`models/animaciones/quaternius_ual1/`).
+- [Universal Animation Library 2 (Standard) de Quaternius](https://opengameart.org/content/universal-animation-library-2), licencia CC0 (`models/animaciones/quaternius_ual2/`).
+
+## Interiores (`models/interiores/`, Sketchfab)
+- [PSX - Vending Machine](https://sketchfab.com/3d-models/aff31f282155471d8222287596c7ac59) de Kasugay𓅂, licencia CC Attribution (`models/interiores/maquina_refrescos/`).
+- [PSX Style Fruit Shelve](https://sketchfab.com/3d-models/8f1624e9ba6c443e8448b2a2db20eeb7) de wooolvie, licencia CC Attribution (`models/interiores/estante_fruta/`).
+- [Counter](https://sketchfab.com/3d-models/47e1be52888640f89ab6dd8eeb008b35) de gorzi, licencia CC Attribution (`models/interiores/mostrador/`).
+- [M3 Mart](https://sketchfab.com/3d-models/833699c4a15b4d1ab3e3d79068972431) de m3org, licencia CC Attribution (`models/interiores/m3_mart/`).

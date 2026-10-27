@@ -1,0 +1,11 @@
+Model Information:
+* title:	Worn Flip Flop
+* source:	https://sketchfab.com/3d-models/worn-flip-flop-000074a334c541878360457c672b6c2e
+* author:	inciprocal (https://sketchfab.com/inciprocal.com)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Worn Flip Flop" (https://sketchfab.com/3d-models/worn-flip-flop-000074a334c541878360457c672b6c2e) by inciprocal (https://sketchfab.com/inciprocal.com) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,0 +1,11 @@
+Model Information:
+* title:	PSX Style Flip Phone
+* source:	https://sketchfab.com/3d-models/psx-style-flip-phone-42f74bc6e3d7421795ece5e542e614e3
+* author:	wooolvie (https://sketchfab.com/wooolvie)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "PSX Style Flip Phone" (https://sketchfab.com/3d-models/psx-style-flip-phone-42f74bc6e3d7421795ece5e542e614e3) by wooolvie (https://sketchfab.com/wooolvie) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
