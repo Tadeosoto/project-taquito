@@ -11,6 +11,8 @@ Hay dos escenas principales:
 
 La idea es que, con el tiempo, las mecánicas de `world.tscn` (NPCs, inventario, objetos) se pasen al mapa real.
 
+Las mecánicas, objetos, misiones y decisiones pendientes del juego están en **[`docs/especificaciones.md`](docs/especificaciones.md)**.
+
 ## Cómo correrlo
 
 ```bash
