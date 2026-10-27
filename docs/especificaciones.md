@@ -239,43 +239,43 @@ Columnas: **Modelo** = si ya hay modelo 3D en el repo (🧱) o falta (❌). Efec
 | Objeto | Tipo | Efecto propuesto | Modelo |
 |---|---|---|---|
 | Caguama | Consumible | Recupera vida; mareo ligero (cámara se mece) unos segundos. Vacía → sirve para molotov. | 🧱 `models/aguamala.glb` ("Caguama Agua Mala") |
-| Mochila del Partido Verde | Equipo | Aumenta ranuras de inventario. | ❌ |
-| Pistola | Arma de fuego | Daño medio, poco ruido relativo. | ❌ |
-| Balas | Munición | Para pistola (¿y cuerno?). Apilable. | ❌ |
+| Mochila del Partido Verde | Equipo | Aumenta ranuras de inventario. | 🧱 `models/objetos/mexican_starter_pack/mochila.scn` |
+| Pistola | Arma de fuego | Daño medio, poco ruido relativo. | 🧱 `models/armas/pistola_mk23/`, `pistola_colt/` |
+| Balas | Munición | Para pistola (¿y cuerno?). Apilable. | 🧱 `models/armas/balas/` (cajas de munición) |
 | Takis Fuego | Consumible | *Buff* de daño o velocidad de golpe por 30 s. | 🧱 `models/objetos/takis/` |
-| Tachas | Consumible | Velocidad y estamina infinita 20 s; después "bajón" (lento). Pantalla distorsionada. | ❌ |
-| Cuerno de chivo | Arma de fuego | Automática, mucho daño y **mucho ruido**. Rara. | ❌ |
-| Ballesta | Arma | Silenciosa, se recuperan las flechas. | ❌ |
-| Machete | Cuerpo a cuerpo | Silencioso, arma inicial. | ❌ |
-| Bomba molotov | Arrojable | Fuego en área. Se puede craftear. | ❌ |
-| Paloma (cohete) | Arrojable | Aturde a los enemigos cercanos. | ❌ |
+| Tachas | Consumible | Velocidad y estamina infinita 20 s; después "bajón" (lento). Pantalla distorsionada. | 🧱 `models/objetos/tachas/` |
+| Cuerno de chivo | Arma de fuego | Automática, mucho daño y **mucho ruido**. Rara. | 🧱 `models/armas/cuerno_de_chivo/` |
+| Ballesta | Arma | Silenciosa, se recuperan las flechas. | 🧱 `models/armas/ballesta/` |
+| Machete | Cuerpo a cuerpo | Silencioso, arma inicial. | 🧱 `models/armas/machete/` |
+| Bomba molotov | Arrojable | Fuego en área. Se puede craftear. | 🧱 `models/objetos/botella/` + `trapo/` (toalla pintada sucia) |
+| Paloma (cohete) | Arrojable | Aturde a los enemigos cercanos. | 🧱 `models/objetos/paloma/` |
 | Tacos | Consumible | Recupera vida. | 🧱 `models/taco_pastor.glb` |
-| Agua limpia | Moneda / consumible | Dinero "fuerte"; baja la infección. | ❌ (¿garrafón/botella?) |
+| Agua limpia | Moneda / consumible | Dinero "fuerte"; baja la infección. | 🧱 `models/objetos/botella_agua/`, `galon_agua/` (no hay garrafón de 20 L) |
 | Refresco Jarritos | Consumible | Recupera estamina. | 🧱 `models/objetos/jarritos/` |
 | Moneda de peso | Moneda | Dinero normal. | 🧱 `models/objetos/moneda_peso/` |
-| Cigarro | Consumible | Sacas humo un ratito. 💡 Para que sirva de algo: el humo **te esconde del olfato** de los zombies unos segundos. | ❌ |
+| Cigarro | Consumible | Sacas humo un ratito. 💡 Para que sirva de algo: el humo **te esconde del olfato** de los zombies unos segundos. | 🧱 `models/objetos/cigarro/` (cajetilla) |
 
 ### 5.2 💡 Objetos sugeridos (agregar los que gusten)
 
-| Objeto | Tipo | Efecto | Referencia |
-|---|---|---|---|
-| **Bocina con banda** | Arrojable | Toca música y atrae a todos los zombies cercanos; luego explota (o no). | *Pipe bomb* de L4D |
-| **Cloralex** | Material | Agua sucia + Cloralex = agua limpia. | Crafteo tema agua |
-| **Agua sucia** (bote) | Material | Se junta de charcos/llaves; se purifica. | — |
-| **Chancla** | Arrojable | Aturde a un solo enemigo, se recoge de nuevo. La de tu jefa nunca falla. | Humor |
-| **Bate / varilla** | Cuerpo a cuerpo | Armas de inicio alternativas al machete. | *Dead Rising* |
-| **Resortera** | Arma | Silenciosa, munición = piedras (infinitas pero débil). Para tiro al blanco. | — |
-| **Torta ahogada** | Consumible | Cura mucho pero pica: pantalla roja unos segundos. | Comida local |
-| **Tejuino** | Consumible | Cura algo de infección (¿lo fermentado mata el bicho?). | Comida local |
-| **Vaporub** | Consumible | Cura todo (es la creencia popular). Raro. | Humor |
-| **Botiquín del Simi** | Consumible | Curación grande. | *First aid kit* |
-| **Veladora** | Colocable | Ilumina la zona; los zombies le tienen miedo un rato (zona segura temporal). | *Dying Light* (luz UV) |
-| **Tequila / mezcal** | Material | Para molotov o para curar (¿?). | — |
-| **Cinta canela** | Material | Reparar/mejorar armas, barricadas. | *Dead Rising*, *TLOU* |
-| **Tablas** | Material | Barricadas (si se vota refugio, 1.3 B). | *7 Days to Die* |
-| **Lámpara / celular** | Equipo | Linterna de noche (con batería). | Todos los survival |
-| **Gansito** | Consumible | Barato y común; poca vida. | — |
-| **Llave de un coto** | Clave | Abre una zona cerrada del mapa. | Llaves de RE |
+| Objeto | Tipo | Efecto | Referencia | Modelo (`models/`) |
+|---|---|---|---|---|
+| **Bocina con banda** | Arrojable | Toca música y atrae a todos los zombies cercanos; luego explota (o no). | *Pipe bomb* de L4D | 🧱 `objetos/bocina/` |
+| **Cloralex** | Material | Agua sucia + Cloralex = agua limpia. | Crafteo tema agua | 🧱 `objetos/cloralex/` |
+| **Agua sucia** (bote) | Material | Se junta de charcos/llaves; se purifica. | — | 🧱 `objetos/botella_sucia/` ⚠️ (sale en piezas) |
+| **Chancla** | Arrojable | Aturde a un solo enemigo, se recoge de nuevo. La de tu jefa nunca falla. | Humor | 🧱 `objetos/chancla/` (la Crocse elegida es de pago) |
+| **Bate / varilla** | Cuerpo a cuerpo | Armas de inicio alternativas al machete. | *Dead Rising* | 🧱 `armas/bate/`, `armas/melee_psx/` |
+| **Resortera** | Arma | Silenciosa, munición = piedras (infinitas pero débil). Para tiro al blanco. | — | 🧱 `armas/resortera/` |
+| **Torta ahogada** | Consumible | Cura mucho pero pica: pantalla roja unos segundos. | Comida local | ❌ |
+| **Tejuino** | Consumible | Cura algo de infección (¿lo fermentado mata el bicho?). | Comida local | 🧱 `objetos/tejuino/` (vaso con hielos pintado café) |
+| **Vaporub** | Consumible | Cura todo (es la creencia popular). Raro. | Humor | 🧱 `objetos/vaporub/` |
+| **Botiquín del Simi** | Consumible | Curación grande. | *First aid kit* | 🧱 `objetos/botiquin/` |
+| **Veladora** | Colocable | Ilumina la zona; los zombies le tienen miedo un rato (zona segura temporal). | *Dying Light* (luz UV) | 🧱 `objetos/mexican_starter_pack/veladora.scn` |
+| **Tequila / mezcal** | Material | Para molotov o para curar (¿?). | — | 🧱 `objetos/tequila/` |
+| **Cinta canela** | Material | Reparar/mejorar armas, barricadas. | *Dead Rising*, *TLOU* | 🧱 `objetos/cinta/` (azul) |
+| **Tablas** | Material | Barricadas (si se vota refugio, 1.3 B). | *7 Days to Die* | 🧱 `objetos/tablas/` |
+| **Lámpara / celular** | Equipo | Linterna de noche (con batería). | Todos los survival | 🧱 `objetos/lampara/`, `objetos/celular/` |
+| **Gansito** | Consumible | Barato y común; poca vida. | — | 🧱 `objetos/gansito/` |
+| **Llave de un coto** | Clave | Abre una zona cerrada del mapa. | Llaves de RE | 🧱 `objetos/llave/` |
 
 ---
 
@@ -292,7 +292,7 @@ Las misiones se programan **una vez como sistema** (ver 6.3) y luego cada misió
 | **Pelearse con cholos** | Al aceptar, aparecen N cholos en un punto del mapa; derrótalos. | GTA SA (guerras de pandillas) | Pesos/objeto | M (IA de pelea humana) |
 | **Encontrar cosas regadas** | Buscar N objetos en el mapa y volver con el NPC. | Coleccionables de GTA | Objeto | S |
 | **Corretear a alguien** | Un NPC huye por una ruta; alcánzalo antes de que escape. | Persecuciones de GTA, *Sleeping Dogs* | Pesos | M |
-| **Botarga del Simi** | Te pones la botarga (baila 🧱 — *¿quién tiene el baile? no está en el repo todavía*); al acercarte a un NPC se pone a bailar y te sigue; junta 6 y todos bailan. | Original (tipo *Pikmin* / "seguir al líder") | Objeto especial | S-M (reusa "seguir") |
+| **Botarga del Simi** | Te pones la botarga (baila 🧱 `models/personajes/dr_simi/simi_botarga.scn`); al acercarte a un NPC se pone a bailar y te sigue; junta 6 y todos bailan. | Original (tipo *Pikmin* / "seguir al líder") | Objeto especial | S-M (reusa "seguir") |
 | **Tiro al blanco** | Ver 6.2: botellas en una barda o feria. | Minijuegos de RDR / GTA | Pesos/munición | S |
 | **Sacar dinero de máquinas** | Dentro de una tienda, "romper" las máquinas (minijuego de botones o golpes) sin que te vea el encargado. | Robos de tiendas en GTA | Pesos | S-M |
 | **Manifestación / pelear con policías** | Te unes a una marcha (por el agua, obvio); llegan policías; aguantar X tiempo o llegar a un punto. | Disturbios de *Sleeping Dogs*/GTA | Pesos/agua | L (multitud + IA) |
@@ -370,23 +370,30 @@ Con eso, casi todas las misiones de arriba son S.
 | Casas modelo | `models/casas/` | Urbi, Semi Residencial, Mexican House 3, multifamiliar (sin usar). |
 | Tiendas | `models/tiendas/` | OXXO, Farmacia Guadalajara, Pemex, carrito de comida, puesto de tacos… |
 | Señal de alto | `models/props/alto/` | |
+| Personajes | `models/personajes/` | **Sin colocar.** Gente: cholo (animado), gang_member, gangster_dealer, indian_gangster, policia (3 policías, sin rig), soldado, mujer_psx, chava_psx, hombre_psx (base sin textura), psx_man, amerindios ⚠️ (malla estirada al importar). NPCs de misiones: **garrafonero** (trabajador de chamarra azul; pesado, 24 mil triángulos), **taquero** (animado), **encargada** de tienda, **cientifico**, **perro** (animado). Zombies: zombie_ripper (idle/caminar/atacar/correr), zombie_psx, zombie_gordo (idle, correr, golpe, morir, 2 ataques: sirve de zombie base y de hinchado). Simi: **`dr_simi/simi_botarga.scn`** = botarga con esqueleto de Mixamo y el baile (15 s, `bailar` en loop), sacada del kiosco por `tools/map_import/separar_simi.gd`; el kiosco completo es `dr_simi/scene.gltf`. simi_muneco (sin rig, de repuesto). |
+| Armas | `models/armas/` | machete, melee_psx (pack cuerpo a cuerpo), pistola_mk23, pistola_colt ⚠️ (sale en piezas), cuerno_de_chivo, ballesta, bate, resortera, balas. |
+| Objetos | `models/objetos/` | Mexican Starter Pack separado en `mochila`, `caguama`, `maruchan`, `mazapan`, `veladora`, `rosario` ⚠️ (las cuentas salen rotas), `concha` (`.scn`, `tools/map_import/separar_pack.gd`). Inventario: botella + trapo (molotov), paloma, tachas, tequila, tejuino, gansito, chancla, cigarro, vaporub, cloralex, botiquin, cinta, tablas, lampara, celular, bocina, llave, galon_agua, botella_agua ⚠️ (plana), botella_sucia ⚠️ (en piezas). Misiones: paquete (pila de cajas), pastel, garrafon, patito (tiro al blanco), carrito_super (carrera), maquinita (máquina de tienda), refrescos. |
+| Props de calle | `models/props/` | alto, coladera (nido), despachador_agua (garrafón en su base). |
+| Interiores | `models/interiores/` | mostrador, estante_fruta, maquina_refrescos, m3_mart (tiendita completa, 5.5 mil triángulos). |
+| Animaciones | `models/animaciones/` | Quaternius Universal Animation Library 1 y 2 (CC0, `tools/fetch_cc0.py`), esqueleto humanoide propio (no Mixamo): se pasan a otros personajes con el retarget de Godot (`BoneMap` + `SkeletonProfileHumanoid`). Incluyen: machetazo (`Sword_Attack`, `Sword_Regular_A/B/C`), pistola (`Pistol_Aim_*`, `Pistol_Shoot`, `Pistol_Reload`), lanzar (`OverhandThrow`), esquivar (`Roll`), empujón (`Push_Loop`, `Hit_Knockback`), golpes (`Punch_Jab/Cross`, `Melee_Hook`), recibir golpe y morir (`Hit_Chest`, `Hit_Head`, `Death01`), **zombie** (`Zombie_Walk_Fwd_Loop`, `Zombie_Idle_Loop`, `Zombie_Scratch`), cargar garrafón (`Walk_Carry_Loop`), comer/beber (`Consume`), bailar (`Dance_Loop`), correr, agacharse, caminar, hablar por teléfono. |
+
+Cada modelo trae una captura **`preview.png`** en su carpeta (y `<nombre>_preview.png` junto a cada `.scn` suelta), generada por `tools/map_import/capturas.gd`; sirve de vistazo y de ícono provisional del inventario. Los modelos pesados se reducen al importar (`TiendaPostImport.MAX_TRIANGULOS`) y todos usan el shader PS1; `TiendaPostImport.TINTES` repinta materiales (tejuino, trapo). Créditos en `CREDITS.md`.
 
 ### 10.2 Faltan ❌
 
 | Prioridad | Modelo | Notas |
 |---|---|---|
-| Alta | **Zombie** (al menos 1, con animaciones caminar/atacar/morir) | Se puede reusar el esqueleto del ninja y cambiar textura para empezar. |
-| Alta | **Personaje jugable** definitivo | ¿Quién es? ¿se puede personalizar (en multijugador ayuda distinguirse)? |
-| Alta | Machete, pistola | Armas de inicio. |
-| Media | Cholo, policía, vecinos (2-3 variantes) | Variar ropa/color sobre el mismo modelo. |
-| Media | **Botarga del Simi** | Para la misión del baile. |
-| Media | Interiores: OXXO, farmacia, abarrotes | Un interior genérico por tipo. |
-| Media | Cuerno de chivo, ballesta, molotov, paloma, balas | |
-| Media | Mochila del Partido Verde, garrafón/botella de agua, cigarro | |
-| Baja | Zombies especiales (hinchado, escupidor, garrafonero) | Variantes del zombie base. |
-| Baja | Máquinas de tienda, marcador amarillo, objetos sugeridos | |
+| Alta | **Personaje jugable** definitivo | ¿Quién es? ¿se puede personalizar (en multijugador ayuda distinguirse)? Candidatos: hombre_psx, mujer_psx, chava_psx + animaciones de Quaternius. |
+| Alta | Juntar animaciones con personajes | Retarget de las de Quaternius al jugador, zombies y NPCs (hoy cada modelo trae solo las suyas). |
+| Media | Interiores armados: OXXO, farmacia, abarrotes | Ya hay mostrador, estantes, máquina y la tiendita m3_mart; falta armar las escenas. |
+| Media | Arreglar: botella_agua, botella_sucia, rosario, pistola_colt, amerindios | Salen planos o en piezas; buscar reemplazo o arreglar en Blender. |
+| Baja | Garrafonero más ligero | El modelo elegido queda en 24 mil triángulos (meshoptimizer no baja más). |
+| Baja | Escupidor, garrafonero zombie, botarga zombie | Variantes del zombie base (textura/color). |
+| Baja | Torta ahogada, grafitis | Nada usable en Sketchfab: modelar low-poly / calcomanías. |
+| Baja | Marcador amarillo de misión | |
+| — | **Sonidos y música** | Pendientes. |
 
-Fuentes: Sketchfab con licencia CC (hay script: `tools/map_import/fetch_sketchfab.py`, agrega créditos a `CREDITS.md` solo), Mixamo para animaciones, o modelar en Blender en low-poly (lo más PS1).
+Fuentes: Sketchfab con licencia CC (hay script: `tools/map_import/fetch_sketchfab.py`, agrega créditos a `CREDITS.md` solo; en git solo va la versión horneada `<modelo>.scn` que usa Godot, ver `tools/map_import/hornear_modelos.gd`), Mixamo para animaciones, o modelar en Blender en low-poly (lo más PS1).
 
 ---
 
