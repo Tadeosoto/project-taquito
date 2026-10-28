@@ -14,7 +14,7 @@ extends Node3D
 #   (los grafitis con transparencia). Se juntan en un atlas al iniciar y se pegan
 #   como calcomanias encima del aplanado, de un lado o de los dos: la propaganda
 #   grande y a media barda, y los grafitis encima de ella.
-# Tambien las plumas de los cotos: poste, brazo caido o roto y caseta.
+# Tambien las plumas de los cotos (poste y brazo caido o roto) y una caseta por acceso.
 # Como MapBodegas, se arman por celdas en un hilo segun la distancia a target_path.
 
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
@@ -50,7 +50,7 @@ const COLORES := [Color("#e8e2d0"), Color("#d9cdb0"), Color("#e6d3c3"), Color("#
 @export var barda_end := 250.0
 @export var malla_end := 160.0
 
-var _celdas := {}          # Vector2i -> {"paneles": [...], "plumas": [...]}
+var _celdas := {}          # Vector2i -> {"paneles": [...], "plumas": [...], "casetas": [...]}
 var _nodos := {}           # Vector2i -> Node3D
 var _materiales := {}
 var _disenos := []         # [Rect2 en el atlas, alto / ancho] de cada diseño
@@ -78,6 +78,8 @@ func _ready() -> void:
 			_celda((panel["a"] + panel["b"]) / 2.0)["paneles"].append(panel)
 	for pluma: Dictionary in data["plumas"]:
 		_celda(Vector2(pluma["x"], pluma["z"]))["plumas"].append(pluma)
+	for caseta: Dictionary in data.get("casetas", []):
+		_celda(Vector2(caseta["x"], caseta["z"]))["casetas"].append(caseta)
 	# Los materiales se preparan aqui para que el hilo solo los lea
 	_material("barda")
 	_material("malla")
@@ -91,7 +93,7 @@ func _ready() -> void:
 func _celda(p: Vector2) -> Dictionary:
 	var key := Vector2i(floori(p.x / CELDA), floori(p.y / CELDA))
 	if not _celdas.has(key):
-		_celdas[key] = {"paneles": [], "plumas": []}
+		_celdas[key] = {"paneles": [], "plumas": [], "casetas": []}
 	return _celdas[key]
 
 
@@ -222,6 +224,8 @@ func _crear_celda(celda_data: Dictionary) -> Array:
 			_barda(panel, tools, cajas)
 	for pluma: Dictionary in celda_data["plumas"]:
 		_pluma(pluma, tools, cajas)
+	for caseta: Dictionary in celda_data["casetas"]:
+		_caseta(caseta, tools, cajas)
 	for nombre: String in tools:
 		var mesh := ArrayMesh.new()
 		(tools[nombre] as SurfaceTool).commit(mesh)
@@ -409,8 +413,8 @@ func _lienzo(st: SurfaceTool, ejes: Transform3D, largo: float, alto: float, uv: 
 			st.add_vertex(ejes * (p[i] as Vector3))
 
 
-# Pluma de un coto en (x, z), a lo largo de la calle: poste a un lado, el brazo
-# caido o roto, y la caseta de vigilancia
+# Pluma de un coto en (x, z), a lo largo de la calle: poste a un lado (`lado` si
+# viene, para dejar libre la isleta de la caseta) y el brazo caido o roto
 func _pluma(pluma: Dictionary, tools: Dictionary, cajas: Array) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(pluma["semilla"])
@@ -418,6 +422,8 @@ func _pluma(pluma: Dictionary, tools: Dictionary, cajas: Array) -> void:
 	# Ejes: Z a lo largo de la calle, X a traves
 	var ejes := Transform3D(Basis(Vector3.UP, float(pluma["rotacion_y"])), Vector3(pluma["x"], 0.0, pluma["z"]))
 	var lado := -1.0 if rng.randf() < 0.5 else 1.0
+	if pluma.has("lado"):
+		lado = float(pluma["lado"])
 	var st := _st(tools, "fierro")
 	var amarillo := Color(0.85, 0.7, 0.2)
 	var poste := Vector3(lado * (medio + 0.3), 0.55, 0.0)
@@ -437,9 +443,16 @@ func _pluma(pluma: Dictionary, tools: Dictionary, cajas: Array) -> void:
 		var caida := lado * atan2(1.05, resto)
 		_brazo(st, ejes * Transform3D(Basis(Vector3(0, 0, 1), caida), Vector3(x - lado * resto / 2.0, 0.525, 0.0)),
 			sqrt(resto * resto + 1.05 * 1.05))
-	# Caseta: cuarto de block con ventana corrida y losa
+
+
+# Caseta de vigilancia de un acceso: cuarto de block con ventana corrida y losa
+func _caseta(caseta: Dictionary, tools: Dictionary, cajas: Array) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(caseta["semilla"])
+	var ejes := Transform3D(Basis(Vector3.UP, float(caseta["rotacion_y"])), Vector3(caseta["x"], 0.0, caseta["z"]))
+	var st := _st(tools, "fierro")
 	var blanco := Color(0.82, 0.8, 0.74)
-	var centro := Vector3(lado * (medio + 1.9), 0.0, rng.randf_range(-1.5, 1.5))
+	var centro := Vector3(0.0, 0.0, rng.randf_range(-1.0, 1.0))
 	var muros := ejes * Transform3D(Basis.IDENTITY, centro + Vector3(0.0, 1.2, 0.0))
 	_caja(st, muros, Vector3(2.2, 2.4, 2.2), blanco)
 	cajas.append([muros, Vector3(2.2, 2.4, 2.2)])

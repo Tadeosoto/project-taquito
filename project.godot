@@ -157,6 +157,14 @@ deterioro_grietas={
 "type": "sampler2D",
 "value": "res://textures/map/grietas.png"
 }
+noche={
+"type": "float",
+"value": 0.0
+}
+alumbrado_tiempo={
+"type": "float",
+"value": 0.0
+}
 
 [rendering]
 

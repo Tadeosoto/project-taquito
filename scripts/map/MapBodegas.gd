@@ -28,6 +28,9 @@ const PANEL := 6.0
 # Lo que queda libre (m) detras del frente, para entrar; y el pasillo entre racks
 const FRENTE_LIBRE := 5.0
 const PASILLO := 3.2
+# Solo va una de cada HILERAS_CADA hileras de racks (el resto queda de pasillo):
+# con todas eran demasiados estantes
+const HILERAS_CADA := 2
 # Cada cuantos metros se repite la textura de lamina
 const TEXTURA_M := 2.4
 
@@ -321,7 +324,7 @@ func _acomodar_adentro(lote: Transform3D, ancho: float, fondo: float, alto: floa
 			z -= largo + 0.1
 		if tramo.x != INF:
 			_tramo_racks(cajas, lote, x, tramo, largo, centro_rack, rack_aabb.size)
-		x += hondo + PASILLO
+		x += (hondo + PASILLO) * HILERAS_CADA
 	# Pilas junto a los muros, en la zona libre de enfrente
 	for i in 1 + int(zona * 3.0):
 		var lado := -1.0 if rng.randf() < 0.5 else 1.0

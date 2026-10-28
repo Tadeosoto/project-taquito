@@ -69,7 +69,7 @@ Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar d
 - **Bodegas huecas** (89 naves, sobre todo en La Gigantera y El Mante, más las de Agua Blanca Industrial):
   - Salen de los edificios sin nombre de más de 600 m² (en Agua Blanca Industrial, desde 100 m²). Las enormes se parten en varias naves con pasillos, y se recortan para no salirse a la calle.
   - Muros de lámina con óxido, techo de arco con cerchas y piso de concreto con grietas. El frente son vanos del modelo "Industrial Warehouse" de Sketchfab: unos con portón y otros abiertos, por donde se entra caminando.
-  - Adentro hay racks, estantes oxidados y cajas (Sketchfab, CC BY).
+  - Adentro hay racks, estantes oxidados y cajas (Sketchfab, CC BY), en hileras con una de cada dos quitada para que no se vea tan lleno.
   - Junto a la bodega más grande de La Gigantera, sin vsync: ~200 FPS adentro y ~170 afuera (sin bodegas, ~240 y ~210). Los racks se simplifican al importar porque se repiten cientos de veces; las tarimas se quitaron porque costaban mucho para lo que aportaban.
   - Entre más deterioro en la zona, más portones abiertos, más hoyos en el techo y, a veces, un boquete en un muro lateral.
 - **Bardas y mallas** (~31 km), deducidas del mapa porque OSM casi no las trae (solo 16):
@@ -78,7 +78,8 @@ Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar d
   - **Bodegas**: una malla alrededor de las naves de cada predio, a 3 m.
   - Las bardas tienen castillos, grafiti (más entre más deterioro) y boquetes. Los grafitis y la propaganda pintada ("SE VENDE", bailes, fletes...) salen de dos catálogos: cada uno es una imagen al azar de `textures/map/grafitis/` o de `textures/map/propaganda/`. Para agregar diseños basta con poner ahí una imagen (los grafitis con fondo transparente y recortados a lo que ocupan; la propaganda como letrero rectangular, por ejemplo de 128 × 64) y abrir o reimportar el proyecto. Si miden más de 128 px de lado se reducen. La propaganda va grande a media barda y los grafitis encima. Los `grafiti_dibujado_NN.png` y `propaganda_dibujada_NN.png` los genera `make_textures.py`; no se borran los demás.
   - Las mallas tienen agujeros y un portón abierto. Siempre hay por dónde pasar. Todo tiene colisión, menos los huecos.
-  - En cada pluma (150) hay un poste, el brazo caído o roto y una caseta de vigilancia.
+  - Cada entrada de coto es un acceso: una pluma por carril (poste y brazo caído o roto) y una sola caseta de vigilancia, en la isleta entre carriles si cabe o a un lado. En OSM una entrada suele tener dos carriles y a veces dos líneas de plumas; solo queda la línea más cercana a la calle pública. Los estacionamientos y gasolineras (cotos de puras calles `service`) llevan pluma sin caseta. 117 plumas y 50 casetas.
+  - **Alumbrado público**: OSM no trae postes de luz, así que se ponen cada 30 m en la banqueta, junto a la guarnición: en las avenidas alternando de lado (postes de 10 m), en las demás calles de un solo lado (8 m), y en las avenidas con camellón, postes de doble brazo en el camellón. Nunca en una esquina, encima de una casa o pegados a un alto, puesto o pluma (~1,450 postes). Según el deterioro de la zona hay lámparas apagadas, que parpadean, postes chuecos o tirados. La mayoría son de vapor de sodio (naranja) y algunas LED (blancas). De noche (tecla **N** en `map_test.tscn`) brillan la mica y un halo, y las 16 lámparas prendidas más cercanas al jugador alumbran de verdad.
   - Los parques y áreas verdes de OSM nunca llevan barda. Sin costo medible en FPS.
 - **Señales de alto** en 1 de cada 20 esquinas, del lado derecho y de cara al tráfico.
 - **Minimapa estilo GTA** en la esquina superior derecha:
@@ -105,6 +106,7 @@ casas.json, ...    ─┘        │                                            
                              ├─▶ resources/map/casas_mapa.json    (lotes de casas modelo)
                              ├─▶ resources/map/bodegas_mapa.json  (naves)
                              ├─▶ resources/map/bardas_mapa.json   (bardas, mallas y plumas)
+                             ├─▶ resources/map/alumbrado_mapa.json (postes de luz)
                              ├─▶ make_vegetacion.py ─▶ pasto_mascara.png, arboles_mapa.json
 fetch_satelite.py ─▶ data/map/satelite_* ─┘   (Canopy Height + Sentinel-2)
                              └─▶ make_minimapa.py ─▶ textures/map/minimapa.png
@@ -119,6 +121,8 @@ Al correr la escena, cada nodo carga lo suyo alrededor del dron, que cuando no e
 | `Casas` | `scripts/map/MapCasas.gd` | Dibuja las casas modelo con un MultiMesh por celda y les pone colisión. |
 | `Bodegas` | `scripts/map/MapBodegas.gd` | Arma las bodegas huecas por celda, en un hilo. |
 | `Bardas` | `scripts/map/MapBardas.gd` | Arma bardas, mallas y plumas por celda, en un hilo, con colisión. |
+| `Alumbrado` | `scripts/map/MapAlumbrado.gd` | Postes de luz por celda (MultiMesh) con colisión; de noche, halos y hasta 16 luces reales cerca del jugador. |
+| `NocheDebug` | `scripts/map/MapNocheDebug.gd` | Noche de prueba con la tecla N (mientras no hay ciclo día/noche). |
 | `Arboles` | `scripts/map/MapArboles.gd` | Los árboles del satélite, un MultiMesh por celda, con colisión en el tronco. |
 | `Pasto` | `scripts/map/MapPasto.gd` | Matas de pasto 3D a menos de 40 m del jugador; le pone la máscara de pasto al plano `Suelo`. |
 | `Dron` | `scripts/map/MapDron.gd` | Modo dron (tecla V). |

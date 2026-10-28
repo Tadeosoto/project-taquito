@@ -198,6 +198,32 @@ CAMELLON_FUENTE = "camellon taquito"
 
 # Bardas y mallas (place_bardas -> resources/map/bardas_mapa.json, MapBardas.gd)
 PLUMAS = {"gate", "lift_gate"}
+# Alumbrado publico (place_alumbrado -> resources/map/alumbrado_mapa.json, MapAlumbrado.gd).
+# OSM no tiene postes de luz aqui (highway=street_lamp): van cada ALUMBRADO_PASO m en
+# la banqueta, junto a la guarnicion; en las avenidas alternando de lado, en las demas
+# de un solo lado; en las avenidas con camellon, de doble brazo en el camellon.
+ALUMBRADO_PASO = 30.0
+ALUMBRADO_AVENIDAS = {"primary", "secondary", "tertiary"}
+# (alto del poste, largo del brazo) en m
+ALUMBRADO_POSTE = (8.0, 1.5)
+ALUMBRADO_POSTE_AVENIDA = (10.0, 2.5)
+# Distancia del poste a la orilla del arroyo (m)
+ALUMBRADO_GUARNICION = 0.4
+# Ningun poste a menos de esto (m) de una esquina, ni de un alto, puesto, pluma o caseta
+ALUMBRADO_ESQUINA = 6.0
+ALUMBRADO_ESTORBO = 3.0
+# Camellones mas angostos que esto (m) no llevan postes
+ALUMBRADO_CAMELLON_MIN = 1.2
+
+# Plumas a menos de esto (m) y del mismo coto son un solo acceso (una caseta)
+ACCESO_RADIO = 25.0
+# De un acceso solo quedan las plumas a lo mas esto (m) mas lejos de la calle publica que
+# la mas cercana (la linea de afuera)
+ACCESO_LINEA = 3.0
+# La caseta va en la isleta entre dos carriles si queda al menos este hueco (m)
+CASETA_ISLETA = 2.5
+# Distancia del centro de la caseta a la orilla del carril, cuando va a un lado
+CASETA_LADO = 1.9
 # Una manzana es de un coto si al menos esta fraccion de su orilla da a calles del coto
 COTO_FRACCION = 0.25
 # Manzanas mas grandes (m2) no son de un coto (el terreno abierto alrededor de la zona)
@@ -1132,7 +1158,7 @@ def calles_y_banquetas(root, kept_ways, pos, lat0, lon0) -> tuple:
 			way_id += 1
 	print(f"  Calles: {len(lines)} con ancho, {con_banqueta} con banquetas nuevas, "
 		f"{len(lado_camellon)} con camellon, {len(camellones)} camellones")
-	return perfil, camellones
+	return perfil, camellones, lado_camellon
 
 
 def borde_banqueta(perfil, way_id, izquierda: bool, default: float) -> float:
@@ -1894,19 +1920,27 @@ def place_bardas(kept_ways, pos, lat0, lon0, manzanas, cotos, perfil, ocupado_po
 	print(f"  Bardas: {n_calle} tramos de contorno de coto, {n_baldio} baldios "
 		f"({baldios_verdes} quitados por pasto), {n_bodega} mallas de bodega, {len(bardas) - n_calle - n_baldio - n_bodega} de OSM; "
 		f"{sum(largo_linea(b['puntos']) for b in bardas) / 1000:.1f} km")
-	return bardas
+	return bardas, ocupado
 
 
-def place_plumas(kept_ways, pos, lat0, lon0, plumas, perfil, inside) -> list:
-	"""Una pluma (poste, brazo roto y caseta en MapBardas.gd) en cada barrier=gate/lift_gate
-	que esta en una calle: centro, giro (a lo largo de la calle) y ancho del arroyo."""
-	out = []
+def place_plumas(kept_ways, pos, lat0, lon0, plumas, perfil, inside, cotos, ocupado) -> tuple:
+	"""Plumas (poste y brazo roto en MapBardas.gd) y casetas de los cotos.
+	Cada barrier=gate/lift_gate de una calle es una pluma, pero en OSM una entrada de
+	coto suele tener dos carriles (entrada y salida) y a veces dos lineas de plumas:
+	las plumas cercanas del mismo coto forman un acceso, del que solo queda la linea mas
+	cercana a la calle publica (una pluma por carril) y una sola caseta, en la isleta
+	entre carriles si cabe, si no a un lado (hacia adentro del coto). Un acceso cuyo
+	coto solo tiene calles service (estacionamiento, gasolinera) no lleva caseta.
+	Devuelve (plumas, casetas)."""
+	todas = []
+	vistos = set()
 	for way_id, way in kept_ways.items():
 		if tags_of(way).get("highway") not in STREET_TYPES:
 			continue
 		refs = [nd.get("ref") for nd in way.findall("nd")]
 		for i, r in enumerate(refs):
-			if r not in plumas:
+			# Un nodo puede estar en dos calles: una pluma por nodo
+			if r not in plumas or r in vistos:
 				continue
 			x, z = local_xz(*pos[r], lat0, lon0)
 			if not inside(x, z):
@@ -1915,16 +1949,194 @@ def place_plumas(kept_ways, pos, lat0, lon0, plumas, perfil, inside) -> list:
 			(ax, az), (bx, bz) = local_xz(*pos[a], lat0, lon0), local_xz(*pos[b], lat0, lon0)
 			if math.hypot(bx - ax, bz - az) < 1e-6:
 				continue
+			vistos.add(r)
 			medio = perfil.get(way_id, (SETBACK_MIN - 1.5, 0.0, 0.0))[0]
-			out.append({"x": round(x, 2), "z": round(z, 2), "rotacion_y": round(math.atan2(bx - ax, bz - az), 4),
-				"ancho": round(2 * medio, 2), "tipo": plumas[r], "semilla": seed(f"pluma/{r}") % 100000})
-	# Un nodo puede estar en dos calles: una pluma por nodo
-	vistos, unicas = set(), []
-	for p in out:
-		if (p["x"], p["z"]) not in vistos:
-			vistos.add((p["x"], p["z"]))
-			unicas.append(p)
-	return unicas
+			todas.append({"x": round(x, 2), "z": round(z, 2), "rotacion_y": round(math.atan2(bx - ax, bz - az), 4),
+				"ancho": round(2 * medio, 2), "tipo": plumas[r], "semilla": seed(f"pluma/{r}") % 100000,
+				"_coto": cotos.calles.get(way_id, 0), "_nodo": r})
+
+	# Cotos que solo tienen calles service
+	tipos_coto = collections.defaultdict(set)
+	for way_id, k in cotos.calles.items():
+		tipos_coto[k].add(tags_of(kept_ways[way_id]).get("highway"))
+	publicas = [(way_id, line) for way_id, line, _ in street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)
+		if way_id not in cotos.calles]
+
+	# Accesos: plumas cercanas del mismo coto
+	padre = list(range(len(todas)))
+
+	def raiz(i):
+		while padre[i] != i:
+			padre[i] = padre[padre[i]]
+			i = padre[i]
+		return i
+
+	for i, p in enumerate(todas):
+		for j in range(i):
+			q = todas[j]
+			if p["_coto"] == q["_coto"] and math.hypot(p["x"] - q["x"], p["z"] - q["z"]) < ACCESO_RADIO:
+				padre[raiz(i)] = raiz(j)
+	accesos = collections.defaultdict(list)
+	for i, p in enumerate(todas):
+		accesos[raiz(i)].append(p)
+
+	salida, casetas = [], []
+	for grupo in accesos.values():
+		# La linea de afuera, y una pluma por carril (la del arroyo mas ancho): otra
+		# pluma que cae dentro del ancho de su arroyo esta en el mismo carril
+		lejos = {id(p): math.sqrt((calle_cercana(p["x"], p["z"], publicas) or (math.inf,))[0]) for p in grupo}
+		minimo = min(lejos.values())
+		carriles = []
+		for p in sorted((p for p in grupo if lejos[id(p)] <= minimo + ACCESO_LINEA), key=lambda p: -p["ancho"]):
+			if all(abs((p["x"] - q["x"]) * math.cos(q["rotacion_y"]) - (p["z"] - q["z"]) * math.sin(q["rotacion_y"]))
+					>= q["ancho"] / 2 for q in carriles):
+				carriles.append(p)
+		for p in carriles:
+			salida.append({k: v for k, v in p.items() if not k.startswith("_")})
+		if not tipos_coto[carriles[0]["_coto"]] - {"service"}:
+			continue
+
+		# Carriles ordenados a lo ancho (X local de la primera pluma, como en MapBardas)
+		rot = carriles[0]["rotacion_y"]
+		ux, uz = math.cos(rot), -math.sin(rot)
+		x0, z0 = carriles[0]["x"], carriles[0]["z"]
+		orden = sorted(((p["x"] - x0) * ux + (p["z"] - z0) * uz, p) for p in carriles)
+		along = sum(((p["x"] - x0) * -uz + (p["z"] - z0) * ux) for p in carriles) / len(carriles)
+		isleta = None
+		for (sa, pa), (sb, pb) in zip(orden, orden[1:]):
+			hueco = sb - sa - pa["ancho"] / 2 - pb["ancho"] / 2
+			if hueco >= CASETA_ISLETA and (isleta is None or hueco > isleta[0]):
+				isleta = (hueco, (sa + pa["ancho"] / 2 + sb - pb["ancho"] / 2) / 2)
+		if isleta is not None:
+			s = isleta[1]
+			# Cada poste del lado de afuera de su carril, lejos de la caseta
+			for p in salida[len(salida) - len(carriles):]:
+				pu = (math.cos(p["rotacion_y"]), -math.sin(p["rotacion_y"]))
+				hacia = (p["x"] - (x0 + s * ux), p["z"] - (z0 + s * uz))
+				p["lado"] = 1 if hacia[0] * pu[0] + hacia[1] * pu[1] >= 0 else -1
+		else:
+			# A un lado: hacia adentro del coto y fuera de lo construido
+			(s_min, p_min), (s_max, p_max) = orden[0], orden[-1]
+			opciones = [s_min - p_min["ancho"] / 2 - CASETA_LADO, s_max + p_max["ancho"] / 2 + CASETA_LADO]
+
+			def punto(s):
+				return x0 + s * ux + along * -uz, z0 + s * uz + along * ux
+
+			def calificar(s):
+				x, z = punto(s)
+				return (cotos.at(x, z) != carriles[0]["_coto"], bool(ocupado.at(x, z)))
+
+			s = min(opciones, key=calificar)
+		x, z = x0 + s * ux + along * -uz, z0 + s * uz + along * ux
+		casetas.append({"x": round(x, 2), "z": round(z, 2), "rotacion_y": rot,
+			"semilla": seed(f"caseta/{carriles[0]['_nodo']}") % 100000})
+	return salida, casetas
+
+
+def a_lo_largo(line, paso, inicio):
+	"""Puntos cada `paso` m a lo largo de toda la linea, el primero a `inicio` m: [(x, z, dx, dz)]."""
+	out = []
+	falta = inicio
+	for (ax, az), (bx, bz) in zip(line, line[1:]):
+		length = math.hypot(bx - ax, bz - az)
+		if length < 1e-6:
+			continue
+		dx, dz = (bx - ax) / length, (bz - az) / length
+		t = falta
+		while t <= length:
+			out.append((ax + dx * t, az + dz * t, dx, dz))
+			t += paso
+		falta = t - length
+	return out
+
+
+class RejillaPuntos:
+	"""Indice por celdas de puntos (x, z), para buscar los cercanos rapido."""
+
+	CELDA = 20.0
+
+	def __init__(self):
+		self.celdas = collections.defaultdict(list)
+
+	def agregar(self, x, z) -> None:
+		self.celdas[(int(x // self.CELDA), int(z // self.CELDA))].append((x, z))
+
+	def hay(self, x, z, radio) -> bool:
+		r = int(radio // self.CELDA) + 1
+		cx, cz = int(x // self.CELDA), int(z // self.CELDA)
+		return any(math.hypot(x - px, z - pz) < radio
+			for i in range(cx - r, cx + r + 1) for j in range(cz - r, cz + r + 1) for px, pz in self.celdas.get((i, j), ()))
+
+
+def place_alumbrado(lines, perfil, lado_camellon, camellones, inside, ocupado, estorbos) -> list:
+	"""Postes de luz: [{x, z, rotacion_y (el brazo ve a +Z local), alto, brazo, doble,
+	avenida, semilla}]. `lines`: calles de BLOCK_STREET_TYPES con su tipo
+	[(way_id, line, refs, highway)]; `estorbos`: [(x, z)] de altos, puestos, plumas y
+	casetas; `ocupado`: Raster de construcciones y lotes."""
+	tramos = Tramos([(w, l, r) for w, l, r, _ in lines])
+	grado = collections.Counter()
+	xz = {}
+	for _, line, refs, _ in lines:
+		for (a, ra), (b, rb) in zip(zip(line, refs), zip(line[1:], refs[1:])):
+			grado[ra] += 1
+			grado[rb] += 1
+			xz[ra], xz[rb] = a, b
+	esquinas = RejillaPuntos()
+	for r, n in grado.items():
+		if n >= 3:
+			esquinas.agregar(*xz[r])
+	cerca = RejillaPuntos()
+	for x, z in estorbos:
+		cerca.agregar(x, z)
+
+	postes = []
+
+	def libre(x, z, propia) -> bool:
+		if not inside(x, z) or ocupado.at(x, z):
+			return False
+		if esquinas.hay(x, z, ALUMBRADO_ESQUINA) or cerca.hay(x, z, ALUMBRADO_ESTORBO):
+			return False
+		# Ni en el arroyo de otra calle
+		for d, way_id, _, _ in tramos.cercanos(x, z, 12.0):
+			if way_id != propia and d < perfil.get(way_id, (3.0,))[0] + 0.2:
+				return False
+		return True
+
+	def agregar(x, z, rot, avenida, doble, clave):
+		alto, brazo = ALUMBRADO_POSTE_AVENIDA if avenida or doble else ALUMBRADO_POSTE
+		postes.append({"x": round(x, 2), "z": round(z, 2), "rotacion_y": round(rot, 4), "alto": alto,
+			"brazo": brazo, "doble": doble, "avenida": avenida, "semilla": seed(clave) % 100000})
+		cerca.agregar(x, z)
+
+	for way_id, line, _, hw in lines:
+		if way_id in lado_camellon:
+			continue  # Van en el camellon
+		medio, izq, der = perfil.get(way_id, (3.0, 0.0, 0.0))
+		avenida = hw in ALUMBRADO_AVENIDAS
+		s = seed(f"alumbrado/{way_id}")
+		# Las calles locales: del lado con banqueta mas ancha (al azar si son iguales)
+		lado_fijo = izq > der or (izq == der and s % 2 == 0)
+		for i, (x, z, dx, dz) in enumerate(a_lo_largo(line, ALUMBRADO_PASO, ALUMBRADO_PASO / 2)):
+			izquierda = (i + s) % 2 == 0 if avenida else lado_fijo
+			nx, nz = (dz, -dx) if izquierda else (-dz, dx)
+			d = medio + ALUMBRADO_GUARNICION
+			px, pz = x + nx * d, z + nz * d
+			if libre(px, pz, way_id):
+				# El brazo hacia la calle
+				agregar(px, pz, math.atan2(-nx, -nz), avenida, False, f"alumbrado/{way_id}/{i}")
+
+	# Camellones: el anillo es un lado de ida y el otro de vuelta, punto por punto
+	for k, ring in enumerate(camellones):
+		n = len(ring) // 2
+		medio_linea = [((ring[i][0] + ring[-1 - i][0]) / 2, (ring[i][1] + ring[-1 - i][1]) / 2) for i in range(n)]
+		anchos = [math.hypot(ring[i][0] - ring[-1 - i][0], ring[i][1] - ring[-1 - i][1]) for i in range(n)]
+		if not medio_linea or min(anchos) < ALUMBRADO_CAMELLON_MIN:
+			continue
+		for i, (x, z, dx, dz) in enumerate(a_lo_largo(medio_linea, ALUMBRADO_PASO, ALUMBRADO_PASO / 2)):
+			if libre(x, z, None):
+				# Los dos brazos a lo ancho del camellon
+				agregar(x, z, math.atan2(dz, -dx), True, True, f"alumbrado/camellon/{k}/{i}")
+	return postes
 
 
 def place_altos(lines, inside, perfil=None) -> tuple:
@@ -1982,6 +2194,7 @@ def main() -> None:
 	parser.add_argument("--salida-casas", help="JSON con las casas modelo, para Godot (MapCasas.gd)")
 	parser.add_argument("--salida-bodegas", help="JSON con las bodegas huecas, para Godot (MapBodegas.gd)")
 	parser.add_argument("--salida-bardas", help="JSON con las bardas, mallas y plumas, para Godot (MapBardas.gd)")
+	parser.add_argument("--salida-alumbrado", help="JSON con los postes de luz, para Godot (MapAlumbrado.gd)")
 	parser.add_argument("--satelite-pasto", help="data/map/satelite_pasto.png (fetch_satelite.py): los baldios con pasto no llevan malla")
 	parser.add_argument("--png-colonias", help="PNG de debug con las manzanas pintadas por colonia")
 	parser.add_argument("--huellas", help="data/map/huellas_tiendas.json (huellas_tiendas.gd): lo que ocupa cada modelo de negocio")
@@ -2082,7 +2295,7 @@ def main() -> None:
 		return min_x <= x <= max_x and min_z <= z <= max_z
 
 	# Anchos, banquetas y camellones (antes de casas y tiendas, que se alinean a la banqueta)
-	perfil, _ = calles_y_banquetas(root, kept_ways, pos, lat0, lon0)
+	perfil, camellones, lado_camellon = calles_y_banquetas(root, kept_ways, pos, lat0, lon0)
 
 	min_x, max_z = local_xz(south, west, lat0, lon0)
 	max_x, min_z = local_xz(north, east, lat0, lon0)
@@ -2231,14 +2444,27 @@ def main() -> None:
 			with open(meta_path, encoding="utf-8") as f:
 				meta = json.load(f)
 			satelite = (*read_png(args.satelite_pasto), meta["x0"], meta["z0"])
-		bardas = place_bardas(kept_ways, pos, lat0, lon0, manzanas, cotos, perfil,
+		bardas, ocupado = place_bardas(kept_ways, pos, lat0, lon0, manzanas, cotos, perfil,
 			lotes_casas + huellas_negocios, grupos_bodegas, satelite)
-		plumas_mapa = place_plumas(kept_ways, pos, lat0, lon0, plumas, perfil, inside_local)
-		print(f"  Plumas: {len(plumas_mapa)}")
+		plumas_mapa, casetas = place_plumas(kept_ways, pos, lat0, lon0, plumas, perfil, inside_local, cotos, ocupado)
+		print(f"  Plumas: {len(plumas_mapa)} de {len(plumas)} nodos, casetas: {len(casetas)}")
 		os.makedirs(os.path.dirname(args.salida_bardas), exist_ok=True)
 		with open(args.salida_bardas, "w", encoding="utf-8") as f:
 			f.write('{"bardas": [\n' + ",\n".join(json.dumps(b) for b in bardas) + '\n],\n"plumas": [\n'
-				+ ",\n".join(json.dumps(p) for p in plumas_mapa) + "\n]}\n")
+				+ ",\n".join(json.dumps(p) for p in plumas_mapa) + '\n],\n"casetas": [\n'
+				+ ",\n".join(json.dumps(c) for c in casetas) + "\n]}\n")
+
+		# Alumbrado publico (al final: no va encima de nada de lo anterior)
+		if args.salida_alumbrado:
+			estorbos = [(p["x"], p["z"]) for p in (placed if args.salida_puntos else []) if p["tipo"] == "alto" or p["tipo"].startswith("puesto")]
+			estorbos += [(p["x"], p["z"]) for p in plumas_mapa + casetas]
+			calles = [(w, l, r, tags_of(kept_ways[w]).get("highway"))
+				for w, l, r in street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)]
+			postes = place_alumbrado(calles, perfil, lado_camellon, camellones, inside_local, ocupado, estorbos)
+			os.makedirs(os.path.dirname(args.salida_alumbrado), exist_ok=True)
+			with open(args.salida_alumbrado, "w", encoding="utf-8") as f:
+				f.write('{"postes": [\n' + ",\n".join(json.dumps(p) for p in postes) + "\n]}\n")
+			print(f"  Alumbrado: {len(postes)} postes ({sum(p['doble'] for p in postes)} en camellones) -> {args.salida_alumbrado}")
 
 	filled = 0
 	for way in kept_ways.values():

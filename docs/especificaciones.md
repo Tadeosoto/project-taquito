@@ -134,6 +134,8 @@ AMANECER ◄── sobrevivir ◄── usar armas/consumibles ◄── NOCHE: 
 ### 3.1 Ciclo día/noche ✅ (detalles 💡)
 
 - Reloj del juego con luz del sol, color del cielo y niebla que cambian (la niebla del mapa ya existe 🧱).
+- **Shader de día/noche** 🧱 (en `map_test.tscn`): el global shader uniform `noche` (0 = día, 1 = noche) que leen las lámparas. Se cambia con `Alumbrado.configurar_noche(valor)` (`scripts/map/Alumbrado.gd`). De noche hay luz de luna azulada que deja ver el juego sin alumbrado, y el alumbrado público se nota: las lámparas se prenden escalonadas y hay luces reales cerca del jugador (ver `docs/mapa/README.md`). Por ahora se prueba con la tecla **N** (`scripts/map/MapNocheDebug.gd`).
+- ❌ Falta el **reloj**: el nodo que avanza la hora y mueve `noche`, el sol, el ambiente y la niebla en lugar de `MapNocheDebug` (y que en multijugador lleve el servidor).
 - 💡 Duración: **día 12 min + noche 8 min** (20 min reales por día de juego). En multijugador el reloj es el mismo para todos (lo lleva el servidor).
 - 💡 Atardecer con aviso (campana de iglesia, sirena, el radio) 1 min antes de que salgan los zombies, como en *7 Days to Die*.
 - 💡 De día también hay pocos zombies sueltos (peligro bajo), de noche muchos.
@@ -468,3 +470,4 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | Fecha | Decisión | Quién |
 |---|---|---|
 | 2026-10-27 | Premisa: agua sucia de Guadalajara → zombies. Día = misiones, noche = sobrevivir. Monedas: pesos y agua limpia. Inventario estilo RE. Look PS1 en el mapa real de Zapopan. | Equipo (lo que ya se había platicado) |
+| 2026-10-28 | Shader de día/noche y alumbrado público en el mapa: noche con luz de luna (se ve el juego sin lámparas), postes con lámparas apagadas o parpadeantes según el deterioro. Falta el reloj del ciclo. | JJ |

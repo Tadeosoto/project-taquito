@@ -34,6 +34,8 @@
 [ext_resource type="Script" path="res://scripts/map/MapBardas.gd" id="37_bardas"]
 [ext_resource type="Texture2D" path="res://textures/map/barda.png" id="38_barda"]
 [ext_resource type="Texture2D" path="res://textures/map/malla.png" id="39_malla"]
+[ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="40_alumbrado"]
+[ext_resource type="Script" path="res://scripts/map/MapNocheDebug.gd" id="41_noche"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -237,6 +239,16 @@ script = ExtResource("27_pasto")
 target_path = NodePath("../Player")
 dron_path = NodePath("../Dron")
 suelo_path = NodePath("../Suelo/MeshInstance3D")
+
+[node name="Alumbrado" type="Node3D" parent="."]
+script = ExtResource("40_alumbrado")
+target_path = NodePath("../Dron")
+jugador_path = NodePath("../Player")
+
+[node name="NocheDebug" type="Node" parent="."]
+script = ExtResource("41_noche")
+sol_path = NodePath("../DirectionalLight3D")
+environment_path = NodePath("../WorldEnvironment")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(0.7189, 0, -0.6951, 0, 1, 0, 0.6951, 0, 0.7189, 194.82, 3, 527.31)
