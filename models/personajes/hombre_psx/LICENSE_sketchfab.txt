@@ -1,0 +1,11 @@
+Model Information:
+* title:	[PS1/PSX/Retro] Male Base (Version 2)
+* source:	https://sketchfab.com/3d-models/ps1psxretro-male-base-version-2-f9acca1dc1ec411699ffd6337889e058
+* author:	Firewarden (https://sketchfab.com/Firewarden)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "[PS1/PSX/Retro] Male Base (Version 2)" (https://sketchfab.com/3d-models/ps1psxretro-male-base-version-2-f9acca1dc1ec411699ffd6337889e058) by Firewarden (https://sketchfab.com/Firewarden) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

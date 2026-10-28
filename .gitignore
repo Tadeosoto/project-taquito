@@ -3,3 +3,33 @@
 /android/
 addons/
 icon.svg.import
+
+# Mapa: OSM2World (~450 MB) y el .osm intermedio se bajan/generan con tools/map_import/build_glb.sh
+tools/map_import/bin/
+# El mapa .glb (~47 MB) se genera con build_glb.sh; el juego usa resources/map/cuadros/
+models/zona_mapa.glb
+models/zona_mapa.glb.import
+__pycache__/
+# Debug de prepare_osm.py --png-colonias
+data/map/colonias_debug.png
+# Debug de fetch_satelite.py / make_vegetacion.py
+data/map/satelite_rgb.png
+data/map/satelite_chm.png
+data/map/calles_debug.png
+# Modelos de Sketchfab: el juego usa models/<grupo>/<modelo>/<modelo>.scn (hornear_modelos.gd).
+# Los originales se vuelven a bajar con tools/map_import/fetch_sketchfab.py
+models/*/*/scene.gltf
+models/*/*/scene.gltf.import
+models/*/*/scene.bin
+# TiendaPostImport solo usa el color base: los demas mapas no los usa Godot
+models/*/*/textures/*_normal.*
+models/*/*/textures/*_metallicRoughness.*
+models/*/*/textures/*_emissive.*
+models/*/*/textures/*_occlusion.*
+models/*/*/textures/*_specularf0.*
+models/*/*/textures/*_specularGlossiness.*
+models/*/*/textures/*_transmission.*
+# Del Mexican Starter Pack solo se usan la mochila y el mazapan
+models/objetos/mexican_starter_pack/textures/*
+!models/objetos/mexican_starter_pack/textures/Material_25_baseColor.jpeg*
+!models/objetos/mexican_starter_pack/textures/Material_27_baseColor.png*

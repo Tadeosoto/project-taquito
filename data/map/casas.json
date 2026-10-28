@@ -1,0 +1,24 @@
+{
+	"_ayuda": [
+		"Que casas modelo van en cada colonia (la colonia de cada manzana sale del DENUE, ver prepare_osm.py).",
+		"Por colonia: pisos (\"1\", \"2\" o \"*\" = cualquiera) -> lista de [modelo, peso]. Los modelos son los de Casas.modelos en scenes/map_test.tscn (urbi_1p_* y urbi_2p_* son las 6 casas del modelo Urbi).",
+		"\"_proporcion\": fraccion de las casas que se cambian (1 = todas). \"*\" = las demas colonias (y las manzanas sin colonia). AGUA BLANCA INDUSTRIAL va con 0 porque sus huellas son bodegas.",
+		"Correcciones de colonia por manzana: data/map/colonias.json. Despues de editar: bash tools/map_import/build_glb.sh"
+	],
+	"HACIENDAS DE SAN JOSE": {
+		"1": [["urbi_1p_a", 1], ["urbi_1p_b", 1], ["urbi_1p_c", 1]],
+		"2": [["urbi_2p_a", 1], ["urbi_2p_b", 1], ["urbi_2p_c", 1], ["semi_residencial", 3]]
+	},
+	"PARQUES DE SANTA MARIA": {
+		"1": [["urbi_1p_a", 1], ["urbi_1p_b", 1], ["urbi_1p_c", 1]],
+		"2": [["urbi_2p_a", 1], ["urbi_2p_b", 1], ["urbi_2p_c", 1], ["semi_residencial", 3]]
+	},
+	"PARQUES DEL BOSQUE": {
+		"*": [["semi_residencial", 3], ["mexican_house_3", 1]]
+	},
+	"AGUA BLANCA INDUSTRIAL": {"_proporcion": 0},
+	"*": {
+		"1": [["urbi_1p_a", 1], ["urbi_1p_b", 1], ["urbi_1p_c", 1]],
+		"2": [["urbi_2p_a", 1], ["urbi_2p_b", 1], ["urbi_2p_c", 1], ["semi_residencial", 3]]
+	}
+}

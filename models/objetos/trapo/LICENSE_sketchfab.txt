@@ -1,0 +1,11 @@
+Model Information:
+* title:	White Towel
+* source:	https://sketchfab.com/3d-models/white-towel-35b76b90614d49a3aa92eeeb6afec60f
+* author:	Anežka Hájková (https://sketchfab.com/anezka)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "White Towel" (https://sketchfab.com/3d-models/white-towel-35b76b90614d49a3aa92eeeb6afec60f) by Anežka Hájková (https://sketchfab.com/anezka) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,0 +1,11 @@
+Model Information:
+* title:	French Bulldog PSX
+* source:	https://sketchfab.com/3d-models/french-bulldog-psx-647fa9e3f53b4898826ef398f0a9f6dd
+* author:	Bonvikt (https://sketchfab.com/Bonvikt)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "French Bulldog PSX" (https://sketchfab.com/3d-models/french-bulldog-psx-647fa9e3f53b4898826ef398f0a9f6dd) by Bonvikt (https://sketchfab.com/Bonvikt) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

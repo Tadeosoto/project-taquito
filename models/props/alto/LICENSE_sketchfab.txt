@@ -1,0 +1,11 @@
+Model Information:
+* title:	Señal Alto
+* source:	https://sketchfab.com/3d-models/senal-alto-d2de3788e5f24c3e8189001d2a1f6e92
+* author:	VictorGram (https://sketchfab.com/VictorGram)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Señal Alto" (https://sketchfab.com/3d-models/senal-alto-d2de3788e5f24c3e8189001d2a1f6e92) by VictorGram (https://sketchfab.com/VictorGram) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

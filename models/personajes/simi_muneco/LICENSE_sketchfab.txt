@@ -1,0 +1,11 @@
+Model Information:
+* title:	dr_simi_muneco
+* source:	https://sketchfab.com/3d-models/dr-simi-muneco-42c358b269d74533909bb2835f812ac5
+* author:	Mateo.amaya.com (https://sketchfab.com/Mateo.amaya.com)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "dr_simi_muneco" (https://sketchfab.com/3d-models/dr-simi-muneco-42c358b269d74533909bb2835f812ac5) by Mateo.amaya.com (https://sketchfab.com/Mateo.amaya.com) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

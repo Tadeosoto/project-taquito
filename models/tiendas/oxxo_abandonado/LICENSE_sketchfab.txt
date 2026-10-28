@@ -1,0 +1,11 @@
+Model Information:
+* title:	abandoned oxxo
+* source:	https://sketchfab.com/3d-models/abandoned-oxxo-0d9e953705b444e8b1706dc4048ca130
+* author:	Irvingx902 (https://sketchfab.com/irvingx902)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "abandoned oxxo" (https://sketchfab.com/3d-models/abandoned-oxxo-0d9e953705b444e8b1706dc4048ca130) by Irvingx902 (https://sketchfab.com/irvingx902) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

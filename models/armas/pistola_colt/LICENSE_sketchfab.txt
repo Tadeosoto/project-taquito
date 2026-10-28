@@ -1,0 +1,11 @@
+Model Information:
+* title:	LOWPOLY - COLT M1911 - PS1 / PSX STYLE
+* source:	https://sketchfab.com/3d-models/lowpoly-colt-m1911-ps1-psx-style-f9fc36a1f07b47faaadb761702f703b0
+* author:	Colin.Greenall (https://sketchfab.com/Colin.Greenall)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "LOWPOLY - COLT M1911 - PS1 / PSX STYLE" (https://sketchfab.com/3d-models/lowpoly-colt-m1911-ps1-psx-style-f9fc36a1f07b47faaadb761702f703b0) by Colin.Greenall (https://sketchfab.com/Colin.Greenall) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

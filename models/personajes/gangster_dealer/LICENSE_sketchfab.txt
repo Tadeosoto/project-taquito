@@ -1,0 +1,11 @@
+Model Information:
+* title:	Gangster Dealer Musculo
+* source:	https://sketchfab.com/3d-models/gangster-dealer-musculo-1eed0758ec3d45a7ae5613db8b59eb7b
+* author:	EntropyNine (https://sketchfab.com/entropy9ine)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Gangster Dealer Musculo" (https://sketchfab.com/3d-models/gangster-dealer-musculo-1eed0758ec3d45a7ae5613db8b59eb7b) by EntropyNine (https://sketchfab.com/entropy9ine) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

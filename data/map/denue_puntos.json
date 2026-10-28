@@ -1,0 +1,1181 @@
+{
+	"_fuente": "INEGI, Directorio Estadistico Nacional de Unidades Economicas (DENUE). Generado por fetch_denue.py",
+	"puntos": [
+		{
+			"tipo": "tienda",
+			"lat": 20.60047199,
+			"lon": -103.40880982,
+			"nombre": "Cerveza Fria Y Abarrotes",
+			"origen": "denue 10016419 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59414721,
+			"lon": -103.41668017,
+			"nombre": "Carnitas De Quiroga",
+			"origen": "denue 10109026 722513"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59823853,
+			"lon": -103.41094171,
+			"nombre": "Birrieriria Rico Rico",
+			"origen": "denue 10110324 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59428137,
+			"lon": -103.41821417,
+			"nombre": "Cremeria La Casita De Paty",
+			"origen": "denue 10147455 461150"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59423523,
+			"lon": -103.42006514,
+			"nombre": "Carniceria Sin Nombre",
+			"origen": "denue 10199481 461121"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59990618,
+			"lon": -103.4080552,
+			"nombre": "Polleria Sin Nombre",
+			"origen": "denue 10201479 461122"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59597,
+			"lon": -103.41882511,
+			"nombre": "Tacos De Barbacoa Come Fin",
+			"origen": "denue 10312836 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60449942,
+			"lon": -103.41335831,
+			"nombre": "Carne Suprema La Paz",
+			"origen": "denue 10402684 461121"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60414166,
+			"lon": -103.42167,
+			"nombre": "Super Rapido",
+			"origen": "denue 10409975 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59931422,
+			"lon": -103.40678428,
+			"nombre": "Polleria Sin Nombre",
+			"origen": "denue 10445668 461122"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.6003737,
+			"lon": -103.42004126,
+			"nombre": "Tortas Ahogadas",
+			"origen": "denue 10510918 722514"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.59783468,
+			"lon": -103.40662515,
+			"nombre": "Llantera Movil",
+			"origen": "denue 10530402 811191"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59594443,
+			"lon": -103.41770673,
+			"nombre": "Carnitas Via 710",
+			"origen": "denue 10536502 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59975683,
+			"lon": -103.4065301,
+			"nombre": "Abarrotes Y Cremeria Mara",
+			"origen": "denue 10539741 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59722066,
+			"lon": -103.41893739,
+			"nombre": "Fruteria El Chavito",
+			"origen": "denue 10579306 461130"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59425687,
+			"lon": -103.41628676,
+			"nombre": "Polleria Nene",
+			"origen": "denue 10749389 461122"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60388448,
+			"lon": -103.41236829,
+			"nombre": "Taquerias Y Jugos La Esquinita",
+			"origen": "denue 10795255 722514"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59430034,
+			"lon": -103.41894116,
+			"nombre": "Polleria San Miguel",
+			"origen": "denue 10809380 461122"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59601533,
+			"lon": -103.41882627,
+			"nombre": "Fruteria El Chavito",
+			"origen": "denue 10861968 461130"
+		},
+		{
+			"tipo": "farmacia",
+			"lat": 20.59944325,
+			"lon": -103.40902169,
+			"nombre": "Farmacia Sabino",
+			"origen": "denue 10910141 464111"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60150271,
+			"lon": -103.40744271,
+			"nombre": "Tienda De Abarrotes Sin Nombre",
+			"origen": "denue 10980258 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59801144,
+			"lon": -103.41782446,
+			"nombre": "Carnitas Via710",
+			"origen": "denue 10995264 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60036226,
+			"lon": -103.42197809,
+			"nombre": "Abarrotes Angelica",
+			"origen": "denue 11060658 461110"
+		},
+		{
+			"tipo": "tortilleria",
+			"lat": 20.59075133,
+			"lon": -103.42194495,
+			"nombre": "Tortilleria Y Molino La Guadalupana",
+			"origen": "denue 11075719 311830"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59608929,
+			"lon": -103.41771978,
+			"nombre": "Mini Super San Ignacio",
+			"origen": "denue 11127501 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59311686,
+			"lon": -103.42299086,
+			"nombre": "Comercio Al Por Menor En Minisupers Sin Nombre",
+			"origen": "denue 11145818 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60241854,
+			"lon": -103.42258536,
+			"nombre": "Abarrotes Prado",
+			"origen": "denue 11250373 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59490584,
+			"lon": -103.40731061,
+			"nombre": "Jonatan",
+			"origen": "denue 11258814 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60440721,
+			"lon": -103.41301201,
+			"nombre": "Santa Gertrudis Bbq Lab",
+			"origen": "denue 11342881 722513"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.60256312,
+			"lon": -103.41230965,
+			"nombre": "Los Chilaquiles La Forja",
+			"origen": "denue 11361269 722518"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60256312,
+			"lon": -103.41230965,
+			"nombre": "Todo Empanadas",
+			"origen": "denue 11392395 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59572742,
+			"lon": -103.41760697,
+			"nombre": "Abarrotes Merkazon Minisuper",
+			"origen": "denue 11407115 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59584671,
+			"lon": -103.40754952,
+			"nombre": "Tacos Al Vapor El Real",
+			"origen": "denue 11512747 722514"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.595809,
+			"lon": -103.4176095,
+			"nombre": "Quick Market Tacos Y Lonches",
+			"origen": "denue 11538274 722514"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60183251,
+			"lon": -103.40654039,
+			"nombre": "Tortillas Echas A Mano Sin Nombre",
+			"origen": "denue 11553246 722514"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.5941898,
+			"lon": -103.4170375,
+			"nombre": "Taqueria Los Gueros",
+			"origen": "denue 11575137 722514"
+		},
+		{
+			"tipo": "puesto_tacos",
+			"lat": 20.59418724,
+			"lon": -103.41545618,
+			"nombre": "Tacos Al Vapor Sin Nombre",
+			"origen": "denue 11637062 722514"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.5941332,
+			"lon": -103.42025495,
+			"nombre": "Chile Y Taco",
+			"origen": "denue 11667174 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59406525,
+			"lon": -103.41884172,
+			"nombre": "Tienda De Abarrotes Angelica",
+			"origen": "denue 1660409 461110"
+		},
+		{
+			"tipo": "tortilleria",
+			"lat": 20.59433324,
+			"lon": -103.42025,
+			"nombre": "Tortilleria Y Molino Pelicanos",
+			"origen": "denue 1691044 311830"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59827725,
+			"lon": -103.42235771,
+			"nombre": "Abarrotes Sin Nombre",
+			"origen": "denue 1691170 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.5967319,
+			"lon": -103.42235428,
+			"nombre": "Tienda De Abarrotes",
+			"origen": "denue 1691171 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.6019844,
+			"lon": -103.42206232,
+			"nombre": "Abarrotes",
+			"origen": "denue 1691191 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60446228,
+			"lon": -103.42338702,
+			"nombre": "Taqueria Sin Nombre",
+			"origen": "denue 1691805 722514"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59429721,
+			"lon": -103.4183878,
+			"nombre": "Venta De Tacos",
+			"origen": "denue 1736558 722514"
+		},
+		{
+			"tipo": "tortilleria",
+			"lat": 20.59428929,
+			"lon": -103.41830099,
+			"nombre": "Tortilleria San Antonio",
+			"origen": "denue 1736559 311830"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59547567,
+			"lon": -103.41755268,
+			"nombre": "Carniceria Los Tres Compadres",
+			"origen": "denue 1736562 461121"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59481192,
+			"lon": -103.41755121,
+			"nombre": "Mini Super Santa Maria",
+			"origen": "denue 1736566 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59503787,
+			"lon": -103.41764104,
+			"nombre": "Venta De Tacos La Casa De Los Tacos",
+			"origen": "denue 1736569 722514"
+		},
+		{
+			"tipo": "puesto_tacos",
+			"lat": 20.59374938,
+			"lon": -103.41306207,
+			"nombre": "Puesto De Tacos Sin Nombre",
+			"origen": "denue 1736573 722514"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.59565553,
+			"lon": -103.41613868,
+			"nombre": "Accesorios Para Celular Tecno Tronics",
+			"origen": "denue 1736585 466212"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.5938995,
+			"lon": -103.41373041,
+			"nombre": "Venta De Frutas Y Verduras Sin Nombre",
+			"origen": "denue 1736591 461130"
+		},
+		{
+			"tipo": "puesto_tacos",
+			"lat": 20.59567757,
+			"lon": -103.41562833,
+			"nombre": "Tacos De Barbacoa La Curvita",
+			"origen": "denue 1736605 722514"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60266435,
+			"lon": -103.41963441,
+			"nombre": "Tienda De Abarrotes Palmera De Tadeo",
+			"origen": "denue 1736609 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59899842,
+			"lon": -103.4081752,
+			"nombre": "Abarrotes El Primo",
+			"origen": "denue 1736776 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60041968,
+			"lon": -103.40800946,
+			"nombre": "Minisuper El Matador",
+			"origen": "denue 1736777 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.5991348,
+			"lon": -103.40811174,
+			"nombre": "Abarrotes",
+			"origen": "denue 1736783 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59955163,
+			"lon": -103.40902112,
+			"nombre": "Abarrotes Sabino",
+			"origen": "denue 1736787 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60098566,
+			"lon": -103.41336005,
+			"nombre": "Carniceria Del Bosque",
+			"origen": "denue 1736798 461121"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.59422636,
+			"lon": -103.41038314,
+			"nombre": "Carpinteria Sur",
+			"origen": "denue 1739284 337120"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.59426287,
+			"lon": -103.41032539,
+			"nombre": "Fabrica De Muebles De Madera",
+			"origen": "denue 1739286 466111"
+		},
+		{
+			"tipo": "farmacia",
+			"lat": 20.59271668,
+			"lon": -103.41260506,
+			"nombre": "Farmacias De Similares Guadalajara 80",
+			"origen": "denue 1739313 464111"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59269788,
+			"lon": -103.41262938,
+			"nombre": "Menuderia Don Chuy",
+			"origen": "denue 1739315 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.595372,
+			"lon": -103.40717669,
+			"nombre": "Abarrotes Martinez",
+			"origen": "denue 1740929 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59461642,
+			"lon": -103.40761995,
+			"nombre": "Venta De Tacos Y Gorditas",
+			"origen": "denue 1740930 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.601282,
+			"lon": -103.42005668,
+			"nombre": "Abarrotes Sanchez",
+			"origen": "denue 1925912 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59073558,
+			"lon": -103.42181806,
+			"nombre": "Tienda De Abarrotes Sin Nombre",
+			"origen": "denue 1926072 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59267054,
+			"lon": -103.4225516,
+			"nombre": "Tienda De Abarrotes Hector",
+			"origen": "denue 1926084 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59395359,
+			"lon": -103.42083227,
+			"nombre": "Abarrotes El Cele",
+			"origen": "denue 1926092 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59622832,
+			"lon": -103.4203022,
+			"nombre": "Carniceria Garcia",
+			"origen": "denue 1926106 461121"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60421313,
+			"lon": -103.42141295,
+			"nombre": "Abarrotes Sin Nombre",
+			"origen": "denue 1926975 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.6042193,
+			"lon": -103.42226638,
+			"nombre": "Abarrotes Santy",
+			"origen": "denue 1926976 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60619303,
+			"lon": -103.42172093,
+			"nombre": "Abarrotes Mely",
+			"origen": "denue 1926978 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59519718,
+			"lon": -103.40721896,
+			"nombre": "Abarrotes Lourdes",
+			"origen": "denue 1942525 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59541468,
+			"lon": -103.40753345,
+			"nombre": "Cremeria Cereales Frutas Y Verduras Mely",
+			"origen": "denue 1942532 461150"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59847142,
+			"lon": -103.41909769,
+			"nombre": "Tienda De Abarrotes",
+			"origen": "denue 1942549 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59762776,
+			"lon": -103.4190552,
+			"nombre": "Minisuper Meva",
+			"origen": "denue 1942551 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59453183,
+			"lon": -103.41546799,
+			"nombre": "Venta De Frutas Y Verduras Carpa",
+			"origen": "denue 1942552 461130"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.5959428,
+			"lon": -103.41882442,
+			"nombre": "Abarrotes Joel",
+			"origen": "denue 1942562 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59486247,
+			"lon": -103.41892314,
+			"nombre": "Carniceria Patty",
+			"origen": "denue 1942568 461121"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59564638,
+			"lon": -103.41635058,
+			"nombre": "Tienda De Abarrotes Sin Nombre",
+			"origen": "denue 1942575 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59459054,
+			"lon": -103.41891229,
+			"nombre": "Birrieria Don Jose",
+			"origen": "denue 1942577 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59434997,
+			"lon": -103.41895701,
+			"nombre": "Venta De Frutas Y Verduras Don Rafa",
+			"origen": "denue 1942581 461130"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59414436,
+			"lon": -103.42006118,
+			"nombre": "Cremeria Y Abarrotes Don Hector",
+			"origen": "denue 1942583 461150"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.5943073,
+			"lon": -103.41849359,
+			"nombre": "Abarrotes Sin Nombre",
+			"origen": "denue 1942585 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59412405,
+			"lon": -103.41534101,
+			"nombre": "Minisuper Parques",
+			"origen": "denue 1942604 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59806549,
+			"lon": -103.41782947,
+			"nombre": "Tienda De Abarrotes Mis Princesas",
+			"origen": "denue 1942605 461110"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.59377725,
+			"lon": -103.41387407,
+			"nombre": "Dulceria El Caramelo",
+			"origen": "denue 1942612 461160"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.5939387,
+			"lon": -103.41403957,
+			"nombre": "Carniceria Esquivel",
+			"origen": "denue 1942613 461121"
+		},
+		{
+			"tipo": "tortilleria",
+			"lat": 20.59400161,
+			"lon": -103.41563829,
+			"nombre": "Tortilleria Cortes",
+			"origen": "denue 1942619 311830"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59392757,
+			"lon": -103.4139518,
+			"nombre": "Tienda De Abarrotes Mago",
+			"origen": "denue 1942621 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59958875,
+			"lon": -103.41734398,
+			"nombre": "Tienda De Abarrotes El Guero",
+			"origen": "denue 1942627 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60007004,
+			"lon": -103.4195177,
+			"nombre": "Cenaduria El Sombrerete",
+			"origen": "denue 1942632 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59536689,
+			"lon": -103.41045946,
+			"nombre": "Tienda De Abarrotes Maju",
+			"origen": "denue 1942642 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60203546,
+			"lon": -103.41745092,
+			"nombre": "Abarrotes Ivonne",
+			"origen": "denue 1942643 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59387548,
+			"lon": -103.41461597,
+			"nombre": "Tortas Ahogadas Carlos",
+			"origen": "denue 1942645 722514"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60108635,
+			"lon": -103.41354248,
+			"nombre": "Cremeria Aldrete",
+			"origen": "denue 1942650 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60195686,
+			"lon": -103.40694631,
+			"nombre": "Abarrotes Trevor",
+			"origen": "denue 1942656 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60206933,
+			"lon": -103.40848889,
+			"nombre": "Cremeria San Jose",
+			"origen": "denue 1942657 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60060418,
+			"lon": -103.40815585,
+			"nombre": "Frutas Y Verduras Armando",
+			"origen": "denue 1942658 461130"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60002955,
+			"lon": -103.41901475,
+			"nombre": "Tienda De Abarrotes Nena",
+			"origen": "denue 1942686 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59815411,
+			"lon": -103.41741486,
+			"nombre": "Venta De Frutas Y Verduras Sin Nombre",
+			"origen": "denue 1942688 461130"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59378132,
+			"lon": -103.41309538,
+			"nombre": "Cremeria Y Abarrotes El Maestro",
+			"origen": "denue 1942692 461150"
+		},
+		{
+			"tipo": "farmacia",
+			"lat": 20.59370886,
+			"lon": -103.41301981,
+			"nombre": "Farmacia Medigen",
+			"origen": "denue 1942693 464111"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59902156,
+			"lon": -103.40774474,
+			"nombre": "Abarrotes Reyna",
+			"origen": "denue 1942695 461110"
+		},
+		{
+			"tipo": "tortilleria",
+			"lat": 20.60060822,
+			"lon": -103.40801161,
+			"nombre": "Tortilleria La Parota",
+			"origen": "denue 1942697 311830"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60066821,
+			"lon": -103.40801389,
+			"nombre": "Carniceria Selectas Del Sur Martinez",
+			"origen": "denue 1942701 461121"
+		},
+		{
+			"tipo": "gasolinera",
+			"lat": 20.59371878,
+			"lon": -103.41154533,
+			"nombre": "Gasolinera Gasovia",
+			"origen": "denue 6264756 468411"
+		},
+		{
+			"tipo": "oxxo",
+			"lat": 20.59354365,
+			"lon": -103.41183129,
+			"nombre": "OXXO",
+			"origen": "denue 6337053 462112"
+		},
+		{
+			"tipo": "farmacia",
+			"lat": 20.60372904,
+			"lon": -103.41045426,
+			"nombre": "Farmacias Guadalajara",
+			"origen": "denue 6338433 464112"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59355387,
+			"lon": -103.41179847,
+			"nombre": "Ba Express Bahia Colon 3275",
+			"origen": "denue 6338585 462112"
+		},
+		{
+			"tipo": "farmacia",
+			"lat": 20.59321576,
+			"lon": -103.41231396,
+			"nombre": "Farmacias Guadalajara",
+			"origen": "denue 6342518 464112"
+		},
+		{
+			"tipo": "oxxo",
+			"lat": 20.60069335,
+			"lon": -103.41303254,
+			"nombre": "OXXO",
+			"origen": "denue 6342688 462112"
+		},
+		{
+			"tipo": "oxxo",
+			"lat": 20.59437246,
+			"lon": -103.41750794,
+			"nombre": "OXXO",
+			"origen": "denue 6344090 462112"
+		},
+		{
+			"tipo": "oxxo",
+			"lat": 20.60413557,
+			"lon": -103.4120974,
+			"nombre": "OXXO",
+			"origen": "denue 6851435 462112"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59299108,
+			"lon": -103.41224673,
+			"nombre": "Fruteria El Merccadito",
+			"origen": "denue 7021360 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59981263,
+			"lon": -103.41811553,
+			"nombre": "Cenaduria Doña Bety",
+			"origen": "denue 7021487 722513"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60006732,
+			"lon": -103.41930586,
+			"nombre": "Tacos El Guero",
+			"origen": "denue 7021491 722514"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60004442,
+			"lon": -103.41908302,
+			"nombre": "Carnitas",
+			"origen": "denue 7021492 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59806854,
+			"lon": -103.4165202,
+			"nombre": "Tienda De Abarrotes Sin Nombre",
+			"origen": "denue 7021542 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60222447,
+			"lon": -103.41870148,
+			"nombre": "Minisuper Deli Market",
+			"origen": "denue 7021547 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.6003737,
+			"lon": -103.42004126,
+			"nombre": "Tortas Ahogadas",
+			"origen": "denue 7021549 722514"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.6006762,
+			"lon": -103.40814957,
+			"nombre": "Polleria Y Cremeria",
+			"origen": "denue 7021606 461122"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60014863,
+			"lon": -103.4073683,
+			"nombre": "Abarrotes Sin Nombre",
+			"origen": "denue 7021607 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59950509,
+			"lon": -103.40845287,
+			"nombre": "Tacos Cristian",
+			"origen": "denue 7021611 722514"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59952613,
+			"lon": -103.40864512,
+			"nombre": "Abarrotes Mariposita",
+			"origen": "denue 7021612 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59856121,
+			"lon": -103.40743417,
+			"nombre": "Carniceria Thaily",
+			"origen": "denue 7021660 461121"
+		},
+		{
+			"tipo": "puesto_tacos",
+			"lat": 20.59768405,
+			"lon": -103.40657686,
+			"nombre": "Tacos De Barbacoa Cu-Ka",
+			"origen": "denue 7021662 722513"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59420752,
+			"lon": -103.41729839,
+			"nombre": "Menuderia Yadira",
+			"origen": "denue 7021728 722513"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59416212,
+			"lon": -103.41679625,
+			"nombre": "Gorditas Don Manuel",
+			"origen": "denue 7021729 722513"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.5943554,
+			"lon": -103.41722273,
+			"nombre": "Cenaduria Jimmys",
+			"origen": "denue 7021730 722513"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59415848,
+			"lon": -103.41676792,
+			"nombre": "Tacos Al Vapor Lo Primero",
+			"origen": "denue 7021776 722514"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59730233,
+			"lon": -103.41682608,
+			"nombre": "Tienda De Abarrotes Sin Nombre",
+			"origen": "denue 7021778 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59431871,
+			"lon": -103.41859922,
+			"nombre": "Cenaduria Lupita",
+			"origen": "denue 7021783 722513"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59430525,
+			"lon": -103.41847459,
+			"nombre": "Cenaduria Chely",
+			"origen": "denue 7021784 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60534996,
+			"lon": -103.42092579,
+			"nombre": "Abarrotera La Pasadita",
+			"origen": "denue 7152736 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60614041,
+			"lon": -103.42289266,
+			"nombre": "Abarrotes Doña Chuy",
+			"origen": "denue 7152737 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59453297,
+			"lon": -103.42218862,
+			"nombre": "Abarrotes Garcia",
+			"origen": "denue 7162151 461110"
+		},
+		{
+			"tipo": "tortilleria",
+			"lat": 20.59485893,
+			"lon": -103.42027199,
+			"nombre": "Tortilleria Toñita",
+			"origen": "denue 7162200 311830"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59436042,
+			"lon": -103.42025114,
+			"nombre": "Fruteria Sin Nombre",
+			"origen": "denue 7162201 461130"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.59384693,
+			"lon": -103.41331596,
+			"nombre": "Polleria La Oficina De Angie",
+			"origen": "denue 8360767 461122"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59591499,
+			"lon": -103.41094292,
+			"nombre": "Abarrotes Sarita",
+			"origen": "denue 8360769 461110"
+		},
+		{
+			"tipo": "puesto_tacos",
+			"lat": 20.59083372,
+			"lon": -103.41479792,
+			"nombre": "Desayunos Camino Real",
+			"origen": "denue 8512772 722511"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.5938526,
+			"lon": -103.42144692,
+			"nombre": "Abarrotes Mari",
+			"origen": "denue 8650032 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60407528,
+			"lon": -103.41233167,
+			"nombre": "El Ranchero Tacos De Barbacoa",
+			"origen": "denue 8650115 722514"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59474865,
+			"lon": -103.41754687,
+			"nombre": "Tacos Sin Nombre",
+			"origen": "denue 8650120 722514"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59442575,
+			"lon": -103.41981506,
+			"nombre": "Tacos Al Vapor Sin Nombre",
+			"origen": "denue 8650121 722514"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.6036608,
+			"lon": -103.40945881,
+			"nombre": "Frutas Y Verduras La Farmacia",
+			"origen": "denue 8846772 461130"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59622614,
+			"lon": -103.41762245,
+			"nombre": "Tienda De Abarrotes",
+			"origen": "denue 8846885 461110"
+		},
+		{
+			"tipo": "puesto_tacos",
+			"lat": 20.59424216,
+			"lon": -103.41618024,
+			"nombre": "La Antojeria",
+			"origen": "denue 8846929 722519"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59592906,
+			"lon": -103.42029661,
+			"nombre": "Abarrotes Becerril",
+			"origen": "denue 9069916 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59393254,
+			"lon": -103.41399097,
+			"nombre": "Cenaduria Jyro",
+			"origen": "denue 9125487 722513"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.5953649,
+			"lon": -103.41759414,
+			"nombre": "Verdureria",
+			"origen": "denue 9162886 461130"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59913783,
+			"lon": -103.41453479,
+			"nombre": "Minisuper Valentina",
+			"origen": "denue 9175740 461110"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60068986,
+			"lon": -103.42233782,
+			"nombre": "Abarrotes Yaneli",
+			"origen": "denue 9371135 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.60279278,
+			"lon": -103.40782605,
+			"nombre": "Tacos Al Carbon Chuy",
+			"origen": "denue 9508227 722514"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60070953,
+			"lon": -103.42018607,
+			"nombre": "Six",
+			"origen": "denue 9564359 461110"
+		},
+		{
+			"tipo": "farmacia",
+			"lat": 20.5942191,
+			"lon": -103.41884881,
+			"nombre": "Farmacia Mas Bueno",
+			"origen": "denue 9569459 464111"
+		},
+		{
+			"tipo": "tortilleria",
+			"lat": 20.59521958,
+			"lon": -103.40768755,
+			"nombre": "Fabricacion De Tortilla De Maiz",
+			"origen": "denue 9586933 311830"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.59370607,
+			"lon": -103.41331414,
+			"nombre": "Venta De Dulce Y Abarrote",
+			"origen": "denue 9653145 461160"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.60157686,
+			"lon": -103.40847425,
+			"nombre": "Cremeria Los Gueritos",
+			"origen": "denue 9681291 461150"
+		},
+		{
+			"tipo": "tienda",
+			"lat": 20.59631307,
+			"lon": -103.41900181,
+			"nombre": "Polleria La Guerita",
+			"origen": "denue 9703902 461122"
+		},
+		{
+			"tipo": "puesto_tacos",
+			"lat": 20.59295868,
+			"lon": -103.41265949,
+			"nombre": "Cooperativa Republica Mexicana",
+			"origen": "denue 9712261 722515"
+		},
+		{
+			"tipo": "puesto",
+			"lat": 20.59404597,
+			"lon": -103.41464703,
+			"nombre": "Venta De Ropa Sin Nombre",
+			"origen": "denue 9769832 463211"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59542148,
+			"lon": -103.40759026,
+			"nombre": "Tacos Al Vapor",
+			"origen": "denue 9814614 722514"
+		},
+		{
+			"tipo": "tortilleria",
+			"lat": 20.59490584,
+			"lon": -103.40731061,
+			"nombre": "Elaboración De Harina De Maíz Sin Nombre",
+			"origen": "denue 9841672 311830"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59860053,
+			"lon": -103.41332637,
+			"nombre": "Tortas Ahogadas",
+			"origen": "denue 9979963 722514"
+		},
+		{
+			"tipo": "taqueria",
+			"lat": 20.59453746,
+			"lon": -103.41085212,
+			"nombre": "Tacos Mariana",
+			"origen": "denue 9986387 722514"
+		}
+	]
+}

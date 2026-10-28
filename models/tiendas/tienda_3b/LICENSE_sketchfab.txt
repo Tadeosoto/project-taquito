@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mexican Store (Tienda 3B) - Low Poly PSX Asset
+* source:	https://sketchfab.com/3d-models/mexican-store-tienda-3b-low-poly-psx-asset-e3c3ac9a198349479429d5bcee2f39c9
+* author:	Mezaiah la cabra (https://sketchfab.com/samueldelcastillo1710)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mexican Store (Tienda 3B) - Low Poly PSX Asset" (https://sketchfab.com/3d-models/mexican-store-tienda-3b-low-poly-psx-asset-e3c3ac9a198349479429d5bcee2f39c9) by Mezaiah la cabra (https://sketchfab.com/samueldelcastillo1710) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

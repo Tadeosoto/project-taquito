@@ -1,0 +1,11 @@
+Model Information:
+* title:	Letrero de tienda Oxxo
+* source:	https://sketchfab.com/3d-models/letrero-de-tienda-oxxo-d444a16b316b4b18b9de9c372379a83e
+* author:	alecsvaldez (https://sketchfab.com/alexvzzz)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Letrero de tienda Oxxo" (https://sketchfab.com/3d-models/letrero-de-tienda-oxxo-d444a16b316b4b18b9de9c372379a83e) by alecsvaldez (https://sketchfab.com/alexvzzz) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

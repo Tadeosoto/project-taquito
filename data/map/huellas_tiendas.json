@@ -1,0 +1,41 @@
+{
+	"_local_min": [
+		4.5,
+		6.0
+	],
+	"_locales": [
+		"taqueria",
+		"tortilleria"
+	],
+	"_nota": "Generado por tools/map_import/huellas_tiendas.gd: [frente, fondo] en metros",
+	"modelos": {
+		"alto": [
+			0.75,
+			0.04
+		],
+		"farmacia": [
+			10.0,
+			14.72
+		],
+		"gasolinera": [
+			14.0,
+			31.97
+		],
+		"oxxo": [
+			14.0,
+			10.5
+		],
+		"puesto": [
+			2.5,
+			0.92
+		],
+		"puesto_tacos": [
+			3.5,
+			3.5
+		],
+		"tienda": [
+			8.0,
+			11.02
+		]
+	}
+}

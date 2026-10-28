@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mexican Starter Pack!
+* source:	https://sketchfab.com/3d-models/mexican-starter-pack-8a0b37c7d64448c1aa9b533cdea0283a
+* author:	Franci5coJavier (https://sketchfab.com/fraci5cogamer)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mexican Starter Pack!" (https://sketchfab.com/3d-models/mexican-starter-pack-8a0b37c7d64448c1aa9b533cdea0283a) by Franci5coJavier (https://sketchfab.com/fraci5cogamer) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

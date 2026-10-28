@@ -1,0 +1,11 @@
+Model Information:
+* title:	Slingshot
+* source:	https://sketchfab.com/3d-models/slingshot-7c00a1667b2c4413b4dcb24500f05892
+* author:	justincrazyeyes (https://sketchfab.com/justincrazyeyes)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Slingshot" (https://sketchfab.com/3d-models/slingshot-7c00a1667b2c4413b4dcb24500f05892) by justincrazyeyes (https://sketchfab.com/justincrazyeyes) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

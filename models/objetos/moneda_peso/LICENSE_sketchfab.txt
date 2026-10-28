@@ -1,0 +1,11 @@
+Model Information:
+* title:	1 Peso MXN - Moneda - Coin
+* source:	https://sketchfab.com/3d-models/1-peso-mxn-moneda-coin-5b0b33e49fa84d96b6e0d82beac694f3
+* author:	Diego G. (https://sketchfab.com/empty_mirror)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "1 Peso MXN - Moneda - Coin" (https://sketchfab.com/3d-models/1-peso-mxn-moneda-coin-5b0b33e49fa84d96b6e0d82beac694f3) by Diego G. (https://sketchfab.com/empty_mirror) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

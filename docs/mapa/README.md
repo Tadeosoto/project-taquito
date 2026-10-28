@@ -1,0 +1,190 @@
+# El mapa real de Zapopan
+
+`scenes/map_test.tscn` es un pedazo real de Zapopan, Jalisco, de ~1.7 × 1.7 km, para recorrerlo a pie o en dron con el look PS1 del juego. Va de **20.606286, −103.423463** a **20.590700, −103.406515** y cubre colonias como Parques de Santa María, Haciendas de San José, Parques del Bosque, Agua Blanca, El Mante y La Palmira.
+
+| A pie | En dron |
+|---|---|
+| ![A pie, enfrente de la farmacia](pie.png) | ![Desde el dron](dron.png) |
+
+La escala es real: 1 unidad de Godot = 1 metro, y el personaje mide 1.74 m.
+
+## Cómo correrlo
+
+```bash
+godot --path . scenes/map_test.tscn
+```
+
+La primera vez hay que abrir el proyecto en el editor o correr `godot --path . --headless --import` para que Godot importe los modelos. En el editor, `map_test.tscn` sale sin mapa: los cuadros se cargan solo al correr la escena.
+
+### Controles
+
+| Acción | A pie | En dron |
+|---|---|---|
+| Moverse | WASD / flechas | WASD / flechas (15 m/s, a 30 m de altura) |
+| Girar la cámara | Mouse o Q / E | Mouse o Q / E |
+| Correr | Shift (10 m/s, 18 m/s corriendo) | Shift (×3) |
+| Saltar | Espacio | — |
+| Cambiar entre jugador y dron | V | V |
+
+Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar del dron al jugador, el jugador aterriza justo debajo del dron, en la calle o en una azotea.
+
+## Qué hay en el mapa
+
+- **Calles y edificios**:
+  - La geometría sale de [OpenStreetMap](https://www.openstreetmap.org), convertida a 3D con [OSM2World](https://osm2world.org).
+  - OSM solo tiene ~970 casas en la zona; el resto sale de [Google Open Buildings](https://sites.research.google/open-buildings/), huellas detectadas por satélite. En total son ~7,900 edificios.
+  - Los que no tienen datos salen de 1–2 pisos, con azotea plana y un color de fachada.
+- **Casas modelo por colonia**:
+  - Unas 10,300 casas se cambian por modelos de Sketchfab:
+    - Parques del Bosque: Casa Semi Residencial y Mexican House 3.
+    - Todas las demás colonias: Casa Urbi/Infonavit de 1 y 2 pisos, y Semi Residencial en algunas de 2 pisos.
+    - Agua Blanca Industrial se queda como está, porque ahí son bodegas.
+  - La colonia de cada manzana sale de los negocios del DENUE que hay en ella. Así una manzana nunca mezcla dos colonias.
+  - Las hileras de casas se parten en lotes de 6.5 m, y las fachadas de una cuadra quedan alineadas aunque sean modelos distintos.
+  - Cada casa pinta su muro de un color al azar y deja puertas, ventanas y herrería como vienen.
+- **Fachadas**: las casas que no son modelo usan un shader que pinta en cada tramo ventanas con herrería, puertas, cortinas metálicas y zaguanes. Las azoteas son de impermeabilizante rojo o losa gris. Las texturas son fotos CC0 de [Poly Haven](https://polyhaven.com) más dibujo propio. El pasto, el asfalto y las banquetas también salen de Poly Haven.
+- **Calles, banquetas y camellones**:
+  - Cada calle tiene un ancho según su tipo (primaria 14 m, residencial 7 m, privada 6 m...) y banquetas de concreto con guarnición (1.2–2 m). Si las fachadas de la calle quedan más cerca, la banqueta y luego el arroyo se angostan.
+  - Las avenidas que OSM traza como dos calles de un sentido llevan banqueta solo por fuera, y entre las dos un camellón de pasto con guarnición, cortado donde una calle lo atraviesa.
+- **Árboles y pasto del satélite**:
+  - ~1,300 árboles donde el [Canopy Height de Meta/WRI](https://registry.opendata.aws/dataforgood-fb-forests/) (altura de copas a 1 m) ve una copa, con su altura y ancho. Si caen en la calle se recorren a la banqueta; en una casa se quitan.
+  - El piso es pasto verde oscuro; donde Sentinel-2 ve verde en lluvias o tierra pelona en secas (~26 % de la zona) es pasto más claro, con manchas secas. Cerca del jugador salen matas de pasto en 3D.
+- **Negocios reales**: 85 negocios del [DENUE del INEGI](https://www.inegi.org.mx/app/descarga/?ti=6): tiendas, taquerías, OXXO, farmacias, tortillerías, puestos y una gasolinera.
+  - Si hay varios del mismo giro muy juntos, se deja solo uno (80 m; 150 m en tiendas de abarrotes).
+  - Cada tienda ocupa el lote de una casa y mira hacia la calle.
+  - Si el modelo de un negocio es más grande que su lote (una gasolinera, un OXXO), se quitan las casas que quedarían encimadas: el negocio gana.
+  - OXXO, tiendas, farmacias, puestos y gasolinera usan modelos low-poly de Sketchfab (CC BY).
+  - Taquerías y tortillerías son locales armados en código, con cortina, mostrador, letrero y lona.
+- **Señales de alto** en 1 de cada 20 esquinas, del lado derecho y de cara al tráfico.
+- **Minimapa estilo GTA** en la esquina superior derecha:
+  - Gira con la cámara y marca al jugador con una flecha, el norte con una N y cada negocio con un cuadrito de color.
+  - Colores: rojo OXXO, amarillo tienda, naranja tacos, beige tortillería, turquesa farmacia, verde gasolinera, rosa puesto.
+  - En dron se aleja para ver más.
+- **Carga por partes**: el mapa está partido en 201 cuadros de 128 m. Solo se cargan los cercanos (~40), en segundo plano. Las tiendas y las casas modelo se cargan igual, por celdas.
+
+<p align="center"><img src="minimapa.png" width="420" alt="Imagen completa del minimapa"></p>
+
+En la laptop de desarrollo (Intel Iris Plus 640) corre a ~150–190 FPS a pie y ~140–160 en dron, sin vsync.
+
+No se usan imágenes ni datos de Google Maps o Street View, porque sus términos lo prohíben. Street View solo sirve como referencia visual para corregir cosas a mano.
+
+## Cómo está hecho
+
+```
+data/map/area.osm  ─┐
+google_buildings   ─┼─▶ prepare_osm.py ─▶ area_prepared.osm ─▶ OSM2World ─▶ models/zona_mapa.glb
+denue_*.json       ─┤        │                                                   │ MapPostImport.gd (materiales PS1, colisiones, cuadros)
+casas.json, ...    ─┘        │                                                   ▼
+                             │                                   split_cuadros.gd ─▶ resources/map/cuadros/*.scn
+                             ├─▶ resources/map/puntos_mapa.json   (tiendas y altos)
+                             ├─▶ resources/map/casas_mapa.json    (lotes de casas modelo)
+                             ├─▶ make_vegetacion.py ─▶ pasto_mascara.png, arboles_mapa.json
+fetch_satelite.py ─▶ data/map/satelite_* ─┘   (Canopy Height + Sentinel-2)
+                             └─▶ make_minimapa.py ─▶ textures/map/minimapa.png
+```
+
+Al correr la escena, cada nodo carga lo suyo alrededor del dron, que cuando no está volando va pegado al jugador:
+
+| Nodo en `map_test.tscn` | Script | Qué hace |
+|---|---|---|
+| `Mapa` | `scripts/map/MapStreamer.gd` | Carga y descarga los cuadros de `resources/map/cuadros/`. |
+| `Puntos` | `scripts/map/MapPuntos.gd` | Pone los negocios y altos con su modelo (`prefabs`), o arma los locales. |
+| `Casas` | `scripts/map/MapCasas.gd` | Dibuja las casas modelo con un MultiMesh por celda y les pone colisión. |
+| `Arboles` | `scripts/map/MapArboles.gd` | Los árboles del satélite, un MultiMesh por celda, con colisión en el tronco. |
+| `Pasto` | `scripts/map/MapPasto.gd` | Matas de pasto 3D a menos de 40 m del jugador; le pone la máscara de pasto al plano `Suelo`. |
+| `Dron` | `scripts/map/MapDron.gd` | Modo dron (tecla V). |
+| `Minimapa` | `scripts/map/MapMinimapa.gd` | El radar de la esquina. |
+
+Shaders del mapa:
+- `ps1_facade`: fachadas de OSM2World.
+- `ps1_casa`: casas modelo, con color de muro por casa.
+- `ps1_suelo`: piso, pasto (con la máscara del satélite), banquetas, asfalto y empedrado.
+- `ps1_arbol`: árboles (atlas de corteza y hojas, verde por árbol).
+- `ps1_pasto`: matas de pasto que se mecen y se desvanecen con tramado.
+- `minimapa`: el radar.
+
+Todos comparten el vértice PS1 de `ps1_vertex.gdshaderinc` (menos el radar, que es 2D).
+
+## Corregir o agregar cosas a mano
+
+| Archivo | Para qué |
+|---|---|
+| `data/map/overrides.json` | Cambiar etiquetas de un edificio de OSM, por ejemplo pisos o color: `"way/<id>": {"building:levels": "3"}`. |
+| `data/map/casas.json` | Qué modelos de casa van en cada colonia, por número de pisos y con un peso. `"*"` son las demás colonias; `_proporcion` dice qué fracción de casas se cambia. |
+| `data/map/colonias.json` | Corregir la colonia de una manzana: `"lat,lon de un punto de la manzana": "COLONIA"`. |
+| `data/map/puntos.json` | Agregar tiendas o puestos con `{tipo, nombre, lat, lon}`, o quitar negocios mal ubicados con `"omitir"` (usa el `origen` de `resources/map/puntos_mapa.json`). |
+| `scenes/map_test.tscn` → `Puntos` | Qué modelo usa cada giro (`prefabs`), cómo girarlo (`prefab_rotacion`) y cuántos metros de frente tiene (`prefab_ancho`). |
+| `scenes/map_test.tscn` → `Casas` | Modelos de casa, escala, color de muro (`muro_key`) y distancias de carga. |
+| `scenes/map_test.tscn` → `Minimapa` | Tamaño del radar (`tamano`) y cuánto se ve a pie y en dron (`radio_metros`, `radio_dron`). |
+| `scenes/map_test.tscn` → `Dron` / `Player` | Altura y velocidad del dron, si se arranca en dron (`iniciar_en_dron`), y spawn y velocidad del jugador. |
+
+Después de editar `overrides.json`, `puntos.json`, `casas.json` o `colonias.json` hay que regenerar el mapa.
+
+## ¿Por qué `models/zona_mapa.glb` no está en GitHub?
+
+Porque el juego no lo usa. El `.glb` (~22 MB) es un paso intermedio, como un `.o` al compilar: sale de OSM2World y `split_cuadros.gd` lo parte en los cuadros que sí se cargan. Esto es lo que va en git y lo que no:
+
+| Va en git (el juego lo carga) | No va en git (se genera o se baja) |
+|---|---|
+| `resources/map/cuadros/` (201 cuadros + materiales) | `models/zona_mapa.glb` y su `.import` |
+| `resources/map/*.json` (negocios, casas, árboles, máscara de pasto, minimapa) | `tools/map_import/bin/` (OSM2World ~450 MB, venv de Python, caché del satélite) |
+| `textures/map/*.png` | `data/map/*_debug.png`, `satelite_rgb.png`, `satelite_chm.png` (imágenes para revisar a ojo) |
+| `data/map/` (datos de entrada: OSM, DENUE, Google, satélite ya procesado) | `.godot/` (caché de Godot) |
+
+**Para jugar** basta con clonar, importar una vez y correr la escena:
+
+```bash
+git clone https://github.com/Tadeosoto/project-taquito.git && cd project-taquito
+godot --path . --headless --import        # o abrir el proyecto en el editor
+godot --path . scenes/map_test.tscn
+```
+
+**Para cambiar el mapa** (otra zona, correcciones en `overrides.json`, `puntos.json`, `casas.json`, otro modelo de negocio...) sigue la sección de abajo y sube lo que cambió en `resources/map/`, `textures/map/` y `data/map/`. Así tus compañeros ven el mapa nuevo sin regenerar nada. El `.glb` no se sube.
+
+Los cuadros son binarios (`.scn`), así que git no puede mezclar dos versiones. Que regenere el mapa **una persona a la vez** y que los demás hagan `git pull` antes de tocarlo. Si salen conflictos en `resources/map/cuadros/`, no se arreglan a mano: se toma una versión (`git checkout --theirs resources/map/cuadros`) o se regenera.
+
+## Regenerar el mapa
+
+Se necesitan:
+- Godot 4.7 como `godot` en el PATH.
+- Java, para OSM2World (probado con OpenJDK 27). OSM2World se baja solo la primera vez.
+- Python 3.10 o más nuevo.
+- ImageMagick 7 (`magick`).
+
+En Arch: `sudo pacman -S jre-openjdk python imagemagick`. En Ubuntu/Debian: `sudo apt install default-jre python3 python3-venv imagemagick`. En Windows conviene WSL.
+
+Solo `fetch_satelite.py` necesita librerías aparte (rasterio, numpy, scipy, en un venv). Sus resultados ya vienen en `data/map/`, así que no hace falta correrlo salvo que cambie la zona.
+
+```bash
+bash tools/map_import/fetch_osm.sh                         # OSM de la zona (opcional: ya viene en data/map/)
+python3 -I tools/map_import/fetch_google_buildings.py      # casas de Google Open Buildings (opcional: ya viene)
+python3 -I tools/map_import/fetch_denue.py                 # negocios y colonias del DENUE (opcional: ya viene)
+python3 -m venv tools/map_import/bin/venv && tools/map_import/bin/venv/bin/pip install rasterio numpy scipy
+tools/map_import/bin/venv/bin/python -I tools/map_import/fetch_satelite.py  # copas y pasto del satelite (opcional: ya viene, ~10 min)
+bash tools/map_import/build_glb.sh                         # prepara el .osm, corre OSM2World y hace el minimapa (~30 s)
+rm -f .godot/imported/zona_mapa.glb-* && godot --path . --headless --import
+godot --path . --headless -s tools/map_import/split_cuadros.gd   # parte el mapa en resources/map/cuadros/
+```
+
+`build_glb.sh` también deja `data/map/colonias_debug.png`, con las manzanas pintadas por colonia, para revisar a ojo cómo quedaron las colonias. Y `data/map/calles_debug.png`: la foto de Sentinel-2 con arroyos, banquetas, casas, pasto, camellones y árboles encima.
+
+Los modelos de Sketchfab ya vienen en `models/`. Para volver a bajarlos se necesita un token de Sketchfab, que nunca se guarda en el repo:
+
+```bash
+SKETCHFAB_TOKEN=xxxx python3 -I tools/map_import/fetch_sketchfab.py
+```
+
+`CLAUDE.md` tiene los detalles técnicos del pipeline y sus trampas, por ejemplo por qué Godot no reimporta el .glb solo.
+
+## Pendientes
+
+- Pasar las mecánicas de `world.tscn` (NPCs, inventario, objetos) al mapa real.
+- Torres de departamentos: el modelo "Edificio multifamiliar" ya está bajado, pero falta ubicar las torres.
+- Todos los puestos usan el mismo carrito de comida y las 33 tiendas el mismo modelo.
+- Hay un tirón pequeño cuando se carga un cuadro.
+- Una manzana central de Parques de Santa María sale enorme, porque un arroyo la deja sin calles que la corten.
+- Takis, la moneda de 1 peso y los Jarritos están importados en `models/objetos/` pero todavía no se usan.
+
+## Licencias
+
+Datos de OpenStreetMap (ODbL), Google Open Buildings (CC BY 4.0) e INEGI DENUE; OSM2World (MIT), texturas de Poly Haven (CC0) y modelos de Sketchfab (CC BY). Los autores de cada modelo están en [`CREDITS.md`](../../CREDITS.md).

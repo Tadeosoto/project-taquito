@@ -1,0 +1,4 @@
+{
+	"_ayuda": "Correcciones de colonia por manzana: \"lat,lon de un punto dentro de la manzana\": \"COLONIA EN MAYUSCULAS\". Revisa data/map/colonias_debug.png (lo genera build_glb.sh).",
+	"_ejemplo": "20.6000,-103.4150"
+}

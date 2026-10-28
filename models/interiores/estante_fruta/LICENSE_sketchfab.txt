@@ -1,0 +1,11 @@
+Model Information:
+* title:	PSX Style Fruit Shelve
+* source:	https://sketchfab.com/3d-models/psx-style-fruit-shelve-8f1624e9ba6c443e8448b2a2db20eeb7
+* author:	wooolvie (https://sketchfab.com/wooolvie)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "PSX Style Fruit Shelve" (https://sketchfab.com/3d-models/psx-style-fruit-shelve-8f1624e9ba6c443e8448b2a2db20eeb7) by wooolvie (https://sketchfab.com/wooolvie) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

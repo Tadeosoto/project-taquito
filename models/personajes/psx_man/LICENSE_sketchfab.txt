@@ -1,0 +1,11 @@
+Model Information:
+* title:	psx man
+* source:	https://sketchfab.com/3d-models/psx-man-41b0580d4d5c4cc183cfeae523ea0a09
+* author:	petya-petyavich (https://sketchfab.com/petya-petyavich)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "psx man" (https://sketchfab.com/3d-models/psx-man-41b0580d4d5c4cc183cfeae523ea0a09) by petya-petyavich (https://sketchfab.com/petya-petyavich) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Chef Erik (Walking)
+* source:	https://sketchfab.com/3d-models/chef-erik-walking-452927fd544d476eaf2c00a11e18965c
+* author:	robnewman76 (https://sketchfab.com/robnewman76)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Chef Erik (Walking)" (https://sketchfab.com/3d-models/chef-erik-walking-452927fd544d476eaf2c00a11e18965c) by robnewman76 (https://sketchfab.com/robnewman76) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
