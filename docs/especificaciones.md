@@ -193,8 +193,25 @@ Dos monedas:
 
 ### 4.6 Tiendas e interiores 💡
 
-- Las tiendas tienen un **marcador amarillo** en la puerta (flecha/cilindro como *GTA San Andreas*). Al pararte en él: pantalla negra → apareces en el interior → otra flecha para salir.
-- Los interiores son **escenas aparte** (no están dentro del mapa), así no se modela cada tienda por dentro. Un interior por tipo, reutilizado: OXXO, farmacia, tienda de abarrotes, taquería, tortillería, gasolinera.
+- Las tiendas tienen un **marcador amarillo** en la puerta (flecha/cilindro como *GTA San Andreas*). Al pararte en él: pantalla negra → apareces en el interior → otra flecha para salir. 🧱 La flecha ya está en el mapa (`scripts/map/MapPuntos.gd`, señal `entrar_negocio`); por ahora solo avisa "Próximamente".
+- Los interiores son **escenas aparte** (no están dentro del mapa), así no se modela cada tienda por dentro. Un interior por giro, reutilizado.
+- **Giros** (los negocios salen del DENUE; ver `docs/mapa/README.md`). De cada giro solo lleva marcador y cuadro en el minimapa **uno cada 80 m** (abarrotes uno cada 150 m); los demás se ven igual pero son decorado. Lo que vende cada uno es una propuesta 💡:
+
+| Giro | En el mapa | Cómo se compra | Vende 💡 |
+|---|---|---|---|
+| OXO | modelo de OXXO | interior | gansito, refresco, cigarros, mazapán |
+| Abarrotes | Tienda 3B o local de colonia | interior | lo mismo que el OXO pero más barato, cloralex, galón de agua |
+| Farmacia | Guadalaraja, Dr Simio (kiosco con el Simi bailando) o local verde | interior | cosas curativas: vaporub, botiquín, pastillas |
+| Taquería | local de colonia con lona | interior | tacos |
+| Puesto de tacos | puesto en la banqueta | **al aire libre**: menú con el taquero, sin pantalla negra | tacos; ahí van las misiones *Cocinar tacos* y *Defender el puesto* |
+| Gasolinera | modelo de Pemex (nombre Perez) | interior | gasolina (para molotov) |
+| Ferretería | local de colonia | interior | tablas, cinta, llave, armas cuerpo a cuerpo |
+| Purificadora | local azul con gota | interior | garrafón, agua limpia |
+| Tejuino | carrito en la banqueta | al aire libre | tejuino |
+| **El punto** | una casa al azar por colonia, en obra negra y con el deterioro al máximo | al aire libre, en la puerta | cosas ilegales (tachas…). No sale en el minimapa. |
+| Tortillería | local de colonia | decorado (sin marcador) | — |
+
+- **Marcas**: los nombres ya son parodia (OXO, Dr Simio, Guadalaraja, Perez); los modelos todavía traen la marca real pintada.
 - Dentro: mostrador con NPC que vende (menú de compra), y las **máquinas** (de dinero/premios) para la misión de sacar dinero.
 - 🗳️ ¿Las tiendas cierran de noche? ¿Son refugio seguro? ¿Los zombies pueden entrar?
 
@@ -252,7 +269,7 @@ Columnas: **Modelo** = si ya hay modelo 3D en el repo (🧱) o falta (❌). Efec
 | Machete | Cuerpo a cuerpo | Silencioso, arma inicial. | 🧱 `models/armas/machete/` |
 | Bomba molotov | Arrojable | Fuego en área. Se puede craftear. | 🧱 `models/objetos/botella/` + `trapo/` (toalla pintada sucia) |
 | Paloma (cohete) | Arrojable | Aturde a los enemigos cercanos. | ❌ (el modelo bajado salía mal) |
-| Tacos | Consumible | Recupera vida. | 🧱 `models/taco_pastor.glb` |
+| Tacos | Consumible | Recupera vida. Se compran en taquerías y puestos de tacos (4.6). | 🧱 `models/taco_pastor.glb` |
 | Agua limpia | Moneda / consumible | Dinero "fuerte"; baja la infección. | 🧱 `models/objetos/galon_agua/`; ❌ botella de agua y garrafón (los bajados salían mal) |
 | Refresco Jarritos | Consumible | Recupera estamina. | 🧱 `models/objetos/jarritos/` |
 | Moneda de peso | Moneda | Dinero normal. | 🧱 `models/objetos/moneda_peso/` |
@@ -460,7 +477,7 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 - [ ] ¿Se puede pegar a otros jugadores (PvP)?
 - [ ] ¿Las tiendas son zona segura de noche?
 - [ ] ¿Hay vehículos? (bici, carrito de súper, camión) — dan mucho juego en el mapa real pero son trabajo L.
-- [ ] **Marcas reales** (OXXO, Simi, Farmacia Guadalajara, Takis, Jarritos, Pemex, Partido Verde): para un proyecto de escuela/gratis no hay bronca práctica, pero si algún día se publica o se cobra, conviene cambiarlas por parodias ("OXO", "Dr. Simio"…). ¿Lo decidimos desde ahora para no rehacer modelos después?
+- [x] **Marcas reales**: se decidió parodia. Los nombres ya cambiaron (OXO, Dr Simio, Guadalaraja, Perez); falta repintar los modelos.
 - [ ] Tachas, droga y cuerno de chivo: ¿el tono es parodia? Afecta la clasificación si se publica en alguna tienda (itch.io no tiene problema).
 
 ---
@@ -471,3 +488,4 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 |---|---|---|
 | 2026-10-27 | Premisa: agua sucia de Guadalajara → zombies. Día = misiones, noche = sobrevivir. Monedas: pesos y agua limpia. Inventario estilo RE. Look PS1 en el mapa real de Zapopan. | Equipo (lo que ya se había platicado) |
 | 2026-10-28 | Shader de día/noche y alumbrado público en el mapa: noche con luz de luna (se ve el juego sin lámparas), postes con lámparas apagadas o parpadeantes según el deterioro. Falta el reloj del ciclo. | JJ |
+| 2026-10-28 | Giros de negocios (4.6) y qué vende cada uno; un interactivo por giro cada 80 m (abarrotes 150 m) con flecha amarilla; puestos de tacos y tejuino se compran al aire libre; nuevos ferretería, purificadora y "el punto" (venta ilegal, una casa en obra negra por colonia). Marcas parodia en los nombres. Casas en obra negra: 5 % en deterioro medio, 15 % en el máximo. Los locales de colonia van dentro de la hilera de casas. | JJ |

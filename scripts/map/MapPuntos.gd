@@ -32,18 +32,22 @@ const TIPO_COLORS := {
 	"gasolinera": Color(0.15, 0.6, 0.3),
 	"tortilleria": Color(0.85, 0.75, 0.45),
 	"puesto": Color(0.75, 0.35, 0.6),
+	"ferreteria": Color(0.9, 0.45, 0.1),
+	"purificadora": Color(0.2, 0.6, 0.9),
 }
 
 # Locales de colonia armados con cajas (no hay modelos de taquerias ni abarrotes
 # genericos en Sketchfab), pintados como las tienditas de barrio: muro blanco con
 # rodapie y franja de un color (rojo o azul, segun el nombre; verde las farmacias).
 # letrero generico (si el nombre no cabe o es "Sin Nombre"), si lleva lona (del
-# color del rodapie) y el adorno de un pilar (refresco, cruz o nada)
+# color del rodapie) y el adorno de un pilar (refresco, cruz, gota o nada)
 const LOCALES := {
 	"taqueria": {"letrero": "TAQUERÍA", "lona": true, "adorno": ""},
 	"tortilleria": {"letrero": "TORTILLERÍA", "lona": false, "adorno": ""},
 	"abarrotes": {"letrero": "ABARROTES", "lona": false, "adorno": "refresco"},
 	"farmacia_local": {"letrero": "FARMACIA", "lona": false, "adorno": "cruz", "acento": Color(0.1, 0.5, 0.25)},
+	"ferreteria": {"letrero": "FERRETERÍA", "lona": false, "adorno": ""},
+	"purificadora": {"letrero": "AGUA PURIFICADA", "lona": true, "adorno": "gota", "acento": Color(0.1, 0.4, 0.8)},
 }
 const LOCAL_BLANCO := Color(0.93, 0.92, 0.88)
 const ACENTOS := [Color(0.78, 0.1, 0.1), Color(0.1, 0.28, 0.68)]
@@ -53,6 +57,14 @@ const LOCAL_HEIGHT := 3.2
 const LOCAL_FONDO_CORTINA := 1.0  # lo que se mete la entrada (m)
 # Tamano minimo de un local (m): en lotes angostos se sale a los lados y hacia atras
 const LOCAL_MIN := Vector2(4.5, 6.0)
+
+# Marcador de los negocios interactivos (docs/especificaciones.md 4.6): flecha
+# amarilla frente a la puerta; al pisarla se avisa (los interiores aun no existen)
+const MARCADOR_COLOR := Color(1.0, 0.85, 0.1)
+const MARCADOR_RADIO := 0.8
+const MARCADOR_FRENTE := 0.8   # que tanto sale de la fachada (m)
+
+signal entrar_negocio(tipo: String, giro: String, nombre: String, aire_libre: bool)
 
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
 
@@ -71,6 +83,9 @@ const LOCAL_MIN := Vector2(4.5, 6.0)
 # losa de concreto del kiosco de Similares, que lo hacia ver chico y hundido)
 @export var prefab_quitar: Dictionary[String, PackedStringArray] = {}
 
+# tipo -> corrimiento (m) de la puerta a la derecha del centro de la fachada
+@export var prefab_puerta: Dictionary[String, float] = {}
+
 # El jugador; sin el se crean todas las tiendas de una vez
 @export var target_path: NodePath
 @export var load_radius := 250.0
@@ -82,6 +97,9 @@ var _box_materials := {}   # tipo -> ShaderMaterial de las cajas
 var _sucios := {}          # material de un prefab -> copia con deterioro
 var _target: Node3D
 var _timer := 0.0
+var _marcador_mesh: Mesh
+var _aviso: Label
+var _aviso_tween: Tween
 
 
 func _ready() -> void:
@@ -129,11 +147,114 @@ func _update_nearby() -> void:
 
 func _make_punto(punto: Dictionary) -> Node3D:
 	var tipo: String = punto["tipo"]
-	if prefabs.has(tipo) and prefabs[tipo] != null:
-		return _make_prefab(punto)
-	if LOCALES.has(tipo):
-		return _make_local(punto)
-	return _make_placeholder(punto)
+	var node: Node3D
+	if tipo == "punto":
+		# La casa ya la dibuja MapCasas; aqui solo va su marcador
+		node = Node3D.new()
+		node.name = "punto_%s" % punto.get("origen", "")
+	elif prefabs.has(tipo) and prefabs[tipo] != null:
+		node = _make_prefab(punto)
+	elif LOCALES.has(tipo):
+		node = _make_local(punto)
+	else:
+		node = _make_placeholder(punto)
+	if punto.get("interactivo", false) and not Engine.is_editor_hint():
+		node.add_child(_marcador(punto))
+	return node
+
+
+# Flecha amarilla que gira y flota frente a la puerta, y un Area3D que avisa al pisarla
+func _marcador(punto: Dictionary) -> Node3D:
+	var area := Area3D.new()
+	area.name = "Marcador"
+	area.position = Vector3(prefab_puerta.get(punto["tipo"], 0.0), 0.0, punto["fondo"] / 2.0 + MARCADOR_FRENTE)
+	area.monitorable = false
+	var shape := CollisionShape3D.new()
+	var cilindro := CylinderShape3D.new()
+	cilindro.radius = MARCADOR_RADIO
+	cilindro.height = 2.0
+	shape.shape = cilindro
+	shape.position.y = 1.0
+	area.add_child(shape)
+	area.body_entered.connect(func(body: Node3D) -> void:
+		if body is Player:
+			_entrar(punto))
+
+	if _marcador_mesh == null:
+		_marcador_mesh = _flecha_mesh()
+	var flecha := MeshInstance3D.new()
+	flecha.mesh = _marcador_mesh
+	flecha.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	flecha.visibility_range_end = 80.0
+	area.add_child(flecha)
+	# El tween se crea ya en el arbol (se libera con la flecha)
+	flecha.ready.connect(func() -> void:
+		var tween := flecha.create_tween().set_loops()
+		tween.tween_property(flecha, "position:y", 0.25, 0.8).from(0.0).set_trans(Tween.TRANS_SINE)
+		tween.parallel().tween_property(flecha, "rotation:y", PI, 0.8).from(0.0)
+		tween.tween_property(flecha, "position:y", 0.0, 0.8).set_trans(Tween.TRANS_SINE)
+		tween.parallel().tween_property(flecha, "rotation:y", TAU, 0.8), CONNECT_ONE_SHOT)
+	return area
+
+
+# Flecha hacia abajo (cono y palo) a ~1.3 m del piso, amarilla y sin sombra para que
+# se vea igual de noche
+func _flecha_mesh() -> Mesh:
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = MARCADOR_COLOR
+	var punta := CylinderMesh.new()
+	punta.top_radius = 0.35
+	punta.bottom_radius = 0.0
+	punta.height = 0.5
+	punta.radial_segments = 6
+	punta.rings = 1
+	var palo := CylinderMesh.new()
+	palo.top_radius = 0.13
+	palo.bottom_radius = 0.13
+	palo.height = 0.5
+	palo.radial_segments = 6
+	palo.rings = 1
+	var tools := SurfaceTool.new()
+	tools.begin(Mesh.PRIMITIVE_TRIANGLES)
+	tools.append_from(punta, 0, Transform3D(Basis(), Vector3(0.0, 1.3, 0.0)))
+	tools.append_from(palo, 0, Transform3D(Basis(), Vector3(0.0, 1.8, 0.0)))
+	var mesh := tools.commit()
+	mesh.surface_set_material(0, material)
+	return mesh
+
+
+func _entrar(punto: Dictionary) -> void:
+	var nombre: String = punto.get("nombre", "")
+	if nombre == "" or nombre.to_upper().contains("SIN NOMBRE"):
+		nombre = LOCALES.get(punto["tipo"], {}).get("letrero", String(punto.get("giro", "")).capitalize())
+	entrar_negocio.emit(punto["tipo"], punto.get("giro", ""), nombre, punto.get("aire_libre", false))
+	_avisar("%s: Próximamente" % nombre)
+
+
+# Texto abajo al centro que se desvanece solo
+func _avisar(texto: String) -> void:
+	if _aviso == null:
+		var capa := CanvasLayer.new()
+		capa.layer = 3
+		add_child(capa)
+		_aviso = Label.new()
+		_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+		_aviso.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_aviso.grow_vertical = Control.GROW_DIRECTION_BEGIN
+		_aviso.offset_bottom = -60.0
+		_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_aviso.add_theme_color_override("font_color", MARCADOR_COLOR)
+		_aviso.add_theme_color_override("font_outline_color", Color.BLACK)
+		_aviso.add_theme_constant_override("outline_size", 6)
+		capa.add_child(_aviso)
+	_aviso.text = texto
+	_aviso.modulate.a = 1.0
+	if _aviso_tween:
+		_aviso_tween.kill()
+	_aviso_tween = create_tween()
+	_aviso_tween.tween_interval(1.5)
+	_aviso_tween.tween_property(_aviso, "modulate:a", 0.0, 1.0)
 
 
 # Frente y fondo (m) que ocupa el modelo de `tipo` ya escalado (Vector2.ZERO si no
@@ -371,6 +492,11 @@ func _make_local(punto: Dictionary) -> Node3D:
 			"cruz":
 				_local_box(body, Vector3(0.6, 0.2, 0.03), centro, acento, false)
 				_local_box(body, Vector3(0.2, 0.6, 0.03), centro, acento, false)
+			"gota":
+				# Gota de agua: un rombo azul con la punta hacia arriba
+				var gota := _local_box(body, Vector3(0.36, 0.36, 0.03), centro + Vector3(0.0, -0.05, 0.0), acento, false)
+				gota.rotation.z = PI / 4.0
+				_local_box(body, Vector3(0.1, 0.25, 0.03), centro + Vector3(0.0, 0.25, 0.0), acento, false)
 
 	# Nombre pintado sobre el dintel (como en la foto: letras oscuras en el muro)
 	var texto: String = nombre.to_upper()

@@ -254,6 +254,13 @@
 			"origen": "denue 11575137 722514"
 		},
 		{
+			"tipo": "ferreteria",
+			"lat": 20.60104002,
+			"lon": -103.42179392,
+			"nombre": "Ferreteria San Miguel",
+			"origen": "denue 11599553 467111"
+		},
+		{
 			"tipo": "puesto_tacos",
 			"lat": 20.59418724,
 			"lon": -103.41545618,
@@ -268,11 +275,39 @@
 			"origen": "denue 11667174 722513"
 		},
 		{
+			"tipo": "purificadora",
+			"lat": 20.60123686,
+			"lon": -103.42006695,
+			"nombre": "Purificadora Sin Nombre",
+			"origen": "denue 11737967 312112"
+		},
+		{
+			"tipo": "ferreteria",
+			"lat": 20.60256312,
+			"lon": -103.41230965,
+			"nombre": "Ferreteria Az",
+			"origen": "denue 11801547 467111"
+		},
+		{
 			"tipo": "tienda",
 			"lat": 20.59406525,
 			"lon": -103.41884172,
 			"nombre": "Tienda De Abarrotes Angelica",
 			"origen": "denue 1660409 461110"
+		},
+		{
+			"tipo": "purificadora",
+			"lat": 20.59428794,
+			"lon": -103.42024811,
+			"nombre": "Purificadora Aqua Express",
+			"origen": "denue 1691036 312112"
+		},
+		{
+			"tipo": "ferreteria",
+			"lat": 20.59394331,
+			"lon": -103.42022899,
+			"nombre": "Materiales Aviña",
+			"origen": "denue 1691038 467111"
 		},
 		{
 			"tipo": "tortilleria",
@@ -380,6 +415,13 @@
 			"origen": "denue 1736609 461110"
 		},
 		{
+			"tipo": "ferreteria",
+			"lat": 20.59931491,
+			"lon": -103.41899752,
+			"nombre": "Ferreteria Pelicanos",
+			"origen": "denue 1736611 467111"
+		},
+		{
 			"tipo": "tienda",
 			"lat": 20.59899842,
 			"lon": -103.4081752,
@@ -415,6 +457,13 @@
 			"origen": "denue 1736798 461121"
 		},
 		{
+			"tipo": "purificadora",
+			"lat": 20.60300091,
+			"lon": -103.4075047,
+			"nombre": "Purificadora De Agua Puritronic",
+			"origen": "denue 1736805 312112"
+		},
+		{
 			"tipo": "puesto",
 			"lat": 20.59422636,
 			"lon": -103.41038314,
@@ -427,6 +476,13 @@
 			"lon": -103.41032539,
 			"nombre": "Fabrica De Muebles De Madera",
 			"origen": "denue 1739286 466111"
+		},
+		{
+			"tipo": "ferreteria",
+			"lat": 20.59175257,
+			"lon": -103.41382339,
+			"nombre": "Materiales Para La Construccion Construye",
+			"origen": "denue 1739309 467111"
 		},
 		{
 			"tipo": "farmacia",
@@ -548,6 +604,13 @@
 			"origen": "denue 1942552 461130"
 		},
 		{
+			"tipo": "purificadora",
+			"lat": 20.59972562,
+			"lon": -103.41781568,
+			"nombre": "Purificadora De Agua Aquavi",
+			"origen": "denue 1942555 312112"
+		},
+		{
 			"tipo": "tienda",
 			"lat": 20.5959428,
 			"lon": -103.41882442,
@@ -590,11 +653,25 @@
 			"origen": "denue 1942583 461150"
 		},
 		{
+			"tipo": "ferreteria",
+			"lat": 20.59431358,
+			"lon": -103.41855174,
+			"nombre": "Ferreteria",
+			"origen": "denue 1942584 467111"
+		},
+		{
 			"tipo": "tienda",
 			"lat": 20.5943073,
 			"lon": -103.41849359,
 			"nombre": "Abarrotes Sin Nombre",
 			"origen": "denue 1942585 461110"
+		},
+		{
+			"tipo": "purificadora",
+			"lat": 20.5942876,
+			"lon": -103.41650922,
+			"nombre": "Purificadora De Agua El Maviri",
+			"origen": "denue 1942597 312112"
 		},
 		{
 			"tipo": "tienda",
@@ -702,6 +779,20 @@
 			"origen": "denue 1942658 461130"
 		},
 		{
+			"tipo": "ferreteria",
+			"lat": 20.60043139,
+			"lon": -103.40824988,
+			"nombre": "Ferreteria San Jose",
+			"origen": "denue 1942663 467111"
+		},
+		{
+			"tipo": "purificadora",
+			"lat": 20.60108621,
+			"lon": -103.40800228,
+			"nombre": "Agua Purificada Lirio De San Jose",
+			"origen": "denue 1942678 312112"
+		},
+		{
 			"tipo": "tienda",
 			"lat": 20.60002955,
 			"lon": -103.41901475,
@@ -749,6 +840,13 @@
 			"lon": -103.40801389,
 			"nombre": "Carniceria Selectas Del Sur Martinez",
 			"origen": "denue 1942701 461121"
+		},
+		{
+			"tipo": "ferreteria",
+			"lat": 20.59532642,
+			"lon": -103.40717624,
+			"nombre": "Ferreteria Y Papeleria El Real",
+			"origen": "denue 1942702 467111"
 		},
 		{
 			"tipo": "gasolinera",
@@ -896,6 +994,13 @@
 			"lon": -103.40657686,
 			"nombre": "Tacos De Barbacoa Cu-Ka",
 			"origen": "denue 7021662 722513"
+		},
+		{
+			"tipo": "ferreteria",
+			"lat": 20.60388503,
+			"lon": -103.41088785,
+			"nombre": "Az Ferreteria",
+			"origen": "denue 7021667 467111"
 		},
 		{
 			"tipo": "taqueria",
@@ -1113,6 +1218,13 @@
 			"lon": -103.40768755,
 			"nombre": "Fabricacion De Tortilla De Maiz",
 			"origen": "denue 9586933 311830"
+		},
+		{
+			"tipo": "purificadora",
+			"lat": 20.59743202,
+			"lon": -103.4176765,
+			"nombre": "Purificadora De Agua Bahia Azul",
+			"origen": "denue 9632616 312112"
 		},
 		{
 			"tipo": "puesto",

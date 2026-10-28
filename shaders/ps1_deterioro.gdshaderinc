@@ -91,6 +91,45 @@ vec3 muro_sucio(vec3 c, vec3 p, float zona) {
 	return c;
 }
 
+// Obra negra (la casa del punto): todo el muro en block gris sin aplanar, con sus
+// juntas de mortero y algun block mas claro u oscuro. `p` en el mundo.
+vec3 obra_negra(vec3 p) {
+	p = floor(p * 16.0) / 16.0;
+	float h = p.x + p.z;
+	vec2 b = vec2(h / 0.4 + step(1.0, mod(floor(p.y / 0.2), 2.0)) * 0.5, p.y / 0.2);
+	float junta = max(step(0.88, fract(b.x)), step(0.8, fract(b.y)));
+	vec3 block = vec3(0.52, 0.51, 0.48) * (0.85 + 0.25 * hash(floor(b)));
+	return mix(block, vec3(0.62, 0.6, 0.55), junta);
+}
+
+// Obra negra abandonada: manchas grandes de hollin (fogatas, incendios) que suben
+// en lenguas, escurrimientos negros desde arriba, salitre claro y lodo abajo. Aunque
+// la zona este sana se ensucia bastante, para que no parezca solo una casa gris.
+vec3 obra_negra_sucia(vec3 c, vec3 p, float zona) {
+	p = floor(p * 16.0) / 16.0;
+	float h = p.x + p.z;
+	float z = max(zona, 0.6);
+	// Hollin: manchas que se adelgazan hacia arriba, como lenguas de humo
+	float base = ruido(vec2(h * 0.45, 0.0) + 17.0);
+	float alto = 1.2 + 2.2 * ruido(vec2(h * 0.3, 5.0));
+	float lengua = smoothstep(0.32, 0.55, base + ruido(vec2(h * 1.3, p.y * 0.8) + 3.0) * 0.35)
+		* (1.0 - smoothstep(alto * 0.4, alto, p.y));
+	float mancha = smoothstep(0.5, 0.68, ruido(vec2(h, p.y * 1.2) / 2.2 + 41.0));
+	float hollin = max(lengua, mancha) * (0.55 + 0.45 * z);
+	c = mix(c, vec3(0.06, 0.055, 0.05), hollin * 0.9);
+	// Escurrimientos oscuros desde la losa
+	float franja = smoothstep(0.6, 0.8, ruido(vec2(h * 2.3, 9.0)));
+	float largo = ruido(vec2(h * 0.7, 11.0));
+	c *= 1.0 - franja * smoothstep(1.0 - largo, 1.0, fract(p.y / 2.5)) * 0.55;
+	// Salitre blanquizco en manchones
+	float salitre = smoothstep(0.78, 0.9, ruido(vec2(h * 0.8, p.y * 0.9) + 77.0)) * (1.0 - hollin);
+	c = mix(c, vec3(0.7, 0.68, 0.62), salitre * 0.3);
+	// Lodo y humedad a ras de piso
+	float suelo = 1.0 - smoothstep(0.2, 0.9 + 0.7 * ruido(vec2(h * 1.5, 2.0)), p.y);
+	c = mix(c, vec3(0.16, 0.13, 0.1), suelo * 0.85);
+	return c;
+}
+
 // Lamina (bodegas): oxido que escurre de arriba y de los traslapes, manchas de
 // oxido abajo y la pintura deslavada. `p` en el mundo, y = 0 en la calle.
 vec3 lamina_oxidada(vec3 c, vec3 p, float zona) {

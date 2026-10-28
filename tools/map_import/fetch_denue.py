@@ -46,6 +46,8 @@ TIPOS_SCIAN = {
 	"722513": "taqueria",     # antojitos
 	"311830": "tortilleria",
 	"468411": "gasolinera",
+	"467111": "ferreteria",   # ferreterias y tlapalerias
+	"312112": "purificadora", # purificacion y embotellado de agua
 }
 
 # Nombres de colonia que el DENUE escribe de varias formas -> nombre unico
@@ -82,6 +84,9 @@ def tipo_de(row) -> str | None:
 		return "puesto_tacos" if codigo in GIROS_COMIDA else "puesto"
 	if "OXXO" in nombre and codigo.startswith("46"):
 		return "oxxo"
+	# Muchas purificadoras de barrio estan dadas de alta como comercio de agua
+	if ("PURIFICADORA" in nombre or "AGUA PURIFICADA" in nombre) and codigo[:2] in ("31", "46"):
+		return "purificadora"
 	return TIPOS_SCIAN.get(codigo)
 
 

@@ -158,6 +158,11 @@ func _crear_celda(casas: Array) -> Node3D:
 		var ancho: float = casa["ancho"]
 		var escala := clampf(ancho / aabb.size.x, ESCALA_MIN, ESCALA_MAX)
 		var color := Color.html(casa["color"])
+		# Alfa del color -> ps1_casa: 0.5 obra negra, 0 el punto (obra negra y deterioro al maximo)
+		if casa.get("punto", false):
+			color.a = 0.0
+		elif _obra_negra(casa["x"], casa["z"]):
+			color.a = 0.5
 		# Lote: origen en el centro de la fachada, +Z hacia la calle
 		var lote := Transform3D(Basis(Vector3.UP, casa["rotacion_y"]), Vector3(casa["x"], 0.0, casa["z"]))
 		var offset := Vector3(-aabb.get_center().x, -aabb.position.y, -aabb.end.z) * escala
@@ -447,3 +452,24 @@ func _blanco() -> ImageTexture:
 		image.fill(Color.WHITE)
 		_textura_blanca = ImageTexture.create_from_image(image)
 	return _textura_blanca
+
+
+# Casas en obra negra segun el deterioro de su zona (fraccion de las casas en
+# OBRA_NEGRA_ZONAS, interpolada; el usuario: 5 % en media, 15 % en la maxima)
+const OBRA_NEGRA_ZONAS := [0.2, 0.5, 0.8]
+const OBRA_NEGRA := [0.0, 0.05, 0.15]
+
+
+func _obra_negra(x: float, z: float) -> bool:
+	var zona := Deterioro.zona(x, z)
+	var fraccion: float = OBRA_NEGRA[-1]
+	if zona <= OBRA_NEGRA_ZONAS[0]:
+		fraccion = OBRA_NEGRA[0]
+	else:
+		for i in range(1, OBRA_NEGRA_ZONAS.size()):
+			if zona <= OBRA_NEGRA_ZONAS[i]:
+				fraccion = lerpf(OBRA_NEGRA[i - 1], OBRA_NEGRA[i], inverse_lerp(OBRA_NEGRA_ZONAS[i - 1], OBRA_NEGRA_ZONAS[i], zona))
+				break
+	# Semilla fija por lote, para que la misma casa siempre salga igual
+	var s := absi(hash(Vector2i(roundi(x * 10.0), roundi(z * 10.0)))) % 10000
+	return s / 10000.0 < fraccion

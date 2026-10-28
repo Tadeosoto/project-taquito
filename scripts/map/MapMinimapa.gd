@@ -20,6 +20,8 @@ const COLORES := {
 	"farmacia_similares": Color(0.2, 0.85, 0.75),
 	"gasolinera": Color(0.2, 0.75, 0.25),
 	"puesto": Color(1.0, 0.55, 0.75),
+	"ferreteria": Color(0.75, 0.45, 0.2),
+	"purificadora": Color(0.35, 0.6, 1.0),
 }
 const NEGRO := Color(0.05, 0.05, 0.05)
 
@@ -59,7 +61,8 @@ func _ready() -> void:
 	_tam_metros = Vector2(datos["ancho"], datos["alto"]) * float(datos["metros_por_pixel"])
 	var puntos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PUNTOS))
 	for punto in puntos["puntos"]:
-		if COLORES.has(punto["tipo"]):
+		# Solo los negocios interactivos (con marcador); el punto no tiene color: es clandestino
+		if COLORES.has(punto["tipo"]) and punto.get("interactivo", true):
 			_puntos.append([Vector2(punto["x"], punto["z"]), COLORES[punto["tipo"]]])
 
 	_material = ShaderMaterial.new()

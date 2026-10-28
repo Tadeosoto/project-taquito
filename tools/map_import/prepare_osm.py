@@ -30,6 +30,7 @@ import json
 import math
 import os
 import random
+import re
 import struct
 import sys
 import xml.etree.ElementTree as ET
@@ -115,6 +116,39 @@ DUPLICATE_DIST_TIPO = {"tienda": 80.0, "farmacia": 15.0}
 # Tienda 3B y las demas un local de abarrotes; las farmacias son Guadalajara o
 # Similares segun el nombre, y las demas un local de farmacia
 TIENDA_3B_CADA = 4
+
+# Marcas reales -> parodia (solo el nombre; los modelos aun traen su marca):
+# (regex sin importar mayusculas, reemplazo). El nombre entero si es la cadena.
+MARCAS_PARODIA = [
+	(r"\bfarmacias?\s+(de\s+)?similares\b.*", "Farmacias Dr Simio"),
+	(r"\bsimilares\b", "Dr Simio"),
+	(r"\bfarmacias?\s+guadalajara\b.*", "Farmacias Guadalaraja"),
+	(r"\boxxo\b", "Oxo"),
+	(r"\bpemex\b", "Perez"),
+]
+
+# Giros del juego (docs/especificaciones.md 4.6): tipo de dibujo -> giro. Solo los
+# negocios con giro pueden ser interactivos (marcador amarillo, minimapa)
+GIROS = {
+	"oxxo": "oxxo", "tienda": "abarrotes", "abarrotes": "abarrotes",
+	"farmacia": "farmacia", "farmacia_similares": "farmacia", "farmacia_local": "farmacia",
+	"taqueria": "taqueria", "puesto_tacos": "puesto_tacos", "gasolinera": "gasolinera",
+	"ferreteria": "ferreteria", "purificadora": "purificadora", "puesto": "tejuino",
+	"punto": "punto",
+}
+# Se compra afuera, con el que atiende (sin interior)
+GIRO_AIRE_LIBRE = {"puesto_tacos", "tejuino", "punto"}
+# Dos interactivos del mismo giro, a mas de esto (m); los demas se ven igual pero sin marcador
+INTERACTIVO_DIST = 80.0
+INTERACTIVO_DIST_GIRO = {"abarrotes": 150.0, "punto": 0.0}  # el punto ya va uno por colonia
+# Ganan el marcador primero los que tienen modelo de marca
+INTERACTIVO_PRIORIDAD = ["oxxo", "farmacia_similares", "farmacia", "gasolinera", "tienda"]
+
+# Locales de colonia (MapPuntos.LOCALES) que van dentro de la hilera de casas, con la
+# fachada al pano de las vecinas: frente y fondo del lote (m), min y max
+LOCALES_HILERA = {"abarrotes", "taqueria", "tortilleria", "farmacia_local", "ferreteria", "purificadora"}
+LOCAL_ANCHO = (4.5, 9.0)
+LOCAL_FONDO = (6.0, 14.0)
 
 
 # Calles que separan manzanas (las de servicio y andadores quedan dentro de los cotos)
@@ -451,6 +485,37 @@ def subtipo(p) -> dict:
 	return p
 
 
+def parodia(nombre: str) -> str:
+	"""El nombre con las marcas reales cambiadas por su parodia (MARCAS_PARODIA),
+	respetando si venia en mayusculas."""
+	for patron, reemplazo in MARCAS_PARODIA:
+		nombre = re.sub(patron, lambda m: reemplazo.upper() if m.group(0).isupper() else reemplazo,
+			nombre, flags=re.IGNORECASE)
+	return nombre
+
+
+def marcar_interactivos(puntos) -> collections.Counter:
+	"""Pone `giro`, `interactivo` y `aire_libre` a cada negocio. Del mismo giro solo
+	es interactivo uno por radio (INTERACTIVO_DIST); la tortilleria nunca."""
+	def orden(p):
+		tipo = p["tipo"]
+		return (INTERACTIVO_PRIORIDAD.index(tipo) if tipo in INTERACTIVO_PRIORIDAD else len(INTERACTIVO_PRIORIDAD),
+			seed(p.get("origen") or p.get("nombre", "")), p["x"], p["z"])
+
+	elegidos = collections.defaultdict(list)
+	conteo = collections.Counter()
+	for p in sorted(puntos, key=orden):
+		giro = GIROS.get(p["tipo"])
+		p["giro"] = giro
+		p["aire_libre"] = giro in GIRO_AIRE_LIBRE
+		radio = INTERACTIVO_DIST_GIRO.get(giro, INTERACTIVO_DIST)
+		p["interactivo"] = giro is not None and all(math.hypot(p["x"] - x, p["z"] - z) >= radio for x, z in elegidos[giro])
+		if p["interactivo"]:
+			elegidos[giro].append((p["x"], p["z"]))
+			conteo[giro] += 1
+	return conteo
+
+
 def place_puntos(puntos, kept_ways, pos, lat0, lon0, perfil=None) -> list:
 	"""Calcula posicion, giro y tamano de cada punto en el mapa. Si un punto cae
 	sobre una casa, la quita de kept_ways para que la tienda ocupe su lote."""
@@ -569,7 +634,7 @@ def huella_negocio(punto, huellas):
 	modelo escalado a su frente, o el local armado, con la fachada en la orilla del
 	lote que da a la calle y creciendo hacia atras. None para los altos."""
 	tipo = punto["tipo"]
-	if tipo == "alto":
+	if tipo in ("alto", "punto"):
 		return None
 	ancho, fondo = punto["ancho"], punto["fondo"]
 	if tipo in huellas.get("modelos", {}):
@@ -1260,7 +1325,7 @@ def invade_calle(poly, calles, perfil, propia) -> bool:
 
 
 def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas, modelos,
-		perfil=None, negocios=(), calles=None, cotos=None) -> list:
+		perfil=None, negocios=(), calles=None, cotos=None, locales=()) -> list:
 	"""Cambia por modelos las casas de las colonias de `reglas` (data/map/casas.json).
 	Las casas se juntan por cara de cuadra (tramo recto de calle, lado, manzana) y
 	donde hay casas se ponen modelos pegados uno junto a otro, sin importar cada
@@ -1269,7 +1334,9 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 	`modelos`: modelo -> [frente, fondo] (huellas_tiendas.json); `negocios`: sus
 	huellas (la hilera llega hasta ellas); `calles`: Tramos de todas las calles.
 	`cotos`: las casas de un coto que dan a una calle publica (su contorno) no se
-	cambian: ahi va la barda y quedan detras de ella."""
+	cambian: ahi va la barda y quedan detras de ella. `locales`: negocios de
+	LOCALES_HILERA ya colocados; se mueven a un lote de la hilera (misma fachada,
+	pegados a las casas) y se cambian en el lugar."""
 	casas = []
 	en_contorno = 0
 	for way_id, way in kept_ways.items():
@@ -1320,6 +1387,56 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 	orden = sorted(caras, key=lambda k: (-sum(c["u1"] - c["u0"] for c in caras[k]), str(k)))
 
 	lotes = Rejilla()
+	# Locales de colonia: un lote de la hilera de su cara, con la fachada en la
+	# mediana de las casas; la hilera pasa por ellos y las casas quedan pegadas
+	en_cara = collections.defaultdict(list)  # cara -> [(u0, u1)]
+	en_hilera = 0
+	otros_negocios = Rejilla(negocios)
+	for local in locales:
+		calle = nearest_segment(local["x"], local["z"], lines, CASA_MAX_CALLE)
+		if calle is None:
+			continue
+		_, street_id, (ax, az), (dx, dz), largo = calle
+		nx, nz = -dz, dx
+		if (local["x"] - ax) * nx + (local["z"] - az) * nz < 0:
+			nx, nz = -nx, -nz
+		izquierda = nx * dz - nz * dx > 0
+		manzana = manzanas.at(local["x"], local["z"])
+		grupo_id = (street_id, izquierda, manzana)
+		cara = (*grupo_id, (round(ax, 2), round(az, 2)))
+		frente = setback.get(grupo_id, borde_banqueta(perfil or {}, street_id, izquierda, SETBACK_MIN) + FACHADA_HOLGURA)
+		fondo = local["fondo"]
+		if cara in caras:
+			fondos = sorted(c["fondo"] for c in caras[cara])
+			fondo = fondos[len(fondos) // 2] - frente
+		ancho = min(max(local["ancho"], LOCAL_ANCHO[0]), LOCAL_ANCHO[1])
+		fondo = min(max(fondo, LOCAL_FONDO[0]), LOCAL_FONDO[1])
+		rot = math.atan2(-nx, -nz)
+
+		def lote_en(uc):
+			x = ax + dx * uc + nx * (frente + fondo / 2)
+			z = az + dz * uc + nz * (frente + fondo / 2)
+			return x, z, rectangulo(x, z, rot, ancho - 2 * LOTE_MARGEN, fondo / 2 - LOTE_MARGEN, -fondo / 2 + LOTE_MARGEN)
+
+		uc = (local["x"] - ax) * dx + (local["z"] - az) * dz
+		if largo > ancho:
+			uc = min(max(uc, ancho / 2), largo - ancho / 2)
+		x, z, rect = lote_en(uc)
+		# Si cae sobre otro negocio (OXXO, nave...), se recorre a un lado de el, pegado
+		for huella in negocios:
+			if otros_negocios.encima(rect) and se_enciman(rect, huella):
+				us = [(hx - ax) * dx + (hz - az) * dz for hx, hz in huella]
+				uc = min((min(us) - ancho / 2, max(us) + ancho / 2), key=lambda u: abs(u - uc))
+				x, z, rect = lote_en(uc)
+		if otros_negocios.encima(rect) or lotes.encima(rect) \
+				or (calles and invade_calle(rect, calles, perfil or {}, street_id)):
+			continue
+		lotes.agregar(rect, rot)
+		local.update({"x": round(x, 3), "z": round(z, 3), "rotacion_y": round(rot, 4),
+			"ancho": round(ancho, 2), "fondo": round(fondo, 2)})
+		en_cara[cara].append((uc - ancho / 2, uc + ancho / 2))
+		en_hilera += 1
+
 	placed = []
 	replaced = []
 	descartados = 0
@@ -1341,7 +1458,7 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 
 		# Donde hay casas, recortado al tramo de calle
 		tramos = unir_intervalos([(max(0.0, c["u0"]), min(largo, c["u1"]))
-			for c in grupo if c["u1"] > 0 and c["u0"] < largo], HUECO_MAX)
+			for c in grupo if c["u1"] > 0 and c["u0"] < largo] + en_cara[cara], HUECO_MAX)
 		# Los negocios de este lado de la calle cortan la hilera
 		cortes = []
 		for huella in negocios:
@@ -1351,7 +1468,7 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 			us = [(x - ax) * dx + (z - az) * dz for x, z in huella]
 			if max(us) > 0 and min(us) < largo:
 				cortes.append((min(us), max(us)))
-		tramos = restar_intervalos(tramos, cortes)
+		tramos = restar_intervalos(tramos, cortes + en_cara[cara])
 
 		for t0, t1 in tramos:
 			def elegir(i):
@@ -1409,8 +1526,46 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 	encimados = quitar_edificios_encimados(kept_ways, pos, lat0, lon0, lotes.poligonos)
 	print(f"  Casas modelo: {len(replaced)} huellas cambiadas por hileras, {descartados} lotes descartados "
 		f"(chocaban con otro o con una calle), {encimados} edificios debajo de un lote quitados, "
-		f"{en_contorno} en el contorno de un coto sin cambiar")
+		f"{en_contorno} en el contorno de un coto sin cambiar, {en_hilera} de {len(locales)} locales en la hilera")
 	return placed
+
+
+def elegir_puntos(casas) -> list:
+	"""El punto (venta ilegal): una casa modelo de 1 piso por colonia, con vecinas
+	pegadas a los dos lados (no en esquina). La casa se marca con "punto" (MapCasas la
+	pinta con el deterioro al maximo) y se devuelve como negocio para puntos_mapa.json."""
+	por_colonia = collections.defaultdict(list)
+	for c in casas:
+		if c["colonia"] and c["pisos"] == 1:
+			por_colonia[c["colonia"]].append(c)
+	puntos = []
+	for colonia, grupo in sorted(por_colonia.items()):
+		def entre_vecinas(c):
+			dx, dz = math.cos(c["rotacion_y"]), -math.sin(c["rotacion_y"])
+			lados = set()
+			for o in grupo:
+				if o is c or abs(o["rotacion_y"] - c["rotacion_y"]) > 0.01:
+					continue
+				u = (o["x"] - c["x"]) * dx + (o["z"] - c["z"]) * dz
+				v = (o["x"] - c["x"]) * dz - (o["z"] - c["z"]) * dx
+				if abs(v) < 0.2 and abs(abs(u) - (c["ancho"] + o["ancho"]) / 2) < 0.2:
+					lados.add(u > 0)
+			return len(lados) == 2
+		candidatas = sorted((c for c in grupo if entre_vecinas(c)), key=lambda c: (c["x"], c["z"]))
+		if not candidatas:
+			continue
+		c = candidatas[seed(colonia) % len(candidatas)]
+		c["punto"] = True
+		# x/z de la casa es el centro de la fachada; el del negocio, el centro del lote
+		rot = c["rotacion_y"]
+		puntos.append({
+			"tipo": "punto", "nombre": "El punto",
+			"x": round(c["x"] - math.sin(rot) * c["fondo"] / 2, 3),
+			"z": round(c["z"] - math.cos(rot) * c["fondo"] / 2, 3),
+			"rotacion_y": rot, "ancho": c["ancho"], "fondo": c["fondo"],
+			"casa_reemplazada": None, "origen": f"punto {colonia}",
+		})
+	return puntos
 
 
 def envolvente(puntos) -> list:
@@ -2351,6 +2506,7 @@ def main() -> None:
 			png_colonias(args.png_colonias, manzanas, colonia_de, building_rings)
 
 	# Tiendas y puestos: los de puntos.json mas los que ya estan en OSM
+	placed = []
 	if args.salida_puntos:
 		puntos = []
 		omitir = set()
@@ -2380,6 +2536,7 @@ def main() -> None:
 		kept_puntos = [(subtipo(p), px, pz) for p, px, pz in kept_puntos]
 		for p, _, _ in kept_puntos:
 			p["tipo"] = cambiar_tipo.get(p.get("origen"), p["tipo"])
+			p["nombre"] = parodia(p.get("nombre", ""))
 		print("  Negocios: " + ", ".join(f"{t} {n}" for t, n in collections.Counter(p["tipo"] for p, _, _ in kept_puntos).most_common()))
 		placed = place_puntos([p for p, _, _ in kept_puntos], kept_ways, pos, lat0, lon0, perfil)
 		# Ningun negocio en la calle: se recorre a la banqueta mas cercana (sin service:
@@ -2406,14 +2563,10 @@ def main() -> None:
 			huellas_negocios = [h for h in (huella_negocio(p, huellas) for p in placed) if h]
 			quitadas = quitar_edificios_encimados(kept_ways, pos, lat0, lon0, huellas_negocios)
 			print(f"  Casas debajo de un negocio: {quitadas} quitadas")
-		os.makedirs(os.path.dirname(args.salida_puntos), exist_ok=True)
-		with open(args.salida_puntos, "w", encoding="utf-8") as f:
-			json.dump({"puntos": placed}, f, ensure_ascii=False, indent="\t")
-		replaced = sum(1 for p in placed if p["casa_reemplazada"])
-		print(f"  Puntos: {len(placed)} ({replaced} reemplazan una casa) -> {args.salida_puntos}")
 
 	# Bodegas huecas (despues de las tiendas, antes de las casas: las hileras paran en ellas)
 	grupos_bodegas = []
+	huellas_bodegas_todas = []
 	if args.salida_bodegas and colonia_de is not None:
 		todas = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
 		bodegas = place_bodegas(kept_ways, pos, lat0, lon0, manzanas, colonia_de, Tramos(todas), perfil, huellas_negocios)
@@ -2422,6 +2575,7 @@ def main() -> None:
 		if encimados:
 			print(f"  Edificios debajo de una bodega: {encimados} quitados")
 		huellas_negocios += huellas_bodegas
+		huellas_bodegas_todas = huellas_bodegas
 		grupos = collections.defaultdict(list)
 		for b in bodegas:
 			grupos[b.pop("grupo")].append(b)
@@ -2444,14 +2598,29 @@ def main() -> None:
 		with open(args.casas, encoding="utf-8") as f:
 			reglas = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
 		casa_lines = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
+		# Los locales de colonia no cortan la hilera: se meten en ella
+		locales = [p for p in placed if p["tipo"] in LOCALES_HILERA] if args.salida_puntos and huellas else []
+		otros = [h for h in (huella_negocio(p, huellas) for p in placed if p["tipo"] not in LOCALES_HILERA) if h] \
+			if args.salida_puntos and huellas else []
 		casas = place_casas(kept_ways, pos, lat0, lon0, casa_lines, manzanas, colonia_de, reglas,
-			huellas.get("casas", {}), perfil, huellas_negocios, Tramos(casa_lines), cotos)
+			huellas.get("casas", {}), perfil, otros + huellas_bodegas_todas, Tramos(casa_lines), cotos, locales)
+		if locales:
+			# Con su lote nuevo: lo que quede debajo se va, y las bardas y postes lo esquivan
+			huellas_locales = [h for h in (huella_negocio(p, huellas) for p in locales) if h]
+			quitadas = quitar_edificios_encimados(kept_ways, pos, lat0, lon0, huellas_locales)
+			if quitadas:
+				print(f"  Edificios debajo de un local movido a la hilera: {quitadas} quitados")
+			huellas_negocios = otros + huellas_bodegas_todas + huellas_locales
 		# Un lote de casa modelo que se mete en un negocio tampoco va
 		antes = len(casas)
 		casas = [c for c in casas if not any(se_enciman(rectangulo(c["x"], c["z"], c["rotacion_y"], c["ancho"], 0.0, -c["fondo"]), h)
 			for h in huellas_negocios)]
 		if antes != len(casas):
 			print(f"  Casas modelo encimadas en un negocio: {antes - len(casas)} quitadas")
+		if args.salida_puntos:
+			punto = elegir_puntos(casas)
+			placed += punto
+			print(f"  El punto (venta ilegal): {len(punto)} casas, una por colonia")
 		os.makedirs(os.path.dirname(args.salida_casas), exist_ok=True)
 		with open(args.salida_casas, "w", encoding="utf-8") as f:
 			f.write('{"casas": [\n' + ",\n".join(json.dumps(c, ensure_ascii=False) for c in casas) + "\n]}\n")
@@ -2459,6 +2628,17 @@ def main() -> None:
 		for (colonia, modelo), n in sorted(collections.Counter((c["colonia"], c["modelo"]) for c in casas).items()):
 			print(f"    {colonia or '(sin colonia)'}: {modelo} x{n}")
 		lotes_casas = [rectangulo(c["x"], c["z"], c["rotacion_y"], c["ancho"], 0.0, -c["fondo"]) for c in casas]
+
+	# Negocios (despues de las casas: los locales se movieron a la hilera)
+	if args.salida_puntos:
+		conteo = marcar_interactivos([p for p in placed if p["tipo"] != "alto"])
+		print("  Interactivos: " + ", ".join(f"{g} {n}" for g, n in conteo.most_common())
+			+ f" (de {sum(1 for p in placed if p.get('giro'))} con giro)")
+		os.makedirs(os.path.dirname(args.salida_puntos), exist_ok=True)
+		with open(args.salida_puntos, "w", encoding="utf-8") as f:
+			json.dump({"puntos": placed}, f, ensure_ascii=False, indent="\t")
+		replaced = sum(1 for p in placed if p.get("casa_reemplazada"))
+		print(f"  Puntos: {len(placed)} ({replaced} reemplazan una casa) -> {args.salida_puntos}")
 
 	# Bardas y mallas (al final: no van encima de nada de lo anterior)
 	if cotos is not None:
@@ -2482,7 +2662,7 @@ def main() -> None:
 
 		# Alumbrado publico (al final: no va encima de nada de lo anterior)
 		if args.salida_alumbrado:
-			estorbos = [(p["x"], p["z"]) for p in (placed if args.salida_puntos else []) if p["tipo"] == "alto" or p["tipo"].startswith("puesto")]
+			estorbos = [(p["x"], p["z"]) for p in placed if p["tipo"] == "alto" or p["tipo"].startswith("puesto")]
 			estorbos += [(p["x"], p["z"]) for p in plumas_mapa + casetas]
 			calles = [(w, l, r, tags_of(kept_ways[w]).get("highway"))
 				for w, l, r in street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)]

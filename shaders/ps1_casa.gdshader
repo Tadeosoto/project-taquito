@@ -5,7 +5,9 @@ render_mode cull_disabled;
 // MultiMesh pinta su muro de su propio color (el color por instancia llega en
 // COLOR). Solo cambian los texeles parecidos a muro_key, asi puertas, ventanas
 // y herreria se quedan como en la textura. Todo se ensucia segun el deterioro
-// de la zona (ps1_deterioro) y los vidrios de `ventanas` se rompen.
+// de la zona (ps1_deterioro) y los vidrios de `ventanas` se rompen. Con alfa 0 en
+// el color de la instancia la casa queda en obra negra (muro de block sin aplanar,
+// marcos y molduras sin pintura); con alfa 0 (el punto de MapCasas) ademas el deterioro va al maximo.
 
 #include "res://shaders/ps1_vertex.gdshaderinc"
 #include "res://shaders/ps1_deterioro.gdshaderinc"
@@ -61,10 +63,15 @@ void fragment() {
 		wall *= step(muro_brillo.x, ratio) * step(ratio, muro_brillo.y);
 		ALBEDO = mix(tex, COLOR.rgb * ratio, wall);
 	}
-	float zona = zona_deterioro(world_pos.xz);
+	float zona = max(zona_deterioro(world_pos.xz), 1.0 - COLOR.a * 2.0);
 	vec3 sucio = mugre(ALBEDO, world_pos, zona);
 	if (recolor) {
 		sucio = mix(sucio, muro_sucio(ALBEDO, world_pos, zona), wall);
+		if (COLOR.a < 0.75) {
+			// Sin pintura: marcos, molduras y herreria quedan en gris de cemento/fierro
+			vec3 despintado = vec3(luma(tex)) * vec3(0.8, 0.78, 0.74) + vec3(0.08);
+			sucio = obra_negra_sucia(mix(despintado, obra_negra(world_pos), wall), world_pos, zona);
+		}
 	}
 	vec2 uv = fract(affine_uv);
 	for (int i = 0; i < n_ventanas; i++) {

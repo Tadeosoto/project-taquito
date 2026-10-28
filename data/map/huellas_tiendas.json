@@ -7,7 +7,9 @@
 		"taqueria",
 		"tortilleria",
 		"abarrotes",
-		"farmacia_local"
+		"farmacia_local",
+		"ferreteria",
+		"purificadora"
 	],
 	"_nota": "Generado por tools/map_import/huellas_tiendas.gd: [frente, fondo] en metros",
 	"casas": {

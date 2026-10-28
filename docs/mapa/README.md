@@ -51,13 +51,16 @@ Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar d
 - **Árboles y pasto del satélite**:
   - ~1,300 árboles donde el [Canopy Height de Meta/WRI](https://registry.opendata.aws/dataforgood-fb-forests/) (altura de copas a 1 m) ve una copa, con su altura y ancho. Si caen en la calle se recorren a la banqueta; en una casa se quitan.
   - El piso es pasto verde oscuro; donde Sentinel-2 ve verde en lluvias o tierra pelona en secas (~26 % de la zona) es pasto más claro, con manchas secas. Cerca del jugador salen matas de pasto en 3D.
-- **Negocios reales**: 147 negocios del [DENUE del INEGI](https://www.inegi.org.mx/app/descarga/?ti=6): tiendas, taquerías, OXXO, farmacias, tortillerías, puestos y una gasolinera.
+- **Negocios reales**: 161 negocios del [DENUE del INEGI](https://www.inegi.org.mx/app/descarga/?ti=6): tiendas, taquerías, OXXO, farmacias, tortillerías, ferreterías, purificadoras, puestos y una gasolinera. Los nombres de marca van en parodia: OXO, Dr Simio, Guadalaraja, Perez (los modelos todavía traen la marca real).
   - Si hay varios del mismo giro muy juntos, se deja solo uno (40 m; 80 m en tiendas de abarrotes). Las farmacias se dejan todas.
   - Cada tienda ocupa el lote de una casa de su lado de la calle y mira hacia la calle.
   - El DENUE pone algunos negocios a media calle: se recorren a la banqueta más cercana, con la fachada en la orilla de la banqueta, y los puestos van sobre la banqueta con el frente junto a la guarnición.
   - Si el modelo de un negocio es más grande que su lote (una gasolinera, un OXXO), se quitan las casas que quedarían encimadas: el negocio gana.
   - OXXO, una de cada cuatro tiendas (Tienda 3B), Farmacias Guadalajara, Farmacias Similares (kiosco con el Simi bailando; hay 2), puestos y gasolinera usan modelos low-poly de Sketchfab (CC BY).
   - Las demás tiendas de abarrotes, taquerías, tortillerías y farmacias de barrio son locales armados en código, como las tienditas de colonia: muro blanco con rodapié y franja roja o azul (verde las farmacias), el nombre pintado, cortina y mostrador; las taquerías llevan lona y los abarrotes un círculo de refresco sin marca.
+  - Los locales de colonia (abarrotes, taquería, tortillería, farmacia de barrio, ferretería, purificadora) ocupan un lote **dentro de la hilera de casas**: misma línea de fachada que las vecinas y pegados a ellas. Si caen sobre otro negocio, se recorren a un lado de él.
+  - **Marcador amarillo**: de cada giro (`docs/especificaciones.md` §4.6) solo uno cada 80 m (abarrotes uno cada 150 m) lleva una flecha amarilla frente a la puerta y su cuadro en el minimapa. Al pisarla sale "Próximamente" (todavía no hay interiores). La tortillería no lleva.
+  - **El punto**: en cada colonia, una casa modelo al azar (de un piso y entre dos vecinas) vende cosas ilegales. Está en obra negra, con el deterioro al máximo, y tiene flecha pero no sale en el minimapa.
 - **Deterioro post-apocalíptico** (todo en shaders, sin modelos extra):
   - Un ruido grande en el mapa decide qué tan destruida está cada zona: unas cuadras casi intactas y otras muy dañadas.
   - Muros: pintura deslavada, escurrimientos, mugre abajo, hollín de incendios y aplanado caído que deja ver block o tabique.
