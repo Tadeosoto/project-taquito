@@ -11,10 +11,13 @@ const PUNTOS := "res://resources/map/puntos_mapa.json"
 const COLORES := {
 	"oxxo": Color(0.9, 0.15, 0.1),
 	"tienda": Color(1.0, 0.85, 0.2),
+	"abarrotes": Color(1.0, 0.85, 0.2),
 	"taqueria": Color(1.0, 0.5, 0.1),
 	"puesto_tacos": Color(1.0, 0.5, 0.1),
 	"tortilleria": Color(0.95, 0.85, 0.6),
 	"farmacia": Color(0.2, 0.85, 0.75),
+	"farmacia_local": Color(0.2, 0.85, 0.75),
+	"farmacia_similares": Color(0.2, 0.85, 0.75),
 	"gasolinera": Color(0.2, 0.75, 0.25),
 	"puesto": Color(1.0, 0.55, 0.75),
 }

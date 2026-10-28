@@ -58,6 +58,12 @@ const NUCLEO_FRENTE := 1.5
 @export var modelo_distancia: Dictionary[String, float] = {}
 # modelo -> version de pocas caras para lejos (opcional)
 @export var modelos_lod: Dictionary[String, PackedScene] = {}
+# Modelos a los que Godot les calcula versiones de menos caras (mesh LOD) al
+# prepararlos: se dibujan con menos detalle segun lo que miden en pantalla
+@export var generar_lods: Array[String] = []
+# modelo -> error maximo (fraccion del tamano del modelo) con el que se simplifica
+# de una vez la malla completa (meshoptimizer): para modelos con demasiadas caras
+@export var modelo_reducir: Dictionary[String, float] = {}
 
 @export var target_path: NodePath
 @export var load_radius := 260.0
@@ -225,7 +231,42 @@ func _preparar_modelo(modelo: String) -> Dictionary:
 		mesh = _sin_piso(mesh, piso)
 		if lod:
 			lod = _sin_piso(lod, piso)
-	return {"mesh": mesh, "aabb": _aabb_fachada(mesh), "lod": lod}
+	if modelo_reducir.has(modelo):
+		mesh = _reducida(mesh, modelo_reducir[modelo])
+	var aabb := _aabb_fachada(mesh)
+	if modelo in generar_lods:
+		mesh = _con_lods(mesh)
+	return {"mesh": mesh, "aabb": aabb, "lod": lod}
+
+
+# La malla con cada superficie en su nivel de detalle mas simple cuyo error no pasa
+# de `error` (fraccion del tamano)
+func _reducida(mesh: ArrayMesh, error: float) -> ArrayMesh:
+	var importer := ImporterMesh.new()
+	for surface in mesh.get_surface_count():
+		importer.add_surface(Mesh.PRIMITIVE_TRIANGLES, mesh.surface_get_arrays(surface), [], {},
+			mesh.surface_get_material(surface))
+	importer.generate_lods(60.0, 0.0, [])
+	var result := ArrayMesh.new()
+	for surface in importer.get_surface_count():
+		var arrays := importer.get_surface_arrays(surface)
+		var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+		for lod in importer.get_surface_lod_count(surface):
+			if importer.get_surface_lod_size(surface, lod) <= error:
+				indices = importer.get_surface_lod_indices(surface, lod)
+		result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, _compactar(arrays, indices))
+		result.surface_set_material(surface, importer.get_surface_material(surface))
+	return result
+
+
+# La misma malla con niveles de detalle (meshoptimizer, como el importador)
+func _con_lods(mesh: ArrayMesh) -> ArrayMesh:
+	var importer := ImporterMesh.new()
+	for surface in mesh.get_surface_count():
+		importer.add_surface(Mesh.PRIMITIVE_TRIANGLES, mesh.surface_get_arrays(surface), [], {},
+			mesh.surface_get_material(surface))
+	importer.generate_lods(60.0, 0.0, [])
+	return importer.get_mesh()
 
 
 func _hornear(scene: PackedScene, giro: Transform3D, rango: Vector2, modelo: String) -> ArrayMesh:

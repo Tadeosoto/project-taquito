@@ -23,7 +23,10 @@ const PREFAB_VISIBILITY_RANGE := 250.0
 const TIPO_COLORS := {
 	"oxxo": Color(0.85, 0.15, 0.12),
 	"tienda": Color(0.95, 0.9, 0.75),
+	"abarrotes": Color(0.95, 0.9, 0.75),
 	"farmacia": Color(0.2, 0.45, 0.85),
+	"farmacia_local": Color(0.2, 0.6, 0.35),
+	"farmacia_similares": Color(0.2, 0.45, 0.85),
 	"taqueria": Color(0.95, 0.55, 0.15),
 	"puesto_tacos": Color(0.98, 0.8, 0.2),
 	"gasolinera": Color(0.15, 0.6, 0.3),
@@ -31,22 +34,25 @@ const TIPO_COLORS := {
 	"puesto": Color(0.75, 0.35, 0.6),
 }
 
-# Locales de colonia armados con cajas (no hay modelos de taquerias en Sketchfab):
-# letrero generico (si el nombre no cabe o es "Sin Nombre") y color de la lona
-# (null = sin lona)
+# Locales de colonia armados con cajas (no hay modelos de taquerias ni abarrotes
+# genericos en Sketchfab), pintados como las tienditas de barrio: muro blanco con
+# rodapie y franja de un color (rojo o azul, segun el nombre; verde las farmacias).
+# letrero generico (si el nombre no cabe o es "Sin Nombre"), si lleva lona (del
+# color del rodapie) y el adorno de un pilar (refresco, cruz o nada)
 const LOCALES := {
-	"taqueria": {"letrero": "TAQUERÍA", "lona": Color(0.8, 0.12, 0.1)},
-	"tortilleria": {"letrero": "TORTILLERÍA", "lona": null},
+	"taqueria": {"letrero": "TAQUERÍA", "lona": true, "adorno": ""},
+	"tortilleria": {"letrero": "TORTILLERÍA", "lona": false, "adorno": ""},
+	"abarrotes": {"letrero": "ABARROTES", "lona": false, "adorno": "refresco"},
+	"farmacia_local": {"letrero": "FARMACIA", "lona": false, "adorno": "cruz", "acento": Color(0.1, 0.5, 0.25)},
 }
+const LOCAL_BLANCO := Color(0.93, 0.92, 0.88)
+const ACENTOS := [Color(0.78, 0.1, 0.1), Color(0.1, 0.28, 0.68)]
+const RODAPIE := 0.9
+const LETRAS := Color(0.12, 0.12, 0.12)
 const LOCAL_HEIGHT := 3.2
 const LOCAL_FONDO_CORTINA := 1.0  # lo que se mete la entrada (m)
 # Tamano minimo de un local (m): en lotes angostos se sale a los lados y hacia atras
 const LOCAL_MIN := Vector2(4.5, 6.0)
-# Colores de pared de colonia; cada local toma uno segun su nombre
-const PARED_COLORS := [
-	Color(0.93, 0.85, 0.55), Color(0.85, 0.35, 0.45), Color(0.45, 0.7, 0.55),
-	Color(0.4, 0.6, 0.8), Color(0.85, 0.55, 0.35), Color(0.92, 0.9, 0.85),
-]
 
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
 
@@ -60,6 +66,10 @@ const PARED_COLORS := [
 # se salga del lote (los lotes de Google a veces son tiras angostas y apachurraban
 # los modelos). Sin valor, el frente es el ancho del lote.
 @export var prefab_ancho: Dictionary[String, float] = {}
+
+# tipo -> nombres de nodos del modelo que se quitan antes de medirlo y ponerlo (ej. la
+# losa de concreto del kiosco de Similares, que lo hacia ver chico y hundido)
+@export var prefab_quitar: Dictionary[String, PackedStringArray] = {}
 
 # El jugador; sin el se crean todas las tiendas de una vez
 @export var target_path: NodePath
@@ -132,14 +142,25 @@ func _make_punto(punto: Dictionary) -> Node3D:
 func huella_modelo(tipo: String) -> Vector2:
 	if not prefabs.has(tipo) or prefabs[tipo] == null or not prefab_ancho.has(tipo):
 		return Vector2.ZERO
-	var model := prefabs[tipo].instantiate() as Node3D
-	model.rotation.y = deg_to_rad(prefab_rotacion.get(tipo, 0.0))
+	var model := _instanciar(tipo)
 	var aabb := _mesh_aabb(model, model.transform)
 	model.free()
 	if aabb.size.x <= 0.01:
 		return Vector2.ZERO
 	var fit: float = prefab_ancho[tipo] / aabb.size.x
 	return Vector2(aabb.size.x, aabb.size.z) * fit
+
+
+# El modelo de `tipo` girado prefab_rotacion[tipo] grados y sin los nodos de prefab_quitar
+func _instanciar(tipo: String) -> Node3D:
+	var model := prefabs[tipo].instantiate() as Node3D
+	model.rotation.y = deg_to_rad(prefab_rotacion.get(tipo, 0.0))
+	for nombre in prefab_quitar.get(tipo, PackedStringArray()):
+		var nodo := model.find_child(nombre, true, false)
+		if nodo:
+			nodo.get_parent().remove_child(nodo)
+			nodo.free()
+	return model
 
 
 # El modelo se gira prefab_rotacion[tipo] grados (para que su fachada vea a +Z),
@@ -150,9 +171,10 @@ func _make_prefab(punto: Dictionary) -> Node3D:
 	var holder := Node3D.new()
 	holder.name = "%s_%s" % [tipo, punto.get("nombre", "")]
 
-	var model := prefabs[tipo].instantiate() as Node3D
-	model.rotation.y = deg_to_rad(prefab_rotacion.get(tipo, 0.0))
+	var model := _instanciar(tipo)
 	holder.add_child(model)
+	if not Engine.is_editor_hint():
+		_animar(model)
 
 	var aabb := _mesh_aabb(model, model.transform)
 	if aabb.size.x > 0.01 and aabb.size.z > 0.01:
@@ -172,6 +194,19 @@ func _make_prefab(punto: Dictionary) -> Node3D:
 		body.add_child(shape)
 		holder.add_child(body)
 	return holder
+
+
+# Los modelos animados (el Simi del kiosco de Similares) bailan en loop
+func _animar(node: Node) -> void:
+	if node is AnimationPlayer:
+		var player := node as AnimationPlayer
+		var lista := player.get_animation_list()
+		if not lista.is_empty():
+			player.get_animation(lista[0]).loop_mode = Animation.LOOP_LINEAR
+			player.play.call_deferred(lista[0])
+		return
+	for child in node.get_children():
+		_animar(child)
 
 
 # Igual que los cuadros del mapa (MapPostImport): sin sombras y ocultos de lejos.
@@ -261,7 +296,8 @@ func _make_placeholder(punto: Dictionary) -> Node3D:
 
 
 # Local de colonia del tamano del lote (minimo LOCAL_MIN): fachada con la entrada
-# metida, cortina enrollada arriba, mostrador, letrero pintado y, en taquerias, lona.
+# metida, cortina enrollada arriba, mostrador, nombre pintado en el muro blanco con
+# rodapie y franja de color, y segun el giro lona, refresco pintado o cruz verde.
 # La fachada ve a +Z, como los prefabs, en la orilla del lote.
 func _make_local(punto: Dictionary) -> Node3D:
 	var tipo: String = punto["tipo"]
@@ -275,40 +311,79 @@ func _make_local(punto: Dictionary) -> Node3D:
 	var entrada := clampf(w * 0.6, 2.4, 5.0)
 	entrada = minf(entrada, w - 0.6)
 	var pilar := (w - entrada) / 2.0
-	var pared: Color = PARED_COLORS[absi(nombre.hash()) % PARED_COLORS.size()]
+	var acento: Color = info.get("acento", ACENTOS[absi(nombre.hash() / 7) % ACENTOS.size()])
 
 	var body := StaticBody3D.new()
 	body.name = "%s_%s" % [tipo, nombre]
 	# Cuerpo, pilares a los lados de la entrada y dintel encima
-	_local_box(body, Vector3(w, h, d - hondo), Vector3(0.0, h / 2.0, front - hondo - (d - hondo) / 2.0), pared, true)
+	var cuerpo := [Vector3(w, h, d - hondo), Vector3(0.0, h / 2.0, front - hondo - (d - hondo) / 2.0)]
+	_local_box(body, cuerpo[0], cuerpo[1], LOCAL_BLANCO, true)
+	var piezas := [cuerpo]
 	for side in [-1.0, 1.0]:
-		_local_box(body, Vector3(pilar, h, hondo),
-			Vector3(side * (entrada + pilar) / 2.0, h / 2.0, front - hondo / 2.0), pared, true)
+		var p := [Vector3(pilar, h, hondo), Vector3(side * (entrada + pilar) / 2.0, h / 2.0, front - hondo / 2.0)]
+		_local_box(body, p[0], p[1], LOCAL_BLANCO, true)
+		piezas.append(p)
 	_local_box(body, Vector3(entrada, h - 2.5, hondo),
-		Vector3(0.0, 2.5 + (h - 2.5) / 2.0, front - hondo / 2.0), pared, false)
+		Vector3(0.0, 2.5 + (h - 2.5) / 2.0, front - hondo / 2.0), LOCAL_BLANCO, false)
+	# Rodapie y franja: una cascara de color apenas mas grande que el muro
+	for p: Array in piezas:
+		var size: Vector3 = p[0]
+		var pos: Vector3 = p[1]
+		_local_box(body, Vector3(size.x + 0.03, RODAPIE, size.z + 0.03), Vector3(pos.x, RODAPIE / 2.0, pos.z), acento, false)
+		_local_box(body, Vector3(size.x + 0.03, 0.1, size.z + 0.03), Vector3(pos.x, RODAPIE + 0.25, pos.z), acento, false)
 	# Adentro oscuro, cortina enrollada y mostrador
 	_local_box(body, Vector3(entrada, 2.5, 0.05), Vector3(0.0, 1.25, front - hondo + 0.03), Color(0.1, 0.08, 0.07), false)
 	_local_box(body, Vector3(entrada, 0.25, 0.25), Vector3(0.0, 2.37, front - 0.15), Color(0.55, 0.57, 0.6), false)
 	_local_box(body, Vector3(minf(entrada - 0.6, 2.4), 1.0, 0.5), Vector3(0.0, 0.5, front - 0.4), Color(0.85, 0.85, 0.82), true)
 
-	var lona = info["lona"]
-	if lona != null:
-		var awning := _local_box(body, Vector3(entrada + 0.6, 0.06, 1.3), Vector3(0.0, 2.45, front + 0.6), lona, false)
+	if info["lona"]:
+		var awning := _local_box(body, Vector3(entrada + 0.6, 0.06, 1.3), Vector3(0.0, 2.45, front + 0.6), acento, false)
 		awning.rotation.x = deg_to_rad(15.0)
 
-	# Letrero pintado sobre el dintel, con el nombre si cabe
+	# Adorno pintado en el pilar derecho, si cabe
+	if pilar >= 0.9:
+		var centro := Vector3((entrada + pilar) / 2.0, 1.85, front + 0.02)
+		match info["adorno"]:
+			"refresco":
+				# Un circulo rojo de refresco (sin marca) con su letrero
+				var radio := minf(0.42, pilar * 0.4)
+				var disco := MeshInstance3D.new()
+				var cilindro := CylinderMesh.new()
+				cilindro.top_radius = radio
+				cilindro.bottom_radius = radio
+				cilindro.height = 0.02
+				cilindro.radial_segments = 12
+				cilindro.rings = 1
+				cilindro.material = _color_material(Color(0.82, 0.08, 0.1), false)
+				disco.mesh = cilindro
+				disco.rotation.x = PI / 2.0
+				disco.position = centro
+				disco.visibility_range_end = PREFAB_VISIBILITY_RANGE
+				body.add_child(disco)
+				var marca := Label3D.new()
+				marca.text = "REFRESCOS"
+				marca.font_size = 32
+				marca.outline_size = 0
+				marca.pixel_size = radio * 1.6 / (9 * 19.0)
+				marca.position = centro + Vector3(0.0, 0.0, 0.02)
+				marca.visibility_range_end = 60.0
+				body.add_child(marca)
+			"cruz":
+				_local_box(body, Vector3(0.6, 0.2, 0.03), centro, acento, false)
+				_local_box(body, Vector3(0.2, 0.6, 0.03), centro, acento, false)
+
+	# Nombre pintado sobre el dintel (como en la foto: letras oscuras en el muro)
 	var texto: String = nombre.to_upper()
 	if texto == "" or texto.length() > 22 or texto.contains("SIN NOMBRE"):
 		texto = info["letrero"]
-	_local_box(body, Vector3(entrada + pilar, 0.6, 0.02), Vector3(0.0, h - 0.4, front + 0.01), Color(0.97, 0.95, 0.88), false)
 	var label := Label3D.new()
 	label.text = texto
 	label.font_size = 64
 	label.outline_size = 0
-	label.modulate = Color(0.75, 0.1, 0.08) if lona != null else Color(0.1, 0.4, 0.2)
+	label.modulate = LETRAS
 	# Que el texto quepa en el letrero (~0.6 del font_size por letra)
 	label.pixel_size = minf(0.008, (entrada + pilar - 0.3) / (texto.length() * 38.0))
-	label.position = Vector3(0.0, h - 0.4, front + 0.03)
+	label.position = Vector3(0.0, h - 0.4, front + 0.02)
 	label.visibility_range_end = 80.0
 	body.add_child(label)
 	return body

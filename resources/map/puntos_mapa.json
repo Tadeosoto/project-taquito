@@ -1,7 +1,7 @@
 {
 	"puntos": [
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Cerveza Fria Y Abarrotes",
 			"x": 648.121,
 			"z": -215.388,
@@ -56,6 +56,17 @@
 			"origen": "denue 10199481 461121"
 		},
 		{
+			"tipo": "tienda",
+			"nombre": "Polleria Sin Nombre",
+			"x": 726.746,
+			"z": -154.835,
+			"rotacion_y": -0.0915,
+			"ancho": 8.04,
+			"fondo": 7.38,
+			"casa_reemplazada": "way/2000000000003354",
+			"origen": "denue 10201479 461122"
+		},
+		{
 			"tipo": "taqueria",
 			"nombre": "Tacos De Barbacoa Come Fin",
 			"x": -399.721,
@@ -67,7 +78,7 @@
 			"origen": "denue 10312836 722513"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Carne Suprema La Paz",
 			"x": 167.948,
 			"z": -661.81,
@@ -133,7 +144,7 @@
 			"origen": "denue 10536502 722513"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Fruteria El Chavito",
 			"x": -407.417,
 			"z": 143.563,
@@ -144,7 +155,7 @@
 			"origen": "denue 10579306 461130"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Polleria Nene",
 			"x": -137.627,
 			"z": 461.085,
@@ -166,7 +177,18 @@
 			"origen": "denue 10795255 722514"
 		},
 		{
-			"tipo": "farmacia",
+			"tipo": "abarrotes",
+			"nombre": "Fruteria El Chavito",
+			"x": -393.182,
+			"z": 257.624,
+			"rotacion_y": 0.0394,
+			"ancho": 14.5,
+			"fondo": 10.18,
+			"casa_reemplazada": "way/2000000000005248",
+			"origen": "denue 10861968 461130"
+		},
+		{
+			"tipo": "farmacia_similares",
 			"nombre": "Farmacia Sabino",
 			"x": 620.186,
 			"z": -104.454,
@@ -177,7 +199,7 @@
 			"origen": "denue 10910141 464111"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Tienda De Abarrotes Sin Nombre",
 			"x": 787.126,
 			"z": -333.035,
@@ -199,10 +221,10 @@
 			"origen": "denue 10995264 722513"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Abarrotes Angelica",
-			"x": -721.681,
-			"z": -212.599,
+			"x": -722.094,
+			"z": -212.556,
 			"rotacion_y": 0.1748,
 			"ancho": 10.25,
 			"fondo": 8.64,
@@ -221,7 +243,7 @@
 			"origen": "denue 11075719 311830"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Mini Super San Ignacio",
 			"x": -296.488,
 			"z": 269.502,
@@ -254,7 +276,7 @@
 			"origen": "denue 11250373 461110"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Jonatan",
 			"x": 809.567,
 			"z": 403.984,
@@ -353,7 +375,7 @@
 			"origen": "denue 1691044 311830"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Abarrotes Sin Nombre",
 			"x": -770.655,
 			"z": 22.815,
@@ -364,10 +386,10 @@
 			"origen": "denue 1691170 461110"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Tienda De Abarrotes",
-			"x": -764.555,
-			"z": 191.625,
+			"x": -764.628,
+			"z": 189.613,
 			"rotacion_y": 1.607,
 			"ancho": 17.8,
 			"fondo": 9.76,
@@ -406,6 +428,17 @@
 			"fondo": 5.33,
 			"casa_reemplazada": "way/2000000000000509",
 			"origen": "denue 1736559 311830"
+		},
+		{
+			"tipo": "abarrotes",
+			"nombre": "Mini Super Santa Maria",
+			"x": -265.998,
+			"z": 408.281,
+			"rotacion_y": -1.5341,
+			"ancho": 5.2,
+			"fondo": 5.21,
+			"casa_reemplazada": "way/2000000000005428",
+			"origen": "denue 1736566 461110"
 		},
 		{
 			"tipo": "taqueria",
@@ -463,7 +496,7 @@
 			"origen": "denue 1736605 722514"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Tienda De Abarrotes Palmera De Tadeo",
 			"x": -472.508,
 			"z": -471.166,
@@ -475,6 +508,28 @@
 		},
 		{
 			"tipo": "tienda",
+			"nombre": "Abarrotes El Primo",
+			"x": 717.264,
+			"z": -52.086,
+			"rotacion_y": -1.6521,
+			"ancho": 7.67,
+			"fondo": 3.76,
+			"casa_reemplazada": "way/2000000000005352",
+			"origen": "denue 1736776 461110"
+		},
+		{
+			"tipo": "abarrotes",
+			"nombre": "Abarrotes Sabino",
+			"x": 618.111,
+			"z": -128.638,
+			"rotacion_y": -0.0844,
+			"ancho": 14.3,
+			"fondo": 14.95,
+			"casa_reemplazada": "way/2000000000004704",
+			"origen": "denue 1736787 461110"
+		},
+		{
+			"tipo": "abarrotes",
 			"nombre": "Carniceria Del Bosque",
 			"x": 165.643,
 			"z": -268.367,
@@ -496,7 +551,7 @@
 			"origen": "denue 1739284 337120"
 		},
 		{
-			"tipo": "farmacia",
+			"tipo": "farmacia_similares",
 			"nombre": "Farmacias De Similares Guadalajara 80",
 			"x": 251.439,
 			"z": 651.722,
@@ -529,7 +584,7 @@
 			"origen": "denue 1740930 722513"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Abarrotes Sanchez",
 			"x": -528.006,
 			"z": -309.9,
@@ -551,6 +606,17 @@
 			"origen": "denue 1926072 461110"
 		},
 		{
+			"tipo": "abarrotes",
+			"nombre": "Abarrotes El Cele",
+			"x": -610.431,
+			"z": 513.825,
+			"rotacion_y": 1.6272,
+			"ancho": 6.34,
+			"fondo": 9.95,
+			"casa_reemplazada": "way/2000000000004758",
+			"origen": "denue 1926092 461110"
+		},
+		{
 			"tipo": "tienda",
 			"nombre": "Carniceria Garcia",
 			"x": -559.793,
@@ -562,7 +628,7 @@
 			"origen": "denue 1926106 461121"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Abarrotes Mely",
 			"x": -699.981,
 			"z": -848.729,
@@ -573,7 +639,40 @@
 			"origen": "denue 1926978 461110"
 		},
 		{
+			"tipo": "abarrotes",
+			"nombre": "Tienda De Abarrotes",
+			"x": -435.696,
+			"z": 8.161,
+			"rotacion_y": 1.612,
+			"ancho": 11.29,
+			"fondo": 9.74,
+			"casa_reemplazada": "way/2000000000003506",
+			"origen": "denue 1942549 461110"
+		},
+		{
+			"tipo": "abarrotes",
+			"nombre": "Venta De Frutas Y Verduras Carpa",
+			"x": -41.615,
+			"z": 444.237,
+			"rotacion_y": 1.3843,
+			"ancho": 8.78,
+			"fondo": 17.7,
+			"casa_reemplazada": "way/2000000000000156",
+			"origen": "denue 1942552 461130"
+		},
+		{
 			"tipo": "tienda",
+			"nombre": "Carniceria Patty",
+			"x": -419.058,
+			"z": 395.114,
+			"rotacion_y": 1.61,
+			"ancho": 5.73,
+			"fondo": 6.7,
+			"casa_reemplazada": "way/2000000000005156",
+			"origen": "denue 1942568 461121"
+		},
+		{
+			"tipo": "abarrotes",
 			"nombre": "Tienda De Abarrotes Sin Nombre",
 			"x": -133.437,
 			"z": 306.409,
@@ -582,6 +681,28 @@
 			"fondo": 8.9,
 			"casa_reemplazada": "way/2000000000005406",
 			"origen": "denue 1942575 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"nombre": "Birrieria Don Jose",
+			"x": -416.397,
+			"z": 431.951,
+			"rotacion_y": 1.61,
+			"ancho": 7.1,
+			"fondo": 4.27,
+			"casa_reemplazada": "way/2000000000004556",
+			"origen": "denue 1942577 722513"
+		},
+		{
+			"tipo": "abarrotes",
+			"nombre": "Tienda De Abarrotes Mis Princesas",
+			"x": -305.654,
+			"z": 49.845,
+			"rotacion_y": 2.6949,
+			"ancho": 9.08,
+			"fondo": 7.49,
+			"casa_reemplazada": "way/2000000000006008",
+			"origen": "denue 1942605 461110"
 		},
 		{
 			"tipo": "tienda",
@@ -606,7 +727,7 @@
 			"origen": "denue 1942619 311830"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Tienda De Abarrotes El Guero",
 			"x": -255.204,
 			"z": -118.223,
@@ -615,6 +736,17 @@
 			"fondo": 5.66,
 			"casa_reemplazada": "way/2000000000003331",
 			"origen": "denue 1942627 461110"
+		},
+		{
+			"tipo": "taqueria",
+			"nombre": "Cenaduria El Sombrerete",
+			"x": -475.701,
+			"z": -166.078,
+			"rotacion_y": 3.1297,
+			"ancho": 9.85,
+			"fondo": 9.31,
+			"casa_reemplazada": "way/2000000000005700",
+			"origen": "denue 1942632 722513"
 		},
 		{
 			"tipo": "tienda",
@@ -628,7 +760,7 @@
 			"origen": "denue 1942642 461110"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Abarrotes Ivonne",
 			"x": -251.85,
 			"z": -397.815,
@@ -650,7 +782,18 @@
 			"origen": "denue 1942645 722514"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
+			"nombre": "Cremeria San Jose",
+			"x": 674.254,
+			"z": -399.619,
+			"rotacion_y": -0.0747,
+			"ancho": 4.77,
+			"fondo": 4.65,
+			"casa_reemplazada": "way/2000000000001260",
+			"origen": "denue 1942657 461110"
+		},
+		{
+			"tipo": "abarrotes",
 			"nombre": "Tienda De Abarrotes Nena",
 			"x": -423.47,
 			"z": -163.024,
@@ -661,25 +804,25 @@
 			"origen": "denue 1942686 461110"
 		},
 		{
-			"tipo": "tienda",
-			"nombre": "Venta De Frutas Y Verduras Sin Nombre",
-			"x": -258.561,
-			"z": 34.326,
-			"rotacion_y": -0.4313,
-			"ancho": 12.92,
-			"fondo": 8.55,
-			"casa_reemplazada": "way/2000000000002601",
-			"origen": "denue 1942688 461130"
-		},
-		{
-			"tipo": "farmacia",
-			"nombre": "Farmacia Medigen",
+			"tipo": "abarrotes",
+			"nombre": "Cremeria Y Abarrotes El Maestro",
 			"x": 202.648,
 			"z": 518.887,
 			"rotacion_y": -0.557,
 			"ancho": 10.0,
 			"fondo": 10.42,
 			"casa_reemplazada": "way/2000000000006061",
+			"origen": "denue 1942692 461150"
+		},
+		{
+			"tipo": "farmacia_local",
+			"nombre": "Farmacia Medigen",
+			"x": 220.377,
+			"z": 541.067,
+			"rotacion_y": -0.9189,
+			"ancho": 7.69,
+			"fondo": 6.11,
+			"casa_reemplazada": "way/2000000000001622",
 			"origen": "denue 1942693 464111"
 		},
 		{
@@ -692,6 +835,17 @@
 			"fondo": 14.12,
 			"casa_reemplazada": "way/2000000000000971",
 			"origen": "denue 1942697 311830"
+		},
+		{
+			"tipo": "tienda",
+			"nombre": "Carniceria Selectas Del Sur Martinez",
+			"x": 735.562,
+			"z": -258.514,
+			"rotacion_y": 3.0484,
+			"ancho": 5.22,
+			"fondo": 8.97,
+			"casa_reemplazada": "way/2000000000003609",
+			"origen": "denue 1942701 461121"
 		},
 		{
 			"tipo": "gasolinera",
@@ -727,7 +881,7 @@
 			"origen": "denue 6338433 464112"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "abarrotes",
 			"nombre": "Ba Express Bahia Colon 3275",
 			"x": 326.896,
 			"z": 542.086,
@@ -736,6 +890,17 @@
 			"fondo": 10.0,
 			"casa_reemplazada": null,
 			"origen": "denue 6338585 462112"
+		},
+		{
+			"tipo": "farmacia",
+			"nombre": "Farmacias Guadalajara",
+			"x": 274.814,
+			"z": 582.461,
+			"rotacion_y": 0.6675,
+			"ancho": 8.0,
+			"fondo": 10.0,
+			"casa_reemplazada": null,
+			"origen": "denue 6342518 464112"
 		},
 		{
 			"tipo": "oxxo",
@@ -783,14 +948,36 @@
 		},
 		{
 			"tipo": "taqueria",
-			"nombre": "Tacos El Guero",
-			"x": -448.442,
-			"z": -163.741,
-			"rotacion_y": 3.1297,
-			"ancho": 3.28,
-			"fondo": 15.16,
-			"casa_reemplazada": "way/2000000000006552",
-			"origen": "denue 7021491 722514"
+			"nombre": "Carnitas",
+			"x": -430.049,
+			"z": -172.041,
+			"rotacion_y": 2.9153,
+			"ancho": 7.84,
+			"fondo": 5.1,
+			"casa_reemplazada": "way/2000000000001544",
+			"origen": "denue 7021492 722513"
+		},
+		{
+			"tipo": "tienda",
+			"nombre": "Tienda De Abarrotes Sin Nombre",
+			"x": -167.058,
+			"z": 40.303,
+			"rotacion_y": -1.6713,
+			"ancho": 15.63,
+			"fondo": 12.97,
+			"casa_reemplazada": "way/2000000000006943",
+			"origen": "denue 7021542 461110"
+		},
+		{
+			"tipo": "tienda",
+			"nombre": "Minisuper Deli Market",
+			"x": -387.072,
+			"z": -401.511,
+			"rotacion_y": 1.3884,
+			"ancho": 14.36,
+			"fondo": 5.93,
+			"casa_reemplazada": "way/2000000000004493",
+			"origen": "denue 7021547 461110"
 		},
 		{
 			"tipo": "taqueria",
@@ -804,6 +991,17 @@
 			"origen": "denue 7021611 722514"
 		},
 		{
+			"tipo": "abarrotes",
+			"nombre": "Carniceria Thaily",
+			"x": 799.644,
+			"z": -12.947,
+			"rotacion_y": 3.0632,
+			"ancho": 18.92,
+			"fondo": 14.85,
+			"casa_reemplazada": "way/2000000000002552",
+			"origen": "denue 7021660 461121"
+		},
+		{
 			"tipo": "puesto_tacos",
 			"nombre": "Tacos De Barbacoa Cu-Ka",
 			"x": 878.838,
@@ -815,7 +1013,51 @@
 			"origen": "denue 7021662 722513"
 		},
 		{
+			"tipo": "taqueria",
+			"nombre": "Menuderia Yadira",
+			"x": -239.397,
+			"z": 484.502,
+			"rotacion_y": 3.1011,
+			"ancho": 9.19,
+			"fondo": 15.04,
+			"casa_reemplazada": "way/2000000000005972",
+			"origen": "denue 7021728 722513"
+		},
+		{
 			"tipo": "tienda",
+			"nombre": "Tienda De Abarrotes Sin Nombre",
+			"x": -197.054,
+			"z": 124.416,
+			"rotacion_y": 1.1522,
+			"ancho": 10.39,
+			"fondo": 5.44,
+			"casa_reemplazada": "way/2000000000005544",
+			"origen": "denue 7021778 461110"
+		},
+		{
+			"tipo": "abarrotes",
+			"nombre": "Abarrotera La Pasadita",
+			"x": -622.467,
+			"z": -766.617,
+			"rotacion_y": -1.105,
+			"ancho": 13.74,
+			"fondo": 8.36,
+			"casa_reemplazada": "way/2000000000001052",
+			"origen": "denue 7152736 461110"
+		},
+		{
+			"tipo": "abarrotes",
+			"nombre": "Abarrotes Doña Chuy",
+			"x": -823.795,
+			"z": -833.841,
+			"rotacion_y": -0.6785,
+			"ancho": 13.33,
+			"fondo": 10.94,
+			"casa_reemplazada": "way/2000000000005605",
+			"origen": "denue 7152737 461110"
+		},
+		{
+			"tipo": "abarrotes",
 			"nombre": "Abarrotes Garcia",
 			"x": -754.891,
 			"z": 437.313,
@@ -824,6 +1066,28 @@
 			"fondo": 12.55,
 			"casa_reemplazada": "way/2000000000005800",
 			"origen": "denue 7162151 461110"
+		},
+		{
+			"tipo": "tortilleria",
+			"nombre": "Tortilleria Toñita",
+			"x": -554.488,
+			"z": 395.814,
+			"rotacion_y": -2.9837,
+			"ancho": 7.87,
+			"fondo": 7.94,
+			"casa_reemplazada": "way/2000000000003531",
+			"origen": "denue 7162200 311830"
+		},
+		{
+			"tipo": "puesto",
+			"nombre": "Polleria La Oficina De Angie",
+			"x": 174.566,
+			"z": 515.481,
+			"rotacion_y": -0.1342,
+			"ancho": 2.5,
+			"fondo": 2.0,
+			"casa_reemplazada": null,
+			"origen": "denue 8360767 461122"
 		},
 		{
 			"tipo": "puesto_tacos",
@@ -837,7 +1101,18 @@
 			"origen": "denue 8512772 722511"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "taqueria",
+			"nombre": "Tacos Al Vapor Sin Nombre",
+			"x": -500.206,
+			"z": 439.208,
+			"rotacion_y": 2.7181,
+			"ancho": 9.45,
+			"fondo": 15.74,
+			"casa_reemplazada": "way/2000000000005385",
+			"origen": "denue 8650121 722514"
+		},
+		{
+			"tipo": "abarrotes",
 			"nombre": "Frutas Y Verduras La Farmacia",
 			"x": 583.596,
 			"z": -569.823,
@@ -848,7 +1123,29 @@
 			"origen": "denue 8846772 461130"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "puesto_tacos",
+			"nombre": "La Antojeria",
+			"x": -123.981,
+			"z": 472.138,
+			"rotacion_y": -0.1406,
+			"ancho": 4.0,
+			"fondo": 4.0,
+			"casa_reemplazada": null,
+			"origen": "denue 8846929 722519"
+		},
+		{
+			"tipo": "taqueria",
+			"nombre": "Cenaduria Jyro",
+			"x": 95.429,
+			"z": 495.202,
+			"rotacion_y": -0.1342,
+			"ancho": 4.55,
+			"fondo": 15.5,
+			"casa_reemplazada": "way/2000000000003826",
+			"origen": "denue 9125487 722513"
+		},
+		{
+			"tipo": "abarrotes",
 			"nombre": "Minisuper Valentina",
 			"x": 50.131,
 			"z": -85.064,
@@ -870,7 +1167,7 @@
 			"origen": "denue 9508227 722514"
 		},
 		{
-			"tipo": "farmacia",
+			"tipo": "farmacia_local",
 			"nombre": "Farmacia Mas Bueno",
 			"x": -387.811,
 			"z": 474.126,
@@ -912,6 +1209,28 @@
 			"fondo": 2.0,
 			"casa_reemplazada": null,
 			"origen": "denue 9769832 463211"
+		},
+		{
+			"tipo": "taqueria",
+			"nombre": "Tacos Al Vapor",
+			"x": 774.674,
+			"z": 357.538,
+			"rotacion_y": -1.7228,
+			"ancho": 16.82,
+			"fondo": 7.11,
+			"casa_reemplazada": "way/2000000000005798",
+			"origen": "denue 9814614 722514"
+		},
+		{
+			"tipo": "tortilleria",
+			"nombre": "Elaboración De Harina De Maíz Sin Nombre",
+			"x": 806.472,
+			"z": 397.4,
+			"rotacion_y": -1.7227,
+			"ancho": 6.6,
+			"fondo": 6.63,
+			"casa_reemplazada": "way/2000000000003706",
+			"origen": "denue 9841672 311830"
 		},
 		{
 			"tipo": "taqueria",

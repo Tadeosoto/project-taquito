@@ -107,9 +107,14 @@ MAX_SHOP_LOT = 300.0
 
 # De dos negocios del mismo tipo a menos de esto (m) solo se deja uno
 # (repetidos entre DENUE y OSM, o varios abarrotes pegados)
-DUPLICATE_DIST = 80.0
-# Radio propio para tipos que sobran aun con DUPLICATE_DIST
-DUPLICATE_DIST_TIPO = {"tienda": 150.0}
+DUPLICATE_DIST = 40.0
+# Radio propio por tipo: las tiendas sobran aun con DUPLICATE_DIST; las farmacias
+# van todas (solo se junta la misma farmacia que viene del DENUE y de OSM)
+DUPLICATE_DIST_TIPO = {"tienda": 80.0, "farmacia": 15.0}
+# Despues de quitar repetidos: una de cada TIENDA_3B_CADA tiendas es el modelo
+# Tienda 3B y las demas un local de abarrotes; las farmacias son Guadalajara o
+# Similares segun el nombre, y las demas un local de farmacia
+TIENDA_3B_CADA = 4
 
 
 # Calles que separan manzanas (las de servicio y andadores quedan dentro de los cotos)
@@ -429,6 +434,21 @@ def calle_cercana(px, pz, streets):
 			if best is None or d2 < best[0]:
 				best = (d2, cx, cz, street_id)
 	return best
+
+
+def subtipo(p) -> dict:
+	"""El punto con su tipo de dibujo: tienda (modelo Tienda 3B) o abarrotes (local);
+	farmacia (Farmacias Guadalajara), farmacia_similares o farmacia_local."""
+	p = dict(p)
+	nombre = p.get("nombre", "").upper()
+	if p["tipo"] == "tienda" and seed(p.get("origen") or nombre) % TIENDA_3B_CADA:
+		p["tipo"] = "abarrotes"
+	elif p["tipo"] == "farmacia":
+		if "SIMILARES" in nombre:
+			p["tipo"] = "farmacia_similares"
+		elif "GUADALAJARA" not in nombre:
+			p["tipo"] = "farmacia_local"
+	return p
 
 
 def place_puntos(puntos, kept_ways, pos, lat0, lon0, perfil=None) -> list:
@@ -2334,12 +2354,14 @@ def main() -> None:
 	if args.salida_puntos:
 		puntos = []
 		omitir = set()
+		cambiar_tipo = {}
 		for path in args.puntos:
 			if os.path.exists(path):
 				with open(path, encoding="utf-8") as f:
 					data = json.load(f)
 				puntos += [p for p in data.get("puntos", []) if not p.get("tipo", "").startswith("_")]
 				omitir.update(data.get("omitir", []))
+				cambiar_tipo.update(data.get("cambiar_tipo", {}))
 		puntos += osm_puntos(root, kept_ways, pos)
 		puntos = [p for p in puntos if p.get("origen") not in omitir]
 
@@ -2355,6 +2377,10 @@ def main() -> None:
 					for q, qx, qz in kept_puntos):
 				kept_puntos.append((p, px, pz))
 		print(f"  Puntos repetidos (mismo tipo a < {DUPLICATE_DIST:.0f} m, tiendas a < {DUPLICATE_DIST_TIPO['tienda']:.0f} m): {len(puntos) - len(kept_puntos)} quitados")
+		kept_puntos = [(subtipo(p), px, pz) for p, px, pz in kept_puntos]
+		for p, _, _ in kept_puntos:
+			p["tipo"] = cambiar_tipo.get(p.get("origen"), p["tipo"])
+		print("  Negocios: " + ", ".join(f"{t} {n}" for t, n in collections.Counter(p["tipo"] for p, _, _ in kept_puntos).most_common()))
 		placed = place_puntos([p for p, _, _ in kept_puntos], kept_ways, pos, lat0, lon0, perfil)
 		# Ningun negocio en la calle: se recorre a la banqueta mas cercana (sin service:
 		# entradas de gasolineras y estacionamientos)

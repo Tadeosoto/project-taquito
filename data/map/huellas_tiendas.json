@@ -5,7 +5,9 @@
 	],
 	"_locales": [
 		"taqueria",
-		"tortilleria"
+		"tortilleria",
+		"abarrotes",
+		"farmacia_local"
 	],
 	"_nota": "Generado por tools/map_import/huellas_tiendas.gd: [frente, fondo] en metros",
 	"casas": {
@@ -51,6 +53,10 @@
 			10.0,
 			14.72
 		],
+		"farmacia_similares": [
+			5.0,
+			6.35
+		],
 		"gasolinera": [
 			14.0,
 			31.97
@@ -68,8 +74,8 @@
 			3.5
 		],
 		"tienda": [
-			8.0,
-			11.02
+			11.9,
+			16.4
 		]
 	}
 }

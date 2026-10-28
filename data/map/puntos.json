@@ -7,8 +7,12 @@
 		"Opcional: \"rotacion\" en grados (si no, la fachada ve a la calle mas cercana), \"reemplaza_casa\": false.",
 		"Tipos con caja de color: oxxo, tienda, farmacia, taqueria, tortilleria, puesto_tacos, puesto, gasolinera (otro tipo sale gris).",
 		"\"omitir\": lista de \"origen\" (ver resources/map/puntos_mapa.json) para quitar puntos del DENUE u OSM que esten mal.",
+		"\"cambiar_tipo\": {\"origen\": \"tipo\"} para dibujar un punto del DENUE u OSM con otro tipo (ej. una farmacia de barrio como farmacia_similares).",
 		"Despues de editar: bash tools/map_import/build_glb.sh"
 	],
 	"omitir": [],
+	"cambiar_tipo": {
+		"denue 10910141 464111": "farmacia_similares"
+	},
 	"puntos": []
 }
