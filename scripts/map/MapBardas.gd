@@ -31,11 +31,10 @@ const POSTE := 0.06
 const PASO_MIN := 8.0
 # Atlas de barda.png: 3 mosaicos (liso, aplanado caido, block aparente)
 const ATLAS := Vector2(3, 1)
-# Lado maximo (px) de un diseño en el atlas de calcomanias: los mas grandes se reducen
-const DISENO_PX := 128
-const EXTENSIONES := ["png", "webp", "jpg", "jpeg"]
 # Probabilidad de propaganda en cada lado de un panel
 const PROPAGANDA_PROB := 0.18
+# Fraccion de los rotulos (propaganda) que tienen un grafiti encima
+const GRAFITI_SOBRE_ROTULO := 0.1
 const COLORES := [Color("#e8e2d0"), Color("#d9cdb0"), Color("#e6d3c3"), Color("#cfd6d0"),
 	Color("#e9dfb8"), Color("#d7d2cc"), Color("#c9b9a6")]
 
@@ -53,10 +52,6 @@ const COLORES := [Color("#e8e2d0"), Color("#d9cdb0"), Color("#e6d3c3"), Color("#
 var _celdas := {}          # Vector2i -> {"paneles": [...], "plumas": [...], "casetas": [...]}
 var _nodos := {}           # Vector2i -> Node3D
 var _materiales := {}
-var _disenos := []         # [Rect2 en el atlas, alto / ancho] de cada diseño
-var _grafitis := []        # indices en _disenos de cada catalogo
-var _propagandas := []
-var _calcomanias_atlas: ImageTexture
 var _target: Node3D
 var _timer := 0.0
 # Celdas por armar (la mas cercana primero) y la que se esta armando en un hilo
@@ -72,7 +67,7 @@ func _ready() -> void:
 	if not data is Dictionary:
 		push_warning("MapBardas: no se pudo leer %s" % bardas_path)
 		return
-	_cargar_calcomanias()
+	Calcomanias.cargar(grafitis_dir, propaganda_dir)
 	for barda: Dictionary in data["bardas"]:
 		for panel: Dictionary in _paneles(barda):
 			_celda((panel["a"] + panel["b"]) / 2.0)["paneles"].append(panel)
@@ -84,8 +79,8 @@ func _ready() -> void:
 	_material("barda")
 	_material("malla")
 	_material("fierro")
-	if _calcomanias_atlas:
-		_material("calcomania")
+	if Calcomanias.material:
+		_materiales["calcomania"] = Calcomanias.material
 	_target = get_node_or_null(target_path) as Node3D
 	_update_nearby(true)
 
@@ -134,12 +129,12 @@ func _paneles(barda: Dictionary) -> Array:
 				rng_g.seed = int(barda["semilla"]) * 1009 + paneles.size()
 				panel["calcomanias"] = []
 				for lado in [1.0, -1.0]:
-					if not _propagandas.is_empty() and rng_p.randf() < PROPAGANDA_PROB:
-						panel["calcomanias"].append([_propagandas[rng_p.randi() % _propagandas.size()], lado,
+					if not Calcomanias.propagandas.is_empty() and rng_p.randf() < PROPAGANDA_PROB:
+						panel["calcomanias"].append([Calcomanias.propagandas[rng_p.randi() % Calcomanias.propagandas.size()], lado,
 							rng_p.randf_range(0.8, 0.95), rng_p.randf(), rng_p.randf(), false])
 				for lado in [1.0, -1.0]:
-					if not _grafitis.is_empty() and rng_g.randf() < 0.35 + zona * 0.6:
-						panel["calcomanias"].append([_grafitis[rng_g.randi() % _grafitis.size()], lado,
+					if not Calcomanias.grafitis.is_empty() and rng_g.randf() < 0.35 + zona * 0.6:
+						panel["calcomanias"].append([Calcomanias.grafitis[rng_g.randi() % Calcomanias.grafitis.size()], lado,
 							rng_g.randf_range(0.55, 0.95), rng_g.randf(), rng_g.randf(), true])
 			paneles.append(panel)
 	if largo >= PASO_MIN and not paneles.is_empty():
@@ -149,6 +144,28 @@ func _paneles(barda: Dictionary) -> Array:
 			paneles[k]["estado"] = 2
 		elif not paneles.any(func(p): return p["estado"] == 1):
 			paneles[k]["estado"] = 1
+	# La propaganda abarca dos paneles (pasa por encima del castillo) si el
+	# siguiente del mismo tramo esta entero; ese pierde su propaganda de ese lado
+	for i in paneles.size() - 1:
+		var p: Dictionary = paneles[i]
+		var q: Dictionary = paneles[i + 1]
+		if p["malla"] or p["estado"] != 0 or q["primero"] or q["estado"] != 0:
+			continue
+		for g: Array in p["calcomanias"]:
+			if not g[5]:
+				q["calcomanias"] = q["calcomanias"].filter(func(h): return h[5] or h[1] != g[1])
+				g.append(true)
+	# Solo GRAFITI_SOBRE_ROTULO de los rotulos llevan grafiti encima: en los demas
+	# se quitan los grafitis de ese lado (de los dos paneles si abarca dos)
+	var rng_r := RandomNumberGenerator.new()
+	rng_r.seed = int(barda["semilla"]) * 3001
+	for i in paneles.size():
+		for g: Array in paneles[i].get("calcomanias", []):
+			if g[5] or rng_r.randf() < GRAFITI_SOBRE_ROTULO:
+				continue
+			var tapados := [paneles[i], paneles[i + 1]] if g.size() > 6 else [paneles[i]]
+			for t: Dictionary in tapados:
+				t["calcomanias"] = t["calcomanias"].filter(func(h): return not h[5] or h[1] != g[1])
 	if not paneles.is_empty():
 		paneles[-1]["ultimo"] = true
 	return paneles
@@ -278,14 +295,19 @@ func _barda(panel: Dictionary, tools: Dictionary, cajas: Array) -> void:
 	if not panel["calcomanias"].is_empty():
 		var st_c := _st(tools, "calcomania")
 		for g: Array in panel["calcomanias"]:
-			_calcomania(st_c, ejes, x0, x1, alto, g)
+			if g.size() > 6:
+				_calcomania(st_c, ejes, x0, 2.0 * largo - CASTILLO / 2.0, alto, g, largo)
+			else:
+				_calcomania(st_c, ejes, x0, x1, alto, g)
 
 
 # Un diseño de un catalogo pegado a un lado del muro (entre x0 y x1), sin estirarlo.
 # La propaganda va a media barda; los grafitis en cualquier altura y mas afuera,
-# para quedar encima.
-func _calcomania(st: SurfaceTool, ejes: Transform3D, x0: float, x1: float, alto: float, g: Array) -> void:
-	var diseno: Array = _disenos[g[0]]
+# para quedar encima. Con `castillo_x` cruza el castillo que esta ahi: ese pedazo
+# va pegado a la cara del castillo.
+func _calcomania(st: SurfaceTool, ejes: Transform3D, x0: float, x1: float, alto: float, g: Array,
+		castillo_x := -1.0) -> void:
+	var diseno: Array = Calcomanias.disenos[g[0]]
 	var uv: Rect2 = diseno[0]
 	var proporcion: float = diseno[1]
 	var lado: float = g[1]
@@ -297,60 +319,33 @@ func _calcomania(st: SurfaceTool, ejes: Transform3D, x0: float, x1: float, alto:
 	var cx: float = x0 + w / 2.0 + (x1 - x0 - w) * g[3]
 	var es_grafiti: bool = g[5]
 	var y0: float = 0.15 + maxf(alto - 0.25 - h, 0.0) * g[4] if es_grafiti \
-		else 0.5 + maxf(alto - 0.9 - h, 0.0) * g[4]
+		else minf(0.5 + maxf(alto - 0.9 - h, 0.0) * g[4], maxf(alto - 0.05 - h, 0.1))
 	var z := lado * (BARDA_GRUESO / 2.0 + (0.014 if es_grafiti else 0.008))
+	var z_castillo := lado * (CASTILLO / 2.0 + 0.008)
 	# Visto desde su lado, u crece hacia la derecha y v hacia abajo
 	var izq := cx - lado * w / 2.0
 	var der := cx + lado * w / 2.0
-	var p := [Vector3(izq, y0 + h, z), Vector3(der, y0 + h, z), Vector3(der, y0, z), Vector3(izq, y0, z)]
-	var uvs := [uv.position, uv.position + Vector2(uv.size.x, 0.0), uv.end, uv.position + Vector2(0.0, uv.size.y)]
+	# Cortes de izquierda a derecha (vista desde su lado): las orillas del castillo
+	var cortes := [izq]
+	if castillo_x >= 0.0:
+		for c in [castillo_x - lado * CASTILLO / 2.0, castillo_x + lado * CASTILLO / 2.0]:
+			if (c - izq) * lado > 0.0 and (der - c) * lado > 0.0:
+				cortes.append(c)
+	cortes.append(der)
 	var n := (ejes.basis * Vector3(0.0, 0.0, lado)).normalized()
-	for i in [0, 1, 2, 0, 2, 3]:
-		st.set_normal(n)
-		st.set_color(Color.WHITE)
-		st.set_uv(uvs[i])
-		st.add_vertex(ejes * (p[i] as Vector3))
-
-
-# Junta los diseños de los dos catalogos en un atlas (rejilla de DISENO_PX), sin
-# filtrar para que sigan pixeleados. Ordenados por nombre: siempre salen igual.
-func _cargar_calcomanias() -> void:
-	var imagenes: Array[Image] = []
-	for catalogo in [[grafitis_dir, _grafitis], [propaganda_dir, _propagandas]]:
-		var carpeta: String = catalogo[0]
-		if not DirAccess.dir_exists_absolute(carpeta):
-			continue
-		var archivos := Array(ResourceLoader.list_directory(carpeta))
-		archivos.sort()
-		for archivo: String in archivos:
-			if archivo.get_extension().to_lower() not in EXTENSIONES:
-				continue
-			var textura := load(carpeta.path_join(archivo)) as Texture2D
-			if textura == null:
-				continue
-			var image := textura.get_image()
-			if image.is_compressed():
-				image.decompress()
-			image.convert(Image.FORMAT_RGBA8)
-			var lado_max := maxi(image.get_width(), image.get_height())
-			if lado_max > DISENO_PX:
-				var f := float(DISENO_PX) / lado_max
-				image.resize(maxi(1, roundi(image.get_width() * f)), maxi(1, roundi(image.get_height() * f)), Image.INTERPOLATE_NEAREST)
-			(catalogo[1] as Array).append(imagenes.size())
-			imagenes.append(image)
-	if imagenes.is_empty():
-		return
-	var columnas := ceili(sqrt(imagenes.size()))
-	var filas := ceili(float(imagenes.size()) / columnas)
-	var atlas := Image.create(columnas * DISENO_PX, filas * DISENO_PX, false, Image.FORMAT_RGBA8)
-	var tamano := Vector2(atlas.get_size())
-	for i in imagenes.size():
-		var image := imagenes[i]
-		var pos := Vector2i(i % columnas, i / columnas) * DISENO_PX
-		atlas.blit_rect(image, Rect2i(Vector2i.ZERO, image.get_size()), pos)
-		_disenos.append([Rect2(Vector2(pos) / tamano, Vector2(image.get_size()) / tamano),
-			float(image.get_height()) / image.get_width()])
-	_calcomanias_atlas = ImageTexture.create_from_image(atlas)
+	for k in cortes.size() - 1:
+		var xa: float = cortes[k]
+		var xb: float = cortes[k + 1]
+		var zk := z_castillo if absf((xa + xb) / 2.0 - castillo_x) < CASTILLO / 2.0 else z
+		var ua: float = uv.position.x + uv.size.x * (xa - izq) / (der - izq)
+		var ub: float = uv.position.x + uv.size.x * (xb - izq) / (der - izq)
+		var p := [Vector3(xa, y0 + h, zk), Vector3(xb, y0 + h, zk), Vector3(xb, y0, zk), Vector3(xa, y0, zk)]
+		var uvs := [Vector2(ua, uv.position.y), Vector2(ub, uv.position.y), Vector2(ub, uv.end.y), Vector2(ua, uv.end.y)]
+		for i in [0, 1, 2, 0, 2, 3]:
+			st.set_normal(n)
+			st.set_color(Color.WHITE)
+			st.set_uv(uvs[i])
+			st.add_vertex(ejes * (p[i] as Vector3))
 
 
 # Un muro de x0 a x1 en los ejes del panel; sus dos caras con `uv` del atlas
@@ -532,10 +527,10 @@ func _caja(st: SurfaceTool, xform: Transform3D, size: Vector3, color: Color, uv 
 func _material(nombre: String) -> Material:
 	if not _materiales.has(nombre):
 		var material := ShaderMaterial.new()
-		if nombre == "malla" or nombre == "calcomania":
+		if nombre == "malla":
 			# ps1_casa: descarta lo transparente y no tiene culling
 			material.shader = CASA_SHADER
-			material.set_shader_parameter("albedo_texture", malla_textura if nombre == "malla" else _calcomanias_atlas)
+			material.set_shader_parameter("albedo_texture", malla_textura)
 		else:
 			material.shader = PS1_SHADER
 			material.set_shader_parameter("albedo_texture", barda_textura if nombre == "barda" else _blanco())

@@ -1,6 +1,6 @@
 # Catálogo de grafitis
 
-Cada barda del mapa (`scripts/map/MapBardas.gd`) que lleva grafiti toma un diseño al azar de esta carpeta. Para agregar uno, basta con poner aquí la imagen y abrir o reimportar el proyecto (`godot --path . --headless --import`). No hay que tocar código.
+Cada barda (`scripts/map/MapBardas.gd`), fachada de casa modelo (`MapCasas.gd`) y muro de bodega (`MapBodegas.gd`) que lleva grafiti toma un diseño al azar de esta carpeta (el atlas lo arma `scripts/map/Calcomanias.gd`). Para agregar uno, basta con poner aquí la imagen y abrir o reimportar el proyecto (`godot --path . --headless --import`). No hay que tocar código.
 
 ## Cómo debe ser el diseño
 
@@ -15,8 +15,8 @@ Cada barda del mapa (`scripts/map/MapBardas.gd`) que lleva grafiti toma un dise�
 
 - Cada lado de cada panel de barda (2.5 m entre castillos) puede llevar un grafiti. La probabilidad es mayor en las zonas con más deterioro (35 % a 95 %).
 - Su ancho va del 55 % al 95 % del panel, sin estirarse: el alto sale de la proporción de la imagen y nunca pasa del 85 % del alto de la barda.
-- Se pegan encima de la propaganda (`../propaganda/`).
+- Solo el 10 % de los rótulos de propaganda (`../propaganda/`) tienen un grafiti encima (`GRAFITI_SOBRE_ROTULO` en `MapBardas.gd`).
 
 ## Archivos generados
 
-`grafiti_dibujado_NN.png` los dibuja `tools/map_import/make_textures.py` (función `grafitis`). Si se regeneran, solo se reescriben esos; los demás archivos de esta carpeta no se tocan.
+`grafiti_hoja_NN.png` (piezas de colores) y `grafiti_firma_NN.png` (firmas, casi todas negras y algunas rojas o azules) los recorta `python3 -I tools/map_import/recortar_calcomanias.py` de las hojas de `Publicidad de barda y grafittis/`. Si se vuelven a recortar, solo se reescriben esos; los demás archivos de esta carpeta no se tocan.

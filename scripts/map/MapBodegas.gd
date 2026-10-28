@@ -33,6 +33,11 @@ const PASILLO := 3.2
 const HILERAS_CADA := 2
 # Cada cuantos metros se repite la textura de lamina
 const TEXTURA_M := 2.4
+# Grafitis por fuera de los muros de los lados y de atras: uno posible cada
+# GRAFITI_CADA m, con probabilidad GRAFITI_PROB.x + GRAFITI_PROB.y * zona
+const GRAFITI_CADA := 7.0
+const GRAFITI_PROB := Vector2(0.1, 0.7)
+const GRAFITI_ANCHO := Vector2(1.5, 3.5)
 
 @export_file("*.json") var bodegas_path := "res://resources/map/bodegas_mapa.json"
 
@@ -97,6 +102,7 @@ func _ready() -> void:
 	for textura in [lamina, lamina_techo, null]:
 		_material_lamina(textura)
 	_material_piso()
+	Calcomanias.cargar()
 	Deterioro.zona(0.0, 0.0)
 	_target = get_node_or_null(target_path) as Node3D
 	_update_nearby(true)
@@ -199,6 +205,9 @@ func _armar_bodega(b: Dictionary, tools: Dictionary, vanos: Dictionary, props: D
 	var zona := Deterioro.zona(b["x"], b["z"])
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(b["semilla"])
+	# Los grafitis con su propia semilla: no cambian lo demas de la bodega
+	var rng_g := RandomNumberGenerator.new()
+	rng_g.seed = int(b["semilla"]) * 1009 + 7
 	var muro := _material_lamina(lamina)
 	var techo := _material_lamina(lamina_techo)
 	var fierros := _material_lamina(null)
@@ -239,7 +248,13 @@ func _armar_bodega(b: Dictionary, tools: Dictionary, vanos: Dictionary, props: D
 			_muro(st, cajas, lote, Vector3(x, (2.6 + alto) / 2.0, z), Vector3(GRUESO, alto - 2.6, 3.0), color)
 		for t: Vector2 in tramos:
 			_muro(st, cajas, lote, Vector3(x, alto / 2.0, (t.x + t.y) / 2.0), Vector3(GRUESO, alto, t.y - t.x), color)
+			# Por fuera, +Z del muro hacia afuera: x del grafiti = -lado * z de la bodega
+			var afuera := Basis(Vector3(0.0, 0.0, -lado), Vector3.UP, Vector3(lado, 0.0, 0.0))
+			_grafitis(tools, lote * Transform3D(afuera, Vector3(lado * (ancho / 2.0 + 0.015), 0.0, 0.0)),
+				minf(-lado * t.x, -lado * t.y), maxf(-lado * t.x, -lado * t.y), alto, zona, rng_g)
 	_muro(st, cajas, lote, Vector3(0.0, alto / 2.0, -fondo + GRUESO / 2.0), Vector3(ancho, alto, GRUESO), color)
+	_grafitis(tools, lote * Transform3D(Basis(Vector3.LEFT, Vector3.UP, Vector3.FORWARD), Vector3(0.0, 0.0, -fondo - 0.015)),
+		-ancho / 2.0, ancho / 2.0, alto, zona, rng_g)
 
 	# Techo de arco: hastiales al frente y atras, paneles (faltan algunos) y cerchas
 	var arco := []
@@ -285,6 +300,20 @@ func _armar_bodega(b: Dictionary, tools: Dictionary, vanos: Dictionary, props: D
 		Vector3(ancho / 2.0, 0.04, -fondo), Vector3(-ancho / 2.0, 0.04, -fondo)], Vector3.UP, Color.WHITE, false)
 
 	_acomodar_adentro(lote, ancho, fondo, alto, zona, rng, props, cajas)
+
+
+# Grafitis en un muro: en el plano z = 0 de `ejes`, de x0 a x1, uno posible por
+# tramo de GRAFITI_CADA m, a la altura de la gente
+func _grafitis(tools: Dictionary, ejes: Transform3D, x0: float, x1: float, alto: float,
+		zona: float, rng: RandomNumberGenerator) -> void:
+	if Calcomanias.material == null:
+		return
+	var n := maxi(1, floori((x1 - x0) / GRAFITI_CADA))
+	var paso := (x1 - x0) / n
+	for i in n:
+		if rng.randf() < GRAFITI_PROB.x + GRAFITI_PROB.y * zona:
+			Calcomanias.grafiti(_st(tools, Calcomanias.material), ejes, rng, x0 + i * paso + 0.3, x0 + (i + 1) * paso - 0.3,
+				0.3, minf(alto - 0.3, 3.2), GRAFITI_ANCHO)
 
 
 # Hileras de racks (o estantes oxidados) a lo largo del fondo, con pasillos; huecos

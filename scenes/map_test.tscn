@@ -266,7 +266,7 @@ sol_path = NodePath("../DirectionalLight3D")
 environment_path = NodePath("../WorldEnvironment")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-transform = Transform3D(0.7189, 0, -0.6951, 0, 1, 0, 0.6951, 0, 0.7189, 194.82, 3, 527.31)
+transform = Transform3D(0.7894, 0, -0.614, 0, 1, 0, 0.614, 0, 0.7894, 203.31, 1.5, 650.72)
 speed = 10.0
 sprint_speed = 18.0
 girar_con_qe = true

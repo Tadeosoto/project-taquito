@@ -25,6 +25,12 @@ const PISO_ALTO := 0.4
 # frente mas, porque las fachadas tienen cocheras y ventanas metidas
 const NUCLEO_MARGEN := 0.12
 const NUCLEO_FRENTE := 1.5
+# Grafitis en la fachada: la probabilidad por casa es la zona de deterioro (el
+# punto, siempre); un segundo con zona - GRAFITI_SEGUNDO. Solo en tramos planos
+# del muro de enfrente (ver _paredes), a la altura de la gente.
+const GRAFITI_SEGUNDO := 0.4
+const GRAFITI_ANCHO := Vector2(0.9, 1.8)
+const GRAFITI_ALTO := Vector2(0.35, 2.1)
 
 @export_file("*.json") var casas_path := "res://resources/map/casas_mapa.json"
 
@@ -111,6 +117,7 @@ func _ready() -> void:
 	barda_material.set_shader_parameter("affine_enabled", false)
 	_barda_mesh.material = barda_material
 
+	Calcomanias.cargar()
 	_target = get_node_or_null(target_path) as Node3D
 	_update_nearby()
 
@@ -146,6 +153,9 @@ func _crear_celda(casas: Array) -> Node3D:
 	var celda := Node3D.new()
 	var por_modelo := {}       # modelo -> [[Transform3D, Color]]
 	var bardas := []           # [[Transform3D, Color]] (tambien los nucleos)
+	var st_grafitis := SurfaceTool.new()
+	st_grafitis.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var hay_grafitis := false
 	var body := StaticBody3D.new()
 	celda.add_child(body)
 
@@ -179,6 +189,8 @@ func _crear_celda(casas: Array) -> Node3D:
 		shape.transform = lote * Transform3D(Basis.IDENTITY, Vector3(0.0, size.y / 2.0, -size.z / 2.0))
 		body.add_child(shape)
 
+		hay_grafitis = _grafitis(st_grafitis, casa, lote, info, escala) or hay_grafitis
+
 		if nucleo.has(modelo):
 			var core := Vector3(size.x - 2.0 * NUCLEO_MARGEN, size.y * nucleo[modelo], size.z - NUCLEO_MARGEN - NUCLEO_FRENTE)
 			var center := Vector3(0.0, core.y / 2.0, -NUCLEO_FRENTE - core.z / 2.0)
@@ -201,7 +213,39 @@ func _crear_celda(casas: Array) -> Node3D:
 			celda.add_child(_multimesh(lod, por_modelo[modelo], end, lod_end))
 	if not bardas.is_empty():
 		celda.add_child(_multimesh(_barda_mesh, bardas, 0.0, detalle_end))
+	if hay_grafitis:
+		var grafitis := MeshInstance3D.new()
+		grafitis.mesh = st_grafitis.commit()
+		grafitis.material_override = Calcomanias.material
+		grafitis.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		grafitis.visibility_range_end = detalle_end
+		celda.add_child(grafitis)
 	return celda
+
+
+# Grafitis en la fachada de una casa, en tramos planos de su muro de enfrente.
+# Devuelve si puso alguno.
+func _grafitis(st: SurfaceTool, casa: Dictionary, lote: Transform3D, info: Dictionary, escala: float) -> bool:
+	var paredes: Array = info["paredes"]
+	if paredes.is_empty() or Calcomanias.grafitis.is_empty():
+		return false
+	var zona := 1.0 if casa.get("punto", false) else Deterioro.zona(casa["x"], casa["z"])
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(Vector2i(roundi(casa["x"] * 10.0), roundi(casa["z"] * 10.0))) * 7 + 3
+	var aabb: AABB = info["aabb"]
+	var puso := false
+	for umbral in [zona, zona - GRAFITI_SEGUNDO]:
+		if rng.randf() >= umbral:
+			break
+		# Pared de lote (x0, x1, z en la malla -> metros del lote, fachada en z = 0)
+		var pared: Vector3 = paredes[rng.randi() % paredes.size()]
+		var x0 := (pared.x - aabb.get_center().x) * escala
+		var x1 := (pared.y - aabb.get_center().x) * escala
+		var z := (pared.z - aabb.end.z) * escala + 0.015
+		var ejes := lote * Transform3D(Basis.IDENTITY, Vector3(0.0, 0.0, z))
+		Calcomanias.grafiti(st, ejes, rng, x0 + 0.1, x1 - 0.1, GRAFITI_ALTO.x * escala, GRAFITI_ALTO.y * escala, GRAFITI_ANCHO)
+		puso = true
+	return puso
 
 
 func _multimesh(mesh: Mesh, instancias: Array, begin: float, end: float) -> MultiMeshInstance3D:
@@ -239,9 +283,62 @@ func _preparar_modelo(modelo: String) -> Dictionary:
 	if modelo_reducir.has(modelo):
 		mesh = _reducida(mesh, modelo_reducir[modelo])
 	var aabb := _aabb_fachada(mesh)
+	var paredes := _paredes(mesh, aabb)
 	if modelo in generar_lods:
 		mesh = _con_lods(mesh)
-	return {"mesh": mesh, "aabb": aabb, "lod": lod}
+	return {"mesh": mesh, "aabb": aabb, "lod": lod, "paredes": paredes}
+
+
+# Tramos planos del muro de enfrente donde cabe un grafiti: [x0, x1, z] (Vector3,
+# en la malla). Cada PARED_PASO m de ancho se busca la cara (casi vertical, viendo
+# a +-Z) mas adelante en varias alturas de GRAFITI_ALTO; la columna sirve si en
+# todas es la misma cara plana. Tramos de columnas seguidas a la misma z.
+const PARED_PASO := 0.2
+const PARED_MIN := 1.0
+
+func _paredes(mesh: ArrayMesh, aabb: AABB) -> Array:
+	var caras := []   # [a, b, c] en xy y z de la cara
+	for surface in mesh.get_surface_count():
+		var arrays := mesh.surface_get_arrays(surface)
+		var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var idx: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+		if idx.is_empty():
+			idx = PackedInt32Array(range(v.size()))
+		for t in range(0, idx.size(), 3):
+			var a := v[idx[t]]
+			var b := v[idx[t + 1]]
+			var c := v[idx[t + 2]]
+			var n := (b - a).cross(c - a)
+			if n.length_squared() < 1e-8 or absf(n.normalized().z) < 0.95:
+				continue
+			caras.append([Vector2(a.x, a.y), Vector2(b.x, b.y), Vector2(c.x, c.y), (a.z + b.z + c.z) / 3.0])
+	var alturas := []
+	for k in 4:
+		alturas.append(aabb.position.y + lerpf(GRAFITI_ALTO.x, GRAFITI_ALTO.y, k / 3.0))
+	var tramos := []
+	var actual := Vector3(NAN, NAN, NAN)
+	var x := aabb.position.x + PARED_PASO / 2.0
+	while x < aabb.end.x:
+		var z := NAN
+		for y: float in alturas:
+			var frente := -INF
+			for cara: Array in caras:
+				if cara[3] > frente and Geometry2D.point_is_inside_triangle(Vector2(x, y), cara[0], cara[1], cara[2]):
+					frente = cara[3]
+			if frente < aabb.end.z - 3.0 or (not is_nan(z) and absf(frente - z) > 0.04):
+				z = NAN
+				break
+			z = frente if is_nan(z) else z
+		if not is_nan(z) and not is_nan(actual.z) and absf(z - actual.z) <= 0.04:
+			actual.y = x + PARED_PASO / 2.0
+		else:
+			if not is_nan(actual.z) and actual.y - actual.x >= PARED_MIN:
+				tramos.append(actual)
+			actual = Vector3(x - PARED_PASO / 2.0, x + PARED_PASO / 2.0, z) if not is_nan(z) else Vector3(NAN, NAN, NAN)
+		x += PARED_PASO
+	if not is_nan(actual.z) and actual.y - actual.x >= PARED_MIN:
+		tramos.append(actual)
+	return tramos
 
 
 # La malla con cada superficie en su nivel de detalle mas simple cuyo error no pasa

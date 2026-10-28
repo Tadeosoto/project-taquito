@@ -14,9 +14,9 @@ Las bardas del mapa (`scripts/map/MapBardas.gd`) llevan letreros pintados ("SE V
 ## Cómo se ponen
 
 - Cada lado de cada panel de barda (2.5 m entre castillos) tiene 18 % de probabilidad de llevar propaganda (`PROPAGANDA_PROB` en `MapBardas.gd`).
-- Ocupa del 80 % al 95 % del ancho del panel, sin estirarse, y va a media altura.
-- Los grafitis (`../grafitis/`) se pintan encima.
+- Ocupa del 80 % al 95 % del ancho de dos paneles (pasa por encima del castillo de en medio) si el panel de al lado está entero; si no, de uno. No se estira y va a media altura.
+- Solo el 10 % de los rótulos tienen grafiti encima (`GRAFITI_SOBRE_ROTULO`); en los demás no hay grafitis de ese lado.
 
 ## Archivos generados
 
-`propaganda_dibujada_NN.png` los dibuja `tools/map_import/make_textures.py` (función `propaganda`, con los textos de `PROPAGANDA`). Si se regeneran, solo se reescriben esos; los demás archivos de esta carpeta no se tocan.
+`propaganda_foto_*.png` los recorta `python3 -I tools/map_import/recortar_calcomanias.py` de las fotos de bardas pintadas de `Publicidad de barda y grafittis/` (recortes en `BARDAS`). Si se vuelven a recortar, solo se reescriben esos; los demás archivos de esta carpeta no se tocan.
