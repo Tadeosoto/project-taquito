@@ -14,7 +14,7 @@ extends SceneTree
 # mallas se guardan sin los LOD que genera el import (son modelos chicos y
 # triplicaban el tamano) y el archivo va comprimido.
 
-const GRUPOS := ["tiendas", "casas", "props", "objetos", "personajes", "armas", "interiores"]
+const GRUPOS := ["tiendas", "casas", "props", "objetos", "personajes", "armas", "interiores", "bodegas"]
 # Modelos que no se hornean enteros: solo se usan sus piezas (separar_pack.gd)
 const SOLO_PIEZAS := ["mexican_starter_pack"]
 

@@ -143,6 +143,21 @@ inspect_zoom_out={
 
 3d/physics_engine="Jolt Physics"
 
+[shader_globals]
+
+deterioro={
+"type": "float",
+"value": 0.8
+}
+deterioro_escala={
+"type": "float",
+"value": 150.0
+}
+deterioro_grietas={
+"type": "sampler2D",
+"value": "res://textures/map/grietas.png"
+}
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0

@@ -214,6 +214,7 @@ Cómo se hace normalmente (y cómo lo haríamos):
 2. **Movimiento en grupo**: en vez de que cada zombie calcule su ruta (caro), se calcula **un campo de flujo** (flow field) hacia el jugador/ruido por zona y todos lo siguen, con separación entre ellos (*boids*). Así cientos de zombies se ven como un río por las calles.
 3. **Niveles de detalle**: zombies lejos = dibujados con `MultiMesh` y animación en el shader, sin física; cerca = zombie completo con colisión y animaciones. Igual que ya hacemos con las casas y árboles del mapa.
 4. **Ruido**: disparos, molotov, bocina y paloma crean "puntos de ruido" que redirigen la horda.
+5. 💡 **Más zombies donde está más destruido** (JJ): el mapa ya tiene un nivel de deterioro por zona (cuadras casi intactas y otras destruidas, ver `docs/mapa/README.md`). El Director multiplica cuántos zombies salen en una zona por ese nivel: `Deterioro.zona(x, z)` en `scripts/map/Deterioro.gd`, la misma fórmula que pinta las casas y calles en el shader. Así lo que se ve avisa del peligro.
 
 Presupuesto 💡: ~30 zombies completos cerca + ~200 "baratos" lejos (hay que medir, sobre todo en navegador).
 
@@ -370,6 +371,7 @@ Con eso, casi todas las misiones de arriba son S.
 | Casas modelo | `models/casas/` | Urbi, Semi Residencial, Mexican House 3, multifamiliar (sin usar). |
 | Tiendas | `models/tiendas/` | OXXO, Farmacia Guadalajara, Pemex, carrito de comida, puesto de tacos… |
 | Señal de alto | `models/props/alto/` | |
+| Bodegas | `models/bodegas/` | bodega_industrial (Industrial Warehouse: de su frente salen los vanos con portón de `MapBodegas.gd`), rack, estante_oxidado, cajas. Ya colocadas en el mapa. |
 | Personajes | `models/personajes/` | **Sin colocar.** Gente: cholo (animado), gang_member, gangster_dealer, indian_gangster, policia (3 policías, sin rig), soldado, mujer_psx, chava_psx, hombre_psx (base sin textura), psx_man, amerindios ⚠️ (malla estirada al importar). NPCs de misiones: **garrafonero** (trabajador de chamarra azul; pesado, 24 mil triángulos), **taquero** (animado), **encargada** de tienda, **cientifico**, **perro** (animado). Zombies: zombie_ripper (idle/caminar/atacar/correr), zombie_psx, zombie_gordo (idle, correr, golpe, morir, 2 ataques: sirve de zombie base y de hinchado). Simi: **`dr_simi/simi_botarga.scn`** = botarga con esqueleto de Mixamo y el baile (15 s, `bailar` en loop), sacada del kiosco por `tools/map_import/separar_simi.gd`; el kiosco completo es `dr_simi/scene.gltf`. simi_muneco (sin rig, de repuesto). |
 | Armas | `models/armas/` | machete, melee_psx (pack cuerpo a cuerpo), pistola_mk23, pistola_colt ⚠️ (sale en piezas), cuerno_de_chivo, ballesta, bate, resortera, balas. |
 | Objetos | `models/objetos/` | Del Mexican Starter Pack solo se usan `mochila` y `mazapan` (`.scn`, `tools/map_import/separar_pack.gd`). Inventario: botella + trapo (molotov), tachas (pastillas), tejuino, gansito, chancla, cigarro, vaporub, cloralex, botiquin, cinta, tablas, bocina, llave, galon_agua. Misiones: paquete (pila de cajas), patito (tiro al blanco), carrito_super (carrera), refrescos. |

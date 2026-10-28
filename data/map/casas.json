@@ -2,7 +2,8 @@
 	"_ayuda": [
 		"Que casas modelo van en cada colonia (la colonia de cada manzana sale del DENUE, ver prepare_osm.py).",
 		"Por colonia: pisos (\"1\", \"2\" o \"*\" = cualquiera) -> lista de [modelo, peso]. Los modelos son los de Casas.modelos en scenes/map_test.tscn (urbi_1p_* y urbi_2p_* son las 6 casas del modelo Urbi).",
-		"\"_proporcion\": fraccion de las casas que se cambian (1 = todas). \"*\" = las demas colonias (y las manzanas sin colonia). AGUA BLANCA INDUSTRIAL va con 0 porque sus huellas son bodegas.",
+		"Cada lado de cada cuadra se llena de casas pegadas donde hay casas de Google/OSM (huecos de mas de 10 m quedan vacios); frente y fondo de cada modelo: data/map/huellas_tiendas.json (huellas_tiendas.gd).",
+		"\"_proporcion\": fraccion de los lados de cuadra que se cambian (1 = todos). \"*\" = las demas colonias (y las manzanas sin colonia). AGUA BLANCA INDUSTRIAL va con 0 porque sus huellas son bodegas (las grandes las pone place_bodegas como bodegas huecas).",
 		"Correcciones de colonia por manzana: data/map/colonias.json. Despues de editar: bash tools/map_import/build_glb.sh"
 	],
 	"HACIENDAS DE SAN JOSE": {

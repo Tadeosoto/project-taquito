@@ -15,6 +15,8 @@ const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 
 # Carpeta del modelo -> maximo de triangulos de todo el modelo
 const MAX_TRIANGULOS := {
+	# Se repite cientos de veces adentro de las bodegas (MapBodegas)
+	"rack": 300,
 	"takis": 4000,
 	"jarritos": 3000,
 	"mexican_starter_pack": 7000,

@@ -91,6 +91,8 @@ FALLBACK_SIZE = (8.0, 10.0)
 
 # Distancia (m) del eje de la calle a la que se ponen los puestos (en la banqueta)
 PUESTO_STREET_DIST = 4.5
+# Lo que el frente de un puesto queda detras de la guarnicion (m)
+PUESTO_GUARNICION = 0.3
 
 # Si una tienda no cae sobre una casa (el DENUE suele ponerla en la banqueta),
 # toma la casa mas cercana a menos de esto (m)
@@ -121,10 +123,18 @@ BLOCK_DEAD_END = 50.0
 COLONIA_VECINOS = 9
 COLONIA_MAX_DIST = 250.0
 
-# Casas modelo: frente tipico de un lote Infonavit (m). Una huella con mas
-# frente que LOTE_PARTIR * ANCHO_LOTE es una hilera que Google junto: se parte.
-ANCHO_LOTE = 6.5
-LOTE_PARTIR = 1.6
+# Casas modelo: cada cara de cuadra se llena de casas pegadas donde hay casas;
+# un hueco de mas de HUECO_MAX m sin casas (baldio, parque) se deja vacio
+HUECO_MAX = 10.0
+# Escala de los modelos para llenar el tramo (como MapCasas.ESCALA_MIN/MAX)
+CASA_ESCALA = (0.8, 1.25)
+# Lo que se encoge un lote antes de ver si choca con otro lote o con otra calle (m)
+LOTE_MARGEN = 0.2
+# Dos lotes cuyas fachadas forman mas de ~135 grados se dan la espalda y se
+# pueden encimar por atras (coseno del angulo)
+ESPALDA_COS = -0.7
+# Frente de una casa cuando no hay modelo (m)
+ANCHO_LOTE_TIPICO = 6.5
 # La fachada nunca se pega mas que esto al eje de la calle (m)
 SETBACK_MIN = 3.5
 # Casas mas lejos de una calle que esto (m) se quedan como estan
@@ -132,6 +142,23 @@ CASA_MAX_CALLE = 30.0
 # Huellas fuera de este rango (m2) no son casas (tinacos, bodegas, escuelas)
 CASA_AREA = (25.0, 1500.0)
 CASA_FONDO_MIN = 6.0
+
+# Bodegas huecas (MapBodegas.gd): todo edificio de BODEGA_COLONIAS de al menos
+# BODEGA_AREA_MIN_INDUSTRIAL m2 y, en las demas colonias, las huellas sin nombre de
+# al menos BODEGA_AREA_MIN m2. Las de mas de BODEGA_LARGO_MAX m se parten en naves.
+BODEGA_COLONIAS = {"AGUA BLANCA INDUSTRIAL"}
+BODEGA_TIPOS = {"yes", "warehouse", "industrial", "commercial"}
+BODEGA_AREA_MIN_INDUSTRIAL = 100.0
+BODEGA_AREA_MIN = 600.0
+BODEGA_LADO_MIN = 8.0
+BODEGA_LARGO_MAX = 70.0
+BODEGA_PASILLO = 6.0
+# Lo que se deja de banqueta (m) desde la orilla del arroyo cuando una bodega se
+# sale a la calle: las de Agua Blanca estan pegadas a la calle y con la banqueta
+# completa quedaban de menos de BODEGA_LADO_MIN
+BODEGA_BANQUETA = 0.8
+# Lamina: gris, azul, crema, oxido, verde
+BODEGA_COLORES = ["#9a9c9e", "#5d7891", "#c9bf9f", "#8a5a3c", "#6f8466"]
 
 # Altos: uno de cada ALTO_CADA esquinas, ALTO_ANTES m antes del cruce
 ALTO_CADA = 20
@@ -331,9 +358,25 @@ def ring_distance(px: float, pz: float, ring: list) -> float:
 	return best
 
 
+def calle_cercana(px, pz, streets):
+	"""(d2, cx, cz, way_id) del punto de calle mas cercano a (px, pz)."""
+	best = None
+	for street_id, line in streets:
+		for (ax, az), (bx, bz) in zip(line, line[1:]):
+			dx, dz = bx - ax, bz - az
+			length2 = dx * dx + dz * dz or 1e-9
+			t = max(0.0, min(1.0, ((px - ax) * dx + (pz - az) * dz) / length2))
+			cx, cz = ax + t * dx, az + t * dz
+			d2 = (cx - px) ** 2 + (cz - pz) ** 2
+			if best is None or d2 < best[0]:
+				best = (d2, cx, cz, street_id)
+	return best
+
+
 def place_puntos(puntos, kept_ways, pos, lat0, lon0, perfil=None) -> list:
 	"""Calcula posicion, giro y tamano de cada punto en el mapa. Si un punto cae
 	sobre una casa, la quita de kept_ways para que la tienda ocupe su lote."""
+	perfil = perfil or {}
 	streets = []
 	for way_id, way in kept_ways.items():
 		if tags_of(way).get("highway") in STREET_TYPES:
@@ -360,43 +403,59 @@ def place_puntos(puntos, kept_ways, pos, lat0, lon0, perfil=None) -> list:
 		px, pz = local_xz(punto["lat"], punto["lon"], lat0, lon0)
 
 		# La fachada (+Z del modelo) ve hacia la calle mas cercana
-		best = None
-		for street_id, line in streets:
-			for (ax, az), (bx, bz) in zip(line, line[1:]):
-				dx, dz = bx - ax, bz - az
-				length2 = dx * dx + dz * dz or 1e-9
-				t = max(0.0, min(1.0, ((px - ax) * dx + (pz - az) * dz) / length2))
-				cx, cz = ax + t * dx, az + t * dz
-				d2 = (cx - px) ** 2 + (cz - pz) ** 2
-				if best is None or d2 < best[0]:
-					best = (d2, cx, cz, street_id)
+		best = calle_cercana(px, pz, streets)
 		rot = math.atan2(best[1] - px, best[2] - pz) if best else 0.0
 		if "rotacion" in punto:
 			rot = math.radians(punto["rotacion"])
 		forward = (math.sin(rot), math.cos(rot))
 		right = (math.cos(rot), -math.sin(rot))
 
-		# Los puestos se recorren a la banqueta, de frente a la calle (pasando la guarnicion)
+		# Los puestos van en la banqueta, de frente a la calle (su frente pasando la
+		# guarnicion), tambien los que el DENUE pone a media calle
+		ancho, fondo = DEFAULT_SIZE.get(tipo, FALLBACK_SIZE)
 		dist = PUESTO_STREET_DIST
-		if best and perfil and best[3] in perfil:
-			dist = max(dist, perfil[best[3]][0] + 1.2)
-		if tipo in NO_REPLACE_TIPOS and best and best[0] > dist ** 2:
+		if best and best[3] in perfil:
+			dist = max(dist, perfil[best[3]][0] + PUESTO_GUARNICION + fondo / 2)
+		if tipo in NO_REPLACE_TIPOS and best:
+			if best[0] < 0.01:
+				# Justo en el eje: se toma el lado izquierdo de la calle
+				line = dict(streets)[best[3]]
+				seg = min(zip(line, line[1:]), key=lambda s: math.hypot(s[0][0] - best[1], s[0][1] - best[2])
+					+ math.hypot(s[1][0] - best[1], s[1][1] - best[2]))
+				length = math.hypot(seg[1][0] - seg[0][0], seg[1][1] - seg[0][1]) or 1.0
+				rot = math.atan2((seg[1][1] - seg[0][1]) / length, -(seg[1][0] - seg[0][0]) / length)
+				forward = (math.sin(rot), math.cos(rot))
 			px = best[1] - forward[0] * dist
 			pz = best[2] - forward[1] * dist
 
-		ancho, fondo = DEFAULT_SIZE.get(tipo, FALLBACK_SIZE)
 		reemplazada = None
 		if replaces_house:
-			# La casa donde cae el punto o, si cae en la banqueta, la mas cercana
+			# La casa donde cae el punto o, si cae en la banqueta, la mas cercana de
+			# su lado de la calle; si cae en el arroyo, la mas cercana de cualquier lado
+			en_arroyo = best and best[3] in perfil and best[0] < perfil[best[3]][0] ** 2
 			best_house = None
 			for way_id, local in buildings.items():
 				d = ring_distance(px, pz, local)
-				if d <= HOUSE_SNAP_DIST and (best_house is None or d < best_house[0]):
+				if d > HOUSE_SNAP_DIST:
+					continue
+				if best and not en_arroyo and d > 0.0:
+					hx, hz = centroid(local[:-1])
+					if (hx - best[1]) * (px - best[1]) + (hz - best[2]) * (pz - best[2]) < 0:
+						d += HOUSE_SNAP_DIST
+				if best_house is None or d < best_house[0]:
 					best_house = (d, way_id, local)
 					if d == 0.0:
 						break
 			if best_house:
 				_, way_id, local = best_house
+				# El giro se vuelve a sacar desde la casa: el punto pudo estar del otro lado
+				if "rotacion" not in punto:
+					hx, hz = centroid(local[:-1])
+					casa_calle = calle_cercana(hx, hz, streets)
+					if casa_calle:
+						rot = math.atan2(casa_calle[1] - hx, casa_calle[2] - hz)
+						forward = (math.sin(rot), math.cos(rot))
+						right = (math.cos(rot), -math.sin(rot))
 				# El lote de la casa, medido en los ejes de la tienda
 				along = [(x - px) * right[0] + (z - pz) * right[1] for x, z in local]
 				depth = [(x - px) * forward[0] + (z - pz) * forward[1] for x, z in local]
@@ -446,6 +505,42 @@ def huella_negocio(punto, huellas):
 		frente - HUELLA_MARGEN, frente - d + HUELLA_MARGEN)
 
 
+def alejar_de_calles(punto, huellas, calles, perfil, ignorar=None, vueltas=4) -> float:
+	"""Empuja un negocio ya colocado para que su huella no pise el arroyo ni la
+	banqueta de ninguna calle (DENUE pone algunos a media calle o en la esquina):
+	queda con la fachada en la orilla de la banqueta. `ignorar`: la calle de un
+	puesto, que si va en la banqueta. Devuelve lo que se movio (m)."""
+	x0, z0 = punto["x"], punto["z"]
+	for _ in range(vueltas):
+		huella = huella_negocio(punto, huellas)
+		if not huella:
+			break
+		mx = sum(p[0] for p in huella) / len(huella)
+		mz = sum(p[1] for p in huella) / len(huella)
+		peor = None
+		for x, z in huella + [((huella[0][0] + huella[1][0]) / 2, (huella[0][1] + huella[1][1]) / 2)]:
+			for _, way_id, (qx, qz), (dx, dz) in calles.cercanos(x, z, 25.0):
+				if way_id == ignorar:
+					continue
+				# Normal del tramo hacia el centro del negocio
+				nx, nz = -dz, dx
+				if (mx - qx) * nx + (mz - qz) * nz < 0:
+					nx, nz = -nx, -nz
+				# Solo si la esquina queda frente al tramo, no pasando su punta
+				if abs((x - qx) * dx + (z - qz) * dz) > 0.5:
+					continue
+				medio, izq, der = perfil.get(way_id, (SETBACK_MIN - 1.5, 0.0, 0.0))
+				falta = medio + max(izq, der) + FACHADA_HOLGURA - ((x - qx) * nx + (z - qz) * nz)
+				if falta > 0.05 and (peor is None or falta > peor[0]):
+					peor = (falta, nx, nz)
+		if not peor:
+			break
+		falta, nx, nz = peor
+		punto["x"] = round(punto["x"] + nx * falta, 3)
+		punto["z"] = round(punto["z"] + nz * falta, 3)
+	return math.hypot(punto["x"] - x0, punto["z"] - z0)
+
+
 def rectangulo(x, z, rot, ancho, z_frente, z_fondo) -> list:
 	"""Esquinas de un rectangulo en los ejes de un lote girado `rot` (+Z = frente)."""
 	c, s = math.cos(rot), math.sin(rot)
@@ -470,15 +565,54 @@ def se_enciman(a, b) -> bool:
 		for i in range(len(a)) for j in range(len(b)))
 
 
-def quitar_casas_bajo_negocios(kept_ways, pos, lat0, lon0, huellas_negocios) -> int:
-	"""Quita de kept_ways los edificios que se enciman con algun negocio."""
+class Rejilla:
+	"""Indice por celdas de poligonos, para ver rapido con cuales se enciman."""
+
+	CELDA = 32.0
+
+	def __init__(self, poligonos=()):
+		self.celdas = collections.defaultdict(list)
+		self.poligonos = []
+		self.datos = []
+		for poly in poligonos:
+			self.agregar(poly)
+
+	def _celdas_de(self, poly):
+		x0, x1 = min(p[0] for p in poly), max(p[0] for p in poly)
+		z0, z1 = min(p[1] for p in poly), max(p[1] for p in poly)
+		for cx in range(int(x0 // self.CELDA), int(x1 // self.CELDA) + 1):
+			for cz in range(int(z0 // self.CELDA), int(z1 // self.CELDA) + 1):
+				yield (cx, cz)
+
+	def agregar(self, poly, dato=None) -> None:
+		self.poligonos.append(poly)
+		self.datos.append(dato)
+		for celda in self._celdas_de(poly):
+			self.celdas[celda].append(len(self.poligonos) - 1)
+
+	def encima(self, poly, cuenta=None) -> bool:
+		"""Si `poly` se encima con alguno; `cuenta(dato)` puede dejar pasar algunos."""
+		vistos = set()
+		for celda in self._celdas_de(poly):
+			for i in self.celdas.get(celda, ()):
+				if i not in vistos:
+					vistos.add(i)
+					if (cuenta is None or cuenta(self.datos[i])) and se_enciman(poly, self.poligonos[i]):
+						return True
+		return False
+
+
+def quitar_edificios_encimados(kept_ways, pos, lat0, lon0, poligonos) -> int:
+	"""Quita de kept_ways los edificios que se enciman con alguno de `poligonos`
+	(huellas de negocios, lotes de casas modelo)."""
+	rejilla = Rejilla(poligonos)
 	quitar = []
 	for way_id, way in kept_ways.items():
 		if "building" not in tags_of(way):
 			continue
 		ring = [local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")]
 		ring = ring[:-1] if ring[0] == ring[-1] else ring
-		if any(se_enciman(ring, h) for h in huellas_negocios):
+		if rejilla.encima(ring):
 			quitar.append(way_id)
 	for way_id in quitar:
 		del kept_ways[way_id]
@@ -676,7 +810,7 @@ def ring_area(local) -> float:
 
 
 def nearest_segment(px, pz, lines, max_dist):
-	"""(dist, way_id, (ax, az), (dx, dz) unitario) del tramo de calle mas cercano."""
+	"""(dist, way_id, (ax, az), (dx, dz) unitario, largo) del tramo de calle mas cercano."""
 	best = None
 	for way_id, line, _ in lines:
 		for (ax, az), (bx, bz) in zip(line, line[1:]):
@@ -692,7 +826,7 @@ def nearest_segment(px, pz, lines, max_dist):
 			cx, cz = ax + dx / length * t, az + dz / length * t
 			d = math.hypot(cx - px, cz - pz)
 			if d <= max_dist and (best is None or d < best[0]):
-				best = (d, way_id, (ax, az), (dx / length, dz / length))
+				best = (d, way_id, (ax, az), (dx / length, dz / length), length)
 	return best
 
 
@@ -977,11 +1111,85 @@ def borde_banqueta(perfil, way_id, izquierda: bool, default: float) -> float:
 	return medio + (izq if izquierda else der)
 
 
-def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas, perfil=None) -> list:
+def unir_intervalos(intervalos, hueco) -> list:
+	"""Une intervalos (a, b) separados por menos de `hueco`."""
+	out = []
+	for a, b in sorted(intervalos):
+		if out and a - out[-1][1] < hueco:
+			out[-1][1] = max(out[-1][1], b)
+		else:
+			out.append([a, b])
+	return out
+
+
+def restar_intervalos(intervalos, cortes) -> list:
+	"""Los intervalos sin lo que tapan los `cortes`."""
+	for c0, c1 in cortes:
+		nuevos = []
+		for a, b in intervalos:
+			if c1 <= a or c0 >= b:
+				nuevos.append([a, b])
+				continue
+			if c0 > a:
+				nuevos.append([a, c0])
+			if c1 < b:
+				nuevos.append([c1, b])
+		intervalos = nuevos
+	return intervalos
+
+
+def escoger(opciones, s):
+	"""Un modelo de [[modelo, peso], ...] segun la semilla `s`."""
+	total = sum(peso for _, peso in opciones)
+	pick = ((s >> 8) % 10000) / 10000.0 * total
+	for modelo, peso in opciones:
+		pick -= peso
+		if pick < 0:
+			break
+	return modelo
+
+
+def llenar_tramo(largo, elegir) -> list:
+	"""Casas pegadas que llenan `largo` m: [(modelo, pisos, escala)]. `elegir(i)`
+	da (modelo, pisos, frente) de la casa i. Todas llevan la misma escala, dentro
+	de CASA_ESCALA; [] si ni una casa cabe."""
+	casas, suma = [], 0.0
+	while suma < largo and len(casas) < 500:
+		casas.append(elegir(len(casas)))
+		suma += casas[-1][2]
+	# Con la ultima casa la escala queda <= 1, sin ella > 1: la que quede mas cerca de 1
+	opciones = [(casas, largo / suma)]
+	if len(casas) > 1:
+		opciones.append((casas[:-1], largo / (suma - casas[-1][2])))
+	validas = [o for o in opciones if CASA_ESCALA[0] <= o[1] <= CASA_ESCALA[1]]
+	if not validas:
+		return []
+	casas, escala = min(validas, key=lambda o: abs(math.log(o[1])))
+	return [(modelo, pisos, escala) for modelo, pisos, _ in casas]
+
+
+def invade_calle(poly, calles, perfil, propia) -> bool:
+	"""Si alguna esquina de `poly` cae en el arroyo o la banqueta de una calle que
+	no es `propia` (esquinas de la manzana, calles que doblan)."""
+	for x, z in poly:
+		for d, way_id, _, _ in calles.cercanos(x, z, 15.0):
+			if way_id == propia:
+				continue
+			medio, izq, der = perfil.get(way_id, (SETBACK_MIN - 1.5, 0.0, 0.0))
+			if d < medio + max(izq, der):
+				return True
+	return False
+
+
+def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas, modelos,
+		perfil=None, negocios=(), calles=None) -> list:
 	"""Cambia por modelos las casas de las colonias de `reglas` (data/map/casas.json).
-	Cada huella se mide en los ejes de su calle; las hileras se parten en lotes y
-	todas las fachadas de una cuadra (misma calle, mismo lado, misma manzana) se
-	ponen a la misma distancia del eje de la calle: la mediana de sus casas."""
+	Las casas se juntan por cara de cuadra (tramo recto de calle, lado, manzana) y
+	donde hay casas se ponen modelos pegados uno junto a otro, sin importar cada
+	huella de Google (se enciman y no son lotes). Todas las fachadas de la cuadra
+	van a la misma distancia del eje de la calle: la mediana de sus casas.
+	`modelos`: modelo -> [frente, fondo] (huellas_tiendas.json); `negocios`: sus
+	huellas (la hilera llega hasta ellas); `calles`: Tramos de todas las calles."""
 	casas = []
 	for way_id, way in kept_ways.items():
 		tags = tags_of(way)
@@ -995,18 +1203,20 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 		calle = nearest_segment(cx, cz, lines, CASA_MAX_CALLE)
 		if calle is None:
 			continue
-		_, street_id, (ax, az), (dx, dz) = calle
+		_, street_id, (ax, az), (dx, dz), largo = calle
 		# n: de la calle hacia la casa
 		nx, nz = -dz, dx
 		if (cx - ax) * nx + (cz - az) * nz < 0:
 			nx, nz = -nx, -nz
 		us = [(x - ax) * dx + (z - az) * dz for x, z in local]
 		vs = [(x - ax) * nx + (z - az) * nz for x, z in local]
+		izquierda = nx * dz - nz * dx > 0
+		manzana = manzanas.at(cx, cz)
 		casas.append({
-			"way_id": way_id, "tags": tags,
-			"manzana": manzanas.at(cx, cz),
-			"grupo": (street_id, nx * dz - nz * dx > 0, manzanas.at(cx, cz)),
-			"a": (ax, az), "d": (dx, dz), "n": (nx, nz),
+			"way_id": way_id, "tags": tags, "ring": local,
+			"grupo": (street_id, izquierda, manzana),
+			"cara": (street_id, izquierda, manzana, (round(ax, 2), round(az, 2))),
+			"a": (ax, az), "d": (dx, dz), "n": (nx, nz), "largo": largo,
 			"u0": min(us), "u1": max(us), "frente": min(vs), "fondo": max(vs),
 		})
 
@@ -1019,50 +1229,278 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 	setback = {g: max(borde_banqueta(perfil or {}, g[0], g[1], SETBACK_MIN) + FACHADA_HOLGURA, sorted(f)[len(f) // 2])
 		for g, f in frentes.items()}
 
+	caras = collections.defaultdict(list)
+	for casa in casas:
+		caras[casa["cara"]].append(casa)
+	# Las caras largas primero: en las esquinas gana la hilera mas larga
+	orden = sorted(caras, key=lambda k: (-sum(c["u1"] - c["u0"] for c in caras[k]), str(k)))
+
+	lotes = Rejilla()
 	placed = []
 	replaced = []
-	for casa in casas:
-		colonia = colonia_de.get(casa["manzana"], "")
+	descartados = 0
+	for cara in orden:
+		grupo = caras[cara]
+		colonia = colonia_de.get(cara[2], "")
 		regla = reglas.get(colonia) or reglas.get("*")
 		if not regla:
 			continue
-		s_casa = seed("casa/" + casa["way_id"])
-		if (s_casa % 1000) / 1000.0 >= regla.get("_proporcion", 1.0):
+		# La proporcion va por cara: una cara a medias volveria a encimarse
+		cara_id = f"cara/{cara[0]}/{int(cara[1])}/{cara[2]}/{cara[3][0]:.1f},{cara[3][1]:.1f}"
+		if (seed(cara_id) % 1000) / 1000.0 >= regla.get("_proporcion", 1.0):
 			continue
-		frontage = casa["u1"] - casa["u0"]
-		n_lotes = max(1, round(frontage / ANCHO_LOTE)) if frontage > LOTE_PARTIR * ANCHO_LOTE else 1
-		ancho = frontage / n_lotes
-		frente = setback[casa["grupo"]]
-		fondo = max(CASA_FONDO_MIN, casa["fondo"] - frente)
-		(ax, az), (dx, dz), (nx, nz) = casa["a"], casa["d"], casa["n"]
+		(ax, az), (dx, dz), (nx, nz), largo = grupo[0]["a"], grupo[0]["d"], grupo[0]["n"], grupo[0]["largo"]
+		frente = setback[grupo[0]["grupo"]]
+		fondos = sorted(c["fondo"] for c in grupo)
+		fondo_cuadra = max(CASA_FONDO_MIN, fondos[len(fondos) // 2] - frente) + 1.0
 		rot = math.atan2(-nx, -nz)
-		levels_tag = casa["tags"].get("building:levels")
-		for i in range(n_lotes):
-			s = seed(f"way/{casa['way_id']}#{i}")
-			pisos = int(levels_tag) if levels_tag and levels_tag.isdigit() else 1 + s % 2
-			opciones = regla.get(str(pisos)) or regla.get("*")
-			if not opciones:
+
+		# Donde hay casas, recortado al tramo de calle
+		tramos = unir_intervalos([(max(0.0, c["u0"]), min(largo, c["u1"]))
+			for c in grupo if c["u1"] > 0 and c["u0"] < largo], HUECO_MAX)
+		# Los negocios de este lado de la calle cortan la hilera
+		cortes = []
+		for huella in negocios:
+			vs = [(x - ax) * nx + (z - az) * nz for x, z in huella]
+			if max(vs) < 0 or min(vs) > frente + fondo_cuadra:
 				continue
-			total = sum(peso for _, peso in opciones)
-			pick = ((s >> 8) % 10000) / 10000.0 * total
-			for modelo, peso in opciones:
-				pick -= peso
-				if pick < 0:
-					break
-			u = casa["u0"] + (i + 0.5) * ancho
-			placed.append({
-				"modelo": modelo,
-				"x": round(ax + dx * u + nx * frente, 2), "z": round(az + dz * u + nz * frente, 2),
-				"rotacion_y": round(rot, 4),
-				"ancho": round(ancho, 2), "fondo": round(fondo, 2),
-				"pisos": pisos,
-				"color": CASA_PALETTE[(s >> 4) % len(CASA_PALETTE)],
-				"colonia": colonia,
-			})
-		replaced.append(casa["way_id"])
+			us = [(x - ax) * dx + (z - az) * dz for x, z in huella]
+			if max(us) > 0 and min(us) < largo:
+				cortes.append((min(us), max(us)))
+		tramos = restar_intervalos(tramos, cortes)
+
+		for t0, t1 in tramos:
+			def elegir(i):
+				s = seed(f"{cara_id}#{t0:.0f}#{i}")
+				pisos = 1 + s % 2
+				# Si la casa de Google/OSM de ese lugar trae pisos, se respetan
+				u = t0 + (i + 0.5) * ANCHO_LOTE_TIPICO
+				px, pz = ax + dx * u + nx * (frente + 2.0), az + dz * u + nz * (frente + 2.0)
+				for c in grupo:
+					levels = c["tags"].get("building:levels")
+					if levels and levels.isdigit() and point_in_polygon(px, pz, c["ring"]):
+						pisos = int(levels)
+						break
+				opciones = [o for o in (regla.get(str(pisos)) or regla.get("*") or []) if o[0] in modelos]
+				# Solo modelos que caben en el fondo de la cuadra (si ninguno, el menos hondo)
+				caben = [o for o in opciones if modelos[o[0]][1] * CASA_ESCALA[0] <= fondo_cuadra]
+				if opciones and not caben:
+					caben = [min(opciones, key=lambda o: modelos[o[0]][1])]
+				if not caben:
+					return (None, pisos, ANCHO_LOTE_TIPICO)
+				modelo = escoger(caben, s)
+				return (modelo, pisos, modelos[modelo][0])
+
+			u = t0
+			for modelo, pisos, escala in llenar_tramo(t1 - t0, elegir):
+				if modelo is None:
+					u += ANCHO_LOTE_TIPICO * escala
+					continue
+				ancho, fondo = modelos[modelo][0] * escala, modelos[modelo][1] * escala
+				uc = u + ancho / 2
+				u += ancho
+				x, z = ax + dx * uc + nx * frente, az + dz * uc + nz * frente
+				rect = rectangulo(x, z, rot, ancho - 2 * LOTE_MARGEN, -LOTE_MARGEN, -fondo + LOTE_MARGEN)
+				# Casas espalda con espalda (fachadas opuestas) si se pueden encimar por
+				# atras; por los lados (misma hilera, esquinas) no
+				if lotes.encima(rect, lambda otra: math.cos(otra - rot) > ESPALDA_COS) \
+						or (calles and invade_calle(rect, calles, perfil or {}, cara[0])):
+					descartados += 1
+					continue
+				lotes.agregar(rect, rot)
+				s = seed(f"{cara_id}#{uc:.1f}")
+				placed.append({
+					"modelo": modelo,
+					"x": round(x, 2), "z": round(z, 2),
+					"rotacion_y": round(rot, 4),
+					"ancho": round(ancho, 2), "fondo": round(fondo, 2),
+					"pisos": pisos,
+					"color": CASA_PALETTE[(s >> 4) % len(CASA_PALETTE)],
+					"colonia": colonia,
+				})
+		replaced += [c["way_id"] for c in grupo]
 	for way_id in replaced:
 		del kept_ways[way_id]
+	# Lo que quede debajo de un lote (casas de otra cara, huellas grandes) tambien se va
+	encimados = quitar_edificios_encimados(kept_ways, pos, lat0, lon0, lotes.poligonos)
+	print(f"  Casas modelo: {len(replaced)} huellas cambiadas por hileras, {descartados} lotes descartados "
+		f"(chocaban con otro o con una calle), {encimados} edificios debajo de un lote quitados")
 	return placed
+
+
+def envolvente(puntos) -> list:
+	"""Envolvente convexa (cadena monotona), sin repetir el primer punto."""
+	pts = sorted(set(puntos))
+	if len(pts) < 3:
+		return pts
+
+	def cruz(o, a, b):
+		return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+	abajo, arriba = [], []
+	for p in pts:
+		while len(abajo) >= 2 and cruz(abajo[-2], abajo[-1], p) <= 0:
+			abajo.pop()
+		abajo.append(p)
+	for p in reversed(pts):
+		while len(arriba) >= 2 and cruz(arriba[-2], arriba[-1], p) <= 0:
+			arriba.pop()
+		arriba.append(p)
+	return abajo[:-1] + arriba[:-1]
+
+
+def rectangulo_minimo(puntos):
+	"""Rectangulo de area minima que contiene los puntos (lados de la envolvente):
+	(centro x, centro z, eje unitario (ux, uz), largo sobre u, largo sobre el otro eje)."""
+	hull = envolvente(puntos)
+	best = None
+	for (ax, az), (bx, bz) in zip(hull, hull[1:] + hull[:1]):
+		largo = math.hypot(bx - ax, bz - az)
+		if largo < 1e-6:
+			continue
+		ux, uz = (bx - ax) / largo, (bz - az) / largo
+		us = [x * ux + z * uz for x, z in hull]
+		vs = [-x * uz + z * ux for x, z in hull]
+		area = (max(us) - min(us)) * (max(vs) - min(vs))
+		if best is None or area < best[0]:
+			cu, cv = (max(us) + min(us)) / 2, (max(vs) + min(vs)) / 2
+			best = (area, cu * ux - cv * uz, cu * uz + cv * ux, (ux, uz), max(us) - min(us), max(vs) - min(vs))
+	return best[1:] if best else None
+
+
+def partir(largo, maximo, pasillo) -> list:
+	"""Tramos (inicio, largo) de una nave de `largo` m partida en naves de <= `maximo`
+	con `pasillo` m entre ellas, medidos desde -largo/2."""
+	n = max(1, math.ceil((largo + pasillo) / (maximo + pasillo)))
+	tramo = (largo - (n - 1) * pasillo) / n
+	return [(-largo / 2 + i * (tramo + pasillo), tramo) for i in range(n)]
+
+
+def recortar_nave(nave, puntos):
+	"""Achica una nave (x0, x1, z0, z1 en ejes de la bodega) para que no la cruce
+	ninguna calle: `puntos` son (x, z, medio ancho ocupado) del eje de las calles.
+	Se queda con el pedazo mas grande; None si no queda uno de BODEGA_LADO_MIN."""
+	for _ in range(200):
+		x0, x1, z0, z1 = nave
+		cruza = next(((px, pz, h) for px, pz, h in puntos if x0 - h < px < x1 + h and z0 - h < pz < z1 + h), None)
+		if cruza is None:
+			return nave
+		px, pz, h = cruza
+		opciones = [(px + h, x1, z0, z1), (x0, px - h, z0, z1), (x0, x1, z0, pz - h), (x0, x1, pz + h, z1)]
+		opciones = [o for o in opciones if o[1] - o[0] >= BODEGA_LADO_MIN and o[3] - o[2] >= BODEGA_LADO_MIN]
+		if not opciones:
+			return None
+		nave = max(opciones, key=lambda o: (o[1] - o[0]) * (o[3] - o[2]))
+	return None
+
+
+def puntos_de_calles(calles, perfil, x0, z0, x1, z1) -> list:
+	"""Puntos cada 1 m del eje de las calles cerca de un rectangulo, con lo que
+	ocupa cada calle de cada lado (arroyo + BODEGA_BANQUETA)."""
+	puntos = []
+	vistos = set()
+	for cx in range(int(x0 // calles.CELDA) - 1, int(x1 // calles.CELDA) + 2):
+		for cz in range(int(z0 // calles.CELDA) - 1, int(z1 // calles.CELDA) + 2):
+			for tramo in calles.celdas.get((cx, cz), ()):
+				if id(tramo) in vistos:
+					continue
+				vistos.add(id(tramo))
+				way_id, (ax, az), (bx, bz), _, _ = tramo
+				medio, izq, der = perfil.get(way_id, (SETBACK_MIN - 1.5, 0.0, 0.0))
+				h = medio + BODEGA_BANQUETA
+				n = max(1, int(math.hypot(bx - ax, bz - az)))
+				puntos += [(ax + (bx - ax) * i / n, az + (bz - az) * i / n, h) for i in range(n + 1)]
+	return puntos
+
+
+def place_bodegas(kept_ways, pos, lat0, lon0, manzanas, colonia_de, calles, perfil, negocios=()) -> list:
+	"""Cambia las bodegas (todo lo de BODEGA_COLONIAS y las huellas grandes sin nombre)
+	por bodegas huecas de MapBodegas.gd: su rectangulo minimo, con el frente hacia la
+	calle mas cercana; las enormes se parten en naves con pasillos. Las quita de kept_ways.
+	Una nave que choca con otra o con un negocio (`negocios`: sus huellas) no va."""
+	ocupado = Rejilla(negocios)
+	bodegas = []
+	quitar = []
+	partidas = 0
+	recortes = 0
+	chocan = 0
+	for way_id, way in kept_ways.items():
+		tags = tags_of(way)
+		if tags.get("building") not in BODEGA_TIPOS or "name" in tags or "shop" in tags or "amenity" in tags:
+			continue
+		local = [local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")]
+		area = ring_area(local)
+		if area < BODEGA_AREA_MIN_INDUSTRIAL:
+			continue
+		cx, cz = centroid(local[:-1])
+		colonia = colonia_de.get(manzanas.at(cx, cz), "") if manzanas else ""
+		if area < BODEGA_AREA_MIN and colonia not in BODEGA_COLONIAS:
+			continue
+		rect = rectangulo_minimo(local[:-1])
+		if rect is None:
+			continue
+		mx, mz, (ux, uz), lu, lv = rect
+		# Los cuatro lados: (normal hacia afuera, largo del lado, largo hacia adentro)
+		lados = [((-uz, ux), lu, lv), ((uz, -ux), lu, lv), ((ux, uz), lv, lu), ((-ux, -uz), lv, lu)]
+
+		def distancia_calle(lado):
+			(nx, nz), _, hondo = lado
+			px, pz = mx + nx * hondo / 2, mz + nz * hondo / 2
+			cerca = calles.cercanos(px, pz, 80.0)
+			return min((d for d, _, _, _ in cerca), default=1e9)
+
+		(nx, nz), ancho, fondo = min(lados, key=distancia_calle)
+		if min(ancho, fondo) < BODEGA_LADO_MIN:
+			continue
+		# Ejes de la bodega: +Z hacia la calle (n), X a lo largo del frente
+		rot = math.atan2(nx, nz)
+		rx, rz = nz, -nx
+		# Naves en ejes de la bodega (x a lo largo del frente, z hacia la calle; el
+		# frente de todo esta en z = fondo/2): (x0, x1, z0, z1)
+		naves = [(a0, a0 + al, -f0 - fl, -f0) for a0, al in partir(ancho, BODEGA_LARGO_MAX, BODEGA_PASILLO)
+			for f0, fl in partir(fondo, BODEGA_LARGO_MAX, BODEGA_PASILLO)]
+		# El rectangulo minimo de una huella chueca se puede salir a la calle: se recorta
+		r = math.hypot(ancho, fondo) / 2
+		puntos = [((px - mx) * rx + (pz - mz) * rz, (px - mx) * nx + (pz - mz) * nz, h)
+			for px, pz, h in puntos_de_calles(calles, perfil, mx - r, mz - r, mx + r, mz + r)]
+		recortadas = [recortar_nave(nave, puntos) for nave in naves]
+		recortes += sum(1 for a, b in zip(naves, recortadas) if a != b)
+		naves = [nave for nave in recortadas if nave]
+		if not naves:
+			continue
+		if len(naves) > 1:
+			partidas += 1
+		puestas = 0
+		for i, (x0, x1, z0, z1) in enumerate(naves):
+			a, al, fl = (x0 + x1) / 2, x1 - x0, z1 - z0
+			x, z = mx + rx * a + nx * z1, mz + rz * a + nz * z1
+			huella = rectangulo(x, z, rot, al - 2 * LOTE_MARGEN, -LOTE_MARGEN, -fl + LOTE_MARGEN)
+			if ocupado.encima(huella):
+				chocan += 1
+				continue
+			ocupado.agregar(huella)
+			puestas += 1
+			s = seed(f"bodega/{way_id}#{i}")
+			bodegas.append({
+				"x": round(x, 2), "z": round(z, 2), "rotacion_y": round(rot, 4),
+				"ancho": round(al, 2), "fondo": round(fl, 2),
+				"alto": round(min(9.0, max(6.0, 5.0 + math.sqrt(al * fl) / 25.0)) + (s % 5) * 0.2, 2),
+				"color": BODEGA_COLORES[(s >> 4) % len(BODEGA_COLORES)],
+				"semilla": s % 100000,
+				"colonia": colonia,
+			})
+		# Si no cupo ninguna nave, el edificio se queda como estaba
+		if puestas:
+			quitar.append(way_id)
+	for way_id in quitar:
+		del kept_ways[way_id]
+	print(f"  Bodegas: {len(bodegas)} naves de {len(quitar)} huellas ({partidas} partidas en varias naves, "
+		f"{recortes} recortadas porque se salian a una calle, {chocan} quitadas porque chocaban con otra o con un negocio)")
+	return bodegas
+
+
+def huella_bodega(b) -> list:
+	return rectangulo(b["x"], b["z"], b["rotacion_y"], b["ancho"], 0.0, -b["fondo"])
 
 
 def place_altos(lines, inside, perfil=None) -> tuple:
@@ -1118,6 +1556,7 @@ def main() -> None:
 	parser.add_argument("--colonias", help="data/map/colonias.json: correcciones a mano por manzana")
 	parser.add_argument("--casas", help="data/map/casas.json: que modelos de casa van en cada colonia")
 	parser.add_argument("--salida-casas", help="JSON con las casas modelo, para Godot (MapCasas.gd)")
+	parser.add_argument("--salida-bodegas", help="JSON con las bodegas huecas, para Godot (MapBodegas.gd)")
 	parser.add_argument("--png-colonias", help="PNG de debug con las manzanas pintadas por colonia")
 	parser.add_argument("--huellas", help="data/map/huellas_tiendas.json (huellas_tiendas.gd): lo que ocupa cada modelo de negocio")
 	args = parser.parse_args()
@@ -1222,6 +1661,12 @@ def main() -> None:
 	min_x, max_z = local_xz(south, west, lat0, lon0)
 	max_x, min_z = local_xz(north, east, lat0, lon0)
 
+	# Lo que ocupa cada modelo de negocio y de casa en el juego (huellas_tiendas.gd)
+	huellas = {}
+	if args.huellas and os.path.exists(args.huellas):
+		with open(args.huellas, encoding="utf-8") as f:
+			huellas = json.load(f)
+
 	# Manzanas y colonias (antes de las tiendas: las tiendas quitan casas)
 	manzanas = colonia_de = None
 	huellas_negocios = []
@@ -1272,16 +1717,29 @@ def main() -> None:
 				kept_puntos.append((p, px, pz))
 		print(f"  Puntos repetidos (mismo tipo a < {DUPLICATE_DIST:.0f} m, tiendas a < {DUPLICATE_DIST_TIPO['tienda']:.0f} m): {len(puntos) - len(kept_puntos)} quitados")
 		placed = place_puntos([p for p, _, _ in kept_puntos], kept_ways, pos, lat0, lon0, perfil)
+		# Ningun negocio en la calle: se recorre a la banqueta mas cercana (sin service:
+		# entradas de gasolineras y estacionamientos)
+		todas = street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)
+		calles = Tramos(todas)
+		streets = [(w, line) for w, line, _ in todas]
+		movidos = []
+		for p in placed:
+			ignorar = None
+			if p["tipo"] in NO_REPLACE_TIPOS:
+				ignorar = calle_cercana(p["x"], p["z"], streets)[3]
+			d = alejar_de_calles(p, huellas, calles, perfil, ignorar)
+			if d > 0.05:
+				movidos.append(d)
+		if movidos:
+			print(f"  Negocios recorridos fuera de la calle: {len(movidos)}, {sum(movidos) / len(movidos):.1f} m en promedio")
 		prop_lines = street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)
 		altos, n_esquinas = place_altos(prop_lines, inside_local, perfil)
 		placed += altos
 		print(f"  Altos: {len(altos)} de {n_esquinas} esquinas")
 		# Casas encimadas en un negocio (los modelos crecen hacia atras y a los lados): se quitan
-		if args.huellas and os.path.exists(args.huellas):
-			with open(args.huellas, encoding="utf-8") as f:
-				huellas = json.load(f)
+		if huellas:
 			huellas_negocios = [h for h in (huella_negocio(p, huellas) for p in placed) if h]
-			quitadas = quitar_casas_bajo_negocios(kept_ways, pos, lat0, lon0, huellas_negocios)
+			quitadas = quitar_edificios_encimados(kept_ways, pos, lat0, lon0, huellas_negocios)
 			print(f"  Casas debajo de un negocio: {quitadas} quitadas")
 		os.makedirs(os.path.dirname(args.salida_puntos), exist_ok=True)
 		with open(args.salida_puntos, "w", encoding="utf-8") as f:
@@ -1289,12 +1747,26 @@ def main() -> None:
 		replaced = sum(1 for p in placed if p["casa_reemplazada"])
 		print(f"  Puntos: {len(placed)} ({replaced} reemplazan una casa) -> {args.salida_puntos}")
 
+	# Bodegas huecas (despues de las tiendas, antes de las casas: las hileras paran en ellas)
+	if args.salida_bodegas and colonia_de is not None:
+		todas = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
+		bodegas = place_bodegas(kept_ways, pos, lat0, lon0, manzanas, colonia_de, Tramos(todas), perfil, huellas_negocios)
+		huellas_bodegas = [huella_bodega(b) for b in bodegas]
+		encimados = quitar_edificios_encimados(kept_ways, pos, lat0, lon0, huellas_bodegas)
+		if encimados:
+			print(f"  Edificios debajo de una bodega: {encimados} quitados")
+		huellas_negocios += huellas_bodegas
+		os.makedirs(os.path.dirname(args.salida_bodegas), exist_ok=True)
+		with open(args.salida_bodegas, "w", encoding="utf-8") as f:
+			f.write('{"bodegas": [\n' + ",\n".join(json.dumps(b, ensure_ascii=False) for b in bodegas) + "\n]}\n")
+
 	# Casas modelo por colonia (despues de las tiendas, que ya tomaron sus lotes)
 	if args.casas and args.salida_casas and colonia_de is not None:
 		with open(args.casas, encoding="utf-8") as f:
 			reglas = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
 		casa_lines = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
-		casas = place_casas(kept_ways, pos, lat0, lon0, casa_lines, manzanas, colonia_de, reglas, perfil)
+		casas = place_casas(kept_ways, pos, lat0, lon0, casa_lines, manzanas, colonia_de, reglas,
+			huellas.get("casas", {}), perfil, huellas_negocios, Tramos(casa_lines))
 		# Un lote de casa modelo que se mete en un negocio tampoco va
 		antes = len(casas)
 		casas = [c for c in casas if not any(se_enciman(rectangulo(c["x"], c["z"], c["rotacion_y"], c["ancho"], 0.0, -c["fondo"]), h)

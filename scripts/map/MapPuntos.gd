@@ -69,6 +69,7 @@ const PARED_COLORS := [
 var _puntos := []
 var _nodes := {}           # indice en _puntos -> Node3D
 var _box_materials := {}   # tipo -> ShaderMaterial de las cajas
+var _sucios := {}          # material de un prefab -> copia con deterioro
 var _target: Node3D
 var _timer := 0.0
 
@@ -173,11 +174,23 @@ func _make_prefab(punto: Dictionary) -> Node3D:
 	return holder
 
 
-# Igual que los cuadros del mapa (MapPostImport): sin sombras y ocultos de lejos
+# Igual que los cuadros del mapa (MapPostImport): sin sombras y ocultos de lejos.
+# Tambien les pone la mugre de la zona (ps1_deterioro) a sus materiales PS1.
 func _set_far_mesh_options(node: Node) -> void:
 	if node is MeshInstance3D:
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		node.visibility_range_end = PREFAB_VISIBILITY_RANGE
+		var instance := node as MeshInstance3D
+		if instance.mesh:
+			for surface in instance.mesh.get_surface_count():
+				var material := instance.get_active_material(surface) as ShaderMaterial
+				if material == null or material.shader != PS1_SHADER:
+					continue
+				if not _sucios.has(material):
+					var sucio := material.duplicate() as ShaderMaterial
+					sucio.set_shader_parameter("deterioro_modo", 1)
+					_sucios[material] = sucio
+				instance.set_surface_override_material(surface, _sucios[material])
 	for child in node.get_children():
 		_set_far_mesh_options(child)
 
@@ -216,6 +229,7 @@ func _make_placeholder(punto: Dictionary) -> Node3D:
 		material.shader = PS1_SHADER
 		material.set_shader_parameter("tint", TIPO_COLORS.get(tipo, Color(0.6, 0.6, 0.6)))
 		material.set_shader_parameter("affine_enabled", false)
+		material.set_shader_parameter("deterioro_modo", 2)
 		_box_materials[tipo] = material
 	box.material = _box_materials[tipo]
 
@@ -304,7 +318,7 @@ func _make_local(punto: Dictionary) -> Node3D:
 func _local_box(body: StaticBody3D, size: Vector3, pos: Vector3, color: Color, solid: bool) -> MeshInstance3D:
 	var box := BoxMesh.new()
 	box.size = size
-	box.material = _color_material(color)
+	box.material = _color_material(color, solid)
 	var mesh := MeshInstance3D.new()
 	mesh.mesh = box
 	mesh.position = pos
@@ -321,11 +335,14 @@ func _local_box(body: StaticBody3D, size: Vector3, pos: Vector3, color: Color, s
 	return mesh
 
 
-func _color_material(color: Color) -> ShaderMaterial:
-	if not _box_materials.has(color):
+# `muro`: paredes del local, con pintura caida y escurrimientos; lo demas, solo mugre
+func _color_material(color: Color, muro: bool) -> ShaderMaterial:
+	var key := [color, muro]
+	if not _box_materials.has(key):
 		var material := ShaderMaterial.new()
 		material.shader = PS1_SHADER
 		material.set_shader_parameter("tint", color)
 		material.set_shader_parameter("affine_enabled", false)
-		_box_materials[color] = material
-	return _box_materials[color]
+		material.set_shader_parameter("deterioro_modo", 2 if muro else 1)
+		_box_materials[key] = material
+	return _box_materials[key]

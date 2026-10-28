@@ -1,8 +1,10 @@
 """Genera las texturas PS1 de fachadas y azoteas del mapa con ImageMagick.
 
 Cada mosaico mide TILE px y equivale a 2.5 x 2.5 m (un piso de OSM2World).
-- textures/map/fachadas.png: 4 columnas x 2 filas. Fila 0 = pisos de arriba,
-  fila 1 = planta baja. ps1_facade.gdshader elige un mosaico al azar por tramo.
+- textures/map/fachadas.png: 4 columnas x 4 filas. Fila 0 = pisos de arriba,
+  fila 1 = planta baja; filas 2 y 3 = lo mismo deteriorado (ventanas rotas o
+  tapiadas, cortinas oxidadas con grafiti). ps1_facade.gdshader elige un
+  mosaico al azar por tramo, y uno deteriorado segun el deterioro de la zona.
 - textures/map/fachadas_mascara.png: blanco = pared (se pinta del color de la
   casa), negro = ventana/puerta/cortina (se queda con su color).
 - textures/map/azoteas.png: 2 mosaicos, impermeabilizante rojo y losa gris.
@@ -10,6 +12,10 @@ Cada mosaico mide TILE px y equivale a 2.5 x 2.5 m (un piso de OSM2World).
   terreno de OSM2World) y textures/map/banqueta.png (MapPostImport.GROUND_TEXTURES).
 - textures/map/pasto.png y pasto_seco.png (ps1_suelo los mezcla donde la mascara
   satelital dice pasto), asfalto.png y empedrado.png (calles).
+- textures/map/grietas.png: grietas oscuras sobre blanco, se repite sin costura
+  (shaders/ps1_deterioro.gdshaderinc: asfalto, banquetas y vidrios rotos).
+- textures/map/lamina.png y lamina_techo.png: lamina acanalada clara (MapBodegas.gd
+  la pinta con el color de cada bodega); una canal cada 8 px = 0.3 m.
 - textures/map/mata_pasto.png: una mata con transparencia (MapPasto.gd) y
   textures/map/arbol.png: corteza a la izquierda, hojas a la derecha (MapArboles.gd).
 
@@ -26,6 +32,7 @@ split_cuadros.gd (los materiales de los cuadros copian estas texturas).
 
 import argparse
 import json
+import math
 import os
 import random
 import subprocess
@@ -58,6 +65,14 @@ FRAME = "#cfc9be"
 GLASS = "#2c3a48"
 IRON = "#151515"
 SILL = "#b3ab9e"
+HOLE = "#0b0b0d"
+WOOD = "#7a5a3a"
+WOOD_DARK = "#5e4329"
+BLOCK = "#8d8a84"
+MORTAR = "#6f6c66"
+RUST = "#7a4a2e"
+RUST_DARK = "#4e2f1d"
+SOOT = "#26221e"
 
 
 def window(x0, y0, x1, y1, bars=5):
@@ -68,6 +83,39 @@ def window(x0, y0, x1, y1, bars=5):
 		shapes.append((IRON, x, y0, x, y1))
 	shapes.append((IRON, x0, (y0 + y1) // 2, x1, (y0 + y1) // 2))
 	shapes.append((SILL, x0 - 4, y1 + 3, x1 + 4, y1 + 5))
+	return shapes
+
+
+def broken_window(x0, y0, x1, y1):
+	"""Ventana sin vidrio: hueco negro con picos de vidrio y la herreria chueca."""
+	w, h = x1 - x0, y1 - y0
+	return [(FRAME, x0 - 3, y0 - 3, x1 + 3, y1 + 3), (HOLE, x0, y0, x1, y1),
+		(GLASS, [(x0, y0), (x0 + w // 2, y0), (x0 + w // 5, y0 + h // 3)]),
+		(GLASS, [(x1, y1), (x1 - w // 3, y1), (x1, y1 - h // 2)]),
+		(GLASS, [(x1, y0), (x1 - w // 6, y0), (x1, y0 + h // 4)]),
+		(IRON, [(x0 + w // 4, y0), (x0 + w // 3, y1)]), (IRON, [(x0 + w // 2, y0), (x0 + w // 2 + 4, y0 + h // 2)]),
+		(IRON, [(x0 + 3 * w // 4, y0), (x0 + 3 * w // 4 - 2, y1)]), (IRON, [(x0, y0 + h // 2), (x1, y0 + h // 2 - 4)]),
+		(SILL, x0 - 4, y1 + 3, x1 + 4, y1 + 5)]
+
+
+def boarded(x0, y0, x1, y1, inside=HOLE):
+	"""Hueco tapiado con tablas chuecas y clavos."""
+	shapes = [(FRAME, x0 - 3, y0 - 3, x1 + 3, y1 + 3), (inside, x0, y0, x1, y1)]
+	h = (y1 - y0) // 4
+	for i, (color, tilt) in enumerate(((WOOD, 3), (WOOD_DARK, -4), (WOOD, 2), (WOOD_DARK, -2))):
+		ya = y0 + 2 + i * h
+		shapes.append((color, [(x0 - 4, ya + tilt), (x1 + 4, ya - tilt), (x1 + 4, ya - tilt + h - 3), (x0 - 4, ya + tilt + h - 3)]))
+		shapes += [(IRON, x0 - 1, ya + tilt + 2, x0, ya + tilt + 3), (IRON, x1, ya - tilt + 2, x1 + 1, ya - tilt + 3)]
+	return shapes
+
+
+def blocks(x0, y0, x1, y1):
+	"""Hueco tapado con block gris (juntas cuatrapeadas)."""
+	shapes = [(FRAME, x0 - 3, y0 - 3, x1 + 3, y1 + 3), (BLOCK, x0, y0, x1, y1)]
+	for k, y in enumerate(range(y0 + 5, y1, 5)):
+		shapes.append((MORTAR, x0, y, x1, y))
+		for x in range(x0 + (5 if k % 2 else 0), x1, 10):
+			shapes.append((MORTAR, x, y - 5, x, y))
 	return shapes
 
 
@@ -96,6 +144,21 @@ TILES = {
 		+ striped(6, 17, 57, 63, "#8a8d90", "#6c6f72", 3),
 	(2, 1): window(17, 18, 46, 42),
 	(3, 1): [("#2a2d31", 3, 12, 60, 15)] + striped(4, 15, 59, 63, "#3b3f45", "#2a2d31", 4, vertical=True),
+	# Pisos de arriba, deteriorados
+	(0, 2): [(SOOT, [(12, 14), (50, 14), (58, 0), (6, 0)])] + broken_window(17, 15, 46, 39),
+	(1, 2): boarded(8, 17, 26, 36) + broken_window(37, 17, 55, 36),
+	(2, 2): blocks(15, 10, 48, 46) + [(SILL, 9, 46, 54, 49)],
+	(3, 2): [(SOOT, [(34, 12), (54, 12), (60, 0), (30, 0)]), (FRAME, 34, 10, 54, 26), (HOLE, 37, 13, 51, 23)],
+	# Planta baja, deteriorada
+	(0, 3): boarded(22, 18, 41, 62, inside="#3e2716"),
+	(1, 3): [("#8a6a2a", 3, 3, 60, 11), ("#3a3532", 4, 12, 59, 17)]
+		+ striped(6, 17, 57, 63, RUST, RUST_DARK, 3)
+		+ [(HOLE, [(40, 63), (57, 63), (57, 50), (47, 55)]),
+			("#c8326e", [(10, 30), (24, 26)]), ("#c8326e", [(24, 26), (16, 40)]), ("#c8326e", [(16, 40), (32, 36)]),
+			("#2ea0c4", [(30, 44), (48, 30)]), ("#2ea0c4", [(36, 46), (52, 38)]), ("#e8e4dc", [(12, 52), (28, 48)])],
+	(2, 3): broken_window(17, 18, 46, 42),
+	(3, 3): [("#2a2d31", 3, 12, 60, 15)] + striped(4, 15, 59, 63, RUST_DARK, "#2a1a10", 4, vertical=True)
+		+ [(HOLE, [(8, 63), (26, 63), (20, 46), (12, 50)]), ("#e8e4dc", [(34, 28), (50, 24)]), ("#e8e4dc", [(36, 34), (52, 32)])],
 }
 
 # En el estilo fotos, ("foto:<clave de FOTOS>", x0, y0, x1, y1) pega un recorte de la foto
@@ -146,7 +209,18 @@ def foto_crop(key: str, width: int, height: int) -> str:
 
 def draw_args(shapes, ox, oy, color_override=None):
 	args = []
-	for color, x0, y0, x1, y1 in shapes:
+	for shape in shapes:
+		if len(shape) == 2:
+			# (color, [(x, y), ...]): 2 puntos = linea, mas = poligono
+			color, points = shape
+			fill = color_override if color_override else color
+			coords = " ".join(f"{ox + x},{oy + y}" for x, y in points)
+			if len(points) == 2:
+				args += ["-stroke", fill, "-draw", f"line {coords}", "-stroke", "none"]
+			else:
+				args += ["-fill", fill, "-draw", f"polygon {coords}"]
+			continue
+		color, x0, y0, x1, y1 = shape
 		fill = color_override if color_override else color
 		if color_override and color == "#00000000":
 			continue
@@ -169,7 +243,7 @@ def main() -> None:
 	parser.add_argument("--estilo", choices=["dibujado", "fotos"], default="dibujado")
 	estilo = parser.parse_args().estilo
 	os.makedirs(OUT_DIR, exist_ok=True)
-	width, height = TILE * 4, TILE * 2
+	width, height = TILE * 4, TILE * 4
 
 	if estilo == "fotos":
 		# Aplanado de foto en gris claro: el shader lo pinta del color de la casa
@@ -182,8 +256,9 @@ def main() -> None:
 		tiles = TILES
 		base = ["-size", f"{width}x{height}", "xc:#e8e4dc", "-seed", "7",
 			"-attenuate", "0.25", "+noise", "Uniform", "-colorspace", "sRGB"]
-	# Mas sucio abajo en planta baja
-	color_args = base + ["-fill", "#c9c1b2", "-draw", f"rectangle 0,{height - 5} {width},{height}"]
+	# Mas sucio abajo en planta baja (filas 1 y 3)
+	color_args = base + ["-fill", "#c9c1b2", "-draw", f"rectangle 0,{TILE * 2 - 5} {width},{TILE * 2 - 1}",
+		"-draw", f"rectangle 0,{TILE * 4 - 5} {width},{TILE * 4 - 1}"]
 	mask_args = ["-size", f"{width}x{height}", "xc:white"]
 	for (col, row), shapes in tiles.items():
 		color_args += draw_args(shapes, col * TILE, row * TILE)
@@ -242,6 +317,9 @@ def main() -> None:
 			magick("-size", f"{SUELO_PX}x{SUELO_PX}", f"xc:{color}", "-seed", str(len(nombre)), "-attenuate", str(ruido),
 				"+noise", "Uniform", "-colorspace", "sRGB", "-fill", oscuro, "-draw", "point 30,40",
 				"-type", "TrueColor", "-depth", "8", path)
+	grietas(os.path.join(OUT_DIR, "grietas.png"))
+	lamina(os.path.join(OUT_DIR, "lamina.png"), juntas=False)
+	lamina(os.path.join(OUT_DIR, "lamina_techo.png"), juntas=True)
 	mata_pasto(os.path.join(OUT_DIR, "mata_pasto.png"))
 	arbol(os.path.join(OUT_DIR, "arbol.png"))
 
@@ -251,6 +329,40 @@ def main() -> None:
 def verde(oscuro: str, claro: str) -> list:
 	"""Argumentos de magick que pasan una foto a gris y la pintan entre dos colores."""
 	return ["-colorspace", "gray", "-auto-level", "-colorspace", "sRGB", "+level-colors", f"{oscuro},{claro}"]
+
+
+def grietas(path: str, size: int = 128) -> None:
+	"""Grietas que se ramifican, oscuras sobre blanco. Cada trazo se dibuja tambien
+	corrido +-size para que la textura se repita sin costura."""
+	rng = random.Random(41)
+	args = ["-size", f"{size}x{size}", "xc:white", "-fill", "none"]
+	for _ in range(6):
+		ramas = [(rng.uniform(0, size), rng.uniform(0, size), rng.uniform(0, 2 * math.pi), 24, "#2a2a2a")]
+		while ramas:
+			x, y, ang, pasos, color = ramas.pop()
+			for _ in range(pasos):
+				ang += rng.uniform(-0.3, 0.3)
+				nx, ny = x + math.cos(ang) * 3.5, y + math.sin(ang) * 3.5
+				for dx in (-size, 0, size):
+					for dy in (-size, 0, size):
+						args += ["-stroke", color, "-draw", f"line {x + dx:.1f},{y + dy:.1f} {nx + dx:.1f},{ny + dy:.1f}"]
+				x, y = nx, ny
+				if pasos > 8 and rng.random() < 0.06:
+					ramas.append((x, y, ang + rng.choice((-1, 1)) * rng.uniform(0.6, 1.2), pasos // 2, "#5a5a5a"))
+	magick(*args, "-type", "Grayscale", "-depth", "8", path)
+
+
+def lamina(path: str, juntas: bool, size: int = 64) -> None:
+	"""Lamina acanalada vertical, clara para pintarla de color. Con `juntas`, el
+	traslape de las hojas cada media textura (techo)."""
+	args = ["-size", f"{size}x{size}", "xc:#d8d8d4"]
+	for x in range(0, size, 8):
+		args += ["-fill", "#b8b8b2", "-draw", f"rectangle {x},0 {x + 2},{size - 1}",
+			"-fill", "#ecece8", "-draw", f"rectangle {x + 4},0 {x + 5},{size - 1}"]
+	if juntas:
+		args += ["-stroke", "#8e8e88", "-draw", f"line 0,{size // 2} {size - 1},{size // 2}", "-stroke", "none"]
+	args += ["-seed", "13", "-attenuate", "0.15", "+noise", "Uniform", "-colorspace", "sRGB"]
+	magick(*args, "-type", "TrueColor", "-depth", "8", path)
 
 
 def mata_pasto(path: str) -> None:
