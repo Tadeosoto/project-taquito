@@ -43,6 +43,17 @@ const RECORTE_MAX := 5.0
 # 1/wobble_resolution (2.5 cm) y los objetos de 1-2 cm quedan hechos un triangulo
 const SIN_WOBBLE := ["tachas"]
 
+# Grupos (carpeta bajo models/) con los valores PS1 que pidio el equipo:
+# jitter mas grueso y wobble mas fino. El affine que tambien pedian se queda
+# apagado en todos: los modelos de Sketchfab usan atlas de textura y el warp
+# afin arrastra cada triangulo a otra parte del atlas (los Takis salian morado
+# liso y los refrescos blancos, aun con warp_strength 8).
+const GRUPOS_PS1_EQUIPO := ["personajes", "armas", "objetos", "interiores"]
+const PS1_EQUIPO := {
+	"snap_resolution": 80.0,
+	"wobble_resolution": 80.0,
+}
+
 # Carpeta -> {parte del nombre del material: color liso} para repintar piezas
 # (se ignora la textura de ese material)
 const TINTES := {
@@ -57,6 +68,7 @@ var _materials := {}
 var _tintes := {}
 var _convertidas := {}
 var _sin_wobble := false
+var _ps1_equipo := false
 var _white: ImageTexture
 
 
@@ -74,6 +86,7 @@ func _post_import(scene: Node) -> Object:
 			_reducir(scene, float(MAX_TRIANGULOS[carpeta]) / total)
 			print("TiendaPostImport: %s de %d a %d triangulos" % [carpeta, total, _contar_triangulos(scene)])
 	_sin_wobble = carpeta in SIN_WOBBLE
+	_ps1_equipo = get_source_file().get_base_dir().get_base_dir().get_file() in GRUPOS_PS1_EQUIPO
 	_convert(scene)
 	return scene
 
@@ -160,7 +173,7 @@ func _convert(node: Node) -> void:
 
 
 func _ps1_material(source: Material, has_colors: bool) -> Material:
-	var key := [source, has_colors, _sin_wobble]
+	var key := [source, has_colors, _sin_wobble, _ps1_equipo]
 	if _materials.has(key):
 		return _materials[key]
 
@@ -182,6 +195,9 @@ func _ps1_material(source: Material, has_colors: bool) -> Material:
 	material.set_shader_parameter("use_vertex_color", has_colors)
 	# El warp afin deforma mucho las fachadas grandes
 	material.set_shader_parameter("affine_enabled", false)
+	if _ps1_equipo:
+		for parametro in PS1_EQUIPO:
+			material.set_shader_parameter(parametro, PS1_EQUIPO[parametro])
 	if _sin_wobble:
 		material.set_shader_parameter("wobble_enabled", false)
 
