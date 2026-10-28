@@ -8,6 +8,40 @@
 		"tortilleria"
 	],
 	"_nota": "Generado por tools/map_import/huellas_tiendas.gd: [frente, fondo] en metros",
+	"casas": {
+		"mexican_house_3": [
+			6.06,
+			5.76
+		],
+		"semi_residencial": [
+			8.07,
+			12.58
+		],
+		"urbi_1p_a": [
+			6.79,
+			7.37
+		],
+		"urbi_1p_b": [
+			6.8,
+			7.37
+		],
+		"urbi_1p_c": [
+			7.59,
+			7.37
+		],
+		"urbi_2p_a": [
+			7.5,
+			6.94
+		],
+		"urbi_2p_b": [
+			8.42,
+			6.94
+		],
+		"urbi_2p_c": [
+			8.58,
+			6.94
+		]
+	},
 	"modelos": {
 		"alto": [
 			0.75,

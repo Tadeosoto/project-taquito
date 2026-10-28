@@ -23,6 +23,14 @@
 [ext_resource type="Texture2D" path="res://textures/map/minimapa.png" id="25_minimapa_tex"]
 [ext_resource type="Script" path="res://scripts/map/MapArboles.gd" id="26_arboles"]
 [ext_resource type="Script" path="res://scripts/map/MapPasto.gd" id="27_pasto"]
+[ext_resource type="Script" path="res://scripts/map/MapBodegas.gd" id="28_bodegas"]
+[ext_resource type="PackedScene" path="res://models/bodegas/bodega_industrial/bodega_industrial.scn" id="29_bodega"]
+[ext_resource type="PackedScene" path="res://models/bodegas/rack/rack.scn" id="30_rack"]
+[ext_resource type="PackedScene" path="res://models/bodegas/estante_oxidado/estante_oxidado.scn" id="31_estante"]
+[ext_resource type="PackedScene" path="res://models/bodegas/cajas/cajas.scn" id="33_cajas"]
+[ext_resource type="Texture2D" path="res://textures/map/lamina.png" id="34_lamina"]
+[ext_resource type="Texture2D" path="res://textures/map/lamina_techo.png" id="35_lamina_techo"]
+[ext_resource type="Texture2D" path="res://textures/map/banqueta.png" id="36_banqueta"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -42,6 +50,10 @@ adjustment_saturation = 1.35
 shader = ExtResource("1_dither")
 shader_parameter/color_levels = 32.0
 shader_parameter/dither_strenght = 0.35
+shader_parameter/desaturacion = 0.4
+shader_parameter/tinte = Color(1.0, 0.97, 0.84, 1)
+shader_parameter/contraste = 1.1
+shader_parameter/vineta = 0.3
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_suelo"]
 size = Vector2(1900, 1900)
@@ -184,7 +196,27 @@ muro_key = Dictionary[String, Color]({
 muro_tol = Dictionary[String, float]({
 "mexican_house_3": 0.3
 })
+ventanas_uv = Dictionary[String, PackedVector4Array]({
+"semi_residencial": PackedVector4Array(0.255, 0.27, 0.345, 0.42, 0.37, 0.24, 0.48, 0.44, 0.37, 0.82, 0.47, 0.98, 0.495, 0.49, 0.735, 0.98, 0.75, 0.5, 0.98, 0.98),
+"urbi_1p_a": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_1p_b": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_1p_c": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_a": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_b": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_c": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64)
+})
 quitar_piso = Array[String](["mexican_house_3", "urbi_1p_a", "urbi_1p_b", "urbi_1p_c", "urbi_2p_a", "urbi_2p_b", "urbi_2p_c"])
+target_path = NodePath("../Dron")
+
+[node name="Bodegas" type="Node3D" parent="."]
+script = ExtResource("28_bodegas")
+modulo = ExtResource("29_bodega")
+lamina = ExtResource("34_lamina")
+lamina_techo = ExtResource("35_lamina_techo")
+piso_textura = ExtResource("36_banqueta")
+rack = ExtResource("30_rack")
+estante = ExtResource("31_estante")
+cajas = ExtResource("33_cajas")
 target_path = NodePath("../Dron")
 
 [node name="Arboles" type="Node3D" parent="."]

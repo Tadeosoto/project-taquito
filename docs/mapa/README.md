@@ -35,12 +35,14 @@ Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar d
   - OSM solo tiene ~970 casas en la zona; el resto sale de [Google Open Buildings](https://sites.research.google/open-buildings/), huellas detectadas por satélite. En total son ~7,900 edificios.
   - Los que no tienen datos salen de 1–2 pisos, con azotea plana y un color de fachada.
 - **Casas modelo por colonia**:
-  - Unas 10,300 casas se cambian por modelos de Sketchfab:
+  - Unas 6,300 casas modelo de Sketchfab:
     - Parques del Bosque: Casa Semi Residencial y Mexican House 3.
     - Todas las demás colonias: Casa Urbi/Infonavit de 1 y 2 pisos, y Semi Residencial en algunas de 2 pisos.
-    - Agua Blanca Industrial se queda como está, porque ahí son bodegas.
+    - En Agua Blanca Industrial no hay casas modelo: ahí son bodegas.
   - La colonia de cada manzana sale de los negocios del DENUE que hay en ella. Así una manzana nunca mezcla dos colonias.
-  - Las hileras de casas se parten en lotes de 6.5 m, y las fachadas de una cuadra quedan alineadas aunque sean modelos distintos.
+  - Las casas no se ponen una por cada huella de Google (se enciman entre sí). En cada lado de cada cuadra, donde hay casas, se ponen modelos pegados uno junto a otro, todos a la misma escala. Los huecos de más de 10 m (baldíos, parques) se dejan vacíos y la hilera llega hasta los negocios.
+  - Dos casas nunca se enciman por los lados (en la hilera o en una esquina); por atrás, espalda con espalda, sí se pueden encimar.
+  - Las fachadas de una cuadra quedan alineadas aunque sean modelos distintos.
   - Cada casa pinta su muro de un color al azar y deja puertas, ventanas y herrería como vienen.
 - **Fachadas**: las casas que no son modelo usan un shader que pinta en cada tramo ventanas con herrería, puertas, cortinas metálicas y zaguanes. Las azoteas son de impermeabilizante rojo o losa gris. Las texturas son fotos CC0 de [Poly Haven](https://polyhaven.com) más dibujo propio. El pasto, el asfalto y las banquetas también salen de Poly Haven.
 - **Calles, banquetas y camellones**:
@@ -51,10 +53,25 @@ Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar d
   - El piso es pasto verde oscuro; donde Sentinel-2 ve verde en lluvias o tierra pelona en secas (~26 % de la zona) es pasto más claro, con manchas secas. Cerca del jugador salen matas de pasto en 3D.
 - **Negocios reales**: 85 negocios del [DENUE del INEGI](https://www.inegi.org.mx/app/descarga/?ti=6): tiendas, taquerías, OXXO, farmacias, tortillerías, puestos y una gasolinera.
   - Si hay varios del mismo giro muy juntos, se deja solo uno (80 m; 150 m en tiendas de abarrotes).
-  - Cada tienda ocupa el lote de una casa y mira hacia la calle.
+  - Cada tienda ocupa el lote de una casa de su lado de la calle y mira hacia la calle.
+  - El DENUE pone algunos negocios a media calle: se recorren a la banqueta más cercana, con la fachada en la orilla de la banqueta, y los puestos van sobre la banqueta con el frente junto a la guarnición.
   - Si el modelo de un negocio es más grande que su lote (una gasolinera, un OXXO), se quitan las casas que quedarían encimadas: el negocio gana.
   - OXXO, tiendas, farmacias, puestos y gasolinera usan modelos low-poly de Sketchfab (CC BY).
   - Taquerías y tortillerías son locales armados en código, con cortina, mostrador, letrero y lona.
+- **Deterioro post-apocalíptico** (todo en shaders, sin modelos extra):
+  - Un ruido grande en el mapa decide qué tan destruida está cada zona: unas cuadras casi intactas y otras muy dañadas.
+  - Muros: pintura deslavada, escurrimientos, mugre abajo, hollín de incendios y aplanado caído que deja ver block o tabique.
+  - Las casas sin modelo tienen ventanas rotas o tapiadas con tablas o block, puertas tapiadas y cortinas oxidadas con grafiti. En las casas modelo se rompen los vidrios.
+  - Calles con grietas, baches y tierra acumulada; banquetas con losas rotas; más pasto seco.
+  - La imagen se ve más desaturada y amarillenta, con las orillas oscuras.
+  - `scripts/map/Deterioro.gd` da el mismo deterioro en código (`Deterioro.zona(x, z)`): lo usan las bodegas, y después servirá para que salgan más zombies en las zonas más destruidas.
+  - Se ajusta en Proyecto → Configuración → Shader Globals: `deterioro` (máximo, 0–1, ahora 0.8) y `deterioro_escala` (tamaño de las zonas, 150 m). La corrección de color está en el material del nodo `PS1_Postprocess/Dither` de `map_test.tscn`.
+- **Bodegas huecas** (89 naves, sobre todo en La Gigantera y El Mante, más las de Agua Blanca Industrial):
+  - Salen de los edificios sin nombre de más de 600 m² (en Agua Blanca Industrial, desde 100 m²). Las enormes se parten en varias naves con pasillos, y se recortan para no salirse a la calle.
+  - Muros de lámina con óxido, techo de arco con cerchas y piso de concreto con grietas. El frente son vanos del modelo "Industrial Warehouse" de Sketchfab: unos con portón y otros abiertos, por donde se entra caminando.
+  - Adentro hay racks, estantes oxidados y cajas (Sketchfab, CC BY).
+  - Junto a la bodega más grande de La Gigantera, sin vsync: ~200 FPS adentro y ~170 afuera (sin bodegas, ~240 y ~210). Los racks se simplifican al importar porque se repiten cientos de veces; las tarimas se quitaron porque costaban mucho para lo que aportaban.
+  - Entre más deterioro en la zona, más portones abiertos, más hoyos en el techo y, a veces, un boquete en un muro lateral.
 - **Señales de alto** en 1 de cada 20 esquinas, del lado derecho y de cara al tráfico.
 - **Minimapa estilo GTA** en la esquina superior derecha:
   - Gira con la cámara y marca al jugador con una flecha, el norte con una N y cada negocio con un cuadrito de color.

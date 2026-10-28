@@ -69,6 +69,7 @@ python3 -I "$ROOT/tools/map_import/prepare_osm.py" \
 	--colonias "$ROOT/data/map/colonias.json" \
 	--casas "$ROOT/data/map/casas.json" \
 	--salida-casas "$ROOT/resources/map/casas_mapa.json" \
+	--salida-bodegas "$ROOT/resources/map/bodegas_mapa.json" \
 	--png-colonias "$ROOT/data/map/colonias_debug.png" \
 	--huellas "$ROOT/data/map/huellas_tiendas.json"
 

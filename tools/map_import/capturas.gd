@@ -10,7 +10,7 @@ extends SceneTree
 #
 # Necesita ventana (no --headless: el renderer dummy no dibuja).
 
-const GRUPOS := ["tiendas", "casas", "props", "objetos", "personajes", "armas", "interiores"]
+const GRUPOS := ["tiendas", "casas", "props", "objetos", "personajes", "armas", "interiores", "bodegas"]
 const FONDO := Color(0.5, 0.6, 0.7)
 const FOV := 40.0
 # Vista de 3/4 desde el frente (los glTF de Sketchfab miran a +Z)

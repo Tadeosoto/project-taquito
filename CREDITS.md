@@ -109,3 +109,9 @@
 - [PSX Style Fruit Shelve](https://sketchfab.com/3d-models/8f1624e9ba6c443e8448b2a2db20eeb7) de wooolvie, licencia CC Attribution (`models/interiores/estante_fruta/`).
 - [Counter](https://sketchfab.com/3d-models/47e1be52888640f89ab6dd8eeb008b35) de gorzi, licencia CC Attribution (`models/interiores/mostrador/`).
 - [M3 Mart](https://sketchfab.com/3d-models/833699c4a15b4d1ab3e3d79068972431) de m3org, licencia CC Attribution (`models/interiores/m3_mart/`).
+
+## Bodegas (`models/bodegas/`, Sketchfab)
+- [Industrial Warehouse](https://sketchfab.com/3d-models/e6049139a2dd412a88d127541808e1e2) de VertexForge, licencia CC Attribution (`models/bodegas/bodega_industrial/`).
+- [Pallet Racking](https://sketchfab.com/3d-models/593e7d15f27346efa2dcc0149edb6ef2) de YadroGames, licencia CC Attribution (`models/bodegas/rack/`).
+- [Cardboard Box Set- Low Poly](https://sketchfab.com/3d-models/5d3d508061e544739e37c685af235684) de Nodeaxis Interactive, licencia CC Attribution (`models/bodegas/cajas/`).
+- [Old Rusty Shelving Unit](https://sketchfab.com/3d-models/3ce07d0518154759841236045efafd72) de jimbogies, licencia CC Attribution (`models/bodegas/estante_oxidado/`).

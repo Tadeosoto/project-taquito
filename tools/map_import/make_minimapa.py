@@ -3,7 +3,8 @@
 
 Lee el .osm que prepare_osm.py deja para OSM2World (ya con las casas de Google y
 sin las casas que se cambiaron por tiendas o casas modelo) y dibuja encima los
-lotes de resources/map/casas_mapa.json y resources/map/puntos_mapa.json.
+lotes de resources/map/casas_mapa.json, resources/map/puntos_mapa.json y
+resources/map/bodegas_mapa.json.
 Escribe textures/map/minimapa.png y resources/map/minimapa.json (de que punto
 del mapa es la esquina superior izquierda), que lee scripts/map/MapMinimapa.gd.
 
@@ -24,6 +25,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OSM = os.path.join(ROOT, "tools/map_import/bin/area_prepared.osm")
 CASAS = os.path.join(ROOT, "resources/map/casas_mapa.json")
 PUNTOS = os.path.join(ROOT, "resources/map/puntos_mapa.json")
+BODEGAS = os.path.join(ROOT, "resources/map/bodegas_mapa.json")
 # De make_vegetacion.py (si ya se corrio): pasto del satelite y arboles
 PASTO = os.path.join(ROOT, "textures/map/pasto_mascara.png")
 ARBOLES = os.path.join(ROOT, "resources/map/arboles_mapa.json")
@@ -162,6 +164,11 @@ def main():
 	for c in casas:
 		# La fachada esta en (x, z) y la casa crece hacia atras
 		lienzo.poligono(lote(c["x"], c["z"], c["rotacion_y"], c["ancho"], c["fondo"], 0.0), EDIFICIO)
+	if os.path.exists(BODEGAS):
+		with open(BODEGAS, encoding="utf-8") as f:
+			for b in json.load(f)["bodegas"]:
+				# Como las casas: el frente en (x, z), crece hacia atras
+				lienzo.poligono(lote(b["x"], b["z"], b["rotacion_y"], b["ancho"], b["fondo"], 0.0), EDIFICIO)
 	with open(PUNTOS, encoding="utf-8") as f:
 		puntos = [p for p in json.load(f)["puntos"] if p.get("casa_reemplazada")]
 	for p in puntos:

@@ -43,6 +43,9 @@ const NUCLEO_FRENTE := 1.5
 # sin valor, la casa sale con sus colores originales
 @export var muro_key: Dictionary[String, Color] = {}
 @export var muro_tol: Dictionary[String, float] = {}
+# modelo -> rectangulos de UV (x0, y0, x1, y1) de sus vidrios, que se rompen
+# segun el deterioro de la zona (shaders/ps1_deterioro.gdshaderinc); maximo 8
+@export var ventanas_uv: Dictionary[String, PackedVector4Array] = {}
 # Modelos que traen piso (banqueta, jardin, calle): se quitan los triangulos
 # pegados al piso para que no se salgan del lote
 @export var quitar_piso: Array[String] = []
@@ -388,6 +391,9 @@ func _material_casa(source: Material, modelo: String) -> Material:
 		material.set_shader_parameter("recolor", true)
 		material.set_shader_parameter("muro_key", muro_key[modelo])
 		material.set_shader_parameter("muro_tol", muro_tol.get(modelo, 0.12))
+	if ventanas_uv.has(modelo):
+		material.set_shader_parameter("ventanas", ventanas_uv[modelo])
+		material.set_shader_parameter("n_ventanas", mini(ventanas_uv[modelo].size(), 8))
 	_materiales[key] = material
 	return material
 

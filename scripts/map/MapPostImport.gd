@@ -18,16 +18,17 @@ const BUILDING_ROLES := {"Plaster002": "fachada", "Concrete034": "azotea"}
 # Pisos de OSM2World que se dibujan con ps1_suelo (textura de textures/map/,
 # make_textures.py) igual que el plano Suelo de map_test: misma repeticion en
 # coordenadas de mundo, asi donde se enciman no parpadean, y con mipmaps.
-# material -> [textura, metros por repeticion, modo de ps1_suelo]. Concrete034
+# material -> [textura, metros por repeticion, modo de ps1_suelo, piso_tipo
+# (deterioro: 1 asfalto con baches, 2 banqueta, 3 empedrado)]. Concrete034
 # fuera de las casas es la banqueta. La tierra (modo 1) lleva pasto donde la
 # mascara satelital lo dice; GRASS (jardines de OSM y camellones) es todo pasto.
 const GROUND_TEXTURES := {
-	"TERRAIN_DEFAULT": ["res://textures/map/suelo.png", 3.0, 1],
-	"Concrete034": ["res://textures/map/banqueta.png", 3.0, 0],
-	"ASPHALT": ["res://textures/map/asfalto.png", 4.0, 0],
-	"PAVING_STONE": ["res://textures/map/empedrado.png", 2.5, 0],
-	"SETT": ["res://textures/map/empedrado.png", 2.5, 0],
-	"GRASS": ["res://textures/map/suelo.png", 3.0, 2],
+	"TERRAIN_DEFAULT": ["res://textures/map/suelo.png", 3.0, 1, 0],
+	"Concrete034": ["res://textures/map/banqueta.png", 3.0, 0, 2],
+	"ASPHALT": ["res://textures/map/asfalto.png", 4.0, 0, 1],
+	"PAVING_STONE": ["res://textures/map/empedrado.png", 2.5, 0, 3],
+	"SETT": ["res://textures/map/empedrado.png", 2.5, 0, 3],
+	"GRASS": ["res://textures/map/suelo.png", 3.0, 2, 0],
 }
 
 # Los demas pisos planos (agua, guarnicion) siguen con ps1_combined pero sin
@@ -180,6 +181,7 @@ func _ground_material(ground: Array) -> ShaderMaterial:
 	material.set_shader_parameter("albedo_texture", load(ground[0]))
 	material.set_shader_parameter("tile_size", ground[1])
 	SUELO_PASTO.configurar(material, ground[2])
+	material.set_shader_parameter("piso_tipo", ground[3])
 	# Los pisos son poligonos enormes: el temblor PS1 los deforma cerca de la camara
 	material.set_shader_parameter("jitter_enabled", false)
 	material.set_shader_parameter("wobble_enabled", false)

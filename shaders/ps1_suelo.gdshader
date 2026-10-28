@@ -11,6 +11,7 @@ shader_type spatial;
 // albedo_texture. modo 2: todo es pasto (camellones y jardines de OSM2World).
 
 #include "res://shaders/ps1_vertex.gdshaderinc"
+#include "res://shaders/ps1_deterioro.gdshaderinc"
 
 // Con mipmaps: a ras de piso, sin ellos la textura brilla y hace moire a lo lejos
 uniform sampler2D albedo_texture : source_color, filter_nearest_mipmap, repeat_enable;
@@ -19,6 +20,8 @@ uniform float tile_size = 3.0;
 
 // 0 = solo albedo_texture, 1 = tierra/pasto segun la mascara, 2 = todo pasto
 uniform int modo = 0;
+// Como se deteriora (ps1_deterioro piso_roto): 0 nada, 1 asfalto, 2 banqueta, 3 empedrado
+uniform int piso_tipo = 0;
 uniform sampler2D mascara_pasto : filter_linear, repeat_disable;
 // Esquina (x, z) de la mascara en el mundo y lo que mide (m)
 uniform vec2 mascara_origen = vec2(0.0);
@@ -45,35 +48,26 @@ void vertex() {
 	POSITION = clip_position;
 }
 
-float hash(vec2 p) {
-	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-}
-
-float ruido(vec2 p) {
-	vec2 i = floor(p);
-	vec2 f = fract(p);
-	f = f * f * (3.0 - 2.0 * f);
-	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
-		mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
-}
-
-vec3 pasto(vec2 xz) {
+vec3 pasto(vec2 xz, float zona) {
 	vec2 uv = xz / pasto_tile;
 	float n = ruido(xz / seco_escala) * 0.7 + ruido(xz / (seco_escala * 0.31)) * 0.3;
-	float seco = smoothstep(1.0 - seco_cantidad - 0.08, 1.0 - seco_cantidad + 0.08, n);
+	// Sin quien lo riegue: mas pasto seco donde hay mas deterioro
+	float cantidad = min(seco_cantidad + zona * 0.4, 1.0);
+	float seco = smoothstep(1.0 - cantidad - 0.08, 1.0 - cantidad + 0.08, n);
 	return mix(texture(pasto_texture, uv).rgb, texture(pasto_seco_texture, uv).rgb, seco);
 }
 
 void fragment() {
-	vec3 color = texture(albedo_texture, world_pos.xz / tile_size).rgb;
+	float zona = zona_deterioro(world_pos.xz);
+	vec3 color = piso_roto(texture(albedo_texture, world_pos.xz / tile_size).rgb, world_pos.xz, zona, piso_tipo);
 	if (modo == 2) {
-		color = pasto(world_pos.xz);
+		color = pasto(world_pos.xz, zona);
 	} else if (modo == 1) {
 		float m = texture(mascara_pasto, (world_pos.xz - mascara_origen) / mascara_tamano).r;
 		// Orilla en cuadritos, como si el pasto estuviera pintado en una rejilla PS1
 		float n = hash(floor(world_pos.xz / orilla_cuadro)) - 0.5;
 		if (m + n * orilla_ruido > 0.5) {
-			color = pasto(world_pos.xz);
+			color = pasto(world_pos.xz, zona);
 		}
 	}
 	ALBEDO = color * tint.rgb;

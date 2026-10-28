@@ -125,6 +125,11 @@ MODELS = {
 	"interiores/estante_fruta": "8f1624e9ba6c443e8448b2a2db20eeb7", # PSX Style Fruit Shelve, 1.1k
 	"interiores/mostrador": "47e1be52888640f89ab6dd8eeb008b35",     # Counter, 7.9k
 	"interiores/m3_mart": "833699c4a15b4d1ab3e3d79068972431",       # M3 Mart, 11.7k
+	# Bodegas huecas (MapBodegas.gd): de la bodega solo se usa un vano del frente
+	"bodegas/bodega_industrial": "e6049139a2dd412a88d127541808e1e2",  # Industrial Warehouse, 1.9k
+	"bodegas/rack": "593e7d15f27346efa2dcc0149edb6ef2",             # Pallet Racking, 1.3k
+	"bodegas/cajas": "5d3d508061e544739e37c685af235684",            # Cardboard Box Set- Low Poly, 110
+	"bodegas/estante_oxidado": "3ce07d0518154759841236045efafd72",  # Old Rusty Shelving Unit, 160
 }
 
 # Titulo de la seccion de CREDITS.md para cada carpeta de primer nivel
@@ -136,6 +141,7 @@ CREDIT_HEADERS = {
 	"personajes": "## Personajes (`models/personajes/`, Sketchfab)",
 	"armas": "## Armas (`models/armas/`, Sketchfab)",
 	"interiores": "## Interiores (`models/interiores/`, Sketchfab)",
+	"bodegas": "## Bodegas (`models/bodegas/`, Sketchfab)",
 }
 
 
