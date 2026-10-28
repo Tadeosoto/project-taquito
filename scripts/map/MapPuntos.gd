@@ -63,6 +63,10 @@ const LOCAL_MIN := Vector2(4.5, 6.0)
 const MARCADOR_COLOR := Color(1.0, 0.85, 0.1)
 const MARCADOR_RADIO := 0.8
 const MARCADOR_FRENTE := 0.8   # que tanto sale de la fachada (m)
+# Solo aparece de cerca: se desvanece entre estas distancias (m)
+const MARCADOR_VISTA := 18.0
+const MARCADOR_VISTA_FADE := 6.0
+const MARCADOR_ALFA := 0.6
 
 signal entrar_negocio(tipo: String, giro: String, nombre: String, aire_libre: bool)
 
@@ -82,6 +86,10 @@ signal entrar_negocio(tipo: String, giro: String, nombre: String, aire_libre: bo
 # tipo -> nombres de nodos del modelo que se quitan antes de medirlo y ponerlo (ej. la
 # losa de concreto del kiosco de Similares, que lo hacia ver chico y hundido)
 @export var prefab_quitar: Dictionary[String, PackedStringArray] = {}
+
+# tipo -> {nodo del modelo: corrimiento en m (x a la derecha, z hacia la calle)},
+# aplicado despues de medir y escalar el modelo (ej. el Simi que bailaba sobre la flecha)
+@export var prefab_mover: Dictionary[String, Dictionary] = {}
 
 # tipo -> corrimiento (m) de la puerta a la derecha del centro de la fachada
 @export var prefab_puerta: Dictionary[String, float] = {}
@@ -163,7 +171,8 @@ func _make_punto(punto: Dictionary) -> Node3D:
 	return node
 
 
-# Flecha amarilla que gira y flota frente a la puerta, y un Area3D que avisa al pisarla
+# Flecha amarilla semitransparente que gira y flota frente a la puerta (solo se ve de
+# cerca), y un Area3D que avisa al pisarla
 func _marcador(punto: Dictionary) -> Node3D:
 	var area := Area3D.new()
 	area.name = "Marcador"
@@ -185,7 +194,9 @@ func _marcador(punto: Dictionary) -> Node3D:
 	var flecha := MeshInstance3D.new()
 	flecha.mesh = _marcador_mesh
 	flecha.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	flecha.visibility_range_end = 80.0
+	flecha.visibility_range_end = MARCADOR_VISTA
+	flecha.visibility_range_end_margin = MARCADOR_VISTA_FADE
+	flecha.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	area.add_child(flecha)
 	# El tween se crea ya en el arbol (se libera con la flecha)
 	flecha.ready.connect(func() -> void:
@@ -202,7 +213,9 @@ func _marcador(punto: Dictionary) -> Node3D:
 func _flecha_mesh() -> Mesh:
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.albedo_color = MARCADOR_COLOR
+	material.albedo_color = Color(MARCADOR_COLOR, MARCADOR_ALFA)
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	var punta := CylinderMesh.new()
 	punta.top_radius = 0.35
 	punta.bottom_radius = 0.0
@@ -303,6 +316,17 @@ func _make_prefab(punto: Dictionary) -> Node3D:
 		var front: float = punto["fondo"] / 2.0
 		model.scale *= fit
 		model.position = Vector3(-aabb.get_center().x * fit, -aabb.position.y * fit, front - aabb.end.z * fit)
+		for nombre in prefab_mover.get(tipo, {}):
+			var nodo := model.find_child(nombre, true, false) as Node3D
+			if nodo:
+				# Del espacio del negocio al del padre del nodo
+				var xform := Transform3D()
+				var n: Node = nodo.get_parent()
+				while n != holder:
+					if n is Node3D:
+						xform = (n as Node3D).transform * xform
+					n = n.get_parent()
+				nodo.position += xform.basis.inverse() * Vector3(prefab_mover[tipo][nombre])
 		_set_far_mesh_options(model)
 
 		# Colision de caja del tamano del modelo (las mallas de Sketchfab no traen)

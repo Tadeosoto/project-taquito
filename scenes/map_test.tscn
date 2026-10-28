@@ -154,6 +154,11 @@ prefab_ancho = Dictionary[String, float]({
 prefab_quitar = Dictionary[String, PackedStringArray]({
 "farmacia_similares": PackedStringArray("Floor_concrete_0")
 })
+prefab_mover = Dictionary[String, Dictionary]({
+"farmacia_similares": {
+"anim": Vector3(2.6, 0, -0.2)
+}
+})
 
 [node name="Casas" type="Node3D" parent="."]
 script = ExtResource("19_casas")
