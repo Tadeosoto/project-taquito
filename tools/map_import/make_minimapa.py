@@ -4,7 +4,7 @@
 Lee el .osm que prepare_osm.py deja para OSM2World (ya con las casas de Google y
 sin las casas que se cambiaron por tiendas o casas modelo) y dibuja encima los
 lotes de resources/map/casas_mapa.json, resources/map/puntos_mapa.json y
-resources/map/bodegas_mapa.json.
+resources/map/bodegas_mapa.json, y las bardas y mallas de resources/map/bardas_mapa.json.
 Escribe textures/map/minimapa.png y resources/map/minimapa.json (de que punto
 del mapa es la esquina superior izquierda), que lee scripts/map/MapMinimapa.gd.
 
@@ -26,6 +26,7 @@ OSM = os.path.join(ROOT, "tools/map_import/bin/area_prepared.osm")
 CASAS = os.path.join(ROOT, "resources/map/casas_mapa.json")
 PUNTOS = os.path.join(ROOT, "resources/map/puntos_mapa.json")
 BODEGAS = os.path.join(ROOT, "resources/map/bodegas_mapa.json")
+BARDAS = os.path.join(ROOT, "resources/map/bardas_mapa.json")
 # De make_vegetacion.py (si ya se corrio): pasto del satelite y arboles
 PASTO = os.path.join(ROOT, "textures/map/pasto_mascara.png")
 ARBOLES = os.path.join(ROOT, "resources/map/arboles_mapa.json")
@@ -41,6 +42,7 @@ VERDE = (64, 102, 56)
 ARBOL = (44, 78, 40)
 AGUA = (58, 104, 160)
 ESTACIONAMIENTO = (82, 84, 84)
+BARDA = (14, 14, 12)
 
 AREAS = [
 	# (llave, valores, color); se pintan en este orden
@@ -175,6 +177,10 @@ def main():
 		# (x, z) es el centro del lote
 		lienzo.poligono(lote(p["x"], p["z"], p["rotacion_y"], p["ancho"], p["fondo"], p["fondo"] / 2), EDIFICIO)
 
+	if os.path.exists(BARDAS):
+		with open(BARDAS, encoding="utf-8") as f:
+			for barda in json.load(f)["bardas"]:
+				lienzo.linea(barda["puntos"], 1.0, BARDA)
 	for tags, line, closed in ways:
 		if tags.get("waterway") in {"canal", "stream", "river", "ditch"}:
 			lienzo.linea(line, CANAL, AGUA)

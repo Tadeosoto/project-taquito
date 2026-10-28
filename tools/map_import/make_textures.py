@@ -18,6 +18,10 @@ Cada mosaico mide TILE px y equivale a 2.5 x 2.5 m (un piso de OSM2World).
   la pinta con el color de cada bodega); una canal cada 8 px = 0.3 m.
 - textures/map/mata_pasto.png: una mata con transparencia (MapPasto.gd) y
   textures/map/arbol.png: corteza a la izquierda, hojas a la derecha (MapArboles.gd).
+- textures/map/barda.png: atlas de 3 bardas lisas; textures/map/grafitis/ y
+  textures/map/propaganda/: catalogos de lo que se pinta encima (los dibujados
+  aqui mas los que se agreguen a mano) y
+  textures/map/malla.png: malla ciclonica entera y rota, con transparencia (MapBardas.gd).
 
 Dos estilos:
 - dibujado (default): todo son dibujos propios, sin licencia de terceros.
@@ -322,6 +326,10 @@ def main() -> None:
 	lamina(os.path.join(OUT_DIR, "lamina_techo.png"), juntas=True)
 	mata_pasto(os.path.join(OUT_DIR, "mata_pasto.png"))
 	arbol(os.path.join(OUT_DIR, "arbol.png"))
+	barda(os.path.join(OUT_DIR, "barda.png"))
+	grafitis(os.path.join(OUT_DIR, "grafitis"))
+	propaganda(os.path.join(OUT_DIR, "propaganda"))
+	malla(os.path.join(OUT_DIR, "malla.png"))
 
 	print(f"OK: texturas ({estilo}) en {OUT_DIR}")
 
@@ -394,6 +402,135 @@ def arbol(path: str) -> None:
 		args += ["-draw", f"circle {x},{y} {x + rng.randint(1, 2)},{y}"]
 	args += ["-colorspace", "sRGB", "+level-colors", "#4a5a3e,#e8f0d8", ")", "+append"]
 	magick(*args, "-type", "TrueColor", "-depth", "8", path)
+
+
+GRAFITI = ["#d03a8c", "#2f9a4a", "#2a5cc4", "#e0a020", "#c8322a", "#7a3ac0", "#18a0a8"]
+
+
+def grafiti(rng, ox, oy) -> list:
+	"""Argumentos de magick para un grafiti en el mosaico (ox, oy): letras gordas
+	con contorno (throw-up) y firmas (tags), con escurrimientos."""
+	args = []
+	relleno, sombra = rng.sample(GRAFITI, 2)
+	borde = rng.choice(["#111111", "#f2f2f2"])
+	x, y = ox + rng.randint(2, 6), oy + rng.randint(14, 22)
+	while x < ox + 50:
+		w, h = rng.randint(11, 15), rng.randint(20, 28)
+		args += ["-fill", sombra, "-stroke", "none", "-draw", f"roundrectangle {x + 3},{y + 3} {x + w + 3},{y + h + 3} 5,5",
+			"-fill", relleno, "-stroke", borde, "-strokewidth", "2", "-draw", f"roundrectangle {x},{y} {x + w},{y + h} 5,5",
+			"-stroke", borde, "-strokewidth", "1", "-draw", f"line {x + w // 2},{y + 5} {x + w // 2},{y + h - 6}"]
+		if rng.random() < 0.6:
+			dx = x + rng.randint(3, w - 3)
+			args += ["-stroke", relleno, "-draw", f"line {dx},{y + h + 1} {dx},{min(oy + 60, y + h + rng.randint(4, 12))}"]
+		x += w - 1
+		y = max(oy + 6, min(oy + 30, y + rng.randint(-4, 4)))
+	args += ["-stroke", "none", "-strokewidth", "1"]
+	for _ in range(rng.randint(2, 4)):
+		# Firma: un garabato de trazos cortos
+		color = rng.choice(["#111111", "#111111", rng.choice(GRAFITI)])
+		x, y = ox + rng.uniform(2, 30), oy + rng.uniform(6, 56)
+		args += ["-stroke", color, "-fill", "none"]
+		for _ in range(rng.randint(7, 12)):
+			nx, ny = min(ox + 62, x + rng.uniform(1, 5)), max(oy + 2, min(oy + 60, y + rng.uniform(-7, 7)))
+			args += ["-draw", f"line {x:.0f},{y:.0f} {nx:.0f},{ny:.0f}"]
+			x, y = nx, ny
+		args += ["-stroke", "none"]
+	return args
+
+
+def barda(path: str) -> None:
+	"""Atlas de 3 mosaicos (2.5 x 2.5 m cada uno) para MapBardas.gd: aplanado liso,
+	aplanado caido que deja ver el block y block aparente. Claro, porque se
+	multiplica por el color de cada barda. La propaganda y los grafitis van encima,
+	de los catalogos textures/map/propaganda/ y textures/map/grafitis/."""
+	args = ["-size", f"{TILE * 3}x{TILE}", "xc:#e6e1d6", "-seed", "17",
+		"-attenuate", "0.2", "+noise", "Uniform", "-colorspace", "sRGB"]
+	# Rodapie sucio abajo en todos
+	args += ["-fill", "#b9b1a2", "-draw", f"rectangle 0,{TILE - 6} {TILE * 3},{TILE - 1}"]
+	# (1, 0): aplanado caido en manchones
+	args += draw_args(blocks(8, 10, 30, 28)[1:], TILE, 0) + draw_args(blocks(38, 34, 58, 50)[1:], TILE, 0)
+	# (2, 0): block aparente completo
+	args += draw_args(blocks(0, 0, TILE - 1, TILE - 1)[1:], TILE * 2, 0)
+	magick(*args, "-type", "TrueColor", "-depth", "8", path)
+
+
+# Propaganda pintada en bardas (todo inventado: ni partidos ni negocios reales):
+# (fondo, borde, [(texto, color, tamano, y), ...]) en un lienzo de 128 x 64
+PROPAGANDA = [
+	("#f2efe6", "#c8322a", [("SE VENDE", "#c8322a", 19, 7), ("33 1234 5678", "#151515", 14, 36)]),
+	("#f0d64a", None, [("SE RENTA", "#1f4fa8", 22, 6), ("INFORMES AQUI", "#151515", 12, 38)]),
+	("#1d2f6b", "#f0d64a", [("GRAN BAILE", "#f0d64a", 16, 5), ("SONIDO LA TAQUERA", "#f2f2f2", 10, 28),
+		("SABADO 9 PM", "#e0503a", 11, 44)]),
+	("#f2f2ee", None, [("VOTA", "#2f8a3a", 24, 2), ("PARTIDO DEL MAIZ", "#c8322a", 11, 34),
+		("POR TU COLONIA", "#151515", 10, 48)]),
+	("#e8862a", "#151515", [("FLETES Y", "#151515", 16, 4), ("MUDANZAS", "#151515", 16, 22),
+		("33 8765 4321", "#f2f2f2", 12, 44)]),
+	("#f2efe6", "#c8322a", [("PROHIBIDO", "#c8322a", 16, 6), ("TIRAR BASURA", "#151515", 13, 28),
+		("MULTA", "#c8322a", 11, 46)]),
+	("#f4f4f4", "#2a6cc4", [("AGUA", "#2a6cc4", 20, 4), ("PURIFICADA", "#2a6cc4", 14, 28), ("$15", "#c8322a", 12, 46)]),
+	("#b9d9a0", None, [("TALLER EL GUERO", "#151515", 12, 8), ("HOJALATERIA", "#7a1f1a", 13, 26),
+		("Y PINTURA", "#7a1f1a", 13, 42)]),
+]
+FUENTES = ["Arial-Black", "DejaVu-Sans-Bold", "Liberation-Sans-Bold", "Adwaita-Sans-Black", "Arial-Bold"]
+
+
+def fuente_gruesa() -> list:
+	"""["-font", nombre] de la primera fuente gruesa que tenga ImageMagick ([] = la de siempre)."""
+	try:
+		lista = subprocess.run(["magick", "-list", "font"], capture_output=True, text=True, check=True).stdout
+	except (OSError, subprocess.CalledProcessError):
+		return []
+	hay = {linea.split(":", 1)[1].strip() for linea in lista.splitlines() if linea.strip().startswith("Font:")}
+	return next((["-font", f] for f in FUENTES if f in hay), [])
+
+
+def propaganda(carpeta: str) -> None:
+	"""Propaganda dibujada para el catalogo de MapBardas.gd (propaganda_dibujada_NN.png,
+	128 x 64, sin suavizar para que se vea pixeleada). Solo reescribe estos; los
+	demas archivos de la carpeta son diseños agregados a mano."""
+	os.makedirs(carpeta, exist_ok=True)
+	fuente = fuente_gruesa()
+	for i, (fondo, borde, lineas) in enumerate(PROPAGANDA):
+		args = ["-size", "128x64", f"xc:{fondo}", "+antialias"]
+		if borde:
+			args += ["-fill", "none", "-stroke", borde, "-strokewidth", "2", "-draw", "rectangle 2,2 125,61", "-stroke", "none"]
+		for texto, color, tamano, y in lineas:
+			args += ["-fill", color, *fuente, "-pointsize", str(tamano), "-gravity", "north",
+				"-annotate", f"+0+{y}", texto]
+		# Pintura vieja: un poco de ruido
+		args += ["-gravity", "northwest", "-seed", str(30 + i), "-attenuate", "0.25", "+noise", "Uniform"]
+		magick(*args, "-type", "TrueColor", "-depth", "8", os.path.join(carpeta, f"propaganda_dibujada_{i + 1:02d}.png"))
+
+
+def grafitis(carpeta: str, n: int = 8) -> None:
+	"""Grafitis dibujados para el catalogo de MapBardas.gd (grafiti_dibujado_NN.png,
+	con transparencia y recortados a lo que ocupan). Solo reescribe estos; los
+	demas archivos de la carpeta son diseños agregados a mano."""
+	os.makedirs(carpeta, exist_ok=True)
+	for i in range(n):
+		args = ["-size", f"{TILE}x{TILE}", "xc:none"] + grafiti(random.Random(100 + i), 0, 0)
+		magick(*args, "-trim", "+repage", "-type", "TrueColorAlpha", "-depth", "8",
+			os.path.join(carpeta, f"grafiti_dibujado_{i + 1:02d}.png"))
+
+
+def malla(path: str) -> None:
+	"""Malla ciclonica con transparencia, 2 mosaicos de 64 x 64 (2.5 m de largo por
+	el alto de la malla): entera y rota (con un boquete abajo). Rombos de 8 px."""
+	tile = ["-size", "64x64", "xc:none", "-stroke", "#8c9094", "-strokewidth", "1"]
+	for k in range(-64, 64, 8):
+		tile += ["-draw", f"line {k},0 {k + 64},64", "-draw", f"line {k},64 {k + 64},0"]
+	# Alambre de arriba y de abajo
+	tile += ["-stroke", "#6a6e72", "-draw", "line 0,1 63,1", "-draw", "line 0,62 63,62"]
+	# Boquete de la rota: se borra un ovalo abajo (en el canal alfa) y quedan puntas sueltas
+	rota = tile + ["(", "-size", "64x64", "xc:white", "-fill", "black", "-stroke", "none",
+		"-draw", "ellipse 32,52 17,22 0,360", "-alpha", "copy", ")", "-compose", "DstIn", "-composite",
+		"-compose", "Over", "-stroke", "#7a7e82"]
+	rng = random.Random(5)
+	for _ in range(10):
+		a = rng.uniform(math.pi, 2 * math.pi)
+		x, y = 32 + 17 * math.cos(a), 52 + 22 * math.sin(a)
+		rota += ["-draw", f"line {x:.0f},{y:.0f} {x - 3 * math.cos(a):.0f},{y - 3 * math.sin(a):.0f}"]
+	magick("(", *tile, ")", "(", *rota, ")", "+append", "+repage", "-type", "TrueColorAlpha", "-depth", "8", path)
 
 
 if __name__ == "__main__":

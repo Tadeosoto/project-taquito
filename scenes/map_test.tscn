@@ -31,6 +31,9 @@
 [ext_resource type="Texture2D" path="res://textures/map/lamina.png" id="34_lamina"]
 [ext_resource type="Texture2D" path="res://textures/map/lamina_techo.png" id="35_lamina_techo"]
 [ext_resource type="Texture2D" path="res://textures/map/banqueta.png" id="36_banqueta"]
+[ext_resource type="Script" path="res://scripts/map/MapBardas.gd" id="37_bardas"]
+[ext_resource type="Texture2D" path="res://textures/map/barda.png" id="38_barda"]
+[ext_resource type="Texture2D" path="res://textures/map/malla.png" id="39_malla"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -217,6 +220,12 @@ piso_textura = ExtResource("36_banqueta")
 rack = ExtResource("30_rack")
 estante = ExtResource("31_estante")
 cajas = ExtResource("33_cajas")
+target_path = NodePath("../Dron")
+
+[node name="Bardas" type="Node3D" parent="."]
+script = ExtResource("37_bardas")
+barda_textura = ExtResource("38_barda")
+malla_textura = ExtResource("39_malla")
 target_path = NodePath("../Dron")
 
 [node name="Arboles" type="Node3D" parent="."]

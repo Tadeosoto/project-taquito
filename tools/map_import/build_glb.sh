@@ -52,7 +52,8 @@ fi
 #    fetch_google_buildings.py), rellenar pisos/colores/overrides y colocar
 #    las tiendas del DENUE (fetch_denue.py) y de puntos.json (quitando la casa que reemplazan),
 #    altos; partir en manzanas con su colonia y cambiar las casas de
-#    las colonias de casas.json por modelos (resources/map/casas_mapa.json)
+#    las colonias de casas.json por modelos (resources/map/casas_mapa.json);
+#    bardas y mallas de cotos, baldios y bodegas (resources/map/bardas_mapa.json)
 # Lo que ocupa cada modelo de negocio en el juego (para quitar las casas que quedan debajo)
 godot --path "$ROOT" --headless -s tools/map_import/huellas_tiendas.gd > /dev/null 2>&1 \
 	|| echo "AVISO: no se pudo correr huellas_tiendas.gd (godot); se usa el data/map/huellas_tiendas.json que ya estaba"
@@ -70,6 +71,8 @@ python3 -I "$ROOT/tools/map_import/prepare_osm.py" \
 	--casas "$ROOT/data/map/casas.json" \
 	--salida-casas "$ROOT/resources/map/casas_mapa.json" \
 	--salida-bodegas "$ROOT/resources/map/bodegas_mapa.json" \
+	--salida-bardas "$ROOT/resources/map/bardas_mapa.json" \
+	--satelite-pasto "$ROOT/data/map/satelite_pasto.png" \
 	--png-colonias "$ROOT/data/map/colonias_debug.png" \
 	--huellas "$ROOT/data/map/huellas_tiendas.json"
 

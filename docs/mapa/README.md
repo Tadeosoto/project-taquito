@@ -72,12 +72,20 @@ Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar d
   - Adentro hay racks, estantes oxidados y cajas (Sketchfab, CC BY).
   - Junto a la bodega más grande de La Gigantera, sin vsync: ~200 FPS adentro y ~170 afuera (sin bodegas, ~240 y ~210). Los racks se simplifican al importar porque se repiten cientos de veces; las tarimas se quitaron porque costaban mucho para lo que aportaban.
   - Entre más deterioro en la zona, más portones abiertos, más hoyos en el techo y, a veces, un boquete en un muro lateral.
+- **Bardas y mallas** (~31 km), deducidas del mapa porque OSM casi no las trae (solo 16):
+  - **Cotos**: un coto es un grupo de calles privadas (`access=private`) o con pluma (`barrier=gate`/`lift_gate`); 52 cotos. Su contorno lleva barda de block o malla ciclónica en la orilla de la banqueta (más malla entre más deterioro). Si una manzana es honda y tiene casas que dan a la calle pública, esa orilla no lleva barda. Las privadas no se rodean de barda.
+  - **Baldíos**: tramos de calle de 12 m o más sin nada construido en 15 m de fondo llevan malla al frente. No llevan los que son pasto según el satélite.
+  - **Bodegas**: una malla alrededor de las naves de cada predio, a 3 m.
+  - Las bardas tienen castillos, grafiti (más entre más deterioro) y boquetes. Los grafitis y la propaganda pintada ("SE VENDE", bailes, fletes...) salen de dos catálogos: cada uno es una imagen al azar de `textures/map/grafitis/` o de `textures/map/propaganda/`. Para agregar diseños basta con poner ahí una imagen (los grafitis con fondo transparente y recortados a lo que ocupan; la propaganda como letrero rectangular, por ejemplo de 128 × 64) y abrir o reimportar el proyecto. Si miden más de 128 px de lado se reducen. La propaganda va grande a media barda y los grafitis encima. Los `grafiti_dibujado_NN.png` y `propaganda_dibujada_NN.png` los genera `make_textures.py`; no se borran los demás.
+  - Las mallas tienen agujeros y un portón abierto. Siempre hay por dónde pasar. Todo tiene colisión, menos los huecos.
+  - En cada pluma (150) hay un poste, el brazo caído o roto y una caseta de vigilancia.
+  - Los parques y áreas verdes de OSM nunca llevan barda. Sin costo medible en FPS.
 - **Señales de alto** en 1 de cada 20 esquinas, del lado derecho y de cara al tráfico.
 - **Minimapa estilo GTA** en la esquina superior derecha:
   - Gira con la cámara y marca al jugador con una flecha, el norte con una N y cada negocio con un cuadrito de color.
   - Colores: rojo OXXO, amarillo tienda, naranja tacos, beige tortillería, turquesa farmacia, verde gasolinera, rosa puesto.
   - En dron se aleja para ver más.
-- **Carga por partes**: el mapa está partido en 201 cuadros de 128 m. Solo se cargan los cercanos (~40), en segundo plano. Las tiendas y las casas modelo se cargan igual, por celdas.
+- **Carga por partes**: el mapa está partido en 200 cuadros de 128 m. Solo se cargan los cercanos (~40), en segundo plano. Las tiendas y las casas modelo se cargan igual, por celdas.
 
 <p align="center"><img src="minimapa.png" width="420" alt="Imagen completa del minimapa"></p>
 
@@ -95,6 +103,8 @@ casas.json, ...    ─┘        │                                            
                              │                                   split_cuadros.gd ─▶ resources/map/cuadros/*.scn
                              ├─▶ resources/map/puntos_mapa.json   (tiendas y altos)
                              ├─▶ resources/map/casas_mapa.json    (lotes de casas modelo)
+                             ├─▶ resources/map/bodegas_mapa.json  (naves)
+                             ├─▶ resources/map/bardas_mapa.json   (bardas, mallas y plumas)
                              ├─▶ make_vegetacion.py ─▶ pasto_mascara.png, arboles_mapa.json
 fetch_satelite.py ─▶ data/map/satelite_* ─┘   (Canopy Height + Sentinel-2)
                              └─▶ make_minimapa.py ─▶ textures/map/minimapa.png
@@ -107,6 +117,8 @@ Al correr la escena, cada nodo carga lo suyo alrededor del dron, que cuando no e
 | `Mapa` | `scripts/map/MapStreamer.gd` | Carga y descarga los cuadros de `resources/map/cuadros/`. |
 | `Puntos` | `scripts/map/MapPuntos.gd` | Pone los negocios y altos con su modelo (`prefabs`), o arma los locales. |
 | `Casas` | `scripts/map/MapCasas.gd` | Dibuja las casas modelo con un MultiMesh por celda y les pone colisión. |
+| `Bodegas` | `scripts/map/MapBodegas.gd` | Arma las bodegas huecas por celda, en un hilo. |
+| `Bardas` | `scripts/map/MapBardas.gd` | Arma bardas, mallas y plumas por celda, en un hilo, con colisión. |
 | `Arboles` | `scripts/map/MapArboles.gd` | Los árboles del satélite, un MultiMesh por celda, con colisión en el tronco. |
 | `Pasto` | `scripts/map/MapPasto.gd` | Matas de pasto 3D a menos de 40 m del jugador; le pone la máscara de pasto al plano `Suelo`. |
 | `Dron` | `scripts/map/MapDron.gd` | Modo dron (tecla V). |

@@ -15,6 +15,9 @@
 - En las colonias de data/map/casas.json cambia las casas por modelos 3D: parte
   las hileras en lotes, alinea las fachadas de cada cuadra y escribe
   resources/map/casas_mapa.json para MapCasas.gd.
+- Deduce los cotos (calles privadas o con pluma) y pone bardas y mallas en su
+  contorno, en los baldios y alrededor de las bodegas
+  (resources/map/bardas_mapa.json para MapBardas.gd).
 
 Uso: ver build_glb.sh (python3 prepare_osm.py --help)
 """
@@ -191,6 +194,35 @@ CAMELLON_ANCHO_MIN = 1.0
 # Guarnicion del camellon: una barda de concreto bajita
 CAMELLON_GUARNICION = 0.12
 CAMELLON_ID_START = 3 * 10**15
+CAMELLON_FUENTE = "camellon taquito"
+
+# Bardas y mallas (place_bardas -> resources/map/bardas_mapa.json, MapBardas.gd)
+PLUMAS = {"gate", "lift_gate"}
+# Una manzana es de un coto si al menos esta fraccion de su orilla da a calles del coto
+COTO_FRACCION = 0.25
+# Manzanas mas grandes (m2) no son de un coto (el terreno abierto alrededor de la zona)
+COTO_MANZANA_MAX = 60000.0
+# Una manzana de un coto con a lo mas este fondo (m) desde sus calles es toda del coto;
+# si es mas honda, cada casa va con la calle (del coto o publica) mas cercana
+COTO_FONDO = 24.0
+# ... salvo que en la parte que da a la calle publica haya a lo mas esta fraccion de sus casas
+COTO_CASAS_FUERA = 0.15
+# Cada cuanto (m) se prueba por donde pasa una barda; tramos mas cortos que BARDA_MIN no van
+BARDA_PASO = 1.0
+BARDA_MIN = 4.0
+BARDA_SIMPLIFICAR = 0.3
+# Baldio: tramo de al menos BALDIO_MIN m sin nada en BALDIO_FONDO m hacia adentro
+BALDIO_MIN = 12.0
+BALDIO_FONDO = 15.0
+# Distancia (m) de la malla a las naves de una bodega
+BODEGA_MALLA = 3.0
+# Pasto del satelite (satelite_pasto.png >= 0.6): un baldio con al menos la mitad
+# de su franja con pasto es area verde y no lleva malla
+VERDE_SATELITE = 153
+VERDE_FRACCION = 0.5
+# Areas verdes de OSM: nunca llevan barda
+VERDES = {"leisure": {"park", "garden", "playground", "pitch", "recreation_ground"},
+	"landuse": {"grass", "recreation_ground", "meadow", "village_green"}}
 
 
 def seed(osm_id: str) -> int:
@@ -1094,7 +1126,7 @@ def calles_y_banquetas(root, kept_ways, pos, lat0, lon0) -> tuple:
 				ET.SubElement(way, "tag", k="height", v=str(CAMELLON_GUARNICION))
 				ET.SubElement(way, "tag", k="width", v="0.2")
 				ET.SubElement(way, "tag", k="material", v="concrete")
-			ET.SubElement(way, "tag", k="source", v="camellon taquito")
+			ET.SubElement(way, "tag", k="source", v=CAMELLON_FUENTE)
 			kept_ways[str(way_id)] = way
 			nuevos.append(way)
 			way_id += 1
@@ -1182,15 +1214,18 @@ def invade_calle(poly, calles, perfil, propia) -> bool:
 
 
 def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas, modelos,
-		perfil=None, negocios=(), calles=None) -> list:
+		perfil=None, negocios=(), calles=None, cotos=None) -> list:
 	"""Cambia por modelos las casas de las colonias de `reglas` (data/map/casas.json).
 	Las casas se juntan por cara de cuadra (tramo recto de calle, lado, manzana) y
 	donde hay casas se ponen modelos pegados uno junto a otro, sin importar cada
 	huella de Google (se enciman y no son lotes). Todas las fachadas de la cuadra
 	van a la misma distancia del eje de la calle: la mediana de sus casas.
 	`modelos`: modelo -> [frente, fondo] (huellas_tiendas.json); `negocios`: sus
-	huellas (la hilera llega hasta ellas); `calles`: Tramos de todas las calles."""
+	huellas (la hilera llega hasta ellas); `calles`: Tramos de todas las calles.
+	`cotos`: las casas de un coto que dan a una calle publica (su contorno) no se
+	cambian: ahi va la barda y quedan detras de ella."""
 	casas = []
+	en_contorno = 0
 	for way_id, way in kept_ways.items():
 		tags = tags_of(way)
 		if tags.get("building") not in ("yes", "house", "residential") or "name" in tags or "shop" in tags or "amenity" in tags:
@@ -1204,6 +1239,9 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 		if calle is None:
 			continue
 		_, street_id, (ax, az), (dx, dz), largo = calle
+		if cotos and street_id not in cotos.calles and cotos.at(cx, cz):
+			en_contorno += 1
+			continue
 		# n: de la calle hacia la casa
 		nx, nz = -dz, dx
 		if (cx - ax) * nx + (cz - az) * nz < 0:
@@ -1324,7 +1362,8 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 	# Lo que quede debajo de un lote (casas de otra cara, huellas grandes) tambien se va
 	encimados = quitar_edificios_encimados(kept_ways, pos, lat0, lon0, lotes.poligonos)
 	print(f"  Casas modelo: {len(replaced)} huellas cambiadas por hileras, {descartados} lotes descartados "
-		f"(chocaban con otro o con una calle), {encimados} edificios debajo de un lote quitados")
+		f"(chocaban con otro o con una calle), {encimados} edificios debajo de un lote quitados, "
+		f"{en_contorno} en el contorno de un coto sin cambiar")
 	return placed
 
 
@@ -1488,6 +1527,7 @@ def place_bodegas(kept_ways, pos, lat0, lon0, manzanas, colonia_de, calles, perf
 				"color": BODEGA_COLORES[(s >> 4) % len(BODEGA_COLORES)],
 				"semilla": s % 100000,
 				"colonia": colonia,
+				"grupo": way_id,
 			})
 		# Si no cupo ninguna nave, el edificio se queda como estaba
 		if puestas:
@@ -1501,6 +1541,390 @@ def place_bodegas(kept_ways, pos, lat0, lon0, manzanas, colonia_de, calles, perf
 
 def huella_bodega(b) -> list:
 	return rectangulo(b["x"], b["z"], b["rotacion_y"], b["ancho"], 0.0, -b["fondo"])
+
+
+class Raster:
+	"""Rejilla de BLOCK_CELL m (la misma de Manzanas) con poligonos pintados."""
+
+	def __init__(self, manzanas):
+		self.x0, self.z0, self.w, self.h = manzanas.x0, manzanas.z0, manzanas.w, manzanas.h
+		self.data = bytearray(self.w * self.h)
+
+	def poligono(self, ring, valor=1) -> None:
+		"""Relleno por renglones (centro de la celda adentro = se pinta)."""
+		pts = [((x - self.x0) / BLOCK_CELL, (z - self.z0) / BLOCK_CELL) for x, z in ring]
+		if pts[0] != pts[-1]:
+			pts.append(pts[0])
+		ys = [p[1] for p in pts]
+		for row in range(max(int(min(ys)), 0), min(int(max(ys)) + 1, self.h)):
+			cy = row + 0.5
+			cortes = sorted(ax + (cy - ay) / (by - ay) * (bx - ax)
+				for (ax, ay), (bx, by) in zip(pts, pts[1:]) if (ay <= cy) != (by <= cy))
+			for a, b in zip(cortes[::2], cortes[1::2]):
+				c0 = max(int(math.ceil(a - 0.5)), 0)
+				c1 = min(int(math.floor(b - 0.5)), self.w - 1)
+				if c1 >= c0:
+					self.data[row * self.w + c0:row * self.w + c1 + 1] = bytes([valor]) * (c1 - c0 + 1)
+
+	def at(self, x, z) -> int:
+		cx, cz = int((x - self.x0) / BLOCK_CELL), int((z - self.z0) / BLOCK_CELL)
+		if 0 <= cx < self.w and 0 <= cz < self.h:
+			return self.data[cz * self.w + cx]
+		return 0
+
+
+class Cotos:
+	"""Fraccionamientos cerrados: cada coto es un grupo conectado de calles privadas
+	(access=private) o con pluma (barrier=gate/lift_gate). Una manzana es del coto
+	si al menos COTO_FRACCION de su orilla da a sus calles; si es de dos cotos, se
+	reparte (cada celda al coto de la calle mas cercana), y si es mas honda que
+	COTO_FONDO y hay casas del lado de una calle publica, las celdas mas cerca de
+	esa calle no son del coto.
+	`dueno`: coto de cada celda de la rejilla de Manzanas (0 = ninguno)."""
+
+	def __init__(self, kept_ways, pos, lat0, lon0, plumas, manzanas):
+		self.manzanas = manzanas
+		centros = []
+		w, h = manzanas.w, manzanas.h
+		lines = []
+		for way_id, way in kept_ways.items():
+			tags = tags_of(way)
+			if "building" in tags:
+				centros.append(centroid([local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")][:-1]))
+			if tags.get("highway") not in STREET_TYPES:
+				continue
+			refs = [nd.get("ref") for nd in way.findall("nd")]
+			if tags.get("access") == "private" or any(r in plumas for r in refs):
+				lines.append((way_id, [local_xz(*pos[r], lat0, lon0) for r in refs], refs))
+		# Grupos conectados por nodos compartidos
+		padre = list(range(len(lines)))
+
+		def raiz(i):
+			while padre[i] != i:
+				padre[i] = padre[padre[i]]
+				i = padre[i]
+			return i
+
+		de_nodo = {}
+		for i, (_, _, refs) in enumerate(lines):
+			for r in refs:
+				if r in de_nodo:
+					padre[raiz(i)] = raiz(de_nodo[r])
+				else:
+					de_nodo[r] = i
+		ids = {}
+		self.calles = {way_id: ids.setdefault(raiz(i), len(ids) + 1) for i, (way_id, _, _) in enumerate(lines)}
+
+		# Las calles de cada coto en la rejilla
+		marca = array.array("i", bytes(4 * w * h))
+		r = int(math.ceil(BLOCK_STREET_HALF / BLOCK_CELL))
+		for way_id, line, _ in lines:
+			k = self.calles[way_id]
+			for (ax, az), (bx, bz) in zip(line, line[1:]):
+				steps = int(math.hypot(bx - ax, bz - az) / (BLOCK_CELL / 2)) + 1
+				for s in range(steps + 1):
+					cx, cz = manzanas.cell(ax + (bx - ax) * s / steps, az + (bz - az) * s / steps)
+					for dz in range(-r, r + 1):
+						for dx in range(-r, r + 1):
+							if 0 <= cx + dx < w and 0 <= cz + dz < h:
+								marca[(cz + dz) * w + cx + dx] = k
+
+		# Orilla de cada manzana y cuanta da a cada coto
+		labels, street = manzanas.labels, manzanas.street
+		orilla = collections.Counter()
+		da_a = collections.defaultdict(collections.Counter)
+		for i in range(w * h):
+			label = labels[i]
+			if not label:
+				continue
+			x = i % w
+			vecinos = [j for j in (i - 1 if x > 0 else -1, i + 1 if x < w - 1 else -1, i - w, i + w)
+				if 0 <= j < w * h and (street[j] or marca[j])]
+			if marca[i]:
+				vecinos.append(i)
+			if not vecinos:
+				continue
+			orilla[label] += 1
+			for k in {marca[j] for j in vecinos if marca[j]}:
+				da_a[label][k] += 1
+		reclamada = {label: {k for k, n in cuenta.items() if n >= COTO_FRACCION * orilla[label]}
+			for label, cuenta in da_a.items()}
+		area = collections.Counter(labels)
+		reclamada = {label: ks for label, ks in reclamada.items() if ks and area[label] * BLOCK_CELL ** 2 <= COTO_MANZANA_MAX}
+
+		def distancias(semillas, entra):
+			"""Distancia en celdas (4 vecinos) y semilla mas cercana; -1 = no llega."""
+			dist = array.array("i", [-1]) * (w * h)
+			de = array.array("i", bytes(4 * w * h))
+			cola = collections.deque()
+			for i, k in semillas:
+				dist[i], de[i] = 0, k
+				cola.append(i)
+			while cola:
+				i = cola.popleft()
+				x = i % w
+				for j in (i - 1 if x > 0 else -1, i + 1 if x < w - 1 else -1, i - w, i + w):
+					if 0 <= j < w * h and dist[j] < 0 and entra(j, de[i]):
+						dist[j], de[j] = dist[i] + 1, de[i]
+						cola.append(j)
+			return dist, de
+
+		# Cada celda de una manzana reclamada, al coto cuya calle llega primero
+		d_coto, cerca = distancias(((i, marca[i]) for i in range(w * h) if marca[i]),
+			lambda j, k: k in reclamada.get(labels[j], ()))
+		d_calle, _ = distancias(((i, 1) for i in range(w * h) if street[i] and not marca[i]),
+			lambda j, k: labels[j] != 0)
+		# Una manzana angosta (una hilera de casas entre el coto y la calle) es toda del
+		# coto: la barda va en la banqueta. En una mas honda, las casas que estan mas cerca
+		# de una calle publica no son del coto y la barda va por atras.
+		hondo = collections.Counter()
+		for i in range(w * h):
+			if cerca[i] and labels[i]:
+				hondo[labels[i]] = max(hondo[labels[i]], d_coto[i])
+		# Si en la parte que da a la calle publica casi no hay casas, tambien es del coto
+		# (la barda del coto va en la banqueta de la avenida)
+		casas_fuera, casas_total = collections.Counter(), collections.Counter()
+		for x, z in centros:
+			cx, cz = manzanas.cell(x, z)
+			if 0 <= cx < w and 0 <= cz < h:
+				i = cz * w + cx
+				if cerca[i] and labels[i]:
+					casas_total[labels[i]] += 1
+					if not (d_calle[i] < 0 or d_coto[i] <= d_calle[i]):
+						casas_fuera[labels[i]] += 1
+		toda = {label for label in hondo if hondo[label] * BLOCK_CELL <= COTO_FONDO
+			or casas_fuera[label] <= COTO_CASAS_FUERA * casas_total[label]}
+		dueno = array.array("i", bytes(4 * w * h))
+		for i in range(w * h):
+			if cerca[i] and (not labels[i] or labels[i] in toda or d_calle[i] < 0 or d_coto[i] <= d_calle[i]):
+				dueno[i] = cerca[i]
+		self.dueno = dueno
+		self.n = len({k for ks in reclamada.values() for k in ks})
+		print(f"  Cotos: {self.n} con manzanas ({len(ids)} grupos de calles privadas o con pluma, "
+			f"{len(lines)} calles), {len(reclamada)} manzanas")
+
+	def at(self, x, z) -> int:
+		"""Coto de la manzana en (x, z); 0 si no es de un coto o si cae en la calle."""
+		cx, cz = self.manzanas.cell(x, z)
+		if 0 <= cx < self.manzanas.w and 0 <= cz < self.manzanas.h:
+			i = cz * self.manzanas.w + cx
+			if self.manzanas.labels[i]:
+				return self.dueno[i]
+		return 0
+
+
+def simplificar(pts, tol) -> list:
+	"""Ramer-Douglas-Peucker."""
+	if len(pts) < 3:
+		return list(pts)
+	(ax, az), (bx, bz) = pts[0], pts[-1]
+	dx, dz = bx - ax, bz - az
+	largo = math.hypot(dx, dz)
+	peor, k = -1.0, 0
+	for i in range(1, len(pts) - 1):
+		px, pz = pts[i]
+		d = abs((px - ax) * dz - (pz - az) * dx) / largo if largo > 1e-9 else math.hypot(px - ax, pz - az)
+		if d > peor:
+			peor, k = d, i
+	if peor <= tol:
+		return [pts[0], pts[-1]]
+	return simplificar(pts[:k + 1], tol)[:-1] + simplificar(pts[k:], tol)
+
+
+def largo_linea(pts) -> float:
+	return sum(math.hypot(bx - ax, bz - az) for (ax, az), (bx, bz) in zip(pts, pts[1:]))
+
+
+def muestras_lado(line, izquierda, paso):
+	"""Puntos cada `paso` m sobre la linea con la normal hacia ese lado: [(x, z, nx, nz)]."""
+	out = []
+	for x, z, dx, dz in muestras(line, paso):
+		out.append((x, z, dz, -dx) if izquierda else (x, z, -dz, dx))
+	return out
+
+
+def corridas(muestras_ok) -> list:
+	"""Agrupa [(punto o None, clave)] en corridas seguidas con la misma clave: [(clave, [puntos])]."""
+	out = []
+	actual, clave = [], None
+	for punto, k in muestras_ok:
+		if punto is None or k != clave:
+			if len(actual) >= 2:
+				out.append((clave, actual))
+			actual, clave = [], k
+		if punto is not None:
+			actual.append(punto)
+	if len(actual) >= 2:
+		out.append((clave, actual))
+	return out
+
+
+def place_bardas(kept_ways, pos, lat0, lon0, manzanas, cotos, perfil, ocupado_polys, grupos_bodegas,
+		satelite=None) -> list:
+	"""Bardas y mallas deducidas del mapa, para MapBardas.gd: [{tipo, puntos, semilla}].
+	- coto_calle: contorno de un coto que da a una calle publica, en la orilla de la
+	  banqueta (MapBardas elige barda o malla segun el deterioro de la zona).
+	- baldio: frente de un tramo sin construcciones (malla).
+	- bodega: alrededor de cada grupo de naves (malla).
+	- osm: las barrier=wall de OSM (se quitan de kept_ways para que OSM2World no las dibuje).
+	Nada va encima de una construccion, de una calle o de un area verde (OSM, o pasto
+	del satelite para los baldios). `ocupado_polys`: lotes de casas modelo, negocios y
+	bodegas; `grupos_bodegas`: [[nave, ...]] (las naves de cada huella original);
+	`satelite`: (ancho, alto, canales, bytes, x0, z0) de satelite_pasto.png."""
+	ocupado = Raster(manzanas)
+	verde = Raster(manzanas)
+	osm_bardas = []
+	for way_id, way in list(kept_ways.items()):
+		tags = tags_of(way)
+		ring = [local_xz(*pos[nd.get("ref")], lat0, lon0) for nd in way.findall("nd")]
+		if "building" in tags:
+			ocupado.poligono(ring)
+		elif tags.get("barrier") == "wall" and tags.get("source") != CAMELLON_FUENTE:
+			osm_bardas.append(ring)
+			del kept_ways[way_id]
+		elif len(ring) > 3 and ring[0] == ring[-1] and any(tags.get(k) in v for k, v in VERDES.items()):
+			verde.poligono(ring)
+	for poly in ocupado_polys:
+		ocupado.poligono(poly)
+
+	def pasto(x, z) -> bool:
+		if satelite is None:
+			return False
+		sw, sh, ch, data, sx0, sz0 = satelite
+		px, pz = int(x - sx0), int(z - sz0)
+		return 0 <= px < sw and 0 <= pz < sh and data[(pz * sw + px) * ch] >= VERDE_SATELITE
+
+	lines = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
+	calles = Tramos(lines)
+
+	def en_calle(x, z, propia, holgura=0.0) -> bool:
+		"""Si (x, z) cae en el arroyo o la banqueta de una calle que no es `propia`."""
+		for d, way_id, _, _ in calles.cercanos(x, z, 15.0):
+			if way_id == propia:
+				continue
+			medio, izq, der = perfil.get(way_id, (SETBACK_MIN - 1.5, 0.0, 0.0))
+			if d < medio + max(izq, der) + holgura:
+				return True
+		return False
+
+	def libre(x, z) -> bool:
+		return not ocupado.at(x, z) and not verde.at(x, z)
+
+	def es_calle(x, z) -> bool:
+		cx, cz = manzanas.cell(x, z)
+		return not (0 <= cx < manzanas.w and 0 <= cz < manzanas.h) or bool(manzanas.street[cz * manzanas.w + cx])
+
+	bardas = []
+
+	def agregar(tipo, pts, tol=BARDA_SIMPLIFICAR):
+		pts = simplificar(pts, tol)
+		if len(pts) >= 2 and largo_linea(pts) >= BARDA_MIN:
+			x, z = pts[len(pts) // 2]
+			bardas.append({"tipo": tipo, "puntos": [[round(x, 2), round(z, 2)] for x, z in pts],
+				"semilla": seed(f"barda/{tipo}/{x:.1f},{z:.1f}") % 100000})
+
+	# Contorno de los cotos y baldios, por las calles: en la orilla de la banqueta
+	baldios_verdes = 0
+	for way_id, line, _ in lines:
+		highway = tags_of(kept_ways[way_id]).get("highway")
+		publica = way_id not in cotos.calles
+		for izquierda in (True, False):
+			s = borde_banqueta(perfil, way_id, izquierda, SETBACK_MIN) + FACHADA_HOLGURA
+			puntos = muestras_lado(line, izquierda, BARDA_PASO)
+			coto, baldio = [], []
+			for x, z, nx, nz in puntos:
+				bx, bz = x + nx * s, z + nz * s
+				k = cotos.at(x + nx * (s + 1.5), z + nz * (s + 1.5))
+				ok = libre(bx, bz) and not en_calle(bx, bz, way_id)
+				coto.append(((bx, bz), k) if ok and publica and k else (None, 0))
+				# Baldio: nada en BALDIO_FONDO m hacia adentro (o hasta otra calle)
+				franja = None
+				if ok and highway in BLOCK_STREET_TYPES and not k and manzanas.at(bx + nx * 1.5, bz + nz * 1.5):
+					franja = 0
+					d = s + 1.0
+					while d < s + BALDIO_FONDO:
+						px, pz = x + nx * d, z + nz * d
+						if es_calle(px, pz):
+							break
+						if not libre(px, pz) or cotos.at(px, pz):
+							franja = None
+							break
+						franja += pasto(px, pz)
+						d += 1.5
+					franja = None if franja is None else (franja, int((d - s - 1.0) / 1.5))
+				baldio.append(((bx, bz, franja), 1) if franja else (None, 0))
+			for k, pts in corridas(coto):
+				agregar("coto_calle", pts)
+			for _, pts in corridas(baldio):
+				verdes = sum(f[0] for _, _, f in pts)
+				total = sum(f[1] for _, _, f in pts)
+				if largo_linea([(x, z) for x, z, _ in pts]) < BALDIO_MIN:
+					continue
+				if total and verdes >= VERDE_FRACCION * total:
+					baldios_verdes += 1
+					continue
+				agregar("baldio", [(x, z) for x, z, _ in pts])
+	n_calle = sum(1 for b in bardas if b["tipo"] == "coto_calle")
+	n_baldio = len(bardas) - n_calle
+
+	# Bodegas: malla a BODEGA_MALLA m de las naves de cada huella
+	for naves in grupos_bodegas:
+		esquinas = []
+		for b in naves:
+			esquinas += rectangulo(b["x"], b["z"], b["rotacion_y"], b["ancho"] + 2 * BODEGA_MALLA, BODEGA_MALLA,
+				-b["fondo"] - BODEGA_MALLA)
+		casco = envolvente(esquinas)
+		puntos = []
+		for (ax, az), (bx, bz) in zip(casco, casco[1:] + casco[:1]):
+			n = max(1, int(math.hypot(bx - ax, bz - az) / BARDA_PASO))
+			puntos += [(ax + (bx - ax) * t / n, az + (bz - az) * t / n) for t in range(n)]
+		ok = [libre(x, z) and not en_calle(x, z, None, FACHADA_HOLGURA) for x, z in puntos]
+		if all(ok):
+			agregar("bodega", puntos + puntos[:1])
+			continue
+		# Que la vuelta empiece en un hueco, para no partir una corrida en dos
+		k = ok.index(False)
+		puntos, ok = puntos[k:] + puntos[:k], ok[k:] + ok[:k]
+		for _, pts in corridas([(p, 1) if bueno else (None, 0) for p, bueno in zip(puntos, ok)]):
+			agregar("bodega", pts)
+	n_bodega = len(bardas) - n_calle - n_baldio
+
+	for ring in osm_bardas:
+		agregar("osm", ring, 0.05)
+	print(f"  Bardas: {n_calle} tramos de contorno de coto, {n_baldio} baldios "
+		f"({baldios_verdes} quitados por pasto), {n_bodega} mallas de bodega, {len(bardas) - n_calle - n_baldio - n_bodega} de OSM; "
+		f"{sum(largo_linea(b['puntos']) for b in bardas) / 1000:.1f} km")
+	return bardas
+
+
+def place_plumas(kept_ways, pos, lat0, lon0, plumas, perfil, inside) -> list:
+	"""Una pluma (poste, brazo roto y caseta en MapBardas.gd) en cada barrier=gate/lift_gate
+	que esta en una calle: centro, giro (a lo largo de la calle) y ancho del arroyo."""
+	out = []
+	for way_id, way in kept_ways.items():
+		if tags_of(way).get("highway") not in STREET_TYPES:
+			continue
+		refs = [nd.get("ref") for nd in way.findall("nd")]
+		for i, r in enumerate(refs):
+			if r not in plumas:
+				continue
+			x, z = local_xz(*pos[r], lat0, lon0)
+			if not inside(x, z):
+				continue
+			a, b = refs[max(0, i - 1)], refs[min(len(refs) - 1, i + 1)]
+			(ax, az), (bx, bz) = local_xz(*pos[a], lat0, lon0), local_xz(*pos[b], lat0, lon0)
+			if math.hypot(bx - ax, bz - az) < 1e-6:
+				continue
+			medio = perfil.get(way_id, (SETBACK_MIN - 1.5, 0.0, 0.0))[0]
+			out.append({"x": round(x, 2), "z": round(z, 2), "rotacion_y": round(math.atan2(bx - ax, bz - az), 4),
+				"ancho": round(2 * medio, 2), "tipo": plumas[r], "semilla": seed(f"pluma/{r}") % 100000})
+	# Un nodo puede estar en dos calles: una pluma por nodo
+	vistos, unicas = set(), []
+	for p in out:
+		if (p["x"], p["z"]) not in vistos:
+			vistos.add((p["x"], p["z"]))
+			unicas.append(p)
+	return unicas
 
 
 def place_altos(lines, inside, perfil=None) -> tuple:
@@ -1557,6 +1981,8 @@ def main() -> None:
 	parser.add_argument("--casas", help="data/map/casas.json: que modelos de casa van en cada colonia")
 	parser.add_argument("--salida-casas", help="JSON con las casas modelo, para Godot (MapCasas.gd)")
 	parser.add_argument("--salida-bodegas", help="JSON con las bodegas huecas, para Godot (MapBodegas.gd)")
+	parser.add_argument("--salida-bardas", help="JSON con las bardas, mallas y plumas, para Godot (MapBardas.gd)")
+	parser.add_argument("--satelite-pasto", help="data/map/satelite_pasto.png (fetch_satelite.py): los baldios con pasto no llevan malla")
 	parser.add_argument("--png-colonias", help="PNG de debug con las manzanas pintadas por colonia")
 	parser.add_argument("--huellas", help="data/map/huellas_tiendas.json (huellas_tiendas.gd): lo que ocupa cada modelo de negocio")
 	args = parser.parse_args()
@@ -1748,6 +2174,7 @@ def main() -> None:
 		print(f"  Puntos: {len(placed)} ({replaced} reemplazan una casa) -> {args.salida_puntos}")
 
 	# Bodegas huecas (despues de las tiendas, antes de las casas: las hileras paran en ellas)
+	grupos_bodegas = []
 	if args.salida_bodegas and colonia_de is not None:
 		todas = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
 		bodegas = place_bodegas(kept_ways, pos, lat0, lon0, manzanas, colonia_de, Tramos(todas), perfil, huellas_negocios)
@@ -1756,17 +2183,30 @@ def main() -> None:
 		if encimados:
 			print(f"  Edificios debajo de una bodega: {encimados} quitados")
 		huellas_negocios += huellas_bodegas
+		grupos = collections.defaultdict(list)
+		for b in bodegas:
+			grupos[b.pop("grupo")].append(b)
+		grupos_bodegas = list(grupos.values())
 		os.makedirs(os.path.dirname(args.salida_bodegas), exist_ok=True)
 		with open(args.salida_bodegas, "w", encoding="utf-8") as f:
 			f.write('{"bodegas": [\n' + ",\n".join(json.dumps(b, ensure_ascii=False) for b in bodegas) + "\n]}\n")
 
+	# Cotos (antes de las casas: en su contorno no van casas modelo, va la barda)
+	cotos = None
+	plumas = {}
+	if args.salida_bardas and manzanas is not None:
+		plumas = {node_id: tags_of(n)["barrier"] for node_id, n in nodes.items()
+			if tags_of(n).get("barrier") in PLUMAS}
+		cotos = Cotos(kept_ways, pos, lat0, lon0, plumas, manzanas)
+
 	# Casas modelo por colonia (despues de las tiendas, que ya tomaron sus lotes)
+	lotes_casas = []
 	if args.casas and args.salida_casas and colonia_de is not None:
 		with open(args.casas, encoding="utf-8") as f:
 			reglas = {k: v for k, v in json.load(f).items() if not k.startswith("_")}
 		casa_lines = street_lines(kept_ways, pos, lat0, lon0, STREET_TYPES)
 		casas = place_casas(kept_ways, pos, lat0, lon0, casa_lines, manzanas, colonia_de, reglas,
-			huellas.get("casas", {}), perfil, huellas_negocios, Tramos(casa_lines))
+			huellas.get("casas", {}), perfil, huellas_negocios, Tramos(casa_lines), cotos)
 		# Un lote de casa modelo que se mete en un negocio tampoco va
 		antes = len(casas)
 		casas = [c for c in casas if not any(se_enciman(rectangulo(c["x"], c["z"], c["rotacion_y"], c["ancho"], 0.0, -c["fondo"]), h)
@@ -1779,6 +2219,26 @@ def main() -> None:
 		print(f"  Casas modelo: {len(casas)} -> {args.salida_casas}")
 		for (colonia, modelo), n in sorted(collections.Counter((c["colonia"], c["modelo"]) for c in casas).items()):
 			print(f"    {colonia or '(sin colonia)'}: {modelo} x{n}")
+		lotes_casas = [rectangulo(c["x"], c["z"], c["rotacion_y"], c["ancho"], 0.0, -c["fondo"]) for c in casas]
+
+	# Bardas y mallas (al final: no van encima de nada de lo anterior)
+	if cotos is not None:
+		satelite = None
+		meta_path = os.path.join(os.path.dirname(args.satelite_pasto or ""), "satelite_meta.json")
+		if args.satelite_pasto and os.path.exists(args.satelite_pasto) and os.path.exists(meta_path):
+			sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+			from make_vegetacion import read_png
+			with open(meta_path, encoding="utf-8") as f:
+				meta = json.load(f)
+			satelite = (*read_png(args.satelite_pasto), meta["x0"], meta["z0"])
+		bardas = place_bardas(kept_ways, pos, lat0, lon0, manzanas, cotos, perfil,
+			lotes_casas + huellas_negocios, grupos_bodegas, satelite)
+		plumas_mapa = place_plumas(kept_ways, pos, lat0, lon0, plumas, perfil, inside_local)
+		print(f"  Plumas: {len(plumas_mapa)}")
+		os.makedirs(os.path.dirname(args.salida_bardas), exist_ok=True)
+		with open(args.salida_bardas, "w", encoding="utf-8") as f:
+			f.write('{"bardas": [\n' + ",\n".join(json.dumps(b) for b in bardas) + '\n],\n"plumas": [\n'
+				+ ",\n".join(json.dumps(p) for p in plumas_mapa) + "\n]}\n")
 
 	filled = 0
 	for way in kept_ways.values():
