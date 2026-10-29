@@ -16,7 +16,8 @@ extends SceneTree
 
 const GRUPOS := ["tiendas", "casas", "props", "objetos", "personajes", "armas", "interiores", "bodegas"]
 # Modelos que no se hornean enteros: solo se usan sus piezas (separar_pack.gd)
-const SOLO_PIEZAS := ["mexican_starter_pack"]
+const SOLO_PIEZAS := ["mexican_starter_pack", "comida", "herramientas", "herramientas_2", "herramientas_psx",
+	"bote_pintura", "bote_pintura_2", "aerosol", "aerosol_2"]
 
 
 func _init() -> void:

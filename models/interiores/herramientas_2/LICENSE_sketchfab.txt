@@ -1,0 +1,11 @@
+Model Information:
+* title:	Tools pack 2
+* source:	https://sketchfab.com/3d-models/tools-pack-2-8c28443ed04c4564b570f3acc529102c
+* author:	Homie (https://sketchfab.com/nurbolnygmanov)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Tools pack 2" (https://sketchfab.com/3d-models/tools-pack-2-8c28443ed04c4564b570f3acc529102c) by Homie (https://sketchfab.com/nurbolnygmanov) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

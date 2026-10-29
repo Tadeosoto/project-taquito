@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://rhs85hwidqxt"
-path="res://.godot/imported/Material.006_baseColor.jpeg-370f51c3533b7c5f7e3a835cf049396f.ctex"
+path.s3tc="res://.godot/imported/Material.006_baseColor.jpeg-370f51c3533b7c5f7e3a835cf049396f.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={}
 
 [deps]
 
 source_file="res://models/casas/mexican_house_3/textures/Material.006_baseColor.jpeg"
-dest_files=["res://.godot/imported/Material.006_baseColor.jpeg-370f51c3533b7c5f7e3a835cf049396f.ctex"]
+dest_files=["res://.godot/imported/Material.006_baseColor.jpeg-370f51c3533b7c5f7e3a835cf049396f.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -38,4 +39,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -1,0 +1,118 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/interiores/Interior.gd" id="1_interior"]
+[ext_resource type="Script" path="res://scripts/interiores/Mueble.gd" id="2_mueble"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="3_npc"]
+[ext_resource type="Script" path="res://scripts/interiores/Refrigerador.gd" id="4_refri"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="p_script"]
+[ext_resource type="Script" path="res://scripts/interiores/Mostrador.gd" id="4_mostrador"]
+[ext_resource type="Script" path="res://scripts/interiores/Estante.gd" id="4_estante"]
+[ext_resource type="PackedScene" path="res://models/bodegas/cajas/cajas.scn" id="5_cajas"]
+[ext_resource type="Resource" path="res://resources/productos/gansito.tres" id="p_gansito"]
+[ext_resource type="Resource" path="res://resources/productos/takis.tres" id="p_takis"]
+[ext_resource type="Resource" path="res://resources/productos/jarritos.tres" id="p_jarritos"]
+[ext_resource type="Resource" path="res://resources/productos/cigarros.tres" id="p_cigarros"]
+[ext_resource type="Resource" path="res://resources/productos/mazapan.tres" id="p_mazapan"]
+[ext_resource type="Resource" path="res://resources/productos/caguama.tres" id="p_caguama"]
+
+[sub_resource type="StandardMaterial3D" id="letrero_rojo"]
+albedo_color = Color(0.78, 0.08, 0.1, 1)
+
+[sub_resource type="BoxMesh" id="letrero_caja"]
+material = SubResource("letrero_rojo")
+size = Vector3(4.6, 0.42, 0.04)
+
+[node name="Tiendita" type="Node3D"]
+script = ExtResource("1_interior")
+ancho = 5.0
+fondo = 3.0
+alto = 2.7
+frente = 4.3
+color_muro = Color(0.88, 0.85, 0.76, 1)
+color_piso = Color(0.85, 0.83, 0.8, 1)
+energia_luz = 1.2
+productos = Array[ExtResource("p_script")]([ExtResource("p_gansito"), ExtResource("p_takis"), ExtResource("p_jarritos"), ExtResource("p_cigarros"), ExtResource("p_mazapan"), ExtResource("p_caguama")])
+precio_factor = 1.15
+
+[node name="Camara" type="Camera3D" parent="."]
+transform = Transform3D(0.9986, -0.00154, 0.05228, 0, 0.99957, 0.0294, -0.0523, -0.02936, 0.99817, 0, 1.35, 4)
+fov = 27.0
+
+[node name="Mostrador" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)
+script = ExtResource("4_mostrador")
+estilo = 1
+ancho = 3.2
+alto = 1.0
+fondo = 0.6
+con_modelos = true
+caja_registradora = true
+caja_orilla = 0.9
+
+[node name="Vendedor" parent="." instance=ExtResource("3_npc")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0.12, 0, -1.05)
+tint = Color(0.85, 0.8, 0.7, 1)
+dialogue = "Bienvenido. ¿Algo más?"
+
+[node name="Refrigeradores" type="Node3D" parent="."]
+
+[node name="Refrigerador1" type="Node3D" parent="Refrigeradores"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2.05, 0, -1.2)
+script = ExtResource("4_refri")
+ancho = 0.8
+alto = 2.0
+puertas = 1
+color = Color(0.85, 0.1, 0.1, 1)
+color_letrero = Color(0.95, 0.95, 0.95, 1)
+semilla = 0
+
+[node name="Vitrina" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.105, 1.18, 2)
+
+[node name="Muebles" type="Node3D" parent="."]
+
+[node name="Vinos" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.45, 0, -2.78)
+script = ExtResource("4_estante")
+tipo = 0
+ancho = 1.9
+alto = 2.0
+fondo = 0.4
+color = Color(0.1, 0.1, 0.11, 1)
+color_filo = Color(0.62, 0.12, 0.1, 1)
+niveles = 4
+con_modelos = true
+categorias = PackedStringArray("vino")
+
+[node name="Cigarros" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.875, 0, -2.86)
+script = ExtResource("4_estante")
+tipo = 0
+ancho = 2.75
+alto = 2.0
+fondo = 0.24
+color = Color(0.1, 0.1, 0.11, 1)
+color_filo = Color(0.62, 0.12, 0.1, 1)
+niveles = 11
+semilla = 1
+con_modelos = true
+categorias = PackedStringArray("cigarros")
+
+[node name="Cajas" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1, 0, -0.9)
+script = ExtResource("2_mueble")
+modelo = ExtResource("5_cajas")
+medida = 0.6
+colision = 2
+
+[node name="Letrero" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, -2.97)
+mesh = SubResource("letrero_caja")
+
+[node name="Texto" type="Label3D" parent="Letrero"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.025)
+pixel_size = 0.004
+text = "OXO   ¡YA ABRIMOS!"
+font_size = 72
+outline_size = 0
+texture_filter = 0

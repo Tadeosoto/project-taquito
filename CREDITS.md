@@ -109,6 +109,15 @@
 - [PSX Style Fruit Shelve](https://sketchfab.com/3d-models/8f1624e9ba6c443e8448b2a2db20eeb7) de wooolvie, licencia CC Attribution (`models/interiores/estante_fruta/`).
 - [Counter](https://sketchfab.com/3d-models/47e1be52888640f89ab6dd8eeb008b35) de gorzi, licencia CC Attribution (`models/interiores/mostrador/`).
 - [M3 Mart](https://sketchfab.com/3d-models/833699c4a15b4d1ab3e3d79068972431) de m3org, licencia CC Attribution (`models/interiores/m3_mart/`).
+- [Comida Low Poly](https://sketchfab.com/3d-models/e25d5b9877da4cb4ae0c2474e7e67ca9) de Elbolillo, licencia CC Attribution (`models/interiores/comida/`).
+- [tools pack](https://sketchfab.com/3d-models/59c5e176b95b4a0c9e0d9bd0f577a837) de Jusai, licencia CC Attribution (`models/interiores/herramientas/`).
+- [Tools pack 2](https://sketchfab.com/3d-models/8c28443ed04c4564b570f3acc529102c) de Jusai, licencia CC Attribution (`models/interiores/herramientas_2/`).
+- [Old Tools PSX](https://sketchfab.com/3d-models/c2a01052f23d438d9a3c65e649e2829d) de Bonvikt, licencia CC Attribution (`models/interiores/herramientas_psx/`).
+- [Metal Paint Can](https://sketchfab.com/3d-models/f5d97bc88d99451c87665ddb1edd4292) de TheoClarke, licencia CC Attribution (`models/interiores/bote_pintura/`).
+- [Paint Can Scan LOWPOLY](https://sketchfab.com/3d-models/3f418f347ddb4f9594f24c4599a0d1d2) de sixonetwo, licencia CC Attribution (`models/interiores/bote_pintura_2/`).
+- [Low Poly Spray Paint](https://sketchfab.com/3d-models/5d1678b1fe454c389a571cb06d91bab9) de TrentPierce, licencia CC Attribution (`models/interiores/aerosol/`).
+- [Spray Paint Can](https://sketchfab.com/3d-models/4c8af55af44c4e888fa9e3ca037f65e3) de wendyanna, licencia CC Attribution (`models/interiores/aerosol_2/`).
+- [Folding Chair - Low Poly](https://sketchfab.com/3d-models/54bd0acd7c524d678128367a25a0f504) de Jeremy E. Grayson, licencia CC Attribution (`models/interiores/silla_plegable/`).
 
 ## Bodegas (`models/bodegas/`, Sketchfab)
 - [Industrial Warehouse](https://sketchfab.com/3d-models/e6049139a2dd412a88d127541808e1e2) de VertexForge, licencia CC Attribution (`models/bodegas/bodega_industrial/`).

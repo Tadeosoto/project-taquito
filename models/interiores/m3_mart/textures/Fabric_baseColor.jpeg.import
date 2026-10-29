@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://eegkpwqgqmg7"
-path="res://.godot/imported/Fabric_baseColor.jpeg-b9d44f35b79f55d7e6498e36000c2b1b.ctex"
+path.s3tc="res://.godot/imported/Fabric_baseColor.jpeg-b9d44f35b79f55d7e6498e36000c2b1b.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={}
 
 [deps]
 
 source_file="res://models/interiores/m3_mart/textures/Fabric_baseColor.jpeg"
-dest_files=["res://.godot/imported/Fabric_baseColor.jpeg-b9d44f35b79f55d7e6498e36000c2b1b.ctex"]
+dest_files=["res://.godot/imported/Fabric_baseColor.jpeg-b9d44f35b79f55d7e6498e36000c2b1b.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -38,4 +39,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

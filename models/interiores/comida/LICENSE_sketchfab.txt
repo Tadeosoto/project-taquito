@@ -1,0 +1,11 @@
+Model Information:
+* title:	Comida Low Poly
+* source:	https://sketchfab.com/3d-models/comida-low-poly-e25d5b9877da4cb4ae0c2474e7e67ca9
+* author:	Elbolillo (https://sketchfab.com/Elbolilloduro)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Comida Low Poly" (https://sketchfab.com/3d-models/comida-low-poly-e25d5b9877da4cb4ae0c2474e7e67ca9) by Elbolillo (https://sketchfab.com/Elbolilloduro) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

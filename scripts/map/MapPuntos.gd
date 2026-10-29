@@ -1,4 +1,5 @@
 @tool
+class_name MapPuntos
 extends Node3D
 
 # Coloca las tiendas y puestos del mapa (OXXO, farmacias, taquerias...).
@@ -59,16 +60,25 @@ const LOCAL_FONDO_CORTINA := 1.0  # lo que se mete la entrada (m)
 const LOCAL_MIN := Vector2(4.5, 6.0)
 
 # Marcador de los negocios interactivos (docs/especificaciones.md 4.6): flecha
-# amarilla frente a la puerta; al pisarla se avisa (los interiores aun no existen)
+# amarilla frente a la puerta; al pisarla se entra al interior (scripts/interiores/Interiores.gd)
 const MARCADOR_COLOR := Color(1.0, 0.85, 0.1)
 const MARCADOR_RADIO := 0.8
 const MARCADOR_FRENTE := 0.8   # que tanto sale de la fachada (m)
 # Solo aparece de cerca: se desvanece entre estas distancias (m)
 const MARCADOR_VISTA := 18.0
 const MARCADOR_VISTA_FADE := 6.0
+# Y con la camara encima tampoco (al salir de un interior queda pegada a la flecha)
+const MARCADOR_CERCA := 2.0
+# Lo que dice el que atiende un puesto al aire libre, por giro
+const VENDEDOR_DIALOGO := {
+	"puesto_tacos": "¿De qué van a ser, joven? (Menú: próximamente)",
+	"tejuino": "¿Un tejuino bien frío? (Menú: próximamente)",
+}
 const MARCADOR_ALFA := 0.6
 
-signal entrar_negocio(tipo: String, giro: String, nombre: String, aire_libre: bool)
+# `marcador`: el Area3D de la flecha (su +Z apunta a la calle), para volver a ponerte
+# ahi; en los puestos al aire libre trae de hijo al `Vendedor` que atiende
+signal entrar_negocio(tipo: String, giro: String, nombre: String, aire_libre: bool, marcador: Node3D)
 
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
 
@@ -94,6 +104,14 @@ signal entrar_negocio(tipo: String, giro: String, nombre: String, aire_libre: bo
 # tipo -> corrimiento (m) de la puerta a la derecha del centro de la fachada
 @export var prefab_puerta: Dictionary[String, float] = {}
 
+# El que atiende en los puestos al aire libre (puesto de tacos, tejuino), parado
+# detras del puesto viendo a la calle; por ahora scenes/npc.tscn
+@export var vendedor_escena: PackedScene
+# tipo -> que tanto atras de la flecha se para (m): detras del carrito, dentro del
+# puesto de tacos. Solo los tipos que estan aqui llevan vendedor (el punto te mete a
+# su cuarto, scenes/interiores/punto.tscn)
+@export var vendedor_atras: Dictionary[String, float] = {}
+
 # El jugador; sin el se crean todas las tiendas de una vez
 @export var target_path: NodePath
 @export var load_radius := 250.0
@@ -105,7 +123,6 @@ var _box_materials := {}   # tipo -> ShaderMaterial de las cajas
 var _sucios := {}          # material de un prefab -> copia con deterioro
 var _target: Node3D
 var _timer := 0.0
-var _marcador_mesh: Mesh
 var _aviso: Label
 var _aviso_tween: Tween
 
@@ -187,30 +204,40 @@ func _marcador(punto: Dictionary) -> Node3D:
 	area.add_child(shape)
 	area.body_entered.connect(func(body: Node3D) -> void:
 		if body is Player:
-			_entrar(punto))
-
-	if _marcador_mesh == null:
-		_marcador_mesh = _flecha_mesh()
-	var flecha := MeshInstance3D.new()
-	flecha.mesh = _marcador_mesh
-	flecha.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	flecha.visibility_range_end = MARCADOR_VISTA
-	flecha.visibility_range_end_margin = MARCADOR_VISTA_FADE
-	flecha.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
-	area.add_child(flecha)
-	# El tween se crea ya en el arbol (se libera con la flecha)
-	flecha.ready.connect(func() -> void:
-		var tween := flecha.create_tween().set_loops()
-		tween.tween_property(flecha, "position:y", 0.25, 0.8).from(0.0).set_trans(Tween.TRANS_SINE)
-		tween.parallel().tween_property(flecha, "rotation:y", PI, 0.8).from(0.0)
-		tween.tween_property(flecha, "position:y", 0.0, 0.8).set_trans(Tween.TRANS_SINE)
-		tween.parallel().tween_property(flecha, "rotation:y", TAU, 0.8), CONNECT_ONE_SHOT)
+			_entrar(punto, area))
+	if punto.get("aire_libre", false) and vendedor_escena and vendedor_atras.has(punto["tipo"]):
+		area.add_child(_vendedor(punto))
+	area.add_child(flecha())
 	return area
+
+
+static var _flecha_cache: Mesh
+
+# Flecha que flota y gira
+static func flecha() -> MeshInstance3D:
+	if _flecha_cache == null:
+		_flecha_cache = _flecha_mesh()
+	var malla := MeshInstance3D.new()
+	malla.mesh = _flecha_cache
+	malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	malla.visibility_range_end = MARCADOR_VISTA
+	malla.visibility_range_end_margin = MARCADOR_VISTA_FADE
+	malla.visibility_range_begin = MARCADOR_CERCA
+	malla.visibility_range_begin_margin = 0.5
+	malla.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	# El tween se crea ya en el arbol (se libera con la flecha)
+	malla.ready.connect(func() -> void:
+		var tween := malla.create_tween().set_loops()
+		tween.tween_property(malla, "position:y", 0.25, 0.8).from(0.0).set_trans(Tween.TRANS_SINE)
+		tween.parallel().tween_property(malla, "rotation:y", PI, 0.8).from(0.0)
+		tween.tween_property(malla, "position:y", 0.0, 0.8).set_trans(Tween.TRANS_SINE)
+		tween.parallel().tween_property(malla, "rotation:y", TAU, 0.8), CONNECT_ONE_SHOT)
+	return malla
 
 
 # Flecha hacia abajo (cono y palo) a ~1.3 m del piso, amarilla y sin sombra para que
 # se vea igual de noche
-func _flecha_mesh() -> Mesh:
+static func _flecha_mesh() -> Mesh:
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.albedo_color = Color(MARCADOR_COLOR, MARCADOR_ALFA)
@@ -237,16 +264,31 @@ func _flecha_mesh() -> Mesh:
 	return mesh
 
 
-func _entrar(punto: Dictionary) -> void:
+# Viendo a la calle (+Z del marcador; el npc ve a su -Z), sin su area de platica: se le
+# habla pisando la flecha, no con el boton de saltar
+func _vendedor(punto: Dictionary) -> Node3D:
+	var vendedor := vendedor_escena.instantiate() as Node3D
+	vendedor.name = "Vendedor"
+	vendedor.position = Vector3(0.0, 0.0, -vendedor_atras.get(punto["tipo"], 1.5))
+	vendedor.rotation.y = PI
+	vendedor.set("dialogue", VENDEDOR_DIALOGO.get(punto.get("giro", ""), ""))
+	vendedor.ready.connect(func() -> void:
+		(vendedor.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
+	return vendedor
+
+
+func _entrar(punto: Dictionary, marcador: Node3D) -> void:
 	var nombre: String = punto.get("nombre", "")
 	if nombre == "" or nombre.to_upper().contains("SIN NOMBRE"):
 		nombre = LOCALES.get(punto["tipo"], {}).get("letrero", String(punto.get("giro", "")).capitalize())
-	entrar_negocio.emit(punto["tipo"], punto.get("giro", ""), nombre, punto.get("aire_libre", false))
-	_avisar("%s: Próximamente" % nombre)
+	entrar_negocio.emit(punto["tipo"], punto.get("giro", ""), nombre, punto.get("aire_libre", false), marcador)
+	# Sin nadie que lo atienda (Interiores) no hay a donde entrar
+	if not entrar_negocio.has_connections():
+		avisar("%s: Próximamente" % nombre)
 
 
 # Texto abajo al centro que se desvanece solo
-func _avisar(texto: String) -> void:
+func avisar(texto: String) -> void:
 	if _aviso == null:
 		var capa := CanvasLayer.new()
 		capa.layer = 3

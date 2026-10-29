@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1pfmpgnoif7k"
-path="res://.godot/imported/Candys_baseColor.png-3d5498d9280ba02b81593dd144dc5116.ctex"
+path.s3tc="res://.godot/imported/Candys_baseColor.png-3d5498d9280ba02b81593dd144dc5116.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={}
 
 [deps]
 
 source_file="res://models/interiores/m3_mart/textures/Candys_baseColor.png"
-dest_files=["res://.godot/imported/Candys_baseColor.png-3d5498d9280ba02b81593dd144dc5116.ctex"]
+dest_files=["res://.godot/imported/Candys_baseColor.png-3d5498d9280ba02b81593dd144dc5116.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -38,4 +39,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

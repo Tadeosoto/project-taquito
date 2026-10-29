@@ -1,0 +1,11 @@
+Model Information:
+* title:	Old Tools PSX
+* source:	https://sketchfab.com/3d-models/old-tools-psx-c2a01052f23d438d9a3c65e649e2829d
+* author:	Bonvikt (https://sketchfab.com/Bonvikt)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Old Tools PSX" (https://sketchfab.com/3d-models/old-tools-psx-c2a01052f23d438d9a3c65e649e2829d) by Bonvikt (https://sketchfab.com/Bonvikt) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

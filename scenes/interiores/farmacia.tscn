@@ -1,0 +1,88 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/interiores/Interior.gd" id="1_interior"]
+[ext_resource type="Script" path="res://scripts/interiores/Mueble.gd" id="2_mueble"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="3_npc"]
+[ext_resource type="Script" path="res://scripts/interiores/Refrigerador.gd" id="4_refri"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="p_script"]
+[ext_resource type="Script" path="res://scripts/interiores/Mostrador.gd" id="4_mostrador"]
+[ext_resource type="Script" path="res://scripts/interiores/Estante.gd" id="4_estante"]
+[ext_resource type="Resource" path="res://resources/productos/botiquin.tres" id="p_botiquin"]
+[ext_resource type="Resource" path="res://resources/productos/vaporub.tres" id="p_vaporub"]
+[ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="p_galon_agua"]
+
+[node name="Farmacia" type="Node3D"]
+script = ExtResource("1_interior")
+ancho = 4.4
+fondo = 2.8
+alto = 2.8
+frente = 4.3
+color_muro = Color(0.95, 0.95, 0.93, 1)
+color_piso = Color(0.85, 0.85, 0.85, 1)
+color_luz = Color(0.92, 1, 0.97, 1)
+productos = Array[ExtResource("p_script")]([ExtResource("p_botiquin"), ExtResource("p_vaporub"), ExtResource("p_galon_agua")])
+
+[node name="Camara" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.99957, 0.0294, 0, -0.0294, 0.99957, 0, 1.35, 4)
+fov = 27.0
+
+[node name="Mostrador" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)
+script = ExtResource("4_mostrador")
+estilo = 2
+ancho = 2.2
+alto = 1.0
+fondo = 0.6
+color = Color(0.1, 0.3, 0.8, 1)
+
+[node name="Vendedor" parent="." instance=ExtResource("3_npc")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0.5, 0, -1.15)
+tint = Color(0.85, 0.8, 0.7, 1)
+dialogue = "¿Trae receta?"
+
+[node name="Vitrina" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.18, 2)
+
+[node name="Muebles" type="Node3D" parent="."]
+
+[node name="Anaquel" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.05, 0, -2.6)
+script = ExtResource("4_estante")
+tipo = 0
+ancho = 2.1
+alto = 2.5
+fondo = 0.38
+color = Color(0.12, 0.3, 0.75, 1)
+color_filo = Color(0.95, 0.8, 0.1, 1)
+mercancia = 2
+niveles = 6
+texto = "NUEVOS PRODUCTOS"
+color_letrero = Color(0.95, 0.8, 0.1, 1)
+
+[node name="Anaquel2" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, 0, -2.6)
+script = ExtResource("4_estante")
+tipo = 0
+ancho = 2.0
+alto = 2.5
+fondo = 0.38
+color = Color(0.12, 0.3, 0.75, 1)
+color_filo = Color(0.95, 0.8, 0.1, 1)
+mercancia = 2
+niveles = 6
+texto = "¡CUÍDATE!"
+color_letrero = Color(0.65, 0.82, 1, 1)
+semilla = 1
+
+[node name="Anaquel3" type="Node3D" parent="Muebles"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.98, 0, -1.2)
+script = ExtResource("4_estante")
+tipo = 0
+ancho = 1.6
+alto = 2.3
+fondo = 0.38
+color = Color(0.12, 0.3, 0.75, 1)
+color_filo = Color(0.95, 0.8, 0.1, 1)
+mercancia = 2
+niveles = 6
+semilla = 2

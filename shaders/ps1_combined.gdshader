@@ -6,6 +6,7 @@ shader_type spatial;
 
 #include "res://shaders/ps1_vertex.gdshaderinc"
 #include "res://shaders/ps1_deterioro.gdshaderinc"
+#include "res://shaders/ps1_gastado.gdshaderinc"
 
 uniform sampler2D albedo_texture : source_color, filter_nearest;
 uniform vec4 base_color : source_color = vec4(0.55, 0.55, 0.55, 1.0);
@@ -14,8 +15,13 @@ uniform vec4 tint : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform bool use_vertex_color = false;
 // Deterioro de la zona (ps1_deterioro): 0 nada, 1 mugre (modelos de negocios),
 // 2 muro (pintura caida, escurrimientos; paredes de los locales armados),
-// 3 lamina oxidada (bodegas, MapBodegas.gd)
+// 3 lamina oxidada (bodegas, MapBodegas.gd), 4 mueble gastado (interiores, ps1_gastado)
 uniform int deterioro_modo = 0;
+// Modo 4: cuanto uso tiene (se le suma la zona) y si es fierro pintado
+uniform float desgaste = 0.6;
+uniform bool metal = false;
+// Sin sombreado (luces, fondos iluminados, letreros) pero con su deterioro
+uniform bool sin_sombra = false;
 
 varying vec2 affine_uv;
 varying vec3 world_pos;
@@ -39,9 +45,16 @@ void fragment() {
 	if (deterioro_modo == 1) {
 		ALBEDO = mugre(ALBEDO, world_pos, zona_deterioro(world_pos.xz));
 	} else if (deterioro_modo == 2) {
-		ALBEDO = muro_sucio(ALBEDO, world_pos, zona_deterioro(world_pos.xz));
+		ALBEDO = muro_sucio(ALBEDO, vec3(world_pos.x, altura_local(world_pos.y), world_pos.z), zona_deterioro(world_pos.xz));
 	} else if (deterioro_modo == 3) {
 		ALBEDO = lamina_oxidada(ALBEDO, world_pos, zona_deterioro(world_pos.xz));
+	} else if (deterioro_modo == 4) {
+		vec3 normal_mundo = (INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz;
+		ALBEDO = gastado(ALBEDO, world_pos, normal_mundo, clamp(desgaste + zona_deterioro(world_pos.xz) * 0.4, 0.0, 1.0), metal);
+	}
+	if (sin_sombra) {
+		EMISSION = ALBEDO;
+		ALBEDO = vec3(0.0);
 	}
 	ROUGHNESS = 1.0;
 }

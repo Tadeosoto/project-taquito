@@ -1,0 +1,11 @@
+Model Information:
+* title:	Spray Paint Can
+* source:	https://sketchfab.com/3d-models/spray-paint-can-4c8af55af44c4e888fa9e3ca037f65e3
+* author:	wendyanna (https://sketchfab.com/wendyanna)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Spray Paint Can" (https://sketchfab.com/3d-models/spray-paint-can-4c8af55af44c4e888fa9e3ca037f65e3) by wendyanna (https://sketchfab.com/wendyanna) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

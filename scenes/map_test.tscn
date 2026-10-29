@@ -37,6 +37,15 @@
 [ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="40_alumbrado"]
 [ext_resource type="Script" path="res://scripts/map/MapNocheDebug.gd" id="41_noche"]
 [ext_resource type="PackedScene" path="res://models/personajes/dr_simi/dr_simi.scn" id="42_similares"]
+[ext_resource type="Script" path="res://scripts/interiores/Interiores.gd" id="43_interiores"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="45_npc"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="44_tiendita"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/abarrotes.tscn" id="44_abarrotes"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="44_farmacia"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/taqueria.tscn" id="44_taqueria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="44_ferreteria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="44_purificadora"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="44_punto"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -150,6 +159,11 @@ prefab_ancho = Dictionary[String, float]({
 "puesto": 2.5,
 "puesto_tacos": 3.5,
 "tienda": 11.9
+})
+vendedor_escena = ExtResource("45_npc")
+vendedor_atras = Dictionary[String, float]({
+"puesto": 2.6,
+"puesto_tacos": 3.4
 })
 prefab_quitar = Dictionary[String, PackedStringArray]({
 "farmacia_similares": PackedStringArray("Floor_concrete_0")
@@ -286,3 +300,20 @@ dron_path = NodePath("../Dron")
 tamano = 136.0
 radio_metros = 150.0
 radio_dron = 320.0
+
+[node name="Interiores" type="Node" parent="."]
+script = ExtResource("43_interiores")
+escenas = Dictionary[String, PackedScene]({
+"abarrotes": ExtResource("44_abarrotes"),
+"farmacia": ExtResource("44_farmacia"),
+"ferreteria": ExtResource("44_ferreteria"),
+"gasolinera": ExtResource("44_tiendita"),
+"oxxo": ExtResource("44_tiendita"),
+"punto": ExtResource("44_punto"),
+"purificadora": ExtResource("44_purificadora"),
+"taqueria": ExtResource("44_taqueria")
+})
+puntos_path = NodePath("../Puntos")
+player_path = NodePath("../Player")
+dron_path = NodePath("../Dron")
+ocultar = Array[NodePath]([NodePath("../Minimapa")])

@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1te3bxqwhc52"
-path="res://.godot/imported/bigote_baseColor.jpeg-7307f4240ca6cc75981ac1993b6e0338.ctex"
+path.s3tc="res://.godot/imported/bigote_baseColor.jpeg-7307f4240ca6cc75981ac1993b6e0338.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={}
 
 [deps]
 
 source_file="res://models/personajes/dr_simi/textures/bigote_baseColor.jpeg"
-dest_files=["res://.godot/imported/bigote_baseColor.jpeg-7307f4240ca6cc75981ac1993b6e0338.ctex"]
+dest_files=["res://.godot/imported/bigote_baseColor.jpeg-7307f4240ca6cc75981ac1993b6e0338.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -38,4 +39,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

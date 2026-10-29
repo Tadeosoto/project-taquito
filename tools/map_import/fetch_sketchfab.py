@@ -5,7 +5,8 @@ https://sketchfab.com/settings/password (seccion "API Token") y corre:
 
     SKETCHFAB_TOKEN=xxxx python3 -I tools/map_import/fetch_sketchfab.py
 
-o guardalo en ~/.config/sketchfab/token. Cada modelo queda en
+o guardalo en ~/.config/sketchfab/token. Con carpetas como argumento (p. ej.
+interiores/comida) solo procesa esas. Cada modelo queda en
 models/<carpeta>/ (glTF con sus texturas, achicadas a 256 px, y un .import que
 usa scripts/map/TiendaPostImport.gd para el shader PS1) y su credito se agrega a
 CREDITS.md (los CC BY piden citar al autor). Los modelos con muchas caras se
@@ -125,6 +126,16 @@ MODELS = {
 	"interiores/estante_fruta": "8f1624e9ba6c443e8448b2a2db20eeb7", # PSX Style Fruit Shelve, 1.1k
 	"interiores/mostrador": "47e1be52888640f89ab6dd8eeb008b35",     # Counter, 7.9k
 	"interiores/m3_mart": "833699c4a15b4d1ab3e3d79068972431",       # M3 Mart, 11.7k
+	"interiores/comida": "e25d5b9877da4cb4ae0c2474e7e67ca9",         # Comida Low Poly, 5.7k (mercancia de los abarrotes)
+	# Ferreteria: herramientas colgadas y pintura en las repisas (Estante.gd)
+	"interiores/herramientas": "59c5e176b95b4a0c9e0d9bd0f577a837",   # tools pack (martillo, perica, desarmadores), 1.5k
+	"interiores/herramientas_2": "8c28443ed04c4564b570f3acc529102c", # Tools pack 2 (pinzas, llaves), 3.5k
+	"interiores/herramientas_psx": "c2a01052f23d438d9a3c65e649e2829d",  # Old Tools PSX (machete, mazo, martillo), 404
+	"interiores/bote_pintura": "f5d97bc88d99451c87665ddb1edd4292",   # Metal Paint Can, 464
+	"interiores/bote_pintura_2": "3f418f347ddb4f9594f24c4599a0d1d2", # Paint Can Scan LOWPOLY, 572
+	"interiores/aerosol": "5d1678b1fe454c389a571cb06d91bab9",       # Low Poly Spray Paint, 634
+	"interiores/aerosol_2": "4c8af55af44c4e888fa9e3ca037f65e3",     # Spray Paint Can, 830
+	"interiores/silla_plegable": "54bd0acd7c524d678128367a25a0f504", # Folding Chair - Low Poly, 270 (sillas de la taqueria, pintadas de rojo en Mesa.gd)
 	# Bodegas huecas (MapBodegas.gd): de la bodega solo se usa un vano del frente
 	"bodegas/bodega_industrial": "e6049139a2dd412a88d127541808e1e2",  # Industrial Warehouse, 1.9k
 	"bodegas/rack": "593e7d15f27346efa2dcc0149edb6ef2",             # Pallet Racking, 1.3k
@@ -190,7 +201,13 @@ def main() -> None:
 	token = read_token()
 	os.makedirs(OUT_DIR, exist_ok=True)
 	credits = {}
+	solo = sys.argv[1:]
+	for carpeta in solo:
+		if carpeta not in MODELS:
+			sys.exit(f"ERROR: {carpeta} no esta en MODELS")
 	for folder, uid in MODELS.items():
+		if solo and folder not in solo:
+			continue
 		dest = os.path.join(OUT_DIR, folder)
 		info = get_json(f"https://api.sketchfab.com/v3/models/{uid}")
 		license_label = (info.get("license") or {}).get("label", "?")
@@ -240,7 +257,7 @@ def main() -> None:
 		text = text[:start] + section + ("\n" + text[end:].lstrip("\n") if end < len(text) else "")
 	with open(credits_path, "w", encoding="utf-8") as f:
 		f.write(text.rstrip() + "\n")
-	print(f"OK: {len(MODELS)} modelos en {OUT_DIR}; creditos en CREDITS.md")
+	print(f"OK: {len(solo) or len(MODELS)} modelos en {OUT_DIR}; creditos en CREDITS.md")
 
 
 if __name__ == "__main__":

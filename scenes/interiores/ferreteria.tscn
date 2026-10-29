@@ -1,0 +1,90 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/interiores/Interior.gd" id="1_interior"]
+[ext_resource type="Script" path="res://scripts/interiores/Mueble.gd" id="2_mueble"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="3_npc"]
+[ext_resource type="Script" path="res://scripts/interiores/Refrigerador.gd" id="4_refri"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="p_script"]
+[ext_resource type="Script" path="res://scripts/interiores/Mostrador.gd" id="4_mostrador"]
+[ext_resource type="Script" path="res://scripts/interiores/Estante.gd" id="4_estante"]
+[ext_resource type="PackedScene" path="res://models/objetos/tablas/tablas.scn" id="5_tablas"]
+[ext_resource type="Resource" path="res://resources/productos/tablas.tres" id="p_tablas"]
+[ext_resource type="Resource" path="res://resources/productos/cinta.tres" id="p_cinta"]
+[ext_resource type="Resource" path="res://resources/productos/bate.tres" id="p_bate"]
+[ext_resource type="Resource" path="res://resources/productos/machete.tres" id="p_machete"]
+
+[node name="Ferreteria" type="Node3D"]
+script = ExtResource("1_interior")
+ancho = 4.4
+fondo = 2.8
+alto = 2.8
+frente = 4.3
+color_muro = Color(0.6, 0.6, 0.57, 1)
+energia_luz = 0.7
+luz_mostrador = false
+color_piso = Color(0.6, 0.6, 0.6, 1)
+productos = Array[ExtResource("p_script")]([ExtResource("p_tablas"), ExtResource("p_cinta"), ExtResource("p_bate"), ExtResource("p_machete")])
+
+[node name="Camara" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.99996, -0.0087, 0, 0.0087, 0.99996, 0, 1.35, 4)
+fov = 22.0
+
+[node name="Mostrador" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)
+script = ExtResource("4_mostrador")
+estilo = 3
+ancho = 2.2
+alto = 1.0
+fondo = 0.6
+
+[node name="Vendedor" parent="." instance=ExtResource("3_npc")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0.5, 0, -1.15)
+tint = Color(0.85, 0.8, 0.7, 1)
+dialogue = "Dígame, ¿qué anda buscando?"
+
+[node name="Vitrina" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 2)
+
+[node name="Muebles" type="Node3D" parent="."]
+
+[node name="Ganchos" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.77)
+script = ExtResource("4_estante")
+tipo = 1
+ancho = 4.3
+color = Color(0.5, 0.5, 0.48, 1)
+alto = 2.6
+mercancia = 3
+colgar = PackedStringArray("herramienta", "cinta")
+
+[node name="Ganchos2" type="Node3D" parent="Muebles"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2.17, 0, -1.2)
+script = ExtResource("4_estante")
+tipo = 1
+ancho = 3.0
+color = Color(0.5, 0.5, 0.48, 1)
+alto = 2.6
+mercancia = 3
+semilla = 1
+colgar = PackedStringArray("machete", "bate")
+
+[node name="Repisas" type="Node3D" parent="Muebles"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.98, 0, -1.3)
+script = ExtResource("4_estante")
+tipo = 0
+ancho = 1.8
+alto = 2.1
+fondo = 0.4
+color = Color(0.6, 0.62, 0.65, 1)
+color_filo = Color(0.3, 0.75, 0.3, 1)
+mercancia = 3
+niveles = 5
+semilla = 2
+con_modelos = true
+
+[node name="Tablas" type="Node3D" parent="Muebles"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -1.6, 0, -0.6)
+script = ExtResource("2_mueble")
+modelo = ExtResource("5_tablas")
+medida = 1.4
+colision = 2

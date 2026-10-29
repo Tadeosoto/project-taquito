@@ -1,0 +1,89 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/interiores/Interior.gd" id="1_interior"]
+[ext_resource type="Script" path="res://scripts/interiores/Mueble.gd" id="2_mueble"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="3_npc"]
+[ext_resource type="Script" path="res://scripts/interiores/Refrigerador.gd" id="4_refri"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="p_script"]
+[ext_resource type="Script" path="res://scripts/interiores/Mostrador.gd" id="4_mostrador"]
+[ext_resource type="Script" path="res://scripts/interiores/Estante.gd" id="4_estante"]
+[ext_resource type="PackedScene" path="res://models/props/despachador_agua/despachador_agua.scn" id="5_despachador"]
+[ext_resource type="PackedScene" path="res://models/objetos/galon_agua/galon_agua.scn" id="6_galon"]
+[ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="p_galon_agua"]
+[ext_resource type="Resource" path="res://resources/productos/cloralex.tres" id="p_cloralex"]
+
+[node name="Purificadora" type="Node3D"]
+script = ExtResource("1_interior")
+ancho = 4.4
+fondo = 2.8
+color_muro = Color(0.6, 0.8, 0.95, 1)
+color_piso = Color(0.8, 0.85, 0.9, 1)
+color_luz = Color(0.9, 0.96, 1, 1)
+reja = true
+ventana_ancho = 2.2
+color_fachada = Color(0.93, 0.93, 0.92, 1)
+barrotes = false
+productos = Array[ExtResource("p_script")]([ExtResource("p_galon_agua"), ExtResource("p_cloralex")])
+
+[node name="Camara" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.99616, 0.08757, 0, -0.08757, 0.99616, 0, 1.4, 3.4)
+fov = 62.0
+
+[node name="Mostrador" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.25)
+script = ExtResource("4_mostrador")
+estilo = 4
+ancho = 2.2
+alto = 1.0
+fondo = 0.5
+color = Color(0.1, 0.3, 0.7, 1)
+
+[node name="Vendedor" parent="." instance=ExtResource("3_npc")]
+transform = Transform3D(-1.2, 0, 0, 0, 1.2, 0, 0, 0, -1.2, 0, 0, -1.15)
+tint = Color(0.85, 0.8, 0.7, 1)
+dialogue = "¿Garrafón o rellenamos el suyo?"
+
+[node name="Vitrina" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 2.3)
+
+[node name="Muebles" type="Node3D" parent="."]
+
+[node name="Despachador" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4, 0, -2.3)
+script = ExtResource("2_mueble")
+modelo = ExtResource("5_despachador")
+medida = 1.15
+eje = 1
+colision = 2
+
+[node name="Despachador2" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.4)
+script = ExtResource("2_mueble")
+modelo = ExtResource("5_despachador")
+medida = 1.15
+eje = 1
+colision = 2
+
+[node name="Despachador3" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 0, -2.3)
+script = ExtResource("2_mueble")
+modelo = ExtResource("5_despachador")
+medida = 1.15
+eje = 1
+colision = 2
+
+[node name="Galon" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 0, -1)
+script = ExtResource("2_mueble")
+modelo = ExtResource("6_galon")
+medida = 0.35
+eje = 1
+colision = 2
+
+[node name="Galon2" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.75, 0, -1.4)
+script = ExtResource("2_mueble")
+modelo = ExtResource("6_galon")
+medida = 0.35
+eje = 1
+colision = 2
