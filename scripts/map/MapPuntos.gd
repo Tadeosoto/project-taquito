@@ -58,6 +58,17 @@ const LOCAL_HEIGHT := 3.2
 const LOCAL_FONDO_CORTINA := 1.0  # lo que se mete la entrada (m)
 # Tamano minimo de un local (m): en lotes angostos se sale a los lados y hacia atras
 const LOCAL_MIN := Vector2(4.5, 6.0)
+# Purificadora (foto del usuario): anuncio sobre postes en la banqueta
+const PURIFICADORA_LONA := preload("res://textures/map/purificadora_lona.png")
+const PURIFICADORA_POSTES := 1.5   # de la fachada a los postes (orilla de la banqueta)
+const PURIFICADORA_ANUNCIO := Vector2(2.9, 1.7)   # altura de abajo y alto del anuncio
+# Taqueria (como scenes/interiores/taqueria.tscn vista desde la calle): local blanco con
+# rojo abierto, mesas y refris rojos adentro y el puesto con el taquero en la banqueta
+const TAQUERIA_ROJO := Color(0.62, 0.12, 0.1)
+const TAQUERIA_MESA := Color(0.88, 0.07, 0.05)
+const TAQUERIA_PUESTO := 1.3   # de la fachada al centro del puesto (m)
+const TAQUERIA_CUARTO := 4.5   # fondo maximo del cuarto que se ve desde la calle
+const TAQUERIA_DETALLE := 80.0 # mas alla no se dibujan muebles ni puesto
 
 # Marcador de los negocios interactivos (docs/especificaciones.md 4.6): flecha
 # amarilla frente a la puerta; al pisarla se entra al interior (scripts/interiores/Interiores.gd)
@@ -179,6 +190,10 @@ func _make_punto(punto: Dictionary) -> Node3D:
 		node.name = "punto_%s" % punto.get("origen", "")
 	elif prefabs.has(tipo) and prefabs[tipo] != null:
 		node = _make_prefab(punto)
+	elif tipo == "purificadora":
+		node = _make_purificadora(punto)
+	elif tipo == "taqueria":
+		node = _make_taqueria(punto)
 	elif LOCALES.has(tipo):
 		node = _make_local(punto)
 	else:
@@ -193,7 +208,8 @@ func _make_punto(punto: Dictionary) -> Node3D:
 func _marcador(punto: Dictionary) -> Node3D:
 	var area := Area3D.new()
 	area.name = "Marcador"
-	area.position = Vector3(prefab_puerta.get(punto["tipo"], 0.0), 0.0, punto["fondo"] / 2.0 + MARCADOR_FRENTE)
+	# `puerta_x`: el local armado dice donde esta su puerta (la ventanilla de la purificadora)
+	area.position = Vector3(punto.get("puerta_x", prefab_puerta.get(punto["tipo"], 0.0)), 0.0, punto["fondo"] / 2.0 + MARCADOR_FRENTE)
 	area.monitorable = false
 	var shape := CollisionShape3D.new()
 	var cilindro := CylinderShape3D.new()
@@ -579,6 +595,291 @@ func _make_local(punto: Dictionary) -> Node3D:
 	label.visibility_range_end = 80.0
 	body.add_child(label)
 	return body
+
+
+# Purificadora como la foto de referencia: de izquierda a derecha puerta de barrotes
+# metida, el despachador automatico azul en el muro y el ventanal de aluminio con los
+# garrafones adentro; muro blanco con rodapie y franja azules como los demas locales y
+# el anuncio grande (purificadora_lona.png + letreros) sobre postes en la orilla de la
+# banqueta, sin tejado. Guarda en `punto["puerta_x"]` el centro del ventanal, donde
+# va la flecha. La fachada ve a +Z, en la orilla del lote.
+# Con `solo_fachada` (la escena de compra, Interior.fachada_mapa) no arma el cuerpo ni
+# lo de adentro del ventanal, y el ventanal queda abierto: sin vidrios ni travesano,
+# solo su marco, para ver al que atiende.
+func _make_purificadora(punto: Dictionary, solo_fachada := false) -> Node3D:
+	var nombre: String = punto.get("nombre", "")
+	var w: float = maxf(punto["ancho"], LOCAL_MIN.x)
+	var d: float = maxf(punto["fondo"], LOCAL_MIN.y)
+	var h := LOCAL_HEIGHT
+	var front: float = punto["fondo"] / 2.0
+	var muro := 0.3   # grueso de la fachada; atras, el cuerpo
+	var body := StaticBody3D.new()
+	body.name = "purificadora_%s" % nombre
+	if not solo_fachada:
+		_local_box(body, Vector3(w, h, d - muro), Vector3(0.0, h / 2.0, front - muro - (d - muro) / 2.0), LOCAL_BLANCO, true)
+	# Tramos de la fachada de izquierda a derecha
+	var x := -w / 2.0
+	var puerta := Vector2(x + 0.25, x + 1.45)
+	var despachador := Vector2(puerta.y, puerta.y + 0.8)
+	var ventana := Vector2(despachador.y + 0.3, minf(w / 2.0 - 0.3, despachador.y + 0.3 + 3.2))
+	var oscuro := Color(0.08, 0.08, 0.09)
+	var acento: Color = LOCALES["purificadora"]["acento"]
+	var z := front - muro / 2.0
+	# Muro: macizos a los lados de los huecos, dintel de la puerta y antepecho y dintel
+	# del ventanal
+	var macizos := [Vector2(-w / 2.0, puerta.x), Vector2(despachador.x, ventana.x), Vector2(ventana.y, w / 2.0)]
+	for tramo: Vector2 in macizos:
+		if tramo.y - tramo.x > 0.01:
+			_fachada_tramo(body, tramo, 0.0, h, z, muro, acento)
+	_fachada_tramo(body, puerta, 2.3, h, z, muro, acento)
+	_fachada_tramo(body, ventana, 0.0, 1.15, z, muro, acento)
+	_fachada_tramo(body, ventana, 2.35, h, z, muro, acento)
+	# Puerta: fondo oscuro y barrotes negros
+	_local_box(body, Vector3(puerta.y - puerta.x, 2.3, 0.05), Vector3((puerta.x + puerta.y) / 2.0, 1.15, front - muro + 0.03), oscuro, false)
+	var barrotes := 9
+	for i in barrotes + 1:
+		var bx := puerta.x + 0.04 + (puerta.y - puerta.x - 0.08) * i / barrotes
+		_local_box(body, Vector3(0.025, 2.26, 0.025), Vector3(bx, 1.13, front - 0.08), Color(0.1, 0.1, 0.1), false)
+	for y in [0.15, 1.15, 2.2]:
+		_local_box(body, Vector3(puerta.y - puerta.x, 0.04, 0.03), Vector3((puerta.x + puerta.y) / 2.0, y, front - 0.08), Color(0.1, 0.1, 0.1), false)
+	# Despachador automatico en el muro: marco gris, maquina azul, pantallita y ranura
+	var cx := (despachador.x + despachador.y) / 2.0
+	_local_box(body, Vector3(0.58, 0.78, 0.03), Vector3(cx, 1.35, front + 0.015), Color(0.62, 0.63, 0.64), false)
+	_local_box(body, Vector3(0.46, 0.64, 0.04), Vector3(cx, 1.35, front + 0.02), Color(0.15, 0.4, 0.75), false)
+	_local_box(body, Vector3(0.18, 0.1, 0.01), Vector3(cx - 0.08, 1.52, front + 0.045), Color(0.2, 0.75, 0.9), false)
+	_local_box(body, Vector3(0.05, 0.12, 0.01), Vector3(cx + 0.13, 1.45, front + 0.045), oscuro, false)
+	_local_box(body, Vector3(0.3, 0.2, 0.01), Vector3(cx, 1.15, front + 0.045), oscuro, false)
+	# Ventanal: adentro oscuro, repisa con garrafones, marco de aluminio y vidrios
+	var vx := (ventana.x + ventana.y) / 2.0
+	var vw := ventana.y - ventana.x
+	punto["puerta_x"] = vx
+	var aluminio := Color(0.78, 0.79, 0.8)
+	if solo_fachada:
+		for y in [1.17, 2.33]:
+			_local_box(body, Vector3(vw, 0.05, 0.06), Vector3(vx, y, front - 0.03), aluminio, false)
+		for lado in [ventana.x + 0.025, ventana.y - 0.025]:
+			_local_box(body, Vector3(0.05, 1.18, 0.06), Vector3(lado, 1.75, front - 0.03), aluminio, false)
+		_anuncio(body, punto, w, front, (despachador.y + ventana.x) / 2.0)
+		return body
+	_local_box(body, Vector3(vw, 1.2, 0.05), Vector3(vx, 1.75, front - muro + 0.03), Color(0.14, 0.16, 0.18), false)
+	var garrafones := int(vw / 0.42)
+	for i in garrafones:
+		var g := MeshInstance3D.new()
+		var cilindro := CylinderMesh.new()
+		cilindro.top_radius = 0.1
+		cilindro.bottom_radius = 0.13
+		cilindro.height = 0.42
+		cilindro.radial_segments = 8
+		cilindro.rings = 1
+		cilindro.material = _color_material(Color(0.35, 0.6, 0.9), false)
+		g.mesh = cilindro
+		g.position = Vector3(ventana.x + 0.21 + i * 0.42, 1.38, front - muro + 0.16)
+		g.visibility_range_end = 60.0
+		body.add_child(g)
+	for y in [1.17, 1.72, 2.33]:
+		_local_box(body, Vector3(vw, 0.05, 0.06), Vector3(vx, y, front - 0.03), aluminio, false)
+	var hojas := 3 if vw > 2.4 else 2
+	for i in hojas + 1:
+		_local_box(body, Vector3(0.05, 1.18, 0.06), Vector3(ventana.x + 0.025 + (vw - 0.05) * i / hojas, 1.75, front - 0.03), aluminio, false)
+	var vidrio := MeshInstance3D.new()
+	var plano := QuadMesh.new()
+	plano.size = Vector2(vw, 1.16)
+	var material_vidrio := StandardMaterial3D.new()
+	material_vidrio.albedo_color = Color(0.7, 0.85, 0.95, 0.18)
+	material_vidrio.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material_vidrio.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	plano.material = material_vidrio
+	vidrio.mesh = plano
+	vidrio.position = Vector3(vx, 1.75, front - 0.05)
+	vidrio.visibility_range_end = 80.0
+	body.add_child(vidrio)
+	_anuncio(body, punto, w, front, (despachador.y + ventana.x) / 2.0)
+	return body
+
+
+# Taqueria como la escena de adentro (scenes/interiores/taqueria.tscn) vista desde la
+# calle: muro blanco con rodapie y franja rojos, sin letrero, la cortina enrollada sobre un vano
+# ancho y adentro el cuarto con mesas rojas con sus sillas y refris rojos; en la
+# banqueta, frente al vano y un poco a la derecha, el puesto de tacos (Mostrador estilo
+# puesto, con su trompo y su humo) y el taquero de espaldas al local. La flecha va en
+# el lado libre del vano (`punto["puerta_x"]`).
+func _make_taqueria(punto: Dictionary) -> Node3D:
+	var nombre: String = punto.get("nombre", "")
+	var w: float = maxf(punto["ancho"], LOCAL_MIN.x)
+	var d: float = maxf(punto["fondo"], LOCAL_MIN.y)
+	var h := LOCAL_HEIGHT
+	var front: float = punto["fondo"] / 2.0
+	var vano := minf(w - 1.2, 4.0)
+	var vano_alto := 2.3
+	var cuarto := minf(d - 0.5, TAQUERIA_CUARTO)
+	var pilar := (w - vano) / 2.0
+	var body := StaticBody3D.new()
+	body.name = "taqueria_%s" % nombre
+	# Lo de atras del cuarto, macizo, con el rodapie hacia adentro
+	var atras := d - cuarto
+	_fachada_tramo(body, Vector2(-w / 2.0, w / 2.0), 0.0, h, front - cuarto - atras / 2.0, atras, TAQUERIA_ROJO)
+	# Muros de los lados (pilares de la fachada a todo el fondo del cuarto), dintel y techo
+	for lado in [-1.0, 1.0]:
+		var x: float = lado * (vano + pilar) / 2.0
+		_fachada_tramo(body, Vector2(x - pilar / 2.0, x + pilar / 2.0), 0.0, h, front - cuarto / 2.0, cuarto, TAQUERIA_ROJO)
+	_local_box(body, Vector3(vano, h - vano_alto, 0.3), Vector3(0.0, (h + vano_alto) / 2.0, front - 0.15), LOCAL_BLANCO, false)
+	_local_box(body, Vector3(vano, 0.2, cuarto), Vector3(0.0, h - 0.1, front - cuarto / 2.0), Color(0.85, 0.85, 0.82), false)
+	_local_box(body, Vector3(vano, 0.02, cuarto), Vector3(0.0, 0.01, front - cuarto / 2.0), Color(0.6, 0.55, 0.5), false)
+	# Tubo de luz en el techo (sin luz de verdad) y la cortina enrollada
+	var tubo := _local_box(body, Vector3(1.2, 0.05, 0.15), Vector3(0.0, h - 0.23, front - cuarto * 0.5), Color(1.0, 1.0, 0.95), false)
+	var material_tubo := StandardMaterial3D.new()
+	material_tubo.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material_tubo.albedo_color = Color(0.95, 0.97, 1.0)
+	tubo.material_override = material_tubo
+	_local_box(body, Vector3(vano, 0.25, 0.25), Vector3(0.0, vano_alto + 0.07, front + 0.12), Color(0.55, 0.57, 0.6), false)
+
+	var muebles := Node3D.new()
+	muebles.name = "Muebles"
+	body.add_child(muebles)
+	var semilla := absi(nombre.hash())
+	# Refris rojos contra el muro izquierdo y mesas en lo que queda
+	var refris := 2 if cuarto > 3.2 else 1
+	for i in refris:
+		var refri := Refrigerador.new()
+		refri.ancho = 0.8
+		refri.fondo = 0.65
+		refri.color = Color(0.6, 0.13, 0.11)
+		refri.repisas = 5
+		refri.luz = 0.0
+		refri.semilla = semilla + i
+		refri.position = Vector3(-vano / 2.0 + 0.36, 0.0, front - cuarto + 0.6 + i * 0.82)
+		refri.rotation.y = PI / 2.0
+		muebles.add_child(refri)
+	var mesas := [Vector3(0.45, 0.0, front - 1.0), Vector3(-0.35, 0.0, front - 2.4), Vector3(0.9, 0.0, front - 3.4)]
+	for i in mesas.size():
+		var pos: Vector3 = mesas[i]
+		if pos.z < front - cuarto + 0.7:
+			break
+		var mesa := Mesa.new()
+		mesa.color = TAQUERIA_MESA
+		mesa.semilla = semilla + i
+		mesa.position = pos
+		mesa.rotation.y = deg_to_rad(float((semilla + i * 7) % 11) - 5.0)
+		muebles.add_child(mesa)
+	# El puesto en la banqueta, con los clientes del lado de la calle (+Z), y el taquero
+	# entre el puesto y el local, viendo a la calle
+	var puesto := Mostrador.new()
+	puesto.estilo = 5
+	puesto.ancho = minf(2.1, vano - 1.4)
+	puesto.alto = 0.92
+	puesto.fondo = 0.7
+	puesto.color = Color(0.7, 0.1, 0.08)
+	puesto.semilla = semilla
+	var puesto_x := vano / 2.0 - puesto.ancho / 2.0 - 0.1
+	puesto.position = Vector3(puesto_x, 0.0, front + TAQUERIA_PUESTO)
+	muebles.add_child(puesto)
+	var caja := CollisionShape3D.new()
+	var forma := BoxShape3D.new()
+	forma.size = Vector3(puesto.ancho, 1.0, puesto.fondo)
+	caja.shape = forma
+	caja.position = puesto.position + Vector3(0.0, 0.5, 0.0)
+	body.add_child(caja)
+	if vendedor_escena:
+		var taquero := vendedor_escena.instantiate() as Node3D
+		taquero.name = "Taquero"
+		taquero.position = Vector3(puesto_x + 0.1, 0.0, front + TAQUERIA_PUESTO - 0.7)
+		taquero.rotation.y = PI
+		taquero.set("tint", Color(0.85, 0.8, 0.7))
+		taquero.ready.connect(func() -> void:
+			(taquero.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
+		muebles.add_child(taquero)
+	punto["puerta_x"] = (-vano / 2.0 + puesto_x - puesto.ancho / 2.0) / 2.0
+	# Los muebles se arman al entrar al arbol: hasta entonces no tienen mallas
+	muebles.ready.connect(_detalle_lejos.bind(muebles), CONNECT_ONE_SHOT)
+	return body
+
+
+# Los muebles y el puesto de la taqueria solo de cerca (sus piezas son hijos internos)
+func _detalle_lejos(node: Node) -> void:
+	if node is GeometryInstance3D:
+		(node as GeometryInstance3D).visibility_range_end = TAQUERIA_DETALLE
+		(node as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	elif node is Light3D:
+		var luz := node as Light3D
+		luz.distance_fade_enabled = true
+		luz.distance_fade_begin = TAQUERIA_DETALLE * 0.5
+		luz.distance_fade_length = TAQUERIA_DETALLE * 0.25
+	for child in node.get_children(true):
+		_detalle_lejos(child)
+
+
+# Un tramo de la fachada entre x.x y x.y, de y0 a y1: muro blanco y, donde le toquen,
+# el rodapie y la franja de `acento` (cascara apenas mas grande, como en _make_local)
+func _fachada_tramo(body: StaticBody3D, x: Vector2, y0: float, y1: float, z: float, grueso: float, acento: Color) -> void:
+	var ancho := x.y - x.x
+	var centro := (x.x + x.y) / 2.0
+	_local_box(body, Vector3(ancho, y1 - y0, grueso), Vector3(centro, (y0 + y1) / 2.0, z), LOCAL_BLANCO, true)
+	for banda: Vector2 in [Vector2(0.0, RODAPIE), Vector2(RODAPIE + 0.2, RODAPIE + 0.3)]:
+		var abajo := maxf(banda.x, y0)
+		var arriba := minf(banda.y, y1)
+		if arriba > abajo:
+			_local_box(body, Vector3(ancho + 0.03, arriba - abajo, grueso + 0.03), Vector3(centro, (abajo + arriba) / 2.0, z), acento, false)
+
+
+# Anuncio de la purificadora en la orilla de la banqueta: lona, letreros, lamparas,
+# los postes que lo cargan y dos largueros hasta la fachada (sin techo). El poste de
+# en medio va en `poste_x`, entre el despachador y el ventanal, para no tapar la ventanilla
+func _anuncio(body: StaticBody3D, punto: Dictionary, w: float, front: float, poste_x: float) -> void:
+	var z := front + PURIFICADORA_POSTES
+	var abajo := PURIFICADORA_ANUNCIO.x
+	var alto := PURIFICADORA_ANUNCIO.y
+	var largo := w + 0.3
+	var centro := Vector3(0.0, abajo + alto / 2.0, z)
+	var blanco := Color(0.92, 0.92, 0.9)
+	_local_box(body, Vector3(largo + 0.08, alto + 0.08, 0.08), centro + Vector3(0, 0, -0.05), Color(0.3, 0.3, 0.32), false)
+	var lona := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(largo, alto)
+	var material := ShaderMaterial.new()
+	material.shader = PS1_SHADER
+	material.set_shader_parameter("albedo_texture", PURIFICADORA_LONA)
+	material.set_shader_parameter("affine_enabled", false)
+	material.set_shader_parameter("wobble_enabled", false)
+	material.set_shader_parameter("deterioro_modo", 1)
+	quad.material = material
+	lona.mesh = quad
+	lona.position = centro
+	lona.visibility_range_end = PREFAB_VISIBILITY_RANGE
+	body.add_child(lona)
+	# Letreros: arriba "Agua purificada", la marca grande y el lema, entre el garrafon
+	# (izquierda) y el vaso (derecha) de la lona
+	# En DENUE casi todas se llaman "Purificadora de Agua X": en el anuncio va solo X
+	var marca: String = punto.get("nombre", "").to_upper()
+	for prefijo in ["PURIFICADORA DE AGUA ", "AGUA PURIFICADA ", "PURIFICADORA "]:
+		if marca.begins_with(prefijo):
+			marca = marca.substr(prefijo.length())
+			break
+	if marca == "" or marca.length() > 18 or marca.contains("SIN NOMBRE"):
+		marca = "AGUA PURA"
+	var x_texto := largo * 0.04
+	var ancho_texto := largo * 0.55
+	for renglon in [["Agua purificada", 0.33, Color(0.15, 0.55, 0.85), 0.55], [marca, 0.08, Color(0.2, 0.25, 0.65), 1.0],
+			["Salud y pureza en cada gota", -0.17, Color(0.1, 0.2, 0.45), 0.6]]:
+		var label := Label3D.new()
+		label.text = renglon[0]
+		label.font_size = 64
+		label.outline_size = 0
+		label.modulate = renglon[2]
+		# ~0.7 del font_size por letra (mayusculas)
+		label.pixel_size = minf(alto * 0.3 * renglon[3] / 64.0, ancho_texto / (label.text.length() * 45.0))
+		label.position = Vector3(x_texto, centro.y + alto * renglon[1], z + 0.01)
+		label.visibility_range_end = 80.0
+		body.add_child(label)
+	# Lamparas arriba, viendo al anuncio
+	for i in 3:
+		var lx := -largo * 0.35 + largo * 0.35 * i
+		_local_box(body, Vector3(0.03, 0.03, 0.35), Vector3(lx, abajo + alto + 0.06, z + 0.15), Color(0.15, 0.15, 0.15), false)
+		_local_box(body, Vector3(0.2, 0.08, 0.12), Vector3(lx, abajo + alto + 0.08, z + 0.35), Color(0.15, 0.15, 0.15), false)
+	# Postes en la orilla de la banqueta y largueros hasta la fachada
+	for px in [-w / 2.0 + 0.1, poste_x, w / 2.0 - 0.1]:
+		_local_box(body, Vector3(0.1, abajo, 0.1), Vector3(px, abajo / 2.0, z), blanco, true)
+	for px in [-w / 2.0 + 0.1, w / 2.0 - 0.1]:
+		_local_box(body, Vector3(0.08, 0.08, PURIFICADORA_POSTES), Vector3(px, abajo - 0.04, front + PURIFICADORA_POSTES / 2.0), blanco, false)
 
 
 # Una caja del local; con `solid` tambien lleva colision

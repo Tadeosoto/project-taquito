@@ -11,8 +11,8 @@ extends Node3D
 #   panel       farmacia: frente azul con cubierta blanca y calcomanias de oferta
 #   cajonera    ferreteria: vitrina con cubierta de vidrio y filo verde agua, adentro
 #               una cuadricula de cajitas blancas con tornillos y piezas de colores
-#   ventanilla  purificadora: repisa blanca en la ventana, lona azul colgada al frente,
-#               banca azul y piso de cuadros azul y blanco en la banqueta
+#   ventanilla  purificadora: repisa blanca en la ventana (la fachada, el anuncio y
+#               lo demas de afuera los pone Interior.fachada_mapa)
 #   puesto      taqueria: carrito de lamina en la banqueta con toldo de `color`, comal,
 #               tabla con cebolla y cilantro y el trompo (Trompo.gd). El taquero
 #               queda atras (-Z) y atiende hacia +Z
@@ -72,7 +72,7 @@ static var _piezas := {}
 	set(valor):
 		color_base = valor
 		_reconstruir()
-# Texto de las calcomanias (panel) o de la lona (ventanilla)
+# Texto de las calcomanias (panel)
 @export var texto := "":
 	set(valor):
 		texto = valor
@@ -99,6 +99,11 @@ static var _piezas := {}
 		caja_registradora = valor
 		_reconstruir()
 # Distancia de la pantalla a la orilla derecha (m); mas grande la acerca al vendedor
+# Cuanto uso tienen las piezas de fierro/plastico (ps1_gastado; se le suma la zona)
+@export_range(0.0, 1.0) var desgaste := 0.6:
+	set(valor):
+		desgaste = valor
+		_reconstruir()
 @export var caja_orilla := 0.35:
 	set(valor):
 		caja_orilla = valor
@@ -300,48 +305,9 @@ func _cajonera() -> void:
 # colgada (gota de agua y el texto), y en la banqueta una banca azul sobre piso de
 # cuadros
 func _ventanilla() -> void:
-	var z := fondo / 2
 	_caja(Vector3(ancho, alto - 0.05, fondo), Vector3(0, (alto - 0.05) / 2, 0), _ps1(Color(0.95, 0.95, 0.93)))
+	# Repisa que sale por la ventana hacia la banqueta
 	_caja(Vector3(ancho + 0.1, 0.05, fondo + 0.45), Vector3(0, alto - 0.025, 0.2), _ps1(Color(0.85, 0.86, 0.88)))
-	# Lona: mas angosta que la ventana, por fuera de la fachada (que esta en z 0..0.2)
-	var lona := Vector3(ancho * 0.72, alto * 0.62, 0.0)
-	var centro := Vector3(0, alto * 0.5, z + 0.24)
-	_caja(Vector3(lona.x, lona.y, 0.01), centro, _plano(Color(0.62, 0.85, 0.95)))
-	_caja(Vector3(lona.x + 0.04, lona.y + 0.04, 0.008), centro + Vector3(0, 0, -0.004), _plano(color))
-	# Gota (esfera + cono) a la izquierda y el texto a la derecha
-	var gota := Vector3(-lona.x * 0.28, centro.y - 0.04, centro.z + 0.02)
-	var agua := _ps1(color)
-	var esfera := SphereMesh.new()
-	esfera.radius = lona.y * 0.22
-	esfera.height = lona.y * 0.44
-	esfera.radial_segments = 10
-	esfera.rings = 5
-	esfera.material = agua
-	_malla(esfera, gota, Vector3(1, 1, 0.25))
-	var cono := CylinderMesh.new()
-	cono.top_radius = 0.0
-	cono.bottom_radius = lona.y * 0.19
-	cono.height = lona.y * 0.3
-	cono.radial_segments = 10
-	cono.material = agua
-	_malla(cono, gota + Vector3(0, lona.y * 0.2, 0), Vector3(1, 1, 0.25))
-	_letrero(texto if texto != "" else "AGUA\nPURIFICADA\n$35", Vector3(lona.x * 0.15, centro.y, centro.z + 0.01), lona.x * 0.5, color.darkened(0.2))
-	# Piso de cuadros azul y blanco y la banca
-	var cuadro := 0.3
-	var blanco := _ps1(Color(0.92, 0.92, 0.95))
-	var azul := _ps1(Color(0.25, 0.45, 0.8))
-	var columnas := int((ancho + 1.2) / cuadro)
-	for f in 5:
-		for c in columnas:
-			var x := -columnas * cuadro / 2 + cuadro * (c + 0.5)
-			_caja(Vector3(cuadro, 0.01, cuadro), Vector3(x, 0.005, z + 0.3 + cuadro * (f + 0.5)), blanco if (f + c) % 2 == 0 else azul)
-	var banca := _ps1(Color(0.2, 0.4, 0.75))
-	# A la derecha de la ventana, para no tapar la lona
-	var banca_x := ancho / 2 + 0.55
-	var banca_z := z + 0.7
-	_caja(Vector3(1.0, 0.05, 0.35), Vector3(banca_x, 0.45, banca_z), banca)
-	for signo in [-1.0, 1.0]:
-		_caja(Vector3(0.05, 0.43, 0.3), Vector3(banca_x + signo * 0.42, 0.215, banca_z), banca)
 
 
 # Taqueria: carrito de lamina, toldo, comal y trompo. Lo ve uno desde atras, del lado
@@ -401,7 +367,7 @@ func _puesto() -> void:
 	_caja(Vector3(0.06, 0.08, 0.06), Vector3(-0.1, alto_toldo - 0.33, 0), _plano(Color(1, 0.95, 0.75)))
 	var luz := OmniLight3D.new()
 	luz.light_color = Color(1, 0.88, 0.65)
-	luz.light_energy = 0.9
+	luz.light_energy = 0.5
 	luz.omni_range = 3.0
 	luz.position = Vector3(-0.1, alto_toldo - 0.45, 0)
 	_partes.add_child(luz)
@@ -605,6 +571,7 @@ func _ps1(tinte: Color) -> ShaderMaterial:
 	# Fierro pintado con uso (ps1_gastado): manchas, mugre, rayones, despostillado
 	material.set_shader_parameter("deterioro_modo", 4)
 	material.set_shader_parameter("metal", true)
+	material.set_shader_parameter("desgaste", desgaste)
 	return material
 
 

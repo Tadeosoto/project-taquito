@@ -174,6 +174,17 @@ const CASA_COLORES := [Color(0.85, 0.62, 0.35), Color(0.55, 0.7, 0.75), Color(0.
 	set(valor):
 		color_reja = valor
 		_reconstruir()
+# La fachada del mapa en vez de la generica: MapPuntos._make_purificadora con
+# solo_fachada, corrida para que su ventanal quede centrado en x = 0 (la purificadora)
+@export var fachada_mapa := false:
+	set(valor):
+		fachada_mapa = valor
+		_reconstruir()
+# Ancho del lote de esa fachada (el ventanal sale de lo que sobra)
+@export var fachada_mapa_ancho := 7.0:
+	set(valor):
+		fachada_mapa_ancho = valor
+		_reconstruir()
 
 @export_group("Calle")
 # El muro del fondo es la cortina abierta a la calle (taqueria)
@@ -300,7 +311,9 @@ func _reconstruir() -> void:
 	add_child(_local, false, Node.INTERNAL_MODE_FRONT)
 	if generar_local:
 		_cuarto()
-		if reja:
+		if reja and fachada_mapa:
+			_fachada_mapa()
+		elif reja:
 			_fachada()
 		elif calle:
 			_calle()
@@ -399,7 +412,7 @@ func _calle() -> void:
 	# Luz de dia de afuera (corriendo sola no hay sol)
 	var dia := OmniLight3D.new()
 	dia.light_color = Color(1.0, 0.96, 0.88)
-	dia.light_energy = 1.2
+	dia.light_energy = 0.55
 	dia.omni_range = 16.0
 	dia.omni_attenuation = 0.5
 	dia.position = Vector3(0, 6.0, z0 - CALLE_BANQUETA - CALLE_ARROYO / 2)
@@ -489,6 +502,20 @@ func _fachada() -> void:
 		_caja(Vector3(BARROTE, largo, BARROTE), Vector3(x, reja_desde + largo / 2, z_reja), fierro)
 	for y in [reja_desde, ventana_alto - 0.02]:
 		_caja(Vector3(ventana_ancho, 0.04, 0.03), Vector3(0, y, z_reja), fierro)
+
+
+# La fachada de la purificadora del mapa (MapPuntos._make_purificadora) con su frente
+# en z = GROSOR y el ventanal en x = 0, y la banqueta
+func _fachada_mapa() -> void:
+	var mapa := MapPuntos.new()
+	# El frente del lote queda en fondo / 2
+	var punto := {"tipo": "purificadora", "nombre": nombre if nombre != "" else String(name), "ancho": fachada_mapa_ancho, "fondo": 1.0}
+	var fachada := mapa._make_purificadora(punto, true)
+	mapa.free()
+	fachada.position = Vector3(-punto["puerta_x"], 0.0, GROSOR - 0.5)
+	_local.add_child(fachada)
+	var total := fachada_mapa_ancho + 2.0
+	_caja(Vector3(total, GROSOR, BANQUETA), Vector3(0, -GROSOR / 2, GROSOR + BANQUETA / 2), _piso(Color(0.8, 0.8, 0.78)))
 
 
 # Material de muro con un cuadro de barda.png (1 aplanado caido, 2 block), repetido en
