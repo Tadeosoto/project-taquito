@@ -5,6 +5,8 @@ extends Node3D
 # Los cuadros los genera tools/map_import/split_cuadros.gd a partir de
 # models/zona_mapa.glb; resources/map/cuadros/indice.json dice donde esta cada uno.
 
+const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
+
 @export_file("*.json") var indice_path := "res://resources/map/cuadros/indice.json"
 @export var target_path: NodePath
 
@@ -62,12 +64,18 @@ func _process(delta: float) -> void:
 			_loaded.erase(archivo)
 
 
+# Los cuadros que ya terminaron de cargar se meten al arbol dentro del presupuesto
+# del cuadro (CargaCuadro); los demas esperan cargados al siguiente
 func _poll_requests() -> void:
 	for archivo: String in _requested.keys():
 		match ResourceLoader.load_threaded_get_status(archivo):
 			ResourceLoader.THREAD_LOAD_LOADED:
+				if not CargaCuadro.hay():
+					continue
+				var inicio := Time.get_ticks_usec()
 				_requested.erase(archivo)
 				_add(archivo, ResourceLoader.load_threaded_get(archivo))
+				CargaCuadro.gastar(inicio)
 			ResourceLoader.THREAD_LOAD_FAILED, ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
 				_requested.erase(archivo)
 				push_warning("MapStreamer: no se pudo cargar %s" % archivo)

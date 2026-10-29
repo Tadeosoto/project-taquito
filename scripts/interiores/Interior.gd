@@ -81,7 +81,7 @@ const CASA_COLORES := [Color(0.85, 0.62, 0.35), Color(0.55, 0.7, 0.75), Color(0.
 	set(valor):
 		color_muro = valor
 		_reconstruir()
-# Muro de dos colores como los locales de la calle (MapPuntos._make_local): abajo
+# Muro de dos colores como los locales de la calle (MapPuntos._make_local_giro): abajo
 # `color_guardapolvo` hasta `alto_guardapolvo` y una franja del mismo color encima.
 # Alfa 0 = muro de un solo color
 @export var color_guardapolvo := Color(0, 0, 0, 0):
@@ -219,6 +219,8 @@ var _ui: TiendaUI
 
 func _ready() -> void:
 	_reconstruir()
+	# Sin textos (letreros, cabeceras, marcas, ofertas): los muebles ya se armaron
+	MapPuntos.sin_textos(self)
 	if Engine.is_editor_hint():
 		return
 	for requerido in REQUERIDOS:

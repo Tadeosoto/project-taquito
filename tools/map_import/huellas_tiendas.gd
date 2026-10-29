@@ -30,7 +30,7 @@ func _initialize() -> void:
 	var data := {
 		"_nota": "Generado por tools/map_import/huellas_tiendas.gd: [frente, fondo] en metros",
 		"_local_min": [local_min.x, local_min.y],
-		"_locales": puntos.LOCALES.keys(),
+		"_locales": puntos.GIROS_LOCAL.keys() + ["purificadora"],
 		"modelos": huellas,
 		"casas": casas,
 	}

@@ -2,7 +2,7 @@
 	"_fuente": "INEGI, Directorio Estadistico Nacional de Unidades Economicas (DENUE). Generado por fetch_denue.py",
 	"puntos": [
 		{
-			"tipo": "tienda",
+			"tipo": "licoreria",
 			"lat": 20.60047199,
 			"lon": -103.40880982,
 			"nombre": "Cerveza Fria Y Abarrotes",
@@ -70,20 +70,6 @@
 			"lon": -103.40678428,
 			"nombre": "Polleria Sin Nombre",
 			"origen": "denue 10445668 461122"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.6003737,
-			"lon": -103.42004126,
-			"nombre": "Tortas Ahogadas",
-			"origen": "denue 10510918 722514"
-		},
-		{
-			"tipo": "puesto",
-			"lat": 20.59783468,
-			"lon": -103.40662515,
-			"nombre": "Llantera Movil",
-			"origen": "denue 10530402 811191"
 		},
 		{
 			"tipo": "taqueria",
@@ -163,13 +149,6 @@
 			"origen": "denue 11060658 461110"
 		},
 		{
-			"tipo": "tortilleria",
-			"lat": 20.59075133,
-			"lon": -103.42194495,
-			"nombre": "Tortilleria Y Molino La Guadalupana",
-			"origen": "denue 11075719 311830"
-		},
-		{
 			"tipo": "tienda",
 			"lat": 20.59608929,
 			"lon": -103.41771978,
@@ -198,25 +177,11 @@
 			"origen": "denue 11258814 461110"
 		},
 		{
-			"tipo": "taqueria",
-			"lat": 20.60440721,
-			"lon": -103.41301201,
-			"nombre": "Santa Gertrudis Bbq Lab",
-			"origen": "denue 11342881 722513"
-		},
-		{
 			"tipo": "puesto",
 			"lat": 20.60256312,
 			"lon": -103.41230965,
 			"nombre": "Los Chilaquiles La Forja",
 			"origen": "denue 11361269 722518"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.60256312,
-			"lon": -103.41230965,
-			"nombre": "Todo Empanadas",
-			"origen": "denue 11392395 722513"
 		},
 		{
 			"tipo": "tienda",
@@ -238,13 +203,6 @@
 			"lon": -103.4176095,
 			"nombre": "Quick Market Tacos Y Lonches",
 			"origen": "denue 11538274 722514"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.60183251,
-			"lon": -103.40654039,
-			"nombre": "Tortillas Echas A Mano Sin Nombre",
-			"origen": "denue 11553246 722514"
 		},
 		{
 			"tipo": "taqueria",
@@ -310,11 +268,11 @@
 			"origen": "denue 1691038 467111"
 		},
 		{
-			"tipo": "tortilleria",
-			"lat": 20.59433324,
-			"lon": -103.42025,
-			"nombre": "Tortilleria Y Molino Pelicanos",
-			"origen": "denue 1691044 311830"
+			"tipo": "licoreria",
+			"lat": 20.59338122,
+			"lon": -103.42020921,
+			"nombre": "Vinos Y Licores Aviña",
+			"origen": "denue 1691041 461211"
 		},
 		{
 			"tipo": "tienda",
@@ -352,13 +310,6 @@
 			"origen": "denue 1736558 722514"
 		},
 		{
-			"tipo": "tortilleria",
-			"lat": 20.59428929,
-			"lon": -103.41830099,
-			"nombre": "Tortilleria San Antonio",
-			"origen": "denue 1736559 311830"
-		},
-		{
 			"tipo": "tienda",
 			"lat": 20.59547567,
 			"lon": -103.41755268,
@@ -385,13 +336,6 @@
 			"lon": -103.41306207,
 			"nombre": "Puesto De Tacos Sin Nombre",
 			"origen": "denue 1736573 722514"
-		},
-		{
-			"tipo": "puesto",
-			"lat": 20.59565553,
-			"lon": -103.41613868,
-			"nombre": "Accesorios Para Celular Tecno Tronics",
-			"origen": "denue 1736585 466212"
 		},
 		{
 			"tipo": "puesto",
@@ -450,6 +394,13 @@
 			"origen": "denue 1736787 461110"
 		},
 		{
+			"tipo": "licoreria",
+			"lat": 20.60104309,
+			"lon": -103.41346409,
+			"nombre": "Drumps Vinos Y Licores",
+			"origen": "denue 1736797 461212"
+		},
+		{
 			"tipo": "tienda",
 			"lat": 20.60098566,
 			"lon": -103.41336005,
@@ -464,18 +415,11 @@
 			"origen": "denue 1736805 312112"
 		},
 		{
-			"tipo": "puesto",
-			"lat": 20.59422636,
-			"lon": -103.41038314,
-			"nombre": "Carpinteria Sur",
-			"origen": "denue 1739284 337120"
-		},
-		{
-			"tipo": "puesto",
-			"lat": 20.59426287,
-			"lon": -103.41032539,
-			"nombre": "Fabrica De Muebles De Madera",
-			"origen": "denue 1739286 466111"
+			"tipo": "licoreria",
+			"lat": 20.59437221,
+			"lon": -103.4101525,
+			"nombre": "Juanitos Vinateria",
+			"origen": "denue 1739289 461211"
 		},
 		{
 			"tipo": "ferreteria",
@@ -490,13 +434,6 @@
 			"lon": -103.41260506,
 			"nombre": "Farmacias De Similares Guadalajara 80",
 			"origen": "denue 1739313 464111"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.59269788,
-			"lon": -103.41262938,
-			"nombre": "Menuderia Don Chuy",
-			"origen": "denue 1739315 722513"
 		},
 		{
 			"tipo": "tienda",
@@ -702,11 +639,11 @@
 			"origen": "denue 1942613 461121"
 		},
 		{
-			"tipo": "tortilleria",
-			"lat": 20.59400161,
-			"lon": -103.41563829,
-			"nombre": "Tortilleria Cortes",
-			"origen": "denue 1942619 311830"
+			"tipo": "licoreria",
+			"lat": 20.59388596,
+			"lon": -103.41362374,
+			"nombre": "Vinos Y Licores Esto Urge",
+			"origen": "denue 1942616 461211"
 		},
 		{
 			"tipo": "tienda",
@@ -723,13 +660,6 @@
 			"origen": "denue 1942627 461110"
 		},
 		{
-			"tipo": "taqueria",
-			"lat": 20.60007004,
-			"lon": -103.4195177,
-			"nombre": "Cenaduria El Sombrerete",
-			"origen": "denue 1942632 722513"
-		},
-		{
 			"tipo": "tienda",
 			"lat": 20.59536689,
 			"lon": -103.41045946,
@@ -742,13 +672,6 @@
 			"lon": -103.41745092,
 			"nombre": "Abarrotes Ivonne",
 			"origen": "denue 1942643 461110"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.59387548,
-			"lon": -103.41461597,
-			"nombre": "Tortas Ahogadas Carlos",
-			"origen": "denue 1942645 722514"
 		},
 		{
 			"tipo": "tienda",
@@ -828,13 +751,6 @@
 			"origen": "denue 1942695 461110"
 		},
 		{
-			"tipo": "tortilleria",
-			"lat": 20.60060822,
-			"lon": -103.40801161,
-			"nombre": "Tortilleria La Parota",
-			"origen": "denue 1942697 311830"
-		},
-		{
 			"tipo": "tienda",
 			"lat": 20.60066821,
 			"lon": -103.40801389,
@@ -905,18 +821,18 @@
 			"origen": "denue 6851435 462112"
 		},
 		{
+			"tipo": "licoreria",
+			"lat": 20.60067051,
+			"lon": -103.42021985,
+			"nombre": "Jal Six Huatulco",
+			"origen": "denue 6884167 461212"
+		},
+		{
 			"tipo": "tienda",
 			"lat": 20.59299108,
 			"lon": -103.41224673,
 			"nombre": "Fruteria El Merccadito",
 			"origen": "denue 7021360 461110"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.59981263,
-			"lon": -103.41811553,
-			"nombre": "Cenaduria Doña Bety",
-			"origen": "denue 7021487 722513"
 		},
 		{
 			"tipo": "taqueria",
@@ -945,13 +861,6 @@
 			"lon": -103.41870148,
 			"nombre": "Minisuper Deli Market",
 			"origen": "denue 7021547 461110"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.6003737,
-			"lon": -103.42004126,
-			"nombre": "Tortas Ahogadas",
-			"origen": "denue 7021549 722514"
 		},
 		{
 			"tipo": "tienda",
@@ -1004,27 +913,6 @@
 		},
 		{
 			"tipo": "taqueria",
-			"lat": 20.59420752,
-			"lon": -103.41729839,
-			"nombre": "Menuderia Yadira",
-			"origen": "denue 7021728 722513"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.59416212,
-			"lon": -103.41679625,
-			"nombre": "Gorditas Don Manuel",
-			"origen": "denue 7021729 722513"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.5943554,
-			"lon": -103.41722273,
-			"nombre": "Cenaduria Jimmys",
-			"origen": "denue 7021730 722513"
-		},
-		{
-			"tipo": "taqueria",
 			"lat": 20.59415848,
 			"lon": -103.41676792,
 			"nombre": "Tacos Al Vapor Lo Primero",
@@ -1036,20 +924,6 @@
 			"lon": -103.41682608,
 			"nombre": "Tienda De Abarrotes Sin Nombre",
 			"origen": "denue 7021778 461110"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.59431871,
-			"lon": -103.41859922,
-			"nombre": "Cenaduria Lupita",
-			"origen": "denue 7021783 722513"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.59430525,
-			"lon": -103.41847459,
-			"nombre": "Cenaduria Chely",
-			"origen": "denue 7021784 722513"
 		},
 		{
 			"tipo": "tienda",
@@ -1073,18 +947,18 @@
 			"origen": "denue 7162151 461110"
 		},
 		{
-			"tipo": "tortilleria",
-			"lat": 20.59485893,
-			"lon": -103.42027199,
-			"nombre": "Tortilleria Toñita",
-			"origen": "denue 7162200 311830"
-		},
-		{
 			"tipo": "tienda",
 			"lat": 20.59436042,
 			"lon": -103.42025114,
 			"nombre": "Fruteria Sin Nombre",
 			"origen": "denue 7162201 461130"
+		},
+		{
+			"tipo": "licoreria",
+			"lat": 20.59390923,
+			"lon": -103.41127545,
+			"nombre": "Vinos Y Licores La Maria 2",
+			"origen": "denue 8360716 461211"
 		},
 		{
 			"tipo": "puesto",
@@ -1101,7 +975,7 @@
 			"origen": "denue 8360769 461110"
 		},
 		{
-			"tipo": "puesto_tacos",
+			"tipo": "puesto",
 			"lat": 20.59083372,
 			"lon": -103.41479792,
 			"nombre": "Desayunos Camino Real",
@@ -1150,7 +1024,7 @@
 			"origen": "denue 8846885 461110"
 		},
 		{
-			"tipo": "puesto_tacos",
+			"tipo": "puesto",
 			"lat": 20.59424216,
 			"lon": -103.41618024,
 			"nombre": "La Antojeria",
@@ -1162,13 +1036,6 @@
 			"lon": -103.42029661,
 			"nombre": "Abarrotes Becerril",
 			"origen": "denue 9069916 461110"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.59393254,
-			"lon": -103.41399097,
-			"nombre": "Cenaduria Jyro",
-			"origen": "denue 9125487 722513"
 		},
 		{
 			"tipo": "tienda",
@@ -1192,6 +1059,20 @@
 			"origen": "denue 9371135 461110"
 		},
 		{
+			"tipo": "licoreria",
+			"lat": 20.59392397,
+			"lon": -103.41392347,
+			"nombre": "Jal Six I Abarrotes Mago",
+			"origen": "denue 9479733 461212"
+		},
+		{
+			"tipo": "licoreria",
+			"lat": 20.59888816,
+			"lon": -103.41899161,
+			"nombre": "Jal Six I Minisuper Meva",
+			"origen": "denue 9480191 461212"
+		},
+		{
 			"tipo": "taqueria",
 			"lat": 20.60279278,
 			"lon": -103.40782605,
@@ -1199,7 +1080,7 @@
 			"origen": "denue 9508227 722514"
 		},
 		{
-			"tipo": "tienda",
+			"tipo": "licoreria",
 			"lat": 20.60070953,
 			"lon": -103.42018607,
 			"nombre": "Six",
@@ -1211,13 +1092,6 @@
 			"lon": -103.41884881,
 			"nombre": "Farmacia Mas Bueno",
 			"origen": "denue 9569459 464111"
-		},
-		{
-			"tipo": "tortilleria",
-			"lat": 20.59521958,
-			"lon": -103.40768755,
-			"nombre": "Fabricacion De Tortilla De Maiz",
-			"origen": "denue 9586933 311830"
 		},
 		{
 			"tipo": "purificadora",
@@ -1248,18 +1122,11 @@
 			"origen": "denue 9703902 461122"
 		},
 		{
-			"tipo": "puesto_tacos",
+			"tipo": "puesto",
 			"lat": 20.59295868,
 			"lon": -103.41265949,
 			"nombre": "Cooperativa Republica Mexicana",
 			"origen": "denue 9712261 722515"
-		},
-		{
-			"tipo": "puesto",
-			"lat": 20.59404597,
-			"lon": -103.41464703,
-			"nombre": "Venta De Ropa Sin Nombre",
-			"origen": "denue 9769832 463211"
 		},
 		{
 			"tipo": "taqueria",
@@ -1267,20 +1134,6 @@
 			"lon": -103.40759026,
 			"nombre": "Tacos Al Vapor",
 			"origen": "denue 9814614 722514"
-		},
-		{
-			"tipo": "tortilleria",
-			"lat": 20.59490584,
-			"lon": -103.40731061,
-			"nombre": "Elaboración De Harina De Maíz Sin Nombre",
-			"origen": "denue 9841672 311830"
-		},
-		{
-			"tipo": "taqueria",
-			"lat": 20.59860053,
-			"lon": -103.41332637,
-			"nombre": "Tortas Ahogadas",
-			"origen": "denue 9979963 722514"
 		},
 		{
 			"tipo": "taqueria",

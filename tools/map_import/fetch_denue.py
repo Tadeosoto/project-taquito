@@ -34,7 +34,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 
 # Codigo SCIAN -> tipo de punto del mapa (MapPuntos.gd tiene un color por tipo)
 TIPOS_SCIAN = {
-	"461110": "tienda",       # abarrotes, misceláneas
+	"461110": "tienda",       # abarrotes, misceláneas (licoreria si el nombre lo dice)
 	"462112": "tienda",       # minisupers (los OXXO salen por nombre)
 	"461130": "tienda",       # frutas y verduras
 	"461121": "tienda",       # carnicerias
@@ -42,9 +42,10 @@ TIPOS_SCIAN = {
 	"461150": "tienda",       # cremerias
 	"464111": "farmacia",
 	"464112": "farmacia",     # farmacias con minisuper
-	"722514": "taqueria",     # tacos y tortas
-	"722513": "taqueria",     # antojitos
-	"311830": "tortilleria",
+	"461211": "licoreria",    # vinos y licores
+	"461212": "licoreria",    # cerveza (depositos, Modelorama, Six)
+	"722514": "taqueria",     # tacos y tortas: solo si el nombre es de tacos (TACOS)
+	"722513": "taqueria",     # antojitos: igual
 	"468411": "gasolinera",
 	"467111": "ferreteria",   # ferreterias y tlapalerias
 	"312112": "purificadora", # purificacion y embotellado de agua
@@ -62,8 +63,15 @@ COLONIA_ALIAS = {
 	"FRACCIONAMIENTO DEL REAL": "EL REAL",
 }
 
-# Comida que se vende en puesto (semifijo) aunque el giro sea otro
-GIROS_COMIDA = {"722511", "722512", "722513", "722514", "722515", "722517", "722519", "461170"}
+# Comida que se vende en puesto (semifijo) aunque el giro sea otro. Los semifijos de
+# comida al por menor (4611xx: fruta, dulces, polleria...) tambien son de comida
+GIROS_COMIDA = {"722511", "722512", "722513", "722514", "722515", "722517", "722518", "722519"}
+
+# Solo son taqueria (o puesto de tacos) los de nombre de tacos; tortas ahogadas,
+# cenadurias, menuderias, gorditas... se quedan como casas
+TACOS = re.compile(r"TACO|TAQUER|CARNITAS|BARBACOA|BIRRI|PASTOR|VAPOR")
+# Abarrotes que en realidad son licoreria (deposito, Modelorama, Six...)
+LICORERIA = re.compile(r"\b(DEP[OÓ]SITO|MODELORAMA|SIX|VINOS|LICORES?|LICORER[IÍ]A|CERVEZAS?|EXPENDIO)\b")
 
 
 def read_area() -> dict:
@@ -80,14 +88,25 @@ def read_area() -> dict:
 def tipo_de(row) -> str | None:
 	codigo = row["codigo_act"]
 	nombre = (row["nom_estab"] + " " + row["raz_social"]).upper()
+	# Solo el nombre del negocio: la razon social de una cadena puede decir de todo
+	estab = row["nom_estab"].upper()
 	if row["tipoUniEco"].strip().lower() == "semifijo":
-		return "puesto_tacos" if codigo in GIROS_COMIDA else "puesto"
+		# Puesto de tacos, carrito (tejuino) si es otra comida; los demas (llantera,
+		# ropa, celulares, muebles) no se ponen
+		if codigo in GIROS_COMIDA and TACOS.search(estab):
+			return "puesto_tacos"
+		return "puesto" if codigo in GIROS_COMIDA or codigo.startswith("4611") else None
 	if "OXXO" in nombre and codigo.startswith("46"):
 		return "oxxo"
 	# Muchas purificadoras de barrio estan dadas de alta como comercio de agua
 	if ("PURIFICADORA" in nombre or "AGUA PURIFICADA" in nombre) and codigo[:2] in ("31", "46"):
 		return "purificadora"
-	return TIPOS_SCIAN.get(codigo)
+	tipo = TIPOS_SCIAN.get(codigo)
+	if tipo == "taqueria" and not TACOS.search(estab):
+		return None
+	if tipo == "tienda" and LICORERIA.search(estab):
+		return "licoreria"
+	return tipo
 
 
 def colonia_de(row) -> str:

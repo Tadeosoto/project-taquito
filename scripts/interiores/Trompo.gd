@@ -9,6 +9,13 @@ extends Node3D
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 const ANILLOS := 12
 const LADOS := 12
+# Carnes distintas que se tornean (la semilla escoge una): tornear es lo que mas
+# tarda (~2 ms en GDScript) y en el mapa hay un trompo por taqueria y puesto
+const VARIANTES := 4
+
+static var _carnes := {}   # [alto, radio, variante] -> ArrayMesh
+# El cuadro del humo con su material, compartido (Refrigerador.gd explica por que)
+static var _cuadro_humo: QuadMesh
 
 @export var alto := 0.58:
 	set(valor):
@@ -53,7 +60,10 @@ func _reconstruir() -> void:
 	_carne.position.y = base + 0.04
 	_partes.add_child(_carne)
 	var carne := MeshInstance3D.new()
-	carne.mesh = _torno()
+	var clave := [alto, radio, absi(semilla) % VARIANTES]
+	if not _carnes.has(clave):
+		_carnes[clave] = _torno(clave[2])
+	carne.mesh = _carnes[clave]
 	_carne.add_child(carne)
 	# Pina: cilindro amarillo con su corona de hojas
 	var pina := alto + 0.04
@@ -102,9 +112,9 @@ func _reconstruir() -> void:
 
 # La carne: anillos de radio que crece hacia arriba (ahi se ponen las capas grandes) y
 # se cierra en las puntas; color rojo pastor con quemado oscuro y franjas de grasa
-func _torno() -> ArrayMesh:
+func _torno(variante: int) -> ArrayMesh:
 	var rng := RandomNumberGenerator.new()
-	rng.seed = semilla
+	rng.seed = variante
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var anillos: Array = []
@@ -214,26 +224,29 @@ static func humo(caja: Vector3, cantidad: int) -> CPUParticles3D:
 	tono.add_point(0.15, Color(0.8, 0.78, 0.74, 0.6))
 	tono.add_point(0.6, Color(0.72, 0.72, 0.72, 0.35))
 	particulas.color_ramp = tono
-	var mancha := GradientTexture2D.new()
-	mancha.width = 16
-	mancha.height = 16
-	mancha.fill = GradientTexture2D.FILL_RADIAL
-	mancha.fill_from = Vector2(0.5, 0.5)
-	mancha.fill_to = Vector2(0.5, 0.0)
-	var borde := Gradient.new()
-	borde.set_color(0, Color(1, 1, 1, 1))
-	borde.set_color(1, Color(1, 1, 1, 0))
-	mancha.gradient = borde
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	material.vertex_color_use_as_albedo = true
-	material.albedo_texture = mancha
-	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	var cuadro := QuadMesh.new()
-	cuadro.size = Vector2(0.22, 0.22)
-	cuadro.material = material
+	if _cuadro_humo == null:
+		var mancha := GradientTexture2D.new()
+		mancha.width = 16
+		mancha.height = 16
+		mancha.fill = GradientTexture2D.FILL_RADIAL
+		mancha.fill_from = Vector2(0.5, 0.5)
+		mancha.fill_to = Vector2(0.5, 0.0)
+		var borde := Gradient.new()
+		borde.set_color(0, Color(1, 1, 1, 1))
+		borde.set_color(1, Color(1, 1, 1, 0))
+		mancha.gradient = borde
+		var material := StandardMaterial3D.new()
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+		material.vertex_color_use_as_albedo = true
+		material.albedo_texture = mancha
+		material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		var cuadro := QuadMesh.new()
+		cuadro.size = Vector2(0.22, 0.22)
+		cuadro.material = material
+		_cuadro_humo = cuadro
+	var cuadro := _cuadro_humo
 	particulas.mesh = cuadro
 	particulas.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return particulas

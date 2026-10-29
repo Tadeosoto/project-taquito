@@ -16,6 +16,8 @@ godot --path . scenes/map_test.tscn
 
 La primera vez hay que abrir el proyecto en el editor o correr `godot --path . --headless --import` para que Godot importe los modelos. En el editor, `map_test.tscn` sale sin mapa: los cuadros se cargan solo al correr la escena.
 
+Para ver los negocios sin cargar el mapa, `scenes/locales_preview.tscn` es una calle de prueba con una casa-local de cada giro (de 1 y 2 pisos) entre casas modelo, y los puestos de tacos. Cámara libre (WASD, botón derecho para mirar, Tab cambia de local, 1/2/3 deterioro, N noche, C captura); `-- --capturas=CARPETA` guarda capturas de todo.
+
 ### Controles
 
 | Acción | A pie | En dron |
@@ -51,15 +53,25 @@ Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar d
 - **Árboles y pasto del satélite**:
   - ~1,300 árboles donde el [Canopy Height de Meta/WRI](https://registry.opendata.aws/dataforgood-fb-forests/) (altura de copas a 1 m) ve una copa, con su altura y ancho. Si caen en la calle se recorren a la banqueta; en una casa se quitan.
   - El piso es pasto verde oscuro; donde Sentinel-2 ve verde en lluvias o tierra pelona en secas (~26 % de la zona) es pasto más claro, con manchas secas. Cerca del jugador salen matas de pasto en 3D.
-- **Negocios reales**: 161 negocios del [DENUE del INEGI](https://www.inegi.org.mx/app/descarga/?ti=6): tiendas, taquerías, OXXO, farmacias, tortillerías, ferreterías, purificadoras, puestos y una gasolinera. Los nombres de marca van en parodia: OXO, Dr Simio, Guadalaraja, Perez (los modelos todavía traen la marca real).
-  - Si hay varios del mismo giro muy juntos, se deja solo uno (40 m; 80 m en tiendas de abarrotes). Las farmacias se dejan todas.
-  - Cada tienda ocupa el lote de una casa de su lado de la calle y mira hacia la calle.
+- **Negocios reales**: 165 negocios del [DENUE del INEGI](https://www.inegi.org.mx/app/descarga/?ti=6) (y OSM): abarrotes, licorerías, taquerías, OXXO, farmacias, ferreterías, purificadoras, puestos de tacos, carritos y una gasolinera. Los nombres de marca van en parodia: OXO, Dr Simio, Guadalaraja, Perez.
+  - Qué es cada uno: una tienda es **licorería** si el DENUE la tiene como vinos/licores o cerveza, o si su nombre lo dice (depósito, Six, Modelorama, vinos, cerveza...); si no, **abarrotes**. Solo es **taquería** la que tiene nombre de tacos (taco, taquería, carnitas, barbacoa, birria, pastor, vapor): tortas ahogadas, cenadurías, menuderías y gorditas se quedan como casa. Los puestos (semifijos) de tacos son **puesto de tacos**; los de otra comida, fruta o dulces, **carrito**; los demás (llantera, ropa, celulares) no se ponen. Ya no hay tortillerías.
+  - Si hay varios del mismo giro muy juntos, se deja solo uno (40 m; 80 m en abarrotes). La taquería y el puesto de tacos cuentan como el mismo giro: a menos de 40 m gana el local. Las farmacias se dejan todas.
+  - Cada negocio ocupa el lote de una casa de su lado de la calle y mira hacia la calle.
   - El DENUE pone algunos negocios a media calle: se recorren a la banqueta más cercana, con la fachada en la orilla de la banqueta, y los puestos van sobre la banqueta con el frente junto a la guarnición.
-  - Si el modelo de un negocio es más grande que su lote (una gasolinera, un OXXO), se quitan las casas que quedarían encimadas: el negocio gana.
-  - OXXO, una de cada cuatro tiendas (Tienda 3B), Farmacias Guadalajara, Farmacias Similares (kiosco con el Simi bailando; hay 2), puestos y gasolinera usan modelos low-poly de Sketchfab (CC BY).
-  - Las demás tiendas de abarrotes, taquerías, tortillerías y farmacias de barrio son locales armados en código, como las tienditas de colonia: muro blanco con rodapié y franja roja o azul (verde las farmacias), el nombre pintado, cortina y mostrador; las taquerías se ven como su escena de adentro pero desde la calle (muro blanco y rojo sin letrero, vano abierto con mesas y refris rojos, y en la banqueta el puesto con trompo y el taquero de espaldas al local) y los abarrotes un círculo de refresco sin marca.
-  - Los locales de colonia (abarrotes, taquería, tortillería, farmacia de barrio, ferretería, purificadora) ocupan un lote **dentro de la hilera de casas**: misma línea de fachada que las vecinas y pegados a ellas. Si caen sobre otro negocio, se recorren a un lado de él. Las purificadoras copian una foto real: muro blanco con rodapié y franja azules, puerta de barrotes, despachador automático azul en el muro, ventanal de aluminio con garrafones y un anuncio grande sobre postes en la banqueta (`tools/map_import/make_purificadora.py` dibuja la lona).
-  - **Marcador amarillo**: de cada giro (`docs/especificaciones.md` §4.6) solo uno cada 80 m (abarrotes uno cada 150 m) lleva una flecha amarilla semitransparente frente a la puerta (solo aparece al acercarse, a menos de ~18 m) y su cuadro en el minimapa. Al pisarla entras al interior de su giro (`scenes/interiores/`, ver `docs/especificaciones.md` §4.6); en los giros al aire libre sale "Próximamente". La tortillería no lleva.
+  - Solo la gasolinera (Pemex), el carrito (de tejuino) y la señal de alto usan modelos de Sketchfab (CC BY).
+  - Todos los demás son **casas-local** armadas en código, del tamaño de su lote y de 1 o 2 pisos como la casa vecina: muro del color del giro con rodapié y franja, puerta con marco (más angosta que el frente) y la cortina enrollada, sin letreros. Por la puerta se ve el interior de su giro (mostrador con el que atiende, refris, repisas, y las paredes vacías rellenas con refris, repisas o exhibidores de papas):
+    - Abarrotes: blanco con rojo; adentro, su escena (solo comida).
+    - Licorería: azul con amarillo; adentro, la tiendita (solo licor y cigarros).
+    - Farmacia: blanco con azul, cruz de bandera y la botarga del Simi bailando en la banqueta (en todas).
+    - Ferretería: naranja con negro (Truper).
+    - OXO: blanco con franja roja; adentro, la tiendita.
+    - Taquería: blanco con rojo, mesas y refris rojos adentro, y en la banqueta el puesto con trompo y el taquero de espaldas al local.
+    - Purificadora: copia una foto real (muro blanco con rodapié y franja azules, puerta de barrotes, despachador azul, ventanal con garrafones y un anuncio grande sobre postes; `tools/map_import/make_purificadora.py` dibuja la lona).
+  - El puesto de tacos suelto es el mismo puesto de la taquería (carrito con toldo, trompo y comal) con su taquero, en la banqueta.
+  - Los locales ocupan un lote **dentro de la hilera de casas**: misma línea de fachada que las vecinas y pegados a ellas. Si caen sobre otro negocio o local, se recorren a un lado; si no caben en ningún lado, no se ponen. Al final se revisa que ningún negocio quede encimado en otro.
+  - Rendimiento: de lejos solo se arma la fachada (~2 ms). El interior se arma al acercarse a menos de 35 m, un mueble por cuadro (menos de ~5 ms por cuadro), se ve a menos de 30 m y se quita a más de 50 m. Visto desde la calle lleva menos detalle que adentro (mercancía en cajitas en vez de modelos). Al cargar el nivel se arma un local de cada giro en miniatura frente a la cámara durante unos cuadros, para que los shaders se compilen ahí y no al ver el primer local de cada giro.
+  - Carga por cuadro: casas, árboles, alumbrado, negocios, pasto y los cuadros del mapa comparten un presupuesto de ~3 ms por cuadro (`scripts/map/CargaCuadro.gd`); lo que no cabe se arma en los cuadros siguientes, primero lo más cercano. Antes todo se armaba en el mismo cuadro y volando con el dron había cuadros de 120–170 ms.
+  - **Marcador amarillo**: de cada giro (`docs/especificaciones.md` §4.6) solo uno cada 80 m (abarrotes uno cada 150 m) lleva una flecha amarilla semitransparente frente a la puerta (solo aparece al acercarse, a menos de ~18 m) y su cuadro en el minimapa. Al pisarla entras al interior de su giro (`scenes/interiores/`, ver `docs/especificaciones.md` §4.6); en el puesto de tacos y el carrito la cámara se acerca al que atiende.
   - **El punto**: en cada colonia, una casa modelo al azar (de un piso y entre dos vecinas) vende cosas ilegales. Está en obra negra, con el deterioro al máximo, y tiene flecha pero no sale en el minimapa.
 - **Deterioro post-apocalíptico** (todo en shaders, sin modelos extra):
   - Un ruido grande en el mapa decide qué tan destruida está cada zona: unas cuadras casi intactas y otras muy dañadas.
@@ -87,9 +99,9 @@ Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar d
 - **Señales de alto** en 1 de cada 20 esquinas, del lado derecho y de cara al tráfico.
 - **Minimapa estilo GTA** en la esquina superior derecha:
   - Gira con la cámara y marca al jugador con una flecha, el norte con una N y cada negocio con un cuadrito de color.
-  - Colores: rojo OXXO, amarillo tienda, naranja tacos, beige tortillería, turquesa farmacia, verde gasolinera, rosa puesto.
+  - Colores: rojo OXXO, amarillo abarrotes, azul licorería, naranja tacos, turquesa farmacia, café ferretería, azul claro purificadora, verde gasolinera, rosa carrito.
   - En dron se aleja para ver más.
-- **Carga por partes**: el mapa está partido en 200 cuadros de 128 m. Solo se cargan los cercanos (~40), en segundo plano. Las tiendas y las casas modelo se cargan igual, por celdas.
+- **Carga por partes**: el mapa está partido en 200 cuadros de 128 m. Solo se cargan los cercanos (~40), en segundo plano. Los negocios y las casas modelo se cargan igual, por celdas.
 
 <p align="center"><img src="minimapa.png" width="420" alt="Imagen completa del minimapa"></p>
 
@@ -120,7 +132,7 @@ Al correr la escena, cada nodo carga lo suyo alrededor del dron, que cuando no e
 | Nodo en `map_test.tscn` | Script | Qué hace |
 |---|---|---|
 | `Mapa` | `scripts/map/MapStreamer.gd` | Carga y descarga los cuadros de `resources/map/cuadros/`. |
-| `Puntos` | `scripts/map/MapPuntos.gd` | Pone los negocios y altos con su modelo (`prefabs`), o arma los locales. |
+| `Puntos` | `scripts/map/MapPuntos.gd` | Pone los negocios y altos: arma las casas-local y los puestos de tacos, con el interior de cerca, o pone su modelo (`prefabs`: gasolinera, carrito, alto). |
 | `Casas` | `scripts/map/MapCasas.gd` | Dibuja las casas modelo con un MultiMesh por celda y les pone colisión. |
 | `Bodegas` | `scripts/map/MapBodegas.gd` | Arma las bodegas huecas por celda, en un hilo. |
 | `Bardas` | `scripts/map/MapBardas.gd` | Arma bardas, mallas y plumas por celda, en un hilo, con colisión. |
@@ -149,7 +161,7 @@ Todos comparten el vértice PS1 de `ps1_vertex.gdshaderinc` (menos el radar, que
 | `data/map/casas.json` | Qué modelos de casa van en cada colonia, por número de pisos y con un peso. `"*"` son las demás colonias; `_proporcion` dice qué fracción de casas se cambia. |
 | `data/map/colonias.json` | Corregir la colonia de una manzana: `"lat,lon de un punto de la manzana": "COLONIA"`. |
 | `data/map/puntos.json` | Agregar tiendas o puestos con `{tipo, nombre, lat, lon}`, o quitar negocios mal ubicados con `"omitir"` (usa el `origen` de `resources/map/puntos_mapa.json`). |
-| `scenes/map_test.tscn` → `Puntos` | Qué modelo usa cada giro (`prefabs`), cómo girarlo (`prefab_rotacion`) y cuántos metros de frente tiene (`prefab_ancho`). |
+| `scenes/map_test.tscn` → `Puntos` | Qué modelo usan la gasolinera, el carrito y el alto (`prefabs`), cómo girarlo (`prefab_rotacion`) y cuántos metros de frente tiene (`prefab_ancho`). Colores de cada casa-local: `MapPuntos.GIROS_LOCAL`. |
 | `scenes/map_test.tscn` → `Casas` | Modelos de casa, escala, color de muro (`muro_key`) y distancias de carga. |
 | `scenes/map_test.tscn` → `Minimapa` | Tamaño del radar (`tamano`) y cuánto se ve a pie y en dron (`radio_metros`, `radio_dron`). |
 | `scenes/map_test.tscn` → `Dron` / `Player` | Altura y velocidad del dron, si se arranca en dron (`iniciar_en_dron`), y spawn y velocidad del jugador. |

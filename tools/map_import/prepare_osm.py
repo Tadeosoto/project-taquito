@@ -88,9 +88,9 @@ STREET_TYPES = {"primary", "secondary", "tertiary", "unclassified", "residential
 # Los puestos van en la banqueta: no quitan la casa donde caen
 NO_REPLACE_TIPOS = {"puesto_tacos", "puesto"}
 
-# Tamano (ancho, fondo en metros) cuando el punto no cae sobre una casa
-# puesto_tacos es mas grande porque el modelo trae un pedazo de calle
-DEFAULT_SIZE = {"puesto_tacos": (4.0, 4.0), "puesto": (2.5, 2.0)}
+# Tamano (ancho, fondo en metros) cuando el punto no cae sobre una casa. El puesto de
+# tacos (MapPuntos._make_puesto_tacos): el carrito y el taquero detras
+DEFAULT_SIZE = {"puesto_tacos": (2.6, 1.6), "puesto": (2.5, 2.0)}
 FALLBACK_SIZE = (8.0, 10.0)
 
 # Distancia (m) del eje de la calle a la que se ponen los puestos (en la banqueta)
@@ -109,13 +109,18 @@ MAX_SHOP_LOT = 300.0
 # De dos negocios del mismo tipo a menos de esto (m) solo se deja uno
 # (repetidos entre DENUE y OSM, o varios abarrotes pegados)
 DUPLICATE_DIST = 40.0
-# Radio propio por tipo: las tiendas sobran aun con DUPLICATE_DIST; las farmacias
+# Radio propio por tipo: los abarrotes sobran aun con DUPLICATE_DIST; las farmacias
 # van todas (solo se junta la misma farmacia que viene del DENUE y de OSM)
-DUPLICATE_DIST_TIPO = {"tienda": 80.0, "farmacia": 15.0}
-# Despues de quitar repetidos: una de cada TIENDA_3B_CADA tiendas es el modelo
-# Tienda 3B y las demas un local de abarrotes; las farmacias son Guadalajara o
-# Similares segun el nombre, y las demas un local de farmacia
-TIENDA_3B_CADA = 4
+DUPLICATE_DIST_TIPO = {"abarrotes": 80.0, "farmacia": 15.0}
+# Los repetidos se buscan por familia: el local de tacos y el puesto de tacos son el
+# mismo giro y a menos de DUPLICATE_DIST gana el local
+FAMILIA = {"puesto_tacos": "taqueria"}
+# Tipos que ya no se dibujan (de OSM o de puntos.json viejos)
+TIPOS_QUITADOS = {"tortilleria"}
+# Nombres de licoreria en una tienda de OSM o de puntos.json (como fetch_denue.LICORERIA)
+LICORERIA = re.compile(r"\b(DEP[OÓ]SITO|MODELORAMA|SIX|VINOS|LICORES?|LICORER[IÍ]A|CERVEZAS?|EXPENDIO)\b")
+# Comida que si es taqueria (como fetch_denue.TACOS)
+TACOS = re.compile(r"TACO|TAQUER|CARNITAS|BARBACOA|BIRRI|PASTOR|VAPOR")
 
 # Marcas reales -> parodia (solo el nombre; los modelos aun traen su marca):
 # (regex sin importar mayusculas, reemplazo). El nombre entero si es la cadena.
@@ -130,8 +135,8 @@ MARCAS_PARODIA = [
 # Giros del juego (docs/especificaciones.md 4.6): tipo de dibujo -> giro. Solo los
 # negocios con giro pueden ser interactivos (marcador amarillo, minimapa)
 GIROS = {
-	"oxxo": "oxxo", "tienda": "abarrotes", "abarrotes": "abarrotes",
-	"farmacia": "farmacia", "farmacia_similares": "farmacia", "farmacia_local": "farmacia",
+	"oxxo": "oxxo", "abarrotes": "abarrotes", "licoreria": "licoreria",
+	"farmacia": "farmacia",
 	"taqueria": "taqueria", "puesto_tacos": "puesto_tacos", "gasolinera": "gasolinera",
 	"ferreteria": "ferreteria", "purificadora": "purificadora", "puesto": "tejuino",
 	"punto": "punto",
@@ -142,11 +147,17 @@ GIRO_AIRE_LIBRE = {"puesto_tacos", "tejuino", "punto"}
 INTERACTIVO_DIST = 80.0
 INTERACTIVO_DIST_GIRO = {"abarrotes": 150.0, "punto": 0.0}  # el punto ya va uno por colonia
 # Ganan el marcador primero los que tienen modelo de marca
-INTERACTIVO_PRIORIDAD = ["oxxo", "farmacia_similares", "farmacia", "gasolinera", "tienda"]
+INTERACTIVO_PRIORIDAD = ["oxxo", "farmacia", "gasolinera"]
 
-# Locales de colonia (MapPuntos.LOCALES) que van dentro de la hilera de casas, con la
-# fachada al pano de las vecinas: frente y fondo del lote (m), min y max
-LOCALES_HILERA = {"abarrotes", "taqueria", "tortilleria", "farmacia_local", "ferreteria", "purificadora"}
+# Casas-local (MapPuntos.GIROS_LOCAL y la purificadora) que van dentro de la hilera de
+# casas, con la fachada al pano de las vecinas: frente y fondo del lote (m), min y max
+LOCALES_HILERA = {"abarrotes", "licoreria", "oxxo", "farmacia", "taqueria", "ferreteria", "purificadora"}
+# Un local que choca con otro lote o negocio se recorre a un lado de lo que estorba,
+# hasta LOCAL_INTENTOS veces; si no cabe se queda en su lugar si ahi no estorba, y si
+# no, no se pone
+LOCAL_INTENTOS = 3
+# Pisos de un local: los de la casa modelo mas cercana a menos de esto (m)
+LOCAL_PISOS_VECINA = 25.0
 LOCAL_ANCHO = (4.5, 9.0)
 LOCAL_FONDO = (6.0, 14.0)
 
@@ -421,12 +432,14 @@ def osm_puntos(root, kept_ways, pos) -> list:
 		tipo = None
 		if tags.get("shop") == "convenience":
 			tipo = "oxxo" if "oxxo" in tags.get("brand", tags.get("name", "")).lower() else "tienda"
+		elif tags.get("shop") in ("alcohol", "beverages"):
+			tipo = "licoreria"
 		elif tags.get("amenity") == "pharmacy":
 			tipo = "farmacia"
 		elif tags.get("amenity") == "fuel":
 			tipo = "gasolinera"
-		elif tags.get("amenity") in ("fast_food", "restaurant") and any(
-				w in tags.get("cuisine", "") + tags.get("name", "").lower() for w in ("taco", "mexican")):
+		elif tags.get("amenity") in ("fast_food", "restaurant") and (
+				"taco" in tags.get("cuisine", "") or TACOS.search(tags.get("name", "").upper())):
 			tipo = "taqueria"
 		if tipo is None:
 			continue
@@ -471,17 +484,15 @@ def calle_cercana(px, pz, streets):
 
 
 def subtipo(p) -> dict:
-	"""El punto con su tipo de dibujo: tienda (modelo Tienda 3B) o abarrotes (local);
-	farmacia (Farmacias Guadalajara), farmacia_similares o farmacia_local."""
+	"""El punto con su tipo de dibujo: una tienda es licoreria si el nombre lo dice, si
+	no abarrotes; toda farmacia es `farmacia` (tambien las farmacia_similares y
+	farmacia_local de antes, en puntos.json)."""
 	p = dict(p)
 	nombre = p.get("nombre", "").upper()
-	if p["tipo"] == "tienda" and seed(p.get("origen") or nombre) % TIENDA_3B_CADA:
-		p["tipo"] = "abarrotes"
-	elif p["tipo"] == "farmacia":
-		if "SIMILARES" in nombre:
-			p["tipo"] = "farmacia_similares"
-		elif "GUADALAJARA" not in nombre:
-			p["tipo"] = "farmacia_local"
+	if p["tipo"] == "tienda":
+		p["tipo"] = "licoreria" if LICORERIA.search(nombre) else "abarrotes"
+	elif p["tipo"].startswith("farmacia"):
+		p["tipo"] = "farmacia"
 	return p
 
 
@@ -496,7 +507,7 @@ def parodia(nombre: str) -> str:
 
 def marcar_interactivos(puntos) -> collections.Counter:
 	"""Pone `giro`, `interactivo` y `aire_libre` a cada negocio. Del mismo giro solo
-	es interactivo uno por radio (INTERACTIVO_DIST); la tortilleria nunca."""
+	es interactivo uno por radio (INTERACTIVO_DIST)."""
 	def orden(p):
 		tipo = p["tipo"]
 		return (INTERACTIVO_PRIORIDAD.index(tipo) if tipo in INTERACTIVO_PRIORIDAD else len(INTERACTIVO_PRIORIDAD),
@@ -637,10 +648,11 @@ def huella_negocio(punto, huellas):
 	if tipo in ("alto", "punto"):
 		return None
 	ancho, fondo = punto["ancho"], punto["fondo"]
-	if tipo in huellas.get("modelos", {}):
-		w, d = huellas["modelos"][tipo]
-	elif tipo in huellas.get("_locales", []):
+	# Los locales primero: un huellas_tiendas.json viejo aun trae modelos de oxxo o farmacia
+	if tipo in huellas.get("_locales", []):
 		w, d = max(ancho, huellas["_local_min"][0]), max(fondo, huellas["_local_min"][1])
+	elif tipo in huellas.get("modelos", {}):
+		w, d = huellas["modelos"][tipo]
 	else:
 		w, d = ancho, fondo
 	frente = fondo / 2.0
@@ -732,6 +744,11 @@ class Rejilla:
 		self.datos.append(dato)
 		for celda in self._celdas_de(poly):
 			self.celdas[celda].append(len(self.poligonos) - 1)
+
+	def chocan(self, poly) -> list:
+		"""Los poligonos con que se encima `poly`."""
+		indices = {i for celda in self._celdas_de(poly) for i in self.celdas.get(celda, ())}
+		return [self.poligonos[i] for i in sorted(indices) if se_enciman(poly, self.poligonos[i])]
 
 	def encima(self, poly, cuenta=None) -> bool:
 		"""Si `poly` se encima con alguno; `cuenta(dato)` puede dejar pasar algunos."""
@@ -1325,7 +1342,7 @@ def invade_calle(poly, calles, perfil, propia) -> bool:
 
 
 def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas, modelos,
-		perfil=None, negocios=(), calles=None, cotos=None, locales=()) -> list:
+		perfil=None, negocios=(), calles=None, cotos=None, locales=(), huellas=None) -> list:
 	"""Cambia por modelos las casas de las colonias de `reglas` (data/map/casas.json).
 	Las casas se juntan por cara de cuadra (tramo recto de calle, lado, manzana) y
 	donde hay casas se ponen modelos pegados uno junto a otro, sin importar cada
@@ -1336,7 +1353,8 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 	`cotos`: las casas de un coto que dan a una calle publica (su contorno) no se
 	cambian: ahi va la barda y quedan detras de ella. `locales`: negocios de
 	LOCALES_HILERA ya colocados; se mueven a un lote de la hilera (misma fachada,
-	pegados a las casas) y se cambian en el lugar."""
+	pegados a las casas) y se cambian en el lugar. El que no cabe en la hilera ni en su
+	lugar se marca con "_quitar" (`huellas`: huellas_tiendas.json, para su lugar)."""
 	casas = []
 	en_contorno = 0
 	for way_id, way in kept_ways.items():
@@ -1392,9 +1410,20 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 	en_cara = collections.defaultdict(list)  # cara -> [(u0, u1)]
 	en_hilera = 0
 	otros_negocios = Rejilla(negocios)
+
+	def fuera_de_hilera(local):
+		"""Se queda donde lo puso place_puntos si ahi no estorba; si no, no se pone."""
+		propia = huella_negocio(local, huellas) if huellas else None
+		if propia and (otros_negocios.encima(propia) or lotes.encima(propia)):
+			local["_quitar"] = True
+			print(f"  Local sin lugar (encimado en otro): {local['tipo']} {local.get('nombre', '')}")
+		elif propia:
+			lotes.agregar(propia, local["rotacion_y"])
+
 	for local in locales:
 		calle = nearest_segment(local["x"], local["z"], lines, CASA_MAX_CALLE)
 		if calle is None:
+			fuera_de_hilera(local)
 			continue
 		_, street_id, (ax, az), (dx, dz), largo = calle
 		nx, nz = -dz, dx
@@ -1418,19 +1447,32 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 			z = az + dz * uc + nz * (frente + fondo / 2)
 			return x, z, rectangulo(x, z, rot, ancho - 2 * LOTE_MARGEN, fondo / 2 - LOTE_MARGEN, -fondo / 2 + LOTE_MARGEN)
 
-		uc = (local["x"] - ax) * dx + (local["z"] - az) * dz
+		uc0 = (local["x"] - ax) * dx + (local["z"] - az) * dz
 		if largo > ancho:
-			uc = min(max(uc, ancho / 2), largo - ancho / 2)
-		x, z, rect = lote_en(uc)
-		# Si cae sobre otro negocio (OXXO, nave...), se recorre a un lado de el, pegado
-		for huella in negocios:
-			if otros_negocios.encima(rect) and se_enciman(rect, huella):
+			uc0 = min(max(uc0, ancho / 2), largo - ancho / 2)
+		# Si cae sobre otro negocio (gasolinera, nave...) u otro local, se recorre a un
+		# lado de lo que estorba, pegado, el lado mas cerca de donde estaba
+		candidatos = [uc0]
+		lugar = None
+		for _ in range(LOCAL_INTENTOS + 1):
+			if not candidatos:
+				break
+			uc = min(candidatos, key=lambda u: abs(u - uc0))
+			candidatos.remove(uc)
+			x, z, rect = lote_en(uc)
+			estorban = otros_negocios.chocan(rect) + lotes.chocan(rect)
+			if not estorban:
+				if not (calles and invade_calle(rect, calles, perfil or {}, street_id)):
+					lugar = (uc, x, z, rect)
+					break
+				continue
+			for huella in estorban:
 				us = [(hx - ax) * dx + (hz - az) * dz for hx, hz in huella]
-				uc = min((min(us) - ancho / 2, max(us) + ancho / 2), key=lambda u: abs(u - uc))
-				x, z, rect = lote_en(uc)
-		if otros_negocios.encima(rect) or lotes.encima(rect) \
-				or (calles and invade_calle(rect, calles, perfil or {}, street_id)):
+				candidatos += [min(us) - ancho / 2, max(us) + ancho / 2]
+		if lugar is None:
+			fuera_de_hilera(local)
 			continue
+		uc, x, z, rect = lugar
 		lotes.agregar(rect, rot)
 		local.update({"x": round(x, 3), "z": round(z, 3), "rotacion_y": round(rot, 4),
 			"ancho": round(ancho, 2), "fondo": round(fondo, 2)})
@@ -1528,6 +1570,49 @@ def place_casas(kept_ways, pos, lat0, lon0, lines, manzanas, colonia_de, reglas,
 		f"(chocaban con otro o con una calle), {encimados} edificios debajo de un lote quitados, "
 		f"{en_contorno} en el contorno de un coto sin cambiar, {en_hilera} de {len(locales)} locales en la hilera")
 	return placed
+
+
+def pisos_locales(locales, casas) -> None:
+	"""Pone `pisos` a cada local: los de la casa modelo mas cercana (LOCAL_PISOS_VECINA)
+	para que quede de la altura de sus vecinas; sin vecina, casi siempre 1."""
+	rejilla = collections.defaultdict(list)
+	for c in casas:
+		rejilla[(int(c["x"] // LOCAL_PISOS_VECINA), int(c["z"] // LOCAL_PISOS_VECINA))].append(c)
+	for local in locales:
+		cx, cz = int(local["x"] // LOCAL_PISOS_VECINA), int(local["z"] // LOCAL_PISOS_VECINA)
+		cerca = [c for i in (-1, 0, 1) for j in (-1, 0, 1) for c in rejilla.get((cx + i, cz + j), ())]
+		vecina = min(cerca, key=lambda c: math.hypot(c["x"] - local["x"], c["z"] - local["z"]), default=None)
+		if vecina and math.hypot(vecina["x"] - local["x"], vecina["z"] - local["z"]) <= LOCAL_PISOS_VECINA:
+			local["pisos"] = vecina["pisos"]
+		else:
+			local["pisos"] = 2 if seed(local.get("origen") or local.get("nombre", "")) % 4 == 0 else 1
+
+
+def quitar_negocios_encimados(placed, huellas):
+	"""Ultima revision: de cada par de negocios cuyas huellas se enciman se queda uno
+	(el local o modelo antes que el puesto, la gasolinera/OXXO/farmacia antes que los
+	demas, el puesto a mano antes que el DENUE y OSM). Devuelve (placed, quitados)."""
+	def rango(p):
+		tipo = p["tipo"]
+		origen = p.get("origen", "")
+		return (tipo in NO_REPLACE_TIPOS,
+			INTERACTIVO_PRIORIDAD.index(tipo) if tipo in INTERACTIVO_PRIORIDAD else len(INTERACTIVO_PRIORIDAD),
+			0 if origen == "puntos.json" else (1 if origen.startswith("denue") else 2), origen)
+
+	puestos = Rejilla()
+	quedan = []
+	quitados = []
+	for p in sorted(placed, key=rango):
+		huella = huella_negocio(p, huellas)
+		if huella and puestos.encima(huella):
+			quitados.append(p)
+			continue
+		if huella:
+			puestos.agregar(huella)
+		quedan.append(p)
+	# En el orden de antes (el json queda igual de ordenado)
+	ids = {id(p) for p in quedan}
+	return [p for p in placed if id(p) in ids], quitados
 
 
 def elegir_puntos(casas) -> list:
@@ -2520,22 +2605,31 @@ def main() -> None:
 				cambiar_tipo.update(data.get("cambiar_tipo", {}))
 		puntos += osm_puntos(root, kept_ways, pos)
 		puntos = [p for p in puntos if p.get("origen") not in omitir]
+		# El tipo de dibujo antes de buscar repetidos (abarrotes o licoreria...)
+		puntos = [subtipo(dict(p, tipo=cambiar_tipo.get(p.get("origen"), p["tipo"]))) for p in puntos]
+		quitados = [p for p in puntos if p["tipo"] in TIPOS_QUITADOS]
+		if quitados:
+			print(f"  Puntos de tipos que ya no se dibujan: {len(quitados)} quitados ({', '.join(sorted({p['tipo'] for p in quitados}))})")
+		puntos = [p for p in puntos if p["tipo"] not in TIPOS_QUITADOS]
 
-		# Repetidos: gana el puesto a mano, luego el DENUE y al final OSM
+		# Repetidos de la misma familia: gana el local sobre el puesto (taqueria), luego
+		# el puesto a mano, el DENUE y al final OSM
 		def priority(p):
 			origen = p.get("origen", "")
-			return 0 if not origen else (1 if origen.startswith("denue") else 2)
+			return (p["tipo"] in NO_REPLACE_TIPOS, 0 if not origen else (1 if origen.startswith("denue") else 2))
+
+		def familia(tipo):
+			return FAMILIA.get(tipo, tipo)
 
 		kept_puntos = []
 		for p in sorted(puntos, key=priority):
 			px, pz = local_xz(p["lat"], p["lon"], lat0, lon0)
-			if all(q["tipo"] != p["tipo"] or math.hypot(px - qx, pz - qz) >= DUPLICATE_DIST_TIPO.get(p["tipo"], DUPLICATE_DIST)
+			if all(familia(q["tipo"]) != familia(p["tipo"])
+					or math.hypot(px - qx, pz - qz) >= DUPLICATE_DIST_TIPO.get(p["tipo"], DUPLICATE_DIST)
 					for q, qx, qz in kept_puntos):
 				kept_puntos.append((p, px, pz))
-		print(f"  Puntos repetidos (mismo tipo a < {DUPLICATE_DIST:.0f} m, tiendas a < {DUPLICATE_DIST_TIPO['tienda']:.0f} m): {len(puntos) - len(kept_puntos)} quitados")
-		kept_puntos = [(subtipo(p), px, pz) for p, px, pz in kept_puntos]
+		print(f"  Puntos repetidos (misma familia a < {DUPLICATE_DIST:.0f} m, abarrotes a < {DUPLICATE_DIST_TIPO['abarrotes']:.0f} m): {len(puntos) - len(kept_puntos)} quitados")
 		for p, _, _ in kept_puntos:
-			p["tipo"] = cambiar_tipo.get(p.get("origen"), p["tipo"])
 			p["nombre"] = parodia(p.get("nombre", ""))
 		print("  Negocios: " + ", ".join(f"{t} {n}" for t, n in collections.Counter(p["tipo"] for p, _, _ in kept_puntos).most_common()))
 		placed = place_puntos([p for p, _, _ in kept_puntos], kept_ways, pos, lat0, lon0, perfil)
@@ -2603,7 +2697,13 @@ def main() -> None:
 		otros = [h for h in (huella_negocio(p, huellas) for p in placed if p["tipo"] not in LOCALES_HILERA) if h] \
 			if args.salida_puntos and huellas else []
 		casas = place_casas(kept_ways, pos, lat0, lon0, casa_lines, manzanas, colonia_de, reglas,
-			huellas.get("casas", {}), perfil, otros + huellas_bodegas_todas, Tramos(casa_lines), cotos, locales)
+			huellas.get("casas", {}), perfil, otros + huellas_bodegas_todas, Tramos(casa_lines), cotos, locales, huellas)
+		sin_lugar = [p for p in locales if p.pop("_quitar", False)]
+		if sin_lugar:
+			placed = [p for p in placed if not any(p is q for q in sin_lugar)]
+			locales = [p for p in locales if not any(p is q for q in sin_lugar)]
+			print(f"  Locales sin lugar: {len(sin_lugar)} quitados")
+		pisos_locales(locales, casas)
 		if locales:
 			# Con su lote nuevo: lo que quede debajo se va, y las bardas y postes lo esquivan
 			huellas_locales = [h for h in (huella_negocio(p, huellas) for p in locales) if h]
@@ -2631,6 +2731,11 @@ def main() -> None:
 
 	# Negocios (despues de las casas: los locales se movieron a la hilera)
 	if args.salida_puntos:
+		if huellas:
+			placed, quitados = quitar_negocios_encimados(placed, huellas)
+			if quitados:
+				print(f"  Negocios encimados en otro: {len(quitados)} quitados ("
+					+ ", ".join(f"{p['tipo']} {p.get('nombre', '')}" for p in quitados) + ")")
 		conteo = marcar_interactivos([p for p in placed if p["tipo"] != "alto"])
 		print("  Interactivos: " + ", ".join(f"{g} {n}" for g, n in conteo.most_common())
 			+ f" (de {sum(1 for p in placed if p.get('giro'))} con giro)")
@@ -2663,6 +2768,14 @@ def main() -> None:
 		# Alumbrado publico (al final: no va encima de nada de lo anterior)
 		if args.salida_alumbrado:
 			estorbos = [(p["x"], p["z"]) for p in placed if p["tipo"] == "alto" or p["tipo"].startswith("puesto")]
+			# El puesto de la taqueria-local, en la banqueta frente a la mitad derecha
+			# del local (MapPuntos._taqueria_puesto: TAQUERIA_PUESTO m de la fachada)
+			for p in placed:
+				if p["tipo"] == "taqueria":
+					r = p["rotacion_y"]
+					adelante = p["fondo"] / 2 + 1.3
+					estorbos.append((p["x"] + math.sin(r) * adelante + math.cos(r) * 1.2,
+						p["z"] + math.cos(r) * adelante - math.sin(r) * 1.2))
 			estorbos += [(p["x"], p["z"]) for p in plumas_mapa + casetas]
 			calles = [(w, l, r, tags_of(kept_ways[w]).get("highway"))
 				for w, l, r in street_lines(kept_ways, pos, lat0, lon0, BLOCK_STREET_TYPES)]

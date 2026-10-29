@@ -8,67 +8,107 @@ extends Node3D
 # Si un tipo tiene modelo en `prefabs` se usa ese, con sus proporciones y el frente
 # de `prefab_ancho` (girado con `prefab_rotacion` si su fachada no ve a +Z; modelos:
 # tools/map_import/fetch_sketchfab.py); puede encimarse en las casas vecinas;
-# los tipos de LOCALES salen como un local de colonia (cortina abierta, mostrador
-# y letrero pintado); lo demas, como una caja de color del tamano del lote.
+# los tipos de GIROS_LOCAL salen como una casa-local de la hilera, pintada con los
+# colores de su giro y con la cortina abierta, y adentro su escena de interior; lo
+# demas, como una caja de color del tamano del lote.
 # En el editor se ven todas; en el juego solo existen las que estan a menos de
 # load_radius del jugador (target_path), igual que los cuadros de MapStreamer.
 
+const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 
 const PLACEHOLDER_HEIGHT := 3.5
 
 # Mas alla de esto (m) los modelos de tiendas no se dibujan (el mapa usa ~340 m)
 const PREFAB_VISIBILITY_RANGE := 250.0
+# _calentar: cuadros que se dibuja la miniatura y su escala
+const CALENTAR_CUADROS := 3
+const CALENTAR_ESCALA := 0.002
 
 # Colores de las cajas mientras no hay modelo
 const TIPO_COLORS := {
 	"oxxo": Color(0.85, 0.15, 0.12),
-	"tienda": Color(0.95, 0.9, 0.75),
 	"abarrotes": Color(0.95, 0.9, 0.75),
+	"licoreria": Color(0.08, 0.2, 0.55),
 	"farmacia": Color(0.2, 0.45, 0.85),
-	"farmacia_local": Color(0.2, 0.6, 0.35),
-	"farmacia_similares": Color(0.2, 0.45, 0.85),
 	"taqueria": Color(0.95, 0.55, 0.15),
 	"puesto_tacos": Color(0.98, 0.8, 0.2),
 	"gasolinera": Color(0.15, 0.6, 0.3),
-	"tortilleria": Color(0.85, 0.75, 0.45),
 	"puesto": Color(0.75, 0.35, 0.6),
 	"ferreteria": Color(0.9, 0.45, 0.1),
 	"purificadora": Color(0.2, 0.6, 0.9),
 }
 
-# Locales de colonia armados con cajas (no hay modelos de taquerias ni abarrotes
-# genericos en Sketchfab), pintados como las tienditas de barrio: muro blanco con
-# rodapie y franja de un color (rojo o azul, segun el nombre; verde las farmacias).
-# letrero generico (si el nombre no cabe o es "Sin Nombre"), si lleva lona (del
-# color del rodapie) y el adorno de un pilar (refresco, cruz, gota o nada)
-const LOCALES := {
-	"taqueria": {"letrero": "TAQUERÍA", "lona": true, "adorno": ""},
-	"tortilleria": {"letrero": "TORTILLERÍA", "lona": false, "adorno": ""},
-	"abarrotes": {"letrero": "ABARROTES", "lona": false, "adorno": "refresco"},
-	"farmacia_local": {"letrero": "FARMACIA", "lona": false, "adorno": "cruz", "acento": Color(0.1, 0.5, 0.25)},
-	"ferreteria": {"letrero": "FERRETERÍA", "lona": false, "adorno": ""},
-	"purificadora": {"letrero": "AGUA PURIFICADA", "lona": true, "adorno": "gota", "acento": Color(0.1, 0.4, 0.8)},
-}
+# Casas-local de la hilera, armadas con cajas como las tienditas de barrio: muro del
+# color del giro con rodapie y franja (`acento`), la puerta con su marco (`marco`, si
+# no del acento) y la cortina enrollada, y adentro la escena del interior de su giro
+# (`interior`, la de Interiores.escenas) para que desde la calle se vea el mostrador
+# con el que atiende. Sin letreros con el nombre: `letrero` solo es el nombre del giro
+# al entrar si el negocio no tiene; `banda`: franja de color en la fachada; `cruz`:
+# letrero de bandera de farmacia; `botarga`: el Simi bailando en la banqueta;
+# `guardapolvo`: el de las paredes de adentro, si no es el de la escena del interior;
+# `relleno`: con que muebles (RELLENO) se llenan las paredes que la escena deja vacias.
 const LOCAL_BLANCO := Color(0.93, 0.92, 0.88)
-const ACENTOS := [Color(0.78, 0.1, 0.1), Color(0.1, 0.28, 0.68)]
+const ROJO := Color(0.72, 0.1, 0.09)
+const AZUL_CERVEZA := Color(0.08, 0.2, 0.55)
+const AMARILLO := Color(0.96, 0.76, 0.12)
+const AZUL_FARMACIA := Color(0.1, 0.3, 0.72)
+const NARANJA := Color(0.93, 0.45, 0.07)
+const NEGRO := Color(0.09, 0.09, 0.09)
+const GIROS_LOCAL := {
+	"abarrotes": {"muro": LOCAL_BLANCO, "acento": ROJO, "letrero": "ABARROTES", "interior": "abarrotes", "relleno": "comida"},
+	"licoreria": {"muro": AZUL_CERVEZA, "acento": AMARILLO, "letrero": "CERVEZA • VINOS • LICORES", "interior": "licoreria", "relleno": "licor",
+		"guardapolvo": AZUL_CERVEZA},
+	"farmacia": {"muro": LOCAL_BLANCO, "acento": AZUL_FARMACIA, "letrero": "FARMACIA", "interior": "farmacia", "relleno": "medicinas",
+		"cruz": true, "botarga": true},
+	"ferreteria": {"muro": NARANJA, "acento": NEGRO, "letrero": "FERRETERÍA Y TLAPALERÍA", "interior": "ferreteria"},
+	"oxxo": {"muro": LOCAL_BLANCO, "acento": ROJO, "banda": ROJO, "letrero": "OXO", "interior": "oxxo"},
+	"taqueria": {"muro": LOCAL_BLANCO, "acento": ROJO, "letrero": "", "interior": ""},
+}
 const RODAPIE := 0.9
-const LETRAS := Color(0.12, 0.12, 0.12)
-const LOCAL_HEIGHT := 3.2
-const LOCAL_FONDO_CORTINA := 1.0  # lo que se mete la entrada (m)
+# Alturas (m) para quedar como las casas Urbi de 1 y 2 pisos (3.9 y 7.4 m con el pretil)
+const PLANTA_BAJA := 3.2
+const PISO_ALTO := 3.0
+const PRETIL := 0.4
+const VANO_ALTO := 2.4
+const LETRERO_ALTO := 1.15   # con 2 pisos, franja de la losa a las ventanas
+const LOCAL_PILAR := 0.35     # muro minimo a cada lado del cuarto
+const LOCAL_SALA_MAX := 5.0   # ancho maximo del cuarto
+const LOCAL_MURO := 0.3       # grueso de la fachada
+# La puerta: fraccion del ancho del cuarto, entre estos anchos (m)
+const LOCAL_PUERTA_FRACCION := 0.6
+const LOCAL_PUERTA := Vector2(2.2, 3.0)
+const LOCAL_MARCO := Vector2(0.16, 0.04)   # ancho del marco y lo que sale del muro
+const LOCAL_CUARTO := 4.5     # fondo maximo del cuarto que se ve desde la calle
 # Tamano minimo de un local (m): en lotes angostos se sale a los lados y hacia atras
 const LOCAL_MIN := Vector2(4.5, 6.0)
 # Purificadora (foto del usuario): anuncio sobre postes en la banqueta
 const PURIFICADORA_LONA := preload("res://textures/map/purificadora_lona.png")
 const PURIFICADORA_POSTES := 1.5   # de la fachada a los postes (orilla de la banqueta)
 const PURIFICADORA_ANUNCIO := Vector2(2.9, 1.7)   # altura de abajo y alto del anuncio
-# Taqueria (como scenes/interiores/taqueria.tscn vista desde la calle): local blanco con
-# rojo abierto, mesas y refris rojos adentro y el puesto con el taquero en la banqueta
-const TAQUERIA_ROJO := Color(0.62, 0.12, 0.1)
+const PURIFICADORA_AZUL := Color(0.1, 0.4, 0.8)
+const PURIFICADORA_ALTO := 3.2
+# Taqueria (como scenes/interiores/taqueria.tscn vista desde la calle): mesas y refris
+# rojos adentro y el puesto con el taquero en la banqueta
 const TAQUERIA_MESA := Color(0.88, 0.07, 0.05)
 const TAQUERIA_PUESTO := 1.3   # de la fachada al centro del puesto (m)
-const TAQUERIA_CUARTO := 4.5   # fondo maximo del cuarto que se ve desde la calle
-const TAQUERIA_DETALLE := 80.0 # mas alla no se dibujan muebles ni puesto
+# Muebles para rellenar las paredes del cuarto que la escena del interior deja vacias
+# (sobre todo entre la fachada y el mostrador), por `relleno` de GIROS_LOCAL (solo
+# abarrotes, licoreria y farmacia): refris, anaqueles con comida o medicinas y
+# exhibidores de papitas. [tipo, ancho, fondo]
+const RELLENO := {
+	"comida": [["refri", 0.8, 0.65], ["repisas_comida", 1.2, 0.4], ["papas", 0.8, 0.42]],
+	"licor": [["refri_cerveza", 0.8, 0.65], ["papas", 0.8, 0.42], ["repisas_botanas", 1.2, 0.4]],
+	"medicinas": [["repisas_medicinas", 1.2, 0.38]],
+}
+const RELLENO_FRANJA := 0.75   # que tanto entra de la pared un mueble de la escena para contar
+const PUESTO_TACOS := Vector2(2.1, 0.7)   # frente y fondo del carrito del puesto de tacos (m)
+const PUESTO_DETALLE := 150.0  # el puesto de tacos suelto se ve desde mas lejos
+# El interior de los locales solo se ve por la puerta de cerca: se arma a menos de
+# INTERIOR_CARGA m, se dibuja a menos de INTERIOR_VISTA y se quita a mas de INTERIOR_QUITAR
+const INTERIOR_VISTA := 30.0
+const INTERIOR_CARGA := 35.0
+const INTERIOR_QUITAR := 50.0
 
 # Marcador de los negocios interactivos (docs/especificaciones.md 4.6): flecha
 # amarilla frente a la puerta; al pisarla se entra al interior (scripts/interiores/Interiores.gd)
@@ -123,6 +163,15 @@ signal entrar_negocio(tipo: String, giro: String, nombre: String, aire_libre: bo
 # su cuarto, scenes/interiores/punto.tscn)
 @export var vendedor_atras: Dictionary[String, float] = {}
 
+# El nodo Interiores (scripts/interiores/Interiores.gd): de su `escenas` sale lo que
+# se ve adentro de cada local por la cortina abierta
+@export var interiores_path: NodePath
+# La botarga del Simi que baila afuera de las farmacias
+@export var botarga: PackedScene
+@export var botarga_escala := 1.0
+# giro -> escena del interior (de interiores_path, o puesta a mano antes de _ready)
+var escenas_interior: Dictionary = {}
+
 # El jugador; sin el se crean todas las tiendas de una vez
 @export var target_path: NodePath
 @export var load_radius := 250.0
@@ -130,10 +179,20 @@ signal entrar_negocio(tipo: String, giro: String, nombre: String, aire_libre: bo
 
 var _puntos := []
 var _nodes := {}           # indice en _puntos -> Node3D
+var _por_crear := []       # indices en _puntos que faltan armar, el mas cercano primero
 var _box_materials := {}   # tipo -> ShaderMaterial de las cajas
 var _sucios := {}          # material de un prefab -> copia con deterioro
 var _target: Node3D
 var _timer := 0.0
+var _timer_interiores := 0.0
+# Materiales StandardMaterial3D compartidos (Refrigerador.gd explica por que)
+static var _material_tubo: StandardMaterial3D
+static var _material_vidrio: StandardMaterial3D
+# Muebles de un interior que faltan de meter al arbol, uno por cuadro: [padre, mueble]
+var _pendientes: Array = []
+# Locales en miniatura que se dibujan al cargar para compilar sus shaders (_calentar)
+var _calentando: Node3D
+var _calentar_cuadros := 0
 var _aviso: Label
 var _aviso_tween: Tween
 
@@ -149,10 +208,83 @@ func _ready() -> void:
 		push_warning("MapPuntos: no se pudo leer %s" % puntos_path)
 		return
 	_puntos = data.get("puntos", [])
+	var interiores := get_node_or_null(interiores_path)
+	if interiores:
+		escenas_interior = interiores.get("escenas")
 
 	if not Engine.is_editor_hint():
 		_target = get_node_or_null(target_path) as Node3D
+		if _target:
+			_calentar()
 	_update_nearby()
+	_crear_pendientes(true)
+
+
+# Lo que la primera vez tarda mucho, en la carga y no al llegar al primer local: las
+# piezas de mercancia (~100 ms de disco) y un refri, que deja compilados sus materiales
+# compartidos (~25 ms). Ademas se arma un local de cada giro con su interior (y un puesto
+# de tacos y una purificadora) en miniatura frente a la camara durante unos cuadros:
+# la primera vez que se dibuja cada material se compila su shader y la primera vez que
+# se instancia cada escena de interior se carga, y eso trababa 25-60 ms el cuadro en
+# que aparecia el primer local de cada giro.
+func _calentar() -> void:
+	Mostrador.piezas("")
+	var refri := Refrigerador.new()
+	refri.visible = false
+	add_child(refri)
+	refri.queue_free()
+
+	_calentando = Node3D.new()
+	_calentando.name = "Calentando"
+	add_child(_calentando)
+	var x := 0.0
+	for tipo: String in GIROS_LOCAL.keys() + ["puesto_tacos", "purificadora"]:
+		var punto := {"tipo": tipo, "nombre": "", "x": 0.0, "z": 0.0, "rotacion_y": 0.0,
+			"ancho": 6.0, "fondo": 8.0, "pisos": 2}
+		var node := _make_punto(punto)
+		node.position.x = x
+		x += 8.0
+		_calentando.add_child(node)
+		if GIROS_LOCAL.has(tipo):
+			_armar_interior(node, punto, true)
+	_calentar_cuadros = CALENTAR_CUADROS
+	_achicar_calentando()
+
+
+# Las luces de la miniatura alumbraban la calle y el humo (billboard) no se encoge con
+# la escala del nodo; tambien a los muebles que van entrando de _pendientes
+func _achicar_calentando() -> void:
+	for luz: Light3D in _calentando.find_children("*", "Light3D", true, false):
+		luz.visible = false
+	for humo: CPUParticles3D in _calentando.find_children("*", "CPUParticles3D", true, false):
+		if not humo.has_meta("calentando"):
+			humo.set_meta("calentando", true)
+			humo.local_coords = true
+			humo.scale_amount_min *= CALENTAR_ESCALA
+			humo.scale_amount_max *= CALENTAR_ESCALA
+			humo.restart()
+
+
+# Pone la miniatura de _calentar frente a la camara hasta que entren todos sus muebles
+# pendientes y se dibuje CALENTAR_CUADROS veces; luego la quita
+func _seguir_calentando() -> void:
+	var camara := get_viewport().get_camera_3d()
+	if camara:
+		_calentando.global_transform = camara.global_transform \
+				* Transform3D(Basis.from_scale(Vector3.ONE * CALENTAR_ESCALA), Vector3(0.0, 0.0, -2.0))
+	_achicar_calentando()
+	if not _pendientes.is_empty():
+		return
+	_calentar_cuadros -= 1
+	if _calentar_cuadros <= 0:
+		_calentando.queue_free()
+		_calentando = null
+
+
+func _exit_tree() -> void:
+	for pendiente: Array in _pendientes:
+		(pendiente[1] as Node).free()
+	_pendientes.clear()
 
 
 func _process(delta: float) -> void:
@@ -162,23 +294,47 @@ func _process(delta: float) -> void:
 	if _timer <= 0.0:
 		_timer = 0.5
 		_update_nearby()
+	_crear_pendientes()
+	_meter_pendiente()
+	if _calentando:
+		_seguir_calentando()
+	# Los interiores mas seguido (uno cada vez): a pie se llega rapido a INTERIOR_VISTA
+	_timer_interiores -= delta
+	if _timer_interiores <= 0.0 and not Engine.is_editor_hint():
+		_timer_interiores = 0.15
+		_interiores_cerca()
 
 
 func _update_nearby() -> void:
+	var nuevos := []
 	for i in _puntos.size():
 		var punto: Dictionary = _puntos[i]
 		var distance := 0.0
 		if _target:
 			distance = Vector2(_target.global_position.x - punto["x"], _target.global_position.z - punto["z"]).length()
 		if distance < load_radius and not _nodes.has(i):
-			var node := _make_punto(punto)
-			node.position = Vector3(punto["x"], 0.0, punto["z"])
-			node.rotation.y = punto["rotacion_y"]
-			add_child(node)
-			_nodes[i] = node
+			nuevos.append([distance, i])
 		elif distance > unload_radius and _nodes.has(i):
 			_nodes[i].queue_free()
 			_nodes.erase(i)
+	nuevos.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	_por_crear = nuevos.map(func(n: Array) -> int: return n[1])
+
+
+# Arma los puntos encolados hasta gastar el presupuesto del cuadro (CargaCuadro; todos con `de_una`)
+func _crear_pendientes(de_una := false) -> void:
+	while not _por_crear.is_empty() and (de_una or CargaCuadro.hay()):
+		var inicio := Time.get_ticks_usec()
+		var i: int = _por_crear.pop_front()
+		if _nodes.has(i):
+			continue
+		var punto: Dictionary = _puntos[i]
+		var node := _make_punto(punto)
+		node.position = Vector3(punto["x"], 0.0, punto["z"])
+		node.rotation.y = punto["rotacion_y"]
+		add_child(node)
+		_nodes[i] = node
+		CargaCuadro.gastar(inicio)
 
 
 func _make_punto(punto: Dictionary) -> Node3D:
@@ -188,14 +344,14 @@ func _make_punto(punto: Dictionary) -> Node3D:
 		# La casa ya la dibuja MapCasas; aqui solo va su marcador
 		node = Node3D.new()
 		node.name = "punto_%s" % punto.get("origen", "")
+	elif GIROS_LOCAL.has(tipo):
+		node = _make_local_giro(punto)
+	elif tipo == "puesto_tacos":
+		node = _make_puesto_tacos(punto)
 	elif prefabs.has(tipo) and prefabs[tipo] != null:
 		node = _make_prefab(punto)
 	elif tipo == "purificadora":
 		node = _make_purificadora(punto)
-	elif tipo == "taqueria":
-		node = _make_taqueria(punto)
-	elif LOCALES.has(tipo):
-		node = _make_local(punto)
 	else:
 		node = _make_placeholder(punto)
 	if punto.get("interactivo", false) and not Engine.is_editor_hint():
@@ -221,7 +377,7 @@ func _marcador(punto: Dictionary) -> Node3D:
 	area.body_entered.connect(func(body: Node3D) -> void:
 		if body is Player:
 			_entrar(punto, area))
-	if punto.get("aire_libre", false) and vendedor_escena and vendedor_atras.has(punto["tipo"]):
+	if punto.get("aire_libre", false) and vendedor_escena and (punto.has("vendedor_atras") or vendedor_atras.has(punto["tipo"])):
 		area.add_child(_vendedor(punto))
 	area.add_child(flecha())
 	return area
@@ -285,7 +441,7 @@ static func _flecha_mesh() -> Mesh:
 func _vendedor(punto: Dictionary) -> Node3D:
 	var vendedor := vendedor_escena.instantiate() as Node3D
 	vendedor.name = "Vendedor"
-	vendedor.position = Vector3(0.0, 0.0, -vendedor_atras.get(punto["tipo"], 1.5))
+	vendedor.position = Vector3(0.0, 0.0, -punto.get("vendedor_atras", vendedor_atras.get(punto["tipo"], 1.5)))
 	vendedor.rotation.y = PI
 	vendedor.set("dialogue", VENDEDOR_DIALOGO.get(punto.get("giro", ""), ""))
 	vendedor.ready.connect(func() -> void:
@@ -296,7 +452,7 @@ func _vendedor(punto: Dictionary) -> Node3D:
 func _entrar(punto: Dictionary, marcador: Node3D) -> void:
 	var nombre: String = punto.get("nombre", "")
 	if nombre == "" or nombre.to_upper().contains("SIN NOMBRE"):
-		nombre = LOCALES.get(punto["tipo"], {}).get("letrero", String(punto.get("giro", "")).capitalize())
+		nombre = GIROS_LOCAL.get(punto["tipo"], {}).get("letrero", String(punto.get("giro", "")).capitalize())
 	entrar_negocio.emit(punto["tipo"], punto.get("giro", ""), nombre, punto.get("aire_libre", false), marcador)
 	# Sin nadie que lo atienda (Interiores) no hay a donde entrar
 	if not entrar_negocio.has_connections():
@@ -498,103 +654,552 @@ func _make_placeholder(punto: Dictionary) -> Node3D:
 	return body
 
 
-# Local de colonia del tamano del lote (minimo LOCAL_MIN): fachada con la entrada
-# metida, cortina enrollada arriba, mostrador, nombre pintado en el muro blanco con
-# rodapie y franja de color, y segun el giro lona, refresco pintado o cruz verde.
-# La fachada ve a +Z, como los prefabs, en la orilla del lote.
-func _make_local(punto: Dictionary) -> Node3D:
+# Casa-local de la hilera (docs/mapa): del tamano del lote (minimo LOCAL_MIN), de 1 o
+# 2 pisos (`punto["pisos"]`, como las casas vecinas), con el muro del color de su
+# giro (GIROS_LOCAL) y su rodapie y franja. Como los locales de verdad, la entrada no
+# abarca todo el frente: es un vano con marco (jambas y cabezal, sin umbral) en medio
+# de la fachada, con la cortina enrollada arriba por dentro, y adentro, en un cuarto
+# mas ancho que el vano y de hasta LOCAL_CUARTO m, la escena del interior de su giro
+# (mostrador, el que atiende y los muebles de atras). La taqueria trae en cambio sus
+# mesas y el puesto en la banqueta. Sin letreros con el nombre. La fachada ve a +Z,
+# en la orilla del lote; la flecha va frente al vano (o donde diga `puerta_x`).
+func _make_local_giro(punto: Dictionary) -> Node3D:
 	var tipo: String = punto["tipo"]
+	var info: Dictionary = GIROS_LOCAL[tipo]
 	var nombre: String = punto.get("nombre", "")
-	var info: Dictionary = LOCALES[tipo]
-	var w: float = maxf(punto["ancho"], LOCAL_MIN.x)
-	var d: float = maxf(punto["fondo"], LOCAL_MIN.y)
-	var h := LOCAL_HEIGHT
-	var front: float = punto["fondo"] / 2.0
-	var hondo := LOCAL_FONDO_CORTINA
-	var entrada := clampf(w * 0.6, 2.4, 5.0)
-	entrada = minf(entrada, w - 0.6)
-	var pilar := (w - entrada) / 2.0
-	var acento: Color = info.get("acento", ACENTOS[absi(nombre.hash() / 7) % ACENTOS.size()])
-
+	var m := _medidas(punto)
+	var w: float = m["w"]
+	var d: float = m["d"]
+	var front: float = m["front"]
+	var pisos: int = m["pisos"]
+	var alto: float = m["alto"]
+	var sala: float = m["sala"]
+	var pilar := (w - sala) / 2.0
+	var puerta: float = m["puerta"]
+	var cuarto: float = m["cuarto"]
+	var muro: Color = info["muro"]
+	var acento: Color = info["acento"]
 	var body := StaticBody3D.new()
 	body.name = "%s_%s" % [tipo, nombre]
-	# Cuerpo, pilares a los lados de la entrada y dintel encima
-	var cuerpo := [Vector3(w, h, d - hondo), Vector3(0.0, h / 2.0, front - hondo - (d - hondo) / 2.0)]
-	_local_box(body, cuerpo[0], cuerpo[1], LOCAL_BLANCO, true)
-	var piezas := [cuerpo]
-	for side in [-1.0, 1.0]:
-		var p := [Vector3(pilar, h, hondo), Vector3(side * (entrada + pilar) / 2.0, h / 2.0, front - hondo / 2.0)]
-		_local_box(body, p[0], p[1], LOCAL_BLANCO, true)
-		piezas.append(p)
-	_local_box(body, Vector3(entrada, h - 2.5, hondo),
-		Vector3(0.0, 2.5 + (h - 2.5) / 2.0, front - hondo / 2.0), LOCAL_BLANCO, false)
-	# Rodapie y franja: una cascara de color apenas mas grande que el muro
-	for p: Array in piezas:
-		var size: Vector3 = p[0]
-		var pos: Vector3 = p[1]
-		_local_box(body, Vector3(size.x + 0.03, RODAPIE, size.z + 0.03), Vector3(pos.x, RODAPIE / 2.0, pos.z), acento, false)
-		_local_box(body, Vector3(size.x + 0.03, 0.1, size.z + 0.03), Vector3(pos.x, RODAPIE + 0.25, pos.z), acento, false)
-	# Adentro oscuro, cortina enrollada y mostrador
-	_local_box(body, Vector3(entrada, 2.5, 0.05), Vector3(0.0, 1.25, front - hondo + 0.03), Color(0.1, 0.08, 0.07), false)
-	_local_box(body, Vector3(entrada, 0.25, 0.25), Vector3(0.0, 2.37, front - 0.15), Color(0.55, 0.57, 0.6), false)
-	_local_box(body, Vector3(minf(entrada - 0.6, 2.4), 1.0, 0.5), Vector3(0.0, 0.5, front - 0.4), Color(0.85, 0.85, 0.82), true)
 
-	if info["lona"]:
-		var awning := _local_box(body, Vector3(entrada + 0.6, 0.06, 1.3), Vector3(0.0, 2.45, front + 0.6), acento, false)
-		awning.rotation.x = deg_to_rad(15.0)
+	# Lo de atras del cuarto, macizo; los muros de los lados a todo el fondo del cuarto;
+	# la fachada a los lados de la puerta y arriba de ella el dintel (con 1 piso, hasta
+	# el pretil) o el piso de arriba
+	var atras := d - cuarto
+	_fachada_tramo(body, Vector2(-w / 2.0, w / 2.0), 0.0, alto, front - cuarto - atras / 2.0, atras, acento, muro)
+	for lado in [-1.0, 1.0]:
+		var x: float = lado * (sala + pilar) / 2.0
+		_fachada_tramo(body, Vector2(x - pilar / 2.0, x + pilar / 2.0), 0.0, alto, front - cuarto / 2.0, cuarto, acento, muro)
+	var dintel_arriba := alto if pisos == 1 else PLANTA_BAJA
+	var z := front - LOCAL_MURO / 2.0
+	for lado in [-1.0, 1.0]:
+		var tramo: Vector2 = Vector2(puerta / 2.0, sala / 2.0) * lado
+		_fachada_tramo(body, Vector2(minf(tramo.x, tramo.y), maxf(tramo.x, tramo.y)), 0.0, dintel_arriba, z, LOCAL_MURO, acento, muro)
+	_fachada_tramo(body, Vector2(-puerta / 2.0, puerta / 2.0), VANO_ALTO, dintel_arriba, z, LOCAL_MURO, acento, muro)
+	_marco(body, puerta, z, info.get("marco", acento))
+	if pisos > 1:
+		_piso_alto(body, w, sala, cuarto, front, alto, muro, acento)
+	# Techo y piso del cuarto, tubo de luz y la cortina enrollada (por dentro, arriba
+	# de la puerta)
+	_local_box(body, Vector3(sala, 0.2, cuarto), Vector3(0.0, PLANTA_BAJA - 0.1, front - cuarto / 2.0), Color(0.85, 0.85, 0.82), false)
+	_local_box(body, Vector3(sala, 0.02, cuarto), Vector3(0.0, 0.01, front - cuarto / 2.0), Color(0.6, 0.55, 0.5), false)
+	var tubo := _local_box(body, Vector3(1.2, 0.05, 0.15), Vector3(0.0, PLANTA_BAJA - 0.23, front - cuarto * 0.5), Color(1.0, 1.0, 0.95), false)
+	if _material_tubo == null:
+		_material_tubo = StandardMaterial3D.new()
+		_material_tubo.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_material_tubo.albedo_color = Color(0.95, 0.97, 1.0)
+	tubo.material_override = _material_tubo
+	_local_box(body, Vector3(puerta + 0.1, 0.25, 0.25), Vector3(0.0, VANO_ALTO - 0.13, front - LOCAL_MURO - 0.13), Color(0.55, 0.57, 0.6), false)
+	# Franja de color sin letras (OXO)
+	if info.has("banda"):
+		var abajo := VANO_ALTO + 0.3 if pisos == 1 else PLANTA_BAJA + 0.15
+		var arriba := dintel_arriba - 0.1 if pisos == 1 else PLANTA_BAJA + 0.75
+		_local_box(body, Vector3(w + 0.02, arriba - abajo, 0.03), Vector3(0.0, (abajo + arriba) / 2.0, front + 0.01), info["banda"], false)
+	if info.get("cruz", false):
+		_cruz_bandera(body, w, front, dintel_arriba, acento)
 
-	# Adorno pintado en el pilar derecho, si cabe
-	if pilar >= 0.9:
-		var centro := Vector3((entrada + pilar) / 2.0, 1.85, front + 0.02)
-		match info["adorno"]:
-			"refresco":
-				# Un circulo rojo de refresco (sin marca) con su letrero
-				var radio := minf(0.42, pilar * 0.4)
-				var disco := MeshInstance3D.new()
-				var cilindro := CylinderMesh.new()
-				cilindro.top_radius = radio
-				cilindro.bottom_radius = radio
-				cilindro.height = 0.02
-				cilindro.radial_segments = 12
-				cilindro.rings = 1
-				cilindro.material = _color_material(Color(0.82, 0.08, 0.1), false)
-				disco.mesh = cilindro
-				disco.rotation.x = PI / 2.0
-				disco.position = centro
-				disco.visibility_range_end = PREFAB_VISIBILITY_RANGE
-				body.add_child(disco)
-				var marca := Label3D.new()
-				marca.text = "REFRESCOS"
-				marca.font_size = 32
-				marca.outline_size = 0
-				marca.pixel_size = radio * 1.6 / (9 * 19.0)
-				marca.position = centro + Vector3(0.0, 0.0, 0.02)
-				marca.visibility_range_end = 60.0
-				body.add_child(marca)
-			"cruz":
-				_local_box(body, Vector3(0.6, 0.2, 0.03), centro, acento, false)
-				_local_box(body, Vector3(0.2, 0.6, 0.03), centro, acento, false)
-			"gota":
-				# Gota de agua: un rombo azul con la punta hacia arriba
-				var gota := _local_box(body, Vector3(0.36, 0.36, 0.03), centro + Vector3(0.0, -0.05, 0.0), acento, false)
-				gota.rotation.z = PI / 4.0
-				_local_box(body, Vector3(0.1, 0.25, 0.03), centro + Vector3(0.0, 0.25, 0.0), acento, false)
-
-	# Nombre pintado sobre el dintel (como en la foto: letras oscuras en el muro)
-	var texto: String = nombre.to_upper()
-	if texto == "" or texto.length() > 22 or texto.contains("SIN NOMBRE"):
-		texto = info["letrero"]
-	var label := Label3D.new()
-	label.text = texto
-	label.font_size = 64
-	label.outline_size = 0
-	label.modulate = LETRAS
-	# Que el texto quepa en el letrero (~0.6 del font_size por letra)
-	label.pixel_size = minf(0.008, (entrada + pilar - 0.3) / (texto.length() * 38.0))
-	label.position = Vector3(0.0, h - 0.4, front + 0.02)
-	label.visibility_range_end = 80.0
-	body.add_child(label)
+	# Lo de la banqueta y lo de adentro solo en el juego (en el editor estan todos los
+	# negocios a la vez). Lo de la banqueta (el puesto de la taqueria, la botarga) se ve
+	# de lejos; el interior solo se arma de cerca (_interiores_cerca) o, sin objetivo
+	# que seguir, de una vez
+	if Engine.is_editor_hint():
+		return body
+	var banqueta := Node3D.new()
+	banqueta.name = "Banqueta"
+	body.add_child(banqueta)
+	if tipo == "taqueria":
+		_taqueria_puesto(body, banqueta, punto, sala, puerta, front)
+	if info.get("botarga", false) and botarga:
+		# Junto al pilar izquierdo, bailando, lejos de la flecha
+		var simi := botarga.instantiate() as Node3D
+		simi.name = "Botarga"
+		simi.scale = Vector3.ONE * botarga_escala
+		simi.position = Vector3(-w / 2.0 + 0.45, 0.0, front + 0.9)
+		banqueta.add_child(simi)
+	# Los muebles se arman al entrar al arbol: hasta entonces no tienen mallas. En el
+	# juego entran de uno por cuadro, como los del interior
+	if _target:
+		_sacar_muebles(banqueta, PUESTO_DETALLE)
+	banqueta.ready.connect(func() -> void:
+		_detalle_lejos(banqueta, PUESTO_DETALLE)
+		sin_textos(banqueta)
+		_animar(banqueta), CONNECT_ONE_SHOT)
+	if _target == null:
+		_armar_interior(body, punto, true)
 	return body
+
+
+# Medidas de una casa-local: frente `w` y fondo `d` (minimo LOCAL_MIN), `front` (la
+# fachada), `pisos` y `alto` hasta el pretil, el cuarto (`sala` de ancho entre los
+# muros de los lados, `cuarto` de fondo) y la `puerta`, mas angosta, en medio
+static func _medidas(punto: Dictionary) -> Dictionary:
+	var w: float = maxf(punto["ancho"], LOCAL_MIN.x)
+	var d: float = maxf(punto["fondo"], LOCAL_MIN.y)
+	var pisos := clampi(int(punto.get("pisos", 1)), 1, 2)
+	var sala := minf(w - 2.0 * LOCAL_PILAR, LOCAL_SALA_MAX)
+	return {
+		"w": w, "d": d, "front": punto["fondo"] / 2.0, "pisos": pisos,
+		"alto": PLANTA_BAJA + (pisos - 1) * PISO_ALTO + PRETIL,
+		"sala": sala, "cuarto": minf(d - 0.5, LOCAL_CUARTO),
+		"puerta": clampf(sala * LOCAL_PUERTA_FRACCION, LOCAL_PUERTA.x, minf(LOCAL_PUERTA.y, sala - 0.8)),
+	}
+
+
+# Lo de adentro del local (`Detalle`): la escena del interior con su relleno, o las
+# mesas y refris de la taqueria. Solo se dibuja a menos de INTERIOR_VISTA m. Cada
+# mueble se arma al entrar al arbol (~1 ms cada uno, ~15 ms el cuarto entero), asi que
+# en el juego entran de uno por cuadro (_meter_pendiente); `de_una` los mete todos ya
+func _armar_interior(body: Node3D, punto: Dictionary, de_una := false) -> void:
+	var m := _medidas(punto)
+	var detalle := Node3D.new()
+	detalle.name = "Detalle"
+	if punto["tipo"] == "taqueria":
+		_taqueria_cuarto(detalle, punto, m["sala"], m["cuarto"], m["front"])
+	else:
+		_interior_local(detalle, GIROS_LOCAL[punto["tipo"]], m["sala"], m["cuarto"], m["front"])
+	if not de_una:
+		_sacar_muebles(detalle)
+	detalle.ready.connect(func() -> void:
+		_detalle_lejos(detalle)
+		sin_textos(detalle), CONNECT_ONE_SHOT)
+	body.add_child(detalle)
+
+
+# Saca de `nodo` los muebles (lo que se arma en _ready: Mostrador y sus hijos,
+# Refrigerador, escenas como el vendedor o la botarga) y los forma en _pendientes,
+# para dibujarse a menos de `distancia` m
+func _sacar_muebles(nodo: Node, distancia := INTERIOR_VISTA) -> void:
+	for hijo in nodo.get_children():
+		if hijo is Mostrador or hijo is Refrigerador or hijo.scene_file_path != "":
+			nodo.remove_child(hijo)
+			_pendientes.append([nodo, hijo, distancia])
+		else:
+			_sacar_muebles(hijo, distancia)
+
+
+# Mete al arbol el siguiente mueble pendiente (si su local no se quito mientras)
+func _meter_pendiente() -> void:
+	while not _pendientes.is_empty():
+		var pendiente: Array = _pendientes.pop_front()
+		var padre: Node = pendiente[0]
+		var mueble: Node = pendiente[1]
+		if is_instance_valid(padre) and padre.is_inside_tree() and not padre.is_queued_for_deletion() \
+				and not String(padre.get_path()).contains("Detalle_quitado"):
+			padre.add_child(mueble)
+			_detalle_lejos(mueble, pendiente[2])
+			sin_textos(mueble)
+			if mueble.name == "Botarga":
+				_animar(mueble)
+			return
+		mueble.free()
+
+
+# Interiores de los locales: se arma el del local mas cercano a menos de INTERIOR_CARGA
+# m (uno por vuelta, para no trabar el juego) y se quitan los que quedan a mas de
+# INTERIOR_QUITAR m. Medido en el piso: el objetivo es el Dron, que va a 30 m de alto
+# aun siguiendo al jugador; volando no se arma ninguno
+func _interiores_cerca() -> void:
+	var volando: bool = _target.has_method("volando") and _target.volando()
+	var cerca := -1
+	var mejor := INTERIOR_CARGA
+	var donde := Vector2(_target.global_position.x, _target.global_position.z)
+	for i: int in _nodes:
+		if not GIROS_LOCAL.has(_puntos[i]["tipo"]):
+			continue
+		var node: Node3D = _nodes[i]
+		var distancia := donde.distance_to(Vector2(node.global_position.x, node.global_position.z))
+		var detalle := node.get_node_or_null("Detalle")
+		if detalle and distancia > INTERIOR_QUITAR:
+			detalle.name = "Detalle_quitado"
+			detalle.queue_free()
+		elif detalle == null and distancia < mejor:
+			mejor = distancia
+			cerca = i
+	if cerca >= 0 and not volando and _pendientes.is_empty():
+		_armar_interior(_nodes[cerca], _puntos[cerca])
+
+
+# Puesto de tacos en la banqueta, como el de la taqueria: el carrito (Mostrador estilo
+# puesto, con toldo, comal, trompo y humo) con los clientes del lado de la calle (+Z)
+# y el frente en la orilla del lote, y detras el taquero viendo a la calle. Si el
+# puesto es interactivo el taquero es el `Vendedor` del marcador (para el acercamiento,
+# `punto["vendedor_atras"]`); si no, va suelto.
+func _make_puesto_tacos(punto: Dictionary) -> Node3D:
+	var front: float = punto["fondo"] / 2.0
+	var body := StaticBody3D.new()
+	body.name = "puesto_tacos_%s" % punto.get("nombre", "")
+	var puesto := Mostrador.new()
+	puesto.estilo = 5
+	puesto.parrilla_atras = true
+	puesto.ancho = PUESTO_TACOS.x
+	puesto.alto = 0.92
+	puesto.fondo = PUESTO_TACOS.y
+	puesto.color = Color(0.7, 0.1, 0.08)
+	puesto.semilla = absi(String(punto.get("nombre", "")).hash())
+	puesto.position = Vector3(0.0, 0.0, front - PUESTO_TACOS.y / 2.0)
+	body.add_child(puesto)
+	var caja := CollisionShape3D.new()
+	var forma := BoxShape3D.new()
+	forma.size = Vector3(PUESTO_TACOS.x, 1.0, PUESTO_TACOS.y)
+	caja.shape = forma
+	caja.position = puesto.position + Vector3(0.0, 0.5, 0.0)
+	body.add_child(caja)
+	# Del frente del lote al taquero (m), y de la flecha al taquero
+	var atras := PUESTO_TACOS.y + 0.55
+	punto["vendedor_atras"] = atras + MARCADOR_FRENTE
+	if vendedor_escena and not (punto.get("interactivo", false) and punto.get("aire_libre", false)):
+		var taquero := vendedor_escena.instantiate() as Node3D
+		taquero.name = "Taquero"
+		taquero.position = Vector3(0.0, 0.0, front - atras)
+		taquero.rotation.y = PI
+		taquero.ready.connect(func() -> void:
+			(taquero.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
+		body.add_child(taquero)
+	if _target:
+		_sacar_muebles(body, PUESTO_DETALLE)
+	if not Engine.is_editor_hint():
+		body.ready.connect(func() -> void:
+			_detalle_lejos(body, PUESTO_DETALLE)
+			sin_textos(body), CONNECT_ONE_SHOT)
+	return body
+
+
+# Marco de la puerta: dos jambas y el cabezal que salen un poco del muro (sin umbral)
+func _marco(body: StaticBody3D, puerta: float, z: float, color: Color) -> void:
+	var grueso := LOCAL_MURO + 2.0 * LOCAL_MARCO.y
+	for lado in [-1.0, 1.0]:
+		_local_box(body, Vector3(LOCAL_MARCO.x, VANO_ALTO + LOCAL_MARCO.x, grueso),
+			Vector3(lado * (puerta + LOCAL_MARCO.x) / 2.0, (VANO_ALTO + LOCAL_MARCO.x) / 2.0, z), color, false)
+	_local_box(body, Vector3(puerta + 2.0 * LOCAL_MARCO.x, LOCAL_MARCO.x, grueso),
+		Vector3(0.0, VANO_ALTO + LOCAL_MARCO.x / 2.0, z), color, false)
+
+
+# Sin letreros: los Label3D de los muebles (cabeceras, marcas, ofertas) se esconden.
+# Tambien lo usan los interiores (Interior.gd)
+static func sin_textos(node: Node) -> void:
+	if node is Label3D:
+		(node as Label3D).visible = false
+	for child in node.get_children(true):
+		sin_textos(child)
+
+
+# Segundo piso (casa arriba del local): muro del giro con la franja, losa que sobresale
+# y una o dos ventanas con marco de aluminio y reja
+func _piso_alto(body: StaticBody3D, w: float, sala: float, cuarto: float, front: float, alto: float, muro: Color, acento: Color) -> void:
+	_local_box(body, Vector3(sala, alto - PLANTA_BAJA, cuarto), Vector3(0.0, (PLANTA_BAJA + alto) / 2.0, front - cuarto / 2.0), muro, true)
+	_local_box(body, Vector3(w + 0.1, 0.14, 0.4), Vector3(0.0, PLANTA_BAJA, front + 0.05), Color(0.72, 0.71, 0.68), false)
+	_local_box(body, Vector3(w + 0.03, 0.12, 0.03), Vector3(0.0, alto - PRETIL - 0.1, front + 0.01), acento, false)
+	var ventanas := 2 if w >= 6.5 else 1
+	var y := PLANTA_BAJA + LETRERO_ALTO + 0.7
+	for i in ventanas:
+		var x := 0.0 if ventanas == 1 else (-1.0 if i == 0 else 1.0) * w / 4.0
+		_local_box(body, Vector3(1.5, 1.0, 0.04), Vector3(x, y, front + 0.01), Color(0.78, 0.79, 0.8), false)
+		_local_box(body, Vector3(1.4, 0.9, 0.04), Vector3(x, y, front + 0.02), Color(0.1, 0.12, 0.14), false)
+		_local_box(body, Vector3(0.04, 0.9, 0.04), Vector3(x, y, front + 0.04), Color(0.78, 0.79, 0.8), false)
+		for b in 6:
+			_local_box(body, Vector3(0.025, 1.0, 0.025), Vector3(x - 0.65 + 1.3 * b / 5.0, y, front + 0.08), NEGRO, false)
+
+
+# Letrero de bandera de farmacia: cuadro blanco con la cruz de los dos lados, de lado
+# a la calle sobre el pilar derecho
+func _cruz_bandera(body: StaticBody3D, w: float, front: float, arriba: float, color: Color) -> void:
+	var centro := Vector3(w / 2.0 - 0.2, arriba - 0.55, front + 0.55)
+	_local_box(body, Vector3(0.05, 0.05, 0.6), centro + Vector3(0.0, 0.42, -0.3), Color(0.3, 0.3, 0.32), false)
+	_local_box(body, Vector3(0.06, 0.7, 0.7), centro, LOCAL_BLANCO, false)
+	_local_box(body, Vector3(0.08, 0.5, 0.16), centro, color, false)
+	_local_box(body, Vector3(0.08, 0.16, 0.5), centro, color, false)
+
+
+# Lo que se ve por la cortina: de la escena del interior del giro (Interiores.escenas)
+# solo el mostrador, el que atiende, los muebles, los refris y el letrero, con la pared
+# de atras de la escena en el fondo del cuarto y achicados parejo si el cuarto es mas
+# angosto que la escena. Las paredes del cuarto por dentro, del color de la escena.
+func _interior_local(detalle: Node3D, info: Dictionary, sala: float, cuarto: float, front: float) -> void:
+	var escena: PackedScene = escenas_interior.get(info["interior"])
+	if escena == null:
+		return
+	var interior := escena.instantiate() as Node3D
+	var ancho_escena: float = interior.get("ancho")
+	var fondo_escena: float = interior.get("fondo")
+	var color_muro: Color = interior.get("color_muro")
+	var guardapolvo: Color = info.get("guardapolvo", interior.get("color_guardapolvo"))
+	var alto_escena: float = interior.get("alto")
+	var energia: float = interior.get("energia_luz")
+	var color_luz: Color = interior.get("color_luz")
+	var luz_mostrador: bool = interior.get("luz_mostrador")
+	var cosas := Node3D.new()
+	cosas.name = "Interior"
+	for parte in ["Mostrador", "Vendedor", "Muebles", "Refrigeradores", "Letrero"]:
+		var nodo := interior.get_node_or_null(parte)
+		if nodo:
+			_sin_dueno(nodo, interior)
+			interior.remove_child(nodo)
+			cosas.add_child(nodo)
+	interior.free()
+	_sencillo(cosas)
+	var vendedor := cosas.get_node_or_null("Vendedor")
+	if vendedor:
+		vendedor.ready.connect(func() -> void:
+			(vendedor.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
+	var escala := minf(1.0, (sala - 0.1) / ancho_escena)
+	cosas.scale = Vector3.ONE * escala
+	cosas.position = Vector3(0.0, 0.0, front - cuarto + fondo_escena * escala)
+	detalle.add_child(cosas)
+	if info.has("relleno"):
+		_relleno(detalle, cosas, RELLENO[info["relleno"]], sala, cuarto, front)
+	# Forro de las paredes por dentro: atras y a los lados, con el guardapolvo
+	var adentro := PLANTA_BAJA - 0.2
+	var forros := [[Vector3(sala, adentro, 0.02), Vector3(0.0, adentro / 2.0, front - cuarto + 0.01)]]
+	for lado in [-1.0, 1.0]:
+		forros.append([Vector3(0.02, adentro, cuarto - 0.35), Vector3(lado * (sala / 2.0 - 0.01), adentro / 2.0, front - cuarto / 2.0 - 0.15)])
+	for forro: Array in forros:
+		var size: Vector3 = forro[0]
+		var pos: Vector3 = forro[1]
+		var malla := _caja_detalle(size, pos, color_muro, true)
+		detalle.add_child(malla)
+		if guardapolvo.a > 0.0:
+			var franja := Vector3(size.x + (0.01 if size.x < 0.1 else 0.0), 1.1, size.z + (0.01 if size.z < 0.1 else 0.0))
+			detalle.add_child(_caja_detalle(franja, Vector3(pos.x, 0.55, pos.z), guardapolvo, false))
+	# Las luces de la escena (Interior._luces), sin sombra: los tubos del techo con su
+	# energia y, si la escena la trae, la del mostrador (la ferreteria no: su mostrador
+	# se ve apagado). Se ve adentro tambien de noche
+	var luces: Array = [[Vector3(0.0, alto_escena - 0.45, -fondo_escena * 0.5), energia]]
+	if luz_mostrador:
+		luces.append([Vector3(0.0, alto_escena - 0.3, -0.2), energia * 0.7])
+	for datos: Array in luces:
+		var luz := OmniLight3D.new()
+		luz.position = cosas.transform * (datos[0] as Vector3)
+		luz.omni_range = maxf(ancho_escena, fondo_escena) * 1.3
+		luz.omni_attenuation = 0.7
+		luz.light_energy = datos[1]
+		luz.light_color = color_luz
+		luz.shadow_enabled = false
+		detalle.add_child(luz)
+
+
+# Por la puerta el interior solo se ve de cerca y de pasada: la mercancia va en cajas
+# con etiqueta (sin las piezas de Comida Low Poly ni adornos chicos) y los refris con sus botellas de
+# cilindro (sin caguamas ni Jarritos), que es lo que mas mallas y nodos agregaba
+static func _sencillo(nodo: Node) -> void:
+	if nodo is Refrigerador:
+		nodo.botella_abajo = null
+		nodo.botella_arriba = null
+	elif nodo is Mostrador:
+		nodo.sencillo = true
+		nodo.con_modelos = false
+	for hijo in nodo.get_children():
+		_sencillo(hijo)
+
+
+# Llena con muebles de `catalogo` las paredes de los lados del cuarto donde no hay
+# muebles de la escena (`cosas`): mide lo que ocupa cada mueble de la escena que llega
+# a menos de RELLENO_FRANJA m de la pared y pone, en los tramos libres de la fachada
+# hacia atras, muebles de pared viendo al centro, elegidos por la semilla del cuarto.
+func _relleno(detalle: Node3D, cosas: Node3D, catalogo: Array, sala: float, cuarto: float, front: float) -> void:
+	var adelante := front - LOCAL_MURO - 0.1
+	var atras := front - cuarto + 0.05
+	var ocupado := {-1.0: [], 1.0: []}   # lado -> [(z de atras, z de adelante)]
+	for mueble in _muebles(cosas, Transform3D()):
+		var xform: Transform3D = mueble[0]
+		var medida: Vector2 = mueble[1]
+		var xs := []
+		var zs := []
+		for esquina: Vector3 in [Vector3(-1, 0, -1), Vector3(1, 0, -1), Vector3(1, 0, 1), Vector3(-1, 0, 1)]:
+			var p := cosas.transform * xform * (esquina * Vector3(medida.x / 2.0, 0.0, medida.y / 2.0))
+			xs.append(p.x)
+			zs.append(p.z)
+		for lado in [-1.0, 1.0]:
+			if (lado < 0.0 and xs.min() < -sala / 2.0 + RELLENO_FRANJA) or (lado > 0.0 and xs.max() > sala / 2.0 - RELLENO_FRANJA):
+				ocupado[lado].append(Vector2(zs.min() - 0.05, zs.max() + 0.05))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([sala, cuarto, catalogo.size()])
+	for lado in [-1.0, 1.0]:
+		# De adelante hacia atras, saltando lo ocupado
+		var z := adelante
+		while z - 0.8 > atras:
+			var choque: Vector2 = Vector2.INF
+			for tramo: Vector2 in ocupado[lado]:
+				if tramo.y > z - 0.8 and tramo.x < z:
+					choque = tramo
+			if choque != Vector2.INF:
+				z = choque.x
+				continue
+			# El mas ancho que quepa hasta el siguiente mueble de la escena
+			var libre := z - atras
+			for tramo: Vector2 in ocupado[lado]:
+				if tramo.y <= z:
+					libre = minf(libre, z - tramo.y)
+			var caben := catalogo.filter(func(m: Array) -> bool: return m[1] <= libre)
+			if caben.is_empty():
+				break
+			var elegido: Array = caben[rng.randi() % caben.size()]
+			var ancho: float = elegido[1]
+			var fondo: float = elegido[2]
+			var nodo := _mueble_relleno(elegido[0], rng.randi() % 1000)
+			nodo.position = Vector3(lado * (sala / 2.0 - fondo / 2.0 - 0.03), 0.0, z - ancho / 2.0)
+			nodo.rotation.y = -lado * PI / 2.0
+			detalle.add_child(nodo)
+			z -= ancho + 0.05
+
+
+# [transform dentro de `node`, (ancho, fondo)] de cada mueble de la escena (los que
+# tienen `ancho` y `fondo`: Mostrador, Estante, Refrigerador...), sin el vendedor
+func _muebles(node: Node, xform: Transform3D) -> Array:
+	var lista := []
+	for child in node.get_children():
+		if not child is Node3D or child.name == "Vendedor":
+			continue
+		var t := xform * (child as Node3D).transform
+		if child.get("ancho") != null and child.get("fondo") != null:
+			lista.append([t, Vector2(child.get("ancho"), child.get("fondo"))])
+		else:
+			lista += _muebles(child, t)
+	return lista
+
+
+func _mueble_relleno(tipo: String, semilla: int) -> Node3D:
+	if tipo.begins_with("refri"):
+		var refri := Refrigerador.new()
+		refri.ancho = 0.8
+		refri.fondo = 0.65
+		refri.alto = 2.0
+		refri.repisas = 5
+		refri.luz = 0.0
+		refri.semilla = semilla
+		refri.color = Color(0.6, 0.13, 0.11) if semilla % 2 == 0 else Color(0.12, 0.25, 0.6)
+		return refri
+	var estante := Estante.new()
+	estante.semilla = semilla
+	estante.sencillo = true
+	estante.fondo = 0.4
+	match tipo:
+		"papas":
+			estante.tipo = 3
+			estante.ancho = 0.8
+			estante.alto = 1.85
+			estante.fondo = 0.42
+			estante.niveles = 5
+			estante.color = Color(0.6, 0.15, 0.12)
+			estante.color_filo = Color(0.78, 0.64, 0.2)
+		"repisas_comida", "repisas_botanas":
+			estante.ancho = 1.2
+			estante.alto = 2.0
+			estante.niveles = 5
+			estante.color = Color(0.85, 0.82, 0.75)
+			estante.mercancia = 1 if tipo == "repisas_comida" else 0
+		"repisas_medicinas":
+			estante.ancho = 1.2
+			estante.alto = 2.2
+			estante.fondo = 0.38
+			estante.niveles = 6
+			estante.color = Color(0.12, 0.3, 0.75)
+			estante.color_filo = Color(0.95, 0.8, 0.1)
+			estante.mercancia = 2
+	return estante
+
+
+# Suelta `node` y sus hijos de la escena `dueno` antes de cambiarlos de padre
+func _sin_dueno(node: Node, dueno: Node) -> void:
+	if node.owner == dueno:
+		node.owner = null
+	for child in node.get_children():
+		_sin_dueno(child, dueno)
+
+
+# Una caja sin colision (forros del cuarto)
+func _caja_detalle(size: Vector3, pos: Vector3, color: Color, muro: bool) -> MeshInstance3D:
+	var box := BoxMesh.new()
+	box.size = size
+	box.material = _color_material(color, muro)
+	var malla := MeshInstance3D.new()
+	malla.mesh = box
+	malla.position = pos
+	return malla
+
+
+# Taqueria como la escena de adentro (scenes/interiores/taqueria.tscn) vista desde la
+# calle: refris rojos contra el muro izquierdo y mesas rojas con sus sillas en lo que
+# queda del cuarto (de cerca, en `Detalle`)
+func _taqueria_cuarto(muebles: Node3D, punto: Dictionary, sala: float, cuarto: float, front: float) -> void:
+	var semilla := absi(String(punto.get("nombre", "")).hash())
+	var refris := 2 if cuarto > 3.2 else 1
+	for i in refris:
+		var refri := Refrigerador.new()
+		refri.ancho = 0.8
+		refri.fondo = 0.65
+		refri.color = Color(0.6, 0.13, 0.11)
+		refri.repisas = 5
+		refri.luz = 0.0
+		refri.semilla = semilla + i
+		refri.position = Vector3(-sala / 2.0 + 0.36, 0.0, front - cuarto + 0.6 + i * 0.82)
+		refri.rotation.y = PI / 2.0
+		muebles.add_child(refri)
+	var mesas := [Vector3(0.45, 0.0, front - 1.0), Vector3(-0.35, 0.0, front - 2.4), Vector3(0.9, 0.0, front - 3.4)]
+	for i in mesas.size():
+		var pos: Vector3 = mesas[i]
+		if pos.z < front - cuarto + 0.7:
+			break
+		var mesa := Mesa.new()
+		mesa.color = TAQUERIA_MESA
+		mesa.semilla = semilla + i
+		mesa.position = pos
+		mesa.rotation.y = deg_to_rad(float((semilla + i * 7) % 11) - 5.0)
+		muebles.add_child(mesa)
+
+
+# En la banqueta de la taqueria, frente al local y un poco a la derecha, el puesto de
+# tacos (Mostrador estilo puesto, con su trompo y su humo) con los clientes del lado de
+# la calle (+Z) y el taquero entre el puesto y el local, viendo a la calle. La flecha
+# va en el lado libre de la puerta (`punto["puerta_x"]`).
+func _taqueria_puesto(body: StaticBody3D, banqueta: Node3D, punto: Dictionary, sala: float, puerta: float, front: float) -> void:
+	var semilla := absi(String(punto.get("nombre", "")).hash())
+	var puesto := Mostrador.new()
+	puesto.estilo = 5
+	puesto.parrilla_atras = true
+	puesto.ancho = minf(2.1, sala - 1.4)
+	puesto.alto = 0.92
+	puesto.fondo = 0.7
+	puesto.color = Color(0.7, 0.1, 0.08)
+	puesto.semilla = semilla
+	var puesto_x := sala / 2.0 - puesto.ancho / 2.0 - 0.1
+	puesto.position = Vector3(puesto_x, 0.0, front + TAQUERIA_PUESTO)
+	banqueta.add_child(puesto)
+	var caja := CollisionShape3D.new()
+	var forma := BoxShape3D.new()
+	forma.size = Vector3(puesto.ancho, 1.0, puesto.fondo)
+	caja.shape = forma
+	caja.position = puesto.position + Vector3(0.0, 0.5, 0.0)
+	body.add_child(caja)
+	if vendedor_escena:
+		var taquero := vendedor_escena.instantiate() as Node3D
+		taquero.name = "Taquero"
+		taquero.position = Vector3(puesto_x + 0.1, 0.0, front + TAQUERIA_PUESTO - 0.7)
+		taquero.rotation.y = PI
+		taquero.set("tint", Color(0.85, 0.8, 0.7))
+		taquero.ready.connect(func() -> void:
+			(taquero.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
+		banqueta.add_child(taquero)
+	punto["puerta_x"] = (-puerta / 2.0 + minf(puerta / 2.0, puesto_x - puesto.ancho / 2.0)) / 2.0
 
 
 # Purificadora como la foto de referencia: de izquierda a derecha puerta de barrotes
@@ -610,7 +1215,7 @@ func _make_purificadora(punto: Dictionary, solo_fachada := false) -> Node3D:
 	var nombre: String = punto.get("nombre", "")
 	var w: float = maxf(punto["ancho"], LOCAL_MIN.x)
 	var d: float = maxf(punto["fondo"], LOCAL_MIN.y)
-	var h := LOCAL_HEIGHT
+	var h := PURIFICADORA_ALTO
 	var front: float = punto["fondo"] / 2.0
 	var muro := 0.3   # grueso de la fachada; atras, el cuerpo
 	var body := StaticBody3D.new()
@@ -623,7 +1228,7 @@ func _make_purificadora(punto: Dictionary, solo_fachada := false) -> Node3D:
 	var despachador := Vector2(puerta.y, puerta.y + 0.8)
 	var ventana := Vector2(despachador.y + 0.3, minf(w / 2.0 - 0.3, despachador.y + 0.3 + 3.2))
 	var oscuro := Color(0.08, 0.08, 0.09)
-	var acento: Color = LOCALES["purificadora"]["acento"]
+	var acento := PURIFICADORA_AZUL
 	var z := front - muro / 2.0
 	# Muro: macizos a los lados de los huecos, dintel de la puerta y antepecho y dintel
 	# del ventanal
@@ -684,11 +1289,12 @@ func _make_purificadora(punto: Dictionary, solo_fachada := false) -> Node3D:
 	var vidrio := MeshInstance3D.new()
 	var plano := QuadMesh.new()
 	plano.size = Vector2(vw, 1.16)
-	var material_vidrio := StandardMaterial3D.new()
-	material_vidrio.albedo_color = Color(0.7, 0.85, 0.95, 0.18)
-	material_vidrio.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material_vidrio.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	plano.material = material_vidrio
+	if _material_vidrio == null:
+		_material_vidrio = StandardMaterial3D.new()
+		_material_vidrio.albedo_color = Color(0.7, 0.85, 0.95, 0.18)
+		_material_vidrio.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_material_vidrio.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	plano.material = _material_vidrio
 	vidrio.mesh = plano
 	vidrio.position = Vector3(vx, 1.75, front - 0.05)
 	vidrio.visibility_range_end = 80.0
@@ -697,123 +1303,26 @@ func _make_purificadora(punto: Dictionary, solo_fachada := false) -> Node3D:
 	return body
 
 
-# Taqueria como la escena de adentro (scenes/interiores/taqueria.tscn) vista desde la
-# calle: muro blanco con rodapie y franja rojos, sin letrero, la cortina enrollada sobre un vano
-# ancho y adentro el cuarto con mesas rojas con sus sillas y refris rojos; en la
-# banqueta, frente al vano y un poco a la derecha, el puesto de tacos (Mostrador estilo
-# puesto, con su trompo y su humo) y el taquero de espaldas al local. La flecha va en
-# el lado libre del vano (`punto["puerta_x"]`).
-func _make_taqueria(punto: Dictionary) -> Node3D:
-	var nombre: String = punto.get("nombre", "")
-	var w: float = maxf(punto["ancho"], LOCAL_MIN.x)
-	var d: float = maxf(punto["fondo"], LOCAL_MIN.y)
-	var h := LOCAL_HEIGHT
-	var front: float = punto["fondo"] / 2.0
-	var vano := minf(w - 1.2, 4.0)
-	var vano_alto := 2.3
-	var cuarto := minf(d - 0.5, TAQUERIA_CUARTO)
-	var pilar := (w - vano) / 2.0
-	var body := StaticBody3D.new()
-	body.name = "taqueria_%s" % nombre
-	# Lo de atras del cuarto, macizo, con el rodapie hacia adentro
-	var atras := d - cuarto
-	_fachada_tramo(body, Vector2(-w / 2.0, w / 2.0), 0.0, h, front - cuarto - atras / 2.0, atras, TAQUERIA_ROJO)
-	# Muros de los lados (pilares de la fachada a todo el fondo del cuarto), dintel y techo
-	for lado in [-1.0, 1.0]:
-		var x: float = lado * (vano + pilar) / 2.0
-		_fachada_tramo(body, Vector2(x - pilar / 2.0, x + pilar / 2.0), 0.0, h, front - cuarto / 2.0, cuarto, TAQUERIA_ROJO)
-	_local_box(body, Vector3(vano, h - vano_alto, 0.3), Vector3(0.0, (h + vano_alto) / 2.0, front - 0.15), LOCAL_BLANCO, false)
-	_local_box(body, Vector3(vano, 0.2, cuarto), Vector3(0.0, h - 0.1, front - cuarto / 2.0), Color(0.85, 0.85, 0.82), false)
-	_local_box(body, Vector3(vano, 0.02, cuarto), Vector3(0.0, 0.01, front - cuarto / 2.0), Color(0.6, 0.55, 0.5), false)
-	# Tubo de luz en el techo (sin luz de verdad) y la cortina enrollada
-	var tubo := _local_box(body, Vector3(1.2, 0.05, 0.15), Vector3(0.0, h - 0.23, front - cuarto * 0.5), Color(1.0, 1.0, 0.95), false)
-	var material_tubo := StandardMaterial3D.new()
-	material_tubo.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material_tubo.albedo_color = Color(0.95, 0.97, 1.0)
-	tubo.material_override = material_tubo
-	_local_box(body, Vector3(vano, 0.25, 0.25), Vector3(0.0, vano_alto + 0.07, front + 0.12), Color(0.55, 0.57, 0.6), false)
-
-	var muebles := Node3D.new()
-	muebles.name = "Muebles"
-	body.add_child(muebles)
-	var semilla := absi(nombre.hash())
-	# Refris rojos contra el muro izquierdo y mesas en lo que queda
-	var refris := 2 if cuarto > 3.2 else 1
-	for i in refris:
-		var refri := Refrigerador.new()
-		refri.ancho = 0.8
-		refri.fondo = 0.65
-		refri.color = Color(0.6, 0.13, 0.11)
-		refri.repisas = 5
-		refri.luz = 0.0
-		refri.semilla = semilla + i
-		refri.position = Vector3(-vano / 2.0 + 0.36, 0.0, front - cuarto + 0.6 + i * 0.82)
-		refri.rotation.y = PI / 2.0
-		muebles.add_child(refri)
-	var mesas := [Vector3(0.45, 0.0, front - 1.0), Vector3(-0.35, 0.0, front - 2.4), Vector3(0.9, 0.0, front - 3.4)]
-	for i in mesas.size():
-		var pos: Vector3 = mesas[i]
-		if pos.z < front - cuarto + 0.7:
-			break
-		var mesa := Mesa.new()
-		mesa.color = TAQUERIA_MESA
-		mesa.semilla = semilla + i
-		mesa.position = pos
-		mesa.rotation.y = deg_to_rad(float((semilla + i * 7) % 11) - 5.0)
-		muebles.add_child(mesa)
-	# El puesto en la banqueta, con los clientes del lado de la calle (+Z), y el taquero
-	# entre el puesto y el local, viendo a la calle
-	var puesto := Mostrador.new()
-	puesto.estilo = 5
-	puesto.ancho = minf(2.1, vano - 1.4)
-	puesto.alto = 0.92
-	puesto.fondo = 0.7
-	puesto.color = Color(0.7, 0.1, 0.08)
-	puesto.semilla = semilla
-	var puesto_x := vano / 2.0 - puesto.ancho / 2.0 - 0.1
-	puesto.position = Vector3(puesto_x, 0.0, front + TAQUERIA_PUESTO)
-	muebles.add_child(puesto)
-	var caja := CollisionShape3D.new()
-	var forma := BoxShape3D.new()
-	forma.size = Vector3(puesto.ancho, 1.0, puesto.fondo)
-	caja.shape = forma
-	caja.position = puesto.position + Vector3(0.0, 0.5, 0.0)
-	body.add_child(caja)
-	if vendedor_escena:
-		var taquero := vendedor_escena.instantiate() as Node3D
-		taquero.name = "Taquero"
-		taquero.position = Vector3(puesto_x + 0.1, 0.0, front + TAQUERIA_PUESTO - 0.7)
-		taquero.rotation.y = PI
-		taquero.set("tint", Color(0.85, 0.8, 0.7))
-		taquero.ready.connect(func() -> void:
-			(taquero.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
-		muebles.add_child(taquero)
-	punto["puerta_x"] = (-vano / 2.0 + puesto_x - puesto.ancho / 2.0) / 2.0
-	# Los muebles se arman al entrar al arbol: hasta entonces no tienen mallas
-	muebles.ready.connect(_detalle_lejos.bind(muebles), CONNECT_ONE_SHOT)
-	return body
-
-
-# Los muebles y el puesto de la taqueria solo de cerca (sus piezas son hijos internos)
-func _detalle_lejos(node: Node) -> void:
+# Solo de cerca (`distancia` m): sin sombras y las luces apagandose (sus piezas son hijos internos)
+func _detalle_lejos(node: Node, distancia := INTERIOR_VISTA) -> void:
 	if node is GeometryInstance3D:
-		(node as GeometryInstance3D).visibility_range_end = TAQUERIA_DETALLE
+		(node as GeometryInstance3D).visibility_range_end = distancia
 		(node as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	elif node is Light3D:
 		var luz := node as Light3D
 		luz.distance_fade_enabled = true
-		luz.distance_fade_begin = TAQUERIA_DETALLE * 0.5
-		luz.distance_fade_length = TAQUERIA_DETALLE * 0.25
+		luz.distance_fade_begin = distancia * 0.5
+		luz.distance_fade_length = distancia * 0.25
 	for child in node.get_children(true):
-		_detalle_lejos(child)
+		_detalle_lejos(child, distancia)
 
 
-# Un tramo de la fachada entre x.x y x.y, de y0 a y1: muro blanco y, donde le toquen,
-# el rodapie y la franja de `acento` (cascara apenas mas grande, como en _make_local)
-func _fachada_tramo(body: StaticBody3D, x: Vector2, y0: float, y1: float, z: float, grueso: float, acento: Color) -> void:
+# Un tramo de la fachada entre x.x y x.y, de y0 a y1: muro (blanco si no) y, donde le toquen,
+# el rodapie y la franja de `acento` (cascara apenas mas grande, como en las casas-local)
+func _fachada_tramo(body: StaticBody3D, x: Vector2, y0: float, y1: float, z: float, grueso: float, acento: Color, muro := LOCAL_BLANCO) -> void:
 	var ancho := x.y - x.x
 	var centro := (x.x + x.y) / 2.0
-	_local_box(body, Vector3(ancho, y1 - y0, grueso), Vector3(centro, (y0 + y1) / 2.0, z), LOCAL_BLANCO, true)
+	_local_box(body, Vector3(ancho, y1 - y0, grueso), Vector3(centro, (y0 + y1) / 2.0, z), muro, true)
 	for banda: Vector2 in [Vector2(0.0, RODAPIE), Vector2(RODAPIE + 0.2, RODAPIE + 0.3)]:
 		var abajo := maxf(banda.x, y0)
 		var arriba := minf(banda.y, y1)

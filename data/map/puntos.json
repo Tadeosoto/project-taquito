@@ -5,14 +5,12 @@
 		"Para tiendas pon el punto sobre el techo de la casa: esa casa se quita y la tienda ocupa su lote.",
 		"Los tipos puesto_tacos y puesto se recorren a la banqueta y no quitan casas.",
 		"Opcional: \"rotacion\" en grados (si no, la fachada ve a la calle mas cercana), \"reemplaza_casa\": false.",
-		"Tipos con caja de color: oxxo, tienda, farmacia, taqueria, tortilleria, puesto_tacos, puesto, gasolinera (otro tipo sale gris).",
+		"Tipos: oxxo, tienda (abarrotes, o licoreria si el nombre lo dice), abarrotes, licoreria, farmacia, ferreteria, purificadora, taqueria, puesto_tacos, puesto (carrito), gasolinera.",
 		"\"omitir\": lista de \"origen\" (ver resources/map/puntos_mapa.json) para quitar puntos del DENUE u OSM que esten mal.",
-		"\"cambiar_tipo\": {\"origen\": \"tipo\"} para dibujar un punto del DENUE u OSM con otro tipo (ej. una farmacia de barrio como farmacia_similares).",
+		"\"cambiar_tipo\": {\"origen\": \"tipo\"} para dibujar un punto del DENUE u OSM con otro tipo (ej. una tienda como licoreria).",
 		"Despues de editar: bash tools/map_import/build_glb.sh"
 	],
 	"omitir": [],
-	"cambiar_tipo": {
-		"denue 10910141 464111": "farmacia_similares"
-	},
+	"cambiar_tipo": {},
 	"puntos": []
 }

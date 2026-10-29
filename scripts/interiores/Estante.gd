@@ -263,7 +263,7 @@ func _canastilla(xform: Transform3D, alambre: Color, grueso: float, paso: float)
 	_carita(xform * Vector3(0, 0.025, f + 0.016), 0.018)
 	# Bolsas: chuecas y recargadas atras; enfrente se acaban primero
 	var bolsa := Vector3(0.135, minf(0.25, paso * 1.05), 0.045)
-	var papas := Mostrador.piezas("papas")
+	var papas := [] if sencillo else Mostrador.piezas("papas")
 	var ancho_bolsa := 0.145
 	if not papas.is_empty():
 		var caja: AABB = papas[0].get_aabb()
@@ -302,6 +302,8 @@ func _canastilla(xform: Transform3D, alambre: Color, grueso: float, paso: float)
 func _carita(pos: Vector3, radio: float) -> void:
 	_disco(radio * 1.15, pos, Color(0.25, 0.12, 0.08))
 	_disco(radio, pos + Vector3(0, 0, 0.002), Color(1, 1, 0.97))
+	if sencillo:
+		return
 	for signo in [-1.0, 1.0]:
 		_disco(radio * 0.22, pos + Vector3(signo * radio * 0.5, -radio * 0.1, 0.004), Color(0.9, 0.2, 0.15))
 		_disco(radio * 0.1, pos + Vector3(signo * radio * 0.3, radio * 0.3, 0.004), Color(0.15, 0.08, 0.05))

@@ -8,10 +8,7 @@
 [ext_resource type="Shader" path="res://shaders/ps1_suelo.gdshader" id="11_suelo"]
 [ext_resource type="Texture2D" uid="uid://btfh1d6mytpei" path="res://textures/map/suelo.png" id="12_suelo_tex"]
 [ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="5_puntos"]
-[ext_resource type="PackedScene" uid="uid://c1q3cmaqy0jas" path="res://models/tiendas/oxxo/oxxo.scn" id="6_oxxo"]
-[ext_resource type="PackedScene" uid="uid://dl4dng0djto2e" path="res://models/tiendas/tienda_3b/tienda_3b.scn" id="7_tienda"]
-[ext_resource type="PackedScene" uid="uid://dfr64otgywr5b" path="res://models/tiendas/farmacia_guadalajara/farmacia_guadalajara.scn" id="8_farmacia"]
-[ext_resource type="PackedScene" uid="uid://8wpebuoddyiq" path="res://models/tiendas/puesto_tacos/puesto_tacos.scn" id="9_puesto"]
+[ext_resource type="PackedScene" path="res://models/personajes/dr_simi/simi_botarga.scn" id="90_botarga"]
 [ext_resource type="PackedScene" uid="uid://b6rm74tkw20hu" path="res://models/tiendas/pemex/pemex.scn" id="13_pemex"]
 [ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="14_carrito"]
 [ext_resource type="PackedScene" uid="uid://ddpadu7v45ldh" path="res://models/props/alto/alto.scn" id="18_alto"]
@@ -36,10 +33,10 @@
 [ext_resource type="Texture2D" path="res://textures/map/malla.png" id="39_malla"]
 [ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="40_alumbrado"]
 [ext_resource type="Script" path="res://scripts/map/MapNocheDebug.gd" id="41_noche"]
-[ext_resource type="PackedScene" path="res://models/personajes/dr_simi/dr_simi.scn" id="42_similares"]
 [ext_resource type="Script" path="res://scripts/interiores/Interiores.gd" id="43_interiores"]
 [ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="45_npc"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="44_tiendita"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/licoreria.tscn" id="44_licoreria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/abarrotes.tscn" id="44_abarrotes"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="44_farmacia"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/taqueria.tscn" id="44_taqueria"]
@@ -136,43 +133,24 @@ script = ExtResource("5_puntos")
 target_path = NodePath("../Dron")
 prefabs = Dictionary[String, PackedScene]({
 "alto": ExtResource("18_alto"),
-"farmacia": ExtResource("8_farmacia"),
 "gasolinera": ExtResource("13_pemex"),
-"oxxo": ExtResource("6_oxxo"),
-"puesto": ExtResource("14_carrito"),
-"puesto_tacos": ExtResource("9_puesto"),
-"tienda": ExtResource("7_tienda"),
-"farmacia_similares": ExtResource("42_similares")
+"puesto": ExtResource("14_carrito")
 })
 prefab_rotacion = Dictionary[String, float]({
 "alto": 90.0,
-"gasolinera": -90.0,
-"puesto_tacos": 90.0,
-"tienda": -90.0
+"gasolinera": -90.0
 })
 prefab_ancho = Dictionary[String, float]({
 "alto": 0.75,
-"farmacia": 10.0,
-"farmacia_similares": 5.0,
 "gasolinera": 14.0,
-"oxxo": 14.0,
-"puesto": 2.5,
-"puesto_tacos": 3.5,
-"tienda": 11.9
+"puesto": 2.5
 })
 vendedor_escena = ExtResource("45_npc")
 vendedor_atras = Dictionary[String, float]({
-"puesto": 2.6,
-"puesto_tacos": 3.4
+"puesto": 2.6
 })
-prefab_quitar = Dictionary[String, PackedStringArray]({
-"farmacia_similares": PackedStringArray("Floor_concrete_0")
-})
-prefab_mover = Dictionary[String, Dictionary]({
-"farmacia_similares": {
-"anim": Vector3(2.6, 0, -0.2)
-}
-})
+interiores_path = NodePath("../Interiores")
+botarga = ExtResource("90_botarga")
 
 [node name="Casas" type="Node3D" parent="."]
 script = ExtResource("19_casas")
@@ -308,6 +286,7 @@ escenas = Dictionary[String, PackedScene]({
 "farmacia": ExtResource("44_farmacia"),
 "ferreteria": ExtResource("44_ferreteria"),
 "gasolinera": ExtResource("44_tiendita"),
+"licoreria": ExtResource("44_licoreria"),
 "oxxo": ExtResource("44_tiendita"),
 "punto": ExtResource("44_punto"),
 "purificadora": ExtResource("44_purificadora"),

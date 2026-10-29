@@ -7,15 +7,12 @@
 [ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="p_script"]
 [ext_resource type="Script" path="res://scripts/interiores/Mostrador.gd" id="4_mostrador"]
 [ext_resource type="Script" path="res://scripts/interiores/Estante.gd" id="4_estante"]
-[ext_resource type="PackedScene" path="res://models/aguamala.glb" id="6_caguama"]
 [ext_resource type="PackedScene" path="res://models/objetos/jarritos/jarritos.scn" id="6_jarritos"]
 [ext_resource type="Resource" path="res://resources/productos/gansito.tres" id="p_gansito"]
 [ext_resource type="Resource" path="res://resources/productos/takis.tres" id="p_takis"]
 [ext_resource type="Resource" path="res://resources/productos/jarritos.tres" id="p_jarritos"]
 [ext_resource type="Resource" path="res://resources/productos/mazapan.tres" id="p_mazapan"]
-[ext_resource type="Resource" path="res://resources/productos/cloralex.tres" id="p_cloralex"]
 [ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="p_galon_agua"]
-[ext_resource type="Resource" path="res://resources/productos/caguama.tres" id="p_caguama"]
 
 [node name="Abarrotes" type="Node3D"]
 script = ExtResource("1_interior")
@@ -27,7 +24,7 @@ color_muro = Color(0.86, 0.84, 0.79, 1)
 color_guardapolvo = Color(0.62, 0.12, 0.1, 1)
 energia_luz = 0.7
 color_piso = Color(0.62, 0.42, 0.3, 1)
-productos = Array[ExtResource("p_script")]([ExtResource("p_gansito"), ExtResource("p_takis"), ExtResource("p_jarritos"), ExtResource("p_mazapan"), ExtResource("p_cloralex"), ExtResource("p_galon_agua"), ExtResource("p_caguama")])
+productos = Array[ExtResource("p_script")]([ExtResource("p_gansito"), ExtResource("p_takis"), ExtResource("p_jarritos"), ExtResource("p_mazapan"), ExtResource("p_galon_agua")])
 
 [node name="Camara" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.99957, 0.0294, 0, -0.0294, 0.99957, 0, 1.35, 4)
@@ -75,7 +72,6 @@ fondo = 0.65
 color = Color(0.6, 0.13, 0.11, 1)
 luz = 0.35
 repisas = 5
-botella_abajo = ExtResource("6_caguama")
 botella_arriba = ExtResource("6_jarritos")
 sabores = PackedColorArray(0.25, 0.75, 0.15, 1, 1, 0.5, 0.05, 1, 0.9, 0.1, 0.15, 1, 1, 0.85, 0.1, 1)
 
@@ -89,7 +85,6 @@ color = Color(0.6, 0.13, 0.11, 1)
 luz = 0.35
 repisas = 5
 semilla = 1
-botella_abajo = ExtResource("6_caguama")
 botella_arriba = ExtResource("6_jarritos")
 sabores = PackedColorArray(0.25, 0.75, 0.15, 1, 1, 0.5, 0.05, 1, 0.9, 0.1, 0.15, 1, 1, 0.85, 0.1, 1)
 

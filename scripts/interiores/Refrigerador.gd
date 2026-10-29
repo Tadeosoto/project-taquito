@@ -97,6 +97,13 @@ static var _mallas := {}
 var _partes: Node3D
 
 
+# Materiales StandardMaterial3D compartidos: Godot libera el shader de una combinacion
+# cuando ya nadie la usa y el siguiente que la pide lo recompila en el hilo principal
+# (20-40 ms al armar un refri despues de que se quito el interior de otro local)
+static var _vidrio_puerta: StandardMaterial3D
+static var _botella: CylinderMesh
+
+
 func _ready() -> void:
 	_reconstruir()
 
@@ -151,10 +158,12 @@ func _reconstruir() -> void:
 		_partes.add_child(foco)
 	# Puertas: marco ancho del color del cuerpo, vidrio, tira de luz junto a la bisagra
 	# y manija de tubo cromado del otro lado
-	var vidrio := StandardMaterial3D.new()
-	vidrio.albedo_color = Color(0.75, 0.9, 1.0, 0.07)
-	vidrio.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	vidrio.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	if _vidrio_puerta == null:
+		_vidrio_puerta = StandardMaterial3D.new()
+		_vidrio_puerta.albedo_color = Color(0.75, 0.9, 1.0, 0.07)
+		_vidrio_puerta.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_vidrio_puerta.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	var vidrio := _vidrio_puerta
 	var marco := _ps1(color.darkened(0.15))
 	var cromo := _ps1(Color(0.72, 0.74, 0.78))
 	var puerta_ancho := ancho / puertas
@@ -456,16 +465,18 @@ static func _textura(material: Material) -> Texture2D:
 func _botellas(alturas: Array, separacion: float) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash([semilla, ancho, puertas])
-	var botella := CylinderMesh.new()
-	botella.top_radius = BOTELLA_RADIO * 0.55
-	botella.bottom_radius = BOTELLA_RADIO
-	botella.height = 1.0
-	botella.radial_segments = 6
-	botella.rings = 1
-	var material := StandardMaterial3D.new()
-	material.vertex_color_use_as_albedo = true
-	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	botella.material = material
+	if _botella == null:
+		_botella = CylinderMesh.new()
+		_botella.top_radius = BOTELLA_RADIO * 0.55
+		_botella.bottom_radius = BOTELLA_RADIO
+		_botella.height = 1.0
+		_botella.radial_segments = 6
+		_botella.rings = 1
+		var material := StandardMaterial3D.new()
+		material.vertex_color_use_as_albedo = true
+		material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		_botella.material = material
+	var botella := _botella
 	var columnas := int((ancho - 0.12) / BOTELLA_PASO)
 	var transformes := []
 	var colores := []

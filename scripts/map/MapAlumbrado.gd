@@ -10,6 +10,7 @@ extends Node3D
 # luz real (un grupo fijo de OmniLight3D sin sombras que se van reasignando). Volando
 # en dron no hay luces reales.
 
+const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 const SHADER := preload("res://shaders/ps1_lampara.gdshader")
 const HALO_SHADER := preload("res://shaders/ps1_lampara_halo.gdshader")
 
@@ -35,6 +36,7 @@ const FIERRO := Color(0.34, 0.35, 0.36)
 
 var _celdas := {}          # Vector2i -> [poste, ...]
 var _nodos := {}           # Vector2i -> Node3D
+var _por_crear := []       # celdas que faltan armar, la mas cercana primero
 var _lamparas := {}        # Vector2i -> [{pos, color, semilla, umbral, parpadea}]
 var _mallas := {}          # "alto/brazo/doble" -> [malla del poste, malla de las micas]
 var _material: ShaderMaterial
@@ -81,6 +83,7 @@ func _ready() -> void:
 	_target = get_node_or_null(target_path) as Node3D
 	_jugador = get_node_or_null(jugador_path) as Node3D
 	_update_nearby()
+	_crear_pendientes(true)
 
 
 func _process(delta: float) -> void:
@@ -90,6 +93,7 @@ func _process(delta: float) -> void:
 	if _timer <= 0.0:
 		_timer = 0.5
 		_update_nearby()
+	_crear_pendientes()
 	_timer_luces -= delta
 	if _timer_luces <= 0.0:
 		_timer_luces = 0.25
@@ -105,18 +109,32 @@ func _process(delta: float) -> void:
 		_pool[i].visible = energia > 0.01
 
 
+# Arma celdas encoladas hasta gastar el presupuesto del cuadro (CargaCuadro; todas con `de_una`)
+func _crear_pendientes(de_una := false) -> void:
+	while not _por_crear.is_empty() and (de_una or CargaCuadro.hay()):
+		var inicio := Time.get_ticks_usec()
+		var key: Vector2i = _por_crear.pop_front()
+		if _nodos.has(key):
+			continue
+		_crear_celda(key)
+		CargaCuadro.gastar(inicio)
+
+
 func _update_nearby() -> void:
 	var p := _target.global_position if _target else Vector3.ZERO
+	var nuevas := []
 	for key: Vector2i in _celdas:
 		var dx := maxf(maxf(key.x * CELDA - p.x, p.x - (key.x + 1) * CELDA), 0.0)
 		var dz := maxf(maxf(key.y * CELDA - p.z, p.z - (key.y + 1) * CELDA), 0.0)
 		var distance := Vector2(dx, dz).length()
 		if distance < load_radius and not _nodos.has(key):
-			_crear_celda(key)
+			nuevas.append([distance, key])
 		elif distance > unload_radius and _nodos.has(key):
 			_nodos[key].queue_free()
 			_nodos.erase(key)
 			_lamparas.erase(key)
+	nuevas.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	_por_crear = nuevas.map(func(n: Array) -> Vector2i: return n[1])
 
 
 # Las lamparas prendidas mas cercanas al jugador se quedan con las luces del grupo;

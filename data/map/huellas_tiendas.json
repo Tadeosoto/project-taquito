@@ -4,11 +4,12 @@
 		6.0
 	],
 	"_locales": [
-		"taqueria",
-		"tortilleria",
 		"abarrotes",
-		"farmacia_local",
+		"licoreria",
+		"farmacia",
 		"ferreteria",
+		"oxxo",
+		"taqueria",
 		"purificadora"
 	],
 	"_nota": "Generado por tools/map_import/huellas_tiendas.gd: [frente, fondo] en metros",
@@ -51,33 +52,13 @@
 			0.75,
 			0.04
 		],
-		"farmacia": [
-			10.0,
-			14.72
-		],
-		"farmacia_similares": [
-			5.0,
-			6.35
-		],
 		"gasolinera": [
 			14.0,
 			31.97
 		],
-		"oxxo": [
-			14.0,
-			10.5
-		],
 		"puesto": [
 			2.5,
 			0.92
-		],
-		"puesto_tacos": [
-			3.5,
-			3.5
-		],
-		"tienda": [
-			11.9,
-			16.4
 		]
 	}
 }

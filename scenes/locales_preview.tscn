@@ -1,0 +1,215 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="1_dither"]
+[ext_resource type="PackedScene" uid="uid://c1q3cmaqy0jas" path="res://models/tiendas/oxxo/oxxo.scn" id="6_oxxo"]
+[ext_resource type="PackedScene" uid="uid://dl4dng0djto2e" path="res://models/tiendas/tienda_3b/tienda_3b.scn" id="7_tienda"]
+[ext_resource type="PackedScene" uid="uid://dfr64otgywr5b" path="res://models/tiendas/farmacia_guadalajara/farmacia_guadalajara.scn" id="8_farmacia"]
+[ext_resource type="PackedScene" uid="uid://8wpebuoddyiq" path="res://models/tiendas/puesto_tacos/puesto_tacos.scn" id="9_puesto"]
+[ext_resource type="PackedScene" uid="uid://b6rm74tkw20hu" path="res://models/tiendas/pemex/pemex.scn" id="13_pemex"]
+[ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="14_carrito"]
+[ext_resource type="PackedScene" uid="uid://ddpadu7v45ldh" path="res://models/props/alto/alto.scn" id="18_alto"]
+[ext_resource type="PackedScene" uid="uid://cisd7p02ivmq6" path="res://models/casas/urbi/urbi.scn" id="20_urbi"]
+[ext_resource type="PackedScene" uid="uid://d0pc87cvokfbg" path="res://models/casas/semi_residencial/semi_residencial.scn" id="21_semi"]
+[ext_resource type="PackedScene" uid="uid://cbu7jib7dl70o" path="res://models/casas/mexican_house_3/mexican_house_3.scn" id="23_mexican3"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="45_npc"]
+[ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="5_puntos"]
+[ext_resource type="Script" path="res://scripts/map/MapCasas.gd" id="19_casas"]
+[ext_resource type="Script" path="res://scripts/map/MapNocheDebug.gd" id="41_noche"]
+[ext_resource type="PackedScene" path="res://models/personajes/dr_simi/dr_simi.scn" id="42_similares"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="44_tiendita"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/licoreria.tscn" id="44_licoreria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/abarrotes.tscn" id="44_abarrotes"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="44_farmacia"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/taqueria.tscn" id="44_taqueria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="44_ferreteria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="44_purificadora"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="44_punto"]
+[ext_resource type="Script" path="res://scripts/map/LocalesPreview.gd" id="91_preview"]
+[ext_resource type="Script" path="res://scripts/map/LocalesPreviewEscenas.gd" id="92_escenas"]
+[ext_resource type="PackedScene" path="res://models/personajes/dr_simi/simi_botarga.scn" id="90_botarga"]
+
+[sub_resource type="Environment" id="Environment_mapa"]
+background_mode = 1
+background_color = Color(0.30240002, 0.31872, 0.36, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.62, 0.66, 0.72, 1)
+ambient_light_energy = 0.7
+fog_enabled = true
+fog_light_color = Color(0.54521054, 0.5537622, 0.53505677, 1)
+fog_sun_scatter = 0.1
+fog_density = 0.0196
+adjustment_enabled = true
+adjustment_contrast = 1.1
+adjustment_saturation = 1.35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
+shader = ExtResource("1_dither")
+shader_parameter/color_levels = 32.0
+shader_parameter/dither_strenght = 0.35
+shader_parameter/desaturacion = 0.4
+shader_parameter/tinte = Color(1.0, 0.97, 0.84, 1)
+shader_parameter/contraste = 1.1
+shader_parameter/vineta = 0.3
+
+[node name="LocalesPreview" type="Node3D"]
+script = ExtResource("91_preview")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_mapa")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.3326426, 0.8513836, -0.40557972, -0.70441604, 0.061628435, 0.7071068, 0.6270144, 0.52091074, 0.579228, 0, 40, 0)
+light_color = Color(0.9282061, 0.8841801, 0.82615525, 1)
+light_energy = 1.15
+light_indirect_energy = 0.0
+light_specular = 0.2
+shadow_enabled = true
+shadow_reverse_cull_face = true
+shadow_opacity = 0.86
+shadow_blur = 0.0
+directional_shadow_max_distance = 80.0
+
+[node name="PS1_Postprocess" type="CanvasLayer" parent="."]
+
+[node name="Dither" type="ColorRect" parent="PS1_Postprocess"]
+material = SubResource("ShaderMaterial_dither")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NocheDebug" type="Node" parent="."]
+script = ExtResource("41_noche")
+sol_path = NodePath("../DirectionalLight3D")
+environment_path = NodePath("../WorldEnvironment")
+
+[node name="Casas" type="Node3D" parent="."]
+script = ExtResource("19_casas")
+casas_path = "user://casas_preview.json"
+modelos = Dictionary[String, PackedScene]({
+"mexican_house_3": ExtResource("23_mexican3"),
+"semi_residencial": ExtResource("21_semi"),
+"urbi_1p_a": ExtResource("20_urbi"),
+"urbi_1p_b": ExtResource("20_urbi"),
+"urbi_1p_c": ExtResource("20_urbi"),
+"urbi_2p_a": ExtResource("20_urbi"),
+"urbi_2p_b": ExtResource("20_urbi"),
+"urbi_2p_c": ExtResource("20_urbi")
+})
+modelo_rango_x = Dictionary[String, Vector2]({
+"urbi_1p_a": Vector2(-22.3, -14.75),
+"urbi_1p_b": Vector2(-14.75, -7.75),
+"urbi_1p_c": Vector2(-7.75, -0.25),
+"urbi_2p_a": Vector2(-0.25, 7),
+"urbi_2p_b": Vector2(7, 14.5),
+"urbi_2p_c": Vector2(14.5, 22.7)
+})
+nucleo = Dictionary[String, float]({
+"urbi_1p_a": 0.62,
+"urbi_1p_b": 0.62,
+"urbi_1p_c": 0.62,
+"urbi_2p_a": 0.72,
+"urbi_2p_b": 0.72,
+"urbi_2p_c": 0.72
+})
+modelo_escala = Dictionary[String, float]({
+"mexican_house_3": 1.5
+})
+modelo_rotacion = Dictionary[String, float]({
+"urbi_1p_a": 180.0,
+"urbi_1p_b": 180.0,
+"urbi_1p_c": 180.0,
+"urbi_2p_a": 180.0,
+"urbi_2p_b": 180.0,
+"urbi_2p_c": 180.0
+})
+muro_key = Dictionary[String, Color]({
+"mexican_house_3": Color(0.89, 0.52, 0.51, 1),
+"semi_residencial": Color(0.87, 0.865, 0.86, 1),
+"urbi_1p_a": Color(0.88, 0.88, 0.86, 1),
+"urbi_1p_b": Color(0.88, 0.88, 0.86, 1),
+"urbi_1p_c": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_a": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_b": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_c": Color(0.88, 0.88, 0.86, 1)
+})
+muro_tol = Dictionary[String, float]({
+"mexican_house_3": 0.3
+})
+ventanas_uv = Dictionary[String, PackedVector4Array]({
+"semi_residencial": PackedVector4Array(0.255, 0.27, 0.345, 0.42, 0.37, 0.24, 0.48, 0.44, 0.37, 0.82, 0.47, 0.98, 0.495, 0.49, 0.735, 0.98, 0.75, 0.5, 0.98, 0.98),
+"urbi_1p_a": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_1p_b": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_1p_c": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_a": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_b": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_c": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64)
+})
+quitar_piso = Array[String](["mexican_house_3", "urbi_1p_a", "urbi_1p_b", "urbi_1p_c", "urbi_2p_a", "urbi_2p_b", "urbi_2p_c"])
+generar_lods = Array[String](["mexican_house_3", "urbi_1p_a", "urbi_1p_b", "urbi_1p_c", "urbi_2p_a", "urbi_2p_b", "urbi_2p_c"])
+modelo_reducir = Dictionary[String, float]({
+"mexican_house_3": 0.12
+})
+
+[node name="Puntos" type="Node3D" parent="."]
+script = ExtResource("5_puntos")
+puntos_path = "user://puntos_preview.json"
+interiores_path = NodePath("../Interiores")
+botarga = ExtResource("90_botarga")
+prefabs = Dictionary[String, PackedScene]({
+"alto": ExtResource("18_alto"),
+"farmacia": ExtResource("8_farmacia"),
+"gasolinera": ExtResource("13_pemex"),
+"oxxo": ExtResource("6_oxxo"),
+"puesto": ExtResource("14_carrito"),
+"puesto_tacos": ExtResource("9_puesto"),
+"tienda": ExtResource("7_tienda"),
+"farmacia_similares": ExtResource("42_similares")
+})
+prefab_rotacion = Dictionary[String, float]({
+"alto": 90.0,
+"gasolinera": -90.0,
+"puesto_tacos": 90.0,
+"tienda": -90.0
+})
+prefab_ancho = Dictionary[String, float]({
+"alto": 0.75,
+"farmacia": 10.0,
+"farmacia_similares": 5.0,
+"gasolinera": 14.0,
+"oxxo": 14.0,
+"puesto": 2.5,
+"puesto_tacos": 3.5,
+"tienda": 11.9
+})
+vendedor_escena = ExtResource("45_npc")
+vendedor_atras = Dictionary[String, float]({
+"puesto": 2.6,
+"puesto_tacos": 3.4
+})
+prefab_quitar = Dictionary[String, PackedStringArray]({
+"farmacia_similares": PackedStringArray("Floor_concrete_0")
+})
+prefab_mover = Dictionary[String, Dictionary]({
+"farmacia_similares": {
+"anim": Vector3(2.6, 0, -0.2)
+}
+})
+
+
+[node name="Interiores" type="Node" parent="."]
+script = ExtResource("92_escenas")
+escenas = Dictionary[String, PackedScene]({
+"abarrotes": ExtResource("44_abarrotes"),
+"farmacia": ExtResource("44_farmacia"),
+"ferreteria": ExtResource("44_ferreteria"),
+"gasolinera": ExtResource("44_tiendita"),
+"licoreria": ExtResource("44_licoreria"),
+"oxxo": ExtResource("44_tiendita"),
+"punto": ExtResource("44_punto"),
+"purificadora": ExtResource("44_purificadora"),
+"taqueria": ExtResource("44_taqueria")
+})
+

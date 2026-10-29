@@ -9,6 +9,7 @@ extends Node3D
 # shaders/ps1_casa.gdshader) mas un cuerpo con una caja de colision por casa.
 # Las celdas se crean y se quitan segun la distancia a target_path, como MapPuntos.
 
+const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 const CASA_SHADER := preload("res://shaders/ps1_casa.gdshader")
 
 const CELDA := 64.0
@@ -80,6 +81,7 @@ const GRAFITI_ALTO := Vector2(0.35, 2.1)
 
 var _celdas := {}          # Vector2i -> Array de casas (Dictionary)
 var _nodos := {}           # Vector2i -> Node3D
+var _por_crear := []       # celdas que faltan armar, la mas cercana primero
 var _mallas := {}          # modelo -> {mesh, aabb, lod}
 var _barda_mesh: BoxMesh
 var _target: Node3D
@@ -120,6 +122,7 @@ func _ready() -> void:
 	Calcomanias.cargar()
 	_target = get_node_or_null(target_path) as Node3D
 	_update_nearby()
+	_crear_pendientes(true)
 
 
 func _process(delta: float) -> void:
@@ -129,9 +132,25 @@ func _process(delta: float) -> void:
 	if _timer <= 0.0:
 		_timer = 0.5
 		_update_nearby()
+	_crear_pendientes()
+
+
+# Arma celdas encoladas hasta gastar el presupuesto del cuadro (CargaCuadro; todas con `de_una`)
+func _crear_pendientes(de_una := false) -> void:
+	while not _por_crear.is_empty() and (de_una or CargaCuadro.hay()):
+		var inicio := Time.get_ticks_usec()
+		var key: Vector2i = _por_crear.pop_front()
+		if _nodos.has(key):
+			continue
+		var node := _crear_celda(_celdas[key])
+		node.name = "celda_%d_%d" % [key.x, key.y]
+		add_child(node)
+		_nodos[key] = node
+		CargaCuadro.gastar(inicio)
 
 
 func _update_nearby() -> void:
+	var nuevas := []
 	for key: Vector2i in _celdas:
 		var distance := 0.0
 		if _target:
@@ -140,13 +159,12 @@ func _update_nearby() -> void:
 			var dz := maxf(maxf(key.y * CELDA - p.z, p.z - (key.y + 1) * CELDA), 0.0)
 			distance = Vector2(dx, dz).length()
 		if distance < load_radius and not _nodos.has(key):
-			var node := _crear_celda(_celdas[key])
-			node.name = "celda_%d_%d" % [key.x, key.y]
-			add_child(node)
-			_nodos[key] = node
+			nuevas.append([distance, key])
 		elif distance > unload_radius and _nodos.has(key):
 			_nodos[key].queue_free()
 			_nodos.erase(key)
+	nuevas.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	_por_crear = nuevas.map(func(n: Array) -> Vector2i: return n[1])
 
 
 func _crear_celda(casas: Array) -> Node3D:

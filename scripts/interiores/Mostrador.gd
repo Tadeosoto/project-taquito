@@ -87,6 +87,9 @@ static var _piezas := {}
 	set(valor):
 		con_modelos = valor
 		_reconstruir()
+# Visto de lejos (por la puerta de un local del mapa): sin piezas de comida ni
+# adornos chicos, como la carita de la rejilla
+var sencillo := false
 # Con `con_modelos`: categorias de piezas que lleva (Mostrador.piezas); vacio = las
 # de su `mercancia` (PIEZAS_DE) o, en el anaquel, dulces, papitas y galletas
 @export var categorias := PackedStringArray():
@@ -108,6 +111,13 @@ static var _piezas := {}
 	set(valor):
 		caja_orilla = valor
 		_reconstruir()
+# Puesto: la parrilla del trompo va del lado del taquero (-Z) y la carne se ve desde
+# la calle (los puestos del mapa); si no, hacia el cliente (la escena de la taqueria,
+# que ve el puesto desde atras)
+@export var parrilla_atras := false:
+	set(valor):
+		parrilla_atras = valor
+		_reconstruir()
 
 var _partes: Node3D
 var _rng := RandomNumberGenerator.new()
@@ -116,6 +126,7 @@ var _modelos := {}
 # Empaques sueltos (posicion, tamano, color[, etiqueta del atlas[, giro]]): al final
 # van en un solo MultiMesh. Etiqueta -1 = color liso (alambres, herramientas)
 var _empaques: Array = []
+static var _vidrios := {}   # apagado -> StandardMaterial3D
 
 
 func _ready() -> void:
@@ -272,13 +283,14 @@ func _cajonera() -> void:
 	var filo := _ps1(Color(0.25, 0.6, 0.6))
 	var marco := _ps1(Color(0.82, 0.84, 0.86))
 	_caja(Vector3(ancho, 0.08, fondo), Vector3(0, 0.04, 0), _ps1(Color(0.3, 0.3, 0.32)))
-	_caja(Vector3(ancho, alto - 0.08, 0.02), Vector3(0, alto / 2, -z + 0.01), _plano(Color(0.75, 0.78, 0.8)))
+	# Sin luz propia: el fondo y el vidrio se ven con la luz del cuarto
+	_caja(Vector3(ancho, alto - 0.08, 0.02), Vector3(0, alto / 2, -z + 0.01), _ps1(Color(0.62, 0.64, 0.66)))
 	for signo in [-1.0, 1.0]:
 		_caja(Vector3(0.03, alto, fondo), Vector3(signo * (ancho / 2 - 0.015), alto / 2, 0), marco)
 	var columnas := maxi(2, int(ancho / 0.24))
 	var filas := maxi(2, int((alto - 0.15) / 0.24))
 	var celda := Vector2((ancho - 0.06) / columnas, (alto - 0.14) / filas)
-	var caja_blanca := _ps1(Color(0.92, 0.92, 0.9))
+	var caja_blanca := _ps1(Color(0.7, 0.7, 0.68))
 	for f in filas:
 		var y := 0.09 + celda.y * f
 		_caja(Vector3(ancho - 0.06, 0.012, fondo - 0.04), Vector3(0, y, 0), marco)
@@ -294,7 +306,7 @@ func _cajonera() -> void:
 				var tinte: Color = Color(0.6, 0.6, 0.62) if _rng.randf() < 0.5 else EMPAQUES[_rng.randi() % EMPAQUES.size()]
 				_empaques.append([Vector3(x, y + 0.012 + tam.y * 0.18, 0.0), Vector3(tam.x - 0.02, tam.y * 0.35, tam.z - 0.03), tinte])
 	# Cubierta y frente de vidrio con su filo
-	var vidrio := _vidrio()
+	var vidrio := _vidrio(true)
 	_caja(Vector3(ancho - 0.04, alto - 0.12, 0.01), Vector3(0, alto / 2 + 0.02, z - 0.005), vidrio)
 	_caja(Vector3(ancho, 0.015, fondo), Vector3(0, alto - 0.0075, 0), vidrio)
 	_caja(Vector3(ancho + 0.01, 0.03, 0.03), Vector3(0, alto - 0.015, z - 0.015), filo)
@@ -339,9 +351,11 @@ func _puesto() -> void:
 	_cilindro(0.06, 0.05, 0.04, tabla + Vector3(-0.1, 0.03, 0), _ps1(Color(0.92, 0.92, 0.88)))
 	_cilindro(0.06, 0.05, 0.04, tabla + Vector3(0.06, 0.03, 0), _ps1(Color(0.25, 0.5, 0.18)))
 	_cilindro(0.1, 0.1, 0.06, Vector3(0.05, alto + 0.03, z - 0.17), _ps1(Color(0.92, 0.85, 0.6)))
-	# Trompo a la derecha, con la parrilla hacia el cliente
+	# Trompo a la derecha, con la parrilla hacia el cliente o hacia el taquero
 	var trompo := Trompo.new()
 	trompo.position = Vector3(ancho * 0.3, alto, 0.0)
+	if parrilla_atras:
+		trompo.rotation.y = PI
 	trompo.semilla = semilla
 	_partes.add_child(trompo)
 	# Toldo: postes en las esquinas, lona y faldones
@@ -585,9 +599,14 @@ func _plano(tinte: Color) -> ShaderMaterial:
 	return material
 
 
-func _vidrio() -> StandardMaterial3D:
-	var vidrio := StandardMaterial3D.new()
-	vidrio.albedo_color = Color(0.75, 0.9, 1.0, 0.14)
-	vidrio.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	vidrio.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	return vidrio
+# `apagado`: el vidrio recibe la luz del cuarto en vez de brillar solo (la vitrina sin
+# luz de la ferreteria)
+# Compartido (Refrigerador.gd explica por que)
+func _vidrio(apagado := false) -> StandardMaterial3D:
+	if not _vidrios.has(apagado):
+		var vidrio := StandardMaterial3D.new()
+		vidrio.albedo_color = Color(0.75, 0.9, 1.0, 0.14)
+		vidrio.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		vidrio.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL if apagado else BaseMaterial3D.SHADING_MODE_UNSHADED
+		_vidrios[apagado] = vidrio
+	return _vidrios[apagado]

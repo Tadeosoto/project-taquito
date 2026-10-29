@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="1_tiendita"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="p_script"]
+[ext_resource type="Resource" path="res://resources/productos/caguama.tres" id="p_caguama"]
+[ext_resource type="Resource" path="res://resources/productos/cigarros.tres" id="p_cigarros"]
+
+[node name="Licoreria" instance=ExtResource("1_tiendita")]
+productos = Array[ExtResource("p_script")]([ExtResource("p_caguama"), ExtResource("p_cigarros")])
+precio_factor = 1.0

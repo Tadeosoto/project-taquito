@@ -6,6 +6,7 @@ extends Node3D
 # hasta `radio` m del jugador y se quitan al alejarse. Cada celda siempre sale
 # igual (la semilla es la celda). Volando en dron no se dibujan.
 
+const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 const PASTO_SHADER := preload("res://shaders/ps1_pasto.gdshader")
 const MATA_TEXTURA := preload("res://textures/map/mata_pasto.png")
 
@@ -70,14 +71,26 @@ func _process(delta: float) -> void:
 	var p := _target.global_position
 	var centro := Vector2i(floori(p.x / CELDA), floori(p.z / CELDA))
 	var n := ceili(radio / CELDA)
+	var nuevas := []
 	for dz in range(-n, n + 1):
 		for dx in range(-n, n + 1):
 			var key := centro + Vector2i(dx, dz)
-			if not _nodos.has(key) and _distancia(key, p) < radio:
-				var node := _crear_celda(key)
-				if node:
-					add_child(node)
-				_nodos[key] = node
+			var distancia := _distancia(key, p)
+			if not _nodos.has(key) and distancia < radio:
+				nuevas.append([distancia, key])
+	# Al aterrizar entran ~25 celdas a la vez: de la mas cercana a la mas lejana y
+	# dentro del presupuesto del cuadro (CargaCuadro); las demas, en el siguiente
+	nuevas.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	for nueva: Array in nuevas:
+		if not CargaCuadro.hay():
+			_timer = 0.0
+			break
+		var inicio := Time.get_ticks_usec()
+		var node := _crear_celda(nueva[1])
+		if node:
+			add_child(node)
+		_nodos[nueva[1]] = node
+		CargaCuadro.gastar(inicio)
 	for key: Vector2i in _nodos.keys():
 		if _distancia(key, p) > radio + CELDA:
 			if _nodos[key]:
