@@ -236,3 +236,7 @@ SKETCHFAB_TOKEN=xxxx python3 -I tools/map_import/fetch_sketchfab.py
 ## Licencias
 
 Datos de OpenStreetMap (ODbL), Google Open Buildings (CC BY 4.0) e INEGI DENUE; OSM2World (MIT), texturas de Poly Haven (CC0) y modelos de Sketchfab (CC BY). Los autores de cada modelo están en [`CREDITS.md`](../../CREDITS.md).
+
+## Detalle técnico
+
+Cómo funciona cada sistema por dentro y por qué se decidió así: [`tecnico.md`](tecnico.md).
