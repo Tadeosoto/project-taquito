@@ -90,10 +90,10 @@ text = "Una cerveza barata que dice contener agua de manantial local. Restaura a
 
 [node name="InspecHint" type="Label" parent="MainPanel" unique_id=1302680916]
 layout_mode = 0
-offset_left = 122.0
-offset_top = 310.0
-offset_right = 374.0
-offset_bottom = 343.0
+offset_left = 192.34
+offset_top = 208.0
+offset_right = 374.3399
+offset_bottom = 231.0
 
 [node name="CombineHint" type="Label" parent="MainPanel" unique_id=654539869]
 layout_mode = 0
@@ -148,9 +148,11 @@ box_width = 180.0
 box_height = 230.0
 
 [node name="Rect" type="BackBufferCopy" parent="." unique_id=328297110]
+visible = false
 copy_mode = 2
 
 [node name="DitherFilter" type="ColorRect" parent="." unique_id=2104997594]
+visible = false
 material = SubResource("ShaderMaterial_5tlb1")
 anchors_preset = 15
 anchor_right = 1.0

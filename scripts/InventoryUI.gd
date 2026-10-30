@@ -313,6 +313,6 @@ func update_hint() -> void:
 		inspect_button.text = "Regresar: [Esc]"
 		inspect_button.disabled = false
 	else:
-		inspect_hint_label.text = "Q: Anterior                                                         E: Siguiente"
+		inspect_hint_label.text = "◀                                                         ▶"
 		inspect_button.text = "Examinar [Enter]"
 		inspect_button.disabled = not is_instance_valid(current_model)
