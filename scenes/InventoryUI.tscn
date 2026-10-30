@@ -90,10 +90,10 @@ text = "Una cerveza barata que dice contener agua de manantial local. Restaura a
 
 [node name="InspecHint" type="Label" parent="MainPanel" unique_id=1302680916]
 layout_mode = 0
-offset_left = 192.34
-offset_top = 208.0
-offset_right = 374.3399
-offset_bottom = 231.0
+offset_left = 190.0
+offset_top = 327.31
+offset_right = 340.0
+offset_bottom = 350.31
 
 [node name="CombineHint" type="Label" parent="MainPanel" unique_id=654539869]
 layout_mode = 0
