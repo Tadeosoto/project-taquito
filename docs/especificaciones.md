@@ -52,14 +52,14 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 |---|---|---|---|
 | **A. Navegador + multijugador** (propuesta) | Se comparte con un link; jugar con amigos es lo más divertido. | Lo más difícil (ver [sección 11](#11-multijugador-en-navegador-implicaciones-técnicas)): necesita servidor, el render cambia a *Compatibility* y hay que diseñar todo "en red" desde el inicio. | JJ |
 | B. Navegador, un jugador | Se comparte con un link, sin servidor. | Solo. Igual hay que pasar a *Compatibility*. | |
-| C. PC (Linux/Windows), un jugador | Lo que ya tenemos; mejor rendimiento. | Hay que descargar el juego. | |
-| D. C primero, A después | Avanzamos rápido en mecánicas. | **Meter multijugador después cuesta reescribir casi todo** (quién controla a los zombies, inventario, misiones). Si vamos a A, mejor saberlo desde ahora. | |
+| C. PC (Steam), un jugador | Lo que ya tenemos; mejor rendimiento. | Hay que descargar el juego. | |
+| D. C primero, A después | Avanzamos rápido en mecánicas. | **Meter multijugador después cuesta reescribir casi todo** (quién controla a los zombies, inventario, misiones). Si vamos a A, mejor saberlo desde ahora. | AG |
 
 ### 1.2 🗳️ Estructura / meta del juego
 
 | Opción | Referencia | Votos |
 |---|---|---|
-| **A. Sandbox sin fin** (propuesta): sobrevive lo más que puedas, récord de noches. Encaja con multijugador persistente. | Unturned, DayZ, Minecraft | JJ |
+| **A. Sandbox sin fin** (propuesta): sobrevive lo más que puedas, récord de noches. Encaja con multijugador persistente. | Unturned, DayZ, Minecraft | JJ | AG |
 | B. Sobrevive N noches (ej. 7), cada una más difícil, jefe al final. | 7 Days to Die, Don't Starve | |
 | C. Roguelite: mueres y reinicias, pero desbloqueas cosas permanentes. | Vampire Survivors, Hades | |
 | D. Campaña con historia y final (¿quién contaminó el agua?). | Dead Rising, GTA | |
@@ -80,7 +80,7 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 
 | Opción | Referencia | Votos |
 |---|---|---|
-| A. Cámara al hombro + mira, con *aim assist* suave para control. | RE4 remake, Fortnite | |
+| A. Cámara al hombro + mira, con *aim assist* suave para control. | RE4 remake, Fortnite | AG |
 | **B. Lock-on automático**: se fija al enemigo más cercano y cambias de objetivo con un botón. Muy PS1 y fácil con control. | RE clásico, Syphon Filter, Zelda OoT | JJ |
 | C. Disparo libre sin mira hacia donde mira el personaje. | Twin-stick, GTA 1/2 | |
 
@@ -90,10 +90,10 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 
 | Opción | Referencia | Votos |
 |---|---|---|
-| A. Sueltas tu mochila donde moriste; reapareces en el último refugio y puedes ir a recuperarla. | DayZ, Rust, Minecraft | |
+| A. Sueltas tu mochila donde moriste; reapareces en el último refugio y puedes ir a recuperarla. | DayZ, Rust, Minecraft |AG|
 | B. Pierdes una parte del dinero/objetos y reapareces al amanecer. | GTA (hospital) | |
 | C. Te vuelves zombie y otro jugador te puede "curar" con agua limpia. | Original, divertido en multijugador | |
-
+| D. Vuelves a nacer pero ahora en el imss |
 ### 1.6 🗳️ Alcance de la primera versión jugable
 
 "Alcance" = **cuánto juego intentamos terminar para la primera versión que se pueda jugar de principio a fin**, según cuántas personas trabajan y cuánto tiempo hay. Sirve para no empezar 30 cosas y no terminar ninguna.
@@ -101,11 +101,11 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 | Opción | Qué incluye | Votos |
 |---|---|---|
 | A. Mínimo (pocas semanas) | 1 ciclo día/noche, 2 misiones, 1 tipo de zombie, 3 armas. | |
-| B. Demo (1-2 meses, 2-4 personas) | 1 colonia, 3 noches, 5-6 misiones, 3 zombies, inventario y tiendas. | |
+| B. Demo (1-2 meses, 2-4 personas) | 1 colonia, 3 noches, 5-6 misiones, 3 zombies, inventario y tiendas. |AG|
 | C. Juego corto (3-6 meses) | Todo el mapa, ~15 misiones, todos los objetos de esta lista. | |
 
 Preguntas para fijarlo: ¿cuántos somos?, ¿cuántas horas a la semana cada quien?, ¿hay fecha límite (entrega de clase, concurso, festival)?
-
+Somos 4, lo que se pueda cuando se pueda.
 ---
 
 ## 2. Historia y mundo
