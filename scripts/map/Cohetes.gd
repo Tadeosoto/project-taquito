@@ -115,7 +115,7 @@ static func chispas(cantidad: int, vida: float, color: Color, tamano: float) -> 
 
 func _voz(padre: Node3D, nombre: String, alcance: float) -> void:
 	var voz := AudioStreamPlayer3D.new()
-	voz.stream = Maquinita.sonido(nombre)
+	voz.stream = Sonidos.sonido(nombre)
 	voz.unit_size = alcance * 0.25
 	voz.max_distance = alcance
 	padre.add_child(voz)

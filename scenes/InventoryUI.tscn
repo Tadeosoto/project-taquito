@@ -5,15 +5,6 @@
 [ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="3_l5txx"]
 [ext_resource type="Script" uid="uid://cavwrbapbb4rq" path="res://scenes/box_corners.gd" id="3_rp0l5"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_5tlb1"]
-shader = ExtResource("3_l5txx")
-shader_parameter/color_levels = 32.0
-shader_parameter/dither_strenght = 0.35
-shader_parameter/desaturacion = 0.0
-shader_parameter/tinte = Color(1, 1, 1, 1)
-shader_parameter/contraste = 1.0
-shader_parameter/vineta = 0.0
-
 [sub_resource type="Theme" id="Theme_inventario"]
 default_font_size = 16
 Label/colors/font_color = Color(0.95, 0.95, 0.95, 1)
@@ -21,16 +12,6 @@ Label/colors/font_shadow_color = Color(0, 0, 0, 1)
 Label/constants/shadow_offset_x = 1
 Label/constants/shadow_offset_y = 1
 RichTextLabel/colors/default_color = Color(0.8, 0.8, 0.82, 1)
-
-[sub_resource type="Gradient" id="Gradient_barra"]
-offsets = PackedFloat32Array(0, 0.7, 1)
-colors = PackedColorArray(1, 0.85, 0.1, 1, 1, 0.85, 0.1, 0.6, 1, 0.85, 0.1, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_barra"]
-gradient = SubResource("Gradient_barra")
-width = 180
-height = 2
-fill_to = Vector2(1, 0)
 
 [sub_resource type="Environment" id="Environment_preview"]
 ambient_light_source = 2
@@ -41,9 +22,26 @@ fog_mode = 1
 fog_light_color = Color(0, 0, 0, 1)
 fog_density = 1.0
 fog_sky_affect = 0.0
-fog_depth_curve = 1.0
 fog_depth_begin = 3.5
 fog_depth_end = 8.0
+
+[sub_resource type="Gradient" id="Gradient_barra"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(1, 0.85, 0.1, 1, 1, 0.85, 0.1, 0.6, 1, 0.85, 0.1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_barra"]
+gradient = SubResource("Gradient_barra")
+width = 180
+height = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5tlb1"]
+shader = ExtResource("3_l5txx")
+shader_parameter/color_levels = 32.0
+shader_parameter/dither_strenght = 0.35
+shader_parameter/desaturacion = 0.0
+shader_parameter/tinte = Color(1, 1, 1, 1)
+shader_parameter/contraste = 1.0
+shader_parameter/vineta = 0.0
 
 [node name="InventoryUI" type="CanvasLayer" unique_id=984314711]
 process_mode = 3
@@ -68,7 +66,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="FotoEstado" type="TextureRect" parent="MainPanel"]
+[node name="FotoEstado" type="TextureRect" parent="MainPanel" unique_id=1845976880]
 layout_mode = 0
 offset_left = 30.0
 offset_top = 48.0
@@ -104,12 +102,12 @@ current = true
 [node name="KeyLight" type="DirectionalLight3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=1494657869]
 transform = Transform3D(0.70710677, -0.49999997, 0.49999997, 0, 0.70710677, 0.70710677, -0.70710677, -0.49999997, 0.49999997, 0, 0, 0)
 
-[node name="Ambiente" type="WorldEnvironment" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld"]
+[node name="Ambiente" type="WorldEnvironment" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=960494273]
 environment = SubResource("Environment_preview")
 
 [node name="ItemPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=1604028138]
 
-[node name="EquipoPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld"]
+[node name="EquipoPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=704929998]
 transform = Transform3D(0.9063, 0, 0.4226, 0, 1, 0, -0.4226, 0, 0.9063, 0, 1.35, 0)
 
 [node name="HighlightBox" type="ReferenceRect" parent="MainPanel" unique_id=599312522]
@@ -131,7 +129,7 @@ corner_length = 70.0
 box_width = 166.0
 box_height = 166.0
 
-[node name="FlechaIzquierda" type="Label" parent="MainPanel"]
+[node name="FlechaIzquierda" type="Label" parent="MainPanel" unique_id=1768702449]
 self_modulate = Color(1, 1, 1, 0.55)
 layout_mode = 0
 offset_left = 195.0
@@ -142,7 +140,7 @@ theme_override_font_sizes/font_size = 22
 text = "◁◁"
 horizontal_alignment = 1
 
-[node name="FlechaDerecha" type="Label" parent="MainPanel"]
+[node name="FlechaDerecha" type="Label" parent="MainPanel" unique_id=151892928]
 self_modulate = Color(1, 1, 1, 0.55)
 layout_mode = 0
 offset_left = 400.0
@@ -153,7 +151,7 @@ theme_override_font_sizes/font_size = 22
 text = "▷▷"
 horizontal_alignment = 1
 
-[node name="TituloEstado" type="Label" parent="MainPanel"]
+[node name="TituloEstado" type="Label" parent="MainPanel" unique_id=238210431]
 layout_mode = 0
 offset_left = 30.0
 offset_top = 16.0
@@ -162,7 +160,7 @@ offset_bottom = 40.0
 theme_override_font_sizes/font_size = 18
 text = "Estado"
 
-[node name="Barra" type="TextureRect" parent="MainPanel/TituloEstado"]
+[node name="Barra" type="TextureRect" parent="MainPanel/TituloEstado" unique_id=1708950524]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -172,7 +170,7 @@ grow_horizontal = 2
 texture = SubResource("GradientTexture2D_barra")
 expand_mode = 1
 
-[node name="TituloEquipo" type="Label" parent="MainPanel"]
+[node name="TituloEquipo" type="Label" parent="MainPanel" unique_id=285568611]
 layout_mode = 0
 offset_left = 230.0
 offset_top = 16.0
@@ -181,7 +179,7 @@ offset_bottom = 40.0
 theme_override_font_sizes/font_size = 18
 text = "Equipo"
 
-[node name="Barra" type="TextureRect" parent="MainPanel/TituloEquipo"]
+[node name="Barra" type="TextureRect" parent="MainPanel/TituloEquipo" unique_id=1832259674]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -191,7 +189,7 @@ grow_horizontal = 2
 texture = SubResource("GradientTexture2D_barra")
 expand_mode = 1
 
-[node name="TituloComando" type="Label" parent="MainPanel"]
+[node name="TituloComando" type="Label" parent="MainPanel" unique_id=314860295]
 layout_mode = 0
 offset_left = 430.0
 offset_top = 16.0
@@ -200,7 +198,7 @@ offset_bottom = 40.0
 theme_override_font_sizes/font_size = 18
 text = "Comando"
 
-[node name="Barra" type="TextureRect" parent="MainPanel/TituloComando"]
+[node name="Barra" type="TextureRect" parent="MainPanel/TituloComando" unique_id=561568902]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -210,7 +208,7 @@ grow_horizontal = 2
 texture = SubResource("GradientTexture2D_barra")
 expand_mode = 1
 
-[node name="Estado" type="Label" parent="MainPanel"]
+[node name="Estado" type="Label" parent="MainPanel" unique_id=1660686236]
 layout_mode = 0
 offset_left = 36.0
 offset_top = 140.0
@@ -219,7 +217,7 @@ offset_bottom = 161.0
 theme_override_font_sizes/font_size = 15
 text = "Bien"
 
-[node name="SinMochila" type="Label" parent="MainPanel"]
+[node name="SinMochila" type="Label" parent="MainPanel" unique_id=2106018009]
 layout_mode = 0
 offset_left = 230.0
 offset_top = 85.0
@@ -230,7 +228,7 @@ theme_override_font_sizes/font_size = 16
 text = "Sin mochila"
 horizontal_alignment = 1
 
-[node name="Capacidad" type="Label" parent="MainPanel"]
+[node name="Capacidad" type="Label" parent="MainPanel" unique_id=931312041]
 layout_mode = 0
 offset_left = 345.0
 offset_top = 134.0
@@ -239,7 +237,7 @@ offset_bottom = 157.0
 text = "- 0 / 6 -"
 horizontal_alignment = 1
 
-[node name="ComandoExaminar" type="Label" parent="MainPanel"]
+[node name="ComandoExaminar" type="Label" parent="MainPanel" unique_id=180432861]
 layout_mode = 0
 offset_left = 430.0
 offset_top = 48.0
@@ -295,7 +293,7 @@ offset_bottom = 425.0
 theme_override_font_sizes/normal_font_size = 15
 text = "Una cerveza barata que dice contener agua de manantial local. Restaura algo de vida."
 
-[node name="Mensaje" type="Label" parent="MainPanel"]
+[node name="Mensaje" type="Label" parent="MainPanel" unique_id=1348379854]
 layout_mode = 0
 offset_left = 30.0
 offset_top = 435.0

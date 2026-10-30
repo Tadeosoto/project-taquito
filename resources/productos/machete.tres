@@ -11,3 +11,4 @@ inspection_model = ExtResource("1_modelo")
 efecto = "Arma cuerpo a cuerpo silenciosa."
 precio = 2
 moneda = 1
+dano = 12

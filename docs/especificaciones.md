@@ -134,8 +134,8 @@ AMANECER ◄── sobrevivir ◄── usar armas/consumibles ◄── NOCHE: 
 ### 3.1 Ciclo día/noche ✅ (detalles 💡)
 
 - Reloj del juego con luz del sol, color del cielo y niebla que cambian (la niebla del mapa ya existe 🧱).
-- **Shader de día/noche** 🧱 (en `map_test.tscn`): el global shader uniform `noche` (0 = día, 1 = noche) que leen las lámparas. Se cambia con `Alumbrado.configurar_noche(valor)` (`scripts/map/Alumbrado.gd`). De noche hay luz de luna azulada que deja ver el juego sin alumbrado, y el alumbrado público se nota: las lámparas se prenden escalonadas y hay luces reales cerca del jugador (ver `docs/mapa/README.md`). Por ahora se prueba con la tecla **N** (`scripts/map/MapNocheDebug.gd`).
-- ❌ Falta el **reloj**: el nodo que avanza la hora y mueve `noche`, el sol, el ambiente y la niebla en lugar de `MapNocheDebug` (y que en multijugador lleve el servidor).
+- **Shader de día/noche** 🧱 (en `map_test.tscn`): el global shader uniform `noche` (0 = día, 1 = noche) que leen las lámparas. Se cambia con `Alumbrado.configurar_noche(valor)` (`scripts/map/Alumbrado.gd`). De noche hay luz de luna azulada que deja ver el juego sin alumbrado, y el alumbrado público se nota: las lámparas se prenden escalonadas y hay luces reales cerca del jugador (ver `docs/mapa/README.md`). Lo mueve el reloj; la tecla **N** salta al siguiente atardecer o amanecer para probar.
+- 🧱 El **reloj** ya existe (`scripts/map/Ciclo.gd`): avanza la hora y mueve `noche`, el sol, el ambiente y la niebla, con día de 12 min, noche de 8 y aviso 1 min antes de oscurecer. Falta que en multijugador lo lleve el servidor.
 - 💡 Duración: **día 12 min + noche 8 min** (20 min reales por día de juego). En multijugador el reloj es el mismo para todos (lo lleva el servidor).
 - 💡 Atardecer con aviso (campana de iglesia, sirena, el radio) 1 min antes de que salgan los zombies, como en *7 Days to Die*.
 - 💡 De día también hay pocos zombies sueltos (peligro bajo), de noche muchos.
@@ -154,7 +154,7 @@ Tercera persona, cámara relativa, correr con Shift, saltar. Ya existe en `scrip
 
 ### 4.2 Combate
 
-- **Cuerpo a cuerpo**: machete, bate, chancla… Una animación de golpe + área de daño delante del jugador. Lo más fácil de hacer primero.
+- **Cuerpo a cuerpo**: machete, bate, chancla… Una animación de golpe + área de daño delante del jugador. Lo más fácil de hacer primero. 🧱 Ya se pelea con clic izquierdo o F: pega con la mejor arma que traigas (machete 12, reforzado 18) o a puño (5), sin equiparla. Por ahora solo con el machete. Daños y vida 💡 para discutir.
 - **Armas de fuego**: pistola, cuerno de chivo, ballesta. Tipo de apuntado 🗳️ (ver 1.4). Munición escasa, recarga.
 - **Arrojables**: molotov (fuego en área), paloma (aturde), bocina (atrae zombies, ver objetos). Se lanzan en arco con previsualización de trayectoria (*GTA*, *Fortnite*).
 - 💡 **Ruido**: disparar hace ruido y atrae zombies; machete es silencioso. Da sentido a elegir arma (*DayZ*, *The Last of Us*).
@@ -233,7 +233,7 @@ Ya hay NPCs con diálogo en burbuja y aviso de "Espacio/X" (`scripts/npc.gd`). F
 
 Referencia del grupo: [reel de Instagram](https://www.instagram.com/reel/DehepkqD5PW/). (No se pudo ver sin cuenta; **que alguien describa qué tiene que tomarse de ahí**.) Asumimos hordas que se mueven en masa tipo *Days Gone* / *World War Z*.
 
-Cómo se hace normalmente (y cómo lo haríamos):
+🧱 **Ya hay lo mínimo** (`scripts/map/Zombis.gd`, `Zombie.gd`): de noche salen zombis de uno en uno alrededor del jugador, fuera de la cámara, más donde está más destruido y uno más cada noche (hasta 12). Caminan derecho hacia ti, sin rutas, y pegan; dan unos pesos al morir y se caen al amanecer. De día no hay. Si llegas a 0 de vida te desmayas y despiertas donde empezaste sin perder nada (mientras se vota 1.5). Adentro de una tienda, en una maquinita o volando no te atacan (falta decidirlo, 4.6).`n`nCómo se hace normalmente (y cómo lo haríamos):
 
 1. **Director** (como *Left 4 Dead*): un script central que mide la tensión (vida del jugador, zombies cerca, hora) y decide cuándo mandar una horda, cuándo dar un respiro y dónde aparecen (siempre fuera de cámara, en calles cercanas).
 2. **Movimiento en grupo**: en vez de que cada zombie calcule su ruta (caro), se calcula **un campo de flujo** (flow field) hacia el jugador/ruido por zona y todos lo siguen, con separación entre ellos (*boids*). Así cientos de zombies se ven como un río por las calles.

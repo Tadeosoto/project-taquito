@@ -21,10 +21,143 @@ var camera_pitch: float = -4.6
 @onready var frijol: Node3D = $Frijol
 @onready var ninja: Node3D = $Frijol/Ninja
 
+# Con que le pega a los zombis (Zombie.gd): el mejor `dano` del inventario, o a puño limpio.
+# Inventario y Salud se piden por su ruta: los scripts de tools/ cargan esta clase antes
+# de que existan los autoloads
+const DANO_PUNO := 5
+const ATAQUE_ENFRIAR := 0.6
+const ATAQUE_PEGA_EN := 0.22
+const ATAQUE_ALCANCE := 2.4
+const ATAQUE_ANGULO := 0.35   # coseno: lo que abarca hacia los lados
+const INVULNERABLE := 0.7     # s despues de recibir un golpe
+const ARMA_TAMANO := 0.6
+# El mango va en el puño: crear_modelo centra y deja lo largo en X con el mango en +X
+const ARMA_GIRO := Vector3(0.0, 90.0, -90.0)
+const ARMA_MANGO := 0.24
+
+var _enfriar := 0.0
+var _pega_en := -1.0
+var _invulnerable := 0.0
+var _voz: AudioStreamPlayer3D
+var _mano: BoneAttachment3D
+var _arma_visible: InventoryItemData
+
 
 func _ready() -> void:
 	add_to_group("jugador")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	_voz = AudioStreamPlayer3D.new()
+	add_child(_voz)
+	_armar_mano()
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario:
+		inventario.inventory_changed.connect(_mostrar_arma)
+	_mostrar_arma()
+
+
+# --- Pelear ---
+
+func _atacar() -> void:
+	if _enfriar > 0.0:
+		return
+	_enfriar = ATAQUE_ENFRIAR
+	_pega_en = ATAQUE_PEGA_EN
+	if ninja.has_method("accion"):
+		ninja.accion("Punch")
+	_sonar("machetazo")
+
+
+func _golpear() -> void:
+	var dano := DANO_PUNO
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario:
+		var arma: InventoryItemData = inventario.arma()
+		if arma:
+			dano = arma.dano
+	var frente := -frijol.global_transform.basis.z
+	frente.y = 0.0
+	frente = frente.normalized()
+	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
+		var hacia := zombi.global_position - global_position
+		hacia.y = 0.0
+		if hacia.length() <= ATAQUE_ALCANCE and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
+			zombi.recibir_golpe(dano, global_position)
+
+
+# Un golpe de zombi (Zombie.gd)
+func recibir_dano(dano: int) -> void:
+	if _invulnerable > 0.0:
+		return
+	_invulnerable = INVULNERABLE
+	if ninja.has_method("accion"):
+		ninja.accion("RecieveHit")
+	_sonar("dolor")
+	get_node("/root/Salud").vida -= dano
+
+
+# Se queda quieto y deja de contestar (al desmayarse, Supervivencia.gd)
+func detener() -> void:
+	set_physics_process(false)
+	set_process_unhandled_input(false)
+
+
+func reanudar() -> void:
+	set_physics_process(true)
+	set_process_unhandled_input(true)
+	if ninja.has_method("terminar_accion"):
+		ninja.terminar_accion()
+
+
+func caer() -> void:
+	if ninja.has_method("accion"):
+		ninja.accion("Defeat")
+
+
+# La mano derecha del modelo; el arma se ve en ella
+func _armar_mano() -> void:
+	var esqueleto := ninja.find_child("Skeleton3D", true, false) as Skeleton3D
+	if esqueleto == null:
+		return
+	for nombre in ["Fist.R", "Hand.R", "Wrist.R", "LowerArm.R"]:
+		if esqueleto.find_bone(nombre) >= 0:
+			_mano = BoneAttachment3D.new()
+			esqueleto.add_child(_mano)
+			_mano.bone_name = nombre
+			return
+
+
+func _mostrar_arma() -> void:
+	if _mano == null:
+		return
+	var inventario := get_node_or_null("/root/Inventory")
+	var arma: InventoryItemData = inventario.arma() if inventario else null
+	if arma == _arma_visible:
+		return
+	_arma_visible = arma
+	for hijo in _mano.get_children():
+		hijo.queue_free()
+	if arma == null:
+		return
+	var modelo := arma.crear_modelo(ARMA_TAMANO)
+	if modelo:
+		_mano.add_child(modelo)
+		modelo.visible = false
+		# Un cuadro despues: antes el hueso todavia no tiene su transformacion. Sin la
+		# escala del hueso, y con la hoja hacia adelante del puño
+		await get_tree().process_frame
+		if not is_instance_valid(modelo):
+			return
+		var escala := _mano.global_transform.basis.get_scale()
+		modelo.scale = Vector3.ONE / maxf(escala.x, 0.001)
+		modelo.rotation_degrees = ARMA_GIRO
+		(modelo.get_child(0) as Node3D).position.x -= ARMA_MANGO
+		modelo.visible = true
+
+
+func _sonar(nombre: String) -> void:
+	_voz.stream = Sonidos.sonido(nombre)
+	_voz.play()
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -32,6 +165,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_pitch -= event.relative.y * mouse_sensitivity * 100.0
 		camera_pitch = clampf(camera_pitch, -60.0, 30.0)
 		spring_arm.rotation_degrees.x = camera_pitch
+	elif event.is_action_pressed("attack") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		_atacar()
 	elif event.is_action_pressed("ui_cancel"):
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -40,6 +175,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_enfriar = maxf(_enfriar - delta, 0.0)
+	_invulnerable = maxf(_invulnerable - delta, 0.0)
+	if _pega_en >= 0.0:
+		_pega_en -= delta
+		if _pega_en < 0.0:
+			_golpear()
 	var input_direction: Vector2 = Input.get_vector(
 		"move_left",
 		"move_right",

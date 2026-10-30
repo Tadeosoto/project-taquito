@@ -9,3 +9,4 @@ item_name = "Machete reforzado"
 description = "Con cinta canela en el mango. Ya no se te resbala."
 inspection_model = ExtResource("1_modelo")
 efecto = "Arma cuerpo a cuerpo silenciosa, más resistente."
+dano = 18

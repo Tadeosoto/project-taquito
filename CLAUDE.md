@@ -44,6 +44,20 @@ Overview:
 - Scripts in `tools/` run with `-s`, before autoloads exist. Anything they load, including `MapPuntos` and what it references, must not name `Cartera`, `Salud` or `Inventory` directly; use `load()` at runtime.
 - Map data is ODbL; keep the attribution in `CREDITS.md`. Don't use Google Maps or Street View data for geometry.
 
+## Danger: day/night, zombies, fighting, fainting (`map_test.tscn`)
+
+- `scripts/map/Ciclo.gd` (`Ciclo` node): 12 min day + 8 min night, 30 s transitions, starting 60 s into the day; signals `aviso_atardecer` (1 min before), `anochecio`, `amanecio`. **N** jumps to the next dusk or dawn. It drives `Alumbrado.configurar_noche`, sun, ambient and fog. `locales_preview.tscn` still uses the instant `MapNocheDebug.gd`.
+- `scripts/map/Zombis.gd` (`Zombis` node): at night spawns one every 3 s, 24-36 m from the player, on the street (downward ray, `ALTO_CALLE`) and out of camera. Max = 2 + `Deterioro.zona` × 8 + 1 per night after the first, capped at 12. Removes those beyond 70 m; all collapse at dawn. Spawns stop while the player is frozen.
+- `scripts/map/Zombie.gd`: `zombie_gordo` model, 30 life, 3-5 m/s. Walks straight at the player, sidesteps when stuck on a wall (no pathfinding), hits for 12, gives $1-3 when killed. Collision layer 2, mask 1. Doesn't attack while the player is frozen (shop, stall, machine, drone), so those are safe for now.
+- `Player`: `attack` action (left click, F, gamepad X) in a forward cone (`_golpear`). Damage is the best `InventoryItemData.dano` in the inventory (`Inventory.arma()`, machete 12, reinforced 18), or 5 bare-handed; nothing needs equipping, and the weapon shows in the hand (`Fist.R`). `player.gd` is loaded by `tools/` scripts through `MapPuntos`, so it reaches autoloads with `get_node("/root/...")`. Its timers tick in `_physics_process`, so they stop while it's frozen.
+- `scripts/map/Supervivencia.gd`: no health bar (life shows in the inventory): red flash on damage, pulsing red edges below 35 %, dusk/night/dawn messages. At 0 life: fade, respawn at the start with 50 life, zombies cleared, nothing lost (spec §1.5 is still open).
+- `scripts/Sonidos.gd`: all generated sounds. A node re-enables `_physics_process` when it becomes ready if the script defines it: call `set_physics_process(false)` after `add_child`.
+- `map_test.tscn` sets the player to 10/18 m/s for walking the map, which outruns every zombie.
+
+## Dev safehouse (`scenes/safehouse.tscn`, `scripts/map/Safehouse.gd`)
+
+`godot --path . scenes/safehouse.tscn`: a walled 100 m yard for testing without walking the map, using the real systems, not copies. **When you add a mechanic, add it here too.** `MapPuntos` builds one business of each giro from `user://puntos_safehouse.json` (written in `_enter_tree`; `NEGOCIOS` is the list) with the real `Interiores`; three `Maquinita`s, one per `Estado`; a `WorldItem` for everything in `resources/productos/` (new `.tres` appear on their own); Urbi houses, `Ciclo`, `Zombis`, `Supervivencia`, `InventoryUI`, drone and an NPC. Its keys are on screen (`PANEL_TEXTO`) and only work while the player is free. It starts with $500 and thinner fog than the map. No minimap, streets or warehouses: F10 goes to `map_test.tscn` for those.
+
 ## Conventions / gotchas
 
 - PS1 shaders must write `POSITION` unconditionally (`ps1_vertex()` returns the unsnapped clip position when `jitter_enabled` is false). A spatial shader that writes `POSITION` only inside an `if` leaves the mesh invisible when the branch isn't taken. The original `ps1_combined` had this bug; `shaders/jittershader.gdshader` still does. Huge meshes (the 1900 m `Suelo`) need jitter/wobble off, otherwise vertex snapping distorts them near the camera.

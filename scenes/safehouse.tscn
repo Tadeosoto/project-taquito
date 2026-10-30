@@ -1,0 +1,200 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/map/Safehouse.gd" id="1_safehouse"]
+[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="2_dither"]
+[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="4_dron"]
+[ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="5_ciclo"]
+[ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="6_zombis"]
+[ext_resource type="Script" path="res://scripts/map/Supervivencia.gd" id="7_supervivencia"]
+[ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="8_inventario"]
+[ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="9_puntos"]
+[ext_resource type="Script" path="res://scripts/map/MapCasas.gd" id="10_casas"]
+[ext_resource type="Script" path="res://scripts/interiores/Interiores.gd" id="11_interiores"]
+[ext_resource type="PackedScene" uid="uid://cisd7p02ivmq6" path="res://models/casas/urbi/urbi.scn" id="12_urbi"]
+[ext_resource type="PackedScene" uid="uid://b6rm74tkw20hu" path="res://models/tiendas/pemex/pemex.scn" id="13_pemex"]
+[ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="14_carrito"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="15_npc"]
+[ext_resource type="PackedScene" path="res://models/personajes/dr_simi/simi_botarga.scn" id="16_botarga"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="17_tiendita"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/licoreria.tscn" id="18_licoreria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/abarrotes.tscn" id="19_abarrotes"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="20_farmacia"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/taqueria.tscn" id="21_taqueria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="22_ferreteria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="23_purificadora"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="24_punto"]
+
+[sub_resource type="Environment" id="Environment_mapa"]
+background_mode = 1
+background_color = Color(0.30240002, 0.31872, 0.36, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.62, 0.66, 0.72, 1)
+ambient_light_energy = 0.7
+fog_enabled = true
+fog_light_color = Color(0.54521054, 0.5537622, 0.53505677, 1)
+fog_sun_scatter = 0.1
+fog_density = 0.005
+adjustment_enabled = true
+adjustment_contrast = 1.1
+adjustment_saturation = 1.35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
+shader = ExtResource("2_dither")
+shader_parameter/color_levels = 32.0
+shader_parameter/dither_strenght = 0.35
+shader_parameter/desaturacion = 0.4
+shader_parameter/tinte = Color(1.0, 0.97, 0.84, 1)
+shader_parameter/contraste = 1.1
+shader_parameter/vineta = 0.3
+
+[node name="Safehouse" type="Node3D"]
+script = ExtResource("1_safehouse")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_mapa")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.3326426, 0.8513836, -0.40557972, -0.70441604, 0.061628435, 0.7071068, 0.6270144, 0.52091074, 0.579228, 0, 40, 0)
+light_color = Color(0.9282061, 0.8841801, 0.82615525, 1)
+light_energy = 1.15
+light_indirect_energy = 0.0
+light_specular = 0.2
+shadow_enabled = true
+shadow_reverse_cull_face = true
+shadow_opacity = 0.86
+shadow_blur = 0.0
+directional_shadow_max_distance = 80.0
+
+[node name="PS1_Postprocess" type="CanvasLayer" parent="."]
+
+[node name="Dither" type="ColorRect" parent="PS1_Postprocess"]
+material = SubResource("ShaderMaterial_dither")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Ciclo" type="Node" parent="."]
+script = ExtResource("5_ciclo")
+sol_path = NodePath("../DirectionalLight3D")
+environment_path = NodePath("../WorldEnvironment")
+
+[node name="Puntos" type="Node3D" parent="."]
+script = ExtResource("9_puntos")
+puntos_path = "user://puntos_safehouse.json"
+target_path = NodePath("../Dron")
+prefabs = Dictionary[String, PackedScene]({
+"gasolinera": ExtResource("13_pemex"),
+"puesto": ExtResource("14_carrito")
+})
+prefab_rotacion = Dictionary[String, float]({
+"gasolinera": -90.0
+})
+prefab_ancho = Dictionary[String, float]({
+"gasolinera": 14.0,
+"puesto": 2.5
+})
+vendedor_escena = ExtResource("15_npc")
+vendedor_atras = Dictionary[String, float]({
+"puesto": 2.6
+})
+interiores_path = NodePath("../Interiores")
+botarga = ExtResource("16_botarga")
+
+[node name="Casas" type="Node3D" parent="."]
+script = ExtResource("10_casas")
+casas_path = "user://casas_safehouse.json"
+modelos = Dictionary[String, PackedScene]({
+"urbi_1p_a": ExtResource("12_urbi"),
+"urbi_1p_b": ExtResource("12_urbi"),
+"urbi_1p_c": ExtResource("12_urbi"),
+"urbi_2p_a": ExtResource("12_urbi"),
+"urbi_2p_b": ExtResource("12_urbi"),
+"urbi_2p_c": ExtResource("12_urbi")
+})
+modelo_rango_x = Dictionary[String, Vector2]({
+"urbi_1p_a": Vector2(-22.3, -14.75),
+"urbi_1p_b": Vector2(-14.75, -7.75),
+"urbi_1p_c": Vector2(-7.75, -0.25),
+"urbi_2p_a": Vector2(-0.25, 7),
+"urbi_2p_b": Vector2(7, 14.5),
+"urbi_2p_c": Vector2(14.5, 22.7)
+})
+nucleo = Dictionary[String, float]({
+"urbi_1p_a": 0.62,
+"urbi_1p_b": 0.62,
+"urbi_1p_c": 0.62,
+"urbi_2p_a": 0.72,
+"urbi_2p_b": 0.72,
+"urbi_2p_c": 0.72
+})
+modelo_rotacion = Dictionary[String, float]({
+"urbi_1p_a": 180.0,
+"urbi_1p_b": 180.0,
+"urbi_1p_c": 180.0,
+"urbi_2p_a": 180.0,
+"urbi_2p_b": 180.0,
+"urbi_2p_c": 180.0
+})
+muro_key = Dictionary[String, Color]({
+"urbi_1p_a": Color(0.88, 0.88, 0.86, 1),
+"urbi_1p_b": Color(0.88, 0.88, 0.86, 1),
+"urbi_1p_c": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_a": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_b": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_c": Color(0.88, 0.88, 0.86, 1)
+})
+ventanas_uv = Dictionary[String, PackedVector4Array]({
+"urbi_1p_a": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_1p_b": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_1p_c": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_a": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_b": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_c": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64)
+})
+quitar_piso = Array[String](["urbi_1p_a", "urbi_1p_b", "urbi_1p_c", "urbi_2p_a", "urbi_2p_b", "urbi_2p_c"])
+target_path = NodePath("../Dron")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 6)
+girar_con_qe = true
+
+[node name="Dron" type="Node3D" parent="."]
+script = ExtResource("4_dron")
+player_path = NodePath("../Player")
+environment_path = NodePath("../WorldEnvironment")
+iniciar_en_dron = false
+
+[node name="Interiores" type="Node" parent="."]
+script = ExtResource("11_interiores")
+escenas = Dictionary[String, PackedScene]({
+"abarrotes": ExtResource("19_abarrotes"),
+"farmacia": ExtResource("20_farmacia"),
+"ferreteria": ExtResource("22_ferreteria"),
+"gasolinera": ExtResource("17_tiendita"),
+"licoreria": ExtResource("18_licoreria"),
+"oxxo": ExtResource("17_tiendita"),
+"punto": ExtResource("24_punto"),
+"purificadora": ExtResource("23_purificadora"),
+"taqueria": ExtResource("21_taqueria")
+})
+puntos_path = NodePath("../Puntos")
+player_path = NodePath("../Player")
+dron_path = NodePath("../Dron")
+ocultar = Array[NodePath]([NodePath("../Panel")])
+
+[node name="InventoryUI" parent="." instance=ExtResource("8_inventario")]
+
+[node name="Zombis" type="Node3D" parent="."]
+script = ExtResource("6_zombis")
+jugador_path = NodePath("../Player")
+ciclo_path = NodePath("../Ciclo")
+
+[node name="Supervivencia" type="CanvasLayer" parent="."]
+script = ExtResource("7_supervivencia")
+jugador_path = NodePath("../Player")
+ciclo_path = NodePath("../Ciclo")
+zombis_path = NodePath("../Zombis")

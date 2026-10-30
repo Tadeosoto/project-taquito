@@ -13,6 +13,22 @@ var _armature_rest := Vector3.ZERO
 var _body_rest_rotation := Vector3.ZERO
 var _is_sprinting := false
 var _bob_time := 0.0
+# Mientras dura una accion (golpe, recibir golpe, caer) no se cambia a caminar
+var _accion_queda := 0.0
+
+
+func accion(hint: String) -> void:
+	var clip := _resolve_clip(hint)
+	if clip == "":
+		return
+	_accion_queda = _animation_player.get_animation(clip).length
+	_animation_player.speed_scale = 1.0
+	_animation_player.stop()
+	_animation_player.play(clip)
+
+
+func terminar_accion() -> void:
+	_accion_queda = 0.0
 
 
 func _ready() -> void:
@@ -32,6 +48,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_accion_queda = maxf(_accion_queda - delta, 0.0)
 	if _armature != null:
 		_armature.position = _armature_rest
 	rotation = _body_rest_rotation
@@ -46,7 +63,7 @@ func _process(delta: float) -> void:
 
 
 func update_animation(is_moving: bool, is_airborne: bool, is_sprinting: bool = false) -> void:
-	if _animation_player == null:
+	if _animation_player == null or _accion_queda > 0.0:
 		return
 	_is_sprinting = is_sprinting and is_moving and not is_airborne
 	if is_airborne or not is_moving:

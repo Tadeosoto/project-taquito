@@ -2,11 +2,12 @@
 
 Prototipo 3D en tercera persona con look de PS1, hecho en **Godot 4.7** (Forward+, física Jolt) y GDScript.
 
-Hay dos escenas principales:
+Hay tres escenas principales:
 
 | Escena | Qué es |
 |---|---|
 | `scenes/world.tscn` | La escena principal del juego (la que abre `godot --path .`): jugador, NPCs con diálogo, objetos e inventario. |
+| `scenes/safehouse.tscn` | **Dev safehouse:** un patio para probar todo sin caminar el mapa: un negocio de cada giro, maquinitas en cada estado, todos los objetos, zombis y el día y la noche. Las teclas de prueba salen en pantalla. |
 | `scenes/map_test.tscn` | **Nuevo:** un pedazo real de Zapopan (~1.7 × 1.7 km) con casas, calles, tiendas, farmacias y puestos, para recorrer a pie o volando. |
 
 La idea es que, con el tiempo, las mecánicas de `world.tscn` (NPCs, inventario, objetos) se pasen al mapa real.
@@ -19,6 +20,7 @@ Las mecánicas, objetos, misiones y decisiones pendientes del juego están en **
 godot --path . --editor                    # abrir el editor
 godot --path .                             # jugar la escena principal (world.tscn)
 godot --path . scenes/map_test.tscn        # recorrer el mapa real
+godot --path . scenes/safehouse.tscn       # probar todo en el dev safehouse
 ```
 
 La primera vez, abre el proyecto en el editor (o corre `godot --path . --headless --import`) para que Godot importe los modelos.
@@ -31,6 +33,7 @@ La primera vez, abre el proyecto en el editor (o corre `godot --path . --headles
 | Cámara | Mouse (en `map_test.tscn` también Q / E) |
 | Correr | Shift |
 | Saltar / hablar con NPC / recoger | Espacio |
+| Atacar (de noche salen zombis) | Clic izquierdo o F |
 
 En `map_test.tscn` además:
 
@@ -40,6 +43,7 @@ En `map_test.tscn` además:
 | Dron: moverse (15 m/s, a 30 m de altura) | WASD / flechas |
 | Dron: girar | Mouse o Q / E |
 | Dron: ir al triple de rápido | Shift |
+| Saltar al siguiente atardecer o amanecer | N |
 | Abrir / cerrar inventario | Tab |
 | Inventario: cambiar de objeto | ← / → o Q / E |
 | Inventario: elegir comando (Examinar, Utilizar, Combinar) | ↑ / ↓ |

@@ -2,8 +2,8 @@ class_name Alumbrado
 extends RefCounted
 
 # Estado de cada poste de luz (MapAlumbrado.gd) y la noche. `noche` (0 dia, 1 noche)
-# es un global shader uniform: lo mueve el ciclo dia/noche (por ahora MapNocheDebug,
-# tecla N) con configurar_noche(). Cada lampara se prende cuando la noche pasa su
+# es un global shader uniform: lo mueve el ciclo dia/noche (Ciclo.gd; MapNocheDebug en
+# locales_preview) con configurar_noche(). Cada lampara se prende cuando la noche pasa su
 # `umbral`, asi no se prenden todas a la vez. El parpadeo usa el mismo hash entero
 # que shaders/ps1_lampara.gdshader y el tiempo `alumbrado_tiempo` que pone
 # MapAlumbrado, para que la cabeza, el halo y la luz real parpadeen juntos: si cambia

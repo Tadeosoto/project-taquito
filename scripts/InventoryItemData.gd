@@ -21,6 +21,9 @@ extends Resource
 # Vida que recupera con "Utilizar" en el inventario; 0 = no se puede utilizar
 @export var curacion : int = 0
 
+# Si es arma: lo que le quita a un zombi de un golpe (Player._golpear). 0 = no es arma
+@export var dano : int = 0
+
 # Si es mochila: cuantos objetos caben con ella (Inventory.equipar_mochila). 0 = no es mochila
 @export var capacidad : int = 0
 

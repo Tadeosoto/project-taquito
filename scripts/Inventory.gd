@@ -54,6 +54,15 @@ func get_item(index: int) -> InventoryItemData:
 	return items[index]
 
 
+# La mejor arma que traes, o null. No hay que equiparla: se pelea con la mejor
+func arma() -> InventoryItemData:
+	var mejor: InventoryItemData = null
+	for item in items:
+		if item.dano > 0 and (mejor == null or item.dano > mejor.dano):
+			mejor = item
+	return mejor
+
+
 func capacidad() -> int:
 	return mochila.capacidad if mochila else CAPACIDAD_BASE
 

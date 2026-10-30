@@ -77,7 +77,6 @@ static var _malla: ArrayMesh
 static var _malla_monedas: ArrayMesh
 static var _malla_veladora: ArrayMesh
 static var _material: ShaderMaterial
-static var _sonidos := {}
 
 # Quien es en el mapa (`origen` del negocio): la placa y su caja no se pierden al alejarte
 var id := ""
@@ -254,7 +253,7 @@ func _foco_actual() -> int:
 
 
 func _sonar(nombre: String) -> void:
-	_voz.stream = sonido(nombre)
+	_voz.stream = Sonidos.sonido(nombre)
 	_voz.play()
 
 
@@ -564,63 +563,3 @@ static func _lados(st: SurfaceTool, x: float, perfil: PackedVector2Array) -> voi
 
 static func _uv(region: Rect2i) -> Rect2:
 	return Rect2(Vector2(region.position) / ATLAS, Vector2(region.size) / ATLAS)
-
-
-# --- Sonidos: no hay archivos de audio en el juego, se arman en codigo ---
-
-static func sonido(nombre: String) -> AudioStreamWAV:
-	if not _sonidos.has(nombre):
-		match nombre:
-			"paso":
-				_sonidos[nombre] = _tono(880.0, 0.035, 0.0, 0.5)
-			"boton":
-				_sonidos[nombre] = _tono(220.0, 0.05, -60.0, 0.6)
-			"moneda":
-				_sonidos[nombre] = _tono(1500.0, 0.06, 900.0, 0.5)
-			"perder":
-				_sonidos[nombre] = _tono(300.0, 0.45, -180.0, 0.5)
-			"silbido":
-				_sonidos[nombre] = _tono(500.0, 0.9, 1400.0, 0.2)
-			"trueno":
-				_sonidos[nombre] = _ruido(0.8)
-	return _sonidos[nombre]
-
-
-# Onda cuadrada de `frecuencia` Hz que sube o baja `barrido` Hz en `duracion` s
-static func _tono(frecuencia: float, duracion: float, barrido: float, volumen: float) -> AudioStreamWAV:
-	const MUESTRAS := 22050
-	var datos := PackedByteArray()
-	var cuantas := int(duracion * MUESTRAS)
-	datos.resize(cuantas * 2)
-	var fase := 0.0
-	for i in cuantas:
-		var t := float(i) / cuantas
-		fase += (frecuencia + barrido * t) / MUESTRAS
-		var valor := (1.0 if fmod(fase, 1.0) < 0.5 else -1.0) * volumen * (1.0 - t)
-		datos.encode_s16(i * 2, int(valor * 32000.0))
-	return _wav(datos, MUESTRAS)
-
-
-# Tronido: ruido que se apaga
-static func _ruido(duracion: float) -> AudioStreamWAV:
-	const MUESTRAS := 22050
-	var datos := PackedByteArray()
-	var cuantas := int(duracion * MUESTRAS)
-	datos.resize(cuantas * 2)
-	var azar := RandomNumberGenerator.new()
-	azar.seed = 11
-	var valor := 0.0
-	for i in cuantas:
-		var t := float(i) / cuantas
-		# Ruido medio tapado: suena a golpe y no a siseo
-		valor = lerpf(valor, azar.randf_range(-1.0, 1.0), 0.35)
-		datos.encode_s16(i * 2, int(valor * 32000.0 * pow(1.0 - t, 3.0)))
-	return _wav(datos, MUESTRAS)
-
-
-static func _wav(datos: PackedByteArray, muestras: int) -> AudioStreamWAV:
-	var wav := AudioStreamWAV.new()
-	wav.format = AudioStreamWAV.FORMAT_16_BITS
-	wav.mix_rate = muestras
-	wav.data = datos
-	return wav

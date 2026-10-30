@@ -1,9 +1,8 @@
 extends Node
 
-# Noche de prueba mientras no hay ciclo dia/noche: la tecla N pasa de dia a noche
+# Noche de prueba de locales_preview.tscn (el juego usa Ciclo.gd): la tecla N pasa de dia a noche
 # (o al reves) en `duracion` s. Oscurece el sol, la luz ambiente, el fondo y la
-# niebla, y mueve Alumbrado.configurar_noche() para prender las lamparas. El ciclo
-# de verdad (docs/especificaciones.md §3.1) reemplaza este nodo.
+# niebla, y mueve Alumbrado.configurar_noche() para prender las lamparas.
 
 @export var sol_path: NodePath
 @export var environment_path: NodePath

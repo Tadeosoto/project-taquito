@@ -32,7 +32,9 @@
 [ext_resource type="Texture2D" path="res://textures/map/barda.png" id="38_barda"]
 [ext_resource type="Texture2D" path="res://textures/map/malla.png" id="39_malla"]
 [ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="40_alumbrado"]
-[ext_resource type="Script" path="res://scripts/map/MapNocheDebug.gd" id="41_noche"]
+[ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="41_ciclo"]
+[ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="42_zombis"]
+[ext_resource type="Script" path="res://scripts/map/Supervivencia.gd" id="42_supervivencia"]
 [ext_resource type="Script" path="res://scripts/interiores/Interiores.gd" id="43_interiores"]
 [ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="45_npc"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="44_tiendita"]
@@ -260,8 +262,8 @@ script = ExtResource("40_alumbrado")
 target_path = NodePath("../Dron")
 jugador_path = NodePath("../Player")
 
-[node name="NocheDebug" type="Node" parent="."]
-script = ExtResource("41_noche")
+[node name="Ciclo" type="Node" parent="."]
+script = ExtResource("41_ciclo")
 sol_path = NodePath("../DirectionalLight3D")
 environment_path = NodePath("../WorldEnvironment")
 
@@ -306,6 +308,17 @@ dron_path = NodePath("../Dron")
 ocultar = Array[NodePath]([NodePath("../Minimapa")])
 
 [node name="InventoryUI" parent="." instance=ExtResource("46_inventario")]
+
+[node name="Zombis" type="Node3D" parent="."]
+script = ExtResource("42_zombis")
+jugador_path = NodePath("../Player")
+ciclo_path = NodePath("../Ciclo")
+
+[node name="Supervivencia" type="CanvasLayer" parent="."]
+script = ExtResource("42_supervivencia")
+jugador_path = NodePath("../Player")
+ciclo_path = NodePath("../Ciclo")
+zombis_path = NodePath("../Zombis")
 
 [node name="ObjetoPrueba1" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.58, 0.5, 646.64)
