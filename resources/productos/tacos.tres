@@ -10,3 +10,4 @@ description = "Orden de tres, con todo."
 inspection_model = ExtResource("1_modelo")
 efecto = "Recupera vida."
 precio = 45
+curacion = 30

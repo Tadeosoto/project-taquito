@@ -11,3 +11,4 @@ inspection_model = ExtResource("1_modelo")
 efecto = "Cura todo. Casi no hay."
 precio = 2
 moneda = 1
+curacion = 100

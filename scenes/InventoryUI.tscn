@@ -8,14 +8,46 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5tlb1"]
 shader = ExtResource("3_l5txx")
 shader_parameter/color_levels = 32.0
-shader_parameter/dither_strenght = 1.0000000149012
+shader_parameter/dither_strenght = 0.35
 shader_parameter/desaturacion = 0.0
 shader_parameter/tinte = Color(1, 1, 1, 1)
 shader_parameter/contraste = 1.0
 shader_parameter/vineta = 0.0
 
+[sub_resource type="Theme" id="Theme_inventario"]
+default_font_size = 16
+Label/colors/font_color = Color(0.95, 0.95, 0.95, 1)
+Label/colors/font_shadow_color = Color(0, 0, 0, 1)
+Label/constants/shadow_offset_x = 1
+Label/constants/shadow_offset_y = 1
+RichTextLabel/colors/default_color = Color(0.8, 0.8, 0.82, 1)
+
+[sub_resource type="Gradient" id="Gradient_barra"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(1, 0.85, 0.1, 1, 1, 0.85, 0.1, 0.6, 1, 0.85, 0.1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_barra"]
+gradient = SubResource("Gradient_barra")
+width = 180
+height = 2
+fill_to = Vector2(1, 0)
+
+[sub_resource type="Environment" id="Environment_preview"]
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.6
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0, 0, 0, 1)
+fog_density = 1.0
+fog_sky_affect = 0.0
+fog_depth_curve = 1.0
+fog_depth_begin = 3.5
+fog_depth_end = 8.0
+
 [node name="InventoryUI" type="CanvasLayer" unique_id=984314711]
 process_mode = 3
+layer = 11
 script = ExtResource("1_l5txx")
 
 [node name="MainPanel" type="Control" parent="." unique_id=199812465]
@@ -25,6 +57,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("Theme_inventario")
 
 [node name="DarkBackground" type="ColorRect" parent="MainPanel" unique_id=1589688707]
 layout_mode = 1
@@ -33,24 +66,32 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.16206568, 0.1620655, 0.16206563, 1)
+color = Color(0, 0, 0, 1)
+
+[node name="FotoEstado" type="TextureRect" parent="MainPanel"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 48.0
+offset_right = 205.0
+offset_bottom = 163.0
+expand_mode = 1
+stretch_mode = 6
 
 [node name="PreviewContainer" type="SubViewportContainer" parent="MainPanel" unique_id=1105988535]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 71.0
-offset_top = -76.0
-offset_right = -57.0
-offset_bottom = -44.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+stretch = true
 
 [node name="PreviewViewport" type="SubViewport" parent="MainPanel/PreviewContainer" unique_id=375903249]
 own_world_3d = true
 transparent_bg = true
 handle_input_locally = false
+size = Vector2i(640, 480)
 render_target_update_mode = 4
 
 [node name="PreviewWorld" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport" unique_id=1134945443]
@@ -63,99 +104,213 @@ current = true
 [node name="KeyLight" type="DirectionalLight3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=1494657869]
 transform = Transform3D(0.70710677, -0.49999997, 0.49999997, 0, 0.70710677, 0.70710677, -0.70710677, -0.49999997, 0.49999997, 0, 0, 0)
 
+[node name="Ambiente" type="WorldEnvironment" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld"]
+environment = SubResource("Environment_preview")
+
 [node name="ItemPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=1604028138]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.3, -0.7)
 
-[node name="RightPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=708181006]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -0.5)
-
-[node name="LeftPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=84776279]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -0.5)
-
-[node name="ItemName" type="Label" parent="MainPanel" unique_id=607519557]
-layout_mode = 0
-offset_left = 50.0
-offset_top = 350.0
-offset_right = 208.0
-offset_bottom = 373.0
-text = "Caguama Agua Mala"
-
-[node name="ItemDescription" type="RichTextLabel" parent="MainPanel" unique_id=124422601]
-layout_mode = 0
-offset_left = 71.0
-offset_top = 380.0
-offset_right = 576.0
-offset_bottom = 430.0
-text = "Una cerveza barata que dice contener agua de manantial local. Restaura algo de vida."
-
-[node name="InspecHint" type="Label" parent="MainPanel" unique_id=1302680916]
-layout_mode = 0
-offset_left = 190.0
-offset_top = 327.31
-offset_right = 340.0
-offset_bottom = 350.31
-
-[node name="CombineHint" type="Label" parent="MainPanel" unique_id=654539869]
-layout_mode = 0
-offset_left = 500.0
-offset_top = 65.0
-offset_right = 599.0
-offset_bottom = 88.0
-text = "Combinar"
-
-[node name="UseHint" type="Label" parent="MainPanel" unique_id=434452821]
-layout_mode = 0
-offset_left = 501.0
-offset_top = 88.0
-offset_right = 600.0
-offset_bottom = 111.0
-text = "Utilizar"
-
-[node name="ItemCount" type="Label" parent="MainPanel" unique_id=2070876859]
-layout_mode = 0
-offset_left = 21.0
-offset_top = 445.0
-offset_right = 94.0
-offset_bottom = 468.0
-
-[node name="InspectButton" type="Button" parent="MainPanel" unique_id=1826877857]
-layout_mode = 0
-offset_left = 497.0
-offset_top = 34.0
-offset_right = 579.0
-offset_bottom = 65.0
-text = "Examinar"
+[node name="EquipoPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld"]
+transform = Transform3D(0.9063, 0, 0.4226, 0, 1, 0, -0.4226, 0, 0.9063, 0, 1.35, 0)
 
 [node name="HighlightBox" type="ReferenceRect" parent="MainPanel" unique_id=599312522]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+layout_mode = 0
 offset_left = 245.0
-offset_top = 105.0
-offset_right = -234.99902
-offset_bottom = -160.0
-grow_horizontal = 2
-grow_vertical = 2
-border_color = Color(0, 0, 1, 1)
-border_width = 2.0
+offset_top = 165.0
+offset_right = 395.0
+offset_bottom = 315.0
+border_color = Color(1, 0.85, 0.1, 1)
+border_width = 1.5
 editor_only = false
 
 [node name="BoxCorners" type="Node2D" parent="MainPanel/HighlightBox" unique_id=2142061720]
-position = Vector2(-9.7, -6.8)
+position = Vector2(-8, -8)
 script = ExtResource("3_rp0l5")
-box_width = 180.0
-box_height = 230.0
+corner_color = Color(1, 0.85, 0.1, 0.6)
+line_thickness = 1.5
+corner_length = 70.0
+box_width = 166.0
+box_height = 166.0
+
+[node name="FlechaIzquierda" type="Label" parent="MainPanel"]
+self_modulate = Color(1, 1, 1, 0.55)
+layout_mode = 0
+offset_left = 195.0
+offset_top = 226.0
+offset_right = 240.0
+offset_bottom = 254.0
+theme_override_font_sizes/font_size = 22
+text = "◁◁"
+horizontal_alignment = 1
+
+[node name="FlechaDerecha" type="Label" parent="MainPanel"]
+self_modulate = Color(1, 1, 1, 0.55)
+layout_mode = 0
+offset_left = 400.0
+offset_top = 226.0
+offset_right = 445.0
+offset_bottom = 254.0
+theme_override_font_sizes/font_size = 22
+text = "▷▷"
+horizontal_alignment = 1
+
+[node name="TituloEstado" type="Label" parent="MainPanel"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 16.0
+offset_right = 205.0
+offset_bottom = 40.0
+theme_override_font_sizes/font_size = 18
+text = "Estado"
+
+[node name="Barra" type="TextureRect" parent="MainPanel/TituloEstado"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 25.0
+offset_bottom = 27.0
+grow_horizontal = 2
+texture = SubResource("GradientTexture2D_barra")
+expand_mode = 1
+
+[node name="TituloEquipo" type="Label" parent="MainPanel"]
+layout_mode = 0
+offset_left = 230.0
+offset_top = 16.0
+offset_right = 405.0
+offset_bottom = 40.0
+theme_override_font_sizes/font_size = 18
+text = "Equipo"
+
+[node name="Barra" type="TextureRect" parent="MainPanel/TituloEquipo"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 25.0
+offset_bottom = 27.0
+grow_horizontal = 2
+texture = SubResource("GradientTexture2D_barra")
+expand_mode = 1
+
+[node name="TituloComando" type="Label" parent="MainPanel"]
+layout_mode = 0
+offset_left = 430.0
+offset_top = 16.0
+offset_right = 605.0
+offset_bottom = 40.0
+theme_override_font_sizes/font_size = 18
+text = "Comando"
+
+[node name="Barra" type="TextureRect" parent="MainPanel/TituloComando"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 25.0
+offset_bottom = 27.0
+grow_horizontal = 2
+texture = SubResource("GradientTexture2D_barra")
+expand_mode = 1
+
+[node name="Estado" type="Label" parent="MainPanel"]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 140.0
+offset_right = 200.0
+offset_bottom = 161.0
+theme_override_font_sizes/font_size = 15
+text = "Bien"
+
+[node name="SinMochila" type="Label" parent="MainPanel"]
+layout_mode = 0
+offset_left = 230.0
+offset_top = 85.0
+offset_right = 405.0
+offset_bottom = 108.0
+theme_override_colors/font_color = Color(0.45, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 16
+text = "Sin mochila"
+horizontal_alignment = 1
+
+[node name="Capacidad" type="Label" parent="MainPanel"]
+layout_mode = 0
+offset_left = 345.0
+offset_top = 134.0
+offset_right = 475.0
+offset_bottom = 157.0
+text = "- 0 / 6 -"
+horizontal_alignment = 1
+
+[node name="ComandoExaminar" type="Label" parent="MainPanel"]
+layout_mode = 0
+offset_left = 430.0
+offset_top = 48.0
+offset_right = 605.0
+offset_bottom = 72.0
+theme_override_font_sizes/font_size = 17
+text = "Examinar"
+
+[node name="ComandoUtilizar" type="Label" parent="MainPanel" unique_id=434452821]
+layout_mode = 0
+offset_left = 430.0
+offset_top = 73.0
+offset_right = 605.0
+offset_bottom = 97.0
+theme_override_font_sizes/font_size = 17
+text = "Utilizar"
+
+[node name="ComandoCombinar" type="Label" parent="MainPanel" unique_id=654539869]
+layout_mode = 0
+offset_left = 430.0
+offset_top = 98.0
+offset_right = 605.0
+offset_bottom = 122.0
+theme_override_font_sizes/font_size = 17
+text = "Combinar"
+
+[node name="ItemName" type="Label" parent="MainPanel" unique_id=607519557]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 335.0
+offset_right = 340.0
+offset_bottom = 360.0
+theme_override_colors/font_color = Color(1, 0.85, 0.1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Caguama Agua Mala"
+
+[node name="InspecHint" type="Label" parent="MainPanel" unique_id=1302680916]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 337.0
+offset_right = 610.0
+offset_bottom = 360.0
+theme_override_colors/font_color = Color(0.6, 0.6, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 2
+
+[node name="ItemDescription" type="RichTextLabel" parent="MainPanel" unique_id=124422601]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 364.0
+offset_right = 610.0
+offset_bottom = 425.0
+theme_override_font_sizes/normal_font_size = 15
+text = "Una cerveza barata que dice contener agua de manantial local. Restaura algo de vida."
+
+[node name="Mensaje" type="Label" parent="MainPanel"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 435.0
+offset_right = 610.0
+offset_bottom = 458.0
+theme_override_font_sizes/font_size = 15
 
 [node name="Rect" type="BackBufferCopy" parent="." unique_id=328297110]
-visible = false
 copy_mode = 2
 
 [node name="DitherFilter" type="ColorRect" parent="." unique_id=2104997594]
-visible = false
 material = SubResource("ShaderMaterial_5tlb1")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2

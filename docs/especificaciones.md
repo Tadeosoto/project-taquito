@@ -161,14 +161,16 @@ Tercera persona, cámara relativa, correr con Shift, saltar. Ya existe en `scrip
 
 ### 4.3 Salud y estados 💡
 
-- **Vida** (se cura con comida/medicina).
+- **Vida** (se cura con comida/medicina). 🧱 Ya existe lo mínimo (`scripts/Salud.gd`, autoload `Salud`, empieza en 60 de 100 de prueba): se cura desde el inventario y ahí se ve el estado (Bien / Herido / Grave). Todavía nada hace daño.
 - **Estamina** (correr, golpear).
 - 💡 **Infección**: si un zombie te muerde se llena una barra; el agua limpia la baja. Si se llena, te vuelves zombie (ver 1.5 C). Une la mecánica con el tema del agua.
 - 💡 Nada de hambre/sed obligatoria al principio: complica mucho y aburre. Los consumibles dan *buffs* temporales en vez de "no morirte de hambre".
 
 ### 4.4 Inventario estilo Resident Evil 🧱 (parcial)
 
-Ya existe un inventario circular con inspección 3D de objetos (`scripts/Inventory.gd`, `scenes/InventoryUI.tscn`). Falta decidir:
+Ya existe un inventario circular con inspección 3D de objetos (`scripts/Inventory.gd`, `scenes/InventoryUI.tscn`), en `map_test.tscn`: Tab lo abre y pausa el juego, y tiene los comandos Examinar, Utilizar (cura) y Combinar (recetas). Los objetos del mapa se recogen con Espacio. El menú está **inspirado en Silent Hill 2**, sin copiarlo (hilera de objetos que se pierde en lo oscuro, solo los comandos que aplican, y en Estado el juego pausado para ver dónde estás y cómo andas de vida), no en Resident Evil como decía el registro de decisiones: hay que confirmarlo con el equipo.
+
+🧱 **Mochilas**: sin mochila caben 6 objetos, cada objeto ocupa 1 lugar (o sea, la opción A de abajo sin armas de 2) y lo que no cabe se queda tirado. Recoger una mochila más grande la equipa para siempre, no ocupa lugar y se ve en Equipo; una más chica se queda tirada. Por ahora: mochila escolar (8), del Partido Verde (10) y mochilón del garrafonero (14), las tres con el mismo modelo en distinto color. Números 💡 para discutir. Falta decidir:
 
 | Opción | Referencia | Votos |
 |---|---|---|
@@ -190,7 +192,7 @@ Dos monedas:
 
 - 🧱 La cartera ya existe (`scripts/Cartera.gd`, autoload `Cartera`: pesos y agua, empieza con 120 y 3 de prueba) y se ve dentro de las tiendas; todavía nada la llena ni la gasta.
 - 💡 **Purificar agua** (agua sucia + Cloralex = agua limpia): una receta de *crafteo* sencilla que conecta con el tema.
-- 💡 Crafteo mínimo (como *Dead Rising* / *The Last of Us*), solo unas cuantas recetas: molotov = tequila/caguama vacía + trapo; machete mejorado = machete + cinta.
+- 💡 Crafteo mínimo (como *Dead Rising* / *The Last of Us*), solo unas cuantas recetas: molotov = tequila/caguama vacía + trapo; machete mejorado = machete + cinta. 🧱 El sistema ya existe (`scripts/RecetaData.gd`, `resources/recetas/`, comando Combinar del inventario) con la receta del machete; el machete reforzado todavía no hace nada distinto porque no hay combate.
 
 ### 4.6 Tiendas e interiores 💡
 

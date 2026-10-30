@@ -23,6 +23,7 @@ var camera_pitch: float = -4.6
 
 
 func _ready() -> void:
+	add_to_group("jugador")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -106,9 +107,9 @@ func _physics_process(delta: float) -> void:
 	spring_arm.rotation_degrees.x = camera_pitch
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
-		var npc := _nearby_npc()
-		if npc != null:
-			npc.interact()
+		var cercano := _nearby_interactable()
+		if cercano != null:
+			cercano.interact()
 		else:
 			velocity.y = jump_velocity
 
@@ -118,14 +119,16 @@ func _physics_process(delta: float) -> void:
 		ninja.update_animation(is_moving, not is_on_floor(), is_sprinting)
 
 
-func _nearby_npc() -> Node:
+# El NPC o el objeto para recoger (WorldItem) mas cercano que tenga al jugador en su area
+func _nearby_interactable() -> Node:
 	var closest: Node = null
 	var closest_distance := INF
-	for npc in get_tree().get_nodes_in_group("npc"):
-		if not npc.has_method("is_player_inside") or not npc.is_player_inside():
-			continue
-		var distance := global_position.distance_squared_to(npc.global_position)
-		if distance < closest_distance:
-			closest_distance = distance
-			closest = npc
+	for grupo: String in ["npc", "interactuable"]:
+		for nodo in get_tree().get_nodes_in_group(grupo):
+			if not nodo.has_method("is_player_inside") or not nodo.is_player_inside():
+				continue
+			var distance := global_position.distance_squared_to(nodo.global_position)
+			if distance < closest_distance:
+				closest_distance = distance
+				closest = nodo
 	return closest

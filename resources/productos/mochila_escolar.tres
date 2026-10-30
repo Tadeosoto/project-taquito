@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3]
+
+[ext_resource type="PackedScene" path="res://models/objetos/mexican_starter_pack/mochila.scn" id="1_modelo"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+
+[resource]
+script = ExtResource("2_item")
+item_name = "Mochila escolar"
+description = "Todavía trae la tarea de alguien."
+inspection_model = ExtResource("1_modelo")
+efecto = "Te caben 8 objetos."
+capacidad = 8
+tinte = Color(0.72, 0.13, 0.13, 1)

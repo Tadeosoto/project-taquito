@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="RecetaData" format=3]
+
+[ext_resource type="Script" path="res://scripts/RecetaData.gd" id="1_receta"]
+[ext_resource type="Resource" path="res://resources/productos/machete.tres" id="2_a"]
+[ext_resource type="Resource" path="res://resources/productos/cinta.tres" id="3_b"]
+[ext_resource type="Resource" path="res://resources/productos/machete_reforzado.tres" id="4_resultado"]
+
+[resource]
+script = ExtResource("1_receta")
+a = ExtResource("2_a")
+b = ExtResource("3_b")
+resultado = ExtResource("4_resultado")

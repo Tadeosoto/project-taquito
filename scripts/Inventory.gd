@@ -4,6 +4,15 @@ extends Node
 # UI escucha esta senal, actualiza en automatico.
 signal inventory_changed
 
+# Lo que se puede hacer con "Combinar" (docs/especificaciones.md 4.5)
+const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres")]
+
+# Cuantos objetos caben sin mochila (docs/especificaciones.md 4.4)
+const CAPACIDAD_BASE := 6
+
+# La mochila que traes puesta; no ocupa lugar. null = sin mochila
+var mochila: InventoryItemData = null
+
 # Lista de items que el jugador tiene.
 # Empieza limpia.
 var items: Array[InventoryItemData] = []
@@ -22,11 +31,18 @@ func _ready() -> void:
 	
 	var item1 = load("res://resources/agua_mala.tres") as InventoryItemData
 	var item2 = load("res://resources/taco_pastor.tres") as InventoryItemData
-	
+	# Pa probar Combinar
+	var item3 = load("res://resources/productos/machete.tres") as InventoryItemData
+	var item4 = load("res://resources/productos/cinta.tres") as InventoryItemData
+
 	if item1:
 		add_item(item1)
 	if item2:
 		add_item(item2)
+	if item3:
+		add_item(item3)
+	if item4:
+		add_item(item4)
 	# ============================
 
 
@@ -38,13 +54,31 @@ func get_item(index: int) -> InventoryItemData:
 	return items[index]
 
 
-# Agrega nuevos items al final de la lista.
+func capacidad() -> int:
+	return mochila.capacidad if mochila else CAPACIDAD_BASE
+
+
+func esta_lleno() -> bool:
+	return items.size() >= capacidad()
+
+
+# Una mochila solo sirve si es mas grande que la que traes; la vieja se tira.
+func equipar_mochila(nueva: InventoryItemData) -> bool:
+	if nueva == null or nueva.capacidad <= capacidad():
+		return false
+	mochila = nueva
+	inventory_changed.emit()
+	return true
+
+
+# Agrega nuevos items al final de la lista; regresa false si ya no caben.
 # Despues de agregar, llama a invetory_changed para actualizar.
-func add_item(item: InventoryItemData) -> void:
-	if item == null:
-		return
+func add_item(item: InventoryItemData) -> bool:
+	if item == null or esta_lleno():
+		return false
 	items.append(item)
 	inventory_changed.emit()
+	return true
 
 
 # Remueve items al final de la lista.
@@ -54,3 +88,22 @@ func remove_item(index: int) -> void:
 		return
 	items.remove_at(index)
 	inventory_changed.emit()
+
+
+# Combina los items de dos posiciones. Si hay receta los gasta, agrega el resultado al
+# final y lo regresa; si no, regresa null y no gasta nada.
+func combinar(index_a: int, index_b: int) -> InventoryItemData:
+	if index_a == index_b:
+		return null
+	var uno := get_item(index_a)
+	var otro := get_item(index_b)
+	if uno == null or otro == null:
+		return null
+	for receta: RecetaData in RECETAS:
+		if receta.usa(uno, otro):
+			items.remove_at(maxi(index_a, index_b))
+			items.remove_at(mini(index_a, index_b))
+			items.append(receta.resultado)
+			inventory_changed.emit()
+			return receta.resultado
+	return null

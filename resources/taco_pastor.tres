@@ -8,4 +8,5 @@ script = ExtResource("2_h5llw")
 item_name = "Taco al Pastor"
 description = "Un taco callejero, frío y grasiento. Tiene un olor sospechoso. Recupera algo de energia"
 inspection_model = ExtResource("1_8eym7")
+curacion = 30
 metadata/_custom_type_script = "uid://s387l0w3an5w"

@@ -43,6 +43,14 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="44_ferreteria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="44_purificadora"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="44_punto"]
+[ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="46_inventario"]
+[ext_resource type="Script" path="res://scripts/WorldItem.gd" id="47_world_item"]
+[ext_resource type="Resource" path="res://resources/productos/botiquin.tres" id="48_botiquin"]
+[ext_resource type="Resource" path="res://resources/productos/gansito.tres" id="49_gansito"]
+[ext_resource type="Resource" path="res://resources/productos/takis.tres" id="50_takis"]
+[ext_resource type="Resource" path="res://resources/productos/mochila_escolar.tres" id="51_mochila_escolar"]
+[ext_resource type="Resource" path="res://resources/productos/mochila_verde.tres" id="52_mochila_verde"]
+[ext_resource type="Resource" path="res://resources/productos/mochilon.tres" id="53_mochilon"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -296,3 +304,35 @@ puntos_path = NodePath("../Puntos")
 player_path = NodePath("../Player")
 dron_path = NodePath("../Dron")
 ocultar = Array[NodePath]([NodePath("../Minimapa")])
+
+[node name="InventoryUI" parent="." instance=ExtResource("46_inventario")]
+
+[node name="ObjetoPrueba1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.58, 0.5, 646.64)
+script = ExtResource("47_world_item")
+item_data = ExtResource("48_botiquin")
+
+[node name="ObjetoPrueba2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.95, 0.5, 648.48)
+script = ExtResource("47_world_item")
+item_data = ExtResource("49_gansito")
+
+[node name="ObjetoPrueba3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.42, 0.5, 644.27)
+script = ExtResource("47_world_item")
+item_data = ExtResource("50_takis")
+
+[node name="MochilaPrueba1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 208.27, 0.5, 641.9)
+script = ExtResource("47_world_item")
+item_data = ExtResource("51_mochila_escolar")
+
+[node name="MochilaPrueba2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210.11, 0.5, 639.54)
+script = ExtResource("47_world_item")
+item_data = ExtResource("52_mochila_verde")
+
+[node name="MochilaPrueba3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 211.96, 0.5, 637.17)
+script = ExtResource("47_world_item")
+item_data = ExtResource("53_mochilon")

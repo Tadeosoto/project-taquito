@@ -10,3 +10,4 @@ description = "El de siempre. Recuérdame."
 inspection_model = ExtResource("1_modelo")
 efecto = "Recupera poquita vida."
 precio = 15
+curacion = 10

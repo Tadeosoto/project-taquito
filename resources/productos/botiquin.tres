@@ -10,3 +10,4 @@ description = "Trae de todo, menos doctor."
 inspection_model = ExtResource("1_modelo")
 efecto = "Curación grande."
 precio = 120
+curacion = 70

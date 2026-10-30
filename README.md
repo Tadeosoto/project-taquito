@@ -30,9 +30,7 @@ La primera vez, abre el proyecto en el editor (o corre `godot --path . --headles
 | Moverse | WASD / flechas |
 | Cámara | Mouse (en `map_test.tscn` también Q / E) |
 | Correr | Shift |
-| Saltar / hablar con NPC | Espacio |
-| Inventario: anterior / siguiente | Q / E |
-| Inventario: inspeccionar / regresar | Enter / Esc |
+| Saltar / hablar con NPC / recoger | Espacio |
 
 En `map_test.tscn` además:
 
@@ -42,6 +40,12 @@ En `map_test.tscn` además:
 | Dron: moverse (15 m/s, a 30 m de altura) | WASD / flechas |
 | Dron: girar | Mouse o Q / E |
 | Dron: ir al triple de rápido | Shift |
+| Abrir / cerrar inventario | Tab |
+| Inventario: cambiar de objeto | ← / → o Q / E |
+| Inventario: elegir comando (Examinar, Utilizar, Combinar) | ↑ / ↓ |
+| Inventario: confirmar / regresar | Enter / Esc |
+| Recoger objeto o mochila (más mochila = más espacio) | Espacio |
+| Examinar: girar / acercar | Flechas / Rueda o RePág / AvPág |
 
 La escena arranca a pie. Al presionar V para dejar el dron, el jugador aterriza justo debajo (en la calle o en una azotea).
 
@@ -72,7 +76,7 @@ docs/mapa/      README y capturas del mapa
 
 ## Pendientes conocidos
 
-- `InventoryUI.tscn` todavía no está en `world.tscn`, y el jugador solo interactúa con NPCs (no con `WorldItem`).
+- El inventario solo está en `map_test.tscn`, no en `world.tscn`.
 - Mapa: ver [`docs/mapa/README.md`](docs/mapa/README.md#pendientes).
 
 ## Créditos

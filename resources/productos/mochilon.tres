@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3]
+
+[ext_resource type="PackedScene" path="res://models/objetos/mexican_starter_pack/mochila.scn" id="1_modelo"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+
+[resource]
+script = ExtResource("2_item")
+item_name = "Mochilón del garrafonero"
+description = "Hecho para cargar garrafones. Huele a humedad."
+inspection_model = ExtResource("1_modelo")
+efecto = "Te caben 14 objetos."
+capacidad = 14
+tinte = Color(0.12, 0.2, 0.5, 1)

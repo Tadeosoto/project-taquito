@@ -10,3 +10,4 @@ description = "Agua Mala, bien helada (o casi)."
 inspection_model = ExtResource("1_modelo")
 efecto = "Recupera vida pero te marea un rato. Vacía sirve para molotov."
 precio = 50
+curacion = 25
