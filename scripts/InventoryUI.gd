@@ -42,6 +42,18 @@ func _ready() -> void:
 	set_inspection_mode(false)
 	refresh_carousel()
 	
+	# === RETRO HIGHLIGHT FLASH TWEEN ===
+	if has_node("MainPanel/HighlightBox"):
+		var box = $MainPanel/HighlightBox
+		
+		# Create an infinite looping pulse animation
+		var pulse_tween = create_tween().set_loops()
+		pulse_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		
+		# Fade the border color alpha channel out and back in smoothly
+		pulse_tween.tween_property(box, "modulate:a", 0.3, 0.6)
+		pulse_tween.tween_property(box, "modulate:a", 1.0, 0.6)
+	
 func _on_inspect_button_pressed() -> void:
 	if current_state == InventoryState.INSPECTING:
 		set_inspection_mode(false)

@@ -3,11 +3,16 @@
 [ext_resource type="Script" uid="uid://51xkaf0digic" path="res://scripts/InventoryUI.gd" id="1_l5txx"]
 [ext_resource type="Script" uid="uid://3ld5127p8qfq" path="res://scripts/InventoryInspectViewer.gd" id="1_wqexf"]
 [ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="3_l5txx"]
+[ext_resource type="Script" uid="uid://cavwrbapbb4rq" path="res://scenes/box_corners.gd" id="3_rp0l5"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5tlb1"]
 shader = ExtResource("3_l5txx")
 shader_parameter/color_levels = 32.0
 shader_parameter/dither_strenght = 1.0000000149012
+shader_parameter/desaturacion = 0.0
+shader_parameter/tinte = Color(1, 1, 1, 1)
+shader_parameter/contraste = 1.0
+shader_parameter/vineta = 0.0
 
 [node name="InventoryUI" type="CanvasLayer" unique_id=984314711]
 process_mode = 3
@@ -59,6 +64,7 @@ current = true
 transform = Transform3D(0.70710677, -0.49999997, 0.49999997, 0, 0.70710677, 0.70710677, -0.70710677, -0.49999997, 0.49999997, 0, 0, 0)
 
 [node name="ItemPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=1604028138]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.3, -0.7)
 
 [node name="RightPivot" type="Node3D" parent="MainPanel/PreviewContainer/PreviewViewport/PreviewWorld" unique_id=708181006]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -0.5)
@@ -69,25 +75,25 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -0.5)
 [node name="ItemName" type="Label" parent="MainPanel" unique_id=607519557]
 layout_mode = 0
 offset_left = 50.0
-offset_top = 330.0
+offset_top = 350.0
 offset_right = 208.0
-offset_bottom = 353.0
+offset_bottom = 373.0
 text = "Caguama Agua Mala"
 
 [node name="ItemDescription" type="RichTextLabel" parent="MainPanel" unique_id=124422601]
 layout_mode = 0
 offset_left = 71.0
-offset_top = 364.0
+offset_top = 380.0
 offset_right = 576.0
-offset_bottom = 414.0
+offset_bottom = 430.0
 text = "Una cerveza barata que dice contener agua de manantial local. Restaura algo de vida."
 
 [node name="InspecHint" type="Label" parent="MainPanel" unique_id=1302680916]
 layout_mode = 0
 offset_left = 122.0
-offset_top = 295.0
+offset_top = 310.0
 offset_right = 374.0
-offset_bottom = 328.0
+offset_bottom = 343.0
 
 [node name="CombineHint" type="Label" parent="MainPanel" unique_id=654539869]
 layout_mode = 0
@@ -108,9 +114,9 @@ text = "Utilizar"
 [node name="ItemCount" type="Label" parent="MainPanel" unique_id=2070876859]
 layout_mode = 0
 offset_left = 21.0
-offset_top = 436.0
+offset_top = 445.0
 offset_right = 94.0
-offset_bottom = 459.0
+offset_bottom = 468.0
 
 [node name="InspectButton" type="Button" parent="MainPanel" unique_id=1826877857]
 layout_mode = 0
@@ -119,6 +125,27 @@ offset_top = 34.0
 offset_right = 579.0
 offset_bottom = 65.0
 text = "Examinar"
+
+[node name="HighlightBox" type="ReferenceRect" parent="MainPanel" unique_id=599312522]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 245.0
+offset_top = 105.0
+offset_right = -234.99902
+offset_bottom = -160.0
+grow_horizontal = 2
+grow_vertical = 2
+border_color = Color(0, 0, 1, 1)
+border_width = 2.0
+editor_only = false
+
+[node name="BoxCorners" type="Node2D" parent="MainPanel/HighlightBox" unique_id=2142061720]
+position = Vector2(-9.7, -6.8)
+script = ExtResource("3_rp0l5")
+box_width = 180.0
+box_height = 230.0
 
 [node name="Rect" type="BackBufferCopy" parent="." unique_id=328297110]
 copy_mode = 2
