@@ -45,6 +45,9 @@ En `map_test.tscn` además:
 | Inventario: elegir comando (Examinar, Utilizar, Combinar) | ↑ / ↓ |
 | Inventario: confirmar / regresar | Enter / Esc |
 | Recoger objeto o mochila (más mochila = más espacio) | Espacio |
+| Maquinita de frutas (afuera de algunas tienditas): jugar | Espacio |
+| Maquinita: cambiar de fruta / apostar o quitar $1 | ← → o Q / E / ↑ ↓ |
+| Maquinita: tirar / salir | Espacio / S o Esc |
 | Examinar: girar / acercar | Flechas / Rueda o RePág / AvPág |
 
 La escena arranca a pie. Al presionar V para dejar el dron, el jugador aterriza justo debajo (en la calle o en una azotea).

@@ -49,6 +49,7 @@ var _flecha: Node3D
 
 
 func _ready() -> void:
+	add_to_group("interiores")
 	_puntos = get_node(puntos_path) as MapPuntos
 	_player = get_node(player_path) as Player
 	_puntos.entrar_negocio.connect(_entrar)
@@ -116,7 +117,7 @@ func _entrar(_tipo: String, giro: String, nombre: String, aire_libre: bool, marc
 	add_child(_interior)
 	_interior.camara().make_current()
 	_interior.activar()
-	_mostrar(false)
+	mostrar_afuera(false)
 	await _fundir(0.0)
 	_mostrar_letrero(nombre)
 	_ocupado = false
@@ -138,7 +139,7 @@ func _salir() -> void:
 	_player.frijol.global_rotation.y = giro
 	(_player.find_child("Camera3D", true, false) as Camera3D).make_current()
 	_player.process_mode = Node.PROCESS_MODE_INHERIT
-	_mostrar(true)
+	mostrar_afuera(true)
 	await _fundir(0.0)
 	_ocupado = false
 
@@ -170,7 +171,7 @@ func _acercar(marcador: Node3D, vendedor: Node3D, nombre: String) -> void:
 		if hijo is MeshInstance3D:
 			_flecha = hijo
 			_flecha.visible = false
-	_mostrar(false)
+	mostrar_afuera(false)
 	var tween := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(_zoom, "global_transform", destino, ZOOM_TIEMPO)
 	tween.tween_property(_zoom, "fov", ZOOM_FOV, ZOOM_TIEMPO)
@@ -198,11 +199,12 @@ func _alejar() -> void:
 	_flecha = null
 	_player.set_physics_process(true)
 	_player.set_process_unhandled_input(true)
-	_mostrar(true)
+	mostrar_afuera(true)
 	_ocupado = false
 
 
-func _mostrar(visible_afuera: bool) -> void:
+# El dron y lo de `ocultar` (el minimapa). Tambien lo usa TragamonedasUI
+func mostrar_afuera(visible_afuera: bool) -> void:
 	var dron := get_node_or_null(dron_path)
 	if dron:
 		dron.process_mode = Node.PROCESS_MODE_INHERIT if visible_afuera else Node.PROCESS_MODE_DISABLED

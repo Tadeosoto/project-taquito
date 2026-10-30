@@ -104,6 +104,9 @@ const RELLENO := {
 const RELLENO_FRANJA := 0.75   # que tanto entra de la pared un mueble de la escena para contar
 const PUESTO_TACOS := Vector2(2.1, 0.7)   # frente y fondo del carrito del puesto de tacos (m)
 const PUESTO_DETALLE := 150.0  # el puesto de tacos suelto se ve desde mas lejos
+# Maquinita de frutas (Maquinita.gd): que giros la pueden traer y su centro desde la orilla de la puerta
+const MAQUINITA_GIROS := ["abarrotes", "licoreria"]
+const MAQUINITA_PUERTA := 0.6
 # El interior de los locales solo se ve por la puerta de cerca: se arma a menos de
 # INTERIOR_CARGA m, se dibuja a menos de INTERIOR_VISTA y se quita a mas de INTERIOR_QUITAR
 const INTERIOR_VISTA := 30.0
@@ -247,6 +250,8 @@ func _calentar() -> void:
 		_calentando.add_child(node)
 		if GIROS_LOCAL.has(tipo):
 			_armar_interior(node, punto, true)
+	# Las chispas de los cohetes, para no trabar el cuadro del primer premio
+	_calentando.add_child(Cohetes.chispas(4, 1.0, Color.WHITE, 1.0))
 	_calentar_cuadros = CALENTAR_CUADROS
 	_achicar_calentando()
 
@@ -736,6 +741,7 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 		simi.scale = Vector3.ONE * botarga_escala
 		simi.position = Vector3(-w / 2.0 + 0.45, 0.0, front + 0.9)
 		banqueta.add_child(simi)
+	_maquinita(banqueta, punto, w, puerta, front)
 	# Los muebles se arman al entrar al arbol: hasta entonces no tienen mallas. En el
 	# juego entran de uno por cuadro, como los del interior
 	if _target:
@@ -747,6 +753,26 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 	if _target == null:
 		_armar_interior(body, punto, true)
 	return body
+
+
+# La maquinita de frutas afuera de la mitad de las tienditas: a un lado de la puerta, de
+# espaldas a la fachada, si cabe. Cual tienda y de que lado sale de su `origen`.
+func _maquinita(banqueta: Node3D, punto: Dictionary, w: float, puerta: float, front: float) -> void:
+	if not punto["tipo"] in MAQUINITA_GIROS:
+		return
+	var origen: String = punto.get("origen", "")
+	var tiro := absi(hash(origen))
+	# Sin origen es el de _calentar o locales_preview: siempre
+	if origen != "" and tiro % 2 == 0:
+		return
+	var x := puerta / 2.0 + MAQUINITA_PUERTA
+	if x + Maquinita.ANCHO / 2.0 > w / 2.0:
+		return
+	var maquina := Maquinita.new()
+	maquina.name = "Maquinita"
+	maquina.id = origen
+	maquina.position = Vector3(x if tiro % 4 < 2 else -x, 0.0, front + Maquinita.FONDO / 2.0 + 0.02)
+	banqueta.add_child(maquina)
 
 
 # Medidas de una casa-local: frente `w` y fondo `d` (minimo LOCAL_MIN), `front` (la
@@ -790,7 +816,7 @@ func _armar_interior(body: Node3D, punto: Dictionary, de_una := false) -> void:
 # para dibujarse a menos de `distancia` m
 func _sacar_muebles(nodo: Node, distancia := INTERIOR_VISTA) -> void:
 	for hijo in nodo.get_children():
-		if hijo is Mostrador or hijo is Refrigerador or hijo.scene_file_path != "":
+		if hijo is Mostrador or hijo is Refrigerador or hijo is Maquinita or hijo.scene_file_path != "":
 			nodo.remove_child(hijo)
 			_pendientes.append([nodo, hijo, distancia])
 		else:
