@@ -27,7 +27,11 @@ const SEPARACION := 1.1     # que no se encimen unos con otros
 const ATORADO_EN := 0.8     # s casi sin avanzar
 const RODEO := 1.2          # s haciendose a un lado
 const PESOS := Vector2i(1, 3)
-const PERSIGUE := 12.0      # m: mas cerca deja el refugio y va por el jugador
+# A tablas y tinaco pegan menos: 2 de dano por segundo, parecido al asedio simulado
+# (Refugio.ASEDIO); si no, quedarse a defender salia peor que irse
+const DANO_RECINTO := 3
+const JEFE_DANO_RECINTO := 8
+const PERSIGUE := 12.0     # m: mas cerca deja el refugio y va por el jugador
 const PASA_ENTRADA := 2.0   # m adentro del patio a los que apunta al cruzar una entrada
 const JEFE_VIDA := 400
 const JEFE_DANO := 25
@@ -216,7 +220,7 @@ func _atacar() -> void:
 			if hacia.length() <= _alcance_golpe and absf(jugador.global_position.y - global_position.y) <= _alcance_golpe:
 				jugador.recibir_dano(_dano)
 		elif is_instance_valid(_blanco) and _blanco.has_method("recibir_golpe"):
-			_blanco.recibir_golpe(_dano)
+			_blanco.recibir_golpe(JEFE_DANO_RECINTO if es_jefe else DANO_RECINTO)
 	if _tiempo >= ATAQUE_DURA:
 		_seguir_caminando()
 
