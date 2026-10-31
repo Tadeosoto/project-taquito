@@ -161,7 +161,7 @@ Tercera persona, cámara relativa, correr con Shift, saltar. Ya existe en `scrip
 
 ### 4.2 Combate
 
-- **Cuerpo a cuerpo**: machete, bate, chancla… Una animación de golpe + área de daño delante del jugador. Lo más fácil de hacer primero. 🧱 Ya se pelea con clic izquierdo o F: pega con la mejor arma que traigas (machete 12, reforzado 18) o a puño (5), sin equiparla. Por ahora solo con el machete. Daños y vida 💡 para discutir.
+- **Cuerpo a cuerpo**: machete, bate, chancla… Una animación de golpe + área de daño delante del jugador. Lo más fácil de hacer primero. 🧱 Ya se pelea con clic izquierdo o F: pega con la mejor arma que traigas (machete 12, reforzado 18) o a puño (5), sin equiparla. Por ahora solo con el machete. Daños y vida 💡 para discutir. 🧱 Cada golpe se siente: el zombi se pone blanco, suena un whack seco, sale agua sucia hacia donde iba el golpe, el zombi sale empujado y tú rebotas tantito, la cámara se sacude y el juego se congela unos cuadros; con más daño, más fuerza. Al matarlo se hincha y revienta como globo de agua sucia, y deja un charco que se seca. Los que se caen al amanecer no revientan.
 - **Armas de fuego**: pistola, cuerno de chivo, ballesta. Tipo de apuntado 🗳️ (ver 1.4). Munición escasa, recarga.
 - **Arrojables**: molotov (fuego en área), paloma (aturde), bocina (atrae zombies, ver objetos). Se lanzan en arco con previsualización de trayectoria (*GTA*, *Fortnite*).
 - 💡 **Ruido**: disparar hace ruido y atrae zombies; machete es silencioso. Da sentido a elegir arma (*DayZ*, *The Last of Us*).
