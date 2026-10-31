@@ -12,7 +12,7 @@ Godot 4.7 is installed as `godot`.
 
 ```bash
 godot --path . --editor            # open in the editor
-godot --path .                     # run the main scene (scenes/world.tscn)
+godot --path .                     # run the main scene (scenes/inicio.tscn, the start screen)
 godot --path . scenes/InventoryUI.tscn   # run a single scene in isolation
 godot --path . --headless --import # (re)import assets / regenerate .godot cache
 godot --path . --headless --check-only --script res://scripts/player.gd  # parse-check one script
@@ -20,7 +20,8 @@ godot --path . --headless --check-only --script res://scripts/player.gd  # parse
 
 ## Architecture
 
-- **Main scene**: `scenes/world.tscn` (referenced by UID `uid://c2iut07k626j5` in `project.godot`). It instances `player.tscn`, two `npc.tscn` instances (configured per-instance via exported `tint` and `dialogue`), level geometry from `models/*.glb`, and a `PS1_Postprocess` CanvasLayer whose full-screen ColorRect runs `shaders/dittershader.gdshader` over the screen texture. Render resolution is 640×480 with `viewport` stretch mode and nearest texture filtering — this is intentional for the retro look.
+- **Main scene**: `scenes/inicio.tscn` (`scripts/Inicio.gd`): the start screen, a small night scene built in code with the menu over it. Jugar loads `scenes/map_test.tscn` in a thread with "Cargando..." on screen; Créditos reads `CREDITS.md` at runtime (add it to the export filter when exporting; the required map attributions are the fallback).
+- **Old prototype**: `scenes/world.tscn` is no longer what opens, but still runs by path. It instances `player.tscn`, two `npc.tscn` instances (configured per-instance via exported `tint` and `dialogue`), level geometry from `models/*.glb`, and a `PS1_Postprocess` CanvasLayer whose full-screen ColorRect runs `shaders/dittershader.gdshader` over the screen texture. Render resolution is 640×480 with `viewport` stretch mode and nearest texture filtering — this is intentional for the retro look.
 - **Player** (`scripts/player.gd`, `class_name Player`): CharacterBody3D. Movement is camera-relative (`CameraPivot` yaw + `SpringArm3D` pitch); the visual body is the child `Frijol`, which is rotated toward the movement direction separately from the physics body. The `jump` action doubles as "interact": if any node in the `npc` or `interactuable` groups reports `is_player_inside()`, the nearest one gets `interact()` instead of jumping. The player is in group `jugador`. `girar_con_qe` (on only in `map_test.tscn`) turns the camera with physical Q/E; it isn't an input action because Q is `inventory_previous` in `world.tscn`. Animation is delegated to `Frijol/Ninja` via duck-typed `update_animation(is_moving, is_airborne, is_sprinting)` (`scripts/character_animation.gd`).
 - **Animation clips** are looked up by suffix (`"Idle"` matches `"...|Idle"`) because the imported FBX (`models/ninja_male.fbx`) prefixes clip names; loop mode is forced in code. Both player and NPC share this model.
 - **NPC** (`scripts/npc.gd`): registers itself in group `npc`; a `TalkArea` Area3D detects the `Player`. The interaction prompt and speech bubble are 2D UIs rendered into SubViewports and displayed on `Sprite3D`s. The prompt key label switches between keyboard ("Space") and gamepad ("X") based on the last input device.

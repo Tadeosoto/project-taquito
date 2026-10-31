@@ -373,6 +373,7 @@ Con eso, casi todas las misiones de arriba son S.
 
 ## 8. Interfaz (HUD) 💡
 
+- 🧱 **Pantalla de inicio** (`scenes/inicio.tscn`): GUADALAJAJA, "No te tomes el agua." y el menú Jugar, Controles, Créditos y Salir, sobre una escenita de noche. Falta poder volver a ella desde el juego.
 - Vida, estamina, infección (esquina inferior).
 - Minimapa redondo estilo GTA 🧱 (ya existe en `map_test.tscn`) con marcadores de misión y tiendas.
 - Reloj/sol-luna para la hora del día.
@@ -503,3 +504,4 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-10-28 | Shader de día/noche y alumbrado público en el mapa: noche con luz de luna (se ve el juego sin lámparas), postes con lámparas apagadas o parpadeantes según el deterioro. Falta el reloj del ciclo. | JJ |
 | 2026-10-28 | Giros de negocios (4.6) y qué vende cada uno; un interactivo por giro cada 80 m (abarrotes 150 m) con flecha amarilla; puestos de tacos y tejuino se compran al aire libre; nuevos ferretería, purificadora y "el punto" (venta ilegal, una casa en obra negra por colonia). Marcas parodia en los nombres. Casas en obra negra: 5 % en deterioro medio, 15 % en el máximo. Los locales de colonia van dentro de la hilera de casas. | JJ |
 | 2026-10-31 | **Propuesta de trabajo, no cierra los votos de 1.2, 1.3 y 1.5**: partida de 3 noches con jefe, refugios con barricadas y tinaco, bolsa recuperable al morir, todo cerrado de noche. Se programa para probarla; el equipo decide después de jugarla. | JJ |
+| 2026-10-31 | Pantalla de inicio: el juego ya abre en ella y Jugar lleva al mapa real (`map_test.tscn`), no al prototipo `world.tscn`. | JJ |
