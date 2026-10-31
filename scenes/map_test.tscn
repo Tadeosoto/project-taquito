@@ -33,6 +33,7 @@
 [ext_resource type="Texture2D" path="res://textures/map/malla.png" id="39_malla"]
 [ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="40_alumbrado"]
 [ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="41_ciclo"]
+[ext_resource type="Script" path="res://scripts/red/Companeros.gd" id="60_companeros"]
 [ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="42_zombis"]
 [ext_resource type="Script" path="res://scripts/map/Supervivencia.gd" id="42_supervivencia"]
 [ext_resource type="Script" path="res://scripts/interiores/Interiores.gd" id="43_interiores"]
@@ -313,6 +314,10 @@ ocultar = Array[NodePath]([NodePath("../Minimapa")])
 script = ExtResource("42_zombis")
 jugador_path = NodePath("../Player")
 ciclo_path = NodePath("../Ciclo")
+
+[node name="Companeros" type="Node3D" parent="."]
+script = ExtResource("60_companeros")
+jugador_path = NodePath("../Player")
 
 [node name="Supervivencia" type="CanvasLayer" parent="."]
 script = ExtResource("42_supervivencia")

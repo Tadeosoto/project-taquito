@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Guadalajaja"
-run/main_scene="uid://c2iut07k626j5"
+run/main_scene="res://scenes/menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 Inventory="*uid://usbx8ed2gh36"
 Cartera="*res://scripts/Cartera.gd"
 Salud="*res://scripts/Salud.gd"
+Red="*res://scripts/red/Red.gd"
 
 [display]
 

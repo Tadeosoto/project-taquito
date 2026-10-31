@@ -425,6 +425,10 @@ Fuentes: Sketchfab con licencia CC (hay script: `tools/map_import/fetch_sketchfa
 
 ---
 
+## 10.5 Coop de 4 💡 (propuesta, falta votarla)
+
+Propuesta para el coop, a falta de que vote el equipo (afecta 1.1, 1.5 y 4.6). **PC**, no navegador: un jugador hospeda y los demás entran con **invitación de Steam**, sin servidor rentado. Cada quien trae su **cartera, inventario y mochila**, y se pueden pasar cosas. A 0 de vida **caes y te pueden revivir**; si nadie lo hace, o caen todos, despiertas al inicio. Con el **inventario abierto el mundo sigue** y te pueden pegar. En la **maquinita** te ven jugar y un golpe te saca; en las **tiendas** estás a salvo, pero de noche los zombis se juntan en la puerta. Se puede **entrar y salir en cualquier momento** y la partida **se guarda**.
+
 ## 11. Multijugador en navegador: implicaciones técnicas
 
 Si se vota 1.1 A, esto es lo que implica (para que se decida sabiendo):

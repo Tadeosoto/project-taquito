@@ -287,9 +287,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_R:
 			_reiniciar()
 		KEY_F10:
-			# Al cambiar de escena este nodo ya no tiene viewport
+			# Al cambiar de escena este nodo ya no tiene viewport. En coop solo el host, y se
+			# van todos con el
 			get_viewport().set_input_as_handled()
-			get_tree().change_scene_to_file("res://scenes/map_test.tscn")
+			Red.cambiar_escena("res://scenes/map_test.tscn")
 			return
 		_:
 			return

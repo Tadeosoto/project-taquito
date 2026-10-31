@@ -58,6 +58,14 @@ Overview:
 
 `godot --path . scenes/safehouse.tscn`: a walled 100 m yard for testing without walking the map, using the real systems, not copies. **When you add a mechanic, add it here too.** `MapPuntos` builds one business of each giro from `user://puntos_safehouse.json` (written in `_enter_tree`; `NEGOCIOS` is the list) with the real `Interiores`; three `Maquinita`s, one per `Estado`; a `WorldItem` for everything in `resources/productos/` (new `.tres` appear on their own); Urbi houses, `Ciclo`, `Zombis`, `Supervivencia`, `InventoryUI`, drone and an NPC. Its keys are on screen (`PANEL_TEXTO`) and only work while the player is free. It starts with $500 and thinner fog than the map. No minimap, streets or warehouses: F10 goes to `map_test.tscn` for those.
 
+## Co-op (`scripts/red/`, in progress)
+
+The plan: 4 players on PC, one hosts, Steam invites, own wallets and items, revive, saved world. Phase 1 is done: players connect and see each other; **zombies, the clock, items and machines are not shared yet**.
+
+- `Red.gd` (autoload `Red`): host/join over ENet (several windows on one PC, port 24777) or Steam (GodotSteam addon, app ID 480, used by name through `Engine.get_singleton`/`ClassDB`, so the game runs without it). All RPCs live on this autoload, because it always exists at the same path while players load scenes. `Red.cambiar_escena` is the only way to change scene in co-op: the host takes everyone with it. Without a connection `en_red()` is false and solo play is unchanged.
+- In each scene the `Player` node is always **your** character, so everything following `Player` keeps working. Others are physics-free copies (`scenes/red/companero.tscn`) managed by the `Companeros` node, which sends your state 20 times a second. New shared systems: the host decides, everyone runs a display-only function (the `Maquinita.mostrar_*` pattern).
+- `scenes/menu.tscn` (`Menu.gd`) is now the main scene: solo, safehouse, Steam or ENet co-op.
+
 ## Conventions / gotchas
 
 - PS1 shaders must write `POSITION` unconditionally (`ps1_vertex()` returns the unsnapped clip position when `jitter_enabled` is false). A spatial shader that writes `POSITION` only inside an `if` leaves the mesh invisible when the branch isn't taken. The original `ps1_combined` had this bug; `shaders/jittershader.gdshader` still does. Huge meshes (the 1900 m `Suelo`) need jitter/wobble off, otherwise vertex snapping distorts them near the camera.

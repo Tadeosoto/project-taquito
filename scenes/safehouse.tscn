@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="3_player"]
 [ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="4_dron"]
 [ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="5_ciclo"]
+[ext_resource type="Script" path="res://scripts/red/Companeros.gd" id="60_companeros"]
 [ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="6_zombis"]
 [ext_resource type="Script" path="res://scripts/map/Supervivencia.gd" id="7_supervivencia"]
 [ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="8_inventario"]
@@ -192,6 +193,10 @@ ocultar = Array[NodePath]([NodePath("../Panel")])
 script = ExtResource("6_zombis")
 jugador_path = NodePath("../Player")
 ciclo_path = NodePath("../Ciclo")
+
+[node name="Companeros" type="Node3D" parent="."]
+script = ExtResource("60_companeros")
+jugador_path = NodePath("../Player")
 
 [node name="Supervivencia" type="CanvasLayer" parent="."]
 script = ExtResource("7_supervivencia")
