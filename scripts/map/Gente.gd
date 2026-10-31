@@ -313,7 +313,7 @@ func _poner_platicante(i: int) -> void:
 	npc.global_position = Vector3(donde.x, y, donde.y)
 	npc.rotation.y = lugar["mira"]
 	var nombre: String = lugar["modelo"]
-	_poner_modelo(npc, load("res://models/personajes/%s/%s.scn" % [nombre, nombre]), ALTO_PERSONA)
+	poner_modelo(npc, load("res://models/personajes/%s/%s.scn" % [nombre, nombre]), ALTO_PERSONA)
 	platicando[i] = npc
 
 
@@ -328,12 +328,12 @@ func _poner_perro(i: int) -> void:
 	add_child(perro)
 	perro.global_position = Vector3(donde.x, y, donde.y)
 	perro.rotation.y = lugar["mira"] + 0.8
-	_poner_modelo(perro, PERRO, ALTO_PERRO)
+	poner_modelo(perro, PERRO, ALTO_PERRO)
 	perros[i] = perro
 
 
 # Cada modelo viene en otra escala: se mide por sus huesos, ya con su clip puesto
-func _poner_modelo(padre: Node3D, escena: PackedScene, alto: float) -> void:
+static func poner_modelo(padre: Node3D, escena: PackedScene, alto: float) -> void:
 	var modelo := escena.instantiate() as Node3D
 	padre.add_child(modelo)
 	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):

@@ -23,6 +23,7 @@ const POSTES_JSON := "res://resources/map/alumbrado_mapa.json"
 
 # Las zonas y los pedazos son del mapa real; el safehouse tiene los suyos
 @export var piezas_en_el_mapa := true
+var misiones_config := {}
 @export var zombis_path: NodePath
 @export var supervivencia_path: NodePath
 @export var refugio_path: NodePath
@@ -62,6 +63,19 @@ func _ready() -> void:
 		_supervivencia.avisar(TEXTO_PIEZA % ZonasMapa.nombre(zona)))
 	if piezas_en_el_mapa:
 		_poner_piezas()
+	_poner_misiones()
+
+
+# Los del mapa real, o los que le dieron (el safehouse)
+func _poner_misiones() -> void:
+	var mundo := MisionesMundo.new()
+	mundo.name = "MisionesMundo"
+	# Partida corre siempre, por su pantalla final; esto no debe seguir en la pausa
+	mundo.process_mode = Node.PROCESS_MODE_PAUSABLE
+	for propiedad: String in misiones_config:
+		mundo.set(propiedad, misiones_config[propiedad])
+	add_child(mundo)
+	mundo.avisos_por(_supervivencia)
 
 
 # Un pedazo por zona; el de donde empiezas ya lo traes
@@ -184,7 +198,7 @@ func _terminar(texto: String) -> void:
 # Todo desde cero: los autoloads no se recargan con la escena
 func _otra_vez() -> void:
 	Engine.time_scale = 1.0
-	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa"]:
+	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones"]:
 		get_node("/root/" + autoload).reiniciar()
 	get_tree().paused = false
 	get_tree().reload_current_scene()

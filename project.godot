@@ -21,6 +21,7 @@ Inventory="*uid://usbx8ed2gh36"
 Cartera="*res://scripts/Cartera.gd"
 Salud="*res://scripts/Salud.gd"
 PiezasMapa="*res://scripts/PiezasMapa.gd"
+Misiones="*res://scripts/Misiones.gd"
 
 [display]
 

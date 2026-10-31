@@ -99,9 +99,23 @@ func _draw() -> void:
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	for i in _rasgados.size():
 		_nombre_en_mapa(i)
+	_objetivo_en_mapa()
 	_tapar_fuera_del_marco()
 	_jugador_en_mapa()
 	_columna(aqui)
+
+
+# A donde va la mision: un rombo, aunque ese pedazo todavia no se tenga
+func _objetivo_en_mapa() -> void:
+	if not Misiones.hay_objetivo:
+		return
+	var p := _en_pantalla(ZonasMapa.a_mapa(Misiones.objetivo.x, Misiones.objetivo.y))
+	if Misiones.objetivo_radio > 0.0:
+		draw_arc(p, Misiones.objetivo_radio * _escala(), 0.0, TAU, 32, AMARILLO, 1.5)
+	var rombo := PackedVector2Array([p + Vector2(0.0, -7.0), p + Vector2(7.0, 0.0), p + Vector2(0.0, 7.0), p + Vector2(-7.0, 0.0)])
+	draw_colored_polygon(rombo, AMARILLO)
+	rombo.append(rombo[0])
+	draw_polyline(rombo, Color.BLACK, 1.5)
 
 
 # El dibujo se pasa del marco al acercar: lo que sobra se tapa de negro

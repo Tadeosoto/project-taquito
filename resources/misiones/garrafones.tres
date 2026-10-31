@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="3_galon"]
+
+[sub_resource type="Resource" id="paso_repartir"]
+script = ExtResource("2_paso")
+tipo = 2
+texto = "Reparte el agua en las casas"
+lugar = "casas"
+cuantos = 4
+segundos = 100.0
+carga = ExtResource("3_galon")
+
+[resource]
+script = ExtResource("1_mision")
+id = "garrafones"
+nombre = "Repartir garrafones"
+modelo = "psx_man"
+oferta = "Se me cayó el repartidor. Lleva agua a 4 casas antes de que se enojen."
+aceptada = "¡Córrele! Sígueles las flechitas."
+recuerda = "¿Qué haces aquí? ¡Córrele!"
+gracias = "Eres mejor que el otro. Bueno, el otro ya gime."
+despedida = "Ya estuvo por hoy, joven. Mañana hay más."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_repartir")])
+pesos = 90

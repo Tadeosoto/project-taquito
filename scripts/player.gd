@@ -62,6 +62,8 @@ const COLOR_SANGRE := Color(0.62, 0.02, 0.03)
 
 signal golpeado
 
+const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
+
 static var _material_blanco: StandardMaterial3D
 
 var _enfriar := 0.0
@@ -72,6 +74,7 @@ var _pos_antes := Vector3.ZERO
 var _pos_ahora := Vector3.ZERO
 var _frijol_base := Vector3.ZERO
 var _pivote_base := Vector3.ZERO
+var _carga: Node3D
 var _retroceso := Vector3.ZERO
 var _retroceso_freno := 42.0
 var _flash_hasta := 0
@@ -226,6 +229,23 @@ func _pintar_blanco(prendido: bool) -> void:
 		_material_blanco.disable_fog = true
 	for malla: MeshInstance3D in frijol.find_children("*", "MeshInstance3D", true, false):
 		malla.material_overlay = _material_blanco if prendido else null
+
+
+# Algo en las manos, enfrente: una mision (MisionesMundo.gd)
+func cargar(cosa: Node3D) -> void:
+	soltar_carga()
+	_carga = cosa
+	frijol.add_child(cosa)
+	cosa.position = CARGA_LUGAR
+	cosa.rotation = Vector3.ZERO
+	ninja.set("cargando", true)
+
+
+func soltar_carga() -> void:
+	if _carga:
+		_carga.queue_free()
+		_carga = null
+	ninja.set("cargando", false)
 
 
 # Se queda quieto y deja de contestar (al desmayarse, Supervivencia.gd)

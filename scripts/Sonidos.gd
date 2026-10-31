@@ -28,6 +28,8 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _ruido(0.14, 0.8, 1.5)
 			"golpe":
 				_sonidos[nombre] = _ruido(0.18, 0.2, 2.0)
+			"ladrido":
+				_sonidos[nombre] = _tono(420.0, 0.11, -200.0, 0.7)
 			"whack":
 				_sonidos[nombre] = _whack()
 			"reventar":

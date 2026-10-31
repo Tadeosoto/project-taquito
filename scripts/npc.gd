@@ -2,6 +2,8 @@ extends Node3D
 
 @export var tint: Color = Color.WHITE
 @export var dialogue: String = ""
+# Si lo tiene, regresa lo que dice en cada plática (MisionesMundo.gd); si no, `dialogue`
+var al_hablar := Callable()
 
 var _player_inside: bool = false
 var _talking: bool = false
@@ -47,6 +49,8 @@ func is_player_inside() -> bool:
 func interact() -> void:
 	if not _player_inside:
 		return
+	if al_hablar.is_valid():
+		_dialogue_label.text = al_hablar.call()
 	_talking = true
 	_prompt.visible = false
 	_bubble.visible = true

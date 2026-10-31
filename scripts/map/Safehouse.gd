@@ -152,6 +152,8 @@ func _ready() -> void:
 	_partida.supervivencia_path = get_node("Supervivencia").get_path()
 	_partida.refugio_path = _refugio.get_path()
 	_partida.piezas_en_el_mapa = false
+	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0)]
+	_partida.misiones_config = {"puntos_path": PUNTOS_JSON, "casas_path": CASAS_JSON, "vecinos_fijos": vecinos, "perro_fijo": Vector3(38.0, 0.0, 20.0)}
 	add_child(_partida)
 	_poner_pieza_prueba()
 	var gente := Gente.new()
@@ -359,6 +361,7 @@ func _reiniciar() -> void:
 	_zombis.director.reiniciar()
 	_partida.reiniciar()
 	PiezasMapa.reiniciar()
+	Misiones.reiniciar()
 	for pieza in get_tree().get_nodes_in_group("piezas_mapa"):
 		pieza.queue_free()
 	_poner_pieza_prueba()

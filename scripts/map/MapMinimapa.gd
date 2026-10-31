@@ -21,6 +21,8 @@ const COLORES := {
 	"purificadora": Color(0.35, 0.6, 1.0),
 }
 const NEGRO := Color(0.05, 0.05, 0.05)
+const OBJETIVO_COLOR := Color(1.0, 0.85, 0.1)
+const OBJETIVO_PARPADEA_MS := 350
 
 @export var mapa: Texture2D
 @export var player_path: NodePath
@@ -110,6 +112,25 @@ func _a_pantalla(xz: Vector2) -> Vector2:
 	return Vector2(d.dot(_derecha), -d.dot(_adelante))
 
 
+# A donde va la mision: parpadea, y si esta lejos se queda en la orilla apuntando hacia alla.
+# Por su ruta: los scripts de tools/ pueden cargar esta clase
+func _dibujar_objetivo(centro: Vector2, limite: float) -> void:
+	var misiones := get_node_or_null("/root/Misiones")
+	if misiones == null or not misiones.hay_objetivo:
+		return
+	var p := _a_pantalla(misiones.objetivo)
+	var radio: float = misiones.objetivo_radio / _radio * (tamano / 2.0)
+	if radio > 0.0 and p.length() - radio < limite:
+		_marcas.draw_arc(centro + p, radio, 0.0, TAU, 24, OBJETIVO_COLOR, 1.5)
+	if p.length() > limite:
+		p = p.normalized() * limite
+	if int(Time.get_ticks_msec() / OBJETIVO_PARPADEA_MS) % 2 == 0:
+		var rombo := PackedVector2Array([centro + p + Vector2(0.0, -5.0), centro + p + Vector2(5.0, 0.0), centro + p + Vector2(0.0, 5.0), centro + p + Vector2(-5.0, 0.0)])
+		_marcas.draw_colored_polygon(rombo, OBJETIVO_COLOR)
+		rombo.append(rombo[0])
+		_marcas.draw_polyline(rombo, NEGRO, 1.0)
+
+
 func _dibujar_marcas() -> void:
 	var centro := Vector2(tamano, tamano) / 2.0
 	var limite := tamano / 2.0 - 6.0
@@ -119,6 +140,7 @@ func _dibujar_marcas() -> void:
 			_marcas.draw_rect(Rect2(centro + p - Vector2(2.5, 2.5), Vector2(5.0, 5.0)), NEGRO)
 			_marcas.draw_rect(Rect2(centro + p - Vector2(1.5, 1.5), Vector2(3.0, 3.0)), punto[1])
 
+	_dibujar_objetivo(centro, limite)
 	# Flecha del jugador
 	var dir := Vector2(_rumbo.dot(_derecha), -_rumbo.dot(_adelante)).normalized()
 	var lado := Vector2(-dir.y, dir.x)
