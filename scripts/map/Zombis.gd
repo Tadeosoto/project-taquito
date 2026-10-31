@@ -16,6 +16,7 @@ const MAX_TOTAL := 12
 const INTENTOS := 8
 const ALTO_CALLE := 0.6       # arriba de esto es una azotea o una barda
 const CALENTAR_CUADROS := 3
+const MARGEN_REFUGIO := 2.0   # m alrededor de la barda donde no aparecen
 
 @export var jugador_path: NodePath
 @export var ciclo_path: NodePath
@@ -81,8 +82,21 @@ func _vivos() -> int:
 	return cuantos
 
 
+# El garrafonero (Partida.gd), alrededor de `centro`; null si no encontro lugar este intento
+func aparecer_jefe(centro: Vector3) -> Zombie:
+	var lugar := _lugar_libre(centro)
+	if lugar == Vector3.INF:
+		return null
+	var jefe := Zombie.new()
+	jefe.es_jefe = true
+	jefe.jugador = _jugador
+	add_child(jefe)
+	jefe.global_position = lugar
+	return jefe
+
+
 func _aparecer() -> void:
-	var lugar := _lugar_libre()
+	var lugar := _lugar_libre(_jugador.global_position)
 	if lugar == Vector3.INF:
 		return
 	var zombi := Zombie.new()
@@ -92,15 +106,17 @@ func _aparecer() -> void:
 
 
 # Un punto en la calle, a un lado o atras de la camara; INF si no encontro
-func _lugar_libre() -> Vector3:
+func _lugar_libre(centro: Vector3) -> Vector3:
 	var camara := get_viewport().get_camera_3d()
 	var espacio := get_world_3d().direct_space_state
-	var centro := _jugador.global_position
+	var refugio := get_tree().get_first_node_in_group("refugio") as Refugio
 	for i in INTENTOS:
 		var angulo := randf() * TAU
 		var radio := randf_range(ANILLO.x, ANILLO.y)
 		var punto := centro + Vector3(cos(angulo) * radio, 0.0, sin(angulo) * radio)
 		if camara and not camara.is_position_behind(punto) and camara.is_position_in_frustum(punto + Vector3.UP):
+			continue
+		if refugio and refugio.adentro(punto, MARGEN_REFUGIO):
 			continue
 		var rayo := PhysicsRayQueryParameters3D.create(Vector3(punto.x, 30.0, punto.z), Vector3(punto.x, -2.0, punto.z), 1)
 		var pego := espacio.intersect_ray(rayo)
@@ -111,7 +127,7 @@ func _lugar_libre() -> Vector3:
 
 func _quitar_lejanos() -> void:
 	for z: Zombie in get_tree().get_nodes_in_group("zombis"):
-		if z.global_position.distance_to(_jugador.global_position) > LEJOS:
+		if not z.es_jefe and z.global_position.distance_to(_jugador.global_position) > LEJOS:
 			z.queue_free()
 
 
@@ -120,7 +136,14 @@ func _amanecer() -> void:
 		z.caer_al_amanecer()
 
 
-# Al desmayarse el jugador: la calle queda limpia
+# Teclas de prueba y reinicios: se van todos
 func limpiar() -> void:
 	for z: Zombie in get_tree().get_nodes_in_group("zombis"):
 		z.queue_free()
+
+
+# Al desmayarse el jugador: que no despierte con uno encima, pero los demas siguen
+func limpiar_cerca(centro: Vector3, radio: float) -> void:
+	for z: Zombie in get_tree().get_nodes_in_group("zombis"):
+		if not z.es_jefe and z.global_position.distance_to(centro) <= radio:
+			z.queue_free()

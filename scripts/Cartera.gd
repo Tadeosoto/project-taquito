@@ -5,12 +5,20 @@ extends Node
 
 signal cambio
 
-# Saldo de prueba mientras no hay misiones ni maquinas que den dinero
-var pesos := 120:
+# Saldo de prueba mientras no hay misiones que den dinero
+const PESOS_INICIO := 120
+const AGUA_INICIO := 3
+
+var pesos := PESOS_INICIO:
 	set(valor):
 		pesos = valor
 		cambio.emit()
-var agua := 3:
+var agua := AGUA_INICIO:
 	set(valor):
 		agua = valor
 		cambio.emit()
+
+
+func reiniciar() -> void:
+	pesos = PESOS_INICIO
+	agua = AGUA_INICIO

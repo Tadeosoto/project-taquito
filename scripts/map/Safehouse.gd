@@ -53,11 +53,15 @@ const ZOMBI_DISTANCIA := 8.0
 const DETERIOROS := [0.0, 0.4, 0.8]
 const DINERO := 500
 const DANO_PRUEBA := 20
+const REFUGIO_EN := Vector3(30.0, 0.0, -10.0)
+const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
+const DANO_TINACO := 100
 const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
 Tab inventario · clic o F pegar · V dron
 N siguiente atardecer/amanecer
 Z zombi · X quitar zombis · T zombis solos de noche
 H curar · J -%d de vida · M +$100 · Y vaciar inventario
+G tablas · L -100 al tinaco (refugio a la derecha)
 1 2 3 maquinita cercana: normal, sin monedas, segura
 K deterioro · R reiniciar todo · F10 ir al mapa"""
 
@@ -72,6 +76,8 @@ var _objetos: Node3D
 var _panel: CanvasLayer
 var _estado: Label
 var _deterioro := 2
+var _refugio: Refugio
+var _partida: Partida
 
 
 func _enter_tree() -> void:
@@ -130,6 +136,16 @@ func _ready() -> void:
 	npc.set("tint", Color(0.5, 0.8, 1.0))
 	npc.position = Vector3(10.0, 0.0, -14.0)
 	add_child(npc)
+	_refugio = Refugio.new()
+	_refugio.name = "Refugio"
+	_refugio.position = REFUGIO_EN
+	add_child(_refugio)
+	_partida = Partida.new()
+	_partida.name = "Partida"
+	_partida.zombis_path = _zombis.get_path()
+	_partida.supervivencia_path = get_node("Supervivencia").get_path()
+	_partida.refugio_path = _refugio.get_path()
+	add_child(_partida)
 	_letrero("NEGOCIOS", Vector3(-10.0, 6.0, FACHADAS_Z))
 	_letrero("MAQUINITAS", Vector3(MAQUINAS_X, 4.5, -9.0))
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))
@@ -279,6 +295,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_Y:
 			_inventario.items.clear()
 			_inventario.inventory_changed.emit()
+		KEY_G:
+			_inventario.add_item(load(TABLAS_PRUEBA))
+		KEY_L:
+			_refugio.recibir_golpe(DANO_TINACO)
 		KEY_1, KEY_2, KEY_3:
 			_poner_estado(_maquina_cercana(), tecla - KEY_1)
 		KEY_K:
@@ -309,12 +329,13 @@ func _zombi() -> void:
 func _reiniciar() -> void:
 	_zombis.limpiar()
 	_zombis.set_physics_process(true)
-	_salud.vida = _salud.vida_max
+	_salud.reiniciar()
 	_cartera.pesos = DINERO
-	_inventario.items.clear()
-	_inventario.mochila = null
-	_inventario._ready()
-	_inventario.inventory_changed.emit()
+	_inventario.reiniciar()
+	_zombis.noches = 0
+	_partida.reiniciar()
+	for bolsa in get_tree().get_nodes_in_group("bolsa_muerte"):
+		bolsa.queue_free()
 	_reiniciar_maquinas()
 	_poner_objetos()
 	_ciclo._tiempo = _ciclo.inicio

@@ -46,6 +46,14 @@ func _ready() -> void:
 	# ============================
 
 
+# Como al empezar el juego (Partida.gd, el safehouse)
+func reiniciar() -> void:
+	items.clear()
+	mochila = null
+	_ready()
+	inventory_changed.emit()
+
+
 # Nos dice los items en su posicion.
 # Si el index ta mal, vale vrg el pedo.
 func get_item(index: int) -> InventoryItemData:

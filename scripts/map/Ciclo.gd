@@ -28,6 +28,7 @@ signal amanecio
 @export var niebla_color := Color(0.13, 0.15, 0.22)
 @export var fondo_color := Color(0.09, 0.1, 0.16)
 
+var retener_noche := false
 var _sol: DirectionalLight3D
 var _env: Environment
 var _dia := {}
@@ -61,6 +62,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	_tiempo = fmod(_tiempo + delta, dia_duracion + noche_duracion)
+	# La ultima noche no amanece hasta matar al jefe; esto tambien le gana a la N
+	if retener_noche:
+		_tiempo = minf(_tiempo, dia_duracion + noche_duracion - transicion - 1.0)
 	_aplicar(valor())
 	if not _es_noche and not _avisado and _tiempo >= dia_duracion - aviso_antes and _tiempo < dia_duracion:
 		_avisado = true
@@ -73,6 +77,11 @@ func _process(delta: float) -> void:
 		else:
 			_avisado = false
 			amanecio.emit()
+
+
+func amanecer_ya() -> void:
+	retener_noche = false
+	_tiempo = dia_duracion + noche_duracion - transicion
 
 
 func es_noche() -> bool:

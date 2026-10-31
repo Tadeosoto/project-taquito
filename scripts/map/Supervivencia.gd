@@ -2,13 +2,16 @@ extends CanvasLayer
 
 # Lo que se siente del peligro, sin barra de vida (la vida se ve en el inventario): flash
 # rojo al recibir un golpe, orillas rojas con poca vida, el aviso del atardecer y
-# desmayarse. Al llegar a 0 de vida: pantalla negra y reapareces donde empezaste con algo
-# de vida, sin perder nada (docs/especificaciones.md 1.5 sigue por votar).
+# desmayarse. Al llegar a 0 de vida: tus objetos se quedan en una bolsa donde caiste
+# (BolsaMuerte.gd; el dinero y la mochila puesta no), pantalla negra y reapareces en
+# `punto_regreso` con algo de vida (el refugio, lo pone Partida.gd). Propuesta de
+# docs/especificaciones.md 1.5.
 
 const VIDA_AL_DESPERTAR := 50
 const FUNDIDO := 1.0
 const NEGRO_DURA := 2.0
 const POCA_VIDA := 0.35   # fraccion de la vida con la que se pintan las orillas
+const LIMPIO_AL_REGRESAR := 20.0   # m alrededor de donde reapareces sin zombis; los demas siguen
 const TEXTO_AVISO := "Ya va a oscurecer..."
 const TEXTO_NOCHE := "Ya salieron."
 const TEXTO_DIA := "Amaneció."
@@ -21,7 +24,8 @@ const TEXTO_DESMAYO := "Te desmayaste..."
 var _jugador: Player
 var _zombis: Zombis
 var _salud: Node
-var _inicio: Transform3D
+var punto_regreso: Transform3D
+var _bolsa: Node3D
 var _vida_antes := 0
 var _desmayado := false
 var _flash: ColorRect
@@ -37,7 +41,7 @@ func _ready() -> void:
 	layer = 8
 	_jugador = get_node(jugador_path) as Player
 	_zombis = get_node(zombis_path) as Zombis
-	_inicio = _jugador.global_transform
+	punto_regreso = _jugador.global_transform
 	_salud = get_node("/root/Salud")
 	_vida_antes = _salud.vida
 	_salud.cambio.connect(_cambio_vida)
@@ -94,13 +98,14 @@ func _desmayarse() -> void:
 	_desmayado = true
 	_jugador.detener()
 	_jugador.caer()
+	_soltar_bolsa()
 	var tween := create_tween()
 	tween.tween_property(_negro, "color:a", 1.0, FUNDIDO)
 	await tween.finished
 	_centro.text = TEXTO_DESMAYO
 	_centro.modulate.a = 1.0
-	_zombis.limpiar()
-	_jugador.global_transform = _inicio
+	_zombis.limpiar_cerca(punto_regreso.origin, LIMPIO_AL_REGRESAR)
+	_jugador.global_transform = punto_regreso
 	_jugador.velocity = Vector3.ZERO
 	_salud.vida = VIDA_AL_DESPERTAR
 	await get_tree().create_timer(NEGRO_DURA).timeout
@@ -110,6 +115,26 @@ func _desmayarse() -> void:
 	tween.tween_property(_negro, "color:a", 0.0, FUNDIDO)
 	await tween.finished
 	_desmayado = false
+
+
+# Sin nada encima no hay bolsa nueva, y la que dejaste sigue ahi
+func _soltar_bolsa() -> void:
+	var inventario := get_node("/root/Inventory")
+	if inventario.items.is_empty():
+		return
+	if is_instance_valid(_bolsa):
+		_bolsa.queue_free()
+	_bolsa = load("res://scripts/map/BolsaMuerte.gd").new()
+	_bolsa.items = inventario.items.duplicate()
+	inventario.items.clear()
+	inventario.inventory_changed.emit()
+	get_parent().add_child(_bolsa)
+	# El origen del jugador esta a 1 m del piso
+	_bolsa.global_position = _jugador.global_position + Vector3.DOWN
+
+
+func avisar(texto: String) -> void:
+	_avisar(texto)
 
 
 func _avisar(texto: String) -> void:

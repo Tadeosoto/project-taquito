@@ -1,9 +1,14 @@
 class_name Zombie
 extends CharacterBody3D
 
-# Un zombi (docs/especificaciones.md 4.8): camina derecho hacia el jugador y le pega. Lo
-# crea Zombis.gd. Si se atora en una pared se hace a un lado un rato: no hay rutas, eso
-# queda para las hordas. No ataca si el jugador esta en una tienda o volando.
+# Un zombi (docs/especificaciones.md 4.8): camina derecho hacia su blanco y le pega. Lo
+# crea Zombis.gd. Si hay refugio, su blanco es el jugador solo si lo tiene cerca y del
+# mismo lado de la barda; si no, la entrada mas cercana y luego el tinaco (_destino). Si se
+# atora en una pared se hace a un lado un rato: no hay rutas, eso queda para las hordas.
+# No hace nada si el jugador esta congelado (volando en el safehouse, desmayado). Con
+# `es_jefe` es el garrafonero de la ultima noche (Partida.gd).
+
+signal murio
 
 const MODELO := preload("res://models/personajes/zombie_gordo/zombie_gordo.scn")
 const VIDA := 30
@@ -22,12 +27,28 @@ const SEPARACION := 1.1     # que no se encimen unos con otros
 const ATORADO_EN := 0.8     # s casi sin avanzar
 const RODEO := 1.2          # s haciendose a un lado
 const PESOS := Vector2i(1, 3)
+const PERSIGUE := 12.0      # m: mas cerca deja el refugio y va por el jugador
+const PASA_ENTRADA := 2.0   # m adentro del patio a los que apunta al cruzar una entrada
+const JEFE_VIDA := 400
+const JEFE_DANO := 25
+const JEFE_TAMANO := 1.7
+const JEFE_VELOCIDAD := 3.0
+const JEFE_COLOR := Color(0.35, 0.5, 0.95)
+const JEFE_SHADER := preload("res://shaders/ps1_combined.gdshader")
 
 enum Estado { CAMINA, ATACA, HERIDO, MUERTO }
 
+static var _material_jefe: ShaderMaterial
+
 var estado := Estado.CAMINA
 var jugador: Player
+var es_jefe := false
 
+var _refugio: Refugio
+var _blanco: Node3D         # a quien va a pegarle; null = solo va de paso
+var _dano := DANO
+var _alcance := ALCANCE
+var _alcance_golpe := ALCANCE_GOLPE
 var _vida := VIDA
 var _velocidad := 4.0
 var _tiempo := 0.0
@@ -43,21 +64,38 @@ var _lado := 1.0
 func _ready() -> void:
 	add_to_group("zombis")
 	collision_layer = 2
-	collision_mask = 1
+	# La capa 3 son las barricadas: el jugador pasa, ellos no
+	collision_mask = 1 | EntradaRefugio.CAPA
+	_refugio = get_tree().get_first_node_in_group("refugio") as Refugio
 	_velocidad = randf_range(VELOCIDAD.x, VELOCIDAD.y)
+	var tamano := 1.0
+	if es_jefe:
+		tamano = JEFE_TAMANO
+		_vida = JEFE_VIDA
+		_dano = JEFE_DANO
+		_velocidad = JEFE_VELOCIDAD
+		_alcance = ALCANCE * JEFE_TAMANO
+		_alcance_golpe = ALCANCE_GOLPE * JEFE_TAMANO
+		if _material_jefe == null:
+			_material_jefe = ShaderMaterial.new()
+			_material_jefe.shader = JEFE_SHADER
+			_material_jefe.set_shader_parameter("tint", JEFE_COLOR)
 	_gemido = randf_range(1.0, 6.0)
 	_lado = 1.0 if randf() < 0.5 else -1.0
 	var forma := CollisionShape3D.new()
 	var capsula := CapsuleShape3D.new()
-	capsula.radius = 0.42
-	capsula.height = 1.8
+	capsula.radius = 0.42 * tamano
+	capsula.height = 1.8 * tamano
 	forma.shape = capsula
-	forma.position.y = 0.9
+	forma.position.y = 0.9 * tamano
 	add_child(forma)
 	var modelo := MODELO.instantiate() as Node3D
+	modelo.scale = Vector3.ONE * tamano
 	add_child(modelo)
 	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):
 		malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if es_jefe:
+			malla.material_override = _material_jefe
 		# El tubo que el modelo trae flotando
 		if String(malla.name).contains("Tube"):
 			malla.visible = false
@@ -105,10 +143,10 @@ func _caminar(delta: float) -> Vector3:
 	if _gemido <= 0.0:
 		_gemido = randf_range(4.0, 9.0)
 		_sonar("gemido")
-	var hacia := jugador.global_position - global_position
+	var hacia := _destino() - global_position
 	hacia.y = 0.0
 	var distancia := hacia.length()
-	if distancia <= ALCANCE:
+	if _blanco and distancia <= _alcance:
 		_mirar(hacia)
 		_empezar_ataque()
 		return Vector3.ZERO
@@ -128,6 +166,23 @@ func _caminar(delta: float) -> Vector3:
 	direccion = (direccion + _separarse()).normalized()
 	_mirar(direccion)
 	return direccion * _velocidad
+
+
+# A donde camina, y deja en _blanco a quien le pegaria al llegar
+func _destino() -> Vector3:
+	var yo_adentro := _refugio != null and _refugio.adentro(global_position)
+	if _refugio == null or (yo_adentro == _refugio.adentro(jugador.global_position) and global_position.distance_to(jugador.global_position) <= PERSIGUE):
+		_blanco = jugador
+		return jugador.global_position
+	if yo_adentro:
+		_blanco = _refugio
+		return _refugio.global_position
+	var entrada := _refugio.entrada_cercana(global_position)
+	if not entrada.abierta():
+		_blanco = entrada
+		return entrada.global_position
+	_blanco = null
+	return entrada.global_position + (_refugio.global_position - entrada.global_position).normalized() * PASA_ENTRADA
 
 
 func _separarse() -> Vector3:
@@ -153,11 +208,15 @@ func _empezar_ataque() -> void:
 func _atacar() -> void:
 	if not _golpeo and _tiempo >= GOLPE_EN:
 		_golpeo = true
-		if is_instance_valid(jugador) and _jugador_libre() and global_position.distance_to(jugador.global_position) <= ALCANCE_GOLPE + 1.0:
+		if not is_instance_valid(jugador) or not _jugador_libre():
+			pass
+		elif _blanco == jugador:
 			var hacia := jugador.global_position - global_position
 			hacia.y = 0.0
-			if hacia.length() <= ALCANCE_GOLPE:
-				jugador.recibir_dano(DANO)
+			if hacia.length() <= _alcance_golpe and absf(jugador.global_position.y - global_position.y) <= _alcance_golpe:
+				jugador.recibir_dano(_dano)
+		elif is_instance_valid(_blanco) and _blanco.has_method("recibir_golpe"):
+			_blanco.recibir_golpe(_dano)
 	if _tiempo >= ATAQUE_DURA:
 		_seguir_caminando()
 
@@ -180,6 +239,10 @@ func recibir_golpe(dano: int, desde: Vector3) -> void:
 		_morir(true)
 		return
 	_sonar("golpe")
+	# Al jefe no se le interrumpe con cada machetazo
+	if es_jefe:
+		velocity = Vector3.ZERO
+		return
 	estado = Estado.HERIDO
 	_tiempo = 0.0
 	_animar("hit", 2.0, true)
@@ -194,6 +257,7 @@ func _morir(pagado: bool) -> void:
 	velocity = Vector3.ZERO
 	_animar("die", 1.0, true)
 	_sonar("morir_zombi")
+	murio.emit()
 	if pagado:
 		var cartera := get_node_or_null("/root/Cartera")
 		if cartera:

@@ -12,6 +12,10 @@ var vida := 100:
 		cambio.emit()
 
 
+func reiniciar() -> void:
+	vida = vida_max
+
+
 func llena() -> bool:
 	return vida >= vida_max
 
