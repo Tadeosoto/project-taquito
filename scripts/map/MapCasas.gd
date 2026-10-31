@@ -158,9 +158,9 @@ func _update_nearby() -> void:
 			var dx := maxf(maxf(key.x * CELDA - p.x, p.x - (key.x + 1) * CELDA), 0.0)
 			var dz := maxf(maxf(key.y * CELDA - p.z, p.z - (key.y + 1) * CELDA), 0.0)
 			distance = Vector2(dx, dz).length()
-		if distance < load_radius and not _nodos.has(key):
+		if distance < CargaCuadro.carga(load_radius) and not _nodos.has(key):
 			nuevas.append([distance, key])
-		elif distance > unload_radius and _nodos.has(key):
+		elif distance > CargaCuadro.descarga(unload_radius) and _nodos.has(key):
 			_nodos[key].queue_free()
 			_nodos.erase(key)
 	nuevas.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])

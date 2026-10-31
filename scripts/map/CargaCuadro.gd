@@ -8,9 +8,23 @@ extends RefCounted
 # El primero que pide en un cuadro siempre puede armar al menos una pieza.
 
 const PRESUPUESTO_US := 3000
+# A pie la niebla casi lo tapa todo a 150-200 m (fog_density 0.0196: se ve el 5 % a 150 m,
+# el 2 % a 200 m), asi que no se carga mas; el dron ve mas lejos y usa los radios largos de
+# cada sistema. Lo pone MapDron. Se midio con tools/medir_mapa.tscn.
+const CARGA_A_PIE := 200.0
+const DESCARGA_A_PIE := 260.0
 
+static var volando := false
 static var _cuadro := -1
 static var _usado := 0
+
+
+static func carga(largo: float, a_pie := CARGA_A_PIE) -> float:
+	return largo if volando else minf(largo, a_pie)
+
+
+static func descarga(largo: float, a_pie := DESCARGA_A_PIE) -> float:
+	return largo if volando else minf(largo, a_pie)
 
 
 static func hay() -> bool:

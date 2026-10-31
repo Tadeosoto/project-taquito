@@ -109,9 +109,13 @@ const MAQUINITA_GIROS := ["abarrotes", "licoreria"]
 const MAQUINITA_PUERTA := 0.6
 # El interior de los locales solo se ve por la puerta de cerca: se arma a menos de
 # INTERIOR_CARGA m, se dibuja a menos de INTERIOR_VISTA y se quita a mas de INTERIOR_QUITAR
-const INTERIOR_VISTA := 30.0
-const INTERIOR_CARGA := 35.0
-const INTERIOR_QUITAR := 50.0
+const INTERIOR_VISTA := 18.0
+const INTERIOR_CARGA := 22.0
+const INTERIOR_QUITAR := 30.0
+# A pie: las tiendas son lo que mas pesa del mapa (tools/medir_mapa.tscn) y a mas de esto
+# la niebla ya las tapa casi todas. Volando usan load_radius/unload_radius
+const CARGA_A_PIE := 150.0
+const DESCARGA_A_PIE := 200.0
 
 # Marcador de los negocios interactivos (docs/especificaciones.md 4.6): flecha
 # amarilla frente a la puerta; al pisarla se entra al interior (scripts/interiores/Interiores.gd)
@@ -317,9 +321,9 @@ func _update_nearby() -> void:
 		var distance := 0.0
 		if _target:
 			distance = Vector2(_target.global_position.x - punto["x"], _target.global_position.z - punto["z"]).length()
-		if distance < load_radius and not _nodes.has(i):
+		if distance < CargaCuadro.carga(load_radius, CARGA_A_PIE) and not _nodes.has(i):
 			nuevos.append([distance, i])
-		elif distance > unload_radius and _nodes.has(i):
+		elif distance > CargaCuadro.descarga(unload_radius, DESCARGA_A_PIE) and _nodes.has(i):
 			_nodes[i].queue_free()
 			_nodes.erase(i)
 	nuevos.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])

@@ -20,6 +20,7 @@ extends Node3D
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 const CASA_SHADER := preload("res://shaders/ps1_casa.gdshader")
 
+const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 const CELDA := 64.0
 const PANEL := 2.5
 const BARDA_ALTO := 2.5
@@ -207,12 +208,12 @@ func _update_nearby(ahora := false) -> void:
 			distance = Vector2(dx, dz).length()
 		distancias[key] = distance
 		var armada := _nodos.has(key) or key in _pendientes or (_tarea >= 0 and key == _tarea_key)
-		if distance < load_radius and not armada:
+		if distance < CargaCuadro.carga(load_radius) and not armada:
 			if ahora:
 				_agregar(key, _crear_celda(_celdas[key]))
 			else:
 				_pendientes.append(key)
-		elif distance > unload_radius:
+		elif distance > CargaCuadro.descarga(unload_radius):
 			_pendientes.erase(key)
 			if _nodos.has(key):
 				_nodos[key].queue_free()

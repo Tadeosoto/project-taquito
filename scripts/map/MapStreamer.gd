@@ -40,7 +40,7 @@ func _ready() -> void:
 	# Lo que esta alrededor del spawn se carga de una vez, para que el jugador
 	# no aparezca sin piso
 	for cuadro in _cuadros:
-		if _distance(cuadro) < load_radius:
+		if _distance(cuadro) < CargaCuadro.carga(load_radius):
 			_add(cuadro["archivo"], load(cuadro["archivo"]))
 
 
@@ -56,10 +56,10 @@ func _process(delta: float) -> void:
 	for cuadro in _cuadros:
 		var archivo: String = cuadro["archivo"]
 		var distance := _distance(cuadro)
-		if distance < load_radius and not _loaded.has(archivo) and not _requested.has(archivo):
+		if distance < CargaCuadro.carga(load_radius) and not _loaded.has(archivo) and not _requested.has(archivo):
 			ResourceLoader.load_threaded_request(archivo)
 			_requested[archivo] = true
-		elif distance > unload_radius and _loaded.has(archivo):
+		elif distance > CargaCuadro.descarga(unload_radius) and _loaded.has(archivo):
 			_loaded[archivo].queue_free()
 			_loaded.erase(archivo)
 

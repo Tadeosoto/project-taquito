@@ -93,6 +93,7 @@ func volando() -> bool:
 
 func _set_active(active: bool) -> void:
 	_active = active
+	preload("res://scripts/map/CargaCuadro.gd").volando = active
 	if active:
 		_camera.make_current()
 		_player.process_mode = Node.PROCESS_MODE_DISABLED
