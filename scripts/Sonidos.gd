@@ -28,6 +28,10 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _ruido(0.14, 0.8, 1.5)
 			"golpe":
 				_sonidos[nombre] = _ruido(0.18, 0.2, 2.0)
+			"whack":
+				_sonidos[nombre] = _whack()
+			"reventar":
+				_sonidos[nombre] = _reventar()
 			"dolor":
 				_sonidos[nombre] = _tono(190.0, 0.22, -70.0, 0.6)
 			"gemido":
@@ -65,6 +69,42 @@ static func _ruido(duracion: float, filtro: float, caida: float) -> AudioStreamW
 		var t := float(i) / cuantas
 		valor = lerpf(valor, azar.randf_range(-1.0, 1.0), filtro)
 		datos.encode_s16(i * 2, int(valor * 32000.0 * pow(1.0 - t, caida)))
+	return _wav(datos)
+
+
+# El golpe que pega: un chasquido seco de ruido encima de un retumbo grave
+static func _whack() -> AudioStreamWAV:
+	var datos := PackedByteArray()
+	var cuantas := int(0.13 * MUESTRAS)
+	datos.resize(cuantas * 2)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 23
+	var fase := 0.0
+	for i in cuantas:
+		var t := float(i) / cuantas
+		fase += lerpf(150.0, 50.0, t) / MUESTRAS
+		var chasquido := azar.randf_range(-1.0, 1.0) * pow(1.0 - minf(t * 4.0, 1.0), 2.0)
+		var retumbo := sin(fase * TAU) * pow(1.0 - t, 2.0)
+		datos.encode_s16(i * 2, int(clampf(chasquido * 0.9 + retumbo * 0.75, -1.0, 1.0) * 32000.0))
+	return _wav(datos)
+
+
+# Un globo de agua que truena: un pop agudo que cae y luego el agua que se riega
+static func _reventar() -> AudioStreamWAV:
+	var datos := PackedByteArray()
+	var cuantas := int(0.42 * MUESTRAS)
+	datos.resize(cuantas * 2)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 37
+	var fase := 0.0
+	var agua := 0.0
+	for i in cuantas:
+		var t := float(i) / cuantas
+		fase += lerpf(1100.0, 160.0, minf(t * 7.0, 1.0)) / MUESTRAS
+		var pop := sin(fase * TAU) * pow(1.0 - minf(t * 6.0, 1.0), 2.0)
+		agua = lerpf(agua, azar.randf_range(-1.0, 1.0), 0.28)
+		var riego := agua * 1.8 * minf(t * 12.0, 1.0) * pow(1.0 - t, 2.5)
+		datos.encode_s16(i * 2, int(clampf(pop * 0.8 + riego, -1.0, 1.0) * 32000.0))
 	return _wav(datos)
 
 

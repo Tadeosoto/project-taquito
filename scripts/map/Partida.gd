@@ -15,6 +15,7 @@ const TEXTO_JEFE := "¡Ahí viene el garrafonero!"
 const TEXTO_PIEZA := "Pedazo de mapa: %s"
 const TEXTO_ZONA := "Entrando a: %s"
 const ZONA_CADA := 0.5
+const GANAR_ESPERA := 1.3    # s de reloj real entre matar al jefe y la pantalla final
 const PIEZA_FRENTE := 3.0    # m frente a la fachada
 const PIEZA_POSTE := 1.5     # m junto al poste
 const PUNTOS_JSON := "res://resources/map/puntos_mapa.json"
@@ -35,6 +36,7 @@ var _ciclo: Node
 var _jugador: Player
 var _jefe_pendiente := false
 var _espera_jefe := 0.0
+var _ganando := false
 var _zona_actual := -1
 var _espera_zona := 0.0
 var _terminada := false
@@ -160,11 +162,14 @@ func _ganar() -> void:
 	if _terminada:
 		return
 	_ciclo.amanecer_ya()
+	# Que se vea tronar al garrafonero antes de pausar. Nada lo puede cambiar en este rato
+	_ganando = true
+	await get_tree().create_timer(GANAR_ESPERA, true, false, true).timeout
 	_terminar(TEXTO_GANASTE)
 
 
 func _perder() -> void:
-	if not _terminada:
+	if not _terminada and not _ganando:
 		_terminar(TEXTO_PERDISTE)
 
 
@@ -178,6 +183,7 @@ func _terminar(texto: String) -> void:
 
 # Todo desde cero: los autoloads no se recargan con la escena
 func _otra_vez() -> void:
+	Engine.time_scale = 1.0
 	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa"]:
 		get_node("/root/" + autoload).reiniciar()
 	get_tree().paused = false
@@ -186,6 +192,7 @@ func _otra_vez() -> void:
 
 # Las teclas de prueba del safehouse
 func reiniciar() -> void:
+	_ganando = false
 	noche = 0
 	_jefe_pendiente = false
 	_terminada = false

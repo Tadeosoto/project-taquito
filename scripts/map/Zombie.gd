@@ -23,7 +23,28 @@ const GOLPE_EN := 0.65      # s desde que empieza el ataque hasta que pega
 const ATAQUE_DURA := 1.5
 const ATAQUE_VELOCIDAD := 1.8
 const HERIDO_DURA := 0.45
-const EMPUJON := 5.0
+const EMPUJON := 9.0        # m/s con el golpe de un machete; se escala con el dano
+# Lo que se siente al pegarle (Player._golpear). Los tiempos van en reloj real: el juego se
+# congela en cada golpe y si no estos tambien se detendrian
+const FLASH_MS := 55
+const JEFE_ARRASTRE := 0.3  # m: al jefe solo se le mueve un poco
+const COLOR_AGUA := Color(0.2, 0.25, 0.1)
+const COLOR_RESTOS := Color(0.12, 0.1, 0.07)
+const SALPICA := 22
+const SALPICA_VELOCIDAD := Vector2(4.0, 9.0)
+const SALPICA_ABRE := 26.0
+const SALPICA_VIDA := 0.55
+const SALPICA_TAMANO := 0.17
+const HINCHADO := 1.35      # como queda justo antes de tronar
+const REVIENTA := 70
+const REVIENTA_VELOCIDAD := Vector2(3.0, 11.0)
+const REVIENTA_TAMANO := 0.3
+const REVIENTA_VIDA := 0.8
+const RESTOS := 10
+const JEFE_REVIENTA := 2.5  # cuanto mas grande es todo con el jefe
+const CHARCO_LADO := 3.0
+const CHARCO_DURA := 3.0
+const CHARCO_ALTO := 0.05
 const MUERTO_DURA := 5.0
 const SEPARACION := 1.1     # que no se encimen unos con otros
 const ATORADO_EN := 0.8     # s casi sin avanzar
@@ -48,8 +69,13 @@ const JEFE_COLOR := Color(0.35, 0.5, 0.95)
 const JEFE_SHADER := preload("res://shaders/ps1_combined.gdshader")
 
 enum Estado { CAMINA, ATACA, HERIDO, MUERTO }
+const GOLPE_NADA := 0
+const GOLPE_PEGO := 1
+const GOLPE_MATO := 2
 
 static var _material_jefe: ShaderMaterial
+static var _material_blanco: StandardMaterial3D
+static var _material_charco: StandardMaterial3D
 static var activos: Array[Zombie] = []   # los despiertos
 
 var estado := Estado.CAMINA
@@ -62,6 +88,13 @@ var despierto := false
 var _refugio: Refugio
 var _blanco: Node3D         # a quien va a pegarle; null = solo va de paso
 var _guia: CampoFlujo       # por donde llegar; null = derecho
+var _modelo: Node3D
+var _tamano := 1.0
+var _mallas: Array[MeshInstance3D] = []
+var _flash_hasta := 0       # ms de reloj real
+var _reventar_en := 0       # ms de reloj real; 0 = no va a tronar
+var _charco: MeshInstance3D
+var _charco_desde := -1.0
 var _tick := 0
 var _empuje := Vector3.ZERO
 var _ultimo := Vector3.ZERO
@@ -82,6 +115,7 @@ var _lado := 1.0
 
 func _ready() -> void:
 	var tamano := 1.0
+	set_process(false)
 	_tick = randi() % TICKS_SEPARAR
 	if es_jefe:
 		tamano = JEFE_TAMANO
@@ -101,17 +135,20 @@ func _ready() -> void:
 	forma.shape = capsula
 	forma.position.y = 0.9 * tamano
 	add_child(forma)
-	var modelo := MODELO.instantiate() as Node3D
-	modelo.scale = Vector3.ONE * tamano
-	add_child(modelo)
-	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):
+	_tamano = tamano
+	_modelo = MODELO.instantiate() as Node3D
+	_modelo.scale = Vector3.ONE * tamano
+	add_child(_modelo)
+	for malla: MeshInstance3D in _modelo.find_children("*", "MeshInstance3D", true, false):
 		malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		if es_jefe:
 			malla.material_override = _material_jefe
 		# El tubo que el modelo trae flotando
 		if String(malla.name).contains("Tube"):
 			malla.visible = false
-	_animacion = modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		else:
+			_mallas.append(malla)
+	_animacion = _modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	for nombre in ["run", "idle"]:
 		_animacion.get_animation(nombre).loop_mode = Animation.LOOP_LINEAR
 	_voz = AudioStreamPlayer3D.new()
@@ -122,6 +159,59 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	activos.erase(self)
+
+
+# Lo que dura poco y va en reloj real: se apaga solo cuando ya no queda nada de eso
+func _process(_delta: float) -> void:
+	var ahora := Time.get_ticks_msec()
+	if _reventar_en > 0 and ahora >= _reventar_en:
+		_reventar()
+	if _flash_hasta > 0 and ahora >= _flash_hasta and _reventar_en == 0:
+		_flash_hasta = 0
+		_pintar_blanco(false)
+	if _charco_desde >= 0.0:
+		var t := (ahora - _charco_desde) / (CHARCO_DURA * 1000.0)
+		if t >= 1.0:
+			_charco_desde = -1.0
+			_charco.visible = false
+		else:
+			_charco.scale = Vector3.ONE * (1.0 - t * t) * (JEFE_REVIENTA if es_jefe else 1.0)
+	if _flash_hasta == 0 and _reventar_en == 0 and _charco_desde < 0.0:
+		set_process(false)
+
+
+func _pintar_blanco(prendido: bool) -> void:
+	if _material_blanco == null:
+		_material_blanco = StandardMaterial3D.new()
+		_material_blanco.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_material_blanco.albedo_color = Color.WHITE
+		_material_blanco.disable_fog = true
+	for malla in _mallas:
+		malla.material_overlay = _material_blanco if prendido else null
+
+
+# Como quedo el modelo tras tronar: de vuelta a la reserva tiene que estar entero
+func _restaurar() -> void:
+	_flash_hasta = 0
+	_reventar_en = 0
+	_charco_desde = -1.0
+	if _charco:
+		_charco.visible = false
+	if _modelo:
+		_modelo.visible = true
+		_modelo.scale = Vector3.ONE * _tamano
+		_pintar_blanco(false)
+	set_process(false)
+
+
+# Dibuja una vez lo de los golpes para que el primero no trabe compilando (Zombis.gd)
+func calentar() -> void:
+	_pintar_blanco(true)
+	var agua := Cohetes.salpicadura(1, 0.2, COLOR_AGUA, 0.01, Vector3.UP, 10.0, Vector2.ONE)
+	agua.emitting = true
+	add_child(agua)
+	_preparar_charco()
+	_charco.visible = true
 
 
 # Sale de la reserva, como nuevo. `con_prisa`: de turba
@@ -150,6 +240,7 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	_ultimo = Vector3.ZERO
 	velocity = Vector3.ZERO
 	global_position = lugar
+	_restaurar()
 	_animar("run", _velocidad / 3.5, true)
 
 
@@ -162,6 +253,7 @@ func dormir() -> void:
 	visible = false
 	if _animacion:
 		_animacion.stop()
+	_restaurar()
 	process_mode = Node.PROCESS_MODE_DISABLED
 
 
@@ -302,37 +394,52 @@ func _seguir_caminando() -> void:
 	_tiempo = 0.0
 
 
-# El machete del jugador (Player._golpear)
-func recibir_golpe(dano: int, desde: Vector3) -> void:
+# El golpe del jugador (Player._golpear). `fuerza`: 1 con un machete, menos a puño limpio.
+# `truena_en`: ms que dura la congelada si este golpe lo mata, para tronar justo al soltar.
+# Regresa GOLPE_NADA, GOLPE_PEGO o GOLPE_MATO.
+func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) -> int:
 	if estado == Estado.MUERTO:
-		return
+		return GOLPE_NADA
 	_vida -= dano
 	var atras := global_position - desde
 	atras.y = 0.0
-	velocity = atras.normalized() * EMPUJON
-	_sangre()
+	atras = atras.normalized()
+	_flash_hasta = Time.get_ticks_msec() + FLASH_MS
+	_pintar_blanco(true)
+	set_process(true)
+	_salpicar(atras, fuerza)
 	if _vida <= 0:
-		_morir(true)
-		return
-	_sonar("golpe")
-	# Al jefe no se le interrumpe con cada machetazo
-	if es_jefe:
 		velocity = Vector3.ZERO
-		return
+		_morir(true, truena_en)
+		return GOLPE_MATO
+	# Al jefe no se le interrumpe con cada machetazo: solo lo recorre un poco
+	if es_jefe:
+		move_and_collide(atras * JEFE_ARRASTRE * fuerza)
+		return GOLPE_PEGO
+	velocity = atras * EMPUJON * fuerza
 	estado = Estado.HERIDO
 	_tiempo = 0.0
 	_animar("hit", 2.0, true)
+	return GOLPE_PEGO
 
 
-# `pagado`: lo mato el jugador, trae unos pesos (al amanecer se caen solos)
-func _morir(pagado: bool) -> void:
+# `truena_en`: lo mato el jugador, trae unos pesos y revienta como globo de agua sucia. Sin
+# el, se cae (al amanecer)
+func _morir(pagado: bool, truena_en := 0) -> void:
 	estado = Estado.MUERTO
 	_tiempo = 0.0
 	collision_layer = 0
 	collision_mask = 1
 	velocity = Vector3.ZERO
-	_animar("die", 1.0, true)
-	_sonar("morir_zombi")
+	if truena_en > 0:
+		# Se hincha en blanco mientras el juego esta congelado, y al soltar truena
+		_reventar_en = Time.get_ticks_msec() + truena_en
+		_modelo.scale = Vector3(HINCHADO, HINCHADO * 0.92, HINCHADO) * _tamano
+		_animacion.pause()
+		set_process(true)
+	else:
+		_animar("die", 1.0, true)
+		_sonar("morir_zombi")
 	murio.emit()
 	if pagado:
 		var cartera := get_node_or_null("/root/Cartera")
@@ -345,14 +452,67 @@ func caer_al_amanecer() -> void:
 		_morir(false)
 
 
-func _sangre() -> void:
-	var chispas := Cohetes.chispas(14, 0.5, Color(0.55, 0.02, 0.02), 0.14)
-	chispas.initial_velocity_min = 1.5
-	chispas.initial_velocity_max = 3.5
-	chispas.gravity = Vector3(0.0, -9.0, 0.0)
-	chispas.position.y = 1.2
-	add_child(chispas)
-	get_tree().create_timer(1.0).timeout.connect(chispas.queue_free)
+# Agua sucia hacia donde iba el golpe. Van en el padre, que no gira ni se duerme
+func _salpicar(hacia: Vector3, fuerza: float) -> void:
+	var agua := Cohetes.salpicadura(roundi(SALPICA * clampf(fuerza, 0.5, 1.5)), SALPICA_VIDA, COLOR_AGUA, SALPICA_TAMANO, (hacia + Vector3.UP * 0.25).normalized(), SALPICA_ABRE, SALPICA_VELOCIDAD)
+	_soltar_particulas(agua, 1.2 * _tamano, SALPICA_VIDA)
+
+
+func _reventar() -> void:
+	_reventar_en = 0
+	_flash_hasta = 0
+	_pintar_blanco(false)
+	_modelo.visible = false
+	var grande := JEFE_REVIENTA if es_jefe else 1.0
+	var agua := Cohetes.salpicadura(roundi(REVIENTA * grande), REVIENTA_VIDA, COLOR_AGUA, REVIENTA_TAMANO * minf(grande, 1.6), Vector3.UP, 95.0, REVIENTA_VELOCIDAD * minf(grande, 1.5))
+	_soltar_particulas(agua, 1.1 * _tamano, REVIENTA_VIDA)
+	var restos := Cohetes.salpicadura(roundi(RESTOS * grande), REVIENTA_VIDA, COLOR_RESTOS, REVIENTA_TAMANO * 0.5, Vector3.UP, 80.0, REVIENTA_VELOCIDAD * 0.7)
+	_soltar_particulas(restos, 1.1 * _tamano, REVIENTA_VIDA)
+	_preparar_charco()
+	_charco.visible = true
+	_charco.scale = Vector3.ONE * grande
+	_charco_desde = Time.get_ticks_msec()
+	_sonar("reventar")
+
+
+func _soltar_particulas(particulas: CPUParticles3D, alto: float, vida: float) -> void:
+	particulas.emitting = true
+	var padre := get_parent() as Node3D
+	padre.add_child(particulas)
+	particulas.global_position = global_position + Vector3.UP * alto
+	get_tree().create_timer(vida + 0.5).timeout.connect(particulas.queue_free)
+
+
+func _preparar_charco() -> void:
+	if _charco:
+		return
+	if _material_charco == null:
+		var mancha := GradientTexture2D.new()
+		mancha.width = 32
+		mancha.height = 32
+		mancha.fill = GradientTexture2D.FILL_RADIAL
+		mancha.fill_from = Vector2(0.5, 0.5)
+		mancha.fill_to = Vector2(0.5, 0.0)
+		var borde := Gradient.new()
+		borde.set_color(0, Color(1, 1, 1, 0.9))
+		borde.set_color(1, Color(1, 1, 1, 0.0))
+		borde.add_point(0.75, Color(1, 1, 1, 0.8))
+		mancha.gradient = borde
+		_material_charco = StandardMaterial3D.new()
+		_material_charco.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_material_charco.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_material_charco.albedo_color = COLOR_AGUA.darkened(0.45)
+		_material_charco.albedo_texture = mancha
+		_material_charco.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	var plano := PlaneMesh.new()
+	plano.size = Vector2.ONE * CHARCO_LADO
+	_charco = MeshInstance3D.new()
+	_charco.mesh = plano
+	_charco.material_override = _material_charco
+	_charco.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_charco.position.y = CHARCO_ALTO
+	_charco.visible = false
+	add_child(_charco)
 
 
 func _jugador_libre() -> bool:

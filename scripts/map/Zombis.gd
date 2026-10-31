@@ -69,6 +69,7 @@ func _ready() -> void:
 	# Despues de add_child: al estar listo, el nodo vuelve a prender su _physics_process
 	_calentando.set_physics_process(false)
 	_calentando.collision_layer = 0
+	_calentando.calentar()
 	_calentar = CALENTAR_CUADROS
 
 

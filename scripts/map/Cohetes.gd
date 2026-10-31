@@ -15,6 +15,7 @@ const CHISPAS := 70
 const VIDA_CHISPA := 1.6
 
 static var _material: StandardMaterial3D
+static var _material_agua: StandardMaterial3D
 static var _cuadro: QuadMesh
 
 
@@ -60,6 +61,30 @@ func _cohete(destino: Vector3) -> void:
 	cohete.add_child(luz)
 	cohete.create_tween().tween_property(luz, "light_energy", 0.0, 0.5)
 	_voz(cohete, "trueno", 250.0)
+
+
+# Agua sucia que sale volando (Zombie.gd): como las chispas, pero sin sumar luz, porque el
+# agua oscura sumando casi ni se veia, y con niebla, porque va pegada al piso.
+static func salpicadura(cantidad: int, vida: float, color: Color, tamano: float, direccion: Vector3, abre: float, velocidad: Vector2) -> CPUParticles3D:
+	var particulas := chispas(cantidad, vida, color, tamano)
+	if _material_agua == null:
+		_material_agua = _material.duplicate() as StandardMaterial3D
+		_material_agua.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
+		_material_agua.disable_fog = false
+	particulas.material_override = _material_agua
+	particulas.direction = direccion
+	particulas.spread = abre
+	particulas.initial_velocity_min = velocidad.x
+	particulas.initial_velocity_max = velocidad.y
+	particulas.gravity = Vector3(0.0, -14.0, 0.0)
+	particulas.damping_min = 0.5
+	particulas.damping_max = 1.5
+	var tono := Gradient.new()
+	tono.set_color(0, color)
+	tono.set_color(1, Color(color.r, color.g, color.b, 0.0))
+	tono.add_point(0.7, color)
+	particulas.color_ramp = tono
+	return particulas
 
 
 # Las chispas de un trueno o una estela: cuadros de frente a la camara, sin niebla (la

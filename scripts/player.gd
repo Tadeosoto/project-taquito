@@ -34,6 +34,19 @@ const ARMA_TAMANO := 0.6
 # El mango va en el puño: crear_modelo centra y deja lo largo en X con el mango en +X
 const ARMA_GIRO := Vector3(0.0, 90.0, -90.0)
 const ARMA_MANGO := 0.24
+# Lo que se siente al pegar: `fuerza` es 1 con el machete y cambia con el dano del arma
+const DANO_MACHETE := 12.0
+const FUERZA_MIN := 0.5
+const FUERZA_MAX := 1.5
+const SWING_VOLUMEN := -8.0   # dB: para que resalte el whack
+const RETROCESO := 3.0        # m/s
+const RETROCESO_CAIDA := 14.0 # por segundo
+const SACUDE := 0.05          # m de la camara
+const SACUDE_MATA := 2.0
+const SACUDE_DURA := 0.15
+const CONGELA := 0.05         # s de reloj real
+const CONGELA_MATA := 0.08
+const CONGELA_ESCALA := 0.02
 
 var _enfriar := 0.0
 var _pega_en := -1.0
@@ -43,6 +56,11 @@ var _pos_antes := Vector3.ZERO
 var _pos_ahora := Vector3.ZERO
 var _frijol_base := Vector3.ZERO
 var _pivote_base := Vector3.ZERO
+var _retroceso := Vector3.ZERO
+var _sacude_fuerza := 0.0
+var _sacude_hasta := 0
+var _congelado_hasta := 0
+var _camara: Camera3D
 var _voz: AudioStreamPlayer3D
 var _mano: BoneAttachment3D
 var _arma_visible: InventoryItemData
@@ -52,6 +70,11 @@ func _ready() -> void:
 	add_to_group("jugador")
 	_frijol_base = frijol.position
 	_pivote_base = camera_pivot.position
+	_camara = spring_arm.find_child("Camera3D", true, false) as Camera3D
+	var reloj := RelojCongelada.new()
+	reloj.jugador = self
+	reloj.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(reloj)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_voz = AudioStreamPlayer3D.new()
 	add_child(_voz)
@@ -71,7 +94,7 @@ func _atacar() -> void:
 	_pega_en = ATAQUE_PEGA_EN
 	if ninja.has_method("accion"):
 		ninja.accion("Punch")
-	_sonar("machetazo")
+	_sonar("machetazo", SWING_VOLUMEN)
 
 
 func _golpear() -> void:
@@ -84,11 +107,58 @@ func _golpear() -> void:
 	var frente := -frijol.global_transform.basis.z
 	frente.y = 0.0
 	frente = frente.normalized()
+	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)
+	# Un zombi muerto en este golpe truena justo al soltar la congelada
+	var truena_en := int(CONGELA_MATA * 1000.0)
+	var pego := false
+	var mato := false
 	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
 		var hacia := zombi.global_position - global_position
 		hacia.y = 0.0
 		if hacia.length() <= ATAQUE_ALCANCE and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
-			zombi.recibir_golpe(dano, global_position)
+			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, truena_en)
+			pego = pego or resultado != 0
+			mato = mato or resultado == 2
+	if pego:
+		_sentir_golpe(frente, fuerza, mato)
+
+
+# Una vez por golpe, aunque le pegue a varios: el whack, el rebote, la sacudida y la congelada
+func _sentir_golpe(frente: Vector3, fuerza: float, mato: bool) -> void:
+	_voz.pitch_scale = randf_range(0.9, 1.12)
+	_sonar("whack")
+	_retroceso = -frente * RETROCESO * fuerza
+	_sacude_fuerza = SACUDE * fuerza * (SACUDE_MATA if mato else 1.0)
+	_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
+	_congelar(CONGELA_MATA if mato else CONGELA)
+
+
+# El juego casi se detiene unos cuadros. Un SceneTreeTimer no servia para soltarlo: con la
+# escala de tiempo tan baja se quedaba en camara lenta varios segundos
+func _congelar(segundos: float) -> void:
+	_congelado_hasta = maxi(_congelado_hasta, Time.get_ticks_msec() + int(segundos * 1000.0))
+	Engine.time_scale = CONGELA_ESCALA
+
+
+func _revisar_congelada() -> void:
+	if _congelado_hasta > 0 and Time.get_ticks_msec() >= _congelado_hasta:
+		_congelado_hasta = 0
+		Engine.time_scale = 1.0
+
+
+func _exit_tree() -> void:
+	if _congelado_hasta > 0:
+		_congelado_hasta = 0
+		Engine.time_scale = 1.0
+
+
+# Mira el reloj en cada cuadro aunque el juego este en pausa o el jugador apagado (el
+# inventario, una tienda): la congelada siempre se suelta
+class RelojCongelada extends Node:
+	var jugador: Player
+
+	func _process(_delta: float) -> void:
+		jugador._revisar_congelada()
 
 
 # Un golpe de zombi (Zombie.gd)
@@ -161,8 +231,9 @@ func _mostrar_arma() -> void:
 		modelo.visible = true
 
 
-func _sonar(nombre: String) -> void:
+func _sonar(nombre: String, volumen := 0.0) -> void:
 	_voz.stream = Sonidos.sonido(nombre)
+	_voz.volume_db = volumen
 	_voz.play()
 
 
@@ -194,6 +265,22 @@ func _process(_delta: float) -> void:
 	var desfase := global_basis.inverse() * (_pos_antes.lerp(_pos_ahora, fraccion) - ahora)
 	frijol.position = _frijol_base + desfase
 	camera_pivot.position = _pivote_base + desfase
+	_sacudir()
+
+
+# Corrimiento de la camara, no de su nodo: el resorte ni se entera. En reloj real, porque el
+# golpe tambien congela el juego
+func _sacudir() -> void:
+	if _sacude_hasta == 0:
+		return
+	var queda := float(_sacude_hasta - Time.get_ticks_msec()) / (SACUDE_DURA * 1000.0)
+	if queda <= 0.0:
+		_sacude_hasta = 0
+		_camara.h_offset = 0.0
+		_camara.v_offset = 0.0
+		return
+	_camara.h_offset = randf_range(-1.0, 1.0) * _sacude_fuerza * queda
+	_camara.v_offset = randf_range(-1.0, 1.0) * _sacude_fuerza * queda
 
 
 func _physics_process(delta: float) -> void:
@@ -276,7 +363,11 @@ func _physics_process(delta: float) -> void:
 		else:
 			velocity.y = jump_velocity
 
+	# El rebote va aparte: el frenado de arriba lo borraria
+	velocity += _retroceso
 	move_and_slide()
+	velocity -= _retroceso
+	_retroceso = _retroceso.move_toward(Vector3.ZERO, RETROCESO * RETROCESO_CAIDA * delta)
 	_pos_antes = _pos_ahora
 	_pos_ahora = global_position
 
