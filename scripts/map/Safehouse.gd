@@ -59,12 +59,14 @@ const REFUGIO_EN := Vector3(30.0, 0.0, -10.0)
 const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
 const DANO_TINACO := 100
 const TURBA_PRUEBA := 12
+const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
 const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
 Tab inventario · clic o F pegar · V dron
 N siguiente atardecer/amanecer
 Z zombi · B turba · X quitar zombis · T zombis solos de noche
 H curar · J -%d de vida · M +$100 · Y vaciar inventario
 G tablas · L -100 al tinaco (refugio a la derecha)
+U todo el mapa · en el inventario, M el mapa
 1 2 3 maquinita cercana: normal, sin monedas, segura
 K deterioro · R reiniciar todo · F10 ir al mapa"""
 
@@ -149,7 +151,9 @@ func _ready() -> void:
 	_partida.zombis_path = _zombis.get_path()
 	_partida.supervivencia_path = get_node("Supervivencia").get_path()
 	_partida.refugio_path = _refugio.get_path()
+	_partida.piezas_en_el_mapa = false
 	add_child(_partida)
+	_poner_pieza_prueba()
 	var gente := Gente.new()
 	gente.name = "Gente"
 	gente.banquetas_path = BANQUETAS_JSON
@@ -160,6 +164,13 @@ func _ready() -> void:
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))
 	_letrero("CASAS", Vector3(0.0, 9.0, CASAS_Z))
 	_armar_panel()
+
+
+# Un pedazo de mapa: aqui da el primero que falte, porque las zonas son del mapa real
+func _poner_pieza_prueba() -> void:
+	var pieza := PiezaMapa.new()
+	pieza.position = PIEZA_PRUEBA_EN
+	add_child(pieza)
 
 
 # --- El patio ---
@@ -307,6 +318,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_inventario.inventory_changed.emit()
 		KEY_B:
 			_zombis.aparecer_turba(TURBA_PRUEBA)
+		KEY_U:
+			for zona in ZonasMapa.cuantas():
+				PiezasMapa.dar(zona)
 		KEY_G:
 			_inventario.add_item(load(TABLAS_PRUEBA))
 		KEY_L:
@@ -344,6 +358,10 @@ func _reiniciar() -> void:
 	_zombis.noches = 0
 	_zombis.director.reiniciar()
 	_partida.reiniciar()
+	PiezasMapa.reiniciar()
+	for pieza in get_tree().get_nodes_in_group("piezas_mapa"):
+		pieza.queue_free()
+	_poner_pieza_prueba()
 	for bolsa in get_tree().get_nodes_in_group("bolsa_muerte"):
 		bolsa.queue_free()
 	_reiniciar_maquinas()

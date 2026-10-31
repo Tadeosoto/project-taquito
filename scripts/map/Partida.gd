@@ -12,7 +12,16 @@ const TEXTO_PERDISTE := "Tumbaron el tinaco.\nSe acabó el agua."
 const TEXTO_GANASTE := "Mataste al garrafonero.\nAmaneció y sigue habiendo agua."
 const TEXTO_OTRA := "Espacio: otra vez"
 const TEXTO_JEFE := "¡Ahí viene el garrafonero!"
+const TEXTO_PIEZA := "Pedazo de mapa: %s"
+const TEXTO_ZONA := "Entrando a: %s"
+const ZONA_CADA := 0.5
+const PIEZA_FRENTE := 3.0    # m frente a la fachada
+const PIEZA_POSTE := 1.5     # m junto al poste
+const PUNTOS_JSON := "res://resources/map/puntos_mapa.json"
+const POSTES_JSON := "res://resources/map/alumbrado_mapa.json"
 
+# Las zonas y los pedazos son del mapa real; el safehouse tiene los suyos
+@export var piezas_en_el_mapa := true
 @export var zombis_path: NodePath
 @export var supervivencia_path: NodePath
 @export var refugio_path: NodePath
@@ -26,6 +35,8 @@ var _ciclo: Node
 var _jugador: Player
 var _jefe_pendiente := false
 var _espera_jefe := 0.0
+var _zona_actual := -1
+var _espera_zona := 0.0
 var _terminada := false
 var _estado: Label
 var _final: Control
@@ -45,6 +56,58 @@ func _ready() -> void:
 	_refugio.aviso.connect(_supervivencia.avisar)
 	_ciclo.anochecio.connect(_anochecio)
 	_armar_pantalla()
+	PiezasMapa.recogida.connect(func(zona: int) -> void:
+		_supervivencia.avisar(TEXTO_PIEZA % ZonasMapa.nombre(zona)))
+	if piezas_en_el_mapa:
+		_poner_piezas()
+
+
+# Un pedazo por zona; el de donde empiezas ya lo traes
+func _poner_piezas() -> void:
+	var inicio := ZonasMapa.zona_en(_jugador.global_position.x, _jugador.global_position.z)
+	_zona_actual = inicio
+	PiezasMapa.dar(inicio)
+	var lugares := _lugares_de_piezas()
+	for zona in ZonasMapa.cuantas():
+		if PiezasMapa.tiene(zona) or not lugares.has(zona):
+			continue
+		var pieza := PiezaMapa.new()
+		pieza.zona = zona
+		add_child(pieza)
+		pieza.global_position = Vector3(lugares[zona].x, 0.0, lugares[zona].y)
+
+
+# Frente a la tienda mas cerca del centro de cada zona; si no hay, junto al poste mas
+# cercano (siempre estan en la banqueta). Siempre los mismos: dependen solo de los datos.
+func _lugares_de_piezas() -> Dictionary:
+	var lugares := {}
+	var distancias := {}
+	var centros := []
+	for zona in ZonasMapa.cuantas():
+		centros.append(ZonasMapa.a_mundo(ZonasMapa.centro(zona)))
+	var puntos: Variant = JSON.parse_string(FileAccess.get_file_as_string(PUNTOS_JSON))
+	for p: Dictionary in puntos["puntos"]:
+		if not p.get("interactivo", false) or p["tipo"] == "punto" or p.get("aire_libre", false):
+			continue
+		var zona := ZonasMapa.zona_en(p["x"], p["z"])
+		if zona < 0:
+			continue
+		var d: float = centros[zona].distance_to(Vector2(p["x"], p["z"]))
+		if d < distancias.get(zona, INF):
+			distancias[zona] = d
+			var frente := Vector2(sin(float(p["rotacion_y"])), cos(float(p["rotacion_y"])))
+			lugares[zona] = Vector2(p["x"], p["z"]) + frente * (float(p.get("fondo", 8.0)) / 2.0 + PIEZA_FRENTE)
+	var postes: Variant = JSON.parse_string(FileAccess.get_file_as_string(POSTES_JSON))
+	var con_tienda := lugares.keys()
+	for poste: Dictionary in postes["postes"]:
+		var zona := ZonasMapa.zona_en(poste["x"], poste["z"])
+		if zona < 0 or zona in con_tienda:
+			continue
+		var d: float = centros[zona].distance_to(Vector2(poste["x"], poste["z"]))
+		if d < distancias.get(zona, INF):
+			distancias[zona] = d
+			lugares[zona] = Vector2(poste["x"], poste["z"]) + Vector2(PIEZA_POSTE, 0.0)
+	return lugares
 
 
 func _anochecio() -> void:
@@ -57,6 +120,7 @@ func _anochecio() -> void:
 
 func _process(delta: float) -> void:
 	_estado.text = "Noche %d/%d · Tinaco %d/%d" % [maxi(noche, 1), NOCHES, _refugio.vida, Refugio.TINACO_VIDA]
+	_revisar_zona(delta)
 	if not _jefe_pendiente or _terminada or get_tree().paused:
 		return
 	_espera_jefe -= delta
@@ -70,6 +134,20 @@ func _process(delta: float) -> void:
 		_jefe_pendiente = false
 		jefe.murio.connect(_ganar)
 		_supervivencia.avisar(TEXTO_JEFE)
+
+
+# Al cruzar a otra zona se dice su nombre
+func _revisar_zona(delta: float) -> void:
+	if not piezas_en_el_mapa or get_tree().paused or not _jugador.is_physics_processing():
+		return
+	_espera_zona -= delta
+	if _espera_zona > 0.0:
+		return
+	_espera_zona = ZONA_CADA
+	var zona := ZonasMapa.zona_en(_jugador.global_position.x, _jugador.global_position.z)
+	if zona >= 0 and zona != _zona_actual:
+		_zona_actual = zona
+		_supervivencia.avisar(TEXTO_ZONA % ZonasMapa.nombre(zona))
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -100,7 +178,7 @@ func _terminar(texto: String) -> void:
 
 # Todo desde cero: los autoloads no se recargan con la escena
 func _otra_vez() -> void:
-	for autoload in ["Inventory", "Salud", "Cartera"]:
+	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa"]:
 		get_node("/root/" + autoload).reiniciar()
 	get_tree().paused = false
 	get_tree().reload_current_scene()

@@ -9,7 +9,8 @@ extends CanvasLayer
 enum InventoryState {
 	NAVIGATING,
 	INSPECTING,
-	COMBINING
+	COMBINING,
+	MAPA
 }
 
 enum Comando { EXAMINAR, UTILIZAR, COMBINAR }
@@ -64,8 +65,13 @@ var _solo: bool = false
 var modelos: Array[Node3D] = []
 var current_model: Node3D = null
 var active_tween: Tween = null
+# El mapa de papel (MapaUI.gd), encima del panel y abajo del dither
+var mapa_ui: Control
 
 func _ready() -> void:
+	mapa_ui = load("res://scripts/MapaUI.gd").new()
+	mapa_ui.visible = false
+	$MainPanel.add_child(mapa_ui)
 	# Automatically refresh if items are added or removed globally
 	inventory.inventory_changed.connect(refresh_carousel)
 	Salud.cambio.connect(_actualizar_estado)
@@ -106,6 +112,7 @@ func abrir() -> void:
 	refresh_carousel()
 
 func cerrar() -> void:
+	mapa_ui.visible = false
 	inspect_viewer.set_inspection_active(false)
 	current_state = InventoryState.NAVIGATING
 	clear_all_models()
@@ -143,6 +150,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
 
+	if current_state == InventoryState.MAPA:
+		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_map"):
+			_cerrar_mapa()
+		elif event.is_action_pressed("inspect_zoom_in"):
+			mapa_ui.acercar(1)
+		elif event.is_action_pressed("inspect_zoom_out"):
+			mapa_ui.acercar(-1)
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_map"):
+		_abrir_mapa()
+		get_viewport().set_input_as_handled()
+		return
+
 	if event.is_action_pressed("inventory_back"):
 		_regresar()
 		get_viewport().set_input_as_handled()
@@ -178,6 +199,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.is_action_pressed("inspect_down"):
 			_mover_comando(1)
 			get_viewport().set_input_as_handled()
+
+func _abrir_mapa() -> void:
+	current_state = InventoryState.MAPA
+	# Lo de atras no se ve: no se dibuja el 3D mientras
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	mapa_ui.mostrar()
+
+func _cerrar_mapa() -> void:
+	current_state = InventoryState.NAVIGATING
+	mapa_ui.visible = false
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	update_hint()
 
 # Un paso atras: de inspeccionar o combinar a la lista; de la lista, cierra
 func _regresar() -> void:
@@ -413,7 +446,7 @@ func update_hint() -> void:
 			var primero: InventoryItemData = inventory.get_item(combinar_desde)
 			inspect_hint_label.text = "%s con... (Enter / Esc)" % primero.item_name
 		_:
-			inspect_hint_label.text = ""
+			inspect_hint_label.text = "M: Mapa"
 
 # Solo se ven los comandos que aplican; el elegido en blanco
 func _actualizar_comandos() -> void:
