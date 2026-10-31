@@ -428,7 +428,7 @@ Cada modelo trae una captura **`preview.png`** en su carpeta (y `<nombre>_previe
 
 | Prioridad | Modelo | Notas |
 |---|---|---|
-| Alta | **Personaje jugable** definitivo | ¿Quién es? ¿se puede personalizar (en multijugador ayuda distinguirse)? Candidatos: hombre_psx, mujer_psx, chava_psx + animaciones de Quaternius. |
+| Alta | **Personaje jugable** definitivo | ¿Quién es? ¿se puede personalizar (en multijugador ayuda distinguirse)? Candidatos: hombre_psx, mujer_psx, chava_psx + animaciones de Quaternius. 💡 Propuesta de trabajo de AG (2026-10-31), falta que el equipo la vote: cada jugador hace el suyo con el ninja recoloreado (`scripts/CreadorPersonaje.gd`): nombre, complexión y talla con pros y contras, cabeza y ropa. El tono de piel es una sátira del colorismo, como en *South Park*: cambia precios, paga y lo que te dice la gente, y no toca el combate. Por decidir antes de publicar: si se queda este chiste y cómo se escriben esas líneas. |
 | Alta | Juntar animaciones con personajes | Retarget de las de Quaternius al jugador, zombies y NPCs (hoy cada modelo trae solo las suyas). |
 | Media | Interiores: más muebles propios | Las escenas ya están armadas (`scenes/interiores/`) con mostrador, estantes oxidados, máquina, la tiendita m3_mart y objetos; faltan muebles de farmacia y anaqueles de ferretería. |
 | Media | Objetos que se quitaron porque salían mal: garrafón (para repartir garrafones; el del despachador `props/despachador_agua` sí sirve de referencia), botella de agua, agua sucia, lámpara, celular, máquina de tienda, tequila, paloma, veladora | Buscar otros en Sketchfab o modelar low-poly. |
@@ -497,7 +497,7 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 - [ ] ¿Cuántos somos y cuántas horas a la semana? ¿Hay fecha de entrega? (define 1.6)
 - [ ] ¿Qué hay que tomar del reel de Instagram de las hordas? ¿Cantidad, cómo se mueven, cómo se ven?
 - [ ] ¿Dónde está el baile del Simi? ¿Es una animación de Mixamo, una escena aparte, otra rama?
-- [ ] ¿El personaje jugable es alguien en particular (historia) o cada jugador hace el suyo?
+- [ ] ¿El personaje jugable es alguien en particular (historia) o cada jugador hace el suyo? 💡 Propuesta de AG en 10.2, incluye el tono de piel: falta el voto del equipo.
 - [ ] ¿Se puede pegar a otros jugadores (PvP)?
 - [ ] ¿Las tiendas son zona segura de noche?
 - [ ] **Antes de publicar**: una opción para apagar los destellos de pantalla completa (el cuadro de impacto) y la sacudida. A la gente con epilepsia fotosensible le puede hacer daño. Por ahora solo se apaga en código (`Supervivencia.IMPACTO_ACTIVO`).
