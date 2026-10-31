@@ -161,7 +161,7 @@ Tercera persona, cámara relativa, correr con Shift, saltar. Ya existe en `scrip
 
 ### 4.2 Combate
 
-- **Cuerpo a cuerpo**: machete, bate, chancla… Una animación de golpe + área de daño delante del jugador. Lo más fácil de hacer primero. 🧱 Ya se pelea con clic izquierdo o F: pega con la mejor arma que traigas (machete 12, reforzado 18) o a puño (5), sin equiparla. Por ahora solo con el machete. Daños y vida 💡 para discutir. 🧱 Cada golpe se siente: el zombi se pone blanco, suena un whack seco, sale agua sucia hacia donde iba el golpe, el zombi sale empujado y tú rebotas tantito, la cámara se sacude y el juego se congela unos cuadros; con más daño, más fuerza. Al matarlo se hincha y revienta como globo de agua sucia, y deja un charco que se seca. Los que se caen al amanecer no revientan.
+- **Cuerpo a cuerpo**: machete, bate, chancla… Una animación de golpe + área de daño delante del jugador. Lo más fácil de hacer primero. 🧱 Ya se pelea con clic izquierdo o F: pega con la mejor arma que traigas (machete 12, reforzado 18) o a puño (5), sin equiparla. Por ahora solo con el machete. Daños y vida 💡 para discutir. 🧱 Cada golpe se siente: el zombi se pone blanco, suena un whack seco, sale agua sucia hacia donde iba el golpe, el zombi sale empujado y tú rebotas tantito, la cámara se sacude y el juego se congela unos cuadros; con más daño, más fuerza. Al matarlo se hincha y revienta como globo de agua sucia, y deja un charco que se seca y su pellejo mojado, que a los pocos segundos se pudre y deja el esqueleto (dura un minuto; máximo 16). Los que se caen al amanecer no revientan. Cuando te pegan a ti: el juego se congela unos cuadros, te pones blanco, se sacude la cámara, dos cuadros de la pantalla en puro blanco y negro, te empuja como 1.5 m hacia donde iba el golpe y sale sangre para allá.
 - **Armas de fuego**: pistola, cuerno de chivo, ballesta. Tipo de apuntado 🗳️ (ver 1.4). Munición escasa, recarga.
 - **Arrojables**: molotov (fuego en área), paloma (aturde), bocina (atrae zombies, ver objetos). Se lanzan en arco con previsualización de trayectoria (*GTA*, *Fortnite*).
 - 💡 **Ruido**: disparar hace ruido y atrae zombies; machete es silencioso. Da sentido a elegir arma (*DayZ*, *The Last of Us*).
@@ -496,6 +496,7 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 - [ ] ¿El personaje jugable es alguien en particular (historia) o cada jugador hace el suyo?
 - [ ] ¿Se puede pegar a otros jugadores (PvP)?
 - [ ] ¿Las tiendas son zona segura de noche?
+- [ ] **Antes de publicar**: una opción para apagar los destellos de pantalla completa (el cuadro de impacto) y la sacudida. A la gente con epilepsia fotosensible le puede hacer daño. Por ahora solo se apaga en código (`Supervivencia.IMPACTO_ACTIVO`).
 - [ ] ¿Hay vehículos? (bici, carrito de súper, camión) — dan mucho juego en el mapa real pero son trabajo L.
 - [x] **Marcas reales**: se decidió parodia. Los nombres ya cambiaron (OXO, Dr Simio, Guadalaraja, Perez); falta repintar los modelos.
 - [ ] Tachas, droga y cuerno de chivo: ¿el tono es parodia? Afecta la clasificación si se publica en alguna tienda (itch.io no tiene problema).
