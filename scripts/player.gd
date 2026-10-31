@@ -38,6 +38,11 @@ const ARMA_MANGO := 0.24
 var _enfriar := 0.0
 var _pega_en := -1.0
 var _invulnerable := 0.0
+const SALTO := 3.0   # m entre dos ticks: mas que esto no es caminar
+var _pos_antes := Vector3.ZERO
+var _pos_ahora := Vector3.ZERO
+var _frijol_base := Vector3.ZERO
+var _pivote_base := Vector3.ZERO
 var _voz: AudioStreamPlayer3D
 var _mano: BoneAttachment3D
 var _arma_visible: InventoryItemData
@@ -45,6 +50,8 @@ var _arma_visible: InventoryItemData
 
 func _ready() -> void:
 	add_to_group("jugador")
+	_frijol_base = frijol.position
+	_pivote_base = camera_pivot.position
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_voz = AudioStreamPlayer3D.new()
 	add_child(_voz)
@@ -174,6 +181,21 @@ func _unhandled_input(event: InputEvent) -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
+# El cuerpo se mueve a 60 por segundo y la pantalla mas seguido: sin esto el personaje y la
+# camara avanzan a saltitos aunque haya muchos FPS. Solo se suaviza lo que se ve (modelo y
+# camara), entre las dos ultimas posiciones del cuerpo; la fisica no cambia.
+func _process(_delta: float) -> void:
+	var ahora := global_position
+	# Lo movieron de golpe (reaparecer, salir de una tienda) o esta congelado: sin suavizar
+	if not is_physics_processing() or _pos_ahora.distance_squared_to(ahora) > SALTO * SALTO:
+		_pos_antes = ahora
+		_pos_ahora = ahora
+	var fraccion := Engine.get_physics_interpolation_fraction()
+	var desfase := global_basis.inverse() * (_pos_antes.lerp(_pos_ahora, fraccion) - ahora)
+	frijol.position = _frijol_base + desfase
+	camera_pivot.position = _pivote_base + desfase
+
+
 func _physics_process(delta: float) -> void:
 	_enfriar = maxf(_enfriar - delta, 0.0)
 	_invulnerable = maxf(_invulnerable - delta, 0.0)
@@ -255,6 +277,8 @@ func _physics_process(delta: float) -> void:
 			velocity.y = jump_velocity
 
 	move_and_slide()
+	_pos_antes = _pos_ahora
+	_pos_ahora = global_position
 
 	if ninja.has_method("update_animation"):
 		ninja.update_animation(is_moving, not is_on_floor(), is_sprinting)

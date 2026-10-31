@@ -54,9 +54,14 @@ func _ready() -> void:
 	_rid = get_viewport().get_viewport_rid()
 	RenderingServer.viewport_set_measure_render_time(_rid, true)
 	var rapido := false
+	var movimiento := false
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--rapido":
 			rapido = true
+		elif arg == "--movimiento":
+			movimiento = true
+		elif arg == "--sin-suavizar":
+			_jugador.set_process(false)
 		elif arg.begins_with("--apagar="):
 			for nombre in arg.get_slice("=", 1).split(","):
 				_apagar(nombre)
@@ -67,6 +72,11 @@ func _ready() -> void:
 	print("MEDIR camara far=%.0f" % (_jugador.find_child("Camera3D", true, false) as Camera3D).far)
 	_hora = _ciclo.inicio
 	await get_tree().create_timer(CARGA).timeout
+	if movimiento:
+		_hora = 100.0
+		await _movimiento()
+		get_tree().quit()
+		return
 	if rapido:
 		_hora = 100.0
 		await _en_lugar("inicio", "dia")
@@ -113,6 +123,46 @@ func _en_lugar(lugar: String, etiqueta: String) -> void:
 	if _capturas != "":
 		var imagen := get_viewport().get_texture().get_image()
 		imagen.save_png("%s/%s_%s.png" % [_capturas, lugar, etiqueta])
+
+
+# Que tan parejo se ve caminar: la camara tendria que avanzar igual en cada cuadro. Sale
+# el porcentaje de cuadros que se alejan mucho de la velocidad tipica, y los cuadros largos.
+func _movimiento() -> void:
+	var camara := _jugador.find_child("Camera3D", true, false) as Camera3D
+	Input.action_press("move_forward")
+	Input.action_press("sprint")
+	await get_tree().create_timer(1.0).timeout
+	var velocidades: Array[float] = []
+	var largos := 0
+	var antes := camara.global_position
+	var t0 := Time.get_ticks_usec()
+	var fin := t0 + 10000000
+	# Justo despues de dibujar: lo que se lee es lo que se vio en ese cuadro
+	var muestra := PackedStringArray()
+	while t0 < fin:
+		await RenderingServer.frame_post_draw
+		var t := Time.get_ticks_usec()
+		var dt := (t - t0) / 1000000.0
+		t0 = t
+		var ahora := camara.global_position
+		var paso := Vector2(ahora.x - antes.x, ahora.z - antes.z).length()
+		velocidades.append(paso / maxf(get_process_delta_time(), 0.0001))
+		if muestra.size() < 14:
+			muestra.append("%.3f/%.1f" % [paso, get_process_delta_time() * 1000.0])
+		antes = ahora
+		if dt > 0.02:
+			largos += 1
+	Input.action_release("move_forward")
+	Input.action_release("sprint")
+	var ordenadas := velocidades.duplicate()
+	ordenadas.sort()
+	var tipica: float = ordenadas[ordenadas.size() / 2]
+	var raros := 0
+	for v in velocidades:
+		if absf(v - tipica) > tipica * 0.5:
+			raros += 1
+	print("MEDIR movimiento cuadros=%d velocidad_tipica=%.1f m/s irregulares=%.1f%% cuadros_de_mas_de_20ms=%d" % [velocidades.size(), tipica, 100.0 * raros / velocidades.size(), largos])
+	print("MEDIR muestra metros/ms: %s" % " ".join(muestra))
 
 
 # Lo mas que el Director puede poner: todos corriendo hacia el jugador
