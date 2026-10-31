@@ -288,7 +288,7 @@ func _terminar_combinacion() -> void:
 
 func _actualizar_estado() -> void:
 	var estado: String = Salud.estado()
-	estado_label.text = estado
+	estado_label.text = "%s: %s" % [Personaje.nombre, estado]
 	estado_label.add_theme_color_override("font_color", COLORES_ESTADO[estado])
 
 func _mostrar_mensaje(texto: String) -> void:

@@ -157,7 +157,7 @@ func _hablar(i: int) -> String:
 	var mision: MisionData = v["mision"]
 	if Misiones.activa == mision:
 		if Misiones.paso().tipo == PasoMision.Tipo.ENTREGAR and Misiones.entregar():
-			return mision.gracias
+			return ("%s %s" % [mision.gracias, Personaje.linea("paga")]).strip_edges()
 		return mision.recuerda
 	if Misiones.activa != null:
 		return TEXTO_OCUPADO
@@ -167,7 +167,7 @@ func _hablar(i: int) -> String:
 		return TEXTO_TARDE
 	if not v["visto"]:
 		v["visto"] = true
-		return mision.oferta + TEXTO_ACEPTAR
+		return ("%s %s" % [Personaje.linea("vecino"), mision.oferta]).strip_edges() + TEXTO_ACEPTAR
 	v["visto"] = false
 	Misiones.aceptar(mision)
 	return mision.aceptada

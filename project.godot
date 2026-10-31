@@ -22,6 +22,7 @@ Cartera="*res://scripts/Cartera.gd"
 Salud="*res://scripts/Salud.gd"
 PiezasMapa="*res://scripts/PiezasMapa.gd"
 Misiones="*res://scripts/Misiones.gd"
+Personaje="*res://scripts/Personaje.gd"
 
 [display]
 

@@ -7,6 +7,7 @@ extends Node3D
 
 const MAPA := "res://scenes/map_test.tscn"
 const CREDITOS := "res://CREDITS.md"
+const CREADOR := preload("res://scripts/CreadorPersonaje.gd")
 const ZOMBI := preload("res://models/personajes/zombie_gordo/zombie_gordo.scn")
 const PS1 := preload("res://shaders/ps1_combined.gdshader")
 const DITHER := preload("res://shaders/dittershader.gdshader")
@@ -38,11 +39,12 @@ const MIRA := Vector3(0.0, 1.4, 0.0)
 const SCROLL_PASO := 30
 const GEMIDO_CADA := Vector2(6.0, 14.0)
 
-enum Pantalla { MENU, CONTROLES, CREDITOS, CARGANDO }
+enum Pantalla { MENU, PERSONAJE, CONTROLES, CREDITOS, CARGANDO }
 
 var _pantalla := Pantalla.MENU
 var _elegida := 0
 var _opciones: Array[Label] = []
+var _capa_menu: CanvasLayer
 var _menu: Control
 var _subpantalla: Control
 var _controles: Control
@@ -116,7 +118,7 @@ func _activar(opcion: int) -> void:
 	_voz.play()
 	match opcion:
 		0:
-			_jugar()
+			_crear_personaje()
 		1:
 			_abrir(Pantalla.CONTROLES)
 		2:
@@ -141,6 +143,20 @@ func _volver() -> void:
 	_pantalla = Pantalla.MENU
 	_menu.visible = true
 	_subpantalla.visible = false
+
+
+# Jugar pasa primero por aqui; el creador atiende sus propias teclas
+func _crear_personaje() -> void:
+	_pantalla = Pantalla.PERSONAJE
+	_menu.visible = false
+	var creador := CREADOR.new()
+	_capa_menu.add_child(creador)
+	creador.listo.connect(func() -> void:
+		creador.queue_free()
+		_jugar())
+	creador.volver.connect(func() -> void:
+		creador.queue_free()
+		_volver())
 
 
 func _jugar() -> void:
@@ -299,6 +315,7 @@ func _interfaz() -> void:
 	var capa := CanvasLayer.new()
 	capa.layer = 2
 	add_child(capa)
+	_capa_menu = capa
 	_menu = Control.new()
 	_menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_menu.mouse_filter = Control.MOUSE_FILTER_IGNORE

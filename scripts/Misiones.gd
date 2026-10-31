@@ -140,6 +140,8 @@ func _completar() -> void:
 			piezas.recoger(falta)
 		else:
 			pago += mision.pesos_si_sobra
+	# Lo que te pagan depende de quien cree que eres (Personaje.gd); los objetos no
+	pago = roundi(pago * get_node("/root/Personaje").factor_paga())
 	get_node("/root/Cartera").pesos += pago
 	var inventario := get_node("/root/Inventory")
 	for premio in mision.premios:

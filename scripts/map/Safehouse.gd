@@ -68,7 +68,7 @@ H curar · J -%d de vida · M +$100 · Y vaciar inventario
 G tablas · L -100 al tinaco (refugio a la derecha)
 U todo el mapa · en el inventario, M el mapa
 1 2 3 maquinita cercana: normal, sin monedas, segura
-K deterioro · R reiniciar todo · F10 ir al mapa"""
+C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa"""
 
 var _jugador: Player
 var _zombis: Zombis
@@ -334,6 +334,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			Deterioro.configurar(DETERIOROS[_deterioro], 150.0)
 		KEY_R:
 			_reiniciar()
+		KEY_C:
+			_crear_personaje()
 		KEY_F10:
 			# Al cambiar de escena este nodo ya no tiene viewport
 			get_viewport().set_input_as_handled()
@@ -342,6 +344,26 @@ func _unhandled_input(event: InputEvent) -> void:
 		_:
 			return
 	get_viewport().set_input_as_handled()
+
+
+# La misma pantalla de Jugar, con el juego en pausa; al cerrarla ya eres el nuevo
+func _crear_personaje() -> void:
+	_jugador.detener()
+	get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var capa := CanvasLayer.new()
+	capa.layer = 20
+	add_child(capa)
+	var creador: Control = load("res://scripts/CreadorPersonaje.gd").new()
+	capa.add_child(creador)
+	var cerrar := func() -> void:
+		capa.queue_free()
+		get_tree().paused = false
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		_jugador.reanudar()
+		_jugador.aplicar_personaje()
+	creador.connect("listo", cerrar)
+	creador.connect("volver", cerrar)
 
 
 func _zombi() -> void:

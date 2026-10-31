@@ -66,6 +66,9 @@ const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
 
 static var _material_blanco: StandardMaterial3D
 
+var _velocidad_base := Vector2.ZERO
+var _factor_dano := 1.0
+var _alcance := ATAQUE_ALCANCE
 var _enfriar := 0.0
 var _pega_en := -1.0
 var _invulnerable := 0.0
@@ -104,6 +107,25 @@ func _ready() -> void:
 	if inventario:
 		inventario.inventory_changed.connect(_mostrar_arma)
 	_mostrar_arma()
+	aplicar_personaje()
+
+
+# Tu cuerpo (autoload Personaje): se ve en el modelo y cambia vida, velocidad y golpe. Sobre los
+# valores de la escena, que no son iguales en todas. Sin el autoload, como viene
+func aplicar_personaje() -> void:
+	if _velocidad_base == Vector2.ZERO:
+		_velocidad_base = Vector2(speed, sprint_speed)
+	var personaje := get_node_or_null("/root/Personaje")
+	if personaje == null:
+		return
+	personaje.vestir(ninja)
+	speed = _velocidad_base.x * personaje.factor_velocidad()
+	sprint_speed = _velocidad_base.y * personaje.factor_velocidad()
+	_factor_dano = personaje.factor_dano()
+	_alcance = ATAQUE_ALCANCE * personaje.factor_alcance()
+	var salud := get_node("/root/Salud")
+	salud.vida_max = personaje.vida_max()
+	salud.vida = salud.vida_max
 
 
 # --- Pelear ---
@@ -125,6 +147,7 @@ func _golpear() -> void:
 		var arma: InventoryItemData = inventario.arma()
 		if arma:
 			dano = arma.dano
+	dano = maxi(roundi(dano * _factor_dano), 1)
 	var frente := -frijol.global_transform.basis.z
 	frente.y = 0.0
 	frente = frente.normalized()
@@ -136,7 +159,7 @@ func _golpear() -> void:
 	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
 		var hacia := zombi.global_position - global_position
 		hacia.y = 0.0
-		if hacia.length() <= ATAQUE_ALCANCE and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
+		if hacia.length() <= _alcance and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
 			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, truena_en)
 			pego = pego or resultado != 0
 			mato = mato or resultado == 2

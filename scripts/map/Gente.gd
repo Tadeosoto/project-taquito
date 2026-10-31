@@ -21,6 +21,7 @@ const COLOR_GARRAFONERO := Color(0.15, 0.3, 0.75)
 const CLIP_CAMINA := "CharacterArmature|Walk"
 const CLIP_CARGA := "CharacterArmature|Walk_Carry"
 const ESCALA_NINJA := 0.55
+const CALLE_A_TI := 0.5
 
 const CAMINANTES := 12
 const VELOCIDAD := 1.4
@@ -308,7 +309,10 @@ func _poner_platicante(i: int) -> void:
 	var ninja := npc.get_node("Model")
 	npc.remove_child(ninja)
 	ninja.free()
-	npc.set("dialogue", lugar["linea"])
+	# A veces te dicen algo a ti (Personaje.gd), en vez de lo suyo
+	var personaje := get_node_or_null("/root/Personaje")
+	var a_ti: String = personaje.linea("calle") if personaje and randf() < CALLE_A_TI else ""
+	npc.set("dialogue", a_ti if a_ti != "" else lugar["linea"])
 	add_child(npc)
 	npc.global_position = Vector3(donde.x, y, donde.y)
 	npc.rotation.y = lugar["mira"]

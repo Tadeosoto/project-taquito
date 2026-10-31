@@ -9,7 +9,7 @@ const NOCHES := 3
 const JEFE_CERCA := 70.0     # Zombis.LEJOS: mas lejos puede no estar cargado el mapa ahi
 const JEFE_REINTENTO := 1.0
 const TEXTO_PERDISTE := "Tumbaron el tinaco.\nSe acabó el agua."
-const TEXTO_GANASTE := "Mataste al garrafonero.\nAmaneció y sigue habiendo agua."
+const TEXTO_GANASTE := "%s mató al garrafonero.\nAmaneció y sigue habiendo agua."
 const TEXTO_OTRA := "Espacio: otra vez"
 const TEXTO_JEFE := "¡Ahí viene el garrafonero!"
 const TEXTO_PIEZA := "Pedazo de mapa: %s"
@@ -179,7 +179,7 @@ func _ganar() -> void:
 	# Que se vea tronar al garrafonero antes de pausar. Nada lo puede cambiar en este rato
 	_ganando = true
 	await get_tree().create_timer(GANAR_ESPERA, true, false, true).timeout
-	_terminar(TEXTO_GANASTE)
+	_terminar(TEXTO_GANASTE % Personaje.nombre)
 
 
 func _perder() -> void:
