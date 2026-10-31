@@ -355,7 +355,11 @@ Las misiones se programan **una vez como sistema** (ver 6.3) y luego cada misió
 
 **Tiro al blanco**, ideas concretas: (a) caguamas vacías sobre una barda con resortera/pistola, puntos por tiempo; (b) puesto de feria con patitos; (c) zombies "de práctica" atados. La (a) es la más fácil.
 
-### 6.3 Sistema de misiones 💡 (cómo programarlo)
+### 6.0 Lo que ya hay 🧱
+
+Tres misiones de día, con vecinos que traen un **!** amarillo cerca de donde empiezas: **Encargo de compras** (2 galones de la farmacia; paga $100 y 2 tablas), **Repartir garrafones** (4 casas en 100 s; paga $90) y **Buscar al perro** (se oye ladrar en una zona marcada, y lo cargas de regreso; paga $60 y un pedazo de mapa). Una a la vez y cada una una vez al día. Si anochece o se acaba el tiempo, falla y se puede intentar mañana. Se siguen con la línea de abajo a la izquierda, la flecha, el minimapa y el mapa de papel. Precios y tiempos 💡 para balancear jugando. Para agregar una sin programar: copiar un `.tres` de `resources/misiones/` (ver `CLAUDE.md`).
+
+### 6.3 Sistema de misiones 🧱 (cómo programarlo)
 
 Para que cualquiera pueda agregar misiones sin tocar código:
 

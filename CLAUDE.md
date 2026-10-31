@@ -64,6 +64,10 @@ Overview:
 - `scripts/Sonidos.gd`: all generated sounds. A node re-enables `_physics_process` when it becomes ready if the script defines it: call `set_physics_process(false)` after `add_child`.
 - `map_test.tscn` sets the player to 10/18 m/s for walking the map, which outruns every zombie.
 
+## Missions
+
+`Misiones` autoload (`scripts/Misiones.gd`): one active at a time, each once per day; it fails at nightfall or when its timer ends, and can be retried the next day. Offers stop at the dusk warning. `scripts/map/MisionesMundo.gd`, created by `Partida`, holds what's in the world: givers (`npc.tscn` using `al_hablar`, a callable returning the line for each press), the objective arrow, delivery spots, the dog (`CosaMision.gd`), the objective line, and the minimap and paper-map targets. **To add a mission without code:** copy a `.tres` in `resources/misiones/` (`MisionData` with `PasoMision` steps: `TENER_OBJETOS`, `ENTREGAR`, `VISITAR`, `RECOGER`) and add it to `Misiones.ARCHIVOS`. Each needs a giver spot, and a new `lugar` keyword or step type needs code in `MisionesMundo`. `Player.cargar`/`soltar_carga` show something held, with `Walk_Carry`. Stepping onto a store's yellow arrow enters the store, so tests must stand beside it.
+
 ## People (`scripts/map/Gente.gd`)
 
 By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night nobody's there, and they return at dawn. Up to 12 walkers on `resources/map/banquetas_mapa.json` (from OSM, `godot --path . --headless -s tools/map_import/banquetas.gd`), including a blue garrafonero with a jug. Walkers use the tinted ninja because it's the only human model with a walk cycle (spec §10.2: retargeting is still pending). Up to 6 people outside stores use the other models with `npc.tscn` for speech, and up to 3 sitting dogs; each model is scaled by measuring its bones. `npc.gd` only renders its two SubViewports while its text shows.
