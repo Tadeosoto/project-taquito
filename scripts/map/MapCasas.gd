@@ -422,8 +422,9 @@ func _juntar(node: Node, xform: Transform3D, giro: Transform3D, rango: Vector2, 
 		_juntar(child, child_xform, giro, rango, tools, modelo)
 
 
-# La superficie con solo los triangulos cuyo centro (en `xform`) cae en `rango`
-# de X; null si no queda ninguno
+# La superficie recortada a `rango` de X (en `xform`); null si no queda nada. Los triangulos
+# que cruzan la orilla se cortan justo ahi: quedarse con los que tienen el centro adentro
+# dejaba una orilla en serrucho en las casas sacadas de una hilera (la Urbi trae 6 juntas).
 func _recortar_x(mesh: Mesh, surface: int, xform: Transform3D, rango: Vector2) -> Mesh:
 	var arrays := mesh.surface_get_arrays(surface)
 	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
@@ -434,16 +435,61 @@ func _recortar_x(mesh: Mesh, surface: int, xform: Transform3D, rango: Vector2) -
 		var whole := ArrayMesh.new()
 		whole.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 		return whole
-	var kept := PackedInt32Array()
+	var salida := {}
+	for canal in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_COLOR, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2]:
+		var fuente = arrays[canal]
+		if fuente != null and not fuente.is_empty():
+			salida[canal] = fuente.duplicate()
+			salida[canal].resize(0)
 	for t in range(0, indices.size(), 3):
-		var x := (xform * ((vertices[indices[t]] + vertices[indices[t + 1]] + vertices[indices[t + 2]]) / 3.0)).x
-		if x >= rango.x and x <= rango.y:
-			kept.append_array([indices[t], indices[t + 1], indices[t + 2]])
-	if kept.is_empty():
+		var poligono := []
+		for k in 3:
+			var i: int = indices[t + k]
+			var punto := {"x": (xform * vertices[i]).x}
+			for canal: int in salida:
+				punto[canal] = arrays[canal][i]
+			poligono.append(punto)
+		poligono = _cortar(poligono, rango.x, 1.0)
+		poligono = _cortar(poligono, rango.y, -1.0)
+		for f in range(1, poligono.size() - 1):
+			for punto: Dictionary in [poligono[0], poligono[f], poligono[f + 1]]:
+				for canal: int in salida:
+					salida[canal].append(punto[canal])
+	if salida[Mesh.ARRAY_VERTEX].is_empty():
 		return null
+	var nuevos := []
+	nuevos.resize(Mesh.ARRAY_MAX)
+	for canal: int in salida:
+		nuevos[canal] = salida[canal]
 	var result := ArrayMesh.new()
-	result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, _compactar(arrays, kept))
+	result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, nuevos)
 	return result
+
+
+# Se queda con lo que este del lado `signo` de x = `plano`
+func _cortar(poligono: Array, plano: float, signo: float) -> Array:
+	var fuera := []
+	for i in poligono.size():
+		var a: Dictionary = poligono[i]
+		var b: Dictionary = poligono[(i + 1) % poligono.size()]
+		var da: float = (a["x"] - plano) * signo
+		var db: float = (b["x"] - plano) * signo
+		if da >= 0.0:
+			fuera.append(a)
+		if (da > 0.0 and db < 0.0) or (da < 0.0 and db > 0.0):
+			var t := da / (da - db)
+			var nuevo := {"x": plano}
+			for canal in a:
+				if canal is int:
+					nuevo[canal] = _mezclar(a[canal], b[canal], t, canal)
+			fuera.append(nuevo)
+	return fuera
+
+
+func _mezclar(a: Variant, b: Variant, t: float, canal: int) -> Variant:
+	if canal == Mesh.ARRAY_NORMAL:
+		return (a as Vector3).lerp(b, t).normalized()
+	return lerp(a, b, t)
 
 
 # Arrays de superficie con solo los vertices que usan `indices` (si no, el AABB
