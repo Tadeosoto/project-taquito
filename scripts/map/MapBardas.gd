@@ -539,6 +539,7 @@ func _material(nombre: String) -> Material:
 			# Barda: pintura caida y escurrimientos; fierros: mugre
 			material.set_shader_parameter("deterioro_modo", 2 if nombre == "barda" else 1)
 		material.set_shader_parameter("affine_enabled", false)
+		material.set_shader_parameter("jitter_enabled", false)
 		material.set_shader_parameter("wobble_enabled", false)
 		_materiales[nombre] = material
 	return _materiales[nombre]

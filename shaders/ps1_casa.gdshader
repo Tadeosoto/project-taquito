@@ -9,6 +9,7 @@ render_mode cull_disabled;
 // el color de la instancia la casa queda en obra negra (muro de block sin aplanar,
 // marcos y molduras sin pintura); con alfa 0 (el punto de MapCasas) ademas el deterioro va al maximo.
 
+#define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
 #include "res://shaders/ps1_deterioro.gdshaderinc"
 

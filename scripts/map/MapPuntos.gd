@@ -592,6 +592,8 @@ func _set_far_mesh_options(node: Node) -> void:
 				if not _sucios.has(material):
 					var sucio := material.duplicate() as ShaderMaterial
 					sucio.set_shader_parameter("deterioro_modo", 1)
+					sucio.set_shader_parameter("jitter_enabled", false)
+					sucio.set_shader_parameter("wobble_enabled", false)
 					_sucios[material] = sucio
 				instance.set_surface_override_material(surface, _sucios[material])
 	for child in node.get_children():
@@ -632,6 +634,8 @@ func _make_placeholder(punto: Dictionary) -> Node3D:
 		material.shader = PS1_SHADER
 		material.set_shader_parameter("tint", TIPO_COLORS.get(tipo, Color(0.6, 0.6, 0.6)))
 		material.set_shader_parameter("affine_enabled", false)
+		material.set_shader_parameter("jitter_enabled", false)
+		material.set_shader_parameter("wobble_enabled", false)
 		material.set_shader_parameter("deterioro_modo", 2)
 		_box_materials[tipo] = material
 	box.material = _box_materials[tipo]
@@ -1378,6 +1382,7 @@ func _anuncio(body: StaticBody3D, punto: Dictionary, w: float, front: float, pos
 	material.shader = PS1_SHADER
 	material.set_shader_parameter("albedo_texture", PURIFICADORA_LONA)
 	material.set_shader_parameter("affine_enabled", false)
+	material.set_shader_parameter("jitter_enabled", false)
 	material.set_shader_parameter("wobble_enabled", false)
 	material.set_shader_parameter("deterioro_modo", 1)
 	quad.material = material
@@ -1450,6 +1455,9 @@ func _color_material(color: Color, muro: bool) -> ShaderMaterial:
 		material.shader = PS1_SHADER
 		material.set_shader_parameter("tint", color)
 		material.set_shader_parameter("affine_enabled", false)
+		# Los ribetes son cajas aparte: con el vertice brincando se movian contra la pared
+		material.set_shader_parameter("jitter_enabled", false)
+		material.set_shader_parameter("wobble_enabled", false)
 		material.set_shader_parameter("deterioro_modo", 2 if muro else 1)
 		_box_materials[key] = material
 	return _box_materials[key]

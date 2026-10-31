@@ -469,6 +469,7 @@ func _material_lamina(textura: Texture2D) -> ShaderMaterial:
 		material.set_shader_parameter("albedo_texture", textura if textura else _blanco())
 		material.set_shader_parameter("use_vertex_color", true)
 		material.set_shader_parameter("affine_enabled", false)
+		material.set_shader_parameter("jitter_enabled", false)
 		material.set_shader_parameter("wobble_enabled", false)
 		material.set_shader_parameter("deterioro_modo", 3 if textura else 1)
 		_materiales[key] = material
@@ -632,6 +633,7 @@ func _material_vano(source: Material) -> ShaderMaterial:
 		texture = (source as ShaderMaterial).get_shader_parameter("albedo_texture")
 	material.set_shader_parameter("albedo_texture", texture)
 	material.set_shader_parameter("affine_enabled", false)
+	material.set_shader_parameter("jitter_enabled", false)
 	material.set_shader_parameter("wobble_enabled", false)
 	return material
 
@@ -684,5 +686,7 @@ func _material_sucio(source: Material) -> Material:
 	if source is ShaderMaterial and (source as ShaderMaterial).shader == PS1_SHADER:
 		var sucio := (source as ShaderMaterial).duplicate() as ShaderMaterial
 		sucio.set_shader_parameter("deterioro_modo", 1)
+		sucio.set_shader_parameter("jitter_enabled", false)
+		sucio.set_shader_parameter("wobble_enabled", false)
 		return sucio
 	return source

@@ -697,6 +697,7 @@ func _material(color: Color, deterioro: int) -> ShaderMaterial:
 	material.shader = PS1_SHADER
 	material.set_shader_parameter("tint", color)
 	material.set_shader_parameter("affine_enabled", false)
+	material.set_shader_parameter("jitter_enabled", false)
 	material.set_shader_parameter("wobble_enabled", false)
 	material.set_shader_parameter("deterioro_modo", 4 if deterioro == 1 else deterioro)
 	material.set_shader_parameter("desgaste", 0.5)

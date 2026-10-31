@@ -3,6 +3,7 @@ shader_type spatial;
 // vertex PS1 que ps1_combined. Las texturas las genera
 // tools/map_import/make_textures.py: cada mosaico es un tramo de 2.5 m de un piso.
 
+#define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
 #include "res://shaders/ps1_deterioro.gdshaderinc"
 

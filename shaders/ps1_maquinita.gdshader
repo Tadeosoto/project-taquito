@@ -3,6 +3,7 @@ shader_type spatial;
 // que muestra cada una por instancia. El atlas lo dibuja tools/map_import/make_maquinita.gd.
 // Las medidas en px son las de Maquinita.gd: si cambian alla, cambiarlas aqui.
 
+#define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
 #include "res://shaders/ps1_deterioro.gdshaderinc"
 

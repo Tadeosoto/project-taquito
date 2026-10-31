@@ -5,6 +5,7 @@ shader_type spatial;
 // de golpe al caminar.
 render_mode cull_disabled;
 
+#define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
 
 uniform sampler2D albedo_texture : source_color, filter_nearest;

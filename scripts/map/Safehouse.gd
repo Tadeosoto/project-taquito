@@ -183,6 +183,7 @@ func _patio() -> void:
 	muro.shader = MURO_SHADER
 	muro.set_shader_parameter("tint", Color(0.42, 0.44, 0.48))
 	muro.set_shader_parameter("deterioro_modo", 2)
+	muro.set_shader_parameter("jitter_enabled", false)
 	muro.set_shader_parameter("wobble_enabled", false)
 	muro.set_shader_parameter("affine_enabled", false)
 	for lado in [Vector3(0.0, 0.0, -1.0), Vector3(0.0, 0.0, 1.0), Vector3(-1.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0)]:

@@ -3,6 +3,7 @@ shader_type spatial;
 // izquierda (u < 0.5) y hojas a la derecha. Las hojas se multiplican por el
 // color de cada arbol del MultiMesh (llega en COLOR), la corteza no.
 
+#define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
 
 uniform sampler2D albedo_texture : source_color, filter_nearest;

@@ -10,6 +10,7 @@ shader_type spatial;
 // tools/map_import/make_vegetacion.py) dice pasto, se pinta pasto en vez de
 // albedo_texture. modo 2: todo es pasto (camellones y jardines de OSM2World).
 
+#define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
 #include "res://shaders/ps1_deterioro.gdshaderinc"
 
