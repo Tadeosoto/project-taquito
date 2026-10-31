@@ -56,10 +56,11 @@ const DANO_PRUEBA := 20
 const REFUGIO_EN := Vector3(30.0, 0.0, -10.0)
 const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
 const DANO_TINACO := 100
+const TURBA_PRUEBA := 12
 const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
 Tab inventario · clic o F pegar · V dron
 N siguiente atardecer/amanecer
-Z zombi · X quitar zombis · T zombis solos de noche
+Z zombi · B turba · X quitar zombis · T zombis solos de noche
 H curar · J -%d de vida · M +$100 · Y vaciar inventario
 G tablas · L -100 al tinaco (refugio a la derecha)
 1 2 3 maquinita cercana: normal, sin monedas, segura
@@ -296,6 +297,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_Y:
 			_inventario.items.clear()
 			_inventario.inventory_changed.emit()
+		KEY_B:
+			_zombis.aparecer_turba(TURBA_PRUEBA)
 		KEY_G:
 			_inventario.add_item(load(TABLAS_PRUEBA))
 		KEY_L:
@@ -320,11 +323,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _zombi() -> void:
 	var frente := -_jugador.frijol.global_transform.basis.z
 	frente.y = 0.0
-	var zombi := Zombie.new()
-	zombi.jugador = _jugador
-	_zombis.add_child(zombi)
 	var donde := _jugador.global_position + frente.normalized() * ZOMBI_DISTANCIA
-	zombi.global_position = Vector3(donde.x, 0.1, donde.z)
+	_zombis.sacar(Vector3(donde.x, 0.1, donde.z), false)
 
 
 func _reiniciar() -> void:
@@ -334,6 +334,7 @@ func _reiniciar() -> void:
 	_cartera.pesos = DINERO
 	_inventario.reiniciar()
 	_zombis.noches = 0
+	_zombis.director.reiniciar()
 	_partida.reiniciar()
 	for bolsa in get_tree().get_nodes_in_group("bolsa_muerte"):
 		bolsa.queue_free()
@@ -375,6 +376,7 @@ func _process(_delta: float) -> void:
 	for z: Zombie in get_tree().get_nodes_in_group("zombis"):
 		if z.estado != Zombie.Estado.MUERTO:
 			zombis += 1
-	_estado.text = "Vida %d/%d · $%d · Objetos %d/%d · %s · Zombis %d%s · Deterioro %.1f" % [
+	_estado.text = "Vida %d/%d · $%d · Objetos %d/%d · %s · Zombis %d%s · Director %s %.2f · Deterioro %.1f" % [
 		_salud.vida, _salud.vida_max, _cartera.pesos, _inventario.get_item_count(), _inventario.capacidad(),
-		"Noche" if _ciclo.es_noche() else "Dia", zombis, "" if _zombis.is_physics_processing() else " (no salen solos)", DETERIOROS[_deterioro]]
+		"Noche" if _ciclo.es_noche() else "Dia", zombis, "" if _zombis.is_physics_processing() else " (no salen solos)",
+		_zombis.director.nombre_fase(), _zombis.director.intensidad, DETERIOROS[_deterioro]]

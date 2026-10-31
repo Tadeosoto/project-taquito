@@ -1,14 +1,16 @@
 class_name Zombie
 extends CharacterBody3D
 
-# Un zombi (docs/especificaciones.md 4.8): camina derecho hacia su blanco y le pega. Lo
-# crea Zombis.gd. Si hay refugio, su blanco es el jugador solo si lo tiene cerca y del
-# mismo lado de la barda; si no, la entrada mas cercana y luego el tinaco (_destino). Si se
-# atora en una pared se hace a un lado un rato: no hay rutas, eso queda para las hordas.
+# Un zombi (docs/especificaciones.md 4.8): va hacia su blanco por las calles (CampoFlujo.gd)
+# y le pega. Lo arma Zombis.gd y vive en su reserva: despertar() y dormir() en vez de crear
+# y borrar. Si hay refugio, su blanco es el jugador solo si lo tiene cerca y del mismo lado
+# de la barda; si no, la entrada mas cercana y luego el tinaco (_destino). Con `cazador`
+# (las turbas) corre mas y siempre va por el jugador. Si se atora se hace a un lado un rato.
 # No hace nada si el jugador esta congelado (volando en el safehouse, desmayado). Con
 # `es_jefe` es el garrafonero de la ultima noche (Partida.gd).
 
 signal murio
+signal termino
 
 const MODELO := preload("res://models/personajes/zombie_gordo/zombie_gordo.scn")
 const VIDA := 30
@@ -33,6 +35,11 @@ const DANO_RECINTO := 3
 const JEFE_DANO_RECINTO := 8
 const PERSIGUE := 12.0     # m: mas cerca deja el refugio y va por el jugador
 const PASA_ENTRADA := 2.0   # m adentro del patio a los que apunta al cruzar una entrada
+const CAZADOR_VELOCIDAD := 1.4
+const DERECHO := 4.0        # m: tan cerca del blanco ya va derecho, sin campo
+const LEJOS_AHORRA := 25.0  # m: mas lejos del jugador decide cada TICKS_LEJOS
+const TICKS_LEJOS := 3
+const TICKS_SEPARAR := 4
 const JEFE_VIDA := 400
 const JEFE_DANO := 25
 const JEFE_TAMANO := 1.7
@@ -43,13 +50,21 @@ const JEFE_SHADER := preload("res://shaders/ps1_combined.gdshader")
 enum Estado { CAMINA, ATACA, HERIDO, MUERTO }
 
 static var _material_jefe: ShaderMaterial
+static var activos: Array[Zombie] = []   # los despiertos
 
 var estado := Estado.CAMINA
 var jugador: Player
+var zombis: Zombis
 var es_jefe := false
+var cazador := false
+var despierto := false
 
 var _refugio: Refugio
 var _blanco: Node3D         # a quien va a pegarle; null = solo va de paso
+var _guia: CampoFlujo       # por donde llegar; null = derecho
+var _tick := 0
+var _empuje := Vector3.ZERO
+var _ultimo := Vector3.ZERO
 var _dano := DANO
 var _alcance := ALCANCE
 var _alcance_golpe := ALCANCE_GOLPE
@@ -66,18 +81,11 @@ var _lado := 1.0
 
 
 func _ready() -> void:
-	add_to_group("zombis")
-	collision_layer = 2
-	# La capa 3 son las barricadas: el jugador pasa, ellos no
-	collision_mask = 1 | EntradaRefugio.CAPA
-	_refugio = get_tree().get_first_node_in_group("refugio") as Refugio
-	_velocidad = randf_range(VELOCIDAD.x, VELOCIDAD.y)
 	var tamano := 1.0
+	_tick = randi() % TICKS_SEPARAR
 	if es_jefe:
 		tamano = JEFE_TAMANO
-		_vida = JEFE_VIDA
 		_dano = JEFE_DANO
-		_velocidad = JEFE_VELOCIDAD
 		_alcance = ALCANCE * JEFE_TAMANO
 		_alcance_golpe = ALCANCE_GOLPE * JEFE_TAMANO
 		if _material_jefe == null:
@@ -106,11 +114,55 @@ func _ready() -> void:
 	_animacion = modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	for nombre in ["run", "idle"]:
 		_animacion.get_animation(nombre).loop_mode = Animation.LOOP_LINEAR
-	_animar("run", _velocidad / 3.5)
 	_voz = AudioStreamPlayer3D.new()
 	_voz.position.y = 1.5
 	_voz.max_distance = 25.0
 	add_child(_voz)
+
+
+func _exit_tree() -> void:
+	activos.erase(self)
+
+
+# Sale de la reserva, como nuevo. `con_prisa`: de turba
+func despertar(lugar: Vector3, con_prisa: bool) -> void:
+	despierto = true
+	cazador = con_prisa
+	process_mode = Node.PROCESS_MODE_INHERIT
+	visible = true
+	add_to_group("zombis")
+	activos.append(self)
+	estado = Estado.CAMINA
+	collision_layer = 2
+	# La capa 3 son las barricadas: el jugador pasa, ellos no
+	collision_mask = 1 | EntradaRefugio.CAPA
+	_refugio = get_tree().get_first_node_in_group("refugio") as Refugio
+	_vida = JEFE_VIDA if es_jefe else VIDA
+	if es_jefe:
+		_velocidad = JEFE_VELOCIDAD
+	else:
+		_velocidad = randf_range(VELOCIDAD.x, VELOCIDAD.y) * (CAZADOR_VELOCIDAD if con_prisa else 1.0)
+	_tiempo = 0.0
+	_golpeo = false
+	_atorado = 0.0
+	_rodeo = 0.0
+	_empuje = Vector3.ZERO
+	_ultimo = Vector3.ZERO
+	velocity = Vector3.ZERO
+	global_position = lugar
+	_animar("run", _velocidad / 3.5, true)
+
+
+func dormir() -> void:
+	despierto = false
+	remove_from_group("zombis")
+	activos.erase(self)
+	collision_layer = 0
+	collision_mask = 0
+	visible = false
+	if _animacion:
+		_animacion.stop()
+	process_mode = Node.PROCESS_MODE_DISABLED
 
 
 func _physics_process(delta: float) -> void:
@@ -126,7 +178,7 @@ func _physics_process(delta: float) -> void:
 				_seguir_caminando()
 		Estado.MUERTO:
 			if _tiempo >= MUERTO_DURA:
-				queue_free()
+				termino.emit()
 			return
 	if estado != Estado.HERIDO:
 		velocity.x = movimiento.x
@@ -147,6 +199,10 @@ func _caminar(delta: float) -> Vector3:
 	if _gemido <= 0.0:
 		_gemido = randf_range(4.0, 9.0)
 		_sonar("gemido")
+	_tick += 1
+	# Lejos no se nota: sigue con lo ultimo que decidio
+	if _tick % TICKS_LEJOS != 0 and global_position.distance_squared_to(jugador.global_position) > LEJOS_AHORRA * LEJOS_AHORRA:
+		return _ultimo
 	var hacia := _destino() - global_position
 	hacia.y = 0.0
 	var distancia := hacia.length()
@@ -155,6 +211,10 @@ func _caminar(delta: float) -> Vector3:
 		_empezar_ataque()
 		return Vector3.ZERO
 	var direccion := hacia / maxf(distancia, 0.01)
+	if _guia and distancia > DERECHO:
+		var por_calle := _guia.direccion(global_position)
+		if por_calle != Vector3.ZERO:
+			direccion = por_calle
 	# Atorado en una pared: un rato hacia un lado
 	if _rodeo > 0.0:
 		_rodeo -= delta
@@ -167,20 +227,32 @@ func _caminar(delta: float) -> Vector3:
 			_lado = -_lado
 	else:
 		_atorado = 0.0
-	direccion = (direccion + _separarse()).normalized()
+	if _tick % TICKS_SEPARAR == 0:
+		_empuje = _separarse()
+	direccion = (direccion + _empuje).normalized()
 	_mirar(direccion)
-	return direccion * _velocidad
+	_ultimo = direccion * _velocidad
+	return _ultimo
 
 
-# A donde camina, y deja en _blanco a quien le pegaria al llegar
+# A donde camina; deja en _blanco a quien le pegaria al llegar y en _guia su camino
 func _destino() -> Vector3:
-	var yo_adentro := _refugio != null and _refugio.adentro(global_position)
-	if _refugio == null or (yo_adentro == _refugio.adentro(jugador.global_position) and global_position.distance_to(jugador.global_position) <= PERSIGUE):
+	_guia = zombis.campo_jugador if zombis else null
+	if _refugio == null:
+		_blanco = jugador
+		return jugador.global_position
+	var yo_adentro := _refugio.adentro(global_position)
+	var el_adentro := _refugio.adentro(jugador.global_position)
+	# Del otro lado de la barda no lo puede alcanzar: a la entrada
+	var a_la_entrada := el_adentro and not yo_adentro
+	if not a_la_entrada and (cazador or (yo_adentro == el_adentro and global_position.distance_to(jugador.global_position) <= PERSIGUE)):
 		_blanco = jugador
 		return jugador.global_position
 	if yo_adentro:
 		_blanco = _refugio
+		_guia = null
 		return _refugio.global_position
+	_guia = zombis.campo_refugio if zombis else null
 	var entrada := _refugio.entrada_cercana(global_position)
 	if not entrada.abierta():
 		_blanco = entrada
@@ -191,7 +263,7 @@ func _destino() -> Vector3:
 
 func _separarse() -> Vector3:
 	var empuje := Vector3.ZERO
-	for otro: Node3D in get_tree().get_nodes_in_group("zombis"):
+	for otro in activos:
 		if otro == self:
 			continue
 		var lejos := global_position - otro.global_position

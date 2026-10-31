@@ -14,6 +14,7 @@ const POCA_VIDA := 0.35   # fraccion de la vida con la que se pintan las orillas
 const LIMPIO_AL_REGRESAR := 20.0   # m alrededor de donde reapareces sin zombis; los demas siguen
 const TEXTO_AVISO := "Ya va a oscurecer..."
 const TEXTO_NOCHE := "Ya salieron."
+const TEXTO_TURBA := "¡Ahí vienen!"
 const TEXTO_DIA := "Amaneció."
 const TEXTO_DESMAYO := "Te desmayaste..."
 
@@ -49,6 +50,9 @@ func _ready() -> void:
 	ciclo.aviso_atardecer.connect(func() -> void:
 		_avisar(TEXTO_AVISO)
 		_sonar("campana"))
+	_zombis.turba_cerca.connect(func() -> void:
+		_avisar(TEXTO_TURBA)
+		_sonar("gemido"))
 	ciclo.anochecio.connect(func() -> void: _avisar(TEXTO_NOCHE))
 	ciclo.amanecio.connect(func() -> void: _avisar(TEXTO_DIA))
 	_flash = _pantalla(Color(0.7, 0.0, 0.0, 0.0))

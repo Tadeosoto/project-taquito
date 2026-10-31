@@ -81,7 +81,7 @@ func _ready() -> void:
 			await _en_lugar(lugar, etiqueta)
 		await _caminar(etiqueta)
 
-	# Sin lo del refugio: para saber cuanto pesa
+	await _horda()
 	get_tree().quit()
 
 
@@ -113,6 +113,16 @@ func _en_lugar(lugar: String, etiqueta: String) -> void:
 	if _capturas != "":
 		var imagen := get_viewport().get_texture().get_image()
 		imagen.save_png("%s/%s_%s.png" % [_capturas, lugar, etiqueta])
+
+
+# Lo mas que el Director puede poner: todos corriendo hacia el jugador
+func _horda() -> void:
+	_poner_jugador(DESDE)
+	await get_tree().create_timer(CARGA).timeout
+	_zombis.aparecer_turba(Zombis.MAX_TOTAL)
+	await _medir("llegando/horda", MEDICION, Vector3.ZERO)
+	print("MEDIR zombis despiertos=%d" % Zombie.activos.size())
+	await _medir("encima/horda", MEDICION, Vector3.ZERO)
 
 
 func _caminar(etiqueta: String) -> void:
