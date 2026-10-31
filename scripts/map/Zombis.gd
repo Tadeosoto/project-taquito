@@ -25,6 +25,8 @@ const MARGEN_REFUGIO := 2.0   # m alrededor de la barda donde no aparecen
 const TURBA_ABRE := 0.7       # rad de ancho de donde sale una turba
 const CAMPO_US := 1500        # tiempo por cuadro para calcular cada campo de flujo
 const MOVIENDOSE := 1.0       # m/s
+const MAX_RESTOS := 16
+const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
 
 @export var jugador_path: NodePath
 @export var ciclo_path: NodePath
@@ -46,6 +48,7 @@ var _armados := 0
 var _turba_pendiente := 0
 var _turba_angulo := 0.0
 var _refugio_puesto := false
+var _restos: Array = []
 
 
 func _ready() -> void:
@@ -280,9 +283,26 @@ func _devolver(zombi: Zombie) -> void:
 	_libres.append(zombi)
 
 
+# Pellejo y luego huesos. Con tope, para que una noche larga no vaya costando cuadros
+func dejar_restos(donde: Vector3, tamano: float) -> void:
+	# Sin tipo: uno ya borrado no se puede convertir a Node3D
+	_restos = _restos.filter(func(r) -> bool: return is_instance_valid(r))
+	while _restos.size() >= MAX_RESTOS:
+		_restos.pop_front().queue_free()
+	var restos := RestosZombi.new()
+	restos.tamano(tamano)
+	add_child(restos)
+	restos.global_position = Vector3(donde.x, donde.y + RESTOS_ALTO, donde.z)
+	_restos.append(restos)
+
+
 # Teclas de prueba y reinicios: se van todos
 func limpiar() -> void:
 	_turba_pendiente = 0
+	for restos in _restos:
+		if is_instance_valid(restos):
+			restos.queue_free()
+	_restos.clear()
 	for z: Zombie in Zombie.activos.duplicate():
 		_devolver(z)
 

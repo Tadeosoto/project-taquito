@@ -63,6 +63,7 @@ const TICKS_LEJOS := 3
 const TICKS_SEPARAR := 4
 const JEFE_VIDA := 400
 const JEFE_DANO := 25
+const JEFE_EMPUJA := 1.41   # velocidad del empujon al jugador: el doble de distancia
 const JEFE_TAMANO := 1.7
 const JEFE_VELOCIDAD := 3.0
 const JEFE_COLOR := Color(0.35, 0.5, 0.95)
@@ -212,6 +213,9 @@ func calentar() -> void:
 	add_child(agua)
 	_preparar_charco()
 	_charco.visible = true
+	var restos := RestosZombi.new()
+	add_child(restos)
+	restos.calentar()
 
 
 # Sale de la reserva, como nuevo. `con_prisa`: de turba
@@ -382,7 +386,7 @@ func _atacar() -> void:
 			var hacia := jugador.global_position - global_position
 			hacia.y = 0.0
 			if hacia.length() <= _alcance_golpe and absf(jugador.global_position.y - global_position.y) <= _alcance_golpe:
-				jugador.recibir_dano(_dano)
+				jugador.recibir_dano(_dano, global_position, JEFE_EMPUJA if es_jefe else 1.0)
 		elif is_instance_valid(_blanco) and _blanco.has_method("recibir_golpe"):
 			_blanco.recibir_golpe(JEFE_DANO_RECINTO if es_jefe else DANO_RECINTO)
 	if _tiempo >= ATAQUE_DURA:
@@ -473,6 +477,8 @@ func _reventar() -> void:
 	_charco.scale = Vector3.ONE * grande
 	_charco_desde = Time.get_ticks_msec()
 	_sonar("reventar")
+	if zombis:
+		zombis.dejar_restos(global_position, _tamano)
 
 
 func _soltar_particulas(particulas: CPUParticles3D, alto: float, vida: float) -> void:
