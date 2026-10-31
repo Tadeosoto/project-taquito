@@ -233,14 +233,14 @@ Dos monedas:
 Ya hay NPCs con diálogo en burbuja y aviso de "Espacio/X" (`scripts/npc.gd`). Falta:
 
 - 💡 NPCs que **dan misiones** (marcador encima, como el "!" de *WoW* o la letra de *GTA*).
-- 💡 NPCs que caminan por la banqueta de día (peatones simples).
+- 🧱 De día hay gente (`scripts/map/Gente.gd`): caminan por las banquetas (por ahora con el modelo ninja pintado, el único con ciclo de caminar), un garrafonero con su galón, gente afuera de las tiendas con la que puedes platicar y perros echados. Al avisar que va a oscurecer se apuran y de noche no hay nadie, así que la calle vacía también avisa.
 - 💡 Comportamiento "seguir al jugador" (se usa en Simi, rescates, escoltas: programarlo una vez y reutilizarlo).
 
 ### 4.8 Zombies y hordas dinámicas 💡
 
 Referencia del grupo: [reel de Instagram](https://www.instagram.com/reel/DehepkqD5PW/). (No se pudo ver sin cuenta; **que alguien describa qué tiene que tomarse de ahí**.) Asumimos hordas que se mueven en masa tipo *Days Gone* / *World War Z*.
 
-🧱 **Ya hay lo mínimo** (`scripts/map/Zombis.gd`, `Zombie.gd`): de noche salen zombis de uno en uno alrededor del jugador, fuera de la cámara, más donde está más destruido y uno más cada noche (hasta 12). Caminan derecho hacia ti, sin rutas, y pegan; dan unos pesos al morir y se caen al amanecer. De día no hay. Si llegas a 0 de vida tus objetos se quedan en una bolsa y despiertas en el refugio (propuesta de 1.5). De noche todo cierra (propuesta de 4.6). Si no hay jugador cerca del mismo lado de la barda, van por la entrada más cercana del refugio y luego por el tinaco; si andas a más de 70 m, el ataque se simula.`n`nCómo se hace normalmente (y cómo lo haríamos):
+🧱 **Ya hay lo mínimo** (`scripts/map/Zombis.gd`, `Zombie.gd`): de noche un Director como el de *Left 4 Dead* (`scripts/map/Director.gd`) mide qué tan apretado andas y da vueltas entre armar, sostener, bajar y dar un respiro. Salen sueltos alrededor del jugador, fuera de la cámara, más donde está más destruido y uno más cada noche (hasta 12), y cada 90-180 s una turba que corre hacia ti, hasta 30 en total. Llegan por las calles (`CampoFlujo.gd`) y pegan; dan unos pesos al morir y se caen al amanecer. De día no hay. Si llegas a 0 de vida tus objetos se quedan en una bolsa y despiertas en el refugio (propuesta de 1.5). De noche todo cierra (propuesta de 4.6). Si no hay jugador cerca del mismo lado de la barda, van por la entrada más cercana del refugio y luego por el tinaco; si andas a más de 70 m, el ataque se simula.`n`nCómo se hace normalmente (y cómo lo haríamos):
 
 1. **Director** (como *Left 4 Dead*): un script central que mide la tensión (vida del jugador, zombies cerca, hora) y decide cuándo mandar una horda, cuándo dar un respiro y dónde aparecen (siempre fuera de cámara, en calles cercanas).
 2. **Movimiento en grupo**: en vez de que cada zombie calcule su ruta (caro), se calcula **un campo de flujo** (flow field) hacia el jugador/ruido por zona y todos lo siguen, con separación entre ellos (*boids*). Así cientos de zombies se ven como un río por las calles.
