@@ -18,8 +18,8 @@ extends Node3D
 #   Mostrador (Mostrador.gd con el estilo del giro, un Mueble, o un Marker3D)
 #   Vendedor  (por ahora scenes/npc.tscn con su dialogo; despues, su personaje y el menu)
 # y puede tener una `Vitrina` (Marker3D) donde flotan dando vueltas los `productos` que
-# vende (Vitrina.gd, frente a la camara a la altura del mostrador), con su ficha y tu dinero en pantalla (TiendaUI.gd). Comprar todavia
-# no hace nada.
+# vende (Vitrina.gd, frente a la camara a la altura del mostrador), con su ficha y tu dinero en pantalla (TiendaUI.gd). Con el boton de
+# saltar se compra.
 # Con `generar_local` arma piso, paredes, techo, luces y, con `reja`, la fachada; si no,
 # el local es un modelo y solo se ponen las luces.
 #
@@ -286,7 +286,34 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("inventory_next") or event.is_action_pressed("move_right"):
 		_cambiar(1)
 	elif event.is_action_pressed("jump") and _ui:
-		_ui.decir("Comprar: próximamente", 1.5)
+		_comprar()
+
+
+# Lo que se esta viendo en el carrusel. Con /root y no por su nombre: es un @tool, y en el
+# editor no hay autoloads
+func _comprar() -> void:
+	var producto: InventoryItemData = productos[_vitrina.actual()] if _vitrina else null
+	if producto == null:
+		return
+	var cartera := get_node("/root/Cartera")
+	var inventario := get_node("/root/Inventory")
+	var en_agua := producto.moneda == 1
+	var precio: int = producto.precio if en_agua else roundi(producto.precio * precio_factor)
+	if (cartera.agua if en_agua else cartera.pesos) < precio:
+		_ui.decir("No te alcanza.", 1.5)
+		return
+	if producto.capacidad > 0:
+		if not inventario.equipar_mochila(producto):
+			_ui.decir("Ya traes una mochila mejor.", 1.5)
+			return
+	elif not inventario.add_item(producto):
+		_ui.decir("Ya no te cabe.", 1.5)
+		return
+	if en_agua:
+		cartera.agua -= precio
+	else:
+		cartera.pesos -= precio
+	_ui.decir("Compraste: %s" % producto.item_name, 1.5)
 
 
 func _process(delta: float) -> void:
