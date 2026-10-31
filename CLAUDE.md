@@ -40,7 +40,8 @@ Overview:
 - A real area of Zapopan built from OpenStreetMap with OSM2World by `tools/map_import/` (Python and Godot scripts), streamed from `resources/map/cuadros/`. `models/zona_mapa.glb` is gitignored; only rebuild it when changing the map.
 - `scripts/map/`: `MapStreamer` (chunks), `MapPuntos` (stores), `MapCasas`, `MapBodegas`, `MapBardas`, `MapArboles`, `MapPasto`, `MapAlumbrado`, `MapDron` (V toggles the drone), `MapMinimapa`, `Maquinita`/`TragamonedasUI`/`Cohetes` (fruit machines). `scripts/tragamonedas.gd` is the machine's logic.
 - `scripts/interiores/`: fixed first-person shop scenes, entered through the yellow arrows (`Interiores.gd`).
-- New streaming systems must use the per-frame load budget in `scripts/map/CargaCuadro.gd`. Don't add per-instance `StandardMaterial3D`s in builders: recompiling them caused stutter.
+- `godot --path . tools/medir_mapa.tscn` measures FPS, frame times and draw calls at fixed spots (needs a window): run it before and after anything that might cost frames.
+- New streaming systems must use the per-frame load budget in `scripts/map/CargaCuadro.gd`, and its `carga()`/`descarga()` so they load less on foot than in the drone. Don't add per-instance `StandardMaterial3D`s in builders: recompiling them caused stutter.
 - Scripts in `tools/` run with `-s`, before autoloads exist. Anything they load, including `MapPuntos` and what it references, must not name `Cartera`, `Salud` or `Inventory` directly; use `load()` at runtime.
 - Map data is ODbL; keep the attribution in `CREDITS.md`. Don't use Google Maps or Street View data for geometry.
 
