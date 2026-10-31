@@ -263,6 +263,12 @@ Presupuesto 💡: ~30 zombies completos cerca + ~200 "baratos" lejos (hay que me
 
 ---
 
+### 4.9 Mapa de papel 🧱
+
+Con el inventario abierto, **M** (Select en el control) muestra el mapa, en 9 pedazos con nombre: El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera. Empiezas con el de donde apareces y los demás se encuentran tirados frente a una tienda de cada zona; los que faltan salen en negro con un signo. No ocupan lugar, no se pierden al desmayarte y se acaban con la partida. Al cruzar a otra zona sale su nombre. 💡 Después podrían venderse o darse en misiones.
+
+---
+
 ## 5. Objetos
 
 Columnas: **Modelo** = si ya hay modelo 3D en el repo (🧱) o falta (❌). Efectos y precios son 💡 para discutir.
@@ -505,3 +511,4 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-10-28 | Giros de negocios (4.6) y qué vende cada uno; un interactivo por giro cada 80 m (abarrotes 150 m) con flecha amarilla; puestos de tacos y tejuino se compran al aire libre; nuevos ferretería, purificadora y "el punto" (venta ilegal, una casa en obra negra por colonia). Marcas parodia en los nombres. Casas en obra negra: 5 % en deterioro medio, 15 % en el máximo. Los locales de colonia van dentro de la hilera de casas. | JJ |
 | 2026-10-31 | **Propuesta de trabajo, no cierra los votos de 1.2, 1.3 y 1.5**: partida de 3 noches con jefe, refugios con barricadas y tinaco, bolsa recuperable al morir, todo cerrado de noche. Se programa para probarla; el equipo decide después de jugarla. | AG |
 | 2026-10-31 | Pantalla de inicio: el juego ya abre en ella y Jugar lleva al mapa real (`map_test.tscn`), no al prototipo `world.tscn`. | AG |
+| 2026-10-31 | Mapa de papel en el inventario, por pedazos que se encuentran en el mundo, con zonas de nombres parodia y sobre el agua (4.9). | AG |
