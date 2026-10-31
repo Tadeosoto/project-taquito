@@ -30,18 +30,21 @@ const FLASH_MS := 55
 const JEFE_ARRASTRE := 0.3  # m: al jefe solo se le mueve un poco
 const COLOR_AGUA := Color(0.2, 0.25, 0.1)
 const COLOR_RESTOS := Color(0.12, 0.1, 0.07)
-const SALPICA := 22
-const SALPICA_VELOCIDAD := Vector2(4.0, 9.0)
-const SALPICA_ABRE := 26.0
-const SALPICA_VIDA := 0.55
-const SALPICA_TAMANO := 0.17
+const PECHO := 1.15         # m de alto de donde sale el liquido
+const CUERPO_RADIO := 0.22
+const SALPICA := 10         # gotas con un machete
+const SALPICA_VELOCIDAD := Vector2(3.0, 7.0)
+const SALPICA_ABRE := 0.45
 const HINCHADO := 1.35      # como queda justo antes de tronar
-const REVIENTA := 70
-const REVIENTA_VELOCIDAD := Vector2(3.0, 11.0)
-const REVIENTA_TAMANO := 0.3
-const REVIENTA_VIDA := 0.8
-const RESTOS := 10
-const JEFE_REVIENTA := 2.5  # cuanto mas grande es todo con el jefe
+const REVIENTA := 60
+const REVIENTA_VELOCIDAD := Vector2(3.0, 9.0)
+const RESTOS := 8
+const JEFE_REVIENTA := 2.0  # cuanto mas grande es todo con el jefe
+# Sin encimarse: chocan entre ellos. Cerca del blanco, si lo que estorba es otro zombi, espera
+# su turno en vez de irse de lado (la fila de atras temblaba)
+const CAPA_ZOMBIS := 2
+const RADIO := 0.42
+const FILA_CERCA := 7.0     # m
 const CHARCO_LADO := 3.0
 const CHARCO_DURA := 3.0
 const CHARCO_ALTO := 0.05
@@ -131,7 +134,7 @@ func _ready() -> void:
 	_lado = 1.0 if randf() < 0.5 else -1.0
 	var forma := CollisionShape3D.new()
 	var capsula := CapsuleShape3D.new()
-	capsula.radius = 0.42 * tamano
+	capsula.radius = RADIO * tamano
 	capsula.height = 1.8 * tamano
 	forma.shape = capsula
 	forma.position.y = 0.9 * tamano
@@ -208,9 +211,6 @@ func _restaurar() -> void:
 # Dibuja una vez lo de los golpes para que el primero no trabe compilando (Zombis.gd)
 func calentar() -> void:
 	_pintar_blanco(true)
-	var agua := Cohetes.salpicadura(1, 0.2, COLOR_AGUA, 0.01, Vector3.UP, 10.0, Vector2.ONE)
-	agua.emitting = true
-	add_child(agua)
 	_preparar_charco()
 	_charco.visible = true
 	var restos := RestosZombi.new()
@@ -228,8 +228,8 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	activos.append(self)
 	estado = Estado.CAMINA
 	collision_layer = 2
-	# La capa 3 son las barricadas: el jugador pasa, ellos no
-	collision_mask = 1 | EntradaRefugio.CAPA
+	# La capa 3 son las barricadas: el jugador pasa, ellos no. Y entre ellos no se enciman
+	collision_mask = 1 | EntradaRefugio.CAPA | CAPA_ZOMBIS
 	_refugio = get_tree().get_first_node_in_group("refugio") as Refugio
 	_vida = JEFE_VIDA if es_jefe else VIDA
 	if es_jefe:
@@ -315,6 +315,8 @@ func _caminar(delta: float) -> Vector3:
 	if _rodeo > 0.0:
 		_rodeo -= delta
 		direccion = direccion.rotated(Vector3.UP, _lado * PI * 0.45)
+	elif distancia <= FILA_CERCA and _lo_detiene_un_zombi():
+		_atorado = 0.0
 	elif get_real_velocity().length() < _velocidad * 0.3 and _tiempo > 0.3:
 		_atorado += delta
 		if _atorado >= ATORADO_EN:
@@ -329,6 +331,25 @@ func _caminar(delta: float) -> Vector3:
 	_mirar(direccion)
 	_ultimo = direccion * _velocidad
 	return _ultimo
+
+
+func radio() -> float:
+	return RADIO * _tamano
+
+
+# Salirse de encima de otro: choca con paredes, pero no con los zombis, que lo detendrian
+func apartarse(cuanto: Vector3) -> void:
+	var mascara := collision_mask
+	collision_mask = mascara & ~CAPA_ZOMBIS
+	move_and_collide(cuanto)
+	collision_mask = mascara
+
+
+func _lo_detiene_un_zombi() -> bool:
+	for i in get_slide_collision_count():
+		if get_slide_collision(i).get_collider() is Zombie:
+			return true
+	return false
 
 
 # A donde camina; deja en _blanco a quien le pegaria al llegar y en _guia su camino
@@ -456,10 +477,12 @@ func caer_al_amanecer() -> void:
 		_morir(false)
 
 
-# Agua sucia hacia donde iba el golpe. Van en el padre, que no gira ni se duerme
+# Agua sucia hacia donde iba el golpe, saliendo de adentro del cuerpo
 func _salpicar(hacia: Vector3, fuerza: float) -> void:
-	var agua := Cohetes.salpicadura(roundi(SALPICA * clampf(fuerza, 0.5, 1.5)), SALPICA_VIDA, COLOR_AGUA, SALPICA_TAMANO, (hacia + Vector3.UP * 0.25).normalized(), SALPICA_ABRE, SALPICA_VELOCIDAD)
-	_soltar_particulas(agua, 1.2 * _tamano, SALPICA_VIDA)
+	if zombis == null:
+		return
+	zombis.liquido.salpicar(global_position + Vector3.UP * PECHO * _tamano, CUERPO_RADIO * _tamano, global_position.y,
+		(hacia + Vector3.UP * 0.3).normalized(), roundi(SALPICA * clampf(fuerza, 0.5, 1.5)), COLOR_AGUA, SALPICA_VELOCIDAD, SALPICA_ABRE)
 
 
 func _reventar() -> void:
@@ -468,10 +491,10 @@ func _reventar() -> void:
 	_pintar_blanco(false)
 	_modelo.visible = false
 	var grande := JEFE_REVIENTA if es_jefe else 1.0
-	var agua := Cohetes.salpicadura(roundi(REVIENTA * grande), REVIENTA_VIDA, COLOR_AGUA, REVIENTA_TAMANO * minf(grande, 1.6), Vector3.UP, 95.0, REVIENTA_VELOCIDAD * minf(grande, 1.5))
-	_soltar_particulas(agua, 1.1 * _tamano, REVIENTA_VIDA)
-	var restos := Cohetes.salpicadura(roundi(RESTOS * grande), REVIENTA_VIDA, COLOR_RESTOS, REVIENTA_TAMANO * 0.5, Vector3.UP, 80.0, REVIENTA_VELOCIDAD * 0.7)
-	_soltar_particulas(restos, 1.1 * _tamano, REVIENTA_VIDA)
+	if zombis:
+		var centro := global_position + Vector3.UP * PECHO * _tamano
+		zombis.liquido.reventar(centro, CUERPO_RADIO * 1.4 * _tamano, global_position.y, roundi(REVIENTA * grande), COLOR_AGUA, REVIENTA_VELOCIDAD)
+		zombis.liquido.reventar(centro, CUERPO_RADIO * 1.4 * _tamano, global_position.y, roundi(RESTOS * grande), COLOR_RESTOS, REVIENTA_VELOCIDAD * 0.7)
 	_preparar_charco()
 	_charco.visible = true
 	_charco.scale = Vector3.ONE * grande
@@ -479,14 +502,6 @@ func _reventar() -> void:
 	_sonar("reventar")
 	if zombis:
 		zombis.dejar_restos(global_position, _tamano)
-
-
-func _soltar_particulas(particulas: CPUParticles3D, alto: float, vida: float) -> void:
-	particulas.emitting = true
-	var padre := get_parent() as Node3D
-	padre.add_child(particulas)
-	particulas.global_position = global_position + Vector3.UP * alto
-	get_tree().create_timer(vida + 0.5).timeout.connect(particulas.queue_free)
 
 
 func _preparar_charco() -> void:

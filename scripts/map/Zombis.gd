@@ -26,6 +26,8 @@ const TURBA_ABRE := 0.7       # rad de ancho de donde sale una turba
 const CAMPO_US := 1500        # tiempo por cuadro para calcular cada campo de flujo
 const MOVIENDOSE := 1.0       # m/s
 const MAX_RESTOS := 16
+const SEPARADO := 1.1         # m entre centros al aparecer: chocan entre ellos
+const NO_ENCIMAR_PASADAS := 2
 const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
 
 @export var jugador_path: NodePath
@@ -35,6 +37,7 @@ var noches := 0
 var director := Director.new()
 var campo_jugador := CampoFlujo.new()
 var campo_refugio := CampoFlujo.new()
+var liquido: Liquido
 
 var _jugador: Player
 var _ciclo: Ciclo
@@ -54,6 +57,9 @@ var _restos: Array = []
 func _ready() -> void:
 	_jugador = get_node(jugador_path) as Player
 	_ciclo = get_node(ciclo_path) as Ciclo
+	process_physics_priority = 10
+	liquido = Liquido.new()
+	add_child(liquido)
 	_salud = get_node("/root/Salud")
 	_vida_antes = _salud.vida
 	_salud.cambio.connect(_cambio_vida)
@@ -131,7 +137,39 @@ func _campos(delta: float) -> void:
 		campo_refugio.avanzar(espacio, delta, CAMPO_US)
 
 
+# Dos que caminan uno hacia el otro en el mismo tick si se llegan a encimar un poco, aunque
+# choquen: el que quede encimado se separa aqui, sin atravesar paredes. Corre despues de que
+# todos se movieron (process_physics_priority) y dos veces, por las filas apretadas.
+func _no_encimar() -> void:
+	for pasada in NO_ENCIMAR_PASADAS:
+		_separar_encimados()
+
+
+func _separar_encimados() -> void:
+	var lista := Zombie.activos
+	for i in lista.size():
+		var a := lista[i]
+		if a.estado == Zombie.Estado.MUERTO:
+			continue
+		for j in range(i + 1, lista.size()):
+			var b := lista[j]
+			if b.estado == Zombie.Estado.MUERTO:
+				continue
+			var entre := a.global_position - b.global_position
+			entre.y = 0.0
+			var minimo: float = (a.radio() + b.radio())
+			var d := entre.length_squared()
+			if d >= minimo * minimo:
+				continue
+			d = sqrt(d)
+			var hacia := entre / d if d > 0.001 else Vector3.RIGHT
+			var falta := (minimo - d) * 0.5
+			a.apartarse(hacia * falta)
+			b.apartarse(-hacia * falta)
+
+
 func _physics_process(delta: float) -> void:
+	_no_encimar()
 	_quitar_lejanos()
 	if not _ciclo.es_noche() or not _jugador.can_process() or not _jugador.is_physics_processing():
 		return
@@ -227,7 +265,7 @@ func sacar(lugar: Vector3, cazador: bool) -> Zombie:
 
 # El garrafonero (Partida.gd), alrededor de `centro`; null si no encontro lugar este intento
 func aparecer_jefe(centro: Vector3) -> Zombie:
-	var lugar := _lugar_libre(centro)
+	var lugar := _lugar_libre(centro, INF, SEPARADO * Zombie.JEFE_TAMANO)
 	if lugar == Vector3.INF:
 		return null
 	var jefe := Zombie.new()
@@ -242,7 +280,7 @@ func aparecer_jefe(centro: Vector3) -> Zombie:
 
 # Un punto en la calle, a un lado o atras de la camara; INF si no encontro. Con `angulo`,
 # de ese lado del centro (las turbas)
-func _lugar_libre(centro: Vector3, angulo := INF) -> Vector3:
+func _lugar_libre(centro: Vector3, angulo := INF, separado := SEPARADO) -> Vector3:
 	var camara := get_viewport().get_camera_3d()
 	var espacio := get_world_3d().direct_space_state
 	var refugio := get_tree().get_first_node_in_group("refugio") as Refugio
@@ -254,11 +292,20 @@ func _lugar_libre(centro: Vector3, angulo := INF) -> Vector3:
 			continue
 		if refugio and refugio.adentro(punto, MARGEN_REFUGIO):
 			continue
+		if _encima_de_otro(punto, separado):
+			continue
 		var rayo := PhysicsRayQueryParameters3D.create(Vector3(punto.x, 30.0, punto.z), Vector3(punto.x, -2.0, punto.z), 1)
 		var pego := espacio.intersect_ray(rayo)
 		if pego and pego.position.y < ALTO_CALLE:
 			return pego.position + Vector3.UP * 0.05
 	return Vector3.INF
+
+
+func _encima_de_otro(punto: Vector3, separado: float) -> bool:
+	for z in Zombie.activos:
+		if z.estado != Zombie.Estado.MUERTO and Vector2(z.global_position.x - punto.x, z.global_position.z - punto.z).length_squared() < separado * separado:
+			return true
+	return false
 
 
 func _quitar_lejanos() -> void:
@@ -303,6 +350,7 @@ func limpiar() -> void:
 		if is_instance_valid(restos):
 			restos.queue_free()
 	_restos.clear()
+	liquido.limpiar()
 	for z: Zombie in Zombie.activos.duplicate():
 		_devolver(z)
 

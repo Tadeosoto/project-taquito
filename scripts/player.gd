@@ -53,14 +53,12 @@ const GOLPEADO_FRENO := 16.3
 const CONGELA_GOLPEADO := 0.06
 const SACUDE_GOLPEADO := 0.09
 const FLASH_MS := 55
-const SANGRE := 36
-const SANGRE_VIDA := 0.6
-const SANGRE_TAMANO := 0.26
-const SANGRE_ABRE := 38.0
-# Mas rapida que el empujon: el jugador sale hacia el mismo lado y si no se queda detras de el
-const SANGRE_VELOCIDAD := Vector2(14.0, 26.0)
-const SANGRE_ALTO := 0.35     # m sobre el origen, que ya va a 1 m del piso
-const COLOR_SANGRE := Color(0.8, 0.02, 0.03)
+const SANGRE := 12
+const SANGRE_RADIO := 0.2
+const SANGRE_ABRE := 0.45
+const SANGRE_VELOCIDAD := Vector2(4.0, 9.0)
+const SANGRE_ALTO := 0.3      # m sobre el centro del modelo
+const COLOR_SANGRE := Color(0.62, 0.02, 0.03)
 
 signal golpeado
 
@@ -210,14 +208,13 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0) -> void:
 	get_node("/root/Salud").vida -= dano
 
 
+# Sale de adentro del modelo, que es lo que se ve (frijol va suavizado). Por grupo y sin el
+# tipo: los scripts de tools/ cargan esta clase
 func _sangrar(hacia: Vector3) -> void:
-	var sangre := Cohetes.salpicadura(SANGRE, SANGRE_VIDA, COLOR_SANGRE, SANGRE_TAMANO, (hacia + Vector3.UP * 0.3).normalized(), SANGRE_ABRE, SANGRE_VELOCIDAD)
-	sangre.damping_min = 0.0
-	sangre.damping_max = 0.0
-	sangre.emitting = true
-	get_parent().add_child(sangre)
-	sangre.global_position = global_position + Vector3.UP * SANGRE_ALTO
-	get_tree().create_timer(SANGRE_VIDA + 0.5).timeout.connect(sangre.queue_free)
+	var liquido := get_tree().get_first_node_in_group("liquido")
+	if liquido:
+		liquido.salpicar(frijol.global_position + Vector3.UP * SANGRE_ALTO, SANGRE_RADIO, global_position.y - 1.0,
+			(hacia + Vector3.UP * 0.3).normalized(), SANGRE, COLOR_SANGRE, SANGRE_VELOCIDAD, SANGRE_ABRE)
 
 
 # Todo el modelo, con el arma que traiga en la mano
