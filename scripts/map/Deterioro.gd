@@ -20,6 +20,23 @@ static func zona(x: float, z: float) -> float:
 	return _maximo * lerpf(0.25, 1.0, smoothstep(0.3, 0.7, n))
 
 
+# Que pasto hay en un punto, igual que pasto() de shaders/ps1_suelo.gdshader: lo usan las
+# matas (MapPasto.gd) para que salgan como el piso. Si cambia el shader, cambiar esta.
+enum Pasto { NORMAL, CRECIDO, CUIDADO, PODRIDO }
+
+
+static func tipo_pasto(x: float, z: float) -> Pasto:
+	var pura := zona(x, z) / maxf(_maximo, 0.01)
+	var p := Vector2(x, z)
+	if pura > 0.7 and _ruido(p / 17.0 + Vector2(31.0, 31.0)) > 0.45:
+		return Pasto.PODRIDO
+	if pura < 0.55 and _ruido(p / 41.0 + Vector2(9.0, 9.0)) > 0.6:
+		return Pasto.CUIDADO
+	if _ruido(p / 23.0 + Vector2(5.0, 5.0)) > 0.52:
+		return Pasto.CRECIDO
+	return Pasto.NORMAL
+
+
 # Cambia el deterioro en el juego: los shaders y esta funcion a la vez
 static func configurar(maximo: float, escala: float) -> void:
 	_maximo = maximo

@@ -55,6 +55,9 @@ func _quitar_brinco() -> void:
 		if material:
 			material.set_shader_parameter("jitter_enabled", false)
 			material.set_shader_parameter("wobble_enabled", false)
+			if material.get_shader_parameter("modo") in [1, 2]:
+				SueloPasto.variedades(material)
+			SueloPasto.capa(material)
 			_materiales.append(material)
 
 

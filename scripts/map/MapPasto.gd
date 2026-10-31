@@ -14,6 +14,12 @@ const CELDA := 16.0
 # Mascara minima para poner matas (la orilla del pasto en el shader del suelo
 # anda por 0.5; mas arriba las matas no se salen a la tierra)
 const MASCARA_MIN := 0.6
+# Segun el pasto (Deterioro.tipo_pasto): cuantas matas respecto a `densidad` y que tan altas
+const DENSIDAD_CRECIDO := 1.6
+const ALTO_CRECIDO := 2.0
+const DENSIDAD_CUIDADO := 0.25
+const ALTO_CUIDADO := 0.45
+const DENSIDAD_PODRIDO := 0.6
 
 @export var target_path: NodePath
 @export var dron_path: NodePath
@@ -117,19 +123,40 @@ func _crear_celda(key: Vector2i) -> MultiMeshInstance3D:
 	rng.seed = hash(key)
 	var transforms: Array[Transform3D] = []
 	var colores: Array[Color] = []
-	for i in roundi(densidad * CELDA * CELDA):
+	# Se sortean de mas y cada pasto se queda con las que le tocan
+	for i in roundi(densidad * CELDA * CELDA * DENSIDAD_CRECIDO):
 		var x := (key.x + rng.randf()) * CELDA
 		var z := (key.y + rng.randf()) * CELDA
 		var giro := rng.randf() * TAU
 		var h := rng.randf_range(alto.x, alto.y)
 		var sorteo := rng.randf()
+		var tinte := rng.randf()
+		var quedarse := rng.randf()
 		var m := _valor(x, z)
 		if m < MASCARA_MIN or sorteo > m:
 			continue
+		var color: Color
+		match Deterioro.tipo_pasto(x, z):
+			Deterioro.Pasto.CRECIDO:
+				h *= ALTO_CRECIDO
+				color = Color(0.55, 0.8, 0.5).lerp(Color(0.8, 0.95, 0.55), tinte)
+			Deterioro.Pasto.CUIDADO:
+				if quedarse > DENSIDAD_CUIDADO / DENSIDAD_CRECIDO:
+					continue
+				h *= ALTO_CUIDADO
+				color = Color(0.95, 1.15, 0.8)
+			Deterioro.Pasto.PODRIDO:
+				if quedarse > DENSIDAD_PODRIDO / DENSIDAD_CRECIDO:
+					continue
+				color = Color(0.5, 0.4, 0.22).lerp(Color(0.72, 0.58, 0.3), tinte)
+			_:
+				if quedarse > 1.0 / DENSIDAD_CRECIDO:
+					continue
+				# Mas seco o mas verde, como las manchas del piso
+				color = Color(0.85, 0.9, 0.75).lerp(Color(1.15, 1.05, 0.8), tinte * 0.6)
 		var basis := Basis(Vector3.UP, giro).scaled(Vector3(h * 1.4, h, h * 1.4))
 		transforms.append(Transform3D(basis, Vector3(x, 0.0, z)))
-		# Mas seco o mas verde, como las manchas del piso
-		colores.append(Color(0.85, 0.9, 0.75).lerp(Color(1.15, 1.05, 0.8), rng.randf() * 0.6))
+		colores.append(color)
 	if transforms.is_empty():
 		return null
 	var multimesh := MultiMesh.new()
