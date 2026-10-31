@@ -5,6 +5,8 @@
 [ext_resource type="Shader" uid="uid://bpmkrtay5h8db" path="res://shaders/ps1_combined.gdshader" id="3_ps1"]
 [ext_resource type="Script" path="res://scripts/map/MapStreamer.gd" id="4_streamer"]
 [ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="10_dron"]
+[ext_resource type="Script" path="res://scripts/map/Refugio.gd" id="refugio_gd"]
+[ext_resource type="Script" path="res://scripts/map/Partida.gd" id="partida_gd"]
 [ext_resource type="Shader" path="res://shaders/ps1_suelo.gdshader" id="11_suelo"]
 [ext_resource type="Texture2D" uid="uid://btfh1d6mytpei" path="res://textures/map/suelo.png" id="12_suelo_tex"]
 [ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="5_puntos"]
@@ -320,6 +322,16 @@ script = ExtResource("42_supervivencia")
 jugador_path = NodePath("../Player")
 ciclo_path = NodePath("../Ciclo")
 zombis_path = NodePath("../Zombis")
+
+[node name="Refugio" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 203, 0, 662)
+script = ExtResource("refugio_gd")
+
+[node name="Partida" type="CanvasLayer" parent="."]
+script = ExtResource("partida_gd")
+zombis_path = NodePath("../Zombis")
+supervivencia_path = NodePath("../Supervivencia")
+refugio_path = NodePath("../Refugio")
 
 [node name="ObjetoPrueba1" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.58, 0.5, 646.64)
