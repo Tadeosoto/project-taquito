@@ -72,6 +72,8 @@ By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night
 ## Conventions / gotchas
 
 - **PS1 vertex snapping is only for characters and props.** World shaders `#define PS1_MUNDO` before including `ps1_vertex.gdshaderinc`, which skips it; world materials on `ps1_combined` set `jitter_enabled` and `wobble_enabled` false; `MapStreamer._quitar_brinco` does it for the baked chunk materials. Pieces stuck to each other (paint, trim, graffiti) jumped against each other otherwise.
+- `Player._process` smooths only the visible model and camera between the last two physics positions (`Engine.get_physics_interpolation_fraction`), because the body moves 60 times a second and the screen more often. Project-wide physics interpolation is off. `godot --path . tools/medir_mapa.tscn -- --movimiento` measures it (`--sin-suavizar` to compare).
+- `ps1_suelo` floors overlap at the same height in the baked map, so each type gets a depth layer (`SueloPasto.capa`, set by `MapStreamer._quitar_brinco`): asphalt, cobbles, sidewalk, grass, dirt.
 - After adding a `class_name`, run `godot --path . --headless --import` once, or headless runs won't find the class. A headless run with a parse error sits idle forever, so give test runs a time limit.
 
 - PS1 shaders must write `POSITION` unconditionally (`ps1_vertex()` returns the unsnapped clip position when `jitter_enabled` is false). A spatial shader that writes `POSITION` only inside an `if` leaves the mesh invisible when the branch isn't taken. The original `ps1_combined` had this bug; `shaders/jittershader.gdshader` still does. Huge meshes (the 1900 m `Suelo`) need jitter/wobble off, otherwise vertex snapping distorts them near the camera.
