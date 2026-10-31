@@ -12,6 +12,8 @@ extends Node3D
 
 const PUNTOS_JSON := "user://puntos_safehouse.json"
 const CASAS_JSON := "user://casas_safehouse.json"
+const BANQUETAS_JSON := "user://banquetas_safehouse.json"
+const BANQUETAS := [[[-44.0, -24.0], [20.0, -24.0], [20.0, 12.0], [-44.0, 12.0], [-44.0, -24.0]]]
 const NPC := preload("res://scenes/npc.tscn")
 const SUELO_SHADER := preload("res://shaders/ps1_suelo.gdshader")
 const MURO_SHADER := preload("res://shaders/ps1_combined.gdshader")
@@ -85,6 +87,7 @@ func _enter_tree() -> void:
 	# Antes del _ready de Casas y Puntos, que leen estos archivos
 	_guardar(PUNTOS_JSON, {"puntos": _puntos()})
 	_guardar(CASAS_JSON, {"casas": _casas()})
+	_guardar(BANQUETAS_JSON, {"banquetas": BANQUETAS})
 
 
 func _puntos() -> Array:
@@ -147,6 +150,11 @@ func _ready() -> void:
 	_partida.supervivencia_path = get_node("Supervivencia").get_path()
 	_partida.refugio_path = _refugio.get_path()
 	add_child(_partida)
+	var gente := Gente.new()
+	gente.name = "Gente"
+	gente.banquetas_path = BANQUETAS_JSON
+	gente.puntos_path = PUNTOS_JSON
+	add_child(gente)
 	_letrero("NEGOCIOS", Vector3(-10.0, 6.0, FACHADAS_Z))
 	_letrero("MAQUINITAS", Vector3(MAQUINAS_X, 4.5, -9.0))
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))

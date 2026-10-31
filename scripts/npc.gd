@@ -24,6 +24,7 @@ func _ready() -> void:
 	_apply_prompt_key()
 	_prompt.visible = false
 	_bubble.visible = false
+	_actualizar_pantallas()
 	_play_idle()
 	var area := $TalkArea as Area3D
 	area.body_entered.connect(_on_body_entered)
@@ -49,6 +50,7 @@ func interact() -> void:
 	_talking = true
 	_prompt.visible = false
 	_bubble.visible = true
+	_actualizar_pantallas()
 
 
 func _on_body_entered(body: Node3D) -> void:
@@ -58,6 +60,7 @@ func _on_body_entered(body: Node3D) -> void:
 	_talking = false
 	_bubble.visible = false
 	_prompt.visible = true
+	_actualizar_pantallas()
 
 
 func _on_body_exited(body: Node3D) -> void:
@@ -67,6 +70,14 @@ func _on_body_exited(body: Node3D) -> void:
 	_talking = false
 	_prompt.visible = false
 	_bubble.visible = false
+	_actualizar_pantallas()
+
+
+# Sus textos se dibujan en dos SubViewports: solo mientras se ven, porque si no se dibujan
+# en cada cuadro aunque el NPC este lejos
+func _actualizar_pantallas() -> void:
+	($PromptViewport as SubViewport).render_target_update_mode = SubViewport.UPDATE_ALWAYS if _prompt.visible else SubViewport.UPDATE_DISABLED
+	($BubbleViewport as SubViewport).render_target_update_mode = SubViewport.UPDATE_ALWAYS if _bubble.visible else SubViewport.UPDATE_DISABLED
 
 
 func _set_prompt_device(keyboard: bool) -> void:
