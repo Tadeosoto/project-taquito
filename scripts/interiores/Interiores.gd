@@ -46,6 +46,7 @@ var _dialogo: Label
 # del punto, que esta junto a ella)
 var _zoom: Camera3D
 var _flecha: Node3D
+var _ciclo: Node
 
 
 func _ready() -> void:
@@ -53,6 +54,10 @@ func _ready() -> void:
 	_puntos = get_node(puntos_path) as MapPuntos
 	_player = get_node(player_path) as Player
 	_puntos.entrar_negocio.connect(_entrar)
+	# Sin reloj (locales_preview) nunca cierran
+	_ciclo = get_tree().get_first_node_in_group("ciclo")
+	if _ciclo:
+		_ciclo.anochecio.connect(_echar)
 	var capa := CanvasLayer.new()
 	capa.layer = 10
 	add_child(capa)
@@ -96,6 +101,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _entrar(_tipo: String, giro: String, nombre: String, aire_libre: bool, marcador: Node3D) -> void:
 	if _ocupado or _interior or _zoom:
+		return
+	# De noche todo cierra, si no serian un escondite gratis (docs/especificaciones.md 4.6)
+	if _ciclo and _ciclo.es_noche():
+		_puntos.avisar("%s: cerrado. Ya salieron." % nombre)
 		return
 	# Con escena se entra aunque sea al aire libre (el punto te mete a su cuarto)
 	var escena: PackedScene = escenas.get(giro)
@@ -142,6 +151,19 @@ func _salir() -> void:
 	mostrar_afuera(true)
 	await _fundir(0.0)
 	_ocupado = false
+
+
+# Anochecio contigo adentro: a la calle
+func _echar() -> void:
+	while _ocupado:
+		await get_tree().process_frame
+	if _zoom:
+		_alejar()
+	elif _interior:
+		_salir()
+	else:
+		return
+	_puntos.avisar("Ya cerraron.")
 
 
 # Del lugar de la camara del jugador a la cara del que atiende, cerrando el angulo

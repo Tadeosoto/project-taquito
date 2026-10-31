@@ -20,7 +20,10 @@ extends Node3D
 @export var sensibilidad_mouse := 0.003
 # La niebla del mapa tapa a ~100 m; desde arriba se baja para ver mas lejos
 @export var niebla_dron := 0.006
+# El jugador congelado no pierde nada: de noche seria escondite (en el safehouse se deja)
+@export var cerrado_de_noche := false
 
+var _ciclo: Node
 var _active := false
 var _camera: Camera3D
 var _player: CharacterBody3D
@@ -47,11 +50,18 @@ func _ready() -> void:
 	_camera.far = 1000.0
 	add_child(_camera)
 	_set_active(iniciar_en_dron)
+	if cerrado_de_noche:
+		_ciclo = get_tree().get_first_node_in_group("ciclo")
+		if _ciclo:
+			_ciclo.anochecio.connect(func() -> void:
+				if _active:
+					_set_active(false))
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_V:
-		_set_active(not _active)
+		if not (_ciclo and _ciclo.es_noche()):
+			_set_active(not _active)
 	elif _active and event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rotation.y -= event.relative.x * sensibilidad_mouse
 

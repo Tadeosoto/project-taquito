@@ -278,6 +278,7 @@ script = ExtResource("10_dron")
 player_path = NodePath("../Player")
 environment_path = NodePath("../WorldEnvironment")
 iniciar_en_dron = false
+cerrado_de_noche = true
 
 [node name="Minimapa" type="CanvasLayer" parent="."]
 layer = 2

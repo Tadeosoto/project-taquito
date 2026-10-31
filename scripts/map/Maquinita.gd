@@ -277,7 +277,13 @@ func _armar_veladora() -> Node3D:
 # --- Jugar ---
 
 func is_player_inside() -> bool:
-	return _player_inside and not _ocupada
+	return _player_inside and not _ocupada and not _cerrada()
+
+
+# De noche no se juega (docs/especificaciones.md 4.6)
+func _cerrada() -> bool:
+	var ciclo := get_tree().get_first_node_in_group("ciclo")
+	return ciclo != null and ciclo.es_noche()
 
 
 func interact() -> void:
@@ -311,7 +317,7 @@ func _actualizar_aviso() -> void:
 	if not is_inside_tree():
 		return
 	var tecla := "Espacio" if Input.get_connected_joypads().is_empty() else "X"
-	_aviso.text = "%s: jugar" % tecla
+	_aviso.text = "Cerrada: ya salieron" if _cerrada() else "%s: jugar" % tecla
 	_aviso.visible = _player_inside and not _ocupada
 
 

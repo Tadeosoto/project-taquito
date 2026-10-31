@@ -35,7 +35,17 @@ func _ready() -> void:
 	Cartera.cambio.connect(_contadores)
 	_contadores()
 	maquinita.elegir_boton(_elegida)
+	var ciclo := get_tree().get_first_node_in_group("ciclo")
+	if ciclo:
+		ciclo.anochecio.connect(_echar)
 	_entrar()
+
+
+# Anochecio jugando: termina el tiro que va y a la calle
+func _echar() -> void:
+	while _ocupado:
+		await get_tree().process_frame
+	_salir()
 
 
 func _exit_tree() -> void:
