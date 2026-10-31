@@ -47,6 +47,24 @@ const SACUDE_DURA := 0.15
 const CONGELA := 0.05         # s de reloj real
 const CONGELA_MATA := 0.08
 const CONGELA_ESCALA := 0.02
+# Cuando le pegan a el. El empujon va frenando: v * v / (2 * freno) = 1.5 m
+const GOLPEADO_EMPUJE := 7.0
+const GOLPEADO_FRENO := 16.3
+const CONGELA_GOLPEADO := 0.06
+const SACUDE_GOLPEADO := 0.09
+const FLASH_MS := 55
+const SANGRE := 36
+const SANGRE_VIDA := 0.6
+const SANGRE_TAMANO := 0.26
+const SANGRE_ABRE := 38.0
+# Mas rapida que el empujon: el jugador sale hacia el mismo lado y si no se queda detras de el
+const SANGRE_VELOCIDAD := Vector2(14.0, 26.0)
+const SANGRE_ALTO := 0.35     # m sobre el origen, que ya va a 1 m del piso
+const COLOR_SANGRE := Color(0.8, 0.02, 0.03)
+
+signal golpeado
+
+static var _material_blanco: StandardMaterial3D
 
 var _enfriar := 0.0
 var _pega_en := -1.0
@@ -57,6 +75,8 @@ var _pos_ahora := Vector3.ZERO
 var _frijol_base := Vector3.ZERO
 var _pivote_base := Vector3.ZERO
 var _retroceso := Vector3.ZERO
+var _retroceso_freno := 42.0
+var _flash_hasta := 0
 var _sacude_fuerza := 0.0
 var _sacude_hasta := 0
 var _congelado_hasta := 0
@@ -128,6 +148,7 @@ func _sentir_golpe(frente: Vector3, fuerza: float, mato: bool) -> void:
 	_voz.pitch_scale = randf_range(0.9, 1.12)
 	_sonar("whack")
 	_retroceso = -frente * RETROCESO * fuerza
+	_retroceso_freno = RETROCESO * RETROCESO_CAIDA
 	_sacude_fuerza = SACUDE * fuerza * (SACUDE_MATA if mato else 1.0)
 	_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	_congelar(CONGELA_MATA if mato else CONGELA)
@@ -141,9 +162,13 @@ func _congelar(segundos: float) -> void:
 
 
 func _revisar_congelada() -> void:
-	if _congelado_hasta > 0 and Time.get_ticks_msec() >= _congelado_hasta:
+	var ahora := Time.get_ticks_msec()
+	if _congelado_hasta > 0 and ahora >= _congelado_hasta:
 		_congelado_hasta = 0
 		Engine.time_scale = 1.0
+	if _flash_hasta > 0 and ahora >= _flash_hasta:
+		_flash_hasta = 0
+		_pintar_blanco(false)
 
 
 func _exit_tree() -> void:
@@ -161,15 +186,49 @@ class RelojCongelada extends Node:
 		jugador._revisar_congelada()
 
 
-# Un golpe de zombi (Zombie.gd)
-func recibir_dano(dano: int) -> void:
+# Un golpe de zombi (Zombie.gd), con todo lo que se siente: congelada, flash, sacudida,
+# empujon y sangre hacia donde iba el golpe; Supervivencia.gd hace el cuadro de impacto
+func recibir_dano(dano: int, desde: Vector3, empuja := 1.0) -> void:
 	if _invulnerable > 0.0:
 		return
 	_invulnerable = INVULNERABLE
 	if ninja.has_method("accion"):
 		ninja.accion("RecieveHit")
 	_sonar("dolor")
+	var hacia := global_position - desde
+	hacia.y = 0.0
+	hacia = hacia.normalized() if hacia.length_squared() > 0.001 else frijol.global_basis.z
+	_flash_hasta = Time.get_ticks_msec() + FLASH_MS
+	_pintar_blanco(true)
+	_retroceso = hacia * GOLPEADO_EMPUJE * empuja
+	_retroceso_freno = GOLPEADO_FRENO
+	_sacude_fuerza = SACUDE_GOLPEADO
+	_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
+	_congelar(CONGELA_GOLPEADO)
+	_sangrar(hacia)
+	golpeado.emit()
 	get_node("/root/Salud").vida -= dano
+
+
+func _sangrar(hacia: Vector3) -> void:
+	var sangre := Cohetes.salpicadura(SANGRE, SANGRE_VIDA, COLOR_SANGRE, SANGRE_TAMANO, (hacia + Vector3.UP * 0.3).normalized(), SANGRE_ABRE, SANGRE_VELOCIDAD)
+	sangre.damping_min = 0.0
+	sangre.damping_max = 0.0
+	sangre.emitting = true
+	get_parent().add_child(sangre)
+	sangre.global_position = global_position + Vector3.UP * SANGRE_ALTO
+	get_tree().create_timer(SANGRE_VIDA + 0.5).timeout.connect(sangre.queue_free)
+
+
+# Todo el modelo, con el arma que traiga en la mano
+func _pintar_blanco(prendido: bool) -> void:
+	if _material_blanco == null:
+		_material_blanco = StandardMaterial3D.new()
+		_material_blanco.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_material_blanco.albedo_color = Color.WHITE
+		_material_blanco.disable_fog = true
+	for malla: MeshInstance3D in frijol.find_children("*", "MeshInstance3D", true, false):
+		malla.material_overlay = _material_blanco if prendido else null
 
 
 # Se queda quieto y deja de contestar (al desmayarse, Supervivencia.gd)
@@ -367,7 +426,7 @@ func _physics_process(delta: float) -> void:
 	velocity += _retroceso
 	move_and_slide()
 	velocity -= _retroceso
-	_retroceso = _retroceso.move_toward(Vector3.ZERO, RETROCESO * RETROCESO_CAIDA * delta)
+	_retroceso = _retroceso.move_toward(Vector3.ZERO, _retroceso_freno * delta)
 	_pos_antes = _pos_ahora
 	_pos_ahora = global_position
 

@@ -17,6 +17,14 @@ const TEXTO_NOCHE := "Ya salieron."
 const TEXTO_TURBA := "¡Ahí vienen!"
 const TEXTO_DIA := "Amaneció."
 const TEXTO_DESMAYO := "Te desmayaste..."
+# Puro blanco y negro en pantalla completa: antes de publicar el juego esto tiene que ser una
+# opcion, porque los destellos le pueden hacer dano a gente con epilepsia fotosensible
+const IMPACTO_ACTIVO := true
+const IMPACTO_CUADRO_MS := 17
+const IMPACTO_UMBRAL_DIA := 0.36
+const IMPACTO_UMBRAL_NOCHE := 0.22
+const IMPACTO_SHADER := preload("res://shaders/impacto.gdshader")
+const CALENTAR_CUADROS := 3
 
 @export var jugador_path: NodePath
 @export var ciclo_path: NodePath
@@ -27,6 +35,10 @@ var _zombis: Zombis
 var _salud: Node
 var punto_regreso: Transform3D
 var _bolsa: Node3D
+var _ciclo: Ciclo
+var _impacto: ColorRect
+var _impacto_material: ShaderMaterial
+var _impacto_desde := 0
 var _vida_antes := 0
 var _desmayado := false
 var _flash: ColorRect
@@ -47,6 +59,7 @@ func _ready() -> void:
 	_vida_antes = _salud.vida
 	_salud.cambio.connect(_cambio_vida)
 	var ciclo := get_node(ciclo_path) as Ciclo
+	_ciclo = ciclo
 	ciclo.aviso_atardecer.connect(func() -> void:
 		_avisar(TEXTO_AVISO)
 		_sonar("campana"))
@@ -63,6 +76,7 @@ func _ready() -> void:
 	material.shader = shader
 	_orillas.material = material
 	_negro = _pantalla(Color(0, 0, 0, 0))
+	_armar_impacto()
 	_aviso = _label(18, Color(1.0, 0.85, 0.1))
 	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_aviso.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -79,7 +93,50 @@ func _ready() -> void:
 	add_child(_voz)
 
 
+# Dos cuadros de un juego a 60: en reloj real, porque a 200 FPS dos cuadros de verdad no
+# se alcanzarian a ver. El inventario pausa el juego, por eso esta capa corre siempre.
+func _armar_impacto() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_impacto_material = ShaderMaterial.new()
+	_impacto_material.shader = IMPACTO_SHADER
+	_impacto = ColorRect.new()
+	_impacto.material = _impacto_material
+	_impacto.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Un pixel unos cuadros, para que el primer golpe no trabe compilando
+	_impacto.position = Vector2.ZERO
+	_impacto.size = Vector2.ONE
+	add_child(_impacto)
+	_jugador.golpeado.connect(_golpe_recibido)
+	for i in CALENTAR_CUADROS:
+		await get_tree().process_frame
+	if not is_inside_tree() or _impacto_desde > 0:
+		return
+	_impacto.visible = false
+
+
+func _golpe_recibido() -> void:
+	if not IMPACTO_ACTIVO:
+		return
+	_impacto.size = get_viewport().get_visible_rect().size
+	_impacto_material.set_shader_parameter("umbral", lerpf(IMPACTO_UMBRAL_DIA, IMPACTO_UMBRAL_NOCHE, _ciclo.valor()))
+	_impacto_material.set_shader_parameter("invertido", false)
+	_impacto.visible = true
+	_impacto_desde = Time.get_ticks_msec()
+
+
+func _revisar_impacto() -> void:
+	if _impacto_desde == 0:
+		return
+	var pasaron := Time.get_ticks_msec() - _impacto_desde
+	if pasaron >= IMPACTO_CUADRO_MS * 2:
+		_impacto_desde = 0
+		_impacto.visible = false
+	elif pasaron >= IMPACTO_CUADRO_MS:
+		_impacto_material.set_shader_parameter("invertido", true)
+
+
 func _process(_delta: float) -> void:
+	_revisar_impacto()
 	var fraccion: float = float(_salud.vida) / _salud.vida_max
 	var fuerza := 0.0
 	if fraccion < POCA_VIDA and not _desmayado:
@@ -91,7 +148,8 @@ func _process(_delta: float) -> void:
 func _cambio_vida() -> void:
 	var vida: int = _salud.vida
 	if vida < _vida_antes:
-		_flash.color.a = 0.45
+		# Menos fuerte que antes: si no, no se ve la sangre del golpe
+		_flash.color.a = 0.25
 		create_tween().tween_property(_flash, "color:a", 0.0, 0.35)
 	_vida_antes = vida
 	if vida <= 0 and not _desmayado:
