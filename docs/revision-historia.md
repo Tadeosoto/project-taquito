@@ -24,7 +24,7 @@ Nada de esto cambia el canon por sí solo. Cuando el equipo decida, se corrige e
 | 1.2 | Los zombis **beben, pero no les sirve**: nunca se llenan ni se curan | lore §6, §8, §9, §16, regla 16 |
 | 1.3 | **No hay final** (sandbox). La ciudad cambia por zona en el orden agua → enojo → verdad → GelA contesta | lore §17, reglas 18-19; spec (pregunta de los finales) |
 | 1.4 | La pista 5 es **la presa llena y el filtro**; el cobalto es la misión aparte de Elena | lore §17; misiones §4 |
-| 1.5 | El Nocturno es **contrabandista por necesidad**; su secreto: abre las carteras | lore §0, §14, §15; personajes §1 |
+| 1.5 | El Nocturno es **contrabandista por necesidad**; sin secreto fijo (lo pone el jugador) | lore §0, §14, §15; personajes §1 |
 | 1.5b | El pozo de doña Refugio **es real**; los Gotera quieren comprárselo | lore §16; personajes (Refugio, leyenda) |
 | 2.1 | La idea que controla la historia y su contraria | lore §18 |
 | 2.2 | El régimen **responde en escalones**, hasta contratarte | personajes §2 (Gela) |
@@ -115,7 +115,7 @@ El cobalto no tiene nada que ver con la presa, y el lore todavía tiene abierto 
 
 - §15: "No eres héroe ni tienes causa" (quitar "no eres contrabandista": sí lo eres, por necesidad, como dice §10).
 - §14: "Al zombi **casi nunca** te lo encarga nadie". La cacería es la excepción, y por eso paga más.
-- Secreto del Nocturno: el botín es suyo, así que el secreto tiene que ser otro. Por ejemplo: "**Abre las carteras**: sabe el nombre de cada uno que bajó, y no se lo dice a nadie". Eso conecta con §8 ("si la abres, sabes quién era") y con el peso moral.
+- Secreto del Nocturno: el botín es suyo, así que "se queda con lo que no le toca" no sirve. ✅ Decidido: **no tiene secreto fijo**; lo que calla lo pone el jugador.
 
 ---
 

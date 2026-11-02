@@ -36,7 +36,7 @@
 |---|---|
 | **Nombre** | Vela del tinaco |
 | **Quién la da** | La **cuadrilla** (Gabriel) o el barrio, por turnos |
-| **Dónde** | El **tinaco comunitario** de un parque o baldío (Parques de Santa Mugre, La Palmada o La Gotera) |
+| **Dónde** | El **tinaco comunitario** de un parque o baldío (Parques de Santa Mugre, La Palmada o Parques del Mosco) |
 | **Cuándo** | Noche completa, hasta el amanecer |
 | **Duración** | 8 minutos de juego (la noche entera) |
 | **Paga** | Pesos + un galón de agua + la **ficha** sellada + confianza del barrio |
@@ -46,7 +46,7 @@
 ### La noche, en tres oleadas
 
 1. **22:00 — la primera caminata.** Pocos zombis, lentos. Sirven de tutorial: aprende a pegar, a atrincherar y a tapar la tapa.
-2. **0:00 — la horda.** Llega el grupo grande. Hay que decidir: pelear, distraer con la **bocina** o soltar un **galón** para que se entretengan.
+2. **0:00 — la horda.** Llega el grupo grande. Hay que bajarlos antes de que lleguen al tinaco: la **bocina** y el **galón** sirven para juntarlos lejos y pegarles (o quemarlos) en bola.
 3. **3:00 — el último empujón.** Los más rápidos (corredores) y un hinchado. Si el jugador aguantó, el tinaco está a punto.
 4. **6:00 — el amanecer.** Los zombis se caen. El barrio abre la puerta y paga.
 
@@ -63,9 +63,9 @@
 - **Tablas y cinta** (barricadas y reparación).
 - **Machete** (arma inicial).
 - **Molotov** (para la horda).
-- **Bocina** (para distraer).
+- **Bocina** (los atrae a un punto lejos del tinaco para pelearlos juntos; luego explota, o no).
 - **Lámpara** (para ver y para que lo vean).
-- **Un galón de agua** (para beber o para soltar como distracción).
+- **Un galón de agua** (para beber, o de cebo: lo sueltas y se juntan a beberlo, y ahí les pegas).
 
 ### Por qué es el piloto
 
@@ -74,6 +74,59 @@
 - Es **corto**: 8 minutos.
 - Es **medible**: si el jugador se divierte y aguanta, el resto del juego se sostiene.
 - Es **barato**: no necesita mapa nuevo, solo el tinaco comunitario y el director de zombis.
+
+### La ficha completa
+
+💡 Diseño hecho con `/game-quest` (2026-11-02). Lo de arriba sigue siendo el piloto; esto le pone las herramientas, las consecuencias y lo que pasa si falla.
+
+**Gancho:** *"El tinaco es del barrio y esta noche no lo cuida nadie. Gabriel paga, la colonia pone el agua y tú pones el machete."*
+
+**Tipo:** repetible, de proteger. **El objetivo es uno: que ningún zombi llegue al tinaco, y eso se logra matándolos.** No tiene caminos alternativos y no le hacen falta: es el contrato que se repite cada noche, y la variedad sale de la zona, de los zombis y de cómo usa el jugador sus herramientas. Se puede tomar cada noche; cambian la zona, los zombis y el escalón del régimen.
+
+**Quién la da:** Gabriel "el Patrón" Hinojosa (la cuadrilla), en el mercado de Los Garrafones, o el barrio de la zona, con un vecino en la fila del agua. Se acepta de día, antes de las 19:00.
+
+**Dónde:** el tinaco comunitario de **Parques de Santa Mugre** (el del parque), **La Palmada** o **Parques del Mosco**. La zona decide cuántos zombis salen (`Zombis.maximo()` con el índice) y cuánto paga.
+
+```mermaid
+flowchart TD
+  A["De día: aceptar la vela y prepararse (tablas, cinta, molotov, bocina, galón)"] --> B["22:00 · Primera caminata: tapar la tapa, atrincherar"]
+  B --> C["0:00 · La horda: bajarlos antes de que lleguen al tinaco"]
+  C --> T["Herramientas: la bocina o el galón los juntan lejos; el molotov y el machete los bajan"]
+  T --> G["3:00 · El último empujón: corredores y un hinchado"]
+  G --> K{"6:00 · ¿Cómo quedó el tinaco?"}
+  K -->|Entero| L["Paga completa · confianza ↑ · la cura de la zona ↑"]
+  K -->|Roto| M["Mitad de paga · confianza ↓ · mañana la fila no tiene agua"]
+```
+
+**Objetivos:**
+
+1. **Prepararse de día** (obligatorio): comprar o fabricar tablas, cinta, molotov (botella + trapo + gasolina) y bocina; llevar un galón.
+2. **22:00, la primera caminata** (obligatorio): pocos flacos, lentos. Enseña a pegar, a atrincherar y a **cerrar la tapa** entre oleadas.
+3. **0:00, la horda** (obligatorio): el grupo grande. Hay que **bajarlos antes de que lleguen al tinaco**. Las herramientas ayudan a pelear:
+   - **La bocina** los atrae a todos a un punto lejos del tinaco; ahí se pelean juntos. Luego explota (o no).
+   - **El galón**, soltado de cebo, los junta a beber (beben y no se llenan, lore regla 16): un blanco quieto para el machete o el molotov.
+   - **El molotov** quema a los que están juntos; **las tablas** cierran el paso y los hacen llegar por donde los esperas.
+4. **3:00, el último empujón** (obligatorio): corredores y un hinchado. Si el jugador aguantó, el tinaco está a punto.
+5. **6:00, el amanecer**: se cobra según cómo quedó el tinaco.
+
+**Paga** (sin validar con el balance):
+
+- **Pesos:** 150 (Santa Mugre), 200 (La Palmada), 250 (Parques del Mosco); +25 % por cada escalón del régimen de la zona, porque hay más riesgo. Coincide con la tabla de contratos (150-250).
+- **Objetos:** 1 galón (35) y la **ficha sellada** de la cuadrilla.
+- **Confianza** de la zona: sube si el tinaco queda entero; baja si se rompe.
+
+**Qué cambia en el mundo** (lore §17, el estado del mundo):
+
+| Resultado | Cambia |
+|---|---|
+| Tinaco entero | Confianza ↑; **cura ↑** (el agua llega a las casas); al otro día la fila del tinaco tiene agua y chisme |
+| Tinaco roto | Confianza ↓; la fila está vacía; un bark: *"¿Y el que cuidaba?"* |
+
+**Requiere:** nada. Es el piloto y la primera que se aprende.
+
+**Si falla:** si el tinaco llega a 0, el agua se riega y se cobra la mitad. Si el jugador muere, pierde la paga y reaparece en el refugio (§1); el tinaco aguanta solo lo que le quede. Si abandona la vela, no cobra y la confianza baja.
+
+**Reusa:** `Zombis.gd` (oleadas y `maximo()`), `Refugio.gd` y `EntradaRefugio.gd` (barricadas y el tinaco con vida), `Ciclo.gd` (las horas). **Falta:** los tipos corredor e hinchado (hoy solo hay `zombie_gordo`), la bocina como objeto, la lámpara (sin modelo, `items.md` §8) y el estado del mundo (lore §21).
 
 > **Ojo:** el piloto es **una misión**, no la partida de 3 noches. La partida de 3 noches (`Partida.gd`) es un **modo reto** aparte, con su jefe (que era alguien: ver lore §8) y su tinaco del refugio. El piloto es la versión repetible y pública.
 
@@ -120,7 +173,7 @@ El jugador lleva agua filtrada del tinaco comunitario a un cliente. Los **zombis
 
 ### Recolección
 
-El jugador entra a una **bodega abandonada** (de día) o a una calle donde cayeron muertos (de noche) a juntar carteras, herramientas y credenciales. Las **camadas** duermen ahí: hay que entrar sin despertarlas.
+El jugador entra a una **bodega abandonada** (de día) o a una calle donde cayeron muertos (de noche) a juntar pesos, herramientas y lo que traían. Las **camadas** duermen ahí: hay que entrar sin despertarlas.
 
 ### Encargo
 
@@ -167,7 +220,7 @@ Son las de [La revelación](lore.md#17-la-revelación): opcionales, repartidas p
 | Misión | Pista | Quién | Qué se hace |
 |---|---|---|---|
 | **El agua sabe distinto** | 1 | Cualquiera | Beber y comparar; no hay misión, es una observación |
-| **Los zombis eran vecinos** | 2 | La maestra o la abuela | Reconocer una cara, una ropa, una credencial |
+| **Los zombis eran vecinos** | 2 | La maestra o la abuela | La lista de Marisol, lo que traen, los papeles raros |
 | **El G-7** | 3 | El científico desertor | Encontrarlo, escucharlo y sacar los manifiestos |
 | **El Decreto 47** | 4 | El empleado del palacio o Sofía | Conseguir el expediente y la hoja de conteo |
 | **La presa está llena** | 5 | El cura, don Nemesio o el Güero | Ver el expediente del acueducto (la presa está llena) y descubrir que el milagro es un filtro |
@@ -187,10 +240,11 @@ Misiones de apoyo, atadas a personajes:
 
 | ID | Misión | Da | Zona | Camino A | Camino B | Qué cambia | Paga | Requiere |
 |---|---|---|---|---|---|---|---|---|
+| P0 | La vela del tinaco (piloto, repetible) | Gabriel / el barrio | Santa Mugre, La Palmada o Parques del Mosco | Matar a los zombis antes de que lleguen al tinaco | — (repetible: un solo objetivo; la bocina y el galón son herramientas) | Confianza y cura de la zona | 150-250 + galón + ficha | — |
 | H1 | El agua sabe distinto | Nadie | Cualquiera | Beber de la llave y del garrafón y comparar | Preguntarle a la encargada de abarrotes | Nada: es la primera pista | — | — |
-| H2 | Los zombis eran vecinos | Marisol | La Florida Marchita | Comparar su lista con las **carteras** que juntaste | Encontrar a su sobrino amarrado: ayudarla a esconderlo o bajarlo | Confianza de la zona; Marisol te da la llave de la cisterna | Agua para la escuela (o nada, si lo bajas) | Haber juntado carteras (A) |
+| H2 | Los zombis eran vecinos | Marisol | La Florida Marchita | Comparar su lista con un **acta de ausencia** (del Güero o de un papel raro) | Encontrar a su sobrino amarrado: ayudarla a esconderlo o bajarlo | Confianza de la zona; Marisol te da la llave de la cisterna | Agua para la escuela (o nada, si lo bajas) | Un acta de ausencia (A) |
 | H3 | El G-7 | Dr. López | La Florida → El Mante Tieso | De noche, entrar a la planta con Martín (una cuota) y robar un manifiesto | De día, con la ruta de Armando, llevarle a López **muestras de agua** para que las pruebe | El manifiesto (documento); el escalón del Mante sube | 150 + la prueba del agua | — |
-| H4 | El Decreto 47 | El Güero o Sofía | Parques de Santa Mugre | Comprarle al Güero las copias y la **hoja de conteo** | Entrar al archivo del palacio de noche | La hoja de conteo (sus nombres son las carteras); Buenrostro empieza a buscar al Güero | Copias: 200 (A) | — |
+| H4 | El Decreto 47 | El Güero o Sofía | Parques de Santa Mugre | Comprarle al Güero las copias y la **hoja de conteo** | Entrar al archivo del palacio de noche | La hoja de conteo (sus nombres son los de la lista de Marisol); Buenrostro empieza a buscar al Güero | Copias: 200 (A) | — |
 | H5 | La presa está llena | El cura, don Nemesio o el Güero | La Gotera / Los Garrafones | Que Nemesio te enseñe la válvula (te cobra un favor) | Que Chuy te confiese el filtro (si la confianza es alta) | El jugador sabe; nada cambia hasta que actúe | — | — |
 | A1 | La capilla | Padre Chuy | Los Garrafones | Robar un filtro nuevo de una Puri-GelA | Comprárselo a los Gotera (y deberles) | La cura de Los Garrafones sube; el régimen contesta | Agua gratis con más cupo | — |
 | A2 | El cobalto | Elena | Parques del Mosco | Bajar al drenaje de día (las camadas duermen) | Cambiarle el expediente por botas y linterna | El expediente; se marcan los postes del 84 | — | Confianza con Elena |

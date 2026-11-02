@@ -272,7 +272,7 @@ Referencia del grupo: [reel de Instagram](https://www.instagram.com/reel/Dehepkq
 - **De día se esconden del sol** en bodegas abandonadas, drenajes y túneles. Ahí están las **camadas**: la mazmorra del juego.
 - **La puerta cerrada los detiene**: empujan, no abren. La barricada es del refugio, no de la casa.
 - **Uno de cada diez** infectados se muere y se levanta; los otros nueve son dóciles y viven normal.
-- **Al morir sueltan lo que traían.** Cada zombi tiene un **oficio** (obrero, taquero, repartidor, tiendero, albañil, chavo, botarga) y de ahí sale el botín: pesos (5-60), objetos útiles y a veces su **credencial de GelA** o el **recibo del agua**. El cuerpo se desvanece; el botín se queda.
+- **Al morir sueltan lo que traían.** Cada zombi tiene un **oficio** (obrero, taquero, repartidor, tiendero, albañil, chavo, botarga) y de ahí sale el botín: pesos (5-60), objetos útiles y, muy de vez en cuando, un **papel raro** con algo del lore. El cuerpo se desvanece; el botín se queda.
 - **El tinaco y las entradas no son objetivos** de los zombis normales: van por la gente y por el agua. El tinaco es objetivo de **la vela** (defensa) y del jefe de la partida de prueba.
 
 Cómo se hace normalmente (y cómo lo haríamos):

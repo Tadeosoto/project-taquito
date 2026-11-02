@@ -331,9 +331,11 @@ Son los que se murieron en la madrugada y se levantaron. Tienen **dos hambres**:
 
 ✅ **Cada zombi era alguien.** Antes de morirse tenía un oficio. El juego le asigna uno al aparecer, y de ahí sale lo que trae encima.
 
-**Lo que trae** (casi siempre): una cartera con pocos pesos, su **credencial de GelA**, el **recibo del agua** del mes, y a veces un celular viejo, unas llaves, una foto, un dulce, cigarros.
+**Lo que trae** (casi siempre): pocos pesos y lo de su oficio; a veces unas llaves, un dulce, cigarros.
 
-**Lo que suelta.** Al caer, el zombi se deshace (se desvanece en unos segundos; al amanecer ya no está) y en el suelo queda lo que traía. Se recoge como cualquier cosa: **el botín no es un premio, es la cartera de un vecino.**
+💡 **El papel raro.** Muy de vez en cuando (un drop raro) trae un **papel con algo del lore**: un recibo de Agua Cero, una hoja del manifiesto G-7, un acta de ausencia, un aviso de corte. Es el canal de "papeles" ([§1](#los-cuatro-canales)) que se encuentra peleando, sin tener que buscarlo.
+
+**Lo que suelta.** Al caer, el zombi se deshace (se desvanece en unos segundos; al amanecer ya no está) y en el suelo queda lo que traía. Se recoge como cualquier cosa: **el botín no es un premio, es lo que traía encima.**
 
 | Oficio en vida | Qué suelta |
 |---|---|
@@ -344,8 +346,6 @@ Son los que se murieron en la madrugada y se levantaron. Tienen **dos hambres**:
 | **Albañil** | Tablas, cinta, pesos |
 | **Chavo de la esquina** | Pesos (5-20), cigarros, una tacha |
 | **Botarga** | La botarga (raro), pesos |
-
-**La cartera cuenta la historia.** Trae nombre, dirección y a veces una foto. El juego no te obliga a mirarla: si la abres, sabes quién era. Si no, te quedas con los pesos y ya.
 
 **Por qué traen dinero.** Porque en este barrio todo se paga en efectivo y el zombi salió con lo del día: para el agua, para el pasaje, para la comida. Trae poco porque es pobre; lo que trae no te hace rico.
 
@@ -364,7 +364,7 @@ El barrio los clasifica por tamaño y maña:
 
 ### El jefe
 
-✅ **El jefe también era alguien.** El jefe de la partida de 3 noches (`Zombie.es_jefe`, `Partida.gd`) no es un monstruo de videojuego: es un **hinchado** que trae la credencial de alguien del reparto (un cargador del barrio, o **Beto** si murió). La pelea final es el [peso moral](#el-peso-moral), no un jefe de nivel.
+✅ **El jefe también era alguien.** El jefe de la partida de 3 noches (`Zombie.es_jefe`, `Partida.gd`) no es un monstruo de videojuego: es un **hinchado** más grande que los demás, y como todos, era alguien del barrio. No es un villano ni un jefe de nivel.
 
 ### Por qué "zombi" es una injusticia
 
@@ -376,9 +376,6 @@ El barrio los clasifica por tamaño y maña:
 
 Carne y agua. **Carne** porque son caníbales; **agua sin Serenol** porque el cuerpo se les va en buscarla. No buscan dinero, no buscan venganza: buscan lo que les quitaron.
 
-### El peso moral
-
-💡 **El juego puede hacerte reconocer a uno.** El que te vendió un taco de día puede ser el que te persigue de noche. El que te dio crédito, el que te prestó el garrafón. Si el jugador puede ponerle nombre y cara a un zombi, la pelea cambia: ya no es "matar al monstruo", es **pegarle a lo que quedó de tu vecino.**
 
 
 ## 9. El culto a la Virgen del Tinaco
@@ -660,7 +657,7 @@ La lista completa —con detalles, pagos y riesgo— está en [`docs/misiones.md
 |---|---|---|---|---|
 | **Vela** | La cuadrilla, el barrio | Cuidas el tinaco comunitario (o uno de una casa) hasta el amanecer | Pesos + agua | Los zombis vienen por el agua |
 | **Reparto clandestino** | La cuadrilla, un cliente | Llevas agua filtrada (ilegal) a un domicilio | Pesos | Los zombis y los blancos |
-| **Recolección** | La cuadrilla, un comprador | Juntas el loot de los muertos: carteras, herramientas, credenciales | Pesos | Más zombis, la bodega |
+| **Recolección** | La cuadrilla, un comprador | Juntas el loot de los muertos: pesos, herramientas, lo que traían | Pesos | Más zombis, la bodega |
 | **Encargo** | Una señora, el cura | Llevas algo (o a alguien) de un punto a otro | Pesos | La caminata |
 | **Cacería** | La colonia, la iglesia | Bajas al zombi que se comió a alguien | Pesos/objeto | Alto |
 
@@ -674,9 +671,9 @@ La lista completa —con detalles, pagos y riesgo— está en [`docs/misiones.md
 
 ### El botín
 
-✅ El zombi se deshace y deja lo que traía: la cartera con pocos pesos, la credencial, el recibo del agua y, a veces, una herramienta. La cartera cuenta la historia: tenía nombre, tenía casa, tenía agua. **No es un premio: es lo que quedó.**
+✅ El zombi se deshace y deja lo que traía: pocos pesos, lo de su oficio y, muy de vez en cuando, un papel. **No es un premio: es lo que quedó.**
 
-> **Al zombi casi nunca te lo encarga nadie: te lo encuentras.** (La cacería es la excepción, y por eso paga más.) Lo que traía es tuyo, y punto. El cuerpo se va solo y en el suelo queda su cartera. **No hay que limpiar nada: la ciudad ya se limpia sola.**
+> **Al zombi casi nunca te lo encarga nadie: te lo encuentras.** (La cacería es la excepción, y por eso paga más.) Lo que traía es tuyo, y punto. El cuerpo se va solo y en el suelo queda lo que traía. **No hay que limpiar nada: la ciudad ya se limpia sola.**
 
 ### El tianguis de la noche
 
@@ -750,10 +747,6 @@ Ojo: **no toda casa en obra negra es del lote del 84.** Hay paracaidistas y vend
 
 ✅ **Leyenda.** En una casa de La Palmada hay un tinaco que nunca se vacía, aunque la familia lo use todo el día. La gente dice que es un milagro; los vecinos, que la casa está colgada de la toma de los Gotera. **Ninguna de las dos:** es la casa de doña Refugio, y el tinaco se llena del **pozo de los abuelos**, agua viva de verdad. **Gancho:** el rumor lleva al pozo, y el pozo lo quieren todos: GelA, Chava y los Gotera.
 
-### El zombi que pide agua
-
-💡 **Leyenda.** Dicen que hay un zombi que no ataca: se acerca, extiende la mano y pide agua. Si le das, se va; si no, se queda mirándote hasta que amanece. Nadie sabe por qué, si el agua ya no les sirve, pero los que lo cuentan dicen que tiene cara de alguien que conocieron. **Gancho:** un encuentro que no se resuelve peleando, sino decidiendo si compartes.
-
 ---
 
 ## 17. La revelación
@@ -763,7 +756,7 @@ Ojo: **no toda casa en obra negra es del lote del 84.** Hay paracaidistas y vend
 | # | Pista | Dónde se encuentra | Cómo se encuentra |
 |---|---|---|---|
 | **1** | El agua sabe distinto por zona | Cualquier llave, cualquier tienda | Bebiendo, comparando, preguntando |
-| **2** | Los zombis eran tus vecinos | Cualquier zona tomada | Reconociendo una cara, una ropa, una credencial |
+| **2** | Los zombis eran tus vecinos | Cualquier zona tomada | Por lo que traen (el garrafón del cargador, el uniforme de la bodega), la lista de Marisol y los papeles raros |
 | **3** | El compuesto existe y se llama G-7 | La planta vieja, el Centro de Innovación | Manifiestos, el químico desertor (`models/personajes/cientifico`) |
 | **4** | La ley que criminaliza el agua es de GelA | El palacio, el archivo, un abogado | El Decreto 47, los papeles del registro |
 | **5** | La presa está llena y el milagro es un filtro | La Gotera, la capilla, el palacio | El expediente del acueducto, el cura, la válvula |
@@ -826,9 +819,9 @@ Ojo: **no toda casa en obra negra es del lote del 84.** Hay paracaidistas y vend
 - **La idea:** *La libertad vuelve cuando el agua se comparte, porque solo el que no depende puede enojarse.*
 - **La contraria** (la de GelA): *El orden gana porque la gente con sed prefiere agradecer que pelear.*
 
-La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y venderla?** La decisión ya está en el juego (el cura, el zombi que pide agua, el pozo de Chava, la llave); la frase solo la nombra. La contraria tiene que poder defenderse: Buenrostro la dice sin ser de caricatura (*"nadie se ha muerto de sed en esta ciudad desde el 29"*).
+La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y venderla?** La decisión ya está en el juego (el cura, el pozo de Chava, la llave); la frase solo la nombra. La contraria tiene que poder defenderse: Buenrostro la dice sin ser de caricatura (*"nadie se ha muerto de sed en esta ciudad desde el 29"*).
 
-💡 **Tres motivos.** **La cartera** (el botín → la lista de Marisol → la hoja de conteo: los mismos nombres), **el tinaco** (la Virgen → el comunitario → el refugio) y **la Gota** (el spot → la botarga → la botarga vacía de noche). Cada uno regresa en el final.
+💡 **Dos motivos.** **El tinaco** (la Virgen → el comunitario → el refugio) y **la Gota** (el spot → la botarga → la botarga vacía de noche). Cada uno regresa cuando la ciudad cambia.
 
 ### La nota de realidad
 
@@ -892,7 +885,7 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 12. **Nadie es puro.** El cura calla, el Nocturno se queda con el botín, la franquicia cobra, el vecino delata.
 13. **El deterioro es la pobreza.** Visual y químico: la misma causa.
 14. **El jugador no es especial.** No es inmune, no es el elegido: es el que reparte.
-15. **El zombi suelta lo que traía.** El cuerpo se va; la cartera se queda. No hay que limpiar nada.
+15. **El zombi suelta lo que traía.** El cuerpo se va; lo que traía se queda. No hay que limpiar nada.
 16. **El zombi bebe y no se cura.** Busca el agua limpia, la bebe y no le sirve: el cuerpo ya no la retiene.
 17. **Los Gotera nunca venden agua.** La toma está cerrada: es su seguro contra GelA, no su negocio.
 18. **La verdad sola no despierta a nadie.** Primero el agua, luego el enojo, luego la verdad.

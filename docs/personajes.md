@@ -74,7 +74,7 @@ Si no cumple ninguna: **habitante**. Y si solo llena la calle de lejos: **siluet
 | **Quién** | El jugador. Avatar silencioso, sin nombre fijo. |
 | **Oficio** | Cazarecompensas de la noche y contrabandista por necesidad: toma contratos que nadie quiere. |
 | **Quiere** | Vivir un día más sin volverse uno de los que salen de noche. |
-| **Esconde** | Que abre las carteras: sabe el nombre de cada uno que bajó, y no se lo dice a nadie. |
+| **Esconde** | Nada fijo: no tiene historia, así que lo que calla lo pone el jugador. |
 | **Precio** | Su lista de contratos, su machete, su lugar en la cuadrilla. |
 
 **Historia.** No hay una: cada jugador la pone. El mundo solo le da tres cosas: **una lista de contratos** (vela, recolección, reparto, cacería), **un lugar en la cuadrilla** (deudas, favores) y **un machete**. No es inmune, no es el elegido: es **el que sale cuando ya no anda nadie**, y eso también lo vuelve culpable.
@@ -669,23 +669,6 @@ No son parte del reparto principal: son rumores con cara que el jugador se puede
 
 **Rol.** Es el **recordatorio de que no todo lo que anda de noche es un zombi**. El barrio lo culpa de todo (el diablo, los zombis, un culto rival). Se puede platicar con él: es amable y está completamente ido.
 
-### El zombi que pide agua
-
-| | |
-|---|---|
-| **Zona** | Cualquiera, de noche |
-| **Horario** | Noche |
-| **Oficio** | Un zombi que no ataca |
-| **Te da** | Nada... si no le das agua |
-| **Quiere** | Agua |
-| **Teme** | Nada: ya está perdido |
-| **Secreto** | Tiene cara de alguien que conociste |
-| **Precio** | Un vaso de agua (y quedarte a ver qué pasa) |
-
-**Historia.** No es un personaje con nombre: es un **encuentro**. Un zombi que no ataca, que extiende la mano y pide agua. Si le das, se va. Si no, se queda mirándote hasta que amanece.
-
-**Rol.** Es el **dilema nocturno**: no se resuelve peleando, sino decidiendo si compartes. Es la prueba de que el agua calma (a veces).
-
 ### El tinaco que no se vacía
 
 No es una persona: es la casa de **doña Refugio**. La leyenda dice que el tinaco nunca se vacía; la verdad es el pozo de los abuelos, agua viva. El jugador lo puede descubrir siguiendo el rumor.
@@ -705,7 +688,7 @@ No es una persona: es la casa de **doña Refugio**. La leyenda dice que el tinac
 | Facciones | Villalobos, Nava, Sofía, López | **4** |
 | **Total** | | **30** |
 
-Más **2 leyendas** (el de las cruces, el zombi que pide agua), **10 vendedores** y **20-30 habitantes** a la vez.
+Más **1 leyenda** (el de las cruces), **10 vendedores** y **20-30 habitantes** a la vez.
 
 ### El presupuesto de texto
 
@@ -713,7 +696,7 @@ Más **2 leyendas** (el de las cruces, el zombi que pide agua), **10 vendedores*
 |---|---|---|---|
 | Voces | 30 | 10-25 | ~450 |
 | Vendedores | 10 | 4-6 | ~50 |
-| Leyendas | 2 | 10-15 | ~25 |
+| Leyendas | 1 | 10-15 | ~12 |
 | Barks (habitantes) | ~30 | 1-3 | ~90 |
 | **Total** | | | **~600 líneas** |
 

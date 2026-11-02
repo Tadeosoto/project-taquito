@@ -110,8 +110,8 @@
 
 | Objeto | Descripción | Efecto | Precio | Modelo |
 |---|---|---|---|---|
-| **Credencial de GelA** | Nombre, foto y puesto de un trabajador | Dice quién era el zombi; a veces abre una puerta de la empresa | — | ❌ (texto) |
-| **Recibo del agua** | Cuánto debía y cuánto pagó | Explica por qué tomaba de la llave | — | ❌ (texto) |
+| **Papel raro** | Un recibo de Agua Cero, una hoja del manifiesto, un acta de ausencia o un aviso de corte | Drop raro de los zombis: cuenta un pedazo del lore | — | ❌ (texto) |
+| **Credencial de GelA** | Nombre y puesto de un trabajador de la empresa | Abre una puerta de la empresa (no la sueltan los zombis) | — | ❌ (texto) |
 | **Llave de un coto** | — | Abre una zona cerrada del mapa | — | 🧱 `models/objetos/llave/` |
 
 ---
@@ -168,7 +168,7 @@
 - [ ] 💡 ¿Las armas grandes ocupan 2 lugares o todas ocupan 1?
 - [ ] 💡 ¿El agua se puede beber desde el inventario (gasta un galón) o solo con un comando aparte?
 - [ ] 💡 ¿La lámpara/celular gasta batería o es infinita?
-- [ ] 💡 ¿Los documentos (credencial, recibo) se pueden leer en el inventario o solo aparecen en un diálogo?
+- [ ] 💡 ¿Los documentos (el papel raro, la credencial) se pueden leer en el inventario o solo aparecen en un diálogo?
 - [ ] 💡 ¿El agua sucia se junta de los charcos o solo de la llave?
 - [ ] 💡 ¿La torta ahogada y el tejuino entran al catálogo o se quedan como sugerencia?
 - [ ] 💡 ¿Los precios de arriba se quedan o se rebalancean?
