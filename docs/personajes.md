@@ -16,7 +16,7 @@ Cada personaje lleva etiqueta, igual que en la spec:
 
 **La regla de todo personaje:** cada uno tiene **un querer, un secreto y un precio**.
 
-- **Quiere** algo (agua, dinero, que su hijo no se vuelva cholo, quedarse en el poder).
+- **Quiere** algo (agua, dinero, que su hijo no se muera y se levante, quedarse en el poder).
 - **Esconde** algo (el filtro, la firma, el miedo, el nombre del que lo compró).
 - **Cuesta** algo (si te ayuda, algo te cobra: dinero, agua, un favor, un silencio).
 
@@ -53,7 +53,7 @@ Si no cumple ninguna: **habitante**. Y si solo llena la calle de lejos: **siluet
 
 - [1. El protagonista](#1-el-protagonista)
 - [2. La casa Lazcano](#2-la-casa-lazcano)
-- [3. El gremio](#3-el-gremio)
+- [3. La cuadrilla](#3-la-cuadrilla)
 - [4. El culto](#4-el-culto)
 - [5. Las nueve zonas](#5-las-nueve-zonas)
 - [6. Las facciones](#6-las-facciones)
@@ -67,23 +67,22 @@ Si no cumple ninguna: **habitante**. Y si solo llena la calle de lejos: **siluet
 
 ## 1. El protagonista
 
-### El Garrafonero
+### El Nocturno
 
 | | |
 |---|---|
 | **Quién** | El jugador. Avatar silencioso, sin nombre fijo. |
-| **Oficio** | Reparte agua limpia de contrabando por el barrio. |
+| **Oficio** | Cazarecompensas de la noche y contrabandista por necesidad: toma contratos que nadie quiere. |
 | **Quiere** | Vivir un día más sin volverse uno de los que salen de noche. |
-| **Esconde** | Que se queda con un garrafón de cada tanda. |
-| **Precio** | Su ruta, su tinaco, su machete: todo lo que tiene. |
+| **Esconde** | Que abre las carteras: sabe el nombre de cada uno que bajó, y no se lo dice a nadie. |
+| **Precio** | Su lista de contratos, su machete, su lugar en la cuadrilla. |
 
-**Historia.** No hay una: cada jugador la pone. El mundo solo le da tres cosas: **una ruta** (clientes que le deben), **un tinaco** (medio vacío, con la tapa amarrada con alambre) y **una regla del gremio** (un garrafón de cada tanda es para la casa). No es inmune, no es el elegido: es **el que se queda con una parte de lo que reparte**, y eso también lo vuelve culpable.
+**Historia.** No hay una: cada jugador la pone. El mundo solo le da tres cosas: **una lista de contratos** (vela, recolección, reparto, cacería), **un lugar en la cuadrilla** (deudas, favores) y **un machete**. No es inmune, no es el elegido: es **el que sale cuando ya no anda nadie**, y eso también lo vuelve culpable.
 
-**Rol en el juego.** Es el cuerpo del jugador y el único que no habla. El mundo lo llama "el garrafonero"; los NPCs le hablan a él, no a un nombre. Su arco no es "salvar la ciudad": es **decidir qué hace con lo que sabe**, y si sigue repartiendo o se mete a cambiarlo.
+**Rol en el juego.** Es el cuerpo del jugador y el único que no habla. El barrio lo llama **"el Nocturno"**; los NPCs le hablan a él, no a un nombre. Su arco no es "salvar la ciudad": es **decidir qué hace con lo que sabe**, y si sigue tomando contratos o se mete a cambiarlo.
 
-**La tentación.** Puede tomar agua de la llave para ahorrar. Le sale gratis, le quita la sed del momento y le sube la "sed" de verdad: de día se vuelve más dócil (le fían, le creen, le bajan precios) y de noche pierde el control. Es la decisión central: **ahorrar agua o ahorrarse el monstruo**.
+**La tentación.** Puede tomar agua de la llave para ahorrar. Le sale gratis, le quita la sed del momento y le sube la "sed" de verdad: de día se vuelve más dócil (le fían, le creen, le bajan precios) y, si se llena, **se muere y se levanta**. Es la decisión central: **ahorrar agua o ahorrarte el monstruo**.
 
----
 
 ## 2. La casa Lazcano
 
@@ -116,14 +115,25 @@ La familia que tiene el agua y el gobierno. No son monstruos de caricatura: son 
 | **Te da** | Nada: te quita (el agua, el voto, la calle) |
 | **Quiere** | Quedarse. La Reforma Hídrica le permite reelegirse sin límite |
 | **Teme** | La capilla del tinaco: es lo único que le quita el agua a la gente sin cobrarle |
-| **Secreto** | Sabe que su agua vuelve violentos a los que no pagan, y lo usa como excusa |
+| **Secreto** | Sabe que su agua vuelve dóciles a los que no pagan y levanta a uno de cada diez; lo usa como excusa |
 | **Precio** | No hay precio: no se compra, se negocia con ella desde el poder |
 
 **Historia.** Cuarenta y pocos, traje claro, sonrisa de campaña, el pelo siempre perfecto. Es la hija de Germán y la cara de la empresa **y** la gobernadora. Su padre construyó el agua; ella construyó el estado que la protege. Ganó con el **voto de la llave**: el electorado infectado es agradecido y dócil, y al que no vota le falta el agua. No hace falta hacer trampa: la dependencia ya es la trampa.
 
 **Rol en el juego.** Es la **antagonista visible**: la que sale en la tele, la que firma el Decreto 47, la que manda a los blancos a cerrar la capilla. No la enfrentas con un machete: la enfrentas **desmontando su historia**, y eso se hace con papeles, testigos y agua. 💡 Cuando la ciudad se le pone difícil, **corta el agua a todos** y el gobierno federal queda como el malo; ella queda como la única que puede resolverlo.
 
-### Lázaro Lazcano
+✅ **Cómo responde al jugador** (con Buenrostro como su mano; ver [`docs/revision-historia.md`](revision-historia.md) §2.2). El régimen no persigue: **sube un escalón** cada vez que el jugador mueve agua limpia o verdad.
+
+| El jugador… | El régimen… |
+|---|---|
+| Reparte agua, ayuda a la capilla | Spots nuevos de la Gota; el noticiero habla de "agua contaminada del mercado negro" |
+| Hace que la capilla cure a más gente | Los blancos la clausuran una noche; Nava pide nombres |
+| Organiza la zona (Lalo, la marcha) | Corte de agua a la colonia entera; "fue una falla" |
+| Junta pruebas | **Buenrostro le ofrece un contrato**: el mejor pagado del juego, para "arreglar" justo lo que está destapando |
+
+Lo último es la mejor escena del antagonista: el régimen no te caza, **te contrata**.
+
+### Gerardo Lazcano
 
 | | |
 |---|---|
@@ -140,7 +150,7 @@ La familia que tiene el agua y el gobierno. No son monstruos de caricatura: son 
 
 **Rol en el juego.** Es la puerta al palacio y el espejo de la revelación: lo que le cuentas le cambia la cara. 💡 Puede volverse aliado (si le enseñas los papeles), víctima (si su madre lo descubre) o enemigo (si elige a la familia). No es un jefe: es una **decisión**.
 
-### Lic. Bernardo Cepeda
+### Lic. Saúl Buenrostro
 
 | | |
 |---|---|
@@ -153,51 +163,50 @@ La familia que tiene el agua y el gobierno. No son monstruos de caricatura: son 
 | **Secreto** | Firma las hojas de conteo: sabe cuántos salen y cuántos no vuelven |
 | **Precio** | Un trámite, un favor, una firma: todo se puede, nada es gratis |
 
-**Historia.** Abogado de la vieja escuela, el que le pone la letra fina a las decisiones de Gela. No es un villano de risa: es el que **hace que el sistema funcione**. Él redactó la Ley de Convivencia Nocturna, él firma las actas de ausencia, él sabe que el agua se llama "estabilizador organoléptico". Si la gobernadora es la cara, Cepeda es el **cerebro frío**.
+**Historia.** Abogado de la vieja escuela, el que le pone la letra fina a las decisiones de Gela. No es un villano de risa: es el que **hace que el sistema funcione**. Él redactó la Ley de Convivencia Nocturna, él firma las actas de ausencia, él sabe que el agua se llama "estabilizador organoléptico". Si la gobernadora es la cara, Buenrostro es el **cerebro frío**.
 
 **Rol en el juego.** Es el **antagonista de escritorio**: el que te da una misión para "arreglar" algo y en realidad te está usando. Es el mejor interlocutor para la revelación: si lo aprietas con papeles, suelta más de lo que quiere. 💡 Si cae él, cae la estructura; si cae Gela, la estructura sigue.
 
 ---
 
-## 3. El gremio
+## 3. La cuadrilla
 
-La **Hermandad del Garrafón** es el banco del barrio: no solo reparte agua, **certifica** cuál es limpia.
+La **cuadrilla** es la central de contratos del barrio: reparte los mandados de la noche, cobra su parte y decide quién entra. No es una pandilla: es una **agencia**.
 
-### Ramiro "el Chivo" Aceves
+### Gabriel "el Patrón" Hinojosa
 
 | | |
 |---|---|
-| **Zona** | Los Garrafones (el mercado), toda la ciudad (la ruta) |
+| **Zona** | Los Garrafones (el mercado), toda la ciudad |
 | **Horario** | Día y madrugada |
-| **Oficio** | Líder de la Hermandad del Garrafón |
-| **Te da** | Rutas, sello, agua al mayoreo, la misión del gremio |
-| **Quiere** | Que el gremio siga siendo el que decide qué agua es buena |
-| **Teme** | Que GelA lo compre (o lo mate) y que el sello deje de valer |
-| **Secreto** | Le debe agua (y favores) a los Gotera |
+| **Oficio** | Líder de la cuadrilla |
+| **Te da** | Contratos, pagos, contactos, la ficha |
+| **Quiere** | Que la cuadrilla siga siendo la que reparte el trabajo |
+| **Teme** | Que GelA lo compre (o lo mate) y que la cuadrilla se deshaga |
+| **Secreto** | Le debe favores a los Gotera |
 | **Precio** | Una cuota, un favor, un silencio |
 
-**Historia.** Empezó a repartir garrafones cuando GelA todavía no era GelA. Inventó el **sello**: un papelito con un número que se pega al garrafón y que dice "esta agua es buena". Sin sello, el agua no vale. Por eso el gremio no es una pandilla: es una **casa de moneda**. Ramiro es el que decide quién entra, quién sale y quién paga.
+**Historia.** Empezó repartiendo mandados cuando GelA todavía no era GelA. Inventó **la ficha**: un papelito con un número que dice quién pidió el trabajo, cuánto paga y qué se lleva. Sin ficha, el contrato no existe. Por eso la cuadrilla no es una pandilla: es una **agencia de trabajo**. Gabriel es el que decide quién entra, quién sale y quién cobra.
 
-**Rol en el juego.** Es el **jefe del jugador**: le da la ruta, el sello y las misiones de reparto. También es el que puede **quitarle el sello** (y con eso, el trabajo). 💡 Su debilidad es el pacto con los Gotera: si el jugador la descubre, puede usarla o chantajearlo.
+**Rol en el juego.** Es el **jefe del jugador**: le da los contratos y las fichas. También es el que puede **quitarle la ficha** (y con eso, el trabajo). 💡 Su debilidad es el pacto con los Gotera: si el jugador la descubre, puede usarla o chantajearlo.
 
 ### Beto Ríos
 
 | | |
 |---|---|
 | **Zona** | Los Garrafones / la colonia del jugador |
-| **Horario** | Día (reparte); noche (a veces sale) |
-| **Oficio** | Garrafonero novato, diecinueve años |
-| **Te da** | Su ayuda, su ruta, su entusiasmo |
-| **Quiere** | Ser como tú: tener ruta, tener tinaco, tener respeto |
-| **Teme** | Que lo agarren sin sello, que lo vean "cholo" |
+| **Horario** | Día (duerme); noche (sale a los contratos) |
+| **Oficio** | Novato de la cuadrilla, diecinueve años |
+| **Te da** | Su ayuda, su entusiasmo, su ruta |
+| **Quiere** | Ser como tú: tener contratos, tener respeto |
+| **Teme** | Que lo vean "pandillero", que lo agarre la caminata |
 | **Secreto** | A veces toma agua de la llave porque no le alcanza |
 | **Precio** | Nada: es el único que te da sin cobrar... hasta que no puede |
 
-**Historia.** Es el vecino que te ve pasar con el garrafón y te dice "enséñame". Tiene diecinueve, una mochila rota y una mamá que le dice que no salga de noche. Es el **espejo del jugador**: mismo oficio, menos suerte. Y es el que está en riesgo: si toma mucha agua de la llave, **se vuelve uno de los que salen de noche**.
+**Historia.** Es el vecino que te ve salir con el machete y te dice "enséñame". Tiene diecinueve, una mochila rota y una mamá que le dice que no salga de noche. Es el **espejo del jugador**: mismo oficio, menos suerte. Y es el que está en riesgo: si toma mucha agua de la llave, **se muere y se levanta**.
 
-**Rol en el juego.** Es el **tutorial humano**: te enseña la ruta, el sello y el precio. Y es la **consecuencia moral**: si lo descuidas, lo pierdes; si lo cuidas, te saca de un apuro. 💡 Puede volverse cholo, y el jugador puede encontrarlo de noche sin saber que es él.
+**Rol en el juego.** Es el **tutorial humano**: te enseña los contratos, la ficha y el precio. Y es la **consecuencia moral**: si lo descuidas, lo pierdes; si lo cuidas, te saca de un apuro. 💡 Puede morirse y levantarse, y el jugador puede encontrarlo de noche sin saber que es él.
 
----
 
 ## 4. El culto
 
@@ -216,11 +225,11 @@ La fe del barrio. No es una religión organizada: es un tinaco manchado, una se�
 | **Secreto** | Él filtra el agua: no hay milagro |
 | **Precio** | Que no le digas a nadie, y que le lleves tu agua sucia |
 
-**Historia.** Cincuenta y tantos, flaco, con una camisa que fue blanca. Vio a su gente enfermar (dormir mal, volverse violenta, morirse) y encontró la única forma que tenía de ayudar: un **filtro Puri-GelA robado** escondido debajo del altar. Cada madrugada pasa el agua que la gente deja y la devuelve limpia. Lleva tres años así. No dice que hace milagros: deja que la gente lo crea, porque la fe sostiene más que la verdad.
+**Historia.** Cincuenta y tantos, flaco, con una camisa que fue blanca. Vio a su gente apagarse (dormir mal, no quejarse de nada, morirse) y encontró la única forma que tenía de ayudar: un **filtro Puri-GelA robado** escondido debajo del altar. Cada madrugada pasa el agua que la gente deja y la devuelve limpia. Lleva dos años así. No dice que hace milagros: deja que la gente lo crea, porque la fe sostiene más que la verdad.
 
 **Rol en el juego.** Es la **fuente de agua gratis** (con cupo) y el **mejor punto de lore**: sabe del filtro, del delito y de la gente. 💡 No sabe que existe el Serenol: sabe que su agua "les cae mejor", y con eso le basta. Si GelA lo cierra, la ciudad pierde la única cura gratuita.
 
-### Doña Consuelo "la del tinaco"
+### Doña Rosa "la del tinaco"
 
 | | |
 |---|---|
@@ -237,7 +246,7 @@ La fe del barrio. No es una religión organizada: es un tinaco manchado, una se�
 
 **Rol en el juego.** Es la **voz del culto** y la que sostiene la capilla cuando el cura no está. 💡 Puede ser la que delata al cura sin querer (a la diócesis o a los blancos) si la presionan.
 
-### Chelo (Graciela) — la beata
+### Karla — la beata
 
 | | |
 |---|---|
@@ -247,12 +256,12 @@ La fe del barrio. No es una religión organizada: es un tinaco manchado, una se�
 | **Te da** | Información, veladoras benditas, la lista de los que ayudan |
 | **Quiere** | Que la capilla crezca y que GelA pague |
 | **Teme** | Que la fe se vuelva negocio... o que no |
-| **Secreto** | Le vende veladoras "benditas" a los blancos |
+| **Secreto** | Es los ojos del obispo: le pasa las cuentas de la capilla y la lista de los que ayudan |
 | **Precio** | Una limosna, una vela, un chisme |
 
 **Historia.** La que organiza la vigilia, la que consigue la cera, la que conoce a todos. Es devota de verdad, pero también es la que descubrió que la fe puede dar de comer. No es mala: es **lista**.
 
-**Rol en el juego.** Es la **administradora del culto**: te da la información de quién entra y quién sale. 💡 Su doble juego (vender veladoras a los blancos) es una pista de que la capilla está infiltrada.
+**Rol en el juego.** Es la **administradora del culto**: te da la información de quién entra y quién sale. ✅ Su doble juego con el obispo es la pista de que la diócesis quiere el filtro: por Karla, Marín sabe más de lo que debería.
 
 ### Obispo Marín
 
@@ -267,7 +276,7 @@ La fe del barrio. No es una religión organizada: es un tinaco manchado, una se�
 | **Secreto** | Quiere vender el filtro (o el "milagro") a GelA |
 | **Precio** | Un donativo, una firma, una foto |
 
-**Historia.** Llega en camioneta buena, bendice, sonríe y pide cuentas. No cree en el milagro, pero cree en el negocio. Es el puente entre la fe del barrio y el poder de la gobernadora.
+**Historia.** Llega en camioneta buena, bendice, sonríe y pide cuentas, que ya le pasó Karla. No cree en el milagro, pero cree en el negocio. Es el puente entre la fe del barrio y el poder de la gobernadora.
 
 **Rol en el juego.** Es el **antagonista de la capilla**: si el jugador no lo frena, la diócesis se queda con el filtro y la cura se vuelve negocio.
 
@@ -275,11 +284,11 @@ La fe del barrio. No es una religión organizada: es un tinaco manchado, una se�
 
 ## 5. Las nueve zonas
 
-Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los suyos en [El culto](#4-el-culto): el padre Chuy y doña Consuelo.
+Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los suyos en [El culto](#4-el-culto): el padre Chuy y doña Rosa.
 
 ### El Mante Tieso
 
-#### Genaro — el obrero del turno
+#### Armando — el obrero del turno
 
 | | |
 |---|---|
@@ -294,7 +303,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 
 **Rol.** Es la **primera pista** de que el agua se "arregla" en la planta. Te da el mapa y la misión de entrar de noche a ver los tanques.
 
-#### Eufemio — el velador
+#### Martín — el velador
 
 | | |
 |---|---|
@@ -302,12 +311,12 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Te da** | Acceso a la planta de noche, planos, silencio |
 | **Quiere** | Compañía y una radio que sirva |
 | **Teme** | La noche: dice que "los que salen" lo conocen |
-| **Secreto** | Deja entrar a garrafoneros por una cuota |
+| **Secreto** | Deja pasar a los de la cuadrilla por una cuota |
 | **Precio** | Una cerveza, un cigarro, una plática |
 
 **Historia.** Sesenta y tantos, solo, con una silla de plástico y un radio que solo da estática. Ve las camionetas de GelA salir al amanecer y nunca pregunta. Sabe más de lo que dice, pero no quiere saber.
 
-**Rol.** Es la **puerta de la planta** y el que te enseña la frase del régimen: *"no los matamos: los dejamos salir"*. Si lo cuidas, te abre la bodega; si lo asustas, te cierra la ciudad.
+**Rol.** Es la **puerta de la planta** y el que te enseña la frase del régimen: *"no los matamos: los dejamos salir"* (la oficial es "los guardamos"; la suya es la de verdad, ver lore §5). Si lo cuidas, te abre la bodega; si lo asustas, te cierra la ciudad.
 
 ### La Florida Marchita
 
@@ -318,13 +327,13 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Horario** | Día (escuela) |
 | **Te da** | La lista de los que "no despertaron", la llave de la cisterna |
 | **Quiere** | Que la escuela tenga agua y que los niños no se pierdan |
-| **Teme** | Que uno de sus alumnos se vuelva cholo |
+| **Teme** | Que uno de sus alumnos se muera y se levante |
 | **Secreto** | Tiene a un sobrino amarrado en su casa |
 | **Precio** | Libros, agua, una mano con los papás |
 
 **Historia.** Treinta y tantos, la maestra de la primaria con la cisterna vacía. Se acuerda del nombre de cada niño que dejó de venir. Lleva una lista en el cajón: los que se "pusieron raros", los que ya no juegan, los que no duermen.
 
-**Rol.** Es la **conciencia de la zona**: te enseña que los cholos son los niños. Su lista es una pista de la revelación (los nombres coinciden con los de la hoja de conteo).
+**Rol.** Es la **conciencia de la zona**: te enseña que los zombis son los niños. Su lista es una pista de la revelación (los nombres coinciden con los de la hoja de conteo).
 
 #### Lalo — el papá del comité
 
@@ -351,12 +360,12 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Te da** | Agua del pozo, la historia de "cuando el agua sabía a agua" |
 | **Quiere** | Que el pozo quede para el barrio |
 | **Teme** | Que GelA lo compre o que su nieto lo venda |
-| **Secreto** | El pozo está conectado a una toma de los Gotera |
+| **Secreto** | Los Gotera le ofrecieron comprarle el pozo (o "protegérselo") y no les ha contestado |
 | **Precio** | Un mandado, un favor, una visita |
 
 **Historia.** Setenta y tantos, el pelo blanco, las manos de cavar. Su abuelo cavó el pozo antes de que existiera GelA. Ella lo cuidó toda la vida y ahora su nieto quiere venderlo. Es la **memoria viva** de la ciudad: la única que se acuerda de que el agua del grifo sabía a agua.
 
-**Rol.** Es la **fuente de agua buena** de la zona y la que cuenta el pasado. Su secreto (la toma de los Gotera) explica la leyenda del tinaco que no se vacía.
+**Rol.** Es la **fuente de agua buena** de la zona y la que cuenta el pasado. Su pozo es la verdad detrás de la leyenda del tinaco que no se vacía: no hay toma, hay agua viva. Y por eso lo quieren GelA, su nieto y los Gotera.
 
 #### Chava — el nieto
 
@@ -397,22 +406,22 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Horario** | Día (oficina) |
 | **Te da** | Copias del Decreto 47, actas, nombres |
 | **Quiere** | Un ascenso o que no lo descubran |
-| **Teme** | A Cepeda |
+| **Teme** | A Buenrostro |
 | **Secreto** | Vende copias de los expedientes |
 | **Precio** | Dinero, agua, una firma |
 
-**Historia.** Treinta y tantos, camisa de manga larga, sello de goma. Es el que tramita las "actas de ausencia nocturna" de las familias. Sabe exactamente cuántos desaparecen y no quiere saber más.
+**Historia.** Treinta y tantos, piel muy oscura, camisa de manga larga, sello de goma. Le dicen **el Güero** precisamente por eso: en el barrio los apodos van al revés, y en la oficina es el más moreno de todos. Es el que tramita las "actas de ausencia nocturna" de las familias. Sabe exactamente cuántos desaparecen y no quiere saber más.
 
-**Rol.** Es la **fuente de los papeles**: por él se consigue el Decreto 47, la hoja de conteo y las firmas. Es el eslabón débil de la estructura de Cepeda.
+**Rol.** Es la **fuente de los papeles**: por él se consigue el Decreto 47, la hoja de conteo y las firmas. Es el eslabón débil de la estructura de Buenrostro.
 
 ### Parques del Mosco
 
-#### Nena — la drenajera
+#### Elena — la drenajera
 
 | | |
 |---|---|
 | **Horario** | Día (cuadrillas) |
-| **Te da** | Acceso al drenaje, lo que encuentra, la ruta de los cholos |
+| **Te da** | Acceso al drenaje, lo que encuentra, la ruta de los zombis |
 | **Quiere** | Que el drenaje no se desborde |
 | **Teme** | Lo que sale del drenaje |
 | **Secreto** | Encontró el expediente del cobalto (y un cuerpo con etiqueta G-7) |
@@ -439,7 +448,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 
 ### Haciendas de San Jodido
 
-#### Eusebio — el jardinero
+#### Arturo — el jardinero
 
 | | |
 |---|---|
@@ -450,9 +459,9 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Secreto** | Tiene la llave del sótano |
 | **Precio** | Agua para su familia |
 
-**Historia.** Cincuenta y tantos, poda, riega, barre. Riega el pasto del coto con agua que en el barrio no alcanza ni para tomar. Sabe lo que hay en el sótano de la casa grande y no lo dice.
+**Historia.** Cincuenta y tantos, poda, riega, barre. Riega el pasto del coto con agua que en el barrio no alcanza ni para tomar. Trabaja en la casa del **Arq. Villalobos**. Sabe lo que hay en su sótano y no lo dice.
 
-**Rol.** Es la **entrada al coto**: te abre el jardín y te deja ver cómo se vive del otro lado. 💡 Su sótano puede esconder al "cholo del coto": el hijo de algún vecino que nadie saca a la calle.
+**Rol.** Es la **entrada al coto**: te abre el jardín y te deja ver cómo se vive del otro lado. 💡 Su sótano puede esconder al "zombi del coto": el hijo de algún vecino que nadie saca a la calle.
 
 #### Sergio — el guardia del coto
 
@@ -462,7 +471,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Te da** | Acceso, avisos, silencio |
 | **Quiere** | Su quincena |
 | **Teme** | Que lo maten por un sueldo |
-| **Secreto** | Deja entrar a garrafoneros por una cuota |
+| **Secreto** | Deja pasar a los de la cuadrilla por una cuota |
 | **Precio** | Dinero |
 
 **Historia.** Treinta y tantos, uniforme negro, radio. Es el que pregunta *"¿y usted qué hace aquí? ¿es de la empresa?"*. No es malo: es el que abre la pluma por doscientos pesos.
@@ -471,7 +480,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 
 ### El Último Trago
 
-#### Don Servando — el cantinero
+#### Don Silverio — el cantinero
 
 | | |
 |---|---|
@@ -493,7 +502,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Horario** | Noche (turno de 8 a 2) |
 | **Te da** | Avisos, nombres, agua para el camino |
 | **Quiere** | Salir de la noche |
-| **Teme** | Volverse chola: a veces no duerme |
+| **Teme** | Amanecer mansa: a veces ya no duerme |
 | **Secreto** | Toma de la llave cuando no le alcanza |
 | **Precio** | Una propina, un favor, una salida |
 
@@ -503,7 +512,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 
 ### La Gotera
 
-#### Don Ismael "el Gotera"
+#### Don Nemesio
 
 | | |
 |---|---|
@@ -514,7 +523,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Secreto** | Tiene un hermano en el gobierno (o un hijo en el coto) |
 | **Precio** | Un favor, un silencio, una vida |
 
-**Historia.** Sesenta y tantos, camioneta buena, playera limpia, tenis blancos. Controla la toma clandestina del acueducto y el negocio de drogas y armas. **No está infectado**: compra agua embotellada, por caja. Sabe lo que le pasa a los que toman de la llave y por eso no la toca. Su frase: *"¿Nosotros? Nosotros vendemos cosas. El agua se la chuparon otros."*
+**Historia.** Sesenta y tantos, camioneta buena, playera limpia, tenis blancos. Controla la toma clandestina del acueducto (cerrada: es su seguro contra GelA, ver lore §11) y el negocio de drogas y armas. **No está infectado**: compra agua embotellada, por caja. Sabe lo que le pasa a los que toman de la llave y por eso no la toca. Su frase: *"¿Nosotros? Nosotros vendemos cosas. El agua se la chuparon otros."*
 
 **Rol.** Es el **poder paralelo**: te da las misiones peligrosas, las armas y la información que GelA esconde. No es aliado ni enemigo: es una **transacción**. Si lo traicionas, no sales de La Gotera.
 
@@ -529,13 +538,28 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Secreto** | Le tiene miedo a la capilla (dice que "la Virgen lo mira") |
 | **Precio** | Dinero, cerveza, una paliza que no le des |
 
-**Historia.** Treinta y tantos, cadena de oro, pistola al cinto. Es el que va a cobrar la cuota quincenal a la capilla. Se cree importante y no lo es; el Gotera lo manda a los encargos sucios.
+**Historia.** Treinta y tantos, cadena de oro, pistola al cinto. Es el que va a cobrar la cuota quincenal a la capilla. Se cree importante y no lo es; don Nemesio lo manda a los encargos sucios.
 
 **Rol.** Es el **cobrador**: el que conecta la capilla con el crimen y el que se puede sobornar, engañar o usar para llegar al Gotera.
 
 ---
 
 ## 6. Las facciones
+
+### Quién está con quién
+
+💡 Las relaciones entre bandos, en un solo lugar. Cada cruce es algo que el jugador puede **usar**: un favor que cobrar, un secreto que vender o un pleito que aprovechar.
+
+| | **Régimen** (Gela, Buenrostro, blancos) | **Cuadrilla** (Gabriel, Beto) | **Culto** (Chuy, Rosa) | **Diócesis** (Marín, Karla) | **Gotera** (Nemesio, el Primo) | **Coto** (Villalobos) |
+|---|---|---|---|---|---|---|
+| **Cuadrilla** | La tolera mientras no estorbe; Gabriel teme que lo compren | | Aliados: la cuadrilla llena en la capilla | — | Gabriel les debe favores | Villalobos es cliente |
+| **Culto** | Enemigos: la capilla es la cura gratis | Aliados | | Tensos: el obispo quiere el filtro y Karla lo espía | Les cobran cuota (el Primo) | — |
+| **Diócesis** | Socios: Marín quiere venderle el filtro a GelA | — | Tensos | | — | Donativos |
+| **Gotera** | **El pacto**: la válvula cerrada es su rehén | Acreedores | Cobran cuota; el Primo le teme a la Virgen | — | | Nemesio tiene un hijo en el coto (o un hermano en el gobierno) |
+| **Coto** | Clientes de GelA Total | Le compran agua al Nocturno | — | Dan donativos | Vecinos incómodos | |
+| **Radio y ciencia** (Sofía, López) | Enemigos: los buscan | — | — | — | — | — |
+
+**Las palancas del jugador:** la deuda de Gabriel con los Gotera, el espionaje de Karla, el pacto de la válvula, el hijo de Nemesio en el coto y el sótano de Villalobos. Cada uno es un secreto que se puede cobrar, vender o callar.
 
 ### Arq. Villalobos — el del coto
 
@@ -546,12 +570,12 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Te da** | Dinero, contactos, un cliente |
 | **Quiere** | Que no le falte el agua para la casa y el pasto |
 | **Teme** | Que la ciudad se le meta |
-| **Secreto** | Su esposa es del barrio; su hijo es amigo de Lázaro |
+| **Secreto** | Su esposa es del barrio; su hijo es amigo de Gerardo; lo que guarda en el sótano |
 | **Precio** | Dinero |
 
 **Historia.** Cincuenta y tantos, arquitecto, casa blanca, alberca. Compra agua para la alberca sin culpa: para él, el agua es un servicio, no un derecho. No es malo: es **cómodo**, que en esta ciudad es peor.
 
-**Rol.** Es el **cliente rico**: te compra agua, te paga bien y te enseña el otro lado. 💡 Puede ser el puente con Lázaro, o el que te venda a los blancos.
+**Rol.** Es el **cliente rico**: te compra agua, te paga bien y te enseña el otro lado. Arturo es su jardinero: por él se entra a la casa y al sótano. 💡 Puede ser el puente con Gerardo, o el que te venda a los blancos.
 
 ### Inspector Nava — el blanco
 
@@ -561,7 +585,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Horario** | Día (y noche en operativos) |
 | **Te da** | Avisos, multas, una tregua |
 | **Quiere** | No ser el malo |
-| **Teme** | Que Cepeda lo use y lo tire |
+| **Teme** | Que Buenrostro lo use y lo tire |
 | **Secreto** | Tiene una hija que toma de la llave |
 | **Precio** | Una prueba, un favor, un nombre |
 
@@ -569,7 +593,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 
 **Rol.** Es el **policía del agua**: el que te persigue y el que puede ayudarte. Si le muestras lo de su hija (o la hoja de conteo), cambia de bando.
 
-### Rocío — la radio pirata
+### Sofía — la radio pirata
 
 | | |
 |---|---|
@@ -585,7 +609,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 
 **Rol.** Es el **canal de la verdad**: si le llevas las pruebas, la revelación se vuelve pública. Sin ella, la verdad se queda en un cajón.
 
-### Dr. Anaya — el químico desertor
+### Dr. López — el químico desertor
 
 | | |
 |---|---|
@@ -643,28 +667,28 @@ No son parte del reparto principal: son rumores con cara que el jugador se puede
 
 **Historia.** Un señor que sale de noche con su bote y su brocha a pintar cruces hechas con popó en las paredes. Está seguro de que así protege a la colonia. No le hace daño a nadie; solo apesta.
 
-**Rol.** Es el **recordatorio de que no todo lo que anda de noche es un cholo**. El barrio lo culpa de todo (el diablo, los cholos, un culto rival). Se puede platicar con él: es amable y está completamente ido.
+**Rol.** Es el **recordatorio de que no todo lo que anda de noche es un zombi**. El barrio lo culpa de todo (el diablo, los zombis, un culto rival). Se puede platicar con él: es amable y está completamente ido.
 
-### El cholo que pide agua
+### El zombi que pide agua
 
 | | |
 |---|---|
 | **Zona** | Cualquiera, de noche |
 | **Horario** | Noche |
-| **Oficio** | Un cholo que no ataca |
+| **Oficio** | Un zombi que no ataca |
 | **Te da** | Nada... si no le das agua |
 | **Quiere** | Agua |
 | **Teme** | Nada: ya está perdido |
 | **Secreto** | Tiene cara de alguien que conociste |
 | **Precio** | Un vaso de agua (y quedarte a ver qué pasa) |
 
-**Historia.** No es un personaje con nombre: es un **encuentro**. Un cholo que no ataca, que extiende la mano y pide agua. Si le das, se va. Si no, se queda mirándote hasta que amanece.
+**Historia.** No es un personaje con nombre: es un **encuentro**. Un zombi que no ataca, que extiende la mano y pide agua. Si le das, se va. Si no, se queda mirándote hasta que amanece.
 
 **Rol.** Es el **dilema nocturno**: no se resuelve peleando, sino decidiendo si compartes. Es la prueba de que el agua calma (a veces).
 
 ### El tinaco que no se vacía
 
-No es una persona: es la casa de **doña Refugio**. La leyenda dice que el tinaco nunca se vacía; la verdad es que el pozo está conectado a una toma de los Gotera. El jugador lo puede descubrir siguiendo el rumor.
+No es una persona: es la casa de **doña Refugio**. La leyenda dice que el tinaco nunca se vacía; la verdad es el pozo de los abuelos, agua viva. El jugador lo puede descubrir siguiendo el rumor.
 
 ---
 
@@ -674,14 +698,14 @@ No es una persona: es la casa de **doña Refugio**. La leyenda dice que el tinac
 
 | Grupo | Personajes | Total |
 |---|---|---|
-| Zonas | Genaro, Eufemio, Chuy, Consuelo, Marisol, Lalo, Refugio, Chava, Toño, Güero, Nena, Tito, Eusebio, Sergio, Servando, Yolanda, Ismael, Primo | **18** |
-| La casa Lazcano | Germán, Georgina, Lázaro, Cepeda | **4** |
-| El gremio | Ramiro, Beto | **2** |
-| El culto | Chelo, obispo Marín | **2** |
-| Facciones | Villalobos, Nava, Rocío, Anaya | **4** |
+| Zonas | Armando, Martín, Chuy, Rosa, Marisol, Lalo, Refugio, Chava, Toño, Güero, Elena, Tito, Arturo, Sergio, Silverio, Yolanda, Nemesio, Primo | **18** |
+| La casa Lazcano | Germán, Georgina, Gerardo, Buenrostro | **4** |
+| La cuadrilla | Gabriel, Beto | **2** |
+| El culto | Karla, obispo Marín | **2** |
+| Facciones | Villalobos, Nava, Sofía, López | **4** |
 | **Total** | | **30** |
 
-Más **2 leyendas** (el de las cruces, el cholo que pide agua), **10 vendedores** y **20-30 habitantes** a la vez.
+Más **2 leyendas** (el de las cruces, el zombi que pide agua), **10 vendedores** y **20-30 habitantes** a la vez.
 
 ### El presupuesto de texto
 
@@ -718,7 +742,7 @@ Un `.tres` por personaje, como los `InventoryItemData`:
 Persona (Resource)
   nombre: String
   oficio: String
-  bando: String            # gremio, culto, gotera, coto, gela, gobierno, prensa, ciencia
+  bando: String            # cuadrilla, culto, gotera, coto, gela, gobierno, prensa, ciencia
   modelo: PackedScene      # de models/personajes/ o el ninja provisional
   tinte: Color             # variación de ropa/piel
   horario: int             # 0 día, 1 noche, 2 ambos
@@ -738,7 +762,7 @@ Persona (Resource)
 | **Habitante** | `scripts/map/Gente.gd` (de `alan-testing`) | Camina, se va, vuelve; bark al pasar; sin conversación |
 | **Silueta** | `MultiMeshInstance3D` | Relleno de multitud lejos; sin lógica, sin diálogo |
 
-**La decisión es el dato:** si `dialogo` es `null`, es habitante. Si no, es voz. **El mismo modelo** puede ser las dos cosas: un `cholo` puede ser el taquero (voz) o un caminante (habitante). La diferencia está en el `.tres`, no en la escena.
+**La decisión es el dato:** si `dialogo` es `null`, es habitante. Si no, es voz. **El mismo modelo** puede ser las dos cosas: el mismo modelo puede ser el taquero (voz) o un caminante (habitante). La diferencia está en el `.tres`, no en la escena.
 
 ### Los barks
 
@@ -747,7 +771,7 @@ Una lista de frases por contexto, que se elige al pasar cerca:
 - **Día**: *"¿Ya viste el precio del agua?"*, *"No salgas, mijo."*, *"¿Traes garrafón?"*
 - **Noche**: *"Vámonos antes de que oscurezca."*, *"Yo no abro."*
 - **Zona tomada**: *"Aquí ya no."*
-- **Evento**: si hay un cholo muerto cerca, si llueve, si es la hora del cierre.
+- **Evento**: si hay un zombi muerto cerca, si llueve, si es la hora del cierre.
 
 ### El spawn y el rendimiento
 
@@ -768,16 +792,16 @@ Una lista de frases por contexto, que se elige al pasar cerca:
 
 ## 11. Preguntas abiertas
 
-- [ ] 💡 ¿Lázaro es hijo de Georgina (veintidós) o hermano menor de ella? Hoy está escrito como hijo; confirma.
-- [ ] 💡 ¿El sótano de la casa del coto esconde a un "cholo del coto"? Sería un giro fuerte: el rico también tiene su monstruo.
-- [ ] 💡 ¿Yolanda se vuelve chola si el jugador no la ayuda, o se salva siempre?
+- [ ] 💡 ¿Gerardo es hijo de Georgina (veintidós) o hermano menor de ella? Hoy está escrito como hijo; confirma.
+- [ ] 💡 ¿El sótano de la casa del coto esconde a un "zombi del coto"? Sería un giro fuerte: el rico también tiene su monstruo.
+- [ ] 💡 ¿Yolanda amanece mansa si el jugador no la ayuda, o se salva siempre?
 - [ ] 💡 ¿Beto se puede salvar del todo o es una tragedia anunciada?
 - [ ] 💡 ¿El obispo Marín se queda con el filtro en algún final, o siempre pierde?
-- [ ] 💡 ¿Rocío alcanza a transmitir la verdad o la callan antes?
-- [ ] 💡 ¿El Gotera es aliado, cliente o solo una transacción?
+- [ ] 💡 ¿Sofía alcanza a transmitir la verdad o la callan antes?
+- [ ] 💡 ¿Don Nemesio es aliado, cliente o solo una transacción?
 - [ ] 💡 ¿Dos voces por zona alcanzan, o las zonas grandes (Parques de Santa Mugre, La Gotera) piden tres?
-- [ ] 💡 ¿Los vendedores tienen nombre propio (doña Nena, el Güero) o se quedan como arquetipos?
-- [ ] 💡 ¿El protagonista tiene nombre en el guardado/HUD, o siempre es "el garrafonero"?
+- [ ] 💡 ¿Los vendedores tienen nombre propio (doña Chayo, don Beto) o se quedan como arquetipos?
+- [ ] 💡 ¿El protagonista tiene nombre en el guardado/HUD, o siempre es "el Nocturno"?
 
 ---
 

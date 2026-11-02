@@ -23,9 +23,9 @@ Para votar, pon tus iniciales junto a la opción, por ejemplo `Votos: JJ, TS`. C
 
 ## 0. La idea en un párrafo
 
-Survival-shooter en tercera persona con look de PS1, en un pedazo **real** de Zapopan. Es un **mundo normal** —la ciudad trabaja, compra, come tacos y ve la novela— con **dos cosas raras**: **de noche** salen grupos violentos que se comportan como zombis (el shooter) y **el agua limpia es escasa** y se comercia como dinero (la economía). Las dos las une **GelA**, el monopolio del agua y de sus productos: su agua es la que vuelve violentos a los grupos. **De día** haces misiones/encargos para la gente del barrio y te pagan con objetos, pesos o agua limpia. **De noche** sobrevives con lo que juntaste. Tono: humor tapatío y absurdo (botarga del Simi, Takis, palomas) sobre un problema real (el agua).
+Survival-shooter en tercera persona con look de PS1, en un pedazo **real** de Zapopan. Es un **mundo normal** —la ciudad trabaja, compra, come tacos y ve la novela— con **dos cosas raras**: **de noche** salen **zombis** (caníbales, con sed de agua limpia) y **el agua limpia es cara y escasa**. Las dos las une **GelA**, el monopolio: su agua vuelve dóciles a nueve de cada diez y zombis a uno de cada diez. **De día** tomas contratos y te preparas; **de noche** sales a cumplirlos (vela, recolección, reparto, cacería) y sobrevives. Tono: humor tapatío y absurdo (botarga del Simi, Takis, palomas) sobre un problema real (el agua).
 
-> La historia completa, la ciudad, la gente y las subhistorias están en **[`docs/lore.md`](lore.md)**. Ahí se explica por qué el agua es moneda, por qué hay "cholos" y por qué el gobierno es de la misma familia dueña de la empresa. En el código los cholos siguen llamándose `Zombie` (`scripts/map/Zombie.gd`, `Zombis.gd`): es solo el nombre interno.
+> La historia completa, la ciudad, la gente y las subhistorias están en **[`docs/lore.md`](lore.md)**. Ahí se explica por qué el agua es cara, por qué hay zombis y por qué el gobierno es de la misma familia dueña de la empresa. En el código los zombis siguen llamándose `Zombie` (`scripts/map/Zombie.gd`, `Zombis.gd`): es solo el nombre interno.
 
 **Juegos de referencia** (de aquí copiamos sin pena):
 
@@ -55,7 +55,7 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 | **A. Navegador + multijugador** (propuesta) | Se comparte con un link; jugar con amigos es lo más divertido. | Lo más difícil (ver [sección 11](#11-multijugador-en-navegador-implicaciones-técnicas)): necesita servidor, el render cambia a *Compatibility* y hay que diseñar todo "en red" desde el inicio. | JJ |
 | B. Navegador, un jugador | Se comparte con un link, sin servidor. | Solo. Igual hay que pasar a *Compatibility*. | |
 | C. PC (Steam), un jugador | Lo que ya tenemos; mejor rendimiento. | Hay que descargar el juego. | |
-| D. C primero, A después | Avanzamos rápido en mecánicas. | **Meter multijugador después cuesta reescribir casi todo** (quién controla a los cholos, inventario, misiones). Si vamos a A, mejor saberlo desde ahora. | AG |
+| D. C primero, A después | Avanzamos rápido en mecánicas. | **Meter multijugador después cuesta reescribir casi todo** (quién controla a los zombis, inventario, misiones). Si vamos a A, mejor saberlo desde ahora. | AG |
 
 ### 1.2 🗳️ Estructura / meta del juego
 
@@ -68,7 +68,7 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 
 > 💡 A y D se pueden mezclar: sandbox sin fin + misiones principales opcionales que cuentan la historia.
 >
-> 💡 **Propuesta de trabajo de AG (2026-10-31), falta que el equipo la confirme**: B, con 3 noches y un garrafonero cholo de jefe. Se pierde si tumban el tinaco del refugio; se gana matando al jefe. Es distinto de lo que se votó arriba.
+> 💡 **Propuesta de trabajo de AG (2026-10-31), falta que el equipo la confirme**: B, con 3 noches y un zombi jefe. Se pierde si tumban el tinaco del refugio; se gana matando al jefe. Es distinto de lo que se votó arriba.
 >
 > 💡 **Preferencia de JJ (2026-11-02)**: **A, sandbox**, para que el juego se pueda jugar sin depender del lore. La partida de 3 noches se queda como **modo reto**, no como la estructura. Falta que el equipo lo confirme (ver `docs/lore.md` §1).
 >
@@ -78,7 +78,7 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 
 | Opción | Referencia | Votos |
 |---|---|---|
-| **A. Libre por todo el mapa** (propuesta): los cholos aparecen alrededor de cada jugador, donde esté. | Dying Light, DayZ | JJ |
+| **A. Libre por todo el mapa** (propuesta): los zombis aparecen alrededor de cada jugador, donde esté. | Dying Light, DayZ | JJ |
 | B. Refugio que se refuerza (barricadas) + salir a misiones nocturnas que pagan más. | 7 Days to Die, Dying Light | |
 | C. Defender un punto fijo por oleadas. | CoD Zombies | |
 
@@ -94,7 +94,7 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 | **B. Lock-on automático**: se fija al enemigo más cercano y cambias de objetivo con un botón. Muy PS1 y fácil con control. | RE clásico, Syphon Filter, Zelda OoT | JJ |
 | C. Disparo libre sin mira hacia donde mira el personaje. | Twin-stick, GTA 1/2 | |
 
-> En multijugador por navegador, B es también lo más simple de sincronizar (se manda "disparé al cholo #123", no un rayo).
+> En multijugador por navegador, B es también lo más simple de sincronizar (se manda "disparé al zombi #123", no un rayo).
 
 ### 1.5 🗳️ Qué pasa al morir
 
@@ -105,7 +105,7 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 | C. Te vuelves zombie y otro jugador te puede "curar" con agua limpia. | Original, divertido en multijugador | |
 | D. Vuelves a nacer pero ahora en el imss | | |
 
-> ⚠️ **C queda incompatible con el canon** (`docs/lore.md` §6 y §20): no hay contagio ni transformación por mordida; la "cura" es beber agua limpia y tomarse su tiempo. Se deja anotado para no programarlo.
+> ✅ **C ahora sí es canon**: el Serenol mata a uno de cada diez y lo levanta; si se te llena la sed, **te mueres y te levantas**. La "cura" del agua limpia sirve para el dócil, no para el zombi. Se puede programar como muerte especial.
 
 > 💡 **Propuesta de trabajo de AG (2026-10-31), falta que el equipo la confirme**: A. Tus objetos se quedan en una bolsa donde caíste (si vuelves a caer antes de recogerla, la anterior se pierde); el dinero y la mochila puesta se quedan contigo. Reapareces en el refugio con 50 de vida. Morir no termina la partida.
 
@@ -115,8 +115,8 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 
 | Opción | Qué incluye | Votos |
 |---|---|---|
-| A. Mínimo (pocas semanas) | 1 ciclo día/noche, 2 misiones, 1 tipo de cholo, 3 armas. | |
-| B. Demo (1-2 meses, 2-4 personas) | 1 colonia, 3 noches, 5-6 misiones, 3 cholos, inventario y tiendas. |AG|
+| A. Mínimo (pocas semanas) | 1 ciclo día/noche, 2 misiones, 1 tipo de zombi, 3 armas. | |
+| B. Demo (1-2 meses, 2-4 personas) | 1 colonia, 3 noches, 5-6 misiones, 3 zombis, inventario y tiendas. |AG|
 | C. Juego corto (3-6 meses) | Todo el mapa, ~15 misiones, todos los objetos de esta lista. | |
 
 Preguntas para fijarlo: ¿cuántos somos?, ¿cuántas horas a la semana cada quien?, ¿hay fecha límite (entrega de clase, concurso, festival)?
@@ -125,22 +125,21 @@ Somos 4, lo que se pueda cuando se pueda.
 
 ## 2. Historia y mundo
 
-✅ **Premisa (revisada 2026-11-02).** La empresa **GelA**, de la familia Lazcano, se quedó con el agua de Guadalajara. El agua limpia es un privilegio de suscripción; la de la llave lleva **Serenol**, un aditivo que vuelve a la gente dócil y agradecida de día y violenta de noche. **No hay contagio ni zombies**: los violentos son los vecinos que no duermen, y la ciudad les dice **cholos**.
+✅ **Premisa (revisada 2026-11-02).** La empresa **GelA**, de la familia Lazcano, se quedó con el agua de Guadalajara. El agua de la llave lleva **Serenol**: nueve de cada diez quedan **dóciles** (gente normal que quiere a la empresa y no lo sabe) y uno de cada diez se muere y se levanta como **zombi**. Los zombis son **caníbales** y tienen **sed de agua sin Serenol**. **No hay contagio por mordida.**
 
 ✅ **La historia completa está en [`docs/lore.md`](lore.md).** Este resumen es solo para no perder el hilo al leer las mecánicas.
 
 Lo que hay que saber:
 
-- **El agua es el centro de todo.** Es moneda (pesos y agua), es medicina (la cura de la "sed" es agua limpia) y es poder (quien la controla controla el voto).
+- **El agua es el centro de todo.** Es cara, es medicina (la cura de la "sed" es agua limpia) y es poder (quien la controla controla el voto).
 - **La familia Lazcano tiene dos tronos**: **Germán** es dueño de GelA; su hija **Georgina "Gela"** es la gobernadora. Los dóciles votan por ella: es el **voto de la llave**.
-- **El crimen organizado real no está infectado** (los Gotera: drogas y armas). La ciudad le echa la culpa a los cholos y a las pandillas, que es justo lo que el régimen necesita.
+- **El crimen organizado real no toma de la llave** (los Gotera: drogas y armas; compran agua embotellada). La ciudad le echa la culpa a "las pandillas", que es justo lo que el régimen necesita.
 - **El culto de la Virgen del Tinaco**: un tinaco manchado con la Virgen; la gente cree que limpia el agua y en realidad la limpia el **padre Chuy** con un filtro robado. El milagro sí cura (es agua limpia), y por eso GelA lo quiere cerrar.
 - **Subhistorias**: el **cobalto** de la varilla del 84 (las casas en obra negra y unas lámparas que bajan vida) y las **cruces de caca** de un vecino loco. Se cuentan hablando con la gente, no en cinemáticas.
 - **El lore no bloquea nada**: el sandbox se juega sin saberlo (ver `docs/lore.md` §1).
-- **Facciones** (para misiones): el gremio de garrafoneros, el culto del tinaco, los cotos de San Jodido, los Gotera, los blancos de GelA y la propia gobernadora.
+- **Facciones** (para misiones): la **cuadrilla** de contratos, el culto del tinaco, los cotos de San Jodido, los Gotera, los blancos de GelA y la propia gobernadora.
 - **El mapa** 🧱: ~1.7 × 1.7 km reales de Zapopan, con nueve zonas de nombre parodia (El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera). Ver `docs/mapa/README.md` y `docs/lore.md` §13.
 
----
 
 ## 3. Ciclo principal (core loop)
 
@@ -148,7 +147,7 @@ Lo que hay que saber:
 DÍA ──► aceptar misiones ──► juntar objetos / dinero / agua ──► comprar en tiendas
  ▲                                                                    │
  │                                                                    ▼
-AMANECER ◄── sobrevivir ◄── usar armas/consumibles ◄── NOCHE: hordas de cholos
+AMANECER ◄── sobrevivir ◄── usar armas/consumibles ◄── NOCHE: hordas de zombis
 ```
 
 ### 3.1 Ciclo día/noche ✅ (detalles 💡)
@@ -157,9 +156,9 @@ AMANECER ◄── sobrevivir ◄── usar armas/consumibles ◄── NOCHE: 
 - **Shader de día/noche** 🧱 (en `map_test.tscn`): el global shader uniform `noche` (0 = día, 1 = noche) que leen las lámparas. Se cambia con `Alumbrado.configurar_noche(valor)` (`scripts/map/Alumbrado.gd`). De noche hay luz de luna azulada que deja ver el juego sin alumbrado, y el alumbrado público se nota: las lámparas se prenden escalonadas y hay luces reales cerca del jugador (ver `docs/mapa/README.md`). Lo mueve el reloj; la tecla **N** salta al siguiente atardecer o amanecer para probar.
 - 🧱 El **reloj** ya existe (`scripts/map/Ciclo.gd`): avanza la hora y mueve `noche`, el sol, el ambiente y la niebla, con día de 12 min, noche de 8 y aviso 1 min antes de oscurecer. Falta que en multijugador lo lleve el servidor.
 - 💡 Duración: **día 12 min + noche 8 min** (20 min reales por día de juego). En multijugador el reloj es el mismo para todos (lo lleva el servidor).
-- 💡 Atardecer con aviso (campana de iglesia, sirena, el radio) 1 min antes de que salgan los cholos, como en *7 Days to Die*.
-- 💡 De día no hay cholos: están en sus casas o en sus trabajos, dóciles. De noche salen los que no duermen.
-- 💡 Cada noche es un poco más difícil (más cholos, cholos especiales), estilo *7 Days to Die*. En sandbox sin fin se puede reiniciar la dificultad cada N noches o depender de cuántos jugadores hay.
+- 💡 Atardecer con aviso (campana de iglesia, sirena, el radio) 1 min antes de que salgan los zombis, como en *7 Days to Die*.
+- 💡 De día los zombis se esconden del sol en bodegas y drenajes; de noche salen a caminar.
+- 💡 Cada noche es un poco más difícil (más zombis, zombis especiales), estilo *7 Days to Die*. En sandbox sin fin se puede reiniciar la dificultad cada N noches o depender de cuántos jugadores hay.
 
 ---
 
@@ -170,20 +169,20 @@ AMANECER ◄── sobrevivir ◄── usar armas/consumibles ◄── NOCHE: 
 Tercera persona, cámara relativa, correr con Shift, saltar. Ya existe en `scripts/player.gd`. Falta:
 
 - 💡 Estamina para correr (barra que se vacía), estilo *Dying Light*.
-- 💡 Esquivar / empujón (empujar a un cholo para quitártelo de encima, como *Left 4 Dead*). Muy útil y fácil: una animación + impulso.
+- 💡 Esquivar / empujón (empujar a un zombi para quitártelo de encima, como *Left 4 Dead*). Muy útil y fácil: una animación + impulso.
 
 ### 4.2 Combate
 
 - **Cuerpo a cuerpo**: machete, bate, chancla… Una animación de golpe + área de daño delante del jugador. Lo más fácil de hacer primero. 🧱 Ya se pelea con clic izquierdo o F: pega con la mejor arma que traigas (machete 12, reforzado 18) o a puño (5), sin equiparla. Por ahora solo con el machete. Daños y vida 💡 para discutir.
 - **Armas de fuego**: pistola, cuerno de chivo, ballesta. Tipo de apuntado 🗳️ (ver 1.4). Munición escasa, recarga.
-- **Arrojables**: molotov (fuego en área), paloma (aturde), bocina (atrae cholos, ver objetos). Se lanzan en arco con previsualización de trayectoria (*GTA*, *Fortnite*).
-- 💡 **Ruido**: disparar hace ruido y atrae cholos; machete es silencioso. Da sentido a elegir arma (*DayZ*, *The Last of Us*).
+- **Arrojables**: molotov (fuego en área), paloma (aturde), bocina (atrae zombis, ver objetos). Se lanzan en arco con previsualización de trayectoria (*GTA*, *Fortnite*).
+- 💡 **Ruido**: disparar hace ruido y atrae zombis; machete es silencioso. Da sentido a elegir arma (*DayZ*, *The Last of Us*).
 
 ### 4.3 Salud y estados 💡
 
 - **Vida** (se cura con comida/medicina). 🧱 Ya existe lo mínimo (`scripts/Salud.gd`, autoload `Salud`, empieza en 60 de 100 de prueba): se cura desde el inventario y ahí se ve el estado (Bien / Herido / Grave). Todavía nada hace daño.
 - **Estamina** (correr, golpear).
-- 💡 **La sed** (lo que antes se llamaba "infección"): se llena **tomando agua de la llave**, no por una mordida (en el lore no hay contagio). El agua limpia la baja; la capilla del tinaco es la única que es gratis (con cupo). Si se llena, de noche te vuelves uno de los cholos. Une la mecánica con el tema del agua. Ver `docs/lore.md` §6 y §9. (El **1 de cada 4** es la estadística de la ciudad; si tú te llenas, es seguro.)
+- 💡 **La sed** (lo que antes se llamaba "infección"): se llena **tomando agua de la llave**, no por una mordida. El agua limpia la baja; la capilla del tinaco es la única que es gratis (con cupo). Si se llena, **te mueres y te levantas como zombi**: es la única muerte que no se deshace. Une la mecánica con el tema del agua. Ver `docs/lore.md` §6 y §9. (El **1 de cada 10** es la estadística de la ciudad; si tú te llenas, es seguro.)
 - 💡 **La tentación**: poder tomar agua de la llave para ahorrar, a cambio de subir la sed y perder el control de noche. Es la decisión central del juego; falta balancearla (ver `docs/lore.md` §15).
 - 💡 Nada de hambre/sed obligatoria al principio: complica mucho y aburre. Los consumibles dan *buffs* temporales en vez de "no morirte de hambre".
 
@@ -191,7 +190,7 @@ Tercera persona, cámara relativa, correr con Shift, saltar. Ya existe en `scrip
 
 Ya existe un inventario circular con inspección 3D de objetos (`scripts/Inventory.gd`, `scenes/InventoryUI.tscn`), en `map_test.tscn`: Tab lo abre y pausa el juego, y tiene los comandos Examinar, Utilizar (cura) y Combinar (recetas). Los objetos del mapa se recogen con Espacio. El menú está **inspirado en Silent Hill 2**, sin copiarlo (hilera de objetos que se pierde en lo oscuro, solo los comandos que aplican, y en Estado el juego pausado para ver dónde estás y cómo andas de vida), no en Resident Evil como decía el registro de decisiones: hay que confirmarlo con el equipo.
 
-🧱 **Mochilas**: sin mochila caben 6 objetos, cada objeto ocupa 1 lugar (o sea, la opción A de abajo sin armas de 2) y lo que no cabe se queda tirado. Recoger una mochila más grande la equipa para siempre, no ocupa lugar y se ve en Equipo; una más chica se queda tirada. Por ahora: mochila escolar (8), del Partido Verde (10) y mochilón del garrafonero (14), las tres con el mismo modelo en distinto color. Números 💡 para discutir. Falta decidir:
+🧱 **Mochilas**: sin mochila caben 6 objetos, cada objeto ocupa 1 lugar (o sea, la opción A de abajo sin armas de 2) y lo que no cabe se queda tirado. Recoger una mochila más grande la equipa para siempre, no ocupa lugar y se ve en Equipo; una más chica se queda tirada. Por ahora: mochila escolar (8), del Partido Verde (10) y mochilón del Nocturno (14), las tres con el mismo modelo en distinto color. Números 💡 para discutir. Falta decidir:
 
 | Opción | Referencia | Votos |
 |---|---|---|
@@ -204,18 +203,18 @@ Ya existe un inventario circular con inspección 3D de objetos (`scripts/Invento
 
 ### 4.5 Economía ✅
 
-Dos monedas:
+**Una moneda: pesos.** El agua limpia no es dinero: es un **recurso caro**.
 
-| Moneda | Cómo se consigue | Para qué |
+| Qué | Cómo se consigue | Para qué |
 |---|---|---|
-| **Pesos** (moneda de peso) | Misiones, máquinas de las tiendas, cholos. | Comprar en tiendas normales. |
-| **Agua limpia** | Misiones difíciles y nocturnas, el gremio, la capilla (con cupo). | Moneda "fuerte": armas buenas, curar la sed, trueque con NPCs. |
+| **Pesos** | Contratos nocturnos, botín de zombis, máquinas de las tiendas. | Comprar en tiendas normales, pagar el agua. |
+| **Agua limpia** | La capilla (con cupo), el tinaco comunitario, las purificadoras (caras). | Beber, curar la sed, truequear con 2-3 NPCs. |
 
-> 🧱 **Por qué el agua es mejor moneda que el peso** (`docs/lore.md` §10): el **peso lo imprime el régimen** para pagar la concesión y las campañas, así que se devalúa; el **agua limpia no se puede imprimir**. Además se **guarda** (el tinaco es la cuenta de ahorro; el garrafón, el billete; el vaso, el cambio), se **verifica** (el sello de la Hermandad del Garrafón; sin sello es agua revendida) y **todos la necesitan a diario**. Por eso, en la economía informal del barrio, la gente ahorra en agua y no en billetes: **el peso sirve para lo cotidiano, el agua para lo que importa**. Las **purificadoras** del mapa son franquicias Puri-GelA y la única agua legal: cobran **caro en pesos**. La **clandestina** (pozo, lluvia, capilla, toma) es más barata y se consigue en **misiones**; por eso el jugador es criminal por necesidad. Purificar con cloralex es delito (Decreto 47).
+- 🧱 La cartera ya existe (`scripts/Cartera.gd`, autoload `Cartera`: pesos y agua, empieza con 120 y 3 de prueba). **Pendiente de código: quitar `agua` de la cartera y de los productos** (`moneda` en `resources/productos/*.tres`); todo se paga en pesos.
+- 🧱 **Por qué el agua es cara** (`docs/lore.md` §10): el monopolio prohíbe filtrar (Decreto 47), las purificadoras son franquicias y los zombis atacan el agua clandestina. La escasez es contable: hay agua, falta el permiso y el precio.
+- 💡 **Purificar agua** (agua sucia + Cloralex = agua limpia): una receta de *crafteo* sencilla que conecta con el tema (y es delito).
+- 💡 Crafteo mínimo (como *Dead Rising* / *The Last of Us*): molotov = botella + trapo + **gasolina** (de la gasolinera) o **alcohol** (tequila/caguama vacía, más flojo); machete mejorado = machete + cinta. 🧱 El sistema ya existe (`scripts/RecetaData.gd`, `resources/recetas/`, comando Combinar del inventario) con la receta del machete.
 
-- 🧱 La cartera ya existe (`scripts/Cartera.gd`, autoload `Cartera`: pesos y agua, empieza con 120 y 3 de prueba) y se ve dentro de las tiendas; la llenan los cholos y las maquinitas, y la gastan las maquinitas y las compras.
-- 💡 **Purificar agua** (agua sucia + Cloralex = agua limpia): una receta de *crafteo* sencilla que conecta con el tema.
-- 💡 Crafteo mínimo (como *Dead Rising* / *The Last of Us*), solo unas cuantas recetas: molotov = botella + trapo + **gasolina** (de la gasolinera) o **alcohol** (tequila/caguama vacía, más flojo); machete mejorado = machete + cinta. 🧱 El sistema ya existe (`scripts/RecetaData.gd`, `resources/recetas/`, comando Combinar del inventario) con la receta del machete; el machete reforzado todavía no hace nada distinto porque no hay combate.
 
 ### 4.6 Tiendas e interiores 💡
 
@@ -241,10 +240,10 @@ Dos monedas:
 
 - **Marcas**: los nombres ya son parodia (OXO, Dr Simio, Guadalaraja, Perez); los modelos todavía traen la marca real pintada.
 - Dentro: mostrador con NPC que vende (menú de compra), y las **máquinas** (de dinero/premios) para la misión de sacar dinero.
-- 🧱 **Interiores armados** (`scenes/interiores/`): no son cuartos que se caminan sino una **escena fija en primera persona**: ves al que te atiende detrás del mostrador y atrás los estantes o refrigeradores con lo que se vende. Estás **adentro** del local en los abarrotes, la farmacia, la ferretería y la tiendita (OXO y gasolinera, con letrero rojo y anaqueles); solo la **purificadora** te atiende desde la banqueta por su ventana, con el nombre pintado arriba. En la **taquería** es al revés: estás sentado en una mesa roja de fierro (marca de refresco inventada, servilletero, salero y salsas roja y verde; sillas plegables rojas) en un local blanco y rojo con refrigeradores rojos, y ves por la cortina abierta el puesto de tacos en la banqueta con su trompo, al taquero de espaldas, la calle y las casas de enfrente. Atrás del vendedor, copiando fotos de referencia (`scripts/interiores/Estante.gd`): en los abarrotes repisas de abarrotes y botanas, un anaquel rojo de papitas de lado y tiras de papitas colgando; en la farmacia anaqueles azules con filo amarillo llenos de cajitas y letreros "NUEVOS PRODUCTOS" / "¡CUÍDATE!"; en la ferretería panel ranurado con herramientas y blisters colgados y un anaquel metálico. La mercancía lleva etiquetas dibujadas (marcas inventadas: papitas, frijoles, paracetamol, pinzas…; `tools/make_empaques.py` → `textures/interiores/empaques.png`). Los mostradores copian fotos de referencia (`scripts/interiores/Mostrador.gd`): vitrina refrigerada blanca con filos azules en los abarrotes, mostrador blanco sobre anaqueles negros con filo rojo llenos de dulces en el OXO, frente azul con calcomanías de oferta en la farmacia, vitrina con cajitas de tornillos en la ferretería y, en la purificadora, la misma fachada que en el mapa (muro blanco con franjas azules, puerta de barrotes, despachador automático, ventanal de aluminio abierto y el anuncio sobre postes) con una repisa blanca en la ventanilla. Adentro la cámara está cerrada sobre el mostrador para que los estantes llenen la pantalla (no se ven muros vacíos), con el vendedor un poco a la derecha. Con el mouse volteas un poco. **Todos llevan mostrador y vendedor**; el vendedor por ahora es el NPC ninja con un diálogo corto, falta su personaje (encargada, taquero, garrafonero…). Se ven solos con `godot --path . scenes/interiores/<giro>.tscn`. En el editor se acomodan moviendo los nodos `Mueble` (dices cuánto mide y el modelo se escala solo) y `Refrigerador` (refrigeradores de puerta de vidrio armados con cajas, `scripts/interiores/Refrigerador.gd`).
+- 🧱 **Interiores armados** (`scenes/interiores/`): no son cuartos que se caminan sino una **escena fija en primera persona**: ves al que te atiende detrás del mostrador y atrás los estantes o refrigeradores con lo que se vende. Estás **adentro** del local en los abarrotes, la farmacia, la ferretería y la tiendita (OXO y gasolinera, con letrero rojo y anaqueles); solo la **purificadora** te atiende desde la banqueta por su ventana, con el nombre pintado arriba. En la **taquería** es al revés: estás sentado en una mesa roja de fierro (marca de refresco inventada, servilletero, salero y salsas roja y verde; sillas plegables rojas) en un local blanco y rojo con refrigeradores rojos, y ves por la cortina abierta el puesto de tacos en la banqueta con su trompo, al taquero de espaldas, la calle y las casas de enfrente. Atrás del vendedor, copiando fotos de referencia (`scripts/interiores/Estante.gd`): en los abarrotes repisas de abarrotes y botanas, un anaquel rojo de papitas de lado y tiras de papitas colgando; en la farmacia anaqueles azules con filo amarillo llenos de cajitas y letreros "NUEVOS PRODUCTOS" / "¡CUÍDATE!"; en la ferretería panel ranurado con herramientas y blisters colgados y un anaquel metálico. La mercancía lleva etiquetas dibujadas (marcas inventadas: papitas, frijoles, paracetamol, pinzas…; `tools/make_empaques.py` → `textures/interiores/empaques.png`). Los mostradores copian fotos de referencia (`scripts/interiores/Mostrador.gd`): vitrina refrigerada blanca con filos azules en los abarrotes, mostrador blanco sobre anaqueles negros con filo rojo llenos de dulces en el OXO, frente azul con calcomanías de oferta en la farmacia, vitrina con cajitas de tornillos en la ferretería y, en la purificadora, la misma fachada que en el mapa (muro blanco con franjas azules, puerta de barrotes, despachador automático, ventanal de aluminio abierto y el anuncio sobre postes) con una repisa blanca en la ventanilla. Adentro la cámara está cerrada sobre el mostrador para que los estantes llenen la pantalla (no se ven muros vacíos), con el vendedor un poco a la derecha. Con el mouse volteas un poco. **Todos llevan mostrador y vendedor**; el vendedor por ahora es el NPC ninja con un diálogo corto, falta su personaje (encargada, taquero, velador…). Se ven solos con `godot --path . scenes/interiores/<giro>.tscn`. En el editor se acomodan moviendo los nodos `Mueble` (dices cuánto mide y el modelo se escala solo) y `Refrigerador` (refrigeradores de puerta de vidrio armados con cajas, `scripts/interiores/Refrigerador.gd`).
 - 🧱 **Lo que venden**: al entrar, lo que vende ese giro flota dando vueltas frente al mostrador, solo el que estás viendo (al cambiar se va de lado y entra el siguiente); abajo una franja con su **nombre, efecto, descripción y precio** (en pesos, o en AGUA en azul) y arriba a la derecha tu dinero. Q/E (o A/D) cambia de producto; Espacio compra: cobra y lo agrega al inventario (si no te alcanza o no te cabe, te lo dice). Cada producto es un `.tres` en `resources/productos/` (nombre, descripción, efecto, precio, moneda y su modelo) y cada interior dice cuáles vende (`productos`) y si es más caro (`precio_factor`: la tiendita del OXO y la gasolinera ×1.15). Por ahora: tiendita = gansito, takis, jarritos, cigarros, mazapán, caguama; abarrotes = lo mismo sin cigarros + cloralex y galón; farmacia = botiquín, vaporub (2 de agua), galón; taquería = tacos, jarritos, caguama; ferretería = tablas, cinta, bate, machete (2 de agua); purificadora = galón, cloralex; el punto = tachas, cigarros, caguama. Precios y efectos 💡 para discutir.
 - 🧱 **Maquinitas de frutas** ("Cóctel de Frutas", como las de afuera de las tienditas): salen junto a la puerta de cerca de la mitad de los abarrotes y licorerías. Te acercas, Espacio, y le apuestas pesos de tu cartera a 8 frutas ($1 por moneda, hasta 9 por fruta); el foco da vueltas por los 24 cuadros y paga según la fruta (manzana x3 ... BAR x35). Cada máquina tiene su caja de monedas y su dificultad (la placa con DIP switches, `scripts/tragamonedas.gd`), así que unas pagan mejor que otras y ninguna paga más de lo que trae. Si ganas dinero salen cohetes en el cielo. Se juega en la máquina misma: los botones se prenden y se hunden, y los contadores de PREMIOS, CRÉDITOS y de cada fruta se prenden. **Se le nota cómo anda sin que nadie te lo diga**: con monedas en la charola está normal; charola vacía, luces tenues y panel apagado = casi no tiene caja y no te va a pagar (lo que le apuestes la va llenando); una veladora prendida con su estampita encima = rara (5 %), el siguiente tiro gana seguro. Números 💡 para discutir. **En coop** 💡: todavía no hay red, pero los focos se ven en el mueble y los cohetes en el cielo, y están separados de la lógica para que el servidor decida y los demás jugadores lo vean. Falta: NPCs que juegan y que el tendero cambie la dificultad por día (`docs/tragamonedas_notas.md`), y la misión de sacar dinero (6.1).
-- 🗳️ ¿Las tiendas cierran de noche? ¿Son refugio seguro? ¿Los cholos pueden entrar? 💡 Propuesta de trabajo de AG (2026-10-31), falta que el equipo la confirme: de noche todo cierra (tiendas, puestos y maquinitas) y si estás adentro al anochecer te sacan a la calle, para que no sirvan de escondite.
+- 🗳️ ¿Las tiendas cierran de noche? ¿Son refugio seguro? ¿Los zombis pueden entrar? 💡 Propuesta de trabajo de AG (2026-10-31), falta que el equipo la confirme: de noche todo cierra (tiendas, puestos y maquinitas) y si estás adentro al anochecer te sacan a la calle, para que no sirvan de escondite.
 
 ### 4.7 NPCs 🧱 (parcial)
 
@@ -256,45 +255,47 @@ Ya hay NPCs con diálogo en burbuja y aviso de "Espacio/X" (`scripts/npc.gd`). F
 
 > ✅ El **reparto** (30 voces, 10 vendedores, habitantes sin diálogo, y la regla de las tres preguntas para decidir quién habla) está en **[`docs/personajes.md`](personajes.md)**.
 
-### 4.8 Los cholos y las hordas 💡
+### 4.8 Los zombis y las hordas 💡
 
-✅ **Nombre.** En el mundo se les dice **cholos**; en el código siguen siendo `Zombie` / `Zombis` (`scripts/map/Zombie.gd`, `Zombis.gd`). **No son muertos vivientes**: son vecinos que no duermen por el Serenol, y no hay contagio (`docs/lore.md` §8).
+✅ **Nombre.** En el mundo se les dice **zombis**; en el código siguen llamándose `Zombie` / `Zombis` (`scripts/map/Zombie.gd`, `Zombis.gd`). **Son caníbales y tienen sed de agua sin Serenol**: comen a quien se mueve y atacan tinacos, purificadoras y cisternas (`docs/lore.md` §8).
 
-✅ **El índice de deterioro ES el índice de infección.** `Deterioro.zona(x, z)` decide dónde hay más cholos (umbral 0.45 = zona tomada) y coincide con lo que se ve destruido porque las dos cosas son la misma: pobreza (`docs/lore.md` §7). No hace falta código nuevo: `Zombis.maximo()` ya lo usa.
+✅ **El índice de deterioro ES el índice de infección.** `Deterioro.zona(x, z)` decide dónde hay más zombis (umbral 0.45 = zona tomada) y coincide con lo que se ve destruido porque las dos cosas son la misma: pobreza (`docs/lore.md` §7). No hace falta código nuevo: `Zombis.maximo()` ya lo usa.
 
 Referencia del grupo: [reel de Instagram](https://www.instagram.com/reel/DehepkqD5PW/). (No se pudo ver sin cuenta; **que alguien describa qué tiene que tomarse de ahí**.) Asumimos hordas que se mueven en masa tipo *Days Gone* / *World War Z*.
 
-🧱 **Prototipo actual** (`scripts/map/Zombis.gd`, `Zombie.gd`): de noche salen cholos de uno en uno alrededor del jugador, fuera de la cámara, más donde está más destruido y uno más cada noche (hasta 12). Caminan derecho hacia ti, sin rutas, y pegan; dan unos pesos al morir y se caen al amanecer. De día no hay. Si llegas a 0 de vida tus objetos se quedan en una bolsa y despiertas en el refugio (propuesta de 1.5). De noche todo cierra (propuesta de 4.6). **Ojo: esto es solo un prototipo; no define la mecánica final.**
+🧱 **Prototipo actual** (`scripts/map/Zombis.gd`, `Zombie.gd`): de noche salen zombis de uno en uno alrededor del jugador, fuera de la cámara, más donde está más destruido y uno más cada noche (hasta 12). Caminan derecho hacia ti, sin rutas, y pegan; dan unos pesos al morir y se caen al amanecer. **Ojo: esto es solo un prototipo; no define la mecánica final.**
 
 ✅ **La mecánica definida** (`docs/lore.md` §8):
 
-- **Atacan gente, no edificios.** No abren puertas, no rompen ventanas, no registran: persiguen a quien se mueve en la calle. Una casa con la puerta cerrada es un agujero negro; **no hacen falta barricadas**.
-- **Los guía el movimiento y el ruido.** Quieto y en silencio, a unos metros, no te ven; caminar es riesgo; correr es un faro; un portazo los trae todos.
-- **Uno de cada cuatro** infectados se vuelve cholo; el resto es dócil también de noche. El efecto es intermitente y no se puede saber quién va a ser.
-- **El agua los calma, a veces.** Es carísima (es dinero del juego), muchos la tiran y algunos se la toman; es la base del "milagro" de la capilla.
-- **Al morir sueltan lo que traían.** Cada cholo tiene un **oficio** (obrero, taquero, garrafonero, tiendero, albañil, chavo, botarga) y de ahí sale el botín: pesos (5-60), objetos útiles y a veces su **credencial de GelA** o el **recibo del agua**, que se pueden leer. El cuerpo se desvanece en unos segundos; el botín se queda en el suelo. **Noquearlo también deja saquearlo** (se despierta y se va). **No hay mecánica de limpieza.**
-- **El tinaco y las entradas no son objetivos** de los cholos normales: persiguen personas. El tinaco queda como objetivo del **jefe de la partida de prueba**, que es un piloto, no canon.
+- **Son caníbales.** Comen a quien se mueve. Por eso atacan al jugador y a cualquier NPC en la calle.
+- **Tienen sed de agua sin Serenol.** Atacan el tinaco comunitario, las purificadoras y la capilla. **La vela** es el contrato de defender el tinaco hasta el amanecer.
+- **De día se esconden del sol** en bodegas abandonadas, drenajes y túneles. Ahí están las **camadas**: la mazmorra del juego.
+- **La puerta cerrada los detiene**: empujan, no abren. La barricada es del refugio, no de la casa.
+- **Uno de cada diez** infectados se muere y se levanta; los otros nueve son dóciles y viven normal.
+- **Al morir sueltan lo que traían.** Cada zombi tiene un **oficio** (obrero, taquero, repartidor, tiendero, albañil, chavo, botarga) y de ahí sale el botín: pesos (5-60), objetos útiles y a veces su **credencial de GelA** o el **recibo del agua**. El cuerpo se desvanece; el botín se queda.
+- **El tinaco y las entradas no son objetivos** de los zombis normales: van por la gente y por el agua. El tinaco es objetivo de **la vela** (defensa) y del jefe de la partida de prueba.
 
 Cómo se hace normalmente (y cómo lo haríamos):
 
-1. **Director** (como *Left 4 Dead*): un script central que mide la tensión (vida del jugador, cholos cerca, hora) y decide cuándo mandar una horda, cuándo dar un respiro y dónde aparecen (siempre fuera de cámara, en calles cercanas).
-2. **Movimiento en grupo**: en vez de que cada cholo calcule su ruta (caro), se calcula **un campo de flujo** (flow field) hacia el jugador/ruido por zona y todos lo siguen, con separación entre ellos (*boids*). Así cientos de cholos se ven como un río por las calles.
-3. **Niveles de detalle**: cholos lejos = dibujados con `MultiMesh` y animación en el shader, sin física; cerca = cholo completo con colisión y animaciones. Igual que ya hacemos con las casas y árboles del mapa.
+1. **Director** (como *Left 4 Dead*): un script central que mide la tensión (vida del jugador, zombis cerca, hora) y decide cuándo mandar una horda, cuándo dar un respiro y dónde aparecen (siempre fuera de cámara, en calles cercanas).
+2. **Movimiento en grupo**: en vez de que cada zombi calcule su ruta (caro), se calcula **un campo de flujo** (flow field) hacia el jugador/ruido por zona y todos lo siguen, con separación entre ellos (*boids*). Así cientos de zombis se ven como un río por las calles.
+3. **Niveles de detalle**: zombis lejos = dibujados con `MultiMesh` y animación en el shader, sin física; cerca = zombi completo con colisión y animaciones. Igual que ya hacemos con las casas y árboles del mapa.
 4. **Ruido**: disparos, molotov, bocina y paloma crean "puntos de ruido" que redirigen la horda.
-5. 💡 **Más cholos donde está más destruido** (JJ): el mapa ya tiene un nivel de deterioro por zona (cuadras casi intactas y otras destruidas, ver `docs/mapa/README.md`). El Director multiplica cuántos cholos salen en una zona por ese nivel: `Deterioro.zona(x, z)` en `scripts/map/Deterioro.gd`, la misma fórmula que pinta las casas y calles en el shader. Así lo que se ve avisa del peligro.
+5. 💡 **Más zombis donde está más destruido** (JJ): el mapa ya tiene un nivel de deterioro por zona (cuadras casi intactas y otras destruidas, ver `docs/mapa/README.md`). El Director multiplica cuántos zombis salen en una zona por ese nivel: `Deterioro.zona(x, z)` en `scripts/map/Deterioro.gd`, la misma fórmula que pinta las casas y calles en el shader. Así lo que se ve avisa del peligro.
 
-Presupuesto 💡: ~30 cholos completos cerca + ~200 "baratos" lejos (hay que medir, sobre todo en navegador).
+Presupuesto 💡: ~30 zombis completos cerca + ~200 "baratos" lejos (hay que medir, sobre todo en navegador).
 
-**Tipos de cholo** 💡 (copiados de *Left 4 Dead* y adaptados):
+**Tipos de zombi** 💡 (copiados de *Left 4 Dead* y adaptados):
 
-| Cholo | Basado en | Qué hace |
+| Zombi | Basado en | Qué hace |
 |---|---|---|
-| **Aguado** (normal) | Común de L4D | Lento, en grupos. |
+| **Flaco** (normal) | Común de L4D | Lento, en grupos. |
 | **Corredor** | Runner de *Dying Light* / *28 días* | Rápido, frágil. Aparece de noche. |
 | **Hinchado** | Boomer | Gordo; al caer empuja y hace ruido, que atrae a otros. |
-| **Escupidor** | Spitter | Escupe; si te mancha, te hace daño despacio. |
-| **Garrafonero** | Tank | Grande, trae garrafones como armadura. Mini-jefe de noches avanzadas. |
+| **Escupidor** | Spitter | Escupe sangre; si te mancha, te hace daño despacio. |
+| **Cargador** | Tank | Grande, trae garrafones como armadura. Mini-jefe de noches avanzadas. |
 | **Botarga** | Original | La botarga de la Gota o del Simi, de noche, sola en una esquina. Jefe o easter egg. |
+
 
 ### 4.9 Casas en obra negra y otras rarezas 💡
 
@@ -304,7 +305,7 @@ Presupuesto 💡: ~30 cholos completos cerca + ~200 "baratos" lejos (hay que med
 
 💡 **Las lámparas del 84.** Algunos postes del alumbrado salieron del mismo lote: zumban, dan una luz verdosa y **bajan vida** si te quedas debajo (la probabilidad es baja). `scripts/map/Alumbrado.gd` ya decide el estado de cada lámpara por semilla; sería un estado raro más. La gente les dice "la luz que te chupa".
 
-💡 **Las cruces de caca.** En una colonia al azar aparecen cruces hechas con popó; las hace un vecino **no infectado** que está loco, de noche. Se puede poner como calcomanía (`scripts/map/Calcomanias.gd`) y como un NPC con el que se platica de noche. Es el recordatorio de que no todo lo que anda en la calle es un cholo.
+💡 **Las cruces de caca.** En una colonia al azar aparecen cruces hechas con popó; las hace un vecino **no infectado** que está loco, de noche. Se puede poner como calcomanía (`scripts/map/Calcomanias.gd`) y como un NPC con el que se platica de noche. Es el recordatorio de que no todo lo que anda de noche es un zombi.
 
 ### 4.10 El celular 💡
 
@@ -322,17 +323,17 @@ Presupuesto 💡: ~30 cholos completos cerca + ~200 "baratos" lejos (hay que med
 
 | Contacto | Tipo | Para qué |
 |---|---|---|
-| **Rocío** | **IA** | La única a la que le preguntas lo que sea del mundo. Contesta con el canon y no spoilea el final |
+| **Sofía** | **IA** | La única a la que le preguntas lo que sea del mundo. Contesta con el canon y no spoilea el final |
 | **Padre Chuy** | IA (opcional) o escrita | Agua, capilla, consejo |
-| **Ramiro** | Escrita | Rutas, precios, encargos |
+| **Gabriel** | Escrita | Contratos, pagos, encargos |
 | **Beto** | Escrita | El hilo personal: se mete en broncas |
 | **La Gota** | Escrita | Publicidad, avisos de corte, promociones |
-| **Número desconocido** | Escrita | El Gotera, la gobernadora, amenazas |
+| **Número desconocido** | Escrita | Don Nemesio, la gobernadora, amenazas |
 | **Grupo del barrio** | Escrita | Varios NPCs: rumores, avisos, cadenas |
 
 **Misiones por mensaje.** El NPC te manda el objetivo y el marcador aparece solo: no hay que volver a hablarle.
 
-**La IA.** Solo Rocío (y, si se quiere, el cura) usa modelo; el resto son mensajes escritos y respuestas rápidas de botón. La respuesta es **asíncrona**: mandas, sigues jugando, llega en 10-30 s.
+**La IA.** Solo Sofía (y, si se quiere, el cura) usa modelo; el resto son mensajes escritos y respuestas rápidas de botón. La respuesta es **asíncrona**: mandas, sigues jugando, llega en 10-30 s.
 
 - **Prompt**: su ficha de `personajes.md` + un trozo de `lore.md` (RAG).
 - **Guardarraíles**: no inventa lore, no spoilea, no sale del personaje, no habla de política real.
@@ -347,91 +348,27 @@ Presupuesto 💡: ~30 cholos completos cerca + ~200 "baratos" lejos (hay que med
 
 ## 5. Objetos
 
-Columnas: **Modelo** = si ya hay modelo 3D en el repo (🧱) o falta (❌). Efectos y precios son 💡 para discutir.
+✅ El catálogo completo —items, efectos, precios, modelos y lo que falta— está en **[`docs/items.md`](items.md)**.
 
-### 5.1 Lista del equipo
+Resumen:
 
-| Objeto | Tipo | Efecto propuesto | Modelo |
-|---|---|---|---|
-| Caguama | Consumible | Recupera vida; mareo ligero (cámara se mece) unos segundos. Vacía → sirve para molotov. | 🧱 `models/aguamala.glb` ("Caguama Agua Mala") |
-| Mochila del Partido Verde | Equipo | Aumenta ranuras de inventario. | 🧱 `models/objetos/mexican_starter_pack/mochila.scn` |
-| Pistola | Arma de fuego | Daño medio, poco ruido relativo. | 🧱 `models/armas/pistola_mk23/`, `pistola_colt/` |
-| Balas | Munición | Para pistola (¿y cuerno?). Apilable. | 🧱 `models/armas/balas/` (cajas de munición) |
-| Takis Fuego | Consumible | *Buff* de daño o velocidad de golpe por 30 s. | 🧱 `models/objetos/takis/` |
-| Tachas | Consumible | Velocidad y estamina infinita 20 s; después "bajón" (lento). Pantalla distorsionada. | 🧱 `models/objetos/tachas/` (dos pastillas) |
-| Cuerno de chivo | Arma de fuego | Automática, mucho daño y **mucho ruido**. Rara. | 🧱 `models/armas/cuerno_de_chivo/` |
-| Ballesta | Arma | Silenciosa, se recuperan las flechas. | 🧱 `models/armas/ballesta/` |
-| Machete | Cuerpo a cuerpo | Silencioso, arma inicial. | 🧱 `models/armas/machete/` |
-| Bomba molotov | Arrojable | Fuego en área. Se puede craftear. | 🧱 `models/objetos/botella/` + `trapo/` (toalla pintada sucia) |
-| Paloma (cohete) | Arrojable | Aturde a los enemigos cercanos. | ❌ (el modelo bajado salía mal) |
-| Tacos | Consumible | Recupera vida. Se compran en taquerías y puestos de tacos (4.6). | 🧱 `models/taco_pastor.glb` |
-| Agua limpia | Moneda / consumible | Dinero "fuerte"; baja la sed. | 🧱 `models/objetos/galon_agua/`; ❌ botella de agua y garrafón (los bajados salían mal) |
-| Refresco Jarritos | Consumible | Recupera estamina. | 🧱 `models/objetos/jarritos/` |
-| Moneda de peso | Moneda | Dinero normal. | 🧱 `models/objetos/moneda_peso/` |
-| Cigarro | Consumible | Sacas humo un ratito. 💡 Para que sirva de algo: el humo **te esconde del olfato** de los cholos unos segundos. | 🧱 `models/objetos/cigarro/` (cajetilla) |
-
-### 5.2 💡 Objetos sugeridos (agregar los que gusten)
-
-| Objeto | Tipo | Efecto | Referencia | Modelo (`models/`) |
-|---|---|---|---|---|
-| **Bocina con banda** | Arrojable | Toca música y atrae a todos los cholos cercanos; luego explota (o no). | *Pipe bomb* de L4D | 🧱 `objetos/bocina/` |
-| **Cloralex** | Material | Agua sucia + Cloralex = agua limpia. | Crafteo tema agua | 🧱 `objetos/cloralex/` |
-| **Agua sucia** (bote) | Material | Se junta de charcos/llaves; se purifica. | — | ❌ (la bajada salía en piezas) |
-| **Chancla** | Arrojable | Aturde a un solo enemigo, se recoge de nuevo. La de tu jefa nunca falla. | Humor | 🧱 `objetos/chancla/` (la Crocse elegida es de pago) |
-| **Bate / varilla** | Cuerpo a cuerpo | Armas de inicio alternativas al machete. | *Dead Rising* | 🧱 `armas/bate/`, `armas/melee_psx/` |
-| **Resortera** | Arma | Silenciosa, munición = piedras (infinitas pero débil). Para tiro al blanco. | — | 🧱 `armas/resortera/` |
-| **Torta ahogada** | Consumible | Cura mucho pero pica: pantalla roja unos segundos. | Comida local | ❌ |
-| **Tejuino** | Consumible | Baja algo la sed (¿lo fermentado corta el compuesto?). | Comida local | 🧱 `objetos/tejuino/` (vaso con hielos pintado café) |
-| **Vaporub** | Consumible | Cura todo (es la creencia popular). Raro. | Humor | 🧱 `objetos/vaporub/` |
-| **Botiquín del Simi** | Consumible | Curación grande. | *First aid kit* | 🧱 `objetos/botiquin/` |
-| **Veladora** | Colocable | Ilumina un rato. **Bendita en la capilla**, los cholos la esquivan un rato (huele a agua limpia). | El culto + luz | ❌ |
-| **Tequila / mezcal** | Material | Para molotov o para curar (¿?). | — | ❌ (el modelo bajado salía mal) |
-| **Cinta canela** | Material | Reparar/mejorar armas, barricadas. | *Dead Rising*, *TLOU* | 🧱 `objetos/cinta/` (azul) |
-| **Tablas** | Material | Barricadas (si se vota refugio, 1.3 B). | *7 Days to Die* | 🧱 `objetos/tablas/` |
-| **Lámpara / celular** | Equipo | Linterna de noche (con batería). | Todos los survival | ❌ (los bajados salían mal) |
-| **Gansito** | Consumible | Barato y común; poca vida. | — | 🧱 `objetos/gansito/` |
-| **Llave de un coto** | Clave | Abre una zona cerrada del mapa. | Llaves de RE | 🧱 `objetos/llave/` |
-| **Credencial de GelA** | Documento | Nombre, foto y puesto de un trabajador; dice quién era el cholo y a veces abre una puerta de la empresa. | Lore | ❌ (texto) |
-| **Recibo del agua** | Documento | Cuánto debía y cuánto pagó; explica por qué tomaba de la llave. | Lore | ❌ (texto) |
+- **Inventario:** 6 lugares base; mochilas de 8, 10 y 14.
+- **Dinero:** pesos. El agua es un recurso caro, no una moneda.
+- **Tipos:** consumibles, armas, munición, arrojables, materiales, equipo, documentos y llaves.
+- **Pendiente de código:** pasar `machete` y `vaporub` a pesos; renombrar el mochilón; corregir "infección" → "sed" y "zombies" → "zombis".
 
 ---
 
 ## 6. Misiones
 
-Las misiones se programan **una vez como sistema** (ver 6.3) y luego cada misión es casi solo datos. Columna **Dificultad de programar**: S = fácil (reusa sistemas), M = media, L = difícil.
+✅ La lista completa —el piloto, los contratos de la noche, las de día y las de historia— está en **[`docs/misiones.md`](misiones.md)**.
 
-### 6.1 Lista del equipo
+Resumen:
 
-| Misión | Cómo funciona | Basada en | Paga | Prog. |
-|---|---|---|---|---|
-| **Transportar droga de noche** | Recoges un paquete en A y lo llevas a B **de noche**. Si mueres lo pierdes. | Misiones de entrega de GTA | Mucha agua limpia | S |
-| **Transportar algo de día** | Igual, de día; con límite de tiempo o "no corras" (es frágil: un garrafón, un pastel). | *Crazy Taxi*, *Death Stranding* | Pesos | S |
-| **Pelearse con cholos** | Al aceptar, aparecen N cholos en un punto del mapa; derrótalos. | GTA SA (guerras de pandillas) | Pesos/objeto | M (IA de pelea humana) |
-| **Encontrar cosas regadas** | Buscar N objetos en el mapa y volver con el NPC. | Coleccionables de GTA | Objeto | S |
-| **Corretear a alguien** | Un NPC huye por una ruta; alcánzalo antes de que escape. | Persecuciones de GTA, *Sleeping Dogs* | Pesos | M |
-| **Botarga del Simi** | Te pones la botarga (baila 🧱 `models/personajes/dr_simi/simi_botarga.scn`); al acercarte a un NPC se pone a bailar y te sigue; junta 6 y todos bailan. | Original (tipo *Pikmin* / "seguir al líder") | Objeto especial | S-M (reusa "seguir") |
-| **Tiro al blanco** | Ver 6.2: botellas en una barda o feria. | Minijuegos de RDR / GTA | Pesos/munición | S |
-| **Sacar dinero de máquinas** | Dentro de una tienda, "romper" las máquinas (minijuego de botones o golpes) sin que te vea el encargado. | Robos de tiendas en GTA | Pesos | S-M |
-| **Manifestación / pelear con policías** | Te unes a una marcha (por el agua, obvio); llegan policías; aguantar X tiempo o llegar a un punto. | Disturbios de *Sleeping Dogs*/GTA | Pesos/agua | L (multitud + IA) |
-
-### 6.2 💡 Misiones sugeridas (de juegos parecidos, fáciles de hacer)
-
-| Misión | Cómo funciona | Basada en | Prog. |
-|---|---|---|---|
-| **Repartir garrafones** | Llevas garrafones casa por casa en tu ruta antes de que oscurezca. Encaja perfecto con el tema. | Paperboy, misiones de reparto de GTA | S |
-| **Rescatar sobreviviente** | Un vecino atrapado; llévalo al refugio (te sigue, reusa Simi). | *Dead Rising* | S |
-| **Acompañar a alguien de noche** | Lleva a un vecino de un punto a otro sin que la caminata los alcance (te sigue, reusa Simi). | Escoltas de *Dying Light*, *State of Decay* | S |
-| **Defender el puesto** | Ayuda al taquero a aguantar 2 min de cholos mientras cierra. | Horda de CoD/L4D | S (reusa hordas) |
-| **Muestras de agua** | Un científico te pide agua de 3 llaves/charcos; cuenta la historia del agua. | Coleccionables de historia | S |
-| **Carrera** | Checkpoints por la colonia a pie (o en carrito de súper). | Carreras de GTA | S |
-| **Pintar bardas** | Grafitea N bardas marcadas (decal) antes que la pandilla rival. | Tags de GTA SA, *Jet Set Radio* | S |
-| **Cocinar tacos** | Minijuego de pedidos en un puesto: arma el taco que te piden. | *Overcooked*, *Papa's Taco Mia* | M |
-| **Buscar al perro perdido** | Sigue pistas/ladridos; regresa al perro (te sigue). | Clásico de RPG | S |
-| **Encargo de compras** | Compra lista X en el OXXO y entrégala. Enseña las tiendas. | Tutorial | S |
-| **Sobrevive hasta el amanecer** | Misión nocturna: quédate vivo en una zona marcada. | *7 Days to Die* | S |
-| **Cooperativas** (si hay multijugador) | Una persona maneja/carga, la otra defiende; misiones que piden 2+ jugadores. | *L4D*, *GTA Online* | M |
-
-**Tiro al blanco**, ideas concretas: (a) caguamas vacías sobre una barda con resortera/pistola, puntos por tiempo; (b) puesto de feria con patitos; (c) cholos "de práctica" atados. La (a) es la más fácil.
+- **El piloto:** defender el **tinaco comunitario** hasta el amanecer (8 minutos, tres oleadas).
+- **Contratos de la noche:** vela, reparto clandestino, recolección, encargo y cacería.
+- **Misiones de día:** transportar, encontrar, corretear, tiro al blanco, manifestación, acompañar, defender el puesto, limpiar una camada, etc.
+- **Historia:** las cinco pistas de `docs/lore.md` §17.
 
 ### 6.3 Sistema de misiones 💡 (cómo programarlo)
 
@@ -445,17 +382,17 @@ Con eso, casi todas las misiones de arriba son S.
 
 ---
 
-## 7. Enemigos humanos 💡
+## 7. Enemigos 💡
 
 | Enemigo | Comportamiento | Referencia |
 |---|---|---|
-| Cholos | **Los vecinos infectados de noche** (`docs/lore.md` §8): pelean cuerpo a cuerpo/en grupo y huyen si pierden a la mitad. **No son una pandilla**: de día son gente normal. | Pandillas de GTA SA (la pelea) |
+| Zombis | **Los muertos que se levantan** (`docs/lore.md` §8): caníbales, atacan a quien se mueve y huelen el agua limpia. Huyen si pierden a la mitad. **No son una pandilla.** | Hordas de L4D (la pelea) |
 | Policías | Aparecen **solo de día** si haces desmadre (manifestación, robo). De noche no hay ley. ¿Nivel de búsqueda tipo GTA? | Estrellas de GTA |
 | ¿Otros jugadores? | 🗳️ ¿Se puede dañar a otros jugadores (PvP)? | DayZ (sí) / Unturned (opcional) |
 
-> ✅ Los cholos de esta tabla y los de 4.8 son **los mismos**. El crimen organizado de verdad (**los Gotera**, `docs/lore.md` §11) es otra cosa: no está infectado y no se parece a ellos. No mezclar las dos cosas al programar IA.
+> ✅ Los zombis de esta tabla y los de 4.8 son **los mismos**. El crimen organizado de verdad (**los Gotera**, `docs/lore.md` §11) es otra cosa: no toma de la llave y no se parece a ellos. No mezclar las dos cosas al programar IA.
 >
-> ✅ **Atacan gente, no edificios** (`docs/lore.md` §8): no asaltan casas ni purificadoras; persiguen a quien se mueve en la calle. De los infectados, solo **uno de cada cuatro** se vuelve cholo.
+> ✅ **Son caníbales** (`docs/lore.md` §8): comen a quien se mueve y buscan agua sin Serenol. De los infectados, solo **uno de cada diez** se levanta.
 
 ---
 
@@ -475,7 +412,7 @@ Con eso, casi todas las misiones de arriba son S.
 
 - Look PS1 🧱: resolución 640×480, *dither*, vértices que tiemblan (shaders en `shaders/`).
 - 💡 Música: de día cumbia/banda de radio vieja; de noche, tensión. ¿Alguien del equipo hace música?
-- 💡 Sonidos clave: gemido de cholo, campana del atardecer, el grito del garrafonero ("¡el agua!") como aviso, palomas tronando.
+- 💡 Sonidos clave: gemido de zombi, campana del atardecer, el grito del agua ("¡el agua!") como aviso, palomas tronando.
 
 ---
 
@@ -494,7 +431,7 @@ Con eso, casi todas las misiones de arriba son S.
 | Tiendas | `models/tiendas/` | OXXO, Farmacia Guadalajara, Pemex, carrito de comida, puesto de tacos… |
 | Señal de alto | `models/props/alto/` | |
 | Bodegas | `models/bodegas/` | bodega_industrial (Industrial Warehouse: de su frente salen los vanos con portón de `MapBodegas.gd`), rack, estante_oxidado, cajas. Ya colocadas en el mapa. |
-| Personajes | `models/personajes/` | **Sin colocar.** Gente: cholo (animado), gang_member, gangster_dealer, indian_gangster, policia (3 policías, sin rig), soldado, mujer_psx, chava_psx, hombre_psx (base sin textura), psx_man, amerindios ⚠️ (malla estirada al importar). NPCs de misiones: **garrafonero** (trabajador de chamarra azul; pesado, 24 mil triángulos), **taquero** (animado), **encargada** de tienda, **cientifico**, **perro** (animado). Modelos de cholo (los archivos se llaman `zombie_*`): zombie_ripper (idle/caminar/atacar/correr), zombie_psx, zombie_gordo (idle, correr, golpe, morir, 2 ataques: sirve de cholo base y de hinchado). Simi: **`dr_simi/simi_botarga.scn`** = botarga con esqueleto de Mixamo y el baile (15 s, `bailar` en loop), sacada del kiosco por `tools/map_import/separar_simi.gd`; el kiosco completo es `dr_simi/scene.gltf`. simi_muneco (sin rig, de repuesto). |
+| Personajes | `models/personajes/` | **Sin colocar.** Gente: cholo (animado, civil), gang_member, gangster_dealer, indian_gangster, policia (3 policías, sin rig), soldado, mujer_psx, chava_psx, hombre_psx (base sin textura), psx_man, amerindios ⚠️ (malla estirada al importar). NPCs de misiones: **repartidor** (trabajador de chamarra azul; pesado, 24 mil triángulos), **taquero** (animado), **encargada** de tienda, **cientifico**, **perro** (animado). Modelos de zombi (los archivos se llaman `zombie_*`): zombie_ripper (idle/caminar/atacar/correr), zombie_psx, zombie_gordo (idle, correr, golpe, morir, 2 ataques: sirve de zombi base y de hinchado). Simi: **`dr_simi/simi_botarga.scn`** = botarga con esqueleto de Mixamo y el baile (15 s, `bailar` en loop), sacada del kiosco por `tools/map_import/separar_simi.gd`; el kiosco completo es `dr_simi/scene.gltf`. simi_muneco (sin rig, de repuesto). |
 | Armas | `models/armas/` | machete, melee_psx (pack cuerpo a cuerpo), pistola_mk23, pistola_colt ⚠️ (sale en piezas), cuerno_de_chivo, ballesta, bate, resortera, balas. |
 | Objetos | `models/objetos/` | Del Mexican Starter Pack solo se usan `mochila` y `mazapan` (`.scn`, `tools/map_import/separar_pack.gd`). Inventario: botella + trapo (molotov), tachas (pastillas), tejuino, gansito, chancla, cigarro, vaporub, cloralex, botiquin, cinta, tablas, bocina, llave, galon_agua. Misiones: paquete (pila de cajas), patito (tiro al blanco), carrito_super (carrera), refrescos. |
 | Props de calle | `models/props/` | alto, coladera (nido), despachador_agua (garrafón en su base). |
@@ -508,12 +445,12 @@ Cada modelo trae una captura **`preview.png`** en su carpeta (y `<nombre>_previe
 | Prioridad | Modelo | Notas |
 |---|---|---|
 | Alta | **Personaje jugable** definitivo | ¿Quién es? ¿se puede personalizar (en multijugador ayuda distinguirse)? Candidatos: hombre_psx, mujer_psx, chava_psx + animaciones de Quaternius. |
-| Alta | Juntar animaciones con personajes | Retarget de las de Quaternius al jugador, cholos y NPCs (hoy cada modelo trae solo las suyas). |
+| Alta | Juntar animaciones con personajes | Retarget de las de Quaternius al jugador, zombis y NPCs (hoy cada modelo trae solo las suyas). |
 | Media | Interiores: más muebles propios | Las escenas ya están armadas (`scenes/interiores/`) con mostrador, estantes oxidados, máquina, la tiendita m3_mart y objetos; faltan muebles de farmacia y anaqueles de ferretería. |
 | Media | Objetos que se quitaron porque salían mal: garrafón (para repartir garrafones; el del despachador `props/despachador_agua` sí sirve de referencia), botella de agua, agua sucia, lámpara, celular, máquina de tienda, tequila, paloma, veladora | Buscar otros en Sketchfab o modelar low-poly. |
 | Media | Arreglar: pistola_colt, amerindios | Salen en piezas / malla estirada; buscar reemplazo o arreglar en Blender. |
-| Baja | Garrafonero más ligero | El modelo elegido queda en 24 mil triángulos (meshoptimizer no baja más). |
-| Baja | Escupidor, garrafonero cholo, botarga cholo | Variantes del cholo base (textura/color). |
+| Baja | Repartidor más ligero | El modelo elegido queda en 24 mil triángulos (meshoptimizer no baja más). |
+| Baja | Escupidor, cargador, botarga | Variantes del zombi base (textura/color). |
 | Baja | Torta ahogada, grafitis | Nada usable en Sketchfab: modelar low-poly / calcomanías. |
 | Baja | Marcador amarillo de misión | |
 | — | **Sonidos y música** | Pendientes. |
@@ -527,12 +464,12 @@ Fuentes: Sketchfab con licencia CC (hay script: `tools/map_import/fetch_sketchfa
 Si se vota 1.1 A, esto es lo que implica (para que se decida sabiendo):
 
 1. **Render**: Godot en navegador **no soporta Forward+** (el render actual). Hay que pasar el proyecto a **Compatibility** (WebGL 2). Los shaders PS1 deberían funcionar, pero hay que probar todos (`ps1_combined`, fachadas, suelo, casas, minimapa) y la niebla/iluminación se verán distintas.
-2. **Rendimiento**: hoy el mapa va a ~150-190 FPS en la laptop de Juanjo con Forward+. En navegador esperar bastante menos; puede que haya que bajar distancia de dibujo y número de cholos.
+2. **Rendimiento**: hoy el mapa va a ~150-190 FPS en la laptop de Juanjo con Forward+. En navegador esperar bastante menos; puede que haya que bajar distancia de dibujo y número de zombis.
 3. **Descarga**: el mapa (~11 MB) + modelos (~30 MB) se bajan al abrir la página. Aceptable, pero hay que cuidarlo.
 4. **Hilos**: la carga del mapa en segundo plano usa hilos; en web eso necesita cabeceras especiales del servidor (COOP/COEP) o exportar sin hilos (más tirones al cargar). Probar.
 5. **Servidor**: hace falta un **servidor dedicado** (Godot sin pantalla, `--headless`) corriendo en algún lado (VPS, Fly.io, Railway…). Los navegadores se conectan por **WebSocket** (`WebSocketMultiplayerPeer`). Tiene costo mensual (bajo).
-6. **Autoridad**: el servidor decide dónde están los cholos, quién le pegó a quién, el reloj día/noche y el inventario (si no, es facilísimo hacer trampa). Esto significa que **cada mecánica se programa pensando en red** desde el inicio.
-7. **¿Un mundo para todos o salas?** 🗳️ Un solo mundo con todos los que entren (como un `.io`) es lo más bonito, pero cientos de cholos × muchos jugadores pesa. Lo normal es **salas de hasta 8-16 jugadores**; si una se llena se abre otra.
+6. **Autoridad**: el servidor decide dónde están los zombis, quién le pegó a quién, el reloj día/noche y el inventario (si no, es facilísimo hacer trampa). Esto significa que **cada mecánica se programa pensando en red** desde el inicio.
+7. **¿Un mundo para todos o salas?** 🗳️ Un solo mundo con todos los que entren (como un `.io`) es lo más bonito, pero cientos de zombis × muchos jugadores pesa. Lo normal es **salas de hasta 8-16 jugadores**; si una se llena se abre otra.
 8. **Persistencia**: si el sandbox es sin fin, ¿se guarda tu inventario al cerrar la página? Necesitaría cuentas/guardado en el servidor. 💡 Para empezar: no se guarda nada, cada sesión empieza de cero (como los `.io`).
 
 💡 **Recomendación técnica**: primero una prueba chica de 1-2 semanas: exportar `map_test.tscn` a web en Compatibility, medir FPS, y conectar 2 jugadores por WebSocket que se vean moverse. Si eso jala, seguimos con multijugador; si no, se decide con datos.
@@ -547,11 +484,11 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 |---|---|---|
 | **0. Decisiones** | Votar sección 1. Repartir áreas. | — |
 | **1. Prueba web/red** | Lo de la recomendación de la sección 11. | 1.1 |
-| **2. Loop mínimo** | Pasar jugador/NPC/inventario al mapa real; ciclo día/noche; machete; 1 cholo que persigue y pega; morir/reaparecer. | 1.3, 1.5 |
+| **2. Loop mínimo** | Pasar jugador/NPC/inventario al mapa real; ciclo día/noche; machete; 1 zombi que persigue y pega; morir/reaparecer. | 1.3, 1.5 |
 | **3. Misiones** | Sistema de misiones (6.3) + 3 misiones S (encargo OXXO, repartir garrafones, encontrar cosas). | Hito 2 |
-| **4. Hordas** | Director + flow field + LOD de cholos; ruido. | Hito 2 |
+| **4. Hordas** | Director + flow field + LOD de zombis; ruido. | Hito 2 |
 | **5. Economía y tiendas** | Pesos/agua, interior genérico, comprar/vender, marcador amarillo. | Hito 3 |
-| **6. Contenido** | Más armas, objetos, misiones (Simi, cholos, tiro al blanco), cholos especiales. | Hitos 3-5 |
+| **6. Contenido** | Más armas, objetos, misiones (Simi, cacerías, tiro al blanco), zombis especiales. | Hitos 3-5 |
 | **7. Pulido** | HUD, sonido, música, balance. | Todo |
 
 ### Áreas (pon tu nombre)
@@ -559,7 +496,7 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | Área | Responsable |
 |---|---|
 | Jugador, cámara y combate | |
-| Cholos, IA y hordas | |
+| Zombis, IA y hordas | |
 | Misiones y NPCs | |
 | Inventario, objetos y economía | |
 | Tiendas e interiores | |
@@ -576,7 +513,7 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 - [ ] ¿Cuántos somos y cuántas horas a la semana? ¿Hay fecha de entrega? (define 1.6)
 - [ ] ¿Qué hay que tomar del reel de Instagram de las hordas? ¿Cantidad, cómo se mueven, cómo se ven?
 - [ ] ¿Dónde está el baile del Simi? ¿Es una animación de Mixamo, una escena aparte, otra rama?
-- [x] **Personaje jugable**: avatar silencioso; cada jugador hace el suyo con el creador de `alan-testing` y el mundo le dice "el garrafonero" (`docs/lore.md` §15). Confirmar antes de publicar el tema del tono de piel.
+- [x] **Personaje jugable**: avatar silencioso; cada jugador hace el suyo con el creador de `alan-testing` y el mundo le dice "el Nocturno" (`docs/lore.md` §15). Confirmar antes de publicar el tema del tono de piel.
 - [ ] ¿Se puede pegar a otros jugadores (PvP)?
 - [x] **¿Las tiendas son zona segura de noche?** No: de noche cierran y te sacan (`docs/lore.md` §20).
 - [ ] ¿Hay vehículos? (bici, carrito de súper, camión) — dan mucho juego en el mapa real pero son trabajo L.
@@ -584,12 +521,11 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 - [ ] Tachas, droga y cuerno de chivo: ¿el tono es parodia? Afecta la clasificación si se publica en alguna tienda (itch.io no tiene problema).
 - [ ] ¿Se confirma el sandbox (1.2 A) y la partida de 3 noches como modo reto?
 - [ ] ¿El jugador puede tomar agua de la llave a propósito (la tentación) sin romper el balance? (`docs/lore.md` §15)
-- [ ] ¿Qué final hay: sacar la verdad, abrir la válvula, curar a la ciudad, o los tres?
+- [x] ~~¿Qué final hay: sacar la verdad, abrir la válvula, curar a la ciudad, o los tres?~~ No hay final: sandbox; la ciudad cambia por zona en el orden agua → enojo → verdad (lore §17, 2026-11-02).
 - [ ] ¿La capilla del tinaco se puede perder para siempre si fallas una misión? (`docs/lore.md` §9)
-- [ ] ¿Los modelos `zombie_*` se cambian por los de `cholo`/`gang_member` o se quedan provisionales? (`docs/lore.md` §22)
+- [ ] ¿Los modelos `zombie_*` se quedan o se rehacen? (`docs/lore.md` §22)
 - [ ] 💡 ¿La quietud te hace invisible del todo o solo reduce el rango? (propuesta: invisible a más de ~5 m; más cerca, te detectan)
-- [ ] 💡 ¿Ofrecer agua a un cholo se implementa como acción (soltar garrafón o vaso)? ¿Qué tan probable es que se la tome?
-- [ ] 💡 ¿La limpieza de GelA queda como trabajo, como servicio del carroñero o solo como sabor? (hoy: solo sabor; el botín es la mecánica)
+- [ ] 💡 ¿Ofrecer agua a un dócil se implementa como acción (soltar garrafón o vaso)? ¿Qué tan probable es que se la tome?
 
 ---
 
@@ -602,10 +538,11 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-10-28 | Giros de negocios (4.6) y qué vende cada uno; un interactivo por giro cada 80 m (abarrotes 150 m) con flecha amarilla; puestos de tacos y tejuino se compran al aire libre; nuevos ferretería, purificadora y "el punto" (venta ilegal, una casa en obra negra por colonia). Marcas parodia en los nombres. Casas en obra negra: 5 % en deterioro medio, 15 % en el máximo. Los locales de colonia van dentro de la hilera de casas. | JJ |
 | 2026-10-31 | **Propuesta de trabajo, no cierra los votos de 1.2, 1.3 y 1.5**: partida de 3 noches con jefe, refugios con barricadas y tinaco, bolsa recuperable al morir, todo cerrado de noche. Se programa para probarla; el equipo decide después de jugarla. | AG |
 | 2026-10-31 | Pantalla de inicio: el juego ya abre en ella y Jugar lleva al mapa real (`map_test.tscn`), no al prototipo `world.tscn`. | AG |
-| 2026-11-02 | **Se escribe `docs/lore.md`** (la biblia de historia). Premisa revisada: GelA (la familia Lazcano) se queda con el agua; el **Serenol** vuelve dóciles a los que no pagan; los violentos son los vecinos infectados (**"cholos"**), no zombies; **Georgina Lazcano** es la gobernadora y los dóciles votan por ella. | JJ |
+| 2026-11-02 | **Se escribe `docs/lore.md`** (la biblia de historia). Premisa revisada: GelA (la familia Lazcano) se queda con el agua; el **Serenol** vuelve dóciles a los que no pagan; los violentos son los vecinos infectados (**"cholos"**, después **zombis**); **Georgina Lazcano** es la gobernadora y los dóciles votan por ella. | JJ |
 | 2026-11-02 | **Economía del agua**: las purificadoras son franquicias **Puri-GelA** y el agua limpia es cara en pesos; purificar por tu cuenta es delito (**Decreto 47**); la clandestina sale de **misiones**. El **índice de deterioro ES el índice de infección** (umbral 0.45). | JJ |
 | 2026-11-02 | **Culto y subhistorias**: la **Virgen del Tinaco** (el padre Chuy filtra el agua y el milagro cura), el **cobalto de la varilla del 84** (las casas en obra negra y unas lámparas que bajan vida) y las **cruces de caca**. Se cuentan hablando con NPCs; el lore no bloquea nada. | JJ |
 | 2026-11-02 | **Sandbox**: preferencia de JJ por el sandbox (1.2 A), con la partida de 3 noches como modo reto. No cierra el voto del equipo. | JJ |
-| 2026-11-02 | **La noche sin ley**: Ley de Convivencia Nocturna (2032), el Estado se retira y matar de noche no se investiga; la única consecuencia es la memoria del barrio. Los cholos **atacan gente que pasa, no edificios**; los guía el movimiento y el ruido; **las casas no tienen barricadas**. **1 de cada 4** infectados se vuelve cholo. **El agua los calma a veces** (es carísima y muchos la tiran). **Al morir sueltan lo que traían** (pesos y objetos según su oficio; el cuerpo se va) y **no hay mecánica de limpieza**. La partida de 3 noches y el jefe son un **piloto**, no canon. | JJ |
-| 2026-11-02 | **El mundo en dos capas**: la ciudad es **normal**; lo raro son (1) los **grupos violentos nocturnos** con comportamiento zombie (el shooter) y (2) la **escasez y el comercio de agua limpia** (la economía). **GelA**, el monopolio del agua y de sus productos, **une las dos cosas**: su agua es la que vuelve violentos a los grupos. La política es la capa opcional. | JJ |
-| 2026-11-02 | **El celular**: chat de mensajes con contactos (**Rocío** y, opcional, el cura con IA; el resto escrito) + **grupo del barrio**. Reemplaza la libreta de misiones y es el canal de conversación. **Sin batería, señal, rastreo, estafas ni cámara.** La llave de la IA va en el servidor y las respuestas son asíncronas. | JJ |
+| 2026-11-02 | **La noche sin ley**: Ley de Convivencia Nocturna (2032), el Estado se retira y matar de noche no se investiga; la única consecuencia es la memoria del barrio. Los zombis **son caníbales** y buscan agua sin Serenol; de día se esconden en bodegas. **La puerta cerrada los detiene.** **1 de cada 10** infectados se levanta. **Al morir sueltan lo que traían.** La partida de 3 noches y el jefe son un **piloto**, no canon. | JJ |
+| 2026-11-02 | **Cambio de canon: zombis, dóciles y Nocturno.** Los enemigos son **zombis** (caníbales, sedientos de agua limpia); nueve de cada diez son **dóciles normales** que quieren a la empresa y no lo saben; el Serenol es secreto y teoría conspirativa; el jugador es **el Nocturno** (cazarecompensas de contratos nocturnos); **los pesos son la moneda** y el agua es un recurso caro; el **tinaco es comunitario**. | JJ |
+| 2026-11-02 | **El mundo en dos capas**: la ciudad es **normal**; lo raro son (1) los **zombis** nocturnos (el shooter) y (2) la **escasez y el precio del agua limpia** (la economía). **GelA**, el monopolio del agua y de sus productos, **une las dos cosas**: su agua es la que mata a uno de cada diez y lo levanta. La política es la capa opcional. | JJ |
+| 2026-11-02 | **El celular**: chat de mensajes con contactos (**Sofía** y, opcional, el cura con IA; el resto escrito) + **grupo del barrio**. Reemplaza la libreta de misiones y es el canal de conversación. **Sin batería, señal, rastreo, estafas ni cámara.** La llave de la IA va en el servidor y las respuestas son asíncronas. | JJ |
