@@ -12,7 +12,7 @@ Hay tres escenas principales:
 
 La idea es que, con el tiempo, las mecánicas de `world.tscn` (NPCs, inventario, objetos) se pasen al mapa real.
 
-Las mecánicas, objetos, misiones y decisiones pendientes del juego están en **[`docs/especificaciones.md`](docs/especificaciones.md)**.
+Las mecánicas, objetos, misiones y decisiones pendientes del juego están en **[`docs/especificaciones.md`](docs/especificaciones.md)**. La historia, la ciudad y su gente están en **[`docs/lore.md`](docs/lore.md)**. El reparto —quién es quién, qué quiere y qué esconde— está en **[`docs/personajes.md`](docs/personajes.md)**.
 
 ## Cómo correrlo
 
@@ -79,6 +79,8 @@ data/map/       datos de entrada del mapa (OSM, Google, DENUE, correcciones a ma
 textures/map/   texturas de fachadas, azoteas, suelo, pasto, asfalto, banquetas, árboles y minimapa
 tools/map_import/  scripts para generar el mapa
 docs/mapa/      README y capturas del mapa
+docs/lore.md    la historia del juego (biblia narrativa)
+docs/personajes.md  el reparto: quién es quién, qué quiere y qué esconde
 ```
 
 ## Pendientes conocidos
