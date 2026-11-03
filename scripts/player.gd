@@ -69,6 +69,7 @@ const ESTELA_PUNO := 0.2      # m de la estela mas alla del puno, a mano limpia
 # Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
 # al frente para que de lado a la camara no se voltee al azar
 const BARRE_AL_FRENTE := 0.3
+const COMBO_VENTANA := 0.5   # s despues del enfriamiento para que el siguiente golpe sea el de regreso
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 
 static var _material_blanco: StandardMaterial3D
@@ -95,6 +96,8 @@ var _camara: Camera3D
 var _voz: AudioStreamPlayer3D
 var _mano: BoneAttachment3D
 var _barrido: Node
+var _lado_golpe := 1.0        # 1: de derecha a izquierda; -1: el de regreso del combo
+var _combo_hasta := 0.0       # s de juego en que se acaba la ventana del combo
 var _arma_visible: InventoryItemData
 
 
@@ -187,12 +190,16 @@ func _atacar() -> void:
 		return
 	_enfriar = ATAQUE_ENFRIAR
 	_pega_en = ATAQUE_PEGA_EN
+	# Combo de dos: si vuelves a pegar a tiempo, el siguiente va de regreso; luego empieza otra vez
+	var ahora := Time.get_ticks_msec() / 1000.0
+	_lado_golpe = -_lado_golpe if ahora <= _combo_hasta and _lado_golpe > 0.0 else 1.0
+	_combo_hasta = ahora + ATAQUE_ENFRIAR + COMBO_VENTANA
 	if ninja.has_method("accion"):
 		ninja.accion("Punch")
 	if _barrido:
 		# Del puno a la punta: el centro del arma queda ARMA_MANGO adelante del puno
 		_barrido.largo = ARMA_TAMANO * 0.5 + ARMA_MANGO if _arma_visible else ESTELA_PUNO
-		_barrido.golpe()
+		_barrido.golpe(_lado_golpe)
 	_sonar("machetazo", SWING_VOLUMEN)
 
 
@@ -209,7 +216,7 @@ func _golpear() -> void:
 	var frente := -frijol.global_transform.basis.z
 	frente.y = 0.0
 	frente = frente.normalized()
-	var barre := -frijol.global_basis.x + frente * BARRE_AL_FRENTE
+	var barre := -frijol.global_basis.x * _lado_golpe + frente * BARRE_AL_FRENTE
 	barre.y = 0.0
 	efecto("golpe", barre, "" if con_arma else "puno", BARRE_ALTO)
 	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)

@@ -12,7 +12,8 @@ const PREPARA := 0.10     # lleva el brazo atras
 const BARRE := 0.30       # termina de barrer
 const SOSTIENE := 0.42    # se queda estirado
 const SUELTA := 0.58      # regresa a la animacion
-# Grados desde el frente, a la derecha positivos
+# Grados desde el frente, a la derecha positivos, para el primer golpe del combo; el segundo es
+# el mismo al reves (de izquierda a derecha)
 const ATRAS := 110.0
 const INICIO := 30.0
 const FIN := -80.0
@@ -26,12 +27,15 @@ var frijol: Node3D        # el cuerpo visible del jugador: de ahi salen el frent
 var estela: Node          # EstelaBarrido.gd, opcional
 var largo := 0.6          # m de la mano a la punta de lo que traes
 var _t := -1.0
+var _lado := 1.0
 var _angulo_antes := 0.0
 var _delta_ultimo := 0.0
 
 
-func golpe() -> void:
+# `lado` 1: de la derecha a la izquierda (primer golpe del combo); -1: de regreso
+func golpe(lado := 1.0) -> void:
 	_t = 0.0
+	_lado = lado
 
 
 func _process_modification_with_delta(delta: float) -> void:
@@ -57,6 +61,7 @@ func _process_modification_with_delta(delta: float) -> void:
 		angulo = FIN
 		if _t > SOSTIENE:
 			peso = 1.0 - (_t - SOSTIENE) / (SUELTA - SOSTIENE)
+	angulo *= _lado
 	# Del mundo al espacio del esqueleto, sin su escala
 	var al_esqueleto := esqueleto.global_basis.orthonormalized().inverse()
 	var frente := al_esqueleto * -frijol.global_basis.z
