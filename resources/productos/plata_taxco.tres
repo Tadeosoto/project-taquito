@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3]
+
+[ext_resource type="PackedScene" path="res://models/objetos/moneda_peso/moneda_peso.scn" id="1_modelo"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+
+[resource]
+script = ExtResource("2_item")
+item_name = "Plata de Taxco"
+description = "Plata de verdad, en barrita. Nadie pregunta de dónde."
+inspection_model = ExtResource("1_modelo")
+efecto = "Material para el taller de La Chava (va al morral, no ocupa lugar)."
+precio = 120
+tinte = Color(0.82, 0.84, 0.9, 1)
+material = "plata_taxco"

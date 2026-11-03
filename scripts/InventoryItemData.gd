@@ -33,6 +33,36 @@ extends Resource
 # Bolsa especial de Takis: "Abrir" en el inventario saca un tazo (Tazos.gd, TazoRevelacion.gd)
 @export var bolsa_tazo : bool = false
 
+# --- Lo del taller (El Yonke de La Chava, Recetas.gd) ---
+
+# Si es arma, como pega ademas del dano: factores sobre el alcance, el empujon al zombi y la
+# rapidez del golpe (1 = como el machete), y si lo prende (Zombie.quemar)
+@export var alcance : float = 1.0
+@export var empujon : float = 1.0
+@export var velocidad : float = 1.0
+@export var quema : bool = false
+
+# Si es amuleto: lo que da mientras lo traes puesto en uno de los dos lugares (Bonos.gd).
+# Llaves: vida (+vida maxima), fuerza, defensa (fracciones, 0.1 = 10 %), noche (menos dano de
+# noche), turba (menos dano de las turbas), fuertes (menos dano de cazadores y jefe), pesos
+# (mas pesos por zombi), suerte (mejores tazos), arrojable, alcance (fracciones) y luz (true)
+@export var amuleto : Dictionary = {}
+
+# Estampita: se usa una vez y dura toda la partida (Bonos.gd). "punto" = +1 punto de
+# habilidad, "defensa" = -5 % de dano, "fuerza" = +5 % de fuerza
+@export var estampita : String = ""
+
+# Ademas de curar, vuelve a dejar usar Segundo aire esta noche (Tazos.gd)
+@export var recarga_segundo_aire : bool = false
+
+# Si se vende como material del taller (la plata del punto): al comprarlo va al Morral con
+# este id (Materiales.gd) y no al inventario
+@export var material : String = ""
+
+
+func es_amuleto() -> bool:
+	return not amuleto.is_empty()
+
 
 # El modelo centrado y escalado a una caja de `tamano` m (los de Sketchfab vienen en
 # cualquier unidad), dentro de un nodo que se puede mover, girar y escalar libremente.

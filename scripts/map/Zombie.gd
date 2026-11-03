@@ -77,14 +77,27 @@ const JEFE_EMPUJA := 1.41   # velocidad del empujon al jugador: el doble de dist
 const JEFE_TAMANO := 1.7
 const JEFE_VELOCIDAD := 3.0
 const JEFE_COLOR := Color(0.35, 0.5, 0.95)
+# Los raros (poner_variante): uniforme claro de GelA, y el de cobalto que brilla y aguanta mas
+const VARIANTES := {
+	"gela": { "color": Color(0.82, 0.88, 0.95), "vida": 1.0 },
+	"cobalto": { "color": Color(0.35, 1.25, 1.15), "vida": 1.5 },
+}
 const JEFE_SHADER := preload("res://shaders/ps1_combined.gdshader")
 
 enum Estado { CAMINA, ATACA, HERIDO, MUERTO }
+# Quemado (quemar): segundos, cada cuanto le baja vida y cuanto
+const QUEMA_DURA := 3.0
+const QUEMA_CADA := 0.5
+const QUEMA_DANO := 3
+const QUEMA_TRUENA := 0.05
+const QUEMA_ESCALA := 0.9
+const QUEMA_ALTO := 0.9
 const GOLPE_NADA := 0
 const GOLPE_PEGO := 1
 const GOLPE_MATO := 2
 
 static var _material_jefe: ShaderMaterial
+static var _materiales_variante := {}   # variante -> ShaderMaterial
 static var _material_blanco: StandardMaterial3D
 static var _material_charco: StandardMaterial3D
 static var activos: Array[Zombie] = []   # los despiertos
@@ -94,6 +107,11 @@ var jugador: Player
 var zombis: Zombis
 var es_jefe := false
 var cazador := false
+# Zombi raro (Zombis.gd): "gela" (uniforme de GelA) o "cobalto" (brilla, en zonas de obra negra)
+var variante := ""
+var _quema := 0.0
+var _quema_tic := 0.0
+var _fuego: MeshInstance3D
 var despierto := false
 
 var _refugio: Refugio
@@ -213,6 +231,9 @@ func _pintar_blanco(prendido: bool) -> void:
 
 # Como quedo el modelo tras tronar: de vuelta a la reserva tiene que estar entero
 func _restaurar() -> void:
+	_quema = 0.0
+	if _fuego:
+		_fuego.visible = false
 	_flash_hasta = 0
 	_reventar_en = 0
 	_ceniza = false
@@ -284,9 +305,61 @@ func dormir() -> void:
 	process_mode = Node.PROCESS_MODE_DISABLED
 
 
+# Zombi raro (Zombis.sacar): pinta el modelo de su color y le ajusta la vida; "" = normal.
+# Los trofeos que dan los cuenta Hazanas.gd
+func poner_variante(cual: String) -> void:
+	if es_jefe:
+		return
+	variante = cual if VARIANTES.has(cual) else ""
+	var material: ShaderMaterial = null
+	if variante != "":
+		if not _materiales_variante.has(variante):
+			var m := ShaderMaterial.new()
+			m.shader = JEFE_SHADER
+			m.set_shader_parameter("tint", VARIANTES[variante]["color"])
+			_materiales_variante[variante] = m
+		material = _materiales_variante[variante]
+		_vida = roundi(VIDA * VARIANTES[variante]["vida"])
+	for malla in _mallas:
+		malla.material_override = material
+
+
+# Prendido por la antorcha de thinner (InventoryItemData.quema): pierde vida unos segundos con
+# fuego encima. Si muere quemado cuenta como muerte con fuego (Hazanas.gd)
+func quemar() -> void:
+	if estado == Estado.MUERTO or es_jefe:
+		return
+	_quema = QUEMA_DURA
+	if _fuego == null:
+		_fuego = EfectosPixel.cuadro_bucle("fuego_tambo", QUEMA_ESCALA * _tamano)
+		if _fuego:
+			_fuego.position.y = QUEMA_ALTO * _tamano
+			add_child(_fuego)
+	if _fuego:
+		_fuego.visible = true
+
+
+func esta_quemandose() -> bool:
+	return _quema > 0.0
+
+
+func _arder(delta: float) -> void:
+	_quema -= delta
+	_quema_tic -= delta
+	if _quema_tic <= 0.0:
+		_quema_tic = QUEMA_CADA
+		_vida -= QUEMA_DANO
+		if _vida <= 0:
+			_morir(true, int(QUEMA_TRUENA * 1000.0))
+	if _quema <= 0.0 and _fuego:
+		_fuego.visible = false
+
+
 func _physics_process(delta: float) -> void:
 	var movimiento := Vector3.ZERO
 	_tiempo += delta
+	if _quema > 0.0 and estado != Estado.MUERTO:
+		_arder(delta)
 	match estado:
 		Estado.CAMINA:
 			movimiento = _caminar(delta)
@@ -448,7 +521,7 @@ func _atacar() -> void:
 			var hacia := jugador.global_position - global_position
 			hacia.y = 0.0
 			if hacia.length() <= _alcance_golpe and absf(jugador.global_position.y - global_position.y) <= _alcance_golpe:
-				jugador.recibir_dano(_dano, global_position, JEFE_EMPUJA if es_jefe else 1.0)
+				jugador.recibir_dano(_dano, global_position, JEFE_EMPUJA if es_jefe else 1.0, self)
 		elif is_instance_valid(_blanco) and _blanco.has_method("recibir_golpe"):
 			_blanco.recibir_golpe(JEFE_DANO_RECINTO if es_jefe else DANO_RECINTO)
 	if _tiempo >= ATAQUE_DURA:
@@ -495,6 +568,8 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) ->
 # el, se cae (al amanecer)
 func _morir(pagado: bool, truena_en := 0) -> void:
 	estado = Estado.MUERTO
+	if _fuego:
+		_fuego.visible = false
 	if _rabia:
 		_rabia.visible = false
 	_tiempo = 0.0
@@ -517,7 +592,18 @@ func _morir(pagado: bool, truena_en := 0) -> void:
 		if cartera:
 			# Bolsillos (Tazos.gd): unos pesos de mas
 			var tazos := get_node_or_null("/root/Tazos")
-			cartera.pesos += randi_range(PESOS.x, PESOS.y) + (tazos.pesos_extra() if tazos else 0)
+			# y los amuletos de pesos (Bonos.gd)
+			var bonos := get_node_or_null("/root/Bonos")
+			var paga: int = randi_range(PESOS.x, PESOS.y) + (tazos.pesos_extra() if tazos else 0)
+			cartera.pesos += roundi(paga * (bonos.factor_pesos() if bonos else 1.0))
+		# Materiales para el taller (Morral.gd): mejores de noche, en zonas feas y de cazadores
+		var morral := get_node_or_null("/root/Morral")
+		if morral:
+			var ciclo := get_tree().get_first_node_in_group("ciclo")
+			var de_noche: bool = ciclo != null and ciclo.es_noche()
+			morral.dar_varios(Materiales.botin(Deterioro.zona(global_position.x, global_position.z), de_noche, cazador or es_jefe))
+		# Las hazanas del taller (Hazanas.gd): cazador, turba, fuego, jefe...
+		get_tree().call_group("hazanas", "zombi_muerto", self, _quema > 0.0)
 
 
 func caer_al_amanecer() -> void:

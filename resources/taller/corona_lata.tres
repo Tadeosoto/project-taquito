@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/taller/corona.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Corona de lata"
+description = "Hecha con latas de cerveza. Rey del yonke."
+inspection_model = ExtResource("2_modelo")
+efecto = "Amuleto: +15 de vida, +10 % de fuerza, -5 % de daño, +10 % de pesos"
+amuleto = {
+"defensa": 0.05,
+"fuerza": 0.1,
+"pesos": 0.1,
+"vida": 15
+}
+tinte = Color(0.75, 0.75, 0.8, 1)

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/armas/melee_psx/piezas/machete_bloody.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Machetón del 84"
+description = "Forjado con la varilla que brilla. La Chava no lo quiere ni tocar."
+inspection_model = ExtResource("2_modelo")
+efecto = "40 de daño, golpe rápido"
+dano = 40
+velocidad = 1.25
+tinte = Color(0.4, 0.9, 1, 1)

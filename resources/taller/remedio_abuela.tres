@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/objetos/vaporub/vaporub.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Remedio de la abuela"
+description = "Vaporub, té y un trapito en la frente. Te deja como nuevo."
+inspection_model = ExtResource("2_modelo")
+efecto = "Cura toda la vida"
+curacion = 999

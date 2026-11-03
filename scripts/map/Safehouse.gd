@@ -67,6 +67,9 @@ const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
 const DANO_TINACO := 100
 const TURBA_PRUEBA := 12
 const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
+const CHATARRA_EN := [Vector3(17.0, 0.0, 6.0), Vector3(19.5, 0.0, 6.0)]
+const MATERIALES_PRUEBA := 5   # de cada material comun y especial con Shift+P
+const YONKE_EN := Vector3(-36.0, 0.0, 14.0)
 const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
 Tab inventario · clic o F pegar · V dron
 N siguiente atardecer/amanecer
@@ -78,6 +81,8 @@ M mapa (sin piezas se ve vacío) · U todas las piezas
 C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
+Shift+P +5 de cada material (B en el inventario: el morral) · chatarra junto al pedazo de mapa
+Yonke a la izquierda · Shift+K subir rango · Shift+L trofeos y planos · Shift+Y olvidar el taller
 Efectos de pixel, propuestas (F2-F7 cambian):"""
 # Una tecla por lugar de EfectosPixel, en este orden
 const EFECTOS_TECLAS := [KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7]
@@ -180,6 +185,13 @@ func _ready() -> void:
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))
 	_letrero("CASAS", Vector3(0.0, 9.0, CASAS_Z))
 	_efectos_demo()
+	# El taller de La Chava (YonkeMapa.gd), con su barda de lamina porque aqui no hay baldio
+	var yonke := YonkeMapa.new()
+	yonke.name = "Yonke"
+	yonke.position = YONKE_EN
+	yonke.con_barda = true
+	yonke.puntos_path = get_node("Puntos").get_path()
+	add_child(yonke)
 	_armar_panel()
 
 
@@ -188,6 +200,13 @@ func _poner_pieza_prueba() -> void:
 	var pieza := PiezaMapa.new()
 	pieza.position = PIEZA_PRUEBA_EN
 	add_child(pieza)
+	# Y unos montones de chatarra para el taller (Chatarra.gd)
+	for monton in get_tree().get_nodes_in_group("chatarra"):
+		monton.queue_free()
+	for en: Vector3 in CHATARRA_EN:
+		var monton := Chatarra.new()
+		monton.position = en
+		add_child(monton)
 
 
 # --- El patio ---
@@ -353,7 +372,24 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_J:
 			_salud.vida -= DANO_PRUEBA
 		KEY_P:
-			_cartera.pesos += 100
+			# Shift: materiales para el taller (Morral.gd), sin trofeos
+			if event.shift_pressed:
+				for id: String in Materiales.LISTA:
+					if not Materiales.es_trofeo(id):
+						Morral.dar(id, MATERIALES_PRUEBA, false)
+			else:
+				_cartera.pesos += 100
+		KEY_Y when event.shift_pressed:
+			# El taller se olvida de ti: rango, planos y vitrina
+			Taller.olvidar()
+			Morral.vaciar_vitrina()
+		KEY_K when event.shift_pressed:
+			Taller.subir_rango()
+		KEY_L when event.shift_pressed:
+			for id: String in Materiales.de_clase(Materiales.Clase.TROFEO):
+				Morral.dar(id, 3, false)
+			for plano: String in Recetas.PLANOS:
+				Taller.dar_plano(plano)
 		KEY_Y:
 			_inventario.items.clear()
 			_inventario.inventory_changed.emit()
@@ -447,6 +483,8 @@ func _reiniciar() -> void:
 	PiezasMapa.reiniciar()
 	Misiones.reiniciar()
 	Tazos.reiniciar()
+	Morral.reiniciar()
+	Bonos.reiniciar()
 	for pieza in get_tree().get_nodes_in_group("piezas_mapa"):
 		pieza.queue_free()
 	_poner_pieza_prueba()

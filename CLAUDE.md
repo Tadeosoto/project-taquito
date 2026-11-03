@@ -60,7 +60,7 @@ Overview:
 - `Player`: `attack` action (left click, F, gamepad X) in a forward cone (`_golpear`). Damage is the best `InventoryItemData.dano` in the inventory (`Inventory.arma()`, machete 12, reinforced 18), or 5 bare-handed; nothing needs equipping, and the weapon shows in the hand (`Fist.R`). `player.gd` is loaded by `tools/` scripts through `MapPuntos`, so it reaches autoloads with `get_node("/root/...")`. Its timers tick in `_physics_process`, so they stop while it's frozen.
 - `scripts/map/Supervivencia.gd`: no health bar (life shows in the inventory): red flash on damage, pulsing red edges below 35 %, dusk/night/dawn messages. At 0 life: inventory items drop in one recoverable `BolsaMuerte` (a new one replaces the old; money and backpack stay), fade, respawn at `punto_regreso` with 50 life, zombies within 20 m of it cleared.
 - `scripts/map/Refugio.gd` + `EntradaRefugio.gd`: walled 14×14 m yard with one entry per side and the tinaco at its origin, in `map_test.tscn` at (203, 662). Tablas barricade entries on collision layer 3, which zombies have in their mask and the player doesn't. Zombies go for the player only within 12 m on the same side of the wall, otherwise the nearest entry, then the tinaco (`Zombie._destino`). Beyond `Zombis.LEJOS` no zombies exist there, so the attack is simulated (`ASEDIO`).
-- `scripts/map/Partida.gd`: 3-night run. On the last night `Ciclo.retener_noche` holds dawn and the boss (`Zombie.es_jefe`) spawns once the player is near; killing it wins, losing the tinaco loses. Restart calls `reiniciar()` on `Inventory`, `Salud`, `Cartera` and `Tazos`. This is AG's working proposal; spec §1.2, §1.3 and §1.5 votes are still open.
+- `scripts/map/Partida.gd`: 3-night run. On the last night `Ciclo.retener_noche` holds dawn and the boss (`Zombie.es_jefe`) spawns once the player is near; killing it wins, losing the tinaco loses. Restart calls `reiniciar()` on `Inventory`, `Salud`, `Cartera`, `Tazos`, `Morral` and `Bonos` (not `Taller`: the workshop rank, blueprints and trophy case persist). This is AG's working proposal; spec §1.2, §1.3 and §1.5 votes are still open.
 - At night shops, stalls and machines close and kick you out (`Interiores._echar`, `TragamonedasUI._echar`), and the drone too where `MapDron.cerrado_de_noche` is set (`map_test.tscn` only). They find the clock through group `ciclo`.
 - `scripts/Sonidos.gd`: all generated sounds. A node re-enables `_physics_process` when it becomes ready if the script defines it: call `set_physics_process(false)` after `add_child`.
 - `map_test.tscn` sets the player to 10/18 m/s for walking the map, which outruns every zombie.
@@ -119,6 +119,44 @@ Overview:
   - I gives +5 points, and Shift+I gives every missing tazo (fills the album and pays the series bonuses).
   - The safehouse's own T and H only work while the player is free, so they don't clash with the inventory's.
 - **Later:** combat moves (roll, charged swing, counter) and Blender tazo models.
+
+## Crafting: El Yonke de Don Chava (AG's proposal, spec §4.13; the team hasn't voted on it)
+
+Kingdom Hearts 1-style synthesis with this world's own items.
+- **Materials:**
+  - `scripts/Materiales.gd` is the static table: 6 families × 3 tiers (COMUN), ESPECIAL and TROFEO, plus the drop rules (`botin`, `chatarra`).
+  - The `Morral` autoload holds counts outside the inventory, so materials take no slots. It shows "+2 Rebaba" notices bottom right and resets on restart.
+  - **Trophies persist** in `user://taller.cfg` (section `vitrina`).
+  - Icons are drawn by `godot --path . --headless -s tools/taller/iconos.gd`.
+- **Where materials come from:**
+  - `Zombie._morir` drops by zone `Deterioro`, night and hunter.
+  - `Chatarra.gd` piles beside posts (`Partida._poner_chatarra`), and Alambrón piles in front of obra negra houses (`Partida._poner_obras`, using `MapCasas.es_obra_negra`, a static function called through a preload because MapCasas has no class_name); two of those also hold blueprints.
+  - Plata de Taxco is sold at el punto (`InventoryItemData.material`: a bought or picked-up item goes to the Morral).
+- **Trophies:** `scripts/map/Hazanas.gd` (created by Partida, group `hazanas`; `Zombie._morir` calls `zombi_muerto`) gives them at most once per night:
+  - Marca de cazador and Ojo de turba from hunters; Ceniza and Baba verde from burning kills; Chancla de oro from a kill with no weapon;
+  - Tapa del tinaco after a night with no tinaco damage;
+  - Diente del jefe plus the first missing blueprint from the boss;
+  - Casco de GelA and Cobalto from the rare variants (`Zombis._variante` → `Zombie.poner_variante`: a pale "gela" at night, a glowing tougher "cobalto" where `Deterioro.zona` ≥ 0.5).
+- **Recipes:** `scripts/Recetas.gd` lists 39: sets 1–5 open at 0/3/9/15/21 unique items made, and set 6 needs everything plus a blueprint.
+  - The `Taller` autoload keeps the rank (`hechos`) and blueprints in `user://taller.cfg`; restarting a run does **not** reset it.
+  - `hacer(id)` spends materials and pesos (`costo`, with Regateo, never the skin-tone factor).
+  - Crafted items are `resources/taller/*.tres`, written by `tools/taller/objetos.gd`. Their models come from `tools/taller/modelos.gd`: the `melee_psx` pack split per weapon, plus simple shapes recoloured by `tinte`.
+- **The place:**
+  - **Map:** `scripts/map/YonkeMapa.gd` is a node in `map_test.tscn` at a vacant lot in Parques de Santa Mugre (+Z faces the street), with a sign, a shack, junk and the stores' yellow arrow. It emits `MapPuntos.entrar_negocio` with giro `yonke`, which `Interiores` maps to `scenes/interiores/yonke.tscn`.
+  - **Interior:** `Yonke.gd` (extends `Interior`) with La Chava (`chava_psx` through `Gente.poner_modelo` on a plain Node3D: inside `npc.tscn` it threw null-material errors). It opens `TallerUI.gd` instead of the product carousel, and the chosen item floats on the counter (`Banco`).
+- **Using what you make (`InventoryItemData`):**
+  - **Weapons:** traits `alcance`, `empujon`, `velocidad`, `quema`, read in `Player._atacar`/`_golpear`. The torch calls `Zombie.quemar` (3 s of damage with the barrel-fire sheet).
+  - **Equipar:** reuses the Utilizar slot (`InventoryUI._nombre_utilizar`); `Inventory.arma()` prefers the equipped weapon and otherwise picks the highest damage.
+  - **Amulets:** an `amuleto` dict; "Ponerse" moves the amulet out of the inventory into one of 2 slots in the `Bonos` autoload (the oldest comes back when full).
+  - **Estampitas:** `estampita` lasts the run.
+  - **How the bonuses combine:** `Bonos` multiplies into life, strength, reach, damage taken (`Player.recibir_dano` now gets the attacker), pesos, tazo luck and the player's lamp.
+  - **Resets:** `Bonos` resets with the run.
+- **Inventory keys:** **B / RB** (`inventory_morral`) opens `MorralUI.gd`, the materials page.
+- **Safehouse:** the yonke is on the left.
+  - Shift+P gives +5 of every material.
+  - Shift+K raises the rank.
+  - Shift+L gives all trophies and blueprints.
+  - Shift+Y makes the workshop forget everything.
 
 ## People (`scripts/map/Gente.gd`)
 

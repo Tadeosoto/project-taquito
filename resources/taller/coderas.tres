@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/taller/rodillera.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Coderas"
+description = "Coderas de patineta con cinta canela."
+inspection_model = ExtResource("2_modelo")
+efecto = "Amuleto: -10 % de daño, +5 % de alcance"
+amuleto = {
+"alcance": 0.05,
+"defensa": 0.1
+}
+tinte = Color(0.4, 0.3, 0.2, 1)

@@ -230,6 +230,10 @@ func _actualizar() -> void:
 	var total := Tazos.todos.size()
 	_coleccion.text = "Tazos: %d de %d · series completas: %d de %d" % [
 		Tazos.distintos().size(), total, Tazos.series_premiadas.size(), Tazos.numero_de_series()]
+	# Lo de las estampitas del taller (Bonos.gd), que dura la partida
+	var estampitas: String = Bonos.texto_estampitas()
+	if estampitas != "":
+		_coleccion.text += " · Estampitas: " + estampitas
 
 
 func _actualizar_puntos() -> void:

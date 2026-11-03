@@ -327,7 +327,10 @@ func _comprar() -> void:
 	var probabilidad: float = tazos.probabilidad_bolsa() if tazos else BOLSA_PROBABILIDAD
 	var especial := producto.resource_path == TAKIS and randf() < probabilidad
 	var lleva: InventoryItemData = load(TAKIS_TAZO) if especial else producto
-	if lleva.capacidad > 0:
+	# Un material del taller (la plata del punto): al morral, no ocupa lugar
+	if lleva.material != "":
+		get_node("/root/Morral").dar(lleva.material)
+	elif lleva.capacidad > 0:
 		if not inventario.equipar_mochila(lleva):
 			_ui.decir("Ya traes una mochila mejor.", 1.5)
 			return

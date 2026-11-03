@@ -13,7 +13,8 @@ enum InventoryState {
 	MAPA,
 	HABILIDADES,   # la pagina de habilidades (HabilidadesUI.gd), con H / Y
 	REVELANDO,     # abriendo una bolsa especial (TazoRevelacion.gd): sus teclas son de ella
-	ALBUM          # el album de tazos (AlbumTazos.gd), con T / LB
+	ALBUM,         # el album de tazos (AlbumTazos.gd), con T / LB
+	MORRAL         # los materiales del taller (MorralUI.gd), con B / RB
 }
 
 enum Comando { EXAMINAR, UTILIZAR, COMBINAR }
@@ -80,6 +81,9 @@ var habilidades_ui: Control
 # El album de tazos; `_album_desde` es el estado al que regresa (la lista o las habilidades)
 var album_ui: Control
 var _album_desde := InventoryState.NAVIGATING
+# El morral (Morral.gd): los materiales del taller
+var morral_ui: Control
+var _amuletos_label: Label
 
 func _ready() -> void:
 	mapa_ui = load("res://scripts/MapaUI.gd").new()
@@ -91,6 +95,8 @@ func _ready() -> void:
 	album_ui = load("res://scripts/AlbumTazos.gd").new()
 	album_ui.visible = false
 	$MainPanel.add_child(album_ui)
+	morral_ui = load("res://scripts/MorralUI.gd").new()
+	$MainPanel.add_child(morral_ui)
 	# Automatically refresh if items are added or removed globally
 	inventory.inventory_changed.connect(refresh_carousel)
 	# Mochilero cambia la capacidad, y los puntos el aviso de abajo
@@ -148,6 +154,7 @@ func cerrar(sonido := "inv_cerrar") -> void:
 	mapa_ui.visible = false
 	habilidades_ui.visible = false
 	album_ui.cerrar()
+	morral_ui.cerrar()
 	inspect_viewer.set_inspection_active(false)
 	current_state = InventoryState.NAVIGATING
 	clear_all_models()
@@ -211,6 +218,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_map"):
 		_abrir_mapa()
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.MORRAL:
+		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_morral"):
+			morral_ui.cerrar()
+			_cerrar_habilidades()
+		else:
+			morral_ui.manejar(event)
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_morral"):
+		_sonar("ui_aceptar")
+		current_state = InventoryState.MORRAL
+		preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		morral_ui.mostrar()
 		get_viewport().set_input_as_handled()
 		return
 	if current_state == InventoryState.ALBUM:
@@ -349,7 +371,8 @@ func _comandos_visibles() -> Array[int]:
 		return lista
 	if is_instance_valid(current_model):
 		lista.append(Comando.EXAMINAR)
-	if item.curacion > 0 or item.bolsa_tazo:
+	# Utilizar tambien es Abrir (bolsa), Equipar (arma), Ponerse (amuleto) y Usar (estampita)
+	if item.curacion > 0 or item.bolsa_tazo or item.dano > 0 or item.es_amuleto() or item.estampita != "":
 		lista.append(Comando.UTILIZAR)
 	if inventory.get_item_count() > 1:
 		lista.append(Comando.COMBINAR)
@@ -382,12 +405,45 @@ func _ejecutar_comando() -> void:
 			combinar_desde = current_item_index
 			update_hint()
 
+# Como se llama "Utilizar" para cada cosa
+func _nombre_utilizar(item: InventoryItemData) -> String:
+	if item.bolsa_tazo:
+		return "Abrir"
+	if item.dano > 0:
+		return "Quitar" if item == inventory.equipada else "Equipar"
+	if item.es_amuleto():
+		return "Ponerse"
+	if item.estampita != "":
+		return "Usar"
+	return COMANDOS[Comando.UTILIZAR]
+
+
 func _utilizar() -> void:
 	var item: InventoryItemData = inventory.get_item(current_item_index)
 	if item.bolsa_tazo:
 		_abrir_bolsa()
 		return
-	if Salud.llena():
+	if item.dano > 0:
+		_sonar("inv_usar")
+		inventory.equipar_arma(item)
+		_mostrar_mensaje(("Peleas con: %s." % item.item_name) if inventory.equipada == item else "Peleas con lo mejor que traes.")
+		return
+	if item.es_amuleto():
+		_sonar("inv_usar")
+		var antes: Array = Bonos.puestos.duplicate()
+		inventory.poner_amuleto(current_item_index)
+		var quitado: InventoryItemData = antes[0] if not antes.has(null) else null
+		_mostrar_mensaje("Te pusiste: %s.%s" % [item.item_name, ("  Te quitaste: %s." % quitado.item_name) if quitado else ""])
+		return
+	if item.estampita != "":
+		_sonar("inv_usar")
+		Bonos.usar_estampita(item.estampita)
+		inventory.remove_item(current_item_index)
+		_mostrar_mensaje("%s: %s." % [item.item_name, item.efecto])
+		return
+	# El Milagro del tinaco tambien sirve con la vida llena si ya usaste Segundo aire
+	var recarga := item.recarga_segundo_aire and Tazos.segundo_aire_usado
+	if Salud.llena() and not recarga:
 		_sonar("ui_error")
 		_mostrar_mensaje("No lo necesitas ahorita.")
 		return
@@ -395,6 +451,8 @@ func _utilizar() -> void:
 	var antes: int = Salud.vida
 	# Buen diente (Habilidades.gd) hace que la comida cure mas
 	Salud.vida += roundi(item.curacion * Tazos.factor_curacion())
+	if item.recarga_segundo_aire:
+		Tazos.segundo_aire_usado = false
 	# La flor de curar a los pies: el juego esta en pausa, se ve al cerrar (EfectosPixel)
 	var jugador := get_tree().get_first_node_in_group("jugador")
 	if jugador and jugador.has_method("efecto"):
@@ -551,7 +609,10 @@ func _elegir_centro() -> void:
 		return
 	# Update label text fields instantly
 	item_name_label.text = selected_item.item_name
-	item_description_label.text = selected_item.description
+	item_description_label.text = ("[Equipada] " if selected_item == inventory.equipada else "") + selected_item.description
+	# Lo del taller dice que hace (armas, amuletos, estampitas)
+	if selected_item.efecto != "" and (selected_item.dano > 0 or selected_item.es_amuleto() or selected_item.estampita != ""):
+		item_description_label.text += "\n" + selected_item.efecto
 	current_model = modelos[current_item_index]
 	# The centre model may have changed; keep the inspector in sync.
 	inspect_viewer.set_active_model(current_model)
@@ -568,6 +629,20 @@ func _actualizar_equipo() -> void:
 	if modelo:
 		equipo_pivot.add_child(modelo)
 	sin_mochila_label.visible = modelo == null
+	# Los dos amuletos puestos (Bonos.gd), abajo de la mochila
+	if _amuletos_label == null:
+		_amuletos_label = Label.new()
+		_amuletos_label.position = sin_mochila_label.position + Vector2(-40.0, 26.0)
+		_amuletos_label.size = Vector2(190.0, 34.0)
+		_amuletos_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_amuletos_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_amuletos_label.add_theme_font_size_override("font_size", 10)
+		_amuletos_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
+		$MainPanel.add_child(_amuletos_label)
+	var nombres: Array[String] = []
+	for amuleto: InventoryItemData in Bonos.puestos:
+		nombres.append(amuleto.item_name if amuleto else "—")
+	_amuletos_label.text = "Amuletos: " + " · ".join(nombres)
 
 # Factory utility to instantiate and mount item scene resources cleanly
 func spawn_item(index: int) -> Node3D:
@@ -608,8 +683,8 @@ func update_hint() -> void:
 		_:
 			# Con puntos sin gastar, el aviso lo dice (y se pinta de amarillo)
 			var libres: int = Tazos.libres()
-			var aviso := "  (¡%d %s!)" % [libres, "punto" if libres == 1 else "puntos"] if libres > 0 else ""
-			inspect_hint_label.text = "M: Mapa  H: Habilidades%s  T: Álbum" % aviso
+			var aviso := " (¡%d!)" % libres if libres > 0 else ""
+			inspect_hint_label.text = "M Mapa · H Habilidades%s · T Álbum · B Morral" % aviso
 	if current_state in [InventoryState.INSPECTING, InventoryState.COMBINING] or Tazos.libres() <= 0:
 		inspect_hint_label.remove_theme_color_override("font_color")
 	else:
@@ -625,7 +700,7 @@ func _actualizar_comandos() -> void:
 			label.text = COMANDOS[lista[i]]
 			# Una bolsa especial no se "utiliza": se abre
 			var item: InventoryItemData = inventory.get_item(current_item_index)
-			if lista[i] == Comando.UTILIZAR and item and item.bolsa_tazo:
-				label.text = "Abrir"
+			if lista[i] == Comando.UTILIZAR and item:
+				label.text = _nombre_utilizar(item)
 			var elegido: bool = lista[i] == comando_actual and current_state == InventoryState.NAVIGATING
 			label.add_theme_color_override("font_color", COLOR_ELEGIDO if elegido else COLOR_NORMAL)

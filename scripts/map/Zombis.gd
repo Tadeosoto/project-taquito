@@ -13,6 +13,10 @@ const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 const ENTRE_ZOMBIS := 3.0     # s entre uno suelto y otro
 const ANILLO := Vector2(24.0, 36.0)   # m del jugador donde aparecen
 const LEJOS := 70.0           # mas lejos se quitan: ya perdieron al jugador
+# Zombis raros para el taller (Zombie.poner_variante)
+const GELA_PROBABILIDAD := 0.05
+const COBALTO_PROBABILIDAD := 0.08
+const COBALTO_ZONA := 0.5     # Deterioro.zona desde donde hay casas en obra negra (MapCasas)
 const MAX_BASE := 2
 const MAX_POR_ZONA := 8
 const MAX_POR_NOCHE := 1
@@ -263,7 +267,19 @@ func _aparecer() -> void:
 func sacar(lugar: Vector3, cazador: bool) -> Zombie:
 	var zombi: Zombie = _libres.pop_back() if not _libres.is_empty() else _armar()
 	zombi.despertar(lugar, cazador)
+	zombi.poner_variante("" if cazador else _variante(lugar))
 	return zombi
+
+
+# De vez en cuando sale uno raro (trofeos del taller, Hazanas.gd): el de GelA de noche en
+# cualquier lado, el de cobalto en zonas tan feas que hay casas en obra negra
+func _variante(lugar: Vector3) -> String:
+	var ciclo := get_tree().get_first_node_in_group("ciclo")
+	if ciclo and ciclo.es_noche() and randf() < GELA_PROBABILIDAD:
+		return "gela"
+	if Deterioro.zona(lugar.x, lugar.z) >= COBALTO_ZONA and randf() < COBALTO_PROBABILIDAD:
+		return "cobalto"
+	return ""
 
 
 # El garrafonero (Partida.gd), alrededor de `centro`; null si no encontro lugar este intento

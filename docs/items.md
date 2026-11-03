@@ -90,6 +90,48 @@
 - **Machete reforzado** = machete + cinta canela.
 - **Agua limpia** = agua sucia + Cloralex (es delito; el Decreto 47 lo prohíbe).
 
+### 4.1 El taller de La Chava 💡🧱 (propuesta de AG; `especificaciones.md` 4.13)
+
+Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Recetas.gd` (recetas). Las recetas piden materiales del **Morral** y pesos; Regateo baja los pesos.
+
+**Materiales comunes:** seis familias en tres niveles. Se pierden al reiniciar.
+
+| Familia | Suelto | Bueno | Fino |
+|---|---|---|---|
+| Fierro | Rebaba | Tuerca | Engrane |
+| Trapo | Hilacha | Trapo | Cuero |
+| Cable | Alambrito | Cable | Cobre |
+| Lumbre | Cerillo | Thinner | Pólvora |
+| Agua | Agua sucia | Agua de la llave | Agua destilada |
+| Vela | Pabilo | Veladora | Agua bendita |
+
+**Especiales:**
+- **Varilla corta:** de la chatarra y de los zombis.
+- **Alambrón:** de las obras negras.
+- **Plata de Taxco:** se compra en el punto, a $120.
+- **Baba verde:** de matar a un zombi quemándose.
+- **Polvo de Serenol:** del zombi de GelA.
+- **Varilla armada** y **Varilla del 84:** se hacen en el taller.
+
+**Trofeos:** se quedan entre partidas, en la vitrina.
+- **Marca de cazador:** matar a un cazador.
+- **Ojo de turba:** matar a 5 cazadores en 10 s.
+- **Ceniza:** matar con fuego.
+- **Tapa del tinaco:** una noche sin que le peguen al tinaco.
+- **Diente del jefe:** matar al jefe.
+- **Chancla de oro:** matar sin arma.
+- **Casco de GelA:** del zombi de GelA.
+- **Cobalto:** del zombi que brilla.
+
+| Juego (se abre con) | Remedios y estampitas | Amuletos | Armas |
+|---|---|---|---|
+| **1** (desde el inicio) | Caldo de pollo (+60), Remedio de la abuela (cura todo) | Pulsera de hilo rojo (+10 vida), Cadena de fantasía (+5 % fuerza), Rodilleras (−5 % daño), Medalla de San Judas (+20 % pesos; pide 4 trofeos) | Tubo de fierro (14, empuja más) |
+| **2** (3 hechas) | Suero oral (+40) | Lámpara de pilas (alumbra), Escapulario (−10 %), Pulsera de San Benito (+25 vida), Cadena gruesa (+10 % fuerza, −5 %), Coderas (−10 %, +5 % alcance) | Antorcha de thinner (10, quema), Bate con alambre de púas (17, empuja más) |
+| **3** (9) | Estampita de San Expedito (+1 punto de habilidad), Varilla armada (material) | Rosario de semillas (−20 % de noche), Medalla de la Virgen (más tazos raros y holo), Faja de cargador (+40 vida), Cadena de oro (+20 % fuerza) | Coa afilada (20, más alcance) |
+| **4** (15) | Té de la Virgen (cura todo), Estampita del Santo Niño (−5 % daño la partida) | Ojo de venado (−20 % de cazadores y jefe, +15 vida), Herradura (−20 % de turbas), Brazalete de cobre (arrojables, todavía sin uso), Corona de lata (de todo un poco) | Machete de cañero (24, golpe rápido) |
+| **5** (21) | Milagro del tinaco (cura todo y recarga Segundo aire), Estampita de San Miguel (+5 % fuerza la partida), Varilla del 84 (material) | Chamarra del Nocturno (+30 vida, −10 %, +10 % pesos), Medalla de GelA (+30 % pesos, −5 %), Listón de la Virgen (−20 % de todo) | Marro (30, empuja mucho, golpe lento) |
+| **6** (las 36 anteriores y su plano) | — | — | Machetón del 84 (40, rápido), Lanza de varilla (30, mucho alcance), Bate con clavos de cobalto (32, empuja muchísimo) |
+
 ---
 
 ## 5. Equipo

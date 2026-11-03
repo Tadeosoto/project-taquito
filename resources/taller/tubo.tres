@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/armas/melee_psx/piezas/bat.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Tubo de fierro"
+description = "Un tubo de agua. Ya no lleva agua."
+inspection_model = ExtResource("2_modelo")
+efecto = "14 de daño, empuja más"
+dano = 14
+empujon = 1.3
+tinte = Color(0.45, 0.45, 0.5, 1)

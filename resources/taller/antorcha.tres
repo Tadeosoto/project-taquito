@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/armas/melee_psx/piezas/bat.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Antorcha de thinner"
+description = "Un palo con trapo y thinner. Los prende."
+inspection_model = ExtResource("2_modelo")
+efecto = "10 de daño y los quema"
+dano = 10
+quema = true
+tinte = Color(0.35, 0.2, 0.08, 1)

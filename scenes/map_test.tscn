@@ -39,6 +39,7 @@
 [ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="42_zombis"]
 [ext_resource type="Script" path="res://scripts/map/Supervivencia.gd" id="42_supervivencia"]
 [ext_resource type="Script" path="res://scripts/interiores/Interiores.gd" id="43_interiores"]
+[ext_resource type="Script" path="res://scripts/map/YonkeMapa.gd" id="yonke_mapa_gd"]
 [ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="45_npc"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="44_tiendita"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/licoreria.tscn" id="44_licoreria"]
@@ -366,3 +367,9 @@ item_data = ExtResource("52_mochila_verde")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 211.96, 0.5, 637.17)
 script = ExtResource("47_world_item")
 item_data = ExtResource("53_mochilon")
+
+[node name="Yonke" type="Node3D" parent="."]
+position = Vector3(-232.05, 0, 115.32)
+rotation = Vector3(0, -0.4352, 0)
+script = ExtResource("yonke_mapa_gd")
+puntos_path = NodePath("../Puntos")

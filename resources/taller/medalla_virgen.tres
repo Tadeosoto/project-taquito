@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/taller/medalla.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Medalla de la Virgen"
+description = "La Virgen del Tinaco, en lámina azul."
+inspection_model = ExtResource("2_modelo")
+efecto = "Amuleto: salen más tazos raros y holo"
+amuleto = {
+"suerte": 0.5
+}
+tinte = Color(0.4, 0.7, 0.95, 1)

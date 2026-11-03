@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/taller/lampara.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Lámpara de pilas"
+description = "Una lámpara con cable y pilas de las chinas. Alumbra."
+inspection_model = ExtResource("2_modelo")
+efecto = "Amuleto: alumbra de noche"
+amuleto = {
+"luz": true
+}
+tinte = Color(0.9, 0.75, 0.2, 1)

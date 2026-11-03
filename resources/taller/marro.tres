@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/armas/melee_psx/piezas/hammer.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Marro"
+description = "Un marro de albañil. Pesa, pero tumba de un golpe."
+inspection_model = ExtResource("2_modelo")
+efecto = "30 de daño, empuja mucho, golpe lento"
+dano = 30
+empujon = 2.5
+velocidad = 0.8

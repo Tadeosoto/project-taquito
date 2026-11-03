@@ -88,6 +88,9 @@ var _camara: Camera3D
 var _voz: AudioStreamPlayer3D
 var _mano: BoneAttachment3D
 var _arma_visible: InventoryItemData
+var _lampara: OmniLight3D
+const LAMPARA_ENERGIA := 1.6
+const LAMPARA_ALCANCE := 9.0
 
 
 func _ready() -> void:
@@ -111,6 +114,19 @@ func _ready() -> void:
 	var tazos := get_node_or_null("/root/Tazos")
 	if tazos:
 		tazos.cambio.connect(aplicar_habilidades)
+	# Los amuletos puestos (Bonos.gd) cambian lo mismo, y uno alumbra
+	var bonos := get_node_or_null("/root/Bonos")
+	if bonos:
+		bonos.cambio.connect(aplicar_habilidades)
+	_lampara = OmniLight3D.new()
+	_lampara.light_color = Color(1.0, 0.92, 0.75)
+	_lampara.light_energy = LAMPARA_ENERGIA
+	_lampara.omni_range = LAMPARA_ALCANCE
+	_lampara.shadow_enabled = false
+	_lampara.position = Vector3(0.0, 1.2, -0.4)
+	_lampara.visible = false
+	frijol.add_child(_lampara)
+	_aplicar_cuerpo(false)
 
 
 # Tu cuerpo (autoload Personaje): se ve en el modelo y cambia vida, velocidad y golpe. Sobre los
@@ -136,17 +152,20 @@ func _aplicar_cuerpo(llenar: bool) -> void:
 	var tazos := get_node_or_null("/root/Tazos")
 	if personaje == null and tazos == null:
 		return
+	var bonos := get_node_or_null("/root/Bonos")
 	var velocidad: float = (personaje.factor_velocidad() if personaje else 1.0) * (tazos.factor_velocidad() if tazos else 1.0)
 	speed = _velocidad_base.x * velocidad
 	sprint_speed = _velocidad_base.y * velocidad
-	_factor_dano = (personaje.factor_dano() if personaje else 1.0) * (tazos.factor_dano() if tazos else 1.0)
-	_alcance = ATAQUE_ALCANCE * (personaje.factor_alcance() if personaje else 1.0) * (tazos.factor_alcance() if tazos else 1.0)
+	_factor_dano = (personaje.factor_dano() if personaje else 1.0) * (tazos.factor_dano() if tazos else 1.0) * (bonos.factor_fuerza() if bonos else 1.0)
+	_alcance = ATAQUE_ALCANCE * (personaje.factor_alcance() if personaje else 1.0) * (tazos.factor_alcance() if tazos else 1.0) * (bonos.factor_alcance() if bonos else 1.0)
+	if _lampara:
+		_lampara.visible = bonos != null and bonos.luz()
 	var salud := get_node_or_null("/root/Salud")
 	if salud == null:
 		return
 	var fraccion: float = float(salud.vida) / maxf(salud.vida_max, 1.0)
 	var base: int = personaje.vida_max() if personaje else salud.vida_max
-	salud.vida_max = roundi(base * (tazos.factor_vida() if tazos else 1.0))
+	salud.vida_max = roundi(base * (tazos.factor_vida() if tazos else 1.0)) + (bonos.vida_extra() if bonos else 0)
 	salud.vida = salud.vida_max if llenar else maxi(roundi(fraccion * salud.vida_max), 1)
 
 
@@ -176,23 +195,31 @@ func valores_sin_tazos() -> Dictionary:
 func _atacar() -> void:
 	if _enfriar > 0.0:
 		return
-	_enfriar = ATAQUE_ENFRIAR
+	# Las armas del taller pegan mas rapido o mas lento (InventoryItemData.velocidad)
+	var arma := _arma()
+	_enfriar = ATAQUE_ENFRIAR / (arma.velocidad if arma else 1.0)
 	_pega_en = ATAQUE_PEGA_EN
 	if ninja.has_method("accion"):
 		ninja.accion("Punch")
 	_sonar("machetazo", SWING_VOLUMEN)
 
 
+func _arma() -> InventoryItemData:
+	var inventario := get_node_or_null("/root/Inventory")
+	return inventario.arma() if inventario else null
+
+
 func _golpear() -> void:
 	var dano := DANO_PUNO
-	var con_arma := false
-	var inventario := get_node_or_null("/root/Inventory")
-	if inventario:
-		var arma: InventoryItemData = inventario.arma()
-		if arma:
-			dano = arma.dano
-			con_arma = true
+	var arma := _arma()
+	var con_arma := arma != null
+	if arma:
+		dano = arma.dano
 	dano = maxi(roundi(dano * _factor_dano), 1)
+	# Lo que trae cada arma del taller: alcance, empujon y fuego
+	var alcance := _alcance * (arma.alcance if arma else 1.0)
+	var empujon := arma.empujon if arma else 1.0
+	var quema := arma != null and arma.quema
 	var frente := -frijol.global_transform.basis.z
 	frente.y = 0.0
 	frente = frente.normalized()
@@ -205,8 +232,10 @@ func _golpear() -> void:
 	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
 		var hacia := zombi.global_position - global_position
 		hacia.y = 0.0
-		if hacia.length() <= _alcance and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
-			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, truena_en)
+		if hacia.length() <= alcance and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
+			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza * empujon, truena_en)
+			if quema and resultado == 1 and zombi.has_method("quemar"):
+				zombi.quemar()
 			pego = pego or resultado != 0
 			mato = mato or resultado == 2
 	if pego:
@@ -258,7 +287,7 @@ class RelojCongelada extends Node:
 
 # Un golpe de zombi (Zombie.gd), con todo lo que se siente: congelada, flash, sacudida,
 # empujon y sangre hacia donde iba el golpe; Supervivencia.gd hace el cuadro de impacto
-func recibir_dano(dano: int, desde: Vector3, empuja := 1.0) -> void:
+func recibir_dano(dano: int, desde: Vector3, empuja := 1.0, de: Node = null) -> void:
 	if _invulnerable > 0.0:
 		return
 	_invulnerable = INVULNERABLE
@@ -281,8 +310,15 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0) -> void:
 	# Piel dura (Tazos.gd): de noche duele menos
 	var tazos := get_node_or_null("/root/Tazos")
 	var ciclo := get_tree().get_first_node_in_group("ciclo")
-	if tazos and ciclo and ciclo.es_noche():
+	var de_noche: bool = ciclo != null and ciclo.es_noche()
+	if tazos and de_noche:
 		dano = maxi(roundi(dano * tazos.factor_dano_noche()), 1)
+	# Los amuletos y estampitas (Bonos.gd), segun quien te pego
+	var bonos := get_node_or_null("/root/Bonos")
+	if bonos:
+		var cazador: bool = de != null and de.get("cazador") == true
+		var jefe: bool = de != null and de.get("es_jefe") == true
+		dano = maxi(roundi(dano * bonos.factor_recibido(de_noche, cazador, cazador or jefe)), 1)
 	get_node("/root/Salud").vida -= dano
 
 

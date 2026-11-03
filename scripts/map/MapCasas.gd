@@ -622,6 +622,11 @@ const OBRA_NEGRA := [0.0, 0.05, 0.15]
 
 
 func _obra_negra(x: float, z: float) -> bool:
+	return es_obra_negra(x, z)
+
+
+# Tambien la usa Partida.gd para poner alambron y planos frente a estas casas
+static func es_obra_negra(x: float, z: float) -> bool:
 	var zona := Deterioro.zona(x, z)
 	var fraccion: float = OBRA_NEGRA[-1]
 	if zona <= OBRA_NEGRA_ZONAS[0]:

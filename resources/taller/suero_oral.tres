@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/objetos/botella/botella.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Suero oral"
+description = "Del de sobre, preparado con agua de la llave. Sabe a lágrima."
+inspection_model = ExtResource("2_modelo")
+efecto = "+40 de vida"
+curacion = 40
+tinte = Color(0.6, 0.85, 1, 1)

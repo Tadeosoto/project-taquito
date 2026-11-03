@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/taller/aro.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Pulsera de hilo rojo"
+description = "Contra el mal de ojo. Y contra los zombis, quién sabe."
+inspection_model = ExtResource("2_modelo")
+efecto = "Amuleto: +10 de vida máxima"
+amuleto = {
+"vida": 10
+}
+tinte = Color(0.85, 0.1, 0.1, 1)

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/armas/melee_psx/piezas/machete.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Machete de cañero"
+description = "Largo y ligero, de zafra."
+inspection_model = ExtResource("2_modelo")
+efecto = "24 de daño, golpe más rápido"
+dano = 24
+velocidad = 1.25

@@ -23,6 +23,15 @@ const BOLSAS_ZONAS := [1, 3, 5, 7]
 const BOLSA_LADO := Vector2(4.0, 0.0)  # m de la pieza, para que no se encimen
 const BOLSA := "res://resources/productos/takis_tazo.tres"
 const TEXTO_PUNTO := "+1 punto de habilidad por sobrevivir la noche"
+# Montones de chatarra para el taller (Chatarra.gd)
+const CHATARRA_POR_ZONA := 3
+const CHATARRA_LADO := Vector2(0.0, 1.6)   # m del poste
+# Fierros de obra negra (alambron) y dos planos del taller frente a casas en obra negra
+const OBRAS := 10
+const OBRA_FRENTE := 1.5
+const PLANOS_EN_OBRAS := ["lanza_varilla", "bate_cobalto"]
+const CASAS_JSON := "res://resources/map/casas_mapa.json"
+const MAP_CASAS := preload("res://scripts/map/MapCasas.gd")   # sin class_name: su es_obra_negra es estatica
 const PUNTOS_JSON := "res://resources/map/puntos_mapa.json"
 const POSTES_JSON := "res://resources/map/alumbrado_mapa.json"
 
@@ -67,9 +76,16 @@ func _ready() -> void:
 	_armar_pantalla()
 	PiezasMapa.recogida.connect(func(zona: int) -> void:
 		_supervivencia.avisar(TEXTO_PIEZA % ZonasMapa.nombre(zona)))
+	# Las hazanas que dan trofeos para el taller (Hazanas.gd)
+	var hazanas := Hazanas.new()
+	hazanas.name = "Hazanas"
+	hazanas.refugio = _refugio
+	add_child(hazanas)
 	if piezas_en_el_mapa:
 		_poner_piezas()
 		_poner_bolsas()
+		_poner_chatarra()
+		_poner_obras()
 	_poner_misiones()
 
 
@@ -94,6 +110,54 @@ func _poner_bolsas() -> void:
 		var donde: Vector2 = lugares[zona] + BOLSA_LADO
 		objeto.position = Vector3(donde.x, 0.5, donde.y)
 		add_child(objeto)
+
+
+# Montones de chatarra (Chatarra.gd) junto a unos postes de cada zona, para el taller.
+# Siempre los mismos: CHATARRA_POR_ZONA postes repartidos a lo largo de la lista de cada zona
+func _poner_chatarra() -> void:
+	var postes: Variant = JSON.parse_string(FileAccess.get_file_as_string(POSTES_JSON))
+	var por_zona := {}
+	for poste: Dictionary in postes["postes"]:
+		var zona := ZonasMapa.zona_en(poste["x"], poste["z"])
+		if zona >= 0:
+			if not por_zona.has(zona):
+				por_zona[zona] = []
+			por_zona[zona].append(Vector2(poste["x"], poste["z"]))
+	for zona: int in por_zona:
+		var lista: Array = por_zona[zona]
+		for k in CHATARRA_POR_ZONA:
+			var donde: Vector2 = lista[(k * 2 + 1) * lista.size() / (CHATARRA_POR_ZONA * 2)] + CHATARRA_LADO
+			var monton := Chatarra.new()
+			monton.position = Vector3(donde.x, 0.0, donde.y)
+			monton.rotation.y = float(zona * 7 + k) * 1.3
+			add_child(monton)
+
+
+# Fierros frente a unas casas en obra negra (MapCasas.es_obra_negra): dan alambron. En los
+# primeros esta tirado un plano del taller que todavia no tienes (Recetas.PLANOS; el del
+# machetón lo suelta el jefe). Siempre las mismas casas: dependen solo de los datos
+func _poner_obras() -> void:
+	var casas: Variant = JSON.parse_string(FileAccess.get_file_as_string(CASAS_JSON))
+	var obras := []
+	for casa: Dictionary in casas["casas"]:
+		if MAP_CASAS.es_obra_negra(casa["x"], casa["z"]):
+			obras.append(casa)
+	if obras.is_empty():
+		return
+	var planos: Array = PLANOS_EN_OBRAS.filter(func(p: String) -> bool: return not get_node("/root/Taller").planos.has(p))
+	var cuantas := mini(OBRAS, obras.size())
+	for k in cuantas:
+		var casa: Dictionary = obras[k * obras.size() / cuantas]
+		var r := float(casa["rotacion_y"])
+		var frente := Vector2(sin(r), cos(r))
+		var donde := Vector2(casa["x"], casa["z"]) + frente * (float(casa.get("fondo", 7.0)) / 2.0 + OBRA_FRENTE)
+		var monton := Chatarra.new()
+		monton.obra = true
+		if k < planos.size():
+			monton.plano = planos[k]
+		monton.position = Vector3(donde.x, 0.0, donde.y)
+		monton.rotation.y = r
+		add_child(monton)
 
 
 # Los del mapa real, o los que le dieron (el safehouse)
@@ -229,7 +293,8 @@ func _terminar(texto: String) -> void:
 # Todo desde cero: los autoloads no se recargan con la escena
 func _otra_vez() -> void:
 	Engine.time_scale = 1.0
-	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones", "Tazos"]:
+	# Taller no: el rango, los planos y la vitrina se quedan entre partidas
+	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones", "Tazos", "Morral", "Bonos"]:
 		get_node("/root/" + autoload).reiniciar()
 	get_tree().paused = false
 	get_tree().reload_current_scene()

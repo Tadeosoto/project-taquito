@@ -625,6 +625,22 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 
 **Rol.** Es la **prueba viva**: el que puede explicar el Serenol y confirmar la revelación. Es el objetivo de GelA y la llave del final.
 
+### La Chava — la del yonke 💡 (propuesta de AG)
+
+| | |
+|---|---|
+| **Zona** | Parques de Santa Mugre (El Yonke de Don Chava, en un baldío) |
+| **Horario** | Día (de noche cierra, como todos) |
+| **Te da** | Lo que le pidas, si le traes el material (el taller, `especificaciones.md` 4.13) |
+| **Quiere** | Que el yonke de su abuelo no se muera con él |
+| **Teme** | La varilla que brilla |
+| **Secreto** | Su tío abuelo tenía el taller de chatarra donde llegó la máquina del 84; la familia sabe de dónde salió el cobalto |
+| **Precio** | Material y unos pesos |
+
+**Historia.** Veintitantos, overol negro, manos de soldadora. Se quedó con el yonke de su abuelo, Don Chava, cuando él ya no pudo con el soplete. Arma de todo con lo que le traen y no hace preguntas. Bueno, casi no.
+
+**Rol.** Es **el taller**: con ella los materiales se vuelven remedios, amuletos y armas. Se acuerda de ti aunque empieces de nuevo: el rango del taller, los planos y la vitrina de trofeos no se pierden. Con la Varilla del 84 se pone seria.
+
 ---
 
 ## 7. Los vendedores

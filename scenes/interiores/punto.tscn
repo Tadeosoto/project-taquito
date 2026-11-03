@@ -12,6 +12,7 @@
 [ext_resource type="Resource" path="res://resources/productos/tachas.tres" id="p_tachas"]
 [ext_resource type="Resource" path="res://resources/productos/cigarros.tres" id="p_cigarros"]
 [ext_resource type="Resource" path="res://resources/productos/caguama.tres" id="p_caguama"]
+[ext_resource type="Resource" path="res://resources/productos/plata_taxco.tres" id="p_plata"]
 
 [node name="Punto" type="Node3D"]
 script = ExtResource("1_interior")
@@ -26,7 +27,7 @@ color_luz = Color(1, 0.78, 0.5, 1)
 energia_luz = 1.8
 obra_negra = true
 foco = true
-productos = Array[ExtResource("p_script")]([ExtResource("p_tachas"), ExtResource("p_cigarros"), ExtResource("p_caguama")])
+productos = Array[ExtResource("p_script")]([ExtResource("p_tachas"), ExtResource("p_cigarros"), ExtResource("p_caguama"), ExtResource("p_plata")])
 
 [node name="Camara" type="Camera3D" parent="."]
 transform = Transform3D(0.99875, -0.00919, 0.04908, 0, 0.98291, 0.18407, -0.04994, -0.18384, 0.98169, 0.1, 1.6, 2)

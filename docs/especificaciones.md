@@ -386,6 +386,39 @@ Progresión al estilo Kingdom Hearts: repartes **puntos de habilidad** en un men
 - Con puntos sin gastar, el inventario lo avisa abajo en amarillo.
 - **El tono de piel no se toca:** las habilidades no leen al `Personaje`.
 - 💡 Una partida da unas 10–15 bolsas y todo el árbol cuesta unos 58 puntos: no se puede subir todo. Los números están en `scripts/Habilidades.gd` para afinarlos jugando.
+
+### 4.13 El taller: El Yonke de Don Chava 💡🧱 (propuesta de AG, falta que el equipo la confirme)
+
+Crafteo al estilo de la síntesis de Kingdom Hearts 1, con cosas de este mundo.
+
+- **El lugar:** un yonke en un baldío de **Parques de Santa Mugre**, con su flecha amarilla como las tiendas. De noche está cerrado.
+- **Quién lo atiende:** **La Chava**, nieta de Don Chava. Su familia es la del taller de chatarra de donde salió el cobalto del 84 (`lore.md`).
+- **Materiales:** van al **Morral** (B en el inventario, RB en el control), no ocupan lugar y se pierden al reiniciar la partida.
+  - **Comunes:** seis familias (Fierro, Trapo, Cable, Lumbre, Agua, Vela) en tres niveles: suelto, bueno y fino.
+  - **De dónde salen:** los zombis, mejores de noche, en zonas feas y de los cazadores; y la chatarra junto a los postes.
+  - **Especiales:**
+    - varilla corta;
+    - alambrón, frente a casas en obra negra;
+    - Plata de Taxco, que se compra en el punto;
+    - baba verde, de matar a un zombi quemándose;
+    - polvo de Serenol, del zombi de GelA;
+    - varilla armada y Varilla del 84, que se hacen en el taller.
+  - **Trofeos:** **se quedan entre partidas**, en la vitrina de La Chava. Salen de hazañas, cada una una vez por noche como mucho:
+    - matar a un cazador, o a 5 de una turba en 10 s;
+    - matar con fuego, o sin arma;
+    - una noche sin que le peguen al tinaco;
+    - matar al jefe;
+    - dos zombis raros: el de GelA, de noche, y el de cobalto, en zonas con obra negra.
+- **Recetas:** 39 en seis juegos. La lista completa está en `docs/items.md`.
+  - **Cómo se abren:** el 2 al 5 con 3, 9, 15 y 21 cosas distintas hechas; el 6 pide todo lo anterior más su **plano**.
+  - **Lo que se queda:** el **rango del taller y los planos** se quedan entre partidas.
+  - **Planos:** dos están tirados frente a casas en obra negra y el tercero lo suelta el jefe.
+  - **Precio:** cada receta pide materiales y unos pesos; Regateo los baja.
+  - **Qué hay:** remedios, **un arma por juego** (tubo, antorcha que quema, bate con púas, coa, machete de cañero, marro) y tres armas últimas (Machetón del 84, Lanza de varilla, Bate con clavos de cobalto). También **amuletos**, que se ponen en **dos lugares** y no ocupan inventario, y **estampitas**, que duran la partida (San Expedito da un punto de habilidad).
+- **Las armas** se escogen con **Equipar** en el inventario; sin elegir ninguna se pelea con la de más daño, como antes.
+- **Lo que falta:**
+  - Arrojables: el Brazalete de cobre ya existe, pero no hay nada que aventar todavía.
+  - Un casco y una lámpara de verdad para el zombi de GelA: hoy solo cambia de color.
 - **Después:**
   - movimientos de combate (rodar, golpe cargado, contraataque) desbloqueados por tazos;
   - tazos modelados en 3D.
@@ -599,3 +632,4 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-11-02 | **El mundo en dos capas**: la ciudad es **normal**; lo raro son (1) los **zombis** nocturnos (el shooter) y (2) la **escasez y el precio del agua limpia** (la economía). **GelA**, el monopolio del agua y de sus productos, **une las dos cosas**: su agua es la que mata a uno de cada diez y lo levanta. La política es la capa opcional. | JJ |
 | 2026-11-02 | **El celular**: chat de mensajes con contactos (**Sofía** y, opcional, el cura con IA; el resto escrito) + **grupo del barrio**. Reemplaza la libreta de misiones y es el canal de conversación. **Sin batería, señal, rastreo, estafas ni cámara.** La llave de la IA va en el servidor y las respuestas son asíncronas. | JJ |
 | 2026-11-02 | **Propuesta, falta que el equipo la confirme**: tazos en bolsas especiales de Takis con revelación por rareza, puntos de habilidad y una página de habilidades en el inventario (4.12). | AG |
+| 2026-11-03 | **Propuesta, falta que el equipo la confirme**: el taller de La Chava (4.13), crafteo al estilo Kingdom Hearts con materiales en un morral aparte, trofeos de hazañas, 39 recetas en seis juegos, un arma por juego, amuletos y Equipar. El rango, los planos y los trofeos se quedan entre partidas. | AG |

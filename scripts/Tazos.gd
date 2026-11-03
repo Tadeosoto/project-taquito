@@ -183,8 +183,14 @@ func abrir_bolsa(rareza := -1) -> TazoData:
 	if rareza < 0:
 		rareza = rareza_forzada
 	if rareza < 0:
-		var tiro := randi_range(1, PESOS_RAREZA[0] + PESOS_RAREZA[1] + PESOS_RAREZA[2])
-		rareza = 0 if tiro <= PESOS_RAREZA[0] else (1 if tiro <= PESOS_RAREZA[0] + PESOS_RAREZA[1] else 2)
+		# La Medalla de la Virgen (Bonos.gd) hace mas probables los raros y holo
+		var bonos := get_node_or_null("/root/Bonos")
+		var suerte: float = 1.0 + (bonos.suerte() if bonos else 0.0)
+		var comun := float(PESOS_RAREZA[0])
+		var raro: float = PESOS_RAREZA[1] * suerte
+		var holo: float = PESOS_RAREZA[2] * suerte
+		var tiro := randf() * (comun + raro + holo)
+		rareza = 0 if tiro < comun else (1 if tiro < comun + raro else 2)
 	var de_esa := todos.filter(func(t: TazoData) -> bool: return t.rareza == rareza)
 	if de_esa.is_empty():
 		de_esa = todos.duplicate()

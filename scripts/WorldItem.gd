@@ -85,7 +85,13 @@ func interact() -> void:
 		return
 
 	# Agregar item a inventario; si no cabe se queda tirado
-	var agarrado := Inventory.equipar_mochila(item_data) if item_data.capacidad > 0 else Inventory.add_item(item_data)
+	var agarrado := false
+	if item_data.material != "":
+		# Un material del taller (Morral.gd): no ocupa lugar
+		get_node("/root/Morral").dar(item_data.material)
+		agarrado = true
+	else:
+		agarrado = Inventory.equipar_mochila(item_data) if item_data.capacidad > 0 else Inventory.add_item(item_data)
 	if not agarrado:
 		return
 	_recogido = true
@@ -121,7 +127,7 @@ func _actualizar_aviso() -> void:
 		_aviso.text = ""
 	elif item_data.capacidad > 0 and item_data.capacidad <= Inventory.capacidad_mochila():
 		_aviso.text = "Ya traes una mochila mejor"
-	elif item_data.capacidad == 0 and Inventory.esta_lleno():
+	elif item_data.capacidad == 0 and item_data.material == "" and Inventory.esta_lleno():
 		_aviso.text = "No te cabe: %s" % item_data.item_name
 	else:
 		var tecla := "Espacio" if Input.get_connected_joypads().is_empty() else "X"

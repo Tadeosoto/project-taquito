@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/taller/medalla.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Medalla de GelA"
+description = "De empleado del mes. Alguien ya no la va a necesitar."
+inspection_model = ExtResource("2_modelo")
+efecto = "Amuleto: +30 % de pesos, -5 % de daño"
+amuleto = {
+"defensa": 0.05,
+"pesos": 0.3
+}
+tinte = Color(0.2, 0.45, 0.85, 1)

@@ -51,6 +51,9 @@ var _ciclo: Node
 
 func _ready() -> void:
 	add_to_group("interiores")
+	# El taller de La Chava (YonkeMapa.gd) entra por aqui como una tienda mas
+	if not escenas.has("yonke"):
+		escenas["yonke"] = load("res://scenes/interiores/yonke.tscn")
 	_puntos = get_node(puntos_path) as MapPuntos
 	_player = get_node(player_path) as Player
 	_puntos.entrar_negocio.connect(_entrar)

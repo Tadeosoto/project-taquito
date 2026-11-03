@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/taller/placa.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Estampita de San Miguel"
+description = "San Miguel Arcángel pisando al chamuco."
+inspection_model = ExtResource("2_modelo")
+efecto = "+5 % de fuerza toda la partida"
+estampita = "fuerza"
+tinte = Color(0.4, 0.5, 0.9, 1)

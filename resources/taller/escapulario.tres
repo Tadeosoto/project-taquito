@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/taller/placa.scn" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Escapulario"
+description = "De tela café, con su virgencita."
+inspection_model = ExtResource("2_modelo")
+efecto = "Amuleto: -10 % de daño"
+amuleto = {
+"defensa": 0.1
+}
+tinte = Color(0.5, 0.3, 0.15, 1)

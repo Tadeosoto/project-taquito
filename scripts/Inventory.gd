@@ -13,6 +13,9 @@ const CAPACIDAD_BASE := 6
 # La mochila que traes puesta; no ocupa lugar. null = sin mochila
 var mochila: InventoryItemData = null
 
+# El arma que elegiste con "Equipar" (sigue en `items`); null = la de mas dano
+var equipada: InventoryItemData = null
+
 # Lista de items que el jugador tiene.
 # Empieza limpia.
 var items: Array[InventoryItemData] = []
@@ -50,6 +53,7 @@ func _ready() -> void:
 func reiniciar() -> void:
 	items.clear()
 	mochila = null
+	equipada = null
 	_ready()
 	inventory_changed.emit()
 
@@ -62,8 +66,11 @@ func get_item(index: int) -> InventoryItemData:
 	return items[index]
 
 
-# La mejor arma que traes, o null. No hay que equiparla: se pelea con la mejor
+# El arma con que peleas: la equipada ("Equipar" en el inventario) si la traes; si no, la de
+# mas dano, como antes. null = a puño limpio
 func arma() -> InventoryItemData:
+	if equipada and items.has(equipada):
+		return equipada
 	var mejor: InventoryItemData = null
 	for item in items:
 		if item.dano > 0 and (mejor == null or item.dano > mejor.dano):
@@ -112,6 +119,28 @@ func remove_item(index: int) -> void:
 	if index < 0 or index >= items.size():
 		return
 	items.remove_at(index)
+	if equipada and not items.has(equipada):
+		equipada = null
+	inventory_changed.emit()
+
+
+# "Equipar" un arma: peleas con esa aunque tengas otra con mas dano. Otra vez la suelta
+func equipar_arma(item: InventoryItemData) -> void:
+	equipada = null if equipada == item else item
+	inventory_changed.emit()
+
+
+# "Ponerse" un amuleto (Bonos.gd): sale del inventario a uno de los dos lugares. Si estaban
+# llenos, el mas viejo regresa al inventario (cabe: el nuevo dejo su lugar)
+func poner_amuleto(index: int) -> void:
+	var item := get_item(index)
+	var bonos := get_node_or_null("/root/Bonos")
+	if item == null or not item.es_amuleto() or bonos == null:
+		return
+	items.remove_at(index)
+	var quitado: InventoryItemData = bonos.poner(item)
+	if quitado:
+		items.append(quitado)
 	inventory_changed.emit()
 
 
