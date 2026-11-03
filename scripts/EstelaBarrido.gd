@@ -32,8 +32,8 @@ void fragment() {
 }
 """
 
-# Nubes de polvo: una bola pixeleada de cara a la camara, con la paleta de polvo de la hoja
-# (`sparks` de golpe_barrida), mas clara arriba a la izquierda, que crece, sube y se deshace.
+# Nubes de polvo: una bola pixeleada de cara a la camara, blanca (JJ no la quiso cafe como la de
+# la hoja), mas clara arriba a la izquierda, que crece, sube y se deshace.
 # `edad` va de 0 a 1 y `semilla` cambia la forma de cada una
 const NUBES := 12              # en la reserva; se reusa la mas vieja
 const NUBE_CADA := 5           # pedazos de estela entre nube y nube
@@ -49,8 +49,8 @@ instance uniform float edad = 0.0;
 instance uniform float semilla = 0.0;
 
 const vec3 POLVO[4] = vec3[](
-	vec3(0.863, 0.784, 0.635), vec3(0.722, 0.624, 0.471), vec3(0.573, 0.478, 0.345),
-	vec3(0.431, 0.353, 0.251));
+	vec3(0.961, 0.957, 0.937), vec3(0.851, 0.847, 0.827), vec3(0.698, 0.698, 0.686),
+	vec3(0.549, 0.553, 0.549));
 
 void vertex() {
 	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
