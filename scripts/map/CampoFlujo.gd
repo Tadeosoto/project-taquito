@@ -40,6 +40,11 @@ func _init() -> void:
 	_consulta.collision_mask = 1
 
 
+# Las paredes si se movieron (la barricada de la defensa se vuelve a armar)
+static func olvidar() -> void:
+	_libre.clear()
+
+
 func excluir(cuerpo: RID) -> void:
 	_consulta.exclude = [cuerpo]
 
