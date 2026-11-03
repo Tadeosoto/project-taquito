@@ -18,6 +18,10 @@ godot --path . --headless --import # (re)import assets / regenerate .godot cache
 godot --path . --headless --check-only --script res://scripts/player.gd  # parse-check one script
 ```
 
+## Work in progress (tell the user when a session starts)
+
+- **JJ is reworking the player's attack** in branch `golpe-direccion` (not merged yet). It replaces the `Punch` thrust with diagonal slashes done on the bones (`scripts/Barrido.gd`), a chainable left/right combo that draws an X, a 3D slash trail with white dust (`scripts/EstelaBarrido.gd`), a bigger machete, no walking while attacking, click to recapture the mouse, and a fix for the invisible weapon in the hand (`Personaje._descubrir_cabeza`). Before changing `scripts/player.gd` (attack, `_golpear`, weapon in hand), `EfectosPixel`'s `golpe` slot or `Personaje.vestir`, tell the user and suggest checking with JJ or trying that branch first (`git fetch && git switch golpe-direccion`, then the safehouse) to avoid conflicts. Remove this note when the branch is merged.
+
 ## Architecture
 
 - **Main scene**: `scenes/inicio.tscn` (`scripts/Inicio.gd`): the start screen, a small night scene built in code with the menu over it. Jugar opens the character creator, then loads `scenes/map_test.tscn` in a thread with "Cargando..." on screen; Créditos reads `CREDITS.md` at runtime (add it to the export filter when exporting; the required map attributions are the fallback).
@@ -36,7 +40,7 @@ godot --path . --headless --check-only --script res://scripts/player.gd  # parse
 
 ## Real map and everything on it (`scenes/map_test.tscn`)
 
-**Read `docs/mapa/tecnico.md` before changing the map pipeline, streaming, stores, houses, warehouses, walls, street lights, ground, deterioration, interiors, shop UI, or fruit machines.** It has the full detail, the regeneration commands and the reasons behind each decision. Keep it in sync with those systems. `docs/mapa/README.md` is the user-facing (Spanish) guide. Game design and open team decisions are in `docs/especificaciones.md`; the story canon (GelA, the Lazcano family, the cholos, the cult of the Virgen del Tinaco, the nine zones) is in `docs/lore.md`; the cast (who's who, their wants and secrets) is in `docs/personajes.md`.
+**Read `docs/mapa/tecnico.md` before changing the map pipeline, streaming, stores, houses, warehouses, walls, street lights, ground, deterioration, interiors, shop UI, or fruit machines.** It has the full detail, the regeneration commands and the reasons behind each decision. Keep it in sync with those systems. `docs/mapa/README.md` is the user-facing (Spanish) guide. Game design and open team decisions are in `docs/especificaciones.md`; the story canon (GelA, the Lazcano family, the zombis, the cult of the Virgen del Tinaco, the nine zones) is in `docs/lore.md`; the cast (who's who, their wants and secrets) is in `docs/personajes.md`; the mission list is in `docs/misiones.md` and the item catalogue in `docs/items.md`. `docs/revision-historia.md` is a story review: its "Lo decidido" table lists which canon clashes were settled (and where), plus the points still pending. Narrative skills (story-skills to evaluate and revise first, then the game-dev `narrative-*` skills and `/game-quest`/`/game-lore`) are adapted to these docs in `.claude/skills/`.
 
 Overview:
 - A real area of Zapopan built from OpenStreetMap with OSM2World by `tools/map_import/` (Python and Godot scripts), streamed from `resources/map/cuadros/`. `models/zona_mapa.glb` is gitignored; only rebuild it when changing the map.
@@ -142,3 +146,12 @@ By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night
 - Resources are referenced by `uid://`; keep each `.gd.uid` file alongside its script when moving/renaming, or edit via the Godot editor.
 - `scenes/world.tscn` and `scripts/Inventory.gd.uid` are listed in `.gitignore` but are already tracked, so changes to them still show up in git.
 - `scenes/InventoryUI.tscn*.tmp` files are editor save leftovers, not real scenes.
+
+## graphify (narrative graph)
+
+`docs/graphify-out/` holds a knowledge graph of the six narrative docs (`lore`, `personajes`, `misiones`, `items`, `especificaciones`, `revision-historia`): 367 nodes, 12 communities, built by `/graphify` (the skill is in `.claude/skills/graphify/`). There is no graph of the code. Install with `uv tool install graphifyy`.
+
+- For a story question, ask the graph before reading a whole doc, from the repo root: `graphify query "<question>" --graph docs/graphify-out/graph.json`; `graphify explain "<node>"` and `graphify path "<A>" "<B>" --undirected` take the same `--graph`. Then read only the sections it names (each node carries its doc and heading). Every narrative skill, `/game-quest`, `/game-lore` and the `narrative-writer` agent say this in their adaptation block; keep it in any new one.
+- `docs/graphify-out/graph.html` is the browsable view and `GRAPH_REPORT.md` the summary (hubs, communities, loose ends).
+- The graph is a snapshot: when it disagrees with a doc, the doc wins. After editing a narrative doc, rebuild with `/graphify docs --update` (re-extracts only changed files; `graphify update` is AST-only and does not reread docs). Run it from `docs/`, so the output stays in `docs/graphify-out/`. Cross-doc node ids were reconciled by hand on the first build (accents, full character names; lore's copies of characters merged into `personajes_*`), so check for dangling edges after an update.
+- `.graphify_python` and `.graphify_root` are per-machine and gitignored. A rebuilt `graph.json` is rewritten whole, so a large diff to it is expected.
