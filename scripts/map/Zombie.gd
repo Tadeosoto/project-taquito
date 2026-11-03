@@ -23,9 +23,11 @@ const GOLPE_EN := 0.65      # s desde que empieza el ataque hasta que pega
 const ATAQUE_DURA := 1.5
 const ATAQUE_VELOCIDAD := 1.8
 const HERIDO_DURA := 0.45
-# Si un golpe lo deja aturdido HERIDO_DURA s (deja de caminar y se le corta el ataque). En false a
-# prueba de JJ: sigue como si nada, asi que si te iba a pegar te tienes que quitar
-const ATURDE := false
+# Golpe a tiempo (Player.pelea_a_tiempo): un golpe solo lo aturde HERIDO_DURA s si le pegas en los
+# primeros CORTE s de su ataque, mientras se pone rojo y gruñe; ya lanzado aguanta y te pega, asi
+# que te toca quitarte. Caminando sigue como si nada. Sin pelea_a_tiempo nunca se aturde
+const CORTE := 0.3
+const COLOR_CORTE := Color(1.0, 0.1, 0.05, 0.45)
 # m/s con el golpe de un machete; se escala con el dano. En 0 a peticion de JJ: el zombi no
 # retrocede, asi que para seguir pegando combos te toca reposicionarte tu
 const EMPUJON := 0.0
@@ -91,6 +93,7 @@ const GOLPE_MATO := 2
 
 static var _material_jefe: ShaderMaterial
 static var _material_blanco: StandardMaterial3D
+static var _material_rojo: StandardMaterial3D
 static var _material_charco: StandardMaterial3D
 static var activos: Array[Zombie] = []   # los despiertos
 
@@ -206,14 +209,26 @@ func _process(_delta: float) -> void:
 		set_process(false)
 
 
+# Apagado el blanco, queda el rojo si sigue en la ventana de corte
 func _pintar_blanco(prendido: bool) -> void:
 	if _material_blanco == null:
 		_material_blanco = StandardMaterial3D.new()
 		_material_blanco.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		_material_blanco.albedo_color = Color.WHITE
 		_material_blanco.disable_fog = true
+		_material_rojo = StandardMaterial3D.new()
+		_material_rojo.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_material_rojo.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_material_rojo.albedo_color = COLOR_CORTE
+		_material_rojo.disable_fog = true
+	var material: Material = _material_blanco if prendido else (_material_rojo if _en_corte() else null)
 	for malla in _mallas:
-		malla.material_overlay = _material_blanco if prendido else null
+		malla.material_overlay = material
+
+
+# Esta en la ventana en que un golpe le corta el ataque
+func _en_corte() -> bool:
+	return Player.pelea_a_tiempo and estado == Estado.ATACA and _tiempo < CORTE and not es_jefe
 
 
 # Como quedo el modelo tras tronar: de vuelta a la reserva tiene que estar entero
@@ -442,9 +457,16 @@ func _empezar_ataque() -> void:
 	_tiempo = 0.0
 	_golpeo = false
 	_animar(["attack1", "attack2"].pick_random(), ATAQUE_VELOCIDAD, true)
+	# La señal de que va a pegar: rojo mientras se le puede cortar, y un gruñido
+	if _en_corte():
+		_sonar("gemido")
+		_pintar_blanco(_flash_hasta > 0)
 
 
 func _atacar() -> void:
+	# Se acabo la ventana de corte: se le quita el rojo
+	if _tiempo >= CORTE and _tiempo - get_physics_process_delta_time() < CORTE:
+		_pintar_blanco(_flash_hasta > 0)
 	if not _golpeo and _tiempo >= GOLPE_EN:
 		_golpeo = true
 		if not is_instance_valid(jugador) or not _jugador_libre():
@@ -489,7 +511,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) ->
 	if es_jefe:
 		move_and_collide(atras * JEFE_ARRASTRE * fuerza)
 		return GOLPE_PEGO
-	if not ATURDE:
+	if not _en_corte():
 		return GOLPE_PEGO
 	velocity = atras * EMPUJON * fuerza
 	estado = Estado.HERIDO

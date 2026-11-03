@@ -40,6 +40,7 @@ var _angulo_antes := 0.0
 var _alto_desde := ALTO_INICIO
 var _alto_antes := ALTO_INICIO
 var _delta_ultimo := 0.0
+var _soltando := false
 
 
 # `lado` 1: de la derecha a la izquierda (primer golpe del combo); -1: de regreso
@@ -55,6 +56,13 @@ func golpe(lado := 1.0) -> void:
 		_peso_desde = 0.0
 	_t = 0.0
 	_lado = lado
+	_soltando = false
+
+
+# Regresa el brazo a la animacion desde donde va, sin terminar el barrido (Player._soltar_combo)
+func soltar() -> void:
+	if _t >= 0.0:
+		_soltando = true
 
 
 func _process_modification_with_delta(delta: float) -> void:
@@ -72,7 +80,16 @@ func _process_modification_with_delta(delta: float) -> void:
 	var angulo: float
 	var alto := ALTO_FIN
 	var peso := 1.0
-	if _t < PREPARA:
+	if _soltando:
+		angulo = _angulo_antes
+		alto = _alto_antes
+		peso = _peso - delta / (SUELTA - SOSTIENE)
+		if peso <= 0.0:
+			_t = -1.0
+			_peso = 0.0
+			_soltando = false
+			return
+	elif _t < PREPARA:
 		var f := _t / PREPARA
 		angulo = lerpf(_desde, ATRAS * _lado, ease(f, 0.5))
 		alto = lerpf(_alto_desde, ALTO_INICIO, ease(f, 0.5))
@@ -106,7 +123,7 @@ func _process_modification_with_delta(delta: float) -> void:
 		var vuelta := Quaternion(pose.basis.y.normalized(), hacia)
 		var parcial := Quaternion.IDENTITY.slerp(vuelta, peso)
 		esqueleto.set_bone_global_pose(hueso, Transform3D(Basis(parcial) * pose.basis, pose.origin))
-	if estela and _t >= ESTELA_DESDE and _t <= ESTELA_HASTA:
+	if estela and not _soltando and _t >= ESTELA_DESDE and _t <= ESTELA_HASTA:
 		_dejar_estela(esqueleto, angulo, alto, frente, derecha, arriba)
 	_angulo_antes = angulo
 	_alto_antes = alto

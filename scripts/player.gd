@@ -75,9 +75,15 @@ const COMBO_VENTANA := 0.5   # s despues del enfriamiento en que el siguiente go
 # s desde un golpe en que ya puede salir el siguiente: al terminar de barrer (Barrido.BARRE), sin
 # esperar el enfriamiento. Si pegas antes, se guarda y sale entonces
 const COMBO_DESDE := 0.3
-# s desde que empieza un golpe en que no puedes caminar: hasta que el brazo termina el barrido
-# y se queda estirado (Barrido.SOSTIENE). Encadenando golpes te quedas quieto toda la cadena
+# s desde que empieza un golpe en que no puedes caminar. Con pelea_a_tiempo, hasta que el golpe
+# conecta: despues, moverte suelta el brazo y corta el combo, para quitarte si el zombi ya va a
+# pegar. Sin ella, hasta que el brazo termina el barrido (Barrido.SOSTIENE)
 const ATAQUE_QUIETO := 0.42
+const ATAQUE_QUIETO_A_TIEMPO := ATAQUE_PEGA_EN
+
+# Pelea con golpe a tiempo (Zombie.CORTE) y salirte del combo moviendote. En false, la prueba
+# anterior: nunca se aturde y te quedas quieto todo el barrido. La cambia la tecla 9 del safehouse
+static var pelea_a_tiempo := true
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 
 static var _material_blanco: StandardMaterial3D
@@ -107,6 +113,7 @@ var _barrido: Node
 var _lado_golpe := 1.0        # 1: de derecha a izquierda; -1: el de regreso del combo
 var _combo_hasta := 0.0       # s de juego en que se acaba la ventana del combo
 var _golpe_guardado := false
+var _combo_roto := false      # te moviste a medio combo: el siguiente empieza de nuevo
 var _arma_visible: InventoryItemData
 
 
@@ -196,11 +203,14 @@ func valores_sin_tazos() -> Dictionary:
 
 func _atacar() -> void:
 	# El siguiente sale encadenado, sin esperar todo el enfriamiento del anterior
-	var encadena := _enfriar > 0.0
+	var encadena := _enfriar > 0.0 and not _combo_roto
+	if _enfriar > 0.0 and not encadena:
+		return
 	if encadena and ATAQUE_ENFRIAR - _enfriar < COMBO_DESDE:
 		_golpe_guardado = true
 		return
 	_golpe_guardado = false
+	_combo_roto = false
 	_enfriar = ATAQUE_ENFRIAR
 	_pega_en = ATAQUE_PEGA_EN
 	# Combo: mientras sigas pegando a tiempo, cada golpe va al reves del anterior; si tardas,
@@ -399,6 +409,15 @@ func _armar_mano() -> void:
 			return
 
 
+# Te moviste a medio combo: el brazo se suelta desde donde va y lo que habias picado se olvida
+func _soltar_combo() -> void:
+	_combo_roto = true
+	_golpe_guardado = false
+	_combo_hasta = 0.0
+	if _barrido:
+		_barrido.soltar()
+
+
 # El golpe es un barrido de lado hecho con los huesos (Barrido.gd): el modelo solo trae Punch
 func _armar_barrido() -> void:
 	var esqueleto := ninja.find_child("Skeleton3D", true, false) as Skeleton3D
@@ -512,8 +531,11 @@ func _physics_process(delta: float) -> void:
 		"move_forward",
 		"move_backward"
 	)
-	if _enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < ATAQUE_QUIETO:
+	var quieto := ATAQUE_QUIETO_A_TIEMPO if pelea_a_tiempo else ATAQUE_QUIETO
+	if _enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < quieto:
 		input_direction = Vector2.ZERO
+	elif pelea_a_tiempo and input_direction != Vector2.ZERO and _enfriar > 0.0 and not _combo_roto:
+		_soltar_combo()
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z
 	var right: Vector3 = camera_pivot.global_transform.basis.x
