@@ -91,8 +91,9 @@ const LUGARES := {
 }
 
 # La variante que queda por omision cuando no es la primera. El golpe ya deja su estela en 3D
-# (EstelaBarrido.gd, lo que escogio JJ), asi que por omision no lleva hoja; F2 trae las otras
-const PREDETERMINADA := {"golpe": 2}
+# (EstelaBarrido.gd, lo que escogio JJ), asi que por omision no lleva hoja; F2 trae las otras.
+# El impacto es el seco con critico al matar (el voto de JJ)
+const PREDETERMINADA := {"golpe": 2, "impacto": 2}
 
 # Compartido entre escenas: lo que se escoge en el safehouse sigue al pasar al mapa (F10)
 static var variantes := {}
