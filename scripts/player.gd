@@ -70,6 +70,9 @@ const ESTELA_PUNO := 0.2      # m de la estela mas alla del puno, a mano limpia
 # al frente para que de lado a la camara no se voltee al azar
 const BARRE_AL_FRENTE := 0.3
 const COMBO_VENTANA := 0.5   # s despues del enfriamiento para que el siguiente golpe sea el de regreso
+# s desde el primer golpe en que ya puede salir el de regreso: al terminar de barrir (Barrido.BARRE),
+# sin esperar el enfriamiento. Si pegas antes, se guarda y sale entonces
+const COMBO_DESDE := 0.3
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 
 static var _material_blanco: StandardMaterial3D
@@ -98,6 +101,7 @@ var _mano: BoneAttachment3D
 var _barrido: Node
 var _lado_golpe := 1.0        # 1: de derecha a izquierda; -1: el de regreso del combo
 var _combo_hasta := 0.0       # s de juego en que se acaba la ventana del combo
+var _golpe_guardado := false
 var _arma_visible: InventoryItemData
 
 
@@ -186,15 +190,22 @@ func valores_sin_tazos() -> Dictionary:
 # --- Pelear ---
 
 func _atacar() -> void:
-	if _enfriar > 0.0:
+	# El de regreso del combo sale encadenado, sin esperar todo el enfriamiento del primero
+	var encadena := _enfriar > 0.0 and _lado_golpe > 0.0
+	if encadena and ATAQUE_ENFRIAR - _enfriar < COMBO_DESDE:
+		_golpe_guardado = true
 		return
+	if _enfriar > 0.0 and not encadena:
+		return
+	_golpe_guardado = false
 	_enfriar = ATAQUE_ENFRIAR
 	_pega_en = ATAQUE_PEGA_EN
 	# Combo de dos: si vuelves a pegar a tiempo, el siguiente va de regreso; luego empieza otra vez
 	var ahora := Time.get_ticks_msec() / 1000.0
-	_lado_golpe = -_lado_golpe if ahora <= _combo_hasta and _lado_golpe > 0.0 else 1.0
+	_lado_golpe = -_lado_golpe if (encadena or ahora <= _combo_hasta) and _lado_golpe > 0.0 else 1.0
 	_combo_hasta = ahora + ATAQUE_ENFRIAR + COMBO_VENTANA
-	if ninja.has_method("accion"):
+	# Encadenado no se repite la estocada del cuerpo: se veia como si rebotara entre golpe y golpe
+	if ninja.has_method("accion") and not encadena:
 		ninja.accion("Punch")
 	if _barrido:
 		# Del puno a la punta: el centro del arma queda ARMA_MANGO adelante del puno
@@ -484,6 +495,8 @@ func _sacudir() -> void:
 
 func _physics_process(delta: float) -> void:
 	_enfriar = maxf(_enfriar - delta, 0.0)
+	if _golpe_guardado and ATAQUE_ENFRIAR - _enfriar >= COMBO_DESDE:
+		_atacar()
 	_invulnerable = maxf(_invulnerable - delta, 0.0)
 	if _pega_en >= 0.0:
 		_pega_en -= delta

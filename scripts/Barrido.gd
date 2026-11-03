@@ -28,12 +28,22 @@ var estela: Node          # EstelaBarrido.gd, opcional
 var largo := 0.6          # m de la mano a la punta de lo que traes
 var _t := -1.0
 var _lado := 1.0
+var _desde := INICIO      # angulo de donde arranca a preparar
+var _peso_desde := 0.0
+var _peso := 0.0
 var _angulo_antes := 0.0
 var _delta_ultimo := 0.0
 
 
 # `lado` 1: de la derecha a la izquierda (primer golpe del combo); -1: de regreso
+# Si el anterior no ha terminado, sigue desde donde quedo el brazo, sin regresarlo al cuerpo
 func golpe(lado := 1.0) -> void:
+	if _t >= 0.0:
+		_desde = _angulo_antes
+		_peso_desde = _peso
+	else:
+		_desde = INICIO * lado
+		_peso_desde = 0.0
 	_t = 0.0
 	_lado = lado
 
@@ -45,6 +55,7 @@ func _process_modification_with_delta(delta: float) -> void:
 	_delta_ultimo = delta
 	if _t >= SUELTA:
 		_t = -1.0
+		_peso = 0.0
 		return
 	var esqueleto := get_skeleton()
 	if esqueleto == null or frijol == null:
@@ -53,15 +64,15 @@ func _process_modification_with_delta(delta: float) -> void:
 	var peso := 1.0
 	if _t < PREPARA:
 		var f := _t / PREPARA
-		angulo = lerpf(INICIO, ATRAS, ease(f, 0.5))
-		peso = f
+		angulo = lerpf(_desde, ATRAS * _lado, ease(f, 0.5))
+		peso = lerpf(_peso_desde, 1.0, f)
 	elif _t < BARRE:
-		angulo = lerpf(ATRAS, FIN, (_t - PREPARA) / (BARRE - PREPARA))
+		angulo = lerpf(ATRAS, FIN, (_t - PREPARA) / (BARRE - PREPARA)) * _lado
 	else:
-		angulo = FIN
+		angulo = FIN * _lado
 		if _t > SOSTIENE:
 			peso = 1.0 - (_t - SOSTIENE) / (SUELTA - SOSTIENE)
-	angulo *= _lado
+	_peso = peso
 	# Del mundo al espacio del esqueleto, sin su escala
 	var al_esqueleto := esqueleto.global_basis.orthonormalized().inverse()
 	var frente := al_esqueleto * -frijol.global_basis.z
