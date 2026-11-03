@@ -39,7 +39,9 @@ const DANO_MACHETE := 12.0
 const FUERZA_MIN := 0.5
 const FUERZA_MAX := 1.5
 const SWING_VOLUMEN := -8.0   # dB: para que resalte el whack
-const RETROCESO := 3.0        # m/s
+# m/s que rebotas hacia atras al pegarle a algo. En 0 a peticion de JJ, como el empujon del
+# zombi (Zombie.EMPUJON): ni tu ni el se mueven con el golpe
+const RETROCESO := 0.0
 const RETROCESO_CAIDA := 14.0 # por segundo
 const SACUDE := 0.05          # m de la camara
 const SACUDE_MATA := 2.0
