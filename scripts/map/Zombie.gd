@@ -23,11 +23,13 @@ const GOLPE_EN := 0.65      # s desde que empieza el ataque hasta que pega
 const ATAQUE_DURA := 1.5
 const ATAQUE_VELOCIDAD := 1.8
 const HERIDO_DURA := 0.45
-const EMPUJON := 9.0        # m/s con el golpe de un machete; se escala con el dano
+# m/s con el golpe de un machete; se escala con el dano. En 0 a peticion de JJ: el zombi no
+# retrocede, asi que para seguir pegando combos te toca reposicionarte tu
+const EMPUJON := 0.0
 # Lo que se siente al pegarle (Player._golpear). Los tiempos van en reloj real: el juego se
 # congela en cada golpe y si no estos tambien se detendrian
 const FLASH_MS := 55
-const JEFE_ARRASTRE := 0.3  # m: al jefe solo se le mueve un poco
+const JEFE_ARRASTRE := 0.0  # m que se recorre el jefe; en 0 como los demas (EMPUJON)
 const COLOR_AGUA := Color(0.2, 0.25, 0.1)
 const COLOR_RESTOS := Color(0.12, 0.1, 0.07)
 const PECHO := 1.15         # m de alto de donde sale el liquido
