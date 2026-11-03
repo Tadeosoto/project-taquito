@@ -30,10 +30,10 @@ const ATAQUE_PEGA_EN := 0.22
 const ATAQUE_ALCANCE := 2.4
 const ATAQUE_ANGULO := 0.35   # coseno: lo que abarca hacia los lados
 const INVULNERABLE := 0.7     # s despues de recibir un golpe
-const ARMA_TAMANO := 0.6
+const ARMA_TAMANO := 0.95    # m; con 0.6 el machete parecia cuchillo
 # El mango va en el puño: crear_modelo centra y deja lo largo en X con el mango en +X
 const ARMA_GIRO := Vector3(0.0, 90.0, -90.0)
-const ARMA_MANGO := 0.24
+const ARMA_MANGO := ARMA_TAMANO * 0.4
 # Lo que se siente al pegar: `fuerza` es 1 con el machete y cambia con el dano del arma
 const DANO_MACHETE := 12.0
 const FUERZA_MIN := 0.5
@@ -190,7 +190,8 @@ func _atacar() -> void:
 	if ninja.has_method("accion"):
 		ninja.accion("Punch")
 	if _barrido:
-		_barrido.largo = ARMA_TAMANO + ARMA_MANGO if _arma_visible else ESTELA_PUNO
+		# Del puno a la punta: el centro del arma queda ARMA_MANGO adelante del puno
+		_barrido.largo = ARMA_TAMANO * 0.5 + ARMA_MANGO if _arma_visible else ESTELA_PUNO
 		_barrido.golpe()
 	_sonar("machetazo", SWING_VOLUMEN)
 
