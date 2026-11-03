@@ -1,0 +1,16 @@
+{
+ "id": "nature/healing-bloom",
+ "fps": 30,
+ "loop": false,
+ "frames": 100,
+ "frameSize": [
+  124,
+  120
+ ],
+ "pivot": [
+  62,
+  108
+ ],
+ "columns": 10,
+ "golpe_en": 0
+}

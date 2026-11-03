@@ -53,6 +53,10 @@ const OBJETOS_COLUMNAS := 10
 const OBJETOS_PASO := 3.0
 const ZOMBI_DISTANCIA := 8.0
 const DETERIOROS := [0.0, 0.4, 0.8]
+# Tambos con fuego y un poste con chispas como los del mapa (MapAlumbrado), que aqui no hay calles
+const MapAlumbrado := preload("res://scripts/map/MapAlumbrado.gd")
+const EFECTOS_EN := Vector3(40.0, 0.0, 16.0)
+const POSTE_ALTO := 5.0
 const DINERO := 500
 const DANO_PRUEBA := 20
 const REFUGIO_EN := Vector3(30.0, 0.0, -10.0)
@@ -68,7 +72,12 @@ H curar · J -%d de vida · P +$100 · Y vaciar inventario
 G tablas · L -100 al tinaco (refugio a la derecha)
 M mapa (sin piezas se ve vacío) · U todas las piezas
 1 2 3 maquinita cercana: normal, sin monedas, segura
-C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa"""
+C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa
+F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
+Efectos de pixel, propuestas (F2-F7 cambian):"""
+# Una tecla por lugar de EfectosPixel, en este orden
+const EFECTOS_TECLAS := [KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7]
+const EFECTOS_LUGARES := ["golpe", "impacto", "herido", "muerte", "amanecer", "recoger"]
 
 var _jugador: Player
 var _zombis: Zombis
@@ -80,6 +89,7 @@ var _maquinas: Array[Maquinita] = []
 var _objetos: Node3D
 var _panel: CanvasLayer
 var _estado: Label
+var _efectos: Label
 var _deterioro := 2
 var _refugio: Refugio
 var _partida: Partida
@@ -165,6 +175,7 @@ func _ready() -> void:
 	_letrero("MAQUINITAS", Vector3(MAQUINAS_X, 4.5, -9.0))
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))
 	_letrero("CASAS", Vector3(0.0, 9.0, CASAS_Z))
+	_efectos_demo()
 	_armar_panel()
 
 
@@ -228,6 +239,30 @@ func _muro(medida: Vector3, donde: Vector3, material: Material) -> void:
 	malla.mesh = cubo
 	malla.material_override = material
 	cuerpo.add_child(malla)
+
+
+# Dos tambos y un poste que echa chispas, armados con lo mismo que el mapa
+func _efectos_demo() -> void:
+	var tambos: Array[Transform3D] = [Transform3D(Basis.IDENTITY, EFECTOS_EN), Transform3D(Basis.IDENTITY, EFECTOS_EN + Vector3(2.5, 0.0, 1.5))]
+	var cuerpo := StaticBody3D.new()
+	add_child(cuerpo)
+	for tambo in tambos:
+		cuerpo.add_child(MapAlumbrado.colision_tambo(tambo))
+	for nodo in MapAlumbrado.armar_tambos(tambos, 0.0):
+		add_child(nodo)
+	var poste := Vector3(EFECTOS_EN.x + 6.0, 0.0, EFECTOS_EN.z)
+	var material := ShaderMaterial.new()
+	material.shader = MURO_SHADER
+	material.set_shader_parameter("tint", Color(0.34, 0.35, 0.36))
+	material.set_shader_parameter("jitter_enabled", false)
+	material.set_shader_parameter("wobble_enabled", false)
+	material.set_shader_parameter("affine_enabled", false)
+	_muro(Vector3(0.2, POSTE_ALTO, 0.2), poste + Vector3.UP * POSTE_ALTO / 2.0, material)
+	var chispas: Array[Vector3] = [poste + Vector3.UP * (POSTE_ALTO - 0.3)]
+	var nodo := MapAlumbrado.armar_chispas(chispas, 0.0)
+	if nodo:
+		add_child(nodo)
+	_letrero("EFECTOS", EFECTOS_EN + Vector3(3.0, 4.0, 0.0))
 
 
 func _letrero(texto: String, donde: Vector3, tamano := 0.02) -> void:
@@ -336,6 +371,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			_reiniciar()
 		KEY_C:
 			_crear_personaje()
+		KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7:
+			_zombis.efectos.cambiar(EFECTOS_LUGARES[EFECTOS_TECLAS.find(tecla)])
+			_mostrar_efectos()
+		KEY_F8:
+			var frente := -_jugador.frijol.global_transform.basis.z
+			frente.y = 0.0
+			_zombis.aparecer_jefe(_jugador.global_position + frente.normalized() * ZOMBI_DISTANCIA * 2.0)
+		KEY_F9:
+			EfectosPixel.poner_extras(not EfectosPixel.extras)
+			_mostrar_efectos()
 		KEY_F10:
 			# Al cambiar de escena este nodo ya no tiene viewport
 			get_viewport().set_input_as_handled()
@@ -403,6 +448,9 @@ func _armar_panel() -> void:
 	add_child(_panel)
 	var fondo := PanelContainer.new()
 	fondo.position = Vector2(6.0, 6.0)
+	# Con el raton capturado el cursor esta en el centro: si el panel llega ahi se comia el
+	# mirar y el pegar
+	fondo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var caja := StyleBoxFlat.new()
 	caja.bg_color = Color(0.0, 0.0, 0.0, 0.6)
 	caja.set_content_margin_all(6.0)
@@ -414,10 +462,26 @@ func _armar_panel() -> void:
 	ayuda.text = PANEL_TEXTO % DANO_PRUEBA
 	ayuda.add_theme_font_size_override("font_size", 11)
 	columna.add_child(ayuda)
+	_efectos = Label.new()
+	_efectos.add_theme_font_size_override("font_size", 11)
+	columna.add_child(_efectos)
+	_mostrar_efectos()
 	_estado = Label.new()
 	_estado.add_theme_font_size_override("font_size", 11)
 	_estado.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))
 	columna.add_child(_estado)
+
+
+func _mostrar_efectos() -> void:
+	# Tres por renglon, para que el panel no crezca tanto
+	var partes := PackedStringArray()
+	for i in EFECTOS_LUGARES.size():
+		var lugar: String = EFECTOS_LUGARES[i]
+		partes.append("F%d %s: %s" % [i + 2, lugar, _zombis.efectos.nombre_variante(lugar)])
+		if i % 3 == 2 and i < EFECTOS_LUGARES.size() - 1:
+			partes.append("\n")
+	_efectos.text = " · ".join(partes).replace(" · \n · ", "\n") \
+		+ "\nF9 efectos nuevos: " + ("prendidos" if EfectosPixel.extras else "apagados")
 
 
 func _process(_delta: float) -> void:

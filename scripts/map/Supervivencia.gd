@@ -25,6 +25,18 @@ const IMPACTO_UMBRAL_DIA := 0.36
 const IMPACTO_UMBRAL_NOCHE := 0.22
 const IMPACTO_SHADER := preload("res://shaders/impacto.gdshader")
 const CALENTAR_CUADROS := 3
+# Efectos de pixel (EfectosPixel): la tele que se apaga al desmayarte (la hoja queda en negro
+# entre DESMAYO_APAGA y su final), rayos de luz al amanecer y gotas de sangre con poca vida
+const DESMAYO_APAGA := 1.0
+const DESMAYO_DURA := 2.0
+const RAYOS_DURA := 30.0
+const RAYOS_ALFA := 0.55
+const RAYOS_FUNDIDO := 6.0
+const RAYOS_RECORTE := 22.0   # px de abajo de la hoja: su piso iluminado
+const GOTEO_CADA := Vector2(0.6, 1.2)
+const GOTEO_GOTAS := Vector2i(1, 3)
+const GOTEO_VELOCIDAD := Vector2(0.2, 0.9)
+const GOTEO_ALTO := 0.9   # m sobre los pies: de las manos y el pecho
 
 @export var jugador_path: NodePath
 @export var ciclo_path: NodePath
@@ -48,6 +60,7 @@ var _aviso: Label
 var _centro: Label
 var _voz: AudioStreamPlayer
 var _aviso_tween: Tween
+var _goteo := 0.0
 
 
 func _ready() -> void:
@@ -67,7 +80,11 @@ func _ready() -> void:
 		_avisar(TEXTO_TURBA)
 		_sonar("gemido"))
 	ciclo.anochecio.connect(func() -> void: _avisar(TEXTO_NOCHE))
-	ciclo.amanecio.connect(func() -> void: _avisar(TEXTO_DIA))
+	ciclo.amanecio.connect(func() -> void:
+		_avisar(TEXTO_DIA)
+		var efectos := _efectos()
+		if efectos:
+			efectos.pantalla("amanecer_rayos", 0.0, RAYOS_DURA, true, RAYOS_ALFA, RAYOS_FUNDIDO, RAYOS_RECORTE))
 	_flash = _pantalla(Color(0.7, 0.0, 0.0, 0.0))
 	_orillas = _pantalla(Color(1, 1, 1, 0))
 	var material := ShaderMaterial.new()
@@ -135,14 +152,36 @@ func _revisar_impacto() -> void:
 		_impacto_material.set_shader_parameter("invertido", true)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_revisar_impacto()
 	var fraccion: float = float(_salud.vida) / _salud.vida_max
 	var fuerza := 0.0
 	if fraccion < POCA_VIDA and not _desmayado:
 		var latido := 0.75 + 0.25 * sin(Time.get_ticks_msec() * 0.005)
 		fuerza = (1.0 - fraccion / POCA_VIDA) * latido
+		_gotear(delta)
 	(_orillas.material as ShaderMaterial).set_shader_parameter("fuerza", fuerza)
+
+
+# Con poca vida se te van cayendo gotas de sangre (el Liquido de siempre). Esta capa corre
+# aun en pausa: ahi no, que el liquido esta detenido
+func _gotear(delta: float) -> void:
+	if get_tree().paused or not EfectosPixel.extras:
+		return
+	_goteo -= delta
+	if _goteo > 0.0:
+		return
+	_goteo = randf_range(GOTEO_CADA.x, GOTEO_CADA.y)
+	var liquido := get_tree().get_first_node_in_group("liquido")
+	if liquido:
+		var pies := _jugador.global_position + Vector3.DOWN
+		liquido.salpicar(pies + Vector3.UP * GOTEO_ALTO, 0.2, pies.y, Vector3.DOWN,
+			randi_range(GOTEO_GOTAS.x, GOTEO_GOTAS.y), Player.COLOR_SANGRE, GOTEO_VELOCIDAD, 0.6)
+
+
+# Los efectos de pixel, si estan prendidos (F9 en el safehouse los apaga)
+func _efectos() -> Node:
+	return get_tree().get_first_node_in_group("efectos_pixel") if EfectosPixel.extras else null
 
 
 func _cambio_vida() -> void:
@@ -161,9 +200,15 @@ func _desmayarse() -> void:
 	_jugador.detener()
 	_jugador.caer()
 	_soltar_bolsa()
-	var tween := create_tween()
-	tween.tween_property(_negro, "color:a", 1.0, FUNDIDO)
-	await tween.finished
+	# La imagen se aprieta en una raya y se apaga como tele vieja; sin efectos, se funde a negro
+	var efectos := _efectos()
+	if efectos:
+		await efectos.pantalla("desmayo", 0.0, DESMAYO_APAGA)
+		_negro.color.a = 1.0
+	else:
+		var tween := create_tween()
+		tween.tween_property(_negro, "color:a", 1.0, FUNDIDO)
+		await tween.finished
 	_centro.text = TEXTO_DESMAYO
 	_centro.modulate.a = 1.0
 	_zombis.limpiar_cerca(punto_regreso.origin, LIMPIO_AL_REGRESAR)
@@ -173,9 +218,15 @@ func _desmayarse() -> void:
 	await get_tree().create_timer(NEGRO_DURA).timeout
 	_jugador.reanudar()
 	_centro.modulate.a = 0.0
-	tween = create_tween()
-	tween.tween_property(_negro, "color:a", 0.0, FUNDIDO)
-	await tween.finished
+	if efectos and is_instance_valid(efectos):
+		# La segunda mitad de la hoja arranca en negro: se quita el negro de abajo y se prende
+		efectos.pantalla("desmayo", DESMAYO_APAGA, DESMAYO_DURA)
+		_negro.color.a = 0.0
+		await get_tree().create_timer(DESMAYO_DURA - DESMAYO_APAGA).timeout
+	else:
+		var tween := create_tween()
+		tween.tween_property(_negro, "color:a", 0.0, FUNDIDO)
+		await tween.finished
 	_desmayado = false
 
 

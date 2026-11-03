@@ -1,0 +1,16 @@
+{
+ "id": "weather/god-rays",
+ "fps": 6,
+ "loop": true,
+ "frames": 60,
+ "frameSize": [
+  320,
+  180
+ ],
+ "pivot": [
+  160,
+  170
+ ],
+ "columns": 6,
+ "golpe_en": 0
+}

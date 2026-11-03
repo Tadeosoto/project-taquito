@@ -21,6 +21,10 @@ func _ready() -> void:
 	if modelo:
 		modelo.position.y = TAMANO / 2.0
 		add_child(modelo)
+	# El mismo haz tenue que las piezas de mapa, para encontrarla de noche (EfectosPixel)
+	var haz := EfectosPixel.cuadro_bucle("haz", PiezaMapa.HAZ_ESCALA, PiezaMapa.HAZ_ALFA)
+	if haz:
+		add_child(haz)
 	_aviso = Label3D.new()
 	_aviso.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_aviso.no_depth_test = true

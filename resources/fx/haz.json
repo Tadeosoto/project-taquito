@@ -1,0 +1,16 @@
+{
+ "id": "taquito/haz",
+ "fps": 30,
+ "loop": true,
+ "frames": 72,
+ "frameSize": [
+  96,
+  176
+ ],
+ "pivot": [
+  48,
+  162
+ ],
+ "columns": 12,
+ "golpe_en": 0
+}

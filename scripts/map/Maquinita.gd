@@ -175,6 +175,10 @@ func mostrar_premio(premio: int, gano: bool, cohetes: int) -> void:
 		if cohetes > 0:
 			Cohetes.lanzar(self, global_transform * Vector3(0.0, ALTO, 1.2), cohetes)
 	if premio > 0:
+		# Monedas que brincan en el piso frente a la charola (EfectosPixel)
+		var efectos := get_tree().get_first_node_in_group("efectos_pixel")
+		if efectos:
+			efectos.lanzar("premio", global_transform * Vector3(0.0, 0.0, FONDO * 0.5 + 0.35), global_basis.x)
 		const CAIDAS := 25
 		var caidas := mini(premio, CAIDAS)
 		for i in caidas:

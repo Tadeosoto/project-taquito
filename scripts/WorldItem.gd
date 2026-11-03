@@ -70,6 +70,9 @@ func interact() -> void:
 		return
 	_recogido = true
 	visible = false
+	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
+	if efectos:
+		efectos.lanzar("recoger", global_position)
 
 	# Sonidito
 	if pickup_sound:

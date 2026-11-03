@@ -24,6 +24,9 @@ const SHADER := preload("res://shaders/ps1_combined.gdshader")
 # dano por segundo segun la noche, repartido entre las entradas
 const ASEDIO := [1.0, 1.5, 2.0]
 const ASEDIO_CAMBIA := 10.0   # s atacando la misma entrada
+# Chorros del tinaco (EfectosPixel): uno mas a cada fraccion de vida perdida. [angulo, alto]
+const CHORROS := [[0.5, 0.6], [2.6, 1.1], [4.4, 0.35]]
+const CHORRO_ESCALA := 0.4
 
 var vida := TINACO_VIDA
 var noche := 0                # la pone Partida.gd
@@ -36,6 +39,7 @@ var _avisado := false
 var _blanco_asedio: EntradaRefugio
 var _cambia_en := 0.0
 var _resto := 0.0
+var _chorros: Array[MeshInstance3D] = []
 
 
 func _enter_tree() -> void:
@@ -66,6 +70,27 @@ func _ready() -> void:
 		entrada.rota.connect(func() -> void: aviso.emit("¡Tumbaron una entrada!"))
 		entradas.append(entrada)
 	_tinaco()
+	_armar_chorros()
+
+
+# El tinaco se sale por donde le pegaron: los chorros aparecen a 3/4, 1/2 y 1/4 de vida
+func _armar_chorros() -> void:
+	for datos: Array in CHORROS:
+		var hacia := Vector3(cos(datos[0]), 0.0, sin(datos[0]))
+		var chorro := EfectosPixel.cuadro_bucle("tinaco_chorro", CHORRO_ESCALA, 1.0, 0.0, true)
+		if chorro == null:
+			return
+		chorro.position = hacia * TINACO_RADIO * 0.95 + Vector3.UP * datos[1]
+		chorro.set_instance_shader_parameter("hacia", global_basis * hacia)
+		add_child(chorro)
+		_chorros.append(chorro)
+	_goteras()
+
+
+func _goteras() -> void:
+	var perdida := 1.0 - float(vida) / TINACO_VIDA
+	for i in _chorros.size():
+		_chorros[i].visible = not _caido and perdida >= (i + 1) / float(_chorros.size() + 1)
 
 
 func _physics_process(delta: float) -> void:
@@ -94,6 +119,7 @@ func recibir_golpe(dano: int) -> void:
 	if _caido:
 		return
 	vida = maxi(vida - dano, 0)
+	_goteras()
 	if vida <= 0:
 		_caido = true
 		cayo.emit()
@@ -127,11 +153,13 @@ func reiniciar() -> void:
 	_avisado = false
 	for entrada in entradas:
 		entrada.reiniciar()
+	_goteras()
 
 
 func _amanecer() -> void:
 	vida = mini(vida + TINACO_AL_AMANECER, TINACO_VIDA)
 	_avisado = false
+	_goteras()
 
 
 func _tinaco() -> void:

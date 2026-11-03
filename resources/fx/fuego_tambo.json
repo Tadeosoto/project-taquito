@@ -1,0 +1,16 @@
+{
+ "id": "taquito/fuego-tambo",
+ "fps": 30,
+ "loop": true,
+ "frames": 90,
+ "frameSize": [
+  112,
+  116
+ ],
+ "pivot": [
+  56,
+  112
+ ],
+ "columns": 10,
+ "golpe_en": 0
+}

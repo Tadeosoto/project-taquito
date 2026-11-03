@@ -1,0 +1,16 @@
+{
+ "id": "spawn/coin-drop",
+ "fps": 30,
+ "loop": false,
+ "frames": 91,
+ "frameSize": [
+  160,
+  88
+ ],
+ "pivot": [
+  80,
+  78
+ ],
+ "columns": 8,
+ "golpe_en": 0
+}

@@ -1,0 +1,16 @@
+{
+ "id": "lightning/zap-hit",
+ "fps": 30,
+ "loop": false,
+ "frames": 28,
+ "frameSize": [
+  144,
+  112
+ ],
+ "pivot": [
+  76,
+  56
+ ],
+ "columns": 5,
+ "golpe_en": 0
+}

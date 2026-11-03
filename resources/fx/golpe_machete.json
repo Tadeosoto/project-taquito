@@ -1,0 +1,16 @@
+{
+ "id": "melee/sword-slash",
+ "fps": 30,
+ "loop": false,
+ "frames": 24,
+ "frameSize": [
+  136,
+  104
+ ],
+ "pivot": [
+  44,
+  92
+ ],
+ "columns": 5,
+ "golpe_en": 0.06
+}

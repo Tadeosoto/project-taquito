@@ -1,0 +1,16 @@
+{
+ "id": "taquito/marca-rabia",
+ "fps": 30,
+ "loop": true,
+ "frames": 36,
+ "frameSize": [
+  52,
+  56
+ ],
+ "pivot": [
+  26,
+  40
+ ],
+ "columns": 7,
+ "golpe_en": 0
+}

@@ -40,6 +40,13 @@ const REVIENTA := 60
 const REVIENTA_VELOCIDAD := Vector2(3.0, 9.0)
 const RESTOS := 8
 const JEFE_REVIENTA := 2.0  # cuanto mas grande es todo con el jefe
+# Efectos de pixel (EfectosPixel): polvo bajo las pisadas del jefe y la marca de los cazadores
+const JEFE_PASO := 2.4      # m entre pisada y pisada
+const JEFE_PISADA := 0.5    # tamano del polvo
+const JEFE_ANUNCIA := 14.0  # m: sale de lado de la camara; el azote es al acercarse, donde se ve
+const JEFE_AZOTE := 0.6
+const RABIA_ALTO := 2.05    # m sobre los pies, por el tamano
+const RABIA_ESCALA := 0.8
 # Sin encimarse: chocan entre ellos. Cerca del blanco, si lo que estorba es otro zombi, espera
 # su turno en vez de irse de lado (la fila de atras temblaba)
 const CAPA_ZOMBIS := 2
@@ -97,6 +104,10 @@ var _tamano := 1.0
 var _mallas: Array[MeshInstance3D] = []
 var _flash_hasta := 0       # ms de reloj real
 var _reventar_en := 0       # ms de reloj real; 0 = no va a tronar
+var _ceniza := false        # cayo al amanecer: se hace ceniza al desaparecer
+var _rabia: MeshInstance3D  # la marca de cazador
+var _paso := 0.0            # m andados desde la ultima pisada del jefe
+var _anunciado := false     # el jefe ya azoto el piso al llegar
 var _charco: MeshInstance3D
 var _charco_desde := -1.0
 var _tick := 0
@@ -159,6 +170,12 @@ func _ready() -> void:
 	_voz.position.y = 1.5
 	_voz.max_distance = 25.0
 	add_child(_voz)
+	if not es_jefe:
+		_rabia = EfectosPixel.cuadro_bucle("rabia", RABIA_ESCALA * tamano)
+		if _rabia:
+			_rabia.position.y = RABIA_ALTO * tamano
+			_rabia.visible = false
+			add_child(_rabia)
 
 
 func _exit_tree() -> void:
@@ -198,6 +215,7 @@ func _pintar_blanco(prendido: bool) -> void:
 func _restaurar() -> void:
 	_flash_hasta = 0
 	_reventar_en = 0
+	_ceniza = false
 	_charco_desde = -1.0
 	if _charco:
 		_charco.visible = false
@@ -222,6 +240,9 @@ func calentar() -> void:
 func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	despierto = true
 	cazador = con_prisa
+	if _rabia:
+		_rabia.visible = con_prisa
+	_paso = 0.0
 	process_mode = Node.PROCESS_MODE_INHERIT
 	visible = true
 	add_to_group("zombis")
@@ -250,6 +271,8 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 
 func dormir() -> void:
 	despierto = false
+	if _rabia:
+		_rabia.visible = false
 	remove_from_group("zombis")
 	activos.erase(self)
 	collision_layer = 0
@@ -274,6 +297,10 @@ func _physics_process(delta: float) -> void:
 				_seguir_caminando()
 		Estado.MUERTO:
 			if _tiempo >= MUERTO_DURA:
+				if _ceniza:
+					_ceniza = false
+					if zombis:
+						zombis.efectos.lanzar("amanecer", global_position, Vector3.ZERO, _tamano)
 				termino.emit()
 			return
 	if estado != Estado.HERIDO:
@@ -284,6 +311,14 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, EMPUJON * 3.0 * delta)
 	velocity.y = 0.0 if is_on_floor() else velocity.y - GRAVEDAD * delta
 	move_and_slide()
+	if es_jefe and estado == Estado.CAMINA and zombis:
+		if not _anunciado and is_instance_valid(jugador) and global_position.distance_to(jugador.global_position) <= JEFE_ANUNCIA:
+			_anunciado = true
+			zombis.efectos.lanzar("jefe", global_position, Vector3.ZERO, JEFE_AZOTE * _tamano)
+		_paso += Vector2(velocity.x, velocity.z).length() * delta
+		if _paso >= JEFE_PASO:
+			_paso = 0.0
+			zombis.efectos.lanzar("pisada", global_position, Vector3.ZERO, JEFE_PISADA * _tamano)
 
 
 func _caminar(delta: float) -> Vector3:
@@ -433,6 +468,8 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) ->
 	_pintar_blanco(true)
 	set_process(true)
 	_salpicar(atras, fuerza)
+	if zombis:
+		zombis.efectos.lanzar("impacto", global_position, atras, _tamano, "mata" if _vida <= 0 else "")
 	if _vida <= 0:
 		velocity = Vector3.ZERO
 		_morir(true, truena_en)
@@ -452,6 +489,8 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) ->
 # el, se cae (al amanecer)
 func _morir(pagado: bool, truena_en := 0) -> void:
 	estado = Estado.MUERTO
+	if _rabia:
+		_rabia.visible = false
 	_tiempo = 0.0
 	collision_layer = 0
 	collision_mask = 1
@@ -465,6 +504,7 @@ func _morir(pagado: bool, truena_en := 0) -> void:
 	else:
 		_animar("die", 1.0, true)
 		_sonar("morir_zombi")
+		_ceniza = true
 	murio.emit()
 	if pagado:
 		var cartera := get_node_or_null("/root/Cartera")
@@ -502,6 +542,7 @@ func _reventar() -> void:
 	_sonar("reventar")
 	if zombis:
 		zombis.dejar_restos(global_position, _tamano)
+		zombis.efectos.lanzar("muerte", global_position, Vector3.ZERO, grande * _tamano)
 
 
 func _preparar_charco() -> void:

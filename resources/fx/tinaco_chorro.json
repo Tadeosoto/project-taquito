@@ -1,0 +1,16 @@
+{
+ "id": "water/water-jet",
+ "fps": 30,
+ "loop": true,
+ "frames": 30,
+ "frameSize": [
+  188,
+  80
+ ],
+ "pivot": [
+  14,
+  32
+ ],
+ "columns": 4,
+ "golpe_en": 0
+}

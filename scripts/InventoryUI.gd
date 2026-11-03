@@ -304,6 +304,10 @@ func _utilizar() -> void:
 	var item: InventoryItemData = inventory.get_item(current_item_index)
 	var antes: int = Salud.vida
 	Salud.vida += item.curacion
+	# La flor de curar a los pies: el juego esta en pausa, se ve al cerrar (EfectosPixel)
+	var jugador := get_tree().get_first_node_in_group("jugador")
+	if jugador and jugador.has_method("efecto"):
+		jugador.efecto("curar", Vector3.ZERO)
 	inventory.remove_item(current_item_index)
 	_mostrar_mensaje("%s: +%d de vida." % [item.item_name, Salud.vida - antes])
 

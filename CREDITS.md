@@ -124,3 +124,6 @@
 - [Pallet Racking](https://sketchfab.com/3d-models/593e7d15f27346efa2dcc0149edb6ef2) de YadroGames, licencia CC Attribution (`models/bodegas/rack/`).
 - [Cardboard Box Set- Low Poly](https://sketchfab.com/3d-models/5d3d508061e544739e37c685af235684) de Nodeaxis Interactive, licencia CC Attribution (`models/bodegas/cajas/`).
 - [Old Rusty Shelving Unit](https://sketchfab.com/3d-models/3ce07d0518154759841236045efafd72) de jimbogies, licencia CC Attribution (`models/bodegas/estante_oxidado/`).
+
+## Efectos de pixel (`resources/fx/`, MIT)
+- [pixelfx](https://github.com/patch-gg/pixelfx) de Patch y Hugo Duprez, licencia MIT. Las hojas se hacen con `tools/pixelfx/exportar.mjs` y se recolorean a la paleta del juego.

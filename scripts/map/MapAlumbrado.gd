@@ -9,10 +9,34 @@ extends Node3D
 # halos brillan, y solo las lamparas prendidas mas cercanas al jugador tienen una
 # luz real (un grupo fijo de OmniLight3D sin sombras que se van reasignando). Volando
 # en dron no hay luces reales.
+#
+# En zonas deterioradas tambien: tambos con fuego junto a algunos postes y chispas en las
+# lamparas que parpadean (EfectosPixel, sin luz real: el brillo viene en la hoja). Salen y se
+# van con la celda; armar_tambos/armar_chispas los usa tambien el safehouse.
 
 const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 const SHADER := preload("res://shaders/ps1_lampara.gdshader")
 const HALO_SHADER := preload("res://shaders/ps1_lampara_halo.gdshader")
+const SHADER_TAMBO := preload("res://shaders/ps1_combined.gdshader")
+# Tambos: desde que deterioro de zona, y que fraccion de postes lo tiene con la zona al maximo
+const TAMBO_DESDE := 0.3
+const TAMBO_MAX := 0.2
+const TAMBO_RADIO := 0.3
+const TAMBO_ALTO := 0.9
+const TAMBO_LUGAR := Vector3(0.7, 0.0, -0.6)   # junto al poste, del lado contrario a la calle
+const TAMBO_COLOR := Color(0.32, 0.17, 0.1)
+const FUEGO_ESCALA := 0.42                     # la boca del fuego mide lo que el tambo
+# Chispas en las lamparas que parpadean, desde este deterioro; una cada CHISPA_PERIODO s
+const CHISPA_DESDE := 0.4
+const CHISPA_PERIODO := 3.0
+const CHISPA_ESCALA := 0.4
+const CAJA_SPRITE := 3.0                       # m que el shader estira un sprite fuera de su punto
+# Hasta donde se ven tambos y chispas: son chicos y la niebla los tapa antes; con el alcance de
+# los postes (300 m) costaban hasta ~180 llamadas de dibujo de mas
+const EFECTOS_FIN := 120.0
+
+static var _malla_tambo: CylinderMesh
+static var _material_tambo: ShaderMaterial
 
 const CELDA := 64.0
 const GRUESO := 0.2
@@ -176,13 +200,20 @@ func _crear_celda(key: Vector2i) -> void:
 	var por_tipo := {}         # tipo -> [[Transform3D, custom], ...]
 	var halos := []            # [Transform3D, color, custom]
 	var lamparas := []
+	var tambos: Array[Transform3D] = []
+	var chispas: Array[Vector3] = []
 	for poste: Dictionary in _celdas[key]:
 		var alto: float = poste["alto"]
 		var brazo: float = poste["brazo"]
 		var doble: bool = poste["doble"]
 		var semilla := int(poste["semilla"])
-		var estado := Alumbrado.estado(semilla, Deterioro.zona(poste["x"], poste["z"]), poste["avenida"])
+		var zona := Deterioro.zona(poste["x"], poste["z"])
+		var estado := Alumbrado.estado(semilla, zona, poste["avenida"])
 		var xform := Transform3D(Basis(Vector3.UP, float(poste["rotacion_y"])), Vector3(poste["x"], 0.0, poste["z"]))
+		if zona > TAMBO_DESDE and Deterioro._hash(semilla, 21) < (zona - TAMBO_DESDE) / (1.0 - TAMBO_DESDE) * TAMBO_MAX:
+			var tambo := xform * Transform3D(Basis.IDENTITY, TAMBO_LUGAR)
+			tambos.append(tambo)
+			cuerpo.add_child(colision_tambo(tambo))
 		if estado["caido"]:
 			# Tirado a lo largo de la banqueta, con el brazo hacia la calle
 			var lado := 1.0 if Deterioro._hash(semilla, 9) < 0.5 else -1.0
@@ -210,6 +241,8 @@ func _crear_celda(key: Vector2i) -> void:
 			halos.append([Transform3D(Basis.IDENTITY, mica), estado["color"], custom])
 			lamparas.append({"pos": mica + Vector3.DOWN * 0.3, "color": estado["color"], "semilla": semilla,
 				"umbral": estado["umbral"], "parpadea": estado["parpadea"]})
+			if estado["parpadea"] and zona > CHISPA_DESDE:
+				chispas.append(mica)
 	for tipo: String in por_tipo:
 		var datos: Array = por_tipo[tipo]
 		var mallas := _mallas_de(datos[0], datos[1], datos[2])
@@ -217,12 +250,80 @@ func _crear_celda(key: Vector2i) -> void:
 		celda.add_child(_multimesh(mallas[1], _material_mica, datos[3], true, poste_end))
 	if not halos.is_empty():
 		celda.add_child(_multimesh(_halo_mesh, _material_halo, halos, true, halo_end))
+	for nodo in armar_tambos(tambos, EFECTOS_FIN):
+		celda.add_child(nodo)
+	if not chispas.is_empty():
+		var nodo := armar_chispas(chispas, EFECTOS_FIN)
+		if nodo:
+			celda.add_child(nodo)
 	add_child(celda)
 	_nodos[key] = celda
 	_lamparas[key] = lamparas
 
 
-func _multimesh(mesh: Mesh, material: Material, instancias: Array, con_datos: bool, fin: float) -> MultiMeshInstance3D:
+# Tambos de fierro con fuego encima: un MultiMesh de tambos (malla y material compartidos) y
+# otro del fuego de pixel (EfectosPixel, cada uno en otra fase). `lugares`: el pie de cada tambo
+static func armar_tambos(lugares: Array[Transform3D], fin: float) -> Array[Node3D]:
+	var nodos: Array[Node3D] = []
+	if lugares.is_empty():
+		return nodos
+	if _malla_tambo == null:
+		_malla_tambo = CylinderMesh.new()
+		_malla_tambo.top_radius = TAMBO_RADIO
+		_malla_tambo.bottom_radius = TAMBO_RADIO
+		_malla_tambo.height = TAMBO_ALTO
+		_malla_tambo.radial_segments = 8
+		_malla_tambo.rings = 1
+		_material_tambo = ShaderMaterial.new()
+		_material_tambo.shader = SHADER_TAMBO
+		_material_tambo.set_shader_parameter("tint", TAMBO_COLOR)
+		_material_tambo.set_shader_parameter("jitter_enabled", false)
+		_material_tambo.set_shader_parameter("wobble_enabled", false)
+		_material_tambo.set_shader_parameter("affine_enabled", false)
+	var cuerpos := []
+	var bocas: Array[Vector3] = []
+	for lugar in lugares:
+		cuerpos.append([lugar * Transform3D(Basis.IDENTITY, Vector3.UP * TAMBO_ALTO / 2.0)])
+		bocas.append(lugar.origin + Vector3.UP * TAMBO_ALTO)
+	nodos.append(_multimesh(_malla_tambo, _material_tambo, cuerpos, false, fin))
+	var fuego := _sprites("fuego_tambo", bocas, FUEGO_ESCALA, 0.0, fin)
+	if fuego:
+		nodos.append(fuego)
+	return nodos
+
+
+static func colision_tambo(lugar: Transform3D) -> CollisionShape3D:
+	var forma := CollisionShape3D.new()
+	var cilindro := CylinderShape3D.new()
+	cilindro.radius = TAMBO_RADIO
+	cilindro.height = TAMBO_ALTO
+	forma.shape = cilindro
+	forma.transform = lugar * Transform3D(Basis.IDENTITY, Vector3.UP * TAMBO_ALTO / 2.0)
+	return forma
+
+
+static func armar_chispas(lugares: Array[Vector3], fin: float) -> MultiMeshInstance3D:
+	return _sprites("chispa_poste", lugares, CHISPA_ESCALA, CHISPA_PERIODO, fin)
+
+
+# Un MultiMesh de un efecto que se repite (shaders/sprite_pixel.gdshader), con la fase de cada
+# uno en el custom data. La caja crece para que el shader pueda estirarlos sin que se recorten
+static func _sprites(hoja: String, lugares: Array[Vector3], escala: float, periodo: float, fin: float) -> MultiMeshInstance3D:
+	var material := EfectosPixel.material_bucle(hoja, 1.0, periodo)
+	if material == null:
+		return null
+	var instancias := []
+	var caja := AABB(lugares[0], Vector3.ZERO)
+	for lugar in lugares:
+		var fase := Deterioro._hash(int(lugar.x * 7.0), int(lugar.z * 7.0))
+		instancias.append([Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * escala), lugar), Color.WHITE, Color(fase, 0.0, 0.0, 0.0)])
+		caja = caja.expand(lugar)
+	var nodo := _multimesh(EfectosPixel.malla_quad(), material, instancias, true, fin)
+	nodo.multimesh.custom_aabb = caja.grow(CAJA_SPRITE)
+	return nodo
+
+
+static func _multimesh(mesh: Mesh, material: Material, instancias: Array, con_datos: bool, fin: float) -> MultiMeshInstance3D:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = con_datos

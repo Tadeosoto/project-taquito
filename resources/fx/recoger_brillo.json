@@ -1,0 +1,16 @@
+{
+ "id": "pickups/collect-burst",
+ "fps": 30,
+ "loop": false,
+ "frames": 42,
+ "frameSize": [
+  112,
+  108
+ ],
+ "pivot": [
+  56,
+  94
+ ],
+ "columns": 7,
+ "golpe_en": 0
+}

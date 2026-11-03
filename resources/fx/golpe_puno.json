@@ -1,0 +1,16 @@
+{
+ "id": "melee/thrust",
+ "fps": 30,
+ "loop": false,
+ "frames": 24,
+ "frameSize": [
+  196,
+  76
+ ],
+ "pivot": [
+  34,
+  62
+ ],
+ "columns": 4,
+ "golpe_en": 0.07
+}

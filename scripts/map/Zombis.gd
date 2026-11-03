@@ -38,6 +38,7 @@ var director := Director.new()
 var campo_jugador := CampoFlujo.new()
 var campo_refugio := CampoFlujo.new()
 var liquido: Liquido
+var efectos: EfectosPixel
 
 var _jugador: Player
 var _ciclo: Ciclo
@@ -60,6 +61,8 @@ func _ready() -> void:
 	process_physics_priority = 10
 	liquido = Liquido.new()
 	add_child(liquido)
+	efectos = EfectosPixel.new()
+	add_child(efectos)
 	_salud = get_node("/root/Salud")
 	_vida_antes = _salud.vida
 	_salud.cambio.connect(_cambio_vida)
@@ -351,6 +354,7 @@ func limpiar() -> void:
 			restos.queue_free()
 	_restos.clear()
 	liquido.limpiar()
+	efectos.limpiar()
 	for z: Zombie in Zombie.activos.duplicate():
 		_devolver(z)
 

@@ -11,6 +11,8 @@ const GIRO := 70.0           # grados por segundo
 const RADIO := 1.8
 const VISTA := 28.0          # m hasta donde se ve el letrero
 const COLOR_PAPEL := Color(0.86, 0.8, 0.62)
+const HAZ_ESCALA := 0.35      # unos 3 m de alto (BolsaMuerte usa el mismo)
+const HAZ_ALFA := 0.5
 const SHADER := preload("res://shaders/ps1_combined.gdshader")
 
 static var _material: ShaderMaterial
@@ -40,6 +42,10 @@ func _ready() -> void:
 	_papel.position.y = ALTO
 	_papel.rotation.x = 0.35
 	add_child(_papel)
+	# Un haz tenue para encontrarla de noche (EfectosPixel)
+	var haz := EfectosPixel.cuadro_bucle("haz", HAZ_ESCALA, HAZ_ALFA)
+	if haz:
+		add_child(haz)
 	_aviso = Label3D.new()
 	_aviso.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_aviso.position.y = ALTO + 0.7
@@ -79,6 +85,9 @@ func is_player_inside() -> bool:
 func interact() -> void:
 	var cual: int = zona if zona >= 0 else get_node("/root/PiezasMapa").siguiente_faltante()
 	get_node("/root/PiezasMapa").recoger(cual)
+	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
+	if efectos:
+		efectos.lanzar("recoger", global_position)
 	queue_free()
 
 

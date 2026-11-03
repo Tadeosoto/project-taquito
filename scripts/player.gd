@@ -142,15 +142,18 @@ func _atacar() -> void:
 
 func _golpear() -> void:
 	var dano := DANO_PUNO
+	var con_arma := false
 	var inventario := get_node_or_null("/root/Inventory")
 	if inventario:
 		var arma: InventoryItemData = inventario.arma()
 		if arma:
 			dano = arma.dano
+			con_arma = true
 	dano = maxi(roundi(dano * _factor_dano), 1)
 	var frente := -frijol.global_transform.basis.z
 	frente.y = 0.0
 	frente = frente.normalized()
+	efecto("golpe", frente, "" if con_arma else "puno")
 	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)
 	# Un zombi muerto en este golpe truena justo al soltar la congelada
 	var truena_en := int(CONGELA_MATA * 1000.0)
@@ -230,6 +233,7 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0) -> void:
 	_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	_congelar(CONGELA_GOLPEADO)
 	_sangrar(hacia)
+	efecto("herido", hacia)
 	golpeado.emit()
 	get_node("/root/Salud").vida -= dano
 
@@ -241,6 +245,14 @@ func _sangrar(hacia: Vector3) -> void:
 	if liquido:
 		liquido.salpicar(frijol.global_position + Vector3.UP * SANGRE_ALTO, SANGRE_RADIO, global_position.y - 1.0,
 			(hacia + Vector3.UP * 0.3).normalized(), SANGRE, COLOR_SANGRE, SANGRE_VELOCIDAD, SANGRE_ABRE)
+
+
+# Un efecto de pixel (EfectosPixel.gd) a los pies del modelo, que es lo que se ve. Por grupo y
+# sin el tipo, como el liquido
+func efecto(lugar: String, hacia: Vector3, opcion := "") -> void:
+	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
+	if efectos:
+		efectos.lanzar(lugar, Vector3(frijol.global_position.x, global_position.y - 1.0, frijol.global_position.z), hacia, 1.0, opcion)
 
 
 # Todo el modelo, con el arma que traiga en la mano

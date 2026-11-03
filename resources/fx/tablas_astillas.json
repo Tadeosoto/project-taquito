@@ -1,0 +1,16 @@
+{
+ "id": "impacts/blunt-hit",
+ "fps": 30,
+ "loop": false,
+ "frames": 28,
+ "frameSize": [
+  128,
+  88
+ ],
+ "pivot": [
+  64,
+  72
+ ],
+ "columns": 5,
+ "golpe_en": 0
+}

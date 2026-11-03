@@ -1,0 +1,16 @@
+{
+ "id": "impacts/crit-hit",
+ "fps": 30,
+ "loop": false,
+ "frames": 28,
+ "frameSize": [
+  216,
+  136
+ ],
+ "pivot": [
+  84,
+  106
+ ],
+ "columns": 5,
+ "golpe_en": 0
+}

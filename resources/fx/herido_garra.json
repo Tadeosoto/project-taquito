@@ -1,0 +1,16 @@
+{
+ "id": "melee/claw-swipe",
+ "fps": 30,
+ "loop": false,
+ "frames": 28,
+ "frameSize": [
+  128,
+  96
+ ],
+ "pivot": [
+  36,
+  84
+ ],
+ "columns": 5,
+ "golpe_en": 0.04
+}

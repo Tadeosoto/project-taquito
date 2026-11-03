@@ -108,6 +108,10 @@ func recibir_golpe(dano: int) -> void:
 	var antes := vida
 	vida = maxi(vida - dano, 0)
 	_sonar("golpe")
+	# Astillas hacia afuera del refugio, de donde vienen los golpes
+	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
+	if efectos:
+		efectos.lanzar("tablas", global_position + global_basis.z * 0.3, global_basis.z)
 	if vida <= 0:
 		rota.emit()
 	elif antes > VIDA_POR_TABLA and vida <= VIDA_POR_TABLA:

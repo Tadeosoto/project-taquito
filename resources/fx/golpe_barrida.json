@@ -1,0 +1,16 @@
+{
+ "id": "melee/spear-sweep",
+ "fps": 30,
+ "loop": false,
+ "frames": 46,
+ "frameSize": [
+  216,
+  84
+ ],
+ "pivot": [
+  104,
+  70
+ ],
+ "columns": 5,
+ "golpe_en": 0.1
+}
