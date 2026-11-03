@@ -69,9 +69,9 @@ const ESTELA_PUNO := 0.2      # m de la estela mas alla del puno, a mano limpia
 # Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
 # al frente para que de lado a la camara no se voltee al azar
 const BARRE_AL_FRENTE := 0.3
-const COMBO_VENTANA := 0.5   # s despues del enfriamiento para que el siguiente golpe sea el de regreso
-# s desde el primer golpe en que ya puede salir el de regreso: al terminar de barrir (Barrido.BARRE),
-# sin esperar el enfriamiento. Si pegas antes, se guarda y sale entonces
+const COMBO_VENTANA := 0.5   # s despues del enfriamiento en que el siguiente golpe todavia va al reves
+# s desde un golpe en que ya puede salir el siguiente: al terminar de barrer (Barrido.BARRE), sin
+# esperar el enfriamiento. Si pegas antes, se guarda y sale entonces
 const COMBO_DESDE := 0.3
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 
@@ -190,19 +190,18 @@ func valores_sin_tazos() -> Dictionary:
 # --- Pelear ---
 
 func _atacar() -> void:
-	# El de regreso del combo sale encadenado, sin esperar todo el enfriamiento del primero
-	var encadena := _enfriar > 0.0 and _lado_golpe > 0.0
+	# El siguiente sale encadenado, sin esperar todo el enfriamiento del anterior
+	var encadena := _enfriar > 0.0
 	if encadena and ATAQUE_ENFRIAR - _enfriar < COMBO_DESDE:
 		_golpe_guardado = true
-		return
-	if _enfriar > 0.0 and not encadena:
 		return
 	_golpe_guardado = false
 	_enfriar = ATAQUE_ENFRIAR
 	_pega_en = ATAQUE_PEGA_EN
-	# Combo de dos: si vuelves a pegar a tiempo, el siguiente va de regreso; luego empieza otra vez
+	# Combo: mientras sigas pegando a tiempo, cada golpe va al reves del anterior; si tardas,
+	# empieza otra vez de derecha a izquierda
 	var ahora := Time.get_ticks_msec() / 1000.0
-	_lado_golpe = -_lado_golpe if (encadena or ahora <= _combo_hasta) and _lado_golpe > 0.0 else 1.0
+	_lado_golpe = -_lado_golpe if encadena or ahora <= _combo_hasta else 1.0
 	_combo_hasta = ahora + ATAQUE_ENFRIAR + COMBO_VENTANA
 	# Encadenado no se repite la estocada del cuerpo: se veia como si rebotara entre golpe y golpe
 	if ninja.has_method("accion") and not encadena:
