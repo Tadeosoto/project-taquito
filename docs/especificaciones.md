@@ -348,6 +348,48 @@ Presupuesto 💡: ~30 zombis completos cerca + ~200 "baratos" lejos (hay que med
 
 Con el inventario abierto, **M** (Select en el control) muestra el mapa, en 9 pedazos con nombre: El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera. Empiezas con el de donde apareces y los demás se encuentran tirados frente a una tienda de cada zona; los que faltan salen en negro con un signo. No ocupan lugar, no se pierden al desmayarte y se acaban con la partida. Al cruzar a otra zona sale su nombre. 💡 Después podrían venderse o darse en misiones.
 
+### 4.12 Tazos y habilidades 💡🧱 (propuesta de AG, falta que el equipo la confirme)
+
+Progresión al estilo Kingdom Hearts: repartes **puntos de habilidad** en un menú. Los puntos salen de **tazos**, que venían en las bolsas de papitas.
+
+- **Bolsas especiales de Takis** (raras):
+  - 1 de cada 8 al comprar Takis;
+  - de premio en dos misiones;
+  - 4 escondidas en el mapa, con un haz de luz.
+  
+  Se abren desde el inventario (**Abrir**).
+- **La revelación**, según la rareza:
+
+  | Paso | Común | Raro | Holo |
+  |---|---|---|---|
+  | 1. La bolsa se abre y el tazo sube temblando (en holo, soltando oro) | ✓ | ✓ | ✓ |
+  | 2. Giro lento | ✓ | ✓ | ✓ |
+  | 3. Destello, flash y un anillo que cruza la pantalla | ✓ | ✓ | ✓ |
+  | 4. Brillo de arcoíris mientras se ladea | | | ✓ |
+  | 5. Retumbo, zumbido y boom | | ✓ | ✓ |
+
+  Enter la salta.
+- **48 tazos en 4 series de 12**, como álbum de estampas, con arte de pixel propio del mundo del juego:
+  - las series son **La colonia**, **La noche**, **Los vecinos** (el reparto de `personajes.md`) y **GelA**;
+  - cada una trae 6 comunes de 1 punto, 4 raros de 2 y 2 holo de 3.
+  
+  Algunos además **desbloquean** una habilidad. Los repetidos también dan sus puntos. **Completar una serie da +2 puntos**, una vez.
+- **+1 punto por noche sobrevivida.** Todo se queda al desmayarte y se borra al reiniciar la partida.
+- **Página de habilidades** (H en el inventario, Y en el control). Cada nivel cuesta puntos y bajarlo te los regresa, cuando quieras:
+  - **Cuerpo:** Aguante, Fuerza, Patas, Brazo largo;
+  - **Sobrevivir:** Segundo aire (tazo holo), Buen diente, Piel dura, Pies de gato (tazo raro: los zombis te notan más tarde);
+  - **Negocio:** Bolsillos, Regateo, Mochilero (+1 lugar por nivel), Buena racha (más bolsas especiales al comprar Takis), Imán (tazo raro), Ojo de halcón (tazo raro).
+  
+  La página muestra, con números de verdad, lo que tienes ahora y lo que tendrías con el siguiente nivel. El costo sale en rojo si no te alcanza, y una habilidad bloqueada enseña la sombra del tazo que la abre.
+- **Álbum** (T en el inventario, LB en el control): una serie por pantalla, con la sombra de los que te faltan, los repetidos y el tazo elegido girando en 3D.
+- Al abrir un tazo que desbloquea algo o completa una serie, **H lleva directo** a la habilidad.
+- Con puntos sin gastar, el inventario lo avisa abajo en amarillo.
+- **El tono de piel no se toca:** las habilidades no leen al `Personaje`.
+- 💡 Una partida da unas 10–15 bolsas y todo el árbol cuesta unos 58 puntos: no se puede subir todo. Los números están en `scripts/Habilidades.gd` para afinarlos jugando.
+- **Después:**
+  - movimientos de combate (rodar, golpe cargado, contraataque) desbloqueados por tazos;
+  - tazos modelados en 3D.
+
 ---
 
 ## 5. Objetos
@@ -556,3 +598,4 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-11-02 | **Cambio de canon: zombis, dóciles y Nocturno.** Los enemigos son **zombis** (caníbales, sedientos de agua limpia); nueve de cada diez son **dóciles normales** que quieren a la empresa y no lo saben; el Serenol es secreto y teoría conspirativa; el jugador es **el Nocturno** (cazarecompensas de contratos nocturnos); **los pesos son la moneda** y el agua es un recurso caro; el **tinaco es comunitario**. | JJ |
 | 2026-11-02 | **El mundo en dos capas**: la ciudad es **normal**; lo raro son (1) los **zombis** nocturnos (el shooter) y (2) la **escasez y el precio del agua limpia** (la economía). **GelA**, el monopolio del agua y de sus productos, **une las dos cosas**: su agua es la que mata a uno de cada diez y lo levanta. La política es la capa opcional. | JJ |
 | 2026-11-02 | **El celular**: chat de mensajes con contactos (**Sofía** y, opcional, el cura con IA; el resto escrito) + **grupo del barrio**. Reemplaza la libreta de misiones y es el canal de conversación. **Sin batería, señal, rastreo, estafas ni cámara.** La llave de la IA va en el servidor y las respuestas son asíncronas. | JJ |
+| 2026-11-02 | **Propuesta, falta que el equipo la confirme**: tazos en bolsas especiales de Takis con revelación por rareza, puntos de habilidad y una página de habilidades en el inventario (4.12). | AG |

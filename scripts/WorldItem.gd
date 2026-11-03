@@ -6,6 +6,7 @@ extends Node3D
 const TAMANO := 0.5
 const RADIO := 1.5
 const GIRO := 60.0 # grados por segundo
+const IMAN_CADA := 0.2 # s entre revisar si el jugador con Iman esta cerca
 
 # Jalar InventoryItemData
 @export var item_data: InventoryItemData
@@ -17,6 +18,7 @@ var _player_inside := false
 var _recogido := false
 var _modelo: Node3D
 var _aviso: Label3D
+var _iman_espera := 0.0
 
 
 func _ready() -> void:
@@ -25,6 +27,12 @@ func _ready() -> void:
 		_modelo = item_data.crear_modelo(TAMANO)
 		if _modelo:
 			add_child(_modelo)
+		# Una bolsa especial de Takis brilla para que se encuentre de noche (EfectosPixel)
+		if item_data.bolsa_tazo:
+			var haz := EfectosPixel.cuadro_bucle("haz", PiezaMapa.HAZ_ESCALA, PiezaMapa.HAZ_ALFA)
+			if haz:
+				haz.position.y = -position.y
+				add_child(haz)
 	_aviso = Label3D.new()
 	_aviso.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_aviso.no_depth_test = true
@@ -50,6 +58,18 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _modelo:
 		_modelo.rotation_degrees.y += GIRO * delta
+	_revisar_iman(delta)
+
+
+# Iman (Tazos.gd): cerca del jugador se recoge solo, si cabe. Se revisa cada IMAN_CADA s
+func _revisar_iman(delta: float) -> void:
+	_iman_espera -= delta
+	if _iman_espera > 0.0 or _recogido or not Tazos.tiene("iman"):
+		return
+	_iman_espera = IMAN_CADA
+	var jugador := get_tree().get_first_node_in_group("jugador") as Node3D
+	if jugador and jugador.global_position.distance_to(global_position) <= Habilidades.IMAN_RADIO:
+		interact()
 
 
 func is_player_inside() -> bool:
@@ -99,7 +119,7 @@ func _on_body_entered(body: Node3D) -> void:
 func _actualizar_aviso() -> void:
 	if item_data == null:
 		_aviso.text = ""
-	elif item_data.capacidad > 0 and item_data.capacidad <= Inventory.capacidad():
+	elif item_data.capacidad > 0 and item_data.capacidad <= Inventory.capacidad_mochila():
 		_aviso.text = "Ya traes una mochila mejor"
 	elif item_data.capacidad == 0 and Inventory.esta_lleno():
 		_aviso.text = "No te cabe: %s" % item_data.item_name

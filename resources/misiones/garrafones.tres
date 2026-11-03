@@ -2,7 +2,9 @@
 
 [ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
 [ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="4_item"]
 [ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="3_galon"]
+[ext_resource type="Resource" path="res://resources/productos/takis_tazo.tres" id="5_bolsa"]
 
 [sub_resource type="Resource" id="paso_repartir"]
 script = ExtResource("2_paso")
@@ -25,3 +27,4 @@ gracias = "Eres mejor que el otro. Bueno, el otro ya gime."
 despedida = "Ya estuvo por hoy, joven. Mañana hay más."
 pasos = Array[ExtResource("2_paso")]([SubResource("paso_repartir")])
 pesos = 90
+premios = Array[ExtResource("4_item")]([ExtResource("5_bolsa")])

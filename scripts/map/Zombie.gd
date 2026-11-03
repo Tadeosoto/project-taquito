@@ -397,7 +397,7 @@ func _destino() -> Vector3:
 	var el_adentro := _refugio.adentro(jugador.global_position)
 	# Del otro lado de la barda no lo puede alcanzar: a la entrada
 	var a_la_entrada := el_adentro and not yo_adentro
-	if not a_la_entrada and (cazador or (yo_adentro == el_adentro and global_position.distance_to(jugador.global_position) <= PERSIGUE)):
+	if not a_la_entrada and (cazador or (yo_adentro == el_adentro and global_position.distance_to(jugador.global_position) <= _persigue())):
 		_blanco = jugador
 		return jugador.global_position
 	if yo_adentro:
@@ -411,6 +411,12 @@ func _destino() -> Vector3:
 		return entrada.global_position
 	_blanco = null
 	return entrada.global_position + (_refugio.global_position - entrada.global_position).normalized() * PASA_ENTRADA
+
+
+# A cuantos m deja el refugio por el jugador: Pies de gato (Tazos.gd) lo acorta, menos al jefe
+func _persigue() -> float:
+	var tazos := get_node_or_null("/root/Tazos")
+	return PERSIGUE * (tazos.factor_persigue() if tazos and not es_jefe else 1.0)
 
 
 func _separarse() -> Vector3:
@@ -509,7 +515,9 @@ func _morir(pagado: bool, truena_en := 0) -> void:
 	if pagado:
 		var cartera := get_node_or_null("/root/Cartera")
 		if cartera:
-			cartera.pesos += randi_range(PESOS.x, PESOS.y)
+			# Bolsillos (Tazos.gd): unos pesos de mas
+			var tazos := get_node_or_null("/root/Tazos")
+			cartera.pesos += randi_range(PESOS.x, PESOS.y) + (tazos.pesos_extra() if tazos else 0)
 
 
 func caer_al_amanecer() -> void:

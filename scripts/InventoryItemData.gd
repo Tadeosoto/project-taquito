@@ -30,6 +30,9 @@ extends Resource
 # Pinta todo el modelo de este color, sin textura; con alfa 0 se queda como viene
 @export var tinte : Color = Color(1, 1, 1, 0)
 
+# Bolsa especial de Takis: "Abrir" en el inventario saca un tazo (Tazos.gd, TazoRevelacion.gd)
+@export var bolsa_tazo : bool = false
+
 
 # El modelo centrado y escalado a una caja de `tamano` m (los de Sketchfab vienen en
 # cualquier unidad), dentro de un nodo que se puede mover, girar y escalar libremente.

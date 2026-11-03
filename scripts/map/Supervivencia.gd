@@ -17,6 +17,7 @@ const TEXTO_NOCHE := "Ya salieron."
 const TEXTO_TURBA := "¡Ahí vienen!"
 const TEXTO_DIA := "Amaneció."
 const TEXTO_DESMAYO := "Te desmayaste..."
+const TEXTO_SEGUNDO_AIRE := "¡Segundo aire!"
 # Puro blanco y negro en pantalla completa: antes de publicar el juego esto tiene que ser una
 # opcion, porque los destellos le pueden hacer dano a gente con epilepsia fotosensible
 const IMPACTO_ACTIVO := true
@@ -192,7 +193,27 @@ func _cambio_vida() -> void:
 		create_tween().tween_property(_flash, "color:a", 0.0, 0.35)
 	_vida_antes = vida
 	if vida <= 0 and not _desmayado:
+		if _segundo_aire():
+			return
 		_desmayarse()
+
+
+# Segundo aire (Tazos.gd): una vez por noche te levantas en vez de desmayarte
+func _segundo_aire() -> bool:
+	var tazos := get_node_or_null("/root/Tazos")
+	if tazos == null or not tazos.tiene("segundo_aire") or tazos.segundo_aire_usado:
+		return false
+	tazos.segundo_aire_usado = true
+	var vida := maxi(roundi(_salud.vida_max * Habilidades.SEGUNDO_AIRE_VIDA), 1)
+	_vida_antes = vida
+	_salud.vida = vida
+	_flash.color = Color(1.0, 0.9, 0.5, 0.6)
+	var tween := create_tween()
+	tween.tween_property(_flash, "color:a", 0.0, 0.8)
+	tween.tween_callback(func() -> void: _flash.color = Color(0.7, 0.0, 0.0, 0.0))
+	_avisar(TEXTO_SEGUNDO_AIRE)
+	_sonar("destello")
+	return true
 
 
 func _desmayarse() -> void:

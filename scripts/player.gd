@@ -108,24 +108,67 @@ func _ready() -> void:
 		inventario.inventory_changed.connect(_mostrar_arma)
 	_mostrar_arma()
 	aplicar_personaje()
+	var tazos := get_node_or_null("/root/Tazos")
+	if tazos:
+		tazos.cambio.connect(aplicar_habilidades)
 
 
 # Tu cuerpo (autoload Personaje): se ve en el modelo y cambia vida, velocidad y golpe. Sobre los
-# valores de la escena, que no son iguales en todas. Sin el autoload, como viene
+# valores de la escena, que no son iguales en todas. Encima van las habilidades de los tazos
+# (Tazos.gd). Te deja con la vida llena
 func aplicar_personaje() -> void:
+	var personaje := get_node_or_null("/root/Personaje")
+	if personaje:
+		personaje.vestir(ninja)
+	_aplicar_cuerpo(true)
+
+
+# Cuando gastas o regresas puntos: igual, pero te quedas con la misma fraccion de vida
+func aplicar_habilidades() -> void:
+	_aplicar_cuerpo(false)
+
+
+# Por nombre de nodo y no por clase: los scripts de tools/ cargan este archivo sin autoloads
+func _aplicar_cuerpo(llenar: bool) -> void:
 	if _velocidad_base == Vector2.ZERO:
 		_velocidad_base = Vector2(speed, sprint_speed)
 	var personaje := get_node_or_null("/root/Personaje")
-	if personaje == null:
+	var tazos := get_node_or_null("/root/Tazos")
+	if personaje == null and tazos == null:
 		return
-	personaje.vestir(ninja)
-	speed = _velocidad_base.x * personaje.factor_velocidad()
-	sprint_speed = _velocidad_base.y * personaje.factor_velocidad()
-	_factor_dano = personaje.factor_dano()
-	_alcance = ATAQUE_ALCANCE * personaje.factor_alcance()
-	var salud := get_node("/root/Salud")
-	salud.vida_max = personaje.vida_max()
-	salud.vida = salud.vida_max
+	var velocidad: float = (personaje.factor_velocidad() if personaje else 1.0) * (tazos.factor_velocidad() if tazos else 1.0)
+	speed = _velocidad_base.x * velocidad
+	sprint_speed = _velocidad_base.y * velocidad
+	_factor_dano = (personaje.factor_dano() if personaje else 1.0) * (tazos.factor_dano() if tazos else 1.0)
+	_alcance = ATAQUE_ALCANCE * (personaje.factor_alcance() if personaje else 1.0) * (tazos.factor_alcance() if tazos else 1.0)
+	var salud := get_node_or_null("/root/Salud")
+	if salud == null:
+		return
+	var fraccion: float = float(salud.vida) / maxf(salud.vida_max, 1.0)
+	var base: int = personaje.vida_max() if personaje else salud.vida_max
+	salud.vida_max = roundi(base * (tazos.factor_vida() if tazos else 1.0))
+	salud.vida = salud.vida_max if llenar else maxi(roundi(fraccion * salud.vida_max), 1)
+
+
+# Vida, dano del arma que traes, velocidad al caminar y alcance con el personaje pero sin
+# tazos: la pagina de habilidades les aplica cada nivel para mostrar numeros de verdad
+func valores_sin_tazos() -> Dictionary:
+	var personaje := get_node_or_null("/root/Personaje")
+	var valores := {}
+	var velocidad_base := _velocidad_base.x if _velocidad_base != Vector2.ZERO else speed
+	valores["velocidad"] = velocidad_base * (personaje.factor_velocidad() if personaje else 1.0)
+	valores["alcance"] = ATAQUE_ALCANCE * (personaje.factor_alcance() if personaje else 1.0)
+	var dano := DANO_PUNO
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario and inventario.arma():
+		dano = inventario.arma().dano
+	valores["dano"] = dano * (personaje.factor_dano() if personaje else 1.0)
+	var salud := get_node_or_null("/root/Salud")
+	if personaje:
+		valores["vida"] = personaje.vida_max()
+	elif salud:
+		valores["vida"] = salud.vida_max
+	return valores
 
 
 # --- Pelear ---
@@ -235,6 +278,11 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0) -> void:
 	_sangrar(hacia)
 	efecto("herido", hacia)
 	golpeado.emit()
+	# Piel dura (Tazos.gd): de noche duele menos
+	var tazos := get_node_or_null("/root/Tazos")
+	var ciclo := get_tree().get_first_node_in_group("ciclo")
+	if tazos and ciclo and ciclo.es_noche():
+		dano = maxi(roundi(dano * tazos.factor_dano_noche()), 1)
 	get_node("/root/Salud").vida -= dano
 
 

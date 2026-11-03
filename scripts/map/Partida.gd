@@ -18,6 +18,11 @@ const ZONA_CADA := 0.5
 const GANAR_ESPERA := 1.3    # s de reloj real entre matar al jefe y la pantalla final
 const PIEZA_FRENTE := 3.0    # m frente a la fachada
 const PIEZA_POSTE := 1.5     # m junto al poste
+# Bolsas especiales de Takis escondidas (Tazos.gd): en estas zonas, junto a donde va su pieza
+const BOLSAS_ZONAS := [1, 3, 5, 7]
+const BOLSA_LADO := Vector2(4.0, 0.0)  # m de la pieza, para que no se encimen
+const BOLSA := "res://resources/productos/takis_tazo.tres"
+const TEXTO_PUNTO := "+1 punto de habilidad por sobrevivir la noche"
 const PUNTOS_JSON := "res://resources/map/puntos_mapa.json"
 const POSTES_JSON := "res://resources/map/alumbrado_mapa.json"
 
@@ -58,12 +63,37 @@ func _ready() -> void:
 	_refugio.cayo.connect(_perder)
 	_refugio.aviso.connect(_supervivencia.avisar)
 	_ciclo.anochecio.connect(_anochecio)
+	_ciclo.amanecio.connect(_amanecio)
 	_armar_pantalla()
 	PiezasMapa.recogida.connect(func(zona: int) -> void:
 		_supervivencia.avisar(TEXTO_PIEZA % ZonasMapa.nombre(zona)))
 	if piezas_en_el_mapa:
 		_poner_piezas()
+		_poner_bolsas()
 	_poner_misiones()
+
+
+# Sobreviviste la noche: un punto de habilidad (Tazos.gd)
+func _amanecio() -> void:
+	if noche <= 0:
+		return
+	get_node("/root/Tazos").dar_puntos(Tazos.PUNTOS_POR_NOCHE)
+	_supervivencia.avisar(TEXTO_PUNTO)
+
+
+# Unas bolsas especiales tiradas, con su haz (WorldItem): junto a donde va la pieza de su
+# zona. Siempre en los mismos lugares
+func _poner_bolsas() -> void:
+	var lugares := _lugares_de_piezas()
+	var bolsa := load(BOLSA) as InventoryItemData
+	for zona: int in BOLSAS_ZONAS:
+		if not lugares.has(zona):
+			continue
+		var objeto: Node3D = load("res://scripts/WorldItem.gd").new()
+		objeto.set("item_data", bolsa)
+		var donde: Vector2 = lugares[zona] + BOLSA_LADO
+		objeto.position = Vector3(donde.x, 0.5, donde.y)
+		add_child(objeto)
 
 
 # Los del mapa real, o los que le dieron (el safehouse)
@@ -128,6 +158,7 @@ func _lugares_de_piezas() -> Dictionary:
 
 func _anochecio() -> void:
 	noche += 1
+	get_node("/root/Tazos").nueva_noche()
 	_refugio.noche = noche
 	if noche >= NOCHES:
 		_ciclo.retener_noche = true
@@ -198,7 +229,7 @@ func _terminar(texto: String) -> void:
 # Todo desde cero: los autoloads no se recargan con la escena
 func _otra_vez() -> void:
 	Engine.time_scale = 1.0
-	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones"]:
+	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones", "Tazos"]:
 		get_node("/root/" + autoload).reiniciar()
 	get_tree().paused = false
 	get_tree().reload_current_scene()

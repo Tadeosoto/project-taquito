@@ -32,6 +32,10 @@ const PISO_TEXTURA := preload("res://textures/map/banqueta.png")
 const ASFALTO_TEXTURA := preload("res://textures/map/asfalto.png")
 const GROSOR := 0.2
 const REQUERIDOS := ["Camara", "Mostrador", "Vendedor"]
+# Una de cada tantas bolsas de Takis trae tazo (propuesta de AG, Tazos.gd)
+const TAKIS := "res://resources/productos/takis.tres"
+const TAKIS_TAZO := "res://resources/productos/takis_tazo.tres"
+const BOLSA_PROBABILIDAD := 1.0 / 8.0   # sin el autoload; la de verdad es Tazos.probabilidad_bolsa() (Buena racha)
 # Cuanto se puede voltear con el mouse (grados, con la camara de 62 grados; con menos
 # angulo se voltea menos, asi la toma cerrada de adentro no deja ver los muros vacios)
 # y que tan rapido
@@ -265,7 +269,9 @@ func _ficha() -> void:
 # Lo que cobra esta tienda, y a ti (Personaje.gd). Por /root: en el editor no hay autoloads
 func _factor() -> float:
 	var personaje := get_node_or_null("/root/Personaje")
-	return precio_factor * (personaje.factor_precio() if personaje else 1.0)
+	# Regateo (Tazos.gd) va aparte del factor del Personaje: no lo cambia
+	var tazos := get_node_or_null("/root/Tazos")
+	return precio_factor * (personaje.factor_precio() if personaje else 1.0) * (tazos.factor_precio() if tazos else 1.0)
 
 
 # Como te recibe, y lo suyo
@@ -315,18 +321,24 @@ func _comprar() -> void:
 	if (cartera.agua if en_agua else cartera.pesos) < precio:
 		_ui.decir("No te alcanza.", 1.5)
 		return
-	if producto.capacidad > 0:
-		if not inventario.equipar_mochila(producto):
+	# De vez en cuando los Takis traen tazo (Tazos.gd): te dan la bolsa especial en su lugar
+	# (la habilidad Buena racha la sube)
+	var tazos := get_node_or_null("/root/Tazos")
+	var probabilidad: float = tazos.probabilidad_bolsa() if tazos else BOLSA_PROBABILIDAD
+	var especial := producto.resource_path == TAKIS and randf() < probabilidad
+	var lleva: InventoryItemData = load(TAKIS_TAZO) if especial else producto
+	if lleva.capacidad > 0:
+		if not inventario.equipar_mochila(lleva):
 			_ui.decir("Ya traes una mochila mejor.", 1.5)
 			return
-	elif not inventario.add_item(producto):
+	elif not inventario.add_item(lleva):
 		_ui.decir("Ya no te cabe.", 1.5)
 		return
 	if en_agua:
 		cartera.agua -= precio
 	else:
 		cartera.pesos -= precio
-	_ui.decir("Compraste: %s" % producto.item_name, 1.5)
+	_ui.decir("¡Te salió una bolsa especial! Ábrela en el inventario." if especial else "Compraste: %s" % producto.item_name, 2.5 if especial else 1.5)
 
 
 func _process(delta: float) -> void:

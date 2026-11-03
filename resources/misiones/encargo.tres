@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="3_item"]
 [ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="4_galon"]
 [ext_resource type="Resource" path="res://resources/productos/tablas.tres" id="5_tablas"]
+[ext_resource type="Resource" path="res://resources/productos/takis_tazo.tres" id="6_bolsa"]
 
 [sub_resource type="Resource" id="paso_comprar"]
 script = ExtResource("2_paso")
@@ -31,4 +32,4 @@ gracias = "¡Ay, qué bárbaro! Tenga, y llévese estas tablas."
 despedida = "Ya tengo agua para hoy. Vuelva mañana."
 pasos = Array[ExtResource("2_paso")]([SubResource("paso_comprar"), SubResource("paso_entregar")])
 pesos = 100
-premios = Array[ExtResource("3_item")]([ExtResource("5_tablas"), ExtResource("5_tablas")])
+premios = Array[ExtResource("3_item")]([ExtResource("5_tablas"), ExtResource("5_tablas"), ExtResource("6_bolsa")])

@@ -56,6 +56,9 @@ const DETERIOROS := [0.0, 0.4, 0.8]
 # Tambos con fuego y un poste con chispas como los del mapa (MapAlumbrado), que aqui no hay calles
 const MapAlumbrado := preload("res://scripts/map/MapAlumbrado.gd")
 const EFECTOS_EN := Vector3(40.0, 0.0, 16.0)
+# Tazos y habilidades (Tazos.gd)
+const BOLSA_TAZO := "res://resources/productos/takis_tazo.tres"
+const PUNTOS_PRUEBA := 5
 const POSTE_ALTO := 5.0
 const DINERO := 500
 const DANO_PRUEBA := 20
@@ -74,6 +77,7 @@ M mapa (sin piezas se ve vacío) · U todas las piezas
 1 2 3 maquinita cercana: normal, sin monedas, segura
 C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
+O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
 Efectos de pixel, propuestas (F2-F7 cambian):"""
 # Una tecla por lugar de EfectosPixel, en este orden
 const EFECTOS_TECLAS := [KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7]
@@ -381,6 +385,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F9:
 			EfectosPixel.poner_extras(not EfectosPixel.extras)
 			_mostrar_efectos()
+		KEY_O:
+			if event.shift_pressed:
+				Tazos.rareza_forzada = wrapi(Tazos.rareza_forzada + 1, -1, TazoData.Rareza.size())
+			else:
+				_inventario.add_item(load(BOLSA_TAZO))
+		KEY_I:
+			# Shift: uno de cada tazo que falte, para ver el album lleno y los premios de serie
+			if event.shift_pressed:
+				for tazo: TazoData in Tazos.todos:
+					if not Tazos.coleccion.has(tazo.id):
+						Tazos.dar_tazo(tazo)
+			else:
+				Tazos.dar_puntos(PUNTOS_PRUEBA)
 		KEY_F10:
 			# Al cambiar de escena este nodo ya no tiene viewport
 			get_viewport().set_input_as_handled()
@@ -429,6 +446,7 @@ func _reiniciar() -> void:
 	_partida.reiniciar()
 	PiezasMapa.reiniciar()
 	Misiones.reiniciar()
+	Tazos.reiniciar()
 	for pieza in get_tree().get_nodes_in_group("piezas_mapa"):
 		pieza.queue_free()
 	_poner_pieza_prueba()
@@ -494,4 +512,6 @@ func _process(_delta: float) -> void:
 	_estado.text = "Vida %d/%d · $%d · Objetos %d/%d · %s · Zombis %d%s · Director %s %.2f · Deterioro %.1f" % [
 		_salud.vida, _salud.vida_max, _cartera.pesos, _inventario.get_item_count(), _inventario.capacidad(),
 		"Noche" if _ciclo.es_noche() else "Dia", zombis, "" if _zombis.is_physics_processing() else " (no salen solos)",
-		_zombis.director.nombre_fase(), _zombis.director.intensidad, DETERIOROS[_deterioro]]
+		_zombis.director.nombre_fase(), _zombis.director.intensidad, DETERIOROS[_deterioro]] \
+		+ "\nTazos %d/%d · Puntos %d libres de %d · Bolsas: %s" % [Tazos.distintos().size(), Tazos.todos.size(), Tazos.libres(), Tazos.puntos,
+		"al azar" if Tazos.rareza_forzada < 0 else TazoData.RAREZAS[Tazos.rareza_forzada]]

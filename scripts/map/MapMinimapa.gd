@@ -22,6 +22,7 @@ const COLORES := {
 }
 const NEGRO := Color(0.05, 0.05, 0.05)
 const OBJETIVO_COLOR := Color(1.0, 0.85, 0.1)
+const ZOMBI_COLOR := Color(0.95, 0.15, 0.1)
 const OBJETIVO_PARPADEA_MS := 350
 
 @export var mapa: Texture2D
@@ -131,6 +132,20 @@ func _dibujar_objetivo(centro: Vector2, limite: float) -> void:
 		_marcas.draw_polyline(rombo, NEGRO, 1.0)
 
 
+# Ojo de halcon (Tazos.gd): los zombis vivos como puntos rojos. Por ruta, como Misiones
+func _dibujar_zombis(centro: Vector2, limite: float) -> void:
+	var tazos := get_node_or_null("/root/Tazos")
+	if tazos == null or not tazos.tiene("ojo_halcon"):
+		return
+	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
+		if zombi.get("estado") == 3:   # Zombie.Estado.MUERTO
+			continue
+		var p := _a_pantalla(Vector2(zombi.global_position.x, zombi.global_position.z))
+		if p.length() < limite:
+			_marcas.draw_circle(centro + p, 2.5, NEGRO)
+			_marcas.draw_circle(centro + p, 1.6, ZOMBI_COLOR)
+
+
 func _dibujar_marcas() -> void:
 	var centro := Vector2(tamano, tamano) / 2.0
 	var limite := tamano / 2.0 - 6.0
@@ -141,6 +156,7 @@ func _dibujar_marcas() -> void:
 			_marcas.draw_rect(Rect2(centro + p - Vector2(1.5, 1.5), Vector2(3.0, 3.0)), punto[1])
 
 	_dibujar_objetivo(centro, limite)
+	_dibujar_zombis(centro, limite)
 	# Flecha del jugador
 	var dir := Vector2(_rumbo.dot(_derecha), -_rumbo.dot(_adelante)).normalized()
 	var lado := Vector2(-dir.y, dir.x)

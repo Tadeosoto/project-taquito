@@ -10,7 +10,10 @@ enum InventoryState {
 	NAVIGATING,
 	INSPECTING,
 	COMBINING,
-	MAPA
+	MAPA,
+	HABILIDADES,   # la pagina de habilidades (HabilidadesUI.gd), con H / Y
+	REVELANDO,     # abriendo una bolsa especial (TazoRevelacion.gd): sus teclas son de ella
+	ALBUM          # el album de tazos (AlbumTazos.gd), con T / LB
 }
 
 enum Comando { EXAMINAR, UTILIZAR, COMBINAR }
@@ -72,13 +75,26 @@ var active_tween: Tween = null
 var mapa_ui: Control
 # El mapa se abrio con M desde el juego: al cerrarlo se cierra todo el inventario
 var _mapa_directo := false
+# La pagina de habilidades (Tazos.gd), encima del panel como el mapa
+var habilidades_ui: Control
+# El album de tazos; `_album_desde` es el estado al que regresa (la lista o las habilidades)
+var album_ui: Control
+var _album_desde := InventoryState.NAVIGATING
 
 func _ready() -> void:
 	mapa_ui = load("res://scripts/MapaUI.gd").new()
 	mapa_ui.visible = false
 	$MainPanel.add_child(mapa_ui)
+	habilidades_ui = load("res://scripts/HabilidadesUI.gd").new()
+	habilidades_ui.visible = false
+	$MainPanel.add_child(habilidades_ui)
+	album_ui = load("res://scripts/AlbumTazos.gd").new()
+	album_ui.visible = false
+	$MainPanel.add_child(album_ui)
 	# Automatically refresh if items are added or removed globally
 	inventory.inventory_changed.connect(refresh_carousel)
+	# Mochilero cambia la capacidad, y los puntos el aviso de abajo
+	Tazos.cambio.connect(_al_cambiar_tazos)
 	Salud.cambio.connect(_actualizar_estado)
 	# Se arman al cargar (unos 200 ms) para que abrir la primera vez no se trabe
 	for nombre in SONIDOS:
@@ -104,6 +120,10 @@ func _ready() -> void:
 		pulse_tween.tween_property(box, "modulate:a", 0.3, 0.6)
 		pulse_tween.tween_property(box, "modulate:a", 1.0, 0.6)
 
+func _al_cambiar_tazos() -> void:
+	if visible:
+		update_hint()
+
 # Abre el inventario y pausa el juego. Esta escena sigue corriendo en pausa
 # (process_mode = Always) y el jugador deja de leer las teclas que comparte con el menu.
 func abrir(sonar := true) -> void:
@@ -126,6 +146,8 @@ func cerrar(sonido := "inv_cerrar") -> void:
 		_sonar(sonido)
 	_mapa_directo = false
 	mapa_ui.visible = false
+	habilidades_ui.visible = false
+	album_ui.cerrar()
 	inspect_viewer.set_inspection_active(false)
 	current_state = InventoryState.NAVIGATING
 	clear_all_models()
@@ -153,6 +175,10 @@ func _capturar_foto() -> void:
 	foto_estado.texture = ImageTexture.create_from_image(recorte)
 
 func _unhandled_input(event: InputEvent) -> void:
+	# Abriendo una bolsa: ni Tab cierra; TazoRevelacion avisa al terminar
+	if visible and current_state == InventoryState.REVELANDO:
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("inventory_toggle"):
 		if not visible:
 			abrir()
@@ -185,6 +211,34 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_map"):
 		_abrir_mapa()
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.ALBUM:
+		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_album"):
+			_cerrar_album()
+		elif event.is_action_pressed("inventory_skills"):
+			_cerrar_album(false)
+			_abrir_habilidades()
+		else:
+			album_ui.manejar(event)
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.HABILIDADES:
+		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_skills"):
+			_cerrar_habilidades()
+		elif event.is_action_pressed("inventory_album"):
+			habilidades_ui.visible = false
+			_abrir_album(InventoryState.HABILIDADES)
+		else:
+			habilidades_ui.manejar(event)
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_skills"):
+		_abrir_habilidades()
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_album"):
+		_abrir_album(InventoryState.NAVIGATING)
 		get_viewport().set_input_as_handled()
 		return
 
@@ -231,6 +285,39 @@ func _abrir_mapa() -> void:
 	preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	mapa_ui.mostrar()
 
+# Con `id`, la pagina abre con esa habilidad elegida (al venir del show de un tazo)
+func _abrir_habilidades(id := "") -> void:
+	_sonar("ui_aceptar")
+	current_state = InventoryState.HABILIDADES
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	habilidades_ui.mostrar(id)
+
+func _abrir_album(desde: InventoryState) -> void:
+	_sonar("ui_aceptar")
+	_album_desde = desde
+	current_state = InventoryState.ALBUM
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	album_ui.mostrar()
+
+# De regreso a donde se abrio (o a nada, si `regresar` es false: otra pagina toma su lugar)
+func _cerrar_album(regresar := true) -> void:
+	album_ui.cerrar()
+	if not regresar:
+		return
+	if _album_desde == InventoryState.HABILIDADES:
+		current_state = InventoryState.HABILIDADES
+		_sonar("ui_cancelar")
+		habilidades_ui.mostrar()
+	else:
+		_cerrar_habilidades()
+
+func _cerrar_habilidades() -> void:
+	_sonar("ui_cancelar")
+	current_state = InventoryState.NAVIGATING
+	habilidades_ui.visible = false
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	update_hint()
+
 func _cerrar_mapa() -> void:
 	_sonar("mapa_cerrar")
 	_mapa_directo = false
@@ -262,7 +349,7 @@ func _comandos_visibles() -> Array[int]:
 		return lista
 	if is_instance_valid(current_model):
 		lista.append(Comando.EXAMINAR)
-	if item.curacion > 0:
+	if item.curacion > 0 or item.bolsa_tazo:
 		lista.append(Comando.UTILIZAR)
 	if inventory.get_item_count() > 1:
 		lista.append(Comando.COMBINAR)
@@ -296,20 +383,44 @@ func _ejecutar_comando() -> void:
 			update_hint()
 
 func _utilizar() -> void:
+	var item: InventoryItemData = inventory.get_item(current_item_index)
+	if item.bolsa_tazo:
+		_abrir_bolsa()
+		return
 	if Salud.llena():
 		_sonar("ui_error")
 		_mostrar_mensaje("No lo necesitas ahorita.")
 		return
 	_sonar("inv_usar")
-	var item: InventoryItemData = inventory.get_item(current_item_index)
 	var antes: int = Salud.vida
-	Salud.vida += item.curacion
+	# Buen diente (Habilidades.gd) hace que la comida cure mas
+	Salud.vida += roundi(item.curacion * Tazos.factor_curacion())
 	# La flor de curar a los pies: el juego esta en pausa, se ve al cerrar (EfectosPixel)
 	var jugador := get_tree().get_first_node_in_group("jugador")
 	if jugador and jugador.has_method("efecto"):
 		jugador.efecto("curar", Vector3.ZERO)
 	inventory.remove_item(current_item_index)
 	_mostrar_mensaje("%s: +%d de vida." % [item.item_name, Salud.vida - antes])
+
+# Una bolsa especial de Takis: se gasta, sale un tazo (Tazos.abrir_bolsa) y su show encima
+# del inventario (TazoRevelacion). Al cerrarlo regresas a la lista
+func _abrir_bolsa() -> void:
+	inventory.remove_item(current_item_index)
+	var tazo: TazoData = Tazos.abrir_bolsa()
+	if tazo == null:
+		return
+	current_state = InventoryState.REVELANDO
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	var show := TazoRevelacion.abrir(self, tazo, Tazos.es_repetido(tazo), Tazos.ultima_serie)
+	await show.termino
+	current_state = InventoryState.NAVIGATING
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	refresh_carousel()
+	# Cerrado con H: directo a la pagina, con lo que desbloqueo elegido
+	if show.ir_a_habilidades:
+		_abrir_habilidades(tazo.desbloquea if not Tazos.es_repetido(tazo) else "")
+		return
+	_mostrar_mensaje("+%d puntos: H para gastarlos." % tazo.puntos)
 
 func _terminar_combinacion() -> void:
 	if current_item_index == combinar_desde:
@@ -495,7 +606,14 @@ func update_hint() -> void:
 			var primero: InventoryItemData = inventory.get_item(combinar_desde)
 			inspect_hint_label.text = "%s con... (Enter / Esc)" % primero.item_name
 		_:
-			inspect_hint_label.text = "M: Mapa"
+			# Con puntos sin gastar, el aviso lo dice (y se pinta de amarillo)
+			var libres: int = Tazos.libres()
+			var aviso := "  (¡%d %s!)" % [libres, "punto" if libres == 1 else "puntos"] if libres > 0 else ""
+			inspect_hint_label.text = "M: Mapa  H: Habilidades%s  T: Álbum" % aviso
+	if current_state in [InventoryState.INSPECTING, InventoryState.COMBINING] or Tazos.libres() <= 0:
+		inspect_hint_label.remove_theme_color_override("font_color")
+	else:
+		inspect_hint_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))
 
 # Solo se ven los comandos que aplican; el elegido en blanco
 func _actualizar_comandos() -> void:
@@ -505,5 +623,9 @@ func _actualizar_comandos() -> void:
 		label.visible = i < lista.size()
 		if label.visible:
 			label.text = COMANDOS[lista[i]]
+			# Una bolsa especial no se "utiliza": se abre
+			var item: InventoryItemData = inventory.get_item(current_item_index)
+			if lista[i] == Comando.UTILIZAR and item and item.bolsa_tazo:
+				label.text = "Abrir"
 			var elegido: bool = lista[i] == comando_actual and current_state == InventoryState.NAVIGATING
 			label.add_theme_color_override("font_color", COLOR_ELEGIDO if elegido else COLOR_NORMAL)

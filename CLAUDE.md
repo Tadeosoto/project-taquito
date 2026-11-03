@@ -60,7 +60,7 @@ Overview:
 - `Player`: `attack` action (left click, F, gamepad X) in a forward cone (`_golpear`). Damage is the best `InventoryItemData.dano` in the inventory (`Inventory.arma()`, machete 12, reinforced 18), or 5 bare-handed; nothing needs equipping, and the weapon shows in the hand (`Fist.R`). `player.gd` is loaded by `tools/` scripts through `MapPuntos`, so it reaches autoloads with `get_node("/root/...")`. Its timers tick in `_physics_process`, so they stop while it's frozen.
 - `scripts/map/Supervivencia.gd`: no health bar (life shows in the inventory): red flash on damage, pulsing red edges below 35 %, dusk/night/dawn messages. At 0 life: inventory items drop in one recoverable `BolsaMuerte` (a new one replaces the old; money and backpack stay), fade, respawn at `punto_regreso` with 50 life, zombies within 20 m of it cleared.
 - `scripts/map/Refugio.gd` + `EntradaRefugio.gd`: walled 14×14 m yard with one entry per side and the tinaco at its origin, in `map_test.tscn` at (203, 662). Tablas barricade entries on collision layer 3, which zombies have in their mask and the player doesn't. Zombies go for the player only within 12 m on the same side of the wall, otherwise the nearest entry, then the tinaco (`Zombie._destino`). Beyond `Zombis.LEJOS` no zombies exist there, so the attack is simulated (`ASEDIO`).
-- `scripts/map/Partida.gd`: 3-night run. On the last night `Ciclo.retener_noche` holds dawn and the boss (`Zombie.es_jefe`) spawns once the player is near; killing it wins, losing the tinaco loses. Restart calls `reiniciar()` on `Inventory`, `Salud` and `Cartera`. This is AG's working proposal; spec §1.2, §1.3 and §1.5 votes are still open.
+- `scripts/map/Partida.gd`: 3-night run. On the last night `Ciclo.retener_noche` holds dawn and the boss (`Zombie.es_jefe`) spawns once the player is near; killing it wins, losing the tinaco loses. Restart calls `reiniciar()` on `Inventory`, `Salud`, `Cartera` and `Tazos`. This is AG's working proposal; spec §1.2, §1.3 and §1.5 votes are still open.
 - At night shops, stalls and machines close and kick you out (`Interiores._echar`, `TragamonedasUI._echar`), and the drone too where `MapDron.cerrado_de_noche` is set (`map_test.tscn` only). They find the clock through group `ciclo`.
 - `scripts/Sonidos.gd`: all generated sounds. A node re-enables `_physics_process` when it becomes ready if the script defines it: call `set_physics_process(false)` after `add_child`.
 - `map_test.tscn` sets the player to 10/18 m/s for walking the map, which outruns every zombie.
@@ -72,6 +72,53 @@ Overview:
 ## Character (`scripts/Personaje.gd`)
 
 `Personaje` autoload: name, skin tone, build, height, head and clothes, saved in `user://personaje.cfg` and kept on restart. Every number and line is at the top of that script. `scripts/CreadorPersonaje.gd` is the screen, opened after Jugar (`Inicio._crear_personaje`) and by C in the safehouse. **Skin tone only changes how the world treats you**: `Interior._factor` (peso prices, not water), `Misiones._completar` (pesos, not items) and `Personaje.linea` (shop, givers, neighbours). Combat, zombie drops and fruit machines must stay out of it: that's the joke, and a darker character is never weaker. Build and height change life, speed, damage and reach in `Player.aplicar_personaje`, on top of the scene's own values. `Personaje.vestir` recolours one model's own copies of the `Skin` and `Main` materials, and `scripts/CuerpoPersonaje.gd` (`SkeletonModifier3D`) scales bones after the animation; the collision capsule stays the same. This is AG's proposal; the team hasn't voted on it (spec §10.2).
+
+## Tazos and skills (AG's proposal, spec §4.12; the team hasn't voted on it)
+
+- **`Tazos` autoload** (`scripts/Tazos.gd`) holds the run's progression:
+  - `puntos` earned, `niveles` per skill, `desbloqueadas`, `coleccion` (with repeats), and signal `cambio`.
+  - Kept when you faint; `Partida._otra_vez` and the safehouse's R call `reiniciar()`.
+  - Points come from tazos, `PUNTOS_INICIO`, +1 each dawn (`Partida._amanecio`), and +`PUNTOS_SERIE` once per completed series (`dar_tazo`, `series_premiadas`).
+  - Gameplay reads it through the `factor_*` helpers, `pesos_extra()`, `factor_precio()`, `espacio_extra()`, `factor_persigue()`, `extra_aparicion()` and `probabilidad_bolsa()`.
+- **Data:**
+  - `scripts/Habilidades.gd` is the static skill table (14 skills), with every number at the top. Categories are CUERPO, SOBREVIVIR and NEGOCIO. `efecto_texto(id, nivel, base)` writes the real numbers the page shows; `base` comes from `Player.valores_sin_tazos()`.
+  - `scripts/TazoData.gd` is the tazo resource: series, rarity COMUN/RARO/HOLO, points, the skill it unlocks, face and silhouette.
+  - **48 tazos in 4 series of 12** (6 common, 4 rare, 2 holo each: La colonia, La noche, Los vecinos, GelA). `tools/tazos/caras.gd` holds them all as 16×16 ASCII art plus `FICHAS` (name, series, unlock). Running `godot --path . --headless -s tools/tazos/caras.gd`, then `--import`, writes the faces (`textures/tazos/`), silhouettes (`textures/tazos/silueta/`), skill icons (`textures/habilidades/`) **and** the `.tres` files. It checks every drawing is 16 wide and the numbers are consecutive. `Tazos` lists `resources/tazos/`, so a new tazo needs no code: add it to the tool and rerun.
+- **Bags:**
+  - The item is `resources/productos/takis_tazo.tres` (`InventoryItemData.bolsa_tazo`). The inventory shows it as **Abrir**.
+  - `Tazos.abrir_bolsa()` picks by rarity weight and prefers tazos you don't have.
+  - Sources:
+    - `Interior._comprar`: 1 in 8 Takis (`Tazos.probabilidad_bolsa()`, raised by Buena racha);
+    - the `premios` of two missions;
+    - `Partida._poner_bolsas`: 4 `WorldItem`s beside map-piece spots, with a beam.
+- **Reveal:** `scripts/TazoRevelacion.gd` (`TazoRevelacion.abrir`, signal `termino`).
+  - A CanvasLayer on layer 12 that always processes, so it works under the paused inventory.
+  - It has an opaque background and its own SubViewport world: the disc is built with SurfaceTool (face, back, rim) and uses `shaders/tazo.gdshader` for the face and the holo foil.
+  - Steps run per rarity on the real clock. Enter skips the show, then closes it. When the tazo unlocks a skill or completes a series, H closes it and opens the skills page with that skill selected (`ir_a_habilidades`).
+  - Gold particles need `QuadMesh.size` set, because billboard modes ignore particle scale.
+  - `TazoRevelacion.crear_disco(tazo)` (static, shared mesh) builds the 3D tazo; the album uses it too.
+- **Skills page:** `scripts/HabilidadesUI.gd` is inventory state `HABILIDADES`, opened with `inventory_skills` (H / gamepad Y, only while the inventory is open).
+  - It shows the list with icons and level squares, a detail panel with real numbers ("Ahora" / "Siguiente"), the cost (red when you can't pay), and the silhouette of the tazo that unlocks a locked skill.
+  - Rows are placed by hand rather than in containers, so the tweens (pop, flash, shake) aren't undone by layout. They run while paused because the inventory always processes.
+  - The inventory hint turns yellow and shows the unspent points.
+- **Album:** `scripts/AlbumTazos.gd` is inventory state `ALBUM`, opened with `inventory_album` (T / gamepad LB) from the list or the skills page.
+  - One series per screen: faces, silhouettes with "?", repeat counts, and ★ when complete. The chosen tazo spins in a small SubViewport that only renders while the page is open.
+  - The arrows are both `inspect_*` and `inventory_*`, so the album checks `inspect_*` first to move the cursor; only Q/E fall through to switch series.
+- **Mochilero:** `Inventory.capacidad()` adds the bonus slots. Compare backpacks with `capacidad_mochila()`, not `capacidad()` (`equipar_mochila`, `WorldItem`). Lowering it when full drops nothing.
+- **Pies de gato** pushes loose spawns out (`Zombis._lugar_libre`, not mobs) and shortens `Zombie._persigue()`, except for the boss.
+- **Effect hooks:**
+  - `Player._aplicar_cuerpo` covers life, damage, speed and reach on top of `Personaje`, and keeps the life fraction when a skill changes. Piel dura is in `Player.recibir_dano`.
+  - Segundo aire is `Supervivencia._segundo_aire`.
+  - Buen diente is in `InventoryUI._utilizar`.
+  - Bolsillos is `Zombie` payout.
+  - Regateo is `Interior._factor`, on top of the skin-tone factor; it never reads `Personaje`.
+  - Imán is `WorldItem._revisar_iman`.
+  - Ojo de halcón is `MapMinimapa._dibujar_zombis`.
+- **Safehouse:**
+  - O gives a bag, and Shift+O cycles a forced rarity (`Tazos.rareza_forzada`).
+  - I gives +5 points, and Shift+I gives every missing tazo (fills the album and pays the series bonuses).
+  - The safehouse's own T and H only work while the player is free, so they don't clash with the inventory's.
+- **Later:** combat moves (roll, charged swing, counter) and Blender tazo models.
 
 ## People (`scripts/map/Gente.gd`)
 

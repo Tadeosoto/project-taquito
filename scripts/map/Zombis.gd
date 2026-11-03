@@ -287,9 +287,12 @@ func _lugar_libre(centro: Vector3, angulo := INF, separado := SEPARADO) -> Vecto
 	var camara := get_viewport().get_camera_3d()
 	var espacio := get_world_3d().direct_space_state
 	var refugio := get_tree().get_first_node_in_group("refugio") as Refugio
+	# Pies de gato (Tazos.gd) aleja a los sueltos; las turbas (con angulo) son cazadores y no
+	var tazos := get_node_or_null("/root/Tazos")
+	var extra: float = tazos.extra_aparicion() if tazos and angulo == INF else 0.0
 	for i in INTENTOS:
 		var giro := randf() * TAU if angulo == INF else angulo + randf_range(-TURBA_ABRE, TURBA_ABRE)
-		var radio := randf_range(ANILLO.x, ANILLO.y)
+		var radio := randf_range(ANILLO.x, ANILLO.y) + extra
 		var punto := centro + Vector3(cos(giro) * radio, 0.0, sin(giro) * radio)
 		if camara and not camara.is_position_behind(punto) and camara.is_position_in_frustum(punto + Vector3.UP):
 			continue

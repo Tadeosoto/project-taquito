@@ -78,6 +78,21 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _menu_aparece()
 			"ambiente_menu":
 				_sonidos[nombre] = _ambiente_menu()
+			# Abrir una bolsa especial de Takis (TazoRevelacion.gd)
+			"bolsa_abrir":
+				_sonidos[nombre] = _papel(0.32, 91)
+			"tazo_tiembla":
+				_sonidos[nombre] = _tazo_tiembla()
+			"destello":
+				_sonidos[nombre] = _destello()
+			"brillo":
+				_sonidos[nombre] = _brillo()
+			"retumbo":
+				_sonidos[nombre] = _retumbo()
+			"zumbido":
+				_sonidos[nombre] = _zumbido()
+			"boom":
+				_sonidos[nombre] = _boom()
 	return _sonidos[nombre]
 
 
@@ -245,6 +260,96 @@ static func _papel(duracion: float, semilla: int) -> AudioStreamWAV:
 		var t := float(i) / b.size()
 		b[i] = crujido * fuerza * minf(t * 20.0, 1.0) * (1.0 - t) * 0.9
 	return _a_wav(_eco(b, [17, 29], 0.2, 0.05, 0.5))
+
+
+# --- Tazos (TazoRevelacion.gd) -------------------------------------------------
+
+# El tazo temblando adentro de la bolsa: golpecitos de carton duro, cada vez mas seguidos
+static func _tazo_tiembla() -> AudioStreamWAV:
+	var b := _vacio(0.9)
+	var t := 0.0
+	var paso := 0.11
+	var i := 0
+	while t < 0.8:
+		b = _mezclar(b, _clic(900.0 + 260.0 * (i % 3), 160.0, 0.35, 100 + i), t)
+		t += paso
+		paso = maxf(paso * 0.86, 0.035)
+		i += 1
+	return _a_wav(_eco(b, [13, 21], 0.2, 0.05, 0.25))
+
+
+# Destello al voltearlo: un acorde brillante de tres campanitas con eco largo
+static func _destello() -> AudioStreamWAV:
+	var b := _vacio(0.7)
+	var tonos: Array[float] = [1320.0, 1661.0, 1976.0]
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		var suma := 0.0
+		for k in tonos.size():
+			var arranca := k * 0.035
+			if t >= arranca:
+				suma += sin(TAU * tonos[k] * (t - arranca)) * exp(-(t - arranca) * 6.0)
+		b[i] = suma * 0.22
+	return _a_wav(_eco(b, [53, 89, 131], 0.45, 0.6, 0.45))
+
+
+# El brillo del holografico: un barrido agudo que sube y tiembla, como celofan
+static func _brillo() -> AudioStreamWAV:
+	var b := _vacio(1.4)
+	var fase := 0.0
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 93
+	for i in b.size():
+		var t := float(i) / b.size()
+		fase += lerpf(1800.0, 4200.0, t) * (1.0 + 0.03 * sin(t * 90.0)) / MUESTRAS
+		var chispa := azar.randf_range(-1.0, 1.0) * 0.15 if azar.randf() < 0.02 else 0.0
+		b[i] = (sin(fase * TAU) * 0.12 + chispa) * sin(PI * t)
+	return _a_wav(_eco(b, [41, 67], 0.4, 0.4, 0.4))
+
+
+# Retumbo: un grave que crece y tiembla antes del golpe
+static func _retumbo() -> AudioStreamWAV:
+	var b := _vacio(0.9)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 95
+	var ruido := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		var s := float(i) / MUESTRAS
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.03)
+		var grave := sin(TAU * (42.0 + 8.0 * sin(s * 30.0)) * s)
+		b[i] = (grave * 0.55 + ruido * 2.5) * t * t
+	return _a_wav(b)
+
+
+# Zumbido: aire que pasa rapido, ruido que se abre y se cierra
+static func _zumbido() -> AudioStreamWAV:
+	var b := _vacio(0.45)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 97
+	var ruido := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), lerpf(0.05, 0.6, t))
+		b[i] = ruido * sin(PI * t) * 0.8
+	return _a_wav(b)
+
+
+# Boom: un golpe grave que cae con estallido de ruido y cola larga
+static func _boom() -> AudioStreamWAV:
+	var b := _vacio(1.1)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 99
+	var fase := 0.0
+	var ruido := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		fase += lerpf(90.0, 32.0, minf(t / 0.5, 1.0)) / MUESTRAS
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.25)
+		var golpe := sin(fase * TAU) * exp(-t * 4.0)
+		var estallido := ruido * exp(-t * 14.0) * 1.4
+		b[i] = clampf(golpe * 0.85 + estallido, -1.0, 1.0)
+	return _a_wav(_eco(b, [71, 113], 0.35, 0.5, 0.3))
 
 
 static func _vacio(duracion: float) -> PackedFloat32Array:

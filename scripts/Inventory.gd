@@ -71,17 +71,25 @@ func arma() -> InventoryItemData:
 	return mejor
 
 
+# Lo que cabe: la mochila (o CAPACIDAD_BASE) mas los lugares de la habilidad Mochilero
 func capacidad() -> int:
+	var tazos := get_node_or_null("/root/Tazos")
+	return capacidad_mochila() + (tazos.espacio_extra() if tazos else 0)
+
+
+# Solo la mochila, para comparar mochilas
+func capacidad_mochila() -> int:
 	return mochila.capacidad if mochila else CAPACIDAD_BASE
 
 
+# Si bajas Mochilero con todo lleno no se tira nada: solo no cabe nada nuevo hasta que hagas lugar
 func esta_lleno() -> bool:
 	return items.size() >= capacidad()
 
 
 # Una mochila solo sirve si es mas grande que la que traes; la vieja se tira.
 func equipar_mochila(nueva: InventoryItemData) -> bool:
-	if nueva == null or nueva.capacidad <= capacidad():
+	if nueva == null or nueva.capacidad <= capacidad_mochila():
 		return false
 	mochila = nueva
 	inventory_changed.emit()
