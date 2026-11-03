@@ -77,7 +77,7 @@ M mapa (sin piezas se ve vacío) · U todas las piezas
 1 2 3 maquinita cercana: normal, sin monedas, segura
 C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
-9 pelea: golpe a tiempo (rojo = córtalo) / sin aturdir nunca
+9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
 Efectos de pixel, propuestas (F2-F7 cambian):"""
 # Una tecla por lugar de EfectosPixel, en este orden
