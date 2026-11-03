@@ -18,9 +18,16 @@ const INICIO := 30.0
 const FIN := -80.0
 const TORSO_SIGUE := 0.35 # cuanto gira el torso con el brazo
 const BAJA := 0.15        # el brazo va un poco hacia abajo
+const ESTELA_DESDE := PREPARA # la estela va solo mientras barre, no al llevar el brazo atras
+const ESTELA_HASTA := 0.33
+const ESTELA_PASO := 6.0  # grados entre pedazos de la estela
 
 var frijol: Node3D        # el cuerpo visible del jugador: de ahi salen el frente y la derecha
+var estela: Node          # EstelaBarrido.gd, opcional
+var largo := 0.6          # m de la mano a la punta de lo que traes
 var _t := -1.0
+var _angulo_antes := 0.0
+var _delta_ultimo := 0.0
 
 
 func golpe() -> void:
@@ -31,6 +38,7 @@ func _process_modification_with_delta(delta: float) -> void:
 	if _t < 0.0:
 		return
 	_t += delta
+	_delta_ultimo = delta
 	if _t >= SUELTA:
 		_t = -1.0
 		return
@@ -69,3 +77,25 @@ func _process_modification_with_delta(delta: float) -> void:
 		var vuelta := Quaternion(pose.basis.y.normalized(), hacia)
 		var parcial := Quaternion.IDENTITY.slerp(vuelta, peso)
 		esqueleto.set_bone_global_pose(hueso, Transform3D(Basis(parcial) * pose.basis, pose.origin))
+	if estela and _t >= ESTELA_DESDE and _t <= ESTELA_HASTA:
+		_dejar_estela(esqueleto, angulo, frente, derecha, arriba)
+	_angulo_antes = angulo
+
+
+# El arco entre el cuadro anterior y este, en pedazos de ESTELA_PASO grados: con pocos cuadros por
+# segundo la estela salia en tiras rectas. Se calcula desde el hombro con el brazo estirado
+func _dejar_estela(esqueleto: Skeleton3D, angulo: float, frente: Vector3, derecha: Vector3, arriba: Vector3) -> void:
+	var hombro := esqueleto.find_bone(BRAZO[0])
+	var puno := esqueleto.find_bone(BRAZO[-1])
+	if hombro < 0 or puno < 0:
+		return
+	var desde := esqueleto.get_bone_global_pose(hombro).origin
+	var brazo := desde.distance_to(esqueleto.get_bone_global_pose(puno).origin)
+	var al_mundo := esqueleto.global_transform
+	var antes := _angulo_antes if _t - _delta_ultimo > ESTELA_DESDE else angulo
+	var pasos := maxi(ceili(absf(angulo - antes) / ESTELA_PASO), 1)
+	for i in range(1, pasos + 1):
+		var rad := deg_to_rad(lerpf(antes, angulo, float(i) / pasos))
+		var hacia := (frente * cos(rad) + derecha * sin(rad) - arriba * BAJA).normalized()
+		var mano := al_mundo * (desde + hacia * brazo)
+		estela.agregar(mano, mano + al_mundo.basis.orthonormalized() * hacia * largo)

@@ -64,6 +64,8 @@ signal golpeado
 
 const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
 const BARRIDO := preload("res://scripts/Barrido.gd")
+const ESTELA := preload("res://scripts/EstelaBarrido.gd")
+const ESTELA_PUNO := 0.2      # m de la estela mas alla del puno, a mano limpia
 # Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
 # al frente para que de lado a la camara no se voltee al azar
 const BARRE_AL_FRENTE := 0.3
@@ -188,6 +190,7 @@ func _atacar() -> void:
 	if ninja.has_method("accion"):
 		ninja.accion("Punch")
 	if _barrido:
+		_barrido.largo = ARMA_TAMANO + ARMA_MANGO if _arma_visible else ESTELA_PUNO
 		_barrido.golpe()
 	_sonar("machetazo", SWING_VOLUMEN)
 
@@ -381,6 +384,8 @@ func _armar_barrido() -> void:
 	_barrido = BARRIDO.new()
 	_barrido.name = "Barrido"
 	_barrido.frijol = frijol
+	_barrido.estela = ESTELA.new()
+	add_child(_barrido.estela)
 	esqueleto.add_child(_barrido)
 
 
