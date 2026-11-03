@@ -37,7 +37,7 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 			"dolor":
 				_sonidos[nombre] = _tono(190.0, 0.22, -70.0, 0.6)
 			"gemido":
-				_sonidos[nombre] = _tono(95.0, 0.7, -25.0, 0.45)
+				_sonidos[nombre] = _gemido()
 			"morir_zombi":
 				_sonidos[nombre] = _tono(120.0, 0.6, -80.0, 0.6)
 			"campana":
@@ -332,6 +332,60 @@ static func _whack() -> AudioStreamWAV:
 		var retumbo := sin(fase * TAU) * pow(1.0 - t, 2.0)
 		datos.encode_s16(i * 2, int(clampf(chasquido * 0.9 + retumbo * 0.75, -1.0, 1.0) * 32000.0))
 	return _wav(datos)
+
+
+# Un zombi que gime: una garganta (diente de sierra apagado) que sube y luego se cae,
+# "uuurgh", con dos resonancias de boca entre "o" y "u", carraspeo irregular, aire y un poco
+# de eco. Antes era un tono cuadrado que bajaba y sonaba a globo desinflandose.
+static func _gemido() -> AudioStreamWAV:
+	const DURA := 1.4
+	var cuantas := int(DURA * MUESTRAS)
+	var seco := PackedFloat32Array()
+	seco.resize(cuantas)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 41
+	var fase := 0.0
+	var garganta := 0.0
+	var carraspeo := 0.0
+	var aire := 0.0
+	# Dos resonadores de dos polos: [y1, y2] de cada uno
+	var r1 := [0.0, 0.0]
+	var r2 := [0.0, 0.0]
+	var pico := 0.0
+	for i in cuantas:
+		var t := float(i) / cuantas
+		# Tono: 72 Hz, sube a 92 al primer tercio y se cae a 58, con temblor
+		var tono := lerpf(72.0, 92.0, smoothstep(0.0, 0.3, t)) - 34.0 * smoothstep(0.35, 1.0, t)
+		tono *= 1.0 + 0.035 * sin(t * DURA * TAU * 5.5) + 0.02 * azar.randf_range(-1.0, 1.0)
+		fase += tono / MUESTRAS
+		var sierra := fmod(fase, 1.0) * 2.0 - 1.0
+		garganta = lerpf(garganta, sierra, 0.35)
+		# Carraspeo: ruido lento que abre y cierra la garganta, mas al final
+		carraspeo = lerpf(carraspeo, azar.randf_range(0.0, 1.0), 0.004)
+		var voz := garganta * (0.55 + 0.9 * carraspeo * (0.5 + t))
+		aire = lerpf(aire, azar.randf_range(-1.0, 1.0), 0.12)
+		var fuente := voz + aire * 0.25
+		# Boca: de "o" (520 / 880 Hz) a "u" (380 / 700 Hz)
+		var f1 := _resonar(fuente, lerpf(520.0, 380.0, t), 0.985, r1)
+		var f2 := _resonar(fuente, lerpf(880.0, 700.0, t), 0.98, r2)
+		var envolvente := smoothstep(0.0, 0.12, t) * (1.0 - smoothstep(0.65, 1.0, t))
+		# Lo que mas se oye es la boca; la garganta sola da el cuerpo grave
+		var valor := (garganta * 0.15 + f1 * 0.35 + f2 * 0.2) * envolvente
+		seco[i] = valor
+		pico = maxf(pico, absf(valor))
+	# Que no truene fuerte: mas quedito que el tono de antes
+	var escala := 0.5 / maxf(pico, 0.001)
+	for i in cuantas:
+		seco[i] *= escala
+	return _a_wav(_eco(seco, [83, 131] as Array[int], 0.3, 0.45, 0.35))
+
+
+# Un resonador de dos polos en `frecuencia` Hz; `radio` cerca de 1 = mas angosto
+static func _resonar(entrada: float, frecuencia: float, radio: float, estado: Array) -> float:
+	var y: float = (1.0 - radio) * entrada + 2.0 * radio * cos(TAU * frecuencia / MUESTRAS) * estado[0] - radio * radio * estado[1]
+	estado[1] = estado[0]
+	estado[0] = y
+	return y
 
 
 # Un globo de agua que truena: un pop agudo que cae y luego el agua que se riega

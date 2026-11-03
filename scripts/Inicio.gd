@@ -100,6 +100,7 @@ func _process(delta: float) -> void:
 	if _gemido <= 0.0:
 		_gemido = randf_range(GEMIDO_CADA.x, GEMIDO_CADA.y)
 		_voz_zombi.stream = Sonidos.sonido("gemido")
+		_voz_zombi.pitch_scale = randf_range(0.85, 1.1)
 		_voz_zombi.play()
 	if _pantalla == Pantalla.CARGANDO:
 		_seguir_cargando()
