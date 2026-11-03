@@ -36,7 +36,7 @@ const CAPA_LUZ := 7
 # Los de la segunda ronda: se apagan con extras = false
 const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar"]
 
-# Cada lugar, sus variantes (la primera es la que queda por omision). `hoja` vacia = nada.
+# Cada lugar, sus variantes (la primera es la que queda por omision, salvo PREDETERMINADA). `hoja` vacia = nada.
 # `puno`: la hoja a mano limpia; `mata`: la del golpe que mata; `voltea`: la hoja ve a la
 # derecha y se orienta en el mundo hacia donde va el golpe, en vez de mirar a la camara.
 const LUGARES := {
@@ -90,6 +90,9 @@ const LUGARES := {
 	],
 }
 
+# La variante que queda por omision cuando no es la primera: JJ escogio la barrida
+const PREDETERMINADA := {"golpe": 1}
+
 # Compartido entre escenas: lo que se escoge en el safehouse sigue al pasar al mapa (F10)
 static var variantes := {}
 static var extras := true
@@ -130,7 +133,7 @@ func _ready() -> void:
 
 
 func variante(lugar: String) -> int:
-	return variantes.get(lugar, 0)
+	return variantes.get(lugar, PREDETERMINADA.get(lugar, 0))
 
 
 func nombre_variante(lugar: String) -> String:
