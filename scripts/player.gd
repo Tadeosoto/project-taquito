@@ -63,6 +63,11 @@ const COLOR_SANGRE := Color(0.62, 0.02, 0.03)
 signal golpeado
 
 const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
+const BARRIDO := preload("res://scripts/Barrido.gd")
+# Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
+# al frente para que de lado a la camara no se voltee al azar
+const BARRE_AL_FRENTE := 0.3
+const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 
 static var _material_blanco: StandardMaterial3D
 
@@ -87,6 +92,7 @@ var _congelado_hasta := 0
 var _camara: Camera3D
 var _voz: AudioStreamPlayer3D
 var _mano: BoneAttachment3D
+var _barrido: Node
 var _arma_visible: InventoryItemData
 
 
@@ -103,6 +109,7 @@ func _ready() -> void:
 	_voz = AudioStreamPlayer3D.new()
 	add_child(_voz)
 	_armar_mano()
+	_armar_barrido()
 	var inventario := get_node_or_null("/root/Inventory")
 	if inventario:
 		inventario.inventory_changed.connect(_mostrar_arma)
@@ -180,6 +187,8 @@ func _atacar() -> void:
 	_pega_en = ATAQUE_PEGA_EN
 	if ninja.has_method("accion"):
 		ninja.accion("Punch")
+	if _barrido:
+		_barrido.golpe()
 	_sonar("machetazo", SWING_VOLUMEN)
 
 
@@ -196,7 +205,9 @@ func _golpear() -> void:
 	var frente := -frijol.global_transform.basis.z
 	frente.y = 0.0
 	frente = frente.normalized()
-	efecto("golpe", frente, "" if con_arma else "puno")
+	var barre := -frijol.global_basis.x + frente * BARRE_AL_FRENTE
+	barre.y = 0.0
+	efecto("golpe", barre, "" if con_arma else "puno", BARRE_ALTO)
 	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)
 	# Un zombi muerto en este golpe truena justo al soltar la congelada
 	var truena_en := int(CONGELA_MATA * 1000.0)
@@ -297,10 +308,10 @@ func _sangrar(hacia: Vector3) -> void:
 
 # Un efecto de pixel (EfectosPixel.gd) a los pies del modelo, que es lo que se ve. Por grupo y
 # sin el tipo, como el liquido
-func efecto(lugar: String, hacia: Vector3, opcion := "") -> void:
+func efecto(lugar: String, hacia: Vector3, opcion := "", alto := 0.0) -> void:
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos:
-		efectos.lanzar(lugar, Vector3(frijol.global_position.x, global_position.y - 1.0, frijol.global_position.z), hacia, 1.0, opcion)
+		efectos.lanzar(lugar, Vector3(frijol.global_position.x, global_position.y - 1.0 + alto, frijol.global_position.z), hacia, 1.0, opcion)
 
 
 # Todo el modelo, con el arma que traiga en la mano
@@ -360,6 +371,17 @@ func _armar_mano() -> void:
 			esqueleto.add_child(_mano)
 			_mano.bone_name = nombre
 			return
+
+
+# El golpe es un barrido de lado hecho con los huesos (Barrido.gd): el modelo solo trae Punch
+func _armar_barrido() -> void:
+	var esqueleto := ninja.find_child("Skeleton3D", true, false) as Skeleton3D
+	if esqueleto == null:
+		return
+	_barrido = BARRIDO.new()
+	_barrido.name = "Barrido"
+	_barrido.frijol = frijol
+	esqueleto.add_child(_barrido)
 
 
 func _mostrar_arma() -> void:
