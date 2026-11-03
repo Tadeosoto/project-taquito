@@ -36,7 +36,7 @@ godot --path . --headless --check-only --script res://scripts/player.gd  # parse
 
 ## Real map and everything on it (`scenes/map_test.tscn`)
 
-**Read `docs/mapa/tecnico.md` before changing the map pipeline, streaming, stores, houses, warehouses, walls, street lights, ground, deterioration, interiors, shop UI, or fruit machines.** It has the full detail, the regeneration commands and the reasons behind each decision. Keep it in sync with those systems. `docs/mapa/README.md` is the user-facing (Spanish) guide. Game design and open team decisions are in `docs/especificaciones.md`.
+**Read `docs/mapa/tecnico.md` before changing the map pipeline, streaming, stores, houses, warehouses, walls, street lights, ground, deterioration, interiors, shop UI, or fruit machines.** It has the full detail, the regeneration commands and the reasons behind each decision. Keep it in sync with those systems. `docs/mapa/README.md` is the user-facing (Spanish) guide. Game design and open team decisions are in `docs/especificaciones.md`; the story canon (GelA, the Lazcano family, the cholos, the cult of the Virgen del Tinaco, the nine zones) is in `docs/lore.md`; the cast (who's who, their wants and secrets) is in `docs/personajes.md`.
 
 Overview:
 - A real area of Zapopan built from OpenStreetMap with OSM2World by `tools/map_import/` (Python and Godot scripts), streamed from `resources/map/cuadros/`. `models/zona_mapa.glb` is gitignored; only rebuild it when changing the map.
