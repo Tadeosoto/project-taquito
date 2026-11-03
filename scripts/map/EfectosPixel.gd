@@ -1,7 +1,7 @@
 class_name EfectosPixel
 extends Node3D
 
-# Efectos de pixel art (pixelfx, MIT) como sprites que miran a la camara, encima de lo
+# Efectos de pixel art (pixelfx, MIT) como sprites que siempre miran a la camara, encima de lo
 # que ya se siente en 3D (flash blanco, congelada, sacudida, Liquido). Las hojas salen de
 # tools/pixelfx/ (efectos.json y exportar.mjs) y viven en resources/fx/.
 #
@@ -38,7 +38,7 @@ const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar"]
 
 # Cada lugar, sus variantes (la primera es la que queda por omision, salvo PREDETERMINADA). `hoja` vacia = nada.
 # `puno`: la hoja a mano limpia; `mata`: la del golpe que mata; `voltea`: la hoja ve a la
-# derecha y se orienta en el mundo hacia donde va el golpe, en vez de mirar a la camara.
+# derecha y se voltea segun hacia donde va el golpe en pantalla.
 const LUGARES := {
 	"golpe": [
 		{ "nombre": "A tajo (puno: estocada)", "hoja": "golpe_machete", "puno": "golpe_puno", "escala": 0.6, "voltea": true },
@@ -147,7 +147,7 @@ func cambiar(lugar: String) -> String:
 
 
 # `pos`: el origen del efecto, en el piso bajo quien lo hace. `hacia`: a donde va el golpe
-# (para orientar las hojas que ven a la derecha). `opcion`: "puno" o "mata", si la variante
+# (para voltear las hojas que ven a la derecha). `opcion`: "puno" o "mata", si la variante
 # tiene otra hoja para eso
 func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, opcion := "") -> void:
 	if not extras and lugar in EXTRAS:
@@ -163,20 +163,8 @@ func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, o
 	var i := _siguiente
 	_siguiente = (_siguiente + 1) % CUANTOS
 	var s := _sprites[i]
-	var hacia_camara := (camara.global_position - pos).normalized()
 	var lado := camara.global_basis.x
-	var arriba := Vector3.UP
-	var plano := Vector3(hacia.x, 0.0, hacia.z)
-	var normal := camara.global_basis.z
-	# El golpe visto en pantalla: hacia el fondo va hacia arriba, hacia la camara hacia abajo
-	var en_pantalla := plano - normal * plano.dot(normal)
-	var orientada: bool = v.get("voltea", false) and en_pantalla.length_squared() > 0.0001
-	if orientada:
-		# La hoja ve a la derecha: sigue de frente a la camara, pero girada en pantalla para que
-		# su X vaya hacia el golpe. Sin girar, un golpe hacia el fondo se veia como barrida de
-		# lado y el volteo salia casi al azar; acostada en el piso casi no se veia
-		lado = en_pantalla.normalized()
-		arriba = normal.cross(lado)
+	var voltea: bool = v.get("voltea", false) and hacia.dot(lado) < 0.0
 	var px: float = PIXEL * float(v.get("escala", 1.0)) * escala
 	var tamano: Vector2 = hoja["tamano"]
 	var pivote: Vector2 = hoja["pivote"]
@@ -185,12 +173,12 @@ func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, o
 	s.vframes = ceili(float(hoja["cuadros"]) / hoja["columnas"])
 	s.frame = mini(int(hoja["golpe_en"] * hoja["fps"]), hoja["cuadros"] - 1)
 	s.pixel_size = px
-	s.billboard = BaseMaterial3D.BILLBOARD_DISABLED if orientada else BaseMaterial3D.BILLBOARD_ENABLED
-	s.global_basis = Basis(lado, arriba, normal) if orientada else Basis.IDENTITY
+	s.flip_h = voltea
 	# El sprite va centrado: se recorre para que el pivote de la hoja quede en `pos`
-	var dx := (tamano.x * 0.5 - pivote.x) * px
+	var dx := (tamano.x * 0.5 - pivote.x) * px * (-1.0 if voltea else 1.0)
 	var dy := (pivote.y - tamano.y * 0.5) * px
-	s.global_position = pos + lado * dx + arriba * dy + hacia_camara * ACERCAR
+	var hacia_camara := (camara.global_position - pos).normalized()
+	s.global_position = pos + lado * dx + Vector3.UP * dy + hacia_camara * ACERCAR
 	s.visible = true
 	_tiempos[i] = hoja["golpe_en"]
 	_hoja_de[i] = hoja
