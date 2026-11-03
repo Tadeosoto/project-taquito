@@ -29,6 +29,7 @@ const ATAQUE_ENFRIAR := 0.6
 const ATAQUE_PEGA_EN := 0.22
 const ATAQUE_ALCANCE := 2.4
 const ATAQUE_ANGULO := 0.35   # coseno: lo que abarca hacia los lados
+const GOLPE_ADELANTE := 0.6   # m: el efecto del golpe sale donde llega, no encima del cuerpo
 const INVULNERABLE := 0.7     # s despues de recibir un golpe
 const ARMA_TAMANO := 0.6
 # El mango va en el puño: crear_modelo centra y deja lo largo en X con el mango en +X
@@ -196,7 +197,7 @@ func _golpear() -> void:
 	var frente := -frijol.global_transform.basis.z
 	frente.y = 0.0
 	frente = frente.normalized()
-	efecto("golpe", frente, "" if con_arma else "puno")
+	efecto("golpe", frente, "" if con_arma else "puno", GOLPE_ADELANTE)
 	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)
 	# Un zombi muerto en este golpe truena justo al soltar la congelada
 	var truena_en := int(CONGELA_MATA * 1000.0)
@@ -297,10 +298,11 @@ func _sangrar(hacia: Vector3) -> void:
 
 # Un efecto de pixel (EfectosPixel.gd) a los pies del modelo, que es lo que se ve. Por grupo y
 # sin el tipo, como el liquido
-func efecto(lugar: String, hacia: Vector3, opcion := "") -> void:
+func efecto(lugar: String, hacia: Vector3, opcion := "", adelante := 0.0) -> void:
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos:
-		efectos.lanzar(lugar, Vector3(frijol.global_position.x, global_position.y - 1.0, frijol.global_position.z), hacia, 1.0, opcion)
+		var pos := Vector3(frijol.global_position.x, global_position.y - 1.0, frijol.global_position.z)
+		efectos.lanzar(lugar, pos + hacia * adelante, hacia, 1.0, opcion)
 
 
 # Todo el modelo, con el arma que traiga en la mano
