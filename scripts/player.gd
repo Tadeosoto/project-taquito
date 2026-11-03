@@ -73,6 +73,9 @@ const COMBO_VENTANA := 0.5   # s despues del enfriamiento en que el siguiente go
 # s desde un golpe en que ya puede salir el siguiente: al terminar de barrer (Barrido.BARRE), sin
 # esperar el enfriamiento. Si pegas antes, se guarda y sale entonces
 const COMBO_DESDE := 0.3
+# s desde que empieza un golpe en que no puedes caminar: hasta que el brazo termina el barrido
+# y se queda estirado (Barrido.SOSTIENE). Encadenando golpes te quedas quieto toda la cadena
+const ATAQUE_QUIETO := 0.42
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 
 static var _material_blanco: StandardMaterial3D
@@ -507,6 +510,8 @@ func _physics_process(delta: float) -> void:
 		"move_forward",
 		"move_backward"
 	)
+	if _enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < ATAQUE_QUIETO:
+		input_direction = Vector2.ZERO
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z
 	var right: Vector3 = camera_pivot.global_transform.basis.x
