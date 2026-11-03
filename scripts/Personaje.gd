@@ -68,6 +68,7 @@ var ropa := 0
 var ruta := RUTA
 
 var _malla_sin_capucha: ArrayMesh
+var _malla_con_capucha: Mesh
 
 
 func _ready() -> void:
@@ -181,7 +182,11 @@ func _descubrir_cabeza(malla: MeshInstance3D) -> void:
 	malla.set_meta("cabeza_descubierta", true)
 	if _malla_sin_capucha == null:
 		_malla_sin_capucha = _partir_capucha(malla)
-	if _malla_sin_capucha:
+		if _malla_sin_capucha:
+			_malla_con_capucha = malla.mesh
+	# Solo el cuerpo del ninja: el arma en la mano tambien esta adentro del modelo, y se volvia
+	# un cuerpo diminuto color piel
+	if _malla_sin_capucha and malla.mesh == _malla_con_capucha:
 		malla.mesh = _malla_sin_capucha
 
 
