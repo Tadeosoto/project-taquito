@@ -18,6 +18,10 @@ godot --path . --headless --import # (re)import assets / regenerate .godot cache
 godot --path . --headless --check-only --script res://scripts/player.gd  # parse-check one script
 ```
 
+## Work in progress (tell the user when a session starts)
+
+- **JJ is reworking the player's attack** in branch `golpe-direccion` (not merged yet). It replaces the `Punch` thrust with diagonal slashes done on the bones (`scripts/Barrido.gd`), a chainable left/right combo that draws an X, a 3D slash trail with white dust (`scripts/EstelaBarrido.gd`), a bigger machete, no walking while attacking, click to recapture the mouse, and a fix for the invisible weapon in the hand (`Personaje._descubrir_cabeza`). Before changing `scripts/player.gd` (attack, `_golpear`, weapon in hand), `EfectosPixel`'s `golpe` slot or `Personaje.vestir`, tell the user and suggest checking with JJ or trying that branch first (`git fetch && git switch golpe-direccion`, then the safehouse) to avoid conflicts. Remove this note when the branch is merged.
+
 ## Architecture
 
 - **Main scene**: `scenes/inicio.tscn` (`scripts/Inicio.gd`): the start screen, a small night scene built in code with the menu over it. Jugar opens the character creator, then loads `scenes/map_test.tscn` in a thread with "Cargando..." on screen; Créditos reads `CREDITS.md` at runtime (add it to the export filter when exporting; the required map attributions are the fallback).
