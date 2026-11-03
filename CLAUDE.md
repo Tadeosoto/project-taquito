@@ -94,3 +94,43 @@ By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night
 - Resources are referenced by `uid://`; keep each `.gd.uid` file alongside its script when moving/renaming, or edit via the Godot editor.
 - `scenes/world.tscn` and `scripts/Inventory.gd.uid` are listed in `.gitignore` but are already tracked, so changes to them still show up in git.
 - `scenes/InventoryUI.tscn*.tmp` files are editor save leftovers, not real scenes.
+
+## Claude Code Game Studios (`.claude/`, `project.yaml`)
+
+Installed from [Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) v1.2.0 on the `game-studios` branch: 49 agents, 74 skills (`/help`, `/adopt`, `/setup-engine`, `/dev-story`...), hooks and path-scoped rules. Our own structure is the one described above; the template's `src/`, `design/` and `production/` folders are where its skills write their artifacts. `.claude/.gdignore` keeps Godot from scanning the template. Its hooks need Bash (Git for Windows) and Python 3; without Python, every setting falls back to its default and commits that stage data JSON are blocked.
+
+### Engine Version Reference
+
+@docs/engine-reference/godot/VERSION.md
+
+### Technical Preferences
+
+`project.yaml` at the repo root is the primary config store — engine, specialists, naming, platform, performance, modes. Skills resolve it via `resolve_config` (see `.claude/docs/config-resolution.md`). `.claude/docs/technical-preferences.md` is the legacy fallback, read on demand.
+
+### Coordination Rules
+
+@.claude/docs/coordination-rules.md
+
+### Collaboration Protocol
+
+**User-driven collaboration, not autonomous execution.** Every task follows: **Question -> Options -> Decision -> Draft -> Approval**
+
+- Agents MUST ask "May I write this to [filepath]?" before using Write/Edit tools (exempt: `active.md` appends, agent memory, a subagent's new file at the path its orchestrating skill named; see `.claude/rules/agent-memory.md`)
+- Agents MUST show drafts or summaries before requesting approval
+- Multi-file changes require explicit approval for the full changeset
+- No commits without user instruction
+- A skipped or dismissed question is not an answer: act on nothing, re-ask in plain text and wait
+- Started outside this file's folder? Warn first: hooks, deny rules and the ask-first mode load only when Claude Code starts here
+
+See `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md` for the full protocol and examples.
+
+### Coding Standards
+
+@.claude/docs/coding-standards.md
+
+### Context Management
+
+Read `.claude/docs/context-management.md` on demand. Two of its conventions are load-bearing:
+
+- **`production/session-state/active.md` is the session checkpoint.** The file is the memory, not the conversation. Read it first after any compaction, crash, or `/clear`.
+- **Helpers in `.claude/scripts/` emit observations, never verdicts.**
