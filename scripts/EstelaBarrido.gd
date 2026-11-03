@@ -5,22 +5,27 @@ extends MeshInstance3D
 # cualquier angulo (un dibujo plano de cara a la camara se veia siempre de lado). Corre con el
 # tiempo del juego: se queda en la congelada del golpe como todo lo demas.
 
-const VIDA := 0.16             # s que dura cada pedazo
-const DESDE := 0.35            # la orilla de adentro, en fraccion del largo desde la mano
-const COLOR_PUNTA := Color(0.96, 0.93, 0.84, 1.0)
-const COLOR_ADENTRO := Color(0.55, 0.45, 0.32, 0.15)
-# Transparencia en cuadritos de 2 x 2 pixeles, sin mezclar: como el difuminado del resto del juego
+const VIDA := 0.18             # s que dura cada pedazo
+const DESDE := 0.45            # la orilla de adentro, en fraccion del largo desde la mano
+# Una media luna solida como la hoja de la barrida (golpe_barrida en tools/pixelfx/efectos.json):
+# franjas de su paleta, de la orilla clara de la punta hacia adentro mas oscuro, sin mezclar. UV.x va
+# de adentro (0) a la punta (1) y UV.y es la edad: lo viejo se adelgaza hasta quedar en la orilla
 const SHADER := """
 shader_type spatial;
-render_mode unshaded, cull_disabled, depth_draw_never, shadows_disabled, fog_disabled;
+render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled;
+
+const vec3 PALETA[6] = vec3[](
+	vec3(0.110, 0.133, 0.188), vec3(0.180, 0.212, 0.282), vec3(0.290, 0.329, 0.408),
+	vec3(0.431, 0.478, 0.565), vec3(0.604, 0.651, 0.729), vec3(0.816, 0.847, 0.902));
 
 void fragment() {
-	ivec2 p = ivec2(FRAGCOORD.xy * 0.5) % 2;
-	float umbral = (float((p.x * 2 + p.y * 3) % 4) + 0.5) / 4.0;
-	if (COLOR.a < umbral) {
+	float borde = UV.y * 0.9;
+	if (UV.x < borde) {
 		discard;
 	}
-	ALBEDO = COLOR.rgb;
+	float k = (UV.x - borde) / (1.0 - borde);
+	int paso = clamp(int(k * 6.0), 0, 5);
+	ALBEDO = pow(PALETA[paso], vec3(2.2));
 }
 """
 
@@ -61,11 +66,9 @@ func _process(delta: float) -> void:
 		return
 	_malla.surface_begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
 	for pedazo: Array in _pedazos:
-		var queda: float = 1.0 - pedazo[2] / VIDA
-		var punta := COLOR_PUNTA
-		punta.a *= queda
-		_malla.surface_set_color(COLOR_ADENTRO)
+		var edad: float = pedazo[2] / VIDA
+		_malla.surface_set_uv(Vector2(0.0, edad))
 		_malla.surface_add_vertex(pedazo[0])
-		_malla.surface_set_color(punta)
+		_malla.surface_set_uv(Vector2(1.0, edad))
 		_malla.surface_add_vertex(pedazo[1])
 	_malla.surface_end()
