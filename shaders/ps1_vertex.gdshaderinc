@@ -25,6 +25,10 @@ vec4 ps1_vertex(inout vec3 vertex, vec2 uv, mat4 modelview, mat4 projection, out
 	float view_z = (modelview * vec4(vertex, 1.0)).z;
 
 	// 1. View-space vertex wobble.
+	// PS1_MUNDO (shaders de calles, casas, arboles...): el mundo no brinca, porque sus
+	// piezas pegadas (pintura, grafitis, ribetes) brincaban cada una por su lado. Los
+	// personajes y objetos, que usan ps1_combined, si.
+#ifndef PS1_MUNDO
 	if (wobble_enabled) {
 		vec4 view_pos = modelview * vec4(vertex, 1.0);
 		view_pos.xyz =
@@ -32,6 +36,7 @@ vec4 ps1_vertex(inout vec3 vertex, vec2 uv, mat4 modelview, mat4 projection, out
 			/ wobble_resolution;
 		vertex = (inverse(modelview) * view_pos).xyz;
 	}
+#endif
 
 	// 2. Affine texture warp. The UV is interpolated linearly across the
 	// triangle, so perspective correction is lost on the sampled texture.
@@ -42,6 +47,9 @@ vec4 ps1_vertex(inout vec3 vertex, vec2 uv, mat4 modelview, mat4 projection, out
 
 	// 3. Screen-space vertex jitter (PS1 vertex snapping).
 	vec4 clip_position = projection * modelview * vec4(vertex, 1.0);
+#ifdef PS1_MUNDO
+	return clip_position;
+#else
 	if (!jitter_enabled) {
 		return clip_position;
 	}
@@ -51,4 +59,5 @@ vec4 ps1_vertex(inout vec3 vertex, vec2 uv, mat4 modelview, mat4 projection, out
 		/ snap_resolution;
 	clip_position.xy = screen_position * clip_position.w;
 	return clip_position;
+#endif
 }

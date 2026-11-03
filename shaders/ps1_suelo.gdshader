@@ -10,6 +10,7 @@ shader_type spatial;
 // tools/map_import/make_vegetacion.py) dice pasto, se pinta pasto en vez de
 // albedo_texture. modo 2: todo es pasto (camellones y jardines de OSM2World).
 
+#define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
 #include "res://shaders/ps1_deterioro.gdshaderinc"
 
@@ -36,6 +37,17 @@ uniform float seco_cantidad = 0.3;
 // tamano (m) de los cuadritos de esa orilla
 uniform float orilla_ruido = 0.35;
 uniform float orilla_cuadro = 0.5;
+// Los otros pastos: cuidado, crecido y podrido (SueloPasto.variedades). Sin `variedad`
+// (materiales que nadie configuro) solo hay el normal y el seco. Las zonas son las mismas
+// que Deterioro.tipo_pasto: si cambian aqui, cambiarlas alla.
+uniform bool variedad = false;
+uniform sampler2D pasto_cuidado_texture : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D pasto_crecido_texture : source_color, filter_nearest_mipmap, repeat_enable;
+uniform sampler2D pasto_podrido_texture : source_color, filter_nearest_mipmap, repeat_enable;
+
+// Que piso gana donde se enciman (SueloPasto.capa)
+uniform float capa = 0.0;
+uniform float capa_paso = 0.0002;
 
 varying vec3 world_pos;
 
@@ -44,6 +56,15 @@ void vertex() {
 	vec3 vertex = VERTEX;
 	vec2 uv_out;
 	vec4 clip_position = ps1_vertex(vertex, UV, MODELVIEW_MATRIX, PROJECTION_MATRIX, uv_out);
+	// OSM2World deja calle, banqueta y pasto encimados a la misma altura y peleaban por el
+	// mismo pixel: cada tipo de piso gana siempre sobre los de capa menor. Solo cambia la
+	// profundidad, una fraccion de la distancia, asi que no se mueve nada en pantalla
+	if (capa > 0.0) {
+		vec4 en_vista = MODELVIEW_MATRIX * vec4(vertex, 1.0);
+		en_vista.xyz *= 1.0 - capa * capa_paso;
+		vec4 recorrido = PROJECTION_MATRIX * en_vista;
+		clip_position.z = recorrido.z / recorrido.w * clip_position.w;
+	}
 	VERTEX = vertex;
 	POSITION = clip_position;
 }
@@ -54,7 +75,22 @@ vec3 pasto(vec2 xz, float zona) {
 	// Sin quien lo riegue: mas pasto seco donde hay mas deterioro
 	float cantidad = min(seco_cantidad + zona * 0.4, 1.0);
 	float seco = smoothstep(1.0 - cantidad - 0.08, 1.0 - cantidad + 0.08, n);
-	return mix(texture(pasto_texture, uv).rgb, texture(pasto_seco_texture, uv).rgb, seco);
+	vec3 color = mix(texture(pasto_texture, uv).rgb, texture(pasto_seco_texture, uv).rgb, seco);
+	if (variedad) {
+		// Orilla en cuadritos, como la del pasto contra la tierra
+		float orilla = (hash(floor(xz / orilla_cuadro)) - 0.5) * 0.06;
+		float zona_pura = zona / max(deterioro, 0.01);
+		if (ruido_entero(xz / 23.0 + 5.0) + orilla > 0.52) {
+			color = texture(pasto_crecido_texture, uv).rgb;
+		}
+		if (zona_pura < 0.55 && ruido_entero(xz / 41.0 + 9.0) + orilla > 0.6) {
+			color = texture(pasto_cuidado_texture, uv).rgb;
+		}
+		if (zona_pura > 0.7 && ruido_entero(xz / 17.0 + 31.0) + orilla > 0.45) {
+			color = texture(pasto_podrido_texture, uv).rgb;
+		}
+	}
+	return color;
 }
 
 void fragment() {

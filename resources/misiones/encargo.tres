@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="3_item"]
+[ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="4_galon"]
+[ext_resource type="Resource" path="res://resources/productos/tablas.tres" id="5_tablas"]
+
+[sub_resource type="Resource" id="paso_comprar"]
+script = ExtResource("2_paso")
+tipo = 0
+texto = "Compra 2 galones de agua en la farmacia"
+objetos = Array[ExtResource("3_item")]([ExtResource("4_galon"), ExtResource("4_galon")])
+lugar = "giro:farmacia"
+
+[sub_resource type="Resource" id="paso_entregar"]
+script = ExtResource("2_paso")
+tipo = 1
+texto = "Llévale los galones a la señora"
+objetos = Array[ExtResource("3_item")]([ExtResource("4_galon"), ExtResource("4_galon")])
+
+[resource]
+script = ExtResource("1_mision")
+id = "encargo"
+nombre = "Encargo de compras"
+modelo = "mujer_psx"
+oferta = "Joven, tráigame 2 galones de la farmacia. Le pago de más."
+aceptada = "Dios se lo pague. Bueno, yo se lo pago."
+recuerda = "2 galones, joven. De la farmacia, no de la llave."
+gracias = "¡Ay, qué bárbaro! Tenga, y llévese estas tablas."
+despedida = "Ya tengo agua para hoy. Vuelva mañana."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_comprar"), SubResource("paso_entregar")])
+pesos = 100
+premios = Array[ExtResource("3_item")]([ExtResource("5_tablas"), ExtResource("5_tablas")])

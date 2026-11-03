@@ -2,6 +2,7 @@ extends Node3D
 
 const _IDLE := "Idle"
 const _WALK := "Walk"
+const _CARGA := "Walk_Carry"
 const _SPRINT_PLAYBACK := 1.9
 const _SPRINT_LEAN := 0.1
 const _BOB_HEIGHT := 0.035
@@ -15,6 +16,8 @@ var _is_sprinting := false
 var _bob_time := 0.0
 # Mientras dura una accion (golpe, recibir golpe, caer) no se cambia a caminar
 var _accion_queda := 0.0
+# Trae algo en las manos: camina distinto (Player.cargar)
+var cargando := false
 
 
 func accion(hint: String) -> void:
@@ -43,6 +46,7 @@ func _ready() -> void:
 	_animation_player.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_IDLE
 	_force_loop(_IDLE)
 	_force_loop(_WALK)
+	_force_loop(_CARGA)
 	_play(_IDLE)
 	process_priority = 100
 
@@ -71,7 +75,7 @@ func update_animation(is_moving: bool, is_airborne: bool, is_sprinting: bool = f
 		_play(_IDLE)
 	else:
 		_animation_player.speed_scale = _SPRINT_PLAYBACK if _is_sprinting else 1.0
-		_play(_WALK)
+		_play(_CARGA if cargando else _WALK)
 
 
 func _play(hint: String) -> void:

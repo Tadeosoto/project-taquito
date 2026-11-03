@@ -581,6 +581,7 @@ func _ps1(tinte: Color) -> ShaderMaterial:
 	material.shader = PS1_SHADER
 	material.set_shader_parameter("tint", tinte)
 	material.set_shader_parameter("affine_enabled", false)
+	material.set_shader_parameter("jitter_enabled", false)
 	material.set_shader_parameter("wobble_enabled", false)
 	# Fierro pintado con uso (ps1_gastado): manchas, mugre, rayones, despostillado
 	material.set_shader_parameter("deterioro_modo", 4)

@@ -742,7 +742,7 @@ Persona (Resource)
 | Nivel | Script / sistema | Qué hace |
 |---|---|---|
 | **Voz** | `scripts/npc.gd` + `DialogoData` | Se queda en su lugar; "Espacio: hablar"; conversación |
-| **Habitante** | `scripts/map/Gente.gd` (de `alan-testing`) | Camina, se va, vuelve; bark al pasar; sin conversación |
+| **Habitante** | `scripts/map/Gente.gd` | Camina, se va, vuelve; bark al pasar; sin conversación |
 | **Silueta** | `MultiMeshInstance3D` | Relleno de multitud lejos; sin lógica, sin diálogo |
 
 **La decisión es el dato:** si `dialogo` es `null`, es habitante. Si no, es voz. **El mismo modelo** puede ser las dos cosas: el mismo modelo puede ser el taquero (voz) o un caminante (habitante). La diferencia está en el `.tres`, no en la escena.

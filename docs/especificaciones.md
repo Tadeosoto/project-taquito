@@ -173,7 +173,7 @@ Tercera persona, cámara relativa, correr con Shift, saltar. Ya existe en `scrip
 
 ### 4.2 Combate
 
-- **Cuerpo a cuerpo**: machete, bate, chancla… Una animación de golpe + área de daño delante del jugador. Lo más fácil de hacer primero. 🧱 Ya se pelea con clic izquierdo o F: pega con la mejor arma que traigas (machete 12, reforzado 18) o a puño (5), sin equiparla. Por ahora solo con el machete. Daños y vida 💡 para discutir.
+- **Cuerpo a cuerpo**: machete, bate, chancla… Una animación de golpe + área de daño delante del jugador. Lo más fácil de hacer primero. 🧱 Ya se pelea con clic izquierdo o F: pega con la mejor arma que traigas (machete 12, reforzado 18) o a puño (5), sin equiparla. Por ahora solo con el machete. Daños y vida 💡 para discutir. 🧱 Cada golpe se siente: el zombi se pone blanco, suena un whack seco, salen gotas pesadas de agua sucia desde adentro del cuerpo hacia donde iba el golpe (caen con gravedad y dejan manchas en el piso que se borran a los 15 s), el zombi sale empujado y tú rebotas tantito, la cámara se sacude y el juego se congela unos cuadros; con más daño, más fuerza. Al matarlo se hincha y revienta como globo de agua sucia, y deja un charco que se seca y su pellejo mojado, que a los pocos segundos se pudre y deja el esqueleto (dura un minuto; máximo 16). Los que se caen al amanecer no revientan. Cuando te pegan a ti: el juego se congela unos cuadros, te pones blanco, se sacude la cámara, dos cuadros de la pantalla en puro blanco y negro, te empuja como 1.5 m hacia donde iba el golpe y sale sangre para allá.
 - **Armas de fuego**: pistola, cuerno de chivo, ballesta. Tipo de apuntado 🗳️ (ver 1.4). Munición escasa, recarga.
 - **Arrojables**: molotov (fuego en área), paloma (aturde), bocina (atrae zombis, ver objetos). Se lanzan en arco con previsualización de trayectoria (*GTA*, *Fortnite*).
 - 💡 **Ruido**: disparar hace ruido y atrae zombis; machete es silencioso. Da sentido a elegir arma (*DayZ*, *The Last of Us*).
@@ -250,7 +250,7 @@ Ya existe un inventario circular con inspección 3D de objetos (`scripts/Invento
 Ya hay NPCs con diálogo en burbuja y aviso de "Espacio/X" (`scripts/npc.gd`). Falta:
 
 - 💡 NPCs que **dan misiones** (marcador encima, como el "!" de *WoW* o la letra de *GTA*).
-- 💡 NPCs que caminan por la banqueta de día (peatones simples).
+- 🧱 De día hay gente (`scripts/map/Gente.gd`): caminan por las banquetas (por ahora con el modelo ninja pintado, el único con ciclo de caminar), un garrafonero con su galón, gente afuera de las tiendas con la que puedes platicar y perros echados. Al avisar que va a oscurecer se apuran y de noche no hay nadie, así que la calle vacía también avisa.
 - 💡 Comportamiento "seguir al jugador" (se usa en Simi, rescates, escoltas: programarlo una vez y reutilizarlo).
 
 > ✅ El **reparto** (30 voces, 10 vendedores, habitantes sin diálogo, y la regla de las tres preguntas para decidir quién habla) está en **[`docs/personajes.md`](personajes.md)**.
@@ -263,7 +263,7 @@ Ya hay NPCs con diálogo en burbuja y aviso de "Espacio/X" (`scripts/npc.gd`). F
 
 Referencia del grupo: [reel de Instagram](https://www.instagram.com/reel/DehepkqD5PW/). (No se pudo ver sin cuenta; **que alguien describa qué tiene que tomarse de ahí**.) Asumimos hordas que se mueven en masa tipo *Days Gone* / *World War Z*.
 
-🧱 **Prototipo actual** (`scripts/map/Zombis.gd`, `Zombie.gd`): de noche salen zombis de uno en uno alrededor del jugador, fuera de la cámara, más donde está más destruido y uno más cada noche (hasta 12). Caminan derecho hacia ti, sin rutas, y pegan; dan unos pesos al morir y se caen al amanecer. **Ojo: esto es solo un prototipo; no define la mecánica final.**
+🧱 **Prototipo actual** (`scripts/map/Zombis.gd`, `Zombie.gd`): de noche un Director como el de *Left 4 Dead* (`scripts/map/Director.gd`) mide qué tan apretado andas y da vueltas entre armar, sostener, bajar y dar un respiro. Salen sueltos alrededor del jugador, fuera de la cámara, más donde está más destruido y uno más cada noche (hasta 12), y cada 90-180 s una turba que corre hacia ti, hasta 30 en total. Llegan por las calles (`CampoFlujo.gd`), no se pueden encimar (te rodean y hacen fila en las entradas, así que los pasos angostos sirven para defenderse) y pegan; dan unos pesos al morir y se caen al amanecer. De día no hay. Si llegas a 0 de vida tus objetos se quedan en una bolsa y despiertas en el refugio (propuesta de 1.5). De noche todo cierra (propuesta de 4.6). Si no hay jugador cerca del mismo lado de la barda, van por la entrada más cercana del refugio y luego por el tinaco; si andas a más de 70 m, el ataque se simula. **Ojo: esto es solo un prototipo; no define la mecánica final.**
 
 ✅ **La mecánica definida** (`docs/lore.md` §8):
 
@@ -298,8 +298,6 @@ Presupuesto 💡: ~30 zombis completos cerca + ~200 "baratos" lejos (hay que med
 
 
 ### 4.9 Casas en obra negra y otras rarezas 💡
-
-> 📌 En la rama `alan-testing` el 4.9 es el mapa de papel. Al mezclar, ese pasa a ser 4.11 (aquí el 4.10 es el celular).
 
 ✅ **Las casas en obra negra son las contaminadas.** El juego ya las pinta así (5 % de las casas en deterioro medio, 15 % en el máximo; `MapCasas._obra_negra` + `shaders/ps1_casa.gdshader`): paredes sin aplanar, block a la vista, hollín, un colchón en el piso. En el lore son las que se construyeron con la **varilla del 84** —el cobalto del "Chernobyl mexicano" de Ciudad Juárez, que también llegó a una fundidora de Guadalajara—: ahí murió la gente y el régimen enterró el expediente (`docs/lore.md` §16). 💡 Por hacer: que entrar baje vida despacio y que se pueda encontrar un medidor (geiger).
 
@@ -346,6 +344,12 @@ Presupuesto 💡: ~30 zombis completos cerca + ~200 "baratos" lejos (hay que med
 
 ---
 
+### 4.11 Mapa de papel 🧱
+
+Con el inventario abierto, **M** (Select en el control) muestra el mapa, en 9 pedazos con nombre: El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera. Empiezas con el de donde apareces y los demás se encuentran tirados frente a una tienda de cada zona; los que faltan salen en negro con un signo. No ocupan lugar, no se pierden al desmayarte y se acaban con la partida. Al cruzar a otra zona sale su nombre. 💡 Después podrían venderse o darse en misiones.
+
+---
+
 ## 5. Objetos
 
 ✅ El catálogo completo —items, efectos, precios, modelos y lo que falta— está en **[`docs/items.md`](items.md)**.
@@ -370,7 +374,11 @@ Resumen:
 - **Misiones de día:** transportar, encontrar, corretear, tiro al blanco, manifestación, acompañar, defender el puesto, limpiar una camada, etc.
 - **Historia:** las cinco pistas de `docs/lore.md` §17.
 
-### 6.3 Sistema de misiones 💡 (cómo programarlo)
+### 6.0 Lo que ya hay 🧱
+
+Tres misiones de día, con vecinos que traen un **!** amarillo cerca de donde empiezas: **Encargo de compras** (2 galones de la farmacia; paga $100 y 2 tablas), **Repartir garrafones** (4 casas en 100 s; paga $90) y **Buscar al perro** (se oye ladrar en una zona marcada, y lo cargas de regreso; paga $60 y un pedazo de mapa). Una a la vez y cada una una vez al día. Si anochece o se acaba el tiempo, falla y se puede intentar mañana. Se siguen con la línea de abajo a la izquierda, la flecha, el minimapa y el mapa de papel. Precios y tiempos 💡 para balancear jugando. Para agregar una sin programar: copiar un `.tres` de `resources/misiones/` (ver `CLAUDE.md`).
+
+### 6.3 Sistema de misiones 🧱 (cómo programarlo)
 
 Para que cualquiera pueda agregar misiones sin tocar código:
 
@@ -444,7 +452,7 @@ Cada modelo trae una captura **`preview.png`** en su carpeta (y `<nombre>_previe
 
 | Prioridad | Modelo | Notas |
 |---|---|---|
-| Alta | **Personaje jugable** definitivo | ¿Quién es? ¿se puede personalizar (en multijugador ayuda distinguirse)? Candidatos: hombre_psx, mujer_psx, chava_psx + animaciones de Quaternius. |
+| Alta | **Personaje jugable** definitivo | ¿Quién es? ¿se puede personalizar (en multijugador ayuda distinguirse)? Candidatos: hombre_psx, mujer_psx, chava_psx + animaciones de Quaternius. ✅ Avatar silencioso, "el Nocturno" (`docs/lore.md` §15): cada jugador hace el suyo (propuesta de AG, 2026-10-31) con el ninja recoloreado (`scripts/CreadorPersonaje.gd`): nombre, complexión y talla con pros y contras, cabeza y ropa. El tono de piel es una sátira del colorismo, como en *South Park*: cambia precios, paga y lo que te dice la gente, y no toca el combate. Por decidir antes de publicar: si se queda este chiste y cómo se escriben esas líneas. |
 | Alta | Juntar animaciones con personajes | Retarget de las de Quaternius al jugador, zombis y NPCs (hoy cada modelo trae solo las suyas). |
 | Media | Interiores: más muebles propios | Las escenas ya están armadas (`scenes/interiores/`) con mostrador, estantes oxidados, máquina, la tiendita m3_mart y objetos; faltan muebles de farmacia y anaqueles de ferretería. |
 | Media | Objetos que se quitaron porque salían mal: garrafón (para repartir garrafones; el del despachador `props/despachador_agua` sí sirve de referencia), botella de agua, agua sucia, lámpara, celular, máquina de tienda, tequila, paloma, veladora | Buscar otros en Sketchfab o modelar low-poly. |
@@ -513,9 +521,10 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 - [ ] ¿Cuántos somos y cuántas horas a la semana? ¿Hay fecha de entrega? (define 1.6)
 - [ ] ¿Qué hay que tomar del reel de Instagram de las hordas? ¿Cantidad, cómo se mueven, cómo se ven?
 - [ ] ¿Dónde está el baile del Simi? ¿Es una animación de Mixamo, una escena aparte, otra rama?
-- [x] **Personaje jugable**: avatar silencioso; cada jugador hace el suyo con el creador de `alan-testing` y el mundo le dice "el Nocturno" (`docs/lore.md` §15). Confirmar antes de publicar el tema del tono de piel.
+- [x] **Personaje jugable**: avatar silencioso; cada jugador hace el suyo con el creador (`scripts/CreadorPersonaje.gd`) y el mundo le dice "el Nocturno" (`docs/lore.md` §15). Confirmar antes de publicar el tema del tono de piel.
 - [ ] ¿Se puede pegar a otros jugadores (PvP)?
 - [x] **¿Las tiendas son zona segura de noche?** No: de noche cierran y te sacan (`docs/lore.md` §20).
+- [ ] **Antes de publicar**: una opción para apagar los destellos de pantalla completa (el cuadro de impacto) y la sacudida. A la gente con epilepsia fotosensible le puede hacer daño. Por ahora solo se apaga en código (`Supervivencia.IMPACTO_ACTIVO`).
 - [ ] ¿Hay vehículos? (bici, carrito de súper, camión) — dan mucho juego en el mapa real pero son trabajo L.
 - [x] **Marcas reales**: se decidió parodia. Los nombres ya cambiaron (OXO, Dr Simio, Guadalaraja, Perez); falta repintar los modelos.
 - [ ] Tachas, droga y cuerno de chivo: ¿el tono es parodia? Afecta la clasificación si se publica en alguna tienda (itch.io no tiene problema).
@@ -538,6 +547,7 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-10-28 | Giros de negocios (4.6) y qué vende cada uno; un interactivo por giro cada 80 m (abarrotes 150 m) con flecha amarilla; puestos de tacos y tejuino se compran al aire libre; nuevos ferretería, purificadora y "el punto" (venta ilegal, una casa en obra negra por colonia). Marcas parodia en los nombres. Casas en obra negra: 5 % en deterioro medio, 15 % en el máximo. Los locales de colonia van dentro de la hilera de casas. | JJ |
 | 2026-10-31 | **Propuesta de trabajo, no cierra los votos de 1.2, 1.3 y 1.5**: partida de 3 noches con jefe, refugios con barricadas y tinaco, bolsa recuperable al morir, todo cerrado de noche. Se programa para probarla; el equipo decide después de jugarla. | AG |
 | 2026-10-31 | Pantalla de inicio: el juego ya abre en ella y Jugar lleva al mapa real (`map_test.tscn`), no al prototipo `world.tscn`. | AG |
+| 2026-10-31 | Mapa de papel en el inventario, por pedazos que se encuentran en el mundo, con zonas de nombres parodia y sobre el agua (4.11). | AG |
 | 2026-11-02 | **Se escribe `docs/lore.md`** (la biblia de historia). Premisa revisada: GelA (la familia Lazcano) se queda con el agua; el **Serenol** vuelve dóciles a los que no pagan; los violentos son los vecinos infectados (**"cholos"**, después **zombis**); **Georgina Lazcano** es la gobernadora y los dóciles votan por ella. | JJ |
 | 2026-11-02 | **Economía del agua**: las purificadoras son franquicias **Puri-GelA** y el agua limpia es cara en pesos; purificar por tu cuenta es delito (**Decreto 47**); la clandestina sale de **misiones**. El **índice de deterioro ES el índice de infección** (umbral 0.45). | JJ |
 | 2026-11-02 | **Culto y subhistorias**: la **Virgen del Tinaco** (el padre Chuy filtra el agua y el milagro cura), el **cobalto de la varilla del 84** (las casas en obra negra y unas lámparas que bajan vida) y las **cruces de caca**. Se cuentan hablando con NPCs; el lore no bloquea nada. | JJ |

@@ -573,7 +573,7 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 
 ## 13. Las nueve zonas
 
-✅ Las zonas son la forma en que la ciudad se divide para hablar de sí misma. Los nombres vienen del mapa de papel (`scripts/map/ZonasMapa.gd`, en la rama `alan-testing`): son parodia de las colonias reales o inventados sobre el agua. **Ojo:** ese mapa de papel todavía no está en `main`; si se mezcla, los nombres ya están puestos.
+✅ Las zonas son la forma en que la ciudad se divide para hablar de sí misma. Los nombres vienen del mapa de papel (`scripts/map/ZonasMapa.gd`, §4.11 de `docs/especificaciones.md`): son parodia de las colonias reales o inventados sobre el agua.
 
 > **Nota sobre los nombres reales.** El pedazo de Zapopan que el juego usa como mapa es real (ver [`docs/mapa/README.md`](mapa/README.md)), pero en la ficción la ciudad se llama Guadalajara y las colonias tienen estos nombres. Las colonias reales no aparecen en el juego.
 
@@ -812,7 +812,7 @@ Ojo: **no toda casa en obra negra es del lote del 84.** Hay paracaidistas y vend
 
 ✅ **El prejuicio como cortina.** La ciudad le tiene miedo a la cara del pobre y no a la empresa. La crítica se mete por ahí: **mientras el miedo tenga cara de pobre, el poder puede dormir tranquilo.**
 
-✅ **El colorismo.** El creador de personaje de `alan-testing` ya tiene una sátira del colorismo (el tono de piel cambia precios y tratos). El lore la sostiene: en una ciudad donde el agua es un privilegio, también lo es la cara con la que llegas a pedirla.
+✅ **El colorismo.** El creador de personaje (`scripts/CreadorPersonaje.gd`) ya tiene una sátira del colorismo (el tono de piel cambia precios y tratos). El lore la sostiene: en una ciudad donde el agua es un privilegio, también lo es la cara con la que llegas a pedirla.
 
 ✅ **La idea que controla la historia.** La frase con la que se decide cada escena y cada misión (ver [`docs/revision-historia.md`](revision-historia.md) §2.1):
 
@@ -903,7 +903,7 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 |---|---|---|---|
 | Pesos como moneda; el agua es un recurso | §4.5 Economía | `scripts/Cartera.gd` (quitar `agua`) | 🧱 Ya existe (cambiar) |
 | El agua limpia es cara | §4.5 | `resources/productos/galon_agua.tres` | 🧱 Ya existe (revisar) |
-| El reparto clandestino es un contrato | §4.5, §14 | `scripts/Misiones.gd` (`alan-testing`) | 💡 Por hacer |
+| El reparto clandestino es un contrato | §4.5, §14 | `scripts/Misiones.gd` | 💡 Por hacer |
 | Los zombis de noche | §4.8, §7 | `scripts/map/Zombis.gd`, `scripts/map/Zombie.gd` | 🧱 Ya existe (nombre interno) |
 | El índice de deterioro = infección | §4.8 | `scripts/map/Deterioro.gd`, `Zombis.maximo()` | 🧱 Ya existe |
 | Tiendas cerradas de noche | §4.6 | `scripts/interiores/Interiores.gd` (`_echar`) | 🧱 Ya existe |
@@ -912,8 +912,8 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 | Las casas en obra negra | §4.9 (nuevo) | `scripts/map/MapCasas.gd` (`_obra_negra`), `shaders/ps1_casa.gdshader` | 🧱 Ya existe |
 | Las lámparas del 84 | §4.9 (nuevo) | `scripts/map/Alumbrado.gd`, `MapAlumbrado.gd` | 💡 Por hacer (estado raro) |
 | Las cruces de caca | §4.9 (nuevo) | `scripts/map/Calcomanias.gd`, catálogos de grafitis | 💡 Por hacer |
-| El mapa de papel por zonas | §4.9 en `alan-testing` (allá es el mapa de papel; en `main` el 4.9 es otro) | `scripts/map/ZonasMapa.gd`, `scripts/MapaUI.gd` | 🧱 En `alan-testing` |
-| El creador de personaje | §10.2 (`alan-testing`) | `scripts/CreadorPersonaje.gd` | 🧱 En `alan-testing` |
+| El mapa de papel por zonas | §4.11 | `scripts/map/ZonasMapa.gd`, `scripts/MapaUI.gd` | 🧱 Ya existe |
+| El creador de personaje | §10.2 | `scripts/CreadorPersonaje.gd` | 🧱 Ya existe |
 | El refugio con tinaco | §1.3 | `scripts/map/Refugio.gd`, `EntradaRefugio.gd` | 🧱 Ya existe |
 | La bolsa al morir | §1.5 | `scripts/map/BolsaMuerte.gd` | 🧱 Ya existe |
 | La partida de 3 noches | §1.2 | `scripts/map/Partida.gd` | 🧱 Ya existe (modo reto) |

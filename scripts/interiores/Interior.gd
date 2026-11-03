@@ -254,12 +254,25 @@ func activar() -> void:
 	_ui = TiendaUI.new()
 	add_child(_ui)
 	_ficha()
-	_ui.decir(dialogo())
+	_ui.decir(_saludo())
 
 
 func _ficha() -> void:
 	if _ui:
-		_ui.mostrar(productos[_vitrina.actual()] if _vitrina else null, precio_factor)
+		_ui.mostrar(productos[_vitrina.actual()] if _vitrina else null, _factor())
+
+
+# Lo que cobra esta tienda, y a ti (Personaje.gd). Por /root: en el editor no hay autoloads
+func _factor() -> float:
+	var personaje := get_node_or_null("/root/Personaje")
+	return precio_factor * (personaje.factor_precio() if personaje else 1.0)
+
+
+# Como te recibe, y lo suyo
+func _saludo() -> String:
+	var personaje := get_node_or_null("/root/Personaje")
+	var recibe: String = personaje.linea("tienda") if personaje else ""
+	return ("%s\n%s" % [recibe, dialogo()]).strip_edges()
 
 
 func _cambiar(paso: int) -> void:
@@ -298,7 +311,7 @@ func _comprar() -> void:
 	var cartera := get_node("/root/Cartera")
 	var inventario := get_node("/root/Inventory")
 	var en_agua := producto.moneda == 1
-	var precio: int = producto.precio if en_agua else roundi(producto.precio * precio_factor)
+	var precio: int = producto.precio if en_agua else roundi(producto.precio * _factor())
 	if (cartera.agua if en_agua else cartera.pesos) < precio:
 		_ui.decir("No te alcanza.", 1.5)
 		return
@@ -697,6 +710,7 @@ func _material(color: Color, deterioro: int) -> ShaderMaterial:
 	material.shader = PS1_SHADER
 	material.set_shader_parameter("tint", color)
 	material.set_shader_parameter("affine_enabled", false)
+	material.set_shader_parameter("jitter_enabled", false)
 	material.set_shader_parameter("wobble_enabled", false)
 	material.set_shader_parameter("deterioro_modo", 4 if deterioro == 1 else deterioro)
 	material.set_shader_parameter("desgaste", 0.5)

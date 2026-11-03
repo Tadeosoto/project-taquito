@@ -12,6 +12,8 @@ extends Node3D
 
 const PUNTOS_JSON := "user://puntos_safehouse.json"
 const CASAS_JSON := "user://casas_safehouse.json"
+const BANQUETAS_JSON := "user://banquetas_safehouse.json"
+const BANQUETAS := [[[-44.0, -24.0], [20.0, -24.0], [20.0, 12.0], [-44.0, 12.0], [-44.0, -24.0]]]
 const NPC := preload("res://scenes/npc.tscn")
 const SUELO_SHADER := preload("res://shaders/ps1_suelo.gdshader")
 const MURO_SHADER := preload("res://shaders/ps1_combined.gdshader")
@@ -56,14 +58,17 @@ const DANO_PRUEBA := 20
 const REFUGIO_EN := Vector3(30.0, 0.0, -10.0)
 const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
 const DANO_TINACO := 100
+const TURBA_PRUEBA := 12
+const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
 const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
 Tab inventario · clic o F pegar · V dron
 N siguiente atardecer/amanecer
-Z zombi · X quitar zombis · T zombis solos de noche
+Z zombi · B turba · X quitar zombis · T zombis solos de noche
 H curar · J -%d de vida · M +$100 · Y vaciar inventario
 G tablas · L -100 al tinaco (refugio a la derecha)
+U todo el mapa · en el inventario, M el mapa
 1 2 3 maquinita cercana: normal, sin monedas, segura
-K deterioro · R reiniciar todo · F10 ir al mapa"""
+C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa"""
 
 var _jugador: Player
 var _zombis: Zombis
@@ -84,6 +89,7 @@ func _enter_tree() -> void:
 	# Antes del _ready de Casas y Puntos, que leen estos archivos
 	_guardar(PUNTOS_JSON, {"puntos": _puntos()})
 	_guardar(CASAS_JSON, {"casas": _casas()})
+	_guardar(BANQUETAS_JSON, {"banquetas": BANQUETAS})
 
 
 func _puntos() -> Array:
@@ -145,12 +151,28 @@ func _ready() -> void:
 	_partida.zombis_path = _zombis.get_path()
 	_partida.supervivencia_path = get_node("Supervivencia").get_path()
 	_partida.refugio_path = _refugio.get_path()
+	_partida.piezas_en_el_mapa = false
+	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0)]
+	_partida.misiones_config = {"puntos_path": PUNTOS_JSON, "casas_path": CASAS_JSON, "vecinos_fijos": vecinos, "perro_fijo": Vector3(38.0, 0.0, 20.0)}
 	add_child(_partida)
+	_poner_pieza_prueba()
+	var gente := Gente.new()
+	gente.name = "Gente"
+	gente.banquetas_path = BANQUETAS_JSON
+	gente.puntos_path = PUNTOS_JSON
+	add_child(gente)
 	_letrero("NEGOCIOS", Vector3(-10.0, 6.0, FACHADAS_Z))
 	_letrero("MAQUINITAS", Vector3(MAQUINAS_X, 4.5, -9.0))
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))
 	_letrero("CASAS", Vector3(0.0, 9.0, CASAS_Z))
 	_armar_panel()
+
+
+# Un pedazo de mapa: aqui da el primero que falte, porque las zonas son del mapa real
+func _poner_pieza_prueba() -> void:
+	var pieza := PiezaMapa.new()
+	pieza.position = PIEZA_PRUEBA_EN
+	add_child(pieza)
 
 
 # --- El patio ---
@@ -183,6 +205,7 @@ func _patio() -> void:
 	muro.shader = MURO_SHADER
 	muro.set_shader_parameter("tint", Color(0.42, 0.44, 0.48))
 	muro.set_shader_parameter("deterioro_modo", 2)
+	muro.set_shader_parameter("jitter_enabled", false)
 	muro.set_shader_parameter("wobble_enabled", false)
 	muro.set_shader_parameter("affine_enabled", false)
 	for lado in [Vector3(0.0, 0.0, -1.0), Vector3(0.0, 0.0, 1.0), Vector3(-1.0, 0.0, 0.0), Vector3(1.0, 0.0, 0.0)]:
@@ -295,6 +318,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_Y:
 			_inventario.items.clear()
 			_inventario.inventory_changed.emit()
+		KEY_B:
+			_zombis.aparecer_turba(TURBA_PRUEBA)
+		KEY_U:
+			for zona in ZonasMapa.cuantas():
+				PiezasMapa.dar(zona)
 		KEY_G:
 			_inventario.add_item(load(TABLAS_PRUEBA))
 		KEY_L:
@@ -306,6 +334,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			Deterioro.configurar(DETERIOROS[_deterioro], 150.0)
 		KEY_R:
 			_reiniciar()
+		KEY_C:
+			_crear_personaje()
 		KEY_F10:
 			# Al cambiar de escena este nodo ya no tiene viewport
 			get_viewport().set_input_as_handled()
@@ -316,14 +346,31 @@ func _unhandled_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 
+# La misma pantalla de Jugar, con el juego en pausa; al cerrarla ya eres el nuevo
+func _crear_personaje() -> void:
+	_jugador.detener()
+	get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var capa := CanvasLayer.new()
+	capa.layer = 20
+	add_child(capa)
+	var creador: Control = load("res://scripts/CreadorPersonaje.gd").new()
+	capa.add_child(creador)
+	var cerrar := func() -> void:
+		capa.queue_free()
+		get_tree().paused = false
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		_jugador.reanudar()
+		_jugador.aplicar_personaje()
+	creador.connect("listo", cerrar)
+	creador.connect("volver", cerrar)
+
+
 func _zombi() -> void:
 	var frente := -_jugador.frijol.global_transform.basis.z
 	frente.y = 0.0
-	var zombi := Zombie.new()
-	zombi.jugador = _jugador
-	_zombis.add_child(zombi)
 	var donde := _jugador.global_position + frente.normalized() * ZOMBI_DISTANCIA
-	zombi.global_position = Vector3(donde.x, 0.1, donde.z)
+	_zombis.sacar(Vector3(donde.x, 0.1, donde.z), false)
 
 
 func _reiniciar() -> void:
@@ -333,7 +380,13 @@ func _reiniciar() -> void:
 	_cartera.pesos = DINERO
 	_inventario.reiniciar()
 	_zombis.noches = 0
+	_zombis.director.reiniciar()
 	_partida.reiniciar()
+	PiezasMapa.reiniciar()
+	Misiones.reiniciar()
+	for pieza in get_tree().get_nodes_in_group("piezas_mapa"):
+		pieza.queue_free()
+	_poner_pieza_prueba()
 	for bolsa in get_tree().get_nodes_in_group("bolsa_muerte"):
 		bolsa.queue_free()
 	_reiniciar_maquinas()
@@ -374,6 +427,7 @@ func _process(_delta: float) -> void:
 	for z: Zombie in get_tree().get_nodes_in_group("zombis"):
 		if z.estado != Zombie.Estado.MUERTO:
 			zombis += 1
-	_estado.text = "Vida %d/%d · $%d · Objetos %d/%d · %s · Zombis %d%s · Deterioro %.1f" % [
+	_estado.text = "Vida %d/%d · $%d · Objetos %d/%d · %s · Zombis %d%s · Director %s %.2f · Deterioro %.1f" % [
 		_salud.vida, _salud.vida_max, _cartera.pesos, _inventario.get_item_count(), _inventario.capacidad(),
-		"Noche" if _ciclo.es_noche() else "Dia", zombis, "" if _zombis.is_physics_processing() else " (no salen solos)", DETERIOROS[_deterioro]]
+		"Noche" if _ciclo.es_noche() else "Dia", zombis, "" if _zombis.is_physics_processing() else " (no salen solos)",
+		_zombis.director.nombre_fase(), _zombis.director.intensidad, DETERIOROS[_deterioro]]

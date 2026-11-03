@@ -6,6 +6,7 @@ extends Node3D
 # models/zona_mapa.glb; resources/map/cuadros/indice.json dice donde esta cada uno.
 
 const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
+const MATERIALES_DIR := "res://resources/map/cuadros/materiales/"
 
 @export_file("*.json") var indice_path := "res://resources/map/cuadros/indice.json"
 @export var target_path: NodePath
@@ -25,6 +26,7 @@ var _loaded := {}         # archivo -> Node3D
 var _requested := {}      # archivo -> true (cargando en otro hilo)
 var _timer := 0.0
 var _target: Node3D
+var _materiales: Array[ShaderMaterial] = []
 
 
 func _ready() -> void:
@@ -37,11 +39,26 @@ func _ready() -> void:
 	if _target == null:
 		push_error("MapStreamer: falta target_path (el jugador)")
 		return
+	_quitar_brinco()
 	# Lo que esta alrededor del spawn se carga de una vez, para que el jugador
 	# no aparezca sin piso
 	for cuadro in _cuadros:
 		if _distance(cuadro) < CargaCuadro.carga(load_radius):
 			_add(cuadro["archivo"], load(cuadro["archivo"]))
+
+
+# El mundo no brinca (ps1_vertex.gdshaderinc). Los materiales de los cuadros estan horneados
+# y compartidos: se cambian una vez y se guardan aqui para que todos usen estos mismos.
+func _quitar_brinco() -> void:
+	for archivo in ResourceLoader.list_directory(MATERIALES_DIR):
+		var material := load(MATERIALES_DIR + archivo.trim_suffix(".remap")) as ShaderMaterial
+		if material:
+			material.set_shader_parameter("jitter_enabled", false)
+			material.set_shader_parameter("wobble_enabled", false)
+			if material.get_shader_parameter("modo") in [1, 2]:
+				SueloPasto.variedades(material)
+			SueloPasto.capa(material)
+			_materiales.append(material)
 
 
 func _process(delta: float) -> void:

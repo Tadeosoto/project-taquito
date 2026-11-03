@@ -185,6 +185,7 @@ func _material(color: Color) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = SHADER
 	material.set_shader_parameter("tint", color)
+	material.set_shader_parameter("jitter_enabled", false)
 	material.set_shader_parameter("wobble_enabled", false)
 	material.set_shader_parameter("affine_enabled", false)
 	return material

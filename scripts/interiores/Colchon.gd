@@ -64,6 +64,7 @@ func _reconstruir() -> void:
 	gris.shader = PS1_SHADER
 	gris.set_shader_parameter("tint", color.darkened(0.35))
 	gris.set_shader_parameter("affine_enabled", false)
+	gris.set_shader_parameter("jitter_enabled", false)
 	gris.set_shader_parameter("wobble_enabled", false)
 	ribete.material = gris
 	for y in [0.02, tamano.y - 0.02]:

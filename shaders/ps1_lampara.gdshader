@@ -8,6 +8,7 @@ render_mode cull_disabled;
 // INSTANCE_CUSTOM de las lamparas: (prendida 0/1, parpadea 0/1, semilla, umbral).
 // El parpadeo es el mismo que Alumbrado.parpadeo() (hash entero y alumbrado_tiempo).
 
+#define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
 #include "res://shaders/ps1_deterioro.gdshaderinc"
 #include "res://shaders/ps1_lampara.gdshaderinc"

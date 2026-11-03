@@ -10,7 +10,7 @@ const CASA_SHADER := preload("res://shaders/ps1_casa.gdshader")
 const GRAFITIS_DIR := "res://textures/map/grafitis"
 const PROPAGANDA_DIR := "res://textures/map/propaganda"
 # Lado maximo (px) de un diseño en el atlas: los mas grandes se reducen
-const DISENO_PX := 128
+const DISENO_PX := 256
 const EXTENSIONES := ["png", "webp", "jpg", "jpeg"]
 
 static var disenos := []         # [Rect2 en el atlas, alto / ancho] de cada diseño
