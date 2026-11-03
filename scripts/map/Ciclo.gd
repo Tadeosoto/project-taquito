@@ -79,9 +79,15 @@ func _process(delta: float) -> void:
 			amanecio.emit()
 
 
-func amanecer_ya() -> void:
+# `de_golpe`: ya de dia, sin aclarar poco a poco (la defensa del tinaco al romperse)
+func amanecer_ya(de_golpe := false) -> void:
 	retener_noche = false
-	_tiempo = dia_duracion + noche_duracion - transicion
+	_tiempo = 0.0 if de_golpe else dia_duracion + noche_duracion - transicion
+
+
+# Segundos desde que empezo el dia (de 0 a dia_duracion + noche_duracion)
+func tiempo() -> float:
+	return _tiempo
 
 
 func es_noche() -> bool:

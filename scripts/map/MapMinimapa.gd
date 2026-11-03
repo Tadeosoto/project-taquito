@@ -5,6 +5,8 @@ extends CanvasLayer
 # shader minimapa.gdshader lo gira para que lo que ve la camara quede arriba.
 # Encima van la flecha del jugador, la N del norte y un cuadrito por tienda
 # (resources/map/puntos_mapa.json). Volando en dron se aleja para ver mas.
+# Con datos_path vacio no lee el mapa real: otra escena le da el suyo con usar_mapa
+# (la defensa del tinaco dibuja su barricada).
 
 const DATOS := "res://resources/map/minimapa.json"
 const PUNTOS := "res://resources/map/puntos_mapa.json"
@@ -32,6 +34,14 @@ const OBJETIVO_PARPADEA_MS := 350
 @export var margen := 8.0
 @export var radio_metros := 90.0     # cuanto se ve a pie, del centro a la orilla
 @export var radio_dron := 220.0
+@export var datos_path := DATOS
+@export var puntos_path := PUNTOS
+# Los zombis como puntos rojos siempre, no solo con Ojo de halcon
+@export var zombis_siempre := false
+# Centrado en un punto fijo del mundo (x, z) en vez del jugador: sigue girando con
+# la camara y la flecha va donde esta el jugador
+@export var centro_fijo := false
+@export var centro_mundo := Vector2.ZERO
 
 var _player: Node3D
 var _frijol: Node3D
@@ -45,6 +55,7 @@ var _puntos: Array = []              # [[Vector2 xz, Color], ...]
 
 # Lo que se calcula cada cuadro y usa _dibujar_marcas
 var _pos := Vector2.ZERO
+var _jugador_pos := Vector2.ZERO
 var _adelante := Vector2(0.0, -1.0)
 var _derecha := Vector2(1.0, 0.0)
 var _rumbo := Vector2(0.0, -1.0)
@@ -56,14 +67,16 @@ func _ready() -> void:
 	_frijol = _player.get_node_or_null("Frijol") as Node3D
 	_dron = get_node_or_null(dron_path) as Node3D
 
-	var datos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(DATOS))
-	_origen = Vector2(datos["x0"], datos["z0"])
-	_tam_metros = Vector2(datos["ancho"], datos["alto"]) * float(datos["metros_por_pixel"])
-	var puntos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PUNTOS))
-	for punto in puntos["puntos"]:
-		# Solo los negocios interactivos (con marcador); el punto no tiene color: es clandestino
-		if COLORES.has(punto["tipo"]) and punto.get("interactivo", true):
-			_puntos.append([Vector2(punto["x"], punto["z"]), COLORES[punto["tipo"]]])
+	if datos_path != "":
+		var datos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(datos_path))
+		_origen = Vector2(datos["x0"], datos["z0"])
+		_tam_metros = Vector2(datos["ancho"], datos["alto"]) * float(datos["metros_por_pixel"])
+	if puntos_path != "":
+		var puntos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(puntos_path))
+		for punto in puntos["puntos"]:
+			# Solo los negocios interactivos (con marcador); el punto no tiene color: es clandestino
+			if COLORES.has(punto["tipo"]) and punto.get("interactivo", true):
+				_puntos.append([Vector2(punto["x"], punto["z"]), COLORES[punto["tipo"]]])
 
 	_material = ShaderMaterial.new()
 	_material.shader = preload("res://shaders/minimapa.gdshader")
@@ -82,10 +95,23 @@ func _ready() -> void:
 	_radar.add_child(_marcas)
 
 
+# Un mapa que no es el real: `origen` es la esquina (x, z) de menor valor de la
+# textura y `tam_metros` lo que mide
+func usar_mapa(textura: Texture2D, origen: Vector2, tam_metros: Vector2) -> void:
+	mapa = textura
+	_origen = origen
+	_tam_metros = tam_metros
+	if _material:
+		_material.set_shader_parameter("mapa", mapa)
+
+
 func _process(_delta: float) -> void:
 	var volando: bool = _dron != null and _dron.volando()
 	var objetivo: Node3D = _dron if volando else _player
 	_pos = Vector2(objetivo.global_position.x, objetivo.global_position.z)
+	_jugador_pos = _pos
+	if centro_fijo:
+		_pos = centro_mundo
 
 	var camara := get_viewport().get_camera_3d()
 	if camara:
@@ -135,7 +161,7 @@ func _dibujar_objetivo(centro: Vector2, limite: float) -> void:
 # Ojo de halcon (Tazos.gd): los zombis vivos como puntos rojos. Por ruta, como Misiones
 func _dibujar_zombis(centro: Vector2, limite: float) -> void:
 	var tazos := get_node_or_null("/root/Tazos")
-	if tazos == null or not tazos.tiene("ojo_halcon"):
+	if not zombis_siempre and (tazos == null or not tazos.tiene("ojo_halcon")):
 		return
 	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
 		if zombi.get("estado") == 3:   # Zombie.Estado.MUERTO
@@ -157,15 +183,19 @@ func _dibujar_marcas() -> void:
 
 	_dibujar_objetivo(centro, limite)
 	_dibujar_zombis(centro, limite)
-	# Flecha del jugador
+	# Flecha del jugador (al centro, salvo con centro_fijo)
+	var donde := centro
+	if centro_fijo:
+		var p := _a_pantalla(_jugador_pos)
+		donde = centro + (p.normalized() * limite if p.length() > limite else p)
 	var dir := Vector2(_rumbo.dot(_derecha), -_rumbo.dot(_adelante)).normalized()
 	var lado := Vector2(-dir.y, dir.x)
 	var flecha := [dir * 6.0, lado * 4.5 - dir * 4.5, -dir * 2.0, -lado * 4.5 - dir * 4.5]
 	var borde := PackedVector2Array()
 	var cuerpo := PackedVector2Array()
 	for v in flecha:
-		borde.append(centro + v * 1.35)
-		cuerpo.append(centro + v)
+		borde.append(donde + v * 1.35)
+		cuerpo.append(donde + v)
 	_marcas.draw_colored_polygon(borde, NEGRO)
 	_marcas.draw_colored_polygon(cuerpo, Color.WHITE)
 

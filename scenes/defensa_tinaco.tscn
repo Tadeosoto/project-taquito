@@ -1,0 +1,279 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/defensa/DefensaTinaco.gd" id="1_defensa"]
+[ext_resource type="Script" path="res://scripts/defensa/Barricada.gd" id="2_barricada"]
+[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="3_dither"]
+[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="4_player"]
+[ext_resource type="Script" path="res://scripts/map/MapMinimapa.gd" id="5_minimapa"]
+[ext_resource type="Shader" path="res://shaders/ps1_suelo.gdshader" id="6_suelo"]
+[ext_resource type="Texture2D" uid="uid://btfh1d6mytpei" path="res://textures/map/suelo.png" id="7_suelo_tex"]
+[ext_resource type="Script" path="res://scripts/map/MapStreamer.gd" id="8_streamer"]
+[ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="9_puntos"]
+[ext_resource type="PackedScene" uid="uid://ddpadu7v45ldh" path="res://models/props/alto/alto.scn" id="10_alto"]
+[ext_resource type="PackedScene" uid="uid://b6rm74tkw20hu" path="res://models/tiendas/pemex/pemex.scn" id="11_pemex"]
+[ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="12_carrito"]
+[ext_resource type="Script" path="res://scripts/map/MapCasas.gd" id="13_casas"]
+[ext_resource type="PackedScene" uid="uid://cisd7p02ivmq6" path="res://models/casas/urbi/urbi.scn" id="14_urbi"]
+[ext_resource type="PackedScene" uid="uid://d0pc87cvokfbg" path="res://models/casas/semi_residencial/semi_residencial.scn" id="15_semi"]
+[ext_resource type="PackedScene" uid="uid://cbu7jib7dl70o" path="res://models/casas/mexican_house_3/mexican_house_3.scn" id="16_mexican3"]
+[ext_resource type="Script" path="res://scripts/map/MapArboles.gd" id="17_arboles"]
+[ext_resource type="Script" path="res://scripts/map/MapPasto.gd" id="18_pasto"]
+[ext_resource type="Script" path="res://scripts/map/MapBardas.gd" id="19_bardas"]
+[ext_resource type="Texture2D" path="res://textures/map/barda.png" id="20_barda"]
+[ext_resource type="Texture2D" path="res://textures/map/malla.png" id="21_malla"]
+[ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="22_alumbrado"]
+[ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="23_ciclo"]
+[ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="24_zombis"]
+[ext_resource type="Script" path="res://scripts/map/Supervivencia.gd" id="25_supervivencia"]
+[ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="26_inventario"]
+
+[sub_resource type="Environment" id="Environment_mapa"]
+background_mode = 1
+background_color = Color(0.30240002, 0.31872, 0.36, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.62, 0.66, 0.72, 1)
+ambient_light_energy = 0.7
+fog_enabled = true
+fog_light_color = Color(0.54521054, 0.5537622, 0.53505677, 1)
+fog_sun_scatter = 0.1
+fog_density = 0.0196
+adjustment_enabled = true
+adjustment_contrast = 1.1
+adjustment_saturation = 1.35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
+shader = ExtResource("3_dither")
+shader_parameter/color_levels = 32.0
+shader_parameter/dither_strenght = 0.35
+shader_parameter/desaturacion = 0.4
+shader_parameter/tinte = Color(1.0, 0.97, 0.84, 1)
+shader_parameter/contraste = 1.1
+shader_parameter/vineta = 0.3
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_suelo"]
+size = Vector2(1900, 1900)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_suelo"]
+shader = ExtResource("6_suelo")
+shader_parameter/albedo_texture = ExtResource("7_suelo_tex")
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/tile_size = 3.0
+shader_parameter/jitter_enabled = false
+shader_parameter/snap_resolution = 160.0
+shader_parameter/wobble_enabled = false
+shader_parameter/wobble_resolution = 40.0
+shader_parameter/affine_enabled = false
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_suelo"]
+size = Vector3(1900, 0.2, 1900)
+
+[node name="DefensaTinaco" type="Node3D"]
+script = ExtResource("1_defensa")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_mapa")
+
+[node name="Sol" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.3326426, 0.8513836, -0.40557972, -0.70441604, 0.061628435, 0.7071068, 0.6270144, 0.52091074, 0.579228, 0, 40, 0)
+light_color = Color(0.9282061, 0.8841801, 0.82615525, 1)
+light_energy = 1.15
+light_indirect_energy = 0.0
+light_specular = 0.2
+shadow_enabled = true
+shadow_reverse_cull_face = true
+shadow_opacity = 0.86
+shadow_blur = 0.0
+directional_shadow_max_distance = 80.0
+
+[node name="Centro" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 163, 0, -515)
+
+[node name="Suelo" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Suelo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_suelo")
+surface_material_override/0 = SubResource("ShaderMaterial_suelo")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Suelo"]
+shape = SubResource("BoxShape3D_suelo")
+
+[node name="Mapa" type="Node3D" parent="."]
+script = ExtResource("8_streamer")
+target_path = NodePath("../Centro")
+load_radius = 150.0
+unload_radius = 220.0
+
+[node name="Puntos" type="Node3D" parent="."]
+script = ExtResource("9_puntos")
+puntos_path = "user://puntos_defensa.json"
+prefabs = Dictionary[String, PackedScene]({
+"alto": ExtResource("10_alto"),
+"gasolinera": ExtResource("11_pemex"),
+"puesto": ExtResource("12_carrito")
+})
+prefab_rotacion = Dictionary[String, float]({
+"alto": 90.0,
+"gasolinera": -90.0
+})
+prefab_ancho = Dictionary[String, float]({
+"alto": 0.75,
+"gasolinera": 14.0,
+"puesto": 2.5
+})
+target_path = NodePath("../Centro")
+load_radius = 150.0
+unload_radius = 220.0
+
+[node name="Casas" type="Node3D" parent="."]
+script = ExtResource("13_casas")
+modelos = Dictionary[String, PackedScene]({
+"mexican_house_3": ExtResource("16_mexican3"),
+"semi_residencial": ExtResource("15_semi"),
+"urbi_1p_a": ExtResource("14_urbi"),
+"urbi_1p_b": ExtResource("14_urbi"),
+"urbi_1p_c": ExtResource("14_urbi"),
+"urbi_2p_a": ExtResource("14_urbi"),
+"urbi_2p_b": ExtResource("14_urbi"),
+"urbi_2p_c": ExtResource("14_urbi")
+})
+modelo_rango_x = Dictionary[String, Vector2]({
+"urbi_1p_a": Vector2(-22.3, -14.75),
+"urbi_1p_b": Vector2(-14.75, -7.75),
+"urbi_1p_c": Vector2(-7.75, -0.25),
+"urbi_2p_a": Vector2(-0.25, 7),
+"urbi_2p_b": Vector2(7, 14.5),
+"urbi_2p_c": Vector2(14.5, 22.7)
+})
+nucleo = Dictionary[String, float]({
+"urbi_1p_a": 0.62,
+"urbi_1p_b": 0.62,
+"urbi_1p_c": 0.62,
+"urbi_2p_a": 0.72,
+"urbi_2p_b": 0.72,
+"urbi_2p_c": 0.72
+})
+modelo_escala = Dictionary[String, float]({
+"mexican_house_3": 1.5
+})
+modelo_rotacion = Dictionary[String, float]({
+"urbi_1p_a": 180.0,
+"urbi_1p_b": 180.0,
+"urbi_1p_c": 180.0,
+"urbi_2p_a": 180.0,
+"urbi_2p_b": 180.0,
+"urbi_2p_c": 180.0
+})
+muro_key = Dictionary[String, Color]({
+"mexican_house_3": Color(0.89, 0.52, 0.51, 1),
+"semi_residencial": Color(0.87, 0.865, 0.86, 1),
+"urbi_1p_a": Color(0.88, 0.88, 0.86, 1),
+"urbi_1p_b": Color(0.88, 0.88, 0.86, 1),
+"urbi_1p_c": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_a": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_b": Color(0.88, 0.88, 0.86, 1),
+"urbi_2p_c": Color(0.88, 0.88, 0.86, 1)
+})
+muro_tol = Dictionary[String, float]({
+"mexican_house_3": 0.3
+})
+ventanas_uv = Dictionary[String, PackedVector4Array]({
+"semi_residencial": PackedVector4Array(0.255, 0.27, 0.345, 0.42, 0.37, 0.24, 0.48, 0.44, 0.37, 0.82, 0.47, 0.98, 0.495, 0.49, 0.735, 0.98, 0.75, 0.5, 0.98, 0.98),
+"urbi_1p_a": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_1p_b": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_1p_c": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_a": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_b": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64),
+"urbi_2p_c": PackedVector4Array(0.43, 0.37, 0.56, 0.49, 0.445, 0.525, 0.56, 0.64)
+})
+quitar_piso = Array[String](["mexican_house_3", "urbi_1p_a", "urbi_1p_b", "urbi_1p_c", "urbi_2p_a", "urbi_2p_b", "urbi_2p_c"])
+generar_lods = Array[String](["mexican_house_3", "urbi_1p_a", "urbi_1p_b", "urbi_1p_c", "urbi_2p_a", "urbi_2p_b", "urbi_2p_c"])
+modelo_reducir = Dictionary[String, float]({
+"mexican_house_3": 0.12
+})
+target_path = NodePath("../Centro")
+load_radius = 150.0
+unload_radius = 220.0
+
+[node name="Bardas" type="Node3D" parent="."]
+script = ExtResource("19_bardas")
+barda_textura = ExtResource("20_barda")
+malla_textura = ExtResource("21_malla")
+target_path = NodePath("../Centro")
+load_radius = 150.0
+unload_radius = 220.0
+
+[node name="Arboles" type="Node3D" parent="."]
+script = ExtResource("17_arboles")
+target_path = NodePath("../Centro")
+load_radius = 150.0
+unload_radius = 220.0
+
+[node name="Pasto" type="Node3D" parent="."]
+script = ExtResource("18_pasto")
+target_path = NodePath("../Player")
+suelo_path = NodePath("../Suelo/MeshInstance3D")
+
+[node name="Alumbrado" type="Node3D" parent="."]
+script = ExtResource("22_alumbrado")
+target_path = NodePath("../Centro")
+jugador_path = NodePath("../Player")
+load_radius = 150.0
+unload_radius = 220.0
+
+[node name="Ciclo" type="Node" parent="."]
+script = ExtResource("23_ciclo")
+sol_path = NodePath("../Sol")
+environment_path = NodePath("../WorldEnvironment")
+dia_duracion = 720.0
+noche_duracion = 360.0
+transicion = 30.0
+inicio = 720.0
+
+[node name="Barricada" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 163, 0, -515)
+script = ExtResource("2_barricada")
+
+[node name="Player" parent="." instance=ExtResource("4_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 165.5, 1.2, -512.5)
+girar_con_qe = true
+
+[node name="InventoryUI" parent="." instance=ExtResource("26_inventario")]
+
+[node name="Zombis" type="Node3D" parent="."]
+script = ExtResource("24_zombis")
+jugador_path = NodePath("../Player")
+ciclo_path = NodePath("../Ciclo")
+espontaneos = false
+lejos = 150.0
+
+[node name="Supervivencia" type="CanvasLayer" parent="."]
+script = ExtResource("25_supervivencia")
+jugador_path = NodePath("../Player")
+ciclo_path = NodePath("../Ciclo")
+zombis_path = NodePath("../Zombis")
+
+[node name="Minimapa" type="CanvasLayer" parent="."]
+layer = 2
+script = ExtResource("5_minimapa")
+player_path = NodePath("../Player")
+tamano = 136.0
+radio_metros = 50.0
+datos_path = ""
+puntos_path = ""
+zombis_siempre = true
+centro_fijo = true
+centro_mundo = Vector2(163, -515)
+
+[node name="PS1_Postprocess" type="CanvasLayer" parent="."]
+
+[node name="Dither" type="ColorRect" parent="PS1_Postprocess"]
+material = SubResource("ShaderMaterial_dither")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

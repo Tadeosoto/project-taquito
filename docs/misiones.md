@@ -38,7 +38,7 @@
 | **Quién la da** | La **cuadrilla** (Gabriel) o el barrio, por turnos |
 | **Dónde** | El **tinaco comunitario** de un parque o baldío (Parques de Santa Mugre, La Palmada o Parques del Mosco) |
 | **Cuándo** | Noche completa, hasta el amanecer |
-| **Duración** | 8 minutos de juego (la noche entera) |
+| **Duración** | 8 minutos de juego (la noche entera). En la prueba (`scenes/defensa_tinaco.tscn`) son 6 min, por decisión de JJ |
 | **Paga** | Pesos + un galón de agua + la **ficha** sellada + confianza del barrio |
 | **Riesgo** | Alto: si el tinaco se rompe, se pierde el agua del barrio |
 | **Reusa** | `Zombis.gd` (director y oleadas), `Refugio.gd` (barricadas), el tinaco como objetivo de vida, `CargaCuadro` |
@@ -52,10 +52,10 @@
 
 ### El tinaco
 
-- Tiene **100 de vida** (como el jugador).
+- Tiene **100 de vida** (como el jugador). En la prueba tiene 300, como el tinaco del refugio: cada zombi le quita 2 por segundo y con 100 una horda lo rompía en segundos.
 - Los zombis lo **muerden, lo empujan y lo trepan**; cada mordida baja vida.
 - El jugador lo **repara** con tablas y cinta (sube vida, cuesta material).
-- Si llega a **0**, el agua se riega, el barrio pierde la tanda y el jugador cobra la mitad.
+- Si llega a **0**, el agua se riega, el barrio pierde la tanda y **no se paga nada**: la noche se corta y amanece. Con media paga convenía entrar y dejarse perder (decisión de JJ, cambia lo que decía aquí antes).
 - La tapa es el punto débil: hay que **cerrarla** entre oleada y oleada.
 
 ### Lo que el jugador lleva

@@ -97,7 +97,8 @@ var cazador := false
 var despierto := false
 
 var _refugio: Refugio
-var _blanco: Node3D         # a quien va a pegarle; null = solo va de paso
+var _tinaco: TinacoDefensa  # el de la defensa (scripts/defensa/TinacoDefensa.gd), si hay
+var _blanco: Node3D        # a quien va a pegarle; null = solo va de paso
 var _guia: CampoFlujo       # por donde llegar; null = derecho
 var _modelo: Node3D
 var _tamano := 1.0
@@ -252,7 +253,8 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	# La capa 3 son las barricadas: el jugador pasa, ellos no. Y entre ellos no se enciman
 	collision_mask = 1 | EntradaRefugio.CAPA | CAPA_ZOMBIS
 	_refugio = get_tree().get_first_node_in_group("refugio") as Refugio
-	_vida = JEFE_VIDA if es_jefe else VIDA
+	_tinaco = get_tree().get_first_node_in_group("tinaco_defensa") as TinacoDefensa
+	_vida =JEFE_VIDA if es_jefe else VIDA
 	if es_jefe:
 		_velocidad = JEFE_VELOCIDAD
 	else:
@@ -337,7 +339,9 @@ func _caminar(delta: float) -> Vector3:
 	var hacia := _destino() - global_position
 	hacia.y = 0.0
 	var distancia := hacia.length()
-	if _blanco and distancia <= _alcance:
+	# Al tinaco se le pega desde su orilla, no desde su centro
+	var alcance := _alcance + (_tinaco.radio if _blanco and _blanco == _tinaco else 0.0)
+	if _blanco and distancia <= alcance:
 		_mirar(hacia)
 		_empezar_ataque()
 		return Vector3.ZERO
@@ -390,6 +394,13 @@ func _lo_detiene_un_zombi() -> bool:
 # A donde camina; deja en _blanco a quien le pegaria al llegar y en _guia su camino
 func _destino() -> Vector3:
 	_guia = zombis.campo_jugador if zombis else null
+	# Defensa del tinaco: van por el tinaco, y por el jugador solo si lo tienen cerca y mas
+	# que al tinaco (pararse junto al tinaco no lo protege). Ya roto, por el jugador
+	var al_jugador := global_position.distance_to(jugador.global_position)
+	if is_instance_valid(_tinaco) and _tinaco.vida > 0 and (al_jugador > _persigue() or al_jugador > global_position.distance_to(_tinaco.global_position) - _tinaco.radio):
+		_blanco = _tinaco
+		_guia = zombis.campo_tinaco if zombis else null
+		return _tinaco.global_position
 	if _refugio == null:
 		_blanco = jugador
 		return jugador.global_position

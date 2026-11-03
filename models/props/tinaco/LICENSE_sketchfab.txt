@@ -1,0 +1,11 @@
+Model Information:
+* title:	Rtp Tinaco
+* source:	https://sketchfab.com/3d-models/rtp-tinaco-fb34a8ff0a04447e91a9ef1d793a192a
+* author:	dmlmx (https://sketchfab.com/dmlmx)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Rtp Tinaco" (https://sketchfab.com/3d-models/rtp-tinaco-fb34a8ff0a04447e91a9ef1d793a192a) by dmlmx (https://sketchfab.com/dmlmx) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

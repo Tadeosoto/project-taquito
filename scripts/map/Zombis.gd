@@ -32,11 +32,16 @@ const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
 
 @export var jugador_path: NodePath
 @export var ciclo_path: NodePath
+# La defensa del tinaco los saca ella (scripts/defensa/Hordas.gd): sin sueltos ni turbas
+@export var espontaneos := true
+# Mas lejos del jugador se quitan; en la defensa salen al otro lado de la barricada
+@export var lejos := LEJOS
 
 var noches := 0
 var director := Director.new()
 var campo_jugador := CampoFlujo.new()
 var campo_refugio := CampoFlujo.new()
+var campo_tinaco := CampoFlujo.new()   # al tinaco de la defensa, si hay
 var liquido: Liquido
 var efectos: EfectosPixel
 
@@ -52,6 +57,7 @@ var _armados := 0
 var _turba_pendiente := 0
 var _turba_angulo := 0.0
 var _refugio_puesto := false
+var _tinaco_puesto := false
 var _restos: Array = []
 
 
@@ -73,6 +79,7 @@ func _ready() -> void:
 	_ciclo.amanecio.connect(_amanecer)
 	campo_jugador.excluir(_jugador.get_rid())
 	campo_refugio.excluir(_jugador.get_rid())
+	campo_tinaco.excluir(_jugador.get_rid())
 	# Se dibuja uno diminuto al cargar: si no, su shader con esqueleto se compilaba en el
 	# cuadro del primer zombi de la primera noche
 	_calentando = Zombie.new()
@@ -126,6 +133,7 @@ func _campos(delta: float) -> void:
 	var metas: Array[Vector3] = [_jugador.global_position]
 	campo_jugador.metas(metas)
 	campo_jugador.avanzar(espacio, delta, CAMPO_US)
+	_campo_tinaco(espacio, delta)
 	var refugio := get_tree().get_first_node_in_group("refugio") as Refugio
 	if refugio == null:
 		return
@@ -138,6 +146,27 @@ func _campos(delta: float) -> void:
 	# Solo hace falta si el jugador anda por ahi: lejos, el ataque es simulado
 	if refugio.global_position.distance_to(_jugador.global_position) <= LEJOS * 1.5:
 		campo_refugio.avanzar(espacio, delta, CAMPO_US)
+
+
+# Metas en un anillo alrededor del tinaco: el tinaco mismo no es pasable
+func _campo_tinaco(espacio: PhysicsDirectSpaceState3D, delta: float) -> void:
+	var tinaco := get_tree().get_first_node_in_group("tinaco_defensa") as TinacoDefensa
+	if tinaco == null:
+		return
+	if not _tinaco_puesto:
+		_tinaco_puesto = true
+		var metas: Array[Vector3] = []
+		var radio := tinaco.radio + CampoFlujo.CELDA
+		for i in 16:
+			metas.append(tinaco.global_position + Vector3(cos(i * TAU / 16.0), 0.0, sin(i * TAU / 16.0)) * radio)
+		campo_tinaco.metas(metas)
+	campo_tinaco.avanzar(espacio, delta, CAMPO_US)
+
+
+# Cambio lo que estorba (otra barricada): los campos se vuelven a llenar desde cero
+func olvidar_paredes() -> void:
+	CampoFlujo.olvidar()
+	_tinaco_puesto = false
 
 
 # Dos que caminan uno hacia el otro en el mismo tick si se llegan a encimar un poco, aunque
@@ -174,6 +203,8 @@ func _separar_encimados() -> void:
 func _physics_process(delta: float) -> void:
 	_no_encimar()
 	_quitar_lejanos()
+	if not espontaneos:
+		return
 	if not _ciclo.es_noche() or not _jugador.can_process() or not _jugador.is_physics_processing():
 		return
 	var turba := director.avanzar(delta, _atacado(), _jugador.velocity.length() > MOVIENDOSE, noches)
@@ -316,7 +347,7 @@ func _encima_de_otro(punto: Vector3, separado: float) -> bool:
 
 func _quitar_lejanos() -> void:
 	for z: Zombie in Zombie.activos.duplicate():
-		if not z.es_jefe and z.global_position.distance_to(_jugador.global_position) > LEJOS:
+		if not z.es_jefe and z.global_position.distance_to(_jugador.global_position) > lejos:
 			_devolver(z)
 
 

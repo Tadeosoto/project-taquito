@@ -132,6 +132,37 @@ By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night
 
 `godot --path . scenes/safehouse.tscn`: a walled 100 m yard for testing without walking the map, using the real systems, not copies. **When you add a mechanic, add it here too.** `MapPuntos` builds one business of each giro from `user://puntos_safehouse.json` (written in `_enter_tree`; `NEGOCIOS` is the list) with the real `Interiores`; three `Maquinita`s, one per `Estado`; a `WorldItem` for everything in `resources/productos/` (new `.tres` appear on their own); Urbi houses, `Ciclo`, `Zombis`, `Supervivencia`, `Refugio`, `Partida`, `Gente` (its sidewalk is `BANQUETAS`), `InventoryUI`, drone and an NPC. Its keys are on screen (`PANEL_TEXTO`) and only work while the player is free. It starts with $500 and thinner fog than the map. No minimap, streets or warehouses: F10 goes to `map_test.tscn` for those.
 
+## Tinaco defence test (`scenes/defensa_tinaco.tscn`, WIP)
+
+The "Vela del tinaco" mission (`docs/misiones.md` §0) as a standalone scene: one 6 min night (22:00 to 6:00) at Parque Jardín Imperial (Parques del Mosco, `DefensaTinaco.CENTRO` (163, -515)) on the real map. The yellow-arrow entry from `map_test`, one barricade per colonia in a random spot each night, and the trip back come later.
+
+- **Map piece** (`scripts/defensa/DefensaTinaco.gd`): the same nodes as `map_test` (Mapa, Casas, Puntos, Bardas, Arboles, Alumbrado, Pasto, the 1900 m Suelo) targeting a fixed `Centro` node, with radii of 150/220 m. Stores come from `user://puntos_defensa.json`, written in `_enter_tree` with `interactivo` false, so they're closed. Invisible walls at ±50 m are on layer 5 (`PARED_CAPA`), which only the player has in its mask. `Ciclo` is disabled until `_esperar_mapa` has seen `CargaCuadro` idle for `MAPA_QUIETO` frames. Then the tinaco and player go to the ground and the barricade is generated, and only then does the night start.
+- **Barricade** (`scripts/defensa/Barricada.gd`): two staggered "rings" generated at random, as if the neighbours had thrown them together in a hurry. `generar(semilla)`: 0 = random, G regenerates, `--semilla=N` repeats one, and the seed and skipped-piece count print to the console.
+  - Each ring is an irregular polygon of straight strips (`ANILLOS`). The outer one has few sides, uneven radii and big kinks, or it looked round. Strips are filled from a shuffled bag weighted by `MEZCLA`, with `DESORDEN_*` and `TRASLAPE`.
+  - It's **planned first, then each piece is checked**: a ray finds the ground, and the piece is skipped if its box (`CHOCA_*`) touches anything on layer 1. That way houses, walls and trees stand in for the barricade there. Barrels are checked the same way.
+  - Gaps are ~4 m (`ANILLOS` `hueco`) and the inner-gap barrel sits to one side. Narrower diagonal gaps were closed on `CampoFlujo`'s 1.25 m grid, so zombies piled up outside.
+  - Everything is ~1 m high (`ESCALA` 1.15).
+  - The ~850 sacks are one MultiMesh with a code-drawn paper texture (`_material_costal`). The pallets and metal shelf are built in code.
+  - The portable toilet (`models/props/bano_portatil`) lies on its side. Barrels are `MapAlumbrado.armar_tambos` plus an `OmniLight3D` each.
+  - The tinaco (`models/props/tinaco`, keeping only `TINACO_PIEZAS`) is 2.8 m (10,000 L).
+- **Tinaco** (`scripts/defensa/TinacoDefensa.gd`, built by `Barricada._tinaco`): group `tinaco_defensa`, `VIDA` 300, `radio`, `recibir_golpe`, signals `cambio`/`cayo`/`aviso`. Jets (`tinaco_chorro`) appear as it loses life.
+  - The design doc says 100 life, but at 2 per second per zombie a horde broke it in seconds.
+  - **If it breaks, the night is cut**: fade to black, `Ciclo.amanecer_ya(true)`, and **no pay**. Half pay was abusable: enter, lose on purpose, get paid (JJ's decision).
+- **Zombies**: `Zombis.espontaneos` false (no loose ones or Director mobs) and `lejos` 150.
+  - `Zombie._destino` goes for the tinaco through `Zombis.campo_tinaco` (metas on a ring around it). It switches to the player only within `_persigue()` **and** when the player is closer than the tinaco, so standing beside the tinaco doesn't protect it. Once the tinaco breaks it goes for the player.
+  - Reach adds the tinaco's `radio`.
+  - `Zombis.olvidar_paredes()` (`CampoFlujo.olvidar()`) after regenerating.
+  - None of this changes `map_test` or the safehouse.
+- **Hordes** (`scripts/defensa/Hordas.gd`): the `OLEADAS` table by night hour (big one at midnight, runners at 3, nothing in the last half hour).
+  - Each horde comes from one or two random sides, 41-46 m from the centre, one every `CADA` s through `Zombis.sacar`, capped at `Zombis.MAX_TOTAL`. Rooftop spots are rejected, and a blocked side is swapped for another.
+  - It announces the side with `Supervivencia.avisar`. `hora()` maps `Ciclo.tiempo()` to 22.0-30.0, reaching 6:00 at `amanecio`.
+- **HUD and end**: clock, dawn bar and tinaco bar top left.
+  - At `amanecio` the end screen pauses: `PAGA` 150 pesos plus `galon_agua` if the tinaco is whole, nothing if not. Buttons: Otra noche / Salir (to `inicio.tscn`).
+  - Zombis, Supervivencia (fainting respawns beside the tinaco) and InventoryUI are as in the safehouse.
+- **Minimap**: `MapMinimapa` with `datos_path`/`puntos_path` empty, `zombis_siempre` and `centro_fijo` at `CENTRO` (`radio_metros` 50). It still turns with the camera and the player arrow moves.
+  - `_dibujar_mapa` crops the real `minimapa.png` to ±60 m and doubles it to 0.5 m/px. It darkens outside the walls and paints `Barricada.huellas`, the barrels and the tinaco.
+- `-- --capturas=<dir>` saves the `VISTAS` screenshots plus `minimapa.png` and quits (needs a window). A sped-up full night was tested with a scratch scene (`Engine.time_scale` 4): undefended, the tinaco falls around 23:20.
+
 ## Conventions / gotchas
 
 - **PS1 vertex snapping is only for characters and props.** World shaders `#define PS1_MUNDO` before including `ps1_vertex.gdshaderinc`, which skips it; world materials on `ps1_combined` set `jitter_enabled` and `wobble_enabled` false; `MapStreamer._quitar_brinco` does it for the baked chunk materials. Pieces stuck to each other (paint, trim, graffiti) jumped against each other otherwise.
