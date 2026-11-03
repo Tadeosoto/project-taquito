@@ -23,6 +23,9 @@ const GOLPE_EN := 0.65      # s desde que empieza el ataque hasta que pega
 const ATAQUE_DURA := 1.5
 const ATAQUE_VELOCIDAD := 1.8
 const HERIDO_DURA := 0.45
+# Si un golpe lo deja aturdido HERIDO_DURA s (deja de caminar y se le corta el ataque). En false a
+# prueba de JJ: sigue como si nada, asi que si te iba a pegar te tienes que quitar
+const ATURDE := false
 # m/s con el golpe de un machete; se escala con el dano. En 0 a peticion de JJ: el zombi no
 # retrocede, asi que para seguir pegando combos te toca reposicionarte tu
 const EMPUJON := 0.0
@@ -485,6 +488,8 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) ->
 	# Al jefe no se le interrumpe con cada machetazo: solo lo recorre un poco
 	if es_jefe:
 		move_and_collide(atras * JEFE_ARRASTRE * fuerza)
+		return GOLPE_PEGO
+	if not ATURDE:
 		return GOLPE_PEGO
 	velocity = atras * EMPUJON * fuerza
 	estado = Estado.HERIDO
