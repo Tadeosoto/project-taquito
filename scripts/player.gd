@@ -406,6 +406,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		spring_arm.rotation_degrees.x = camera_pitch
 	elif event.is_action_pressed("attack") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		_atacar()
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT \
+			and is_physics_processing() and not get_tree().paused:
+		# Con el raton suelto (Esc), un clic en la ventana lo vuelve a agarrar sin pegar
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_cancel"):
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
