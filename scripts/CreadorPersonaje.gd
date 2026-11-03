@@ -19,6 +19,7 @@ const GIRO := 0.5   # rad/s
 const ANCHO_VISTA := 230.0
 const VISTA_CAMARA := Vector3(0.0, 1.05, 3.9)
 const VISTA_MIRA := Vector3(0.0, 1.0, 0.0)
+const VOLUMEN_SONIDOS := -6.0  # dB; Empezar y Esc suenan en Inicio.gd
 
 enum Tipo { NOMBRE, DESLIZADOR, ROPA, AZAR, EMPEZAR }
 
@@ -61,8 +62,16 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _elegir(i: int) -> void:
+	var antes := _elegido
 	_elegido = wrapi(i, 0, _renglones.size())
+	# El mouse, el foco y arrastrar una barra tambien eligen: solo suena si cambia
+	if _elegido != antes:
+		_sonar("ui_mover")
 	_marcar()
+
+
+func _sonar(nombre: String) -> void:
+	Sonidos.tocar(self, nombre, VOLUMEN_SONIDOS)
 
 
 func _cambiar(paso: int) -> void:
@@ -83,6 +92,7 @@ func _aceptar() -> void:
 			_nombre.edit()
 			_nombre.caret_column = _nombre.text.length()
 		Tipo.AZAR:
+			_sonar("ui_azar")
 			Personaje.al_azar()
 			_leer()
 		Tipo.EMPEZAR:

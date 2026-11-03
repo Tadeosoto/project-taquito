@@ -64,9 +64,9 @@ const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
 Tab inventario · clic o F pegar · V dron
 N siguiente atardecer/amanecer
 Z zombi · B turba · X quitar zombis · T zombis solos de noche
-H curar · J -%d de vida · M +$100 · Y vaciar inventario
+H curar · J -%d de vida · P +$100 · Y vaciar inventario
 G tablas · L -100 al tinaco (refugio a la derecha)
-U todo el mapa · en el inventario, M el mapa
+M mapa (sin piezas se ve vacío) · U todas las piezas
 1 2 3 maquinita cercana: normal, sin monedas, segura
 C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa"""
 
@@ -313,7 +313,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			_salud.vida = _salud.vida_max
 		KEY_J:
 			_salud.vida -= DANO_PRUEBA
-		KEY_M:
+		KEY_P:
 			_cartera.pesos += 100
 		KEY_Y:
 			_inventario.items.clear()

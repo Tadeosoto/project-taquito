@@ -42,7 +42,250 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _tono(120.0, 0.6, -80.0, 0.6)
 			"campana":
 				_sonidos[nombre] = _tono(620.0, 1.6, -8.0, 0.4)
+			# Menus e inventario: survival horror de los 90 (clics secos, campanitas
+			# metalicas con eco, estatica que crece). Hechos aqui, no sacados de ningun juego.
+			"ui_mover":
+				_sonidos[nombre] = _ui_mover()
+			"ui_aceptar":
+				_sonidos[nombre] = _ui_aceptar()
+			"ui_cancelar":
+				_sonidos[nombre] = _ui_cancelar()
+			"ui_error":
+				_sonidos[nombre] = _ui_error()
+			"inv_abrir":
+				_sonidos[nombre] = _inv_abrir()
+			"inv_cerrar":
+				_sonidos[nombre] = _inv_cerrar()
+			"inv_girar":
+				_sonidos[nombre] = _inv_girar()
+			"inv_examinar":
+				_sonidos[nombre] = _inv_examinar()
+			"inv_usar":
+				_sonidos[nombre] = _inv_usar()
+			"inv_combinar":
+				_sonidos[nombre] = _inv_combinar()
+			"mapa_abrir":
+				_sonidos[nombre] = _papel(0.38, 41)
+			"mapa_cerrar":
+				_sonidos[nombre] = _papel(0.24, 43)
+			"ui_jugar":
+				_sonidos[nombre] = _ui_jugar()
+			"ui_azar":
+				_sonidos[nombre] = _ui_azar()
+			"inicio_partida":
+				_sonidos[nombre] = _inicio_partida()
+			"menu_aparece":
+				_sonidos[nombre] = _menu_aparece()
+			"ambiente_menu":
+				_sonidos[nombre] = _ambiente_menu()
 	return _sonidos[nombre]
+
+
+# Toca `nombre` una vez colgado de `donde` y se borra al terminar. Suena aunque el
+# juego este en pausa (el inventario pausa el arbol).
+static func tocar(donde: Node, nombre: String, volumen_db := 0.0) -> void:
+	if donde == null or not donde.is_inside_tree():
+		return
+	var voz := AudioStreamPlayer.new()
+	voz.stream = sonido(nombre)
+	voz.volume_db = volumen_db
+	voz.process_mode = Node.PROCESS_MODE_ALWAYS
+	voz.finished.connect(voz.queue_free)
+	donde.add_child(voz)
+	voz.play()
+
+
+# --- Menus e inventario ------------------------------------------------------
+
+# Cursor: un tic corto y brillante con un clic encima
+static func _ui_mover() -> AudioStreamWAV:
+	var b := _vacio(0.06)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 47
+	var fase := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		fase += 1750.0 / MUESTRAS
+		var clic := (azar.randf_range(-1.0, 1.0) if t < 0.003 else 0.0) * 0.4
+		b[i] = sin(fase * TAU) * exp(-t * 90.0) * 0.45 + clic
+	return _a_wav(_eco(b, [19, 29], 0.25, 0.08, 0.3))
+
+
+# No se puede: dos zumbidos graves desafinados
+static func _ui_error() -> AudioStreamWAV:
+	var b := _vacio(0.24)
+	var f1 := 0.0
+	var f2 := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		f1 += 110.0 / MUESTRAS
+		f2 += 117.0 / MUESTRAS
+		var golpe := 1.0 if t < 0.09 or (t > 0.13 and t < 0.22) else 0.0
+		var cuadrada := (1.0 if fmod(f1, 1.0) < 0.5 else -1.0) + (1.0 if fmod(f2, 1.0) < 0.5 else -1.0)
+		b[i] = cuadrada * 0.24 * golpe
+	return _a_wav(_eco(b, [31], 0.2, 0.06, 0.2))
+
+
+# Abrir: un pestillo de dos tiempos (clic-clac), el primero agudo y el segundo firme
+static func _inv_abrir() -> AudioStreamWAV:
+	var b := _vacio(0.16)
+	b = _mezclar(b, _clic(2600.0, 140.0, 0.35, 61), 0.0)
+	b = _mezclar(b, _clic(1250.0, 90.0, 0.6, 62), 0.07)
+	return _a_wav(_eco(b, [23, 37], 0.3, 0.12, 0.25))
+
+
+# Cerrar: un solo clic grave y sordo con un poco de cuerpo abajo
+static func _inv_cerrar() -> AudioStreamWAV:
+	var b := _vacio(0.14)
+	b = _mezclar(b, _clic(320.0, 70.0, 0.6, 63), 0.0)
+	var fase := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		fase += 70.0 / MUESTRAS
+		b[i] += sin(fase * TAU) * exp(-t * 35.0) * 0.35
+	return _a_wav(_eco(b, [29, 43], 0.3, 0.12, 0.2))
+
+
+# Cambiar de objeto: el tic mas ligero de todos
+static func _inv_girar() -> AudioStreamWAV:
+	return _a_wav(_eco(_clic(2200.0, 180.0, 0.4, 64), [17], 0.2, 0.05, 0.15))
+
+
+# Un clic limpio: un chasquido de 2.5 ms (ruido filtrado) y un cuerpo seno que se
+# apaga rapido segun `caida`. Sin cola de ruido, para que no suene a barrido.
+static func _clic(frecuencia: float, caida: float, volumen: float, semilla: int) -> PackedFloat32Array:
+	var b := _vacio(minf(6.0 / caida + 0.01, 0.12))
+	var azar := RandomNumberGenerator.new()
+	azar.seed = semilla
+	var ruido := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.7)
+		var chasquido := ruido * (1.0 - minf(t / 0.0025, 1.0)) * 0.6
+		b[i] = (sin(TAU * frecuencia * t) * exp(-t * caida) + chasquido) * volumen
+	return b
+
+
+# Suma `fuente` a una copia de `destino` desde `desde` segundos (los Packed se pasan por valor)
+static func _mezclar(destino: PackedFloat32Array, fuente: PackedFloat32Array, desde: float) -> PackedFloat32Array:
+	var inicio := int(desde * MUESTRAS)
+	for i in fuente.size():
+		if inicio + i >= destino.size():
+			break
+		destino[inicio + i] += fuente[i]
+	return destino
+
+
+# Ambiente del menu: zumbido grave y viento lejano que se repiten sin costura.
+# Las frecuencias son multiplos de 1/LARGO Hz para que cada una cierre ciclos
+# completos en el bucle; el viento se funde de su final a su principio.
+static func _ambiente_menu() -> AudioStreamWAV:
+	const LARGO := 8.0
+	const FUNDIDO := 0.5
+	var cuantas := int(LARGO * MUESTRAS)
+	var b := _vacio(LARGO)
+	var tonos: Array[float] = [55.0, 82.5, 110.125]
+	var pesos: Array[float] = [0.5, 0.22, 0.12]
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 81
+	var extra := int(FUNDIDO * MUESTRAS)
+	var viento := PackedFloat32Array()
+	viento.resize(cuantas + extra)
+	var bajo := 0.0
+	var mas_bajo := 0.0
+	for i in viento.size():
+		bajo = lerpf(bajo, azar.randf_range(-1.0, 1.0), 0.04)
+		mas_bajo = lerpf(mas_bajo, bajo, 0.08)
+		viento[i] = mas_bajo
+	# El pedazo de mas al final se funde sobre el principio: el ruido cierra el bucle
+	for i in extra:
+		var f := float(i) / extra
+		viento[i] = lerpf(viento[cuantas + i], viento[i], f)
+	for i in cuantas:
+		var t := float(i) / MUESTRAS
+		var lfo := 0.75 + 0.25 * sin(TAU * t / LARGO)
+		var dron := 0.0
+		for k in tonos.size():
+			dron += sin(TAU * tonos[k] * t) * pesos[k]
+		var rafaga := 0.55 + 0.45 * sin(TAU * t * 2.0 / LARGO + 1.3)
+		b[i] = dron * lfo * 0.5 + viento[i] * rafaga * 2.2
+	var wav := _a_wav(b)
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wav.loop_begin = 0
+	wav.loop_end = cuantas
+	return wav
+
+
+# Examinar: un zumbido grave que se abre, como acercarse a algo
+static func _inv_examinar() -> AudioStreamWAV:
+	var b := _vacio(0.45)
+	var fase := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		fase += lerpf(98.0, 110.0, t) / MUESTRAS
+		var onda := sin(fase * TAU) + sin(fase * 2.0 * TAU) * 0.5 + sin(fase * 3.01 * TAU) * 0.25
+		b[i] = onda * sin(PI * t) * 0.3
+	return _a_wav(_eco(b, [61, 83, 101], 0.55, 0.5, 0.4))
+
+
+# Papel que se desdobla: rafagas de ruido de fuerza al azar
+static func _papel(duracion: float, semilla: int) -> AudioStreamWAV:
+	var b := _vacio(duracion)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = semilla
+	var ruido := 0.0
+	var anterior := 0.0
+	var fuerza := 0.0
+	for i in b.size():
+		if i % 300 == 0:
+			fuerza = azar.randf_range(0.0, 1.0) * azar.randf_range(0.0, 1.0)
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.6)
+		var crujido := ruido - anterior
+		anterior = ruido
+		var t := float(i) / b.size()
+		b[i] = crujido * fuerza * minf(t * 20.0, 1.0) * (1.0 - t) * 0.9
+	return _a_wav(_eco(b, [17, 29], 0.2, 0.05, 0.5))
+
+
+static func _vacio(duracion: float) -> PackedFloat32Array:
+	var b := PackedFloat32Array()
+	b.resize(int(duracion * MUESTRAS))
+	return b
+
+
+# Eco de cuarto: varios retardos (ms) que se realimentan y se oscurecen, sumados al
+# sonido seco. `cola` alarga el sonido en segundos para que el eco se apague solo.
+static func _eco(seco: PackedFloat32Array, retardos: Array[int], realimentacion: float, cola: float, mezcla: float) -> PackedFloat32Array:
+	var total := seco.size() + int(cola * MUESTRAS)
+	var salida := PackedFloat32Array()
+	salida.resize(total)
+	for i in seco.size():
+		salida[i] = seco[i]
+	for ms: int in retardos:
+		var d := int(ms * MUESTRAS / 1000.0)
+		var linea := PackedFloat32Array()
+		linea.resize(total)
+		var oscuro := 0.0
+		for i in total:
+			var entrada := seco[i] if i < seco.size() else 0.0
+			var atras := linea[i - d] if i >= d else 0.0
+			oscuro = lerpf(oscuro, atras, 0.45)
+			linea[i] = entrada + oscuro * realimentacion
+		for i in total:
+			salida[i] += (linea[i] - (seco[i] if i < seco.size() else 0.0)) * mezcla / retardos.size()
+	# Que la cola no corte de golpe
+	var fundido := mini(int(0.03 * MUESTRAS), total)
+	for i in fundido:
+		salida[total - 1 - i] *= float(i) / fundido
+	return salida
+
+
+static func _a_wav(b: PackedFloat32Array) -> AudioStreamWAV:
+	var datos := PackedByteArray()
+	datos.resize(b.size() * 2)
+	for i in b.size():
+		datos.encode_s16(i * 2, int(clampf(b[i], -1.0, 1.0) * 32000.0))
+	return _wav(datos)
 
 
 # Onda cuadrada de `frecuencia` Hz que sube o baja `barrido` Hz en `duracion` s
@@ -116,3 +359,99 @@ static func _wav(datos: PackedByteArray) -> AudioStreamWAV:
 	wav.mix_rate = MUESTRAS
 	wav.data = datos
 	return wav
+
+
+# Aceptar: un clic firme con un golpecito grave abajo, sin campana
+static func _ui_aceptar() -> AudioStreamWAV:
+	var b := _vacio(0.12)
+	b = _mezclar(b, _clic(1400.0, 100.0, 0.55, 91), 0.0)
+	b = _mezclar(b, _golpe_grave(110.0, 40.0, 0.35, 0.1), 0.0)
+	return _a_wav(_eco(b, [29, 41], 0.3, 0.12, 0.22))
+
+
+# Cancelar: un clic suave y grave, de la familia de cerrar pero un poco mas agudo
+static func _ui_cancelar() -> AudioStreamWAV:
+	var b := _clic(450.0, 75.0, 0.55, 92)
+	return _a_wav(_eco(b, [27, 39], 0.3, 0.1, 0.2))
+
+
+# Jugar: un doble clic pesado con un golpe grave
+static func _ui_jugar() -> AudioStreamWAV:
+	var b := _vacio(0.3)
+	b = _mezclar(b, _clic(900.0, 80.0, 0.5, 93), 0.0)
+	b = _mezclar(b, _clic(600.0, 60.0, 0.6, 94), 0.06)
+	b = _mezclar(b, _golpe_grave(75.0, 14.0, 0.4, 0.25), 0.06)
+	return _a_wav(_eco(b, [41, 59, 73], 0.4, 0.3, 0.28))
+
+
+# Al azar: cuatro clics que suben rapido y un clic firme mas grave al final
+static func _ui_azar() -> AudioStreamWAV:
+	var b := _vacio(0.32)
+	var tonos: Array[float] = [900.0, 1200.0, 1600.0, 2100.0]
+	for k in tonos.size():
+		b = _mezclar(b, _clic(tonos[k], 150.0, 0.4, 70 + k), k * 0.045)
+	b = _mezclar(b, _clic(700.0, 70.0, 0.6, 75), 0.2)
+	b = _mezclar(b, _golpe_grave(100.0, 30.0, 0.25, 0.1), 0.2)
+	return _a_wav(_eco(b, [31, 47], 0.35, 0.15, 0.25))
+
+
+# Empezar la partida: un golpe grave que retumba y un segundo mas quedito, con un eco
+# largo y oscuro, como cruzar una puerta que no debias. Sin metal.
+static func _inicio_partida() -> AudioStreamWAV:
+	var b := _vacio(1.6)
+	var fase := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		fase += lerpf(62.0, 41.0, minf(t * 2.0, 1.0)) / MUESTRAS
+		b[i] = sin(fase * TAU) * minf(t * 300.0, 1.0) * exp(-t * 2.2) * 0.68
+	b = _mezclar(b, _clic(240.0, 45.0, 0.35, 95), 0.0)
+	b = _mezclar(b, _golpe_grave(48.0, 5.0, 0.35, 0.9), 0.4)
+	return _a_wav(_eco(b, [79, 113, 149, 197], 0.72, 2.5, 0.45))
+
+
+# El menu aparece: un zumbido grave que crece y se apaga en un golpe sordo
+static func _menu_aparece() -> AudioStreamWAV:
+	var b := _vacio(1.1)
+	var fase := 0.0
+	var crecer := 0.7
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		fase += 73.42 / MUESTRAS
+		var sobre := smoothstep(0.0, crecer, t) * (exp(-(t - crecer) * 6.0) if t > crecer else 1.0)
+		b[i] = (sin(fase * TAU) + sin(fase * 1.5 * TAU) * 0.3) * sobre * 0.35
+	b = _mezclar(b, _golpe_grave(60.0, 9.0, 0.55, 0.4), crecer)
+	b = _mezclar(b, _clic(300.0, 60.0, 0.3, 96), crecer)
+	return _a_wav(_eco(b, [67, 97, 131], 0.55, 1.0, 0.35))
+
+
+# Utilizar (curarse): un pop suave, un seno que cae rapido con un soplo
+static func _inv_usar() -> AudioStreamWAV:
+	var b := _vacio(0.12)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 97
+	var fase := 0.0
+	var ruido := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		fase += lerpf(600.0, 250.0, minf(t / 0.06, 1.0)) / MUESTRAS
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.3)
+		b[i] = (sin(fase * TAU) * 0.6 + ruido * 0.15) * minf(t * 600.0, 1.0) * exp(-t * 35.0)
+	return _a_wav(_eco(b, [31, 43], 0.3, 0.1, 0.2))
+
+
+# Combinar: dos clacs, uno agudo y uno mas grave, como piezas que embonan
+static func _inv_combinar() -> AudioStreamWAV:
+	var b := _vacio(0.2)
+	b = _mezclar(b, _clic(1100.0, 110.0, 0.55, 98), 0.0)
+	b = _mezclar(b, _clic(700.0, 80.0, 0.65, 99), 0.08)
+	b = _mezclar(b, _golpe_grave(90.0, 30.0, 0.25, 0.1), 0.08)
+	return _a_wav(_eco(b, [29, 43], 0.35, 0.12, 0.22))
+
+
+# Golpe grave: un seno de `frecuencia` Hz que se apaga segun `caida`, sin ataque duro
+static func _golpe_grave(frecuencia: float, caida: float, volumen: float, duracion: float) -> PackedFloat32Array:
+	var b := _vacio(duracion)
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		b[i] = sin(TAU * frecuencia * t) * minf(t * 500.0, 1.0) * exp(-t * caida) * volumen
+	return b

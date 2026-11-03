@@ -37,6 +37,10 @@ const CAMARA_VAIVEN := 1.2     # m de lado a lado
 const CAMARA_RITMO := 0.15     # rad/s
 const MIRA := Vector3(0.0, 1.4, 0.0)
 const SCROLL_PASO := 30
+const VOLUMEN_SONIDOS := -6.0  # dB de los sonidos del menu
+const VOLUMEN_AMBIENTE := -16.0  # dB del zumbido y viento de fondo
+const AMBIENTE_ENTRA := 1.5      # s que tarda en subir al abrir
+const AMBIENTE_SALE := 2.0       # s que tarda en apagarse al empezar la partida
 const GEMIDO_CADA := Vector2(6.0, 14.0)
 
 enum Pantalla { MENU, PERSONAJE, CONTROLES, CREDITOS, CARGANDO }
@@ -54,8 +58,9 @@ var _cargando: Label
 var _camara: Camera3D
 var _tiempo := 0.0
 var _gemido := 3.0
-var _voz: AudioStreamPlayer
 var _voz_zombi: AudioStreamPlayer3D
+var _ambiente: AudioStreamPlayer
+var _ambiente_tween: Tween
 
 
 func _ready() -> void:
@@ -64,6 +69,27 @@ func _ready() -> void:
 	_dither()
 	_interfaz()
 	_marcar()
+	_empezar_ambiente()
+	_sonar("menu_aparece")
+
+
+# Zumbido y viento en bucle (Sonidos.gd) que siguen en el creador y se apagan al jugar
+func _empezar_ambiente() -> void:
+	_ambiente = AudioStreamPlayer.new()
+	_ambiente.stream = Sonidos.sonido("ambiente_menu")
+	_ambiente.volume_db = -60.0
+	add_child(_ambiente)
+	_ambiente.play()
+	_fundir_ambiente(VOLUMEN_AMBIENTE, AMBIENTE_ENTRA)
+
+
+# Lleva el ambiente a `volumen` dB en `duracion` s, cortando el fundido anterior
+# (si no, al empezar rapido el que sube le gana al que baja)
+func _fundir_ambiente(volumen: float, duracion: float) -> void:
+	if _ambiente_tween and _ambiente_tween.is_valid():
+		_ambiente_tween.kill()
+	_ambiente_tween = create_tween()
+	_ambiente_tween.tween_property(_ambiente, "volume_db", volumen, duracion)
 
 
 func _process(delta: float) -> void:
@@ -102,7 +128,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _mover(paso: int) -> void:
 	_elegida = wrapi(_elegida + paso, 0, OPCIONES.size())
+	_sonar("ui_mover")
 	_marcar()
+
+
+func _sonar(nombre: String) -> void:
+	Sonidos.tocar(self, nombre, VOLUMEN_SONIDOS)
 
 
 func _marcar() -> void:
@@ -115,7 +146,7 @@ func _marcar() -> void:
 func _activar(opcion: int) -> void:
 	_elegida = opcion
 	_marcar()
-	_voz.play()
+	_sonar("ui_jugar" if opcion == 0 else "ui_aceptar")
 	match opcion:
 		0:
 			_crear_personaje()
@@ -140,6 +171,7 @@ func _abrir(pantalla: Pantalla) -> void:
 
 
 func _volver() -> void:
+	_sonar("ui_cancelar")
 	_pantalla = Pantalla.MENU
 	_menu.visible = true
 	_subpantalla.visible = false
@@ -149,6 +181,8 @@ func _volver() -> void:
 func _crear_personaje() -> void:
 	_pantalla = Pantalla.PERSONAJE
 	_menu.visible = false
+	# Armarlo ahora (unos 200 ms): al darle Empezar ya esta listo y no se traba
+	Sonidos.sonido("inicio_partida")
 	var creador := CREADOR.new()
 	_capa_menu.add_child(creador)
 	creador.listo.connect(func() -> void:
@@ -163,6 +197,9 @@ func _jugar() -> void:
 	_pantalla = Pantalla.CARGANDO
 	_menu.visible = false
 	_cargando.visible = true
+	# Suena desde aqui y no desde el creador, que ya se borro al emitir listo
+	_sonar("inicio_partida")
+	_fundir_ambiente(-60.0, AMBIENTE_SALE)
 	ResourceLoader.load_threaded_request(MAPA)
 
 
@@ -263,9 +300,6 @@ func _escena() -> void:
 	_voz_zombi = AudioStreamPlayer3D.new()
 	_voz_zombi.position = zombi.position + Vector3.UP * 1.5
 	add_child(_voz_zombi)
-	_voz = AudioStreamPlayer.new()
-	_voz.stream = Sonidos.sonido("golpe")
-	add_child(_voz)
 
 
 func _caja(medida: Vector3, donde: Vector3, color: Color) -> void:
@@ -342,6 +376,8 @@ func _interfaz() -> void:
 		opcion.custom_minimum_size.x = 200.0
 		opcion.mouse_filter = Control.MOUSE_FILTER_STOP
 		opcion.mouse_entered.connect(func() -> void:
+			if _pantalla == Pantalla.MENU and _elegida != i:
+				_sonar("ui_mover")
 			_elegida = i
 			_marcar())
 		opcion.gui_input.connect(func(event: InputEvent) -> void:

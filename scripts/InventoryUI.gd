@@ -25,6 +25,9 @@ const TAMANO_MOCHILA := 0.8
 const RANURAS := [Vector3(0, 0, 0), Vector3(1.44, 0, -0.6), Vector3(2.9, 0, -1.4), Vector3(4.65, 0, -2.4)]
 const ESCALAS := [1.0, 0.55, 0.5, 0.45]
 const DESLIZAR := 0.25 # Slide speed curve duration in seconds
+const VOLUMEN_SONIDOS := -6.0 # dB de los sonidos del inventario
+const SONIDOS := ["inv_abrir", "inv_cerrar", "inv_girar", "inv_examinar", "inv_usar", "inv_combinar",
+	"mapa_abrir", "mapa_cerrar", "ui_mover", "ui_aceptar", "ui_cancelar", "ui_error"]
 # Color de la vida en Estado segun Salud.estado()
 const COLORES_ESTADO := {
 	"Bien": Color(0.75, 1.0, 0.6),
@@ -67,6 +70,8 @@ var current_model: Node3D = null
 var active_tween: Tween = null
 # El mapa de papel (MapaUI.gd), encima del panel y abajo del dither
 var mapa_ui: Control
+# El mapa se abrio con M desde el juego: al cerrarlo se cierra todo el inventario
+var _mapa_directo := false
 
 func _ready() -> void:
 	mapa_ui = load("res://scripts/MapaUI.gd").new()
@@ -75,6 +80,9 @@ func _ready() -> void:
 	# Automatically refresh if items are added or removed globally
 	inventory.inventory_changed.connect(refresh_carousel)
 	Salud.cambio.connect(_actualizar_estado)
+	# Se arman al cargar (unos 200 ms) para que abrir la primera vez no se trabe
+	for nombre in SONIDOS:
+		Sonidos.sonido(nombre)
 
 	_solo = get_parent() == get_tree().root
 	visible = false
@@ -98,12 +106,14 @@ func _ready() -> void:
 
 # Abre el inventario y pausa el juego. Esta escena sigue corriendo en pausa
 # (process_mode = Always) y el jugador deja de leer las teclas que comparte con el menu.
-func abrir() -> void:
+func abrir(sonar := true) -> void:
 	if visible or not _jugador_libre():
 		return
 	_capturar_foto()
 	get_tree().paused = true
 	visible = true
+	if sonar:
+		_sonar("inv_abrir")
 	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	current_state = InventoryState.NAVIGATING
 	comando_actual = Comando.EXAMINAR
@@ -111,7 +121,10 @@ func abrir() -> void:
 	inspect_viewer.set_inspection_active(false)
 	refresh_carousel()
 
-func cerrar() -> void:
+func cerrar(sonido := "inv_cerrar") -> void:
+	if visible:
+		_sonar(sonido)
+	_mapa_directo = false
 	mapa_ui.visible = false
 	inspect_viewer.set_inspection_active(false)
 	current_state = InventoryState.NAVIGATING
@@ -148,11 +161,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if not visible:
+		# M (o Select) desde el juego abre directo el mapa, aunque no tengas piezas
+		if event.is_action_pressed("inventory_map") and _jugador_libre():
+			abrir(false)
+			if visible:
+				_abrir_mapa()
+				_mapa_directo = true
+			get_viewport().set_input_as_handled()
 		return
 
 	if current_state == InventoryState.MAPA:
 		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_map"):
-			_cerrar_mapa()
+			# Abierto desde el juego, cerrarlo regresa al juego y no a la lista
+			if _mapa_directo:
+				cerrar("mapa_cerrar")
+			else:
+				_cerrar_mapa()
 		elif event.is_action_pressed("inspect_zoom_in"):
 			mapa_ui.acercar(1)
 		elif event.is_action_pressed("inspect_zoom_out"):
@@ -201,12 +225,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func _abrir_mapa() -> void:
+	_sonar("mapa_abrir")
 	current_state = InventoryState.MAPA
 	# Lo de atras no se ve: no se dibuja el 3D mientras
 	preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	mapa_ui.mostrar()
 
 func _cerrar_mapa() -> void:
+	_sonar("mapa_cerrar")
+	_mapa_directo = false
 	current_state = InventoryState.NAVIGATING
 	mapa_ui.visible = false
 	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -216,8 +243,10 @@ func _cerrar_mapa() -> void:
 func _regresar() -> void:
 	match current_state:
 		InventoryState.INSPECTING:
+			_sonar("ui_cancelar")
 			set_inspection_mode(false)
 		InventoryState.COMBINING:
+			_sonar("ui_cancelar")
 			current_state = InventoryState.NAVIGATING
 			combinar_desde = -1
 			update_hint()
@@ -243,27 +272,35 @@ func _mover_comando(paso: int) -> void:
 	var lista := _comandos_visibles()
 	if lista.is_empty():
 		return
+	var antes := comando_actual
 	comando_actual = lista[wrapi(lista.find(comando_actual) + paso, 0, lista.size())]
+	if comando_actual != antes:
+		_sonar("ui_mover")
 	update_hint()
 
 func _ejecutar_comando() -> void:
 	if not comando_actual in _comandos_visibles():
+		_sonar("ui_error")
 		_mostrar_mensaje("No se puede.")
 		return
 	match comando_actual:
 		Comando.EXAMINAR:
+			_sonar("inv_examinar")
 			set_inspection_mode(true)
 		Comando.UTILIZAR:
 			_utilizar()
 		Comando.COMBINAR:
+			_sonar("ui_aceptar")
 			current_state = InventoryState.COMBINING
 			combinar_desde = current_item_index
 			update_hint()
 
 func _utilizar() -> void:
 	if Salud.llena():
+		_sonar("ui_error")
 		_mostrar_mensaje("No lo necesitas ahorita.")
 		return
+	_sonar("inv_usar")
 	var item: InventoryItemData = inventory.get_item(current_item_index)
 	var antes: int = Salud.vida
 	Salud.vida += item.curacion
@@ -272,6 +309,7 @@ func _utilizar() -> void:
 
 func _terminar_combinacion() -> void:
 	if current_item_index == combinar_desde:
+		_sonar("ui_error")
 		_mostrar_mensaje("Elige otro objeto.")
 		return
 	var desde := combinar_desde
@@ -279,12 +317,18 @@ func _terminar_combinacion() -> void:
 	combinar_desde = -1
 	var resultado: InventoryItemData = inventory.combinar(desde, current_item_index)
 	if resultado == null:
+		_sonar("ui_error")
 		update_hint()
 		_mostrar_mensaje("Eso no se puede combinar.")
 		return
+	_sonar("inv_combinar")
 	current_item_index = inventory.get_item_count() - 1
 	refresh_carousel()
 	_mostrar_mensaje("Hiciste: %s." % resultado.item_name)
+
+# Sonidos del inventario (Sonidos.gd): suenan con el juego en pausa
+func _sonar(nombre: String) -> void:
+	Sonidos.tocar(self, nombre, VOLUMEN_SONIDOS)
 
 func _actualizar_estado() -> void:
 	var estado: String = Salud.estado()
@@ -335,6 +379,7 @@ func refresh_carousel() -> void:
 	_elegir_centro()
 
 func _cambiar_objeto(paso: int) -> void:
+	_sonar("inv_girar")
 	var total: int = inventory.get_item_count()
 	var anterior := current_item_index
 	current_item_index = wrapi(current_item_index + paso, 0, total)
