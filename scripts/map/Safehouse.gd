@@ -77,6 +77,7 @@ M mapa (sin piezas se ve vacío) · U todas las piezas
 1 2 3 maquinita cercana: normal, sin monedas, segura
 C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
+9 pelea: golpe a tiempo (rojo = córtalo) / sin aturdir nunca
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
 Efectos de pixel, propuestas (F2-F7 cambian):"""
 # Una tecla por lugar de EfectosPixel, en este orden
@@ -385,6 +386,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F9:
 			EfectosPixel.poner_extras(not EfectosPixel.extras)
 			_mostrar_efectos()
+		KEY_9:
+			Player.pelea_a_tiempo = not Player.pelea_a_tiempo
+			_mostrar_efectos()
 		KEY_O:
 			if event.shift_pressed:
 				Tazos.rareza_forzada = wrapi(Tazos.rareza_forzada + 1, -1, TazoData.Rareza.size())
@@ -499,7 +503,8 @@ func _mostrar_efectos() -> void:
 		if i % 3 == 2 and i < EFECTOS_LUGARES.size() - 1:
 			partes.append("\n")
 	_efectos.text = " · ".join(partes).replace(" · \n · ", "\n") \
-		+ "\nF9 efectos nuevos: " + ("prendidos" if EfectosPixel.extras else "apagados")
+		+ "\nF9 efectos nuevos: " + ("prendidos" if EfectosPixel.extras else "apagados") \
+		+ " · 9 pelea: " + ("golpe a tiempo" if Player.pelea_a_tiempo else "sin aturdir")
 
 
 func _process(_delta: float) -> void:
