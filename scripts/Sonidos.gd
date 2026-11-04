@@ -102,6 +102,10 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _disparo()
 			"recarga":
 				_sonidos[nombre] = _recarga()
+			"cortina":
+				_sonidos[nombre] = _cortina()
+			"cortina_tope":
+				_sonidos[nombre] = _cortina_tope()
 	return _sonidos[nombre]
 
 
@@ -392,6 +396,34 @@ static func _recarga() -> AudioStreamWAV:
 			var j := int(desde * MUESTRAS) + i
 			b[j] += (sin(fase * TAU) * 0.5 + azar.randf_range(-1.0, 1.0) * 0.5) * exp(-t * 90.0) * 0.8
 	return _a_wav(b)
+
+
+# La cortina de lamina enrollandose o bajando: el traqueteo de las tablillas, en bucle (MapPuntos
+# lo toca mientras se mueve). 20 tablillas por segundo, asi el segundo cierra sin costura.
+static func _cortina() -> AudioStreamWAV:
+	var b := _vacio(1.0)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 83
+	for k in 20:
+		var clic := _clic(azar.randf_range(900.0, 1500.0), azar.randf_range(140.0, 220.0), azar.randf_range(0.18, 0.3), 200 + k)
+		b = _mezclar(b, clic, k * 0.05 + azar.randf_range(0.0, 0.012))
+	# Un rumor grave de lamina debajo
+	var ruido := 0.0
+	for i in b.size():
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.04)
+		b[i] += ruido * 0.25
+	var wav := _a_wav(b)
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wav.loop_end = b.size()
+	return wav
+
+
+# El golpe de la cortina al llegar al piso (o al rollo de arriba)
+static func _cortina_tope() -> AudioStreamWAV:
+	var b := _golpe_grave(85.0, 14.0, 0.7, 0.45)
+	b = _mezclar(b, _clic(620.0, 40.0, 0.35, 91), 0.0)
+	b = _mezclar(b, _clic(1100.0, 60.0, 0.2, 92), 0.07)
+	return _a_wav(_eco(b, [23, 37], 0.3, 0.15, 0.3))
 
 
 static func _vacio(duracion: float) -> PackedFloat32Array:

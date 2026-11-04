@@ -5,6 +5,7 @@
 - Una carpeta por personaje: `<nombre>.fbx`, su textura (con el nombre original, porque el FBX la busca así), `preview.png` (frente y espalda) y `LICENSE_sketchfab.txt`.
 - `hoja.png`: todos juntos para escoger rápido.
 - Esqueleto de Mixamo (`mixamorig_*`), en pose T, sin animaciones propias (solo un clip `mixamo_com`): las animaciones de Mixamo les quedan directo.
+- Los civiles (`hombre_*`, `mujer_*`) traen el retarget a `SkeletonProfileHumanoid` en su `.import` (lo pone `godot --path . --headless -s tools/personajes/retarget_civiles.gd`, luego `--import`), como el_compa: usan las animaciones de Quaternius de `resources/personajes/animaciones_humanas.res`. Los pone `scripts/personajes/Civiles.gd` (los que atienden las tiendas y los que caminan).
 - `mujer_01` viene sin textura en el pack original (sale blanca).
 - Los previews se regeneran con `godot --path . -s tools/personajes/previews.gd` (necesita ventana) y luego `--import`.
 

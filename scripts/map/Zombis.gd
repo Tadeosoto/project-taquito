@@ -34,6 +34,13 @@ const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
 @export var ciclo_path: NodePath
 # La defensa del tinaco los saca ella (scripts/defensa/Hordas.gd): sin sueltos ni turbas
 @export var espontaneos := true
+# Las turbas del Director (cazadores que salen juntos); sin ellas solo hay sueltos, segun el
+# deterioro. Con `ritmo` no cuenta: las turbas las pone el ritmo
+@export var turbas := true
+# Como salen de noche (RitmoNoche.gd): ratos tranquilos, uno o dos sueltos de vez en cuando
+# y una o dos turbas por noche. Sin el, el Director (sueltos cada 3 s hasta el tope y turbas
+# cada 1.5-3 min). map_test y el safehouse usan resources/zombis/noche_mapa.tres
+@export var ritmo: RitmoNoche
 # Mas lejos del jugador se quitan; en la defensa salen al otro lado de la barricada
 @export var lejos := LEJOS
 # Cuantos puede haber a la vez (y cuantos se arman en la reserva); la defensa trae mas
@@ -67,6 +74,18 @@ var _turba_angulo := 0.0
 var _refugio_puesto := false
 var _tinaco_puesto := false
 var _restos: Array = []
+var _turba_abre := TURBA_ABRE
+var _turba_cazadores := true
+# El ritmo de esta noche: s desde que anochecio, cuando sale el siguiente grupito y a que
+# horas las turbas que faltan
+var _noche_t := 0.0
+var _siguiente_grupo := 0.0
+var _horas_turbas: Array[float] = []
+var _cayendo := false
+# Para ajustar jugando: lo de la noche que va (Partida los dice al amanecer)
+var salieron_noche := 0
+var muertos_noche := 0
+var turbas_noche := 0
 
 
 func _ready() -> void:
@@ -80,10 +99,7 @@ func _ready() -> void:
 	_salud = get_node("/root/Salud")
 	_vida_antes = _salud.vida
 	_salud.cambio.connect(_cambio_vida)
-	_ciclo.anochecio.connect(func() -> void:
-		noches += 1
-		director.reiniciar()
-		_turba_pendiente = 0)
+	_ciclo.anochecio.connect(_anochecio)
 	_ciclo.amanecio.connect(_amanecer)
 	campo_jugador.excluir(_jugador.get_rid())
 	campo_refugio.excluir(_jugador.get_rid())
@@ -98,6 +114,22 @@ func _ready() -> void:
 	_calentando.collision_layer = 0
 	_calentando.calentar()
 	_calentar = CALENTAR_CUADROS
+
+
+func _anochecio() -> void:
+	noches += 1
+	director.reiniciar()
+	_turba_pendiente = 0
+	salieron_noche = 0
+	muertos_noche = 0
+	turbas_noche = 0
+	_noche_t = 0.0
+	if ritmo:
+		_siguiente_grupo = ritmo.calma_inicial
+		_horas_turbas = ritmo.horas_turbas(_ciclo.noche_duracion)
+		_turba_abre = ritmo.turba_abre
+		_turba_cazadores = ritmo.turba_cazadores
+		print("Noche %d: turbas a los %s s" % [noches, _horas_turbas.map(func(h: float) -> int: return roundi(h))])
 
 
 func _process(delta: float) -> void:
@@ -231,10 +263,13 @@ func _physics_process(delta: float) -> void:
 	if not _ciclo.es_noche() or not _jugador.can_process() or not _jugador.is_physics_processing():
 		return
 	var turba := director.avanzar(delta, _atacado(), _jugador.velocity.length() > MOVIENDOSE, noches)
-	if turba > 0:
+	if turba > 0 and turbas and ritmo == null:
 		aparecer_turba(turba)
 	if _turba_pendiente > 0:
 		_sacar_de_turba()
+	if ritmo:
+		_seguir_ritmo(delta)
+		return
 	if not director.puede_sueltos():
 		return
 	_espera -= delta
@@ -243,6 +278,35 @@ func _physics_process(delta: float) -> void:
 	_espera = ENTRE_ZOMBIS
 	if _sueltos() < maximo() and _vivos() < max_total:
 		_aparecer()
+
+
+# RitmoNoche: las turbas a su hora y los grupitos de sueltos cada tanto
+func _seguir_ritmo(delta: float) -> void:
+	_noche_t += delta
+	if not _horas_turbas.is_empty() and _noche_t >= _horas_turbas[0] and _turba_pendiente == 0:
+		_horas_turbas.pop_front()
+		turbas_noche += 1
+		aparecer_turba(randi_range(ritmo.turba.x, ritmo.turba.y))
+	if _noche_t < _siguiente_grupo:
+		return
+	if ritmo.respetar_director and not director.puede_sueltos():
+		return
+	var p := _jugador.global_position
+	var deterioro := Deterioro.relativo(p.x, p.z)
+	var caben := mini(ritmo.vivos_max(deterioro) - _sueltos(), max_total - _vivos())
+	if caben <= 0:
+		_siguiente_grupo = _noche_t + ENTRE_ZOMBIS
+		return
+	# Del mismo lado, juntitos
+	var lado := randf() * TAU
+	var salio := 0
+	for i in mini(randi_range(ritmo.grupo.x, ritmo.grupo.y), caben):
+		var lugar := _lugar_libre(p, lado)
+		if lugar != Vector3.INF:
+			sacar(lugar, false)
+			salio += 1
+	# Ese lado se veia o no habia calle: otro intento pronto
+	_siguiente_grupo = _noche_t + (ritmo.cada(deterioro, noches) if salio > 0 else 1.0)
 
 
 # Cuantos sueltos puede haber aqui y esta noche
@@ -266,7 +330,7 @@ func _sacar_de_turba() -> void:
 		_turba_angulo = randf() * TAU
 		return
 	_turba_pendiente -= 1
-	sacar(lugar, true)
+	sacar(lugar, _turba_cazadores)
 
 
 func vivos() -> int:
@@ -307,6 +371,8 @@ func _cambio_vida() -> void:
 
 
 func _al_morir(zombi: Zombie) -> void:
+	if not _cayendo and not zombi.es_jefe:
+		muertos_noche += 1
 	if zombi.global_position.distance_to(_jugador.global_position) <= Director.MUERTE_CERCA:
 		director.mato_cerca()
 
@@ -321,6 +387,7 @@ func _aparecer() -> void:
 func sacar(lugar: Vector3, cazador: bool) -> Zombie:
 	var zombi: Zombie = _libres.pop_back() if not _libres.is_empty() else _armar()
 	zombi.despertar(lugar, cazador)
+	salieron_noche += 1
 	return zombi
 
 
@@ -349,7 +416,7 @@ func _lugar_libre(centro: Vector3, angulo := INF, separado := SEPARADO) -> Vecto
 	var tazos := get_node_or_null("/root/Tazos")
 	var extra: float = tazos.extra_aparicion() if tazos and angulo == INF else 0.0
 	for i in INTENTOS:
-		var giro := randf() * TAU if angulo == INF else angulo + randf_range(-TURBA_ABRE, TURBA_ABRE)
+		var giro := randf() * TAU if angulo == INF else angulo + randf_range(-_turba_abre, _turba_abre)
 		var radio := randf_range(ANILLO.x, ANILLO.y) + extra
 		var punto := centro + Vector3(cos(giro) * radio, 0.0, sin(giro) * radio)
 		if camara and not camara.is_position_behind(punto) and camara.is_position_in_frustum(punto + Vector3.UP):
@@ -380,8 +447,12 @@ func _quitar_lejanos() -> void:
 
 func _amanecer() -> void:
 	_turba_pendiente = 0
+	_cayendo = true
 	for z: Zombie in Zombie.activos.duplicate():
 		z.caer_al_amanecer()
+	_cayendo = false
+	if noches > 0:
+		print("Noche %d: salieron %d, mataste %d, turbas %d" % [noches, salieron_noche, muertos_noche, turbas_noche])
 
 
 func _devolver(zombi: Zombie) -> void:

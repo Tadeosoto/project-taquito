@@ -215,6 +215,10 @@ rendering_device/driver.windows="d3d12"
 
 [shader_globals]
 
+cortina={
+"type": "float",
+"value": 0.0
+}
 deterioro={
 "type": "float",
 "value": 0.8

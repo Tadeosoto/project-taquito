@@ -20,6 +20,13 @@ static func zona(x: float, z: float) -> float:
 	return _maximo * lerpf(0.25, 1.0, smoothstep(0.3, 0.7, n))
 
 
+# Lo mismo pero de 0 (lo mas entero que hay en el mapa) a 1 (lo mas destruido), sin importar
+# el maximo global: para escalar cosas del juego (RitmoNoche)
+static func relativo(x: float, z: float) -> float:
+	var z0 := zona(x, z)
+	return clampf((z0 / maxf(_maximo, 0.01) - 0.25) / 0.75, 0.0, 1.0)
+
+
 # Que pasto hay en un punto, igual que pasto() de shaders/ps1_suelo.gdshader: lo usan las
 # matas (MapPasto.gd) para que salgan como el piso. Si cambia el shader, cambiar esta.
 enum Pasto { NORMAL, CRECIDO, CUIDADO, PODRIDO }

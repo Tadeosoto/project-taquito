@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="RitmoNoche" format=3]
+
+[ext_resource type="Script" path="res://scripts/map/RitmoNoche.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+calma_inicial = 25.0
+cada_entero = Vector2(35, 55)
+cada_destruido = Vector2(15, 25)
+grupo = Vector2i(1, 2)
+vivos_entero = 2
+vivos_destruido = 4
+mas_por_noche = 0.15
+respetar_director = true
+turbas = Vector2i(1, 2)
+turba = Vector2i(7, 8)
+turba_desde = 0.15
+turba_hasta = 0.8
+turba_separadas = 70.0
+turba_abre = 0.2
+turba_cazadores = true
