@@ -16,7 +16,7 @@ var camera_pitch: float = -4.6
 @onready var camera_pivot: Node3D = $CameraPivot
 @onready var spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
 @onready var frijol: Node3D = $Frijol
-@onready var ninja: Node3D = $Frijol/Ninja
+@onready var figura: Node3D = $Frijol/Modelo
 
 # Con que le pega a los zombis (Zombie.gd): el mejor `dano` del inventario, o a puño limpio.
 # Inventario y Salud se piden por su ruta: los scripts de tools/ cargan esta clase antes
@@ -32,8 +32,10 @@ const INVULNERABLE := 0.7     # s despues de recibir un golpe
 # inventario (pausar rompia la tension). Mientras, no caminas ni pegas
 const CURAR_DURA := 0.8
 const ARMA_TAMANO := 0.95    # m; con 0.6 el machete parecia cuchillo
-# El mango va en el puño: crear_modelo centra y deja lo largo en X con el mango en +X
-const ARMA_GIRO := Vector3(0.0, 90.0, -90.0)
+# El mango va en el puño: crear_modelo centra y deja lo largo en X con el mango en +X. En la mano
+# (RightHand del retarget) X es hacia el pulgar, Y hacia los dedos y Z la palma: la hoja sale del
+# lado del pulgar con el filo hacia los dedos, como la agarran los clips de espada de Quaternius
+const ARMA_GIRO := Vector3(-90.0, 180.0, 0.0)
 const ARMA_MANGO := ARMA_TAMANO * 0.4
 # Lo que se siente al pegar: `fuerza` es 1 con el machete y cambia con el dano del arma
 const DANO_MACHETE := 12.0
@@ -67,20 +69,22 @@ const COLOR_SANGRE := Color(0.62, 0.02, 0.03)
 signal golpeado
 
 const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
-const BARRIDO := preload("res://scripts/Barrido.gd")
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
-const POSE_ARMA := preload("res://scripts/PoseArma.gd")
 const ESTELA_PUNO := 0.2      # m de la estela mas alla del puno, a mano limpia
+# La estela del machetazo sigue la punta del arma mientras barre (s del clip, desde-hasta): no
+# al llevar el brazo atras ni al regresarlo
+const ESTELA_GOLPE := {"Sword_Regular_A": Vector2(0.10, 0.30), "Sword_Regular_B": Vector2(0.10, 0.32)}
+const ESTELA_PASO := 6.0      # grados entre pedazos: con pocos cuadros salia en tiras rectas
 # Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
 # al frente para que de lado a la camara no se voltee al azar
 const BARRE_AL_FRENTE := 0.3
 const COMBO_VENTANA := 0.5   # s despues del enfriamiento en que el siguiente golpe todavia va al reves
-# s desde un golpe en que ya puede salir el siguiente: al terminar de barrer (Barrido.BARRE), sin
+# s desde un golpe en que ya puede salir el siguiente: al terminar de barrer, sin
 # esperar el enfriamiento. Si pegas antes, se guarda y sale entonces
 const COMBO_DESDE := 0.3
 # s desde que empieza un golpe en que no puedes caminar. Con pelea_a_tiempo, hasta que el golpe
 # conecta: despues, moverte suelta el brazo y corta el combo, para quitarte si el zombi ya va a
-# pegar. Sin ella, hasta que el brazo termina el barrido (Barrido.SOSTIENE)
+# pegar. Sin ella, hasta que el brazo termina el barrido
 const ATAQUE_QUIETO := 0.42
 const ATAQUE_QUIETO_A_TIEMPO := ATAQUE_PEGA_EN
 
@@ -92,21 +96,23 @@ const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por don
 # machete; no es objeto del inventario por ahora
 const PISTOLA := preload("res://scripts/Pistola.gd")
 const PISTOLA_MODELO := preload("res://models/armas/pistola_mk23/pistola_mk23.scn")
-# En el modelo el canon va hacia -X y la cacha abajo en +X. Con 0.3 m no se distinguia en la
-# mano del ninja cabezon (por lo mismo el machete mide 0.95)
-const PISTOLA_TAMANO := 0.55
-const PISTOLA_GIRO := Vector3(0.0, 90.0, -90.0)
-const PISTOLA_ROLL := 180.0   # grados sobre el canon: sin esto la cacha sale hacia arriba
+# En el modelo el canon va hacia -X y la cacha abajo en +X. Con el ninja cabezon median 0.55 m
+# para distinguirse en su puno enorme; el protagonista tiene manos de tamano normal
+const PISTOLA_TAMANO := 0.4
+# En la mano: lo de arriba de la pistola hacia el pulgar (X) y el canon hacia los dedos (Y)
+const PISTOLA_GIRO := Vector3(0.0, 0.0, -90.0)
+const PISTOLA_ROLL := 0.0     # grados sobre el canon, si la cacha saliera hacia arriba
 const PISTOLA_MANGO := Vector3(-0.3, -0.1, 0.0) # del largo: la cacha queda en el puno
 const PISTOLA_CANON := Vector3(-0.5, 0.12, 0.0) # la boca, del largo, desde el centro del modelo
 const ARRIBA_TRAS_TIRO := 0.8 # s que sigue apuntando despues de disparar desde la cadera
-const MIRA_LEJOS := 20.0      # m: a donde ven los brazos sobre el rayo de la mira
+const MIRA_LEJOS := 20.0      # m: a donde apuntan los brazos sobre el rayo de la mira
+const PECHO := 0.5            # m sobre el centro del cuerpo: de ahi se mide a que altura apunta
 # Con la pistola, camara al hombro como Fortnite: mas cerca y mas alta, a la derecha (con el
 # personaje al centro la mira le caia en la espalda), y el personaje siempre ve hacia donde
 # apunta la camara, caminando de lado. Con apuntar (clic derecho, LT) se acerca mas, cierra
 # el angulo, caminas mas lento y el raton se mueve mas fino
 const HOMBRO := 0.8           # m a la derecha
-const HOMBRO_ALTO := 0.85     # m que sube el pivote: arriba de la cabeza del ninja cabezon
+const HOMBRO_ALTO := 0.85     # m que sube el pivote: a la altura de la cabeza
 const HOMBRO_BRAZO := 2.6     # m del resorte (sin pistola, el de la escena)
 const APUNTA_HOMBRO := 1.1
 const APUNTA_BRAZO := 2.0
@@ -142,7 +148,9 @@ var _escala_antes := 1.0
 var _camara: Camera3D
 var _voz: AudioStreamPlayer3D
 var _mano: BoneAttachment3D
-var _barrido: Node
+var _estela: Node            # EstelaBarrido.gd
+var _punta: Node3D           # la punta de lo que traes en la mano, para la estela
+var _estela_antes := []      # [mano, de la mano a la punta] del cuadro anterior
 var _lado_golpe := 1.0        # 1: de derecha a izquierda; -1: el de regreso del combo
 var _combo_hasta := 0.0       # s de juego en que se acaba la ventana del combo
 var _golpe_guardado := false
@@ -155,7 +163,6 @@ var _alzar := 0.0
 var _brazo_base := 4.0
 var _fov_base := 75.0
 var _apuntando := false
-var _pose: Node
 var _canon: Node3D
 var _tiro_hasta := 0
 
@@ -175,7 +182,7 @@ func _ready() -> void:
 	_voz = AudioStreamPlayer3D.new()
 	add_child(_voz)
 	_armar_mano()
-	_armar_barrido()
+	_armar_estela()
 	_pistola = PISTOLA.new()
 	_pistola.name = "Pistola"
 	_pistola.jugador = self
@@ -199,7 +206,7 @@ func _ready() -> void:
 func aplicar_personaje() -> void:
 	var personaje := get_node_or_null("/root/Personaje")
 	if personaje:
-		personaje.vestir(ninja)
+		personaje.vestir(figura)
 	_aplicar_cuerpo(true)
 
 
@@ -270,13 +277,10 @@ func _atacar() -> void:
 	var ahora := Time.get_ticks_msec() / 1000.0
 	_lado_golpe = -_lado_golpe if encadena or ahora <= _combo_hasta else 1.0
 	_combo_hasta = ahora + ATAQUE_ENFRIAR + COMBO_VENTANA
-	# Encadenado no se repite la estocada del cuerpo: se veia como si rebotara entre golpe y golpe
-	if ninja.has_method("accion") and not encadena:
-		ninja.accion("Punch")
-	if _barrido:
-		# Del puno a la punta: el centro del arma queda ARMA_MANGO adelante del puno
-		_barrido.largo = ARMA_TAMANO * 0.5 + ARMA_MANGO if _arma_visible else ESTELA_PUNO
-		_barrido.golpe(_lado_golpe)
+	# Encadenado, el clip nuevo sale de donde va el brazo (character_animation.gd)
+	if figura.has_method("golpe"):
+		figura.golpe(_lado_golpe)
+	_estela_antes = []
 	_sonar("machetazo", SWING_VOLUMEN)
 
 
@@ -374,8 +378,8 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0) -> void:
 	if _invulnerable > 0.0:
 		return
 	_invulnerable = INVULNERABLE
-	if ninja.has_method("accion"):
-		ninja.accion("RecieveHit")
+	if figura.has_method("accion"):
+		figura.accion("RecieveHit")
 	_sonar("dolor")
 	var hacia := global_position - desde
 	hacia.y = 0.0
@@ -433,14 +437,14 @@ func cargar(cosa: Node3D) -> void:
 	frijol.add_child(cosa)
 	cosa.position = CARGA_LUGAR
 	cosa.rotation = Vector3.ZERO
-	ninja.set("cargando", true)
+	figura.set("cargando", true)
 
 
 func soltar_carga() -> void:
 	if _carga:
 		_carga.queue_free()
 		_carga = null
-	ninja.set("cargando", false)
+	figura.set("cargando", false)
 
 
 # La tecla de curarse: lo que mejor llene la vida que falta (Inventory.mejor_curacion)
@@ -471,21 +475,21 @@ func detener() -> void:
 func reanudar() -> void:
 	set_physics_process(true)
 	set_process_unhandled_input(true)
-	if ninja.has_method("terminar_accion"):
-		ninja.terminar_accion()
+	if figura.has_method("terminar_accion"):
+		figura.terminar_accion()
 
 
 func caer() -> void:
-	if ninja.has_method("accion"):
-		ninja.accion("Defeat")
+	if figura.has_method("accion"):
+		figura.accion("Defeat")
 
 
 # La mano derecha del modelo; el arma se ve en ella
 func _armar_mano() -> void:
-	var esqueleto := ninja.find_child("Skeleton3D", true, false) as Skeleton3D
+	var esqueleto := _esqueleto()
 	if esqueleto == null:
 		return
-	for nombre in ["Fist.R", "Hand.R", "Wrist.R", "LowerArm.R"]:
+	for nombre in ["RightHand", "Fist.R", "Hand.R", "Wrist.R", "LowerArm.R"]:
 		if esqueleto.find_bone(nombre) >= 0:
 			_mano = BoneAttachment3D.new()
 			esqueleto.add_child(_mano)
@@ -498,25 +502,47 @@ func _soltar_combo() -> void:
 	_combo_roto = true
 	_golpe_guardado = false
 	_combo_hasta = 0.0
-	if _barrido:
-		_barrido.soltar()
+	if figura.has_method("soltar_golpe"):
+		figura.soltar_golpe()
 
 
-# El golpe es un barrido de lado hecho con los huesos (Barrido.gd): el modelo solo trae Punch
-func _armar_barrido() -> void:
-	var esqueleto := ninja.find_child("Skeleton3D", true, false) as Skeleton3D
-	if esqueleto == null:
+# El esqueleto del modelo: con el retarget se llama GeneralSkeleton, no Skeleton3D
+func _esqueleto() -> Skeleton3D:
+	var esqueletos := figura.find_children("*", "Skeleton3D", true, false)
+	return esqueletos[0] as Skeleton3D if not esqueletos.is_empty() else null
+
+
+func _armar_estela() -> void:
+	_estela = ESTELA.new()
+	_estela.name = "Estela"
+	add_child(_estela)
+
+
+# La estela sigue la punta del arma mientras el machetazo barre (character_animation.gd dice
+# cuanto lleva). Entre un cuadro y otro se rellena el arco en pedazos de ESTELA_PASO grados
+func _estela_golpe() -> void:
+	if _estela == null or _mano == null or not figura.has_method("tiempo_golpe"):
 		return
-	_barrido = BARRIDO.new()
-	_barrido.name = "Barrido"
-	_barrido.frijol = frijol
-	_barrido.estela = ESTELA.new()
-	add_child(_barrido.estela)
-	esqueleto.add_child(_barrido)
-	_pose = POSE_ARMA.new()
-	_pose.name = "PoseArma"
-	_pose.frijol = frijol
-	esqueleto.add_child(_pose)
+	var t: float = figura.tiempo_golpe()
+	var ventana: Vector2 = ESTELA_GOLPE.get(figura.clip_golpe(), Vector2.ZERO)
+	if t < 0.0 or t < ventana.x or t > ventana.y:
+		_estela_antes = []
+		return
+	var mano := _mano.global_position
+	var punta: Vector3 = _punta.global_position if _punta and is_instance_valid(_punta) and _punta.is_inside_tree() \
+		else mano + _mano.global_basis.y.normalized() * ESTELA_PUNO
+	var hacia := punta - mano
+	if _estela_antes.is_empty():
+		_estela_antes = [mano, hacia]
+		return
+	var mano_antes: Vector3 = _estela_antes[0]
+	var hacia_antes: Vector3 = _estela_antes[1]
+	var pasos := maxi(ceili(rad_to_deg(hacia_antes.angle_to(hacia)) / ESTELA_PASO), 1)
+	for i in range(1, pasos + 1):
+		var f := float(i) / pasos
+		var donde := mano_antes.lerp(mano, f)
+		_estela.agregar(donde, donde + hacia_antes.slerp(hacia, f))
+	_estela_antes = [mano, hacia]
 
 
 func _mostrar_arma() -> void:
@@ -531,6 +557,7 @@ func _mostrar_arma() -> void:
 		return
 	_arma_visible = arma
 	_canon = null
+	_punta = null
 	for hijo in _mano.get_children():
 		hijo.queue_free()
 	if arma == null:
@@ -556,6 +583,10 @@ func _mostrar_arma() -> void:
 			modelo.add_child(_canon)
 		else:
 			(modelo.get_child(0) as Node3D).position.x -= ARMA_MANGO
+			# El mango queda en el puno y la hoja hacia -X
+			_punta = Marker3D.new()
+			_punta.position = Vector3(-(ARMA_TAMANO * 0.5 + ARMA_MANGO), 0.0, 0.0)
+			modelo.add_child(_punta)
 		modelo.visible = true
 
 
@@ -613,24 +644,33 @@ func _process(_delta: float) -> void:
 	_camara_al_hombro()
 	_sacudir()
 	_posar()
+	_estela_golpe()
 
 
-# Los brazos con la pistola (PoseArma.gd): sosteniendola, o apuntando a la mira al apuntar o
-# recien disparado desde la cadera
+# Los brazos con la pistola (clips Pistol_* de Quaternius, character_animation.gd): sosteniendola,
+# o apuntando a la mira al apuntar o recien disparado desde la cadera, a la altura de la mira
 func _posar() -> void:
-	if _pose == null:
+	if not figura.has_method("pistola"):
 		return
-	_pose.sostiene = _pistola.activa and is_physics_processing()
-	_pose.apunta = _apuntando or Time.get_ticks_msec() < _tiro_hasta
 	var centro := get_viewport().get_visible_rect().size / 2.0
-	_pose.blanco = _camara.project_ray_origin(centro) + _camara.project_ray_normal(centro) * MIRA_LEJOS
+	var blanco := _camara.project_ray_origin(centro) + _camara.project_ray_normal(centro) * MIRA_LEJOS
+	var hacia := blanco - (frijol.global_position + Vector3.UP * PECHO)
+	var inclinacion := rad_to_deg(atan2(hacia.y, Vector2(hacia.x, hacia.z).length()))
+	figura.pistola(_pistola.activa and is_physics_processing(),
+		_apuntando or Time.get_ticks_msec() < _tiro_hasta, inclinacion)
 
 
-# Pistola.gd en cada tiro: sube el arma a la mira un rato y patea los brazos
+# Pistola.gd en cada tiro: sube el arma a la mira un rato y la patea
 func pose_tiro() -> void:
 	_tiro_hasta = Time.get_ticks_msec() + int(ARRIBA_TRAS_TIRO * 1000.0)
-	if _pose:
-		_pose.tiro()
+	if figura.has_method("tiro"):
+		figura.tiro()
+
+
+# Pistola.gd al empezar a recargar
+func pose_recarga() -> void:
+	if figura.has_method("recarga"):
+		figura.recarga()
 
 
 # De donde sale el tiro: la boca de la pistola, o la mano
@@ -768,8 +808,8 @@ func _physics_process(delta: float) -> void:
 	_pos_antes = _pos_ahora
 	_pos_ahora = global_position
 
-	if ninja.has_method("update_animation"):
-		ninja.update_animation(is_moving, not is_on_floor(), is_sprinting)
+	if figura.has_method("update_animation"):
+		figura.update_animation(is_moving, not is_on_floor(), is_sprinting, Vector2(velocity.x, velocity.z).length())
 
 
 # El NPC o el objeto para recoger (WorldItem) mas cercano que tenga al jugador en su area

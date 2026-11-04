@@ -140,6 +140,8 @@ func _recargar() -> void:
 		return
 	_recargando = RECARGA
 	Sonidos.tocar(self, "recarga", -6.0)
+	if jugador.has_method("pose_recarga"):
+		jugador.pose_recarga()
 
 
 # De la boca de la pistola a donde pego

@@ -5,6 +5,7 @@ extends SceneTree
 # y bigote. Lee Character_04_original.png y escribe Character_04.png (el
 # nombre que busca el FBX). Las islas son las de tools/personajes/islas.gd
 # (islas.png en la carpeta para verlas con su número).
+# Tambien escribe piel.png, la mascara de la piel para el tono (Personaje.vestir).
 #   godot --path . --headless -s tools/personajes/el_compa.gd
 #   godot --path . --headless --import
 
@@ -84,6 +85,8 @@ func _init() -> void:
 	var orig := img.duplicate() as Image
 	posiciones = _posiciones()
 	var hojas := _hojas()
+	# Donde quedo piel: Personaje.vestir la vuelve a pintar con el tono que escojas
+	var mascara := Image.create(w, h, false, Image.FORMAT_L8)
 
 	# Promedio de luz por isla (y por piel/pelo en la cabeza) para conservar
 	# la sombra original sin importar qué tan claro era el color de antes.
@@ -105,6 +108,7 @@ func _init() -> void:
 			var f := clampf(_luz(c) / (prom[k].x / prom[k].y), 0.45, 1.6)
 			var p := Vector2(x + 0.5, y + 0.5)
 			var nuevo := c
+			var es_piel := false
 			if e in CHAMARRA:
 				var fc := clampf(lerpf(1.0, f, VETA), 0.6, 1.2)
 				nuevo = MOSTAZA * fc
@@ -116,15 +120,22 @@ func _init() -> void:
 					# el cuello de la playera original (clarito y rojizo) también es piel
 					if pecho < 0.0 and CUELLO.has_point(p) and c.r - c.b > 0.12 and c.s > 0.3 and c.v > 0.45:
 						pecho = 0.9
-					if pecho >= 0.0: nuevo = PIEL * pecho
+					if pecho >= 0.0:
+						nuevo = PIEL * pecho
+						es_piel = true
 					var joya := _joya(p)
-					if joya > 0.0: nuevo = ORO if joya > 1.5 else ORO_OSCURO
+					if joya > 0.0:
+						nuevo = ORO if joya > 1.5 else ORO_OSCURO
+						es_piel = false
 			elif e in ANTEBRAZOS:
 				nuevo = PIEL * clampf(lerpf(1.0, f, 0.5), 0.7, 1.2)
+				es_piel = true
 			elif k.ends_with("piel") or e in MANOS:
 				nuevo = PIEL * f
+				es_piel = true
 				if e in CABEZA and _bigote(Vector2i(x, y)):
 					nuevo = (CANA if rng.randf() < CANAS_BIGOTE else PELO) * clampf(f, 0.7, 1.3)
+					es_piel = false
 			elif k.ends_with("pelo"):
 				var cana := e in SOLO_PELO and rng.randf() < CANAS_PELO
 				nuevo = (CANA if cana else PELO) * clampf(f, 0.6, 1.5)
@@ -139,7 +150,10 @@ func _init() -> void:
 				nuevo = SUELA * f
 			nuevo.a = c.a
 			img.set_pixel(x, y, nuevo)
+			if es_piel:
+				mascara.set_pixel(x, y, Color.WHITE)
 	img.save_png(ProjectSettings.globalize_path(CARPETA + "Character_04.png"))
+	mascara.save_png(ProjectSettings.globalize_path(CARPETA + "piel.png"))
 	print("listo: ", CARPETA + "Character_04.png")
 	quit()
 

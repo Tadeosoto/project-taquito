@@ -5,7 +5,9 @@ extends SkeletonModifier3D
 # al reves para que brazos, piernas y cabeza no se inflen con el.
 
 const TRONCO := "Hips"
-const SALEN := ["Neck", "Shoulder.L", "Shoulder.R", "UpperLeg.L", "UpperLeg.R"]
+# Con los nombres del ninja y con los del retarget (SkeletonProfileHumanoid, el protagonista)
+const SALEN := ["Neck", "Shoulder.L", "Shoulder.R", "UpperLeg.L", "UpperLeg.R",
+	"LeftShoulder", "RightShoulder", "LeftUpperLeg", "RightUpperLeg"]
 
 var ancho := 1.0
 var cabeza := 1.0

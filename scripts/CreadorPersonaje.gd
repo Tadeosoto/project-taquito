@@ -1,15 +1,14 @@
 extends Control
 
 # La pantalla de crear personaje (Personaje.gd). Sale despues de Jugar y en el safehouse (tecla
-# C). A la izquierda el ninja dando vueltas con luz pareja, para que se vea bien el color; a la
+# C). A la izquierda el protagonista dando vueltas con luz pareja, para que se vea bien el color; a la
 # derecha los renglones. Se mueve con flechas, control o mouse; el nombre solo recibe teclas
 # despues de Enter, para que WASD no escriba. Pantalla de 640x480.
 
 signal listo
 signal volver
 
-const MODELO := preload("res://models/ninja_male.fbx")
-const ANIMACION := preload("res://scripts/character_animation.gd")
+const MODELO := preload("res://scenes/protagonista.tscn")
 const AMARILLO := Color(1.0, 0.85, 0.1)
 const TITULO := "¿Quién eres?"
 const TEXTO_PIEL := "Tranquilo, los zombis no discriminan. Los demás, sí."
@@ -156,7 +155,8 @@ func _armar() -> void:
 	_deslizador(columna, "Flaco - Gordo", "complexion")
 	_deslizador(columna, "Chaparro - Alto", "talla")
 	_deslizador(columna, "Cabeza", "cabeza")
-	_renglon_ropa(columna)
+	# La ropa queda para despues: el protagonista trae la suya pintada en la textura
+	# _renglon_ropa(columna)
 	_resumen = _texto("", 12, Color(0.75, 1.0, 0.6))
 	_resumen.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	columna.add_child(_resumen)
@@ -200,9 +200,8 @@ func _vista() -> void:
 	_giro = Node3D.new()
 	vista.add_child(_giro)
 	_modelo = MODELO.instantiate() as Node3D
-	_modelo.set_script(ANIMACION)
 	# Del mismo tamaño que en el juego (player.tscn)
-	_modelo.scale = Vector3.ONE * 0.55
+	_modelo.scale = Vector3.ONE * 0.39
 	_giro.add_child(_modelo)
 
 

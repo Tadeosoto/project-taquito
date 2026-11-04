@@ -31,6 +31,12 @@ const ROPA := [Color(0.13, 0.13, 0.16), Color(0.62, 0.14, 0.12), Color(0.15, 0.3
 const ROPA_NOMBRES := ["Negro", "Rojo", "Azul", "Verde", "Mostaza", "Gris"]
 
 const MATERIAL_CABEZA := "CabezaPiel"
+# Los personajes del pack PSX (el protagonista, el_compa) traen la piel pintada en la textura:
+# junto a ella va piel.png, blanco donde es piel (tools/personajes/el_compa.gd). Cada pixel de
+# piel queda de tu color por su sombra: su brillo entre el brillo promedio de la piel pintada
+const MASCARA_PIEL := "piel.png"
+const RODILLA_PIEL := 215.0   # de 255: arriba de esto las luces se van suavizando en vez de quemarse
+static var _pieles := {}      # ruta de la textura -> lo que hace falta para repintarla
 const TONO_CLARO := 0.35
 const TONO_OSCURO := 0.65
 # Lo que dice la gente, por tono: claro, en medio, oscuro. %s es tu nombre; "" es que no dice
@@ -248,8 +254,9 @@ static func _hueso_principal(arreglos: Array, vertice: int, por_vertice: int) ->
 	return huesos[vertice * por_vertice + mejor]
 
 
-# El modelo del ninja (ninja_male.fbx) con tu piel, tu ropa y tu cuerpo. Se puede llamar muchas
-# veces. Materiales propios: los vecinos usan los mismos del modelo y no deben cambiar
+# El modelo con tu piel, tu ropa y tu cuerpo: el ninja (materiales Skin y Main) o un personaje
+# del pack PSX (textura con piel.png al lado; la ropa de esos queda para despues). Se puede
+# llamar muchas veces. Materiales propios: los vecinos usan los mismos del modelo y no deben cambiar
 func vestir(modelo: Node3D) -> void:
 	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):
 		if malla.mesh == null:
@@ -258,6 +265,8 @@ func vestir(modelo: Node3D) -> void:
 		for i in malla.mesh.get_surface_count():
 			var material := malla.get_active_material(i) as BaseMaterial3D
 			if material == null:
+				continue
+			if _pintar_piel(malla, i, material):
 				continue
 			var color: Variant = null
 			if material.resource_name == "Skin" or material.resource_name == MATERIAL_CABEZA:
@@ -273,9 +282,11 @@ func vestir(modelo: Node3D) -> void:
 	if not modelo.has_meta("base_personaje"):
 		modelo.set_meta("base_personaje", modelo.basis)
 	modelo.basis = (modelo.get_meta("base_personaje") as Basis).scaled(Vector3.ONE * _en(ESCALA_TALLA, talla))
-	var esqueleto := modelo.find_child("Skeleton3D", true, false) as Skeleton3D
-	if esqueleto == null:
+	# Con el retarget el esqueleto se llama GeneralSkeleton
+	var esqueletos := modelo.find_children("*", "Skeleton3D", true, false)
+	if esqueletos.is_empty():
 		return
+	var esqueleto := esqueletos[0] as Skeleton3D
 	var cuerpo := esqueleto.get_node_or_null("CuerpoPersonaje")
 	if cuerpo == null:
 		cuerpo = CUERPO.new()
@@ -283,3 +294,78 @@ func vestir(modelo: Node3D) -> void:
 		esqueleto.add_child(cuerpo)
 	cuerpo.set("ancho", _en(ANCHO, complexion))
 	cuerpo.set("cabeza", _en(ESCALA_CABEZA, cabeza))
+
+
+# La textura con la piel de tu tono, si el material tiene piel.png junto a su textura. Se guarda
+# la original en el material para repintar desde ella cada vez
+func _pintar_piel(malla: MeshInstance3D, superficie: int, material: BaseMaterial3D) -> bool:
+	var original: Texture2D = material.get_meta("textura_piel", material.albedo_texture)
+	if original == null or original.resource_path == "":
+		return false
+	var ruta := original.resource_path
+	if not _pieles.has(ruta):
+		var mascara_ruta := ruta.get_base_dir().path_join(MASCARA_PIEL)
+		if not ResourceLoader.exists(mascara_ruta):
+			_pieles[ruta] = null
+		else:
+			_pieles[ruta] = _preparar_piel(original, load(mascara_ruta) as Texture2D)
+	var piel: Dictionary = _pieles[ruta] if _pieles[ruta] != null else {}
+	if piel.is_empty():
+		return false
+	var tono := color_piel()
+	if piel["tono"] != tono:
+		piel["tono"] = tono
+		_repintar(piel, tono)
+	if malla.get_surface_override_material(superficie) == null:
+		material = material.duplicate() as BaseMaterial3D
+		material.set_meta("textura_piel", original)
+		malla.set_surface_override_material(superficie, material)
+	material.albedo_texture = piel["textura"]
+	return true
+
+
+# Los pixeles de piel y cuanto (la mascara puede tener orillas grises), una vez por textura
+static func _preparar_piel(original: Texture2D, mascara_textura: Texture2D) -> Dictionary:
+	var imagen := original.get_image()
+	if imagen.is_compressed():
+		imagen.decompress()
+	imagen.convert(Image.FORMAT_RGBA8)
+	var mascara := mascara_textura.get_image()
+	if mascara.is_compressed():
+		mascara.decompress()
+	mascara.convert(Image.FORMAT_L8)
+	mascara.resize(imagen.get_width(), imagen.get_height(), Image.INTERPOLATE_NEAREST)
+	var valores := mascara.get_data()
+	var datos := imagen.get_data()
+	var donde := PackedInt32Array()
+	var cuanto := PackedFloat32Array()
+	var suma := 0.0
+	var peso := 0.0
+	for p in valores.size():
+		if valores[p] > 0:
+			donde.append(p)
+			cuanto.append(valores[p] / 255.0)
+			suma += (datos[p * 4] + datos[p * 4 + 1] + datos[p * 4 + 2]) * cuanto[-1]
+			peso += cuanto[-1]
+	return {"datos": datos, "ancho": imagen.get_width(), "alto": imagen.get_height(), "media": suma / maxf(peso, 1.0),
+		"donde": donde, "cuanto": cuanto, "tono": Color(-1, -1, -1), "textura": ImageTexture.create_from_image(imagen)}
+
+
+static func _repintar(piel: Dictionary, tono: Color) -> void:
+	var datos: PackedByteArray = (piel["datos"] as PackedByteArray).duplicate()
+	var color := Vector3(tono.r, tono.g, tono.b) * 255.0
+	var media: float = piel["media"]
+	var donde: PackedInt32Array = piel["donde"]
+	var cuanto: PackedFloat32Array = piel["cuanto"]
+	for k in donde.size():
+		var b := donde[k] * 4
+		var m := cuanto[k]
+		var sombra := (datos[b] + datos[b + 1] + datos[b + 2]) / media
+		for c in 3:
+			var antes := datos[b + c]
+			var nuevo := color[c] * sombra
+			if nuevo > RODILLA_PIEL:
+				nuevo = RODILLA_PIEL + (nuevo - RODILLA_PIEL) * 0.35
+			datos[b + c] = clampi(roundi(lerpf(antes, nuevo, m)), 0, 255)
+	var imagen := Image.create_from_data(piel["ancho"], piel["alto"], false, Image.FORMAT_RGBA8, datos)
+	(piel["textura"] as ImageTexture).update(imagen)
