@@ -155,7 +155,7 @@ func _ready() -> void:
 	_poner_objetos()
 	var npc := NPC.instantiate()
 	npc.set("dialogue", "Aquí se prueba de todo, joven.")
-	npc.set("tint", Color(0.5, 0.8, 1.0))
+	npc.set("modelo", Civiles.al_azar())
 	npc.position = Vector3(10.0, 0.0, -14.0)
 	add_child(npc)
 	_refugio = Refugio.new()
