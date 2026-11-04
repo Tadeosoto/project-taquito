@@ -69,20 +69,21 @@ const TURBA_PRUEBA := 12
 const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
 const CHATARRA_EN := [Vector3(17.0, 0.0, 6.0), Vector3(19.5, 0.0, 6.0)]
 const MATERIALES_PRUEBA := 5   # de cada material comun y especial con Shift+P
+const CANGURERA := "res://resources/productos/cangurera.tres"
 const YONKE_EN := Vector3(-36.0, 0.0, 14.0)
 const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
 Tab inventario · clic o F pegar · V dron
 N siguiente atardecer/amanecer
 Z zombi · B turba · X quitar zombis · T zombis solos de noche
-H curar · J -%d de vida · P +$100 · Y vaciar inventario
+H curar · J -%d de vida · P +$100 · Y vaciar inventario y quitar cangurera
 G tablas · L -100 al tinaco (refugio a la derecha)
 M mapa (sin piezas se ve vacío) · U todas las piezas
 1 2 3 maquinita cercana: normal, sin monedas, segura
 C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
-Shift+P +5 de cada material (B en el inventario: el morral) · chatarra junto al pedazo de mapa
-Yonke a la izquierda · Shift+K subir rango · Shift+L trofeos y planos · Shift+Y olvidar el taller
+Shift+P cangurera y +5 de cada material (B en el inventario: tiliches) · chatarra junto al pedazo de mapa
+Yonke a la izquierda (V adentro: vitrina) · niño de los tazos junto · Shift+K rango · Shift+L trofeos y planos · Shift+Y olvidar el taller
 Efectos de pixel, propuestas (F2-F7 cambian):"""
 # Una tecla por lugar de EfectosPixel, en este orden
 const EFECTOS_TECLAS := [KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7]
@@ -171,7 +172,7 @@ func _ready() -> void:
 	_partida.supervivencia_path = get_node("Supervivencia").get_path()
 	_partida.refugio_path = _refugio.get_path()
 	_partida.piezas_en_el_mapa = false
-	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0)]
+	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(-30.0, 0.0, 10.0)]
 	_partida.misiones_config = {"puntos_path": PUNTOS_JSON, "casas_path": CASAS_JSON, "vecinos_fijos": vecinos, "perro_fijo": Vector3(38.0, 0.0, 20.0)}
 	add_child(_partida)
 	_poner_pieza_prueba()
@@ -372,26 +373,30 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_J:
 			_salud.vida -= DANO_PRUEBA
 		KEY_P:
-			# Shift: materiales para el taller (Morral.gd), sin trofeos
+			# Shift: materiales para el taller (Tiliches.gd), sin trofeos
 			if event.shift_pressed:
+				# Los tiliches van en la cangurera: se la pone si no la trae
+				if _inventario.cangurera == null:
+					_inventario.add_item(load(CANGURERA))
 				for id: String in Materiales.LISTA:
 					if not Materiales.es_trofeo(id):
-						Morral.dar(id, MATERIALES_PRUEBA, false)
+						Tiliches.dar(id, MATERIALES_PRUEBA, false)
 			else:
 				_cartera.pesos += 100
 		KEY_Y when event.shift_pressed:
 			# El taller se olvida de ti: rango, planos y vitrina
 			Taller.olvidar()
-			Morral.vaciar_vitrina()
+			Tiliches.vaciar_vitrina()
 		KEY_K when event.shift_pressed:
 			Taller.subir_rango()
 		KEY_L when event.shift_pressed:
 			for id: String in Materiales.de_clase(Materiales.Clase.TROFEO):
-				Morral.dar(id, 3, false)
+				Tiliches.dar(id, 3, false)
 			for plano: String in Recetas.PLANOS:
 				Taller.dar_plano(plano)
 		KEY_Y:
-			_inventario.items.clear()
+			_inventario.vaciar()
+			_inventario.cangurera = null
 			_inventario.inventory_changed.emit()
 		KEY_B:
 			_zombis.aparecer_turba(TURBA_PRUEBA)
@@ -483,7 +488,7 @@ func _reiniciar() -> void:
 	PiezasMapa.reiniciar()
 	Misiones.reiniciar()
 	Tazos.reiniciar()
-	Morral.reiniciar()
+	Tiliches.reiniciar()
 	Bonos.reiniciar()
 	for pieza in get_tree().get_nodes_in_group("piezas_mapa"):
 		pieza.queue_free()

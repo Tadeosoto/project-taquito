@@ -4,9 +4,11 @@ extends Node
 # de habilidad y en que los gastaste (Habilidades.gd). Como PiezasMapa: no se pierden al
 # desmayarte y duran lo que la partida (reiniciar). Propuesta de AG (docs/especificaciones.md).
 #
-# Puntos: los de los tazos, uno por noche que sobrevives (Partida.gd) y PUNTOS_SERIE por juntar
-# una serie completa, una vez. Subir una habilidad cuesta su `costo` de ese nivel; bajarla te
-# los regresa.
+# Puntos: solo los tazos nuevos dan. Un raro da 1, un holografico 2 y los comunes uno por cada
+# COMUNES_POR_PUNTO nuevos, asi que el album completo da justo lo que cuesta todo el arbol
+# (Habilidades.gd; _ready avisa si no cuadran). Los repetidos no dan nada: se cambian con el
+# nino de los tazos (NinoTazos.gd), 3 de una rareza por uno que te falte de esa rareza.
+# Subir una habilidad cuesta su `costo` de ese nivel; bajarla te los regresa.
 #
 # No nombra Cartera, Salud ni Inventory: lo cargan scripts de tools/ a traves de player.gd.
 
@@ -18,16 +20,18 @@ signal serie_completa(serie: int)
 const CARPETA := "res://resources/tazos/"
 # Que tan seguido sale cada rareza en una bolsa (comun, raro, holo)
 const PESOS_RAREZA := [65, 28, 7]
-const PUNTOS_INICIO := 2
-const PUNTOS_POR_NOCHE := 1
-const PUNTOS_SERIE := 2     # por juntar los 12 de una serie, una vez
+const PUNTOS_INICIO := 0
+const COMUNES_POR_PUNTO := 3   # comunes nuevos por cada punto
+const REPETIDOS_POR_CAMBIO := 3  # repetidos de una rareza que pide el nino por uno que te falte
 
 var todos: Array[TazoData] = []
 var puntos := PUNTOS_INICIO
 var niveles := {}           # id de habilidad -> nivel
 var desbloqueadas := {}     # id de habilidad -> true
 var coleccion: Array[String] = []   # ids de tazo, con repetidos, en el orden en que salieron
-var series_premiadas := {}          # serie -> true, ya dio sus PUNTOS_SERIE
+var series_premiadas := {}          # serie -> true, ya se aviso que la completaste
+var comunes_nuevos := 0             # comunes distintos que te han salido (COMUNES_POR_PUNTO)
+var ultimos_puntos := 0             # lo que dio el ultimo tazo (para el show)
 var ultima_serie := -1              # la serie que completo la ultima bolsa, o -1 (para el show)
 var segundo_aire_usado := false     # se puede una vez por noche
 var rareza_forzada := -1            # para probar el show en el safehouse (Shift+O); -1 = al azar
@@ -43,6 +47,20 @@ func _ready() -> void:
 		else:
 			push_warning("Tazos: no pude cargar %s" % archivo)
 	todos.sort_custom(func(a: TazoData, b: TazoData) -> bool: return a.numero < b.numero)
+	if not todos.is_empty() and puntos_coleccion() != Habilidades.costo_total():
+		push_warning("Tazos: el album completo da %d puntos y el arbol cuesta %d; que cuadren" % [puntos_coleccion(), Habilidades.costo_total()])
+
+
+# Lo que da el album completo (sin repetidos): lo que debe costar todo el arbol
+func puntos_coleccion() -> int:
+	var comunes := 0
+	var total := PUNTOS_INICIO
+	for tazo in todos:
+		if tazo.rareza == TazoData.Rareza.COMUN:
+			comunes += 1
+		else:
+			total += tazo.puntos
+	return total + comunes / COMUNES_POR_PUNTO
 
 
 func reiniciar() -> void:
@@ -51,6 +69,8 @@ func reiniciar() -> void:
 	desbloqueadas.clear()
 	coleccion.clear()
 	series_premiadas.clear()
+	comunes_nuevos = 0
+	ultimos_puntos = 0
 	ultima_serie = -1
 	segundo_aire_usado = false
 	cambio.emit()
@@ -176,7 +196,7 @@ func tiene(id: String) -> bool:
 # --- Bolsas ---
 
 # El tazo que sale en una bolsa. Primero la rareza (PESOS_RAREZA, o `rareza` para probar) y
-# luego uno de esa rareza, de preferencia uno que no tengas. Uno repetido da sus puntos igual
+# luego uno de esa rareza, de preferencia uno que no tengas
 func abrir_bolsa(rareza := -1) -> TazoData:
 	if todos.is_empty():
 		return null
@@ -200,16 +220,25 @@ func abrir_bolsa(rareza := -1) -> TazoData:
 	return tazo
 
 
-# Lo agrega a la coleccion con sus puntos, lo que desbloquea y el premio si completa su serie
+# Lo agrega a la coleccion; si es nuevo da sus puntos (los comunes de a COMUNES_POR_PUNTO) y lo
+# que desbloquea. `ultima_serie` dice si completo su serie (el show pone confeti)
 func dar_tazo(tazo: TazoData) -> void:
+	var nuevo := not coleccion.has(tazo.id)
 	coleccion.append(tazo.id)
-	puntos += tazo.puntos
-	if tazo.desbloquea != "":
-		desbloqueadas[tazo.desbloquea] = true
+	ultimos_puntos = 0
+	if nuevo:
+		if tazo.rareza == TazoData.Rareza.COMUN:
+			comunes_nuevos += 1
+			if comunes_nuevos % COMUNES_POR_PUNTO == 0:
+				ultimos_puntos = 1
+		else:
+			ultimos_puntos = tazo.puntos
+		puntos += ultimos_puntos
+		if tazo.desbloquea != "":
+			desbloqueadas[tazo.desbloquea] = true
 	ultima_serie = -1
 	if completa(tazo.serie) and not series_premiadas.has(tazo.serie):
 		series_premiadas[tazo.serie] = true
-		puntos += PUNTOS_SERIE
 		ultima_serie = tazo.serie
 		serie_completa.emit(tazo.serie)
 	nuevo_tazo.emit(tazo)
@@ -218,6 +247,47 @@ func dar_tazo(tazo: TazoData) -> void:
 
 func es_repetido(tazo: TazoData) -> bool:
 	return coleccion.count(tazo.id) > 1
+
+
+# Cuantos comunes nuevos llevas hacia el siguiente punto (0 a COMUNES_POR_PUNTO - 1)
+func progreso_comun() -> int:
+	return comunes_nuevos % COMUNES_POR_PUNTO
+
+
+# --- Cambiar repetidos con el nino de los tazos (NinoTazos.gd) ---
+
+# Las copias de mas (la primera de cada uno no cuenta) de esa rareza
+func repetidos(rareza: int) -> int:
+	var n := 0
+	for tazo in todos:
+		if tazo.rareza == rareza:
+			n += maxi(coleccion.count(tazo.id) - 1, 0)
+	return n
+
+
+func faltantes(rareza: int) -> Array[TazoData]:
+	return todos.filter(func(t: TazoData) -> bool: return t.rareza == rareza and not coleccion.has(t.id))
+
+
+func puede_cambiar(rareza: int) -> bool:
+	return repetidos(rareza) >= REPETIDOS_POR_CAMBIO and not faltantes(rareza).is_empty()
+
+
+# Da REPETIDOS_POR_CAMBIO copias de mas de esa rareza (las de mas repetidos primero) por uno que
+# te falte; ese es nuevo, asi que da sus puntos. null si no se puede
+func cambiar(rareza: int) -> TazoData:
+	if not puede_cambiar(rareza):
+		return null
+	for i in REPETIDOS_POR_CAMBIO:
+		var mas: TazoData = null
+		for tazo in todos:
+			if tazo.rareza == rareza and coleccion.count(tazo.id) > 1 and (mas == null or coleccion.count(tazo.id) > coleccion.count(mas.id)):
+				mas = tazo
+		# Se quita la ultima copia que salio, para que la coleccion siga en el orden en que salieron
+		coleccion.remove_at(coleccion.rfind(mas.id))
+	var tazo: TazoData = faltantes(rareza).pick_random()
+	dar_tazo(tazo)
+	return tazo
 
 
 func cuantos(tazo: TazoData) -> int:

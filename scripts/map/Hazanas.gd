@@ -30,9 +30,9 @@ func _ready() -> void:
 
 
 func zombi_muerto(zombi: Node, quemado: bool) -> void:
-	var morral := get_node("/root/Morral")
+	var tiliches := get_node("/root/Tiliches")
 	if quemado:
-		morral.dar("baba_verde")
+		tiliches.dar("baba_verde")
 		_trofeo("ceniza")
 	if zombi.get("cazador") == true:
 		_trofeo("marca_cazador")
@@ -47,17 +47,17 @@ func zombi_muerto(zombi: Node, quemado: bool) -> void:
 		_trofeo("chancla_oro")
 	match zombi.get("variante"):
 		"gela":
-			morral.dar("polvo_serenol")
+			tiliches.dar("polvo_serenol")
 			_trofeo("casco_gela")
 		"cobalto":
 			_trofeo("cobalto")
 	if zombi.get("es_jefe") == true:
-		morral.dar("diente_jefe")
+		tiliches.dar("diente_jefe")
 		var taller := get_node("/root/Taller")
 		for plano: String in Recetas.PLANOS:
 			if not taller.planos.has(plano):
 				taller.dar_plano(plano)
-				morral.avisar("¡Plano! " + Recetas.PLANOS[plano])
+				tiliches.avisar("¡Plano! " + Recetas.PLANOS[plano])
 				break
 
 
@@ -65,7 +65,7 @@ func _trofeo(id: String) -> void:
 	if _ya.has(id):
 		return
 	_ya[id] = true
-	get_node("/root/Morral").dar(id)
+	get_node("/root/Tiliches").dar(id)
 
 
 func _anochecio() -> void:

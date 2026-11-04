@@ -13,6 +13,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/encargo.tres",
 	"res://resources/misiones/garrafones.tres",
 	"res://resources/misiones/perro.tres",
+	"res://resources/misiones/cangurera.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -49,7 +50,16 @@ func hecha_hoy(mision: MisionData) -> bool:
 
 
 func disponible(mision: MisionData) -> bool:
-	return ofreciendo and activa == null and not hecha_hoy(mision)
+	return ofreciendo and activa == null and not hecha_hoy(mision) and not ya_tienes_el_premio(mision)
+
+
+# La de la cangurera ya no se ofrece si traes una: solo se puede traer una
+func ya_tienes_el_premio(mision: MisionData) -> bool:
+	var inventario := get_node("/root/Inventory")
+	for premio in mision.premios:
+		if premio.cangurera and inventario.cangurera != null:
+			return true
+	return false
 
 
 func aceptar(mision: MisionData) -> void:
@@ -93,7 +103,7 @@ func _process(delta: float) -> void:
 # Cuenta repetidos: pedir dos galones son dos en el inventario
 func tiene_objetos(p: PasoMision) -> bool:
 	var inventario := get_node("/root/Inventory")
-	var hay: Array = inventario.items.duplicate()
+	var hay: Array = inventario.unidades()
 	for pedido in p.objetos:
 		var i := hay.find(pedido)
 		if i < 0:

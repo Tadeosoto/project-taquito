@@ -259,9 +259,9 @@ func _soltar_bolsa() -> void:
 	if is_instance_valid(_bolsa):
 		_bolsa.queue_free()
 	_bolsa = load("res://scripts/map/BolsaMuerte.gd").new()
-	_bolsa.items = inventario.items.duplicate()
-	inventario.items.clear()
-	inventario.inventory_changed.emit()
+	# Uno por unidad: al recogerlos se vuelven a apilar
+	_bolsa.items = inventario.unidades()
+	inventario.vaciar()
 	get_parent().add_child(_bolsa)
 	# El origen del jugador esta a 1 m del piso
 	_bolsa.global_position = _jugador.global_position + Vector3.DOWN

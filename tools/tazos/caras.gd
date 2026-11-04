@@ -876,7 +876,8 @@ const FICHAS := {
 	"german": ["Germán Lazcano", 3, ""], "gota_negra": ["Gota negra", 3, ""],
 	"gela": ["Georgina Lazcano", 3, ""], "tinaco_eterno": ["El tinaco que no se vacía", 3, ""],
 }
-const PUNTOS_RAREZA := [1, 2, 3]
+# Comun 0: los comunes dan un punto por cada Tazos.COMUNES_POR_PUNTO nuevos
+const PUNTOS_RAREZA := [0, 1, 2]
 const FICHAS_DIR := "res://resources/tazos/"
 const SILUETAS := "res://textures/tazos/silueta/"
 const SILUETA_FONDO := Color8(34, 34, 40)

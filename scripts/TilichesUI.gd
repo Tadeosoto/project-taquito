@@ -1,9 +1,10 @@
 extends Control
 
-# El morral del inventario (InventoryUI, estado MORRAL; B o RB): los materiales del taller
-# (Morral.gd, Materiales.gd). Arriba las seis familias en sus tres niveles, luego los
-# especiales y abajo la vitrina con los trofeos, que se quedan entre partidas. Las flechas
-# mueven un cursor (va a la casilla mas cercana en esa direccion) y abajo sale que es cada uno.
+# Los tiliches del inventario (InventoryUI, estado TILICHES; B o RB): los materiales del taller
+# (Tiliches.gd, Materiales.gd), arriba las seis familias en sus tres niveles y luego los
+# especiales. Con `vitrina = true` (antes de add_child) es la vitrina de La Chava (TallerUI, V):
+# solo los trofeos, que se quedan entre partidas. Las flechas mueven un cursor (va a la casilla
+# mas cercana en esa direccion) y abajo sale que es cada uno.
 
 const AMARILLO := Color(1.0, 0.85, 0.1)
 const BLANCO := Color(1.0, 1.0, 1.0)
@@ -17,6 +18,7 @@ const FILA_ALTO := 24.0
 const CAJITA := 64.0         # ancho de cada especial y trofeo
 
 var elegido := 0
+var vitrina := false
 var _casillas: Array[Dictionary] = []   # id, centro, icono (TextureRect), cuantos (Label), nombre (Label o null)
 var _cursor: Panel
 var _detalle: Label
@@ -30,39 +32,10 @@ func _ready() -> void:
 	fondo.color = Color.BLACK
 	fondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(fondo)
-	var titulo := _label("MORRAL", 22, AMARILLO)
-	titulo.position = Vector2(FAMILIA_X, 12.0)
-	add_child(titulo)
-	var sub := _label("Materiales para el taller de La Chava. No ocupan lugar.", 11, GRIS)
-	sub.position = Vector2(FAMILIA_X, 40.0)
-	add_child(sub)
-	for n in Materiales.NIVELES.size():
-		var cabeza := _label(Materiales.NIVELES[n].to_upper(), 10, GRIS)
-		cabeza.position = Vector2(COLUMNA_X + n * COLUMNA_ANCHO + 22.0, FILA_Y - 16.0)
-		add_child(cabeza)
-	for f in Materiales.FAMILIAS.size():
-		var y := FILA_Y + f * FILA_ALTO
-		var familia := _label(Materiales.FAMILIAS[f], 12, GRIS)
-		familia.position = Vector2(FAMILIA_X, y)
-		add_child(familia)
-		for n in Materiales.NIVELES.size():
-			_casilla(Materiales.comun(f, n), Vector2(COLUMNA_X + n * COLUMNA_ANCHO, y), true)
-	var y_especiales := FILA_Y + Materiales.FAMILIAS.size() * FILA_ALTO + 16.0
-	var cabeza_esp := _label("ESPECIALES", 10, GRIS)
-	cabeza_esp.position = Vector2(FAMILIA_X, y_especiales)
-	add_child(cabeza_esp)
-	var x := FAMILIA_X
-	for id in Materiales.de_clase(Materiales.Clase.ESPECIAL):
-		_casilla(id, Vector2(x, y_especiales + 16.0), false)
-		x += CAJITA + 12.0
-	var y_vitrina := y_especiales + 70.0
-	var cabeza_vit := _label("VITRINA · los trofeos se quedan aunque empieces otra partida", 10, GRIS)
-	cabeza_vit.position = Vector2(FAMILIA_X, y_vitrina)
-	add_child(cabeza_vit)
-	x = FAMILIA_X
-	for id in Materiales.de_clase(Materiales.Clase.TROFEO):
-		_casilla(id, Vector2(x, y_vitrina + 16.0), false)
-		x += CAJITA + 9.0
+	if vitrina:
+		_armar_vitrina()
+	else:
+		_armar_materiales()
 	_cursor = Panel.new()
 	var borde := StyleBoxFlat.new()
 	borde.bg_color = Color(1.0, 0.85, 0.1, 0.1)
@@ -78,11 +51,53 @@ func _ready() -> void:
 	_descripcion.position = Vector2(FAMILIA_X, 424.0)
 	_descripcion.size = Vector2(584.0, 20.0)
 	add_child(_descripcion)
-	var ayuda := _label("Flechas: elegir    Esc / B: regresar", 11, GRIS)
+	var ayuda := _label("Flechas: elegir    Esc / V: regresar" if vitrina else "Flechas: elegir    Esc / B: regresar", 11, GRIS)
 	ayuda.position = Vector2(FAMILIA_X, 452.0)
 	add_child(ayuda)
-	Morral.cambio.connect(_actualizar)
+	Tiliches.cambio.connect(_actualizar)
 	visible = false
+
+
+func _armar_materiales() -> void:
+	var titulo := _label("TILICHES", 22, AMARILLO)
+	titulo.position = Vector2(FAMILIA_X, 12.0)
+	add_child(titulo)
+	var sub := _label("Materiales para el taller de La Chava. Van en tu cangurera: no ocupan lugar.", 11, GRIS)
+	sub.position = Vector2(FAMILIA_X, 40.0)
+	add_child(sub)
+	for n in Materiales.NIVELES.size():
+		var cabeza := _label(Materiales.NIVELES[n].to_upper(), 10, GRIS)
+		cabeza.position = Vector2(COLUMNA_X + n * COLUMNA_ANCHO + 22.0, FILA_Y - 16.0)
+		add_child(cabeza)
+	for f in Materiales.FAMILIAS.size():
+		var y := FILA_Y + f * FILA_ALTO
+		var familia := _label(Materiales.FAMILIAS[f], 12, GRIS)
+		familia.position = Vector2(FAMILIA_X, y)
+		add_child(familia)
+		for n in Materiales.NIVELES.size():
+			_casilla(Materiales.comun(f, n), Vector2(COLUMNA_X + n * COLUMNA_ANCHO, y), true)
+	var y_especiales := FILA_Y + Materiales.FAMILIAS.size() * FILA_ALTO + 24.0
+	var cabeza_esp := _label("ESPECIALES", 10, GRIS)
+	cabeza_esp.position = Vector2(FAMILIA_X, y_especiales)
+	add_child(cabeza_esp)
+	var x := FAMILIA_X
+	for id in Materiales.de_clase(Materiales.Clase.ESPECIAL):
+		_casilla(id, Vector2(x, y_especiales + 16.0), false)
+		x += CAJITA + 12.0
+
+
+# La vitrina de La Chava: los trofeos en renglones
+func _armar_vitrina() -> void:
+	var titulo := _label("VITRINA DE LA CHAVA", 22, AMARILLO)
+	titulo.position = Vector2(FAMILIA_X, 12.0)
+	add_child(titulo)
+	var sub := _label("Los trofeos se quedan aquí aunque empieces otra partida.", 11, GRIS)
+	sub.position = Vector2(FAMILIA_X, 40.0)
+	add_child(sub)
+	var por_renglon := 7
+	var trofeos := Materiales.de_clase(Materiales.Clase.TROFEO)
+	for i in trofeos.size():
+		_casilla(trofeos[i], Vector2(FAMILIA_X + (i % por_renglon) * (CAJITA + 18.0), FILA_Y + 10.0 + (i / por_renglon) * 80.0), false)
 
 
 # Una casilla: icono y cuantos; las comunes tambien su nombre (las demas lo dicen abajo)
@@ -172,7 +187,7 @@ func _actualizar() -> void:
 	for i in _casillas.size():
 		var c := _casillas[i]
 		var id: String = c["id"]
-		var n: int = Morral.cuantos(id)
+		var n: int = Tiliches.cuantos(id)
 		var trofeo := Materiales.es_trofeo(id)
 		(c["cuantos"] as Label).text = ("×%d" % n) if n > 0 else ("?" if trofeo else "0")
 		(c["cuantos"] as Label).add_theme_color_override("font_color", (AMARILLO if trofeo else BLANCO) if n > 0 else OSCURO)
@@ -184,7 +199,7 @@ func _actualizar() -> void:
 	_cursor.position = actual["en"]
 	_cursor.size = actual["tamano"]
 	var id: String = actual["id"]
-	var tiene: int = Morral.cuantos(id)
+	var tiene: int = Tiliches.cuantos(id)
 	var dato := Materiales.dato(id)
 	if Materiales.es_trofeo(id) and tiene == 0:
 		_detalle.text = "???"

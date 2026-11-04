@@ -92,7 +92,7 @@
 
 ### 4.1 El taller de La Chava 💡🧱 (propuesta de AG; `especificaciones.md` 4.13)
 
-Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Recetas.gd` (recetas). Las recetas piden materiales del **Morral** y pesos; Regateo baja los pesos.
+Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Recetas.gd` (recetas). Las recetas piden **tiliches** (materiales, que van en la cangurera) y pesos; Regateo baja los pesos.
 
 **Materiales comunes:** seis familias en tres niveles. Se pierden al reiniciar.
 

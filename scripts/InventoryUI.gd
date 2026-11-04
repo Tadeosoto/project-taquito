@@ -14,7 +14,7 @@ enum InventoryState {
 	HABILIDADES,   # la pagina de habilidades (HabilidadesUI.gd), con H / Y
 	REVELANDO,     # abriendo una bolsa especial (TazoRevelacion.gd): sus teclas son de ella
 	ALBUM,         # el album de tazos (AlbumTazos.gd), con T / LB
-	MORRAL         # los materiales del taller (MorralUI.gd), con B / RB
+	TILICHES         # los materiales del taller (TilichesUI.gd), con B / RB
 }
 
 enum Comando { EXAMINAR, UTILIZAR, COMBINAR }
@@ -32,6 +32,44 @@ const DESLIZAR := 0.25 # Slide speed curve duration in seconds
 const VOLUMEN_SONIDOS := -6.0 # dB de los sonidos del inventario
 const SONIDOS := ["inv_abrir", "inv_cerrar", "inv_girar", "inv_examinar", "inv_usar", "inv_combinar",
 	"mapa_abrir", "mapa_cerrar", "ui_mover", "ui_aceptar", "ui_cancelar", "ui_error"]
+# El numero de una pila (×3)
+const AMARILLO_PILA := Color(1.0, 0.85, 0.1)
+# Equipo: donde va cada cosa (pantalla de 640 x 480) y que dice si falta
+const EQUIPO_CAJAS := {
+	"arma": Rect2(232.0, 46.0, 80.0, 54.0),
+	"mochila": Rect2(322.0, 46.0, 80.0, 54.0),
+	"amuleto0": Rect2(230.0, 130.0, 24.0, 24.0),
+	"amuleto1": Rect2(256.0, 130.0, 24.0, 24.0),
+	"cangurera": Rect2(380.0, 130.0, 24.0, 24.0),
+}
+const EQUIPO_VACIO := {"arma": "A puño limpio", "mochila": "Sin mochila"}
+const TAMANO_EQUIPO := 0.42       # m de los modelos grandes de Equipo (crear_modelo)
+const TAMANO_EQUIPO_CHICO := 0.17 # amuletos y cangurera
+const GIRO_ARMA := 0.8            # rad/s que gira el arma en Equipo
+const COLOR_EQUIPO := Color(0.85, 0.85, 0.85)
+const COLOR_VACIO := Color(0.4, 0.4, 0.42)
+const COLOR_MARCO := Color(0.75, 0.62, 0.12)
+# Pestanas de abajo: nombre, tecla, boton del control
+const PESTANAS := [["Objetos", "Tab", "Start"], ["Tiliches", "B", "RB"], ["Habilidades", "H", "Y"], ["Álbum", "T", "LB"], ["Mapa", "M", "Select"]]
+const PESTANAS_Y := 452.0
+const MENSAJE_Y := 430.0
+# Tinte de la foto de Estado segun la vida (como en Silent Hill 2): color y fuerza en Bien,
+# Herido y Grave; entre uno y otro se mezcla. En Grave late
+const TINTE_BIEN := Color(0.55, 1.0, 0.5)
+const TINTE_HERIDO := Color(1.0, 0.68, 0.15)
+const TINTE_GRAVE := Color(1.0, 0.15, 0.1)
+const FUERZA_TINTE := [0.18, 0.4, 0.55]   # bien, herido, grave
+const LATIDO := 0.15              # cuanto sube y baja la fuerza en Grave
+const LATIDO_VEL := 3.0           # rad/s del latido
+const SHADER_TINTE := """shader_type canvas_item;
+uniform vec4 tinte : source_color = vec4(1.0);
+uniform float fuerza = 0.0;
+void fragment() {
+	vec4 c = texture(TEXTURE, UV);
+	float luz = dot(c.rgb, vec3(0.3, 0.59, 0.11));
+	COLOR = vec4(mix(c.rgb, tinte.rgb * (0.3 + luz * 1.4), fuerza), c.a);
+}
+"""
 # Color de la vida en Estado segun Salud.estado()
 const COLORES_ESTADO := {
 	"Bien": Color(0.75, 1.0, 0.6),
@@ -56,6 +94,7 @@ const COLORES_ESTADO := {
 
 # --- 3D Position Pivot Points ---
 @onready var item_pivot: Node3D = $MainPanel/PreviewContainer/PreviewViewport/PreviewWorld/ItemPivot
+@onready var preview_camera: Camera3D = $MainPanel/PreviewContainer/PreviewViewport/PreviewWorld/PreviewCamera
 @onready var equipo_pivot: Node3D = $MainPanel/PreviewContainer/PreviewViewport/PreviewWorld/EquipoPivot
 
 # Current navigation parameters
@@ -81,9 +120,16 @@ var habilidades_ui: Control
 # El album de tazos; `_album_desde` es el estado al que regresa (la lista o las habilidades)
 var album_ui: Control
 var _album_desde := InventoryState.NAVIGATING
-# El morral (Morral.gd): los materiales del taller
-var morral_ui: Control
-var _amuletos_label: Label
+# Los tiliches (Tiliches.gd): los materiales del taller
+var tiliches_ui: Control
+# Equipo y pestanas (_armar_equipo, _armar_pestanas)
+var _equipo_cajas := {}           # nombre -> Panel
+var _arma_label: Label
+var _pips: Control
+var _cupo_label: Label
+var _pestanas: Control
+var _tinte_fuerza := 0.0          # la fuerza sin latido; _process le suma el latido en Grave
+var _tinte_t := 0.0
 
 func _ready() -> void:
 	mapa_ui = load("res://scripts/MapaUI.gd").new()
@@ -95,8 +141,15 @@ func _ready() -> void:
 	album_ui = load("res://scripts/AlbumTazos.gd").new()
 	album_ui.visible = false
 	$MainPanel.add_child(album_ui)
-	morral_ui = load("res://scripts/MorralUI.gd").new()
-	$MainPanel.add_child(morral_ui)
+	tiliches_ui = load("res://scripts/TilichesUI.gd").new()
+	$MainPanel.add_child(tiliches_ui)
+	_armar_equipo()
+	_armar_pestanas()
+	mensaje_label.position.y = MENSAJE_Y
+	var tinte := ShaderMaterial.new()
+	tinte.shader = Shader.new()
+	tinte.shader.code = SHADER_TINTE
+	foto_estado.material = tinte
 	# Automatically refresh if items are added or removed globally
 	inventory.inventory_changed.connect(refresh_carousel)
 	# Mochilero cambia la capacidad, y los puntos el aviso de abajo
@@ -126,6 +179,19 @@ func _ready() -> void:
 		pulse_tween.tween_property(box, "modulate:a", 0.3, 0.6)
 		pulse_tween.tween_property(box, "modulate:a", 1.0, 0.6)
 
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	var arma := equipo_pivot.get_node_or_null("arma")
+	if arma:
+		arma.rotation.y += GIRO_ARMA * delta
+	# En Grave la foto late
+	var fuerza := _tinte_fuerza
+	if Salud.estado() == "Grave":
+		_tinte_t += delta
+		fuerza += LATIDO * (0.5 + 0.5 * sin(_tinte_t * LATIDO_VEL))
+	(foto_estado.material as ShaderMaterial).set_shader_parameter("fuerza", fuerza)
+
 func _al_cambiar_tazos() -> void:
 	if visible:
 		update_hint()
@@ -154,7 +220,7 @@ func cerrar(sonido := "inv_cerrar") -> void:
 	mapa_ui.visible = false
 	habilidades_ui.visible = false
 	album_ui.cerrar()
-	morral_ui.cerrar()
+	tiliches_ui.cerrar()
 	inspect_viewer.set_inspection_active(false)
 	current_state = InventoryState.NAVIGATING
 	clear_all_models()
@@ -220,19 +286,25 @@ func _unhandled_input(event: InputEvent) -> void:
 		_abrir_mapa()
 		get_viewport().set_input_as_handled()
 		return
-	if current_state == InventoryState.MORRAL:
-		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_morral"):
-			morral_ui.cerrar()
+	if current_state == InventoryState.TILICHES:
+		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_tiliches"):
+			tiliches_ui.cerrar()
 			_cerrar_habilidades()
 		else:
-			morral_ui.manejar(event)
+			tiliches_ui.manejar(event)
 		get_viewport().set_input_as_handled()
 		return
-	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_morral"):
+	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_tiliches"):
+		get_viewport().set_input_as_handled()
+		# Los tiliches van en la cangurera (Tiliches.gd)
+		if inventory.cangurera == null:
+			_sonar("ui_error")
+			_mostrar_mensaje("Sin cangurera no traes tiliches. Te dan una por una misión.")
+			return
 		_sonar("ui_aceptar")
-		current_state = InventoryState.MORRAL
+		current_state = InventoryState.TILICHES
 		preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
-		morral_ui.mostrar()
+		tiliches_ui.mostrar()
 		get_viewport().set_input_as_handled()
 		return
 	if current_state == InventoryState.ALBUM:
@@ -478,7 +550,7 @@ func _abrir_bolsa() -> void:
 	if show.ir_a_habilidades:
 		_abrir_habilidades(tazo.desbloquea if not Tazos.es_repetido(tazo) else "")
 		return
-	_mostrar_mensaje("+%d puntos: H para gastarlos." % tazo.puntos)
+	_mostrar_mensaje(TazoRevelacion.texto_puntos(tazo, Tazos.es_repetido(tazo)) + (": H para gastarlos." if Tazos.ultimos_puntos > 0 else "."))
 
 func _terminar_combinacion() -> void:
 	if current_item_index == combinar_desde:
@@ -507,6 +579,24 @@ func _actualizar_estado() -> void:
 	var estado: String = Salud.estado()
 	estado_label.text = "%s: %s" % [Personaje.nombre, estado]
 	estado_label.add_theme_color_override("font_color", COLORES_ESTADO[estado])
+	# El tinte de la foto: verde leve sano, ambar herido, rojo grave, mezclado por la vida
+	# (los cortes son los de Salud.estado: 60 % y 25 %)
+	var f := clampf(float(Salud.vida) / maxf(Salud.vida_max, 1.0), 0.0, 1.0)
+	var color: Color
+	if f >= 0.6:
+		color = TINTE_BIEN
+		_tinte_fuerza = FUERZA_TINTE[0]
+	elif f >= 0.25:
+		var k := (f - 0.25) / 0.35
+		color = TINTE_HERIDO.lerp(TINTE_BIEN, k * k)
+		_tinte_fuerza = lerpf(FUERZA_TINTE[1], FUERZA_TINTE[0], k * k)
+	else:
+		var k := f / 0.25
+		color = TINTE_GRAVE.lerp(TINTE_HERIDO, k)
+		_tinte_fuerza = lerpf(FUERZA_TINTE[2], FUERZA_TINTE[1], k)
+	if foto_estado.material:
+		(foto_estado.material as ShaderMaterial).set_shader_parameter("tinte", color)
+		(foto_estado.material as ShaderMaterial).set_shader_parameter("fuerza", _tinte_fuerza)
 
 func _mostrar_mensaje(texto: String) -> void:
 	if _mensaje_tween and _mensaje_tween.is_valid():
@@ -608,7 +698,8 @@ func _elegir_centro() -> void:
 	if selected_item == null:
 		return
 	# Update label text fields instantly
-	item_name_label.text = selected_item.item_name
+	var n: int = inventory.cantidad(current_item_index)
+	item_name_label.text = selected_item.item_name + (" ×%d" % n if n > 1 else "")
 	item_description_label.text = ("[Equipada] " if selected_item == inventory.equipada else "") + selected_item.description
 	# Lo del taller dice que hace (armas, amuletos, estampitas)
 	if selected_item.efecto != "" and (selected_item.dano > 0 or selected_item.es_amuleto() or selected_item.estampita != ""):
@@ -621,28 +712,174 @@ func _elegir_centro() -> void:
 		comando_actual = lista[0] if not lista.is_empty() else Comando.EXAMINAR
 	update_hint()
 
+# Equipo: el arma con que peleas (gira), la mochila con sus lugares en cuadritos, los dos
+# amuletos puestos (Bonos.gd) y la cangurera (los tiliches). Cada cosa es su modelo en el
+# mundo del preview, dentro de un marco 2D; vacio, el marco se apaga y dice que falta
 func _actualizar_equipo() -> void:
 	for hijo in equipo_pivot.get_children():
 		hijo.queue_free()
-	var mochila: InventoryItemData = inventory.mochila
-	var modelo: Node3D = mochila.crear_modelo(TAMANO_MOCHILA) if mochila else null
-	if modelo:
-		equipo_pivot.add_child(modelo)
-	sin_mochila_label.visible = modelo == null
-	# Los dos amuletos puestos (Bonos.gd), abajo de la mochila
-	if _amuletos_label == null:
-		_amuletos_label = Label.new()
-		_amuletos_label.position = sin_mochila_label.position + Vector2(-40.0, 26.0)
-		_amuletos_label.size = Vector2(190.0, 34.0)
-		_amuletos_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		_amuletos_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_amuletos_label.add_theme_font_size_override("font_size", 10)
-		_amuletos_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
-		$MainPanel.add_child(_amuletos_label)
-	var nombres: Array[String] = []
-	for amuleto: InventoryItemData in Bonos.puestos:
-		nombres.append(amuleto.item_name if amuleto else "—")
-	_amuletos_label.text = "Amuletos: " + " · ".join(nombres)
+	var arma: InventoryItemData = inventory.arma()
+	_poner_equipo("arma", arma, TAMANO_EQUIPO)
+	_poner_equipo("mochila", inventory.mochila, TAMANO_EQUIPO)
+	for i in Bonos.puestos.size():
+		_poner_equipo("amuleto%d" % i, Bonos.puestos[i], TAMANO_EQUIPO_CHICO)
+	_poner_equipo("cangurera", inventory.cangurera, TAMANO_EQUIPO_CHICO)
+	_arma_label.text = "%s · %d" % [arma.item_name, arma.dano] if arma else "Sin arma"
+	_arma_label.add_theme_color_override("font_color", COLOR_EQUIPO if arma else COLOR_VACIO)
+	# Un cuadrito por lugar: llenos los que ocupas
+	var cupo: int = inventory.capacidad()
+	var usados: int = inventory.get_item_count()
+	for hijo in _pips.get_children():
+		hijo.queue_free()
+	var caja: Rect2 = EQUIPO_CAJAS["mochila"]
+	var ancho := minf(8.0, (caja.size.x - (cupo - 1)) / maxf(cupo, 1))
+	for i in cupo:
+		var pip := ColorRect.new()
+		pip.color = COLOR_EQUIPO if i < usados else COLOR_VACIO.darkened(0.4)
+		pip.position = Vector2(i * (ancho + 1.0), 0.0)
+		pip.size = Vector2(ancho, 5.0)
+		_pips.add_child(pip)
+	_pips.position = Vector2(caja.position.x + (caja.size.x - cupo * (ancho + 1.0) + 1.0) / 2.0, caja.end.y + 4.0)
+	_cupo_label.text = "%d / %d" % [usados, cupo]
+	_cupo_label.add_theme_color_override("font_color", AMARILLO_PILA if usados >= cupo else COLOR_EQUIPO)
+
+
+func _poner_equipo(nombre: String, item: InventoryItemData, tamano: float) -> void:
+	var caja: Panel = _equipo_cajas[nombre]
+	var estilo := caja.get_theme_stylebox("panel") as StyleBoxFlat
+	estilo.border_color = COLOR_MARCO if item else COLOR_VACIO.darkened(0.5)
+	var vacio: Label = caja.get_meta("vacio") if caja.has_meta("vacio") else null
+	if vacio:
+		vacio.visible = item == null
+	if item == null:
+		return
+	var modelo := item.crear_modelo(tamano)
+	if modelo == null:
+		return
+	var lugar := Node3D.new()
+	lugar.name = nombre
+	var rect: Rect2 = EQUIPO_CAJAS[nombre]
+	lugar.position = preview_camera.project_position(rect.get_center(), preview_camera.position.z)
+	lugar.rotation.y = deg_to_rad(25.0)
+	lugar.add_child(modelo)
+	equipo_pivot.add_child(lugar)
+
+
+# Los marcos de Equipo y sus letreros (una vez, en _ready)
+func _armar_equipo() -> void:
+	equipo_pivot.transform = Transform3D.IDENTITY
+	# Todo en una capa debajo de las paginas (mapa, habilidades, album, tiliches), que la tapan
+	var capa := Control.new()
+	capa.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	capa.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$MainPanel.add_child(capa)
+	$MainPanel.move_child(capa, mapa_ui.get_index())
+	sin_mochila_label.visible = false
+	capacidad_label.visible = false
+	for nombre: String in EQUIPO_CAJAS:
+		var rect: Rect2 = EQUIPO_CAJAS[nombre]
+		var caja := Panel.new()
+		var estilo := StyleBoxFlat.new()
+		estilo.bg_color = Color(0, 0, 0, 0)
+		estilo.set_border_width_all(1)
+		caja.add_theme_stylebox_override("panel", estilo)
+		caja.position = rect.position
+		caja.size = rect.size
+		caja.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if EQUIPO_VACIO.has(nombre):
+			var vacio := _label_equipo(EQUIPO_VACIO[nombre], 10, COLOR_VACIO)
+			vacio.size = rect.size
+			vacio.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			caja.add_child(vacio)
+			caja.set_meta("vacio", vacio)
+		capa.add_child(caja)
+		_equipo_cajas[nombre] = caja
+	var arma: Rect2 = EQUIPO_CAJAS["arma"]
+	_arma_label = _label_equipo("", 10, COLOR_EQUIPO)
+	_arma_label.position = Vector2(arma.position.x - 6.0, arma.end.y + 1.0)
+	_arma_label.size = Vector2(arma.size.x + 12.0, 14.0)
+	_arma_label.clip_text = true
+	capa.add_child(_arma_label)
+	_pips = Control.new()
+	_pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	capa.add_child(_pips)
+	var mochila: Rect2 = EQUIPO_CAJAS["mochila"]
+	_cupo_label = _label_equipo("", 10, COLOR_EQUIPO)
+	_cupo_label.position = Vector2(mochila.position.x, mochila.end.y + 10.0)
+	_cupo_label.size = Vector2(mochila.size.x, 14.0)
+	capa.add_child(_cupo_label)
+	var amuletos := _label_equipo("Amuletos", 9, COLOR_VACIO)
+	amuletos.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	amuletos.position = Vector2(EQUIPO_CAJAS["amuleto1"].end.x + 3.0, EQUIPO_CAJAS["amuleto1"].position.y + 6.0)
+	capa.add_child(amuletos)
+	var cangurera := _label_equipo("Cangurera", 9, COLOR_VACIO)
+	cangurera.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	# Pegado a su marco por la izquierda, midiendo el texto
+	var ancho_texto := cangurera.get_theme_font("font").get_string_size(cangurera.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
+	cangurera.position = Vector2(EQUIPO_CAJAS["cangurera"].position.x - 4.0 - ancho_texto, EQUIPO_CAJAS["cangurera"].position.y + 6.0)
+	capa.add_child(cangurera)
+
+
+func _label_equipo(texto: String, tamano: int, color: Color) -> Label:
+	var label := Label.new()
+	label.text = texto
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", tamano)
+	label.add_theme_color_override("font_color", color)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return label
+
+
+# --- Pestanas de abajo: a que otras paginas llegas y con que tecla ---
+
+func _armar_pestanas() -> void:
+	_pestanas = Control.new()
+	_pestanas.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pestanas.position = Vector2(30.0, PESTANAS_Y)
+	$MainPanel.add_child(_pestanas)
+	# Debajo de las paginas (mapa, habilidades, album, tiliches): ellas la tapan al abrirse
+	$MainPanel.move_child(_pestanas, mapa_ui.get_index())
+	var ancho := 580.0 / PESTANAS.size()
+	for i in PESTANAS.size():
+		var nombre := _label_equipo(PESTANAS[i][0], 12, COLOR_NORMAL)
+		nombre.position = Vector2(i * ancho, 0.0)
+		nombre.size = Vector2(ancho, 14.0)
+		_pestanas.add_child(nombre)
+		var tecla := _label_equipo("", 9, COLOR_VACIO)
+		tecla.position = Vector2(i * ancho, 14.0)
+		tecla.size = Vector2(ancho, 12.0)
+		_pestanas.add_child(tecla)
+	var raya := ColorRect.new()
+	raya.color = AMARILLO_PILA
+	raya.size = Vector2(ancho * 0.5, 1.0)
+	raya.position = Vector2(ancho * 0.25, -2.0)
+	_pestanas.add_child(raya)
+
+
+func _actualizar_pestanas() -> void:
+	if _pestanas == null:
+		return
+	var control := not Input.get_connected_joypads().is_empty()
+	var libres: int = Tazos.libres()
+	for i in PESTANAS.size():
+		var nombre := _pestanas.get_child(i * 2) as Label
+		var tecla := _pestanas.get_child(i * 2 + 1) as Label
+		tecla.text = PESTANAS[i][2] if control else PESTANAS[i][1]
+		var color := COLOR_NORMAL
+		nombre.text = PESTANAS[i][0]
+		match i:
+			0:
+				color = AMARILLO_PILA
+			1:
+				if inventory.cangurera == null:
+					color = COLOR_VACIO.darkened(0.4)
+					tecla.text = "sin cangurera"
+			2:
+				if libres > 0:
+					nombre.text += " ¡%d!" % libres
+					color = AMARILLO_PILA
+		nombre.add_theme_color_override("font_color", color)
+
 
 # Factory utility to instantiate and mount item scene resources cleanly
 func spawn_item(index: int) -> Node3D:
@@ -652,6 +889,20 @@ func spawn_item(index: int) -> Node3D:
 	var model_node := item_data.crear_modelo(TAMANO_MODELO)
 	if model_node:
 		item_pivot.add_child(model_node)
+		# Una pila lleva su cuantos abajo a la derecha, tambien en la hilera
+		var n: int = inventory.cantidad(index)
+		if n > 1:
+			var cuenta := Label3D.new()
+			cuenta.text = "×%d" % n
+			cuenta.font_size = 48
+			cuenta.pixel_size = 0.006
+			cuenta.outline_size = 12
+			cuenta.modulate = AMARILLO_PILA
+			cuenta.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			cuenta.no_depth_test = true
+			cuenta.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+			cuenta.position = Vector3(TAMANO_MODELO * 0.42, -TAMANO_MODELO * 0.42, 0.2)
+			model_node.add_child(cuenta)
 	return model_node
 
 # Deletes all currently loaded carousel model assets out of engine view completely
@@ -670,7 +921,7 @@ func clear_all_models() -> void:
 # Modifies instructional footer texts based on what menu state is active
 func update_hint() -> void:
 	_actualizar_comandos()
-	capacidad_label.text = "- %d / %d -" % [inventory.get_item_count(), inventory.capacidad()]
+	_actualizar_pestanas()
 	var se_navega: bool = inventory.get_item_count() > 1 and current_state != InventoryState.INSPECTING
 	for flecha in flechas:
 		flecha.visible = se_navega
@@ -681,14 +932,8 @@ func update_hint() -> void:
 			var primero: InventoryItemData = inventory.get_item(combinar_desde)
 			inspect_hint_label.text = "%s con... (Enter / Esc)" % primero.item_name
 		_:
-			# Con puntos sin gastar, el aviso lo dice (y se pinta de amarillo)
-			var libres: int = Tazos.libres()
-			var aviso := " (¡%d!)" % libres if libres > 0 else ""
-			inspect_hint_label.text = "M Mapa · H Habilidades%s · T Álbum · B Morral" % aviso
-	if current_state in [InventoryState.INSPECTING, InventoryState.COMBINING] or Tazos.libres() <= 0:
-		inspect_hint_label.remove_theme_color_override("font_color")
-	else:
-		inspect_hint_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))
+			# Las otras paginas y los puntos sin gastar van en las pestanas de abajo
+			inspect_hint_label.text = ""
 
 # Solo se ven los comandos que aplican; el elegido en blanco
 func _actualizar_comandos() -> void:

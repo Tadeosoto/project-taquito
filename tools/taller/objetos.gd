@@ -2,7 +2,7 @@ extends SceneTree
 
 # Escribe resources/taller/<id>.tres: lo que se hace en el taller de La Chava (Recetas.gd),
 # desde la tabla de abajo. Los materiales que salen de una receta (varilla armada, varilla
-# del 84) no van aqui: son del Morral (Materiales.gd). Correr despues de tools/taller/modelos.gd.
+# del 84) no van aqui: son de los Tiliches (Materiales.gd). Correr despues de tools/taller/modelos.gd.
 #
 #   godot --path . --headless -s tools/taller/objetos.gd
 

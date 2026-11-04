@@ -22,7 +22,6 @@ const PIEZA_POSTE := 1.5     # m junto al poste
 const BOLSAS_ZONAS := [1, 3, 5, 7]
 const BOLSA_LADO := Vector2(4.0, 0.0)  # m de la pieza, para que no se encimen
 const BOLSA := "res://resources/productos/takis_tazo.tres"
-const TEXTO_PUNTO := "+1 punto de habilidad por sobrevivir la noche"
 # Montones de chatarra para el taller (Chatarra.gd)
 const CHATARRA_POR_ZONA := 3
 const CHATARRA_LADO := Vector2(0.0, 1.6)   # m del poste
@@ -89,12 +88,10 @@ func _ready() -> void:
 	_poner_misiones()
 
 
-# Sobreviviste la noche: un punto de habilidad (Tazos.gd)
+# Ya no da puntos por noche: solo los tazos nuevos (Tazos.gd), para que el album completo
+# cuadre con el arbol de habilidades
 func _amanecio() -> void:
-	if noche <= 0:
-		return
-	get_node("/root/Tazos").dar_puntos(Tazos.PUNTOS_POR_NOCHE)
-	_supervivencia.avisar(TEXTO_PUNTO)
+	pass
 
 
 # Unas bolsas especiales tiradas, con su haz (WorldItem): junto a donde va la pieza de su
@@ -294,7 +291,7 @@ func _terminar(texto: String) -> void:
 func _otra_vez() -> void:
 	Engine.time_scale = 1.0
 	# Taller no: el rango, los planos y la vitrina se quedan entre partidas
-	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones", "Tazos", "Morral", "Bonos"]:
+	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones", "Tazos", "Tiliches", "Bonos"]:
 		get_node("/root/" + autoload).reiniciar()
 	get_tree().paused = false
 	get_tree().reload_current_scene()

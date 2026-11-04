@@ -6,6 +6,8 @@ extends CanvasLayer
 # pide (tienes / necesitas, en rojo lo que falta), los pesos y el plano. Lo que dice La Chava
 # sale a la izquierda, sobre la escena. Flechas: arriba/abajo eligen, izquierda/derecha cambian
 # de juego; Enter o Espacio lo hacen (Taller.hacer). S / Esc salen (Interiores.gd).
+# V abre la vitrina de La Chava (TilichesUI con vitrina = true): los trofeos, que se quedan
+# entre partidas; V o Esc la cierran.
 
 const AMARILLO := Color(1.0, 0.85, 0.1)
 const BLANCO := Color(1.0, 1.0, 1.0)
@@ -26,6 +28,7 @@ var juego := 1
 var elegida := 0
 
 var _rango: Label
+var _vitrina: Control      # null = cerrada
 var _pestanas: Label
 var _filas: Array[Label] = []
 var _marcas: Array[Label] = []
@@ -80,7 +83,7 @@ func _ready() -> void:
 	_pesos = _label("", 12, BLANCO)
 	_pesos.position = Vector2(PANEL_X, 430.0)
 	add_child(_pesos)
-	var ayuda := _label("↑↓ elegir · ←→ juego · Enter hacer · S/Esc salir", 11, GRIS)
+	var ayuda := _label("↑↓ elegir · ←→ juego · Enter hacer · V vitrina · S/Esc salir", 11, GRIS)
 	ayuda.position = Vector2(PANEL_X, 452.0)
 	add_child(ayuda)
 	_dice = _label("", 13, BLANCO)
@@ -93,7 +96,7 @@ func _ready() -> void:
 	add_child(_dice)
 	juego = maxi(Taller.juegos_abiertos(), 1)
 	Taller.cambio.connect(_actualizar)
-	Morral.cambio.connect(_actualizar)
+	Tiliches.cambio.connect(_actualizar)
 	_actualizar()
 
 
@@ -113,6 +116,25 @@ func _process(_delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if yonke == null or not yonke.activo:
+		return
+	var tecla_v: bool = event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_V
+	# Con la vitrina abierta todo es de ella: flechas para ver, V o Esc para cerrar
+	if _vitrina:
+		if tecla_v or event.is_action_pressed("ui_cancel") or event.is_action_pressed("move_backward"):
+			_vitrina.queue_free()
+			_vitrina = null
+			_sonar("ui_cancelar")
+		else:
+			_vitrina.manejar(event)
+		get_viewport().set_input_as_handled()
+		return
+	if tecla_v:
+		_vitrina = load("res://scripts/TilichesUI.gd").new()
+		_vitrina.vitrina = true
+		add_child(_vitrina)
+		_vitrina.mostrar()
+		_sonar("ui_aceptar")
+		get_viewport().set_input_as_handled()
 		return
 	var lista := Recetas.de_juego(juego)
 	if event.is_action_pressed("inspect_up"):
@@ -203,7 +225,7 @@ func _detalle(id: String, abierto: bool) -> void:
 	_efecto.text = item.efecto if item else Materiales.dato(Recetas.material_resultado(id)).get("descripcion", "")
 	var materiales: Dictionary = receta["materiales"]
 	for m: String in materiales:
-		var tiene: int = Morral.cuantos(m)
+		var tiene: int = Tiliches.cuantos(m)
 		var pide: int = materiales[m]
 		var fila := HBoxContainer.new()
 		var icono := TextureRect.new()

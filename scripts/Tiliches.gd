@@ -1,11 +1,15 @@
 extends Node
 
-# Autoload `Morral`: los materiales del taller (Materiales.gd), aparte del inventario y sin
+# Autoload `Tiliches`: los materiales del taller (Materiales.gd), aparte del inventario y sin
 # limite, como la lista de materiales de Kingdom Hearts. Los comunes y especiales duran lo que
 # la partida (reiniciar); los TROFEOS se quedan en la vitrina de La Chava entre partidas
 # (user://taller.cfg, seccion "vitrina"). Propuesta de AG (docs/especificaciones.md 4.13).
 #
 # Lo que entra sale abajo a la derecha unos segundos ("+2 Rebaba"), sin tener que abrir nada.
+#
+# Los tiliches van en la cangurera (Inventory.cangurera, premio de una mision): sin ella no
+# puedes guardar ninguno (dar regresa false y avisa). Los trofeos no: esos se quedan en la
+# vitrina de La Chava (TallerUI, tecla V), no los cargas tu.
 
 signal cambio
 signal recibido(id: String, cuantos: int)
@@ -16,12 +20,15 @@ const AVISO_DURA := 2.6       # s en pantalla
 const AVISO_JUNTA := 1.2      # s: lo mismo que llega antes de esto se suma al aviso que ya esta
 const AVISOS_MAX := 5
 const AMARILLO := Color(1.0, 0.85, 0.1)
+const SIN_CANGURERA := "Sin cangurera no tienes dónde guardar tiliches"
+const SIN_CANGURERA_CADA := 20.0   # s entre un aviso y otro
 
 var cantidades := {}          # id -> cuantos
 
 var _capa: CanvasLayer
 var _lista: VBoxContainer
 var _avisos := {}             # id -> {label, cuantos, desde}
+var _ultimo_sin_cangurera := -100000
 
 
 func _ready() -> void:
@@ -53,9 +60,29 @@ func cuantos(id: String) -> int:
 	return cantidades.get(id, 0)
 
 
-func dar(id: String, n := 1, avisar := true) -> void:
+# Si traes donde guardarlos (la cangurera); los trofeos siempre entran
+func puede_guardar(id := "") -> bool:
+	if id != "" and Materiales.es_trofeo(id):
+		return true
+	var inventario := get_node_or_null("/root/Inventory")
+	return inventario != null and inventario.cangurera != null
+
+
+# Avisa que no traes cangurera, pero no a cada rato
+func avisar_sin_cangurera() -> void:
+	var ahora := Time.get_ticks_msec()
+	if ahora - _ultimo_sin_cangurera >= SIN_CANGURERA_CADA * 1000.0:
+		_ultimo_sin_cangurera = ahora
+		avisar(SIN_CANGURERA)
+
+
+# Regresa false si no entro (sin cangurera)
+func dar(id: String, n := 1, avisar := true) -> bool:
 	if n <= 0 or Materiales.dato(id).is_empty():
-		return
+		return false
+	if not puede_guardar(id):
+		avisar_sin_cangurera()
+		return false
 	cantidades[id] = cuantos(id) + n
 	if Materiales.es_trofeo(id):
 		_guardar_vitrina()
@@ -63,6 +90,7 @@ func dar(id: String, n := 1, avisar := true) -> void:
 	if avisar:
 		_avisar(id, n)
 	cambio.emit()
+	return true
 
 
 # Varios de un jalon (Materiales.botin, chatarra): id -> cuantos

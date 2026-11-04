@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://77nvfwlbkih7"
-path="res://.godot/imported/Frenchie_baseColor.png-ae3e918d24586c20aa11bf72a2b89573.ctex"
+path.s3tc="res://.godot/imported/Frenchie_baseColor.png-ae3e918d24586c20aa11bf72a2b89573.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={}
 
 [deps]
 
 source_file="res://models/personajes/perro/textures/Frenchie_baseColor.png"
-dest_files=["res://.godot/imported/Frenchie_baseColor.png-ae3e918d24586c20aa11bf72a2b89573.ctex"]
+dest_files=["res://.godot/imported/Frenchie_baseColor.png-ae3e918d24586c20aa11bf72a2b89573.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -38,4 +39,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

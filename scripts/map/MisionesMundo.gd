@@ -3,7 +3,8 @@ extends Node3D
 
 # Lo que se ve de las misiones (Misiones.gd): los vecinos que las dan, con su signo amarillo; a
 # donde ir, con una flecha y en los mapas; lo que falta, en pantalla. Salen del mapa de datos,
-# como los pedazos de mapa de Partida.gd. El safehouse le da sus propios lugares.
+# como los pedazos de mapa de Partida.gd. El safehouse le da sus propios lugares. El lugar
+# que sobra despues de los vecinos es para el nino de los tazos (NinoTazos.gd).
 
 const NPC := preload("res://scenes/npc.tscn")
 const PERRO := preload("res://models/personajes/perro/perro.scn")
@@ -33,6 +34,8 @@ const TEXTO_TARDE := "Ya va a oscurecer. Mejor mañana."
 @export var perro_fijo := Vector3.INF
 
 var vecinos: Array[Dictionary] = []
+var nino: NinoTazos
+var _nino_lugar := Vector3.ZERO
 
 var _casas: Array = []
 var _tiendas: Array = []
@@ -121,6 +124,13 @@ func _poner_vecinos() -> void:
 		npc.add_child(signo)
 		npc.set("al_hablar", _hablar.bind(i))
 		vecinos.append({"mision": mision, "nodo": npc, "signo": signo, "lugar": lugares[i], "visto": false})
+	if lugares.size() > cuantos:
+		_nino_lugar = lugares[cuantos]
+		nino = NinoTazos.new()
+		add_child(nino)
+		nino.global_position = _nino_lugar
+		var hacia := _jugador.global_position - _nino_lugar
+		nino.rotation.y = atan2(hacia.x, hacia.z)
 	_actualizar_signos()
 
 
@@ -147,7 +157,8 @@ func _lugares_vecinos() -> Array[Vector3]:
 				lejos = false
 		if lejos:
 			lugares.append(en_mundo)
-		if lugares.size() >= Misiones.todas.size():
+		# Uno mas para el nino de los tazos
+		if lugares.size() >= Misiones.todas.size() + 1:
 			break
 	return lugares
 
@@ -161,7 +172,7 @@ func _hablar(i: int) -> String:
 		return mision.recuerda
 	if Misiones.activa != null:
 		return TEXTO_OCUPADO
-	if Misiones.hecha_hoy(mision):
+	if Misiones.hecha_hoy(mision) or Misiones.ya_tienes_el_premio(mision):
 		return mision.despedida
 	if not Misiones.ofreciendo:
 		return TEXTO_TARDE
@@ -189,6 +200,9 @@ func _anochecio() -> void:
 		if npc.is_inside_tree():
 			npc.set("_player_inside", false)
 			remove_child(npc)
+	if nino and nino.is_inside_tree():
+		nino.soltar()
+		remove_child(nino)
 
 
 func _amanecio() -> void:
@@ -199,6 +213,9 @@ func _amanecio() -> void:
 			add_child(npc)
 			npc.global_position = v["lugar"]
 		v["visto"] = false
+	if nino and not nino.is_inside_tree():
+		add_child(nino)
+		nino.global_position = _nino_lugar
 	_actualizar_signos()
 
 

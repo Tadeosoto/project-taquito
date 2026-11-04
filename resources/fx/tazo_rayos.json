@@ -1,0 +1,16 @@
+{
+ "id": "holy/sunburst",
+ "fps": 30,
+ "loop": true,
+ "frames": 120,
+ "frameSize": [
+  128,
+  128
+ ],
+ "pivot": [
+  64,
+  64
+ ],
+ "columns": 11,
+ "golpe_en": 0
+}

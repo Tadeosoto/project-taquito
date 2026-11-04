@@ -54,6 +54,21 @@
     { "nombre": "curar", "id": "nature/healing-bloom",
       "opts": { "light": 0.4 } },
     { "nombre": "rabia", "id": "taquito/marca-rabia",
-      "opts": { "light": 0.4 } }
+      "opts": { "light": 0.4 } },
+
+    { "nombre": "tazo_brillo_comun", "id": "pickups/collect-burst",
+      "opts": { "palette": ["#0e0e10", "#2a2a2e", "#4a4a50", "#76767c", "#a6a6aa", "#c8c8c4", "#ecece6", "#ffffff"], "light": 0.4 } },
+    { "nombre": "tazo_brillo_raro", "id": "pickups/collect-burst",
+      "opts": { "palette": ["#06101e", "#0c2244", "#16407a", "#2a62b8", "#5aa6ff", "#8cc4ff", "#c8e4ff", "#ffffff"], "light": 0.4 } },
+    { "nombre": "tazo_brillo_holo", "id": "pickups/collect-burst",
+      "opts": { "palette": ["#3a0a4a", "#7a1ca0", "#3c5aff", "#ff9a2a", "#ffe03c", "#3cc8ff", "#f53cd1", "#ffffff"], "light": 0.4 } },
+    { "nombre": "tazo_carga_raro", "id": "arcane/mana-burst",
+      "opts": { "palette": ["#06101e", "#0c2244", "#16407a", "#2a62b8", "#5aa6ff", "#8cc4ff", "#c8e4ff", "#ffffff"], "light": 0.4 } },
+    { "nombre": "tazo_carga_holo", "id": "arcane/mana-burst",
+      "opts": { "palette": ["#1e1206", "#4a2c08", "#86520c", "#c48412", "#f0b424", "#ffe066", "#fff6c4", "#ffffff"], "light": 0.4 } },
+    { "nombre": "tazo_rayos", "id": "holy/sunburst",
+      "opts": { "light": 0 } },
+    { "nombre": "tazo_confeti", "id": "ui/confetti",
+      "opts": { "light": 0.3 } }
   ]
 }

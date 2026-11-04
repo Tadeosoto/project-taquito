@@ -596,12 +596,12 @@ func _morir(pagado: bool, truena_en := 0) -> void:
 			var bonos := get_node_or_null("/root/Bonos")
 			var paga: int = randi_range(PESOS.x, PESOS.y) + (tazos.pesos_extra() if tazos else 0)
 			cartera.pesos += roundi(paga * (bonos.factor_pesos() if bonos else 1.0))
-		# Materiales para el taller (Morral.gd): mejores de noche, en zonas feas y de cazadores
-		var morral := get_node_or_null("/root/Morral")
-		if morral:
+		# Materiales para el taller (Tiliches.gd): mejores de noche, en zonas feas y de cazadores
+		var tiliches := get_node_or_null("/root/Tiliches")
+		if tiliches:
 			var ciclo := get_tree().get_first_node_in_group("ciclo")
 			var de_noche: bool = ciclo != null and ciclo.es_noche()
-			morral.dar_varios(Materiales.botin(Deterioro.zona(global_position.x, global_position.z), de_noche, cazador or es_jefe))
+			tiliches.dar_varios(Materiales.botin(Deterioro.zona(global_position.x, global_position.z), de_noche, cazador or es_jefe))
 		# Las hazanas del taller (Hazanas.gd): cazador, turba, fuego, jefe...
 		get_tree().call_group("hazanas", "zombi_muerto", self, _quema > 0.0)
 

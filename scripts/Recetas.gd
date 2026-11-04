@@ -2,11 +2,11 @@ class_name Recetas
 
 # Lo que hace La Chava en su yonke (Taller.gd), como la sintesis de Kingdom Hearts 1: seis
 # juegos que se abren segun cuantas cosas distintas has hecho (UMBRALES; el sexto pide todas
-# las de los cinco primeros). Cada receta pide materiales del Morral (Materiales.gd) y unos
+# las de los cinco primeros). Cada receta pide materiales de los Tiliches (Materiales.gd) y unos
 # pesos; las del sexto ademas su plano. Propuesta de AG; los numeros son para afinarse jugando.
 #
 # `resultado`: el .tres de resources/taller/ (lo escribe tools/taller/objetos.gd), o
-# "material:<id>" para lo que va al Morral.
+# "material:<id>" para lo que va a los Tiliches.
 
 const UMBRALES := [0, 3, 9, 15, 21]   # cosas distintas hechas para abrir los juegos 1-5
 const JUEGOS := 6

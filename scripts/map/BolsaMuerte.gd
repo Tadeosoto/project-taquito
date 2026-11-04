@@ -58,8 +58,12 @@ func is_player_inside() -> bool:
 
 func interact() -> void:
 	var inventario := get_node("/root/Inventory")
-	while not items.is_empty() and inventario.add_item(items[0]):
-		items.remove_at(0)
+	# Lo que no quepa (lugares o pilas llenas) se queda en la bolsa
+	var sobran: Array[InventoryItemData] = []
+	for item in items:
+		if not inventario.add_item(item):
+			sobran.append(item)
+	items = sobran
 	if items.is_empty():
 		queue_free()
 	else:

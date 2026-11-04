@@ -210,8 +210,8 @@ func _actualizar() -> void:
 	var elegido_tazo: TazoData = de_esa[elegido] if elegido < de_esa.size() else null
 	_mostrar_tazo(elegido_tazo)
 	var total := Tazos.todos.size()
-	_total.text = "Total: %d de %d · Series completas: %d de %d · Completar una serie da +%d puntos" % [
-		Tazos.distintos().size(), total, Tazos.series_premiadas.size(), Tazos.numero_de_series(), Tazos.PUNTOS_SERIE]
+	_total.text = "Total: %d de %d · Series completas: %d de %d · Comunes: %d de %d para el siguiente punto" % [
+		Tazos.distintos().size(), total, Tazos.series_premiadas.size(), Tazos.numero_de_series(), Tazos.progreso_comun(), Tazos.COMUNES_POR_PUNTO]
 
 
 func _mostrar_tazo(tazo: TazoData) -> void:
@@ -232,7 +232,9 @@ func _mostrar_tazo(tazo: TazoData) -> void:
 	_pivote.add_child(_disco)
 	_nombre.text = tazo.nombre if n > 0 else "???"
 	_nombre.add_theme_color_override("font_color", AMARILLO if n > 0 else GRIS)
-	var lineas := "No. %02d · %s · %d %s" % [tazo.numero, TazoData.RAREZAS[tazo.rareza], tazo.puntos, "punto" if tazo.puntos == 1 else "puntos"]
+	var lineas := "No. %02d · %s · %s" % [tazo.numero, TazoData.RAREZAS[tazo.rareza], TazoData.texto_puntos(tazo.rareza)]
+	if n > 1:
+		lineas += " · %d repetido%s" % [n - 1, "" if n == 2 else "s"]
 	lineas += "\n" + ("Tienes %d" % n if n > 0 else "Te falta. Sale en las bolsas especiales de Takis.")
 	_ficha.text = lineas
 	_ficha.add_theme_color_override("font_color", TazoData.COLORES_RAREZA[tazo.rareza] if n > 0 else GRIS)

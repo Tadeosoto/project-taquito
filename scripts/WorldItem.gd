@@ -87,9 +87,8 @@ func interact() -> void:
 	# Agregar item a inventario; si no cabe se queda tirado
 	var agarrado := false
 	if item_data.material != "":
-		# Un material del taller (Morral.gd): no ocupa lugar
-		get_node("/root/Morral").dar(item_data.material)
-		agarrado = true
+		# Un material del taller (Tiliches.gd): no ocupa lugar
+		agarrado = get_node("/root/Tiliches").dar(item_data.material)
 	else:
 		agarrado = Inventory.equipar_mochila(item_data) if item_data.capacidad > 0 else Inventory.add_item(item_data)
 	if not agarrado:
@@ -127,7 +126,13 @@ func _actualizar_aviso() -> void:
 		_aviso.text = ""
 	elif item_data.capacidad > 0 and item_data.capacidad <= Inventory.capacidad_mochila():
 		_aviso.text = "Ya traes una mochila mejor"
-	elif item_data.capacidad == 0 and item_data.material == "" and Inventory.esta_lleno():
+	elif item_data.material != "" and not get_node("/root/Tiliches").puede_guardar(item_data.material):
+		_aviso.text = "Sin cangurera: %s" % item_data.item_name
+	elif item_data.cangurera and Inventory.cangurera != null:
+		_aviso.text = "Ya traes cangurera"
+	elif item_data.capacidad == 0 and item_data.material == "" and item_data.apilable() and Inventory.cuantos(item_data) >= Inventory.MAX_PILA:
+		_aviso.text = "Ya traes %d: %s" % [Inventory.MAX_PILA, item_data.item_name]
+	elif item_data.capacidad == 0 and item_data.material == "" and not Inventory.cabe(item_data):
 		_aviso.text = "No te cabe: %s" % item_data.item_name
 	else:
 		var tecla := "Espacio" if Input.get_connected_joypads().is_empty() else "X"

@@ -3,7 +3,7 @@ class_name Yonke
 extends Interior
 
 # El Yonke de Don Chava, que ahora atiende su nieta, La Chava (docs/personajes.md): el taller
-# donde se hacen cosas con los materiales del Morral (Taller.gd, Recetas.gd), como la sintesis
+# donde se hacen cosas con los materiales de los Tiliches (Taller.gd, Recetas.gd), como la sintesis
 # de Kingdom Hearts. Es un interior como las tiendas (se entra por la flecha amarilla, de noche
 # esta cerrado), pero en vez del carrusel de productos abre la pantalla del taller (TallerUI) y
 # lo que elijes flota en el banco, frente a la camara. Propuesta de AG.
@@ -24,6 +24,7 @@ const LINEAS_NO := {
 	"materiales": "No te alcanza el material. Ve a juntar.",
 	"pesos": "Mi trabajo cuesta, eh. No te alcanza.",
 	"lleno": "Ya no te cabe nada. Haz lugar.",
+	"cangurera": "¿Y dónde lo vas a cargar? Consíguete una cangurera.",
 }
 
 var _taller: TallerUI

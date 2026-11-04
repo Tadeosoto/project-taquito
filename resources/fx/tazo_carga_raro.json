@@ -1,0 +1,16 @@
+{
+ "id": "arcane/mana-burst",
+ "fps": 30,
+ "loop": false,
+ "frames": 55,
+ "frameSize": [
+  208,
+  150
+ ],
+ "pivot": [
+  104,
+  124
+ ],
+ "columns": 7,
+ "golpe_en": 0
+}

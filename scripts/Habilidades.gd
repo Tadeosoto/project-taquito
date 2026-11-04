@@ -31,33 +31,33 @@ const ICONOS := "res://textures/habilidades/%s.png"   # 16 x 16, de tools/tazos/
 # id -> nombre, descripcion, categoria, niveles, costo de cada nivel, bloqueada
 const LISTA := {
 	"vida": { "nombre": "Aguante", "descripcion": "Más vida máxima: +10 % por nivel.",
-		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 2, 3], "bloqueada": false },
+		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 1, 2], "bloqueada": false },
 	"fuerza": { "nombre": "Fuerza", "descripcion": "Pegas más fuerte: +10 % de daño por nivel, con arma o sin ella.",
-		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 2, 3], "bloqueada": false },
+		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 1, 2], "bloqueada": false },
 	"velocidad": { "nombre": "Patas", "descripcion": "Caminas y corres más rápido: +10 % por nivel.",
-		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 2, 3], "bloqueada": false },
+		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 1, 2], "bloqueada": false },
 	"alcance": { "nombre": "Brazo largo", "descripcion": "Tu golpe llega más lejos: +10 % por nivel.",
-		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 2, 2], "bloqueada": false },
+		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 1, 1], "bloqueada": false },
 	"segundo_aire": { "nombre": "Segundo aire", "descripcion": "Una vez por noche, en vez de desmayarte te levantas con 30 % de vida.",
-		"categoria": Categoria.SOBREVIVIR, "niveles": 1, "costo": [4], "bloqueada": true },
+		"categoria": Categoria.SOBREVIVIR, "niveles": 1, "costo": [3], "bloqueada": true },
 	"buen_diente": { "nombre": "Buen diente", "descripcion": "La comida y las medicinas te curan más: +25 % por nivel.",
-		"categoria": Categoria.SOBREVIVIR, "niveles": 2, "costo": [1, 2], "bloqueada": false },
+		"categoria": Categoria.SOBREVIVIR, "niveles": 2, "costo": [1, 1], "bloqueada": false },
 	"piel_dura": { "nombre": "Piel dura", "descripcion": "De noche los zombis te hacen menos daño: -15 % por nivel.",
-		"categoria": Categoria.SOBREVIVIR, "niveles": 2, "costo": [2, 2], "bloqueada": false },
+		"categoria": Categoria.SOBREVIVIR, "niveles": 2, "costo": [1, 2], "bloqueada": false },
 	"pies_de_gato": { "nombre": "Pies de gato", "descripcion": "Los zombis te notan más tarde: aparecen más lejos y, cerca del refugio, se van por ti desde más cerca. Los cazadores y el jefe no se dejan.",
-		"categoria": Categoria.SOBREVIVIR, "niveles": 2, "costo": [2, 2], "bloqueada": true },
+		"categoria": Categoria.SOBREVIVIR, "niveles": 2, "costo": [1, 2], "bloqueada": true },
 	"mas_pesos": { "nombre": "Bolsillos", "descripcion": "Cada zombi que revientas suelta un peso más por nivel.",
-		"categoria": Categoria.NEGOCIO, "niveles": 2, "costo": [1, 2], "bloqueada": false },
+		"categoria": Categoria.NEGOCIO, "niveles": 2, "costo": [1, 1], "bloqueada": false },
 	"regateo": { "nombre": "Regateo", "descripcion": "Lo que se paga en pesos te sale 10 % más barato por nivel.",
-		"categoria": Categoria.NEGOCIO, "niveles": 2, "costo": [2, 2], "bloqueada": false },
-	"mochilero": { "nombre": "Mochilero", "descripcion": "Te cabe una cosa más por nivel, con mochila o sin ella.",
-		"categoria": Categoria.NEGOCIO, "niveles": 2, "costo": [2, 3], "bloqueada": false },
-	"buena_racha": { "nombre": "Buena racha", "descripcion": "Te salen más bolsas especiales al comprar Takis.",
 		"categoria": Categoria.NEGOCIO, "niveles": 2, "costo": [1, 2], "bloqueada": false },
+	"mochilero": { "nombre": "Mochilero", "descripcion": "Te cabe una cosa más por nivel, con mochila o sin ella.",
+		"categoria": Categoria.NEGOCIO, "niveles": 2, "costo": [1, 2], "bloqueada": false },
+	"buena_racha": { "nombre": "Buena racha", "descripcion": "Te salen más bolsas especiales al comprar Takis.",
+		"categoria": Categoria.NEGOCIO, "niveles": 2, "costo": [1, 1], "bloqueada": false },
 	"iman": { "nombre": "Imán", "descripcion": "Lo que está tirado cerca se te junta solo, sin agacharte.",
 		"categoria": Categoria.NEGOCIO, "niveles": 1, "costo": [2], "bloqueada": true },
 	"ojo_halcon": { "nombre": "Ojo de halcón", "descripcion": "Ves a los zombis en el minimapa como puntos rojos.",
-		"categoria": Categoria.NEGOCIO, "niveles": 1, "costo": [3], "bloqueada": true },
+		"categoria": Categoria.NEGOCIO, "niveles": 1, "costo": [2], "bloqueada": true },
 }
 
 
@@ -73,6 +73,15 @@ static func orden() -> Array[String]:
 
 static func dato(id: String) -> Dictionary:
 	return LISTA.get(id, {})
+
+
+# Lo que cuesta subir todo al maximo; debe ser lo que da el album completo (Tazos.puntos_coleccion)
+static func costo_total() -> int:
+	var total := 0
+	for id: String in LISTA:
+		for costo: int in LISTA[id]["costo"]:
+			total += costo
+	return total
 
 
 static func icono(id: String) -> Texture2D:

@@ -1,7 +1,7 @@
 class_name Materiales
 
 # Los materiales del taller (El Yonke de La Chava; docs/especificaciones.md 4.13), como los
-# fragmentos, gemas y cristales de Kingdom Hearts pero de este mundo. Van al Morral (Morral.gd),
+# fragmentos, gemas y cristales de Kingdom Hearts pero de este mundo. Van a los Tiliches (Tiliches.gd),
 # no al inventario. Propuesta de AG; los numeros de abajo son para afinarse jugando.
 #   - COMUN: seis familias en tres niveles (suelto, bueno, fino). Los sueltan los zombis.
 #   - ESPECIAL: los raros que no son de una familia (varilla, plata, baba...).

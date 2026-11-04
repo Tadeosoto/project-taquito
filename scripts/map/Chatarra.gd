@@ -3,7 +3,7 @@ extends Node3D
 
 # Un monton de chatarra en la banqueta (Partida.gd los pone junto a postes): se hurga con el
 # boton de saltar, como un WorldItem, y da unos materiales sueltos para el taller
-# (Materiales.chatarra, al Morral). Una vez por partida. Mallas y material compartidos.
+# (Materiales.chatarra, a los Tiliches). Una vez por partida. Mallas y material compartidos.
 
 const RADIO := 1.8
 const VISTA := 22.0          # m hasta donde se ve el letrero
@@ -111,13 +111,17 @@ func is_player_inside() -> bool:
 
 
 func interact() -> void:
-	var morral := get_node("/root/Morral")
-	morral.dar_varios(Materiales.chatarra())
+	var tiliches := get_node("/root/Tiliches")
+	# Sin cangurera el monton se queda donde esta
+	if not tiliches.puede_guardar():
+		tiliches.avisar(tiliches.SIN_CANGURERA)
+		return
+	tiliches.dar_varios(Materiales.chatarra())
 	if obra:
-		morral.dar("alambron", randi_range(ALAMBRON.x, ALAMBRON.y))
+		tiliches.dar("alambron", randi_range(ALAMBRON.x, ALAMBRON.y))
 	if plano != "":
 		get_node("/root/Taller").dar_plano(plano)
-		morral.avisar("¡Plano! " + Recetas.PLANOS.get(plano, plano))
+		tiliches.avisar("¡Plano! " + Recetas.PLANOS.get(plano, plano))
 	Sonidos.tocar(self, "inv_examinar", -4.0)
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos:

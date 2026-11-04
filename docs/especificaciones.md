@@ -371,10 +371,10 @@ Progresión al estilo Kingdom Hearts: repartes **puntos de habilidad** en un men
   Enter la salta.
 - **48 tazos en 4 series de 12**, como álbum de estampas, con arte de pixel propio del mundo del juego:
   - las series son **La colonia**, **La noche**, **Los vecinos** (el reparto de `personajes.md`) y **GelA**;
-  - cada una trae 6 comunes de 1 punto, 4 raros de 2 y 2 holo de 3.
-  
-  Algunos además **desbloquean** una habilidad. Los repetidos también dan sus puntos. **Completar una serie da +2 puntos**, una vez.
-- **+1 punto por noche sobrevivida.** Todo se queda al desmayarte y se borra al reiniciar la partida.
+  - cada una trae 6 comunes, 4 raros y 2 holo.
+
+  **Solo los tazos nuevos dan puntos:** un raro da 1, un holo 2, y cada **3 comunes nuevos** dan 1. El álbum completo da justo **40**, lo que cuesta todo el árbol. Algunos además **desbloquean** una habilidad. Completar una serie sale con confeti, pero ya no da puntos. Tampoco hay puntos por noche.
+- **Los repetidos se cambian** con el **niño de los tazos**, que anda de día junto a los que dan misiones: 3 repetidos de una rareza por uno de esa rareza que te falte (ese sí da sus puntos). Todo se queda al desmayarte y se borra al reiniciar la partida.
 - **Página de habilidades** (H en el inventario, Y en el control). Cada nivel cuesta puntos y bajarlo te los regresa, cuando quieras:
   - **Cuerpo:** Aguante, Fuerza, Patas, Brazo largo;
   - **Sobrevivir:** Segundo aire (tazo holo), Buen diente, Piel dura, Pies de gato (tazo raro: los zombis te notan más tarde);
@@ -383,9 +383,9 @@ Progresión al estilo Kingdom Hearts: repartes **puntos de habilidad** en un men
   La página muestra, con números de verdad, lo que tienes ahora y lo que tendrías con el siguiente nivel. El costo sale en rojo si no te alcanza, y una habilidad bloqueada enseña la sombra del tazo que la abre.
 - **Álbum** (T en el inventario, LB en el control): una serie por pantalla, con la sombra de los que te faltan, los repetidos y el tazo elegido girando en 3D.
 - Al abrir un tazo que desbloquea algo o completa una serie, **H lleva directo** a la habilidad.
-- Con puntos sin gastar, el inventario lo avisa abajo en amarillo.
+- Con puntos sin gastar, la pestaña de Habilidades del inventario lo avisa en amarillo.
 - **El tono de piel no se toca:** las habilidades no leen al `Personaje`.
-- 💡 Una partida da unas 10–15 bolsas y todo el árbol cuesta unos 58 puntos: no se puede subir todo. Los números están en `scripts/Habilidades.gd` para afinarlos jugando.
+- 💡 Una partida da unas 10–15 bolsas y todo el árbol cuesta 40 puntos, lo mismo que da el álbum completo: en una partida no se sube todo. Si se cambia un costo hay que cambiar también lo que dan los tazos (el juego avisa si no cuadran). Los números están en `scripts/Habilidades.gd` y `scripts/Tazos.gd`.
 
 ### 4.13 El taller: El Yonke de Don Chava 💡🧱 (propuesta de AG, falta que el equipo la confirme)
 
@@ -393,7 +393,8 @@ Crafteo al estilo de la síntesis de Kingdom Hearts 1, con cosas de este mundo.
 
 - **El lugar:** un yonke en un baldío de **Parques de Santa Mugre**, con su flecha amarilla como las tiendas. De noche está cerrado.
 - **Quién lo atiende:** **La Chava**, nieta de Don Chava. Su familia es la del taller de chatarra de donde salió el cobalto del 84 (`lore.md`).
-- **Materiales:** van al **Morral** (B en el inventario, RB en el control), no ocupan lugar y se pierden al reiniciar la partida.
+- **Materiales:** son tus **tiliches** (B en el inventario, RB en el control), no ocupan lugar y se pierden al reiniciar la partida.
+  - **Van en la cangurera:** sin cangurera no puedes juntar tiliches. La da una misión (2 Jarritos de los abarrotes). Los trofeos no la necesitan: se quedan en la **vitrina de La Chava** (V en el taller).
   - **Comunes:** seis familias (Fierro, Trapo, Cable, Lumbre, Agua, Vela) en tres niveles: suelto, bueno y fino.
   - **De dónde salen:** los zombis, mejores de noche, en zonas feas y de los cazadores; y la chatarra junto a los postes.
   - **Especiales:**
@@ -632,4 +633,5 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-11-02 | **El mundo en dos capas**: la ciudad es **normal**; lo raro son (1) los **zombis** nocturnos (el shooter) y (2) la **escasez y el precio del agua limpia** (la economía). **GelA**, el monopolio del agua y de sus productos, **une las dos cosas**: su agua es la que mata a uno de cada diez y lo levanta. La política es la capa opcional. | JJ |
 | 2026-11-02 | **El celular**: chat de mensajes con contactos (**Sofía** y, opcional, el cura con IA; el resto escrito) + **grupo del barrio**. Reemplaza la libreta de misiones y es el canal de conversación. **Sin batería, señal, rastreo, estafas ni cámara.** La llave de la IA va en el servidor y las respuestas son asíncronas. | JJ |
 | 2026-11-02 | **Propuesta, falta que el equipo la confirme**: tazos en bolsas especiales de Takis con revelación por rareza, puntos de habilidad y una página de habilidades en el inventario (4.12). | AG |
-| 2026-11-03 | **Propuesta, falta que el equipo la confirme**: el taller de La Chava (4.13), crafteo al estilo Kingdom Hearts con materiales en un morral aparte, trofeos de hazañas, 39 recetas en seis juegos, un arma por juego, amuletos y Equipar. El rango, los planos y los trofeos se quedan entre partidas. | AG |
+| 2026-11-03 | **Propuesta, falta que el equipo la confirme**: los tazos solo dan puntos nuevos (comunes 3 por punto, raro 1, holo 2) y el álbum completo cuadra con el árbol (40); los repetidos se cambian con el niño de los tazos; lo que se gasta se apila hasta 5 en un lugar; el morral ahora se llama **tiliches** y va en una **cangurera** que da una misión; los trofeos se ven en la vitrina de La Chava; Equipo enseña el arma, la mochila con sus lugares, los amuletos y la cangurera, y la foto de Estado se tiñe según la vida (4.12, 4.13). | AG |
+| 2026-11-03 | **Propuesta, falta que el equipo la confirme**: el taller de La Chava (4.13), crafteo al estilo Kingdom Hearts con materiales aparte (los tiliches), trofeos de hazañas, 39 recetas en seis juegos, un arma por juego, amuletos y Equipar. El rango, los planos y los trofeos se quedan entre partidas. | AG |

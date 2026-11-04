@@ -9,6 +9,9 @@ const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres")]
 
 # Cuantos objetos caben sin mochila (docs/especificaciones.md 4.4)
 const CAPACIDAD_BASE := 6
+# Lo que se gasta (comida, medicinas, bolsas de Takis, estampitas) se apila en un solo lugar,
+# hasta MAX_PILA; ese es el maximo que puedes traer de cada uno (no abre otro lugar)
+const MAX_PILA := 5
 
 # La mochila que traes puesta; no ocupa lugar. null = sin mochila
 var mochila: InventoryItemData = null
@@ -16,9 +19,14 @@ var mochila: InventoryItemData = null
 # El arma que elegiste con "Equipar" (sigue en `items`); null = la de mas dano
 var equipada: InventoryItemData = null
 
+# La cangurera puesta (no ocupa lugar): sin ella no puedes guardar tiliches (Tiliches.gd)
+var cangurera: InventoryItemData = null
+
 # Lista de items que el jugador tiene.
 # Empieza limpia.
 var items: Array[InventoryItemData] = []
+# Cuantos hay en cada lugar de `items` (1 salvo en lo que se apila)
+var cantidades: Array[int] = []
 
 
 # Nos dice cuantos items hay en inventario.
@@ -52,8 +60,10 @@ func _ready() -> void:
 # Como al empezar el juego (Partida.gd, el safehouse)
 func reiniciar() -> void:
 	items.clear()
+	cantidades.clear()
 	mochila = null
 	equipada = null
+	cangurera = null
 	_ready()
 	inventory_changed.emit()
 
@@ -64,6 +74,60 @@ func get_item(index: int) -> InventoryItemData:
 	if index < 0 or index >= items.size():
 		return null
 	return items[index]
+
+
+# Cuantos hay en ese lugar
+func cantidad(index: int) -> int:
+	return cantidades[index] if index >= 0 and index < cantidades.size() else 0
+
+
+# Cuantos traes de ese objeto, sumando su pila
+func cuantos(item: InventoryItemData) -> int:
+	var i := _lugar_de(item)
+	return cantidades[i] if i >= 0 else 0
+
+
+# Uno por unidad, con repetidos (para la bolsa al desmayarte y las misiones)
+func unidades() -> Array[InventoryItemData]:
+	var todas: Array[InventoryItemData] = []
+	for i in items.size():
+		for n in cantidades[i]:
+			todas.append(items[i])
+	return todas
+
+
+# Saca todo (al desmayarte, el safehouse); la mochila y la cangurera se quedan
+func vaciar() -> void:
+	items.clear()
+	cantidades.clear()
+	equipada = null
+	inventory_changed.emit()
+
+
+# Si te cabe uno mas: en su pila si se apila y ya traes, si no en un lugar libre
+func cabe(item: InventoryItemData) -> bool:
+	if item == null:
+		return false
+	if item.cangurera:
+		return cangurera == null
+	var i := _lugar_de(item) if item.apilable() else -1
+	if i >= 0:
+		return cantidades[i] < MAX_PILA
+	return not esta_lleno()
+
+
+# La pila de ese objeto, o -1. Los .tres cargados son la misma instancia, pero por si acaso
+# tambien cuenta el mismo archivo
+func _lugar_de(item: InventoryItemData) -> int:
+	for i in items.size():
+		if items[i] == item or (item.resource_path != "" and items[i].resource_path == item.resource_path):
+			return i
+	return -1
+
+
+func _quitar_lugar(index: int) -> void:
+	items.remove_at(index)
+	cantidades.remove_at(index)
 
 
 # El arma con que peleas: la equipada ("Equipar" en el inventario) si la traes; si no, la de
@@ -103,22 +167,32 @@ func equipar_mochila(nueva: InventoryItemData) -> bool:
 	return true
 
 
-# Agrega nuevos items al final de la lista; regresa false si ya no caben.
+# Agrega uno: a su pila si se apila y ya traes, si no al final en un lugar nuevo. La cangurera
+# se pone sola (de la mision o del piso). Regresa false si no cabe (cabe()).
 # Despues de agregar, llama a invetory_changed para actualizar.
 func add_item(item: InventoryItemData) -> bool:
-	if item == null or esta_lleno():
+	if not cabe(item):
 		return false
-	items.append(item)
+	if item.cangurera:
+		cangurera = item
+	elif item.apilable() and _lugar_de(item) >= 0:
+		cantidades[_lugar_de(item)] += 1
+	else:
+		items.append(item)
+		cantidades.append(1)
 	inventory_changed.emit()
 	return true
 
 
-# Remueve items al final de la lista.
+# Quita uno del lugar `index` (de una pila quita solo uno; vacia, quita el lugar).
 # Despues de quitar, llama a invetory_changed para actualizar.
 func remove_item(index: int) -> void:
 	if index < 0 or index >= items.size():
 		return
-	items.remove_at(index)
+	if cantidades[index] > 1:
+		cantidades[index] -= 1
+	else:
+		_quitar_lugar(index)
 	if equipada and not items.has(equipada):
 		equipada = null
 	inventory_changed.emit()
@@ -137,15 +211,17 @@ func poner_amuleto(index: int) -> void:
 	var bonos := get_node_or_null("/root/Bonos")
 	if item == null or not item.es_amuleto() or bonos == null:
 		return
-	items.remove_at(index)
+	_quitar_lugar(index)
 	var quitado: InventoryItemData = bonos.poner(item)
 	if quitado:
 		items.append(quitado)
+		cantidades.append(1)
 	inventory_changed.emit()
 
 
-# Combina los items de dos posiciones. Si hay receta los gasta, agrega el resultado al
-# final y lo regresa; si no, regresa null y no gasta nada.
+# Combina los items de dos posiciones. Si hay receta gasta uno de cada uno, agrega el
+# resultado al final (aunque se pase de lo que cabe, como al quitarte un amuleto) y lo regresa;
+# si no, regresa null y no gasta nada.
 func combinar(index_a: int, index_b: int) -> InventoryItemData:
 	if index_a == index_b:
 		return null
@@ -155,9 +231,24 @@ func combinar(index_a: int, index_b: int) -> InventoryItemData:
 		return null
 	for receta: RecetaData in RECETAS:
 		if receta.usa(uno, otro):
-			items.remove_at(maxi(index_a, index_b))
-			items.remove_at(mini(index_a, index_b))
-			items.append(receta.resultado)
+			# El de atras primero: si se queda sin pila no recorre al otro
+			_gastar_uno(maxi(index_a, index_b))
+			_gastar_uno(mini(index_a, index_b))
+			var i := _lugar_de(receta.resultado) if receta.resultado.apilable() else -1
+			if i >= 0 and cantidades[i] < MAX_PILA:
+				cantidades[i] += 1
+			else:
+				items.append(receta.resultado)
+				cantidades.append(1)
 			inventory_changed.emit()
 			return receta.resultado
 	return null
+
+
+func _gastar_uno(index: int) -> void:
+	if cantidades[index] > 1:
+		cantidades[index] -= 1
+	else:
+		_quitar_lugar(index)
+	if equipada and not items.has(equipada):
+		equipada = null

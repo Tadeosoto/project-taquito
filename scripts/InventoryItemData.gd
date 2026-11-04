@@ -55,13 +55,21 @@ extends Resource
 # Ademas de curar, vuelve a dejar usar Segundo aire esta noche (Tazos.gd)
 @export var recarga_segundo_aire : bool = false
 
-# Si se vende como material del taller (la plata del punto): al comprarlo va al Morral con
+# La cangurera (Inventory.cangurera): se pone sola, no ocupa lugar y es donde van los tiliches
+@export var cangurera : bool = false
+
+# Si se vende como material del taller (la plata del punto): al comprarlo va a los Tiliches con
 # este id (Materiales.gd) y no al inventario
 @export var material : String = ""
 
 
 func es_amuleto() -> bool:
 	return not amuleto.is_empty()
+
+
+# Lo que se gasta se apila en un solo lugar del inventario (Inventory.MAX_PILA)
+func apilable() -> bool:
+	return curacion > 0 or bolsa_tazo or estampita != ""
 
 
 # El modelo centrado y escalado a una caja de `tamano` m (los de Sketchfab vienen en

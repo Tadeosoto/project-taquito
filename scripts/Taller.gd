@@ -1,9 +1,9 @@
 extends Node
 
 # Autoload `Taller`: el rango del yonke de La Chava y sus planos, que se quedan entre partidas
-# (user://taller.cfg, seccion "taller"; la vitrina de trofeos la guarda Morral.gd en el mismo
+# (user://taller.cfg, seccion "taller"; la vitrina de trofeos la guarda Tiliches.gd en el mismo
 # archivo). El rango es cuantas cosas distintas has hecho (Recetas.UMBRALES abre los juegos,
-# como en Kingdom Hearts 1). Hacer algo gasta materiales del Morral y pesos de la Cartera.
+# como en Kingdom Hearts 1). Hacer algo gasta materiales de los Tiliches y pesos de la Cartera.
 # Propuesta de AG (docs/especificaciones.md 4.13).
 
 signal cambio
@@ -83,16 +83,18 @@ func por_que_no(id: String) -> String:
 		return "cerrado"
 	if receta.has("plano") and not planos.has(receta["plano"]):
 		return "plano"
-	if not get_node("/root/Morral").alcanza(receta["materiales"]):
+	if not get_node("/root/Tiliches").alcanza(receta["materiales"]):
 		return "materiales"
 	if get_node("/root/Cartera").pesos < costo(id):
 		return "pesos"
-	if Recetas.material_resultado(id) == "" and get_node("/root/Inventory").esta_lleno():
+	if Recetas.material_resultado(id) == "" and not get_node("/root/Inventory").cabe(Recetas.objeto(id)):
 		return "lleno"
+	if Recetas.material_resultado(id) != "" and not get_node("/root/Tiliches").puede_guardar(Recetas.material_resultado(id)):
+		return "cangurera"
 	return ""
 
 
-# La hace: gasta, la da (al inventario o al Morral) y sube el rango si es nueva. Regresa lo
+# La hace: gasta, la da (al inventario o a los Tiliches) y sube el rango si es nueva. Regresa lo
 # mismo que por_que_no
 func hacer(id: String) -> String:
 	var razon := por_que_no(id)
@@ -100,11 +102,11 @@ func hacer(id: String) -> String:
 		return razon
 	var receta := Recetas.dato(id)
 	var antes := juegos_abiertos()
-	get_node("/root/Morral").gastar(receta["materiales"])
+	get_node("/root/Tiliches").gastar(receta["materiales"])
 	get_node("/root/Cartera").pesos -= costo(id)
 	var material := Recetas.material_resultado(id)
 	if material != "":
-		get_node("/root/Morral").dar(material, 1, false)
+		get_node("/root/Tiliches").dar(material, 1, false)
 	else:
 		get_node("/root/Inventory").add_item(Recetas.objeto(id))
 	hechos[id] = hechos.get(id, 0) + 1
