@@ -54,6 +54,12 @@ const JEFE_ANUNCIA := 14.0  # m: sale de lado de la camara; el azote es al acerc
 const JEFE_AZOTE := 0.6
 const RABIA_ALTO := 2.05    # m sobre los pies, por el tamano
 const RABIA_ESCALA := 0.8
+# Barra de vida encima (shaders/barra_vida.gdshader), arriba de la marca de cazador. De
+# lejos no se dibuja, para que una horda no sea un monton de barras
+const BARRA := Vector2(0.8, 0.08)   # m
+const BARRA_ALTO := 2.6             # m sobre los pies, por el tamano
+const BARRA_HASTA := 35.0           # m de la camara
+const BARRA_SHADER := preload("res://shaders/barra_vida.gdshader")
 # Sin encimarse: chocan entre ellos. Cerca del blanco, si lo que estorba es otro zombi, espera
 # su turno en vez de irse de lado (la fila de atras temblaba)
 const CAPA_ZOMBIS := 2
@@ -93,6 +99,7 @@ const GOLPE_MATO := 2
 
 static var _material_jefe: ShaderMaterial
 static var _material_blanco: StandardMaterial3D
+static var _material_barra: ShaderMaterial
 static var _material_charco: StandardMaterial3D
 static var activos: Array[Zombie] = []   # los despiertos
 
@@ -114,6 +121,7 @@ var _flash_hasta := 0       # ms de reloj real
 var _reventar_en := 0       # ms de reloj real; 0 = no va a tronar
 var _ceniza := false        # cayo al amanecer: se hace ceniza al desaparecer
 var _rabia: MeshInstance3D  # la marca de cazador
+var _barra: MeshInstance3D
 var _paso := 0.0            # m andados desde la ultima pisada del jefe
 var _anunciado := false     # el jefe ya azoto el piso al llegar
 var _charco: MeshInstance3D
@@ -178,6 +186,7 @@ func _ready() -> void:
 	_voz.position.y = 1.5
 	_voz.max_distance = 25.0
 	add_child(_voz)
+	_armar_barra()
 	if not es_jefe:
 		_rabia = EfectosPixel.cuadro_bucle("rabia", RABIA_ESCALA * tamano)
 		if _rabia:
@@ -188,6 +197,29 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	activos.erase(self)
+
+
+func _armar_barra() -> void:
+	if _material_barra == null:
+		_material_barra = ShaderMaterial.new()
+		_material_barra.shader = BARRA_SHADER
+	var cuadro := QuadMesh.new()
+	cuadro.size = BARRA
+	_barra = MeshInstance3D.new()
+	_barra.mesh = cuadro
+	_barra.material_override = _material_barra
+	_barra.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Gira hacia la camara en el shader: la caja del cuadro plano no alcanzaba
+	_barra.custom_aabb = AABB(-Vector3.ONE * BARRA.x / 2.0, Vector3.ONE * BARRA.x)
+	_barra.visibility_range_end = BARRA_HASTA
+	_barra.position.y = BARRA_ALTO * _tamano
+	add_child(_barra)
+
+
+func _poner_barra() -> void:
+	if _barra:
+		_barra.visible = estado != Estado.MUERTO
+		_barra.set_instance_shader_parameter("vida", clampf(float(_vida) / (JEFE_VIDA if es_jefe else VIDA), 0.0, 1.0))
 
 
 # Lo que dura poco y va en reloj real: se apaga solo cuando ya no queda nada de eso
@@ -280,6 +312,7 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	velocity = Vector3.ZERO
 	global_position = lugar
 	_restaurar()
+	_poner_barra()
 	_animar("run", _velocidad / 3.5, true)
 
 
@@ -493,6 +526,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) ->
 	if estado == Estado.MUERTO:
 		return GOLPE_NADA
 	_vida -= dano
+	_poner_barra()
 	var atras := global_position - desde
 	atras.y = 0.0
 	atras = atras.normalized()
@@ -523,6 +557,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) ->
 # el, se cae (al amanecer)
 func _morir(pagado: bool, truena_en := 0) -> void:
 	estado = Estado.MUERTO
+	_poner_barra()
 	if _rabia:
 		_rabia.visible = false
 	_tiempo = 0.0

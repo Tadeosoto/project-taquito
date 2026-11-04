@@ -251,10 +251,11 @@ func _armar_hud() -> void:
 	add_child(capa)
 	_hora = _etiqueta("", 20, Color.WHITE)
 	_hora.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	_hora.position = Vector2(10.0, 6.0)
+	# Abajo de la barra de vida (Supervivencia)
+	_hora.position = Vector2(10.0, 20.0)
 	capa.add_child(_hora)
-	_amanecer = _barra(capa, Vector2(10.0, 34.0), AMARILLO, "amanecer")
-	_vida_tinaco = _barra(capa, Vector2(10.0, 52.0), AGUA, "tinaco")
+	_amanecer = _barra(capa, Vector2(10.0, 48.0), AMARILLO, "amanecer")
+	_vida_tinaco = _barra(capa, Vector2(10.0, 62.0), AGUA, "tinaco")
 
 
 # Una barra de 110 px que se llena con scale.x, con su nombre al lado

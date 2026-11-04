@@ -93,6 +93,10 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _zumbido()
 			"boom":
 				_sonidos[nombre] = _boom()
+			"disparo":
+				_sonidos[nombre] = _disparo()
+			"recarga":
+				_sonidos[nombre] = _recarga()
 	return _sonidos[nombre]
 
 
@@ -350,6 +354,39 @@ static func _boom() -> AudioStreamWAV:
 		var estallido := ruido * exp(-t * 14.0) * 1.4
 		b[i] = clampf(golpe * 0.85 + estallido, -1.0, 1.0)
 	return _a_wav(_eco(b, [71, 113], 0.35, 0.5, 0.3))
+
+
+# Pistola (Pistola.gd): un estallido seco de ruido con un golpe grave abajo y un poco de
+# eco de calle, mas corto que el cohete
+static func _disparo() -> AudioStreamWAV:
+	var b := _vacio(0.35)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 61
+	var fase := 0.0
+	var ruido := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		fase += lerpf(160.0, 55.0, minf(t / 0.12, 1.0)) / MUESTRAS
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.6)
+		var golpe := sin(fase * TAU) * exp(-t * 22.0)
+		var estallido := ruido * exp(-t * 38.0) * 1.6
+		b[i] = clampf(golpe * 0.8 + estallido, -1.0, 1.0)
+	return _a_wav(_eco(b, [47, 89], 0.3, 0.25, 0.35))
+
+
+# Dos clics metalicos: sale el cargador y entra el otro
+static func _recarga() -> AudioStreamWAV:
+	var b := _vacio(0.5)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 67
+	for desde: float in [0.0, 0.32]:
+		var fase := 0.0
+		for i in int(0.06 * MUESTRAS):
+			var t := float(i) / MUESTRAS
+			fase += 2400.0 / MUESTRAS
+			var j := int(desde * MUESTRAS) + i
+			b[j] += (sin(fase * TAU) * 0.5 + azar.randf_range(-1.0, 1.0) * 0.5) * exp(-t * 90.0) * 0.8
+	return _a_wav(b)
 
 
 static func _vacio(duracion: float) -> PackedFloat32Array:

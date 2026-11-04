@@ -67,6 +67,7 @@ signal golpeado
 const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
 const BARRIDO := preload("res://scripts/Barrido.gd")
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
+const POSE_ARMA := preload("res://scripts/PoseArma.gd")
 const ESTELA_PUNO := 0.2      # m de la estela mas alla del puno, a mano limpia
 # Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
 # al frente para que de lado a la camara no se voltee al azar
@@ -85,6 +86,32 @@ const ATAQUE_QUIETO_A_TIEMPO := ATAQUE_PEGA_EN
 # anterior: nunca se aturde y te quedas quieto todo el barrido. La cambia la tecla 9 del safehouse
 static var pelea_a_tiempo := true
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
+# La pistola (Pistola.gd): R cambia entre ella y el arma de golpe. Se ve en la mano en vez del
+# machete; no es objeto del inventario por ahora
+const PISTOLA := preload("res://scripts/Pistola.gd")
+const PISTOLA_MODELO := preload("res://models/armas/pistola_mk23/pistola_mk23.scn")
+# En el modelo el canon va hacia -X y la cacha abajo en +X. Con 0.3 m no se distinguia en la
+# mano del ninja cabezon (por lo mismo el machete mide 0.95)
+const PISTOLA_TAMANO := 0.55
+const PISTOLA_GIRO := Vector3(0.0, 90.0, -90.0)
+const PISTOLA_ROLL := 180.0   # grados sobre el canon: sin esto la cacha sale hacia arriba
+const PISTOLA_MANGO := Vector3(-0.3, -0.1, 0.0) # del largo: la cacha queda en el puno
+const PISTOLA_CANON := Vector3(-0.5, 0.12, 0.0) # la boca, del largo, desde el centro del modelo
+const ARRIBA_TRAS_TIRO := 0.8 # s que sigue apuntando despues de disparar desde la cadera
+const MIRA_LEJOS := 20.0      # m: a donde ven los brazos sobre el rayo de la mira
+# Con la pistola, camara al hombro como Fortnite: mas cerca y mas alta, a la derecha (con el
+# personaje al centro la mira le caia en la espalda), y el personaje siempre ve hacia donde
+# apunta la camara, caminando de lado. Con apuntar (clic derecho, LT) se acerca mas, cierra
+# el angulo, caminas mas lento y el raton se mueve mas fino
+const HOMBRO := 0.8           # m a la derecha
+const HOMBRO_ALTO := 0.85     # m que sube el pivote: arriba de la cabeza del ninja cabezon
+const HOMBRO_BRAZO := 2.6     # m del resorte (sin pistola, el de la escena)
+const APUNTA_HOMBRO := 1.1
+const APUNTA_BRAZO := 2.0
+const APUNTA_FOV := 45.0      # grados (sin apuntar, el de la camara)
+const APUNTA_VELOCIDAD := 0.5 # de la velocidad al caminar
+const APUNTA_RATON := 0.55    # de la sensibilidad
+const CAMARA_CAMBIA := 10.0   # que tan rapido llega la camara a su lugar (por segundo)
 
 static var _material_blanco: StandardMaterial3D
 
@@ -115,6 +142,16 @@ var _combo_hasta := 0.0       # s de juego en que se acaba la ventana del combo
 var _golpe_guardado := false
 var _combo_roto := false      # te moviste a medio combo: el siguiente empieza de nuevo
 var _arma_visible: InventoryItemData
+var _pistola: Node
+var _dato_pistola: InventoryItemData
+var _hombro := 0.0
+var _alzar := 0.0
+var _brazo_base := 4.0
+var _fov_base := 75.0
+var _apuntando := false
+var _pose: Node
+var _canon: Node3D
+var _tiro_hasta := 0
 
 
 func _ready() -> void:
@@ -122,6 +159,8 @@ func _ready() -> void:
 	_frijol_base = frijol.position
 	_pivote_base = camera_pivot.position
 	_camara = spring_arm.find_child("Camera3D", true, false) as Camera3D
+	_brazo_base = spring_arm.spring_length
+	_fov_base = _camara.fov
 	var reloj := RelojCongelada.new()
 	reloj.jugador = self
 	reloj.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -131,6 +170,13 @@ func _ready() -> void:
 	add_child(_voz)
 	_armar_mano()
 	_armar_barrido()
+	_pistola = PISTOLA.new()
+	_pistola.name = "Pistola"
+	_pistola.jugador = self
+	add_child(_pistola)
+	_dato_pistola = InventoryItemData.new()
+	_dato_pistola.item_name = "Pistola"
+	_dato_pistola.inspection_model = PISTOLA_MODELO
 	var inventario := get_node_or_null("/root/Inventory")
 	if inventario:
 		inventario.inventory_changed.connect(_mostrar_arma)
@@ -429,6 +475,10 @@ func _armar_barrido() -> void:
 	_barrido.estela = ESTELA.new()
 	add_child(_barrido.estela)
 	esqueleto.add_child(_barrido)
+	_pose = POSE_ARMA.new()
+	_pose.name = "PoseArma"
+	_pose.frijol = frijol
+	esqueleto.add_child(_pose)
 
 
 func _mostrar_arma() -> void:
@@ -436,14 +486,18 @@ func _mostrar_arma() -> void:
 		return
 	var inventario := get_node_or_null("/root/Inventory")
 	var arma: InventoryItemData = inventario.arma() if inventario else null
+	var pistola: bool = _pistola != null and _pistola.activa
+	if pistola:
+		arma = _dato_pistola
 	if arma == _arma_visible:
 		return
 	_arma_visible = arma
+	_canon = null
 	for hijo in _mano.get_children():
 		hijo.queue_free()
 	if arma == null:
 		return
-	var modelo := arma.crear_modelo(ARMA_TAMANO)
+	var modelo := arma.crear_modelo(PISTOLA_TAMANO if pistola else ARMA_TAMANO)
 	if modelo:
 		_mano.add_child(modelo)
 		modelo.visible = false
@@ -454,8 +508,16 @@ func _mostrar_arma() -> void:
 			return
 		var escala := _mano.global_transform.basis.get_scale()
 		modelo.scale = Vector3.ONE / maxf(escala.x, 0.001)
-		modelo.rotation_degrees = ARMA_GIRO
-		(modelo.get_child(0) as Node3D).position.x -= ARMA_MANGO
+		modelo.rotation_degrees = PISTOLA_GIRO if pistola else ARMA_GIRO
+		if pistola:
+			modelo.basis = modelo.basis * Basis(Vector3.RIGHT, deg_to_rad(PISTOLA_ROLL))
+		if pistola:
+			(modelo.get_child(0) as Node3D).position += PISTOLA_MANGO * PISTOLA_TAMANO
+			_canon = Marker3D.new()
+			_canon.position = (PISTOLA_MANGO + PISTOLA_CANON) * PISTOLA_TAMANO
+			modelo.add_child(_canon)
+		else:
+			(modelo.get_child(0) as Node3D).position.x -= ARMA_MANGO
 		modelo.visible = true
 
 
@@ -467,12 +529,20 @@ func _sonar(nombre: String, volumen := 0.0) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		camera_pivot.rotation.y -= event.relative.x * mouse_sensitivity
-		camera_pitch -= event.relative.y * mouse_sensitivity * 100.0
+		var sensibilidad := mouse_sensitivity * (APUNTA_RATON if _apuntando else 1.0)
+		camera_pivot.rotation.y -= event.relative.x * sensibilidad
+		camera_pitch -= event.relative.y * sensibilidad * 100.0
 		camera_pitch = clampf(camera_pitch, -60.0, 30.0)
 		spring_arm.rotation_degrees.x = camera_pitch
+	elif event.is_action_pressed("cambiar_arma") and is_physics_processing():
+		_pistola.cambiar()
+		_soltar_combo()
+		_mostrar_arma()
 	elif event.is_action_pressed("attack") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		_atacar()
+		if _pistola.activa:
+			_pistola.disparar()
+		else:
+			_atacar()
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT \
 			and is_physics_processing() and not get_tree().paused:
 		# Con el raton suelto (Esc), un clic en la ventana lo vuelve a agarrar sin pegar
@@ -497,22 +567,63 @@ func _process(_delta: float) -> void:
 	var fraccion := Engine.get_physics_interpolation_fraction()
 	var desfase := global_basis.inverse() * (_pos_antes.lerp(_pos_ahora, fraccion) - ahora)
 	frijol.position = _frijol_base + desfase
-	camera_pivot.position = _pivote_base + desfase
+	camera_pivot.position = _pivote_base + desfase + Vector3.UP * _alzar
+	_camara_al_hombro()
 	_sacudir()
+	_posar()
+
+
+# Los brazos con la pistola (PoseArma.gd): sosteniendola, o apuntando a la mira al apuntar o
+# recien disparado desde la cadera
+func _posar() -> void:
+	if _pose == null:
+		return
+	_pose.sostiene = _pistola.activa and is_physics_processing()
+	_pose.apunta = _apuntando or Time.get_ticks_msec() < _tiro_hasta
+	var centro := get_viewport().get_visible_rect().size / 2.0
+	_pose.blanco = _camara.project_ray_origin(centro) + _camara.project_ray_normal(centro) * MIRA_LEJOS
+
+
+# Pistola.gd en cada tiro: sube el arma a la mira un rato y patea los brazos
+func pose_tiro() -> void:
+	_tiro_hasta = Time.get_ticks_msec() + int(ARRIBA_TRAS_TIRO * 1000.0)
+	if _pose:
+		_pose.tiro()
+
+
+# De donde sale el tiro: la boca de la pistola, o la mano
+func canon() -> Vector3:
+	if _canon and is_instance_valid(_canon) and _canon.is_inside_tree():
+		return _canon.global_position
+	return _mano.global_position if _mano else global_position + Vector3.UP * 1.2
+
+
+# Con la pistola la camara se va al hombro, y mas cerca al apuntar. En reloj real: la
+# congelada del golpe no debe dejarla a medio camino
+func _camara_al_hombro() -> void:
+	var paso := clampf(CAMARA_CAMBIA * get_process_delta_time() / maxf(Engine.time_scale, 0.001), 0.0, 1.0)
+	var pistola: bool = _pistola.activa
+	_apuntando = pistola and is_physics_processing() and Input.is_action_pressed("apuntar")
+	_hombro = lerpf(_hombro, (APUNTA_HOMBRO if _apuntando else HOMBRO) if pistola else 0.0, paso)
+	_alzar = lerpf(_alzar, HOMBRO_ALTO if pistola else 0.0, paso)
+	spring_arm.spring_length = lerpf(spring_arm.spring_length, (APUNTA_BRAZO if _apuntando else HOMBRO_BRAZO) if pistola else _brazo_base, paso)
+	_camara.fov = lerpf(_camara.fov, APUNTA_FOV if _apuntando else _fov_base, paso)
 
 
 # Corrimiento de la camara, no de su nodo: el resorte ni se entera. En reloj real, porque el
 # golpe tambien congela el juego
 func _sacudir() -> void:
 	if _sacude_hasta == 0:
+		_camara.h_offset = _hombro
+		_camara.v_offset = 0.0
 		return
 	var queda := float(_sacude_hasta - Time.get_ticks_msec()) / (SACUDE_DURA * 1000.0)
 	if queda <= 0.0:
 		_sacude_hasta = 0
-		_camara.h_offset = 0.0
+		_camara.h_offset = _hombro
 		_camara.v_offset = 0.0
 		return
-	_camara.h_offset = randf_range(-1.0, 1.0) * _sacude_fuerza * queda
+	_camara.h_offset = _hombro + randf_range(-1.0, 1.0) * _sacude_fuerza * queda
 	_camara.v_offset = randf_range(-1.0, 1.0) * _sacude_fuerza * queda
 
 
@@ -549,9 +660,13 @@ func _physics_process(delta: float) -> void:
 	var is_moving: bool = direction.length_squared() > 0.01
 	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint")
 	var move_speed: float = sprint_speed if is_sprinting else speed
+	if _apuntando:
+		move_speed = speed * APUNTA_VELOCIDAD
 	var target_horizontal := Vector3.ZERO
-	if is_moving:
-		var look_target: Vector3 = frijol.global_position + direction
+	# Con la pistola ve siempre hacia donde apunta la camara, aunque camine para otro lado
+	var apunta: bool = _pistola.activa
+	if is_moving or apunta:
+		var look_target: Vector3 = frijol.global_position + (forward if apunta else direction)
 		var target_transform: Transform3D = frijol.global_transform.looking_at(look_target, Vector3.UP)
 		frijol.global_transform = frijol.global_transform.interpolate_with(
 			target_transform,
@@ -560,7 +675,9 @@ func _physics_process(delta: float) -> void:
 		var facing: Vector3 = -frijol.global_transform.basis.z
 		facing.y = 0.0
 		facing = facing.normalized()
-		target_horizontal = facing * move_speed
+		if apunta:
+			facing = direction.normalized()
+		target_horizontal = facing * move_speed if is_moving else Vector3.ZERO
 
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
 	var braking: bool = not is_moving or horizontal.length() > target_horizontal.length() + 0.05

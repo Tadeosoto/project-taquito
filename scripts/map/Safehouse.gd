@@ -75,7 +75,7 @@ H curar · J -%d de vida · P +$100 · Y vaciar inventario
 G tablas · L -100 al tinaco (refugio a la derecha)
 M mapa (sin piezas se ve vacío) · U todas las piezas
 1 2 3 maquinita cercana: normal, sin monedas, segura
-C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa
+C crear personaje · K deterioro · F12 reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
 9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
@@ -372,7 +372,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_K:
 			_deterioro = wrapi(_deterioro + 1, 0, DETERIOROS.size())
 			Deterioro.configurar(DETERIOROS[_deterioro], 150.0)
-		KEY_R:
+		KEY_F12:
 			_reiniciar()
 		KEY_C:
 			_crear_personaje()

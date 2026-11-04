@@ -1,8 +1,8 @@
 extends CanvasLayer
 
-# Lo que se siente del peligro, sin barra de vida (la vida se ve en el inventario): flash
-# rojo al recibir un golpe, orillas rojas con poca vida, el aviso del atardecer y
-# desmayarse. Al llegar a 0 de vida: tus objetos se quedan en una bolsa donde caiste
+# Lo que se siente del peligro: la barra de vida arriba a la izquierda (tambien se ve en el
+# inventario), flash rojo al recibir un golpe, orillas rojas con poca vida, el aviso del
+# atardecer y desmayarse. Al llegar a 0 de vida: tus objetos se quedan en una bolsa donde caiste
 # (BolsaMuerte.gd; el dinero y la mochila puesta no), pantalla negra y reapareces en
 # `punto_regreso` con algo de vida (el refugio, lo pone Partida.gd). Propuesta de
 # docs/especificaciones.md 1.5.
@@ -18,6 +18,9 @@ const TEXTO_TURBA := "¡Ahí vienen!"
 const TEXTO_DIA := "Amaneció."
 const TEXTO_DESMAYO := "Te desmayaste..."
 const TEXTO_SEGUNDO_AIRE := "¡Segundo aire!"
+const BARRA_LUGAR := Vector2(10.0, 10.0)
+const BARRA_TAMANO := Vector2(110.0, 6.0)
+const BARRA_COLOR := Color(0.85, 0.12, 0.08)
 # Puro blanco y negro en pantalla completa: antes de publicar el juego esto tiene que ser una
 # opcion, porque los destellos le pueden hacer dano a gente con epilepsia fotosensible
 const IMPACTO_ACTIVO := true
@@ -57,6 +60,7 @@ var _desmayado := false
 var _flash: ColorRect
 var _orillas: ColorRect
 var _negro: ColorRect
+var _barra: ColorRect
 var _aviso: Label
 var _centro: Label
 var _voz: AudioStreamPlayer
@@ -93,6 +97,7 @@ func _ready() -> void:
 	shader.code = "shader_type canvas_item;\nuniform float fuerza = 0.0;\nvoid fragment() {\n\tfloat d = distance(UV, vec2(0.5)) * 1.41;\n\tCOLOR = vec4(0.55, 0.0, 0.0, smoothstep(0.55, 1.0, d) * fuerza);\n}\n"
 	material.shader = shader
 	_orillas.material = material
+	_armar_barra()
 	_negro = _pantalla(Color(0, 0, 0, 0))
 	_armar_impacto()
 	_aviso = _label(18, Color(1.0, 0.85, 0.1))
@@ -156,6 +161,7 @@ func _revisar_impacto() -> void:
 func _process(delta: float) -> void:
 	_revisar_impacto()
 	var fraccion: float = float(_salud.vida) / _salud.vida_max
+	_barra.scale.x = clampf(fraccion, 0.0, 1.0)
 	var fuerza := 0.0
 	if fraccion < POCA_VIDA and not _desmayado:
 		var latido := 0.75 + 0.25 * sin(Time.get_ticks_msec() * 0.005)
@@ -293,6 +299,26 @@ func _pantalla(color: Color) -> ColorRect:
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(rect)
 	return rect
+
+
+# Abajo del negro del desmayo, para que se apague con el
+func _armar_barra() -> void:
+	var fondo := ColorRect.new()
+	fondo.color = Color(0.0, 0.0, 0.0, 0.6)
+	fondo.position = BARRA_LUGAR - Vector2.ONE
+	fondo.size = BARRA_TAMANO + Vector2.ONE * 2.0
+	fondo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(fondo)
+	_barra = ColorRect.new()
+	_barra.color = BARRA_COLOR
+	_barra.position = BARRA_LUGAR
+	_barra.size = BARRA_TAMANO
+	_barra.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_barra)
+	var nombre := _label(10, BARRA_COLOR)
+	nombre.text = "vida"
+	nombre.position = BARRA_LUGAR + Vector2(BARRA_TAMANO.x + 8.0, -6.0)
+	add_child(nombre)
 
 
 func _label(tamano: int, color: Color) -> Label:
