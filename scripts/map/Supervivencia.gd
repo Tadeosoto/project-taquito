@@ -50,6 +50,9 @@ var _jugador: Player
 var _zombis: Zombis
 var _salud: Node
 var punto_regreso: Transform3D
+# Si esta puesto, desmayarse acaba la mision (la defensa del tinaco): se apaga la tele, se
+# queda en negro y se llama esto en vez de reaparecer. Sin bolsa: no hay a donde regresar
+var desmayo_final: Callable
 var _bolsa: Node3D
 var _ciclo: Ciclo
 var _impacto: ColorRect
@@ -226,16 +229,14 @@ func _desmayarse() -> void:
 	_desmayado = true
 	_jugador.detener()
 	_jugador.caer()
+	if desmayo_final.is_valid():
+		await _apagar()
+		# Que "Otra vez" no empiece desmayado (Salud es autoload)
+		_salud.vida = VIDA_AL_DESPERTAR
+		desmayo_final.call()
+		return
 	_soltar_bolsa()
-	# La imagen se aprieta en una raya y se apaga como tele vieja; sin efectos, se funde a negro
-	var efectos := _efectos()
-	if efectos:
-		await efectos.pantalla("desmayo", 0.0, DESMAYO_APAGA)
-		_negro.color.a = 1.0
-	else:
-		var tween := create_tween()
-		tween.tween_property(_negro, "color:a", 1.0, FUNDIDO)
-		await tween.finished
+	await _apagar()
 	_centro.text = TEXTO_DESMAYO
 	_centro.modulate.a = 1.0
 	_zombis.limpiar_cerca(punto_regreso.origin, LIMPIO_AL_REGRESAR)
@@ -245,6 +246,7 @@ func _desmayarse() -> void:
 	await get_tree().create_timer(NEGRO_DURA).timeout
 	_jugador.reanudar()
 	_centro.modulate.a = 0.0
+	var efectos := _efectos()
 	if efectos and is_instance_valid(efectos):
 		# La segunda mitad de la hoja arranca en negro: se quita el negro de abajo y se prende
 		efectos.pantalla("desmayo", DESMAYO_APAGA, DESMAYO_DURA)
@@ -255,6 +257,18 @@ func _desmayarse() -> void:
 		tween.tween_property(_negro, "color:a", 0.0, FUNDIDO)
 		await tween.finished
 	_desmayado = false
+
+
+# La imagen se aprieta en una raya y se apaga como tele vieja; sin efectos, se funde a negro
+func _apagar() -> void:
+	var efectos := _efectos()
+	if efectos:
+		await efectos.pantalla("desmayo", 0.0, DESMAYO_APAGA)
+		_negro.color.a = 1.0
+	else:
+		var tween := create_tween()
+		tween.tween_property(_negro, "color:a", 1.0, FUNDIDO)
+		await tween.finished
 
 
 # Sin nada encima no hay bolsa nueva, y la que dejaste sigue ahi

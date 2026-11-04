@@ -129,3 +129,9 @@
 
 ## Efectos de pixel (`resources/fx/`, MIT)
 - [pixelfx](https://github.com/patch-gg/pixelfx) de Patch y Hugo Duprez, licencia MIT. Las hojas se hacen con `tools/pixelfx/exportar.mjs` y se recolorean a la paleta del juego.
+
+## Fuente (`fonts/`, OFL)
+- [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), © 2021 The Pixelify Sans Project Authors, licencia SIL Open Font License 1.1 (`fonts/PixelifySans-OFL.txt`).
+
+## Música (`audio/musica/`)
+- `pt_tema.mp3`: tema de la defensa del tinaco, del equipo. (Pendiente: quién la hizo.)

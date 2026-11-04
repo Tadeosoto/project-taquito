@@ -160,7 +160,6 @@ target_path = NodePath("../Dron")
 
 [node name="Player" parent="." instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 6)
-girar_con_qe = true
 
 [node name="Dron" type="Node3D" parent="."]
 script = ExtResource("4_dron")

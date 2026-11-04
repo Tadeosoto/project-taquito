@@ -38,7 +38,7 @@
 | **Quién la da** | La **cuadrilla** (Gabriel) o el barrio, por turnos |
 | **Dónde** | El **tinaco comunitario** de un parque o baldío (Parques de Santa Mugre, La Palmada o Parques del Mosco) |
 | **Cuándo** | Noche completa, hasta el amanecer |
-| **Duración** | 8 minutos de juego (la noche entera). En la prueba (`scenes/defensa_tinaco.tscn`) son 6 min, por decisión de JJ |
+| **Duración** | 8 minutos de juego (la noche entera). En la prueba (`scenes/defensa_tinaco.tscn`) son 3:30 min (`duracion_noche`; antes 6, se hacía larga), por decisión de JJ |
 | **Paga** | Pesos + un galón de agua + la **ficha** sellada + confianza del barrio |
 | **Riesgo** | Alto: si el tinaco se rompe, se pierde el agua del barrio |
 | **Reusa** | `Zombis.gd` (director y oleadas), `Refugio.gd` (barricadas), el tinaco como objetivo de vida, `CargaCuadro` |
@@ -49,6 +49,12 @@
 2. **0:00 — la horda.** Llega el grupo grande. Hay que bajarlos antes de que lleguen al tinaco: la **bocina** y el **galón** sirven para juntarlos lejos y pegarles (o quemarlos) en bola.
 3. **3:00 — el último empujón.** Los más rápidos (corredores) y un hinchado. Si el jugador aguantó, el tinaco está a punto.
 4. **6:00 — el amanecer.** Los zombis se caen. El barrio abre la puerta y paga.
+
+En la prueba ya no hay pausas largas entre oleadas (comentarios de Alan y JJ, 2026-11-03). Salen grupos de un mismo lado que tardan unos 10 s en llegar: ese rato es de la pistola, y al llegar se acaban con el machete. El siguiente sale cuando del anterior queda uno, así llega mientras terminas. Los grupos crecen con la hora: el más grande a medianoche, corredores a las 3:00 y el último a las 5:00 (`scripts/defensa/Hordas.gd`, `GRUPOS`). Por dónde vienen no se avisa con texto.
+
+### Si te desmayas
+
+Desmayarte **acaba la misión**, sin paga, igual que si rompen el tinaco (decisión de JJ, 2026-11-03). Alan propuso arrastrarse por el piso y revivir con un caldo de camarón o una torta ahogada, perdiendo vida máxima en cada reanimación, pensando en un coop donde los jugadores se revivan entre sí. Queda pendiente para el coop: ahí, el que se desmaya sale de la misión y espera a ver si sus compañeros aguantan.
 
 ### El tinaco
 

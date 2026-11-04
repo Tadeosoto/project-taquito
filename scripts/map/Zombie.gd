@@ -25,16 +25,22 @@ const ATAQUE_VELOCIDAD := 1.8
 const HERIDO_DURA := 0.45
 # Golpe a tiempo (Player.pelea_a_tiempo): un golpe solo lo aturde HERIDO_DURA s si le pegas en los
 # primeros CORTE s de su ataque, cuando gruñe y empieza a levantar los brazos; ya lanzado aguanta y
-# te pega, asi que te toca quitarte. Caminando sigue como si nada. Sin pelea_a_tiempo nunca se aturde.
-# No se pinta de rojo (JJ no lo quiso): el aviso es el gruñido y la animacion
+# te pega, asi que te toca quitarte. Aparte, cualquier golpe cuerpo a cuerpo que no lo mata
+# lo aturde con ATURDE_PROB, aunque venga caminando (pedido de Alan). Al jefe nunca.
+# No se pinta de rojo (JJ no lo quiso): el aviso es el gruñido y la animacion.
+# ATURDIR en false lo apaga todo: aturdidos casi nunca te pegaban (8a prueba de la defensa, JJ)
 const CORTE := 0.3
-# m/s con el golpe de un machete; se escala con el dano. En 0 a peticion de JJ: el zombi no
-# retrocede, asi que para seguir pegando combos te toca reposicionarte tu
+const ATURDE_PROB := 0.2
+const ATURDIR := false
+# m/s con el golpe de un machete; se escala con el dano. Con 2.5 (unos 0.5 m, pedido de Alan)
+# el zombi quedaba fuera del alcance y el combo fallaba el segundo golpe (en las pruebas el
+# machete pego 44-57 %): JJ lo quito. Si vuelve, se aplica camine, ataque o este aturdido
 const EMPUJON := 0.0
+const EMPUJON_FRENA := 6.0  # m/s por segundo
 # Lo que se siente al pegarle (Player._golpear). Los tiempos van en reloj real: el juego se
 # congela en cada golpe y si no estos tambien se detendrian
 const FLASH_MS := 55
-const JEFE_ARRASTRE := 0.0  # m que se recorre el jefe; en 0 como los demas (EMPUJON)
+const JEFE_ARRASTRE := 0.0  # m que se recorre el jefe con cada golpe; en 0, no se mueve
 const COLOR_AGUA := Color(0.2, 0.25, 0.1)
 const COLOR_RESTOS := Color(0.12, 0.1, 0.07)
 const PECHO := 1.15         # m de alto de donde sale el liquido
@@ -73,6 +79,14 @@ const SEPARACION := 1.1     # que no se encimen unos con otros
 const ATORADO_EN := 0.8     # s casi sin avanzar
 const RODEO := 1.2          # s haciendose a un lado
 const PESOS := Vector2i(1, 3)
+# Defensa del tinaco: cada uno escoge por cual hueco de la barricada de afuera entra
+# (Zombis.huecos), para que no lleguen todos por el mas cercano. Los corredores tambien, salvo
+# con Zombis.corredores_al_cercano (modos medio y dificil): ahi llegan todos a la vez
+const HUECO_CERCANO := 0.4  # probabilidad de ir al mas cercano; si no, a otro al azar
+const HUECO_LLEGA := 3.0    # m: ya paso el hueco, de ahi al tinaco
+# Si ya esta HUECO_ADENTRO m mas cerca del tinaco que su hueco, se metio por otro (el camino
+# mas corto a un hueco lejano cruza por dentro): lo olvida, o se atoraba contra el anillo de adentro
+const HUECO_ADENTRO := 2.0
 # A tablas y tinaco pegan menos: 2 de dano por segundo, parecido al asedio simulado
 # (Refugio.ASEDIO); si no, quedarse a defender salia peor que irse
 const DANO_RECINTO := 3
@@ -102,6 +116,9 @@ static var _material_blanco: StandardMaterial3D
 static var _material_barra: ShaderMaterial
 static var _material_charco: StandardMaterial3D
 static var activos: Array[Zombie] = []   # los despiertos
+# Dano que les ha hecho el jugador, para medir el balance (scripts/defensa/MonitorDefensa.gd)
+static var dano_cuerpo := 0
+static var dano_pistola := 0
 
 var estado := Estado.CAMINA
 var jugador: Player
@@ -142,6 +159,8 @@ var _gemido := 0.0
 var _atorado := 0.0
 var _rodeo := 0.0
 var _lado := 1.0
+var _retroceso := Vector3.ZERO   # el empujon del ultimo golpe, se va frenando
+var _hueco := -1                 # el hueco de la barricada al que va (defensa); -1 = ninguno
 
 
 func _ready() -> void:
@@ -302,6 +321,7 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	if es_jefe:
 		_velocidad = JEFE_VELOCIDAD
 	else:
+		_dano = zombis.dano_jugador if zombis else DANO
 		_velocidad = randf_range(VELOCIDAD.x, VELOCIDAD.y) * (CAZADOR_VELOCIDAD if con_prisa else 1.0)
 	_tiempo = 0.0
 	_golpeo = false
@@ -309,8 +329,10 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	_rodeo = 0.0
 	_empuje = Vector3.ZERO
 	_ultimo = Vector3.ZERO
+	_retroceso = Vector3.ZERO
 	velocity = Vector3.ZERO
 	global_position = lugar
+	_hueco = _escoger_hueco(con_prisa)
 	_restaurar()
 	_poner_barra()
 	_animar("run", _velocidad / 3.5, true)
@@ -350,12 +372,9 @@ func _physics_process(delta: float) -> void:
 						zombis.efectos.lanzar("amanecer", global_position, Vector3.ZERO, _tamano)
 				termino.emit()
 			return
-	if estado != Estado.HERIDO:
-		velocity.x = movimiento.x
-		velocity.z = movimiento.z
-	else:
-		velocity.x = move_toward(velocity.x, 0.0, EMPUJON * 3.0 * delta)
-		velocity.z = move_toward(velocity.z, 0.0, EMPUJON * 3.0 * delta)
+	velocity.x = movimiento.x + _retroceso.x
+	velocity.z = movimiento.z + _retroceso.z
+	_retroceso = _retroceso.move_toward(Vector3.ZERO, EMPUJON_FRENA * delta)
 	velocity.y = 0.0 if is_on_floor() else velocity.y - GRAVEDAD * delta
 	move_and_slide()
 	if es_jefe and estado == Estado.CAMINA and zombis:
@@ -443,6 +462,16 @@ func _destino() -> Vector3:
 	# que al tinaco (pararse junto al tinaco no lo protege). Ya roto, por el jugador
 	var al_jugador := global_position.distance_to(jugador.global_position)
 	if is_instance_valid(_tinaco) and _tinaco.vida > 0 and (al_jugador > _persigue() or al_jugador > global_position.distance_to(_tinaco.global_position) - _tinaco.radio):
+		# Primero a su hueco, de paso; ya pasandolo, al tinaco
+		if _hueco >= 0 and _hueco < zombis.huecos.size():
+			var hueco: Vector3 = zombis.huecos[_hueco]
+			var al_tinaco := global_position.distance_to(_tinaco.global_position)
+			if Vector2(hueco.x - global_position.x, hueco.z - global_position.z).length() > HUECO_LLEGA \
+					and al_tinaco > hueco.distance_to(_tinaco.global_position) - HUECO_ADENTRO:
+				_blanco = null
+				_guia = zombis.campos_huecos[_hueco]
+				return hueco
+			_hueco = -1
 		_blanco = _tinaco
 		_guia = zombis.campo_tinaco if zombis else null
 		return _tinaco.global_position
@@ -467,6 +496,20 @@ func _destino() -> Vector3:
 		return entrada.global_position
 	_blanco = null
 	return entrada.global_position + (_refugio.global_position - entrada.global_position).normalized() * PASA_ENTRADA
+
+
+# Por cual hueco de la barricada entra (defensa del tinaco); -1 si no hay barricada
+func _escoger_hueco(corredor: bool) -> int:
+	if zombis == null or es_jefe or zombis.huecos.is_empty():
+		return -1
+	var cercano := 0
+	for i in zombis.huecos.size():
+		if global_position.distance_squared_to(zombis.huecos[i]) < global_position.distance_squared_to(zombis.huecos[cercano]):
+			cercano = i
+	if (corredor and zombis.corredores_al_cercano) or zombis.huecos.size() == 1 or randf() < HUECO_CERCANO:
+		return cercano
+	var otro := randi_range(0, zombis.huecos.size() - 2)
+	return otro + 1 if otro >= cercano else otro
 
 
 # A cuantos m deja el refugio por el jugador: Pies de gato (Tazos.gd) lo acorta, menos al jefe
@@ -521,10 +564,15 @@ func _seguir_caminando() -> void:
 
 # El golpe del jugador (Player._golpear). `fuerza`: 1 con un machete, menos a puño limpio.
 # `truena_en`: ms que dura la congelada si este golpe lo mata, para tronar justo al soltar.
+# `cuerpo_a_cuerpo`: false con la pistola, que ni empuja ni aturde.
 # Regresa GOLPE_NADA, GOLPE_PEGO o GOLPE_MATO.
-func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) -> int:
+func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cuerpo_a_cuerpo := true) -> int:
 	if estado == Estado.MUERTO:
 		return GOLPE_NADA
+	if cuerpo_a_cuerpo:
+		dano_cuerpo += mini(dano, _vida)
+	else:
+		dano_pistola += mini(dano, _vida)
 	_vida -= dano
 	_poner_barra()
 	var atras := global_position - desde
@@ -544,9 +592,10 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80) ->
 	if es_jefe:
 		move_and_collide(atras * JEFE_ARRASTRE * fuerza)
 		return GOLPE_PEGO
-	if not _en_corte():
+	if cuerpo_a_cuerpo:
+		_retroceso = atras * EMPUJON * fuerza
+	if not ATURDIR or (not _en_corte() and not (cuerpo_a_cuerpo and randf() < ATURDE_PROB)):
 		return GOLPE_PEGO
-	velocity = atras * EMPUJON * fuerza
 	estado = Estado.HERIDO
 	_tiempo = 0.0
 	_animar("hit", 2.0, true)

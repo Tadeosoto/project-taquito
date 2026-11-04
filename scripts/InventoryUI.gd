@@ -392,15 +392,12 @@ func _utilizar() -> void:
 		_mostrar_mensaje("No lo necesitas ahorita.")
 		return
 	_sonar("inv_usar")
-	var antes: int = Salud.vida
-	# Buen diente (Habilidades.gd) hace que la comida cure mas
-	Salud.vida += roundi(item.curacion * Tazos.factor_curacion())
+	var subio: int = inventory.usar_curacion(current_item_index)
 	# La flor de curar a los pies: el juego esta en pausa, se ve al cerrar (EfectosPixel)
 	var jugador := get_tree().get_first_node_in_group("jugador")
 	if jugador and jugador.has_method("efecto"):
 		jugador.efecto("curar", Vector3.ZERO)
-	inventory.remove_item(current_item_index)
-	_mostrar_mensaje("%s: +%d de vida." % [item.item_name, Salud.vida - antes])
+	_mostrar_mensaje("%s: +%d de vida." % [item.item_name, subio])
 
 # Una bolsa especial de Takis: se gasta, sale un tazo (Tazos.abrir_bolsa) y su show encima
 # del inventario (TazoRevelacion). Al cerrarlo regresas a la lista

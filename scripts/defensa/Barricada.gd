@@ -67,6 +67,7 @@ const COSTAL_COLORES := [Color(0.82, 0.8, 0.76), Color(0.74, 0.72, 0.68), Color(
 # Tarima estandar
 const TARIMA := Vector3(1.2, 0.144, 1.0) * ESCALA
 const TARIMA_COLOR := Color(0.62, 0.48, 0.32)
+const RAMPA_CAIDA := 30.0   # grados de las orillas del lomo de las tarimas acostadas
 const PILA_ALTO := 6
 # Anaquel metalico tumbado de espaldas: su fondo queda de alto y las repisas, paradas,
 # hacen pared hacia afuera. Largo en el anillo, alto (fondo del anaquel), y lo que
@@ -102,6 +103,8 @@ var huellas: Array = []
 var tambos: Array[Transform3D]:
 	get: return _tambos
 var tinaco_radio := 0.0
+# El centro de cada hueco del anillo de afuera, en el mundo: cada zombi escoge uno (Zombie._hueco)
+var huecos_mundo: Array[Vector3] = []
 var _destino: Node3D             # de donde cuelga lo generado; se tira al volver a generar
 var _costales: Array = []   # [Transform3D, Color]
 var _tarimas: Array = []    # [Transform3D]
@@ -163,6 +166,9 @@ func generar(semilla := 0) -> void:
 	var abiertos_adentro := _armar_anillo(adentro, huecos_adentro, ANILLOS[0])
 	var abiertos_afuera := _armar_anillo(afuera, huecos_afuera, ANILLOS[1])
 	_poner_tambos(abiertos_adentro, abiertos_afuera)
+	huecos_mundo.clear()
+	for hueco: Array in abiertos_afuera:
+		huecos_mundo.append(to_global(hueco[0]))
 	_construir()
 	_destino.add_child(_multimesh(_malla_costal_lista, _mat_costal, _costales))
 	_destino.add_child(_multimesh(_malla_tarima_lista, _mat_tarima, _tarimas))
@@ -541,7 +547,7 @@ func _tarimas_paradas(lugar: Transform3D, largo: float) -> void:
 			var atras := Vector3(x + _rng.randf_range(-0.15, 0.15), TARIMA.y * capa, -TARIMA.z / 2.0 - 0.1 + _rng.randf_range(-0.1, 0.1))
 			_tarimas.append([lugar * Transform3D(Basis(Vector3.UP, _rng.randf_range(-0.3, 0.3)), atras)])
 	_colision(lugar, Vector3(largo, TARIMA.z, TARIMA.y), Vector3.ZERO)
-	_colision(lugar, Vector3(largo, TARIMA.y * 2.0, TARIMA.z), Vector3(0.0, 0.0, -TARIMA.z / 2.0 - 0.1))
+	_rampa(lugar, Vector3(largo, TARIMA.y * 2.0, TARIMA.z), Vector3(0.0, 0.0, -TARIMA.z / 2.0 - 0.1))
 
 
 func _pila_tarimas(lugar: Transform3D) -> void:
@@ -618,6 +624,28 @@ func _colision(lugar: Transform3D, medida: Vector3, centro := Vector3.ZERO) -> v
 	caja.size = medida
 	forma.shape = caja
 	forma.position = centro + Vector3.UP * medida.y / 2.0
+	cuerpo.add_child(forma)
+	huellas.append([lugar * Transform3D(Basis.IDENTITY, centro), Vector2(medida.x, medida.z)])
+
+
+# Las tarimas acostadas: una caja de 33 cm era un escalon que los zombis no suben, y el campo
+# de flujo (que mira a 1 m del piso) no la ve, asi que se atoraban ahi. Un lomo con caidas de
+# ~30 grados (menos que el piso maximo de un CharacterBody3D) lo pasan caminando por encima
+func _rampa(lugar: Transform3D, medida: Vector3, centro := Vector3.ZERO) -> void:
+	var cuerpo := StaticBody3D.new()
+	cuerpo.transform = lugar
+	_destino.add_child(cuerpo)
+	var x := medida.x / 2.0
+	var z := medida.z / 2.0
+	var cresta := maxf(x - medida.y / tan(deg_to_rad(RAMPA_CAIDA)), 0.0)
+	var forma := CollisionShape3D.new()
+	var lomo := ConvexPolygonShape3D.new()
+	lomo.points = PackedVector3Array([
+		Vector3(-x, 0.0, -z), Vector3(x, 0.0, -z), Vector3(-x, 0.0, z), Vector3(x, 0.0, z),
+		Vector3(-cresta, medida.y, 0.0), Vector3(cresta, medida.y, 0.0),
+	])
+	forma.shape = lomo
+	forma.position = centro
 	cuerpo.add_child(forma)
 	huellas.append([lugar * Transform3D(Basis.IDENTITY, centro), Vector2(medida.x, medida.z)])
 

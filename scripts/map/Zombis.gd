@@ -36,12 +36,20 @@ const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
 @export var espontaneos := true
 # Mas lejos del jugador se quitan; en la defensa salen al otro lado de la barricada
 @export var lejos := LEJOS
+# Cuantos puede haber a la vez (y cuantos se arman en la reserva); la defensa trae mas
+@export var max_total := MAX_TOTAL
+# Lo que le quita cada golpe al jugador (Zombie.DANO); la defensa le baja. El jefe no cambia
+@export var dano_jugador := Zombie.DANO
 
 var noches := 0
 var director := Director.new()
 var campo_jugador := CampoFlujo.new()
 var campo_refugio := CampoFlujo.new()
 var campo_tinaco := CampoFlujo.new()   # al tinaco de la defensa, si hay
+# Los huecos de la barricada de afuera (defensa) y un campo hacia cada uno (Zombie._hueco)
+var huecos: Array[Vector3] = []
+var campos_huecos: Array[CampoFlujo] = []
+var corredores_al_cercano := false   # los corredores entran por el hueco mas cercano (Hordas, modo)
 var liquido: Liquido
 var efectos: EfectosPixel
 
@@ -106,7 +114,7 @@ func _process(delta: float) -> void:
 
 # Uno por cuadro, dentro del presupuesto del mapa, hasta tener todos los que caben
 func _armar_reserva() -> void:
-	if _armados >= MAX_TOTAL or not CargaCuadro.hay():
+	if _armados >= max_total or not CargaCuadro.hay():
 		return
 	var inicio := Time.get_ticks_usec()
 	_libres.append(_armar())
@@ -161,6 +169,21 @@ func _campo_tinaco(espacio: PhysicsDirectSpaceState3D, delta: float) -> void:
 			metas.append(tinaco.global_position + Vector3(cos(i * TAU / 16.0), 0.0, sin(i * TAU / 16.0)) * radio)
 		campo_tinaco.metas(metas)
 	campo_tinaco.avanzar(espacio, delta, CAMPO_US)
+	for campo in campos_huecos:
+		campo.avanzar(espacio, delta, CAMPO_US)
+
+
+# La barricada (otra vez) armada: un campo hacia cada hueco de afuera
+func usar_huecos(lugares: Array[Vector3]) -> void:
+	huecos = lugares
+	campos_huecos.clear()
+	for lugar in lugares:
+		var campo := CampoFlujo.new()
+		campo.una_vez = true
+		campo.excluir(_jugador.get_rid())
+		var metas: Array[Vector3] = [lugar]
+		campo.metas(metas)
+		campos_huecos.append(campo)
 
 
 # Cambio lo que estorba (otra barricada): los campos se vuelven a llenar desde cero
@@ -218,7 +241,7 @@ func _physics_process(delta: float) -> void:
 	if _espera > 0.0:
 		return
 	_espera = ENTRE_ZOMBIS
-	if _sueltos() < maximo() and _vivos() < MAX_TOTAL:
+	if _sueltos() < maximo() and _vivos() < max_total:
 		_aparecer()
 
 
@@ -230,7 +253,7 @@ func maximo() -> int:
 
 # Una turba: `cuantos` que salen del mismo lado, de a poco, y corren hacia el jugador
 func aparecer_turba(cuantos: int) -> void:
-	_turba_pendiente = mini(cuantos, MAX_TOTAL - _vivos())
+	_turba_pendiente = mini(cuantos, max_total - _vivos())
 	_turba_angulo = randf() * TAU
 	if _turba_pendiente > 0:
 		turba_cerca.emit()
@@ -244,6 +267,10 @@ func _sacar_de_turba() -> void:
 		return
 	_turba_pendiente -= 1
 	sacar(lugar, true)
+
+
+func vivos() -> int:
+	return _vivos()
 
 
 func _vivos() -> int:

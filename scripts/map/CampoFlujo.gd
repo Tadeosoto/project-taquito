@@ -18,6 +18,8 @@ const DIAGONALES: Array[Vector2i] = [Vector2i(1, 1), Vector2i(1, -1), Vector2i(-
 static var _libre := {}      # Vector2i -> bool: compartido, las paredes no se mueven
 
 var listo := false
+# Metas que no se mueven (los huecos de la barricada): se llena una vez y otra solo si cambian
+var una_vez := false
 
 var _dist := PackedInt32Array()
 var _origen := Vector2i.ZERO
@@ -29,6 +31,8 @@ var _trabajando := false
 var _espera := 0.0
 var _metas: Array[Vector3] = []
 var _consulta: PhysicsShapeQueryParameters3D
+var _rayo: PhysicsRayQueryParameters3D
+var _pendiente := true
 
 
 func _init() -> void:
@@ -38,6 +42,9 @@ func _init() -> void:
 	_consulta = PhysicsShapeQueryParameters3D.new()
 	_consulta.shape = caja
 	_consulta.collision_mask = 1
+	_rayo = PhysicsRayQueryParameters3D.new()
+	_rayo.collision_mask = 1
+	_rayo.hit_back_faces = true
 
 
 # Las paredes si se movieron (la barricada de la defensa se vuelve a armar)
@@ -47,16 +54,18 @@ static func olvidar() -> void:
 
 func excluir(cuerpo: RID) -> void:
 	_consulta.exclude = [cuerpo]
+	_rayo.exclude = [cuerpo]
 
 
 func metas(nuevas: Array[Vector3]) -> void:
 	_metas = nuevas
+	_pendiente = true
 
 
 func avanzar(espacio: PhysicsDirectSpaceState3D, delta: float, presupuesto_us: int) -> void:
 	_espera -= delta
 	if not _trabajando:
-		if _espera > 0.0 or _metas.is_empty():
+		if _espera > 0.0 or _metas.is_empty() or (una_vez and not _pendiente):
 			return
 		_empezar()
 	var inicio := Time.get_ticks_usec()
@@ -125,16 +134,32 @@ func _empezar() -> void:
 			_nuevo[i] = 0
 			_cola.append(celda)
 	_trabajando = true
+	_pendiente = false
 
 
 func _pasable(espacio: PhysicsDirectSpaceState3D, celda: Vector2i) -> bool:
 	var sabido: Variant = _libre.get(celda)
 	if sabido != null:
 		return sabido
-	_consulta.transform = Transform3D(Basis.IDENTITY, Vector3((celda.x + 0.5) * CELDA, ALTO_PRUEBA, (celda.y + 0.5) * CELDA))
-	var libre := espacio.intersect_shape(_consulta, 1).is_empty()
+	var centro := Vector3((celda.x + 0.5) * CELDA, ALTO_PRUEBA, (celda.y + 0.5) * CELDA)
+	_consulta.transform = Transform3D(Basis.IDENTITY, centro)
+	var libre := espacio.intersect_shape(_consulta, 1).is_empty() and not _cruza_pared(espacio, centro)
 	_libre[celda] = libre
 	return libre
+
+
+# Las paredes huecas del mapa horneado (ConcavePolygonShape3D de los cuadros de OSM2World)
+# la caja no siempre las ve: se le escapaban tramos enteros y los zombis se atoraban contra
+# un edificio que el campo daba por libre. Los rayos ven otros tramos; juntos cierran el
+# contorno. Cuatro rayos de orilla a orilla de la celda: a lo largo, a lo ancho y diagonales
+func _cruza_pared(espacio: PhysicsDirectSpaceState3D, centro: Vector3) -> bool:
+	var medio := CELDA * 0.48
+	for hacia in [Vector3(medio, 0.0, 0.0), Vector3(0.0, 0.0, medio), Vector3(medio, 0.0, medio), Vector3(medio, 0.0, -medio)]:
+		_rayo.from = centro - hacia
+		_rayo.to = centro + hacia
+		if not espacio.intersect_ray(_rayo).is_empty():
+			return true
+	return false
 
 
 func _celda(punto: Vector3) -> Vector2i:

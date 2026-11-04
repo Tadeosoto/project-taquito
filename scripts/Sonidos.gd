@@ -7,9 +7,14 @@ extends RefCounted
 const MUESTRAS := 22050
 
 static var _sonidos := {}
+# Si no esta vacio, solo suenan estos: los demas regresan null y su reproductor no toca
+# nada. La defensa del tinaco deja solo los machetazos y los balazos, con su musica
+static var solo: Array[String] = []
 
 
 static func sonido(nombre: String) -> AudioStreamWAV:
+	if not solo.is_empty() and not solo.has(nombre):
+		return null
 	if not _sonidos.has(nombre):
 		match nombre:
 			"paso":

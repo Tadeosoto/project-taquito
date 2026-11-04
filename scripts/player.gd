@@ -9,9 +9,6 @@ class_name Player
 @export var gravity: float = 40.0
 @export var acceleration: float = 15.0
 @export var jump_velocity: float = 13.0
-# Q / E giran la camara (lo prende map_test.tscn; en world.tscn Q es del inventario)
-@export var girar_con_qe: bool = false
-
 # Initial downward pitch. Includes the +10.4 deg that used to be baked into the
 # Camera3D node's transform, so removing that offset keeps the same view.
 var camera_pitch: float = -4.6
@@ -29,7 +26,11 @@ const ATAQUE_ENFRIAR := 0.6
 const ATAQUE_PEGA_EN := 0.22
 const ATAQUE_ALCANCE := 2.4
 const ATAQUE_ANGULO := 0.35   # coseno: lo que abarca hacia los lados
+const ATAQUE_MAXIMO := 1       # zombis a los que le pega un mismo golpe: el mas cercano
 const INVULNERABLE := 0.7     # s despues de recibir un golpe
+# Q (accion curarse) se come la curacion que mejor llene lo que falta, sin abrir el
+# inventario (pausar rompia la tension). Mientras, no caminas ni pegas
+const CURAR_DURA := 0.8
 const ARMA_TAMANO := 0.95    # m; con 0.6 el machete parecia cuchillo
 # El mango va en el puño: crear_modelo centra y deja lo largo en X con el mango en +X
 const ARMA_GIRO := Vector3(0.0, 90.0, -90.0)
@@ -38,9 +39,10 @@ const ARMA_MANGO := ARMA_TAMANO * 0.4
 const DANO_MACHETE := 12.0
 const FUERZA_MIN := 0.5
 const FUERZA_MAX := 1.5
-const SWING_VOLUMEN := -8.0   # dB: para que resalte el whack
-# m/s que rebotas hacia atras al pegarle a algo. En 0 a peticion de JJ, como el empujon del
-# zombi (Zombie.EMPUJON): ni tu ni el se mueven con el golpe
+const SWING_VOLUMEN := -14.0  # dB: para que resalte el whack (JJ lo bajo a la mitad: -6 dB)
+const WHACK_VOLUMEN := -6.0   # dB: a la mitad, como el swing
+# m/s que rebotas hacia atras al pegarle a algo. En 0 a peticion de JJ: tu no te mueves con
+# el golpe (el zombi si retrocede un poco, Zombie.EMPUJON)
 const RETROCESO := 0.0
 const RETROCESO_CAIDA := 14.0 # por segundo
 const SACUDE := 0.05          # m de la camara
@@ -121,6 +123,9 @@ var _alcance := ATAQUE_ALCANCE
 var _enfriar := 0.0
 var _pega_en := -1.0
 var _invulnerable := 0.0
+var _curando := 0.0
+var golpes := 0           # para medir el balance (MonitorDefensa)
+var golpes_pegaron := 0
 const SALTO := 3.0   # m entre dos ticks: mas que esto no es caminar
 var _pos_antes := Vector3.ZERO
 var _pos_ahora := Vector3.ZERO
@@ -133,6 +138,7 @@ var _flash_hasta := 0
 var _sacude_fuerza := 0.0
 var _sacude_hasta := 0
 var _congelado_hasta := 0
+var _escala_antes := 1.0
 var _camara: Camera3D
 var _voz: AudioStreamPlayer3D
 var _mano: BoneAttachment3D
@@ -295,21 +301,31 @@ func _golpear() -> void:
 	var truena_en := int(CONGELA_MATA * 1000.0)
 	var pego := false
 	var mato := false
+	var alcanzados: Array[Node3D] = []
 	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
+		if zombi is Zombie and zombi.estado == Zombie.Estado.MUERTO:
+			continue
 		var hacia := zombi.global_position - global_position
 		hacia.y = 0.0
 		if hacia.length() <= _alcance and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
-			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, truena_en)
-			pego = pego or resultado != 0
-			mato = mato or resultado == 2
+			alcanzados.append(zombi)
+	# Solo a los ATAQUE_MAXIMO mas cercanos: amontonados, un combo mataba hasta 5
+	alcanzados.sort_custom(func(a: Node3D, b: Node3D) -> bool:
+		return a.global_position.distance_squared_to(global_position) < b.global_position.distance_squared_to(global_position))
+	for zombi in alcanzados.slice(0, ATAQUE_MAXIMO):
+		var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, truena_en)
+		pego = pego or resultado != 0
+		mato = mato or resultado == 2
+	golpes += 1
 	if pego:
+		golpes_pegaron += 1
 		_sentir_golpe(frente, fuerza, mato)
 
 
 # Una vez por golpe, aunque le pegue a varios: el whack, el rebote, la sacudida y la congelada
 func _sentir_golpe(frente: Vector3, fuerza: float, mato: bool) -> void:
 	_voz.pitch_scale = randf_range(0.9, 1.12)
-	_sonar("whack")
+	_sonar("whack", WHACK_VOLUMEN)
 	_retroceso = -frente * RETROCESO * fuerza
 	_retroceso_freno = RETROCESO * RETROCESO_CAIDA
 	_sacude_fuerza = SACUDE * fuerza * (SACUDE_MATA if mato else 1.0)
@@ -319,16 +335,19 @@ func _sentir_golpe(frente: Vector3, fuerza: float, mato: bool) -> void:
 
 # El juego casi se detiene unos cuadros. Un SceneTreeTimer no servia para soltarlo: con la
 # escala de tiempo tan baja se quedaba en camara lenta varios segundos
+# Al soltar regresa a la escala que habia (una noche acelerada para probar), no a 1
 func _congelar(segundos: float) -> void:
+	if _congelado_hasta == 0:
+		_escala_antes = Engine.time_scale
 	_congelado_hasta = maxi(_congelado_hasta, Time.get_ticks_msec() + int(segundos * 1000.0))
-	Engine.time_scale = CONGELA_ESCALA
+	Engine.time_scale = CONGELA_ESCALA * _escala_antes
 
 
 func _revisar_congelada() -> void:
 	var ahora := Time.get_ticks_msec()
 	if _congelado_hasta > 0 and ahora >= _congelado_hasta:
 		_congelado_hasta = 0
-		Engine.time_scale = 1.0
+		Engine.time_scale = _escala_antes
 	if _flash_hasta > 0 and ahora >= _flash_hasta:
 		_flash_hasta = 0
 		_pintar_blanco(false)
@@ -337,7 +356,7 @@ func _revisar_congelada() -> void:
 func _exit_tree() -> void:
 	if _congelado_hasta > 0:
 		_congelado_hasta = 0
-		Engine.time_scale = 1.0
+		Engine.time_scale = _escala_antes
 
 
 # Mira el reloj en cada cuadro aunque el juego este en pausa o el jugador apagado (el
@@ -422,6 +441,25 @@ func soltar_carga() -> void:
 		_carga.queue_free()
 		_carga = null
 	ninja.set("cargando", false)
+
+
+# La tecla de curarse: lo que mejor llene la vida que falta (Inventory.mejor_curacion)
+func _curarse() -> void:
+	if _curando > 0.0:
+		return
+	var inventario := get_node_or_null("/root/Inventory")
+	var salud := get_node_or_null("/root/Salud")
+	if inventario == null or salud == null:
+		return
+	var cual: int = inventario.mejor_curacion(salud.vida_max - salud.vida)
+	if salud.llena() or cual < 0:
+		Sonidos.tocar(self, "ui_error", -6.0)
+		return
+	inventario.usar_curacion(cual)
+	Sonidos.tocar(self, "inv_usar", -4.0)
+	efecto("curar", Vector3.ZERO)
+	_soltar_combo()
+	_curando = CURAR_DURA
 
 
 # Se queda quieto y deja de contestar (al desmayarse, Supervivencia.gd)
@@ -538,8 +576,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		_pistola.cambiar()
 		_soltar_combo()
 		_mostrar_arma()
+	elif event.is_action_pressed("curarse") and is_physics_processing():
+		_curarse()
 	elif event.is_action_pressed("attack") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		if _pistola.activa:
+		if _curando > 0.0:
+			pass
+		elif _pistola.activa:
 			_pistola.disparar()
 		else:
 			_atacar()
@@ -632,6 +674,7 @@ func _physics_process(delta: float) -> void:
 	if _golpe_guardado and ATAQUE_ENFRIAR - _enfriar >= COMBO_DESDE:
 		_atacar()
 	_invulnerable = maxf(_invulnerable - delta, 0.0)
+	_curando = maxf(_curando - delta, 0.0)
 	if _pega_en >= 0.0:
 		_pega_en -= delta
 		if _pega_en < 0.0:
@@ -643,7 +686,7 @@ func _physics_process(delta: float) -> void:
 		"move_backward"
 	)
 	var quieto := ATAQUE_QUIETO_A_TIEMPO if pelea_a_tiempo else ATAQUE_QUIETO
-	if _enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < quieto:
+	if _curando > 0.0 or (_enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < quieto):
 		input_direction = Vector2.ZERO
 	elif pelea_a_tiempo and input_direction != Vector2.ZERO and _enfriar > 0.0 and not _combo_roto:
 		_soltar_combo()
@@ -704,9 +747,6 @@ func _physics_process(delta: float) -> void:
 		"camera_down",
 		0.2
 	)
-	if girar_con_qe:
-		var teclas := float(Input.is_physical_key_pressed(KEY_E)) - float(Input.is_physical_key_pressed(KEY_Q))
-		camera_input.x = clampf(camera_input.x + teclas, -1.0, 1.0)
 	if camera_input.length() > 0.2:
 		camera_pivot.rotation.y -= camera_input.x * camera_sensitivity * delta
 		camera_pitch -= camera_input.y * camera_sensitivity * 50.0 * delta

@@ -1,14 +1,17 @@
 extends Node3D
 
 # Escena de prueba de la defensa del tinaco ("Vela del tinaco", docs/misiones.md §0):
-# una noche de 6 min (22:00 a 6:00) en el Parque Jardin Imperial (Parques del Mosco)
+# una noche de 3:30 min (22:00 a 6:00, `duracion_noche`) en el Parque Jardin Imperial (Parques del Mosco)
 # del mapa real. Las hordas (Hordas.gd) salen de las orillas y corren al tinaco; al
 # amanecer se cobra. Si lo rompen se corta a negro, amanece y no se paga nada: con
-# media paga convenia entrar y dejarse perder. Por ahora es una escena sola: la flecha
+# media paga convenia entrar y dejarse perder. Desmayarte tambien acaba la noche sin paga
+# (en coop, el desmayado esperaria a los demas). Suena audio/musica/pt_tema.mp3 en bucle. Por ahora es una escena sola: la flecha
 # amarilla en el mapa, la zona al azar por colonia y el regreso van despues.
 #
 #   godot --path . scenes/defensa_tinaco.tscn [-- --semilla=N]
 #   godot --path . scenes/defensa_tinaco.tscn -- --capturas=<carpeta> [--semilla=N]
+#   godot --path . scenes/defensa_tinaco.tscn -- --monitor=<carpeta>   (MonitorDefensa.gd)
+#   godot --path . scenes/defensa_tinaco.tscn -- --noche=<segundos> --modo=facil|medio|dificil
 #
 # El mapa se arma con los mismos sistemas de map_test alrededor del nodo Centro, con
 # radios chicos; los negocios salen cerrados (sin flecha). La barricada se genera hasta
@@ -33,6 +36,11 @@ const MAPA_MAXIMO := 10.0              # s
 # La paga (docs/misiones.md: 150, 200 o 250 segun la zona; aqui la baja)
 const PAGA := 150
 const GALON := preload("res://resources/productos/galon_agua.tres")
+# Los vecinos te dejan comida para la noche: se completa hasta PROVISIONES curaciones (Q),
+# y te prestan una mochila para que quepan
+const TACOS := preload("res://resources/productos/tacos.tres")
+const PROVISIONES := 5
+const MOCHILA := preload("res://resources/productos/mochila_escolar.tres")
 const FIN_ESPERA := 2.5                # s de amanecer antes de la pantalla final
 const FUNDIDO := 0.8                   # s a negro y de regreso cuando rompen el tinaco
 
@@ -62,6 +70,34 @@ const MAPA_AFUERA := 0.45
 
 const AMARILLO := Color(1.0, 0.85, 0.1)
 const AGUA := Color(0.35, 0.6, 1.0)
+const ROJO := Color(0.9, 0.15, 0.1)
+const TEMA := preload("res://resources/ui/tema_pixel.tres")
+
+const MUSICA := preload("res://audio/musica/pt_tema.mp3")
+# Lo unico que suena ademas de la musica (Sonidos.solo): el machete al cortar el aire y al
+# pegar, y la pistola
+const SONIDOS := ["machetazo", "whack", "disparo"]
+const MUSICA_VOLUMEN := -8.0   # dB
+const MUSICA_SILENCIO := -40.0
+const MUSICA_ENTRA := 2.0      # s
+const MUSICA_SALE := 2.0
+
+# La pantalla final: el titulo cae y rebota, luego cada renglon con su sonido y la paga
+# contando hacia arriba con monedas de pixelfx
+const TITULO_TAMANO := 32
+const RENGLON_TAMANO := 16
+const RENGLON_CADA := 0.45     # s entre renglon y renglon
+const CUENTA_DURA := 1.2       # s que tarda en contar la paga
+const CUENTA_PASOS := 10       # monedas que suenan mientras cuenta
+const CIERRES_GANO := ["La colonia tiene agua otro día.", "Ya hay pa' lavar los trastes.", "Hoy sí hay pa'l cafecito."]
+const CIERRES_TINACO := ["La colonia se quedó sin agua.", "A acarrear garrafones otra vez."]
+const CIERRES_DESMAYO := ["El tinaco no se cuida solo.", "Mañana la colonia te lo va a recordar."]
+
+# Lo que dura la noche, de las 22:00 a las 6:00 (s de juego). JJ: 6 min se hacian largos.
+# Tambien se cambia con `-- --noche=<segundos>`
+@export var duracion_noche := 210.0
+# Hordas.MODOS. Tambien `-- --modo=facil|medio|dificil`
+@export_enum("facil", "medio", "dificil") var modo := "medio"
 
 @onready var _barricada := $Barricada as Barricada
 @onready var _minimapa := $Minimapa
@@ -76,6 +112,8 @@ var _amanecer: ColorRect
 var _vida_tinaco: ColorRect
 var _listo := false
 var _terminado := false
+var _musica: AudioStreamPlayer
+var _hora_fin := 0.0          # a que hora se perdio
 
 
 func _enter_tree() -> void:
@@ -93,6 +131,7 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	_tinaco = _barricada.get_node("Tinaco") as TinacoDefensa
+	Sonidos.solo.assign(SONIDOS)
 	# La noche no corre hasta que este la barricada
 	_ciclo.process_mode = Node.PROCESS_MODE_DISABLED
 	_jugador.collision_mask |= PARED_CAPA
@@ -103,10 +142,21 @@ func _ready() -> void:
 	_hordas.centro = CENTRO
 	_hordas.zombis = _zombis
 	_hordas.ciclo = _ciclo
-	_hordas.supervivencia = _supervivencia
 	add_child(_hordas)
 	_tinaco.aviso.connect(_supervivencia.avisar)
 	_tinaco.cayo.connect(_tinaco_roto)
+	_supervivencia.desmayo_final = _desmayado
+	var inventario := get_node("/root/Inventory")
+	inventario.equipar_mochila(MOCHILA)
+	while inventario.curaciones() < PROVISIONES and inventario.add_item(TACOS):
+		pass
+	_musica = AudioStreamPlayer.new()
+	_musica.stream = MUSICA
+	(_musica.stream as AudioStreamMP3).loop = true
+	_musica.volume_db = MUSICA_SILENCIO
+	# Sigue sonando con el inventario abierto (pausa) y en la pantalla final
+	_musica.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_musica)
 	_ciclo.amanecio.connect(_fin)
 	var semilla := 0
 	var capturas := ""
@@ -115,6 +165,19 @@ func _ready() -> void:
 			semilla = int(arg.trim_prefix("--semilla="))
 		elif arg.begins_with("--capturas="):
 			capturas = arg.trim_prefix("--capturas=")
+		elif arg.begins_with("--modo="):
+			modo = arg.trim_prefix("--modo=")
+		elif arg.begins_with("--noche="):
+			duracion_noche = float(arg.trim_prefix("--noche="))
+		elif arg.begins_with("--monitor="):
+			var monitor := preload("res://scripts/defensa/MonitorDefensa.gd").new()
+			monitor.name = "Monitor"
+			monitor.defensa = self
+			monitor.carpeta = arg.trim_prefix("--monitor=")
+			add_child(monitor)
+	_ciclo.noche_duracion = duracion_noche
+	_hordas.usar_modo(modo)
+	print("Defensa: modo %s, noche de %.0f s" % [modo, duracion_noche])
 	await _esperar_mapa()
 	_al_suelo()
 	_generar(semilla)
@@ -123,6 +186,13 @@ func _ready() -> void:
 		_capturas(capturas)
 		return
 	_ciclo.process_mode = Node.PROCESS_MODE_INHERIT
+	_musica.play()
+	_volumen_musica(MUSICA_VOLUMEN, MUSICA_ENTRA)
+
+
+# Al salir (Salir, Otra noche) los demas sonidos vuelven
+func _exit_tree() -> void:
+	Sonidos.solo.clear()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -165,6 +235,7 @@ func _al_suelo() -> void:
 func _generar(semilla: int) -> void:
 	_barricada.generar(semilla)
 	_zombis.olvidar_paredes()
+	_zombis.usar_huecos(_barricada.huecos_mundo)
 	_minimapa.usar_mapa(_dibujar_mapa(), Vector2(CENTRO.x - MAPA_LADO, CENTRO.z - MAPA_LADO), Vector2.ONE * MAPA_LADO * 2.0)
 	print("Barricada: semilla %d, %d piezas no cupieron" % [_barricada.semilla_usada, _barricada.quitadas])
 
@@ -173,7 +244,9 @@ func _generar(semilla: int) -> void:
 
 # Se acabo: a negro y ya es de dia (los zombis se caen y sale la pantalla final)
 func _tinaco_roto() -> void:
+	_hora_fin = _hordas.hora()
 	_supervivencia.avisar("¡Rompieron el tinaco!")
+	_volumen_musica(MUSICA_SILENCIO, FUNDIDO)
 	var capa := CanvasLayer.new()
 	capa.layer = 19
 	add_child(capa)
@@ -191,24 +264,45 @@ func _tinaco_roto() -> void:
 	tween.tween_property(negro, "color:a", 0.0, FUNDIDO)
 	tween.tween_callback(capa.queue_free)
 
+
+# Supervivencia ya apago la tele: la noche se acaba aqui
+func _desmayado() -> void:
+	if _terminado:
+		return
+	_terminado = true
+	_hora_fin = _hordas.hora()
+	_volumen_musica(MUSICA_SILENCIO, FUNDIDO)
+	_pantalla_final(false, true)
+
+
 func _fin() -> void:
 	if _terminado:
 		return
 	_terminado = true
-	var entero := _tinaco.vida > 0
-	var premio := "$%d" % PAGA
-	if entero:
+	_volumen_musica(MUSICA_SILENCIO, MUSICA_SALE)
+	await get_tree().create_timer(FIN_ESPERA).timeout
+	_pantalla_final(_tinaco.vida > 0, false)
+
+
+func _volumen_musica(db: float, segundos: float) -> void:
+	var tween := _musica.create_tween()
+	tween.tween_property(_musica, "volume_db", db, segundos)
+	if db <= MUSICA_SILENCIO:
+		tween.tween_callback(_musica.stop)
+
+
+# --- La pantalla final ---
+
+# Gano: paga y galon. Si no (tinaco roto o desmayo), nada. Todo corre en pausa: la capa,
+# sus tweens y sus sonidos procesan siempre
+func _pantalla_final(gano: bool, desmayo: bool) -> void:
+	var premio := ""
+	if gano:
 		get_node("/root/Cartera").pesos += PAGA
 		if get_node("/root/Inventory").add_item(GALON):
-			premio += " y un galón de agua"
+			premio = "+ un galón de agua"
 		else:
-			premio += " (el galón no te cupo)"
-	await get_tree().create_timer(FIN_ESPERA).timeout
-	_pantalla_final("Aguantaste la noche" if entero else "Rompieron el tinaco",
-		"El tinaco amaneció con agua.\nTe pagan %s." % premio if entero else "La colonia se quedó sin agua.\nNo te pagan nada.")
-
-
-func _pantalla_final(titulo: String, texto: String) -> void:
+			premio = "(el galón no te cupo)"
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var capa := CanvasLayer.new()
@@ -216,31 +310,167 @@ func _pantalla_final(titulo: String, texto: String) -> void:
 	capa.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(capa)
 	var fondo := ColorRect.new()
-	fondo.color = Color(0.0, 0.0, 0.0, 0.75)
+	fondo.color = Color(0.0, 0.0, 0.0, 0.7) if gano else Color(0.22, 0.0, 0.0, 0.85)
 	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
 	capa.add_child(fondo)
+	var pantalla := fondo.get_viewport_rect().size
+	if gano:
+		_hoja(fondo, "amanecer_rayos", Rect2(Vector2.ZERO, pantalla), true, 0.6, 22.0)
 	var caja := VBoxContainer.new()
 	caja.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	caja.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	caja.grow_vertical = Control.GROW_DIRECTION_BOTH
 	caja.alignment = BoxContainer.ALIGNMENT_CENTER
-	caja.add_theme_constant_override("separation", 12)
+	caja.add_theme_constant_override("separation", 6)
 	capa.add_child(caja)
-	caja.add_child(_etiqueta(titulo, 28, AMARILLO))
-	caja.add_child(_etiqueta(texto, 14, Color.WHITE))
+	var titulo_texto := "¡AGUANTASTE LA NOCHE!" if gano else ("TE DESMAYASTE" if desmayo else "¡SE ACABARON EL TINACO!")
+	var titulo := _etiqueta(titulo_texto, TITULO_TAMANO, AMARILLO if gano else ROJO)
+	titulo.add_theme_constant_override("outline_size", 6)
+	caja.add_child(titulo)
+	caja.add_child(_espacio(8.0))
+	var renglones: Array[Label] = []
+	renglones.append(_etiqueta("Zombis reventados: %d" % _hordas.muertos, RENGLON_TAMANO, Color.WHITE))
+	if gano:
+		renglones.append(_etiqueta("Lo más feo: %d a la vez, a las %s" % [_hordas.mas_juntos, Hordas.texto_hora(_hordas.hora_mas_juntos)], RENGLON_TAMANO, Color.WHITE))
+		renglones.append(_etiqueta("Agua en el tinaco: %d %%" % roundi(_tinaco.fraccion() * 100.0), RENGLON_TAMANO, AGUA))
+	else:
+		renglones.append(_etiqueta("Aguantaste hasta las %s" % Hordas.texto_hora(_hora_fin), RENGLON_TAMANO, Color.WHITE))
+		renglones.append(_etiqueta("No te pagan nada.", RENGLON_TAMANO, ROJO))
+	for renglon in renglones:
+		renglon.modulate.a = 0.0
+		caja.add_child(renglon)
+	var paga: Label = null
+	var extra: Label = null
+	if gano:
+		paga = _etiqueta("$0", TITULO_TAMANO, AMARILLO)
+		paga.modulate.a = 0.0
+		caja.add_child(paga)
+		extra = _etiqueta(premio, RENGLON_TAMANO, AGUA)
+		extra.modulate.a = 0.0
+		caja.add_child(extra)
+	var cierres: Array = CIERRES_GANO if gano else (CIERRES_DESMAYO if desmayo else CIERRES_TINACO)
+	var cierre := _etiqueta(cierres.pick_random(), RENGLON_TAMANO, Color(0.85, 0.85, 0.85))
+	cierre.modulate.a = 0.0
+	caja.add_child(_espacio(6.0))
+	caja.add_child(cierre)
+	caja.add_child(_espacio(6.0))
+	var botones := HBoxContainer.new()
+	botones.alignment = BoxContainer.ALIGNMENT_CENTER
+	botones.add_theme_constant_override("separation", 16)
+	botones.modulate.a = 0.0
+	caja.add_child(botones)
 	var otra := Button.new()
 	otra.text = "Otra noche"
+	otra.theme = TEMA
 	otra.pressed.connect(func() -> void:
 		get_tree().paused = false
 		get_tree().reload_current_scene())
-	caja.add_child(otra)
+	botones.add_child(otra)
 	var salir := Button.new()
 	salir.text = "Salir"
+	salir.theme = TEMA
 	salir.pressed.connect(func() -> void:
 		get_tree().paused = false
 		get_tree().change_scene_to_file("res://scenes/inicio.tscn"))
-	caja.add_child(salir)
+	botones.add_child(salir)
 	otra.grab_focus()
+	await get_tree().process_frame
+	titulo.pivot_offset = titulo.size / 2.0
+	# El titulo: cae grande y rebota (gano) o tiembla y se pone rojo (perdio)
+	var tween := capa.create_tween()
+	if gano:
+		titulo.scale = Vector2.ONE * 2.5
+		titulo.modulate.a = 0.0
+		tween.tween_property(titulo, "modulate:a", 1.0, 0.15)
+		tween.parallel().tween_property(titulo, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tween.tween_callback(func() -> void: Sonidos.tocar(capa, "boom", -6.0))
+		tween.tween_property(titulo, "rotation", 0.05, 0.06)
+		tween.tween_property(titulo, "rotation", -0.04, 0.06)
+		tween.tween_property(titulo, "rotation", 0.0, 0.06)
+	else:
+		_hoja(fondo, "tinaco_chorro", Rect2(Vector2(pantalla.x * 0.5 + 60.0, pantalla.y * 0.18), Vector2(188.0, 80.0)), false, 0.9)
+		var izquierda := _hoja(fondo, "tinaco_chorro", Rect2(Vector2(pantalla.x * 0.5 - 248.0, pantalla.y * 0.18), Vector2(188.0, 80.0)), false, 0.9)
+		if izquierda:
+			izquierda.flip_h = true
+		titulo.modulate = Color.WHITE
+		tween.tween_callback(func() -> void: Sonidos.tocar(capa, "perder", -2.0))
+		tween.tween_property(titulo, "rotation", -0.12, 0.08)
+		tween.tween_property(titulo, "rotation", 0.08, 0.08)
+		tween.tween_property(titulo, "rotation", -0.04, 0.08)
+		tween.parallel().tween_property(titulo, "scale", Vector2(1.08, 0.9), 0.08)
+		tween.tween_property(titulo, "rotation", 0.0, 0.1)
+		tween.parallel().tween_property(titulo, "scale", Vector2.ONE, 0.1)
+	# Los renglones, uno por uno
+	for renglon in renglones:
+		tween.tween_interval(RENGLON_CADA)
+		tween.tween_callback(func() -> void: Sonidos.tocar(capa, "boton", -4.0))
+		tween.tween_property(renglon, "modulate:a", 1.0, 0.12)
+	# La paga, contando
+	if paga:
+		tween.tween_interval(RENGLON_CADA)
+		tween.tween_property(paga, "modulate:a", 1.0, 0.1)
+		var pasos := [0]
+		tween.tween_method(func(valor: float) -> void:
+			paga.text = "$%d" % roundi(valor)
+			var paso := int(valor / PAGA * CUENTA_PASOS)
+			if paso > pasos[0]:
+				pasos[0] = paso
+				Sonidos.tocar(capa, "moneda", -8.0), 0.0, float(PAGA), CUENTA_DURA)
+		tween.tween_callback(func() -> void:
+			var donde := paga.get_global_rect()
+			_hoja(fondo, "premio_monedas", Rect2(donde.get_center() - Vector2(80.0, 70.0), Vector2(160.0, 88.0)))
+			Sonidos.tocar(capa, "campana", -6.0))
+		tween.tween_property(paga, "scale", Vector2.ONE * 1.25, 0.08)
+		tween.tween_property(paga, "scale", Vector2.ONE, 0.12)
+		tween.tween_property(extra, "modulate:a", 1.0, 0.15)
+	tween.tween_interval(RENGLON_CADA)
+	tween.tween_property(cierre, "modulate:a", 1.0, 0.3)
+	tween.tween_property(botones, "modulate:a", 1.0, 0.2)
+	if paga:
+		paga.resized.connect(func() -> void: paga.pivot_offset = paga.size / 2.0)
+		paga.pivot_offset = paga.size / 2.0
+
+
+# Una hoja de pixelfx dentro de un Control, animada con un tween (corre en pausa si su
+# padre corre). Las que no se repiten se borran al terminar. `recorte`: px de abajo
+func _hoja(padre: Control, nombre: String, lugar: Rect2, aditivo := false, alfa := 1.0, recorte := 0.0) -> TextureRect:
+	var hoja := EfectosPixel.hoja_de(nombre)
+	if hoja.is_empty():
+		return null
+	var tamano: Vector2 = hoja["tamano"] - Vector2(0.0, recorte)
+	var region := AtlasTexture.new()
+	region.atlas = hoja["textura"]
+	region.region = Rect2(Vector2.ZERO, tamano)
+	var cuadro := TextureRect.new()
+	cuadro.texture = region
+	cuadro.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	cuadro.stretch_mode = TextureRect.STRETCH_SCALE
+	cuadro.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	cuadro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cuadro.position = lugar.position
+	cuadro.size = lugar.size
+	cuadro.modulate.a = alfa
+	if aditivo:
+		var mezcla := CanvasItemMaterial.new()
+		mezcla.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		cuadro.material = mezcla
+	padre.add_child(cuadro)
+	var dura: float = hoja["cuadros"] / hoja["fps"]
+	var tween := cuadro.create_tween()
+	if hoja["loop"]:
+		tween.set_loops()
+	tween.tween_method(func(t: float) -> void:
+		var i := mini(int(t * hoja["fps"]), hoja["cuadros"] - 1)
+		region.region = Rect2(Vector2(i % hoja["columnas"], i / hoja["columnas"]) * hoja["tamano"], tamano), 0.0, dura, dura)
+	if not hoja["loop"]:
+		tween.tween_callback(cuadro.queue_free)
+	return cuadro
+
+
+func _espacio(alto: float) -> Control:
+	var espacio := Control.new()
+	espacio.custom_minimum_size.y = alto
+	return espacio
 
 
 # --- Lo de la pantalla ---
@@ -270,7 +500,7 @@ func _barra(capa: CanvasLayer, donde: Vector2, color: Color, nombre: String) -> 
 	barra.position = donde
 	barra.size = Vector2(110.0, 6.0)
 	capa.add_child(barra)
-	var etiqueta := _etiqueta(nombre, 10, color)
+	var etiqueta := _etiqueta(nombre, 12, color)
 	etiqueta.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	etiqueta.position = donde + Vector2(118.0, -6.0)
 	capa.add_child(etiqueta)
@@ -279,6 +509,7 @@ func _barra(capa: CanvasLayer, donde: Vector2, color: Color, nombre: String) -> 
 
 func _etiqueta(texto: String, tamano: int, color: Color) -> Label:
 	var etiqueta := Label.new()
+	etiqueta.theme = TEMA
 	etiqueta.text = texto
 	etiqueta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	etiqueta.add_theme_font_size_override("font_size", tamano)

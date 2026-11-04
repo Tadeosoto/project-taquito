@@ -1,20 +1,21 @@
 extends Node
 
-# La pistola del jugador (Player.gd la crea como hija). R (accion cambiar_arma) cambia entre
+# La pistola del jugador (Player.gd la crea como hija). R o E (accion cambiar_arma) cambia entre
 # ella y el arma de golpe; con ella el clic (attack) dispara hacia la mira, al centro de la
 # pantalla: la opcion A de docs/especificaciones.md 1.4, que JJ quiso probar (la votacion
 # sigue abierta). Si el centro no da en un zombi, se lo lleva el mas cercano a la mira
 # dentro de AYUDA grados que se vea. Las bardas y barricadas (capa 1) tapan los tiros.
 # Al zombi le pega por el mismo camino que el machete (Zombie.recibir_golpe), sin la
-# congelada: a tiro rapido trababa. Balas sin fin, pero con cargador y recarga sola.
+# congelada (a tiro rapido trababa), sin empujon y sin aturdir: la pistola debilita de lejos
+# y el que mata es el machete. Balas sin fin, pero con cargador y recarga sola.
 # Como Player.gd, la cargan scripts de tools/ antes de los autoloads: nada de nombrarlos.
 
-const DANO := 15              # dos tiros a un zombi de 30
+const DANO := 8               # cuatro tiros a un zombi de 30 (el machete, tres golpes)
 const CADENCIA := 0.22        # s entre tiros
 const CARGADOR := 12
 const RECARGA := 1.5          # s, sola al vaciarse
 const ALCANCE := 60.0         # m
-const AYUDA := 4.0            # grados alrededor de la mira
+const AYUDA := 2.5            # grados alrededor de la mira
 const FUERZA := 0.5           # del salpicado y el impacto (el machete es 1)
 const PECHO := 1.0            # m sobre los pies donde se apunta a un zombi
 const SACUDE_TIRO := 0.025    # m de la camara al disparar
@@ -32,6 +33,8 @@ const TEXTO_COLOR := Color(1.0, 0.85, 0.1)
 var jugador: Player
 var activa := false
 var balas := CARGADOR
+var tiros := 0      # para medir el balance (MonitorDefensa)
+var aciertos := 0
 
 var _espera := 0.0
 var _recargando := 0.0
@@ -82,6 +85,7 @@ func disparar() -> void:
 	if camara == null:
 		return
 	_espera = CADENCIA
+	tiros += 1
 	balas -= 1
 	var centro := get_viewport().get_visible_rect().size / 2.0
 	var origen := camara.project_ray_origin(centro)
@@ -98,8 +102,9 @@ func disparar() -> void:
 			punto = blanco.global_position + Vector3.UP * PECHO
 	var dano := maxi(roundi(DANO * jugador._factor_dano), 1)
 	var sacude := SACUDE_TIRO
-	if blanco and blanco.recibir_golpe(dano, jugador.global_position, FUERZA) != 0:
+	if blanco and blanco.recibir_golpe(dano, jugador.global_position, FUERZA, 80, false) != 0:
 		sacude = SACUDE_PEGA
+		aciertos += 1
 		Sonidos.tocar(self, "whack", -10.0)
 	Sonidos.tocar(self, "disparo", -4.0)
 	jugador._sacude_fuerza = sacude
@@ -169,12 +174,14 @@ func _physics_process(delta: float) -> void:
 			balas = CARGADOR
 
 
+# El arma (E la cambia) y cuantas curaciones traes (Q, Player._curarse)
 func _texto_arma() -> String:
-	if activa:
-		return "Pistola  recargando..." if _recargando > 0.0 else "Pistola  %d/%d" % [balas, CARGADOR]
 	var inventario := get_node_or_null("/root/Inventory")
+	var curar := "\nQ curar (%d)" % (inventario.curaciones() if inventario else 0)
+	if activa:
+		return ("Pistola  recargando..." if _recargando > 0.0 else "Pistola  %d/%d" % [balas, CARGADOR]) + curar
 	var arma: InventoryItemData = inventario.arma() if inventario else null
-	return arma.item_name if arma else "Puño"
+	return (arma.item_name if arma else "Puño") + curar
 
 
 # --- La mira y el arma en pantalla ---
