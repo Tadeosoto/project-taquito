@@ -240,6 +240,7 @@ script = ExtResource("2_barricada")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 165.5, 1.2, -512.5)
 
 [node name="InventoryUI" parent="." instance=ExtResource("26_inventario")]
+con_mapa = false
 
 [node name="Zombis" type="Node3D" parent="."]
 script = ExtResource("24_zombis")

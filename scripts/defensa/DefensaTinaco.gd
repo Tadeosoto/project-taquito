@@ -113,6 +113,7 @@ var _vida_tinaco: ColorRect
 var _listo := false
 var _terminado := false
 var _musica: AudioStreamPlayer
+var _musica_apagada := false
 var _hora_fin := 0.0          # a que hora se perdio
 
 
@@ -187,6 +188,7 @@ func _ready() -> void:
 		return
 	_ciclo.process_mode = Node.PROCESS_MODE_INHERIT
 	_musica.play()
+	_musica.stream_paused = _musica_apagada
 	_volumen_musica(MUSICA_VOLUMEN, MUSICA_ENTRA)
 
 
@@ -196,8 +198,14 @@ func _exit_tree() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _listo and event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_G:
+	if not (event is InputEventKey and event.pressed and not event.echo):
+		return
+	if _listo and event.physical_keycode == KEY_G:
 		_generar(0)
+	# M prende y apaga la musica (el inventario de aqui no tiene mapa de papel)
+	elif event.physical_keycode == KEY_M:
+		_musica_apagada = not _musica_apagada
+		_musica.stream_paused = _musica_apagada
 
 
 func _process(_delta: float) -> void:

@@ -20,16 +20,25 @@ Usa un mouse: con el touchpad de una laptop, Hyprland deja de leerlo mientras ap
 - Q te cura sin abrir el inventario: se come lo que mejor llene la vida que te falta. Te deja quieto 0.8 s.
 - Clic derecho apunta con la pistola.
 - Tab abre el inventario.
+- M prende y apaga la música en la defensa (ahí no hay mapa de papel).
 
-**Modos.** La noche trae tres modos. Sin `--modo` sale el medio, que JJ dejó como el bueno (partidas 11 y 13).
+**Niveles de dificultad.** La defensa tiene tres. Juega los tres en orden, de fácil a difícil, y escoge cada uno al lanzar la escena. Sin `--modo` sale el medio.
 
-| Modo | Cómo es | Se parece a |
+```bash
+godot --display-driver wayland --path . scenes/defensa_tinaco.tscn -- --modo=facil
+godot --display-driver wayland --path . scenes/defensa_tinaco.tscn -- --modo=medio
+godot --display-driver wayland --path . scenes/defensa_tinaco.tscn -- --modo=dificil
+```
+
+Fuera de Hyprland puedes quitar `--display-driver wayland`. La consola imprime el modo al empezar (`Defensa: modo medio, noche de 210 s`): revisa que sea el que escogiste.
+
+| Nivel | Qué esperar | Se debería poder |
 |---|---|---|
-| `facil` | Grupos más chicos al final (7). Nunca más de dos grupos juntos y los corredores entran por cualquier hueco | Partida 7 |
-| `medio` | El final más cargado (9 a las 5:00). El siguiente grupo sale a los 20 s aunque no hayas acabado, y los corredores van al hueco más cercano | Partidas 11 y 13 |
-| `dificil` | Como el medio, pero con grupos 1.3 veces más grandes | Sin jugar todavía |
+| **Fácil** (`facil`) | Grupos de 3 a 7 zombis. El siguiente grupo no sale mientras siga vivo casi todo el anterior, así que nunca se juntan más de dos. Los corredores de las 3:00 entran por huecos distintos | Ganar con vida de sobra la primera vez. Si aquí te desmayas, avísanos: algo está mal |
+| **Medio** (`medio`) | Los mismos grupos, pero el último trae 9. El siguiente sale a los 20 s aunque no hayas acabado, y los corredores entran todos por el hueco más cercano. De las 3:00 en adelante se juntan unos 8 | Ganar curándote a tiempo con Q. JJ ganó dos veces: una con el tinaco al 61 % y otra al 4 % |
+| **Difícil** (`dificil`) | Como el medio, con grupos 1.3 veces más grandes (hasta 12 a las 5:00) | No se ha jugado. Es para saber cuánto falta para que pida mejores armas: anota a qué hora pierdes y por qué (te desmayaste o rompieron el tinaco) |
 
-Para escoger uno: `godot --display-driver wayland --path . scenes/defensa_tinaco.tscn -- --modo=facil`. `--noche=<segundos>` cambia lo que dura la noche.
+Para medir la partida, agrega `--monitor=<carpeta>` (por ejemplo `-- --modo=dificil --monitor=partida_dificil`). Al amanecer deja `resumen.txt` en esa carpeta: pégalo en la tabla de resultados de abajo, con el nivel que jugaste.
 
 **Atajos**
 

@@ -66,6 +66,9 @@ var combinar_desde: int = -1
 var _mensaje_tween: Tween = null
 # Corriendo la escena sola: siempre abierto
 var _solo: bool = false
+# Sin mapa de papel: M (inventory_map) no lo abre y le queda libre a la escena (en la defensa
+# del tinaco prende y apaga la musica)
+@export var con_mapa := true
 
 # Un modelo por objeto del inventario, en el mismo orden (null si no tiene modelo)
 var modelos: Array[Node3D] = []
@@ -178,6 +181,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Abriendo una bolsa: ni Tab cierra; TazoRevelacion avisa al terminar
 	if visible and current_state == InventoryState.REVELANDO:
 		get_viewport().set_input_as_handled()
+		return
+	if not con_mapa and event.is_action("inventory_map"):
 		return
 	if event.is_action_pressed("inventory_toggle"):
 		if not visible:
@@ -606,7 +611,7 @@ func update_hint() -> void:
 			# Con puntos sin gastar, el aviso lo dice (y se pinta de amarillo)
 			var libres: int = Tazos.libres()
 			var aviso := "  (¡%d %s!)" % [libres, "punto" if libres == 1 else "puntos"] if libres > 0 else ""
-			inspect_hint_label.text = "M: Mapa  H: Habilidades%s  T: Álbum" % aviso
+			inspect_hint_label.text = ("M: Mapa  " if con_mapa else "") + "H: Habilidades%s  T: Álbum" % aviso
 	if current_state in [InventoryState.INSPECTING, InventoryState.COMBINING] or Tazos.libres() <= 0:
 		inspect_hint_label.remove_theme_color_override("font_color")
 	else:
