@@ -13,12 +13,13 @@ const LIB := "h"
 const CARPETA := "res://models/personajes/pack_psx/%s/%s.fbx"
 # La del protagonista: con ella miden de 1.54 a 1.86 m, cada quien su estatura
 const ESCALA := 0.39
-# Escritos a mano: en el juego exportado no estan los .fbx para listar la carpeta
+# Escritos a mano: en el juego exportado no estan los .fbx para listar la carpeta.
+# Sin mujer_01: el pack la trae sin textura y sale toda blanca, no parece persona
 const MODELOS := [
 	"hombre_01", "hombre_02", "hombre_03", "hombre_04", "hombre_05", "hombre_06", "hombre_07",
 	"hombre_08", "hombre_09", "hombre_10", "hombre_11", "hombre_12", "hombre_13", "hombre_14",
 	"hombre_15", "hombre_16", "hombre_29", "hombre_30", "hombre_31", "hombre_32",
-	"mujer_01", "mujer_02", "mujer_03", "mujer_04", "mujer_05", "mujer_06", "mujer_07",
+	"mujer_02", "mujer_03", "mujer_04", "mujer_05", "mujer_06", "mujer_07",
 	"mujer_08", "mujer_09", "mujer_10", "mujer_11", "mujer_12", "mujer_13", "mujer_14",
 	"mujer_15", "mujer_16", "mujer_29", "mujer_30", "mujer_31", "mujer_32", "mujer_33",
 ]
@@ -32,7 +33,9 @@ static var _escenas := {}
 # Siempre el mismo para la misma semilla (el nombre de la tienda): el que se ve por la cortina
 # es el que atiende adentro
 static func elegir(semilla: String) -> String:
-	return MODELOS[absi(semilla.hash()) % MODELOS.size()]
+	# rand_from_seed revuelve el hash: nombres parecidos ("safehouse/3", "safehouse/4") daban
+	# civiles seguidos de la lista
+	return MODELOS[rand_from_seed(semilla.hash())[0] % MODELOS.size()]
 
 
 static func al_azar() -> String:
