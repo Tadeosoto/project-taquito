@@ -134,4 +134,4 @@
 - [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), © 2021 The Pixelify Sans Project Authors, licencia SIL Open Font License 1.1 (`fonts/PixelifySans-OFL.txt`).
 
 ## Música (`audio/musica/`)
-- `pt_tema.mp3`: tema de la defensa del tinaco, del equipo. (Pendiente: quién la hizo.)
+- `pt_tema.mp3`: tema de la defensa del tinaco, de Juan José Rodríguez (JJ), del equipo.
