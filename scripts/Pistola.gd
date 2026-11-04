@@ -87,6 +87,8 @@ func disparar() -> void:
 	_espera = CADENCIA
 	tiros += 1
 	balas -= 1
+	# Hace ruido: despierta a los zombis de alrededor (la ballesta, cuando la haya, no)
+	Zombie.ruido(jugador.global_position, Zombie.OYE_DISPARO)
 	var centro := get_viewport().get_visible_rect().size / 2.0
 	var origen := camara.project_ray_origin(centro)
 	var hacia := camara.project_ray_normal(centro)

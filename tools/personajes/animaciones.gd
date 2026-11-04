@@ -19,6 +19,8 @@ const CLIPS := [
 	"Sword_Idle", "Sword_Regular_A", "Sword_Regular_B", "Sword_Regular_C", "Sword_Attack",
 	# Pistola
 	"Pistol_Idle", "Pistol_Aim_Up", "Pistol_Aim_Neutral", "Pistol_Aim_Down", "Pistol_Shoot", "Pistol_Reload",
+	# Zombis normales (scripts/map/Zombie.gd)
+	"Zombie_Idle", "Zombie_Walk_Fwd", "Zombie_Scratch",
 	# Lo demas
 	"Punch_Jab", "Punch_Cross", "Hit_Chest", "Hit_Head", "Death01", "PickUp_Table", "Consume",
 	"Interact", "Sitting_Enter", "Sitting_Idle", "Sitting_Exit", "Idle_Talking", "Roll",

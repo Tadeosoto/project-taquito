@@ -65,7 +65,7 @@ var _ciclo: Ciclo
 var _salud: Node
 var _vida_antes := 0
 var _espera := 0.0
-var _calentando: Node3D
+var _calentando: Array[Zombie] = []   # uno de cada skin
 var _calentar := 0
 var _libres: Array[Zombie] = []
 var _armados := 0
@@ -106,13 +106,17 @@ func _ready() -> void:
 	campo_tinaco.excluir(_jugador.get_rid())
 	# Se dibuja uno diminuto al cargar: si no, su shader con esqueleto se compilaba en el
 	# cuadro del primer zombi de la primera noche
-	_calentando = Zombie.new()
-	_calentando.scale = Vector3.ONE * 0.002
-	add_child(_calentando)
-	# Despues de add_child: al estar listo, el nodo vuelve a prender su _physics_process
-	_calentando.set_physics_process(false)
-	_calentando.collision_layer = 0
-	_calentando.calentar()
+	# Uno de cada skin, que cada uno trae su textura
+	for i in Zombie.SKINS.size():
+		var zombi := Zombie.new()
+		zombi.skin = i
+		zombi.scale = Vector3.ONE * 0.002
+		add_child(zombi)
+		# Despues de add_child: al estar listo, el nodo vuelve a prender su _physics_process
+		zombi.set_physics_process(false)
+		zombi.collision_layer = 0
+		zombi.calentar()
+		_calentando.append(zombi)
 	_calentar = CALENTAR_CUADROS
 
 
@@ -136,10 +140,13 @@ func _process(delta: float) -> void:
 	if _calentar > 0:
 		var camara := get_viewport().get_camera_3d()
 		if camara:
-			_calentando.global_transform = camara.global_transform * Transform3D(Basis.from_scale(Vector3.ONE * 0.002), Vector3(0.0, 0.0, -2.0))
+			for zombi in _calentando:
+				zombi.global_transform = camara.global_transform * Transform3D(Basis.from_scale(Vector3.ONE * 0.002), Vector3(0.0, 0.0, -2.0))
 		_calentar -= 1
 		if _calentar == 0:
-			_calentando.queue_free()
+			for zombi in _calentando:
+				zombi.queue_free()
+			_calentando.clear()
 	_armar_reserva()
 	_campos(delta)
 
@@ -330,7 +337,8 @@ func _sacar_de_turba() -> void:
 		_turba_angulo = randf() * TAU
 		return
 	_turba_pendiente -= 1
-	sacar(lugar, _turba_cazadores)
+	# La turba ya viene por ti, sean cazadores o no
+	sacar(lugar, _turba_cazadores).alertar(false)
 
 
 func vivos() -> int:

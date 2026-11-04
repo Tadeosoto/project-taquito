@@ -137,6 +137,24 @@ Lo que pidió JJ después de la partida 15 (4 de noviembre de 2026):
 - **Animación de curarse** (Q, `Player._curarse`): cambiarla por una de comer o tomar; la UAL de Quaternius trae `Consume`, y ya está en `resources/personajes/animaciones_humanas.res`.
 - **El zombi bloquea a veces**: 10 % de probabilidad de que un machetazo rebote, con un poco de lag (el brazo regresa y tardas en poder pegar otra vez) y sin daño.
 - **Mejor interfaz durante la pelea**: la vida, el tinaco, el arma y las balas.
+- **El zombi gordo, un tipo aparte** (`Zombie.Tipo.GORDO`): faltan sus ataques y sus números (`GORDO_VIDA`, `GORDO_VELOCIDAD`, `GORDO_DANO` en `scripts/map/Zombie.gd`, por ahora iguales a los del normal). Mientras no estén definidos, no sale en las hordas. Los normales ahora son el zombi PSX y los monstruos 0-3 del pack, con un skin al azar.
+- **Detección** (en el mapa y en el safehouse; en la defensa ya salen alertas): los zombis deambulan hasta que te ven a 25 m, te oyen a 12 m o escuchan un balazo a 40 m, y entonces corren. Los números están al principio de `Zombie.gd` (`VE_DESDE`, `OYE_DESDE`, `OYE_DISPARO`, `CONTAGIA`). Hay que probar si las noches del mapa se quedan muy tranquilas: muchos sueltos nunca te encuentran.
+
+## Verificaciones pendientes: zombis PSX y detección
+
+Solo se probó con escenas de prueba y capturas: el visor de los cinco skins, una noche de 70 s de la defensa sin nadie defendiendo (sin errores, 57-61 FPS), y `map_test` y la pantalla de inicio sin errores. Falta probarlo jugando:
+
+- **Safehouse, a mano**:
+  - ¿se sienten bien las distancias? Vista a 25 m (solo al frente), oído a 12 m, y un balazo a 40 m;
+  - ¿el contagio a 8 m hace que arranquen en grupo?
+  - al correr, ¿trotan o esprintan sin patinar?
+  - ¿el daño del zarpazo cae cuando baja la mano?
+  - en los skins nuevos: el flash blanco, la barra, el reventón, los restos, el gruñido del golpe a tiempo (tecla 9) y la caída al amanecer (`Death01`).
+- **Noche en `map_test`**: ver si queda demasiado tranquila, porque muchos sueltos nunca te encuentran. Revisar el conteo de salieron/matados al amanecer.
+- **Jefe**: en la última noche debe seguir siendo el gordo teñido.
+- **Rendimiento**: correr `godot --path . tools/medir_mapa.tscn` y compararlo con el commit anterior.
+- **Defensa jugada de verdad**, para compararla con la partida 15.
+- **Zombis en fila en el tinaco**: cuando nadie los mata, los de atrás se quedan corriendo en su lugar. Deberían rodear el tinaco y pegarle desde el siguiente espacio libre, o detenerse (JJ, para otra sesión).
 
 ## Después del piloto: hordas que piden mejores armas
 

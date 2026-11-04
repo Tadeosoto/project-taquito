@@ -8,7 +8,6 @@ extends Node3D
 const MAPA := "res://scenes/map_test.tscn"
 const CREDITOS := "res://CREDITS.md"
 const CREADOR := preload("res://scripts/CreadorPersonaje.gd")
-const ZOMBI := preload("res://models/personajes/zombie_gordo/zombie_gordo.scn")
 const PS1 := preload("res://shaders/ps1_combined.gdshader")
 const DITHER := preload("res://shaders/dittershader.gdshader")
 
@@ -286,18 +285,15 @@ func _escena() -> void:
 	tinaco.position = Vector3(3.4, 0.9, -2.6)
 	add_child(tinaco)
 
-	var zombi := ZOMBI.instantiate() as Node3D
+	# Uno de los zombis normales, al azar (Zombie.SKINS)
+	var zombi := Zombie.modelo_skin()
 	zombi.position = Vector3(-0.8, 0.0, -0.6)
 	zombi.rotation.y = 0.3
 	add_child(zombi)
 	for pieza: MeshInstance3D in zombi.find_children("*", "MeshInstance3D", true, false):
 		pieza.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		# El tubo que el modelo trae flotando
-		if String(pieza.name).contains("Tube"):
-			pieza.visible = false
 	var animacion := zombi.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	animacion.get_animation("idle").loop_mode = Animation.LOOP_LINEAR
-	animacion.play("idle")
+	animacion.play(Zombie.CLIPS_SKIN["idle"])
 	_voz_zombi = AudioStreamPlayer3D.new()
 	_voz_zombi.position = zombi.position + Vector3.UP * 1.5
 	add_child(_voz_zombi)

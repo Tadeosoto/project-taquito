@@ -8,11 +8,55 @@ extends CharacterBody3D
 # (las turbas) corre mas y siempre va por el jugador. Si se atora se hace a un lado un rato.
 # No hace nada si el jugador esta congelado (volando en el safehouse, desmayado). Con
 # `es_jefe` es el garrafonero de la ultima noche (Partida.gd).
+# Dos tipos: los normales (un skin al azar de SKINS con las animaciones de Quaternius) y el
+# gordo (zombie_gordo con las suyas; sus ataques y numeros los define JJ despues, por ahora no
+# sale en ningun lado). El jefe es el gordo grande. Los normales salen deambulando y se arrancan
+# a correr cuando te detectan (alerta): te ven, te oyen, oyen un balazo o les avisa otro.
 
 signal murio
 signal termino
 
 const MODELO := preload("res://models/personajes/zombie_gordo/zombie_gordo.scn")
+# Los normales: el zombi PSX (Sketchfab) y los monstruos 0-3 del pack PSX (CC-BY, Elbolillo),
+# con el retarget a SkeletonProfileHumanoid en su .import (tools/personajes/retarget_civiles.gd,
+# mapas_huesos.gd). Ruta -> escala para que la cabeza quede a ~1.62 m (medida por huesos)
+const SKINS := {
+	"res://models/personajes/zombie_psx/zombie_psx.scn": 0.61,
+	"res://models/personajes/pack_psx/monstruo_00/monstruo_00.fbx": 0.33,
+	"res://models/personajes/pack_psx/monstruo_01/monstruo_01.fbx": 0.38,
+	"res://models/personajes/pack_psx/monstruo_02/monstruo_02.fbx": 0.47,
+	"res://models/personajes/pack_psx/monstruo_03/monstruo_03.fbx": 0.39,
+}
+const ALTO_VARIA := Vector2(0.94, 1.06)
+# Nombre de siempre -> clip de Quaternius. Quaternius no trae corrida de zombi: trotan
+# (Jog_Fwd) y los muy rapidos (cazadores) esprintan
+const CLIPS_SKIN := {
+	"idle": "h/Zombie_Idle", "camina": "h/Zombie_Walk_Fwd", "run": "h/Jog_Fwd", "sprint": "h/Sprint",
+	"attack1": "h/Zombie_Scratch", "attack2": "h/Zombie_Scratch", "hit": "h/Hit_Chest", "die": "h/Death01",
+}
+const BUCLES_SKIN := ["h/Zombie_Idle", "h/Zombie_Walk_Fwd", "h/Jog_Fwd", "h/Sprint"]
+# m/s a los que cada clip se ve a su velocidad, para que no patinen (como Gente.PASO)
+const PASO_SKIN := {"h/Zombie_Walk_Fwd": 1.2, "h/Jog_Fwd": 4.0, "h/Sprint": 8.0}
+const PASO_GORDO := 3.5
+const CORRE_DESDE := 5.5    # m/s: mas rapido ya esprinta
+const QUIETO := 0.4         # m/s: mas lento ya no corre en su lugar
+# Zombie_Scratch pega a los ~0.57 s: a 0.9 cae en GOLPE_EN, como el del gordo a 1.8
+const ATAQUE_VELOCIDAD_SKIN := 0.9
+# Sin alerta deambulan: caminan despacio a un punto cercano, se paran un rato y escogen otro
+const DEAMBULA_VEL := 0.8   # m/s
+const DEAMBULA_LEJOS := Vector2(3.0, 8.0)   # m
+const DEAMBULA_ESPERA := Vector2(1.0, 4.0)  # s parado
+const DEAMBULA_GIRA := 3.0  # m/s por segundo
+# Te detectan (JJ): te ven a VE_DESDE si estas al frente y nada tapa, te oyen a OYE_DESDE aunque
+# esten de espaldas, y un balazo los despierta a OYE_DISPARO (ruido(); para eso la ballesta,
+# que no hace ruido). El que se alerta avisa a los que tiene a CONTAGIA
+const VE_DESDE := 25.0
+const VE_ANGULO := 120.0    # grados, todo el cono
+const OYE_DESDE := 12.0
+const OYE_DISPARO := 40.0
+const CONTAGIA := 8.0
+const TICKS_DETECTA := 6
+const OJOS_ALTO := 1.4      # m: de los ojos al pecho del jugador
 const VIDA := 30
 const VELOCIDAD := Vector2(3.0, 5.0)
 const GRAVEDAD := 30.0
@@ -126,8 +170,14 @@ const JEFE_TAMANO := 1.7
 const JEFE_VELOCIDAD := 3.0
 const JEFE_COLOR := Color(0.35, 0.5, 0.95)
 const JEFE_SHADER := preload("res://shaders/ps1_combined.gdshader")
+# El gordo, un tipo aparte: sus ataques y numeros los define JJ despues. Por ahora son los de
+# siempre y no sale en las hordas (nadie pide Tipo.GORDO); el jefe usa su modelo
+const GORDO_VIDA := VIDA
+const GORDO_VELOCIDAD := VELOCIDAD
+const GORDO_DANO := DANO
 
 enum Estado { CAMINA, ATACA, HERIDO, MUERTO }
+enum Tipo { NORMAL, GORDO }
 const GOLPE_NADA := 0
 const GOLPE_PEGO := 1
 const GOLPE_MATO := 2
@@ -137,6 +187,7 @@ static var _material_blanco: StandardMaterial3D
 static var _material_barra: ShaderMaterial
 static var _material_charco: StandardMaterial3D
 static var activos: Array[Zombie] = []   # los despiertos
+static var _escenas := {}   # ruta de skin -> PackedScene, para no volver a leerla del disco
 # El caminar de enjambre (ADELANTE, CARRIL...). Apagado es el de antes, en fila por la
 # rejilla: para comparar jugando (0 en el safehouse)
 static var enjambre := true
@@ -148,8 +199,11 @@ var estado := Estado.CAMINA
 var jugador: Player
 var zombis: Zombis
 var es_jefe := false
+var tipo := Tipo.NORMAL
+var skin := -1              # indice en SKINS; -1 = al azar (antes de entrar al arbol)
 var cazador := false
 var despierto := false
+var alerta := true          # ya te detecto: corre hacia su blanco. Sin ella, deambula
 
 var _refugio: Refugio
 var _tinaco: TinacoDefensa  # el de la defensa (scripts/defensa/TinacoDefensa.gd), si hay
@@ -157,6 +211,9 @@ var _blanco: Node3D        # a quien va a pegarle; null = solo va de paso
 var _guia: CampoFlujo       # por donde llegar; null = derecho
 var _modelo: Node3D
 var _tamano := 1.0
+var _escala := 1.0          # la del modelo (el skin trae la suya)
+var _deambula_a := Vector3.INF
+var _deambula_espera := 0.0
 var _mallas: Array[MeshInstance3D] = []
 var _flash_hasta := 0       # ms de reloj real
 var _reventar_en := 0       # ms de reloj real; 0 = no va a tronar
@@ -221,21 +278,28 @@ func _ready() -> void:
 	forma.position.y = 0.9 * tamano
 	add_child(forma)
 	_tamano = tamano
-	_modelo = MODELO.instantiate() as Node3D
-	_modelo.scale = Vector3.ONE * tamano
-	add_child(_modelo)
+	if gordo():
+		_escala = tamano
+		_modelo = MODELO.instantiate() as Node3D
+		_modelo.scale = Vector3.ONE * _escala
+		add_child(_modelo)
+		_animacion = _modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		for nombre in ["run", "idle"]:
+			_animacion.get_animation(nombre).loop_mode = Animation.LOOP_LINEAR
+	else:
+		_modelo = modelo_skin(skin)
+		_escala = _modelo.scale.x
+		add_child(_modelo)
+		_animacion = _modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	for malla: MeshInstance3D in _modelo.find_children("*", "MeshInstance3D", true, false):
 		malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		if es_jefe:
 			malla.material_override = _material_jefe
-		# El tubo que el modelo trae flotando
+		# El tubo que el gordo trae flotando
 		if String(malla.name).contains("Tube"):
 			malla.visible = false
 		else:
 			_mallas.append(malla)
-	_animacion = _modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	for nombre in ["run", "idle"]:
-		_animacion.get_animation(nombre).loop_mode = Animation.LOOP_LINEAR
 	_voz = AudioStreamPlayer3D.new()
 	_voz.position.y = 1.5
 	_voz.max_distance = 25.0
@@ -251,6 +315,52 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	activos.erase(self)
+
+
+func gordo() -> bool:
+	return es_jefe or tipo == Tipo.GORDO
+
+
+# Un zombi normal, ya escalado y con las animaciones de Quaternius en la biblioteca "h" de su
+# AnimationPlayer (lo usa tambien la pantalla de inicio). `indice` en SKINS; -1 = al azar
+static func modelo_skin(indice := -1) -> Node3D:
+	var rutas := SKINS.keys()
+	var ruta: String = rutas[indice] if indice >= 0 and indice < rutas.size() else rutas.pick_random()
+	if not _escenas.has(ruta):
+		_escenas[ruta] = load(ruta)
+	var modelo := (_escenas[ruta] as PackedScene).instantiate() as Node3D
+	modelo.scale = Vector3.ONE * float(SKINS[ruta]) * randf_range(ALTO_VARIA.x, ALTO_VARIA.y)
+	var animacion := modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if animacion == null:
+		animacion = AnimationPlayer.new()
+		modelo.add_child(animacion)
+	if not animacion.has_animation_library(Civiles.LIB):
+		animacion.add_animation_library(Civiles.LIB, Civiles.BIBLIOTECA)
+	for clip: String in BUCLES_SKIN:
+		animacion.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+	return modelo
+
+
+# Los balazos (Pistola.disparar): alerta a todos los despiertos a `radio` de `punto`
+static func ruido(punto: Vector3, radio: float) -> void:
+	for zombi in activos:
+		if not zombi.alerta and zombi.global_position.distance_squared_to(punto) <= radio * radio:
+			zombi.alertar(false)
+
+
+# Ya te detecto: deja de deambular y corre. `contagia`: avisa a los que tiene cerca
+func alertar(contagia := true) -> void:
+	if alerta or not despierto or estado == Estado.MUERTO:
+		return
+	alerta = true
+	_rumbo = Vector3.ZERO
+	_atorado = 0.0
+	if contagia:
+		_sonar("gemido")
+		_gemido = randf_range(4.0, 9.0)
+		for zombi in activos:
+			if zombi != self and not zombi.alerta and zombi.global_position.distance_squared_to(global_position) <= CONTAGIA * CONTAGIA:
+				zombi.alertar(false)
 
 
 func _armar_barra() -> void:
@@ -273,7 +383,7 @@ func _armar_barra() -> void:
 func _poner_barra() -> void:
 	if _barra:
 		_barra.visible = estado != Estado.MUERTO
-		_barra.set_instance_shader_parameter("vida", clampf(float(_vida) / (JEFE_VIDA if es_jefe else VIDA), 0.0, 1.0))
+		_barra.set_instance_shader_parameter("vida", clampf(float(_vida) / _vida_max(), 0.0, 1.0))
 
 
 # Lo que dura poco y va en reloj real: se apaga solo cuando ya no queda nada de eso
@@ -320,7 +430,7 @@ func _restaurar() -> void:
 		_charco.visible = false
 	if _modelo:
 		_modelo.visible = true
-		_modelo.scale = Vector3.ONE * _tamano
+		_modelo.scale = Vector3.ONE * _escala
 		_pintar_blanco(false)
 	set_process(false)
 
@@ -352,12 +462,18 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	collision_mask = 1 | EntradaRefugio.CAPA | CAPA_ZOMBIS
 	_refugio = get_tree().get_first_node_in_group("refugio") as Refugio
 	_tinaco = get_tree().get_first_node_in_group("tinaco_defensa") as TinacoDefensa
-	_vida =JEFE_VIDA if es_jefe else VIDA
+	_vida = _vida_max()
 	if es_jefe:
 		_velocidad = JEFE_VELOCIDAD
 	else:
-		_dano = zombis.dano_jugador if zombis else DANO
-		_velocidad = randf_range(VELOCIDAD.x, VELOCIDAD.y) * (CAZADOR_VELOCIDAD if con_prisa else 1.0)
+		var gordo_ := tipo == Tipo.GORDO
+		_dano = zombis.dano_jugador if zombis else (GORDO_DANO if gordo_ else DANO)
+		var rango := GORDO_VELOCIDAD if gordo_ else VELOCIDAD
+		_velocidad = randf_range(rango.x, rango.y) * (CAZADOR_VELOCIDAD if con_prisa else 1.0)
+	# Ya salen alertas las turbas, el gordo y el jefe, y en la defensa (van por el tinaco)
+	alerta = gordo() or con_prisa or _tinaco != null
+	_deambula_a = Vector3.INF
+	_deambula_espera = randf_range(0.0, DEAMBULA_ESPERA.y)
 	_tiempo = 0.0
 	_golpeo = false
 	_atorado = 0.0
@@ -380,7 +496,10 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	_hueco = _escoger_hueco(con_prisa)
 	_restaurar()
 	_poner_barra()
-	_animar("run", _velocidad / 3.5, true)
+	if alerta:
+		_correr(_velocidad, true)
+	else:
+		_animar("idle", 1.0, true)
 
 
 func dormir() -> void:
@@ -438,13 +557,14 @@ func _caminar(delta: float) -> Vector3:
 		_rumbo = Vector3.ZERO
 		return Vector3.ZERO
 	_vivo += delta
-	var velocidad := _velocidad_ahora(delta)
-	_animar("run", velocidad / 3.5)
 	_gemido -= delta
 	if _gemido <= 0.0:
 		_gemido = randf_range(4.0, 9.0)
 		_sonar("gemido")
 	_tick += 1
+	if not alerta:
+		return _deambular(delta)
+	var velocidad := _velocidad_ahora(delta)
 	# Lejos no se nota: sigue queriendo lo ultimo que decidio
 	if _tick % TICKS_LEJOS == 0 or global_position.distance_squared_to(jugador.global_position) <= LEJOS_AHORRA * LEJOS_AHORRA:
 		if not _decidir(delta):
@@ -452,9 +572,59 @@ func _caminar(delta: float) -> Vector3:
 	# Gira y acelera poco a poco hacia donde quiere ir; haciendose a un lado, mas rapido
 	var acelera := ACELERA * (2.0 if _rodeo > 0.0 or _vivo < 0.2 else 1.0)
 	_rumbo = _rumbo.move_toward(_deseado * velocidad, acelera * delta) if enjambre else _deseado * velocidad
+	_correr(velocidad if gordo() else _rumbo.length())
 	_mirar(_rumbo)
 	_ultimo = _rumbo
 	return _rumbo
+
+
+# Sin rumbo, despacio, hasta que te detecta
+func _deambular(delta: float) -> Vector3:
+	if _tick % TICKS_DETECTA == 0 and _detecta():
+		alertar()
+		return Vector3.ZERO
+	if _deambula_espera > 0.0:
+		_deambula_espera -= delta
+		_animar("idle", 1.0)
+		_rumbo = Vector3.ZERO
+		return Vector3.ZERO
+	var hacia := _deambula_a - global_position
+	hacia.y = 0.0
+	# Llego, o se topo con algo: se para un rato y escoge otro punto
+	if _deambula_a == Vector3.INF or hacia.length() < 0.6 or _atorado > ATORADO_EN:
+		_atorado = 0.0
+		var angulo := randf() * TAU
+		_deambula_a = global_position + Vector3(sin(angulo), 0.0, cos(angulo)) * randf_range(DEAMBULA_LEJOS.x, DEAMBULA_LEJOS.y)
+		if hacia.length() < 0.6 or _rumbo != Vector3.ZERO:
+			_deambula_espera = randf_range(DEAMBULA_ESPERA.x, DEAMBULA_ESPERA.y)
+			_rumbo = Vector3.ZERO
+			return Vector3.ZERO
+		hacia = _deambula_a - global_position
+		hacia.y = 0.0
+	if _rumbo.length() > DEAMBULA_VEL * 0.5 and get_real_velocity().length() < DEAMBULA_VEL * 0.3:
+		_atorado += delta
+	_rumbo = _rumbo.move_toward(hacia.normalized() * DEAMBULA_VEL, DEAMBULA_GIRA * delta)
+	_animar("camina", maxf(_rumbo.length(), 0.3) / float(PASO_SKIN[CLIPS_SKIN["camina"]]))
+	_mirar(_rumbo)
+	return _rumbo
+
+
+# Te ve (al frente, sin nada en medio) o te oye
+func _detecta() -> bool:
+	var hacia := jugador.global_position - global_position
+	hacia.y = 0.0
+	var distancia := hacia.length()
+	if distancia <= OYE_DESDE:
+		return true
+	if distancia > VE_DESDE:
+		return false
+	var frente := Vector3(sin(rotation.y), 0.0, cos(rotation.y))
+	if frente.dot(hacia / distancia) < cos(deg_to_rad(VE_ANGULO / 2.0)):
+		return false
+	# Un rayo de sus ojos a tu pecho; el jugador tambien esta en la capa 1
+	var rayo := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * OJOS_ALTO,
+		jugador.global_position + Vector3.UP * OJOS_ALTO, 1, [get_rid(), jugador.get_rid()])
+	return get_world_3d().direct_space_state.intersect_ray(rayo).is_empty()
 
 
 # Escoge _deseado; false si ya empezo a pegar
@@ -718,7 +888,7 @@ func _empezar_ataque() -> void:
 	_rumbo = Vector3.ZERO
 	_tiempo = 0.0
 	_golpeo = false
-	_animar(["attack1", "attack2"].pick_random(), ATAQUE_VELOCIDAD, true)
+	_animar(["attack1", "attack2"].pick_random(), ATAQUE_VELOCIDAD if gordo() else ATAQUE_VELOCIDAD_SKIN, true)
 	# La señal de que va a pegar: un gruñido, mientras se le puede cortar
 	if _en_corte():
 		_sonar("gemido")
@@ -753,6 +923,7 @@ func _seguir_caminando() -> void:
 func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cuerpo_a_cuerpo := true) -> int:
 	if estado == Estado.MUERTO:
 		return GOLPE_NADA
+	alertar()
 	if cuerpo_a_cuerpo:
 		dano_cuerpo += mini(dano, _vida)
 	else:
@@ -800,7 +971,7 @@ func _morir(pagado: bool, truena_en := 0) -> void:
 	if truena_en > 0:
 		# Se hincha en blanco mientras el juego esta congelado, y al soltar truena
 		_reventar_en = Time.get_ticks_msec() + truena_en
-		_modelo.scale = Vector3(HINCHADO, HINCHADO * 0.92, HINCHADO) * _tamano
+		_modelo.scale = Vector3(HINCHADO, HINCHADO * 0.92, HINCHADO) * _escala
 		_animacion.pause()
 		set_process(true)
 	else:
@@ -890,9 +1061,28 @@ func _mirar(direccion: Vector3) -> void:
 		rotation.y = atan2(direccion.x, direccion.z)
 
 
+# Corriendo a `velocidad` m/s: el gordo con su `run`, los normales trotan o esprintan segun su
+# velocidad de siempre (no en cada arrancon), y parados (esperando turno) se quedan quietos
+func _correr(velocidad: float, reiniciar := false) -> void:
+	if gordo():
+		_animar("run", velocidad / PASO_GORDO, reiniciar)
+		return
+	if velocidad < QUIETO and not reiniciar:
+		_animar("idle", 1.0)
+		return
+	var nombre := "sprint" if _velocidad >= CORRE_DESDE else "run"
+	_animar(nombre, maxf(velocidad, _velocidad * 0.5) / float(PASO_SKIN[CLIPS_SKIN[nombre]]), reiniciar)
+
+
+func _vida_max() -> int:
+	return JEFE_VIDA if es_jefe else (GORDO_VIDA if tipo == Tipo.GORDO else VIDA)
+
+
 func _animar(nombre: String, velocidad: float, reiniciar := false) -> void:
 	if _animacion == null:
 		return
+	if not gordo():
+		nombre = CLIPS_SKIN[nombre]
 	_animacion.speed_scale = velocidad
 	if reiniciar or _animacion.current_animation != nombre:
 		_animacion.stop()

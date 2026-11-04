@@ -49,6 +49,9 @@ const MAPAS := [
 	["huesos_mixamo.tres", 1, ["Left", "Right"]],
 	["huesos_rigify.tres", 2, ["L", "R"]],
 	["huesos_unreal.tres", 3, ["l", "r"]],
+	# El zombi PSX de Sketchfab: huesos de Mixamo, pero el gltf les pega un numero a cada uno
+	# (mixamorig_Hips_01, mixamorig_RightArm_00...). Se buscan en el modelo (quinto campo)
+	["huesos_zombie_psx.tres", 1, ["Left", "Right"], "res://models/personajes/zombie_psx/zombie_psx.scn"],
 ]
 
 
@@ -58,16 +61,35 @@ func _init() -> void:
 		var huesos := BoneMap.new()
 		huesos.profile = SkeletonProfileHumanoid.new()
 		var columna: int = mapa[1]
+		var numerados := _numerados(mapa[3]) if mapa.size() > 3 else {}
+		# Ya con el retarget puesto el modelo tiene los huesos del perfil: el mapa que hay sirve
+		if mapa.size() > 3 and not numerados.has("mixamorig_Hips"):
+			print(mapa[0], ": el modelo ya tiene retarget, se deja como esta")
+			continue
 		for fila: Array in CENTRO:
 			if fila[columna] != "":
-				huesos.set_skeleton_bone_name(fila[0], fila[columna])
+				huesos.set_skeleton_bone_name(fila[0], numerados.get(fila[columna], fila[columna]))
 		for i in 2:
 			var perfil_lado: String = ["Left", "Right"][i]
 			var lado: String = mapa[2][i]
 			for fila: Array in LADOS:
 				if fila[columna] != "":
-					huesos.set_skeleton_bone_name(perfil_lado + fila[0], (fila[columna] as String) % lado)
+					var nombre := (fila[columna] as String) % lado
+					huesos.set_skeleton_bone_name(perfil_lado + fila[0], numerados.get(nombre, nombre))
 		var ruta: String = CARPETA + mapa[0]
 		var error := ResourceSaver.save(huesos, ruta)
 		print(ruta, ": ", error_string(error))
 	quit()
+
+
+# nombre sin numero -> nombre en el modelo (mixamorig_Hips -> mixamorig_Hips_01)
+func _numerados(ruta: String) -> Dictionary:
+	var nombres := {}
+	var numero := RegEx.create_from_string("_\\d+$")
+	var raiz := (load(ruta) as PackedScene).instantiate()
+	for esqueleto: Skeleton3D in raiz.find_children("*", "Skeleton3D", true, false):
+		for i in esqueleto.get_bone_count():
+			var nombre := esqueleto.get_bone_name(i)
+			nombres[numero.sub(nombre, "")] = nombre
+	raiz.free()
+	return nombres
