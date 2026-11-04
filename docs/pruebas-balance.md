@@ -124,10 +124,19 @@ Se probó en la 12ª: el zombi que ya alcanza el tinaco le sigue pegando, hueco 
 |---|---|---|---|---|---|---|
 | 13 | otra vez las reglas de la 11 | **6:00**, 28 % (la más baja 28) | 102 en 17 | 1 de 5 | 73 % | El tinaco quedó en **4 %** (12 de 300): casi se pierde. Golpes parejos de 4:00 a 6:00 sin curarse. Máximo 11 vivos |
 | 14 | medio (igual que la 13) | **6:00**, 52 % (la más baja 46) | 138 en 23 | 3 de 5 | 74 % | Se curó a tiempo, cada vez que bajaba de ~50. Daño parejo toda la noche, desde las 22:00. Tinaco en 57 %, máximo 10 vivos |
+| 15 | medio, con enjambre y el protagonista nuevo (el_compa, machetazos y pistola de Quaternius; rama `protagonista-compa`) | **6:00**, 64 % (la más baja 40) | 96 en 16 | 2 de 5 | **62 %** | El machete pegó menos que en la 11-14 (72-74 %). Tinaco en **32 %**: el enjambre le pega más. Pistola 53 % (440 de daño). Máximo 12 vivos a las 5:01; 55-60 FPS |
 
 Desde que el golpe empujaba (~0.5 m), el machete fallaba más y el combo perdía el segundo golpe. Después de la partida 5 se quitó el empujón.
 
 **Después de la 14: zombis en enjambre** (`docs/pruebas-enjambre.md`). Ya no caminan en fila: van por carriles, cortan camino y se rebasan. En las pruebas sin ventana llegan al tinaco ~1 s antes (13.5 s contra 14.3 s en grupos de 9) y ya no se atoran en los tambos. Las partidas de arriba son con el caminar de antes; la siguiente partida con el monitor dirá si el modo medio quedó más duro. En el safehouse, la tecla 0 regresa al caminar de antes para comparar.
+
+## Pendientes de la pelea
+
+Lo que pidió JJ después de la partida 15 (4 de noviembre de 2026):
+
+- **Animación de curarse** (Q, `Player._curarse`): cambiarla por una de comer o tomar; la UAL de Quaternius trae `Consume`, y ya está en `resources/personajes/animaciones_humanas.res`.
+- **El zombi bloquea a veces**: 10 % de probabilidad de que un machetazo rebote, con un poco de lag (el brazo regresa y tardas en poder pegar otra vez) y sin daño.
+- **Mejor interfaz durante la pelea**: la vida, el tinaco, el arma y las balas.
 
 ## Después del piloto: hordas que piden mejores armas
 
