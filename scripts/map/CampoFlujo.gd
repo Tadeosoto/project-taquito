@@ -90,14 +90,61 @@ func avanzar(espacio: PhysicsDirectSpaceState3D, delta: float, presupuesto_us: i
 	listo = true
 
 
-# Hacia donde ir desde `punto`; cero si esta fuera de la rejilla o no hay camino
+# Hacia donde ir desde `punto`; cero si esta fuera de la rejilla o no hay camino. Sale en
+# una de ocho direcciones: para caminar se usa direccion_suave o adelante
 func direccion(punto: Vector3) -> Vector3:
 	if not listo:
 		return Vector3.ZERO
+	var paso := _paso(_celda(punto))
+	if paso == Vector2i.ZERO:
+		return Vector3.ZERO
+	return Vector3(paso.x, 0.0, paso.y).normalized()
+
+
+# Como direccion, pero mezclada entre las cuatro celdas de alrededor segun donde cae `punto`:
+# cambia poco a poco de celda a celda en vez de brincar de 45 en 45 grados
+func direccion_suave(punto: Vector3) -> Vector3:
+	if not listo:
+		return Vector3.ZERO
+	var x := punto.x / CELDA - 0.5
+	var z := punto.z / CELDA - 0.5
+	var celda := Vector2i(floori(x), floori(z))
+	var fx := x - celda.x
+	var fz := z - celda.y
+	var suma := Vector3.ZERO
+	for esquina: Vector2i in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)]:
+		var paso := _paso(celda + esquina)
+		if paso == Vector2i.ZERO:
+			continue
+		var peso := (fx if esquina.x == 1 else 1.0 - fx) * (fz if esquina.y == 1 else 1.0 - fz)
+		suma += Vector3(paso.x, 0.0, paso.y).normalized() * peso
+	return suma.normalized() if suma.length_squared() > 0.0001 else Vector3.ZERO
+
+
+# El centro de la celda a la que se llega siguiendo el campo `pasos` celdas desde `punto`
+# (antes, si llega a la meta); INF si de ahi no hay camino. Para cortar las esquinas de la
+# rejilla en linea recta cuando se ve (Zombie._atajo)
+func adelante(punto: Vector3, pasos: int) -> Vector3:
+	if not listo:
+		return Vector3.INF
 	var celda := _celda(punto)
+	var anduvo := 0
+	for i in pasos:
+		var paso := _paso(celda)
+		if paso == Vector2i.ZERO:
+			break
+		celda += paso
+		anduvo += 1
+	if anduvo == 0:
+		return Vector3.INF
+	return Vector3((celda.x + 0.5) * CELDA, punto.y, (celda.y + 0.5) * CELDA)
+
+
+# La vecina de `celda` que queda mas cerca de la meta; cero si no hay o ya esta ahi
+func _paso(celda: Vector2i) -> Vector2i:
 	var i := _indice(celda, _origen)
 	if i < 0:
-		return Vector3.ZERO
+		return Vector2i.ZERO
 	var mejor := _dist[i] if _dist[i] >= 0 else 2147483647
 	var hacia := Vector2i.ZERO
 	for paso in VECINOS:
@@ -115,9 +162,7 @@ func direccion(punto: Vector3) -> Vector3:
 		if a >= 0 and b >= 0 and _dist[a] >= 0 and _dist[b] >= 0:
 			mejor = _dist[j]
 			hacia = paso
-	if hacia == Vector2i.ZERO:
-		return Vector3.ZERO
-	return Vector3(hacia.x, 0.0, hacia.y).normalized()
+	return hacia
 
 
 func _empezar() -> void:

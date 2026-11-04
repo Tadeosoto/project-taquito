@@ -98,6 +98,27 @@ const DERECHO := 4.0        # m: tan cerca del blanco ya va derecho, sin campo
 const LEJOS_AHORRA := 25.0  # m: mas lejos del jugador decide cada TICKS_LEJOS
 const TICKS_LEJOS := 3
 const TICKS_SEPARAR := 4
+# Enjambre (docs/pruebas-enjambre.md): que no caminen en fila india por la
+# rejilla de CampoFlujo. Siguen el campo ADELANTE celdas y, si ese punto se ve, van derecho a
+# el: cortan las escaleras de la rejilla. Cada uno con su carril, a un lado del camino, que
+# se mece, y se va abriendo para rebasar al que lo frena. Giran poco a poco (ACELERA) y su
+# velocidad sube y baja, con arrancones, para que unos alcancen a otros y se amontonen.
+const ADELANTE := 8          # celdas de CampoFlujo (10 m)
+const ADELANTE_CERCA := 4
+const TICKS_VISTA := 4       # cada cuantos ticks vuelve a buscar el atajo
+const VISTA_ALTO := 0.8      # m sobre los pies de los rayos que buscan el atajo
+const ACELERA := 14.0        # m/s por segundo
+const CARRIL := 1.5          # m a un lado del camino, como mucho
+const VAIVEN := 0.6          # m que se mece de un lado a otro
+const VAIVEN_RAPIDEZ := Vector2(0.6, 1.2)   # rad/s
+const CARRIL_DESDE := 6.0    # m: mas cerca de su meta se va juntando al camino
+const REBASA := 1.5          # carril por segundo que se abre al toparse con otro
+const VEL_VAIVEN := 0.15     # la velocidad sube y baja esta fraccion
+const VEL_RAPIDEZ := Vector2(0.8, 1.6)      # rad/s
+const ARRANQUE := 0.35       # fraccion de mas en un arrancon
+const ARRANQUE_DURA := 0.6
+const ARRANQUE_CADA := 7.0   # s, en promedio
+const DE_FRENTE := 0.7       # coseno: tan de frente contra una pared ya se va de lado
 const JEFE_VIDA := 400
 const JEFE_DANO := 25
 const JEFE_EMPUJA := 1.41   # velocidad del empujon al jugador: el doble de distancia
@@ -116,6 +137,9 @@ static var _material_blanco: StandardMaterial3D
 static var _material_barra: ShaderMaterial
 static var _material_charco: StandardMaterial3D
 static var activos: Array[Zombie] = []   # los despiertos
+# El caminar de enjambre (ADELANTE, CARRIL...). Apagado es el de antes, en fila por la
+# rejilla: para comparar jugando (0 en el safehouse)
+static var enjambre := true
 # Dano que les ha hecho el jugador, para medir el balance (scripts/defensa/MonitorDefensa.gd)
 static var dano_cuerpo := 0
 static var dano_pistola := 0
@@ -161,6 +185,17 @@ var _rodeo := 0.0
 var _lado := 1.0
 var _retroceso := Vector3.ZERO   # el empujon del ultimo golpe, se va frenando
 var _hueco := -1                 # el hueco de la barricada al que va (defensa); -1 = ninguno
+var _rumbo := Vector3.ZERO       # la velocidad con la que va; gira hacia _deseado
+var _deseado := Vector3.ZERO     # hacia donde quiere ir (unitario)
+var _atajo := Vector3.INF        # el punto del campo que se ve, al que va derecho
+var _meta_se_ve := true          # la meta de paso (un hueco, una entrada) se ve derecho desde aqui
+var _carril := 0.0               # -1..1: de que lado del camino va
+var _fase := 0.0
+var _vaiven := 1.0
+var _vel_rapidez := 1.0
+var _vivo := 0.0                 # s desde que desperto
+var _arranque := 0.0             # s que le quedan al arrancon
+var _vista: PhysicsRayQueryParameters3D
 
 
 func _ready() -> void:
@@ -330,6 +365,16 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	_empuje = Vector3.ZERO
 	_ultimo = Vector3.ZERO
 	_retroceso = Vector3.ZERO
+	_rumbo = Vector3.ZERO
+	_deseado = Vector3.ZERO
+	_atajo = Vector3.INF
+	_meta_se_ve = true
+	_carril = randf_range(-1.0, 1.0)
+	_fase = randf() * TAU
+	_vaiven = randf_range(VAIVEN_RAPIDEZ.x, VAIVEN_RAPIDEZ.y)
+	_vel_rapidez = randf_range(VEL_RAPIDEZ.x, VEL_RAPIDEZ.y)
+	_vivo = 0.0
+	_arranque = 0.0
 	velocity = Vector3.ZERO
 	global_position = lugar
 	_hueco = _escoger_hueco(con_prisa)
@@ -390,17 +435,32 @@ func _physics_process(delta: float) -> void:
 func _caminar(delta: float) -> Vector3:
 	if not is_instance_valid(jugador) or not _jugador_libre():
 		_animar("idle", 1.0)
+		_rumbo = Vector3.ZERO
 		return Vector3.ZERO
-	_animar("run", _velocidad / 3.5)
+	_vivo += delta
+	var velocidad := _velocidad_ahora(delta)
+	_animar("run", velocidad / 3.5)
 	_gemido -= delta
 	if _gemido <= 0.0:
 		_gemido = randf_range(4.0, 9.0)
 		_sonar("gemido")
 	_tick += 1
-	# Lejos no se nota: sigue con lo ultimo que decidio
-	if _tick % TICKS_LEJOS != 0 and global_position.distance_squared_to(jugador.global_position) > LEJOS_AHORRA * LEJOS_AHORRA:
-		return _ultimo
-	var hacia := _destino() - global_position
+	# Lejos no se nota: sigue queriendo lo ultimo que decidio
+	if _tick % TICKS_LEJOS == 0 or global_position.distance_squared_to(jugador.global_position) <= LEJOS_AHORRA * LEJOS_AHORRA:
+		if not _decidir(delta):
+			return Vector3.ZERO
+	# Gira y acelera poco a poco hacia donde quiere ir; haciendose a un lado, mas rapido
+	var acelera := ACELERA * (2.0 if _rodeo > 0.0 or _vivo < 0.2 else 1.0)
+	_rumbo = _rumbo.move_toward(_deseado * velocidad, acelera * delta) if enjambre else _deseado * velocidad
+	_mirar(_rumbo)
+	_ultimo = _rumbo
+	return _rumbo
+
+
+# Escoge _deseado; false si ya empezo a pegar
+func _decidir(delta: float) -> bool:
+	var destino := _destino()
+	var hacia := destino - global_position
 	hacia.y = 0.0
 	var distancia := hacia.length()
 	# Al tinaco se le pega desde su orilla, no desde su centro
@@ -408,32 +468,130 @@ func _caminar(delta: float) -> Vector3:
 	if _blanco and distancia <= alcance:
 		_mirar(hacia)
 		_empezar_ataque()
-		return Vector3.ZERO
-	var direccion := hacia / maxf(distancia, 0.01)
-	if _guia and distancia > DERECHO:
-		var por_calle := _guia.direccion(global_position)
-		if por_calle != Vector3.ZERO:
-			direccion = por_calle
+		return false
+	# A que punto apunta: la meta si esta cerca o no hay campo; si no, el atajo que se ve
+	# o, si no se ve ninguno, un poco adelante por el campo
+	var objetivo := destino
+	# Cerca de un hueco va derecho solo si lo ve: llegando de lado, por fuera de la barricada,
+	# la punta de una pieza queda en medio y se quedaba empujandola
+	if not enjambre:
+		_meta_se_ve = true
+	elif _blanco == null and distancia <= DERECHO and (_tick % TICKS_VISTA == 0 or _meta_se_ve):
+		_meta_se_ve = _se_ve(destino)
+	elif distancia > DERECHO:
+		_meta_se_ve = true
+	if _guia and not enjambre:
+		_atajo = Vector3.INF
+		if distancia > DERECHO and _guia.direccion(global_position) != Vector3.ZERO:
+			objetivo = global_position + _guia.direccion(global_position)
+	elif _guia and (distancia > DERECHO or not _meta_se_ve):
+		if _tick % TICKS_VISTA == 0 or _atajo == Vector3.INF:
+			_atajo = _buscar_atajo(distancia)
+		if _atajo != Vector3.INF and Vector2(_atajo.x - global_position.x, _atajo.z - global_position.z).length() > CampoFlujo.CELDA * 0.5:
+			objetivo = _atajo
+		else:
+			var por_calle := _guia.direccion_suave(global_position)
+			if por_calle != Vector3.ZERO:
+				objetivo = global_position + por_calle * CampoFlujo.CELDA * 2.0
+	else:
+		_atajo = Vector3.INF
+	var direccion := objetivo - global_position
+	direccion.y = 0.0
+	direccion = direccion.normalized() if direccion.length_squared() > 0.0001 else hacia / maxf(distancia, 0.01)
+	# Su carril, salvo cerca de la meta (un hueco de la barricada, el tinaco, el jugador)
+	if _rodeo <= 0.0 and not es_jefe and enjambre:
+		var junto := clampf((distancia - DERECHO) / CARRIL_DESDE, 0.0, 1.0)
+		if junto > 0.0 and _atajo == Vector3.INF:
+			var lado := Vector3(-direccion.z, 0.0, direccion.x)
+			direccion = (direccion + lado * _desfase() * junto / (CampoFlujo.CELDA * 2.0)).normalized()
 	# Atorado en una pared: un rato hacia un lado
 	if _rodeo > 0.0:
 		_rodeo -= delta
 		direccion = direccion.rotated(Vector3.UP, _lado * PI * 0.45)
-	elif distancia <= FILA_CERCA and _lo_detiene_un_zombi():
-		_atorado = 0.0
-	elif get_real_velocity().length() < _velocidad * 0.3 and _tiempo > 0.3:
-		_atorado += delta
-		if _atorado >= ATORADO_EN:
-			_atorado = 0.0
-			_rodeo = RODEO
-			_lado = -_lado
 	else:
-		_atorado = 0.0
+		var estorba := _zombi_que_estorba()
+		if estorba and distancia <= FILA_CERCA:
+			_atorado = 0.0
+		elif estorba and enjambre:
+			# Lejos de la meta, rebasa: se abre hacia el lado contrario del que lo frena
+			var lado := Vector3(-direccion.z, 0.0, direccion.x)
+			var de_que_lado := signf(lado.dot(global_position - estorba.global_position))
+			_carril = clampf(_carril + (de_que_lado if de_que_lado != 0.0 else _lado) * REBASA * delta, -1.0, 1.0)
+			_atajo = Vector3.INF
+			_atorado = 0.0
+		elif get_real_velocity().length() < _velocidad * 0.3 and _tiempo > 0.3:
+			_atorado += delta
+			if _atorado >= ATORADO_EN:
+				_atorado = 0.0
+				_rodeo = RODEO
+				_lado = -_lado
+				_atajo = Vector3.INF
+		else:
+			_atorado = 0.0
+	if enjambre:
+		direccion = _rozar_pared(direccion)
 	if _tick % TICKS_SEPARAR == 0:
 		_empuje = _separarse()
-	direccion = (direccion + _empuje).normalized()
-	_mirar(direccion)
-	_ultimo = direccion * _velocidad
-	return _ultimo
+	_deseado = (direccion + _empuje).normalized()
+	return true
+
+
+# El punto del campo ADELANTE (o ADELANTE_CERCA) celdas mas alla que se ve derecho, ya
+# corrido a su carril si ahi tambien se ve; INF si ninguno. `distancia`: a su meta
+func _buscar_atajo(distancia: float) -> Vector3:
+	for pasos in [ADELANTE, ADELANTE_CERCA]:
+		var punto := _guia.adelante(global_position, pasos)
+		if punto == Vector3.INF:
+			return Vector3.INF
+		punto.y = global_position.y
+		if not es_jefe and _rodeo <= 0.0:
+			var hacia := punto - global_position
+			hacia.y = 0.0
+			var junto := clampf((distancia - DERECHO) / CARRIL_DESDE, 0.0, 1.0)
+			if junto > 0.0 and hacia.length_squared() > 0.01:
+				var lado := Vector3(-hacia.z, 0.0, hacia.x).normalized()
+				var corrido := punto + lado * _desfase() * junto
+				if _se_ve(corrido):
+					return corrido
+		if _se_ve(punto):
+			return punto
+	return Vector3.INF
+
+
+# m a un lado del camino: su carril mas lo que se mece
+func _desfase() -> float:
+	return _carril * CARRIL + sin(_vivo * _vaiven + _fase) * VAIVEN
+
+
+# Derecho hasta `punto` sin chocar con paredes (capa 1): tres rayos, a cada orilla del cuerpo y
+# al centro (entre las dos orillas cabia un tambo)
+func _se_ve(punto: Vector3) -> bool:
+	if _vista == null:
+		_vista = PhysicsRayQueryParameters3D.new()
+		_vista.collision_mask = 1
+		_vista.hit_back_faces = true
+	var hacia := punto - global_position
+	hacia.y = 0.0
+	if hacia.length_squared() < 0.0001:
+		return true
+	var lado := Vector3(-hacia.z, 0.0, hacia.x).normalized() * radio()
+	var espacio := get_world_3d().direct_space_state
+	for orilla in [lado, Vector3.ZERO, -lado]:
+		_vista.from = global_position + orilla + Vector3.UP * VISTA_ALTO
+		_vista.to = punto + orilla + Vector3.UP * VISTA_ALTO
+		if not espacio.intersect_ray(_vista).is_empty():
+			return false
+	return true
+
+
+# La velocidad de este momento: sube y baja, y a ratos un arrancon (el jefe, pareja)
+func _velocidad_ahora(delta: float) -> float:
+	if es_jefe or not enjambre:
+		return _velocidad
+	_arranque -= delta
+	if _arranque <= 0.0 and randf() < delta / ARRANQUE_CADA:
+		_arranque = ARRANQUE_DURA
+	return _velocidad * (1.0 + VEL_VAIVEN * sin(_vivo * _vel_rapidez + _fase * 1.7)) * (1.0 + ARRANQUE if _arranque > 0.0 else 1.0)
 
 
 func radio() -> float:
@@ -448,11 +606,35 @@ func apartarse(cuanto: Vector3) -> void:
 	collision_mask = mascara
 
 
-func _lo_detiene_un_zombi() -> bool:
+# Si al moverse dio de frente contra una pared (un tambo, un poste, la punta de una pieza),
+# se va de lado a lo largo de ella en vez de quedarse empujando hasta contar como atorado:
+# de frente, move_and_slide no tiene hacia donde resbalar
+func _rozar_pared(direccion: Vector3) -> Vector3:
 	for i in get_slide_collision_count():
-		if get_slide_collision(i).get_collider() is Zombie:
-			return true
-	return false
+		var choque := get_slide_collision(i)
+		if choque.get_collider() is Zombie:
+			continue
+		var normal := choque.get_normal()
+		normal.y = 0.0
+		if normal.length_squared() < 0.01:
+			continue
+		normal = normal.normalized()
+		if direccion.dot(-normal) < DE_FRENTE:
+			continue
+		var de_lado := direccion - normal * direccion.dot(normal)
+		if de_lado.length_squared() < 0.04:
+			de_lado = Vector3(-normal.z, 0.0, normal.x) * _lado
+		return (de_lado.normalized() + normal * 0.3).normalized()
+	return direccion
+
+
+# El zombi con el que choco al moverse; null si ninguno
+func _zombi_que_estorba() -> Zombie:
+	for i in get_slide_collision_count():
+		var otro := get_slide_collision(i).get_collider() as Zombie
+		if otro:
+			return otro
+	return null
 
 
 # A donde camina; deja en _blanco a quien le pegaria al llegar y en _guia su camino
@@ -533,6 +715,7 @@ func _separarse() -> Vector3:
 
 func _empezar_ataque() -> void:
 	estado = Estado.ATACA
+	_rumbo = Vector3.ZERO
 	_tiempo = 0.0
 	_golpeo = false
 	_animar(["attack1", "attack2"].pick_random(), ATAQUE_VELOCIDAD, true)
@@ -559,6 +742,7 @@ func _atacar() -> void:
 
 func _seguir_caminando() -> void:
 	estado = Estado.CAMINA
+	_rumbo = Vector3.ZERO
 	_tiempo = 0.0
 
 

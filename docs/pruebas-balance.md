@@ -127,6 +127,8 @@ Se probó en la 12ª: el zombi que ya alcanza el tinaco le sigue pegando, hueco 
 
 Desde que el golpe empujaba (~0.5 m), el machete fallaba más y el combo perdía el segundo golpe. Después de la partida 5 se quitó el empujón.
 
+**Después de la 14: zombis en enjambre** (`docs/pruebas-enjambre.md`). Ya no caminan en fila: van por carriles, cortan camino y se rebasan. En las pruebas sin ventana llegan al tinaco ~1 s antes (13.5 s contra 14.3 s en grupos de 9) y ya no se atoran en los tambos. Las partidas de arriba son con el caminar de antes; la siguiente partida con el monitor dirá si el modo medio quedó más duro. En el safehouse, la tecla 0 regresa al caminar de antes para comparar.
+
 ## Después del piloto: hordas que piden mejores armas
 
 La horda piloto se tiene que poder ganar con lo que trae el jugador (machete, pistola, puño y comida), sin ser ni muy fácil ni muy difícil. Más adelante, una noche o una colonia más dura debería ganarse solo si mejoraste tu armamento. Para eso, `Hordas.dificultad` (1 en la piloto) multiplica la presión. Falta decidir si también sube la vida o la velocidad de los zombis, y cuánto daño hace falta para cada nivel. Una prueba sin defender (el jugador parado junto al tinaco) acaba con el tinaco a las 23:30 más o menos.
