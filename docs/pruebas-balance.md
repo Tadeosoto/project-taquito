@@ -123,6 +123,7 @@ Se probó en la 12ª: el zombi que ya alcanza el tinaco le sigue pegando, hueco 
 | Partida | Cambio | Hasta | Daño recibido | Curaciones | Machete pegó | Nota |
 |---|---|---|---|---|---|---|
 | 13 | otra vez las reglas de la 11 | **6:00**, 28 % (la más baja 28) | 102 en 17 | 1 de 5 | 73 % | El tinaco quedó en **4 %** (12 de 300): casi se pierde. Golpes parejos de 4:00 a 6:00 sin curarse. Máximo 11 vivos |
+| 14 | medio (igual que la 13) | **6:00**, 52 % (la más baja 46) | 138 en 23 | 3 de 5 | 74 % | Se curó a tiempo, cada vez que bajaba de ~50. Daño parejo toda la noche, desde las 22:00. Tinaco en 57 %, máximo 10 vivos |
 
 Desde que el golpe empujaba (~0.5 m), el machete fallaba más y el combo perdía el segundo golpe. Después de la partida 5 se quitó el empujón.
 
