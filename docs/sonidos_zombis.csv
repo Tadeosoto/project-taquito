@@ -1,0 +1,10 @@
+﻿Grupo,#,Sonido,Cuándo suena,Cómo debe sonar,Duración,Variantes,Distancia / volumen,Estado,Prioridad
+Ya existe,E1,gemido,Cada 4 a 9 s mientras el zombi está vivo,"Garganta grave que sube y se cae, 'uuurgh', con eco. Boca entre 'o' y 'u'.",1.4 s,1 (muestra única),"Hasta 25 m, a 1.5 m de altura",En main,Media
+Ya existe,E2,morir_zombi,Cuando el zombi muere,Tono que baja de 120 Hz. Muy simple.,0.6 s,1,Hasta 25 m,En main,Alta
+Ya existe,E3,reventar,El zombi revienta como globo de agua sucia,Reventón húmedo.,Corto,1,Hasta 25 m,En main,Baja
+Nuevo,Z1,zombi_alerta,El zombi te detecta y pasa de deambular a perseguir,"Gruñido seco y ronco que sube de tono rápido. Tiene que avisar al jugador que lo vieron, aunque el zombi esté lejos.",0.5 a 0.8 s,3,"Hasta 25 m, volumen medio alto",Pendiente,Alta
+Nuevo,Z2,zombi_carrera,"Mientras el zombi corre hacia ti, cada 2 a 4 s","Rugido áspero y más agudo que el gemido, con aire. Se siente urgente.",0.7 a 1.0 s,3,"Hasta 25 m, volumen medio",Pendiente,Media
+Nuevo,Z3,zombi_arrastre,Cada paso de un zombi que deambula,"Pie pesado y arrastrado sobre asfalto o banqueta, irregular. Un paso largo y uno corto.",0.3 s por paso,4,"Hasta 12 a 15 m, volumen bajo",Pendiente,Media
+Nuevo,Z4,zombi_mordida,El zombi te ataca (son caníbales),Chasquido húmedo de mandíbula con un gruñido corto encima.,0.3 a 0.4 s,3,"Hasta 10 m, volumen alto",Pendiente,Alta
+Nuevo,Z5,zombi_horda,Capa de fondo cuando hay una turba cerca (Director de hordas),Murmullo de muchos gemidos lejanos con arrastres. Se repite sin cortes y su volumen sube con la cantidad de zombis.,8 a 12 s (repetible),1,Volumen según número de zombis,Pendiente,Media
+Nuevo,Z6,zombi_quejido,El zombi recibe un golpe y no muere,"'Ugh' corto, ronco y con aire. Distinto del whack, que es el impacto del arma.",0.25 a 0.4 s,4 (por tamaño del zombi),"Hasta 25 m, volumen medio",Pendiente,Alta

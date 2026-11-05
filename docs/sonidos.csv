@@ -1,0 +1,86 @@
+﻿ID,Categoría,Sonido (nombre en código),Cuándo suena,Dónde se usa,Estado,Fuente,Licencia,Prioridad,Notas
+S-001,Combate,machetazo,Swing del machete o del puño al atacar,player.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,Ruido corto filtrado. Suena igual con puño y con machete.
+S-002,Combate,golpe,"Golpe seco al pegar, también en efectos de pixel y entrada al refugio","player.gd, EfectosPixel.gd, EntradaRefugio.gd, Safehouse.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-003,Combate,whack,Impacto pesado cuando el golpe o el balazo conecta con un zombi,"player.gd (main), Pistola.gd (rama)",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,Se baja de volumen si no es tiro a la cabeza.
+S-004,Combate,disparo_1 a disparo_4,"Balazo de pistola, cuatro variantes con tono al azar","Pistola.gd, DefensaTinaco.gd",Solo en rama golpe-direccion,Generado en código (Sonidos.gd),Propio (código del proyecto),Alta,Una sola arma. Faltan sonidos para las demás.
+S-005,Combate,recarga,Recargar la pistola,"Pistola.gd, player.gd, character_animation.gd",Solo en rama golpe-direccion,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-006,Jugador,dolor,El jugador recibe daño,player.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Alta,Es un tono que baja de 190 Hz y suena a bip. Candidato a rehacer con voz.
+S-007,Zombis,gemido,Gemido de cada zombi cada 4 a 9 s; también en la pantalla de inicio y al desmayarse,"Zombie.gd, Supervivencia.gd, Inicio.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,Una sola muestra con semilla fija: todos los zombis suenan igual.
+S-008,Zombis,morir_zombi,Un zombi muere,Zombie.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Alta,"Es un tono que baja de 120 Hz, mucho más simple que el gemido."
+S-009,Zombis,reventar,El zombi revienta como globo de agua sucia,Zombie.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-010,Mundo,campana,"Aviso de atardecer, de noche y de amanecer",Supervivencia.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-011,Mundo,ladrido,Ladrido de perro en las misiones del mundo,MisionesMundo.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,Un tono corto de 420 Hz: no suena a perro.
+S-012,Mundo,silbido,Cohete que sube,Cohetes.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-013,Mundo,trueno,Cohete que truena,Cohetes.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-014,Mundo,cortina,Cortina metálica de un negocio que sube o baja,MapPuntos.gd,Solo en rama golpe-direccion,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-015,Mundo,cortina_tope,La cortina llega al tope,MapPuntos.gd,Solo en rama golpe-direccion,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-016,Mundo,moneda,Ganar dinero en la maquinita y en misiones,"Maquinita.gd, MisionesMundo.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-017,Mundo,perder,Perder en la maquinita o en una misión,"Maquinita.gd, MisionesMundo.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-018,Mundo,paso,Tic de los rodillos de la maquinita,Maquinita.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,Ojo con el nombre: NO son pasos del jugador.
+S-019,Mundo,boton,Botón de la maquinita; en la rama también el clic de la pistola sin balas,"Maquinita.gd, Pistola.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-020,Mundo,destello,Destello al desmayarse y al abrir un tazo,"Supervivencia.gd, TazoRevelacion.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-021,Menú e inventario,ui_mover,"Mover el cursor en menús, álbum, creador y habilidades","Inicio.gd, InventoryUI.gd, AlbumTazos.gd, CreadorPersonaje.gd, HabilidadesUI.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,"Estilo survival horror de los 90, hecho en el proyecto."
+S-022,Menú e inventario,ui_aceptar,Aceptar una opción,"Inicio.gd, InventoryUI.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-023,Menú e inventario,ui_cancelar,Cancelar o volver,"Inicio.gd, InventoryUI.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-024,Menú e inventario,ui_error,Acción no permitida,"InventoryUI.gd, HabilidadesUI.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-025,Menú e inventario,ui_jugar,Botón Jugar de la pantalla de inicio,Inicio.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-026,Menú e inventario,ui_azar,Botón de azar del creador de personaje,CreadorPersonaje.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-027,Menú e inventario,inicio_partida,Arranca la partida desde el inicio,Inicio.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-028,Menú e inventario,menu_aparece,Aparece el menú,Inicio.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-029,Menú e inventario,ambiente_menu,Ambiente de fondo de la pantalla de inicio,Inicio.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-030,Menú e inventario,inv_abrir,Abrir el inventario,InventoryUI.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-031,Menú e inventario,inv_cerrar,Cerrar el inventario,InventoryUI.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-032,Menú e inventario,inv_girar,"Girar el objeto al inspeccionarlo, o el menú de habilidades","InventoryUI.gd, HabilidadesUI.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-033,Menú e inventario,inv_examinar,Examinar un objeto,InventoryUI.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-034,Menú e inventario,inv_usar,Usar un objeto,InventoryUI.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,Suena igual con un botiquín que con un tacos: ver pendientes.
+S-035,Menú e inventario,inv_combinar,Combinar dos objetos,InventoryUI.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-036,Menú e inventario,mapa_abrir,Abrir el mapa de papel,InventoryUI.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-037,Menú e inventario,mapa_cerrar,Cerrar el mapa de papel,InventoryUI.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-038,Tazos,bolsa_abrir,Abrir una bolsa especial de Takis,TazoRevelacion.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-039,Tazos,tazo_tiembla,El tazo tiembla antes de revelarse,TazoRevelacion.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-040,Tazos,brillo,Brillo del tazo y de las habilidades,"TazoRevelacion.gd, HabilidadesUI.gd",En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-041,Tazos,retumbo,Retumbo de la revelación,TazoRevelacion.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-042,Tazos,zumbido,Zumbido de la revelación,TazoRevelacion.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-043,Tazos,boom,Golpe final de la revelación,TazoRevelacion.gd,En main,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-044,Música,pt_tema.mp3,Música de la defensa del tinaco. La tecla M la prende y apaga,DefensaTinaco.gd,Solo en rama golpe-direccion,Archivo: audio/musica/pt_tema.mp3,Propia (Juan José Rodríguez),Media,Única música del juego. Es la que cansa si se repite 40 veces.
+S-045,Zombis,zombi_alerta,Z1: el zombi te detecta y pasa de deambular a perseguir,Zombie.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Alta,Detalle en docs/sonidos_zombis.csv.
+S-046,Zombis,zombi_carrera,Z2: grito mientras corre hacia ti,Zombie.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,Detalle en docs/sonidos_zombis.csv.
+S-047,Zombis,zombi_arrastre,Z3: pasos arrastrados de un zombi que deambula,Zombie.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,Detalle en docs/sonidos_zombis.csv.
+S-048,Zombis,zombi_mordida,Z4: el zombi te ataca (son caníbales),Zombie.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Alta,Detalle en docs/sonidos_zombis.csv.
+S-049,Zombis,zombi_horda,Z5: murmullo de fondo cuando hay una turba cerca,Zombis.gd (Director de hordas),Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,Detalle en docs/sonidos_zombis.csv.
+S-050,Zombis,zombi_quejido,Z6: quejido corto al recibir un golpe sin morir,Zombie.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Alta,Detalle en docs/sonidos_zombis.csv.
+S-051,Jugador,"paso_asfalto, paso_banqueta, paso_pasto, paso_tierra, paso_interior","Pasos del jugador según la superficie, caminando y corriendo",player.gd,Pendiente,Generado en código (Sonidos.gd) o grabación propia,Propio (código del proyecto),Alta,Hoy el jugador camina en silencio: el sonido llamado paso es de la maquinita.
+S-052,Jugador,salto y aterrizaje,Saltar y caer,player.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-053,Jugador,respiracion_cansada,Respiración agitada al correr mucho o con poca vida,"player.gd, Supervivencia.gd",Pendiente,Grabación propia,Propio (código del proyecto),Media,
+S-054,Jugador,latido,Latido de corazón cuando la vida es baja (reemplaza la barra de vida),Supervivencia.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Alta,"Hoy solo hay un destello rojo, sin sonido."
+S-055,Jugador,desmayo,El jugador se desmaya y despierta,Supervivencia.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-056,Jugador,dolor_voz (3 variantes),"Quejido del jugador al recibir daño, en lugar del bip actual",player.gd,Pendiente,Grabación propia,Propio (código del proyecto),Alta,Reemplaza a dolor.
+S-057,Combate,swing_vacio,Swing de arma cuerpo a cuerpo que no pega,player.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,Hoy machetazo suena aunque no pegue.
+S-058,Combate,"impacto_bala_zombi, impacto_bala_pared",El balazo pega en un zombi o en una pared,Pistola.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-059,Combate,casquillo,Casquillo que cae al piso,Pistola.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-060,Combate,"disparo_cuerno_chivo, disparo_ballesta, disparo_resortera",Disparo de cada arma que se vaya agregando,(armas nuevas),Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,Armas de la lista de especificaciones.
+S-061,Combate,"bate, bloqueo, golpe_carne","Variantes de melee: bate, bloqueo y golpe a carne",player.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-062,Combate,"molotov_lanzar, molotov_vidrio, fuego_loop, molotov_explota","Lanzar, romperse, quemar y explotar",(molotov),Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,Daño en área del rol de coop.
+S-063,Refugio y defensa,"barricada_clavar, martillo",Clavar tablas en una barricada,"Safehouse.gd, EntradaRefugio.gd",Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-064,Refugio y defensa,"tinaco_golpe, agua_gotea",Golpe al tinaco y agua que escurre,DefensaTinaco.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-065,Refugio y defensa,tabla_rompe,Una tabla de la barricada se rompe,DefensaTinaco.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-066,Refugio y defensa,"puerta_abrir, puerta_cerrar",Puertas del refugio y de las casas,EntradaRefugio.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-067,Arcade,"ronda_inicia, ronda_gana",Empieza una ronda y la superas,DefensaTinaco.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Alta,Cada ronda es una noche: tiene que sentirse como evento.
+S-068,Arcade,record_nuevo,Rompes tu récord de rondas,DefensaTinaco.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-069,Arcade,"mejora_compra, mejora_maxima",Comprar una mejora y llegar al 100 %,(tienda de mejoras),Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Alta,La meta de balance es llegar al 100 % hacia la ronda 6 a 8.
+S-070,Negocios y misiones,campanita_puerta,Entrar a una tienda,Interiores.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-071,Negocios y misiones,"caja_registradora, comprar",Comprar en una tienda,TiendaUI.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-072,Negocios y misiones,sin_dinero,No alcanza el dinero,TiendaUI.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,Hoy usa ui_error.
+S-073,Negocios y misiones,maquinita_jackpot,Premio gordo de la maquinita,Maquinita.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-074,Negocios y misiones,"mision_acepta, mision_completa, mision_falla","Aceptar, completar o fallar una misión",MisionesMundo.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-075,Negocios y misiones,dialogo_voz,Sonidos de voz al hablar un NPC,npc.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-076,Negocios y misiones,"comer, beber, curar","Usar comida, bebida o botiquín (cada uno con su sonido)",InventoryUI.gd,Pendiente,Generado en código (Sonidos.gd) o grabación propia,Propio (código del proyecto),Media,Hoy todo usa inv_usar.
+S-077,Negocios y misiones,"recoger_objeto, tirar_objeto",Recoger o tirar un objeto del piso,WorldItem.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,
+S-078,Ambiente,ambiente_noche_grillos,"Grillos de noche, ligados al ciclo día y noche",Ciclo.gd,Pendiente,Grabación propia,Propio (código del proyecto),Alta,Idea del plan: grabar grillos.
+S-079,Ambiente,ambiente_dia,"Unos 20 minutos de pájaros y ruido de ciudad, sin voces reconocibles",Ciclo.gd,Pendiente,Grabación propia,Propio (código del proyecto),Alta,Grabar en varios horarios y hacerla repetible sin cortes.
+S-080,Ambiente,"viento, perros_lejos, cohetes_lejos, motor_lejos, radio_tienda",Capas lejanas que dan vida a la colonia,(ambiente),Pendiente,Grabación propia o libre,Por definir,Baja,
+S-081,Ambiente,"sirena_noche, amanecer",Transición del ciclo a la noche y al día,Ciclo.gd,Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Media,
+S-082,Cultura,"pregon_garrafonero, pregon_camote, pregon_tamales, pregon_fierro_viejo",Pregones que pasan por la colonia y avisan algo en el juego,(gente de día),Pendiente,Grabación propia,Propio (código del proyecto),Alta,Valor cultural y también aviso de juego. Con voz propia o con permiso por escrito.
+S-083,Música,"capa_dia, capa_atardecer, capa_noche, capa_horda",Música por capas según la tensión,(sistema de música),Pendiente,Libre o independientes con permiso,Por definir por pista,Alta,Cada pista va a CREDITS.md con su licencia y su enlace.
+S-084,Música,"musica_menu, musica_derrota",Menú y pantalla de derrota,Inicio.gd,Pendiente,Libre o independientes con permiso,Por definir por pista,Media,
+S-085,Coop,"ping, revivir",Marcar un lugar y levantar a un compañero,(coop),Pendiente,Generado en código (Sonidos.gd),Propio (código del proyecto),Baja,Fase 2.
