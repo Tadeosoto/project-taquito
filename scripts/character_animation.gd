@@ -33,6 +33,7 @@ const GOLPE_IZQUIERDA := "Sword_Regular_B"
 const ACCIONES := {
 	"golpe_a": GOLPE_DERECHA,
 	"golpe_b": GOLPE_IZQUIERDA,
+	"golpe_giro": "Sword_Regular_C",   # el ataque cargado (Player.golpe_cargado)
 	"herido": "Hit_Chest",
 	"recoger": "PickUp_Table",
 }
@@ -224,6 +225,15 @@ func golpe(lado: float) -> void:
 	_golpe_clip = ACCIONES[entrada]
 	_golpe_t = 0.0
 	_lanzar(entrada)
+
+
+# El ataque cargado: el espadazo giratorio, de todo el cuerpo
+func golpe_giro() -> void:
+	_golpe_clip = ACCIONES["golpe_giro"]
+	_golpe_t = 0.0
+	if _accion_nodo:
+		_accion_nodo.filter_enabled = false
+	_lanzar("golpe_giro")
 
 
 # Caminando a medio machetazo: el barrido solo en la parte de arriba, las piernas trotan

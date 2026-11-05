@@ -80,7 +80,8 @@ const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 const ESTELA_PUNO := 0.2      # m de la estela mas alla del puno, a mano limpia
 # La estela del machetazo sigue la punta del arma mientras barre (s del clip, desde-hasta): no
 # al llevar el brazo atras ni al regresarlo
-const ESTELA_GOLPE := {"Sword_Regular_A": Vector2(0.10, 0.30), "Sword_Regular_B": Vector2(0.10, 0.32)}
+const ESTELA_GOLPE := {"Sword_Regular_A": Vector2(0.10, 0.30), "Sword_Regular_B": Vector2(0.10, 0.32),
+	"Sword_Regular_C": Vector2(0.05, 0.75)}
 const ESTELA_PASO := 6.0      # grados entre pedazos: con pocos cuadros salia en tiras rectas
 # Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
 # al frente para que de lado a la camara no se voltee al azar
@@ -99,6 +100,21 @@ const GOLPE_VELOCIDAD := 0.6  # de la velocidad al caminar
 # Pelea con golpe a tiempo (Zombie.CORTE) y salirte del combo moviendote. En false, la prueba
 # anterior: nunca se aturde y te quedas quieto todo el barrido. La cambia la tecla 9 del safehouse
 static var pelea_a_tiempo := true
+# PRUEBA (JJ): ataque cargado. Con el machete, deja apretado atacar: el primer golpe sale como
+# siempre y a los CARGA_DURA s el arma brilla azul; al soltar, un espadazo giratorio
+# (Sword_Regular_C, la cadera da la vuelta entre 0 y 0.7 s) que le pega a los que esten
+# alrededor, con la estela de agua. Solo lo prende el safehouse (tecla 7)
+static var golpe_cargado := false
+# El giro con la estela de agua: pensada como mejora que se gana (JJ). false = la estela normal
+static var giro_agua := true
+const CARGA_DURA := 0.7       # s con el boton apretado
+const CARGA_COLOR := Color(0.35, 0.65, 1.0)
+const CARGA_LUZ := 2.5        # energia de la luz al estar cargado
+const GIRO_PEGA_EN := 0.35    # s del clip: a media vuelta
+const GIRO_DURA := 0.95       # s: ahi se suelta el clip (lo demas es enderezarse) y ya puedes moverte
+const GIRO_ALCANCE := 1.3     # x el alcance normal, en redondo
+const GIRO_DANO := 1.5        # x el dano del arma
+const GIRO_MAXIMO := 6        # zombis a los que le pega
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 # La pistola (Pistola.gd): R cambia entre ella y el arma de golpe. Se ve en la mano en vez del
 # machete; no es objeto del inventario por ahora
@@ -136,6 +152,11 @@ var _factor_dano := 1.0
 var _alcance := ATAQUE_ALCANCE
 var _enfriar := 0.0
 var _pega_en := -1.0
+var _apretado := -1.0           # s que llevas apretando atacar; -1 = no estas cargando
+var _cargado := false
+var _giro := -1.0            # s desde que salio el giro; -1 = no hay
+var _giro_pego := false
+var _luz_carga: OmniLight3D
 var _invulnerable := 0.0
 var _curando := 0.0
 var golpes := 0           # para medir el balance (MonitorDefensa)
@@ -296,7 +317,7 @@ func _atacar() -> void:
 	_sonar("machetazo", SWING_VOLUMEN)
 
 
-func _golpear() -> void:
+func _golpear(giro := false) -> void:
 	var dano := DANO_PUNO
 	var con_arma := false
 	var inventario := get_node_or_null("/root/Inventory")
@@ -305,13 +326,14 @@ func _golpear() -> void:
 		if arma:
 			dano = arma.dano
 			con_arma = true
-	dano = maxi(roundi(dano * _factor_dano), 1)
+	dano = maxi(roundi(dano * _factor_dano * (GIRO_DANO if giro else 1.0)), 1)
 	var frente := -frijol.global_transform.basis.z
 	frente.y = 0.0
 	frente = frente.normalized()
 	var barre := -frijol.global_basis.x * _lado_golpe + frente * BARRE_AL_FRENTE
 	barre.y = 0.0
-	efecto("golpe", barre, "" if con_arma else "puno", BARRE_ALTO)
+	if not giro:
+		efecto("golpe", barre, "" if con_arma else "puno", BARRE_ALTO)
 	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)
 	# Un zombi muerto en este golpe truena justo al soltar la congelada
 	var truena_en := int(CONGELA_MATA * 1000.0)
@@ -323,12 +345,15 @@ func _golpear() -> void:
 			continue
 		var hacia := zombi.global_position - global_position
 		hacia.y = 0.0
-		if hacia.length() <= _alcance and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
+		if giro:
+			if hacia.length() <= _alcance * GIRO_ALCANCE:
+				alcanzados.append(zombi)
+		elif hacia.length() <= _alcance and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
 			alcanzados.append(zombi)
 	# Solo a los ATAQUE_MAXIMO mas cercanos: amontonados, un combo mataba hasta 5
 	alcanzados.sort_custom(func(a: Node3D, b: Node3D) -> bool:
 		return a.global_position.distance_squared_to(global_position) < b.global_position.distance_squared_to(global_position))
-	for zombi in alcanzados.slice(0, ATAQUE_MAXIMO):
+	for zombi in alcanzados.slice(0, GIRO_MAXIMO if giro else ATAQUE_MAXIMO):
 		var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, truena_en)
 		pego = pego or resultado != 0
 		mato = mato or resultado == 2
@@ -337,6 +362,77 @@ func _golpear() -> void:
 		golpes_pegaron += 1
 		_sentir_golpe(frente, fuerza, mato)
 		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
+
+
+# Ataque cargado: cada cuadro de fisica mientras cargas o giras
+func _revisar_carga(delta: float) -> void:
+	if _apretado >= 0.0:
+		if _pistola.activa or not is_physics_processing():
+			_cancelar_carga()
+		elif not Input.is_action_pressed("attack"):
+			var girar := _cargado
+			_cancelar_carga()
+			if girar:
+				_girar()
+		else:
+			_apretado += delta
+			if not _cargado and _apretado >= CARGA_DURA:
+				_cargado = true
+				Sonidos.tocar(self, "machetazo", SWING_VOLUMEN - 4.0, 1.6)
+			_brillo_carga()
+	if _giro >= 0.0:
+		_giro += delta
+		if not _giro_pego and _giro >= GIRO_PEGA_EN:
+			_giro_pego = true
+			_golpear(true)
+		if _giro >= GIRO_DURA:
+			_giro = -1.0
+			if _estela:
+				_estela.forzar_agua = false
+			_soltar_combo()
+
+
+func _cancelar_carga() -> void:
+	_apretado = -1.0
+	_cargado = false
+	if _luz_carga:
+		_luz_carga.visible = false
+
+
+# Una luz azul en la punta del arma: crece mientras cargas y late ya cargado
+func _brillo_carga() -> void:
+	if _luz_carga == null:
+		_luz_carga = OmniLight3D.new()
+		_luz_carga.light_color = CARGA_COLOR
+		_luz_carga.omni_range = 2.5
+		_luz_carga.shadow_enabled = false
+		_luz_carga.top_level = true
+		add_child(_luz_carga)
+	var punta: Vector3 = _punta.global_position if _punta and is_instance_valid(_punta) and _punta.is_inside_tree() \
+		else frijol.global_position + Vector3.UP
+	_luz_carga.global_position = punta
+	_luz_carga.visible = true
+	if _cargado:
+		_luz_carga.light_energy = CARGA_LUZ * (0.75 + 0.25 * sin(Time.get_ticks_msec() * 0.025))
+	else:
+		_luz_carga.light_energy = CARGA_LUZ * 0.4 * _apretado / CARGA_DURA
+
+
+func _girar() -> void:
+	if not figura.has_method("golpe_giro"):
+		return
+	_giro = 0.0
+	_giro_pego = false
+	_pega_en = -1.0
+	_golpe_guardado = false
+	_combo_roto = true
+	_combo_hasta = 0.0
+	_enfriar = GIRO_DURA
+	figura.golpe_giro()
+	_estela_antes = []
+	if _estela:
+		_estela.forzar_agua = giro_agua
+	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.8)
 
 
 # Una vez por golpe, aunque le pegue a varios: el whack, el rebote, la sacudida y la congelada
@@ -632,8 +728,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			pass
 		elif _pistola.activa:
 			_pistola.disparar()
-		else:
+		elif _giro < 0.0:
 			_atacar()
+			if golpe_cargado:
+				_apretado = 0.0
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT \
 			and is_physics_processing() and not get_tree().paused:
 		# Con el raton suelto (Esc), un clic en la ventana lo vuelve a agarrar sin pegar
@@ -793,6 +891,7 @@ func _sacudir() -> void:
 
 func _physics_process(delta: float) -> void:
 	_enfriar = maxf(_enfriar - delta, 0.0)
+	_revisar_carga(delta)
 	if _golpe_guardado and ATAQUE_ENFRIAR - _enfriar >= COMBO_DESDE:
 		_atacar()
 	_invulnerable = maxf(_invulnerable - delta, 0.0)
@@ -809,7 +908,7 @@ func _physics_process(delta: float) -> void:
 	)
 	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
 	var golpeando := _enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento
-	if _curando > 0.0:
+	if _curando > 0.0 or _giro >= 0.0:
 		input_direction = Vector2.ZERO
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z

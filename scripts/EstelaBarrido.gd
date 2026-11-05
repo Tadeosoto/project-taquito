@@ -32,6 +32,52 @@ void fragment() {
 }
 """
 
+# PRUEBA (JJ): estela de agua azul con blanco, al estilo de la respiracion del agua de Tanjiro.
+# Solo la prende el safehouse (tecla 8); false = la estela de siempre. Mas ancha y dura mas, con
+# franjas que ondulan a lo largo de la estela, crestas blancas que corren y la orilla de adentro
+# rota en gotas. UV2.x cuenta los pedazos, para saber donde va cada uno a lo largo
+static var agua := false
+var forzar_agua := false      # el giro del ataque cargado siempre sale de agua (Player._girar)
+const AGUA_VIDA := 0.32
+const AGUA_DESDE := 0.15
+const AGUA_BAJA := 0.15
+const SHADER_AGUA := """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled;
+
+const vec3 AGUA[6] = vec3[](
+	vec3(0.035, 0.090, 0.280), vec3(0.055, 0.200, 0.520), vec3(0.110, 0.380, 0.780),
+	vec3(0.330, 0.620, 0.940), vec3(0.680, 0.860, 1.000), vec3(0.970, 0.990, 1.000));
+
+void fragment() {
+	float edad = UV.y;
+	float u = UV2.x * 0.18;
+	float borde = edad * 0.85;
+	// La orilla de adentro se rompe en gotas conforme envejece
+	float ruido = fract(sin(floor(UV2.x) * 12.9898 + floor(UV.x * 10.0) * 78.233) * 43758.5453);
+	if (UV.x < borde + ruido * 0.12 * edad) {
+		discard;
+	}
+	float k = (UV.x - borde) / (1.0 - borde);
+	// Las franjas ondulan como agua que corre
+	float onda = sin(u * 6.2832 - TIME * 10.0) * 0.08 + sin(u * 13.0 + TIME * 6.0) * 0.04;
+	float kk = clamp(k + onda, 0.0, 0.999);
+	int paso = int(kk * 6.0);
+	vec3 c = AGUA[paso];
+	// Rayitas blancas entre franja y franja, como el agua dibujada
+	if (paso >= 2 && fract(kk * 6.0) < 0.12) {
+		c = AGUA[5];
+	}
+	// Crestas que se enroscan hacia la punta y corren por la estela
+	float s = fract(u - TIME * 1.5);
+	float cresta = 0.8 - 0.25 * s * s;
+	if (k > cresta && k < cresta + 0.07) {
+		c = AGUA[5];
+	}
+	ALBEDO = pow(c, vec3(2.2));
+}
+"""
+
 # Nubes de polvo: una bola pixeleada de cara a la camara, blanca (JJ no la quiso cafe como la de
 # la hoja), mas clara arriba a la izquierda, que crece, sube y se deshace.
 # `edad` va de 0 a 1 y `semilla` cambia la forma de cada una
@@ -79,6 +125,8 @@ void fragment() {
 static var _material: ShaderMaterial
 static var _material_nube: ShaderMaterial
 static var _quad: QuadMesh
+static var _material_agua: ShaderMaterial
+static var _material_espuma: ShaderMaterial
 
 var _pedazos: Array = []       # [mano, punta, edad]
 var _malla := ImmediateMesh.new()
@@ -117,11 +165,28 @@ func _ready() -> void:
 		add_child(nube)
 		_nubes.append(nube)
 		_nube_edad.append(-1.0)
+	if _material_agua == null:
+		var shader := Shader.new()
+		shader.code = SHADER_AGUA
+		_material_agua = ShaderMaterial.new()
+		_material_agua.shader = shader
+		# La espuma: las mismas nubes en azul clarito y blanco
+		var espuma := Shader.new()
+		espuma.code = SHADER_NUBE.replace("""vec3(0.961, 0.957, 0.937), vec3(0.851, 0.847, 0.827), vec3(0.698, 0.698, 0.686),
+	vec3(0.549, 0.553, 0.549)""", """vec3(0.970, 0.990, 1.000), vec3(0.760, 0.900, 1.000), vec3(0.450, 0.720, 0.980),
+	vec3(0.200, 0.470, 0.850)""")
+		_material_espuma = ShaderMaterial.new()
+		_material_espuma.shader = espuma
 	set_process(false)
 
 
 func agregar(mano: Vector3, punta: Vector3) -> void:
-	_pedazos.append([mano.lerp(punta, DESDE) + Vector3.DOWN * ADENTRO_BAJA, punta, 0.0])
+	var de_agua := agua or forzar_agua
+	if _pedazos.is_empty():
+		material_override = _material_agua if de_agua else _material
+	var desde := AGUA_DESDE if de_agua else DESDE
+	var baja := AGUA_BAJA if de_agua else ADENTRO_BAJA
+	_pedazos.append([mano.lerp(punta, desde) + Vector3.DOWN * baja, punta, 0.0, float(_cuenta)])
 	_cuenta += 1
 	if _cuenta % NUBE_CADA == 0:
 		_soltar_nube(punta.lerp(mano, 0.15) + Vector3.DOWN * NUBE_ABAJO)
@@ -133,6 +198,7 @@ func _soltar_nube(donde: Vector3) -> void:
 	_siguiente = (_siguiente + 1) % NUBES
 	var nube := _nubes[i]
 	nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * NUBE_TAMANO.x), donde)
+	nube.material_override = _material_espuma if agua or forzar_agua else _material_nube
 	nube.set_instance_shader_parameter("semilla", randf())
 	nube.set_instance_shader_parameter("edad", 0.0)
 	nube.visible = true
@@ -142,7 +208,8 @@ func _soltar_nube(donde: Vector3) -> void:
 func _process(delta: float) -> void:
 	for pedazo: Array in _pedazos:
 		pedazo[2] += delta
-	while not _pedazos.is_empty() and _pedazos[0][2] >= VIDA:
+	var vida := AGUA_VIDA if agua or forzar_agua else VIDA
+	while not _pedazos.is_empty() and _pedazos[0][2] >= vida:
 		_pedazos.pop_front()
 	var hay_nubes := _mover_nubes(delta)
 	_malla.clear_surfaces()
@@ -152,10 +219,12 @@ func _process(delta: float) -> void:
 		return
 	_malla.surface_begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
 	for pedazo: Array in _pedazos:
-		var edad: float = pedazo[2] / VIDA
+		var edad: float = pedazo[2] / vida
 		_malla.surface_set_uv(Vector2(0.0, edad))
+		_malla.surface_set_uv2(Vector2(pedazo[3], 0.0))
 		_malla.surface_add_vertex(pedazo[0])
 		_malla.surface_set_uv(Vector2(1.0, edad))
+		_malla.surface_set_uv2(Vector2(pedazo[3], 0.0))
 		_malla.surface_add_vertex(pedazo[1])
 	_malla.surface_end()
 

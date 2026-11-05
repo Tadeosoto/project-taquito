@@ -67,6 +67,8 @@ const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
 const DANO_TINACO := 100
 const TURBA_PRUEBA := 12
 const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
+# PRUEBA (JJ): la estela de agua del machete, prendida aqui al entrar (8 la apaga)
+const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
 Tab inventario · clic o F pegar · V dron
 N siguiente atardecer/amanecer
@@ -79,6 +81,9 @@ C crear personaje · K deterioro · F12 reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
 9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
 0 zombis: enjambre (carriles, atajos, rebasan) / en fila como antes
+8 estela del machete: agua azul (prueba) / la de siempre
+7 ataque cargado: deja apretado pegar y suelta = espadazo giratorio (prueba) / sin cargado
+Shift+7 el giro con estela de agua (la mejora) / con la estela normal
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
 Efectos de pixel, propuestas (F2-F7 cambian):"""
 # Una tecla por lugar de EfectosPixel, en este orden
@@ -140,6 +145,8 @@ func _guardar(path: String, data: Dictionary) -> void:
 
 
 func _ready() -> void:
+	ESTELA.agua = true
+	Player.golpe_cargado = true
 	_jugador = get_node("Player")
 	_zombis = get_node("Zombis")
 	_ciclo = get_node("Ciclo")
@@ -333,6 +340,11 @@ func _poner_objetos() -> void:
 
 # --- Teclas de prueba ---
 
+func _exit_tree() -> void:
+	ESTELA.agua = false
+	Player.golpe_cargado = false
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
@@ -395,6 +407,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_0:
 			Zombie.enjambre = not Zombie.enjambre
 			_mostrar_efectos()
+		KEY_8:
+			ESTELA.agua = not ESTELA.agua
+		KEY_7:
+			if event.shift_pressed:
+				Player.giro_agua = not Player.giro_agua
+			else:
+				Player.golpe_cargado = not Player.golpe_cargado
 		KEY_O:
 			if event.shift_pressed:
 				Tazos.rareza_forzada = wrapi(Tazos.rareza_forzada + 1, -1, TazoData.Rareza.size())
