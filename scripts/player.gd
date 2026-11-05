@@ -103,7 +103,8 @@ static var pelea_a_tiempo := true
 # PRUEBA (JJ): ataque cargado. Con el machete, deja apretado atacar: el primer golpe sale como
 # siempre y a los CARGA_DURA s el arma brilla azul; al soltar, un espadazo giratorio
 # (Sword_Regular_C, la cadera da la vuelta entre 0 y 0.7 s) que le pega a los que esten
-# alrededor, con la estela de agua. Solo lo prende el safehouse (tecla 7)
+# alrededor, con la estela de agua. Pegar en el aire lo saca de una vez, sin cargar.
+# Solo lo prende el safehouse (tecla 7)
 static var golpe_cargado := false
 # El giro con la estela de agua: pensada como mejora que se gana (JJ). false = la estela normal
 static var giro_agua := true
@@ -818,6 +819,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_pistola.disparar()
 		elif _giro >= 0.0 or _estocada_t >= 0.0:
 			pass
+		elif golpe_cargado and not is_on_floor():
+			# En el aire sale de una vez el espadazo giratorio, sin cargar
+			_girar()
 		elif estocada and Input.is_action_pressed("sprint") \
 				and Input.get_vector("move_left", "move_right", "move_forward", "move_backward").length() > 0.2:
 			_estocar()
@@ -1002,7 +1006,8 @@ func _physics_process(delta: float) -> void:
 	)
 	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
 	var golpeando := _enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento
-	if _curando > 0.0 or _giro >= 0.0 or _estocada_t >= 0.0:
+	# Girando en el aire sigues tu salto (y lo puedes dirigir); en el suelo te quedas en tu lugar
+	if _curando > 0.0 or (_giro >= 0.0 and is_on_floor()) or _estocada_t >= 0.0:
 		input_direction = Vector2.ZERO
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z

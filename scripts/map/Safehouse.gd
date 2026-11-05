@@ -82,7 +82,7 @@ F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la
 9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
 0 zombis: enjambre (carriles, atajos, rebasan) / en fila como antes
 8 estela del machete: agua azul (prueba) / la de siempre
-7 ataque cargado: deja apretado pegar y suelta = espadazo giratorio (prueba) / sin cargado
+7 ataque cargado: deja apretado pegar y suelta, o pega en el aire = espadazo giratorio (prueba) / sin cargado
 Shift+7 el giro con estela de agua (la mejora) / con la estela normal
 6 estocada: corre (Shift) y pega = te lanzas hacia adelante (prueba) / sin estocada · Shift+6 su estela de agua
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
