@@ -81,7 +81,7 @@ const ESTELA_PUNO := 0.2      # m de la estela mas alla del puno, a mano limpia
 # La estela del machetazo sigue la punta del arma mientras barre (s del clip, desde-hasta): no
 # al llevar el brazo atras ni al regresarlo
 const ESTELA_GOLPE := {"Sword_Regular_A": Vector2(0.10, 0.30), "Sword_Regular_B": Vector2(0.10, 0.32),
-	"Sword_Regular_C": Vector2(0.05, 0.75)}
+	"Sword_Regular_C": Vector2(0.05, 0.75), "Sword_Dash_RM": Vector2(0.10, 0.60)}
 const ESTELA_PASO := 6.0      # grados entre pedazos: con pocos cuadros salia en tiras rectas
 # Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
 # al frente para que de lado a la camara no se voltee al azar
@@ -115,6 +115,21 @@ const GIRO_DURA := 0.95       # s: ahi se suelta el clip (lo demas es enderezars
 const GIRO_ALCANCE := 1.3     # x el alcance normal, en redondo
 const GIRO_DANO := 1.5        # x el dano del arma
 const GIRO_MAXIMO := 6        # zombis a los que le pega
+# PRUEBA (JJ): estocada con avance. Pegar mientras corres (sprint y moviendote) con el machete:
+# Sword_Dash_RM, te lanza ESTOCADA_AVANCE m hacia donde ve la camara (el clip avanza 3.7 m con
+# su hueso Root, que la biblioteca quita; aqui lo hace el cuerpo, asi choca con las paredes) y
+# atraviesa: le pega a cada zombi que tengas enfrente mientras avanzas, hasta ESTOCADA_MAXIMO.
+# Solo la prende el safehouse (tecla 6; Shift+6 su estela de agua)
+static var estocada := false
+static var estocada_agua := true
+const ESTOCADA_AVANCE := 3.5   # m
+const ESTOCADA_DESDE := 0.12   # s del clip en que arranca el avance (el amago antes)
+const ESTOCADA_HASTA := 0.55   # s en que ya llegaste
+const ESTOCADA_PEGA := Vector2(0.15, 0.6)  # s del clip en que la punta hace dano
+const ESTOCADA_RADIO := 1.4    # m enfrente de ti en que le pega a un zombi
+const ESTOCADA_DURA := 0.8     # s: ahi se suelta el clip y ya puedes moverte
+const ESTOCADA_DANO := 1.5     # x el dano del arma
+const ESTOCADA_MAXIMO := 4
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 # La pistola (Pistola.gd): R cambia entre ella y el arma de golpe. Se ve en la mano en vez del
 # machete; no es objeto del inventario por ahora
@@ -157,6 +172,9 @@ var _cargado := false
 var _giro := -1.0            # s desde que salio el giro; -1 = no hay
 var _giro_pego := false
 var _luz_carga: OmniLight3D
+var _estocada_t := -1.0      # s desde que salio la estocada; -1 = no hay
+var _estocada_dir := Vector3.ZERO
+var _estocada_pegados: Array = []
 var _invulnerable := 0.0
 var _curando := 0.0
 var golpes := 0           # para medir el balance (MonitorDefensa)
@@ -388,7 +406,7 @@ func _revisar_carga(delta: float) -> void:
 		if _giro >= GIRO_DURA:
 			_giro = -1.0
 			if _estela:
-				_estela.forzar_agua = false
+				_estela.especial = -1
 			_soltar_combo()
 
 
@@ -431,8 +449,78 @@ func _girar() -> void:
 	figura.golpe_giro()
 	_estela_antes = []
 	if _estela:
-		_estela.forzar_agua = giro_agua
+		_estela.especial = 1 if giro_agua else 0
 	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.8)
+
+
+func _estocar() -> void:
+	if not figura.has_method("golpe_estocada"):
+		return
+	_estocada_t = 0.0
+	_estocada_pegados.clear()
+	_pega_en = -1.0
+	_golpe_guardado = false
+	_combo_roto = true
+	_combo_hasta = 0.0
+	_enfriar = ESTOCADA_DURA
+	_estocada_dir = -camera_pivot.global_transform.basis.z
+	_estocada_dir.y = 0.0
+	_estocada_dir = _estocada_dir.normalized()
+	frijol.global_transform = frijol.global_transform.looking_at(frijol.global_position + _estocada_dir, Vector3.UP)
+	figura.golpe_estocada()
+	_estela_antes = []
+	if _estela:
+		_estela.especial = 1 if estocada_agua else 0
+	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.7)
+
+
+# Cada cuadro de fisica de la estocada: la punta pega a los que tengas enfrente, una vez a cada uno
+func _revisar_estocada(delta: float) -> void:
+	if _estocada_t < 0.0:
+		return
+	_estocada_t += delta
+	if _estocada_t >= ESTOCADA_PEGA.x and _estocada_t <= ESTOCADA_PEGA.y \
+			and _estocada_pegados.size() < ESTOCADA_MAXIMO:
+		_pegar_estocada()
+	if _estocada_t >= ESTOCADA_DURA:
+		_estocada_t = -1.0
+		if _estela:
+			_estela.especial = -1
+		_soltar_combo()
+
+
+func _pegar_estocada() -> void:
+	var dano := DANO_PUNO
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario and inventario.arma():
+		dano = inventario.arma().dano
+	dano = maxi(roundi(dano * _factor_dano * ESTOCADA_DANO), 1)
+	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)
+	var pego := false
+	var mato := false
+	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
+		if _estocada_pegados.size() >= ESTOCADA_MAXIMO:
+			break
+		if zombi in _estocada_pegados or (zombi is Zombie and zombi.estado == Zombie.Estado.MUERTO):
+			continue
+		var hacia := zombi.global_position - global_position
+		hacia.y = 0.0
+		if hacia.length() <= ESTOCADA_RADIO and hacia.normalized().dot(_estocada_dir) >= 0.3:
+			_estocada_pegados.append(zombi)
+			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, int(CONGELA_MATA * 1000.0))
+			pego = pego or resultado != 0
+			mato = mato or resultado == 2
+	if pego:
+		golpes_pegaron += 1
+		_sentir_golpe(_estocada_dir, fuerza, mato)
+		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
+
+
+# Lo que avanza la estocada en este cuadro, como el hueso Root del clip: arranca de golpe y frena
+func _velocidad_estocada(delta: float) -> Vector3:
+	var antes := ESTOCADA_AVANCE * smoothstep(ESTOCADA_DESDE, ESTOCADA_HASTA, _estocada_t - delta)
+	var ahora := ESTOCADA_AVANCE * smoothstep(ESTOCADA_DESDE, ESTOCADA_HASTA, _estocada_t)
+	return _estocada_dir * ((ahora - antes) / maxf(delta, 0.0001))
 
 
 # Una vez por golpe, aunque le pegue a varios: el whack, el rebote, la sacudida y la congelada
@@ -728,7 +816,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			pass
 		elif _pistola.activa:
 			_pistola.disparar()
-		elif _giro < 0.0:
+		elif _giro >= 0.0 or _estocada_t >= 0.0:
+			pass
+		elif estocada and Input.is_action_pressed("sprint") \
+				and Input.get_vector("move_left", "move_right", "move_forward", "move_backward").length() > 0.2:
+			_estocar()
+		else:
 			_atacar()
 			if golpe_cargado:
 				_apretado = 0.0
@@ -892,6 +985,7 @@ func _sacudir() -> void:
 func _physics_process(delta: float) -> void:
 	_enfriar = maxf(_enfriar - delta, 0.0)
 	_revisar_carga(delta)
+	_revisar_estocada(delta)
 	if _golpe_guardado and ATAQUE_ENFRIAR - _enfriar >= COMBO_DESDE:
 		_atacar()
 	_invulnerable = maxf(_invulnerable - delta, 0.0)
@@ -908,7 +1002,7 @@ func _physics_process(delta: float) -> void:
 	)
 	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
 	var golpeando := _enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento
-	if _curando > 0.0 or _giro >= 0.0:
+	if _curando > 0.0 or _giro >= 0.0 or _estocada_t >= 0.0:
 		input_direction = Vector2.ZERO
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z
@@ -933,7 +1027,7 @@ func _physics_process(delta: float) -> void:
 	var target_horizontal := Vector3.ZERO
 	# Con la pistola, o a medio machetazo, ve siempre hacia donde apunta la camara, aunque camine
 	# para otro lado: el golpe sale hacia donde ves
-	var apunta: bool = _pistola.activa or golpeando
+	var apunta: bool = (_pistola.activa or golpeando) and _estocada_t < 0.0
 	if is_moving or apunta:
 		var look_target: Vector3 = frijol.global_position + (forward if apunta else direction)
 		var target_transform: Transform3D = frijol.global_transform.looking_at(look_target, Vector3.UP)
@@ -958,6 +1052,10 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.x = move_toward(velocity.x, target_horizontal.x, acceleration * delta)
 		velocity.z = move_toward(velocity.z, target_horizontal.z, acceleration * delta)
+	if _estocada_t >= 0.0:
+		var avance := _velocidad_estocada(delta)
+		velocity.x = avance.x
+		velocity.z = avance.z
 
 	# Gravity is applied exactly once per frame; on the floor we snap to zero.
 	if is_on_floor():

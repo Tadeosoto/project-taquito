@@ -37,7 +37,9 @@ void fragment() {
 # franjas que ondulan a lo largo de la estela, crestas blancas que corren y la orilla de adentro
 # rota en gotas. UV2.x cuenta los pedazos, para saber donde va cada uno a lo largo
 static var agua := false
-var forzar_agua := false      # el giro del ataque cargado siempre sale de agua (Player._girar)
+# Los golpes especiales (giro, estocada) deciden su estela sin importar `agua`: -1 = seguir
+# `agua`, 0 = la normal, 1 = la de agua (Player.giro_agua / estocada_agua, la mejora)
+var especial := -1
 const AGUA_VIDA := 0.32
 const AGUA_DESDE := 0.15
 const AGUA_BAJA := 0.15
@@ -180,8 +182,12 @@ func _ready() -> void:
 	set_process(false)
 
 
+func _de_agua() -> bool:
+	return agua if especial < 0 else especial == 1
+
+
 func agregar(mano: Vector3, punta: Vector3) -> void:
-	var de_agua := agua or forzar_agua
+	var de_agua := _de_agua()
 	if _pedazos.is_empty():
 		material_override = _material_agua if de_agua else _material
 	var desde := AGUA_DESDE if de_agua else DESDE
@@ -198,7 +204,7 @@ func _soltar_nube(donde: Vector3) -> void:
 	_siguiente = (_siguiente + 1) % NUBES
 	var nube := _nubes[i]
 	nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * NUBE_TAMANO.x), donde)
-	nube.material_override = _material_espuma if agua or forzar_agua else _material_nube
+	nube.material_override = _material_espuma if _de_agua() else _material_nube
 	nube.set_instance_shader_parameter("semilla", randf())
 	nube.set_instance_shader_parameter("edad", 0.0)
 	nube.visible = true
@@ -208,7 +214,7 @@ func _soltar_nube(donde: Vector3) -> void:
 func _process(delta: float) -> void:
 	for pedazo: Array in _pedazos:
 		pedazo[2] += delta
-	var vida := AGUA_VIDA if agua or forzar_agua else VIDA
+	var vida := AGUA_VIDA if _de_agua() else VIDA
 	while not _pedazos.is_empty() and _pedazos[0][2] >= vida:
 		_pedazos.pop_front()
 	var hay_nubes := _mover_nubes(delta)

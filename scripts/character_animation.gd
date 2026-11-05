@@ -34,6 +34,7 @@ const ACCIONES := {
 	"golpe_a": GOLPE_DERECHA,
 	"golpe_b": GOLPE_IZQUIERDA,
 	"golpe_giro": "Sword_Regular_C",   # el ataque cargado (Player.golpe_cargado)
+	"estocada": "Sword_Dash_RM",       # pegar corriendo (Player.estocada)
 	"herido": "Hit_Chest",
 	"recoger": "PickUp_Table",
 }
@@ -234,6 +235,15 @@ func golpe_giro() -> void:
 	if _accion_nodo:
 		_accion_nodo.filter_enabled = false
 	_lanzar("golpe_giro")
+
+
+# La estocada con avance: de todo el cuerpo (el avance lo hace Player, el clip ya no trae Root)
+func golpe_estocada() -> void:
+	_golpe_clip = ACCIONES["estocada"]
+	_golpe_t = 0.0
+	if _accion_nodo:
+		_accion_nodo.filter_enabled = false
+	_lanzar("estocada")
 
 
 # Caminando a medio machetazo: el barrido solo en la parte de arriba, las piernas trotan

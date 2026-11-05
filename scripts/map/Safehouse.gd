@@ -84,6 +84,7 @@ F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la
 8 estela del machete: agua azul (prueba) / la de siempre
 7 ataque cargado: deja apretado pegar y suelta = espadazo giratorio (prueba) / sin cargado
 Shift+7 el giro con estela de agua (la mejora) / con la estela normal
+6 estocada: corre (Shift) y pega = te lanzas hacia adelante (prueba) / sin estocada · Shift+6 su estela de agua
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
 Efectos de pixel, propuestas (F2-F7 cambian):"""
 # Una tecla por lugar de EfectosPixel, en este orden
@@ -147,6 +148,7 @@ func _guardar(path: String, data: Dictionary) -> void:
 func _ready() -> void:
 	ESTELA.agua = true
 	Player.golpe_cargado = true
+	Player.estocada = true
 	_jugador = get_node("Player")
 	_zombis = get_node("Zombis")
 	_ciclo = get_node("Ciclo")
@@ -343,6 +345,7 @@ func _poner_objetos() -> void:
 func _exit_tree() -> void:
 	ESTELA.agua = false
 	Player.golpe_cargado = false
+	Player.estocada = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -409,6 +412,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			_mostrar_efectos()
 		KEY_8:
 			ESTELA.agua = not ESTELA.agua
+		KEY_6:
+			if event.shift_pressed:
+				Player.estocada_agua = not Player.estocada_agua
+			else:
+				Player.estocada = not Player.estocada
 		KEY_7:
 			if event.shift_pressed:
 				Player.giro_agua = not Player.giro_agua
