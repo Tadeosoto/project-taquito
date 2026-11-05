@@ -57,6 +57,7 @@ var _mira := 0.0
 # El machetazo que va: el clip y cuanto lleva (lo lee la estela del arma)
 var _golpe_clip := ""
 var _golpe_t := -1.0
+var _golpe_vel := 1.0   # el giro en el aire va mas rapido (golpe_giro)
 
 
 func _ready() -> void:
@@ -140,9 +141,12 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 		_clip(raiz, "c_" + entrada, ACCIONES[entrada], "", 0)
 		i += 1
 	raiz.add_node("cual", cual)
+	# El giro pasa por su propia velocidad: en el aire va mas rapido
+	raiz.add_node("giro_vel", AnimationNodeTimeScale.new())
+	raiz.connect_node("giro_vel", 0, "c_golpe_giro")
 	i = 0
 	for entrada: String in ACCIONES:
-		raiz.connect_node("cual", i, "c_" + entrada)
+		raiz.connect_node("cual", i, "giro_vel" if entrada == "golpe_giro" else "c_" + entrada)
 		i += 1
 	var accion := AnimationNodeOneShot.new()
 	accion.fadein_time = 0.05
@@ -193,7 +197,7 @@ func _filtrar(nodo: AnimationNode, huesos: Array[NodePath]) -> void:
 
 func _process(delta: float) -> void:
 	if _golpe_t >= 0.0:
-		_golpe_t += delta
+		_golpe_t += delta * _golpe_vel
 		if _golpe_t > BIBLIOTECA.get_animation(_golpe_clip).length:
 			_golpe_t = -1.0
 	_patada = move_toward(_patada, 0.0, PATADA_BAJA * delta)
@@ -225,13 +229,16 @@ func golpe(lado: float) -> void:
 	var entrada := "golpe_a" if lado > 0.0 else "golpe_b"
 	_golpe_clip = ACCIONES[entrada]
 	_golpe_t = 0.0
+	_golpe_vel = 1.0
 	_lanzar(entrada)
 
 
 # El ataque cargado: el espadazo giratorio, de todo el cuerpo
-func golpe_giro() -> void:
+func golpe_giro(velocidad := 1.0) -> void:
 	_golpe_clip = ACCIONES["golpe_giro"]
 	_golpe_t = 0.0
+	_golpe_vel = velocidad
+	_arbol.set("parameters/giro_vel/scale", velocidad)
 	if _accion_nodo:
 		_accion_nodo.filter_enabled = false
 	_lanzar("golpe_giro")
@@ -241,6 +248,7 @@ func golpe_giro() -> void:
 func golpe_estocada() -> void:
 	_golpe_clip = ACCIONES["estocada"]
 	_golpe_t = 0.0
+	_golpe_vel = 1.0
 	if _accion_nodo:
 		_accion_nodo.filter_enabled = false
 	_lanzar("estocada")
