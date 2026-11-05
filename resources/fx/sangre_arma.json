@@ -1,0 +1,16 @@
+{
+ "id": "taquito/gota-arma",
+ "fps": 30,
+ "loop": true,
+ "frames": 27,
+ "frameSize": [
+  24,
+  64
+ ],
+ "pivot": [
+  12,
+  6
+ ],
+ "columns": 9,
+ "golpe_en": 0
+}

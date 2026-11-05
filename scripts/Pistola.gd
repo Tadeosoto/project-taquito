@@ -8,8 +8,9 @@ extends Node
 # Al zombi le pega por el mismo camino que el machete (Zombie.recibir_golpe), sin la
 # congelada (a tiro rapido trababa), sin empujon y sin aturdir: la pistola debilita de lejos
 # y el que mata es el machete. Balas sin fin, pero con cargador y recarga sola.
-# Al tiro: fogonazo, dispersion, rayo que se desvanece, empujoncito atras, casquillo y tono
-# al azar. En la cabeza (CABEZA_DESDE de la capsula para arriba) pega CABEZA_MULT veces.
+# Al tiro: fogonazo, dispersion (mas con los nervios: la intensidad del Director), una bala de
+# pixelfx que vuela de la boca a donde pego, chispas si pego en pared, casquillo de pixelfx,
+# empujoncito atras y uno de DISPAROS sonidos con tono al azar. En la cabeza (CABEZA_DESDE de la capsula para arriba) pega CABEZA_MULT veces.
 # Como Player.gd, la cargan scripts de tools/ antes de los autoloads: nada de nombrarlos.
 
 const DANO := 8               # cuatro tiros a un zombi de 30 (el machete, tres golpes)
@@ -24,9 +25,14 @@ const SACUDE_TIRO := 0.025    # m de la camara al disparar
 const SACUDE_PEGA := 0.04     # m si le dio a uno
 const SACUDE_DURA := 0.08
 const TRAZO_DURA := 50        # ms del destello
-const TRAZO_FUNDE := 120      # ms en que se desvanece el rayo amarillo
 const TRAZO_COLOR := Color(1.0, 0.85, 0.35)
-const TRAZO_GRUESO := 0.025
+# La bala que se ve (pixelfx bala_trazo, shaders/sprite_eje.gdshader): el tiro ya pego al
+# disparar (rayo); esto solo la dibuja volando hasta ahi
+const BALAS_TRAZO := 6        # se reusan, la mas vieja primero
+const BALA_VELOCIDAD := 150.0 # m/s
+const BALA_LARGO := 1.2       # m de la estela
+const BALA_LARGO_PX := 120.0  # px de la estela en la hoja
+const BALA_IMPACTO_ALTO := 0.56 # m: la hoja bala_impacto pega 24 px arriba de su piso (a escala 0.5)
 const DESTELLO_ENERGIA := 4.0
 const DESTELLO_RANGO := 6.0
 const CAPA_ZOMBIS := 2
@@ -34,15 +40,22 @@ const DISPERSION := 0.012     # rad de desvio al azar por tiro
 const APUNTA_DISPERSION := 0.004 # apuntando
 const CABEZA_DESDE := 1.4     # m sobre los pies (por el tamano del zombi; la capsula mide 1.8)
 const CABEZA_MULT := 3
-const TONO_MIN := 0.9         # pitch_scale del disparo, al azar
-const TONO_MAX := 1.1
+const TONO_MIN := 0.85        # pitch_scale del disparo, al azar
+const TONO_MAX := 1.15
+const DISPAROS := 4           # disparo_1..disparo_4 (Sonidos), uno al azar
+# Nervios: la intensidad del Director (0-1) abre la mira y el desvio
+const NERVIOS_SIGUE := 2.0    # por segundo que la mira alcanza la intensidad
+const NERVIOS_DISPERSION := 1.5 # con intensidad 1, el desvio es x2.5
+const NERVIOS_MIRA := 6.0     # px mas de hueco en la mira con intensidad 1
+const MIRA_HUECO := 3.0       # px del centro a cada raya
+const MIRA_PATADA := 0.6      # grados que sube la camara por tiro (Player.patear_mira)
+const APUNTA_PATADA := 0.35
+const MIRA_FLORECE := 4.0     # px que se abre la mira por tiro
+const MIRA_CIERRA := 30.0     # px/s que se vuelve a cerrar
+const MIRA_RAYA := 5.0
 const FOGONAZO_CHISPAS := 6
 const FOGONAZO_DURA := 0.06   # s
 const FOGONAZO_TAMANO := 0.08 # m
-const CASQUILLOS := 8         # se reusan, el mas viejo primero
-const CASQUILLO_DURA := 3.0   # s en el suelo antes de esconderse
-const CASQUILLO_TAMANO := Vector3(0.012, 0.012, 0.03)
-const CASQUILLO_COLOR := Color(0.85, 0.65, 0.2)
 const MIRA_COLOR := Color(1.0, 0.95, 0.8, 0.9)
 const TEXTO_COLOR := Color(1.0, 0.85, 0.1)
 
@@ -54,35 +67,23 @@ var aciertos := 0
 
 var _espera := 0.0
 var _recargando := 0.0
-var _trazo: MeshInstance3D
-var _trazo_hasta := 0
 var _destello: OmniLight3D
-var _trazo_material: StandardMaterial3D
+var _destello_hasta := 0
 var _fogonazo: CPUParticles3D
-var _casquillos: Array[RigidBody3D] = []
-var _casquillo_vida: Array[float] = []
-var _casquillo_sig := 0
+var _balas: Array[MeshInstance3D] = []
+var _bala_desde: Array[Vector3] = []
+var _bala_hasta: Array[Vector3] = []
+var _bala_va: Array[float] = []     # m andados; < 0 = guardada
+var _bala_sig := 0
+var _nervios := 0.0
+var _hueco := MIRA_HUECO
+var _floracion := 0.0
 var _mira: Control
 var _texto: Label
 var _capa: CanvasLayer
 
 
 func _ready() -> void:
-	_trazo = MeshInstance3D.new()
-	var caja := BoxMesh.new()
-	caja.size = Vector3(TRAZO_GRUESO, TRAZO_GRUESO, 1.0)
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.albedo_color = TRAZO_COLOR
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.disable_fog = true
-	caja.material = material
-	_trazo_material = material
-	_trazo.mesh = caja
-	_trazo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_trazo.top_level = true
-	_trazo.visible = false
-	add_child(_trazo)
 	_destello = OmniLight3D.new()
 	_destello.light_color = TRAZO_COLOR
 	_destello.light_energy = DESTELLO_ENERGIA
@@ -91,7 +92,7 @@ func _ready() -> void:
 	_destello.visible = false
 	add_child(_destello)
 	_armar_fogonazo()
-	_armar_casquillos()
+	_armar_balas()
 	_armar_pantalla()
 
 
@@ -117,7 +118,7 @@ func disparar() -> void:
 	var centro := get_viewport().get_visible_rect().size / 2.0
 	var origen := camara.project_ray_origin(centro)
 	var mira := camara.project_ray_normal(centro)
-	var desvio := APUNTA_DISPERSION if jugador._apuntando else DISPERSION
+	var desvio := (APUNTA_DISPERSION if jugador._apuntando else DISPERSION) * (1.0 + NERVIOS_DISPERSION * _nervios)
 	var hacia := mira.rotated(camara.global_basis.y, randf_range(-desvio, desvio)) \
 		.rotated(camara.global_basis.x, randf_range(-desvio, desvio))
 	var espacio := jugador.get_world_3d().direct_space_state
@@ -138,13 +139,22 @@ func disparar() -> void:
 		sacude = SACUDE_PEGA
 		aciertos += 1
 		Sonidos.tocar(self, "whack", -4.0 if cabeza else -10.0)
-	Sonidos.tocar(self, "disparo", -4.0, randf_range(TONO_MIN, TONO_MAX))
+	Sonidos.tocar(self, "disparo_%d" % randi_range(1, DISPAROS), -4.0, randf_range(TONO_MIN, TONO_MAX))
 	jugador._sacude_fuerza = sacude
 	jugador._sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	jugador.pose_tiro()
 	jugador.empujar_tiro(hacia)
+	jugador.patear_mira(APUNTA_PATADA if jugador._apuntando else MIRA_PATADA)
+	_floracion += MIRA_FLORECE
 	_dibujar_tiro(punto)
-	_soltar_casquillo(hacia, camara.global_basis.x)
+	var efectos := get_tree().get_first_node_in_group("efectos_pixel") as EfectosPixel
+	if efectos:
+		# Pared o suelo: chispas (al zombi ya lo salpica su agua)
+		if pego and blanco == null:
+			efectos.lanzar("bala", punto - Vector3.UP * BALA_IMPACTO_ALTO, hacia)
+		# El casquillo cae a los pies, bajo la boca, hacia la derecha de la camara
+		var canon := jugador.canon()
+		efectos.lanzar("casquillo", Vector3(canon.x, jugador.global_position.y, canon.z), -camara.global_basis.x)
 	if balas <= 0:
 		_recargar()
 
@@ -187,14 +197,19 @@ func _recargar() -> void:
 # De la boca de la pistola a donde pego
 func _dibujar_tiro(punto: Vector3) -> void:
 	var canon := jugador.canon()
-	var largo := canon.distance_to(punto)
-	if largo > 0.05:
-		_trazo.global_transform = Transform3D(Basis.looking_at(punto - canon).scaled_local(Vector3(1.0, 1.0, largo)), (canon + punto) / 2.0)
-		_trazo.visible = true
+	if canon.distance_to(punto) > 0.05 and not _balas.is_empty():
+		var i := _bala_sig
+		_bala_sig = (_bala_sig + 1) % _balas.size()
+		_bala_desde[i] = canon
+		_bala_hasta[i] = punto
+		_bala_va[i] = 0.0
+		_balas[i].set_instance_shader_parameter("eje", (punto - canon).normalized())
+		_balas[i].set_instance_shader_parameter("largo", 0.01)
+		_balas[i].global_position = canon
+		_balas[i].visible = true
 	_destello.global_position = canon
 	_destello.visible = true
-	_trazo_material.albedo_color.a = 1.0
-	_trazo_hasta = Time.get_ticks_msec() + TRAZO_FUNDE
+	_destello_hasta = Time.get_ticks_msec() + TRAZO_DURA
 	var hacia := punto - canon
 	if hacia.length_squared() > 0.0025:
 		_fogonazo.global_transform = Transform3D(Basis.looking_at(hacia), canon)
@@ -204,14 +219,11 @@ func _dibujar_tiro(punto: Vector3) -> void:
 
 
 func _process(delta: float) -> void:
-	if _trazo_hasta > 0:
-		var queda := _trazo_hasta - Time.get_ticks_msec()
-		_trazo_material.albedo_color.a = clampf(float(queda) / TRAZO_FUNDE, 0.0, 1.0)
-		if queda <= TRAZO_FUNDE - TRAZO_DURA:
-			_destello.visible = false
-		if queda <= 0:
-			_trazo_hasta = 0
-			_trazo.visible = false
+	if _destello_hasta > 0 and Time.get_ticks_msec() >= _destello_hasta:
+		_destello_hasta = 0
+		_destello.visible = false
+	_volar_balas(delta)
+	_sentir_nervios(delta)
 	var libre := jugador.is_physics_processing() and jugador.can_process()
 	_mira.visible = activa and libre
 	_texto.visible = libre
@@ -220,12 +232,6 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	_espera = maxf(_espera - delta, 0.0)
-	for i in CASQUILLOS:
-		if _casquillo_vida[i] > 0.0:
-			_casquillo_vida[i] -= delta
-			if _casquillo_vida[i] <= 0.0:
-				_casquillos[i].freeze = true
-				_casquillos[i].visible = false
 	if _recargando > 0.0:
 		_recargando -= delta
 		if _recargando <= 0.0:
@@ -243,7 +249,7 @@ func _texto_arma() -> String:
 	return (arma.item_name if arma else "Puño") + curar
 
 
-# --- Fogonazo y casquillos ---
+# --- Fogonazo, balas y nervios ---
 
 # Chispas amarillas de la boca, una rafaga por tiro
 func _armar_fogonazo() -> void:
@@ -275,50 +281,57 @@ func _armar_fogonazo() -> void:
 	add_child(_fogonazo)
 
 
-# Un monton fijo de casquillos que se reusan: nada de new/queue_free por tiro
-func _armar_casquillos() -> void:
-	var caja := BoxMesh.new()
-	caja.size = CASQUILLO_TAMANO
-	var material := StandardMaterial3D.new()
-	material.albedo_color = CASQUILLO_COLOR
-	material.metallic = 0.6
-	material.roughness = 0.4
-	caja.material = material
-	var forma := BoxShape3D.new()
-	forma.size = CASQUILLO_TAMANO * 1.5  # tan chico se colaba por el suelo
-	for i in CASQUILLOS:
-		var cuerpo := RigidBody3D.new()
-		cuerpo.collision_layer = 0
-		cuerpo.collision_mask = 1
-		cuerpo.mass = 0.01
-		cuerpo.continuous_cd = true
-		cuerpo.freeze = true
-		cuerpo.visible = false
-		cuerpo.top_level = true
-		var colision := CollisionShape3D.new()
-		colision.shape = forma
-		cuerpo.add_child(colision)
-		var malla := MeshInstance3D.new()
-		malla.mesh = caja
-		malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		cuerpo.add_child(malla)
-		add_child(cuerpo)
-		_casquillos.append(cuerpo)
-		_casquillo_vida.append(0.0)
+# Unos cuadros reusados que dibujan la bala (pixelfx bala_trazo) a lo largo de su linea
+func _armar_balas() -> void:
+	var material := EfectosPixel.material_eje("bala_trazo", BALA_LARGO_PX)
+	if material == null:
+		return
+	for i in BALAS_TRAZO:
+		var bala := MeshInstance3D.new()
+		bala.mesh = EfectosPixel.malla_quad()
+		bala.material_override = material
+		bala.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		# El shader la estira hasta un par de metros hacia atras
+		bala.custom_aabb = AABB(Vector3(-3.0, -3.0, -3.0), Vector3(6.0, 6.0, 6.0))
+		bala.top_level = true
+		bala.visible = false
+		bala.set_instance_shader_parameter("fase", randf())
+		add_child(bala)
+		_balas.append(bala)
+		_bala_desde.append(Vector3.ZERO)
+		_bala_hasta.append(Vector3.ZERO)
+		_bala_va.append(-1.0)
 
 
-# Sale por la derecha y para arriba, girando
-func _soltar_casquillo(hacia: Vector3, derecha: Vector3) -> void:
-	var i := _casquillo_sig
-	_casquillo_sig = (_casquillo_sig + 1) % CASQUILLOS
-	var cuerpo := _casquillos[i]
-	cuerpo.freeze = true
-	cuerpo.global_transform = Transform3D(Basis.looking_at(hacia), jugador.canon() - hacia * 0.08)
-	cuerpo.freeze = false
-	cuerpo.visible = true
-	cuerpo.linear_velocity = jugador.velocity + derecha * randf_range(1.5, 2.5) + Vector3.UP * randf_range(1.2, 2.0)
-	cuerpo.angular_velocity = Vector3(randf_range(-20.0, 20.0), randf_range(-20.0, 20.0), randf_range(-20.0, 20.0))
-	_casquillo_vida[i] = CASQUILLO_DURA
+# La punta avanza a BALA_VELOCIDAD hasta donde pego; la cola la alcanza y se guarda
+func _volar_balas(delta: float) -> void:
+	for i in _balas.size():
+		if _bala_va[i] < 0.0:
+			continue
+		var total := _bala_desde[i].distance_to(_bala_hasta[i])
+		_bala_va[i] += BALA_VELOCIDAD * delta
+		var punta := minf(_bala_va[i], total)
+		var cola := maxf(_bala_va[i] - BALA_LARGO, 0.0)
+		if cola >= total:
+			_bala_va[i] = -1.0
+			_balas[i].visible = false
+			continue
+		var dir := (_bala_hasta[i] - _bala_desde[i]) / total
+		_balas[i].global_position = _bala_desde[i] + dir * punta
+		_balas[i].set_instance_shader_parameter("largo", maxf(punta - cola, 0.01))
+
+
+# La mira se abre con la intensidad del Director (Zombis.director), que sube con el dano y
+# las muertes cerca; sin Zombis en la escena, nada
+func _sentir_nervios(delta: float) -> void:
+	var mando := get_tree().get_first_node_in_group("zombis_mando") as Zombis
+	var meta: float = clampf(mando.director.intensidad, 0.0, 1.0) if mando and mando.director else 0.0
+	_nervios = move_toward(_nervios, meta, NERVIOS_SIGUE * delta)
+	_floracion = move_toward(_floracion, 0.0, MIRA_CIERRA * delta)
+	var hueco := MIRA_HUECO + NERVIOS_MIRA * _nervios + _floracion
+	if roundi(hueco) != roundi(_hueco):
+		_hueco = hueco
+		_mira.queue_redraw()
 
 
 # --- La mira y el arma en pantalla ---
@@ -331,9 +344,10 @@ func _armar_pantalla() -> void:
 	_mira.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_mira.set_anchors_preset(Control.PRESET_CENTER)
 	_mira.draw.connect(func() -> void:
+		var hueco := float(roundi(_hueco))
 		for lado: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
-			_mira.draw_line(lado * 3.0, lado * 8.0, Color.BLACK, 3.0)
-			_mira.draw_line(lado * 3.0, lado * 8.0, MIRA_COLOR, 1.0))
+			_mira.draw_line(lado * hueco, lado * (hueco + MIRA_RAYA), Color.BLACK, 3.0)
+			_mira.draw_line(lado * hueco, lado * (hueco + MIRA_RAYA), MIRA_COLOR, 1.0))
 	_capa.add_child(_mira)
 	_texto = Label.new()
 	_texto.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)

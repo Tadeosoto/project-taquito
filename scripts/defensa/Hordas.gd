@@ -53,8 +53,8 @@ const GRUPOS_MEDIO := [
 # emboscadas: grupitos aparte que salen de tu lado y van por ti (no en facil)
 const MODOS := {
 	"facil": {"grupos": GRUPOS_FACIL, "tope": true, "corredores_cercano": false, "dificultad": 1.0, "emboscadas": false},
-	"medio": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.0, "emboscadas": true},
-	"dificil": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.3, "emboscadas": true},
+	"medio": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.25, "emboscadas": true},
+	"dificil": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.6, "emboscadas": true},
 }
 const ULTIMA := 29.5       # nada despues: lo que quede se cae al amanecer
 # Emboscadas: fuera de las oleadas, 2-3 cazadores que salen del lado donde andas (fuera de la
@@ -188,7 +188,10 @@ func _physics_process(delta: float) -> void:
 		_pendientes[0] = randf() * TAU
 		return
 	_pendientes.pop_front()
+	# Pasado el cupo del tinaco, este va por el jugador (se cuenta antes de sacarlo)
+	var de_mas := zombis.cupo_tinaco > 0 and zombis.al_tinaco() >= zombis.cupo_tinaco
 	var zombi := zombis.sacar(lugar, randf() < _corredores)
+	zombi.por_jugador = de_mas
 	if not zombi.murio.is_connected(_murio):
 		zombi.murio.connect(_murio)
 

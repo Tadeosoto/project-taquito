@@ -50,6 +50,10 @@ const RETROCESO_CAIDA := 14.0 # por segundo
 const RETROCESO_TIRO := 0.6   # m/s para atras por balazo (0 = nada)
 const RETROCESO_TIRO_FRENO := 8.0 # se va en 1/8 s
 const ARMAS_TECLAS := 5       # arma_1..arma_5
+const PATADA_VUELVE := 0.2    # s en que la camara regresa de la patada de un balazo
+# Sangre (pixelfx sangre_arma) que gotea de la punta del arma un rato tras pegarle a un zombi
+const SANGRE_DURA_MS := 2500
+const SANGRE_ESCALA := 0.4
 const SACUDE := 0.05          # m de la camara
 const SACUDE_MATA := 2.0
 const SACUDE_DURA := 0.15
@@ -146,6 +150,10 @@ var _retroceso_freno := 42.0
 var _flash_hasta := 0
 var _sacude_fuerza := 0.0
 var _sacude_hasta := 0
+var _patada := 0.0            # grados de patada que la camara aun debe regresar
+var _patada_vel := 0.0
+var _sangre_arma: MeshInstance3D
+var _sangre_hasta := 0        # ms de reloj real
 var _congelado_hasta := 0
 var _escala_antes := 1.0
 var _camara: Camera3D
@@ -327,6 +335,7 @@ func _golpear() -> void:
 	if pego:
 		golpes_pegaron += 1
 		_sentir_golpe(frente, fuerza, mato)
+		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
 
 
 # Una vez por golpe, aunque le pegue a varios: el whack, el rebote, la sacudida y la congelada
@@ -652,6 +661,8 @@ func _process(_delta: float) -> void:
 	_camara_al_hombro()
 	_sacudir()
 	_posar()
+	_regresar_patada(_delta)
+	_gotear_sangre()
 	_estela_golpe()
 
 
@@ -682,6 +693,42 @@ func pose_recarga() -> void:
 
 
 # De donde sale el tiro: la boca de la pistola, o la mano
+# Retroceso de la pistola: la camara sube `grados` (la mira apunta de veras mas arriba) y
+# regresa sola en PATADA_VUELVE; solo regresa lo que subio, sin pelearse con el raton
+func patear_mira(grados: float) -> void:
+	camera_pitch = clampf(camera_pitch + grados, -60.0, 30.0)
+	spring_arm.rotation_degrees.x = camera_pitch
+	_patada += grados
+	_patada_vel = _patada / PATADA_VUELVE
+
+
+func _regresar_patada(delta: float) -> void:
+	if _patada <= 0.0:
+		return
+	var vuelve := minf(_patada, _patada_vel * delta)
+	_patada -= vuelve
+	camera_pitch = clampf(camera_pitch - vuelve, -60.0, 30.0)
+	spring_arm.rotation_degrees.x = camera_pitch
+
+
+# Tras pegarle a un zombi, la punta del arma gotea sangre un rato (con la pistola, nada)
+func _gotear_sangre() -> void:
+	var gotea: bool = Time.get_ticks_msec() < _sangre_hasta and not (_pistola and _pistola.activa) and _mano != null
+	if not gotea:
+		if _sangre_arma:
+			_sangre_arma.visible = false
+		return
+	if _sangre_arma == null:
+		_sangre_arma = EfectosPixel.cuadro_bucle("sangre_arma", SANGRE_ESCALA)
+		if _sangre_arma == null:
+			return
+		_sangre_arma.top_level = true
+		add_child(_sangre_arma)
+	var punta: Vector3 = _punta.global_position if _punta and is_instance_valid(_punta) and _punta.is_inside_tree() 		else _mano.global_position + _mano.global_basis.y.normalized() * ESTELA_PUNO
+	_sangre_arma.global_position = punta
+	_sangre_arma.visible = true
+
+
 # 1-5 (arma_1..arma_5) sin Shift: en el safehouse Shift+1/2/3 son de las maquinitas
 func _tecla_arma(event: InputEvent) -> int:
 	for i in ARMAS_TECLAS:

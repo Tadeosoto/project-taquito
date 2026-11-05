@@ -48,6 +48,9 @@ const RESTOS_LANZA := 1.2     # m que caen los restos hacia donde iba el golpe
 @export var max_total := MAX_TOTAL
 # Lo que le quita cada golpe al jugador (Zombie.DANO); la defensa le baja. El jefe no cambia
 @export var dano_jugador := Zombie.DANO
+# Defensa del tinaco: cuantos van por el tinaco a la vez; los de mas salen por el jugador
+# (Zombie.por_jugador, Hordas.gd). 0 = sin tope
+@export var cupo_tinaco := 0
 
 var noches := 0
 var director := Director.new()
@@ -90,6 +93,8 @@ var turbas_noche := 0
 
 
 func _ready() -> void:
+	# Pistola busca aqui al Director (la mira se abre con la intensidad)
+	add_to_group("zombis_mando")
 	_jugador = get_node(jugador_path) as Player
 	_ciclo = get_node(ciclo_path) as Ciclo
 	process_physics_priority = 10
@@ -344,6 +349,15 @@ func _sacar_de_turba() -> void:
 
 func vivos() -> int:
 	return _vivos()
+
+
+# Los vivos que van por el tinaco (no los emboscados ni los que se pasaron del cupo)
+func al_tinaco() -> int:
+	var cuantos := 0
+	for z in Zombie.activos:
+		if z.estado != Zombie.Estado.MUERTO and not z.es_jefe and not z.emboscada and not z.por_jugador:
+			cuantos += 1
+	return cuantos
 
 
 func _vivos() -> int:

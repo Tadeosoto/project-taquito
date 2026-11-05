@@ -24,6 +24,7 @@ extends Node3D
 const GRUPO := "efectos_pixel"
 const CARPETA := "res://resources/fx/"
 const SHADER_BUCLE := preload("res://shaders/sprite_pixel.gdshader")
+const SHADER_EJE := preload("res://shaders/sprite_eje.gdshader")
 const CUANTOS := 16            # sprites en la reserva; si se acaban se reusa el mas viejo
 # El personaje de pixelfx mide 38 px; como el nuestro mide unos 1.8 m, un pixel de la hoja
 # mide esto a escala 1
@@ -34,7 +35,7 @@ const CAPA_PANTALLA := 9       # sobre Supervivencia (8), bajo el inventario (11
 # Las que suman luz (los rayos) van abajo de Supervivencia: si no, se veian encima del negro al desmayarte
 const CAPA_LUZ := 7
 # Los de la segunda ronda: se apagan con extras = false
-const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar", "fuente"]
+const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar", "fuente", "bala"]
 
 # Cada lugar, sus variantes (la primera es la que queda por omision, salvo PREDETERMINADA). `hoja` vacia = nada.
 # `puno`: la hoja a mano limpia; `mata`: la del golpe que mata; `voltea`: la hoja ve a la
@@ -86,6 +87,16 @@ const LUGARES := {
 	],
 	"curar": [
 		{ "nombre": "A flor", "hoja": "curar", "escala": 0.6 },
+		{ "nombre": "B nada", "hoja": "" },
+	],
+	# Pistola: el casquillo que sale con cada tiro (cae a los pies; la hoja trae su piso a la altura de la boca)
+	"casquillo": [
+		{ "nombre": "A latón", "hoja": "casquillo", "escala": 0.5, "voltea": true },
+		{ "nombre": "B nada", "hoja": "" },
+	],
+	# Pistola: donde pega una bala que no le dio a un zombi (pared, suelo)
+	"bala": [
+		{ "nombre": "A chispas", "hoja": "bala_impacto", "escala": 0.5, "voltea": true },
 		{ "nombre": "B nada", "hoja": "" },
 	],
 	# Zombie._sin_cabeza: el chorro del cuello tras un tiro a la cabeza que mata
@@ -285,6 +296,31 @@ static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_dire
 	return material
 
 
+# Una hoja estirada a lo largo de una linea (shaders/sprite_eje.gdshader), compartida: el trazo de
+# la bala. `largo_px`: los px de la hoja que miden el `largo` de cada instancia
+static func material_eje(nombre: String, largo_px: float) -> ShaderMaterial:
+	var clave := "eje|%s|%s" % [nombre, largo_px]
+	if _materiales.has(clave):
+		return _materiales[clave]
+	var hoja := hoja_de(nombre)
+	if hoja.is_empty():
+		return null
+	var material := ShaderMaterial.new()
+	material.shader = SHADER_EJE
+	material.set_shader_parameter("hoja", hoja["textura"])
+	material.set_shader_parameter("columnas", hoja["columnas"])
+	material.set_shader_parameter("filas", ceili(float(hoja["cuadros"]) / hoja["columnas"]))
+	material.set_shader_parameter("cuadros", hoja["cuadros"])
+	material.set_shader_parameter("fps", hoja["fps"])
+	material.set_shader_parameter("periodo", hoja["cuadros"] / hoja["fps"])
+	material.set_shader_parameter("tamano", hoja["tamano"])
+	material.set_shader_parameter("pivote", hoja["pivote"])
+	material.set_shader_parameter("pixel", PIXEL * 0.5)
+	material.set_shader_parameter("largo_px", largo_px)
+	_materiales[clave] = material
+	return material
+
+
 # La malla de todos los que se repiten: un cuadro de 1 x 1 que el shader estira y voltea
 static func malla_quad() -> QuadMesh:
 	if _quad == null:
@@ -312,7 +348,9 @@ static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 
 static func poner_extras(prendidos: bool) -> void:
 	extras = prendidos
 	for material: ShaderMaterial in _materiales.values():
-		material.set_shader_parameter("alfa", material.get_meta("alfa") if prendidos else 0.0)
+		# El trazo de la bala (material_eje) no es de la segunda ronda: no lleva "alfa"
+		if material.has_meta("alfa"):
+			material.set_shader_parameter("alfa", material.get_meta("alfa") if prendidos else 0.0)
 
 
 static func hoja_de(nombre: String) -> Dictionary:

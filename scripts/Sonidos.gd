@@ -98,8 +98,14 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _zumbido()
 			"boom":
 				_sonidos[nombre] = _boom()
-			"disparo":
-				_sonidos[nombre] = _disparo()
+			"disparo", "disparo_1":
+				_sonidos[nombre] = _disparo(0)
+			"disparo_2":
+				_sonidos[nombre] = _disparo(1)
+			"disparo_3":
+				_sonidos[nombre] = _disparo(2)
+			"disparo_4":
+				_sonidos[nombre] = _disparo(3)
 			"recarga":
 				_sonidos[nombre] = _recarga()
 			"cortina":
@@ -368,20 +374,32 @@ static func _boom() -> AudioStreamWAV:
 
 # Pistola (Pistola.gd): un estallido seco de ruido con un golpe grave abajo y un poco de
 # eco de calle, mas corto que el cohete
-static func _disparo() -> AudioStreamWAV:
+# Las variantes del balazo (Pistola elige una al azar): semilla, tono del cuerpo (de, a),
+# cuanto dura el cuerpo, cuanto el estallido, que tan aspero es el ruido y la cola del eco
+const DISPAROS := [
+	{"semilla": 61, "tono": Vector2(160.0, 55.0), "cuerpo": 22.0, "estallido": 38.0, "aspero": 0.6, "eco": 0.3},
+	{"semilla": 73, "tono": Vector2(185.0, 62.0), "cuerpo": 26.0, "estallido": 46.0, "aspero": 0.75, "eco": 0.25},
+	{"semilla": 89, "tono": Vector2(140.0, 48.0), "cuerpo": 18.0, "estallido": 32.0, "aspero": 0.5, "eco": 0.38},
+	{"semilla": 97, "tono": Vector2(170.0, 58.0), "cuerpo": 24.0, "estallido": 52.0, "aspero": 0.85, "eco": 0.3},
+]
+
+
+static func _disparo(variante: int) -> AudioStreamWAV:
+	var v: Dictionary = DISPAROS[variante]
+	var tono: Vector2 = v["tono"]
 	var b := _vacio(0.35)
 	var azar := RandomNumberGenerator.new()
-	azar.seed = 61
+	azar.seed = v["semilla"]
 	var fase := 0.0
 	var ruido := 0.0
 	for i in b.size():
 		var t := float(i) / MUESTRAS
-		fase += lerpf(160.0, 55.0, minf(t / 0.12, 1.0)) / MUESTRAS
-		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.6)
-		var golpe := sin(fase * TAU) * exp(-t * 22.0)
-		var estallido := ruido * exp(-t * 38.0) * 1.6
+		fase += lerpf(tono.x, tono.y, minf(t / 0.12, 1.0)) / MUESTRAS
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), v["aspero"])
+		var golpe := sin(fase * TAU) * exp(-t * v["cuerpo"])
+		var estallido := ruido * exp(-t * v["estallido"]) * 1.6
 		b[i] = clampf(golpe * 0.8 + estallido, -1.0, 1.0)
-	return _a_wav(_eco(b, [47, 89], 0.3, 0.25, 0.35))
+	return _a_wav(_eco(b, [47, 89], v["eco"], 0.25, 0.35))
 
 
 # Dos clics metalicos: sale el cargador y entra el otro

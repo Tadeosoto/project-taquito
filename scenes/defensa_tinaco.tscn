@@ -249,6 +249,7 @@ ciclo_path = NodePath("../Ciclo")
 espontaneos = false
 lejos = 150.0
 max_total = 40
+cupo_tinaco = 8
 dano_jugador = 6
 
 [node name="Supervivencia" type="CanvasLayer" parent="."]

@@ -103,12 +103,14 @@ const CONGELA_PISTOLA_MS := 60   # un balazo que mata deja al zombi quieto, en b
 # Tiro a la cabeza que mata (Pistola.CABEZA_*): sin cabeza, chorro de agua del cuello y luego truena
 const FUENTE_MS := 1000       # lo que dura la hoja fuente_cabeza (EfectosPixel)
 const FUENTE_CADA := 40     # ms entre chorritos
-const FUENTE_GOTAS := 4
+const FUENTE_GOTAS := 4     # por chorrito: mitad agua sucia, mitad sangre oscura
+const REVIENTA_SANGRE := 20 # gotas de sangre oscura de mas al tronar sin cabeza
 const FUENTE_VELOCIDAD := Vector2(3.5, 6.0)
 const FUENTE_ABRE := 0.15
 const FUENTE_RADIO := 0.03
 const CUELLO := 1.5         # m (por tamano) si el esqueleto no trae Neck
 const SIN_CABEZA := Vector3(0.001, 0.001, 0.001) # escala del hueso Head (0 da matrices rotas)
+const COLOR_SANGRE_OSCURA := Color(0.35, 0.05, 0.05) # la mitad del chorro sin cabeza y su reventon (AG)
 # Efectos de pixel (EfectosPixel): polvo bajo las pisadas del jefe y la marca de los cazadores
 const JEFE_PASO := 2.4      # m entre pisada y pisada
 const JEFE_PISADA := 0.5    # tamano del polvo
@@ -216,6 +218,7 @@ var tipo := Tipo.NORMAL
 var skin := -1              # indice en SKINS; -1 = al azar (antes de entrar al arbol)
 var cazador := false
 var emboscada := false      # de las emboscadas de la defensa (Hordas.gd): va por el jugador, no por el tinaco
+var por_jugador := false    # se paso del cupo del tinaco (Zombis.cupo_tinaco): va por el jugador
 var despierto := false
 var alerta := true          # ya te detecto: corre hacia su blanco. Sin ella, deambula
 
@@ -484,6 +487,7 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	despierto = true
 	cazador = con_prisa
 	emboscada = false
+	por_jugador = false
 	if _rabia:
 		_rabia.visible = con_prisa
 	_paso = 0.0
@@ -848,7 +852,7 @@ func _destino() -> Vector3:
 	# Defensa del tinaco: van por el tinaco, y por el jugador solo si lo tienen cerca y mas
 	# que al tinaco (pararse junto al tinaco no lo protege). Ya roto, por el jugador
 	var al_jugador := global_position.distance_to(jugador.global_position)
-	if is_instance_valid(_tinaco) and _tinaco.vida > 0 and not emboscada and (al_jugador > _persigue() or al_jugador > global_position.distance_to(_tinaco.global_position) - _tinaco.radio):
+	if is_instance_valid(_tinaco) and _tinaco.vida > 0 and not (emboscada or por_jugador) and (al_jugador > _persigue() or al_jugador > global_position.distance_to(_tinaco.global_position) - _tinaco.radio):
 		# Primero a su hueco, de paso; ya pasandolo, al tinaco
 		if _hueco >= 0 and _hueco < zombis.huecos.size():
 			var hueco: Vector3 = zombis.huecos[_hueco]
@@ -1068,6 +1072,10 @@ func _reventar() -> void:
 			zombis.liquido.salpicar(centro, radio, global_position.y, hacia, roundi(RESTOS * grande * frente), COLOR_RESTOS, REVIENTA_VELOCIDAD * 0.7, REVIENTA_ABRE)
 		zombis.liquido.reventar(centro, radio, global_position.y, roundi(REVIENTA * grande) - al_frente, COLOR_AGUA, REVIENTA_VELOCIDAD)
 		zombis.liquido.reventar(centro, radio, global_position.y, roundi(RESTOS * grande * (1.0 - frente)), COLOR_RESTOS, REVIENTA_VELOCIDAD * 0.7)
+		if _sin_cabeza:
+			# Sin cabeza truena con sangre: parte hacia el tiro, parte para todos lados
+			zombis.liquido.salpicar(centro, radio, global_position.y, hacia, REVIENTA_SANGRE / 2, COLOR_SANGRE_OSCURA, REVIENTA_VELOCIDAD, REVIENTA_ABRE)
+			zombis.liquido.reventar(centro, radio, global_position.y, REVIENTA_SANGRE / 2, COLOR_SANGRE_OSCURA, REVIENTA_VELOCIDAD)
 	_preparar_charco()
 	_charco.visible = true
 	_charco.scale = Vector3.ONE * grande
@@ -1088,8 +1096,12 @@ func _hinchar() -> void:
 # Un chorrito de agua sucia del cuello, para arriba
 func _chorro() -> void:
 	if zombis:
-		zombis.liquido.salpicar(_cuello(), FUENTE_RADIO * _tamano, global_position.y, Vector3.UP,
-			FUENTE_GOTAS, COLOR_AGUA, FUENTE_VELOCIDAD, FUENTE_ABRE)
+		var cuello := _cuello()
+		var rojas := FUENTE_GOTAS / 2
+		zombis.liquido.salpicar(cuello, FUENTE_RADIO * _tamano, global_position.y, Vector3.UP,
+			FUENTE_GOTAS - rojas, COLOR_AGUA, FUENTE_VELOCIDAD, FUENTE_ABRE)
+		zombis.liquido.salpicar(cuello, FUENTE_RADIO * _tamano, global_position.y, Vector3.UP,
+			rojas, COLOR_SANGRE_OSCURA, FUENTE_VELOCIDAD, FUENTE_ABRE)
 
 
 func _esqueleto() -> Skeleton3D:
