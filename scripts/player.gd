@@ -116,10 +116,10 @@ const GIRO_DURA := 0.95       # s: ahi se suelta el clip (lo demas es enderezars
 const GIRO_ALCANCE := 1.3     # x el alcance normal, en redondo
 const GIRO_DANO := 1.5        # x el dano del arma
 const GIRO_MAXIMO := 6        # zombis a los que le pega
-# En el aire el salto dura ~0.65 s y la vuelta del clip 0.7: ahi va GIRO_AIRE_VELOCIDAD veces
-# mas rapido y caes con GIRO_AIRE_GRAVEDAD de la gravedad mientras gira, para que se vea entero
-const GIRO_AIRE_VELOCIDAD := 2.5
-const GIRO_AIRE_GRAVEDAD := 0.35
+# En el aire: el clip arranca lento (38 grados en 0.1 s), asi que empieza ya en GIRO_AIRE_DESDE s,
+# girando, y un poco mas rapido; el salto sigue igual. El golpe pega al caer al piso
+const GIRO_AIRE_DESDE := 0.12
+const GIRO_AIRE_VELOCIDAD := 1.5
 # PRUEBA (JJ): estocada con avance. Pegar mientras corres (sprint y moviendote) con el machete:
 # Sword_Dash_RM, te lanza ESTOCADA_AVANCE m hacia donde ve la camara (el clip avanza 3.7 m con
 # su hueso Root, que la biblioteca quita; aqui lo hace el cuerpo, asi choca con las paredes) y
@@ -177,6 +177,7 @@ var _cargado := false
 var _giro := -1.0            # s desde que salio el giro; -1 = no hay
 var _giro_pego := false
 var _giro_vel := 1.0         # GIRO_AIRE_VELOCIDAD si salio en el aire
+var _giro_aire := false      # salio en el aire: pega al caer (_revisar_carga)
 var _luz_carga: OmniLight3D
 var _estocada_t := -1.0      # s desde que salio la estocada; -1 = no hay
 var _estocada_dir := Vector3.ZERO
@@ -406,10 +407,18 @@ func _revisar_carga(delta: float) -> void:
 			_brillo_carga()
 	if _giro >= 0.0:
 		_giro += delta * _giro_vel
-		if not _giro_pego and _giro >= GIRO_PEGA_EN:
+		# El de aire pega al tocar el piso, y ahi se suelta lo que falte del clip
+		if _giro_aire and (is_on_floor() or _giro >= GIRO_DURA * 2.0):
+			_giro_aire = false
+			if not _giro_pego:
+				_giro_pego = true
+				_golpear(true)
+			if _giro < GIRO_DURA:
+				_giro = GIRO_DURA
+		if not _giro_pego and _giro >= GIRO_PEGA_EN and not _giro_aire:
 			_giro_pego = true
 			_golpear(true)
-		if _giro >= GIRO_DURA:
+		if _giro >= GIRO_DURA and not _giro_aire:
 			_giro = -1.0
 			if _estela:
 				_estela.especial = -1
@@ -442,20 +451,20 @@ func _brillo_carga() -> void:
 		_luz_carga.light_energy = CARGA_LUZ * 0.4 * _apretado / CARGA_DURA
 
 
-func _girar(velocidad := 1.0) -> void:
+func _girar(aire := false) -> void:
 	if not figura.has_method("golpe_giro"):
 		return
-	_giro = 0.0
+	var velocidad := GIRO_AIRE_VELOCIDAD if aire else 1.0
+	_giro_aire = aire
+	_giro = GIRO_AIRE_DESDE if aire else 0.0
 	_giro_vel = velocidad
-	if velocidad > 1.0 and velocity.y < 0.0:
-		velocity.y *= 0.3
 	_giro_pego = false
 	_pega_en = -1.0
 	_golpe_guardado = false
 	_combo_roto = true
 	_combo_hasta = 0.0
-	_enfriar = GIRO_DURA / velocidad
-	figura.golpe_giro(velocidad)
+	_enfriar = (GIRO_DURA - _giro) / velocidad
+	figura.golpe_giro(velocidad, _giro)
 	_estela_antes = []
 	if _estela:
 		_estela.especial = 1 if giro_agua else 0
@@ -829,7 +838,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			pass
 		elif golpe_cargado and not is_on_floor():
 			# En el aire sale de una vez el espadazo giratorio, sin cargar
-			_girar(GIRO_AIRE_VELOCIDAD)
+			_girar(true)
 		elif estocada and Input.is_action_pressed("sprint") \
 				and Input.get_vector("move_left", "move_right", "move_forward", "move_backward").length() > 0.2:
 			_estocar()
@@ -1074,8 +1083,7 @@ func _physics_process(delta: float) -> void:
 	if is_on_floor():
 		velocity.y = 0.0
 	else:
-		var flota := _giro >= 0.0 and _giro_vel > 1.0
-		velocity.y -= gravity * delta * (GIRO_AIRE_GRAVEDAD if flota else 1.0)
+		velocity.y -= gravity * delta
 
 	# Keyboard / gamepad camera rotation (mouse-look is handled above).
 	var camera_input: Vector2 = Input.get_vector(

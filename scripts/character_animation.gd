@@ -141,9 +141,11 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 		_clip(raiz, "c_" + entrada, ACCIONES[entrada], "", 0)
 		i += 1
 	raiz.add_node("cual", cual)
-	# El giro pasa por su propia velocidad: en el aire va mas rapido
+	# El giro pasa por su propia velocidad y un salto al inicio: en el aire empieza ya girando
+	raiz.add_node("giro_salta", AnimationNodeTimeSeek.new())
+	raiz.connect_node("giro_salta", 0, "c_golpe_giro")
 	raiz.add_node("giro_vel", AnimationNodeTimeScale.new())
-	raiz.connect_node("giro_vel", 0, "c_golpe_giro")
+	raiz.connect_node("giro_vel", 0, "giro_salta")
 	i = 0
 	for entrada: String in ACCIONES:
 		raiz.connect_node("cual", i, "giro_vel" if entrada == "golpe_giro" else "c_" + entrada)
@@ -234,11 +236,12 @@ func golpe(lado: float) -> void:
 
 
 # El ataque cargado: el espadazo giratorio, de todo el cuerpo
-func golpe_giro(velocidad := 1.0) -> void:
+func golpe_giro(velocidad := 1.0, desde := 0.0) -> void:
 	_golpe_clip = ACCIONES["golpe_giro"]
-	_golpe_t = 0.0
+	_golpe_t = desde
 	_golpe_vel = velocidad
 	_arbol.set("parameters/giro_vel/scale", velocidad)
+	_arbol.set("parameters/giro_salta/seek_request", desde)
 	if _accion_nodo:
 		_accion_nodo.filter_enabled = false
 	_lanzar("golpe_giro")
