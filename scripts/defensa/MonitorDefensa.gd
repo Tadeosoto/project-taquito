@@ -80,6 +80,7 @@ func _empezar() -> void:
 	_ultimo_tick = _desde
 	Zombie.dano_cuerpo = 0
 	Zombie.dano_pistola = 0
+	Zombie.dano_cabeza = 0
 	_jugador.golpes = 0
 	_jugador.golpes_pegaron = 0
 	_pistola.tiros = 0
@@ -168,7 +169,7 @@ func _resumen() -> void:
 		"Daño recibido: %d en %d golpes. Curado: %d con %d curaciones" % [_recibido, _golpes_recibidos, _curado, _curaciones],
 		"Tinaco: %d de %d (%d %%)" % [_tinaco.vida, TinacoDefensa.VIDA, roundi(_tinaco.fraccion() * 100.0)],
 		"Zombis matados: %d. Más a la vez: %d, a las %s" % [_hordas.muertos, _hordas.mas_juntos, Hordas.texto_hora(_hordas.hora_mas_juntos)],
-		"Daño hecho: %d (cuerpo a cuerpo %d, pistola %d)" % [dano, Zombie.dano_cuerpo, Zombie.dano_pistola],
+		"Daño hecho: %d (cuerpo a cuerpo %d, pistola %d, a la cabeza %d)" % [dano, Zombie.dano_cuerpo, Zombie.dano_pistola, Zombie.dano_cabeza],
 		"Golpes: %d, pegaron %d (%d %%)" % [_jugador.golpes, _jugador.golpes_pegaron, roundi(100.0 * _jugador.golpes_pegaron / maxi(_jugador.golpes, 1))],
 		"Tiros: %d, pegaron %d (%d %%)" % [_pistola.tiros, _pistola.aciertos, roundi(100.0 * _pistola.aciertos / maxi(_pistola.tiros, 1))],
 		"Por hora (vivos en promedio, daño recibido):",

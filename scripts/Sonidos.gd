@@ -111,12 +111,13 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 
 # Toca `nombre` una vez colgado de `donde` y se borra al terminar. Suena aunque el
 # juego este en pausa (el inventario pausa el arbol).
-static func tocar(donde: Node, nombre: String, volumen_db := 0.0) -> void:
+static func tocar(donde: Node, nombre: String, volumen_db := 0.0, tono := 1.0) -> void:
 	if donde == null or not donde.is_inside_tree():
 		return
 	var voz := AudioStreamPlayer.new()
 	voz.stream = sonido(nombre)
 	voz.volume_db = volumen_db
+	voz.pitch_scale = tono
 	voz.process_mode = Node.PROCESS_MODE_ALWAYS
 	voz.finished.connect(voz.queue_free)
 	donde.add_child(voz)

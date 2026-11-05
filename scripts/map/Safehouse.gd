@@ -74,7 +74,7 @@ Z zombi · B turba · X quitar zombis · T zombis solos de noche
 H curar · J -%d de vida · P +$100 · Y vaciar inventario
 G tablas · L -100 al tinaco (refugio a la derecha)
 M mapa (sin piezas se ve vacío) · U todas las piezas
-1 2 3 maquinita cercana: normal, sin monedas, segura
+1 2 machete / pistola · R recargar · Shift+1 2 3 maquinita cercana: normal, sin monedas, segura
 C crear personaje · K deterioro · F12 reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
 9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
@@ -369,7 +369,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_L:
 			_refugio.recibir_golpe(DANO_TINACO)
 		KEY_1, KEY_2, KEY_3:
-			_poner_estado(_maquina_cercana(), tecla - KEY_1)
+			# Sin Shift, 1-5 cambian de arma (Player._tecla_arma)
+			if event.shift_pressed:
+				_poner_estado(_maquina_cercana(), tecla - KEY_1)
 		KEY_K:
 			_deterioro = wrapi(_deterioro + 1, 0, DETERIOROS.size())
 			Deterioro.configurar(DETERIOROS[_deterioro], 150.0)

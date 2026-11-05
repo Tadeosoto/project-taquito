@@ -29,6 +29,7 @@ const MAX_RESTOS := 16
 const SEPARADO := 1.1         # m entre centros al aparecer: chocan entre ellos
 const NO_ENCIMAR_PASADAS := 2
 const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
+const RESTOS_LANZA := 1.2     # m que caen los restos hacia donde iba el golpe
 
 @export var jugador_path: NodePath
 @export var ciclo_path: NodePath
@@ -416,6 +417,11 @@ func aparecer_jefe(centro: Vector3) -> Zombie:
 
 # Un punto en la calle, a un lado o atras de la camara; INF si no encontro. Con `angulo`,
 # de ese lado del centro (las turbas)
+# Si un zombi parado en `punto` saldria en pantalla (Hordas.gd tambien lo usa)
+static func a_la_vista(camara: Camera3D, punto: Vector3) -> bool:
+	return camara != null and not camara.is_position_behind(punto) and camara.is_position_in_frustum(punto + Vector3.UP)
+
+
 func _lugar_libre(centro: Vector3, angulo := INF, separado := SEPARADO) -> Vector3:
 	var camara := get_viewport().get_camera_3d()
 	var espacio := get_world_3d().direct_space_state
@@ -427,7 +433,7 @@ func _lugar_libre(centro: Vector3, angulo := INF, separado := SEPARADO) -> Vecto
 		var giro := randf() * TAU if angulo == INF else angulo + randf_range(-_turba_abre, _turba_abre)
 		var radio := randf_range(ANILLO.x, ANILLO.y) + extra
 		var punto := centro + Vector3(cos(giro) * radio, 0.0, sin(giro) * radio)
-		if camara and not camara.is_position_behind(punto) and camara.is_position_in_frustum(punto + Vector3.UP):
+		if a_la_vista(camara, punto):
 			continue
 		if refugio and refugio.adentro(punto, MARGEN_REFUGIO):
 			continue
@@ -474,7 +480,8 @@ func _devolver(zombi: Zombie) -> void:
 
 
 # Pellejo y luego huesos. Con tope, para que una noche larga no vaya costando cuadros
-func dejar_restos(donde: Vector3, tamano: float) -> void:
+# `hacia`: a donde iba el golpe que lo mato; los restos caen RESTOS_LANZA m para alla
+func dejar_restos(donde: Vector3, tamano: float, hacia := Vector3.ZERO) -> void:
 	# Sin tipo: uno ya borrado no se puede convertir a Node3D
 	_restos = _restos.filter(func(r) -> bool: return is_instance_valid(r))
 	while _restos.size() >= MAX_RESTOS:
@@ -482,6 +489,7 @@ func dejar_restos(donde: Vector3, tamano: float) -> void:
 	var restos := RestosZombi.new()
 	restos.tamano(tamano)
 	add_child(restos)
+	donde += hacia * RESTOS_LANZA
 	restos.global_position = Vector3(donde.x, donde.y + RESTOS_ALTO, donde.z)
 	_restos.append(restos)
 

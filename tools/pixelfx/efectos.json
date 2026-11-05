@@ -33,6 +33,8 @@
 
     { "nombre": "tinaco_chorro", "id": "water/water-jet",
       "opts": { "length": 64, "light": 0.3 } },
+    { "nombre": "fuente_cabeza", "id": "taquito/fuente-cuello",
+      "opts": { "palette": ["#0e1206", "#1c2410", "#33401a", "#4f5e28", "#74833c", "#a3ad62", "#d6dca0", "#ffffff"], "light": 0.3 } },
     { "nombre": "tablas_astillas", "id": "impacts/blunt-hit",
       "opts": { "palette": ["#160c06", "#2e1a0c", "#4a2c14", "#6a421e", "#8e5c2c", "#b47c40", "#d8a464"], "warm": "#d8a464", "dust": "#927a58", "clod": "#4a2c14", "light": 0.3 } },
     { "nombre": "jefe_pisada", "id": "impacts/heavy-landing",

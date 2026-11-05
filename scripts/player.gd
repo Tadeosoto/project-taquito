@@ -47,6 +47,9 @@ const WHACK_VOLUMEN := -6.0   # dB: a la mitad, como el swing
 # el golpe (el zombi si retrocede un poco, Zombie.EMPUJON)
 const RETROCESO := 0.0
 const RETROCESO_CAIDA := 14.0 # por segundo
+const RETROCESO_TIRO := 0.6   # m/s para atras por balazo (0 = nada)
+const RETROCESO_TIRO_FRENO := 8.0 # se va en 1/8 s
+const ARMAS_TECLAS := 5       # arma_1..arma_5
 const SACUDE := 0.05          # m de la camara
 const SACUDE_MATA := 2.0
 const SACUDE_DURA := 0.15
@@ -607,6 +610,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		_pistola.cambiar()
 		_soltar_combo()
 		_mostrar_arma()
+	elif event.is_action_pressed("recargar") and is_physics_processing():
+		if _pistola.activa:
+			_pistola.recargar()
+	elif _tecla_arma(event) >= 0 and is_physics_processing():
+		cambiar_arma(_tecla_arma(event))
 	elif event.is_action_pressed("curarse") and is_physics_processing():
 		_curarse()
 	elif event.is_action_pressed("attack") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -674,6 +682,32 @@ func pose_recarga() -> void:
 
 
 # De donde sale el tiro: la boca de la pistola, o la mano
+# 1-5 (arma_1..arma_5) sin Shift: en el safehouse Shift+1/2/3 son de las maquinitas
+func _tecla_arma(event: InputEvent) -> int:
+	for i in ARMAS_TECLAS:
+		if event.is_action_pressed("arma_%d" % (i + 1), false, true):
+			return i
+	return -1
+
+
+# 0 = el arma de golpe (machete o puño), 1 = la pistola; 2-4 aun no hay nada
+func cambiar_arma(indice: int) -> void:
+	if indice > 1 or (indice == 1) == _pistola.activa:
+		return
+	_pistola.cambiar()
+	_soltar_combo()
+	_mostrar_arma()
+
+
+# Cada tiro te recorre tantito para atras de a donde apuntas
+func empujar_tiro(hacia: Vector3) -> void:
+	hacia.y = 0.0
+	if RETROCESO_TIRO <= 0.0 or hacia.length_squared() < 0.0001:
+		return
+	_retroceso = -hacia.normalized() * RETROCESO_TIRO
+	_retroceso_freno = RETROCESO_TIRO * RETROCESO_TIRO_FRENO
+
+
 func canon() -> Vector3:
 	if _canon and is_instance_valid(_canon) and _canon.is_inside_tree():
 		return _canon.global_position

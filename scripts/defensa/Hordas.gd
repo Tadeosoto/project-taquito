@@ -50,12 +50,19 @@ const GRUPOS_MEDIO := [
 # grupos: la tabla; tope: a los ESPERA_MAX s sale otro solo si quedan menos de los que trae
 # (nunca mas de dos grupos juntos); corredores_cercano: los corredores entran por el hueco
 # mas cercano (llegan todos a la vez); dificultad: multiplica los grupos
+# emboscadas: grupitos aparte que salen de tu lado y van por ti (no en facil)
 const MODOS := {
-	"facil": {"grupos": GRUPOS_FACIL, "tope": true, "corredores_cercano": false, "dificultad": 1.0},
-	"medio": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.0},
-	"dificil": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.3},
+	"facil": {"grupos": GRUPOS_FACIL, "tope": true, "corredores_cercano": false, "dificultad": 1.0, "emboscadas": false},
+	"medio": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.0, "emboscadas": true},
+	"dificil": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.3, "emboscadas": true},
 }
 const ULTIMA := 29.5       # nada despues: lo que quede se cae al amanecer
+# Emboscadas: fuera de las oleadas, 2-3 cazadores que salen del lado donde andas (fuera de la
+# camara, como todos) y van por ti, no por el tinaco: castigan alejarse de el. No cuentan para
+# que salga el siguiente grupo y no avisan con gemido
+const EMBOSCADA_CADA := Vector2(35.0, 60.0)  # s entre una y otra, al azar
+const EMBOSCADA_GRUPO := Vector2i(2, 3)
+const EMBOSCADA_DESDE := 23.0                # la primera, no antes de esta hora
 const QUEDAN := 1          # con cuantos vivos sale el siguiente grupo
 const ESPERA_MIN := 5.0    # s entre grupo y grupo, aunque los acabes rapido
 const ESPERA_MAX := 20.0   # s: sale aunque no hayas acabado con el anterior, si quedan menos
@@ -84,6 +91,9 @@ var ciclo: Ciclo
 var dificultad := 1.0
 var _grupos: Array = GRUPOS_FACIL
 var _tope := true
+var emboscadas := true
+var emboscadas_salieron := 0   # cuantas emboscadas hubo y cuantos de ellas cayeron
+var emboscados_muertos := 0
 var muertos := 0            # para la pantalla final
 var mas_juntos := 0         # el maximo de vivos a la vez
 var hora_mas_juntos := HORA_EMPIEZA
@@ -93,6 +103,8 @@ var _respiro := 0.0
 var _desde_grupo := INF     # s desde que salio el ultimo grupo
 var _pendientes: Array[float] = []   # el angulo de cada uno que falta por salir
 var _corredores := 0.0
+var _emboscada_en := EMBOSCADA_CADA.x  # s para la siguiente emboscada
+var _emboscados: Array[Zombie] = []
 
 
 # 22.0 a 30.0: llega a las 6 justo al amanecer (Ciclo.amanecio, a media transicion)
@@ -114,6 +126,10 @@ func reiniciar() -> void:
 	_respiro = 0.0
 	_desde_grupo = INF
 	_pendientes.clear()
+	_emboscados.clear()
+	_emboscada_en = randf_range(EMBOSCADA_CADA.x, EMBOSCADA_CADA.y)
+	emboscadas_salieron = 0
+	emboscados_muertos = 0
 
 
 # Cuantos trae el grupo que sale a esta hora
@@ -140,6 +156,7 @@ func usar_modo(nombre: String) -> void:
 	_tope = modo["tope"]
 	dificultad = modo["dificultad"]
 	zombis.corredores_al_cercano = modo["corredores_cercano"]
+	emboscadas = modo["emboscadas"]
 
 
 func _physics_process(delta: float) -> void:
@@ -151,10 +168,13 @@ func _physics_process(delta: float) -> void:
 		mas_juntos = vivos
 		hora_mas_juntos = h
 	_respirar(delta)
+	_emboscadas(delta, vivos, h)
+	# Las oleadas no esperan a los emboscados
+	var de_oleada := vivos - _emboscados.size()
 	_desde_grupo += delta
 	if _pendientes.is_empty():
 		var cuantos := grupo(h)
-		var listo := vivos <= QUEDAN or (_desde_grupo >= ESPERA_MAX and (vivos < cuantos or not _tope))
+		var listo := de_oleada <= QUEDAN or (_desde_grupo >= ESPERA_MAX and (de_oleada < cuantos or not _tope))
 		if cuantos > 0 and _respiro <= 0.0 and _desde_grupo >= ESPERA_MIN and listo and vivos + cuantos <= zombis.max_total:
 			_soltar(cuantos, _curva(h).y)
 		return
@@ -171,6 +191,52 @@ func _physics_process(delta: float) -> void:
 	var zombi := zombis.sacar(lugar, randf() < _corredores)
 	if not zombi.murio.is_connected(_murio):
 		zombi.murio.connect(_murio)
+
+
+func _emboscadas(delta: float, vivos: int, h: float) -> void:
+	# Los que ya cayeron (o volvieron a la reserva) dejan de contar
+	for z in _emboscados.duplicate():
+		if not z.despierto or not z.emboscada or z.estado == Zombie.Estado.MUERTO:
+			if z.estado == Zombie.Estado.MUERTO:
+				emboscados_muertos += 1
+			_emboscados.erase(z)
+	if not emboscadas or h < EMBOSCADA_DESDE or h >= ULTIMA:
+		return
+	_emboscada_en -= delta
+	if _emboscada_en > 0.0:
+		return
+	var cuantos := randi_range(EMBOSCADA_GRUPO.x, EMBOSCADA_GRUPO.y)
+	if _respiro > 0.0 or vivos + cuantos > zombis.max_total:
+		return
+	_emboscada_en = randf_range(EMBOSCADA_CADA.x, EMBOSCADA_CADA.y)
+	_emboscar(cuantos)
+
+
+# `cuantos` cazadores del lado donde esta el jugador, que van por el
+func _emboscar(cuantos: int) -> void:
+	var jugador := zombis.get_tree().get_first_node_in_group("jugador") as Node3D
+	if jugador == null:
+		return
+	var a := jugador.global_position - centro
+	# Al reves de _lugar: punto = centro + (sin, -cos) * distancia
+	var lado := atan2(a.x, -a.z)
+	var salieron := 0
+	for i in cuantos:
+		var lugar := _lugar(lado + randf_range(-ABRE, ABRE))
+		if lugar == Vector3.INF:
+			lugar = _lugar(lado + PI)
+		if lugar == Vector3.INF:
+			continue
+		var zombi := zombis.sacar(lugar, true)
+		zombi.emboscada = true
+		zombi.alertar(false)
+		if not zombi.murio.is_connected(_murio):
+			zombi.murio.connect(_murio)
+		_emboscados.append(zombi)
+		salieron += 1
+	if salieron > 0:
+		emboscadas_salieron += 1
+		print("Emboscada %d: %d a las %s (emboscados muertos hasta ahora: %d)" % [emboscadas_salieron, salieron, texto_hora(hora()), emboscados_muertos])
 
 
 # Un grupo de `cuantos`, de un lado (o de dos lados opuestos si es grande)
@@ -223,10 +289,12 @@ func _gemir(lugar: Vector3) -> void:
 # En el suelo, a DISTANCIA del centro de ese lado; INF si no hubo lugar
 func _lugar(angulo: float) -> Vector3:
 	var espacio := zombis.get_world_3d().direct_space_state
+	var camara := zombis.get_viewport().get_camera_3d()
 	for i in INTENTOS:
 		var a := angulo + randf_range(-ABRE, ABRE)
 		var punto := centro + Vector3(sin(a), 0.0, -cos(a)) * randf_range(DISTANCIA.x, DISTANCIA.y)
-		if _encima_de_otro(punto):
+		# Que nunca salgan frente a la camara (si todo ese lado se ve, sale de otro)
+		if Zombis.a_la_vista(camara, punto) or _encima_de_otro(punto):
 			continue
 		var rayo := PhysicsRayQueryParameters3D.create(Vector3(punto.x, centro.y + 30.0, punto.z), Vector3(punto.x, centro.y - 2.0, punto.z), 1)
 		var pego := espacio.intersect_ray(rayo)

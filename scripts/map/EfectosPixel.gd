@@ -34,7 +34,7 @@ const CAPA_PANTALLA := 9       # sobre Supervivencia (8), bajo el inventario (11
 # Las que suman luz (los rayos) van abajo de Supervivencia: si no, se veian encima del negro al desmayarte
 const CAPA_LUZ := 7
 # Los de la segunda ronda: se apagan con extras = false
-const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar"]
+const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar", "fuente"]
 
 # Cada lugar, sus variantes (la primera es la que queda por omision, salvo PREDETERMINADA). `hoja` vacia = nada.
 # `puno`: la hoja a mano limpia; `mata`: la del golpe que mata; `voltea`: la hoja ve a la
@@ -86,6 +86,11 @@ const LUGARES := {
 	],
 	"curar": [
 		{ "nombre": "A flor", "hoja": "curar", "escala": 0.6 },
+		{ "nombre": "B nada", "hoja": "" },
+	],
+	# Zombie._sin_cabeza: el chorro del cuello tras un tiro a la cabeza que mata
+	"fuente": [
+		{ "nombre": "A chorro", "hoja": "fuente_cabeza", "escala": 0.6 },
 		{ "nombre": "B nada", "hoja": "" },
 	],
 }

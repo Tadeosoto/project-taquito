@@ -75,6 +75,9 @@ Si se puede, juega una cuarta sin defender, para ver cuánto aguanta el tinaco s
 | Daño de la pistola | 8 (4 tiros; antes 15, luego 4) | `scripts/Pistola.gd` `DANO` | JJ: la pistola debilita al grupo mientras se acerca; el machete (3 golpes) remata |
 | Cadencia, cargador y recarga | 0.22 s, 12, 1.5 s, balas infinitas | `Pistola.gd` `CADENCIA`, `CARGADOR`, `RECARGA` | ¿Las balas deben acabarse (spec §1.4)? |
 | Ayuda al apuntar | 2.5° (antes 4°) | `Pistola.gd` `AYUDA` | ¿Demasiado fácil o difícil con el mouse? |
+| Tiro a la cabeza | ×3 (24: un zombi de 30 cae con 2 tiros) desde 1.4 m de alto | `Pistola.gd` `CABEZA_MULT`, `CABEZA_DESDE` | ¿Se le atina o es pura suerte con la dispersión? |
+| Dispersión de la pistola | 0.012 rad (0.004 apuntando) | `Pistola.gd` `DISPERSION`, `APUNTA_DISPERSION` | ¿Se siente que falla sin razón? |
+| Empujón atrás al disparar | 0.6 m/s | `player.gd` `RETROCESO_TIRO` (0 lo quita) | ¿Estorba al disparar en grupo? |
 | Empujón del golpe | 0 (se probó 2.5 m/s, ~0.5 m) | `Zombie.gd` `EMPUJON`, `EMPUJON_FRENA` | Pedido de Alan; JJ lo quitó porque el combo fallaba el segundo golpe |
 | Zombis por machetazo | 1, el más cercano (2 en la 10ª prueba) | `player.gd` `ATAQUE_MAXIMO` | Amontonados, un combo mataba hasta 5 (9ª prueba) |
 | Aturdir al pegar | Apagado (`ATURDIR` false). Encendido: 20 % por golpe cuerpo a cuerpo, además del golpe a tiempo | `Zombie.gd` `ATURDIR`, `ATURDE_PROB` | Lo pidió Alan, pero en la 8ª prueba los zombis casi no pegaban y JJ lo quitó. Nunca al jefe ni con la pistola |
@@ -86,6 +89,7 @@ Si se puede, juega una cuarta sin defender, para ver cuánto aguanta el tinaco s
 | Vida del tinaco | 300; cada zombi le quita 2/s | `scripts/defensa/TinacoDefensa.gd` `VIDA` | El doc dice 100, pero con 100 una horda lo rompía en segundos |
 | Grupos de la horda | 3 a las 22:00, 4 a las 23:00, 7 a medianoche (dos lados), 5-7 en la madrugada (corredores a las 3:00), 6 a las 4:00 y 7 a las 5:00 (con 9 se atascaba); nada después de las 5:30 | `scripts/defensa/Hordas.gd` `GRUPOS` | ¿Da tiempo de disparar mientras se acercan? |
 | Cuándo sale el siguiente grupo | Cuando del anterior queda 1; mínimo 5 s; a los 20 s sale aunque no hayas acabado, solo si quedan menos de los que trae (nunca más de dos grupos juntos) | `Hordas.gd` `QUEDAN`, `ESPERA_MIN`, `ESPERA_MAX` | ¿Llega justo cuando terminas? |
+| Emboscadas (defensa, no en fácil) | 2-3 cazadores cada 35-60 s desde las 23:00, del lado donde andas; van por ti y no cuentan para la siguiente oleada | `Hordas.gd` `EMBOSCADA_CADA`, `EMBOSCADA_GRUPO`, `EMBOSCADA_DESDE`; `MODOS` `emboscadas` | ¿Te castigan por alejarte del tinaco o solo estorban? |
 | Respiro | Si la intensidad llega a 0.8, el siguiente grupo espera 6 s más | `Hordas.gd` `TOPE`, `RESPIRO` | ¿Alcanza para curarse? |
 | Hueco que escoge cada zombi | 40 % el más cercano, si no otro al azar; los corredores igual (antes siempre el más cercano y llegaban todos a la vez) | `Zombie.gd` `HUECO_CERCANO` | ¿Llegan por todos lados? |
 | Máximo de zombis a la vez | 30 en el mapa; 40 en la defensa | `scripts/map/Zombis.gd` `max_total` (en la escena) | ¿Rinde? Mide los FPS en el pico de las 5:00 |

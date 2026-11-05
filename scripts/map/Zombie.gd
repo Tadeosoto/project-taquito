@@ -97,6 +97,18 @@ const REVIENTA := 60
 const REVIENTA_VELOCIDAD := Vector2(3.0, 9.0)
 const RESTOS := 8
 const JEFE_REVIENTA := 2.0  # cuanto mas grande es todo con el jefe
+const REVIENTA_AL_FRENTE := 0.66 # parte del reventon que sale hacia donde iba el golpe
+const REVIENTA_ABRE := 0.6
+const CONGELA_PISTOLA_MS := 60   # un balazo que mata deja al zombi quieto, en blanco, antes de hincharse
+# Tiro a la cabeza que mata (Pistola.CABEZA_*): sin cabeza, chorro de agua del cuello y luego truena
+const FUENTE_MS := 1000       # lo que dura la hoja fuente_cabeza (EfectosPixel)
+const FUENTE_CADA := 40     # ms entre chorritos
+const FUENTE_GOTAS := 4
+const FUENTE_VELOCIDAD := Vector2(3.5, 6.0)
+const FUENTE_ABRE := 0.15
+const FUENTE_RADIO := 0.03
+const CUELLO := 1.5         # m (por tamano) si el esqueleto no trae Neck
+const SIN_CABEZA := Vector3(0.001, 0.001, 0.001) # escala del hueso Head (0 da matrices rotas)
 # Efectos de pixel (EfectosPixel): polvo bajo las pisadas del jefe y la marca de los cazadores
 const JEFE_PASO := 2.4      # m entre pisada y pisada
 const JEFE_PISADA := 0.5    # tamano del polvo
@@ -194,6 +206,7 @@ static var enjambre := true
 # Dano que les ha hecho el jugador, para medir el balance (scripts/defensa/MonitorDefensa.gd)
 static var dano_cuerpo := 0
 static var dano_pistola := 0
+static var dano_cabeza := 0   # de dano_pistola, lo que fue a la cabeza
 
 var estado := Estado.CAMINA
 var jugador: Player
@@ -202,6 +215,7 @@ var es_jefe := false
 var tipo := Tipo.NORMAL
 var skin := -1              # indice en SKINS; -1 = al azar (antes de entrar al arbol)
 var cazador := false
+var emboscada := false      # de las emboscadas de la defensa (Hordas.gd): va por el jugador, no por el tinaco
 var despierto := false
 var alerta := true          # ya te detecto: corre hacia su blanco. Sin ella, deambula
 
@@ -217,6 +231,11 @@ var _deambula_espera := 0.0
 var _mallas: Array[MeshInstance3D] = []
 var _flash_hasta := 0       # ms de reloj real
 var _reventar_en := 0       # ms de reloj real; 0 = no va a tronar
+var _hinchar_en := 0        # ms de reloj real en que se hincha antes de tronar
+var _fuente_hasta := 0      # ms de reloj real del chorro del cuello
+var _fuente_sig := 0
+var _sin_cabeza := false
+var _al_morir := Vector3.ZERO # hacia donde iba el golpe que lo mato (plano)
 var _ceniza := false        # cayo al amanecer: se hace ceniza al desaparecer
 var _rabia: MeshInstance3D  # la marca de cazador
 var _barra: MeshInstance3D
@@ -389,9 +408,18 @@ func _poner_barra() -> void:
 # Lo que dura poco y va en reloj real: se apaga solo cuando ya no queda nada de eso
 func _process(_delta: float) -> void:
 	var ahora := Time.get_ticks_msec()
+	if _fuente_hasta > 0:
+		if ahora >= _fuente_hasta:
+			_fuente_hasta = 0
+		elif ahora >= _fuente_sig:
+			_fuente_sig = ahora + FUENTE_CADA
+			_chorro()
+	if _hinchar_en > 0 and ahora >= _hinchar_en:
+		_hinchar()
 	if _reventar_en > 0 and ahora >= _reventar_en:
 		_reventar()
-	if _flash_hasta > 0 and ahora >= _flash_hasta and _reventar_en == 0:
+	# Sin cabeza no se queda en blanco mientras echa el chorro; se pinta al hincharse
+	if _flash_hasta > 0 and ahora >= _flash_hasta and (_reventar_en == 0 or (_sin_cabeza and _hinchar_en > 0)):
 		_flash_hasta = 0
 		_pintar_blanco(false)
 	if _charco_desde >= 0.0:
@@ -401,7 +429,7 @@ func _process(_delta: float) -> void:
 			_charco.visible = false
 		else:
 			_charco.scale = Vector3.ONE * (1.0 - t * t) * (JEFE_REVIENTA if es_jefe else 1.0)
-	if _flash_hasta == 0 and _reventar_en == 0 and _charco_desde < 0.0:
+	if _flash_hasta == 0 and _reventar_en == 0 and _charco_desde < 0.0 and _fuente_hasta == 0:
 		set_process(false)
 
 
@@ -424,6 +452,12 @@ func _en_corte() -> bool:
 func _restaurar() -> void:
 	_flash_hasta = 0
 	_reventar_en = 0
+	_hinchar_en = 0
+	_fuente_hasta = 0
+	_al_morir = Vector3.ZERO
+	if _sin_cabeza:
+		_sin_cabeza = false
+		_escalar_hueso("Head", Vector3.ONE)
 	_ceniza = false
 	_charco_desde = -1.0
 	if _charco:
@@ -449,6 +483,7 @@ func calentar() -> void:
 func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	despierto = true
 	cazador = con_prisa
+	emboscada = false
 	if _rabia:
 		_rabia.visible = con_prisa
 	_paso = 0.0
@@ -813,7 +848,7 @@ func _destino() -> Vector3:
 	# Defensa del tinaco: van por el tinaco, y por el jugador solo si lo tienen cerca y mas
 	# que al tinaco (pararse junto al tinaco no lo protege). Ya roto, por el jugador
 	var al_jugador := global_position.distance_to(jugador.global_position)
-	if is_instance_valid(_tinaco) and _tinaco.vida > 0 and (al_jugador > _persigue() or al_jugador > global_position.distance_to(_tinaco.global_position) - _tinaco.radio):
+	if is_instance_valid(_tinaco) and _tinaco.vida > 0 and not emboscada and (al_jugador > _persigue() or al_jugador > global_position.distance_to(_tinaco.global_position) - _tinaco.radio):
 		# Primero a su hueco, de paso; ya pasandolo, al tinaco
 		if _hueco >= 0 and _hueco < zombis.huecos.size():
 			var hueco: Vector3 = zombis.huecos[_hueco]
@@ -920,7 +955,7 @@ func _seguir_caminando() -> void:
 # `truena_en`: ms que dura la congelada si este golpe lo mata, para tronar justo al soltar.
 # `cuerpo_a_cuerpo`: false con la pistola, que ni empuja ni aturde.
 # Regresa GOLPE_NADA, GOLPE_PEGO o GOLPE_MATO.
-func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cuerpo_a_cuerpo := true) -> int:
+func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cuerpo_a_cuerpo := true, cabeza := false) -> int:
 	if estado == Estado.MUERTO:
 		return GOLPE_NADA
 	alertar()
@@ -928,6 +963,8 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 		dano_cuerpo += mini(dano, _vida)
 	else:
 		dano_pistola += mini(dano, _vida)
+	if cabeza:
+		dano_cabeza += mini(dano, _vida)
 	_vida -= dano
 	_poner_barra()
 	var atras := global_position - desde
@@ -938,10 +975,14 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 	set_process(true)
 	_salpicar(atras, fuerza)
 	if zombis:
-		zombis.efectos.lanzar("impacto", global_position, atras, _tamano, "mata" if _vida <= 0 else "")
+		zombis.efectos.lanzar("impacto", global_position, atras, _tamano, "mata" if _vida <= 0 or cabeza else "")
 	if _vida <= 0:
 		velocity = Vector3.ZERO
-		_morir(true, truena_en)
+		_al_morir = atras
+		_sin_cabeza = cabeza and not es_jefe
+		# Solo el zombi se congela con un balazo; el machete ya congela todo (Player._congelar)
+		var espera := FUENTE_MS if _sin_cabeza else (0 if cuerpo_a_cuerpo or es_jefe else CONGELA_PISTOLA_MS)
+		_morir(true, truena_en, espera)
 		return GOLPE_MATO
 	# Al jefe no se le interrumpe con cada machetazo: solo lo recorre un poco
 	if es_jefe:
@@ -959,7 +1000,8 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 
 # `truena_en`: lo mato el jugador, trae unos pesos y revienta como globo de agua sucia. Sin
 # el, se cae (al amanecer)
-func _morir(pagado: bool, truena_en := 0) -> void:
+# `espera`: ms quieto antes de hincharse (balazo, o el chorro si le volaron la cabeza)
+func _morir(pagado: bool, truena_en := 0, espera := 0) -> void:
 	estado = Estado.MUERTO
 	_poner_barra()
 	if _rabia:
@@ -970,9 +1012,18 @@ func _morir(pagado: bool, truena_en := 0) -> void:
 	velocity = Vector3.ZERO
 	if truena_en > 0:
 		# Se hincha en blanco mientras el juego esta congelado, y al soltar truena
-		_reventar_en = Time.get_ticks_msec() + truena_en
-		_modelo.scale = Vector3(HINCHADO, HINCHADO * 0.92, HINCHADO) * _escala
+		var ahora := Time.get_ticks_msec()
+		_hinchar_en = ahora + espera
+		_reventar_en = _hinchar_en + truena_en
 		_animacion.pause()
+		if _sin_cabeza:
+			_escalar_hueso("Head", SIN_CABEZA)
+			_fuente_hasta = _hinchar_en
+			_fuente_sig = ahora
+			if zombis:
+				zombis.efectos.lanzar("fuente", _cuello(), Vector3.UP, _tamano)
+		if espera <= 0:
+			_hinchar()
 		set_process(true)
 	else:
 		_animar("die", 1.0, true)
@@ -1008,16 +1059,60 @@ func _reventar() -> void:
 	var grande := JEFE_REVIENTA if es_jefe else 1.0
 	if zombis:
 		var centro := global_position + Vector3.UP * PECHO * _tamano
-		zombis.liquido.reventar(centro, CUERPO_RADIO * 1.4 * _tamano, global_position.y, roundi(REVIENTA * grande), COLOR_AGUA, REVIENTA_VELOCIDAD)
-		zombis.liquido.reventar(centro, CUERPO_RADIO * 1.4 * _tamano, global_position.y, roundi(RESTOS * grande), COLOR_RESTOS, REVIENTA_VELOCIDAD * 0.7)
+		var radio := CUERPO_RADIO * 1.4 * _tamano
+		var frente := 0.0 if _al_morir == Vector3.ZERO else REVIENTA_AL_FRENTE
+		var al_frente := roundi(REVIENTA * grande * frente)
+		var hacia := (_al_morir + Vector3.UP * 0.5).normalized()
+		if al_frente > 0:
+			zombis.liquido.salpicar(centro, radio, global_position.y, hacia, al_frente, COLOR_AGUA, REVIENTA_VELOCIDAD, REVIENTA_ABRE)
+			zombis.liquido.salpicar(centro, radio, global_position.y, hacia, roundi(RESTOS * grande * frente), COLOR_RESTOS, REVIENTA_VELOCIDAD * 0.7, REVIENTA_ABRE)
+		zombis.liquido.reventar(centro, radio, global_position.y, roundi(REVIENTA * grande) - al_frente, COLOR_AGUA, REVIENTA_VELOCIDAD)
+		zombis.liquido.reventar(centro, radio, global_position.y, roundi(RESTOS * grande * (1.0 - frente)), COLOR_RESTOS, REVIENTA_VELOCIDAD * 0.7)
 	_preparar_charco()
 	_charco.visible = true
 	_charco.scale = Vector3.ONE * grande
 	_charco_desde = Time.get_ticks_msec()
 	_sonar("reventar")
 	if zombis:
-		zombis.dejar_restos(global_position, _tamano)
+		zombis.dejar_restos(global_position, _tamano, _al_morir)
 		zombis.efectos.lanzar("muerte", global_position, Vector3.ZERO, grande * _tamano)
+
+
+func _hinchar() -> void:
+	_hinchar_en = 0
+	_modelo.scale = Vector3(HINCHADO, HINCHADO * 0.92, HINCHADO) * _escala
+	_pintar_blanco(true)
+	_flash_hasta = Time.get_ticks_msec()
+
+
+# Un chorrito de agua sucia del cuello, para arriba
+func _chorro() -> void:
+	if zombis:
+		zombis.liquido.salpicar(_cuello(), FUENTE_RADIO * _tamano, global_position.y, Vector3.UP,
+			FUENTE_GOTAS, COLOR_AGUA, FUENTE_VELOCIDAD, FUENTE_ABRE)
+
+
+func _esqueleto() -> Skeleton3D:
+	# Retargeteado se llama GeneralSkeleton: buscarlo por clase
+	if _modelo == null:
+		return null
+	var hallados := _modelo.find_children("*", "Skeleton3D", true, false)
+	return hallados[0] as Skeleton3D if not hallados.is_empty() else null
+
+
+func _escalar_hueso(hueso: String, escala: Vector3) -> void:
+	var esqueleto := _esqueleto()
+	var i := esqueleto.find_bone(hueso) if esqueleto else -1
+	if i >= 0:
+		esqueleto.set_bone_pose_scale(i, escala)
+
+
+func _cuello() -> Vector3:
+	var esqueleto := _esqueleto()
+	var i := esqueleto.find_bone("Neck") if esqueleto else -1
+	if i >= 0:
+		return esqueleto.global_transform * esqueleto.get_bone_global_pose(i).origin
+	return global_position + Vector3.UP * CUELLO * _tamano
 
 
 func _preparar_charco() -> void:
