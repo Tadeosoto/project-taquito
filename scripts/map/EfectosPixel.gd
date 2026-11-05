@@ -297,9 +297,10 @@ static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_dire
 
 
 # Una hoja estirada a lo largo de una linea (shaders/sprite_eje.gdshader), compartida: el trazo de
-# la bala. `largo_px`: los px de la hoja que miden el `largo` de cada instancia
-static func material_eje(nombre: String, largo_px: float) -> ShaderMaterial:
-	var clave := "eje|%s|%s" % [nombre, largo_px]
+# la bala. `largo_px`: los px de la hoja que miden el `largo` de cada instancia; `brillo`
+# multiplica el color
+static func material_eje(nombre: String, largo_px: float, brillo := 1.0) -> ShaderMaterial:
+	var clave := "eje|%s|%s|%s" % [nombre, largo_px, brillo]
 	if _materiales.has(clave):
 		return _materiales[clave]
 	var hoja := hoja_de(nombre)
@@ -317,6 +318,7 @@ static func material_eje(nombre: String, largo_px: float) -> ShaderMaterial:
 	material.set_shader_parameter("pivote", hoja["pivote"])
 	material.set_shader_parameter("pixel", PIXEL * 0.5)
 	material.set_shader_parameter("largo_px", largo_px)
+	material.set_shader_parameter("brillo", brillo)
 	_materiales[clave] = material
 	return material
 

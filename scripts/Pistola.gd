@@ -33,6 +33,11 @@ const BALA_VELOCIDAD := 150.0 # m/s
 const BALA_LARGO := 1.2       # m de la estela
 const BALA_LARGO_PX := 120.0  # px de la estela en la hoja
 const BALA_IMPACTO_ALTO := 0.56 # m: la hoja bala_impacto pega 24 px arriba de su piso (a escala 0.5)
+const BALA_BRILLO := 1.8      # el trazo mas encendido que la hoja
+# Cada bala alumbra tantito el suelo bajo ella mientras vuela
+const BALA_LUZ_ENERGIA := 0.6
+const BALA_LUZ_RANGO := 2.5   # m
+const BALA_LUZ_ABAJO := 0.3   # m bajo la punta
 const DESTELLO_ENERGIA := 4.0
 const DESTELLO_RANGO := 6.0
 const CAPA_ZOMBIS := 2
@@ -71,6 +76,7 @@ var _destello: OmniLight3D
 var _destello_hasta := 0
 var _fogonazo: CPUParticles3D
 var _balas: Array[MeshInstance3D] = []
+var _bala_luces: Array[OmniLight3D] = []
 var _bala_desde: Array[Vector3] = []
 var _bala_hasta: Array[Vector3] = []
 var _bala_va: Array[float] = []     # m andados; < 0 = guardada
@@ -283,7 +289,7 @@ func _armar_fogonazo() -> void:
 
 # Unos cuadros reusados que dibujan la bala (pixelfx bala_trazo) a lo largo de su linea
 func _armar_balas() -> void:
-	var material := EfectosPixel.material_eje("bala_trazo", BALA_LARGO_PX)
+	var material := EfectosPixel.material_eje("bala_trazo", BALA_LARGO_PX, BALA_BRILLO)
 	if material == null:
 		return
 	for i in BALAS_TRAZO:
@@ -298,6 +304,15 @@ func _armar_balas() -> void:
 		bala.set_instance_shader_parameter("fase", randf())
 		add_child(bala)
 		_balas.append(bala)
+		var luz := OmniLight3D.new()
+		luz.light_color = TRAZO_COLOR
+		luz.light_energy = BALA_LUZ_ENERGIA
+		luz.omni_range = BALA_LUZ_RANGO
+		luz.shadow_enabled = false
+		luz.top_level = true
+		luz.visible = false
+		add_child(luz)
+		_bala_luces.append(luz)
 		_bala_desde.append(Vector3.ZERO)
 		_bala_hasta.append(Vector3.ZERO)
 		_bala_va.append(-1.0)
@@ -315,9 +330,12 @@ func _volar_balas(delta: float) -> void:
 		if cola >= total:
 			_bala_va[i] = -1.0
 			_balas[i].visible = false
+			_bala_luces[i].visible = false
 			continue
 		var dir := (_bala_hasta[i] - _bala_desde[i]) / total
 		_balas[i].global_position = _bala_desde[i] + dir * punta
+		_bala_luces[i].global_position = _balas[i].global_position - Vector3.UP * BALA_LUZ_ABAJO
+		_bala_luces[i].visible = true
 		_balas[i].set_instance_shader_parameter("largo", maxf(punta - cola, 0.01))
 
 

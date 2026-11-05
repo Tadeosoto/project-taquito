@@ -17,6 +17,7 @@ uniform vec2 pivote = vec2(32.0);   // px desde la esquina de arriba a la izquie
 uniform float pixel = 0.047;        // m por pixel de alto
 uniform float largo_px = 120.0;     // px del trazo en la hoja: esos se estiran a `largo` m
 uniform float alfa : hint_range(0.0, 1.0) = 1.0;
+uniform float brillo = 1.0;          // multiplica el color: el trazo de la bala va mas encendido
 
 instance uniform float fase = 0.0;
 instance uniform vec3 eje = vec3(1.0, 0.0, 0.0);   // hacia donde va la punta, en el mundo
@@ -50,6 +51,6 @@ void fragment() {
 		discard;
 	}
 	vec4 c = texture(hoja, UV);
-	ALBEDO = c.rgb;
+	ALBEDO = c.rgb * brillo;
 	ALPHA = c.a * alfa;
 }
