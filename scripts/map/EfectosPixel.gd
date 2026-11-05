@@ -355,6 +355,42 @@ static func poner_extras(prendidos: bool) -> void:
 			material.set_shader_parameter("alfa", material.get_meta("alfa") if prendidos else 0.0)
 
 
+# Una hoja de pixelfx dentro de un Control (pantallas 2D: final de la defensa, dialogos), animada con un tween (corre en pausa si su
+# padre corre). Las que no se repiten se borran al terminar. `recorte`: px de abajo
+static func hoja_ui(padre: Control, nombre: String, lugar: Rect2, aditivo := false, alfa := 1.0, recorte := 0.0) -> TextureRect:
+	var hoja := hoja_de(nombre)
+	if hoja.is_empty():
+		return null
+	var tamano: Vector2 = hoja["tamano"] - Vector2(0.0, recorte)
+	var region := AtlasTexture.new()
+	region.atlas = hoja["textura"]
+	region.region = Rect2(Vector2.ZERO, tamano)
+	var cuadro := TextureRect.new()
+	cuadro.texture = region
+	cuadro.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	cuadro.stretch_mode = TextureRect.STRETCH_SCALE
+	cuadro.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	cuadro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cuadro.position = lugar.position
+	cuadro.size = lugar.size
+	cuadro.modulate.a = alfa
+	if aditivo:
+		var mezcla := CanvasItemMaterial.new()
+		mezcla.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		cuadro.material = mezcla
+	padre.add_child(cuadro)
+	var dura: float = hoja["cuadros"] / hoja["fps"]
+	var tween := cuadro.create_tween()
+	if hoja["loop"]:
+		tween.set_loops()
+	tween.tween_method(func(t: float) -> void:
+		var i := mini(int(t * hoja["fps"]), hoja["cuadros"] - 1)
+		region.region = Rect2(Vector2(i % hoja["columnas"], i / hoja["columnas"]) * hoja["tamano"], tamano), 0.0, dura, dura)
+	if not hoja["loop"]:
+		tween.tween_callback(cuadro.queue_free)
+	return cuadro
+
+
 static func hoja_de(nombre: String) -> Dictionary:
 	if _hojas.has(nombre):
 		return _hojas[nombre]

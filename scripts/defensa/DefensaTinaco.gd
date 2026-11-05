@@ -323,7 +323,7 @@ func _pantalla_final(gano: bool, desmayo: bool) -> void:
 	capa.add_child(fondo)
 	var pantalla := fondo.get_viewport_rect().size
 	if gano:
-		_hoja(fondo, "amanecer_rayos", Rect2(Vector2.ZERO, pantalla), true, 0.6, 22.0)
+		EfectosPixel.hoja_ui(fondo, "amanecer_rayos", Rect2(Vector2.ZERO, pantalla), true, 0.6, 22.0)
 	var caja := VBoxContainer.new()
 	caja.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	caja.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -396,8 +396,8 @@ func _pantalla_final(gano: bool, desmayo: bool) -> void:
 		tween.tween_property(titulo, "rotation", -0.04, 0.06)
 		tween.tween_property(titulo, "rotation", 0.0, 0.06)
 	else:
-		_hoja(fondo, "tinaco_chorro", Rect2(Vector2(pantalla.x * 0.5 + 60.0, pantalla.y * 0.18), Vector2(188.0, 80.0)), false, 0.9)
-		var izquierda := _hoja(fondo, "tinaco_chorro", Rect2(Vector2(pantalla.x * 0.5 - 248.0, pantalla.y * 0.18), Vector2(188.0, 80.0)), false, 0.9)
+		EfectosPixel.hoja_ui(fondo, "tinaco_chorro", Rect2(Vector2(pantalla.x * 0.5 + 60.0, pantalla.y * 0.18), Vector2(188.0, 80.0)), false, 0.9)
+		var izquierda := EfectosPixel.hoja_ui(fondo, "tinaco_chorro", Rect2(Vector2(pantalla.x * 0.5 - 248.0, pantalla.y * 0.18), Vector2(188.0, 80.0)), false, 0.9)
 		if izquierda:
 			izquierda.flip_h = true
 		titulo.modulate = Color.WHITE
@@ -426,7 +426,7 @@ func _pantalla_final(gano: bool, desmayo: bool) -> void:
 				Sonidos.tocar(capa, "moneda", -8.0), 0.0, float(PAGA), CUENTA_DURA)
 		tween.tween_callback(func() -> void:
 			var donde := paga.get_global_rect()
-			_hoja(fondo, "premio_monedas", Rect2(donde.get_center() - Vector2(80.0, 70.0), Vector2(160.0, 88.0)))
+			EfectosPixel.hoja_ui(fondo, "premio_monedas", Rect2(donde.get_center() - Vector2(80.0, 70.0), Vector2(160.0, 88.0)))
 			Sonidos.tocar(capa, "campana", -6.0))
 		tween.tween_property(paga, "scale", Vector2.ONE * 1.25, 0.08)
 		tween.tween_property(paga, "scale", Vector2.ONE, 0.12)
@@ -438,41 +438,6 @@ func _pantalla_final(gano: bool, desmayo: bool) -> void:
 		paga.resized.connect(func() -> void: paga.pivot_offset = paga.size / 2.0)
 		paga.pivot_offset = paga.size / 2.0
 
-
-# Una hoja de pixelfx dentro de un Control, animada con un tween (corre en pausa si su
-# padre corre). Las que no se repiten se borran al terminar. `recorte`: px de abajo
-func _hoja(padre: Control, nombre: String, lugar: Rect2, aditivo := false, alfa := 1.0, recorte := 0.0) -> TextureRect:
-	var hoja := EfectosPixel.hoja_de(nombre)
-	if hoja.is_empty():
-		return null
-	var tamano: Vector2 = hoja["tamano"] - Vector2(0.0, recorte)
-	var region := AtlasTexture.new()
-	region.atlas = hoja["textura"]
-	region.region = Rect2(Vector2.ZERO, tamano)
-	var cuadro := TextureRect.new()
-	cuadro.texture = region
-	cuadro.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	cuadro.stretch_mode = TextureRect.STRETCH_SCALE
-	cuadro.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	cuadro.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cuadro.position = lugar.position
-	cuadro.size = lugar.size
-	cuadro.modulate.a = alfa
-	if aditivo:
-		var mezcla := CanvasItemMaterial.new()
-		mezcla.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-		cuadro.material = mezcla
-	padre.add_child(cuadro)
-	var dura: float = hoja["cuadros"] / hoja["fps"]
-	var tween := cuadro.create_tween()
-	if hoja["loop"]:
-		tween.set_loops()
-	tween.tween_method(func(t: float) -> void:
-		var i := mini(int(t * hoja["fps"]), hoja["cuadros"] - 1)
-		region.region = Rect2(Vector2(i % hoja["columnas"], i / hoja["columnas"]) * hoja["tamano"], tamano), 0.0, dura, dura)
-	if not hoja["loop"]:
-		tween.tween_callback(cuadro.queue_free)
-	return cuadro
 
 
 func _espacio(alto: float) -> Control:

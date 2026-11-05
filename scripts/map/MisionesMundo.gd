@@ -21,7 +21,7 @@ const PERRO_BUSCAR := 30.0    # m de radio del area marcada en los mapas
 const PERRO_LADRA := Vector2(2.0, 4.0)
 const PERRO_OIDO := 65.0
 const SIGNO_ALTO := 2.75
-const TEXTO_ACEPTAR := "\nEspacio: aceptar"
+const TEXTO_ACEPTAR := " [clave]Háblale otra vez para aceptar.[/clave]"
 const TEXTO_OCUPADO := "Primero acaba lo que traes."
 const TEXTO_TARDE := "Ya va a oscurecer. Mejor mañana."
 

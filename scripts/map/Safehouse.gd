@@ -59,6 +59,7 @@ const EFECTOS_EN := Vector3(40.0, 0.0, 16.0)
 # Tazos y habilidades (Tazos.gd)
 const BOLSA_TAZO := "res://resources/productos/takis_tazo.tres"
 const PUNTOS_PRUEBA := 5
+const CAJA_DIALOGO := preload("res://scenes/dialogue_box.tscn")
 const POSTE_ALTO := 5.0
 const DINERO := 500
 const DANO_PRUEBA := 20
@@ -77,7 +78,7 @@ M mapa (sin piezas se ve vacío) · U todas las piezas
 1 2 machete / pistola · R recargar · Shift+1 2 3 maquinita cercana: normal, sin monedas, segura
 C crear personaje · K deterioro · F12 reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
-9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
+8 caja de diálogo de prueba · 9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
 0 zombis: enjambre (carriles, atajos, rebasan) / en fila como antes
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
 Efectos de pixel, propuestas (F2-F7 cambian):"""
@@ -94,6 +95,7 @@ var _inventario: Node
 var _maquinas: Array[Maquinita] = []
 var _objetos: Node3D
 var _panel: CanvasLayer
+var _dialogo: DialogueBox
 var _estado: Label
 var _efectos: Label
 var _deterioro := 2
@@ -155,6 +157,7 @@ func _ready() -> void:
 	_poner_objetos()
 	var npc := NPC.instantiate()
 	npc.set("dialogue", "Aquí se prueba de todo, joven.")
+	npc.set("nombre", "Doña Chuy")
 	npc.set("modelo", Civiles.al_azar())
 	npc.position = Vector3(10.0, 0.0, -14.0)
 	add_child(npc)
@@ -389,6 +392,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F9:
 			EfectosPixel.poner_extras(not EfectosPixel.extras)
 			_mostrar_efectos()
+		KEY_8:
+			if _dialogo == null:
+				_dialogo = CAJA_DIALOGO.instantiate()
+				add_child(_dialogo)
+			_dialogo.decir(DialogueBox.PRUEBA, "Doña Chuy", null, 1.15)
 		KEY_9:
 			Player.pelea_a_tiempo = not Player.pelea_a_tiempo
 			_mostrar_efectos()

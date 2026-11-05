@@ -1,0 +1,16 @@
+{
+ "id": "spawn/poof",
+ "fps": 30,
+ "loop": false,
+ "frames": 49,
+ "frameSize": [
+  112,
+  92
+ ],
+ "pivot": [
+  56,
+  80
+ ],
+ "columns": 7,
+ "golpe_en": 0
+}

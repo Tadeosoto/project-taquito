@@ -112,6 +112,9 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _cortina()
 			"cortina_tope":
 				_sonidos[nombre] = _cortina_tope()
+			# Cada letra de la caja de dialogo (dialogue_box.gd)
+			"blip":
+				_sonidos[nombre] = _tono(660.0, 0.03, -120.0, 0.25)
 	return _sonidos[nombre]
 
 

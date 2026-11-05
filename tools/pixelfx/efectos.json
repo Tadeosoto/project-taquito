@@ -64,6 +64,8 @@
     { "nombre": "curar", "id": "nature/healing-bloom",
       "opts": { "light": 0.4 } },
     { "nombre": "rabia", "id": "taquito/marca-rabia",
-      "opts": { "light": 0.4 } }
+      "opts": { "light": 0.4 } },
+    { "nombre": "dialogo_abre", "id": "spawn/poof",
+      "opts": { "palette": ["#0c0c0c", "#2e2e2e", "#5a5a5a", "#9a9a9a", "#d0d0d0", "#ffffff"], "stars": ["#ffd91a", "#fff3a0", "#ffffff"], "light": 0.3, "seed": 11 } }
   ]
 }
