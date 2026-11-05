@@ -101,11 +101,13 @@ const GOLPE_VELOCIDAD := 0.6  # de la velocidad al caminar
 # anterior: nunca se aturde y te quedas quieto todo el barrido. La cambia la tecla 9 del safehouse
 static var pelea_a_tiempo := true
 # PRUEBA (JJ): ataque cargado. Con el machete, deja apretado atacar: el primer golpe sale como
-# siempre y a los CARGA_DURA s el arma brilla azul; al soltar, un espadazo giratorio
-# (Sword_Regular_C, la cadera da la vuelta entre 0 y 0.7 s) que le pega a los que esten
-# alrededor, con la estela de agua. Pegar en el aire lo saca de una vez, sin cargar.
+# siempre y a los CARGA_DURA s el arma brilla azul; al soltar, la estocada con avance (abajo).
 # Solo lo prende el safehouse (tecla 7)
 static var golpe_cargado := false
+# PRUEBA (JJ): golpe con brinco. Pegar en el aire con el machete: espadazo giratorio
+# (Sword_Regular_C, la cadera da la vuelta entre 0 y 0.7 s) que pega en redondo al caer.
+# Solo lo prende el safehouse (tecla 6)
+static var giro_aereo := false
 # El giro con la estela de agua: pensada como mejora que se gana (JJ). false = la estela normal
 static var giro_agua := true
 const CARGA_DURA := 0.7       # s con el boton apretado
@@ -120,12 +122,11 @@ const GIRO_MAXIMO := 6        # zombis a los que le pega
 # girando, y un poco mas rapido; el salto sigue igual. El golpe pega al caer al piso
 const GIRO_AIRE_DESDE := 0.12
 const GIRO_AIRE_VELOCIDAD := 1.5
-# PRUEBA (JJ): estocada con avance. Pegar mientras corres (sprint y moviendote) con el machete:
+# La estocada con avance, que sale al soltar el ataque cargado:
 # Sword_Dash_RM, te lanza ESTOCADA_AVANCE m hacia donde ve la camara (el clip avanza 3.7 m con
 # su hueso Root, que la biblioteca quita; aqui lo hace el cuerpo, asi choca con las paredes) y
 # atraviesa: le pega a cada zombi que tengas enfrente mientras avanzas, hasta ESTOCADA_MAXIMO.
-# Solo la prende el safehouse (tecla 6; Shift+6 su estela de agua)
-static var estocada := false
+# Su estela de agua es la mejora (Shift+7 en el safehouse)
 static var estocada_agua := true
 const ESTOCADA_AVANCE := 3.5   # m
 const ESTOCADA_DESDE := 0.12   # s del clip en que arranca el avance (el amago antes)
@@ -395,10 +396,10 @@ func _revisar_carga(delta: float) -> void:
 		if _pistola.activa or not is_physics_processing():
 			_cancelar_carga()
 		elif not Input.is_action_pressed("attack"):
-			var girar := _cargado
+			var soltar := _cargado
 			_cancelar_carga()
-			if girar:
-				_girar()
+			if soltar:
+				_estocar()
 		else:
 			_apretado += delta
 			if not _cargado and _apretado >= CARGA_DURA:
@@ -836,12 +837,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_pistola.disparar()
 		elif _giro >= 0.0 or _estocada_t >= 0.0:
 			pass
-		elif golpe_cargado and not is_on_floor():
-			# En el aire sale de una vez el espadazo giratorio, sin cargar
+		elif giro_aereo and not is_on_floor():
+			# En el aire sale de una vez el espadazo giratorio
 			_girar(true)
-		elif estocada and Input.is_action_pressed("sprint") \
-				and Input.get_vector("move_left", "move_right", "move_forward", "move_backward").length() > 0.2:
-			_estocar()
 		else:
 			_atacar()
 			if golpe_cargado:

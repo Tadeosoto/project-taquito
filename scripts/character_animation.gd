@@ -33,8 +33,8 @@ const GOLPE_IZQUIERDA := "Sword_Regular_B"
 const ACCIONES := {
 	"golpe_a": GOLPE_DERECHA,
 	"golpe_b": GOLPE_IZQUIERDA,
-	"golpe_giro": "Sword_Regular_C",   # el ataque cargado (Player.golpe_cargado)
-	"estocada": "Sword_Dash_RM",       # pegar corriendo (Player.estocada)
+	"golpe_giro": "Sword_Regular_C",   # el golpe con brinco (Player.giro_aereo)
+	"estocada": "Sword_Dash_RM",       # el ataque cargado (Player.golpe_cargado)
 	"herido": "Hit_Chest",
 	"recoger": "PickUp_Table",
 }
