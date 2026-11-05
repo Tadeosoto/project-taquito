@@ -49,6 +49,7 @@ const ARRIBA_LADOS := ["Shoulder", "UpperArm", "LowerArm", "Hand", "IndexProxima
 var cargando := false
 
 var _arbol: AnimationTree
+var _accion_nodo: AnimationNodeOneShot  # su filtro (parte de arriba) se prende al caminar golpeando
 var _patada := 0.0
 var _mira := 0.0
 # El machetazo que va: el clip y cuanto lleva (lo lee la estela del arma)
@@ -144,6 +145,10 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	var accion := AnimationNodeOneShot.new()
 	accion.fadein_time = 0.05
 	accion.fadeout_time = 0.15
+	# Parado, todo el cuerpo; caminando (golpe_caminando), solo arriba y las piernas trotan
+	_filtrar(accion, arriba)
+	accion.filter_enabled = false
+	_accion_nodo = accion
 	raiz.add_node("accion", accion)
 	raiz.connect_node("accion", 0, "recarga")
 	raiz.connect_node("accion", 1, "cual")
@@ -219,6 +224,12 @@ func golpe(lado: float) -> void:
 	_golpe_clip = ACCIONES[entrada]
 	_golpe_t = 0.0
 	_lanzar(entrada)
+
+
+# Caminando a medio machetazo: el barrido solo en la parte de arriba, las piernas trotan
+func golpe_caminando(si: bool) -> void:
+	if _accion_nodo and _accion_nodo.filter_enabled != si:
+		_accion_nodo.filter_enabled = si
 
 
 # Te moviste a medio combo: el brazo se suelta y regresa a caminar

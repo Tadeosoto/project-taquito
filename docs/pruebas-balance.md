@@ -92,6 +92,7 @@ Si se puede, juega una cuarta sin defender, para ver cuánto aguanta el tinaco s
 | Emboscadas (defensa, no en fácil) | 2-3 cazadores cada 35-60 s desde las 23:00, del lado donde andas; van por ti y no cuentan para la siguiente oleada | `Hordas.gd` `EMBOSCADA_CADA`, `EMBOSCADA_GRUPO`, `EMBOSCADA_DESDE`; `MODOS` `emboscadas` | ¿Te castigan por alejarte del tinaco o solo estorban? |
 | Tope del tinaco | 8 a la vez; los demás van por ti | `Zombis.cupo_tinaco` (en `defensa_tinaco.tscn`) | ¿Aguanta el tinaco y te queda presión a ti? |
 | Más zombis por grupo | medio ×1.25, difícil ×1.6 | `Hordas.MODOS` `dificultad` | ¿Rinde a las 5:00 (FPS) y se gana? |
+| Caminar a medio machetazo | 60 % de la velocidad, sin correr, viendo hacia la cámara (antes de JJ: quieto) | `player.gd` `GOLPE_VELOCIDAD`, `ATAQUE_LENTO` | ¿Te deja salirte a tiempo o se vuelve demasiado fácil? |
 | Retroceso de la pistola | la cámara sube 0.6° por tiro (0.35° apuntando) y regresa en 0.2 s; la mira se abre 4 px por tiro | `Pistola.gd` `MIRA_PATADA`, `APUNTA_PATADA`, `MIRA_FLORECE`, `MIRA_CIERRA`; `player.gd` `PATADA_VUELVE` | ¿Se puede disparar rápido y seguir atinando? |
 | Nervios en la mira | intensidad 1: desvío ×2.5, mira +6 px | `Pistola.gd` `NERVIOS_DISPERSION`, `NERVIOS_MIRA`, `NERVIOS_SIGUE` | ¿Se siente la presión o solo estorba? |
 | Respiro | Si la intensidad llega a 0.8, el siguiente grupo espera 6 s más | `Hordas.gd` `TOPE`, `RESPIRO` | ¿Alcanza para curarse? |

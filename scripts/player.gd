@@ -89,11 +89,12 @@ const COMBO_VENTANA := 0.5   # s despues del enfriamiento en que el siguiente go
 # s desde un golpe en que ya puede salir el siguiente: al terminar de barrer, sin
 # esperar el enfriamiento. Si pegas antes, se guarda y sale entonces
 const COMBO_DESDE := 0.3
-# s desde que empieza un golpe en que no puedes caminar. Con pelea_a_tiempo, hasta que el golpe
-# conecta: despues, moverte suelta el brazo y corta el combo, para quitarte si el zombi ya va a
-# pegar. Sin ella, hasta que el brazo termina el barrido
-const ATAQUE_QUIETO := 0.42
-const ATAQUE_QUIETO_A_TIEMPO := ATAQUE_PEGA_EN
+# s desde que empieza un golpe en que caminas lento (GOLPE_VELOCIDAD), sin correr y viendo hacia
+# la camara, con el barrido solo en la parte de arriba del cuerpo. Antes (JJ) no se podia caminar
+# y con pelea_a_tiempo moverte cortaba el combo; AG lo cambio el 2026-11-04
+const ATAQUE_LENTO := 0.42
+const ATAQUE_LENTO_A_TIEMPO := ATAQUE_PEGA_EN
+const GOLPE_VELOCIDAD := 0.6  # de la velocidad al caminar
 
 # Pelea con golpe a tiempo (Zombie.CORTE) y salirte del combo moviendote. En false, la prueba
 # anterior: nunca se aturde y te quedas quieto todo el barrido. La cambia la tecla 9 del safehouse
@@ -806,11 +807,10 @@ func _physics_process(delta: float) -> void:
 		"move_forward",
 		"move_backward"
 	)
-	var quieto := ATAQUE_QUIETO_A_TIEMPO if pelea_a_tiempo else ATAQUE_QUIETO
-	if _curando > 0.0 or (_enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < quieto):
+	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
+	var golpeando := _enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento
+	if _curando > 0.0:
 		input_direction = Vector2.ZERO
-	elif pelea_a_tiempo and input_direction != Vector2.ZERO and _enfriar > 0.0 and not _combo_roto:
-		_soltar_combo()
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z
 	var right: Vector3 = camera_pivot.global_transform.basis.x
@@ -822,13 +822,19 @@ func _physics_process(delta: float) -> void:
 	var direction: Vector3 = right * input_direction.x + forward * -input_direction.y
 
 	var is_moving: bool = direction.length_squared() > 0.01
-	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint")
+	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint") and not golpeando
 	var move_speed: float = sprint_speed if is_sprinting else speed
 	if _apuntando:
 		move_speed = speed * APUNTA_VELOCIDAD
+	elif golpeando:
+		move_speed = speed * GOLPE_VELOCIDAD
+	# Caminando, el barrido va solo arriba: las piernas siguen trotando
+	if figura.has_method("golpe_caminando"):
+		figura.golpe_caminando(is_moving and golpeando)
 	var target_horizontal := Vector3.ZERO
-	# Con la pistola ve siempre hacia donde apunta la camara, aunque camine para otro lado
-	var apunta: bool = _pistola.activa
+	# Con la pistola, o a medio machetazo, ve siempre hacia donde apunta la camara, aunque camine
+	# para otro lado: el golpe sale hacia donde ves
+	var apunta: bool = _pistola.activa or golpeando
 	if is_moving or apunta:
 		var look_target: Vector3 = frijol.global_position + (forward if apunta else direction)
 		var target_transform: Transform3D = frijol.global_transform.looking_at(look_target, Vector3.UP)
