@@ -321,6 +321,8 @@ static var _material_flamas: ShaderMaterial
 static var _material_chispas_felipe: ShaderMaterial
 const PALETA_AGUA := """vec3(0.035, 0.090, 0.280), vec3(0.055, 0.200, 0.520), vec3(0.110, 0.380, 0.780),
 	vec3(0.330, 0.620, 0.940), vec3(0.680, 0.860, 1.000), vec3(0.970, 0.990, 1.000)"""
+const PALETA_RAMON := """vec3(0.035, 0.090, 0.280), vec3(0.055, 0.200, 0.520), vec3(0.110, 0.380, 0.780),
+	vec3(0.330, 0.620, 0.940), vec3(0.680, 0.860, 1.000), vec3(0.030, 0.030, 0.045)"""
 const PALETA_FUEGO := """vec3(0.300, 0.030, 0.020), vec3(0.620, 0.070, 0.030), vec3(0.900, 0.230, 0.040),
 	vec3(1.000, 0.480, 0.080), vec3(1.000, 0.760, 0.250), vec3(1.000, 0.960, 0.780)"""
 # Felipe: de afuera (0) hacia adentro, del carbon de los cuadros al blanco, sin amarillo ni naranja (JJ)
@@ -372,13 +374,15 @@ func _ready() -> void:
 		_nube_escala.append(1.0)
 	if _material_agua == null:
 		var shader := Shader.new()
-		shader.code = SHADER_AGUA
+		# La de Ramon (JJ): lo blanco (la franja de la orilla, las rayitas y las crestas) en negro, como
+		# su playera; la de fuego y la de Felipe salen de SHADER_AGUA sin esto
+		shader.code = SHADER_AGUA.replace(PALETA_AGUA, PALETA_RAMON)
 		_material_agua = ShaderMaterial.new()
 		_material_agua.shader = shader
-		# La espuma: las mismas nubes en azul clarito y blanco
+		# La espuma: las mismas nubes en azul clarito, azul y negro en lugar de blanco (JJ)
 		var espuma := Shader.new()
 		espuma.code = SHADER_NUBE.replace("""vec3(0.961, 0.957, 0.937), vec3(0.851, 0.847, 0.827), vec3(0.698, 0.698, 0.686),
-	vec3(0.549, 0.553, 0.549)""", """vec3(0.970, 0.990, 1.000), vec3(0.760, 0.900, 1.000), vec3(0.450, 0.720, 0.980),
+	vec3(0.549, 0.553, 0.549)""", """vec3(0.030, 0.030, 0.045), vec3(0.760, 0.900, 1.000), vec3(0.450, 0.720, 0.980),
 	vec3(0.200, 0.470, 0.850)""")
 		_material_espuma = ShaderMaterial.new()
 		_material_espuma.shader = espuma
