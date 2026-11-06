@@ -107,7 +107,8 @@ const ESTALLIDO_ADELANTE := 0.3  # m frente al puno: revienta donde pega, no tap
 # La estela del machetazo sigue la punta del arma mientras barre (s del clip, desde-hasta): no
 # al llevar el brazo atras ni al regresarlo
 const ESTELA_GOLPE := {"Sword_Regular_A": Vector2(0.10, 0.30), "Sword_Regular_B": Vector2(0.10, 0.32),
-	"Sword_Regular_C": Vector2(0.05, 0.75), "Sword_Dash_RM": Vector2(0.10, 0.60)}
+	"Sword_Regular_C": Vector2(0.05, 0.75), "Sword_Dash_RM": Vector2(0.10, 0.60),
+	"Sword_Attack": Vector2(0.31, 0.50)}   # el tajo cargado: solo la bajada, no la subida ni el regreso
 const ESTELA_PASO := 6.0      # grados entre pedazos: con pocos cuadros salia en tiras rectas
 # Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
 # al frente para que de lado a la camara no se voltee al azar
@@ -169,6 +170,8 @@ const RODAR_AVANCE := 3.0               # m
 const RODAR_AVANZA := Vector2(0.05, 0.85)  # s del clip en que avanzas
 const RODAR_ESQUIVA := Vector2(0.3, 0.8)   # s del clip en que no te pegan (~0.3 s reales)
 const RODAR_SUELTA := 1.05              # s del clip en que se suelta
+# Tambien rueda con doble toque a cualquier WASD (JJ): la misma tecla dos veces en DOBLE_TOQUE s
+const DOBLE_TOQUE := 0.25
 const RODAR_ENFRIA := 0.4               # s reales despues de una antes de poder otra
 # Bloquear (clic derecho / LT con el machete; JJ): Sword_Block en guardia mientras lo sostienes,
 # caminando lento viendo hacia la camara. Un golpe de frente parado te quita BLOQUEO_DANO del
@@ -189,9 +192,11 @@ const CARGA_INCLINA := 28.0   # grados que se dobla la columna (InclinarCuerpo.g
 # Pelea con golpe a tiempo (Zombie.CORTE) y salirte del combo moviendote. En false, la prueba
 # anterior: nunca se aturde y te quedas quieto todo el barrido. La cambia la tecla 9 del safehouse
 static var pelea_a_tiempo := true
-# PRUEBA (JJ): ataque cargado. Con el machete, deja apretado atacar: el primer golpe sale como
-# siempre y a los CARGA_DURA s el arma brilla azul; al soltar, la estocada con avance (abajo).
-# Solo lo prende el safehouse (tecla 7)
+# Ataque cargado (JJ, 2026-11-06): con el machete, deja apretado atacar: el arma sube detras de la
+# cabeza (la pose de carga) y a los CARGA_DURA s brilla; al soltar, el tajo pesado de arriba abajo
+# con avance (TAJO_*, abajo). Antes salia la estocada, que ya no tenia sentido: el giro y la
+# estocada aerea pegan a varios con el dano del espadazo. El tajo es el que pega fuerte (TAJO_DANO).
+# Lo prenden el safehouse (tecla 7) y la defensa del tinaco
 static var golpe_cargado := false
 # PRUEBA (JJ): golpe con brinco. Pegar en el aire con el machete: espadazo giratorio
 # (Sword_Regular_C, la cadera da la vuelta entre 0 y 0.7 s) que pega en redondo al caer.
@@ -202,9 +207,17 @@ const CARGA_DURA := 0.4       # s con el boton apretado (JJ: 0.7 era mucho)
 # Apretado al menos esto cuando toca el siguiente golpe = lo estas sosteniendo: en vez del golpe
 # entras a la pose de carga (golpe, golpe, carga). Un clic rapido dura menos
 const CARGA_DECIDE := 0.12
-const CARGA_POSE_EN := 0.1    # s de Sword_Dash_RM en que se queda quieta la pose (el amago)
+const CARGA_POSE_EN := 0.29   # s de Sword_Attack en que se queda quieta la pose: el arma arriba, atras
 const CARGA_COLOR := Color(1.0, 0.55, 0.12)   # naranja monarca (antes azul)
 const CARGA_LUZ := 2.5        # energia de la luz al estar cargado
+# Ya cargado a todo, la punta del arma echa las nubes de la estela del protagonista (llamas,
+# chispas, rayos, polvo: EstelaBarrido.estallar): un estallido de CARGA_ESTALLIDO al llenarse y
+# luego una cada CARGA_LLAMA_CADA s mientras sostienes (JJ). El tajo suelta TAJO_LLAMAS al bajar
+const CARGA_ESTALLIDO := 6
+const CARGA_LLAMA_CADA := 0.06   # s
+const CARGA_LLAMA_ESCALA := 0.8
+const TAJO_LLAMAS := 9
+const TAJO_LLAMAS_ESCALA := 1.6
 const GIRO_PEGA_EN := 0.35    # s del clip: a media vuelta
 const GIRO_DURA := 0.95       # s: ahi se suelta el clip (lo demas es enderezarse) y ya puedes moverte
 const GIRO_ALCANCE := 1.3     # x el alcance normal, en redondo
@@ -238,7 +251,36 @@ const ESTOCADA_RADIO := 2.0    # m enfrente de ti en que le pega a un zombi
 const ESTOCADA_CONO := 0.0     # coseno: toda la mitad de enfrente
 const ESTOCADA_DURA := 0.8     # s: ahi se suelta el clip y ya puedes moverte
 const ESTOCADA_DANO := 1.5     # x el dano del arma
+# Desde aqui (s del clip) otra accion (espadazo, rodada, brinco) corta lo que queda de la estocada,
+# del piso o del aire, sin esperar a ESTOCADA_DURA (JJ: mas fluido). Ya acabo el avance (0.55) y
+# la punta deja de pegar en 0.6
+const ESTOCADA_LIBRE := 0.62
 const ESTOCADA_MAXIMO := 6
+# Estocada desde el aire (JJ): brincando con Shift apretado, el clic no hace el giro sino la
+# estocada, como un clavado: el clip a velocidad normal y el mismo desliz que la estocada en el
+# piso (ESTOCADA_AVANCE con su curva), y a la vez bajas en linea recta hasta el piso que hay donde
+# termina el desliz, tocandolo justo al terminar (ESTOCADA_AIRE_CAE). Empieza en el amago agachado
+# (ESTOCADA_AIRE_DESDE). Si estas muy alto, baja a lo mas ESTOCADA_AIRE_BAJA m en el desliz y lo
+# demas cae normal en la pose de la estocada; en el piso lo demas sigue a velocidad normal
+const ESTOCADA_AIRE_DESDE := 0.1
+const ESTOCADA_AIRE_CAE := ESTOCADA_HASTA
+const ESTOCADA_AIRE_BAJA := 4.0
+const ESTOCADA_AIRE_AVANCE := 5.0   # m: mas que en el piso (ESTOCADA_AVANCE), para que valga el brinco
+# El tajo cargado (JJ, 2026-11-06): Sword_Attack de Quaternius, que no se habia usado. Medido en
+# el_compa: sube el arma detras de la cabeza hasta 0.29 s (ahi se queda la pose de carga), baja en
+# diagonal de arriba a la derecha hasta la cadera izquierda entre 0.33 y 0.50 (la mano a 59 m/s en
+# 0.40), se queda abajo hasta 0.77 y regresa a la guardia. Usa lo de la estocada (avance con
+# smoothstep, pega una vez a cada uno), con sus numeros. Es el unico con multiplicador fuerte
+const TAJO_AVANCE := 1.8       # m que avanza al bajar el arma
+const TAJO_DESDE := 0.30       # s del clip en que arranca el avance
+const TAJO_HASTA := 0.48
+const TAJO_PEGA := Vector2(0.36, 0.48)   # s del clip en que la hoja hace dano
+const TAJO_RADIO := 2.4        # m enfrente
+const TAJO_CONO := 0.2         # coseno: casi toda la mitad de enfrente (barre en diagonal)
+const TAJO_DURA := 0.85        # s: ahi se suelta el clip (antes del regreso) y ya te mueves
+const TAJO_LIBRE := 0.6        # s: desde aqui otra accion lo corta
+const TAJO_DANO := 2.5         # x el dano del arma (machete 12 = 30: mata a un zombi normal)
+const TAJO_MAXIMO := 4
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 # La pistola (Pistola.gd): R cambia entre ella y el arma de golpe. Se ve en la mano en vez del
 # machete; no es objeto del inventario por ahora
@@ -289,6 +331,15 @@ var _luz_carga: OmniLight3D
 var _mariposa_pendiente := false
 const MARIPOSA_EN := 0.9      # de la ventana de la estela: cerca del final de la barrida
 var _estocada_t := -1.0      # s desde que salio la estocada; -1 = no hay
+var _estocada_vel := 1.0     # 0 = quieta en el aire esperando el piso
+var _estocada_aire := false  # salio del aire: vuelve a 1x al caer
+var _estocada_quieta := false  # del aire, ya en su pose final y todavia sin piso: espera
+var _estocada_avance := ESTOCADA_AVANCE  # m del desliz: mas largo desde el brinco
+var _tajo := false             # la que va es el tajo cargado (TAJO_*), no la estocada del aire
+var _tajo_estallo := false     # ya solto sus llamas al bajar el arma
+var _llama_t := 0.0            # s para la siguiente llama de la carga
+var _clavando := false         # la estocada del aire va deslizandose y bajando
+var _clavado_baja := 0.0       # m que baja durante el desliz
 var _estocada_dir := Vector3.ZERO
 var _estocada_pegados: Array = []
 var _rodada_t := -1.0        # s del clip Roll desde que salio la rodada; -1 = no hay
@@ -333,6 +384,9 @@ var _lado_golpe := 1.0        # 1: de derecha a izquierda; -1: el de regreso del
 var _combo_hasta := 0.0       # s de juego en que se acaba la ventana del combo
 var _puno := -1               # paso del combo a mano limpia que va (PUNOS); -1 = con arma
 var _golpe_guardado := false
+var _golpe_tras_brinco := false
+var _toque_accion := ""          # la ultima direccion que apretaste en el teclado (doble toque)
+var _toque_ms := -100000  # el espadazo guardado que cedio su turno al brinco: sale en el aire
 var _combo_roto := false      # te moviste a medio combo: el siguiente empieza de nuevo
 var _arma_visible: InventoryItemData
 var _pistola: Node
@@ -584,6 +638,15 @@ func _revisar_carga(delta: float) -> void:
 			if not _cargado and _apretado >= CARGA_DURA:
 				_cargado = true
 				Sonidos.tocar(self, "machetazo", SWING_VOLUMEN - 4.0, 1.6)
+				if _estela:
+					_estela.estallar(_punta_arma(), CARGA_ESTALLIDO, Vector3.UP, CARGA_LLAMA_ESCALA)
+					_fogonazo(_punta_arma())
+				_llama_t = CARGA_LLAMA_CADA
+			elif _cargado and _estela:
+				_llama_t -= delta
+				if _llama_t <= 0.0:
+					_llama_t = CARGA_LLAMA_CADA
+					_estela.estallar(_punta_arma(), 1, Vector3.UP, CARGA_LLAMA_ESCALA)
 			_brillo_carga()
 	if _giro >= 0.0:
 		_giro += delta * _giro_vel
@@ -649,9 +712,7 @@ func _brillo_carga() -> void:
 		_luz_carga.shadow_enabled = false
 		_luz_carga.top_level = true
 		add_child(_luz_carga)
-	var punta: Vector3 = _punta.global_position if _punta and is_instance_valid(_punta) and _punta.is_inside_tree() \
-		else (_mano.global_position if _mano else frijol.global_position + Vector3.UP)
-	_luz_carga.global_position = punta
+	_luz_carga.global_position = _punta_arma()
 	_luz_carga.visible = true
 	if _cargado:
 		_luz_carga.light_energy = CARGA_LUZ * (0.75 + 0.25 * sin(Time.get_ticks_msec() * 0.025))
@@ -659,12 +720,18 @@ func _brillo_carga() -> void:
 		_luz_carga.light_energy = CARGA_LUZ * 0.4 * _apretado / CARGA_DURA
 
 
+func _punta_arma() -> Vector3:
+	if _punta and is_instance_valid(_punta) and _punta.is_inside_tree():
+		return _punta.global_position
+	return _mano.global_position if _mano else frijol.global_position + Vector3.UP
+
+
 func _girar(aire := false) -> void:
 	if not figura.has_method("golpe_giro"):
 		return
 	var velocidad := GIRO_AIRE_VELOCIDAD if aire else 1.0
 	if aire:
-		velocidad = _ajustar_caida(velocidad)
+		velocidad = _ajustar_caida(velocidad, GIRO_AIRE_DESDE, GIRO_AIRE_CAE, GIRO_AIRE_VEL_MAX)
 	_giro_aire = aire
 	_giro = GIRO_AIRE_DESDE if aire else 0.0
 	_giro_vel = velocidad
@@ -681,9 +748,10 @@ func _girar(aire := false) -> void:
 	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.8)
 
 
-# Para que el azote del giro caiga justo al tocar el piso: corta el brinco si sobra aire, o
-# regresa una velocidad mayor para el clip si falta. Sin piso abajo (30 m) no cambia nada
-func _ajustar_caida(velocidad: float) -> float:
+# Para que el azote del giro (o la estocada desde el aire) caiga justo al tocar el piso: el clip
+# va de `desde` a `cae` s; corta el brinco si sobra aire, o regresa una velocidad mayor para el
+# clip si falta (hasta `vel_max`). Sin piso abajo (30 m) no cambia nada
+func _ajustar_caida(velocidad: float, desde_clip: float, cae: float, vel_max: float) -> float:
 	var desde := global_position + Vector3.DOWN * PIES
 	var rayo := PhysicsRayQueryParameters3D.create(desde + Vector3.UP * 0.1, desde + Vector3.DOWN * 30.0, 1, [get_rid()])
 	var choque := get_world_3d().direct_space_state.intersect_ray(rayo)
@@ -692,17 +760,46 @@ func _ajustar_caida(velocidad: float) -> float:
 	var alto := maxf(desde.y - choque.position.y, 0.0)
 	var vy := velocity.y
 	var al_piso := (vy + sqrt(vy * vy + 2.0 * gravity * alto)) / gravity
-	var falta := (GIRO_AIRE_CAE - GIRO_AIRE_DESDE) / velocidad
+	var falta := (cae - desde_clip) / velocidad
 	if al_piso > falta:
 		# Sobra aire: la velocidad vertical que cae en `falta` s desde esta altura
 		velocity.y = minf(vy, (0.5 * gravity * falta * falta - alto) / falta)
 		return velocidad
-	return minf((GIRO_AIRE_CAE - GIRO_AIRE_DESDE) / maxf(al_piso, 0.01), GIRO_AIRE_VEL_MAX)
+	return minf((cae - desde_clip) / maxf(al_piso, 0.01), vel_max)
 
 
-func _estocar(desde := 0.0) -> void:
+# El clavado: cuanto hay que bajar para tocar el piso donde termina el desliz
+func _empezar_clavado() -> void:
+	var pies := global_position + Vector3.DOWN * PIES
+	var llega := pies + _estocada_dir * _estocada_avance
+	var espacio := get_world_3d().direct_space_state
+	var choque := espacio.intersect_ray(PhysicsRayQueryParameters3D.create(
+			llega + Vector3.UP * 0.5, llega + Vector3.DOWN * 30.0, 1, [get_rid()]))
+	if choque.is_empty():
+		# Nada alla (una orilla): el piso de abajo
+		choque = espacio.intersect_ray(PhysicsRayQueryParameters3D.create(
+				pies, pies + Vector3.DOWN * 30.0, 1, [get_rid()]))
+	_clavado_baja = clampf(pies.y - choque.position.y, 0.0, ESTOCADA_AIRE_BAJA) if not choque.is_empty() \
+			else ESTOCADA_AIRE_BAJA
+	_clavando = true
+	velocity = Vector3.ZERO
+
+
+# aire: la estocada desde el brinco con Shift (ESTOCADA_AIRE_*), en vez del giro
+func _estocar(desde := 0.0, aire := false) -> void:
 	if not figura.has_method("golpe_estocada"):
 		return
+	_estocada_vel = 1.0
+	_estocada_aire = aire
+	_estocada_quieta = false
+	_clavando = false
+	# En el piso (al soltar la carga) ya no es estocada sino el tajo
+	_tajo = not aire
+	_tajo_estallo = false
+	_estocada_avance = ESTOCADA_AIRE_AVANCE if aire else TAJO_AVANCE
+	if aire:
+		_cancelar_carga(false)
+		desde = ESTOCADA_AIRE_DESDE
 	_estocada_t = desde
 	_estocada_pegados.clear()
 	_pega_en = -1.0
@@ -710,7 +807,7 @@ func _estocar(desde := 0.0) -> void:
 	_combo_roto = true
 	_combo_hasta = 0.0
 	_puno = -1
-	_enfriar = ESTOCADA_DURA
+	_enfriar = (ESTOCADA_DURA + 1.0) if aire else (TAJO_DURA - desde)  # del aire se recalcula al caer
 	# Hacia donde ve el personaje (JJ): caminando a medio golpe ves al frente aunque vayas para
 	# atras con S, y sale al frente. Con Shift corres viendo hacia donde vas: sale hacia las
 	# teclas (no hacia donde iba volteando el modelo a medio giro)
@@ -724,10 +821,14 @@ func _estocar(desde := 0.0) -> void:
 	_estocada_dir.y = 0.0
 	_estocada_dir = _estocada_dir.normalized()
 	frijol.global_transform = frijol.global_transform.looking_at(frijol.global_position + _estocada_dir, Vector3.UP)
-	figura.golpe_estocada(desde)
+	if aire:
+		_empezar_clavado()
+		figura.golpe_estocada(desde, _estocada_vel)
+	elif figura.has_method("golpe_tajo"):
+		figura.golpe_tajo(desde)
 	_estela_antes = []
 	_mariposa_pendiente = true
-	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.7)
+	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.55 if _tajo else 0.7)
 
 
 # Esquivar rodando: corta lo que estuvieras haciendo con el machete (combo, carga)
@@ -780,6 +881,13 @@ func _probar_buffer(delta: float) -> void:
 		_buffer = ""
 		return
 	if _puede(_buffer):
+		# Lo apretaste a media accion y lo sigues sosteniendo: todavia no se sabe si es clic o
+		# carga. Espera a CARGA_DECIDE (sostenido = la pose de carga de una vez) o a que lo
+		# sueltes (el espadazo). Sin esto, si el tajo se soltaba antes de los 0.12 s salia un
+		# espadazo primero y la carga despues
+		if sostenido and golpe_cargado and _apretado < CARGA_DECIDE and is_on_floor() and _especiales():
+			_buffer_edad = 0.0
+			return
 		var accion := _buffer
 		_buffer = ""
 		_hacer(accion)
@@ -787,7 +895,23 @@ func _probar_buffer(delta: float) -> void:
 
 # Rodando, a media estocada o giro, o curandote: nada mas sale
 func _ocupado() -> bool:
-	return _rodada_t >= 0.0 or _estocada_t >= 0.0 or _giro >= 0.0 or _curando > 0.0
+	return _rodada_t >= 0.0 or (_estocada_t >= 0.0 and _estocada_t < (TAJO_LIBRE if _tajo else ESTOCADA_LIBRE)) \
+			or _giro >= 0.0 or _curando > 0.0
+
+
+# Lo que queda de la estocada (pasado ESTOCADA_LIBRE) se corta para que salga otra accion.
+# soltar: regresa el cuerpo a caminar (si lo que sigue no trae su propio clip)
+func _cortar_estocada(soltar: bool) -> void:
+	_estocada_t = -1.0
+	_estocada_aire = false
+	_estocada_quieta = false
+	_clavando = false
+	_enfriar = 0.0
+	if soltar:
+		_soltar_combo()
+	else:
+		_combo_roto = true
+		_golpe_guardado = false
 
 
 # Un espadazo que todavia no termina de barrer
@@ -814,11 +938,17 @@ func _puede(accion: String) -> bool:
 
 
 func _hacer(accion: String) -> void:
+	if _estocada_t >= 0.0:
+		_cortar_estocada(accion == "brinco")
 	match accion:
 		"golpe":
 			if giro_aereo and not is_on_floor() and _especiales():
-				# En el aire sale de una vez el espadazo giratorio
-				_girar(true)
+				# En el aire sale de una vez el espadazo giratorio; con Shift, la estocada que te
+				# lanza hacia adelante y cae con ella (JJ)
+				if Input.is_action_pressed("sprint"):
+					_estocar(0.0, true)
+				else:
+					_girar(true)
 			elif golpe_cargado and Input.is_action_pressed("attack") and _apretado >= CARGA_DECIDE \
 					and figura.has_method("pose_carga") and _especiales():
 				# Lo sigues sosteniendo desde antes: de una vez a la pose de carga
@@ -832,9 +962,11 @@ func _hacer(accion: String) -> void:
 		"rodar":
 			_rodar(_buffer_dir)
 		"brinco":
-			if _pose_carga:
-				_cancelar_carga()
+			# Brincar ya no rompe la carga (JJ): sigues en la pose y al soltar sale el tajo en el aire
 			velocity.y = jump_velocity
+			if _golpe_tras_brinco:
+				_golpe_tras_brinco = false
+				_guardar("golpe")
 		"estocada":
 			_estocar()
 
@@ -844,6 +976,21 @@ func _teclas_mover() -> Vector2:
 
 
 # Una tecla de direccion recien apretada (no la repeticion de dejarla apretada)
+# true en el segundo toque de la misma WASD dentro de DOBLE_TOQUE s (solo teclado: el stick no)
+func _doble_toque(event: InputEvent) -> bool:
+	if not event is InputEventKey or event.is_echo() or not event.is_pressed():
+		return false
+	for accion: String in ["move_forward", "move_backward", "move_left", "move_right"]:
+		if event.is_action_pressed(accion):
+			var ahora := Time.get_ticks_msec()
+			var doble := accion == _toque_accion and ahora - _toque_ms <= int(DOBLE_TOQUE * 1000.0)
+			# Tras rodar, el siguiente toque empieza de cero: tres toques no son dos rodadas
+			_toque_accion = "" if doble else accion
+			_toque_ms = ahora
+			return doble
+	return false
+
+
 func _es_direccion(event: InputEvent) -> bool:
 	if event.is_echo():
 		return false
@@ -874,11 +1021,37 @@ func esquivando() -> bool:
 func _revisar_estocada(delta: float) -> void:
 	if _estocada_t < 0.0:
 		return
-	_estocada_t += delta
-	if _estocada_t >= ESTOCADA_PEGA.x and _estocada_t <= ESTOCADA_PEGA.y \
-			and _estocada_pegados.size() < ESTOCADA_MAXIMO:
+	_estocada_t += delta * _estocada_vel
+	# Desde el aire: al caer, lo demas a velocidad normal. Si llego a su pose final todavia en el
+	# aire (caiste de una orilla), se queda ahi hasta tocar el piso
+	if _clavando and (is_on_floor() or _estocada_t >= ESTOCADA_AIRE_CAE):
+		_clavando = false
+	if _estocada_aire:
+		if is_on_floor() and _estocada_t > ESTOCADA_AIRE_DESDE + 0.05:
+			_estocada_aire = false
+			_estocada_quieta = false
+			_estocada_vel = 1.0
+			if figura.has_method("velocidad_estocada"):
+				figura.velocidad_estocada(1.0)
+			_enfriar = maxf(ESTOCADA_DURA - _estocada_t, 0.0)
+		elif _estocada_t >= ESTOCADA_AIRE_CAE and not is_on_floor():
+			_estocada_t = ESTOCADA_AIRE_CAE
+			if not _estocada_quieta:
+				_estocada_quieta = true
+				_estocada_vel = 0.0
+				if figura.has_method("velocidad_estocada"):
+					figura.velocidad_estocada(0.0)
+			_enfriar = maxf(_enfriar, ESTOCADA_DURA - _estocada_t)
+	var pega := TAJO_PEGA if _tajo else ESTOCADA_PEGA
+	if _tajo and not _tajo_estallo and _estocada_t >= pega.x and _estela:
+		# El arma va bajando: un chorro de llamas hacia adelante y el fogonazo
+		_tajo_estallo = true
+		_estela.estallar(_punta_arma(), TAJO_LLAMAS, _estocada_dir, TAJO_LLAMAS_ESCALA)
+		_fogonazo(_punta_arma())
+	if _estocada_t >= pega.x and _estocada_t <= pega.y \
+			and _estocada_pegados.size() < (TAJO_MAXIMO if _tajo else ESTOCADA_MAXIMO):
 		_pegar_estocada()
-	if _estocada_t >= ESTOCADA_DURA:
+	if _estocada_t >= (TAJO_DURA if _tajo else ESTOCADA_DURA):
 		_estocada_t = -1.0
 		_soltar_combo()
 
@@ -888,18 +1061,21 @@ func _pegar_estocada() -> void:
 	var inventario := get_node_or_null("/root/Inventory")
 	if inventario and inventario.arma():
 		dano = inventario.arma().dano
-	dano = maxi(roundi(dano * _factor_dano * ESTOCADA_DANO), 1)
+	dano = maxi(roundi(dano * _factor_dano * (TAJO_DANO if _tajo else ESTOCADA_DANO)), 1)
+	var maximo := TAJO_MAXIMO if _tajo else ESTOCADA_MAXIMO
+	var radio := TAJO_RADIO if _tajo else ESTOCADA_RADIO
+	var cono := TAJO_CONO if _tajo else ESTOCADA_CONO
 	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)
 	var pego := false
 	var mato := false
 	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
-		if _estocada_pegados.size() >= ESTOCADA_MAXIMO:
+		if _estocada_pegados.size() >= maximo:
 			break
 		if zombi in _estocada_pegados or (zombi is Zombie and zombi.estado == Zombie.Estado.MUERTO):
 			continue
 		var hacia := zombi.global_position - global_position
 		hacia.y = 0.0
-		if hacia.length() <= ESTOCADA_RADIO and hacia.normalized().dot(_estocada_dir) >= ESTOCADA_CONO:
+		if hacia.length() <= radio and hacia.normalized().dot(_estocada_dir) >= cono:
 			_estocada_pegados.append(zombi)
 			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, int(CONGELA_MATA * 1000.0))
 			pego = pego or resultado != 0
@@ -912,8 +1088,10 @@ func _pegar_estocada() -> void:
 
 # Lo que avanza la estocada en este cuadro, como el hueso Root del clip: arranca de golpe y frena
 func _velocidad_estocada(delta: float) -> Vector3:
-	var antes := ESTOCADA_AVANCE * smoothstep(ESTOCADA_DESDE, ESTOCADA_HASTA, _estocada_t - delta)
-	var ahora := ESTOCADA_AVANCE * smoothstep(ESTOCADA_DESDE, ESTOCADA_HASTA, _estocada_t)
+	var desde := TAJO_DESDE if _tajo else ESTOCADA_DESDE
+	var hasta := TAJO_HASTA if _tajo else ESTOCADA_HASTA
+	var antes := _estocada_avance * smoothstep(desde, hasta, _estocada_t - delta * _estocada_vel)
+	var ahora := _estocada_avance * smoothstep(desde, hasta, _estocada_t)
 	return _estocada_dir * ((ahora - antes) / maxf(delta, 0.0001))
 
 
@@ -1341,6 +1519,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif _es_direccion(event) and Input.is_action_pressed("rodar") and is_physics_processing():
 		# Alt sostenido: cada direccion que aprietes es una rodada para alla
 		_pedir_accion("rodar")
+	elif _doble_toque(event) and is_physics_processing():
+		# La misma tecla de direccion dos veces seguidas: rodada para alla
+		_pedir_accion("rodar")
 	elif event.is_action_pressed("curarse") and is_physics_processing() and _rodada_t < 0.0:
 		_curarse()
 	elif event.is_action_pressed("attack") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -1522,7 +1703,15 @@ func _physics_process(delta: float) -> void:
 	if _toca_pose_carga():
 		_empezar_pose_carga()
 	elif _golpe_guardado and ATAQUE_ENFRIAR - _enfriar >= _combo_desde():
-		_atacar()
+		# Un brinco o rodada pedidos a media barrida le ganan al espadazo guardado (JJ): machacando,
+		# el golpe guardado salia primero, volvia a tapar el brinco y este caducaba, asi que habia
+		# que pausar para brincar. El espadazo guardado se vuelve el golpe en el aire (giro, o
+		# clavado con Shift) para encadenar sin pausa
+		if (_buffer == "brinco" or _buffer == "rodar") and _puede(_buffer):
+			_golpe_guardado = false
+			_golpe_tras_brinco = _buffer == "brinco" and giro_aereo and _especiales()
+		else:
+			_atacar()
 	_invulnerable = maxf(_invulnerable - delta, 0.0)
 	_curando = maxf(_curando - delta, 0.0)
 	if _pega_en >= 0.0:
@@ -1628,7 +1817,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.x = move_toward(velocity.x, target_horizontal.x, acceleration * delta)
 		velocity.z = move_toward(velocity.z, target_horizontal.z, acceleration * delta)
-	if _estocada_t >= 0.0:
+	if _estocada_t >= 0.0 and not _estocada_quieta:
 		var avance := _velocidad_estocada(delta)
 		velocity.x = avance.x
 		velocity.z = avance.z
@@ -1644,6 +1833,10 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 	else:
 		velocity.y -= gravity * delta
+	# El clavado: baja con la misma curva que el desliz, asi va en linea recta al piso
+	if _clavando:
+		velocity.y = -_clavado_baja * (smoothstep(ESTOCADA_DESDE, ESTOCADA_HASTA, _estocada_t) \
+				- smoothstep(ESTOCADA_DESDE, ESTOCADA_HASTA, _estocada_t - delta)) / maxf(delta, 0.0001)
 
 	# Keyboard / gamepad camera rotation (mouse-look is handled above).
 	var camera_input: Vector2 = Input.get_vector(

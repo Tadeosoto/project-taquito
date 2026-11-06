@@ -67,7 +67,7 @@ const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
 const DANO_TINACO := 100
 const TURBA_PRUEBA := 12
 const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
-# La estela de los golpes (EstelaBarrido.estilo): la del protagonista, y la 8 la cambia para probar
+# La estela de los golpes (EstelaBarrido.estilo): la 8 prende o apaga la del protagonista
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 muestra/oculta esto)
 Tab inventario · clic o F pegar · V dron · clic der. bloquear · Alt + WASD rodar · S pegando o con pistola: retroceder · botón de en medio: verte de frente
@@ -81,9 +81,9 @@ C crear personaje · K deterioro · F12 reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
 9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
 0 zombis: enjambre (carriles, atajos, rebasan) / en fila como antes
-8 estela de los golpes: 0 la de siempre → 1 agua → 2 mariposa monarca (con la estocada sale una monarca)
-7 ataque cargado: deja apretado pegar y suelta = estocada con avance; apretado a media combinacion cambia el siguiente golpe por la carga (prueba) / sin cargado
-6 golpe con brinco: pega en el aire = espadazo giratorio (prueba) / sin giro
+8 estela del protagonista (su mejora): prendida / la de siempre
+7 ataque cargado: deja apretado pegar y suelta = tajo de arriba abajo con avance, 2.5x dano / sin cargado
+6 golpe con brinco: pega en el aire = espadazo giratorio; con Shift, clavado con estocada (prueba) / sin giro
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
 Efectos de pixel, propuestas (F2-F7 cambian):"""
 # Una tecla por lugar de EfectosPixel, en este orden
@@ -351,6 +351,7 @@ func _poner_objetos() -> void:
 
 func _exit_tree() -> void:
 	ESTELA.estilo = ESTELA.Estilo.NORMAL
+	get_node("/root/Personaje").mejora_estela = false
 	Player.golpe_cargado = false
 	Player.giro_aereo = false
 
@@ -418,7 +419,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			Zombie.enjambre = not Zombie.enjambre
 			_mostrar_efectos()
 		KEY_8:
-			ESTELA.estilo = (ESTELA.estilo + 1) % ESTELA.NOMBRES.size()
+			# Prende o apaga la estela del protagonista (su mejora, Personaje.ESTELAS)
+			var personaje := get_node("/root/Personaje")
+			personaje.mejora_estela = not personaje.mejora_estela
+			ESTELA.estilo = personaje.estela()
 			_mostrar_efectos()
 		KEY_6:
 			Player.giro_aereo = not Player.giro_aereo

@@ -105,7 +105,7 @@ void fragment() {
 # de orilla a orilla en un angulo al azar y una rama
 const RAYO_TAMANO := Vector2(1.0, 1.35)   # m, al salir y al final
 const RAYO_AFUERA := 0.06    # m mas alla de la punta del arma: que sobresalgan de la estela (JJ)
-const RAYO_CADA := 4         # pedazos entre rayo y rayo (las nubes van cada NUBE_CADA)
+const RAYO_CADA := 8         # pedazos entre rayo y rayo (JJ: con 4 eran demasiados) (las nubes van cada NUBE_CADA)
 const SHADER_RAYO := """
 shader_type spatial;
 render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled;
@@ -113,8 +113,8 @@ render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled;
 instance uniform float edad = 0.0;
 instance uniform float semilla = 0.0;
 
-// Emiliano (JJ): negro por fuera, cafe en medio y rojo del haki del rey por dentro; NUCLEO es el
-// centro encendido de grietas y rayos
+// Emiliano (JJ): el rayo al reves que la estela: negro por dentro, cafe en medio y contorno rojo
+// del haki del rey; NUCLEO es la orilla encendida mientras es nuevo
 const vec3 NEGRO = vec3(0.060, 0.020, 0.080);
 const vec3 CAFE = vec3(0.450, 0.280, 0.150);
 const vec3 DENTRO = vec3(0.880, 0.080, 0.180);
@@ -163,17 +163,18 @@ void fragment() {
 	float d = rayo(p, a, l, cuadro + semilla * 37.0);
 	d = min(d, rayo(p, a + 0.8 * sign(semilla - 0.5), l * 0.6, cuadro * 1.7 + semilla * 53.0) + 0.01);
 	d = min(d, rayo(p, a + 3.1416, l * 0.4, cuadro * 2.3 + semilla * 17.0) + 0.01);
-	// Por capas como la estela: nucleo encendido mientras es nuevo, adentro, cafe y contorno negro
+	// Al reves que la estela (JJ): el rayo negro, cafe y contorno rojo del haki, con su orilla
+	// encendida mientras es nuevo
 	float grueso = 0.025 * (1.0 - edad * 0.5);
 	vec3 c;
-	if (d < grueso * 0.5 && edad < 0.5) {
-		c = NUCLEO;
-	} else if (d < grueso) {
-		c = DENTRO;
+	if (d < grueso) {
+		c = NEGRO;
 	} else if (d < grueso + 0.015) {
 		c = CAFE;
+	} else if (d < grueso + 0.03) {
+		c = DENTRO;
 	} else if (d < grueso + 0.035) {
-		c = NEGRO;
+		c = edad < 0.5 ? NUCLEO : DENTRO;
 	} else {
 		discard;
 	}
@@ -265,7 +266,7 @@ void fragment() {
 # Nubes de polvo: una bola pixeleada de cara a la camara, blanca (JJ no la quiso cafe como la de
 # la hoja), mas clara arriba a la izquierda, que crece, sube y se deshace.
 # `edad` va de 0 a 1 y `semilla` cambia la forma de cada una
-const NUBES := 20              # en la reserva; se reusa la mas vieja (el estallido del puno saca 7)
+const NUBES := 32              # en la reserva; se reusa la mas vieja (el estallido del puno saca 7; la carga y el tajo llenaban 20)
 const NUBE_CADA := 5           # pedazos de estela entre nube y nube
 const NUBE_VIDA := 0.45
 const NUBE_TAMANO := Vector2(0.2, 0.5)  # m, al salir y al final

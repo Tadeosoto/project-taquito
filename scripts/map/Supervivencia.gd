@@ -86,7 +86,7 @@ func _ready() -> void:
 		_sonar("campana"))
 	_zombis.turba_cerca.connect(func() -> void:
 		_avisar(TEXTO_TURBA)
-		_sonar("gemido"))
+		_sonar("rugido"))
 	ciclo.anochecio.connect(func() -> void: _avisar(TEXTO_NOCHE))
 	ciclo.amanecio.connect(func() -> void:
 		_avisar(TEXTO_DIA)

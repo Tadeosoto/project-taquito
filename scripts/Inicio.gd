@@ -40,7 +40,7 @@ const VOLUMEN_SONIDOS := -6.0  # dB de los sonidos del menu
 const VOLUMEN_AMBIENTE := -16.0  # dB del zumbido y viento de fondo
 const AMBIENTE_ENTRA := 1.5      # s que tarda en subir al abrir
 const AMBIENTE_SALE := 2.0       # s que tarda en apagarse al empezar la partida
-const GEMIDO_CADA := Vector2(6.0, 14.0)
+const GEMIDO_CADA := Vector2(12.0, 22.0)   # el rugido es largo: no tan seguido
 
 enum Pantalla { MENU, PERSONAJE, CONTROLES, CREDITOS, CARGANDO }
 
@@ -98,7 +98,7 @@ func _process(delta: float) -> void:
 	_gemido -= delta
 	if _gemido <= 0.0:
 		_gemido = randf_range(GEMIDO_CADA.x, GEMIDO_CADA.y)
-		_voz_zombi.stream = Sonidos.sonido("gemido")
+		_voz_zombi.stream = Sonidos.sonido("rugido")
 		_voz_zombi.pitch_scale = randf_range(0.85, 1.1)
 		_voz_zombi.play()
 	if _pantalla == Pantalla.CARGANDO:

@@ -81,7 +81,7 @@ const ALTO_CALLE := 0.6    # m sobre el centro: mas alto es una azotea
 const INTENTOS := 6
 # El gemido lejano al salir un grupo: grave, apagado por la distancia
 const GEMIDO_TONO := Vector2(0.7, 0.85)
-const GEMIDO_VOLUMEN := 4.0
+const GEMIDO_VOLUMEN := 0.0   # el rugido ya es mas fuerte que el gemido de antes
 const GEMIDO_HASTA := 80.0
 const GEMIDO_FILTRO := 1800.0   # Hz: atenuacion de AudioStreamPlayer3D, suena lejos
 
@@ -277,9 +277,12 @@ func _respirar(delta: float) -> void:
 
 # Un gemido grave y lejano de donde sale el grupo: el aviso, sin texto
 func _gemir(lugar: Vector3) -> void:
+	var tono := randf_range(GEMIDO_TONO.x, GEMIDO_TONO.y)
+	if not Sonidos.turno("rugido", tono):
+		return
 	var voz := AudioStreamPlayer3D.new()
-	voz.stream = Sonidos.sonido("gemido")
-	voz.pitch_scale = randf_range(GEMIDO_TONO.x, GEMIDO_TONO.y)
+	voz.stream = Sonidos.sonido("rugido")
+	voz.pitch_scale = tono
 	voz.volume_db = GEMIDO_VOLUMEN
 	voz.max_distance = GEMIDO_HASTA
 	voz.attenuation_filter_cutoff_hz = GEMIDO_FILTRO

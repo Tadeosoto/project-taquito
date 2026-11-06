@@ -1,8 +1,8 @@
 class_name Sonidos
 extends RefCounted
 
-# No hay archivos de audio en el juego: los sonidos cortos se arman en codigo y se
-# guardan la primera vez que se piden.
+# Casi no hay archivos de audio en el juego: los sonidos cortos se arman en codigo y se
+# guardan la primera vez que se piden (salvo ARCHIVOS).
 
 const MUESTRAS := 22050
 
@@ -11,11 +11,53 @@ static var _sonidos := {}
 # nada. La defensa del tinaco deja solo los machetazos y los balazos, con su musica
 static var solo: Array[String] = []
 
+# Los unicos que vienen de archivo: el rugido de los zombis (JJ), la subida y la bajada sin lo de en medio para cuando te
+# detectan, y para el aviso de que van a pegar el pico ya bajando. Ya vienen mas bajos
+# (de "rugido zombie.mpeg" con ffmpeg).
+const ARCHIVOS := {
+	"rugido": "res://audio/zombis/rugido.ogg",
+	"rugido_corto": "res://audio/zombis/rugido_corto.ogg",
+}
 
-static func sonido(nombre: String) -> AudioStreamWAV:
+# Cupo de rugidos: con una horda de 15 todos querian rugir a la vez y tapaban todo.
+# Nunca suenan mas de RUGIDOS_MAX juntos, y entre uno y otro pasan RUGIDO_SEPARA s.
+# Los cortos (aviso de ataque) tienen su propio cupo, mas suelto, porque te dicen algo.
+const RUGIDOS_MAX := 2
+const RUGIDO_SEPARA := 2.5
+const CORTOS_MAX := 3
+const CORTO_SEPARA := 0.35
+static var _sonando := {"rugido": [], "rugido_corto": []}   # cuando acaba cada uno (ms)
+static var _ultimo := {"rugido": -100000, "rugido_corto": -100000}
+
+
+# true si `nombre` ("rugido" o "rugido_corto") puede sonar ahora, y lo aparta
+static func turno(nombre: String, tono := 1.0) -> bool:
+	if not _sonando.has(nombre):
+		return true
+	var stream := sonido(nombre)
+	if stream == null:
+		return false
+	var ahora := Time.get_ticks_msec()
+	var corto := nombre == "rugido_corto"
+	var lista: Array = _sonando[nombre]
+	lista = lista.filter(func(fin: int) -> bool: return fin > ahora)
+	_sonando[nombre] = lista
+	if lista.size() >= (CORTOS_MAX if corto else RUGIDOS_MAX):
+		return false
+	if ahora - int(_ultimo[nombre]) < int((CORTO_SEPARA if corto else RUGIDO_SEPARA) * 1000.0):
+		return false
+	_ultimo[nombre] = ahora
+	lista.append(ahora + int(stream.get_length() / maxf(tono, 0.1) * 1000.0))
+	return true
+
+
+static func sonido(nombre: String) -> AudioStream:
 	if not solo.is_empty() and not solo.has(nombre):
 		return null
 	if not _sonidos.has(nombre):
+		if ARCHIVOS.has(nombre):
+			_sonidos[nombre] = load(ARCHIVOS[nombre])
+			return _sonidos[nombre]
 		match nombre:
 			"paso":
 				_sonidos[nombre] = _tono(880.0, 0.035, 0.0, 0.5)

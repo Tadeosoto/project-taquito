@@ -51,8 +51,9 @@ const ACCIONES := {
 	"puno_gancho": "Melee_Hook",
 	"puno_gancho_rec": "Melee_Hook_Rec",
 	"golpe_giro": "Sword_Regular_C",   # el golpe con brinco (Player.giro_aereo)
-	"estocada": "Sword_Dash_RM",       # el ataque cargado (Player.golpe_cargado)
-	"pose_carga": "Sword_Dash_RM",
+	"estocada": "Sword_Dash_RM",       # la estocada desde el aire (Player.giro_aereo + Shift)
+	"tajo": "Sword_Attack",            # el ataque cargado (Player.golpe_cargado): tajo de arriba abajo
+	"pose_carga": "Sword_Attack",      # la pose mientras cargas: el arma arriba, quieta
 	"rodar": "Roll",                   # el esquive (Player._rodar)
 	"bloqueo": "Sword_Block",          # clic derecho con el machete (Player.bloquear)          # la pose mientras cargas: el amago de la estocada, quieto
 	"herido": "Hit_Chest",
@@ -209,12 +210,12 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	raiz.connect_node("giro_vel", 0, "giro_salta")
 	# La estocada y la pose de carga pueden empezar a media animacion: al soltar la carga, la
 	# estocada sale del mismo cuadro en que estaba la pose. La pose va a velocidad 0
-	for entrada: String in ["estocada", "pose_carga", "rodar", "bloqueo"]:
+	for entrada: String in ["estocada", "tajo", "pose_carga", "rodar", "bloqueo"]:
 		raiz.add_node(entrada + "_salta", AnimationNodeTimeSeek.new())
 		raiz.connect_node(entrada + "_salta", 0, "c_" + entrada)
 		raiz.add_node(entrada + "_vel", AnimationNodeTimeScale.new())
 		raiz.connect_node(entrada + "_vel", 0, entrada + "_salta")
-	var entra_por := {"golpe_giro": "giro_vel", "estocada": "estocada_vel", "pose_carga": "pose_carga_vel", "rodar": "rodar_vel", "bloqueo": "bloqueo_vel"}
+	var entra_por := {"golpe_giro": "giro_vel", "estocada": "estocada_vel", "tajo": "tajo_vel", "pose_carga": "pose_carga_vel", "rodar": "rodar_vel", "bloqueo": "bloqueo_vel"}
 	i = 0
 	for entrada: String in ACCIONES:
 		raiz.connect_node("cual", i, entra_por.get(entrada, "c_" + entrada))
@@ -405,14 +406,39 @@ func velocidad_giro(velocidad: float) -> void:
 
 # La estocada con avance: de todo el cuerpo (el avance lo hace Player, el clip ya no trae Root).
 # desde > 0 al salir de la pose de carga, que estaba quieta en ese cuadro
-func golpe_estocada(desde := 0.0) -> void:
+# velocidad > 1: desde el aire, para caer en el cuadro justo (Player.ESTOCADA_AIRE_CAE)
+func golpe_estocada(desde := 0.0, velocidad := 1.0) -> void:
 	_golpe_clip = ACCIONES["estocada"]
 	_golpe_t = desde
-	_golpe_vel = 1.0
+	_golpe_vel = velocidad
+	_arbol.set("parameters/estocada_vel/scale", velocidad)
 	_arbol.set("parameters/estocada_salta/seek_request", desde)
 	if _accion_nodo:
 		_accion_nodo.filter_enabled = false
-	_lanzar("estocada", desde)
+	_lanzar("estocada", desde, velocidad)
+
+
+# El tajo cargado: de todo el cuerpo, desde el cuadro de la pose de carga (el avance lo hace Player)
+func golpe_tajo(desde := 0.0) -> void:
+	_golpe_clip = ACCIONES["tajo"]
+	_golpe_t = desde
+	_golpe_vel = 1.0
+	_arbol.set("parameters/tajo_vel/scale", 1.0)
+	_arbol.set("parameters/tajo_salta/seek_request", desde)
+	if _accion_nodo:
+		_accion_nodo.filter_enabled = false
+	_lanzar("tajo", desde, 1.0)
+
+
+# La estocada desde el aire ya cayo: lo demas a velocidad normal (0: se queda quieta)
+func velocidad_estocada(velocidad: float) -> void:
+	if _golpe_t < 0.0 or _golpe_clip != ACCIONES["estocada"]:
+		return
+	_golpe_vel = velocidad
+	_arbol.set("parameters/estocada_vel/scale", velocidad)
+	# 0 = quieta en el aire esperando el piso
+	_accion_resta = INF if velocidad <= 0.0 else \
+			(BIBLIOTECA.get_animation(_golpe_clip).length - _golpe_t) / velocidad + ACCION_SALE
 
 
 # Mientras cargas: el amago de la estocada, quieto en el cuadro en (s del clip). Entra mezclando

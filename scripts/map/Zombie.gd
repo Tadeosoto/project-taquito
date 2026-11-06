@@ -55,6 +55,17 @@ const VE_ANGULO := 120.0    # grados, todo el cono
 const OYE_DESDE := 12.0
 const OYE_DISPARO := 40.0
 const CONTAGIA := 8.0
+# El rugido (audio/zombis/rugido.ogg, JJ): suena al detectarte y de vez en cuando
+# despues, cada RUGIDO_CADA s por zombi. Sonidos.turno pone el tope para todos (2 a la
+# vez, 2.5 s entre uno y otro): si no le toca, lo vuelve a intentar en RUGIDO_REINTENTA.
+# El aviso de ataque es el pedazo corto, con su propio tope (Sonidos.CORTOS_MAX).
+const RUGIDO_CADA := Vector2(14.0, 28.0)
+const RUGIDO_REINTENTA := Vector2(3.0, 7.0)
+const RUGIDO_VOLUMEN := -4.0        # dB sobre el archivo, que ya viene bajo
+const RUGIDO_CORTO_VOLUMEN := -2.0
+const RUGIDO_TONO := Vector2(0.88, 1.12)
+const RUGIDO_HASTA := 30.0          # m: mas lejos no se oye
+const RUGIDO_UNIDAD := 4.0          # unit_size del 3D: baja rapido con la distancia
 const TICKS_DETECTA := 6
 const OJOS_ALTO := 1.4      # m: de los ojos al pecho del jugador
 const VIDA := 30
@@ -290,7 +301,7 @@ func _ready() -> void:
 			_material_jefe = ShaderMaterial.new()
 			_material_jefe.shader = JEFE_SHADER
 			_material_jefe.set_shader_parameter("tint", JEFE_COLOR)
-	_gemido = randf_range(1.0, 6.0)
+	_gemido = randf_range(RUGIDO_CADA.x * 0.3, RUGIDO_CADA.y)
 	_lado = 1.0 if randf() < 0.5 else -1.0
 	var forma := CollisionShape3D.new()
 	var capsula := CapsuleShape3D.new()
@@ -324,7 +335,8 @@ func _ready() -> void:
 			_mallas.append(malla)
 	_voz = AudioStreamPlayer3D.new()
 	_voz.position.y = 1.5
-	_voz.max_distance = 25.0
+	_voz.max_distance = RUGIDO_HASTA
+	_voz.unit_size = RUGIDO_UNIDAD
 	add_child(_voz)
 	_armar_barra()
 	if not es_jefe:
@@ -378,8 +390,7 @@ func alertar(contagia := true) -> void:
 	_rumbo = Vector3.ZERO
 	_atorado = 0.0
 	if contagia:
-		_sonar("gemido")
-		_gemido = randf_range(4.0, 9.0)
+		_rugir("rugido")
 		for zombi in activos:
 			if zombi != self and not zombi.alerta and zombi.global_position.distance_squared_to(global_position) <= CONTAGIA * CONTAGIA:
 				zombi.alertar(false)
@@ -598,8 +609,7 @@ func _caminar(delta: float) -> Vector3:
 	_vivo += delta
 	_gemido -= delta
 	if _gemido <= 0.0:
-		_gemido = randf_range(4.0, 9.0)
-		_sonar("gemido")
+		_rugir("rugido")
 	_tick += 1
 	if not alerta:
 		return _deambular(delta)
@@ -930,7 +940,7 @@ func _empezar_ataque() -> void:
 	_animar(["attack1", "attack2"].pick_random(), ATAQUE_VELOCIDAD if gordo() else ATAQUE_VELOCIDAD_SKIN, true)
 	# La señal de que va a pegar: un gruñido, mientras se le puede cortar
 	if _en_corte():
-		_sonar("gemido")
+		_rugir("rugido_corto")
 
 
 func _atacar() -> void:
@@ -1198,4 +1208,22 @@ func _animar(nombre: String, velocidad: float, reiniciar := false) -> void:
 
 func _sonar(nombre: String) -> void:
 	_voz.stream = Sonidos.sonido(nombre)
+	_voz.volume_db = 0.0
+	_voz.pitch_scale = 1.0
+	_voz.play()
+
+
+# Ruge solo si Sonidos le da turno; el siguiente rugido de ambiente queda para despues
+func _rugir(nombre: String) -> void:
+	var largo := nombre == "rugido"
+	var tono := randf_range(RUGIDO_TONO.x, RUGIDO_TONO.y)
+	if not Sonidos.turno(nombre, tono):
+		if largo:
+			_gemido = randf_range(RUGIDO_REINTENTA.x, RUGIDO_REINTENTA.y)
+		return
+	if largo:
+		_gemido = randf_range(RUGIDO_CADA.x, RUGIDO_CADA.y)
+	_voz.stream = Sonidos.sonido(nombre)
+	_voz.volume_db = RUGIDO_VOLUMEN if largo else RUGIDO_CORTO_VOLUMEN
+	_voz.pitch_scale = tono
 	_voz.play()
