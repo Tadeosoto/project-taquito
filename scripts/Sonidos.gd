@@ -37,6 +37,8 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _tono(420.0, 0.11, -200.0, 0.7)
 			"whack":
 				_sonidos[nombre] = _whack()
+			"bloqueo":
+				_sonidos[nombre] = _bloqueo()
 			"reventar":
 				_sonidos[nombre] = _reventar()
 			"dolor":
@@ -530,6 +532,23 @@ static func _whack() -> AudioStreamWAV:
 		var retumbo := sin(fase * TAU) * pow(1.0 - t, 2.0)
 		datos.encode_s16(i * 2, int(clampf(chasquido * 0.9 + retumbo * 0.75, -1.0, 1.0) * 32000.0))
 	return _wav(datos)
+
+
+# Golpe parado con el machete: un golpe sordo en el cuerpo, el chasquido del choque y la hoja que
+# vibra (parciales que no son armonicos, como una lamina), con un poco de eco
+static func _bloqueo() -> AudioStreamWAV:
+	var b := _golpe_grave(85.0, 18.0, 0.7, 0.45)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 91
+	var parciales := [[1180.0, 9.0, 0.32], [1910.0, 12.0, 0.24], [2970.0, 16.0, 0.16], [4230.0, 22.0, 0.1]]
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		var choque := azar.randf_range(-1.0, 1.0) * exp(-t * 120.0) * 0.8
+		var lamina := 0.0
+		for p: Array in parciales:
+			lamina += sin(TAU * p[0] * t) * exp(-t * p[1]) * p[2]
+		b[i] += choque + lamina
+	return _a_wav(_eco(b, [23, 37], 0.3, 0.15, 0.25))
 
 
 # Un zombi que gime: una garganta (diente de sierra apagado) que sube y luego se cae,

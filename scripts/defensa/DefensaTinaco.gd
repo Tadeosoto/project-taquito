@@ -76,7 +76,7 @@ const TEMA := preload("res://resources/ui/tema_pixel.tres")
 const MUSICA := preload("res://audio/musica/pt_tema.mp3")
 # Lo unico que suena ademas de la musica (Sonidos.solo): el machete al cortar el aire y al
 # pegar, y la pistola
-const SONIDOS := ["machetazo", "whack", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4"]
+const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
 const MUSICA_ENTRA := 2.0      # s

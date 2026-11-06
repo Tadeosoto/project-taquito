@@ -18,6 +18,11 @@ const LIB := "h"
 const MEZCLA_PIES := 0.15     # s de un modo de caminar a otro
 const TROTE_VEL := 4.0        # m/s a los que el trote se ve a su velocidad
 const CARRERA_VEL := 8.0
+# Caminando mientras haces otra cosa (pistola en mano, machetazos) o retrocediendo, las piernas
+# tocan Walk, al reves si vas hacia la espalda (Quaternius no trae caminar para atras); el trote
+# es solo para cuando no haces nada mas (JJ). Medido por el pie de apoyo, Walk avanza ~1.3 m/s
+# con la cabeza a 1.62 m
+const CAMINA_VEL := 1.3
 const PASO_MIN := 0.8         # de la velocidad del clip: mas rapido parecia caricatura
 const PASO_MAX := 1.6
 # Apuntar: la inclinacion de la camara (grados) que corresponde a Pistol_Aim_Up / _Down
@@ -27,20 +32,42 @@ const PATADA := 0.22          # de la mira que sube el arma en cada tiro
 const PATADA_BAJA := 2.0      # por segundo
 const RECARGA_DURA := 1.5     # s (Pistola.RECARGA); el clip dura 1.67
 # Los dos machetazos del combo, cada uno al reves del otro: A de derecha a izquierda, B de regreso.
-# Pasan por enfrente a los 0.23 s, como Player.ATAQUE_PEGA_EN
+# Pasan por enfrente a los 0.24 s, como Player.ATAQUE_PEGA_EN
+# Mezcla de un machetazo al siguiente del combo (y a la pose de carga): con 0.06 el brazo
+# saltaba de pose
+const MEZCLA_COMBO := 0.12
 const GOLPE_DERECHA := "Sword_Regular_A"
 const GOLPE_IZQUIERDA := "Sword_Regular_B"
 const ACCIONES := {
 	"golpe_a": GOLPE_DERECHA,
 	"golpe_b": GOLPE_IZQUIERDA,
+	# Si el combo acaba ahi (no sale otro golpe), sigue su _Rec, que empieza justo donde termina
+	# el golpe y regresa a la guardia (medido: el primer cuadro es el ultimo del golpe)
+	"golpe_a_rec": "Sword_Regular_A_Rec",
+	"golpe_b_rec": "Sword_Regular_B_Rec",
+	# A mano limpia (Player.PUNOS): jab, cruzado y gancho; el gancho tambien tiene su _Rec
+	"puno_jab": "Punch_Jab",
+	"puno_cruzado": "Punch_Cross",
+	"puno_gancho": "Melee_Hook",
+	"puno_gancho_rec": "Melee_Hook_Rec",
 	"golpe_giro": "Sword_Regular_C",   # el golpe con brinco (Player.giro_aereo)
 	"estocada": "Sword_Dash_RM",       # el ataque cargado (Player.golpe_cargado)
+	"pose_carga": "Sword_Dash_RM",
+	"rodar": "Roll",                   # el esquive (Player._rodar)
+	"bloqueo": "Sword_Block",          # clic derecho con el machete (Player.bloquear)          # la pose mientras cargas: el amago de la estocada, quieto
 	"herido": "Hit_Chest",
 	"recoger": "PickUp_Table",
 }
+const PUNETAZOS := ["puno_jab", "puno_cruzado", "puno_gancho"]
+# Que sigue a cada golpe cuando nadie lo corta
+const REC := {"golpe_a": "golpe_a_rec", "golpe_b": "golpe_b_rec", "puno_gancho": "puno_gancho_rec"}
+# Los golpes que se sueltan al caminar en cuanto se acaba el enfriamiento: con el filtro de arriba
+# apagado, sus piernas (paradas, en guardia) pisaban las de caminar
+const SUELTAN_CAMINANDO := ["golpe_a", "golpe_b", "golpe_a_rec", "golpe_b_rec", "puno_jab",
+	"puno_cruzado", "puno_gancho", "puno_gancho_rec"]
 # Lo que antes pedia Player con los nombres del ninja
 const PISTAS := {"RecieveHit": "herido", "Punch": "golpe_a", "PickUp": "recoger"}
-const BUCLES := ["Idle", "Jog_Fwd", "Sprint", "Walk_Carry", "Jump", "Pistol_Idle",
+const BUCLES := ["Idle", "Jog_Fwd", "Walk", "Sprint", "Walk_Carry", "Jump", "Pistol_Idle",
 	"Pistol_Aim_Up", "Pistol_Aim_Neutral", "Pistol_Aim_Down"]
 # De la cintura para arriba (la pistola y recargar); las piernas siguen caminando
 const ARRIBA := ["Spine", "Chest", "UpperChest", "Neck", "Head"]
@@ -51,13 +78,38 @@ const ARRIBA_LADOS := ["Shoulder", "UpperArm", "LowerArm", "Hand", "IndexProxima
 var cargando := false
 
 var _arbol: AnimationTree
-var _accion_nodo: AnimationNodeOneShot  # su filtro (parte de arriba) se prende al caminar golpeando
+var _accion_nodo: AnimationNodeBlend2  # su filtro (parte de arriba) se prende al caminar golpeando
+var _cual: AnimationNodeTransition
+# La accion (machetazos, pose de carga, herido...) se mezcla encima con un peso que lleva este
+# script, no con un OneShot: el OneShot se apagaba a la duracion del primer clip aunque la
+# transicion ya fuera en otro, y al machacar uno de cada dos golpes salia con el brazo quieto.
+# Redispararlo regresaba el brazo a la pose de reposo un instante. Asi el peso se queda en 1
+# todo el combo y la transicion mezcla de un golpe al otro
+var _accion_peso := 0.0
+var _accion_resta := 0.0      # s que le quedan a la accion; INF = la pose de carga, hasta soltarla
+const ACCION_ENTRA := 0.05    # s en que entra desde nada
+const ACCION_SALE := 0.15     # s en que se suelta al terminar
+# Al acabar un machetazo el brazo se queda ACCION_QUEDA s en el remate antes de soltarse: se
+# soltaba al instante y, si el siguiente golpe llegaba un poco tarde, salia desde la pose de
+# reposo y brincaba a su preparacion en 3 cuadros. El final de A es el principio de B
+const ACCION_QUEDA := 0.2
 var _patada := 0.0
 var _mira := 0.0
 # El machetazo que va: el clip y cuanto lleva (lo lee la estela del arma)
 var _golpe_clip := ""
 var _golpe_t := -1.0
 var _golpe_vel := 1.0   # el giro en el aire va mas rapido (golpe_giro)
+# Sword_Block (medido con la mano): sube la espada 0-0.15 s, se queda en guardia 0.2-0.64 y la baja
+# 0.65-1.1. Bloqueando se queda quieto en GUARDIA_EN; al soltar sigue desde BAJA_DESDE
+const GUARDIA_EN := 0.3
+const BAJA_DESDE := 0.65
+const SACUDIDA_DESDE := 0.06  # un golpe parado regresa el clip aqui: la espada vuelve a subir
+var _bloqueando := false
+var _bloqueo_t := -1.0       # s del clip Sword_Block mientras sube a la guardia; -1 = ya quieto
+var _ultima := ""            # la ultima accion lanzada
+var _rec_en := -1.0          # s para que acabe el golpe y siga su _Rec (REC); -1 = nada
+var _moviendo := false       # lo ultimo que dijo update_animation
+var _inclinar: SkeletonModifier3D   # InclinarCuerpo.gd: la columna hacia adelante (inclinar)
 
 
 func _ready() -> void:
@@ -81,6 +133,11 @@ func _ready() -> void:
 	for inicio: Array in [["pies", "quieto"], ["apunta", "sostiene"], ["cual", "golpe_a"], ["estado", "vivo"]]:
 		_arbol.set("parameters/%s/transition_request" % inicio[0], inicio[1])
 	process_priority = 100
+	var esqueletos := find_children("*", "Skeleton3D", true, false)
+	if not esqueletos.is_empty():
+		_inclinar = preload("res://scripts/InclinarCuerpo.gd").new()
+		_inclinar.name = "Inclinar"
+		esqueletos[0].add_child(_inclinar)
 
 
 func _armar_arbol() -> AnimationNodeBlendTree:
@@ -89,7 +146,7 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 
 	var pies := AnimationNodeTransition.new()
 	pies.xfade_time = MEZCLA_PIES
-	for entrada in ["quieto", "trote", "carrera", "carga", "aire"]:
+	for entrada in ["quieto", "trote", "carrera", "carga", "aire", "camina"]:
 		pies.add_input(entrada)
 	raiz.add_node("pies", pies)
 	_clip(raiz, "c_quieto", "Idle", "pies", 0)
@@ -97,6 +154,7 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	_clip(raiz, "c_carrera", "Sprint", "pies", 2)
 	_clip(raiz, "c_carga", "Walk_Carry", "pies", 3)
 	_clip(raiz, "c_aire", "Jump", "pies", 4)
+	_clip(raiz, "c_camina", "Walk", "pies", 5)
 	raiz.add_node("paso", AnimationNodeTimeScale.new())
 	raiz.connect_node("paso", 0, "pies")
 
@@ -134,7 +192,10 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 
 	# Todo el cuerpo: cambiar de clip a medio machetazo mezcla del uno al otro (el combo)
 	var cual := AnimationNodeTransition.new()
-	cual.xfade_time = 0.06
+	cual.xfade_time = MEZCLA_COMBO
+	# El mismo golpe otra vez (el combo empezo de nuevo) vuelve a empezar el clip
+	cual.allow_transition_to_self = true
+	_cual = cual
 	var i := 0
 	for entrada: String in ACCIONES:
 		cual.add_input(entrada)
@@ -146,13 +207,19 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	raiz.connect_node("giro_salta", 0, "c_golpe_giro")
 	raiz.add_node("giro_vel", AnimationNodeTimeScale.new())
 	raiz.connect_node("giro_vel", 0, "giro_salta")
+	# La estocada y la pose de carga pueden empezar a media animacion: al soltar la carga, la
+	# estocada sale del mismo cuadro en que estaba la pose. La pose va a velocidad 0
+	for entrada: String in ["estocada", "pose_carga", "rodar", "bloqueo"]:
+		raiz.add_node(entrada + "_salta", AnimationNodeTimeSeek.new())
+		raiz.connect_node(entrada + "_salta", 0, "c_" + entrada)
+		raiz.add_node(entrada + "_vel", AnimationNodeTimeScale.new())
+		raiz.connect_node(entrada + "_vel", 0, entrada + "_salta")
+	var entra_por := {"golpe_giro": "giro_vel", "estocada": "estocada_vel", "pose_carga": "pose_carga_vel", "rodar": "rodar_vel", "bloqueo": "bloqueo_vel"}
 	i = 0
 	for entrada: String in ACCIONES:
-		raiz.connect_node("cual", i, "giro_vel" if entrada == "golpe_giro" else "c_" + entrada)
+		raiz.connect_node("cual", i, entra_por.get(entrada, "c_" + entrada))
 		i += 1
-	var accion := AnimationNodeOneShot.new()
-	accion.fadein_time = 0.05
-	accion.fadeout_time = 0.15
+	var accion := AnimationNodeBlend2.new()
 	# Parado, todo el cuerpo; caminando (golpe_caminando), solo arriba y las piernas trotan
 	_filtrar(accion, arriba)
 	accion.filter_enabled = false
@@ -202,26 +269,54 @@ func _process(delta: float) -> void:
 		_golpe_t += delta * _golpe_vel
 		if _golpe_t > BIBLIOTECA.get_animation(_golpe_clip).length:
 			_golpe_t = -1.0
+	if _bloqueando and _bloqueo_t >= 0.0:
+		_bloqueo_t += delta
+		if _bloqueo_t >= GUARDIA_EN:
+			_bloqueo_t = -1.0
+			_arbol.set("parameters/bloqueo_vel/scale", 0.0)
+	if _rec_en >= 0.0:
+		_rec_en -= delta
+		if _rec_en < 0.0 and REC.has(_ultima):
+			# Caminando no: el _Rec es de cuerpo entero y parado; el golpe se suelta como antes
+			if not _moviendo:
+				_lanzar(REC[_ultima], 0.0, 1.0, false)
+	_accion_resta = maxf(_accion_resta - delta, 0.0)
+	_accion_peso = minf(move_toward(_accion_peso, 1.0, delta / ACCION_ENTRA), _accion_resta / ACCION_SALE)
+	_arbol.set("parameters/accion/blend_amount", _accion_peso)
 	_patada = move_toward(_patada, 0.0, PATADA_BAJA * delta)
 	_arbol.set("parameters/mira/blend_position", clampf(_mira + _patada, -1.0, 1.0))
 
 
 # --- Lo que pide Player ---
 
-func update_animation(is_moving: bool, is_airborne: bool, is_sprinting: bool = false, velocidad := -1.0) -> void:
+# camina: haces otra cosa a la vez (o retrocedes) y las piernas tocan Walk en vez del trote;
+# al_reves: te mueves hacia la espalda del modelo y Walk va al reves
+func update_animation(is_moving: bool, is_airborne: bool, is_sprinting: bool = false, velocidad := -1.0,
+		camina := false, al_reves := false) -> void:
 	if _arbol == null:
 		return
 	var modo := "quieto"
 	var natural := TROTE_VEL
 	if is_airborne:
 		modo = "aire"
+	elif is_moving and (camina or al_reves) and not cargando:
+		modo = "camina"
+		natural = CAMINA_VEL
 	elif is_moving:
 		modo = "carga" if cargando else ("carrera" if is_sprinting else "trote")
 		natural = CARRERA_VEL if is_sprinting else TROTE_VEL
 	_pedir("pies", modo)
+	_moviendo = is_moving
+	# Te echaste a andar con un golpe todavia de cuerpo entero (ya sin el filtro de arriba): se suelta
+	if is_moving and not _accion_nodo.filter_enabled and _ultima in SUELTAN_CAMINANDO \
+			and _accion_resta > ACCION_SALE:
+		_rec_en = -1.0
+		_accion_resta = ACCION_SALE * _accion_peso
 	var paso := 1.0
 	if is_moving and not is_airborne and velocidad > 0.0:
 		paso = clampf(velocidad / natural, PASO_MIN, PASO_MAX)
+	if modo == "camina" and al_reves:
+		paso = -paso
 	_arbol.set("parameters/paso/scale", paso)
 
 
@@ -244,17 +339,89 @@ func golpe_giro(velocidad := 1.0, desde := 0.0) -> void:
 	_arbol.set("parameters/giro_salta/seek_request", desde)
 	if _accion_nodo:
 		_accion_nodo.filter_enabled = false
-	_lanzar("golpe_giro")
+	_lanzar("golpe_giro", desde, velocidad)
 
 
-# La estocada con avance: de todo el cuerpo (el avance lo hace Player, el clip ya no trae Root)
-func golpe_estocada() -> void:
-	_golpe_clip = ACCIONES["estocada"]
-	_golpe_t = 0.0
-	_golpe_vel = 1.0
+# Clic derecho con el machete: sube la espada y se queda en guardia mientras si; al soltar la baja
+func bloquear(si: bool) -> void:
+	if si == _bloqueando or _arbol == null:
+		return
+	if si:
+		_golpe_t = -1.0
+		_bloqueo_t = 0.0
+		_arbol.set("parameters/bloqueo_vel/scale", 1.0)
+		_arbol.set("parameters/bloqueo_salta/seek_request", 0.0)
+		_lanzar("bloqueo")
+		_bloqueando = true
+	else:
+		_bloqueando = false
+		# Si otra accion ya lo tapo (un golpe, la rodada) no hay nada que bajar
+		if _ultima == "bloqueo":
+			_arbol.set("parameters/bloqueo_vel/scale", 1.0)
+			_arbol.set("parameters/bloqueo_salta/seek_request", BAJA_DESDE)
+			_accion_resta = BIBLIOTECA.get_animation(ACCIONES["bloqueo"]).length - BAJA_DESDE + ACCION_SALE
+
+
+# Te pegaron bloqueando: la espada cede y vuelve a subir a la guardia
+func bloqueo_golpe() -> void:
+	if not _bloqueando or _ultima != "bloqueo":
+		return
+	_bloqueo_t = SACUDIDA_DESDE
+	_arbol.set("parameters/bloqueo_vel/scale", 1.0)
+	_arbol.set("parameters/bloqueo_salta/seek_request", SACUDIDA_DESDE)
+
+
+# La rodada para esquivar, de todo el cuerpo, a `velocidad` (el avance lo hace Player: el clip
+# rueda en su lugar)
+func rodar(velocidad: float) -> void:
+	_golpe_t = -1.0
+	_arbol.set("parameters/rodar_vel/scale", velocidad)
+	_arbol.set("parameters/rodar_salta/seek_request", 0.0)
 	if _accion_nodo:
 		_accion_nodo.filter_enabled = false
-	_lanzar("estocada")
+	_lanzar("rodar", 0.0, velocidad)
+
+
+# Grados que se dobla la columna hacia adelante (0 = derecho); entra y sale suave
+func inclinar(grados: float) -> void:
+	if _inclinar:
+		_inclinar.angulo = grados
+
+
+# Inclinado, los brazos no se agachan con la columna (los punetazos salen al frente)
+func enderezar_brazos(si: bool) -> void:
+	if _inclinar:
+		_inclinar.brazos = 1.0 if si else 0.0
+
+
+# El giro cambia de velocidad a medio clip (en el aire va acelerado; tras el azote, normal)
+func velocidad_giro(velocidad: float) -> void:
+	if _golpe_t < 0.0 or _golpe_clip != ACCIONES["golpe_giro"]:
+		return
+	_golpe_vel = velocidad
+	_arbol.set("parameters/giro_vel/scale", velocidad)
+	_accion_resta = (BIBLIOTECA.get_animation(_golpe_clip).length - _golpe_t) / velocidad + ACCION_SALE
+
+
+# La estocada con avance: de todo el cuerpo (el avance lo hace Player, el clip ya no trae Root).
+# desde > 0 al salir de la pose de carga, que estaba quieta en ese cuadro
+func golpe_estocada(desde := 0.0) -> void:
+	_golpe_clip = ACCIONES["estocada"]
+	_golpe_t = desde
+	_golpe_vel = 1.0
+	_arbol.set("parameters/estocada_salta/seek_request", desde)
+	if _accion_nodo:
+		_accion_nodo.filter_enabled = false
+	_lanzar("estocada", desde)
+
+
+# Mientras cargas: el amago de la estocada, quieto en el cuadro en (s del clip). Entra mezclando
+# desde donde vaya el machetazo. Caminando, solo arriba (golpe_caminando)
+func pose_carga(en: float) -> void:
+	_golpe_t = -1.0
+	_arbol.set("parameters/pose_carga_vel/scale", 0.0)
+	_arbol.set("parameters/pose_carga_salta/seek_request", en)
+	_lanzar("pose_carga")
 
 
 # Caminando a medio machetazo: el barrido solo en la parte de arriba, las piernas trotan
@@ -263,11 +430,20 @@ func golpe_caminando(si: bool) -> void:
 		_accion_nodo.filter_enabled = si
 
 
+# Un golpe del combo a mano limpia: 0 jab, 1 cruzado, 2 gancho (Player.PUNOS)
+func punetazo(paso: int) -> void:
+	var entrada: String = PUNETAZOS[clampi(paso, 0, PUNETAZOS.size() - 1)]
+	_golpe_clip = ACCIONES[entrada]
+	_golpe_t = 0.0
+	_golpe_vel = 1.0
+	_lanzar(entrada)
+
+
 # Te moviste a medio combo: el brazo se suelta y regresa a caminar
 func soltar_golpe() -> void:
 	_golpe_t = -1.0
-	if _arbol and _arbol.get("parameters/accion/active"):
-		_arbol.set("parameters/accion/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT)
+	_rec_en = -1.0
+	_accion_resta = minf(_accion_resta, ACCION_SALE * _accion_peso)
 
 
 # Cuanto lleva el machetazo que va (s), o -1
@@ -284,7 +460,7 @@ func accion(pista: String) -> void:
 		return
 	if pista == "Defeat" or pista == "caido":
 		_golpe_t = -1.0
-		_arbol.set("parameters/accion/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+		_abortar_accion()
 		_pedir("estado", "caido")
 		return
 	var entrada: String = PISTAS.get(pista, pista)
@@ -297,7 +473,7 @@ func terminar_accion() -> void:
 	if _arbol == null:
 		return
 	_golpe_t = -1.0
-	_arbol.set("parameters/accion/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+	_abortar_accion()
 	_pedir("estado", "vivo")
 
 
@@ -323,14 +499,29 @@ func recarga() -> void:
 	_arbol.set("parameters/recarga/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
 
-func _lanzar(entrada: String) -> void:
-	var activa: bool = _arbol.get("parameters/accion/active")
-	var actual: String = _arbol.get("parameters/cual/current_state")
-	_pedir("cual", entrada)
-	# Otro clip a medio golpe: la transicion lo empieza de cero y mezcla. El mismo, o nada
-	# andando: se lanza otra vez
-	if not activa or actual == entrada:
-		_arbol.set("parameters/accion/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+# Empieza una accion (desde s del clip, a velocidad vel; la pose de carga dura hasta que la
+# sueltes). A media accion la transicion mezcla del clip que iba al nuevo; sin nada andando
+# entra directo, sin mezclar con un clip viejo
+# mezcla false: entra seco (el _Rec empieza en el cuadro en que acaba su golpe)
+func _lanzar(entrada: String, desde := 0.0, vel := 1.0, mezcla := true) -> void:
+	_cual.xfade_time = MEZCLA_COMBO if _accion_peso > 0.0 and mezcla else 0.0
+	_arbol.set("parameters/cual/transition_request", entrada)
+	_ultima = entrada
+	_rec_en = (BIBLIOTECA.get_animation(ACCIONES[entrada]).length - desde) / vel if REC.has(entrada) else -1.0
+	if entrada != "bloqueo":
+		_bloqueando = false
+	if entrada == "pose_carga" or entrada == "bloqueo":
+		_accion_resta = INF
+	else:
+		_accion_resta = (BIBLIOTECA.get_animation(ACCIONES[entrada]).length - desde) / vel + ACCION_SALE
+		if entrada == "golpe_a" or entrada == "golpe_b":
+			_accion_resta += ACCION_QUEDA
+
+
+func _abortar_accion() -> void:
+	_accion_resta = 0.0
+	_accion_peso = 0.0
+	_arbol.set("parameters/accion/blend_amount", 0.0)
 
 
 func _pedir(transicion: String, estado: String) -> void:

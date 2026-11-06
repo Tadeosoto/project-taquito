@@ -17,6 +17,9 @@ const CLIPS := [
 	"Idle", "Walk", "Jog_Fwd", "Sprint", "Walk_Carry", "Jump", "Jump_Start", "Jump_Land",
 	# Machete
 	"Sword_Idle", "Sword_Regular_A", "Sword_Regular_B", "Sword_Regular_C", "Sword_Attack", "Sword_Dash_RM",
+	"Sword_Block", "Sword_Regular_A_Rec", "Sword_Regular_B_Rec",
+	# A mano limpia
+	"Punch_Jab", "Punch_Cross", "Punch_Enter", "Melee_Hook", "Melee_Hook_Rec",
 	# Pistola
 	"Pistol_Idle", "Pistol_Aim_Up", "Pistol_Aim_Neutral", "Pistol_Aim_Down", "Pistol_Shoot", "Pistol_Reload",
 	# Zombis normales (scripts/map/Zombie.gd)

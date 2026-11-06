@@ -145,6 +145,7 @@ Lo que pidió JJ después de la partida 15 (4 de noviembre de 2026):
 
 - **Animación de curarse** (Q, `Player._curarse`): cambiarla por una de comer o tomar; la UAL de Quaternius trae `Consume`, y ya está en `resources/personajes/animaciones_humanas.res`.
 - **El zombi bloquea a veces**: 10 % de probabilidad de que un machetazo rebote, con un poco de lag (el brazo regresa y tardas en poder pegar otra vez) y sin daño.
+- **Sonido del bloqueo** (`Sonidos._bloqueo`, el choque al parar un golpe con clic derecho): el de ahora es provisional; falta uno mejor.
 - **Mejor interfaz durante la pelea**: la vida, el tinaco, el arma y las balas.
 - **El zombi gordo, un tipo aparte** (`Zombie.Tipo.GORDO`): faltan sus ataques y sus números (`GORDO_VIDA`, `GORDO_VELOCIDAD`, `GORDO_DANO` en `scripts/map/Zombie.gd`, por ahora iguales a los del normal). Mientras no estén definidos, no sale en las hordas. Los normales ahora son el zombi PSX y los monstruos 0-3 del pack, con un skin al azar.
 - **Detección** (en el mapa y en el safehouse; en la defensa ya salen alertas): los zombis deambulan hasta que te ven a 25 m, te oyen a 12 m o escuchan un balazo a 40 m, y entonces corren. Los números están al principio de `Zombie.gd` (`VE_DESDE`, `OYE_DESDE`, `OYE_DISPARO`, `CONTAGIA`). Hay que probar si las noches del mapa se quedan muy tranquilas: muchos sueltos nunca te encuentran.

@@ -8,7 +8,7 @@ extends Node3D
 #
 # Hasta arriba, un negocio de cada giro; a la izquierda las maquinitas, una en cada estado;
 # adelante, un objeto de cada uno (todo lo de resources/productos/); atras, casas modelo. En
-# medio cabe la pelea. Las teclas de prueba estan en PANEL_TEXTO y se ven en pantalla.
+# medio cabe la pelea. Las teclas de prueba estan en PANEL_TEXTO y se ven con F1.
 
 const PUNTOS_JSON := "user://puntos_safehouse.json"
 const CASAS_JSON := "user://casas_safehouse.json"
@@ -69,11 +69,11 @@ const TURBA_PRUEBA := 12
 const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
 # PRUEBA (JJ): la estela de agua del machete, prendida aqui al entrar (8 la apaga)
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
-const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
-Tab inventario · clic o F pegar · V dron
+const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 muestra/oculta esto)
+Tab inventario · clic o F pegar · V dron · clic der. bloquear · Alt + WASD rodar · S pegando o con pistola: retroceder · botón de en medio: verte de frente
 N siguiente atardecer/amanecer
 Z zombi · B turba · X quitar zombis · T zombis solos de noche
-H curar · J -%d de vida · P +$100 · Y vaciar inventario
+H curar · J -%d de vida · P +$100 · Y vaciar inventario (sin machete pegas a puñetazos)
 G tablas · L -100 al tinaco (refugio a la derecha)
 M mapa (sin piezas se ve vacío) · U todas las piezas
 1 2 machete / pistola · R recargar · Shift+1 2 3 maquinita cercana: normal, sin monedas, segura
@@ -82,7 +82,7 @@ F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la
 9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
 0 zombis: enjambre (carriles, atajos, rebasan) / en fila como antes
 8 estela del machete: agua azul (prueba) / la de siempre
-7 ataque cargado: deja apretado pegar y suelta = estocada con avance (prueba) / sin cargado · Shift+7 su estela de agua
+7 ataque cargado: deja apretado pegar y suelta = estocada con avance; apretado a media combinacion cambia el siguiente golpe por la carga (prueba) / sin cargado · Shift+7 su estela de agua
 6 golpe con brinco: pega en el aire = espadazo giratorio (prueba) / sin giro · Shift+6 su estela de agua
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
 Efectos de pixel, propuestas (F2-F7 cambian):"""
@@ -499,6 +499,8 @@ func _armar_panel() -> void:
 	_panel = CanvasLayer.new()
 	_panel.name = "Panel"
 	_panel.layer = 7
+	# Arranca oculto (JJ): F1 lo muestra
+	_panel.visible = false
 	add_child(_panel)
 	var fondo := PanelContainer.new()
 	fondo.position = Vector2(6.0, 6.0)
