@@ -34,12 +34,14 @@ void fragment() {
 
 # La estela de todos los golpes (JJ): 0 la de siempre, 1 la de agua, 2 la de la mariposa monarca
 # (que ademas suelta monarcas chiquitas, Player._estela_golpe). La pone el protagonista
-# (Personaje.estela: el compa agua, Homero monarca) y la tecla 8 del safehouse la cambia.
+# (Personaje.estela: el compa fuego, Homero monarca, Ramon agua) y la tecla 8 del safehouse la cambia.
 # La de agua es azul con blanco, al estilo de la respiracion del agua de Tanjiro: mas ancha y dura
 # mas, con franjas que ondulan a lo largo de la estela, crestas blancas que corren y la orilla de
 # adentro rota en gotas. UV2.x cuenta los pedazos, para saber donde va cada uno a lo largo
-enum Estilo { NORMAL, AGUA, MONARCA }
-const NOMBRES := ["la de siempre", "agua", "mariposa monarca"]
+# La de fuego (JJ: con los colores de la danza del dios del fuego de Tanjiro) es la de agua tal
+# cual, con la paleta del rojo oscuro al amarillo casi blanco y chispas en vez de espuma
+enum Estilo { NORMAL, AGUA, MONARCA, FUEGO }
+const NOMBRES := ["la de siempre", "agua", "mariposa monarca", "fuego"]
 static var estilo := Estilo.NORMAL
 const AGUA_VIDA := 0.32
 const AGUA_DESDE := 0.15
@@ -173,6 +175,14 @@ static var _material_agua: ShaderMaterial
 static var _material_espuma: ShaderMaterial
 static var _material_monarca: ShaderMaterial
 static var _material_polen: ShaderMaterial
+static var _material_fuego: ShaderMaterial
+static var _material_chispas: ShaderMaterial
+const PALETA_AGUA := """vec3(0.035, 0.090, 0.280), vec3(0.055, 0.200, 0.520), vec3(0.110, 0.380, 0.780),
+	vec3(0.330, 0.620, 0.940), vec3(0.680, 0.860, 1.000), vec3(0.970, 0.990, 1.000)"""
+const PALETA_FUEGO := """vec3(0.300, 0.030, 0.020), vec3(0.620, 0.070, 0.030), vec3(0.900, 0.230, 0.040),
+	vec3(1.000, 0.480, 0.080), vec3(1.000, 0.760, 0.250), vec3(1.000, 0.960, 0.780)"""
+const POLVO_GRIS := """vec3(0.961, 0.957, 0.937), vec3(0.851, 0.847, 0.827), vec3(0.698, 0.698, 0.686),
+	vec3(0.549, 0.553, 0.549)"""
 
 var _pedazos: Array = []       # [mano, punta, edad]
 var _malla := ImmediateMesh.new()
@@ -235,6 +245,20 @@ func _ready() -> void:
 	vec3(0.800, 0.380, 0.080)""")
 		_material_polen = ShaderMaterial.new()
 		_material_polen.shader = polen
+	if _material_fuego == null:
+		var shader := Shader.new()
+		# Al reves que el agua: lo rojo afuera (la punta) y lo amarillo adentro (JJ); las rayitas y
+		# crestas siguen siendo del color mas claro
+		shader.code = SHADER_AGUA.replace(PALETA_AGUA, PALETA_FUEGO) \
+				.replace("vec3 c = AGUA[paso];", "vec3 c = AGUA[5 - paso];")
+		_material_fuego = ShaderMaterial.new()
+		_material_fuego.shader = shader
+		# Chispas: amarillo claro a rojo
+		var chispas := Shader.new()
+		chispas.code = SHADER_NUBE.replace(POLVO_GRIS, """vec3(1.000, 0.950, 0.700), vec3(1.000, 0.700, 0.200),
+	vec3(0.950, 0.380, 0.060), vec3(0.650, 0.110, 0.030)""")
+		_material_chispas = ShaderMaterial.new()
+		_material_chispas.shader = chispas
 	set_process(false)
 
 
@@ -243,13 +267,13 @@ func _modo() -> int:
 
 
 func _de_agua() -> bool:
-	return _modo() != 0   # la monarca tiene la forma ancha de la de agua
+	return _modo() != 0   # la monarca y la de fuego tienen la forma ancha de la de agua
 
 
 func agregar(mano: Vector3, punta: Vector3) -> void:
 	var de_agua := _de_agua()
 	if _pedazos.is_empty():
-		material_override = [_material, _material_agua, _material_monarca][_modo()]
+		material_override = [_material, _material_agua, _material_monarca, _material_fuego][_modo()]
 	var desde := AGUA_DESDE if de_agua else DESDE
 	var baja := AGUA_BAJA if de_agua else ADENTRO_BAJA
 	_pedazos.append([mano.lerp(punta, desde) + Vector3.DOWN * baja, punta, 0.0, float(_cuenta)])
@@ -264,7 +288,7 @@ func _soltar_nube(donde: Vector3) -> void:
 	_siguiente = (_siguiente + 1) % NUBES
 	var nube := _nubes[i]
 	nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * NUBE_TAMANO.x), donde)
-	nube.material_override = [_material_nube, _material_espuma, _material_polen][_modo()]
+	nube.material_override = [_material_nube, _material_espuma, _material_polen, _material_chispas][_modo()]
 	nube.set_instance_shader_parameter("semilla", randf())
 	nube.set_instance_shader_parameter("edad", 0.0)
 	nube.visible = true

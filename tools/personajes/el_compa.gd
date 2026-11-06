@@ -13,9 +13,14 @@ extends SceneTree
 # pantalon, con alforzas, cuatro bolsillos y botones, pantalon negro y zapatos negros. Va a
 # protagonistas/homero/ (Character_04.png y piel.png); Personaje.vestir cambia la textura.
 #   godot --path . --headless -s tools/personajes/el_compa.gd -- --homero
+# Con -- --ramon pinta el tercero (Ramon): playera negra de manga corta, pantalon de mezclilla azul y
+# tenis oscuros, sin bigote ni canas. Va a protagonistas/ramon/; el gorro de pescador azul no
+# es textura: es una malla aparte en el hueso de la cabeza (scripts/personajes/GorroPescador.gd).
+#   godot --path . --headless -s tools/personajes/el_compa.gd -- --ramon
 
 const CARPETA := "res://models/personajes/protagonistas/el_compa/"
 const CARPETA_HOMERO := "res://models/personajes/protagonistas/homero/"
+const CARPETA_RAMON := "res://models/personajes/protagonistas/ramon/"
 const SEMILLA := 7
 
 # --- Colores ---
@@ -80,6 +85,14 @@ var h: int
 var rng := RandomNumberGenerator.new()
 var posiciones := {}   # Vector2i (píxel) -> Vector3 (punto de la malla en reposo)
 var homero := false
+var ramon := false
+
+# --- Ramon ---
+const PLAYERA := Color(0.075, 0.075, 0.08)
+const MEZCLILLA := Color(0.17, 0.29, 0.52)
+const MEZCLILLA_GRANO := 0.07      # variacion por pixel del tejido
+const TENIS := Color(0.16, 0.16, 0.18)
+const TENIS_SUELA := Color(0.85, 0.84, 0.80)
 
 # --- Homero: la guayabera se dibuja en el espacio del modelo (como el bigote), asi las alforzas
 # salen derechas aunque las islas esten giradas. X al frente, Y arriba, Z a los lados. El torso va
@@ -100,6 +113,7 @@ const PUNO_Y := 2.42                             # la costura del puno de la man
 
 func _init() -> void:
 	homero = "--homero" in OS.get_cmdline_user_args()
+	ramon = "--ramon" in OS.get_cmdline_user_args()
 	rng.seed = SEMILLA
 	img = Image.load_from_file(ProjectSettings.globalize_path(CARPETA + "Character_04_original.png"))
 	img.convert(Image.FORMAT_RGBA8)
@@ -143,6 +157,20 @@ func _init() -> void:
 				nuevo = NEGRO * clampf(f, 0.6, 1.9)
 			elif homero and (e in ZAPATOS or e in SUELAS):
 				nuevo = ZAPATO * lerpf(1.0, f, 0.45)
+			elif ramon and e in CHAMARRA:
+				# Cuello redondo: el triangulo de piel del cuello original tambien va negro (dejaba manchas)
+				nuevo = PLAYERA * clampf(lerpf(1.0, f, 0.5), 0.6, 1.8)
+			elif ramon and e in PANTALON:
+				var cinto := c.s > 0.15 and c.r - c.b > 0.05
+				if cinto:
+					nuevo = CINTO * clampf(f, 0.6, 1.9)
+				else:
+					nuevo = MEZCLILLA * clampf(lerpf(1.0, f, 0.7), 0.55, 1.5) \
+							* (1.0 + rng.randf_range(-MEZCLILLA_GRANO, MEZCLILLA_GRANO))
+			elif ramon and e in ZAPATOS:
+				nuevo = TENIS * lerpf(1.0, f, 0.45)
+			elif ramon and e in SUELAS:
+				nuevo = TENIS_SUELA * clampf(f, 0.8, 1.1)
 			elif e in CHAMARRA:
 				var fc := clampf(lerpf(1.0, f, VETA), 0.6, 1.2)
 				nuevo = MOSTAZA * fc
@@ -167,11 +195,11 @@ func _init() -> void:
 			elif k.ends_with("piel") or e in MANOS:
 				nuevo = PIEL * f
 				es_piel = true
-				if e in CABEZA and _bigote(Vector2i(x, y)):
+				if e in CABEZA and not ramon and _bigote(Vector2i(x, y)):
 					nuevo = (CANA if rng.randf() < CANAS_BIGOTE else PELO) * clampf(f, 0.7, 1.3)
 					es_piel = false
 			elif k.ends_with("pelo"):
-				var cana := e in SOLO_PELO and rng.randf() < CANAS_PELO
+				var cana := e in SOLO_PELO and not ramon and rng.randf() < CANAS_PELO
 				nuevo = (CANA if cana else PELO) * clampf(f, 0.6, 1.5)
 			elif e in PANTALON:
 				var cinto := c.s > 0.15 and c.r - c.b > 0.05
@@ -186,7 +214,7 @@ func _init() -> void:
 			img.set_pixel(x, y, nuevo)
 			if es_piel:
 				mascara.set_pixel(x, y, Color.WHITE)
-	var destino := CARPETA_HOMERO if homero else CARPETA
+	var destino := CARPETA_HOMERO if homero else (CARPETA_RAMON if ramon else CARPETA)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(destino))
 	img.save_png(ProjectSettings.globalize_path(destino + "Character_04.png"))
 	mascara.save_png(ProjectSettings.globalize_path(destino + "piel.png"))

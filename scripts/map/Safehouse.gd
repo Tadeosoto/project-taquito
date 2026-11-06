@@ -148,6 +148,15 @@ func _ready() -> void:
 	Player.golpe_cargado = true
 	Player.giro_aereo = true
 	_jugador = get_node("Player")
+	# Para probar sin cambiar el personaje guardado: -- --protagonista=N (Personaje.PROTAGONISTAS)
+	# y --estela=N (EstelaBarrido.Estilo)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--protagonista="):
+			get_node("/root/Personaje").protagonista = int(arg.trim_prefix("--protagonista="))
+			_jugador.aplicar_personaje()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--estela="):
+			ESTELA.estilo = int(arg.trim_prefix("--estela="))
 	_zombis = get_node("Zombis")
 	_ciclo = get_node("Ciclo")
 	_salud = get_node("/root/Salud")

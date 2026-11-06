@@ -37,13 +37,18 @@ const MATERIAL_CABEZA := "CabezaPiel"
 const MASCARA_PIEL := "piel.png"
 # Los protagonistas: el mismo modelo (el_compa) con otra textura. Homero es el homenaje de JJ a
 # Homero Gomez, el defensor de la mariposa monarca: guayabera blanca cerrada y pantalon negro
-# (tools/personajes/el_compa.gd -- --homero). Su textura lleva su piel.png al lado
-const PROTAGONISTAS := ["El compa", "Homero"]
+# (tools/personajes/el_compa.gd -- --homero). Su textura lleva su piel.png al lado. Ramon:
+# playera negra de manga corta, mezclilla azul (-- --ramon) y un gorro de pescador azul, que
+# es malla aparte en la cabeza (GORROS, scripts/personajes/GorroPescador.gd)
+const PROTAGONISTAS := ["El compa", "Homero", "Ramón"]
 const TEXTURA_COMPA := "res://models/personajes/protagonistas/el_compa/Character_04.png"
-const TEXTURAS := ["", "res://models/personajes/protagonistas/homero/Character_04.png"]
-# La estela que gana cada uno con su mejora (EstelaBarrido.Estilo): el compa la de agua, Homero la
-# de la monarca. Sera una mejora de dano (docs/mejoras.md); mientras no se gane, la de siempre
-const ESTELAS := [1, 2]
+const TEXTURAS := ["", "res://models/personajes/protagonistas/homero/Character_04.png",
+		"res://models/personajes/protagonistas/ramon/Character_04.png"]
+const GORROS := [false, false, true]
+# La estela que gana cada uno con su mejora (EstelaBarrido.Estilo): el compa la de fuego, Homero
+# la de la monarca, Ramon la de agua. Sera una mejora de dano (docs/mejoras.md); mientras no se
+# gane, la de siempre
+const ESTELAS := [3, 2, 1]
 var mejora_estela := false
 const RODILLA_PIEL := 215.0   # de 255: arriba de esto las luces se van suavizando en vez de quemarse
 static var _pieles := {}      # ruta de la textura -> lo que hace falta para repintarla
@@ -276,6 +281,7 @@ static func _hueso_principal(arreglos: Array, vertice: int, por_vertice: int) ->
 # del pack PSX (textura con piel.png al lado; la ropa de esos queda para despues). Se puede
 # llamar muchas veces. Materiales propios: los vecinos usan los mismos del modelo y no deben cambiar
 func vestir(modelo: Node3D) -> void:
+	var es_compa := false
 	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):
 		if malla.mesh == null:
 			continue
@@ -284,6 +290,9 @@ func vestir(modelo: Node3D) -> void:
 			var material := malla.get_active_material(i) as BaseMaterial3D
 			if material == null:
 				continue
+			var base: Texture2D = material.get_meta("textura_piel", material.albedo_texture)
+			if base != null and base.resource_path == TEXTURA_COMPA:
+				es_compa = true
 			if _pintar_piel(malla, i, material):
 				continue
 			var color: Variant = null
@@ -312,6 +321,21 @@ func vestir(modelo: Node3D) -> void:
 		esqueleto.add_child(cuerpo)
 	cuerpo.set("ancho", _en(ANCHO, complexion))
 	cuerpo.set("cabeza", _en(ESCALA_CABEZA, cabeza))
+	_poner_gorro(esqueleto, es_compa and GORROS[protagonista])
+
+
+# El gorro del protagonista, pegado al hueso de la cabeza; se quita si escoges otro
+func _poner_gorro(esqueleto: Skeleton3D, quiere: bool) -> void:
+	var gorro := esqueleto.get_node_or_null("Gorro")
+	if gorro and not quiere:
+		gorro.queue_free()
+		gorro.name = "GorroSaliendo"
+	elif gorro == null and quiere:
+		var pegado := BoneAttachment3D.new()
+		pegado.name = "Gorro"
+		pegado.bone_name = "Head"
+		pegado.add_child(GorroPescador.crear())
+		esqueleto.add_child(pegado)
 
 
 # La textura con la piel de tu tono, si el material tiene piel.png junto a su textura. Se guarda
