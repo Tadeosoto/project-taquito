@@ -16,6 +16,11 @@ extends Node3D
 
 const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
+const CORTINA_SHADER := preload("res://shaders/cortina.gdshader")
+# La cortina sale de abajo del rollo (VANO_ALTO - 0.2) hasta el piso
+const CORTINA_ALTO := 2.2
+# m: mas lejos no se oye el traqueteo
+const CORTINA_OIDO := 30.0
 
 const PLACEHOLDER_HEIGHT := 3.5
 
@@ -194,6 +199,8 @@ var _timer := 0.0
 var _timer_interiores := 0.0
 # Materiales StandardMaterial3D compartidos (Refrigerador.gd explica por que)
 static var _material_tubo: StandardMaterial3D
+# La cortina que baja de noche: una malla y un material para todas (shaders/cortina.gdshader)
+static var _malla_cortina: BoxMesh
 static var _material_vidrio: StandardMaterial3D
 # Muebles de un interior que faltan de meter al arbol, uno por cuadro: [padre, mueble]
 var _pendientes: Array = []
@@ -202,6 +209,11 @@ var _calentando: Node3D
 var _calentar_cuadros := 0
 var _aviso: Label
 var _aviso_tween: Tween
+# Cortinas (Ciclo.cierre_negocios): lo ultimo que se puso en el global `cortina`, el reloj y
+# la voz del traqueteo en el local cargado mas cercano
+var _cierre := -1.0
+var _ciclo: Node
+var _voz_cortina: AudioStreamPlayer3D
 
 
 func _ready() -> void:
@@ -236,6 +248,7 @@ func _ready() -> void:
 # que aparecia el primer local de cada giro.
 func _calentar() -> void:
 	Mostrador.piezas("")
+	Civiles.calentar()
 	var refri := Refrigerador.new()
 	refri.visible = false
 	add_child(refri)
@@ -291,6 +304,8 @@ func _seguir_calentando() -> void:
 
 
 func _exit_tree() -> void:
+	if not Engine.is_editor_hint():
+		RenderingServer.global_shader_parameter_set("cortina", 0.0)
 	for pendiente: Array in _pendientes:
 		(pendiente[1] as Node).free()
 	_pendientes.clear()
@@ -307,6 +322,8 @@ func _process(delta: float) -> void:
 	_meter_pendiente()
 	if _calentando:
 		_seguir_calentando()
+	if not Engine.is_editor_hint():
+		_cortinas()
 	# Los interiores mas seguido (uno cada vez): a pie se llega rapido a INTERIOR_VISTA
 	_timer_interiores -= delta
 	if _timer_interiores <= 0.0 and not Engine.is_editor_hint():
@@ -343,6 +360,7 @@ func _crear_pendientes(de_una := false) -> void:
 		node.rotation.y = punto["rotacion_y"]
 		add_child(node)
 		_nodes[i] = node
+		_mostrar_flecha(node)
 		CargaCuadro.gastar(inicio)
 
 
@@ -383,12 +401,15 @@ func _marcador(punto: Dictionary) -> Node3D:
 	shape.shape = cilindro
 	shape.position.y = 1.0
 	area.add_child(shape)
+	area.set_meta("civil", civil(punto))
 	area.body_entered.connect(func(body: Node3D) -> void:
 		if body is Player:
 			_entrar(punto, area))
 	if punto.get("aire_libre", false) and vendedor_escena and (punto.has("vendedor_atras") or vendedor_atras.has(punto["tipo"])):
 		area.add_child(_vendedor(punto))
-	area.add_child(flecha())
+	var la_flecha := flecha()
+	la_flecha.name = "Flecha"
+	area.add_child(la_flecha)
 	return area
 
 
@@ -445,6 +466,90 @@ static func _flecha_mesh() -> Mesh:
 	return mesh
 
 
+# La cortina de lamina del vano, colgada del rollo de arriba: de dia enrollada (el shader la
+# junta en su orilla de arriba) y de noche hasta el piso
+func _cortina(ancho: float, z: float) -> MeshInstance3D:
+	if _malla_cortina == null:
+		_malla_cortina = BoxMesh.new()
+		_malla_cortina.size = Vector3(1.0, CORTINA_ALTO, 0.04)
+		var material := ShaderMaterial.new()
+		material.shader = CORTINA_SHADER
+		material.set_shader_parameter("alto", CORTINA_ALTO)
+		_malla_cortina.material = material
+	var malla := MeshInstance3D.new()
+	malla.name = "Cortina"
+	malla.mesh = _malla_cortina
+	malla.scale.x = ancho
+	malla.position = Vector3(0.0, CORTINA_ALTO / 2.0, z)
+	malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	malla.visibility_range_end = PREFAB_VISIBILITY_RANGE
+	return malla
+
+
+# Pone el global de las cortinas segun el reloj. Mientras se mueven traquetea la del local
+# cargado mas cercano y al llegar pega; cerrado no hay flechas (de noche no se entra)
+func _cortinas() -> void:
+	if _ciclo == null or not is_instance_valid(_ciclo):
+		_ciclo = get_tree().get_first_node_in_group("ciclo")
+	var cierre: float = _ciclo.cierre_negocios() if _ciclo else 0.0
+	if is_equal_approx(cierre, _cierre):
+		return
+	var antes := _cierre
+	_cierre = cierre
+	RenderingServer.global_shader_parameter_set("cortina", cierre)
+	var abierto_antes := antes <= 0.0
+	if abierto_antes != (cierre <= 0.0) or antes < 0.0:
+		for node: Node3D in _nodes.values():
+			_mostrar_flecha(node)
+	if antes < 0.0:
+		return
+	var moviendo := cierre > 0.0 and cierre < 1.0
+	if moviendo and (antes <= 0.0 or antes >= 1.0):
+		_traquetear()
+	elif not moviendo and _voz_cortina and _voz_cortina.playing:
+		_voz_cortina.stop()
+		_voz_cortina.stream = Sonidos.sonido("cortina_tope")
+		_voz_cortina.play()
+
+
+func _traquetear() -> void:
+	if _target == null:
+		return
+	var cerca: Node3D = null
+	var mejor := CORTINA_OIDO
+	for node: Node3D in _nodes.values():
+		if node.has_node("Cortina"):
+			var d := node.global_position.distance_to(_target.global_position)
+			if d < mejor:
+				mejor = d
+				cerca = node
+	if cerca == null:
+		return
+	var sonido := Sonidos.sonido("cortina")
+	if sonido == null:
+		return
+	if _voz_cortina == null:
+		_voz_cortina = AudioStreamPlayer3D.new()
+		_voz_cortina.unit_size = 6.0
+		_voz_cortina.volume_db = -6.0
+		add_child(_voz_cortina)
+	_voz_cortina.global_position = (cerca.get_node("Cortina") as Node3D).global_position
+	_voz_cortina.stream = sonido
+	_voz_cortina.play()
+
+
+func _mostrar_flecha(node: Node3D) -> void:
+	var la_flecha := node.get_node_or_null("Marcador/Flecha") as Node3D
+	if la_flecha:
+		la_flecha.visible = _cierre <= 0.0
+
+
+# El civil que atiende el negocio (Civiles.gd): siempre el mismo para el mismo negocio, el
+# de la cortina, el de adentro (Interiores lo lee del meta "civil" del marcador) y el del puesto
+static func civil(punto: Dictionary) -> String:
+	return Civiles.elegir(String(punto.get("origen", punto.get("nombre", ""))))
+
+
 # Viendo a la calle (+Z del marcador; el npc ve a su -Z), sin su area de platica: se le
 # habla pisando la flecha, no con el boton de saltar
 func _vendedor(punto: Dictionary) -> Node3D:
@@ -453,6 +558,7 @@ func _vendedor(punto: Dictionary) -> Node3D:
 	vendedor.position = Vector3(0.0, 0.0, -punto.get("vendedor_atras", vendedor_atras.get(punto["tipo"], 1.5)))
 	vendedor.rotation.y = PI
 	vendedor.set("dialogue", VENDEDOR_DIALOGO.get(punto.get("giro", ""), ""))
+	vendedor.set("modelo", civil(punto))
 	vendedor.ready.connect(func() -> void:
 		(vendedor.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
 	return vendedor
@@ -723,6 +829,7 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 		_material_tubo.albedo_color = Color(0.95, 0.97, 1.0)
 	tubo.material_override = _material_tubo
 	_local_box(body, Vector3(puerta + 0.1, 0.25, 0.25), Vector3(0.0, VANO_ALTO - 0.13, front - LOCAL_MURO - 0.13), Color(0.55, 0.57, 0.6), false)
+	body.add_child(_cortina(puerta + 0.1, front - LOCAL_MURO - 0.03))
 	# Franja de color sin letras (OXO)
 	if info.has("banda"):
 		var abajo := VANO_ALTO + 0.3 if pisos == 1 else PLANTA_BAJA + 0.15
@@ -810,7 +917,7 @@ func _armar_interior(body: Node3D, punto: Dictionary, de_una := false) -> void:
 	if punto["tipo"] == "taqueria":
 		_taqueria_cuarto(detalle, punto, m["sala"], m["cuarto"], m["front"])
 	else:
-		_interior_local(detalle, GIROS_LOCAL[punto["tipo"]], m["sala"], m["cuarto"], m["front"])
+		_interior_local(detalle, GIROS_LOCAL[punto["tipo"]], m["sala"], m["cuarto"], m["front"], civil(punto))
 	if not de_una:
 		_sacar_muebles(detalle)
 	detalle.ready.connect(func() -> void:
@@ -906,6 +1013,7 @@ func _make_puesto_tacos(punto: Dictionary) -> Node3D:
 		taquero.name = "Taquero"
 		taquero.position = Vector3(0.0, 0.0, front - atras)
 		taquero.rotation.y = PI
+		taquero.set("modelo", civil(punto))
 		taquero.ready.connect(func() -> void:
 			(taquero.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
 		body.add_child(taquero)
@@ -968,7 +1076,7 @@ func _cruz_bandera(body: StaticBody3D, w: float, front: float, arriba: float, co
 # solo el mostrador, el que atiende, los muebles, los refris y el letrero, con la pared
 # de atras de la escena en el fondo del cuarto y achicados parejo si el cuarto es mas
 # angosto que la escena. Las paredes del cuarto por dentro, del color de la escena.
-func _interior_local(detalle: Node3D, info: Dictionary, sala: float, cuarto: float, front: float) -> void:
+func _interior_local(detalle: Node3D, info: Dictionary, sala: float, cuarto: float, front: float, quien: String) -> void:
 	var escena: PackedScene = escenas_interior.get(info["interior"])
 	if escena == null:
 		return
@@ -993,6 +1101,7 @@ func _interior_local(detalle: Node3D, info: Dictionary, sala: float, cuarto: flo
 	_sencillo(cosas)
 	var vendedor := cosas.get_node_or_null("Vendedor")
 	if vendedor:
+		vendedor.set("modelo", quien)
 		vendedor.ready.connect(func() -> void:
 			(vendedor.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
 	var escala := minf(1.0, (sala - 0.1) / ancho_escena)
@@ -1229,7 +1338,7 @@ func _taqueria_puesto(body: StaticBody3D, banqueta: Node3D, punto: Dictionary, s
 		taquero.name = "Taquero"
 		taquero.position = Vector3(puesto_x + 0.1, 0.0, front + TAQUERIA_PUESTO - 0.7)
 		taquero.rotation.y = PI
-		taquero.set("tint", Color(0.85, 0.8, 0.7))
+		taquero.set("modelo", civil(punto))
 		taquero.ready.connect(func() -> void:
 			(taquero.get_node("TalkArea") as Area3D).monitoring = false, CONNECT_ONE_SHOT)
 		banqueta.add_child(taquero)

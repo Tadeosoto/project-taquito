@@ -212,6 +212,7 @@ Yolanda "teme volverse chola", pero la palabra no aparece en el lenguaje de la c
 | 4.8 | Misión "**Botarga del Simi**": es una marca real, y el lore dice que ninguna empresa real aparece (§18) | misiones §3 | "**Botarga de la Gota**" (el modelo `simi_botarga.scn` se puede reusar, el nombre no) |
 | 4.9 | "El empleado del palacio **o el periodista**": no hay periodista en el reparto | misiones §4 | "o **Sofía**" |
 | 4.10 | El **jefe** de la partida de 3 noches (`Zombie.es_jefe`) no tiene explicación en el lore, y el lore dice que el zombi es víctima, no villano | CLAUDE.md, `Partida.gd`, lore §8 | 💡 Que el jefe **sea alguien**: un hinchado con la credencial de alguien del reparto (un cargador del barrio, o Beto si murió). Así la pelea final es el peso moral (§8) y no un monstruo de videojuego |
+| 4.11 | Los zombis por dentro son **agua sucia** (globos que truenan), pero el chorro del cuello de un tiro a la cabeza es **mitad rojo oscuro** y al tronar suelta sangre (decisión de AG, 2026-11-04, solo en el juego); el machete también gotea sangre roja tras cada golpe | `Zombie.gd` `COLOR_SANGRE_OSCURA`, hoja `fuente_cabeza` | Decidir en equipo: ¿algo de sangre queda dentro del zombi (lo que queda de la persona) o todo es agua? Si es agua, se quita el rojo |
 
 ---
 

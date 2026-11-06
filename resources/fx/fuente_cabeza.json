@@ -1,0 +1,16 @@
+{
+ "id": "taquito/fuente-cuello",
+ "fps": 30,
+ "loop": true,
+ "frames": 30,
+ "frameSize": [
+  80,
+  132
+ ],
+ "pivot": [
+  30,
+  126
+ ],
+ "columns": 8,
+ "golpe_en": 0
+}

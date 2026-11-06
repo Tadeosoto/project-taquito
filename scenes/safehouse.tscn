@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="Resource" path="res://resources/zombis/noche_mapa.tres" id="99_ritmo"]
 [ext_resource type="Script" path="res://scripts/map/Safehouse.gd" id="1_safehouse"]
 [ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="2_dither"]
 [ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="3_player"]
@@ -160,7 +161,6 @@ target_path = NodePath("../Dron")
 
 [node name="Player" parent="." instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 6)
-girar_con_qe = true
 
 [node name="Dron" type="Node3D" parent="."]
 script = ExtResource("4_dron")
@@ -192,6 +192,7 @@ ocultar = Array[NodePath]([NodePath("../Panel")])
 script = ExtResource("6_zombis")
 jugador_path = NodePath("../Player")
 ciclo_path = NodePath("../Ciclo")
+ritmo = ExtResource("99_ritmo")
 
 [node name="Supervivencia" type="CanvasLayer" parent="."]
 script = ExtResource("7_supervivencia")

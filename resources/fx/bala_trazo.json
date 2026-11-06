@@ -1,0 +1,16 @@
+{
+ "id": "projectiles/bullet-tracer",
+ "fps": 30,
+ "loop": true,
+ "frames": 18,
+ "frameSize": [
+  200,
+  40
+ ],
+ "pivot": [
+  184,
+  18
+ ],
+ "columns": 2,
+ "golpe_en": 0
+}

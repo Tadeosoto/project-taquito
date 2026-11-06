@@ -5,7 +5,6 @@
 [ext_resource type="Shader" uid="uid://bpmkrtay5h8db" path="res://shaders/ps1_combined.gdshader" id="3_ps1"]
 [ext_resource type="Script" path="res://scripts/map/MapStreamer.gd" id="4_streamer"]
 [ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="10_dron"]
-[ext_resource type="Script" path="res://scripts/map/Refugio.gd" id="refugio_gd"]
 [ext_resource type="Script" path="res://scripts/map/Partida.gd" id="partida_gd"]
 [ext_resource type="Script" path="res://scripts/map/Gente.gd" id="gente_gd"]
 [ext_resource type="Shader" path="res://shaders/ps1_suelo.gdshader" id="11_suelo"]
@@ -56,6 +55,7 @@
 [ext_resource type="Resource" path="res://resources/productos/mochila_escolar.tres" id="51_mochila_escolar"]
 [ext_resource type="Resource" path="res://resources/productos/mochila_verde.tres" id="52_mochila_verde"]
 [ext_resource type="Resource" path="res://resources/productos/mochilon.tres" id="53_mochilon"]
+[ext_resource type="Resource" path="res://resources/zombis/noche_mapa.tres" id="54_ritmo"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -269,12 +269,13 @@ jugador_path = NodePath("../Player")
 script = ExtResource("41_ciclo")
 sol_path = NodePath("../DirectionalLight3D")
 environment_path = NodePath("../WorldEnvironment")
+dia_duracion = 480.0
+noche_duracion = 360.0
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(0.7894, 0, -0.614, 0, 1, 0, 0.614, 0, 0.7894, 203.31, 1.5, 650.72)
 speed = 10.0
 sprint_speed = 18.0
-girar_con_qe = true
 
 [node name="Dron" type="Node3D" parent="."]
 script = ExtResource("10_dron")
@@ -317,6 +318,7 @@ ocultar = Array[NodePath]([NodePath("../Minimapa")])
 script = ExtResource("42_zombis")
 jugador_path = NodePath("../Player")
 ciclo_path = NodePath("../Ciclo")
+ritmo = ExtResource("54_ritmo")
 
 [node name="Supervivencia" type="CanvasLayer" parent="."]
 script = ExtResource("42_supervivencia")
@@ -324,15 +326,10 @@ jugador_path = NodePath("../Player")
 ciclo_path = NodePath("../Ciclo")
 zombis_path = NodePath("../Zombis")
 
-[node name="Refugio" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 203, 0, 662)
-script = ExtResource("refugio_gd")
-
 [node name="Partida" type="CanvasLayer" parent="."]
 script = ExtResource("partida_gd")
 zombis_path = NodePath("../Zombis")
 supervivencia_path = NodePath("../Supervivencia")
-refugio_path = NodePath("../Refugio")
 
 [node name="Gente" type="Node3D" parent="."]
 script = ExtResource("gente_gd")

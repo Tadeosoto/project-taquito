@@ -39,6 +39,8 @@
 - [Señal Alto](https://sketchfab.com/3d-models/d2de3788e5f24c3e8189001d2a1f6e92) de VictorGram, licencia CC Attribution (`models/props/alto/`).
 - [water dispenser](https://sketchfab.com/3d-models/25bdfe807c8e437885ed3be6ec0d11d8) de ChoboiAssets, licencia CC Attribution (`models/props/despachador_agua/`).
 - [Manhole](https://sketchfab.com/3d-models/bbf5c9aa04c24fbaba328728d955777d) de DJMaesen, licencia CC Attribution (`models/props/coladera/`).
+- [Rtp Tinaco](https://sketchfab.com/3d-models/fb34a8ff0a04447e91a9ef1d793a192a) de dmlmx, licencia CC Attribution (`models/props/tinaco/`).
+- [Abandoned Toilet Cabin (Low Poly)](https://sketchfab.com/3d-models/8083b3d2134f4e98a34d891fa7915dcc) de Berk Gedik, licencia CC Attribution (`models/props/bano_portatil/`).
 
 ## Objetos (`models/objetos/`, Sketchfab)
 
@@ -88,6 +90,8 @@
 - [Female Secretary Character PSX](https://sketchfab.com/3d-models/8898a87225604a1fb335b47efff9c088) de vinrax, licencia CC Attribution (`models/personajes/encargada/`).
 - [Half-Life Scientist Luther](https://sketchfab.com/3d-models/b6b7e7f4f6774354941bc1e84833c302) de Homeless_Models, licencia CC Attribution (`models/personajes/cientifico/`).
 - [Construction Worker In A Blue Jacket](https://sketchfab.com/3d-models/a9eff8aee05e48d8b1f31cafd408215f) de restore50, licencia CC Attribution (`models/personajes/garrafonero/`).
+- [Characters_psx](https://sketchfab.com/3d-models/d940162487c3493b9e203d624fdd763a) de Elbolillo (Elbolilloduro), licencia CC Attribution: 79 personajes (`models/personajes/pack_psx/`).
+  - El protagonista `models/personajes/protagonistas/el_compa/` es `hombre_04` de ese pack con la textura repintada (modificado; `tools/personajes/el_compa.gd`).
 
 ## Armas (`models/armas/`, Sketchfab)
 - [PS1 Style Machete](https://sketchfab.com/3d-models/bec7ee80bac24cc19b1e79cf8b57c50a) de Falxxx, licencia CC Attribution (`models/armas/machete/`).
@@ -127,3 +131,9 @@
 
 ## Efectos de pixel (`resources/fx/`, MIT)
 - [pixelfx](https://github.com/patch-gg/pixelfx) de Patch y Hugo Duprez, licencia MIT. Las hojas se hacen con `tools/pixelfx/exportar.mjs` y se recolorean a la paleta del juego.
+
+## Fuente (`fonts/`, OFL)
+- [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), © 2021 The Pixelify Sans Project Authors, licencia SIL Open Font License 1.1 (`fonts/PixelifySans-OFL.txt`).
+
+## Música (`audio/musica/`)
+- `pt_tema.mp3`: tema de la defensa del tinaco, de Juan José Rodríguez (JJ), del equipo.

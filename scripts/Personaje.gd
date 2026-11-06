@@ -31,6 +31,37 @@ const ROPA := [Color(0.13, 0.13, 0.16), Color(0.62, 0.14, 0.12), Color(0.15, 0.3
 const ROPA_NOMBRES := ["Negro", "Rojo", "Azul", "Verde", "Mostaza", "Gris"]
 
 const MATERIAL_CABEZA := "CabezaPiel"
+# Los personajes del pack PSX (el protagonista, el_compa) traen la piel pintada en la textura:
+# junto a ella va piel.png, blanco donde es piel (tools/personajes/el_compa.gd). Cada pixel de
+# piel queda de tu color por su sombra: su brillo entre el brillo promedio de la piel pintada
+const MASCARA_PIEL := "piel.png"
+# Los protagonistas: el mismo modelo (el_compa; el primero, Genaro, con su textura) con otra textura. Homero es el homenaje de JJ a
+# Homero Gomez, el defensor de la mariposa monarca: guayabera blanca cerrada y pantalon negro
+# (tools/personajes/el_compa.gd -- --homero). Su textura lleva su piel.png al lado. Ramon:
+# playera negra de manga corta, mezclilla azul (-- --ramon) y un gorro de pescador azul, que
+# es malla aparte en la cabeza (GORROS, scripts/personajes/GorroPescador.gd)
+# Emiliano (homenaje de JJ a Zapata): saco cafe, chaleco olivo, paliacate rojo (-- --emiliano) y
+# sombrero charro (scripts/personajes/SombreroCharro.gd)
+# Felipe: chamarra de cuadros abierta con forro naranja, playera amarilla y mezclilla (-- --felipe)
+const PROTAGONISTAS := ["Genaro", "Homero", "Ramón", "Emiliano", "Felipe"]
+const TEXTURA_COMPA := "res://models/personajes/protagonistas/el_compa/Character_04.png"
+const TEXTURAS := ["", "res://models/personajes/protagonistas/homero/Character_04.png",
+		"res://models/personajes/protagonistas/ramon/Character_04.png",
+		"res://models/personajes/protagonistas/emiliano/Character_04.png",
+		"res://models/personajes/protagonistas/felipe/Character_04.png"]
+# Lo que lleva cada uno en la cabeza (un script con crear() -> MeshInstance3D), o nada
+const GORROS := [null, null, preload("res://scripts/personajes/GorroPescador.gd"),
+		preload("res://scripts/personajes/SombreroCharro.gd"), null]
+# La estela que gana cada uno con su mejora (EstelaBarrido.Estilo): Genaro la de fuego, Homero
+# la de la monarca, Ramon la de agua, Emiliano los rayos del haki, Felipe el fuego negro (flamas grises). Sera una mejora de dano (docs/mejoras.md); mientras no se
+# gane, la de siempre
+const ESTELAS := [3, 2, 1, 4, 5]
+# Pelea a punos aunque traiga machete (Player._a_punos). Era Felipe, pero balancear a uno a puno
+# limpio puede ser un problema (JJ): todos usan machete y lo de punos queda para despues
+const A_PUNOS := [false, false, false, false, false]
+var mejora_estela := false
+const RODILLA_PIEL := 215.0   # de 255: arriba de esto las luces se van suavizando en vez de quemarse
+static var _pieles := {}      # ruta de la textura -> lo que hace falta para repintarla
 const TONO_CLARO := 0.35
 const TONO_OSCURO := 0.65
 # Lo que dice la gente, por tono: claro, en medio, oscuro. %s es tu nombre; "" es que no dice
@@ -64,10 +95,12 @@ var complexion := 0.5
 var talla := 0.5
 var cabeza := 0.5
 var ropa := 0
+var protagonista := 0
 # Otra ruta en las pruebas, para no pisar el personaje de quien juega
 var ruta := RUTA
 
 var _malla_sin_capucha: ArrayMesh
+var _malla_con_capucha: Mesh
 
 
 func _ready() -> void:
@@ -85,6 +118,7 @@ func cargar() -> void:
 	talla = clampf(float(archivo.get_value("personaje", "talla", 0.5)), 0.0, 1.0)
 	cabeza = clampf(float(archivo.get_value("personaje", "cabeza", 0.5)), 0.0, 1.0)
 	ropa = clampi(int(archivo.get_value("personaje", "ropa", 0)), 0, ROPA.size() - 1)
+	protagonista = clampi(int(archivo.get_value("personaje", "protagonista", 0)), 0, PROTAGONISTAS.size() - 1)
 
 
 func guardar() -> void:
@@ -96,6 +130,7 @@ func guardar() -> void:
 	archivo.set_value("personaje", "talla", talla)
 	archivo.set_value("personaje", "cabeza", cabeza)
 	archivo.set_value("personaje", "ropa", ropa)
+	archivo.set_value("personaje", "protagonista", protagonista)
 	archivo.save(ruta)
 
 
@@ -115,6 +150,15 @@ func al_azar() -> void:
 
 
 # --- Lo que cambia ---
+
+# La estela de tus golpes (EstelaBarrido.Estilo)
+func estela() -> int:
+	return ESTELAS[protagonista] if mejora_estela else 0
+
+
+func a_punos() -> bool:
+	return A_PUNOS[protagonista]
+
 
 static func _en(valores: Array, t: float) -> float:
 	if t < 0.5:
@@ -181,7 +225,11 @@ func _descubrir_cabeza(malla: MeshInstance3D) -> void:
 	malla.set_meta("cabeza_descubierta", true)
 	if _malla_sin_capucha == null:
 		_malla_sin_capucha = _partir_capucha(malla)
-	if _malla_sin_capucha:
+		if _malla_sin_capucha:
+			_malla_con_capucha = malla.mesh
+	# Solo el cuerpo del ninja: el arma en la mano tambien esta adentro del modelo, y se volvia
+	# un cuerpo diminuto color piel
+	if _malla_sin_capucha and malla.mesh == _malla_con_capucha:
 		malla.mesh = _malla_sin_capucha
 
 
@@ -243,9 +291,11 @@ static func _hueso_principal(arreglos: Array, vertice: int, por_vertice: int) ->
 	return huesos[vertice * por_vertice + mejor]
 
 
-# El modelo del ninja (ninja_male.fbx) con tu piel, tu ropa y tu cuerpo. Se puede llamar muchas
-# veces. Materiales propios: los vecinos usan los mismos del modelo y no deben cambiar
+# El modelo con tu piel, tu ropa y tu cuerpo: el ninja (materiales Skin y Main) o un personaje
+# del pack PSX (textura con piel.png al lado; la ropa de esos queda para despues). Se puede
+# llamar muchas veces. Materiales propios: los vecinos usan los mismos del modelo y no deben cambiar
 func vestir(modelo: Node3D) -> void:
+	var es_compa := false
 	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):
 		if malla.mesh == null:
 			continue
@@ -253,6 +303,11 @@ func vestir(modelo: Node3D) -> void:
 		for i in malla.mesh.get_surface_count():
 			var material := malla.get_active_material(i) as BaseMaterial3D
 			if material == null:
+				continue
+			var base: Texture2D = material.get_meta("textura_piel", material.albedo_texture)
+			if base != null and base.resource_path == TEXTURA_COMPA:
+				es_compa = true
+			if _pintar_piel(malla, i, material):
 				continue
 			var color: Variant = null
 			if material.resource_name == "Skin" or material.resource_name == MATERIAL_CABEZA:
@@ -268,9 +323,11 @@ func vestir(modelo: Node3D) -> void:
 	if not modelo.has_meta("base_personaje"):
 		modelo.set_meta("base_personaje", modelo.basis)
 	modelo.basis = (modelo.get_meta("base_personaje") as Basis).scaled(Vector3.ONE * _en(ESCALA_TALLA, talla))
-	var esqueleto := modelo.find_child("Skeleton3D", true, false) as Skeleton3D
-	if esqueleto == null:
+	# Con el retarget el esqueleto se llama GeneralSkeleton
+	var esqueletos := modelo.find_children("*", "Skeleton3D", true, false)
+	if esqueletos.is_empty():
 		return
+	var esqueleto := esqueletos[0] as Skeleton3D
 	var cuerpo := esqueleto.get_node_or_null("CuerpoPersonaje")
 	if cuerpo == null:
 		cuerpo = CUERPO.new()
@@ -278,3 +335,100 @@ func vestir(modelo: Node3D) -> void:
 		esqueleto.add_child(cuerpo)
 	cuerpo.set("ancho", _en(ANCHO, complexion))
 	cuerpo.set("cabeza", _en(ESCALA_CABEZA, cabeza))
+	_poner_gorro(esqueleto, GORROS[protagonista] if es_compa else null)
+
+
+# El gorro del protagonista, pegado al hueso de la cabeza; se cambia o se quita si escoges otro
+func _poner_gorro(esqueleto: Skeleton3D, cual: Script) -> void:
+	var gorro := esqueleto.get_node_or_null("Gorro")
+	if gorro and gorro.get_meta("gorro") == cual:
+		return
+	if gorro:
+		gorro.queue_free()
+		gorro.name = "GorroSaliendo"
+	if cual:
+		var pegado := BoneAttachment3D.new()
+		pegado.name = "Gorro"
+		pegado.bone_name = "Head"
+		pegado.set_meta("gorro", cual)
+		pegado.add_child(cual.crear())
+		esqueleto.add_child(pegado)
+
+
+# La textura con la piel de tu tono, si el material tiene piel.png junto a su textura. Se guarda
+# la original en el material para repintar desde ella cada vez
+func _pintar_piel(malla: MeshInstance3D, superficie: int, material: BaseMaterial3D) -> bool:
+	var base: Texture2D = material.get_meta("textura_piel", material.albedo_texture)
+	if base == null or base.resource_path == "":
+		return false
+	# El protagonista que escogiste: la textura de el_compa se cambia por la suya
+	var original := base
+	if base.resource_path == TEXTURA_COMPA and TEXTURAS[protagonista] != "":
+		original = load(TEXTURAS[protagonista]) as Texture2D
+	var ruta := original.resource_path
+	if not _pieles.has(ruta):
+		var mascara_ruta := ruta.get_base_dir().path_join(MASCARA_PIEL)
+		if not ResourceLoader.exists(mascara_ruta):
+			_pieles[ruta] = null
+		else:
+			_pieles[ruta] = _preparar_piel(original, load(mascara_ruta) as Texture2D)
+	var piel: Dictionary = _pieles[ruta] if _pieles[ruta] != null else {}
+	if piel.is_empty():
+		return false
+	var tono := color_piel()
+	if piel["tono"] != tono:
+		piel["tono"] = tono
+		_repintar(piel, tono)
+	if malla.get_surface_override_material(superficie) == null:
+		material = material.duplicate() as BaseMaterial3D
+		material.set_meta("textura_piel", base)
+		malla.set_surface_override_material(superficie, material)
+	material.albedo_texture = piel["textura"]
+	return true
+
+
+# Los pixeles de piel y cuanto (la mascara puede tener orillas grises), una vez por textura
+static func _preparar_piel(original: Texture2D, mascara_textura: Texture2D) -> Dictionary:
+	var imagen := original.get_image()
+	if imagen.is_compressed():
+		imagen.decompress()
+	imagen.convert(Image.FORMAT_RGBA8)
+	var mascara := mascara_textura.get_image()
+	if mascara.is_compressed():
+		mascara.decompress()
+	mascara.convert(Image.FORMAT_L8)
+	mascara.resize(imagen.get_width(), imagen.get_height(), Image.INTERPOLATE_NEAREST)
+	var valores := mascara.get_data()
+	var datos := imagen.get_data()
+	var donde := PackedInt32Array()
+	var cuanto := PackedFloat32Array()
+	var suma := 0.0
+	var peso := 0.0
+	for p in valores.size():
+		if valores[p] > 0:
+			donde.append(p)
+			cuanto.append(valores[p] / 255.0)
+			suma += (datos[p * 4] + datos[p * 4 + 1] + datos[p * 4 + 2]) * cuanto[-1]
+			peso += cuanto[-1]
+	return {"datos": datos, "ancho": imagen.get_width(), "alto": imagen.get_height(), "media": suma / maxf(peso, 1.0),
+		"donde": donde, "cuanto": cuanto, "tono": Color(-1, -1, -1), "textura": ImageTexture.create_from_image(imagen)}
+
+
+static func _repintar(piel: Dictionary, tono: Color) -> void:
+	var datos: PackedByteArray = (piel["datos"] as PackedByteArray).duplicate()
+	var color := Vector3(tono.r, tono.g, tono.b) * 255.0
+	var media: float = piel["media"]
+	var donde: PackedInt32Array = piel["donde"]
+	var cuanto: PackedFloat32Array = piel["cuanto"]
+	for k in donde.size():
+		var b := donde[k] * 4
+		var m := cuanto[k]
+		var sombra := (datos[b] + datos[b + 1] + datos[b + 2]) / media
+		for c in 3:
+			var antes := datos[b + c]
+			var nuevo := color[c] * sombra
+			if nuevo > RODILLA_PIEL:
+				nuevo = RODILLA_PIEL + (nuevo - RODILLA_PIEL) * 0.35
+			datos[b + c] = clampi(roundi(lerpf(antes, nuevo, m)), 0, 255)
+	var imagen := Image.create_from_data(piel["ancho"], piel["alto"], false, Image.FORMAT_RGBA8, datos)
+	(piel["textura"] as ImageTexture).update(imagen)

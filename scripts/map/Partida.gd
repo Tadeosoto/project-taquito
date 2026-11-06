@@ -1,9 +1,11 @@
 class_name Partida
 extends CanvasLayer
 
-# Una partida (docs/especificaciones.md 1.2): aguantar NOCHES noches defendiendo el tinaco
-# del Refugio. La ultima sale el garrafonero y no amanece hasta matarlo. Se pierde si tumban
-# el tinaco; morir no la termina (Supervivencia.gd). En coop la lleva el servidor.
+# Una partida (docs/especificaciones.md 1.2): aguantar NOCHES noches. La ultima sale el
+# garrafonero y no amanece hasta matarlo. Con Refugio (el safehouse) se defiende su tinaco y
+# se pierde si lo tumban; sin el (map_test, mientras la defensa del tinaco llega al mapa) no
+# hay derrota y el jefe sale cerca de ti. Morir no la termina (Supervivencia.gd). En coop la
+# lleva el servidor.
 
 const NOCHES := 3
 const JEFE_CERCA := 70.0     # Zombis.LEJOS: mas lejos puede no estar cargado el mapa ahi
@@ -23,6 +25,8 @@ const BOLSAS_ZONAS := [1, 3, 5, 7]
 const BOLSA_LADO := Vector2(4.0, 0.0)  # m de la pieza, para que no se encimen
 const BOLSA := "res://resources/productos/takis_tazo.tres"
 const TEXTO_PUNTO := "+1 punto de habilidad por sobrevivir la noche"
+# Para ajustar RitmoNoche jugando
+const TEXTO_NOCHE := "Noche %d: salieron %d zombis, mataste %d (turbas: %d)"
 const PUNTOS_JSON := "res://resources/map/puntos_mapa.json"
 const POSTES_JSON := "res://resources/map/alumbrado_mapa.json"
 
@@ -31,6 +35,7 @@ const POSTES_JSON := "res://resources/map/alumbrado_mapa.json"
 var misiones_config := {}
 @export var zombis_path: NodePath
 @export var supervivencia_path: NodePath
+# Vacio: sin refugio (ver arriba)
 @export var refugio_path: NodePath
 
 var noche := 0
@@ -56,12 +61,14 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_zombis = get_node(zombis_path) as Zombis
 	_supervivencia = get_node(supervivencia_path)
-	_refugio = get_node(refugio_path) as Refugio
+	_refugio = get_node_or_null(refugio_path) as Refugio if not refugio_path.is_empty() else null
 	_ciclo = get_tree().get_first_node_in_group("ciclo")
 	_jugador = get_tree().get_first_node_in_group("jugador") as Player
-	_supervivencia.punto_regreso = _refugio.punto_regreso()
-	_refugio.cayo.connect(_perder)
-	_refugio.aviso.connect(_supervivencia.avisar)
+	# Sin refugio regresas a donde empezaste (Supervivencia ya lo tiene)
+	if _refugio:
+		_supervivencia.punto_regreso = _refugio.punto_regreso()
+		_refugio.cayo.connect(_perder)
+		_refugio.aviso.connect(_supervivencia.avisar)
 	_ciclo.anochecio.connect(_anochecio)
 	_ciclo.amanecio.connect(_amanecio)
 	_armar_pantalla()
@@ -78,7 +85,7 @@ func _amanecio() -> void:
 	if noche <= 0:
 		return
 	get_node("/root/Tazos").dar_puntos(Tazos.PUNTOS_POR_NOCHE)
-	_supervivencia.avisar(TEXTO_PUNTO)
+	_supervivencia.avisar("%s\n%s" % [TEXTO_NOCHE % [noche, _zombis.salieron_noche, _zombis.muertos_noche, _zombis.turbas_noche], TEXTO_PUNTO])
 
 
 # Unas bolsas especiales tiradas, con su haz (WorldItem): junto a donde va la pieza de su
@@ -159,14 +166,19 @@ func _lugares_de_piezas() -> Dictionary:
 func _anochecio() -> void:
 	noche += 1
 	get_node("/root/Tazos").nueva_noche()
-	_refugio.noche = noche
+	if _refugio:
+		_refugio.noche = noche
 	if noche >= NOCHES:
 		_ciclo.retener_noche = true
 		_jefe_pendiente = true
 
 
 func _process(delta: float) -> void:
-	_estado.text = "Noche %d/%d · Tinaco %d/%d" % [maxi(noche, 1), NOCHES, _refugio.vida, Refugio.TINACO_VIDA]
+	# El reloj (Ciclo.hora) y en que dia o noche vas
+	var cual := "Noche %d/%d" % [noche, NOCHES] if _ciclo.es_noche() else "Día %d" % (noche + 1)
+	_estado.text = "%s · %s" % [Ciclo.texto_hora(_ciclo.hora()), cual]
+	if _refugio:
+		_estado.text += " · Tinaco %d/%d" % [_refugio.vida, Refugio.TINACO_VIDA]
 	_revisar_zona(delta)
 	if not _jefe_pendiente or _terminada or get_tree().paused:
 		return
@@ -174,9 +186,10 @@ func _process(delta: float) -> void:
 	if _espera_jefe > 0.0:
 		return
 	_espera_jefe = JEFE_REINTENTO
-	if _jugador.global_position.distance_to(_refugio.global_position) > JEFE_CERCA:
+	var centro := _refugio.global_position if _refugio else _jugador.global_position
+	if _jugador.global_position.distance_to(centro) > JEFE_CERCA:
 		return
-	var jefe := _zombis.aparecer_jefe(_refugio.global_position)
+	var jefe := _zombis.aparecer_jefe(centro)
 	if jefe:
 		_jefe_pendiente = false
 		jefe.murio.connect(_ganar)
@@ -242,7 +255,8 @@ func reiniciar() -> void:
 	_jefe_pendiente = false
 	_terminada = false
 	_ciclo.retener_noche = false
-	_refugio.reiniciar()
+	if _refugio:
+		_refugio.reiniciar()
 
 
 func _armar_pantalla() -> void:

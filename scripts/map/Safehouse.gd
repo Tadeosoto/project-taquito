@@ -8,7 +8,7 @@ extends Node3D
 #
 # Hasta arriba, un negocio de cada giro; a la izquierda las maquinitas, una en cada estado;
 # adelante, un objeto de cada uno (todo lo de resources/productos/); atras, casas modelo. En
-# medio cabe la pelea. Las teclas de prueba estan en PANEL_TEXTO y se ven en pantalla.
+# medio cabe la pelea. Las teclas de prueba estan en PANEL_TEXTO y se ven con F1.
 
 const PUNTOS_JSON := "user://puntos_safehouse.json"
 const CASAS_JSON := "user://casas_safehouse.json"
@@ -67,16 +67,23 @@ const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
 const DANO_TINACO := 100
 const TURBA_PRUEBA := 12
 const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
-const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
-Tab inventario · clic o F pegar · V dron
+# La estela de los golpes (EstelaBarrido.estilo): la 8 prende o apaga la del protagonista
+const ESTELA := preload("res://scripts/EstelaBarrido.gd")
+const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 muestra/oculta esto)
+Tab inventario · clic o F pegar · V dron · clic der. bloquear · Alt + WASD rodar · S pegando o con pistola: retroceder · botón de en medio: verte de frente
 N siguiente atardecer/amanecer
 Z zombi · B turba · X quitar zombis · T zombis solos de noche
-H curar · J -%d de vida · P +$100 · Y vaciar inventario
+H curar · J -%d de vida · P +$100 · Y vaciar inventario (sin machete pegas a puñetazos)
 G tablas · L -100 al tinaco (refugio a la derecha)
 M mapa (sin piezas se ve vacío) · U todas las piezas
-1 2 3 maquinita cercana: normal, sin monedas, segura
-C crear personaje · K deterioro · R reiniciar todo · F10 ir al mapa
+1 2 machete / pistola · R recargar · Shift+1 2 3 maquinita cercana: normal, sin monedas, segura
+C crear personaje · K deterioro · F12 reiniciar todo · F10 ir al mapa
 F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
+9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
+0 zombis: enjambre (carriles, atajos, rebasan) / en fila como antes
+8 estela del protagonista (su mejora): prendida / la de siempre
+7 ataque cargado: deja apretado pegar y suelta = tajo de arriba abajo con avance, 2.5x dano / sin cargado
+6 golpe con brinco: pega en el aire = espadazo giratorio; con Shift, clavado con estocada (prueba) / sin giro
 O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
 Efectos de pixel, propuestas (F2-F7 cambian):"""
 # Una tecla por lugar de EfectosPixel, en este orden
@@ -138,7 +145,18 @@ func _guardar(path: String, data: Dictionary) -> void:
 
 
 func _ready() -> void:
+	Player.golpe_cargado = true
+	Player.giro_aereo = true
 	_jugador = get_node("Player")
+	# Para probar sin cambiar el personaje guardado: -- --protagonista=N (Personaje.PROTAGONISTAS)
+	# y --estela=N (EstelaBarrido.Estilo)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--protagonista="):
+			get_node("/root/Personaje").protagonista = int(arg.trim_prefix("--protagonista="))
+			_jugador.aplicar_personaje()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--estela="):
+			ESTELA.estilo = int(arg.trim_prefix("--estela="))
 	_zombis = get_node("Zombis")
 	_ciclo = get_node("Ciclo")
 	_salud = get_node("/root/Salud")
@@ -153,7 +171,7 @@ func _ready() -> void:
 	_poner_objetos()
 	var npc := NPC.instantiate()
 	npc.set("dialogue", "Aquí se prueba de todo, joven.")
-	npc.set("tint", Color(0.5, 0.8, 1.0))
+	npc.set("modelo", Civiles.al_azar())
 	npc.position = Vector3(10.0, 0.0, -14.0)
 	add_child(npc)
 	_refugio = Refugio.new()
@@ -331,6 +349,13 @@ func _poner_objetos() -> void:
 
 # --- Teclas de prueba ---
 
+func _exit_tree() -> void:
+	ESTELA.estilo = ESTELA.Estilo.NORMAL
+	get_node("/root/Personaje").mejora_estela = false
+	Player.golpe_cargado = false
+	Player.giro_aereo = false
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
@@ -367,11 +392,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_L:
 			_refugio.recibir_golpe(DANO_TINACO)
 		KEY_1, KEY_2, KEY_3:
-			_poner_estado(_maquina_cercana(), tecla - KEY_1)
+			# Sin Shift, 1-5 cambian de arma (Player._tecla_arma)
+			if event.shift_pressed:
+				_poner_estado(_maquina_cercana(), tecla - KEY_1)
 		KEY_K:
 			_deterioro = wrapi(_deterioro + 1, 0, DETERIOROS.size())
 			Deterioro.configurar(DETERIOROS[_deterioro], 150.0)
-		KEY_R:
+		KEY_F12:
 			_reiniciar()
 		KEY_C:
 			_crear_personaje()
@@ -385,6 +412,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F9:
 			EfectosPixel.poner_extras(not EfectosPixel.extras)
 			_mostrar_efectos()
+		KEY_9:
+			Player.pelea_a_tiempo = not Player.pelea_a_tiempo
+			_mostrar_efectos()
+		KEY_0:
+			Zombie.enjambre = not Zombie.enjambre
+			_mostrar_efectos()
+		KEY_8:
+			# Prende o apaga la estela del protagonista (su mejora, Personaje.ESTELAS)
+			var personaje := get_node("/root/Personaje")
+			personaje.mejora_estela = not personaje.mejora_estela
+			ESTELA.estilo = personaje.estela()
+			_mostrar_efectos()
+		KEY_6:
+			Player.giro_aereo = not Player.giro_aereo
+		KEY_7:
+			Player.golpe_cargado = not Player.golpe_cargado
 		KEY_O:
 			if event.shift_pressed:
 				Tazos.rareza_forzada = wrapi(Tazos.rareza_forzada + 1, -1, TazoData.Rareza.size())
@@ -463,6 +506,8 @@ func _armar_panel() -> void:
 	_panel = CanvasLayer.new()
 	_panel.name = "Panel"
 	_panel.layer = 7
+	# Arranca oculto (JJ): F1 lo muestra
+	_panel.visible = false
 	add_child(_panel)
 	var fondo := PanelContainer.new()
 	fondo.position = Vector2(6.0, 6.0)
@@ -499,7 +544,10 @@ func _mostrar_efectos() -> void:
 		if i % 3 == 2 and i < EFECTOS_LUGARES.size() - 1:
 			partes.append("\n")
 	_efectos.text = " · ".join(partes).replace(" · \n · ", "\n") \
-		+ "\nF9 efectos nuevos: " + ("prendidos" if EfectosPixel.extras else "apagados")
+		+ "\nF9 efectos nuevos: " + ("prendidos" if EfectosPixel.extras else "apagados") \
+		+ " · 9 pelea: " + ("golpe a tiempo" if Player.pelea_a_tiempo else "sin aturdir") \
+		+ "\n0 zombis: " + ("enjambre" if Zombie.enjambre else "en fila (como antes)") \
+		+ " · 8 estela: %d %s" % [ESTELA.estilo, ESTELA.NOMBRES[ESTELA.estilo]]
 
 
 func _process(_delta: float) -> void:

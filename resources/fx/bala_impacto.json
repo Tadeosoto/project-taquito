@@ -1,0 +1,16 @@
+{
+ "id": "impacts/bullet-impact",
+ "fps": 30,
+ "loop": false,
+ "frames": 43,
+ "frameSize": [
+  152,
+  100
+ ],
+ "pivot": [
+  116,
+  84
+ ],
+ "columns": 6,
+ "golpe_en": 0
+}

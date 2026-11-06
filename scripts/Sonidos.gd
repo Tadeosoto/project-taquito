@@ -1,16 +1,63 @@
 class_name Sonidos
 extends RefCounted
 
-# No hay archivos de audio en el juego: los sonidos cortos se arman en codigo y se
-# guardan la primera vez que se piden.
+# Casi no hay archivos de audio en el juego: los sonidos cortos se arman en codigo y se
+# guardan la primera vez que se piden (salvo ARCHIVOS).
 
 const MUESTRAS := 22050
 
 static var _sonidos := {}
+# Si no esta vacio, solo suenan estos: los demas regresan null y su reproductor no toca
+# nada. La defensa del tinaco deja solo los machetazos y los balazos, con su musica
+static var solo: Array[String] = []
+
+# Los unicos que vienen de archivo: el rugido de los zombis (JJ), la subida y la bajada sin lo de en medio para cuando te
+# detectan, y para el aviso de que van a pegar el pico ya bajando. Ya vienen mas bajos
+# (de "rugido zombie.mpeg" con ffmpeg).
+const ARCHIVOS := {
+	"rugido": "res://audio/zombis/rugido.ogg",
+	"rugido_corto": "res://audio/zombis/rugido_corto.ogg",
+}
+
+# Cupo de rugidos: con una horda de 15 todos querian rugir a la vez y tapaban todo.
+# Nunca suenan mas de RUGIDOS_MAX juntos, y entre uno y otro pasan RUGIDO_SEPARA s.
+# Los cortos (aviso de ataque) tienen su propio cupo, mas suelto, porque te dicen algo.
+const RUGIDOS_MAX := 2
+const RUGIDO_SEPARA := 2.5
+const CORTOS_MAX := 3
+const CORTO_SEPARA := 0.35
+static var _sonando := {"rugido": [], "rugido_corto": []}   # cuando acaba cada uno (ms)
+static var _ultimo := {"rugido": -100000, "rugido_corto": -100000}
 
 
-static func sonido(nombre: String) -> AudioStreamWAV:
+# true si `nombre` ("rugido" o "rugido_corto") puede sonar ahora, y lo aparta
+static func turno(nombre: String, tono := 1.0) -> bool:
+	if not _sonando.has(nombre):
+		return true
+	var stream := sonido(nombre)
+	if stream == null:
+		return false
+	var ahora := Time.get_ticks_msec()
+	var corto := nombre == "rugido_corto"
+	var lista: Array = _sonando[nombre]
+	lista = lista.filter(func(fin: int) -> bool: return fin > ahora)
+	_sonando[nombre] = lista
+	if lista.size() >= (CORTOS_MAX if corto else RUGIDOS_MAX):
+		return false
+	if ahora - int(_ultimo[nombre]) < int((CORTO_SEPARA if corto else RUGIDO_SEPARA) * 1000.0):
+		return false
+	_ultimo[nombre] = ahora
+	lista.append(ahora + int(stream.get_length() / maxf(tono, 0.1) * 1000.0))
+	return true
+
+
+static func sonido(nombre: String) -> AudioStream:
+	if not solo.is_empty() and not solo.has(nombre):
+		return null
 	if not _sonidos.has(nombre):
+		if ARCHIVOS.has(nombre):
+			_sonidos[nombre] = load(ARCHIVOS[nombre])
+			return _sonidos[nombre]
 		match nombre:
 			"paso":
 				_sonidos[nombre] = _tono(880.0, 0.035, 0.0, 0.5)
@@ -32,6 +79,8 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _tono(420.0, 0.11, -200.0, 0.7)
 			"whack":
 				_sonidos[nombre] = _whack()
+			"bloqueo":
+				_sonidos[nombre] = _bloqueo()
 			"reventar":
 				_sonidos[nombre] = _reventar()
 			"dolor":
@@ -93,17 +142,32 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _zumbido()
 			"boom":
 				_sonidos[nombre] = _boom()
+			"disparo", "disparo_1":
+				_sonidos[nombre] = _disparo(0)
+			"disparo_2":
+				_sonidos[nombre] = _disparo(1)
+			"disparo_3":
+				_sonidos[nombre] = _disparo(2)
+			"disparo_4":
+				_sonidos[nombre] = _disparo(3)
+			"recarga":
+				_sonidos[nombre] = _recarga()
+			"cortina":
+				_sonidos[nombre] = _cortina()
+			"cortina_tope":
+				_sonidos[nombre] = _cortina_tope()
 	return _sonidos[nombre]
 
 
 # Toca `nombre` una vez colgado de `donde` y se borra al terminar. Suena aunque el
 # juego este en pausa (el inventario pausa el arbol).
-static func tocar(donde: Node, nombre: String, volumen_db := 0.0) -> void:
+static func tocar(donde: Node, nombre: String, volumen_db := 0.0, tono := 1.0) -> void:
 	if donde == null or not donde.is_inside_tree():
 		return
 	var voz := AudioStreamPlayer.new()
 	voz.stream = sonido(nombre)
 	voz.volume_db = volumen_db
+	voz.pitch_scale = tono
 	voz.process_mode = Node.PROCESS_MODE_ALWAYS
 	voz.finished.connect(voz.queue_free)
 	donde.add_child(voz)
@@ -352,6 +416,79 @@ static func _boom() -> AudioStreamWAV:
 	return _a_wav(_eco(b, [71, 113], 0.35, 0.5, 0.3))
 
 
+# Pistola (Pistola.gd): un estallido seco de ruido con un golpe grave abajo y un poco de
+# eco de calle, mas corto que el cohete
+# Las variantes del balazo (Pistola elige una al azar): semilla, tono del cuerpo (de, a),
+# cuanto dura el cuerpo, cuanto el estallido, que tan aspero es el ruido y la cola del eco
+const DISPAROS := [
+	{"semilla": 61, "tono": Vector2(160.0, 55.0), "cuerpo": 22.0, "estallido": 38.0, "aspero": 0.6, "eco": 0.3},
+	{"semilla": 73, "tono": Vector2(185.0, 62.0), "cuerpo": 26.0, "estallido": 46.0, "aspero": 0.75, "eco": 0.25},
+	{"semilla": 89, "tono": Vector2(140.0, 48.0), "cuerpo": 18.0, "estallido": 32.0, "aspero": 0.5, "eco": 0.38},
+	{"semilla": 97, "tono": Vector2(170.0, 58.0), "cuerpo": 24.0, "estallido": 52.0, "aspero": 0.85, "eco": 0.3},
+]
+
+
+static func _disparo(variante: int) -> AudioStreamWAV:
+	var v: Dictionary = DISPAROS[variante]
+	var tono: Vector2 = v["tono"]
+	var b := _vacio(0.35)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = v["semilla"]
+	var fase := 0.0
+	var ruido := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		fase += lerpf(tono.x, tono.y, minf(t / 0.12, 1.0)) / MUESTRAS
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), v["aspero"])
+		var golpe := sin(fase * TAU) * exp(-t * v["cuerpo"])
+		var estallido := ruido * exp(-t * v["estallido"]) * 1.6
+		b[i] = clampf(golpe * 0.8 + estallido, -1.0, 1.0)
+	return _a_wav(_eco(b, [47, 89], v["eco"], 0.25, 0.35))
+
+
+# Dos clics metalicos: sale el cargador y entra el otro
+static func _recarga() -> AudioStreamWAV:
+	var b := _vacio(0.5)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 67
+	for desde: float in [0.0, 0.32]:
+		var fase := 0.0
+		for i in int(0.06 * MUESTRAS):
+			var t := float(i) / MUESTRAS
+			fase += 2400.0 / MUESTRAS
+			var j := int(desde * MUESTRAS) + i
+			b[j] += (sin(fase * TAU) * 0.5 + azar.randf_range(-1.0, 1.0) * 0.5) * exp(-t * 90.0) * 0.8
+	return _a_wav(b)
+
+
+# La cortina de lamina enrollandose o bajando: el traqueteo de las tablillas, en bucle (MapPuntos
+# lo toca mientras se mueve). 20 tablillas por segundo, asi el segundo cierra sin costura.
+static func _cortina() -> AudioStreamWAV:
+	var b := _vacio(1.0)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 83
+	for k in 20:
+		var clic := _clic(azar.randf_range(900.0, 1500.0), azar.randf_range(140.0, 220.0), azar.randf_range(0.18, 0.3), 200 + k)
+		b = _mezclar(b, clic, k * 0.05 + azar.randf_range(0.0, 0.012))
+	# Un rumor grave de lamina debajo
+	var ruido := 0.0
+	for i in b.size():
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.04)
+		b[i] += ruido * 0.25
+	var wav := _a_wav(b)
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wav.loop_end = b.size()
+	return wav
+
+
+# El golpe de la cortina al llegar al piso (o al rollo de arriba)
+static func _cortina_tope() -> AudioStreamWAV:
+	var b := _golpe_grave(85.0, 14.0, 0.7, 0.45)
+	b = _mezclar(b, _clic(620.0, 40.0, 0.35, 91), 0.0)
+	b = _mezclar(b, _clic(1100.0, 60.0, 0.2, 92), 0.07)
+	return _a_wav(_eco(b, [23, 37], 0.3, 0.15, 0.3))
+
+
 static func _vacio(duracion: float) -> PackedFloat32Array:
 	var b := PackedFloat32Array()
 	b.resize(int(duracion * MUESTRAS))
@@ -437,6 +574,23 @@ static func _whack() -> AudioStreamWAV:
 		var retumbo := sin(fase * TAU) * pow(1.0 - t, 2.0)
 		datos.encode_s16(i * 2, int(clampf(chasquido * 0.9 + retumbo * 0.75, -1.0, 1.0) * 32000.0))
 	return _wav(datos)
+
+
+# Golpe parado con el machete: un golpe sordo en el cuerpo, el chasquido del choque y la hoja que
+# vibra (parciales que no son armonicos, como una lamina), con un poco de eco
+static func _bloqueo() -> AudioStreamWAV:
+	var b := _golpe_grave(85.0, 18.0, 0.7, 0.45)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 91
+	var parciales := [[1180.0, 9.0, 0.32], [1910.0, 12.0, 0.24], [2970.0, 16.0, 0.16], [4230.0, 22.0, 0.1]]
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		var choque := azar.randf_range(-1.0, 1.0) * exp(-t * 120.0) * 0.8
+		var lamina := 0.0
+		for p: Array in parciales:
+			lamina += sin(TAU * p[0] * t) * exp(-t * p[1]) * p[2]
+		b[i] += choque + lamina
+	return _a_wav(_eco(b, [23, 37], 0.3, 0.15, 0.25))
 
 
 # Un zombi que gime: una garganta (diente de sierra apagado) que sube y luego se cae,
