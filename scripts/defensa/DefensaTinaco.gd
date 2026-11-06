@@ -12,6 +12,7 @@ extends Node3D
 #   godot --path . scenes/defensa_tinaco.tscn -- --capturas=<carpeta> [--semilla=N]
 #   godot --path . scenes/defensa_tinaco.tscn -- --monitor=<carpeta>   (MonitorDefensa.gd)
 #   godot --path . scenes/defensa_tinaco.tscn -- --noche=<segundos> --modo=facil|medio|dificil
+#   godot --path . scenes/defensa_tinaco.tscn -- --estela   (la mejora de estela del protagonista)
 #
 # El mapa se arma con los mismos sistemas de map_test alrededor del nodo Centro, con
 # radios chicos; los negocios salen cerrados (sin flecha). La barricada se genera hasta
@@ -174,6 +175,9 @@ func _ready() -> void:
 			modo = arg.trim_prefix("--modo=")
 		elif arg.begins_with("--noche="):
 			duracion_noche = float(arg.trim_prefix("--noche="))
+		elif arg == "--estela":
+			get_node("/root/Personaje").mejora_estela = true
+			_jugador.aplicar_personaje()
 		elif arg.begins_with("--monitor="):
 			var monitor := preload("res://scripts/defensa/MonitorDefensa.gd").new()
 			monitor.name = "Monitor"

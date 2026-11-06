@@ -122,6 +122,8 @@ const RETROCEDE_VELOCIDAD := 0.55  # de la velocidad al caminar
 # (character_animation.PASO_MAX); mas rapido patinaba (en el mapa caminas a 10). Correr y el
 # trote son solo para cuando no haces nada mas (JJ)
 const CAMINA_MAXIMO := 2.0
+# Apuntando con la pistola, mas lento: a 2 m/s el Walk iba a 1.54x y se veia como trote (JJ)
+const CAMINA_PISTOLA := 1.4
 # Shift a medio machetazo: trote normal en cualquier direccion (ves hacia donde corres y el golpe
 # sale para alla), agachado hacia adelante como embistiendo (JJ)
 # Rodada para esquivar: con Alt sostenido, cada direccion (WASD) que aprietes rueda para alla
@@ -1431,11 +1433,13 @@ func _physics_process(delta: float) -> void:
 	# Shift a medio machetazo: trote normal hacia donde vayas, agachado (CARGA_INCLINA)
 	var corre_pegando: bool = en_golpe and is_moving and Input.is_action_pressed("sprint") \
 			and not _pistola.activa
-	# Con S (sola o en diagonal) a medio machetazo o con la pistola retrocedes viendo al lado
+	# Con S (sola o en diagonal) a medio machetazo o apuntando retrocedes viendo al lado
 	# contrario de hacia donde vas; sin hacer nada mas, S te voltea y corres hacia la camara (JJ)
-	var retrocede: bool = is_moving and input_direction.y > 0.3 and (en_golpe or _pistola.activa) \
+	var retrocede: bool = is_moving and input_direction.y > 0.3 and (en_golpe or _apuntando) \
 			and not corre_pegando
-	var camina: bool = (_pistola.activa or en_golpe or _bloqueando) and not corre_pegando
+	# La pistola en la mano sola no cambia nada: trotas y corres normal. Walk solo apuntando
+	# (clic derecho), a medio machetazo o bloqueando (JJ)
+	var camina: bool = (_apuntando or en_golpe or _bloqueando) and not corre_pegando
 	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint") and not golpeando and not camina \
 			and not corre_pegando
 	var move_speed: float = sprint_speed if is_sprinting else speed
@@ -1446,16 +1450,18 @@ func _physics_process(delta: float) -> void:
 	if retrocede:
 		move_speed = minf(move_speed, speed * RETROCEDE_VELOCIDAD)
 	if camina:
-		move_speed = minf(move_speed, CAMINA_MAXIMO)
+		move_speed = minf(move_speed, CAMINA_PISTOLA if _apuntando else CAMINA_MAXIMO)
 	if _bloqueando:
 		move_speed = minf(move_speed, speed * BLOQUEO_VELOCIDAD)
 	# Caminando, el barrido va solo arriba: las piernas siguen trotando
 	if figura.has_method("golpe_caminando"):
 		figura.golpe_caminando(is_moving and (en_golpe or _bloqueando))
 	var target_horizontal := Vector3.ZERO
-	# Con la pistola, o a medio machetazo, ve siempre hacia donde apunta la camara, aunque camine
-	# para otro lado: el golpe sale hacia donde ves
-	var apunta: bool = (_pistola.activa or golpeando or _bloqueando) and _estocada_t < 0.0 \
+	# Apuntando, o a medio machetazo, ve siempre hacia donde apunta la camara, aunque camine
+	# para otro lado: el golpe sale hacia donde ves. Con la pistola sin apuntar, solo parado (para
+	# que el tiro de cadera salga a la mira); trotando ves hacia donde vas
+	var apunta: bool = (_apuntando or (_pistola.activa and not is_moving) or golpeando or _bloqueando) \
+			and _estocada_t < 0.0 \
 			and not corre_pegando and _rodada_t < 0.0
 	if figura.has_method("inclinar"):
 		figura.inclinar(CARGA_INCLINA if corre_pegando else (BLOQUEO_AGACHA if _agachado > 0.0 else 0.0))
