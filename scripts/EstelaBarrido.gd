@@ -32,14 +32,15 @@ void fragment() {
 }
 """
 
-# PRUEBA (JJ): estela de agua azul con blanco, al estilo de la respiracion del agua de Tanjiro.
-# Solo la prende el safehouse (tecla 8); false = la estela de siempre. Mas ancha y dura mas, con
-# franjas que ondulan a lo largo de la estela, crestas blancas que corren y la orilla de adentro
-# rota en gotas. UV2.x cuenta los pedazos, para saber donde va cada uno a lo largo
-static var agua := false
-# Los golpes especiales (giro, estocada) deciden su estela sin importar `agua`: -1 = seguir
-# `agua`, 0 = la normal, 1 = la de agua (Player.giro_agua / estocada_agua, la mejora)
-var especial := -1
+# La estela de todos los golpes (JJ): 0 la de siempre, 1 la de agua, 2 la de la mariposa monarca
+# (que ademas suelta monarcas chiquitas, Player._estela_golpe). La pone el protagonista
+# (Personaje.estela: el compa agua, Homero monarca) y la tecla 8 del safehouse la cambia.
+# La de agua es azul con blanco, al estilo de la respiracion del agua de Tanjiro: mas ancha y dura
+# mas, con franjas que ondulan a lo largo de la estela, crestas blancas que corren y la orilla de
+# adentro rota en gotas. UV2.x cuenta los pedazos, para saber donde va cada uno a lo largo
+enum Estilo { NORMAL, AGUA, MONARCA }
+const NOMBRES := ["la de siempre", "agua", "mariposa monarca"]
+static var estilo := Estilo.NORMAL
 const AGUA_VIDA := 0.32
 const AGUA_DESDE := 0.15
 const AGUA_BAJA := 0.15
@@ -75,6 +76,47 @@ void fragment() {
 	float cresta = 0.8 - 0.25 * s * s;
 	if (k > cresta && k < cresta + 0.07) {
 		c = AGUA[5];
+	}
+	ALBEDO = pow(c, vec3(2.2));
+}
+"""
+
+# La monarca (JJ): franjas naranjas que se oscurecen hacia adentro, cortadas por venas negras a lo
+# largo y de traves, y la orilla de la punta negra con puntitos blancos, como el ala. Ancha como la
+# de agua
+const SHADER_MONARCA := """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled;
+
+const vec3 NEGRO = vec3(0.05, 0.035, 0.03);
+const vec3 BLANCO = vec3(0.98, 0.96, 0.9);
+const vec3 NARANJA[4] = vec3[](
+	vec3(0.55, 0.20, 0.03), vec3(0.80, 0.33, 0.04), vec3(0.95, 0.47, 0.07), vec3(1.00, 0.62, 0.16));
+
+void fragment() {
+	float edad = UV.y;
+	float u = UV2.x * 0.18;
+	float borde = edad * 0.85;
+	if (UV.x < borde) {
+		discard;
+	}
+	float k = (UV.x - borde) / (1.0 - borde);
+	vec3 c;
+	if (k > 0.8) {
+		// La orilla negra del ala con dos hileras de puntitos blancos
+		c = NEGRO;
+		float hilera = k > 0.9 ? 0.5 : 0.0;
+		if (abs(k - 0.85 - hilera * 0.1) < 0.035 && fract(u * 1.6 + hilera) < 0.28) {
+			c = BLANCO;
+		}
+	} else {
+		c = NARANJA[clamp(int(k / 0.8 * 4.0), 0, 3)];
+		// Venas: a lo largo (entre celda y celda) y de traves, inclinadas hacia la punta
+		float vena_larga = fract(k / 0.8 * 3.0);
+		float vena_cruz = fract(u * 0.9 + k * 0.6);
+		if (vena_larga < 0.09 || vena_cruz < 0.07) {
+			c = NEGRO;
+		}
 	}
 	ALBEDO = pow(c, vec3(2.2));
 }
@@ -129,6 +171,8 @@ static var _material_nube: ShaderMaterial
 static var _quad: QuadMesh
 static var _material_agua: ShaderMaterial
 static var _material_espuma: ShaderMaterial
+static var _material_monarca: ShaderMaterial
+static var _material_polen: ShaderMaterial
 
 var _pedazos: Array = []       # [mano, punta, edad]
 var _malla := ImmediateMesh.new()
@@ -179,17 +223,33 @@ func _ready() -> void:
 	vec3(0.200, 0.470, 0.850)""")
 		_material_espuma = ShaderMaterial.new()
 		_material_espuma.shader = espuma
+	if _material_monarca == null:
+		var shader := Shader.new()
+		shader.code = SHADER_MONARCA
+		_material_monarca = ShaderMaterial.new()
+		_material_monarca.shader = shader
+		# Las nubes de la monarca: blanco y naranja claro, como sus puntitos
+		var polen := Shader.new()
+		polen.code = SHADER_NUBE.replace("""vec3(0.961, 0.957, 0.937), vec3(0.851, 0.847, 0.827), vec3(0.698, 0.698, 0.686),
+	vec3(0.549, 0.553, 0.549)""", """vec3(0.980, 0.960, 0.900), vec3(1.000, 0.820, 0.560), vec3(0.980, 0.600, 0.200),
+	vec3(0.800, 0.380, 0.080)""")
+		_material_polen = ShaderMaterial.new()
+		_material_polen.shader = polen
 	set_process(false)
 
 
+func _modo() -> int:
+	return estilo
+
+
 func _de_agua() -> bool:
-	return agua if especial < 0 else especial == 1
+	return _modo() != 0   # la monarca tiene la forma ancha de la de agua
 
 
 func agregar(mano: Vector3, punta: Vector3) -> void:
 	var de_agua := _de_agua()
 	if _pedazos.is_empty():
-		material_override = _material_agua if de_agua else _material
+		material_override = [_material, _material_agua, _material_monarca][_modo()]
 	var desde := AGUA_DESDE if de_agua else DESDE
 	var baja := AGUA_BAJA if de_agua else ADENTRO_BAJA
 	_pedazos.append([mano.lerp(punta, desde) + Vector3.DOWN * baja, punta, 0.0, float(_cuenta)])
@@ -204,7 +264,7 @@ func _soltar_nube(donde: Vector3) -> void:
 	_siguiente = (_siguiente + 1) % NUBES
 	var nube := _nubes[i]
 	nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * NUBE_TAMANO.x), donde)
-	nube.material_override = _material_espuma if _de_agua() else _material_nube
+	nube.material_override = [_material_nube, _material_espuma, _material_polen][_modo()]
 	nube.set_instance_shader_parameter("semilla", randf())
 	nube.set_instance_shader_parameter("edad", 0.0)
 	nube.visible = true

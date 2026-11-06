@@ -8,8 +8,14 @@ extends SceneTree
 # Tambien escribe piel.png, la mascara de la piel para el tono (Personaje.vestir).
 #   godot --path . --headless -s tools/personajes/el_compa.gd
 #   godot --path . --headless --import
+# Con -- --homero pinta el segundo protagonista (homenaje de JJ a Homero Gomez, el defensor de la
+# mariposa monarca): el mismo modelo con guayabera blanca cerrada de manga larga, por fuera del
+# pantalon, con alforzas, cuatro bolsillos y botones, pantalon negro y zapatos negros. Va a
+# protagonistas/homero/ (Character_04.png y piel.png); Personaje.vestir cambia la textura.
+#   godot --path . --headless -s tools/personajes/el_compa.gd -- --homero
 
 const CARPETA := "res://models/personajes/protagonistas/el_compa/"
+const CARPETA_HOMERO := "res://models/personajes/protagonistas/homero/"
 const SEMILLA := 7
 
 # --- Colores ---
@@ -73,9 +79,27 @@ var w: int
 var h: int
 var rng := RandomNumberGenerator.new()
 var posiciones := {}   # Vector2i (píxel) -> Vector3 (punto de la malla en reposo)
+var homero := false
+
+# --- Homero: la guayabera se dibuja en el espacio del modelo (como el bigote), asi las alforzas
+# salen derechas aunque las islas esten giradas. X al frente, Y arriba, Z a los lados. El torso va
+# de la cintura (y 2.62) al cuello (3.98); la guayabera baja a la cadera (GUAYABERA_HASTA), sobre
+# el pantalon. Un pixel de la textura son ~0.011 de modelo en el pecho
+const GUAYABERA := Color(0.93, 0.92, 0.88)       # blanco hueso: el blanco puro se quemaba
+const GUAYABERA_LINEA := 0.78                    # la sombra de alforzas y costuras
+const BOTON := Color(0.80, 0.79, 0.74)
+const ZAPATO := Color(0.07, 0.06, 0.055)
+const GUAYABERA_HASTA := 2.40                    # y del dobladillo
+const LINEA := 0.007                             # medio grueso de una linea
+const ALFORZAS_FRENTE := [0.105, 0.135, 0.33, 0.36]   # |z| de las alforzas de enfrente
+const ALFORZAS_ATRAS := [0.0, 0.03, 0.2, 0.23]          # |z| de las de atras
+const BOTONES_Y := [2.55, 2.78, 3.01, 3.24, 3.47, 3.70, 3.90]
+const BOLSAS := [Rect2(0.15, 3.33, 0.15, 0.2), Rect2(0.15, 2.66, 0.17, 0.22)]  # z, y, ancho, alto (de un lado)
+const PUNO_Y := 2.42                             # la costura del puno de la manga
 
 
 func _init() -> void:
+	homero = "--homero" in OS.get_cmdline_user_args()
 	rng.seed = SEMILLA
 	img = Image.load_from_file(ProjectSettings.globalize_path(CARPETA + "Character_04_original.png"))
 	img.convert(Image.FORMAT_RGBA8)
@@ -109,7 +133,17 @@ func _init() -> void:
 			var p := Vector2(x + 0.5, y + 0.5)
 			var nuevo := c
 			var es_piel := false
-			if e in CHAMARRA:
+			var q: Variant = posiciones.get(Vector2i(x, y))
+			if homero and q != null and (e in CHAMARRA or e in ANTEBRAZOS or (e in PANTALON and q.y > GUAYABERA_HASTA)):
+				nuevo = _guayabera(e, q, f)
+			elif homero and (e in CHAMARRA or e in ANTEBRAZOS):
+				# Las orillas de la isla que no tocan la malla (no tienen punto 3D): se quedaban mostaza
+				nuevo = GUAYABERA * 0.9
+			elif homero and e in PANTALON:
+				nuevo = NEGRO * clampf(f, 0.6, 1.9)
+			elif homero and (e in ZAPATOS or e in SUELAS):
+				nuevo = ZAPATO * lerpf(1.0, f, 0.45)
+			elif e in CHAMARRA:
 				var fc := clampf(lerpf(1.0, f, VETA), 0.6, 1.2)
 				nuevo = MOSTAZA * fc
 				var hv: float = hojas[y * w + x]
@@ -152,9 +186,11 @@ func _init() -> void:
 			img.set_pixel(x, y, nuevo)
 			if es_piel:
 				mascara.set_pixel(x, y, Color.WHITE)
-	img.save_png(ProjectSettings.globalize_path(CARPETA + "Character_04.png"))
-	mascara.save_png(ProjectSettings.globalize_path(CARPETA + "piel.png"))
-	print("listo: ", CARPETA + "Character_04.png")
+	var destino := CARPETA_HOMERO if homero else CARPETA
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(destino))
+	img.save_png(ProjectSettings.globalize_path(destino + "Character_04.png"))
+	mascara.save_png(ProjectSettings.globalize_path(destino + "piel.png"))
+	print("listo: ", destino + "Character_04.png")
 	quit()
 
 
@@ -193,6 +229,51 @@ func _hojas() -> PackedFloat32Array:
 					if absf(v) <= borde:
 						m[y * w + x] = 2.0 if absf(v) < 0.5 and absf(u) < 0.8 else 1.0
 	return m
+
+
+# La guayabera de Homero en el punto q del modelo (f: la sombra de la tela original)
+func _guayabera(e: int, q: Vector3, f: float) -> Color:
+	# Poca de la sombra original: en blanco la veta de la chamarra se veia como madera
+	var luz := clampf(lerpf(1.0, f, 0.25), 0.82, 1.05)
+	var z := absf(q.z)
+	var frente := q.x > -0.06
+	var en_torso := e in CHAMARRA and e != 3 and e != 8 or e in PANTALON
+	if e in ANTEBRAZOS:
+		# Manga larga: la costura del puno cerca de la muneca
+		if absf(q.y - PUNO_Y) < LINEA:
+			luz *= GUAYABERA_LINEA
+		return GUAYABERA * luz
+	if not en_torso:
+		return GUAYABERA * luz
+	# El dobladillo, por fuera del pantalon
+	if q.y < GUAYABERA_HASTA + 0.02:
+		luz *= 0.82
+	if frente:
+		# Botones y la tira donde van
+		for by: float in BOTONES_Y:
+			if absf(q.y - by) < 0.016 and z < 0.016:
+				return BOTON * (0.6 if absf(q.y - by) < 0.006 and z < 0.006 else 1.0)
+		if absf(z - 0.022) < LINEA * 0.6:
+			luz *= GUAYABERA_LINEA
+		# Bolsas con su cartera y su boton
+		for b: Rect2 in BOLSAS:
+			var dentro := z > b.position.x and z < b.end.x and q.y > b.position.y and q.y < b.end.y
+			if dentro:
+				var orilla := minf(minf(z - b.position.x, b.end.x - z), q.y - b.position.y)
+				var cartera := absf(q.y - (b.end.y - 0.05)) < LINEA
+				if absf(q.y - (b.end.y - 0.025)) < 0.012 and absf(z - b.get_center().x) < 0.012:
+					return BOTON
+				if orilla < LINEA * 1.4 or cartera:
+					luz *= GUAYABERA_LINEA
+				return GUAYABERA * luz
+		for a: float in ALFORZAS_FRENTE:
+			if absf(z - a) < LINEA:
+				luz *= GUAYABERA_LINEA
+	else:
+		for a: float in ALFORZAS_ATRAS:
+			if absf(z - a) < LINEA:
+				luz *= GUAYABERA_LINEA
+	return GUAYABERA * luz
 
 
 # Factor de luz de la piel del pecho, o -1 si p queda fuera de la V.

@@ -76,6 +76,7 @@ const TEMA := preload("res://resources/ui/tema_pixel.tres")
 const MUSICA := preload("res://audio/musica/pt_tema.mp3")
 # Lo unico que suena ademas de la musica (Sonidos.solo): el machete al cortar el aire y al
 # pegar, y la pistola
+const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
@@ -133,6 +134,9 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	_tinaco = _barricada.get_node("Tinaco") as TinacoDefensa
 	Sonidos.solo.assign(SONIDOS)
+	# Las mecanicas de espada de JJ, como en el safehouse: carga (estocada) y giro en el aire
+	Player.golpe_cargado = true
+	Player.giro_aereo = true
 	# La noche no corre hasta que este la barricada
 	_ciclo.process_mode = Node.PROCESS_MODE_DISABLED
 	_jugador.collision_mask |= PARED_CAPA
@@ -195,6 +199,9 @@ func _ready() -> void:
 # Al salir (Salir, Otra noche) los demas sonidos vuelven
 func _exit_tree() -> void:
 	Sonidos.solo.clear()
+	Player.golpe_cargado = false
+	Player.giro_aereo = false
+	ESTELA.estilo = ESTELA.Estilo.NORMAL
 
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -35,6 +35,16 @@ const MATERIAL_CABEZA := "CabezaPiel"
 # junto a ella va piel.png, blanco donde es piel (tools/personajes/el_compa.gd). Cada pixel de
 # piel queda de tu color por su sombra: su brillo entre el brillo promedio de la piel pintada
 const MASCARA_PIEL := "piel.png"
+# Los protagonistas: el mismo modelo (el_compa) con otra textura. Homero es el homenaje de JJ a
+# Homero Gomez, el defensor de la mariposa monarca: guayabera blanca cerrada y pantalon negro
+# (tools/personajes/el_compa.gd -- --homero). Su textura lleva su piel.png al lado
+const PROTAGONISTAS := ["El compa", "Homero"]
+const TEXTURA_COMPA := "res://models/personajes/protagonistas/el_compa/Character_04.png"
+const TEXTURAS := ["", "res://models/personajes/protagonistas/homero/Character_04.png"]
+# La estela que gana cada uno con su mejora (EstelaBarrido.Estilo): el compa la de agua, Homero la
+# de la monarca. Sera una mejora de dano (docs/mejoras.md); mientras no se gane, la de siempre
+const ESTELAS := [1, 2]
+var mejora_estela := false
 const RODILLA_PIEL := 215.0   # de 255: arriba de esto las luces se van suavizando en vez de quemarse
 static var _pieles := {}      # ruta de la textura -> lo que hace falta para repintarla
 const TONO_CLARO := 0.35
@@ -70,6 +80,7 @@ var complexion := 0.5
 var talla := 0.5
 var cabeza := 0.5
 var ropa := 0
+var protagonista := 0
 # Otra ruta en las pruebas, para no pisar el personaje de quien juega
 var ruta := RUTA
 
@@ -92,6 +103,7 @@ func cargar() -> void:
 	talla = clampf(float(archivo.get_value("personaje", "talla", 0.5)), 0.0, 1.0)
 	cabeza = clampf(float(archivo.get_value("personaje", "cabeza", 0.5)), 0.0, 1.0)
 	ropa = clampi(int(archivo.get_value("personaje", "ropa", 0)), 0, ROPA.size() - 1)
+	protagonista = clampi(int(archivo.get_value("personaje", "protagonista", 0)), 0, PROTAGONISTAS.size() - 1)
 
 
 func guardar() -> void:
@@ -103,6 +115,7 @@ func guardar() -> void:
 	archivo.set_value("personaje", "talla", talla)
 	archivo.set_value("personaje", "cabeza", cabeza)
 	archivo.set_value("personaje", "ropa", ropa)
+	archivo.set_value("personaje", "protagonista", protagonista)
 	archivo.save(ruta)
 
 
@@ -122,6 +135,11 @@ func al_azar() -> void:
 
 
 # --- Lo que cambia ---
+
+# La estela de tus golpes (EstelaBarrido.Estilo)
+func estela() -> int:
+	return ESTELAS[protagonista] if mejora_estela else 0
+
 
 static func _en(valores: Array, t: float) -> float:
 	if t < 0.5:
@@ -299,9 +317,13 @@ func vestir(modelo: Node3D) -> void:
 # La textura con la piel de tu tono, si el material tiene piel.png junto a su textura. Se guarda
 # la original en el material para repintar desde ella cada vez
 func _pintar_piel(malla: MeshInstance3D, superficie: int, material: BaseMaterial3D) -> bool:
-	var original: Texture2D = material.get_meta("textura_piel", material.albedo_texture)
-	if original == null or original.resource_path == "":
+	var base: Texture2D = material.get_meta("textura_piel", material.albedo_texture)
+	if base == null or base.resource_path == "":
 		return false
+	# El protagonista que escogiste: la textura de el_compa se cambia por la suya
+	var original := base
+	if base.resource_path == TEXTURA_COMPA and TEXTURAS[protagonista] != "":
+		original = load(TEXTURAS[protagonista]) as Texture2D
 	var ruta := original.resource_path
 	if not _pieles.has(ruta):
 		var mascara_ruta := ruta.get_base_dir().path_join(MASCARA_PIEL)
@@ -318,7 +340,7 @@ func _pintar_piel(malla: MeshInstance3D, superficie: int, material: BaseMaterial
 		_repintar(piel, tono)
 	if malla.get_surface_override_material(superficie) == null:
 		material = material.duplicate() as BaseMaterial3D
-		material.set_meta("textura_piel", original)
+		material.set_meta("textura_piel", base)
 		malla.set_surface_override_material(superficie, material)
 	material.albedo_texture = piel["textura"]
 	return true

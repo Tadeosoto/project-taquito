@@ -171,13 +171,12 @@ static var golpe_cargado := false
 # Solo lo prende el safehouse (tecla 6)
 static var giro_aereo := false
 # El giro con la estela de agua: pensada como mejora que se gana (JJ). false = la estela normal
-static var giro_agua := true
-const CARGA_DURA := 0.7       # s con el boton apretado
+const CARGA_DURA := 0.4       # s con el boton apretado (JJ: 0.7 era mucho)
 # Apretado al menos esto cuando toca el siguiente golpe = lo estas sosteniendo: en vez del golpe
 # entras a la pose de carga (golpe, golpe, carga). Un clic rapido dura menos
 const CARGA_DECIDE := 0.12
 const CARGA_POSE_EN := 0.1    # s de Sword_Dash_RM en que se queda quieta la pose (el amago)
-const CARGA_COLOR := Color(0.35, 0.65, 1.0)
+const CARGA_COLOR := Color(1.0, 0.55, 0.12)   # naranja monarca (antes azul)
 const CARGA_LUZ := 2.5        # energia de la luz al estar cargado
 const GIRO_PEGA_EN := 0.35    # s del clip: a media vuelta
 const GIRO_DURA := 0.95       # s: ahi se suelta el clip (lo demas es enderezarse) y ya puedes moverte
@@ -201,16 +200,18 @@ const PIES := 1.0             # m del centro del cuerpo a los pies (la capsula m
 # Sword_Dash_RM, te lanza ESTOCADA_AVANCE m hacia donde ve la camara (el clip avanza 3.7 m con
 # su hueso Root, que la biblioteca quita; aqui lo hace el cuerpo, asi choca con las paredes) y
 # atraviesa: le pega a cada zombi que tengas enfrente mientras avanzas, hasta ESTOCADA_MAXIMO.
-# Su estela de agua es la mejora (Shift+7 en el safehouse)
-static var estocada_agua := true
+# Su estela es la de todos los golpes (EstelaBarrido.estilo); con la de la monarca, ademas sale
+# volando una monarca chiquita de la punta del arma (MariposaMonarca.gd)
 const ESTOCADA_AVANCE := 3.5   # m
 const ESTOCADA_DESDE := 0.12   # s del clip en que arranca el avance (el amago antes)
 const ESTOCADA_HASTA := 0.55   # s en que ya llegaste
 const ESTOCADA_PEGA := Vector2(0.15, 0.6)  # s del clip en que la punta hace dano
-const ESTOCADA_RADIO := 1.4    # m enfrente de ti en que le pega a un zombi
+# Atraviesa a varios (JJ): a 1.4 m y en un cono angosto casi siempre le pegaba a uno solo
+const ESTOCADA_RADIO := 2.0    # m enfrente de ti en que le pega a un zombi
+const ESTOCADA_CONO := 0.0     # coseno: toda la mitad de enfrente
 const ESTOCADA_DURA := 0.8     # s: ahi se suelta el clip y ya puedes moverte
 const ESTOCADA_DANO := 1.5     # x el dano del arma
-const ESTOCADA_MAXIMO := 4
+const ESTOCADA_MAXIMO := 6
 const BARRE_ALTO := 0.7       # m: la hoja barre a ras de piso; asi pasa por donde va el brazo
 # La pistola (Pistola.gd): R cambia entre ella y el arma de golpe. Se ve en la mano en vez del
 # machete; no es objeto del inventario por ahora
@@ -256,6 +257,10 @@ var _giro_pego := false
 var _giro_vel := 1.0         # GIRO_AIRE_VELOCIDAD si salio en el aire
 var _giro_aire := false      # salio en el aire: pega al caer (_revisar_carga)
 var _luz_carga: OmniLight3D
+# Con la estela de la monarca, cada ataque suelta una monarca chiquita donde termina el machete,
+# cerca del final de la barrida (_estela_golpe)
+var _mariposa_pendiente := false
+const MARIPOSA_EN := 0.9      # de la ventana de la estela: cerca del final de la barrida
 var _estocada_t := -1.0      # s desde que salio la estocada; -1 = no hay
 var _estocada_dir := Vector3.ZERO
 var _estocada_pegados: Array = []
@@ -351,6 +356,8 @@ func aplicar_personaje() -> void:
 	var personaje := get_node_or_null("/root/Personaje")
 	if personaje:
 		personaje.vestir(figura)
+		# La estela de tus golpes va con el protagonista (el compa agua, Homero monarca)
+		ESTELA.estilo = personaje.estela()
 	_aplicar_cuerpo(true)
 
 
@@ -434,6 +441,7 @@ func _atacar() -> void:
 		if figura.has_method("golpe"):
 			figura.golpe(_lado_golpe)
 	_estela_antes = []
+	_mariposa_pendiente = true
 	_sonar("machetazo", SWING_VOLUMEN)
 
 
@@ -535,8 +543,6 @@ func _revisar_carga(delta: float) -> void:
 			_golpear(true)
 		if _giro >= GIRO_DURA and not _giro_aire:
 			_giro = -1.0
-			if _estela:
-				_estela.especial = -1
 			_soltar_combo()
 
 
@@ -611,8 +617,7 @@ func _girar(aire := false) -> void:
 	_enfriar = (GIRO_DURA - _giro) / velocidad
 	figura.golpe_giro(velocidad, _giro)
 	_estela_antes = []
-	if _estela:
-		_estela.especial = 1 if giro_agua else 0
+	_mariposa_pendiente = true
 	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.8)
 
 
@@ -661,8 +666,7 @@ func _estocar(desde := 0.0) -> void:
 	frijol.global_transform = frijol.global_transform.looking_at(frijol.global_position + _estocada_dir, Vector3.UP)
 	figura.golpe_estocada(desde)
 	_estela_antes = []
-	if _estela:
-		_estela.especial = 1 if estocada_agua else 0
+	_mariposa_pendiente = true
 	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.7)
 
 
@@ -816,8 +820,6 @@ func _revisar_estocada(delta: float) -> void:
 		_pegar_estocada()
 	if _estocada_t >= ESTOCADA_DURA:
 		_estocada_t = -1.0
-		if _estela:
-			_estela.especial = -1
 		_soltar_combo()
 
 
@@ -837,7 +839,7 @@ func _pegar_estocada() -> void:
 			continue
 		var hacia := zombi.global_position - global_position
 		hacia.y = 0.0
-		if hacia.length() <= ESTOCADA_RADIO and hacia.normalized().dot(_estocada_dir) >= 0.3:
+		if hacia.length() <= ESTOCADA_RADIO and hacia.normalized().dot(_estocada_dir) >= ESTOCADA_CONO:
 			_estocada_pegados.append(zombi)
 			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, int(CONGELA_MATA * 1000.0))
 			pego = pego or resultado != 0
@@ -1123,6 +1125,12 @@ func _estela_golpe() -> void:
 		return
 	var mano_antes: Vector3 = _estela_antes[0]
 	var hacia_antes: Vector3 = _estela_antes[1]
+	if _mariposa_pendiente and t >= lerpf(ventana.x, ventana.y, MARIPOSA_EN):
+		_mariposa_pendiente = false
+		if ESTELA.estilo == ESTELA.Estilo.MONARCA:
+			# Sale de donde quedo la punta del machete y vuela hacia adelante del personaje (JJ:
+			# hacia afuera de la estela se iban para atras)
+			MariposaMonarca.soltar(get_tree().current_scene, punta, -frijol.global_transform.basis.z)
 	var pasos := maxi(ceili(rad_to_deg(hacia_antes.angle_to(hacia)) / ESTELA_PASO), 1)
 	for i in range(1, pasos + 1):
 		var f := float(i) / pasos

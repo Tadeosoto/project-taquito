@@ -20,7 +20,7 @@ const VISTA_CAMARA := Vector3(0.0, 1.05, 3.9)
 const VISTA_MIRA := Vector3(0.0, 1.0, 0.0)
 const VOLUMEN_SONIDOS := -6.0  # dB; Empezar y Esc suenan en Inicio.gd
 
-enum Tipo { NOMBRE, DESLIZADOR, ROPA, AZAR, EMPEZAR }
+enum Tipo { NOMBRE, DESLIZADOR, ROPA, AZAR, EMPEZAR, PROTAGONISTA }
 
 var _renglones: Array[Dictionary] = []
 var _elegido := 0
@@ -82,6 +82,10 @@ func _cambiar(paso: int) -> void:
 		Tipo.ROPA:
 			Personaje.ropa = wrapi(Personaje.ropa + paso, 0, Personaje.ROPA.size())
 			_actualizar()
+		Tipo.PROTAGONISTA:
+			Personaje.protagonista = wrapi(Personaje.protagonista + paso, 0, Personaje.PROTAGONISTAS.size())
+			_sonar("ui_mover")
+			_actualizar()
 
 
 func _aceptar() -> void:
@@ -122,6 +126,8 @@ func _actualizar() -> void:
 	for renglon: Dictionary in _renglones:
 		if renglon["tipo"] == Tipo.ROPA:
 			(renglon["valor"] as Label).text = "< %s >" % Personaje.ROPA_NOMBRES[Personaje.ropa]
+		elif renglon["tipo"] == Tipo.PROTAGONISTA:
+			(renglon["valor"] as Label).text = "< %s >" % Personaje.PROTAGONISTAS[Personaje.protagonista]
 
 
 func _marcar() -> void:
@@ -147,6 +153,7 @@ func _armar() -> void:
 	columna.add_theme_constant_override("separation", 5)
 	add_child(columna)
 	columna.add_child(_texto(TITULO, 24, AMARILLO))
+	_renglon_eleccion(columna, "Personaje", Tipo.PROTAGONISTA)
 	_renglon_nombre(columna)
 	_deslizador(columna, "Tono de piel", "tono")
 	var piel := _texto(TEXTO_PIEL, 12, Color(0.85, 0.85, 0.8))
@@ -218,7 +225,7 @@ func _renglon_nombre(padre: Control) -> void:
 		if event.is_action_pressed("ui_cancel"):
 			_nombre.accept_event()
 			_soltar_nombre())
-	_nombre.focus_entered.connect(func() -> void: _elegir(0))
+	_nombre.focus_entered.connect(func() -> void: _elegir(_indice(Tipo.NOMBRE)))
 
 
 func _soltar_nombre() -> void:
@@ -246,13 +253,18 @@ func _deslizador(padre: Control, texto: String, propiedad: String) -> void:
 
 
 func _renglon_ropa(padre: Control) -> void:
-	var fila := _fila(padre, "Ropa", Tipo.ROPA)
+	_renglon_eleccion(padre, "Ropa", Tipo.ROPA)
+
+
+# Un renglon de < valor > que cambia con izquierda/derecha o con clic
+func _renglon_eleccion(padre: Control, texto: String, tipo: Tipo) -> void:
+	var fila := _fila(padre, texto, tipo)
 	var valor := _texto("", 15, Color.WHITE)
 	valor.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	valor.mouse_filter = Control.MOUSE_FILTER_STOP
 	valor.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			_elegir(_indice(Tipo.ROPA))
+			_elegir(_indice(tipo))
 			_cambiar(1))
 	fila.add_child(valor)
 	_renglones[_renglones.size() - 1]["valor"] = valor
