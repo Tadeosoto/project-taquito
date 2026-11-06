@@ -80,6 +80,30 @@ signal golpeado
 const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 const ESTELA_PUNO := 0.2      # m de la estela mas alla del puno, a mano limpia
+# Los que pelean a punos (Personaje.A_PUNOS, Felipe) si sacan estela al pegar: de la muneca
+# (ESTELA_MUNECA atras del puno) a ESTELA_PUNO adelante de los nudillos, pareja, sin la caida de
+# la del machete. Ventanas medidas con los punos (PUNOS): de cuando sale el puno a cuando llega.
+# El jab es con la izquierda (ESTELA_IZQUIERDA)
+const ESTELA_MUNECA := 0.12
+const ESTELA_PUNOS := {"Punch_Jab": Vector2(0.10, 0.22), "Punch_Cross": Vector2(0.13, 0.28),
+	"Melee_Hook": Vector2(0.08, 0.32)}
+const ESTELA_IZQUIERDA := ["Punch_Jab"]
+# Un punetazo va derecho, en la misma linea que muneca-nudillos: esa estela salia como rayita. En
+# los punetazos la estela va atravesada (PUNO_ANCHO, de lado al golpe y a la camara) y arrastra una
+# banda del largo del recorrido; al pegar el puno suelta PUNO_ESTALLIDO de lo que suelte la estela
+# (rayos, chispas) de golpe, para que se sienta como el machetazo (JJ)
+const PUNO_ANCHO := 0.7
+const PUNO_ADELANTE := 0.08   # m adelante del hueso de la mano: los nudillos
+const PUNO_PASO := 0.04       # m entre pedazos
+const PUNO_ESTALLIDO := 3       # con los rayos (Emiliano); son grandes
+# Con las demas estelas (fuego), sin rayos que den fuerza: una llamarada de PUNO_LLAMAS nubes mas
+# grandes (PUNO_LLAMAS_ESCALA) disparadas hacia el golpe, y un fogonazo de luz en el puno
+const PUNO_LLAMAS := 7
+const PUNO_LLAMAS_ESCALA := 1.8
+const FOGONAZO_ENERGIA := 4.0
+const FOGONAZO_RANGO := 4.0
+const FOGONAZO_DURA := 0.15     # s
+const ESTALLIDO_ADELANTE := 0.3  # m frente al puno: revienta donde pega, no tapando a Felipe
 # La estela del machetazo sigue la punta del arma mientras barre (s del clip, desde-hasta): no
 # al llevar el brazo atras ni al regresarlo
 const ESTELA_GOLPE := {"Sword_Regular_A": Vector2(0.10, 0.30), "Sword_Regular_B": Vector2(0.10, 0.32),
@@ -122,7 +146,8 @@ const RETROCEDE_VELOCIDAD := 0.55  # de la velocidad al caminar
 # (character_animation.PASO_MAX); mas rapido patinaba (en el mapa caminas a 10). Correr y el
 # trote son solo para cuando no haces nada mas (JJ)
 const CAMINA_MAXIMO := 2.0
-# Apuntando con la pistola, mas lento: a 2 m/s el Walk iba a 1.54x y se veia como trote (JJ)
+# Apuntando con la pistola, o bloqueando a punos, mas lento: a 2 m/s el Walk iba a 1.54x y se
+# veia como trote (JJ)
 const CAMINA_PISTOLA := 1.4
 # Shift a medio machetazo: trote normal en cualquier direccion (ves hacia donde corres y el golpe
 # sale para alla), agachado hacia adelante como embistiendo (JJ)
@@ -300,6 +325,9 @@ var _voz: AudioStreamPlayer3D
 var _mano: BoneAttachment3D
 var _estela: Node            # EstelaBarrido.gd
 var _punta: Node3D           # la punta de lo que traes en la mano, para la estela
+var _mano_izq: BoneAttachment3D   # la izquierda, para la estela del jab a punos
+var _luz_fogonazo: OmniLight3D
+var _tween_fogonazo: Tween
 var _estela_antes := []      # [mano, de la mano a la punta] del cuadro anterior
 var _lado_golpe := 1.0        # 1: de derecha a izquierda; -1: el de regreso del combo
 var _combo_hasta := 0.0       # s de juego en que se acaba la ventana del combo
@@ -358,8 +386,9 @@ func aplicar_personaje() -> void:
 	var personaje := get_node_or_null("/root/Personaje")
 	if personaje:
 		personaje.vestir(figura)
-		# La estela de tus golpes va con el protagonista (el compa agua, Homero monarca)
+		# La estela de tus golpes va con el protagonista (Personaje.ESTELAS)
 		ESTELA.estilo = personaje.estela()
+	_mostrar_arma()
 	_aplicar_cuerpo(true)
 
 
@@ -432,8 +461,8 @@ func _atacar() -> void:
 	var sigue := encadena or ahora <= _combo_hasta
 	_lado_golpe = -_lado_golpe if sigue else 1.0
 	_combo_hasta = ahora + ATAQUE_ENFRIAR + COMBO_VENTANA
-	# Sin arma, a punetazos: jab, cruzado, gancho (y vuelve a empezar)
-	if _sin_arma() and figura.has_method("punetazo"):
+	# Sin arma (o si el protagonista pelea a punos), a punetazos: jab, cruzado, gancho (y vuelve)
+	if _punos() and figura.has_method("punetazo"):
 		_puno = (_puno + 1) % PUNOS.size() if sigue and _puno >= 0 else 0
 		_pega_en = PUNOS[_puno]["pega"]
 		figura.punetazo(_puno)
@@ -452,6 +481,24 @@ func _sin_arma() -> bool:
 	return inventario == null or inventario.arma() == null
 
 
+# El protagonista pelea a punos aunque traiga arma (Personaje.A_PUNOS, Felipe): no se le ve el
+# machete, pero pega con su dano (golpes potenciados), y tiene carga, giro y golpe en el aire
+func _a_punos() -> bool:
+	var personaje := get_node_or_null("/root/Personaje")
+	return personaje != null and personaje.a_punos()
+
+
+# Pega a punetazos: sin arma, o porque asi pelea
+func _punos() -> bool:
+	return _sin_arma() or _a_punos()
+
+
+# La carga, el giro y pegar en el aire: con arma, o a punos si asi pelea. A mano limpia porque no
+# traes arma no (JJ)
+func _especiales() -> bool:
+	return not _sin_arma() or _a_punos()
+
+
 func _golpear(giro := false) -> void:
 	var dano := DANO_PUNO
 	var con_arma := false
@@ -460,7 +507,7 @@ func _golpear(giro := false) -> void:
 		var arma: InventoryItemData = inventario.arma()
 		if arma:
 			dano = arma.dano
-			con_arma = true
+			con_arma = not _a_punos()
 	var remate: float = PUNOS[_puno]["dano"] if _puno >= 0 and not con_arma and not giro else 1.0
 	dano = maxi(roundi(dano * _factor_dano * (GIRO_DANO if giro else 1.0) * remate), 1)
 	var frente := -frijol.global_transform.basis.z
@@ -470,6 +517,17 @@ func _golpear(giro := false) -> void:
 	barre.y = 0.0
 	if not giro:
 		efecto("golpe", barre, "" if con_arma else "puno", BARRE_ALTO)
+	# A punos (Felipe), el puno suelta de golpe lo que suelte su estela al pegar
+	if _puno >= 0 and _a_punos() and _estela and _mano:
+		var clip: String = figura.clip_golpe() if figura.has_method("clip_golpe") else ""
+		var hueso: BoneAttachment3D = _mano_izq if clip in ESTELA_IZQUIERDA and _mano_izq else _mano
+		var frente_puno := -frijol.global_transform.basis.z
+		var donde := _nudillos(hueso) + frente_puno * ESTALLIDO_ADELANTE
+		if ESTELA.estilo == ESTELA.Estilo.RAYOS:
+			_estela.estallar(donde, PUNO_ESTALLIDO)
+		else:
+			_estela.estallar(_nudillos(hueso), PUNO_LLAMAS, frente_puno, PUNO_LLAMAS_ESCALA)
+		_fogonazo(_nudillos(hueso))
 	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)
 	# Un zombi muerto en este golpe truena justo al soltar la congelada
 	var truena_en := int(CONGELA_MATA * 1000.0)
@@ -503,7 +561,7 @@ func _golpear(giro := false) -> void:
 # Ataque cargado: cada cuadro de fisica mientras cargas o giras
 func _revisar_carga(delta: float) -> void:
 	if _apretado >= 0.0:
-		if _pistola.activa or not is_physics_processing() or _sin_arma():
+		if _pistola.activa or not is_physics_processing() or not _especiales():
 			_cancelar_carga()
 		elif not Input.is_action_pressed("attack"):
 			var soltar := _cargado
@@ -563,7 +621,7 @@ func _cancelar_carga(soltar_pose := true) -> void:
 # la pose de carga. Asi clic, clic, sostener es golpe, golpe, carga, y lo que llevabas apretado
 # ya cuenta
 func _toca_pose_carga() -> bool:
-	return golpe_cargado and not _pose_carga and _apretado >= CARGA_DECIDE and not _sin_arma() \
+	return golpe_cargado and not _pose_carga and _apretado >= CARGA_DECIDE and _especiales() \
 			and _enfriar > 0.0 and not _combo_roto and _giro < 0.0 and _estocada_t < 0.0 \
 			and ATAQUE_ENFRIAR - _enfriar >= _combo_desde() and figura.has_method("pose_carga")
 
@@ -592,7 +650,7 @@ func _brillo_carga() -> void:
 		_luz_carga.top_level = true
 		add_child(_luz_carga)
 	var punta: Vector3 = _punta.global_position if _punta and is_instance_valid(_punta) and _punta.is_inside_tree() \
-		else frijol.global_position + Vector3.UP
+		else (_mano.global_position if _mano else frijol.global_position + Vector3.UP)
 	_luz_carga.global_position = punta
 	_luz_carga.visible = true
 	if _cargado:
@@ -745,7 +803,7 @@ func _puede(accion: String) -> bool:
 		"golpe":
 			# entre espadazos manda el buffer corto del combo (_atacar); a puno limpio no se pega
 			# en el aire
-			return is_on_floor() or not _sin_arma()
+			return is_on_floor() or _especiales()
 		"rodar":
 			return is_on_floor() and _rodar_espera <= 0.0 and not _barriendo()
 		"brinco":
@@ -758,11 +816,11 @@ func _puede(accion: String) -> bool:
 func _hacer(accion: String) -> void:
 	match accion:
 		"golpe":
-			if giro_aereo and not is_on_floor() and not _sin_arma():
+			if giro_aereo and not is_on_floor() and _especiales():
 				# En el aire sale de una vez el espadazo giratorio
 				_girar(true)
 			elif golpe_cargado and Input.is_action_pressed("attack") and _apretado >= CARGA_DECIDE \
-					and figura.has_method("pose_carga") and not _sin_arma():
+					and figura.has_method("pose_carga") and _especiales():
 				# Lo sigues sosteniendo desde antes: de una vez a la pose de carga
 				_soltar_combo()
 				_combo_roto = false
@@ -1081,7 +1139,11 @@ func _armar_mano() -> void:
 			_mano = BoneAttachment3D.new()
 			esqueleto.add_child(_mano)
 			_mano.bone_name = nombre
-			return
+			break
+	if esqueleto.find_bone("LeftHand") >= 0:
+		_mano_izq = BoneAttachment3D.new()
+		esqueleto.add_child(_mano_izq)
+		_mano_izq.bone_name = "LeftHand"
 
 
 # Te moviste a medio combo: el brazo se suelta desde donde va y lo que habias picado se olvida
@@ -1114,13 +1176,27 @@ func _estela_golpe() -> void:
 	if _estela == null or _mano == null or not figura.has_method("tiempo_golpe"):
 		return
 	var t: float = figura.tiempo_golpe()
-	var ventana: Vector2 = ESTELA_GOLPE.get(figura.clip_golpe(), Vector2.ZERO)
+	var clip: String = figura.clip_golpe()
+	var ventana: Vector2 = ESTELA_GOLPE.get(clip, Vector2.ZERO)
+	if _a_punos() and ESTELA_PUNOS.has(clip):
+		ventana = ESTELA_PUNOS[clip]
 	if t < 0.0 or t < ventana.x or t > ventana.y:
 		_estela_antes = []
 		return
-	var mano := _mano.global_position
-	var punta: Vector3 = _punta.global_position if _punta and is_instance_valid(_punta) and _punta.is_inside_tree() \
-		else mano + _mano.global_basis.y.normalized() * ESTELA_PUNO
+	var hueso: BoneAttachment3D = _mano_izq if clip in ESTELA_IZQUIERDA and _mano_izq else _mano
+	var con_punta := _punta and is_instance_valid(_punta) and _punta.is_inside_tree()
+	if not con_punta and ESTELA_PUNOS.has(clip):
+		_estela_puno(hueso)
+		return
+	var mano := hueso.global_position
+	var punta: Vector3
+	if con_punta:
+		punta = _punta.global_position
+	else:
+		# A punos: de la muneca a adelante de los nudillos (los dedos son la Y del hueso)
+		var dedos := hueso.global_basis.y.normalized()
+		punta = mano + dedos * ESTELA_PUNO
+		mano -= dedos * ESTELA_MUNECA
 	var hacia := punta - mano
 	if _estela_antes.is_empty():
 		_estela_antes = [mano, hacia]
@@ -1137,8 +1213,55 @@ func _estela_golpe() -> void:
 	for i in range(1, pasos + 1):
 		var f := float(i) / pasos
 		var donde := mano_antes.lerp(mano, f)
-		_estela.agregar(donde, donde + hacia_antes.slerp(hacia, f))
+		_estela.agregar(donde, donde + hacia_antes.slerp(hacia, f), not con_punta)
 	_estela_antes = [mano, hacia]
+
+
+# La estela atravesada del punetazo (PUNO_ANCHO): el puno arrastra una banda de lado
+func _estela_puno(hueso: BoneAttachment3D) -> void:
+	var puno := _nudillos(hueso)
+	if _estela_antes.is_empty():
+		_estela_antes = [puno, Vector3.ZERO]
+		return
+	var antes: Vector3 = _estela_antes[0]
+	var mov := puno - antes
+	if mov.length() < 0.005:
+		return
+	var lado := mov.cross(puno - _camara.global_position)
+	if lado.length_squared() < 0.000001:
+		lado = Vector3.UP
+	lado = lado.normalized() * PUNO_ANCHO * 0.5
+	var pasos := maxi(ceili(mov.length() / PUNO_PASO), 1)
+	for i in range(1, pasos + 1):
+		var p := antes.lerp(puno, float(i) / pasos)
+		_estela.agregar(p - lado, p + lado, true)
+	_estela_antes = [puno, Vector3.ZERO]
+
+
+# El puno truena con luz: un instante de luz del color de la estela que se apaga en FOGONAZO_DURA
+func _fogonazo(donde: Vector3) -> void:
+	if _luz_fogonazo == null:
+		_luz_fogonazo = OmniLight3D.new()
+		_luz_fogonazo.shadow_enabled = false
+		_luz_fogonazo.top_level = true
+		add_child(_luz_fogonazo)
+	var colores := {ESTELA.Estilo.FUEGO: Color(1.0, 0.55, 0.15), ESTELA.Estilo.AGUA: Color(0.5, 0.75, 1.0),
+		ESTELA.Estilo.RAYOS: Color(1.0, 0.75, 0.5), ESTELA.Estilo.FLAMAS_FELIPE: Color(0.9, 0.92, 1.0),
+		ESTELA.Estilo.MONARCA: Color(1.0, 0.6, 0.2)}
+	_luz_fogonazo.light_color = colores.get(ESTELA.estilo, Color(1.0, 0.95, 0.85))
+	_luz_fogonazo.omni_range = FOGONAZO_RANGO
+	_luz_fogonazo.global_position = donde
+	_luz_fogonazo.light_energy = FOGONAZO_ENERGIA
+	_luz_fogonazo.visible = true
+	if _tween_fogonazo:
+		_tween_fogonazo.kill()
+	_tween_fogonazo = create_tween()
+	_tween_fogonazo.tween_property(_luz_fogonazo, "light_energy", 0.0, FOGONAZO_DURA)
+	_tween_fogonazo.tween_callback(func() -> void: _luz_fogonazo.visible = false)
+
+
+func _nudillos(hueso: BoneAttachment3D) -> Vector3:
+	return hueso.global_position + hueso.global_basis.y.normalized() * PUNO_ADELANTE
 
 
 func _mostrar_arma() -> void:
@@ -1149,6 +1272,8 @@ func _mostrar_arma() -> void:
 	var pistola: bool = _pistola != null and _pistola.activa
 	if pistola:
 		arma = _dato_pistola
+	elif _a_punos():
+		arma = null
 	if arma == _arma_visible:
 		return
 	_arma_visible = arma
@@ -1225,11 +1350,11 @@ func _unhandled_input(event: InputEvent) -> void:
 				_pistola.disparar()
 		else:
 			# A puno limpio no hay carga ni giro, y en el aire no se pega (JJ)
-			var sin_arma := _sin_arma()
+			var especiales := _especiales()
 			# La carga cuenta desde que aprietas, aunque el golpe espere en el buffer
-			if golpe_cargado and not sin_arma:
+			if golpe_cargado and especiales:
 				_apretado = 0.0
-			if is_on_floor() or not sin_arma:
+			if is_on_floor() or especiales:
 				_pedir_accion("golpe")
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT \
 			and is_physics_processing() and not get_tree().paused:
@@ -1430,27 +1555,36 @@ func _physics_process(delta: float) -> void:
 	# solo `golpeando`: con golpe a tiempo eso dura 0.24 s y machacando las piernas brincaban
 	# de caminar a trotar en cada golpe
 	var en_golpe: bool = (_enfriar > 0.0 and _giro < 0.0 and _estocada_t < 0.0) or _pose_carga
+	# A punetazos, mientras siga el golpe: el gancho dura mas que el enfriamiento y las piernas se
+	# iban a trotar con el brazo todavia pegando
+	if _puno >= 0 and figura.has_method("tiempo_golpe") and figura.tiempo_golpe() >= 0.0:
+		en_golpe = true
+	# Los punetazos van como la pistola (JJ): pegando trotas y corres normal, viendo hacia donde vas
+	# (solo las piernas siguen, el golpe va arriba); con clic derecho bloqueas, ves al frente y
+	# caminas. Lo que sigue de "a medio golpe" (caminar, ver a la camara) es solo del machete
+	var machetazo: bool = en_golpe and _puno < 0
+	var machete_lento: bool = golpeando and _puno < 0
 	# Shift a medio machetazo: trote normal hacia donde vayas, agachado (CARGA_INCLINA)
-	var corre_pegando: bool = en_golpe and is_moving and Input.is_action_pressed("sprint") \
+	var corre_pegando: bool = machetazo and is_moving and Input.is_action_pressed("sprint") \
 			and not _pistola.activa
 	# Con S (sola o en diagonal) a medio machetazo o apuntando retrocedes viendo al lado
 	# contrario de hacia donde vas; sin hacer nada mas, S te voltea y corres hacia la camara (JJ)
-	var retrocede: bool = is_moving and input_direction.y > 0.3 and (en_golpe or _apuntando) \
+	var retrocede: bool = is_moving and input_direction.y > 0.3 and (machetazo or _apuntando) \
 			and not corre_pegando
 	# La pistola en la mano sola no cambia nada: trotas y corres normal. Walk solo apuntando
 	# (clic derecho), a medio machetazo o bloqueando (JJ)
-	var camina: bool = (_apuntando or en_golpe or _bloqueando) and not corre_pegando
-	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint") and not golpeando and not camina \
+	var camina: bool = (_apuntando or machetazo or _bloqueando) and not corre_pegando
+	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint") and not machete_lento and not camina \
 			and not corre_pegando
 	var move_speed: float = sprint_speed if is_sprinting else speed
 	if _apuntando:
 		move_speed = speed * APUNTA_VELOCIDAD
-	elif golpeando and not corre_pegando:
+	elif machete_lento and not corre_pegando:
 		move_speed = speed * GOLPE_VELOCIDAD
 	if retrocede:
 		move_speed = minf(move_speed, speed * RETROCEDE_VELOCIDAD)
 	if camina:
-		move_speed = minf(move_speed, CAMINA_PISTOLA if _apuntando else CAMINA_MAXIMO)
+		move_speed = minf(move_speed, CAMINA_PISTOLA if _apuntando or (_bloqueando and _punos()) else CAMINA_MAXIMO)
 	if _bloqueando:
 		move_speed = minf(move_speed, speed * BLOQUEO_VELOCIDAD)
 	# Caminando, el barrido va solo arriba: las piernas siguen trotando
@@ -1460,7 +1594,8 @@ func _physics_process(delta: float) -> void:
 	# Apuntando, o a medio machetazo, ve siempre hacia donde apunta la camara, aunque camine
 	# para otro lado: el golpe sale hacia donde ves. Con la pistola sin apuntar, solo parado (para
 	# que el tiro de cadera salga a la mira); trotando ves hacia donde vas
-	var apunta: bool = (_apuntando or (_pistola.activa and not is_moving) or golpeando or _bloqueando) \
+	var apunta: bool = (_apuntando or (_pistola.activa and not is_moving) or machete_lento \
+			or (golpeando and not is_moving) or _bloqueando) \
 			and _estocada_t < 0.0 \
 			and not corre_pegando and _rodada_t < 0.0
 	if figura.has_method("inclinar"):

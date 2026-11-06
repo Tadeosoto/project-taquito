@@ -35,25 +35,30 @@ const MATERIAL_CABEZA := "CabezaPiel"
 # junto a ella va piel.png, blanco donde es piel (tools/personajes/el_compa.gd). Cada pixel de
 # piel queda de tu color por su sombra: su brillo entre el brillo promedio de la piel pintada
 const MASCARA_PIEL := "piel.png"
-# Los protagonistas: el mismo modelo (el_compa) con otra textura. Homero es el homenaje de JJ a
+# Los protagonistas: el mismo modelo (el_compa; el primero, Genaro, con su textura) con otra textura. Homero es el homenaje de JJ a
 # Homero Gomez, el defensor de la mariposa monarca: guayabera blanca cerrada y pantalon negro
 # (tools/personajes/el_compa.gd -- --homero). Su textura lleva su piel.png al lado. Ramon:
 # playera negra de manga corta, mezclilla azul (-- --ramon) y un gorro de pescador azul, que
 # es malla aparte en la cabeza (GORROS, scripts/personajes/GorroPescador.gd)
 # Emiliano (homenaje de JJ a Zapata): saco cafe, chaleco olivo, paliacate rojo (-- --emiliano) y
 # sombrero charro (scripts/personajes/SombreroCharro.gd)
-const PROTAGONISTAS := ["El compa", "Homero", "Ramón", "Emiliano"]
+# Felipe: chamarra de cuadros abierta con forro naranja, playera amarilla y mezclilla (-- --felipe)
+const PROTAGONISTAS := ["Genaro", "Homero", "Ramón", "Emiliano", "Felipe"]
 const TEXTURA_COMPA := "res://models/personajes/protagonistas/el_compa/Character_04.png"
 const TEXTURAS := ["", "res://models/personajes/protagonistas/homero/Character_04.png",
 		"res://models/personajes/protagonistas/ramon/Character_04.png",
-		"res://models/personajes/protagonistas/emiliano/Character_04.png"]
+		"res://models/personajes/protagonistas/emiliano/Character_04.png",
+		"res://models/personajes/protagonistas/felipe/Character_04.png"]
 # Lo que lleva cada uno en la cabeza (un script con crear() -> MeshInstance3D), o nada
 const GORROS := [null, null, preload("res://scripts/personajes/GorroPescador.gd"),
-		preload("res://scripts/personajes/SombreroCharro.gd")]
-# La estela que gana cada uno con su mejora (EstelaBarrido.Estilo): el compa la de fuego, Homero
-# la de la monarca, Ramon la de agua, Emiliano los rayos rojos. Sera una mejora de dano (docs/mejoras.md); mientras no se
+		preload("res://scripts/personajes/SombreroCharro.gd"), null]
+# La estela que gana cada uno con su mejora (EstelaBarrido.Estilo): Genaro la de fuego, Homero
+# la de la monarca, Ramon la de agua, Emiliano los rayos del haki, Felipe el fuego negro (flamas grises). Sera una mejora de dano (docs/mejoras.md); mientras no se
 # gane, la de siempre
-const ESTELAS := [3, 2, 1, 4]
+const ESTELAS := [3, 2, 1, 4, 5]
+# Pelea a punos aunque traiga machete (Player._a_punos). Era Felipe, pero balancear a uno a puno
+# limpio puede ser un problema (JJ): todos usan machete y lo de punos queda para despues
+const A_PUNOS := [false, false, false, false, false]
 var mejora_estela := false
 const RODILLA_PIEL := 215.0   # de 255: arriba de esto las luces se van suavizando en vez de quemarse
 static var _pieles := {}      # ruta de la textura -> lo que hace falta para repintarla
@@ -149,6 +154,10 @@ func al_azar() -> void:
 # La estela de tus golpes (EstelaBarrido.Estilo)
 func estela() -> int:
 	return ESTELAS[protagonista] if mejora_estela else 0
+
+
+func a_punos() -> bool:
+	return A_PUNOS[protagonista]
 
 
 static func _en(valores: Array, t: float) -> float:

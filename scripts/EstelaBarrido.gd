@@ -34,29 +34,30 @@ void fragment() {
 
 # La estela de todos los golpes (JJ): 0 la de siempre, 1 la de agua, 2 la de la mariposa monarca
 # (que ademas suelta monarcas chiquitas, Player._estela_golpe). La pone el protagonista
-# (Personaje.estela: el compa fuego, Homero monarca, Ramon agua) y la tecla 8 del safehouse la cambia.
+# (Personaje.estela: Genaro fuego, Homero monarca, Ramon agua, Emiliano rayos haki, Felipe rayos con los colores de su ropa) y la tecla 8 del safehouse la cambia.
 # La de agua es azul con blanco, al estilo de la respiracion del agua de Tanjiro: mas ancha y dura
 # mas, con franjas que ondulan a lo largo de la estela, crestas blancas que corren y la orilla de
 # adentro rota en gotas. UV2.x cuenta los pedazos, para saber donde va cada uno a lo largo
 # La de fuego (JJ: con los colores de la danza del dios del fuego de Tanjiro) es la de agua tal
 # cual, con la paleta del rojo oscuro al amarillo casi blanco y chispas en vez de espuma
-# La de rayos (JJ, la de Emiliano: como el haki del rey de One Piece): ancha como la de agua, cafe
-# al centro como su saco y negra por fuera, con grietas en zigzag cafe claro de contorno negro que
-# brincan de lugar, y en vez de nubes suelta rayos cafes de contorno negro que salen un poco de la
+# La de rayos (JJ, la de Emiliano: como el haki del rey de One Piece): ancha como la de agua, negra
+# por fuera, cafe en medio como su saco y roja del haki por dentro, con grietas en zigzag que
+# brincan de lugar, y en vez de nubes suelta rayos con las mismas capas que salen un poco de la
 # punta (RAYO_AFUERA) y parpadean
-enum Estilo { NORMAL, AGUA, MONARCA, FUEGO, RAYOS }
-const NOMBRES := ["la de siempre", "agua", "mariposa monarca", "fuego", "rayos rojos"]
+# La de Felipe es fuego negro: flamas como las de fuego con los colores de su chamarra (JJ): gris carbon de los
+# cuadros por fuera, grises cada vez mas claros hasta el blanco adentro, sin amarillo ni naranja
+enum Estilo { NORMAL, AGUA, MONARCA, FUEGO, RAYOS, FLAMAS_FELIPE }
+const NOMBRES := ["la de siempre", "agua", "mariposa monarca", "fuego", "rayos haki", "fuego negro de Felipe"]
 const SHADER_RAYOS := """
 shader_type spatial;
 render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled;
 
-const vec3 NEGRO = vec3(0.030, 0.000, 0.015);
-const vec3 VINO = vec3(0.300, 0.010, 0.040);
-const vec3 ROJO = vec3(0.950, 0.080, 0.140);
-const vec3 HALO = vec3(1.000, 0.450, 0.500);
-// Cafe como el saco de Emiliano (JJ; antes era ROJO y HALO, que se quedan por si se regresa)
+// Emiliano (JJ): negro por fuera, cafe en medio y rojo del haki del rey por dentro; NUCLEO es el
+// centro encendido de grietas y rayos
+const vec3 NEGRO = vec3(0.060, 0.020, 0.080);
 const vec3 CAFE = vec3(0.450, 0.280, 0.150);
-const vec3 CAFE_CLARO = vec3(0.720, 0.500, 0.300);
+const vec3 DENTRO = vec3(0.880, 0.080, 0.180);
+const vec3 NUCLEO = vec3(1.000, 0.380, 0.450);
 
 float azar(float x) {
 	return fract(sin(x * 12.9898) * 43758.5453);
@@ -77,10 +78,11 @@ void fragment() {
 		discard;
 	}
 	float k = (UV.x - borde) / (1.0 - borde);
-	// Cuerpo: rojo al centro y negro hacia las dos orillas, en franjas (JJ)
+	// Cuerpo en tres franjas: adentro al centro, cafe en medio y negro en las dos orillas (JJ)
 	float orilla = abs(k - 0.5) * 2.0;
-	vec3 c = mix(CAFE, NEGRO, min(floor(orilla * 4.0) / 3.0, 1.0));
-	// Dos grietas que brincan de lugar 14 veces por segundo: rojo encendido con contorno negro
+	// El de adentro delgado y el cafe ancho (JJ: que se vea mas el cafe)
+	vec3 c = orilla < 0.18 ? DENTRO : (orilla < 0.70 ? CAFE : NEGRO);
+	// Dos grietas que brincan de lugar 14 veces por segundo: nucleo encendido, cafe y contorno negro
 	float cuadro = floor(TIME * 14.0);
 	float d = 1.0;
 	for (int j = 0; j < 2; j++) {
@@ -90,8 +92,10 @@ void fragment() {
 	}
 	float grueso = 0.035 * (1.0 - edad * 0.6);
 	if (d < grueso) {
-		c = CAFE_CLARO;
-	} else if (d < grueso + 0.05) {
+		c = NUCLEO;
+	} else if (d < grueso + 0.025) {
+		c = CAFE;
+	} else if (d < grueso + 0.055) {
 		c = NEGRO;
 	}
 	ALBEDO = pow(c, vec3(2.2));
@@ -109,12 +113,12 @@ render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled;
 instance uniform float edad = 0.0;
 instance uniform float semilla = 0.0;
 
-const vec3 NEGRO = vec3(0.030, 0.000, 0.015);
-const vec3 ROJO = vec3(0.950, 0.080, 0.140);
-const vec3 HALO = vec3(1.000, 0.450, 0.500);
-// Cafes como la estela (JJ; antes ROJO y HALO)
+// Emiliano (JJ): negro por fuera, cafe en medio y rojo del haki del rey por dentro; NUCLEO es el
+// centro encendido de grietas y rayos
+const vec3 NEGRO = vec3(0.060, 0.020, 0.080);
 const vec3 CAFE = vec3(0.450, 0.280, 0.150);
-const vec3 CAFE_CLARO = vec3(0.720, 0.500, 0.300);
+const vec3 DENTRO = vec3(0.880, 0.080, 0.180);
+const vec3 NUCLEO = vec3(1.000, 0.380, 0.450);
 
 float azar(float x) {
 	return fract(sin(x * 12.9898) * 43758.5453);
@@ -159,14 +163,16 @@ void fragment() {
 	float d = rayo(p, a, l, cuadro + semilla * 37.0);
 	d = min(d, rayo(p, a + 0.8 * sign(semilla - 0.5), l * 0.6, cuadro * 1.7 + semilla * 53.0) + 0.01);
 	d = min(d, rayo(p, a + 3.1416, l * 0.4, cuadro * 2.3 + semilla * 17.0) + 0.01);
-	// Rojo al centro (encendido mientras es nuevo) y contorno negro
+	// Por capas como la estela: nucleo encendido mientras es nuevo, adentro, cafe y contorno negro
 	float grueso = 0.025 * (1.0 - edad * 0.5);
 	vec3 c;
 	if (d < grueso * 0.5 && edad < 0.5) {
-		c = CAFE_CLARO;
+		c = NUCLEO;
 	} else if (d < grueso) {
+		c = DENTRO;
+	} else if (d < grueso + 0.015) {
 		c = CAFE;
-	} else if (d < grueso + 0.03) {
+	} else if (d < grueso + 0.035) {
 		c = NEGRO;
 	} else {
 		discard;
@@ -259,7 +265,7 @@ void fragment() {
 # Nubes de polvo: una bola pixeleada de cara a la camara, blanca (JJ no la quiso cafe como la de
 # la hoja), mas clara arriba a la izquierda, que crece, sube y se deshace.
 # `edad` va de 0 a 1 y `semilla` cambia la forma de cada una
-const NUBES := 12              # en la reserva; se reusa la mas vieja
+const NUBES := 20              # en la reserva; se reusa la mas vieja (el estallido del puno saca 7)
 const NUBE_CADA := 5           # pedazos de estela entre nube y nube
 const NUBE_VIDA := 0.45
 const NUBE_TAMANO := Vector2(0.2, 0.5)  # m, al salir y al final
@@ -311,10 +317,15 @@ static var _material_fuego: ShaderMaterial
 static var _material_chispas: ShaderMaterial
 static var _material_rayos: ShaderMaterial
 static var _material_rayo: ShaderMaterial
+static var _material_flamas: ShaderMaterial
+static var _material_chispas_felipe: ShaderMaterial
 const PALETA_AGUA := """vec3(0.035, 0.090, 0.280), vec3(0.055, 0.200, 0.520), vec3(0.110, 0.380, 0.780),
 	vec3(0.330, 0.620, 0.940), vec3(0.680, 0.860, 1.000), vec3(0.970, 0.990, 1.000)"""
 const PALETA_FUEGO := """vec3(0.300, 0.030, 0.020), vec3(0.620, 0.070, 0.030), vec3(0.900, 0.230, 0.040),
 	vec3(1.000, 0.480, 0.080), vec3(1.000, 0.760, 0.250), vec3(1.000, 0.960, 0.780)"""
+# Felipe: de afuera (0) hacia adentro, del carbon de los cuadros al blanco, sin amarillo ni naranja (JJ)
+const PALETA_FELIPE := """vec3(0.100, 0.110, 0.140), vec3(0.250, 0.260, 0.290), vec3(0.420, 0.430, 0.460),
+	vec3(0.620, 0.630, 0.650), vec3(0.820, 0.830, 0.840), vec3(0.970, 0.970, 0.970)"""
 const POLVO_GRIS := """vec3(0.961, 0.957, 0.937), vec3(0.851, 0.847, 0.827), vec3(0.698, 0.698, 0.686),
 	vec3(0.549, 0.553, 0.549)"""
 
@@ -322,6 +333,8 @@ var _pedazos: Array = []       # [mano, punta, edad]
 var _malla := ImmediateMesh.new()
 var _nubes: Array[MeshInstance3D] = []
 var _nube_edad: Array[float] = []
+var _nube_vel: Array[Vector3] = []     # las del estallido salen disparadas; las demas, quietas
+var _nube_escala: Array[float] = []
 var _siguiente := 0
 var _cuenta := 0
 
@@ -355,6 +368,8 @@ func _ready() -> void:
 		add_child(nube)
 		_nubes.append(nube)
 		_nube_edad.append(-1.0)
+		_nube_vel.append(Vector3.ZERO)
+		_nube_escala.append(1.0)
 	if _material_agua == null:
 		var shader := Shader.new()
 		shader.code = SHADER_AGUA
@@ -402,11 +417,27 @@ func _ready() -> void:
 		rayo.code = SHADER_RAYO
 		_material_rayo = ShaderMaterial.new()
 		_material_rayo.shader = rayo
+	if _material_flamas == null:
+		var flamas := Shader.new()
+		flamas.code = SHADER_AGUA.replace(PALETA_AGUA, PALETA_FELIPE) \
+				.replace("vec3 c = AGUA[paso];", "vec3 c = AGUA[5 - paso];")
+		_material_flamas = ShaderMaterial.new()
+		_material_flamas.shader = flamas
+		# Las llamas que suelta: negras (JJ), del carbon al negro
+		var chispas := Shader.new()
+		chispas.code = SHADER_NUBE.replace(POLVO_GRIS, """vec3(0.180, 0.180, 0.200), vec3(0.110, 0.110, 0.130),
+	vec3(0.060, 0.060, 0.070), vec3(0.020, 0.020, 0.025)""")
+		_material_chispas_felipe = ShaderMaterial.new()
+		_material_chispas_felipe.shader = chispas
 	set_process(false)
 
 
+func _de_rayos() -> bool:
+	return _modo() == Estilo.RAYOS
+
+
 func _tamano_nube() -> Vector2:
-	return RAYO_TAMANO if _modo() == Estilo.RAYOS else NUBE_TAMANO
+	return RAYO_TAMANO if _de_rayos() else NUBE_TAMANO
 
 
 func _modo() -> int:
@@ -417,15 +448,20 @@ func _de_agua() -> bool:
 	return _modo() != 0   # las demas tienen la forma ancha de la de agua
 
 
-func agregar(mano: Vector3, punta: Vector3) -> void:
+# a_puno: la estela de un puno (Player.ESTELA_PUNOS) va pareja de la muneca a los nudillos, sin
+# empezar a medio camino ni bajar la orilla de adentro como la del machete
+func agregar(mano: Vector3, punta: Vector3, a_puno := false) -> void:
 	var de_agua := _de_agua()
 	if _pedazos.is_empty():
-		material_override = [_material, _material_agua, _material_monarca, _material_fuego, _material_rayos][_modo()]
+		material_override = [_material, _material_agua, _material_monarca, _material_fuego, _material_rayos, _material_flamas][_modo()]
 	var desde := AGUA_DESDE if de_agua else DESDE
 	var baja := AGUA_BAJA if de_agua else ADENTRO_BAJA
+	if a_puno:
+		desde = 0.0
+		baja = 0.0
 	_pedazos.append([mano.lerp(punta, desde) + Vector3.DOWN * baja, punta, 0.0, float(_cuenta)])
 	_cuenta += 1
-	if _modo() == Estilo.RAYOS:
+	if _de_rayos():
 		if _cuenta % RAYO_CADA == 0:
 			_soltar_nube(punta + (punta - mano).normalized() * RAYO_AFUERA)
 	elif _cuenta % NUBE_CADA == 0:
@@ -433,16 +469,35 @@ func agregar(mano: Vector3, punta: Vector3) -> void:
 	set_process(true)
 
 
-func _soltar_nube(donde: Vector3) -> void:
+# Varias de golpe en un punto (el punetazo a punos al pegar, Player.PUNO_ESTALLIDO): salen
+# disparadas hacia `hacia` (abiertas ESTALLIDO_ABRE), se frenan (ESTALLIDO_FRENA) y luego suben;
+# `escala` las agranda. Sin `hacia`, se quedan donde salen
+const ESTALLIDO_VEL := Vector2(2.0, 4.5)   # m/s
+const ESTALLIDO_ABRE := 0.8
+const ESTALLIDO_FRENA := 6.0
+func estallar(donde: Vector3, cuantas: int, hacia := Vector3.ZERO, escala := 1.0) -> void:
+	for i in cuantas:
+		var j := _soltar_nube(donde + Vector3(randf_range(-0.1, 0.1), randf_range(-0.1, 0.1), randf_range(-0.1, 0.1)))
+		_nube_escala[j] = escala
+		if hacia != Vector3.ZERO:
+			var abre := Vector3(randf_range(-1, 1), randf_range(-0.6, 1), randf_range(-1, 1)) * ESTALLIDO_ABRE
+			_nube_vel[j] = (hacia.normalized() + abre).normalized() * randf_range(ESTALLIDO_VEL.x, ESTALLIDO_VEL.y)
+	set_process(true)
+
+
+func _soltar_nube(donde: Vector3) -> int:
 	var i := _siguiente
 	_siguiente = (_siguiente + 1) % NUBES
 	var nube := _nubes[i]
 	nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * _tamano_nube().x), donde)
-	nube.material_override = [_material_nube, _material_espuma, _material_polen, _material_chispas, _material_rayo][_modo()]
+	nube.material_override = [_material_nube, _material_espuma, _material_polen, _material_chispas, _material_rayo, _material_chispas_felipe][_modo()]
 	nube.set_instance_shader_parameter("semilla", randf())
 	nube.set_instance_shader_parameter("edad", 0.0)
 	nube.visible = true
 	_nube_edad[i] = 0.0
+	_nube_vel[i] = Vector3.ZERO
+	_nube_escala[i] = 1.0
+	return i
 
 
 func _process(delta: float) -> void:
@@ -483,10 +538,11 @@ func _mover_nubes(delta: float) -> bool:
 			continue
 		hay = true
 		var tam := _tamano_nube()
-		var tamano := lerpf(tam.x, tam.y, ease(edad, 0.4))
+		var tamano := lerpf(tam.x, tam.y, ease(edad, 0.4)) * _nube_escala[i]
 		# Los rayos no suben como el humo
-		var sube := 0.0 if _modo() == Estilo.RAYOS else NUBE_SUBE
+		var sube := 0.0 if _de_rayos() else NUBE_SUBE
+		_nube_vel[i] = _nube_vel[i].move_toward(Vector3.ZERO, ESTALLIDO_FRENA * delta)
 		nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * tamano),
-			nube.global_position + Vector3.UP * sube * delta)
+			nube.global_position + (Vector3.UP * sube + _nube_vel[i]) * delta)
 		nube.set_instance_shader_parameter("edad", edad)
 	return hay

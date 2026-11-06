@@ -22,11 +22,16 @@ extends SceneTree
 # al cuello, pantalon gris oscuro con cinturon y hebilla, zapatos negros y bigote grande. Va a
 # protagonistas/emiliano/; el sombrero charro es malla aparte (scripts/personajes/SombreroCharro.gd).
 #   godot --path . --headless -s tools/personajes/el_compa.gd -- --emiliano
+# Con -- --felipe pinta el quinto (Felipe): chamarra de cuadros de manga larga abierta de enfrente,
+# con forro naranja que asoma en la orilla y el cuello, playera amarilla, mezclilla azul, tenis
+# oscuros y bigote delgado. Va a protagonistas/felipe/.
+#   godot --path . --headless -s tools/personajes/el_compa.gd -- --felipe
 
 const CARPETA := "res://models/personajes/protagonistas/el_compa/"
 const CARPETA_HOMERO := "res://models/personajes/protagonistas/homero/"
 const CARPETA_RAMON := "res://models/personajes/protagonistas/ramon/"
 const CARPETA_EMILIANO := "res://models/personajes/protagonistas/emiliano/"
+const CARPETA_FELIPE := "res://models/personajes/protagonistas/felipe/"
 const SEMILLA := 7
 
 # --- Colores ---
@@ -93,6 +98,18 @@ var posiciones := {}   # Vector2i (píxel) -> Vector3 (punto de la malla en repo
 var homero := false
 var ramon := false
 var emiliano := false
+var felipe := false
+
+# --- Felipe (en el espacio del modelo, como la guayabera) ---
+const AMARILLA := Color(0.93, 0.66, 0.12)        # la playera
+const FORRO := Color(0.90, 0.30, 0.08)           # naranja de adentro de la chamarra
+const CUADRO_CLARO := Color(0.80, 0.80, 0.78)
+const CUADRO_MEDIO := Color(0.40, 0.42, 0.48)
+const CUADRO_OSCURO := Color(0.10, 0.11, 0.14)
+const CUADRO := 0.045                            # ancho de una franja del cuadro
+const ABIERTA := 0.16                            # |z| de enfrente donde se ve la playera
+const FORRO_ANCHO := 0.045                       # el forro que asoma en la orilla
+const CUELLO_FORRO := 3.86                       # y desde donde el cuello va volteado (naranja)
 
 # --- Emiliano: como la guayabera, en el espacio del modelo (X al frente, Y arriba, Z a los lados) ---
 const SACO := Color(0.30, 0.20, 0.13)
@@ -139,6 +156,7 @@ func _init() -> void:
 	homero = "--homero" in OS.get_cmdline_user_args()
 	ramon = "--ramon" in OS.get_cmdline_user_args()
 	emiliano = "--emiliano" in OS.get_cmdline_user_args()
+	felipe = "--felipe" in OS.get_cmdline_user_args()
 	rng.seed = SEMILLA
 	img = Image.load_from_file(ProjectSettings.globalize_path(CARPETA + "Character_04_original.png"))
 	img.convert(Image.FORMAT_RGBA8)
@@ -182,6 +200,21 @@ func _init() -> void:
 				nuevo = NEGRO * clampf(f, 0.6, 1.9)
 			elif homero and (e in ZAPATOS or e in SUELAS):
 				nuevo = ZAPATO * lerpf(1.0, f, 0.45)
+			elif felipe and q != null and (e in CHAMARRA or e in ANTEBRAZOS):
+				nuevo = _chamarra(e, q, f)
+			elif felipe and (e in CHAMARRA or e in ANTEBRAZOS):
+				nuevo = CUADRO_MEDIO
+			elif felipe and e in PANTALON:
+				var cinto := c.s > 0.15 and c.r - c.b > 0.05
+				if cinto:
+					nuevo = CINTO * clampf(f, 0.6, 1.9)
+				else:
+					nuevo = MEZCLILLA * clampf(lerpf(1.0, f, 0.7), 0.55, 1.5) \
+							* (1.0 + rng.randf_range(-MEZCLILLA_GRANO, MEZCLILLA_GRANO))
+			elif felipe and e in ZAPATOS:
+				nuevo = TENIS * lerpf(1.0, f, 0.45)
+			elif felipe and e in SUELAS:
+				nuevo = TENIS_SUELA * clampf(f, 0.8, 1.1)
 			elif emiliano and q != null and (e in CHAMARRA or e in ANTEBRAZOS):
 				nuevo = _traje(e, q, f)
 			elif emiliano and (e in CHAMARRA or e in ANTEBRAZOS):
@@ -236,10 +269,10 @@ func _init() -> void:
 				nuevo = PIEL * f
 				es_piel = true
 				if e in CABEZA and not ramon and _bigote(Vector2i(x, y)):
-					nuevo = (CANA if rng.randf() < CANAS_BIGOTE and not emiliano else PELO) * clampf(f, 0.7, 1.3)
+					nuevo = (CANA if rng.randf() < CANAS_BIGOTE and not emiliano and not felipe else PELO) * clampf(f, 0.7, 1.3)
 					es_piel = false
 			elif k.ends_with("pelo"):
-				var cana := e in SOLO_PELO and not ramon and not emiliano and rng.randf() < CANAS_PELO
+				var cana := e in SOLO_PELO and not ramon and not emiliano and not felipe and rng.randf() < CANAS_PELO
 				nuevo = (CANA if cana else PELO) * clampf(f, 0.6, 1.5)
 			elif e in PANTALON:
 				var cinto := c.s > 0.15 and c.r - c.b > 0.05
@@ -254,7 +287,7 @@ func _init() -> void:
 			img.set_pixel(x, y, nuevo)
 			if es_piel:
 				mascara.set_pixel(x, y, Color.WHITE)
-	var destino := CARPETA_HOMERO if homero else (CARPETA_RAMON if ramon else (CARPETA_EMILIANO if emiliano else CARPETA))
+	var destino := CARPETA_HOMERO if homero else (CARPETA_RAMON if ramon else (CARPETA_EMILIANO if emiliano else (CARPETA_FELIPE if felipe else CARPETA)))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(destino))
 	img.save_png(ProjectSettings.globalize_path(destino + "Character_04.png"))
 	mascara.save_png(ProjectSettings.globalize_path(destino + "piel.png"))
@@ -346,6 +379,39 @@ func _guayabera(e: int, q: Vector3, f: float) -> Color:
 
 func _lana(color: Color) -> Color:
 	return color * (1.0 + rng.randf_range(-TWEED, TWEED))
+
+
+# Cuadros de la chamarra de Felipe: franjas a lo alto y a lo ancho que se cruzan
+func _cuadro(a: float, b: float) -> Color:
+	var fa := posmod(int(floor(a / CUADRO)), 4)
+	var fb := posmod(int(floor(b / CUADRO)), 4)
+	var oscura_a := fa == 0
+	var oscura_b := fb == 0
+	if oscura_a and oscura_b:
+		return CUADRO_OSCURO
+	if oscura_a or oscura_b:
+		return CUADRO_MEDIO
+	if fa == 2 or fb == 2:
+		return CUADRO_CLARO * 0.85
+	return CUADRO_CLARO
+
+
+# La chamarra de Felipe en el punto q del modelo (f: la sombra de la tela original)
+func _chamarra(e: int, q: Vector3, f: float) -> Color:
+	var luz := clampf(lerpf(1.0, f, 0.35), 0.75, 1.15)
+	var z := absf(q.z)
+	var torso := e in CHAMARRA and e != 3 and e != 8
+	if torso and q.x > -0.06:
+		# Abierta de enfrente: la playera amarilla en medio, el forro naranja en la orilla
+		if z < ABIERTA:
+			return AMARILLA * luz
+		if z < ABIERTA + FORRO_ANCHO:
+			return FORRO * luz
+	# El cuello volteado: se ve el forro
+	if torso and q.y > CUELLO_FORRO:
+		return FORRO * luz
+	# Los cuadros siguen derechos a lo alto (y) y a lo ancho (z + x da vuelta por los lados)
+	return _cuadro(q.y, q.z + q.x) * luz
 
 
 # El traje de Emiliano en el punto q del modelo (f: la sombra de la tela original)
