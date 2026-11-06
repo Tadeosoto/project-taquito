@@ -17,10 +17,16 @@ extends SceneTree
 # tenis oscuros, sin bigote ni canas. Va a protagonistas/ramon/; el gorro de pescador azul no
 # es textura: es una malla aparte en el hueso de la cabeza (scripts/personajes/GorroPescador.gd).
 #   godot --path . --headless -s tools/personajes/el_compa.gd -- --ramon
+# Con -- --emiliano pinta el cuarto (Emiliano, homenaje a Zapata): saco cafe de manga larga con
+# punos de camisa, chaleco verde olivo con botones y leontina dorada, camisa blanca, paliacate rojo
+# al cuello, pantalon gris oscuro con cinturon y hebilla, zapatos negros y bigote grande. Va a
+# protagonistas/emiliano/; el sombrero charro es malla aparte (scripts/personajes/SombreroCharro.gd).
+#   godot --path . --headless -s tools/personajes/el_compa.gd -- --emiliano
 
 const CARPETA := "res://models/personajes/protagonistas/el_compa/"
 const CARPETA_HOMERO := "res://models/personajes/protagonistas/homero/"
 const CARPETA_RAMON := "res://models/personajes/protagonistas/ramon/"
+const CARPETA_EMILIANO := "res://models/personajes/protagonistas/emiliano/"
 const SEMILLA := 7
 
 # --- Colores ---
@@ -86,6 +92,24 @@ var rng := RandomNumberGenerator.new()
 var posiciones := {}   # Vector2i (píxel) -> Vector3 (punto de la malla en reposo)
 var homero := false
 var ramon := false
+var emiliano := false
+
+# --- Emiliano: como la guayabera, en el espacio del modelo (X al frente, Y arriba, Z a los lados) ---
+const SACO := Color(0.30, 0.20, 0.13)
+const CHALECO := Color(0.29, 0.30, 0.18)
+const CAMISA := Color(0.90, 0.89, 0.84)
+const PALIACATE := Color(0.64, 0.07, 0.07)
+const PANTALON_GRIS := Color(0.10, 0.10, 0.11)
+const TWEED := 0.07                 # variacion por pixel de la lana
+const CHALECO_ANCHO := 0.20         # |z| hasta donde se ve el chaleco (lo demas es el saco abierto)
+const CHALECO_DESDE := 2.50         # y de abajo del chaleco
+const CAMISA_V := 3.45              # y donde abre la V del chaleco (camisa adentro)
+const PALIACATE_NUDO := 3.80        # y del nudo; la punta cuelga hasta PALIACATE_PUNTA
+const PALIACATE_PUNTA := 3.55
+const BOTONES_CHALECO := [2.62, 2.80, 2.98, 3.16, 3.34]
+const LEONTINA_Y := 3.0             # y de los extremos de la cadena del reloj
+const SACO_HASTA := 2.28            # y del dobladillo del saco sobre el pantalon
+const BIGOTE_GRANDE := Vector3(4.135, 4.198, 0.115)   # y de abajo, y de arriba, medio ancho
 
 # --- Ramon ---
 const PLAYERA := Color(0.075, 0.075, 0.08)
@@ -114,6 +138,7 @@ const PUNO_Y := 2.42                             # la costura del puno de la man
 func _init() -> void:
 	homero = "--homero" in OS.get_cmdline_user_args()
 	ramon = "--ramon" in OS.get_cmdline_user_args()
+	emiliano = "--emiliano" in OS.get_cmdline_user_args()
 	rng.seed = SEMILLA
 	img = Image.load_from_file(ProjectSettings.globalize_path(CARPETA + "Character_04_original.png"))
 	img.convert(Image.FORMAT_RGBA8)
@@ -157,6 +182,21 @@ func _init() -> void:
 				nuevo = NEGRO * clampf(f, 0.6, 1.9)
 			elif homero and (e in ZAPATOS or e in SUELAS):
 				nuevo = ZAPATO * lerpf(1.0, f, 0.45)
+			elif emiliano and q != null and (e in CHAMARRA or e in ANTEBRAZOS):
+				nuevo = _traje(e, q, f)
+			elif emiliano and (e in CHAMARRA or e in ANTEBRAZOS):
+				nuevo = SACO * 0.85
+			elif emiliano and e in PANTALON and q != null and q.y > SACO_HASTA and q.y < 2.62 \
+					and not (q.x > -0.06 and absf(q.z) < CHALECO_ANCHO):
+				# Los faldones del saco, abierto de enfrente
+				nuevo = _lana(SACO) * clampf(lerpf(1.0, f, 0.35), 0.75, 1.15) * (0.75 if q.y < SACO_HASTA + 0.02 else 1.0)
+			elif emiliano and e in PANTALON:
+				var cinto := c.s > 0.15 and c.r - c.b > 0.05
+				nuevo = (CINTO if cinto else PANTALON_GRIS) * clampf(f, 0.6, 1.9)
+				if e == HEBILLA_ISLA and HEBILLA.has_point(Vector2i(x, y)):
+					nuevo = _hebilla(x - HEBILLA.position.x, y - HEBILLA.position.y)
+			elif emiliano and (e in ZAPATOS or e in SUELAS):
+				nuevo = ZAPATO * lerpf(1.0, f, 0.6)
 			elif ramon and e in CHAMARRA:
 				# Cuello redondo: el triangulo de piel del cuello original tambien va negro (dejaba manchas)
 				nuevo = PLAYERA * clampf(lerpf(1.0, f, 0.5), 0.6, 1.8)
@@ -196,10 +236,10 @@ func _init() -> void:
 				nuevo = PIEL * f
 				es_piel = true
 				if e in CABEZA and not ramon and _bigote(Vector2i(x, y)):
-					nuevo = (CANA if rng.randf() < CANAS_BIGOTE else PELO) * clampf(f, 0.7, 1.3)
+					nuevo = (CANA if rng.randf() < CANAS_BIGOTE and not emiliano else PELO) * clampf(f, 0.7, 1.3)
 					es_piel = false
 			elif k.ends_with("pelo"):
-				var cana := e in SOLO_PELO and not ramon and rng.randf() < CANAS_PELO
+				var cana := e in SOLO_PELO and not ramon and not emiliano and rng.randf() < CANAS_PELO
 				nuevo = (CANA if cana else PELO) * clampf(f, 0.6, 1.5)
 			elif e in PANTALON:
 				var cinto := c.s > 0.15 and c.r - c.b > 0.05
@@ -214,7 +254,7 @@ func _init() -> void:
 			img.set_pixel(x, y, nuevo)
 			if es_piel:
 				mascara.set_pixel(x, y, Color.WHITE)
-	var destino := CARPETA_HOMERO if homero else (CARPETA_RAMON if ramon else CARPETA)
+	var destino := CARPETA_HOMERO if homero else (CARPETA_RAMON if ramon else (CARPETA_EMILIANO if emiliano else CARPETA))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(destino))
 	img.save_png(ProjectSettings.globalize_path(destino + "Character_04.png"))
 	mascara.save_png(ProjectSettings.globalize_path(destino + "piel.png"))
@@ -304,6 +344,53 @@ func _guayabera(e: int, q: Vector3, f: float) -> Color:
 	return GUAYABERA * luz
 
 
+func _lana(color: Color) -> Color:
+	return color * (1.0 + rng.randf_range(-TWEED, TWEED))
+
+
+# El traje de Emiliano en el punto q del modelo (f: la sombra de la tela original)
+func _traje(e: int, q: Vector3, f: float) -> Color:
+	var luz := clampf(lerpf(1.0, f, 0.35), 0.75, 1.15)
+	var z := absf(q.z)
+	var torso := e in CHAMARRA and e != 3 and e != 8
+	if not torso:
+		# Mangas largas del saco y el puno de la camisa asomado en la muneca
+		if e in ANTEBRAZOS and q.y < PUNO_Y + 0.03:
+			return CAMISA * luz
+		return _lana(SACO) * luz
+	if q.x <= -0.06:
+		return _lana(SACO) * luz
+	# Paliacate: anudado al cuello y la punta colgando
+	if q.y > 3.88 and z < 0.2:
+		return PALIACATE * luz
+	if q.y > PALIACATE_PUNTA and q.y < 3.88:
+		var ancho := 0.025 + (q.y - PALIACATE_PUNTA) * 0.12
+		if q.y > PALIACATE_NUDO and z < 0.05 or z < ancho * 0.6:
+			return PALIACATE * luz * (0.8 if absf(q.y - PALIACATE_NUDO) < 0.012 else 1.0)
+	# La camisa en la V del chaleco
+	if q.y > CAMISA_V and z < (q.y - CAMISA_V) * 0.55:
+		return CAMISA * luz
+	if z < CHALECO_ANCHO and q.y > CHALECO_DESDE:
+		# Botones
+		for by: float in BOTONES_CHALECO:
+			if absf(q.y - by) < 0.013 and z < 0.013:
+				return ORO_OSCURO
+		# Leontina: la cadena en U de bolsa a bolsa y el dije colgando en medio
+		var t := z / 0.13
+		if t < 1.0 and absf(q.y - (LEONTINA_Y - 0.09 * (1.0 - t * t))) < 0.008:
+			return ORO if int(z * 300.0) % 2 == 0 else ORO_OSCURO
+		if z < 0.012 and q.y < LEONTINA_Y - 0.09 and q.y > LEONTINA_Y - 0.17:
+			return ORO
+		# La orilla del chaleco junto al saco
+		if CHALECO_ANCHO - z < 0.012:
+			return CHALECO * luz * 0.7
+		return _lana(CHALECO) * luz
+	# La solapa del saco, mas oscura en la orilla
+	if z - CHALECO_ANCHO < 0.025:
+		return SACO * luz * 0.7
+	return _lana(SACO) * luz
+
+
 # Factor de luz de la piel del pecho, o -1 si p queda fuera de la V.
 func _pecho(p: Vector2) -> float:
 	if p.x < PECHO_X.x or p.x > PECHO_X.y: return -1.0
@@ -342,6 +429,11 @@ func _hebilla(x: int, y: int) -> Color:
 func _bigote(px: Vector2i) -> bool:
 	if not posiciones.has(px): return false
 	var q: Vector3 = posiciones[px]
+	if emiliano:
+		# Grande y caido a los lados: mas ancho, y en las puntas baja
+		var baja := maxf(absf(q.z) - 0.06, 0.0) * 0.5
+		return q.x > BIGOTE_FRENTE - 0.02 and absf(q.z) < BIGOTE_GRANDE.z \
+				and q.y > BIGOTE_GRANDE.x - baja and q.y < BIGOTE_GRANDE.y - baja
 	return q.x > BIGOTE_FRENTE and absf(q.z) < BIGOTE_MEDIO and q.y > BIGOTE_Y.x and q.y < BIGOTE_Y.y
 
 

@@ -40,15 +40,20 @@ const MASCARA_PIEL := "piel.png"
 # (tools/personajes/el_compa.gd -- --homero). Su textura lleva su piel.png al lado. Ramon:
 # playera negra de manga corta, mezclilla azul (-- --ramon) y un gorro de pescador azul, que
 # es malla aparte en la cabeza (GORROS, scripts/personajes/GorroPescador.gd)
-const PROTAGONISTAS := ["El compa", "Homero", "Ramón"]
+# Emiliano (homenaje de JJ a Zapata): saco cafe, chaleco olivo, paliacate rojo (-- --emiliano) y
+# sombrero charro (scripts/personajes/SombreroCharro.gd)
+const PROTAGONISTAS := ["El compa", "Homero", "Ramón", "Emiliano"]
 const TEXTURA_COMPA := "res://models/personajes/protagonistas/el_compa/Character_04.png"
 const TEXTURAS := ["", "res://models/personajes/protagonistas/homero/Character_04.png",
-		"res://models/personajes/protagonistas/ramon/Character_04.png"]
-const GORROS := [false, false, true]
+		"res://models/personajes/protagonistas/ramon/Character_04.png",
+		"res://models/personajes/protagonistas/emiliano/Character_04.png"]
+# Lo que lleva cada uno en la cabeza (un script con crear() -> MeshInstance3D), o nada
+const GORROS := [null, null, preload("res://scripts/personajes/GorroPescador.gd"),
+		preload("res://scripts/personajes/SombreroCharro.gd")]
 # La estela que gana cada uno con su mejora (EstelaBarrido.Estilo): el compa la de fuego, Homero
-# la de la monarca, Ramon la de agua. Sera una mejora de dano (docs/mejoras.md); mientras no se
+# la de la monarca, Ramon la de agua, Emiliano los rayos rojos. Sera una mejora de dano (docs/mejoras.md); mientras no se
 # gane, la de siempre
-const ESTELAS := [3, 2, 1]
+const ESTELAS := [3, 2, 1, 4]
 var mejora_estela := false
 const RODILLA_PIEL := 215.0   # de 255: arriba de esto las luces se van suavizando en vez de quemarse
 static var _pieles := {}      # ruta de la textura -> lo que hace falta para repintarla
@@ -321,20 +326,23 @@ func vestir(modelo: Node3D) -> void:
 		esqueleto.add_child(cuerpo)
 	cuerpo.set("ancho", _en(ANCHO, complexion))
 	cuerpo.set("cabeza", _en(ESCALA_CABEZA, cabeza))
-	_poner_gorro(esqueleto, es_compa and GORROS[protagonista])
+	_poner_gorro(esqueleto, GORROS[protagonista] if es_compa else null)
 
 
-# El gorro del protagonista, pegado al hueso de la cabeza; se quita si escoges otro
-func _poner_gorro(esqueleto: Skeleton3D, quiere: bool) -> void:
+# El gorro del protagonista, pegado al hueso de la cabeza; se cambia o se quita si escoges otro
+func _poner_gorro(esqueleto: Skeleton3D, cual: Script) -> void:
 	var gorro := esqueleto.get_node_or_null("Gorro")
-	if gorro and not quiere:
+	if gorro and gorro.get_meta("gorro") == cual:
+		return
+	if gorro:
 		gorro.queue_free()
 		gorro.name = "GorroSaliendo"
-	elif gorro == null and quiere:
+	if cual:
 		var pegado := BoneAttachment3D.new()
 		pegado.name = "Gorro"
 		pegado.bone_name = "Head"
-		pegado.add_child(GorroPescador.crear())
+		pegado.set_meta("gorro", cual)
+		pegado.add_child(cual.crear())
 		esqueleto.add_child(pegado)
 
 

@@ -40,8 +40,140 @@ void fragment() {
 # adentro rota en gotas. UV2.x cuenta los pedazos, para saber donde va cada uno a lo largo
 # La de fuego (JJ: con los colores de la danza del dios del fuego de Tanjiro) es la de agua tal
 # cual, con la paleta del rojo oscuro al amarillo casi blanco y chispas en vez de espuma
-enum Estilo { NORMAL, AGUA, MONARCA, FUEGO }
-const NOMBRES := ["la de siempre", "agua", "mariposa monarca", "fuego"]
+# La de rayos (JJ, la de Emiliano: como el haki del rey de One Piece): ancha como la de agua, cafe
+# al centro como su saco y negra por fuera, con grietas en zigzag cafe claro de contorno negro que
+# brincan de lugar, y en vez de nubes suelta rayos cafes de contorno negro que salen un poco de la
+# punta (RAYO_AFUERA) y parpadean
+enum Estilo { NORMAL, AGUA, MONARCA, FUEGO, RAYOS }
+const NOMBRES := ["la de siempre", "agua", "mariposa monarca", "fuego", "rayos rojos"]
+const SHADER_RAYOS := """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled;
+
+const vec3 NEGRO = vec3(0.030, 0.000, 0.015);
+const vec3 VINO = vec3(0.300, 0.010, 0.040);
+const vec3 ROJO = vec3(0.950, 0.080, 0.140);
+const vec3 HALO = vec3(1.000, 0.450, 0.500);
+// Cafe como el saco de Emiliano (JJ; antes era ROJO y HALO, que se quedan por si se regresa)
+const vec3 CAFE = vec3(0.450, 0.280, 0.150);
+const vec3 CAFE_CLARO = vec3(0.720, 0.500, 0.300);
+
+float azar(float x) {
+	return fract(sin(x * 12.9898) * 43758.5453);
+}
+
+// Una linea quebrada: para cada u, a que altura (0..1) de la estela pasa
+float quebrada(float u, float s) {
+	float i = floor(u);
+	return mix(azar(i + s), azar(i + 1.0 + s), fract(u));
+}
+
+void fragment() {
+	float edad = UV.y;
+	float u = UV2.x * 0.35;
+	float borde = edad * 0.85;
+	float ruido = fract(sin(floor(UV2.x) * 12.9898 + floor(UV.x * 10.0) * 78.233) * 43758.5453);
+	if (UV.x < borde + ruido * 0.12 * edad) {
+		discard;
+	}
+	float k = (UV.x - borde) / (1.0 - borde);
+	// Cuerpo: rojo al centro y negro hacia las dos orillas, en franjas (JJ)
+	float orilla = abs(k - 0.5) * 2.0;
+	vec3 c = mix(CAFE, NEGRO, min(floor(orilla * 4.0) / 3.0, 1.0));
+	// Dos grietas que brincan de lugar 14 veces por segundo: rojo encendido con contorno negro
+	float cuadro = floor(TIME * 14.0);
+	float d = 1.0;
+	for (int j = 0; j < 2; j++) {
+		float fj = float(j);
+		float p = 0.12 + 0.76 * quebrada(u * 2.5 + fj * 7.3, cuadro * 3.1 + fj * 11.0);
+		d = min(d, abs(k - p));
+	}
+	float grueso = 0.035 * (1.0 - edad * 0.6);
+	if (d < grueso) {
+		c = CAFE_CLARO;
+	} else if (d < grueso + 0.05) {
+		c = NEGRO;
+	}
+	ALBEDO = pow(c, vec3(2.2));
+}
+"""
+# Los rayos que salen: el mismo cuadro de cara a la camara que las nubes, con un rayo quebrado
+# de orilla a orilla en un angulo al azar y una rama
+const RAYO_TAMANO := Vector2(1.0, 1.35)   # m, al salir y al final
+const RAYO_AFUERA := 0.06    # m mas alla de la punta del arma: que sobresalgan de la estela (JJ)
+const RAYO_CADA := 4         # pedazos entre rayo y rayo (las nubes van cada NUBE_CADA)
+const SHADER_RAYO := """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled;
+
+instance uniform float edad = 0.0;
+instance uniform float semilla = 0.0;
+
+const vec3 NEGRO = vec3(0.030, 0.000, 0.015);
+const vec3 ROJO = vec3(0.950, 0.080, 0.140);
+const vec3 HALO = vec3(1.000, 0.450, 0.500);
+// Cafes como la estela (JJ; antes ROJO y HALO)
+const vec3 CAFE = vec3(0.450, 0.280, 0.150);
+const vec3 CAFE_CLARO = vec3(0.720, 0.500, 0.300);
+
+float azar(float x) {
+	return fract(sin(x * 12.9898) * 43758.5453);
+}
+
+float quebrada(float u, float s) {
+	float i = floor(u);
+	return mix(azar(i + s), azar(i + 1.0 + s), fract(u)) - 0.5;
+}
+
+void vertex() {
+	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
+	MODELVIEW_MATRIX = MODELVIEW_MATRIX * mat4(vec4(length(MODEL_MATRIX[0].xyz), 0.0, 0.0, 0.0),
+		vec4(0.0, length(MODEL_MATRIX[1].xyz), 0.0, 0.0), vec4(0.0, 0.0, length(MODEL_MATRIX[2].xyz), 0.0),
+		vec4(0.0, 0.0, 0.0, 1.0));
+	MODELVIEW_NORMAL_MATRIX = mat3(MODELVIEW_MATRIX);
+}
+
+// Distancia a un rayo que sale del centro en el angulo a, de largo l
+float rayo(vec2 p, float a, float l, float s) {
+	vec2 eje = vec2(cos(a), sin(a));
+	float largo = dot(p, eje);
+	float lado = dot(p, vec2(-eje.y, eje.x));
+	if (largo < 0.0 || largo > l) {
+		return 1.0;
+	}
+	// Mas quebrado lejos del centro
+	float desvio = quebrada(largo * 9.0, s) * 0.16 * (0.3 + largo * 1.6);
+	return abs(lado - desvio);
+}
+
+void fragment() {
+	// 24 x 24 pixeles por rayo, como pixel art
+	vec2 p = (floor(UV * 24.0) + 0.5) / 24.0 - 0.5;
+	float cuadro = floor(TIME * 18.0);
+	// Parpadea: algunos cuadros no se ve, mas conforme se acaba
+	if (azar(cuadro + semilla * 91.0) < 0.15 + edad * 0.5) {
+		discard;
+	}
+	float a = semilla * 6.2832;
+	float l = 0.52 * (1.0 - edad * 0.45);
+	float d = rayo(p, a, l, cuadro + semilla * 37.0);
+	d = min(d, rayo(p, a + 0.8 * sign(semilla - 0.5), l * 0.6, cuadro * 1.7 + semilla * 53.0) + 0.01);
+	d = min(d, rayo(p, a + 3.1416, l * 0.4, cuadro * 2.3 + semilla * 17.0) + 0.01);
+	// Rojo al centro (encendido mientras es nuevo) y contorno negro
+	float grueso = 0.025 * (1.0 - edad * 0.5);
+	vec3 c;
+	if (d < grueso * 0.5 && edad < 0.5) {
+		c = CAFE_CLARO;
+	} else if (d < grueso) {
+		c = CAFE;
+	} else if (d < grueso + 0.03) {
+		c = NEGRO;
+	} else {
+		discard;
+	}
+	ALBEDO = pow(c, vec3(2.2));
+}
+"""
 static var estilo := Estilo.NORMAL
 const AGUA_VIDA := 0.32
 const AGUA_DESDE := 0.15
@@ -177,6 +309,8 @@ static var _material_monarca: ShaderMaterial
 static var _material_polen: ShaderMaterial
 static var _material_fuego: ShaderMaterial
 static var _material_chispas: ShaderMaterial
+static var _material_rayos: ShaderMaterial
+static var _material_rayo: ShaderMaterial
 const PALETA_AGUA := """vec3(0.035, 0.090, 0.280), vec3(0.055, 0.200, 0.520), vec3(0.110, 0.380, 0.780),
 	vec3(0.330, 0.620, 0.940), vec3(0.680, 0.860, 1.000), vec3(0.970, 0.990, 1.000)"""
 const PALETA_FUEGO := """vec3(0.300, 0.030, 0.020), vec3(0.620, 0.070, 0.030), vec3(0.900, 0.230, 0.040),
@@ -259,7 +393,20 @@ func _ready() -> void:
 	vec3(0.950, 0.380, 0.060), vec3(0.650, 0.110, 0.030)""")
 		_material_chispas = ShaderMaterial.new()
 		_material_chispas.shader = chispas
+	if _material_rayos == null:
+		var shader := Shader.new()
+		shader.code = SHADER_RAYOS
+		_material_rayos = ShaderMaterial.new()
+		_material_rayos.shader = shader
+		var rayo := Shader.new()
+		rayo.code = SHADER_RAYO
+		_material_rayo = ShaderMaterial.new()
+		_material_rayo.shader = rayo
 	set_process(false)
+
+
+func _tamano_nube() -> Vector2:
+	return RAYO_TAMANO if _modo() == Estilo.RAYOS else NUBE_TAMANO
 
 
 func _modo() -> int:
@@ -267,18 +414,21 @@ func _modo() -> int:
 
 
 func _de_agua() -> bool:
-	return _modo() != 0   # la monarca y la de fuego tienen la forma ancha de la de agua
+	return _modo() != 0   # las demas tienen la forma ancha de la de agua
 
 
 func agregar(mano: Vector3, punta: Vector3) -> void:
 	var de_agua := _de_agua()
 	if _pedazos.is_empty():
-		material_override = [_material, _material_agua, _material_monarca, _material_fuego][_modo()]
+		material_override = [_material, _material_agua, _material_monarca, _material_fuego, _material_rayos][_modo()]
 	var desde := AGUA_DESDE if de_agua else DESDE
 	var baja := AGUA_BAJA if de_agua else ADENTRO_BAJA
 	_pedazos.append([mano.lerp(punta, desde) + Vector3.DOWN * baja, punta, 0.0, float(_cuenta)])
 	_cuenta += 1
-	if _cuenta % NUBE_CADA == 0:
+	if _modo() == Estilo.RAYOS:
+		if _cuenta % RAYO_CADA == 0:
+			_soltar_nube(punta + (punta - mano).normalized() * RAYO_AFUERA)
+	elif _cuenta % NUBE_CADA == 0:
 		_soltar_nube(punta.lerp(mano, 0.15) + Vector3.DOWN * NUBE_ABAJO)
 	set_process(true)
 
@@ -287,8 +437,8 @@ func _soltar_nube(donde: Vector3) -> void:
 	var i := _siguiente
 	_siguiente = (_siguiente + 1) % NUBES
 	var nube := _nubes[i]
-	nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * NUBE_TAMANO.x), donde)
-	nube.material_override = [_material_nube, _material_espuma, _material_polen, _material_chispas][_modo()]
+	nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * _tamano_nube().x), donde)
+	nube.material_override = [_material_nube, _material_espuma, _material_polen, _material_chispas, _material_rayo][_modo()]
 	nube.set_instance_shader_parameter("semilla", randf())
 	nube.set_instance_shader_parameter("edad", 0.0)
 	nube.visible = true
@@ -332,8 +482,11 @@ func _mover_nubes(delta: float) -> bool:
 			nube.visible = false
 			continue
 		hay = true
-		var tamano := lerpf(NUBE_TAMANO.x, NUBE_TAMANO.y, ease(edad, 0.4))
+		var tam := _tamano_nube()
+		var tamano := lerpf(tam.x, tam.y, ease(edad, 0.4))
+		# Los rayos no suben como el humo
+		var sube := 0.0 if _modo() == Estilo.RAYOS else NUBE_SUBE
 		nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * tamano),
-			nube.global_position + Vector3.UP * NUBE_SUBE * delta)
+			nube.global_position + Vector3.UP * sube * delta)
 		nube.set_instance_shader_parameter("edad", edad)
 	return hay
