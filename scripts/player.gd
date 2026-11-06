@@ -76,6 +76,8 @@ const SANGRE_ALTO := 0.3      # m sobre el centro del modelo
 const COLOR_SANGRE := Color(0.62, 0.02, 0.03)
 
 signal golpeado
+# Un zombi cayo a filo de espada (el machete, no a punos): la defensa del tinaco cuenta para la estela
+signal mato_con_espada
 
 const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
@@ -354,6 +356,7 @@ var _invulnerable := 0.0
 var _curando := 0.0
 var golpes := 0           # para medir el balance (MonitorDefensa)
 var golpes_pegaron := 0
+var muertes_espada := 0
 const SALTO := 3.0   # m entre dos ticks: mas que esto no es caminar
 var _pos_antes := Vector3.ZERO
 var _pos_ahora := Vector3.ZERO
@@ -605,11 +608,18 @@ func _golpear(giro := false) -> void:
 		var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, truena_en)
 		pego = pego or resultado != 0
 		mato = mato or resultado == 2
+		if resultado == 2 and con_arma:
+			_conto_espada()
 	golpes += 1
 	if pego:
 		golpes_pegaron += 1
 		_sentir_golpe(frente, fuerza, mato)
 		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
+
+
+func _conto_espada() -> void:
+	muertes_espada += 1
+	mato_con_espada.emit()
 
 
 # Ataque cargado: cada cuadro de fisica mientras cargas o giras
@@ -1080,6 +1090,8 @@ func _pegar_estocada() -> void:
 			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza, int(CONGELA_MATA * 1000.0))
 			pego = pego or resultado != 0
 			mato = mato or resultado == 2
+			if resultado == 2 and not _sin_arma():
+				_conto_espada()
 	if pego:
 		golpes_pegaron += 1
 		_sentir_golpe(_estocada_dir, fuerza, mato)

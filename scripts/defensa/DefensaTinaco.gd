@@ -78,6 +78,10 @@ const MUSICA := preload("res://audio/musica/pt_tema.mp3")
 # Lo unico que suena ademas de la musica (Sonidos.solo): el machete al cortar el aire y al
 # pegar, y la pistola
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
+# Matando a tantos con la espada en la noche se enciende la estela del protagonista (solo
+# estetica, no da dano). Mitad de los ~55 zombis que caen por noche en modo medio
+# (docs/pruebas-balance.md: machete 774 + pistola 870 de dano, vida 30)
+const ESTELA_MUERTES := 27
 const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
@@ -142,6 +146,7 @@ func _ready() -> void:
 	# La noche no corre hasta que este la barricada
 	_ciclo.process_mode = Node.PROCESS_MODE_DISABLED
 	_jugador.collision_mask |= PARED_CAPA
+	_jugador.mato_con_espada.connect(_revisar_estela)
 	_armar_paredes()
 	_armar_hud()
 	_hordas = Hordas.new()
@@ -201,12 +206,21 @@ func _ready() -> void:
 	_volumen_musica(MUSICA_VOLUMEN, MUSICA_ENTRA)
 
 
+func _revisar_estela() -> void:
+	var personaje := get_node("/root/Personaje")
+	if personaje.mejora_estela or _jugador.muertes_espada < ESTELA_MUERTES:
+		return
+	personaje.mejora_estela = true
+	ESTELA.estilo = personaje.estela()
+
+
 # Al salir (Salir, Otra noche) los demas sonidos vuelven
 func _exit_tree() -> void:
 	Sonidos.solo.clear()
 	Player.golpe_cargado = false
 	Player.giro_aereo = false
 	ESTELA.estilo = ESTELA.Estilo.NORMAL
+	get_node("/root/Personaje").mejora_estela = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
