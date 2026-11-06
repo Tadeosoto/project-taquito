@@ -172,11 +172,13 @@ func _ready() -> void:
 	_ciclo.amanecio.connect(_fin)
 	var semilla := 0
 	var capturas := ""
+	var automatica := false   # capturas o monitor: sin nadie que escoja personaje
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--semilla="):
 			semilla = int(arg.trim_prefix("--semilla="))
 		elif arg.begins_with("--capturas="):
 			capturas = arg.trim_prefix("--capturas=")
+			automatica = true
 		elif arg.begins_with("--modo="):
 			modo = arg.trim_prefix("--modo=")
 		elif arg.begins_with("--noche="):
@@ -185,6 +187,7 @@ func _ready() -> void:
 			get_node("/root/Personaje").mejora_estela = true
 			_jugador.aplicar_personaje()
 		elif arg.begins_with("--monitor="):
+			automatica = true
 			var monitor := preload("res://scripts/defensa/MonitorDefensa.gd").new()
 			monitor.name = "Monitor"
 			monitor.defensa = self
@@ -196,6 +199,8 @@ func _ready() -> void:
 	await _esperar_mapa()
 	_al_suelo()
 	_generar(semilla)
+	if not automatica:
+		await _escoger_personaje()
 	_listo = true
 	if capturas != "":
 		_capturas(capturas)
@@ -204,6 +209,25 @@ func _ready() -> void:
 	_musica.play()
 	_musica.stream_paused = _musica_apagada
 	_volumen_musica(MUSICA_VOLUMEN, MUSICA_ENTRA)
+
+
+# Antes de empezar: la pantalla de personaje de Jugar. La noche sigue sin correr (el ciclo esta
+# apagado) hasta que le das Empezar; Volver regresa al inicio
+func _escoger_personaje() -> void:
+	_jugador.detener()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var capa := CanvasLayer.new()
+	capa.layer = 20
+	add_child(capa)
+	var creador: Control = load("res://scripts/CreadorPersonaje.gd").new()
+	capa.add_child(creador)
+	creador.volver.connect(func() -> void:
+		get_tree().change_scene_to_file("res://scenes/inicio.tscn"))
+	await creador.listo
+	capa.queue_free()
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	_jugador.reanudar()
+	_jugador.aplicar_personaje()
 
 
 func _revisar_estela() -> void:
