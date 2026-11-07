@@ -74,6 +74,7 @@ Si se puede, juega una cuarta sin defender, para ver cuánto aguanta el tinaco s
 | Daño del machete reforzado | 18 (2 golpes) | `resources/productos/machete_reforzado.tres` | ¿Vale lo que cuesta conseguirlo? |
 | Daño de la pistola | 8 (4 tiros; antes 15, luego 4) | `scripts/Pistola.gd` `DANO` | JJ: la pistola debilita al grupo mientras se acerca; el machete (3 golpes) remata |
 | Cadencia, cargador y recarga | 0.22 s, 12, 1.5 s, balas infinitas | `Pistola.gd` `CADENCIA`, `CARGADOR`, `RECARGA` | ¿Las balas deben acabarse (spec §1.4)? |
+| Recarga temprana contra en seco | Temprana (R con balas): 12+1 en 1.5 s. En seco (se vació): 12 en ~1.78 s, con la corredera | `Pistola.gd` `_recargar`, `RACK_ACERCA`, largo de `pistol_cock.wav` | ¿Se nota que conviene recargar antes de vaciar? ¿Pesa demasiado la corredera en plena pelea? |
 | Ayuda al apuntar | 2.5° (antes 4°) | `Pistola.gd` `AYUDA` | ¿Demasiado fácil o difícil con el mouse? |
 | Tiro a la cabeza | ×3 (24: un zombi de 30 cae con 2 tiros) desde 1.4 m de alto | `Pistola.gd` `CABEZA_MULT`, `CABEZA_DESDE` | ¿Se le atina o es pura suerte con la dispersión? |
 | Dispersión de la pistola | 0.012 rad (0.004 apuntando) | `Pistola.gd` `DISPERSION`, `APUNTA_DISPERSION` | ¿Se siente que falla sin razón? |

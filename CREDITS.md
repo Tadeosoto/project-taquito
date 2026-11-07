@@ -135,5 +135,9 @@
 ## Fuente (`fonts/`, OFL)
 - [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), © 2021 The Pixelify Sans Project Authors, licencia SIL Open Font License 1.1 (`fonts/PixelifySans-OFL.txt`).
 
+## Sonidos (`audio/weapons/`)
+- `pistol_shot.wav`: balazo de la pistola, dominio público (CC0). Fuente: pendiente.
+- `pistol_mag_drop.wav`, `pistol_clip_insert.wav`, `pistol_cock.wav`: la recarga de la pistola, dominio público (CC0). Fuente: pendiente.
+
 ## Música (`audio/musica/`)
 - `pt_tema.mp3`: tema de la defensa del tinaco, de Juan José Rodríguez (JJ), del equipo.
