@@ -15,7 +15,7 @@ const AMARILLO := Color(1.0, 0.85, 0.1)
 const TITULO := "GUADALAJAJA"
 const SUBTITULO := "No te tomes el agua."
 const FIRMA := "Vibe coded with love"
-const OPCIONES := ["Jugar", "Pruebas", "Controles", "Créditos", "Salir"]
+const OPCIONES := ["Jugar", "Menú test", "Pruebas", "Controles", "Créditos", "Salir"]
 const TEXTO_CARGANDO := "Cargando..."
 const TEXTO_VOLVER := "Esc: volver"
 const TEXTO_CONTROLES := """Moverse:  WASD o flechas  ·  stick izquierdo
@@ -151,13 +151,16 @@ func _activar(opcion: int) -> void:
 		0:
 			_crear_personaje()
 		1:
-			# Lanzador de los tests con datos (godmode / carrera)
-			get_tree().change_scene_to_file("res://scenes/escena_pruebas.tscn")
+			# Menú principal alternativo: map test, mecánicas y economía de una
+			get_tree().change_scene_to_file("res://scenes/menu_test.tscn")
 		2:
-			_abrir(Pantalla.CONTROLES)
+			# Lanzador completo de los tests (dificultad, duración, config, carpeta)
+			get_tree().change_scene_to_file("res://scenes/escena_pruebas.tscn")
 		3:
-			_abrir(Pantalla.CREDITOS)
+			_abrir(Pantalla.CONTROLES)
 		4:
+			_abrir(Pantalla.CREDITOS)
+		5:
 			get_tree().quit()
 
 
