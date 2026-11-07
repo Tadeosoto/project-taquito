@@ -87,7 +87,7 @@ F12 reiniciar todo · F10 ir al mapa"""},
 7 cargado: deja apretado y suelta = tajo, 2.5x
 6 en el aire: giro; con Shift, clavado (prueba)
 Shift+1 2 3 maquinita: normal, sin monedas, segura"""},
-	{"titulo": "Zombis", "efectos": true, "texto": """Z zombi · B turba (Shift+B: borrar la libreta) · X quitar · F8 jefe
+	{"titulo": "Zombis", "efectos": true, "texto": """Z zombi · B turba (Ctrl+B: llenar la libreta, Shift+B: borrarla) · X quitar · F8 jefe
 T zombis solos de noche
 0 caminan en enjambre / en fila como antes
 G tablas · L -100 al tinaco (refugio a la derecha)
@@ -409,8 +409,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_inventario.items.clear()
 			_inventario.inventory_changed.emit()
 		KEY_B:
-			# Shift+B: olvidar la libreta del Nocturno (para volver a descubrir las paginas)
-			if event.shift_pressed:
+			# Ctrl+B: llenar la libreta del Nocturno; Shift+B: olvidarla (para volver a descubrirla)
+			if event.ctrl_pressed:
+				get_node("/root/Libreta").llenar()
+			elif event.shift_pressed:
 				get_node("/root/Libreta").olvidar()
 			else:
 				_zombis.aparecer_turba(TURBA_PRUEBA)

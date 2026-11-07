@@ -115,6 +115,15 @@ func _guardar() -> void:
 	cfg.save(ARCHIVO)
 
 
+# Para probar: todas las paginas completas, sin avisos (safehouse, Ctrl+B)
+func llenar() -> void:
+	for e in LibretaEntradas.ENTRADAS:
+		niveles[e.id] = LibretaEntradas.NIVEL_MATADO
+		sin_leer[e.id] = true
+	_guardar()
+	nueva_nota.emit("", LibretaEntradas.NIVEL_MATADO)
+
+
 # Para probar: olvidar todo (safehouse)
 func olvidar() -> void:
 	niveles.clear()

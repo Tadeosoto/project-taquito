@@ -197,7 +197,7 @@ A boss built on the Hitman ragdoll trick: Verlet dots joined by distance constra
 
 An in-game guidebook in El Nocturno's own voice (informal Spanish, a bit of dark humor). Opened from the open inventory with **B** / gamepad **RB** (`inventory_guide`; `InventoryUI` state `LIBRETA`; the hint shows "B: Libreta!" with unread notes).
 - **`Libreta` autoload** (`scripts/Libreta.gd`): per entry a level, 0 unknown / 1 seen / 2 fought / 3 killed (`ver`/`pelear`/`matar`), plus kill counts and unread flags.
-  - Saved forever in `user://libreta.cfg`; not cleared on restart. Shift+B in the safehouse forgets it.
+  - Saved forever in `user://libreta.cfg`; not cleared on restart. In the safehouse Ctrl+B fills every page (`llenar`) and Shift+B forgets it.
   - A level-up shows a paper toast ("Nueva nota en la libreta...") with the generated `lapiz` sound.
   - Callers use `get_node_or_null("/root/Libreta")`.
 - **Entries** (`scripts/LibretaEntradas.gd`, static): `zombi`, `cazador`, `infectado`, `gordo`, `jefe`, `crias`, `madre`, `remedios`.
