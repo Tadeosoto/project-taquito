@@ -305,6 +305,8 @@ func reiniciar() -> void:
 	_terminada = false
 	_ciclo.retener_noche = false
 	_refugio.reiniciar()
+	# El botin que quedo tirado (CajaBotin.gd)
+	get_tree().call_group("botin", "queue_free")
 
 
 func _armar_pantalla() -> void:

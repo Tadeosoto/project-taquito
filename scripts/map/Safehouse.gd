@@ -71,10 +71,11 @@ const CHATARRA_EN := [Vector3(17.0, 0.0, 6.0), Vector3(19.5, 0.0, 6.0)]
 const MATERIALES_PRUEBA := 5   # de cada material comun y especial con Shift+P
 const CANGURERA := "res://resources/productos/cangurera.tres"
 const YONKE_EN := Vector3(-36.0, 0.0, 14.0)
+const BOTIN_DISTANCIA := 5.0   # m enfrente a los que salen las cajitas con Shift+B
 const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 oculta esto)
 Tab inventario · clic o F pegar · V dron
 N siguiente atardecer/amanecer
-Z zombi · B turba · X quitar zombis · T zombis solos de noche
+Z zombi · B turba · Shift+B cajitas de botín · X quitar zombis · T zombis solos de noche
 H curar · J -%d de vida · P +$100 · Y vaciar inventario y quitar cangurera
 G tablas · L -100 al tinaco (refugio a la derecha)
 M mapa (sin piezas se ve vacío) · U todas las piezas
@@ -398,6 +399,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			_inventario.vaciar()
 			_inventario.cangurera = null
 			_inventario.inventory_changed.emit()
+		KEY_B when event.shift_pressed:
+			# Una cajita de cada color y monedas, enfrente (CajaBotin.gd)
+			var frente := -_jugador.frijol.global_transform.basis.z
+			frente.y = 0.0
+			CajaBotin.soltar(self, _jugador.global_position + frente.normalized() * BOTIN_DISTANCIA + Vector3.UP,
+				{"rebaba": 1, "tuerca": 1, "engrane": 1, "varilla_corta": 1}, 6)
 		KEY_B:
 			_zombis.aparecer_turba(TURBA_PRUEBA)
 		KEY_U:

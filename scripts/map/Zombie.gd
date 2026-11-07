@@ -588,20 +588,18 @@ func _morir(pagado: bool, truena_en := 0) -> void:
 		_ceniza = true
 	murio.emit()
 	if pagado:
-		var cartera := get_node_or_null("/root/Cartera")
-		if cartera:
-			# Bolsillos (Tazos.gd): unos pesos de mas
-			var tazos := get_node_or_null("/root/Tazos")
-			# y los amuletos de pesos (Bonos.gd)
-			var bonos := get_node_or_null("/root/Bonos")
-			var paga: int = randi_range(PESOS.x, PESOS.y) + (tazos.pesos_extra() if tazos else 0)
-			cartera.pesos += roundi(paga * (bonos.factor_pesos() if bonos else 1.0))
+		# Bolsillos (Tazos.gd): unos pesos de mas
+		var tazos := get_node_or_null("/root/Tazos")
+		# y los amuletos de pesos (Bonos.gd)
+		var bonos := get_node_or_null("/root/Bonos")
+		var paga: int = randi_range(PESOS.x, PESOS.y) + (tazos.pesos_extra() if tazos else 0)
+		paga = roundi(paga * (bonos.factor_pesos() if bonos else 1.0))
 		# Materiales para el taller (Tiliches.gd): mejores de noche, en zonas feas y de cazadores
-		var tiliches := get_node_or_null("/root/Tiliches")
-		if tiliches:
-			var ciclo := get_tree().get_first_node_in_group("ciclo")
-			var de_noche: bool = ciclo != null and ciclo.es_noche()
-			tiliches.dar_varios(Materiales.botin(Deterioro.zona(global_position.x, global_position.z), de_noche, cazador or es_jefe))
+		var ciclo := get_tree().get_first_node_in_group("ciclo")
+		var de_noche: bool = ciclo != null and ciclo.es_noche()
+		var botin := Materiales.botin(Deterioro.zona(global_position.x, global_position.z), de_noche, cazador or es_jefe)
+		# Salen brincando en cajitas y monedas que se te juntan (CajaBotin.gd)
+		CajaBotin.soltar(get_parent(), global_position + Vector3.UP * PECHO * _tamano, botin, paga, 2.0 if es_jefe else 1.0)
 		# Las hazanas del taller (Hazanas.gd): cazador, turba, fuego, jefe...
 		get_tree().call_group("hazanas", "zombi_muerto", self, _quema > 0.0)
 

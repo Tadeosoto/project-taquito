@@ -134,6 +134,11 @@ Kingdom Hearts 1-style synthesis with this world's own items.
   - Icons are drawn by `godot --path . --headless -s tools/taller/iconos.gd`.
 - **Where materials come from:**
   - `Zombie._morir` drops by zone `Deterioro`, night and hunter.
+    - KH-style loot (AG's proposal): `scripts/map/CajaBotin.gd` (`CajaBotin.soltar`) turns the drop into one bouncing box per material, coloured by tier: Suelto purple/gold, Bueno red/silver, Fino blue/white, especial green. The kill's pesos (with Bolsillos and `Bonos`) come out as 1-3 coins.
+    - After 0.35 s of game time they fly to a player within 4 m (Imán: `Habilidades.IMAN_RADIO`) and are collected with the generated `botin` chime and the `recoger` sheet.
+    - Material boxes never fly in without a cangurera; they stay and warn. They last 30 s, at most 24 boxes plus 24 coins.
+    - Meshes, the one unshaded vertex-colour material and the GPUParticles3D sparkle materials are all `static var`, shared by every box.
+    - Group `botin`, cleared by `Partida.reiniciar`. Shift+B in the safehouse drops a test set.
   - `Chatarra.gd` piles beside posts (`Partida._poner_chatarra`), and Alambrón piles in front of obra negra houses (`Partida._poner_obras`, using `MapCasas.es_obra_negra`, a static function called through a preload because MapCasas has no class_name); two of those also hold blueprints.
   - Plata de Taxco is sold at el punto (`InventoryItemData.material`: a bought or picked-up item goes to the Tiliches).
 - **Trophies:** `scripts/map/Hazanas.gd` (created by Partida, group `hazanas`; `Zombie._morir` calls `zombi_muerto`) gives them at most once per night:

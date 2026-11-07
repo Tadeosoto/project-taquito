@@ -93,7 +93,28 @@ static func sonido(nombre: String) -> AudioStreamWAV:
 				_sonidos[nombre] = _zumbido()
 			"boom":
 				_sonidos[nombre] = _boom()
+			# Recoger una cajita de botin o una moneda (CajaBotin.gd)
+			"botin":
+				_sonidos[nombre] = _botin()
 	return _sonidos[nombre]
+
+
+# Campanita de arcade: dos notas cuadradas que suben, la segunda con mas cola
+static func _botin() -> AudioStreamWAV:
+	var notas := [[1318.5, 0.0, 0.05], [1975.5, 0.045, 0.16]]   # Mi6 y Si6: hz, desde s, dura s
+	var salida := PackedFloat32Array()
+	salida.resize(int(0.22 * MUESTRAS))
+	for nota: Array in notas:
+		var inicio := int(nota[1] * MUESTRAS)
+		var cuantas := int(nota[2] * MUESTRAS)
+		var fase := 0.0
+		for i in cuantas:
+			if inicio + i >= salida.size():
+				break
+			var t := float(i) / cuantas
+			fase += nota[0] / MUESTRAS
+			salida[inicio + i] += (1.0 if fmod(fase, 1.0) < 0.5 else -1.0) * 0.28 * pow(1.0 - t, 1.5)
+	return _a_wav(salida)
 
 
 # Toca `nombre` una vez colgado de `donde` y se borra al terminar. Suena aunque el
