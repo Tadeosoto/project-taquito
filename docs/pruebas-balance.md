@@ -38,7 +38,11 @@ Fuera de Hyprland puedes quitar `--display-driver wayland`. La consola imprime e
 | **Medio** (`medio`) | Los mismos grupos, pero el último trae 9. El siguiente sale a los 20 s aunque no hayas acabado, y los corredores entran todos por el hueco más cercano. De las 3:00 en adelante se juntan unos 8 | Ganar curándote a tiempo con Q. JJ ganó dos veces: una con el tinaco al 61 % y otra al 4 % |
 | **Difícil** (`dificil`) | Como el medio, con grupos 1.3 veces más grandes (hasta 12 a las 5:00) | No se ha jugado. Es para saber cuánto falta para que pida mejores armas: anota a qué hora pierdes y por qué (te desmayaste o rompieron el tinaco) |
 
-Para medir la partida, agrega `--monitor=<carpeta>` (por ejemplo `-- --modo=dificil --monitor=partida_dificil`). Al amanecer deja `resumen.txt` en esa carpeta: pégalo en la tabla de resultados de abajo, con el nivel que jugaste.
+**Noches encadenadas.** Al amanecer ya no se acaba: sale el menú de ganaste con **Siguiente · Cambiar personaje · Salir**. Siguiente empieza la noche siguiente en la misma escena (sin recargar ni volver a elegir personaje) con la vida, el tinaco y las provisiones llenos; el dinero, el inventario y el personaje se quedan. Cada noche es más difícil: los grupos del modo crecen ×1.25 por noche (`DIFICULTAD_POR_NOCHE`) y el zombi pega +1, hasta 12 (`DANO_POR_NOCHE`, `DANO_TOPE`). La consola imprime `Noche N: grupos x..., zombi pega ...` y el HUD dice `Noche N`; el menú de ganar adelanta la dificultad de la siguiente. En `medio` la cosa se pone imposible alrededor de la noche 6-7, cuando los grupos llegan al tope de 40 zombis. Si te desmayas o rompen el tinaco, el menú deja **Reintentar la noche** (misma noche, misma dificultad, todo lleno), **Cambiar personaje** o **Salir**. La barricada es la misma durante la carrera; G la vuelve a armar.
+
+Para probar el bucle rápido, acorta cada noche: `godot --display-driver wayland --path . scenes/defensa_tinaco.tscn -- --noche=60 --modo=facil`.
+
+Para medir la partida, agrega `--monitor=<carpeta>` (por ejemplo `-- --modo=dificil --monitor=partida_dificil`). Al amanecer deja `resumen.txt` en esa carpeta: pégalo en la tabla de resultados de abajo, con el nivel que jugaste. Ojo: el monitor mide solo la **primera** noche de la sesión; si sigues con Siguiente, ya no escribe otra.
 
 **Atajos**
 
@@ -53,11 +57,15 @@ Para medir la partida, agrega `--monitor=<carpeta>` (por ejemplo `-- --modo=difi
 
 Si se puede, juega una cuarta sin defender, para ver cuánto aguanta el tinaco solo (con la barricada de la semilla N, en la prueba acelerada cayó como a las 23:20).
 
+Y si puedes, juega la carrera completa hasta perder: anota en qué noche te desmayaste o te rompieron el tinaco, y si el salto de dificultad de las noches 2-4 se siente justo o se vuelve imposible de golpe.
+
 **Qué anotar en cada noche**
 
 - La semilla de la barricada.
 - La hora a la que cayó el tinaco, o cuánta vida le quedó al amanecer.
 - Cuántas veces te desmayaste.
+- En qué noche perdiste y si el salto de dificultad se sintió justo.
+- Si al dar Siguiente o Reintentar quedó todo bien: vida, tinaco y provisiones llenos, sin zombis de la noche anterior y sin el negro del desmayo.
 - En qué oleada se puso imposible y en cuál se aburrió.
 - Cuántos golpes o tiros mata a un zombi, y si se siente bien.
 - Si los corredores de las 3:00 se ven y se sienten distintos.
@@ -84,7 +92,8 @@ Si se puede, juega una cuarta sin defender, para ver cuánto aguanta el tinaco s
 | Curarse con Q | 0.8 s quieto; 5 curaciones (y la mochila escolar) al empezar la defensa | `player.gd` `CURAR_DURA`; `DefensaTinaco.gd` `PROVISIONES` | ¿Se puede curar a media pelea o te matan? |
 | Vida del zombi | 30 | `scripts/map/Zombie.gd` `VIDA` | |
 | Velocidad del zombi | 3-5 m/s (corredores más rápidos) | `Zombie.gd` `VELOCIDAD`; `cazador` | El jugador camina a 10 m/s en el mapa, más rápido que todos |
-| Daño del zombi al jugador | 12 en el mapa; 6 en la defensa | `Zombie.gd` `DANO`; en la defensa `dano_jugador` del nodo Zombis | Con 12 te desmayabas antes de la 1:00 (ver Resultados) |
+| Daño del zombi al jugador | 12 en el mapa; 6 en la defensa, +1 por noche hasta 12 | `Zombie.gd` `DANO`; en la defensa `dano_jugador` del nodo Zombis y `DefensaTinaco.gd` `DANO_POR_NOCHE`/`DANO_TOPE` | Con 12 te desmayabas antes de la 1:00 (ver Resultados) |
+| Dificultad de cada noche | grupos ×1.25 por noche; daño +1 hasta 12 | `DefensaTinaco.gd` `DIFICULTAD_POR_NOCHE`, `DANO_POR_NOCHE`, `DANO_TOPE` | ¿Se llega a la noche 5-6 con vida? ¿La derrota se siente justa o llega de golpe? |
 | Ritmo de ataque del zombi | 1.5 s; alcance 1.5 m | `Zombie.gd` `ATAQUE_DURA`, `ALCANCE` | |
 | Vida del tinaco | 300; cada zombi le quita 2/s | `scripts/defensa/TinacoDefensa.gd` `VIDA` | El doc dice 100, pero con 100 una horda lo rompía en segundos |
 | Grupos de la horda | 3 a las 22:00, 4 a las 23:00, 7 a medianoche (dos lados), 5-7 en la madrugada (corredores a las 3:00), 6 a las 4:00 y 7 a las 5:00 (con 9 se atascaba); nada después de las 5:30 | `scripts/defensa/Hordas.gd` `GRUPOS` | ¿Da tiempo de disparar mientras se acercan? |

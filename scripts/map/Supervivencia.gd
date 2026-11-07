@@ -60,6 +60,9 @@ var _impacto_material: ShaderMaterial
 var _impacto_desde := 0
 var _vida_antes := 0
 var _desmayado := false
+# Cambia al rearmar la noche (defensa del tinaco): una corrutina de desmayo que se quedo a
+# medias no debe disparar despues la pantalla de derrota ni volver a poner el negro
+var _noche_token := 0
 var _flash: ColorRect
 var _orillas: ColorRect
 var _negro: ColorRect
@@ -230,7 +233,11 @@ func _desmayarse() -> void:
 	_jugador.detener()
 	_jugador.caer()
 	if desmayo_final.is_valid():
+		var token := _noche_token
 		await _apagar()
+		# Se rearmo la noche mientras se apagaba la tele: ya no se pierde
+		if token != _noche_token:
+			return
 		# Que "Otra vez" no empiece desmayado (Salud es autoload)
 		_salud.vida = VIDA_AL_DESPERTAR
 		desmayo_final.call()
@@ -259,12 +266,32 @@ func _desmayarse() -> void:
 	_desmayado = false
 
 
+# Rearma el desmayo para reintentar la noche (la defensa del tinaco): se puede volver a
+# caer, y no queda el negro, el aviso ni el impacto de la noche anterior. El token corta
+# cualquier desmayo que se haya quedado a medias
+func rearmar_noche() -> void:
+	_noche_token += 1
+	_desmayado = false
+	_impacto.visible = false
+	_impacto_desde = 0
+	_negro.color.a = 0.0
+	_centro.modulate.a = 0.0
+	_flash.color.a = 0.0
+	_goteo = 0.0
+	if _aviso_tween and _aviso_tween.is_valid():
+		_aviso_tween.kill()
+	_aviso.modulate.a = 0.0
+	_vida_antes = _salud.vida
+
+
 # La imagen se aprieta en una raya y se apaga como tele vieja; sin efectos, se funde a negro
 func _apagar() -> void:
+	var token := _noche_token
 	var efectos := _efectos()
 	if efectos:
 		await efectos.pantalla("desmayo", 0.0, DESMAYO_APAGA)
-		_negro.color.a = 1.0
+		if token == _noche_token:
+			_negro.color.a = 1.0
 	else:
 		var tween := create_tween()
 		tween.tween_property(_negro, "color:a", 1.0, FUNDIDO)

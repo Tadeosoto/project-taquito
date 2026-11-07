@@ -52,9 +52,11 @@
 
 En la prueba ya no hay pausas largas entre oleadas (comentarios de Alan y JJ, 2026-11-03). Salen grupos de un mismo lado que tardan unos 10 s en llegar: ese rato es de la pistola, y al llegar se acaban con el machete. El siguiente sale cuando del anterior queda uno, así llega mientras terminas. Los grupos crecen con la hora: el más grande a medianoche, corredores a las 3:00 y el último a las 5:00 (`scripts/defensa/Hordas.gd`, `GRUPOS`). Por dónde vienen no se avisa con texto.
 
+En la escena de prueba las noches se **encadenan**: al amanecer el menú deja **Siguiente** (la siguiente, más difícil), **Cambiar personaje** o **Salir**, y al desmayarte o romperse el tinaco puedes **reintentar esa misma noche**. La misión de diseño sigue siendo una noche; la escalada es para probar el bucle en la prueba (`docs/pruebas-balance.md`).
+
 ### Si te desmayas
 
-Desmayarte **acaba la misión**, sin paga, igual que si rompen el tinaco (decisión de JJ, 2026-11-03). Alan propuso arrastrarse por el piso y revivir con un caldo de camarón o una torta ahogada, perdiendo vida máxima en cada reanimación, pensando en un coop donde los jugadores se revivan entre sí. Queda pendiente para el coop: ahí, el que se desmaya sale de la misión y espera a ver si sus compañeros aguantan.
+Desmayarte **acaba la misión**, sin paga, igual que si rompen el tinaco (decisión de JJ, 2026-11-03). En la prueba se puede reintentar esa misma noche desde el menú. Alan propuso arrastrarse por el piso y revivir con un caldo de camarón o una torta ahogada, perdiendo vida máxima en cada reanimación, pensando en un coop donde los jugadores se revivan entre sí. Queda pendiente para el coop: ahí, el que se desmaya sale de la misión y espera a ver si sus compañeros aguantan.
 
 ### El tinaco
 
