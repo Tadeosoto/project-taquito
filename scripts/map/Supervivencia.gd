@@ -11,6 +11,11 @@ const VIDA_AL_DESPERTAR := 50
 const FUNDIDO := 1.0
 const NEGRO_DURA := 2.0
 const POCA_VIDA := 0.35   # fraccion de la vida con la que se pintan las orillas
+# Aviso de curarse al llegar a esta fraccion de vida. Se vuelve a poder avisar hasta
+# recuperarse por arriba de AVISO_CURATE_VUELVE, para que no salga a cada golpe
+const AVISO_CURATE_EN := 0.25
+const AVISO_CURATE_VUELVE := 0.3
+const TEXTO_CURATE := "Cúrate wey"
 const LIMPIO_AL_REGRESAR := 20.0   # m alrededor de donde reapareces sin zombis; los demas siguen
 const TEXTO_AVISO := "Ya va a oscurecer..."
 const TEXTO_NOCHE := "Ya salieron."
@@ -72,6 +77,7 @@ var _centro: Label
 var _voz: AudioStreamPlayer
 var _aviso_tween: Tween
 var _goteo := 0.0
+var _curate_avisado := false   # ya salio el "Cúrate wey" en esta bajada de vida
 
 
 func _ready() -> void:
@@ -204,6 +210,13 @@ func _cambio_vida() -> void:
 		_flash.color.a = 0.25
 		create_tween().tween_property(_flash, "color:a", 0.0, 0.35)
 	_vida_antes = vida
+	# Al llegar a 25 % de vida: "Cúrate wey". Una vez por bajada; se rearma al recuperarse
+	var fraccion := float(vida) / maxf(float(_salud.vida_max), 1.0)
+	if vida > 0 and fraccion <= AVISO_CURATE_EN and not _curate_avisado:
+		_curate_avisado = true
+		_avisar(TEXTO_CURATE)
+	elif fraccion > AVISO_CURATE_VUELVE:
+		_curate_avisado = false
 	if vida <= 0 and not _desmayado:
 		if _segundo_aire():
 			return
@@ -272,6 +285,7 @@ func _desmayarse() -> void:
 func rearmar_noche() -> void:
 	_noche_token += 1
 	_desmayado = false
+	_curate_avisado = false
 	_impacto.visible = false
 	_impacto_desde = 0
 	_negro.color.a = 0.0

@@ -2,6 +2,13 @@
 
 Rama: `golpe-direccion`. Hasta ahora los números se pusieron a ojo, solo para que la escena funcione. Falta jugarla para decidir cuánto vale cada cosa. Esta guía es para quien haga la prueba (Alan, para empezar).
 
+> **Nuevo (2026-11): dos escenarios de prueba con datos.** Ya no hay que correr comandos para probar: en el menú, **Inicio → Pruebas** abre el lanzador con **Mecánicas (godmode)** y **Economía (carrera)**, la dificultad, la duración, la config de enemigos y el botón para abrir la carpeta de datos. Los dos usan **la misma defensa** (arena, zombis, Hordas, tinaco, ítems y estética): lo que cambies allí entra en los dos.
+>
+> - **Mecánicas (godmode):** una sola noche de la defensa directa, todo el catálogo de mejoras al máximo e **ítems infinitos**. El reporte principal es **por oleada**: qué ataques, mecánicas e ítems se usaron y qué rindieron en **calma / medio / estrés**.
+> - **Economía (carrera):** el refugio (safehouse en modo carrera) con **todas las tiendas físicas** y el **punto de mejoras**; compras con pesos, corres la noche y vuelves al refugio. Ganar paga $150; perder da $75 más de lo que tenías al empezar esa noche y reintentas la misma. Vida llena al empezar cada noche; sin drops de zombis.
+>
+> El log se escribe solo en `user://pruebas/<fecha_hora>/` (o en la carpeta de `--monitor=<carpeta>`). Abajo están los archivos y qué mide cada uno.
+
 ## Cómo correr la prueba
 
 ```bash
@@ -38,11 +45,25 @@ Fuera de Hyprland puedes quitar `--display-driver wayland`. La consola imprime e
 | **Medio** (`medio`) | Los mismos grupos, pero el último trae 9. El siguiente sale a los 20 s aunque no hayas acabado, y los corredores entran todos por el hueco más cercano. De las 3:00 en adelante se juntan unos 8 | Ganar curándote a tiempo con Q. JJ ganó dos veces: una con el tinaco al 61 % y otra al 4 % |
 | **Difícil** (`dificil`) | Como el medio, con grupos 1.3 veces más grandes (hasta 12 a las 5:00) | No se ha jugado. Es para saber cuánto falta para que pida mejores armas: anota a qué hora pierdes y por qué (te desmayaste o rompieron el tinaco) |
 
-**Noches encadenadas.** Al amanecer ya no se acaba: sale el menú de ganaste con **Siguiente · Cambiar personaje · Salir**. Siguiente empieza la noche siguiente en la misma escena (sin recargar ni volver a elegir personaje) con la vida, el tinaco y las provisiones llenos; el dinero, el inventario y el personaje se quedan. Cada noche es más difícil: los grupos del modo crecen ×1.25 por noche (`DIFICULTAD_POR_NOCHE`) y el zombi pega +1, hasta 12 (`DANO_POR_NOCHE`, `DANO_TOPE`). La consola imprime `Noche N: grupos x..., zombi pega ...` y el HUD dice `Noche N`; el menú de ganar adelanta la dificultad de la siguiente. En `medio` la cosa se pone imposible alrededor de la noche 6-7, cuando los grupos llegan al tope de 40 zombis. Si te desmayas o rompen el tinaco, el menú deja **Reintentar la noche** (misma noche, misma dificultad, todo lleno), **Cambiar personaje** o **Salir**. La barricada es la misma durante la carrera; G la vuelve a armar.
+**Noches encadenadas (carrera).** Al amanecer sale el menú: **Siguiente** vuelve al refugio con la noche adelantada y **Reintentar la noche** (si perdiste) vuelve con la misma noche y la ayuda. En el refugio compras en las tiendas y en el punto de mejoras, y la **flecha amarilla** inicia la noche. Cada noche la dificultad sube: los grupos del modo crecen ×1.25 por noche (`DIFICULTAD_POR_NOCHE`) y el zombi pega +1, hasta 12 (`DANO_POR_NOCHE`, `DANO_TOPE`); la consola imprime `Noche N: grupos x..., zombi pega ...`. La vida se llena al empezar cada noche; las curas se compran para usarlas durante la noche. El dinero es la única moneda: no hay drops de zombis, tazos ni recursos en estos tests.
 
-Para probar el bucle rápido, acorta cada noche: `godot --display-driver wayland --path . scenes/defensa_tinaco.tscn -- --noche=60 --modo=facil`.
+- **Paga:** $150 por noche ganada. **Ayuda al perder:** $75 más de lo que tenías al empezar esa noche (`Cartera.pesos = pesos_al_empezar + BONO`). Se repite en cada intento perdido; es una subvención para ver qué faltaba.
+- **Precios en pesos:** los productos que en el juego cuestan AGUA se convierten con `AGUA_A_PESOS = 50` en el refugio. Los precios del punto están en `scripts/Mejoras.gd`.
+- **Creador:** no sale solo; **C** en el refugio (o en el godmode directo) abre el creador. Las mejoras de complexión/altura quedan para después; la tienda vende habilidades y stats.
 
-Para medir la partida, agrega `--monitor=<carpeta>` (por ejemplo `-- --modo=dificil --monitor=partida_dificil`). Al amanecer deja `resumen.txt` en esa carpeta: pégalo en la tabla de resultados de abajo, con el nivel que jugaste. Ojo: el monitor mide solo la **primera** noche de la sesión; si sigues con Siguiente, ya no escribe otra.
+Para probar el bucle rápido, en el lanzador elige **Duración corta** o corre con `-- --noche=60`: `godot --display-driver wayland --path . scenes/defensa_tinaco.tscn -- --noche=60 --modo=facil` (godmode directo) o `godot --display-driver wayland --path . scenes/escena_carrera.tscn` (refugio de la carrera).
+
+**Datos que se escriben solos.** En `user://pruebas/<fecha_hora>/` (o con `--monitor=<carpeta>`):
+
+- `noche_N/olas_noche_N.csv`: una fila por oleada con modo, hora, tamaño, vivos/intensidad máximos, bucket (`calma`/`medio`/`estres`), vida mínima, tinaco perdido y el detalle de ataques/mecánicas/ítems/enemigos de esa oleada. `resumen_ola_N.txt` lo pone legible.
+- `noche_N/zombis_noche_N.csv`: por tipo/rol, su vida, daño, velocidad, ataque/alcance, spawns, muertes, TTK, golpes para matar, daño al jugador y al tinaco, ataques/pegaron, cadencia real y daño recibido por ataque del jugador.
+- `noche_N/ataques_noche_N.csv`: por ataque (`combo_a`, `combo_b`, `tajo`, `estocada`, `giro`, `jab`, `cross`, `hook`, `pistola`, `pistola_cabeza`), usos, golpes, daño y muertes.
+- `noche_N/items_noche_N.csv`: por ítem, usos, vida curada y **usos de supervivencia** (vida ≤ 25 %). En el godmode los ítems son infinitos, pero cada uso cuenta.
+- `noche_N/config.txt`: la config efectiva de enemigos, dificultad, duración, daño efectivo del zombi y vida del tinaco, para comparar corridas A/B.
+- `noche_N/resumen_noche_N.txt` y, si usas `--monitor`, `monitor.csv`/`resumen.txt` con las muestras de 5 s.
+- `compras.csv` (en la carpeta de la sesión): tienda, producto, precio y noche; en el punto, la mejora comprada y su nivel.
+
+**Enemigos.** La config vive en `resources/zombis/balance_enemigos.tres` (`ConfigZombis`): vida, daño, velocidad, ataque/alcance, cazador, gordo y jefe. El lanzador muestra el resumen. Cambia el `.tres` (o los valores de `Zombie.gd` que no están ahí), corre los dos tests y compara: el `config.txt` guarda lo que se usó y `zombis_noche_N.csv` cómo rindió cada tipo. El daño efectivo del zombi de la defensa sigue saliendo de `Zombis.dano_jugador` de la escena y el log lo anota.
 
 **Atajos**
 

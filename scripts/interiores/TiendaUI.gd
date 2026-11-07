@@ -102,6 +102,11 @@ func mostrar(producto: InventoryItemData, factor := 1.0) -> void:
 	_nombre.text = producto.item_name.to_upper()
 	_efecto.text = producto.efecto
 	_descripcion.text = producto.description
+	var pruebas := get_node_or_null("/root/Pruebas")
+	if pruebas and pruebas.es_carrera():
+		_precio.text = "$%d" % roundi(pruebas.precio_pesos(producto) * factor)
+		_precio.add_theme_color_override("font_color", Color.WHITE)
+		return
 	if producto.moneda == 1:
 		_precio.text = "%d AGUA" % producto.precio
 		_precio.add_theme_color_override("font_color", AGUA)

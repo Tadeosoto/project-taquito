@@ -48,6 +48,12 @@ const RESTOS_LANZA := 1.2     # m que caen los restos hacia donde iba el golpe
 @export var max_total := MAX_TOTAL
 # Lo que le quita cada golpe al jugador (Zombie.DANO); la defensa le baja. El jefe no cambia
 @export var dano_jugador := Zombie.DANO
+# Mandos de diseno de los enemigos (vida, dano base, velocidad, cadencia, alcance). Si no se
+# asigna, se carga resources/zombis/balance_enemigos.tres; cambiarlo afecta a los dos tests y
+# al mapa, y Registro guarda una copia efectiva en cada noche.
+@export var config: Resource
+# Los tests de economia/mecanicas no pagan pesos por zombi (todo se compra con la paga)
+@export var paga_muertes := true
 # Defensa del tinaco: cuantos van por el tinaco a la vez; los de mas salen por el jugador
 # (Zombie.por_jugador, Hordas.gd). 0 = sin tope
 @export var cupo_tinaco := 0
@@ -93,6 +99,8 @@ var turbas_noche := 0
 
 
 func _ready() -> void:
+	if config == null:
+		config = load("res://resources/zombis/balance_enemigos.tres")
 	# Pistola busca aqui al Director (la mira se abre con la intensidad)
 	add_to_group("zombis_mando")
 	_jugador = get_node(jugador_path) as Player

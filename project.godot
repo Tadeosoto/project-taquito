@@ -24,6 +24,9 @@ PiezasMapa="*res://scripts/PiezasMapa.gd"
 Misiones="*res://scripts/Misiones.gd"
 Personaje="*res://scripts/Personaje.gd"
 Tazos="*res://scripts/Tazos.gd"
+Pruebas="*res://scripts/Pruebas.gd"
+Mejoras="*res://scripts/Mejoras.gd"
+Registro="*res://scripts/Registro.gd"
 
 [display]
 

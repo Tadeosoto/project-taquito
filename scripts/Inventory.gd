@@ -12,6 +12,8 @@ const CAPACIDAD_BASE := 6
 
 # La mochila que traes puesta; no ocupa lugar. null = sin mochila
 var mochila: InventoryItemData = null
+# Godmode de los tests: no se gasta lo que se usa y no hay tope de capacidad
+static var infinito := false
 
 # Lista de items que el jugador tiene.
 # Empieza limpia.
@@ -107,10 +109,27 @@ func usar_curacion(index: int) -> int:
 		return 0
 	var salud := get_node("/root/Salud")
 	var tazos := get_node_or_null("/root/Tazos")
+	var mejoras := get_node_or_null("/root/Mejoras")
 	var antes: int = salud.vida
-	salud.vida += roundi(item.curacion * (tazos.factor_curacion() if tazos else 1.0))
-	remove_item(index)
-	return salud.vida - antes
+	var factor: float = (tazos.factor_curacion() if tazos else 1.0) * (mejoras.factor_curacion() if mejoras and mejoras.activo else 1.0)
+	salud.vida += roundi(item.curacion * factor)
+	var curado: int = salud.vida - antes
+	var registro = get_node_or_null("/root/Registro")
+	if registro:
+		registro.item(item.item_name, curado, antes, salud.vida_max)
+	if not infinito:
+		remove_item(index)
+	return curado
+
+
+# Godmode: todos los productos del catalogo, infinitos (el tope de `lleno` esta apagado)
+func dar_todos_los_productos() -> void:
+	for archivo in ResourceLoader.list_directory("res://resources/productos/"):
+		if archivo.ends_with(".tres"):
+			var item := load("res://resources/productos/" + archivo) as InventoryItemData
+			if item:
+				add_item(item)
+	inventory_changed.emit()
 
 
 # Lo que cabe: la mochila (o CAPACIDAD_BASE) mas los lugares de la habilidad Mochilero
@@ -126,7 +145,7 @@ func capacidad_mochila() -> int:
 
 # Si bajas Mochilero con todo lleno no se tira nada: solo no cabe nada nuevo hasta que hagas lugar
 func esta_lleno() -> bool:
-	return items.size() >= capacidad()
+	return not infinito and items.size() >= capacidad()
 
 
 # Una mochila solo sirve si es mas grande que la que traes; la vieja se tira.

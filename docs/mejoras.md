@@ -6,6 +6,8 @@ Leyenda (la misma de `especificaciones.md`): ✅ decidido · 💡 propuesta · �
 
 Pedido de JJ (2026-11-06): el jugador empieza solo con el combo de dos machetazos; el golpe cargado, el golpe giratorio, bloquear y rodar se aprenden; la velocidad de ataque se mejora. Las mejoras de la pistola y las pastillas con *buffs* se discuten después.
 
+> **🧪 Ya hay un banco de pruebas para esta economía (2026-11).** `scenes/escena_carrera.tscn` es el refugio mini (safehouse en modo carrera) con todas las tiendas físicas y una tienda de mejoras tipo **"punto"**; se compra **solo con pesos** y cada noche se mide con `Registro` (ataques, mecánicas, ítems, enemigos y oleadas) en `user://pruebas/`. El catálogo de mejoras está en `scripts/Mejoras.gd` y se probó contra la defensa compartida; el **godmode** (`scenes/defensa_tinaco.tscn` directo) pone el mismo catálogo al máximo con ítems infinitos. Los movimientos que hoy son gratis (rodar/bloquear) siguen gratis; el punto vende cargado, giratorio, estela, stats y buffs. Lo de complexión/altura queda para después. Ver `docs/pruebas-balance.md`.
+
 ---
 
 ## 1. La idea
