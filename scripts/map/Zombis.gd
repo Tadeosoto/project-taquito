@@ -29,7 +29,6 @@ const MAX_RESTOS := 16
 const SEPARADO := 1.1         # m entre centros al aparecer: chocan entre ellos
 const NO_ENCIMAR_PASADAS := 2
 const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
-const RESTOS_LANZA := 1.2     # m que caen los restos hacia donde iba el golpe
 
 @export var jugador_path: NodePath
 @export var ciclo_path: NodePath
@@ -493,8 +492,8 @@ func _devolver(zombi: Zombie) -> void:
 	_libres.append(zombi)
 
 
-# Pellejo y luego huesos. Con tope, para que una noche larga no vaya costando cuadros
-# `hacia`: a donde iba el golpe que lo mato; los restos caen RESTOS_LANZA m para alla
+# Pedazos de pixel art (RestosZombi). Con tope, para que una noche larga no vaya costando cuadros
+# `hacia`: a donde iba el golpe que lo mato; los pedazos vuelan para alla (RestosZombi.LANZA)
 func dejar_restos(donde: Vector3, tamano: float, hacia := Vector3.ZERO) -> void:
 	# Sin tipo: uno ya borrado no se puede convertir a Node3D
 	_restos = _restos.filter(func(r) -> bool: return is_instance_valid(r))
@@ -502,8 +501,8 @@ func dejar_restos(donde: Vector3, tamano: float, hacia := Vector3.ZERO) -> void:
 		_restos.pop_front().queue_free()
 	var restos := RestosZombi.new()
 	restos.tamano(tamano)
+	restos.direccion(hacia)
 	add_child(restos)
-	donde += hacia * RESTOS_LANZA
 	restos.global_position = Vector3(donde.x, donde.y + RESTOS_ALTO, donde.z)
 	_restos.append(restos)
 

@@ -89,11 +89,6 @@ const LUGARES := {
 		{ "nombre": "A flor", "hoja": "curar", "escala": 0.6 },
 		{ "nombre": "B nada", "hoja": "" },
 	],
-	# Pistola: el casquillo que sale con cada tiro (cae a los pies; la hoja trae su piso a la altura de la boca)
-	"casquillo": [
-		{ "nombre": "A latón", "hoja": "casquillo", "escala": 0.5, "voltea": true },
-		{ "nombre": "B nada", "hoja": "" },
-	],
 	# Pistola: donde pega una bala que no le dio a un zombi (pared, suelo)
 	"bala": [
 		{ "nombre": "A chispas", "hoja": "bala_impacto", "escala": 0.5, "voltea": true },
@@ -121,6 +116,10 @@ static var _quad: QuadMesh
 var _sprites: Array[Sprite3D] = []
 var _tiempos: Array[float] = []
 var _hoja_de: Array = []
+var _sigue: Array = []        # Node3D que sigue cada hoja (null = se queda donde salio)
+var _acercar: Array[float] = []
+var _px: Array[float] = []
+var _voltea: Array[bool] = []
 var _siguiente := 0
 var _capa: CanvasLayer
 var _capa_luz: CanvasLayer
@@ -147,6 +146,10 @@ func _ready() -> void:
 		_sprites.append(s)
 		_tiempos.append(-1.0)
 		_hoja_de.append(null)
+		_sigue.append(null)
+		_acercar.append(ACERCAR)
+		_px.append(0.0)
+		_voltea.append(false)
 	set_process(false)
 
 
@@ -167,7 +170,9 @@ func cambiar(lugar: String) -> String:
 # `pos`: el origen del efecto, en el piso bajo quien lo hace. `hacia`: a donde va el golpe
 # (para voltear las hojas que ven a la derecha). `opcion`: "puno" o "mata", si la variante
 # tiene otra hoja para eso
-func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, opcion := "") -> void:
+# `seguir`: la hoja se queda pegada a ese nodo mientras dura (el chorro del cuello va con el
+# cuerpo); `acercar`: m hacia la camara, para que el cuerpo no se coma el efecto
+func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, opcion := "", seguir: Node3D = null, acercar := ACERCAR) -> void:
 	if not extras and lugar in EXTRAS:
 		return
 	var v: Dictionary = LUGARES[lugar][variante(lugar)]
@@ -184,23 +189,34 @@ func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, o
 	var lado := camara.global_basis.x
 	var voltea: bool = v.get("voltea", false) and hacia.dot(lado) < 0.0
 	var px: float = PIXEL * float(v.get("escala", 1.0)) * escala
-	var tamano: Vector2 = hoja["tamano"]
-	var pivote: Vector2 = hoja["pivote"]
 	s.texture = hoja["textura"]
 	s.hframes = hoja["columnas"]
 	s.vframes = ceili(float(hoja["cuadros"]) / hoja["columnas"])
 	s.frame = mini(int(hoja["golpe_en"] * hoja["fps"]), hoja["cuadros"] - 1)
 	s.pixel_size = px
 	s.flip_h = voltea
-	# El sprite va centrado: se recorre para que el pivote de la hoja quede en `pos`
-	var dx := (tamano.x * 0.5 - pivote.x) * px * (-1.0 if voltea else 1.0)
-	var dy := (pivote.y - tamano.y * 0.5) * px
-	var hacia_camara := (camara.global_position - pos).normalized()
-	s.global_position = pos + lado * dx + Vector3.UP * dy + hacia_camara * ACERCAR
-	s.visible = true
 	_tiempos[i] = hoja["golpe_en"]
 	_hoja_de[i] = hoja
+	_sigue[i] = seguir
+	_acercar[i] = acercar
+	_px[i] = px
+	_voltea[i] = voltea
+	_poner(i, pos, camara)
+	s.visible = true
 	set_process(true)
+
+
+# El sprite va centrado: se recorre para que el pivote de la hoja quede en `pos`, y tantito
+# hacia la camara
+func _poner(i: int, pos: Vector3, camara: Camera3D) -> void:
+	var hoja: Dictionary = _hoja_de[i]
+	var tamano: Vector2 = hoja["tamano"]
+	var pivote: Vector2 = hoja["pivote"]
+	var px: float = _px[i]
+	var dx := (tamano.x * 0.5 - pivote.x) * px * (-1.0 if _voltea[i] else 1.0)
+	var dy := (pivote.y - tamano.y * 0.5) * px
+	var hacia_camara := (camara.global_position - pos).normalized()
+	_sprites[i].global_position = pos + camara.global_basis.x * dx + Vector3.UP * dy + hacia_camara * _acercar[i]
 
 
 func _process(delta: float) -> void:
@@ -214,8 +230,16 @@ func _process(delta: float) -> void:
 		if cuadro >= hoja["cuadros"]:
 			_tiempos[i] = -1.0
 			_sprites[i].visible = false
+			_sigue[i] = null
 			continue
 		_sprites[i].frame = cuadro
+		var nodo = _sigue[i]
+		if nodo != null:
+			var camara := get_viewport().get_camera_3d()
+			if is_instance_valid(nodo) and (nodo as Node3D).is_inside_tree() and camara:
+				_poner(i, (nodo as Node3D).global_position, camara)
+			else:
+				_sigue[i] = null
 		quedan = true
 	if not quedan:
 		set_process(false)
@@ -225,6 +249,7 @@ func limpiar() -> void:
 	for i in CUANTOS:
 		_tiempos[i] = -1.0
 		_sprites[i].visible = false
+		_sigue[i] = null
 	set_process(false)
 
 

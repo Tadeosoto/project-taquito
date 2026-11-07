@@ -120,6 +120,10 @@ const FUENTE_VELOCIDAD := Vector2(3.5, 6.0)
 const FUENTE_ABRE := 0.15
 const FUENTE_RADIO := 0.03
 const CUELLO := 1.5         # m (por tamano) si el esqueleto no trae Neck
+# El chorro sale de adentro del munon (NeckStumpAnchor, en el hueso Neck): HUECO del cuello abajo
+# de donde empezaba la cabeza, y su +Y por el cuello hacia afuera (AG)
+const HUECO := 0.25
+const CUELLO_ACERCAR := 0.12    # m que la hoja fuente se recorre hacia la camara: lo grueso del cuello
 const SIN_CABEZA := Vector3(0.001, 0.001, 0.001) # escala del hueso Head (0 da matrices rotas)
 const COLOR_SANGRE_OSCURA := Color(0.35, 0.05, 0.05) # la mitad del chorro sin cabeza y su reventon (AG)
 # Efectos de pixel (EfectosPixel): polvo bajo las pisadas del jefe y la marca de los cazadores
@@ -249,6 +253,7 @@ var _hinchar_en := 0        # ms de reloj real en que se hincha antes de tronar
 var _fuente_hasta := 0      # ms de reloj real del chorro del cuello
 var _fuente_sig := 0
 var _sin_cabeza := false
+var _ancla: Marker3D            # NeckStumpAnchor, dentro del cuello
 var _al_morir := Vector3.ZERO # hacia donde iba el golpe que lo mato (plano)
 var _ceniza := false        # cayo al amanecer: se hace ceniza al desaparecer
 var _rabia: MeshInstance3D  # la marca de cazador
@@ -491,6 +496,7 @@ func calentar() -> void:
 	var restos := RestosZombi.new()
 	add_child(restos)
 	restos.calentar()
+
 
 
 # Sale de la reserva, como nuevo. `con_prisa`: de turba
@@ -1034,8 +1040,13 @@ func _morir(pagado: bool, truena_en := 0, espera := 0) -> void:
 			_escalar_hueso("Head", SIN_CABEZA)
 			_fuente_hasta = _hinchar_en
 			_fuente_sig = ahora
+			# La hoja fuente de pixelfx sale del munon y se queda pegada a el mientras dura
 			if zombis:
-				zombis.efectos.lanzar("fuente", _cuello(), Vector3.UP, _tamano)
+				var ancla := _armar_ancla()
+				if ancla:
+					zombis.efectos.lanzar("fuente", ancla.global_position, Vector3.UP, _tamano, "", ancla, CUELLO_ACERCAR)
+				else:
+					zombis.efectos.lanzar("fuente", _cuello(), Vector3.UP, _tamano)
 		if espera <= 0:
 			_hinchar()
 		set_process(true)
@@ -1103,15 +1114,47 @@ func _hinchar() -> void:
 	_flash_hasta = Time.get_ticks_msec()
 
 
-# Un chorrito de agua sucia del cuello, para arriba
+# Un chorrito de agua sucia de adentro del munon, por el cuello hacia afuera
 func _chorro() -> void:
 	if zombis:
 		var cuello := _cuello()
+		var hacia := Vector3.UP
+		var ancla := _armar_ancla()
+		if ancla:
+			cuello = ancla.global_position
+			hacia = ancla.global_basis.y.normalized()
 		var rojas := FUENTE_GOTAS / 2
-		zombis.liquido.salpicar(cuello, FUENTE_RADIO * _tamano, global_position.y, Vector3.UP,
+		zombis.liquido.salpicar(cuello, FUENTE_RADIO * _tamano, global_position.y, hacia,
 			FUENTE_GOTAS - rojas, COLOR_AGUA, FUENTE_VELOCIDAD, FUENTE_ABRE)
-		zombis.liquido.salpicar(cuello, FUENTE_RADIO * _tamano, global_position.y, Vector3.UP,
+		zombis.liquido.salpicar(cuello, FUENTE_RADIO * _tamano, global_position.y, hacia,
 			rojas, COLOR_SANGRE_OSCURA, FUENTE_VELOCIDAD, FUENTE_ABRE)
+
+
+# NeckStumpAnchor: un Marker3D en un BoneAttachment3D del hueso Neck (Head se encoge a 0), en
+# donde empezaba la cabeza pero HUECO mas adentro, con su +Y por el cuello hacia afuera. Se
+# arma una vez por esqueleto (cada skin trae el suyo); sin Neck o Head (el gordo) no hay
+func _armar_ancla() -> Marker3D:
+	var esqueleto := _esqueleto()
+	if esqueleto == null:
+		return null
+	if _ancla and is_instance_valid(_ancla) and _ancla.get_parent() and _ancla.get_parent().get_parent() == esqueleto:
+		return _ancla
+	var cuello := esqueleto.find_bone("Neck")
+	var cabeza := esqueleto.find_bone("Head")
+	if cuello < 0 or cabeza < 0:
+		return null
+	var hueso := BoneAttachment3D.new()
+	hueso.name = "Cuello"
+	esqueleto.add_child(hueso)
+	hueso.bone_name = "Neck"
+	var punta := esqueleto.get_bone_global_rest(cuello).affine_inverse() * esqueleto.get_bone_global_rest(cabeza).origin
+	_ancla = Marker3D.new()
+	_ancla.name = "NeckStumpAnchor"
+	var y := punta.normalized() if punta.length_squared() > 0.000001 else Vector3.UP
+	var x := y.cross(Vector3.BACK if absf(y.z) < 0.9 else Vector3.RIGHT).normalized()
+	_ancla.transform = Transform3D(Basis(x, y, x.cross(y)), punta * (1.0 - HUECO))
+	hueso.add_child(_ancla)
+	return _ancla
 
 
 func _esqueleto() -> Skeleton3D:
