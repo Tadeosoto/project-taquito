@@ -111,6 +111,7 @@ var _ultima := ""            # la ultima accion lanzada
 var _rec_en := -1.0          # s para que acabe el golpe y siga su _Rec (REC); -1 = nada
 var _moviendo := false       # lo ultimo que dijo update_animation
 var _inclinar: SkeletonModifier3D   # InclinarCuerpo.gd: la columna hacia adelante (inclinar)
+var _agarre: SkeletonModifier3D     # AgarrePistola.gd: canon a la mira y la izquierda en la cacha (agarre)
 
 
 func _ready() -> void:
@@ -139,6 +140,10 @@ func _ready() -> void:
 		_inclinar = preload("res://scripts/InclinarCuerpo.gd").new()
 		_inclinar.name = "Inclinar"
 		esqueletos[0].add_child(_inclinar)
+		# Despues de inclinar, para que la mano llegue a la pistola aunque vaya agachado
+		_agarre = preload("res://scripts/AgarrePistola.gd").new()
+		_agarre.name = "AgarrePistola"
+		esqueletos[0].add_child(_agarre)
 
 
 func _armar_arbol() -> AnimationNodeBlendTree:
@@ -390,6 +395,24 @@ func inclinar(grados: float) -> void:
 
 
 # Inclinado, los brazos no se agachan con la columna (los punetazos salen al frente)
+# Pistola a dos manos mientras `activo`: el canon (`canon_local`, en el hueso RightHand) hacia
+# `mira` (global) y la izquierda cubriendo a la derecha (AgarrePistola.gd)
+# `apunta`: cuanto endereza el canon a la mira (0 en la corredera: el arma se queda como la pone el clip)
+func agarre(activo: bool, mira: Vector3, canon_local: Vector3, apunta := 1.0) -> void:
+	if _agarre:
+		_agarre.peso = 1.0 if activo else 0.0
+		_agarre.apunta_a = mira
+		_agarre.canon_local = canon_local
+		_agarre.apunta = apunta
+
+
+# La izquierda en la corredera (`objetivo`, un Marker3D que se mueve con ella), `peso` 0-1
+func corredera(objetivo: Node3D, peso: float) -> void:
+	if _agarre:
+		_agarre.corredera = objetivo
+		_agarre.corredera_peso = peso
+
+
 func enderezar_brazos(si: bool) -> void:
 	if _inclinar:
 		_inclinar.brazos = 1.0 if si else 0.0
@@ -523,6 +546,13 @@ func recarga() -> void:
 		return
 	_arbol.set("parameters/recarga_vel/scale", BIBLIOTECA.get_animation("Pistol_Reload").length / RECARGA_DURA)
 	_arbol.set("parameters/recarga/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+
+
+# Recarga en seco: el clip se va (se desvanece) en cuanto mete el cargador, y la corredera la hace
+# AgarrePistola sobre la pose de sostenerla
+func cortar_recarga() -> void:
+	if _arbol:
+		_arbol.set("parameters/recarga/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FADE_OUT)
 
 
 # Empieza una accion (desde s del clip, a velocidad vel; la pose de carga dura hasta que la

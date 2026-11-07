@@ -294,8 +294,24 @@ const PISTOLA_TAMANO := 0.4
 # En la mano: lo de arriba de la pistola hacia el pulgar (X) y el canon hacia los dedos (Y)
 const PISTOLA_GIRO := Vector3(0.0, 0.0, -90.0)
 const PISTOLA_ROLL := 0.0     # grados sobre el canon, si la cacha saliera hacia arriba
-const PISTOLA_MANGO := Vector3(-0.3, -0.1, 0.0) # del largo: la cacha queda en el puno
+# Del largo: la parte alta de la cacha (modelo 0.30, -0.04; medido de la malla) queda en el puno,
+# 7 cm hacia los dedos y 3 hacia la palma; la corredera arriba de la mano y el canon sobre los nudillos
+const PISTOLA_MANGO := Vector3(-0.47, 0.04, 0.07)
 const PISTOLA_CANON := Vector3(-0.5, 0.12, 0.0) # la boca, del largo, desde el centro del modelo
+# Por donde salta el casquillo (Pistola._expulsar_casquillo): arriba de la corredera, atras de la boca
+const PISTOLA_EXPULSION := Vector3(-0.2, 0.12, 0.0)
+# De donde sale el cargador al recargar (Pistola._soltar_cargador): la base de la cacha, medida de la malla
+const PISTOLA_CARGADOR := Vector3(0.4, -0.16, 0.0)
+# El cargador nuevo en la mano izquierda (Pistola, TOMA_EN a METE_EN), en m y grados en el
+# hueso LeftHand (dedos +Y, palma +Z)
+const CARGADOR_MANO := Vector3(-0.09, 0.06, 0.03)
+# La corredera, cortada de la malla al vuelo (_cortar_corredera): los triangulos cuyo centro cae en
+# esta caja (del largo, en el marco del modelo como PISTOLA_CANON: x de la boca a atras, y desde el
+# centro) se vuelven una pieza aparte que Pistola.rack recorre RACK_ATRAS m hacia atras
+const CORREDERA_X := Vector2(-0.12, 0.5)
+const CORREDERA_Y := 0.07
+const RACK_PUNTO := Vector3(0.3, 0.17, 0.0) # donde la agarra la izquierda: arriba, atras
+const CARGADOR_MANO_GIRO := Vector3(0.0, 0.0, 90.0) # lo largo hacia el pulgar (-X en la izquierda), saliendo del puno
 const ARRIBA_TRAS_TIRO := 0.8 # s que sigue apuntando despues de disparar desde la cadera
 const MIRA_LEJOS := 20.0      # m: a donde apuntan los brazos sobre el rayo de la mira
 const PECHO := 0.5            # m sobre el centro del cuerpo: de ahi se mide a que altura apunta
@@ -400,6 +416,13 @@ var _brazo_base := 4.0
 var _fov_base := 75.0
 var _apuntando := false
 var _canon: Node3D
+var _expulsion: Node3D
+var _salida_cargador: Node3D   # la base de la cacha
+var _cargador_mano: MeshInstance3D
+var _corredera: Node3D             # la pieza que se recorre (hija del arma, en m, +X hacia atras)
+var _agarre_corredera: Node3D      # donde va la izquierda, se mueve con la corredera
+static var _cortes := {}           # malla de la pistola -> [lo demas, la corredera]
+var _canon_local := Vector3.LEFT # hacia donde tira la pistola, en el hueso de la mano (AgarrePistola.gd)
 var _tiro_hasta := 0
 
 
@@ -1468,6 +1491,10 @@ func _mostrar_arma() -> void:
 		return
 	_arma_visible = arma
 	_canon = null
+	_expulsion = null
+	_salida_cargador = null
+	_corredera = null
+	_agarre_corredera = null
 	_punta = null
 	for hijo in _mano.get_children():
 		hijo.queue_free()
@@ -1492,6 +1519,15 @@ func _mostrar_arma() -> void:
 			_canon = Marker3D.new()
 			_canon.position = (PISTOLA_MANGO + PISTOLA_CANON) * PISTOLA_TAMANO
 			modelo.add_child(_canon)
+			_expulsion = Marker3D.new()
+			_expulsion.position = (PISTOLA_MANGO + PISTOLA_EXPULSION) * PISTOLA_TAMANO
+			modelo.add_child(_expulsion)
+			_salida_cargador = Marker3D.new()
+			_salida_cargador.position = (PISTOLA_MANGO + PISTOLA_CARGADOR) * PISTOLA_TAMANO
+			modelo.add_child(_salida_cargador)
+			# La boca es -X del modelo: en el espacio del hueso, lo gira el modelo
+			_canon_local = (modelo.basis * Vector3.LEFT).normalized()
+			_cortar_corredera(modelo)
 		else:
 			(modelo.get_child(0) as Node3D).position.x -= ARMA_MANGO
 			# El mango queda en el puno y la hoja hacia -X
@@ -1591,8 +1627,20 @@ func _posar() -> void:
 	var blanco := _camara.project_ray_origin(centro) + _camara.project_ray_normal(centro) * MIRA_LEJOS
 	var hacia := blanco - (frijol.global_position + Vector3.UP * PECHO)
 	var inclinacion := rad_to_deg(atan2(hacia.y, Vector2(hacia.x, hacia.z).length()))
-	figura.pistola(_pistola.activa and is_physics_processing(),
-		_apuntando or Time.get_ticks_msec() < _tiro_hasta, inclinacion)
+	var arriba := _apuntando or Time.get_ticks_msec() < _tiro_hasta
+	figura.pistola(_pistola.activa and is_physics_processing(), arriba, inclinacion)
+	# Las dos manos solo apuntando o recien disparado; recargando, rodando o tirado, suelta. En la
+	# corredera de la recarga en seco la izquierda va a ella, sin enderezar el canon
+	if figura.has_method("agarre"):
+		var rack: Dictionary = _pistola.rack() if _pistola.activa else {}
+		if not rack.is_empty():
+			figura.agarre(true, blanco, _canon_local, 0.0)
+			figura.corredera(_agarre_corredera, rack["peso"])
+			corredera(rack["d"])
+		else:
+			figura.agarre(_pistola.activa and arriba and is_physics_processing()
+				and not _pistola.recargando() and _rodada_t < 0.0, blanco, _canon_local)
+			figura.corredera(null, 0.0)
 
 
 # Pistola.gd en cada tiro: sube el arma a la mira un rato y la patea
@@ -1669,6 +1717,92 @@ func empujar_tiro(hacia: Vector3) -> void:
 		return
 	_retroceso = -hacia.normalized() * RETROCESO_TIRO
 	_retroceso_freno = RETROCESO_TIRO * RETROCESO_TIRO_FRENO
+
+
+# Parte la malla de la pistola en la corredera y lo demas (una vez por malla) y pone la
+# corredera en su propio nodo, para que Pistola.rack la recorra
+func _cortar_corredera(modelo: Node3D) -> void:
+	var mallas := modelo.find_children("*", "MeshInstance3D", true, false)
+	if mallas.is_empty():
+		return
+	var instancia := mallas[0] as MeshInstance3D
+	var relativo := modelo.global_transform.affine_inverse() * instancia.global_transform
+	if not _cortes.has(instancia.mesh):
+		var arreglos := instancia.mesh.surface_get_arrays(0)
+		var puntos: PackedVector3Array = arreglos[Mesh.ARRAY_VERTEX]
+		var indices: PackedInt32Array = arreglos[Mesh.ARRAY_INDEX] if arreglos[Mesh.ARRAY_INDEX] != null else PackedInt32Array(range(puntos.size()))
+		var resto := PackedInt32Array()
+		var pieza := PackedInt32Array()
+		for t in range(0, indices.size(), 3):
+			var centro := (puntos[indices[t]] + puntos[indices[t + 1]] + puntos[indices[t + 2]]) / 3.0
+			var p := relativo * centro / PISTOLA_TAMANO - PISTOLA_MANGO
+			var es := p.y > CORREDERA_Y and p.x > CORREDERA_X.x and p.x < CORREDERA_X.y
+			for k in 3:
+				(pieza if es else resto).append(indices[t + k])
+		var material := instancia.get_active_material(0)
+		var partes := []
+		for lista: PackedInt32Array in [resto, pieza]:
+			var copia := arreglos.duplicate()
+			copia[Mesh.ARRAY_INDEX] = lista
+			var malla := ArrayMesh.new()
+			malla.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, copia)
+			malla.surface_set_material(0, material)
+			partes.append(malla)
+		_cortes[instancia.mesh] = partes
+		print("Pistola: corredera de %d triangulos, lo demas %d" % [pieza.size() / 3, resto.size() / 3])
+	var partes: Array = _cortes[instancia.mesh]
+	instancia.mesh = partes[0]
+	_corredera = Node3D.new()
+	_corredera.name = "Corredera"
+	modelo.add_child(_corredera)
+	var pieza := MeshInstance3D.new()
+	pieza.mesh = partes[1]
+	pieza.transform = relativo
+	pieza.cast_shadow = instancia.cast_shadow
+	_corredera.add_child(pieza)
+	_agarre_corredera = Marker3D.new()
+	_agarre_corredera.position = (PISTOLA_MANGO + RACK_PUNTO) * PISTOLA_TAMANO
+	_corredera.add_child(_agarre_corredera)
+
+
+# La corredera `d` m hacia atras (Pistola.rack)
+func corredera(d: float) -> void:
+	if _corredera and is_instance_valid(_corredera):
+		_corredera.position = Vector3(d, 0.0, 0.0)
+
+
+# De donde sale el cargador vacio: la base de la cacha, con el giro del arma (sin su escala)
+func cargador() -> Transform3D:
+	if _salida_cargador and is_instance_valid(_salida_cargador) and _salida_cargador.is_inside_tree():
+		var t := _salida_cargador.global_transform
+		return Transform3D(t.basis.orthonormalized(), t.origin)
+	return Transform3D(Basis(), canon())
+
+
+# El cargador nuevo en la mano izquierda, de TOMA_EN a METE_EN de la recarga
+func cargador_en_mano(si: bool) -> void:
+	if _mano_izq == null:
+		return
+	if si and _cargador_mano == null:
+		_cargador_mano = MeshInstance3D.new()
+		_cargador_mano.mesh = Cargador.malla()
+		_cargador_mano.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_mano_izq.add_child(_cargador_mano)
+	if _cargador_mano == null:
+		return
+	if si:
+		# Sin la escala del hueso, como el arma en la otra mano
+		var escala := _mano_izq.global_transform.basis.get_scale().x
+		var inversa := 1.0 / maxf(escala, 0.001)
+		_cargador_mano.transform = Transform3D(Basis.from_euler(CARGADOR_MANO_GIRO * PI / 180.0).scaled(Vector3.ONE * inversa), CARGADOR_MANO * inversa)
+	_cargador_mano.visible = si
+
+
+# De donde salta el casquillo
+func expulsion() -> Transform3D:
+	if _expulsion and is_instance_valid(_expulsion) and _expulsion.is_inside_tree():
+		return _expulsion.global_transform
+	return Transform3D(Basis(), canon())
 
 
 func canon() -> Vector3:

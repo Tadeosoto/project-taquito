@@ -17,6 +17,11 @@ static var solo: Array[String] = []
 const ARCHIVOS := {
 	"rugido": "res://audio/zombis/rugido.ogg",
 	"rugido_corto": "res://audio/zombis/rugido_corto.ogg",
+	"disparo_pistola": "res://audio/weapons/pistol_shot.wav",   # grabado (CC0); Pistola.gd
+	# La recarga de la pistola (Pistola._seguir_recarga), grabados (CC0)
+	"recarga_suelta": "res://audio/weapons/pistol_mag_drop.wav",  # sale con el cargador (Cargador.gd)
+	"recarga_mete": "res://audio/weapons/pistol_clip_insert.wav",
+	"recarga_cierra": "res://audio/weapons/pistol_cock.wav",
 }
 
 # Cupo de rugidos: con una horda de 15 todos querian rugir a la vez y tapaban todo.
@@ -81,6 +86,8 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _whack()
 			"bloqueo":
 				_sonidos[nombre] = _bloqueo()
+			"casquillo":
+				_sonidos[nombre] = _casquillo()
 			"reventar":
 				_sonidos[nombre] = _reventar()
 			"dolor":
@@ -578,6 +585,24 @@ static func _whack() -> AudioStreamWAV:
 
 # Golpe parado con el machete: un golpe sordo en el cuerpo, el chasquido del choque y la hoja que
 # vibra (parciales que no son armonicos, como una lamina), con un poco de eco
+# El casquillo de laton que cae al piso: un "tin" agudo, tres parciales inarmonicos que se
+# apagan en ~80 ms y un chasquido al principio (Casquillo.gd le sube el tono al azar)
+static func _casquillo() -> AudioStreamWAV:
+	const DURA := 0.18
+	var b := PackedFloat32Array()
+	b.resize(int(DURA * MUESTRAS))
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 17
+	var parciales := [[3200.0, 38.0, 0.35], [4700.0, 55.0, 0.25], [6100.0, 70.0, 0.15]]
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		var tin := azar.randf_range(-1.0, 1.0) * exp(-t * 400.0) * 0.3
+		for p: Array in parciales:
+			tin += sin(TAU * p[0] * t) * exp(-t * p[1]) * p[2]
+		b[i] = tin
+	return _a_wav(b)
+
+
 static func _bloqueo() -> AudioStreamWAV:
 	var b := _golpe_grave(85.0, 18.0, 0.7, 0.45)
 	var azar := RandomNumberGenerator.new()

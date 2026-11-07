@@ -9,8 +9,9 @@ extends Node
 # congelada (a tiro rapido trababa), sin empujon y sin aturdir: la pistola debilita de lejos
 # y el que mata es el machete. Balas sin fin, pero con cargador y recarga sola.
 # Al tiro: fogonazo, dispersion (mas con los nervios: la intensidad del Director), una bala de
-# pixelfx que vuela de la boca a donde pego, chispas si pego en pared, casquillo de pixelfx,
-# empujoncito atras y uno de DISPAROS sonidos con tono al azar. En la cabeza (CABEZA_DESDE de la capsula para arriba) pega CABEZA_MULT veces.
+# pixelfx que vuela de la boca a donde pego, chispas si pego en pared, un casquillo de fisica (Casquillo.gd) que rebota y suena,
+# empujoncito atras y el balazo grabado (audio/weapons/pistol_shot.wav) con tono al azar; si no
+# esta, uno de los DISPAROS generados. En la cabeza (CABEZA_DESDE de la capsula para arriba) pega CABEZA_MULT veces.
 # Como Player.gd, la cargan scripts de tools/ antes de los autoloads: nada de nombrarlos.
 
 const DANO := 8               # cuatro tiros a un zombi de 30 (el machete, tres golpes)
@@ -45,9 +46,9 @@ const DISPERSION := 0.012     # rad de desvio al azar por tiro
 const APUNTA_DISPERSION := 0.004 # apuntando
 const CABEZA_DESDE := 1.4     # m sobre los pies (por el tamano del zombi; la capsula mide 1.8)
 const CABEZA_MULT := 3
-const TONO_MIN := 0.85        # pitch_scale del disparo, al azar
-const TONO_MAX := 1.15
-const DISPAROS := 4           # disparo_1..disparo_4 (Sonidos), uno al azar
+const TONO_MIN := 0.94        # pitch_scale del disparo, al azar: que el tiro rapido no suene a copia
+const TONO_MAX := 1.06
+const DISPAROS := 4           # disparo_1..disparo_4 (Sonidos), uno al azar si falta el grabado
 # Nervios: la intensidad del Director (0-1) abre la mira y el desvio
 const NERVIOS_SIGUE := 2.0    # por segundo que la mira alcanza la intensidad
 const NERVIOS_DISPERSION := 1.5 # con intensidad 1, el desvio es x2.5
@@ -61,6 +62,32 @@ const MIRA_RAYA := 5.0
 const FOGONAZO_CHISPAS := 6
 const FOGONAZO_DURA := 0.06   # s
 const FOGONAZO_TAMANO := 0.08 # m
+# Casquillos (Casquillo.gd): salen de Player.expulsion() a la derecha y arriba, en m/s
+const CASQUILLOS := 12        # se reusan, el mas viejo primero
+const CASQUILLO_DERECHA := 1.2
+const CASQUILLO_ARRIBA := 1.5
+const CASQUILLO_ATRAS := 0.3
+const CASQUILLO_AZAR := 0.3
+# La recarga, al ritmo de Pistol_Reload (medido en el clip de 1.667 s, en s del clip; se
+# escalan a RECARGA): la izquierda suelta el cargador, baja por otro a la cintura, lo mete y
+# corre la corredera. Los sonidos arrancan antes de su momento lo que tardan en sonar fuerte
+const CLIP_RECARGA := 1.667
+const SUELTA_EN := 0.06       # sale el cargador viejo (Cargador.gd, con su sonido)
+const TOMA_EN := 0.35         # la izquierda ya trae el nuevo
+const METE_EN := 0.88         # lo mete: se esconde el de la mano
+const METE_SUENA := 0.06      # s del archivo pistol_clip_insert en que truena
+# Recarga en seco (vaciaste el cargador: no queda bala en la recamara): tras meter el cargador
+# se corta el clip y se corre la corredera a mano (Player.corredera, AgarrePistola), al ritmo de
+# pistol_cock: RACK_ACERCA s para llevar la izquierda a la corredera, y luego lo que dura el
+# archivo, para que la animacion y el sonido acaben juntos. En s del archivo: el primer clic
+# (corredera atras) a 0.06, el segundo (la suelta) a 0.28; medidos de su envolvente
+const RACK_ACERCA := 0.15
+const RACK_ATRAS := 0.03      # m que se recorre la corredera
+const RACK_JALA := Vector2(0.06, 0.12)   # s del archivo: se va para atras
+const RACK_SUELTA := Vector2(0.28, 0.31) # regresa de golpe
+const RACK_DURA_SIN_ARCHIVO := 0.8
+const CIERRA_VOLUMEN := -14.0 # dB del cock: sutil, por debajo del balazo (AG)
+const CARGADORES := 6         # cargadores vacios en el piso, se reusan
 const MIRA_COLOR := Color(1.0, 0.95, 0.8, 0.9)
 const TEXTO_COLOR := Color(1.0, 0.85, 0.1)
 
@@ -81,6 +108,17 @@ var _bala_desde: Array[Vector3] = []
 var _bala_hasta: Array[Vector3] = []
 var _bala_va: Array[float] = []     # m andados; < 0 = guardada
 var _bala_sig := 0
+var _casquillos: Array[Casquillo] = []
+var _cargadores: Array[Cargador] = []
+var _cargador_sig := 0
+var _recarga_t := -1.0        # s de la recarga que van (en reloj de la recarga); -1 = no hay
+var _recarga_paso := 0        # cuantos momentos ya pasaron (SUELTA, TOMA, METE)
+var _vacia := false           # esta recarga es en seco: lleva corredera y no deja bala en la recamara
+var _rack_t := -1.0           # s desde que empezo la corredera; -1 = no hay
+var _rack_dura := RACK_DURA_SIN_ARCHIVO
+var _rack_sono := false
+var _rack_sono_en := 0.0      # _rack_t en que de veras empezo a sonar (cae en un cuadro)
+var _casquillo_sig := 0
 var _nervios := 0.0
 var _hueco := MIRA_HUECO
 var _floracion := 0.0
@@ -145,7 +183,8 @@ func disparar() -> void:
 		sacude = SACUDE_PEGA
 		aciertos += 1
 		Sonidos.tocar(self, "whack", -4.0 if cabeza else -10.0)
-	Sonidos.tocar(self, "disparo_%d" % randi_range(1, DISPAROS), -4.0, randf_range(TONO_MIN, TONO_MAX))
+	var balazo := "disparo_pistola" if Sonidos.sonido("disparo_pistola") else "disparo_%d" % randi_range(1, DISPAROS)
+	Sonidos.tocar(self, balazo, -4.0, randf_range(TONO_MIN, TONO_MAX))
 	jugador._sacude_fuerza = sacude
 	jugador._sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	jugador.pose_tiro()
@@ -158,11 +197,35 @@ func disparar() -> void:
 		# Pared o suelo: chispas (al zombi ya lo salpica su agua)
 		if pego and blanco == null:
 			efectos.lanzar("bala", punto - Vector3.UP * BALA_IMPACTO_ALTO, hacia)
-		# El casquillo cae a los pies, bajo la boca, hacia la derecha de la camara
-		var canon := jugador.canon()
-		efectos.lanzar("casquillo", Vector3(canon.x, jugador.global_position.y, canon.z), -camara.global_basis.x)
+	_expulsar_casquillo(camara)
 	if balas <= 0:
 		_recargar()
+
+
+func recargando() -> bool:
+	return _recargando > 0.0
+
+
+# El casquillo salta de la corredera a la derecha y arriba de la camara, suelto en el mundo
+func _expulsar_casquillo(camara: Camera3D) -> void:
+	var escena := get_tree().current_scene
+	if escena == null:
+		return
+	if _casquillos.size() < CASQUILLOS:
+		var nuevo := Casquillo.new()
+		escena.add_child(nuevo)
+		# El jugador esta en la capa 1: sin esto el casquillo nace dentro de su capsula y suena al disparar
+		nuevo.add_collision_exception_with(jugador)
+		_casquillos.append(nuevo)
+	_casquillos = _casquillos.filter(func(c: Casquillo) -> bool: return is_instance_valid(c))
+	if _casquillos.is_empty():
+		return
+	_casquillo_sig %= _casquillos.size()
+	var casquillo := _casquillos[_casquillo_sig]
+	_casquillo_sig += 1
+	var b := camara.global_basis
+	var azar := Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * CASQUILLO_AZAR
+	casquillo.soltar(jugador.expulsion(), b.x * CASQUILLO_DERECHA + Vector3.UP * CASQUILLO_ARRIBA + b.z * CASQUILLO_ATRAS + azar)
 
 
 # El zombi vivo mas cercano a la mira, dentro de AYUDA grados, que se vea desde la camara
@@ -185,19 +248,45 @@ func _ayuda(espacio: PhysicsDirectSpaceState3D, excluir: Array[RID], origen: Vec
 	return mejor
 
 
-# R: recarga antes de vaciar el cargador
+# R: recarga antes de vaciar el cargador. La bala de la recamara se queda: 12+1
 func recargar() -> void:
-	if balas < CARGADOR:
+	if balas < CARGADOR + 1:
 		_recargar()
 
 
 func _recargar() -> void:
 	if _recargando > 0.0:
 		return
-	_recargando = RECARGA
-	Sonidos.tocar(self, "recarga", -6.0)
+	_vacia = balas <= 0
+	var cock := Sonidos.sonido("recarga_cierra")
+	_rack_dura = cock.get_length() if cock else RACK_DURA_SIN_ARCHIVO
+	# En seco dura hasta meter el cargador mas la corredera; si no, el clip entero
+	_recargando = (METE_EN * RECARGA / CLIP_RECARGA + RACK_ACERCA + _rack_dura) if _vacia else RECARGA
+	_recarga_t = 0.0
+	_recarga_paso = 0
+	_rack_t = -1.0
+	_rack_sono = false
 	if jugador.has_method("pose_recarga"):
 		jugador.pose_recarga()
+
+
+# La corredera mientras dura: {peso de la mano en ella (0-1), d m que va para atras}; vacio si no hay
+func rack() -> Dictionary:
+	if _rack_t < 0.0:
+		return {}
+	# En s del archivo que suena: los clics y la corredera van juntos aunque caiga a medio cuadro
+	var s := _rack_t - (_rack_sono_en if _rack_sono else RACK_ACERCA)
+	var peso := 1.0
+	if s < 0.0:
+		peso = smoothstep(0.0, RACK_ACERCA, _rack_t)
+	elif s > RACK_SUELTA.y:
+		peso = 1.0 - smoothstep(RACK_SUELTA.y, _rack_dura, s)
+	var d := 0.0
+	if s >= RACK_JALA.x and s < RACK_SUELTA.x:
+		d = RACK_ATRAS * smoothstep(RACK_JALA.x, RACK_JALA.y, s)
+	elif s >= RACK_SUELTA.x and s < RACK_SUELTA.y:
+		d = RACK_ATRAS * (1.0 - (s - RACK_SUELTA.x) / (RACK_SUELTA.y - RACK_SUELTA.x))
+	return {"peso": peso, "d": d}
 
 
 # De la boca de la pistola a donde pego
@@ -240,9 +329,78 @@ func _physics_process(delta: float) -> void:
 	_espera = maxf(_espera - delta, 0.0)
 	if _recargando > 0.0:
 		_recargando -= delta
+		_seguir_recarga(delta)
 		if _recargando <= 0.0:
 			_recargando = 0.0
-			balas = CARGADOR
+			balas = CARGADOR if _vacia else CARGADOR + 1
+			_terminar_recarga()
+
+
+# Cada momento de la recarga una vez, cuando su tiempo (en s del clip) ya paso
+func _seguir_recarga(delta: float) -> void:
+	if _recarga_t < 0.0:
+		return
+	_recarga_t += delta
+	if not activa:
+		# Cambiaste de arma a media recarga: termina sin ruido ni cargadores
+		_terminar_recarga()
+		return
+	var clip := _recarga_t * CLIP_RECARGA / RECARGA
+	if _recarga_paso == 0 and clip >= SUELTA_EN:
+		_recarga_paso = 1
+		_soltar_cargador()
+	if _recarga_paso == 1 and clip >= TOMA_EN:
+		_recarga_paso = 2
+		jugador.cargador_en_mano(true)
+	if _recarga_paso == 2 and clip >= METE_EN - METE_SUENA * CLIP_RECARGA / RECARGA:
+		_recarga_paso = 3
+		Sonidos.tocar(self, "recarga_mete", -4.0)
+	if _recarga_paso == 3 and clip >= METE_EN:
+		_recarga_paso = 4
+		jugador.cargador_en_mano(false)
+		if _vacia:
+			# Se corta el clip (vuelve a sostenerla) y empieza la corredera. Lo que falta de la
+			# recarga es justo la corredera, asi acaba con el sonido
+			if jugador.figura.has_method("cortar_recarga"):
+				jugador.figura.cortar_recarga()
+			_rack_t = 0.0
+			# La acaba la corredera (abajo), no el reloj
+			_recargando = INF
+			return
+	if _rack_t >= 0.0:
+		_rack_t += delta
+		if not _rack_sono and _rack_t >= RACK_ACERCA:
+			_rack_sono = true
+			_rack_sono_en = _rack_t
+			Sonidos.tocar(self, "recarga_cierra", CIERRA_VOLUMEN)
+		elif _rack_sono and _rack_t >= _rack_sono_en + _rack_dura:
+			# Se acabo el archivo: se acaba la recarga en este mismo cuadro
+			_recargando = 0.0
+
+
+func _terminar_recarga() -> void:
+	_recarga_t = -1.0
+	_rack_t = -1.0
+	jugador.cargador_en_mano(false)
+	jugador.corredera(0.0)
+
+
+# El cargador vacio sale de la cacha y cae (Cargador.gd); su sonido va con el
+func _soltar_cargador() -> void:
+	var escena := get_tree().current_scene
+	if escena == null:
+		return
+	_cargadores = _cargadores.filter(func(c: Cargador) -> bool: return is_instance_valid(c))
+	if _cargadores.size() < CARGADORES:
+		var nuevo := Cargador.new()
+		escena.add_child(nuevo)
+		nuevo.add_collision_exception_with(jugador)
+		_cargadores.append(nuevo)
+	_cargador_sig %= _cargadores.size()
+	var cargador := _cargadores[_cargador_sig]
+	_cargador_sig += 1
+	var excluir: Array[RID] = [jugador.get_rid()]
+	cargador.soltar(jugador.cargador(), excluir)
 
 
 # El arma (1/2 la cambian) y cuantas curaciones traes (Q, Player._curarse)
@@ -250,7 +408,8 @@ func _texto_arma() -> String:
 	var inventario := get_node_or_null("/root/Inventory")
 	var curar := "\nQ curar (%d)" % (inventario.curaciones() if inventario else 0)
 	if activa:
-		return ("Pistola  recargando..." if _recargando > 0.0 else "Pistola  %d/%d" % [balas, CARGADOR]) + curar
+		var cuantas := "%d+1" % CARGADOR if balas > CARGADOR else "%d/%d" % [balas, CARGADOR]
+		return ("Pistola  recargando..." if _recargando > 0.0 else "Pistola  " + cuantas) + curar
 	var arma: InventoryItemData = inventario.arma() if inventario else null
 	return (arma.item_name if arma else "Puño") + curar
 

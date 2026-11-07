@@ -39,8 +39,6 @@
       "opts": { "light": 0.4 } },
     { "nombre": "bala_impacto", "id": "impacts/bullet-impact",
       "opts": { "stone": "#6e7258", "light": 0.3 } },
-    { "nombre": "casquillo", "id": "taquito/casquillo",
-      "opts": {} },
     { "nombre": "sangre_arma", "id": "taquito/gota-arma",
       "opts": { "light": 0.4 } },
     { "nombre": "tablas_astillas", "id": "impacts/blunt-hit",

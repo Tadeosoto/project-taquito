@@ -82,7 +82,7 @@ const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 # estetica, no da dano). Mitad de los ~55 zombis que caen por noche en modo medio
 # (docs/pruebas-balance.md: machete 774 + pistola 870 de dano, vida 30)
 const ESTELA_MUERTES := 27
-const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto"]
+const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto", "casquillo", "disparo_pistola", "recarga_suelta", "recarga_mete", "recarga_cierra"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
 const MUSICA_ENTRA := 2.0      # s
