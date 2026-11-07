@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3]
+
+[ext_resource type="PackedScene" path="res://models/objetos/tachas/tachas.scn" id="1_modelo"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+
+[resource]
+script = ExtResource("2_item")
+item_name = "Diente de la Madre"
+description = "Un colmillo de la Madre del Cárcamo, todavía tibio. Brilla tantito de noche."
+inspection_model = ExtResource("1_modelo")
+efecto = "Trofeo. Alguien en la colonia pagaría bien por él."
+precio = 0
+tinte = Color(0.85, 0.95, 0.88, 1)

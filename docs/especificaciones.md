@@ -601,3 +601,7 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-11-02 | **El mundo en dos capas**: la ciudad es **normal**; lo raro son (1) los **zombis** nocturnos (el shooter) y (2) la **escasez y el precio del agua limpia** (la economía). **GelA**, el monopolio del agua y de sus productos, **une las dos cosas**: su agua es la que mata a uno de cada diez y lo levanta. La política es la capa opcional. | JJ |
 | 2026-11-02 | **El celular**: chat de mensajes con contactos (**Sofía** y, opcional, el cura con IA; el resto escrito) + **grupo del barrio**. Reemplaza la libreta de misiones y es el canal de conversación. **Sin batería, señal, rastreo, estafas ni cámara.** La llave de la IA va en el servidor y las respuestas son asíncronas. | JJ |
 | 2026-11-02 | **Propuesta, falta que el equipo la confirme**: tazos en bolsas especiales de Takis con revelación por rareza, puntos de habilidad y una página de habilidades en el inventario (4.12). | AG |
+
+## La libreta del Nocturno (propuesta de AG, 2026-11-07)
+
+💡 Un bestiario dentro del juego, escrito por el Nocturno en su cuaderno: se abre con B (RB en control) desde el inventario. Cada bicho tiene su página, que se llena al verlo (qué es), pelearlo (por qué es así) y matarlo (cómo matarlo y sus números). Las páginas se guardan para siempre, aunque reinicies la partida. Detalle técnico en CLAUDE.md; las corazonadas que no son canon todavía, en `revision-historia.md` 4.13.

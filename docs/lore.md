@@ -747,6 +747,20 @@ Ojo: **no toda casa en obra negra es del lote del 84.** Hay paracaidistas y vend
 
 ✅ **Leyenda.** En una casa de La Palmada hay un tinaco que nunca se vacía, aunque la familia lo use todo el día. La gente dice que es un milagro; los vecinos, que la casa está colgada de la toma de los Gotera. **Ninguna de las dos:** es la casa de doña Refugio, y el tinaco se llena del **pozo de los abuelos**, agua viva de verdad. **Gancho:** el rumor lleva al pozo, y el pozo lo quieren todos: GelA, Chava y los Gotera.
 
+
+### La Madre del Cárcamo
+
+💡 **Propuesta (AG, 2026-11-07; falta que el equipo la vote).** El Serenol no se disuelve del todo: se asienta. En el fondo de los **cárcamos** de GelA (los pozos de bombeo bajo sus tanques) se junta un lodo turquesa que nadie limpia, porque limpiarlo sería admitir que está ahí. En ese lodo nacieron **lombrices**: la vida de abajo también toma el agua blanca.
+
+- **La Madre del Cárcamo** es la más vieja: una lombriz del grueso de un tambo, con **sacos de Serenol** en el lomo que brillan en la oscuridad. Vive en el charco del fondo y sale a morder.
+- **Sus crías** se arrastran a cientos, trepan muros y se pegan a la gente para chuparle el agua del cuerpo. Partidas a la mitad, **cada mitad sigue viva y vuelve a crecer**: el machete a lo loco las multiplica. Lo que las mata de veras es pegarles en la cabeza, el **fuego** y la **sal** (la abuela de toda la colonia lo sabe: "a las babosas, sal").
+- **Montan zombis**: una cría en el lomo de un zombi lo maneja como un jinete; corre más y caza.
+- **Lo que se queda.** Los colmillos de la Madre brillan tantito de noche. Hay quien los compra (¿un laboratorio de GelA? ¿la capilla del padre Chuy?): ❓ sin decidir.
+
+**Por qué encaja.** No contradice que el zombi sea víctima (§8): las lombrices no son gente, son lo que el Serenol le hace a todo lo demás. Y apuntan de nuevo a GelA: en el fondo de su agua hay algo vivo.
+
+En el juego: `scripts/lombrices/` (`MadreCarcamo.gd`, `EnjambreLombrices.gd`) y la escena de prueba `scenes/lombrices.tscn`, un cárcamo con su charco.
+
 ---
 
 ## 17. La revelación

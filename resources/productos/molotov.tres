@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3]
+
+[ext_resource type="PackedScene" path="res://models/aguamala.glb" id="1_modelo"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+
+[resource]
+script = ExtResource("2_item")
+item_name = "Molotov"
+description = "Caguama con alcohol y un trapo. No es para tomar."
+inspection_model = ExtResource("1_modelo")
+efecto = "Tecla 3 y clic: aviéntala. Fuego que quema lombrices enteras y los sacos de la Madre."
+precio = 0
+tinte = Color(0.9, 0.45, 0.15, 1)
+arrojar = 2

@@ -1,0 +1,404 @@
+extends Node3D
+# El carcamo de la Madre (scenes/lombrices.tscn): un patio de PATIO m con un charco de lodo de
+# Serenol en medio (donde vive la Madre: MadreCarcamo.gd), cuatro pilares con pasarelas y
+# rampas, tambos prendidos que alejan a las crias (patealos para regar fuego) y una caja de sal
+# y una de molotov que se rellenan cada que sube la fase (cada 2 sacos).
+#
+# La pelea empieza en cuanto se hornea el campo. Si te desmayas, se reinicia toda (tus cosas se
+# quedan). Si la matas: $PAGA, un tazo holo y el Diente de la Madre.
+# Teclas: , vuelve a empezar la pelea; Shift+, explosion donde apuntas; F3 imprime cada 2 s cuanto
+# tarda cada parte del paso (tambien con -- --perfil). -- --lento=<ms> hace el paso lento a
+# proposito, para ver que el juego no se traba aunque el hilo no alcance.
+# Con -- --medir=<s> corre sola esos segundos (prueba balazo, machetazo, sal, molotov y sacos),
+# imprime lo que paso y sale.
+
+const PATIO := 22.0
+const MURO_ALTO := 3.0
+const CHARCO := 3.5             # medio lado del charco
+const CHARCO_HONDO := 0.6
+const PASARELA_ALTO := 2.5
+const ENTRADA := Vector3(0.0, 1.1, 9.5)
+const PAGA := 400
+const SAL := "res://resources/productos/sal.tres"
+const MOLOTOV := "res://resources/productos/molotov.tres"
+const DIENTE := "res://resources/productos/diente_madre.tres"
+const ALUMBRADO := preload("res://scripts/map/MapAlumbrado.gd")
+const TAMBOS := [Vector3(-10, 0, 3), Vector3(10, 0, -3), Vector3(-3, 0, 10), Vector3(3, 0, -10)]
+const CAJAS := [[Vector3(-9.5, 0.5, 9.5), SAL], [Vector3(9.5, 0.5, 9.5), MOLOTOV]]
+
+var _enjambre: EnjambreLombrices
+var _madre: MadreCarcamo
+var _barra: BarraMadre
+var _jugador: Node3D
+var _salud: Node
+var _letrero: Label
+var _aviso: Label
+var _negro: ColorRect
+var _cajas: Array = []
+var _reiniciando := false
+var _gano := false
+var _medir := -1.0
+var _medir_total := 0.0
+var _suma := 0.0
+var _suma_pensar := 0.0
+var _cuadros := 0
+var _pruebas := 0
+var _perfil := false
+var _perfil_t := 0.0
+
+
+func _ready() -> void:
+	# Lo que en el mapa crea Zombis: las hojas de pixel y las gotas/manchas
+	if get_tree().get_first_node_in_group("liquido") == null:
+		add_child(Liquido.new())
+	if get_tree().get_first_node_in_group("efectos_pixel") == null:
+		add_child(EfectosPixel.new())
+	_nivel()
+	_enjambre = $EnjambreLombrices
+	_enjambre.horneado.connect(_empezar)
+	# Por donde suben las crias si te trepas a una pasarela: [pie, punta] de cada rampa
+	_enjambre.rampas = [[Vector3(-9.5, 0.0, -1.0), Vector3(-9.5, PASARELA_ALTO, -6.4)],
+		[Vector3(9.5, 0.0, 1.0), Vector3(9.5, PASARELA_ALTO, 6.4)]]
+	_jugador = $Player
+	_salud = get_node_or_null("/root/Salud")
+	var capa := CanvasLayer.new()
+	capa.layer = 5
+	add_child(capa)
+	_letrero = Label.new()
+	_letrero.position = Vector2(8, 440)
+	_letrero.add_theme_font_size_override("font_size", 10)
+	_letrero.add_theme_color_override("font_outline_color", Color.BLACK)
+	_letrero.add_theme_constant_override("outline_size", 4)
+	capa.add_child(_letrero)
+	_aviso = Label.new()
+	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_aviso.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_aviso.theme = BarraMadre.TEMA
+	_aviso.add_theme_color_override("font_outline_color", Color.BLACK)
+	_aviso.add_theme_constant_override("outline_size", 5)
+	capa.add_child(_aviso)
+	_negro = ColorRect.new()
+	_negro.color = Color(0, 0, 0, 0)
+	_negro.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_negro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	capa.add_child(_negro)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--medir="):
+			_medir = float(arg.trim_prefix("--medir="))
+			_medir_total = _medir
+		elif arg == "--perfil":
+			_perfil = true
+		elif arg.begins_with("--lento="):
+			_enjambre.lento_ms = int(arg.trim_prefix("--lento="))
+
+
+# --- El carcamo ---
+
+func _nivel() -> void:
+	var gris := StandardMaterial3D.new()
+	gris.albedo_color = Color(0.4, 0.41, 0.42)
+	var piso_mat := StandardMaterial3D.new()
+	piso_mat.albedo_color = Color(0.27, 0.28, 0.25)
+	var fondo := StandardMaterial3D.new()
+	fondo.albedo_color = Color(0.12, 0.16, 0.13)
+	var medio := PATIO / 2.0
+	# El piso con el hueco del charco: cuatro losas alrededor y el fondo mas abajo
+	var ancho := medio - CHARCO
+	_caja(Vector3(PATIO + 2.0, 1.0, ancho + 1.0), Vector3(0, -0.5, -(CHARCO + (ancho + 1.0) / 2.0)), piso_mat)
+	_caja(Vector3(PATIO + 2.0, 1.0, ancho + 1.0), Vector3(0, -0.5, CHARCO + (ancho + 1.0) / 2.0), piso_mat)
+	_caja(Vector3(ancho + 1.0, 1.0, CHARCO * 2.0), Vector3(-(CHARCO + (ancho + 1.0) / 2.0), -0.5, 0), piso_mat)
+	_caja(Vector3(ancho + 1.0, 1.0, CHARCO * 2.0), Vector3(CHARCO + (ancho + 1.0) / 2.0, -0.5, 0), piso_mat)
+	_caja(Vector3(CHARCO * 2.0, 0.4, CHARCO * 2.0), Vector3(0, -CHARCO_HONDO - 0.2, 0), fondo)
+	# El lodo: una superficie turbia (no detiene nada) y una zona que te frena
+	var lodo := MeshInstance3D.new()
+	var plano := PlaneMesh.new()
+	plano.size = Vector2.ONE * CHARCO * 2.0
+	var lodo_mat := StandardMaterial3D.new()
+	lodo_mat.albedo_color = Color(0.13, 0.3, 0.25, 0.82)
+	lodo_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	lodo_mat.emission_enabled = true
+	lodo_mat.emission = Color(0.03, 0.18, 0.14)
+	lodo_mat.roughness = 0.15
+	plano.material = lodo_mat
+	lodo.mesh = plano
+	lodo.position.y = -0.15
+	add_child(lodo)
+	var zona := ZonaLombrices.new()
+	zona.tipo = ZonaLombrices.Tipo.LODO
+	zona.radio = CHARCO
+	zona.dura = 0.0
+	zona.frena = 0.7
+	zona.position = Vector3(0, -CHARCO_HONDO, 0)
+	add_child(zona)
+	# Muros
+	for lado in [Vector3.FORWARD, Vector3.BACK, Vector3.LEFT, Vector3.RIGHT]:
+		var medida := Vector3(PATIO + 2.0, MURO_ALTO, 1.0) if lado.x == 0.0 else Vector3(1.0, MURO_ALTO, PATIO + 2.0)
+		_caja(medida, lado * (medio + 0.5) + Vector3.UP * MURO_ALTO / 2.0, gris)
+	# Pilares, pasarelas y rampas
+	for x in [-7.0, 7.0]:
+		for z in [-7.0, 7.0]:
+			_pilar(Vector3(x, 0, z), gris)
+	for z in [-7.0, 7.0]:
+		_caja(Vector3(20.6, 0.3, 1.6), Vector3(0, PASARELA_ALTO - 0.15, z), gris)
+	var angulo := atan2(PASARELA_ALTO, 5.0)
+	var largo := sqrt(PASARELA_ALTO * PASARELA_ALTO + 25.0)
+	var rampa := _caja(Vector3(1.6, 0.25, largo), Vector3(-9.5, PASARELA_ALTO / 2.0 - 0.1, -3.7), gris)
+	rampa.rotation.x = angulo
+	rampa = _caja(Vector3(1.6, 0.25, largo), Vector3(9.5, PASARELA_ALTO / 2.0 - 0.1, 3.7), gris)
+	rampa.rotation.x = -angulo
+	# Tambos prendidos
+	for lugar: Vector3 in TAMBOS:
+		var tambo := ZonaLombrices.new()
+		tambo.tipo = ZonaLombrices.Tipo.REPELE
+		tambo.radio = 2.5
+		tambo.dura = 0.0
+		tambo.position = lugar
+		add_child(tambo)
+		var cuerpo := StaticBody3D.new()
+		cuerpo.add_child(ALUMBRADO.colision_tambo(Transform3D()))
+		tambo.add_child(cuerpo)
+		var lugares: Array[Transform3D] = [Transform3D()]
+		for nodo in ALUMBRADO.armar_tambos(lugares, 0.0):
+			tambo.add_child(nodo)
+		var luz := OmniLight3D.new()
+		luz.light_color = Color(1.0, 0.55, 0.2)
+		luz.light_energy = 1.5
+		luz.omni_range = 5.0
+		luz.position.y = 1.4
+		tambo.add_child(luz)
+	_rellenar_cajas()
+	var sol := DirectionalLight3D.new()
+	sol.rotation = Vector3(deg_to_rad(-55.0), deg_to_rad(30.0), 0)
+	sol.light_energy = 0.35
+	sol.light_color = Color(0.6, 0.7, 0.9)
+	sol.shadow_enabled = true
+	add_child(sol)
+	var mundo := WorldEnvironment.new()
+	var ambiente := Environment.new()
+	ambiente.background_mode = Environment.BG_COLOR
+	ambiente.background_color = Color(0.05, 0.06, 0.08)
+	ambiente.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	ambiente.ambient_light_color = Color(0.3, 0.35, 0.4)
+	ambiente.fog_enabled = true
+	ambiente.fog_light_color = Color(0.08, 0.12, 0.11)
+	ambiente.fog_density = 0.03
+	mundo.environment = ambiente
+	add_child(mundo)
+
+
+func _caja(medida: Vector3, donde: Vector3, material: Material) -> StaticBody3D:
+	var cuerpo := StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var caja := BoxShape3D.new()
+	caja.size = medida
+	forma.shape = caja
+	cuerpo.add_child(forma)
+	var malla := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = medida
+	bm.material = material
+	malla.mesh = bm
+	cuerpo.add_child(malla)
+	cuerpo.position = donde
+	add_child(cuerpo)
+	return cuerpo
+
+
+func _pilar(donde: Vector3, material: Material) -> void:
+	var cuerpo := StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var cilindro := CylinderShape3D.new()
+	cilindro.radius = 0.6
+	cilindro.height = MURO_ALTO + 1.0
+	forma.shape = cilindro
+	cuerpo.add_child(forma)
+	var malla := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = 0.6
+	cm.bottom_radius = 0.6
+	cm.height = MURO_ALTO + 1.0
+	cm.radial_segments = 8
+	cm.material = material
+	malla.mesh = cm
+	cuerpo.add_child(malla)
+	cuerpo.position = donde + Vector3.UP * (MURO_ALTO + 1.0) / 2.0
+	add_child(cuerpo)
+
+
+# Las cajas de sal y molotov que se tomaron vuelven a salir
+func _rellenar_cajas() -> void:
+	for n in CAJAS.size():
+		if n < _cajas.size() and is_instance_valid(_cajas[n]):
+			continue
+		var objeto: Node3D = load("res://scripts/WorldItem.gd").new()
+		objeto.set("item_data", load(CAJAS[n][1]))
+		objeto.position = CAJAS[n][0]
+		add_child(objeto)
+		if n < _cajas.size():
+			_cajas[n] = objeto
+		else:
+			_cajas.append(objeto)
+
+
+# --- La pelea ---
+
+func _empezar() -> void:
+	if _madre == null:
+		_madre = MadreCarcamo.new()
+		_madre.enjambre = _enjambre
+		_madre.charco = Vector3.ZERO
+		add_child(_madre)
+		_madre.muerta.connect(_gano_pelea)
+		_madre.saco_reventado.connect(func(q: int) -> void:
+			if (MadreCarcamo.SACOS - q) % 2 == 0:
+				_rellenar_cajas())
+		_barra = BarraMadre.new()
+		_barra.madre = _madre
+		_barra.enjambre = _enjambre
+		add_child(_barra)
+	_madre.reiniciar()
+	_madre.set_physics_process(true)
+	_gano = false
+	_avisar("LA MADRE DEL CÁRCAMO", 2.5)
+
+
+func _reiniciar_pelea() -> void:
+	_reiniciando = true
+	var tween := create_tween()
+	tween.tween_property(_negro, "color:a", 1.0, 0.6)
+	tween.tween_callback(func() -> void:
+		for zona in get_tree().get_nodes_in_group("zonas_lombriz"):
+			if zona.dura > 0.0:
+				zona.queue_free()
+		if _salud:
+			_salud.vida = _salud.vida_max
+		_jugador.global_position = ENTRADA
+		_jugador.velocity = Vector3.ZERO
+		_enjambre.rearmar()
+		_empezar()
+		_rellenar_cajas())
+	tween.tween_property(_negro, "color:a", 0.0, 0.8)
+	tween.tween_callback(func() -> void:
+		_reiniciando = false
+		_avisar("Otra vez", 1.5))
+
+
+func _gano_pelea() -> void:
+	_gano = true
+	_enjambre.disolver()
+	var cartera := get_node_or_null("/root/Cartera")
+	if cartera:
+		cartera.pesos += PAGA
+	var texto := "¡La Madre del Cárcamo cayó!\n+$%d" % PAGA
+	var tazos := get_node_or_null("/root/Tazos")
+	if tazos:
+		var tazo: TazoData = tazos.abrir_bolsa(TazoData.Rareza.HOLO)
+		if tazo:
+			texto += " · tazo holo: %s" % tazo.nombre
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario and inventario.add_item(load(DIENTE)):
+		texto += " · Diente de la Madre"
+	_avisar(texto + "\n( , otra vez )", 10.0)
+
+
+func _avisar(texto: String, dura: float) -> void:
+	_aviso.text = texto
+	_aviso.modulate.a = 1.0
+	var tween := create_tween()
+	tween.tween_interval(dura)
+	tween.tween_property(_aviso, "modulate:a", 0.0, 0.6)
+
+
+func _process(delta: float) -> void:
+	if _enjambre.horneando:
+		_letrero.text = "Horneando el cárcamo..."
+		return
+	_letrero.text = "paso %.1f ms (hilo, %d/s) · pensar %.1f · dibujar %.1f ms · %d FPS · %d pegadas%s" % [
+		_enjambre.ms_solver, _enjambre.hz, _enjambre.ms_pensar, _enjambre.ms_pintar,
+		Engine.get_frames_per_second(), _enjambre.pegadas(),
+		" · calidad: -%d lombrices" % _enjambre.quitadas if _enjambre.quitadas > 0 else ""]
+	if _perfil:
+		_perfil_t -= delta
+		if _perfil_t <= 0.0:
+			_perfil_t = 2.0
+			var f: PackedInt64Array = _enjambre.solver.perfil
+			print("Perfil (us): integrar %d · parejas %d · hilos %d · separar %d · campo %d · limites %d | pensar %d · dibujar %d | %d FPS" % [
+				f[0], f[1], f[2], f[3], f[4], f[5], int(_enjambre.ms_pensar * 1000.0), int(_enjambre.ms_pintar * 1000.0), Engine.get_frames_per_second()])
+	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0:
+		_reiniciar_pelea()
+	if _medir > 0.0:
+		_seguir_medida(delta)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F3:
+		_perfil = not _perfil
+	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_COMMA:
+		if event.shift_pressed:
+			EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())
+		elif not _reiniciando:
+			_reiniciar_pelea()
+
+
+# --- Prueba sola (-- --medir=<s>) ---
+
+func _seguir_medida(delta: float) -> void:
+	_suma += _enjambre.ms_solver
+	_suma_pensar += _enjambre.ms_pensar
+	_cuadros += 1
+	# Que no se desmaye a media prueba
+	if _salud and _salud.vida < 30:
+		_salud.vida = _salud.vida_max
+	_medir -= delta
+	var hecho := 1.0 - _medir / _medir_total
+	if _pruebas == 0 and hecho > 0.3:
+		_pruebas = 1
+		_probar_armas()
+	if _pruebas == 1 and hecho > 0.5:
+		_pruebas = 2
+		_probar_zonas()
+	if _pruebas == 2 and hecho > 0.6 and _madre:
+		_pruebas = 3
+		# Revienta 4 sacos para ver las fases 2 y 3
+		for n in 4:
+			_madre._herir(n, MadreCarcamo.SACO_VIDA)
+	if _medir <= 0.0:
+		_reporte()
+		get_tree().quit()
+
+
+func _probar_armas() -> void:
+	var antes := _enjambre.vivos_total
+	var origen := _jugador.global_position + Vector3.UP * 0.5
+	var blanco := _enjambre.vista[randi() % _enjambre.vista.size()]
+	var pego := EnjambreLombrices.rayo(get_tree(), origen, (blanco - origen).normalized(), 50.0, 0.12)
+	if not pego.is_empty():
+		pego.enjambre.bullet_hit(pego.dot_index, pego.position, (blanco - origen).normalized())
+	var corto := _enjambre.golpe_cuerpo(_jugador.global_position, Vector3.FORWARD, 2.4, 0.35, 12)
+	print("Lombrices: balazo %s (%d -> %d vivos), machetazo %s" % [not pego.is_empty(), antes, _enjambre.vivos_total, corto])
+
+
+func _probar_zonas() -> void:
+	var centro := Vector3.ZERO
+	var n := 0
+	for i in _enjambre.vista.size():
+		if _enjambre.vivos[i] == 1:
+			centro += _enjambre.vista[i]
+			n += 1
+	centro = Vector3(centro.x, 0.0, centro.z) / maxi(n, 1)
+	ZonaLombrices.crear(self, centro, ZonaLombrices.Tipo.SAL, 2.0, 5.0)
+	ZonaLombrices.crear(self, centro + Vector3(3, 0, 0), ZonaLombrices.Tipo.FUEGO, 3.0, 5.0)
+
+
+func _reporte() -> void:
+	var adentro := 0
+	for i in _enjambre.vista.size():
+		if _enjambre.vivos[i] == 1 and _enjambre.modo[i] & SolverLombrices.BAJO_TIERRA == 0 \
+				and _enjambre.campo.muestra(_enjambre.vista[i]) < -0.05:
+			adentro += 1
+	print("Lombrices: paso %.2f ms (hilo, %d/s), pensar %.2f ms + dibujar %.2f ms (principal), %d cuadros (%.0f por s), %d vivos de %d, quito %d" % [
+		_suma / _cuadros, _enjambre.hz, _suma_pensar / _cuadros, _enjambre.ms_pintar, _cuadros, _cuadros / _medir_total,
+		_enjambre.vivos_total, _enjambre.vivos.size(), _enjambre.quitadas])
+	print("  adentro de algo %d · fase %d · sacos %d · madre %s" % [adentro, _enjambre.fase, _madre.quedan() if _madre else -1, _madre.cuenta if _madre else {}])
+	print("  crias %s" % _enjambre.cuenta)

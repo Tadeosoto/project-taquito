@@ -33,6 +33,9 @@ extends Resource
 # Bolsa especial de Takis: "Abrir" en el inventario saca un tazo (Tazos.gd, TazoRevelacion.gd)
 @export var bolsa_tazo : bool = false
 
+# Se avienta con el Lanzador (tecla 3): sal o molotov contra las lombrices (ZonaLombrices)
+@export_enum("No", "Sal", "Molotov") var arrojar : int = 0
+
 
 # El modelo centrado y escalado a una caja de `tamano` m (los de Sketchfab vienen en
 # cualquier unidad), dentro de un nodo que se puede mover, girar y escalar libremente.

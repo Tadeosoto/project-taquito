@@ -1,0 +1,16 @@
+{
+ "id": "impacts/hit-spark",
+ "fps": 30,
+ "loop": false,
+ "frames": 16,
+ "frameSize": [
+  136,
+  80
+ ],
+ "pivot": [
+  44,
+  64
+ ],
+ "columns": 4,
+ "golpe_en": 0
+}

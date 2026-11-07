@@ -236,6 +236,8 @@ const GIRO_AIRE_VELOCIDAD := 1.5
 # el giro se acelera hasta GIRO_AIRE_VEL_MAX y, si ni asi, termina ya en el piso. Pega en ese
 # cuadro, y lo demas (agachado y levantarse) va a velocidad normal
 const GIRO_AIRE_CAE := 0.7
+const AZOTE_RADIO := 3.5        # m: el giro al caer levanta lombrices (EnjambreLombrices)
+const AZOTE_FUERZA := 9.0
 const GIRO_AIRE_VEL_MAX := 2.5
 const PIES := 1.0             # m del centro del cuerpo a los pies (la capsula mide 2)
 # La estocada con avance, que sale al soltar el ataque cargado:
@@ -360,6 +362,10 @@ var _clavando := false         # la estocada del aire va deslizandose y bajando
 var _clavado_baja := 0.0       # m que baja durante el desliz
 var _estocada_dir := Vector3.ZERO
 var _estocada_pegados: Array = []
+var _estocada_lombrices := false   # esta estocada ya corto lombrices
+# Lo que te frena (lombrices pegadas, lodo de la Madre): fuente -> factor; se multiplican
+var lastres := {}
+var _lanzador: Lanzador
 var _rodada_t := -1.0        # s del clip Roll desde que salio la rodada; -1 = no hay
 var _rodada_dir := Vector3.ZERO
 var _rodar_espera := 0.0
@@ -446,6 +452,10 @@ func _ready() -> void:
 	_pistola.name = "Pistola"
 	_pistola.jugador = self
 	add_child(_pistola)
+	_lanzador = Lanzador.new()
+	_lanzador.name = "Lanzador"
+	_lanzador.jugador = self
+	add_child(_lanzador)
 	_dato_pistola = InventoryItemData.new()
 	_dato_pistola.item_name = "Pistola"
 	_dato_pistola.inspection_model = PISTOLA_MODELO
@@ -633,6 +643,17 @@ func _golpear(giro := false) -> void:
 		mato = mato or resultado == 2
 		if resultado == 2 and con_arma:
 			_conto_espada()
+	# Las lombrices (EnjambreLombrices, MadreCarcamo) no estan en "zombis": el golpe les corta los
+	# hilos aparte
+	for enjambre in get_tree().get_nodes_in_group("lombrices"):
+		if enjambre.golpe_cuerpo(global_position, frente, _alcance * (GIRO_ALCANCE if giro else 1.0), ATAQUE_ANGULO, dano, giro):
+			pego = true
+	# Un tambo prendido de la pelea con la Madre: patearlo riega fuego (ZonaLombrices.patear)
+	for tambo: Node3D in get_tree().get_nodes_in_group("tambos_lombriz"):
+		var al_tambo := tambo.global_position - global_position
+		al_tambo.y = 0.0
+		if al_tambo.length() < _alcance and (giro or al_tambo.normalized().dot(frente) >= ATAQUE_ANGULO):
+			tambo.patear(al_tambo)
 	golpes += 1
 	if pego:
 		golpes_pegaron += 1
@@ -690,6 +711,9 @@ func _revisar_carga(delta: float) -> void:
 			if not _giro_pego:
 				_giro_pego = true
 				_golpear(true)
+			# El azote en el piso levanta a las lombrices en redondo (sin matarlas)
+			for enjambre in get_tree().get_nodes_in_group("lombrices"):
+				enjambre.apply_explosion_impulse(global_position - Vector3.UP * 0.9, AZOTE_RADIO, AZOTE_FUERZA, false)
 			_giro_vel = 1.0
 			if figura.has_method("velocidad_giro"):
 				figura.velocidad_giro(1.0)
@@ -835,6 +859,7 @@ func _estocar(desde := 0.0, aire := false) -> void:
 		desde = ESTOCADA_AIRE_DESDE
 	_estocada_t = desde
 	_estocada_pegados.clear()
+	_estocada_lombrices = false
 	_pega_en = -1.0
 	_golpe_guardado = false
 	_combo_roto = true
@@ -1115,6 +1140,13 @@ func _pegar_estocada() -> void:
 			mato = mato or resultado == 2
 			if resultado == 2 and not _sin_arma():
 				_conto_espada()
+	# Lombrices: una vez por estocada o tajo, en cuanto alcanza alguna
+	if not _estocada_lombrices:
+		for enjambre in get_tree().get_nodes_in_group("lombrices"):
+			# El tajo cargado corta todo lo que alcanza
+			if enjambre.golpe_cuerpo(global_position, _estocada_dir, radio, cono, dano, false, _tajo):
+				_estocada_lombrices = true
+				pego = true
 	if pego:
 		golpes_pegaron += 1
 		_sentir_golpe(_estocada_dir, fuerza, mato)
@@ -1551,6 +1583,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_pitch = clampf(camera_pitch, -60.0, 30.0)
 		spring_arm.rotation_degrees.x = camera_pitch
 	elif event.is_action_pressed("cambiar_arma") and is_physics_processing():
+		_lanzador.soltar()
 		_pistola.cambiar()
 		_soltar_combo()
 		_mostrar_arma()
@@ -1573,7 +1606,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("curarse") and is_physics_processing() and _rodada_t < 0.0:
 		_curarse()
 	elif event.is_action_pressed("attack") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		if _pistola.activa:
+		if _lanzador.activo:
+			if _curando <= 0.0 and _rodada_t < 0.0:
+				_lanzador.lanzar()
+		elif _pistola.activa:
 			# Viendo al personaje de frente la mira apunta hacia ti: no dispara
 			if _curando <= 0.0 and _rodada_t < 0.0 and not mirando_atras():
 				_pistola.disparar()
@@ -1701,9 +1737,23 @@ func _tecla_arma(event: InputEvent) -> int:
 	return -1
 
 
-# 0 = el arma de golpe (machete o puño), 1 = la pistola; 2-4 aun no hay nada
+# 0 = el arma de golpe (machete o puño), 1 = la pistola, 2 = lo que se avienta (Lanzador:
+# sal, molotov); 3-4 aun no hay nada
 func cambiar_arma(indice: int) -> void:
-	if indice > 1 or (indice == 1) == _pistola.activa:
+	if indice == 2:
+		if _pistola.activa:
+			_pistola.cambiar()
+			_mostrar_arma()
+		_soltar_combo()
+		_lanzador.tomar()
+		return
+	if indice > 2:
+		return
+	var traia := _lanzador.activo
+	_lanzador.soltar()
+	if (indice == 1) == _pistola.activa:
+		if traia:
+			_mostrar_arma()
 		return
 	_pistola.cambiar()
 	_soltar_combo()
@@ -1922,6 +1972,8 @@ func _physics_process(delta: float) -> void:
 		move_speed = minf(move_speed, CAMINA_PISTOLA if _apuntando or (_bloqueando and _punos()) else CAMINA_MAXIMO)
 	if _bloqueando:
 		move_speed = minf(move_speed, speed * BLOQUEO_VELOCIDAD)
+	for factor: float in lastres.values():
+		move_speed *= factor
 	# Caminando, el barrido va solo arriba: las piernas siguen trotando
 	if figura.has_method("golpe_caminando"):
 		figura.golpe_caminando(is_moving and (en_golpe or _bloqueando))

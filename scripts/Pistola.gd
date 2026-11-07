@@ -46,6 +46,7 @@ const DISPERSION := 0.012     # rad de desvio al azar por tiro
 const APUNTA_DISPERSION := 0.004 # apuntando
 const CABEZA_DESDE := 1.4     # m sobre los pies (por el tamano del zombi; la capsula mide 1.8)
 const CABEZA_MULT := 3
+const RADIO_LOMBRIZ := 0.12    # m: grueso del rayo contra los puntos de las lombrices
 const TONO_MIN := 0.94        # pitch_scale del disparo, al azar: que el tiro rapido no suene a copia
 const TONO_MAX := 1.06
 const DISPAROS := 4           # disparo_1..disparo_4 (Sonidos), uno al azar si falta el grabado
@@ -171,9 +172,15 @@ func disparar() -> void:
 	var pego := espacio.intersect_ray(rayo)
 	var punto: Vector3 = pego.position if pego else origen + hacia * ALCANCE
 	var blanco: Zombie = pego.collider as Zombie if pego else null
+	# Lombrices (EnjambreLombrices): no tienen colliders, se les pregunta aparte. Si un punto
+	# esta mas cerca que la pared o el zombi, el tiro es suyo
+	var lombriz := EnjambreLombrices.rayo(get_tree(), origen, hacia, origen.distance_to(punto), RADIO_LOMBRIZ)
+	if not lombriz.is_empty():
+		punto = lombriz.position
+		blanco = null
 	# Solo un tiro que de de veras arriba de la capsula es a la cabeza; la ayuda nunca
 	var cabeza := blanco != null and punto.y - blanco.global_position.y >= CABEZA_DESDE * blanco._tamano
-	if blanco == null:
+	if blanco == null and lombriz.is_empty():
 		blanco = _ayuda(espacio, excluir, origen, mira)
 		if blanco:
 			punto = blanco.global_position + Vector3.UP * PECHO
@@ -183,6 +190,11 @@ func disparar() -> void:
 		sacude = SACUDE_PEGA
 		aciertos += 1
 		Sonidos.tocar(self, "whack", -4.0 if cabeza else -10.0)
+	if not lombriz.is_empty():
+		lombriz.enjambre.bullet_hit(lombriz.dot_index, lombriz.position, hacia)
+		sacude = SACUDE_PEGA
+		aciertos += 1
+		Sonidos.tocar(self, "whack", -10.0)
 	var balazo := "disparo_pistola" if Sonidos.sonido("disparo_pistola") else "disparo_%d" % randi_range(1, DISPAROS)
 	Sonidos.tocar(self, balazo, -4.0, randf_range(TONO_MIN, TONO_MAX))
 	jugador._sacude_fuerza = sacude
@@ -195,7 +207,7 @@ func disparar() -> void:
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel") as EfectosPixel
 	if efectos:
 		# Pared o suelo: chispas (al zombi ya lo salpica su agua)
-		if pego and blanco == null:
+		if pego and blanco == null and lombriz.is_empty():
 			efectos.lanzar("bala", punto - Vector3.UP * BALA_IMPACTO_ALTO, hacia)
 	_expulsar_casquillo(camara)
 	if balas <= 0:

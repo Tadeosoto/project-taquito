@@ -8,7 +8,7 @@ extends Node3D
 #
 # Hasta arriba, un negocio de cada giro; a la izquierda las maquinitas, una en cada estado;
 # adelante, un objeto de cada uno (todo lo de resources/productos/); atras, casas modelo. En
-# medio cabe la pelea. Las teclas de prueba estan en PANEL_TEXTO y se ven con F1.
+# medio cabe la pelea. Las teclas de prueba estan en PAGINAS y se ven con F1 (una pagina a la vez).
 
 const PUNTOS_JSON := "user://puntos_safehouse.json"
 const CASAS_JSON := "user://casas_safehouse.json"
@@ -69,28 +69,48 @@ const TURBA_PRUEBA := 12
 const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
 # La estela de los golpes (EstelaBarrido.estilo): la 8 prende o apaga la del protagonista
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
-const PANEL_TEXTO := """DEV SAFEHOUSE  (F1 muestra/oculta esto)
-Tab inventario · clic o F pegar · V dron · clic der. bloquear · Alt + WASD rodar · S pegando o con pistola: retroceder · botón de en medio: verte de frente
-N siguiente atardecer/amanecer
-Z zombi · B turba · X quitar zombis · T zombis solos de noche
-H curar · J -%d de vida · P +$100 · Y vaciar inventario (sin machete pegas a puñetazos)
+# El panel de F1, por paginas (en 640x480 todo junto tapaba la pantalla): F1 pasa a la
+# siguiente y despues de la ultima lo esconde. `efectos`: si muestra el estado de F2-F9, 9, 0 y 8
+const PAGINAS := [
+	{"titulo": "Básico", "efectos": false, "texto": """Tab inventario · M mapa · U todas las piezas
+Clic o F pegar · clic der. bloquear · Alt + WASD rodar
+S pegando o con pistola: retroceder
+Botón de en medio: verte de frente
+V dron · N siguiente atardecer/amanecer
+H curar · J -%d de vida · P +$100
+Y vaciar inventario (sin machete pegas a puñetazos)
+C crear personaje · K deterioro
+F12 reiniciar todo · F10 ir al mapa"""},
+	{"titulo": "Pelea", "efectos": true, "texto": """1 2 machete / pistola · R recargar
+9 golpe a tiempo (córtalo cuando gruñe) / sin aturdir
+8 estela del protagonista (su mejora) / la de siempre
+7 cargado: deja apretado y suelta = tajo, 2.5x
+6 en el aire: giro; con Shift, clavado (prueba)
+Shift+1 2 3 maquinita: normal, sin monedas, segura"""},
+	{"titulo": "Zombis", "efectos": true, "texto": """Z zombi · B turba (Shift+B: borrar la libreta) · X quitar · F8 jefe
+T zombis solos de noche
+0 caminan en enjambre / en fila como antes
 G tablas · L -100 al tinaco (refugio a la derecha)
-M mapa (sin piezas se ve vacío) · U todas las piezas
-1 2 machete / pistola · R recargar · Shift+1 2 3 maquinita cercana: normal, sin monedas, segura
-C crear personaje · K deterioro · F12 reiniciar todo · F10 ir al mapa
-F8 sacar al jefe · F9 prender/apagar los efectos nuevos (tambos y chispas: a la derecha)
-9 pelea: golpe a tiempo (córtalo cuando gruñe) / sin aturdir nunca
-0 zombis: enjambre (carriles, atajos, rebasan) / en fila como antes
-8 estela del protagonista (su mejora): prendida / la de siempre
-7 ataque cargado: deja apretado pegar y suelta = tajo de arriba abajo con avance, 2.5x dano / sin cargado
-6 golpe con brinco: pega en el aire = espadazo giratorio; con Shift, clavado con estocada (prueba) / sin giro
-O bolsa especial de Takis · Shift+O forzar rareza · I +5 puntos · Shift+I todos los tazos (H/T en el inventario)
-Efectos de pixel, propuestas (F2-F7 cambian):"""
+, soltar 80 lombrices enfrente (hornea unos segundos)
+Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
+3 sal / molotov (otra vez 3 cambia; caguama + alcohol = molotov)"""},
+	{"titulo": "Efectos y tazos", "efectos": true, "texto": """F2-F7 efectos de pixel (propuestas, abajo)
+F9 efectos nuevos (tambos y chispas: a la derecha)
+O bolsa especial de Takis · Shift+O forzar rareza
+I +5 puntos · Shift+I todos los tazos
+H/T en el inventario: habilidades y álbum"""},
+]
+const PANEL_ANCHO := 380.0     # px de 640: deja libre la mira y al personaje
+const LOMBRICES_ENFRENTE := 8.0
+const LOMBRICES_CAJA := Vector3(32.0, 5.0, 32.0)
 # Una tecla por lugar de EfectosPixel, en este orden
 const EFECTOS_TECLAS := [KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7]
 const EFECTOS_LUGARES := ["golpe", "impacto", "herido", "muerte", "amanecer", "recoger"]
 
 var _jugador: Player
+var _lombrices: EnjambreLombrices
+var _madre: MadreCarcamo
+var _barra_madre: BarraMadre
 var _zombis: Zombis
 var _ciclo: Ciclo
 var _salud: Node
@@ -99,6 +119,9 @@ var _inventario: Node
 var _maquinas: Array[Maquinita] = []
 var _objetos: Node3D
 var _panel: CanvasLayer
+var _pagina := -1               # -1 = panel escondido
+var _titulo: Label
+var _ayuda: Label
 var _estado: Label
 var _efectos: Label
 var _deterioro := 2
@@ -361,7 +384,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var tecla: int = event.physical_keycode
 	if tecla == KEY_F1:
-		_panel.visible = not _panel.visible
+		_pagina += 1
+		if _pagina >= PAGINAS.size():
+			_pagina = -1
+		_mostrar_pagina()
 		return
 	# En una tienda, en una maquinita o volando estas teclas son de ellos
 	if not (_jugador.can_process() and _jugador.is_physics_processing()):
@@ -383,14 +409,21 @@ func _unhandled_input(event: InputEvent) -> void:
 			_inventario.items.clear()
 			_inventario.inventory_changed.emit()
 		KEY_B:
-			_zombis.aparecer_turba(TURBA_PRUEBA)
+			# Shift+B: olvidar la libreta del Nocturno (para volver a descubrir las paginas)
+			if event.shift_pressed:
+				get_node("/root/Libreta").olvidar()
+			else:
+				_zombis.aparecer_turba(TURBA_PRUEBA)
 		KEY_U:
 			for zona in ZonasMapa.cuantas():
 				PiezasMapa.dar(zona)
 		KEY_G:
 			_inventario.add_item(load(TABLAS_PRUEBA))
 		KEY_L:
-			_refugio.recibir_golpe(DANO_TINACO)
+			if event.shift_pressed:
+				_soltar_madre()
+			else:
+				_refugio.recibir_golpe(DANO_TINACO)
 		KEY_1, KEY_2, KEY_3:
 			# Sin Shift, 1-5 cambian de arma (Player._tecla_arma)
 			if event.shift_pressed:
@@ -426,8 +459,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_mostrar_efectos()
 		KEY_6:
 			Player.giro_aereo = not Player.giro_aereo
+			_mostrar_efectos()
 		KEY_7:
 			Player.golpe_cargado = not Player.golpe_cargado
+			_mostrar_efectos()
 		KEY_O:
 			if event.shift_pressed:
 				Tazos.rareza_forzada = wrapi(Tazos.rareza_forzada + 1, -1, TazoData.Rareza.size())
@@ -441,6 +476,11 @@ func _unhandled_input(event: InputEvent) -> void:
 						Tazos.dar_tazo(tazo)
 			else:
 				Tazos.dar_puntos(PUNTOS_PRUEBA)
+		KEY_COMMA:
+			if event.shift_pressed:
+				EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())
+			else:
+				_soltar_lombrices()
 		KEY_F10:
 			# Al cambiar de escena este nodo ya no tiene viewport
 			get_viewport().set_input_as_handled()
@@ -469,6 +509,51 @@ func _crear_personaje() -> void:
 		_jugador.aplicar_personaje()
 	creador.connect("listo", cerrar)
 	creador.connect("volver", cerrar)
+
+
+# Un enjambre de lombrices (scripts/lombrices/) LOMBRICES_ENFRENTE m enfrente, en el piso
+func _soltar_lombrices() -> void:
+	if _lombrices == null:
+		_lombrices = EnjambreLombrices.new()
+		_lombrices.hornear_al_entrar = false
+		_lombrices.caja = LOMBRICES_CAJA
+		add_child(_lombrices)
+	var frente := -_jugador.frijol.global_transform.basis.z
+	frente.y = 0.0
+	var donde := _jugador.global_position + frente.normalized() * LOMBRICES_ENFRENTE
+	donde.y = 0.0
+	_lombrices.global_position = donde
+	# Solas (,): sin Madre, en fase 3 para ver todo; Shift+L la vuelve a conectar
+	if _lombrices.horneado.is_connected(_armar_madre):
+		_lombrices.horneado.disconnect(_armar_madre)
+	if _madre:
+		_madre.visible = false
+		_madre.set_physics_process(false)
+	_lombrices.fase = 3
+	_lombrices.soltar(donde)
+
+
+# La Madre del Carcamo (MadreCarcamo.gd) bajo el piso donde se sueltan las crias; sin charco,
+# se esconde en el piso. Con ella el enjambre arranca en fase 1
+func _soltar_madre() -> void:
+	_soltar_lombrices()
+	if not _lombrices.horneado.is_connected(_armar_madre):
+		_lombrices.horneado.connect(_armar_madre)
+
+
+func _armar_madre() -> void:
+	if _madre == null:
+		_madre = MadreCarcamo.new()
+		_madre.enjambre = _lombrices
+		add_child(_madre)
+		_barra_madre = BarraMadre.new()
+		_barra_madre.madre = _madre
+		_barra_madre.enjambre = _lombrices
+		add_child(_barra_madre)
+		_madre.muerta.connect(_lombrices.disolver)
+	_madre.charco = _lombrices.global_position
+	_madre.reiniciar()
+	_madre.set_physics_process(true)
 
 
 func _zombi() -> void:
@@ -510,7 +595,8 @@ func _armar_panel() -> void:
 	_panel.visible = false
 	add_child(_panel)
 	var fondo := PanelContainer.new()
-	fondo.position = Vector2(6.0, 6.0)
+	# Debajo de la barra de vida (Supervivencia)
+	fondo.position = Vector2(6.0, 26.0)
 	# Con el raton capturado el cursor esta en el centro: si el panel llega ahi se comia el
 	# mirar y el pegar
 	fondo.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -519,35 +605,61 @@ func _armar_panel() -> void:
 	caja.set_content_margin_all(6.0)
 	fondo.add_theme_stylebox_override("panel", caja)
 	_panel.add_child(fondo)
+	fondo.custom_minimum_size.x = PANEL_ANCHO
 	var columna := VBoxContainer.new()
 	fondo.add_child(columna)
-	var ayuda := Label.new()
-	ayuda.text = PANEL_TEXTO % DANO_PRUEBA
-	ayuda.add_theme_font_size_override("font_size", 11)
-	columna.add_child(ayuda)
-	_efectos = Label.new()
-	_efectos.add_theme_font_size_override("font_size", 11)
-	columna.add_child(_efectos)
+	_titulo = _renglon(columna, Color(0.6, 0.9, 1.0))
+	_ayuda = _renglon(columna, Color.WHITE)
+	_efectos = _renglon(columna, Color(0.8, 0.8, 0.8))
 	_mostrar_efectos()
-	_estado = Label.new()
-	_estado.add_theme_font_size_override("font_size", 11)
-	_estado.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))
-	columna.add_child(_estado)
+	_estado = _renglon(columna, Color(1.0, 0.85, 0.1))
+	_mostrar_pagina()
 
 
+# Un texto del panel: angosto, y lo largo baja de renglon en vez de ensanchar el panel
+func _renglon(columna: VBoxContainer, color: Color) -> Label:
+	var texto := Label.new()
+	texto.add_theme_font_size_override("font_size", 11)
+	texto.add_theme_color_override("font_color", color)
+	texto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	texto.custom_minimum_size.x = PANEL_ANCHO
+	texto.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	columna.add_child(texto)
+	return texto
+
+
+func _mostrar_pagina() -> void:
+	_panel.visible = _pagina >= 0
+	if _pagina < 0:
+		return
+	var pagina: Dictionary = PAGINAS[_pagina]
+	_titulo.text = "DEV SAFEHOUSE · %s (%d/%d) · F1 siguiente" % [pagina.titulo, _pagina + 1, PAGINAS.size()]
+	_ayuda.text = pagina.texto % DANO_PRUEBA if _pagina == 0 else pagina.texto
+	_efectos.visible = pagina.efectos
+	_mostrar_efectos()
+	# El panel no se encoge solo al pasar a una pagina mas corta
+	_panel.get_child(0).size = Vector2.ZERO
+
+
+# El estado de las teclas que cambian algo, solo las de la pagina abierta
 func _mostrar_efectos() -> void:
-	# Tres por renglon, para que el panel no crezca tanto
-	var partes := PackedStringArray()
-	for i in EFECTOS_LUGARES.size():
-		var lugar: String = EFECTOS_LUGARES[i]
-		partes.append("F%d %s: %s" % [i + 2, lugar, _zombis.efectos.nombre_variante(lugar)])
-		if i % 3 == 2 and i < EFECTOS_LUGARES.size() - 1:
-			partes.append("\n")
-	_efectos.text = " · ".join(partes).replace(" · \n · ", "\n") \
-		+ "\nF9 efectos nuevos: " + ("prendidos" if EfectosPixel.extras else "apagados") \
-		+ " · 9 pelea: " + ("golpe a tiempo" if Player.pelea_a_tiempo else "sin aturdir") \
-		+ "\n0 zombis: " + ("enjambre" if Zombie.enjambre else "en fila (como antes)") \
-		+ " · 8 estela: %d %s" % [ESTELA.estilo, ESTELA.NOMBRES[ESTELA.estilo]]
+	if _efectos == null:
+		return
+	var renglones := PackedStringArray()
+	match _pagina:
+		1:
+			renglones.append("9 pelea: " + ("golpe a tiempo" if Player.pelea_a_tiempo else "sin aturdir"))
+			renglones.append("8 estela: %d %s" % [ESTELA.estilo, ESTELA.NOMBRES[ESTELA.estilo]])
+			renglones.append("7 cargado: %s · 6 giro: %s" % ["sí" if Player.golpe_cargado else "no", "sí" if Player.giro_aereo else "no"])
+		2:
+			renglones.append("0 zombis: " + ("enjambre" if Zombie.enjambre else "en fila (como antes)"))
+		3:
+			for i in EFECTOS_LUGARES.size():
+				var lugar: String = EFECTOS_LUGARES[i]
+				renglones.append("F%d %s: %s" % [i + 2, lugar, _zombis.efectos.nombre_variante(lugar)])
+			renglones.append("F9 efectos nuevos: " + ("prendidos" if EfectosPixel.extras else "apagados"))
+	_efectos.text = "
+".join(renglones)
 
 
 func _process(_delta: float) -> void:

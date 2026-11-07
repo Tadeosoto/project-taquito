@@ -35,11 +35,15 @@ const CAPA_PANTALLA := 9       # sobre Supervivencia (8), bajo el inventario (11
 # Las que suman luz (los rayos) van abajo de Supervivencia: si no, se veian encima del negro al desmayarte
 const CAPA_LUZ := 7
 # Los de la segunda ronda: se apagan con extras = false
-const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar", "fuente", "bala"]
+const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar", "fuente", "bala",
+	# La Madre del Carcamo y sus crias (scripts/lombrices/), hojas con la paleta del Serenol
+	"madre_surge", "madre_tierra", "saco_golpe", "saco_revienta", "lodo_choque", "fase_onda", "madre_muere", "cria_corte", "cria_cabeza", "molotov_revienta", "torre_golpe", "pegada_mordida", "pegada_suelta"]
 
 # Cada lugar, sus variantes (la primera es la que queda por omision, salvo PREDETERMINADA). `hoja` vacia = nada.
 # `puno`: la hoja a mano limpia; `mata`: la del golpe que mata; `voltea`: la hoja ve a la
-# derecha y se voltea segun hacia donde va el golpe en pantalla.
+# derecha y se voltea segun hacia donde va el golpe en pantalla. `suelo`: sale del piso (tierra,
+# geiser, charco): de pie, girando solo en vertical y sin acercarse a la camara, para que su base
+# quede pegada al piso y no flote al ver desde arriba.
 const LUGARES := {
 	"golpe": [
 		{ "nombre": "A tajo (puno: estocada)", "hoja": "golpe_machete", "puno": "golpe_puno", "escala": 0.6, "voltea": true },
@@ -99,6 +103,21 @@ const LUGARES := {
 		{ "nombre": "A chorro", "hoja": "fuente_cabeza", "escala": 0.6 },
 		{ "nombre": "B nada", "hoja": "" },
 	],
+	# La Madre del Carcamo (MadreCarcamo.gd) y sus crias (EnjambreLombrices.gd, ZonaLombrices.gd).
+	# Sus hojas llenan el cuadro (las de los zombis son chispas chicas dentro de uno grande): escala baja
+	"madre_surge": [{ "nombre": "A", "hoja": "madre_surge", "escala": 0.4, "suelo": true }],
+	"madre_tierra": [{ "nombre": "A", "hoja": "madre_tierra", "escala": 0.3, "suelo": true }],
+	"saco_golpe": [{ "nombre": "A", "hoja": "saco_golpe", "escala": 0.4 }],
+	"saco_revienta": [{ "nombre": "A", "hoja": "saco_revienta", "escala": 0.35, "suelo": true }],
+	"lodo_choque": [{ "nombre": "A", "hoja": "lodo_choque", "escala": 0.3, "suelo": true }],
+	"fase_onda": [{ "nombre": "A", "hoja": "fase_onda", "escala": 0.35, "suelo": true }],
+	"madre_muere": [{ "nombre": "A", "hoja": "madre_muere", "escala": 0.3, "suelo": true }],
+	"cria_corte": [{ "nombre": "A", "hoja": "cria_corte", "escala": 0.35 }],
+	"cria_cabeza": [{ "nombre": "A", "hoja": "cria_cabeza", "escala": 0.35, "suelo": true }],
+	"molotov_revienta": [{ "nombre": "A", "hoja": "molotov_revienta", "escala": 0.3, "suelo": true }],
+	"torre_golpe": [{ "nombre": "A", "hoja": "torre_golpe", "escala": 0.4, "suelo": true }],
+	"pegada_mordida": [{ "nombre": "A", "hoja": "pegada_mordida", "escala": 0.35 }],
+	"pegada_suelta": [{ "nombre": "A", "hoja": "pegada_suelta", "escala": 0.35 }],
 }
 
 # La variante que queda por omision cuando no es la primera. El golpe ya deja su estela en 3D
@@ -189,6 +208,10 @@ func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, o
 	var lado := camara.global_basis.x
 	var voltea: bool = v.get("voltea", false) and hacia.dot(lado) < 0.0
 	var px: float = PIXEL * float(v.get("escala", 1.0)) * escala
+	var suelo: bool = v.get("suelo", false)
+	s.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y if suelo else BaseMaterial3D.BILLBOARD_ENABLED
+	if suelo:
+		acercar = 0.0
 	s.texture = hoja["textura"]
 	s.hframes = hoja["columnas"]
 	s.vframes = ceili(float(hoja["cuadros"]) / hoja["columnas"])
@@ -296,8 +319,9 @@ func pantalla(nombre: String, desde: float, hasta: float, aditivo := false, alfa
 # Un material por hoja y manera, compartido por todos los que la usan. `periodo` 0 = lo que
 # dura la hoja; mas = un hueco sin nada entre vuelta y vuelta. `con_direccion`: la hoja ve a la
 # derecha y cada cuadro se voltea segun su instance uniform `hacia`
-static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_direccion := false) -> ShaderMaterial:
-	var clave := "%s|%s|%s|%s" % [nombre, alfa, periodo, con_direccion]
+# `de_pie`: de pie en el piso (solo gira en vertical), para charcos, burbujas y lo que sale del suelo
+static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false) -> ShaderMaterial:
+	var clave := "%s|%s|%s|%s|%s" % [nombre, alfa, periodo, con_direccion, de_pie]
 	if _materiales.has(clave):
 		return _materiales[clave]
 	var hoja := hoja_de(nombre)
@@ -315,6 +339,7 @@ static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_dire
 	material.set_shader_parameter("pivote", hoja["pivote"])
 	material.set_shader_parameter("pixel", PIXEL)
 	material.set_shader_parameter("con_direccion", con_direccion)
+	material.set_shader_parameter("de_pie", de_pie)
 	material.set_meta("alfa", alfa)
 	material.set_shader_parameter("alfa", alfa if extras else 0.0)
 	_materiales[clave] = material
@@ -357,8 +382,8 @@ static func malla_quad() -> QuadMesh:
 
 # Uno solo que se repite, para colgarlo de algo (el pivote de la hoja queda en su origen).
 # `escala` multiplica el tamano a escala de personaje; cada uno arranca en otra fase
-static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 0.0, con_direccion := false) -> MeshInstance3D:
-	var material := material_bucle(nombre, alfa, periodo, con_direccion)
+static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false) -> MeshInstance3D:
+	var material := material_bucle(nombre, alfa, periodo, con_direccion, de_pie)
 	if material == null:
 		return null
 	var cuadro := MeshInstance3D.new()

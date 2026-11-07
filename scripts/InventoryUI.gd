@@ -13,7 +13,8 @@ enum InventoryState {
 	MAPA,
 	HABILIDADES,   # la pagina de habilidades (HabilidadesUI.gd), con H / Y
 	REVELANDO,     # abriendo una bolsa especial (TazoRevelacion.gd): sus teclas son de ella
-	ALBUM          # el album de tazos (AlbumTazos.gd), con T / LB
+	ALBUM,         # el album de tazos (AlbumTazos.gd), con T / LB
+	LIBRETA        # la libreta del Nocturno (LibretaUI.gd), con B / RB
 }
 
 enum Comando { EXAMINAR, UTILIZAR, COMBINAR }
@@ -82,6 +83,7 @@ var _mapa_directo := false
 var habilidades_ui: Control
 # El album de tazos; `_album_desde` es el estado al que regresa (la lista o las habilidades)
 var album_ui: Control
+var libreta_ui: Control
 var _album_desde := InventoryState.NAVIGATING
 
 func _ready() -> void:
@@ -94,6 +96,12 @@ func _ready() -> void:
 	album_ui = load("res://scripts/AlbumTazos.gd").new()
 	album_ui.visible = false
 	$MainPanel.add_child(album_ui)
+	libreta_ui = load("res://scripts/LibretaUI.gd").new()
+	libreta_ui.visible = false
+	$MainPanel.add_child(libreta_ui)
+	var libreta := get_node_or_null("/root/Libreta")
+	if libreta:
+		libreta.nueva_nota.connect(func(_id: String, _n: int) -> void: update_hint())
 	# Automatically refresh if items are added or removed globally
 	inventory.inventory_changed.connect(refresh_carousel)
 	# Mochilero cambia la capacidad, y los puntos el aviso de abajo
@@ -246,6 +254,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		_abrir_album(InventoryState.NAVIGATING)
 		get_viewport().set_input_as_handled()
 		return
+	if current_state == InventoryState.LIBRETA:
+		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_guide"):
+			_cerrar_libreta()
+		else:
+			libreta_ui.manejar(event)
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_guide"):
+		_abrir_libreta()
+		get_viewport().set_input_as_handled()
+		return
 
 	if event.is_action_pressed("inventory_back"):
 		_regresar()
@@ -320,6 +339,19 @@ func _cerrar_habilidades() -> void:
 	_sonar("ui_cancelar")
 	current_state = InventoryState.NAVIGATING
 	habilidades_ui.visible = false
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	update_hint()
+
+func _abrir_libreta() -> void:
+	Sonidos.tocar(self, "lapiz", -8.0)
+	current_state = InventoryState.LIBRETA
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	libreta_ui.mostrar()
+
+func _cerrar_libreta() -> void:
+	_sonar("ui_cancelar")
+	libreta_ui.cerrar()
+	current_state = InventoryState.NAVIGATING
 	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	update_hint()
 
@@ -611,8 +643,11 @@ func update_hint() -> void:
 			# Con puntos sin gastar, el aviso lo dice (y se pinta de amarillo)
 			var libres: int = Tazos.libres()
 			var aviso := "  (¡%d %s!)" % [libres, "punto" if libres == 1 else "puntos"] if libres > 0 else ""
-			inspect_hint_label.text = ("M: Mapa  " if con_mapa else "") + "H: Habilidades%s  T: Álbum" % aviso
-	if current_state in [InventoryState.INSPECTING, InventoryState.COMBINING] or Tazos.libres() <= 0:
+			var libreta := get_node_or_null("/root/Libreta")
+			var nota := "!" if libreta and libreta.hay_sin_leer() else ""
+			inspect_hint_label.text = ("M: Mapa  " if con_mapa else "") + "H: Habilidades%s  T: Álbum  B: Libreta%s" % [aviso, nota]
+	var hay_nota: bool = get_node_or_null("/root/Libreta") != null and get_node("/root/Libreta").hay_sin_leer()
+	if current_state in [InventoryState.INSPECTING, InventoryState.COMBINING] or (Tazos.libres() <= 0 and not hay_nota):
 		inspect_hint_label.remove_theme_color_override("font_color")
 	else:
 		inspect_hint_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))

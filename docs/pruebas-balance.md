@@ -152,6 +152,29 @@ Lo que pidió JJ después de la partida 15 (4 de noviembre de 2026):
 - **El zombi gordo, un tipo aparte** (`Zombie.Tipo.GORDO`): faltan sus ataques y sus números (`GORDO_VIDA`, `GORDO_VELOCIDAD`, `GORDO_DANO` en `scripts/map/Zombie.gd`, por ahora iguales a los del normal). Mientras no estén definidos, no sale en las hordas. Los normales ahora son el zombi PSX y los monstruos 0-3 del pack, con un skin al azar.
 - **Detección** (en el mapa y en el safehouse; en la defensa ya salen alertas): los zombis deambulan hasta que te ven a 25 m, te oyen a 12 m o escuchan un balazo a 40 m, y entonces corren. Los números están al principio de `Zombie.gd` (`VE_DESDE`, `OYE_DESDE`, `OYE_DISPARO`, `CONTAGIA`). Hay que probar si las noches del mapa se quedan muy tranquilas: muchos sueltos nunca te encuentran.
 
+## La Madre del Cárcamo (propuesta de AG, 2026-11-07)
+
+Se prueba en `godot --path . scenes/lombrices.tscn` (el cárcamo) o con Shift+L en el safehouse. La meta (AG, 2026-11-07): una pelea de 6 a 10 minutos para alguien que juega bien, en la que lo normal es morir la primera vez que se gane con machete, pistola y unas cuantas sales y molotovs, y que sin ellas cueste mucho más. Todo son primeras adivinanzas:
+
+| Qué | Número | Dónde |
+|---|---|---|
+| Sacos de la Madre | 6 × 70 de vida, radio 0.24 m, sin sanar (AG: con regeneración era una chamba); bala 5, molotov 2 cada 0.5 s; solo se pegan con ella afuera (tirada, barriendo, asomada o aturdida). Reventar uno la tumba 2 s | `MadreCarcamo.SACOS`, `SACO_VIDA`, `SACO_RADIO`, `ATURDIDA_DURA` |
+| Fases | cada 2 sacos reventados (fase 2: se entierran y hacen látigos; fase 3: torres) | `MadreCarcamo._herir` |
+| Descanso entre ataques | 2.2 / 1.6 / 1.0 s por fase; en fase 3, 40 % de encadenar otro sin descanso | `MadreCarcamo.DESCANSO`, `ENCADENA` |
+| Avisos | mordida: 0.6 s de tierra y un gruñido grave, sin anillo; torre: una sombra tenue que crece | `AVISA_DURA`, `EnjambreLombrices._armar_anillo` |
+| Daño de la Madre | choque 16, mordida 26 | `DANO_CHOQUE`, `DANO_MORDIDA` |
+| Crías | 80 × 12 puntos; se arrastran a 4 m/s con arranques de 0.5 s a 7 m/s y oleadas de 2 s si hay 15+ cerca; te adelantan (apuntan a donde vas); en fase 2+ hasta 3 trepan paredes y se te dejan caer; saltan desde 4.5 m (hasta 12 a la vez, cada 1.8-4 s), muerden 9, cada pegada frena 8 % y chupa 4/s (máx. 6). Machete: corta 2 por golpe; tajo cargado: hasta 12; la cabeza no es más fácil de pegar que el cuerpo | `EnjambreLombrices` (`SALTO_*`, `PEGADA_*`, `CORTES_*`) |
+| Torre | cada 16 s en fase 3, 16 de daño en 2.6 m | `TORRE_*` |
+| Bola de crías | fase 2+, cada 15-25 s, 8-12 lombrices; se anuda 1 s, rueda a 5 m/s, se avienta desde 3 m por 18; 40 de vida (4 machetazos; el tajo cargado la rompe de una); al romperse quedan atontadas 1.5 s | `EnjambreLombrices.BOLA_*` |
+| Machete contra crías | 4 cortes por machetazo | `CORTES_POR_DANO` 0.34 |
+| Pasarela | las crías suben por la rampa más cercana a ti; la Madre escupe la mitad de las veces si estás arriba | `rampas`, `SUBE_DESDE` |
+| Crecer | un punto por mitad cada 1.6 / 1.2 / 0.8 s | `CRECE_CADA` |
+| Sal / molotov | sal 1.5 m por 12 s, una cabeza por lombriz cada 0.8 s; molotov 2 m por 5 s, quema un punto de la cola de cada lombriz cada 0.25 s (no las parte) | `Arrojadizo`, `SAL_CADA`, `FUEGO_CADA` |
+| Cajas del cárcamo | una sal y una molotov, se rellenan cada cambio de fase | `PruebaLombrices.CAJAS` |
+| Paga | $400, un tazo holo y el Diente de la Madre | `PruebaLombrices.PAGA` |
+
+Anotar aquí: cuánto duró la pelea, cuántas sales y molotovs se usaron, cuántas veces te desmayaste y en qué fase.
+
 ## Verificaciones pendientes: zombis PSX y detección
 
 Solo se probó con escenas de prueba y capturas: el visor de los cinco skins, una noche de 70 s de la defensa sin nadie defendiendo (sin errores, 57-61 FPS), y `map_test` y la pantalla de inicio sin errores. Falta probarlo jugando:

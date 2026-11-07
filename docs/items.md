@@ -66,7 +66,8 @@
 | Objeto | Descripción | Efecto | Precio | Modelo |
 |---|---|---|---|---|
 | **Balas** | — | Para pistola (¿y cuerno?); apilables | 💡 | 🧱 `models/armas/balas/` |
-| **Bomba molotov** | — | Fuego en área; se craftea | Crafteo | 🧱 `models/objetos/botella/` + `trapo/` |
+| **Bomba molotov** | *"Caguama con alcohol y un trapo. No es para tomar."* | Fuego en área de 2 m por 5 s; les quema la cola punto por punto a las lombrices (sin partirlas) y los sacos de la Madre del Cárcamo; te quema si te metes. Se avienta con la tecla 3 (`Lanzador`). ✅ en el juego: `resources/productos/molotov.tres`, receta caguama + alcohol (`resources/recetas/molotov.tres`) | Crafteo | 🧱 por ahora la caguama teñida; luego `models/objetos/botella/` + `trapo/` |
+| **Sal de grano** | *"Un kilo de sal. A las lombrices del cárcamo no les gusta nadita."* | Se avienta con la tecla 3: un círculo de 1.5 m por 12 s que se come las cabezas de las lombrices y no las deja pasar; si te cae encima, quema las que traes pegadas. ✅ `resources/productos/sal.tres`, en la tiendita | $25 💡 | 🧱 por ahora la bolsa de Takis teñida de blanco |
 | **Paloma (cohete)** | — | Aturde a los enemigos cercanos | 💡 | ❌ (el modelo bajado salía mal) |
 | **Bocina con banda** | — | Atrae a todos los zombis cercanos; luego explota (o no) | 💡 | 🧱 `models/objetos/bocina/` |
 | **Chancla** | *"La de tu jefa nunca falla."* | Aturde a uno; se recoge de nuevo | 💡 | 🧱 `models/objetos/chancla/` |
@@ -74,6 +75,9 @@
 ---
 
 ## 4. Materiales y crafteo
+
+- **Alcohol del 96** (*"Para curaciones, dice la etiqueta."*): con una caguama hace una molotov. ✅ `resources/productos/alcohol.tres`, en la licorería, $40 💡.
+- **Diente de la Madre** (*"Un colmillo de la Madre del Cárcamo, todavía tibio."*): trofeo de matar a la Madre del Cárcamo. ✅ `resources/productos/diente_madre.tres`. ❓ Quién lo compra y a cuánto.
 
 | Objeto | Descripción | Efecto | Precio | Modelo |
 |---|---|---|---|---|

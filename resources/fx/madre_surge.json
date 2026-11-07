@@ -1,0 +1,16 @@
+{
+ "id": "water/geyser",
+ "fps": 15,
+ "loop": false,
+ "frames": 76,
+ "frameSize": [
+  184,
+  168
+ ],
+ "pivot": [
+  92,
+  146
+ ],
+ "columns": 9,
+ "golpe_en": 0
+}

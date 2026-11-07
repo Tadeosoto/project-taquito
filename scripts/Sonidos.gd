@@ -90,6 +90,18 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _casquillo()
 			"reventar":
 				_sonidos[nombre] = _reventar()
+			# La Madre del Carcamo y sus crias (scripts/lombrices/)
+			"squelch":
+				_sonidos[nombre] = _squelch()
+			"fizz":
+				_sonidos[nombre] = _ruido(0.6, 0.92, 1.4)
+			"chillido":
+				_sonidos[nombre] = _chillido()
+			"chapoteo":
+				_sonidos[nombre] = _chapoteo()
+			# La libreta del Nocturno: un lapiz que raya papel
+			"lapiz":
+				_sonidos[nombre] = _lapiz()
 			"dolor":
 				_sonidos[nombre] = _tono(190.0, 0.22, -70.0, 0.6)
 			"gemido":
@@ -689,6 +701,63 @@ static func _reventar() -> AudioStreamWAV:
 		var riego := agua * 1.8 * minf(t * 12.0, 1.0) * pow(1.0 - t, 2.5)
 		datos.encode_s16(i * 2, int(clampf(pop * 0.8 + riego, -1.0, 1.0) * 32000.0))
 	return _wav(datos)
+
+
+# Algo blando que se aplasta: un golpe grave corto y ruido mojado que se apaga rapido
+static func _squelch() -> AudioStreamWAV:
+	var b := _vacio(0.22)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 61
+	var agua := 0.0
+	var fase := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		fase += lerpf(180.0, 70.0, t) / MUESTRAS
+		agua = lerpf(agua, azar.randf_range(-1.0, 1.0), 0.35 + 0.4 * sin(t * 40.0) * sin(t * 40.0))
+		b[i] = sin(fase * TAU) * pow(1.0 - t, 3.0) * 0.7 + agua * 1.6 * pow(1.0 - t, 2.0)
+	return _a_wav(b)
+
+
+# El chillido de la Madre: un barrido agudo que se quiebra, con un temblor
+static func _chillido() -> AudioStreamWAV:
+	var b := _vacio(0.9)
+	var fase := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		var s := float(i) / MUESTRAS
+		fase += (lerpf(1300.0, 380.0, t) + sin(s * 55.0) * 60.0) / MUESTRAS
+		var onda := sin(fase * TAU) + 0.4 * sin(fase * TAU * 2.01)
+		b[i] = onda * 0.35 * minf(t * 10.0, 1.0) * pow(1.0 - t, 1.5)
+	return _a_wav(b)
+
+
+# Un lapiz rayando: tres trazos cortos de ruido agudo que suben y bajan
+static func _lapiz() -> AudioStreamWAV:
+	var b := _vacio(0.45)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 71
+	var ruido := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.75)
+		var trazo := maxf(sin(t * PI * 6.0), 0.0)
+		b[i] = ruido * 0.35 * trazo * (1.0 - t * 0.5)
+	return _a_wav(b)
+
+
+# Algo grande que sale del lodo: un golpe sordo y agua que cae
+static func _chapoteo() -> AudioStreamWAV:
+	var b := _vacio(0.8)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 23
+	var agua := 0.0
+	var fase := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		fase += lerpf(90.0, 40.0, t) / MUESTRAS
+		agua = lerpf(agua, azar.randf_range(-1.0, 1.0), 0.18)
+		b[i] = sin(fase * TAU) * pow(1.0 - minf(t * 3.0, 1.0), 2.0) * 0.8 + agua * 2.2 * minf(t * 8.0, 1.0) * pow(1.0 - t, 1.8)
+	return _a_wav(b)
 
 
 static func _wav(datos: PackedByteArray) -> AudioStreamWAV:

@@ -225,6 +225,8 @@ static var dano_cuerpo := 0
 static var dano_pistola := 0
 static var dano_cabeza := 0   # de dano_pistola, lo que fue a la cabeza
 
+const INFECTADO_VELOCIDAD := 1.3   # x su velocidad con una lombriz encima
+
 var estado := Estado.CAMINA
 var jugador: Player
 var zombis: Zombis
@@ -236,6 +238,7 @@ var emboscada := false      # de las emboscadas de la defensa (Hordas.gd): va po
 var por_jugador := false    # se paso del cupo del tinaco (Zombis.cupo_tinaco): va por el jugador
 var despierto := false
 var alerta := true          # ya te detecto: corre hacia su blanco. Sin ella, deambula
+var infectado := false      # trae una lombriz encima (EnjambreLombrices): corre mas y te caza
 
 var _refugio: Refugio
 var _tinaco: TinacoDefensa  # el de la defensa (scripts/defensa/TinacoDefensa.gd), si hay
@@ -388,10 +391,42 @@ static func ruido(punto: Vector3, radio: float) -> void:
 
 
 # Ya te detecto: deja de deambular y corre. `contagia`: avisa a los que tiene cerca
+# Una lombriz de la Madre del Carcamo se le monto (EnjambreLombrices): la maneja como cazador
+func infectar() -> void:
+	if infectado or es_jefe or estado == Estado.MUERTO:
+		return
+	infectado = true
+	cazador = true
+	por_jugador = true
+	_velocidad *= INFECTADO_VELOCIDAD
+	if _rabia:
+		_rabia.visible = true
+	alertar(false)
+
+
+# La libreta del Nocturno (autoload Libreta): que pagina es este zombi
+func _id_libreta() -> String:
+	if es_jefe:
+		return "jefe"
+	if tipo == Tipo.GORDO:
+		return "gordo"
+	if infectado:
+		return "infectado"
+	return "cazador" if cazador else "zombi"
+
+
+func _nota(cual: String) -> void:
+	var libreta := get_node_or_null("/root/Libreta")
+	if libreta:
+		libreta.call(cual, _id_libreta())
+
+
 func alertar(contagia := true) -> void:
 	if alerta or not despierto or estado == Estado.MUERTO:
 		return
 	alerta = true
+	if jugador and is_instance_valid(jugador) and jugador.global_position.distance_to(global_position) < VE_DESDE:
+		_nota("ver")
 	_rumbo = Vector3.ZERO
 	_atorado = 0.0
 	if contagia:
@@ -502,6 +537,7 @@ func calentar() -> void:
 # Sale de la reserva, como nuevo. `con_prisa`: de turba
 func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	despierto = true
+	infectado = false
 	cazador = con_prisa
 	emboscada = false
 	por_jugador = false
@@ -959,6 +995,7 @@ func _atacar() -> void:
 			hacia.y = 0.0
 			if hacia.length() <= _alcance_golpe and absf(jugador.global_position.y - global_position.y) <= _alcance_golpe:
 				jugador.recibir_dano(_dano, global_position, JEFE_EMPUJA if es_jefe else 1.0)
+				_nota("pelear")
 		elif is_instance_valid(_blanco) and _blanco.has_method("recibir_golpe"):
 			_blanco.recibir_golpe(JEFE_DANO_RECINTO if es_jefe else DANO_RECINTO)
 	if _tiempo >= ATAQUE_DURA:
@@ -979,6 +1016,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 	if estado == Estado.MUERTO:
 		return GOLPE_NADA
 	alertar()
+	_nota("pelear")
 	if cuerpo_a_cuerpo:
 		dano_cuerpo += mini(dano, _vida)
 	else:
@@ -1002,6 +1040,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 		_sin_cabeza = cabeza and not es_jefe
 		# Solo el zombi se congela con un balazo; el machete ya congela todo (Player._congelar)
 		var espera := FUENTE_MS if _sin_cabeza else (0 if cuerpo_a_cuerpo or es_jefe else CONGELA_PISTOLA_MS)
+		_nota("matar")
 		_morir(true, truena_en, espera)
 		return GOLPE_MATO
 	# Al jefe no se le interrumpe con cada machetazo: solo lo recorre un poco
