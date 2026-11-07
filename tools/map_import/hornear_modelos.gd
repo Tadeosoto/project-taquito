@@ -13,6 +13,7 @@ extends SceneTree
 # Solo hornea los modelos cuyo scene.gltf existe (los demas se saltan). Las
 # mallas se guardan sin los LOD que genera el import (son modelos chicos y
 # triplicaban el tamano) y el archivo va comprimido.
+# `-- --solo=zombie_psx` hornea solo ese modelo.
 
 const GRUPOS := ["tiendas", "casas", "props", "objetos", "personajes", "armas", "interiores", "bodegas"]
 # Modelos que no se hornean enteros: solo se usan sus piezas (separar_pack.gd)
@@ -22,11 +23,15 @@ const SOLO_PIEZAS := ["mexican_starter_pack", "comida", "herramientas", "herrami
 
 func _init() -> void:
 	var hechos := 0
+	var solo := ""
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--solo="):
+			solo = arg.trim_prefix("--solo=")
 	for grupo in GRUPOS:
 		var base := "res://models/%s/" % grupo
 		for modelo in DirAccess.get_directories_at(base):
 			var origen := base + modelo + "/scene.gltf"
-			if not FileAccess.file_exists(origen) or modelo in SOLO_PIEZAS:
+			if not FileAccess.file_exists(origen) or modelo in SOLO_PIEZAS or (solo != "" and modelo != solo):
 				continue
 			var escena := load(origen) as PackedScene
 			if escena == null:

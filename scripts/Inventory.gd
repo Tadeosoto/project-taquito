@@ -5,7 +5,7 @@ extends Node
 signal inventory_changed
 
 # Lo que se puede hacer con "Combinar" (docs/especificaciones.md 4.5)
-const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres")]
+const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres"), preload("res://resources/recetas/molotov.tres")]
 
 # Cuantos objetos caben sin mochila (docs/especificaciones.md 4.4)
 const CAPACIDAD_BASE := 6
@@ -140,6 +140,48 @@ func arma() -> InventoryItemData:
 		if item.dano > 0 and (mejor == null or item.dano > mejor.dano):
 			mejor = item
 	return mejor
+
+
+# Lo que mejor llena `falta` de vida: la curacion mas chica que la llene; si ninguna
+# alcanza, la mas grande. -1 si no traes nada que cure (Player._curarse, tecla Q)
+func mejor_curacion(falta: int) -> int:
+	var mejor := -1
+	for i in items.size():
+		var item := items[i]
+		if item.curacion <= 0:
+			continue
+		if mejor < 0:
+			mejor = i
+			continue
+		var otra := items[mejor].curacion
+		if item.curacion >= falta:
+			if otra < falta or item.curacion < otra:
+				mejor = i
+		elif otra < falta and item.curacion > otra:
+			mejor = i
+	return mejor
+
+
+func curaciones() -> int:
+	var cuantas := 0
+	for item in items:
+		if item.curacion > 0:
+			cuantas += 1
+	return cuantas
+
+
+# Se come el de `index` y regresa cuanta vida subio. Buen diente (Habilidades.gd) hace que
+# la comida cure mas. Lo usan Utilizar (InventoryUI) y la tecla Q
+func usar_curacion(index: int) -> int:
+	var item := get_item(index)
+	if item == null or item.curacion <= 0:
+		return 0
+	var salud := get_node("/root/Salud")
+	var tazos := get_node_or_null("/root/Tazos")
+	var antes: int = salud.vida
+	salud.vida += roundi(item.curacion * (tazos.factor_curacion() if tazos else 1.0))
+	remove_item(index)
+	return salud.vida - antes
 
 
 # Lo que cabe: la mochila (o CAPACIDAD_BASE) mas los lugares de la habilidad Mochilero

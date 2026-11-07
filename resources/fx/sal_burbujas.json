@@ -1,0 +1,16 @@
+{
+ "id": "water/bubbles",
+ "fps": 30,
+ "loop": true,
+ "frames": 120,
+ "frameSize": [
+  104,
+  112
+ ],
+ "pivot": [
+  52,
+  104
+ ],
+ "columns": 12,
+ "golpe_en": 0
+}

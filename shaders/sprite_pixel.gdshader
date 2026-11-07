@@ -19,6 +19,9 @@ uniform float pixel = 0.047;        // m por pixel
 uniform float alfa : hint_range(0.0, 1.0) = 1.0;
 // Las hojas de efectos con direccion ven a la derecha: se voltean si `hacia` va a la izquierda en pantalla
 uniform bool con_direccion = false;
+// De pie en el piso: gira solo alrededor de la vertical (no se inclina al ver desde arriba), para
+// que la base de un charco o de algo que sale del suelo no flote
+uniform bool de_pie = false;
 
 instance uniform float fase = 0.0;
 instance uniform vec3 hacia = vec3(1.0, 0.0, 0.0);
@@ -38,7 +41,14 @@ void vertex() {
 	float escala = length(MODEL_MATRIX[0].xyz);
 	vec2 esquina = VERTEX.xy + 0.5;   // 0..1, y hacia arriba
 	vec2 px = vec2(esquina.x * tamano.x - pivote.x, (1.0 - esquina.y) * tamano.y - pivote.y);
-	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
+	if (de_pie) {
+		vec3 derecha = INV_VIEW_MATRIX[0].xyz;
+		derecha = normalize(vec3(derecha.x, 0.0, derecha.z) + vec3(0.0001, 0.0, 0.0));
+		vec3 frente = cross(derecha, vec3(0.0, 1.0, 0.0));
+		MODELVIEW_MATRIX = VIEW_MATRIX * mat4(vec4(derecha, 0.0), vec4(0.0, 1.0, 0.0, 0.0), vec4(-frente, 0.0), MODEL_MATRIX[3]);
+	} else {
+		MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
+	}
 	VERTEX = vec3(px.x * voltea, -px.y, 0.0) * pixel * escala;
 	float col = mod(cuadro, float(columnas));
 	float fila = floor(cuadro / float(columnas));

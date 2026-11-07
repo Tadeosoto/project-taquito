@@ -1,0 +1,16 @@
+{
+ "id": "explosions/small-explosion",
+ "fps": 15,
+ "loop": false,
+ "frames": 82,
+ "frameSize": [
+  300,
+  240
+ ],
+ "pivot": [
+  150,
+  196
+ ],
+ "columns": 9,
+ "golpe_en": 0
+}

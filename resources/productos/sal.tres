@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3]
+
+[ext_resource type="PackedScene" path="res://models/objetos/takis/takis.scn" id="1_modelo"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+
+[resource]
+script = ExtResource("2_item")
+item_name = "Sal de grano"
+description = "Un kilo de sal. A las lombrices del carcamo no les gusta nadita."
+inspection_model = ExtResource("1_modelo")
+efecto = "Tecla 3 y clic: aviéntala. Deja un círculo que se come a las lombrices y no las deja pasar."
+precio = 25
+tinte = Color(0.95, 0.95, 0.92, 1)
+arrojar = 1

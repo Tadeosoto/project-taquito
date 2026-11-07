@@ -6,21 +6,22 @@ extends Node3D
 # afuera de las tiendas a platicar y perros echados. Al avisar que va a oscurecer se apuran
 # y ya no sale nadie; de noche no hay nadie y al amanecer vuelven.
 #
-# Caminan con el modelo ninja: es el unico humano con ciclo de caminar (falta pasarle
-# animaciones a los demas, 10.2). Los que platican usan los otros modelos, con el clip que
-# traen. Solo se decide cerca del jugador; todo sale de reservas, dentro de CargaCuadro.
+# Los que caminan son civiles del pack PSX al azar (Civiles.gd), con el Walk de Quaternius;
+# el garrafonero, con Walk_Carry y su garrafon. Los que platican usan los otros modelos, con
+# el clip que traen. Solo se decide cerca del jugador; todo sale de reservas, dentro de
+# CargaCuadro.
 
 const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
-const NINJA := preload("res://models/ninja_male.fbx")
 const NPC := preload("res://scenes/npc.tscn")
 const PERRO := preload("res://models/personajes/perro/perro.scn")
 const GALON := preload("res://resources/productos/galon_agua.tres")
 const PLATICAN := ["cholo", "taquero", "psx_man", "chava_psx", "mujer_psx", "gangster_dealer"]
-const COLORES := [Color(0.75, 0.3, 0.25), Color(0.25, 0.5, 0.75), Color(0.8, 0.65, 0.3), Color(0.35, 0.6, 0.4), Color(0.65, 0.45, 0.7), Color(0.75, 0.75, 0.72)]
-const COLOR_GARRAFONERO := Color(0.15, 0.3, 0.75)
-const CLIP_CAMINA := "CharacterArmature|Walk"
-const CLIP_CARGA := "CharacterArmature|Walk_Carry"
-const ESCALA_NINJA := 0.55
+const CLIP_CAMINA := "Walk"
+const CLIP_CARGA := "Walk_Carry"
+# m/s a los que cada clip se ve a su velocidad (medido por el paso de un civil); el clip se
+# acelera para que los pies no patinen, hasta PASO_MAX
+const PASO := {"Walk": 1.12, "Walk_Carry": 0.75}
+const PASO_MAX := 1.7
 const CALLE_A_TI := 0.5
 
 const CAMINANTES := 12
@@ -70,7 +71,6 @@ var _jugador: Node3D
 var _ciclo: Node
 var _saliendo := false
 var _espera := 0.0
-var _materiales := {}
 var _rayo: PhysicsRayQueryParameters3D
 
 
@@ -112,45 +112,28 @@ func _armar_reserva() -> void:
 	if _garrafonero.is_empty():
 		if CargaCuadro.hay():
 			var inicio := Time.get_ticks_usec()
-			_garrafonero = _armar_caminante(COLOR_GARRAFONERO, CLIP_CARGA)
+			_garrafonero = _armar_caminante(CLIP_CARGA)
 			var galon: Node3D = GALON.crear_modelo(0.4)
 			if galon:
-				galon.position = Vector3(0.0, 0.6, -0.42)
+				galon.position = Vector3(0.0, 0.65, -0.55)  # como Player.CARGA_LUGAR, desde los pies
 				_garrafonero["nodo"].add_child(galon)
 			_libres.append(_garrafonero)
 			CargaCuadro.gastar(inicio)
 	elif _libres.size() + caminando.size() < CAMINANTES and CargaCuadro.hay():
 		var inicio := Time.get_ticks_usec()
-		_libres.append(_armar_caminante(COLORES[(_libres.size() + caminando.size()) % COLORES.size()], CLIP_CAMINA))
+		_libres.append(_armar_caminante(CLIP_CAMINA))
 		CargaCuadro.gastar(inicio)
 
 
-func _armar_caminante(color: Color, clip: String) -> Dictionary:
+func _armar_caminante(clip: String) -> Dictionary:
 	var nodo := Node3D.new()
-	var modelo := NINJA.instantiate() as Node3D
-	modelo.transform = Transform3D(Basis.from_scale(Vector3(-ESCALA_NINJA, ESCALA_NINJA, -ESCALA_NINJA)), Vector3.ZERO)
-	nodo.add_child(modelo)
 	add_child(nodo)
-	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):
-		malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		for s in malla.mesh.get_surface_count():
-			malla.set_surface_override_material(s, _pintado(malla.get_active_material(s), color))
-	var animacion := modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	animacion.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+	var animacion := Civiles.poner(nodo, Civiles.al_azar(), clip)
+	animacion.stop()
 	nodo.visible = false
 	nodo.process_mode = Node.PROCESS_MODE_DISABLED
-	return {"nodo": nodo, "animacion": animacion, "clip": clip, "linea": [], "i": 0, "sentido": 1, "avance": 0.0}
-
-
-# Compartidos por color: no se compila un material por persona
-func _pintado(fuente: Material, color: Color) -> Material:
-	var clave := [fuente, color]
-	if not _materiales.has(clave):
-		var nuevo := fuente.duplicate()
-		if nuevo is BaseMaterial3D:
-			(nuevo as BaseMaterial3D).albedo_color = color
-		_materiales[clave] = nuevo
-	return _materiales[clave]
+	return {"nodo": nodo, "animacion": animacion, "clip": Civiles.LIB + "/" + clip,
+		"paso": PASO[clip], "linea": [], "i": 0, "sentido": 1, "avance": 0.0}
 
 
 func _sacar_caminante() -> void:
@@ -199,6 +182,7 @@ func _sacar_caminante() -> void:
 func _caminar(delta: float) -> void:
 	var velocidad := VELOCIDAD if not _saliendo else PRISA
 	for c: Dictionary in caminando.duplicate():
+		(c["animacion"] as AnimationPlayer).speed_scale = minf(velocidad / c["paso"], PASO_MAX)
 		var linea: Array = c["linea"]
 		var i: int = c["i"]
 		var siguiente: int = i + c["sentido"]
@@ -352,7 +336,9 @@ static func poner_modelo(padre: Node3D, escena: PackedScene, alto: float) -> voi
 		animacion.play(clip)
 		if a.length > 0.0:
 			animacion.seek(randf() * a.length, true)
-	var esqueleto := modelo.find_child("Skeleton3D", true, false) as Skeleton3D
+	# Por clase: con retarget el esqueleto se llama GeneralSkeleton
+	var esqueletos := modelo.find_children("*", "Skeleton3D", true, false)
+	var esqueleto := esqueletos[0] as Skeleton3D if not esqueletos.is_empty() else null
 	if esqueleto == null or esqueleto.get_bone_count() == 0:
 		return
 	esqueleto.force_update_all_bone_transforms()

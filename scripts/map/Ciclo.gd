@@ -79,13 +79,51 @@ func _process(delta: float) -> void:
 			amanecio.emit()
 
 
-func amanecer_ya() -> void:
+# `de_golpe`: ya de dia, sin aclarar poco a poco (la defensa del tinaco al romperse)
+func amanecer_ya(de_golpe := false) -> void:
 	retener_noche = false
-	_tiempo = dia_duracion + noche_duracion - transicion
+	_tiempo = 0.0 if de_golpe else dia_duracion + noche_duracion - transicion
+
+
+# La hora del reloj (0-24): corre parejo todo el ciclo, asi que con menos noche que dia
+# oscurece tarde. Amanece (la mitad de la transicion, `amanecio`) a las HORA_AMANECER; con
+# 8 min de dia y 6 de noche anochece a las 19:43.
+const HORA_AMANECER := 6.0
+
+
+func hora() -> float:
+	var total := dia_duracion + noche_duracion
+	return fmod(HORA_AMANECER + fmod(_tiempo + transicion / 2.0, total) / total * 24.0, 24.0)
+
+
+static func texto_hora(h: float) -> String:
+	var minutos := int(h * 60.0) % (24 * 60)
+	return "%d:%02d" % [minutos / 60, minutos % 60]
+
+
+# Segundos desde que empezo el dia (de 0 a dia_duracion + noche_duracion)
+func tiempo() -> float:
+	return _tiempo
 
 
 func es_noche() -> bool:
 	return _es_noche
+
+
+# Que tan cerrados estan los negocios (las cortinas de MapPuntos): 0 abiertos, 1 cerrados.
+# Bajan en CORTINA_BAJA s y llegan al piso justo al anochecer (cuando Interiores te saca y ya
+# dice "cerrado"); al amanecer suben en lo mismo.
+const CORTINA_BAJA := 8.0
+
+
+func cierre_negocios() -> float:
+	var anochece := dia_duracion - transicion / 2.0
+	var amanece := dia_duracion + noche_duracion - transicion / 2.0
+	if _tiempo < anochece:
+		return clampf(1.0 - (anochece - _tiempo) / CORTINA_BAJA, 0.0, 1.0)
+	if _tiempo < amanece:
+		return 1.0
+	return clampf(1.0 - (_tiempo - amanece) / CORTINA_BAJA, 0.0, 1.0)
 
 
 # 0 de dia, 1 de noche, y lo de en medio al oscurecer y al aclarar

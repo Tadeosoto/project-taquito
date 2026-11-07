@@ -70,6 +70,8 @@ func es_amuleto() -> bool:
 # Lo que se gasta se apila en un solo lugar del inventario (Inventory.MAX_PILA)
 func apilable() -> bool:
 	return curacion > 0 or bolsa_tazo or estampita != ""
+# Se avienta con el Lanzador (tecla 3): sal o molotov contra las lombrices (ZonaLombrices)
+@export_enum("No", "Sal", "Molotov") var arrojar : int = 0
 
 
 # El modelo centrado y escalado a una caja de `tamano` m (los de Sketchfab vienen en

@@ -95,6 +95,8 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 | C. Disparo libre sin mira hacia donde mira el personaje. | Twin-stick, GTA 1/2 | |
 
 > En multijugador por navegador, B es también lo más simple de sincronizar (se manda "disparé al zombi #123", no un rayo).
+>
+> 🧪 **En prueba (rama `golpe-direccion`, decisión de JJ para probar, no cierra la votación):** la A, estilo Fortnite: cámara al hombro, el personaje viendo hacia donde apuntas, clic derecho para apuntar con zoom, mira al centro y una ayuda chica (el zombi más cercano a la mira dentro de 4° si se ve). Pistola con R, cargador de 12 y recarga sola, balas sin fin. Ver `scripts/Pistola.gd`.
 
 ### 1.5 🗳️ Qué pasa al morir
 
@@ -635,3 +637,7 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-11-02 | **Propuesta, falta que el equipo la confirme**: tazos en bolsas especiales de Takis con revelación por rareza, puntos de habilidad y una página de habilidades en el inventario (4.12). | AG |
 | 2026-11-03 | **Propuesta, falta que el equipo la confirme**: los tazos solo dan puntos nuevos (comunes 3 por punto, raro 1, holo 2) y el álbum completo cuadra con el árbol (40); los repetidos se cambian con el niño de los tazos; lo que se gasta se apila hasta 5 en un lugar; el morral ahora se llama **tiliches** y va en una **cangurera** que da una misión; los trofeos se ven en la vitrina de La Chava; Equipo enseña el arma, la mochila con sus lugares, los amuletos y la cangurera, y la foto de Estado se tiñe según la vida (4.12, 4.13). | AG |
 | 2026-11-03 | **Propuesta, falta que el equipo la confirme**: el taller de La Chava (4.13), crafteo al estilo Kingdom Hearts con materiales aparte (los tiliches), trofeos de hazañas, 39 recetas en seis juegos, un arma por juego, amuletos y Equipar. El rango, los planos y los trofeos se quedan entre partidas. | AG |
+
+## La libreta del Nocturno (propuesta de AG, 2026-11-07)
+
+💡 Un bestiario dentro del juego, escrito por el Nocturno en su cuaderno: se abre con L (R3, el clic del stick derecho, en control) desde el inventario. Cada bicho tiene su página, que se llena al verlo (qué es), pelearlo (por qué es así) y matarlo (cómo matarlo y sus números). Las páginas se guardan para siempre, aunque reinicies la partida. Detalle técnico en CLAUDE.md; las corazonadas que no son canon todavía, en `revision-historia.md` 4.13.

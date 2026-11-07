@@ -1,0 +1,16 @@
+{
+ "id": "impacts/ground-slam",
+ "fps": 15,
+ "loop": false,
+ "frames": 49,
+ "frameSize": [
+  288,
+  208
+ ],
+ "pivot": [
+  144,
+  164
+ ],
+ "columns": 6,
+ "golpe_en": 0
+}

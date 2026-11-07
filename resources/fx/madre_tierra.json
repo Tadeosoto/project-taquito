@@ -1,0 +1,16 @@
+{
+ "id": "explosions/dirt-explosion",
+ "fps": 15,
+ "loop": false,
+ "frames": 55,
+ "frameSize": [
+  260,
+  240
+ ],
+ "pivot": [
+  130,
+  206
+ ],
+ "columns": 8,
+ "golpe_en": 0
+}

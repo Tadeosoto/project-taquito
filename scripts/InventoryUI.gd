@@ -14,7 +14,8 @@ enum InventoryState {
 	HABILIDADES,   # la pagina de habilidades (HabilidadesUI.gd), con H / Y
 	REVELANDO,     # abriendo una bolsa especial (TazoRevelacion.gd): sus teclas son de ella
 	ALBUM,         # el album de tazos (AlbumTazos.gd), con T / LB
-	TILICHES         # los materiales del taller (TilichesUI.gd), con B / RB
+	TILICHES,        # los materiales del taller (TilichesUI.gd), con B / RB
+	LIBRETA          # la libreta del Nocturno (LibretaUI.gd), con L / R3
 }
 
 enum Comando { EXAMINAR, UTILIZAR, COMBINAR }
@@ -50,7 +51,7 @@ const COLOR_EQUIPO := Color(0.85, 0.85, 0.85)
 const COLOR_VACIO := Color(0.4, 0.4, 0.42)
 const COLOR_MARCO := Color(0.75, 0.62, 0.12)
 # Pestanas de abajo: nombre, tecla, boton del control
-const PESTANAS := [["Objetos", "Tab", "Start"], ["Tiliches", "B", "RB"], ["Habilidades", "H", "Y"], ["Álbum", "T", "LB"], ["Mapa", "M", "Select"]]
+const PESTANAS := [["Objetos", "Tab", "Start"], ["Tiliches", "B", "RB"], ["Habilidades", "H", "Y"], ["Álbum", "T", "LB"], ["Libreta", "L", "R3"], ["Mapa", "M", "Select"]]
 const PESTANAS_Y := 452.0
 const MENSAJE_Y := 430.0
 # Tinte de la foto de Estado segun la vida (como en Silent Hill 2): color y fuerza en Bien,
@@ -106,6 +107,9 @@ var combinar_desde: int = -1
 var _mensaje_tween: Tween = null
 # Corriendo la escena sola: siempre abierto
 var _solo: bool = false
+# Sin mapa de papel: M (inventory_map) no lo abre y le queda libre a la escena (en la defensa
+# del tinaco prende y apaga la musica)
+@export var con_mapa := true
 
 # Un modelo por objeto del inventario, en el mismo orden (null si no tiene modelo)
 var modelos: Array[Node3D] = []
@@ -119,6 +123,7 @@ var _mapa_directo := false
 var habilidades_ui: Control
 # El album de tazos; `_album_desde` es el estado al que regresa (la lista o las habilidades)
 var album_ui: Control
+var libreta_ui: Control
 var _album_desde := InventoryState.NAVIGATING
 # Los tiliches (Tiliches.gd): los materiales del taller
 var tiliches_ui: Control
@@ -150,6 +155,12 @@ func _ready() -> void:
 	tinte.shader = Shader.new()
 	tinte.shader.code = SHADER_TINTE
 	foto_estado.material = tinte
+	libreta_ui = load("res://scripts/LibretaUI.gd").new()
+	libreta_ui.visible = false
+	$MainPanel.add_child(libreta_ui)
+	var libreta := get_node_or_null("/root/Libreta")
+	if libreta:
+		libreta.nueva_nota.connect(func(_id: String, _n: int) -> void: update_hint())
 	# Automatically refresh if items are added or removed globally
 	inventory.inventory_changed.connect(refresh_carousel)
 	# Mochilero cambia la capacidad, y los puntos el aviso de abajo
@@ -252,6 +263,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if visible and current_state == InventoryState.REVELANDO:
 		get_viewport().set_input_as_handled()
 		return
+	if not con_mapa and event.is_action("inventory_map"):
+		return
 	if event.is_action_pressed("inventory_toggle"):
 		if not visible:
 			abrir()
@@ -335,6 +348,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		_abrir_album(InventoryState.NAVIGATING)
 		get_viewport().set_input_as_handled()
 		return
+	if current_state == InventoryState.LIBRETA:
+		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_guide"):
+			_cerrar_libreta()
+		else:
+			libreta_ui.manejar(event)
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_guide"):
+		_abrir_libreta()
+		get_viewport().set_input_as_handled()
+		return
 
 	if event.is_action_pressed("inventory_back"):
 		_regresar()
@@ -409,6 +433,19 @@ func _cerrar_habilidades() -> void:
 	_sonar("ui_cancelar")
 	current_state = InventoryState.NAVIGATING
 	habilidades_ui.visible = false
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	update_hint()
+
+func _abrir_libreta() -> void:
+	Sonidos.tocar(self, "lapiz", -8.0)
+	current_state = InventoryState.LIBRETA
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	libreta_ui.mostrar()
+
+func _cerrar_libreta() -> void:
+	_sonar("ui_cancelar")
+	libreta_ui.cerrar()
+	current_state = InventoryState.NAVIGATING
 	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	update_hint()
 
@@ -520,17 +557,14 @@ func _utilizar() -> void:
 		_mostrar_mensaje("No lo necesitas ahorita.")
 		return
 	_sonar("inv_usar")
-	var antes: int = Salud.vida
-	# Buen diente (Habilidades.gd) hace que la comida cure mas
-	Salud.vida += roundi(item.curacion * Tazos.factor_curacion())
+	var subio: int = inventory.usar_curacion(current_item_index)
 	if item.recarga_segundo_aire:
 		Tazos.segundo_aire_usado = false
 	# La flor de curar a los pies: el juego esta en pausa, se ve al cerrar (EfectosPixel)
 	var jugador := get_tree().get_first_node_in_group("jugador")
 	if jugador and jugador.has_method("efecto"):
 		jugador.efecto("curar", Vector3.ZERO)
-	inventory.remove_item(current_item_index)
-	_mostrar_mensaje("%s: +%d de vida." % [item.item_name, Salud.vida - antes])
+	_mostrar_mensaje("%s: +%d de vida." % [item.item_name, subio])
 
 # Una bolsa especial de Takis: se gasta, sale un tazo (Tazos.abrir_bolsa) y su show encima
 # del inventario (TazoRevelacion). Al cerrarlo regresas a la lista
@@ -877,6 +911,12 @@ func _actualizar_pestanas() -> void:
 			2:
 				if libres > 0:
 					nombre.text += " ¡%d!" % libres
+					color = AMARILLO_PILA
+			4:
+				# Notas sin leer en la libreta del Nocturno (Libreta.gd)
+				var libreta := get_node_or_null("/root/Libreta")
+				if libreta and libreta.hay_sin_leer():
+					nombre.text += " !"
 					color = AMARILLO_PILA
 		nombre.add_theme_color_override("font_color", color)
 

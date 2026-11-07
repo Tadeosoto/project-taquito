@@ -125,6 +125,10 @@ func _entrar(_tipo: String, giro: String, nombre: String, aire_libre: bool, marc
 	await _fundir(1.0)
 	_interior = escena.instantiate() as Interior
 	_interior.nombre = nombre
+	# El mismo civil que se veia por la cortina (MapPuntos.civil)
+	var atiende := _interior.get_node_or_null("Vendedor")
+	if atiende and marcador.has_meta("civil"):
+		atiende.set("modelo", marcador.get_meta("civil"))
 	_interior.position = Vector3(salida.origin.x, ALTURA, salida.origin.z)
 	add_child(_interior)
 	_interior.camara().make_current()

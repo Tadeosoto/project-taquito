@@ -1,0 +1,16 @@
+{
+ "id": "nature/acid-splash",
+ "fps": 30,
+ "loop": false,
+ "frames": 85,
+ "frameSize": [
+  184,
+  116
+ ],
+ "pivot": [
+  92,
+  100
+ ],
+ "columns": 8,
+ "golpe_en": 0
+}

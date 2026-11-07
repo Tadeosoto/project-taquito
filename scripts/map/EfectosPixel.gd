@@ -24,6 +24,7 @@ extends Node3D
 const GRUPO := "efectos_pixel"
 const CARPETA := "res://resources/fx/"
 const SHADER_BUCLE := preload("res://shaders/sprite_pixel.gdshader")
+const SHADER_EJE := preload("res://shaders/sprite_eje.gdshader")
 const CUANTOS := 16            # sprites en la reserva; si se acaban se reusa el mas viejo
 # El personaje de pixelfx mide 38 px; como el nuestro mide unos 1.8 m, un pixel de la hoja
 # mide esto a escala 1
@@ -34,11 +35,15 @@ const CAPA_PANTALLA := 9       # sobre Supervivencia (8), bajo el inventario (11
 # Las que suman luz (los rayos) van abajo de Supervivencia: si no, se veian encima del negro al desmayarte
 const CAPA_LUZ := 7
 # Los de la segunda ronda: se apagan con extras = false
-const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar"]
+const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar", "fuente", "bala",
+	# La Madre del Carcamo y sus crias (scripts/lombrices/), hojas con la paleta del Serenol
+	"madre_surge", "madre_tierra", "saco_golpe", "saco_revienta", "lodo_choque", "fase_onda", "madre_muere", "cria_corte", "cria_cabeza", "molotov_revienta", "torre_golpe", "pegada_mordida", "pegada_suelta"]
 
-# Cada lugar, sus variantes (la primera es la que queda por omision). `hoja` vacia = nada.
+# Cada lugar, sus variantes (la primera es la que queda por omision, salvo PREDETERMINADA). `hoja` vacia = nada.
 # `puno`: la hoja a mano limpia; `mata`: la del golpe que mata; `voltea`: la hoja ve a la
-# derecha y se voltea segun hacia donde va el golpe en pantalla.
+# derecha y se voltea segun hacia donde va el golpe en pantalla. `suelo`: sale del piso (tierra,
+# geiser, charco): de pie, girando solo en vertical y sin acercarse a la camara, para que su base
+# quede pegada al piso y no flote al ver desde arriba.
 const LUGARES := {
 	"golpe": [
 		{ "nombre": "A tajo (puno: estocada)", "hoja": "golpe_machete", "puno": "golpe_puno", "escala": 0.6, "voltea": true },
@@ -88,7 +93,37 @@ const LUGARES := {
 		{ "nombre": "A flor", "hoja": "curar", "escala": 0.6 },
 		{ "nombre": "B nada", "hoja": "" },
 	],
+	# Pistola: donde pega una bala que no le dio a un zombi (pared, suelo)
+	"bala": [
+		{ "nombre": "A chispas", "hoja": "bala_impacto", "escala": 0.5, "voltea": true },
+		{ "nombre": "B nada", "hoja": "" },
+	],
+	# Zombie._sin_cabeza: el chorro del cuello tras un tiro a la cabeza que mata
+	"fuente": [
+		{ "nombre": "A chorro", "hoja": "fuente_cabeza", "escala": 0.6 },
+		{ "nombre": "B nada", "hoja": "" },
+	],
+	# La Madre del Carcamo (MadreCarcamo.gd) y sus crias (EnjambreLombrices.gd, ZonaLombrices.gd).
+	# Sus hojas llenan el cuadro (las de los zombis son chispas chicas dentro de uno grande): escala baja
+	"madre_surge": [{ "nombre": "A", "hoja": "madre_surge", "escala": 0.4, "suelo": true }],
+	"madre_tierra": [{ "nombre": "A", "hoja": "madre_tierra", "escala": 0.3, "suelo": true }],
+	"saco_golpe": [{ "nombre": "A", "hoja": "saco_golpe", "escala": 0.4 }],
+	"saco_revienta": [{ "nombre": "A", "hoja": "saco_revienta", "escala": 0.35, "suelo": true }],
+	"lodo_choque": [{ "nombre": "A", "hoja": "lodo_choque", "escala": 0.3, "suelo": true }],
+	"fase_onda": [{ "nombre": "A", "hoja": "fase_onda", "escala": 0.35, "suelo": true }],
+	"madre_muere": [{ "nombre": "A", "hoja": "madre_muere", "escala": 0.3, "suelo": true }],
+	"cria_corte": [{ "nombre": "A", "hoja": "cria_corte", "escala": 0.35 }],
+	"cria_cabeza": [{ "nombre": "A", "hoja": "cria_cabeza", "escala": 0.35, "suelo": true }],
+	"molotov_revienta": [{ "nombre": "A", "hoja": "molotov_revienta", "escala": 0.3, "suelo": true }],
+	"torre_golpe": [{ "nombre": "A", "hoja": "torre_golpe", "escala": 0.4, "suelo": true }],
+	"pegada_mordida": [{ "nombre": "A", "hoja": "pegada_mordida", "escala": 0.35 }],
+	"pegada_suelta": [{ "nombre": "A", "hoja": "pegada_suelta", "escala": 0.35 }],
 }
+
+# La variante que queda por omision cuando no es la primera. El golpe ya deja su estela en 3D
+# (EstelaBarrido.gd, lo que escogio JJ), asi que por omision no lleva hoja; F2 trae las otras.
+# El impacto es el seco con critico al matar (el voto de JJ)
+const PREDETERMINADA := {"golpe": 2, "impacto": 2}
 
 # Compartido entre escenas: lo que se escoge en el safehouse sigue al pasar al mapa (F10)
 static var variantes := {}
@@ -100,6 +135,10 @@ static var _quad: QuadMesh
 var _sprites: Array[Sprite3D] = []
 var _tiempos: Array[float] = []
 var _hoja_de: Array = []
+var _sigue: Array = []        # Node3D que sigue cada hoja (null = se queda donde salio)
+var _acercar: Array[float] = []
+var _px: Array[float] = []
+var _voltea: Array[bool] = []
 var _siguiente := 0
 var _capa: CanvasLayer
 var _capa_luz: CanvasLayer
@@ -126,11 +165,15 @@ func _ready() -> void:
 		_sprites.append(s)
 		_tiempos.append(-1.0)
 		_hoja_de.append(null)
+		_sigue.append(null)
+		_acercar.append(ACERCAR)
+		_px.append(0.0)
+		_voltea.append(false)
 	set_process(false)
 
 
 func variante(lugar: String) -> int:
-	return variantes.get(lugar, 0)
+	return variantes.get(lugar, PREDETERMINADA.get(lugar, 0))
 
 
 func nombre_variante(lugar: String) -> String:
@@ -146,7 +189,9 @@ func cambiar(lugar: String) -> String:
 # `pos`: el origen del efecto, en el piso bajo quien lo hace. `hacia`: a donde va el golpe
 # (para voltear las hojas que ven a la derecha). `opcion`: "puno" o "mata", si la variante
 # tiene otra hoja para eso
-func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, opcion := "") -> void:
+# `seguir`: la hoja se queda pegada a ese nodo mientras dura (el chorro del cuello va con el
+# cuerpo); `acercar`: m hacia la camara, para que el cuerpo no se coma el efecto
+func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, opcion := "", seguir: Node3D = null, acercar := ACERCAR) -> void:
 	if not extras and lugar in EXTRAS:
 		return
 	var v: Dictionary = LUGARES[lugar][variante(lugar)]
@@ -163,23 +208,38 @@ func lanzar(lugar: String, pos: Vector3, hacia := Vector3.ZERO, escala := 1.0, o
 	var lado := camara.global_basis.x
 	var voltea: bool = v.get("voltea", false) and hacia.dot(lado) < 0.0
 	var px: float = PIXEL * float(v.get("escala", 1.0)) * escala
-	var tamano: Vector2 = hoja["tamano"]
-	var pivote: Vector2 = hoja["pivote"]
+	var suelo: bool = v.get("suelo", false)
+	s.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y if suelo else BaseMaterial3D.BILLBOARD_ENABLED
+	if suelo:
+		acercar = 0.0
 	s.texture = hoja["textura"]
 	s.hframes = hoja["columnas"]
 	s.vframes = ceili(float(hoja["cuadros"]) / hoja["columnas"])
 	s.frame = mini(int(hoja["golpe_en"] * hoja["fps"]), hoja["cuadros"] - 1)
 	s.pixel_size = px
 	s.flip_h = voltea
-	# El sprite va centrado: se recorre para que el pivote de la hoja quede en `pos`
-	var dx := (tamano.x * 0.5 - pivote.x) * px * (-1.0 if voltea else 1.0)
-	var dy := (pivote.y - tamano.y * 0.5) * px
-	var hacia_camara := (camara.global_position - pos).normalized()
-	s.global_position = pos + lado * dx + Vector3.UP * dy + hacia_camara * ACERCAR
-	s.visible = true
 	_tiempos[i] = hoja["golpe_en"]
 	_hoja_de[i] = hoja
+	_sigue[i] = seguir
+	_acercar[i] = acercar
+	_px[i] = px
+	_voltea[i] = voltea
+	_poner(i, pos, camara)
+	s.visible = true
 	set_process(true)
+
+
+# El sprite va centrado: se recorre para que el pivote de la hoja quede en `pos`, y tantito
+# hacia la camara
+func _poner(i: int, pos: Vector3, camara: Camera3D) -> void:
+	var hoja: Dictionary = _hoja_de[i]
+	var tamano: Vector2 = hoja["tamano"]
+	var pivote: Vector2 = hoja["pivote"]
+	var px: float = _px[i]
+	var dx := (tamano.x * 0.5 - pivote.x) * px * (-1.0 if _voltea[i] else 1.0)
+	var dy := (pivote.y - tamano.y * 0.5) * px
+	var hacia_camara := (camara.global_position - pos).normalized()
+	_sprites[i].global_position = pos + camara.global_basis.x * dx + Vector3.UP * dy + hacia_camara * _acercar[i]
 
 
 func _process(delta: float) -> void:
@@ -193,8 +253,16 @@ func _process(delta: float) -> void:
 		if cuadro >= hoja["cuadros"]:
 			_tiempos[i] = -1.0
 			_sprites[i].visible = false
+			_sigue[i] = null
 			continue
 		_sprites[i].frame = cuadro
+		var nodo = _sigue[i]
+		if nodo != null:
+			var camara := get_viewport().get_camera_3d()
+			if is_instance_valid(nodo) and (nodo as Node3D).is_inside_tree() and camara:
+				_poner(i, (nodo as Node3D).global_position, camara)
+			else:
+				_sigue[i] = null
 		quedan = true
 	if not quedan:
 		set_process(false)
@@ -204,6 +272,7 @@ func limpiar() -> void:
 	for i in CUANTOS:
 		_tiempos[i] = -1.0
 		_sprites[i].visible = false
+		_sigue[i] = null
 	set_process(false)
 
 
@@ -250,8 +319,9 @@ func pantalla(nombre: String, desde: float, hasta: float, aditivo := false, alfa
 # Un material por hoja y manera, compartido por todos los que la usan. `periodo` 0 = lo que
 # dura la hoja; mas = un hueco sin nada entre vuelta y vuelta. `con_direccion`: la hoja ve a la
 # derecha y cada cuadro se voltea segun su instance uniform `hacia`
-static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_direccion := false) -> ShaderMaterial:
-	var clave := "%s|%s|%s|%s" % [nombre, alfa, periodo, con_direccion]
+# `de_pie`: de pie en el piso (solo gira en vertical), para charcos, burbujas y lo que sale del suelo
+static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false) -> ShaderMaterial:
+	var clave := "%s|%s|%s|%s|%s" % [nombre, alfa, periodo, con_direccion, de_pie]
 	if _materiales.has(clave):
 		return _materiales[clave]
 	var hoja := hoja_de(nombre)
@@ -269,8 +339,36 @@ static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_dire
 	material.set_shader_parameter("pivote", hoja["pivote"])
 	material.set_shader_parameter("pixel", PIXEL)
 	material.set_shader_parameter("con_direccion", con_direccion)
+	material.set_shader_parameter("de_pie", de_pie)
 	material.set_meta("alfa", alfa)
 	material.set_shader_parameter("alfa", alfa if extras else 0.0)
+	_materiales[clave] = material
+	return material
+
+
+# Una hoja estirada a lo largo de una linea (shaders/sprite_eje.gdshader), compartida: el trazo de
+# la bala. `largo_px`: los px de la hoja que miden el `largo` de cada instancia; `brillo`
+# multiplica el color
+static func material_eje(nombre: String, largo_px: float, brillo := 1.0) -> ShaderMaterial:
+	var clave := "eje|%s|%s|%s" % [nombre, largo_px, brillo]
+	if _materiales.has(clave):
+		return _materiales[clave]
+	var hoja := hoja_de(nombre)
+	if hoja.is_empty():
+		return null
+	var material := ShaderMaterial.new()
+	material.shader = SHADER_EJE
+	material.set_shader_parameter("hoja", hoja["textura"])
+	material.set_shader_parameter("columnas", hoja["columnas"])
+	material.set_shader_parameter("filas", ceili(float(hoja["cuadros"]) / hoja["columnas"]))
+	material.set_shader_parameter("cuadros", hoja["cuadros"])
+	material.set_shader_parameter("fps", hoja["fps"])
+	material.set_shader_parameter("periodo", hoja["cuadros"] / hoja["fps"])
+	material.set_shader_parameter("tamano", hoja["tamano"])
+	material.set_shader_parameter("pivote", hoja["pivote"])
+	material.set_shader_parameter("pixel", PIXEL * 0.5)
+	material.set_shader_parameter("largo_px", largo_px)
+	material.set_shader_parameter("brillo", brillo)
 	_materiales[clave] = material
 	return material
 
@@ -284,8 +382,8 @@ static func malla_quad() -> QuadMesh:
 
 # Uno solo que se repite, para colgarlo de algo (el pivote de la hoja queda en su origen).
 # `escala` multiplica el tamano a escala de personaje; cada uno arranca en otra fase
-static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 0.0, con_direccion := false) -> MeshInstance3D:
-	var material := material_bucle(nombre, alfa, periodo, con_direccion)
+static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false) -> MeshInstance3D:
+	var material := material_bucle(nombre, alfa, periodo, con_direccion, de_pie)
 	if material == null:
 		return null
 	var cuadro := MeshInstance3D.new()
@@ -302,7 +400,9 @@ static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 
 static func poner_extras(prendidos: bool) -> void:
 	extras = prendidos
 	for material: ShaderMaterial in _materiales.values():
-		material.set_shader_parameter("alfa", material.get_meta("alfa") if prendidos else 0.0)
+		# El trazo de la bala (material_eje) no es de la segunda ronda: no lleva "alfa"
+		if material.has_meta("alfa"):
+			material.set_shader_parameter("alfa", material.get_meta("alfa") if prendidos else 0.0)
 
 
 static func hoja_de(nombre: String) -> Dictionary:

@@ -2,6 +2,9 @@ extends Node3D
 
 @export var tint: Color = Color.WHITE
 @export var dialogue: String = ""
+# Un civil del pack PSX (scripts/personajes/Civiles.gd) en vez del ninja; vacio = el ninja,
+# con su `tint`. Se pone antes de meterlo al arbol
+@export var modelo := ""
 # Si lo tiene, regresa lo que dice en cada plática (MisionesMundo.gd); si no, `dialogue`
 var al_hablar := Callable()
 
@@ -18,7 +21,14 @@ var _using_keyboard: bool = true
 
 func _ready() -> void:
 	add_to_group("npc")
-	_apply_tint(tint)
+	if modelo != "":
+		var ninja := get_node_or_null("Model")
+		if ninja:
+			remove_child(ninja)
+			ninja.free()
+		Civiles.poner(self, modelo)
+	else:
+		_apply_tint(tint)
 	_dialogue_label.text = dialogue
 	_prompt.texture = $PromptViewport.get_texture()
 	_bubble.texture = $BubbleViewport.get_texture()
@@ -27,7 +37,8 @@ func _ready() -> void:
 	_prompt.visible = false
 	_bubble.visible = false
 	_actualizar_pantallas()
-	_play_idle()
+	if modelo == "":
+		_play_idle()
 	var area := $TalkArea as Area3D
 	area.body_entered.connect(_on_body_entered)
 	area.body_exited.connect(_on_body_exited)

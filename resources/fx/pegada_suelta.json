@@ -1,0 +1,16 @@
+{
+ "id": "impacts/parry",
+ "fps": 30,
+ "loop": false,
+ "frames": 31,
+ "frameSize": [
+  200,
+  112
+ ],
+ "pivot": [
+  100,
+  96
+ ],
+ "columns": 5,
+ "golpe_en": 0
+}
