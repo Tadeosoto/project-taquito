@@ -91,3 +91,25 @@ AG's notes on v1: "too blocky". The long tee hung like a flat-bottomed bell and 
 - **Resolution:** 12 sides around the body, 10 on legs, arms and head. About twice the rings on the belly and legs. About 1,700 triangles in total.
 - **Shading:** smooth normals (Gouraud) on the body, legs, arms and head. The mustache, glasses, chain, medalla, rag and shoes stay flat-shaded.
 - **Weights:** the rings under the belly are mostly `mixamorig_Hips`, so bending a thigh doesn't drag the belly.
+
+---
+
+## v3 (2026-11-08): the bad water shows, bare torso, real hands
+
+AG's notes on v2:
+- The shoulders clipped out: the sleeves started outside the body and their tops stuck up past the shoulder line.
+- The belly looked like a flat patch.
+- The hands looked stuck on.
+
+And above all: **he's a cholo the bad water (Serenol) killed and brought back**, and that has to show. The rig, the `Roca` bone and the 16 clips stay the same; budget up to about 2,500 triangles.
+
+- **Tee torn off:** bare torso. Only filthy, soaked shreds of the white tee hang from the collar and the shoulders (ragged edges, flat-shaded). The rays-and-roses tattoo now covers the whole bare back, cracked.
+- **Skin:** dead grey-green, with swollen milky-white veins (the Serenol) spreading from the belly and the neck.
+- **Belly:** bloated like a water balloon and sagging over the waist of the khakis. Pale blisters, stretch marks, the navel at the centre of a milky vein web, a leak streak. A khaki waistband shows under the overhang at the sides and back.
+- **Face:** jaw hanging open under the mustache (chin about 4 cm lower), dark mouth with teeth, cracked lips, white drool streaks, milky pupil-less eyes behind the dark glasses. The tinaco tattoo stays.
+- **Wounds and stains:** a bite on one forearm (red flesh, teeth marks), dark soaked patches on the khakis, the right knee torn open, the left slip-on gone (dirty sock).
+- **Shoulders:** no sleeve boxes. The arms grow out of the body (the first ring starts inside the torso, a deltoid follows the shoulder slope, weights graded `Spine2` → `Shoulder` → `Arm`). Smooth skin down to the wrist.
+- **Hands:** big and meaty, blending from the forearm through a wrist ring.
+  - A padded palm and three thick fingers side by side, weighted to `HandIndex1/2/3` so they curl together.
+  - A thumb on the inner side (weighted to `Hand`), swollen knuckles, dark nails.
+- **Shading:** smooth on skin and khakis; flat on the tee shreds, mustache, glasses, chain, medalla and slip-on.
