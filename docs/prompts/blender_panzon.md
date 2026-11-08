@@ -157,4 +157,4 @@ Method:
    - **Belt:** leather with stitching.
 3. **Shape shading baked in:** ambient occlusion plus pointiness darken the folds, the under-belly, armpits and crotch.
 4. **Bake** (EMIT) to 1024, average down to 512, posterize to 32 levels per channel, nearest filtering. The same rig, clips and triangles; only the UVs and the texture change.
-5. **Pending:** CC0 photo fabric (Poly Haven, once enabled in the MCP addon) for the khakis and belt, baked in the same way.
+5. **Photo detail:** the khakis use Poly Haven's denim_fabric_05, the belt brown_leather (both CC0), box-projected in body space and baked in the same way. The weave is scaled up (about 1.3 repeats per metre) so it still reads at 512 px.

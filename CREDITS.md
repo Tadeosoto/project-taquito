@@ -92,6 +92,7 @@
 - [Construction Worker In A Blue Jacket](https://sketchfab.com/3d-models/a9eff8aee05e48d8b1f31cafd408215f) de restore50, licencia CC Attribution (`models/personajes/garrafonero/`).
 - [Characters_psx](https://sketchfab.com/3d-models/d940162487c3493b9e203d624fdd763a) de Elbolillo (Elbolilloduro), licencia CC Attribution: 79 personajes (`models/personajes/pack_psx/`).
   - El protagonista `models/personajes/protagonistas/el_compa/` es `hombre_04` de ese pack con la textura repintada (modificado; `tools/personajes/el_compa.gd`).
+- El Saltabardas (`models/personajes/saltabardas/`) y El Panzón (`models/personajes/panzon/`): modelos, texturas y animaciones propios, hechos en Blender (`docs/prompts/`). Los shorts y el cinturón del Panzón llevan horneadas las texturas denim_fabric_05 (Rico Cilliers, colormass) y brown_leather (Rob Tuytel) de [Poly Haven](https://polyhaven.com) (CC0).
 
 ## Armas (`models/armas/`, Sketchfab)
 - [PS1 Style Machete](https://sketchfab.com/3d-models/bec7ee80bac24cc19b1e79cf8b57c50a) de Falxxx, licencia CC Attribution (`models/armas/machete/`).
