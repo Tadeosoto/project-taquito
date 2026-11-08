@@ -172,7 +172,7 @@ func disparar() -> void:
 	var pego := espacio.intersect_ray(rayo)
 	var punto: Vector3 = pego.position if pego else origen + hacia * ALCANCE
 	# Un zombi o un Saltabardas (no es Zombie, pero contesta igual a recibir_golpe)
-	var blanco: Node3D = pego.collider if pego and (pego.collider is Zombie or pego.collider is Saltabardas) else null
+	var blanco: Node3D = pego.collider if pego and (pego.collider is Zombie or pego.collider is Saltabardas or pego.collider is Panzon) else null
 	# Lombrices (EnjambreLombrices): no tienen colliders, se les pregunta aparte. Si un punto
 	# esta mas cerca que la pared o el zombi, el tiro es suyo
 	var lombriz := EnjambreLombrices.rayo(get_tree(), origen, hacia, origen.distance_to(punto), RADIO_LOMBRIZ)

@@ -71,6 +71,7 @@ const CHATARRA_EN := [Vector3(17.0, 0.0, 6.0), Vector3(19.5, 0.0, 6.0)]
 const MATERIALES_PRUEBA := 5   # de cada material comun y especial con Shift+P
 const CANGURERA := "res://resources/productos/cangurera.tres"
 const YONKE_EN := Vector3(-36.0, 0.0, 14.0)
+const PANZON_DISTANCIA := 18.0   # m enfrente donde sale con Shift+J
 const SALTABARDAS_DISTANCIA := 16.0   # m enfrente donde sale con Shift+G
 const BOTIN_DISTANCIA := 5.0   # m enfrente a los que salen las cajitas con Shift+Z
 # La estela de los golpes (EstelaBarrido.estilo): la 8 prende o apaga la del protagonista
@@ -96,7 +97,7 @@ Shift+1 2 3 maquinita: normal, sin monedas, segura"""},
 	{"titulo": "Zombis", "efectos": true, "texto": """Z zombi · B turba (Ctrl+B: llenar la libreta, Shift+B: borrarla) · X quitar · F8 jefe
 T zombis solos de noche
 0 caminan en enjambre / en fila como antes
-G tablas · Shift+G Saltabardas · L -100 al tinaco (refugio a la derecha)
+G tablas · Shift+G Saltabardas · Shift+J Panzón · L -100 al tinaco (refugio a la derecha)
 , soltar 80 lombrices enfrente (hornea unos segundos)
 Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
 3 sal / molotov (otra vez 3 cambia; caguama + alcohol = molotov)"""},
@@ -432,6 +433,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			_zombis.set_physics_process(not _zombis.is_physics_processing())
 		KEY_H:
 			_salud.vida = _salud.vida_max
+		KEY_J when event.shift_pressed:
+			# El Panzon a 18 m enfrente: ruge, embiste, avienta losas (Panzon.gd)
+			var enfrente_p := -_jugador.frijol.global_transform.basis.z
+			enfrente_p.y = 0.0
+			_zombis.aparecer_panzon(_jugador.global_position + enfrente_p.normalized() * PANZON_DISTANCIA)
 		KEY_J:
 			_salud.vida -= DANO_PRUEBA
 		KEY_P:

@@ -56,13 +56,13 @@ const ENTRADAS := [
 	},
 	{
 		"id": "gordo",
-		"titulo": "El gordo",
-		"apodo": "\"el hinchado\"",
-		"que": "Un zombi enorme, hinchado de agua. Lento para arrancar, pero pesa. Se oye antes de que se vea: chapotea por dentro.",
-		"por_que": "Dicen que es uno que se murió cerca del agua buena (una cisterna, una purificadora) y no paró de tomar. El cuerpo ya no la retiene, pero él sigue bebiendo. Es lo que el agua de GelA le hace a uno con mucha sed.",
-		"como": "Todavía no sé bien qué hace distinto; lo estoy anotando. Por lo pronto: no lo dejes llegar, guarda distancia y pégale de lejos.",
-		"pista_por_que": "Pelea con un gordo.",
-		"pista_como": "Mata a un gordo.",
+		"titulo": "El Panzón",
+		"apodo": "\"el carnal de la cuadra\"",
+		"que": "Un cholo enorme, hinchado de agua hasta reventar: la panza le cuelga como delantal, ya no tiene cuello y todavía trae la red en la cabeza, los lentes y su cadena. Arranca pedazos de banqueta y te los avienta, y cuando ruge, embiste como camión.",
+		"por_que": "Era el carnal de la cuadra, el que cuidaba la esquina y cargaba lo que hubiera que cargar. Creo que tomó más agua de GelA que nadie, porque le daban de más por ayudar. El Serenol lo infló en vez de matarlo de una: el cuerpo ya no le cabe.",
+		"como": "Ruge antes de embestir o de aventar: ese es tu segundo. Rueda de lado cuando viene; si choca con una pared o la barricada se queda atarantado y le entra el doble, ahí descárgale todo. Si te agarra no te zafas: te azota, te pisa y te avienta. Las losas se ven caer por la sombra. No te alejes del tinaco: si lo dejas solo, va por él.",
+		"pista_por_que": "Pelea con él.",
+		"pista_como": "Tumba al Panzón.",
 	},
 	{
 		"id": "jefe",
@@ -140,7 +140,10 @@ static func datos(id: String) -> String:
 		"infectado":
 			return "Vida %d · pega %d · corre x%.1f · siempre te caza" % [_Z.VIDA, _Z.DANO, _Z.INFECTADO_VELOCIDAD]
 		"gordo":
-			return "Vida %d · pega %d (todavía lo estoy midiendo)" % [_Z.GORDO_VIDA, _Z.GORDO_DANO]
+			var _P = load("res://scripts/map/Panzon.gd")
+			var _R = load("res://scripts/map/RocaPanzon.gd")
+			return "Vida %d · losa %d · martillazo %d · agarrón %d+%dx%d+%d · atarantado recibe x%d" % [
+				_P.VIDA, _R.DANO_JUGADOR, _P.DANO_MARTILLO, _P.DANO_AZOTON, _P.PISOTONES, _P.DANO_PISOTON, _P.DANO_LANZA, _P.ATARANTADO_MULT]
 		"jefe":
 			return "Vida %d · pega %d · camina a %.0f m/s" % [_Z.JEFE_VIDA, _Z.JEFE_DANO, _Z.JEFE_VELOCIDAD]
 		"crias":

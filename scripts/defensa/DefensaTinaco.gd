@@ -82,7 +82,8 @@ const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 # estetica, no da dano). Mitad de los ~55 zombis que caen por noche en modo medio
 # (docs/pruebas-balance.md: machete 774 + pistola 870 de dano, vida 30)
 const ESTELA_MUERTES := 27
-const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto", "casquillo", "disparo_pistola", "recarga_suelta", "recarga_mete", "recarga_cierra"]
+# golpe y morir_zombi: el Panzon (azotones, pisotones, losas) y su muerte
+const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto", "casquillo", "disparo_pistola", "recarga_suelta", "recarga_mete", "recarga_cierra", "golpe", "morir_zombi"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
 const MUSICA_ENTRA := 2.0      # s
@@ -116,6 +117,10 @@ var _hordas: Hordas
 var _hora: Label
 var _amanecer: ColorRect
 var _vida_tinaco: ColorRect
+# La barra del Panzon (Panzon.gd), arriba al centro, solo mientras hay uno vivo
+var _jefe: Control
+var _jefe_barra: ColorRect
+const JEFE_ANCHO := 300.0
 var _listo := false
 var _terminado := false
 var _musica: AudioStreamPlayer
@@ -266,6 +271,10 @@ func _process(_delta: float) -> void:
 	_hora.text = Hordas.texto_hora(hora)
 	_amanecer.scale.x = (hora - Hordas.HORA_EMPIEZA) / Hordas.HORAS
 	_vida_tinaco.scale.x = _tinaco.fraccion()
+	var panzon := get_tree().get_first_node_in_group("panzon")
+	_jefe.visible = panzon != null
+	if panzon:
+		_jefe_barra.scale.x = clampf(float(panzon.vida()) / Panzon.VIDA, 0.0, 1.0)
 
 
 # Lo de alrededor ya cargo: CargaCuadro lleva un rato sin que nadie arme nada
@@ -544,6 +553,24 @@ func _armar_hud() -> void:
 	capa.add_child(_hora)
 	_amanecer = _barra(capa, Vector2(10.0, 48.0), AMARILLO, "amanecer")
 	_vida_tinaco = _barra(capa, Vector2(10.0, 62.0), AGUA, "tinaco")
+	_jefe = Control.new()
+	_jefe.visible = false
+	_jefe.position = Vector2((640.0 - JEFE_ANCHO) / 2.0, 14.0)
+	capa.add_child(_jefe)
+	var nombre := _etiqueta("EL PANZÓN", 16, ROJO)
+	nombre.size = Vector2(JEFE_ANCHO, 18.0)
+	nombre.position = Vector2(0.0, -2.0)
+	_jefe.add_child(nombre)
+	var fondo := ColorRect.new()
+	fondo.color = Color(0.0, 0.0, 0.0, 0.6)
+	fondo.position = Vector2(-1.0, 17.0)
+	fondo.size = Vector2(JEFE_ANCHO + 2.0, 9.0)
+	_jefe.add_child(fondo)
+	_jefe_barra = ColorRect.new()
+	_jefe_barra.color = ROJO
+	_jefe_barra.position = Vector2(0.0, 18.0)
+	_jefe_barra.size = Vector2(JEFE_ANCHO, 7.0)
+	_jefe.add_child(_jefe_barra)
 
 
 # Una barra de 110 px que se llena con scale.x, con su nombre al lado

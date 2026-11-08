@@ -362,6 +362,7 @@ El barrio los clasifica por tamaño y maña:
 | **El escupidor** | El de la esquina | Escupe sangre y avienta cosas; no se acerca |
 | **La botarga** | El que se ponía la botarga de la Gota | De día bailaba; de noche es un traje vacío en una esquina |
 | 💡 **El saltabardas** (propuesta de AG) | El chavo de la esquina que se brincaba las bardas | Anda agachado, grita antes de saltar y se te echa encima; te lo quitas a puro forcejeo |
+| 💡 **El panzón** (propuesta de AG para el gordo) | El carnal de la cuadra, el cholo que cargaba lo que hubiera que cargar | Hinchado de agua: arranca banqueta y la avienta, ruge y embiste; si te agarra te azota, te pisa y te avienta. Si dejas solo el tinaco, va por él |
 
 ### El jefe
 

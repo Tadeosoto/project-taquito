@@ -124,6 +124,8 @@ var _mat_metal: ShaderMaterial
 
 
 func _ready() -> void:
+	# Las losas del Panzon la buscan por grupo (RocaPanzon.gd -> romper_cerca)
+	add_to_group("barricada")
 	# Mallas y materiales una vez, siempre iguales
 	_rng.seed = 7
 	_tinaco()
@@ -611,6 +613,73 @@ func _acostado(escena: PackedScene, lugar: Transform3D, acostar: Basis, medida: 
 	forma.shape = caja_forma
 	forma.position.y = tamano.y / 2.0
 	cuerpo.add_child(forma)
+
+
+# --- Romper (las losas del Panzon) ---
+
+# Tumba las piezas que toca una esfera de `radio` en `punto` (mundo): quita su colision, esconde
+# sus costales, tarimas o anaqueles (instancias de los MultiMesh dentro de la pieza) y los banos
+# enteros; los tambos y el tinaco no. Despues el campo de flujo vuelve a mirar las paredes, asi
+# los zombis pasan por el hoyo. Regresa cuantas piezas tumbo.
+func romper_cerca(punto: Vector3, radio: float) -> int:
+	if _destino == null:
+		return 0
+	var cajas: Array = []   # [Transform3D global, AABB local] de lo que se quita
+	for hijo in _destino.get_children():
+		var cuerpo: StaticBody3D = null
+		var quitar: Node = null
+		if hijo is StaticBody3D and hijo.name != "Tambos":
+			cuerpo = hijo; quitar = hijo
+		elif hijo is Node3D and not (hijo is MultiMeshInstance3D) and not (hijo is OmniLight3D):
+			for nieto in hijo.get_children():
+				if nieto is StaticBody3D:
+					cuerpo = nieto; quitar = hijo
+		if cuerpo == null:
+			continue
+		var caja := _caja_cuerpo(cuerpo)
+		var local := cuerpo.global_transform.affine_inverse() * punto
+		var cerca := caja.grow(radio)
+		if cerca.has_point(local):
+			cajas.append([cuerpo.global_transform, caja])
+			quitar.queue_free()
+	if cajas.is_empty():
+		return 0
+	for hijo in _destino.get_children():
+		if not (hijo is MultiMeshInstance3D):
+			continue
+		var mm: MultiMesh = hijo.multimesh
+		for i in mm.instance_count:
+			var en: Vector3 = hijo.global_transform * mm.get_instance_transform(i).origin
+			for c: Array in cajas:
+				if (c[1] as AABB).grow(0.3).has_point((c[0] as Transform3D).affine_inverse() * en):
+					mm.set_instance_transform(i, Transform3D(Basis().scaled(Vector3.ZERO), Vector3.ZERO))
+					break
+	var zombis := get_tree().get_first_node_in_group("zombis_mando")
+	if zombis and zombis.has_method("olvidar_paredes"):
+		zombis.olvidar_paredes()
+	return cajas.size()
+
+
+# La caja (local al cuerpo) que ocupan sus formas
+func _caja_cuerpo(cuerpo: StaticBody3D) -> AABB:
+	var caja := AABB()
+	var primera := true
+	for forma in cuerpo.get_children():
+		if not (forma is CollisionShape3D) or forma.shape == null:
+			continue
+		var c := AABB()
+		if forma.shape is BoxShape3D:
+			var m: Vector3 = forma.shape.size
+			c = AABB(forma.position - m / 2.0, m)
+		elif forma.shape is ConvexPolygonShape3D:
+			var pts: PackedVector3Array = forma.shape.points
+			c = AABB(pts[0] + forma.position, Vector3.ZERO)
+			for p in pts: c = c.expand(p + forma.position)
+		else:
+			continue
+		caja = c if primera else caja.merge(c)
+		primera = false
+	return caja
 
 
 # --- Ayudas ---

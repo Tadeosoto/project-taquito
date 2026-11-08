@@ -35,6 +35,8 @@ const NO_ENCIMAR_PASADAS := 2
 const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
 # El Saltabardas (Saltabardas.gd): uno a la vez, de noche, cada tanto
 const SALTABARDAS := preload("res://scripts/map/Saltabardas.gd")
+# El Panzon (Panzon.gd): lo sacan las hordas de la defensa y el safehouse
+const PANZON := preload("res://scripts/map/Panzon.gd")
 const SALTABARDAS_PRIMERO := Vector2(45.0, 90.0)   # s desde que anochece
 const SALTABARDAS_CADA := Vector2(70.0, 140.0)
 
@@ -442,6 +444,16 @@ func aparecer_saltabardas(lugar: Vector3) -> Node3D:
 	return uno
 
 
+func aparecer_panzon(lugar: Vector3) -> Node3D:
+	var uno: Node3D = PANZON.new()
+	uno.jugador = _jugador
+	uno.zombis = self
+	add_child(uno)
+	uno.global_position = lugar
+	salieron_noche += 1
+	return uno
+
+
 # Uno de la reserva, despierto en `lugar`
 func sacar(lugar: Vector3, cazador: bool) -> Zombie:
 	var zombi: Zombie = _libres.pop_back() if not _libres.is_empty() else _armar()
@@ -568,6 +580,8 @@ func limpiar() -> void:
 	for z: Zombie in Zombie.activos.duplicate():
 		_devolver(z)
 	for uno in get_tree().get_nodes_in_group("saltabardas"):
+		uno._quitar()
+	for uno in get_tree().get_nodes_in_group("panzon"):
 		uno._quitar()
 
 
