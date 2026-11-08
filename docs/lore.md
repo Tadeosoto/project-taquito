@@ -361,6 +361,7 @@ El barrio los clasifica por tamaño y maña:
 | **El cargador** | El que cargaba garrafones de día | Trae garrafones vacíos; pega con ellos; es el que más miedo da, porque era tu amigo |
 | **El escupidor** | El de la esquina | Escupe sangre y avienta cosas; no se acerca |
 | **La botarga** | El que se ponía la botarga de la Gota | De día bailaba; de noche es un traje vacío en una esquina |
+| 💡 **El saltabardas** (propuesta de AG) | El chavo de la esquina que se brincaba las bardas | Anda agachado, grita antes de saltar y se te echa encima; te lo quitas a puro forcejeo |
 
 ### El jefe
 

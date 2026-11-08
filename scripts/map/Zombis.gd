@@ -33,6 +33,10 @@ const MAX_RESTOS := 16
 const SEPARADO := 1.1         # m entre centros al aparecer: chocan entre ellos
 const NO_ENCIMAR_PASADAS := 2
 const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
+# El Saltabardas (Saltabardas.gd): uno a la vez, de noche, cada tanto
+const SALTABARDAS := preload("res://scripts/map/Saltabardas.gd")
+const SALTABARDAS_PRIMERO := Vector2(45.0, 90.0)   # s desde que anochece
+const SALTABARDAS_CADA := Vector2(70.0, 140.0)
 
 @export var jugador_path: NodePath
 @export var ciclo_path: NodePath
@@ -47,6 +51,8 @@ const RESTOS_ALTO := 0.03     # m sobre el piso, y arriba del charco
 @export var ritmo: RitmoNoche
 # Mas lejos del jugador se quitan; en la defensa salen al otro lado de la barricada
 @export var lejos := LEJOS
+# Si sale el Saltabardas de noche (espontaneos tambien tiene que estar)
+@export var saltabardas := true
 # Cuantos puede haber a la vez (y cuantos se arman en la reserva); la defensa trae mas
 @export var max_total := MAX_TOTAL
 # Lo que le quita cada golpe al jugador (Zombie.DANO); la defensa le baja. El jefe no cambia
@@ -89,6 +95,7 @@ var _noche_t := 0.0
 var _siguiente_grupo := 0.0
 var _horas_turbas: Array[float] = []
 var _cayendo := false
+var _saltabardas_en := INF
 # Para ajustar jugando: lo de la noche que va (Partida los dice al amanecer)
 var salieron_noche := 0
 var muertos_noche := 0
@@ -137,6 +144,7 @@ func _anochecio() -> void:
 	muertos_noche = 0
 	turbas_noche = 0
 	_noche_t = 0.0
+	_saltabardas_en = randf_range(SALTABARDAS_PRIMERO.x, SALTABARDAS_PRIMERO.y)
 	if ritmo:
 		_siguiente_grupo = ritmo.calma_inicial
 		_horas_turbas = ritmo.horas_turbas(_ciclo.noche_duracion)
@@ -283,6 +291,7 @@ func _physics_process(delta: float) -> void:
 		aparecer_turba(turba)
 	if _turba_pendiente > 0:
 		_sacar_de_turba()
+	_revisar_saltabardas(delta)
 	if ritmo:
 		_seguir_ritmo(delta)
 		return
@@ -407,6 +416,30 @@ func _aparecer() -> void:
 	var lugar := _lugar_libre(_jugador.global_position)
 	if lugar != Vector3.INF:
 		sacar(lugar, false)
+
+
+func _revisar_saltabardas(delta: float) -> void:
+	if not saltabardas:
+		return
+	_saltabardas_en -= delta
+	if _saltabardas_en > 0.0:
+		return
+	_saltabardas_en = randf_range(SALTABARDAS_CADA.x, SALTABARDAS_CADA.y)
+	if get_tree().get_first_node_in_group("saltabardas") != null:
+		return
+	var lugar := _lugar_libre(_jugador.global_position)
+	if lugar != Vector3.INF:
+		aparecer_saltabardas(lugar)
+
+
+func aparecer_saltabardas(lugar: Vector3) -> Node3D:
+	var uno: Node3D = SALTABARDAS.new()
+	uno.jugador = _jugador
+	uno.zombis = self
+	add_child(uno)
+	uno.global_position = lugar
+	salieron_noche += 1
+	return uno
 
 
 # Uno de la reserva, despierto en `lugar`
@@ -534,6 +567,8 @@ func limpiar() -> void:
 	efectos.limpiar()
 	for z: Zombie in Zombie.activos.duplicate():
 		_devolver(z)
+	for uno in get_tree().get_nodes_in_group("saltabardas"):
+		uno._quitar()
 
 
 # Al desmayarse el jugador: que no despierte con uno encima, pero los demas siguen

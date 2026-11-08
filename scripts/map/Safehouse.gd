@@ -71,6 +71,7 @@ const CHATARRA_EN := [Vector3(17.0, 0.0, 6.0), Vector3(19.5, 0.0, 6.0)]
 const MATERIALES_PRUEBA := 5   # de cada material comun y especial con Shift+P
 const CANGURERA := "res://resources/productos/cangurera.tres"
 const YONKE_EN := Vector3(-36.0, 0.0, 14.0)
+const SALTABARDAS_DISTANCIA := 16.0   # m enfrente donde sale con Shift+G
 const BOTIN_DISTANCIA := 5.0   # m enfrente a los que salen las cajitas con Shift+Z
 # La estela de los golpes (EstelaBarrido.estilo): la 8 prende o apaga la del protagonista
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
@@ -95,7 +96,7 @@ Shift+1 2 3 maquinita: normal, sin monedas, segura"""},
 	{"titulo": "Zombis", "efectos": true, "texto": """Z zombi · B turba (Ctrl+B: llenar la libreta, Shift+B: borrarla) · X quitar · F8 jefe
 T zombis solos de noche
 0 caminan en enjambre / en fila como antes
-G tablas · L -100 al tinaco (refugio a la derecha)
+G tablas · Shift+G Saltabardas · L -100 al tinaco (refugio a la derecha)
 , soltar 80 lombrices enfrente (hornea unos segundos)
 Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
 3 sal / molotov (otra vez 3 cambia; caguama + alcohol = molotov)"""},
@@ -470,6 +471,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_U:
 			for zona in ZonasMapa.cuantas():
 				PiezasMapa.dar(zona)
+		KEY_G when event.shift_pressed:
+			# Un Saltabardas a 16 m enfrente: grita, salta y se te sube (machaca golpe o brinco)
+			var enfrente := -_jugador.frijol.global_transform.basis.z
+			enfrente.y = 0.0
+			_zombis.aparecer_saltabardas(_jugador.global_position + enfrente.normalized() * SALTABARDAS_DISTANCIA)
 		KEY_G:
 			_inventario.add_item(load(TABLAS_PRUEBA))
 		KEY_L:
@@ -721,8 +727,8 @@ func _process(_delta: float) -> void:
 	if not _panel.visible:
 		return
 	var zombis := 0
-	for z: Zombie in get_tree().get_nodes_in_group("zombis"):
-		if z.estado != Zombie.Estado.MUERTO:
+	for z in get_tree().get_nodes_in_group("zombis"):
+		if z.get("estado") != Zombie.Estado.MUERTO:
 			zombis += 1
 	_estado.text = "Vida %d/%d · $%d · Objetos %d/%d · %s · Zombis %d%s · Director %s %.2f · Deterioro %.1f" % [
 		_salud.vida, _salud.vida_max, _cartera.pesos, _inventario.get_item_count(), _inventario.capacidad(),

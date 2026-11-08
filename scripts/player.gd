@@ -1416,6 +1416,36 @@ func caer() -> void:
 		figura.accion("Defeat")
 
 
+# Un Saltabardas (Saltabardas.gd) te tumba y se te sube: tirado, sin moverte ni pegar. Cada
+# apreton de golpe o brinco forcejea (su forcejear) hasta que te lo quitas. La fisica sigue,
+# asi los demas zombis no se congelan. Rodando no te agarra. Duck typing: tools/ carga este
+# archivo y Saltabardas no debe hacer falta
+var atrapado_por: Node = null
+
+
+func atrapar(quien: Node) -> bool:
+	if atrapado() or esquivando():
+		return false
+	atrapado_por = quien
+	_golpe_guardado = false
+	_buffer = ""
+	_soltar_combo()
+	if _pose_carga:
+		_cancelar_carga()
+	caer()
+	return true
+
+
+func soltar_atrapado() -> void:
+	atrapado_por = null
+	if figura.has_method("terminar_accion"):
+		figura.terminar_accion()
+
+
+func atrapado() -> bool:
+	return atrapado_por != null and is_instance_valid(atrapado_por)
+
+
 # La mano derecha del modelo; el arma se ve en ella
 func _armar_mano() -> void:
 	var esqueleto := _esqueleto()
@@ -1624,6 +1654,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_pitch -= event.relative.y * sensibilidad * 100.0
 		camera_pitch = clampf(camera_pitch, -60.0, 30.0)
 		spring_arm.rotation_degrees.x = camera_pitch
+	elif atrapado():
+		# Tirado con un Saltabardas encima: golpe o brinco forcejean, nada mas
+		if event.is_action_pressed("attack") or event.is_action_pressed("jump"):
+			atrapado_por.forcejear()
 	elif event.is_action_pressed("cambiar_arma") and is_physics_processing():
 		_lanzador.soltar()
 		_pistola.cambiar()
@@ -1965,7 +1999,7 @@ func _physics_process(delta: float) -> void:
 	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
 	var golpeando := (_enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento) or _pose_carga
 	# Girando en el aire sigues tu salto (y lo puedes dirigir); en el suelo te quedas en tu lugar
-	if _curando > 0.0 or (_giro >= 0.0 and is_on_floor()) or _estocada_t >= 0.0 or _rodada_t >= 0.0:
+	if atrapado() or _curando > 0.0 or (_giro >= 0.0 and is_on_floor()) or _estocada_t >= 0.0 or _rodada_t >= 0.0:
 		input_direction = Vector2.ZERO
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z
@@ -2092,7 +2126,7 @@ func _physics_process(delta: float) -> void:
 	camera_pitch = clampf(camera_pitch, -60.0, 30.0)
 	spring_arm.rotation_degrees.x = camera_pitch
 
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if Input.is_action_just_pressed("jump") and is_on_floor() and not atrapado():
 		var cercano := _nearby_interactable()
 		if cercano != null:
 			cercano.interact()
