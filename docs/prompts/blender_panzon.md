@@ -133,3 +133,28 @@ Changes from v3:
 - **Clothes:** his creased khakis split and torn off above the knee into shorts with a frayed hem, held by a leather belt under the apron. Barefoot: the shoes burst off, so wide flat feet with simple toes and dirty soles. The tee shreds are gone. The chain, medalla and red rag (back pocket) stay.
 - **Budget:** up to about 3,500 triangles.
 - **Rig and clips:** unchanged. Only the poses where the bigger body makes the hands or arms clip get nudged and re-baked.
+
+---
+
+## Texture (2026-11-08): unwrap and bake instead of tiles
+
+AG found the texture low effort. The reference renders he shared are a **look guide only**: never sample, trace or project them. What they get right, and what we copy as technique:
+- skin tone that varies (darker hands and feet, mottling, bruises)
+- grime in the folds, dirt toward the feet
+- blood around the mouth and chest
+- torn cloth over wet flesh
+- clothing detail you can read
+
+Method:
+1. **One real unwrap** (smart project into a single atlas), instead of one tile per face. The face regions (skin, khakis, belt, dark accessories, chain, medalla, rag) come from vertex positions and material slots.
+2. **Everything in the body's own 3D space** (object coordinates in Cycles nodes), so patterns run across UV seams without breaking:
+   - **Skin:** sallow grey-green noise with mottling and yellow fat spots, purple bruises, milky veins (twisted voronoi edges, strongest on the belly and neck), darker hands and feet, black nail tips, dirty soles.
+   - **Wounds:** rot (dark core, pus ring, raw flesh) on the right forearm, the left shin and one side of the belly; the bite on the left forearm.
+   - **Blood:** running from the mouth down the chin and chest, splatter on the forearms.
+   - **Face:** open mouth with teeth, milky eyes over the glasses, the tinaco tattoo, the hairnet as two diagonal thread sets.
+   - **Back tattoo:** rays-and-roses built in back-space coordinates, so it wraps.
+   - **Khakis:** twill weave, fibres, the ironed crease, side seams, back pockets with stitching, wet patches, the torn hem with flesh in the holes.
+   - **Belt:** leather with stitching.
+3. **Shape shading baked in:** ambient occlusion plus pointiness darken the folds, the under-belly, armpits and crotch.
+4. **Bake** (EMIT) to 1024, average down to 512, posterize to 32 levels per channel, nearest filtering. The same rig, clips and triangles; only the UVs and the texture change.
+5. **Pending:** CC0 photo fabric (Poly Haven, once enabled in the MCP addon) for the khakis and belt, baked in the same way.
