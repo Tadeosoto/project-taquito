@@ -35,6 +35,16 @@ const ENTRADAS := [
 		"pista_como": "Mata a un cazador.",
 	},
 	{
+		"id": "saltabardas",
+		"titulo": "Saltabardas",
+		"apodo": "\"el chavo de la esquina\"",
+		"que": "Anda agachado, a cuatro patas cuando corre, con una sudadera vino y la capucha hasta los ojos. Se queda quieto y olfatea; cuando te ve de cerca, grita. Después del grito se te echa encima de un brinco y te tumba.",
+		"por_que": "Era de los chavos de la esquina, de los que se brincaban las bardas por un mandado o para correrle a la patrulla. Creo que el Serenol le dejó eso: el cuerpo se acuerda de brincar. Todavía trae el rosario de su jefa.",
+		"como": "El grito es el aviso: tienes un segundo. Rueda cuando se enrosca y se te pasa por encima, o cúbrete de frente (clic derecho) y rebota. Pégale en el aire y cae de espaldas. Si te agarra, machaca golpe o brinco hasta quitártelo. La pistola también le entra.",
+		"pista_por_que": "Deja que se te eche encima, o pégale.",
+		"pista_como": "Mata a uno.",
+	},
+	{
 		"id": "infectado",
 		"titulo": "Zombi montado",
 		"apodo": "\"el del jinete\"",
@@ -117,12 +127,16 @@ static func datos(id: String) -> String:
 	var _EL = load("res://scripts/lombrices/EnjambreLombrices.gd")
 	var _MC = load("res://scripts/lombrices/MadreCarcamo.gd")
 	var _AR = load("res://scripts/lombrices/Arrojadizo.gd")
+	var _SB = load("res://scripts/map/Saltabardas.gd")
 	match id:
 		"zombi":
 			return "Vida %d · pega %d · corre %.0f-%.0f m/s · te ve a %.0f m, te oye a %.0f m" % [
 				_Z.VIDA, _Z.DANO, _Z.VELOCIDAD.x, _Z.VELOCIDAD.y, _Z.VE_DESDE, _Z.OYE_DESDE]
 		"cazador":
 			return "Vida %d · pega %d · corre x%.1f que uno normal" % [_Z.VIDA, _Z.DANO, _Z.CAZADOR_VELOCIDAD]
+		"saltabardas":
+			return "Vida %d · brinca desde %.0f m · el brinco pega %d, cada arañazo %d · %d apretones para quitártelo" % [
+				_SB.VIDA, _SB.SALTA_DESDE, _SB.DANO_SALTO, _SB.DANO_GARRA, roundi(_SB.ZAFARSE)]
 		"infectado":
 			return "Vida %d · pega %d · corre x%.1f · siempre te caza" % [_Z.VIDA, _Z.DANO, _Z.INFECTADO_VELOCIDAD]
 		"gordo":

@@ -167,6 +167,8 @@ func _acechar(delta: float) -> void:
 		_quitar()
 		return
 	_visto = _te_ve()
+	if _visto:
+		_nota("ver")
 	if _visto and lejos <= SALTA_DESDE and lejos >= SALTA_MINIMO and _espera <= 0.0 and is_on_floor() and not jugador.atrapado():
 		velocity = Vector3.ZERO
 		_mirar(al_jugador)
@@ -257,6 +259,7 @@ func _alcanzar() -> void:
 		_espera = randf_range(ESPERA_SALTO.x, ESPERA_SALTO.y)
 		_tambalearse(TUMBADO_DURA)
 		return
+	_nota("pelear")
 	if not jugador.atrapar(self):
 		return
 	jugador.recibir_dano(DANO_SALTO, global_position, 0.0, self)
@@ -352,6 +355,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, _truena_en := 80, _
 	if estado == Estado.MUERTO:
 		return 0
 	_vida -= dano * (2 if cabeza else 1)
+	_nota("pelear")
 	if zombis and zombis.get("efectos"):
 		zombis.efectos.lanzar("impacto", global_position + Vector3.UP * 0.6, (global_position - desde).normalized())
 	Sonidos.tocar(self, "whack", -8.0)
@@ -389,6 +393,7 @@ func _morir(pagado: bool) -> void:
 	murio.emit()
 	if not pagado:
 		return
+	_nota("matar")
 	var tazos := get_node_or_null("/root/Tazos")
 	var bonos := get_node_or_null("/root/Bonos")
 	var paga: int = randi_range(PESOS.x, PESOS.y) + (tazos.pesos_extra() if tazos else 0)
@@ -399,6 +404,13 @@ func _morir(pagado: bool) -> void:
 	CajaBotin.soltar(get_parent(), global_position + Vector3.UP * PECHO, Materiales.botin(Deterioro.zona(global_position.x, global_position.z), de_noche, true), paga)
 	if zombis and zombis.get("efectos"):
 		zombis.efectos.lanzar("muerte", global_position, Vector3.ZERO, 1.0)
+
+
+# La libreta del Nocturno (Libreta.gd): verlo, pelearlo, matarlo. Solo sube de nivel (no repite)
+func _nota(cual: String) -> void:
+	var libreta := get_node_or_null("/root/Libreta")
+	if libreta:
+		libreta.call(cual, "saltabardas")
 
 
 func _muerto(delta: float) -> void:
