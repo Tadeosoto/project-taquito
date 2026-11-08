@@ -78,3 +78,16 @@ Propuesta de AG (2026-11-08) **para el tipo GORDO de `Zombie.gd`; falta que JJ l
 - Use `look` on: front, back (the tattoo through the tear), 3/4, `Rip_Rock` at 30, `Stomp` at 10 and `Throw_Player` at 16.
 - Check that no clip sinks into the floor (lowest vertex ≥ about −0.01 m).
 - Confirm no Tank or Charger look: the huge white tee, hairnet, mustache, glasses, khakis with socks and slip-ons, and the tinaco tattoo are all there.
+
+---
+
+## v2 (2026-11-08): rounder, about 50 % more triangles
+
+AG's notes on v1: "too blocky". The long tee hung like a flat-bottomed bell and the legs poked out of it like sticks. The reference is a sketch of one soft round blob with the legs coming straight out of a round belly. Change only the body; the rig, bones, clips, rock and files stay the same.
+
+- **Tee:** it ends under the belly. It wraps the round belly and tucks in under it at the crotch. The front tear (belly showing) and the back tear (tattoo) stay.
+- **Belly:** shaped like a ball. The radius grows fast from the crotch to the widest point (about 1.3 m up), then eases back to the chest. No flat bottom.
+- **Legs:** they grow out of the belly's round underside. The thigh tops start inside the belly, so there's no visible step. They taper to the knee, then the khakis, socks and slip-ons as before.
+- **Resolution:** 12 sides around the body, 10 on legs, arms and head. About twice the rings on the belly and legs. About 1,700 triangles in total.
+- **Shading:** smooth normals (Gouraud) on the body, legs, arms and head. The mustache, glasses, chain, medalla, rag and shoes stay flat-shaded.
+- **Weights:** the rings under the belly are mostly `mixamorig_Hips`, so bending a thigh doesn't drag the belly.
