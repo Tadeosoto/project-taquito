@@ -113,3 +113,23 @@ And above all: **he's a cholo the bad water (Serenol) killed and brought back**,
   - A padded palm and three thick fingers side by side, weighted to `HandIndex1/2/3` so they curl together.
   - A thumb on the inner side (weighted to `Hand`), swollen knuckles, dark nails.
 - **Shading:** smooth on skin and khakis; flat on the tee shreds, mustache, glasses, chain, medalla and slip-on.
+
+---
+
+## v4 (2026-11-08): heavier, apron belly, no neck
+
+AG wants him heavier and more grotesque, after a reference render of an obese zombie.
+
+**Originality (important):** take only general visual traits that belong to no one: an apron belly, fat rolls, no neck, thick folded limbs, sallow wet rotting skin.
+- Don't reproduce any specific artwork: not its face, proportions, sores or composition.
+- Don't trace or sample a reference image, and don't use one as input for image-to-3D.
+- The cholo identity stays: hairnet, mustache, glasses, tinaco tattoo, khakis, chain and medalla, plus the milky Serenol veins.
+
+Changes from v3:
+- **Apron belly:** the lower belly hangs like a heavy apron in front of the thighs, down to about 0.72 m, with a crease at the navel and a deep fold under the sagging chest. The back stays above the crotch, so the thighs swing behind the apron.
+- **Rolls:** two rolls on the sides and back (pinched rings), a sagging chest, bulging upper arms with a roll above the elbow and a fold at it, the ankles folding over the feet.
+- **No neck:** the shoulders and trapezius rise to the jaw. The head sits low and wide at the bottom, with jowls and a double chin. The mustache, glasses (with the milky eyes peeking over them), hanging jaw and drool stay.
+- **Skin:** more sallow and wet, yellow-grey-green with sheen spots, purple bruising and the milky veins. Dark necrotic rot on one side of the belly, on the right forearm and the left shin; the bite on the left forearm stays.
+- **Clothes:** his creased khakis split and torn off above the knee into shorts with a frayed hem, held by a leather belt under the apron. Barefoot: the shoes burst off, so wide flat feet with simple toes and dirty soles. The tee shreds are gone. The chain, medalla and red rag (back pocket) stay.
+- **Budget:** up to about 3,500 triangles.
+- **Rig and clips:** unchanged. Only the poses where the bigger body makes the hands or arms clip get nudged and re-baked.
