@@ -28,21 +28,21 @@ const RADIO := 0.42
 const LARGO := 0.5
 const VELOCIDAD := 3.4
 const GRUESO := 0.4
-const COLOR := Color(0.36, 0.27, 0.3)
+const COLOR := Color(0.25, 0.27, 0.28)   # #3F4447: carbon con un toque verde del lodo
 const SACOS := 6
 const SACO_EN := [3, 5, 7, 9, 11, 13]
 const SACO_VIDA := 70.0
 const SACO_RADIO := 0.24
 const SACO_ALTO := 0.45         # m arriba del centro del punto: salen del lomo
-# El color de un saco segun su vida: turquesa lleno, amarillo enfermo a la mitad, rojo casi roto
-const SACO_LLENO := Color(0.2, 1.0, 0.85)
-const SACO_MEDIO := Color(0.9, 0.85, 0.29)
-const SACO_ROTO := Color(1.0, 0.2, 0.15)
+# El color de un saco segun su vida: magenta lleno, rosa a la mitad, naranja casi roto (se distinguen del azul del cuerpo)
+const SACO_LLENO := Color(0.88, 0.25, 0.98)   # #E040FB: magenta, casi opuesto al azul del cuerpo
+const SACO_MEDIO := Color(1.0, 0.31, 0.66)    # #FF4FA8
+const SACO_ROTO := Color(1.0, 0.48, 0.27)     # #FF7A45: naranja, que no se confunda con la sangre
 const LATE := Vector2(5.0, 12.0)       # rad/s del pulso, lleno -> casi roto
 const GOTEO_CADA := Vector2(0.6, 0.15) # s entre gotas de un saco herido, poco -> muy herido
 const RASTRO_CADA := 0.3        # s entre manchas en el piso mientras se arrastra herida
 const ATURDIDA_DURA := 2.0      # s tirada al reventarle un saco: la ventana para el siguiente
-const COLOR_SACO_SANGRE := Color(0.2, 0.75, 0.62)
+const COLOR_SACO_SANGRE := Color(0.75, 0.2, 0.8)
 const COLOR_SANGRE := Color(0.38, 0.04, 0.05)
 const DANO_BALA := 5.0
 const DANO_FUEGO := 2.0         # cada FUEGO_CADA dentro de una molotov
@@ -94,8 +94,10 @@ var _malla: MultiMesh
 var _buf := PackedFloat32Array()
 var _cabeza: MultiMesh
 var _buf_cab := PackedFloat32Array()
+var _espinas: MultiMesh
+var _buf_esp := PackedFloat32Array()
 var _bolsas: Array[MeshInstance3D] = []
-var _materiales: Array[StandardMaterial3D] = []
+var _materiales: Array[ShaderMaterial] = []
 var _goteo := PackedFloat32Array()
 var _rastro := 0.0
 var _squelch := 0
@@ -117,21 +119,23 @@ func _ready() -> void:
 	_cabeza = MallaLombriz.multimesh(MallaLombriz.cabeza(), 1)
 	_buf.resize(PUNTOS * 20)
 	_buf_cab.resize(20)
-	add_child(MallaLombriz.nodo(_malla))
-	add_child(MallaLombriz.nodo(_cabeza))
-	var esfera := SphereMesh.new()
-	esfera.radius = 1.0
-	esfera.height = 2.0
-	esfera.radial_segments = 8
-	esfera.rings = 4
+	_espinas = MallaLombriz.multimesh(MallaLombriz.espina(), PUNTOS)
+	_buf_esp.resize(PUNTOS * 20)
+	# La piel de la Madre es suya (shaders/madre.gdshader); las crias siguen con la de lombriz
+	for mm in [_malla, _cabeza, _espinas]:
+		var nodo := MallaLombriz.nodo(mm)
+		nodo.material_override = MallaLombriz.material_madre()
+		add_child(nodo)
+	# Los sacos son espinas grandes del lomo: gris de piel que se enciende hacia la punta en rosa-violeta,
+	# como las azules (el golpe sigue siendo una esfera)
+	var cristal := MallaLombriz.aleta()
 	# Un material por saco: cada uno cambia de color con su vida
 	for n in SACOS:
-		var material := StandardMaterial3D.new()
-		material.emission_enabled = true
-		material.emission_energy_multiplier = 3.0
-		material.roughness = 0.2
+		var material := ShaderMaterial.new()
+		material.shader = MallaLombriz.SHADER_MADRE
+		material.set_shader_parameter("es_saco", 1.0)
 		var bolsa := MeshInstance3D.new()
-		bolsa.mesh = esfera
+		bolsa.mesh = cristal
 		bolsa.material_override = material
 		bolsa.top_level = true
 		add_child(bolsa)
@@ -663,19 +667,43 @@ func apply_explosion_impulse(origin: Vector3, radius: float, force: float, mata 
 func _pintar() -> void:
 	var dato_extra := 0.6
 	var n := 0
+	var ne := 0
+	# Donde hay una aleta (punto debil) no va la espina chica: se encimarian
+	var con_aleta := PackedByteArray()
+	con_aleta.resize(PUNTOS)
+	for c in SACOS:
+		if sacos[c] > 0.0:
+			con_aleta[SACO_EN[c]] = 1
 	for i in PUNTOS - 1:
 		var k := float(i)
 		var afina := lerpf(1.15, 0.45, k / PUNTOS)
 		var late := 1.0 + 0.12 * sin(_t * 4.0 - k * 0.7)
 		var t := MallaLombriz.tramo(pos[i + 1], pos[i], GRUESO * afina * late, 1.15)
-		MallaLombriz.escribir(_buf, n, t, COLOR, Color(0.0, 0.37, dato_extra, 0.0))
+		# .g: las grietas brillan mas hacia la cola; .a: la semilla de la piel de este tramo
+		var grietas := lerpf(0.25, 1.0, k / (PUNTOS - 1))
+		MallaLombriz.escribir(_buf, n, t, COLOR, Color(0.0, grietas, dato_extra, fmod(k * 0.37, 1.0)))
 		n += 1
+		if con_aleta[i] == 1:
+			continue
+		# La espina del lomo: de la nuca a la cola, grandes al medio, inclinadas hacia atras
+		var arriba := Vector3.UP
+		var atras := (pos[i + 1] - pos[i]).normalized()
+		var alto := GRUESO * afina * 1.5 * (1.0 if i % 2 == 0 else 0.65) * sin(PI * (k + 1.0) / PUNTOS + 0.15)
+		var dir := (arriba + atras * 0.45).normalized()
+		var ancho := GRUESO * afina * 0.55
+		var ex := dir.cross(Vector3.RIGHT).normalized() if absf(dir.dot(Vector3.RIGHT)) < 0.95 else dir.cross(Vector3.FORWARD).normalized()
+		var ez := ex.cross(dir)
+		var base := pos[i] + arriba * GRUESO * afina * 0.75
+		MallaLombriz.escribir(_buf_esp, ne, Transform3D(Basis(ex * ancho, dir * maxf(alto, 0.05), ez * ancho), base), COLOR, Color(0.0, grietas, dato_extra + late * 0.4, 0.0))
+		ne += 1
 	_malla.buffer = _buf
 	_malla.visible_instance_count = n
+	_espinas.buffer = _buf_esp
+	_espinas.visible_instance_count = ne
 	var adelante := (pos[0] - pos[1]).normalized()
 	var abre := 1.0 if estado in [Estado.MUERDE, Estado.VOMITA, Estado.ESCUPE, Estado.AVISA, Estado.ATURDIDA] else 0.2
 	var t := MallaLombriz.tramo(pos[0] - adelante * 0.3, pos[0] + adelante * 0.5, GRUESO * 1.4, 1.0)
-	MallaLombriz.escribir(_buf_cab, 0, t, COLOR.darkened(0.2), Color(abre, 0.37, dato_extra, 0.0))
+	MallaLombriz.escribir(_buf_cab, 0, t, COLOR.darkened(0.2), Color(abre, 0.1, dato_extra, 0.5))
 	_cabeza.buffer = _buf_cab
 	_cabeza.visible_instance_count = 1
 	var siguiente := _siguiente_saco() if estado == Estado.ATURDIDA else -1
@@ -689,8 +717,18 @@ func _pintar() -> void:
 		var color := SACO_MEDIO.lerp(SACO_LLENO, (vida_ - 0.5) * 2.0) if vida_ > 0.5 else SACO_ROTO.lerp(SACO_MEDIO, vida_ * 2.0)
 		var late := sin(_t * lerpf(LATE.y, LATE.x, vida_) + k)
 		var material := _materiales[k]
-		material.albedo_color = color.darkened(0.35)
-		material.emission = color
-		material.emission_energy_multiplier = (3.0 + late * 1.2) * (2.0 if k == siguiente else 1.0)
+		material.set_shader_parameter("color_grieta", color)
+		material.set_shader_parameter("color_nucleo", color.lerp(Color.WHITE, 0.12))
+		material.set_shader_parameter("brillo", (2.2 + late * 0.8) * (1.8 if k == siguiente else 1.0))
 		var pulso := 1.0 + late * (0.12 + (1.0 - vida_) * 0.1) + (0.25 if k == siguiente else 0.0)
-		bolsa.global_transform = Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * SACO_RADIO * pulso), _saco(k))
+		# La aleta mira a lo largo del cuerpo (la punta echada hacia la cola), es delgada de lado, va
+		# centrada en el lomo y crece con el grueso del cuerpo, como las espinas: las de la cola son
+		# mas chicas. El golpe sigue en _saco(k).
+		var i: int = SACO_EN[k]
+		var cola := pos[i + 1] - pos[i - 1]
+		cola.y = 0.0
+		var ex := cola.normalized() if cola.length_squared() > 0.0001 else Vector3.RIGHT
+		var ez := ex.cross(Vector3.UP)
+		var afina := lerpf(1.15, 0.45, float(i) / PUNTOS)
+		var tam := GRUESO * afina
+		bolsa.global_transform = Transform3D(Basis(ex * tam * 1.2 * pulso, Vector3.UP * tam * 2.1 * pulso, ez * tam * 1.2), pos[i] + Vector3.UP * tam * 0.55)

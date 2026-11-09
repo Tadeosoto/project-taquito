@@ -12,10 +12,15 @@ extends RefCounted
 const SHADER := preload("res://shaders/lombriz.gdshader")
 const LADOS := 6
 const DIENTES := 8
+const SHADER_MADRE := preload("res://shaders/madre.gdshader")
 
 static var _segmento: ArrayMesh
 static var _cabeza: ArrayMesh
 static var _material: ShaderMaterial
+static var _material_madre: ShaderMaterial
+static var _material_crias: ShaderMaterial
+static var _espina: ArrayMesh
+static var _aleta: ArrayMesh
 
 
 static func material() -> ShaderMaterial:
@@ -23,6 +28,68 @@ static func material() -> ShaderMaterial:
 		_material = ShaderMaterial.new()
 		_material.shader = SHADER
 	return _material
+
+
+# La piel de la Madre (shaders/madre.gdshader): se pone como material_override de sus nodos
+static func material_madre() -> ShaderMaterial:
+	if _material_madre == null:
+		_material_madre = ShaderMaterial.new()
+		_material_madre.shader = SHADER_MADRE
+	return _material_madre
+
+
+# Las crias tienen la misma piel que la Madre, en su propio material: EnjambreLombrices le sube
+# el brillo de noche sin tocar el de la Madre
+static func material_crias() -> ShaderMaterial:
+	if _material_crias == null:
+		_material_crias = ShaderMaterial.new()
+		_material_crias.shader = SHADER_MADRE
+	return _material_crias
+
+
+# Una espina del lomo: piramide de 4 caras de y = 0 (base) a 1 (punta), radio 1 en la base.
+# UV.x = 3.5 para que el shader de la Madre la pinte; UV.y = 0 base, 1 punta.
+static func espina() -> ArrayMesh:
+	if _espina:
+		return _espina
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_smooth_group(0)
+	var punta := Vector3(0.0, 1.0, 0.0)
+	for k in 4:
+		var a0 := TAU * k / 4.0 + PI / 4.0
+		var a1 := TAU * (k + 1) / 4.0 + PI / 4.0
+		var b0 := Vector3(cos(a0), 0.0, sin(a0))
+		var b1 := Vector3(cos(a1), 0.0, sin(a1))
+		st.set_uv(Vector2(3.5, 0.0)); st.add_vertex(b0)
+		st.set_uv(Vector2(3.5, 0.0)); st.add_vertex(b1)
+		st.set_uv(Vector2(3.5, 1.0)); st.add_vertex(punta)
+	st.generate_normals()
+	_espina = st.commit()
+	_espina.surface_set_material(0, material_madre())
+	return _espina
+
+
+# Una aleta del lomo, plana como las del espinosaurio o la cola de Godzilla: ancha a lo largo del
+# cuerpo (x, de -1 a 1), delgada de lado (z) y con la punta (x = 0.35) echada hacia la cola (+x).
+# Mismo marcador de UV que la espina (x = 3.5; y = 0 base, 1 punta).
+static func aleta() -> ArrayMesh:
+	if _aleta:
+		return _aleta
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_smooth_group(-1)
+	var grueso := 0.14
+	var b := [Vector3(-1.0, 0.0, -grueso), Vector3(1.0, 0.0, -grueso), Vector3(1.0, 0.0, grueso), Vector3(-1.0, 0.0, grueso)]
+	var punta := Vector3(0.35, 1.0, 0.0)
+	for k in 4:
+		st.set_uv(Vector2(3.5, 0.0)); st.add_vertex(b[k])
+		st.set_uv(Vector2(3.5, 0.0)); st.add_vertex(b[(k + 1) % 4])
+		st.set_uv(Vector2(3.5, 1.0)); st.add_vertex(punta)
+	st.generate_normals()
+	_aleta = st.commit()
+	_aleta.surface_set_material(0, material_madre())
+	return _aleta
 
 
 static func segmento() -> ArrayMesh:

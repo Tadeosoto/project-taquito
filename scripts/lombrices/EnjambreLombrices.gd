@@ -52,6 +52,7 @@ const ABAJO := 1.0              # m de la caja debajo del piso: el piso cae en u
 const PRESUPUESTO_HORNEO := 6000  # us por cuadro horneando
 const GRUESO := 0.085           # m de radio de la carne (el punto mide S.RADIO)
 const COLOR_CARNE := Color(0.5, 0.4, 0.37)
+const COLOR_PIEL := Color(0.25, 0.27, 0.28)   # la piel de carbon de la Madre (shaders/madre.gdshader)
 const COLOR_SANGRE := Color(0.38, 0.04, 0.05)
 const COLOR_AGUA := Color(0.33, 0.36, 0.27)    # agua sucia, como la de los zombis
 const COLOR_TIERRA := Color(0.3, 0.24, 0.18)
@@ -201,6 +202,8 @@ var _jugador: Node3D
 var _salud: Node
 var _malla_seg: MultiMesh
 var _malla_cab: MultiMesh
+var _malla_esp: MultiMesh
+var _buf_esp := PackedFloat32Array()
 var _buf_seg := PackedFloat32Array()
 var _buf_cab := PackedFloat32Array()
 var _soltar_en := Vector3.INF
@@ -323,6 +326,7 @@ func _vaciar() -> void:
 	_latigos.clear()
 	_soltar_pegadas()
 	_malla_seg.visible_instance_count = 0
+	_malla_esp.visible_instance_count = 0
 	_malla_cab.visible_instance_count = 0
 
 
@@ -1477,19 +1481,20 @@ func _pintar() -> void:
 		return
 	var ns := 0
 	var nc := 0
+	var ne := 0
 	var noche := 1.0
 	if _ciclo == null:
 		_ciclo = get_tree().get_first_node_in_group("ciclo")
 	if _ciclo and _ciclo.has_method("es_noche") and _ciclo.es_noche():
 		noche = 2.5
-	MallaLombriz.material().set_shader_parameter("brillo_venas", 0.35 * noche)
+	MallaLombriz.material_crias().set_shader_parameter("brillo", 0.6 * noche)
 	for h in _cabezas:
 		if h >= vivos.size() or vivos[h] == 0:
 			continue
 		var cola := _cola[h]
 		var largo := float(cola - h + 1)
 		var e := _estado[h]
-		var tinte := COLOR_CARNE.darkened(float((h / puntos) % 5) * 0.05)
+		var tinte := COLOR_PIEL.darkened(float((h / puntos) % 5) * 0.05)
 		var prisa := 2.0 if e == Estado.SALTA or e == Estado.LATIGO or e == Estado.ERGUIDA else 1.0
 		var semilla := float((h * 37) % 100) / 100.0
 		for i in range(h, cola):
@@ -1497,8 +1502,24 @@ func _pintar() -> void:
 			var afina := lerpf(1.1, 0.55, k / largo)
 			var late := 1.0 + 0.18 * sin(_t * 7.0 * prisa - k * 0.9 + semilla * 6.0)
 			var t := MallaLombriz.tramo(q[i + 1], q[i], GRUESO * afina * late)
-			MallaLombriz.escribir(_buf_seg, ns, t, tinte, Color(0.0, semilla, 0.0, 0.0))
+			# Como la Madre: .g las grietas, que brillan mas hacia la cola; .a la semilla de la piel
+			var grietas := lerpf(0.3, 1.0, k / largo)
+			MallaLombriz.escribir(_buf_seg, ns, t, tinte, Color(0.0, grietas, 0.0, fmod(semilla + k * 0.37, 1.0)))
 			ns += 1
+			# Una espina cada dos tramos, hacia arriba del tubo e inclinada hacia la cola
+			if (i - h) % 2 == 1:
+				var atras := (q[i + 1] - q[i]).normalized()
+				var arriba := Vector3.UP - atras * atras.dot(Vector3.UP)
+				if arriba.length_squared() < 0.01:
+					arriba = Vector3.RIGHT - atras * atras.dot(Vector3.RIGHT)
+				arriba = arriba.normalized()
+				var dir := (arriba + atras * 0.45).normalized()
+				var ex := dir.cross(atras).normalized()
+				var ez := ex.cross(dir)
+				var ancho := GRUESO * afina * 0.55
+				var base := q[i] + arriba * GRUESO * afina * 0.75
+				MallaLombriz.escribir(_buf_esp, ne, Transform3D(Basis(ex * ancho, dir * GRUESO * afina * 1.6, ez * ancho), base), tinte, Color(0.0, grietas, 0.0, 0.0))
+				ne += 1
 		# La boca: hacia adelante, del segundo punto a la cabeza
 		if cola > h:
 			var adelante := (q[h] - q[h + 1]).normalized()
@@ -1510,12 +1531,14 @@ func _pintar() -> void:
 			else:
 				abre = maxf(sin(_t * 3.0 + semilla * 9.0), 0.0) * 0.25
 			var t := MallaLombriz.tramo(q[h] - adelante * 0.06, q[h] + adelante * 0.14, GRUESO * 1.25, 1.0)
-			MallaLombriz.escribir(_buf_cab, nc, t, tinte.darkened(0.15), Color(abre, semilla, 0.0, 0.0))
+			MallaLombriz.escribir(_buf_cab, nc, t, tinte.darkened(0.15), Color(abre, 0.1, 0.0, semilla))
 			nc += 1
 	_malla_seg.buffer = _buf_seg
 	_malla_seg.visible_instance_count = ns
 	_malla_cab.buffer = _buf_cab
 	_malla_cab.visible_instance_count = nc
+	_malla_esp.buffer = _buf_esp
+	_malla_esp.visible_instance_count = ne
 	ms_pintar = (Time.get_ticks_usec() - t0) / 1000.0
 
 
@@ -1523,11 +1546,16 @@ func _armar_mallas() -> void:
 	var total := maxi(lombrices * puntos, 1)
 	_malla_seg = MallaLombriz.multimesh(MallaLombriz.segmento(), total)
 	_malla_cab = MallaLombriz.multimesh(MallaLombriz.cabeza(), total)
+	_malla_esp = MallaLombriz.multimesh(MallaLombriz.espina(), total)
 	_buf_seg.resize(total * 20)
 	_buf_cab.resize(total * 20)
-	# Sin sombras: mil tubos en el mapa de sombras costaban mas que dibujarlos
-	add_child(MallaLombriz.nodo(_malla_seg, false))
-	add_child(MallaLombriz.nodo(_malla_cab, false))
+	_buf_esp.resize(total * 20)
+	# Sin sombras: mil tubos en el mapa de sombras costaban mas que dibujarlos. La piel es la de
+	# la Madre (MallaLombriz.material_crias)
+	for mm in [_malla_seg, _malla_cab, _malla_esp]:
+		var nodo := MallaLombriz.nodo(mm, false)
+		nodo.material_override = MallaLombriz.material_crias()
+		add_child(nodo)
 
 
 # La sombra de la torre: un disco oscuro y tenue que crece mientras suben (sin anillo rojo)
