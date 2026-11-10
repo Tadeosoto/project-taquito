@@ -145,6 +145,7 @@ const ATONTADA_DURA := 1.5
 # Subir a la pasarela
 const SUBE_DESDE := 1.2          # m que estas mas arriba que ella
 const SUBE_MAX := 10.0
+const CARGA_RAMPA := 1.5        # m de mas que cuesta una rampa por cada cria que ya va subiendo por ella
 # Efectos: lo menos que pasa entre dos hojas iguales (un tajo corta 12 y no salen 12 hojas)
 const FX_ESPERA := {"cria_corte": 80, "cria_cabeza": 100, "pegada_mordida": 200,
 	"pegada_suelta": 300, "madre_tierra": 300, "torre_golpe": 500}
@@ -161,6 +162,9 @@ const GOTAS_CHORRO := 24
 @export var puntos := 12
 @export var caja := Vector3(24.0, 5.0, 24.0)
 @export var celda := 0.25
+# Archivo donde guardar el campo horneado ("" = hornear siempre). Lleva la firma de la geometria
+# (CampoDistancia.firma): si el lugar cambia, se hornea otra vez solo
+@export var guardar_campo := ""
 @export var hornear_al_entrar := true   # la escena de prueba; el safehouse hornea al soltarlas
 # El paso corre en otro hilo (WorkerThreadPool) mientras el juego sigue; se recoge el cuadro
 # siguiente. Lo que se ve y lo que preguntan las armas es `vista`, la foto del ultimo paso.
@@ -273,7 +277,11 @@ var _trepa_hacia := PackedVector3Array()
 var _subir := PackedVector3Array()
 # Rampas de la escena: [pie, punta] por rampa (PruebaLombrices las registra)
 var rampas: Array = []
+# Medio lado del eje de un mezzanine cuadrado alrededor del centro (la escena; 0 = no hay): arriba
+# contigo te siguen por el anillo, de esquina en esquina, en vez de irse derecho por el hueco
+var anillo := 0.0
 var _por_rampa := PackedInt32Array()  # por cabeza: la rampa que va subiendo (-1 = pilar)
+var _firma := 0
 var _plataforma := {}            # CampoDistancia.plataforma de donde estas parado
 var _plataforma_de := -1         # la celda de tus pies con la que se calculo
 var _utiles := PackedInt32Array() # trepaderos cuyo pilar o muro llega a tu plataforma
@@ -430,20 +438,32 @@ func _armar(centro: Vector3) -> void:
 	_buf_cab.resize(total * 20)
 
 
+# El campo ya esta (horneado o cargado del archivo): suelta el enjambre
+func _listo_campo(como: String) -> void:
+	horneando = false
+	ms_horneo = Time.get_ticks_msec() - _horneo_desde
+	print("Lombrices: campo %dx%dx%d %s en %d ms" % [campo.nx, campo.ny, campo.nz, como, ms_horneo])
+	_armar(_soltar_en)
+	var t := campo.trepaderos(piso)
+	_trepaderos = t[0]
+	_trepa_hacia = t[1]
+	horneado.emit()
+
+
 func _physics_process(delta: float) -> void:
 	if horneando:
 		if _espera > 0:
 			_espera -= 1
+			# Ya con todo en la fisica: si ya se habia horneado este mismo lugar, se carga
+			if _espera == 0 and not guardar_campo.is_empty():
+				_firma = CampoDistancia.firma(get_tree(), campo.origen, campo.tamano())
+				if campo.cargar(guardar_campo, _firma):
+					_listo_campo("cargado")
 			return
 		if campo.hornear_paso(get_world_3d().direct_space_state, PRESUPUESTO_HORNEO):
-			horneando = false
-			ms_horneo = Time.get_ticks_msec() - _horneo_desde
-			print("Lombrices: campo %dx%dx%d horneado en %d ms" % [campo.nx, campo.ny, campo.nz, ms_horneo])
-			_armar(_soltar_en)
-			var t := campo.trepaderos(piso)
-			_trepaderos = t[0]
-			_trepa_hacia = t[1]
-			horneado.emit()
+			if not guardar_campo.is_empty():
+				campo.guardar(guardar_campo, _firma)
+			_listo_campo("horneado")
 		return
 	if vivos.is_empty():
 		return
@@ -639,7 +659,7 @@ func _pensar(delta: float) -> void:
 				var lugar := adelante + Vector3(cos(_angulo[h]), 0.3, sin(_angulo[h])) * r
 				# Arriba contigo (pasarela angosta): derecho a ti, sin anillo, o se caen por la orilla
 				if pies.y - piso > SUBE_DESDE and absf(p.y - pies.y) < 0.8:
-					lugar = pies + Vector3.UP * 0.3
+					lugar = _por_anillo(p, pies) + Vector3.UP * 0.3
 				_arranque[h] -= delta
 				if _arranque[h] <= 0.0 and randf() < ARRANQUE_PROB * delta:
 					_arranque[h] = ARRANQUE_DURA
@@ -1017,13 +1037,59 @@ func _pensar_torre(delta: float, yo: Vector3, pies: Vector3) -> void:
 
 # --- Subir hasta ti ---
 
+# Arriba en el mezzanine: si estas en otro lado del anillo, primero a la esquina de su lado que
+# deja el camino mas corto (derecho se iban por el hueco del centro)
+func _por_anillo(p: Vector3, pies: Vector3) -> Vector3:
+	if anillo <= 0.0:
+		return pies
+	var c := _soltar_en if _soltar_en != Vector3.INF else global_position
+	var yo := _lado_anillo(p - c)
+	if yo == _lado_anillo(pies - c):
+		return pies
+	var esquinas: Array[Vector3] = []
+	for s in [-1.0, 1.0]:
+		match yo:
+			0, 1: esquinas.append(Vector3(anillo if yo == 0 else -anillo, 0.0, s * anillo))
+			_: esquinas.append(Vector3(s * anillo, 0.0, anillo if yo == 2 else -anillo))
+	var mejor := pies
+	var menos := INF
+	for e in esquinas:
+		var punto := Vector3(c.x + e.x, p.y, c.z + e.z)
+		var d := p.distance_to(punto) + punto.distance_to(pies)
+		if d < menos:
+			menos = d
+			mejor = punto
+	return mejor
+
+
+# 0 = +x, 1 = -x, 2 = +z, 3 = -z
+func _lado_anillo(d: Vector3) -> int:
+	if absf(d.x) > absf(d.z):
+		return 0 if d.x > 0.0 else 1
+	return 2 if d.z > 0.0 else 3
+
+
 # Escoge un pie de pilar o muro que de veras llegue a donde estas parado (su columna toca tu
 # plataforma: la pasarela con sus pilares, no el muro de enfrente), cerca de ti y repartidos
 func _empezar_subida(h: int, pies: Vector3) -> bool:
 	if not rampas.is_empty():
+		# La que deja el camino mas corto (hasta el pie, y arriba de la punta a ti; con anillo,
+		# por las orillas del cuadro) contando las que ya van subiendo por cada una: asi no se
+		# amontonan todas en la mas cercana
+		var subiendo := PackedInt32Array()
+		subiendo.resize(rampas.size())
+		for otra in _cabezas:
+			if _estado[otra] == Estado.SUBE and _por_rampa[otra] >= 0:
+				subiendo[_por_rampa[otra]] += 1
 		var mejor := 0
+		var menos := INF
 		for k in rampas.size():
-			if (rampas[k][1] as Vector3).distance_squared_to(pies) < (rampas[mejor][1] as Vector3).distance_squared_to(pies):
+			var pie: Vector3 = rampas[k][0]
+			var punta: Vector3 = rampas[k][1]
+			var arriba := absf(punta.x - pies.x) + absf(punta.z - pies.z) if anillo > 0.0 else punta.distance_to(pies)
+			var costo := pos[h].distance_to(pie) + arriba + subiendo[k] * CARGA_RAMPA
+			if costo < menos:
+				menos = costo
 				mejor = k
 		_por_rampa[h] = mejor
 		_estado[h] = Estado.SUBE

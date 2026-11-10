@@ -67,6 +67,7 @@ const ESCUPE_CADA := 0.7
 const LODO_RADIO := 1.6
 const LODO_DURA := 9.0
 const MUERE_DURA := 2.5
+const ARRIBA_DESDE := 1.2        # m sobre el charco de tus pies: estas en el mezzanine
 
 var enjambre: EnjambreLombrices
 var charco := Vector3.ZERO          # centro del charco, a la altura del piso
@@ -78,7 +79,10 @@ var vivos := PackedByteArray()
 var modo := PackedByteArray()
 var meta := PackedVector3Array()
 var sacos := PackedFloat32Array()
-var cuenta := {"mordidas": 0, "barridos": 0, "vomitos": 0, "escupidas": 0, "aturdidas": 0}
+var cuenta := {"mordidas": 0, "barridos": 0, "vomitos": 0, "escupidas": 0, "aturdidas": 0, "zambullidas": 0}
+# Estas parado arriba (mezzanine, rampa): no sale entera, se zambulle si estaba afuera y sus sacos
+# no reciben dano. Asi no se le puede pegar sin riesgo desde arriba: hay que bajar
+var arriba := false
 
 var _uniones := PackedInt32Array()
 var _solver: SolverLombrices
@@ -230,6 +234,7 @@ func _physics_process(delta: float) -> void:
 	_t += delta
 	_reloj += delta
 	_choque -= delta
+	_ver_arriba()
 	_pensar(delta)
 	_solver.obstaculo = _jugador.global_position
 	_solver.obstaculo_activo = estado != Estado.MUERE
@@ -285,6 +290,21 @@ func _sangrar_sacos(delta: float) -> void:
 
 
 # --- Que hace ---
+
+# Solo cuenta parado: brincar desde el piso (hasta ~2 m) no te sube
+func _ver_arriba() -> void:
+	if _jugador is CharacterBody3D and not (_jugador as CharacterBody3D).is_on_floor():
+		return
+	var antes := arriba
+	arriba = _jugador.global_position.y - 1.0 - charco.y > ARRIBA_DESDE
+	# Te subiste con ella afuera: se mete de un jalon a la alberca
+	if arriba and not antes and estado in [Estado.VA, Estado.AVISA, Estado.TIRADA, Estado.BARRE, Estado.ATURDIDA]:
+		cuenta.zambullidas += 1
+		_cambiar(Estado.CHARCO)
+		_meterse()
+		_fx("madre_surge", charco, Vector3.ZERO, 1.0)
+		Sonidos.tocar(self, "chapoteo", -6.0)
+
 
 func _pensar(delta: float) -> void:
 	var yo := _jugador.global_position
@@ -436,9 +456,9 @@ func _meterse() -> void:
 func _siguiente() -> void:
 	var opciones := [Estado.VA, Estado.BARRE, Estado.VOMITA, Estado.ESCUPE]
 	var e: Estado = opciones[_turno % opciones.size()] if _turno < 4 else opciones.pick_random()
-	# Si estas arriba (pasarela), escupe el doble: su lodo si te alcanza
-	if _jugador and _jugador.global_position.y - 1.0 - charco.y > 1.2 and randf() < 0.5:
-		e = Estado.ESCUPE
+	# Si estas arriba solo se asoma: escupe (su lodo si te alcanza) o vomita crias que suben por ti
+	if arriba:
+		e = Estado.ESCUPE if randf() < 0.65 else Estado.VOMITA
 	_turno += 1
 	_cambiar(e)
 	_nota("ver")
@@ -515,7 +535,7 @@ func _saco(n: int) -> Vector3:
 
 # Solo cuando esta de veras afuera: tirada, barriendo o asomada vomitando o escupiendo
 func _expuesto(n: int) -> bool:
-	return estado in [Estado.TIRADA, Estado.BARRE, Estado.VOMITA, Estado.ESCUPE, Estado.ATURDIDA] \
+	return not arriba and estado in [Estado.TIRADA, Estado.BARRE, Estado.VOMITA, Estado.ESCUPE, Estado.ATURDIDA] \
 		and _saco(n).y > charco.y + 0.1
 
 

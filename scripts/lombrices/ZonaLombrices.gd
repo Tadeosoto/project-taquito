@@ -24,6 +24,7 @@ const PATADA_LARGO := 2.2
 @export var dura := 20.0
 @export var dano := 0              # LODO: vida por segundo
 @export var frena := 1.0           # LODO: x tu velocidad adentro
+@export var ver := true            # false: sin disco (la alberca del carcamo ya se ve)
 
 var _edad := 0.0
 var _toca := 0.0
@@ -57,7 +58,8 @@ func _ready() -> void:
 			_bucles("sal_burbujas", 3, 0.25)
 			Sonidos.tocar(self, "fizz", -8.0)
 		Tipo.LODO:
-			_disco(COLOR_LODO, 0.9)
+			if ver:
+				_disco(COLOR_LODO, 0.9)
 			# El charco del carcamo (dura 0) ya tiene su superficie; el escupitajo burbujea
 			if dura > 0.0:
 				_bucles("lodo_charco", 1, radio * 0.35)
