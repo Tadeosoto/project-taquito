@@ -79,7 +79,8 @@ func _ready() -> void:
 func soltar(donde: Transform3D, impulso: Vector3) -> void:
 	freeze = false
 	visible = true
-	global_transform = donde
+	# Sin la escala del modelo de la pistola: Jolt no acepta cuerpos escalados disparejo
+	global_transform = Transform3D(donde.basis.orthonormalized(), donde.origin)
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
 	_sono = false

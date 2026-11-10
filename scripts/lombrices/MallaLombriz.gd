@@ -44,6 +44,8 @@ static func material_crias() -> ShaderMaterial:
 	if _material_crias == null:
 		_material_crias = ShaderMaterial.new()
 		_material_crias.shader = SHADER_MADRE
+		# La linea azul del lomo (JJ): que se distingan entre tantas grietas
+		_material_crias.set_shader_parameter("linea_lomo", 1.0)
 	return _material_crias
 
 
@@ -113,19 +115,21 @@ static func cabeza() -> ArrayMesh:
 	st.set_smooth_group(0)
 	# Cuello, cachete y labio: (y, radio)
 	_anillos(st, [Vector2(-0.5, 1.0), Vector2(0.15, 1.18), Vector2(0.5, 1.0)], DIENTES, 0.0)
-	# El labio dobla hacia adentro hasta la garganta
+	# El labio dobla hacia adentro hasta la garganta (de los dos lados: se ve desde la boca)
 	_anillos(st, [Vector2(0.5, 1.0), Vector2(0.38, 0.6)], DIENTES, 0.0)
+	# Plano: si comparte grupo con la de afuera, sus normales se cancelan
 	st.set_smooth_group(-1)
-	# Fondo oscuro de la garganta
+	_anillos(st, [Vector2(0.5, 1.0), Vector2(0.38, 0.6)], DIENTES, 0.0, true)
+	# El fondo de la garganta, de los dos lados (el shader de la Madre lo enciende)
 	for k in DIENTES:
 		var a0 := TAU * k / DIENTES
 		var a1 := TAU * (k + 1) / DIENTES
-		st.set_uv(Vector2(0.5, 2.0))
-		st.add_vertex(Vector3(0.0, 0.3, 0.0))
-		st.set_uv(Vector2(0.5, 2.0))
-		st.add_vertex(Vector3(cos(a1) * 0.6, 0.38, sin(a1) * 0.6))
-		st.set_uv(Vector2(0.5, 2.0))
-		st.add_vertex(Vector3(cos(a0) * 0.6, 0.38, sin(a0) * 0.6))
+		var c := Vector3(0.0, 0.3, 0.0)
+		var p0 := Vector3(cos(a0) * 0.6, 0.38, sin(a0) * 0.6)
+		var p1 := Vector3(cos(a1) * 0.6, 0.38, sin(a1) * 0.6)
+		for v in [c, p1, p0, c, p0, p1]:
+			st.set_uv(Vector2(0.5, 2.0))
+			st.add_vertex(v)
 	# Dientes: un triangulo por diente, de la orilla del labio hacia el centro y adelante
 	for k in DIENTES * 2:
 		var a := TAU * (k + 0.5) / (DIENTES * 2)
@@ -148,7 +152,7 @@ static func cabeza() -> ArrayMesh:
 
 
 # Un tubo por anillos (y, radio), UV.x alrededor y UV.y a lo largo
-static func _anillos(st: SurfaceTool, anillos: Array, lados: int, giro: float) -> void:
+static func _anillos(st: SurfaceTool, anillos: Array, lados: int, giro: float, adentro := false) -> void:
 	for r in anillos.size() - 1:
 		var a: Vector2 = anillos[r]
 		var b: Vector2 = anillos[r + 1]
@@ -163,12 +167,23 @@ static func _anillos(st: SurfaceTool, anillos: Array, lados: int, giro: float) -
 			var p11 := Vector3(cos(t1) * b.y, b.x, sin(t1) * b.y)
 			var u0 := float(k) / lados
 			var u1 := float(k + 1) / lados
+			# Caras hacia afuera (en el orden de antes se veia el tubo por dentro: desde arriba se
+			# veia la cara de abajo, y la linea del lomo de las crias no salia)
+			# (adentro: las caras hacia el eje, para el labio que se ve desde la boca)
+			if adentro:
+				st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
+				st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
+				st.set_uv(Vector2(u1, va)); st.add_vertex(p01)
+				st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
+				st.set_uv(Vector2(u0, vb)); st.add_vertex(p10)
+				st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
+				continue
 			st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
-			st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
 			st.set_uv(Vector2(u1, va)); st.add_vertex(p01)
-			st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
-			st.set_uv(Vector2(u0, vb)); st.add_vertex(p10)
 			st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
+			st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
+			st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
+			st.set_uv(Vector2(u0, vb)); st.add_vertex(p10)
 
 
 # La transformacion de un tramo de `a` a `b` con `grueso` de radio (para el buffer del MultiMesh)

@@ -18,6 +18,10 @@ uniform vec3 color_diente : source_color = vec3(0.85, 0.82, 0.7);
 uniform float es_saco : hint_range(0.0, 1.0) = 0.0;   // 1 = punto debil de la Madre (MadreCarcamo.gd), con su propio color
 uniform float respiracion : hint_range(0.1, 2.0) = 0.25;   // respiraciones por segundo: 0.25 = 15 por minuto (inhalar y exhalar)
 uniform float brillo : hint_range(0.0, 4.0) = 1.0;
+// Las crias (MallaLombriz.material_crias): una linea azul por el lomo, de la cabeza a la cola, para
+// que se distingan (JJ); con ella tampoco llevan grietas. En el tubo de cada tramo (MallaLombriz.tramo) la +Z
+// local es el lomo
+uniform float linea_lomo : hint_range(0.0, 1.0) = 0.0;
 const vec2 PIXELES = vec2(48.0, 24.0);
 
 varying vec4 dato;
@@ -103,16 +107,22 @@ void fragment() {
 		vec3 piel = tinte * mix(0.12, 1.2, rugoso_e);
 		piel = mix(piel, piel * vec3(1.15, 1.05, 0.95), smoothstep(0.55, 0.9, rugoso_e));
 		vec2 gran_e = celdas(qe * 1.6 + 5.0 + es_saco * 3.0);
-		float grieta_e = (1.0 - smoothstep(0.015, 0.07, ce.y)) * smoothstep(0.4, 0.8, gran_e.x + 0.2) * (1.0 - punta);
+		float grieta_e = (1.0 - smoothstep(0.015, 0.07, ce.y)) * smoothstep(0.4, 0.8, gran_e.x + 0.2) * (1.0 - punta) * (1.0 - linea_lomo);
 		ALBEDO = mix(piel, color_g * 0.3, max(punta * punta, grieta_e)) * quemada;
 		ROUGHNESS = mix(0.95, 0.55, alto_e);
 		SPECULAR = 0.3;
 		float luz_e = punta * punta * (0.5 + dato.b * 0.5 + es_saco * 0.5) + grieta_e * 1.2;
 		EMISSION = mix(color_g, color_nucleo, punta * punta) * luz_e * brillo * aliento() * COLOR.a;
 	} else if (uv_crudo.y > 1.5) {
-		ALBEDO = color_boca * 0.5;
+		// El fondo de la boca: en la Madre un circulo que brilla (JJ: se veia hueca), blanco azulado
+		// al centro y azul hacia la orilla, en pixeles; en las crias oscuro como antes
+		float r = clamp(length(local.xz) / 0.6, 0.0, 1.0);
+		r = floor(r * 6.0) / 6.0;
+		float madre = 1.0 - linea_lomo;
+		ALBEDO = mix(color_boca * 0.5, mix(color_nucleo, color_grieta, r) * 0.4, madre);
 		ROUGHNESS = 1.0;
-		EMISSION = color_grieta * dato.b * 0.25 * COLOR.a;
+		vec3 luz_boca = mix(color_nucleo, color_grieta, smoothstep(0.0, 0.9, r)) * mix(2.5, 1.2, r) * brillo * mix(0.6, 1.0, aliento());
+		EMISSION = mix(color_grieta * dato.b * 0.25, luz_boca, madre) * COLOR.a;
 	} else if (uv_crudo.x > 1.2) {
 		ALBEDO = color_diente;
 		ROUGHNESS = 0.4;
@@ -133,12 +143,19 @@ void fragment() {
 		vec2 gran = celdas(q * vec2(3.0, 1.6) + dato.a * 13.0 + 5.0);
 		float parche = smoothstep(0.4, 0.8, gran.x + (dato.g - 0.5) * 0.9);
 		float linea = 1.0 - smoothstep(0.015, 0.07, c.y);
-		float grieta = linea * parche * step(0.2, dato.g);
+		// Las crias no llevan grietas, solo la linea del lomo (JJ)
+		float grieta = linea * parche * step(0.2, dato.g) * (1.0 - linea_lomo);
 		float latido = aliento();
 		ALBEDO = mix(carne, color_grieta * 0.35, grieta) * quemada;
 		vec3 luz = mix(color_grieta, color_nucleo, smoothstep(0.02, 0.0, c.y - 0.03) * 0.6);
 		EMISSION = luz * grieta * (3.0 + dato.b) * dato.g * brillo * latido * COLOR.a;
 		ROUGHNESS = mix(0.95, 0.55, alto);
 		SPECULAR = 0.3;
+		if (linea_lomo > 0.0) {
+			float arriba = local.z / max(length(local.xz), 0.0001);
+			float raya = step(0.982, arriba) * linea_lomo;
+			ALBEDO = mix(ALBEDO, color_grieta * 0.45, raya);
+			EMISSION = mix(EMISSION, color_grieta * 1.3 * brillo * mix(0.6, 1.0, latido) * COLOR.a, raya);
+		}
 	}
 }

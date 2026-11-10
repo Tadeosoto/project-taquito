@@ -1855,12 +1855,20 @@ func _gotear_sangre() -> void:
 	_sangre_arma.visible = true
 
 
-# 1-5 (arma_1..arma_5) sin Shift: en el safehouse Shift+1/2/3 son de las maquinitas
+# 1-5 (arma_1..arma_5), aunque traigas Shift (corriendo) o Alt (rodar) apretados: con la coincidencia
+# exacta, corriendo no cambiaba de arma (JJ). Solo en el safehouse Shift+1/2/3 son de las maquinitas
 func _tecla_arma(event: InputEvent) -> int:
+	if event is InputEventKey and event.shift_pressed and _en_safehouse():
+		return -1
 	for i in ARMAS_TECLAS:
-		if event.is_action_pressed("arma_%d" % (i + 1), false, true):
+		if event.is_action_pressed("arma_%d" % (i + 1)):
 			return i
 	return -1
+
+
+func _en_safehouse() -> bool:
+	var escena := get_tree().current_scene
+	return escena != null and escena.scene_file_path.ends_with("safehouse.tscn")
 
 
 # 0 = el arma de golpe (machete o puño), 1 = la pistola, 2 = lo que se avienta (Lanzador:

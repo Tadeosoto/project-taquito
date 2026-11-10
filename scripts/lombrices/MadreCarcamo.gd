@@ -52,8 +52,10 @@ const ATURDIDA_DURA := 2.0      # s tirada al reventarle un saco: la ventana par
 const COLOR_SACO_SANGRE := Color(0.75, 0.2, 0.8)
 const COLOR_SANGRE := Color(0.38, 0.04, 0.05)
 const DANO_BALA := 5.0
-# Pegarle al cuerpo le baja vida al saco de esa seccion (JJ, 2026-11-09: atinarle solo a los
-# sacos era demasiado dificil). Fraccion del dano que llega por el cuerpo; 1 = igual que al saco
+# Que le hace dano (JJ, 2026-11-09): los balazos solo en las crestas (los sacos), no en el cuerpo;
+# y de lo cuerpo a cuerpo solo el machetazo cargado (golpe_cuerpo con `todas`), que le pega a la
+# seccion que alcance (al saco de esa seccion). Los machetazos normales, el giro aereo y la estocada
+# le pegan (suena y la detiene) pero no le bajan nada. Fraccion del dano del tajo que llega por el cuerpo
 const DANO_CUERPO := 1.0
 const DANO_FUEGO := 2.0         # cada FUEGO_CADA dentro de una molotov
 const FUEGO_CADA := 0.5
@@ -824,11 +826,8 @@ func bullet_hit(dot_index: int, hit_point: Vector3, dir: Vector3) -> void:
 	if dot_index < SACOS:
 		_herir(dot_index, DANO_BALA, -dir)
 	else:
-		enjambre.sangrar(hit_point, -dir + Vector3.UP * 0.3, 0.3)
-		var i := dot_index - 100
-		var n := _seccion(i)
-		if n >= 0 and _punto_expuesto(i):
-			_herir(n, DANO_BALA * DANO_CUERPO, -dir)
+		# Al cuerpo: rebota, no le hace nada (solo a las crestas)
+		enjambre.sangrar(hit_point, -dir + Vector3.UP * 0.3, 0.15)
 
 
 func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float, dano: int, giro := false, todas := false) -> bool:
@@ -856,7 +855,7 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 			mejor_d = d
 			mejor = n
 	if mejor >= 0:
-		_herir(mejor, dano, frente)
+		# Un machetazo normal (o giro, o estocada) a la cresta: le pega pero no le baja
 		pego = true
 	if not pego:
 		# Contra el cuerpo: hiere al saco de esa seccion (al del punto mas cercano; con `todas`, a cada
@@ -869,7 +868,7 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 			if hacia.length() < alcance + RADIO and absf(pos[i].y - origen.y) < 1.0 + RADIO \
 					and (giro or hacia.length() < 0.01 or hacia.normalized().dot(frente) >= cono):
 				pego = true
-				if not _punto_expuesto(i):
+				if not todas or not _punto_expuesto(i):
 					continue
 				var n := _seccion(i)
 				if n < 0:
