@@ -97,6 +97,15 @@ func luz() -> bool:
 	return suma("luz") > 0.0
 
 
+# La Corona de cempasuchil (de La Mojiganga): la probabilidad de que un zombi muerto suelte
+# petalos que curan PETALOS_CURA (Zombie._morir)
+const PETALOS_CURA := 4
+
+
+func petalos() -> float:
+	return suma("petalos")
+
+
 # Cuanto del golpe te llega: la defensa siempre, lo de noche, lo de turbas (cazadores) y lo de
 # los fuertes (cazadores y el jefe) segun quien pega
 func factor_recibido(de_noche: bool, de_turba: bool, de_fuerte: bool) -> float:

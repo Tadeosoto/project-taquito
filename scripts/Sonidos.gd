@@ -99,6 +99,15 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _chillido()
 			"chapoteo":
 				_sonidos[nombre] = _chapoteo()
+			# La Mojiganga (scripts/catrina/): carton que cruje, carrizo que rechina, su grito y el pisoton
+			"carton":
+				_sonidos[nombre] = _ruido(0.2, 0.55, 2.5)
+			"carrizo":
+				_sonidos[nombre] = _carrizo()
+			"grito_catrina":
+				_sonidos[nombre] = _grito_catrina()
+			"pisoton":
+				_sonidos[nombre] = _pisoton()
 			# La libreta del Nocturno: un lapiz que raya papel
 			"lapiz":
 				_sonidos[nombre] = _lapiz()
@@ -749,6 +758,54 @@ static func _chillido() -> AudioStreamWAV:
 		fase += (lerpf(1300.0, 380.0, t) + sin(s * 55.0) * 60.0) / MUESTRAS
 		var onda := sin(fase * TAU) + 0.4 * sin(fase * TAU * 2.01)
 		b[i] = onda * 0.35 * minf(t * 10.0, 1.0) * pow(1.0 - t, 1.5)
+	return _a_wav(b)
+
+
+# Carrizo que rechina al doblarse: un tono que tiembla con clics de madera
+static func _carrizo() -> AudioStreamWAV:
+	var b := _vacio(0.5)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 37
+	var fase := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		fase += (lerpf(260.0, 190.0, t) + sin(t * 90.0) * 30.0) / MUESTRAS
+		var clic := azar.randf_range(-1.0, 1.0) if azar.randf() < 0.01 else 0.0
+		b[i] = (sin(fase * TAU) * 0.25 + sin(fase * TAU * 3.1) * 0.1) * sin(t * PI) + clic * 0.8
+	return _a_wav(b)
+
+
+# El grito de La Mojiganga: una voz grave y otra aguda que se separan, ronca, como desde adentro
+# de algo hueco
+static func _grito_catrina() -> AudioStreamWAV:
+	var b := _vacio(1.6)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 19
+	var grave := 0.0
+	var aguda := 0.0
+	var ronco := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		grave += lerpf(140.0, 95.0, t) / MUESTRAS
+		aguda += (lerpf(520.0, 760.0, t) + sin(t * 70.0) * 25.0) / MUESTRAS
+		ronco = lerpf(ronco, azar.randf_range(-1.0, 1.0), 0.3)
+		var voz := sin(grave * TAU) * 0.45 + sin(aguda * TAU) * 0.2 + ronco * 0.25
+		b[i] = voz * minf(t * 6.0, 1.0) * pow(1.0 - t, 1.2) * (0.8 + 0.2 * sin(t * 40.0))
+	return _a_wav(b)
+
+
+# Un pie gigante contra el piso: golpe muy grave y polvo
+static func _pisoton() -> AudioStreamWAV:
+	var b := _vacio(0.7)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 5
+	var fase := 0.0
+	var polvo := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		fase += lerpf(70.0, 30.0, t) / MUESTRAS
+		polvo = lerpf(polvo, azar.randf_range(-1.0, 1.0), 0.25)
+		b[i] = sin(fase * TAU) * pow(1.0 - t, 2.5) * 0.9 + polvo * 0.9 * pow(1.0 - t, 3.0)
 	return _a_wav(b)
 
 

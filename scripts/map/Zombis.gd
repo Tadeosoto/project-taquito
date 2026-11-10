@@ -583,6 +583,8 @@ func limpiar() -> void:
 		uno._quitar()
 	for uno in get_tree().get_nodes_in_group("panzon"):
 		uno._quitar()
+	for uno in get_tree().get_nodes_in_group("catrina"):
+		uno._quitar()
 
 
 # Al desmayarse el jugador: que no despierte con uno encima, pero los demas siguen

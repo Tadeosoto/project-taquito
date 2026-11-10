@@ -1184,6 +1184,13 @@ func _morir(pagado: bool, truena_en := 0, espera := 0) -> void:
 		CajaBotin.soltar(get_parent(), global_position + Vector3.UP * PECHO * _tamano, botin, paga, 2.0 if es_jefe else 1.0)
 		# Las hazanas del taller (Hazanas.gd): cazador, turba, fuego, jefe...
 		get_tree().call_group("hazanas", "zombi_muerto", self, _quema > 0.0)
+		# La Corona de cempasuchil: a veces suelta petalos que te curan tantito
+		if bonos and randf() < bonos.petalos():
+			var salud := get_node_or_null("/root/Salud")
+			if salud and salud.vida < salud.vida_max:
+				salud.vida = mini(salud.vida + bonos.PETALOS_CURA, salud.vida_max)
+				if zombis and zombis.efectos:
+					zombis.efectos.lanzar("curar", global_position + Vector3.UP * PECHO * _tamano)
 
 
 func caer_al_amanecer() -> void:

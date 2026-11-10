@@ -98,6 +98,7 @@ Shift+1 2 3 maquinita: normal, sin monedas, segura"""},
 T zombis solos de noche
 0 caminan en enjambre / en fila como antes
 G tablas · Shift+G Saltabardas · Shift+J Panzón · L -100 al tinaco (refugio a la derecha)
+Shift+X La Mojiganga (catrina gigante, ya despierta)
 , soltar 80 lombrices enfrente (hornea unos segundos)
 Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
 3 sal / molotov (otra vez 3 cambia; caguama + alcohol = molotov)"""},
@@ -123,6 +124,7 @@ var _jugador: Player
 var _lombrices: EnjambreLombrices
 var _madre: MadreCarcamo
 var _barra_madre: BarraMadre
+var _barra_catrina: BarraCatrina
 var _zombis: Zombis
 var _ciclo: Ciclo
 var _salud: Node
@@ -193,6 +195,10 @@ func _ready() -> void:
 		if arg.begins_with("--estela="):
 			ESTELA.estilo = int(arg.trim_prefix("--estela="))
 	_zombis = get_node("Zombis")
+	# -- --catrina: La Mojiganga de una vez (como Shift+X), para probar el modelo sin tocar teclas;
+	# con -- --salir=<s> imprime como va y sale
+	if "--catrina" in OS.get_cmdline_user_args():
+		_probar_catrina.call_deferred()
 	_ciclo = get_node("Ciclo")
 	_salud = get_node("/root/Salud")
 	_cartera = get_node("/root/Cartera")
@@ -427,6 +433,11 @@ func _unhandled_input(event: InputEvent) -> void:
 				{"rebaba": 1, "tuerca": 1, "engrane": 1, "varilla_corta": 1}, 6)
 		KEY_Z:
 			_zombi()
+		KEY_X when event.shift_pressed:
+			# La Mojiganga a 18 m enfrente, despierta (scripts/catrina/Catrina.gd)
+			var enfrente_c := -_jugador.frijol.global_transform.basis.z
+			enfrente_c.y = 0.0
+			_soltar_catrina(_jugador.global_position + enfrente_c.normalized() * PANZON_DISTANCIA)
 		KEY_X:
 			_zombis.limpiar()
 		KEY_T:
@@ -619,6 +630,35 @@ func _armar_madre() -> void:
 	_madre.charco = _lombrices.global_position
 	_madre.reiniciar()
 	_madre.set_physics_process(true)
+
+
+func _probar_catrina() -> void:
+	var enfrente := -_jugador.frijol.global_transform.basis.z
+	enfrente.y = 0.0
+	_soltar_catrina(_jugador.global_position + enfrente.normalized() * PANZON_DISTANCIA)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--salir="):
+			await get_tree().create_timer(float(arg.trim_prefix("--salir="))).timeout
+			for catrina in get_tree().get_nodes_in_group("catrina"):
+				print("Safehouse: Catrina viva, estado %d, vida %d, modelo %s" % [catrina.estado, catrina.vida(),
+					"Blender" if catrina.get("_provisional") == null else "provisional"])
+			get_tree().quit()
+
+
+func _soltar_catrina(lugar: Vector3) -> void:
+	for vieja in get_tree().get_nodes_in_group("catrina"):
+		vieja._quitar()
+	var catrina := Catrina.new()
+	catrina.jugador = _jugador
+	catrina.zombis = _zombis
+	catrina.dormida = false
+	add_child(catrina)
+	catrina.global_position = Vector3(lugar.x, 0.0, lugar.z)
+	catrina.rotation.y = atan2(-(_jugador.global_position.x - lugar.x), -(_jugador.global_position.z - lugar.z))
+	if _barra_catrina == null:
+		_barra_catrina = BarraCatrina.new()
+		add_child(_barra_catrina)
+	_barra_catrina.catrina = catrina
 
 
 func _zombi() -> void:

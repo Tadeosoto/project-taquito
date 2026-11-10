@@ -171,8 +171,9 @@ func disparar() -> void:
 	var rayo := PhysicsRayQueryParameters3D.create(origen, origen + hacia * ALCANCE, 1 | CAPA_ZOMBIS, excluir)
 	var pego := espacio.intersect_ray(rayo)
 	var punto: Vector3 = pego.position if pego else origen + hacia * ALCANCE
-	# Un zombi o un Saltabardas (no es Zombie, pero contesta igual a recibir_golpe)
-	var blanco: Node3D = pego.collider if pego and (pego.collider is Zombie or pego.collider is Saltabardas or pego.collider is Panzon) else null
+	# Un zombi o un Saltabardas (no es Zombie, pero contesta igual a recibir_golpe). La Mojiganga
+	# (Catrina) y sus flores y nudo (PuntoDebil) tambien
+	var blanco: Node3D = pego.collider if pego and (pego.collider is Zombie or pego.collider is Saltabardas or pego.collider is Panzon 		or pego.collider is Catrina or pego.collider is PuntoDebil) else null
 	# Lombrices (EnjambreLombrices): no tienen colliders, se les pregunta aparte. Si un punto
 	# esta mas cerca que la pared o el zombi, el tiro es suyo
 	var lombriz := EnjambreLombrices.rayo(get_tree(), origen, hacia, origen.distance_to(punto), RADIO_LOMBRIZ)
@@ -181,7 +182,8 @@ func disparar() -> void:
 		blanco = null
 	# Solo un tiro que de de veras arriba de la capsula es a la cabeza; la ayuda nunca
 	var tamano: float = blanco.get("_tamano") if blanco is Zombie else 1.0
-	var cabeza := blanco != null and punto.y - blanco.global_position.y >= CABEZA_DESDE * tamano
+	# La Mojiganga mide 6 m: su "cabeza" son sus flores, que ella cuenta aparte
+	var cabeza := blanco != null and not (blanco is Catrina or blanco is PuntoDebil) and punto.y - blanco.global_position.y >= CABEZA_DESDE * tamano
 	if blanco == null and lombriz.is_empty():
 		blanco = _ayuda(espacio, excluir, origen, mira)
 		if blanco:

@@ -763,6 +763,18 @@ Ojo: **no toda casa en obra negra es del lote del 84.** Hay paracaidistas y vend
 
 En el juego: `scripts/lombrices/` (`MadreCarcamo.gd`, `EnjambreLombrices.gd`) y la escena de prueba `scenes/lombrices.tscn`, un cárcamo con su charco.
 
+### La Mojiganga
+
+💡 **Propuesta (AG, 2026-11-09; falta que el equipo la vote).** Cada colonia saca su desfile de Día de Muertos, y la de esta iba a estrenar una **catrina gigante de cartonería**: seis metros de papel maché sobre un armazón de carrizo, con vestido morado bordado de flores, faja, aretes de pompones y flores de papel en el chongo trenzado. Una mojiganga, como las de las fiestas, que se baila desde adentro.
+
+- **Cómo se levantó.** Empezó todo una semana antes del desfile y la dejaron parada en la plaza, junto al templete. Le llovió agua de la llave encima por días (el Serenol) y se empapó hasta el armazón. Los zombis que se metieron debajo de su falda a esconderse del sol se quedaron pegados al carrizo, enredados unos con otros: **un nudo de ellos la mueve desde el pecho**, como los muchachos que bailaban adentro. Por eso gotea agua sucia y por eso no arde: está mojada hasta el alma.
+- **Qué hace.** Camina la plaza. Pisa a quien se le acerca, agarra y avienta, chicotea con la trenza. Cuando se le rompe el vestido se ve el carrizo y los zombis adentro, y algunos se caen de la falda. Cuando se le cae la cabeza, se arrastra.
+- **Lo que se queda.** Un fémur del armazón, duro como piedra, y las flores del peinado, que no se marchitan. ❓ Si las flores sirven para algo más (las flores de cempasúchil guían a los muertos) está sin decidir.
+
+**Por qué encaja.** No contradice que el zombi sea víctima (§8): la Mojiganga no es nadie, es una fiesta que el agua de GelA echó a perder. Los que la mueven sí fueron gente, y siguen ahí adentro. Es el Día de Muertos al revés: los muertos no regresan a visitar, se quedan atorados.
+
+En el juego: `scripts/catrina/` (`Catrina.gd`, con un cuerpo provisional de figuras hasta que exista el modelo de `docs/prompts/blender_catrina.md`) y la escena de prueba `scenes/catrina.tscn`, la plaza del desfile.
+
 ---
 
 ## 17. La revelación

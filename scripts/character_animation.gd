@@ -238,10 +238,26 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	estado.xfade_time = 0.2
 	estado.add_input("vivo")
 	estado.add_input("caido")
+	estado.add_input("colgado")
 	raiz.add_node("estado", estado)
 	raiz.connect_node("estado", 0, "accion")
 	_clip(raiz, "c_caido", "Death01", "estado", 1)
-	raiz.connect_node("output", 0, "estado")
+	# Colgado de la mano de La Mojiganga (Catrina.gd): las piernas al aire (el Jump en bucle) y
+	# encima una sacudida (Hit_Chest) en cada apreton y un pataleo (Hit_Head) al forcejear
+	_clip(raiz, "c_colgado", "Jump", "estado", 2)
+	var sacude := AnimationNodeOneShot.new()
+	sacude.fadein_time = 0.05
+	sacude.fadeout_time = 0.15
+	raiz.add_node("sacude", sacude)
+	raiz.connect_node("sacude", 0, "estado")
+	_clip(raiz, "c_sacude", "Hit_Chest", "sacude", 1)
+	var patalea := AnimationNodeOneShot.new()
+	patalea.fadein_time = 0.04
+	patalea.fadeout_time = 0.1
+	raiz.add_node("patalea", patalea)
+	raiz.connect_node("patalea", 0, "sacude")
+	_clip(raiz, "c_patalea", "Hit_Head", "patalea", 1)
+	raiz.connect_node("output", 0, "patalea")
 	return raiz
 
 
@@ -516,6 +532,25 @@ func accion(pista: String) -> void:
 	if ACCIONES.has(entrada):
 		_golpe_t = -1.0
 		_lanzar(entrada)
+
+
+# Colgado (Player.atrapar con colgado): en el aire, no tirado
+func colgar() -> void:
+	if _arbol == null:
+		return
+	_golpe_t = -1.0
+	_abortar_accion()
+	_pedir("estado", "colgado")
+
+
+func colgar_sacudida() -> void:
+	if _arbol:
+		_arbol.set("parameters/sacude/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+
+
+func colgar_patada() -> void:
+	if _arbol:
+		_arbol.set("parameters/patalea/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 
 
 func terminar_accion() -> void:

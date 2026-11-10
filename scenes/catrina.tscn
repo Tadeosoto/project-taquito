@@ -1,0 +1,33 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/catrina/PruebaCatrina.gd" id="1_prueba"]
+[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="3_inventario"]
+[ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="4_ciclo"]
+[ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="5_zombis"]
+
+[node name="Catrina" type="Node3D"]
+script = ExtResource("1_prueba")
+
+[node name="Ciclo" type="Node" parent="."]
+script = ExtResource("4_ciclo")
+dia_duracion = 720.0
+noche_duracion = 480.0
+transicion = 30.0
+inicio = 800.0
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 16)
+
+[node name="Zombis" type="Node3D" parent="."]
+script = ExtResource("5_zombis")
+jugador_path = NodePath("../Player")
+ciclo_path = NodePath("../Ciclo")
+espontaneos = false
+turbas = false
+saltabardas = false
+lejos = 80.0
+max_total = 8
+
+[node name="InventoryUI" parent="." instance=ExtResource("3_inventario")]
+con_mapa = false

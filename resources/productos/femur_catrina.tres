@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/personajes/catrina/femur.glb" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Fémur de la Mojiganga"
+description = "Un hueso de carrizo y papel maché del tamaño de un bate, duro como piedra de tanta agua que se secó adentro. Todavía huele a cempasúchil."
+inspection_model = ExtResource("2_modelo")
+efecto = "22 de daño, empuja mucho, golpe lento"
+dano = 22
+empujon = 2.0
+velocidad = 0.8

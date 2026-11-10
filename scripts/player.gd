@@ -657,10 +657,11 @@ func _golpear(giro := false) -> void:
 			continue
 		var hacia := zombi.global_position - global_position
 		hacia.y = 0.0
+		var lejos := hacia.length() - _radio_de(zombi)
 		if giro:
-			if hacia.length() <= alcance * GIRO_ALCANCE:
+			if lejos <= alcance * GIRO_ALCANCE:
 				alcanzados.append(zombi)
-		elif hacia.length() <= alcance and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
+		elif lejos <= alcance and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
 			alcanzados.append(zombi)
 	# Solo a los ATAQUE_MAXIMO mas cercanos: amontonados, un combo mataba hasta 5
 	alcanzados.sort_custom(func(a: Node3D, b: Node3D) -> bool:
@@ -689,6 +690,13 @@ func _golpear(giro := false) -> void:
 		golpes_pegaron += 1
 		_sentir_golpe(frente, fuerza, mato)
 		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
+
+
+# Lo que se le resta al alcance por lo ancho del blanco: La Mojiganga (Catrina.radio_golpe) tiene
+# el origen en medio de una falda de 3 m. Los zombis no lo traen: 0
+func _radio_de(blanco: Node) -> float:
+	var r = blanco.get("radio_golpe")
+	return r if r != null else 0.0
 
 
 func _conto_espada() -> void:
@@ -1165,7 +1173,7 @@ func _pegar_estocada() -> void:
 			continue
 		var hacia := zombi.global_position - global_position
 		hacia.y = 0.0
-		if hacia.length() <= radio and hacia.normalized().dot(_estocada_dir) >= cono:
+		if hacia.length() - _radio_de(zombi) <= radio and hacia.normalized().dot(_estocada_dir) >= cono:
 			_estocada_pegados.append(zombi)
 			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza * empujon, int(CONGELA_MATA * 1000.0))
 			if quema and resultado == 1 and zombi.has_method("quemar"):
@@ -1423,7 +1431,11 @@ func caer() -> void:
 var atrapado_por: Node = null
 
 
-func atrapar(quien: Node) -> bool:
+# colgado: te alza en vez de tumbarte (La Mojiganga): piernas al aire y te sacudes en sus apretones
+var _colgado := false
+
+
+func atrapar(quien: Node, colgado := false) -> bool:
 	if atrapado() or esquivando():
 		return false
 	atrapado_por = quien
@@ -1432,12 +1444,23 @@ func atrapar(quien: Node) -> bool:
 	_soltar_combo()
 	if _pose_carga:
 		_cancelar_carga()
-	caer()
+	_colgado = colgado and figura.has_method("colgar")
+	if _colgado:
+		figura.colgar()
+	else:
+		caer()
 	return true
+
+
+# El que te tiene colgado aprieta: te sacudes
+func sacudida_colgado() -> void:
+	if _colgado and figura.has_method("colgar_sacudida"):
+		figura.colgar_sacudida()
 
 
 func soltar_atrapado() -> void:
 	atrapado_por = null
+	_colgado = false
 	if figura.has_method("terminar_accion"):
 		figura.terminar_accion()
 
@@ -1658,6 +1681,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		# Tirado con un Saltabardas encima: golpe o brinco forcejean, nada mas
 		if event.is_action_pressed("attack") or event.is_action_pressed("jump"):
 			atrapado_por.forcejear()
+			if _colgado and figura.has_method("colgar_patada"):
+				figura.colgar_patada()
 	elif event.is_action_pressed("cambiar_arma") and is_physics_processing():
 		_lanzador.soltar()
 		_pistola.cambiar()
@@ -2141,6 +2166,12 @@ func _physics_process(delta: float) -> void:
 	_retroceso = _retroceso.move_toward(Vector3.ZERO, _retroceso_freno * delta)
 	_pos_antes = _pos_ahora
 	_pos_ahora = global_position
+	# Colgado, ves a la cara de quien te tiene (Catrina.cara)
+	if atrapado() and atrapado_por.has_method("cara"):
+		var cara: Vector3 = atrapado_por.cara()
+		cara.y = frijol.global_position.y
+		if cara.distance_squared_to(frijol.global_position) > 0.01:
+			frijol.global_transform = frijol.global_transform.looking_at(cara, Vector3.UP)
 
 	if figura.has_method("update_animation"):
 		# Las piernas van al reves si te mueves hacia la espalda del modelo (retroceder, o

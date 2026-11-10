@@ -175,6 +175,31 @@ Se prueba en `godot --path . scenes/lombrices.tscn` (el cárcamo) o con Shift+L 
 
 Anotar aquí: cuánto duró la pelea, cuántas sales y molotovs se usaron, cuántas veces te desmayaste y en qué fase.
 
+## La Mojiganga (propuesta de AG, 2026-11-09; endurecida el 2026-11-10)
+
+Se prueba en `godot --path . scenes/catrina.tscn` (la plaza del desfile) o con Shift+X en el safehouse (sale despierta; `-- --catrina` la saca al cargar). `-- --medir=40` corre los eventos forzados; `-- --bot=<s>` pelea sola con un jugador de prueba (rodea, pega cuando está abierta, rueda antes de cada golpe con 75 % de acierto, machaca para zafarse, se cura) e imprime cómo va cada 30 s. Todos los números están al principio de `scripts/catrina/Catrina.gd`.
+
+AG la jugó el 2026-11-10: "no te agarra, la animación del jugador está fuera de lugar y está muy fácil". Meta nueva: jefe de Dark Souls, 3-5 intentos de alguien que juega bien, 4-6 minutos por intento, un error cuesta un tercio de la vida.
+
+| Qué | Número | Dónde |
+|---|---|---|
+| Vida | 1400 (antes 900); la fase 2 empieza en 930 y la 3 en 470; no se las salta | `VIDA`, `FASE_2`, `FASE_3` |
+| Frenesí | abajo de 210 en la fase 3: todo × 1.5 y casi sin esperas; las velas de la plaza se ponen rojas | `FRENESI`, `FRENESI_RAPIDEZ` |
+| Caminar | 2.0 m/s (antes 1.4; fase 2: × 1.15); a gatas 1.8 m/s; decide cada 0.15 s | `CAMINA`, `GATEA`, `DECIDE_CADA` |
+| Pisotón | a menos de 3.5 m; 0.8 s de aviso; 32 en 2.5 m y la onda 13; 30 % de las veces amaga 0.4-0.7 s con el pie arriba | `PISA_*`, `ONDA_*`, `RETRASO*` |
+| Agarrón | de 2.5 a 9 m; te sigue (2.5 rad/s) y da un paso al frente que busca dejarte a 2.6 m (hasta 9 m/s en el aviso, 4 m/s mientras barre: rodar a tiempo te saca); agarra si tu pecho queda a 2 m del camino de su mano de verdad entre 1.0 y 1.4 s; te alza colgado (piernas al aire, sacudidas), aprieta 8 cada 0.5 s, avienta 8 + 20 si chocas; 8 apretones para zafarte | `AGARRA_*`, `DANO_APRIETA`, `DANO_CHOCA`, `ZAFARSE` |
+| Trenza | de 7 a 14 m; 13 y te jala; sigue el agarrón de inmediato | `TRENZA_*` |
+| Combos | pisotón → agarrón (50 % si te pegó de cerca), pisotón → barrida o segundo pisotón, barrida → agarrón, agarrón fallido → pisotón, manotazo → manotazo | `_combo_tras` |
+| De lejos | más de 12 m por 3 s: trenza, aretes (también en la fase 1) o una carga de 3 s a 6 m/s que acaba en agarrón; la bala a más de 15 m le hace la mitad | `LEJOS_*`, `CARGA_*`, `BALA_LEJOS*` |
+| Pose | cada 4-5 ataques, 1.2 s; recibe × 1.25 (también recién zafada) | `POSE_CADA`, `POSE_DURA`, `ABIERTA_MULT` |
+| Flores | 4 × 70, a balazos y solo con la guardia abierta (posando, de rodillas, zafada o tras el golpe de un ataque); al reventar una, 30 a la barra y de rodillas 2.2 s (machete × 1.5) | `FLOR_VIDA`, `expuesta()`, `RODILLAS_MULT` |
+| De rodillas por daño | 200 seguidos (baja 20 por segundo) | `AGUANTE` |
+| Fase 2 | barrida 24, aretes 12, grito 10 + 2-3 zombis (máx. 4) | `BARRIDA_*`, `GRITO_*` |
+| Fase 3 | solo el nudo (× 1.5); manotazo 26 (con amago), embestida 20, agarrón | `MANOTAZO_*`, `EMBESTIDA_*` |
+| Fuego | igual que antes; cada parte quemada da × 1.15 (antes 1.25) | `QUEMADA_MULT` |
+
+**Corrida del bot (2026-11-10, 9 min de tope):** ganó a los 366 s (6:06) con 17 desmayos; 65 agarrones, 18 lo agarraron (todos zafados); el daño que más le hizo: agarrón y aventón (420 + 252), pisotón (343), los zombis del grito mientras ella camina o posa (246 + 142). El bot es malo a propósito (no pelea con los zombis, rueda a destiempo con los amagos), así que alguien que juega bien debería caer en la meta. Anotar aquí cuánto duró, cuántas veces te desmayaste y en qué fase.
+
 ## Verificaciones pendientes: zombis PSX y detección
 
 Solo se probó con escenas de prueba y capturas: el visor de los cinco skins, una noche de 70 s de la defensa sin nadie defendiendo (sin errores, 57-61 FPS), y `map_test` y la pantalla de inicio sin errores. Falta probarlo jugando:

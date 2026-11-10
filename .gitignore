@@ -39,3 +39,6 @@ models/objetos/mexican_starter_pack/textures/*
 .graphify_root
 docs/graphify-out/cache/hook_sessions/
 docs/graphify-out/cache/last_query_stamp
+
+# Texturas de Poly Haven bajadas por tools/blender/catrina_textura.py (no se versionan)
+tools/blender/cache/

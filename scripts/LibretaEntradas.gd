@@ -95,6 +95,16 @@ const ENTRADAS := [
 		"pista_como": "Mátala.",
 	},
 	{
+		"id": "catrina",
+		"titulo": "La Mojiganga",
+		"apodo": "\"la catrina del desfile\"",
+		"que": "La catrina gigante de cartón que iban a sacar en el desfile de Día de Muertos. Seis metros de papel maché y carrizo, vestido morado bordado, flores en el chongo. Ahora camina. Pisa, agarra, avienta, y su trenza chicotea como reata.",
+		"por_que": "La dejaron parada en la plaza cuando empezó todo. Le llovió agua de GelA encima y se empapó hasta el armazón; los zombis que se metieron debajo de la falda a resguardarse se quedaron pegados al carrizo. Un nudo de ellos la mueve desde el pecho, como los muchachos que bailan las mojigangas en las fiestas. Por eso gotea.",
+		"como": "Cuando posa con la mano en la cadera, pégale: ahí duele más. Las flores del peinado se revientan a balazos y la tiran de rodillas: aprovecha. Si te agarra, machaca golpe o brinco. Mojada no arde: el fuego primero la seca, y ya seca, se quema. Cuando se le cae la cabeza, solo le duele el nudo del pecho.",
+		"pista_por_que": "Pelea con ella.",
+		"pista_como": "Túmbala.",
+	},
+	{
 		"id": "remedios",
 		"titulo": "Remedios",
 		"apodo": "\"lo que sirve\"",
@@ -152,6 +162,10 @@ static func datos(id: String) -> String:
 		"madre":
 			return "%d sacos de %.0f · muerde %d, choca %d · la bala le hace %.0f al saco" % [
 				_MC.SACOS, _MC.SACO_VIDA, _MC.DANO_MORDIDA, _MC.DANO_CHOQUE, _MC.DANO_BALA]
+		"catrina":
+			var _C = load("res://scripts/catrina/Catrina.gd")
+			return "Vida %d · pisotón %d · agarrón %d cada %.1f s · trenza %d · %d flores de %.0f · %d apretones para zafarte" % [
+				_C.VIDA, _C.DANO_PISA, _C.DANO_APRIETA, _C.APRIETA_CADA, _C.DANO_TRENZA, _C.FLORES, _C.FLOR_VIDA, roundi(_C.ZAFARSE)]
 		"remedios":
 			return "Sal: %.1f m por %.0f s · molotov: %.1f m por %.0f s" % [
 				_AR.SAL_RADIO, _AR.SAL_DURA, _AR.FUEGO_RADIO, _AR.FUEGO_DURA]

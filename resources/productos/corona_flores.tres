@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/personajes/catrina/corona.glb" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Corona de cempasúchil"
+description = "Las flores de papel del peinado de la Mojiganga. No se marchitan; dicen que las flores guían a los muertos de regreso."
+inspection_model = ExtResource("2_modelo")
+efecto = "Amuleto: 25 % de que un zombi muerto suelte pétalos que curan 4"
+amuleto = {
+"petalos": 0.25
+}
