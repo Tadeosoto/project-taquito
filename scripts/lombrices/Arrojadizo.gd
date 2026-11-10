@@ -28,7 +28,7 @@ const ZUMBIDO_CERCA := -6.0     # dB del zumbido si truena junto a ti...
 const ZUMBIDO_LEJOS := -16.0    # ...y a OYEN_TRUENO m
 const DESTELLO_DURA := 0.15
 # La molotov en el aire: el tamaño del fuego del trapo y la luz que echa
-const TRAPO_FUEGO := 0.06
+const TRAPO_FUEGO := 0.07
 const MECHA_LUZ := 1.4
 const CEBADA_QUEDA := 2.5       # s que se queda tirada la cebada
 const TEXTO_SUBE := 0.8         # m que sube el letrero en TEXTO_DURA
@@ -86,11 +86,10 @@ func _ready() -> void:
 		botella.sabor = BotellaMolotov.CEREZA if tipo == MOLOTOV_CEREZA else BotellaMolotov.LIMON
 		botella.position.y = -0.15
 		add_child(botella)
-		# El trapo prendido (JJ): el fuego de pixel de los tambos, en chiquito, en la punta del trapo
-		var fuego := EfectosPixel.cuadro_bucle("fuego_tambo", TRAPO_FUEGO)
-		if fuego:
-			fuego.position = BotellaMolotov.MECHA
-			botella.add_child(fuego)
+		# El trapo prendido (JJ): una llamita de verdad (la del piso, en chiquito) en la punta del trapo
+		var fuego := ZonaLombrices.lengua(TRAPO_FUEGO, TRAPO_FUEGO * 2.0)
+		fuego.position = BotellaMolotov.MECHA
+		botella.add_child(fuego)
 		_mecha = OmniLight3D.new()
 		_mecha.light_color = Color(1.0, 0.6, 0.2)
 		_mecha.light_energy = MECHA_LUZ
@@ -208,7 +207,12 @@ func _mover_escupitajo(desde: Vector3) -> void:
 func _reventar(donde: Vector3) -> void:
 	var padre := get_parent()
 	if es_molotov():
-		ZonaLombrices.crear(padre, donde, ZonaLombrices.Tipo.FUEGO, fuego_radio(tipo), FUEGO_DURA)
+		# La mancha se alarga hacia donde iba la botella (el Lanzador marca lo mismo al apuntar)
+		var rumbo := NAN
+		if Vector2(velocidad.x, velocidad.z).length() > 0.5:
+			rumbo = atan2(velocidad.z, velocidad.x)
+		ZonaLombrices.crear(padre, donde, ZonaLombrices.Tipo.FUEGO, fuego_radio(tipo), FUEGO_DURA, rumbo)
+		ZonaLombrices.estallido(padre, donde, fuego_radio(tipo))
 		Sonidos.tocar(self, "whack", -6.0, 0.6)
 	elif tipo == 3:
 		pass
@@ -230,7 +234,7 @@ func _reventar(donde: Vector3) -> void:
 	if efectos and efectos.has_method("lanzar"):
 		match tipo:
 			2, MOLOTOV_CEREZA:
-				efectos.lanzar("molotov_revienta", donde, Vector3.ZERO, fuego_radio(tipo) / FUEGO_RADIO)
+				pass    # el estallido de fuego ya salio arriba (ZonaLombrices.estallido)
 			3:
 				efectos.lanzar("lodo_choque", donde)
 				Sonidos.tocar(self, "squelch", -8.0, 0.7)

@@ -274,7 +274,7 @@ Columnas: **Modelo** = si ya hay modelo 3D en el repo (🧱) o falta (❌). Efec
 | Paloma (cohete) | Arrojable | Aturde a los enemigos cercanos. | ❌ (el modelo bajado salía mal) |
 | Tacos | Consumible | Recupera vida. Se compran en taquerías y puestos de tacos (4.6). | 🧱 `models/taco_pastor.glb` |
 | Agua limpia | Moneda / consumible | Dinero "fuerte"; baja la infección. | 🧱 `models/objetos/galon_agua/`; ❌ botella de agua y garrafón (los bajados salían mal) |
-| Refresco Jarritos | Consumible | Recupera estamina. | 🧱 `models/objetos/jarritos/` |
+| Refresco Jarritos | Consumible | Recupera vida (25, igual que la caguama). | 🧱 `models/objetos/jarritos/` |
 | Moneda de peso | Moneda | Dinero normal. | 🧱 `models/objetos/moneda_peso/` |
 | Cigarro | Consumible | Sacas humo un ratito. 💡 Para que sirva de algo: el humo **te esconde del olfato** de los zombies unos segundos. | 🧱 `models/objetos/cigarro/` (cajetilla) |
 

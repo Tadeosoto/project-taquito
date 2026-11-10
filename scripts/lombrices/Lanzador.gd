@@ -51,6 +51,7 @@ var _arco: MultiMesh
 var _arco_nodo: MultiMeshInstance3D
 var _texto: Label
 var _espera := 0.0
+var _usos_sal := 0      # puñados que le quedan a la bolsa de sal empezada (0: ninguna empezada)
 var _marca: MeshInstance3D
 var _marca_mat: StandardMaterial3D
 var _salados := {}             # bloques de crias ya salados en esta aventada
@@ -166,6 +167,19 @@ func cuantos(cual: int) -> int:
 	return n
 
 
+# Lo que puedes aventar de ese tipo: las piezas, o los puñados si una pieza da varios (la sal)
+func restan(cual: int) -> int:
+	var n := cuantos(cual)
+	if cual != 1 or n == 0:
+		return n
+	var inventario := get_node_or_null("/root/Inventory")
+	for item: InventoryItemData in inventario.items:
+		if item and item.arrojar == cual:
+			var por := maxi(item.usos, 1)
+			return (n - 1) * por + (_usos_sal if _usos_sal > 0 else por)
+	return n
+
+
 func lanzar() -> void:
 	if not activo or _espera > 0.0:
 		return
@@ -189,7 +203,14 @@ func lanzar() -> void:
 	# La sal: el personaje avienta el punado (Player.aventar_sal) y pega a media animacion
 	if tipo == 1 and not jugador.aventar_sal(_dir_punado()):
 		return
-	if not infinitos:
+	if tipo == 1:
+		# Una bolsa son varios puñados (InventoryItemData.usos): se gasta al ultimo
+		if _usos_sal <= 0:
+			_usos_sal = maxi((inventario.items[indice] as InventoryItemData).usos, 1)
+		_usos_sal -= 1
+		if _usos_sal <= 0 and not infinitos:
+			inventario.remove_item(indice)
+	elif not infinitos:
 		inventario.remove_item(indice)
 	_espera = ESPERA
 	var libreta := get_node_or_null("/root/Libreta")
@@ -369,7 +390,7 @@ func _process(delta: float) -> void:
 	if not activo or jugador == null:
 		return
 	_texto.visible = true
-	_texto.text = "%s (%d) · 3 cambia" % [NOMBRES[tipo], cuantos(tipo)]
+	_texto.text = "%s (%d) · 3 cambia" % [NOMBRES[tipo], restan(tipo)]
 	var aventando: bool = jugador.get("_avienta_molotov") == true and float(jugador.get("_aventando")) >= 0.0
 	if _solto and not aventando and _espera <= 0.0:
 		_solto = false
@@ -400,7 +421,15 @@ func _process(delta: float) -> void:
 	_marca.visible = true
 	_area.visible = true
 	_marca.global_position = _destino + Vector3.UP * 0.04
-	_marca.scale = Vector3.ONE * (_radio_area() / Arrojadizo.FUEGO_RADIO)
+	var r := _radio_area() / Arrojadizo.FUEGO_RADIO
+	_marca.scale = Vector3.ONE * r
+	_marca.rotation.y = 0.0
+	if tipo == 2 or tipo == 6:
+		# La molotov deja una mancha ovalada, alargada hacia donde la tiras (Arrojadizo._reventar)
+		var hacia: Vector3 = _destino - _desde_mano()
+		if Vector2(hacia.x, hacia.z).length() > 0.1:
+			_marca.rotation.y = -atan2(hacia.z, hacia.x)
+			_marca.scale = Vector3(r, 1.0, r * ZonaLombrices.FUEGO_OVALO)
 	# Ya no avanza mas: amarillo
 	var color := COLOR_AREA if tipo == 2 or tipo == 6 else COLOR_AREA_PALOMITA
 	_marca_mat.albedo_color = COLOR_MARCA if _carga >= CARGA_DURA else color

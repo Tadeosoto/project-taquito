@@ -44,6 +44,8 @@ extends Resource
 # Se avienta con el Lanzador (tecla 3): sal o molotov (de limon o de cereza, que quema 1.5 veces mas lejos) contra las lombrices (ZonaLombrices), la
 # palomita que aturde a los zombis (Arrojadizo.PALOMITA) o la bocina que los jala (Senuelo)
 @export_enum("No", "Sal", "Molotov", "Palomita", "Bocina", "Bocina encintada", "Molotov de cereza") var arrojar : int = 0
+# Cuantos lanzamientos da una pieza (la bolsa de sal: 10; JJ, 2026-11-10)
+@export var usos : int = 1
 
 
 # El modelo centrado y escalado a una caja de `tamano` m (los de Sketchfab vienen en
