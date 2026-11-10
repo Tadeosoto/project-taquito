@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/bocina.tscn" id="1_modelo"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+
+[resource]
+script = ExtResource("2_item")
+item_name = "Bocina bluetooth"
+description = "Todavía tiene pila. Suena horrible, que es justo lo que sirve."
+inspection_model = ExtResource("1_modelo")
+efecto = "Tecla 3 y clic: aviéntala. Jala a los zombis de cerquita unos segundos. Combinada con una botella de agua jala de mucho más lejos."
+precio = 150
+arrojar = 4

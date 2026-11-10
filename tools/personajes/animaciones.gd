@@ -37,6 +37,8 @@ const CLIPS := [
 	"OverhandThrow",
 	# Curarse (Q), de UAL1 Source
 	"Drink",
+	# Zombi aturdido por la palomita (Zombie.aturdir): se tapa la cara, de UAL1 Source
+	"Crying",
 ]
 
 

@@ -5,7 +5,8 @@ extends Node
 signal inventory_changed
 
 # Lo que se puede hacer con "Combinar" (docs/especificaciones.md 4.5)
-const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres"), preload("res://resources/recetas/molotov.tres")]
+const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres"), preload("res://resources/recetas/molotov.tres"),
+	preload("res://resources/recetas/bocina_encintada.tres")]
 
 # Cuantos objetos caben sin mochila (docs/especificaciones.md 4.4)
 const CAPACIDAD_BASE := 6

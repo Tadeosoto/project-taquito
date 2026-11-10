@@ -61,6 +61,7 @@ const ACCIONES := {
 	"curar": "Drink",                 # curarse con Q (Player._curarse): UAL1 Source, el brazo sube, toma y baja
 	"aventar": "Sword_Heavy_A",       # el punado de sal (Player.aventar_sal): el tajo pesado de UAL2 Source
 	"molotov": "OverhandThrow",        # la molotov (Player.aventar_molotov): por encima del hombro
+	"aturdido": "Crying",              # te tronó la palomita en la mano (Player.aturdirte): te tapas la cara
 }
 const PUNETAZOS := ["puno_jab", "puno_cruzado", "puno_gancho"]
 # Que sigue a cada golpe cuando nadie lo corta

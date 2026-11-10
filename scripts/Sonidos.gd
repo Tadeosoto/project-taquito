@@ -88,6 +88,14 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _bloqueo()
 			"casquillo":
 				_sonidos[nombre] = _casquillo()
+			# La palomita (Arrojadizo PALOMITA): el iiiii de oidos despues del trueno
+			"zumbido_oidos":
+				_sonidos[nombre] = _zumbido_oidos()
+			# La bocina (Senuelo): su musica en bucle y el boop al apagarse
+			"bocina_musica":
+				_sonidos[nombre] = _bocina_musica()
+			"bocina_apaga":
+				_sonidos[nombre] = _tono(620.0, 0.45, -540.0, 0.45)
 			"reventar":
 				_sonidos[nombre] = _reventar()
 			# La Madre del Carcamo y sus crias (scripts/lombrices/)
@@ -613,6 +621,61 @@ static func _casquillo() -> AudioStreamWAV:
 			tin += sin(TAU * p[0] * t) * exp(-t * p[1]) * p[2]
 		b[i] = tin
 	return _a_wav(b)
+
+
+# El pitido de oidos de cuando te truena algo cerca: un tono muy agudo que entra mientras se
+# apaga el trueno, se queda y se va apagando. Dos tonos casi iguales para que lata tantito.
+# Lo que dura es lo que quedan aturdidos los zombis (Arrojadizo.PALOMITA)
+static func _zumbido_oidos() -> AudioStreamWAV:
+	const DURA := 4.0
+	const ENTRA := 0.25
+	var b := PackedFloat32Array()
+	b.resize(int(DURA * MUESTRAS))
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		var entra := smoothstep(0.05, ENTRA, t)
+		var sale := pow(1.0 - t / DURA, 1.6)
+		var pito := sin(TAU * 3900.0 * t) * 0.6 + sin(TAU * 3906.0 * t + 0.4) * 0.3
+		b[i] = pito * entra * sale * 0.5
+	return _a_wav(b)
+
+
+# La musica de la bocina (Senuelo), en bucle: dos compases a 120 bpm (los PULSO de las ondas)
+# de bombo, tarola, hi-hat y un bajo, tocados por una bocina chafa a todo volumen: sin graves
+# (filtro pasa altos), saturada (tanh y recorte) y con pocos bits. Hasta que JJ ponga la suya
+# (audio/armas/bocina.ogg en ARCHIVOS)
+static func _bocina_musica() -> AudioStreamWAV:
+	const TIEMPO := 0.5            # s por golpe
+	const GOLPES := 8
+	const NOTAS := [110.0, 110.0, 130.8, 98.0, 110.0, 146.8, 130.8, 98.0]
+	var b := PackedFloat32Array()
+	b.resize(int(TIEMPO * GOLPES * MUESTRAS))
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 120
+	var fase_bajo := 0.0
+	var antes := 0.0
+	var filtrado := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		var golpe := int(t / TIEMPO)
+		var en := fmod(t, TIEMPO)
+		var octavo := fmod(t, TIEMPO * 0.5)
+		var bombo := sin(TAU * (60.0 + 140.0 * exp(-en * 30.0)) * en) * exp(-en * 9.0)
+		var tarola := azar.randf_range(-1.0, 1.0) * exp(-en * 22.0) * (0.8 if golpe % 2 == 1 else 0.0)
+		var hihat := azar.randf_range(-1.0, 1.0) * exp(-octavo * 90.0) * 0.35
+		fase_bajo += NOTAS[golpe % NOTAS.size()] / MUESTRAS
+		var bajo := (1.0 if fmod(fase_bajo, 1.0) < 0.5 else -1.0) * 0.45 * minf(en * 40.0, 1.0)
+		var x := bombo + tarola + hihat + bajo
+		# Bocina chafa: se come los graves (pasa altos de un polo, ~150 Hz)
+		filtrado = 0.96 * (filtrado + x - antes)
+		antes = x
+		var sucio := tanh(filtrado * 4.0) / tanh(4.0)
+		sucio = clampf(sucio * 1.3, -0.85, 0.85)
+		b[i] = snappedf(sucio, 1.0 / 24.0) * 0.8
+	var wav := _a_wav(b)
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wav.loop_end = b.size()
+	return wav
 
 
 static func _bloqueo() -> AudioStreamWAV:

@@ -1,7 +1,13 @@
 class_name Lanzador
 extends Node
 # Las cosas que se avientan (la tecla 3, arma_3): sal y molotovs del inventario
-# (InventoryItemData.arrojar). Otra vez 3 cambia entre sal y molotov. Hijo de Player, como la Pistola.
+# (InventoryItemData.arrojar). Otra vez 3 cambia: sal, molotov, palomita. Hijo de Player, como la Pistola.
+# La palomita (JJ) se carga y se avienta igual que la molotov, se ve en la mano mientras la traes
+# (_poner_en_mano) y su area es la que aturde (Arrojadizo.ATURDE_RADIO). Al soltarla (JJ):
+# CEBADA_PROB sale cebada (cae y no truena) y TRUENA_MANO_PROB te truena en la mano: aturde a los
+# zombis de alrededor y a ti (Player.aturdirte) mientras dura el zumbido, y te baja MANO_DANO.
+# La bocina (4) y la bocina encintada con agua (5) tambien se cargan y se avientan asi; su area es
+# hasta donde jalan zombis (Senuelo.RADIO_SOLA / RADIO_AGUA). La 3 salta a lo que si traes.
 # La molotov se carga (JJ, 2026-11-09): mientras dejas apretado el clic, el punto donde va a caer
 # avanza hacia donde ves, de CARGA_DESDE a ALCANCE m en CARGA_DURA s, y en el piso se ve el area
 # que va a quemar (un circulo de Arrojadizo.FUEGO_RADIO) con la parabola en puntitos. Al soltar,
@@ -18,12 +24,18 @@ const VUELO_POR_M := 1.0 / 12.0 # s de vuelo por metro (y entre VUELO.x y VUELO.
 const VUELO := Vector2(0.35, 1.2)
 const PUNTOS := 24
 const COLOR_MARCA := Color(1.0, 0.95, 0.4)
-const NOMBRES := ["", "Sal", "Molotov"]
+const NOMBRES := ["", "Sal", "Molotov", "Palomita", "Bocina", "Bocina encintada"]
+# Lo que sale de la mano por cada tipo (InventoryItemData.arrojar): Arrojadizo.tipo
+const ARROJADIZOS := [0, 1, 2, Arrojadizo.PALOMITA, Arrojadizo.BOCINA, Arrojadizo.BOCINA_AGUA]
 const ESPERA := 0.5
 # La molotov cargada
 const CARGA_DESDE := 3.0        # m: un clic sin dejarlo apretado
 const CARGA_DURA := 1.2         # s apretado para llegar a ALCANCE
 const COLOR_AREA := Color(1.0, 0.45, 0.1)
+const COLOR_AREA_PALOMITA := Color(1.0, 1.0, 1.0)   # blanca, para no confundirla con el fuego (JJ)
+const CEBADA_PROB := 0.06
+const TRUENA_MANO_PROB := 0.03
+const MANO_DANO := 15
 # El punado de sal
 const PUNADO_ALCANCE := 3.3     # m del cuerpo que alcanza (el arco de humo llega a Player.AVIENTA_HUMO.y 3.1)
 const PUNADO_HOLGURA := 0.15    # rad de mas a cada lado del pedazo de arco de cada cuadro
@@ -46,6 +58,10 @@ var _cargando := false          # la molotov: el clic sigue apretado
 var _carga := 0.0
 var _destino := Vector3.ZERO     # a donde va la molotov que se esta aventando
 var _area: MeshInstance3D
+var _area_mat: StandardMaterial3D
+var _en_mano: Node3D             # la palomita o la bocina que se ve en la mano
+var _en_mano_tipo := 0
+var _solto := false             # ya salio de la mano y aun no se toma otra
 
 
 func _ready() -> void:
@@ -88,11 +104,11 @@ func _ready() -> void:
 	disco.height = 0.01
 	disco.radial_segments = 48
 	disco.rings = 1
-	var relleno := StandardMaterial3D.new()
-	relleno.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	relleno.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	relleno.albedo_color = Color(COLOR_AREA, 0.22)
-	disco.material = relleno
+	_area_mat = StandardMaterial3D.new()
+	_area_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_area_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_area_mat.albedo_color = Color(COLOR_AREA, 0.22)
+	disco.material = _area_mat
 	_area = MeshInstance3D.new()
 	_area.mesh = disco
 	_area.visible = false
@@ -116,10 +132,17 @@ func _ready() -> void:
 	capa.add_child(_texto)
 
 
-# 3: lo toma; si ya lo traes, cambia de cosa
+# 3: lo toma; si ya lo traes, cambia a la siguiente cosa que si traigas (si no traes nada, a la
+# que sigue)
 func tomar() -> void:
 	if activo:
-		tipo = 2 if tipo == 1 else 1
+		var siguiente := tipo % (NOMBRES.size() - 1) + 1
+		for i in NOMBRES.size() - 1:
+			var cual := (tipo + i) % (NOMBRES.size() - 1) + 1
+			if cuantos(cual) > 0:
+				siguiente = cual
+				break
+		tipo = siguiente
 	activo = true
 
 
@@ -129,6 +152,7 @@ func soltar() -> void:
 	_arco.visible_instance_count = 0
 	_texto.visible = false
 	_marca.visible = false
+	_poner_en_mano(false)
 
 
 func cuantos(cual: int) -> int:
@@ -157,8 +181,8 @@ func lanzar() -> void:
 	if indice < 0:
 		Sonidos.tocar(self, "ui_error", -6.0)
 		return
-	# La molotov: empieza a cargar; sale al soltar el clic (soltar_clic)
-	if tipo == 2:
+	# La molotov y la palomita: empiezan a cargar; salen al soltar el clic (soltar_clic)
+	if _se_carga():
 		_cargando = true
 		_carga = 0.0
 		return
@@ -178,14 +202,14 @@ func soltar_clic() -> void:
 	if not _cargando:
 		return
 	_cargando = false
-	if not activo or tipo != 2:
+	if not activo or not _se_carga():
 		return
 	var inventario := get_node_or_null("/root/Inventory")
 	var indice := -1
 	if inventario:
 		for i in inventario.items.size():
 			var item: InventoryItemData = inventario.items[i]
-			if item and item.arrojar == 2:
+			if item and item.arrojar == tipo:
 				indice = i
 				break
 	if indice < 0:
@@ -206,7 +230,73 @@ func soltar_clic() -> void:
 # A medio OverhandThrow (Player._seguir_aventada): sale de la mano hacia _destino
 func soltar_molotov() -> void:
 	var tiro := _tiro(_desde_mano(), _destino)
-	Arrojadizo.lanzar(jugador.get_tree().current_scene, tiro.desde, tiro.vel, 2, [jugador.get_rid()])
+	var padre := jugador.get_tree().current_scene
+	_solto = true
+	if tipo != 3:
+		Arrojadizo.lanzar(padre, tiro.desde, tiro.vel, ARROJADIZOS[tipo], [jugador.get_rid()])
+		return
+	var suerte := randf()
+	if suerte < TRUENA_MANO_PROB:
+		var dura := Arrojadizo.tronar(padre, tiro.desde)
+		Arrojadizo.letrero(padre, jugador.global_position + Vector3.UP * 1.4, "¡Te tronó en la mano!")
+		jugador.aturdirte(dura, MANO_DANO)
+		return
+	var palomita := Arrojadizo.lanzar(padre, tiro.desde, tiro.vel, Arrojadizo.PALOMITA, [jugador.get_rid()])
+	palomita.cebada = suerte < TRUENA_MANO_PROB + CEBADA_PROB
+
+
+# Lo que se carga y se avienta por encima del hombro: todo menos la sal
+func _se_carga() -> bool:
+	return tipo >= 2
+
+
+# El area que se ve en el piso al cargar: lo que quema, aturde o hasta donde jala zombis
+func _radio_area() -> float:
+	match tipo:
+		3:
+			return Arrojadizo.ATURDE_RADIO
+		4:
+			return Senuelo.RADIO_SOLA
+		5:
+			return Senuelo.RADIO_AGUA
+	return Arrojadizo.FUEGO_RADIO
+
+
+# Lo que se ve en la mano: la palomita y las bocinas (la sal y la molotov no se ven)
+func _modelo_en_mano(cual: int) -> GDScript:
+	match cual:
+		3:
+			return Palomita
+		4:
+			return Bocina
+		5:
+			return BocinaEncintada
+	return null
+
+
+# La palomita o la bocina en la mano derecha mientras la traes y te queda alguna. El Player borra
+# lo que cuelga de la mano cuando cambia el arma (_mostrar_arma), asi que se vuelve a crear si hace
+# falta, y al cambiar de cosa
+func _poner_en_mano(ver: bool) -> void:
+	var mano: Node3D = jugador.get("_mano") if jugador else null
+	var modelo := _modelo_en_mano(tipo)
+	if not ver or mano == null or modelo == null:
+		if is_instance_valid(_en_mano):
+			_en_mano.visible = false
+		return
+	if not is_instance_valid(_en_mano) or _en_mano.get_parent() != mano or _en_mano.is_queued_for_deletion() or _en_mano_tipo != tipo:
+		if is_instance_valid(_en_mano):
+			_en_mano.queue_free()
+		_en_mano = modelo.new()
+		_en_mano_tipo = tipo
+		if _en_mano is GeometryInstance3D:
+			(_en_mano as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mano.add_child(_en_mano)
+	# Sin la escala del hueso, como el arma (Player._mostrar_arma)
+	var escala := maxf(mano.global_transform.basis.get_scale().x, 0.001)
+	var giro: Vector3 = modelo.GIRO_MANO
+	_en_mano.transform = Transform3D(Basis.from_euler(giro * PI / 180.0).scaled(Vector3.ONE / escala), modelo.EN_MANO / escala)
+	_en_mano.visible = true
 
 
 func _desde_mano() -> Vector3:
@@ -271,13 +361,17 @@ func _process(delta: float) -> void:
 		return
 	_texto.visible = true
 	_texto.text = "%s (%d) · 3 cambia" % [NOMBRES[tipo], cuantos(tipo)]
+	var aventando: bool = jugador.get("_avienta_molotov") == true and float(jugador.get("_aventando")) >= 0.0
+	if _solto and not aventando and _espera <= 0.0:
+		_solto = false
+	_poner_en_mano(not _solto and (cuantos(tipo) > 0 or aventando))
 	if tipo == 1:
 		# El punado no lleva guia (JJ): sale hacia donde ves
 		_arco.visible_instance_count = 0
 		_marca.visible = false
 		return
-	# La molotov: mientras cargas (y hasta que sale) se ve a donde cae y el area que quema
-	var aventando: bool = jugador.get("_avienta_molotov") == true and float(jugador.get("_aventando")) >= 0.0
+	# La molotov: mientras cargas (y hasta que sale) se ve a donde cae y el area que quema; la
+	# palomita, el area que aturde
 	if _cargando:
 		_carga += delta
 		_destino = _destino_carga(_dir_punado())
@@ -297,5 +391,8 @@ func _process(delta: float) -> void:
 	_marca.visible = true
 	_area.visible = true
 	_marca.global_position = _destino + Vector3.UP * 0.04
+	_marca.scale = Vector3.ONE * (_radio_area() / Arrojadizo.FUEGO_RADIO)
 	# Ya no avanza mas: amarillo
-	_marca_mat.albedo_color = COLOR_MARCA if _carga >= CARGA_DURA else COLOR_AREA
+	var color := COLOR_AREA if tipo == 2 else COLOR_AREA_PALOMITA
+	_marca_mat.albedo_color = COLOR_MARCA if _carga >= CARGA_DURA else color
+	_area_mat.albedo_color = Color(color, 0.22)

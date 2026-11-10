@@ -395,6 +395,7 @@ var _buffer_edad := 0.0       # s de juego desde que se pidio (la congelada tamb
 var _buffer_dir := Vector2.ZERO   # las teclas de direccion al pedir la rodada
 var _invulnerable := 0.0
 var _curando := 0.0
+var _aturdido := 0.0           # s que quedan aturdido: te tronó la palomita en la mano (aturdirte)
 var _aventando := -1.0          # s del punado de sal; -1 = no
 var _avienta_dir := Vector3.FORWARD
 var _avienta_solto := false
@@ -979,7 +980,7 @@ func _probar_buffer(delta: float) -> void:
 # Rodando, a media estocada o giro, o curandote: nada mas sale
 func _ocupado() -> bool:
 	return _rodada_t >= 0.0 or (_estocada_t >= 0.0 and _estocada_t < (TAJO_LIBRE if _tajo else ESTOCADA_LIBRE)) \
-			or _giro >= 0.0 or _curando > 0.0 or _aventando >= 0.0
+			or _giro >= 0.0 or _curando > 0.0 or _aventando >= 0.0 or _aturdido > 0.0
 
 
 # Lo que queda de la estocada (pasado ESTOCADA_LIBRE) se corta para que salga otra accion.
@@ -1272,6 +1273,29 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0) -> void:
 	var ciclo := get_tree().get_first_node_in_group("ciclo")
 	if tazos and ciclo and ciclo.es_noche():
 		dano = maxi(roundi(dano * tazos.factor_dano_noche()), 1)
+	get_node("/root/Salud").vida -= dano
+
+
+# Te tronó la palomita en la mano (Lanzador.soltar_molotov): `segundos` sin moverte ni hacer nada
+# (lo que dura el zumbido), tapandote la cara (Crying), y te baja `dano` aunque estes
+# invulnerable o rodando: no es un golpe de nadie, ni se bloquea
+func aturdirte(segundos: float, dano: int) -> void:
+	if _pose_carga:
+		_cancelar_carga(false)
+	_soltar_combo()
+	# Truena a medio OverhandThrow: se corta, o al acabar (_seguir_aventada) soltaba el Crying
+	_aventando = -1.0
+	_avienta_molotov = false
+	_aturdido = segundos
+	if figura.has_method("accion"):
+		figura.accion("aturdido")
+	_sonar("dolor")
+	_flash_hasta = Time.get_ticks_msec() + FLASH_MS
+	_pintar_blanco(true)
+	_sacude_fuerza = SACUDE_GOLPEADO
+	_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
+	efecto("herido", frijol.global_basis.z)
+	golpeado.emit()
 	get_node("/root/Salud").vida -= dano
 
 
@@ -1705,6 +1729,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		camera_pitch -= event.relative.y * sensibilidad * 100.0
 		camera_pitch = clampf(camera_pitch, -60.0, 30.0)
 		spring_arm.rotation_degrees.x = camera_pitch
+	elif _aturdido > 0.0:
+		# Aturdido solo puedes voltear la camara
+		pass
 	elif event.is_action_pressed("cambiar_arma") and is_physics_processing():
 		_lanzador.soltar()
 		_pistola.cambiar()
@@ -2045,6 +2072,10 @@ func _physics_process(delta: float) -> void:
 			_atacar()
 	_invulnerable = maxf(_invulnerable - delta, 0.0)
 	_curando = maxf(_curando - delta, 0.0)
+	if _aturdido > 0.0:
+		_aturdido -= delta
+		if _aturdido <= 0.0 and figura.has_method("terminar_accion"):
+			figura.terminar_accion()
 	if _aventando >= 0.0:
 		_seguir_aventada(delta)
 	if _pega_en >= 0.0:
@@ -2060,7 +2091,8 @@ func _physics_process(delta: float) -> void:
 	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
 	var golpeando := (_enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento) or _pose_carga
 	# Girando en el aire sigues tu salto (y lo puedes dirigir); en el suelo te quedas en tu lugar
-	if (_giro >= 0.0 and is_on_floor()) or _estocada_t >= 0.0 or _rodada_t >= 0.0 or _aventando >= 0.0:
+	if (_giro >= 0.0 and is_on_floor()) or _estocada_t >= 0.0 or _rodada_t >= 0.0 or _aventando >= 0.0 \
+			or _aturdido > 0.0:
 		input_direction = Vector2.ZERO
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z
