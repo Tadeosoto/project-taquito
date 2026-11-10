@@ -43,6 +43,8 @@ godot --path . --headless --check-only --script res://scripts/player.gd  # parse
 
 ## Real map and everything on it (`scenes/map_test.tscn`)
 
+**New map in Blender (WIP, branch `Map-Blender-Creation`):** `scenes/mapa.tscn`, built colonia by colonia from `tools/blender/mapa/` (each colonia's JSON is the source; `README.md` there has the workflow) and `scripts/mapa/Colonia.gd`. Design docs per colonia in `docs/mapa/colonias/` (pilot: Parques de Santa Mugre); technical detail in `docs/mapa/tecnico.md` "Map in Blender". `map_test` below stays until it's replaced.
+
 **Read `docs/mapa/tecnico.md` before changing the map pipeline, streaming, stores, houses, warehouses, walls, street lights, ground, deterioration, interiors, shop UI, or fruit machines.** It has the full detail, the regeneration commands and the reasons behind each decision. Keep it in sync with those systems. `docs/mapa/README.md` is the user-facing (Spanish) guide. Game design and open team decisions are in `docs/especificaciones.md`; the story canon (GelA, the Lazcano family, the zombis, the cult of the Virgen del Tinaco, the nine zones) is in `docs/lore.md`; the cast (who's who, their wants and secrets) is in `docs/personajes.md`; the mission list is in `docs/misiones.md` and the item catalogue in `docs/items.md`; upgrades, the player's power scale and the economy are designed in `docs/mejoras.md`. `docs/revision-historia.md` is a story review: its "Lo decidido" table lists which canon clashes were settled (and where), plus the points still pending. Narrative skills (story-skills to evaluate and revise first, then the game-dev `narrative-*` skills and `/game-quest`/`/game-lore`) are adapted to these docs in `.claude/skills/`.
 
 Overview:

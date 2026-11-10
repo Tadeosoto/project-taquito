@@ -1,0 +1,37 @@
+{
+	"colonia": "santa_mugre",
+	"marcas": [
+		{
+			"nombre": "Spawn",
+			"tipo": "spawn",
+			"x": -372.0,
+			"z": 432.0,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Yonke",
+			"tipo": "yonke",
+			"x": -404.5,
+			"z": 361.0,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Puerta_casa_jugador",
+			"tipo": "puerta",
+			"giro": "casa_jugador",
+			"texto": "Tu cuarto",
+			"x": -214.0,
+			"z": 381.8,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Puerta_oxxo_0",
+			"tipo": "puerta",
+			"giro": "oxxo",
+			"texto": "OXO",
+			"x": -260.0,
+			"z": 457.3,
+			"rot": 0.0
+		}
+	]
+}

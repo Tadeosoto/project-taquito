@@ -1,0 +1,132 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="1_dither"]
+[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="3_puntos"]
+[ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="4_ciclo"]
+[ext_resource type="Script" path="res://scripts/mapa/Colonia.gd" id="5_colonia"]
+[ext_resource type="PackedScene" path="res://models/mapa/santa_mugre/santa_mugre.glb" id="6_santa_mugre"]
+[ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="7_dron"]
+[ext_resource type="Script" path="res://scripts/map/MapMinimapa.gd" id="8_minimapa"]
+[ext_resource type="Texture2D" path="res://textures/map/minimapa.png" id="9_minimapa_tex"]
+[ext_resource type="Script" path="res://scripts/interiores/Interiores.gd" id="10_interiores"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="11_tiendita"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/licoreria.tscn" id="11_licoreria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/abarrotes.tscn" id="11_abarrotes"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="11_farmacia"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/taqueria.tscn" id="11_taqueria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="11_ferreteria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="11_purificadora"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="11_punto"]
+[ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="12_inventario"]
+
+[sub_resource type="Environment" id="Environment_mapa"]
+background_mode = 1
+background_color = Color(0.30240002, 0.31872, 0.36, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.62, 0.66, 0.72, 1)
+ambient_light_energy = 0.7
+fog_enabled = true
+fog_light_color = Color(0.54521054, 0.5537622, 0.53505677, 1)
+fog_sun_scatter = 0.1
+fog_density = 0.0196
+adjustment_enabled = true
+adjustment_contrast = 1.1
+adjustment_saturation = 1.35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
+shader = ExtResource("1_dither")
+shader_parameter/color_levels = 32.0
+shader_parameter/dither_strenght = 0.35
+shader_parameter/desaturacion = 0.4
+shader_parameter/tinte = Color(1.0, 0.97, 0.84, 1)
+shader_parameter/contraste = 1.1
+shader_parameter/vineta = 0.3
+
+[node name="Mapa" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_mapa")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.3326426, 0.8513836, -0.40557972, -0.70441604, 0.061628435, 0.7071068, 0.6270144, 0.52091074, 0.579228, 0, 40, 0)
+light_color = Color(0.9282061, 0.8841801, 0.82615525, 1)
+light_energy = 1.15
+light_indirect_energy = 0.0
+light_specular = 0.2
+shadow_enabled = true
+shadow_reverse_cull_face = true
+shadow_opacity = 0.86
+shadow_blur = 0.0
+directional_shadow_max_distance = 80.0
+
+[node name="PS1_Postprocess" type="CanvasLayer" parent="."]
+
+[node name="Dither" type="ColorRect" parent="PS1_Postprocess"]
+material = SubResource("ShaderMaterial_dither")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Puntos" type="Node3D" parent="."]
+script = ExtResource("3_puntos")
+puntos_path = "res://resources/mapa/sin_puntos.json"
+target_path = NodePath("../Dron")
+interiores_path = NodePath("../Interiores")
+
+[node name="Ciclo" type="Node" parent="."]
+script = ExtResource("4_ciclo")
+sol_path = NodePath("../DirectionalLight3D")
+environment_path = NodePath("../WorldEnvironment")
+dia_duracion = 480.0
+noche_duracion = 360.0
+
+[node name="Colonia" type="Node3D" parent="."]
+script = ExtResource("5_colonia")
+modelo = ExtResource("6_santa_mugre")
+marcas_path = "res://resources/mapa/santa_mugre/marcas.json"
+puntos_path = NodePath("../Puntos")
+jugador_path = NodePath("../Player")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -262, 1.5, 455)
+
+[node name="Dron" type="Node3D" parent="."]
+script = ExtResource("7_dron")
+player_path = NodePath("../Player")
+environment_path = NodePath("../WorldEnvironment")
+iniciar_en_dron = false
+cerrado_de_noche = true
+
+[node name="Minimapa" type="CanvasLayer" parent="."]
+layer = 2
+script = ExtResource("8_minimapa")
+mapa = ExtResource("9_minimapa_tex")
+player_path = NodePath("../Player")
+dron_path = NodePath("../Dron")
+puntos_path = "res://resources/mapa/santa_mugre/puntos.json"
+tamano = 136.0
+radio_metros = 150.0
+radio_dron = 320.0
+
+[node name="Interiores" type="Node" parent="."]
+script = ExtResource("10_interiores")
+escenas = Dictionary[String, PackedScene]({
+"abarrotes": ExtResource("11_abarrotes"),
+"farmacia": ExtResource("11_farmacia"),
+"ferreteria": ExtResource("11_ferreteria"),
+"licoreria": ExtResource("11_licoreria"),
+"oxxo": ExtResource("11_tiendita"),
+"punto": ExtResource("11_punto"),
+"purificadora": ExtResource("11_purificadora"),
+"taqueria": ExtResource("11_taqueria")
+})
+puntos_path = NodePath("../Puntos")
+player_path = NodePath("../Player")
+dron_path = NodePath("../Dron")
+ocultar = Array[NodePath]([NodePath("../Minimapa")])
+
+[node name="InventoryUI" parent="." instance=ExtResource("12_inventario")]
