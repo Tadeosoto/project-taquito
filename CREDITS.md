@@ -144,3 +144,13 @@
 
 ## Música (`audio/musica/`)
 - `pt_tema.mp3`: tema de la defensa del tinaco, de Juan José Rodríguez (JJ), del equipo.
+
+## Casa del personaje (`models/casa_personaje/`, Sketchfab)
+
+- [Old Sofa (FREE)](https://sketchfab.com/3d-models/90be7242f24749c3a8e0b0a69c616fc1) de RenderRum Filip Rumin, licencia CC Attribution (`sillon/`).
+- [Wooden Dining Chair](https://sketchfab.com/3d-models/61837ea5c8924eb0babc89e68c1dce66) de MadeByYeshe, licencia CC Attribution (`silla/`).
+- [Old Table](https://sketchfab.com/3d-models/5fb162afab8245309a3eca64bb795207) de bear0beer, licencia CC Attribution (`mesa/`).
+- [victorian Cabinet](https://sketchfab.com/3d-models/81291e282b854934a6f1b9f53a900f5f) de lagesnpiet, licencia CC Attribution (`vitrina/`).
+- [Antique Wooden Wardrobe](https://sketchfab.com/3d-models/a3c221e5504d40a8ba019f8f1bf5ab0e) de Kuutti Siitonen, licencia CC Attribution (`closet/`).
+- [Retro CRT TV](https://sketchfab.com/3d-models/6bc462b233ce4c78904dfcadf5123e29) de meipal, licencia CC Attribution (`tele/`).
+- [Single Bed 2](https://sketchfab.com/3d-models/81ada0e24e1647d8a0d6d0708a696f84) de rhcreations, licencia CC Attribution (`cama/`).
