@@ -15,7 +15,6 @@
 [ext_resource type="Resource" path="res://resources/productos/mazapan.tres" id="p_mazapan"]
 [ext_resource type="Resource" path="res://resources/productos/caguama.tres" id="p_caguama"]
 [ext_resource type="Resource" path="res://resources/productos/sal.tres" id="p_sal"]
-[ext_resource type="Resource" path="res://resources/productos/gasolina.tres" id="p_gasolina"]
 
 [sub_resource type="StandardMaterial3D" id="letrero_rojo"]
 albedo_color = Color(0.78, 0.08, 0.1, 1)
@@ -33,7 +32,7 @@ frente = 4.3
 color_muro = Color(0.88, 0.85, 0.76, 1)
 color_piso = Color(0.85, 0.83, 0.8, 1)
 energia_luz = 1.2
-productos = Array[ExtResource("p_script")]([ExtResource("p_gansito"), ExtResource("p_takis"), ExtResource("p_jarritos"), ExtResource("p_cigarros"), ExtResource("p_mazapan"), ExtResource("p_caguama"), ExtResource("p_sal"), ExtResource("p_gasolina")])
+productos = Array[ExtResource("p_script")]([ExtResource("p_gansito"), ExtResource("p_takis"), ExtResource("p_jarritos"), ExtResource("p_cigarros"), ExtResource("p_mazapan"), ExtResource("p_caguama"), ExtResource("p_sal")])
 precio_factor = 1.15
 
 [node name="Camara" type="Camera3D" parent="."]

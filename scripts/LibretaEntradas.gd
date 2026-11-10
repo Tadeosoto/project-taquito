@@ -88,7 +88,7 @@ const ENTRADAS := [
 		"id": "remedios",
 		"titulo": "Remedios",
 		"apodo": "\"lo que sirve\"",
-		"que": "Lo que he visto que funciona contra lo de abajo. La sal de grano (la tiendita), las molotovs (botella vacía con gasolina y un trapo) y los tambos prendidos. Se avientan con la tecla 3.",
+		"que": "Lo que he visto que funciona contra lo de abajo. La sal de grano (la tiendita), las molotovs (botella vacía llena de gasolina en la gasolinera, y un trapo) y los tambos prendidos. Se avientan con la tecla 3.",
 		"por_que": "La abuela lo sabía: \"a las babosas, sal\". La sal les quita el agua del cuerpo; el fuego las seca sin partirlas. Los tambos no los quieren cerca. Nada de esto le sirve a un zombi: es para las del cárcamo.",
 		"como": "Sal: un círculo que se come cabezas y no las deja pasar; si te cae encima, quema las que traes pegadas. Molotov: la que toca el fuego se achicharra de una, y también le quema los sacos a la Madre, pero a ti también te quema. Patea un tambo y riega fuego. Tu estela de fuego, si la tienes, las quema en vez de partirlas.",
 		"pista_por_que": "Usa uno contra ellas.",
@@ -136,6 +136,6 @@ static func datos(id: String) -> String:
 			return "%d sacos de %.0f · muerde %d, choca %d · la bala le hace %.0f al saco" % [
 				_MC.SACOS, _MC.SACO_VIDA, _MC.DANO_MORDIDA, _MC.DANO_CHOQUE, _MC.DANO_BALA]
 		"remedios":
-			return "Sal: %.1f m por %.0f s · molotov: %.1f m por %.0f s" % [
-				_AR.SAL_RADIO, _AR.SAL_DURA, _AR.FUEGO_RADIO, _AR.FUEGO_DURA]
+			return "Sal: %.1f m por %.0f s · molotov de limón: %.1f m por %.0f s · de cereza: %.1f m" % [
+				_AR.SAL_RADIO, _AR.SAL_DURA, _AR.FUEGO_RADIO, _AR.FUEGO_DURA, _AR.FUEGO_RADIO * _AR.CEREZA_ALCANCE]
 	return ""

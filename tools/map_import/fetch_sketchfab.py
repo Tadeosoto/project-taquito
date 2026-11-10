@@ -57,6 +57,7 @@ MODELS = {
 	"tiendas/puesto_tacos": "03046667e027461baaaa47697d502e74",     # Cara1 Puesto de Tacos, 40k
 	"tiendas/tacos_props": "f8bbafe18488483f8ab79bc52d1edc79",      # Tacos_ Props, 25k
 	"tiendas/pemex": "1e070d51657e4c169c517f81de973e41",            # Pemex Low Poly, 3.6k
+	"tiendas/gasolinera": "02a11319cb744999adddd7236a46bf8e",       # Lowpoly Gas Station (el que usa el mapa, JJ)
 	"tiendas/carrito": "a74ed86472c945328f3f2cf98fb26977",          # Low Poly Street Food Cart, 3.7k
 	"casas/urbi": "641be90fcbd14bcb997dac56671081a8",               # Casa Urbi / Infonavit, 7.9k
 	"casas/semi_residencial": "4431db9690aa4d6ea23f50b8fdfa0cd3",   # Casa Tipo Semi Residencial, 398

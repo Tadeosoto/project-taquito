@@ -24,9 +24,9 @@ const VUELO_POR_M := 1.0 / 12.0 # s de vuelo por metro (y entre VUELO.x y VUELO.
 const VUELO := Vector2(0.35, 1.2)
 const PUNTOS := 24
 const COLOR_MARCA := Color(1.0, 0.95, 0.4)
-const NOMBRES := ["", "Sal", "Molotov", "Palomita", "Bocina", "Bocina encintada"]
+const NOMBRES := ["", "Sal", "Molotov de limón", "Palomita", "Bocina", "Bocina encintada", "Molotov de cereza"]
 # Lo que sale de la mano por cada tipo (InventoryItemData.arrojar): Arrojadizo.tipo
-const ARROJADIZOS := [0, 1, 2, Arrojadizo.PALOMITA, Arrojadizo.BOCINA, Arrojadizo.BOCINA_AGUA]
+const ARROJADIZOS := [0, 1, 2, Arrojadizo.PALOMITA, Arrojadizo.BOCINA, Arrojadizo.BOCINA_AGUA, Arrojadizo.MOLOTOV_CEREZA]
 const ESPERA := 0.5
 # La molotov cargada
 const CARGA_DESDE := 3.0        # m: un clic sin dejarlo apretado
@@ -259,6 +259,8 @@ func _radio_area() -> float:
 			return Senuelo.RADIO_SOLA
 		5:
 			return Senuelo.RADIO_AGUA
+		6:
+			return Arrojadizo.fuego_radio(Arrojadizo.MOLOTOV_CEREZA)
 	return Arrojadizo.FUEGO_RADIO
 
 
@@ -273,6 +275,8 @@ func _modelo_en_mano(cual: int) -> GDScript:
 			return Bocina
 		5:
 			return BocinaEncintada
+		6:
+			return BotellaMolotov
 	return null
 
 
@@ -293,6 +297,7 @@ func _poner_en_mano(ver: bool) -> void:
 		_en_mano_tipo = tipo
 		if _en_mano is BotellaMolotov:
 			_en_mano.etapa = BotellaMolotov.MOLOTOV
+			_en_mano.sabor = BotellaMolotov.CEREZA if tipo == 6 else BotellaMolotov.LIMON
 		if _en_mano is GeometryInstance3D:
 			(_en_mano as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		mano.add_child(_en_mano)
@@ -397,6 +402,6 @@ func _process(delta: float) -> void:
 	_marca.global_position = _destino + Vector3.UP * 0.04
 	_marca.scale = Vector3.ONE * (_radio_area() / Arrojadizo.FUEGO_RADIO)
 	# Ya no avanza mas: amarillo
-	var color := COLOR_AREA if tipo == 2 else COLOR_AREA_PALOMITA
+	var color := COLOR_AREA if tipo == 2 or tipo == 6 else COLOR_AREA_PALOMITA
 	_marca_mat.albedo_color = COLOR_MARCA if _carga >= CARGA_DURA else color
 	_area_mat.albedo_color = Color(color, 0.22)

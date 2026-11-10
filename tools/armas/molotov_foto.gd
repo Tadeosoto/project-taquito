@@ -1,6 +1,6 @@
 extends SceneTree
-# Capturas de la botella de la molotov (scripts/lombrices/BotellaMolotov.gd): las tres etapas (vacia,
-# con gasolina, molotov) de lado y desde arriba (molotov_modelo.png), y la molotov en la mano de
+# Capturas de la botella de la molotov (scripts/lombrices/BotellaMolotov.gd): las etapas y sabores (vacia,
+# gasolina de limon o cereza, molotov de cada una) de lado y desde arriba (molotov_modelo.png), y la molotov en la mano de
 # el_compa (molotov_mano.png) y volando de noche con el trapo prendido, en tres momentos
 # (molotov_vuela.png). Necesita ventana (no --headless):
 #   godot --path . -s tools/armas/molotov_foto.gd -- --salida=/tmp/fotos
@@ -66,26 +66,29 @@ func _hoja(imagenes: Array, nombre: String) -> void:
 
 func _fotos() -> void:
 	var botella: GDScript = load("res://scripts/lombrices/BotellaMolotov.gd")
-	# Las tres etapas juntas, de lado y de tres cuartos desde arriba, y la molotov de cerca
+	# Las cinco juntas (vacia, gasolina de limon y de cereza, molotov de limon y de cereza), de lado y
+	# de tres cuartos desde arriba, y las dos molotovs de cerca
+	var botellas := [[0, 0], [1, 0], [1, 1], [2, 0], [2, 1]]
 	var vistas := []
-	for desde in [Vector3(0, 0.2, 0.75), Vector3(0.45, 0.55, 0.5), Vector3(0.28, 0.3, 0.3)]:
+	for desde in [Vector3(0, 0.2, 1.05), Vector3(0.55, 0.6, 0.65), Vector3(0.3, 0.28, 0.4)]:
 		var vista := _vista(Color(0.86, 0.85, 0.83))
 		# Un fondo oscuro detras, para que se note el vidrio
 		var fondo := MeshInstance3D.new()
 		var plano := QuadMesh.new()
-		plano.size = Vector2(0.5, 0.4)
+		plano.size = Vector2(0.8, 0.5)
 		fondo.mesh = plano
 		var negro := StandardMaterial3D.new()
 		negro.albedo_color = Color(0.12, 0.12, 0.14)
 		fondo.material_override = negro
 		vista.add_child(fondo)
-		var cerca: bool = desde.length() < 0.5
-		for i in 3:
-			if cerca and i < 2:
+		var cerca: bool = desde.length() < 0.6
+		for k in botellas.size():
+			if cerca and k < 3:
 				continue
 			var b: Node3D = botella.new()
-			b.etapa = i
-			b.position.x = 0.0 if cerca else (i - 1) * 0.11
+			b.etapa = botellas[k][0]
+			b.sabor = botellas[k][1]
+			b.position.x = (k - 2) * 0.1 if not cerca else (k - 3.5) * 0.12
 			b.rotation_degrees.y = -30.0
 			vista.add_child(b)
 		var mira := Vector3(0, 0.17, 0)

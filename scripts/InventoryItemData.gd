@@ -25,6 +25,10 @@ extends Resource
 # botella vacia, que con gasolina y un trapo es molotov. Con esto se puede utilizar aunque no cure
 @export var deja : InventoryItemData
 
+# Para comprarlo hace falta traer esto, y se gasta: la gasolinera te llena una botella vacia, no te
+# vende la gasolina suelta (Interior._comprar)
+@export var requiere : InventoryItemData
+
 # Si es arma: lo que le quita a un zombi de un golpe (Player._golpear). 0 = no es arma
 @export var dano : int = 0
 
@@ -37,9 +41,9 @@ extends Resource
 # Bolsa especial de Takis: "Abrir" en el inventario saca un tazo (Tazos.gd, TazoRevelacion.gd)
 @export var bolsa_tazo : bool = false
 
-# Se avienta con el Lanzador (tecla 3): sal o molotov contra las lombrices (ZonaLombrices), la
+# Se avienta con el Lanzador (tecla 3): sal o molotov (de limon o de cereza, que quema 1.5 veces mas lejos) contra las lombrices (ZonaLombrices), la
 # palomita que aturde a los zombis (Arrojadizo.PALOMITA) o la bocina que los jala (Senuelo)
-@export_enum("No", "Sal", "Molotov", "Palomita", "Bocina", "Bocina encintada") var arrojar : int = 0
+@export_enum("No", "Sal", "Molotov", "Palomita", "Bocina", "Bocina encintada", "Molotov de cereza") var arrojar : int = 0
 
 
 # El modelo centrado y escalado a una caja de `tamano` m (los de Sketchfab vienen en

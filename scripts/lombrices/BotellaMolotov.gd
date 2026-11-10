@@ -2,15 +2,17 @@ class_name BotellaMolotov
 extends MeshInstance3D
 
 # La botella de la molotov (JJ, como su foto de referencia): vidrio transparente con una etiqueta
-# vieja de licor y el cuello rojo. En tres etapas (Inventory: tomas, combinas, combinas): VACIA (la
-# que te queda del refresco o la caguama), GASOLINA (con liquido naranja adentro) y MOLOTOV (ademas
-# el trapo metido en la boca, que sale, se dobla y cuelga por un lado). Parada en Y, el origen en
-# el centro de la base. La malla se pone en _init y al cambiar `etapa` (las escenas
-# scenes/botella_vacia.tscn, botella_gasolina.tscn y molotov.tscn la ponen al instanciarse, antes de
-# que InventoryItemData.crear_modelo la mida). Tambien es lo que vuela (Arrojadizo) y lo que traes
+# vieja de licor y el cuello rojo. En tres etapas: VACIA (la que te queda del refresco o la
+# caguama), GASOLINA (la gasolinera la llena: liquido verde de limon o rojo de cereza, `sabor`) y
+# MOLOTOV (ademas el trapo metido en la boca, que sale, se dobla y cuelga por un lado). Parada en Y,
+# el origen en el centro de la base. La malla se pone en _init y al cambiar `etapa` o `sabor` (las
+# escenas scenes/botella_vacia.tscn, botella_gasolina_limon.tscn, molotov_cereza.tscn... los ponen
+# al instanciarse, antes de que InventoryItemData.crear_modelo la mida). Tambien es lo que vuela
+# (Arrojadizo) y lo que traes en la mano (Lanzador).
 # en la mano (Lanzador).
 
 enum { VACIA, GASOLINA, MOLOTOV }
+enum { LIMON, CEREZA }
 
 const RADIO := 0.038
 const LADOS := 12
@@ -27,7 +29,8 @@ const TRAPO := [Vector2(0.0, 0.26), Vector2(0.0, 0.31), Vector2(0.006, 0.333), V
 const TRAPO_ANCHO := 0.03
 const TRAPO_GRUESO := 0.009
 const COLOR_VIDRIO := Color(0.8, 0.95, 0.85, 0.22)
-const COLOR_GASOLINA := Color(1.0, 0.42, 0.0)
+# El liquido de cada sabor (JJ: limon verde, cereza roja); tambien la luz de la gasolinera
+const COLOR_GASOLINA := [Color(0.14, 0.72, 0.0), Color(0.62, 0.0, 0.04)]
 const COLOR_ROJO := Color(0.58, 0.07, 0.05)
 const COLOR_PAPEL := Color(0.9, 0.86, 0.74)
 const COLOR_TRAPO := Color(0.42, 0.4, 0.37)
@@ -39,26 +42,32 @@ const MECHA := Vector3(0.022, 0.343, 0.0)
 
 static var _mallas := {}
 
+@export_enum("Limón", "Cereza") var sabor: int = LIMON:
+	set(valor):
+		sabor = valor
+		mesh = malla(etapa, sabor)
+
 @export_enum("Vacía", "Gasolina", "Molotov") var etapa: int = VACIA:
 	set(valor):
 		etapa = valor
-		mesh = malla(etapa)
+		mesh = malla(etapa, sabor)
 
 
 func _init() -> void:
-	mesh = malla(etapa)
+	mesh = malla(etapa, sabor)
 
 
-static func malla(cual: int) -> ArrayMesh:
-	if _mallas.has(cual):
-		return _mallas[cual]
+static func malla(cual: int, sabor_ := LIMON) -> ArrayMesh:
+	var clave := cual * 2 + sabor_
+	if _mallas.has(clave):
+		return _mallas[clave]
 	var nueva := ArrayMesh.new()
 	if cual >= GASOLINA:
 		var liquido := SurfaceTool.new()
 		liquido.begin(Mesh.PRIMITIVE_TRIANGLES)
 		var r := RADIO * 0.9
 		_torno(liquido, [Vector2(0.0, 0.008), Vector2(r, 0.008), Vector2(r, LLENA), Vector2(0.0, LLENA)])
-		_agregar(nueva, liquido, _material(COLOR_GASOLINA))
+		_agregar(nueva, liquido, _material(COLOR_GASOLINA[sabor_]))
 	# La etiqueta y el cuello rojo, pegados por fuera del vidrio
 	var etiqueta := SurfaceTool.new()
 	etiqueta.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -88,7 +97,7 @@ static func malla(cual: int) -> ArrayMesh:
 	cristal.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	cristal.cull_mode = BaseMaterial3D.CULL_DISABLED
 	_agregar(nueva, vidrio, cristal)
-	_mallas[cual] = nueva
+	_mallas[clave] = nueva
 	return nueva
 
 

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Lowpoly Gas Station
+* source:	https://sketchfab.com/3d-models/lowpoly-gas-station-02a11319cb744999adddd7236a46bf8e
+* author:	AspectStudios (https://sketchfab.com/AspectStudio)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Lowpoly Gas Station" (https://sketchfab.com/3d-models/lowpoly-gas-station-02a11319cb744999adddd7236a46bf8e) by AspectStudios (https://sketchfab.com/AspectStudio) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

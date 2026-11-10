@@ -93,7 +93,7 @@ T zombis solos de noche
 G tablas · L -100 al tinaco (refugio a la derecha)
 , soltar 80 lombrices enfrente (hornea unos segundos)
 Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
-3 sal / molotov (otra vez 3 cambia; botella vacía + gasolina + trapo = molotov)"""},
+3 sal / molotov (otra vez 3 cambia; botella vacía + gasolinera + trapo = molotov)"""},
 	{"titulo": "Efectos y tazos", "efectos": true, "texto": """F2-F7 efectos de pixel (propuestas, abajo)
 F9 efectos nuevos (tambos y chispas: a la derecha)
 O bolsa especial de Takis · Shift+O forzar rareza

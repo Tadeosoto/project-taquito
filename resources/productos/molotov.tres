@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_item")
-item_name = "Molotov"
-description = "Botella con gasolina y un trapo. No es para tomar."
+item_name = "Molotov de limón"
+description = "Botella con gasolina de limón y un trapo. No es para tomar."
 inspection_model = ExtResource("1_modelo")
 efecto = "Tecla 3 y clic: aviéntala. Fuego que quema lombrices enteras y los sacos de la Madre."
 precio = 0

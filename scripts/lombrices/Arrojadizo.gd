@@ -19,6 +19,8 @@ const FUEGO_DURA := 5.0
 const PALOMITA := 4
 const BOCINA := 5
 const BOCINA_AGUA := 6
+const MOLOTOV_CEREZA := 7       # la de gasolina de cereza (JJ): el fuego llega 1.5 veces mas lejos
+const CEREZA_ALCANCE := 1.5     # x FUEGO_RADIO (la de limon, 2, es la de siempre y la de la Madre)
 const ATURDE_RADIO := 7.0       # m: los zombis que alcanza el trueno
 const OYEN_TRUENO := 30.0       # m: los que no aturde pero voltean (Zombie.ruido)
 const TRUENO_TONO := 0.8        # el balazo mas grave, de cohete
@@ -64,13 +66,24 @@ static func lanzar(padre: Node, desde: Vector3, vel: Vector3, tipo_: int, exclui
 	return a
 
 
+# Las dos molotovs: la de limon (2, como `InventoryItemData.arrojar`) y la de cereza
+func es_molotov() -> bool:
+	return tipo == 2 or tipo == MOLOTOV_CEREZA
+
+
+# Lo que quema la molotov de ese `tipo` (m): la de cereza llega CEREZA_ALCANCE veces mas lejos
+static func fuego_radio(tipo_: int) -> float:
+	return FUEGO_RADIO * (CEREZA_ALCANCE if tipo_ == MOLOTOV_CEREZA else 1.0)
+
+
 func _ready() -> void:
 	var malla := MeshInstance3D.new()
 	var material := StandardMaterial3D.new()
-	if tipo == 2:
+	if es_molotov():
 		malla.free()
 		var botella := BotellaMolotov.new()
 		botella.etapa = BotellaMolotov.MOLOTOV
+		botella.sabor = BotellaMolotov.CEREZA if tipo == MOLOTOV_CEREZA else BotellaMolotov.LIMON
 		botella.position.y = -0.15
 		add_child(botella)
 		# El trapo prendido (JJ): el fuego de pixel de los tambos, en chiquito, en la punta del trapo
@@ -194,8 +207,8 @@ func _mover_escupitajo(desde: Vector3) -> void:
 
 func _reventar(donde: Vector3) -> void:
 	var padre := get_parent()
-	if tipo == 2:
-		ZonaLombrices.crear(padre, donde, ZonaLombrices.Tipo.FUEGO, FUEGO_RADIO, FUEGO_DURA)
+	if es_molotov():
+		ZonaLombrices.crear(padre, donde, ZonaLombrices.Tipo.FUEGO, fuego_radio(tipo), FUEGO_DURA)
 		Sonidos.tocar(self, "whack", -6.0, 0.6)
 	elif tipo == 3:
 		pass
@@ -216,8 +229,8 @@ func _reventar(donde: Vector3) -> void:
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos and efectos.has_method("lanzar"):
 		match tipo:
-			2:
-				efectos.lanzar("molotov_revienta", donde)
+			2, MOLOTOV_CEREZA:
+				efectos.lanzar("molotov_revienta", donde, Vector3.ZERO, fuego_radio(tipo) / FUEGO_RADIO)
 			3:
 				efectos.lanzar("lodo_choque", donde)
 				Sonidos.tocar(self, "squelch", -8.0, 0.7)

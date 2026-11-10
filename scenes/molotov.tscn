@@ -5,3 +5,4 @@
 [node name="BotellaMolotov" type="MeshInstance3D"]
 script = ExtResource("1_script")
 etapa = 2
+sabor = 0

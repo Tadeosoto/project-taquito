@@ -5,9 +5,8 @@ extends Node
 signal inventory_changed
 
 # Lo que se puede hacer con "Combinar" (docs/especificaciones.md 4.5)
-const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres"), preload("res://resources/recetas/botella_gasolina.tres"),
-	preload("res://resources/recetas/molotov.tres"),
-	preload("res://resources/recetas/bocina_encintada.tres")]
+const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres"), preload("res://resources/recetas/molotov.tres"),
+	preload("res://resources/recetas/molotov_cereza.tres"), preload("res://resources/recetas/bocina_encintada.tres")]
 
 # Cuantos objetos caben sin mochila (docs/especificaciones.md 4.4)
 const CAPACIDAD_BASE := 6
@@ -155,6 +154,16 @@ func add_item(item: InventoryItemData) -> bool:
 	if item == null or esta_lleno():
 		return false
 	items.append(item)
+	inventory_changed.emit()
+	return true
+
+
+# Cambia el de `index` por `nuevo` en su lugar (la gasolinera llena la botella vacia: no ocupa otro
+# lugar); regresa false si no hay nada ahi
+func cambiar(index: int, nuevo: InventoryItemData) -> bool:
+	if nuevo == null or index < 0 or index >= items.size():
+		return false
+	items[index] = nuevo
 	inventory_changed.emit()
 	return true
 

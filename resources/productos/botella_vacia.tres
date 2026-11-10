@@ -8,4 +8,4 @@ script = ExtResource("2_item")
 item_name = "Botella vacía"
 description = "Ya no le queda ni una gota."
 inspection_model = ExtResource("1_modelo")
-efecto = "Combínala con gasolina."
+efecto = "En la gasolinera te la llenan."

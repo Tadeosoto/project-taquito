@@ -138,6 +138,59 @@ const VENDEDOR_DIALOGO := {
 	"tejuino": "¿Un tejuino bien frío? (Menú: próximamente)",
 }
 const MARCADOR_ALFA := 0.6
+# La gasolinera (Lowpoly Gas Station, AspectStudios; en models/tiendas/gasolinera). En vez de una caja
+# de todo el modelo (que no te dejaba pasar a las bombas) solo son solidas estas cajas, medidas en
+# el espacio del modelo (m, antes de girarlo y escalarlo: su +X da a la calle, +Y arriba): la isla
+# de las bombas (un escalon de 50 cm), cada bomba con sus postes, la columna del techo, la tienda y
+# las cajas de carton junto a su puerta
+const GASOLINERA_SOLIDOS := [
+	AABB(Vector3(6.72, 0.0, -5.87), Vector3(2.0, 0.5, 12.46)),
+	AABB(Vector3(6.9, 0.0, -4.95), Vector3(1.7, 4.5, 2.55)),
+	AABB(Vector3(6.9, 0.0, 3.05), Vector3(1.7, 4.5, 2.6)),
+	AABB(Vector3(6.9, 0.0, -0.7), Vector3(1.2, 9.0, 1.4)),
+	AABB(Vector3(-11.97, 0.0, -8.33), Vector3(12.17, 5.4, 17.38)),
+	AABB(Vector3(-2.73, 0.0, 8.91), Vector3(2.52, 1.0, 2.41)),
+]
+# El suelo del modelo es su y = 0 (la tienda trae su cimiento 20 cm mas abajo y el prefab se apoya
+# en lo mas bajo, lo que dejaba las bombas flotando)
+const GASOLINERA_SUELO_Y := 0.0
+# Donde van las dos flechas, tambien en el espacio del modelo: la del despachador, de frente a las
+# bombas (en el hueco de la isla entre la bomba de la derecha y la columna, parado sobre la isla), y
+# la de la tienda, frente a sus puertas dobles. La del despachador entra a
+# scenes/interiores/gasolinera.tscn; la de la tienda a la de siempre (giro "oxxo")
+const GASOLINERA_DESPACHADOR := Vector3(7.75, 0.5, -1.55)
+const GASOLINERA_FLECHA := Vector3(10.4, 0.0, -1.55)
+const GASOLINERA_PUERTA_TIENDA := Vector3(1.8, 0.0, 0.47)
+const GASOLINERA_TIENDA_GIRO := "oxxo"
+# Barras rojas -> verdes y pistola azul -> roja (JJ, 2026-11-10): el modelo pinta todo con una
+# paleta de colores planos que tambien trae la mercancia de adentro de la tienda, asi que la paleta
+# pintada (Palette_verde.png) solo va en las mallas de afuera: el techo y las bombas, y la tienda
+const GASOLINERA_PINTADAS := ["Gas_Pumps_Palette_0", "Store_Palette_0"]
+const GASOLINERA_PALETA := preload("res://models/tiendas/gasolinera/textures/Palette_verde.png")
+# Texturas (JJ: que no parezca caricatura): todas las mallas que usan la paleta pasan por
+# shaders/ps1_gasolinera.gdshader, que convierte cada color en aplanado, concreto, pintura de
+# fierro o vidrio sucio con las texturas de textures/map/gasolinera_*.png
+const GASOLINERA_SHADER := preload("res://shaders/ps1_gasolinera.gdshader")
+const GASOLINERA_CONCRETO := preload("res://textures/map/gasolinera_concreto.png")
+const GASOLINERA_APLANADO := preload("res://textures/map/gasolinera_aplanado.png")
+const GASOLINERA_METAL := preload("res://textures/map/gasolinera_metal.png")
+const GASOLINERA_BANQUETA := preload("res://textures/map/banqueta.png")
+# De que material es cada pieza (JJ): la tienda es de concreto, la isla (y la base del cartel) de
+# concreto de banqueta, y el techo, la columna del techo y el poste del cartel de metal. El modelo
+# las pinta igual de blanco y las funde en pocas mallas, asi que cada triangulo recibe su clase
+# en el color de vertice (el rojo; 1.0 = sin clase) segun donde cae, en el espacio del modelo
+const GASOLINERA_CLASE_PARED := 0.2
+const GASOLINERA_CLASE_BANQUETA := 0.4
+const GASOLINERA_CLASE_METAL := 0.6
+const GASOLINERA_SIN_CLASE := 1.0
+const GASOLINERA_CLASIFICADAS := ["Gas_Pumps_Palette_0", "Store_Palette_0", "Sign_Palette_0"]
+# Gas_Pumps: del techo hacia arriba; la isla (un escalon de 50 cm) y la columna del techo
+const GASOLINERA_TECHO_Y := 8.0
+const GASOLINERA_ISLA_Y := 0.52
+const GASOLINERA_COLUMNA := AABB(Vector3(6.85, 0.0, -0.75), Vector3(1.3, 9.0, 1.5))
+# Sign: la base de concreto del cartel (35 cm) y lo demas (poste y tablero) metal
+const GASOLINERA_BASE_CARTEL_Y := 0.4
+static var _clasificadas := {}   # malla original de la gasolinera -> copia con la clase en el color de vertice
 
 # `marcador`: el Area3D de la flecha (su +Z apunta a la calle), para volver a ponerte
 # ahi; en los puestos al aire libre trae de hijo al `Vendedor` que atiende
@@ -194,6 +247,7 @@ var _nodes := {}           # indice en _puntos -> Node3D
 var _por_crear := []       # indices en _puntos que faltan armar, el mas cercano primero
 var _box_materials := {}   # tipo -> ShaderMaterial de las cajas
 var _sucios := {}          # material de un prefab -> copia con deterioro
+var _pintados := {}        # "pintada" u "original" -> material de la gasolinera con sus texturas
 var _target: Node3D
 var _timer := 0.0
 var _timer_interiores := 0.0
@@ -382,17 +436,20 @@ func _make_punto(punto: Dictionary) -> Node3D:
 	else:
 		node = _make_placeholder(punto)
 	if punto.get("interactivo", false) and not Engine.is_editor_hint():
-		node.add_child(_marcador(punto))
+		if tipo == "gasolinera" and node.has_meta("surtidor"):
+			_marcadores_gasolinera(node, punto)
+		else:
+			node.add_child(_marcador(punto))
 	return node
 
 
 # Flecha amarilla semitransparente que gira y flota frente a la puerta (solo se ve de
 # cerca), y un Area3D que avisa al pisarla
-func _marcador(punto: Dictionary) -> Node3D:
+func _marcador(punto: Dictionary, lugar := Vector3.INF) -> Node3D:
 	var area := Area3D.new()
 	area.name = "Marcador"
 	# `puerta_x`: el local armado dice donde esta su puerta (la ventanilla de la purificadora)
-	area.position = Vector3(punto.get("puerta_x", prefab_puerta.get(punto["tipo"], 0.0)), 0.0, punto["fondo"] / 2.0 + MARCADOR_FRENTE)
+	area.position = lugar if lugar != Vector3.INF else Vector3(punto.get("puerta_x", prefab_puerta.get(punto["tipo"], 0.0)), 0.0, punto["fondo"] / 2.0 + MARCADOR_FRENTE)
 	area.monitorable = false
 	var shape := CollisionShape3D.new()
 	var cilindro := CylinderShape3D.new()
@@ -539,9 +596,11 @@ func _traquetear() -> void:
 
 
 func _mostrar_flecha(node: Node3D) -> void:
-	var la_flecha := node.get_node_or_null("Marcador/Flecha") as Node3D
-	if la_flecha:
-		la_flecha.visible = _cierre <= 0.0
+	# La gasolinera tiene otra flecha, la de su tienda
+	for ruta in ["Marcador/Flecha", "MarcadorTienda/Flecha"]:
+		var la_flecha := node.get_node_or_null(ruta) as Node3D
+		if la_flecha:
+			la_flecha.visible = _cierre <= 0.0
 
 
 # El civil que atiende el negocio (Civiles.gd): siempre el mismo para el mismo negocio, el
@@ -552,10 +611,12 @@ static func civil(punto: Dictionary) -> String:
 
 # Viendo a la calle (+Z del marcador; el npc ve a su -Z), sin su area de platica: se le
 # habla pisando la flecha, no con el boton de saltar
-func _vendedor(punto: Dictionary) -> Node3D:
+func _vendedor(punto: Dictionary, atras := -1.0) -> Node3D:
 	var vendedor := vendedor_escena.instantiate() as Node3D
 	vendedor.name = "Vendedor"
-	vendedor.position = Vector3(0.0, 0.0, -punto.get("vendedor_atras", vendedor_atras.get(punto["tipo"], 1.5)))
+	if atras < 0.0:
+		atras = punto.get("vendedor_atras", vendedor_atras.get(punto["tipo"], 1.5))
+	vendedor.position = Vector3(0.0, 0.0, -atras)
 	vendedor.rotation.y = PI
 	vendedor.set("dialogue", VENDEDOR_DIALOGO.get(punto.get("giro", ""), ""))
 	vendedor.set("modelo", civil(punto))
@@ -623,7 +684,116 @@ func _instanciar(tipo: String) -> Node3D:
 		if nodo:
 			nodo.get_parent().remove_child(nodo)
 			nodo.free()
+	if tipo == "gasolinera":
+		_pintar_gasolinera(model)
 	return model
+
+
+# Le pone su shader a las mallas de la gasolinera que usan la paleta (los letreros y los cartelitos
+# traen su propia textura y se quedan): con la paleta pintada las de afuera (GASOLINERA_PINTADAS) y
+# con la original las demas. Un material por paleta, compartido entre todas las gasolineras (no se
+# hacen materiales por tienda)
+func _pintar_gasolinera(model: Node3D) -> void:
+	_texturar_gasolinera(model)
+
+
+func _texturar_gasolinera(nodo: Node, raiz: Node3D = null) -> void:
+	if raiz == null:
+		raiz = nodo as Node3D
+	var malla := nodo as MeshInstance3D
+	if malla and malla.mesh:
+		if malla.name in GASOLINERA_CLASIFICADAS:
+			_clasificar_gasolinera(malla, raiz)
+		for superficie in malla.mesh.get_surface_count():
+			var material := malla.get_active_material(superficie) as ShaderMaterial
+			if material == null:
+				continue
+			var paleta := material.get_shader_parameter("albedo_texture") as Texture2D
+			if paleta == null or not paleta.resource_path.contains("Palette"):
+				continue
+			var pintada: bool = malla.name in GASOLINERA_PINTADAS
+			var clave := "pintada" if pintada else "original"
+			if not _pintados.has(clave):
+				var nuevo := ShaderMaterial.new()
+				nuevo.shader = GASOLINERA_SHADER
+				nuevo.set_shader_parameter("albedo_texture", GASOLINERA_PALETA if pintada else paleta)
+				nuevo.set_shader_parameter("concreto", GASOLINERA_CONCRETO)
+				nuevo.set_shader_parameter("aplanado", GASOLINERA_APLANADO)
+				nuevo.set_shader_parameter("metal", GASOLINERA_METAL)
+				nuevo.set_shader_parameter("banqueta", GASOLINERA_BANQUETA)
+				nuevo.set_shader_parameter("affine_enabled", false)
+				_pintados[clave] = nuevo
+			malla.set_surface_override_material(superficie, _pintados[clave])
+	for hijo in nodo.get_children():
+		_texturar_gasolinera(hijo, raiz)
+
+
+# La clase de material de un triangulo de la gasolinera, por donde cae su centro `p` (espacio del
+# modelo, m): GASOLINERA_CLASE_*, o GASOLINERA_SIN_CLASE
+static func _clase_gasolinera(malla: String, p: Vector3) -> float:
+	match malla:
+		"Store_Palette_0":
+			return GASOLINERA_CLASE_PARED
+		"Sign_Palette_0":
+			return GASOLINERA_CLASE_BANQUETA if p.y < GASOLINERA_BASE_CARTEL_Y else GASOLINERA_CLASE_METAL
+		"Gas_Pumps_Palette_0":
+			if p.y > GASOLINERA_TECHO_Y or GASOLINERA_COLUMNA.has_point(p) and p.y > GASOLINERA_ISLA_Y:
+				return GASOLINERA_CLASE_METAL
+			if p.y <= GASOLINERA_ISLA_Y:
+				return GASOLINERA_CLASE_BANQUETA
+	return GASOLINERA_SIN_CLASE
+
+
+# Le pone a la malla una copia con un color de vertice por clase de material. Sin indices: cada
+# triangulo con sus vertices, para que la clase no se mezcle de una pieza a otra (la columna sale
+# de la isla en los mismos vertices). La copia se hace una vez y se comparte entre las gasolineras
+func _clasificar_gasolinera(malla: MeshInstance3D, raiz: Node3D) -> void:
+	var original := malla.mesh
+	if not _clasificadas.has(original):
+		# De la malla al modelo (sin la transformacion de su raiz, que es la del prefab)
+		var xform := Transform3D()
+		var n: Node = malla
+		while n != raiz and n != null:
+			if n is Node3D:
+				xform = (n as Node3D).transform * xform
+			n = n.get_parent()
+		var nueva := ArrayMesh.new()
+		for superficie in original.get_surface_count():
+			var arrays := original.surface_get_arrays(superficie)
+			var vs: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			var normales: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+			var uvs: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
+			var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX] if arrays[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+			if indices.is_empty():
+				for i in vs.size():
+					indices.append(i)
+			var sv := PackedVector3Array()
+			var sn := PackedVector3Array()
+			var su := PackedVector2Array()
+			var sc := PackedColorArray()
+			for t in range(0, indices.size() - 2, 3):
+				var centro := xform * ((vs[indices[t]] + vs[indices[t + 1]] + vs[indices[t + 2]]) / 3.0)
+				var clase := _clase_gasolinera(malla.name, centro)
+				for k in 3:
+					var i := indices[t + k]
+					sv.append(vs[i])
+					if not normales.is_empty():
+						sn.append(normales[i])
+					if not uvs.is_empty():
+						su.append(uvs[i])
+					sc.append(Color(clase, 0.0, 0.0, 1.0))
+			var nuevos := []
+			nuevos.resize(Mesh.ARRAY_MAX)
+			nuevos[Mesh.ARRAY_VERTEX] = sv
+			if not sn.is_empty():
+				nuevos[Mesh.ARRAY_NORMAL] = sn
+			if not su.is_empty():
+				nuevos[Mesh.ARRAY_TEX_UV] = su
+			nuevos[Mesh.ARRAY_COLOR] = sc
+			nueva.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, nuevos)
+			nueva.surface_set_material(nueva.get_surface_count() - 1, original.surface_get_material(superficie))
+		_clasificadas[original] = nueva
+	malla.mesh = _clasificadas[original]
 
 
 # El modelo se gira prefab_rotacion[tipo] grados (para que su fachada vea a +Z),
@@ -645,6 +815,8 @@ func _make_prefab(punto: Dictionary) -> Node3D:
 		var front: float = punto["fondo"] / 2.0
 		model.scale *= fit
 		model.position = Vector3(-aabb.get_center().x * fit, -aabb.position.y * fit, front - aabb.end.z * fit)
+		if tipo == "gasolinera":
+			model.position.y = GASOLINERA_SUELO_Y
 		for nombre in prefab_mover.get(tipo, {}):
 			var nodo := model.find_child(nombre, true, false) as Node3D
 			if nodo:
@@ -658,16 +830,62 @@ func _make_prefab(punto: Dictionary) -> Node3D:
 				nodo.position += xform.basis.inverse() * Vector3(prefab_mover[tipo][nombre])
 		_set_far_mesh_options(model)
 
-		# Colision de caja del tamano del modelo (las mallas de Sketchfab no traen)
+		# Colision de caja del tamano del modelo (las mallas de Sketchfab no traen); la gasolinera
+		# solo en sus partes solidas, para poder caminar entre las bombas
 		var body := StaticBody3D.new()
-		var shape := CollisionShape3D.new()
-		var box_shape := BoxShape3D.new()
-		box_shape.size = aabb.size * fit
-		shape.shape = box_shape
-		shape.position = Vector3(0.0, box_shape.size.y / 2.0, front - box_shape.size.z / 2.0)
-		body.add_child(shape)
+		if tipo == "gasolinera":
+			_solidos_gasolinera(body, holder, model)
+		else:
+			var shape := CollisionShape3D.new()
+			var box_shape := BoxShape3D.new()
+			box_shape.size = aabb.size * fit
+			shape.shape = box_shape
+			shape.position = Vector3(0.0, box_shape.size.y / 2.0, front - box_shape.size.z / 2.0)
+			body.add_child(shape)
 		holder.add_child(body)
 	return holder
+
+
+func _caja_solida(body: StaticBody3D, caja: AABB) -> void:
+	if caja.size.x <= 0.01:
+		return
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	# Del piso hacia arriba
+	box.size = Vector3(caja.size.x, caja.end.y, caja.size.z)
+	shape.shape = box
+	shape.position = Vector3(caja.get_center().x, caja.end.y / 2.0, caja.get_center().z)
+	body.add_child(shape)
+
+
+# Lo solido de la gasolinera (GASOLINERA_SOLIDOS, del espacio del modelo al del holder) y las metas
+# del nodo para _marcadores_gasolinera: la flecha del despachador, donde se para y la de la tienda
+func _solidos_gasolinera(body: StaticBody3D, holder: Node3D, modelo: Node3D) -> void:
+	for caja: AABB in GASOLINERA_SOLIDOS:
+		_caja_solida(body, modelo.transform * caja)
+	holder.set_meta("surtidor", modelo.transform * GASOLINERA_FLECHA)
+	holder.set_meta("despachador", modelo.transform * GASOLINERA_DESPACHADOR)
+	holder.set_meta("puerta_tienda", modelo.transform * GASOLINERA_PUERTA_TIENDA)
+
+
+# Las dos flechas de la gasolinera: la del surtidor, con su despachador al lado (un civil al
+# azar, el mismo que lo atiende adentro), que entra a su escena; y la de la tienda
+func _marcadores_gasolinera(node: Node3D, punto: Dictionary) -> void:
+	var surtidor: Vector3 = node.get_meta("surtidor")
+	var despacha := _marcador(punto, surtidor)
+	despacha.name = "Marcador"
+	if vendedor_escena:
+		# Parado junto a la bomba: de la flecha, hacia atras (-Z) hasta la cara del surtidor
+		var vendedor := _vendedor(punto, surtidor.z - (node.get_meta("despachador") as Vector3).z)
+		vendedor.position.y = (node.get_meta("despachador") as Vector3).y
+		despacha.add_child(vendedor)
+	node.add_child(despacha)
+	if node.has_meta("puerta_tienda"):
+		var tienda_punto := punto.duplicate()
+		tienda_punto["giro"] = GASOLINERA_TIENDA_GIRO
+		var tienda := _marcador(tienda_punto, node.get_meta("puerta_tienda"))
+		tienda.name = "MarcadorTienda"
+		node.add_child(tienda)
 
 
 # Los modelos animados (el Simi del kiosco de Similares) bailan en loop
