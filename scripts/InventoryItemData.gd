@@ -21,6 +21,10 @@ extends Resource
 # Vida que recupera con "Utilizar" en el inventario; 0 = no se puede utilizar
 @export var curacion : int = 0
 
+# Lo que te queda en la mano al usarlo (Inventory.usar_curacion): el refresco y la caguama dejan la
+# botella vacia, que con gasolina y un trapo es molotov. Con esto se puede utilizar aunque no cure
+@export var deja : InventoryItemData
+
 # Si es arma: lo que le quita a un zombi de un golpe (Player._golpear). 0 = no es arma
 @export var dano : int = 0
 

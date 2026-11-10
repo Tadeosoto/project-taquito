@@ -5,7 +5,8 @@ extends Node
 signal inventory_changed
 
 # Lo que se puede hacer con "Combinar" (docs/especificaciones.md 4.5)
-const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres"), preload("res://resources/recetas/molotov.tres"),
+const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres"), preload("res://resources/recetas/botella_gasolina.tres"),
+	preload("res://resources/recetas/molotov.tres"),
 	preload("res://resources/recetas/bocina_encintada.tres")]
 
 # Cuantos objetos caben sin mochila (docs/especificaciones.md 4.4)
@@ -100,7 +101,7 @@ func curaciones() -> int:
 	return cuantas
 
 
-# Se come el de `index` y regresa cuanta vida subio. Buen diente (Habilidades.gd) hace que
+# Se come el de `index` y regresa cuanta vida subio; si deja algo (la botella vacia) queda en su lugar. Buen diente (Habilidades.gd) hace que
 # la comida cure mas. Lo usan Utilizar (InventoryUI) y la tecla Q
 # Para pruebas (la arena del carcamo, JJ): curarse no gasta la cura
 static var curas_infinitas := false
@@ -108,14 +109,18 @@ static var curas_infinitas := false
 
 func usar_curacion(index: int) -> int:
 	var item := get_item(index)
-	if item == null or item.curacion <= 0:
+	if item == null or (item.curacion <= 0 and item.deja == null):
 		return 0
 	var salud := get_node("/root/Salud")
 	var tazos := get_node_or_null("/root/Tazos")
 	var antes: int = salud.vida
 	salud.vida += roundi(item.curacion * (tazos.factor_curacion() if tazos else 1.0))
 	if not curas_infinitas:
-		remove_item(index)
+		if item.deja:
+			items[index] = item.deja
+			inventory_changed.emit()
+		else:
+			remove_item(index)
 	return salud.vida - antes
 
 

@@ -25,6 +25,9 @@ const TRUENO_TONO := 0.8        # el balazo mas grave, de cohete
 const ZUMBIDO_CERCA := -6.0     # dB del zumbido si truena junto a ti...
 const ZUMBIDO_LEJOS := -16.0    # ...y a OYEN_TRUENO m
 const DESTELLO_DURA := 0.15
+# La molotov en el aire: el tamaño del fuego del trapo y la luz que echa
+const TRAPO_FUEGO := 0.06
+const MECHA_LUZ := 1.4
 const CEBADA_QUEDA := 2.5       # s que se queda tirada la cebada
 const TEXTO_SUBE := 0.8         # m que sube el letrero en TEXTO_DURA
 const TEXTO_DURA := 2.5
@@ -48,6 +51,7 @@ var _excluir: Array[RID] = []
 var _gota: MeshInstance3D
 var _cola: Array[MeshInstance3D] = []
 var _rastro := PackedVector3Array()
+var _mecha: OmniLight3D   # la luz del trapo prendido de la molotov, que titila
 
 
 static func lanzar(padre: Node, desde: Vector3, vel: Vector3, tipo_: int, excluir: Array[RID]) -> Arrojadizo:
@@ -64,20 +68,23 @@ func _ready() -> void:
 	var malla := MeshInstance3D.new()
 	var material := StandardMaterial3D.new()
 	if tipo == 2:
-		var botella := CylinderMesh.new()
-		botella.top_radius = 0.03
-		botella.bottom_radius = 0.06
-		botella.height = 0.28
-		botella.radial_segments = 6
-		malla.mesh = botella
-		material.albedo_color = Color(0.25, 0.4, 0.15)
-		# La mecha prendida
-		var mecha := OmniLight3D.new()
-		mecha.light_color = Color(1.0, 0.6, 0.2)
-		mecha.light_energy = 1.2
-		mecha.omni_range = 2.0
-		mecha.position.y = 0.18
-		add_child(mecha)
+		malla.free()
+		var botella := BotellaMolotov.new()
+		botella.etapa = BotellaMolotov.MOLOTOV
+		botella.position.y = -0.15
+		add_child(botella)
+		# El trapo prendido (JJ): el fuego de pixel de los tambos, en chiquito, en la punta del trapo
+		var fuego := EfectosPixel.cuadro_bucle("fuego_tambo", TRAPO_FUEGO)
+		if fuego:
+			fuego.position = BotellaMolotov.MECHA
+			botella.add_child(fuego)
+		_mecha = OmniLight3D.new()
+		_mecha.light_color = Color(1.0, 0.6, 0.2)
+		_mecha.light_energy = MECHA_LUZ
+		_mecha.omni_range = 2.5
+		_mecha.position = botella.position + BotellaMolotov.MECHA
+		add_child(_mecha)
+		return
 	elif tipo == 3:
 		malla.free()
 		_armar_escupitajo()
@@ -119,6 +126,8 @@ func _physics_process(delta: float) -> void:
 		_mover_escupitajo(desde)
 	else:
 		rotation += Vector3(7.0, 3.0, 0.0) * delta
+	if _mecha:
+		_mecha.light_energy = MECHA_LUZ * randf_range(0.7, 1.15)
 	if pego:
 		if tipo == 3 and pego.collider and pego.collider.is_in_group("jugador") and pego.collider.has_method("recibir_dano"):
 			pego.collider.recibir_dano(dano, desde, 0.6)

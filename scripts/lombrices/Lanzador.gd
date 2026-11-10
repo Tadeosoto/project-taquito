@@ -265,6 +265,8 @@ func _radio_area() -> float:
 # Lo que se ve en la mano: la palomita y las bocinas (la sal y la molotov no se ven)
 func _modelo_en_mano(cual: int) -> GDScript:
 	match cual:
+		2:
+			return BotellaMolotov
 		3:
 			return Palomita
 		4:
@@ -274,7 +276,7 @@ func _modelo_en_mano(cual: int) -> GDScript:
 	return null
 
 
-# La palomita o la bocina en la mano derecha mientras la traes y te queda alguna. El Player borra
+# La molotov, la palomita o la bocina en la mano derecha mientras la traes y te queda alguna. El Player borra
 # lo que cuelga de la mano cuando cambia el arma (_mostrar_arma), asi que se vuelve a crear si hace
 # falta, y al cambiar de cosa
 func _poner_en_mano(ver: bool) -> void:
@@ -289,6 +291,8 @@ func _poner_en_mano(ver: bool) -> void:
 			_en_mano.queue_free()
 		_en_mano = modelo.new()
 		_en_mano_tipo = tipo
+		if _en_mano is BotellaMolotov:
+			_en_mano.etapa = BotellaMolotov.MOLOTOV
 		if _en_mano is GeometryInstance3D:
 			(_en_mano as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		mano.add_child(_en_mano)

@@ -2,11 +2,13 @@
 
 [ext_resource type="PackedScene" path="res://models/objetos/jarritos/jarritos.scn" id="1_modelo"]
 [ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+[ext_resource type="Resource" path="res://resources/productos/botella_vacia.tres" id="9_deja"]
 
 [resource]
 script = ExtResource("2_item")
 item_name = "Jarritos"
 description = "De tamarindo, medio tibio."
 inspection_model = ExtResource("1_modelo")
-efecto = "Recupera estamina."
+efecto = "Recupera estamina. Te queda la botella."
 precio = 20
+deja = ExtResource("9_deja")

@@ -386,7 +386,7 @@ func _comandos_visibles() -> Array[int]:
 		return lista
 	if is_instance_valid(current_model):
 		lista.append(Comando.EXAMINAR)
-	if item.curacion > 0 or item.bolsa_tazo:
+	if item.curacion > 0 or item.bolsa_tazo or item.deja:
 		lista.append(Comando.UTILIZAR)
 	if inventory.get_item_count() > 1:
 		lista.append(Comando.COMBINAR)
@@ -424,7 +424,8 @@ func _utilizar() -> void:
 	if item.bolsa_tazo:
 		_abrir_bolsa()
 		return
-	if Salud.llena():
+	# Lo que deja botella se puede tomar con la vida llena (para sacar la botella)
+	if Salud.llena() and item.deja == null:
 		_sonar("ui_error")
 		_mostrar_mensaje("No lo necesitas ahorita.")
 		return
@@ -434,7 +435,10 @@ func _utilizar() -> void:
 	var jugador := get_tree().get_first_node_in_group("jugador")
 	if jugador and jugador.has_method("beber"):
 		jugador.beber()
-	_mostrar_mensaje("%s: +%d de vida." % [item.item_name, subio])
+	var mensaje := "%s: +%d de vida." % [item.item_name, subio] if item.curacion > 0 else "Te tomaste el %s." % item.item_name
+	if item.deja:
+		mensaje += " Te queda: %s." % item.deja.item_name.to_lower()
+	_mostrar_mensaje(mensaje)
 
 # Una bolsa especial de Takis: se gasta, sale un tazo (Tazos.abrir_bolsa) y su show encima
 # del inventario (TazoRevelacion). Al cerrarlo regresas a la lista
