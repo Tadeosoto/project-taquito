@@ -396,6 +396,7 @@ var _buffer_dir := Vector2.ZERO   # las teclas de direccion al pedir la rodada
 var _invulnerable := 0.0
 var _curando := 0.0
 var _aturdido := 0.0           # s que quedan aturdido: te tronó la palomita en la mano (aturdirte)
+var sin_combate := false       # la casa propia (CasaPropia.gd): sin armas, rodadas ni curarse, y nada te hace daño
 var _aventando := -1.0          # s del punado de sal; -1 = no
 var _avienta_dir := Vector3.FORWARD
 var _avienta_solto := false
@@ -940,6 +941,9 @@ func _rodar(teclas: Vector2) -> void:
 # --- Buffer de acciones ---
 
 func _pedir_accion(accion: String) -> void:
+	# Sin pelea (la casa propia) solo se puede brincar
+	if sin_combate and accion != "brinco":
+		return
 	if accion == "rodar":
 		_buffer_dir = _teclas_mover()
 	if _puede(accion):
@@ -1237,7 +1241,7 @@ class RelojCongelada extends Node:
 # Un golpe de zombi (Zombie.gd), con todo lo que se siente: congelada, flash, sacudida,
 # empujon y sangre hacia donde iba el golpe; Supervivencia.gd hace el cuadro de impacto
 func recibir_dano(dano: int, desde: Vector3, empuja := 1.0) -> void:
-	if _invulnerable > 0.0 or esquivando():
+	if sin_combate or _invulnerable > 0.0 or esquivando():
 		return
 	if _bloqueando:
 		var hacia_mi := global_position - desde
@@ -1327,7 +1331,7 @@ func _parar_golpe(dano: int, hacia: Vector3, empuja: float) -> void:
 func _revisar_bloqueo(delta: float) -> void:
 	_agachado = maxf(_agachado - delta, 0.0)
 	var quiere: bool = Input.is_action_pressed("bloquear") and not _pistola.activa and not _ocupado() \
-			and not _barriendo() and is_on_floor()
+			and not _barriendo() and is_on_floor() and not sin_combate
 	if quiere == _bloqueando:
 		return
 	_bloqueando = quiere
@@ -1389,7 +1393,7 @@ func soltar_carga() -> void:
 
 # La tecla de curarse: lo que mejor llene la vida que falta (Inventory.mejor_curacion)
 func _curarse() -> void:
-	if _curando > 0.0:
+	if _curando > 0.0 or sin_combate:
 		return
 	var inventario := get_node_or_null("/root/Inventory")
 	var salud := get_node_or_null("/root/Salud")
@@ -1666,6 +1670,8 @@ func _mostrar_arma() -> void:
 	elif _a_punos() or (_lanzador and _lanzador.activo):
 		# Con la sal o la molotov en la mano no se ve el machete
 		arma = null
+	if sin_combate:
+		arma = null
 	if arma == _arma_visible:
 		return
 	_arma_visible = arma
@@ -1732,7 +1738,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif _aturdido > 0.0:
 		# Aturdido solo puedes voltear la camara
 		pass
-	elif event.is_action_pressed("cambiar_arma") and is_physics_processing():
+	elif event.is_action_pressed("cambiar_arma") and is_physics_processing() and not sin_combate:
 		_lanzador.soltar()
 		_pistola.cambiar()
 		_soltar_combo()
@@ -1898,9 +1904,21 @@ func _en_safehouse() -> bool:
 	return escena != null and escena.scene_file_path.ends_with("safehouse.tscn")
 
 
+# La casa propia (CasaPropia.gd) no es lugar de pelea: al entrar se guardan las armas y quedas
+# sin ellas, sin rodar, sin curarte y sin que nada te lastime; al salir todo vuelve
+func poner_sin_combate(valor: bool) -> void:
+	if valor:
+		cambiar_arma(0)
+		_soltar_combo()
+	sin_combate = valor
+	_mostrar_arma()
+
+
 # 0 = el arma de golpe (machete o puño), 1 = la pistola, 2 = lo que se avienta (Lanzador:
 # sal, molotov); 3-4 aun no hay nada
 func cambiar_arma(indice: int) -> void:
+	if sin_combate:
+		return
 	if indice == 2:
 		if _pistola.activa:
 			_pistola.cambiar()

@@ -5,8 +5,10 @@ extends Node
 # primera persona) la casa se camina de verdad con el jugador. Se crea ALTURA m arriba de la
 # flecha, como los interiores, para no estorbar en el patio, y se sale pisando la flecha de
 # adentro, junto a la puerta.
-# Mientras estas adentro los zombis dejan de aparecer (Zombis.espontaneos) y los que habia se
-# quitan solos, por lejanos (Zombis._quitar_lejanos).
+# La casa es el lugar donde despiertas al desmayarte: no es de pelea. Adentro no hay enemigos
+# (Zombis.espontaneos apagado; los que habia se quitan solos, por lejanos, en
+# Zombis._quitar_lejanos) y el jugador queda sin armas, sin rodar, sin curarse y sin que nada
+# lo lastime ni lo desmaye (Player.poner_sin_combate). Solo se camina, se salta y se sale.
 
 const ALTURA := 500.0
 const FUNDIDO := 0.35
@@ -108,6 +110,7 @@ func _entrar() -> void:
 	add_child(_casa)
 	_casa.add_child(_marcador(PUERTA, 0.0, _salir))
 	_poner_jugador(_casa.global_position + ADENTRO, -PI / 2.0)
+	_player.poner_sin_combate(true)
 	if _zombis:
 		_espontaneos = _zombis.espontaneos
 		_zombis.espontaneos = false
@@ -137,6 +140,7 @@ func _salir() -> void:
 func _limpiar() -> void:
 	_casa.queue_free()
 	_casa = null
+	_player.poner_sin_combate(false)
 	if _zombis:
 		_zombis.espontaneos = _espontaneos
 	_afuera(true)
