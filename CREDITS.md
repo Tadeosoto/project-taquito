@@ -107,6 +107,7 @@
 ## Animaciones (`models/animaciones/`, CC0)
 - [Universal Animation Library (Standard) de Quaternius](https://opengameart.org/content/universal-animation-library), licencia CC0 (`models/animaciones/quaternius_ual1/`).
 - [Universal Animation Library 2 (Standard) de Quaternius](https://opengameart.org/content/universal-animation-library-2), licencia CC0 (`models/animaciones/quaternius_ual2/`).
+- Universal Animation Library (Source) de Quaternius, licencia CC0 (`models/animaciones/quaternius_ual1_source/`; de aqui sale `Drink`).
 - Universal Animation Library 2 (Source) de Quaternius, licencia CC0 (`models/animaciones/quaternius_ual2_source/`; de aqui sale `Sword_Heavy_A`).
 
 ## Interiores (`models/interiores/`, Sketchfab)
