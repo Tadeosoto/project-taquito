@@ -107,7 +107,6 @@ const ALTO_GOLPE := Vector2(-1.3, 1.0)
 const PEDAZO_MINIMO := 3
 # Zonas (ZonaLombrices.gd)
 const SAL_CADA := 0.8           # s: la sal se come una cabeza por lombriz cada esto
-const FUEGO_CADA := 0.25        # s: el fuego le quema la cola (un punto) a cada lombriz adentro
 const EMPUJE_ZONA := 3.0
 # Infectar zombis
 const INFECTA_PROB := 0.3
@@ -140,7 +139,6 @@ const BOLA_DANO := 18
 const BOLA_VIDA := 40.0
 const BOLA_RUEDA_MAX := 6.0
 const BOLA_SAL := 8.0            # de vida por tick de sal
-const BOLA_FUEGO := 6.0
 const ATONTADA_DURA := 1.5
 # Subir a la pasarela
 const SUBE_DESDE := 1.2          # m que estas mas arriba que ella
@@ -247,7 +245,6 @@ var _torre_pego := false
 var _anillo_torre: MeshInstance3D
 var _crece_t := 0.0
 var _sal_t := 0.0
-var _fuego_t := 0.0
 var _chupa := 0.0
 var _zombis_t := 0.0
 var _tierra_t := 0.0
@@ -1514,13 +1511,9 @@ func _zonas(delta: float) -> void:
 	if zonas.is_empty():
 		return
 	_sal_t -= delta
-	_fuego_t -= delta
 	var sala := _sal_t <= 0.0
-	var quema := _fuego_t <= 0.0
 	if sala:
 		_sal_t = SAL_CADA
-	if quema:
-		_fuego_t = FUEGO_CADA
 	var dt := 1.0 / hz
 	for zona: Node3D in zonas:
 		var tipo: int = zona.tipo
@@ -1538,12 +1531,14 @@ func _zonas(delta: float) -> void:
 				var dz := p.z - centro.z
 				if dx * dx + dz * dz > r2 or absf(p.y - centro.y) > 2.0:
 					continue
+				# El fuego (molotov, tambo pateado) las mata enteras al instante (JJ), las de la bola tambien
+				if tipo == ZonaLombrices.Tipo.FUEGO:
+					_matar_tramo(h, "quemadas")
+					break
 				if _estado[h] == Estado.BOLA:
-					# La bola se derrite en la sal y el fuego
+					# La bola se derrite en la sal
 					if tipo == ZonaLombrices.Tipo.SAL and sala:
 						_herir_bola(BOLA_SAL, p)
-					elif tipo == ZonaLombrices.Tipo.FUEGO and quema:
-						_herir_bola(BOLA_FUEGO, p)
 					break
 				# Las empuja para afuera
 				var fuera := Vector3(dx, 0.0, dz).normalized()
@@ -1555,16 +1550,6 @@ func _zonas(delta: float) -> void:
 					_remedio_muerte()
 					sangrar(pos[h], Vector3.UP, 0.4)
 					_limpiar_tramo(h + 1)
-					break
-				if tipo == ZonaLombrices.Tipo.FUEGO and quema:
-					# Se le quema la cola, un punto a la vez: se encoge sin partirse
-					var cola := _cola[h]
-					_matar(cola)
-					sangrar(pos[cola], Vector3.UP, 0.2)
-					if cola == h:
-						cuenta.quemadas += 1
-						_remedio_muerte()
-					_limpiar_bloque(h / puntos)
 					break
 	# Sal sobre ti: quema a las que traes pegadas
 	for zona: Node3D in zonas:

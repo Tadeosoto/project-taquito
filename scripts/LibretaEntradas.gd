@@ -90,7 +90,7 @@ const ENTRADAS := [
 		"apodo": "\"lo que sirve\"",
 		"que": "Lo que he visto que funciona contra lo de abajo. La sal de grano (la tiendita), las molotovs (caguama con alcohol de la licorería) y los tambos prendidos. Se avientan con la tecla 3.",
 		"por_que": "La abuela lo sabía: \"a las babosas, sal\". La sal les quita el agua del cuerpo; el fuego las seca sin partirlas. Los tambos no los quieren cerca. Nada de esto le sirve a un zombi: es para las del cárcamo.",
-		"como": "Sal: un círculo que se come cabezas y no las deja pasar; si te cae encima, quema las que traes pegadas. Molotov: fuego que las encoge por la cola y le quema los sacos a la Madre, pero también te quema a ti. Patea un tambo y riega fuego. Tu estela de fuego, si la tienes, las quema en vez de partirlas.",
+		"como": "Sal: un círculo que se come cabezas y no las deja pasar; si te cae encima, quema las que traes pegadas. Molotov: la que toca el fuego se achicharra de una, y también le quema los sacos a la Madre, pero a ti también te quema. Patea un tambo y riega fuego. Tu estela de fuego, si la tienes, las quema en vez de partirlas.",
 		"pista_por_que": "Usa uno contra ellas.",
 		"pista_como": "Mata con fuego o con sal.",
 	},
