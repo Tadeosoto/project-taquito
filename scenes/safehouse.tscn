@@ -26,6 +26,8 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="22_ferreteria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="23_purificadora"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="24_punto"]
+[ext_resource type="Script" path="res://scripts/interiores/CasaPropia.gd" id="25_casa_propia"]
+[ext_resource type="PackedScene" path="res://scenes/casa_personaje.tscn" id="26_casa_personaje"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -186,6 +188,14 @@ puntos_path = NodePath("../Puntos")
 player_path = NodePath("../Player")
 dron_path = NodePath("../Dron")
 ocultar = Array[NodePath]([NodePath("../Panel")])
+
+[node name="CasaPropia" type="Node" parent="."]
+script = ExtResource("25_casa_propia")
+escena = ExtResource("26_casa_personaje")
+player_path = NodePath("../Player")
+zombis_path = NodePath("../Zombis")
+flecha_en = Vector3(-21, 0, 40.2)
+calle_giro = 3.1415927
 
 [node name="InventoryUI" parent="." instance=ExtResource("8_inventario")]
 
