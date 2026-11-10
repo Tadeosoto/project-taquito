@@ -12,9 +12,12 @@ const SALIDA := "res://scenes/casa_personaje.tscn"
 const MODELOS := "res://models/casa_personaje/%s/%s.glb"
 const ALTO := 2.6
 const GRUESO := 0.15
+const ALTO_ZOCALO := 0.1
+const FONDO_ZOCALO := 0.012
 
 var _raiz: Node3D
 var _mat_pared: StandardMaterial3D
+var _mat_piso: StandardMaterial3D
 
 
 func _init() -> void:
@@ -113,16 +116,16 @@ func _tramo(grupo: Node, n: int, es_x: bool, fijo: float, a: float, b: float, y0
 
 
 func _construir_cascaron() -> void:
-	var mat_piso := _material_textura("piso", 0.8, 0.35)
+	_mat_piso = _material_textura("piso", 0.8, 0.35)
 	var mat_techo := _material_textura("techo", 1.0, 1.0)
-	_caja("Piso", 0.0, 8.0, -0.1, 0.0, 0.0, 4.5, mat_piso)
+	_caja("Piso", 0.0, 8.0, -0.1, 0.0, 0.0, 4.5, _mat_piso)
 	_caja("Techo", 0.0, 8.0, ALTO, ALTO + 0.1, 0.0, 4.5, mat_techo)
 
 	# Pared oeste con el vano de la puerta de salida (z 2.56..3.66, 2.0 m de alto, centrada entre
 	# la orilla de la ventana y la pared sur) y, al lado, el de la ventana con reja (z 0.35..1.8, y 0.95..2.0)
 	_pared("ParedOeste", false, 0.0, 0.0, 4.5, [[2.56, 3.66, 0.0, 2.0], [0.35, 1.8, 0.95, 2.0]])
 	# Pared este del cuarto
-	_pared("ParedEste", false, 8.0, 0.0, 4.5, [])
+	_pared("ParedEste", false, 8.0, 0.0, 4.5, [[1.3, 2.75, 0.95, 2.0]])
 	# Pared norte, corrida de lado a lado
 	_pared("ParedNorte", true, 0.0, 0.0, 8.0, [])
 	# Pared sur, corrida de lado a lado
@@ -130,7 +133,35 @@ func _construir_cascaron() -> void:
 	# Pared divisoria con el vano al cuarto (z 1.05..2.05, 1.95 m de alto: la luz libre de la puerta)
 	_pared("ParedDivisoria", false, 5.5, 0.0, 4.5, [[1.05, 2.05, 0.0, 1.95]])
 
-	_ventana_oeste()
+	_ventana_reja("VentanaOeste", 0.0, 1.0, 0.35, 1.8)
+	_ventana_reja("VentanaEste", 8.0, -1.0, 1.3, 2.75)
+	_zocalo()
+
+
+# Hilera delgada de loseta del piso al pie de las paredes (por el lado de adentro), cortada en
+# el vano de la puerta de salida y en el del cuarto.
+func _zocalo() -> void:
+	var grupo := Node3D.new()
+	grupo.name = "Zocalo"
+	_raiz.add_child(grupo)
+	grupo.owner = _raiz
+	var h := GRUESO / 2.0
+	var f := FONDO_ZOCALO
+	# a lo largo de x: paredes norte y sur
+	_caja("Norte", h, 8.0 - h, 0.0, ALTO_ZOCALO, h, h + f, _mat_piso, grupo, false)
+	_caja("Sur", h, 8.0 - h, 0.0, ALTO_ZOCALO, 4.5 - h - f, 4.5 - h, _mat_piso, grupo, false)
+	# a lo largo de z: [nombre, x0, x1, tramos [z0, z1]]
+	var lados := [
+		["Oeste", h, h + f, [[h, 2.56], [3.66, 4.5 - h]]],
+		["Este", 8.0 - h - f, 8.0 - h, [[h, 4.5 - h]]],
+		["DivisoriaSala", 5.5 - h - f, 5.5 - h, [[h, 1.05], [2.05, 4.5 - h]]],
+		["DivisoriaCuarto", 5.5 + h, 5.5 + h + f, [[h, 1.05], [2.05, 4.5 - h]]],
+	]
+	for lado in lados:
+		var n := 0
+		for t in lado[3]:
+			_caja("%s%d" % [lado[0], n], lado[1], lado[2], 0.0, ALTO_ZOCALO, t[0], t[1], _mat_piso, grupo, false)
+			n += 1
 
 
 # Barra delgada en la pared oeste (plano y-z): del punto a al b, con el grosor dado.
@@ -149,39 +180,47 @@ func _barra(grupo: Node, nombre: String, a: Vector2, b: Vector2, x: float, groso
 	malla.owner = _raiz
 
 
-# Ventana de la foto de referencia: marco blanco con tres cuerpos de vidrio opaco y, por fuera,
-# la reja blanca de herreria (barra al centro, rombo y argolla en cada cuerpo).
-func _ventana_oeste() -> void:
-	const Z0 := 0.35
-	const Z1 := 1.8
+# Caja a distancias d0..d1 de la cara central de una pared que corre a lo largo de z (x = xp),
+# contadas hacia adentro de la casa (dentro = +1 si adentro es +x, -1 si es -x).
+func _caja_d(nombre: String, xp: float, dentro: float, d0: float, d1: float, y0: float, y1: float,
+		z0: float, z1: float, mat: Material, grupo: Node) -> void:
+	var xa := xp + dentro * d0
+	var xb := xp + dentro * d1
+	_caja(nombre, minf(xa, xb), maxf(xa, xb), y0, y1, z0, z1, mat, grupo, false)
+
+
+# Ventana de la foto de referencia en una pared que corre a lo largo de z (x = xp): marco blanco
+# con tres cuerpos de vidrio opaco y, por fuera, la reja blanca de herreria (barra al centro,
+# rombo y argolla en cada cuerpo). El vano (y 0.95..2.0, z0..z1) lo corta _pared.
+func _ventana_reja(nombre: String, xp: float, dentro: float, z0: float, z1: float) -> void:
 	const Y0 := 0.95
 	const Y1 := 2.0
 	var blanco := _material(Color(0.93, 0.93, 0.9), 0.5)
 	var vidrio := _material(Color(0.82, 0.88, 0.88, 0.55), 0.15)
 	vidrio.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	var grupo := Node3D.new()
-	grupo.name = "VentanaOeste"
+	grupo.name = nombre
 	_raiz.add_child(grupo)
 	grupo.owner = _raiz
 	var h := GRUESO / 2.0
-	# vidrio y marco, del lado de adentro de la pared (x > 0)
-	_caja("Vidrio", -0.01, 0.01, Y0, Y1, Z0, Z1, vidrio, grupo, false)
-	_caja("MarcoArriba", -0.02, h + 0.02, Y1 - 0.04, Y1 + 0.02, Z0 - 0.02, Z1 + 0.02, blanco, grupo, false)
-	_caja("MarcoAbajo", -0.02, h + 0.02, Y0 - 0.02, Y0 + 0.04, Z0 - 0.02, Z1 + 0.02, blanco, grupo, false)
-	_caja("MarcoNorte", -0.02, h + 0.02, Y0 - 0.02, Y1 + 0.02, Z0 - 0.02, Z0 + 0.04, blanco, grupo, false)
-	_caja("MarcoSur", -0.02, h + 0.02, Y0 - 0.02, Y1 + 0.02, Z1 - 0.04, Z1 + 0.02, blanco, grupo, false)
-	var ancho := (Z1 - Z0) / 3.0
+	# vidrio y marco, del lado de adentro de la pared
+	_caja_d("Vidrio", xp, dentro, -0.01, 0.01, Y0, Y1, z0, z1, vidrio, grupo)
+	_caja_d("MarcoArriba", xp, dentro, -0.02, h + 0.02, Y1 - 0.04, Y1 + 0.02, z0 - 0.02, z1 + 0.02, blanco, grupo)
+	_caja_d("MarcoAbajo", xp, dentro, -0.02, h + 0.02, Y0 - 0.02, Y0 + 0.04, z0 - 0.02, z1 + 0.02, blanco, grupo)
+	_caja_d("MarcoNorte", xp, dentro, -0.02, h + 0.02, Y0 - 0.02, Y1 + 0.02, z0 - 0.02, z0 + 0.04, blanco, grupo)
+	_caja_d("MarcoSur", xp, dentro, -0.02, h + 0.02, Y0 - 0.02, Y1 + 0.02, z1 - 0.04, z1 + 0.02, blanco, grupo)
+	var ancho := (z1 - z0) / 3.0
 	for k in [1, 2]:
-		var zc: float = Z0 + ancho * k
-		_caja("Divisor%d" % k, -0.02, h + 0.02, Y0, Y1, zc - 0.025, zc + 0.025, blanco, grupo, false)
+		var zc: float = z0 + ancho * k
+		_caja_d("Divisor%d" % k, xp, dentro, -0.02, h + 0.02, Y0, Y1, zc - 0.025, zc + 0.025, blanco, grupo)
 	# la hoja corrediza (el primer cuerpo) lleva un travesaño
-	_caja("Travesano", -0.02, h + 0.02, 1.62, 1.67, Z0, Z0 + ancho, blanco, grupo, false)
+	_caja_d("Travesano", xp, dentro, -0.02, h + 0.02, 1.62, 1.67, z0, z0 + ancho, blanco, grupo)
 	# repisa
-	_caja("Repisa", h - 0.01, h + 0.08, Y0 - 0.05, Y0, Z0 - 0.05, Z1 + 0.05, blanco, grupo, false)
-	# reja por fuera (x < 0): por cada cuerpo, una barra al centro, un rombo y una argolla
-	var xr := -h - 0.02
+	_caja_d("Repisa", xp, dentro, h - 0.01, h + 0.08, Y0 - 0.05, Y0, z0 - 0.05, z1 + 0.05, blanco, grupo)
+	# reja por fuera: por cada cuerpo, una barra al centro, un rombo y una argolla
+	var xr := xp - dentro * (h + 0.02)
 	for k in 3:
-		var za := Z0 + ancho * k
+		var za := z0 + ancho * k
 		var zb := za + ancho
 		var zm := (za + zb) / 2.0
 		var ym := (Y0 + Y1) / 2.0
@@ -202,6 +241,40 @@ func _ventana_oeste() -> void:
 		argolla.rotation.z = PI / 2.0   # el aro mira hacia la calle
 		grupo.add_child(argolla)
 		argolla.owner = _raiz
+
+
+# Puerta cerrada de madera en una pared que corre a lo largo de x, solo de adorno: simula un
+# cuarto que no existe (cocina, bano). "z_cara" es la cara de adentro de la pared y "dentro" es
+# +1 si adentro queda hacia +z (pared norte) o -1 si queda hacia -z (pared sur).
+func _puerta_cerrada(nombre: String, xc: float, z_cara: float, dentro: float) -> void:
+	const MEDIO := 0.45   # medio ancho de la hoja
+	const ALTA := 2.0
+	var madera := _material(Color(0.42, 0.28, 0.16), 0.75)
+	var marco := _material(Color(0.34, 0.22, 0.12), 0.75)
+	var metal := _material(Color(0.8, 0.68, 0.3), 0.35)
+	metal.metallic = 0.8
+	var grupo := Node3D.new()
+	grupo.name = nombre
+	_raiz.add_child(grupo)
+	grupo.owner = _raiz
+	# d0..d1 hacia adentro de la casa desde la cara de la pared
+	var caja := func(n: String, x0: float, x1: float, y0: float, y1: float, d0: float, d1: float, m: Material) -> void:
+		var za := z_cara + dentro * d0
+		var zb := z_cara + dentro * d1
+		_caja(n, x0, x1, y0, y1, minf(za, zb), maxf(za, zb), m, grupo, false)
+	caja.call("JambaIzq", xc - MEDIO - 0.07, xc - MEDIO, 0.0, ALTA + 0.07, 0.0, 0.035, marco)
+	caja.call("JambaDer", xc + MEDIO, xc + MEDIO + 0.07, 0.0, ALTA + 0.07, 0.0, 0.035, marco)
+	caja.call("Dintel", xc - MEDIO - 0.07, xc + MEDIO + 0.07, ALTA, ALTA + 0.07, 0.0, 0.035, marco)
+	caja.call("Hoja", xc - MEDIO, xc + MEDIO, 0.0, ALTA, 0.0, 0.025, madera)
+	# cuatro tableros en relieve
+	var n := 0
+	for cx in [-0.22, 0.22]:
+		for fila in [[0.15, 0.95], [1.1, 1.85]]:
+			caja.call("Tablero%d" % n, xc + cx - 0.15, xc + cx + 0.15, fila[0], fila[1], 0.025, 0.036, madera)
+			n += 1
+	# chapa y perilla del lado derecho
+	caja.call("Chapa", xc + 0.3, xc + 0.4, 0.95, 1.1, 0.025, 0.032, metal)
+	caja.call("Perilla", xc + 0.33, xc + 0.37, 1.0, 1.04, 0.032, 0.075, metal)
 
 
 # Puerta de salida de herreria, toda de metal pintado de blanco, en el vano de la pared oeste
@@ -330,13 +403,15 @@ func _mueble(nombre: String, modelo: String, x: float, z: float, giro: float, es
 
 func _amueblar() -> void:
 	_puerta_salida()
+	_puerta_cerrada("PuertaCocina", 3.15, GRUESO / 2.0, 1.0)
+	_puerta_cerrada("PuertaBano", 6.25, GRUESO / 2.0, 1.0)
 
 	# --- Sala-comedor ---
-	_mueble("Sillon", "sillon", 2.0, 0.62, 0.0, 0.01)
-	_mueble("Vitrina", "vitrina", 4.3, 0.37, 0.0, 1.0)
-	# mesita de la tele pegada a la pared sur, enfrente del sillon, con otra tele encima mirando a el
-	var alto_mesita := _mesita("MesitaTele", 2.0, 4.2)
-	_mueble("Tele2", "tele", 2.0, 4.2, 90.0, 0.65, alto_mesita, false)
+	_mueble("Sillon", "sillon", 1.4, 0.62, 0.0, 0.01)
+	_mueble("Vitrina", "vitrina", 4.6, 0.37, 0.0, 1.0)
+	# mesita de la tele (1.5 veces la original) pegada a la pared sur, enfrente del sillon, con otra tele encima mirando a el
+	var alto_mesita := _mesita("MesitaTele", 1.4, 4.0875)
+	_mueble("Tele2", "tele", 1.4, 4.0875, 90.0, 0.975, alto_mesita, false)
 	# comedor a lo largo de z, en el lado este de la sala; las sillas van metidas 15 cm bajo la mesa
 	_mueble("Mesa", "mesa", 4.25, 3.15, 0.0, 2.2 / 388.137)
 	_mueble("Silla1", "silla", 3.62, 2.7, 90.0, 1.0)
@@ -355,10 +430,11 @@ func _amueblar() -> void:
 # Mesita baja de madera (tapa y cuatro patas), solo para apoyar la tele. Devuelve la altura de
 # la tapa. Hecha con codigo; el color es el de la madera de las sillas.
 func _mesita(nombre: String, x: float, z: float) -> float:
-	const ANCHO := 0.9
-	const FONDO := 0.45
-	const ALTURA := 0.5
-	const TAPA := 0.04
+	const K := 1.5   # tamaño respecto a la mesita original de 0.9 x 0.45 x 0.5 m
+	const ANCHO := 0.9 * K
+	const FONDO := 0.45 * K
+	const ALTURA := 0.5 * K
+	const TAPA := 0.04 * K
 	var madera := _material(Color(0.42, 0.28, 0.16), 0.8)
 	var grupo := Node3D.new()
 	grupo.name = nombre
@@ -367,9 +443,9 @@ func _mesita(nombre: String, x: float, z: float) -> float:
 	_caja("Tapa", x - ANCHO / 2.0, x + ANCHO / 2.0, ALTURA - TAPA, ALTURA, z - FONDO / 2.0, z + FONDO / 2.0, madera, grupo)
 	for dx in [-1, 1]:
 		for dz in [-1, 1]:
-			var px: float = x + dx * (ANCHO / 2.0 - 0.05)
-			var pz: float = z + dz * (FONDO / 2.0 - 0.05)
-			_caja("Pata%d%d" % [dx + 1, dz + 1], px - 0.025, px + 0.025, 0.0, ALTURA - TAPA, pz - 0.025, pz + 0.025, madera, grupo, false)
+			var px: float = x + dx * (ANCHO / 2.0 - 0.05 * K)
+			var pz: float = z + dz * (FONDO / 2.0 - 0.05 * K)
+			_caja("Pata%d%d" % [dx + 1, dz + 1], px - 0.025 * K, px + 0.025 * K, 0.0, ALTURA - TAPA, pz - 0.025 * K, pz + 0.025 * K, madera, grupo, false)
 	return ALTURA
 
 
