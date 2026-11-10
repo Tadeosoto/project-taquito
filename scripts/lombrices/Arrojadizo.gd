@@ -1,8 +1,8 @@
 class_name Arrojadizo
 extends Node3D
-# Lo que avienta el Lanzador (y lo que escupe la Madre): vuela en parabola (a mano, sin cuerpo de
-# fisica) y al tocar algo revienta en su zona (ZonaLombrices): la sal en un circulo blanco, la
-# molotov en fuego y el escupitajo de la Madre en un charco de lodo de Serenol.
+# Lo que avienta el Lanzador (y lo que escupe la Madre): vuela a mano, sin cuerpo de fisica. La
+# molotov va en parabola y revienta en fuego (ZonaLombrices). El escupitajo de la Madre (tipo 3) es
+# como un balazo: derecho, sin gravedad, y si te da te baja `dano`; no deja charco (JJ).
 
 const GRAVEDAD := 14.0
 const VIDA := 4.0
@@ -10,21 +10,19 @@ const SAL_RADIO := 1.5
 const SAL_DURA := 12.0
 const FUEGO_RADIO := 2.0
 const FUEGO_DURA := 5.0
-const LODO_DANO := 3            # vida por segundo dentro del charco
-const LODO_FRENA := 0.6
 # El escupitajo: una gota que se estira con la velocidad y tiembla, con una cola de gotitas, de
 # Serenol como agua radioactiva del azul de las espinas (shaders/escupitajo.gdshader)
 const ESCUPE_COLOR := Color(0.18, 0.77, 1.0)
-const ESCUPE_RADIO := 0.15
+# A escala de la Madre (MadreCarcamo.ESCALA): crece con ella
+const ESCUPE_RADIO := 0.15 * MadreCarcamo.ESCALA
 const ESCUPE_ESTIRA := 0.07      # x la rapidez: cuanto se alarga
-const ESCUPE_COLA := [0.1, 0.075, 0.055, 0.04]   # radio de cada gotita de la cola
+const ESCUPE_COLA := [0.1 * MadreCarcamo.ESCALA, 0.075 * MadreCarcamo.ESCALA, 0.055 * MadreCarcamo.ESCALA, 0.04 * MadreCarcamo.ESCALA]   # radio de cada gotita de la cola
 const ESCUPE_COLA_CADA := 1      # cuadros de atraso entre gotitas
 
 static var _material_escupe: ShaderMaterial
 
 var tipo := 1          # InventoryItemData.arrojar: 1 sal, 2 molotov; 3 lodo (la Madre)
-var radio_zona := 0.0  # 0 = el de su tipo
-var dura_zona := 0.0
+var dano := 0           # el escupitajo: lo que te baja si te da
 var velocidad := Vector3.ZERO
 var _edad := 0.0
 var _excluir: Array[RID] = []
@@ -77,7 +75,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_edad += delta
-	velocidad.y -= GRAVEDAD * delta
+	if tipo != 3:
+		velocidad.y -= GRAVEDAD * delta
 	var desde := global_position
 	var hasta := desde + velocidad * delta
 	var rayo := PhysicsRayQueryParameters3D.create(desde, hasta, 1, _excluir)
@@ -87,6 +86,8 @@ func _physics_process(delta: float) -> void:
 	else:
 		rotation += Vector3(7.0, 3.0, 0.0) * delta
 	if pego:
+		if tipo == 3 and pego.collider and pego.collider.is_in_group("jugador") and pego.collider.has_method("recibir_dano"):
+			pego.collider.recibir_dano(dano, desde, 0.6)
 		_reventar(pego.position)
 		return
 	global_position = hasta
@@ -154,9 +155,7 @@ func _reventar(donde: Vector3) -> void:
 		ZonaLombrices.crear(padre, donde, ZonaLombrices.Tipo.FUEGO, FUEGO_RADIO, FUEGO_DURA)
 		Sonidos.tocar(self, "whack", -6.0, 0.6)
 	elif tipo == 3:
-		var lodo := ZonaLombrices.crear(padre, donde, ZonaLombrices.Tipo.LODO, radio_zona if radio_zona > 0.0 else 1.6, dura_zona if dura_zona > 0.0 else 9.0)
-		lodo.dano = LODO_DANO
-		lodo.frena = LODO_FRENA
+		pass
 	else:
 		ZonaLombrices.crear(padre, donde, ZonaLombrices.Tipo.SAL, SAL_RADIO, SAL_DURA)
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")

@@ -351,6 +351,10 @@ func _physics_process(delta: float) -> void:
 # Cada momento de la recarga una vez, cuando su tiempo (en s del clip) ya paso
 func _seguir_recarga(delta: float) -> void:
 	if _recarga_t < 0.0:
+		# Se corto a media corredera (en seco el reloj es INF y solo la corredera lo acaba):
+		# termina ya, si no se quedaba "recargando..." para siempre
+		if is_inf(_recargando):
+			_recargando = 0.0
 		return
 	_recarga_t += delta
 	if not activa:
@@ -385,7 +389,7 @@ func _seguir_recarga(delta: float) -> void:
 			_rack_sono = true
 			_rack_sono_en = _rack_t
 			Sonidos.tocar(self, "recarga_cierra", CIERRA_VOLUMEN)
-		elif _rack_sono and _rack_t >= _rack_sono_en + _rack_dura:
+		elif (_rack_sono and _rack_t >= _rack_sono_en + _rack_dura) or _rack_t > RACK_ACERCA + _rack_dura + 1.0:
 			# Se acabo el archivo: se acaba la recarga en este mismo cuadro
 			_recargando = 0.0
 

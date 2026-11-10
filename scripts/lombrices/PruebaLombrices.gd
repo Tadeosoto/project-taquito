@@ -40,6 +40,11 @@ var _barra: BarraMadre
 var _jugador: Node3D
 var _salud: Node
 var _letrero: Label
+# Tu vida (arriba a la izquierda; en el carcamo no hay Supervivencia) y los controles abajo
+var _vida_relleno: ColorRect
+var _vida_texto: Label
+const VIDA_ANCHO := 120.0
+const CONTROLES := "Clic: pegar / disparar / aventar · 1 machete · 2 pistola · 3 sal (otra vez 3: molotov)\nQ curar · Alt + dirección rodar (te quita las pegadas) · clic der. cubrirte · F3 rendimiento"
 var _aviso: Label
 var _negro: ColorRect
 var _cajas: Array = []
@@ -54,6 +59,8 @@ var _pruebas := 0
 var _perfil := false
 var _perfil_t := 0.0
 var _fotos := ""
+# Vida infinita para probar la pelea (-- --inmortal, o F4): los golpes pegan pero la vida se rellena
+var inmortal := false
 var _retratando := false
 
 
@@ -64,6 +71,9 @@ func _ready() -> void:
 	if get_tree().get_first_node_in_group("efectos_pixel") == null:
 		add_child(EfectosPixel.new())
 	var nivel := CarcamoNivel.new()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--ambiente="):
+			nivel.ambiente = float(arg.trim_prefix("--ambiente="))
 	add_child(nivel)
 	_nivel()
 	_enjambre = $EnjambreLombrices
@@ -75,6 +85,24 @@ func _ready() -> void:
 	_jugador = $Player
 	# El barandal de la alberca esta en la capa 2: solo te detiene a ti
 	(_jugador as CollisionObject3D).collision_mask |= 2
+	# Los ataques especiales de golpe-direccion, como en la safehouse y la defensa (JJ): tajo cargado,
+	# giro aereo (y la estocada en el aire con Shift) y la estela del protagonista. Les pegan a las
+	# crias y a la Madre (Player los manda al grupo "lombrices"). Se apagan en _exit_tree
+	Player.golpe_cargado = true
+	Player.giro_aereo = true
+	get_node("/root/Personaje").mejora_estela = true
+	_jugador.aplicar_personaje()
+	# Curas infinitas para probar (JJ): con al menos un botiquin, Q cura sin gastarlo
+	INVENTARIO.curas_infinitas = true
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario and inventario.curaciones() == 0:
+		inventario.add_item(load("res://resources/productos/botiquin.tres"))
+	# Sal y molotov desde el principio, infinitas (JJ): con una de cada en el inventario basta
+	Lanzador.infinitos = true
+	for ruta: String in [SAL, MOLOTOV]:
+		var cosa := load(ruta) as InventoryItemData
+		if inventario and _jugador.get_node("Lanzador").cuantos(cosa.arrojar) == 0 and not inventario.add_item(cosa):
+			push_warning("Lombrices: no cupo %s en el inventario" % cosa.item_name)
 	_salud = get_node_or_null("/root/Salud")
 	var capa := CanvasLayer.new()
 	capa.layer = 5
@@ -85,6 +113,7 @@ func _ready() -> void:
 	_letrero.add_theme_color_override("font_outline_color", Color.BLACK)
 	_letrero.add_theme_constant_override("outline_size", 4)
 	capa.add_child(_letrero)
+	_armar_vida(capa)
 	_aviso = Label.new()
 	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -104,6 +133,9 @@ func _ready() -> void:
 			_medir_total = _medir
 		elif arg.begins_with("--fotos="):
 			_fotos = arg.trim_prefix("--fotos=")
+		elif arg == "--inmortal":
+			inmortal = true
+			print("Lombrices: vida infinita (F4 la quita)")
 		elif arg == "--perfil":
 			_perfil = true
 		elif arg.begins_with("--lento="):
@@ -168,6 +200,10 @@ func _empezar() -> void:
 		_madre = MadreCarcamo.new()
 		_madre.enjambre = _enjambre
 		_madre.charco = Vector3.ZERO
+		# Solo nada dentro de la alberca; en el cemento salta y se arrastra
+		_madre.alberca = CarcamoNivel.ALBERCA
+		_madre.barandal = CarcamoNivel.BARANDAL
+		_madre.barandal_a = CarcamoNivel.BARANDAL_ALBERCA
 		add_child(_madre)
 		_madre.muerta.connect(_gano_pelea)
 		_madre.saco_reventado.connect(func(q: int) -> void:
@@ -232,14 +268,63 @@ func _avisar(texto: String, dura: float) -> void:
 	tween.tween_property(_aviso, "modulate:a", 0.0, 0.6)
 
 
+func _armar_vida(capa: CanvasLayer) -> void:
+	var caja := VBoxContainer.new()
+	caja.position = Vector2(8, 8)
+	caja.theme = BarraMadre.TEMA
+	caja.add_theme_constant_override("separation", 2)
+	capa.add_child(caja)
+	_vida_texto = Label.new()
+	_vida_texto.add_theme_font_size_override("font_size", 10)
+	_vida_texto.add_theme_color_override("font_outline_color", Color.BLACK)
+	_vida_texto.add_theme_constant_override("outline_size", 3)
+	caja.add_child(_vida_texto)
+	var fondo := ColorRect.new()
+	fondo.color = Color(0.05, 0.05, 0.05, 0.85)
+	fondo.custom_minimum_size = Vector2(VIDA_ANCHO + 4.0, 10.0)
+	caja.add_child(fondo)
+	_vida_relleno = ColorRect.new()
+	_vida_relleno.position = Vector2(2, 2)
+	_vida_relleno.size = Vector2(VIDA_ANCHO, 6.0)
+	fondo.add_child(_vida_relleno)
+
+
+func _pintar_vida() -> void:
+	if _salud == null:
+		return
+	var f := clampf(float(_salud.vida) / maxf(float(_salud.vida_max), 1.0), 0.0, 1.0)
+	_vida_relleno.size.x = VIDA_ANCHO * f
+	_vida_relleno.color = Color(0.85, 0.15, 0.12) if f < 0.35 else (Color(0.95, 0.75, 0.15) if f < 0.65 else Color(0.35, 0.85, 0.3))
+	_vida_texto.text = "Vida %d / %d%s" % [_salud.vida, _salud.vida_max, "  (infinita)" if inmortal else ""]
+
+
+# Cuantas sales y molotovs traes (InventoryItemData.arrojar: 1 sal, 2 molotov)
+func _arrojables() -> String:
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario == null:
+		return ""
+	var cuenta := [0, 0, 0]
+	for item: InventoryItemData in inventario.items:
+		if item and item.arrojar > 0:
+			cuenta[item.arrojar] += 1
+	return "Sal %d · Molotov %d · todo infinito (curas, sal y molotov)" % [cuenta[1], cuenta[2]]
+
+
 func _process(delta: float) -> void:
+	_pintar_vida()
 	if _enjambre.horneando:
 		_letrero.text = "Horneando el cárcamo..."
 		return
-	_letrero.text = "paso %.1f ms (hilo, %d/s) · pensar %.1f · dibujar %.1f ms · %d FPS · %d pegadas%s" % [
-		_enjambre.ms_solver, _enjambre.hz, _enjambre.ms_pensar, _enjambre.ms_pintar,
-		Engine.get_frames_per_second(), _enjambre.pegadas(),
-		" · calidad: -%d lombrices" % _enjambre.quitadas if _enjambre.quitadas > 0 else ""]
+	if _perfil:
+		_letrero.position.y = 440
+		_letrero.text = "paso %.1f ms (hilo, %d/s) · pensar %.1f · dibujar %.1f ms · %d FPS · %d pegadas%s" % [
+			_enjambre.ms_solver, _enjambre.hz, _enjambre.ms_pensar, _enjambre.ms_pintar,
+			Engine.get_frames_per_second(), _enjambre.pegadas(),
+			" · calidad: -%d lombrices" % _enjambre.quitadas if _enjambre.quitadas > 0 else ""]
+	else:
+		# Abajo a la izquierda: lo que traes para aventar y los controles
+		_letrero.position.y = 480 - 44
+		_letrero.text = _arrojables() + "\n" + CONTROLES
 	if _perfil:
 		_perfil_t -= delta
 		if _perfil_t <= 0.0:
@@ -250,15 +335,32 @@ func _process(delta: float) -> void:
 	# Que no se desmaye mientras saca las fotos (si no, se reinicia y las crias vuelven al piso)
 	if _retratando and _salud and _salud.vida < 30:
 		_salud.vida = _salud.vida_max
+	if inmortal and _salud and _salud.vida < _salud.vida_max:
+		_salud.vida = _salud.vida_max
 	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0:
 		_reiniciar_pelea()
 	if _medir > 0.0:
 		_seguir_medida(delta)
 
 
+const ESTELA := preload("res://scripts/EstelaBarrido.gd")
+const INVENTARIO := preload("res://scripts/Inventory.gd")
+
+func _exit_tree() -> void:
+	Lanzador.infinitos = false
+	INVENTARIO.curas_infinitas = false
+	Player.golpe_cargado = false
+	Player.giro_aereo = false
+	get_node("/root/Personaje").mejora_estela = false
+	ESTELA.estilo = ESTELA.Estilo.NORMAL
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F3:
 		_perfil = not _perfil
+	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F4:
+		inmortal = not inmortal
+		print("Lombrices: vida infinita %s" % ("si" if inmortal else "no"))
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_COMMA:
 		if event.shift_pressed:
 			EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())

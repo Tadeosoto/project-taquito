@@ -1450,6 +1450,65 @@ func _parir(donde: Vector3, hacia: Vector3, cuantas: int) -> int:
 
 # --- Zonas: sal, fuego, tambos (ZonaLombrices.gd) ---
 
+# El punado de sal (Lanzador._punado): a cada cria con algun punto en el cono le come `come`
+# puntos desde la cabeza y la avienta para atras; a la bola le baja vida; las pegadas se queman
+# (te caen granos encima)
+# `ya` (opcional, compartido por toda una aventada): los bloques de 12 ya salados no se vuelven a
+# salar, para que el punado, que llama esto cada cuadro con el pedazo de arco que barrio la mano,
+# no se coma la misma cria varias veces
+func salar_cono(origen: Vector3, dir: Vector3, alcance: float, cono: float, come: int, ya := {}) -> void:
+	if _ocupado():
+		_ordenes.append(_salar_cono.bind(origen, dir, alcance, cono, come, ya))
+		return
+	_salar_cono(origen, dir, alcance, cono, come, ya)
+
+
+func _salar_cono(origen: Vector3, dir: Vector3, alcance: float, cono: float, come: int, ya := {}) -> void:
+	var plano := Vector3(dir.x, 0.0, dir.z).normalized()
+	var dt := 1.0 / hz
+	var bola: bool = ya.has("bola")
+	for h in _cabezas.duplicate():
+		if vivos[h] == 0 or ya.has(h / puntos):
+			continue
+		if _estado[h] == Estado.PEGADA:
+			ya[h / puntos] = true
+			_matar_tramo(h, "saladas")
+			continue
+		for i in range(h, _cola[h] + 1):
+			var hacia := pos[i] - origen
+			var dy := hacia.y
+			hacia.y = 0.0
+			var d := hacia.length()
+			if d > alcance or absf(dy) > 2.0:
+				continue
+			if d > 0.3 and hacia.normalized().dot(plano) < cono:
+				continue
+			# Con come 0 las de la bola tambien mueren enteras (y si quedan menos de 3, se deshace)
+			if _estado[h] == Estado.BOLA and come > 0:
+				if not bola:
+					bola = true
+					ya["bola"] = true
+					_herir_bola(BOLA_SAL * 2.0, pos[i])
+				break
+			ya[h / puntos] = true
+			# come 0: la lombriz entera (el punado de sal, JJ: la que alcanza muere al instante)
+			if come <= 0:
+				_matar_tramo(h, "saladas")
+				break
+			var empuja := (hacia.normalized() if d > 0.01 else plano) + Vector3.UP * 0.4
+			var cola := _cola[h]
+			for j in range(h, cola + 1):
+				old_pos[j] -= empuja * EMPUJE_ZONA * 2.0 * dt
+			for j in range(h, mini(h + come, cola + 1)):
+				_matar(j)
+			cuenta.saladas += 1
+			_remedio_muerte()
+			sangrar(pos[h], Vector3.UP, 0.4)
+			_limpiar_tramo(h)
+			break
+	_nota("pelear", "crias")
+
+
 func _zonas(delta: float) -> void:
 	var zonas := get_tree().get_nodes_in_group("zonas_lombriz")
 	if zonas.is_empty():

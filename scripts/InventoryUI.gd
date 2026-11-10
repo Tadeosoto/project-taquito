@@ -430,10 +430,10 @@ func _utilizar() -> void:
 		return
 	_sonar("inv_usar")
 	var subio: int = inventory.usar_curacion(current_item_index)
-	# La flor de curar a los pies: el juego esta en pausa, se ve al cerrar (EfectosPixel)
+	# Al cerrar el inventario, el personaje toma (animacion Drink)
 	var jugador := get_tree().get_first_node_in_group("jugador")
-	if jugador and jugador.has_method("efecto"):
-		jugador.efecto("curar", Vector3.ZERO)
+	if jugador and jugador.has_method("beber"):
+		jugador.beber()
 	_mostrar_mensaje("%s: +%d de vida." % [item.item_name, subio])
 
 # Una bolsa especial de Takis: se gasta, sale un tazo (Tazos.abrir_bolsa) y su show encima

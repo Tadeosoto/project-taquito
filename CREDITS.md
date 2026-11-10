@@ -107,6 +107,7 @@
 ## Animaciones (`models/animaciones/`, CC0)
 - [Universal Animation Library (Standard) de Quaternius](https://opengameart.org/content/universal-animation-library), licencia CC0 (`models/animaciones/quaternius_ual1/`).
 - [Universal Animation Library 2 (Standard) de Quaternius](https://opengameart.org/content/universal-animation-library-2), licencia CC0 (`models/animaciones/quaternius_ual2/`).
+- Universal Animation Library 2 (Source) de Quaternius, licencia CC0 (`models/animaciones/quaternius_ual2_source/`; de aqui sale `Sword_Heavy_A`).
 
 ## Interiores (`models/interiores/`, Sketchfab)
 - [PSX - Vending Machine](https://sketchfab.com/3d-models/aff31f282155471d8222287596c7ac59) de Kasugay𓅂, licencia CC Attribution (`models/interiores/maquina_refrescos/`).

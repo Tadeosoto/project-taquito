@@ -101,6 +101,10 @@ func curaciones() -> int:
 
 # Se come el de `index` y regresa cuanta vida subio. Buen diente (Habilidades.gd) hace que
 # la comida cure mas. Lo usan Utilizar (InventoryUI) y la tecla Q
+# Para pruebas (la arena del carcamo, JJ): curarse no gasta la cura
+static var curas_infinitas := false
+
+
 func usar_curacion(index: int) -> int:
 	var item := get_item(index)
 	if item == null or item.curacion <= 0:
@@ -109,7 +113,8 @@ func usar_curacion(index: int) -> int:
 	var tazos := get_node_or_null("/root/Tazos")
 	var antes: int = salud.vida
 	salud.vida += roundi(item.curacion * (tazos.factor_curacion() if tazos else 1.0))
-	remove_item(index)
+	if not curas_infinitas:
+		remove_item(index)
 	return salud.vida - antes
 
 

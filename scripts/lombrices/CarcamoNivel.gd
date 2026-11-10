@@ -12,7 +12,7 @@ extends Node3D
 # del mezzanine si esta en la capa 1, para que las crias no se caigan por la orilla.
 
 const LADO := 28.0
-const MURO_ALTO := 7.0
+const MURO_ALTO := 10.0         # 7 dejaba atravesar el techo brincando desde el mezzanine
 const MEZZ_ALTO := 3.5
 const MEZZ_ANCHO := 2.5
 const ALBERCA := 4.5            # medio lado de la alberca
@@ -32,6 +32,10 @@ const ALUMBRADO := preload("res://scripts/map/MapAlumbrado.gd")
 const GOTA := "res://textures/logos-negocios/gela-gota.svg"
 const COLOR_AMARILLO := Color(0.95, 0.72, 0.05)
 const COLOR_GELA := Color(0.12, 0.5, 0.78)
+
+# Luz ambiente azul: 0.8 para las capturas (JJ), luego 0.4, 0.3, 0.2 y 0.15 para que se vea mas tetrico
+# (JJ, 2026-11-09). Antes 0.22 escondia a la Madre y a las crias; ahora JJ lo quiere asi. -- --ambiente=<n> lo cambia para probar
+var ambiente := 0.15
 
 const MEDIO := LADO / 2.0
 const ADENTRO := MEDIO - MEZZ_ANCHO   # borde interior del mezzanine
@@ -197,9 +201,8 @@ func _muros_y_techo() -> void:
 		var franja := _malla(Vector3(LADO, 0.25, 0.02), _franjas)
 		franja.basis = Basis(muro[2], Vector3.UP, (muro[2] as Vector3).cross(Vector3.UP))
 		franja.position = muro[0] + Vector3.UP * 1.0 + muro[1] * 0.01
-	# Techo de lamina (solo se ve; no tapa la camara: el brazo es de 4 m)
-	var techo := _malla(Vector3(largo, 0.3, largo), concreto)
-	techo.position.y = MURO_ALTO + 0.15
+	# Techo de lamina, con colision: brincando desde el mezzanine la cabeza lo atravesaba
+	_caja(Vector3(largo, 0.3, largo), Vector3(0, MURO_ALTO + 0.15, 0), concreto)
 	for x: float in [-9.0, 0.0, 9.0]:
 		var viga := _malla(Vector3(0.35, 0.5, LADO), _metal)
 		viga.position = Vector3(x, MURO_ALTO - 0.25, 0)
@@ -413,16 +416,16 @@ func _luces() -> void:
 			if donde == Vector2.ZERO:
 				var reflector := SpotLight3D.new()
 				reflector.rotation.x = -PI / 2.0
-				reflector.spot_range = 11.0
+				reflector.spot_range = 14.0
 				reflector.spot_angle = 45.0
 				reflector.shadow_enabled = true
 				luz = reflector
 			else:
 				var omni := OmniLight3D.new()
-				omni.omni_range = 10.0
+				omni.omni_range = 13.0
 				luz = omni
 			luz.light_color = Color(1.0, 0.9, 0.75)
-			luz.light_energy = 1.6 if titilan.has(donde) else 0.9
+			luz.light_energy = 1.6 if titilan.has(donde) else 0.45
 			luz.position = Vector3(x, MURO_ALTO - 1.3, z)
 			add_child(luz)
 			if titilan.has(donde):
@@ -444,16 +447,16 @@ func _luces() -> void:
 	verde.position = salida.position + Vector3.BACK * 0.6
 	add_child(verde)
 	var mundo := WorldEnvironment.new()
-	var ambiente := Environment.new()
-	ambiente.background_mode = Environment.BG_COLOR
-	ambiente.background_color = Color(0.0, 0.0, 0.01)
-	ambiente.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	ambiente.ambient_light_color = Color(0.32, 0.38, 0.48)
-	ambiente.ambient_light_energy = 0.8
-	ambiente.fog_enabled = true
-	ambiente.fog_light_color = Color(0.03, 0.04, 0.06)
-	ambiente.fog_density = 0.025
-	mundo.environment = ambiente
+	var entorno := Environment.new()
+	entorno.background_mode = Environment.BG_COLOR
+	entorno.background_color = Color(0.0, 0.0, 0.01)
+	entorno.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	entorno.ambient_light_color = Color(0.32, 0.38, 0.48)
+	entorno.ambient_light_energy = ambiente
+	entorno.fog_enabled = true
+	entorno.fog_light_color = Color(0.03, 0.04, 0.06)
+	entorno.fog_density = 0.035
+	mundo.environment = entorno
 	add_child(mundo)
 
 
