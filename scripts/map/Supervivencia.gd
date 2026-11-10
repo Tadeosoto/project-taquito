@@ -201,6 +201,11 @@ func _cambio_vida() -> void:
 		_flash.color.a = 0.25
 		create_tween().tween_property(_flash, "color:a", 0.0, 0.35)
 	_vida_antes = vida
+	# La casa propia (CasaPropia.gd) no deja desmayarte
+	if _jugador.sin_combate:
+		if vida <= 0:
+			_salud.vida = 1
+		return
 	if vida <= 0 and not _desmayado:
 		if _segundo_aire():
 			return
