@@ -38,29 +38,36 @@ ALBEDO = 2048
 EMISION = 1024
 
 # Zona -> (foto o None, tinte, escala de la foto, saturacion, cuanta mugre)
+# Paleta de "funeral podrido" (AG, 2026-11-10: "el vestido tiene colores alegres"): morado casi
+# negro de moreton, sangre seca, hueso amarillento, flores marchitas, moho y agua de Serenol
 PINTURA = {
-    "Tela": ("velour_velvet", (0.2, 0.06, 0.24), 1.6, 0.75, 1.0),
-    "Blanco": ("rough_linen", (0.58, 0.54, 0.44), 2.0, 0.45, 1.0),
-    "Faja": ("rough_linen", (0.62, 0.58, 0.48), 2.0, 0.45, 1.0),
-    "Hueso": ("clay_plaster", (0.7, 0.63, 0.5), 1.2, 0.6, 1.0),
-    "Cabello": ("hessian_230", (0.16, 0.1, 0.07), 3.0, 0.7, 0.6),
-    "Carrizo": ("bamboo_veneer", (0.85, 0.75, 0.55), 1.0, 0.75, 0.8),
-    "Nudo": ("clay_plaster", (0.32, 0.36, 0.27), 2.0, 0.6, 1.0),
-    "Flor_Magenta": ("decrepit_wallpaper", (0.78, 0.2, 0.45), 2.5, 0.65, 0.6),
-    "Flor_Naranja": ("decrepit_wallpaper", (0.85, 0.42, 0.1), 2.5, 0.65, 0.6),
-    "Flor_Morada": ("decrepit_wallpaper", (0.42, 0.2, 0.62), 2.5, 0.65, 0.6),
-    "Flor_Rosa": ("decrepit_wallpaper", (0.82, 0.42, 0.5), 2.5, 0.65, 0.6),
-    "Flor_Centro": ("hessian_230", (0.7, 0.55, 0.15), 4.0, 0.7, 0.6),
-    "Verde": ("decrepit_wallpaper", (0.25, 0.55, 0.3), 2.5, 0.6, 0.6),
-    "Rebozo": ("rough_linen", (0.14, 0.08, 0.1), 2.0, 0.7, 0.7),
-    "Papel": ("decrepit_wallpaper", (0.45, 0.38, 0.42), 1.6, 0.4, 1.0),
-    "Cuerda": ("hessian_230", (0.55, 0.45, 0.3), 4.0, 0.6, 0.7),
-    "Alambre": (None, (0.22, 0.2, 0.2), 1.0, 0.5, 0.5),
-    "Vela": (None, (0.85, 0.8, 0.62), 1.0, 0.7, 0.6),
+    "Tela": ("velour_velvet", (0.075, 0.03, 0.085), 1.6, 0.5, 1.2),
+    "Blanco": ("rough_linen", (0.4, 0.36, 0.26), 2.0, 0.35, 1.2),
+    "Faja": ("rough_linen", (0.36, 0.31, 0.23), 2.0, 0.35, 1.2),
+    "Hueso": ("clay_plaster", (0.55, 0.47, 0.33), 1.2, 0.45, 1.2),
+    "Cabello": ("hessian_230", (0.06, 0.045, 0.035), 3.0, 0.5, 0.8),
+    "Carrizo": ("bamboo_veneer", (0.4, 0.33, 0.22), 1.0, 0.5, 1.0),
+    "Nudo": ("clay_plaster", (0.22, 0.26, 0.18), 2.0, 0.6, 1.0),
+    "Flor_Magenta": ("decrepit_wallpaper", (0.36, 0.09, 0.18), 2.5, 0.5, 0.9),
+    "Flor_Naranja": ("decrepit_wallpaper", (0.4, 0.19, 0.06), 2.5, 0.5, 0.9),
+    "Flor_Morada": ("decrepit_wallpaper", (0.19, 0.08, 0.24), 2.5, 0.5, 0.9),
+    "Flor_Rosa": ("decrepit_wallpaper", (0.38, 0.2, 0.2), 2.5, 0.45, 0.9),
+    "Flor_Centro": ("hessian_230", (0.26, 0.19, 0.07), 4.0, 0.5, 0.9),
+    "Verde": ("decrepit_wallpaper", (0.12, 0.18, 0.09), 2.5, 0.5, 0.9),
+    "Rebozo": ("rough_linen", (0.15, 0.025, 0.03), 2.0, 0.65, 1.0),
+    "Papel": ("decrepit_wallpaper", (0.24, 0.23, 0.21), 1.6, 0.3, 1.2),
+    "Cuerda": ("hessian_230", (0.28, 0.22, 0.14), 4.0, 0.5, 0.9),
+    "Alambre": (None, (0.16, 0.14, 0.14), 1.0, 0.5, 0.5),
+    "Vela": (None, (0.6, 0.55, 0.42), 1.0, 0.6, 0.6),
     "Flama": (None, (1.0, 0.6, 0.15), 1.0, 1.0, 0.0),
     "Brillo": (None, (0.2, 1.0, 0.85), 1.0, 1.0, 0.0),
 }
-BRILLAN = {"Flama": (1.0, 0.55, 0.12), "Brillo": (0.15, 1.0, 0.8)}
+# Las flores marchitas siguen siendo el blanco de la pistola: un brillo enfermo de Serenol
+BRILLAN = {"Flama": (1.0, 0.55, 0.12), "Brillo": (0.15, 1.0, 0.8),
+           "Flor_Magenta": (0.015, 0.09, 0.07), "Flor_Naranja": (0.015, 0.09, 0.07),
+           "Flor_Morada": (0.015, 0.09, 0.07), "Flor_Rosa": (0.015, 0.09, 0.07), "Flor_Centro": (0.03, 0.14, 0.11)}
+# Zonas que llevan las manchas de sangre seca, moho y escurrimientos de Serenol
+MANCHADAS = {"Tela", "Blanco", "Faja", "Rebozo", "Papel", "Hueso", "Cuerda", "Verde", "Carrizo", "Nudo"}
 
 
 def _escena():
@@ -159,7 +166,7 @@ def _cara(arbol, pos_cabeza, x, y, color):
     deslave = _valor(arbol, x + 150, y - 450, "GREATER_THAN", ruido.outputs[0], 0.32)
     salida = color
     dx = 250
-    for i, (cx, tinte) in enumerate(((-0.24, (0.75, 0.15, 0.4, 1)), (0.24, (0.85, 0.4, 0.08, 1)))):
+    for i, (cx, tinte) in enumerate(((-0.24, (0.34, 0.06, 0.15, 1)), (0.24, (0.38, 0.15, 0.04, 1)))):
         # anillo alrededor de la cuenca, ondulado como petalos
         ddx = _valor(arbol, x + 300, y - 100 * i, "SUBTRACT", px, cx)
         ddz = _valor(arbol, x + 300, y - 100 * i - 50, "SUBTRACT", pz, 0.04)
@@ -182,7 +189,7 @@ def _cara(arbol, pos_cabeza, x, y, color):
         lagrima = _valor(arbol, x + 850, y - 100 * i - 330, "MULTIPLY", _valor(arbol, x + 800, y - 100 * i - 330, "MULTIPLY", cerca, abajo), frente)
         salida = _mezcla(arbol, x + 1100 + dx * i, y - 100 * i - 300, "MULTIPLY", salida, (0.35, 0.42, 0.38, 1), _valor(arbol, x + 950, y - 100 * i - 330, "MULTIPLY", lagrima, 0.9))
     # Flor en la frente y puntos en los pomulos
-    for j, (cx, cz, r, tinte) in enumerate(((0.0, 0.33, 0.08, (0.45, 0.2, 0.6, 1)), (-0.38, -0.2, 0.05, (0.75, 0.2, 0.4, 1)), (0.38, -0.2, 0.05, (0.75, 0.2, 0.4, 1)))):
+    for j, (cx, cz, r, tinte) in enumerate(((0.0, 0.33, 0.08, (0.2, 0.08, 0.26, 1)), (-0.38, -0.2, 0.05, (0.34, 0.07, 0.15, 1)), (0.38, -0.2, 0.05, (0.34, 0.07, 0.15, 1)))):
         ddx = _valor(arbol, x + 300, y - 700 - 80 * j, "SUBTRACT", px, cx)
         ddz = _valor(arbol, x + 300, y - 740 - 80 * j, "SUBTRACT", pz, cz)
         d = _valor(arbol, x + 450, y - 700 - 80 * j, "SQRT", _valor(arbol, x + 400, y - 700 - 80 * j, "ADD",
@@ -238,6 +245,8 @@ def _material_pintado(mat, zona):
     alto = _valor(arbol, 500, -300, "SUBTRACT", 1.0, _valor(arbol, 450, -300, "DIVIDE", sep.outputs[2], 2.6))
     mojado = _valor(arbol, 650, -300, "MULTIPLY", _valor(arbol, 600, -300, "GREATER_THAN", _valor(arbol, 550, -350, "ADD", alto, _valor(arbol, 500, -450, "MULTIPLY", ruido.outputs[0], 0.6)), 0.85), 0.7)
     color = _mezcla(arbol, 800, -100, "MULTIPLY", color, (0.55, 0.55, 0.42, 1), mojado)
+    if zona in MANCHADAS:
+        color = _manchas(arbol, coords.outputs["Object"], color, zona)
     # Lo apagado: menos saturacion y valor
     hsv2 = _nodo(arbol, "ShaderNodeHueSaturation", 1000, 0)
     hsv2.inputs["Saturation"].default_value = sat
@@ -254,6 +263,58 @@ def _material_pintado(mat, zona):
     if zona in BRILLAN:
         bsdf.inputs["Emission Color"].default_value = (*BRILLAN[zona], 1.0)
         bsdf.inputs["Emission Strength"].default_value = 1.0
+
+
+def _ruido(arbol, vector, x, y, escala, detalle=4.0, estira=None):
+    l = arbol.links
+    if estira:
+        mapa = _nodo(arbol, "ShaderNodeMapping", x - 200, y)
+        mapa.inputs["Scale"].default_value = estira
+        l.new(vector, mapa.inputs["Vector"])
+        vector = mapa.outputs[0]
+    n = _nodo(arbol, "ShaderNodeTexNoise", x, y)
+    n.inputs["Scale"].default_value = escala
+    n.inputs["Detail"].default_value = detalle
+    l.new(vector, n.inputs["Vector"])
+    return n.outputs[0]
+
+
+def _manchas(arbol, pos, color, zona):
+    """Sangre seca que sube del ruedo, moho negro a manchones, escurrimientos de agua de Serenol
+    y, en el hueso, cuarteaduras."""
+    l = arbol.links
+    sep = _nodo(arbol, "ShaderNodeSeparateXYZ", 300, -800)
+    l.new(pos, sep.inputs[0])
+    # Sangre: abajo de ~1.6 m con orilla irregular
+    orilla = _valor(arbol, 500, -800, "ADD", 1.4, _valor(arbol, 450, -850, "MULTIPLY", _ruido(arbol, pos, 300, -900, 1.8, 6.0), 1.6))
+    sangre = _valor(arbol, 650, -800, "LESS_THAN", sep.outputs[2], orilla)
+    if zona not in ("Hueso", "Carrizo", "Nudo"):
+        color = _mezcla(arbol, 800, -800, "MIX", color, (0.09, 0.012, 0.012, 1), _valor(arbol, 700, -850, "MULTIPLY", sangre, 0.7))
+    # Moho a manchones
+    moho = _valor(arbol, 650, -1000, "GREATER_THAN", _ruido(arbol, pos, 450, -1000, 4.0, 8.0), 0.6)
+    color = _mezcla(arbol, 850, -1000, "MIX", color, (0.025, 0.035, 0.018, 1), _valor(arbol, 750, -1050, "MULTIPLY", moho, 0.75))
+    # Escurrimientos: ruido estirado en vertical (rayas que bajan)
+    rayas = _valor(arbol, 650, -1200, "GREATER_THAN", _ruido(arbol, pos, 450, -1200, 3.0, 3.0, (9.0, 9.0, 0.7)), 0.66)
+    color = _mezcla(arbol, 900, -1200, "MIX", color, (0.04, 0.26, 0.22, 1), _valor(arbol, 750, -1250, "MULTIPLY", rayas, 0.55))
+    if zona == "Hueso":
+        vor = _nodo(arbol, "ShaderNodeTexVoronoi", 450, -1400, feature="DISTANCE_TO_EDGE")
+        vor.inputs["Scale"].default_value = 6.0
+        l.new(pos, vor.inputs["Vector"])
+        grieta = _valor(arbol, 650, -1400, "LESS_THAN", vor.outputs["Distance"], 0.025)
+        color = _mezcla(arbol, 950, -1400, "MIX", color, (0.05, 0.035, 0.025, 1), _valor(arbol, 750, -1450, "MULTIPLY", grieta, 0.85))
+    if zona == "Carrizo":
+        hollin = _valor(arbol, 650, -1500, "GREATER_THAN", _ruido(arbol, pos, 450, -1500, 2.0, 4.0), 0.5)
+        color = _mezcla(arbol, 950, -1500, "MIX", color, (0.02, 0.018, 0.016, 1), _valor(arbol, 750, -1550, "MULTIPLY", hollin, 0.7))
+    return color
+
+
+def solo_pintura():
+    """Repinta y rehornea sin volver a desenvolver (el rig y los clips no cambian)."""
+    pintar()
+    material_juego()
+    for i, n in enumerate(BAJAS):
+        hornear(n, primero=(i == 0), jaula=0.25 if n == "Craneo" else 0.12, rayo=0.8 if n == "Craneo" else 0.4)
+    guardar()
 
 
 def pintar():

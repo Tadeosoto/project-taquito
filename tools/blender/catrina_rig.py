@@ -1,6 +1,7 @@
 # La Mojiganga, paso 3: el esqueleto. Huesos con nombres de Mixamo (con guion bajo, como el
 # Panzon), la trenza (Trenza_0..5), la cola (Cola_0..3) y los marcadores que busca Catrina.gd
-# (Mano_R, Mano_L, Pie_R, Cabeza, Trenza_Punta, Arete_L/R, Flor_0..3, Pecho_Nudo: no deforman).
+# (Mano_R, Mano_L, Pie_R, Cabeza, Trenza_Punta, Arete_L/R, Flor_0..3, Pecho_Nudo, Vela_0..N: no
+# deforman; las Vela son las puntas de las flamas del resplandor, para las flamas de pixelfx).
 # Los huesos siguen la joroba (catrina_malla.doblar). Los pesos se calculan aqui por distancia a
 # cada hueso (las mallas de figuras no se llevan con los pesos automaticos de Blender), con reglas
 # por pieza: el craneo, el resplandor y las flores van rigidos a la cabeza; la cola a sus huesos.
@@ -86,6 +87,11 @@ def huesos():
         h["Arete_" + lado] = (_cab(0.6 * s, -0.02, -0.32), _cab(0.6 * s, -0.02, -0.17), P + "Head", False)
     for i, (ofs, _) in enumerate(_m["FLORES"]):
         h["Flor_%d" % i] = (_cab(*ofs), _cab(*ofs) + largo, P + "Head", False)
+    # Las puntas de las flamas de las velas del resplandor (catrina_baja.puntas_velas)
+    _b = {"SOLO_FUNCIONES": True, "__name__": "catrina_baja"}
+    exec(open(RAIZ + r"\tools\blender\catrina_baja.py", encoding="utf-8").read(), _b)
+    for i, p in enumerate(_b["puntas_velas"]()):
+        h["Vela_%d" % i] = (p, p + largo, P + "Head", False)
     nudo = doblar(_m["NUDO"] + Vector((0, -0.33, 0)))
     h["Pecho_Nudo"] = (nudo, nudo + largo, P + "Spine2", False)
     return h

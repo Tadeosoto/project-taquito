@@ -1,0 +1,16 @@
+{
+ "id": "taquito/catrina-moscas",
+ "fps": 15,
+ "loop": true,
+ "frames": 180,
+ "frameSize": [
+  320,
+  180
+ ],
+ "pivot": [
+  160,
+  170
+ ],
+ "columns": 11,
+ "golpe_en": 0
+}

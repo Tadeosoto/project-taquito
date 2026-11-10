@@ -1,0 +1,16 @@
+{
+ "id": "water/drip",
+ "fps": 30,
+ "loop": true,
+ "frames": 48,
+ "frameSize": [
+  72,
+  88
+ ],
+ "pivot": [
+  36,
+  78
+ ],
+ "columns": 8,
+ "golpe_en": 0
+}

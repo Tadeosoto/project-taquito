@@ -1,0 +1,16 @@
+{
+ "id": "critters/flying-skull",
+ "fps": 30,
+ "loop": true,
+ "frames": 72,
+ "frameSize": [
+  96,
+  132
+ ],
+ "pivot": [
+  48,
+  120
+ ],
+ "columns": 10,
+ "golpe_en": 0
+}

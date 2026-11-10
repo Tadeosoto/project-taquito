@@ -5,6 +5,9 @@
 # Texturas CC0 de Poly Haven (cache/, ver CREDITS.md) puestas directo en el color, que el glTF las
 # lleva; coordenadas de textura por caras, en metros.
 # Las colisiones son cajas con "-colonly" en el nombre: Godot las vuelve StaticBody3D al importar.
+# Cada carro y cada ofrenda es su propio objeto (Carro_0..3, Ofrenda_0..5) con su version
+# reventada al lado (Carro_0_Roto...): la Catrina los revienta al pasar (scripts/catrina/Rompible.gd
+# esconde el entero, prende el roto y apaga su caja de choque).
 # El papel picado viene aqui (objeto "PapelPicado": PruebaCatrina ya no pone el suyo); las luces
 # y las velas las sigue poniendo el codigo.
 #
@@ -31,6 +34,8 @@ FONDO_PORTAL = 3.0
 CARROS = [(-9.0, -3.0), (9.0, -3.0), (-9.0, 7.0), (9.0, 7.0)]                 # Godot (x, z)
 OFRENDAS = [(-19.0, -8.0), (19.0, -8.0), (-19.0, 6.0), (19.0, 6.0), (-6.0, -19.0), (6.0, -19.0)]
 KIOSCO = (0.0, -17.5)
+# Braseros de hierro junto a las columnas (fuego de pixelfx encima, en Godot)
+BRASEROS = [(-20.4, -14.0), (20.4, -14.0), (-20.4, 14.0), (20.4, 14.0), (-12.0, 20.4), (12.0, 20.4)]
 
 # material -> foto (o None) y color
 MATERIALES = {
@@ -319,13 +324,30 @@ def ofrenda(bm, c, semilla):
         caja(bm, c + Vector((0, 0.15 * k, 0.25 + 0.5 * k)), (1.8 - 0.4 * k, 1.0 - 0.25 * k, 0.5), ("Morado", "Magenta", "Naranja")[k])
     for k in range(9):
         esfera(bm, c + Vector((-0.8 + 0.2 * k, -0.45, 0.55)), (0.09,) * 3, "Naranja", seg=6, anillos=4)
+    puntas = []
     for k in range(5):
         p = c + Vector((-0.6 + 0.3 * k, -0.15, 1.0))
-        cilindro(bm, p, p + Vector((0, 0, 0.2 + 0.15 * rnd.random())), 0.05, 0.05, "Vela", lados=6)
+        alto = 0.2 + 0.15 * rnd.random()
+        cilindro(bm, p, p + Vector((0, 0, alto)), 0.05, 0.05, "Vela", lados=6)
+        puntas.append(p + Vector((0, 0, alto + 0.02)))
     for k in range(2):
         caja(bm, c + Vector((-0.3 + 0.6 * k, 0.2, 1.75)), (0.3, 0.04, 0.4), "Oscuro")
     for k in range(3):
         esfera(bm, c + Vector((-0.4 + 0.4 * k, -0.25, 1.55)), (0.09, 0.1, 0.1), "Hueso", seg=6, anillos=4)
+    return puntas
+
+
+def brasero(bm, c):
+    """Un brasero de hierro en tripie (~100 triangulos): el cazo, el aro y tres patas. Devuelve la
+    boca, donde va el fuego."""
+    boca = c + Vector((0, 0, 1.15))
+    cilindro(bm, c + Vector((0, 0, 0.85)), boca, 0.18, 0.42, "Hierro", lados=8)
+    cilindro(bm, boca - Vector((0, 0, 0.04)), boca + Vector((0, 0, 0.02)), 0.45, 0.45, "Negro", lados=8, tapas=False)
+    for k in range(3):
+        a = math.tau * k / 3
+        pie = c + Vector((math.cos(a) * 0.45, math.sin(a) * 0.45, 0))
+        cilindro(bm, pie, c + Vector((math.cos(a) * 0.15, math.sin(a) * 0.15, 0.95)), 0.035, 0.035, "Hierro", lados=4, tapas=False)
+    return boca
 
 
 # --- Papel picado ---
@@ -358,6 +380,25 @@ def papel_picado(bm):
             poligono(bm, [m @ p for p in pts], colores[rnd.randrange(len(colores))])
 
 
+# --- Reventados ---
+
+def aplastar(bm, c, semilla, alto=0.24):
+    """La version reventada de un carro u ofrenda: la misma malla aplastada contra el piso, abierta
+    hacia los lados y chueca (carton y tablas hechos pedazos)."""
+    rnd = random.Random(semilla)
+    giro = Matrix.Rotation(rnd.uniform(-0.35, 0.35), 4, "Z")
+    ladeo = Vector((rnd.uniform(-0.12, 0.12), rnd.uniform(-0.12, 0.12)))
+    for v in bm.verts:
+        d = v.co - c
+        h = max(d.z, 0.0)
+        abre = 1.0 + 0.25 * min(h / 2.5, 1.0)
+        nuevo = Vector((d.x * abre, d.y * abre, h * alto))
+        nuevo.x += rnd.uniform(-0.12, 0.12) + ladeo.x * h
+        nuevo.y += rnd.uniform(-0.12, 0.12) + ladeo.y * h
+        nuevo.z += rnd.uniform(0.0, 0.08)
+        v.co = c + giro @ nuevo
+
+
 # --- Colisiones ---
 
 def colision(sc, col, nombre, centro, tam):
@@ -369,6 +410,15 @@ def colision(sc, col, nombre, centro, tam):
     ob = bpy.data.objects.new(nombre + "-colonly", malla)
     col.objects.link(ob)
     ob.display_type = "WIRE"
+
+
+def marca(sc, nombre, donde):
+    """Un vacio (se exporta como nodo) donde Godot cuelga un efecto."""
+    ob = bpy.data.objects.new(nombre, None)
+    ob.empty_display_size = 0.15
+    ob.location = donde
+    sc.collection.objects.link(ob)
+    return ob
 
 
 def armar_plaza():
@@ -402,14 +452,31 @@ def armar_plaza():
     bm = bmesh.new()
     kiosco(bm)
     objeto("Kiosco", bm, 0.5)
-    bm = bmesh.new()
-    for (x, z), hacer in zip(CARROS, (carro_calavera, carro_arco, carro_alebrije, carro_ataud)):
-        hacer(bm, g(x, z))
-    objeto("Carros", bm, 0.6)
-    bm = bmesh.new()
+    for i, ((x, z), hacer) in enumerate(zip(CARROS, (carro_calavera, carro_arco, carro_alebrije, carro_ataud))):
+        for roto in (False, True):
+            bm = bmesh.new()
+            hacer(bm, g(x, z))
+            if roto:
+                aplastar(bm, g(x, z), 30 + i)
+            objeto("Carro_%d%s" % (i, "_Roto" if roto else ""), bm, 0.6)
     for i, (x, z) in enumerate(OFRENDAS):
-        ofrenda(bm, g(x, z), i)
-    objeto("Ofrendas", bm, 0.8)
+        for roto in (False, True):
+            bm = bmesh.new()
+            puntas = ofrenda(bm, g(x, z), i)
+            if roto:
+                aplastar(bm, g(x, z), 50 + i, 0.3)
+            objeto("Ofrenda_%d%s" % (i, "_Roto" if roto else ""), bm, 0.8)
+        # Las puntas de las velas: PruebaCatrina les pone flamas de pixelfx
+        for k, punta in enumerate(puntas):
+            marca(sc, "Ofrenda_%d_Vela_%d" % (i, k), punta)
+    for i, (x, z) in enumerate(BRASEROS):
+        for roto in (False, True):
+            bm = bmesh.new()
+            boca = brasero(bm, g(x, z))
+            if roto:
+                aplastar(bm, g(x, z), 70 + i, 0.25)
+            objeto("Brasero_%d%s" % (i, "_Roto" if roto else ""), bm, 0.8)
+        marca(sc, "Brasero_%d_Fuego" % i, boca)
     bm = bmesh.new()
     papel_picado(bm)
     objeto("PapelPicado", bm, 1.0)
@@ -423,6 +490,8 @@ def armar_plaza():
     colision(sc, sc.collection, "Col_Kiosco", g(*KIOSCO) + Vector((0, 0, 0.6)), (8.6, 8.6, 1.2))
     for i, (x, z) in enumerate(CARROS):
         colision(sc, sc.collection, "Col_Carro_%d" % i, g(x, z) + Vector((0, 0, 1.4)), (3.3, 5.6, 2.8))
+    for i, (x, z) in enumerate(BRASEROS):
+        colision(sc, sc.collection, "Col_Brasero_%d" % i, g(x, z) + Vector((0, 0, 0.6)), (0.9, 0.9, 1.2))
     for i, (x, z) in enumerate(OFRENDAS):
         colision(sc, sc.collection, "Col_Ofrenda_%d" % i, g(x, z) + Vector((0, 0, 0.75)), (1.8, 1.0, 1.5))
     for ob in piezas:

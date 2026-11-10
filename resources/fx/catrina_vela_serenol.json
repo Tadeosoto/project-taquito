@@ -1,0 +1,16 @@
+{
+ "id": "taquito/catrina-vela",
+ "fps": 30,
+ "loop": true,
+ "frames": 120,
+ "frameSize": [
+  48,
+  64
+ ],
+ "pivot": [
+  24,
+  58
+ ],
+ "columns": 13,
+ "golpe_en": 0
+}

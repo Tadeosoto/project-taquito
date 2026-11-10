@@ -1,0 +1,16 @@
+{
+ "id": "ui/confetti",
+ "fps": 30,
+ "loop": false,
+ "frames": 103,
+ "frameSize": [
+  200,
+  140
+ ],
+ "pivot": [
+  100,
+  126
+ ],
+ "columns": 9,
+ "golpe_en": 0
+}

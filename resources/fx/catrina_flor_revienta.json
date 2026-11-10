@@ -1,0 +1,16 @@
+{
+ "id": "explosions/firework-burst",
+ "fps": 15,
+ "loop": false,
+ "frames": 55,
+ "frameSize": [
+  240,
+  248
+ ],
+ "pivot": [
+  120,
+  100
+ ],
+ "columns": 8,
+ "golpe_en": 0
+}

@@ -37,14 +37,26 @@ const RUTA_MODELO := "res://models/personajes/catrina/catrina.glb"
 const RUTA_CRANEO := "res://models/personajes/catrina/craneo_caido.glb"
 const BUCLES := ["Idle_Pose", "Walk", "Kneel_Idle", "Crawl", "Grab_Hold"]
 const MARCAS := ["Mano_R", "Mano_L", "Pie_R", "Cabeza", "Trenza_Punta", "Arete_L", "Arete_R",
-	"Flor_0", "Flor_1", "Flor_2", "Flor_3", "Pecho_Nudo"]
+	"Flor_0", "Flor_1", "Flor_2", "Flor_3", "Pecho_Nudo",
+	"Vela_0", "Vela_1", "Vela_2", "Vela_3", "Vela_4", "Vela_5", "Vela_6", "Vela_7"]
+# Adornos de pixelfx (AG, 2026-11-10): flamas en las velas de la corona que cambian de color por
+# fase, petalos que suelta al caminar, gotas de Serenol, miasma, moscas. Hojas en tools/pixelfx
+const CORONA := {"naranja": ["catrina_vela", Color(1.0, 0.6, 0.25)], "serenol": ["catrina_vela_serenol", Color(0.2, 1.0, 0.85)],
+	"rojo": ["catrina_vela_rojo", Color(1.0, 0.15, 0.1)]}
+const VELA_ESCALA := 0.9
+const CORONA_LUZ := 1.4        # energia de la luz de la corona (parpadea)
+const PETALOS_ESCALA := 0.45
+const PETALOS_FUNDE := 0.7     # por segundo: al caerse la cabeza dejan de caer poco a poco
+const GOTAS_ESCALA := 0.3
+const MIASMA_ESCALA := 0.3
+const MOSCAS_ESCALA := 0.16
 
 # Numeros del 2026-11-10 (AG: "muy facil"; meta Dark Souls: 3-5 intentos, 4-6 min, un error
 # cuesta un tercio de la vida). Antes: 900 / 600 / 300
-const VIDA := 1400
-const FASE_2 := 930            # vida donde empieza cada fase (no se la salta: se detiene ahi)
-const FASE_3 := 470
-const FRENESI := 210           # fase 3, abajo de esto: a gatas mas rapido y sin pausas
+const VIDA := 1000
+const FASE_2 := 670            # vida donde empieza cada fase (no se la salta: se detiene ahi)
+const FASE_3 := 340
+const FRENESI := 150           # fase 3, abajo de esto: a gatas mas rapido y sin pausas
 const CAPA_ZOMBIS := 2
 const GRAVEDAD := 30.0
 const PIES := 1.0              # m del origen del jugador a sus pies (media capsula)
@@ -70,20 +82,20 @@ const TRANSICION_DURA := 2.5
 # Pisoton
 const PISA_DESDE := 3.5
 const PISA_AVISA := 0.8
-const PISA_DURA := 1.3
+const PISA_DURA := 1.8       # el pie se queda plantado: la ventana del machete
 const PISA_RADIO := 2.5
-const DANO_PISA := 32
+const DANO_PISA := 26
 const ONDA_RADIO := 6.0
 const ONDA_DURA := 0.5
-const ONDA_ANCHO := 0.6
-const DANO_ONDA := 13
+const ONDA_ANCHO := 0.45
+const DANO_ONDA := 8
 const ONDA_BRINCO := 0.4       # m: con los pies mas arriba, la onda pasa por debajo
 # Agarron
 const AGARRA_DE := Vector2(2.5, 9.0)
 const AGARRA_AVISA := 1.0
 const AGARRA_CIERRA := 1.4     # hasta aqui la mano todavia te puede agarrar
 const AGARRA_PASO_BARRE := 4.0 # m/s del lance mientras barre: rodar (4.5 m/s) si te saca
-const AGARRA_DURA := 1.9       # fallo: tarda en enderezarse
+const AGARRA_DURA := 2.5       # fallo: tarda en enderezarse
 const AGARRA_MANO := 2.0       # m de la mano de verdad (el hueso Mano_R) a tu pecho
 const AGARRA_PASO := 9.0       # m/s como mucho del paso que da al frente (0.6 s hasta que cierra)
 const AGARRA_LLEGA := 2.6      # m: el paso busca dejarte a esta distancia (lo que alcanza la mano)
@@ -92,8 +104,8 @@ const GIRA_AGARRE := 2.5       # rad/s: te sigue mientras avisa
 const COMBO_AGARRE := 0.5      # tras un pisoton que te pega de cerca, chance de agarrarte luego
 const SOSTIENE := 2.5
 const APRIETA_CADA := 0.5
-const DANO_APRIETA := 8
-const ZAFARSE := 8.0           # apretones (bajan FORCEJEO_BAJA por segundo)
+const DANO_APRIETA := 6
+const ZAFARSE := 6.0           # apretones (bajan FORCEJEO_BAJA por segundo)
 const FORCEJEO_BAJA := 1.5
 const DANO_ZAFA := 5
 const ZAFADA_DURA := 1.3
@@ -126,8 +138,9 @@ const GRITO_DURA := 1.5
 const GRITO_ALCANCE := 9.0
 const GRITO_CONO := 0.5
 const DANO_GRITO := 10
-const AYUDANTES := Vector2i(2, 3)
-const AYUDANTES_MAX := 4
+const AYUDANTES := Vector2i(3, 5)
+const AYUDANTES_MAX := 8
+const GOTEO_CADA := 10.0       # fase 2: un cazador mas desde los portales cada tanto (AG: "el jugador puede")
 # Fase 3
 const MANOTAZO_DESDE := 4.0
 const MANOTAZO_AVISA := 0.8
@@ -142,7 +155,7 @@ const EMBESTIDA_LARGO := 6.0
 const DANO_EMBESTIDA := 20
 const CABEZA_DANO := 15        # si la cabeza que cae te agarra abajo
 # Esperas entre ataques (s)
-const ESPERAS := {"pisa": 1.8, "agarra": 4.0, "trenza": 5.0, "barrida": 3.5, "aretes": 6.0,
+const ESPERAS := {"pisa": 1.8, "agarra": 5.5, "trenza": 5.0, "barrida": 3.5, "aretes": 6.0,
 	"grito": 12.0, "manotazo": 1.8, "embestida": 4.5, "carga": 6.0}
 # Amagos (Dark Souls): a veces se queda con el pie o la mano arriba de mas, para castigar al que
 # rueda antes de tiempo
@@ -159,6 +172,22 @@ const BALA_LEJOS := 15.0
 const BALA_LEJOS_MULT := 0.5
 const FRENESI_RAPIDEZ := 1.5
 # Flores y fuego
+# Ventanas para el machete (AG: "solo a machetazos es imposible"): tras el pisoton el pie se queda
+# plantado, tras el manotazo la mano; pegarle ahi duele PIE_MULT y la tumba antes. Agachada (de
+# rodillas o tras fallar el agarron) las flores quedan al alcance del machete
+const MACHETE_MULT := 1.25     # el machete al carton (a balazos le cuesta mas: el cuerpo es puro carton)
+const PIE_ALCANCE := 3.2       # m del jugador al pie o la mano plantados
+const PIE_MULT := 2.0
+const PIE_AGUANTE := 2.0       # x lo que suma al aguante
+# Atorada (contra el kiosco o una pared que no rompe): rodea
+const ATASCO_TIEMPO := 1.2
+const ATASCO_MIN := 0.35       # m que tiene que avanzar en ATASCO_TIEMPO
+const RODEO_DURA := 1.4
+const ROMPE_PISA := 4.5        # m: el pisoton rompe carros y ofrendas a esta distancia
+const ROMPE_BARRIDA := 5.0
+# Huesos que rebotan (SpringBoneSimulator3D): raiz, punta, rigidez, freno
+const RESORTES := [["Trenza_0", "Trenza_5", 1.4, 0.5], ["Cola_0", "Cola_3", 2.5, 0.7]]
+const RESORTE_PESO := 0.8
 const FLORES := 4
 const FLOR_VIDA := 70.0
 const FLOR_DANO := 30          # a la barra al reventar una
@@ -232,6 +261,19 @@ var _vapores := {}             # Parte -> CPUParticles3D
 var _gotea := 0.0
 var _ayudantes: Array = []
 var _cabeza_caida: Node3D
+var goteo_lugares: Array[Vector3] = []   # de donde salen los del goteo (PruebaCatrina: los portales)
+var _goteo := GOTEO_CADA
+var _atasco_t := 0.0
+var _atasco_desde := Vector3.ZERO
+var _rodeo := Vector3.ZERO
+var _rodeo_t := 0.0
+var _flamas: Array[MeshInstance3D] = []
+var _luz_corona: OmniLight3D
+var _petalos: MeshInstance3D
+var _petalos_alfa := 1.0
+var _gotas: Array[MeshInstance3D] = []
+var _miasma: MeshInstance3D
+var _moscas: MeshInstance3D
 
 
 func _ready() -> void:
@@ -255,6 +297,7 @@ func _ready() -> void:
 	_forma_cabeza.position.y = 5.45
 	add_child(_forma_cabeza)
 	_armar_modelo()
+	_adornar()
 	var mat_flor := StandardMaterial3D.new()
 	mat_flor.albedo_color = COLOR_FLOR
 	mat_flor.emission_enabled = true
@@ -319,6 +362,7 @@ func _armar_modelo() -> void:
 		var esqueletos := _modelo.find_children("*", "Skeleton3D")
 		if not esqueletos.is_empty():
 			var esqueleto := esqueletos[0] as Skeleton3D
+			_resortes(esqueleto)
 			for nombre: String in MARCAS:
 				if esqueleto.find_bone(nombre) >= 0:
 					var unido := BoneAttachment3D.new()
@@ -330,6 +374,120 @@ func _armar_modelo() -> void:
 		_provisional = PROVISIONAL.new()
 		_modelo = _provisional
 		add_child(_modelo)
+
+
+# --- Adornos de pixelfx ---
+
+func _adornar() -> void:
+	# Las flamas de la corona: en los huesos Vela_* del modelo de Blender (el provisional no tiene)
+	for i in 8:
+		var nombre := "Vela_%d" % i
+		if not _marcas.has(nombre):
+			continue
+		var flama := EfectosPixel.cuadro_bucle(CORONA["naranja"][0], VELA_ESCALA)
+		if flama:
+			_marcas[nombre].add_child(flama)
+			_flamas.append(flama)
+	if not _flamas.is_empty():
+		_luz_corona = OmniLight3D.new()
+		_luz_corona.light_color = CORONA["naranja"][1]
+		_luz_corona.omni_range = 7.0
+		_luz_corona.light_energy = CORONA_LUZ
+		_luz_corona.position = Vector3(0, 0.6, 0.4)
+		_marca("Cabeza").add_child(_luz_corona)
+	# Petalos de cempasuchil marchito que se le caen al caminar (la base de la hoja en el piso)
+	_petalos = EfectosPixel.cuadro_bucle("catrina_petalos", PETALOS_ESCALA)
+	if _petalos:
+		# Su propio material: se desvanece sin tocar a nadie mas que use la hoja
+		_petalos.material_override = _petalos.material_override.duplicate()
+		add_child(_petalos)
+	# Gotas de Serenol del ruedo mientras este mojada
+	for a in [0.6, 2.4, 4.2]:
+		var gota := EfectosPixel.cuadro_bucle("catrina_gotas", GOTAS_ESCALA)
+		if gota:
+			gota.position = Vector3(sin(a) * 1.7, 0.0, cos(a) * 1.7)
+			add_child(gota)
+			_gotas.append(gota)
+	# Miasma al ras del piso (fase 2 en adelante) y moscas alrededor del pecho
+	_miasma = EfectosPixel.cuadro_bucle("catrina_miasma", MIASMA_ESCALA)
+	if _miasma:
+		add_child(_miasma)
+		_miasma.visible = false
+	_moscas = EfectosPixel.cuadro_bucle("catrina_moscas", MOSCAS_ESCALA)
+	if _moscas:
+		_moscas.position = Vector3(0, 2.4, 0)
+		add_child(_moscas)
+
+
+func _seguir_adornos() -> void:
+	if _petalos:
+		# Caen siempre, en cualquier animacion, mientras le queden flores; si no, se desvanecen
+		var meta := 1.0 if fase < 3 and flores_vivas() > 0 else 0.0
+		_petalos_alfa = move_toward(_petalos_alfa, meta, PETALOS_FUNDE * get_physics_process_delta_time())
+		(_petalos.material_override as ShaderMaterial).set_shader_parameter("alfa", _petalos_alfa if EfectosPixel.extras else 0.0)
+		_petalos.visible = _petalos_alfa > 0.0
+	var mojada: bool = humedad[Parte.FALDA] > SECA_ARDE
+	for gota in _gotas:
+		gota.visible = mojada
+	if _miasma:
+		_miasma.visible = fase >= 2
+	if _moscas:
+		_moscas.position.y = 1.2 if fase == 3 else 2.4
+	if _luz_corona:
+		var t := Time.get_ticks_msec() * 0.001
+		_luz_corona.light_energy = CORONA_LUZ * (0.85 + 0.1 * sin(t * 11.0) + 0.05 * sin(t * 23.0))
+
+
+# Cambia el color de las flamas de la corona: naranja, serenol (fase 2) o rojo (frenesi)
+func _poner_corona(cual: String) -> void:
+	var material := EfectosPixel.material_bucle(CORONA[cual][0])
+	if material == null:
+		return
+	for flama in _flamas:
+		if is_instance_valid(flama):
+			flama.material_override = material
+	if _luz_corona and is_instance_valid(_luz_corona):
+		_luz_corona.light_color = CORONA[cual][1]
+
+
+# Fase 3: la cabeza cae y la corona sigue ardiendo alrededor del craneo tirado
+func _corona_al_craneo() -> void:
+	if not is_instance_valid(_cabeza_caida):
+		return
+	for i in _flamas.size():
+		var flama := _flamas[i]
+		if not is_instance_valid(flama):
+			continue
+		flama.reparent(_cabeza_caida, false)
+		var a := TAU * i / _flamas.size()
+		flama.position = Vector3(cos(a) * 1.0, 0.45 + 0.3 * sin(a * 2.0), sin(a) * 1.0)
+		flama.scale = Vector3.ONE * VELA_ESCALA * 0.8
+	if _luz_corona and is_instance_valid(_luz_corona):
+		_luz_corona.reparent(_cabeza_caida, false)
+		_luz_corona.position = Vector3(0, 0.8, 0)
+
+
+# La trenza y la cola de la falda rebotan solas encima del clip (los clips ya traen su onda; esto
+# le pone el peso cuando ella gira o se frena de golpe)
+func _resortes(esqueleto: Skeleton3D) -> void:
+	var cadenas := []
+	for r in RESORTES:
+		if esqueleto.find_bone(r[0]) >= 0 and esqueleto.find_bone(r[1]) >= 0:
+			cadenas.append(r)
+	if cadenas.is_empty():
+		return
+	var sim := SpringBoneSimulator3D.new()
+	sim.name = "Resortes"
+	esqueleto.add_child(sim)
+	sim.setting_count = cadenas.size()
+	for i in cadenas.size():
+		sim.set_root_bone_name(i, cadenas[i][0])
+		sim.set_end_bone_name(i, cadenas[i][1])
+		sim.set_stiffness(i, cadenas[i][2])
+		sim.set_drag(i, cadenas[i][3])
+		sim.set_gravity(i, 0.0)
+		sim.set_radius(i, 0.05)
+	sim.influence = RESORTE_PESO
 
 
 # Las mallas del modelo de Blender que se prenden o apagan por fase (blender_catrina.md)
@@ -480,6 +638,8 @@ func _physics_process(delta: float) -> void:
 	_seguir_choque(delta)
 	_quemar(delta)
 	_gotear(delta)
+	_seguir_goteo(delta)
+	_seguir_adornos()
 	match estado:
 		Estado.DORMIDA: _dormir()
 		Estado.CAMINA: _caminar(delta)
@@ -510,6 +670,24 @@ func _caer(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0.0, 12.0 * delta)
 		velocity.z = move_toward(velocity.z, 0.0, 12.0 * delta)
 	move_and_slide()
+	# Mide seis metros: un carro alegorico o una ofrenda no la detienen, los revienta
+	for i in get_slide_collision_count():
+		var c := get_slide_collision(i).get_collider()
+		if c and c.has_meta("rompible"):
+			_romper(c.get_meta("rompible"))
+
+
+func _romper(r: Node) -> void:
+	if is_instance_valid(r) and r.has_method("romper") and not r.roto:
+		r.romper(global_position)
+		_contar("rompio")
+		_sacudir(0.6)
+
+
+func _romper_cerca(centro: Vector3, radio: float) -> void:
+	for r in get_tree().get_nodes_in_group("rompible"):
+		if not r.roto and r.distancia(centro) < radio:
+			_romper(r)
 
 
 func _lo_ve(punto: Vector3) -> bool:
@@ -569,7 +747,10 @@ func _caminar(delta: float) -> void:
 			return
 	var para := PARA_A if fase < 3 else 2.5
 	var vel := 0.0 if lejos < para else (GATEA if fase == 3 else CAMINA * _rapidez())
-	_girar(hacia, GIRA, delta)
+	_atorada(vel, hacia, delta)
+	if _rodeo_t > 0.0:
+		hacia = _rodeo
+	_girar(hacia, GIRA * (2.0 if _rodeo_t > 0.0 else 1.0), delta)
 	var frente := _frente()
 	velocity.x = frente.x * vel
 	velocity.z = frente.z * vel
@@ -580,6 +761,35 @@ func _caminar(delta: float) -> void:
 	# El provisional camina meciendose
 	var meneo := sin(Time.get_ticks_msec() * 0.006) * 0.08 if vel > 0.0 else 0.0
 	_pose({"inclinar": meneo, "brazo_r": -meneo * 2.0})
+
+
+# Si camina y no avanza (algo que no rompe: el kiosco, una pared), rodea un rato de lado
+func _atorada(vel: float, hacia: Vector3, delta: float) -> void:
+	_rodeo_t = maxf(_rodeo_t - delta, 0.0)
+	if vel <= 0.0:
+		_atasco_t = 0.0
+		_atasco_desde = global_position
+		return
+	_atasco_t += delta
+	if _atasco_t < ATASCO_TIEMPO:
+		return
+	_atasco_t = 0.0
+	if global_position.distance_to(_atasco_desde) < ATASCO_MIN and _rodeo_t <= 0.0:
+		_contar("atorada")
+		# Primero, si lo que estorba se rompe, lo rompe
+		_romper_cerca(global_position + _frente() * 2.5, 3.0)
+		var normal := Vector3.ZERO
+		for i in get_slide_collision_count():
+			normal += get_slide_collision(i).get_normal()
+		normal.y = 0.0
+		var lado := hacia.cross(Vector3.UP).normalized()
+		if normal.length_squared() > 0.001 and lado.dot(normal) < 0.0:
+			lado = -lado
+		elif normal.length_squared() <= 0.001 and randf() < 0.5:
+			lado = -lado
+		_rodeo = (lado + normal.normalized() * 0.5).normalized()
+		_rodeo_t = RODEO_DURA
+	_atasco_desde = global_position
 
 
 func _listo(cual: String) -> bool:
@@ -745,14 +955,14 @@ func _pisar(delta: float) -> void:
 		pie.y = global_position.y
 		Sonidos.tocar(self, "pisoton", 2.0, 0.9)
 		_sacudir(0.8)
-		_fx("pisada", pie, Vector3.ZERO, 1.6)
-		_fx("madre_tierra", pie, Vector3.ZERO, 1.0)
+		_fx("catrina_pisada", pie, Vector3.ZERO, 1.0)
 		var al := jugador.global_position - pie
 		al.y = 0.0
 		var pego := al.length() < PISA_RADIO and _pies_jugador() < 1.0 and _pegar(DANO_PISA, pie, 2.0)
 		if pego:
 			_contar("pisa_pego")
 		_soltar_onda(pie)
+		_romper_cerca(pie, ROMPE_PISA)
 		_recupera = true
 		_combo_tras("pisa", pego)
 	if _t >= PISA_DURA + _retraso:
@@ -788,6 +998,15 @@ func _soltar_onda(centro: Vector3) -> void:
 	_onda.visible = true
 
 
+# Radio de la onda del pisoton ahorita (-1 = no hay): el bot brinca cuando le llega
+func onda_radio() -> float:
+	return ONDA_RADIO * _onda_t / ONDA_DURA if _onda_t >= 0.0 else -1.0
+
+
+func onda_centro() -> Vector3:
+	return _onda_centro
+
+
 func _seguir_onda(delta: float) -> void:
 	if _onda_t < 0.0:
 		return
@@ -799,7 +1018,8 @@ func _seguir_onda(delta: float) -> void:
 	if not _onda_pego:
 		var al := jugador.global_position - _onda_centro
 		al.y = 0.0
-		if absf(al.length() - r) < ONDA_ANCHO and _pies_jugador() < ONDA_BRINCO:
+		# Adentro del pisoton se esquiva el pisoton (rodando); la onda es para el que esta a media distancia
+		if al.length() > PISA_RADIO and absf(al.length() - r) < ONDA_ANCHO and _pies_jugador() < ONDA_BRINCO:
 			_onda_pego = true
 			if _pegar(DANO_ONDA, _onda_centro, 1.2):
 				_contar("onda_pego")
@@ -876,6 +1096,7 @@ func _agarrar() -> void:
 	_forcejeo = 0.0
 	_aprieta = APRIETA_CADA
 	_contar("agarro")
+	_fx("catrina_agarre", _donde_sostiene(), Vector3.ZERO, 1.0)
 	_nota("pelear")
 	Sonidos.tocar(self, "carrizo", 0.0, 0.8)
 	_cambiar(Estado.AGARRADA)
@@ -902,6 +1123,7 @@ func _sostener(delta: float) -> void:
 		jugador.set("_invulnerable", 0.0)
 		jugador.recibir_dano(DANO_APRIETA, global_position, 0.0, self)
 		jugador.sacudida_colgado()
+		_fx("catrina_agarre", _donde_sostiene(), Vector3.ZERO, 0.7)
 		Sonidos.tocar(self, "carrizo", -4.0, randf_range(0.9, 1.2))
 		_sacudir(0.25)
 	if _t >= SOSTIENE:
@@ -1022,6 +1244,7 @@ func _barrer() -> void:
 	elif _t < BARRIDA_AVISA + BARRIDA_GIRA:
 		_giro = (_t - BARRIDA_AVISA) / BARRIDA_GIRA * TAU * 2.0
 		_pose({"brazo_r": 1.5, "brazo_l": 1.5})
+		_romper_cerca(global_position, ROMPE_BARRIDA)
 		if not _pego and _al_jugador().length() < BARRIDA_DESDE + 0.5 and _pies_jugador() < 1.5:
 			_pego = true
 			if _pegar(DANO_BARRIDA, global_position, 2.0):
@@ -1066,6 +1289,7 @@ func _gritar() -> void:
 		Sonidos.tocar(self, "grito_catrina", 4.0, 1.0)
 		_sacudir(0.5)
 		var cabeza := _marca("Cabeza").global_position
+		_fx("catrina_grito", cabeza, Vector3.ZERO, 1.0)
 		var al := _al_jugador()
 		var liquido := _liquido()
 		if liquido:
@@ -1082,6 +1306,27 @@ func _ayudantes_vivos() -> int:
 	_ayudantes = _ayudantes.filter(func(z) -> bool:
 		return is_instance_valid(z) and Zombie.activos.has(z) and z.estado != Zombie.Estado.MUERTO)
 	return _ayudantes.size()
+
+
+# Fase 2: cada GOTEO_CADA entra uno mas por los portales (donde no lo ves), hasta AYUDANTES_MAX
+func _seguir_goteo(delta: float) -> void:
+	if fase != 2 or dormida or estado == Estado.TRANSICION or zombis == null or not zombis.has_method("sacar"):
+		return
+	_goteo -= delta
+	if _goteo > 0.0:
+		return
+	_goteo = GOTEO_CADA
+	if _ayudantes_vivos() >= AYUDANTES_MAX:
+		return
+	var lugar := global_position + Vector3(randf_range(-1, 1), 0.0, randf_range(-1, 1)).normalized() * 6.0
+	if not goteo_lugares.is_empty():
+		var camara := get_viewport().get_camera_3d()
+		var escondidos := goteo_lugares.filter(func(l: Vector3) -> bool: return not Zombis.a_la_vista(camara, l))
+		lugar = (escondidos if not escondidos.is_empty() else goteo_lugares).pick_random()
+	var z: Zombie = zombis.sacar(lugar, true)
+	if z:
+		_ayudantes.append(z)
+		_contar("goteo")
 
 
 func _soltar_ayudantes() -> void:
@@ -1111,7 +1356,7 @@ func _manotazo() -> void:
 		var donde := global_position + _frente() * 2.5
 		Sonidos.tocar(self, "pisoton", 0.0, 1.1)
 		_sacudir(0.6)
-		_fx("pisada", donde, Vector3.ZERO, 1.3)
+		_fx("catrina_pisada", donde, Vector3.ZERO, 0.75)
 		var al := jugador.global_position - donde
 		al.y = 0.0
 		var pego := al.length() < MANOTAZO_RADIO and _pies_jugador() < 1.2 and _pegar(DANO_MANOTAZO, donde, 1.5)
@@ -1185,8 +1430,10 @@ func _entrar_fase(nueva: int) -> void:
 	fase_cambio.emit(nueva)
 	Sonidos.tocar(self, "grito_catrina", 5.0, 0.9 if nueva == 2 else 0.7)
 	_sacudir(0.9)
-	_fx("fase_onda", global_position, Vector3.ZERO, 1.5)
+	_fx("catrina_grito", global_position + Vector3.UP * 3.0, Vector3.ZERO, 1.2)
+	_fx("catrina_fase", _marca("Cabeza").global_position, Vector3.ZERO, 1.2)
 	if nueva == 2:
+		_poner_corona("serenol")
 		_animar("Tear_Roar", 1.0, true)
 		if _provisional:
 			_provisional.roto(true)
@@ -1269,13 +1516,14 @@ func _tirar_cabeza() -> void:
 		_cabeza_caida.add_child(ojo)
 	get_parent().add_child(_cabeza_caida)
 	_cabeza_caida.global_position = desde
+	_corona_al_craneo()
 	var tween := _cabeza_caida.create_tween()
 	tween.tween_property(_cabeza_caida, "global_position", hasta, 0.6).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	tween.parallel().tween_property(_cabeza_caida, "rotation", Vector3(0.6, randf() * TAU, 0.3), 0.6)
 	tween.tween_callback(func() -> void:
 		Sonidos.tocar(_cabeza_caida, "pisoton", 4.0, 0.7)
 		_sacudir(0.9)
-		_fx("torre_golpe", hasta - Vector3.UP * 0.8, Vector3.ZERO, 1.2)
+		_fx("catrina_rompe", hasta - Vector3.UP * 0.8, Vector3.ZERO, 1.0)
 		if jugador.global_position.distance_to(hasta) < 1.8:
 			jugador.set("_invulnerable", 0.0)
 			jugador.recibir_dano(CABEZA_DANO, hasta, 2.0, self))
@@ -1339,7 +1587,7 @@ func _llamear() -> void:
 	for parte: Parte in humedad:
 		var ardiendo := _arde.has(parte)
 		if ardiendo and not _llamas.has(parte):
-			var llama := EfectosPixel.cuadro_bucle("fuego_tambo", 3.0 if parte == Parte.FALDA else 2.2)
+			var llama := EfectosPixel.cuadro_bucle("catrina_arde", 1.0 if parte == Parte.FALDA else 0.7)
 			llama.top_level = true
 			add_child(llama)
 			_llamas[parte] = llama
@@ -1410,9 +1658,60 @@ func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, 
 	var mult := NUDO_MULT if fase == 3 else 1.0
 	if estado == Estado.ARRODILLADA and cuerpo_a_cuerpo:
 		mult *= RODILLAS_MULT
+	if cuerpo_a_cuerpo:
+		mult *= MACHETE_MULT
+		# El pie (o la mano) que se quedo plantado tras el golpe
+		var plantado := _plantado()
+		if plantado != null:
+			var al := jugador.global_position - plantado.global_position
+			al.y = 0.0
+			if al.length() < PIE_ALCANCE:
+				mult *= PIE_MULT
+				_aguante += dano * NUDO_MULT * (PIE_AGUANTE - 1.0) if fase == 3 else dano * (PIE_AGUANTE - 1.0)
+				_fx("catrina_golpe", plantado.global_position + Vector3.UP * 0.3, (plantado.global_position - desde).normalized(), 1.0)
+				Sonidos.tocar(self, "carrizo", -2.0, 1.4)
+				_contar("plantado")
+		# Agachada: el machete alcanza las flores
+		if _agachada():
+			var i := _flor_cercana(desde)
+			if i >= 0:
+				_contar("flor_machete")
+				if golpe_punto("flor_%d" % i, dano, desde, true) == 2:
+					return 2
 	if not cuerpo_a_cuerpo and jugador and global_position.distance_to(jugador.global_position) > BALA_LEJOS:
 		mult *= BALA_LEJOS_MULT
 	return _herir(roundi(dano * mult), desde, cuerpo_a_cuerpo)
+
+
+# El pie (tras el pisoton) o la mano (tras el manotazo) que se queda en el piso: la ventana del machete
+func _plantado() -> Node3D:
+	if not _recupera:
+		return null
+	if estado == Estado.PISA:
+		return _marca("Pie_R")
+	if estado == Estado.MANOTAZO:
+		return _marca("Mano_R")
+	return null
+
+
+# De rodillas o doblada tras fallar el agarron: las flores bajan al alcance del machete
+func _agachada() -> bool:
+	if fase == 3:
+		return false
+	return estado == Estado.ARRODILLADA or (estado == Estado.AGARRA and _recupera and not _pego)
+
+
+func _flor_cercana(desde: Vector3) -> int:
+	var mejor := -1
+	var cerca := INF
+	for i in FLORES:
+		if _flores[i] <= 0.0:
+			continue
+		var d := desde.distance_to(_puntos[i].global_position)
+		if d < cerca:
+			cerca = d
+			mejor = i
+	return mejor
 
 
 # Un PuntoDebil (flor o nudo) recibio el golpe
@@ -1432,7 +1731,7 @@ func golpe_punto(id: String, dano: int, desde: Vector3, cuerpo_a_cuerpo: bool) -
 		return 0
 	_flores[i] -= dano
 	var donde: Vector3 = _puntos[i].global_position
-	_fx("saco_golpe", donde, (donde - desde).normalized(), 0.6)
+	_fx("catrina_golpe", donde, (donde - desde).normalized(), 0.6)
 	Sonidos.tocar(self, "carton", -6.0, 1.5)
 	_nota("pelear")
 	if _flores[i] > 0.0:
@@ -1440,7 +1739,7 @@ func golpe_punto(id: String, dano: int, desde: Vector3, cuerpo_a_cuerpo: bool) -
 	# Revento la flor: se cae de rodillas
 	_puntos[i].activo(false)
 	_contar("flor")
-	_fx("saco_revienta", donde, Vector3.ZERO, 0.7)
+	_fx("catrina_flor_revienta", donde, Vector3.ZERO, 1.0)
 	var liquido := _liquido()
 	if liquido:
 		liquido.reventar(donde, 0.3, global_position.y, 20, COLOR_FLOR, Vector2(2.0, 5.0))
@@ -1464,7 +1763,7 @@ func _herir(dano: int, desde: Vector3, cuerpo_a_cuerpo: bool, fuego := false) ->
 		var hacia := (global_position - desde)
 		hacia.y = 0.0
 		var donde := global_position + Vector3.UP * (1.6 if fase == 3 else 2.2) - hacia.normalized() * radio_golpe
-		_fx("impacto", donde, hacia.normalized())
+		_fx("catrina_golpe", donde, hacia.normalized())
 		Sonidos.tocar(self, "whack", -6.0, 0.7)
 		Sonidos.tocar(self, "carton", -10.0, randf_range(0.9, 1.2))
 	# No se salta fases: se queda en el borde de la siguiente
@@ -1481,6 +1780,7 @@ func _herir(dano: int, desde: Vector3, cuerpo_a_cuerpo: bool, fuego := false) ->
 	cambio.emit(maxi(_vida, 0), VIDA)
 	if fase == 3 and not _frenesi and _vida <= FRENESI and _vida > 0:
 		_frenesi = true
+		_poner_corona("rojo")
 		_contar("frenesi")
 		Sonidos.tocar(self, "grito_catrina", 6.0, 0.6)
 		_sacudir(0.8)
@@ -1536,7 +1836,8 @@ func _morir(pagado: bool, desde := Vector3.ZERO) -> void:
 		liquido.reventar(nudo, 0.8, global_position.y, 120, Zombie.COLOR_AGUA, Vector2(4.0, 9.0))
 	if zombis and zombis.has_method("dejar_restos"):
 		zombis.dejar_restos(global_position, 2.0, hacia.normalized())
-	_fx("madre_muere", global_position, Vector3.ZERO, 1.5)
+	_fx("catrina_muere", global_position, Vector3.ZERO, 1.2)
+	_fx("catrina_flor_revienta", _marca("Cabeza").global_position, Vector3.ZERO, 1.5)
 	murio.emit()
 	if not pagado:
 		return

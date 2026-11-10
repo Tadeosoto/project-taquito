@@ -1,0 +1,16 @@
+{
+ "id": "impacts/heavy-landing",
+ "fps": 30,
+ "loop": false,
+ "frames": 49,
+ "frameSize": [
+  176,
+  80
+ ],
+ "pivot": [
+  88,
+  60
+ ],
+ "columns": 5,
+ "golpe_en": 0.005
+}

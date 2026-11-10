@@ -1,0 +1,16 @@
+{
+ "id": "critters/wisp",
+ "fps": 30,
+ "loop": true,
+ "frames": 96,
+ "frameSize": [
+  128,
+  104
+ ],
+ "pivot": [
+  64,
+  96
+ ],
+ "columns": 9,
+ "golpe_en": 0
+}

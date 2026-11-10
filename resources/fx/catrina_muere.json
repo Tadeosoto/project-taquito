@@ -1,0 +1,16 @@
+{
+ "id": "explosions/big-explosion",
+ "fps": 12,
+ "loop": false,
+ "frames": 87,
+ "frameSize": [
+  360,
+  300
+ ],
+ "pivot": [
+  180,
+  262
+ ],
+ "columns": 9,
+ "golpe_en": 0
+}

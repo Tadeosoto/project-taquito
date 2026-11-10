@@ -1,0 +1,16 @@
+{
+ "id": "taquito/catrina-arde",
+ "fps": 30,
+ "loop": true,
+ "frames": 36,
+ "frameSize": [
+  96,
+  96
+ ],
+ "pivot": [
+  48,
+  84
+ ],
+ "columns": 6,
+ "golpe_en": 0
+}

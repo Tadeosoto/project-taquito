@@ -1,0 +1,16 @@
+{
+ "id": "shadow/dark-explosion",
+ "fps": 15,
+ "loop": false,
+ "frames": 58,
+ "frameSize": [
+  280,
+  248
+ ],
+ "pivot": [
+  140,
+  206
+ ],
+ "columns": 8,
+ "golpe_en": 0
+}

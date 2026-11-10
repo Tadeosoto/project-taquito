@@ -217,16 +217,17 @@ A Dark Souls-style boss: the colonia's 6 m cartonería parade catrina, soaked wi
 
 - **The model** (made in Blender by script, `tools/blender/`, order in its `README.md`; built 2026-11-09):
   - A ~200k-triangle bake source (`catrina_alta.py`) is baked into a ~7.2k-triangle game mesh (`catrina_baja.py`, AG's ~8k budget; the Panzón is 2,550).
-  - The bake (`catrina_textura.py`) gives `catrina.png` 2048 plus `catrina_emision.png`, using Poly Haven photos (cached in the gitignored `tools/blender/cache/`, credited) under painted faded sugar-skull, stains and grime.
+  - The bake (`catrina_textura.py`) gives `catrina.png` 2048 plus `catrina_emision.png`, using Poly Haven photos (cached in the gitignored `tools/blender/cache/`, credited) under a "rotten funeral" palette (AG 2026-11-10: the first one had happy colours): bruised near-black purple, dried blood rising from the hem, black mould, Serenol drip streaks, yellowed cracked bone, wilted flowers that keep a faint Serenol glow in the emission map so they still read as targets. `solo_pintura()` repaints and rebakes without re-unwrapping.
   - The rebozo and train come from a real Blender cloth sim (`catrina_tela.py`: grids pinned at the shoulders/hem, settled 60 frames, frozen as `Rebozo_Alta`/`Cola_Alta` plus torn copies). The game mesh samples those grids every few vertices.
-  - Rig with distance-based weights (`catrina_rig.py`; the skirt blends from a fixed `Ruedo` bone on the floor up to the hips, so kneeling squashes it instead of sinking it) and the doc's 20 clips (`catrina_clips.py`, first-pass key poses), exported by `catrina_exportar.py`.
+  - Rig with distance-based weights (`catrina_rig.py`; the skirt blends from a fixed `Ruedo` bone on the floor up to the hips, so kneeling squashes it instead of sinking it) and the doc's 20 clips (`catrina_clips.py`), exported by `catrina_exportar.py`. Clips are sampled frame by frame from key dicts: each key can set the curve arriving at it (`_c`: `golpe` accelerates into a hit, `suelta` settles, `quieto` holds), chain bones lag a few frames (`RETRASO`: spine, neck, head, forearms, hands, train), and `CAPAS` add breathing, trembling, the idle's puppet twitch and the hem sway. Hit frames are the ones `Catrina.gd` reads (stomp 24, grab 30-42...).
   - Props come from `catrina_props.py`: `craneo_caido.glb`, `pompon.glb`, and the `femur.glb`/`corona.glb` the reward items use.
   - With the real model, the `PuntoDebil` spheres only collide (`malla.visible` false).
 - **`Catrina.gd`** (`class_name Catrina`, CharacterBody3D, groups `zombis` + `catrina`, `estado` 3 = MUERTA, `es_jefe`):
   - Uses `models/personajes/catrina/catrina.glb` if it exists, otherwise `CatrinaProvisional.gd`, a figure built from primitives that takes `pose({...})` targets (lean, arms, foot, kneel, crawl, braid) and smooths toward them, so every tell reads without clips.
   - Points come from markers named `Mano_R`, `Cabeza`, `Flor_0..3`, `Pecho_Nudo`...: bones of the real model (BoneAttachment3D) or the provisional's Marker3Ds.
   - The real model's phase meshes are shown/hidden by name (`Vestido`, `Vestido_Roto`, `Carrizo`, `Nudo`, `Craneo`). The state timings match the doc's clip table frame by frame.
-- **Life**: one bar of `VIDA` 1400 (hardened 2026-11-10 after AG found her too easy; Dark Souls target). Phases start at `FASE_2` 930 and `FASE_3` 470, and damage stops at the border, so no phase is skipped. Below `FRENESI` 210 in phase 3 she goes ×1.5 with almost no cooldowns and emits `frenesi` (the plaza's candles turn red).
+- **Springs**: the braid and the train bounce on top of the clips through a built-in `SpringBoneSimulator3D` (`RESORTES`, `RESORTE_PESO`), real model only.
+- **Life**: one bar of `VIDA` (retuned for melee on 2026-11-10; see `docs/pruebas-balance.md`). Phases start at `FASE_2` and `FASE_3`, and damage stops at the border, so no phase is skipped. Below `FRENESI` in phase 3 she goes ×1.5 with almost no cooldowns and emits `frenesi` (the plaza's candles turn red).
 - **Grab** (rewritten): she tracks you (`GIRA_AGARRE`) and lunges just enough to put you at `AGARRA_LLEGA` (fast during the tell, `AGARRA_PASO_BARRE` 4 m/s while sweeping, so a timed roll escapes). It aims with her right hand, not her body, and catches when your chest is within `AGARRA_MANO` of the segment her real `Mano_R` bone swept that frame.
   - `Player.atrapar(self, true)` hangs you: `character_animation.colgar()` (a `colgado` state: Jump looped, plus `sacude`/`patalea` one-shots on squeezes and mashing), and the player faces `Catrina.cara()`. Your collision mask is cleared while held.
   - **This touches JJ's player code (`atrapar` gained a parameter; new states in `character_animation`): tell JJ.**
@@ -237,25 +238,39 @@ A Dark Souls-style boss: the colonia's 6 m cartonería parade catrina, soaked wi
   - the flowers only take bullets while `expuesta()` (pose, kneeling, escaped, or `_recupera` after an attack's hit frame);
   - bullets beyond `BALA_LEJOS` do half.
   - Her own `PuntoDebil` bodies are collision exceptions; without that, the knot pushed her through the floor in phase 3.
+- **She smashes the plaza** (AG cheesed her: stuck on a float, shot to death from behind it). Each float and ofrenda is its own object in the plaza `.glb` with a crushed copy (`Carro_0_Roto`...). `scripts/catrina/Rompible.gd`, attached by `PruebaCatrina._armar_rompibles` to each `Col_*` StaticBody (meta `rompible`, group `rompible`), hides the whole one, shows the crushed one, disables the collider, throws plank chunks and puts out the ofrenda's candle; `restaurar()` on reset. `Catrina._caer` breaks whatever she slides into; the stomp (`ROMPE_PISA`) and skirt spin (`ROMPE_BARRIDA`) break what's near. Against something unbreakable (kiosk, walls) `_atorada` notices no progress in `ATASCO_TIEMPO` and walks sideways along the wall for `RODEO_DURA`. `-- --cheese` tests it.
+- **Melee windows** (AG: melee-only was impossible): after the stomp's hit frame the planted foot (`Pie_R`), after the phase 3 slam the hand, takes melee ×`PIE_MULT` within `PIE_ALCANCE` and counts ×`PIE_AGUANTE` toward the stagger (`_plantado`). Kneeling or bent after a missed grab (`_agachada`), melee also hits the nearest flower (`_flor_cercana`), so melee can kneel her too.
   - **Phase 1**: stomp + shockwave ring, grab (`Player.atrapar`, lifted to `Mano_R`, squeezes, throws ~8 m with `_retroceso`, plus `DANO_CHOCA` if a ray finds a wall on the way), braid whip that pulls you into grab range.
-  - **Phase 2**: skirt spin, earrings that roll (`PomponRodante.gd`), scream that sprays `Liquido` and pulls 2-3 hunters from `Zombis.sacar` (max 4 alive).
+  - **Phase 2**: skirt spin, earrings that roll (`PomponRodante.gd`), scream that sprays `Liquido` and pulls `AYUDANTES` 3-5 hunters from `Zombis.sacar` (max `AYUDANTES_MAX` 8), plus one more every `GOTEO_CADA` 10 s from the arcades (`goteo_lugares`, out of camera) while phase 2 lasts.
   - **Phase 3**: head falls as a StaticBody prop, she crawls, only the knot takes damage. Pistol body hits do 0; melee always reaches the knot.
 - **Openings**:
-  - `POSE` every 2-3 attacks (hand on hip) and `ZAFADA` take ×1.5.
-  - The 4 hair flowers (`PuntoDebil.gd`: small StaticBody3D on layer 2 that forwards `recibir_golpe` to `golpe_punto`) are pistol-only. Popping one kneels her 3 s, and melee does ×2 then; so does `AGUANTE` 120 of damage in a row.
-  - Grab escape: `ZAFARSE` 8 presses via `forcejear()`.
+  - `POSE` every `POSE_CADA` attacks and `ZAFADA` take ×`ABIERTA_MULT`.
+  - The 4 hair flowers (`PuntoDebil.gd`: small StaticBody3D on layer 2 that forwards `recibir_golpe` to `golpe_punto`) take bullets only while `expuesta()`, and melee while she's low (above). Popping one kneels her `ARRODILLADA_DURA`, and melee does ×`RODILLAS_MULT` then; so does `AGUANTE` of damage in a row.
+  - Grab escape: `ZAFARSE` presses via `forcejear()`.
 - **Fire**: polls `zonas_lombriz` FUEGO like `MadreCarcamo._quemar`. Phase 1 only dries `humedad` per part (steam particles). From phase 2 a part at ≤ 0.2 burns 6 s, then counts as burnt: ×1.25 damage each.
 - **Hooks elsewhere**:
   - `Pistola` accepts `Catrina`/`PuntoDebil` and never counts them as headshots.
   - `Player._radio_de` subtracts a target's `radio_golpe` from melee reach in `_golpear` and the thrust/slash loop: her origin is mid-skirt. **These touch JJ's attack code: tell JJ.**
   - `Zombis.limpiar` removes her. Sounds `carton`, `carrizo`, `grito_catrina`, `pisoton` in `Sonidos`. Libreta entry `catrina`.
-  - Pixel effects reuse existing slots (`pisada`, `madre_tierra`, `fase_onda`, `saco_golpe`, `saco_revienta`, `torre_golpe`, `madre_muere`); her own sheets are still to do.
+  - **Her own pixel sheets** (AG 2026-11-10, recoloured in her palette, all in `EfectosPixel.EXTRAS`): `catrina_pisada` (stomp and slam), `catrina_grito` (scream and phase change), `catrina_agarre` (grab catch and squeezes), `catrina_fase` (papel-picado confetti), `catrina_golpe` (body, flower and planted-limb hits), `catrina_rompe` (broken props, fallen head), `catrina_muere`, `catrina_flor_revienta` (popped flower, death).
+- **Adornments** (pixelfx loops via `EfectosPixel.cuadro_bucle`, so F9 hides them):
+  - Crown: a flame on each of the halo's 8 candles. These are non-deform bones `Vela_0..7` (`catrina_rig.py` places them from `catrina_baja.puntas_velas()`, which replays the halo's random sequence). `_poner_corona` swaps `catrina_vela` (orange), `catrina_vela_serenol` (phase 2) and `catrina_vela_rojo` (frenzy) and the crown light's colour. In phase 3 `_corona_al_craneo` moves the flames into a ring around the fallen skull.
+  - On her: `catrina_petalos` (wilted marigold, falling in every animation while she has flowers left; its own material copy fades out at `PETALOS_FUNDE` when the head falls), `catrina_gotas` at the hem while wet, `catrina_miasma` at her feet from phase 2, `catrina_moscas` around the chest (the knot in phase 3). Burning parts use `catrina_arde`.
+  - Trimmed copies in `tools/pixelfx/fx/taquito/` (pixelfx's version draws a candle, grass, litter or its stock character): `catrina-vela.js` (from `fire/candle`), `catrina-moscas.js` (from `weather/fireflies`), `catrina-petalos.js` (from `weather/falling-leaves`), `catrina-arde.js` (from `status/burning`).
+- **Plaza adornments** (`PruebaCatrina._adornar_plaza`/`_adornar_cielo`/`_adornos`):
+  - flames on every ofrenda candle (empties `Ofrenda_i_Vela_k` from `plaza.py`), going out with the phase lights and when the ofrenda breaks (`Rompible.adornos`);
+  - 6 iron braziers (`Brasero_i`, breakable, `fuego_tambo` + an `OmniLight3D` on `Brasero_i_Fuego`);
+  - real ground fog: volumetric fog on the `Environment` (global density 0) plus one box `FogVolume` (`NIEBLA_ALTO`, `NIEBLA_DENSIDAD`, `NIEBLA_COLOR`, a static `NoiseTexture3D` for patches; animating the noise would regenerate it every frame); the brazier and candle lights have `light_volumetric_fog_energy` so they glow in it. AG didn't like the pixelfx fog quads;
+  - `ALMAS` marigold wisps bobbing;
+  - `MURCIELAGOS` bats circling above the papel picado, plus `CALACAS` turquoise-flamed flying skulls from phase 2.
+  - Frenzy (`_plaza_en_frenesi`): candles and braziers go red, wisps flee and fade, flyers double speed. `-- --captura=<png> --frenesi` shoots it.
 - **Arena** (`scenes/catrina.tscn`, `PruebaCatrina.gd`): a 44 m plaza: `models/escenarios/plaza_catrina/plaza_catrina.glb` if it exists (`tools/blender/plaza.py`: arcades, kiosk, 4 parade floats, 6 ofrendas, box colliders named `-colonly`), otherwise the old code-built boxes (`_nivel_cajas`). Either way the code adds the papel picado (one MultiMesh), the lights and the ofrenda candle lights that go out phase by phase. `-- --captura=<png>` saves a shot, and `-- --fase=2|3` puts her in that phase first.
   - It has a `Ciclo` held at night and a `Zombis` node (no spontaneous spawns) for the adds, and two Molotov crates refilled on each phase change.
   - She stands still until you come within `DESPIERTA_A` 14 m, then the bar and `pt_tema` start.
   - Fainting resets the fight. Winning gives `femur_catrina.tres` (22 damage, slow) and `corona_flores.tres` (amulet `petalos` 0.25: `Bonos.petalos()`, healed in `Zombie._morir`). `,` restarts.
   - `-- --medir=<s>` runs alone: flower, wet and dry Molotov, grab and escape, every phase, the knot. It prints and quits; it needs a window.
-  - `-- --bot=<s>`: a test player fights her and reports how long she lasted, faints and damage per attack (results in `docs/pruebas-balance.md`).
+  - `-- --bot=<s>`: a test player fights her in attempts, like the game (a faint resets the fight; 5 tacos each attempt), and reports each attempt and the damage per attack (results in `docs/pruebas-balance.md`). `--modo=machete|mixto` (mixto also fires scripted shots: flowers while exposed, body from range), `--bueno` (0.9 roll timing instead of 0.75), `--intentos=N`. It kills adds within 3 m first.
+  - `-- --cheese`: the player hides behind a float ~10 m away shooting; passes if she breaks it or reaches the player within 6 s.
   - `-- --captura=<png> --agarre`: a shot of the player hanging in her fist.
 - **Safehouse**: Shift+X brings her in awake 18 m ahead (plain X still clears). `-- --catrina` spawns her on load, and `-- --salir=<s>` prints her state and quits.
 

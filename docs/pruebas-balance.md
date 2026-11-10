@@ -175,30 +175,35 @@ Se prueba en `godot --path . scenes/lombrices.tscn` (el cárcamo) o con Shift+L 
 
 Anotar aquí: cuánto duró la pelea, cuántas sales y molotovs se usaron, cuántas veces te desmayaste y en qué fase.
 
-## La Mojiganga (propuesta de AG, 2026-11-09; endurecida el 2026-11-10)
+## La Mojiganga (propuesta de AG, 2026-11-09; ajustada para el machete el 2026-11-10)
 
-Se prueba en `godot --path . scenes/catrina.tscn` (la plaza del desfile) o con Shift+X en el safehouse (sale despierta; `-- --catrina` la saca al cargar). `-- --medir=40` corre los eventos forzados; `-- --bot=<s>` pelea sola con un jugador de prueba (rodea, pega cuando está abierta, rueda antes de cada golpe con 75 % de acierto, machaca para zafarse, se cura) e imprime cómo va cada 30 s. Todos los números están al principio de `scripts/catrina/Catrina.gd`.
+Se prueba en `godot --path . scenes/catrina.tscn` (la plaza del desfile) o con Shift+X en el safehouse (sale despierta; `-- --catrina` la saca al cargar). `-- --medir=40` corre los eventos forzados; `-- --cheese` revisa que no se atore atrás de un carro; `-- --bot=<s>` pelea sola por intentos (ver abajo). Todos los números están al principio de `scripts/catrina/Catrina.gd`.
 
-AG la jugó el 2026-11-10: "no te agarra, la animación del jugador está fuera de lugar y está muy fácil". Meta nueva: jefe de Dark Souls, 3-5 intentos de alguien que juega bien, 4-6 minutos por intento, un error cuesta un tercio de la vida.
+Historia: AG la jugó el 2026-11-10 dos veces. La primera: "no te agarra, la animación del jugador está fuera de lugar y está muy fácil" (se endureció: 1400 de vida, combos, amagos, carga de lejos, frenesí). La segunda: "a puro machete es imposible, pero se atora en un carro y la mato a balazos; quiero más zombis en la fase 2". Meta: jefe de Dark Souls, 3-5 intentos de alguien que juega bien, que se pueda a machete.
 
 | Qué | Número | Dónde |
 |---|---|---|
-| Vida | 1400 (antes 900); la fase 2 empieza en 930 y la 3 en 470; no se las salta | `VIDA`, `FASE_2`, `FASE_3` |
-| Frenesí | abajo de 210 en la fase 3: todo × 1.5 y casi sin esperas; las velas de la plaza se ponen rojas | `FRENESI`, `FRENESI_RAPIDEZ` |
-| Caminar | 2.0 m/s (antes 1.4; fase 2: × 1.15); a gatas 1.8 m/s; decide cada 0.15 s | `CAMINA`, `GATEA`, `DECIDE_CADA` |
-| Pisotón | a menos de 3.5 m; 0.8 s de aviso; 32 en 2.5 m y la onda 13; 30 % de las veces amaga 0.4-0.7 s con el pie arriba | `PISA_*`, `ONDA_*`, `RETRASO*` |
-| Agarrón | de 2.5 a 9 m; te sigue (2.5 rad/s) y da un paso al frente que busca dejarte a 2.6 m (hasta 9 m/s en el aviso, 4 m/s mientras barre: rodar a tiempo te saca); agarra si tu pecho queda a 2 m del camino de su mano de verdad entre 1.0 y 1.4 s; te alza colgado (piernas al aire, sacudidas), aprieta 8 cada 0.5 s, avienta 8 + 20 si chocas; 8 apretones para zafarte | `AGARRA_*`, `DANO_APRIETA`, `DANO_CHOCA`, `ZAFARSE` |
-| Trenza | de 7 a 14 m; 13 y te jala; sigue el agarrón de inmediato | `TRENZA_*` |
-| Combos | pisotón → agarrón (50 % si te pegó de cerca), pisotón → barrida o segundo pisotón, barrida → agarrón, agarrón fallido → pisotón, manotazo → manotazo | `_combo_tras` |
-| De lejos | más de 12 m por 3 s: trenza, aretes (también en la fase 1) o una carga de 3 s a 6 m/s que acaba en agarrón; la bala a más de 15 m le hace la mitad | `LEJOS_*`, `CARGA_*`, `BALA_LEJOS*` |
-| Pose | cada 4-5 ataques, 1.2 s; recibe × 1.25 (también recién zafada) | `POSE_CADA`, `POSE_DURA`, `ABIERTA_MULT` |
-| Flores | 4 × 70, a balazos y solo con la guardia abierta (posando, de rodillas, zafada o tras el golpe de un ataque); al reventar una, 30 a la barra y de rodillas 2.2 s (machete × 1.5) | `FLOR_VIDA`, `expuesta()`, `RODILLAS_MULT` |
-| De rodillas por daño | 200 seguidos (baja 20 por segundo) | `AGUANTE` |
-| Fase 2 | barrida 24, aretes 12, grito 10 + 2-3 zombis (máx. 4) | `BARRIDA_*`, `GRITO_*` |
-| Fase 3 | solo el nudo (× 1.5); manotazo 26 (con amago), embestida 20, agarrón | `MANOTAZO_*`, `EMBESTIDA_*` |
-| Fuego | igual que antes; cada parte quemada da × 1.15 (antes 1.25) | `QUEMADA_MULT` |
+| Vida | 1000; la fase 2 empieza en 670 y la 3 en 340; no se las salta | `VIDA`, `FASE_2`, `FASE_3` |
+| Frenesí | abajo de 150 en la fase 3: todo × 1.5 y casi sin esperas; las velas se ponen rojas | `FRENESI`, `FRENESI_RAPIDEZ` |
+| Machete | × 1.25 al cartón (la pistola no) | `MACHETE_MULT` |
+| Pie plantado | tras el golpe del pisotón (1.8 s en total, antes 1.3) el pie se queda: machetazo a 3.2 m de él × 2 y cuenta doble para tumbarla; en la fase 3, la mano del manotazo | `PIE_ALCANCE`, `PIE_MULT`, `PIE_AGUANTE`, `PISA_DURA` |
+| Flores a machete | de rodillas o doblada tras fallar el agarrón (2.5 s, antes 1.9), el machete le da también a la flor más cercana | `_agachada`, `AGARRA_DURA` |
+| Pisotón | a menos de 3.5 m; 0.8 s de aviso; 26 en 2.5 m (antes 32); 30 % de amago | `PISA_*`, `RETRASO*` |
+| Onda | 8 (antes 13), 0.45 de ancho, solo le pega al que está **afuera** del radio del pisotón: adentro se rueda el pisotón, a media distancia se brinca la onda | `ONDA_*`, `_seguir_onda` |
+| Agarrón | igual; aprieta 6 (antes 8); 6 apretones para zafarte (antes 8); espera 5.5 s entre agarrones (antes 4) | `DANO_APRIETA`, `ZAFARSE`, `ESPERAS` |
+| Fase 2 | grito: 3-5 zombis (antes 2-3), hasta 8 vivos (antes 4); además uno cada 10 s desde los portales mientras dure la fase | `AYUDANTES*`, `GOTEO_CADA` |
+| Carros y ofrendas | los revienta al chocar con ellos, con el pisotón (4.5 m) y con la barrida (5 m); si se atora en algo que no rompe, rodea de lado 1.4 s | `ROMPE_*`, `ATASCO_*`, `RODEO_DURA` |
+| Lo demás | igual que antes: pose cada 4-5 ataques, flores 4 × 70 (a balazos solo con la guardia abierta), aguante 200, fuego × 1.15 por parte quemada, combos, carga de lejos, bala a más de 15 m a la mitad | |
 
-**Corrida del bot (2026-11-10, 9 min de tope):** ganó a los 366 s (6:06) con 17 desmayos; 65 agarrones, 18 lo agarraron (todos zafados); el daño que más le hizo: agarrón y aventón (420 + 252), pisotón (343), los zombis del grito mientras ella camina o posa (246 + 142). El bot es malo a propósito (no pelea con los zombis, rueda a destiempo con los amagos), así que alguien que juega bien debería caer en la meta. Anotar aquí cuánto duró, cuántas veces te desmayaste y en qué fase.
+**El bot**: pelea por intentos como en el juego (desmayarse reinicia la pelea; cada intento empieza con vida llena y 5 tacos). Rueda antes de cada golpe (75 % de acierto, o 90 % con `--bueno`), no sabe de los amagos, brinca la onda, mata a los zombis que se le acercan, se cura abajo de 40. `--modo=machete` le pega encima, rueda hacia ella en el pisotón y castiga el pie y las flores bajas; `--modo=mixto` además dispara (simulado: 8 por tiro cada 0.3 s, 60 % de puntería, a las flores si está abierta). `--intentos=N` (8).
+
+**Corridas finales (2026-11-10, 8 intentos cada una)**:
+- Mixto bueno: una ganó al intento 8 y otra al 1 (112 s); las demás llegan a la fase 3 (la dejó en 10 de vida una vez). Mixto normal: ganó al intento 4.
+- Machete bueno: ninguna gana aún; llega a la fase 3 dos de 8 (la mejor la dejó en 207). Machete normal: fase 3 dos de 8.
+- Todos los intentos duran ~1 minuto: el bot esquiva mal (no lee los amagos, no se aparta de la barrida ni de los zombis). Alguien que juega bien debería durar más y ganar a machete; si no, lo siguiente a mover es `MACHETE_MULT` o `PISA_DURA`.
+- `--cheese`: revienta el carro a los 3.4 s (pasa).
+
+Anotar aquí cuánto duró, cuántas veces te desmayaste y en qué fase, a machete y con pistola.
 
 ## Verificaciones pendientes: zombis PSX y detección
 

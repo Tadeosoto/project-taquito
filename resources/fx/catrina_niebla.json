@@ -1,0 +1,16 @@
+{
+ "id": "weather/fog",
+ "fps": 10,
+ "loop": true,
+ "frames": 120,
+ "frameSize": [
+  320,
+  180
+ ],
+ "pivot": [
+  160,
+  170
+ ],
+ "columns": 9,
+ "golpe_en": 0
+}

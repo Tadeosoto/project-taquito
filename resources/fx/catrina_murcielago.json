@@ -1,0 +1,16 @@
+{
+ "id": "critters/bat",
+ "fps": 30,
+ "loop": true,
+ "frames": 72,
+ "frameSize": [
+  112,
+  80
+ ],
+ "pivot": [
+  56,
+  40
+ ],
+ "columns": 8,
+ "golpe_en": 0
+}

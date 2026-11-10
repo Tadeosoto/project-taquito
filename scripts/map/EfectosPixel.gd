@@ -37,7 +37,9 @@ const CAPA_LUZ := 7
 # Los de la segunda ronda: se apagan con extras = false
 const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar", "fuente", "bala",
 	# La Madre del Carcamo y sus crias (scripts/lombrices/), hojas con la paleta del Serenol
-	"madre_surge", "madre_tierra", "saco_golpe", "saco_revienta", "lodo_choque", "fase_onda", "madre_muere", "cria_corte", "cria_cabeza", "molotov_revienta", "torre_golpe", "pegada_mordida", "pegada_suelta"]
+	"madre_surge", "madre_tierra", "saco_golpe", "saco_revienta", "lodo_choque", "fase_onda", "madre_muere", "cria_corte", "cria_cabeza", "molotov_revienta", "torre_golpe", "pegada_mordida", "pegada_suelta",
+	# La Mojiganga (scripts/catrina/): las suyas, con la paleta del vestido, el carton y el cempasuchil
+	"catrina_pisada", "catrina_grito", "catrina_agarre", "catrina_fase", "catrina_golpe", "catrina_rompe", "catrina_muere", "catrina_flor_revienta"]
 
 # Cada lugar, sus variantes (la primera es la que queda por omision, salvo PREDETERMINADA). `hoja` vacia = nada.
 # `puno`: la hoja a mano limpia; `mata`: la del golpe que mata; `voltea`: la hoja ve a la
@@ -118,6 +120,15 @@ const LUGARES := {
 	"torre_golpe": [{ "nombre": "A", "hoja": "torre_golpe", "escala": 0.4, "suelo": true }],
 	"pegada_mordida": [{ "nombre": "A", "hoja": "pegada_mordida", "escala": 0.35 }],
 	"pegada_suelta": [{ "nombre": "A", "hoja": "pegada_suelta", "escala": 0.35 }],
+	# La Mojiganga (Catrina.gd, Rompible.gd)
+	"catrina_pisada": [{ "nombre": "A", "hoja": "catrina_pisada", "escala": 0.45, "suelo": true }],
+	"catrina_grito": [{ "nombre": "A", "hoja": "catrina_grito", "escala": 0.45 }],
+	"catrina_agarre": [{ "nombre": "A", "hoja": "catrina_agarre", "escala": 0.7 }],
+	"catrina_fase": [{ "nombre": "A", "hoja": "catrina_fase", "escala": 0.8 }],
+	"catrina_golpe": [{ "nombre": "A", "hoja": "catrina_golpe", "escala": 0.7, "voltea": true }],
+	"catrina_rompe": [{ "nombre": "A", "hoja": "catrina_rompe", "escala": 0.45, "suelo": true }],
+	"catrina_muere": [{ "nombre": "A", "hoja": "catrina_muere", "escala": 0.4, "suelo": true }],
+	"catrina_flor_revienta": [{ "nombre": "A", "hoja": "catrina_flor_revienta", "escala": 0.3 }],
 }
 
 # La variante que queda por omision cuando no es la primera. El golpe ya deja su estela en 3D

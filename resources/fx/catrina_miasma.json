@@ -1,0 +1,16 @@
+{
+ "id": "nature/poison-cloud",
+ "fps": 15,
+ "loop": true,
+ "frames": 60,
+ "frameSize": [
+  256,
+  100
+ ],
+ "pivot": [
+  128,
+  86
+ ],
+ "columns": 5,
+ "golpe_en": 0
+}

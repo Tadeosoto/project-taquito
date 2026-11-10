@@ -12,9 +12,13 @@ extends Node3D
 # las tres fases), imprime lo que paso y sale. -- --captura=<archivo.png> guarda una vista de ella
 # a los 2 s y sale (para ver el cuerpo provisional o el modelo sin jugar); con -- --fase=2|3 la
 # pone antes en esa fase; con -- --agarre te tiene colgado de la mano.
-# Con -- --bot=<s> un jugador de prueba pelea solo (rodea, pega cuando esta abierta, rueda cuando
-# va a pegar, machaca para zafarse, se cura): al final dice cuanto duro ella, cuantas veces se
-# habria desmayado, el dano por ataque y la cuenta de ella.
+# Con -- --bot=<s> un jugador de prueba pelea solo, por intentos como en el juego (desmayarse
+# reinicia la pelea, con 5 tacos cada intento): rodea, rueda antes de cada golpe (BOT_ACIERTA, o
+# BOT_BUENO con --bueno), castiga el pie plantado y las flores bajas a machetazos, machaca para
+# zafarse, se cura y mata a los zombis que se le acercan. --modo=machete (solo machete) o mixto
+# (ademas balazos a las flores cuando esta abierta y al cuerpo de lejos). --intentos=N (8).
+# Con -- --cheese el jugador se esconde atras de un carro a ~10 m y le dispara: pasa si ella
+# revienta el carro o llega a el en 6 s.
 
 const PLAZA := 44.0
 const FACHADA_ALTO := 10.0
@@ -29,6 +33,24 @@ const CAJAS := [Vector3(-14.0, 0.5, 12.0), Vector3(14.0, 0.5, 12.0)]
 const CARROS := [Vector3(-9.0, 0, -3.0), Vector3(9.0, 0, -3.0), Vector3(-9.0, 0, 7.0), Vector3(9.0, 0, 7.0)]
 const OFRENDAS := [Vector3(-19.0, 0, -8.0), Vector3(19.0, 0, -8.0), Vector3(-19.0, 0, 6.0), Vector3(19.0, 0, 6.0),
 	Vector3(-6.0, 0, -19.0), Vector3(6.0, 0, -19.0)]
+# Adornos de pixelfx de la plaza (AG, 2026-11-10): flamas en las velas de las ofrendas, braseros,
+# niebla al ras, almas de cempasuchil flotando, murcielagos y calaveras voladoras (fase 2+). En el
+# frenesi todo se pone rojo, las almas huyen y los murcielagos vuelan mas rapido
+const VELA_OFRENDA := 0.35
+const BRASERO_ESCALA := 0.6
+# Niebla de verdad (volumetrica) al ras del piso, en vez de hojas planas (AG: no le gusto)
+const NIEBLA_ALTO := 1.5
+const NIEBLA_DENSIDAD := 0.9
+const NIEBLA_COLOR := Color(0.45, 0.38, 0.55)
+const ALMAS := 12
+const ALMA_ESCALA := 0.22
+const MURCIELAGOS := 10
+const MURCIELAGO_ESCALA := 0.3
+const CALACAS := 3
+const CALACA_ESCALA := 0.4
+# De donde salen los zombis del goteo de la fase 2: bajo los portales
+const GOTEO := [Vector3(-19.5, 0, -12.0), Vector3(-19.5, 0, 12.0), Vector3(19.5, 0, -12.0), Vector3(19.5, 0, 12.0),
+	Vector3(-10.0, 0, 19.5), Vector3(10.0, 0, 19.5)]
 const COLORES_PAPEL := [Color(0.95, 0.2, 0.5), Color(1.0, 0.55, 0.1), Color(0.55, 0.25, 0.85),
 	Color(0.2, 0.75, 0.45), Color(0.25, 0.55, 0.95), Color(1.0, 0.85, 0.2)]
 
@@ -65,6 +87,23 @@ var _bot_machaca := 0.0
 var _bot_cura := 0.0
 var _bot_fin := -1.0
 var _bot_lado := 1.0
+var _bot_modo := "mixto"
+var _bot_acierta := 0.75
+var _bot_intentos := 8
+var _bot_intento := 1
+var _bot_intento_t := 0.0
+var _bot_intentos_log: Array[String] = []
+var _bot_tiro := 0.0
+var _rompibles: Array[Rompible] = []
+var _cheese := -1.0
+var _velas_fx: Array = []          # por ofrenda, sus flamas
+var _braseros: Array = []          # [flama, luz]
+var _niebla: FogVolume
+var _almas: Array = []             # [nodo, lugar, fase, radio]
+var _voladores: Array = []         # [nodo, centro, radio, alto, velocidad, angulo, calaca]
+var _plaza_frenesi := false
+var _frenesi_t := 0.0
+var _captura_frenesi := false
 
 
 func _ready() -> void:
@@ -118,6 +157,16 @@ func _ready() -> void:
 			_captura_agarre = true
 		elif arg.begins_with("--bot="):
 			_bot = float(arg.trim_prefix("--bot="))
+		elif arg.begins_with("--modo="):
+			_bot_modo = arg.trim_prefix("--modo=")
+		elif arg == "--bueno":
+			_bot_acierta = BOT_BUENO
+		elif arg.begins_with("--intentos="):
+			_bot_intentos = int(arg.trim_prefix("--intentos="))
+		elif arg == "--frenesi":
+			_captura_frenesi = true
+		elif arg == "--cheese":
+			_cheese = 0.0
 	_empezar()
 	if _captura != "":
 		_capturar()
@@ -151,10 +200,135 @@ func _nivel() -> void:
 			_papel_picado()
 		for lugar: Vector3 in OFRENDAS:
 			_luz_ofrenda(lugar)
+		_adornar_plaza(plaza)
+		_armar_rompibles(plaza)
 		_rellenar_cajas()
 		_luces()
 		return
 	_nivel_cajas()
+	_adornar_cielo()
+
+
+# Los carros y ofrendas de la plaza de Blender que ella revienta (Rompible.gd)
+func _armar_rompibles(plaza: Node) -> void:
+	for tipo in [["Carro", CARROS.size()], ["Ofrenda", OFRENDAS.size()], ["Brasero", _braseros.size()]]:
+		for i in tipo[1]:
+			var nombre := "%s_%d" % [tipo[0], i]
+			var cuerpo := plaza.find_child("Col_" + nombre, true, false) as StaticBody3D
+			if cuerpo == null:
+				cuerpo = plaza.find_child("Col_%s-colonly" % nombre, true, false) as StaticBody3D
+			var entera := plaza.find_child(nombre, true, false) as Node3D
+			if cuerpo == null or entera == null:
+				push_warning("PruebaCatrina: falta %s en la plaza" % nombre)
+				continue
+			var luz: OmniLight3D = _velas[i] if tipo[0] == "Ofrenda" and i < _velas.size() else null
+			if tipo[0] == "Brasero":
+				luz = _braseros[i][1]
+			var r := Rompible.armar(self, cuerpo, entera, plaza.find_child(nombre + "_Roto", true, false) as Node3D, luz)
+			if tipo[0] == "Ofrenda" and i < _velas_fx.size():
+				for f in _velas_fx[i]:
+					r.adornos.append(f)
+			elif tipo[0] == "Brasero" and _braseros[i][0]:
+				r.adornos.append(_braseros[i][0])
+			_rompibles.append(r)
+
+
+# --- Adornos de pixelfx ---
+
+func _adornar_plaza(plaza: Node) -> void:
+	# Flamas en las velas de las ofrendas (vacios Ofrenda_i_Vela_k de plaza.py)
+	for i in OFRENDAS.size():
+		var flamas: Array = []
+		for k in 5:
+			var marca := plaza.find_child("Ofrenda_%d_Vela_%d" % [i, k], true, false) as Node3D
+			var flama := EfectosPixel.cuadro_bucle("catrina_vela", VELA_OFRENDA)
+			if marca and flama:
+				marca.add_child(flama)
+				flamas.append(flama)
+		_velas_fx.append(flamas)
+	# Braseros: fuego de tambo y su luz
+	var i := 0
+	while true:
+		var marca := plaza.find_child("Brasero_%d_Fuego" % i, true, false) as Node3D
+		if marca == null:
+			break
+		var fuego := EfectosPixel.cuadro_bucle("fuego_tambo", BRASERO_ESCALA)
+		if fuego:
+			marca.add_child(fuego)
+		var luz := OmniLight3D.new()
+		luz.light_color = Color(1.0, 0.55, 0.2)
+		luz.light_energy = 1.6
+		luz.omni_range = 8.0
+		luz.light_volumetric_fog_energy = 1.5
+		luz.position = Vector3.UP * 0.6
+		marca.add_child(luz)
+		_braseros.append([fuego, luz])
+		i += 1
+	_adornar_cielo()
+
+
+# Lo que no depende de la plaza de Blender: niebla, almas, murcielagos, calaveras
+func _adornar_cielo() -> void:
+	var rnd := RandomNumberGenerator.new()
+	rnd.seed = 31
+	for k in ALMAS:
+		var alma := EfectosPixel.cuadro_bucle("catrina_almas", ALMA_ESCALA)
+		if alma == null:
+			break
+		var a := rnd.randf() * TAU
+		var lugar := Vector3(sin(a), rnd.randf_range(0.3, 1.4), cos(a)) * Vector3(1, 1, 1)
+		lugar.x *= rnd.randf_range(5.0, 18.0)
+		lugar.z *= rnd.randf_range(5.0, 18.0)
+		alma.position = lugar
+		add_child(alma)
+		_almas.append([alma, lugar, rnd.randf() * TAU, 0.0])
+	for k in MURCIELAGOS + CALACAS:
+		var calaca := k >= MURCIELAGOS
+		var volador := EfectosPixel.cuadro_bucle("catrina_calaca" if calaca else "catrina_murcielago", CALACA_ESCALA if calaca else MURCIELAGO_ESCALA)
+		if volador == null:
+			continue
+		add_child(volador)
+		var centro := Vector3(rnd.randf_range(-6, 6), 0, rnd.randf_range(-6, 6))
+		_voladores.append([volador, centro, rnd.randf_range(5.0, 15.0), rnd.randf_range(7.0, 9.0) if calaca else rnd.randf_range(11.0, 14.0),
+			rnd.randf_range(0.25, 0.5) * (1.0 if rnd.randf() < 0.5 else -1.0), rnd.randf() * TAU, calaca])
+		volador.visible = not calaca
+
+
+func _adornos(delta: float) -> void:
+	var t := Time.get_ticks_msec() * 0.001
+	if _plaza_frenesi:
+		_frenesi_t += delta
+	for a in _almas:
+		var nodo: Node3D = a[0]
+		if _plaza_frenesi:
+			# Huyen hacia afuera y se apagan
+			var fuera := Vector3(a[1].x, 0, a[1].z).normalized()
+			nodo.position += fuera * delta * 6.0 + Vector3.UP * delta * 1.5
+			nodo.visible = _frenesi_t < 2.5
+		else:
+			nodo.position = a[1] + Vector3(sin(t * 0.4 + a[2]) * 1.2, sin(t * 0.9 + a[2]) * 0.3, cos(t * 0.3 + a[2]) * 1.2)
+	var rapidez := 2.0 if _plaza_frenesi else 1.0
+	for v in _voladores:
+		v[5] += v[4] * rapidez * delta
+		v[0].position = v[1] + Vector3(cos(v[5]) * v[2], v[3] + sin(t * 1.3 + v[5]) * 0.6, sin(v[5]) * v[2])
+
+
+func _plaza_en_frenesi(si: bool) -> void:
+	_plaza_frenesi = si
+	_frenesi_t = 0.0
+	var vela := EfectosPixel.material_bucle("catrina_vela_rojo" if si else "catrina_vela")
+	for flamas in _velas_fx:
+		for f in flamas:
+			f.material_override = vela
+	var fuego := EfectosPixel.material_bucle("catrina_brasero_rojo" if si else "fuego_tambo")
+	for b in _braseros:
+		if b[0]:
+			b[0].material_override = fuego
+		b[1].light_color = Color(1.0, 0.15, 0.1) if si else Color(1.0, 0.55, 0.2)
+	if not si:
+		for a in _almas:
+			a[0].position = a[1]
+			a[0].visible = true
 
 
 func _nivel_cajas() -> void:
@@ -213,8 +387,35 @@ func _luces() -> void:
 	ambiente.fog_enabled = true
 	ambiente.fog_light_color = Color(0.12, 0.08, 0.14)
 	ambiente.fog_density = 0.02
+	# Niebla volumetrica solo dentro del FogVolume (al ras del piso); las velas y braseros la alumbran
+	ambiente.volumetric_fog_enabled = true
+	ambiente.volumetric_fog_density = 0.0
+	ambiente.volumetric_fog_albedo = NIEBLA_COLOR
+	ambiente.volumetric_fog_length = 40.0
+	ambiente.volumetric_fog_anisotropy = 0.3
 	mundo.environment = ambiente
 	add_child(mundo)
+	_niebla = FogVolume.new()
+	_niebla.shape = RenderingServer.FOG_VOLUME_SHAPE_BOX
+	_niebla.size = Vector3(PLAZA + 2.0, NIEBLA_ALTO, PLAZA + 2.0)
+	_niebla.position = Vector3(0, NIEBLA_ALTO * 0.5 - 0.3, 0)
+	var fm := FogMaterial.new()
+	fm.density = NIEBLA_DENSIDAD
+	fm.albedo = NIEBLA_COLOR
+	fm.emission = NIEBLA_COLOR * 0.25
+	fm.height_falloff = 2.0
+	fm.edge_fade = 0.3
+	var ruido := FastNoiseLite.new()
+	ruido.frequency = 0.08
+	var tex := NoiseTexture3D.new()
+	tex.width = 64
+	tex.height = 16
+	tex.depth = 64
+	tex.seamless = true
+	tex.noise = ruido
+	fm.density_texture = tex
+	_niebla.material = fm
+	add_child(_niebla)
 
 
 func _caja(medida: Vector3, donde: Vector3, material: Material, solida := true) -> Node3D:
@@ -237,9 +438,11 @@ func _caja(medida: Vector3, donde: Vector3, material: Material, solida := true) 
 
 
 func _carro(donde: Vector3, color: Color) -> void:
-	_caja(Vector3(3.2, 1.6, 5.5), donde + Vector3.UP * 0.8, _mat(color.darkened(0.3)))
+	var base := _caja(Vector3(3.2, 1.6, 5.5), donde + Vector3.UP * 0.8, _mat(color.darkened(0.3)))
 	# Lo de arriba: una calaverita de carton y flores
-	_caja(Vector3(2.4, 1.2, 2.0), donde + Vector3(0, 2.2, 1.2), _mat(Color(0.9, 0.86, 0.76)), false)
+	var arriba := _caja(Vector3(2.4, 1.2, 2.0), donde + Vector3(0, 2.2, 1.2), _mat(Color(0.9, 0.86, 0.76)), false)
+	arriba.reparent(base)
+	_rompibles.append(Rompible.armar(self, base as StaticBody3D, base.get_child(1) as Node3D, null))
 	for k in 6:
 		var flor := MeshInstance3D.new()
 		var sm := SphereMesh.new()
@@ -286,7 +489,7 @@ func _papel_picado() -> void:
 
 
 func _ofrenda(donde: Vector3) -> void:
-	_caja(Vector3(1.6, 0.9, 1.0), donde + Vector3.UP * 0.45, _mat(Color(0.95, 0.55, 0.1)))
+	var base := _caja(Vector3(1.6, 0.9, 1.0), donde + Vector3.UP * 0.45, _mat(Color(0.95, 0.55, 0.1)))
 	_caja(Vector3(1.0, 0.5, 0.7), donde + Vector3.UP * 1.15, _mat(Color(0.9, 0.9, 0.85)), false)
 	for x in [-0.5, 0.0, 0.5]:
 		var vela := MeshInstance3D.new()
@@ -299,6 +502,7 @@ func _ofrenda(donde: Vector3) -> void:
 		vela.position = donde + Vector3(x, 1.1, 0.35)
 		add_child(vela)
 	_luz_ofrenda(donde)
+	_rompibles.append(Rompible.armar(self, base as StaticBody3D, base.get_child(1) as Node3D, null, _velas[-1]))
 
 
 func _luz_ofrenda(donde: Vector3) -> void:
@@ -306,6 +510,7 @@ func _luz_ofrenda(donde: Vector3) -> void:
 	luz.light_color = Color(1.0, 0.6, 0.25)
 	luz.light_energy = 1.6
 	luz.omni_range = 7.0
+	luz.light_volumetric_fog_energy = 1.5
 	luz.position = donde + Vector3(0, 1.6, 0.5)
 	add_child(luz)
 	_velas.append(luz)
@@ -314,7 +519,20 @@ func _luz_ofrenda(donde: Vector3) -> void:
 # Las velas se apagan fase por fase: en la 3 solo brilla el nudo
 func _velas_de(fase: int) -> void:
 	for i in _velas.size():
-		_velas[i].visible = fase == 1 or (fase == 2 and i % 2 == 0)
+		_velas[i].visible = (fase == 1 or (fase == 2 and i % 2 == 0)) and not _vela_rota(_velas[i])
+		if i < _velas_fx.size():
+			for f in _velas_fx[i]:
+				f.visible = _velas[i].visible
+	for v in _voladores:
+		if v[6]:
+			v[0].visible = fase >= 2
+
+
+func _vela_rota(luz: OmniLight3D) -> bool:
+	for r in _rompibles:
+		if r.luz == luz and r.roto:
+			return true
+	return false
 
 
 func _rellenar_cajas() -> void:
@@ -342,6 +560,11 @@ func _empezar() -> void:
 	_catrina.zombis = _zombis
 	_catrina.position = CATRINA_EN
 	_catrina.rotation.y = PI
+	for g: Vector3 in GOTEO:
+		_catrina.goteo_lugares.append(g)
+	for r in _rompibles:
+		if r.roto:
+			r.restaurar()
 	add_child(_catrina)
 	_catrina.desperto.connect(_desperto)
 	_catrina.fase_cambio.connect(func(f: int) -> void:
@@ -350,12 +573,18 @@ func _empezar() -> void:
 		_avisar("Se le rompe el vestido" if f == 2 else "Se le cae la cabeza: ¡el nudo!", 2.0))
 	_catrina.murio.connect(_gano_pelea)
 	_catrina.frenesi.connect(func() -> void:
+		_plaza_en_frenesi(true)
+		for i in _velas.size():
+			if i < _velas_fx.size():
+				for f in _velas_fx[i]:
+					f.visible = not _vela_rota(_velas[i])
 		for luz in _velas:
-			luz.visible = true
+			luz.visible = not _vela_rota(luz)
 			luz.light_color = Color(1.0, 0.15, 0.1)
 			luz.light_energy = 3.0
 		_avisar("¡Se enfurece!", 1.5))
 	_barra.catrina = _catrina
+	_plaza_en_frenesi(false)
 	_velas_de(1)
 	_gano = false
 
@@ -418,6 +647,7 @@ func _avisar(texto: String, dura: float) -> void:
 
 
 func _process(delta: float) -> void:
+	_adornos(delta)
 	_letrero.text = "vida %d · %d FPS" % [_salud.vida if _salud else 0, Engine.get_frames_per_second()]
 	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0 and _bot < 0.0:
 		_reiniciar_pelea()
@@ -425,6 +655,8 @@ func _process(delta: float) -> void:
 		_seguir_medida(delta)
 	if _bot > 0.0:
 		_seguir_bot(delta)
+	if _cheese >= 0.0:
+		_seguir_cheese(delta)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -452,6 +684,18 @@ func _capturar() -> void:
 		print("Catrina: captura en %s" % _captura)
 		get_tree().quit()
 		return
+	if _captura_frenesi:
+		_catrina._despertar()
+		_catrina.forzar_fase(2)
+		_catrina.forzar_fase(3)
+		await get_tree().create_timer(2.6).timeout
+		_catrina._herir(_catrina.vida() - Catrina.FRENESI + 5, _jugador.global_position, true)
+		_catrina.set_physics_process(false)
+		await get_tree().create_timer(1.5).timeout
+		get_viewport().get_texture().get_image().save_png(_captura)
+		print("Catrina: captura en %s" % _captura)
+		get_tree().quit()
+		return
 	if _captura_fase > 1:
 		_catrina._despertar()
 		for f in range(2, _captura_fase + 1):
@@ -475,35 +719,50 @@ const BOT_PEGA := {
 const BOT_REACCION := 0.3     # s antes del golpe a los que rueda (con un error de +-BOT_ERROR)
 const BOT_ERROR := 0.15
 const BOT_ACIERTA := 0.75     # chance de reaccionar a cada ataque (no es perfecto)
+const BOT_BUENO := 0.9        # --bueno: alguien que juega bien
+const BOT_TACOS := 5          # lo que se lleva a cada intento
+const BOT_PUNTERIA := 0.6     # mixto: de cada balazo, los que le dan a lo que apunta
+const BOT_BALA := 8           # Pistola: dano por tiro
+const BOT_CADENCIA := 0.3
 
 
 func _seguir_bot(delta: float) -> void:
 	var c := _catrina
 	var j := _jugador as Player
-	if not is_instance_valid(c):
+	if not is_instance_valid(c) or _reiniciando:
 		return
 	_bot_t += delta
+	_bot_intento_t += delta
 	if int(_bot_t / 30.0) != int((_bot_t - delta) / 30.0):
-		print("Bot %3.0f s: vida de ella %d, fase %d, estado %s, desmayos %d, a %.1f m, ella en %s, jugador en %s" % [_bot_t, c.vida(), c.fase,
-			Catrina.Estado.keys()[c.estado], _bot_desmayos, c.global_position.distance_to(j.global_position), c.global_position.snapped(Vector3.ONE * 0.1),
-			j.global_position.snapped(Vector3.ONE * 0.1)])
-	if _bot_t < 0.5:
+		print("Bot %3.0f s (intento %d, %.0f s): vida de ella %d, fase %d, estado %s, vida %d, a %.1f m, zombis %d" % [_bot_t, _bot_intento, _bot_intento_t, c.vida(), c.fase,
+			Catrina.Estado.keys()[c.estado], _salud.vida, c.global_position.distance_to(j.global_position), c.call("_ayudantes_vivos")])
+	if _bot_intento_t < 0.5:
+		if _bot_intento_t <= delta:
+			_bot_preparar()
 		_bot_vida = _salud.vida
 		c._despertar()
 		return
-	# El dano que recibe, por ataque
+	# El dano que recibe, por ataque (o de los zombis si ella no esta atacando)
 	if _salud.vida < _bot_vida:
 		var de: String = Catrina.Estado.keys()[c.estado]
 		_bot_dano[de] = _bot_dano.get(de, 0) + (_bot_vida - _salud.vida)
-	if _salud.vida <= 0:
-		_bot_desmayos += 1
-		_salud.vida = _salud.vida_max
 	_bot_vida = _salud.vida
-	if _gano or c.estado == Catrina.Estado.MUERTA or _bot_t >= _bot:
-		if _bot_fin < 0.0:
-			_bot_fin = _bot_t
-			_reporte_bot()
-			get_tree().quit()
+	if _gano or c.estado == Catrina.Estado.MUERTA:
+		_bot_fin_intento("GANO")
+		_bot_terminar()
+		return
+	if _salud.vida <= 0:
+		_bot_fin_intento("desmayo")
+		if _bot_intento >= _bot_intentos or _bot_t >= _bot:
+			_bot_terminar()
+			return
+		_bot_intento += 1
+		_bot_intento_t = 0.0
+		_reiniciar_ya()
+		return
+	if _bot_t >= _bot:
+		_bot_fin_intento("tiempo")
+		_bot_terminar()
 		return
 	if j.atrapado():
 		_bot_machaca -= delta
@@ -514,17 +773,19 @@ func _seguir_bot(delta: float) -> void:
 	var al := j.global_position - c.global_position
 	al.y = 0.0
 	var d := al.length()
-	var hacia_ella := -al.normalized() if d > 0.01 else Vector3.FORWARD
-	j.frijol.global_transform = j.frijol.global_transform.looking_at(j.frijol.global_position + hacia_ella, Vector3.UP)
 	# Rodar justo antes del golpe (una vez por ataque, y a veces no)
 	var clave := "%s_%d" % [c.estado, c.get("_ataques")]
 	if BOT_PEGA.has(c.estado) and clave != _bot_ataque:
 		var pega: float = BOT_PEGA[c.estado] + float(c.get("_retraso")) * (1.0 if c.estado in [Catrina.Estado.PISA, Catrina.Estado.MANOTAZO] else 0.0)
 		if _bot_rueda_en < 0.0:
 			# El bot no sabe del amago: rueda al tiempo normal (los amagos lo castigan)
-			_bot_rueda_en = BOT_PEGA[c.estado] - BOT_REACCION + randf_range(-BOT_ERROR, BOT_ERROR) if randf() < BOT_ACIERTA else 99.0
+			_bot_rueda_en = BOT_PEGA[c.estado] - BOT_REACCION + randf_range(-BOT_ERROR, BOT_ERROR) if randf() < _bot_acierta else 99.0
 		var tc: float = c.get("_t")
 		if tc >= _bot_rueda_en and d < 10.0:
+			# Sin teclas rueda para atras de donde mira: a machetazos le da la espalda antes, asi rueda
+			# HACIA ella (como en Dark Souls: adentro del pisoton, al lado del pie que va a plantar)
+			if _bot_modo == "machete" and d > 0.01 and c.estado == Catrina.Estado.PISA:
+				_bot_mirar(j, j.global_position + al.normalized())
 			j._pedir_accion("rodar")
 			_bot_ataque = clave
 			_bot_rueda_en = -1.0
@@ -533,33 +794,152 @@ func _seguir_bot(delta: float) -> void:
 			_bot_rueda_en = -1.0
 	elif not BOT_PEGA.has(c.estado):
 		_bot_rueda_en = -1.0
+	# Brincar la onda del pisoton cuando esta por llegar (como lo haria alguien)
+	var r_onda: float = c.onda_radio()
+	if r_onda >= 0.0 and j.get("_rodada_t") < 0.0 and j.is_on_floor():
+		var al_onda := j.global_position - c.onda_centro()
+		al_onda.y = 0.0
+		var falta := al_onda.length() - r_onda
+		if falta > 0.0 and falta < 1.4 and randf() < _bot_acierta:
+			j._pedir_accion("brinco")
 	# Curarse con poca vida
 	_bot_cura -= delta
-	if _salud.vida < 35 and _bot_cura <= 0.0:
-		_bot_cura = 3.0
+	if _salud.vida < 40 and _bot_cura <= 0.0:
+		_bot_cura = 2.5
 		j._curarse()
-	# Pegar si esta cerca y abierta (o caminando)
-	var abierta: bool = c.expuesta() or c.estado in [Catrina.Estado.CAMINA, Catrina.Estado.POSE, Catrina.Estado.ARRODILLADA, Catrina.Estado.ZAFADA]
 	_bot_golpe -= delta
-	if abierta and d < 2.2 + c.radio_golpe and _bot_golpe <= 0.0:
+	_bot_tiro -= delta
+	# Un zombi encima: primero el
+	var zombi := _bot_zombi_cerca(j.global_position, 3.0)
+	if zombi:
+		_bot_mirar(j, zombi.global_position)
+		if _bot_golpe <= 0.0:
+			_bot_golpe = 0.4
+			j._pedir_accion("golpe")
+		return
+	# A donde va: el pie (o la mano) plantado, o rodeandola
+	var plantado: Node3D = c.call("_plantado")
+	var agachada: bool = c.call("_agachada")
+	var abierta: bool = c.expuesta() or c.estado in [Catrina.Estado.POSE, Catrina.Estado.ARRODILLADA, Catrina.Estado.ZAFADA]
+	var objetivo := c.global_position
+	var quiere := 2.6 + c.radio_golpe * 0.5 if abierta else 5.0
+	if plantado:
+		objetivo = plantado.global_position
+		quiere = 1.4
+	var al_obj := j.global_position - objetivo
+	al_obj.y = 0.0
+	_bot_mirar(j, objetivo)
+	if (abierta or plantado or agachada) and al_obj.length() < (2.2 if plantado else 2.2 + c.radio_golpe) and _bot_golpe <= 0.0:
 		_bot_golpe = 0.4
 		j._pedir_accion("golpe")
+	# Mixto: balazos con la guardia abierta (a las flores) y al cuerpo de lejos
+	if _bot_modo == "mixto" and _bot_tiro <= 0.0 and d > 5.0 and c.call("_lo_ve", j.global_position):
+		_bot_tiro = BOT_CADENCIA
+		if randf() < BOT_PUNTERIA:
+			var flor := -1
+			if c.expuesta() and c.fase < 3:
+				flor = c.call("_flor_cercana", j.global_position)
+			if flor >= 0:
+				c.golpe_punto("flor_%d" % flor, BOT_BALA, j.global_position, false)
+			else:
+				c.recibir_golpe(BOT_BALA, j.global_position, 1.0, 80, false)
+		_contar_bot("tiros")
 	# Moverse: rodearla, mas cerca si esta abierta
-	var quiere := 2.6 + c.radio_golpe * 0.5 if abierta else 5.0
-	var tangente := Vector3.UP.cross(al.normalized()) * _bot_lado
+	var tangente := Vector3.UP.cross(al_obj.normalized()) * _bot_lado
 	if randf() < 0.005:
 		_bot_lado = -_bot_lado
-	var mover := (tangente * 0.6 + al.normalized() * clampf(quiere - d, -1.0, 1.0)).normalized() * 3.5 * delta
+	if _bot_modo == "mixto" and not abierta and not plantado:
+		quiere = 8.0
+	elif _bot_modo == "machete" and not abierta and not plantado:
+		# A machetazos se le pega encima: el pisoton se rueda y se castiga el pie
+		quiere = 3.4
+	var mover := (tangente * (0.2 if plantado else 0.6) + al_obj.normalized() * clampf(quiere - al_obj.length(), -1.0, 1.0)).normalized() * 3.5 * delta
 	if j.get("_rodada_t") < 0.0:
 		j.global_position += mover
 
 
-func _reporte_bot() -> void:
+func _bot_mirar(j: Player, punto: Vector3) -> void:
+	var hacia := punto - j.global_position
+	hacia.y = 0.0
+	if hacia.length_squared() > 0.01:
+		j.frijol.global_transform = j.frijol.global_transform.looking_at(j.frijol.global_position + hacia.normalized(), Vector3.UP)
+
+
+func _bot_zombi_cerca(donde: Vector3, radio: float) -> Node3D:
+	for z in Zombie.activos:
+		if is_instance_valid(z) and z.estado != Zombie.Estado.MUERTO and z.global_position.distance_to(donde) < radio:
+			return z
+	return null
+
+
+func _contar_bot(que: String) -> void:
+	_bot_dano[que] = _bot_dano.get(que, 0) + 1
+
+
+# Cada intento empieza igual: vida llena y 5 tacos (los que se llevaria alguien a un jefe)
+func _bot_preparar() -> void:
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario:
+		var taco: InventoryItemData = load("res://resources/taco_pastor.tres")
+		while inventario.cuantos(taco) < BOT_TACOS and inventario.add_item(taco):
+			pass
+	_salud.vida = _salud.vida_max
+
+
+func _bot_fin_intento(como: String) -> void:
 	var c := _catrina
-	print("Bot: %.0f s, gano %s, vida de ella %d de %d, fase %d, desmayos %d" % [
-		_bot_fin, _gano, maxi(c.vida(), 0), Catrina.VIDA, c.fase, _bot_desmayos])
+	_bot_intentos_log.append("intento %d: %s a los %.0f s, fase %d, vida de ella %d" % [_bot_intento, como, _bot_intento_t, c.fase, maxi(c.vida(), 0)])
+	print("Bot: " + _bot_intentos_log[-1])
+
+
+func _bot_terminar() -> void:
+	if _bot_fin >= 0.0:
+		return
+	_bot_fin = _bot_t
+	var c := _catrina
+	print("Bot (%s, acierta %.2f): %.0f s, gano %s en el intento %d de %d" % [_bot_modo, _bot_acierta, _bot_fin, _gano, _bot_intento, _bot_intentos])
+	for linea in _bot_intentos_log:
+		print("  " + linea)
 	print("  dano recibido por ataque %s" % _bot_dano)
 	print("  cuenta %s" % c.cuenta)
+	get_tree().quit()
+
+
+# Reinicio sin fundido (el bot no espera)
+func _reiniciar_ya() -> void:
+	for zona in get_tree().get_nodes_in_group("zonas_lombriz"):
+		if zona.dura > 0.0:
+			zona.queue_free()
+	if _zombis.has_method("limpiar"):
+		_zombis.limpiar()
+	_jugador.global_position = ENTRADA
+	_jugador.velocity = Vector3.ZERO
+	_empezar()
+	_rellenar_cajas()
+
+
+# --- Cheese (-- --cheese): escondido atras de un carro, disparandole ---
+
+func _seguir_cheese(delta: float) -> void:
+	var c := _catrina
+	var j := _jugador as Player
+	if _cheese == 0.0:
+		# Ella enfrente del carro de la derecha, el jugador atras de el (el carro en medio)
+		c.global_position = Vector3(9.0, 0.0, -9.5)
+		c.rotation.y = 0.0
+		j.global_position = Vector3(9.5, 1.1, 1.8)
+		c._despertar()
+	_cheese += delta
+	if int(_cheese * 4.0) != int((_cheese - delta) * 4.0):
+		c.recibir_golpe(BOT_BALA, j.global_position, 1.0, 80, false)
+	if _salud:
+		_salud.vida = _salud.vida_max
+	var d := c.global_position.distance_to(j.global_position)
+	var rotos := _rompibles.filter(func(r: Rompible) -> bool: return r.roto).size()
+	if rotos > 0 or d < 4.5 or _cheese > 10.0:
+		var paso := (rotos > 0 or d < 4.5) and _cheese <= 6.0
+		print("Cheese: %.1f s, carros/ofrendas rotos %d, a %.1f m, atorada %d, rodeos -> %s" % [_cheese, rotos, d, c.cuenta.get("atorada", 0), "PASA" if paso else "FALLA"])
+		get_tree().quit()
 
 
 # --- Prueba sola (-- --medir=<s>) ---

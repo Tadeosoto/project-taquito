@@ -265,6 +265,30 @@ def craneo_bajo():
     return bm
 
 
+def puntas_velas():
+    """Donde quedan las puntas de las flamas de las velas del resplandor (mundo, pose de reposo):
+    la misma secuencia de azar que craneo_bajo. catrina_rig.py pone ahi los huesos Vela_0..N, de
+    los que Catrina.gd cuelga las flamas de pixelfx."""
+    mc = matriz_cabeza()
+    C = CABEZA
+    rnd = random.Random(3)
+    centro = C + Vector((0, 0.55, 0.05))
+    puntas = []
+    for i in range(32):
+        a = math.tau * i / 32
+        largo = (2.0 if i % 2 == 0 else 1.25) * rnd.uniform(0.9, 1.08)
+        rota = rnd.random() < 0.28
+        if rota:
+            largo *= rnd.uniform(0.45, 0.7)
+        d = Vector((math.cos(a), 0.12 * rnd.uniform(-1, 1), math.sin(a))).normalized()
+        if not rota and i % 4 == 0:
+            puntas.append(centro + d * (largo + 0.3))
+        elif not rota and rnd.random() < 0.5:
+            rnd.uniform(0.5, 0.8)
+    derecho = Matrix.Translation(mc @ centro) @ Matrix.Rotation(_m["INCLINA"] * 0.4, 4, "X") @ Matrix.Translation(-centro)
+    return [derecho @ p for p in puntas]
+
+
 def cuerpo_bajo():
     bm = bmesh.new()
     _m["cuerpo"](bm)
