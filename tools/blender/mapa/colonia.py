@@ -415,16 +415,38 @@ def _postes_y_cables(sc, mundo, postes):
     mundo.objects.link(ob)
 
 
+DETALLE_TROZO = 20.0          # m: lo de los callejones va en objetos de este largo
+
+
+class _Trozos:
+    """Objetos "Detalle_<que>_<callejon>_<n>" de DETALLE_TROZO m a lo largo de cada callejon: en
+    Godot MapaPostImport junta lo que empieza con "Detalle_" en cuadros chicos que se dejan de
+    dibujar de lejos, y un objeto de 60 m caeria en un solo cuadro."""
+    def __init__(self, que):
+        self.que = que
+        self.constructores = {}
+
+    def __call__(self, callejon, s):
+        nombre = "Detalle_%s_%s_%d" % (self.que, callejon, int(s // DETALLE_TROZO))
+        if nombre not in self.constructores:
+            self.constructores[nombre] = _piezas()["Constructor"](nombre)
+        return self.constructores[nombre]
+
+    def poner(self, mundo):
+        for nombre, c in self.constructores.items():
+            mundo.objects.link(bpy.data.objects.new(nombre, c.terminar()))
+
+
 TENDEDERO_CADA = (4.5, 8.0)   # m entre cuerdas a lo largo de un callejon
 TENDEDERO_ALTO = (3.4, 5.2)   # m de alto en las puntas (del primer al segundo piso)
 
 
 def _tendederos(mundo, datos):
     """Cuerdas de un lado al otro de cada callejon (calles de empedrado sin banqueta), de fachada
-    a fachada, colgadas a la mitad, la mayoria con ropa y algunas solo cable de luz: una sola
-    malla. Mismo azar en cada armada (semilla por callejon)."""
+    a fachada, colgadas a la mitad, la mayoria con ropa y algunas solo cable de luz, en trozos
+    (_Trozos). Mismo azar en cada armada (semilla por callejon)."""
     pz = _piezas()
-    c = pz["Constructor"]("Tendederos")
+    trozo = _Trozos("Tendedero")
     colores = ["lona_" + n for n in pz["LONAS"]] + ["blanco_cal"]
     hubo = False
     for p in datos.get("piezas", []):
@@ -443,6 +465,7 @@ def _tendederos(mundo, datos):
             s = r.uniform(1.5, 4.0)
             while s < largo - 1.5:
                 hubo = True
+                c = trozo(p["nombre"], s)
                 mx, mz = ax + ux * s, az + uz * s
                 y0, y1 = r.uniform(*TENDEDERO_ALTO), r.uniform(*TENDEDERO_ALTO)
                 cuelga = r.uniform(0.25, 0.5)
@@ -465,10 +488,8 @@ def _tendederos(mundo, datos):
                         ancho, colgado = r.uniform(0.3, 0.55), r.uniform(0.35, 0.7)
                         c.caja((q[0], q[1] - colgado / 2, q[2]), (ancho, colgado, 0.02), r.choice(colores), giro, sin_abajo=False)
                 s += r.uniform(*TENDEDERO_CADA)
-    if not hubo:
-        return
-    ob = bpy.data.objects.new("Tendederos", c.terminar())
-    mundo.objects.link(ob)
+    if hubo:
+        trozo.poner(mundo)
 
 
 FOCO_CADA = (10.0, 15.0)      # m entre focos colgados a lo largo de un callejon
@@ -489,14 +510,16 @@ def focos_callejones(datos):
         ux, uz = (bx - ax) / (largo or 1.0), (bz - az) / (largo or 1.0)
         s = r.uniform(4.0, 8.0)
         while s < largo - 2.0:
-            focos.append((round(ax + ux * s, 2), round(r.uniform(*FOCO_ALTO), 2), round(az + uz * s, 2), p["ancho"], ux, uz))
+            focos.append((round(ax + ux * s, 2), round(r.uniform(*FOCO_ALTO), 2), round(az + uz * s, 2), p["ancho"], ux, uz,
+                          p["nombre"], s))
             s += r.uniform(*FOCO_CADA)
     return focos
 
 
-def _focos(c, datos):
-    """El cable de fachada a fachada y el foco colgando de un cordon, en el Constructor `c`."""
-    for x, y, z, ancho, ux, uz in focos_callejones(datos):
+def _focos(trozo, datos):
+    """El cable de fachada a fachada y el foco colgando de un cordon, en su trozo de callejon."""
+    for x, y, z, ancho, ux, uz, callejon, s in focos_callejones(datos):
+        c = trozo(callejon, s)
         nx, nz = -uz, ux
         medio = ancho / 2 + 0.5
         giro = math.atan2(-nz, nx)
@@ -542,10 +565,10 @@ def _basura(c, x, z, r):
 
 
 def _vida_callejones(mundo, datos):
-    """Basura junto a las paredes de cada callejon y, en uno de cada dos, una capillita cerca de
-    la entrada. Sin choque (no estorban el paso). Una sola malla, mismo azar en cada armada."""
+    """Basura junto a las paredes de cada callejon, una capillita cerca de la entrada (en los de
+    semilla par) y los focos colgados. Sin choque (no estorban el paso). Mismo azar en cada armada."""
     pz = _piezas()
-    c = pz["Constructor"]("Callejones_Vida")
+    trozo = _Trozos("Callejon")
     hubo = False
     for p in datos.get("piezas", []):
         if p["tipo"] != "calle" or p.get("material") != "empedrado" or p.get("banqueta", 0) > 0:
@@ -566,16 +589,14 @@ def _vida_callejones(mundo, datos):
             s = min(2.5, largo / 3)
             # Su frente (+Z local) hacia el centro del callejon: -n * lado
             fx, fz = -nx * lado, -nz * lado
-            _capilla(c, ax + ux * s + nx * lado * (orilla + 0.1), az + uz * s + nz * lado * (orilla + 0.1), math.atan2(fx, fz))
+            _capilla(trozo(p["nombre"], s), ax + ux * s + nx * lado * (orilla + 0.1), az + uz * s + nz * lado * (orilla + 0.1), math.atan2(fx, fz))
         s = r.uniform(3.0, 6.0)
         while s < largo - 1.0:
             lado = r.choice((-1, 1))
-            _basura(c, ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r)
+            _basura(trozo(p["nombre"], s), ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r)
             s += r.uniform(8.0, 16.0)
-    _focos(c, datos)
-    if not hubo:
-        return
-    mundo.objects.link(bpy.data.objects.new("Callejones_Vida", c.terminar()))
+    _focos(trozo, datos)
+    trozo.poner(mundo)
 
 
 def leer(nombre):

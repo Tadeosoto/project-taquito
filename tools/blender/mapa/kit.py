@@ -205,6 +205,16 @@ def mat_fachada(rehacer=False):
     return mat
 
 
+def mat_detalle():
+    """El atlas de fachadas con otro nombre, para los detalles de las casas (climas, rejas,
+    antenas, ropa): en Godot MapaPostImport los pone en cuadros que no se dibujan de lejos."""
+    mat = bpy.data.materials.get("detalle_kit")
+    if mat is None:
+        mat = mat_fachada().copy()
+        mat.name = "detalle_kit"
+    return mat
+
+
 def mat_piso(nombre, rehacer=False):
     """Textura de textures/map/ repetida en metros de mundo (como ps1_suelo en Godot)."""
     archivo, metros = PISOS[nombre]
@@ -394,7 +404,7 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
     bm = bmesh.new()
     capa_uv = bm.loops.layers.uv.new("UVMap")
     capa_color = bm.loops.layers.float_color.new("Color")
-    indice = {"fachada_kit": 0, "azotea": 1, "tinaco": 2, "varilla": 3, "mural": 4}
+    indice = {"fachada_kit": 0, "azotea": 1, "tinaco": 2, "varilla": 3, "mural": 4, "detalle": 5}
     alto = pisos * PISO
     lisos = []      # tramos lisos de la planta baja del frente: ahi va el mural, si toca
     muros = []      # (a, b, tramos) de cada lado, para los detalles de las fachadas
@@ -485,6 +495,7 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
     malla.materials.append(material("tinaco", COLOR_TINACO))
     malla.materials.append(material("varilla", COLOR_VARILLA))
     malla.materials.append(mat_mural())
+    malla.materials.append(mat_detalle())
     malla.color_attributes.active_color = malla.color_attributes["Color"]
     # El exportador de glTF lee el de render (con -1 sale todo blanco)
     malla.color_attributes.render_color_index = malla.color_attributes.active_color_index
@@ -512,8 +523,8 @@ def _caja_bm(cara, base, ancho, alto, mat):
 
 
 # --- Detalles de casa: lo que cuelga de las fachadas y lo que hay en las azoteas ---
-# Todo con el material de la fachada y la UV fija en el centro del mosaico liso, asi que el
-# color de vertice los pinta: no agregan materiales ni superficies a la casa.
+# Todo con el atlas de la fachada (como "detalle_kit", mat_detalle) y la UV fija en el centro del
+# mosaico liso, asi que el color de vertice los pinta.
 COLOR_CLIMA = (0.82, 0.82, 0.78)
 COLOR_NEGRO = (0.09, 0.09, 0.1)
 COLOR_PANEL = (0.12, 0.17, 0.3)
@@ -529,7 +540,7 @@ def _cara_hacia(cara, puntos, normal, color):
     if (b - a).cross(c - a).dot(mathutils.Vector(normal)) < 0:
         puntos = puntos[::-1]
     uv = uv_mosaico(LISO, 0.5, 0.5)
-    cara(puntos, [uv] * len(puntos), "fachada_kit", tuple(k ** 2.2 for k in color) + (1.0,))
+    cara(puntos, [uv] * len(puntos), "detalle", tuple(k ** 2.2 for k in color) + (1.0,))
 
 
 def _caja_detalle(cara, centro, u, ancho, fondo, alto, color, abajo=False):

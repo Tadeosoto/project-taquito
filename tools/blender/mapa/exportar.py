@@ -85,7 +85,7 @@ def exportar(nombre):
     datos_dir = os.path.join(DATOS, nombre)
     # Los focos colgados de los callejones (colonia.focos_callejones) van como marcas "foco"
     focos = [{"nombre": "Foco_%d" % i, "tipo": "foco", "x": x, "z": z, "y": round(y - 0.36, 2)}
-             for i, (x, y, z, _a, _u, _v) in enumerate(focos_callejones(datos))]
+             for i, (x, y, z, *_resto) in enumerate(focos_callejones(datos))]
     guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "marcas": datos.get("marcas", []) + focos})
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", [])})
     guardar_json(os.path.join(datos_dir, "alumbrado.json"), {"postes": datos.get("postes", [])})

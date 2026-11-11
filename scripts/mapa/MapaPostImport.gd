@@ -17,6 +17,13 @@ const MURAL_SHADER := preload("res://shaders/ps1_casa.gdshader")
 const SUELO_PASTO := preload("res://scripts/map/SueloPasto.gd")
 
 const CUADRO := 64.0
+# Los detalles (material "detalle_kit" de las casas y los objetos "Detalle_*": ropa, basura,
+# focos, capillas de los callejones) van en cuadros chicos aparte que se dejan de dibujar de lejos
+# y no hacen sombra: casi doblaban las primitivas. Godot mide visibility_range al centro del
+# cuadro, por eso son chicos (lo mas lejos de su centro esta a ~17 m)
+const DETALLE_CUADRO := 24.0
+const DETALLE_LEJOS := 55.0
+const DETALLE_MARGEN := 8.0
 
 # Pisos: material de kit.PISOS -> [textura, metros por repeticion, modo de ps1_suelo, piso_tipo
 # (deterioro: 1 asfalto con baches, 2 banqueta, 3 empedrado)], como MapPostImport.GROUND_TEXTURES
@@ -53,6 +60,7 @@ func _post_import(scene: Node) -> Object:
 
 	# cuadro (Vector2i) -> { [nombre de material, material original, formato] -> SurfaceTool }
 	var cuadros := {}
+	var detalles := {}
 	var mallas: Array[MeshInstance3D] = []
 	for nodo in scene.find_children("*", "MeshInstance3D", true, false):
 		var instancia := nodo as MeshInstance3D
@@ -62,13 +70,19 @@ func _post_import(scene: Node) -> Object:
 		var xform := _transform_en_escena(scene, instancia)
 		var centro := xform * instancia.mesh.get_aabb().get_center()
 		var cuadro := Vector2i(floori(centro.x / CUADRO), floori(centro.z / CUADRO))
-		var herramientas: Dictionary = cuadros.get_or_add(cuadro, {})
+		var chico := Vector2i(floori(centro.x / DETALLE_CUADRO), floori(centro.z / DETALLE_CUADRO))
+		var todo_detalle := String(instancia.name).begins_with("Detalle_")
 		var malla := instancia.mesh
 		for i in malla.get_surface_count():
 			var original: Material = malla.surface_get_material(i)
 			if original == null:
 				original = instancia.get_active_material(i)
 			var nombre := String(original.resource_name) if original else ""
+			var herramientas: Dictionary
+			if todo_detalle or nombre == "detalle_kit":
+				herramientas = detalles.get_or_add(chico, {})
+			else:
+				herramientas = cuadros.get_or_add(cuadro, {})
 			var clave := [nombre, original if not _por_nombre(nombre) else null, malla.surface_get_format(i) & MERGE_FORMAT_MASK]
 			if not herramientas.has(clave):
 				herramientas[clave] = SurfaceTool.new()
@@ -87,13 +101,26 @@ func _post_import(scene: Node) -> Object:
 		nodo.mesh = array_mesh
 		scene.add_child(nodo)
 		nodo.owner = scene
-	print("MapaPostImport: %d mallas -> %d cuadros de %d m, %d materiales" % [
-			mallas.size(), cuadros.size(), CUADRO, _materiales.size()])
+	for cuadro: Vector2i in detalles:
+		var array_mesh := ArrayMesh.new()
+		for clave: Array in detalles[cuadro]:
+			(detalles[cuadro][clave] as SurfaceTool).commit(array_mesh)
+			array_mesh.surface_set_material(array_mesh.get_surface_count() - 1, _material(clave[0], clave[1]))
+		var nodo := MeshInstance3D.new()
+		nodo.name = "Detalles_%d_%d" % [cuadro.x, cuadro.y]
+		nodo.mesh = array_mesh
+		nodo.visibility_range_end = DETALLE_LEJOS
+		nodo.visibility_range_end_margin = DETALLE_MARGEN
+		nodo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		scene.add_child(nodo)
+		nodo.owner = scene
+	print("MapaPostImport: %d mallas -> %d cuadros de %d m y %d de detalles de %d m, %d materiales" % [
+			mallas.size(), cuadros.size(), CUADRO, detalles.size(), DETALLE_CUADRO, _materiales.size()])
 	return scene
 
 
 func _por_nombre(nombre: String) -> bool:
-	return nombre == "fachada_kit" or nombre == "azotea" or nombre == "mural" or PISOS.has(nombre)
+	return nombre == "fachada_kit" or nombre == "detalle_kit" or nombre == "azotea" or nombre == "mural" or PISOS.has(nombre)
 
 
 # La escena importada todavia no esta en el arbol: el transform se arma con los de los padres
@@ -108,6 +135,8 @@ func _transform_en_escena(scene: Node, nodo: Node) -> Transform3D:
 
 
 func _material(nombre: String, original: Material) -> Material:
+	if nombre == "detalle_kit":
+		return _material("fachada_kit", null)
 	var clave: Variant = nombre if _por_nombre(nombre) else original
 	if _materiales.has(clave):
 		return _materiales[clave]
