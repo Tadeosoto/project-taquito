@@ -1,6 +1,6 @@
 extends Node3D
 # La plaza del desfile (scenes/catrina.tscn): La Mojiganga (Catrina.gd) parada enfrente del
-# templete, como estatua, hasta que te acercas. Cuatro carros alegoricos de cubierta (y de pared
+# templete, como estatua, hasta que te acercas. Cuatro jardineras con arbol de cubierta (y de pared
 # para el aventon), papel picado de lado a lado, ofrendas con velas que se apagan fase por fase
 # hasta que solo brilla el nudo, y dos cajas de molotov que se rellenan cada que cambia de fase.
 # Todo armado en codigo, como el carcamo (PruebaLombrices.gd).
@@ -17,8 +17,8 @@ extends Node3D
 # BOT_BUENO con --bueno), castiga el pie plantado y las flores bajas a machetazos, machaca para
 # zafarse, se cura y mata a los zombis que se le acercan. --modo=machete (solo machete) o mixto
 # (ademas balazos a las flores cuando esta abierta y al cuerpo de lejos). --intentos=N (8).
-# Con -- --cheese el jugador se esconde atras de un carro a ~10 m y le dispara: pasa si ella
-# revienta el carro o llega a el en 6 s.
+# Con -- --cheese el jugador se esconde atras de una jardinera a ~10 m y le dispara: pasa si ella
+# revienta la jardinera o llega a el en 6 s.
 
 const PLAZA := 44.0
 const FACHADA_ALTO := 10.0
@@ -30,7 +30,15 @@ const CORONA := "res://resources/productos/corona_flores.tres"
 const MUSICA := "res://audio/musica/pt_tema.mp3"
 const MUSICA_VOLUMEN := -10.0
 const CAJAS := [Vector3(-14.0, 0.5, 12.0), Vector3(14.0, 0.5, 12.0)]
-const CARROS := [Vector3(-9.0, 0, -3.0), Vector3(9.0, 0, -3.0), Vector3(-9.0, 0, 7.0), Vector3(9.0, 0, 7.0)]
+const ARBOL_JARDINERA := "realista"    # el mas pesado de models/arboles (~7.2k triangulos; roble 3.9k y arce 5.6k no gustaron)
+const ARBOL_SEPARA := 1.8      # m: cada uno de los dos arboles, a cada lado del centro del cajon
+const ARBOL_ALTO := 4.0        # escala del modelo (ArbolesModelo): hasta ARBOL_ANCHO de copa
+const ARBOL_ANCHO := 3.4
+const TRONCO_RADIO := 0.2      # m: choque de cada tronco (el del arbol mide ~0.15 de radio)
+const TRONCO_ALTO := 3.0
+const ARBOL_CAIDO_ALTO := 0.5  # m: donde queda la base del arbol tumbado (el cajon aplastado)
+const ARBOL_SUELO := 1.0       # m: la tierra del cajon
+const JARDINERAS := [Vector3(-9.0, 0, -3.0), Vector3(9.0, 0, -3.0), Vector3(-9.0, 0, 7.0), Vector3(9.0, 0, 7.0)]
 const OFRENDAS := [Vector3(-19.0, 0, -8.0), Vector3(19.0, 0, -8.0), Vector3(-19.0, 0, 6.0), Vector3(19.0, 0, 6.0),
 	Vector3(-6.0, 0, -19.0), Vector3(6.0, 0, -19.0)]
 # Adornos de pixelfx de la plaza (AG, 2026-11-10): flamas en las velas de las ofrendas, braseros,
@@ -104,6 +112,7 @@ var _voladores: Array = []         # [nodo, centro, radio, alto, velocidad, angu
 var _plaza_frenesi := false
 var _frenesi_t := 0.0
 var _captura_frenesi := false
+var _captura_jardinera := false
 
 
 func _ready() -> void:
@@ -163,6 +172,8 @@ func _ready() -> void:
 			_bot_acierta = BOT_BUENO
 		elif arg.begins_with("--intentos="):
 			_bot_intentos = int(arg.trim_prefix("--intentos="))
+		elif arg == "--jardinera":
+			_captura_jardinera = true
 		elif arg == "--frenesi":
 			_captura_frenesi = true
 		elif arg == "--cheese":
@@ -190,7 +201,7 @@ const PLAZA_GLB := "res://models/escenarios/plaza_catrina/plaza_catrina.glb"
 
 
 func _nivel() -> void:
-	# La plaza de Blender (tools/blender/plaza.py: portales, kiosco, carros, ofrendas y sus
+	# La plaza de Blender (tools/blender/plaza.py: portales, kiosco, jardineras, ofrendas y sus
 	# colisiones "-colonly") si existe; si no, la de cajas de aqui
 	if ResourceLoader.exists(PLAZA_GLB):
 		var plaza: Node3D = load(PLAZA_GLB).instantiate()
@@ -209,9 +220,9 @@ func _nivel() -> void:
 	_adornar_cielo()
 
 
-# Los carros y ofrendas de la plaza de Blender que ella revienta (Rompible.gd)
+# Los jardineras y ofrendas de la plaza de Blender que ella revienta (Rompible.gd)
 func _armar_rompibles(plaza: Node) -> void:
-	for tipo in [["Carro", CARROS.size()], ["Ofrenda", OFRENDAS.size()], ["Brasero", _braseros.size()]]:
+	for tipo in [["Jardinera", JARDINERAS.size()], ["Ofrenda", OFRENDAS.size()], ["Brasero", _braseros.size()]]:
 		for i in tipo[1]:
 			var nombre := "%s_%d" % [tipo[0], i]
 			var cuerpo := plaza.find_child("Col_" + nombre, true, false) as StaticBody3D
@@ -221,16 +232,59 @@ func _armar_rompibles(plaza: Node) -> void:
 			if cuerpo == null or entera == null:
 				push_warning("PruebaCatrina: falta %s en la plaza" % nombre)
 				continue
+			var caidos: Array[MeshInstance3D] = []
+			if tipo[0] == "Jardinera":
+				caidos = _poner_arbol(entera, i)
 			var luz: OmniLight3D = _velas[i] if tipo[0] == "Ofrenda" and i < _velas.size() else null
 			if tipo[0] == "Brasero":
 				luz = _braseros[i][1]
 			var r := Rompible.armar(self, cuerpo, entera, plaza.find_child(nombre + "_Roto", true, false) as Node3D, luz)
+			if tipo[0] == "Jardinera":
+				_troncos(cuerpo, i)
+				r.caidos = caidos
 			if tipo[0] == "Ofrenda" and i < _velas_fx.size():
 				for f in _velas_fx[i]:
 					r.adornos.append(f)
 			elif tipo[0] == "Brasero" and _braseros[i][0]:
 				r.adornos.append(_braseros[i][0])
 			_rompibles.append(r)
+
+
+# El arbol de cada jardinera (models/arboles), colgado de la entera para que se rompa con ella
+func _poner_arbol(entera: Node3D, i: int) -> Array[MeshInstance3D]:
+	var caidos: Array[MeshInstance3D] = []
+	for k in 2:
+		var arbol := ArbolJardinera.crear(ARBOL_JARDINERA, ARBOL_ALTO, ARBOL_ANCHO, i * 1.7 + k * 2.4)
+		if arbol == null:
+			return caidos
+		# Su copia para cuando se rompa: fuera de la entera (que se esconde), escondida, con la base sobre el cajon aplastado
+		var caido := MeshInstance3D.new()
+		caido.name = "ArbolCaido_%d_%d" % [i, k]
+		caido.mesh = arbol.mesh
+		caido.basis = arbol.basis
+		caido.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		caido.visible = false
+		add_child(caido)
+		caido.global_position = JARDINERAS[i] + Vector3(0, ARBOL_CAIDO_ALTO, (k * 2 - 1) * ARBOL_SEPARA)
+		caidos.append(caido)
+		entera.add_child(arbol)
+		arbol.name = "Arbol_%d" % k
+		arbol.global_position = JARDINERAS[i] + Vector3(0, ARBOL_SUELO, (k * 2 - 1) * ARBOL_SEPARA)
+	return caidos
+
+
+# Un cilindro de choque por tronco, en el mismo cuerpo que el cajon (Rompible los apaga todos al
+# romperse). Va despues de Rompible.armar, que mide el cuerpo con el ultimo CollisionShape3D.
+func _troncos(cuerpo: StaticBody3D, i: int) -> void:
+	for k in 2:
+		var forma := CylinderShape3D.new()
+		forma.radius = TRONCO_RADIO
+		forma.height = TRONCO_ALTO
+		var colision := CollisionShape3D.new()
+		colision.name = "Tronco_%d" % k
+		colision.shape = forma
+		cuerpo.add_child(colision)
+		colision.global_position = JARDINERAS[i] + Vector3(0, ARBOL_SUELO + TRONCO_ALTO / 2.0, (k * 2 - 1) * ARBOL_SEPARA)
 
 
 # --- Adornos de pixelfx ---
@@ -352,9 +406,9 @@ func _nivel_cajas() -> void:
 	_caja(Vector3(12.0, 0.4, 5.0), Vector3(0, 6.2, -medio + 3.0), _mat(Color(0.5, 0.15, 0.5)), false)
 	for x in [-5.5, 5.5]:
 		_caja(Vector3(0.4, 5.0, 0.4), Vector3(x, 3.7, -medio + 1.0), cantera, false)
-	# Carros alegoricos: cubierta para la trenza y pared para el aventon
-	for i in CARROS.size():
-		_carro(CARROS[i], COLORES_PAPEL[i % COLORES_PAPEL.size()])
+	# Jardineras con arbol: cubierta para la trenza y pared para el aventon
+	for i in JARDINERAS.size():
+		_jardinera(JARDINERAS[i])
 	_papel_picado()
 	for lugar: Vector3 in OFRENDAS:
 		_ofrenda(lugar)
@@ -437,21 +491,12 @@ func _caja(medida: Vector3, donde: Vector3, material: Material, solida := true) 
 	return nodo
 
 
-func _carro(donde: Vector3, color: Color) -> void:
-	var base := _caja(Vector3(3.2, 1.6, 5.5), donde + Vector3.UP * 0.8, _mat(color.darkened(0.3)))
-	# Lo de arriba: una calaverita de carton y flores
-	var arriba := _caja(Vector3(2.4, 1.2, 2.0), donde + Vector3(0, 2.2, 1.2), _mat(Color(0.9, 0.86, 0.76)), false)
-	arriba.reparent(base)
+func _jardinera(donde: Vector3) -> void:
+	# Cajon de ladrillo con tierra y una copa verde encima (la version sin modelo de Blender)
+	var base := _caja(Vector3(2.4, 1.2, 7.0), donde + Vector3.UP * 0.6, _mat(Color(0.5, 0.2, 0.15)))
+	var copa := _caja(Vector3(2.0, 2.0, 5.5), donde + Vector3(0, 3.2, 0), _mat(Color(0.1, 0.28, 0.13)), false)
+	copa.reparent(base)
 	_rompibles.append(Rompible.armar(self, base as StaticBody3D, base.get_child(1) as Node3D, null))
-	for k in 6:
-		var flor := MeshInstance3D.new()
-		var sm := SphereMesh.new()
-		sm.radius = 0.3
-		sm.height = 0.6
-		sm.material = _mat(COLORES_PAPEL[k % COLORES_PAPEL.size()], 0.2)
-		flor.mesh = sm
-		flor.position = donde + Vector3(randf_range(-1.3, 1.3), 1.75, randf_range(-2.4, 0.0))
-		add_child(flor)
 
 
 func _papel_picado() -> void:
@@ -672,6 +717,17 @@ func _capturar() -> void:
 	camara.global_position = CATRINA_EN + Vector3(5.0, 2.5, 9.0)
 	camara.look_at(CATRINA_EN + Vector3.UP * 3.0)
 	camara.current = true
+	if _captura_jardinera:
+		# Tres vistas de la primera jardinera (de tres cuartos, de lado y desde arriba)
+		var vistas := [[Vector3(-1.0, 3.6, 4.5), Vector3(-9.0, 3.2, -3.0)], [Vector3(0.5, 2.4, -3.0), Vector3(-9.0, 3.0, -3.0)], [Vector3(-9.0, 8.5, 2.5), Vector3(-9.0, 1.0, -3.0)]]
+		for k in vistas.size():
+			camara.global_position = vistas[k][0]
+			camara.look_at(vistas[k][1])
+			await get_tree().create_timer(1.5).timeout
+			get_viewport().get_texture().get_image().save_png(_captura.replace(".png", "_%d.png" % (k + 1)))
+		print("Catrina: jardinera capturada en %s" % _captura)
+		get_tree().quit()
+		return
 	if _captura_agarre:
 		_catrina._despertar()
 		_jugador.global_position = CATRINA_EN + Vector3(0.0, 1.1, 4.0)
@@ -918,13 +974,13 @@ func _reiniciar_ya() -> void:
 	_rellenar_cajas()
 
 
-# --- Cheese (-- --cheese): escondido atras de un carro, disparandole ---
+# --- Cheese (-- --cheese): escondido atras de una jardinera, disparandole ---
 
 func _seguir_cheese(delta: float) -> void:
 	var c := _catrina
 	var j := _jugador as Player
 	if _cheese == 0.0:
-		# Ella enfrente del carro de la derecha, el jugador atras de el (el carro en medio)
+		# Ella enfrente del jardinera de la derecha, el jugador atras de el (la jardinera en medio)
 		c.global_position = Vector3(9.0, 0.0, -9.5)
 		c.rotation.y = 0.0
 		j.global_position = Vector3(9.5, 1.1, 1.8)
@@ -938,7 +994,7 @@ func _seguir_cheese(delta: float) -> void:
 	var rotos := _rompibles.filter(func(r: Rompible) -> bool: return r.roto).size()
 	if rotos > 0 or d < 4.5 or _cheese > 10.0:
 		var paso := (rotos > 0 or d < 4.5) and _cheese <= 6.0
-		print("Cheese: %.1f s, carros/ofrendas rotos %d, a %.1f m, atorada %d, rodeos -> %s" % [_cheese, rotos, d, c.cuenta.get("atorada", 0), "PASA" if paso else "FALLA"])
+		print("Cheese: %.1f s, jardineras/ofrendas rotos %d, a %.1f m, atorada %d, rodeos -> %s" % [_cheese, rotos, d, c.cuenta.get("atorada", 0), "PASA" if paso else "FALLA"])
 		get_tree().quit()
 
 

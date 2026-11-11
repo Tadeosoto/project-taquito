@@ -1,7 +1,7 @@
 extends Node3D
 # Un arete de pompones de La Mojiganga (Catrina.gd, fase 2): se le revienta del lobulo y sale
 # rodando por el piso hacia ti como bola de boliche. Brincalo, hazte a un lado o ruedate; contra
-# una pared o un carro alegorico se deshace.
+# una pared o una jardinera se deshace.
 
 const RADIO := 0.45
 const VELOCIDAD := 9.0

@@ -1,8 +1,8 @@
 extends Node3D
 class_name Rompible
-# Un carro alegorico o una ofrenda de la plaza que La Mojiganga revienta al pasar (AG: se atoraba
+# Una jardinera o una ofrenda de la plaza que La Mojiganga revienta al pasar (AG: se atoraba
 # en un carro y la mataba a balazos desde atras). Lo arma PruebaCatrina sobre la caja de choque
-# (StaticBody3D) y las mallas: la entera, la reventada (Carro_0_Roto de plaza.py, o la entera
+# (StaticBody3D) y las mallas: la entera, la reventada (Jardinera_0_Roto de plaza.py, o la entera
 # aplastada si no hay) y la luz de sus velas. Catrina.gd lo encuentra por la meta "rompible" del
 # cuerpo con que choca, o en el grupo "rompible" para el pisoton y la barrida.
 
@@ -16,6 +16,9 @@ var entera: Node3D
 var reventada: Node3D
 var luz: OmniLight3D
 var adornos: Array[Node3D] = []     # flamas de pixelfx de sus velas o su fuego: se apagan al romperse
+# Arboles tirados: copias de los de la jardinera, escondidas hasta que se rompe; entonces se caen
+# para el lado contrario de ella y se quedan acostados sobre el cajon aplastado
+var caidos: Array[MeshInstance3D] = []
 var _medida := Vector3(3.0, 2.0, 3.0)
 var _centro := Vector3.ZERO
 var _material: Material
@@ -90,11 +93,27 @@ func romper(desde: Vector3) -> void:
 	hacia.y = 0.0
 	hacia = hacia.normalized() if hacia.length_squared() > 0.01 else Vector3.FORWARD
 	_tirar_pedazos(hacia)
+	for c in caidos:
+		_tumbar(c, hacia)
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos and efectos.has_method("lanzar"):
 		efectos.lanzar("catrina_rompe", Vector3(_centro.x, _centro.y - _medida.y * 0.5, _centro.z), Vector3.ZERO, 1.0)
 	Sonidos.tocar(self, "carton", 4.0, 0.7)
 	Sonidos.tocar(self, "pisoton", 0.0, 1.2)
+
+
+func _tumbar(arbol: MeshInstance3D, hacia: Vector3) -> void:
+	if not arbol.has_meta("base"):
+		arbol.set_meta("base", arbol.basis)
+	var base: Basis = arbol.get_meta("base")
+	var dir := hacia.rotated(Vector3.UP, randf_range(-0.7, 0.7))
+	var eje := Vector3.UP.cross(dir).normalized()
+	arbol.basis = base
+	arbol.visible = true
+	var caida := create_tween()
+	caida.tween_method(func(a: float) -> void: arbol.basis = Basis(eje, a) * base, 0.0, 1.5, randf_range(0.6, 0.9)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	# Rebota un poco al pegar
+	caida.tween_method(func(a: float) -> void: arbol.basis = Basis(eje, a) * base, 1.5, 1.38, 0.12).set_trans(Tween.TRANS_SINE)
 
 
 # Tablas y carton volando, empujados para el lado contrario de ella
@@ -144,6 +163,10 @@ func restaurar() -> void:
 	for a in adornos:
 		if is_instance_valid(a):
 			a.visible = true
+	for c in caidos:
+		c.visible = false
+		if c.has_meta("base"):
+			c.basis = c.get_meta("base")
 	for p in _pedazos:
 		if is_instance_valid(p):
 			p.queue_free()

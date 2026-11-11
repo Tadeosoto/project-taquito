@@ -1,12 +1,12 @@
 # La plaza del desfile (stage 6): el escenario de La Mojiganga para scenes/catrina.tscn. Portales
 # coloniales de cantera alrededor (arcos abajo, balcones arriba, cornisa), un kiosco al fondo
-# donde estaba el templete, cuatro carros alegoricos (calaverota, arco de cempasuchil, alebrije,
-# ataud con musicos) y seis ofrendas escalonadas, con la misma disposicion que PruebaCatrina.gd.
+# donde estaba el templete, cuatro jardineras con arbol (donde iban los carros
+# alegoricos) y seis ofrendas escalonadas, con la misma disposicion que PruebaCatrina.gd.
 # Texturas CC0 de Poly Haven (cache/, ver CREDITS.md) puestas directo en el color, que el glTF las
 # lleva; coordenadas de textura por caras, en metros.
 # Las colisiones son cajas con "-colonly" en el nombre: Godot las vuelve StaticBody3D al importar.
-# Cada carro y cada ofrenda es su propio objeto (Carro_0..3, Ofrenda_0..5) con su version
-# reventada al lado (Carro_0_Roto...): la Catrina los revienta al pasar (scripts/catrina/Rompible.gd
+# Cada jardinera y cada ofrenda es su propio objeto (Jardinera_0..3, Ofrenda_0..5) con su version
+# reventada al lado (Jardinera_0_Roto...): la Catrina los revienta al pasar (scripts/catrina/Rompible.gd
 # esconde el entero, prende el roto y apaga su caja de choque).
 # El papel picado viene aqui (objeto "PapelPicado": PruebaCatrina ya no pone el suyo); las luces
 # y las velas las sigue poniendo el codigo.
@@ -21,17 +21,17 @@ import os
 import random
 from mathutils import Vector, Matrix
 
-RAIZ = r"C:\Users\Big Boss\Documents\GitHub\project-taquito"
-CACHE = RAIZ + r"\tools\blender\cache"
-SALIDA = RAIZ + r"\models\escenarios\plaza_catrina"
-_a = {"SOLO_FUNCIONES": True, "__name__": "catrina_alta"}
-exec(open(RAIZ + r"\tools\blender\catrina_alta.py", encoding="utf-8").read(), _a)
+RAIZ = os.environ.get("TAQUITO_RAIZ") or (os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) if "__file__" in globals() else r"C:\Users\Big Boss\Documents\GitHub\project-taquito")
+CACHE = os.environ.get("TAQUITO_CACHE") or os.path.join(RAIZ, "tools", "blender", "cache")
+SALIDA = os.path.join(RAIZ, "models", "escenarios", "plaza_catrina")
+_a = {"SOLO_FUNCIONES": True, "__name__": "catrina_alta", "__file__": os.path.join(RAIZ, "tools", "blender", "catrina_alta.py")}
+exec(open(os.path.join(RAIZ, "tools", "blender", "catrina_alta.py"), encoding="utf-8").read(), _a)
 
 MEDIO = 22.0
 ALTO = 10.0
 PORTAL = 6.2          # alto de los arcos
 FONDO_PORTAL = 3.0
-CARROS = [(-9.0, -3.0), (9.0, -3.0), (-9.0, 7.0), (9.0, 7.0)]                 # Godot (x, z)
+JARDINERAS = [(-9.0, -3.0), (9.0, -3.0), (-9.0, 7.0), (9.0, 7.0)]                 # Godot (x, z)
 OFRENDAS = [(-19.0, -8.0), (19.0, -8.0), (-19.0, 6.0), (19.0, 6.0), (-6.0, -19.0), (6.0, -19.0)]
 KIOSCO = (0.0, -17.5)
 # Braseros de hierro junto a las columnas (fuego de pixelfx encima, en Godot)
@@ -52,6 +52,9 @@ MATERIALES = {
     "Magenta": (None, (0.65, 0.12, 0.38)),
     "Morado": (None, (0.32, 0.12, 0.45)),
     "Verde": (None, (0.18, 0.45, 0.25)),
+    "Tierra": (None, (0.11, 0.065, 0.04)),
+    "Tronco": (None, (0.2, 0.13, 0.08)),
+    "Hojas": (None, (0.1, 0.28, 0.13)),
     "Amarillo": (None, (0.8, 0.65, 0.15)),
     "Turquesa": (None, (0.1, 0.55, 0.55)),
     "Vela": (None, (0.85, 0.8, 0.62)),
@@ -227,93 +230,32 @@ def kiosco(bm):
     cilindro(bm, techo + Vector((0, 0, 2.6)), techo + Vector((0, 0, 3.6)), 0.05, 0.02, "Hierro", lados=4)
 
 
-# --- Carros alegoricos ---
+# --- Jardineras con arbol (en lugar de los carros alegoricos) ---
 
-def base_carro(bm, c, color):
-    caja(bm, c + Vector((0, 0, 0.9)), (3.2, 5.5, 1.0), "Tablas")
-    caja(bm, c + Vector((0, 0, 0.42)), (3.3, 5.6, 0.12), color)
+def jardinera(bm, c, semilla):
+    """El cajon de una jardinera: concreto con la misma textura (y el mismo tamano de adoquin) que el
+    piso de la plaza, borde grueso y tierra. El arbol no va aqui: Godot le cuelga uno de
+    models/arboles (PruebaCatrina._poner_arbol) para que se rompa junto con el cajon."""
+    rnd = random.Random(semilla)
+    # Paredes (2.4 x 7.0, 1.1 de alto) y un borde mas ancho encima
     for sx in (-1, 1):
-        for sy in (-1, 1):
-            p = c + Vector((sx * 1.55, sy * 1.9, 0.38))
-            cilindro(bm, p - Vector((0.12 * sx, 0, 0)), p + Vector((0.12 * sx, 0, 0)), 0.38, 0.38, "Negro", lados=10)
-    # Fleco de papel en la orilla
-    for k in range(22):
-        t = k / 21
-        for sx in (-1, 1):
-            p = c + Vector((sx * 1.62, -2.7 + 5.4 * t, 0.62))
-            caja(bm, p, (0.02, 0.22, 0.3), ("Magenta", "Naranja", "Morado", "Verde")[k % 4])
-
-
-def carro_calavera(bm, c):
-    base_carro(bm, c, "Morado")
-    centro = c + Vector((0, 0.4, 2.6))
-    vs = esfera(bm, centro, (0.6, 0.62, 0.62), "Hueso", seg=16, anillos=11)
-    escala = 1.6
-    for v in vs:
-        _a["_forma_craneo"](v, v.co - centro)
-    # _forma_craneo deja los vertices alrededor de CABEZA: los regreso al carro y los agrando
-    cab = _a["CABEZA"]
-    for v in vs:
-        v.co = centro + (v.co - cab) * escala
-    for x in (-0.38, 0.38):
-        esfera(bm, centro + Vector((x, -0.75, 0.1)), (0.17, 0.1, 0.15), "Turquesa", seg=6, anillos=4)
+        caja(bm, c + Vector((sx * 1.0, 0, 0.55)), (0.4, 7.0, 1.1), "Piso")
+    for sy in (-1, 1):
+        caja(bm, c + Vector((0, sy * 3.3, 0.55)), (2.4, 0.4, 1.1), "Piso")
+    for sx in (-1, 1):
+        caja(bm, c + Vector((sx * 1.1, 0, 1.15)), (0.55, 7.2, 0.2), "Piso")
+    for sy in (-1, 1):
+        caja(bm, c + Vector((0, sy * 3.4, 1.15)), (2.6, 0.55, 0.2), "Piso")
+    # Zocalo salido abajo, como si lo hubieran colado en una cimbra
+    for sx in (-1, 1):
+        caja(bm, c + Vector((sx * 1.2, 0, 0.12)), (0.2, 7.2, 0.24), "Piso")
+    for sy in (-1, 1):
+        caja(bm, c + Vector((0, sy * 3.5, 0.12)), (2.6, 0.2, 0.24), "Piso")
+    # Tierra revuelta, mas baja que el borde, con terrones
+    caja(bm, c + Vector((0, 0, 0.95)), (1.7, 6.4, 0.2), "Tierra")
     for k in range(9):
-        a = math.pi * (0.1 + 0.8 * k / 8)
-        p = centro + Vector((math.cos(a) * 1.1, -0.2, 0.75 + math.sin(a) * 0.35))
-        esfera(bm, p, (0.2,) * 3, ("Magenta", "Naranja", "Morado")[k % 3], seg=8, anillos=5)
-
-
-def carro_arco(bm, c):
-    base_carro(bm, c, "Naranja")
-    for k in range(25):
-        t = math.pi * k / 24
-        p = c + Vector((math.cos(t) * 1.4, 0, 1.4 + math.sin(t) * 2.4))
-        esfera(bm, p, (0.24,) * 3, "Naranja", seg=8, anillos=5)
-    for k in range(6):
-        p = c + Vector(((k - 2.5) * 0.45, -1.8, 1.4))
-        cilindro(bm, p, p + Vector((0, 0, 0.35 + 0.1 * (k % 2))), 0.07, 0.07, "Vela", lados=6)
-    caja(bm, c + Vector((0, 1.2, 1.9)), (1.6, 1.0, 1.0), "Morado")
-
-
-def carro_alebrije(bm, c):
-    base_carro(bm, c, "Verde")
-    cuerpo = c + Vector((0, 0.3, 2.4))
-    esfera(bm, cuerpo, (0.9, 1.6, 0.8), "Magenta", seg=12, anillos=8)
-    cabeza = cuerpo + Vector((0, -1.8, 0.7))
-    esfera(bm, cabeza, (0.55, 0.65, 0.5), "Turquesa", seg=10, anillos=6)
-    for sx in (-1, 1):
-        cilindro(bm, cabeza + Vector((0.3 * sx, 0, 0.3)), cabeza + Vector((0.6 * sx, 0.2, 1.1)), 0.1, 0.01, "Amarillo", lados=5)
-        ala = [cuerpo + Vector((0.6 * sx, -0.5, 0.4)), cuerpo + Vector((2.4 * sx, -0.2, 1.6)), cuerpo + Vector((2.2 * sx, 0.9, 0.9)), cuerpo + Vector((0.6 * sx, 0.6, 0.4))]
-        poligono(bm, ala, "Naranja")
-        for k in range(2):
-            pie = cuerpo + Vector((0.6 * sx, -0.7 + 1.4 * k, -0.6))
-            cilindro(bm, pie, pie - Vector((0, 0, 0.6)), 0.14, 0.1, "Morado", lados=6)
-    cola = [cuerpo + Vector((0, 1.5, 0)), cuerpo + Vector((0, 2.2, 0.6)), cuerpo + Vector((0, 2.4, 1.4)), cuerpo + Vector((0, 2.0, 1.9))]
-    _a["tubo"](bm, cola, [0.25, 0.18, 0.12, 0.03], "Hueso", lados=6)
-    pintar(caras_de([v for v in bm.verts if (v.co - cola[2]).length < 1.2 and v.co.z > cuerpo.z]), "Amarillo")
-
-
-def carro_ataud(bm, c):
-    base_carro(bm, c, "Magenta")
-    # Ataud de seis lados, tapa a un lado
-    puntos = [(-0.5, -1.3), (0.5, -1.3), (0.7, -0.6), (0.4, 1.3), (-0.4, 1.3), (-0.7, -0.6)]
-    abajo = [c + Vector((x, y, 1.4)) for x, y in puntos]
-    arriba = [p + Vector((0, 0, 0.6)) for p in abajo]
-    for i in range(6):
-        j = (i + 1) % 6
-        poligono(bm, [abajo[i], abajo[j], arriba[j], arriba[i]], "Negro")
-    poligono(bm, arriba, "Oscuro")
-    # Tres musicos de huesos: calavera, cuerpo, instrumento
-    for k, (x, y) in enumerate(((-1.0, 1.6), (1.0, 1.6), (0.0, 2.2))):
-        p = c + Vector((x, y, 1.4))
-        cilindro(bm, p, p + Vector((0, 0, 0.9)), 0.12, 0.1, "Hueso", lados=6)
-        esfera(bm, p + Vector((0, 0, 1.15)), (0.22, 0.24, 0.24), "Hueso", seg=8, anillos=6)
-        caja(bm, p + Vector((0, 0, 1.38)), (0.5, 0.5, 0.05), "Negro")
-        caja(bm, p + Vector((0, 0, 1.47)), (0.25, 0.25, 0.18), "Negro")
-        if k == 2:
-            cilindro(bm, p + Vector((0.2, -0.2, 0.7)), p + Vector((0.4, -0.5, 1.2)), 0.05, 0.25, "Amarillo", lados=8)
-        else:
-            cilindro(bm, p + Vector((-0.2, -0.2, 0.6)), p + Vector((0.3, -0.3, 0.8)), 0.06, 0.06, "Amarillo", lados=6)
+        p = c + Vector((rnd.uniform(-0.65, 0.65), rnd.uniform(-2.9, 2.9), 1.05))
+        esfera(bm, p, (rnd.uniform(0.15, 0.32), rnd.uniform(0.15, 0.32), 0.12), "Tierra", seg=6, anillos=3)
 
 
 # --- Ofrendas ---
@@ -399,6 +341,28 @@ def aplastar(bm, c, semilla, alto=0.24):
         v.co = c + giro @ nuevo
 
 
+def escombro(bm, c, semilla):
+    """Piedras y trozos de muro rotos de una jardinera reventada, regados alrededor del cajon
+    aplastado: del mismo concreto que el piso, chuecos y a medio enterrar."""
+    rnd = random.Random(semilla)
+    for k in range(36):
+        # Mas piedras en el cajon, el resto regado hacia los lados
+        dentro = k < 20
+        x = rnd.uniform(-1.2, 1.2) if dentro else rnd.uniform(-2.3, 2.3)
+        y = rnd.uniform(-3.4, 3.4) if dentro else rnd.uniform(-4.6, 4.6)
+        grande = rnd.random() < 0.4
+        tam = (rnd.uniform(0.7, 1.2) if grande else rnd.uniform(0.3, 0.6),
+               rnd.uniform(0.5, 0.9) if grande else rnd.uniform(0.25, 0.5),
+               rnd.uniform(0.3, 0.5) if grande else rnd.uniform(0.18, 0.35))
+        giro = Matrix.Rotation(rnd.uniform(0, math.tau), 4, "Z") @ Matrix.Rotation(rnd.uniform(-0.5, 0.5), 4, "X") @ Matrix.Rotation(rnd.uniform(-0.5, 0.5), 4, "Y")
+        z = tam[2] * 0.35 + (rnd.uniform(0.0, 0.35) if dentro else 0.0)
+        # La mitad en piedra mas clara (cantera) para que se lean de noche entre el concreto
+        vs = caja(bm, c + Vector((x, y, z)), tam, "Cantera" if k % 2 else "Piso", giro)
+        # Esquinas desiguales: no son ladrillos nuevos
+        for v in vs:
+            v.co += Vector((rnd.uniform(-0.07, 0.07), rnd.uniform(-0.07, 0.07), rnd.uniform(-0.05, 0.05)))
+
+
 # --- Colisiones ---
 
 def colision(sc, col, nombre, centro, tam):
@@ -452,13 +416,14 @@ def armar_plaza():
     bm = bmesh.new()
     kiosco(bm)
     objeto("Kiosco", bm, 0.5)
-    for i, ((x, z), hacer) in enumerate(zip(CARROS, (carro_calavera, carro_arco, carro_alebrije, carro_ataud))):
+    for i, (x, z) in enumerate(JARDINERAS):
         for roto in (False, True):
             bm = bmesh.new()
-            hacer(bm, g(x, z))
+            jardinera(bm, g(x, z), 30 + i)
             if roto:
-                aplastar(bm, g(x, z), 30 + i)
-            objeto("Carro_%d%s" % (i, "_Roto" if roto else ""), bm, 0.6)
+                aplastar(bm, g(x, z), 30 + i, 0.3)
+                escombro(bm, g(x, z), 90 + i)
+            objeto("Jardinera_%d%s" % (i, "_Roto" if roto else ""), bm, 0.4)
     for i, (x, z) in enumerate(OFRENDAS):
         for roto in (False, True):
             bm = bmesh.new()
@@ -480,7 +445,7 @@ def armar_plaza():
     bm = bmesh.new()
     papel_picado(bm)
     objeto("PapelPicado", bm, 1.0)
-    # Colisiones (capa 1 en Godot): piso, muros en la linea de las columnas, kiosco, carros, ofrendas
+    # Colisiones (capa 1 en Godot): piso, muros en la linea de las columnas, kiosco, jardineras, ofrendas
     colision(sc, sc.collection, "Col_Piso", (0, 0, -0.5), (2 * MEDIO + 8, 2 * MEDIO + 8, 1.0))
     for lado in range(4):
         giro = Matrix.Rotation((0, math.pi, -math.pi / 2, math.pi / 2)[lado], 4, "Z")
@@ -488,8 +453,8 @@ def armar_plaza():
         tam = (2 * MEDIO + 2, 1.0, ALTO) if lado < 2 else (1.0, 2 * MEDIO + 2, ALTO)
         colision(sc, sc.collection, "Col_Muro_%d" % lado, centro, tam)
     colision(sc, sc.collection, "Col_Kiosco", g(*KIOSCO) + Vector((0, 0, 0.6)), (8.6, 8.6, 1.2))
-    for i, (x, z) in enumerate(CARROS):
-        colision(sc, sc.collection, "Col_Carro_%d" % i, g(x, z) + Vector((0, 0, 1.4)), (3.3, 5.6, 2.8))
+    for i, (x, z) in enumerate(JARDINERAS):
+        colision(sc, sc.collection, "Col_Jardinera_%d" % i, g(x, z) + Vector((0, 0, 0.75)), (2.7, 7.3, 1.5))
     for i, (x, z) in enumerate(BRASEROS):
         colision(sc, sc.collection, "Col_Brasero_%d" % i, g(x, z) + Vector((0, 0, 0.6)), (0.9, 0.9, 1.2))
     for i, (x, z) in enumerate(OFRENDAS):
