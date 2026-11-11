@@ -22,6 +22,8 @@ extends Node3D
 #           alrededor de la marca, "cuantos"
 #   vecino  un civil parado ahi de dia (los guardias del reten de GelA): "clip" (Idle por
 #           omision) y "modelo" de Civiles (o uno fijo por su nombre); de noche no esta
+#   trampa  un lugar iluminado que de noche atrae zombis si estas adentro (LuzTrampa): "tam"
+#           [ancho, largo] y "radio" m
 #   mision  un punto con nombre para las misiones (Colonia.puntos_mision): donde se para el que
 #           da una ("donde" de MisionData) o donde esta lo que hay que recoger
 #   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
@@ -109,6 +111,8 @@ func _ready() -> void:
 				_ninos(marca)
 			"vecino":
 				_vecino(marca)
+			"trampa":
+				_trampa(marca)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
@@ -173,6 +177,16 @@ func _ninos(marca: Dictionary) -> void:
 	ninos.cuantos = int(marca.get("cuantos", 6))
 	ninos.transform = lugar(marca)
 	add_child(ninos)
+
+
+func _trampa(marca: Dictionary) -> void:
+	var trampa := LuzTrampa.new()
+	trampa.name = String(marca.get("nombre", "Trampa"))
+	var tam: Array = marca.get("tam", [12.0, 19.0])
+	trampa.tam = Vector2(float(tam[0]), float(tam[1]))
+	trampa.radio = float(marca.get("radio", trampa.radio))
+	trampa.transform = lugar(marca)
+	add_child(trampa)
 
 
 func _vecino(marca: Dictionary) -> void:

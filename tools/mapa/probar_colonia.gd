@@ -270,6 +270,9 @@ func _vida(escena: Node) -> void:
 	var guardia := escena.find_child("Guardia_GelA_0", true, false) as Node3D
 	_revisar("de noche no hay chamacos ni guardias", ninos != null and not ninos.visible and guardia != null and not guardia.visible,
 		"%s %s" % [ninos, guardia])
+	var trampa := escena.find_child("Trampa_Cancha", true, false)
+	_revisar("la cancha atrapa de noche", trampa != null and trampa.call("adentro", Vector3(-392.0, 1.0, 305.5))
+		and not trampa.call("adentro", Vector3(-372.0, 1.0, 432.0)), "%s" % trampa)
 	var foco := escena.find_child("Foco_0", true, false) as Light3D
 	_revisar("foco del callejon prendido de noche", foco != null and foco.visible, "%s" % foco)
 
