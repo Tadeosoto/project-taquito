@@ -505,6 +505,13 @@ func pose_carga(en: float) -> void:
 
 # Caminando a medio machetazo: el barrido solo en la parte de arriba, las piernas trotan
 func golpe_caminando(si: bool) -> void:
+	# Acabo el enfriamiento corriendo: el filtro de arriba se queda mientras el golpe se suelta.
+	# Apagado de golpe, un cuadro se veia el clip de cuerpo entero (cadera girada ~120 grados) y
+	# luego se desvanecia: "se da una vuelta"
+	if not si and _moviendo and _accion_peso > 0.0 and _ultima in SUELTAN_CAMINANDO:
+		_rec_en = -1.0
+		_accion_resta = minf(_accion_resta, ACCION_SALE * _accion_peso)
+		return
 	if _accion_nodo and _accion_nodo.filter_enabled != si:
 		_accion_nodo.filter_enabled = si
 

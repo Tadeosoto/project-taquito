@@ -15,10 +15,11 @@
 #   "bordes": {"norte"|"sur"|"oriente"|"poniente": "gela"|"barda"|"derrumbe"|"camion"}
 #            el tapon de las calles que salen por ese lado (norte = z chica)
 
+import os
 import math
 
 _r = {"__name__": "referencia", "SOLO_FUNCIONES": True}
-exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\mapa\referencia.py", encoding="utf-8").read(), _r)
+exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "referencia.py"), encoding="utf-8").read(), _r)
 globals().update({k: v for k, v in _r.items() if not k.startswith("__") and k != "SOLO_FUNCIONES"})
 
 # Calles de un sentido de las avenidas: dos arroyos juntos con camellon (OSM les da el ancho
@@ -182,13 +183,39 @@ def _postes(calles_osm_dibujadas, todas):
 PUERTA_AFUERA = 0.8         # m de la fachada a la flecha
 TIRA = 2.0                  # m: las reservas mas angostas (pasillos) se revisan lado por lado
 PUESTO_LIBRE = 2.5          # m alrededor de una puerta sin puestos del tianguis
+# Un local de MapPuntos (scripts/map/MapPuntos.gd, LOCAL_MIN) no baja de este frente y fondo (m): el
+# negocio se queda con la casa mas cercana a su punto que los tenga, dentro de LOCAL_RADIO m
+LOCAL_MIN = (4.5, 6.0)
+LOCAL_MAX = (14.0, 16.0)    # y no mas grande que esto (un mini super no es un mercado)
+LOCAL_RADIO = 25.0
 
 
-def _tiendas(tiendas, casas, usadas=None):
+def _cabe_local(casa):
+    a, b, _c, _n, fondo = frente_de(casa)
+    ancho = math.hypot(b[0] - a[0], b[1] - a[1])
+    return LOCAL_MIN[0] <= ancho <= LOCAL_MAX[0] and LOCAL_MIN[1] <= fondo <= LOCAL_MAX[1]
+
+
+def _da_a_calle(casa, casas, calles):
+    """El frente de la casa da a una calle de verdad (no a un callejon ni a otra casa): a 2 m de la
+    puerta, el punto queda a menos de 3.5 m de la banqueta de una calle y no dentro de una casa."""
+    a, b, _c, (nx, nz), _f = frente_de(casa)
+    px, pz = (a[0] + b[0]) / 2 + nx * (PUERTA_AFUERA + 2.0), (a[1] + b[1]) / 2 + nz * (PUERTA_AFUERA + 2.0)
+    if any(otra is not casa and _dentro_poligono(px, pz, _huella_mundo(otra)) for otra in casas):
+        return False
+    return any(_distancia_segmento(px, pz, p, q) <= medio + 3.5 for tramo, medio in calles for p, q in zip(tramo, tramo[1:]))
+
+
+def _huella_mundo(casa):
+    return [(casa["x"] + x, casa["z"] + z) for x, z in casa["puntos"]]
+
+
+def _tiendas(tiendas, casas, usadas=None, calles=None):
     marcas, negocios = [], []
     usadas = set() if usadas is None else usadas
     for i, t in enumerate(tiendas):
         mejor, mejor_d = None, 1e9
+        cabe, cabe_d = None, LOCAL_RADIO
         for casa in casas:
             if id(casa) in usadas:
                 continue
@@ -196,22 +223,35 @@ def _tiendas(tiendas, casas, usadas=None):
             d = math.hypot((a[0] + b[0]) / 2 - t["cerca"][0], (a[1] + b[1]) / 2 - t["cerca"][1])
             if d < mejor_d:
                 mejor, mejor_d = casa, d
+            if d < cabe_d and t["tipo"] != "punto" and _cabe_local(casa) and (calles is None or _da_a_calle(casa, casas, calles)):
+                cabe, cabe_d = casa, d
+        if cabe is not None:
+            mejor = cabe
+        elif mejor is not None and t["tipo"] != "punto":
+            print("negocio %s: ninguna casa libre a %d m alcanza %s m; se queda la mas cercana" % (t["nombre"], LOCAL_RADIO, LOCAL_MIN))
         if mejor is None:
             continue
         usadas.add(id(mejor))
         a, b, (cx, cz), (nx, nz), fondo = frente_de(mejor)
         punto = t["tipo"] == "punto"
         mejor["tienda"] = not punto
+        mejor["local"] = not punto   # su fachada la pone MapPuntos (colonia.py salta la casa)
         if punto:
             mejor["desgaste"], mejor["pisos"] = 1.0, 1
         giro = math.atan2(nx, nz)
         mx, mz = (a[0] + b[0]) / 2 + nx * PUERTA_AFUERA, (a[1] + b[1]) / 2 + nz * PUERTA_AFUERA
         marcas.append({"nombre": "Puerta_%s_%d" % (t["giro"], i), "tipo": "puerta", "auto": True, "giro": t["giro"],
                        "texto": t["nombre"], "x": round(mx, 2), "z": round(mz, 2), "rot": round(giro, 4)})
+        if mejor.get("local"):
+            marcas[-1]["local"] = True   # la flecha y el letrero los pone MapPuntos, no Colonia.gd
         negocios.append({"tipo": t["tipo"], "giro": t["giro"], "nombre": t["nombre"], "x": round(cx, 2), "z": round(cz, 2),
                          "rotacion_y": round(giro, 4), "ancho": round(math.hypot(b[0] - a[0], b[1] - a[1]), 2),
                          "fondo": round(fondo, 2), "pisos": mejor.get("pisos", 1), "interactivo": True,
                          "aire_libre": False, "origen": t["nombre"]})
+        if mejor.get("local"):
+            negocios[-1]["ajustado"] = True   # MapPuntos: la huella tal cual y las alturas de las casas
+        elif punto:
+            negocios[-1]["sin_flecha"] = True   # su casa y su flecha son de Blender (Colonia.gd)
     return marcas, negocios
 
 
@@ -535,7 +575,7 @@ def bloquear(nombre):
     datos["postes"] = _postes(para_postes, [(t, a / 2) for t, m, a, av in para_postes])
     todas_casas = [p for p in nuevas + piezas if p["tipo"] == "casa"]
     usadas = set()
-    marcas, datos["negocios"] = _tiendas(datos.get("tiendas", []), todas_casas, usadas)
+    marcas, datos["negocios"] = _tiendas(datos.get("tiendas", []), todas_casas, usadas, calles)
     marcas += _vecinos(datos.get("vecinos", []), todas_casas, usadas)
     datos["marcas"] = [m for m in datos.get("marcas", []) if not m.get("auto")] + marcas
     # Ningun puesto del tianguis enfrente de una puerta (si no, no se llega a la flecha)
@@ -552,5 +592,32 @@ def bloquear(nombre):
         nombre, cuenta, quitadas, lotes, baldios, escaleras, casas_ruta, len(datos["postes"]), len(datos["negocios"]), len(piezas)))
 
 
+def reasignar_negocios(nombre):
+    """Vuelve a elegir la casa de cada negocio (y de cada vecino) sin rehacer el resto del bloqueo:
+    el relleno, las calles y lo puesto a mano se quedan como estan en el .json."""
+    datos = leer_colonia(nombre)
+    casas = [p for p in datos["piezas"] if p["tipo"] == "casa"]
+    for casa in casas:
+        casa.pop("local", None)
+        casa.pop("tienda", None)
+    usadas = set()
+    calles = [([(p["x"] + x, p["z"] + z) for x, z in p["puntos"]], p["ancho"] / 2 + p.get("banqueta", 0.0))
+              for p in datos["piezas"] if p["tipo"] == "calle" and p["nombre"].startswith("Calle") and p["ancho"] >= 6.0]
+    marcas, datos["negocios"] = _tiendas(datos.get("tiendas", []), casas, usadas, calles)
+    marcas += _vecinos(datos.get("vecinos", []), casas, usadas)
+    datos["marcas"] = [m for m in datos.get("marcas", []) if not m.get("auto")] + marcas
+    puertas = [m for m in datos["marcas"] if m.get("tipo") == "puerta"]
+    antes = len(datos["piezas"])
+    datos["piezas"] = [p for p in datos["piezas"]
+                       if not (p["tipo"] == "puesto" and any(math.hypot(p["x"] - m["x"], p["z"] - m["z"]) < PUESTO_LIBRE for m in puertas))]
+    guardar_json(ruta_colonia(nombre), datos)
+    print("negocios de %s reasignados: %d; puestos quitados de las puertas: %d" % (nombre, len(datos["negocios"]), antes - len(datos["piezas"])))
+    for n in datos["negocios"]:
+        print("  %-28s %6.1f x %5.1f  en (%.0f, %.0f)" % (n["nombre"][:28], n["ancho"], n["fondo"], n["x"], n["z"]))
+
+
 if not globals().get("SOLO_FUNCIONES"):
-    bloquear(globals().get("COLONIA", "santa_mugre"))
+    if globals().get("REASIGNAR"):
+        reasignar_negocios(globals().get("COLONIA", "santa_mugre"))
+    else:
+        bloquear(globals().get("COLONIA", "santa_mugre"))

@@ -87,6 +87,11 @@ const LOCAL_MARCO := Vector2(0.16, 0.04)   # ancho del marco y lo que sale del m
 const LOCAL_CUARTO := 4.5     # fondo maximo del cuarto que se ve desde la calle
 # Tamano minimo de un local (m): en lotes angostos se sale a los lados y hacia atras
 const LOCAL_MIN := Vector2(4.5, 6.0)
+# Un negocio con "ajustado" (los del mapa de Blender) se mete en la huella de su casa: ancho y fondo
+# tal cual y las alturas de las casas vecinas (tools/blender/mapa/kit.py: PISO y PRETIL)
+const PLANTA_AJUSTADA := 2.75
+const PISO_AJUSTADO := 2.75
+const PRETIL_AJUSTADO := 0.45
 # Purificadora (foto del usuario): anuncio sobre postes en la banqueta
 const PURIFICADORA_LONA := preload("res://textures/map/purificadora_lona.png")
 const PURIFICADORA_POSTES := 1.5   # de la fachada a los postes (orilla de la banqueta)
@@ -435,7 +440,7 @@ func _make_punto(punto: Dictionary) -> Node3D:
 		node = _make_purificadora(punto)
 	else:
 		node = _make_placeholder(punto)
-	if punto.get("interactivo", false) and not Engine.is_editor_hint():
+	if punto.get("interactivo", false) and not punto.get("sin_flecha", false) and not Engine.is_editor_hint():
 		if tipo == "gasolinera" and node.has_meta("surtidor"):
 			_marcadores_gasolinera(node, punto)
 		else:
@@ -1010,6 +1015,7 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 	var front: float = m["front"]
 	var pisos: int = m["pisos"]
 	var alto: float = m["alto"]
+	var planta: float = m["planta"]
 	var sala: float = m["sala"]
 	var pilar := (w - sala) / 2.0
 	var puerta: float = m["puerta"]
@@ -1027,7 +1033,7 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 	for lado in [-1.0, 1.0]:
 		var x: float = lado * (sala + pilar) / 2.0
 		_fachada_tramo(body, Vector2(x - pilar / 2.0, x + pilar / 2.0), 0.0, alto, front - cuarto / 2.0, cuarto, acento, muro)
-	var dintel_arriba := alto if pisos == 1 else PLANTA_BAJA
+	var dintel_arriba := alto if pisos == 1 else planta
 	var z := front - LOCAL_MURO / 2.0
 	for lado in [-1.0, 1.0]:
 		var tramo: Vector2 = Vector2(puerta / 2.0, sala / 2.0) * lado
@@ -1035,12 +1041,12 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 	_fachada_tramo(body, Vector2(-puerta / 2.0, puerta / 2.0), VANO_ALTO, dintel_arriba, z, LOCAL_MURO, acento, muro)
 	_marco(body, puerta, z, info.get("marco", acento))
 	if pisos > 1:
-		_piso_alto(body, w, sala, cuarto, front, alto, muro, acento)
+		_piso_alto(body, w, sala, cuarto, front, alto, planta, m["pretil"], muro, acento)
 	# Techo y piso del cuarto, tubo de luz y la cortina enrollada (por dentro, arriba
 	# de la puerta)
-	_local_box(body, Vector3(sala, 0.2, cuarto), Vector3(0.0, PLANTA_BAJA - 0.1, front - cuarto / 2.0), Color(0.85, 0.85, 0.82), false)
+	_local_box(body, Vector3(sala, 0.2, cuarto), Vector3(0.0, planta - 0.1, front - cuarto / 2.0), Color(0.85, 0.85, 0.82), false)
 	_local_box(body, Vector3(sala, 0.02, cuarto), Vector3(0.0, 0.01, front - cuarto / 2.0), Color(0.6, 0.55, 0.5), false)
-	var tubo := _local_box(body, Vector3(1.2, 0.05, 0.15), Vector3(0.0, PLANTA_BAJA - 0.23, front - cuarto * 0.5), Color(1.0, 1.0, 0.95), false)
+	var tubo := _local_box(body, Vector3(1.2, 0.05, 0.15), Vector3(0.0, planta - 0.23, front - cuarto * 0.5), Color(1.0, 1.0, 0.95), false)
 	if _material_tubo == null:
 		_material_tubo = StandardMaterial3D.new()
 		_material_tubo.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -1050,8 +1056,8 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 	body.add_child(_cortina(puerta + 0.1, front - LOCAL_MURO - 0.03))
 	# Franja de color sin letras (OXO)
 	if info.has("banda"):
-		var abajo := VANO_ALTO + 0.3 if pisos == 1 else PLANTA_BAJA + 0.15
-		var arriba := dintel_arriba - 0.1 if pisos == 1 else PLANTA_BAJA + 0.75
+		var abajo := VANO_ALTO + 0.3 if pisos == 1 else planta + 0.15
+		var arriba := dintel_arriba - 0.1 if pisos == 1 else planta + 0.75
 		_local_box(body, Vector3(w + 0.02, arriba - abajo, 0.03), Vector3(0.0, (abajo + arriba) / 2.0, front + 0.01), info["banda"], false)
 	if info.get("cruz", false):
 		_cruz_bandera(body, w, front, dintel_arriba, acento)
@@ -1112,13 +1118,17 @@ func _maquinita(banqueta: Node3D, punto: Dictionary, w: float, puerta: float, fr
 # fachada), `pisos` y `alto` hasta el pretil, el cuarto (`sala` de ancho entre los
 # muros de los lados, `cuarto` de fondo) y la `puerta`, mas angosta, en medio
 static func _medidas(punto: Dictionary) -> Dictionary:
-	var w: float = maxf(punto["ancho"], LOCAL_MIN.x)
-	var d: float = maxf(punto["fondo"], LOCAL_MIN.y)
+	var ajustado: bool = punto.get("ajustado", false)
+	var w: float = punto["ancho"] if ajustado else maxf(punto["ancho"], LOCAL_MIN.x)
+	var d: float = punto["fondo"] if ajustado else maxf(punto["fondo"], LOCAL_MIN.y)
 	var pisos := clampi(int(punto.get("pisos", 1)), 1, 2)
 	var sala := minf(w - 2.0 * LOCAL_PILAR, LOCAL_SALA_MAX)
+	var planta := PLANTA_AJUSTADA if ajustado else PLANTA_BAJA
+	var piso_alto := PISO_AJUSTADO if ajustado else PISO_ALTO
+	var pretil := PRETIL_AJUSTADO if ajustado else PRETIL
 	return {
-		"w": w, "d": d, "front": punto["fondo"] / 2.0, "pisos": pisos,
-		"alto": PLANTA_BAJA + (pisos - 1) * PISO_ALTO + PRETIL,
+		"w": w, "d": d, "front": punto["fondo"] / 2.0, "pisos": pisos, "planta": planta,
+		"alto": planta + (pisos - 1) * piso_alto + pretil, "pretil": pretil,
 		"sala": sala, "cuarto": minf(d - 0.5, LOCAL_CUARTO),
 		"puerta": clampf(sala * LOCAL_PUERTA_FRACCION, LOCAL_PUERTA.x, minf(LOCAL_PUERTA.y, sala - 0.8)),
 	}
@@ -1135,7 +1145,7 @@ func _armar_interior(body: Node3D, punto: Dictionary, de_una := false) -> void:
 	if punto["tipo"] == "taqueria":
 		_taqueria_cuarto(detalle, punto, m["sala"], m["cuarto"], m["front"])
 	else:
-		_interior_local(detalle, GIROS_LOCAL[punto["tipo"]], m["sala"], m["cuarto"], m["front"], civil(punto))
+		_interior_local(detalle, GIROS_LOCAL[punto["tipo"]], m["sala"], m["cuarto"], m["front"], civil(punto), m["planta"])
 	if not de_una:
 		_sacar_muebles(detalle)
 	detalle.ready.connect(func() -> void:
@@ -1210,6 +1220,8 @@ func _make_puesto_tacos(punto: Dictionary) -> Node3D:
 	var puesto := Mostrador.new()
 	puesto.estilo = 5
 	puesto.parrilla_atras = true
+	# Debajo de una carpa del tianguis (Tianguis.reservados) no lleva su toldo
+	puesto.toldo = not punto.get("bajo_carpa", false)
 	puesto.ancho = PUESTO_TACOS.x
 	puesto.alto = 0.92
 	puesto.fondo = PUESTO_TACOS.y
@@ -1265,12 +1277,12 @@ static func sin_textos(node: Node) -> void:
 
 # Segundo piso (casa arriba del local): muro del giro con la franja, losa que sobresale
 # y una o dos ventanas con marco de aluminio y reja
-func _piso_alto(body: StaticBody3D, w: float, sala: float, cuarto: float, front: float, alto: float, muro: Color, acento: Color) -> void:
-	_local_box(body, Vector3(sala, alto - PLANTA_BAJA, cuarto), Vector3(0.0, (PLANTA_BAJA + alto) / 2.0, front - cuarto / 2.0), muro, true)
-	_local_box(body, Vector3(w + 0.1, 0.14, 0.4), Vector3(0.0, PLANTA_BAJA, front + 0.05), Color(0.72, 0.71, 0.68), false)
-	_local_box(body, Vector3(w + 0.03, 0.12, 0.03), Vector3(0.0, alto - PRETIL - 0.1, front + 0.01), acento, false)
+func _piso_alto(body: StaticBody3D, w: float, sala: float, cuarto: float, front: float, alto: float, planta: float, pretil: float, muro: Color, acento: Color) -> void:
+	_local_box(body, Vector3(sala, alto - planta, cuarto), Vector3(0.0, (planta + alto) / 2.0, front - cuarto / 2.0), muro, true)
+	_local_box(body, Vector3(w + 0.1, 0.14, 0.4), Vector3(0.0, planta, front + 0.05), Color(0.72, 0.71, 0.68), false)
+	_local_box(body, Vector3(w + 0.03, 0.12, 0.03), Vector3(0.0, alto - pretil - 0.1, front + 0.01), acento, false)
 	var ventanas := 2 if w >= 6.5 else 1
-	var y := PLANTA_BAJA + LETRERO_ALTO + 0.7
+	var y := planta + LETRERO_ALTO + 0.7
 	for i in ventanas:
 		var x := 0.0 if ventanas == 1 else (-1.0 if i == 0 else 1.0) * w / 4.0
 		_local_box(body, Vector3(1.5, 1.0, 0.04), Vector3(x, y, front + 0.01), Color(0.78, 0.79, 0.8), false)
@@ -1294,7 +1306,7 @@ func _cruz_bandera(body: StaticBody3D, w: float, front: float, arriba: float, co
 # solo el mostrador, el que atiende, los muebles, los refris y el letrero, con la pared
 # de atras de la escena en el fondo del cuarto y achicados parejo si el cuarto es mas
 # angosto que la escena. Las paredes del cuarto por dentro, del color de la escena.
-func _interior_local(detalle: Node3D, info: Dictionary, sala: float, cuarto: float, front: float, quien: String) -> void:
+func _interior_local(detalle: Node3D, info: Dictionary, sala: float, cuarto: float, front: float, quien: String, planta := PLANTA_BAJA) -> void:
 	var escena: PackedScene = escenas_interior.get(info["interior"])
 	if escena == null:
 		return
@@ -1329,7 +1341,7 @@ func _interior_local(detalle: Node3D, info: Dictionary, sala: float, cuarto: flo
 	if info.has("relleno"):
 		_relleno(detalle, cosas, RELLENO[info["relleno"]], sala, cuarto, front)
 	# Forro de las paredes por dentro: atras y a los lados, con el guardapolvo
-	var adentro := PLANTA_BAJA - 0.2
+	var adentro := planta - 0.2
 	var forros := [[Vector3(sala, adentro, 0.02), Vector3(0.0, adentro / 2.0, front - cuarto + 0.01)]]
 	for lado in [-1.0, 1.0]:
 		forros.append([Vector3(0.02, adentro, cuarto - 0.35), Vector3(lado * (sala / 2.0 - 0.01), adentro / 2.0, front - cuarto / 2.0 - 0.15)])

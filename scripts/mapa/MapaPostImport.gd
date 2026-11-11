@@ -41,13 +41,17 @@ const PISOS := {
 	"adoquin": ["res://textures/mapa/piedra_plaza.png", 2.0, 0, 3],
 	# Andadores de cantera y jardines de la plaza (pasto parejo, modo 0: con el 2 salia casi todo seco)
 	"cantera_piso": ["res://textures/mapa/cantera_rosa.png", 1.5, 0, 3],
+	# La glorieta del tinaco comunitario: la piedra de la plaza pintada de rosa (tools/map_import/make_piedra_plaza_rosa.py)
+	"adoquin_rosa": ["res://textures/mapa/piedra_plaza_rosa.png", 2.0, 0, 3],
+	# La cenefa de piedritas entre lo rosa y lo gris (tools/map_import/make_cantera_orilla.py)
+	"cantera_orilla": ["res://textures/mapa/cantera_orilla.png", 1.5, 0, 3],
 	"pasto": ["res://textures/map/pasto.png", 2.5, 0, 0],
 }
 # Capa de profundidad de cada piso (ps1_suelo `capa`: la mas alta queda encima). Las calles van
 # pintadas 1-2 cm sobre el piso de banqueta, y a lo lejos el piso las tapaba
 # En la plaza: adoquin abajo, el pasto de los jardines encima y los andadores arriba de todo
 const CAPAS := {"tierra": 0.0, "banqueta": 1.0, "pasto_seco": 2.0, "adoquin": 2.5, "pasto": 2.7, "empedrado": 3.0,
-		"cantera_piso": 3.5, "asfalto": 4.0}
+		"cantera_orilla": 3.1, "adoquin_rosa": 3.3, "cantera_piso": 3.5, "asfalto": 4.0}
 
 const MERGE_FORMAT_MASK := Mesh.ARRAY_FORMAT_NORMAL | Mesh.ARRAY_FORMAT_TANGENT \
 		| Mesh.ARRAY_FORMAT_COLOR | Mesh.ARRAY_FORMAT_TEX_UV | Mesh.ARRAY_FORMAT_TEX_UV2
@@ -138,7 +142,7 @@ func _post_import(scene: Node) -> Object:
 
 
 func _por_nombre(nombre: String) -> bool:
-	return nombre == "fachada_kit" or nombre == "detalle_kit" or nombre == "azotea" or nombre == "mural" or PISOS.has(nombre)
+	return nombre == "fachada_kit" or nombre == "detalle_kit" or nombre == "azotea" or nombre == "mural" or nombre.begins_with("arbol_") or PISOS.has(nombre)
 
 
 # La escena importada todavia no esta en el arbol: el transform se arma con los de los padres
@@ -169,6 +173,16 @@ func _material(nombre: String, original: Material) -> Material:
 		material = ShaderMaterial.new()
 		material.shader = MURAL_SHADER
 		material.set_shader_parameter("albedo_texture", load("res://textures/mapa/murales.png"))
+		material.set_shader_parameter("affine_enabled", false)
+		material.set_shader_parameter("wobble_enabled", false)
+		material.set_shader_parameter("jitter_enabled", false)
+	elif nombre.begins_with("arbol_"):
+		# Los arboles de Tacos_ Props y de Sketchfab (textures/mapa/<nombre>.png, que el .glb no lleva):
+		# la corteza con ps1_combined y las hojas recortadas por alfa y sin culling
+		var ruta_arbol := "res://textures/mapa/%s.png" % nombre
+		material = ShaderMaterial.new()
+		material.shader = MURAL_SHADER if nombre.ends_with("hojas") else PS1_SHADER
+		material.set_shader_parameter("albedo_texture", load(ruta_arbol) if ResourceLoader.exists(ruta_arbol) else _blanca)
 		material.set_shader_parameter("affine_enabled", false)
 		material.set_shader_parameter("wobble_enabled", false)
 		material.set_shader_parameter("jitter_enabled", false)

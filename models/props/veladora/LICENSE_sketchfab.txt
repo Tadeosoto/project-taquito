@@ -1,0 +1,11 @@
+Model Information:
+* title:	Jar with candle
+* source:	https://sketchfab.com/3d-models/jar-with-candle-4c9e6738b88f4160a76c9d9fc497de78
+* author:	Marcin.Kwiatkowski (https://sketchfab.com/Marcin.Kwiatkowski)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Jar with candle" (https://sketchfab.com/3d-models/jar-with-candle-4c9e6738b88f4160a76c9d9fc497de78) by Marcin.Kwiatkowski (https://sketchfab.com/Marcin.Kwiatkowski) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

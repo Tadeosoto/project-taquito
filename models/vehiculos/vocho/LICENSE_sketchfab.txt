@@ -1,0 +1,11 @@
+Model Information:
+* title:	1967 Volkswagen Beetle
+* source:	https://sketchfab.com/3d-models/1967-volkswagen-beetle-769ada1c8d2c4cddb33a8c66b93e1099
+* author:	zairiq-zairiq-123-pixar-cars-bfdi (https://sketchfab.com/zairiqzairiqpixarcarsbfdi)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "1967 Volkswagen Beetle" (https://sketchfab.com/3d-models/1967-volkswagen-beetle-769ada1c8d2c4cddb33a8c66b93e1099) by zairiq-zairiq-123-pixar-cars-bfdi (https://sketchfab.com/zairiqzairiqpixarcarsbfdi) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -10,6 +10,7 @@ extends Node3D
 #           antes que el jugador, el dron y Supervivencia en la escena.
 #   puerta  la flecha amarilla de un negocio o casa: al pisarla emite MapPuntos.entrar_negocio
 #           con su giro, igual que YonkeMapa; su +Z da a la calle (ahi te deja Interiores al salir)
+#   tinaco  el tinaco comunitario de la plaza con la Virgen del Tinaco ("litros" lo que le cabe): TinacoComunitario
 #   yonke   El Yonke de Don Chava (YonkeMapa, con su barda), con su +Z a la calle
 #   casa_propia  la flecha de la casa del jugador (CasaPropia, la casa de JJ que se camina)
 #   casa_vecino  la flecha de la casa de un vecino (CasaPropia con scenes/casas/<quien>.tscn)
@@ -110,7 +111,11 @@ func _ready() -> void:
 			"spawn", "mision":
 				pass
 			"puerta":
-				_puerta(marca)
+				# Los negocios "local" (su casa la reemplaza MapPuntos) ya traen su flecha y su letrero
+				if not marca.get("local", false):
+					_puerta(marca)
+			"tinaco":
+				_tinaco_comunitario(marca)
 			"yonke":
 				_yonke(marca)
 			"casa_propia":
@@ -133,6 +138,8 @@ func _ready() -> void:
 				_letrero(marca)
 			"placa":
 				_placa(marca)
+			"tianguis":
+				_tianguis(marca)
 			"caja_gela":
 				var caja := CajaGela.new()
 				caja.name = String(marca.get("nombre", "CajaGela"))
@@ -354,6 +361,21 @@ static func lugar(marca: Dictionary) -> Transform3D:
 	return Transform3D(base, Vector3(float(marca["x"]), float(marca.get("y", 0.0)), float(marca["z"])))
 
 
+# Un tramo de tianguis sobre la calle (exportar.py: tianguis_marcas): la marca esta al inicio del
+# tramo, en medio del arroyo, y su +X va a lo largo de la calle
+func _tianguis(marca: Dictionary) -> void:
+	var t := Tianguis.new()
+	t.name = String(marca.get("nombre", "Tianguis"))
+	t.transform = lugar(marca)
+	t.largo = float(marca.get("largo", 40.0))
+	t.arroyo = float(marca.get("arroyo", 8.0))
+	t.pasillo = float(marca.get("pasillo", 2.6))
+	t.semilla = int(marca.get("semilla", 7))
+	t.huecos = marca.get("huecos", [])
+	t.reservados = marca.get("reservados", [])
+	add_child(t)
+
+
 func _spawn(marca: Dictionary) -> void:
 	var jugador := get_node_or_null(jugador_path) as Node3D
 	if jugador == null:
@@ -403,6 +425,15 @@ func _casa_vecino(marca: Dictionary) -> void:
 	if zombis:
 		casa.set("zombis_path", zombis.get_path())
 	add_child(casa)
+
+
+# El tinaco comunitario de la plaza con la Virgen del Tinaco (marca "tinaco", "litros" lo que le cabe): lo arma
+# TinacoComunitario
+func _tinaco_comunitario(marca: Dictionary) -> void:
+	var tinaco := TinacoComunitario.new()
+	tinaco.armar(float(marca.get("litros", 10000.0)))
+	tinaco.transform = lugar(marca)
+	add_child(tinaco)
 
 
 func _yonke(marca: Dictionary) -> void:

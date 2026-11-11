@@ -43,6 +43,8 @@
 - [Manhole](https://sketchfab.com/3d-models/bbf5c9aa04c24fbaba328728d955777d) de DJMaesen, licencia CC Attribution (`models/props/coladera/`).
 - [Rtp Tinaco](https://sketchfab.com/3d-models/fb34a8ff0a04447e91a9ef1d793a192a) de dmlmx, licencia CC Attribution (`models/props/tinaco/`).
 - [Abandoned Toilet Cabin (Low Poly)](https://sketchfab.com/3d-models/8083b3d2134f4e98a34d891fa7915dcc) de Berk Gedik, licencia CC Attribution (`models/props/bano_portatil/`).
+- [Jar with candle](https://sketchfab.com/3d-models/4c9e6738b88f4160a76c9d9fc497de78) de Marcin.Kwiatkowski, licencia CC Attribution (`models/props/veladora/`).
+- [Calendula flower](https://sketchfab.com/3d-models/d813ac09f52849a3a8c57e14076e4b83) de Maf'j Alvarez, licencia CC Attribution (`models/props/calendula/`).
 
 ## Objetos (`models/objetos/`, Sketchfab)
 
@@ -158,3 +160,14 @@
 - [Antique Wooden Wardrobe](https://sketchfab.com/3d-models/a3c221e5504d40a8ba019f8f1bf5ab0e) de Kuutti Siitonen, licencia CC Attribution (`closet/`).
 - [Retro CRT TV](https://sketchfab.com/3d-models/6bc462b233ce4c78904dfcadf5123e29) de meipal, licencia CC Attribution (`tele/`).
 - [Single Bed 2](https://sketchfab.com/3d-models/81ada0e24e1647d8a0d6d0708a696f84) de rhcreations, licencia CC Attribution (`cama/`).
+
+## Arboles (`models/arboles/`, Sketchfab)
+- [Maple tree](https://sketchfab.com/3d-models/4b27adcf92f644bdabf8ecc6c5bef399) de atrodler, licencia CC Attribution (`models/arboles/arce/`).
+- [Realistic Tree](https://sketchfab.com/3d-models/d989c0f801d847b9a74992ec4ddcfdfc) de Daniel, licencia CC Attribution (`models/arboles/realista/`).
+- [Oak tree](https://sketchfab.com/3d-models/3dc59560f2d24345bdbe65c44636453b) de massive-graphisme, licencia CC Attribution (`models/arboles/roble/`).
+
+## Vehiculos (`models/vehiculos/`, Sketchfab)
+- [Suzuki Grand Vitara - PS1 Low Poly](https://sketchfab.com/3d-models/03e3db7b0d4a42d5a52f6740a3d5657d) de Wersaus33, licencia CC Attribution (`models/vehiculos/grand_vitara/`).
+- [Retro Lowpoly Nissan Tsuru](https://sketchfab.com/3d-models/94faafff28ce4bb3b3ab338da0b24eec) de jomalon, licencia CC Attribution (`models/vehiculos/tsuru/`).
+- [1967 Volkswagen Beetle](https://sketchfab.com/3d-models/769ada1c8d2c4cddb33a8c66b93e1099) de zairiq-zairiq-123-pixar-cars-bfdi, licencia CC Attribution (`models/vehiculos/vocho/`).
+- [White Van - PS1 Low Poly](https://sketchfab.com/3d-models/1cac40905d494bae8108a556d870e23e) de Wersaus33, licencia CC Attribution (`models/vehiculos/van_blanca/`).

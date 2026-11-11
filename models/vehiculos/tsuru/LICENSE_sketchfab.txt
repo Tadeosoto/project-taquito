@@ -1,0 +1,11 @@
+Model Information:
+* title:	Retro Lowpoly Nissan Tsuru
+* source:	https://sketchfab.com/3d-models/retro-lowpoly-nissan-tsuru-94faafff28ce4bb3b3ab338da0b24eec
+* author:	jomalon (https://sketchfab.com/estebancandiani)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Retro Lowpoly Nissan Tsuru" (https://sketchfab.com/3d-models/retro-lowpoly-nissan-tsuru-94faafff28ce4bb3b3ab338da0b24eec) by jomalon (https://sketchfab.com/estebancandiani) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

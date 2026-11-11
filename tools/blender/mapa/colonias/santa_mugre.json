@@ -631,8 +631,7 @@
 			"pisos": 2,
 			"frente": 1,
 			"color": "terracota",
-			"desgaste": 0.47,
-			"tienda": true
+			"desgaste": 0.47
 		},
 		{
 			"nombre": "Casa_27",
@@ -668,7 +667,9 @@
 			"pisos": 3,
 			"frente": 3,
 			"color": "azul",
-			"desgaste": 0.62
+			"desgaste": 0.62,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Casa_37",
@@ -750,10 +751,10 @@
 				[4.42, -1.79],
 				[-3.91, -2.74]
 			],
-			"pisos": 2,
+			"pisos": 1,
 			"frente": 1,
 			"color": "naranja",
-			"desgaste": 0.44
+			"desgaste": 1.0
 		},
 		{
 			"nombre": "Casa_50",
@@ -1321,7 +1322,8 @@
 			"frente": 0,
 			"color": "morado",
 			"desgaste": 0.44,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Casa_211",
@@ -1339,7 +1341,8 @@
 			"frente": 0,
 			"color": "crema",
 			"desgaste": 1.0,
-			"tienda": false
+			"tienda": false,
+			"local": false
 		},
 		{
 			"nombre": "Casa_217",
@@ -1407,7 +1410,9 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "turquesa",
-			"desgaste": 0.65
+			"desgaste": 0.65,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Casa_232",
@@ -1514,7 +1519,8 @@
 			"frente": 1,
 			"color": "crema",
 			"desgaste": 0.69,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Casa_258",
@@ -1654,8 +1660,7 @@
 			"pisos": 2,
 			"frente": 2,
 			"color": "terracota",
-			"desgaste": 0.57,
-			"tienda": true
+			"desgaste": 0.57
 		},
 		{
 			"nombre": "Casa_275",
@@ -1825,8 +1830,7 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "verde",
-			"desgaste": 0.79,
-			"tienda": true
+			"desgaste": 0.79
 		},
 		{
 			"nombre": "Casa_297",
@@ -2500,8 +2504,7 @@
 			"pisos": 1,
 			"frente": 2,
 			"color": "terracota",
-			"desgaste": 0.5,
-			"tienda": true
+			"desgaste": 0.5
 		},
 		{
 			"nombre": "Casa_436",
@@ -3333,8 +3336,7 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "rosa",
-			"desgaste": 0.58,
-			"tienda": true
+			"desgaste": 0.58
 		},
 		{
 			"nombre": "Lote_20",
@@ -3437,7 +3439,8 @@
 			"frente": 0,
 			"color": "lima",
 			"desgaste": 0.7,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Lote_26",
@@ -3932,7 +3935,9 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "crema",
-			"desgaste": 0.35
+			"desgaste": 0.35,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Lote_56",
@@ -3967,7 +3972,8 @@
 			"frente": 0,
 			"color": "rosa",
 			"desgaste": 0.56,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Lote_58",
@@ -5457,7 +5463,9 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "morado",
-			"desgaste": 0.57
+			"desgaste": 0.57,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Ruta_Avenida_Casa_4",
@@ -5509,7 +5517,8 @@
 			"frente": 0,
 			"color": "morado",
 			"desgaste": 0.65,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Ruta_Avenida_Escalera",
@@ -5622,7 +5631,9 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "rosa",
-			"desgaste": 0.73
+			"desgaste": 0.73,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Ruta_SinAgua_Casa_6",
@@ -5763,21 +5774,220 @@
 			"murales": 60
 		},
 		{
-			"nombre": "Plinto_Kiosco",
-			"tipo": "plinto",
+			"nombre": "Tinaco_Comunitario",
+			"tipo": "tinaco_comunitario",
 			"x": -345.0,
 			"z": 404.0,
 			"rot": 0.0,
-			"radio": 5.6,
-			"alto": 0.45
+			"litros": 50000
 		},
 		{
-			"nombre": "Kiosco",
-			"tipo": "kiosco",
+			"nombre": "Glorieta_Tinaco",
+			"tipo": "suelo",
 			"x": -345.0,
 			"z": 404.0,
 			"rot": 0.0,
-			"y": 0.45
+			"y": 0.006,
+			"puntos": [
+				[10.45, 0.0],
+				[10.36, 1.36],
+				[10.09, 2.7],
+				[9.65, 4.0],
+				[9.05, 5.22],
+				[8.29, 6.36],
+				[7.39, 7.39],
+				[6.36, 8.29],
+				[5.23, 9.05],
+				[4.0, 9.65],
+				[2.7, 10.09],
+				[1.36, 10.36],
+				[0.0, 10.45],
+				[-1.36, 10.36],
+				[-2.7, 10.09],
+				[-4.0, 9.65],
+				[-5.22, 9.05],
+				[-6.36, 8.29],
+				[-7.39, 7.39],
+				[-8.29, 6.36],
+				[-9.05, 5.22],
+				[-9.65, 4.0],
+				[-10.09, 2.7],
+				[-10.36, 1.36],
+				[-10.45, 0.0],
+				[-10.36, -1.36],
+				[-10.09, -2.7],
+				[-9.65, -4.0],
+				[-9.05, -5.22],
+				[-8.29, -6.36],
+				[-7.39, -7.39],
+				[-6.36, -8.29],
+				[-5.23, -9.05],
+				[-4.0, -9.65],
+				[-2.7, -10.09],
+				[-1.36, -10.36],
+				[-0.0, -10.45],
+				[1.36, -10.36],
+				[2.7, -10.09],
+				[4.0, -9.65],
+				[5.23, -9.05],
+				[6.36, -8.29],
+				[7.39, -7.39],
+				[8.29, -6.36],
+				[9.05, -5.23],
+				[9.65, -4.0],
+				[10.09, -2.7],
+				[10.36, -1.36]
+			],
+			"material": "adoquin_rosa"
+		},
+		{
+			"nombre": "Orilla_Andador_0",
+			"tipo": "suelo",
+			"x": -345.0,
+			"z": 388.5,
+			"rot": 0.0,
+			"y": 0.005,
+			"puntos": [
+				[-2.1, -0.35],
+				[-2.1, 10.4],
+				[2.1, 10.4],
+				[2.1, -0.35]
+			],
+			"material": "cantera_orilla"
+		},
+		{
+			"nombre": "Orilla_Andador_1",
+			"tipo": "suelo",
+			"x": -345.0,
+			"z": 449.0,
+			"rot": 0.0,
+			"y": 0.005,
+			"puntos": [
+				[2.1, 0.35],
+				[2.1, -39.9],
+				[-2.1, -39.9],
+				[-2.1, 0.35]
+			],
+			"material": "cantera_orilla"
+		},
+		{
+			"nombre": "Orilla_Andador_2",
+			"tipo": "suelo",
+			"x": -400.0,
+			"z": 404.0,
+			"rot": 0.0,
+			"y": 0.005,
+			"puntos": [
+				[-0.35, 2.1],
+				[49.9, 2.1],
+				[49.9, -2.1],
+				[-0.35, -2.1]
+			],
+			"material": "cantera_orilla"
+		},
+		{
+			"nombre": "Orilla_Andador_3",
+			"tipo": "suelo",
+			"x": -321.0,
+			"z": 420.0,
+			"rot": 0.0,
+			"y": 0.005,
+			"puntos": [
+				[1.46, -1.55],
+				[-18.6, -14.92],
+				[-20.92, -11.42],
+				[-0.87, 1.94]
+			],
+			"material": "cantera_orilla"
+		},
+		{
+			"nombre": "Orilla_Andador_4",
+			"tipo": "suelo",
+			"x": -398.0,
+			"z": 447.0,
+			"rot": 0.0,
+			"y": 0.005,
+			"puntos": [
+				[1.05, 1.85],
+				[50.36, -38.16],
+				[47.72, -41.42],
+				[-1.59, -1.41]
+			],
+			"material": "cantera_orilla"
+		},
+		{
+			"nombre": "Orilla_Andador_5",
+			"tipo": "suelo",
+			"x": -323.5,
+			"z": 390.5,
+			"rot": 0.0,
+			"y": 0.005,
+			"puntos": [
+				[-0.82, -1.96],
+				[-18.3, 9.01],
+				[-16.06, 12.57],
+				[1.41, 1.59]
+			],
+			"material": "cantera_orilla"
+		},
+		{
+			"nombre": "Orilla_Glorieta",
+			"tipo": "suelo",
+			"x": -345.0,
+			"z": 404.0,
+			"rot": 0.0,
+			"y": 0.005,
+			"puntos": [
+				[10.9, 0.0],
+				[10.81, 1.42],
+				[10.53, 2.82],
+				[10.07, 4.17],
+				[9.44, 5.45],
+				[8.65, 6.64],
+				[7.71, 7.71],
+				[6.64, 8.65],
+				[5.45, 9.44],
+				[4.17, 10.07],
+				[2.82, 10.53],
+				[1.42, 10.81],
+				[0.0, 10.9],
+				[-1.42, 10.81],
+				[-2.82, 10.53],
+				[-4.17, 10.07],
+				[-5.45, 9.44],
+				[-6.64, 8.65],
+				[-7.71, 7.71],
+				[-8.65, 6.64],
+				[-9.44, 5.45],
+				[-10.07, 4.17],
+				[-10.53, 2.82],
+				[-10.81, 1.42],
+				[-10.9, 0.0],
+				[-10.81, -1.42],
+				[-10.53, -2.82],
+				[-10.07, -4.17],
+				[-9.44, -5.45],
+				[-8.65, -6.64],
+				[-7.71, -7.71],
+				[-6.64, -8.65],
+				[-5.45, -9.44],
+				[-4.17, -10.07],
+				[-2.82, -10.53],
+				[-1.42, -10.81],
+				[-0.0, -10.9],
+				[1.42, -10.81],
+				[2.82, -10.53],
+				[4.17, -10.07],
+				[5.45, -9.44],
+				[6.64, -8.65],
+				[7.71, -7.71],
+				[8.65, -6.64],
+				[9.44, -5.45],
+				[10.07, -4.17],
+				[10.53, -2.82],
+				[10.81, -1.42]
+			],
+			"material": "cantera_orilla"
 		},
 		{
 			"nombre": "Basamento_Palacio",
@@ -6236,6 +6446,789 @@
 			"radio": 2.3
 		},
 		{
+			"nombre": "Ficus_N1",
+			"tipo": "ficus",
+			"x": -210.6,
+			"z": 426.2,
+			"rot": -1.9018,
+			"alto": 3.8,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N2",
+			"tipo": "ficus",
+			"x": -197.4,
+			"z": 420.9,
+			"rot": 2.8466,
+			"alto": 4.5,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N3",
+			"tipo": "ficus",
+			"x": -194.3,
+			"z": 463.3,
+			"rot": 2.2061,
+			"alto": 3.6,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N4",
+			"tipo": "ficus",
+			"x": -208.0,
+			"z": 461.3,
+			"rot": 1.9689,
+			"alto": 4.1,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N5",
+			"tipo": "ficus",
+			"x": -226.2,
+			"z": 460.2,
+			"rot": -1.1217,
+			"alto": 3.7,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N6",
+			"tipo": "ficus",
+			"x": -241.7,
+			"z": 459.6,
+			"rot": -1.8537,
+			"alto": 3.8,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N7",
+			"tipo": "ficus",
+			"x": -255.7,
+			"z": 459.1,
+			"rot": 0.3776,
+			"alto": 4.0,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N8",
+			"tipo": "ficus",
+			"x": -269.0,
+			"z": 458.5,
+			"rot": 2.1331,
+			"alto": 4.5,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N9",
+			"tipo": "ficus",
+			"x": -285.2,
+			"z": 457.4,
+			"rot": 2.1975,
+			"alto": 3.7,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N10",
+			"tipo": "ficus",
+			"x": -298.5,
+			"z": 456.1,
+			"rot": 1.7691,
+			"alto": 4.1,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N11",
+			"tipo": "ficus",
+			"x": -313.5,
+			"z": 454.6,
+			"rot": 1.7394,
+			"alto": 4.1,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N12",
+			"tipo": "ficus",
+			"x": -402.4,
+			"z": 446.1,
+			"rot": -2.7873,
+			"alto": 4.4,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N13",
+			"tipo": "ficus",
+			"x": -228.8,
+			"z": 381.9,
+			"rot": -1.7646,
+			"alto": 4.0,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N14",
+			"tipo": "ficus",
+			"x": -235.2,
+			"z": 396.7,
+			"rot": -0.7268,
+			"alto": 4.5,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N15",
+			"tipo": "ficus",
+			"x": -227.6,
+			"z": 409.7,
+			"rot": -2.8937,
+			"alto": 3.9,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N16",
+			"tipo": "ficus",
+			"x": -226.9,
+			"z": 427.3,
+			"rot": 3.0513,
+			"alto": 4.4,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N17",
+			"tipo": "ficus",
+			"x": -233.4,
+			"z": 438.9,
+			"rot": -0.179,
+			"alto": 4.2,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N18",
+			"tipo": "ficus",
+			"x": -399.9,
+			"z": 463.4,
+			"rot": 2.6092,
+			"alto": 4.4,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N19",
+			"tipo": "ficus",
+			"x": -384.3,
+			"z": 464.8,
+			"rot": -2.7508,
+			"alto": 4.0,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N20",
+			"tipo": "ficus",
+			"x": -367.8,
+			"z": 466.3,
+			"rot": -2.9737,
+			"alto": 3.6,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N21",
+			"tipo": "ficus",
+			"x": -350.7,
+			"z": 467.8,
+			"rot": -2.4287,
+			"alto": 4.0,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N22",
+			"tipo": "ficus",
+			"x": -333.7,
+			"z": 469.4,
+			"rot": -2.2894,
+			"alto": 3.8,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N23",
+			"tipo": "ficus",
+			"x": -308.3,
+			"z": 471.7,
+			"rot": -2.1096,
+			"alto": 3.6,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N24",
+			"tipo": "ficus",
+			"x": -286.3,
+			"z": 473.7,
+			"rot": 0.0095,
+			"alto": 3.9,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N25",
+			"tipo": "ficus",
+			"x": -261.9,
+			"z": 475.3,
+			"rot": 0.6353,
+			"alto": 4.0,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N26",
+			"tipo": "ficus",
+			"x": -236.9,
+			"z": 369.0,
+			"rot": -1.2878,
+			"alto": 3.8,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N27",
+			"tipo": "ficus",
+			"x": -250.8,
+			"z": 369.3,
+			"rot": 0.577,
+			"alto": 3.7,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N28",
+			"tipo": "ficus",
+			"x": -268.5,
+			"z": 369.8,
+			"rot": -2.5765,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N29",
+			"tipo": "ficus",
+			"x": -260.3,
+			"z": 383.5,
+			"rot": -2.4599,
+			"alto": 4.2,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N30",
+			"tipo": "ficus",
+			"x": -239.3,
+			"z": 382.9,
+			"rot": 0.2044,
+			"alto": 4.3,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N31",
+			"tipo": "ficus",
+			"x": -191.7,
+			"z": 413.1,
+			"rot": -1.3602,
+			"alto": 4.4,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N32",
+			"tipo": "ficus",
+			"x": -191.9,
+			"z": 397.6,
+			"rot": -1.1623,
+			"alto": 3.8,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N33",
+			"tipo": "ficus",
+			"x": -192.1,
+			"z": 382.9,
+			"rot": 1.4113,
+			"alto": 4.2,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N34",
+			"tipo": "ficus",
+			"x": -192.6,
+			"z": 362.5,
+			"rot": 0.9769,
+			"alto": 4.0,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N35",
+			"tipo": "ficus",
+			"x": -300.6,
+			"z": 473.6,
+			"rot": 2.6697,
+			"alto": 3.8,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N36",
+			"tipo": "ficus",
+			"x": -410.2,
+			"z": 287.4,
+			"rot": -1.8088,
+			"alto": 4.3,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N37",
+			"tipo": "ficus",
+			"x": -408.9,
+			"z": 319.1,
+			"rot": 0.5011,
+			"alto": 4.1,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N38",
+			"tipo": "ficus",
+			"x": -408.2,
+			"z": 336.6,
+			"rot": -2.3883,
+			"alto": 4.2,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N39",
+			"tipo": "ficus",
+			"x": -407.6,
+			"z": 353.2,
+			"rot": 0.9594,
+			"alto": 3.9,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N40",
+			"tipo": "ficus",
+			"x": -407.0,
+			"z": 369.6,
+			"rot": 0.5208,
+			"alto": 3.9,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N41",
+			"tipo": "ficus",
+			"x": -406.4,
+			"z": 384.0,
+			"rot": -0.8826,
+			"alto": 4.2,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N42",
+			"tipo": "ficus",
+			"x": -405.9,
+			"z": 397.0,
+			"rot": -0.3151,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N43",
+			"tipo": "ficus",
+			"x": -405.2,
+			"z": 413.7,
+			"rot": 0.2081,
+			"alto": 4.3,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N44",
+			"tipo": "ficus",
+			"x": -404.5,
+			"z": 431.2,
+			"rot": -0.7799,
+			"alto": 3.7,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N45",
+			"tipo": "ficus",
+			"x": -412.7,
+			"z": 465.5,
+			"rot": -1.4975,
+			"alto": 4.1,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N46",
+			"tipo": "ficus",
+			"x": -273.7,
+			"z": 334.9,
+			"rot": -2.7036,
+			"alto": 4.1,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N47",
+			"tipo": "ficus",
+			"x": -261.3,
+			"z": 324.8,
+			"rot": 1.3494,
+			"alto": 3.8,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N48",
+			"tipo": "ficus",
+			"x": -247.4,
+			"z": 333.8,
+			"rot": 1.6929,
+			"alto": 3.9,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N49",
+			"tipo": "ficus",
+			"x": -235.9,
+			"z": 323.8,
+			"rot": 0.4864,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N50",
+			"tipo": "ficus",
+			"x": -221.4,
+			"z": 332.7,
+			"rot": 0.3564,
+			"alto": 3.8,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N51",
+			"tipo": "ficus",
+			"x": -209.8,
+			"z": 322.7,
+			"rot": 0.7155,
+			"alto": 4.5,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N52",
+			"tipo": "ficus",
+			"x": -195.4,
+			"z": 331.7,
+			"rot": -1.008,
+			"alto": 4.2,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N53",
+			"tipo": "ficus",
+			"x": -286.1,
+			"z": 318.1,
+			"rot": -1.5443,
+			"alto": 4.3,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N54",
+			"tipo": "ficus",
+			"x": -277.1,
+			"z": 305.1,
+			"rot": -2.2272,
+			"alto": 3.8,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N55",
+			"tipo": "ficus",
+			"x": -287.1,
+			"z": 293.1,
+			"rot": -0.0464,
+			"alto": 4.2,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N56",
+			"tipo": "ficus",
+			"x": -278.1,
+			"z": 279.0,
+			"rot": -2.7145,
+			"alto": 3.9,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N57",
+			"tipo": "ficus",
+			"x": -288.1,
+			"z": 264.2,
+			"rot": 0.5169,
+			"alto": 4.0,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N58",
+			"tipo": "ficus",
+			"x": -361.2,
+			"z": 330.1,
+			"rot": 1.1752,
+			"alto": 4.3,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N59",
+			"tipo": "ficus",
+			"x": -347.7,
+			"z": 336.6,
+			"rot": 2.6088,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N60",
+			"tipo": "ficus",
+			"x": -330.7,
+			"z": 336.1,
+			"rot": -0.4424,
+			"alto": 4.3,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N61",
+			"tipo": "ficus",
+			"x": -401.6,
+			"z": 276.5,
+			"rot": 0.0704,
+			"alto": 4.0,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N62",
+			"tipo": "ficus",
+			"x": -386.0,
+			"z": 275.8,
+			"rot": -0.7019,
+			"alto": 4.4,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N63",
+			"tipo": "ficus",
+			"x": -202.5,
+			"z": 298.4,
+			"rot": -0.9412,
+			"alto": 3.7,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N64",
+			"tipo": "ficus",
+			"x": -201.9,
+			"z": 315.5,
+			"rot": -2.1017,
+			"alto": 4.0,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N65",
+			"tipo": "ficus",
+			"x": -330.9,
+			"z": 268.5,
+			"rot": 1.7136,
+			"alto": 3.7,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N66",
+			"tipo": "ficus",
+			"x": -323.5,
+			"z": 282.5,
+			"rot": -0.1686,
+			"alto": 3.7,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N67",
+			"tipo": "ficus",
+			"x": -330.2,
+			"z": 294.8,
+			"rot": 1.3805,
+			"alto": 4.1,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N68",
+			"tipo": "ficus",
+			"x": -322.8,
+			"z": 309.9,
+			"rot": -2.4683,
+			"alto": 4.5,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N69",
+			"tipo": "ficus",
+			"x": -322.5,
+			"z": 323.4,
+			"rot": -2.7765,
+			"alto": 3.9,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N70",
+			"tipo": "ficus",
+			"x": -322.1,
+			"z": 338.2,
+			"rot": -2.6586,
+			"alto": 3.8,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N71",
+			"tipo": "ficus",
+			"x": -328.8,
+			"z": 350.5,
+			"rot": 2.3904,
+			"alto": 4.2,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N72",
+			"tipo": "ficus",
+			"x": -233.5,
+			"z": 275.6,
+			"rot": -2.0169,
+			"alto": 4.1,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N73",
+			"tipo": "ficus",
+			"x": -361.7,
+			"z": 268.7,
+			"rot": 0.138,
+			"alto": 3.9,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N74",
+			"tipo": "ficus",
+			"x": -345.7,
+			"z": 268.0,
+			"rot": 2.7965,
+			"alto": 3.7,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N75",
+			"tipo": "ficus",
+			"x": -321.3,
+			"z": 267.1,
+			"rot": 1.4207,
+			"alto": 4.1,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N76",
+			"tipo": "ficus",
+			"x": -365.8,
+			"z": 277.2,
+			"rot": -1.3578,
+			"alto": 4.3,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N77",
+			"tipo": "ficus",
+			"x": -365.3,
+			"z": 293.6,
+			"rot": -1.0694,
+			"alto": 4.0,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N78",
+			"tipo": "ficus",
+			"x": -371.9,
+			"z": 306.0,
+			"rot": 1.8812,
+			"alto": 3.6,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N79",
+			"tipo": "ficus",
+			"x": -364.4,
+			"z": 319.3,
+			"rot": 1.7182,
+			"alto": 4.1,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N80",
+			"tipo": "ficus",
+			"x": -370.9,
+			"z": 336.5,
+			"rot": -2.5696,
+			"alto": 3.8,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N81",
+			"tipo": "ficus",
+			"x": -249.2,
+			"z": 288.2,
+			"rot": 1.3526,
+			"alto": 3.8,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N82",
+			"tipo": "ficus",
+			"x": -232.0,
+			"z": 287.4,
+			"rot": 3.0696,
+			"alto": 4.2,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N83",
+			"tipo": "ficus",
+			"x": -212.3,
+			"z": 286.4,
+			"rot": -2.0064,
+			"alto": 4.0,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N84",
+			"tipo": "ficus",
+			"x": -196.7,
+			"z": 276.4,
+			"rot": -2.8282,
+			"alto": 3.6,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N85",
+			"tipo": "ficus",
+			"x": -223.3,
+			"z": 368.6,
+			"rot": -0.4848,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N86",
+			"tipo": "ficus",
+			"x": -207.4,
+			"z": 368.2,
+			"rot": 2.5475,
+			"alto": 3.6,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N87",
+			"tipo": "ficus",
+			"x": -194.1,
+			"z": 374.8,
+			"rot": 2.3543,
+			"alto": 3.7,
+			"radio": 2.4
+		},
+		{
 			"nombre": "Banca_0",
 			"tipo": "banca",
 			"x": -378.0,
@@ -6298,420 +7291,6 @@
 			"z": 430.0,
 			"rot": 0.0,
 			"radio": 2.5
-		},
-		{
-			"nombre": "Puesto_0",
-			"tipo": "puesto",
-			"x": -283.63,
-			"z": 335.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_1",
-			"tipo": "puesto",
-			"x": -277.83,
-			"z": 335.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_2",
-			"tipo": "puesto",
-			"x": -283.5,
-			"z": 338.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_3",
-			"tipo": "puesto",
-			"x": -277.7,
-			"z": 338.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_4",
-			"tipo": "puesto",
-			"x": -283.36,
-			"z": 342.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_5",
-			"tipo": "puesto",
-			"x": -277.56,
-			"z": 342.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_7",
-			"tipo": "puesto",
-			"x": -277.43,
-			"z": 345.8,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_8",
-			"tipo": "puesto",
-			"x": -283.1,
-			"z": 349.4,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_10",
-			"tipo": "puesto",
-			"x": -282.96,
-			"z": 353.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_11",
-			"tipo": "puesto",
-			"x": -277.16,
-			"z": 353.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_12",
-			"tipo": "puesto",
-			"x": -282.83,
-			"z": 356.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_13",
-			"tipo": "puesto",
-			"x": -277.03,
-			"z": 356.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_14",
-			"tipo": "puesto",
-			"x": -282.7,
-			"z": 360.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_15",
-			"tipo": "puesto",
-			"x": -276.9,
-			"z": 360.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_16",
-			"tipo": "puesto",
-			"x": -282.56,
-			"z": 363.8,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_17",
-			"tipo": "puesto",
-			"x": -276.76,
-			"z": 363.8,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_18",
-			"tipo": "puesto",
-			"x": -281.69,
-			"z": 389.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_19",
-			"tipo": "puesto",
-			"x": -275.89,
-			"z": 389.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_20",
-			"tipo": "puesto",
-			"x": -281.56,
-			"z": 392.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_21",
-			"tipo": "puesto",
-			"x": -275.76,
-			"z": 392.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_22",
-			"tipo": "puesto",
-			"x": -281.43,
-			"z": 396.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_23",
-			"tipo": "puesto",
-			"x": -275.63,
-			"z": 396.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_24",
-			"tipo": "puesto",
-			"x": -281.29,
-			"z": 399.8,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_25",
-			"tipo": "puesto",
-			"x": -275.49,
-			"z": 399.8,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_26",
-			"tipo": "puesto",
-			"x": -281.16,
-			"z": 403.4,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_27",
-			"tipo": "puesto",
-			"x": -275.36,
-			"z": 403.4,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_28",
-			"tipo": "puesto",
-			"x": -281.03,
-			"z": 407.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_30",
-			"tipo": "puesto",
-			"x": -280.9,
-			"z": 410.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_31",
-			"tipo": "puesto",
-			"x": -275.1,
-			"z": 410.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_32",
-			"tipo": "puesto",
-			"x": -280.77,
-			"z": 414.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_33",
-			"tipo": "puesto",
-			"x": -274.97,
-			"z": 414.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_34",
-			"tipo": "puesto",
-			"x": -280.64,
-			"z": 417.8,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_35",
-			"tipo": "puesto",
-			"x": -274.84,
-			"z": 417.8,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_36",
-			"tipo": "puesto",
-			"x": -280.5,
-			"z": 421.4,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_37",
-			"tipo": "puesto",
-			"x": -274.7,
-			"z": 421.4,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_38",
-			"tipo": "puesto",
-			"x": -280.37,
-			"z": 425.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_39",
-			"tipo": "puesto",
-			"x": -274.57,
-			"z": 425.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_40",
-			"tipo": "puesto",
-			"x": -280.24,
-			"z": 428.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_41",
-			"tipo": "puesto",
-			"x": -274.44,
-			"z": 428.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_42",
-			"tipo": "puesto",
-			"x": -280.11,
-			"z": 432.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_43",
-			"tipo": "puesto",
-			"x": -274.31,
-			"z": 432.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_44",
-			"tipo": "puesto",
-			"x": -279.98,
-			"z": 435.8,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_46",
-			"tipo": "puesto",
-			"x": -279.85,
-			"z": 439.4,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_47",
-			"tipo": "puesto",
-			"x": -274.05,
-			"z": 439.4,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_48",
-			"tipo": "puesto",
-			"x": -279.71,
-			"z": 443.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_49",
-			"tipo": "puesto",
-			"x": -273.91,
-			"z": 443.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
 		},
 		{
 			"nombre": "Andador_0",
@@ -7807,7 +8386,8 @@
 			"texto": "OXO",
 			"x": -262.3,
 			"z": 458.86,
-			"rot": -0.0394
+			"rot": -0.0394,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_taqueria_1",
@@ -7817,7 +8397,8 @@
 			"texto": "Tacos La Casa del Taco",
 			"x": -269.28,
 			"z": 383.47,
-			"rot": -3.1148
+			"rot": -3.1148,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_abarrotes_2",
@@ -7825,9 +8406,10 @@
 			"auto": true,
 			"giro": "abarrotes",
 			"texto": "Mini Super Santa Mugre",
-			"x": -269.38,
-			"z": 408.38,
-			"rot": -1.5417
+			"x": -283.4,
+			"z": 391.66,
+			"rot": 1.6084,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_taqueria_3",
@@ -7835,9 +8417,10 @@
 			"auto": true,
 			"giro": "taqueria",
 			"texto": "Carnitas Via Mugre",
-			"x": -288.78,
-			"z": 285.29,
-			"rot": 1.6078
+			"x": -277.92,
+			"z": 284.16,
+			"rot": -1.5343,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_abarrotes_4",
@@ -7847,7 +8430,8 @@
 			"texto": "Abarrotes San Ignacio",
 			"x": -287.98,
 			"z": 269.19,
-			"rot": 1.607
+			"rot": 1.607,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_farmacia_5",
@@ -7857,7 +8441,8 @@
 			"texto": "Farmacia Mas o Menos Buena",
 			"x": -388.13,
 			"z": 465.27,
-			"rot": -3.1083
+			"rot": -3.1083,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_ferreteria_6",
@@ -7865,9 +8450,10 @@
 			"auto": true,
 			"giro": "ferreteria",
 			"texto": "Ferreteria El Clavo",
-			"x": -373.54,
-			"z": 466.36,
-			"rot": 3.057
+			"x": -360.27,
+			"z": 467.6,
+			"rot": 3.0841,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_abarrotes_7",
@@ -7875,9 +8461,10 @@
 			"auto": true,
 			"giro": "abarrotes",
 			"texto": "Cremeria La Casita",
-			"x": -340.98,
-			"z": 473.4,
-			"rot": 3.0589
+			"x": -348.97,
+			"z": 474.06,
+			"rot": 3.0332,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_licoreria_8",
@@ -7885,9 +8472,10 @@
 			"auto": true,
 			"giro": "licoreria",
 			"texto": "Vinos y Licores El Ultimo",
-			"x": -241.98,
-			"z": 476.07,
-			"rot": 3.1016
+			"x": -240.81,
+			"z": 459.7,
+			"rot": -0.039,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_purificadora_9",
@@ -7897,7 +8485,8 @@
 			"texto": "Purificadora Gota Pura",
 			"x": -275.5,
 			"z": 350.4,
-			"rot": -1.5335
+			"rot": -1.5335,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_punto_10",
@@ -7953,6 +8542,14 @@
 			"x": -201.98,
 			"z": 303.95,
 			"rot": 1.6063
+		},
+		{
+			"nombre": "TinacoComunitario",
+			"tipo": "tinaco",
+			"x": -345.0,
+			"z": 404.0,
+			"y": 0.0,
+			"litros": 50000
 		}
 	],
 	"negocios": [
@@ -7968,7 +8565,8 @@
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "OXO"
+			"origen": "OXO",
+			"ajustado": true
 		},
 		{
 			"tipo": "taqueria",
@@ -7982,35 +8580,38 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Tacos La Casa del Taco"
+			"origen": "Tacos La Casa del Taco",
+			"ajustado": true
 		},
 		{
 			"tipo": "abarrotes",
 			"giro": "abarrotes",
 			"nombre": "Mini Super Santa Mugre",
-			"x": -266.0,
-			"z": 408.28,
-			"rotacion_y": -1.5417,
-			"ancho": 5.16,
-			"fondo": 5.17,
+			"x": -290.91,
+			"z": 391.94,
+			"rotacion_y": 1.6084,
+			"ancho": 6.11,
+			"fondo": 13.44,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Mini Super Santa Mugre"
+			"origen": "Mini Super Santa Mugre",
+			"ajustado": true
 		},
 		{
 			"tipo": "taqueria",
 			"giro": "taqueria",
 			"nombre": "Carnitas Via Mugre",
-			"x": -291.12,
-			"z": 285.37,
-			"rotacion_y": 1.6078,
-			"ancho": 3.51,
-			"fondo": 3.09,
+			"x": -272.13,
+			"z": 283.95,
+			"rotacion_y": -1.5343,
+			"ancho": 7.39,
+			"fondo": 10.0,
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Carnitas Via Mugre"
+			"origen": "Carnitas Via Mugre",
+			"ajustado": true
 		},
 		{
 			"tipo": "abarrotes",
@@ -8024,7 +8625,8 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Abarrotes San Ignacio"
+			"origen": "Abarrotes San Ignacio",
+			"ajustado": true
 		},
 		{
 			"tipo": "farmacia",
@@ -8038,49 +8640,53 @@
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Farmacia Mas o Menos Buena"
+			"origen": "Farmacia Mas o Menos Buena",
+			"ajustado": true
 		},
 		{
 			"tipo": "ferreteria",
 			"giro": "ferreteria",
 			"nombre": "Ferreteria El Clavo",
-			"x": -373.76,
-			"z": 468.98,
-			"rotacion_y": 3.057,
-			"ancho": 5.09,
-			"fondo": 3.66,
-			"pisos": 2,
+			"x": -360.34,
+			"z": 474.27,
+			"rotacion_y": 3.0841,
+			"ancho": 7.13,
+			"fondo": 11.73,
+			"pisos": 3,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Ferreteria El Clavo"
+			"origen": "Ferreteria El Clavo",
+			"ajustado": true
 		},
 		{
 			"tipo": "abarrotes",
 			"giro": "abarrotes",
 			"nombre": "Cremeria La Casita",
-			"x": -341.37,
-			"z": 478.73,
-			"rotacion_y": 3.0589,
-			"ancho": 5.45,
-			"fondo": 9.09,
+			"x": -349.46,
+			"z": 478.61,
+			"rotacion_y": 3.0332,
+			"ancho": 7.86,
+			"fondo": 7.55,
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Cremeria La Casita"
+			"origen": "Cremeria La Casita",
+			"ajustado": true
 		},
 		{
 			"tipo": "licoreria",
 			"giro": "licoreria",
 			"nombre": "Vinos y Licores El Ultimo",
-			"x": -242.09,
-			"z": 478.87,
-			"rotacion_y": 3.1016,
-			"ancho": 4.5,
-			"fondo": 4.0,
-			"pisos": 1,
+			"x": -240.6,
+			"z": 454.41,
+			"rotacion_y": -0.039,
+			"ancho": 6.4,
+			"fondo": 9.0,
+			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Vinos y Licores El Ultimo"
+			"origen": "Vinos y Licores El Ultimo",
+			"ajustado": true
 		},
 		{
 			"tipo": "purificadora",
@@ -8094,7 +8700,8 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Purificadora Gota Pura"
+			"origen": "Purificadora Gota Pura",
+			"ajustado": true
 		},
 		{
 			"tipo": "punto",
@@ -8108,7 +8715,8 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "El Punto"
+			"origen": "El Punto",
+			"sin_flecha": true
 		}
 	],
 	"reservas": [
@@ -9169,6 +9777,97 @@
 				[-197.8, 278.2]
 			],
 			"alto": 0.75
+		}
+	],
+	"puestos_calle": [
+		{
+			"tipo": "puesto_tacos",
+			"nombre": "Tacos El Guero",
+			"x": -279.54,
+			"z": 448.81,
+			"rotacion_y": 1.6075,
+			"ancho": 2.6,
+			"fondo": 1.6,
+			"origen": "Tacos El Guero",
+			"giro": "puesto_tacos",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false,
+			"bajo_carpa": true
+		},
+		{
+			"tipo": "puesto",
+			"nombre": "Tejuino de Don Chuy",
+			"x": -282.06,
+			"z": 378.83,
+			"rotacion_y": 1.6075,
+			"ancho": 2.5,
+			"fondo": 2.0,
+			"origen": "Tejuino de Don Chuy",
+			"giro": "tejuino",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false,
+			"bajo_carpa": true
+		},
+		{
+			"tipo": "puesto_tacos",
+			"nombre": "Tacos Mi Compadre",
+			"x": -300.42,
+			"z": 464.74,
+			"rotacion_y": 3.05,
+			"ancho": 2.6,
+			"fondo": 1.6,
+			"origen": "Tacos Mi Compadre",
+			"giro": "puesto_tacos",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false
+		},
+		{
+			"tipo": "puesto",
+			"nombre": "Tejuino La Frescura",
+			"x": -338.98,
+			"z": 461.02,
+			"rotacion_y": 3.05,
+			"ancho": 2.5,
+			"fondo": 2.0,
+			"origen": "Tejuino La Frescura",
+			"giro": "tejuino",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false
+		}
+	],
+	"tianguis": [
+		{
+			"nombre": "Tianguis_Sur",
+			"a": [-276.47, 452.0],
+			"b": [-279.26, 376.0],
+			"arroyo": 8.0,
+			"banqueta": 1.5,
+			"pasillo": 2.6,
+			"semilla": 11,
+			"libres": [
+				[-274.0, 380.5, 7.5],
+				[-272.6, 418.0, 2.0]
+			]
+		},
+		{
+			"nombre": "Tianguis_Norte",
+			"a": [-279.51, 369.0],
+			"b": [-280.84, 333.0],
+			"arroyo": 8.0,
+			"banqueta": 1.5,
+			"pasillo": 2.6,
+			"semilla": 23,
+			"libres": [
+				[-275.0, 352.0, 3.5]
+			]
 		}
 	]
 }

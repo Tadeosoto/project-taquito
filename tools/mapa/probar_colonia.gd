@@ -316,9 +316,13 @@ func _vida(escena: Node) -> void:
 	var guardia := escena.find_child("Guardia_GelA_0", true, false) as Node3D
 	_revisar("de noche no hay chamacos ni guardias", ninos != null and not ninos.visible and guardia != null and not guardia.visible,
 		"%s %s" % [ninos, guardia])
-	var lonas := escena.find_children("Dia_*", "MeshInstance3D", true, false)
+	# Tianguis.gd: de noche se esconden las lonas, la mercancia y los carritos (lo que va en _de_dia)
+	var tramos := escena.find_children("Tianguis_*", "Node3D", true, false).filter(func(n: Node) -> bool: return n is Tianguis)
+	var lonas: Array = []
+	for t in tramos:
+		lonas.append_array(t.get("_de_dia"))
 	_revisar("de noche el tianguis queda en fierros", not lonas.is_empty() and lonas.all(func(n: Node) -> bool: return not (n as Node3D).visible),
-		"%d cuadros de lonas" % lonas.size())
+		"%d tramos, %d cosas de dia" % [tramos.size(), lonas.size()])
 	# La caja del reten: de noche se abre una vez y da algo
 	var caja := escena.find_child("Caja_GelA", true, false)
 	if caja:

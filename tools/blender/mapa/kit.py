@@ -23,7 +23,7 @@ import math
 import os
 
 _c = {"__name__": "comun"}
-exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\mapa\comun.py", encoding="utf-8").read(), _c)
+exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "comun.py"), encoding="utf-8").read(), _c)
 globals().update({k: v for k, v in _c.items() if not k.startswith("__")})
 
 import numpy as np
@@ -48,7 +48,12 @@ PISOS = {"asfalto": ("asfalto.png", 4.0), "banqueta": ("banqueta.png", 3.0), "em
          # El piso de la plaza: la foto del kit (textures/mapa/, foto("piedra_plaza"))
          "adoquin": ("../mapa/piedra_plaza.png", 2.0),
          # Andadores de la plaza (cantera rosa) y sus jardines
-         "cantera_piso": ("../mapa/cantera_rosa.png", 1.5), "pasto": ("pasto.png", 2.5)}
+         "cantera_piso": ("../mapa/cantera_rosa.png", 1.5), "pasto": ("pasto.png", 2.5),
+         # La glorieta del tinaco comunitario: la piedra de la plaza pintada del rosa de los andadores
+         # (tools/map_import/make_piedra_plaza_rosa.py)
+         "adoquin_rosa": ("../mapa/piedra_plaza_rosa.png", 2.0),
+         # La cenefa entre lo rosa y lo gris (tools/map_import/make_cantera_orilla.py)
+         "cantera_orilla": ("../mapa/cantera_orilla.png", 1.5)}
 
 # Colores de Guadalajara (desteñidos: el shader del juego les pone la mugre)
 PALETA = {"terracota": (0.72, 0.36, 0.24), "mostaza": (0.82, 0.62, 0.22), "turquesa": (0.25, 0.6, 0.6),
@@ -299,6 +304,40 @@ def lista_murales():
         else:
             _MURALES[:] = json.load(open(MURALES_JSON, encoding="utf-8"))["disenos"]
     return _MURALES
+
+
+def mat_arbol(nombre):
+    """arbol_<x>_corteza y arbol_<x>_hojas (y los del arbolito de Tacos_ Props, arbol_corteza y arbol_hojas):
+    textures/mapa/<nombre>.png (extraer_arbol_tacos.gd, extraer_arboles.gd). Las hojas llevan alfa recortado."""
+    mat = bpy.data.materials.get(nombre)
+    if mat:
+        return mat
+    mat = bpy.data.materials.new(nombre)
+    arbol, bsdf = _arbol(mat)
+    tex = arbol.nodes.new("ShaderNodeTexImage")
+    tex.image = _imagen(os.path.join(TEXTURAS_KIT, nombre + ".png"))
+    tex.interpolation = "Closest"
+    arbol.links.new(tex.outputs[0], bsdf.inputs["Base Color"])
+    if nombre.endswith("hojas"):
+        arbol.links.new(tex.outputs[1], bsdf.inputs["Alpha"])
+        try:
+            mat.blend_method = "CLIP"
+        except (AttributeError, TypeError):
+            pass
+    return mat
+
+
+def _arbol_modelo():
+    """Los arboles de modelos/arbol_tacos.json (leidos una vez): variantes con altura, ancho y las
+    mallas "corteza" y "hojas" (v, uv, i), en metros, base en (0, 0, 0), Y arriba."""
+    if "datos" not in _ARBOL_MODELO:
+        import json
+        with open(os.path.join(RAIZ, "tools", "blender", "mapa", "modelos", "arbol_tacos.json"), encoding="utf-8") as f:
+            _ARBOL_MODELO["datos"] = json.load(f)["variantes"]
+    return _ARBOL_MODELO["datos"]
+
+
+_ARBOL_MODELO = {}
 
 
 def mat_mural(rehacer=False):
@@ -818,6 +857,24 @@ def g(x, y, z):
     return (x, -z, y)
 
 
+# Tipos de arbol de la pieza `ficus` (piezas.py), al azar pero fijos por nombre: 0 el arbolito de
+# Tacos_ Props (Constructor.arbol_modelo, va en el .glb) y 1, 2 y 3 los de Sketchfab ARBOLES_EXTRA
+# (ArbolesModelo.gd, desde resources/mapa/<colonia>/arboles_modelo.json: un MultiMesh por arbol, no van
+# en el .glb)
+ARBOL_PESOS = (0.25, 0.25, 0.25, 0.25)
+ARBOLES_EXTRA = ("arce", "realista", "roble")
+
+
+def arbol_tipo(nombre):
+    import random
+    r = random.Random("arbol:" + nombre).random()
+    for tipo, peso in enumerate(ARBOL_PESOS):
+        r -= peso
+        if r < 0:
+            return tipo
+    return len(ARBOL_PESOS) - 1
+
+
 class Constructor:
     def __init__(self, nombre):
         import bmesh
@@ -900,6 +957,25 @@ class Constructor:
         if choca:
             self.choques.append(((x, y + alto / 2, z), (radio * 1.6, alto, radio * 1.6), 0.0))
 
+    def arbol_modelo(self, base, ancho, variante=0, giro=0.0, alto_max=None):
+        """El arbolito de Tacos_ Props (tools/blender/mapa/extraer_arbol_tacos.gd) con su base en `base`
+        (Godot), de `ancho` m de copa (sin pasar de `alto_max` de altura), girado `giro` rad en Y."""
+        v = _arbol_modelo()[variante % len(_arbol_modelo())]
+        s = ancho / v["ancho"]
+        if alto_max:
+            s = min(s, alto_max / v["altura"])
+        c, sn = math.cos(giro), math.sin(giro)
+        bx, by, bz = base
+        for parte, mat in (("corteza", "arbol_corteza"), ("hojas", "arbol_hojas")):
+            malla = v[parte]
+            pts = [(bx + (x * c + z * sn) * s, by + y * s, bz + (-x * sn + z * c) * s) for x, y, z in malla["v"]]
+            uvs = [(u, 1.0 - w) for u, w in malla["uv"]]
+            idx = malla["i"]
+            for t in range(0, len(idx), 3):
+                a, b, d = idx[t], idx[t + 1], idx[t + 2]
+                # Godot da la cara por el sentido de las agujas del reloj; el Constructor, al reves
+                self.cara([pts[a], pts[d], pts[b]], mat, uvs=[uvs[a], uvs[d], uvs[b]])
+
     def cono(self, base, radio, alto, mat, lados=8, color=(1.0, 1.0, 1.0)):
         x, y, z = base
         ab = [(x + math.cos(k * math.tau / lados) * radio, y, z + math.sin(k * math.tau / lados) * radio) for k in range(lados)]
@@ -960,6 +1036,8 @@ class Constructor:
                 malla.materials.append(mat_fachada())
             elif nombre == "mural":
                 malla.materials.append(mat_mural())
+            elif nombre.startswith("arbol_"):
+                malla.materials.append(mat_arbol(nombre))
             elif nombre.startswith("foto_"):
                 malla.materials.append(foto(nombre[5:]))
             elif nombre in PISOS:
@@ -984,6 +1062,9 @@ COLORES_PIEZA = {"fierro": (0.12, 0.12, 0.13), "fierro_verde": (0.18, 0.3, 0.22)
                  "hojas": (0.11, 0.27, 0.09), "hojas_claras": (0.2, 0.4, 0.14), "farol": (0.98, 0.86, 0.5),
                  "blanco_reloj": (0.95, 0.94, 0.9), "bronce": (0.45, 0.32, 0.18),
                  "hueco": (0.06, 0.05, 0.05), "malla": (0.2, 0.22, 0.2),
+                 "flor_naranja": (0.95, 0.5, 0.08), "flor_amarilla": (0.96, 0.8, 0.14), "flor_blanca": (0.92, 0.92, 0.86),
+                 "flor_rosa": (0.85, 0.34, 0.5), "flor_roja": (0.75, 0.1, 0.12), "vela_roja": (0.7, 0.1, 0.1),
+                 "vela_azul": (0.2, 0.35, 0.7), "vela_verde": (0.2, 0.5, 0.3), "vela_blanca": (0.9, 0.88, 0.8),
                  "varilla": COLOR_VARILLA}
 
 

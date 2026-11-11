@@ -21,6 +21,7 @@ import glob
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -63,6 +64,13 @@ MODELS = {
 	"casas/semi_residencial": "4431db9690aa4d6ea23f50b8fdfa0cd3",   # Casa Tipo Semi Residencial, 398
 	"casas/mexican_house_3": "8f7b73d6ba1e4642b3230ed15f3db421",    # Mexican House 3, 7.3k
 	"casas/multifamiliar": "afff4fd9e05549f6b1d5668b9eb36af7",      # Edificio multifamiliar, 1.3k (aun sin usar)
+	# Arboles realistas del mapa de Blender (tools/blender/mapa/extraer_arboles.gd)
+	"arboles/arce": "4b27adcf92f644bdabf8ecc6c5bef399",             # Maple tree, 12.5k
+	"arboles/realista": "d989c0f801d847b9a74992ec4ddcfdfc",         # Realistic Tree, 19.9k
+	"arboles/roble": "3dc59560f2d24345bdbe65c44636453b",            # Oak tree, 7.1k
+	# Ofrenda de la Virgen del Tinaco en el mapa de Blender (scripts/mapa/Colonia.gd, _ofrenda_tinaco)
+	"props/veladora": "4c9e6738b88f4160a76c9d9fc497de78",           # Jar with candle, 1.7k
+	"props/calendula": "d813ac09f52849a3a8c57e14076e4b83",          # Calendula flower, 247
 	"props/alto": "d2de3788e5f24c3e8189001d2a1f6e92",               # Senal Alto, 1.3k
 	"objetos/takis": "7426e5fa188344668ec3b9dbab348bae",            # Takis Fuego, 44k
 	"objetos/moneda_peso": "5b0b33e49fa84d96b6e0d82beac694f3",      # 1 Peso MXN, 2k
@@ -144,10 +152,16 @@ MODELS = {
 	"bodegas/rack": "593e7d15f27346efa2dcc0149edb6ef2",             # Pallet Racking, 1.3k
 	"bodegas/cajas": "5d3d508061e544739e37c685af235684",            # Cardboard Box Set- Low Poly, 110
 	"bodegas/estante_oxidado": "3ce07d0518154759841236045efafd72",  # Old Rusty Shelving Unit, 160
+	# Carros estacionados del mapa (piezas.py `carro`), en lugar de los de cajas
+	"vehiculos/grand_vitara": "03e3db7b0d4a42d5a52f6740a3d5657d",   # Suzuki Grand Vitara - PS1 Low Poly, 232
+	"vehiculos/tsuru": "94faafff28ce4bb3b3ab338da0b24eec",          # Retro Lowpoly Nissan Tsuru, 1.4k
+	"vehiculos/vocho": "769ada1c8d2c4cddb33a8c66b93e1099",          # 1967 Volkswagen Beetle, 1.8k
+	"vehiculos/van_blanca": "1cac40905d494bae8108a556d870e23e",     # White Van - PS1 Low Poly, 140
 }
 
 # Titulo de la seccion de CREDITS.md para cada carpeta de primer nivel
 CREDIT_HEADERS = {
+	"arboles": "## Arboles (`models/arboles/`, Sketchfab)",
 	"tiendas": "## Tiendas (`models/tiendas/`, Sketchfab)",
 	"casas": "## Casas (`models/casas/`, Sketchfab)",
 	"props": "## Props de calle (`models/props/`, Sketchfab)",
@@ -156,6 +170,7 @@ CREDIT_HEADERS = {
 	"armas": "## Armas (`models/armas/`, Sketchfab)",
 	"interiores": "## Interiores (`models/interiores/`, Sketchfab)",
 	"bodegas": "## Bodegas (`models/bodegas/`, Sketchfab)",
+	"vehiculos": "## Vehiculos (`models/vehiculos/`, Sketchfab)",
 }
 
 
@@ -193,7 +208,17 @@ def prepare_for_godot(dest: str, shrink: bool) -> None:
 	textures = [path for path in glob.glob(os.path.join(dest, "textures", "*"))
 		if path.lower().endswith((".png", ".jpg", ".jpeg"))]
 	if shrink and textures:
-		subprocess.run(["magick", "mogrify", "-resize", f"{MAX_TEXTURE}x{MAX_TEXTURE}>", *textures], check=True)
+		if shutil.which("magick"):
+			subprocess.run(["magick", "mogrify", "-resize", f"{MAX_TEXTURE}x{MAX_TEXTURE}>", *textures], check=True)
+		else:
+			# Sin ImageMagick: Pillow (mismo resultado: nada mas grande que MAX_TEXTURE, sin agrandar)
+			from PIL import Image
+			for path in textures:
+				with Image.open(path) as imagen:
+					imagen.load()
+					if max(imagen.size) > MAX_TEXTURE:
+						imagen.thumbnail((MAX_TEXTURE, MAX_TEXTURE), Image.LANCZOS)
+						imagen.save(path)
 	import_path = os.path.join(dest, "scene.gltf.import")
 	if not os.path.exists(import_path):
 		with open(import_path, "w", encoding="utf-8") as f:

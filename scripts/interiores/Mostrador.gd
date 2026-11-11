@@ -119,6 +119,12 @@ var sencillo := false
 		parrilla_atras = valor
 		_reconstruir()
 
+# Puesto: sin toldo cuando ya queda debajo de otra lona (las carpas del tianguis)
+@export var toldo := true:
+	set(valor):
+		toldo = valor
+		_reconstruir()
+
 var _partes: Node3D
 var _rng := RandomNumberGenerator.new()
 # Mercancia de modelos: malla -> transformaciones; al final un MultiMesh por malla
@@ -358,6 +364,8 @@ func _puesto() -> void:
 		trompo.rotation.y = PI
 	trompo.semilla = semilla
 	_partes.add_child(trompo)
+	if not toldo:
+		return
 	# Toldo: postes en las esquinas, lona y faldones
 	var poste := _ps1(Color(0.5, 0.5, 0.52))
 	var alto_toldo := 2.15
