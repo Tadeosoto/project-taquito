@@ -29,6 +29,7 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="24_punto"]
 [ext_resource type="Script" path="res://scripts/interiores/CasaPropia.gd" id="25_casa_propia"]
 [ext_resource type="PackedScene" path="res://scenes/casa_personaje.tscn" id="26_casa_personaje"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/punto_mejoras.tscn" id="27_mejoras"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -182,6 +183,7 @@ escenas = Dictionary[String, PackedScene]({
 "licoreria": ExtResource("18_licoreria"),
 "oxxo": ExtResource("17_tiendita"),
 "punto": ExtResource("24_punto"),
+"mejoras": ExtResource("27_mejoras"),
 "purificadora": ExtResource("23_purificadora"),
 "taqueria": ExtResource("21_taqueria"),
 "tortilleria": ExtResource("21_tortilleria")

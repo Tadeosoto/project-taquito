@@ -583,13 +583,19 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	_refugio = get_tree().get_first_node_in_group("refugio") as Refugio
 	_tinaco = get_tree().get_first_node_in_group("tinaco_defensa") as TinacoDefensa
 	_vida = _vida_max()
+	var c: Resource = zombis.config if zombis else null
 	if es_jefe:
-		_velocidad = JEFE_VELOCIDAD
+		_velocidad = _conf_num(c, "jefe_velocidad", JEFE_VELOCIDAD)
+		_alcance = _conf_num(c, "ataque_alcance", ALCANCE) * JEFE_TAMANO
+		_alcance_golpe = _alcance * (ALCANCE_GOLPE / ALCANCE)
 	else:
 		var gordo_ := tipo == Tipo.GORDO
-		_dano = zombis.dano_jugador if zombis else (GORDO_DANO if gordo_ else DANO)
-		var rango := GORDO_VELOCIDAD if gordo_ else VELOCIDAD
-		_velocidad = randf_range(rango.x, rango.y) * (CAZADOR_VELOCIDAD if con_prisa else 1.0)
+		_dano = zombis.dano_jugador if zombis else int(_conf_num(c, "gordo_dano" if gordo_ else "dano", GORDO_DANO if gordo_ else DANO))
+		var rango := _conf_vec(c, "gordo_velocidad", GORDO_VELOCIDAD) if gordo_ else _conf_vec(c, "velocidad", VELOCIDAD)
+		var factor := _conf_num(c, "cazador_velocidad", CAZADOR_VELOCIDAD) if con_prisa else 1.0
+		_velocidad = randf_range(rango.x, rango.y) * factor
+		_alcance = _conf_num(c, "ataque_alcance", ALCANCE)
+		_alcance_golpe = _alcance * (ALCANCE_GOLPE / ALCANCE)
 	# Ya salen alertas las turbas, el gordo y el jefe, y en la defensa (van por el tinaco)
 	alerta = gordo() or con_prisa or _tinaco != null
 	_deambula_a = Vector3.INF
@@ -616,6 +622,9 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	_hueco = _escoger_hueco(con_prisa)
 	_restaurar()
 	_poner_barra()
+	var _reg = get_node_or_null("/root/Registro")
+	if _reg:
+		_reg.zombi_nace(self)
 	if alerta:
 		_correr(_velocidad, true)
 	else:
@@ -623,6 +632,9 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 
 
 func dormir() -> void:
+	var _reg = get_node_or_null("/root/Registro")
+	if _reg:
+		_reg.zombi_despawn(self)
 	despierto = false
 	if _rabia:
 		_rabia.visible = false
@@ -1083,6 +1095,8 @@ func _empezar_ataque() -> void:
 func _atacar() -> void:
 	if not _golpeo and _tiempo >= GOLPE_EN:
 		_golpeo = true
+		var acerto := false
+		var dano_recinto := JEFE_DANO_RECINTO if es_jefe else DANO_RECINTO
 		if not is_instance_valid(jugador) or not _jugador_libre():
 			pass
 		elif _blanco == jugador:
@@ -1091,9 +1105,14 @@ func _atacar() -> void:
 			if hacia.length() <= _alcance_golpe and absf(jugador.global_position.y - global_position.y) <= _alcance_golpe:
 				jugador.recibir_dano(_dano, global_position, JEFE_EMPUJA if es_jefe else 1.0, self)
 				_nota("pelear")
+				acerto = true
 		elif is_instance_valid(_blanco) and _blanco.has_method("recibir_golpe"):
-			_blanco.recibir_golpe(JEFE_DANO_RECINTO if es_jefe else DANO_RECINTO)
-	if _tiempo >= ATAQUE_DURA:
+			_blanco.recibir_golpe(dano_recinto)
+			acerto = true
+		var _reg = get_node_or_null("/root/Registro")
+		if _reg:
+			_reg.zombi_ataque(self, "jugador" if _blanco == jugador else "tinaco", _dano if _blanco == jugador else dano_recinto, acerto)
+	if _tiempo >= _ataque_dura():
 		_seguir_caminando()
 
 
@@ -1122,18 +1141,23 @@ func _seguir_caminando() -> void:
 # `truena_en`: ms que dura la congelada si este golpe lo mata, para tronar justo al soltar.
 # `cuerpo_a_cuerpo`: false con la pistola, que ni empuja ni aturde.
 # Regresa GOLPE_NADA, GOLPE_PEGO o GOLPE_MATO.
-func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cuerpo_a_cuerpo := true, cabeza := false) -> int:
+func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cuerpo_a_cuerpo := true, cabeza := false, fuente := "") -> int:
 	if estado == Estado.MUERTO:
 		return GOLPE_NADA
 	alertar()
 	_nota("pelear")
+	var efectivo := mini(dano, _vida)
 	if cuerpo_a_cuerpo:
-		dano_cuerpo += mini(dano, _vida)
+		dano_cuerpo += efectivo
 	else:
-		dano_pistola += mini(dano, _vida)
+		dano_pistola += efectivo
 	if cabeza:
-		dano_cabeza += mini(dano, _vida)
+		dano_cabeza += efectivo
 	_vida -= dano
+	if fuente != "":
+		var _reg = get_node_or_null("/root/Registro")
+		if _reg:
+			_reg.zombi_golpe(self, fuente, efectivo, _vida <= 0)
 	_poner_barra()
 	var atras := global_position - desde
 	atras.y = 0.0
@@ -1206,7 +1230,10 @@ func _morir(pagado: bool, truena_en := 0, espera := 0) -> void:
 		_sonar("morir_zombi")
 		_ceniza = true
 	murio.emit()
-	if pagado:
+	var _reg = get_node_or_null("/root/Registro")
+	if _reg:
+		_reg.zombi_muere(self)
+	if pagado and (zombis == null or zombis.paga_muertes):
 		# Bolsillos (Tazos.gd): unos pesos de mas
 		var tazos := get_node_or_null("/root/Tazos")
 		# y los amuletos de pesos (Bonos.gd)
@@ -1402,7 +1429,31 @@ func _correr(velocidad: float, reiniciar := false) -> void:
 
 
 func _vida_max() -> int:
-	return JEFE_VIDA if es_jefe else (GORDO_VIDA if tipo == Tipo.GORDO else VIDA)
+	var c: Resource = zombis.config if zombis else null
+	if es_jefe:
+		return int(_conf_num(c, "jefe_vida", JEFE_VIDA))
+	if tipo == Tipo.GORDO:
+		return int(_conf_num(c, "gordo_vida", GORDO_VIDA))
+	return int(_conf_num(c, "vida", VIDA))
+
+
+func _conf_num(config: Resource, clave: String, defecto: float) -> float:
+	if config and config.get(clave) != null:
+		return float(config.get(clave))
+	return defecto
+
+
+func _conf_vec(config: Resource, clave: String, defecto: Vector2) -> Vector2:
+	if config:
+		var valor: Variant = config.get(clave)
+		if valor is Vector2:
+			return valor
+	return defecto
+
+
+func _ataque_dura() -> float:
+	var c: Resource = zombis.config if zombis else null
+	return _conf_num(c, "ataque_dura", ATAQUE_DURA)
 
 
 func _animar(nombre: String, velocidad: float, reiniciar := false) -> void:

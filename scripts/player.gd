@@ -537,14 +537,20 @@ func _aplicar_cuerpo(llenar: bool) -> void:
 		_velocidad_base = Vector2(speed, sprint_speed)
 	var personaje := get_node_or_null("/root/Personaje")
 	var tazos := get_node_or_null("/root/Tazos")
-	if personaje == null and tazos == null:
+	var mejoras := get_node_or_null("/root/Mejoras")
+	var mejoras_on: bool = mejoras != null and mejoras.activo
+	if personaje == null and tazos == null and not mejoras_on:
 		return
 	var bonos := get_node_or_null("/root/Bonos")
-	var velocidad: float = (personaje.factor_velocidad() if personaje else 1.0) * (tazos.factor_velocidad() if tazos else 1.0)
+	var mej_vel: float = mejoras.factor_velocidad() if mejoras_on else 1.0
+	var mej_dano: float = mejoras.factor_dano() if mejoras_on else 1.0
+	var mej_alcance: float = mejoras.factor_alcance() if mejoras_on else 1.0
+	var mej_vida: float = mejoras.factor_vida() if mejoras_on else 1.0
+	var velocidad: float = (personaje.factor_velocidad() if personaje else 1.0) * (tazos.factor_velocidad() if tazos else 1.0) * mej_vel
 	speed = _velocidad_base.x * velocidad
 	sprint_speed = _velocidad_base.y * velocidad
-	_factor_dano = (personaje.factor_dano() if personaje else 1.0) * (tazos.factor_dano() if tazos else 1.0) * (bonos.factor_fuerza() if bonos else 1.0)
-	_alcance = ATAQUE_ALCANCE * (personaje.factor_alcance() if personaje else 1.0) * (tazos.factor_alcance() if tazos else 1.0) * (bonos.factor_alcance() if bonos else 1.0)
+	_factor_dano = (personaje.factor_dano() if personaje else 1.0) * (tazos.factor_dano() if tazos else 1.0) * (bonos.factor_fuerza() if bonos else 1.0) * mej_dano
+	_alcance = ATAQUE_ALCANCE * (personaje.factor_alcance() if personaje else 1.0) * (tazos.factor_alcance() if tazos else 1.0) * (bonos.factor_alcance() if bonos else 1.0) * mej_alcance
 	if _lampara:
 		_lampara.visible = bonos != null and bonos.luz()
 	var salud := get_node_or_null("/root/Salud")
@@ -552,7 +558,7 @@ func _aplicar_cuerpo(llenar: bool) -> void:
 		return
 	var fraccion: float = float(salud.vida) / maxf(salud.vida_max, 1.0)
 	var base: int = personaje.vida_max() if personaje else salud.vida_max
-	salud.vida_max = roundi(base * (tazos.factor_vida() if tazos else 1.0)) + (bonos.vida_extra() if bonos else 0)
+	salud.vida_max = roundi(base * (tazos.factor_vida() if tazos else 1.0) * mej_vida) + (bonos.vida_extra() if bonos else 0)
 	salud.vida = salud.vida_max if llenar else maxi(roundi(fraccion * salud.vida_max), 1)
 
 
@@ -673,6 +679,16 @@ func _golpear(giro := false) -> void:
 		else:
 			_estela.estallar(_nudillos(hueso), PUNO_LLAMAS, frente_puno, PUNO_LLAMAS_ESCALA)
 		_fogonazo(_nudillos(hueso))
+	var fuente := "combo_a"
+	if _puno >= 0 and not con_arma:
+		fuente = ["puno_jab", "puno_cross", "puno_hook"][_puno]
+	elif giro:
+		fuente = "giro"
+	elif _lado_golpe < 0.0:
+		fuente = "combo_b"
+	var registro = get_node_or_null("/root/Registro")
+	if registro:
+		registro.uso_ataque(fuente)
 	var fuerza := clampf(float(dano) / DANO_MACHETE, FUERZA_MIN, FUERZA_MAX)
 	# Un zombi muerto en este golpe truena justo al soltar la congelada
 	var truena_en := int(CONGELA_MATA * 1000.0)
@@ -694,7 +710,7 @@ func _golpear(giro := false) -> void:
 	alcanzados.sort_custom(func(a: Node3D, b: Node3D) -> bool:
 		return a.global_position.distance_squared_to(global_position) < b.global_position.distance_squared_to(global_position))
 	for zombi in alcanzados.slice(0, GIRO_MAXIMO if giro else ATAQUE_MAXIMO):
-		var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza * empujon, truena_en)
+		var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza * empujon, truena_en, true, false, fuente)
 		if quema and resultado == 1 and zombi.has_method("quemar"):
 			zombi.quemar()
 		pego = pego or resultado != 0
@@ -821,6 +837,9 @@ func _combo_desde() -> float:
 func _empezar_pose_carga() -> void:
 	_pose_carga = true
 	_golpe_guardado = false
+	var registro = get_node_or_null("/root/Registro")
+	if registro:
+		registro.mecanica("carga")
 	_enfriar = 0.0
 	figura.pose_carga(CARGA_POSE_EN)
 
@@ -918,6 +937,9 @@ func _estocar(desde := 0.0, aire := false) -> void:
 	# En el piso (al soltar la carga) ya no es estocada sino el tajo
 	_tajo = not aire
 	_tajo_estallo = false
+	var registro = get_node_or_null("/root/Registro")
+	if registro:
+		registro.uso_ataque("tajo" if not aire else "estocada")
 	_estocada_avance = ESTOCADA_AIRE_AVANCE if aire else TAJO_AVANCE
 	if aire:
 		_cancelar_carga(false)
@@ -974,6 +996,9 @@ func _rodar(teclas: Vector2) -> void:
 	_rodada_t = 0.0
 	frijol.global_transform = frijol.global_transform.looking_at(frijol.global_position + _rodada_dir, Vector3.UP)
 	figura.rodar(RODAR_VELOCIDAD)
+	var registro = get_node_or_null("/root/Registro")
+	if registro:
+		registro.mecanica("rodar")
 
 
 # --- Buffer de acciones ---
@@ -1190,6 +1215,7 @@ func _pegar_estocada() -> void:
 	dano = maxi(roundi(dano * _factor_dano * (TAJO_DANO if _tajo else ESTOCADA_DANO)), 1)
 	var empujon := arma.empujon if arma else 1.0
 	var quema := arma != null and arma.quema
+	var fuente := "tajo" if _tajo else "estocada"
 	var maximo := TAJO_MAXIMO if _tajo else ESTOCADA_MAXIMO
 	var radio := TAJO_RADIO if _tajo else ESTOCADA_RADIO
 	var cono := TAJO_CONO if _tajo else ESTOCADA_CONO
@@ -1205,7 +1231,7 @@ func _pegar_estocada() -> void:
 		hacia.y = 0.0
 		if hacia.length() - _radio_de(zombi) <= radio and hacia.normalized().dot(_estocada_dir) >= cono:
 			_estocada_pegados.append(zombi)
-			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza * empujon, int(CONGELA_MATA * 1000.0))
+			var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza * empujon, int(CONGELA_MATA * 1000.0), true, false, fuente)
 			if quema and resultado == 1 and zombi.has_method("quemar"):
 				zombi.quemar()
 			pego = pego or resultado != 0
@@ -1284,6 +1310,10 @@ class RelojCongelada extends Node:
 # empujon y sangre hacia donde iba el golpe; Supervivencia.gd hace el cuadro de impacto
 func recibir_dano(dano: int, desde: Vector3, empuja := 1.0, de: Node = null) -> void:
 	if sin_combate or _invulnerable > 0.0 or esquivando():
+		if esquivando():
+			var registro = get_node_or_null("/root/Registro")
+			if registro:
+				registro.mecanica("esquiva")
 		return
 	if _bloqueando:
 		var hacia_mi := global_position - desde
@@ -1330,6 +1360,10 @@ func _dano_recibido(dano: int, de: Node) -> int:
 		var cazador: bool = de != null and de.get("cazador") == true
 		var jefe: bool = de != null and de.get("es_jefe") == true
 		dano = maxi(roundi(dano * bonos.factor_recibido(de_noche, cazador, cazador or jefe)), 1)
+	# Mejoras (Mejoras.gd, pruebas con datos)
+	var mejoras := get_node_or_null("/root/Mejoras")
+	if mejoras and mejoras.activo:
+		dano = maxi(roundi(dano * mejoras.factor_dano_recibido()), 1)
 	return dano
 
 
@@ -1360,7 +1394,11 @@ func aturdirte(segundos: float, dano: int) -> void:
 func _parar_golpe(dano: int, hacia: Vector3, empuja: float) -> void:
 	_invulnerable = BLOQUEO_INVULNERABLE
 	hacia = hacia.normalized() if hacia.length_squared() > 0.001 else frijol.global_basis.z
-	# El dano ya viene con Piel dura y los amuletos (_dano_recibido)
+	# El dano ya viene con Piel dura, los amuletos y las Mejoras (_dano_recibido)
+	var bloqueado := maxi(dano - maxi(roundi(dano * BLOQUEO_DANO), 1), 0)
+	var registro = get_node_or_null("/root/Registro")
+	if registro:
+		registro.mecanica("bloqueo_absorbido", bloqueado)
 	# Distancia del arrastre por el dano completo (lo fuerte del golpe), no por lo que te quita
 	var lejos := clampf(dano * BLOQUEO_EMPUJE * empuja, BLOQUEO_EMPUJE_MIN, BLOQUEO_EMPUJE_MAX)
 	var arranque := 2.0 * lejos / BLOQUEO_DESLIZA
@@ -1388,6 +1426,9 @@ func _revisar_bloqueo(delta: float) -> void:
 	if quiere:
 		_cancelar_carga(false)
 		_golpe_guardado = false
+		var registro = get_node_or_null("/root/Registro")
+		if registro:
+			registro.mecanica("bloquear")
 	if figura.has_method("bloquear"):
 		figura.bloquear(quiere)
 
@@ -2013,6 +2054,7 @@ func poner_sin_combate(valor: bool) -> void:
 func _en_safehouse() -> bool:
 	var escena := get_tree().current_scene
 	return escena != null and escena.scene_file_path.ends_with("safehouse.tscn")
+
 
 
 # 0 = el arma de golpe (machete o puño), 1 = la pistola, 2 = lo que se avienta (Lanzador:

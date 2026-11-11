@@ -1,12 +1,15 @@
 extends Node3D
 
 # Escena de prueba de la defensa del tinaco ("Vela del tinaco", docs/misiones.md §0):
-# una noche de 3:30 min (22:00 a 6:00, `duracion_noche`) en el Parque Jardin Imperial (Parques del Mosco)
-# del mapa real. Las hordas (Hordas.gd) salen de las orillas y corren al tinaco; al
-# amanecer se cobra. Si lo rompen se corta a negro, amanece y no se paga nada: con
-# media paga convenia entrar y dejarse perder. Desmayarte tambien acaba la noche sin paga
-# (en coop, el desmayado esperaria a los demas). Suena audio/musica/pt_tema.mp3 en bucle. Por ahora es una escena sola: la flecha
-# amarilla en el mapa, la zona al azar por colonia y el regreso van despues.
+# noches encadenadas de 3:30 min (22:00 a 6:00, `duracion_noche`) en el Parque Jardin
+# Imperial (Parques del Mosco) del mapa real. Las hordas (Hordas.gd) salen de las orillas y
+# corren al tinaco; al amanecer se cobra y sale el menu de ganaste (Siguiente, Cambiar
+# personaje, Salir). Cada noche sube la dificultad (mas zombis por grupo y pegan mas) hasta
+# que te desmayas o rompen el tinaco: entonces el menu deja reintentar esa misma noche. Si
+# lo rompen se corta a negro, amanece y no se paga nada: con media paga convenia entrar y
+# dejarse perder. Desmayarte tambien acaba la noche sin paga (en coop, el desmayado
+# esperaria a los demas). Suena audio/musica/pt_tema.mp3 en bucle. Por ahora es una escena
+# sola: la flecha amarilla en el mapa, la zona al azar por colonia y el regreso van despues.
 #
 #   godot --path . scenes/defensa_tinaco.tscn [-- --semilla=N]
 #   godot --path . scenes/defensa_tinaco.tscn -- --capturas=<carpeta> [--semilla=N]
@@ -44,6 +47,18 @@ const PROVISIONES := 5
 const MOCHILA := preload("res://resources/productos/mochila_escolar.tres")
 const FIN_ESPERA := 2.5                # s de amanecer antes de la pantalla final
 const FUNDIDO := 0.8                   # s a negro y de regreso cuando rompen el tinaco
+# Noches encadenadas: cada una es mas dificil. Los grupos del modo crecen esta fraccion por
+# noche y el zombi pega DANO_POR_NOCHE mas, hasta DANO_TOPE (el del mapa). Los grupos no
+# tienen tope propio: Hordas los limita con Zombis.max_total, asi que llega un momento en
+# que no se puede ganar y se pierde (y se reintenta esa misma noche). Todo se ajusta
+# jugando: al empezar cada noche se imprime en consola lo que quedo.
+const DIFICULTAD_POR_NOCHE := 1.25
+const DANO_POR_NOCHE := 1
+const DANO_TOPE := 12
+const FUNDIDO_SALE := 0.25             # s a negro antes de rearmar la noche
+const MODO_CARRERA := 1                  # Pruebas.Modo.CARRERA
+const MODO_GODMODE := 2                  # Pruebas.Modo.GODMODE
+const FUNDIDO_ENTRA := 0.6             # s de regreso desde negro
 
 # [nombre, desde, hacia], respecto al tinaco
 const VISTAS := [
@@ -124,9 +139,21 @@ var _jefe_barra: ColorRect
 const JEFE_ANCHO := 300.0
 var _listo := false
 var _terminado := false
+var _noche_cerrada := false
 var _musica: AudioStreamPlayer
 var _musica_apagada := false
 var _hora_fin := 0.0          # a que hora se perdio
+# La noche de la carrera (1, 2, 3...). Sube con Siguiente y NO baja al reintentar la misma
+var noche := 1
+var _dificultad_base := 1.0   # la del modo (Hordas.MODOS) antes de la escalada
+var _dano_base := 6           # Zombis.dano_jugador de la escena antes de la escalada
+var _menu_capa: CanvasLayer   # el menu de entre noches, si esta abierto
+var _botones: HBoxContainer
+var _primer_boton: Button
+var _capa_fundido: CanvasLayer
+var _fundido: ColorRect
+var _en_transicion := false   # entre el menu y la noche siguiente
+var _creador_abierto := false
 
 
 func _enter_tree() -> void:
@@ -145,16 +172,12 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	_tinaco = _barricada.get_node("Tinaco") as TinacoDefensa
 	Sonidos.solo.assign(SONIDOS)
-	# Las mecanicas de espada de JJ, como en el safehouse: el tajo cargado, y giro y estocada
-	# en el aire
-	Player.golpe_cargado = true
-	Player.giro_aereo = true
-	# La noche no corre hasta que este la barricada
 	_ciclo.process_mode = Node.PROCESS_MODE_DISABLED
 	_jugador.collision_mask |= PARED_CAPA
 	_jugador.mato_con_espada.connect(_revisar_estela)
 	_armar_paredes()
 	_armar_hud()
+	_armar_fundido()
 	_hordas = Hordas.new()
 	_hordas.name = "Hordas"
 	_hordas.centro = CENTRO
@@ -164,57 +187,61 @@ func _ready() -> void:
 	_tinaco.aviso.connect(_supervivencia.avisar)
 	_tinaco.cayo.connect(_tinaco_roto)
 	_supervivencia.desmayo_final = _desmayado
-	var inventario := get_node("/root/Inventory")
-	inventario.equipar_mochila(MOCHILA)
-	while inventario.curaciones() < PROVISIONES and inventario.add_item(TACOS):
-		pass
 	_musica = AudioStreamPlayer.new()
 	_musica.stream = MUSICA
 	(_musica.stream as AudioStreamMP3).loop = true
 	_musica.volume_db = MUSICA_SILENCIO
-	# Sigue sonando con el inventario abierto (pausa) y en la pantalla final
 	_musica.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(_musica)
 	_ciclo.amanecio.connect(_fin)
+	# Si se lanza directo (sin lanzador), es el godmode de mecanicas. El refugio pone CARRERA
+	# antes de cargar esta escena.
+	var pruebas = _pruebas()
+	if pruebas and pruebas.modo == 0:
+		pruebas.preparar_test(pruebas.Modo.GODMODE, pruebas.dificultad, pruebas.duracion_noche)
 	var semilla := 0
 	var capturas := ""
-	var automatica := false   # capturas o monitor: sin nadie que escoja personaje
+	var monitor_pedido := false
+	var noche_arg := false
+	var modo_arg := false
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--semilla="):
 			semilla = int(arg.trim_prefix("--semilla="))
 		elif arg.begins_with("--capturas="):
 			capturas = arg.trim_prefix("--capturas=")
-			automatica = true
 		elif arg.begins_with("--modo="):
 			modo = arg.trim_prefix("--modo=")
+			modo_arg = true
 		elif arg.begins_with("--noche="):
 			duracion_noche = float(arg.trim_prefix("--noche="))
+			noche_arg = true
 		elif arg == "--estela":
 			get_node("/root/Personaje").mejora_estela = true
 			_jugador.aplicar_personaje()
 		elif arg.begins_with("--monitor="):
-			automatica = true
-			var monitor := preload("res://scripts/defensa/MonitorDefensa.gd").new()
-			monitor.name = "Monitor"
-			monitor.defensa = self
-			monitor.carpeta = arg.trim_prefix("--monitor=")
-			add_child(monitor)
+			monitor_pedido = true
+	if pruebas:
+		if not modo_arg:
+			modo = pruebas.dificultad
+		if not noche_arg:
+			duracion_noche = pruebas.duracion_noche
+		pruebas.dificultad = modo
+		pruebas.duracion_noche = duracion_noche
 	_ciclo.noche_duracion = duracion_noche
 	_hordas.usar_modo(modo)
+	_dificultad_base = _hordas.dificultad
+	_dano_base = _zombis.dano_jugador
 	print("Defensa: modo %s, noche de %.0f s" % [modo, duracion_noche])
 	await _esperar_mapa()
 	_al_suelo()
 	_generar(semilla)
-	if not automatica:
-		await _escoger_personaje()
 	_listo = true
 	if capturas != "":
 		_capturas(capturas)
 		return
-	_ciclo.process_mode = Node.PROCESS_MODE_INHERIT
-	_musica.play()
-	_musica.stream_paused = _musica_apagada
-	_volumen_musica(MUSICA_VOLUMEN, MUSICA_ENTRA)
+	_iniciar_noche()
+	if monitor_pedido:
+		_crear_monitor()
 
 
 # Antes de empezar: la pantalla de personaje de Jugar. La noche sigue sin correr (el ciclo esta
@@ -237,6 +264,8 @@ func _escoger_personaje() -> void:
 
 
 func _revisar_estela() -> void:
+	if _pruebas():
+		return
 	var personaje := get_node("/root/Personaje")
 	if personaje.mejora_estela or _jugador.muertes_espada < ESTELA_MUERTES:
 		return
@@ -244,7 +273,7 @@ func _revisar_estela() -> void:
 	ESTELA.estilo = personaje.estela()
 
 
-# Al salir (Salir, Otra noche) los demas sonidos vuelven
+# Al salir (Salir) los demas sonidos vuelven
 func _exit_tree() -> void:
 	Sonidos.solo.clear()
 	Player.golpe_cargado = false
@@ -255,6 +284,9 @@ func _exit_tree() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
+		return
+	if _listo and event.physical_keycode == KEY_C and not (_pruebas() and _pruebas().es_carrera()):
+		_cambiar_personaje()
 		return
 	if _listo and event.physical_keycode == KEY_G:
 		_generar(0)
@@ -269,7 +301,7 @@ func _process(_delta: float) -> void:
 		_hora.text = "Cargando..."
 		return
 	var hora := _hordas.hora() if _ciclo.es_noche() or _terminado else Hordas.HORA_EMPIEZA
-	_hora.text = Hordas.texto_hora(hora)
+	_hora.text = "Noche %d · %s" % [noche, Hordas.texto_hora(hora)]
 	_amanecer.scale.x = (hora - Hordas.HORA_EMPIEZA) / Hordas.HORAS
 	_vida_tinaco.scale.x = _tinaco.fraccion()
 	var panzon := get_tree().get_first_node_in_group("panzon")
@@ -308,10 +340,199 @@ func _generar(semilla: int) -> void:
 	print("Barricada: semilla %d, %d piezas no cupieron" % [_barricada.semilla_usada, _barricada.quitadas])
 
 
+# --- Noches encadenadas: dificultad y reinicio ---
+
+# La dificultad de la noche que va: los grupos del modo crecen y el zombi pega mas. Los
+# grupos los limita Zombis.max_total (40), asi que en algun momento ya no se puede ganar.
+func _aplicar_noche() -> void:
+	_hordas.dificultad = _dificultad_base * pow(DIFICULTAD_POR_NOCHE, maxi(noche, 1) - 1)
+	_zombis.dano_jugador = mini(_dano_base + (maxi(noche, 1) - 1) * DANO_POR_NOCHE, DANO_TOPE)
+	print("Noche %d: grupos x%.2f, zombi pega %d" % [noche, _hordas.dificultad, _zombis.dano_jugador])
+
+
+# Los vecinos dejan comida para la noche (solo el godmode; en la carrera se compra)
+func _dar_provisiones() -> void:
+	var inventario := get_node("/root/Inventory")
+	inventario.equipar_mochila(MOCHILA)
+	while inventario.curaciones() < PROVISIONES and inventario.add_item(TACOS):
+		pass
+
+
+# Arranque de la noche (las dos ramas del test): estado, dificultad, registro y musica.
+func _iniciar_noche() -> void:
+	var pruebas = _pruebas()
+	var godmode: bool = pruebas == null or pruebas.modo == MODO_GODMODE
+	noche = pruebas.noche if (pruebas and pruebas.modo == MODO_CARRERA) else 1
+	# En los tests no hay drops de zombis: todo se compra con la paga
+	_zombis.paga_muertes = false
+	if godmode:
+		_aplicar_godmode()
+	else:
+		_aplicar_mejoras()
+	_aplicar_noche()
+	_preparar_noche()
+	if pruebas:
+		pruebas.empezar_noche()
+	_registro_inicio()
+	if _hordas:
+		if not _hordas.ola_empezada.is_connected(_registro_ola):
+			_hordas.ola_empezada.connect(_registro_ola)
+		if not _hordas.emboscada_empezada.is_connected(_registro_emboscada):
+			_hordas.emboscada_empezada.connect(_registro_emboscada)
+	_ciclo.process_mode = Node.PROCESS_MODE_INHERIT
+	_musica.play()
+	_musica.stream_paused = _musica_apagada
+	_volumen_musica(MUSICA_VOLUMEN, MUSICA_ENTRA)
+
+
+# El godmode: todo el catalogo al maximo, todos los productos e infinitos. La misma escena,
+# las mismas mecanicas y la misma estetica que la carrera.
+func _aplicar_godmode() -> void:
+	var mejoras := get_node_or_null("/root/Mejoras")
+	if mejoras:
+		mejoras.reiniciar()
+		mejoras.maximo()
+		mejoras.activo = true
+		mejoras.aplicar_en_jugador(_jugador)
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario:
+		inventario.infinito = true
+		inventario.items.clear()
+		inventario.mochila = null
+		inventario.dar_todos_los_productos()
+	var salud := get_node_or_null("/root/Salud")
+	if salud:
+		salud.reiniciar()
+
+
+# La carrera: solo aplica lo comprado en el refugio; no reinicia el catalogo.
+func _aplicar_mejoras() -> void:
+	var mejoras := get_node_or_null("/root/Mejoras")
+	if mejoras:
+		mejoras.activo = true
+		mejoras.aplicar_en_jugador(_jugador)
+
+
+# Deja el mundo como al empezar una noche: tinaco y vida llenos, zombis guardados y el reloj
+# otra vez a las 22:00. El dinero, el inventario y el personaje siguen.
+func _preparar_noche() -> void:
+	_terminado = false
+	_noche_cerrada = false
+	_hora_fin = 0.0
+	_zombis.limpiar()
+	_hordas.reiniciar()
+	_tinaco.reiniciar()
+	_jugador.global_transform = _supervivencia.punto_regreso
+	_jugador.velocity = Vector3.ZERO
+	_jugador.reanudar()
+	_jugador.aplicar_personaje()
+	_supervivencia.rearmar_noche()
+	_ciclo.reiniciar_noche()
+
+
+# Al cerrar la noche: Registro y paga/ayuda UNA vez; despues el menu.
+func _registro_inicio() -> void:
+	var registro = get_node_or_null("/root/Registro")
+	if registro == null:
+		return
+	registro.config_enemigos(_zombis.config)
+	registro.config_extra("dificultad", modo)
+	registro.config_extra("duracion_noche", duracion_noche)
+	registro.config_extra("dano_jugador", _zombis.dano_jugador)
+	registro.config_extra("tinaco_vida", TinacoDefensa.VIDA)
+
+
+func _registro_ola(n: int, cuantos: int, corredores: float, hora: float) -> void:
+	var registro = get_node_or_null("/root/Registro")
+	if registro:
+		registro.ola_empezada(n, cuantos, corredores, hora)
+
+
+func _registro_emboscada(n: int, cuantos: int, hora: float) -> void:
+	var registro = get_node_or_null("/root/Registro")
+	if registro:
+		registro.emboscada(n, cuantos, hora)
+
+
+func _crear_monitor() -> void:
+	var pruebas = _pruebas()
+	var monitor := preload("res://scripts/defensa/MonitorDefensa.gd").new()
+	monitor.name = "Monitor"
+	monitor.defensa = self
+	monitor.carpeta = pruebas.carpeta_noche if pruebas and pruebas.carpeta_noche != "" else pruebas.carpeta
+	add_child(monitor)
+
+
+func _pruebas():
+	return get_node_or_null("/root/Pruebas")
+
+
+# Siguiente (gano) o reintentar la misma noche (perdio): en la carrera vuelve al refugio. En el
+# godmode no hay progresion: "Otra vez" recarga la misma noche con todo al maximo.
+func _avanzar_noche(siguiente: bool) -> void:
+	if _en_transicion or _creador_abierto:
+		return
+	var pruebas = _pruebas()
+	if pruebas and pruebas.es_carrera():
+		if siguiente:
+			pruebas.siguiente_noche()
+		get_tree().paused = false
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		get_tree().change_scene_to_file("res://scenes/escena_carrera.tscn")
+		return
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+
+# Cambiar personaje sin salir del menu: el creador de Jugar, encima y en pausa. Volver (Esc)
+# regresa al menu; para salir de la carrera esta el boton Salir
+func _cambiar_personaje() -> void:
+	if _creador_abierto or _en_transicion:
+		return
+	_creador_abierto = true
+	var pausar := not get_tree().paused
+	if pausar:
+		get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var capa := CanvasLayer.new()
+	capa.layer = 21
+	capa.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(capa)
+	var creador: Control = load("res://scripts/CreadorPersonaje.gd").new()
+	capa.add_child(creador)
+	var cerrar := func() -> void:
+		if is_instance_valid(capa):
+			capa.queue_free()
+		_creador_abierto = false
+		_jugador.aplicar_personaje()
+		if pausar:
+			get_tree().paused = false
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		if is_instance_valid(_primer_boton) and _primer_boton.is_inside_tree():
+			_primer_boton.grab_focus()
+	creador.listo.connect(cerrar)
+	creador.volver.connect(cerrar)
+
+
+# Volver al menu de inicio (y de ahi, a jugar el mapa)
+func _salir() -> void:
+	if _en_transicion:
+		return
+	var pruebas = _pruebas()
+	if pruebas:
+		pruebas.cerrar()
+	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	get_tree().change_scene_to_file("res://scenes/inicio.tscn")
+
+
 # --- Al amanecer: la paga ---
 
 # Se acabo: a negro y ya es de dia (los zombis se caen y sale la pantalla final)
 func _tinaco_roto() -> void:
+	# Ya se cerro la noche (gano o se desmayo): no meter otro fundido encima del menu
+	if _terminado:
+		return
 	_hora_fin = _hordas.hora()
 	_supervivencia.avisar("¡Rompieron el tinaco!")
 	_volumen_musica(MUSICA_SILENCIO, FUNDIDO)
@@ -340,7 +561,7 @@ func _desmayado() -> void:
 	_terminado = true
 	_hora_fin = _hordas.hora()
 	_volumen_musica(MUSICA_SILENCIO, FUNDIDO)
-	_pantalla_final(false, true)
+	_cerrar_noche(false, true)
 
 
 func _fin() -> void:
@@ -349,7 +570,7 @@ func _fin() -> void:
 	_terminado = true
 	_volumen_musica(MUSICA_SILENCIO, MUSICA_SALE)
 	await get_tree().create_timer(FIN_ESPERA).timeout
-	_pantalla_final(_tinaco.vida > 0, false)
+	_cerrar_noche(_tinaco.vida > 0, false)
 
 
 func _volumen_musica(db: float, segundos: float) -> void:
@@ -359,24 +580,35 @@ func _volumen_musica(db: float, segundos: float) -> void:
 		tween.tween_callback(_musica.stop)
 
 
-# --- La pantalla final ---
+# --- El menu entre noches ---
 
-# Gano: paga y galon. Si no (tinaco roto o desmayo), nada. Todo corre en pausa: la capa,
-# sus tweens y sus sonidos procesan siempre
-func _pantalla_final(gano: bool, desmayo: bool) -> void:
-	var premio := ""
-	if gano:
-		get_node("/root/Cartera").pesos += PAGA
-		if get_node("/root/Inventory").add_item(GALON):
-			premio = "+ un galón de agua"
-		else:
-			premio = "(el galón no te cupo)"
+# Cierra la noche UNA vez: Registro y paga/ayuda en Pruebas, y luego el menu.
+func _cerrar_noche(gano: bool, desmayo: bool) -> void:
+	if _noche_cerrada:
+		return
+	_noche_cerrada = true
+	var pruebas = _pruebas()
+	if pruebas:
+		pruebas.terminar_noche(gano)
+	_pantalla_noche(gano, desmayo)
+
+
+# Gano: paga y deja seguir con la noche siguiente (carrera) o repetir (godmode). Perdio:
+# ayuda y la misma noche. Todo corre en pausa: la capa, sus tweens y sus sonidos siempre.
+func _pantalla_noche(gano: bool, desmayo: bool) -> void:
+	if is_instance_valid(_menu_capa):
+		return
+	var pruebas = _pruebas()
+	var es_carrera: bool = pruebas != null and pruebas.es_carrera()
+	var cartera := get_node_or_null("/root/Cartera")
+	var dinero_ahora: int = cartera.pesos if cartera else 0
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var capa := CanvasLayer.new()
 	capa.layer = 20
 	capa.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(capa)
+	_menu_capa = capa
 	var fondo := ColorRect.new()
 	fondo.color = Color(0.0, 0.0, 0.0, 0.7) if gano else Color(0.22, 0.0, 0.0, 0.85)
 	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -391,7 +623,13 @@ func _pantalla_final(gano: bool, desmayo: bool) -> void:
 	caja.alignment = BoxContainer.ALIGNMENT_CENTER
 	caja.add_theme_constant_override("separation", 6)
 	capa.add_child(caja)
-	var titulo_texto := "¡AGUANTASTE LA NOCHE!" if gano else ("TE DESMAYASTE" if desmayo else "¡SE ACABARON EL TINACO!")
+	var titulo_texto := ""
+	if gano:
+		titulo_texto = "¡GANASTE LA NOCHE %d!" % noche
+	elif desmayo:
+		titulo_texto = "TE DESMAYASTE EN LA NOCHE %d" % noche
+	else:
+		titulo_texto = "TINACO ROTO · NOCHE %d" % noche
 	var titulo := _etiqueta(titulo_texto, TITULO_TAMANO, AMARILLO if gano else ROJO)
 	titulo.add_theme_constant_override("outline_size", 6)
 	caja.add_child(titulo)
@@ -401,21 +639,27 @@ func _pantalla_final(gano: bool, desmayo: bool) -> void:
 	if gano:
 		renglones.append(_etiqueta("Lo más feo: %d a la vez, a las %s" % [_hordas.mas_juntos, Hordas.texto_hora(_hordas.hora_mas_juntos)], RENGLON_TAMANO, Color.WHITE))
 		renglones.append(_etiqueta("Agua en el tinaco: %d %%" % roundi(_tinaco.fraccion() * 100.0), RENGLON_TAMANO, AGUA))
+		if es_carrera:
+			renglones.append(_etiqueta("Dinero al empezar: $%d" % pruebas.pesos_al_empezar, RENGLON_TAMANO, Color.WHITE))
+			renglones.append(_etiqueta("Paga: +$%d · Ahora: $%d" % [pruebas.PAGA, dinero_ahora], RENGLON_TAMANO, AMARILLO))
+			var siguiente := _dificultad_base * pow(DIFICULTAD_POR_NOCHE, noche)
+			renglones.append(_etiqueta("La siguiente: grupos x%.2f, zombi pega %d" % [siguiente, mini(_dano_base + noche * DANO_POR_NOCHE, DANO_TOPE)], RENGLON_TAMANO, AMARILLO))
 	else:
 		renglones.append(_etiqueta("Aguantaste hasta las %s" % Hordas.texto_hora(_hora_fin), RENGLON_TAMANO, Color.WHITE))
-		renglones.append(_etiqueta("No te pagan nada.", RENGLON_TAMANO, ROJO))
+		if es_carrera:
+			renglones.append(_etiqueta("Dinero al empezar: $%d" % pruebas.pesos_al_empezar, RENGLON_TAMANO, Color.WHITE))
+			renglones.append(_etiqueta("Ayuda para la revancha: +$%d · Ahora: $%d" % [pruebas.BONO_PERDIDA, dinero_ahora], RENGLON_TAMANO, AMARILLO))
+			renglones.append(_etiqueta("Reintentas la noche %d con lo comprado." % noche, RENGLON_TAMANO, Color.WHITE))
+		else:
+			renglones.append(_etiqueta("Prueba de mecánicas sin progresión.", RENGLON_TAMANO, ROJO))
 	for renglon in renglones:
 		renglon.modulate.a = 0.0
 		caja.add_child(renglon)
 	var paga: Label = null
-	var extra: Label = null
-	if gano:
+	if gano and es_carrera:
 		paga = _etiqueta("$0", TITULO_TAMANO, AMARILLO)
 		paga.modulate.a = 0.0
 		caja.add_child(paga)
-		extra = _etiqueta(premio, RENGLON_TAMANO, AGUA)
-		extra.modulate.a = 0.0
-		caja.add_child(extra)
 	var cierres: Array = CIERRES_GANO if gano else (CIERRES_DESMAYO if desmayo else CIERRES_TINACO)
 	var cierre := _etiqueta(cierres.pick_random(), RENGLON_TAMANO, Color(0.85, 0.85, 0.85))
 	cierre.modulate.a = 0.0
@@ -427,21 +671,29 @@ func _pantalla_final(gano: bool, desmayo: bool) -> void:
 	botones.add_theme_constant_override("separation", 16)
 	botones.modulate.a = 0.0
 	caja.add_child(botones)
-	var otra := Button.new()
-	otra.text = "Otra noche"
-	otra.theme = TEMA
-	otra.pressed.connect(func() -> void:
-		get_tree().paused = false
-		get_tree().reload_current_scene())
-	botones.add_child(otra)
+	_botones = botones
+	var seguir := Button.new()
+	if es_carrera:
+		seguir.text = "Siguiente" if gano else "Reintentar la noche"
+	else:
+		seguir.text = "Otra vez"
+	seguir.theme = TEMA
+	seguir.disabled = true
+	seguir.pressed.connect(_avanzar_noche.bind(gano if es_carrera else false))
+	botones.add_child(seguir)
+	_primer_boton = seguir
+	var cambiar := Button.new()
+	cambiar.text = "Cambiar personaje"
+	cambiar.theme = TEMA
+	cambiar.disabled = true
+	cambiar.pressed.connect(_cambiar_personaje)
+	botones.add_child(cambiar)
 	var salir := Button.new()
 	salir.text = "Salir"
 	salir.theme = TEMA
-	salir.pressed.connect(func() -> void:
-		get_tree().paused = false
-		get_tree().change_scene_to_file("res://scenes/inicio.tscn"))
+	salir.disabled = true
+	salir.pressed.connect(_salir)
 	botones.add_child(salir)
-	otra.grab_focus()
 	await get_tree().process_frame
 	titulo.pivot_offset = titulo.size / 2.0
 	# El titulo: cae grande y rebota (gano) o tiembla y se pone rojo (perdio)
@@ -480,20 +732,25 @@ func _pantalla_final(gano: bool, desmayo: bool) -> void:
 		var pasos := [0]
 		tween.tween_method(func(valor: float) -> void:
 			paga.text = "$%d" % roundi(valor)
-			var paso := int(valor / PAGA * CUENTA_PASOS)
+			var paso := int(valor / maxf(float(pruebas.PAGA), 1.0) * CUENTA_PASOS)
 			if paso > pasos[0]:
 				pasos[0] = paso
-				Sonidos.tocar(capa, "moneda", -8.0), 0.0, float(PAGA), CUENTA_DURA)
+				Sonidos.tocar(capa, "moneda", -8.0), 0.0, float(pruebas.PAGA), CUENTA_DURA)
 		tween.tween_callback(func() -> void:
 			var donde := paga.get_global_rect()
 			_hoja(fondo, "premio_monedas", Rect2(donde.get_center() - Vector2(80.0, 70.0), Vector2(160.0, 88.0)))
 			Sonidos.tocar(capa, "campana", -6.0))
 		tween.tween_property(paga, "scale", Vector2.ONE * 1.25, 0.08)
 		tween.tween_property(paga, "scale", Vector2.ONE, 0.12)
-		tween.tween_property(extra, "modulate:a", 1.0, 0.15)
 	tween.tween_interval(RENGLON_CADA)
 	tween.tween_property(cierre, "modulate:a", 1.0, 0.3)
 	tween.tween_property(botones, "modulate:a", 1.0, 0.2)
+	# Hasta que no acaba la animacion no se pueden pulsar: se ven pero estan apagados
+	tween.tween_callback(func() -> void:
+		for hijo in botones.get_children():
+			if hijo is Button:
+				(hijo as Button).disabled = false
+		_primer_boton.grab_focus())
 	if paga:
 		paga.resized.connect(func() -> void: paga.pivot_offset = paga.size / 2.0)
 		paga.pivot_offset = paga.size / 2.0
@@ -572,6 +829,21 @@ func _armar_hud() -> void:
 	_jefe_barra.position = Vector2(0.0, 18.0)
 	_jefe_barra.size = Vector2(JEFE_ANCHO, 7.0)
 	_jefe.add_child(_jefe_barra)
+
+
+# El negro del cambio de noche. Va arriba de todo (el menu y el creador usan 20 y 21) y
+# corre siempre, para poder fundir mientras el juego esta en pausa
+func _armar_fundido() -> void:
+	_capa_fundido = CanvasLayer.new()
+	_capa_fundido.layer = 23
+	_capa_fundido.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_capa_fundido)
+	_fundido = ColorRect.new()
+	_fundido.color = Color(0.0, 0.0, 0.0, 0.0)
+	_fundido.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fundido.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fundido.visible = false
+	_capa_fundido.add_child(_fundido)
 
 
 # Una barra de 110 px que se llena con scale.x, con su nombre al lado

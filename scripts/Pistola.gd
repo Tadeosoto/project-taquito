@@ -158,6 +158,9 @@ func disparar() -> void:
 	_espera = CADENCIA
 	tiros += 1
 	balas -= 1
+	var registro = get_node_or_null("/root/Registro")
+	if registro:
+		registro.uso_ataque("pistola")
 	# Hace ruido: despierta a los zombis de alrededor (la ballesta, cuando la haya, no)
 	Zombie.ruido(jugador.global_position, Zombie.OYE_DISPARO)
 	var centro := get_viewport().get_visible_rect().size / 2.0
@@ -190,7 +193,7 @@ func disparar() -> void:
 			punto = blanco.global_position + Vector3.UP * PECHO
 	var dano := maxi(roundi(DANO * jugador._factor_dano), 1) * (CABEZA_MULT if cabeza else 1)
 	var sacude := SACUDE_TIRO
-	if blanco and blanco.recibir_golpe(dano, jugador.global_position, FUERZA, 80, false, cabeza) != 0:
+	if blanco and blanco.recibir_golpe(dano, jugador.global_position, FUERZA, 80, false, cabeza, "pistola_cabeza" if cabeza else "pistola") != 0:
 		sacude = SACUDE_PEGA
 		aciertos += 1
 		Sonidos.tocar(self, "whack", -4.0 if cabeza else -10.0)

@@ -141,6 +141,10 @@ var _ayuda: Label
 var _estado: Label
 var _efectos: Label
 var _deterioro := 2
+# Modo carrera: el refugio del test de economia (sin extras de dev, con HUD/flecha/todo en pesos)
+@export var modo_carrera := false
+var _hud_carrera: CanvasLayer
+var _flecha_carrera: Area3D
 var _refugio: Refugio
 var _partida: Partida
 
@@ -155,8 +159,15 @@ func _enter_tree() -> void:
 func _puntos() -> Array:
 	var puntos := []
 	var x := NEGOCIOS_X
-	for i in NEGOCIOS.size():
-		var n: Array = NEGOCIOS[i]
+	# En la carrera el punto es la tienda de mejoras; el safehouse de desarrollo no cambia.
+	var lista := NEGOCIOS
+	if modo_carrera:
+		lista = NEGOCIOS.duplicate(true)
+		for i in lista.size():
+			if lista[i][1] == "punto":
+				lista[i][1] = "mejoras"
+	for i in lista.size():
+		var n: Array = lista[i]
 		puntos.append({"tipo": n[0], "giro": n[1], "nombre": n[2], "x": x + n[3] / 2.0, "z": FACHADAS_Z - n[4] / 2.0,
 			"rotacion_y": 0.0, "ancho": n[3], "fondo": n[4], "pisos": 1, "interactivo": true, "aire_libre": n[5],
 			"origen": "safehouse/%d" % i})
@@ -205,8 +216,16 @@ func _ready() -> void:
 	_salud = get_node("/root/Salud")
 	_cartera = get_node("/root/Cartera")
 	_inventario = get_node("/root/Inventory")
-	_cartera.pesos = DINERO
+	if not modo_carrera:
+		_cartera.pesos = DINERO
 	_patio()
+	if modo_carrera:
+		# El refugio del test: quieto, de dia y sin zombis; el jugador compra y sale por la flecha
+		_zombis.espontaneos = false
+		_zombis.set_physics_process(false)
+		_ciclo.process_mode = Node.PROCESS_MODE_DISABLED
+		_carrera()
+		return
 	_poner_maquinas()
 	_objetos = Node3D.new()
 	_objetos.name = "Objetos"
@@ -252,7 +271,123 @@ func _ready() -> void:
 	_armar_panel()
 
 
-# Un pedazo de mapa: aqui da el primero que falte, porque las zonas son del mapa real
+# --- Modo carrera: el refugio del test de economia ---
+
+func _carrera() -> void:
+	var pruebas := get_node_or_null("/root/Pruebas")
+	if pruebas == null:
+		return
+	if not pruebas.es_carrera():
+		pruebas.nueva_carrera()
+	var mejoras := get_node_or_null("/root/Mejoras")
+	if mejoras:
+		mejoras.activo = true
+		mejoras.aplicar_en_jugador(_jugador)
+	_salud.reiniciar()
+	_armar_hud_carrera()
+	_poner_flecha_noche()
+
+
+# Lo que se ve en el refugio: noche, dinero, buffs y controles
+func _armar_hud_carrera() -> void:
+	_hud_carrera = CanvasLayer.new()
+	_hud_carrera.layer = 4
+	add_child(_hud_carrera)
+	var fondo := ColorRect.new()
+	fondo.color = Color(0.0, 0.0, 0.0, 0.45)
+	fondo.position = Vector2(8.0, 8.0)
+	fondo.size = Vector2(260.0, 66.0)
+	_hud_carrera.add_child(fondo)
+	var texto := Label.new()
+	texto.name = "Texto"
+	texto.position = Vector2(12.0, 10.0)
+	texto.add_theme_font_size_override("font_size", 15)
+	texto.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1))
+	texto.add_theme_color_override("font_outline_color", Color.BLACK)
+	texto.add_theme_constant_override("outline_size", 4)
+	_hud_carrera.add_child(texto)
+	var indicaciones := Label.new()
+	indicaciones.text = "C: personaje · Esc: salir · flecha amarilla: empezar la noche"
+	indicaciones.position = Vector2(12.0, 50.0)
+	indicaciones.add_theme_font_size_override("font_size", 11)
+	indicaciones.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	indicaciones.add_theme_color_override("font_outline_color", Color.BLACK)
+	indicaciones.add_theme_constant_override("outline_size", 3)
+	_hud_carrera.add_child(indicaciones)
+	_actualizar_hud_carrera()
+	if _cartera:
+		_cartera.cambio.connect(_actualizar_hud_carrera)
+	var pruebas := get_node_or_null("/root/Pruebas")
+	if pruebas:
+		pruebas.cambio.connect(_actualizar_hud_carrera)
+	var mejoras := get_node_or_null("/root/Mejoras")
+	if mejoras:
+		mejoras.cambio.connect(_actualizar_hud_carrera)
+
+
+func _actualizar_hud_carrera() -> void:
+	if _hud_carrera == null:
+		return
+	var pruebas := get_node_or_null("/root/Pruebas")
+	var mejoras := get_node_or_null("/root/Mejoras")
+	var texto := _hud_carrera.get_node_or_null("Texto") as Label
+	if texto == null:
+		return
+	var buffs := []
+	if mejoras:
+		for id in mejoras.buffs:
+			buffs.append(mejoras.dato(id).get("nombre", id))
+	texto.text = "REFUGIO · Noche %d\n$%d · C: personaje%s" % [
+		pruebas.noche if pruebas else 1,
+		_cartera.pesos if _cartera else 0,
+		("\nBuffs: " + ", ".join(buffs)) if not buffs.is_empty() else "",
+	]
+
+
+# La flecha amarilla que inicia la noche (la misma de las tiendas)
+func _poner_flecha_noche() -> void:
+	_flecha_carrera = Area3D.new()
+	_flecha_carrera.name = "FlechaNoche"
+	_flecha_carrera.position = Vector3(0.0, 0.5, 14.0)
+	_flecha_carrera.collision_layer = 0
+	_flecha_carrera.collision_mask = 1
+	add_child(_flecha_carrera)
+	var forma := CollisionShape3D.new()
+	var esfera := SphereShape3D.new()
+	esfera.radius = 1.0
+	forma.shape = esfera
+	_flecha_carrera.add_child(forma)
+	_flecha_carrera.add_child(MapPuntos.flecha())
+	var letrero := Label3D.new()
+	letrero.text = "NOCHE"
+	letrero.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	letrero.pixel_size = 0.012
+	letrero.modulate = Color(1.0, 0.85, 0.1)
+	letrero.position = Vector3(0.0, 2.2, 0.0)
+	_flecha_carrera.add_child(letrero)
+	_flecha_carrera.body_entered.connect(_al_pisar_flecha)
+
+
+func _al_pisar_flecha(body: Node3D) -> void:
+	if not (body is Player):
+		return
+	var pruebas := get_node_or_null("/root/Pruebas")
+	if pruebas:
+		pruebas.empezar_noche()
+	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	get_tree().change_scene_to_file("res://scenes/defensa_tinaco.tscn")
+
+
+func _salir_carrera() -> void:
+	var pruebas := get_node_or_null("/root/Pruebas")
+	if pruebas:
+		pruebas.cerrar()
+	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	get_tree().change_scene_to_file("res://scenes/inicio.tscn")
+
+
 func _poner_pieza_prueba() -> void:
 	var pieza := PiezaMapa.new()
 	pieza.position = PIEZA_PRUEBA_EN
@@ -418,6 +553,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
 	var tecla: int = event.physical_keycode
+	if modo_carrera:
+		if tecla == KEY_C:
+			_crear_personaje()
+		elif tecla == KEY_ESCAPE:
+			_salir_carrera()
+		return
 	if tecla == KEY_F1:
 		_pagina += 1
 		if _pagina >= PAGINAS.size():
@@ -773,7 +914,7 @@ func _mostrar_efectos() -> void:
 
 
 func _process(_delta: float) -> void:
-	if not _panel.visible:
+	if _panel == null or not _panel.visible:
 		return
 	var zombis := 0
 	for z in get_tree().get_nodes_in_group("zombis"):

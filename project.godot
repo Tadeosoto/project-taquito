@@ -29,6 +29,9 @@ Taller="*res://scripts/Taller.gd"
 Bonos="*res://scripts/Bonos.gd"
 Libreta="*res://scripts/Libreta.gd"
 Baul="*res://scripts/Baul.gd"
+Pruebas="*res://scripts/Pruebas.gd"
+Mejoras="*res://scripts/Mejoras.gd"
+Registro="*res://scripts/Registro.gd"
 
 [display]
 

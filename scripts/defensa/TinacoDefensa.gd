@@ -57,7 +57,7 @@ func recibir_golpe(dano: int) -> void:
 		cayo.emit()
 	elif vida <= VIDA * AVISO_EN and not _avisado:
 		_avisado = true
-		aviso.emit("¡El tinaco no aguanta!")
+		aviso.emit("El tinaco anda valiendo berga")
 
 
 func fraccion() -> float:

@@ -94,6 +94,22 @@ func amanecer_ya(de_golpe := false) -> void:
 	_tiempo = 0.0 if de_golpe else dia_duracion + noche_duracion - transicion
 
 
+# Vuelve al principio de la noche (22:00, `_tiempo = dia_duracion`, que ya vale 1 en
+# `valor()`), para empezar otra noche sin recargar la escena: la defensa del tinaco encadena
+# noches. La luz cambia de golpe; el que llama lo tapa con un fundido.
+# No emite nada aqui: en el primer _process, `valor()` ya es de noche y `_es_noche` se dejo en
+# false, asi que emite `anochecio` una vez (Zombis reinicia sus contadores y su Director).
+# Se apaga `_es_noche` a mano a proposito: si se rearma desde media noche y se dejara true,
+# no habria `anochecio`.
+func reiniciar_noche() -> void:
+	retener_noche = false
+	_tiempo = dia_duracion
+	_es_noche = false
+	_avisado = false
+	_valor = -1.0
+	_aplicar(valor())
+
+
 # La hora del reloj (0-24): corre parejo todo el ciclo, asi que con menos noche que dia
 # oscurece tarde. Amanece (la mitad de la transicion, `amanecio`) a las HORA_AMANECER; con
 # 8 min de dia y 6 de noche anochece a las 19:43.
