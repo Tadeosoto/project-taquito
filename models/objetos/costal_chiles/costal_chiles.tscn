@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[sub_resource type="CylinderMesh" id="costal"]
+top_radius = 0.16
+bottom_radius = 0.2
+height = 0.45
+radial_segments = 8
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="yute"]
+albedo_color = Color(0.62, 0.5, 0.34, 1)
+
+[sub_resource type="SphereMesh" id="chiles"]
+radius = 0.15
+height = 0.14
+radial_segments = 8
+rings = 3
+
+[sub_resource type="StandardMaterial3D" id="rojo"]
+albedo_color = Color(0.75, 0.12, 0.08, 1)
+
+[node name="CostalChiles" type="Node3D"]
+
+[node name="Costal" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.225, 0)
+mesh = SubResource("costal")
+surface_material_override/0 = SubResource("yute")
+
+[node name="Chiles" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.46, 0)
+mesh = SubResource("chiles")
+surface_material_override/0 = SubResource("rojo")

@@ -434,22 +434,6 @@
 			"garrafon": true
 		},
 		{
-			"nombre": "Fila_Agua_4",
-			"tipo": "vecino",
-			"x": -341.36,
-			"z": 412.78,
-			"rot": -2.7489,
-			"garrafon": true
-		},
-		{
-			"nombre": "Vecina_Lavadero",
-			"tipo": "vecino",
-			"x": -216.7,
-			"z": 423.0,
-			"rot": -1.5708,
-			"clip": "Interact"
-		},
-		{
 			"nombre": "Vecino_Silla",
 			"tipo": "vecino",
 			"x": -212.7,
@@ -472,6 +456,35 @@
 			"x": -320.6,
 			"z": 411.9,
 			"y": 0.5,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Vecina_Lavadero",
+			"tipo": "mision",
+			"x": -216.7,
+			"z": 423.0,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Abuelo_Fila",
+			"tipo": "mision",
+			"x": -341.36,
+			"z": 412.78,
+			"rot": -2.7489
+		},
+		{
+			"nombre": "Marchante_Mercado",
+			"tipo": "mision",
+			"x": -352.0,
+			"z": 345.5,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Costal_Chiles",
+			"tipo": "mision",
+			"x": -274.5,
+			"z": 432.2,
+			"y": 0.9,
 			"rot": 0.0
 		},
 		{

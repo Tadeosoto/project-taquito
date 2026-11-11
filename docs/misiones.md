@@ -312,3 +312,12 @@ Misiones de apoyo, atadas a personajes:
 ## La pelota en la azotea (Santa Mugre, propuesta de AG, 2026-11-11)
 
 Mision chica de dia en la cancha de futbolito: el profe de la cascarita dice que los chamacos volaron la pelota a la azotea del mirador. Subes por la escalera del callejon, la bajas y se la regresas: 50 pesos. Sirve para enseñar que las azoteas se caminan (rutas de escape y botin). Archivo: `resources/misiones/pelota.tres`.
+
+## Mandados de Santa Mugre (propuesta de AG, 2026-11-11)
+
+Tres misiones chicas de dia que enseñan los lugares nuevos de la colonia:
+
+- **Tortillas para la vecina** (`tortillas.tres`): la señora del lavadero de la vecindad no deja la ropa a medias; dos kilos de la Tortilleria La Lupita. 70 pesos.
+- **Agua para la fila** (`agua_fila.tres`): el señor del final de la fila del kiosco lleva horas y la llave ni gotea; un galon de la purificadora. 60 pesos. "Y no le diga a GelA."
+- **Chiles para el mercado** (`chiles.tres`): la marchanta del mercado techado; su compadre dejo el costal de chiles en un puesto del tianguis. 45 pesos.
+

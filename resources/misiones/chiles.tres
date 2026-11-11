@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="3_item"]
+[ext_resource type="Resource" path="res://resources/productos/costal_chiles.tres" id="3_costal"]
+
+[sub_resource type="Resource" id="paso_recoger"]
+script = ExtResource("2_paso")
+tipo = 3
+texto = "Recoge el costal de chiles en el tianguis"
+objetos = Array[ExtResource("3_item")]([ExtResource("3_costal")])
+lugar = "marca:Costal_Chiles"
+
+[sub_resource type="Resource" id="paso_entregar"]
+script = ExtResource("2_paso")
+tipo = 1
+texto = "Llévale los chiles a la marchanta del mercado"
+
+[resource]
+script = ExtResource("1_mision")
+id = "chiles"
+nombre = "Chiles para el mercado"
+modelo = "encargada"
+oferta = "Mi compadre dejó mis chiles en su puesto del tianguis. ¿Me los traes?"
+aceptada = "Es un costal rojo, en la mesa. No te lo comas en el camino."
+recuerda = "Sin chiles no hay salsa, y sin salsa no hay clientes."
+gracias = "¡Ándale! Aquí tienes, y llévate unos para el camino."
+despedida = "Ya tengo salsa para toda la semana."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_recoger"), SubResource("paso_entregar")])
+pesos = 45
+donde = "marca:Marchante_Mercado"

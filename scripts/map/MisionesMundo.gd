@@ -282,6 +282,15 @@ func _tienda(lugar: String) -> Vector3:
 			if d < cerca:
 				cerca = d
 				mejor = Vector3(en.x, desde.y, en.y)
+	# Los negocios que solo son una flecha de la colonia del mapa en Blender (la tortilleria)
+	if cerca == INF:
+		for puerta: Dictionary in Colonia.puertas:
+			if puerta["giro"] == giro:
+				var en: Vector3 = puerta["frente"]
+				var d := Vector2(desde.x, desde.z).distance_to(Vector2(en.x, en.z))
+				if d < cerca:
+					cerca = d
+					mejor = Vector3(en.x, desde.y, en.z)
 	return mejor
 
 

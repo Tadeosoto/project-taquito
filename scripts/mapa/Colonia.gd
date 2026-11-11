@@ -51,6 +51,9 @@ const LETRERO_COLOR := Color(1.0, 0.92, 0.55)
 # Marcas "mision" de la colonia cargada: nombre -> Transform3D (MisionesMundo las busca como
 # "marca:<nombre>"). Se llenan en _enter_tree, antes que Partida arme MisionesMundo
 static var puntos_mision := {}
+# Las flechas de negocio de la colonia: [{"giro", "frente": Vector3}] (MisionesMundo._tienda las
+# usa para los giros que no estan en puntos.json, como la tortilleria)
+static var puertas: Array[Dictionary] = []
 
 var _puntos: MapPuntos
 var _marcas: Array = []
@@ -84,7 +87,10 @@ func _enter_tree() -> void:
 		return
 	_marcas = datos.get("marcas", [])
 	puntos_mision.clear()
+	puertas.clear()
 	for marca: Dictionary in _marcas:
+		if marca.get("tipo") == "puerta":
+			puertas.append({"giro": String(marca.get("giro", "")), "frente": lugar(marca) * Vector3(0.0, 0.0, 1.5)})
 		if marca.get("tipo") == "spawn":
 			_spawn(marca)
 		elif marca.get("tipo") == "mision":

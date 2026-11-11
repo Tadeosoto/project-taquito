@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="3_item"]
+[ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="3_galon"]
+
+[sub_resource type="Resource" id="paso_comprar"]
+script = ExtResource("2_paso")
+tipo = 0
+texto = "Consigue un galón de agua en la purificadora"
+objetos = Array[ExtResource("3_item")]([ExtResource("3_galon")])
+lugar = "giro:purificadora"
+
+[sub_resource type="Resource" id="paso_entregar"]
+script = ExtResource("2_paso")
+tipo = 1
+texto = "Llévale el agua al señor de la fila del kiosco"
+objetos = Array[ExtResource("3_item")]([ExtResource("3_galon")])
+
+[resource]
+script = ExtResource("1_mision")
+id = "agua_fila"
+nombre = "Agua para la fila"
+modelo = "hombre_psx"
+oferta = "Llevo dos horas aquí y la llave ni gotea. ¿Me traes un galón de la purificadora?"
+aceptada = "Yo aquí guardo el lugar. Por si un día sale agua."
+recuerda = "La fila no se mueve, joven. ¿Y el agua?"
+gracias = "Bendito sea. Tenga, y no le diga a GelA."
+despedida = "Ya tengo agua para hoy. La fila sigue igual."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_comprar"), SubResource("paso_entregar")])
+pesos = 60
+donde = "marca:Abuelo_Fila"

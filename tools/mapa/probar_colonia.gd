@@ -341,6 +341,42 @@ func _pelota(escena: Node) -> void:
 		await _cuadros(5)
 	var paso: PasoMision = misiones.call("paso")
 	_revisar("con la pelota toca regresarla", paso != null and paso.tipo == PasoMision.Tipo.ENTREGAR, "%s" % paso)
+	misiones.call("fallar", "prueba")
+	await _cuadros(5)
+	# Las de la colonia: cada quien en su marca, y los chiles en su puesto del tianguis
+	for id: String in ["tortillas", "agua_fila", "chiles"]:
+		var m: MisionData = null
+		for x: MisionData in misiones.get("todas"):
+			if x.id == id:
+				m = x
+		var lugar_m := Vector3.INF
+		for v: Dictionary in mundo[0].get("vecinos"):
+			if m and v["mision"] == m:
+				lugar_m = v["lugar"]
+		var marca_m: Transform3D = Colonia.puntos_mision.get(m.donde.trim_prefix("marca:") if m else "", Transform3D())
+		_revisar("el de %s esta en su marca" % id, m != null and lugar_m.distance_to(marca_m.origin) < 0.5, "%s" % lugar_m)
+	var chiles: MisionData = null
+	for x: MisionData in misiones.get("todas"):
+		if x.id == "chiles":
+			chiles = x
+	misiones.call("aceptar", chiles)
+	await _cuadros(5)
+	var costal: Node3D = mundo[0].get("_perro")
+	var marca_c: Transform3D = Colonia.puntos_mision.get("Costal_Chiles", Transform3D())
+	_revisar("el costal de chiles esta en el tianguis", costal != null and costal.global_position.distance_to(marca_c.origin) < 0.5,
+		"%s" % (costal.global_position if costal else Vector3.INF))
+	misiones.call("fallar", "prueba")
+	await _cuadros(5)
+	var tortillas: MisionData = null
+	for x: MisionData in misiones.get("todas"):
+		if x.id == "tortillas":
+			tortillas = x
+	misiones.call("aceptar", tortillas)
+	await _cuadros(5)
+	var objetivo: Vector2 = misiones.get("objetivo")
+	_revisar("la flecha de las tortillas va a La Lupita", objetivo.distance_to(Vector2(-275.35, 436.4)) < 3.0, "%s" % objetivo)
+	misiones.call("fallar", "prueba")
+	await _cuadros(5)
 
 
 func _revisar(que: String, bien: bool, detalle: String) -> void:

@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="3_item"]
+[ext_resource type="Resource" path="res://resources/productos/tortillas.tres" id="3_tortillas"]
+
+[sub_resource type="Resource" id="paso_comprar"]
+script = ExtResource("2_paso")
+tipo = 0
+texto = "Compra dos kilos de tortillas en La Lupita"
+objetos = Array[ExtResource("3_item")]([ExtResource("3_tortillas"), ExtResource("3_tortillas")])
+lugar = "giro:tortilleria"
+
+[sub_resource type="Resource" id="paso_entregar"]
+script = ExtResource("2_paso")
+tipo = 1
+texto = "Llévale las tortillas a la vecina del lavadero"
+objetos = Array[ExtResource("3_item")]([ExtResource("3_tortillas"), ExtResource("3_tortillas")])
+
+[resource]
+script = ExtResource("1_mision")
+id = "tortillas"
+nombre = "Tortillas para la vecina"
+modelo = "mujer_psx"
+oferta = "No dejo la ropa a medias. ¿Me traes dos kilos de La Lupita? Te los pago."
+aceptada = "Que estén calientitas, eh. La Lupita está junto al tianguis."
+recuerda = "¿Y mis tortillas? Ya se me enfrió el caldo."
+gracias = "¡Calientitas! Tenga, por la vuelta."
+despedida = "Ya comimos, mijo. Gracias."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_comprar"), SubResource("paso_entregar")])
+pesos = 70
+donde = "marca:Vecina_Lavadero"
