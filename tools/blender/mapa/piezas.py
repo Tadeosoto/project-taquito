@@ -650,6 +650,74 @@ def antena_radio(nombre, p):
     return k
 
 
+def _prisma_x(k, x0, x1, y, z, radio, mat, lados=8):
+    """Prisma (cilindro de pocos lados) acostado a lo largo de x, con sus tapas: el tanque."""
+    # Medio lado girado, para que haya una cara plana viendo a +z (ahi va el anuncio). Cada cara
+    # va por los dos lados: asi no importa el sentido de los puntos
+    anillo = [(y + math.sin((i + 0.5) * math.tau / lados) * radio, z + math.cos((i + 0.5) * math.tau / lados) * radio) for i in range(lados)]
+    for i in range(lados):
+        (y0, z0), (y1, z1) = anillo[i], anillo[(i + 1) % lados]
+        q = [(x0, y0, z0), (x0, y1, z1), (x1, y1, z1), (x1, y0, z0)]
+        k.cara(q, mat)
+        k.cara(q[::-1], mat)
+    for xx in (x0, x1):
+        tapa = [(xx, yy, zz) for yy, zz in anillo]
+        k.cara(tapa, mat)
+        k.cara(tapa[::-1], mat)
+
+
+def base_gela(nombre, p):
+    """Reten de GelA en un carril de la avenida: caseta blanca y azul, pipa de agua estacionada,
+    vallas atravesadas, conos y garrafones apilados. A lo largo de x (14 m) y de ancho un carril
+    (z de -3.5 a 3.5); su frente (+Z) da a la banqueta."""
+    k = Constructor(nombre)
+    semilla = sum((i + 1) * ord(c) for i, c in enumerate(nombre))
+    # Caseta
+    cx = -3.6
+    k.caja((cx, 1.3, 0.6), (3.2, 2.6, 2.4), "blanco_cal", choca=True)
+    k.caja((cx, 1.0, 0.6), (3.24, 0.35, 2.44), "azul_gela")
+    k.caja((cx, 2.68, 0.6), (3.6, 0.16, 2.8), "azul_gela")
+    k.caja((cx, 1.65, 1.81), (1.5, 0.75, 0.04), "vidrio")
+    k.caja((cx + 1.61, 1.0, 0.9), (0.04, 2.0, 0.9), "fierro")
+    diseno = _mural_por_archivo("gela", semilla)
+    esquinas, uvs = esquinas_mural((cx - 1.6, -0.6), (cx - 1.6, 1.8), 0.2, (-1.0, 0.0), diseno, 2.2, 2.2, salir=0.02)
+    k.cara([(x, z, y) for x, y, z in esquinas], "mural", uvs=uvs)
+    # Pipa: chasis, llantas, cabina azul con parabrisas y el tanque blanco con su anuncio
+    px = 2.6
+    k.caja((px, 0.75, -0.4), (6.6, 0.35, 2.2), "fierro")
+    for x in (px - 2.4, px - 1.3, px + 2.4):
+        for z in (-1.45, 0.65):
+            k.caja((x, 0.48, z), (0.95, 0.95, 0.35), "hueco")
+    k.caja((px + 2.5, 1.95, -0.4), (1.7, 2.1, 2.2), "azul_gela")
+    k.caja((px + 3.36, 2.35, -0.4), (0.04, 0.8, 1.9), "vidrio")
+    _prisma_x(k, px - 3.2, px + 1.5, 2.0, -0.4, 1.05, "blanco_cal")
+    k.caja((px - 0.85, 2.0, -0.4), (0.25, 2.16, 2.16), "azul_gela")
+    esquinas, uvs = esquinas_mural((px - 3.0, 0.57), (px + 1.3, 0.57), 1.65, (0.0, 1.0), _mural_por_archivo("gela", semilla + 3), 3.8, 0.72, salir=0.03)
+    k.cara([(x, z, y) for x, y, z in esquinas], "mural", uvs=uvs)
+    k.choques.append(((px, 1.5, -0.4), (6.8, 3.0, 2.3), 0.0))
+    # Vallas atravesadas en las dos puntas del carril (rayas naranja y blanco)
+    for x in (-6.8, 7.0):
+        for z in (-2.6, 2.6):
+            k.caja((x, 0.55, z), (0.08, 1.1, 0.08), "fierro")
+        for i in range(6):
+            k.caja((x, 0.85, -3.0 + i + 0.5), (0.1, 0.3, 1.0), "naranja_gela" if i % 2 == 0 else "blanco_cal")
+        k.choques.append(((x, 0.6, 0.0), (0.2, 1.2, 6.2), 0.0))
+    # Conos a lo largo de la orilla de la banqueta y garrafones junto a la caseta
+    for i in range(6):
+        x = -5.6 + i * 2.2
+        k.cono((x, 0.0, 3.1), 0.2, 0.7, "naranja_gela", lados=6)
+        k.caja((x, 0.32, 3.1), (0.24, 0.08, 0.24), "blanco_cal")
+    for i in range(6):
+        gx, gz = cx - 1.3 + (i % 3) * 0.34, 2.3 + (i // 3) * 0.34
+        k.cilindro((gx, 0.0, gz), 0.15, 0.48, "lona_azul", lados=6)
+    for i in range(2):
+        k.cilindro((cx - 1.13 + i * 0.34, 0.5, 2.47), 0.15, 0.48, "lona_azul", lados=6)
+    # Asta con bandera de GelA
+    k.cilindro((cx + 1.9, 0.0, 2.0), 0.04, 5.0, "fierro", lados=5)
+    k.caja((cx + 2.6, 4.6, 2.0), (1.4, 0.8, 0.03), "azul_gela")
+    return k
+
+
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -1038,6 +1106,6 @@ def escombro(nombre, p):
 
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
-          "cancha": cancha, "espectacular": espectacular, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}
