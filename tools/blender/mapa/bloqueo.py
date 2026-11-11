@@ -26,15 +26,17 @@ globals().update({k: v for k, v in _r.items() if not k.startswith("__") and k !=
 ANCHO_SENTIDO = {"tertiary": 7.0, "secondary": 8.0, "primary": 9.0}
 BANQUETA_TIPO = {"living_street": 1.0, "service": 0.0}
 SIN_DIBUJAR = {"footway", "path", "steps", "cycleway"}
-PISO = 3.0                 # m por piso
-PRETIL = 0.4               # el borde de la azotea
 HUELLA_MIN = 6.0           # m2: menos que esto es un tinaco o un tejaban
+# Colores de las casas (kit.PALETA), repetidos para que salgan mas: los de Guadalajara
+COLORES = ["terracota", "mostaza", "turquesa", "rosa", "lima", "azul", "crema", "crema", "blanco",
+           "naranja", "morado", "verde", "gris", "terracota", "mostaza", "rosa"]
+# Desgaste de las casas (Santa Mugre: indice 0.55-0.70, docs/lore.md)
+DESGASTE = (0.35, 0.8)
 BARDA_ALTO = 2.6
 BARDA_GRUESO = 0.3
 BARDA_ADENTRO = 0.4        # m del borde del recorte
 TAPON = {"gela": ((0.9, 0.45, 0.1), 2.2), "barda": ((0.62, 0.6, 0.56), 2.6),
          "derrumbe": ((0.45, 0.36, 0.28), 2.8), "camion": ((0.75, 0.75, 0.72), 3.2)}
-GRISES = [(0.55, 0.55, 0.56), (0.62, 0.61, 0.6), (0.5, 0.5, 0.52), (0.66, 0.64, 0.62), (0.58, 0.57, 0.55)]
 
 
 def _dentro_poligono(x, z, poligono):
@@ -97,6 +99,20 @@ def _relativos(puntos, cx, cz):
     return [[round(x - cx, 2), round(z - cz, 2)] for x, z in puntos]
 
 
+def _frente(huella, calles):
+    """El lado de la huella (del punto i al i+1) cuyo medio queda mas cerca de una calle."""
+    mejor, mejor_d = 0, 1e9
+    for i in range(len(huella)):
+        a, b = huella[i], huella[(i + 1) % len(huella)]
+        if math.hypot(b[0] - a[0], b[1] - a[1]) < 2.0:
+            continue
+        mx, mz = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+        d = min((_distancia_segmento(mx, mz, p, q) - medio for tramo, medio in calles for p, q in zip(tramo, tramo[1:])), default=1e9)
+        if d < mejor_d:
+            mejor, mejor_d = i, d
+    return mejor
+
+
 def _lado(x, z, recorte):
     """De que borde sale un punto del final de una calle."""
     x1, z1, x2, z2 = recorte
@@ -146,7 +162,9 @@ def bloquear(nombre):
             verdes.append(area["puntos"])
             cx, cz = _centro(area["puntos"])
             nuevas.append({"nombre": "Verde_%d" % k, "tipo": "suelo", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
-                           "puntos": _relativos(area["puntos"], cx, cz), "color": [0.42, 0.42, 0.26], "real": e.get("name", "")})
+                           "puntos": _relativos(area["puntos"], cx, cz), "real": e.get("name", ""),
+                           # Las plazas van empedradas (como la de Arandas); parques y camellones, pasto
+                           "material": "adoquin" if e.get("place") == "square" else "pasto_seco"})
 
     quitadas = {"calle": 0, "verde": 0, "reserva": 0, "chica": 0, "fuera": 0}
     for k, h in enumerate(huellas):
@@ -167,9 +185,11 @@ def bloquear(nombre):
             quitadas["calle"] += 1
             continue
         dado = int(abs(cx * 7.13 + cz * 3.71) * 10) % 100
-        pisos = 1 if dado < 55 else 2 if dado < 93 else 3
-        nuevas.append({"nombre": "Edificio_%d" % k, "tipo": "edificio", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
-                       "puntos": _relativos(h, cx, cz), "alto": pisos * PISO + PRETIL, "color": list(GRISES[dado % len(GRISES)])})
+        pisos = 1 if dado < 50 else 2 if dado < 92 else 3
+        nuevas.append({"nombre": "Casa_%d" % k, "tipo": "casa", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
+                       "puntos": _relativos(h, cx, cz), "pisos": pisos, "frente": _frente(h, calles),
+                       "color": COLORES[(dado * 7 + k) % len(COLORES)],
+                       "desgaste": round(DESGASTE[0] + (DESGASTE[1] - DESGASTE[0]) * ((dado * 13) % 100) / 100, 2)})
 
     # Barda alrededor
     a = BARDA_ADENTRO

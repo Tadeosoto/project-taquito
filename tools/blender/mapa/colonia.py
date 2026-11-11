@@ -13,10 +13,16 @@
 #     (altura de la base) y "auto" (true = la puso bloqueo.py, que la rehace al correr otra vez):
 #     caja      "tam": [ancho, alto, fondo]; con choque
 #     cilindro  "radio", "alto"; con choque
-#     edificio  "puntos": [[x, z]...] relativos a (x, z), la huella; "alto"; con choque
+#     edificio  "puntos": [[x, z]...] relativos a (x, z), la huella; "alto"; con choque (gris)
+#     casa      "puntos" (la huella), "pisos", "color" (nombre de kit.PALETA o [r, g, b]),
+#               "frente" (indice del lado que da a la calle: del punto i al i+1), "desgaste" 0-1,
+#               "tienda" (cortina en la planta baja), "tinaco"; con choque (kit.casa_malla)
 #     suelo     "puntos": la mancha plana (pasto de la plaza, un baldio); sin choque
 #     calle     "puntos": el eje, "ancho" del arroyo y "banqueta" de cada lado; sin choque (va
-#               pintada sobre el piso)
+#               pintada sobre el piso). "material" (asfalto) y "material_banqueta" (banqueta)
+#               son pisos de kit.PISOS: un andador de la plaza es una calle de banqueta
+#     kiosco, puesto, banca, jardinera, fuente, parroquia, palacio
+#               piezas armadas de piezas.py, con sus parametros (ver cada funcion)
 #   "marcas": [{"nombre", "tipo": "spawn" | "puerta", "x", "z", "rot", ...}]
 #     puerta: "giro" (llave de Interiores.escenas) y "texto" (el nombre del negocio); su +Z da a
 #     la calle, como la flecha de las tiendas. Las marcas no van al .glb: exportar.py las escribe
@@ -47,7 +53,8 @@ def armar(nombre):
     x1, z1, x2, z2 = datos["recorte"]
     ancho, fondo = x2 - x1, z2 - z1
     cx, cz = (x1 + x2) / 2, (z1 + z2) / 2
-    piso = caja(mundo, "Piso", cx, cz, 0.0, (ancho, PISO_GRUESO, fondo), material("piso", PISO_COLOR),
+    # El piso entre casas es concreto, como la banqueta (en Godot, ps1_suelo con banqueta.png)
+    piso = caja(mundo, "Piso", cx, cz, 0.0, (ancho, PISO_GRUESO, fondo), _kit()["mat_piso"]("banqueta"),
                 y=-PISO_GRUESO, choca=True)
     piso[DATO] = "piso"
 
@@ -66,6 +73,28 @@ def armar(nombre):
     return sc
 
 
+_KIT = {}
+
+
+def _kit():
+    """kit.py, cargado una vez por armada."""
+    if not _KIT:
+        _KIT.update({"__name__": "kit", "SOLO_FUNCIONES": True})
+        exec(open(os.path.join(MAPA, "kit.py"), encoding="utf-8").read(), _KIT)
+    return _KIT
+
+
+_PIEZAS = {}
+
+
+def _piezas():
+    """piezas.py (los lugares y adornos armados), cargado una vez por armada."""
+    if not _PIEZAS:
+        _PIEZAS.update({"__name__": "piezas"})
+        exec(open(os.path.join(MAPA, "piezas.py"), encoding="utf-8").read(), _PIEZAS)
+    return _PIEZAS
+
+
 def _mat(p, defecto=GRIS):
     color = p.get("color", defecto)
     return material("liso_" + "_".join("%02d" % int(c * 99) for c in color), color)
@@ -80,8 +109,37 @@ def _pieza(col, p):
         return _objeto(col, nombre, _malla_cilindro(nombre, p["radio"], p["alto"]), x, z, rot, y, _mat(p), True)
     if tipo == "edificio":
         return _objeto(col, nombre, _malla_prisma(nombre, p["puntos"], p["alto"]), x, z, rot, y, _mat(p), True)
+    if tipo == "casa":
+        k = _kit()
+        color = p.get("color", "crema")
+        color = k["PALETA"].get(color, (0.8, 0.8, 0.8)) if isinstance(color, str) else color
+        malla = k["casa_malla"](nombre, p["puntos"], p.get("pisos", 1), color, p.get("frente", 0),
+                                p.get("desgaste", 0.5), p.get("tienda", False), p.get("tinaco", True), p.get("varillas"))
+        ob = bpy.data.objects.new(nombre, malla)
+        ob.location = a_blender(x, z, y)
+        ob.rotation_euler = (0.0, 0.0, rot)
+        col.objects.link(ob)
+        choque = bpy.data.objects.new(nombre + "-colonly", _malla_prisma(nombre + "_col", p["puntos"], p.get("pisos", 1) * k["PISO"] + k["PRETIL"]))
+        choque.location, choque.rotation_euler = ob.location, ob.rotation_euler
+        choque.display_type = "WIRE"
+        col.objects.link(choque)
+        return ob
+    piezas = _piezas()["PIEZAS"]
+    if tipo in piezas:
+        k = piezas[tipo](nombre, p)
+        ob = bpy.data.objects.new(nombre, k.terminar())
+        ob.location = a_blender(x, z, y)
+        ob.rotation_euler = (0.0, 0.0, rot)
+        col.objects.link(ob)
+        c, s = math.cos(rot), math.sin(rot)
+        for i, ((cx, cy, cz), tam, giro) in enumerate(k.choques):
+            wx, wz = x + cx * c + cz * s, z - cx * s + cz * c
+            colision(col, "%s_choque%d" % (nombre, i), wx, wz, rot + giro, tam, y + cy - tam[1] / 2)
+        return ob
     if tipo == "suelo":
-        return _objeto(col, nombre, _malla_plana(nombre, p["puntos"], 0.03), x, z, rot, y, _mat(p, (0.3, 0.42, 0.25)), False)
+        # Abajo de las calles y andadores (que van a 1-2 cm); "material" es un piso de kit.PISOS
+        mat = _kit()["mat_piso"](p["material"]) if "material" in p else _mat(p, (0.3, 0.42, 0.25))
+        return _objeto(col, nombre, _malla_plana(nombre, p["puntos"], 0.005), x, z, rot, y, mat, False)
     if tipo == "calle":
         return _calle(col, p)
     return None
@@ -163,8 +221,9 @@ def _calle(col, p):
     malla = bpy.data.meshes.new(p["nombre"])
     bm.to_mesh(malla)
     bm.free()
-    malla.materials.append(material("asfalto", ASFALTO))
-    malla.materials.append(material("banqueta", BANQUETA))
+    k = _kit()
+    malla.materials.append(k["mat_piso"](p.get("material", "asfalto")))
+    malla.materials.append(k["mat_piso"](p.get("material_banqueta", "banqueta")))
     ob = bpy.data.objects.new(p["nombre"], malla)
     ob.location = a_blender(p["x"], p["z"], p.get("y", 0.0))
     col.objects.link(ob)

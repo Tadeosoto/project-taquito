@@ -34,7 +34,14 @@ def exportar(nombre):
             ob.select_set(True)
         bpy.ops.export_scene.gltf(filepath=os.path.join(salida, nombre + ".glb"), export_format="GLB",
                                   use_selection=True, use_active_scene=True, export_animations=False,
-                                  export_yup=True, export_materials="EXPORT", export_apply=True)
+                                  export_yup=True, export_materials="EXPORT", export_apply=True,
+                                  export_image_format="NONE", export_vertex_color="ACTIVE")
+        # Las cajas de choque se vuelven a esconder (para exportar tenian que verse) y no se deja
+        # nada seleccionado
+        for ob in mundo.all_objects:
+            ob.select_set(False)
+            if ob.name.endswith("-colonly"):
+                ob.hide_set(True)
 
     carpeta = os.path.join(salida, "fuente")
     os.makedirs(carpeta, exist_ok=True)
