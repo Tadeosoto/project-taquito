@@ -129,6 +129,7 @@ Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
 15. Mision **La pelota en la azotea** (`resources/misiones/pelota.tres`): el profe de la cascarita, parado en el callejon de la cancha (marca `mision` `Profe_Cancha`), te pide bajar la pelota de la azotea del mirador (marca `Pelota`) y regresarsela; 50 pesos. Para eso: `MisionData.donde` ("marca:<nombre>") pone al que la da en una marca de la colonia, y `RECOGER` acepta `lugar` "marca:<nombre>" (la cosa con flecha, sin ladridos; su modelo de `objetos`[0] o una pelota). Sin colonia (safehouse, `map_test`) cae a lo de antes: poste y perro. El safehouse tiene un lugar mas para el que la da. Prueba nueva.
 16. Chamacos jugando futbolito en la cancha de dia (`scripts/mapa/NinosCancha.gd`, marca `ninos`: seis civiles al 70 %, el mas cercano persigue la pelota y la patea a otro lado, los demas rodean; de noche no hay nadie) y dos guardias en el reten de GelA de dia (marca `vecino`: un civil quieto que se va de noche). Aun no llevan el azul de GelA (ropa de los civiles pendiente). Pruebas nuevas de dia y de noche.
 17. Arreglos vistos en capturas de Godot: los grafitis y lonas de la cancha salian en espejo, el reverso azul de las lonas peleaba con el anuncio, la tortilleria habia quedado dentro de la casa y un puesto del tianguis tapaba su flecha (`bloqueo.py` ya quita los puestos frente a cualquier puerta, no solo las automaticas).
+18. Pasillo angosto de tierra (1.1 m, `Pasillo_Tianguis`, con su reserva) que cruza la manzana grande de Bahia de Sin Agua a la calle de la vecindad a la altura de la tortilleria: de noche los zombis te siguen en fila. No es callejon (tierra, no empedrado), asi que sin casas de frente, basura ni tendederos. `bloqueo._encima` ahora revisa lado por lado las reservas de menos de `TIRA` 2 m: el relleno ponia una casa encima (con todas las reservas perdia 40 casas del relleno, por eso solo las angostas). Prueba nueva: se cruza caminando.
 
 Costo medido con `tools/mapa/medir_colonia.gd` (maquina de AG, de dia), antes de esta noche y despues de los 7 puntos: plaza 293 a 287 fps (primitivas 124k a 228k), tianguis 283 a 278 (195k a 339k), vecindad 287 a 280, avenida 335 a 321, cancha 304 a 298 (llamadas de dibujo 539 a 661). Baja 2-4 % de fps pero casi se doblan las primitivas: **Arreglado (2026-11-11):** los detalles (material `detalle_kit` de las casas y los objetos `Detalle_*` de los callejones, partidos en trozos de 20 m) van en cuadros de 24 m aparte que `MapaPostImport` deja de dibujar a 55 m y que no hacen sombra. Medido despues: plaza 132k primitivas (antes 228k, sin detalles 124k), 560 llamadas, tianguis 206k, cancha 151k; los fps quedan igual.
 
@@ -140,7 +141,7 @@ Ideas que siguen, en orden (del plan de esa noche):
 - Carros abandonados sobre ladrillos (`carro` con `estado`).
 - La fila de la tortilleria (gente de dia, `Gente.gd`) e interiores de los dos negocios nuevos.
 - Mercado techado de lamina.
-- Atajos por patios (huecos en bardas) para perder a los zombis.
+- Mas pasillos como el del tianguis donde haga falta (casi todas las manzanas ya tienen callejon).
 - Fachadas: mas saturadas, salitre y humedad abajo.
 - Suelo: grietas, parches, banquetas rotas por las raices.
 

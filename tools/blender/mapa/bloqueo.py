@@ -180,6 +180,7 @@ def _postes(calles_osm_dibujadas, todas):
 # puerta (marca "puerta", con "auto") y su entrada en "negocios" (el esquema de MapPuntos, para el
 # minimapa, la gente, las misiones y Partida). El punto es una casa en obra negra, sin cortina.
 PUERTA_AFUERA = 0.8         # m de la fachada a la flecha
+TIRA = 2.0                  # m: las reservas mas angostas (pasillos) se revisan lado por lado
 PUESTO_LIBRE = 2.5          # m alrededor de una puerta sin puestos del tianguis
 
 
@@ -268,6 +269,10 @@ def _encima(rect, poligonos):
         if max(xs) < min(rx) or min(xs) > max(rx) or max(zs) < min(rz) or min(zs) > max(rz):
             continue
         if any(_dentro_poligono(x, z, pol) for x, z in muestras) or any(_dentro_poligono(x, z, rect) for x, z in pol):
+            return True
+        # Una tira angosta (un pasillo de menos de TIRA m) puede cruzar entre las muestras sin
+        # tener vertices adentro. Solo para esas: con todas, el relleno perdia 40 casas
+        if min(max(xs) - min(xs), max(zs) - min(zs)) < TIRA and _se_enciman(list(rect), pol):
             return True
     return False
 

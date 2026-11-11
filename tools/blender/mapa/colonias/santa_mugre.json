@@ -773,23 +773,6 @@
 			"desgaste": 0.41
 		},
 		{
-			"nombre": "Casa_52",
-			"tipo": "casa",
-			"auto": true,
-			"x": -241.02,
-			"z": 418.85,
-			"puntos": [
-				[3.1, 2.11],
-				[2.95, -2.32],
-				[-3.1, -2.11],
-				[-2.95, 2.32]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "rosa",
-			"desgaste": 0.73
-		},
-		{
 			"nombre": "Casa_58",
 			"tipo": "casa",
 			"auto": true,
@@ -826,23 +809,6 @@
 			"frente": 3,
 			"color": "crema",
 			"desgaste": 0.78
-		},
-		{
-			"nombre": "Casa_69",
-			"tipo": "casa",
-			"auto": true,
-			"x": -265.69,
-			"z": 419.02,
-			"puntos": [
-				[2.52, -2.43],
-				[-2.65, -2.28],
-				[-2.52, 2.43],
-				[2.65, 2.28]
-			],
-			"pisos": 3,
-			"frente": 1,
-			"color": "gris",
-			"desgaste": 0.62
 		},
 		{
 			"nombre": "Casa_72",
@@ -5433,54 +5399,71 @@
 			"tipo": "casa",
 			"auto": true,
 			"x": -244.8,
-			"z": 426.56,
+			"z": 422.96,
 			"puntos": [
-				[-2.0, -4.43],
-				[-2.0, 4.43],
-				[2.0, 4.43],
-				[2.0, -4.43]
+				[-2.0, -3.82],
+				[-2.0, 3.82],
+				[2.0, 3.82],
+				[2.0, -3.82]
 			],
-			"pisos": 1,
+			"pisos": 2,
 			"frente": 0,
-			"color": "terracota",
-			"desgaste": 0.64
+			"color": "verde",
+			"desgaste": 0.38
 		},
 		{
 			"nombre": "Lote_138",
 			"tipo": "casa",
 			"auto": true,
 			"x": -244.8,
-			"z": 435.38,
+			"z": 430.64,
 			"puntos": [
-				[-2.0, -3.39],
-				[-2.0, 3.39],
-				[2.0, 3.39],
-				[2.0, -3.39]
+				[-2.0, -3.85],
+				[-2.0, 3.86],
+				[2.0, 3.86],
+				[2.0, -3.85]
 			],
-			"pisos": 1,
+			"pisos": 2,
 			"frente": 0,
-			"color": "mostaza",
-			"desgaste": 0.41
+			"color": "azul",
+			"desgaste": 0.35
 		},
 		{
 			"nombre": "Lote_139",
 			"tipo": "casa",
 			"auto": true,
-			"x": -241.16,
-			"z": 443.22,
+			"x": -241.32,
+			"z": 439.6,
 			"puntos": [
-				[-5.64, -3.45],
-				[-5.64, 3.45],
-				[5.64, 3.45],
-				[5.64, -3.45]
+				[-5.48, -4.1],
+				[-5.48, 4.09],
+				[5.48, 4.09],
+				[5.48, -4.1]
 			],
-			"pisos": 2,
+			"pisos": 3,
 			"frente": 0,
-			"color": "terracota",
-			"desgaste": 0.63
+			"color": "turquesa",
+			"desgaste": 0.62
 		},
 		{
 			"nombre": "Lote_140",
+			"tipo": "casa",
+			"auto": true,
+			"x": -240.96,
+			"z": 446.94,
+			"puntos": [
+				[-5.84, -2.25],
+				[-5.84, 2.25],
+				[5.84, 2.25],
+				[5.84, -2.25]
+			],
+			"pisos": 3,
+			"frente": 0,
+			"color": "morado",
+			"desgaste": 0.68
+		},
+		{
+			"nombre": "Lote_141",
 			"tipo": "casa",
 			"auto": true,
 			"x": -339.68,
@@ -5493,7 +5476,7 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "gris",
+			"color": "terracota",
 			"desgaste": 0.57
 		},
 		{
@@ -7114,6 +7097,20 @@
 			"material": "empedrado"
 		},
 		{
+			"nombre": "Pasillo_Tianguis",
+			"tipo": "calle",
+			"x": -272.6,
+			"z": 418.0,
+			"rot": 0.0,
+			"puntos": [
+				[0.0, 0.0],
+				[37.6, 0.0]
+			],
+			"ancho": 1.1,
+			"banqueta": 0.0,
+			"material": "tierra"
+		},
+		{
 			"nombre": "Cancha_Mirador",
 			"tipo": "casa",
 			"x": -402.55,
@@ -7136,7 +7133,7 @@
 			"tipo": "escalera",
 			"x": -405.8,
 			"z": 307.1,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"alto": 5.55,
 			"ancho": 1.0,
 			"sentido": -1
@@ -7159,7 +7156,7 @@
 			"x": -269.6,
 			"z": 477.75,
 			"y": 8.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"alto": 3.5,
 			"tam": [8.0, 4.0],
 			"anuncio": "gela",
@@ -7362,7 +7359,7 @@
 			"tipo": "patio",
 			"x": -305.0,
 			"z": 304.8,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7406,7 +7403,7 @@
 			"tipo": "patio",
 			"x": -255.0,
 			"z": 356.8,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7450,7 +7447,7 @@
 			"tipo": "patio",
 			"x": -347.5,
 			"z": 306.8,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7458,7 +7455,7 @@
 			"tipo": "vecindad",
 			"x": -215.5,
 			"z": 400.0,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [22.0, 52.0]
 		}
 	],
@@ -7484,6 +7481,100 @@
 			"x": -212.3,
 			"z": 387.0,
 			"rot": -1.5708
+		},
+		{
+			"nombre": "Reflector_Cancha_0",
+			"tipo": "reflector",
+			"x": -398.05,
+			"z": 295.95,
+			"y": 7.3,
+			"rot": 0.565,
+			"baja": 33
+		},
+		{
+			"nombre": "Reflector_Cancha_1",
+			"tipo": "reflector",
+			"x": -385.95,
+			"z": 315.05,
+			"y": 7.3,
+			"rot": -2.577,
+			"baja": 33
+		},
+		{
+			"nombre": "Reflector_Espectacular_Cancha",
+			"tipo": "reflector",
+			"x": -395.05,
+			"z": 320.2,
+			"y": 14.85,
+			"rot": 3.1416,
+			"baja": -50,
+			"alcance": 7.0
+		},
+		{
+			"nombre": "Reflector_Espectacular_Avenida",
+			"tipo": "reflector",
+			"x": -269.6,
+			"z": 476.05,
+			"y": 12.1,
+			"rot": 0.0,
+			"baja": -50,
+			"alcance": 7.0
+		},
+		{
+			"nombre": "Puerta_tortilleria_0",
+			"tipo": "puerta",
+			"giro": "tortilleria",
+			"texto": "TORTILLERIA LA LUPITA",
+			"x": -273.85,
+			"z": 436.33,
+			"rot": -1.5308
+		},
+		{
+			"nombre": "Puerta_tiendita_0",
+			"tipo": "puerta",
+			"giro": "tiendita",
+			"texto": "ABARROTES DOÑA MARY",
+			"x": -408.2,
+			"z": 311.25,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Profe_Cancha",
+			"tipo": "mision",
+			"x": -401.0,
+			"z": 304.7,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Pelota",
+			"tipo": "mision",
+			"x": -404.6,
+			"z": 313.8,
+			"y": 5.55,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Ninos_Cancha",
+			"tipo": "ninos",
+			"x": -392.0,
+			"z": 305.5,
+			"rot": 0.0,
+			"tam": [9.0, 15.0],
+			"cuantos": 6
+		},
+		{
+			"nombre": "Guardia_GelA_0",
+			"tipo": "vecino",
+			"x": -342.8,
+			"z": 453.7,
+			"rot": 3.0457
+		},
+		{
+			"nombre": "Guardia_GelA_1",
+			"tipo": "vecino",
+			"x": -346.0,
+			"z": 453.3,
+			"rot": 3.0457
 		},
 		{
 			"nombre": "Puerta_oxxo_0",
@@ -7639,100 +7730,6 @@
 			"x": -201.98,
 			"z": 303.95,
 			"rot": 1.6063
-		},
-		{
-			"nombre": "Reflector_Cancha_0",
-			"tipo": "reflector",
-			"x": -398.05,
-			"z": 295.95,
-			"y": 7.3,
-			"rot": 0.565,
-			"baja": 33
-		},
-		{
-			"nombre": "Reflector_Cancha_1",
-			"tipo": "reflector",
-			"x": -385.95,
-			"z": 315.05,
-			"y": 7.3,
-			"rot": -2.577,
-			"baja": 33
-		},
-		{
-			"nombre": "Reflector_Espectacular_Cancha",
-			"tipo": "reflector",
-			"x": -395.05,
-			"z": 320.2,
-			"y": 14.85,
-			"rot": -3.1416,
-			"baja": -50,
-			"alcance": 7.0
-		},
-		{
-			"nombre": "Reflector_Espectacular_Avenida",
-			"tipo": "reflector",
-			"x": -269.6,
-			"z": 476.05,
-			"y": 12.1,
-			"rot": 0.0,
-			"baja": -50,
-			"alcance": 7.0
-		},
-		{
-			"nombre": "Puerta_tortilleria_0",
-			"tipo": "puerta",
-			"giro": "tortilleria",
-			"texto": "TORTILLERIA LA LUPITA",
-			"x": -273.85,
-			"z": 436.33,
-			"rot": -1.5308
-		},
-		{
-			"nombre": "Puerta_tiendita_0",
-			"tipo": "puerta",
-			"giro": "tiendita",
-			"texto": "ABARROTES DOÑA MARY",
-			"x": -408.2,
-			"z": 311.25,
-			"rot": -1.5708
-		},
-		{
-			"nombre": "Profe_Cancha",
-			"tipo": "mision",
-			"x": -401.0,
-			"z": 304.7,
-			"rot": -1.5708
-		},
-		{
-			"nombre": "Pelota",
-			"tipo": "mision",
-			"x": -404.6,
-			"z": 313.8,
-			"y": 5.55,
-			"rot": 0.0
-		},
-		{
-			"nombre": "Ninos_Cancha",
-			"tipo": "ninos",
-			"x": -392.0,
-			"z": 305.5,
-			"rot": 0.0,
-			"tam": [9.0, 15.0],
-			"cuantos": 6
-		},
-		{
-			"nombre": "Guardia_GelA_0",
-			"tipo": "vecino",
-			"x": -342.8,
-			"z": 453.7,
-			"rot": 3.0457
-		},
-		{
-			"nombre": "Guardia_GelA_1",
-			"tipo": "vecino",
-			"x": -346.0,
-			"z": 453.3,
-			"rot": 3.0457
 		}
 	],
 	"negocios": [
@@ -8061,6 +8058,15 @@
 				[-343.8, 303.1],
 				[-343.8, 310.5],
 				[-351.2, 310.5]
+			]
+		},
+		{
+			"nombre": "Pasillo_Tianguis",
+			"puntos": [
+				[-272.6, 418.8],
+				[-235.0, 418.8],
+				[-235.0, 417.2],
+				[-272.6, 417.2]
 			]
 		}
 	],

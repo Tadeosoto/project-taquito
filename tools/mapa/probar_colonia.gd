@@ -100,6 +100,9 @@ func _subir_banqueta(escena: Node) -> void:
 	# media cancha (el muro de la entrada esta en x -398.3)
 	var c := await _caminar(escena, CANCHA_DESDE, Vector3(1.0, 0.0, 0.0), 300)
 	_revisar("entra a la cancha", c["hasta"].x > -394.0, "hasta %s" % c["hasta"])
+	# El pasillo de 1.1 m entre Bahia de Sin Agua y la calle de la vecindad se cruza caminando
+	var p := await _caminar(escena, Vector3(-273.5, 1.2, 418.0), Vector3(1.0, 0.0, 0.0), 760)
+	_revisar("se cruza el pasillo del tianguis", p["hasta"].x > -237.0, "hasta %s" % p["hasta"])
 	# y la escalera del mirador (Cancha_Mirador_Escalera) sube a su azotea, que ve a la cancha
 	var m := await _caminar(escena, Vector3(-406.4, 1.2, 306.6), Vector3(1.0, 0.0, 0.0), 300)
 	_revisar("sube al mirador de la cancha", m["y_max"] - 1.0 > AZOTEA - 0.4,
