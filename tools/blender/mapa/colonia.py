@@ -58,6 +58,7 @@ def armar(nombre):
                 y=-PISO_GRUESO, choca=True)
     piso[DATO] = "piso"
 
+    _arroyos(datos)
     for p in datos.get("piezas", []):
         ob = _pieza(mundo, p)
         if ob is None:
@@ -203,21 +204,78 @@ ASFALTO = (0.16, 0.16, 0.17)
 BANQUETA = (0.55, 0.53, 0.5)
 
 
+BANQUETA_ALTO = 0.15       # m de la guarnicion
+BANQUETA_RAMPA = 0.26      # m que avanza el bisel de la caja de choque (30 grados): el
+                           # CharacterBody3D no sube escalones, asi que la guarnicion es rampa
+BANQUETA_MUESTRA = 0.5     # m entre muestras al recortar la banqueta en los cruces
+# Arroyos de todas las calles en metros del mundo: (a, b, medio ancho). Los llena armar() antes
+# de las piezas, para cortar cada banqueta donde atraviesa el arroyo de otra calle
+_ARROYOS = []
+
+
+def _arroyos(datos):
+    _ARROYOS.clear()
+    for p in datos.get("piezas", []):
+        if p["tipo"] == "calle" and p.get("material", "asfalto") == "asfalto":
+            pts = [(p["x"] + x, p["z"] + z) for x, z in p["puntos"]]
+            for a, b in zip(pts, pts[1:]):
+                _ARROYOS.append((a, b, p["ancho"] / 2, p["nombre"]))
+
+
+def _dist_seg(px, pz, a, b):
+    dx, dz = b[0] - a[0], b[1] - a[1]
+    t = max(0.0, min(1.0, ((px - a[0]) * dx + (pz - a[1]) * dz) / (dx * dx + dz * dz or 1.0)))
+    return math.hypot(px - a[0] - t * dx, pz - a[1] - t * dz)
+
+
 def _calle(col, p):
-    """Arroyo (oscuro) sobre su banqueta (clara), en franjas por tramo. Las esquinas se enciman."""
+    """El arroyo (pintado sobre el piso, alargado en las puntas para tapar el cruce) y, si tiene
+    "banqueta", las dos banquetas: losas de BANQUETA_ALTO con su guarnicion, cortadas donde
+    atraviesan el arroyo de otra calle, cada tramo con su caja de choque en rampa."""
     bm = bmesh.new()
-    capas = [(p["ancho"] / 2 + p.get("banqueta", 1.5), 0.01, 1), (p["ancho"] / 2, 0.02, 0)]
     pts = p["puntos"]
-    for medio, alto, indice in capas:
-        for (ax, az), (bx, bz) in zip(pts, pts[1:]):
-            dx, dz = bx - ax, bz - az
-            largo = math.hypot(dx, dz) or 1.0
-            # Se alarga medio ancho de banqueta en cada punta para tapar la esquina
-            ex, ez = dx / largo * (medio if indice else 0.0), dz / largo * (medio if indice else 0.0)
-            nx, nz = -dz / largo * medio, dx / largo * medio
-            esquinas = [(ax - ex + nx, az - ez + nz), (bx + ex + nx, bz + ez + nz), (bx + ex - nx, bz + ez - nz), (ax - ex - nx, az - ez - nz)]
-            cara = bm.faces.new([bm.verts.new((bx_, by_, alto)) for bx_, by_ in _local(esquinas)])
-            cara.material_index = indice
+    ox, oz = p["x"], p["z"]
+    medio = p["ancho"] / 2
+    banq = p.get("banqueta", 1.5)
+    for k_seg, ((ax, az), (bx, bz)) in enumerate(zip(pts, pts[1:])):
+        dx, dz = bx - ax, bz - az
+        largo = math.hypot(dx, dz) or 1.0
+        ux, uz = dx / largo, dz / largo
+        ex = medio if banq > 0 else 0.0
+        nx, nz = -uz * medio, ux * medio
+        esquinas = [(ax - ux * ex + nx, az - uz * ex + nz), (bx + ux * ex + nx, bz + uz * ex + nz),
+                    (bx + ux * ex - nx, bz + uz * ex - nz), (ax - ux * ex - nx, az - uz * ex - nz)]
+        cara = bm.faces.new([bm.verts.new((x_, y_, 0.02)) for x_, y_ in _local(esquinas)])
+        cara.material_index = 0
+        if banq <= 0:
+            continue
+        # Banquetas: una por lado, de medio a medio + banq, alargadas hasta el otro arroyo
+        largo_ext = banq + 6.0
+        for lado in (1, -1):
+            centro = medio + banq / 2
+            tramos, actual = [], None
+            s = -largo_ext
+            while s <= largo + largo_ext:
+                wx = ox + ax + ux * s - uz * lado * centro
+                wz = oz + az + uz * s + ux * lado * centro
+                # Fuera: sobre un arroyo que no es este tramo (otra calle o el tramo de al lado)
+                libre = not any(_dist_seg(wx, wz, a, b) < m + 0.1 for a, b, m, n in _ARROYOS
+                                if not (n == p["nombre"] and _misma(a, b, ox + ax, oz + az, ox + bx, oz + bz)))
+                # Mas alla de las puntas de la calle solo si toca otra banqueta (no a media nada)
+                if libre and (s < 0 or s > largo) and not any(_dist_seg(wx, wz, a, b) < m + banq + 0.5 for a, b, m, n in _ARROYOS if n != p["nombre"]):
+                    libre = False
+                if libre and actual is None:
+                    actual = s
+                if not libre and actual is not None:
+                    tramos.append((actual, s - BANQUETA_MUESTRA))
+                    actual = None
+                s += BANQUETA_MUESTRA
+            if actual is not None:
+                tramos.append((actual, s - BANQUETA_MUESTRA))
+            for s0, s1 in tramos:
+                if s1 - s0 < 0.6:
+                    continue
+                _losa(bm, col, p, (ax, az), (ux, uz), lado, medio, medio + banq, s0, s1)
     malla = bpy.data.meshes.new(p["nombre"])
     bm.to_mesh(malla)
     bm.free()
@@ -225,9 +283,65 @@ def _calle(col, p):
     malla.materials.append(k["mat_piso"](p.get("material", "asfalto")))
     malla.materials.append(k["mat_piso"](p.get("material_banqueta", "banqueta")))
     ob = bpy.data.objects.new(p["nombre"], malla)
-    ob.location = a_blender(p["x"], p["z"], p.get("y", 0.0))
+    ob.location = a_blender(ox, oz, p.get("y", 0.0))
     col.objects.link(ob)
     return ob
+
+
+def _misma(a, b, ax, az, bx, bz):
+    return abs(a[0] - ax) + abs(a[1] - az) + abs(b[0] - bx) + abs(b[1] - bz) < 0.01
+
+
+def _losa(bm, col, p, a, u, lado, dentro, fuera, s0, s1):
+    """Losa de banqueta de s0 a s1 a lo largo del tramo, entre las distancias `dentro` y `fuera`
+    del eje (en coordenadas de la pieza), y su caja de choque con biseles."""
+    ax, az = a
+    ux, uz = u
+    nx, nz = -uz * lado, ux * lado
+    def punto(s, d):
+        return (ax + ux * s + nx * d, az + uz * s + nz * d)
+    h = BANQUETA_ALTO
+    def vert(s, d, y):
+        x, z = punto(s, d)
+        return bm.verts.new((x, -z, y))
+    # Cara de arriba, guarnicion (hacia el arroyo), cara de afuera y las dos puntas
+    caras = []
+    caras.append([vert(s0, dentro, h), vert(s1, dentro, h), vert(s1, fuera, h), vert(s0, fuera, h)])
+    caras.append([vert(s0, dentro, 0.02), vert(s1, dentro, 0.02), vert(s1, dentro, h), vert(s0, dentro, h)])
+    caras.append([vert(s1, fuera, 0.0), vert(s0, fuera, 0.0), vert(s0, fuera, h), vert(s1, fuera, h)])
+    caras.append([vert(s0, fuera, 0.0), vert(s0, dentro, 0.0), vert(s0, dentro, h), vert(s0, fuera, h)])
+    caras.append([vert(s1, dentro, 0.0), vert(s1, fuera, 0.0), vert(s1, fuera, h), vert(s1, dentro, h)])
+    for vs in caras:
+        f = bm.faces.new(vs)
+        f.material_index = 1
+        f.normal_update()
+    # Que todas vean hacia afuera de la losa (el lado cambia el sentido)
+    centro = Vector(((punto((s0 + s1) / 2, (dentro + fuera) / 2))[0], -(punto((s0 + s1) / 2, (dentro + fuera) / 2))[1], h / 2))
+    for f in bm.faces[-5:]:
+        if (f.calc_center_median() - centro).dot(f.normal) < 0:
+            f.normal_flip()
+    # Caja de choque: el mismo perfil con rampas de BANQUETA_RAMPA en los dos bordes
+    r = BANQUETA_RAMPA
+    perfil = [(dentro - r, 0.0), (dentro, h), (fuera, h), (fuera + r, 0.0)]
+    cb = bmesh.new()
+    def cv(s, d, y):
+        x, z = punto(s, d)
+        return cb.verts.new((x, -z, y))
+    a0 = [cv(s0, d, y) for d, y in perfil]
+    a1 = [cv(s1, d, y) for d, y in perfil]
+    for i in range(3):
+        cb.faces.new([a0[i], a1[i], a1[i + 1], a0[i + 1]])
+    cb.faces.new([a0[3], a1[3], a1[0], a0[0]])
+    cb.faces.new(a0[::-1])
+    cb.faces.new(a1)
+    bmesh.ops.recalc_face_normals(cb, faces=cb.faces[:])
+    malla = bpy.data.meshes.new(p["nombre"] + "_banqueta_col")
+    cb.to_mesh(malla)
+    cb.free()
+    ob = bpy.data.objects.new("%s_banqueta%d-colonly" % (p["nombre"], len(col.objects)), malla)
+    ob.location = a_blender(p["x"], p["z"], p.get("y", 0.0))
+    ob.display_type = "WIRE"
+    col.objects.link(ob)
 
 
 def leer(nombre):

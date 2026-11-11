@@ -113,6 +113,118 @@ def _frente(huella, calles):
     return mejor
 
 
+def _casa(nombre, huella, frente, k):
+    cx, cz = _centro(huella)
+    dado = int(abs(cx * 7.13 + cz * 3.71) * 10) % 100
+    pisos = 1 if dado < 50 else 2 if dado < 92 else 3
+    return {"nombre": nombre, "tipo": "casa", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
+            "puntos": _relativos(huella, cx, cz), "pisos": pisos, "frente": frente,
+            "color": COLORES[(dado * 7 + k) % len(COLORES)],
+            "desgaste": round(DESGASTE[0] + (DESGASTE[1] - DESGASTE[0]) * ((dado * 13) % 100) / 100, 2)}
+
+
+# Relleno de las calles: una fila corrida de casas angostas en cada lado de cada calle, donde no
+# hay huella real (las de Google dejan huecos: las calles mexicanas son una fachada tras otra)
+LOTE_FRENTE = (6.0, 9.0)       # m
+LOTE_FONDO = (10.0, 14.0)
+# Si no cabe, se prueba con menos fondo (4 m: las fachadas de la avenida contra la barda del
+# recorte) y con un frente angosto (los huecos entre casas reales)
+LOTE_FONDOS_MENOS = (7.0, 4.0)
+LOTE_ANGOSTO = 4.5
+BALDIO_CADA = 9                # uno de cada tantos lotes se queda baldio, con su barda de lamina
+ESQUINA = 2.0                  # m sin lotes en cada punta de un tramo (las esquinas)
+
+
+def _encima(rect, poligonos):
+    """El rectangulo se encima a algun poligono: muestras del rectangulo dentro del poligono o
+    vertices del poligono dentro del rectangulo."""
+    a, b, c, d = rect
+    muestras = []
+    for u in (0.1, 0.5, 0.9):
+        for v in (0.1, 0.5, 0.9):
+            muestras.append((a[0] + (b[0] - a[0]) * u + (d[0] - a[0]) * v, a[1] + (b[1] - a[1]) * u + (d[1] - a[1]) * v))
+    for pol in poligonos:
+        xs, zs = [p[0] for p in pol], [p[1] for p in pol]
+        rx, rz = [p[0] for p in rect], [p[1] for p in rect]
+        if max(xs) < min(rx) or min(xs) > max(rx) or max(zs) < min(rz) or min(zs) > max(rz):
+            continue
+        if any(_dentro_poligono(x, z, pol) for x, z in muestras) or any(_dentro_poligono(x, z, rect) for x, z in pol):
+            return True
+    return False
+
+
+def _en_calle(rect, calles):
+    a, b, c, d = rect
+    puntos = list(rect) + [((a[0] + c[0]) / 2, (a[1] + c[1]) / 2), ((c[0] + d[0]) / 2, (c[1] + d[1]) / 2)]
+    # El frente va pegado a su banqueta: se mide un poco adentro
+    return any(_distancia_segmento(x, z, p, q) < medio - 0.3 for x, z in puntos for tramo, medio in calles for p, q in zip(tramo, tramo[1:]))
+
+
+def _rellenar(calles, ocupado, recorte, nuevas):
+    x1, z1, x2, z2 = recorte
+    dentro = lambda r: all(x1 + 1.0 < x < x2 - 1.0 and z1 + 1.0 < z < z2 - 1.0 for x, z in r)
+    puestos = []
+    lotes = baldios = n = 0
+    for ic, (tramo, medio) in enumerate(calles):
+        for p, q in zip(tramo, tramo[1:]):
+            dx, dz = q[0] - p[0], q[1] - p[1]
+            largo = math.hypot(dx, dz)
+            if largo < LOTE_FRENTE[0] + 2 * ESQUINA:
+                continue
+            ux, uz = dx / largo, dz / largo
+            for lado in (1, -1):
+                nx, nz = -uz * lado, ux * lado            # hacia afuera de la calle
+                t = ESQUINA
+                while True:
+                    semilla = int(abs(p[0] * 3.1 + p[1] * 7.7 + t * 13.3 + lado * 5)) % 1000
+                    frente0 = LOTE_FRENTE[0] + (LOTE_FRENTE[1] - LOTE_FRENTE[0]) * (semilla % 100) / 100
+                    fondo0 = LOTE_FONDO[0] + (LOTE_FONDO[1] - LOTE_FONDO[0]) * ((semilla // 7) % 100) / 100
+                    if t + LOTE_ANGOSTO > largo - ESQUINA:
+                        break
+                    ax, az = p[0] + ux * t + nx * medio, p[1] + uz * t + nz * medio
+                    puesto = False
+                    for frente in (frente0, LOTE_ANGOSTO):
+                        if t + frente > largo - ESQUINA:
+                            continue
+                        for fondo in (fondo0,) + LOTE_FONDOS_MENOS:
+                            a = (ax, az)
+                            b = (ax + ux * frente, az + uz * frente)
+                            c = (b[0] + nx * fondo, b[1] + nz * fondo)
+                            d = (ax + nx * fondo, az + nz * fondo)
+                            rect = [a, b, c, d]
+                            if dentro(rect) and not _en_calle(rect, calles) and not _encima(rect, ocupado + puestos):
+                                puesto = True
+                                break
+                        if puesto:
+                            break
+                    if puesto:
+                        n += 1
+                        puestos.append(rect)
+                        if n % BALDIO_CADA == 0:
+                            nuevas.extend(_baldio("Baldio_%d" % n, rect))
+                            baldios += 1
+                        else:
+                            nuevas.append(_casa("Lote_%d" % n, rect, 0, n))
+                            lotes += 1
+                        t += frente
+                    else:
+                        t += 1.0
+    return lotes, baldios
+
+
+def _baldio(nombre, rect):
+    """Lote baldio: tierra y una barda de lamina al frente (lado a-b)."""
+    a, b, c, d = rect
+    cx, cz = _centro(rect)
+    mx, mz = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+    largo = math.hypot(b[0] - a[0], b[1] - a[1])
+    giro = math.atan2(b[0] - a[0], b[1] - a[1]) - math.pi / 2
+    return [{"nombre": nombre, "tipo": "suelo", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
+             "puntos": _relativos(rect, cx, cz), "material": "tierra"},
+            {"nombre": nombre + "_Barda", "tipo": "caja", "auto": True, "x": round(mx, 2), "z": round(mz, 2), "rot": round(giro, 4),
+             "tam": [round(largo, 2), 2.2, 0.12], "color": [0.55, 0.5, 0.42]}]
+
+
 def _lado(x, z, recorte):
     """De que borde sale un punto del final de una calle."""
     x1, z1, x2, z2 = recorte
@@ -167,6 +279,7 @@ def bloquear(nombre):
                            "material": "adoquin" if e.get("place") == "square" else "pasto_seco"})
 
     quitadas = {"calle": 0, "verde": 0, "reserva": 0, "chica": 0, "fuera": 0}
+    ocupado = []     # huellas puestas (para que el relleno no se les encime)
     for k, h in enumerate(huellas):
         cx, cz = _centro(h)
         if not (x1 + 1 < cx < x2 - 1 and z1 + 1 < cz < z2 - 1):
@@ -184,12 +297,10 @@ def bloquear(nombre):
         if any(_distancia_segmento(cx, cz, a, b) < medio for tramo, medio in calles for a, b in zip(tramo, tramo[1:])):
             quitadas["calle"] += 1
             continue
-        dado = int(abs(cx * 7.13 + cz * 3.71) * 10) % 100
-        pisos = 1 if dado < 50 else 2 if dado < 92 else 3
-        nuevas.append({"nombre": "Casa_%d" % k, "tipo": "casa", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
-                       "puntos": _relativos(h, cx, cz), "pisos": pisos, "frente": _frente(h, calles),
-                       "color": COLORES[(dado * 7 + k) % len(COLORES)],
-                       "desgaste": round(DESGASTE[0] + (DESGASTE[1] - DESGASTE[0]) * ((dado * 13) % 100) / 100, 2)})
+        nuevas.append(_casa("Casa_%d" % k, h, _frente(h, calles), k))
+        ocupado.append(h)
+
+    lotes, baldios = _rellenar(calles, ocupado + reservas + verdes, recorte, nuevas)
 
     # Barda alrededor
     a = BARDA_ADENTRO
@@ -205,7 +316,8 @@ def bloquear(nombre):
     cuenta = {}
     for p in nuevas:
         cuenta[p["tipo"]] = cuenta.get(p["tipo"], 0) + 1
-    print("bloqueo %s: %s; huellas quitadas %s; %d piezas a mano" % (nombre, cuenta, quitadas, len(piezas)))
+    print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; %d piezas a mano" % (
+        nombre, cuenta, quitadas, lotes, baldios, len(piezas)))
 
 
 if not globals().get("SOLO_FUNCIONES"):
