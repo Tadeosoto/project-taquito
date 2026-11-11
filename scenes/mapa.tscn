@@ -90,6 +90,11 @@ sol_path = NodePath("../DirectionalLight3D")
 environment_path = NodePath("../WorldEnvironment")
 dia_duracion = 480.0
 noche_duracion = 360.0
+sol_energia = 0.18
+ambiente_color = Color(0.34, 0.38, 0.55, 1)
+ambiente_energia = 0.45
+niebla_color = Color(0.06, 0.07, 0.11, 1)
+fondo_color = Color(0.04, 0.045, 0.08, 1)
 
 [node name="Alumbrado" type="Node3D" parent="."]
 script = ExtResource("13_alumbrado")
