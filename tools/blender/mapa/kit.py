@@ -399,6 +399,7 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
     lisos = []      # tramos lisos de la planta baja del frente: ahi va el mural, si toca
     muros = []      # (a, b, tramos) de cada lado, para los detalles de las fachadas
     ocupado = []    # (x, y, radio) de lo que ya hay en la azotea
+    ventanas = []   # (p0, p1) de los tramos con ventana en la planta baja: llevan reja
     # Los colores de la paleta estan en sRGB; el color de vertice va lineal
     rgba = tuple(c ** 2.2 for c in color[:3]) + (1.0,)
 
@@ -436,6 +437,8 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
                 celda = _celda_fachada(azar, piso, en_frente, t, puerta_en, desgaste, tienda)
                 if en_frente and piso == 0 and celda in (LISO, CAIDO):
                     lisos.append((p0, p1))
+                if piso == 0 and celda == VENTANA_ABAJO:
+                    ventanas.append((p0, p1))
                 cara([(p0[0], p0[1], z0), (p1[0], p1[1], z0), (p1[0], p1[1], z1), (p0[0], p0[1], z1)],
                      [uv_mosaico(celda, 0, 0), uv_mosaico(celda, 1, 0), uv_mosaico(celda, 1, 1), uv_mosaico(celda, 0, 1)], "fachada_kit")
         # Pretil: lo de abajo del aplanado liso
@@ -472,7 +475,7 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
             _caja_bm(cara, (esquina[0] * 0.9, esquina[1] * 0.9, alto), 0.05, 1.2, "varilla")
             ocupado.append((esquina[0] * 0.9, esquina[1] * 0.9, 0.3))
     if detalles:
-        _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado)
+        _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ventanas)
 
     malla = bpy.data.meshes.new(nombre)
     bm.to_mesh(malla)
@@ -515,6 +518,7 @@ COLOR_CLIMA = (0.82, 0.82, 0.78)
 COLOR_NEGRO = (0.09, 0.09, 0.1)
 COLOR_PANEL = (0.12, 0.17, 0.3)
 COLOR_GAS = (0.86, 0.86, 0.84)
+HERRERIA = [(0.08, 0.08, 0.09), (0.08, 0.08, 0.09), (0.85, 0.85, 0.82), (0.15, 0.35, 0.25), (0.45, 0.12, 0.1)]
 ROPA = [(0.8, 0.18, 0.2), (0.15, 0.4, 0.78), (0.92, 0.75, 0.15), (0.9, 0.9, 0.88), (0.9, 0.42, 0.62), (0.2, 0.62, 0.32)]
 
 
@@ -545,7 +549,7 @@ def _caja_detalle(cara, centro, u, ancho, fondo, alto, color, abajo=False):
         _cara_hacia(cara, [p(-1, -1, z), p(1, -1, z), p(1, 1, z), p(-1, 1, z)], (0, 0, -1), color)
 
 
-def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado):
+def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ventanas=()):
     """Climas de ventana en las fachadas y, en la azotea, antena, calentador solar, tanque de
     gas y tendedero con ropa. Con su propio azar, para no cambiar las fachadas ya armadas."""
     azar = _Azar(_semilla(nombre) * 3 + 1)
@@ -566,6 +570,32 @@ def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado):
                 s = (t + 0.5) / tramos * largo + azar(-0.5, 0.5)
                 px, py = a[0] + ux * s + nx * 0.24, a[1] + uy * s + ny * 0.24
                 _caja_detalle(cara, (px, py, piso * PISO + azar(0.5, 0.9)), (ux, uy), 0.66, 0.46, 0.42, COLOR_CLIMA, abajo=True)
+
+    # Rejas de herreria en las ventanas de la planta baja (el mosaico VENTANA_ABAJO tiene la
+    # ventana de 0.25 a 0.78 del ancho y de 0.28 a 0.75 del alto): marco, barrotes y travesanos
+    color_reja = azar.elegir(HERRERIA)
+    for p0, p1 in ventanas:
+        largo = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
+        ux, uy = (p1[0] - p0[0]) / largo, (p1[1] - p0[1]) / largo
+        nx, ny = -uy, ux
+        mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
+        if nx * (mx - cx) + ny * (my - cy) < 0:
+            nx, ny = -nx, -ny
+        s0, s1 = 0.22 * largo, 0.81 * largo
+        z0, z1 = 0.26 * PISO, 0.77 * PISO
+        sale = 0.07
+        def en(s, salir=sale):
+            return (p0[0] + ux * s + nx * salir, p0[1] + uy * s + ny * salir)
+        for s in (s0, s1):
+            x, y = en(s)
+            _caja_detalle(cara, (x, y, z0), (ux, uy), 0.04, 0.04, z1 - z0, color_reja)
+        for z in (z0, (z0 + z1) / 2, z1 - 0.04):
+            x, y = en((s0 + s1) / 2)
+            _caja_detalle(cara, (x, y, z), (ux, uy), s1 - s0, 0.04, 0.04, color_reja, abajo=True)
+        barrotes = max(3, round((s1 - s0) / 0.13))
+        for i in range(1, barrotes):
+            x, y = en(s0 + (s1 - s0) * i / barrotes)
+            _caja_detalle(cara, (x, y, z0), (ux, uy), 0.025, 0.025, z1 - z0, color_reja)
 
     def lugar(radio):
         """Un punto de la azotea lejos de lo que ya hay (tinaco, varillas) o None."""

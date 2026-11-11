@@ -118,12 +118,13 @@ Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
 4. Tendederos con ropa cruzando los callejones.
 5. Espectaculares de GelA y la antena pirata de Sofia.
 6. Capillitas de la Virgen del Tinaco cerca de la entrada de los callejones y basura junto a sus paredes (`colonia._vida_callejones`, malla `Callejones_Vida`, sin choque).
+7. Rejas de herreria (negras, blancas, verdes o rojas, una por casa) en las ventanas de planta baja (`kit._detalles_casa`, sobre el mosaico `VENTANA_ABAJO`).
 
 Para revisar caminando (`scenes/mapa.tscn`): el color del muro y del piso de la cancha en Godot (en Blender se ven deslavados), si la ropa y los cables se ven bien de noche, y si los espectaculares se leen de lejos con la niebla.
 
 Ideas que siguen, en orden (del plan de esa noche):
 - Topes con choque en rampa y baches con charco.
-- Rejas en ventanas de planta baja y puertas de herreria.
+- Puertas de herreria (zaguanes).
 - Carros abandonados sobre ladrillos (`carro` con `estado`).
 - Canchita de basquet en un lote; tiendita en cochera; tortilleria con fila.
 - Base chica de GelA con pipa de agua; mercado techado de lamina.
