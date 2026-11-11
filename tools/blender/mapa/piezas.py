@@ -866,6 +866,28 @@ def mercado(nombre, p):
     return k
 
 
+def bajada(nombre, p):
+    """Bajada en zanja a algo hundido (la cancha): escalones de concreto que bajan `fondo` m a lo
+    largo de +x en `largo` m, muros de contencion a los lados y barandal arriba. `ancho` en z.
+    Su choque es una rampa (el CharacterBody3D no sube escalones). Va dentro de un `hundidos`."""
+    k = Constructor(nombre)
+    largo, ancho, hondo = p.get("largo", 4.0), p.get("ancho", 1.4), p.get("fondo", 1.2)
+    w = ancho / 2
+    escalones = max(3, round(hondo / 0.18))
+    paso = largo / escalones
+    for i in range(escalones):
+        y = -hondo * (i + 1) / escalones
+        k.caja(((i + 0.5) * paso, (y - hondo - 0.02) / 2 + 0.0, 0.0), (paso, abs(y + hondo) + 0.04 if y > -hondo else 0.04, ancho), "concreto")
+    for lado in (-1, 1):
+        k.caja((largo / 2, -hondo / 2, lado * (w + 0.1)), (largo, hondo, 0.2), "concreto", choca=True)
+        k.caja((largo / 2, 0.9, lado * (w + 0.1)), (largo, 0.05, 0.05), "fierro")
+        for i in range(int(largo / 1.0) + 1):
+            k.caja((min(i * 1.0, largo), 0.45, lado * (w + 0.1)), (0.04, 0.9, 0.04), "fierro")
+    k.rampas.append([(-0.2, 0.0, -w), (-0.2, 0.0, w), (largo + 0.2, -hondo, -w), (largo + 0.2, -hondo, w),
+                     (largo + 0.2, -hondo - 0.3, -w), (largo + 0.2, -hondo - 0.3, w), (-0.2, -0.3, -w), (-0.2, -0.3, w)])
+    return k
+
+
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -1286,6 +1308,6 @@ def escombro(nombre, p):
 
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
-          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}

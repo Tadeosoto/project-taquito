@@ -53,10 +53,9 @@ def armar(nombre):
     x1, z1, x2, z2 = datos["recorte"]
     ancho, fondo = x2 - x1, z2 - z1
     cx, cz = (x1 + x2) / 2, (z1 + z2) / 2
-    # El piso entre casas es concreto, como la banqueta (en Godot, ps1_suelo con banqueta.png)
-    piso = caja(mundo, "Piso", cx, cz, 0.0, (ancho, PISO_GRUESO, fondo), _kit()["mat_piso"]("banqueta"),
-                y=-PISO_GRUESO, choca=True)
-    piso[DATO] = "piso"
+    # El piso entre casas es concreto, como la banqueta (en Godot, ps1_suelo con banqueta.png),
+    # con los huecos de los `hundidos` (la cancha hundida y la zanja de su bajada)
+    _piso(mundo, datos)
 
     _arroyos(datos)
     for p in datos.get("piezas", []):
@@ -162,6 +161,35 @@ def _pieza(col, p):
         return _calle(col, p)
     return None
 
+
+
+def _piso(mundo, datos):
+    """El piso del recorte en cajas que dejan fuera los rectangulos de `hundidos`
+    ([{"nombre", "puntos": [[x0, z0], [x1, z1]], "fondo": m}]), y un piso al fondo de cada uno.
+    Las orillas de un hundido las tapa lo que se ponga ahi (los muros de la cancha, la zanja)."""
+    mat = _kit()["mat_piso"]("banqueta")
+    x1, z1, x2, z2 = datos["recorte"]
+    huecos = []
+    for h in datos.get("hundidos", []):
+        (a, b), (c_, d) = h["puntos"]
+        huecos.append((min(a, c_), min(b, d), max(a, c_), max(b, d), h.get("fondo", 1.0), h["nombre"]))
+    xs = sorted({x1, x2} | {v for h in huecos for v in (h[0], h[2])})
+    zs = sorted({z1, z2} | {v for h in huecos for v in (h[1], h[3])})
+    n = 0
+    for i in range(len(xs) - 1):
+        for j in range(len(zs) - 1):
+            mx, mz = (xs[i] + xs[i + 1]) / 2, (zs[j] + zs[j + 1]) / 2
+            if any(h[0] < mx < h[2] and h[1] < mz < h[3] for h in huecos):
+                continue
+            nombre = "Piso" if n == 0 else "Piso_%d" % n
+            piso = caja(mundo, nombre, mx, mz, 0.0, (xs[i + 1] - xs[i], PISO_GRUESO, zs[j + 1] - zs[j]), mat,
+                        y=-PISO_GRUESO, choca=True)
+            piso[DATO] = "piso"
+            n += 1
+    for hx0, hz0, hx1, hz1, hondo, nombre in huecos:
+        piso = caja(mundo, "Piso_" + nombre, (hx0 + hx1) / 2, (hz0 + hz1) / 2, 0.0, (hx1 - hx0, PISO_GRUESO, hz1 - hz0), mat,
+                    y=-hondo - PISO_GRUESO, choca=True)
+        piso[DATO] = "piso"
 
 def _casco(col, nombre, puntos, padre):
     """Caja de choque convexa (rampa) de puntos en coordenadas de Godot de la pieza `padre`."""

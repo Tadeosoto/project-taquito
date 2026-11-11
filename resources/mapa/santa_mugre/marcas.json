@@ -28,7 +28,7 @@
 			"tipo": "reflector",
 			"x": -398.05,
 			"z": 295.95,
-			"y": 7.3,
+			"y": 6.1,
 			"rot": 0.565,
 			"baja": 33
 		},
@@ -37,7 +37,7 @@
 			"tipo": "reflector",
 			"x": -385.95,
 			"z": 315.05,
-			"y": 7.3,
+			"y": 6.1,
 			"rot": -2.577,
 			"baja": 33
 		},
@@ -47,7 +47,7 @@
 			"x": -395.05,
 			"z": 320.2,
 			"y": 14.85,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -50,
 			"alcance": 7.0
 		},
@@ -82,8 +82,8 @@
 		{
 			"nombre": "Profe_Cancha",
 			"tipo": "mision",
-			"x": -401.0,
-			"z": 304.7,
+			"x": -404.6,
+			"z": 304.9,
 			"rot": -1.5708
 		},
 		{
@@ -101,7 +101,8 @@
 			"z": 305.5,
 			"rot": 0.0,
 			"tam": [9.0, 15.0],
-			"cuantos": 6
+			"cuantos": 6,
+			"y": -1.2
 		},
 		{
 			"nombre": "Guardia_GelA_0",
@@ -134,7 +135,7 @@
 			"x": -367.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -144,7 +145,7 @@
 			"x": -354.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -154,7 +155,7 @@
 			"x": -341.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -164,7 +165,7 @@
 			"x": -328.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -243,7 +244,7 @@
 			"x": -347.0,
 			"z": 337.6,
 			"y": 4.6,
-			"rot": 3.1416
+			"rot": -3.1416
 		},
 		{
 			"nombre": "Puerta_oxxo_0",
@@ -476,166 +477,159 @@
 		{
 			"nombre": "Foco_0",
 			"tipo": "foco",
-			"x": -401.52,
-			"z": 305.5,
-			"y": 3.69
-		},
-		{
-			"nombre": "Foco_1",
-			"tipo": "foco",
 			"x": -347.0,
 			"z": 276.63,
 			"y": 3.57
 		},
 		{
-			"nombre": "Foco_2",
+			"nombre": "Foco_1",
 			"tipo": "foco",
 			"x": -347.0,
 			"z": 289.64,
 			"y": 3.7
 		},
 		{
-			"nombre": "Foco_3",
+			"nombre": "Foco_2",
 			"tipo": "foco",
 			"x": -347.0,
 			"z": 303.73,
 			"y": 3.75
 		},
 		{
-			"nombre": "Foco_4",
+			"nombre": "Foco_3",
 			"tipo": "foco",
 			"x": -347.0,
 			"z": 314.64,
 			"y": 3.77
 		},
 		{
-			"nombre": "Foco_5",
+			"nombre": "Foco_4",
 			"tipo": "foco",
 			"x": -347.0,
 			"z": 329.25,
 			"y": 3.63
 		},
 		{
-			"nombre": "Foco_6",
+			"nombre": "Foco_5",
 			"tipo": "foco",
 			"x": -319.4,
 			"z": 300.0,
 			"y": 3.74
 		},
 		{
-			"nombre": "Foco_7",
+			"nombre": "Foco_6",
 			"tipo": "foco",
 			"x": -307.52,
 			"z": 300.0,
 			"y": 3.57
 		},
 		{
-			"nombre": "Foco_8",
+			"nombre": "Foco_7",
 			"tipo": "foco",
 			"x": -296.67,
 			"z": 300.0,
 			"y": 3.67
 		},
 		{
-			"nombre": "Foco_9",
+			"nombre": "Foco_8",
 			"tipo": "foco",
 			"x": -220.0,
 			"z": 294.93,
 			"y": 3.46
 		},
 		{
-			"nombre": "Foco_10",
+			"nombre": "Foco_9",
 			"tipo": "foco",
 			"x": -220.0,
 			"z": 309.11,
 			"y": 3.82
 		},
 		{
-			"nombre": "Foco_11",
+			"nombre": "Foco_10",
 			"tipo": "foco",
 			"x": -220.0,
 			"z": 320.71,
 			"y": 3.57
 		},
 		{
-			"nombre": "Foco_12",
+			"nombre": "Foco_11",
 			"tipo": "foco",
 			"x": -270.83,
 			"z": 352.0,
 			"y": 3.43
 		},
 		{
-			"nombre": "Foco_13",
+			"nombre": "Foco_12",
 			"tipo": "foco",
 			"x": -260.47,
 			"z": 352.0,
 			"y": 3.45
 		},
 		{
-			"nombre": "Foco_14",
+			"nombre": "Foco_13",
 			"tipo": "foco",
 			"x": -247.47,
 			"z": 352.0,
 			"y": 3.93
 		},
 		{
-			"nombre": "Foco_15",
+			"nombre": "Foco_14",
 			"tipo": "foco",
 			"x": -235.47,
 			"z": 352.0,
 			"y": 3.68
 		},
 		{
-			"nombre": "Foco_16",
+			"nombre": "Foco_15",
 			"tipo": "foco",
 			"x": -248.0,
 			"z": 388.55,
 			"y": 3.53
 		},
 		{
-			"nombre": "Foco_17",
+			"nombre": "Foco_16",
 			"tipo": "foco",
 			"x": -248.0,
 			"z": 402.85,
 			"y": 3.82
 		},
 		{
-			"nombre": "Foco_18",
+			"nombre": "Foco_17",
 			"tipo": "foco",
 			"x": -248.0,
 			"z": 413.14,
 			"y": 3.63
 		},
 		{
-			"nombre": "Foco_19",
+			"nombre": "Foco_18",
 			"tipo": "foco",
 			"x": -248.0,
 			"z": 427.11,
 			"y": 3.44
 		},
 		{
-			"nombre": "Foco_20",
+			"nombre": "Foco_19",
 			"tipo": "foco",
 			"x": -248.0,
 			"z": 440.71,
 			"y": 3.59
 		},
 		{
-			"nombre": "Foco_21",
+			"nombre": "Foco_20",
 			"tipo": "foco",
 			"x": -359.09,
 			"z": 302.0,
 			"y": 3.76
 		},
 		{
-			"nombre": "Foco_22",
+			"nombre": "Foco_21",
 			"tipo": "foco",
 			"x": -344.13,
 			"z": 302.0,
 			"y": 3.55
 		},
 		{
-			"nombre": "Foco_23",
+			"nombre": "Foco_22",
 			"tipo": "foco",
 			"x": -332.86,
 			"z": 302.0,

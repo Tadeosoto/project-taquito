@@ -73,6 +73,7 @@ exec(open(R + r"\colonia.py", encoding="utf-8").read(), {"__name__": "colonia", 
   - `trampa`: lugar iluminado que de noche atrae zombis si estas adentro (`tam`, `radio`).
   - `botin`: tampoco se escribe a mano; `exportar.py` pone uno por ruta de azoteas y en `colonia.BOTIN_EXTRA` (`que`: `chatarra`, `bolsa` o `curacion`).
   - `foco`: no se escribe a mano; `exportar.py` agrega uno por cada foco colgado de los callejones (`colonia.focos_callejones`).
+- **Hundidos** (`hundidos`): rectangulos (`puntos` [[x0, z0], [x1, z1]], `fondo` m) donde el piso baja; lo de adentro lleva su `y` negativa y la pieza `bajada` hace la zanja con escalones para llegar.
 - **Rutas** (`rutas`): tramos de frente de calle (`a`, `b`, `lado`, `fondo`) que `bloqueo.py` reserva y llena con una fila de casas de dos pisos con la azotea pareja y una `escalera` en la punta `a`: por ahi se escapa de los zombis de noche.
 - **Postes** (`postes`, los pone `bloqueo.py`): uno cada 26 m por calle, turnando la banqueta, con el esquema de `resources/map/alumbrado_mapa.json`. `exportar.py` los escribe en `resources/mapa/<colonia>/alumbrado.json` y en Godot los arma `MapAlumbrado` (con su luz de noche); en Blender salen de vista en la coleccion `Vista`, que no se exporta, y los cables colgados de poste a poste si van al .glb.
 - **Callejones:** calles de `empedrado` sin banqueta puestas a mano (con su reserva y un `patio`); `bloqueo.py` les pone casas que les dan el frente.
