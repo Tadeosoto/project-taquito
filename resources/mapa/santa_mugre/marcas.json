@@ -488,6 +488,13 @@
 			"rot": 0.0
 		},
 		{
+			"nombre": "Caja_GelA",
+			"tipo": "caja_gela",
+			"x": -339.1,
+			"z": 454.8,
+			"rot": 3.0457
+		},
+		{
 			"nombre": "Foco_0",
 			"tipo": "foco",
 			"x": -347.0,

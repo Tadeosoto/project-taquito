@@ -26,6 +26,7 @@ extends Node3D
 #           pies); de noche no esta
 #   trampa  un lugar iluminado que de noche atrae zombis si estas adentro (LuzTrampa): "tam"
 #           [ancho, largo] y "radio" m
+#   caja_gela  la caja del reten de GelA: de noche se abre una vez y suelta 1-2 cosas (CajaGela)
 #   placa   la placa azul con el nombre de la calle ("texto") en su poste, legible por los dos
 #           lados (tambien de exportar.py: colonia.placas_calles)
 #   letrero  un letrero de texto ("texto") viendo a su +Z, como el de las puertas (el mercado)
@@ -132,6 +133,11 @@ func _ready() -> void:
 				_letrero(marca)
 			"placa":
 				_placa(marca)
+			"caja_gela":
+				var caja := CajaGela.new()
+				caja.name = String(marca.get("nombre", "CajaGela"))
+				caja.transform = lugar(marca)
+				add_child(caja)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 

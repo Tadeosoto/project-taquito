@@ -305,6 +305,18 @@ func _vida(escena: Node) -> void:
 	var lonas := escena.find_children("Dia_*", "MeshInstance3D", true, false)
 	_revisar("de noche el tianguis queda en fierros", not lonas.is_empty() and lonas.all(func(n: Node) -> bool: return not (n as Node3D).visible),
 		"%d cuadros de lonas" % lonas.size())
+	# La caja del reten: de noche se abre una vez y da algo
+	var caja := escena.find_child("Caja_GelA", true, false)
+	if caja:
+		caja.set("_player_inside", true)
+		var inventario := root.get_node("/root/Inventory")
+		var antes_caja: int = inventario.call("unidades").size()
+		caja.call("interact")
+		var despues: int = inventario.call("unidades").size()
+		_revisar("la caja de GelA se saquea de noche, una vez", despues > antes_caja and not caja.call("is_player_inside"),
+			"%d -> %d" % [antes_caja, despues])
+	else:
+		_revisar("la caja de GelA se saquea de noche, una vez", false, "no hay caja")
 	var trampa := escena.find_child("Trampa_Cancha", true, false)
 	_revisar("la cancha atrapa de noche", trampa != null and trampa.call("adentro", Vector3(-392.0, 1.0, 305.5))
 		and not trampa.call("adentro", Vector3(-372.0, 1.0, 432.0)), "%s" % trampa)

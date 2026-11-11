@@ -7881,6 +7881,13 @@
 			"z": 432.2,
 			"y": 0.9,
 			"rot": 0.0
+		},
+		{
+			"nombre": "Caja_GelA",
+			"tipo": "caja_gela",
+			"x": -339.1,
+			"z": 454.8,
+			"rot": 3.0457
 		}
 	],
 	"negocios": [
