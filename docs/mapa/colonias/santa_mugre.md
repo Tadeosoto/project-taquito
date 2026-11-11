@@ -108,3 +108,28 @@ El recorte se cierra sin paredes invisibles, con cosas que tienen sentido en el 
 - **Mirador de la cancha**: una casa de dos pisos (`Cancha_Mirador`) en la esquina del callejon de la cancha, con escalera de fierro: desde su azotea se ve el partido y, de noche, es un escape. Las casas del `.json` aceptan `"detalles": false`.
 - **Tendederos en los callejones**: `colonia._tendederos` cruza cuerdas de fachada a fachada cada 4.5-8 m en cada callejon (empedrado sin banqueta), colgadas a 3.4-5.2 m, tres de cada cuatro con ropa. Una sola malla (`Tendederos`), sin choque.
 - **Para orientarse de lejos**: dos espectaculares en azoteas (`Espectacular_Cancha`: "Cuida el agua" de GelA hacia la plaza y Lazcano atras; `Espectacular_Avenida`: GelA hacia la avenida y el garrafon atras) y la antena pirata de Sofia, roja y blanca de 12 m, sobre su taller (`Antena_Sofia`): el taller sigue sin letrero, pero la antena se ve de toda la colonia. Ojo: la antena y el de la avenida van sobre casas `auto` (`Casa_218`, `Lote_17`) con su `y` a mano; si `bloqueo.py` les cambia los pisos, hay que moverlos.
+
+## Noche del 2026-11-10: hecho y pendiente (para AG)
+
+Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
+1. Cancha chica y encajonada (pruebas nuevas: se entra caminando por el callejon).
+2. Climas, antenas, calentadores solares, tanques de gas y tendederos en las casas.
+3. Mirador con escalera junto a la cancha (prueba nueva: se sube a la azotea).
+4. Tendederos con ropa cruzando los callejones.
+5. Espectaculares de GelA y la antena pirata de Sofia.
+
+Para revisar caminando (`scenes/mapa.tscn`): el color del muro y del piso de la cancha en Godot (en Blender se ven deslavados), si la ropa y los cables se ven bien de noche, y si los espectaculares se leen de lejos con la niebla.
+
+Ideas que siguen, en orden (del plan de esa noche):
+- Capillitas de la Virgen del Tinaco en esquinas (veladoras, flores, un tinaquito de yeso).
+- Basura en las orillas: bolsas negras, cajas, llantas (sin choque).
+- Topes con choque en rampa y baches con charco.
+- Rejas en ventanas de planta baja y puertas de herreria.
+- Carros abandonados sobre ladrillos (`carro` con `estado`).
+- Canchita de basquet en un lote; tiendita en cochera; tortilleria con fila.
+- Base chica de GelA con pipa de agua; mercado techado de lamina.
+- Atajos por patios (huecos en bardas) y botin en azoteas (premia subir).
+- Luz de noche: reflectores de la cancha prendidos, focos colgados en las privadas, el espectacular iluminado (en Godot, con `MapAlumbrado`).
+- Fachadas: mas saturadas, salitre y humedad abajo; casas de ladrillo aparente como en la foto (`casa` con `acabado`).
+- Suelo: grietas, parches, banquetas rotas por las raices.
+
