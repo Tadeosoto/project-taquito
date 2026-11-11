@@ -1,6 +1,7 @@
 {
 	"nombre": "santa_mugre",
 	"ficha": "docs/mapa/colonias/santa_mugre.md",
+	"deterioro": 0.5,
 	"recorte": [-420, 258, -185, 482],
 	"piezas": [
 		{
@@ -530,8 +531,8 @@
 			"desgaste": 0.64
 		},
 		{
-			"nombre": "Casa_5",
-			"tipo": "casa",
+			"nombre": "Casa_5_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -330.75,
 			"z": 326.79,
@@ -541,10 +542,14 @@
 				[-3.33, -2.52],
 				[-3.05, 2.86]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "verde",
-			"desgaste": 0.59
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_9",
@@ -635,8 +640,8 @@
 			"tienda": true
 		},
 		{
-			"nombre": "Casa_27",
-			"tipo": "casa",
+			"nombre": "Casa_27_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -294.89,
 			"z": 335.43,
@@ -646,10 +651,16 @@
 				[-4.17, -2.39],
 				[-3.98, 2.7]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "verde",
-			"desgaste": 0.53
+			"cochera": 4.56,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "persiana",
+			"reja_color": "gris"
 		},
 		{
 			"nombre": "Casa_30",
@@ -739,21 +750,25 @@
 			"desgaste": 0.63
 		},
 		{
-			"nombre": "Casa_48",
-			"tipo": "casa",
+			"nombre": "Casa_48_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -338.17,
 			"z": 289.71,
 			"puntos": [
-				[-4.42, 1.79],
 				[3.91, 2.74],
 				[4.42, -1.79],
-				[-3.91, -2.74]
+				[-3.91, -2.74],
+				[-4.42, 1.79]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 1,
 			"color": "naranja",
-			"desgaste": 0.44
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_50",
@@ -968,21 +983,25 @@
 			"desgaste": 0.8
 		},
 		{
-			"nombre": "Casa_98",
-			"tipo": "casa",
+			"nombre": "Casa_98_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -359.25,
 			"z": 305.97,
 			"puntos": [
-				[2.54, 2.41],
-				[2.27, -2.67],
 				[-2.54, -2.41],
-				[-2.27, 2.67]
+				[-2.27, 2.67],
+				[2.54, 2.41],
+				[2.27, -2.67]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 2,
 			"color": "lima",
-			"desgaste": 0.38
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_103",
@@ -1002,21 +1021,46 @@
 			"desgaste": 0.62
 		},
 		{
-			"nombre": "Casa_113",
-			"tipo": "casa",
+			"nombre": "Casa_113_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -193.66,
-			"z": 434.54,
+			"x": -193.56,
+			"z": 437.51,
 			"puntos": [
-				[3.43, -6.08],
-				[-3.84, -5.82],
-				[-3.43, 6.08],
-				[3.84, 5.82]
+				[3.74, 2.85],
+				[3.53, -3.1],
+				[-3.74, -2.84],
+				[-3.53, 3.11]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 3,
 			"color": "gris",
-			"desgaste": 0.66
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": true
+		},
+		{
+			"nombre": "Casa_113_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -193.76,
+			"z": 431.57,
+			"puntos": [
+				[3.74, 2.84],
+				[3.53, -3.11],
+				[-3.74, -2.85],
+				[-3.53, 3.1]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "gris",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_127",
@@ -1036,21 +1080,46 @@
 			"desgaste": 0.67
 		},
 		{
-			"nombre": "Casa_137",
-			"tipo": "casa",
+			"nombre": "Casa_137_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -334.35,
-			"z": 320.34,
+			"x": -334.25,
+			"z": 322.31,
 			"puntos": [
-				[4.77, 3.69],
-				[4.36, -4.18],
-				[-4.77, -3.69],
-				[-4.36, 4.18]
+				[4.67, 1.72],
+				[4.46, -2.21],
+				[-4.67, -1.72],
+				[-4.46, 2.21]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "rosa",
-			"desgaste": 0.36
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": true
+		},
+		{
+			"nombre": "Casa_137_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -334.45,
+			"z": 318.37,
+			"puntos": [
+				[4.67, 1.72],
+				[4.46, -2.21],
+				[-4.67, -1.72],
+				[-4.46, 2.21]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "rosa",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_143",
@@ -1070,21 +1139,25 @@
 			"desgaste": 0.43
 		},
 		{
-			"nombre": "Casa_148",
-			"tipo": "casa",
+			"nombre": "Casa_148_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -341.67,
 			"z": 318.67,
 			"puntos": [
+				[-2.32, 6.13],
 				[2.96, 5.85],
 				[2.32, -6.13],
-				[-2.96, -5.85],
-				[-2.32, 6.13]
+				[-2.96, -5.85]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 3,
 			"color": "crema",
-			"desgaste": 0.71
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_162",
@@ -1123,21 +1196,25 @@
 			"desgaste": 0.59
 		},
 		{
-			"nombre": "Casa_170",
-			"tipo": "casa",
+			"nombre": "Casa_170_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -242.61,
 			"z": 298.62,
 			"puntos": [
-				[2.42, 4.05],
 				[2.14, -4.21],
 				[-2.42, -4.05],
-				[-2.14, 4.21]
+				[-2.14, 4.21],
+				[2.42, 4.05]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 1,
 			"color": "rosa",
-			"desgaste": 0.56
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_175",
@@ -1177,21 +1254,48 @@
 			"desgaste": 0.48
 		},
 		{
-			"nombre": "Casa_185",
-			"tipo": "casa",
+			"nombre": "Casa_185_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -250.13,
-			"z": 274.86,
+			"x": -252.9,
+			"z": 274.95,
 			"puntos": [
-				[5.75, 6.11],
-				[5.32, -6.49],
-				[-5.75, -6.11],
-				[-5.32, 6.49]
+				[-2.55, 6.4],
+				[2.98, 6.21],
+				[2.55, -6.39],
+				[-2.98, -6.2]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 3,
 			"color": "gris",
-			"desgaste": 0.71
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "barrotes",
+			"reja_color": "gris"
+		},
+		{
+			"nombre": "Casa_185_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -247.36,
+			"z": 274.77,
+			"puntos": [
+				[-2.55, 6.39],
+				[2.98, 6.2],
+				[2.55, -6.4],
+				[-2.98, -6.21]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "gris",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_187",
@@ -1211,8 +1315,8 @@
 			"desgaste": 0.77
 		},
 		{
-			"nombre": "Casa_188",
-			"tipo": "casa",
+			"nombre": "Casa_188_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -295.97,
 			"z": 350.22,
@@ -1222,10 +1326,14 @@
 				[-4.19, -2.51],
 				[-3.92, 2.92]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "verde",
-			"desgaste": 0.43
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_191",
@@ -1247,21 +1355,73 @@
 			"desgaste": 0.35
 		},
 		{
-			"nombre": "Casa_194",
-			"tipo": "casa",
+			"nombre": "Casa_194_psm_0",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -300.56,
+			"z": 382.13,
+			"puntos": [
+				[8.37, 2.5],
+				[8.22, -2.98],
+				[-8.37, -2.5],
+				[-8.22, 2.98]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "mostaza",
+			"cochera": 6.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "barrotes",
+			"reja_color": "cafe"
+		},
+		{
+			"nombre": "Casa_194_psm_1",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -300.72,
 			"z": 376.64,
 			"puntos": [
-				[8.53, 7.99],
-				[8.06, -8.47],
-				[-8.53, -7.99],
-				[-8.06, 8.47]
+				[8.37, 2.5],
+				[8.22, -2.98],
+				[-8.37, -2.5],
+				[-8.22, 2.98]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "mostaza",
-			"desgaste": 0.73
+			"cochera": 6.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": false,
+			"reja": "tablones",
+			"reja_color": "gris"
+		},
+		{
+			"nombre": "Casa_194_psm_2",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -300.88,
+			"z": 371.15,
+			"puntos": [
+				[8.37, 2.5],
+				[8.22, -2.98],
+				[-8.37, -2.5],
+				[-8.22, 2.98]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "mostaza",
+			"cochera": 6.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": false,
+			"reja": "persiana",
+			"reja_color": "gris"
 		},
 		{
 			"nombre": "Casa_205",
@@ -1304,21 +1464,27 @@
 			"desgaste": 0.48
 		},
 		{
-			"nombre": "Casa_208",
-			"tipo": "casa",
+			"nombre": "Casa_208_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -205.13,
 			"z": 454.19,
 			"puntos": [
+				[-2.82, 6.11],
 				[2.15, 6.38],
 				[2.82, -6.11],
-				[-2.15, -6.38],
-				[-2.82, 6.11]
+				[-2.15, -6.38]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 3,
 			"color": "blanco",
-			"desgaste": 0.4
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true,
+			"reja": "tablones",
+			"reja_color": "negro"
 		},
 		{
 			"nombre": "Casa_209",
@@ -1358,8 +1524,8 @@
 			"tienda": true
 		},
 		{
-			"nombre": "Casa_211",
-			"tipo": "casa",
+			"nombre": "Casa_211_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -341.15,
 			"z": 294.84,
@@ -1369,10 +1535,14 @@
 				[-4.55, -2.11],
 				[-4.3, 2.58]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "crema",
-			"desgaste": 0.37
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_217",
@@ -1409,21 +1579,25 @@
 			"desgaste": 0.57
 		},
 		{
-			"nombre": "Casa_222",
-			"tipo": "casa",
+			"nombre": "Casa_222_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -358.5,
 			"z": 320.08,
 			"puntos": [
-				[2.53, 2.24],
-				[2.27, -2.5],
 				[-2.53, -2.24],
-				[-2.27, 2.5]
+				[-2.27, 2.5],
+				[2.53, 2.24],
+				[2.27, -2.5]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 2,
 			"color": "blanco",
-			"desgaste": 0.43
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_226",
@@ -1479,25 +1653,50 @@
 			"desgaste": 0.43
 		},
 		{
-			"nombre": "Casa_238",
-			"tipo": "casa",
+			"nombre": "Casa_238_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -241.9,
-			"z": 277.17,
+			"x": -241.84,
+			"z": 279.03,
 			"puntos": [
-				[2.73, 3.62],
-				[2.48, -3.8],
-				[-2.73, -3.62],
-				[-2.48, 3.8]
+				[2.67, 1.76],
+				[2.54, -1.94],
+				[-2.67, -1.77],
+				[-2.54, 1.94]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "mostaza",
-			"desgaste": 0.49
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
-			"nombre": "Casa_242",
-			"tipo": "casa",
+			"nombre": "Casa_238_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -241.96,
+			"z": 275.31,
+			"puntos": [
+				[2.67, 1.77],
+				[2.54, -1.94],
+				[-2.67, -1.76],
+				[-2.54, 1.94]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "mostaza",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": true
+		},
+		{
+			"nombre": "Casa_242_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -192.93,
 			"z": 443.34,
@@ -1507,14 +1706,18 @@
 				[-3.19, -2.69],
 				[-3.67, 1.98]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "rosa",
-			"desgaste": 0.72
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
-			"nombre": "Casa_243",
-			"tipo": "casa",
+			"nombre": "Casa_243_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -199.77,
 			"z": 437.46,
@@ -1524,27 +1727,37 @@
 				[-2.67, -3.16],
 				[-2.45, 3.34]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "terracota",
-			"desgaste": 0.43
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
-			"nombre": "Casa_244",
-			"tipo": "casa",
+			"nombre": "Casa_244_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -265.48,
 			"z": 364.98,
 			"puntos": [
+				[-2.15, 5.18],
 				[2.54, 5.0],
 				[2.15, -5.18],
-				[-2.54, -5.0],
-				[-2.15, 5.18]
+				[-2.54, -5.0]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 3,
 			"color": "azul",
-			"desgaste": 0.49
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": true,
+			"reja": "persiana",
+			"reja_color": "gris"
 		},
 		{
 			"nombre": "Casa_246",
@@ -1620,21 +1833,27 @@
 			"desgaste": 0.7
 		},
 		{
-			"nombre": "Casa_260",
-			"tipo": "casa",
+			"nombre": "Casa_260_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -366.86,
 			"z": 476.74,
 			"puntos": [
-				[2.59, 5.0],
 				[2.25, -5.17],
 				[-2.59, -5.0],
-				[-2.25, 5.17]
+				[-2.25, 5.17],
+				[2.59, 5.0]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 1,
 			"color": "mostaza",
-			"desgaste": 0.4
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "persiana",
+			"reja_color": "blanco"
 		},
 		{
 			"nombre": "Casa_263",
@@ -1656,8 +1875,8 @@
 			"desgaste": 0.35
 		},
 		{
-			"nombre": "Casa_266",
-			"tipo": "casa",
+			"nombre": "Casa_266_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -292.33,
 			"z": 340.66,
@@ -1667,14 +1886,20 @@
 				[-6.54, -2.53],
 				[-6.33, 3.01]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "crema",
-			"desgaste": 0.58
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": false,
+			"reja": "tablones",
+			"reja_color": "cafe"
 		},
 		{
-			"nombre": "Casa_270",
-			"tipo": "casa",
+			"nombre": "Casa_270_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -295.1,
 			"z": 259.4,
@@ -1684,27 +1909,56 @@
 				[-6.58, -2.57],
 				[-6.35, 3.09]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "mostaza",
-			"desgaste": 0.39
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
-			"nombre": "Casa_271",
-			"tipo": "casa",
+			"nombre": "Casa_271_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -192.93,
-			"z": 452.76,
+			"x": -190.73,
+			"z": 452.98,
 			"puntos": [
-				[4.75, -3.37],
-				[-4.01, -4.27],
-				[-4.8, 3.38],
-				[4.05, 4.26]
+				[2.55, -3.59],
+				[-1.83, -4.04],
+				[-2.57, 3.6],
+				[1.85, 4.04]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "mostaza",
-			"desgaste": 0.5
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
+		},
+		{
+			"nombre": "Casa_271_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -195.13,
+			"z": 452.54,
+			"puntos": [
+				[2.57, -3.6],
+				[-1.81, -4.05],
+				[-2.6, 3.6],
+				[1.83, 4.04]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "mostaza",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_274",
@@ -1742,8 +1996,8 @@
 			"desgaste": 0.76
 		},
 		{
-			"nombre": "Casa_277",
-			"tipo": "casa",
+			"nombre": "Casa_277_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -338.33,
 			"z": 309.94,
@@ -1753,14 +2007,20 @@
 				[-3.61, -2.35],
 				[-3.34, 2.73]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "crema",
-			"desgaste": 0.8
+			"cochera": 4.51,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "tablones",
+			"reja_color": "cafe"
 		},
 		{
-			"nombre": "Casa_278",
-			"tipo": "casa",
+			"nombre": "Casa_278_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -288.64,
 			"z": 330.18,
@@ -1770,10 +2030,14 @@
 				[-2.46, -2.37],
 				[-2.27, 2.55]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "mostaza",
-			"desgaste": 0.7
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_283",
@@ -1810,38 +2074,71 @@
 			"desgaste": 0.43
 		},
 		{
-			"nombre": "Casa_291",
-			"tipo": "casa",
+			"nombre": "Casa_291_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -219.73,
-			"z": 269.78,
+			"x": -222.27,
+			"z": 269.9,
 			"puntos": [
-				[5.37, 6.33],
-				[4.78, -6.8],
-				[-5.37, -6.33],
-				[-4.78, 6.8]
+				[-2.24, 6.68],
+				[2.83, 6.45],
+				[2.24, -6.68],
+				[-2.83, -6.45]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 3,
 			"color": "turquesa",
-			"desgaste": 0.53
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
-			"nombre": "Casa_292",
-			"tipo": "casa",
+			"nombre": "Casa_291_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -217.19,
+			"z": 269.66,
+			"puntos": [
+				[-2.24, 6.68],
+				[2.83, 6.45],
+				[2.24, -6.68],
+				[-2.83, -6.45]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "turquesa",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "persiana",
+			"reja_color": "blanco"
+		},
+		{
+			"nombre": "Casa_292_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -312.6,
 			"z": 336.12,
 			"puntos": [
-				[5.4, 2.26],
-				[5.22, -2.66],
 				[-5.4, -2.26],
-				[-5.22, 2.66]
+				[-5.22, 2.66],
+				[5.4, 2.26],
+				[5.22, -2.66]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 2,
 			"color": "turquesa",
-			"desgaste": 0.5
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "barrotes",
+			"reja_color": "blanco"
 		},
 		{
 			"nombre": "Casa_294",
@@ -1861,8 +2158,8 @@
 			"desgaste": 0.66
 		},
 		{
-			"nombre": "Casa_295",
-			"tipo": "casa",
+			"nombre": "Casa_295_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -333.41,
 			"z": 294.43,
@@ -1872,10 +2169,14 @@
 				[-2.38, -2.22],
 				[-2.13, 2.47]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "mostaza",
-			"desgaste": 0.52
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_296",
@@ -1913,21 +2214,25 @@
 			"desgaste": 0.64
 		},
 		{
-			"nombre": "Casa_299",
-			"tipo": "casa",
+			"nombre": "Casa_299_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -221.84,
 			"z": 260.68,
 			"puntos": [
-				[3.54, 2.35],
-				[3.33, -2.65],
 				[-3.54, -2.35],
-				[-3.33, 2.65]
+				[-3.33, 2.65],
+				[3.54, 2.35],
+				[3.33, -2.65]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 2,
 			"color": "terracota",
-			"desgaste": 0.79
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_313",
@@ -1981,8 +2286,8 @@
 			"desgaste": 0.64
 		},
 		{
-			"nombre": "Casa_316",
-			"tipo": "casa",
+			"nombre": "Casa_316_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -351.29,
 			"z": 471.58,
@@ -1992,27 +2297,56 @@
 				[-2.75, 2.12],
 				[2.05, 2.81]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "mostaza",
-			"desgaste": 0.63
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
-			"nombre": "Casa_317",
-			"tipo": "casa",
+			"nombre": "Casa_317_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -227.52,
-			"z": 269.12,
+			"x": -227.64,
+			"z": 266.28,
 			"puntos": [
-				[2.84, 5.57],
-				[2.36, -5.79],
-				[-2.84, -5.57],
-				[-2.36, 5.79]
+				[-2.72, -2.73],
+				[-2.48, 2.95],
+				[2.72, 2.73],
+				[2.48, -2.95]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 2,
 			"color": "crema",
-			"desgaste": 0.77
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
+		},
+		{
+			"nombre": "Casa_317_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -227.4,
+			"z": 271.96,
+			"puntos": [
+				[-2.72, -2.73],
+				[-2.48, 2.95],
+				[2.72, 2.73],
+				[2.48, -2.95]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "crema",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_318",
@@ -2066,8 +2400,8 @@
 			"desgaste": 0.39
 		},
 		{
-			"nombre": "Casa_325",
-			"tipo": "casa",
+			"nombre": "Casa_325_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -205.49,
 			"z": 344.92,
@@ -2077,10 +2411,16 @@
 				[-2.78, 7.26],
 				[3.33, 7.03]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "crema",
-			"desgaste": 0.42
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "barrotes",
+			"reja_color": "negro"
 		},
 		{
 			"nombre": "Casa_330",
@@ -2118,21 +2458,48 @@
 			"desgaste": 0.64
 		},
 		{
-			"nombre": "Casa_338",
-			"tipo": "casa",
+			"nombre": "Casa_338_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -212.54,
-			"z": 358.21,
+			"x": -214.78,
+			"z": 358.3,
 			"puntos": [
-				[4.7, 5.68],
-				[4.26, -6.03],
-				[-4.7, -5.68],
-				[-4.26, 6.03]
+				[-2.02, 5.94],
+				[2.46, 5.77],
+				[2.02, -5.94],
+				[-2.46, -5.77]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 3,
 			"color": "turquesa",
-			"desgaste": 0.49
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "tablones",
+			"reja_color": "cafe"
+		},
+		{
+			"nombre": "Casa_338_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -210.3,
+			"z": 358.12,
+			"puntos": [
+				[-2.02, 5.94],
+				[2.46, 5.77],
+				[2.02, -5.94],
+				[-2.46, -5.77]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "turquesa",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_339",
@@ -2171,21 +2538,25 @@
 			"desgaste": 0.48
 		},
 		{
-			"nombre": "Casa_346",
-			"tipo": "casa",
+			"nombre": "Casa_346_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -257.02,
 			"z": 428.03,
 			"puntos": [
-				[4.09, 2.6],
-				[3.9, -2.88],
 				[-4.09, -2.6],
-				[-3.9, 2.88]
+				[-3.9, 2.88],
+				[4.09, 2.6],
+				[3.9, -2.88]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 2,
 			"color": "azul",
-			"desgaste": 0.73
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_347",
@@ -2241,8 +2612,8 @@
 			"desgaste": 0.43
 		},
 		{
-			"nombre": "Casa_353",
-			"tipo": "casa",
+			"nombre": "Casa_353_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -206.48,
 			"z": 260.01,
@@ -2252,10 +2623,14 @@
 				[-3.84, -2.34],
 				[-3.62, 2.66]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "mostaza",
-			"desgaste": 0.69
+			"cochera": 4.49,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_359",
@@ -2294,25 +2669,29 @@
 			"desgaste": 0.72
 		},
 		{
-			"nombre": "Casa_362",
-			"tipo": "casa",
+			"nombre": "Casa_362_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -255.84,
 			"z": 408.08,
 			"puntos": [
-				[5.94, 2.32],
-				[5.76, -2.72],
 				[-5.94, -2.32],
-				[-5.76, 2.72]
+				[-5.76, 2.72],
+				[5.94, 2.32],
+				[5.76, -2.72]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 2,
 			"color": "mostaza",
-			"desgaste": 0.41
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
-			"nombre": "Casa_369",
-			"tipo": "casa",
+			"nombre": "Casa_369_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -337.41,
 			"z": 284.8,
@@ -2322,10 +2701,14 @@
 				[-3.52, -2.12],
 				[-3.28, 2.48]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "mostaza",
-			"desgaste": 0.72
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_370",
@@ -2383,8 +2766,8 @@
 			"desgaste": 0.52
 		},
 		{
-			"nombre": "Casa_386",
-			"tipo": "casa",
+			"nombre": "Casa_386_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -294.5,
 			"z": 345.94,
@@ -2394,14 +2777,18 @@
 				[-4.16, -2.27],
 				[-3.98, 2.58]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "verde",
-			"desgaste": 0.44
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
-			"nombre": "Casa_390",
-			"tipo": "casa",
+			"nombre": "Casa_390_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -418.22,
 			"z": 405.2,
@@ -2411,27 +2798,81 @@
 				[-3.45, -2.61],
 				[-3.24, 2.86]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "terracota",
-			"desgaste": 0.43
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
-			"nombre": "Casa_392",
-			"tipo": "casa",
+			"nombre": "Casa_392_psm_0",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -204.67,
+			"z": 437.41,
+			"puntos": [
+				[2.14, -5.67],
+				[-2.52, -5.5],
+				[-2.14, 5.67],
+				[2.52, 5.5]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "crema",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true,
+			"reja": "tablones",
+			"reja_color": "cafe"
+		},
+		{
+			"nombre": "Casa_392_psm_1",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -209.32,
 			"z": 437.57,
 			"puntos": [
-				[6.79, -5.83],
-				[-7.17, -5.34],
-				[-6.79, 5.83],
-				[7.17, 5.34]
+				[2.14, -5.67],
+				[-2.52, -5.5],
+				[-2.14, 5.67],
+				[2.52, 5.5]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "crema",
-			"desgaste": 0.43
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true,
+			"reja": "tablones",
+			"reja_color": "blanco"
+		},
+		{
+			"nombre": "Casa_392_psm_2",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -213.97,
+			"z": 437.73,
+			"puntos": [
+				[2.14, -5.67],
+				[-2.52, -5.5],
+				[-2.14, 5.67],
+				[2.52, 5.5]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "crema",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_395",
@@ -2470,8 +2911,8 @@
 			"desgaste": 0.37
 		},
 		{
-			"nombre": "Casa_415",
-			"tipo": "casa",
+			"nombre": "Casa_415_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -418.6,
 			"z": 395.09,
@@ -2481,10 +2922,14 @@
 				[-3.45, -2.73],
 				[-3.24, 2.99]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "crema",
-			"desgaste": 0.55
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_418",
@@ -2538,21 +2983,46 @@
 			"desgaste": 0.51
 		},
 		{
-			"nombre": "Casa_431",
-			"tipo": "casa",
+			"nombre": "Casa_431_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -297.58,
-			"z": 292.23,
+			"x": -297.47,
+			"z": 294.7,
 			"puntos": [
-				[4.28, 4.75],
-				[3.85, -5.11],
-				[-4.28, -4.75],
-				[-3.85, 5.11]
+				[4.17, 2.28],
+				[3.96, -2.65],
+				[-4.17, -2.29],
+				[-3.96, 2.64]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "rosa",
-			"desgaste": 0.75
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
+		},
+		{
+			"nombre": "Casa_431_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -297.69,
+			"z": 289.77,
+			"puntos": [
+				[4.17, 2.28],
+				[3.96, -2.65],
+				[-4.17, -2.29],
+				[-3.96, 2.64]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "rosa",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_434",
@@ -2572,21 +3042,73 @@
 			"desgaste": 0.5
 		},
 		{
-			"nombre": "Casa_436",
-			"tipo": "casa",
+			"nombre": "Casa_436_psm_0",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -263.59,
+			"z": 256.87,
+			"puntos": [
+				[-4.18, -2.29],
+				[-4.01, 2.57],
+				[4.18, 2.29],
+				[4.01, -2.57]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "gris",
+			"cochera": 6.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "persiana",
+			"reja_color": "negro"
+		},
+		{
+			"nombre": "Casa_436_psm_1",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -263.43,
 			"z": 261.72,
 			"puntos": [
-				[4.34, 7.14],
-				[3.85, -7.42],
-				[-4.34, -7.14],
-				[-3.85, 7.42]
+				[-4.18, -2.29],
+				[-4.01, 2.57],
+				[4.18, 2.29],
+				[4.01, -2.57]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 2,
 			"color": "gris",
-			"desgaste": 0.51
+			"cochera": 6.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "persiana",
+			"reja_color": "negro"
+		},
+		{
+			"nombre": "Casa_436_psm_2",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -263.27,
+			"z": 266.57,
+			"puntos": [
+				[-4.18, -2.29],
+				[-4.01, 2.57],
+				[4.18, 2.29],
+				[4.01, -2.57]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "gris",
+			"cochera": 6.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "persiana",
+			"reja_color": "gris"
 		},
 		{
 			"nombre": "Casa_441",
@@ -2606,38 +3128,48 @@
 			"desgaste": 0.51
 		},
 		{
-			"nombre": "Casa_450",
-			"tipo": "casa",
+			"nombre": "Casa_450_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -219.09,
 			"z": 440.39,
 			"puntos": [
-				[2.98, 3.0],
-				[2.77, -3.2],
 				[-2.98, -3.0],
-				[-2.77, 3.2]
+				[-2.77, 3.2],
+				[2.98, 3.0],
+				[2.77, -3.2]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 2,
 			"color": "naranja",
-			"desgaste": 0.44
+			"cochera": 4.09,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
-			"nombre": "Casa_453",
-			"tipo": "casa",
+			"nombre": "Casa_453_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -194.88,
 			"z": 344.51,
 			"puntos": [
+				[-2.2, 7.24],
 				[2.75, 7.05],
 				[2.2, -7.24],
-				[-2.75, -7.05],
-				[-2.2, 7.24]
+				[-2.75, -7.05]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 3,
 			"color": "terracota",
-			"desgaste": 0.66
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": true,
+			"reja": "barrotes",
+			"reja_color": "negro"
 		},
 		{
 			"nombre": "Casa_454",
@@ -2657,25 +3189,31 @@
 			"desgaste": 0.72
 		},
 		{
-			"nombre": "Casa_462",
-			"tipo": "casa",
+			"nombre": "Casa_462_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -312.61,
 			"z": 285.14,
 			"puntos": [
-				[5.27, 2.53],
-				[5.07, -2.92],
 				[-5.27, -2.53],
-				[-5.07, 2.92]
+				[-5.07, 2.92],
+				[5.27, 2.53],
+				[5.07, -2.92]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 2,
 			"color": "lima",
-			"desgaste": 0.48
+			"cochera": 5.19,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": false,
+			"reja": "tablones",
+			"reja_color": "cafe"
 		},
 		{
-			"nombre": "Casa_464",
-			"tipo": "casa",
+			"nombre": "Casa_464_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -418.53,
 			"z": 425.57,
@@ -2685,10 +3223,14 @@
 				[-4.52, -2.75],
 				[-4.3, 3.08]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "gris",
-			"desgaste": 0.69
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Casa_468",
@@ -2742,21 +3284,27 @@
 			"desgaste": 0.7
 		},
 		{
-			"nombre": "Casa_482",
-			"tipo": "casa",
+			"nombre": "Casa_482_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -356.12,
 			"z": 347.91,
 			"puntos": [
-				[3.08, 7.43],
 				[2.65, -7.6],
 				[-3.08, -7.43],
-				[-2.65, 7.6]
+				[-2.65, 7.6],
+				[3.08, 7.43]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 1,
 			"color": "crema",
-			"desgaste": 0.71
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "barrotes",
+			"reja_color": "cafe"
 		},
 		{
 			"nombre": "Casa_484",
@@ -2848,21 +3396,27 @@
 			"desgaste": 0.66
 		},
 		{
-			"nombre": "Casa_518",
-			"tipo": "casa",
+			"nombre": "Casa_518_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -321.96,
 			"z": 477.88,
 			"puntos": [
-				[1.66, 7.16],
 				[2.92, -6.73],
 				[-1.66, -7.16],
-				[-2.92, 6.73]
+				[-2.92, 6.73],
+				[1.66, 7.16]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 1,
 			"color": "gris",
-			"desgaste": 0.52
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "barrotes",
+			"reja_color": "gris"
 		},
 		{
 			"nombre": "Casa_520",
@@ -2916,8 +3470,8 @@
 			"desgaste": 0.44
 		},
 		{
-			"nombre": "Casa_532",
-			"tipo": "casa",
+			"nombre": "Casa_532_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -295.02,
 			"z": 330.45,
@@ -2927,10 +3481,14 @@
 				[-4.17, -2.39],
 				[-3.98, 2.69]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "mostaza",
-			"desgaste": 0.69
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_533",
@@ -2950,21 +3508,25 @@
 			"desgaste": 0.76
 		},
 		{
-			"nombre": "Casa_534",
-			"tipo": "casa",
+			"nombre": "Casa_534_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -345.85,
 			"z": 349.2,
 			"puntos": [
-				[2.79, 5.86],
 				[2.45, -6.01],
 				[-2.79, -5.86],
-				[-2.45, 6.01]
+				[-2.45, 6.01],
+				[2.79, 5.86]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 1,
 			"color": "verde",
-			"desgaste": 0.53
+			"cochera": 6.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_535",
@@ -2984,21 +3546,25 @@
 			"desgaste": 0.37
 		},
 		{
-			"nombre": "Casa_545",
-			"tipo": "casa",
+			"nombre": "Casa_545_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -311.02,
 			"z": 351.44,
 			"puntos": [
-				[4.4, 2.4],
-				[4.21, -2.72],
 				[-4.4, -2.4],
-				[-4.21, 2.72]
+				[-4.21, 2.72],
+				[4.4, 2.4],
+				[4.21, -2.72]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 2,
 			"color": "lima",
-			"desgaste": 0.71
+			"cochera": 6.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_546",
@@ -3037,21 +3603,25 @@
 			"desgaste": 0.73
 		},
 		{
-			"nombre": "Casa_558",
-			"tipo": "casa",
+			"nombre": "Casa_558_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -418.55,
 			"z": 442.9,
 			"puntos": [
+				[-3.3, 2.66],
 				[3.49, 2.39],
 				[3.3, -2.66],
-				[-3.49, -2.39],
-				[-3.3, 2.66]
+				[-3.49, -2.39]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 3,
 			"color": "verde",
-			"desgaste": 0.54
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Casa_559",
@@ -3088,21 +3658,46 @@
 			"desgaste": 0.67
 		},
 		{
-			"nombre": "Lote_2",
-			"tipo": "casa",
+			"nombre": "Lote_2_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -199.83,
-			"z": 414.62,
+			"x": -201.76,
+			"z": 414.36,
 			"puntos": [
-				[-4.58, 4.87],
-				[3.12, 5.91],
-				[4.58, -4.87],
-				[-3.12, -5.91]
+				[-2.66, 5.13],
+				[1.2, 5.65],
+				[2.66, -5.13],
+				[-1.19, -5.65]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "terracota",
-			"desgaste": 0.54
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_2_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -197.91,
+			"z": 414.88,
+			"puntos": [
+				[-2.66, 5.13],
+				[1.19, 5.65],
+				[2.66, -5.13],
+				[-1.2, -5.65]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "terracota",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
 			"nombre": "Lote_3",
@@ -3156,21 +3751,46 @@
 			"desgaste": 0.8
 		},
 		{
-			"nombre": "Lote_6",
-			"tipo": "casa",
+			"nombre": "Lote_6_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -239.59,
-			"z": 387.43,
+			"x": -239.67,
+			"z": 385.5,
 			"puntos": [
-				[3.33, -4.0],
-				[3.66, 3.7],
-				[-3.33, 4.0],
-				[-3.66, -3.7]
+				[3.41, -2.07],
+				[3.58, 1.77],
+				[-3.41, 2.08],
+				[-3.58, -1.77]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "azul",
-			"desgaste": 0.43
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_6_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -239.51,
+			"z": 389.36,
+			"puntos": [
+				[3.41, -2.08],
+				[3.58, 1.77],
+				[-3.41, 2.07],
+				[-3.58, -1.77]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "azul",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Lote_7",
@@ -3190,21 +3810,46 @@
 			"desgaste": 0.45
 		},
 		{
-			"nombre": "Lote_8",
-			"tipo": "casa",
+			"nombre": "Lote_8_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -238.88,
-			"z": 404.22,
+			"x": -238.97,
+			"z": 402.15,
 			"puntos": [
-				[3.32, -4.3],
-				[3.67, 4.0],
-				[-3.32, 4.3],
-				[-3.67, -4.0]
+				[3.41, -2.23],
+				[3.58, 1.93],
+				[-3.41, 2.22],
+				[-3.58, -1.93]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "terracota",
-			"desgaste": 0.6
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_8_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -238.79,
+			"z": 406.3,
+			"puntos": [
+				[3.41, -2.23],
+				[3.58, 1.92],
+				[-3.41, 2.22],
+				[-3.58, -1.93]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "terracota",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
 			"nombre": "Baldio_9",
@@ -3247,8 +3892,8 @@
 			"desgaste": 0.48
 		},
 		{
-			"nombre": "Lote_11",
-			"tipo": "casa",
+			"nombre": "Lote_11_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -399.78,
 			"z": 467.67,
@@ -3258,10 +3903,14 @@
 				[1.93, 3.69],
 				[-2.56, 3.28]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "mostaza",
-			"desgaste": 0.75
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": true
 		},
 		{
 			"nombre": "Lote_12",
@@ -3298,21 +3947,46 @@
 			"desgaste": 0.4
 		},
 		{
-			"nombre": "Lote_14",
-			"tipo": "casa",
+			"nombre": "Lote_14_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -316.12,
-			"z": 475.22,
+			"x": -318.04,
+			"z": 475.05,
 			"puntos": [
-				[-3.52, -3.83],
-				[4.15, -3.14],
-				[3.52, 3.83],
-				[-4.15, 3.14]
+				[-1.6, -3.66],
+				[2.23, -3.31],
+				[1.6, 3.66],
+				[-2.23, 3.31]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "crema",
-			"desgaste": 0.37
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_14_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -314.2,
+			"z": 475.39,
+			"puntos": [
+				[-1.6, -3.66],
+				[2.23, -3.31],
+				[1.6, 3.66],
+				[-2.23, 3.31]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "crema",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Lote_15",
@@ -3424,42 +4098,94 @@
 			"tienda": true
 		},
 		{
-			"nombre": "Lote_21",
-			"tipo": "casa",
+			"nombre": "Lote_21_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -238.63,
-			"z": 363.0,
+			"x": -236.55,
+			"z": 362.94,
 			"puntos": [
-				[4.31, 5.39],
-				[-4.02, 5.61],
-				[-4.31, -5.39],
-				[4.02, -5.61]
+				[2.23, 5.45],
+				[-1.94, 5.56],
+				[-2.23, -5.44],
+				[1.94, -5.55]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 0,
 			"color": "mostaza",
-			"desgaste": 0.4
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": true,
+			"reja": "persiana",
+			"reja_color": "negro"
 		},
 		{
-			"nombre": "Lote_22",
-			"tipo": "casa",
+			"nombre": "Lote_21_psm_1",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -247.08,
-			"z": 365.22,
+			"x": -240.71,
+			"z": 363.06,
 			"puntos": [
-				[4.43, 3.39],
-				[-4.24, 3.61],
-				[-4.43, -3.39],
-				[4.24, -3.61]
+				[2.23, 5.44],
+				[-1.94, 5.56],
+				[-2.23, -5.44],
+				[1.94, -5.56]
 			],
-			"pisos": 2,
 			"frente": 0,
-			"color": "verde",
-			"desgaste": 0.67
+			"pisos": 1,
+			"color": "mostaza",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
-			"nombre": "Lote_23",
-			"tipo": "casa",
+			"nombre": "Lote_22_psm_0",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -244.91,
+			"z": 365.17,
+			"puntos": [
+				[2.26, 3.44],
+				[-2.07, 3.55],
+				[-2.26, -3.45],
+				[2.07, -3.56]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "verde",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true
+		},
+		{
+			"nombre": "Lote_22_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -249.25,
+			"z": 365.28,
+			"puntos": [
+				[2.26, 3.44],
+				[-2.07, 3.56],
+				[-2.26, -3.44],
+				[2.07, -3.56]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "verde",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_23_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -254.47,
 			"z": 365.42,
@@ -3469,14 +4195,18 @@
 				[-3.15, -3.42],
 				[2.97, -3.58]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "blanco",
-			"desgaste": 0.49
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
-			"nombre": "Lote_24",
-			"tipo": "casa",
+			"nombre": "Lote_24_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -259.78,
 			"z": 365.56,
@@ -3486,14 +4216,18 @@
 				[-2.34, -3.44],
 				[2.16, -3.56]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "gris",
-			"desgaste": 0.71
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
-			"nombre": "Lote_25",
-			"tipo": "casa",
+			"nombre": "Lote_25_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -270.37,
 			"z": 362.55,
@@ -3503,10 +4237,16 @@
 				[-2.43, -6.72],
 				[2.07, -6.84]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "rosa",
-			"desgaste": 0.52
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "persiana",
+			"reja_color": "cafe"
 		},
 		{
 			"nombre": "Lote_26",
@@ -3571,59 +4311,140 @@
 			"desgaste": 0.65
 		},
 		{
-			"nombre": "Lote_30",
-			"tipo": "casa",
+			"nombre": "Lote_30_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -198.12,
-			"z": 401.41,
+			"x": -198.1,
+			"z": 403.38,
 			"puntos": [
-				[5.79, 3.86],
-				[5.69, -4.0],
-				[-5.79, -3.86],
-				[-5.69, 4.0]
+				[5.77, 1.89],
+				[5.72, -2.04],
+				[-5.76, -1.9],
+				[-5.71, 2.03]
 			],
+			"frente": 0,
 			"pisos": 2,
-			"frente": 0,
 			"color": "gris",
-			"desgaste": 0.61
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": false,
+			"reja": "tablones",
+			"reja_color": "gris"
 		},
 		{
-			"nombre": "Lote_31",
-			"tipo": "casa",
+			"nombre": "Lote_30_psm_1",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -197.65,
-			"z": 393.47,
+			"x": -198.15,
+			"z": 399.44,
 			"puntos": [
-				[5.23, 3.94],
-				[5.13, -4.07],
-				[-5.23, -3.94],
-				[-5.13, 4.07]
+				[5.77, 1.9],
+				[5.72, -2.03],
+				[-5.76, -1.89],
+				[-5.72, 2.04]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 2,
+			"color": "gris",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false,
+			"reja": "tablones",
+			"reja_color": "cafe"
+		},
+		{
+			"nombre": "Lote_31_psm_0",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -197.62,
+			"z": 395.47,
+			"puntos": [
+				[5.2, 1.94],
+				[5.15, -2.07],
+				[-5.2, -1.94],
+				[-5.16, 2.07]
+			],
+			"frente": 0,
+			"pisos": 1,
 			"color": "turquesa",
-			"desgaste": 0.64
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
-			"nombre": "Lote_32",
-			"tipo": "casa",
+			"nombre": "Lote_31_psm_1",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -196.07,
-			"z": 385.35,
+			"x": -197.68,
+			"z": 391.47,
 			"puntos": [
-				[3.55, 4.05],
-				[3.45, -4.14],
-				[-3.55, -4.05],
-				[-3.45, 4.14]
+				[5.2, 1.94],
+				[5.16, -2.07],
+				[-5.2, -1.94],
+				[-5.15, 2.07]
 			],
-			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
-			"desgaste": 0.39
+			"pisos": 1,
+			"color": "turquesa",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "tablones",
+			"reja_color": "cafe"
 		},
 		{
-			"nombre": "Lote_33",
-			"tipo": "casa",
+			"nombre": "Lote_32_psm_0",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -196.04,
+			"z": 387.4,
+			"puntos": [
+				[3.53, 2.0],
+				[3.47, -2.09],
+				[-3.53, -2.0],
+				[-3.47, 2.09]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "terracota",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true
+		},
+		{
+			"nombre": "Lote_32_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -196.09,
+			"z": 383.3,
+			"puntos": [
+				[3.52, 2.0],
+				[3.47, -2.09],
+				[-3.53, -2.0],
+				[-3.48, 2.09]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "terracota",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_33_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -196.14,
 			"z": 379.01,
@@ -3633,10 +4454,14 @@
 				[-3.53, -2.21],
 				[-3.47, 2.29]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "azul",
-			"desgaste": 0.75
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
 			"nombre": "Lote_34",
@@ -3717,8 +4542,8 @@
 			"desgaste": 0.49
 		},
 		{
-			"nombre": "Lote_39",
-			"tipo": "casa",
+			"nombre": "Lote_39_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -400.21,
 			"z": 432.92,
@@ -3728,10 +4553,14 @@
 				[3.63, 3.25],
 				[3.36, -3.52]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "crema",
-			"desgaste": 0.57
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true
 		},
 		{
 			"nombre": "Lote_40",
@@ -3751,55 +4580,138 @@
 			"desgaste": 0.62
 		},
 		{
-			"nombre": "Lote_41",
-			"tipo": "casa",
+			"nombre": "Lote_41_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -270.63,
-			"z": 340.65,
+			"x": -272.56,
+			"z": 340.73,
 			"puntos": [
-				[-4.08, -5.0],
-				[3.66, -5.31],
-				[4.08, 5.0],
-				[-3.66, 5.31]
+				[-2.14, -5.08],
+				[1.73, -5.23],
+				[2.14, 5.08],
+				[-1.73, 5.23]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "blanco",
-			"desgaste": 0.53
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": false,
+			"reja": "barrotes",
+			"reja_color": "negro"
 		},
 		{
-			"nombre": "Lote_42",
-			"tipo": "casa",
+			"nombre": "Lote_41_psm_1",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -262.86,
-			"z": 340.62,
+			"x": -268.69,
+			"z": 340.57,
 			"puntos": [
-				[-4.12, -5.28],
-				[3.68, -5.59],
-				[4.12, 5.28],
-				[-3.68, 5.59]
+				[-2.14, -5.08],
+				[1.73, -5.23],
+				[2.14, 5.08],
+				[-1.73, 5.23]
 			],
-			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
-			"desgaste": 0.64
-		},
-		{
-			"nombre": "Lote_43",
-			"tipo": "casa",
-			"auto": true,
-			"x": -253.78,
-			"z": 340.59,
-			"puntos": [
-				[-4.4, -5.61],
-				[3.93, -5.95],
-				[4.4, 5.61],
-				[-3.93, 5.95]
-			],
 			"pisos": 2,
+			"color": "blanco",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_42_psm_0",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -264.81,
+			"z": 340.7,
+			"puntos": [
+				[-2.17, -5.36],
+				[1.73, -5.51],
+				[2.17, 5.36],
+				[-1.73, 5.51]
+			],
 			"frente": 0,
+			"pisos": 1,
+			"color": "terracota",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "barrotes",
+			"reja_color": "negro"
+		},
+		{
+			"nombre": "Lote_42_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -260.91,
+			"z": 340.54,
+			"puntos": [
+				[-2.17, -5.36],
+				[1.73, -5.51],
+				[2.17, 5.36],
+				[-1.73, 5.51]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "terracota",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "barrotes",
+			"reja_color": "negro"
+		},
+		{
+			"nombre": "Lote_43_psm_0",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -255.86,
+			"z": 340.67,
+			"puntos": [
+				[-2.32, -5.69],
+				[1.85, -5.87],
+				[2.32, 5.7],
+				[-1.85, 5.87]
+			],
+			"frente": 0,
+			"pisos": 2,
 			"color": "mostaza",
-			"desgaste": 0.59
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_43_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -251.7,
+			"z": 340.5,
+			"puntos": [
+				[-2.32, -5.7],
+				[1.85, -5.87],
+				[2.32, 5.69],
+				[-1.85, 5.87]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "mostaza",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "persiana",
+			"reja_color": "blanco"
 		},
 		{
 			"nombre": "Lote_44",
@@ -3893,21 +4805,46 @@
 			"desgaste": 0.78
 		},
 		{
-			"nombre": "Lote_49",
-			"tipo": "casa",
+			"nombre": "Lote_49_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -221.86,
-			"z": 318.99,
+			"x": -224.1,
+			"z": 319.08,
 			"puntos": [
-				[-4.34, 3.68],
-				[4.62, 3.31],
-				[4.34, -3.68],
-				[-4.62, -3.31]
+				[-2.1, 3.59],
+				[2.38, 3.4],
+				[2.1, -3.59],
+				[-2.38, -3.4]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "terracota",
-			"desgaste": 0.76
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_49_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -219.62,
+			"z": 318.9,
+			"puntos": [
+				[-2.1, 3.59],
+				[2.38, 3.4],
+				[2.1, -3.59],
+				[-2.38, -3.4]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "terracota",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
 			"nombre": "Lote_50",
@@ -3927,8 +4864,8 @@
 			"desgaste": 0.65
 		},
 		{
-			"nombre": "Lote_51",
-			"tipo": "casa",
+			"nombre": "Lote_51_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -206.67,
 			"z": 315.11,
@@ -3938,10 +4875,16 @@
 				[3.01, -6.89],
 				[-3.56, -6.62]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "crema",
-			"desgaste": 0.67
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "blanca",
+			"espejo": true,
+			"reja": "tablones",
+			"reja_color": "gris"
 		},
 		{
 			"nombre": "Lote_52",
@@ -4036,8 +4979,8 @@
 			"desgaste": 0.7
 		},
 		{
-			"nombre": "Lote_57",
-			"tipo": "casa",
+			"nombre": "Lote_57_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -290.91,
 			"z": 391.94,
@@ -4047,27 +4990,16 @@
 				[-6.83, -2.81],
 				[-6.6, 3.3]
 			],
+			"frente": 0,
 			"pisos": 1,
-			"frente": 0,
 			"color": "naranja",
-			"desgaste": 0.35
-		},
-		{
-			"nombre": "Lote_58",
-			"tipo": "casa",
-			"auto": true,
-			"x": -287.88,
-			"z": 386.52,
-			"puntos": [
-				[3.58, 2.12],
-				[3.42, -2.38],
-				[-3.58, -2.12],
-				[-3.42, 2.38]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "lima",
-			"desgaste": 0.43
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": false,
+			"reja": "persiana",
+			"reja_color": "negro"
 		},
 		{
 			"nombre": "Lote_59",
@@ -4088,23 +5020,6 @@
 			"tienda": true
 		},
 		{
-			"nombre": "Lote_60",
-			"tipo": "casa",
-			"auto": true,
-			"x": -288.54,
-			"z": 368.43,
-			"puntos": [
-				[3.63, 3.35],
-				[3.37, -3.61],
-				[-3.63, -3.35],
-				[-3.37, 3.61]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "blanco",
-			"desgaste": 0.58
-		},
-		{
 			"nombre": "Lote_61",
 			"tipo": "casa",
 			"auto": true,
@@ -4122,23 +5037,6 @@
 			"desgaste": 0.41
 		},
 		{
-			"nombre": "Lote_62",
-			"tipo": "casa",
-			"auto": true,
-			"x": -288.26,
-			"z": 335.16,
-			"puntos": [
-				[2.08, 2.18],
-				[1.92, -2.32],
-				[-2.08, -2.18],
-				[-1.92, 2.32]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "gris",
-			"desgaste": 0.5
-		},
-		{
 			"nombre": "Baldio_63",
 			"tipo": "lote",
 			"auto": true,
@@ -4147,23 +5045,6 @@
 			"rot": -1.5341,
 			"tam": [7.47, 7.0],
 			"variante": "fonda"
-		},
-		{
-			"nombre": "Lote_64",
-			"tipo": "casa",
-			"auto": true,
-			"x": -274.42,
-			"z": 262.4,
-			"puntos": [
-				[-3.42, 2.38],
-				[-3.58, -2.12],
-				[3.42, -2.38],
-				[3.58, 2.12]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "naranja",
-			"desgaste": 0.36
 		},
 		{
 			"nombre": "Lote_65",
@@ -4183,8 +5064,8 @@
 			"desgaste": 0.58
 		},
 		{
-			"nombre": "Lote_66",
-			"tipo": "casa",
+			"nombre": "Lote_66_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -292.82,
 			"z": 309.12,
@@ -4194,10 +5075,14 @@
 				[-5.71, -3.0],
 				[-5.48, 3.41]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "mostaza",
-			"desgaste": 0.43
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Lote_67",
@@ -4251,23 +5136,6 @@
 			"desgaste": 0.62
 		},
 		{
-			"nombre": "Lote_70",
-			"tipo": "casa",
-			"auto": true,
-			"x": -349.92,
-			"z": 339.22,
-			"puntos": [
-				[-3.39, -1.89],
-				[3.26, -2.11],
-				[3.39, 1.89],
-				[-3.26, 2.11]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "crema",
-			"desgaste": 0.49
-		},
-		{
 			"nombre": "Lote_71",
 			"tipo": "casa",
 			"auto": true,
@@ -4312,8 +5180,8 @@
 			"desgaste": 0.44
 		},
 		{
-			"nombre": "Lote_74",
-			"tipo": "casa",
+			"nombre": "Lote_74_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -210.04,
 			"z": 289.85,
@@ -4323,10 +5191,16 @@
 				[-6.62, 3.44],
 				[-6.85, -2.95]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "lima",
-			"desgaste": 0.74
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "barrotes",
+			"reja_color": "cafe"
 		},
 		{
 			"nombre": "Lote_75",
@@ -4363,23 +5237,6 @@
 			"desgaste": 0.75
 		},
 		{
-			"nombre": "Lote_77",
-			"tipo": "casa",
-			"auto": true,
-			"x": -332.43,
-			"z": 306.55,
-			"puntos": [
-				[1.91, -3.64],
-				[2.09, 3.53],
-				[-1.91, 3.64],
-				[-2.09, -3.53]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "blanco",
-			"desgaste": 0.7
-		},
-		{
 			"nombre": "Lote_78",
 			"tipo": "casa",
 			"auto": true,
@@ -4395,40 +5252,6 @@
 			"frente": 0,
 			"color": "azul",
 			"desgaste": 0.48
-		},
-		{
-			"nombre": "Lote_79",
-			"tipo": "casa",
-			"auto": true,
-			"x": -321.09,
-			"z": 280.81,
-			"puntos": [
-				[-2.11, -4.18],
-				[-1.89, 4.28],
-				[2.11, 4.18],
-				[1.89, -4.28]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "gris",
-			"desgaste": 0.69
-		},
-		{
-			"nombre": "Lote_80",
-			"tipo": "casa",
-			"auto": true,
-			"x": -320.87,
-			"z": 289.47,
-			"puntos": [
-				[-2.11, -4.37],
-				[-1.89, 4.48],
-				[2.11, 4.37],
-				[1.89, -4.48]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "morado",
-			"desgaste": 0.77
 		},
 		{
 			"nombre": "Baldio_81",
@@ -4454,8 +5277,8 @@
 			"murales": 70
 		},
 		{
-			"nombre": "Lote_82",
-			"tipo": "casa",
+			"nombre": "Lote_82_psm",
+			"tipo": "casa_psm",
 			"auto": true,
 			"x": -316.62,
 			"z": 326.02,
@@ -4465,10 +5288,16 @@
 				[5.36, 2.11],
 				[5.24, -2.39]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "verde",
-			"desgaste": 0.47
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "persiana",
+			"reja_color": "negro"
 		},
 		{
 			"nombre": "Lote_83",
@@ -4522,38 +5351,92 @@
 			"desgaste": 0.8
 		},
 		{
-			"nombre": "Lote_86",
-			"tipo": "casa",
+			"nombre": "Lote_86_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -361.46,
-			"z": 274.9,
+			"x": -363.38,
+			"z": 274.98,
 			"puntos": [
-				[-4.06, -5.56],
-				[3.61, -5.87],
-				[4.06, 5.56],
-				[-3.61, 5.87]
+				[-2.14, -5.64],
+				[1.69, -5.79],
+				[2.14, 5.64],
+				[-1.69, 5.79]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "azul",
-			"desgaste": 0.57
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "tablones",
+			"reja_color": "negro"
 		},
 		{
-			"nombre": "Lote_87",
-			"tipo": "casa",
+			"nombre": "Lote_86_psm_1",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -352.58,
-			"z": 274.02,
+			"x": -359.54,
+			"z": 274.82,
 			"puntos": [
-				[-4.27, -5.04],
-				[3.86, -5.36],
-				[4.27, 5.04],
-				[-3.86, 5.36]
+				[-2.14, -5.64],
+				[1.69, -5.79],
+				[2.14, 5.64],
+				[-1.69, 5.79]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
+			"color": "azul",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "blanca",
+			"espejo": true,
+			"reja": "tablones",
+			"reja_color": "gris"
+		},
+		{
+			"nombre": "Lote_87_psm_0",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -354.61,
+			"z": 274.1,
+			"puntos": [
+				[-2.24, -5.12],
+				[1.83, -5.28],
+				[2.24, 5.12],
+				[-1.83, 5.28]
+			],
+			"frente": 0,
+			"pisos": 2,
 			"color": "rosa",
-			"desgaste": 0.51
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": false
+		},
+		{
+			"nombre": "Lote_87_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -350.55,
+			"z": 273.94,
+			"puntos": [
+				[-2.24, -5.12],
+				[1.83, -5.28],
+				[2.24, 5.12],
+				[-1.83, 5.28]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "rosa",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": false
 		},
 		{
 			"nombre": "Lote_88",
@@ -4573,21 +5456,50 @@
 			"desgaste": 0.48
 		},
 		{
-			"nombre": "Lote_89",
-			"tipo": "casa",
+			"nombre": "Lote_89_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -359.82,
-			"z": 285.3,
+			"x": -359.89,
+			"z": 283.25,
 			"puntos": [
-				[-5.33, -3.92],
-				[-5.06, 4.26],
-				[5.33, 3.92],
-				[5.06, -4.26]
+				[-5.26, -1.88],
+				[-5.13, 2.22],
+				[5.26, 1.88],
+				[5.13, -2.21]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "rosa",
-			"desgaste": 0.4
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "persiana",
+			"reja_color": "blanco"
+		},
+		{
+			"nombre": "Lote_89_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -359.75,
+			"z": 287.35,
+			"puntos": [
+				[-5.26, -1.88],
+				[-5.13, 2.21],
+				[5.26, 1.88],
+				[5.13, -2.22]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "rosa",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true,
+			"reja": "barrotes",
+			"reja_color": "cafe"
 		},
 		{
 			"nombre": "Baldio_90",
@@ -4613,21 +5525,46 @@
 			"murales": 70
 		},
 		{
-			"nombre": "Lote_91",
-			"tipo": "casa",
+			"nombre": "Lote_91_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -360.63,
-			"z": 312.51,
+			"x": -360.69,
+			"z": 310.7,
 			"puntos": [
-				[-3.62, -3.5],
-				[-3.38, 3.73],
-				[3.62, 3.5],
-				[3.38, -3.73]
+				[-3.56, -1.69],
+				[-3.44, 1.92],
+				[3.56, 1.69],
+				[3.44, -1.92]
 			],
-			"pisos": 1,
 			"frente": 0,
+			"pisos": 1,
 			"color": "naranja",
-			"desgaste": 0.5
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "negra",
+			"herreria": "negra",
+			"espejo": true
+		},
+		{
+			"nombre": "Lote_91_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -360.57,
+			"z": 314.32,
+			"puntos": [
+				[-3.56, -1.69],
+				[-3.44, 1.92],
+				[3.56, 1.69],
+				[3.44, -1.92]
+			],
+			"frente": 0,
+			"pisos": 1,
+			"color": "naranja",
+			"cochera": 0.0,
+			"retiro": 0.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": false
 		},
 		{
 			"nombre": "Lote_92",
@@ -4698,21 +5635,50 @@
 			"desgaste": 0.45
 		},
 		{
-			"nombre": "Lote_96",
-			"tipo": "casa",
+			"nombre": "Lote_96_psm_0",
+			"tipo": "casa_psm",
 			"auto": true,
-			"x": -229.94,
-			"z": 294.17,
+			"x": -232.07,
+			"z": 294.27,
 			"puntos": [
-				[-4.59, -6.16],
-				[3.95, -6.58],
-				[4.59, 6.16],
-				[-3.95, 6.58]
+				[-2.46, -6.26],
+				[1.81, -6.47],
+				[2.45, 6.27],
+				[-1.81, 6.48]
 			],
-			"pisos": 2,
 			"frente": 0,
+			"pisos": 2,
 			"color": "crema",
-			"desgaste": 0.59
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "cafe",
+			"herreria": "blanca",
+			"espejo": false,
+			"reja": "barrotes",
+			"reja_color": "gris"
+		},
+		{
+			"nombre": "Lote_96_psm_1",
+			"tipo": "casa_psm",
+			"auto": true,
+			"x": -227.81,
+			"z": 294.07,
+			"puntos": [
+				[-2.45, -6.27],
+				[1.81, -6.48],
+				[2.46, 6.26],
+				[-1.81, 6.47]
+			],
+			"frente": 0,
+			"pisos": 2,
+			"color": "crema",
+			"cochera": 5.0,
+			"retiro": 5.0,
+			"puerta": "blanca",
+			"herreria": "negra",
+			"espejo": false,
+			"reja": "tablones",
+			"reja_color": "blanco"
 		},
 		{
 			"nombre": "Lote_97",

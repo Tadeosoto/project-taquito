@@ -39,6 +39,23 @@ const PISOS := {
 const CAPAS := {"tierra": 0.0, "banqueta": 1.0, "pasto_seco": 2.0, "adoquin": 2.5, "pasto": 2.7, "empedrado": 3.0,
 		"cantera_piso": 3.5, "asfalto": 4.0}
 
+# La casa base de Parques de Santa Maria (tools/blender/mapa/casa_psm.py, sustituir_psm.py): material
+# "casa_psm_<n>" -> su textura, con ps1_casa como en MapCasas. El muro y los arcos toman el color de
+# la casa del color de vertice (recolor; muro_key, el gris de la textura del muro) y se ensucian con el
+# deterioro como los muros; lo demas va con su textura
+const CASA_PSM := {
+	"muro": "res://textures/mapa/casa_psm_muro.png",
+	"arco": "res://textures/mapa/casa_psm_atlas.png",
+	"detalle": "res://textures/mapa/casa_psm_atlas.png",
+	"azotea": "res://textures/mapa/casa_psm_azotea.png",
+	"concreto": "res://textures/map/banqueta.png",
+	"pasto": "res://textures/mapa/casa_psm_pasto.png",
+	"tinaco": "res://models/props/tinaco/textures/Tinaco_baseColor.png",
+}
+const CASA_PSM_PINTA := ["muro", "arco"]
+const CASA_PSM_MURO := Color(0.88, 0.88, 0.88)
+const CASA_PSM_TINACO := Color(0.48, 0.48, 0.49)     # el tinaco de Sketchfab es beige: 0.2 en lineal
+
 const MERGE_FORMAT_MASK := Mesh.ARRAY_FORMAT_NORMAL | Mesh.ARRAY_FORMAT_TANGENT \
 		| Mesh.ARRAY_FORMAT_COLOR | Mesh.ARRAY_FORMAT_TEX_UV | Mesh.ARRAY_FORMAT_TEX_UV2
 
@@ -93,7 +110,8 @@ func _post_import(scene: Node) -> Object:
 
 
 func _por_nombre(nombre: String) -> bool:
-	return nombre == "fachada_kit" or nombre == "azotea" or nombre == "mural" or PISOS.has(nombre)
+	return nombre == "fachada_kit" or nombre == "azotea" or nombre == "mural" or PISOS.has(nombre) \
+			or (nombre.begins_with("casa_psm_") and CASA_PSM.has(nombre.trim_prefix("casa_psm_")))
 
 
 # La escena importada todavia no esta en el arbol: el transform se arma con los de los padres
@@ -122,6 +140,18 @@ func _material(nombre: String, original: Material) -> Material:
 		material = ShaderMaterial.new()
 		material.shader = MURAL_SHADER
 		material.set_shader_parameter("albedo_texture", load("res://textures/mapa/murales.png"))
+		material.set_shader_parameter("affine_enabled", false)
+		material.set_shader_parameter("wobble_enabled", false)
+		material.set_shader_parameter("jitter_enabled", false)
+	elif nombre.begins_with("casa_psm_") and CASA_PSM.has(nombre.trim_prefix("casa_psm_")):
+		var parte := nombre.trim_prefix("casa_psm_")
+		material = ShaderMaterial.new()
+		material.shader = MURAL_SHADER
+		material.set_shader_parameter("albedo_texture", load(CASA_PSM[parte]))
+		material.set_shader_parameter("recolor", parte in CASA_PSM_PINTA)
+		material.set_shader_parameter("muro_key", CASA_PSM_MURO)
+		if parte == "tinaco":
+			material.set_shader_parameter("tint", CASA_PSM_TINACO)
 		material.set_shader_parameter("affine_enabled", false)
 		material.set_shader_parameter("wobble_enabled", false)
 		material.set_shader_parameter("jitter_enabled", false)

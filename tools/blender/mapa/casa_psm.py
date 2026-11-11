@@ -7,7 +7,8 @@
 #   muro      cemento enjarrado (white_stucco_02, tambien en los arcos): se repite cada 2.5 m y lo pinta el color de
 #             vertice (la textura va en gris)
 #   azotea    losa de concreto (concrete_wall_008), cada 2 m
-#   concreto  el piso de la cochera (concrete_floor_01), cada 2 m
+#   concreto  el piso de la cochera: la misma de las banquetas de map_test (textures/map/banqueta.png,
+#             dirty_concrete), cada 3 m como ellas
 #   pasto     pasto de verdad (leafy_grass, a color), cada 2 m
 #   detalle   un atlas (no se repite) con las ventanas (vidrio, cortina de lino, marco y herreria
 #             blanca ornamental con sombra), las puertas lisas (blanca, negra y cafe), el arco pintado,
@@ -66,8 +67,8 @@ PX_REJA = 80              # y de las rejas
 PX_VIDRIO = 256           # las ventanas van al doble: la herreria es delgada y se pixeleaba
 COLORES_HERRERIA = {"blanca": (0.95, 0.95, 0.93), "negra": (0.07, 0.07, 0.08)}
 # Metros que cubre una repeticion de cada textura, y de donde sale la imagen
-REPETICION = {"muro": 2.5, "azotea": 2.0, "concreto": 2.0, "pasto": 2.0, "tinaco": 1.0}
-IMAGEN_REPO = {"concreto": "textures/mapa/casa_psm_concreto.png", "pasto": "textures/mapa/casa_psm_pasto.png",
+REPETICION = {"muro": 2.5, "azotea": 2.0, "concreto": 3.0, "pasto": 2.0, "tinaco": 1.0}
+IMAGEN_REPO = {"concreto": "textures/map/banqueta.png", "pasto": "textures/mapa/casa_psm_pasto.png",
                "muro": "textures/mapa/casa_psm_muro.png", "azotea": "textures/mapa/casa_psm_azotea.png"}
 TEXTURA_METAL = "textures/mapa/casa_psm_metal.png"
 TEXTURA_TELA = "textures/mapa/casa_psm_tela.png"
@@ -639,41 +640,44 @@ def _arco_sobre(b, v, color):
     b.calcomania((cx - radio, cx + radio, v[3] + 0.03, v[3] + 0.03 + radio), "arco", pintado, y=-RESALTE * 2, mat="arco")
 
 
-def _reja_cochera(b, tipo, color_reja, color_muro):
+def _reja_cochera(b, tipo, color_reja, color_muro, medio=MEDIO, cochera=COCHERA):
     """La reja que cierra el frente de la cochera y el jardin, en la linea de la banqueta, entre dos
     bardas de los lados de su misma altura (ALTOS_REJA): `tablones` (tablones verticales anchos, la
     mas baja), `barrotes` (barrotes delgados, con la cuadricula abajo, en hojas con postes) o
     `persiana` (lamas horizontales, de la altura de los barrotes). Es un plano con la textura de
     metal recortada por alfa (en su color), visto de los dos lados."""
     alto = ALTOS_REJA[tipo]
-    for x0, x1 in ((-MEDIO, -MEDIO + 0.15), (MEDIO - 0.15, MEDIO)):
-        b.caja(x0, x1, -COCHERA, 0.0, 0.0, alto, "muro", color_muro, sin=("abajo",))
-    y = -COCHERA + 0.05
-    x0, x1 = -MEDIO + 0.15, MEDIO - 0.15
+    for x0, x1 in ((-medio, -medio + 0.15), (medio - 0.15, medio)):
+        b.caja(x0, x1, -cochera, 0.0, 0.0, alto, "muro", color_muro, sin=("abajo",))
+    y = -cochera + 0.05
+    x0, x1 = -medio + 0.15, medio - 0.15
     puntos = ((x0, y, 0.0), (x1, y, 0.0), (x1, y, alto), (x0, y, alto))
     for normal in ((0, -1, 0), (0, 1, 0)):
         b.cara(puntos, "detalle", (1.0, 1.0, 1.0), normal, tile="reja_%s_%s" % (tipo, color_reja), hornear=False)
 
 
 def casa_psm(nombre, pisos=1, color=(0.93, 0.76, 0.7), puerta="blanca", lote=True, tinaco=True, espejo=False,
-             reja=None, reja_color="negro", herreria="blanca", fondo=FONDO):
+             reja=None, reja_color="negro", herreria="blanca", fondo=FONDO, ancho=ANCHO, cochera=COCHERA):
     """La casa. `puerta`: "blanca", "negra" o "cafe" (COLORES_PUERTA); `lote`: cochera de concreto,
     jardin y la barda baja de un lado de la cochera; `espejo`: invertida de izquierda a derecha
     (las casas del arreglo se alternan); `reja`: None (cochera abierta, con la barda baja de un lado)
     o uno de REJAS (cierra el frente, con bardas a los dos lados a su altura), del color
     `reja_color` ("blanco", "negro", "gris" o "cafe", COLORES_REJA); `herreria`: el color de la herreria
     de las ventanas, "blanca" o "negra" (COLORES_HERRERIA); `fondo`: de la fachada al fondo de la casa (los
-    lotes de la colonia no son todos iguales)."""
+    lotes de la colonia no son todos iguales); `ancho`: el frente (de 4.5 m para arriba; puerta, ventanas y
+    marquesina se quedan del mismo tamano y en medio, lo que crece es el muro de los lados y el torreon);
+    `cochera`: de la banqueta a la fachada (con `lote`)."""
     b = _Constructor()
+    medio = ancho / 2
     tope = PISO1 + (PISO2 if pisos == 2 else 0.0)
     # El cuerpo de la casa (las paredes son planas: ventanas y puerta van de textura)
-    b.caja(-MEDIO, MEDIO, 0.0, fondo, 0.0, tope, "muro", color, sin=("abajo", "arriba"))
+    b.caja(-medio, medio, 0.0, fondo, 0.0, tope, "muro", color, sin=("abajo", "arriba"))
     if pisos == 1:
-        b.caja(-MEDIO, TORREON_X[1], 0.0, 0.2, PISO1, TORREON_TOPE, "muro", color)         # el torreon
-        b.caja(TORREON_X[1], MEDIO, 0.0, 0.12, PISO1, PISO1 + PRETIL, "muro", color)
+        b.caja(-medio, TORREON_X[1], 0.0, 0.2, PISO1, TORREON_TOPE, "muro", color)         # el torreon
+        b.caja(TORREON_X[1], medio, 0.0, 0.12, PISO1, PISO1 + PRETIL, "muro", color)
     else:
-        b.caja(-MEDIO, MEDIO, 0.0, 0.12, tope, tope + PRETIL, "muro", color)
-        b.caja(-MEDIO, MEDIO, -0.05, 0.0, PISO1 - 0.1, PISO1 + 0.05, "muro", color)       # cornisa de la losa
+        b.caja(-medio, medio, 0.0, 0.12, tope, tope + PRETIL, "muro", color)
+        b.caja(-medio, medio, -0.05, 0.0, PISO1 - 0.1, PISO1 + 0.05, "muro", color)       # cornisa de la losa
     # Planta baja: marquesina sobre la puerta (con dos pisos, debajo de la cornisa), vanos y arcos pintados
     b.caja(-0.45, 0.85, -0.45, 0.0, *((2.4, 3.1) if pisos == 1 else (2.1, 2.7)), "muro", color)
     b.calcomania(V_CHICA, "ventana_chica_" + herreria)
@@ -681,17 +685,17 @@ def casa_psm(nombre, pisos=1, color=(0.93, 0.76, 0.7), puerta="blanca", lote=Tru
     b.calcomania(V_PUERTA, "puerta_" + puerta)
     _arco_sobre(b, V_CHICA, color)
     _arco_sobre(b, V_GRANDE, color)
-    b.calcomania((-2.23, -2.07, 1.52, 1.68), "medidor")
+    b.calcomania((-medio + 0.27, -medio + 0.43, 1.52, 1.68), "medidor")
     b.calcomania((0.74, 0.88, 1.78, 1.98), "lampara")
     if pisos == 2:
         b.calcomania(V_2P_A, "ventana_2p_a_" + herreria)
         b.calcomania(V_2P_B, "ventana_2p_b_" + herreria)
     # Azotea con pretil
-    b.cara(((-MEDIO + 0.1, 0.12, tope), (MEDIO - 0.1, 0.12, tope), (MEDIO - 0.1, fondo - 0.1, tope), (-MEDIO + 0.1, fondo - 0.1, tope)),
+    b.cara(((-medio + 0.1, 0.12, tope), (medio - 0.1, 0.12, tope), (medio - 0.1, fondo - 0.1, tope), (-medio + 0.1, fondo - 0.1, tope)),
            "azotea", COLOR_AZOTEA, (0, 0, 1))
-    b.caja(-MEDIO, -MEDIO + 0.1, 0.12, fondo, tope, tope + PRETIL, "muro", color)
-    b.caja(MEDIO - 0.1, MEDIO, 0.12, fondo, tope, tope + PRETIL, "muro", color)
-    b.caja(-MEDIO, MEDIO, fondo - 0.1, fondo, tope, tope + PRETIL, "muro", color)
+    b.caja(-medio, -medio + 0.1, 0.12, fondo, tope, tope + PRETIL, "muro", color)
+    b.caja(medio - 0.1, medio, 0.12, fondo, tope, tope + PRETIL, "muro", color)
+    b.caja(-medio, medio, fondo - 0.1, fondo, tope, tope + PRETIL, "muro", color)
     if tinaco:
         caras = _tinaco_sketchfab()
         if caras:
@@ -699,10 +703,10 @@ def casa_psm(nombre, pisos=1, color=(0.93, 0.76, 0.7), puerta="blanca", lote=Tru
         else:
             b.prisma(1.4, fondo - 1.7, tope, 0.55, 1.1, "tinaco_liso", COLOR_TINACO)
     if lote:
-        for x0, x1, mat in ((-MEDIO, 0.8, "concreto"), (0.8, MEDIO, "pasto")):
-            b.cara(((x0, -COCHERA, 0.02), (x1, -COCHERA, 0.02), (x1, 0.0, 0.02), (x0, 0.0, 0.02)), mat, (1.0, 1.0, 1.0), (0, 0, 1))
+        for x0, x1, mat in ((-medio, 0.8, "concreto"), (0.8, medio, "pasto")):
+            b.cara(((x0, -cochera, 0.02), (x1, -cochera, 0.02), (x1, 0.0, 0.02), (x0, 0.0, 0.02)), mat, (1.0, 1.0, 1.0), (0, 0, 1))
         if not reja:       # con reja las bardas de los dos lados las pone _reja_cochera
-            b.caja(-MEDIO, -MEDIO + 0.15, -COCHERA, 0.0, 0.0, 1.2, "muro", color, sin=("abajo",))
+            b.caja(-medio, -medio + 0.15, -cochera, 0.0, 0.0, 1.2, "muro", color, sin=("abajo",))
     if reja:
-        _reja_cochera(b, reja, reja_color, color)
+        _reja_cochera(b, reja, reja_color, color, medio, cochera)
     return b.terminar(nombre, espejo)

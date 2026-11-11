@@ -7,6 +7,7 @@
 #   COLONIA = "santa_mugre"; exec(open(r"...\tools\blender\mapa\referencia.py", encoding="utf-8").read())
 # (despues de colonia.py: se agrega a su escena)
 
+import os
 import bpy
 import csv
 import math
@@ -14,7 +15,7 @@ import re
 import xml.etree.ElementTree as ET
 
 _c = {"__name__": "comun"}
-exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\mapa\comun.py", encoding="utf-8").read(), _c)
+exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "comun.py"), encoding="utf-8").read(), _c)
 globals().update({k: v for k, v in _c.items() if not k.startswith("__")})
 
 OSM = os.path.join(RAIZ, "data", "map", "area.osm")

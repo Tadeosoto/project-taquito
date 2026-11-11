@@ -3,10 +3,11 @@
 # del .json de la colonia; colonia.py pone la malla y sus cajas de choque "-colonly".
 # Las medidas van en metros; el frente de cada pieza es su +Z (la calle o la plaza).
 
+import os
 import math
 
 _k = {"__name__": "kit", "SOLO_FUNCIONES": True}
-exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\mapa\kit.py", encoding="utf-8").read(), _k)
+exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "kit.py"), encoding="utf-8").read(), _k)
 globals().update({k: v for k, v in _k.items() if not k.startswith("__") and k != "SOLO_FUNCIONES"})
 
 LONAS = {"rojo": (0.8, 0.18, 0.2), "azul": (0.15, 0.4, 0.78), "amarillo": (0.92, 0.75, 0.15),

@@ -28,11 +28,12 @@
 #     la calle, como la flecha de las tiendas. Las marcas no van al .glb: exportar.py las escribe
 #     en resources/mapa/<colonia>/marcas.json y scripts/mapa/Colonia.gd las arma en Godot.
 
+import os
 import bpy
 import math
 
 _c = {"__name__": "comun"}
-exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\mapa\comun.py", encoding="utf-8").read(), _c)
+exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "comun.py"), encoding="utf-8").read(), _c)
 globals().update({k: v for k, v in _c.items() if not k.startswith("__")})
 
 PISO_COLOR = (0.32, 0.32, 0.30)
@@ -98,6 +99,54 @@ def _piezas():
     return _PIEZAS
 
 
+_PSM = {}
+
+
+def _psm():
+    """casa_psm.py (la casa base de Parques de Santa Maria), cargado una vez por armada. Deja su atlas
+    en textures/mapa/casa_psm_atlas.png, que MapaPostImport le pone en Godot (el .glb va sin imagenes)."""
+    if not _PSM:
+        _PSM.update({"__name__": "casa_psm"})
+        exec(open(os.path.join(MAPA, "casa_psm.py"), encoding="utf-8").read(), _PSM)
+        _PSM["guardar_atlas"](os.path.join(RAIZ, "textures", "mapa", "casa_psm_atlas.png"))
+    return _PSM
+
+
+def _casa_psm(col, p):
+    """La casa PSM (sustituir_psm.py) sobre la huella de la pieza: la fachada en su frente (o `retiro` m
+    adentro), de su ancho y del fondo que queda, con la cochera de `cochera` m hacia la calle (0: sin
+    cochera). La malla se arma desde el centro de la huella, como la de una casa, para que leer() la
+    regrese igual."""
+    from mathutils import Matrix
+    k, psm = _kit(), _psm()
+    color = p.get("color", "crema")
+    color = k["PALETA"].get(color, (0.8, 0.8, 0.8)) if isinstance(color, str) else color
+    a, b, _centro, (nx, nz), fondo = frente_de(p)
+    ancho = math.hypot(b[0] - a[0], b[1] - a[1])
+    cochera, retiro = p.get("cochera", 0.0), p.get("retiro", 0.0)
+    fondo -= retiro
+    pisos = min(p.get("pisos", 1), 2)
+    ob = psm["casa_psm"](p["nombre"], pisos=pisos, color=color, puerta=p.get("puerta", "blanca"), lote=cochera > 0,
+                         espejo=p.get("espejo", False), reja=p.get("reja") if cochera > 0 else None,
+                         reja_color=p.get("reja_color", "negro"), herreria=p.get("herreria", "blanca"),
+                         fondo=fondo, ancho=ancho, cochera=cochera or psm["COCHERA"])
+    for c in list(ob.users_collection):
+        c.objects.unlink(ob)
+    col.objects.link(ob)
+    # De la fachada (origen de casa_psm, viendo a -Y) a la pieza (centro de la huella, giro "rot")
+    mx, mz = (a[0] + b[0]) / 2 - nx * retiro, (a[1] + b[1]) / 2 - nz * retiro
+    giro, rot = math.atan2(nx, nz), p.get("rot", 0.0)
+    dx, dz = mx - p["x"], mz - p["z"]
+    lx, lz = dx * math.cos(rot) - dz * math.sin(rot), dx * math.sin(rot) + dz * math.cos(rot)
+    ob.data.transform(Matrix.Translation(a_blender(lx, lz)) @ Matrix.Rotation(giro - rot, 4, "Z"))
+    ob.location = a_blender(p["x"], p["z"], p.get("y", 0.0))
+    ob.rotation_euler = (0.0, 0.0, rot)
+    # Choque: el cuerpo de la casa hasta la losa (la azotea se camina, como las de kit)
+    alto = psm["PISO1"] + (psm["PISO2"] if pisos == 2 else 0.0)
+    colision(col, p["nombre"], mx - nx * fondo / 2, mz - nz * fondo / 2, giro, (ancho, alto, fondo), p.get("y", 0.0))
+    return ob
+
+
 def _mat(p, defecto=GRIS):
     color = p.get("color", defecto)
     return material("liso_" + "_".join("%02d" % int(c * 99) for c in color), color)
@@ -128,6 +177,8 @@ def _pieza(col, p):
         choque.display_type = "WIRE"
         col.objects.link(choque)
         return ob
+    if tipo == "casa_psm":
+        return _casa_psm(col, p)
     piezas = _piezas()["PIEZAS"]
     if tipo in piezas:
         k = piezas[tipo](nombre, p)
