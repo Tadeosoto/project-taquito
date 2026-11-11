@@ -1,0 +1,374 @@
+{
+	"postes": [
+		{
+			"x": -215.38,
+			"z": 418.61,
+			"rotacion_y": -0.1343,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 1537
+		},
+		{
+			"x": -228.69,
+			"z": 387.18,
+			"rotacion_y": -1.5283,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 10798
+		},
+		{
+			"x": -185.52,
+			"z": 397.89,
+			"rotacion_y": -1.5591,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 70201
+		},
+		{
+			"x": -410.31,
+			"z": 305.52,
+			"rotacion_y": -1.5316,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 81960
+		},
+		{
+			"x": -409.14,
+			"z": 335.49,
+			"rotacion_y": -1.5316,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 15294
+		},
+		{
+			"x": -407.96,
+			"z": 365.47,
+			"rotacion_y": -1.5316,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 8463
+		},
+		{
+			"x": -406.79,
+			"z": 395.45,
+			"rotacion_y": -1.5316,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 18969
+		},
+		{
+			"x": -405.61,
+			"z": 425.42,
+			"rotacion_y": -1.5316,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 88894
+		},
+		{
+			"x": -266.1,
+			"z": 325.9,
+			"rotacion_y": 0.0408,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 24628
+		},
+		{
+			"x": -236.13,
+			"z": 324.67,
+			"rotacion_y": 0.0408,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 1922
+		},
+		{
+			"x": -206.15,
+			"z": 323.45,
+			"rotacion_y": 0.0408,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 90680
+		},
+		{
+			"x": -280.24,
+			"z": 455.65,
+			"rotacion_y": 1.6075,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 54339
+		},
+		{
+			"x": -281.34,
+			"z": 425.67,
+			"rotacion_y": 1.6075,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 22997
+		},
+		{
+			"x": -282.44,
+			"z": 395.69,
+			"rotacion_y": 1.6075,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 98863
+		},
+		{
+			"x": -283.54,
+			"z": 365.71,
+			"rotacion_y": 1.6075,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 65881
+		},
+		{
+			"x": -284.64,
+			"z": 335.73,
+			"rotacion_y": 1.6075,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 33498
+		},
+		{
+			"x": -285.74,
+			"z": 305.75,
+			"rotacion_y": 1.6075,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 89932
+		},
+		{
+			"x": -286.84,
+			"z": 275.77,
+			"rotacion_y": 1.6075,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 96118
+		},
+		{
+			"x": -352.56,
+			"z": 329.9,
+			"rotacion_y": 0.0326,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 93287
+		},
+		{
+			"x": -330.54,
+			"z": 278.91,
+			"rotacion_y": 1.5966,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 10741
+		},
+		{
+			"x": -329.77,
+			"z": 308.9,
+			"rotacion_y": 1.5966,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 98499
+		},
+		{
+			"x": -328.99,
+			"z": 338.89,
+			"rotacion_y": 1.5964,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 21401
+		},
+		{
+			"x": -354.56,
+			"z": 268.3,
+			"rotacion_y": -3.102,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 98252
+		},
+		{
+			"x": -365.79,
+			"z": 280.38,
+			"rotacion_y": -1.538,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 36553
+		},
+		{
+			"x": -364.81,
+			"z": 310.36,
+			"rotacion_y": -1.538,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 91999
+		},
+		{
+			"x": -363.82,
+			"z": 340.34,
+			"rotacion_y": -1.5378,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 83845
+		},
+		{
+			"x": -209.96,
+			"z": 279.38,
+			"rotacion_y": 0.0497,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 22257
+		},
+		{
+			"x": -190.71,
+			"z": 269.65,
+			"rotacion_y": -1.5069,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 61228
+		},
+		{
+			"x": -217.31,
+			"z": 368.54,
+			"rotacion_y": 0.0264,
+			"alto": 8.0,
+			"brazo": 1.5,
+			"doble": false,
+			"avenida": false,
+			"semilla": 6557
+		},
+		{
+			"x": -187.71,
+			"z": 472.52,
+			"rotacion_y": -0.1399,
+			"alto": 10.0,
+			"brazo": 2.5,
+			"doble": true,
+			"avenida": true,
+			"semilla": 77733
+		},
+		{
+			"x": -217.47,
+			"z": 468.85,
+			"rotacion_y": -0.0401,
+			"alto": 10.0,
+			"brazo": 2.5,
+			"doble": true,
+			"avenida": true,
+			"semilla": 3827
+		},
+		{
+			"x": -247.44,
+			"z": 467.64,
+			"rotacion_y": -0.0401,
+			"alto": 10.0,
+			"brazo": 2.5,
+			"doble": true,
+			"avenida": true,
+			"semilla": 24560
+		},
+		{
+			"x": -323.29,
+			"z": 462.0,
+			"rotacion_y": -0.0929,
+			"alto": 10.0,
+			"brazo": 2.5,
+			"doble": true,
+			"avenida": true,
+			"semilla": 21950
+		},
+		{
+			"x": -353.17,
+			"z": 459.22,
+			"rotacion_y": -0.0929,
+			"alto": 10.0,
+			"brazo": 2.5,
+			"doble": true,
+			"avenida": true,
+			"semilla": 26088
+		},
+		{
+			"x": -383.04,
+			"z": 456.43,
+			"rotacion_y": -0.0929,
+			"alto": 10.0,
+			"brazo": 2.5,
+			"doble": true,
+			"avenida": true,
+			"semilla": 48978
+		},
+		{
+			"x": -257.82,
+			"z": 376.73,
+			"rotacion_y": 0.0268,
+			"alto": 10.0,
+			"brazo": 2.5,
+			"doble": true,
+			"avenida": true,
+			"semilla": 38096
+		},
+		{
+			"x": -195.54,
+			"z": 307.32,
+			"rotacion_y": 1.6068,
+			"alto": 10.0,
+			"brazo": 2.5,
+			"doble": true,
+			"avenida": true,
+			"semilla": 15980
+		}
+	]
+}

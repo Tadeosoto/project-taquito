@@ -1,0 +1,235 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/map/MapStreamer.gd" id="1_streamer"]
+[ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="2_puntos"]
+[ext_resource type="PackedScene" uid="uid://ddpadu7v45ldh" path="res://models/props/alto/alto.scn" id="3_alto"]
+[ext_resource type="PackedScene" uid="uid://b6rm74tkw20hu" path="res://models/tiendas/pemex/pemex.scn" id="4_pemex"]
+[ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="5_carrito"]
+[ext_resource type="Script" path="res://scripts/map/MapCasas.gd" id="6_casas"]
+[ext_resource type="PackedScene" uid="uid://b74kx60rek6fq" path="res://models/casas/psm/casas_psm.glb" id="7_psm"]
+[ext_resource type="Script" path="res://scripts/map/MapArboles.gd" id="8_arboles"]
+[ext_resource type="Script" path="res://scripts/map/MapPasto.gd" id="9_pasto"]
+[ext_resource type="Script" path="res://scripts/map/MapBardas.gd" id="10_bardas"]
+[ext_resource type="Texture2D" path="res://textures/map/barda.png" id="11_barda"]
+[ext_resource type="Texture2D" path="res://textures/map/malla.png" id="12_malla"]
+[ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="13_alumbrado"]
+[ext_resource type="Shader" path="res://shaders/ps1_suelo.gdshader" id="14_suelo"]
+[ext_resource type="Texture2D" uid="uid://btfh1d6mytpei" path="res://textures/map/suelo.png" id="15_suelo_tex"]
+[ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="16_dither"]
+[ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="17_player"]
+[ext_resource type="PackedScene" path="res://models/mapa/santa_mugre/kiosco_iglesia.glb" id="18_kiosco_iglesia"]
+[ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="19_dron"]
+
+[sub_resource type="Environment" id="Environment_mapa"]
+background_mode = 1
+background_color = Color(0.30240002, 0.31872, 0.36, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.62, 0.66, 0.72, 1)
+ambient_light_energy = 0.7
+fog_enabled = true
+fog_light_color = Color(0.54521054, 0.5537622, 0.53505677, 1)
+fog_sun_scatter = 0.1
+fog_density = 0.0196
+adjustment_enabled = true
+adjustment_contrast = 1.1
+adjustment_saturation = 1.35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dither"]
+shader = ExtResource("16_dither")
+shader_parameter/color_levels = 32.0
+shader_parameter/dither_strenght = 0.35
+shader_parameter/desaturacion = 0.4
+shader_parameter/tinte = Color(1.0, 0.97, 0.84, 1)
+shader_parameter/contraste = 1.1
+shader_parameter/vineta = 0.3
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_suelo"]
+size = Vector2(900, 900)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_suelo"]
+shader = ExtResource("14_suelo")
+shader_parameter/albedo_texture = ExtResource("15_suelo_tex")
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/tile_size = 3.0
+shader_parameter/jitter_enabled = false
+shader_parameter/snap_resolution = 160.0
+shader_parameter/wobble_enabled = false
+shader_parameter/wobble_resolution = 40.0
+shader_parameter/affine_enabled = false
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_suelo"]
+size = Vector3(900, 0.2, 900)
+
+[node name="SantaMugrePSM" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_mapa")
+
+[node name="Sol" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.3326426, 0.8513836, -0.40557972, -0.70441604, 0.061628435, 0.7071068, 0.6270144, 0.52091074, 0.579228, 0, 40, 0)
+light_color = Color(0.9282061, 0.8841801, 0.82615525, 1)
+light_energy = 1.15
+light_indirect_energy = 0.0
+light_specular = 0.2
+shadow_enabled = true
+shadow_reverse_cull_face = true
+shadow_opacity = 0.86
+shadow_blur = 0.0
+directional_shadow_max_distance = 80.0
+
+[node name="Centro" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -302.5, 0, 370)
+
+[node name="Suelo" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -302.5, -0.1, 370)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Suelo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_suelo")
+surface_material_override/0 = SubResource("ShaderMaterial_suelo")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Suelo"]
+shape = SubResource("BoxShape3D_suelo")
+
+[node name="Mapa" type="Node3D" parent="."]
+script = ExtResource("1_streamer")
+indice_path = "res://resources/map/santa_mugre_psm/indice.json"
+target_path = NodePath("../Centro")
+load_radius = 170.0
+unload_radius = 240.0
+
+[node name="Puntos" type="Node3D" parent="."]
+script = ExtResource("2_puntos")
+puntos_path = "res://resources/map/santa_mugre_psm/puntos.json"
+prefabs = Dictionary[String, PackedScene]({
+"alto": ExtResource("3_alto"),
+"gasolinera": ExtResource("4_pemex"),
+"puesto": ExtResource("5_carrito")
+})
+prefab_rotacion = Dictionary[String, float]({
+"alto": 90.0,
+"gasolinera": -90.0
+})
+prefab_ancho = Dictionary[String, float]({
+"alto": 0.75,
+"gasolinera": 14.0,
+"puesto": 2.5
+})
+target_path = NodePath("../Centro")
+load_radius = 170.0
+unload_radius = 240.0
+
+[node name="Casas" type="Node3D" parent="."]
+script = ExtResource("6_casas")
+casas_path = "res://resources/map/santa_mugre_psm/casas.json"
+modelos = Dictionary[String, PackedScene]({
+"psm_1p_a": ExtResource("7_psm"),
+"psm_1p_b": ExtResource("7_psm"),
+"psm_1p_c": ExtResource("7_psm"),
+"psm_1p_tablones": ExtResource("7_psm"),
+"psm_1p_barrotes": ExtResource("7_psm"),
+"psm_1p_persiana": ExtResource("7_psm"),
+"psm_2p_a": ExtResource("7_psm"),
+"psm_2p_b": ExtResource("7_psm"),
+"psm_2p_c": ExtResource("7_psm"),
+"psm_2p_tablones": ExtResource("7_psm"),
+"psm_2p_barrotes": ExtResource("7_psm"),
+"psm_2p_persiana": ExtResource("7_psm")
+})
+modelo_rango_x = Dictionary[String, Vector2]({
+"psm_1p_a": Vector2(-5, 5),
+"psm_1p_b": Vector2(5, 15),
+"psm_1p_c": Vector2(15, 25),
+"psm_1p_tablones": Vector2(25, 35),
+"psm_1p_barrotes": Vector2(35, 45),
+"psm_1p_persiana": Vector2(45, 55),
+"psm_2p_a": Vector2(55, 65),
+"psm_2p_b": Vector2(65, 75),
+"psm_2p_c": Vector2(75, 85),
+"psm_2p_tablones": Vector2(85, 95),
+"psm_2p_barrotes": Vector2(95, 105),
+"psm_2p_persiana": Vector2(105, 115)
+})
+muro_key = Dictionary[String, Color]({
+"psm_1p_a": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_b": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_c": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_tablones": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_barrotes": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_persiana": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_a": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_b": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_c": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_tablones": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_barrotes": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_persiana": Color(0.88, 0.88, 0.88, 1)
+})
+recolor_materiales = Dictionary[String, PackedStringArray]({
+"psm_1p_a": PackedStringArray("muro", "arco"),
+"psm_1p_b": PackedStringArray("muro", "arco"),
+"psm_1p_c": PackedStringArray("muro", "arco"),
+"psm_1p_tablones": PackedStringArray("muro", "arco"),
+"psm_1p_barrotes": PackedStringArray("muro", "arco"),
+"psm_1p_persiana": PackedStringArray("muro", "arco"),
+"psm_2p_a": PackedStringArray("muro", "arco"),
+"psm_2p_b": PackedStringArray("muro", "arco"),
+"psm_2p_c": PackedStringArray("muro", "arco"),
+"psm_2p_tablones": PackedStringArray("muro", "arco"),
+"psm_2p_barrotes": PackedStringArray("muro", "arco"),
+"psm_2p_persiana": PackedStringArray("muro", "arco")
+})
+target_path = NodePath("../Centro")
+load_radius = 170.0
+unload_radius = 240.0
+
+[node name="Bardas" type="Node3D" parent="."]
+script = ExtResource("10_bardas")
+bardas_path = "res://resources/map/santa_mugre_psm/bardas.json"
+barda_textura = ExtResource("11_barda")
+malla_textura = ExtResource("12_malla")
+target_path = NodePath("../Centro")
+load_radius = 170.0
+unload_radius = 240.0
+
+[node name="Arboles" type="Node3D" parent="."]
+script = ExtResource("8_arboles")
+arboles_path = "res://resources/map/santa_mugre_psm/arboles.json"
+target_path = NodePath("../Centro")
+load_radius = 170.0
+unload_radius = 240.0
+
+[node name="Pasto" type="Node3D" parent="."]
+script = ExtResource("9_pasto")
+target_path = NodePath("../Player")
+suelo_path = NodePath("../Suelo/MeshInstance3D")
+
+[node name="Alumbrado" type="Node3D" parent="."]
+script = ExtResource("13_alumbrado")
+alumbrado_path = "res://resources/map/santa_mugre_psm/alumbrado.json"
+target_path = NodePath("../Centro")
+jugador_path = NodePath("../Player")
+load_radius = 170.0
+unload_radius = 240.0
+
+[node name="KioscoIglesia" parent="." instance=ExtResource("18_kiosco_iglesia")]
+
+[node name="Player" parent="." instance=ExtResource("17_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -330, 1.2, 395)
+
+[node name="Dron" type="Node3D" parent="."]
+script = ExtResource("19_dron")
+player_path = NodePath("../Player")
+environment_path = NodePath("../WorldEnvironment")
+iniciar_en_dron = false
+
+[node name="PS1_Postprocess" type="CanvasLayer" parent="."]
+
+[node name="Dither" type="ColorRect" parent="PS1_Postprocess"]
+material = SubResource("ShaderMaterial_dither")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

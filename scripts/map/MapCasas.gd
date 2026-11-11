@@ -50,6 +50,9 @@ const GRAFITI_ALTO := Vector2(0.35, 2.1)
 # sin valor, la casa sale con sus colores originales
 @export var muro_key: Dictionary[String, Color] = {}
 @export var muro_tol: Dictionary[String, float] = {}
+# modelo -> pedazos del nombre de los materiales que se pintan; sin valor, todos. La casa PSM
+# (casas_psm.glb) trae puertas y marcos blancos en su atlas, que no son muro: solo "muro" y "arco"
+@export var recolor_materiales: Dictionary[String, PackedStringArray] = {}
 # modelo -> rectangulos de UV (x0, y0, x1, y1) de sus vidrios, que se rompen
 # segun el deterioro de la zona (shaders/ps1_deterioro.gdshaderinc); maximo 8
 @export var ventanas_uv: Dictionary[String, PackedVector4Array] = {}
@@ -319,7 +322,8 @@ func _paredes(mesh: ArrayMesh, aabb: AABB) -> Array:
 	for surface in mesh.get_surface_count():
 		var arrays := mesh.surface_get_arrays(surface)
 		var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-		var idx: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+		# (sin indices si la malla no los trae: la casa PSM sale asi de _recortar_x)
+		var idx: PackedInt32Array = arrays[Mesh.ARRAY_INDEX] if arrays[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
 		if idx.is_empty():
 			idx = PackedInt32Array(range(v.size()))
 		for t in range(0, idx.size(), 3):
@@ -594,7 +598,7 @@ func _material_casa(source: Material, modelo: String) -> Material:
 	material.set_shader_parameter("affine_enabled", false)
 	# El wobble mueve distinto dos capas pegadas (muro y aplanado) y se pelean a cuadros
 	material.set_shader_parameter("wobble_enabled", false)
-	if muro_key.has(modelo):
+	if muro_key.has(modelo) and _se_pinta(source, modelo):
 		material.set_shader_parameter("recolor", true)
 		material.set_shader_parameter("muro_key", muro_key[modelo])
 		material.set_shader_parameter("muro_tol", muro_tol.get(modelo, 0.12))
@@ -603,6 +607,16 @@ func _material_casa(source: Material, modelo: String) -> Material:
 		material.set_shader_parameter("n_ventanas", mini(ventanas_uv[modelo].size(), 8))
 	_materiales[key] = material
 	return material
+
+
+func _se_pinta(source: Material, modelo: String) -> bool:
+	if not recolor_materiales.has(modelo):
+		return true
+	var nombre := source.resource_name if source else ""
+	for pedazo in recolor_materiales[modelo]:
+		if pedazo in nombre:
+			return true
+	return false
 
 
 var _textura_blanca: ImageTexture

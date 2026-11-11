@@ -1,0 +1,102 @@
+{
+	"cuadros": [
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-4_0.scn",
+			"max_x": -300.0,
+			"max_z": 270.0,
+			"min_x": -600.0,
+			"min_z": -30.0
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-4_-2.scn",
+			"max_x": -300.0,
+			"max_z": 459.301513671875,
+			"min_x": -600.0,
+			"min_z": -761.516235351562
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-2_2.scn",
+			"max_x": -110.176025390625,
+			"max_z": 383.002258300781,
+			"min_x": -274.397369384766,
+			"min_z": 261.721008300781
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-2_4.scn",
+			"max_x": 268.428344726562,
+			"max_z": 664.161865234375,
+			"min_x": -530.507507324219,
+			"min_z": 445.952362060547
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-4_2.scn",
+			"max_x": -373.592742919922,
+			"max_z": 428.201782226562,
+			"min_x": -508.412750244141,
+			"min_z": 220.481948852539
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-4_3.scn",
+			"max_x": -300.0,
+			"max_z": 570.0,
+			"min_x": -600.0,
+			"min_z": 270.0
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-3_3.scn",
+			"max_x": -266.717010498047,
+			"max_z": 516.491516113281,
+			"min_x": -394.796752929688,
+			"min_z": 388.465881347656
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-2_0.scn",
+			"max_x": 0.0,
+			"max_z": 270.0,
+			"min_x": -300.0,
+			"min_z": -30.0
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-3_1.scn",
+			"max_x": -233.691787719727,
+			"max_z": 467.076965332031,
+			"min_x": -393.501770019531,
+			"min_z": -143.605087280273
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-2_3.scn",
+			"max_x": 0.0,
+			"max_z": 570.0,
+			"min_x": -300.0,
+			"min_z": 270.0
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-2_1.scn",
+			"max_x": -141.121994018555,
+			"max_z": 280.007293701172,
+			"min_x": -248.753005981445,
+			"min_z": 92.9490509033203
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-1_2.scn",
+			"max_x": 28.5219421386719,
+			"max_z": 385.143463134766,
+			"min_x": -276.11767578125,
+			"min_z": 270.247985839844
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-4_1.scn",
+			"max_x": -379.318237304688,
+			"max_z": 581.326049804688,
+			"min_x": -541.447387695312,
+			"min_z": -181.895309448242
+		},
+		{
+			"archivo": "res://resources/map/cuadros/cuadro_-3_2.scn",
+			"max_x": -265.705993652344,
+			"max_z": 390.381988525391,
+			"min_x": -374.019073486328,
+			"min_z": 258.927307128906
+		}
+	]
+}
