@@ -704,7 +704,8 @@ def _llantas(k, x, z, n):
 
 def lote(nombre, p):
     """Un baldio con vida (frente a +Z, tam = [frente, fondo]): "taller" mecanico al aire libre,
-    "juegos" oxidados, "fonda" de lona con sillas de plastico, o "baldio" con su basura."""
+    "juegos" oxidados, "fonda" de lona con sillas de plastico, "basquet" (media canchita con aro
+    sin red) o "baldio" con su basura."""
     k = Constructor(nombre)
     ancho, fondo = p.get("tam", [8.0, 12.0])
     hx, hz = ancho / 2, fondo / 2
@@ -740,6 +741,32 @@ def lote(nombre, p):
         k.cara([(hx - 0.9, 2.0, 1.3), (hx - 1.5, 2.0, 1.3), (hx - 1.5, 0.2, 4.0), (hx - 0.9, 0.2, 4.0)], "naranja_gela")
         k.caja((-hx + 1.5, 0.35, hz - 2.5), (0.25, 0.7, 0.25), "fierro_verde")
         k.caja((-hx + 1.5, 0.6, hz - 2.5), (0.3, 0.06, 3.2), "azul_gela")
+    elif variante == "basquet":
+        # Media canchita de basquet: losa de concreto, poste al fondo con tablero y aro sin red,
+        # rayas gastadas y un balon olvidado
+        k.cara([(-hx + 0.3, 0.05, hz - 0.3), (hx - 0.3, 0.05, hz - 0.3), (hx - 0.3, 0.05, -hz + 0.3), (-hx + 0.3, 0.05, -hz + 0.3)], "banqueta")
+        zp = -hz + 0.7
+        k.cilindro((0, 0, zp), 0.08, 3.4, "fierro_verde", lados=6)
+        k.choques.append(((0, 1.7, zp), (0.2, 3.4, 0.2), 0.0))
+        k.caja((0, 3.3, zp + 0.25), (0.08, 0.08, 0.5), "fierro_verde")
+        k.caja((0, 3.35, zp + 0.5), (1.4, 0.95, 0.05), "blanco_cal")
+        k.caja((0, 3.25, zp + 0.53), (0.5, 0.4, 0.02), "rojo")
+        for i in range(10):
+            a0 = i * math.tau / 10
+            k.caja((math.cos(a0) * 0.23, 3.05, zp + 0.78 + math.sin(a0) * 0.23), (0.15, 0.03, 0.03), "naranja_gela", -a0 + math.pi / 2)
+        def raya(x0, z0, x1, z1):
+            dx, dz = x1 - x0, z1 - z0
+            ll = math.hypot(dx, dz) or 1.0
+            nx, nz = -dz / ll * 0.05, dx / ll * 0.05
+            k.cara([(x0 - nx, 0.06, z0 - nz), (x1 - nx, 0.06, z1 - nz), (x1 + nx, 0.06, z1 + nz), (x0 + nx, 0.06, z0 + nz)], "blanco_cal")
+        r3 = min(hx - 0.6, 3.5)
+        arco = [(math.cos(math.pi * i / 12) * r3, zp + 0.8 + math.sin(math.pi * i / 12) * r3) for i in range(13)]
+        for p0, p1 in zip(arco, arco[1:]):
+            raya(p0[0], p0[1], p1[0], p1[1])
+        raya(-1.0, -hz + 0.3, -1.0, zp + 3.0)
+        raya(1.0, -hz + 0.3, 1.0, zp + 3.0)
+        raya(-1.0, zp + 3.0, 1.0, zp + 3.0)
+        k.esfera((hx - 1.0, 0.12, hz - 1.5), 0.12, "naranja_gela", seg=6, anillos=4)
     elif variante == "fonda":
         # Lona amarilla sobre tres mesas con sillas de plastico rojas y el carrito de tacos al frente
         for x in (-hx + 0.4, hx - 0.4):

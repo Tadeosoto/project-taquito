@@ -396,8 +396,8 @@ def _rutas(rutas, nuevas):
 
 
 # Los baldios del relleno se turnan estas variantes (piezas.lote): taller mecanico al aire libre,
-# juegos oxidados, fonda de lona, baldio con basura y barda de lamina
-VARIANTES_LOTE = ["taller", "baldio", "juegos", "fonda"]
+# juegos oxidados, fonda de lona, baldio con basura y barda de lamina, media canchita de basquet
+VARIANTES_LOTE = ["taller", "baldio", "juegos", "fonda", "basquet"]
 
 
 def _baldio(nombre, rect, variante):

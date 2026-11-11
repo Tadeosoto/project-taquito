@@ -3748,7 +3748,7 @@
 			"z": 298.98,
 			"rot": -1.5316,
 			"tam": [6.42, 10.64],
-			"variante": "taller"
+			"variante": "basquet"
 		},
 		{
 			"nombre": "Lote_37",
@@ -3894,20 +3894,7 @@
 			"z": 340.65,
 			"rot": -3.1008,
 			"tam": [7.74, 10.32],
-			"variante": "baldio"
-		},
-		{
-			"nombre": "Baldio_45_Barda",
-			"tipo": "barda",
-			"auto": true,
-			"x": -270.84,
-			"z": 335.5,
-			"rot": -3.1008,
-			"largo": 7.74,
-			"alto": 2.2,
-			"grueso": 0.12,
-			"material": "foto_lamina_verde",
-			"murales": 70
+			"variante": "taller"
 		},
 		{
 			"nombre": "Lote_46",
@@ -4053,7 +4040,7 @@
 			"z": 320.17,
 			"rot": 0.0408,
 			"tam": [6.57, 4.0],
-			"variante": "juegos"
+			"variante": "baldio"
 		},
 		{
 			"nombre": "Baldio_54_Barda",
@@ -4063,7 +4050,7 @@
 			"z": 322.17,
 			"rot": 0.0408,
 			"largo": 6.57,
-			"alto": 1.2,
+			"alto": 2.2,
 			"grueso": 0.12,
 			"material": "foto_lamina_verde",
 			"murales": 70
@@ -4213,7 +4200,20 @@
 			"z": 350.24,
 			"rot": -1.5341,
 			"tam": [8.04, 7.0],
-			"variante": "fonda"
+			"variante": "juegos"
+		},
+		{
+			"nombre": "Baldio_63_Barda",
+			"tipo": "barda",
+			"auto": true,
+			"x": -274.69,
+			"z": 350.37,
+			"rot": -1.5341,
+			"largo": 8.04,
+			"alto": 1.2,
+			"grueso": 0.12,
+			"material": "foto_lamina_verde",
+			"murales": 70
 		},
 		{
 			"nombre": "Lote_64",
@@ -4360,7 +4360,7 @@
 			"z": 296.03,
 			"rot": 1.6075,
 			"tam": [4.5, 4.0],
-			"variante": "taller"
+			"variante": "fonda"
 		},
 		{
 			"nombre": "Lote_73",
@@ -4506,20 +4506,7 @@
 			"z": 289.85,
 			"rot": 1.6069,
 			"tam": [6.39, 13.48],
-			"variante": "baldio"
-		},
-		{
-			"nombre": "Baldio_81_Barda",
-			"tipo": "barda",
-			"auto": true,
-			"x": -203.31,
-			"z": 289.61,
-			"rot": 1.6069,
-			"largo": 6.39,
-			"alto": 2.2,
-			"grueso": 0.12,
-			"material": "foto_lamina_verde",
-			"murales": 70
+			"variante": "basquet"
 		},
 		{
 			"nombre": "Lote_82",
@@ -4665,20 +4652,7 @@
 			"z": 336.53,
 			"rot": -1.5452,
 			"tam": [4.5, 4.0],
-			"variante": "juegos"
-		},
-		{
-			"nombre": "Baldio_90_Barda",
-			"tipo": "barda",
-			"auto": true,
-			"x": -321.65,
-			"z": 336.58,
-			"rot": -1.5452,
-			"largo": 4.5,
-			"alto": 1.2,
-			"grueso": 0.12,
-			"material": "foto_lamina_verde",
-			"murales": 70
+			"variante": "taller"
 		},
 		{
 			"nombre": "Lote_91",
@@ -4824,7 +4798,20 @@
 			"z": 316.51,
 			"rot": 1.6036,
 			"tam": [8.64, 4.0],
-			"variante": "fonda"
+			"variante": "baldio"
+		},
+		{
+			"nombre": "Baldio_99_Barda",
+			"tipo": "barda",
+			"auto": true,
+			"x": -372.01,
+			"z": 316.44,
+			"rot": 1.6036,
+			"largo": 8.64,
+			"alto": 2.2,
+			"grueso": 0.12,
+			"material": "foto_lamina_verde",
+			"murales": 70
 		},
 		{
 			"nombre": "Lote_100",
@@ -4970,7 +4957,20 @@
 			"z": 294.17,
 			"rot": -3.0919,
 			"tam": [8.55, 12.76],
-			"variante": "taller"
+			"variante": "juegos"
+		},
+		{
+			"nombre": "Baldio_108_Barda",
+			"tipo": "barda",
+			"auto": true,
+			"x": -230.26,
+			"z": 287.8,
+			"rot": -3.0919,
+			"largo": 8.55,
+			"alto": 1.2,
+			"grueso": 0.12,
+			"material": "foto_lamina_verde",
+			"murales": 70
 		},
 		{
 			"nombre": "Lote_109",
@@ -5117,20 +5117,7 @@
 			"z": 296.8,
 			"rot": -0.0,
 			"tam": [6.21, 4.0],
-			"variante": "baldio"
-		},
-		{
-			"nombre": "Baldio_117_Barda",
-			"tipo": "barda",
-			"auto": true,
-			"x": -306.89,
-			"z": 298.8,
-			"rot": -0.0,
-			"largo": 6.21,
-			"alto": 2.2,
-			"grueso": 0.12,
-			"material": "foto_lamina_verde",
-			"murales": 70
+			"variante": "fonda"
 		},
 		{
 			"nombre": "Lote_118",
@@ -5276,20 +5263,7 @@
 			"z": 348.8,
 			"rot": -0.0,
 			"tam": [7.98, 4.0],
-			"variante": "juegos"
-		},
-		{
-			"nombre": "Baldio_126_Barda",
-			"tipo": "barda",
-			"auto": true,
-			"x": -264.01,
-			"z": 350.8,
-			"rot": -0.0,
-			"largo": 7.98,
-			"alto": 1.2,
-			"grueso": 0.12,
-			"material": "foto_lamina_verde",
-			"murales": 70
+			"variante": "basquet"
 		},
 		{
 			"nombre": "Lote_127",
@@ -5435,7 +5409,7 @@
 			"z": 405.27,
 			"rot": -1.5708,
 			"tam": [6.78, 4.0],
-			"variante": "fonda"
+			"variante": "taller"
 		},
 		{
 			"nombre": "Lote_136",
@@ -7171,7 +7145,7 @@
 			"tipo": "escalera",
 			"x": -405.8,
 			"z": 307.1,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"alto": 5.55,
 			"ancho": 1.0,
 			"sentido": -1
@@ -7194,7 +7168,7 @@
 			"x": -269.6,
 			"z": 477.75,
 			"y": 8.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"alto": 3.5,
 			"tam": [8.0, 4.0],
 			"anuncio": "gela",
@@ -7370,7 +7344,7 @@
 			"tipo": "patio",
 			"x": -305.0,
 			"z": 304.8,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7414,7 +7388,7 @@
 			"tipo": "patio",
 			"x": -255.0,
 			"z": 356.8,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7458,7 +7432,7 @@
 			"tipo": "patio",
 			"x": -347.5,
 			"z": 306.8,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7466,7 +7440,7 @@
 			"tipo": "vecindad",
 			"x": -215.5,
 			"z": 400.0,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [22.0, 52.0]
 		}
 	],
