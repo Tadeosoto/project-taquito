@@ -888,6 +888,60 @@ def bajada(nombre, p):
     return k
 
 
+def basamento(nombre, p):
+    """Basamento de cantera bajo un edificio (el palacio): una losa de `alto` m del tamaño `tam`
+    [ancho (x), fondo (z)] con escalones a todo lo ancho del frente (+Z). Se camina encima;
+    los escalones chocan como rampa."""
+    k = Constructor(nombre)
+    ancho, fondo = p.get("tam", [50.0, 18.0])
+    alto = p.get("alto", 0.45)
+    hx, hz = ancho / 2, fondo / 2
+    k.caja((0, alto / 2, 0), (ancho, alto, fondo), "foto_cantera_rosa", choca=True)
+    escalones = max(2, round(alto / 0.15))
+    huella = 0.32
+    for i in range(1, escalones):
+        y = alto * (escalones - i) / escalones
+        k.caja((0, y / 2, hz + (i - 0.5) * huella), (ancho, y, huella), "foto_cantera_rosa")
+    largo = (escalones - 1) * huella
+    k.rampas.append([(-hx, alto, hz), (hx, alto, hz), (-hx, 0.0, hz + largo + 0.1), (hx, 0.0, hz + largo + 0.1),
+                     (-hx, -0.2, hz), (hx, -0.2, hz)])
+    return k
+
+
+def puente(nombre, p):
+    """Puente peatonal de fierro sobre la avenida: el piso a `alto` m, a lo largo de z (`largo`
+    m, de banqueta a banqueta), barandales, columnas en las puntas y en medio, y mantas de GelA
+    colgadas a los dos lados. Las escaleras son piezas `escalera` aparte, en cada banqueta."""
+    k = Constructor(nombre)
+    largo, alto, ancho = p.get("largo", 18.0), p.get("alto", 5.0), p.get("ancho", 1.6)
+    w = ancho / 2
+    semilla = sum((i + 1) * ord(c) for i, c in enumerate(nombre))
+    k.caja((0, alto - 0.1, largo / 2), (ancho, 0.2, largo), "fierro", choca=True)
+    k.caja((0, alto - 0.35, largo / 2), (ancho - 0.3, 0.3, largo), "fierro_verde")
+    # Las escaleras llegan por un lado en cada punta (oeste al empezar, este al acabar, como las
+    # pone el .json): ahi el barandal se abre ABRE m
+    abre = p.get("abre", 1.5)
+    for lado in (-1, 1):
+        z0, z1 = (abre, largo) if lado < 0 else (0.0, largo - abre)
+        k.caja((lado * w, alto + 1.0, (z0 + z1) / 2), (0.06, 0.06, z1 - z0), "fierro_verde")
+        for i in range(int((z1 - z0) / 0.6) + 1):
+            k.caja((lado * w, alto + 0.5, min(z0 + i * 0.6, z1)), (0.03, 1.0, 0.03), "fierro_verde")
+        k.choques.append(((lado * w, alto + 0.5, (z0 + z1) / 2), (0.1, 1.0, z1 - z0), 0.0))
+        # Manta de GelA por fuera del barandal
+        diseno = _mural_por_archivo("gela", semilla + (0 if lado > 0 else 5))
+        # Como en barda(): con la normal n, de a a b se va hacia (n.z, -n.x)
+        a, b = ((0.0, largo * 0.7), (0.0, largo * 0.3)) if lado > 0 else ((0.0, largo * 0.3), (0.0, largo * 0.7))
+        a, b = (lado * (w + 0.05), a[1]), (lado * (w + 0.05), b[1])
+        esquinas, uvs = esquinas_mural(a, b, alto - 0.5, (lado, 0.0), diseno, largo * 0.4, 1.4, salir=0.02)
+        k.cara([(xx, zz, yy) for xx, yy, zz in esquinas], "mural", uvs=uvs)
+    # Columnas lejos de las puntas: ahi llegan las escaleras, y una columna bajo su ultimo escalon
+    # atoraba al que subia
+    for z in (abre + 0.6, largo / 2, largo - abre - 0.6):
+        for lado in (-1, 1):
+            k.caja((lado * (w - 0.1), (alto - 0.4) / 2, z), (0.2, alto - 0.4, 0.2), "fierro", choca=True)
+    return k
+
+
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -1308,6 +1362,6 @@ def escombro(nombre, p):
 
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
-          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}
