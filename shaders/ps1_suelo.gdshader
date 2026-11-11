@@ -93,6 +93,22 @@ vec3 pasto(vec2 xz, float zona) {
 	return color;
 }
 
+// Agua estancada en la mitad de los baches del asfalto (los mismos de piso_roto, celdas de 3 m):
+// oscura y lisa, para que las luces de la calle y los reflectores brillen en ella de noche
+uniform float charcos = 0.5;     // fraccion de baches con agua
+
+float charco(vec2 xz, float zona) {
+	xz = floor(xz * 16.0) / 16.0;
+	vec2 celda = floor(xz / 3.0);
+	if (hash(celda + 5.0) >= zona * 0.3 || hash(celda + 11.0) >= charcos) {
+		return 0.0;
+	}
+	vec2 centro = (celda + 0.3 + 0.4 * vec2(hash(celda + 1.3), hash(celda + 7.1))) * 3.0;
+	float r = 0.35 + 0.6 * hash(celda + 2.7);
+	float d = length(xz - centro) / r + (ruido(xz * 3.0) - 0.5) * 0.5;
+	return step(d, 0.8);
+}
+
 void fragment() {
 	float zona = zona_deterioro(world_pos.xz);
 	vec3 color = piso_roto(texture(albedo_texture, world_pos.xz / tile_size).rgb, world_pos.xz, zona, piso_tipo);
@@ -108,4 +124,10 @@ void fragment() {
 	}
 	ALBEDO = color * tint.rgb;
 	ROUGHNESS = 1.0;
+	if (piso_tipo == 1) {
+		float agua = charco(world_pos.xz, zona);
+		ALBEDO = mix(ALBEDO, vec3(0.04, 0.05, 0.06), agua * 0.7);
+		ROUGHNESS = mix(1.0, 0.06, agua);
+		SPECULAR = mix(0.5, 1.0, agua);
+	}
 }

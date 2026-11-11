@@ -138,13 +138,13 @@ Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
 24. Topes (15) a media cuadra en los tramos de mas de 40 m de las calles con banqueta, amarillo y negro, con choque en rampa: se pasan caminando (`tope`, `colonia.topes`, no van al `.json`; prueba nueva). Los baches y grietas ya los pinta `ps1_suelo` segun el deterioro.
 25. Mercado techado detras del palacio, frente a la calle de z 333 (`Mercado`, pieza `mercado`, 30 x 18 m, con reserva): techo de lamina a dos aguas en postes de fierro, dos filas de puestos con fruta, cajas de chiles y costales, un foco colgado en cada uno, y su letrero "Mercado Municipal Santa Mugre" (marca nueva `letrero`). Quito siete casas auto; las que dependen de casas auto (antena, espectacular, tortilleria) siguen en su lugar.
 26. Costo: con carros, topes, mercado y los 12 civiles nuevos bajo de ~282 a ~245 fps en la plaza; los civiles (chamacos, guardias, fila) ya no se dibujan ni se animan a mas de 70 m (`NinosCancha.LEJOS`) y quedo en 275 (avenida 294, cancha 264; llamadas de dibujo 680 contra 560 antes de carros y mercado: cada color de lona y carro es otra superficie por cuadro).
+27. Charcos en la mitad de los baches del asfalto (`ps1_suelo.charco`, `charcos` 0.5): oscuros y lisos, brillan con las luces de noche. Vale para `map_test` tambien (mismo shader).
 
 Costo medido con `tools/mapa/medir_colonia.gd` (maquina de AG, de dia), antes de esta noche y despues de los 7 puntos: plaza 293 a 287 fps (primitivas 124k a 228k), tianguis 283 a 278 (195k a 339k), vecindad 287 a 280, avenida 335 a 321, cancha 304 a 298 (llamadas de dibujo 539 a 661). Baja 2-4 % de fps pero casi se doblan las primitivas: **Arreglado (2026-11-11):** los detalles (material `detalle_kit` de las casas y los objetos `Detalle_*` de los callejones, partidos en trozos de 20 m) van en cuadros de 24 m aparte que `MapaPostImport` deja de dibujar a 55 m y que no hacen sombra. Medido despues: plaza 132k primitivas (antes 228k, sin detalles 124k), 560 llamadas, tianguis 206k, cancha 151k; los fps quedan igual.
 
 Para revisar caminando (`scenes/mapa.tscn`): el color del muro y del piso de la cancha en Godot (en Blender se ven deslavados), si la ropa y los cables se ven bien de noche, y si los espectaculares se leen de lejos con la niebla.
 
 Ideas que siguen, en orden (del plan de esa noche):
-- Charcos en los baches (que reflejen de noche).
 - Puertas de herreria (zaguanes).
 - La fila de la tortilleria (gente de dia) y el interior de Doña Mary.
 - Mas pasillos como el del tianguis donde haga falta (casi todas las manzanas ya tienen callejon).
