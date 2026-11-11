@@ -130,6 +130,9 @@ func _subir_banqueta(escena: Node) -> void:
 	_revisar("sube al plinto del kiosco", ki["y_max"] - 1.0 > 0.4, "llego a %.2f m" % (ki["y_max"] - 1.0))
 	var at := await _caminar(escena, Vector3(-324.0, 1.2, 420.0), Vector3(1.0, 0.0, 0.0), 140)
 	_revisar("sube al atrio", at["y_max"] - 1.0 > 0.55, "llego a %.2f m" % (at["y_max"] - 1.0))
+	# La terraza del noreste (0.75 m) se sube por su escalinata de la calle sur
+	var te := await _caminar(escena, Vector3(-216.0, 1.2, 281.5), Vector3(0.0, 0.0, -1.0), 120)
+	_revisar("sube a la terraza del noreste", te["y_max"] - 1.0 > 0.7, "llego a %.2f m, hasta %s" % [te["y_max"] - 1.0, te["hasta"]])
 	# El pasillo de 1.1 m entre Bahia de Sin Agua y la calle de la vecindad se cruza caminando
 	var p := await _caminar(escena, Vector3(-273.5, 1.2, 418.0), Vector3(1.0, 0.0, 0.0), 760)
 	_revisar("se cruza el pasillo del tianguis", p["hasta"].x > -237.0, "hasta %s" % p["hasta"])

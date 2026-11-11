@@ -58,7 +58,11 @@ def armar(nombre):
     _piso(mundo, datos)
 
     _arroyos(datos)
+    terrazas = _terrazas(mundo, datos)
     for p in datos.get("piezas", []):
+        alto = _en_terraza(p, terrazas)
+        if alto:
+            p = dict(p, y=p.get("y", 0.0) + alto)
         ob = _pieza(mundo, p)
         if ob is None:
             print("colonia: tipo de pieza desconocido", p["tipo"], p["nombre"])
@@ -190,6 +194,40 @@ def _piso(mundo, datos):
         piso = caja(mundo, "Piso_" + nombre, (hx0 + hx1) / 2, (hz0 + hz1) / 2, 0.0, (hx1 - hx0, PISO_GRUESO, hz1 - hz0), mat,
                     y=-hondo - PISO_GRUESO, choca=True)
         piso[DATO] = "piso"
+
+
+def _terrazas(mundo, datos):
+    """Las `terrazas` del .json ([{"nombre", "puntos": [[x0, z0], [x1, z1]], "alto"}]): una manzana
+    subida sobre su muro de contencion de mamposteria, con piso de concreto encima. Lo que cae
+    adentro sube `alto` (_en_terraza). Sus escalinatas son piezas aparte. Devuelve los rectangulos."""
+    k = _kit()
+    lista = []
+    for t in datos.get("terrazas", []):
+        (a, b), (c_, d) = t["puntos"]
+        x0, z0, x1, z1 = min(a, c_), min(b, d), max(a, c_), max(b, d)
+        alto = t.get("alto", 0.75)
+        cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
+        caja(mundo, t["nombre"], cx, cz, 0.0, (x1 - x0, alto, z1 - z0), k["mat_piso"]("banqueta"), choca=True)
+        muro = k["foto"]("mamposteria")
+        for nombre, mx, mz, tam in (("N", cx, z0 - 0.06, (x1 - x0 + 0.24, alto + 0.12, 0.12)), ("S", cx, z1 + 0.06, (x1 - x0 + 0.24, alto + 0.12, 0.12)),
+                                    ("O", x0 - 0.06, cz, (0.12, alto + 0.12, z1 - z0)), ("E", x1 + 0.06, cz, (0.12, alto + 0.12, z1 - z0))):
+            caja(mundo, "%s_Muro%s" % (t["nombre"], nombre), mx, mz, 0.0, tam, muro, choca=False)
+        lista.append((x0, z0, x1, z1, alto))
+    return lista
+
+
+def _en_terraza(p, terrazas):
+    """Cuanto sube la pieza `p` por caer en una terraza (por su centro; una casa por el de su huella)."""
+    if not terrazas or p["tipo"] in ("calle", "suelo", "escalinata"):
+        return 0.0
+    x, z = p["x"], p["z"]
+    if p.get("puntos") and p["tipo"] == "casa":
+        x += sum(q[0] for q in p["puntos"]) / len(p["puntos"])
+        z += sum(q[1] for q in p["puntos"]) / len(p["puntos"])
+    for x0, z0, x1, z1, alto in terrazas:
+        if x0 < x < x1 and z0 < z < z1:
+            return alto
+    return 0.0
 
 def _casco(col, nombre, puntos, padre):
     """Caja de choque convexa (rampa) de puntos en coordenadas de Godot de la pieza `padre`."""

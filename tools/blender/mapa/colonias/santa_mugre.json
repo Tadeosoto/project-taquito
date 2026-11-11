@@ -7083,6 +7083,26 @@
 			"tam": [30.0, 18.0]
 		},
 		{
+			"nombre": "Escalinata_Terraza_S",
+			"tipo": "escalinata",
+			"x": -216.0,
+			"z": 279.2,
+			"rot": 1.5708,
+			"largo": 1.0,
+			"ancho": 1.8,
+			"alto": 0.75
+		},
+		{
+			"nombre": "Escalinata_Terraza_O",
+			"tipo": "escalinata",
+			"x": -233.2,
+			"z": 268.0,
+			"rot": 0.0,
+			"largo": 1.2,
+			"ancho": 1.8,
+			"alto": 0.75
+		},
+		{
 			"nombre": "Puente_Avenida",
 			"tipo": "puente",
 			"x": -322.0,
@@ -9100,5 +9120,15 @@
 		"Calle_4_0": "Privada del Tinaco",
 		"Calle_22_0": "Callejón del Medidor",
 		"Calle_2_0": "Cerrada de la Gota"
-	}
+	},
+	"terrazas": [
+		{
+			"nombre": "Terraza_Noreste",
+			"puntos": [
+				[-232.0, 258.3],
+				[-197.8, 278.2]
+			],
+			"alto": 0.75
+		}
+	]
 }

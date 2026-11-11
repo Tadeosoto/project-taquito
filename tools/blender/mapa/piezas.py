@@ -975,6 +975,27 @@ def plinto(nombre, p):
     return k
 
 
+def escalinata(nombre, p):
+    """Escalones de piedra que suben `alto` m a lo largo de +x en `largo` m (de la banqueta a una
+    terraza), `ancho` en z, con sus muritos a los lados. Su choque es una rampa."""
+    k = Constructor(nombre)
+    largo, ancho, alto = p.get("largo", 1.0), p.get("ancho", 1.6), p.get("alto", 0.75)
+    w = ancho / 2
+    escalones = max(2, round(alto / 0.19))
+    huella = largo / escalones
+    for i in range(escalones):
+        y = alto * (i + 1) / escalones
+        k.caja(((i + 0.5) * huella, y / 2, 0.0), (huella, y, ancho), "foto_cantera_rosa")
+    for lado in (-1, 1):
+        k.caja((largo / 2, alto / 2 + 0.15, lado * (w + 0.12)), (largo, alto + 0.3, 0.24), "foto_mamposteria", choca=True)
+    # La rampa llega a `alto` justo en la orilla y sigue plana 0.8 m encima de la terraza: si
+    # rebasaba la altura, el cuerpo se apoyaba en la orilla a mas de 45 grados y se atoraba
+    k.rampas.append([(-0.15, 0.0, -w), (-0.15, 0.0, w), (largo, alto, -w), (largo, alto, w),
+                     (largo + 0.8, alto, -w), (largo + 0.8, alto, w),
+                     (largo + 0.8, -0.2, -w), (largo + 0.8, -0.2, w), (-0.15, -0.2, -w), (-0.15, -0.2, w)])
+    return k
+
+
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -1395,6 +1416,6 @@ def escombro(nombre, p):
 
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
-          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "escalinata": escalinata, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}
