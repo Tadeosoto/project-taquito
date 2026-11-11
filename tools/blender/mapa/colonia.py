@@ -120,7 +120,7 @@ def _pieza(col, p):
         color = k["PALETA"].get(color, (0.8, 0.8, 0.8)) if isinstance(color, str) else color
         malla = k["casa_malla"](nombre, p["puntos"], p.get("pisos", 1), color, p.get("frente", 0),
                                 p.get("desgaste", 0.5), p.get("tienda", False), p.get("tinaco", True), p.get("varillas"),
-                                p.get("detalles", True))
+                                p.get("detalles", True), _acabado(p))
         ob = bpy.data.objects.new(nombre, malla)
         ob.location = a_blender(x, z, y)
         ob.rotation_euler = (0.0, 0.0, rot)
@@ -366,6 +366,19 @@ def _losa(bm, col, p, a, u, lado, dentro, fuera, s0, s1):
     ob.display_type = "WIRE"
     col.objects.link(ob)
 
+
+
+LADRILLO_CADA = 5        # una de cada tantas casas "auto" de dos pisos o mas sale de ladrillo
+
+
+def _acabado(p):
+    """El "acabado" de una casa: el suyo, o ladrillo para una de cada LADRILLO_CADA de las que
+    puso bloqueo.py con dos pisos o mas (fijo por nombre)."""
+    if "acabado" in p:
+        return p["acabado"]
+    if p.get("auto") and p.get("pisos", 1) >= 2 and sum((i + 1) * ord(ch) for i, ch in enumerate(p["nombre"])) % LADRILLO_CADA == 0:
+        return "ladrillo"
+    return None
 
 VISTA = "Vista"          # coleccion que solo se ve en Blender (no se exporta): los postes los arma Godot
 CABLE_COLGADO = 0.7      # m que cuelga un cable a la mitad

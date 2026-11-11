@@ -394,7 +394,7 @@ def _celda_fachada(azar, piso, en_frente, tramo, puerta_en, desgaste, tienda):
 
 
 def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgaste=0.5, tienda=False,
-               tinaco=True, varillas=None, detalles=True):
+               tinaco=True, varillas=None, detalles=True, acabado=None):
     """La casa como una malla: paredes en tramos del atlas, pretil, azotea, tinaco y varillas.
     `puntos` es la huella ([x, z] relativos al origen de la pieza) y `frente` el indice del lado
     que da a la calle (el lado i va del punto i al i+1, en el orden del .json)."""
@@ -407,10 +407,16 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
     indice = {"fachada_kit": 0, "azotea": 1, "tinaco": 2, "varilla": 3, "mural": 4, "detalle": 5}
     alto = pisos * PISO
     lisos = []      # tramos lisos de la planta baja del frente: ahi va el mural, si toca
+    pretil = LADRILLO if acabado == "ladrillo" else LISO
     muros = []      # (a, b, tramos) de cada lado, para los detalles de las fachadas
     ocupado = []    # (x, y, radio) de lo que ya hay en la azotea
     ventanas = []   # (p0, p1) de los tramos con ventana en la planta baja: llevan reja
     # Los colores de la paleta estan en sRGB; el color de vertice va lineal
+    ladrillo = acabado == "ladrillo"
+    if ladrillo:
+        # Obra negra de ladrillo (la foto de la cancha de AG): los muros lisos son el mosaico de
+        # ladrillo y lo que rodea las ventanas va del color del ladrillo
+        color = COLOR_LADRILLO
     rgba = tuple(c ** 2.2 for c in color[:3]) + (1.0,)
 
     # El orden del .json decide cual es el frente; para las caras hace falta el sentido
@@ -445,6 +451,8 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
                 p1 = (a[0] + (b[0] - a[0]) * u1, a[1] + (b[1] - a[1]) * u1)
                 z0, z1 = piso * PISO, (piso + 1) * PISO
                 celda = _celda_fachada(azar, piso, en_frente, t, puerta_en, desgaste, tienda)
+                if ladrillo and celda in (LISO, CAIDO):
+                    celda = LADRILLO
                 if en_frente and piso == 0 and celda in (LISO, CAIDO):
                     lisos.append((p0, p1))
                 if piso == 0 and celda == VENTANA_ABAJO:
@@ -454,7 +462,7 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
         # Pretil: lo de abajo del aplanado liso
         v = PRETIL / PISO
         cara([(a[0], a[1], alto), (b[0], b[1], alto), (b[0], b[1], alto + PRETIL), (a[0], a[1], alto + PRETIL)],
-             [uv_mosaico(LISO, 0, 0), uv_mosaico(LISO, largo / PISO % 1 or 1, 0), uv_mosaico(LISO, largo / PISO % 1 or 1, v), uv_mosaico(LISO, 0, v)], "fachada_kit")
+             [uv_mosaico(pretil, 0, 0), uv_mosaico(pretil, largo / PISO % 1 or 1, 0), uv_mosaico(pretil, largo / PISO % 1 or 1, v), uv_mosaico(pretil, 0, v)], "fachada_kit")
 
     # Un mural (grafiti o propaganda) en un tramo liso del frente; mas con mas desgaste
     if lisos and azar() < 0.3 + desgaste * 0.5:
@@ -486,6 +494,8 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
             ocupado.append((esquina[0] * 0.9, esquina[1] * 0.9, 0.3))
     if detalles:
         _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ventanas)
+    if ladrillo:
+        _estructura(cara, muros, ccw, pisos)
 
     malla = bpy.data.meshes.new(nombre)
     bm.to_mesh(malla)
@@ -533,17 +543,17 @@ HERRERIA = [(0.08, 0.08, 0.09), (0.08, 0.08, 0.09), (0.85, 0.85, 0.82), (0.15, 0
 ROPA = [(0.8, 0.18, 0.2), (0.15, 0.4, 0.78), (0.92, 0.75, 0.15), (0.9, 0.9, 0.88), (0.9, 0.42, 0.62), (0.2, 0.62, 0.32)]
 
 
-def _cara_hacia(cara, puntos, normal, color):
+def _cara_hacia(cara, puntos, normal, color, mat="detalle"):
     """Una cara de color liso con su frente hacia `normal` (voltea los puntos si hace falta)."""
     import mathutils
     a, b, c = (mathutils.Vector(p) for p in puntos[:3])
     if (b - a).cross(c - a).dot(mathutils.Vector(normal)) < 0:
         puntos = puntos[::-1]
     uv = uv_mosaico(LISO, 0.5, 0.5)
-    cara(puntos, [uv] * len(puntos), "detalle", tuple(k ** 2.2 for k in color) + (1.0,))
+    cara(puntos, [uv] * len(puntos), mat, tuple(k ** 2.2 for k in color) + (1.0,))
 
 
-def _caja_detalle(cara, centro, u, ancho, fondo, alto, color, abajo=False):
+def _caja_detalle(cara, centro, u, ancho, fondo, alto, color, abajo=False, mat="detalle"):
     """Caja parada en `centro` (x, y, z de la base) con su ancho a lo largo de `u` (x, y)."""
     x, y, z = centro
     ux, uy = u
@@ -552,12 +562,30 @@ def _caja_detalle(cara, centro, u, ancho, fondo, alto, color, abajo=False):
     def p(sa, sf, zz):
         return (x + ux * sa * ha + nx * sf * hf, y + uy * sa * ha + ny * sf * hf, zz)
     z1 = z + alto
-    _cara_hacia(cara, [p(-1, -1, z1), p(1, -1, z1), p(1, 1, z1), p(-1, 1, z1)], (0, 0, 1), color)
+    _cara_hacia(cara, [p(-1, -1, z1), p(1, -1, z1), p(1, 1, z1), p(-1, 1, z1)], (0, 0, 1), color, mat)
     for (sa0, sf0), (sa1, sf1), n in (((-1, -1), (1, -1), (-nx, -ny, 0)), ((1, -1), (1, 1), (ux, uy, 0)),
                                       ((1, 1), (-1, 1), (nx, ny, 0)), ((-1, 1), (-1, -1), (-ux, -uy, 0))):
-        _cara_hacia(cara, [p(sa0, sf0, z), p(sa1, sf1, z), p(sa1, sf1, z1), p(sa0, sf0, z1)], n, color)
+        _cara_hacia(cara, [p(sa0, sf0, z), p(sa1, sf1, z), p(sa1, sf1, z1), p(sa0, sf0, z1)], n, color, mat)
     if abajo:
-        _cara_hacia(cara, [p(-1, -1, z), p(1, -1, z), p(1, 1, z), p(-1, 1, z)], (0, 0, -1), color)
+        _cara_hacia(cara, [p(-1, -1, z), p(1, -1, z), p(1, 1, z), p(-1, 1, z)], (0, 0, -1), color, mat)
+
+
+COLOR_LADRILLO = (0.66, 0.34, 0.22)
+COLOR_CONCRETO = (0.62, 0.61, 0.58)
+
+
+def _estructura(cara, muros, ccw, pisos):
+    """Dalas de concreto gris en cada losa y castillos en las esquinas, saliendo un poco del muro:
+    lo que se le ve a una casa de ladrillo sin aplanar. Con la fachada (no se esconde de lejos)."""
+    for a, b, _t in muros:
+        largo = math.hypot(b[0] - a[0], b[1] - a[1])
+        u = ((b[0] - a[0]) / largo, (b[1] - a[1]) / largo)
+        m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+        for piso in range(1, pisos + 1):
+            _caja_detalle(cara, (m[0], m[1], piso * PISO - 0.22), u, largo + 0.12, 0.1, 0.24, COLOR_CONCRETO,
+                          abajo=True, mat="fachada_kit")
+    for x, y in ccw:
+        _caja_detalle(cara, (x, y, 0.0), (1.0, 0.0), 0.3, 0.3, pisos * PISO, COLOR_CONCRETO, mat="fachada_kit")
 
 
 def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ventanas=()):
