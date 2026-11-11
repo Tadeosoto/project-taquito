@@ -20,9 +20,9 @@
 			"tipo": "puerta",
 			"giro": "casa_jugador",
 			"texto": "Tu cuarto",
-			"x": -214.0,
-			"z": 381.8,
-			"rot": 0.0
+			"x": -212.3,
+			"z": 387.0,
+			"rot": -1.5708
 		},
 		{
 			"nombre": "Puerta_oxxo_0",

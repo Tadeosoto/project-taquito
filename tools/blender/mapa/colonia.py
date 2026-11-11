@@ -66,6 +66,8 @@ def armar(nombre):
         else:
             ob[DATO] = "pieza:" + p["nombre"]
 
+    _postes_y_cables(sc, mundo, datos.get("postes", []))
+
     for m in datos.get("marcas", []):
         ob = vacio(marcas, m["nombre"], m["x"], m["z"], m.get("rot", 0.0), tamano=1.5)
         ob[DATO] = "marca:" + m["nombre"]
@@ -360,6 +362,54 @@ def _losa(bm, col, p, a, u, lado, dentro, fuera, s0, s1):
     ob.location = a_blender(p["x"], p["z"], p.get("y", 0.0))
     ob.display_type = "WIRE"
     col.objects.link(ob)
+
+
+VISTA = "Vista"          # coleccion que solo se ve en Blender (no se exporta): los postes los arma Godot
+CABLE_COLGADO = 0.7      # m que cuelga un cable a la mitad
+CABLE_LARGO_MAX = 40.0   # m: postes mas lejos no se cablean
+
+
+def _postes_y_cables(sc, mundo, postes):
+    """Postes de vista (en Godot los pone MapAlumbrado con su luz) y los cables colgados de poste
+    a poste, en el orden en que se pusieron (zigzaguean de banqueta a banqueta), que si se exportan."""
+    if not postes:
+        return
+    vista = coleccion(sc, VISTA)
+    k = _kit()
+    for i, p in enumerate(postes):
+        c = k["Constructor"]("Poste_%d" % i)
+        c.cilindro((0, 0, 0), 0.14, p["alto"], "concreto", lados=6, radio_arriba=0.09)
+        c.caja((0, p["alto"] - 0.2, p["brazo"] / 2), (0.08, 0.08, p["brazo"]), "fierro")
+        c.caja((0, p["alto"] - 0.3, p["brazo"] - 0.1), (0.3, 0.12, 0.6), "farol")
+        ob = bpy.data.objects.new("Poste_%d" % i, c.terminar())
+        ob.location = a_blender(p["x"], p["z"])
+        ob.rotation_euler = (0.0, 0.0, p["rotacion_y"])
+        vista.objects.link(ob)
+    bm = bmesh.new()
+    pasos = 8
+    def punta(p):
+        return (p["x"], p["alto"] - 0.5, p["z"])
+    for a, b in zip(postes, postes[1:]):
+        pa, pb = punta(a), punta(b)
+        if math.hypot(pb[0] - pa[0], pb[2] - pa[2]) > CABLE_LARGO_MAX:
+            continue
+        for hilo in (0.0, 0.25):
+            puntos = []
+            for j in range(pasos + 1):
+                t = j / pasos
+                y = pa[1] + (pb[1] - pa[1]) * t - CABLE_COLGADO * 4 * t * (1 - t) - hilo
+                puntos.append((pa[0] + (pb[0] - pa[0]) * t, y, pa[2] + (pb[2] - pa[2]) * t))
+            for (x0, y0, z0), (x1, y1, z1) in zip(puntos, puntos[1:]):
+                g = 0.025
+                cara = [a_blender(x0, z0, y0 - g), a_blender(x1, z1, y1 - g), a_blender(x1, z1, y1 + g), a_blender(x0, z0, y0 + g)]
+                bm.faces.new([bm.verts.new(v) for v in cara])
+                bm.faces.new([bm.verts.new(v) for v in cara[::-1]])
+    malla = bpy.data.meshes.new("Cables")
+    bm.to_mesh(malla)
+    bm.free()
+    malla.materials.append(material("cable", (0.05, 0.05, 0.05)))
+    ob = bpy.data.objects.new("Cables", malla)
+    mundo.objects.link(ob)
 
 
 def leer(nombre):

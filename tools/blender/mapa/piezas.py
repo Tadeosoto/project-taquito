@@ -683,7 +683,171 @@ def tablon(nombre, p):
     return k
 
 
+def vecindad(nombre, p):
+    """La vecindad del jugador (docs/mapa/colonias/santa_mugre.md): dos tiras de cuartos de dos
+    pisos a lo largo de z con un patio largo en medio; cada cuarto con su color, su puerta y su
+    ventana al patio; corredor de arriba con barandal de fierro y una escalera; lavaderos,
+    tendederos, macetas y sillas en el patio; zaguan con arco al frente (+Z, la privada) y barda
+    al fondo; tinacos en las azoteas."""
+    k = Constructor(nombre)
+    ancho, fondo = p.get("tam", [52.0, 35.0])        # x (largo de las tiras), z (de la privada al fondo)
+    hx, hz = ancho / 2, fondo / 2
+    tira = p.get("tira", 7.0)                         # fondo de los cuartos
+    alto = 2 * PISO
+    patio_x = hx - tira                               # el patio va de -patio_x a patio_x
+    colores = [PALETA[n] for n in ("terracota", "rosa", "mostaza", "turquesa", "crema", "lima", "azul", "naranja")]
+    k.cara([(-patio_x, 0.04, hz), (patio_x, 0.04, hz), (patio_x, 0.04, -hz), (-patio_x, 0.04, -hz)], "concreto")
+    cuarto = 3.5
+    n = int(fondo // cuarto)
+    paso = fondo / n
+    for lado in (-1, 1):
+        xc = lado * (hx - tira / 2)
+        k.caja((xc, alto / 2, 0), (tira, alto, fondo), "foto_aplanado_blanco", choca=True)
+        k.cara([(xc - tira / 2, alto + 0.01, fondo / 2), (xc + tira / 2, alto + 0.01, fondo / 2),
+                (xc + tira / 2, alto + 0.01, -fondo / 2), (xc - tira / 2, alto + 0.01, -fondo / 2)], "azotea")
+        cara_x = lado * patio_x                        # la fachada al patio
+        for piso in range(2):
+            y0, y1 = piso * PISO, (piso + 1) * PISO
+            for i in range(n):
+                z0, z1 = -hz + i * paso, -hz + (i + 1) * paso
+                color = colores[(i * 3 + piso * 5 + (lado > 0) * 2) % len(colores)]
+                celda = PUERTA if (i + piso) % 2 == 0 else (VENTANA_ABAJO if piso == 0 else VENTANA_ARRIBA[i % 4])
+                # Puntos en el plano x = cara_x, viendo al patio (hacia -lado en x)
+                if lado < 0:
+                    esquinas = [(cara_x + 0.02, y0, z1), (cara_x + 0.02, y0, z0), (cara_x + 0.02, y1, z0), (cara_x + 0.02, y1, z1)]
+                else:
+                    esquinas = [(cara_x - 0.02, y0, z0), (cara_x - 0.02, y0, z1), (cara_x - 0.02, y1, z1), (cara_x - 0.02, y1, z0)]
+                k.mosaico(esquinas, celda, color)
+        # Corredor del segundo piso: losa volada de 1.4 m, barandal y su choque
+        cx = cara_x - lado * 0.7
+        k.caja((cx, PISO - 0.1, 0), (1.4, 0.2, fondo), "concreto")
+        k.choques.append(((cx, PISO - 0.1, 0), (1.4, 0.2, fondo), 0.0))
+        bx = cara_x - lado * 1.35
+        k.caja((bx, PISO + 0.95, 0), (0.05, 0.05, fondo), "fierro")
+        for i in range(int(fondo / 0.5)):
+            k.caja((bx, PISO + 0.5, -hz + 0.25 + i * 0.5), (0.03, 0.9, 0.03), "fierro")
+        k.choques.append(((bx, PISO + 0.5, 0), (0.1, 1.0, fondo), 0.0))
+        # Tinacos en la azotea
+        for i in range(4):
+            k.cilindro((xc + (i % 2 - 0.5) * 2.0, alto + 0.05, -hz + 4 + i * (fondo - 8) / 3), 0.6, 1.1, "tinaco", lados=10)
+    # Escalera de fierro del patio al corredor del lado -x, junto al zaguan (sube hacia -z)
+    escalones = 11
+    for i in range(escalones):
+        z = hz - 2.0 - (i + 0.5) * 0.3
+        k.caja((-patio_x + 1.9, (i + 1) * PISO / escalones - 0.03, z), (1.0, 0.06, 0.3), "fierro")
+    zf, zi = hz - 2.0 + 0.3, hz - 2.0 - escalones * 0.3 - 0.2
+    k.rampas.append([(-patio_x + 1.4, 0.0, zf), (-patio_x + 2.4, 0.0, zf), (-patio_x + 1.4, PISO, zi), (-patio_x + 2.4, PISO, zi),
+                     (-patio_x + 1.4, PISO - 0.3, zi), (-patio_x + 2.4, PISO - 0.3, zi), (-patio_x + 1.4, -0.3, zf), (-patio_x + 2.4, -0.3, zf)])
+    # Barda del fondo y el frente con el zaguan (4 m, con arco)
+    k.caja((0, 1.5, -hz + 0.15), (2 * patio_x, 3.0, 0.3), "foto_aplanado_blanco", choca=True)
+    zaguan = 4.0
+    for signo in (-1, 1):
+        largo = patio_x - zaguan / 2
+        k.caja((signo * (zaguan / 2 + largo / 2), 1.6, hz - 0.15), (largo, 3.2, 0.3), "foto_aplanado_blanco", choca=True)
+    k.arco((0, 0, hz - 0.15), zaguan, 4.0, 0.4, "foto_cantera_rosa")
+    k.caja((0, 4.3, hz - 0.15), (zaguan + 1.0, 0.6, 0.4), "foto_aplanado_blanco")
+    # Lavaderos en fila, tendederos de lado a lado, macetas y sillas
+    for i in range(4):
+        z = -hz + 3.0 + i * 3.0
+        k.caja((patio_x - 2.0, 0.45, z), (0.8, 0.9, 1.4), "concreto", choca=True)
+        k.caja((patio_x - 2.0, 0.93, z), (0.6, 0.06, 1.2), "azul_gela")
+    ropa = ["rojo", "azul_gela", "blanco_cal", "lona_amarillo", "lona_rosa", "lona_verde", "lona_naranja"]
+    for j in range(5):
+        z = -hz + 5.0 + j * (fondo - 10) / 4
+        k.caja((0, 2.3 + (j % 2) * 0.3, z), (2 * patio_x - 0.4, 0.02, 0.02), "cable")
+        for i in range(int(patio_x)):
+            if (i + j) % 3 == 0:
+                continue
+            k.caja((-patio_x + 1.0 + i * 2.0, 1.95 + (j % 2) * 0.3, z), (0.6, 0.7, 0.02), ropa[(i + j) % len(ropa)])
+    for i in range(10):
+        lado = 1 if i % 2 else -1
+        z = -hz + 1.5 + i * (fondo - 3) / 9
+        k.cilindro((lado * (patio_x - 0.4), 0.0, z), 0.25, 0.35, "foto_cantera_rosa", lados=6)
+        k.esfera((lado * (patio_x - 0.4), 0.55, z), 0.3, "hojas", seg=6, anillos=4)
+    for z in (-3.0, 2.5):
+        k.caja((-patio_x + 1.2, 0.22, z), (0.42, 0.44, 0.42), "rojo")
+    return k
+
+
+def valla_gela(nombre, p):
+    """Valla de obra de GelA atravesada en la calle (a lo largo de x, de frente a +Z): paneles
+    naranjas con franja blanca, la manta azul "Trabajamos para llevarte agua" (un cartel de
+    textures/map/propaganda) y tubos de concreto apilados atras."""
+    k = Constructor(nombre)
+    largo = p.get("largo", 10.0)
+    alto = 2.2
+    n = max(1, round(largo / 2.5))
+    paso = largo / n
+    for i in range(n):
+        x = -largo / 2 + paso * (i + 0.5)
+        k.caja((x, alto / 2 + 0.1, 0), (paso - 0.08, alto, 0.06), "naranja_gela")
+        k.caja((x, alto * 0.55, 0.04), (paso - 0.1, 0.25, 0.02), "blanco_cal")
+        for lado in (-1, 1):
+            k.caja((x + lado * (paso / 2 - 0.1), 0.06, 0), (0.12, 0.12, 0.8), "concreto")
+    k.choques.append(((0, alto / 2, 0), (largo, alto + 0.2, 0.4), 0.0))
+    # La manta azul con un cartel de GelA encima
+    k.caja((0, alto * 0.6, 0.06), (min(largo * 0.6, 5.0), 1.1, 0.02), "azul_gela")
+    diseno = next((d for d in lista_murales() if d["archivo"].startswith("propaganda_gela")), None)
+    if diseno:
+        esquinas, uvs = esquinas_mural((-1.6, 0.0), (1.6, 0.0), alto * 0.6 - 0.45, (0.0, 1.0), diseno, 3.0, 1.0, salir=0.08)
+        k.cara([(x, z, y) for x, y, z in esquinas], "mural", uvs=uvs)
+    # Tubos de concreto (del drenaje que nunca se acabo) apilados atras
+    for i, (x, y) in enumerate(((-2.0, 0.0), (0.0, 0.0), (2.0, 0.0), (-1.0, 1.15), (1.0, 1.15))):
+        if abs(x) + 1.0 > largo / 2:
+            continue
+        cx, cz = x, -1.6
+        lados = 10
+        r = 0.6
+        anillo = [(cx - 0.9, y + r + math.sin(j * math.tau / lados) * r, cz + math.cos(j * math.tau / lados) * r) for j in range(lados)]
+        for j in range(lados):
+            a, b = anillo[j], anillo[(j + 1) % lados]
+            k.cara([a, b, (b[0] + 1.8, b[1], b[2]), (a[0] + 1.8, a[1], a[2])], "concreto")
+        k.choques.append(((cx, y + r, cz), (1.8, 2 * r, 2 * r), 0.0))
+    return k
+
+
+def camion_volteado(nombre, p):
+    """Camion de redilas volteado atravesado en la calle (a lo largo de x): cabina, caja con
+    redilas y llantas para arriba, con garrafones regados."""
+    k = Constructor(nombre)
+    largo = min(p.get("largo", 10.0), 9.0)
+    color = p.get("color", "azul_gela")
+    # Acostado de lado: lo que era el ancho ahora es el alto
+    k.caja((-largo / 2 + 1.2, 1.1, 0), (2.4, 2.2, 2.2), color, choca=True)
+    k.caja((-largo / 2 + 0.05, 1.2, 0), (0.1, 1.2, 1.6), "vidrio")
+    k.caja((1.0, 1.25, 0), (largo - 2.6, 2.5, 0.15), "foto_madera", choca=True)
+    for x in range(int(largo - 2.6)):
+        k.caja((-largo / 2 + 2.9 + x, 1.25, 0.6), (0.08, 2.5, 1.1), "foto_madera")
+    k.caja((1.0, 0.25, 0.6), (largo - 2.6, 0.5, 1.2), "fierro")
+    for x in (-largo / 2 + 1.4, largo / 2 - 1.6, largo / 2 - 0.6):
+        k.cilindro((x, 2.2, -0.6), 0.5, 0.35, "fierro", lados=8)
+    for i in range(6):
+        k.cilindro((-1.5 + i * 0.9, 0.0, 1.6 + (i % 2) * 0.5), 0.17, 0.5, "azul_gela", lados=6)
+    return k
+
+
+def escombro(nombre, p):
+    """Casa derrumbada sobre la calle (a lo largo de x): monton de block y varillas, una losa
+    rota inclinada y un carro quemado aplastado."""
+    k = Constructor(nombre)
+    largo = p.get("largo", 10.0)
+    semilla = sum((i + 1) * ord(c) for i, c in enumerate(nombre))
+    for i in range(14):
+        x = -largo / 2 + 0.5 + (semilla * (i + 3) % int(largo * 10)) / 10
+        z = -1.5 + (semilla * (i + 5) % 30) / 10
+        s = 0.8 + (semilla * (i + 11) % 10) / 10
+        k.caja((x, s / 2, z), (s * 1.4, s, s), "foto_block", (i * 0.7) % math.pi)
+    k.cara([(-largo / 2, 0.2, 1.5), (largo / 2 - 1.0, 2.6, 1.0), (largo / 2 - 1.0, 2.6, -1.8), (-largo / 2, 0.2, -1.2)], "concreto")
+    k.cara([(-largo / 2, 0.2, -1.2), (largo / 2 - 1.0, 2.6, -1.8), (largo / 2 - 1.0, 2.6, 1.0), (-largo / 2, 0.2, 1.5)], "concreto")
+    for i in range(6):
+        k.caja((-largo / 2 + 1.5 + i * 1.2, 2.4, 0.0), (0.04, 1.6, 0.04), "varilla", i * 0.4)
+    _carro(k, largo / 2 - 2.0, 2.5, 0.4, "rojo", quemado=True)
+    k.choques.append(((0, 1.3, 0), (largo, 2.6, 3.4), 0.0))
+    return k
+
+
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
           "cancha": cancha, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
-          "escalera": escalera, "tablon": tablon}
+          "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
+          "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}

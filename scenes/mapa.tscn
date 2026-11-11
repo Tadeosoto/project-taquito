@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="11_purificadora"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="11_punto"]
 [ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="12_inventario"]
+[ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="13_alumbrado"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -83,6 +84,12 @@ sol_path = NodePath("../DirectionalLight3D")
 environment_path = NodePath("../WorldEnvironment")
 dia_duracion = 480.0
 noche_duracion = 360.0
+
+[node name="Alumbrado" type="Node3D" parent="."]
+script = ExtResource("13_alumbrado")
+alumbrado_path = "res://resources/mapa/santa_mugre/alumbrado.json"
+target_path = NodePath("../Dron")
+jugador_path = NodePath("../Player")
 
 [node name="Colonia" type="Node3D" parent="."]
 script = ExtResource("5_colonia")

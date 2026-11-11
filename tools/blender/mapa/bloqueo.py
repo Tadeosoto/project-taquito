@@ -137,6 +137,44 @@ def _casa(nombre, huella, frente, k):
             "desgaste": round(DESGASTE[0] + (DESGASTE[1] - DESGASTE[0]) * ((dado * 13) % 100) / 100, 2)}
 
 
+# Postes de luz por las banquetas ("postes" del .json, con el esquema de
+# resources/map/alumbrado_mapa.json: los arma MapAlumbrado en Godot, con su luz de noche, sus
+# fallas segun el deterioro y los tambos): uno cada POSTE_CADA m en cada calle, turnando el lado,
+# junto a la guarnicion y con el brazo (+Z local) hacia el arroyo. Los mismos de prepare_osm.py.
+POSTE = (8.0, 1.5)
+POSTE_AVENIDA = (10.0, 2.5)
+POSTE_CADA = 26.0
+POSTE_GUARNICION = 0.4      # m de la guarnicion hacia adentro de la banqueta
+
+
+def _postes(calles_osm_dibujadas, todas):
+    postes = []
+    for ic, (tramo, medio, ancho, avenida) in enumerate(calles_osm_dibujadas):
+        recorrido = 0.0
+        lado = 1 if ic % 2 else -1
+        for p, q in zip(tramo, tramo[1:]):
+            dx, dz = q[0] - p[0], q[1] - p[1]
+            largo = math.hypot(dx, dz)
+            if largo < 1.0:
+                continue
+            ux, uz = dx / largo, dz / largo
+            s = (POSTE_CADA / 2 - recorrido) % POSTE_CADA
+            while s < largo:
+                nx, nz = -uz * lado, ux * lado
+                d = ancho / 2 + POSTE_GUARNICION
+                x, z = p[0] + ux * s + nx * d, p[1] + uz * s + nz * d
+                # No en medio de un cruce (sobre el arroyo de otra calle)
+                if not any(_distancia_segmento(x, z, a, b) < m2 + 0.3 for tr, m2 in todas if tr is not tramo for a, b in zip(tr, tr[1:])):
+                    alto, brazo = POSTE_AVENIDA if avenida else POSTE
+                    semilla = int(abs(x * 13.7 + z * 7.3)) % 100000
+                    postes.append({"x": round(x, 2), "z": round(z, 2), "rotacion_y": round(math.atan2(-nx, -nz), 4),
+                                   "alto": alto, "brazo": brazo, "doble": False, "avenida": avenida, "semilla": semilla})
+                lado = -lado
+                s += POSTE_CADA
+            recorrido = (recorrido + largo) % POSTE_CADA
+    return postes
+
+
 # Relleno de las calles: una fila corrida de casas angostas en cada lado de cada calle, donde no
 # hay huella real (las de Google dejan huecos: las calles mexicanas son una fachada tras otra)
 LOTE_FRENTE = (6.0, 9.0)       # m
@@ -334,6 +372,7 @@ def bloquear(nombre):
     nuevas = []
 
     calles = []   # (puntos, medio ancho con banqueta) para quitar edificios
+    para_postes = []   # (puntos, medio con banqueta, ancho del arroyo, avenida)
     for i, c in enumerate(calles_osm):
         if c["tipo"] in SIN_DIBUJAR:
             continue
@@ -344,6 +383,8 @@ def bloquear(nombre):
             nuevas.append({"nombre": "Calle_%d_%d" % (i, j), "tipo": "calle", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
                            "puntos": _relativos(tramo, cx, cz), "ancho": ancho, "banqueta": banqueta, "real": c["nombre"]})
             calles.append((tramo, ancho / 2 + banqueta))
+            if banqueta > 0:
+                para_postes.append((tramo, ancho / 2 + banqueta, ancho, c["tipo"] in ("tertiary", "secondary", "primary")))
             for punta in (tramo[0], tramo[-1]):
                 lado = _lado(punta[0], punta[1], recorte)
                 if lado and bordes.get(lado) in TAPON:
@@ -353,9 +394,15 @@ def bloquear(nombre):
                     adentro = 1.5
                     largo = math.hypot(b[0] - a[0], b[1] - a[1]) or 1.0
                     px, pz = a[0] + (b[0] - a[0]) / largo * adentro, a[1] + (b[1] - a[1]) / largo * adentro
-                    nuevas.append({"nombre": "Tapon_%d_%d_%s" % (i, j, "a" if punta is tramo[0] else "b"), "tipo": "caja", "auto": True,
-                                   "x": round(px, 2), "z": round(pz, 2), "rot": round(rot, 4),
-                                   "tam": [ancho + 2 * banqueta, alto, 1.2], "color": list(color), "borde": bordes[lado]})
+                    pieza = {"nombre": "Tapon_%d_%d_%s" % (i, j, "a" if punta is tramo[0] else "b"), "auto": True,
+                             "x": round(px, 2), "z": round(pz, 2), "rot": round(rot, 4), "borde": bordes[lado]}
+                    largo_tapon = round(ancho + 2 * banqueta, 2)
+                    # Cada borde con su pieza (piezas.py); la barda es la de block con murales
+                    pieza.update({"gela": {"tipo": "valla_gela", "largo": largo_tapon},
+                                  "camion": {"tipo": "camion_volteado", "largo": largo_tapon},
+                                  "derrumbe": {"tipo": "escombro", "largo": largo_tapon},
+                                  "barda": {"tipo": "barda", "largo": largo_tapon, "alto": alto, "murales": 80}}[bordes[lado]])
+                    nuevas.append(pieza)
 
     # Los callejones puestos a mano (calles de empedrado sin banqueta) tambien se rellenan: casas
     # que les dan el frente, como en una privada
@@ -413,13 +460,14 @@ def bloquear(nombre):
                        "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(max(ancho, fondo), 2),
                        "alto": BARDA_ALTO, "grueso": BARDA_GRUESO, "murales": 60})
 
+    datos["postes"] = _postes(para_postes, [(t, a / 2) for t, m, a, av in para_postes])
     datos["piezas"] = nuevas + piezas
     guardar_json(ruta_colonia(nombre), datos)
     cuenta = {}
     for p in nuevas:
         cuenta[p["tipo"]] = cuenta.get(p["tipo"], 0) + 1
-    print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; azoteas: %d rutas con %d casas; %d piezas a mano" % (
-        nombre, cuenta, quitadas, lotes, baldios, escaleras, casas_ruta, len(piezas)))
+    print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; azoteas: %d rutas con %d casas; %d postes; %d piezas a mano" % (
+        nombre, cuenta, quitadas, lotes, baldios, escaleras, casas_ruta, len(datos["postes"]), len(piezas)))
 
 
 if not globals().get("SOLO_FUNCIONES"):

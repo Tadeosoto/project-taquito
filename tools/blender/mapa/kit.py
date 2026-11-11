@@ -786,7 +786,8 @@ COLORES_PIEZA = {"fierro": (0.12, 0.12, 0.13), "fierro_verde": (0.18, 0.3, 0.22)
                  "naranja_gela": (0.92, 0.45, 0.08), "cable": (0.05, 0.05, 0.05),
                  "hojas": (0.11, 0.27, 0.09), "hojas_claras": (0.2, 0.4, 0.14), "farol": (0.98, 0.86, 0.5),
                  "blanco_reloj": (0.95, 0.94, 0.9), "bronce": (0.45, 0.32, 0.18),
-                 "hueco": (0.06, 0.05, 0.05), "malla": (0.2, 0.22, 0.2)}
+                 "hueco": (0.06, 0.05, 0.05), "malla": (0.2, 0.22, 0.2),
+                 "varilla": COLOR_VARILLA}
 
 
 if not globals().get("SOLO_FUNCIONES"):
