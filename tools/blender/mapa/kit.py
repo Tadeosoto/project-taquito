@@ -384,7 +384,7 @@ def _celda_fachada(azar, piso, en_frente, tramo, puerta_en, desgaste, tienda):
 
 
 def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgaste=0.5, tienda=False,
-               tinaco=True, varillas=None):
+               tinaco=True, varillas=None, detalles=True):
     """La casa como una malla: paredes en tramos del atlas, pretil, azotea, tinaco y varillas.
     `puntos` es la huella ([x, z] relativos al origen de la pieza) y `frente` el indice del lado
     que da a la calle (el lado i va del punto i al i+1, en el orden del .json)."""
@@ -397,6 +397,8 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
     indice = {"fachada_kit": 0, "azotea": 1, "tinaco": 2, "varilla": 3, "mural": 4}
     alto = pisos * PISO
     lisos = []      # tramos lisos de la planta baja del frente: ahi va el mural, si toca
+    muros = []      # (a, b, tramos) de cada lado, para los detalles de las fachadas
+    ocupado = []    # (x, y, radio) de lo que ya hay en la azotea
     # Los colores de la paleta estan en sRGB; el color de vertice va lineal
     rgba = tuple(c ** 2.2 for c in color[:3]) + (1.0,)
 
@@ -423,6 +425,7 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
             continue
         en_frente = i == frente
         tramos = max(1, round(largo / PISO))
+        muros.append((a, b, tramos))
         puerta_en = tramos // 2 if en_frente else -1
         for piso in range(pisos):
             for t in range(tramos):
@@ -461,11 +464,15 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
         esquina = ccw[int(azar(0, len(ccw)))]
         tx, ty = cx + (esquina[0] - cx) * 0.55, cy + (esquina[1] - cy) * 0.55
         _cilindro(bm, cara, (tx, ty, alto + 0.05), TINACO_RADIO, TINACO_ALTO, "tinaco")
+        ocupado.append((tx, ty, TINACO_RADIO + 0.3))
     # Varillas de obra negra: el segundo piso que nunca se construyo
     if varillas if varillas is not None else azar() < desgaste * 0.35:
         for k in range(4):
             esquina = ccw[k % len(ccw)]
             _caja_bm(cara, (esquina[0] * 0.9, esquina[1] * 0.9, alto), 0.05, 1.2, "varilla")
+            ocupado.append((esquina[0] * 0.9, esquina[1] * 0.9, 0.3))
+    if detalles:
+        _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado)
 
     malla = bpy.data.meshes.new(nombre)
     bm.to_mesh(malla)
@@ -499,6 +506,127 @@ def _caja_bm(cara, base, ancho, alto, mat):
     for k in range(4):
         a, b = esquinas[k], esquinas[(k + 1) % 4]
         cara([(a[0], a[1], z), (b[0], b[1], z), (b[0], b[1], z + alto), (a[0], a[1], z + alto)], [(0, 0)] * 4, mat, blanco)
+
+
+# --- Detalles de casa: lo que cuelga de las fachadas y lo que hay en las azoteas ---
+# Todo con el material de la fachada y la UV fija en el centro del mosaico liso, asi que el
+# color de vertice los pinta: no agregan materiales ni superficies a la casa.
+COLOR_CLIMA = (0.82, 0.82, 0.78)
+COLOR_NEGRO = (0.09, 0.09, 0.1)
+COLOR_PANEL = (0.12, 0.17, 0.3)
+COLOR_GAS = (0.86, 0.86, 0.84)
+ROPA = [(0.8, 0.18, 0.2), (0.15, 0.4, 0.78), (0.92, 0.75, 0.15), (0.9, 0.9, 0.88), (0.9, 0.42, 0.62), (0.2, 0.62, 0.32)]
+
+
+def _cara_hacia(cara, puntos, normal, color):
+    """Una cara de color liso con su frente hacia `normal` (voltea los puntos si hace falta)."""
+    import mathutils
+    a, b, c = (mathutils.Vector(p) for p in puntos[:3])
+    if (b - a).cross(c - a).dot(mathutils.Vector(normal)) < 0:
+        puntos = puntos[::-1]
+    uv = uv_mosaico(LISO, 0.5, 0.5)
+    cara(puntos, [uv] * len(puntos), "fachada_kit", tuple(k ** 2.2 for k in color) + (1.0,))
+
+
+def _caja_detalle(cara, centro, u, ancho, fondo, alto, color, abajo=False):
+    """Caja parada en `centro` (x, y, z de la base) con su ancho a lo largo de `u` (x, y)."""
+    x, y, z = centro
+    ux, uy = u
+    nx, ny = -uy, ux
+    ha, hf = ancho / 2, fondo / 2
+    def p(sa, sf, zz):
+        return (x + ux * sa * ha + nx * sf * hf, y + uy * sa * ha + ny * sf * hf, zz)
+    z1 = z + alto
+    _cara_hacia(cara, [p(-1, -1, z1), p(1, -1, z1), p(1, 1, z1), p(-1, 1, z1)], (0, 0, 1), color)
+    for (sa0, sf0), (sa1, sf1), n in (((-1, -1), (1, -1), (-nx, -ny, 0)), ((1, -1), (1, 1), (ux, uy, 0)),
+                                      ((1, 1), (-1, 1), (nx, ny, 0)), ((-1, 1), (-1, -1), (-ux, -uy, 0))):
+        _cara_hacia(cara, [p(sa0, sf0, z), p(sa1, sf1, z), p(sa1, sf1, z1), p(sa0, sf0, z1)], n, color)
+    if abajo:
+        _cara_hacia(cara, [p(-1, -1, z), p(1, -1, z), p(1, 1, z), p(-1, 1, z)], (0, 0, -1), color)
+
+
+def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado):
+    """Climas de ventana en las fachadas y, en la azotea, antena, calentador solar, tanque de
+    gas y tendedero con ropa. Con su propio azar, para no cambiar las fachadas ya armadas."""
+    azar = _Azar(_semilla(nombre) * 3 + 1)
+    cx = sum(p[0] for p in ccw) / len(ccw)
+    cy = sum(p[1] for p in ccw) / len(ccw)
+    # Climas: en los tramos de los pisos de arriba (en la planta baja se los roban)
+    for a, b, tramos in muros:
+        largo = math.hypot(b[0] - a[0], b[1] - a[1])
+        ux, uy = (b[0] - a[0]) / largo, (b[1] - a[1]) / largo
+        nx, ny = -uy, ux
+        mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+        if nx * (mx - cx) + ny * (my - cy) < 0:
+            nx, ny = -nx, -ny
+        for piso in range(1, pisos):
+            for t in range(tramos):
+                if azar() > 0.12:
+                    continue
+                s = (t + 0.5) / tramos * largo + azar(-0.5, 0.5)
+                px, py = a[0] + ux * s + nx * 0.24, a[1] + uy * s + ny * 0.24
+                _caja_detalle(cara, (px, py, piso * PISO + azar(0.5, 0.9)), (ux, uy), 0.66, 0.46, 0.42, COLOR_CLIMA, abajo=True)
+
+    def lugar(radio):
+        """Un punto de la azotea lejos de lo que ya hay (tinaco, varillas) o None."""
+        for _ in range(6):
+            v = ccw[int(azar(0, len(ccw)))]
+            f = azar(0.15, 0.6)
+            x, y = cx + (v[0] - cx) * f, cy + (v[1] - cy) * f
+            if all(math.hypot(x - ox, y - oy) > radio + orad for ox, oy, orad in ocupado):
+                ocupado.append((x, y, radio))
+                return x, y
+        return None
+    z = alto + 0.05
+    giro = azar(0, math.tau)
+    u = (math.cos(giro), math.sin(giro))
+    if azar() < 0.4:
+        sitio = lugar(0.6)
+        if sitio:
+            x, y = sitio
+            _caja_detalle(cara, (x, y, z), u, 0.05, 0.05, 2.6, COLOR_NEGRO)
+            for i, (h, l) in enumerate(((1.8, 1.0), (2.15, 0.75), (2.5, 0.5))):
+                _caja_detalle(cara, (x, y, z + h), u, l, 0.03, 0.03, COLOR_NEGRO)
+    if azar() < 0.22:
+        sitio = lugar(1.0)
+        if sitio:
+            x, y = sitio
+            nx, ny = -u[1], u[0]
+            # Panel inclinado 35 grados que sube hacia n, con su termotanque blanco arriba
+            sube, largo = math.radians(35), 1.5
+            h0, h1 = z + 0.3, z + 0.3 + math.sin(sube) * largo
+            d = math.cos(sube) * largo / 2
+            esq = [(x - u[0] * 0.5 - nx * d, y - u[1] * 0.5 - ny * d, h0), (x + u[0] * 0.5 - nx * d, y + u[1] * 0.5 - ny * d, h0),
+                   (x + u[0] * 0.5 + nx * d, y + u[1] * 0.5 + ny * d, h1), (x - u[0] * 0.5 + nx * d, y - u[1] * 0.5 + ny * d, h1)]
+            _cara_hacia(cara, esq, (-nx * math.sin(sube), -ny * math.sin(sube), math.cos(sube)), COLOR_PANEL)
+            _cara_hacia(cara, esq, (nx * math.sin(sube), ny * math.sin(sube), -math.cos(sube)), COLOR_GAS)
+            _caja_detalle(cara, (x + nx * (d + 0.2), y + ny * (d + 0.2), h1 - 0.1), u, 1.2, 0.42, 0.42, COLOR_GAS, abajo=True)
+            _caja_detalle(cara, (x + nx * (d + 0.2), y + ny * (d + 0.2), z), u, 1.0, 0.06, h1 - 0.1 - z, COLOR_NEGRO)
+    if azar() < 0.3:
+        sitio = lugar(0.4)
+        if sitio:
+            x, y = sitio
+            lados = 8
+            anillo = [(x + math.cos(k * math.tau / lados) * 0.3, y + math.sin(k * math.tau / lados) * 0.3) for k in range(lados)]
+            for k in range(lados):
+                p0, p1 = anillo[k], anillo[(k + 1) % lados]
+                _cara_hacia(cara, [(p0[0], p0[1], z), (p1[0], p1[1], z), (p1[0], p1[1], z + 1.1), (p0[0], p0[1], z + 1.1)],
+                            ((p0[0] + p1[0]) / 2 - x, (p0[1] + p1[1]) / 2 - y, 0), COLOR_GAS)
+            _cara_hacia(cara, [(px, py, z + 1.1) for px, py in anillo], (0, 0, 1), COLOR_GAS)
+    if azar() < 0.3 + desgaste * 0.2:
+        sitio = lugar(1.4)
+        if sitio:
+            x, y = sitio
+            l = 2.6
+            for s in (-1, 1):
+                _caja_detalle(cara, (x + u[0] * s * l / 2, y + u[1] * s * l / 2, z), u, 0.05, 0.05, 1.7, COLOR_NEGRO)
+            _caja_detalle(cara, (x, y, z + 1.65), u, l, 0.02, 0.02, COLOR_NEGRO)
+            prendas = int(azar(2, 6))
+            for i in range(prendas):
+                s = -l / 2 + 0.35 + (l - 0.7) * (i + azar(0.1, 0.9)) / prendas
+                ancho, colgado = azar(0.35, 0.6), azar(0.4, 0.75)
+                _caja_detalle(cara, (x + u[0] * s, y + u[1] * s, z + 1.65 - colgado), u, ancho, 0.02, colgado,
+                              ROPA[int(azar(0, len(ROPA)))])
 
 
 # --- Fotos: materiales con textura (cantera, empedrado, lamina...) ---
