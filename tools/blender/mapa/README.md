@@ -69,6 +69,7 @@ exec(open(R + r"\colonia.py", encoding="utf-8").read(), {"__name__": "colonia", 
   - `mision`: un punto con nombre para `MisionData.donde` y los pasos `RECOGER` ("marca:<nombre>").
   - `ninos`: chamacos jugando de dia (`NinosCancha`) en `tam` [ancho, largo], `cuantos`.
   - `vecino`: un civil parado de dia (`clip`, `modelo`, `uniforme`: `gela` le pone chaleco y gorra azules).
+  - `letrero`: un letrero de texto (`texto`) viendo a su +Z.
   - `trampa`: lugar iluminado que de noche atrae zombis si estas adentro (`tam`, `radio`).
   - `botin`: tampoco se escribe a mano; `exportar.py` pone uno por ruta de azoteas y en `colonia.BOTIN_EXTRA` (`que`: `chatarra`, `bolsa` o `curacion`).
   - `foco`: no se escribe a mano; `exportar.py` agrega uno por cada foco colgado de los callejones (`colonia.focos_callejones`).

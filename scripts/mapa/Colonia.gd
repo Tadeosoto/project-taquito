@@ -25,6 +25,7 @@ extends Node3D
 #           chaleco y gorra azules, UniformeGela); de noche no esta
 #   trampa  un lugar iluminado que de noche atrae zombis si estas adentro (LuzTrampa): "tam"
 #           [ancho, largo] y "radio" m
+#   letrero  un letrero de texto ("texto") viendo a su +Z, como el de las puertas (el mercado)
 #   mision  un punto con nombre para las misiones (Colonia.puntos_mision): donde se para el que
 #           da una ("donde" de MisionData) o donde esta lo que hay que recoger
 #   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
@@ -114,6 +115,8 @@ func _ready() -> void:
 				_vecino(marca)
 			"trampa":
 				_trampa(marca)
+			"letrero":
+				_letrero(marca)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
@@ -178,6 +181,19 @@ func _ninos(marca: Dictionary) -> void:
 	ninos.cuantos = int(marca.get("cuantos", 6))
 	ninos.transform = lugar(marca)
 	add_child(ninos)
+
+
+func _letrero(marca: Dictionary) -> void:
+	var letrero := Label3D.new()
+	letrero.name = String(marca.get("nombre", "Letrero"))
+	letrero.text = String(marca.get("texto", "")).to_upper()
+	letrero.font_size = 64
+	letrero.pixel_size = 0.01
+	letrero.modulate = LETRERO_COLOR
+	letrero.outline_size = 12
+	letrero.visibility_range_end = LETRERO_LEJOS
+	letrero.transform = lugar(marca)
+	add_child(letrero)
 
 
 func _trampa(marca: Dictionary) -> void:

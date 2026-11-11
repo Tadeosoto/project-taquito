@@ -788,6 +788,59 @@ def tope(nombre, p):
     return k
 
 
+def mercado(nombre, p):
+    """Mercado techado (el tianguis que se quedo): losa de concreto, postes de fierro y techo de
+    lamina a dos aguas a lo largo de x, dos filas de puestos con su mercancia (fruta, chiles,
+    costales) y pasillo en medio. `tam` = [largo (x), fondo (z)]; frente a +Z."""
+    k = Constructor(nombre)
+    largo, fondo = p.get("tam", [30.0, 18.0])
+    hx, hz = largo / 2, fondo / 2
+    alero, cumbre = 4.0, 5.4
+    semilla = sum((i + 1) * ord(c) for i, c in enumerate(nombre))
+    k.cara([(-hx, 0.05, hz), (hx, 0.05, hz), (hx, 0.05, -hz), (-hx, 0.05, -hz)], "banqueta")
+    n = max(2, round(largo / 5.0))
+    for i in range(n + 1):
+        x = -hx + largo * i / n
+        for z in (-hz + 0.2, hz - 0.2):
+            k.caja((x, alero / 2, z), (0.14, alero, 0.14), "fierro", choca=True)
+        k.caja((x, cumbre - 0.2, 0.0), (0.12, 0.4, 0.12), "fierro")
+        for lado in (-1, 1):                         # tirante del alero a la cumbre
+            k.caja((x, (alero + cumbre) / 2, lado * hz / 2), (0.08, 0.08, hz), "fierro")
+    for lado in (-1, 1):
+        q = [(-hx - 0.4, alero - 0.1, lado * (hz + 0.6)), (hx + 0.4, alero - 0.1, lado * (hz + 0.6)),
+             (hx + 0.4, cumbre, 0.0), (-hx - 0.4, cumbre, 0.0)]
+        k.cara(q, "foto_lamina_verde")
+        k.cara(q[::-1], "foto_lamina_verde")
+    # Puestos: dos filas a lo largo de x, de cara al pasillo de en medio
+    colores = ["lona_rojo", "lona_azul", "lona_amarillo", "lona_verde", "lona_rosa", "lona_naranja"]
+    frutas = ["lona_rojo", "lona_amarillo", "lona_verde", "naranja_gela"]
+    por_fila = max(2, int(largo / 5.5))
+    for fila, z in ((0, -hz + 3.0), (1, hz - 3.0)):
+        mira = 1 if z < 0 else -1                    # hacia el pasillo
+        for i in range(por_fila):
+            x = -hx + largo * (i + 0.5) / por_fila
+            col = colores[(semilla + i + fila * 3) % len(colores)]
+            k.caja((x, 0.45, z), (3.4, 0.9, 1.0), col, choca=True)
+            k.caja((x, 0.92, z), (3.5, 0.04, 1.1), "foto_madera")
+            k.caja((x, 1.0, z - mira * 0.9), (3.4, 2.0, 0.06), "foto_madera")
+            tipo = (semilla + i * 7 + fila) % 3
+            for j in range(6):
+                fx = x - 1.3 + j * 0.52
+                if tipo == 0:                        # montones de fruta
+                    for m in range(3):
+                        k.esfera((fx + (m - 1) * 0.12, 1.02 + (m % 2) * 0.1, z + mira * 0.1), 0.09,
+                                 frutas[(i + j + m) % len(frutas)], seg=5, anillos=3)
+                elif tipo == 1:                      # cajas de chiles y jitomates
+                    k.caja((fx, 1.0, z + mira * 0.1), (0.42, 0.12, 0.34), "foto_madera")
+                    k.caja((fx, 1.07, z + mira * 0.1), (0.38, 0.04, 0.3), frutas[(i + j) % 2])
+                else:                                # costales de frijol y maiz
+                    k.cilindro((fx, 0.94, z + mira * 0.1), 0.18, 0.4, "carton", lados=6)
+            # Foco colgado del techo y mecate
+            k.caja((x, alero - 0.6, z + mira * 0.3), (0.015, 1.2, 0.015), "cable")
+            k.esfera((x, alero - 1.25, z + mira * 0.3), 0.08, "farol", seg=6, anillos=4)
+    return k
+
+
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -1208,6 +1261,6 @@ def escombro(nombre, p):
 
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
-          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}
