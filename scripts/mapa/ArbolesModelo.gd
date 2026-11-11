@@ -23,6 +23,9 @@ const ESTIRAR := {"roble": 1.4}
 @export_file("*.json") var modelos_path := "res://resources/mapa/arboles_modelos.json"
 @export_file("*.json") var arboles_path := "res://resources/mapa/santa_mugre/arboles_modelo.json"
 @export var visible_hasta := 150.0
+# Cada tipo de arbol va en un MultiMesh por celda de CELDA m: con uno solo para toda la colonia su caja
+# abarcaba todo y nunca se recortaba (ni los de atras de la camara) ni bajaba de detalle
+@export var celda := 24.0
 @export var sombras := false
 
 
@@ -44,20 +47,18 @@ func _ready() -> void:
 	for nombre: String in por_nombre:
 		var modelo: Dictionary = modelos[nombre]
 		var malla := _malla(nombre, modelo)
-		var lista: Array = por_nombre[nombre]
-		var multi := MultiMesh.new()
-		multi.transform_format = MultiMesh.TRANSFORM_3D
-		multi.mesh = malla
-		multi.instance_count = lista.size()
-		for i in lista.size():
-			var arbol: Array = lista[i]
+		var celdas := {}
+		for arbol: Array in por_nombre[nombre]:
 			var altura: float = arbol[2]
 			# Uniforme: la altura que pide, sin pasarse del ancho de copa
 			var escala := minf(altura, float(arbol[3]) / float(modelo["ancho"]))
 			var giro := fposmod(absf(arbol[0] * 12.9898 + arbol[1] * 78.233), 1.0) * TAU
 			var posicion := Vector3(arbol[0], BASE_Y, arbol[1])
 			var estira: float = ESTIRAR.get(nombre, 1.0)
-			multi.set_instance_transform(i, Transform3D(Basis(Vector3.UP, giro).scaled(Vector3(escala, escala * estira, escala)), posicion))
+			var clave := Vector2i(floori(posicion.x / celda), floori(posicion.z / celda))
+			if not celdas.has(clave):
+				celdas[clave] = []
+			celdas[clave].append(Transform3D(Basis(Vector3.UP, giro).scaled(Vector3(escala, escala * estira, escala)), posicion))
 			var forma := CylinderShape3D.new()
 			forma.radius = clampf(escala * TRONCO_RADIO, TRONCO_MIN, TRONCO_MAX)
 			forma.height = TRONCO_ALTO
@@ -65,17 +66,26 @@ func _ready() -> void:
 			colision.shape = forma
 			colision.position = posicion + Vector3(0.0, TRONCO_ALTO / 2.0, 0.0)
 			cuerpo.add_child(colision)
-		var instancia := MultiMeshInstance3D.new()
-		instancia.name = nombre.capitalize()
-		instancia.multimesh = multi
-		instancia.visibility_range_end = visible_hasta
-		instancia.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if sombras else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		add_child(instancia)
+		for clave: Vector2i in celdas:
+			var lista: Array = celdas[clave]
+			var multi := MultiMesh.new()
+			multi.transform_format = MultiMesh.TRANSFORM_3D
+			multi.mesh = malla
+			multi.instance_count = lista.size()
+			for i in lista.size():
+				multi.set_instance_transform(i, lista[i])
+			var instancia := MultiMeshInstance3D.new()
+			instancia.name = "%s_%d_%d" % [nombre.capitalize(), clave.x, clave.y]
+			instancia.multimesh = multi
+			instancia.visibility_range_end = visible_hasta
+			instancia.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if sombras else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			add_child(instancia)
 
 
 # La corteza y las hojas del arbol `nombre` como un ArrayMesh de dos superficies
+# con sus LOD (ImporterMesh.generate_lods: de lejos, menos triangulos)
 func _malla(nombre: String, modelo: Dictionary) -> ArrayMesh:
-	var malla := ArrayMesh.new()
+	var malla := ImporterMesh.new()
 	for rol in ["corteza", "hojas"]:
 		if not modelo.has(rol):
 			continue
@@ -94,12 +104,12 @@ func _malla(nombre: String, modelo: Dictionary) -> ArrayMesh:
 		arrays[Mesh.ARRAY_VERTEX] = vertices
 		arrays[Mesh.ARRAY_TEX_UV] = uvs
 		arrays[Mesh.ARRAY_INDEX] = indices
-		malla.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 		var material := ShaderMaterial.new()
 		material.shader = HOJAS_SHADER if rol == "hojas" else PS1_SHADER
 		material.set_shader_parameter("albedo_texture", load("res://textures/mapa/arbol_%s_%s.png" % [nombre, rol]))
 		material.set_shader_parameter("affine_enabled", false)
 		material.set_shader_parameter("wobble_enabled", false)
 		material.set_shader_parameter("jitter_enabled", false)
-		malla.surface_set_material(malla.get_surface_count() - 1, material)
-	return malla
+		malla.add_surface(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, material, rol)
+	malla.generate_lods(25.0, 60.0, [])
+	return malla.get_mesh()

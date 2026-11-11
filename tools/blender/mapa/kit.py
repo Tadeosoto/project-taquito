@@ -48,7 +48,12 @@ PISOS = {"asfalto": ("asfalto.png", 4.0), "banqueta": ("banqueta.png", 3.0), "em
          # El piso de la plaza: la foto del kit (textures/mapa/, foto("piedra_plaza"))
          "adoquin": ("../mapa/piedra_plaza.png", 2.0),
          # Andadores de la plaza (cantera rosa) y sus jardines
-         "cantera_piso": ("../mapa/cantera_rosa.png", 1.5), "pasto": ("pasto.png", 2.5)}
+         "cantera_piso": ("../mapa/cantera_rosa.png", 1.5), "pasto": ("pasto.png", 2.5),
+         # La glorieta del tinaco comunitario: la piedra de la plaza pintada del rosa de los andadores
+         # (tools/map_import/make_piedra_plaza_rosa.py)
+         "adoquin_rosa": ("../mapa/piedra_plaza_rosa.png", 2.0),
+         # La cenefa entre lo rosa y lo gris (tools/map_import/make_cantera_orilla.py)
+         "cantera_orilla": ("../mapa/cantera_orilla.png", 1.5)}
 
 # Colores de Guadalajara (desteñidos: el shader del juego les pone la mugre)
 PALETA = {"terracota": (0.72, 0.36, 0.24), "mostaza": (0.82, 0.62, 0.22), "turquesa": (0.25, 0.6, 0.6),
@@ -1057,6 +1062,9 @@ COLORES_PIEZA = {"fierro": (0.12, 0.12, 0.13), "fierro_verde": (0.18, 0.3, 0.22)
                  "hojas": (0.11, 0.27, 0.09), "hojas_claras": (0.2, 0.4, 0.14), "farol": (0.98, 0.86, 0.5),
                  "blanco_reloj": (0.95, 0.94, 0.9), "bronce": (0.45, 0.32, 0.18),
                  "hueco": (0.06, 0.05, 0.05), "malla": (0.2, 0.22, 0.2),
+                 "flor_naranja": (0.95, 0.5, 0.08), "flor_amarilla": (0.96, 0.8, 0.14), "flor_blanca": (0.92, 0.92, 0.86),
+                 "flor_rosa": (0.85, 0.34, 0.5), "flor_roja": (0.75, 0.1, 0.12), "vela_roja": (0.7, 0.1, 0.1),
+                 "vela_azul": (0.2, 0.35, 0.7), "vela_verde": (0.2, 0.5, 0.3), "vela_blanca": (0.9, 0.88, 0.8),
                  "varilla": COLOR_VARILLA}
 
 

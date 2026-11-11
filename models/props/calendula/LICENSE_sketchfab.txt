@@ -1,0 +1,11 @@
+Model Information:
+* title:	Calendula flower
+* source:	https://sketchfab.com/3d-models/calendula-flower-d813ac09f52849a3a8c57e14076e4b83
+* author:	Maf'j Alvarez (https://sketchfab.com/blujay)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Calendula flower" (https://sketchfab.com/3d-models/calendula-flower-d813ac09f52849a3a8c57e14076e4b83) by Maf'j Alvarez (https://sketchfab.com/blujay) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

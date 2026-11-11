@@ -10,8 +10,7 @@ extends Node3D
 #           antes que el jugador, el dron y Supervivencia en la escena.
 #   puerta  la flecha amarilla de un negocio o casa: al pisarla emite MapPuntos.entrar_negocio
 #           con su giro, igual que YonkeMapa; su +Z da a la calle (ahi te deja Interiores al salir)
-#   tinaco  el tinaco comunitario sobre la plataforma del kiosco ("y" lo alto de la plataforma, "litros" lo que
-#           le cabe, 20 mil): el modelo del tinaco de la defensa, que es de 10 mil, escalado por el volumen
+#   tinaco  el tinaco comunitario de la plaza con la Virgen del Tinaco ("litros" lo que le cabe): TinacoComunitario
 #   yonke   El Yonke de Don Chava (YonkeMapa, con su barda), con su +Z a la calle
 #   casa_propia  la flecha de la casa del jugador (CasaPropia, la casa de JJ que se camina)
 #   casa_vecino  la flecha de la casa de un vecino (CasaPropia con scenes/casas/<quien>.tscn)
@@ -37,8 +36,6 @@ extends Node3D
 #   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
 #           (un monton de Chatarra), "bolsa" (Takis con tazo) o "curacion" (tacos o caguama)
 
-const MODELO_TINACO := preload("res://models/props/tinaco/tinaco.scn")
-const TINACO_PIEZAS := ["Tinaco_3er_capa", "Bomba_1", "Tapa"]
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
 const CASA_ESCENA := "res://scenes/casa_personaje.tscn"
@@ -430,36 +427,13 @@ func _casa_vecino(marca: Dictionary) -> void:
 	add_child(casa)
 
 
-# El tinaco comunitario sobre la plataforma del kiosco (marca "tinaco": "y" es lo alto de la plataforma y
-# "litros" lo que le cabe). Es el modelo del tinaco de la defensa (Barricada._tinaco: el modelo trae tres, se
-# deja uno completo), que es uno de 10 mil litros (Barricada.TINACO_ALTO); uno de mas litros crece parejo, con
-# el volumen (la raiz cubica de la proporcion)
+# El tinaco comunitario de la plaza con la Virgen del Tinaco (marca "tinaco", "litros" lo que le cabe): lo arma
+# TinacoComunitario
 func _tinaco_comunitario(marca: Dictionary) -> void:
-	var cuerpo := StaticBody3D.new()
-	cuerpo.name = "TinacoComunitario"
-	cuerpo.add_to_group("tinaco_comunitario")   # donde va la mision de la defensa del tinaco
-	cuerpo.transform = lugar(marca)
-	var modelo := MODELO_TINACO.instantiate() as Node3D
-	for pieza in modelo.find_children("*", "Node3D"):
-		if pieza.name.begins_with("Tinaco_") and pieza.get_parent().name == "Tinaco" and not pieza.name in TINACO_PIEZAS:
-			pieza.get_parent().remove_child(pieza)
-			pieza.queue_free()
-	var caja := Barricada._caja_de(modelo)
-	var alto: float = Barricada.TINACO_ALTO * pow(float(marca.get("litros", 10000.0)) / 10000.0, 1.0 / 3.0)
-	var escala := alto / caja.size.y
-	var sosten := Node3D.new()
-	sosten.scale = Vector3.ONE * escala
-	sosten.position = Vector3(-caja.get_center().x * escala, -caja.position.y * escala, -caja.get_center().z * escala)
-	sosten.add_child(modelo)
-	cuerpo.add_child(sosten)
-	var forma := CollisionShape3D.new()
-	var cilindro := CylinderShape3D.new()
-	cilindro.radius = maxf(caja.size.x, caja.size.z) * escala / 2.0
-	cilindro.height = alto
-	forma.shape = cilindro
-	forma.position.y = alto / 2.0
-	cuerpo.add_child(forma)
-	add_child(cuerpo)
+	var tinaco := TinacoComunitario.new()
+	tinaco.armar(float(marca.get("litros", 10000.0)))
+	tinaco.transform = lugar(marca)
+	add_child(tinaco)
 
 
 func _yonke(marca: Dictionary) -> void:

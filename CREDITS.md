@@ -43,6 +43,8 @@
 - [Manhole](https://sketchfab.com/3d-models/bbf5c9aa04c24fbaba328728d955777d) de DJMaesen, licencia CC Attribution (`models/props/coladera/`).
 - [Rtp Tinaco](https://sketchfab.com/3d-models/fb34a8ff0a04447e91a9ef1d793a192a) de dmlmx, licencia CC Attribution (`models/props/tinaco/`).
 - [Abandoned Toilet Cabin (Low Poly)](https://sketchfab.com/3d-models/8083b3d2134f4e98a34d891fa7915dcc) de Berk Gedik, licencia CC Attribution (`models/props/bano_portatil/`).
+- [Jar with candle](https://sketchfab.com/3d-models/4c9e6738b88f4160a76c9d9fc497de78) de Marcin.Kwiatkowski, licencia CC Attribution (`models/props/veladora/`).
+- [Calendula flower](https://sketchfab.com/3d-models/d813ac09f52849a3a8c57e14076e4b83) de Maf'j Alvarez, licencia CC Attribution (`models/props/calendula/`).
 
 ## Objetos (`models/objetos/`, Sketchfab)
 

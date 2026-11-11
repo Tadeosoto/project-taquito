@@ -95,14 +95,16 @@ def fuente(nombre, p):
 
 
 def tinaco_comunitario(nombre, p):
-    """Lo que rodea al tinaco comunitario, en el centro de la plaza (el tinaco lo pone Colonia.gd, marca "tinaco", y ahi
-    va la mision de la defensa del tinaco): una losa baja de concreto, la llave del agua y el letrero de GelA."""
+    """Lo que rodea al tinaco comunitario, en el centro de la plaza (el tinaco, su mancha, su luz y las veladoras y flores
+    que la gente deja al pie de la mancha los pone Colonia.gd, marca "tinaco", y ahi va la mision de la defensa del
+    tinaco): la llave del agua y el letrero de GelA."""
     k = Constructor(nombre)
-    k.cilindro((0, 0, 0), 2.3, 0.15, "concreto", lados=12)
-    k.caja((1.95, 0.45, 0), (0.14, 0.14, 0.4), "llave", math.pi / 2)
+    # Las distancias son para un tinaco de 20 mil litros; con mas, se alejan con su tamano (la raiz cubica del volumen)
+    f = (p.get("litros", 20000) / 20000.0) ** (1.0 / 3.0)
+    k.caja((1.95 * f, 0.45, 0), (0.14, 0.14, 0.4), "llave", math.pi / 2)
     for lado in (-0.6, 0.6):
-        k.caja((2.9, 0.6, lado), (0.08, 1.2, 0.08), "fierro")
-    k.caja((2.9, 1.4, 0), (0.05, 0.8, 1.4), "azul_gela", math.pi / 2)
+        k.caja((2.9 * f, 0.6, lado), (0.08, 1.2, 0.08), "fierro")
+    k.caja((2.9 * f, 1.4, 0), (0.05, 0.8, 1.4), "azul_gela", math.pi / 2)
     return k
 
 

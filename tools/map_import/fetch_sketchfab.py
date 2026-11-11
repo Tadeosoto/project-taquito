@@ -68,6 +68,9 @@ MODELS = {
 	"arboles/arce": "4b27adcf92f644bdabf8ecc6c5bef399",             # Maple tree, 12.5k
 	"arboles/realista": "d989c0f801d847b9a74992ec4ddcfdfc",         # Realistic Tree, 19.9k
 	"arboles/roble": "3dc59560f2d24345bdbe65c44636453b",            # Oak tree, 7.1k
+	# Ofrenda de la Virgen del Tinaco en el mapa de Blender (scripts/mapa/Colonia.gd, _ofrenda_tinaco)
+	"props/veladora": "4c9e6738b88f4160a76c9d9fc497de78",           # Jar with candle, 1.7k
+	"props/calendula": "d813ac09f52849a3a8c57e14076e4b83",          # Calendula flower, 247
 	"props/alto": "d2de3788e5f24c3e8189001d2a1f6e92",               # Senal Alto, 1.3k
 	"objetos/takis": "7426e5fa188344668ec3b9dbab348bae",            # Takis Fuego, 44k
 	"objetos/moneda_peso": "5b0b33e49fa84d96b6e0d82beac694f3",      # 1 Peso MXN, 2k

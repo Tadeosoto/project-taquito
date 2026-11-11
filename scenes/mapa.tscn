@@ -67,6 +67,7 @@ shadow_enabled = true
 shadow_reverse_cull_face = true
 shadow_opacity = 0.86
 shadow_blur = 0.0
+directional_shadow_mode = 1
 directional_shadow_max_distance = 80.0
 
 [node name="PS1_Postprocess" type="CanvasLayer" parent="."]
