@@ -89,7 +89,7 @@ func _probar() -> void:
 const SUBIDA_DESDE := Vector3(-250.0, 1.1, 328.5)
 const SUBIDA_HACIA := Vector3(0.0, 0.0, -1.0)
 # Escalera: la de la ruta de azoteas de Pipilingue (rutas del .json), de la banqueta hacia arriba
-const ESCALERA := "Ruta_Pipilingue_Escalera"
+const ESCALERAS := ["Ruta_Pipilingue_Escalera", "Ruta_Cancha_Escalera"]
 const AZOTEA := 5.5         # m: dos pisos (bloqueo.ALTO_AZOTEA)
 const CANCHA_DESDE := Vector3(-406.0, 1.2, 305.5)
 
@@ -100,7 +100,7 @@ func _subir_banqueta(escena: Node) -> void:
 		"subio %.2f m, avanzo %.1f m (hasta %s)" % [r["subio"], r["avance"], r["hasta"]])
 	var colonia: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/blender/mapa/colonias/santa_mugre.json"))
 	for p: Dictionary in colonia["piezas"]:
-		if p["nombre"] != ESCALERA:
+		if not p["nombre"] in ESCALERAS:
 			continue
 		# Su +X local (con su sentido) es hacia donde sube y su +Z da a la calle; se arranca medio
 		# metro antes del primer escalon, a media escalera de ancho
@@ -108,7 +108,7 @@ func _subir_banqueta(escena: Node) -> void:
 		var sube := base.x * float(p.get("sentido", 1))
 		var desde := Vector3(p["x"], 1.2, p["z"]) + base.z * 0.5 - sube * 0.8
 		var e := await _caminar(escena, desde, sube, 300)
-		_revisar("sube la escalera a la azotea", e["y_max"] - 1.0 > AZOTEA - 0.4,
+		_revisar("sube la escalera a la azotea (%s)" % p["nombre"], e["y_max"] - 1.0 > AZOTEA - 0.4,
 			"llego a %.2f m (azotea a %.2f)" % [e["y_max"] - 1.0, AZOTEA])
 	# La cancha encajonada: del callejon que sale de Pelagatos se entra por la reja hasta la
 	# media cancha (el muro de la entrada esta en x -398.3)

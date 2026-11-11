@@ -47,7 +47,7 @@
 			"x": -395.05,
 			"z": 320.2,
 			"y": 14.85,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -50,
 			"alcance": 7.0
 		},
@@ -135,7 +135,7 @@
 			"x": -367.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -145,7 +145,7 @@
 			"x": -354.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -155,7 +155,7 @@
 			"x": -341.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -165,7 +165,7 @@
 			"x": -328.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -244,162 +244,7 @@
 			"x": -347.0,
 			"z": 337.6,
 			"y": 4.6,
-			"rot": -3.1416
-		},
-		{
-			"nombre": "Puerta_oxxo_0",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "oxxo",
-			"texto": "OXO",
-			"x": -262.3,
-			"z": 458.86,
-			"rot": -0.0394
-		},
-		{
-			"nombre": "Puerta_taqueria_1",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "taqueria",
-			"texto": "Tacos La Casa del Taco",
-			"x": -269.28,
-			"z": 383.47,
-			"rot": -3.1148
-		},
-		{
-			"nombre": "Puerta_abarrotes_2",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "abarrotes",
-			"texto": "Mini Super Santa Mugre",
-			"x": -273.37,
-			"z": 408.42,
-			"rot": -1.5353
-		},
-		{
-			"nombre": "Puerta_taqueria_3",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "taqueria",
-			"texto": "Carnitas Via Mugre",
-			"x": -288.78,
-			"z": 285.29,
-			"rot": 1.6078
-		},
-		{
-			"nombre": "Puerta_abarrotes_4",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "abarrotes",
-			"texto": "Abarrotes San Ignacio",
-			"x": -287.98,
-			"z": 269.19,
-			"rot": 1.607
-		},
-		{
-			"nombre": "Puerta_farmacia_5",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "farmacia",
-			"texto": "Farmacia Mas o Menos Buena",
-			"x": -388.13,
-			"z": 465.27,
-			"rot": -3.1083
-		},
-		{
-			"nombre": "Puerta_ferreteria_6",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "ferreteria",
-			"texto": "Ferreteria El Clavo",
-			"x": -373.54,
-			"z": 466.36,
-			"rot": 3.057
-		},
-		{
-			"nombre": "Puerta_abarrotes_7",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "abarrotes",
-			"texto": "Cremeria La Casita",
-			"x": -340.98,
-			"z": 473.4,
-			"rot": 3.0589
-		},
-		{
-			"nombre": "Puerta_licoreria_8",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "licoreria",
-			"texto": "Vinos y Licores El Ultimo",
-			"x": -241.5,
-			"z": 476.09,
-			"rot": 3.1016
-		},
-		{
-			"nombre": "Puerta_purificadora_9",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "purificadora",
-			"texto": "Purificadora Gota Pura",
-			"x": -264.01,
-			"z": 351.6,
-			"rot": -0.0
-		},
-		{
-			"nombre": "Puerta_punto_10",
-			"tipo": "puerta",
-			"auto": true,
-			"giro": "punto",
-			"texto": "El Punto",
-			"x": -347.4,
-			"z": 291.98,
-			"rot": 1.5708
-		},
-		{
-			"nombre": "Casa_guero",
-			"tipo": "casa_vecino",
-			"auto": true,
-			"escena": "res://scenes/casas/guero.tscn",
-			"texto": "Casa del Guero",
-			"abierto": "siempre",
-			"x": -248.82,
-			"z": 324.39,
-			"rot": 0.0404
-		},
-		{
-			"nombre": "Casa_sofia",
-			"tipo": "casa_vecino",
-			"auto": true,
-			"escena": "res://scenes/casas/sofia.tscn",
-			"texto": "Taller",
-			"abierto": "noche",
-			"x": -319.65,
-			"z": 310.84,
-			"rot": -1.5328,
-			"cerrado": "La cortina esta abajo. De dia aqui no hay nadie."
-		},
-		{
-			"nombre": "Casa_tono",
-			"tipo": "casa_vecino",
-			"auto": true,
-			"escena": "res://scenes/casas/tono.tscn",
-			"texto": "Casa de Toño",
-			"abierto": "siempre",
-			"x": -253.44,
-			"z": 383.04,
-			"rot": -3.1149
-		},
-		{
-			"nombre": "Casa_clausurada",
-			"tipo": "casa_vecino",
-			"auto": true,
-			"escena": "res://scenes/casas/clausurada.tscn",
-			"texto": "Casa clausurada",
-			"abierto": "siempre",
-			"x": -201.98,
-			"z": 303.95,
-			"rot": 1.6063
+			"rot": 3.1416
 		},
 		{
 			"nombre": "Fila_Agua_0",
@@ -493,6 +338,161 @@
 			"x": -339.1,
 			"z": 454.8,
 			"rot": 3.0457
+		},
+		{
+			"nombre": "Puerta_oxxo_0",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "oxxo",
+			"texto": "OXO",
+			"x": -262.3,
+			"z": 458.86,
+			"rot": -0.0394
+		},
+		{
+			"nombre": "Puerta_taqueria_1",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "taqueria",
+			"texto": "Tacos La Casa del Taco",
+			"x": -269.28,
+			"z": 383.47,
+			"rot": -3.1148
+		},
+		{
+			"nombre": "Puerta_abarrotes_2",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "abarrotes",
+			"texto": "Mini Super Santa Mugre",
+			"x": -269.38,
+			"z": 408.38,
+			"rot": -1.5417
+		},
+		{
+			"nombre": "Puerta_taqueria_3",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "taqueria",
+			"texto": "Carnitas Via Mugre",
+			"x": -288.78,
+			"z": 285.29,
+			"rot": 1.6078
+		},
+		{
+			"nombre": "Puerta_abarrotes_4",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "abarrotes",
+			"texto": "Abarrotes San Ignacio",
+			"x": -287.98,
+			"z": 269.19,
+			"rot": 1.607
+		},
+		{
+			"nombre": "Puerta_farmacia_5",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "farmacia",
+			"texto": "Farmacia Mas o Menos Buena",
+			"x": -388.13,
+			"z": 465.27,
+			"rot": -3.1083
+		},
+		{
+			"nombre": "Puerta_ferreteria_6",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "ferreteria",
+			"texto": "Ferreteria El Clavo",
+			"x": -373.54,
+			"z": 466.36,
+			"rot": 3.057
+		},
+		{
+			"nombre": "Puerta_abarrotes_7",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "abarrotes",
+			"texto": "Cremeria La Casita",
+			"x": -340.98,
+			"z": 473.4,
+			"rot": 3.0589
+		},
+		{
+			"nombre": "Puerta_licoreria_8",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "licoreria",
+			"texto": "Vinos y Licores El Ultimo",
+			"x": -241.98,
+			"z": 476.07,
+			"rot": 3.1016
+		},
+		{
+			"nombre": "Puerta_purificadora_9",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "purificadora",
+			"texto": "Purificadora Gota Pura",
+			"x": -275.5,
+			"z": 350.4,
+			"rot": -1.5335
+		},
+		{
+			"nombre": "Puerta_punto_10",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "punto",
+			"texto": "El Punto",
+			"x": -335.93,
+			"z": 294.56,
+			"rot": 1.6241
+		},
+		{
+			"nombre": "Casa_guero",
+			"tipo": "casa_vecino",
+			"auto": true,
+			"escena": "res://scenes/casas/guero.tscn",
+			"texto": "Casa del Guero",
+			"abierto": "siempre",
+			"x": -248.82,
+			"z": 324.39,
+			"rot": 0.0404
+		},
+		{
+			"nombre": "Casa_sofia",
+			"tipo": "casa_vecino",
+			"auto": true,
+			"escena": "res://scenes/casas/sofia.tscn",
+			"texto": "Taller",
+			"abierto": "noche",
+			"x": -319.65,
+			"z": 310.84,
+			"rot": -1.5328,
+			"cerrado": "La cortina esta abajo. De dia aqui no hay nadie."
+		},
+		{
+			"nombre": "Casa_tono",
+			"tipo": "casa_vecino",
+			"auto": true,
+			"escena": "res://scenes/casas/tono.tscn",
+			"texto": "Casa de Toño",
+			"abierto": "siempre",
+			"x": -260.62,
+			"z": 383.23,
+			"rot": -3.1136
+		},
+		{
+			"nombre": "Casa_clausurada",
+			"tipo": "casa_vecino",
+			"auto": true,
+			"escena": "res://scenes/casas/clausurada.tscn",
+			"texto": "Casa clausurada",
+			"abierto": "siempre",
+			"x": -201.98,
+			"z": 303.95,
+			"rot": 1.6063
 		},
 		{
 			"nombre": "Foco_0",
@@ -667,22 +667,30 @@
 			"nombre": "Botin_1",
 			"tipo": "botin",
 			"que": "bolsa",
-			"x": -255.56,
-			"z": 318.86,
+			"x": -403.2,
+			"z": 284.3,
 			"y": 5.55
 		},
 		{
 			"nombre": "Botin_2",
 			"tipo": "botin",
 			"que": "curacion",
-			"x": -272.39,
-			"z": 276.86,
+			"x": -255.56,
+			"z": 318.86,
 			"y": 5.55
 		},
 		{
 			"nombre": "Botin_3",
 			"tipo": "botin",
 			"que": "chatarra",
+			"x": -272.39,
+			"z": 276.86,
+			"y": 5.55
+		},
+		{
+			"nombre": "Botin_4",
+			"tipo": "botin",
+			"que": "bolsa",
 			"x": -402.55,
 			"z": 311.25,
 			"y": 5.55
