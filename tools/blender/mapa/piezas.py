@@ -568,6 +568,85 @@ def cancha(nombre, p):
     return k
 
 
+def _mural_por_archivo(texto, semilla=0):
+    """El primer diseño de propaganda cuyo archivo lleva `texto` (o uno cualquiera)."""
+    lista = [d for d in lista_murales() if d["tipo"] == "propaganda" and texto in d["archivo"]]
+    return lista[semilla % len(lista)] if lista else elegir_mural(semilla, "propaganda")
+
+
+def espectacular(nombre, p):
+    """Espectacular de azotea (se ve de lejos: sirve para orientarse): un poste de fierro, el
+    marco con el anuncio por las dos caras (`anuncio`: texto del archivo de propaganda, "gela"
+    por omision), pasarela y tres reflectores. Su frente (+Z) es la cara principal."""
+    k = Constructor(nombre)
+    alto = p.get("alto", 7.0)                        # del piso de la pieza a la orilla de abajo
+    ancho, alto_panel = p.get("tam", [7.0, 3.5])
+    semilla = sum((i + 1) * ord(c) for i, c in enumerate(nombre))
+    k.cilindro((0, 0, 0), 0.3, alto, "fierro", lados=8)
+    k.choques.append(((0, alto / 2, 0), (0.6, alto, 0.6), 0.0))
+    for x in (-ancho / 4, ancho / 4):                # brazos del poste al marco
+        k.caja((x / 2, alto - 0.4, 0), (abs(x) + 0.1, 0.12, 0.12), "fierro")
+    k.caja((0, alto + alto_panel / 2, -0.05), (ancho + 0.2, alto_panel + 0.2, 0.2), "fierro")
+    for lado, texto in ((1, p.get("anuncio", "gela")), (-1, p.get("anuncio_atras", "gela"))):
+        diseno = _mural_por_archivo(texto, semilla + (0 if lado > 0 else 7))
+        a, b = ((-ancho / 2, 0.0), (ancho / 2, 0.0)) if lado > 0 else ((ancho / 2, 0.0), (-ancho / 2, 0.0))
+        esquinas, uvs = esquinas_mural(a, b, alto + 0.05, (0.0, lado), diseno, ancho - 0.1, alto_panel - 0.1,
+                                       salir=0.07 if lado > 0 else 0.17)
+        k.cara([(x, z, y) for x, y, z in esquinas], "mural", uvs=uvs)
+    # Pasarela y reflectores por el frente
+    k.caja((0, alto - 0.05, 0.55), (ancho, 0.06, 0.8), "fierro")
+    k.caja((0, alto + 0.9, 0.93), (ancho, 0.04, 0.04), "fierro")
+    for x in (-ancho / 3, 0, ancho / 3):
+        k.caja((x, alto + 0.45, 0.93), (0.04, 0.9, 0.04), "fierro")
+        k.caja((x, alto + 0.3, 1.3), (0.06, 0.06, 0.8), "fierro")
+        k.caja((x, alto + 0.3, 1.7), (0.35, 0.25, 0.3), "farol")
+    return k
+
+
+def antena_radio(nombre, p):
+    """Torre de antena de fierro de tres patas (la radio pirata de Sofia: se ve de toda la colonia
+    aunque el taller no tenga letrero), franjas rojas y blancas, dipolos arriba y vientos a la
+    azotea. `alto` desde la base de la pieza."""
+    k = Constructor(nombre)
+    alto = p.get("alto", 12.0)
+    base, punta = 0.7, 0.25
+    tramos = max(4, round(alto / 1.5))
+    def pata(i, y):
+        a = math.tau * i / 3 + math.pi / 2
+        r = base + (punta - base) * y / alto
+        return (math.cos(a) * r, y, math.sin(a) * r)
+    for t in range(tramos):
+        y0, y1 = alto * t / tramos, alto * (t + 1) / tramos
+        mat = "rojo" if t % 2 == 0 else "blanco_cal"
+        for i in range(3):
+            a0, a1 = pata(i, y0), pata(i, y1)
+            k.caja(((a0[0] + a1[0]) / 2, (y0 + y1) / 2, (a0[2] + a1[2]) / 2), (0.06, y1 - y0, 0.06), mat)
+            # Travesano horizontal y diagonal hacia la pata de al lado
+            b0, b1 = pata((i + 1) % 3, y1), pata((i + 1) % 3, y0)
+            dx, dz = b0[0] - a1[0], b0[2] - a1[2]
+            k.caja(((a1[0] + b0[0]) / 2, y1, (a1[2] + b0[2]) / 2), (math.hypot(dx, dz), 0.04, 0.04), mat, math.atan2(-dz, dx))
+            dx, dz = b1[0] - a1[0], b1[2] - a1[2]
+            largo = math.hypot(math.hypot(dx, dz), y1 - y0)
+            for s in (0.25, 0.5, 0.75):                  # diagonal como tres trocitos (las cajas no se inclinan)
+                k.caja((a1[0] + dx * s, y1 + (y0 - y1) * s, a1[2] + dz * s), (largo / 3, 0.035, 0.035), mat, math.atan2(-dz, dx))
+    k.choques.append(((0, alto / 2, 0), (base * 1.6, alto, base * 1.6), 0.0))
+    # Dipolos y un foquito rojo en la punta
+    for i, y in enumerate((alto - 1.2, alto - 0.5)):
+        k.caja((0, y, 0), (1.6 - i * 0.5, 0.04, 0.04), "fierro", i * 1.2)
+    k.cilindro((0, alto, 0), 0.03, 1.4, "fierro", lados=4)
+    k.esfera((0, alto + 1.45, 0), 0.1, "rojo", seg=6, anillos=4)
+    # Vientos: tres cables de la punta a la azotea
+    for i in range(3):
+        a = math.tau * i / 3 + math.pi / 6
+        ax, az = math.cos(a) * p.get("vientos", 3.0), math.sin(a) * p.get("vientos", 3.0)
+        y_top = alto * 0.7
+        g = 0.02                                     # un listón de dos caras, como los cables de poste
+        q = [(0, y_top - g, 0), (ax, -g, az), (ax, g, az), (0, y_top + g, 0)]
+        k.cara(q, "cable")
+        k.cara(q[::-1], "cable")
+    return k
+
+
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -929,6 +1008,6 @@ def escombro(nombre, p):
 
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
-          "cancha": cancha, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "cancha": cancha, "espectacular": espectacular, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}
