@@ -120,7 +120,8 @@ def _pieza(col, p):
         ob.location = a_blender(x, z, y)
         ob.rotation_euler = (0.0, 0.0, rot)
         col.objects.link(ob)
-        choque = bpy.data.objects.new(nombre + "-colonly", _malla_prisma(nombre + "_col", p["puntos"], p.get("pisos", 1) * k["PISO"] + k["PRETIL"]))
+        # Hasta la losa y no hasta el pretil: las azoteas se caminan (rutas por los techos)
+        choque = bpy.data.objects.new(nombre + "-colonly", _malla_prisma(nombre + "_col", p["puntos"], p.get("pisos", 1) * k["PISO"] + 0.05))
         choque.location, choque.rotation_euler = ob.location, ob.rotation_euler
         choque.display_type = "WIRE"
         col.objects.link(choque)
@@ -136,6 +137,8 @@ def _pieza(col, p):
         for i, ((cx, cy, cz), tam, giro) in enumerate(k.choques):
             wx, wz = x + cx * c + cz * s, z - cx * s + cz * c
             colision(col, "%s_choque%d" % (nombre, i), wx, wz, rot + giro, tam, y + cy - tam[1] / 2)
+        for i, puntos in enumerate(k.rampas):
+            _casco(col, "%s_rampa%d" % (nombre, i), puntos, ob)
         return ob
     if tipo == "suelo":
         # Abajo de las calles y andadores (que van a 1-2 cm); "material" es un piso de kit.PISOS
@@ -144,6 +147,21 @@ def _pieza(col, p):
     if tipo == "calle":
         return _calle(col, p)
     return None
+
+
+def _casco(col, nombre, puntos, padre):
+    """Caja de choque convexa (rampa) de puntos en coordenadas de Godot de la pieza `padre`."""
+    cb = bmesh.new()
+    for px, py, pz in puntos:
+        cb.verts.new((px, -pz, py))
+    bmesh.ops.convex_hull(cb, input=cb.verts[:])
+    malla = bpy.data.meshes.new(nombre)
+    cb.to_mesh(malla)
+    cb.free()
+    ob = bpy.data.objects.new(nombre + "-colonly", malla)
+    ob.location, ob.rotation_euler = padre.location, padre.rotation_euler
+    ob.display_type = "WIRE"
+    col.objects.link(ob)
 
 
 def _objeto(col, nombre, malla, x, z, rot, y, mat, choca):

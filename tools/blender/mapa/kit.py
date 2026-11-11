@@ -44,7 +44,7 @@ LISO, CAIDO, LADRILLO, BLOCK = (0, 4), (1, 4), (2, 4), (3, 4)
 
 # Pisos: textura de textures/map/ y metros por repeticion (los mismos que MapPostImport)
 PISOS = {"asfalto": ("asfalto.png", 4.0), "banqueta": ("banqueta.png", 3.0), "empedrado": ("empedrado.png", 2.5),
-         "pasto_seco": ("pasto_seco.png", 2.5), "tierra": ("suelo.png", 3.0), "azotea": ("azoteas.png", PISO),
+         "pasto_seco": ("pasto_seco.png", 2.5), "tierra": ("../mapa/tierra.png", 2.0), "azotea": ("azoteas.png", PISO),
          # El piso de la plaza: la foto del kit (textures/mapa/, foto("piedra_plaza"))
          "adoquin": ("../mapa/piedra_plaza.png", 2.0),
          # Andadores de la plaza (cantera rosa) y sus jardines
@@ -240,6 +240,102 @@ def materiales(rehacer=False):
     return mats
 
 
+# --- Murales: grafitis y propaganda pintada ---
+# Los mismos catalogos que el mapa de OSM (textures/map/grafitis/ y textures/map/propaganda/, ver sus
+# LEEME.md: se agregan diseños poniendo imagenes ahi), juntos en textures/mapa/murales.png con su
+# indice en murales.json. Material "mural": en Godot, ps1_casa (descarta lo transparente).
+MURAL_PX = 128
+MURAL_COLUMNAS = 8
+MURALES_PNG = os.path.join(TEXTURAS_KIT, "murales.png")
+MURALES_JSON = os.path.join(TEXTURAS_KIT, "murales.json")
+_MURALES = []
+
+
+def murales():
+    """Arma el atlas de murales (cada diseño reducido sin suavizar a MURAL_PX de lado)."""
+    disenos = []
+    for carpeta, tipo in (("grafitis", "grafiti"), ("propaganda", "propaganda")):
+        ruta = os.path.join(TEXTURAS_MAPA, carpeta)
+        for archivo in sorted(os.listdir(ruta)):
+            if archivo.lower().endswith((".png", ".webp", ".jpg")):
+                disenos.append((os.path.join(ruta, archivo), tipo))
+    filas = (len(disenos) + MURAL_COLUMNAS - 1) // MURAL_COLUMNAS
+    atlas = np.zeros((filas * MURAL_PX, MURAL_COLUMNAS * MURAL_PX, 4), np.float32)
+    indice = []
+    for i, (ruta, tipo) in enumerate(disenos):
+        px = _leer_png(ruta)
+        h, w = px.shape[:2]
+        escala = min(MURAL_PX / w, MURAL_PX / h, 1.0)
+        nw, nh = max(1, int(w * escala)), max(1, int(h * escala))
+        ys = (np.arange(nh) / escala).astype(int).clip(0, h - 1)
+        xs = (np.arange(nw) / escala).astype(int).clip(0, w - 1)
+        col, fila = i % MURAL_COLUMNAS, i // MURAL_COLUMNAS
+        atlas[fila * MURAL_PX:fila * MURAL_PX + nh, col * MURAL_PX:col * MURAL_PX + nw] = px[ys][:, xs]
+        W, H = MURAL_COLUMNAS * MURAL_PX, filas * MURAL_PX
+        # UV de Blender (v hacia arriba): de abajo-izq a arriba-der
+        indice.append({"archivo": os.path.basename(ruta), "tipo": tipo, "proporcion": nh / nw,
+                       "uv": [col * MURAL_PX / W, 1 - (fila * MURAL_PX + nh) / H, (col * MURAL_PX + nw) / W, 1 - fila * MURAL_PX / H]})
+    os.makedirs(TEXTURAS_KIT, exist_ok=True)
+    _escribir_png(MURALES_PNG, atlas)
+    guardar_json(MURALES_JSON, {"disenos": indice})
+    _MURALES[:] = indice
+    print("murales: %d diseños" % len(indice))
+
+
+def lista_murales():
+    if not _MURALES:
+        if not os.path.exists(MURALES_JSON):
+            murales()
+        else:
+            _MURALES[:] = json.load(open(MURALES_JSON, encoding="utf-8"))["disenos"]
+    return _MURALES
+
+
+def mat_mural(rehacer=False):
+    mat = bpy.data.materials.get("mural")
+    if mat and not rehacer:
+        return mat
+    mat = mat or bpy.data.materials.new("mural")
+    arbol, bsdf = _arbol(mat)
+    tex = arbol.nodes.new("ShaderNodeTexImage")
+    tex.image = _imagen(MURALES_PNG)
+    tex.interpolation = "Closest"
+    arbol.links.new(tex.outputs[0], bsdf.inputs["Base Color"])
+    arbol.links.new(tex.outputs[1], bsdf.inputs["Alpha"])
+    try:
+        mat.blend_method = "CLIP"
+    except (AttributeError, TypeError):
+        pass
+    return mat
+
+
+def elegir_mural(semilla, tipo=None):
+    """Un diseño fijo por semilla; tipo "grafiti" o "propaganda" (None: cualquiera)."""
+    lista = [d for d in lista_murales() if tipo is None or d["tipo"] == tipo]
+    return lista[semilla % len(lista)]
+
+
+def esquinas_mural(a, b, base, normal, diseno, ancho_max, alto_max, salir=0.03):
+    """Rectangulo del diseño en un muro (en el plano que va de a a b, con su normal hacia afuera),
+    centrado en el tramo, sin estirar: devuelve 4 puntos (abajo-izq, abajo-der, arriba-der,
+    arriba-izq) en las mismas coordenadas que a y b (x, y horizontales; z arriba) y sus UV."""
+    ax, ay = a
+    bx, by = b
+    largo = math.hypot(bx - ax, by - ay)
+    ancho = min(ancho_max, largo * 0.9)
+    alto = ancho * diseno["proporcion"]
+    if alto > alto_max:
+        alto = alto_max
+        ancho = alto / diseno["proporcion"]
+    ux, uy = (bx - ax) / largo, (by - ay) / largo
+    cx, cy = (ax + bx) / 2 + normal[0] * salir, (ay + by) / 2 + normal[1] * salir
+    p0 = (cx - ux * ancho / 2, cy - uy * ancho / 2)
+    p1 = (cx + ux * ancho / 2, cy + uy * ancho / 2)
+    u0, v0, u1, v1 = diseno["uv"]
+    return ([(p0[0], p0[1], base), (p1[0], p1[1], base), (p1[0], p1[1], base + alto), (p0[0], p0[1], base + alto)],
+            [(u0, v0), (u1, v0), (u1, v1), (u0, v1)])
+
+
 # --- Casa ---
 
 PRETIL = 0.45               # m del borde de la azotea
@@ -298,8 +394,9 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
     bm = bmesh.new()
     capa_uv = bm.loops.layers.uv.new("UVMap")
     capa_color = bm.loops.layers.float_color.new("Color")
-    indice = {"fachada_kit": 0, "azotea": 1, "tinaco": 2, "varilla": 3}
+    indice = {"fachada_kit": 0, "azotea": 1, "tinaco": 2, "varilla": 3, "mural": 4}
     alto = pisos * PISO
+    lisos = []      # tramos lisos de la planta baja del frente: ahi va el mural, si toca
     # Los colores de la paleta estan en sRGB; el color de vertice va lineal
     rgba = tuple(c ** 2.2 for c in color[:3]) + (1.0,)
 
@@ -334,12 +431,24 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
                 p1 = (a[0] + (b[0] - a[0]) * u1, a[1] + (b[1] - a[1]) * u1)
                 z0, z1 = piso * PISO, (piso + 1) * PISO
                 celda = _celda_fachada(azar, piso, en_frente, t, puerta_en, desgaste, tienda)
+                if en_frente and piso == 0 and celda in (LISO, CAIDO):
+                    lisos.append((p0, p1))
                 cara([(p0[0], p0[1], z0), (p1[0], p1[1], z0), (p1[0], p1[1], z1), (p0[0], p0[1], z1)],
                      [uv_mosaico(celda, 0, 0), uv_mosaico(celda, 1, 0), uv_mosaico(celda, 1, 1), uv_mosaico(celda, 0, 1)], "fachada_kit")
         # Pretil: lo de abajo del aplanado liso
         v = PRETIL / PISO
         cara([(a[0], a[1], alto), (b[0], b[1], alto), (b[0], b[1], alto + PRETIL), (a[0], a[1], alto + PRETIL)],
              [uv_mosaico(LISO, 0, 0), uv_mosaico(LISO, largo / PISO % 1 or 1, 0), uv_mosaico(LISO, largo / PISO % 1 or 1, v), uv_mosaico(LISO, 0, v)], "fachada_kit")
+
+    # Un mural (grafiti o propaganda) en un tramo liso del frente; mas con mas desgaste
+    if lisos and azar() < 0.3 + desgaste * 0.5:
+        p0, p1 = lisos[int(azar(0, len(lisos)))]
+        normal = ((p1[1] - p0[1]), -(p1[0] - p0[0]))
+        ln = math.hypot(*normal) or 1.0
+        diseno = elegir_mural(_semilla(nombre) * 7, "propaganda" if azar() < 0.45 else "grafiti")
+        base = 1.0 if diseno["tipo"] == "propaganda" else 0.3
+        esquinas, uvs = esquinas_mural(p0, p1, base, (normal[0] / ln, normal[1] / ln), diseno, PISO * 0.95, PISO - base - 0.1)
+        cara(esquinas, uvs, "mural", (1.0, 1.0, 1.0, 1.0))
 
     # Azotea (un poco abajo del pretil) y la cara de adentro del pretil no hace falta: no se ve
     ccw = _ccw(puntos)
@@ -365,6 +474,7 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
         malla.materials.append(mats[m])
     malla.materials.append(material("tinaco", COLOR_TINACO))
     malla.materials.append(material("varilla", COLOR_VARILLA))
+    malla.materials.append(mat_mural())
     malla.color_attributes.active_color = malla.color_attributes["Color"]
     # El exportador de glTF lee el de render (con -1 sale todo blanco)
     malla.color_attributes.render_color_index = malla.color_attributes.active_color_index
@@ -410,7 +520,9 @@ FOTOS = {"cantera": ("old_sandstone_02", (0.84, 0.74, 0.64), 2.0),
          "cantera_rosa": ("old_sandstone_02", (0.86, 0.66, 0.58), 1.5),
          # Dibujadas aqui (_mamposteria, _azulejo), no fotos
          "mamposteria": ("_mamposteria", None, 1.5),
-         "azulejo_amarillo": ("_azulejo", None, 1.0)}
+         "azulejo_amarillo": ("_azulejo", None, 1.0),
+         "block": ("_block", None, 1.0),
+         "tierra": ("_tierra", None, 2.0)}
 
 
 def _mamposteria(tam=FOTO_PX):
@@ -441,6 +553,21 @@ def _mamposteria(tam=FOTO_PX):
     junta = (d2 - d1) < 1.6
     px[junta, :3] = (0.8, 0.77, 0.7)
     return px
+
+
+def _tierra(tam=FOTO_PX):
+    """Tierra seca de baldio: cafe con manchas, piedritas y terrones (se repite sin costura)."""
+    rng = np.random.default_rng(9)
+    gruesa = rng.random((tam // 16, tam // 16))
+    gruesa = np.kron(gruesa, np.ones((16, 16)))
+    gruesa = (gruesa + np.roll(gruesa, 8, 0) + np.roll(gruesa, 8, 1) + np.roll(np.roll(gruesa, 8, 0), 8, 1)) / 4
+    fina = rng.random((tam, tam))
+    brillo = 0.75 + gruesa * 0.25 + (fina - 0.5) * 0.15
+    px = np.ones((tam, tam, 4), np.float32)
+    px[..., :3] = np.array((0.5, 0.38, 0.26)) * brillo[..., None]
+    piedras = rng.random((tam, tam)) > 0.985
+    px[piedras, :3] = (0.62, 0.58, 0.52)
+    return np.clip(px, 0, 1)
 
 
 def _azulejo(tam=FOTO_PX):
@@ -504,6 +631,7 @@ class Constructor:
         self.mats = []
         self.choques = []          # cajas (centro, tam, giro_y) en coordenadas de Godot
         self.fijas = []            # (cara, uvs): UV puestas a mano (atlas), terminar() no las toca
+        self.rampas = []           # puntos (Godot) de cajas de choque inclinadas: colonia.py hace su casco convexo
 
     def _mat(self, nombre):
         if nombre not in self.mats:
@@ -633,6 +761,8 @@ class Constructor:
         for nombre in self.mats:
             if nombre == "fachada_kit":
                 malla.materials.append(mat_fachada())
+            elif nombre == "mural":
+                malla.materials.append(mat_mural())
             elif nombre.startswith("foto_"):
                 malla.materials.append(foto(nombre[5:]))
             elif nombre in PISOS:
@@ -656,7 +786,7 @@ COLORES_PIEZA = {"fierro": (0.12, 0.12, 0.13), "fierro_verde": (0.18, 0.3, 0.22)
                  "naranja_gela": (0.92, 0.45, 0.08), "cable": (0.05, 0.05, 0.05),
                  "hojas": (0.11, 0.27, 0.09), "hojas_claras": (0.2, 0.4, 0.14), "farol": (0.98, 0.86, 0.5),
                  "blanco_reloj": (0.95, 0.94, 0.9), "bronce": (0.45, 0.32, 0.18),
-                 "hueco": (0.06, 0.05, 0.05)}
+                 "hueco": (0.06, 0.05, 0.05), "malla": (0.2, 0.22, 0.2)}
 
 
 if not globals().get("SOLO_FUNCIONES"):

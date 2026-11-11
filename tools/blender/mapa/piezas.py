@@ -411,5 +411,279 @@ def atrio(nombre, p):
     return k
 
 
+def cancha(nombre, p):
+    """Cancha de futbol rapido del barrio (como las de la foto de AG): losa de concreto con sus
+    rayas blancas, bardita de block y malla ciclonica encima, porterias con red, cuatro postes de
+    luz, una banca para los que esperan y la entrada por un costado (+x, a media cancha)."""
+    k = Constructor(nombre)
+    ancho, largo = p.get("tam", [18.0, 32.0])         # x, z
+    orilla = 2.0                                     # concreto entre las rayas y la barda
+    hx, hz = ancho / 2 + orilla, largo / 2 + orilla
+    # Losa (un poco arriba del piso) y rayas
+    k.cara([(-hx, 0.05, hz), (hx, 0.05, hz), (hx, 0.05, -hz), (-hx, 0.05, -hz)], "banqueta")
+    def raya(x0, z0, x1, z1, grueso=0.12):
+        dx, dz = x1 - x0, z1 - z0
+        l = math.hypot(dx, dz) or 1.0
+        nx, nz = -dz / l * grueso / 2, dx / l * grueso / 2
+        k.cara([(x0 - nx, 0.06, z0 - nz), (x1 - nx, 0.06, z1 - nz), (x1 + nx, 0.06, z1 + nz), (x0 + nx, 0.06, z0 + nz)], "blanco_cal")
+    w, l = ancho / 2, largo / 2
+    for a, b in (((-w, -l), (w, -l)), ((w, -l), (w, l)), ((w, l), (-w, l)), ((-w, l), (-w, -l)), ((-w, 0), (w, 0))):
+        raya(a[0], a[1], b[0], b[1])
+    circulo = [(math.cos(i * math.tau / 16) * 3.0, math.sin(i * math.tau / 16) * 3.0) for i in range(17)]
+    for a, b in zip(circulo, circulo[1:]):
+        raya(a[0], a[1], b[0], b[1])
+    for signo in (-1, 1):                            # areas: medio circulo de 6 m frente a cada porteria
+        arco = [(math.cos(math.pi * i / 10) * 6.0, signo * (l - math.sin(math.pi * i / 10) * 6.0)) for i in range(11)]
+        for a, b in zip(arco, arco[1:]):
+            raya(a[0], a[1], b[0], b[1])
+    # Porterias de futbol rapido (3 x 2 m) con red de alambre atras
+    for signo in (-1, 1):
+        z = signo * l
+        for x in (-1.5, 1.5):
+            k.caja((x, 1.0, z), (0.1, 2.0, 0.1), "blanco_cal")
+            k.caja((x, 0.05, z + signo * 0.6), (0.06, 0.06, 1.2), "blanco_cal")
+        k.caja((0, 2.0, z), (3.1, 0.1, 0.1), "blanco_cal")
+        k.caja((0, 1.0, z + signo * 1.2), (3.0, 2.0, 0.02), "malla")
+        k.choques.append(((0, 1.0, z + signo * 0.6), (3.2, 2.0, 1.3), 0.0))
+    # Bardita de block y malla ciclonica: postes cada 2.5 m, tubos arriba, abajo y a media altura,
+    # y la malla como alambres parados cada 0.4 m (una lamina oscura se veia como muro)
+    alto = 4.5
+    puerta = 2.0
+    for (ax, az), (bx, bz) in (((-hx, -hz), (hx, -hz)), ((hx, -hz), (hx, hz)), ((hx, hz), (-hx, hz)), ((-hx, hz), (-hx, -hz))):
+        dx, dz = bx - ax, bz - az
+        lado = math.hypot(dx, dz)
+        ux, uz = dx / lado, dz / lado
+        giro = math.atan2(dx, dz) - math.pi / 2
+        hueco = ax == hx and bx == hx                  # la entrada, a media cancha del lado +x
+        tramos = [(0.0, lado)]
+        if hueco:
+            tramos = [(0.0, lado / 2 - puerta / 2), (lado / 2 + puerta / 2, lado)]
+        for t0, t1 in tramos:
+            mx, mz = ax + ux * (t0 + t1) / 2, az + uz * (t0 + t1) / 2
+            tl = t1 - t0
+            k.caja((mx, 0.45, mz), (tl, 0.9, 0.2), "foto_block", giro, choca=True)
+            k.choques.append(((mx, alto / 2, mz), (tl, alto, 0.1), giro))
+            for y in (0.95, 2.7, alto):
+                k.caja((mx, y, mz), (tl, 0.06, 0.06), "fierro_verde", giro)
+            for i in range(int(tl / 0.4)):
+                t = t0 + 0.2 + i * 0.4
+                k.caja((ax + ux * t, (0.95 + alto) / 2, az + uz * t), (0.025, alto - 0.95, 0.025), "malla", giro)
+            n = max(1, round(tl / 2.5))
+            for i in range(n + 1):
+                t = t0 + tl * i / n
+                k.cilindro((ax + ux * t, 0.9, az + uz * t), 0.05, alto - 0.9, "fierro_verde", lados=5)
+    # Cuatro postes de luz en las esquinas, con sus reflectores viendo a la cancha
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            x, z = sx * (hx + 0.4), sz * (hz - 4.0)
+            k.cilindro((x, 0, z), 0.14, 9.0, "concreto", lados=6, radio_arriba=0.09)
+            k.caja((x - sx * 0.5, 9.0, z), (1.0, 0.08, 0.08), "fierro")
+            k.caja((x - sx * 0.9, 8.8, z), (0.4, 0.3, 0.25), "farol")
+            k.choques.append(((x, 4.5, z), (0.3, 9.0, 0.3), 0.0))
+    # Banca de los que esperan turno, junto a la entrada por fuera
+    k.caja((hx + 1.2, 0.45, -3.0), (0.4, 0.06, 2.4), "concreto", choca=True)
+    for z in (-4.0, -2.0):
+        k.caja((hx + 1.2, 0.22, z), (0.35, 0.44, 0.12), "concreto")
+    return k
+
+
+def barda(nombre, p):
+    """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
+    grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
+    k = Constructor(nombre)
+    largo, alto, grueso = p.get("largo", 10.0), p.get("alto", 2.6), p.get("grueso", 0.25)
+    mat = p.get("material", "foto_block")
+    color = tuple(p.get("color", (1.0, 1.0, 1.0)))
+    k.caja((0, alto / 2, 0), (largo, alto, grueso), mat, color=color, choca=True)
+    # Castillos cada 3 m (las bardas de block los llevan)
+    if mat == "foto_block":
+        for i in range(int(largo / 3.0) + 1):
+            k.caja((-largo / 2 + min(i * 3.0, largo), alto / 2, 0), (0.3, alto + 0.1, grueso + 0.06), "concreto")
+    semilla = sum((i + 1) * ord(c) for i, c in enumerate(nombre))
+    tramo = 4.5
+    n = 0
+    for lado in (1, -1):
+        for i in range(int(largo / tramo)):
+            n += 1
+            if (semilla * 31 + n * 17) % 100 >= p.get("murales", 55):
+                continue
+            x0 = -largo / 2 + i * tramo + 0.3
+            x1 = x0 + tramo - 0.6
+            diseno = elegir_mural(semilla + n * 13, "propaganda" if (semilla + n) % 3 == 0 else "grafiti")
+            base = 0.9 if diseno["tipo"] == "propaganda" else 0.2
+            # En coordenadas de Godot: el muro va en x, la cara en z = lado * grueso / 2
+            a, b = ((x0, 0.0), (x1, 0.0)) if lado > 0 else ((x1, 0.0), (x0, 0.0))
+            esquinas, uvs = esquinas_mural(a, b, base, (0.0, lado), diseno, 3.2, alto - base - 0.15, salir=grueso / 2 + 0.03)
+            k.cara([(x, z, y) for x, y, z in esquinas], "mural", uvs=uvs)
+    return k
+
+
+def _carro(k, x, z, giro, color, quemado=False):
+    """Un vochito de cajas: carroceria, cabina, vidrios y llantas (sin llantas si esta quemado)."""
+    c, s_ = math.cos(giro), math.sin(giro)
+    def p(lx, y, lz):
+        return (x + lx * c + lz * s_, y, z - lx * s_ + lz * c)
+    cuerpo = "hueco" if quemado else color
+    k.caja(p(0, 0.65, 0), (1.6, 0.7, 3.8), cuerpo, giro)
+    k.caja(p(0, 1.25, -0.2), (1.4, 0.55, 1.9), cuerpo, giro)
+    k.caja(p(0, 1.25, 0.78), (1.3, 0.45, 0.05), "hueco" if quemado else "vidrio", giro)
+    if not quemado:
+        for lx in (-0.8, 0.8):
+            for lz in (-1.2, 1.2):
+                k.cilindro(p(lx, 0.0, lz), 0.32, 0.3, "fierro", lados=6)
+    k.choques.append((p(0, 0.75, 0), (1.6, 1.5, 3.8), giro))
+
+
+def _llantas(k, x, z, n):
+    for i in range(n):
+        k.cilindro((x, i * 0.25, z), 0.35, 0.24, "fierro", lados=8)
+
+
+def lote(nombre, p):
+    """Un baldio con vida (frente a +Z, tam = [frente, fondo]): "taller" mecanico al aire libre,
+    "juegos" oxidados, "fonda" de lona con sillas de plastico, o "baldio" con su basura."""
+    k = Constructor(nombre)
+    ancho, fondo = p.get("tam", [8.0, 12.0])
+    hx, hz = ancho / 2, fondo / 2
+    variante = p.get("variante", "baldio")
+    semilla = sum((i + 1) * ord(c) for i, c in enumerate(nombre))
+    k.cara([(-hx, 0.03, hz), (hx, 0.03, hz), (hx, 0.03, -hz), (-hx, 0.03, -hz)], "tierra")
+    colores = ["rojo", "azul_gela", "naranja_gela", "blanco_cal", "pasto_muerto"]
+    if variante == "taller":
+        # Tejaban de lamina al fondo, dos carros y llantas apiladas, tambos de aceite
+        for x in (-hx + 0.3, hx - 0.3):
+            for z in (-hz + 0.3, -hz + 4.0):
+                k.caja((x, 1.4, z), (0.12, 2.8, 0.12), "fierro")
+        k.caja((0, 2.9, -hz + 2.15), (ancho, 0.08, 4.4), "foto_lamina_verde")
+        k.caja((-hx + 1.0, 0.5, -hz + 2.0), (1.2, 1.0, 0.6), "foto_madera", choca=True)
+        _carro(k, -hx / 2, 0.5, 0.15, colores[semilla % 5])
+        _carro(k, hx / 2, -hz + 2.2, 1.57, colores[(semilla + 2) % 5])
+        _llantas(k, hx - 0.8, hz - 1.2, 4)
+        _llantas(k, hx - 1.6, hz - 1.0, 3)
+        for i in range(2):
+            k.cilindro((-hx + 0.8 + i * 0.7, 0, hz - 1.0), 0.3, 0.9, "azul_gela", lados=8, choca=True)
+    elif variante == "juegos":
+        # Columpios (marco con dos asientos), resbaladilla y sube y baja, todo oxidado
+        for sx in (-1.6, 1.6):
+            for dz in (-0.35, 0.35):
+                k.caja((sx, 1.2, -hz / 2 + dz), (0.08, 2.5, 0.08), "fierro_verde")
+        k.caja((0, 2.4, -hz / 2), (3.4, 0.08, 0.08), "fierro_verde")
+        for x in (-0.6, 0.6):
+            k.caja((x, 1.5, -hz / 2), (0.03, 1.8, 0.03), "fierro")
+            k.caja((x, 0.55, -hz / 2), (0.5, 0.05, 0.25), "rojo")
+        k.choques.append(((0, 1.2, -hz / 2), (3.4, 2.4, 0.6), 0.0))
+        k.caja((hx - 1.2, 1.0, 1.0), (0.6, 2.0, 0.6), "fierro_verde", choca=True)
+        k.cara([(hx - 1.5, 2.0, 1.3), (hx - 0.9, 2.0, 1.3), (hx - 0.9, 0.2, 4.0), (hx - 1.5, 0.2, 4.0)], "naranja_gela")
+        k.cara([(hx - 0.9, 2.0, 1.3), (hx - 1.5, 2.0, 1.3), (hx - 1.5, 0.2, 4.0), (hx - 0.9, 0.2, 4.0)], "naranja_gela")
+        k.caja((-hx + 1.5, 0.35, hz - 2.5), (0.25, 0.7, 0.25), "fierro_verde")
+        k.caja((-hx + 1.5, 0.6, hz - 2.5), (0.3, 0.06, 3.2), "azul_gela")
+    elif variante == "fonda":
+        # Lona amarilla sobre tres mesas con sillas de plastico rojas y el carrito de tacos al frente
+        for x in (-hx + 0.4, hx - 0.4):
+            for z in (-hz + 1.0, hz - 1.5):
+                k.caja((x, 1.3, z), (0.08, 2.6, 0.08), "fierro")
+        k.caja((0, 2.6, -0.25), (ancho - 0.6, 0.05, fondo - 2.5), "lona_amarillo")
+        for z in (-hz + 2.5, 0.0, hz - 3.0):
+            k.caja((0, 0.72, z), (1.2, 0.05, 0.8), "blanco_cal", choca=True)
+            k.caja((0, 0.36, z), (0.08, 0.7, 0.08), "blanco_cal")
+            for dx in (-0.85, 0.85):
+                k.caja((dx, 0.22, z), (0.42, 0.44, 0.42), "rojo")
+                k.caja((dx * 1.25, 0.65, z), (0.06, 0.45, 0.42), "rojo")
+        k.caja((hx - 1.2, 0.6, hz - 0.8), (1.6, 1.2, 0.8), "blanco_cal", choca=True)
+        k.caja((hx - 1.2, 1.9, hz - 0.8), (1.8, 0.05, 1.0), "lona_rojo")
+        k.cilindro((hx - 1.2, 1.2, hz - 0.8), 0.35, 0.05, "fierro", lados=8)
+    else:
+        # Basura: bolsas negras, llantas viejas, un colchon y escombro
+        for i in range(5):
+            x = -hx + 1.0 + (semilla * (i + 3) % int(max(ancho - 2, 1) * 10)) / 10
+            z = -hz + 1.0 + (semilla * (i + 7) % int(max(fondo - 2, 1) * 10)) / 10
+            k.esfera((x, 0.25, z), 0.35, "hueco", seg=6, anillos=4, aplastar=0.7)
+        _llantas(k, hx - 1.0, -hz + 1.5, 2)
+        k.caja((-hx + 2.0, 0.12, -hz + 2.5), (1.4, 0.24, 1.9), "blanco_cal", 0.3)
+        k.caja((0.5, 0.3, -hz + 1.2), (2.0, 0.6, 1.2), "foto_block", 0.6)
+    return k
+
+
+def carro(nombre, p):
+    """Carro suelto (o quemado: los tapones de las calles, docs/mapa/colonias/santa_mugre.md)."""
+    k = Constructor(nombre)
+    _carro(k, 0, 0, 0.0, p.get("color", "rojo"), p.get("quemado", False))
+    return k
+
+
+def patio(nombre, p):
+    """Patio de atras a media cuadra (donde se ensancha un callejon): piso de cemento, lavadero,
+    tendederos con ropa colgada, un tinaco en su base, cubetas y una silla."""
+    k = Constructor(nombre)
+    ancho, fondo = p.get("tam", [7.0, 7.0])
+    hx, hz = ancho / 2, fondo / 2
+    k.cara([(-hx, 0.04, hz), (hx, 0.04, hz), (hx, 0.04, -hz), (-hx, 0.04, -hz)], "concreto")
+    # Lavadero de cemento con su pileta
+    k.caja((-hx + 0.8, 0.45, -hz + 0.6), (1.4, 0.9, 0.8), "concreto", choca=True)
+    k.caja((-hx + 0.8, 0.93, -hz + 0.6), (1.2, 0.06, 0.6), "azul_gela")
+    # Tinaco en su base de block
+    k.caja((hx - 1.0, 0.6, -hz + 1.0), (1.4, 1.2, 1.4), "foto_block", choca=True)
+    k.cilindro((hx - 1.0, 1.2, -hz + 1.0), 0.6, 1.2, "tinaco", lados=10)
+    # Tendederos: dos postes, dos lazos y ropa de colores
+    ropa = ["rojo", "azul_gela", "blanco_cal", "lona_amarillo", "lona_rosa", "lona_verde"]
+    for x in (-hx + 0.4, hx - 0.4):
+        k.caja((x, 1.2, 0.5), (0.08, 2.4, 0.08), "fierro")
+    for j, z in enumerate((0.2, 0.8)):
+        k.caja((0, 2.2, z), (ancho - 0.8, 0.02, 0.02), "cable")
+        for i in range(5):
+            x = -hx + 1.0 + i * (ancho - 2.0) / 4
+            k.caja((x, 1.85, z), (0.55, 0.7, 0.02), ropa[(i + j * 2 + len(nombre)) % len(ropa)])
+    # Cubetas y una silla de plastico
+    k.cilindro((0.5, 0.0, -hz + 0.6), 0.18, 0.35, "lona_rojo", lados=6)
+    k.cilindro((1.0, 0.0, -hz + 0.5), 0.18, 0.35, "azul_gela", lados=6)
+    k.caja((hx - 1.2, 0.22, hz - 1.0), (0.42, 0.44, 0.42), "rojo")
+    return k
+
+
+def escalera(nombre, p):
+    """Escalera de fierro pegada a la fachada, de la banqueta a la azotea: sube a lo largo de x
+    (hacia +x, o -x con "sentido": -1), de ancho en z (de z = 0 hacia +z, la calle). Su choque es
+    una rampa (Constructor.rampas): el CharacterBody3D no sube escalones."""
+    k = Constructor(nombre)
+    alto = p.get("alto", 5.55)
+    ancho = p.get("ancho", 1.0)
+    sentido = p.get("sentido", 1)
+    escalones = max(4, round(alto / 0.26))      # unos 40 grados: a 43 apenas se subia (el piso llega a 45)
+    paso = 0.3
+    largo = escalones * paso
+    subida = alto / escalones
+    for i in range(escalones):
+        x = sentido * (i + 0.5) * paso
+        k.caja((x, (i + 1) * subida - 0.03, ancho / 2), (paso, 0.06, ancho), "fierro")
+    # Zancas y barandal (por el lado de la calle), como planos inclinados
+    for z in (0.02, ancho - 0.02):
+        x1 = sentido * largo
+        k.cara([(0, 0, z), (x1, alto, z), (x1, alto - 0.25, z), (0, -0.25, z)][::sentido], "fierro")
+        k.cara([(0, -0.25, z), (x1, alto - 0.25, z), (x1, alto, z), (0, 0, z)][::sentido], "fierro")
+    for i in range(0, escalones + 1, 3):
+        x = sentido * i * paso
+        k.caja((x, i * subida + 0.5, ancho - 0.03), (0.05, 1.0, 0.05), "fierro")
+    x1 = sentido * largo
+    k.cara([(0, 1.0, ancho - 0.03), (x1, alto + 1.0, ancho - 0.03), (x1, alto + 0.95, ancho - 0.03), (0, 0.95, ancho - 0.03)][::sentido], "fierro")
+    k.cara([(0, 0.95, ancho - 0.03), (x1, alto + 0.95, ancho - 0.03), (x1, alto + 1.0, ancho - 0.03), (0, 1.0, ancho - 0.03)][::sentido], "fierro")
+    # Rampa de choque: de la banqueta (un poco antes del primer escalon) a la orilla de la azotea
+    x0, x1 = -sentido * 0.3, sentido * (largo + 0.2)
+    k.rampas.append([(x0, 0.0, 0.0), (x0, 0.0, ancho), (x1, alto, 0.0), (x1, alto, ancho),
+                     (x1, alto - 0.3, 0.0), (x1, alto - 0.3, ancho), (x0, -0.3, 0.0), (x0, -0.3, ancho)])
+    return k
+
+
+def tablon(nombre, p):
+    """Tablon de una azotea a otra por encima de un callejon (a lo largo de x), con su choque."""
+    k = Constructor(nombre)
+    largo, ancho = p.get("largo", 4.0), p.get("ancho", 0.6)
+    k.caja((0, -0.03, 0), (largo, 0.06, ancho), "foto_madera", choca=True)
+    for z in (-ancho / 3, ancho / 3):
+        k.caja((0, -0.08, z), (largo, 0.05, 0.08), "foto_madera")
+    return k
+
+
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
-          "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio}
+          "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
+          "cancha": cancha, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "escalera": escalera, "tablon": tablon}

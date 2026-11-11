@@ -12,6 +12,8 @@ const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 const FACHADA_SHADER := preload("res://shaders/ps1_fachada_kit.gdshader")
 const FACADE_SHADER := preload("res://shaders/ps1_facade.gdshader")
 const GROUND_SHADER := preload("res://shaders/ps1_suelo.gdshader")
+# Murales (grafitis y propaganda): descarta lo transparente y no tiene culling, como Calcomanias
+const MURAL_SHADER := preload("res://shaders/ps1_casa.gdshader")
 const SUELO_PASTO := preload("res://scripts/map/SueloPasto.gd")
 
 const CUADRO := 64.0
@@ -23,7 +25,8 @@ const PISOS := {
 	"banqueta": ["res://textures/map/banqueta.png", 3.0, 0, 2],
 	"empedrado": ["res://textures/map/empedrado.png", 2.5, 0, 3],
 	"pasto_seco": ["res://textures/map/pasto_seco.png", 2.5, 2, 0],
-	"tierra": ["res://textures/map/suelo.png", 3.0, 0, 0],
+	# Tierra seca de los baldios (dibujada en tools/blender/mapa/kit.py _tierra)
+	"tierra": ["res://textures/mapa/tierra.png", 2.0, 0, 0],
 	# La plaza empedrada (foto del kit, tools/blender/mapa/kit.py "piedra_plaza")
 	"adoquin": ["res://textures/mapa/piedra_plaza.png", 2.0, 0, 3],
 	# Andadores de cantera y jardines de la plaza (pasto parejo, modo 0: con el 2 salia casi todo seco)
@@ -90,7 +93,7 @@ func _post_import(scene: Node) -> Object:
 
 
 func _por_nombre(nombre: String) -> bool:
-	return nombre == "fachada_kit" or nombre == "azotea" or PISOS.has(nombre)
+	return nombre == "fachada_kit" or nombre == "azotea" or nombre == "mural" or PISOS.has(nombre)
 
 
 # La escena importada todavia no esta en el arbol: el transform se arma con los de los padres
@@ -115,6 +118,13 @@ func _material(nombre: String, original: Material) -> Material:
 		material.set_shader_parameter("fachadas", load("res://textures/mapa/fachadas_kit.png"))
 		material.set_shader_parameter("fachadas_mascara", load("res://textures/mapa/fachadas_kit_mascara.png"))
 		material.set_shader_parameter("affine_enabled", false)
+	elif nombre == "mural":
+		material = ShaderMaterial.new()
+		material.shader = MURAL_SHADER
+		material.set_shader_parameter("albedo_texture", load("res://textures/mapa/murales.png"))
+		material.set_shader_parameter("affine_enabled", false)
+		material.set_shader_parameter("wobble_enabled", false)
+		material.set_shader_parameter("jitter_enabled", false)
 	elif nombre == "azotea":
 		material = ShaderMaterial.new()
 		material.shader = FACADE_SHADER

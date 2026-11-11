@@ -64,14 +64,36 @@ func _probar() -> void:
 	quit(_fallas)
 
 
-# Un cuerpo como el del jugador (capsula de 0.4 x 2 m) camina del arroyo a la banqueta: la
-# guarnicion mide 15 cm y su caja de choque es rampa, asi que tiene que subirse y no atorarse.
-# SUBIDA_DESDE/HACIA: de en medio de la calle Pipilingue (Santa Mugre) a la banqueta del norte.
+# Un cuerpo como el del jugador (capsula de 0.4 x 2 m) camina en linea recta: la guarnicion de
+# la banqueta (15 cm) y la escalera de una ruta de azoteas son rampas de choque, porque el
+# CharacterBody3D no sube escalones, asi que tiene que subirse y no atorarse.
+# Banqueta: de en medio de la calle Pipilingue (Santa Mugre) a la banqueta del norte.
 const SUBIDA_DESDE := Vector3(-250.0, 1.1, 328.5)
 const SUBIDA_HACIA := Vector3(0.0, 0.0, -1.0)
+# Escalera: la de la ruta de azoteas de Pipilingue (rutas del .json), de la banqueta hacia arriba
+const ESCALERA := "Ruta_Pipilingue_Escalera"
+const AZOTEA := 5.5         # m: dos pisos (bloqueo.ALTO_AZOTEA)
 
 
 func _subir_banqueta(escena: Node) -> void:
+	var r := await _caminar(escena, SUBIDA_DESDE, SUBIDA_HACIA, 150)
+	_revisar("sube la banqueta", r["subio"] > 0.1 and r["avance"] > 4.0,
+		"subio %.2f m, avanzo %.1f m (hasta %s)" % [r["subio"], r["avance"], r["hasta"]])
+	var colonia: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/blender/mapa/colonias/santa_mugre.json"))
+	for p: Dictionary in colonia["piezas"]:
+		if p["nombre"] != ESCALERA:
+			continue
+		# Su +X local (con su sentido) es hacia donde sube y su +Z da a la calle; se arranca medio
+		# metro antes del primer escalon, a media escalera de ancho
+		var base := Basis(Vector3.UP, float(p["rot"]))
+		var sube := base.x * float(p.get("sentido", 1))
+		var desde := Vector3(p["x"], 1.2, p["z"]) + base.z * 0.5 - sube * 0.8
+		var e := await _caminar(escena, desde, sube, 300)
+		_revisar("sube la escalera a la azotea", e["y_max"] - 1.0 > AZOTEA - 0.4,
+			"llego a %.2f m (azotea a %.2f)" % [e["y_max"] - 1.0, AZOTEA])
+
+
+func _caminar(escena: Node, desde: Vector3, hacia: Vector3, cuadros: int) -> Dictionary:
 	var cuerpo := CharacterBody3D.new()
 	var forma := CollisionShape3D.new()
 	var capsula := CapsuleShape3D.new()
@@ -80,13 +102,13 @@ func _subir_banqueta(escena: Node) -> void:
 	forma.shape = capsula
 	cuerpo.add_child(forma)
 	escena.add_child(cuerpo)
-	cuerpo.global_position = SUBIDA_DESDE
+	cuerpo.global_position = desde
 	var gravedad := float(ProjectSettings.get_setting("physics/3d/default_gravity"))
 	var y_calle := 0.0
 	var y_max := -INF
-	for i in 150:
-		cuerpo.velocity.x = SUBIDA_HACIA.x * 3.0
-		cuerpo.velocity.z = SUBIDA_HACIA.z * 3.0
+	for i in cuadros:
+		cuerpo.velocity.x = hacia.x * 3.0
+		cuerpo.velocity.z = hacia.z * 3.0
 		cuerpo.velocity.y = 0.0 if cuerpo.is_on_floor() else cuerpo.velocity.y - gravedad / 60.0
 		cuerpo.move_and_slide()
 		if i == 20:
@@ -94,12 +116,10 @@ func _subir_banqueta(escena: Node) -> void:
 		if i > 20:
 			y_max = maxf(y_max, cuerpo.global_position.y)
 		await physics_frame
-	var avance := (cuerpo.global_position - SUBIDA_DESDE) * Vector3(1, 0, 1)
-	# Lo mas alto: despues de la banqueta puede volver a bajar por el otro bisel
-	var subio := y_max - y_calle
-	_revisar("sube la banqueta", subio > 0.1 and avance.length() > 4.0,
-		"subio %.2f m, avanzo %.1f m (hasta %s)" % [subio, avance.length(), cuerpo.global_position])
+	var r := {"subio": y_max - y_calle, "y_max": y_max, "hasta": cuerpo.global_position,
+		"avance": ((cuerpo.global_position - desde) * Vector3(1, 0, 1)).length()}
 	cuerpo.queue_free()
+	return r
 
 
 func _revisar(que: String, bien: bool, detalle: String) -> void:

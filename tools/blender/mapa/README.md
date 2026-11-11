@@ -59,11 +59,15 @@ exec(open(R + r"\colonia.py", encoding="utf-8").read(), {"__name__": "colonia", 
   - `edificio`: `puntos` (la huella, relativa a x/z) y `alto`. Con choque.
   - `suelo`: `puntos`, una mancha plana (pasto, baldío). Sin choque.
   - `calle`: `puntos` (el eje), `ancho` y `banqueta`. Pintada sobre el piso, sin choque.
-  - Las piezas del kit llegan con el detalle (paso 4 del plan).
+  - `casa`: una huella con `pisos`, `color` (de `kit.PALETA`), `frente`, `desgaste`, `tienda`; fachada del atlas, pretil, azotea que se camina, tinaco y a veces un mural.
+  - Piezas armadas de `piezas.py`: `kiosco`, `parroquia`, `atrio`, `palacio`, `portal`, `ficus`, `banca`, `jardinera`, `fuente`, `puesto`, `cancha` (futbol rapido con malla y postes de luz), `barda` (de block o lamina, con murales), `lote` (baldio con vida: `taller`, `juegos`, `fonda` o `baldio`), `carro`, `patio` (de atras, con tendederos), `escalera` (de fierro, choque en rampa) y `tablon`.
 - **Marcas.** No van al `.glb`; `scripts/mapa/Colonia.gd` las arma en Godot.
   - `spawn`: donde aparece el jugador.
   - `puerta`: la flecha amarilla de un negocio o casa. Su `giro` es la llave de `Interiores.escenas` y su +Z da a la calle. Sin interior dice "Próximamente".
   - `yonke`: el Yonke de Don Chava (`YonkeMapa`, con su barda), su +Z a la calle.
+- **Rutas** (`rutas`): tramos de frente de calle (`a`, `b`, `lado`, `fondo`) que `bloqueo.py` reserva y llena con una fila de casas de dos pisos con la azotea pareja y una `escalera` en la punta `a`: por ahi se escapa de los zombis de noche.
+- **Callejones:** calles de `empedrado` sin banqueta puestas a mano (con su reserva y un `patio`); `bloqueo.py` les pone casas que les dan el frente.
+- **Murales:** `kit.murales()` junta en `textures/mapa/murales.png` los grafitis y la propaganda de `textures/map/grafitis/` y `textures/map/propaganda/` (se agregan diseños poniendo imagenes ahi y corriendo `murales()` otra vez); las casas y las bardas los pintan.
 - **Negocios.** Van tal cual a `puntos.json`, con el esquema de `MapPuntos` (ver `scripts/map/Safehouse.gd`). Los leen el minimapa, la gente, las misiones y Partida.
 
 ## Probar

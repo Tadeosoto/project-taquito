@@ -47,6 +47,20 @@ def _dentro_poligono(x, z, poligono):
     return c
 
 
+def _cruzan(p1, p2, q1, q2):
+    def lado(a, b, c):
+        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+    return lado(p1, p2, q1) * lado(p1, p2, q2) < 0 and lado(q1, q2, p1) * lado(q1, q2, p2) < 0
+
+
+def _se_enciman(a, b):
+    """Dos poligonos se enciman: un vertice adentro del otro o dos lados que se cruzan (un
+    callejon largo y angosto atraviesa una huella grande sin tener vertices adentro)."""
+    if any(_dentro_poligono(x, z, b) for x, z in a) or any(_dentro_poligono(x, z, a) for x, z in b):
+        return True
+    return any(_cruzan(a[i], a[(i + 1) % len(a)], b[j], b[(j + 1) % len(b)]) for i in range(len(a)) for j in range(len(b)))
+
+
 def _distancia_segmento(px, pz, a, b):
     dx, dz = b[0] - a[0], b[1] - a[1]
     t = max(0.0, min(1.0, ((px - a[0]) * dx + (pz - a[1]) * dz) / (dx * dx + dz * dz or 1.0)))
@@ -160,7 +174,10 @@ def _en_calle(rect, calles):
     return any(_distancia_segmento(x, z, p, q) < medio - 0.3 for x, z in puntos for tramo, medio in calles for p, q in zip(tramo, tramo[1:]))
 
 
-def _rellenar(calles, ocupado, recorte, nuevas):
+def _rellenar(calles, ocupado, recorte, nuevas, filas, callejones_desde):
+    """Pone los lotes del relleno. En `filas` deja cada fila corrida de casas (una pegada a la
+    otra) de cada lado de cada tramo: (casas, p, u, n, medio, es_callejon); de ahi salen las rutas
+    por las azoteas. Las calles desde `callejones_desde` son los callejones puestos a mano."""
     x1, z1, x2, z2 = recorte
     dentro = lambda r: all(x1 + 1.0 < x < x2 - 1.0 and z1 + 1.0 < z < z2 - 1.0 for x, z in r)
     puestos = []
@@ -175,6 +192,7 @@ def _rellenar(calles, ocupado, recorte, nuevas):
             for lado in (1, -1):
                 nx, nz = -uz * lado, ux * lado            # hacia afuera de la calle
                 t = ESQUINA
+                fila, fin = [], None
                 while True:
                     semilla = int(abs(p[0] * 3.1 + p[1] * 7.7 + t * 13.3 + lado * 5)) % 1000
                     frente0 = LOTE_FRENTE[0] + (LOTE_FRENTE[1] - LOTE_FRENTE[0]) * (semilla % 100) / 100
@@ -200,29 +218,100 @@ def _rellenar(calles, ocupado, recorte, nuevas):
                     if puesto:
                         n += 1
                         puestos.append(rect)
+                        # Una fila se corta con un hueco o con un baldio
+                        if fin is None or abs(t - fin) > 0.01 or n % BALDIO_CADA == 0:
+                            if len(fila) > 1:
+                                filas.append((fila, p, (ux, uz), (nx, nz), medio, ic >= callejones_desde))
+                            fila = []
                         if n % BALDIO_CADA == 0:
-                            nuevas.extend(_baldio("Baldio_%d" % n, rect))
+                            nuevas.extend(_baldio("Baldio_%d" % n, rect, VARIANTES_LOTE[(n // BALDIO_CADA) % len(VARIANTES_LOTE)]))
                             baldios += 1
+                            fin = None
                         else:
-                            nuevas.append(_casa("Lote_%d" % n, rect, 0, n))
+                            casa = _casa("Lote_%d" % n, rect, 0, n)
+                            nuevas.append(casa)
+                            fila.append(casa)
                             lotes += 1
+                            fin = t + frente
                         t += frente
                     else:
                         t += 1.0
+                if len(fila) > 1:
+                    filas.append((fila, p, (ux, uz), (nx, nz), medio, ic >= callejones_desde))
     return lotes, baldios
 
 
-def _baldio(nombre, rect):
-    """Lote baldio: tierra y una barda de lamina al frente (lado a-b)."""
+# Rutas por las azoteas ("rutas" del .json, a mano): un tramo de frente de calle de `a` a `b`
+# (puntos en la orilla de la banqueta) con las casas hacia `lado` (1: a la izquierda viendo de a a b;
+# -1: a la derecha) y `fondo` m. Se reserva (las huellas reales de ahi se quitan y el relleno no
+# entra) y se arma una fila corrida de casas de RUTA_PISOS pisos con la azotea pareja, que se camina
+# de punta a punta, y una escalera de fierro desde la banqueta en la punta `a`.
+RUTA_PISOS = 2
+ALTO_AZOTEA = RUTA_PISOS * 2.75 + 0.05     # kit.PISO por piso, mas la losa
+RUTA_FRENTES = (6.0, 8.0)
+
+
+def _banda_ruta(r):
+    (ax, az), (bx, bz) = r["a"], r["b"]
+    largo = math.hypot(bx - ax, bz - az)
+    ux, uz = (bx - ax) / largo, (bz - az) / largo
+    nx, nz = -uz * r.get("lado", 1), ux * r.get("lado", 1)
+    f = r.get("fondo", 10.0)
+    return [(ax, az), (bx, bz), (bx + nx * f, bz + nz * f), (ax + nx * f, az + nz * f)], (ux, uz), (nx, nz), largo
+
+
+def _rutas(rutas, nuevas):
+    escaleras = casas = 0
+    for i, r in enumerate(rutas):
+        banda, (ux, uz), (nx, nz), largo = _banda_ruta(r)
+        (ax, az) = r["a"]
+        f = r.get("fondo", 10.0)
+        t, k = 0.0, 0
+        while t < largo - 3.0:
+            frente = RUTA_FRENTES[0] + (RUTA_FRENTES[1] - RUTA_FRENTES[0]) * ((k * 37 + i * 11) % 10) / 10
+            frente = min(frente, largo - t)
+            a = (ax + ux * t, az + uz * t)
+            b = (a[0] + ux * frente, a[1] + uz * frente)
+            rect = [a, b, (b[0] + nx * f, b[1] + nz * f), (a[0] + nx * f, a[1] + nz * f)]
+            casa = _casa("%s_Casa_%d" % (r["nombre"], k), rect, 0, k + i * 7)
+            casa["pisos"] = RUTA_PISOS
+            nuevas.append(casa)
+            casas += 1
+            t += frente
+            k += 1
+        # Escalera pegada a la fachada en la punta `a`, sobre la banqueta, subiendo hacia `b`
+        giro = math.atan2(-nx, -nz)       # +Z de la escalera hacia la calle
+        eje_x = (math.cos(giro), -math.sin(giro))
+        sentido = 1 if eje_x[0] * ux + eje_x[1] * uz > 0 else -1
+        nuevas.append({"nombre": r["nombre"] + "_Escalera", "tipo": "escalera", "auto": True,
+                       "x": round(ax + ux * 0.4, 2), "z": round(az + uz * 0.4, 2), "rot": round(giro, 4),
+                       "alto": ALTO_AZOTEA, "ancho": 1.0, "sentido": sentido})
+        escaleras += 1
+    return escaleras, casas
+
+
+# Los baldios del relleno se turnan estas variantes (piezas.lote): taller mecanico al aire libre,
+# juegos oxidados, fonda de lona, baldio con basura y barda de lamina
+VARIANTES_LOTE = ["taller", "baldio", "juegos", "fonda"]
+
+
+def _baldio(nombre, rect, variante):
+    """Un lote del relleno que no es casa: la pieza lote (de frente a la calle, lado a-b) y, si es
+    baldio o juegos, su barda de lamina al frente."""
     a, b, c, d = rect
     cx, cz = _centro(rect)
-    mx, mz = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
-    largo = math.hypot(b[0] - a[0], b[1] - a[1])
-    giro = math.atan2(b[0] - a[0], b[1] - a[1]) - math.pi / 2
-    return [{"nombre": nombre, "tipo": "suelo", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
-             "puntos": _relativos(rect, cx, cz), "material": "tierra"},
-            {"nombre": nombre + "_Barda", "tipo": "caja", "auto": True, "x": round(mx, 2), "z": round(mz, 2), "rot": round(giro, 4),
-             "tam": [round(largo, 2), 2.2, 0.12], "color": [0.55, 0.5, 0.42]}]
+    frente = math.hypot(b[0] - a[0], b[1] - a[1])
+    fondo = math.hypot(d[0] - a[0], d[1] - a[1])
+    nx, nz = (d[0] - a[0]) / fondo, (d[1] - a[1]) / fondo      # de la calle hacia el fondo
+    giro = round(math.atan2(-nx, -nz), 4)
+    piezas = [{"nombre": nombre, "tipo": "lote", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
+               "rot": giro, "tam": [round(frente, 2), round(fondo, 2)], "variante": variante}]
+    if variante in ("baldio", "juegos"):
+        mx, mz = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+        piezas.append({"nombre": nombre + "_Barda", "tipo": "barda", "auto": True, "x": round(mx, 2), "z": round(mz, 2),
+                       "rot": giro, "largo": round(frente, 2), "alto": 2.2 if variante == "baldio" else 1.2,
+                       "grueso": 0.12, "material": "foto_lamina_verde", "murales": 70})
+    return piezas
 
 
 def _lado(x, z, recorte):
@@ -237,7 +326,8 @@ def bloquear(nombre):
     datos = leer_colonia(nombre)
     recorte = datos["recorte"]
     x1, z1, x2, z2 = recorte
-    reservas = [r["puntos"] for r in datos.get("reservas", [])]
+    rutas = datos.get("rutas", [])
+    reservas = [r["puntos"] for r in datos.get("reservas", [])] + [_banda_ruta(r)[0] for r in rutas]
     bordes = datos.get("bordes", {})
     calles_osm, areas, huellas = datos_osm(recorte)
     piezas = [p for p in datos.get("piezas", []) if not p.get("auto")]
@@ -267,6 +357,14 @@ def bloquear(nombre):
                                    "x": round(px, 2), "z": round(pz, 2), "rot": round(rot, 4),
                                    "tam": [ancho + 2 * banqueta, alto, 1.2], "color": list(color), "borde": bordes[lado]})
 
+    # Los callejones puestos a mano (calles de empedrado sin banqueta) tambien se rellenan: casas
+    # que les dan el frente, como en una privada
+    callejones = []
+    for p in piezas:
+        if p["tipo"] == "calle" and p.get("material") == "empedrado":
+            tramo = [(p["x"] + x, p["z"] + z) for x, z in p["puntos"]]
+            callejones.append((tramo, p["ancho"] / 2))
+
     verdes = []
     for k, area in enumerate(areas):
         e = area["etiquetas"]
@@ -288,7 +386,7 @@ def bloquear(nombre):
         if _area(h) < HUELLA_MIN:
             quitadas["chica"] += 1
             continue
-        if any(_dentro_poligono(cx, cz, r) for r in reservas):
+        if any(_se_enciman(h, r) for r in reservas):
             quitadas["reserva"] += 1
             continue
         if any(_dentro_poligono(cx, cz, v) for v in verdes):
@@ -300,7 +398,9 @@ def bloquear(nombre):
         nuevas.append(_casa("Casa_%d" % k, h, _frente(h, calles), k))
         ocupado.append(h)
 
-    lotes, baldios = _rellenar(calles, ocupado + reservas + verdes, recorte, nuevas)
+    filas = []
+    lotes, baldios = _rellenar(calles + callejones, ocupado + reservas + verdes, recorte, nuevas, filas, len(calles))
+    escaleras, casas_ruta = _rutas(rutas, nuevas)
 
     # Barda alrededor
     a = BARDA_ADENTRO
@@ -308,16 +408,18 @@ def bloquear(nombre):
                                           "sur": ((x1 + x2) / 2, z2 - a, x2 - x1, BARDA_GRUESO),
                                           "poniente": (x1 + a, (z1 + z2) / 2, BARDA_GRUESO, z2 - z1),
                                           "oriente": (x2 - a, (z1 + z2) / 2, BARDA_GRUESO, z2 - z1)}.items():
-        nuevas.append({"nombre": "Barda_" + lado, "tipo": "caja", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
-                       "tam": [round(ancho, 2), BARDA_ALTO, round(fondo, 2)], "color": [0.62, 0.6, 0.56]})
+        a_lo_largo_x = ancho > fondo
+        nuevas.append({"nombre": "Barda_" + lado, "tipo": "barda", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
+                       "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(max(ancho, fondo), 2),
+                       "alto": BARDA_ALTO, "grueso": BARDA_GRUESO, "murales": 60})
 
     datos["piezas"] = nuevas + piezas
     guardar_json(ruta_colonia(nombre), datos)
     cuenta = {}
     for p in nuevas:
         cuenta[p["tipo"]] = cuenta.get(p["tipo"], 0) + 1
-    print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; %d piezas a mano" % (
-        nombre, cuenta, quitadas, lotes, baldios, len(piezas)))
+    print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; azoteas: %d rutas con %d casas; %d piezas a mano" % (
+        nombre, cuenta, quitadas, lotes, baldios, escaleras, casas_ruta, len(piezas)))
 
 
 if not globals().get("SOLO_FUNCIONES"):

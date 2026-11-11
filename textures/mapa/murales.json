@@ -1,0 +1,418 @@
+{
+	"disenos": [
+		{
+			"archivo": "grafiti_firma_01.png",
+			"tipo": "grafiti",
+			"proporcion": 0.5769230769230769,
+			"uv": [0.0, 0.9479166666666666, 0.1015625, 1.0]
+		},
+		{
+			"archivo": "grafiti_firma_02.png",
+			"tipo": "grafiti",
+			"proporcion": 0.4423076923076923,
+			"uv": [0.125, 0.9600694444444444, 0.2265625, 1.0]
+		},
+		{
+			"archivo": "grafiti_firma_03.png",
+			"tipo": "grafiti",
+			"proporcion": 0.6091954022988506,
+			"uv": [0.25, 0.9539930555555556, 0.3349609375, 1.0]
+		},
+		{
+			"archivo": "grafiti_firma_04.png",
+			"tipo": "grafiti",
+			"proporcion": 0.5619047619047619,
+			"uv": [0.375, 0.9487847222222222, 0.4775390625, 1.0]
+		},
+		{
+			"archivo": "grafiti_firma_05.png",
+			"tipo": "grafiti",
+			"proporcion": 1.9130434782608696,
+			"uv": [0.5, 0.9236111111111112, 0.544921875, 1.0]
+		},
+		{
+			"archivo": "grafiti_firma_06.png",
+			"tipo": "grafiti",
+			"proporcion": 0.34615384615384615,
+			"uv": [0.625, 0.96875, 0.7265625, 1.0]
+		},
+		{
+			"archivo": "grafiti_firma_07.png",
+			"tipo": "grafiti",
+			"proporcion": 0.40384615384615385,
+			"uv": [0.75, 0.9635416666666666, 0.8515625, 1.0]
+		},
+		{
+			"archivo": "grafiti_firma_08.png",
+			"tipo": "grafiti",
+			"proporcion": 0.28846153846153844,
+			"uv": [0.875, 0.9739583333333334, 0.9765625, 1.0]
+		},
+		{
+			"archivo": "grafiti_firma_09.png",
+			"tipo": "grafiti",
+			"proporcion": 0.945054945054945,
+			"uv": [0.0, 0.8142361111111112, 0.0888671875, 0.8888888888888888]
+		},
+		{
+			"archivo": "grafiti_firma_10.png",
+			"tipo": "grafiti",
+			"proporcion": 0.6538461538461539,
+			"uv": [0.125, 0.8298611111111112, 0.2265625, 0.8888888888888888]
+		},
+		{
+			"archivo": "grafiti_firma_11.png",
+			"tipo": "grafiti",
+			"proporcion": 0.3490566037735849,
+			"uv": [0.25, 0.8567708333333334, 0.353515625, 0.8888888888888888]
+		},
+		{
+			"archivo": "grafiti_firma_12.png",
+			"tipo": "grafiti",
+			"proporcion": 0.6442307692307693,
+			"uv": [0.375, 0.8307291666666666, 0.4765625, 0.8888888888888888]
+		},
+		{
+			"archivo": "grafiti_firma_13.png",
+			"tipo": "grafiti",
+			"proporcion": 0.7307692307692307,
+			"uv": [0.5, 0.8229166666666666, 0.6015625, 0.8888888888888888]
+		},
+		{
+			"archivo": "grafiti_firma_14.png",
+			"tipo": "grafiti",
+			"proporcion": 1.162162162162162,
+			"uv": [0.625, 0.8142361111111112, 0.697265625, 0.8888888888888888]
+		},
+		{
+			"archivo": "grafiti_firma_15.png",
+			"tipo": "grafiti",
+			"proporcion": 0.2692307692307692,
+			"uv": [0.75, 0.8645833333333334, 0.8515625, 0.8888888888888888]
+		},
+		{
+			"archivo": "grafiti_firma_16.png",
+			"tipo": "grafiti",
+			"proporcion": 0.49038461538461536,
+			"uv": [0.875, 0.8446180555555556, 0.9765625, 0.8888888888888888]
+		},
+		{
+			"archivo": "grafiti_firma_17.png",
+			"tipo": "grafiti",
+			"proporcion": 0.85,
+			"uv": [0.0, 0.7039930555555556, 0.09765625, 0.7777777777777778]
+		},
+		{
+			"archivo": "grafiti_firma_18.png",
+			"tipo": "grafiti",
+			"proporcion": 0.33653846153846156,
+			"uv": [0.125, 0.7473958333333333, 0.2265625, 0.7777777777777778]
+		},
+		{
+			"archivo": "grafiti_firma_19.png",
+			"tipo": "grafiti",
+			"proporcion": 0.3047619047619048,
+			"uv": [0.25, 0.75, 0.3525390625, 0.7777777777777778]
+		},
+		{
+			"archivo": "grafiti_firma_20.png",
+			"tipo": "grafiti",
+			"proporcion": 0.7254901960784313,
+			"uv": [0.375, 0.7135416666666667, 0.474609375, 0.7777777777777778]
+		},
+		{
+			"archivo": "grafiti_firma_21.png",
+			"tipo": "grafiti",
+			"proporcion": 0.6893203883495146,
+			"uv": [0.5, 0.7161458333333333, 0.6005859375, 0.7777777777777778]
+		},
+		{
+			"archivo": "grafiti_firma_22.png",
+			"tipo": "grafiti",
+			"proporcion": 1.0365853658536586,
+			"uv": [0.625, 0.7039930555555556, 0.705078125, 0.7777777777777778]
+		},
+		{
+			"archivo": "grafiti_firma_23.png",
+			"tipo": "grafiti",
+			"proporcion": 0.42857142857142855,
+			"uv": [0.75, 0.7387152777777778, 0.8525390625, 0.7777777777777778]
+		},
+		{
+			"archivo": "grafiti_firma_24.png",
+			"tipo": "grafiti",
+			"proporcion": 1.0941176470588236,
+			"uv": [0.875, 0.6970486111111112, 0.9580078125, 0.7777777777777778]
+		},
+		{
+			"archivo": "grafiti_firma_25.png",
+			"tipo": "grafiti",
+			"proporcion": 0.67,
+			"uv": [0.0, 0.6085069444444444, 0.09765625, 0.6666666666666667]
+		},
+		{
+			"archivo": "grafiti_firma_26.png",
+			"tipo": "grafiti",
+			"proporcion": 0.3106796116504854,
+			"uv": [0.125, 0.6388888888888888, 0.2255859375, 0.6666666666666667]
+		},
+		{
+			"archivo": "grafiti_firma_27.png",
+			"tipo": "grafiti",
+			"proporcion": 0.5673076923076923,
+			"uv": [0.25, 0.6154513888888888, 0.3515625, 0.6666666666666667]
+		},
+		{
+			"archivo": "grafiti_firma_28.png",
+			"tipo": "grafiti",
+			"proporcion": 0.638095238095238,
+			"uv": [0.375, 0.6085069444444444, 0.4775390625, 0.6666666666666667]
+		},
+		{
+			"archivo": "grafiti_firma_29.png",
+			"tipo": "grafiti",
+			"proporcion": 0.82,
+			"uv": [0.5, 0.5954861111111112, 0.59765625, 0.6666666666666667]
+		},
+		{
+			"archivo": "grafiti_firma_30.png",
+			"tipo": "grafiti",
+			"proporcion": 1.4098360655737705,
+			"uv": [0.625, 0.5920138888888888, 0.6845703125, 0.6666666666666667]
+		},
+		{
+			"archivo": "grafiti_firma_31.png",
+			"tipo": "grafiti",
+			"proporcion": 1.125,
+			"uv": [0.75, 0.5885416666666667, 0.828125, 0.6666666666666667]
+		},
+		{
+			"archivo": "grafiti_firma_32.png",
+			"tipo": "grafiti",
+			"proporcion": 0.8173076923076923,
+			"uv": [0.875, 0.5928819444444444, 0.9765625, 0.6666666666666667]
+		},
+		{
+			"archivo": "grafiti_hoja_01.png",
+			"tipo": "grafiti",
+			"proporcion": 0.5702479338842975,
+			"uv": [0.0, 0.4956597222222222, 0.1181640625, 0.5555555555555556]
+		},
+		{
+			"archivo": "grafiti_hoja_02.png",
+			"tipo": "grafiti",
+			"proporcion": 0.390625,
+			"uv": [0.125, 0.5121527777777778, 0.25, 0.5555555555555556]
+		},
+		{
+			"archivo": "grafiti_hoja_03.png",
+			"tipo": "grafiti",
+			"proporcion": 0.3828125,
+			"uv": [0.25, 0.5130208333333333, 0.375, 0.5555555555555556]
+		},
+		{
+			"archivo": "grafiti_hoja_04.png",
+			"tipo": "grafiti",
+			"proporcion": 0.46825396825396826,
+			"uv": [0.375, 0.5043402777777778, 0.498046875, 0.5555555555555556]
+		},
+		{
+			"archivo": "grafiti_hoja_05.png",
+			"tipo": "grafiti",
+			"proporcion": 0.9,
+			"uv": [0.5, 0.4618055555555556, 0.6171875, 0.5555555555555556]
+		},
+		{
+			"archivo": "grafiti_hoja_06.png",
+			"tipo": "grafiti",
+			"proporcion": 0.47580645161290325,
+			"uv": [0.625, 0.5043402777777778, 0.74609375, 0.5555555555555556]
+		},
+		{
+			"archivo": "grafiti_hoja_07.png",
+			"tipo": "grafiti",
+			"proporcion": 0.5234375,
+			"uv": [0.75, 0.49739583333333337, 0.875, 0.5555555555555556]
+		},
+		{
+			"archivo": "grafiti_hoja_08.png",
+			"tipo": "grafiti",
+			"proporcion": 0.8264462809917356,
+			"uv": [0.875, 0.46875, 0.9931640625, 0.5555555555555556]
+		},
+		{
+			"archivo": "grafiti_hoja_09.png",
+			"tipo": "grafiti",
+			"proporcion": 0.6016260162601627,
+			"uv": [0.0, 0.38020833333333337, 0.1201171875, 0.4444444444444444]
+		},
+		{
+			"archivo": "grafiti_hoja_10.png",
+			"tipo": "grafiti",
+			"proporcion": 0.49166666666666664,
+			"uv": [0.125, 0.39322916666666663, 0.2421875, 0.4444444444444444]
+		},
+		{
+			"archivo": "grafiti_hoja_11.png",
+			"tipo": "grafiti",
+			"proporcion": 0.40625,
+			"uv": [0.25, 0.3993055555555556, 0.375, 0.4444444444444444]
+		},
+		{
+			"archivo": "grafiti_hoja_12.png",
+			"tipo": "grafiti",
+			"proporcion": 0.4065040650406504,
+			"uv": [0.375, 0.40104166666666663, 0.4951171875, 0.4444444444444444]
+		},
+		{
+			"archivo": "grafiti_hoja_13.png",
+			"tipo": "grafiti",
+			"proporcion": 0.6410256410256411,
+			"uv": [0.5, 0.3793402777777778, 0.6142578125, 0.4444444444444444]
+		},
+		{
+			"archivo": "grafiti_hoja_14.png",
+			"tipo": "grafiti",
+			"proporcion": 0.4838709677419355,
+			"uv": [0.625, 0.39236111111111116, 0.74609375, 0.4444444444444444]
+		},
+		{
+			"archivo": "grafiti_hoja_15.png",
+			"tipo": "grafiti",
+			"proporcion": 0.5462184873949579,
+			"uv": [0.75, 0.38802083333333337, 0.8662109375, 0.4444444444444444]
+		},
+		{
+			"archivo": "grafiti_hoja_16.png",
+			"tipo": "grafiti",
+			"proporcion": 0.421875,
+			"uv": [0.875, 0.3975694444444444, 1.0, 0.4444444444444444]
+		},
+		{
+			"archivo": "grafiti_hoja_17.png",
+			"tipo": "grafiti",
+			"proporcion": 0.6293103448275862,
+			"uv": [0.0, 0.2699652777777778, 0.11328125, 0.33333333333333337]
+		},
+		{
+			"archivo": "grafiti_hoja_18.png",
+			"tipo": "grafiti",
+			"proporcion": 0.6581196581196581,
+			"uv": [0.125, 0.2664930555555556, 0.2392578125, 0.33333333333333337]
+		},
+		{
+			"archivo": "grafiti_hoja_19.png",
+			"tipo": "grafiti",
+			"proporcion": 0.6271186440677966,
+			"uv": [0.25, 0.2690972222222222, 0.365234375, 0.33333333333333337]
+		},
+		{
+			"archivo": "grafiti_hoja_20.png",
+			"tipo": "grafiti",
+			"proporcion": 0.4330708661417323,
+			"uv": [0.375, 0.2855902777777778, 0.4990234375, 0.33333333333333337]
+		},
+		{
+			"archivo": "grafiti_hoja_21.png",
+			"tipo": "grafiti",
+			"proporcion": 0.384,
+			"uv": [0.5, 0.29166666666666663, 0.6220703125, 0.33333333333333337]
+		},
+		{
+			"archivo": "grafiti_hoja_22.png",
+			"tipo": "grafiti",
+			"proporcion": 0.4921875,
+			"uv": [0.625, 0.27864583333333337, 0.75, 0.33333333333333337]
+		},
+		{
+			"archivo": "grafiti_hoja_23.png",
+			"tipo": "grafiti",
+			"proporcion": 0.7203389830508474,
+			"uv": [0.75, 0.25954861111111116, 0.865234375, 0.33333333333333337]
+		},
+		{
+			"archivo": "grafiti_hoja_24.png",
+			"tipo": "grafiti",
+			"proporcion": 0.45,
+			"uv": [0.875, 0.28645833333333337, 0.9921875, 0.33333333333333337]
+		},
+		{
+			"archivo": "grafiti_hoja_25.png",
+			"tipo": "grafiti",
+			"proporcion": 0.512,
+			"uv": [0.0, 0.16666666666666663, 0.1220703125, 0.2222222222222222]
+		},
+		{
+			"archivo": "propaganda_foto_arrolladora.png",
+			"tipo": "propaganda",
+			"proporcion": 0.2265625,
+			"uv": [0.125, 0.19704861111111116, 0.25, 0.2222222222222222]
+		},
+		{
+			"archivo": "propaganda_foto_bailazo.png",
+			"tipo": "propaganda",
+			"proporcion": 0.6015625,
+			"uv": [0.25, 0.15538194444444442, 0.375, 0.2222222222222222]
+		},
+		{
+			"archivo": "propaganda_foto_cadetes.png",
+			"tipo": "propaganda",
+			"proporcion": 0.3828125,
+			"uv": [0.375, 0.1796875, 0.5, 0.2222222222222222]
+		},
+		{
+			"archivo": "propaganda_foto_eliomx.png",
+			"tipo": "propaganda",
+			"proporcion": 0.3203125,
+			"uv": [0.5, 0.18663194444444442, 0.625, 0.2222222222222222]
+		},
+		{
+			"archivo": "propaganda_foto_llamaradas.png",
+			"tipo": "propaganda",
+			"proporcion": 0.28125,
+			"uv": [0.625, 0.1909722222222222, 0.75, 0.2222222222222222]
+		},
+		{
+			"archivo": "propaganda_foto_transfobia.png",
+			"tipo": "propaganda",
+			"proporcion": 0.703125,
+			"uv": [0.75, 0.1440972222222222, 0.875, 0.2222222222222222]
+		},
+		{
+			"archivo": "propaganda_garrafon.png",
+			"tipo": "propaganda",
+			"proporcion": 0.5,
+			"uv": [0.875, 0.16666666666666663, 1.0, 0.2222222222222222]
+		},
+		{
+			"archivo": "propaganda_gela_pagaste.png",
+			"tipo": "propaganda",
+			"proporcion": 0.5,
+			"uv": [0.0, 0.05555555555555558, 0.125, 0.11111111111111116]
+		},
+		{
+			"archivo": "propaganda_gela_tomas.png",
+			"tipo": "propaganda",
+			"proporcion": 0.5,
+			"uv": [0.125, 0.05555555555555558, 0.25, 0.11111111111111116]
+		},
+		{
+			"archivo": "propaganda_lazcano.png",
+			"tipo": "propaganda",
+			"proporcion": 0.5,
+			"uv": [0.25, 0.05555555555555558, 0.375, 0.11111111111111116]
+		},
+		{
+			"archivo": "propaganda_se_busca.png",
+			"tipo": "propaganda",
+			"proporcion": 0.5,
+			"uv": [0.375, 0.05555555555555558, 0.5, 0.11111111111111116]
+		},
+		{
+			"archivo": "propaganda_toque_queda.png",
+			"tipo": "propaganda",
+			"proporcion": 0.5,
+			"uv": [0.5, 0.05555555555555558, 0.625, 0.11111111111111116]
+		}
+	]
+}
