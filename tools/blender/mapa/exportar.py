@@ -13,7 +13,7 @@ import bpy
 import os
 
 _k = {"__name__": "colonia", "SOLO_FUNCIONES": True}
-exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\mapa\colonia.py", encoding="utf-8").read(), _k)
+exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "colonia.py"), encoding="utf-8").read(), _k)
 globals().update({k: v for k, v in _k.items() if not k.startswith("__") and k != "SOLO_FUNCIONES"})
 
 
@@ -22,7 +22,7 @@ def casas_juego(datos):
     visitar; Partida: las de obra negra), con su frente hacia la calle."""
     casas = []
     for p in datos.get("piezas", []):
-        if p["tipo"] != "casa":
+        if p["tipo"] not in ("casa", "casa_psm"):
             continue
         a, b, (cx, cz), (nx, nz), fondo = frente_de(p)
         casas.append({"modelo": "blender", "x": round(cx, 2), "z": round(cz, 2), "rotacion_y": round(math.atan2(nx, nz), 4),
@@ -83,7 +83,10 @@ def exportar(nombre):
     bpy.data.libraries.write(os.path.join(carpeta, nombre + ".blend"), {sc}, fake_user=True, compress=True)
 
     datos_dir = os.path.join(DATOS, nombre)
-    guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "marcas": datos.get("marcas", [])})
+    marcas = {"colonia": nombre, "marcas": datos.get("marcas", [])}
+    if "deterioro" in datos:
+        marcas["deterioro"] = datos["deterioro"]
+    guardar_json(os.path.join(datos_dir, "marcas.json"), marcas)
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", [])})
     guardar_json(os.path.join(datos_dir, "alumbrado.json"), {"postes": datos.get("postes", [])})
     guardar_json(os.path.join(datos_dir, "casas.json"), {"casas": casas_juego(datos)})

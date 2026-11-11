@@ -40,9 +40,17 @@ func _enter_tree() -> void:
 		push_warning("Colonia: no se pudo leer %s" % marcas_path)
 		return
 	_marcas = datos.get("marcas", [])
+	# El deterioro de la colonia ("deterioro" de su .json), en lugar del de project.godot: aqui, antes
+	# de los _ready de los que lo leen (Deterioro.zona: alumbrado, casas, zombis)
+	if datos.has("deterioro"):
+		Deterioro.configurar(float(datos["deterioro"]), Deterioro._setting("deterioro_escala", 150.0))
 	for marca: Dictionary in _marcas:
 		if marca.get("tipo") == "spawn":
 			_spawn(marca)
+
+
+func _exit_tree() -> void:
+	Deterioro.configurar(Deterioro._setting("deterioro", 0.8), Deterioro._setting("deterioro_escala", 150.0))
 
 
 func _ready() -> void:

@@ -15,10 +15,11 @@
 #   "bordes": {"norte"|"sur"|"oriente"|"poniente": "gela"|"barda"|"derrumbe"|"camion"}
 #            el tapon de las calles que salen por ese lado (norte = z chica)
 
+import os
 import math
 
 _r = {"__name__": "referencia", "SOLO_FUNCIONES": True}
-exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\mapa\referencia.py", encoding="utf-8").read(), _r)
+exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "referencia.py"), encoding="utf-8").read(), _r)
 globals().update({k: v for k, v in _r.items() if not k.startswith("__") and k != "SOLO_FUNCIONES"})
 
 # Calles de un sentido de las avenidas: dos arroyos juntos con camellon (OSM les da el ancho
@@ -537,12 +538,16 @@ def bloquear(nombre):
     tapan = [p for p in piezas if p["tipo"] == "puesto" and any(math.hypot(p["x"] - m["x"], p["z"] - m["z"]) < PUESTO_LIBRE for m in marcas)]
     piezas = [p for p in piezas if p not in tapan]
     datos["piezas"] = nuevas + piezas
+    # Algunas casas con la casa base de Parques de Santa Maria (sustituir_psm.py), ya con las puertas puestas
+    psm = {"__name__": "sustituir_psm"}
+    exec(open(os.path.join(MAPA, "sustituir_psm.py"), encoding="utf-8").read(), psm)
+    cambiadas, casas_psm, _cocheras, _quitados = psm["sustituir"](datos)
     guardar_json(ruta_colonia(nombre), datos)
     cuenta = {}
     for p in nuevas:
         cuenta[p["tipo"]] = cuenta.get(p["tipo"], 0) + 1
-    print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; azoteas: %d rutas con %d casas; %d postes; %d negocios; %d piezas a mano" % (
-        nombre, cuenta, quitadas, lotes, baldios, escaleras, casas_ruta, len(datos["postes"]), len(datos["negocios"]), len(piezas)))
+    print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; azoteas: %d rutas con %d casas; %d postes; %d negocios; %d piezas a mano; %d casas -> %d casas PSM" % (
+        nombre, cuenta, quitadas, lotes, baldios, escaleras, casas_ruta, len(datos["postes"]), len(datos["negocios"]), len(piezas), cambiadas, casas_psm))
 
 
 if not globals().get("SOLO_FUNCIONES"):
