@@ -418,8 +418,28 @@ def atrio(nombre, p):
             k.cono((x, alto, hz), 0.3, 0.4, "foto_cantera_rosa", lados=4)
             if alto > 3:
                 k.esfera((x, alto + 0.7, hz), 0.3, "farol", seg=6, anillos=4)
-    for i in range(9):
-        k.caja((-hx + 1.0 + i * 0.45, 0.1, hz + 0.5 + (i % 2) * 0.2), (0.12, 0.2, 0.12), "veladora")
+    # Veladoras al pie de la reja: vasos con su flama, la mitad con el tinaco impreso (una franja
+    # negra), y en medio el tinaquito de yeso de la Virgen con flores
+    for i in range(13):
+        x, z = -hx + 0.9 + i * 0.32, hz + 0.45 + (i % 3) * 0.14
+        alto = 0.16 + (i % 2) * 0.08
+        k.cilindro((x, 0.0, z), 0.05, alto, "veladora", lados=6)
+        k.esfera((x, alto + 0.03, z), 0.025, "farol", seg=4, anillos=3)
+        if i % 2 == 0:
+            k.caja((x, alto * 0.55, z + 0.045), (0.06, 0.04, 0.01), "tinaco")
+    tx = -hx + 0.9 + 6 * 0.32
+    k.caja((tx, 0.12, hz + 0.95), (0.5, 0.24, 0.4), "foto_cantera_rosa")
+    k.cilindro((tx, 0.24, hz + 0.95), 0.15, 0.3, "tinaco", lados=8)
+    k.cono((tx, 0.54, hz + 0.95), 0.16, 0.08, "tinaco", lados=8)
+    for j, col in enumerate(("lona_rosa", "lona_amarillo", "lona_rojo", "blanco_cal")):
+        k.esfera((tx - 0.3 + j * 0.2, 0.12, hz + 1.25), 0.07, col, seg=5, anillos=3)
+    # Estampitas pegadas en la reja de los dos lados de la entrada
+    for lado in (-1, 1):
+        for i in range(7):
+            x = lado * (puerta / 2 + 0.95 + i * 0.32)
+            y = 1.15 + (i % 3) * 0.13
+            k.caja((x, y, hz + 0.04), (0.12, 0.17, 0.01), ("blanco_cal", "lona_azul", "lona_amarillo")[i % 3])
+            k.caja((x, y, hz + 0.05), (0.05, 0.06, 0.005), "tinaco")
     return k
 
 

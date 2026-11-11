@@ -21,8 +21,9 @@ extends Node3D
 #   ninos   chamacos jugando futbolito de dia (NinosCancha) en un rectangulo "tam" [ancho, largo]
 #           alrededor de la marca, "cuantos"
 #   vecino  un civil parado ahi de dia (los guardias del reten de GelA): "clip" (Idle por
-#           omision), "modelo" de Civiles (o uno fijo por su nombre) y "uniforme" ("gela":
-#           chaleco y gorra azules, UniformeGela); de noche no esta
+#           omision), "modelo" de Civiles (o uno fijo por su nombre), "uniforme" ("gela":
+#           chaleco y gorra azules, UniformeGela), "escala" (un nino) y "garrafon" (uno a sus
+#           pies); de noche no esta
 #   trampa  un lugar iluminado que de noche atrae zombis si estas adentro (LuzTrampa): "tam"
 #           [ancho, largo] y "radio" m
 #   letrero  un letrero de texto ("texto") viendo a su +Z, como el de las puertas (el mercado)
@@ -232,9 +233,34 @@ func _vecino(marca: Dictionary) -> void:
 	add_child(nodo)
 	var modelo := String(marca.get("modelo", Civiles.elegir(nodo.name)))
 	Civiles.poner(nodo, modelo, String(marca.get("clip", "Idle")))
+	nodo.scale = Vector3.ONE * float(marca.get("escala", 1.0))
 	if marca.get("uniforme", "") == "gela":
 		UniformeGela.vestir(nodo)
+	if marca.get("garrafon", false):
+		nodo.add_child(_garrafon())
 	_de_dia.append(nodo)
+
+
+static var _malla_garrafon: CylinderMesh
+
+
+# El garrafon azul de 20 L a los pies (la fila del agua): una malla compartida
+static func _garrafon() -> MeshInstance3D:
+	if _malla_garrafon == null:
+		_malla_garrafon = CylinderMesh.new()
+		_malla_garrafon.top_radius = 0.12
+		_malla_garrafon.bottom_radius = 0.15
+		_malla_garrafon.height = 0.48
+		_malla_garrafon.radial_segments = 8
+		_malla_garrafon.rings = 1
+		var material := StandardMaterial3D.new()
+		material.albedo_color = Color(0.3, 0.55, 0.9)
+		_malla_garrafon.material = material
+	var garrafon := MeshInstance3D.new()
+	garrafon.mesh = _malla_garrafon
+	# A un lado de los pies (el civil ve a -Z de su nodo)
+	garrafon.position = Vector3(0.35, 0.24, 0.0)
+	return garrafon
 
 
 func _botin(marca: Dictionary) -> void:
