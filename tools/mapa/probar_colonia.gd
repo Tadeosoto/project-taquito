@@ -60,6 +60,7 @@ func _probar() -> void:
 		_revisar("sale frente a la puerta", interiores.get("_interior") == null and d < 0.6,
 			"jugador en %s, esperado %s" % [jugador.global_position, esperado])
 	await _subir_banqueta(escena)
+	await _casa(escena)
 	await _vida(escena)
 	print("RESULTADO: %s" % ("BIEN" if _fallas == 0 else "%d FALLAS" % _fallas))
 	quit(_fallas)
@@ -121,6 +122,27 @@ func _caminar(escena: Node, desde: Vector3, hacia: Vector3, cuadros: int) -> Dic
 		"avance": ((cuerpo.global_position - desde) * Vector3(1, 0, 1)).length()}
 	cuerpo.queue_free()
 	return r
+
+
+# La casa del jugador (la de JJ, CasaPropia.gd): pisar su flecha te mete (500 m arriba), adentro
+# no hay pelea ni dano, y su flecha de adentro te saca frente a la de la calle
+func _casa(escena: Node) -> void:
+	var casa := escena.get_node_or_null("Colonia/CasaPropia")
+	_revisar("esta la casa propia", casa != null, "")
+	if casa == null:
+		return
+	var jugador := escena.get_node("Player") as Player
+	jugador.global_position = (casa.get("flecha_en") as Vector3) + Vector3.UP * 1.2
+	await _cuadros(120)
+	_revisar("la flecha mete a la casa", jugador.global_position.y > 400.0 and jugador.sin_combate,
+		"jugador en %s, sin combate: %s" % [jugador.global_position, jugador.sin_combate])
+	var vida: int = root.get_node("Salud").vida
+	jugador.recibir_dano(30, jugador.global_position + Vector3.FORWARD)
+	_revisar("adentro no hay dano", root.get_node("Salud").vida == vida, "")
+	casa.call("_salir")
+	await _cuadros(90)
+	_revisar("sale de la casa", jugador.global_position.y < 10.0 and not jugador.sin_combate,
+		"jugador en %s" % jugador.global_position)
 
 
 # Lo de juego de la colonia (paso 5): una pieza del mapa, gente en las banquetas, quien da

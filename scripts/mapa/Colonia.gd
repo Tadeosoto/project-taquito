@@ -11,8 +11,11 @@ extends Node3D
 #   puerta  la flecha amarilla de un negocio o casa: al pisarla emite MapPuntos.entrar_negocio
 #           con su giro, igual que YonkeMapa; su +Z da a la calle (ahi te deja Interiores al salir)
 #   yonke   El Yonke de Don Chava (YonkeMapa, con su barda), con su +Z a la calle
+#   casa_propia  la flecha de la casa del jugador (CasaPropia, la casa de JJ que se camina)
 
 const PUERTA_RADIO := 0.8
+const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
+const CASA_ESCENA := "res://scenes/casa_personaje.tscn"
 # Letrero del negocio: arriba de la puerta y casi contra la fachada (la marca va 0.8 m delante)
 const LETRERO_ALTO := 3.0
 const LETRERO_ATRAS := 0.7
@@ -53,6 +56,8 @@ func _ready() -> void:
 				_puerta(marca)
 			"yonke":
 				_yonke(marca)
+			"casa_propia":
+				_casa_propia(marca)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
@@ -72,6 +77,24 @@ func _spawn(marca: Dictionary) -> void:
 	var mundo := Transform3D(donde.basis, donde.origin + Vector3.UP * 1.2)
 	var padre := jugador.get_parent() as Node3D
 	jugador.transform = padre.global_transform.affine_inverse() * mundo if padre and padre.is_inside_tree() else mundo
+
+
+# La casa del jugador (la de JJ: scenes/casa_personaje.tscn, CasaPropia.gd): se camina, sin
+# pelea, y se entra tambien de noche. Su flecha es la marca (+Z hacia donde te deja al salir)
+func _casa_propia(marca: Dictionary) -> void:
+	var casa: Node = CASA_PROPIA.new()
+	casa.name = "CasaPropia"
+	casa.set("escena", load(CASA_ESCENA))
+	casa.set("flecha_en", Vector3(float(marca["x"]), float(marca.get("y", 0.0)), float(marca["z"])))
+	casa.set("calle_giro", float(marca.get("rot", 0.0)))
+	casa.set("nombre", String(marca.get("texto", "Tu casa")))
+	var jugador := get_node_or_null(jugador_path)
+	if jugador:
+		casa.set("player_path", jugador.get_path())
+	var zombis := get_parent().get_node_or_null("Zombis")
+	if zombis:
+		casa.set("zombis_path", zombis.get_path())
+	add_child(casa)
 
 
 func _yonke(marca: Dictionary) -> void:

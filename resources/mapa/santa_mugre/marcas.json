@@ -17,9 +17,8 @@
 		},
 		{
 			"nombre": "Puerta_casa_jugador",
-			"tipo": "puerta",
-			"giro": "casa_jugador",
-			"texto": "Tu cuarto",
+			"tipo": "casa_propia",
+			"texto": "Tu casa",
 			"x": -212.3,
 			"z": 387.0,
 			"rot": -1.5708
