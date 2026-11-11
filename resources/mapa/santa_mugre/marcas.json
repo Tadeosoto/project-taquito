@@ -401,6 +401,38 @@
 			"x": -332.86,
 			"z": 302.0,
 			"y": 3.53
+		},
+		{
+			"nombre": "Botin_0",
+			"tipo": "botin",
+			"que": "chatarra",
+			"x": -226.61,
+			"z": 454.97,
+			"y": 5.55
+		},
+		{
+			"nombre": "Botin_1",
+			"tipo": "botin",
+			"que": "bolsa",
+			"x": -255.56,
+			"z": 318.86,
+			"y": 5.55
+		},
+		{
+			"nombre": "Botin_2",
+			"tipo": "botin",
+			"que": "curacion",
+			"x": -272.39,
+			"z": 276.86,
+			"y": 5.55
+		},
+		{
+			"nombre": "Botin_3",
+			"tipo": "botin",
+			"que": "chatarra",
+			"x": -402.55,
+			"z": 311.25,
+			"y": 5.55
 		}
 	]
 }

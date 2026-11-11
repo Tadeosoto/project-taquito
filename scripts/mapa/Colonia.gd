@@ -18,6 +18,8 @@ extends Node3D
 #           "alcance" m; se prende de noche con Ciclo.valor()
 #   foco    un foco colgado de un cable en un callejon (los escribe exportar.py, no van en el
 #           .json): luz chica y calida, de noche, y uno de cada FOCO_PARPADEA parpadea
+#   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
+#           (un monton de Chatarra), "bolsa" (Takis con tazo) o "curacion" (tacos o caguama)
 
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
@@ -51,6 +53,8 @@ const FOCO_ENERGIA := 1.6
 const FOCO_ALCANCE := 6.0
 const FOCO_COLOR := Color(1.0, 0.8, 0.5)
 const FOCO_PARPADEA := 4
+const BOTIN_BOLSA := "res://resources/productos/takis_tazo.tres"
+const BOTIN_CURACION := ["res://resources/productos/tacos.tres", "res://resources/productos/caguama.tres"]
 
 
 func _enter_tree() -> void:
@@ -85,6 +89,8 @@ func _ready() -> void:
 				_reflector(marca)
 			"foco":
 				_foco(marca)
+			"botin":
+				_botin(marca)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
@@ -137,6 +143,23 @@ func _foco(marca: Dictionary) -> void:
 	luz.transform = lugar(marca)
 	add_child(luz)
 	_agregar_luz(luz, FOCO_ENERGIA, _reflectores.size() % FOCO_PARPADEA == 1)
+
+
+func _botin(marca: Dictionary) -> void:
+	var que := String(marca.get("que", "chatarra"))
+	var nodo: Node3D
+	if que == "chatarra":
+		nodo = Chatarra.new()
+	else:
+		var ruta: String = BOTIN_BOLSA if que == "bolsa" else BOTIN_CURACION[_marcas.find(marca) % BOTIN_CURACION.size()]
+		nodo = load("res://scripts/WorldItem.gd").new()
+		nodo.set("item_data", load(ruta))
+	nodo.name = String(marca.get("nombre", "Botin"))
+	var t := lugar(marca)
+	if que != "chatarra":
+		t.origin.y += 0.5          # WorldItem se pone a media altura, como los de Partida
+	nodo.transform = t
+	add_child(nodo)
 
 
 func _agregar_luz(luz: Light3D, energia: float, parpadea: bool) -> void:

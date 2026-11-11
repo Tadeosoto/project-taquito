@@ -125,6 +125,7 @@ Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
 11. Casas de ladrillo sin aplanar como en la foto (`casa` con `"acabado": "ladrillo"`: mosaico `LADRILLO` en los muros lisos, color ladrillo alrededor de las ventanas, dalas grises en cada losa y castillos en las esquinas). Cuatro de las de la cancha, y una de cada cinco casas `auto` de dos pisos o mas (`colonia.LADRILLO_CADA`, fijo por nombre).
 12. Reten de GelA en el carril norte de la avenida, frente a la plaza (`Base_GelA`, pieza `base_gela`): caseta blanca y azul, pipa de agua con "Cuida el agua", vallas atravesadas, conos, garrafones y bandera. Cierra medio carril. Los guardias de dia vienen despues (ver preguntas).
 13. Dos negocios nuevos, solo por fuera, con flecha que dice "Proximamente": **Tortilleria La Lupita** en Bahia de Sin Agua junto al tianguis (`tortilleria`: toldo verde, mostrador de azulejo, maquina) y **Abarrotes Doña Mary**, tiendita de cochera en el mirador de la cancha sobre Pelagatos (`tiendita`: toldo rojo, refri de refrescos, el de paletas, rejas). Sus giros `tortilleria` y `tiendita` aun no tienen interior en `Interiores.escenas`.
+14. Botin en las azoteas para el que sube: uno en una casa de cada ruta de azoteas y otro en el mirador de la cancha, turnando chatarra (tiliches), Takis con tazo y tacos o caguama (`colonia.botin_azoteas`, marcas `botin` que escribe `exportar.py` y arma `Colonia.gd`; prueba nueva).
 
 Costo medido con `tools/mapa/medir_colonia.gd` (maquina de AG, de dia), antes de esta noche y despues de los 7 puntos: plaza 293 a 287 fps (primitivas 124k a 228k), tianguis 283 a 278 (195k a 339k), vecindad 287 a 280, avenida 335 a 321, cancha 304 a 298 (llamadas de dibujo 539 a 661). Baja 2-4 % de fps pero casi se doblan las primitivas: **Arreglado (2026-11-11):** los detalles (material `detalle_kit` de las casas y los objetos `Detalle_*` de los callejones, partidos en trozos de 20 m) van en cuadros de 24 m aparte que `MapaPostImport` deja de dibujar a 55 m y que no hacen sombra. Medido despues: plaza 132k primitivas (antes 228k, sin detalles 124k), 560 llamadas, tianguis 206k, cancha 151k; los fps quedan igual.
 
@@ -136,7 +137,7 @@ Ideas que siguen, en orden (del plan de esa noche):
 - Carros abandonados sobre ladrillos (`carro` con `estado`).
 - La fila de la tortilleria (gente de dia, `Gente.gd`) e interiores de los dos negocios nuevos.
 - Mercado techado de lamina.
-- Atajos por patios (huecos en bardas) y botin en azoteas (premia subir).
+- Atajos por patios (huecos en bardas) para perder a los zombis.
 - Fachadas: mas saturadas, salitre y humedad abajo.
 - Suelo: grietas, parches, banquetas rotas por las raices.
 

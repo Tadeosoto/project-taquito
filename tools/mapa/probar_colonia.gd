@@ -235,6 +235,11 @@ const NOCHE_ESPERA := 90.0     # s de noche (cuadros de fisica) para que salga e
 
 func _vida(escena: Node) -> void:
 	var piezas := root.get_tree().get_nodes_in_group("piezas_mapa").size()
+	var botin := 0
+	for n in escena.find_children("Botin_*", "", true, false):
+		if (n as Node3D).global_position.y > 4.0:
+			botin += 1
+	_revisar("hay botin en las azoteas", botin >= 3, "%d" % botin)
 	_revisar("hay pieza del mapa", piezas > 0, "%d" % piezas)
 	var gente := escena.get_node("Gente").get_child_count()
 	_revisar("hay gente en la calle", gente > 0, "%d" % gente)

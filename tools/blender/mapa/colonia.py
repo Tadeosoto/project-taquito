@@ -368,6 +368,35 @@ def _losa(bm, col, p, a, u, lado, dentro, fuera, s0, s1):
 
 
 
+
+BOTIN_TIPOS = ["chatarra", "bolsa", "curacion"]   # Colonia.gd: Chatarra, Takis con tazo, tacos/caguama
+BOTIN_EXTRA = ["Cancha_Mirador"]                   # azoteas fuera de las rutas que tambien llevan
+
+
+def botin_azoteas(datos):
+    """Botin para el que sube: uno en una casa de cada ruta de azoteas (las "Ruta_<nombre>_Casa_n"
+    de bloqueo.py) y en cada casa de BOTIN_EXTRA, turnando BOTIN_TIPOS. Fijo por nombre.
+    [(x, y, z, que), ...]; exportar.py los escribe como marcas "botin"."""
+    rutas = {}
+    casas = {p["nombre"]: p for p in datos.get("piezas", []) if p["tipo"] == "casa"}
+    for nombre in casas:
+        if nombre.startswith("Ruta_") and "_Casa_" in nombre:
+            rutas.setdefault(nombre.split("_Casa_")[0], []).append(nombre)
+    elegidas = []
+    for ruta in sorted(rutas):
+        lista = sorted(rutas[ruta])
+        semilla = sum((i + 1) * ord(ch) for i, ch in enumerate(ruta))
+        elegidas.append(lista[semilla % len(lista)])
+    elegidas += [n for n in BOTIN_EXTRA if n in casas]
+    botin = []
+    for i, nombre in enumerate(elegidas):
+        p = casas[nombre]
+        pts = p["puntos"]
+        cx = p["x"] + sum(q[0] for q in pts) / len(pts)
+        cz = p["z"] + sum(q[1] for q in pts) / len(pts)
+        botin.append((round(cx, 2), round(p.get("pisos", 1) * 2.75 + 0.05, 2), round(cz, 2), BOTIN_TIPOS[i % len(BOTIN_TIPOS)]))
+    return botin
+
 LADRILLO_CADA = 5        # una de cada tantas casas "auto" de dos pisos o mas sale de ladrillo
 
 
