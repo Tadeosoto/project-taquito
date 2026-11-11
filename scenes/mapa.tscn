@@ -20,6 +20,11 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="11_punto"]
 [ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="12_inventario"]
 [ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="13_alumbrado"]
+[ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="14_zombis"]
+[ext_resource type="Script" path="res://scripts/map/Supervivencia.gd" id="15_supervivencia"]
+[ext_resource type="Script" path="res://scripts/map/Partida.gd" id="16_partida"]
+[ext_resource type="Script" path="res://scripts/map/Gente.gd" id="17_gente"]
+[ext_resource type="Resource" path="res://resources/zombis/noche_mapa.tres" id="18_ritmo"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -137,3 +142,28 @@ dron_path = NodePath("../Dron")
 ocultar = Array[NodePath]([NodePath("../Minimapa")])
 
 [node name="InventoryUI" parent="." instance=ExtResource("12_inventario")]
+
+[node name="Zombis" type="Node3D" parent="."]
+script = ExtResource("14_zombis")
+jugador_path = NodePath("../Player")
+ciclo_path = NodePath("../Ciclo")
+ritmo = ExtResource("18_ritmo")
+
+[node name="Supervivencia" type="CanvasLayer" parent="."]
+script = ExtResource("15_supervivencia")
+jugador_path = NodePath("../Player")
+ciclo_path = NodePath("../Ciclo")
+zombis_path = NodePath("../Zombis")
+
+[node name="Partida" type="CanvasLayer" parent="."]
+script = ExtResource("16_partida")
+casas_json = "res://resources/mapa/santa_mugre/casas.json"
+puntos_json = "res://resources/mapa/santa_mugre/puntos.json"
+postes_json = "res://resources/mapa/santa_mugre/alumbrado.json"
+zombis_path = NodePath("../Zombis")
+supervivencia_path = NodePath("../Supervivencia")
+
+[node name="Gente" type="Node3D" parent="."]
+script = ExtResource("17_gente")
+banquetas_path = "res://resources/mapa/santa_mugre/banquetas.json"
+puntos_path = "res://resources/mapa/santa_mugre/puntos.json"

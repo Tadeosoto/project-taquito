@@ -139,6 +139,27 @@ def vacio(col, nombre, x, z, rot, y=0.0, tamano=1.0):
     return ob
 
 
+def frente_de(p):
+    """De una pieza con huella ("puntos" relativos a x/z, "rot", "frente"): las dos esquinas del
+    lado del frente en metros del mundo, el centro, la normal hacia afuera (x, z) y el fondo."""
+    c, s = math.cos(p.get("rot", 0.0)), math.sin(p.get("rot", 0.0))
+    pts = [(p["x"] + x * c + z * s, p["z"] - x * s + z * c) for x, z in p["puntos"]]
+    cx = sum(q[0] for q in pts) / len(pts)
+    cz = sum(q[1] for q in pts) / len(pts)
+    i = p.get("frente", 0) % len(pts)
+    a, b = pts[i], pts[(i + 1) % len(pts)]
+    mx, mz = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+    nx, nz = mx - cx, mz - cz
+    # La normal del lado (no la del centro al medio, que se tuerce en huellas raras)
+    lx, lz = b[0] - a[0], b[1] - a[1]
+    largo = math.hypot(lx, lz) or 1.0
+    px, pz = -lz / largo, lx / largo
+    if px * nx + pz * nz < 0:
+        px, pz = -px, -pz
+    fondo = 2 * abs((mx - cx) * px + (mz - cz) * pz)
+    return a, b, (cx, cz), (px, pz), max(fondo, 3.0)
+
+
 def giro_de_vacio(ob):
     """El giro en y de Godot de un vacio armado por vacio()."""
     return ob.rotation_euler.z

@@ -95,3 +95,10 @@ El recorte se cierra sin paredes invisibles, con cosas que tienen sentido en el 
 3. Las piezas del kit y el detalle.
 4. Las tiendas, la gente, los postes, los zombis.
 5. El cuarto del jugador. 6. Las otras casas.
+
+## Como quedo (2026-11-10)
+
+- **Negocios** (`tiendas` del `.json`, nombres parodiados como todo el juego): OXO (avenida), Tacos La Casa del Taco y Mini Super Santa Mugre (Bahia de Sin Agua), Carnitas Via Mugre y Abarrotes San Ignacio (al norte), Farmacia Mas o Menos Buena, Ferreteria El Clavo y Cremeria La Casita (avenida, lado sur), Vinos y Licores El Ultimo (avenida), Purificadora Gota Pura (punta norte del tianguis) y **El Punto**, que se movio junto al primer callejon porque en su lugar quedo la cancha. Cada uno con su cortina, su letrero y su flecha; los puestos del tianguis se quitan de enfrente de las puertas.
+- **Lo que se agrego despues de la ficha** (pedido de AG): la cancha de futbol rapido en la manzana del noroeste, murales y propaganda de GelA, lotes con vida (taller mecanico, juegos, fonda), seis callejones con su patio, tres rutas por las azoteas con escalera, postes con cables, la vecindad con patio largo y los tapones de los bordes.
+- **En el juego** (`scenes/mapa.tscn`): Ciclo, zombis de noche (`noche_mapa.tres`), Supervivencia, Partida (pieza del mapa, misiones con sus vecinos) y gente en las banquetas.
+

@@ -13,6 +13,11 @@ extends Node3D
 #   yonke   El Yonke de Don Chava (YonkeMapa, con su barda), con su +Z a la calle
 
 const PUERTA_RADIO := 0.8
+# Letrero del negocio: arriba de la puerta y casi contra la fachada (la marca va 0.8 m delante)
+const LETRERO_ALTO := 3.0
+const LETRERO_ATRAS := 0.7
+const LETRERO_LEJOS := 60.0
+const LETRERO_COLOR := Color(1.0, 0.92, 0.55)
 
 @export var modelo: PackedScene
 @export_file("*.json") var marcas_path := ""
@@ -95,7 +100,18 @@ func _puerta(marca: Dictionary) -> void:
 	area.add_child(forma)
 	area.add_child(MapPuntos.flecha())
 	# El mismo civil atiende siempre (Interiores lo lee de aqui)
-	area.set_meta("civil", MapPuntos.civil({"origen": area.name}))
+	area.set_meta("civil", MapPuntos.civil({"origen": texto}))
+	# El letrero arriba de la puerta, contra la fachada (la flecha esta PUERTA_AFUERA delante)
+	if marca.get("letrero", true) and giro != "punto":
+		var letrero := Label3D.new()
+		letrero.text = texto.to_upper()
+		letrero.font_size = 48
+		letrero.pixel_size = 0.01
+		letrero.modulate = LETRERO_COLOR
+		letrero.outline_size = 10
+		letrero.position = Vector3(0.0, LETRERO_ALTO, -LETRERO_ATRAS)
+		letrero.visibility_range_end = LETRERO_LEJOS
+		area.add_child(letrero)
 	add_child(area)
 	area.body_entered.connect(func(cuerpo: Node3D) -> void:
 		if cuerpo is Player and _puntos:

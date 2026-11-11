@@ -60,6 +60,7 @@ func _probar() -> void:
 		_revisar("sale frente a la puerta", interiores.get("_interior") == null and d < 0.6,
 			"jugador en %s, esperado %s" % [jugador.global_position, esperado])
 	await _subir_banqueta(escena)
+	await _vida(escena)
 	print("RESULTADO: %s" % ("BIEN" if _fallas == 0 else "%d FALLAS" % _fallas))
 	quit(_fallas)
 
@@ -120,6 +121,30 @@ func _caminar(escena: Node, desde: Vector3, hacia: Vector3, cuadros: int) -> Dic
 		"avance": ((cuerpo.global_position - desde) * Vector3(1, 0, 1)).length()}
 	cuerpo.queue_free()
 	return r
+
+
+# Lo de juego de la colonia (paso 5): una pieza del mapa, gente en las banquetas, quien da
+# misiones y zombis de noche (despues de la calma del principio, RitmoNoche.calma_inicial)
+const NOCHE_ESPERA := 90.0     # s de noche (cuadros de fisica) para que salga el primero
+
+
+func _vida(escena: Node) -> void:
+	var piezas := root.get_tree().get_nodes_in_group("piezas_mapa").size()
+	_revisar("hay pieza del mapa", piezas > 0, "%d" % piezas)
+	var gente := escena.get_node("Gente").get_child_count()
+	_revisar("hay gente en la calle", gente > 0, "%d" % gente)
+	var npcs := root.get_tree().get_nodes_in_group("npc").size()
+	_revisar("hay quien da misiones", npcs > 0, "%d npc" % npcs)
+	var ciclo := escena.get_node("Ciclo")
+	ciclo.set("_tiempo", float(ciclo.get("dia_duracion")) + 30.0)
+	var zombis := 0
+	for i in int(NOCHE_ESPERA * 60):
+		await physics_frame
+		if i % 60 == 0:
+			zombis = root.get_tree().get_nodes_in_group("zombis").filter(func(z: Node) -> bool: return z.is_inside_tree() and (z as Node3D).visible).size()
+			if zombis > 0:
+				break
+	_revisar("salen zombis de noche", zombis > 0, "%d" % zombis)
 
 
 func _revisar(que: String, bien: bool, detalle: String) -> void:

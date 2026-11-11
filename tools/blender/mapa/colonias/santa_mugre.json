@@ -631,7 +631,8 @@
 			"pisos": 2,
 			"frente": 1,
 			"color": "terracota",
-			"desgaste": 0.47
+			"desgaste": 0.47,
+			"tienda": true
 		},
 		{
 			"nombre": "Casa_27",
@@ -1353,7 +1354,8 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "morado",
-			"desgaste": 0.44
+			"desgaste": 0.44,
+			"tienda": true
 		},
 		{
 			"nombre": "Casa_211",
@@ -1578,7 +1580,8 @@
 			"pisos": 2,
 			"frente": 1,
 			"color": "crema",
-			"desgaste": 0.69
+			"desgaste": 0.69,
+			"tienda": true
 		},
 		{
 			"nombre": "Casa_258",
@@ -1718,7 +1721,8 @@
 			"pisos": 2,
 			"frente": 2,
 			"color": "terracota",
-			"desgaste": 0.57
+			"desgaste": 0.57,
+			"tienda": true
 		},
 		{
 			"nombre": "Casa_275",
@@ -1888,7 +1892,8 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "verde",
-			"desgaste": 0.79
+			"desgaste": 0.79,
+			"tienda": true
 		},
 		{
 			"nombre": "Casa_297",
@@ -3415,7 +3420,8 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "azul",
-			"desgaste": 0.38
+			"desgaste": 0.38,
+			"tienda": true
 		},
 		{
 			"nombre": "Lote_21",
@@ -3517,7 +3523,8 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "azul",
-			"desgaste": 0.7
+			"desgaste": 0.7,
+			"tienda": true
 		},
 		{
 			"nombre": "Baldio_27",
@@ -4008,7 +4015,8 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "terracota",
-			"desgaste": 0.56
+			"desgaste": 0.56,
+			"tienda": true
 		},
 		{
 			"nombre": "Lote_56",
@@ -4076,7 +4084,8 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "mostaza",
-			"desgaste": 0.56
+			"desgaste": 0.56,
+			"tienda": true
 		},
 		{
 			"nombre": "Lote_60",
@@ -4815,7 +4824,8 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "rosa",
-			"desgaste": 0.66
+			"desgaste": 1.0,
+			"tienda": false
 		},
 		{
 			"nombre": "Lote_104",
@@ -5494,7 +5504,8 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "morado",
-			"desgaste": 0.65
+			"desgaste": 0.65,
+			"tienda": true
 		},
 		{
 			"nombre": "Ruta_Avenida_Escalera",
@@ -6274,15 +6285,6 @@
 			"lona": "amarillo"
 		},
 		{
-			"nombre": "Puesto_9",
-			"tipo": "puesto",
-			"x": -277.3,
-			"z": 349.4,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
 			"nombre": "Puesto_10",
 			"tipo": "puesto",
 			"x": -282.96,
@@ -6452,15 +6454,6 @@
 			"rot": 1.5708,
 			"tam": [3.0, 2.2, 2.4],
 			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_29",
-			"tipo": "puesto",
-			"x": -275.23,
-			"z": 407.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
 		},
 		{
 			"nombre": "Puesto_30",
@@ -7052,14 +7045,270 @@
 		{
 			"nombre": "Puerta_oxxo_0",
 			"tipo": "puerta",
+			"auto": true,
 			"giro": "oxxo",
 			"texto": "OXO",
-			"x": -260.0,
-			"z": 457.3,
-			"rot": 0.0
+			"x": -262.3,
+			"z": 458.86,
+			"rot": -0.0394
+		},
+		{
+			"nombre": "Puerta_taqueria_1",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "taqueria",
+			"texto": "Tacos La Casa del Taco",
+			"x": -269.28,
+			"z": 383.47,
+			"rot": -3.1148
+		},
+		{
+			"nombre": "Puerta_abarrotes_2",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "abarrotes",
+			"texto": "Mini Super Santa Mugre",
+			"x": -273.37,
+			"z": 408.42,
+			"rot": -1.5353
+		},
+		{
+			"nombre": "Puerta_taqueria_3",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "taqueria",
+			"texto": "Carnitas Via Mugre",
+			"x": -288.78,
+			"z": 285.29,
+			"rot": 1.6078
+		},
+		{
+			"nombre": "Puerta_abarrotes_4",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "abarrotes",
+			"texto": "Abarrotes San Ignacio",
+			"x": -287.98,
+			"z": 269.19,
+			"rot": 1.607
+		},
+		{
+			"nombre": "Puerta_farmacia_5",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "farmacia",
+			"texto": "Farmacia Mas o Menos Buena",
+			"x": -388.13,
+			"z": 465.27,
+			"rot": -3.1083
+		},
+		{
+			"nombre": "Puerta_ferreteria_6",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "ferreteria",
+			"texto": "Ferreteria El Clavo",
+			"x": -373.54,
+			"z": 466.36,
+			"rot": 3.057
+		},
+		{
+			"nombre": "Puerta_abarrotes_7",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "abarrotes",
+			"texto": "Cremeria La Casita",
+			"x": -340.98,
+			"z": 473.4,
+			"rot": 3.0589
+		},
+		{
+			"nombre": "Puerta_licoreria_8",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "licoreria",
+			"texto": "Vinos y Licores El Ultimo",
+			"x": -241.5,
+			"z": 476.09,
+			"rot": 3.1016
+		},
+		{
+			"nombre": "Puerta_purificadora_9",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "purificadora",
+			"texto": "Purificadora Gota Pura",
+			"x": -275.5,
+			"z": 350.4,
+			"rot": -1.5335
+		},
+		{
+			"nombre": "Puerta_punto_10",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "punto",
+			"texto": "El Punto",
+			"x": -347.4,
+			"z": 291.98,
+			"rot": 1.5708
 		}
 	],
-	"negocios": [],
+	"negocios": [
+		{
+			"tipo": "oxxo",
+			"giro": "oxxo",
+			"nombre": "OXO",
+			"x": -262.09,
+			"z": 453.56,
+			"rotacion_y": -0.0394,
+			"ancho": 6.61,
+			"fondo": 9.01,
+			"pisos": 2,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "OXO"
+		},
+		{
+			"tipo": "taqueria",
+			"giro": "taqueria",
+			"nombre": "Tacos La Casa del Taco",
+			"x": -269.11,
+			"z": 389.69,
+			"rotacion_y": -3.1148,
+			"ancho": 7.46,
+			"fondo": 10.84,
+			"pisos": 1,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Tacos La Casa del Taco"
+		},
+		{
+			"tipo": "abarrotes",
+			"giro": "abarrotes",
+			"nombre": "Mini Super Santa Mugre",
+			"x": -270.57,
+			"z": 408.32,
+			"rotacion_y": -1.5353,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Mini Super Santa Mugre"
+		},
+		{
+			"tipo": "taqueria",
+			"giro": "taqueria",
+			"nombre": "Carnitas Via Mugre",
+			"x": -291.12,
+			"z": 285.37,
+			"rotacion_y": 1.6078,
+			"ancho": 3.51,
+			"fondo": 3.09,
+			"pisos": 2,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Carnitas Via Mugre"
+		},
+		{
+			"tipo": "abarrotes",
+			"giro": "abarrotes",
+			"nombre": "Abarrotes San Ignacio",
+			"x": -296.49,
+			"z": 269.51,
+			"rotacion_y": 1.607,
+			"ancho": 5.8,
+			"fondo": 15.44,
+			"pisos": 1,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Abarrotes San Ignacio"
+		},
+		{
+			"tipo": "farmacia",
+			"giro": "farmacia",
+			"nombre": "Farmacia Mas o Menos Buena",
+			"x": -389.19,
+			"z": 473.7,
+			"rotacion_y": -3.1083,
+			"ancho": 13.53,
+			"fondo": 15.19,
+			"pisos": 2,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Farmacia Mas o Menos Buena"
+		},
+		{
+			"tipo": "ferreteria",
+			"giro": "ferreteria",
+			"nombre": "Ferreteria El Clavo",
+			"x": -373.76,
+			"z": 468.98,
+			"rotacion_y": 3.057,
+			"ancho": 5.09,
+			"fondo": 3.66,
+			"pisos": 2,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Ferreteria El Clavo"
+		},
+		{
+			"tipo": "abarrotes",
+			"giro": "abarrotes",
+			"nombre": "Cremeria La Casita",
+			"x": -341.37,
+			"z": 478.73,
+			"rotacion_y": 3.0589,
+			"ancho": 5.45,
+			"fondo": 9.09,
+			"pisos": 2,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Cremeria La Casita"
+		},
+		{
+			"tipo": "licoreria",
+			"giro": "licoreria",
+			"nombre": "Vinos y Licores El Ultimo",
+			"x": -241.61,
+			"z": 478.89,
+			"rotacion_y": 3.1016,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Vinos y Licores El Ultimo"
+		},
+		{
+			"tipo": "purificadora",
+			"giro": "purificadora",
+			"nombre": "Purificadora Gota Pura",
+			"x": -271.2,
+			"z": 350.24,
+			"rotacion_y": -1.5335,
+			"ancho": 8.05,
+			"fondo": 7.0,
+			"pisos": 1,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Purificadora Gota Pura"
+		},
+		{
+			"tipo": "punto",
+			"giro": "punto",
+			"nombre": "El Punto",
+			"x": -350.2,
+			"z": 291.98,
+			"rotacion_y": 1.5708,
+			"ancho": 7.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "El Punto"
+		}
+	],
 	"reservas": [
 		{
 			"nombre": "Parroquia",
@@ -7874,6 +8123,74 @@
 			"doble": false,
 			"avenida": false,
 			"semilla": 3675
+		}
+	],
+	"tiendas": [
+		{
+			"giro": "oxxo",
+			"tipo": "oxxo",
+			"nombre": "OXO",
+			"cerca": [-260.0, 456.0]
+		},
+		{
+			"giro": "taqueria",
+			"tipo": "taqueria",
+			"nombre": "Tacos La Casa del Taco",
+			"cerca": [-273.0, 389.0]
+		},
+		{
+			"giro": "abarrotes",
+			"tipo": "abarrotes",
+			"nombre": "Mini Super Santa Mugre",
+			"cerca": [-273.0, 410.0]
+		},
+		{
+			"giro": "taqueria",
+			"tipo": "taqueria",
+			"nombre": "Carnitas Via Mugre",
+			"cerca": [-288.0, 286.0]
+		},
+		{
+			"giro": "abarrotes",
+			"tipo": "abarrotes",
+			"nombre": "Abarrotes San Ignacio",
+			"cerca": [-288.0, 270.0]
+		},
+		{
+			"giro": "farmacia",
+			"tipo": "farmacia",
+			"nombre": "Farmacia Mas o Menos Buena",
+			"cerca": [-388.0, 476.0]
+		},
+		{
+			"giro": "ferreteria",
+			"tipo": "ferreteria",
+			"nombre": "Ferreteria El Clavo",
+			"cerca": [-376.0, 476.0]
+		},
+		{
+			"giro": "abarrotes",
+			"tipo": "abarrotes",
+			"nombre": "Cremeria La Casita",
+			"cerca": [-341.0, 476.0]
+		},
+		{
+			"giro": "licoreria",
+			"tipo": "licoreria",
+			"nombre": "Vinos y Licores El Ultimo",
+			"cerca": [-240.0, 476.0]
+		},
+		{
+			"giro": "purificadora",
+			"tipo": "purificadora",
+			"nombre": "Purificadora Gota Pura",
+			"cerca": [-273.0, 345.0]
+		},
+		{
+			"giro": "punto",
+			"tipo": "punto",
+			"nombre": "El Punto",
+			"cerca": [-345.0, 296.0]
 		}
 	]
 }

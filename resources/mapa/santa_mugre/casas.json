@@ -1,0 +1,2854 @@
+{
+	"casas": [
+		{
+			"modelo": "blender",
+			"x": -226.56,
+			"z": 345.7,
+			"rotacion_y": -3.1012,
+			"ancho": 4.45,
+			"fondo": 7.61,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -330.75,
+			"z": 326.79,
+			"rotacion_y": 1.6228,
+			"ancho": 5.39,
+			"fondo": 6.39,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -231.74,
+			"z": 339.22,
+			"rotacion_y": -3.1039,
+			"ancho": 3.45,
+			"fondo": 4.29,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -357.64,
+			"z": 479.77,
+			"rotacion_y": 3.0482,
+			"ancho": 4.72,
+			"fondo": 11.76,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -305.71,
+			"z": 280.53,
+			"rotacion_y": -3.1048,
+			"ancho": 3.8,
+			"fondo": 5.58,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -194.11,
+			"z": 407.07,
+			"rotacion_y": 1.6117,
+			"ancho": 3.18,
+			"fondo": 5.74,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -341.37,
+			"z": 478.73,
+			"rotacion_y": 3.0589,
+			"ancho": 5.45,
+			"fondo": 9.09,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -294.89,
+			"z": 335.43,
+			"rotacion_y": 1.6081,
+			"ancho": 5.09,
+			"fondo": 8.16,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -360.34,
+			"z": 474.27,
+			"rotacion_y": 3.0841,
+			"ancho": 7.13,
+			"fondo": 11.73,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -290.13,
+			"z": 289.96,
+			"rotacion_y": 1.6075,
+			"ancho": 5.72,
+			"fondo": 4.73,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -303.2,
+			"z": 259.73,
+			"rotacion_y": -1.5302,
+			"ancho": 5.66,
+			"fondo": 3.27,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -186.36,
+			"z": 350.07,
+			"rotacion_y": -0.1331,
+			"ancho": 3.39,
+			"fondo": 3.0,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -235.89,
+			"z": 414.23,
+			"rotacion_y": 1.6045,
+			"ancho": 4.45,
+			"fondo": 4.53,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -338.17,
+			"z": 289.71,
+			"rotacion_y": 1.4587,
+			"ancho": 4.56,
+			"fondo": 8.38,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -346.4,
+			"z": 472.21,
+			"rotacion_y": 2.9617,
+			"ancho": 4.02,
+			"fondo": 5.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -241.02,
+			"z": 418.85,
+			"rotacion_y": 1.6046,
+			"ancho": 4.43,
+			"fondo": 6.05,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -289.78,
+			"z": 349.85,
+			"rotacion_y": 1.4979,
+			"ancho": 3.98,
+			"fondo": 4.44,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -238.35,
+			"z": 344.44,
+			"rotacion_y": -3.1011,
+			"ancho": 2.47,
+			"fondo": 10.8,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -265.69,
+			"z": 419.02,
+			"rotacion_y": -1.5432,
+			"ancho": 4.71,
+			"fondo": 5.17,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -195.41,
+			"z": 458.92,
+			"rotacion_y": -0.1733,
+			"ancho": 5.86,
+			"fondo": 4.92,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -417.87,
+			"z": 415.45,
+			"rotacion_y": 1.6104,
+			"ancho": 3.79,
+			"fondo": 6.74,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -300.36,
+			"z": 284.44,
+			"rotacion_y": 1.6065,
+			"ancho": 5.6,
+			"fondo": 15.31,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -236.59,
+			"z": 298.41,
+			"rotacion_y": -3.1064,
+			"ancho": 3.98,
+			"fondo": 8.26,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -215.43,
+			"z": 346.6,
+			"rotacion_y": -3.1022,
+			"ancho": 4.06,
+			"fondo": 11.71,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -289.48,
+			"z": 357.03,
+			"rotacion_y": 1.615,
+			"ancho": 10.18,
+			"fondo": 4.32,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -340.14,
+			"z": 472.46,
+			"rotacion_y": -3.1087,
+			"ancho": 2.43,
+			"fondo": 3.4,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -359.25,
+			"z": 305.97,
+			"rotacion_y": -1.5177,
+			"ancho": 5.09,
+			"fondo": 4.82,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -203.98,
+			"z": 358.51,
+			"rotacion_y": 0.0387,
+			"ancho": 4.13,
+			"fondo": 12.97,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -193.66,
+			"z": 434.54,
+			"rotacion_y": 1.6052,
+			"ancho": 11.91,
+			"fondo": 7.27,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -210.52,
+			"z": 346.77,
+			"rotacion_y": -3.1022,
+			"ancho": 4.06,
+			"fondo": 10.99,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -334.35,
+			"z": 320.34,
+			"rotacion_y": 1.6228,
+			"ancho": 7.88,
+			"fondo": 9.14,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -226.35,
+			"z": 351.19,
+			"rotacion_y": 0.0382,
+			"ancho": 4.45,
+			"fondo": 3.39,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -341.67,
+			"z": 318.67,
+			"rotacion_y": 0.053,
+			"ancho": 5.29,
+			"fondo": 12.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -259.07,
+			"z": 438.71,
+			"rotacion_y": -1.5363,
+			"ancho": 4.92,
+			"fondo": 12.82,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -219.42,
+			"z": 357.5,
+			"rotacion_y": 0.0394,
+			"ancho": 5.58,
+			"fondo": 13.66,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -242.61,
+			"z": 298.62,
+			"rotacion_y": -3.1065,
+			"ancho": 4.56,
+			"fondo": 8.26,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -310.95,
+			"z": 343.83,
+			"rotacion_y": -1.5348,
+			"ancho": 5.56,
+			"fondo": 13.35,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -309.55,
+			"z": 330.49,
+			"rotacion_y": -1.5334,
+			"ancho": 5.08,
+			"fondo": 17.12,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -250.13,
+			"z": 274.86,
+			"rotacion_y": 0.0343,
+			"ancho": 11.08,
+			"fondo": 12.61,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -413.99,
+			"z": 478.58,
+			"rotacion_y": 1.6212,
+			"ancho": 3.57,
+			"fondo": 3.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -295.97,
+			"z": 350.22,
+			"rotacion_y": 1.6205,
+			"ancho": 5.44,
+			"fondo": 8.12,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -260.48,
+			"z": 276.86,
+			"rotacion_y": 0.0344,
+			"ancho": 3.2,
+			"fondo": 9.32,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -300.72,
+			"z": 376.64,
+			"rotacion_y": 1.5993,
+			"ancho": 16.47,
+			"fondo": 16.6,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -202.26,
+			"z": 271.08,
+			"rotacion_y": 1.6161,
+			"ancho": 4.63,
+			"fondo": 10.78,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -335.62,
+			"z": 480.3,
+			"rotacion_y": 3.0696,
+			"ancho": 6.26,
+			"fondo": 6.91,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -205.13,
+			"z": 454.19,
+			"rotacion_y": -0.0543,
+			"ancho": 4.98,
+			"fondo": 12.51,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -300.75,
+			"z": 358.64,
+			"rotacion_y": 1.615,
+			"ancho": 10.18,
+			"fondo": 18.05,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -296.49,
+			"z": 269.51,
+			"rotacion_y": 1.607,
+			"ancho": 5.8,
+			"fondo": 15.44,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -341.15,
+			"z": 294.84,
+			"rotacion_y": 1.6241,
+			"ancho": 4.7,
+			"fondo": 8.86,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -256.32,
+			"z": 303.24,
+			"rotacion_y": -3.1072,
+			"ancho": 3.2,
+			"fondo": 9.11,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -316.66,
+			"z": 310.72,
+			"rotacion_y": -1.5328,
+			"ancho": 4.47,
+			"fondo": 4.39,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -358.5,
+			"z": 320.08,
+			"rotacion_y": -1.516,
+			"ancho": 4.75,
+			"fondo": 4.81,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -235.6,
+			"z": 422.72,
+			"rotacion_y": 1.6036,
+			"ancho": 3.66,
+			"fondo": 4.52,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -349.46,
+			"z": 478.61,
+			"rotacion_y": 3.0332,
+			"ancho": 7.86,
+			"fondo": 7.55,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -417.39,
+			"z": 475.75,
+			"rotacion_y": 1.6219,
+			"ancho": 7.24,
+			"fondo": 9.39,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -241.9,
+			"z": 277.17,
+			"rotacion_y": 1.6045,
+			"ancho": 7.42,
+			"fondo": 5.21,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -192.93,
+			"z": 443.34,
+			"rotacion_y": 1.4684,
+			"ancho": 4.69,
+			"fondo": 6.9,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -199.77,
+			"z": 437.46,
+			"rotacion_y": 1.6046,
+			"ancho": 6.5,
+			"fondo": 5.12,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -265.48,
+			"z": 364.98,
+			"rotacion_y": 0.0384,
+			"ancho": 4.69,
+			"fondo": 10.19,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -335.96,
+			"z": 346.31,
+			"rotacion_y": 1.6137,
+			"ancho": 6.99,
+			"fondo": 3.16,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -389.19,
+			"z": 473.7,
+			"rotacion_y": -3.1083,
+			"ancho": 13.53,
+			"fondo": 15.19,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -333.74,
+			"z": 314.3,
+			"rotacion_y": 1.6243,
+			"ancho": 4.12,
+			"fondo": 11.02,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -242.73,
+			"z": 306.67,
+			"rotacion_y": 0.0319,
+			"ancho": 3.45,
+			"fondo": 6.51,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -366.86,
+			"z": 476.74,
+			"rotacion_y": -3.1065,
+			"ancho": 4.84,
+			"fondo": 10.18,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -212.55,
+			"z": 268.31,
+			"rotacion_y": 0.0464,
+			"ancho": 5.18,
+			"fondo": 15.44,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -292.33,
+			"z": 340.66,
+			"rotacion_y": 1.6087,
+			"ancho": 5.54,
+			"fondo": 12.88,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -295.1,
+			"z": 259.4,
+			"rotacion_y": 1.6114,
+			"ancho": 5.66,
+			"fondo": 12.94,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -192.93,
+			"z": 452.76,
+			"rotacion_y": 3.0392,
+			"ancho": 8.81,
+			"fondo": 7.68,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -373.76,
+			"z": 468.98,
+			"rotacion_y": 3.057,
+			"ancho": 5.09,
+			"fondo": 3.66,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -312.47,
+			"z": 280.19,
+			"rotacion_y": -1.5345,
+			"ancho": 4.41,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -338.33,
+			"z": 309.94,
+			"rotacion_y": 1.6239,
+			"ancho": 5.09,
+			"fondo": 6.96,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -288.64,
+			"z": 330.18,
+			"rotacion_y": 1.6094,
+			"ancho": 4.92,
+			"fondo": 4.73,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -342.36,
+			"z": 327.41,
+			"rotacion_y": 0.054,
+			"ancho": 2.96,
+			"fondo": 5.39,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -198.68,
+			"z": 362.7,
+			"rotacion_y": 0.0373,
+			"ancho": 4.02,
+			"fondo": 4.19,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -219.73,
+			"z": 269.78,
+			"rotacion_y": 0.0463,
+			"ancho": 10.16,
+			"fondo": 13.14,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -312.6,
+			"z": 336.12,
+			"rotacion_y": -1.5342,
+			"ancho": 4.92,
+			"fondo": 10.63,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -241.59,
+			"z": 339.96,
+			"rotacion_y": -3.1052,
+			"ancho": 3.3,
+			"fondo": 5.02,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -333.41,
+			"z": 294.43,
+			"rotacion_y": 1.6241,
+			"ancho": 4.7,
+			"fondo": 4.52,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -291.12,
+			"z": 285.37,
+			"rotacion_y": 1.6078,
+			"ancho": 3.51,
+			"fondo": 3.09,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -266.52,
+			"z": 422.49,
+			"rotacion_y": -1.5358,
+			"ancho": 4.0,
+			"fondo": 4.46,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -221.84,
+			"z": 260.68,
+			"rotacion_y": -1.5288,
+			"ancho": 5.0,
+			"fondo": 6.88,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -189.49,
+			"z": 349.0,
+			"rotacion_y": 0.0345,
+			"ancho": 2.61,
+			"fondo": 3.73,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -252.97,
+			"z": 298.97,
+			"rotacion_y": -3.1072,
+			"ancho": 3.78,
+			"fondo": 8.25,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -238.93,
+			"z": 307.45,
+			"rotacion_y": 0.0388,
+			"ancho": 3.09,
+			"fondo": 3.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -351.29,
+			"z": 471.58,
+			"rotacion_y": 2.9988,
+			"ancho": 4.85,
+			"fondo": 4.98,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -227.52,
+			"z": 269.12,
+			"rotacion_y": -1.5286,
+			"ancho": 11.37,
+			"fondo": 5.2,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -309.59,
+			"z": 290.61,
+			"rotacion_y": -1.534,
+			"ancho": 5.7,
+			"fondo": 11.22,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -418.52,
+			"z": 380.13,
+			"rotacion_y": 1.4743,
+			"ancho": 4.36,
+			"fondo": 7.45,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -385.56,
+			"z": 261.37,
+			"rotacion_y": 0.0412,
+			"ancho": 4.61,
+			"fondo": 6.8,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -205.49,
+			"z": 344.92,
+			"rotacion_y": -3.104,
+			"ancho": 6.11,
+			"fondo": 14.3,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -257.67,
+			"z": 266.77,
+			"rotacion_y": -0.0935,
+			"ancho": 2.25,
+			"fondo": 3.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -248.24,
+			"z": 306.5,
+			"rotacion_y": -0.1087,
+			"ancho": 7.93,
+			"fondo": 5.89,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -212.54,
+			"z": 358.21,
+			"rotacion_y": 0.039,
+			"ancho": 8.97,
+			"fondo": 11.72,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -216.45,
+			"z": 260.68,
+			"rotacion_y": -1.3894,
+			"ancho": 4.77,
+			"fondo": 4.11,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -288.9,
+			"z": 316.52,
+			"rotacion_y": 1.6071,
+			"ancho": 10.48,
+			"fondo": 4.25,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -257.02,
+			"z": 428.03,
+			"rotacion_y": -1.5361,
+			"ancho": 5.48,
+			"fondo": 7.99,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -297.0,
+			"z": 277.13,
+			"rotacion_y": 1.6081,
+			"ancho": 9.38,
+			"fondo": 8.16,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -417.8,
+			"z": 410.72,
+			"rotacion_y": 1.6066,
+			"ancho": 5.59,
+			"fondo": 3.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -310.29,
+			"z": 358.88,
+			"rotacion_y": -1.5341,
+			"ancho": 4.9,
+			"fondo": 9.51,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -206.48,
+			"z": 260.01,
+			"rotacion_y": 1.6148,
+			"ancho": 5.0,
+			"fondo": 7.47,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -416.0,
+			"z": 431.94,
+			"rotacion_y": 1.6089,
+			"ancho": 7.09,
+			"fondo": 4.25,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -252.01,
+			"z": 265.61,
+			"rotacion_y": 1.6106,
+			"ancho": 5.53,
+			"fondo": 8.69,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -255.84,
+			"z": 408.08,
+			"rotacion_y": -1.5351,
+			"ancho": 5.04,
+			"fondo": 11.71,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -337.41,
+			"z": 284.8,
+			"rotacion_y": 1.6251,
+			"ancho": 4.61,
+			"fondo": 6.81,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -285.97,
+			"z": 354.4,
+			"rotacion_y": 1.6117,
+			"ancho": 2.93,
+			"fondo": 3.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -302.25,
+			"z": 335.8,
+			"rotacion_y": 1.6081,
+			"ancho": 2.68,
+			"fondo": 6.69,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -310.67,
+			"z": 272.28,
+			"rotacion_y": -3.1044,
+			"ancho": 8.61,
+			"fondo": 10.29,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -294.5,
+			"z": 345.94,
+			"rotacion_y": 1.6079,
+			"ancho": 4.85,
+			"fondo": 8.15,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -418.22,
+			"z": 405.2,
+			"rotacion_y": 1.6092,
+			"ancho": 5.47,
+			"fondo": 6.69,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -209.32,
+			"z": 437.57,
+			"rotacion_y": -3.1065,
+			"ancho": 13.97,
+			"fondo": 11.18,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -303.08,
+			"z": 351.14,
+			"rotacion_y": 1.6079,
+			"ancho": 5.12,
+			"fondo": 3.79,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -340.9,
+			"z": 348.26,
+			"rotacion_y": -3.1126,
+			"ancho": 5.51,
+			"fondo": 16.6,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -418.6,
+			"z": 395.09,
+			"rotacion_y": 1.6075,
+			"ancho": 5.72,
+			"fondo": 6.7,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -338.99,
+			"z": 276.87,
+			"rotacion_y": 1.6247,
+			"ancho": 9.84,
+			"fondo": 9.14,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -378.52,
+			"z": 468.89,
+			"rotacion_y": -3.1078,
+			"ancho": 3.55,
+			"fondo": 6.3,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -247.99,
+			"z": 298.8,
+			"rotacion_y": -3.1077,
+			"ancho": 6.2,
+			"fondo": 8.25,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -297.58,
+			"z": 292.23,
+			"rotacion_y": 1.6144,
+			"ancho": 9.87,
+			"fondo": 8.14,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -266.0,
+			"z": 408.28,
+			"rotacion_y": -1.5417,
+			"ancho": 5.16,
+			"fondo": 5.17,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -263.43,
+			"z": 261.72,
+			"rotacion_y": -1.5372,
+			"ancho": 14.57,
+			"fondo": 8.19,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -227.63,
+			"z": 359.42,
+			"rotacion_y": 0.0385,
+			"ancho": 10.13,
+			"fondo": 12.98,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -219.09,
+			"z": 440.39,
+			"rotacion_y": -1.5369,
+			"ancho": 6.2,
+			"fondo": 5.75,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -194.88,
+			"z": 344.51,
+			"rotacion_y": 0.0384,
+			"ancho": 4.95,
+			"fondo": 14.3,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -221.02,
+			"z": 346.81,
+			"rotacion_y": -3.1021,
+			"ancho": 4.05,
+			"fondo": 11.71,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -312.61,
+			"z": 285.14,
+			"rotacion_y": -1.5341,
+			"ancho": 5.45,
+			"fondo": 10.35,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -418.53,
+			"z": 425.57,
+			"rotacion_y": 1.6085,
+			"ancho": 5.83,
+			"fondo": 8.83,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -231.01,
+			"z": 345.51,
+			"rotacion_y": -3.1032,
+			"ancho": 4.42,
+			"fondo": 8.34,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -342.81,
+			"z": 284.39,
+			"rotacion_y": 1.473,
+			"ancho": 4.3,
+			"fondo": 4.58,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -255.16,
+			"z": 479.42,
+			"rotacion_y": 3.0239,
+			"ancho": 3.75,
+			"fondo": 6.71,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -356.12,
+			"z": 347.91,
+			"rotacion_y": -3.1119,
+			"ancho": 5.73,
+			"fondo": 15.04,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -326.81,
+			"z": 480.97,
+			"rotacion_y": 3.0487,
+			"ancho": 4.42,
+			"fondo": 20.98,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -217.14,
+			"z": 432.49,
+			"rotacion_y": -3.1072,
+			"ancho": 8.73,
+			"fondo": 8.99,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -263.45,
+			"z": 427.55,
+			"rotacion_y": -1.5389,
+			"ancho": 4.07,
+			"fondo": 4.83,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -201.43,
+			"z": 338.95,
+			"rotacion_y": 2.9595,
+			"ancho": 3.59,
+			"fondo": 4.32,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -267.49,
+			"z": 413.36,
+			"rotacion_y": -1.5368,
+			"ancho": 4.7,
+			"fondo": 3.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -321.96,
+			"z": 477.88,
+			"rotacion_y": 3.048,
+			"ancho": 4.6,
+			"fondo": 13.95,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -248.2,
+			"z": 292.57,
+			"rotacion_y": -3.1077,
+			"ancho": 6.2,
+			"fondo": 4.21,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -197.58,
+			"z": 446.82,
+			"rotacion_y": 1.4796,
+			"ancho": 3.18,
+			"fondo": 8.86,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -317.46,
+			"z": 321.23,
+			"rotacion_y": -1.5322,
+			"ancho": 4.66,
+			"fondo": 3.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -295.02,
+			"z": 330.45,
+			"rotacion_y": 1.6082,
+			"ancho": 5.08,
+			"fondo": 8.16,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -216.03,
+			"z": 338.87,
+			"rotacion_y": 3.0617,
+			"ancho": 4.89,
+			"fondo": 3.44,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -345.85,
+			"z": 349.2,
+			"rotacion_y": -3.113,
+			"ancho": 5.24,
+			"fondo": 11.87,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -198.87,
+			"z": 357.69,
+			"rotacion_y": 1.6085,
+			"ancho": 5.83,
+			"fondo": 4.02,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -311.02,
+			"z": 351.44,
+			"rotacion_y": -1.5337,
+			"ancho": 5.12,
+			"fondo": 8.62,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -333.62,
+			"z": 349.03,
+			"rotacion_y": 1.6135,
+			"ancho": 15.44,
+			"fondo": 11.7,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -414.59,
+			"z": 466.73,
+			"rotacion_y": 1.6237,
+			"ancho": 5.68,
+			"fondo": 3.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -418.55,
+			"z": 442.9,
+			"rotacion_y": 0.0397,
+			"ancho": 6.8,
+			"fondo": 5.05,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -316.42,
+			"z": 317.03,
+			"rotacion_y": -1.5325,
+			"ancho": 3.65,
+			"fondo": 4.4,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -208.58,
+			"z": 429.01,
+			"rotacion_y": 3.0072,
+			"ancho": 8.28,
+			"fondo": 4.01,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -199.83,
+			"z": 414.62,
+			"rotacion_y": -0.1343,
+			"ancho": 7.77,
+			"fondo": 10.88,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -189.22,
+			"z": 461.19,
+			"rotacion_y": -0.1425,
+			"ancho": 4.51,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -285.41,
+			"z": 454.57,
+			"rotacion_y": -0.0954,
+			"ancho": 6.09,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -398.7,
+			"z": 442.17,
+			"rotacion_y": -0.0959,
+			"ancho": 4.49,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -239.59,
+			"z": 387.43,
+			"rotacion_y": 1.6136,
+			"ancho": 7.71,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -237.77,
+			"z": 395.11,
+			"rotacion_y": 1.6131,
+			"ancho": 7.8,
+			"fondo": 3.99,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -238.88,
+			"z": 404.22,
+			"rotacion_y": 1.6129,
+			"ancho": 8.31,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -224.26,
+			"z": 430.1,
+			"rotacion_y": -1.5276,
+			"ancho": 8.8,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -399.78,
+			"z": 467.67,
+			"rotacion_y": 3.0505,
+			"ancho": 4.51,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -368.27,
+			"z": 469.01,
+			"rotacion_y": 3.0525,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -334.96,
+			"z": 472.01,
+			"rotacion_y": 3.0506,
+			"ancho": 6.39,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -316.12,
+			"z": 475.22,
+			"rotacion_y": 3.0519,
+			"ancho": 7.7,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -308.26,
+			"z": 474.42,
+			"rotacion_y": 3.0516,
+			"ancho": 7.79,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -284.27,
+			"z": 476.7,
+			"rotacion_y": 3.0433,
+			"ancho": 7.95,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -269.6,
+			"z": 477.75,
+			"rotacion_y": 3.1014,
+			"ancho": 8.97,
+			"fondo": 4.0,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -249.01,
+			"z": 478.59,
+			"rotacion_y": 3.1007,
+			"ancho": 8.31,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -241.61,
+			"z": 478.89,
+			"rotacion_y": 3.1016,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -238.63,
+			"z": 363.0,
+			"rotacion_y": 0.0264,
+			"ancho": 8.33,
+			"fondo": 11.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -247.08,
+			"z": 365.22,
+			"rotacion_y": 0.0254,
+			"ancho": 8.67,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -254.47,
+			"z": 365.42,
+			"rotacion_y": 0.0261,
+			"ancho": 6.12,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -259.78,
+			"z": 365.56,
+			"rotacion_y": 0.0267,
+			"ancho": 4.5,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -270.37,
+			"z": 362.55,
+			"rotacion_y": 0.0267,
+			"ancho": 4.5,
+			"fondo": 13.56,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -269.11,
+			"z": 389.69,
+			"rotacion_y": -3.1148,
+			"ancho": 7.46,
+			"fondo": 10.84,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -253.25,
+			"z": 389.92,
+			"rotacion_y": -3.1149,
+			"ancho": 4.5,
+			"fondo": 12.16,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -194.18,
+			"z": 418.55,
+			"rotacion_y": 1.5841,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -198.12,
+			"z": 401.41,
+			"rotacion_y": 1.5835,
+			"ancho": 7.86,
+			"fondo": 11.48,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -197.65,
+			"z": 393.47,
+			"rotacion_y": 1.5833,
+			"ancho": 8.01,
+			"fondo": 10.36,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -196.07,
+			"z": 385.35,
+			"rotacion_y": 1.583,
+			"ancho": 8.19,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -196.14,
+			"z": 379.01,
+			"rotacion_y": 1.5841,
+			"ancho": 4.5,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -403.41,
+			"z": 389.6,
+			"rotacion_y": -1.5313,
+			"ancho": 7.35,
+			"fondo": 3.99,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -403.08,
+			"z": 398.1,
+			"rotacion_y": -1.5318,
+			"ancho": 7.69,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -402.36,
+			"z": 416.49,
+			"rotacion_y": -1.5321,
+			"ancho": 8.79,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -402.01,
+			"z": 425.23,
+			"rotacion_y": -1.5321,
+			"ancho": 6.73,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -400.21,
+			"z": 432.92,
+			"rotacion_y": -1.5309,
+			"ancho": 6.78,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -400.08,
+			"z": 474.53,
+			"rotacion_y": -1.5318,
+			"ancho": 6.93,
+			"fondo": 3.99,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -270.63,
+			"z": 340.65,
+			"rotacion_y": -3.1016,
+			"ancho": 7.75,
+			"fondo": 10.32,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -262.86,
+			"z": 340.62,
+			"rotacion_y": -3.1019,
+			"ancho": 7.81,
+			"fondo": 10.88,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -253.78,
+			"z": 340.59,
+			"rotacion_y": -3.1008,
+			"ancho": 8.34,
+			"fondo": 11.57,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -246.39,
+			"z": 339.78,
+			"rotacion_y": -3.0993,
+			"ancho": 4.49,
+			"fondo": 10.56,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -225.92,
+			"z": 337.17,
+			"rotacion_y": -3.1009,
+			"ancho": 7.62,
+			"fondo": 7.0,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -215.04,
+			"z": 335.22,
+			"rotacion_y": -3.1001,
+			"ancho": 6.27,
+			"fondo": 4.0,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -207.83,
+			"z": 334.93,
+			"rotacion_y": -3.1012,
+			"ancho": 6.19,
+			"fondo": 3.99,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -221.86,
+			"z": 318.99,
+			"rotacion_y": 0.0413,
+			"ancho": 8.97,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -214.04,
+			"z": 320.17,
+			"rotacion_y": 0.0411,
+			"ancho": 6.57,
+			"fondo": 3.99,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -206.67,
+			"z": 315.11,
+			"rotacion_y": 0.0411,
+			"ancho": 6.58,
+			"fondo": 13.52,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -269.27,
+			"z": 443.8,
+			"rotacion_y": -1.5347,
+			"ancho": 8.88,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -269.55,
+			"z": 436.16,
+			"rotacion_y": -1.5334,
+			"ancho": 6.41,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -270.57,
+			"z": 408.32,
+			"rotacion_y": -1.5353,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -266.5,
+			"z": 400.86,
+			"rotacion_y": -1.5351,
+			"ancho": 8.14,
+			"fondo": 12.68,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -290.91,
+			"z": 391.94,
+			"rotacion_y": 1.6084,
+			"ancho": 6.11,
+			"fondo": 13.44,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -287.88,
+			"z": 386.52,
+			"rotacion_y": 1.6063,
+			"ancho": 4.5,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -271.2,
+			"z": 350.24,
+			"rotacion_y": -1.5335,
+			"ancho": 8.05,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -288.54,
+			"z": 368.43,
+			"rotacion_y": 1.6081,
+			"ancho": 6.96,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -287.88,
+			"z": 345.66,
+			"rotacion_y": 1.6063,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -288.26,
+			"z": 335.16,
+			"rotacion_y": 1.6063,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -274.42,
+			"z": 262.4,
+			"rotacion_y": -1.5353,
+			"ancho": 4.5,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -288.62,
+			"z": 325.43,
+			"rotacion_y": 1.6063,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -292.82,
+			"z": 309.12,
+			"rotacion_y": 1.6067,
+			"ancho": 6.41,
+			"fondo": 11.2,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -293.26,
+			"z": 303.67,
+			"rotacion_y": 1.6086,
+			"ancho": 4.49,
+			"fondo": 11.68,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -289.7,
+			"z": 296.03,
+			"rotacion_y": 1.6063,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -290.3,
+			"z": 279.72,
+			"rotacion_y": 1.6066,
+			"ancho": 6.15,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -349.92,
+			"z": 339.22,
+			"rotacion_y": -3.1085,
+			"ancho": 6.65,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -359.45,
+			"z": 327.52,
+			"rotacion_y": 0.0334,
+			"ancho": 8.37,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -338.94,
+			"z": 326.86,
+			"rotacion_y": 0.0312,
+			"ancho": 4.49,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -210.04,
+			"z": 289.85,
+			"rotacion_y": 1.6068,
+			"ancho": 6.39,
+			"fondo": 13.48,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -206.53,
+			"z": 297.39,
+			"rotacion_y": 1.6066,
+			"ancho": 8.94,
+			"fondo": 7.0,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -208.1,
+			"z": 304.17,
+			"rotacion_y": 1.6063,
+			"ancho": 4.5,
+			"fondo": 10.65,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -332.43,
+			"z": 306.55,
+			"rotacion_y": 1.5959,
+			"ancho": 7.17,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -321.33,
+			"z": 271.63,
+			"rotacion_y": -1.5455,
+			"ancho": 7.92,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -321.09,
+			"z": 280.81,
+			"rotacion_y": -1.5448,
+			"ancho": 8.46,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -320.87,
+			"z": 289.47,
+			"rotacion_y": -1.5459,
+			"ancho": 8.85,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -316.62,
+			"z": 326.02,
+			"rotacion_y": -1.5441,
+			"ancho": 4.5,
+			"fondo": 10.6,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -319.65,
+			"z": 336.53,
+			"rotacion_y": -1.5441,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -319.51,
+			"z": 342.02,
+			"rotacion_y": -1.5441,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -243.49,
+			"z": 262.46,
+			"rotacion_y": 1.6063,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -361.46,
+			"z": 274.9,
+			"rotacion_y": -3.1012,
+			"ancho": 7.68,
+			"fondo": 11.44,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -352.58,
+			"z": 274.02,
+			"rotacion_y": -3.1023,
+			"ancho": 8.14,
+			"fondo": 10.41,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -339.97,
+			"z": 270.32,
+			"rotacion_y": -3.1023,
+			"ancho": 7.39,
+			"fondo": 3.99,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -359.82,
+			"z": 285.3,
+			"rotacion_y": -1.5378,
+			"ancho": 8.18,
+			"fondo": 10.4,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -360.63,
+			"z": 312.51,
+			"rotacion_y": -1.5376,
+			"ancho": 7.23,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -373.24,
+			"z": 339.91,
+			"rotacion_y": 1.6039,
+			"ancho": 7.85,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -373.04,
+			"z": 346.09,
+			"rotacion_y": 1.6042,
+			"ancho": 4.49,
+			"fondo": 3.99,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -361.17,
+			"z": 341.77,
+			"rotacion_y": -1.5374,
+			"ancho": 8.37,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -242.2,
+			"z": 290.4,
+			"rotacion_y": -3.0905,
+			"ancho": 4.51,
+			"fondo": 4.0,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -229.94,
+			"z": 294.17,
+			"rotacion_y": -3.0925,
+			"ancho": 8.55,
+			"fondo": 12.76,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -221.41,
+			"z": 289.36,
+			"rotacion_y": -3.0914,
+			"ancho": 8.97,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -230.0,
+			"z": 277.78,
+			"rotacion_y": 0.0495,
+			"ancho": 6.07,
+			"fondo": 4.0,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -219.13,
+			"z": 365.99,
+			"rotacion_y": 0.0267,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -211.97,
+			"z": 365.8,
+			"rotacion_y": 0.0255,
+			"ancho": 7.83,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -350.2,
+			"z": 283.62,
+			"rotacion_y": 1.5708,
+			"ancho": 7.24,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -350.2,
+			"z": 291.98,
+			"rotacion_y": 1.5708,
+			"ancho": 7.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -351.7,
+			"z": 312.98,
+			"rotacion_y": 1.5708,
+			"ancho": 4.5,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -306.89,
+			"z": 296.8,
+			"rotacion_y": -0.0,
+			"ancho": 6.21,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -223.2,
+			"z": 295.29,
+			"rotacion_y": 1.5708,
+			"ancho": 8.58,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -223.2,
+			"z": 312.83,
+			"rotacion_y": 1.5708,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -216.8,
+			"z": 304.7,
+			"rotacion_y": -1.5708,
+			"ancho": 6.45,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -215.3,
+			"z": 311.18,
+			"rotacion_y": -1.5708,
+			"ancho": 4.5,
+			"fondo": 7.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -262.67,
+			"z": 355.2,
+			"rotacion_y": 3.1416,
+			"ancho": 8.67,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -246.86,
+			"z": 355.2,
+			"rotacion_y": 3.1416,
+			"ancho": 8.94,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -239.14,
+			"z": 355.2,
+			"rotacion_y": 3.1416,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -264.01,
+			"z": 348.8,
+			"rotacion_y": -0.0,
+			"ancho": 7.98,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -254.74,
+			"z": 348.8,
+			"rotacion_y": -0.0,
+			"ancho": 8.56,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -246.29,
+			"z": 348.8,
+			"rotacion_y": -0.0,
+			"ancho": 6.36,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -251.2,
+			"z": 427.99,
+			"rotacion_y": 1.5708,
+			"ancho": 4.5,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -254.56,
+			"z": 433.49,
+			"rotacion_y": 1.5708,
+			"ancho": 4.5,
+			"fondo": 10.72,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -254.96,
+			"z": 445.73,
+			"rotacion_y": 1.5708,
+			"ancho": 7.98,
+			"fondo": 11.52,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -244.8,
+			"z": 388.01,
+			"rotacion_y": -1.5708,
+			"ancho": 6.02,
+			"fondo": 4.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -244.8,
+			"z": 396.45,
+			"rotacion_y": -1.5708,
+			"ancho": 8.86,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -244.8,
+			"z": 405.27,
+			"rotacion_y": -1.5708,
+			"ancho": 6.78,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -243.3,
+			"z": 411.9,
+			"rotacion_y": -1.5708,
+			"ancho": 6.48,
+			"fondo": 7.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -244.8,
+			"z": 426.56,
+			"rotacion_y": -1.5708,
+			"ancho": 8.86,
+			"fondo": 4.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -241.16,
+			"z": 443.22,
+			"rotacion_y": -1.5708,
+			"ancho": 6.9,
+			"fondo": 11.28,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -339.68,
+			"z": 305.2,
+			"rotacion_y": 3.1416,
+			"ancho": 8.64,
+			"fondo": 4.0,
+			"pisos": 3,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -269.35,
+			"z": 319.42,
+			"rotacion_y": 0.0417,
+			"ancho": 6.0,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -262.65,
+			"z": 319.15,
+			"rotacion_y": 0.0406,
+			"ancho": 7.4,
+			"fondo": 10.01,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -255.56,
+			"z": 318.86,
+			"rotacion_y": 0.0397,
+			"ancho": 6.8,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -249.06,
+			"z": 318.6,
+			"rotacion_y": 0.0404,
+			"ancho": 6.2,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -242.17,
+			"z": 318.32,
+			"rotacion_y": 0.0408,
+			"ancho": 7.6,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -234.87,
+			"z": 318.02,
+			"rotacion_y": 0.0415,
+			"ancho": 7.0,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -228.9,
+			"z": 317.78,
+			"rotacion_y": 0.0424,
+			"ancho": 4.95,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -219.72,
+			"z": 455.24,
+			"rotacion_y": -0.0403,
+			"ancho": 6.21,
+			"fondo": 9.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -226.61,
+			"z": 454.97,
+			"rotacion_y": -0.0395,
+			"ancho": 7.61,
+			"fondo": 9.01,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -233.91,
+			"z": 454.68,
+			"rotacion_y": -0.04,
+			"ancho": 7.01,
+			"fondo": 9.01,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -240.6,
+			"z": 454.41,
+			"rotacion_y": -0.039,
+			"ancho": 6.4,
+			"fondo": 9.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -247.7,
+			"z": 454.13,
+			"rotacion_y": -0.0397,
+			"ancho": 7.81,
+			"fondo": 9.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -255.19,
+			"z": 453.84,
+			"rotacion_y": -0.0403,
+			"ancho": 7.21,
+			"fondo": 9.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -262.09,
+			"z": 453.56,
+			"rotacion_y": -0.0394,
+			"ancho": 6.61,
+			"fondo": 9.01,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -270.86,
+			"z": 318.43,
+			"rotacion_y": -1.5348,
+			"ancho": 6.39,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -271.12,
+			"z": 311.33,
+			"rotacion_y": -1.5336,
+			"ancho": 7.8,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -271.4,
+			"z": 303.84,
+			"rotacion_y": -1.5333,
+			"ancho": 7.2,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -271.65,
+			"z": 296.94,
+			"rotacion_y": -1.5344,
+			"ancho": 6.59,
+			"fondo": 10.01,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -271.88,
+			"z": 290.65,
+			"rotacion_y": -1.5341,
+			"ancho": 5.99,
+			"fondo": 10.01,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -272.13,
+			"z": 283.95,
+			"rotacion_y": -1.5343,
+			"ancho": 7.39,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -272.39,
+			"z": 276.86,
+			"rotacion_y": -1.534,
+			"ancho": 6.79,
+			"fondo": 10.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -313.0,
+			"z": 402.5,
+			"rotacion_y": -1.5708,
+			"ancho": 13.0,
+			"fondo": 14.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -294.5,
+			"z": 402.5,
+			"rotacion_y": 1.5708,
+			"ancho": 13.0,
+			"fondo": 21.0,
+			"pisos": 2,
+			"colonia": "SANTA_MUGRE"
+		},
+		{
+			"modelo": "blender",
+			"x": -295.0,
+			"z": 435.5,
+			"rotacion_y": 1.5708,
+			"ancho": 9.0,
+			"fondo": 22.0,
+			"pisos": 1,
+			"colonia": "SANTA_MUGRE"
+		}
+	]
+}

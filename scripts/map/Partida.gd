@@ -31,12 +31,14 @@ const CHATARRA_LADO := Vector2(0.0, 1.6)   # m del poste
 const OBRAS := 10
 const OBRA_FRENTE := 1.5
 const PLANOS_EN_OBRAS := ["lanza_varilla", "bate_cobalto"]
-const CASAS_JSON := "res://resources/map/casas_mapa.json"
+# Los datos del mapa: los del de OSM (map_test) o los de una colonia de Blender (scenes/mapa.tscn,
+# resources/mapa/<colonia>/); MisionesMundo recibe los mismos
+@export_file("*.json") var casas_json := "res://resources/map/casas_mapa.json"
 const MAP_CASAS := preload("res://scripts/map/MapCasas.gd")   # sin class_name: su es_obra_negra es estatica
 # Para ajustar RitmoNoche jugando. Ya no da punto de habilidad: los puntos solo salen de tazos nuevos (Tazos.gd)
 const TEXTO_NOCHE := "Noche %d: salieron %d zombis, mataste %d (turbas: %d)"
-const PUNTOS_JSON := "res://resources/map/puntos_mapa.json"
-const POSTES_JSON := "res://resources/map/alumbrado_mapa.json"
+@export_file("*.json") var puntos_json := "res://resources/map/puntos_mapa.json"
+@export_file("*.json") var postes_json := "res://resources/map/alumbrado_mapa.json"
 
 # Las zonas y los pedazos son del mapa real; el safehouse tiene los suyos
 @export var piezas_en_el_mapa := true
@@ -121,7 +123,7 @@ func _poner_bolsas() -> void:
 # Montones de chatarra (Chatarra.gd) junto a unos postes de cada zona, para el taller.
 # Siempre los mismos: CHATARRA_POR_ZONA postes repartidos a lo largo de la lista de cada zona
 func _poner_chatarra() -> void:
-	var postes: Variant = JSON.parse_string(FileAccess.get_file_as_string(POSTES_JSON))
+	var postes: Variant = JSON.parse_string(FileAccess.get_file_as_string(postes_json))
 	var por_zona := {}
 	for poste: Dictionary in postes["postes"]:
 		var zona := ZonasMapa.zona_en(poste["x"], poste["z"])
@@ -143,7 +145,7 @@ func _poner_chatarra() -> void:
 # primeros esta tirado un plano del taller que todavia no tienes (Recetas.PLANOS; el del
 # machetón lo suelta el jefe). Siempre las mismas casas: dependen solo de los datos
 func _poner_obras() -> void:
-	var casas: Variant = JSON.parse_string(FileAccess.get_file_as_string(CASAS_JSON))
+	var casas: Variant = JSON.parse_string(FileAccess.get_file_as_string(casas_json))
 	var obras := []
 	for casa: Dictionary in casas["casas"]:
 		if MAP_CASAS.es_obra_negra(casa["x"], casa["z"]):
@@ -172,6 +174,9 @@ func _poner_misiones() -> void:
 	mundo.name = "MisionesMundo"
 	# Partida corre siempre, por su pantalla final; esto no debe seguir en la pausa
 	mundo.process_mode = Node.PROCESS_MODE_PAUSABLE
+	mundo.puntos_path = puntos_json
+	mundo.casas_path = casas_json
+	mundo.postes_path = postes_json
 	for propiedad: String in misiones_config:
 		mundo.set(propiedad, misiones_config[propiedad])
 	add_child(mundo)
@@ -201,7 +206,7 @@ func _lugares_de_piezas() -> Dictionary:
 	var centros := []
 	for zona in ZonasMapa.cuantas():
 		centros.append(ZonasMapa.a_mundo(ZonasMapa.centro(zona)))
-	var puntos: Variant = JSON.parse_string(FileAccess.get_file_as_string(PUNTOS_JSON))
+	var puntos: Variant = JSON.parse_string(FileAccess.get_file_as_string(puntos_json))
 	for p: Dictionary in puntos["puntos"]:
 		if not p.get("interactivo", false) or p["tipo"] == "punto" or p.get("aire_libre", false):
 			continue
@@ -213,7 +218,7 @@ func _lugares_de_piezas() -> Dictionary:
 			distancias[zona] = d
 			var frente := Vector2(sin(float(p["rotacion_y"])), cos(float(p["rotacion_y"])))
 			lugares[zona] = Vector2(p["x"], p["z"]) + frente * (float(p.get("fondo", 8.0)) / 2.0 + PIEZA_FRENTE)
-	var postes: Variant = JSON.parse_string(FileAccess.get_file_as_string(POSTES_JSON))
+	var postes: Variant = JSON.parse_string(FileAccess.get_file_as_string(postes_json))
 	var con_tienda := lugares.keys()
 	for poste: Dictionary in postes["postes"]:
 		var zona := ZonasMapa.zona_en(poste["x"], poste["z"])

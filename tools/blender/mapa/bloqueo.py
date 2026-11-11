@@ -175,6 +175,44 @@ def _postes(calles_osm_dibujadas, todas):
     return postes
 
 
+# Negocios ("tiendas" del .json, a mano: giro, tipo, nombre y un punto `cerca`): cada uno se queda
+# con la casa mas cercana a ese punto (su frente), que lleva cortina (tienda), y de ahi salen su
+# puerta (marca "puerta", con "auto") y su entrada en "negocios" (el esquema de MapPuntos, para el
+# minimapa, la gente, las misiones y Partida). El punto es una casa en obra negra, sin cortina.
+PUERTA_AFUERA = 0.8         # m de la fachada a la flecha
+PUESTO_LIBRE = 2.5          # m alrededor de una puerta sin puestos del tianguis
+
+
+def _tiendas(tiendas, casas):
+    marcas, negocios, usadas = [], [], set()
+    for i, t in enumerate(tiendas):
+        mejor, mejor_d = None, 1e9
+        for casa in casas:
+            if id(casa) in usadas:
+                continue
+            a, b, _c, _n, _f = frente_de(casa)
+            d = math.hypot((a[0] + b[0]) / 2 - t["cerca"][0], (a[1] + b[1]) / 2 - t["cerca"][1])
+            if d < mejor_d:
+                mejor, mejor_d = casa, d
+        if mejor is None:
+            continue
+        usadas.add(id(mejor))
+        a, b, (cx, cz), (nx, nz), fondo = frente_de(mejor)
+        punto = t["tipo"] == "punto"
+        mejor["tienda"] = not punto
+        if punto:
+            mejor["desgaste"], mejor["pisos"] = 1.0, 1
+        giro = math.atan2(nx, nz)
+        mx, mz = (a[0] + b[0]) / 2 + nx * PUERTA_AFUERA, (a[1] + b[1]) / 2 + nz * PUERTA_AFUERA
+        marcas.append({"nombre": "Puerta_%s_%d" % (t["giro"], i), "tipo": "puerta", "auto": True, "giro": t["giro"],
+                       "texto": t["nombre"], "x": round(mx, 2), "z": round(mz, 2), "rot": round(giro, 4)})
+        negocios.append({"tipo": t["tipo"], "giro": t["giro"], "nombre": t["nombre"], "x": round(cx, 2), "z": round(cz, 2),
+                         "rotacion_y": round(giro, 4), "ancho": round(math.hypot(b[0] - a[0], b[1] - a[1]), 2),
+                         "fondo": round(fondo, 2), "pisos": mejor.get("pisos", 1), "interactivo": True,
+                         "aire_libre": False, "origen": t["nombre"]})
+    return marcas, negocios
+
+
 # Relleno de las calles: una fila corrida de casas angostas en cada lado de cada calle, donde no
 # hay huella real (las de Google dejan huecos: las calles mexicanas son una fachada tras otra)
 LOTE_FRENTE = (6.0, 9.0)       # m
@@ -461,13 +499,18 @@ def bloquear(nombre):
                        "alto": BARDA_ALTO, "grueso": BARDA_GRUESO, "murales": 60})
 
     datos["postes"] = _postes(para_postes, [(t, a / 2) for t, m, a, av in para_postes])
+    marcas, datos["negocios"] = _tiendas(datos.get("tiendas", []), [p for p in nuevas + piezas if p["tipo"] == "casa"])
+    datos["marcas"] = [m for m in datos.get("marcas", []) if not m.get("auto")] + marcas
+    # Ningun puesto del tianguis enfrente de una puerta (si no, no se llega a la flecha)
+    tapan = [p for p in piezas if p["tipo"] == "puesto" and any(math.hypot(p["x"] - m["x"], p["z"] - m["z"]) < PUESTO_LIBRE for m in marcas)]
+    piezas = [p for p in piezas if p not in tapan]
     datos["piezas"] = nuevas + piezas
     guardar_json(ruta_colonia(nombre), datos)
     cuenta = {}
     for p in nuevas:
         cuenta[p["tipo"]] = cuenta.get(p["tipo"], 0) + 1
-    print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; azoteas: %d rutas con %d casas; %d postes; %d piezas a mano" % (
-        nombre, cuenta, quitadas, lotes, baldios, escaleras, casas_ruta, len(datos["postes"]), len(piezas)))
+    print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; azoteas: %d rutas con %d casas; %d postes; %d negocios; %d piezas a mano" % (
+        nombre, cuenta, quitadas, lotes, baldios, escaleras, casas_ruta, len(datos["postes"]), len(datos["negocios"]), len(piezas)))
 
 
 if not globals().get("SOLO_FUNCIONES"):

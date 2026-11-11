@@ -17,6 +17,40 @@ exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\map
 globals().update({k: v for k, v in _k.items() if not k.startswith("__") and k != "SOLO_FUNCIONES"})
 
 
+def casas_juego(datos):
+    """Las casas con el esquema de resources/map/casas_mapa.json (MisionesMundo: a donde mandar a
+    visitar; Partida: las de obra negra), con su frente hacia la calle."""
+    casas = []
+    for p in datos.get("piezas", []):
+        if p["tipo"] != "casa":
+            continue
+        a, b, (cx, cz), (nx, nz), fondo = frente_de(p)
+        casas.append({"modelo": "blender", "x": round(cx, 2), "z": round(cz, 2), "rotacion_y": round(math.atan2(nx, nz), 4),
+                      "ancho": round(math.hypot(b[0] - a[0], b[1] - a[1]), 2), "fondo": round(fondo, 2),
+                      "pisos": p.get("pisos", 1), "colonia": datos["nombre"].upper()})
+    return casas
+
+
+def banquetas(datos):
+    """Por donde camina la gente (Gente.gd): el medio de cada banqueta de cada calle."""
+    lineas = []
+    for p in datos.get("piezas", []):
+        if p["tipo"] != "calle" or p.get("banqueta", 0) <= 0:
+            continue
+        pts = [(p["x"] + x, p["z"] + z) for x, z in p["puntos"]]
+        d = p["ancho"] / 2 + p["banqueta"] / 2
+        for lado in (1, -1):
+            linea = []
+            for i, (x, z) in enumerate(pts):
+                a = pts[max(i - 1, 0)]
+                b = pts[min(i + 1, len(pts) - 1)]
+                ux, uz = b[0] - a[0], b[1] - a[1]
+                l = math.hypot(ux, uz) or 1.0
+                linea.append([round(x - uz / l * d * lado, 2), round(z + ux / l * d * lado, 2)])
+            lineas.append(linea)
+    return lineas
+
+
 def exportar(nombre):
     leer(nombre)
     datos = leer_colonia(nombre)
@@ -52,6 +86,8 @@ def exportar(nombre):
     guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "marcas": datos.get("marcas", [])})
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", [])})
     guardar_json(os.path.join(datos_dir, "alumbrado.json"), {"postes": datos.get("postes", [])})
+    guardar_json(os.path.join(datos_dir, "casas.json"), {"casas": casas_juego(datos)})
+    guardar_json(os.path.join(datos_dir, "banquetas.json"), {"banquetas": banquetas(datos)})
     print("colonia %s exportada: %d objetos, %d marcas" % (nombre, len(mundo.all_objects), len(datos.get("marcas", []))))
 
 
