@@ -28,6 +28,7 @@ Tiliches="*res://scripts/Tiliches.gd"
 Taller="*res://scripts/Taller.gd"
 Bonos="*res://scripts/Bonos.gd"
 Libreta="*res://scripts/Libreta.gd"
+Baul="*res://scripts/Baul.gd"
 
 [display]
 

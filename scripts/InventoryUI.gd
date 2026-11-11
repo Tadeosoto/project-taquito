@@ -137,6 +137,7 @@ var _tinte_fuerza := 0.0          # la fuerza sin latido; _process le suma el la
 var _tinte_t := 0.0
 
 func _ready() -> void:
+	add_to_group("inventario_ui")
 	mapa_ui = load("res://scripts/MapaUI.gd").new()
 	mapa_ui.visible = false
 	$MainPanel.add_child(mapa_ui)
@@ -223,6 +224,21 @@ func abrir(sonar := true) -> void:
 	combinar_desde = -1
 	inspect_viewer.set_inspection_active(false)
 	refresh_carousel()
+
+# Abre directo una pagina desde fuera del inventario (los muebles de la casa del jugador,
+# MueblesCasa.gd): "mapa" (como la M desde el juego: cerrarlo regresa al juego), "album" o "libreta"
+func abrir_pagina(cual: String) -> void:
+	abrir(false)
+	if not visible:
+		return
+	match cual:
+		"mapa":
+			_abrir_mapa()
+			_mapa_directo = true
+		"album":
+			_abrir_album(InventoryState.NAVIGATING)
+		"libreta":
+			_abrir_libreta()
 
 func cerrar(sonido := "inv_cerrar") -> void:
 	if visible:

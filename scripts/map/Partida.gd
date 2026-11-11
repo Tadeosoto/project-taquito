@@ -311,7 +311,7 @@ func _terminar(texto: String) -> void:
 func _otra_vez() -> void:
 	Engine.time_scale = 1.0
 	# Taller no: el rango, los planos y la vitrina se quedan entre partidas
-	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones", "Tazos", "Tiliches", "Bonos"]:
+	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones", "Tazos", "Tiliches", "Bonos", "Baul"]:
 		get_node("/root/" + autoload).reiniciar()
 	get_tree().paused = false
 	get_tree().reload_current_scene()

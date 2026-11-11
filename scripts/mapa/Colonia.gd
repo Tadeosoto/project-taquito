@@ -16,6 +16,7 @@ extends Node3D
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
 const CASA_ESCENA := "res://scenes/casa_personaje.tscn"
+const MUEBLES := preload("res://scripts/interiores/MueblesCasa.gd")
 # Letrero del negocio: arriba de la puerta y casi contra la fachada (la marca va 0.8 m delante)
 const LETRERO_ALTO := 3.0
 const LETRERO_ATRAS := 0.7
@@ -88,6 +89,7 @@ func _casa_propia(marca: Dictionary) -> void:
 	casa.set("flecha_en", Vector3(float(marca["x"]), float(marca.get("y", 0.0)), float(marca["z"])))
 	casa.set("calle_giro", float(marca.get("rot", 0.0)))
 	casa.set("nombre", String(marca.get("texto", "Tu casa")))
+	casa.set("muebles", MUEBLES)
 	var jugador := get_node_or_null(jugador_path)
 	if jugador:
 		casa.set("player_path", jugador.get_path())

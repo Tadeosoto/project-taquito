@@ -27,6 +27,9 @@ const TEXTO_PUERTA := "Sal por la puerta"
 @export var flecha_en := Vector3.ZERO
 @export var calle_giro := 0.0
 @export var nombre := "Mi casa"
+# Script de un Node que se cuelga de la casa al entrar (scripts/interiores/MueblesCasa.gd: dormir,
+# el baul, el ropero...). Sin el, la casa es solo para caminar
+@export var muebles: Script
 
 var _player: Player
 var _zombis: Zombis
@@ -108,6 +111,8 @@ func _entrar() -> void:
 		ambiente.free()
 	_casa.position = Vector3(flecha_en.x, ALTURA, flecha_en.z)
 	add_child(_casa)
+	if muebles:
+		_casa.add_child(muebles.new())
 	_casa.add_child(_marcador(PUERTA, 0.0, _salir))
 	_poner_jugador(_casa.global_position + ADENTRO, -PI / 2.0)
 	_player.poner_sin_combate(true)

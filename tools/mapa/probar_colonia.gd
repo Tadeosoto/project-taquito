@@ -60,8 +60,8 @@ func _probar() -> void:
 		_revisar("sale frente a la puerta", interiores.get("_interior") == null and d < 0.6,
 			"jugador en %s, esperado %s" % [jugador.global_position, esperado])
 	await _subir_banqueta(escena)
-	await _casa(escena)
 	await _vida(escena)
+	await _casa(escena)
 	print("RESULTADO: %s" % ("BIEN" if _fallas == 0 else "%d FALLAS" % _fallas))
 	quit(_fallas)
 
@@ -139,6 +139,32 @@ func _casa(escena: Node) -> void:
 	var vida: int = root.get_node("Salud").vida
 	jugador.recibir_dano(30, jugador.global_position + Vector3.FORWARD)
 	_revisar("adentro no hay dano", root.get_node("Salud").vida == vida, "")
+	# Los muebles (MueblesCasa.gd): la cama salta a la siguiente orilla y cura; el baul guarda
+	var muebles := casa.find_child("MueblesCasa*", true, false)
+	if muebles == null:
+		for n in casa.find_children("*", "Node3D", true, false):
+			if n.get_script() == load("res://scripts/interiores/MueblesCasa.gd"):
+				muebles = n
+	var usar := muebles.find_children("Usar*", "Area3D", true, false) if muebles else []
+	_revisar("los muebles se usan", usar.size() >= 8, "%d muebles" % usar.size())
+	if muebles:
+		var ciclo := escena.get_node("Ciclo")
+		var salud := root.get_node("Salud")
+		salud.vida = 10
+		var noche_antes: bool = ciclo.es_noche()
+		muebles.call("_dormir")
+		await _cuadros(150)
+		_revisar("la cama cura y cambia la hora", salud.vida == salud.vida_max and ciclo.es_noche() != noche_antes,
+			"vida %d/%d, noche antes %s ahora %s" % [salud.vida, salud.vida_max, noche_antes, ciclo.es_noche()])
+		var inventario := root.get_node("Inventory")
+		var baul := root.get_node("Baul")
+		var item: InventoryItemData = inventario.items[0] if inventario.items.size() > 0 else null
+		if item:
+			inventario.remove_item(0)
+			baul.guardar(item)
+			var regresa: InventoryItemData = baul.sacar(baul.items.size() - 1)
+			inventario.add_item(regresa)
+			_revisar("el baul guarda y regresa", regresa == item, item.item_name)
 	casa.call("_salir")
 	await _cuadros(90)
 	_revisar("sale de la casa", jugador.global_position.y < 10.0 and not jugador.sin_combate,

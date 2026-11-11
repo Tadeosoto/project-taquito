@@ -57,7 +57,16 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_N:
-		_tiempo = dia_duracion + noche_duracion - transicion if _es_noche else dia_duracion - transicion
+		saltar()
+
+
+# Hasta la siguiente orilla: al amanecer si es de noche, al anochecer si es de dia. La N cae al
+# principio de la transicion (se ve oscurecer); con `entero` (la cama de la casa del jugador,
+# MueblesCasa.gd) cae ya del otro lado: despiertas de dia o de noche cerrada
+func saltar(entero := false) -> void:
+	_tiempo = dia_duracion + noche_duracion - transicion if _es_noche else dia_duracion - transicion
+	if entero:
+		_tiempo = fmod(_tiempo + transicion, dia_duracion + noche_duracion)
 
 
 func _process(delta: float) -> void:
