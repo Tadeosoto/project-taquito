@@ -273,6 +273,13 @@ func limpiar() -> void:
 		_tiempos[i] = -1.0
 		_sprites[i].visible = false
 		_sigue[i] = null
+	# Las de pantalla (rayos del amanecer, la tele del desmayo) tambien se van: sus
+	# corrutinas de pantalla() salen solas al ver el nodo libre. Sin esto, una hoja a medias
+	# se quedaba congelada en pausa y volvia a verse al empezar la noche siguiente
+	for hijo in _capa.get_children():
+		hijo.queue_free()
+	for hijo in _capa_luz.get_children():
+		hijo.queue_free()
 	set_process(false)
 
 

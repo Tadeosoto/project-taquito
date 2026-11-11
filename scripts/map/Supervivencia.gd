@@ -11,6 +11,11 @@ const VIDA_AL_DESPERTAR := 50
 const FUNDIDO := 1.0
 const NEGRO_DURA := 2.0
 const POCA_VIDA := 0.35   # fraccion de la vida con la que se pintan las orillas
+# Aviso de curarse al llegar a esta fraccion de vida. Se vuelve a poder avisar hasta
+# recuperarse por arriba de AVISO_CURATE_VUELVE, para que no salga a cada golpe
+const AVISO_CURATE_EN := 0.25
+const AVISO_CURATE_VUELVE := 0.3
+const TEXTO_CURATE := "Cúrate wey"
 const LIMPIO_AL_REGRESAR := 20.0   # m alrededor de donde reapareces sin zombis; los demas siguen
 const TEXTO_AVISO := "Ya va a oscurecer..."
 const TEXTO_NOCHE := "Ya salieron."
@@ -60,6 +65,9 @@ var _impacto_material: ShaderMaterial
 var _impacto_desde := 0
 var _vida_antes := 0
 var _desmayado := false
+# Cambia al rearmar la noche (defensa del tinaco): una corrutina de desmayo que se quedo a
+# medias no debe disparar despues la pantalla de derrota ni volver a poner el negro
+var _noche_token := 0
 var _flash: ColorRect
 var _orillas: ColorRect
 var _negro: ColorRect
@@ -69,6 +77,7 @@ var _centro: Label
 var _voz: AudioStreamPlayer
 var _aviso_tween: Tween
 var _goteo := 0.0
+var _curate_avisado := false   # ya salio el "Cúrate wey" en esta bajada de vida
 
 
 func _ready() -> void:
@@ -206,6 +215,13 @@ func _cambio_vida() -> void:
 		if vida <= 0:
 			_salud.vida = 1
 		return
+	# Al llegar a 25 % de vida: "Cúrate wey". Una vez por bajada; se rearma al recuperarse
+	var fraccion := float(vida) / maxf(float(_salud.vida_max), 1.0)
+	if vida > 0 and fraccion <= AVISO_CURATE_EN and not _curate_avisado:
+		_curate_avisado = true
+		_avisar(TEXTO_CURATE)
+	elif fraccion > AVISO_CURATE_VUELVE:
+		_curate_avisado = false
 	if vida <= 0 and not _desmayado:
 		if _segundo_aire():
 			return
@@ -235,7 +251,11 @@ func _desmayarse() -> void:
 	_jugador.detener()
 	_jugador.caer()
 	if desmayo_final.is_valid():
+		var token := _noche_token
 		await _apagar()
+		# Se rearmo la noche mientras se apagaba la tele: ya no se pierde
+		if token != _noche_token:
+			return
 		# Que "Otra vez" no empiece desmayado (Salud es autoload)
 		_salud.vida = VIDA_AL_DESPERTAR
 		desmayo_final.call()
@@ -264,12 +284,33 @@ func _desmayarse() -> void:
 	_desmayado = false
 
 
+# Rearma el desmayo para reintentar la noche (la defensa del tinaco): se puede volver a
+# caer, y no queda el negro, el aviso ni el impacto de la noche anterior. El token corta
+# cualquier desmayo que se haya quedado a medias
+func rearmar_noche() -> void:
+	_noche_token += 1
+	_desmayado = false
+	_curate_avisado = false
+	_impacto.visible = false
+	_impacto_desde = 0
+	_negro.color.a = 0.0
+	_centro.modulate.a = 0.0
+	_flash.color.a = 0.0
+	_goteo = 0.0
+	if _aviso_tween and _aviso_tween.is_valid():
+		_aviso_tween.kill()
+	_aviso.modulate.a = 0.0
+	_vida_antes = _salud.vida
+
+
 # La imagen se aprieta en una raya y se apaga como tele vieja; sin efectos, se funde a negro
 func _apagar() -> void:
+	var token := _noche_token
 	var efectos := _efectos()
 	if efectos:
 		await efectos.pantalla("desmayo", 0.0, DESMAYO_APAGA)
-		_negro.color.a = 1.0
+		if token == _noche_token:
+			_negro.color.a = 1.0
 	else:
 		var tween := create_tween()
 		tween.tween_property(_negro, "color:a", 1.0, FUNDIDO)

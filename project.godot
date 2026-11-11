@@ -25,6 +25,9 @@ Misiones="*res://scripts/Misiones.gd"
 Personaje="*res://scripts/Personaje.gd"
 Tazos="*res://scripts/Tazos.gd"
 Libreta="*res://scripts/Libreta.gd"
+Pruebas="*res://scripts/Pruebas.gd"
+Mejoras="*res://scripts/Mejoras.gd"
+Registro="*res://scripts/Registro.gd"
 
 [display]
 

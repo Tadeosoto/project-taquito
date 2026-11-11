@@ -123,6 +123,8 @@ const CASA_COLORES := [Color(0.85, 0.62, 0.35), Color(0.55, 0.7, 0.75), Color(0.
 @export var productos: Array[InventoryItemData] = []
 # Multiplica los precios en pesos (el OXO mas caro que los abarrotes)
 @export var precio_factor := 1.0
+# Tienda de mejoras tipo "punto": en vez de TiendaUI usa MejorasUI (catalogo de Mejoras)
+@export var mejoras := false
 
 @export_group("Obra negra")
 # Muros de block con hollin y grafitis (el punto) en vez de muros pintados
@@ -210,6 +212,8 @@ var activo := false
 # Lo pone Interiores.gd antes de agregarla: el nombre del negocio del mapa, que va
 # pintado en la fachada (sin el, el nombre de la escena)
 var nombre := ""
+# El giro del negocio; Interiores lo pone antes de activar (para el registro de compras)
+var giro := ""
 
 var _local: Node3D
 var _foco_luz: OmniLight3D
@@ -218,7 +222,7 @@ var _camara_base := Vector3.ZERO
 var _mirada := Vector2.ZERO
 var _tiempo := 0.0
 var _vitrina: Vitrina
-var _ui: TiendaUI
+var _ui: Node
 
 
 func _ready() -> void:
@@ -255,6 +259,12 @@ func camara() -> Camera3D:
 # Ya en pantalla: mirar con el mouse, el carrusel de productos y su ficha
 func activar() -> void:
 	activo = true
+	if mejoras:
+		_ui = load("res://scripts/MejorasUI.gd").new()
+		add_child(_ui)
+		_ficha()
+		_ui.decir(_saludo())
+		return
 	_ui = TiendaUI.new()
 	add_child(_ui)
 	_ficha()
@@ -262,12 +272,19 @@ func activar() -> void:
 
 
 func _ficha() -> void:
-	if _ui:
-		_ui.mostrar(productos[_vitrina.actual()] if _vitrina else null, _factor())
+	if _ui == null:
+		return
+	if mejoras:
+		return
+	_ui.mostrar(productos[_vitrina.actual()] if _vitrina else null, _factor())
 
 
 # Lo que cobra esta tienda, y a ti (Personaje.gd). Por /root: en el editor no hay autoloads
 func _factor() -> float:
+	var pruebas := get_node_or_null("/root/Pruebas")
+	if pruebas and pruebas.es_carrera():
+		# En la carrera los precios son base, para aislar la economia del test
+		return 1.0
 	var personaje := get_node_or_null("/root/Personaje")
 	# Regateo (Tazos.gd) va aparte del factor del Personaje: no lo cambia
 	var tazos := get_node_or_null("/root/Tazos")
@@ -282,6 +299,10 @@ func _saludo() -> String:
 
 
 func _cambiar(paso: int) -> void:
+	if mejoras:
+		if _ui:
+			_ui.mover(paso)
+		return
 	if _vitrina:
 		_vitrina.mover(paso)
 		_ficha()
@@ -311,13 +332,25 @@ func _unhandled_input(event: InputEvent) -> void:
 # Lo que se esta viendo en el carrusel. Con /root y no por su nombre: es un @tool, y en el
 # editor no hay autoloads
 func _comprar() -> void:
+	if mejoras:
+		if _ui:
+			_ui.comprar()
+		return
 	var producto: InventoryItemData = productos[_vitrina.actual()] if _vitrina else null
 	if producto == null:
 		return
 	var cartera := get_node("/root/Cartera")
 	var inventario := get_node("/root/Inventory")
-	var en_agua := producto.moneda == 1
-	var precio: int = producto.precio if en_agua else roundi(producto.precio * _factor())
+	var pruebas := get_node_or_null("/root/Pruebas")
+	var en_carrera: bool = pruebas and pruebas.es_carrera()
+	var en_agua := producto.moneda == 1 and not en_carrera
+	var precio: int = 0
+	if en_carrera:
+		precio = pruebas.precio_pesos(producto)
+	elif en_agua:
+		precio = producto.precio
+	else:
+		precio = roundi(producto.precio * _factor())
 	if (cartera.agua if en_agua else cartera.pesos) < precio:
 		_ui.decir("No te alcanza.", 1.5)
 		return
@@ -346,6 +379,9 @@ func _comprar() -> void:
 		cartera.agua -= precio
 	else:
 		cartera.pesos -= precio
+	var registro := get_node_or_null("/root/Registro")
+	if registro:
+		registro.compra(giro if giro != "" else nombre, producto.item_name, precio)
 	var dicho := "Compraste: %s" % producto.item_name
 	if hueco >= 0:
 		dicho = "Te llenaron la botella: %s" % producto.item_name.to_lower()

@@ -1,6 +1,11 @@
 class_name Hordas
 extends Node
 
+# Cada grupo que sale es una oleada; las emboscadas van aparte. Registro las usa para medir
+# por oleada (mecanicas/ataques/items/enemigos y calma/estres).
+signal ola_empezada(numero: int, cuantos: int, corredores: float, hora: float)
+signal emboscada_empezada(numero: int, cuantos: int, hora: float)
+
 # Las hordas de la defensa del tinaco (docs/misiones.md §0): salen por grupos desde la
 # orilla de la escena, todos de un mismo lado, y corren al tinaco (Zombie._destino), cada
 # uno por su hueco de la barricada. Tardan unos 10 s en llegar: ese rato es de la pistola, y
@@ -97,6 +102,7 @@ var emboscados_muertos := 0
 var muertos := 0            # para la pantalla final
 var mas_juntos := 0         # el maximo de vivos a la vez
 var hora_mas_juntos := HORA_EMPIEZA
+var ola_num := 0            # cuantas oleadas/emboscadas han salido
 
 var _espera := 0.0
 var _respiro := 0.0
@@ -239,6 +245,8 @@ func _emboscar(cuantos: int) -> void:
 		salieron += 1
 	if salieron > 0:
 		emboscadas_salieron += 1
+		ola_num += 1
+		emboscada_empezada.emit(ola_num, salieron, hora())
 		print("Emboscada %d: %d a las %s (emboscados muertos hasta ahora: %d)" % [emboscadas_salieron, salieron, texto_hora(hora()), emboscados_muertos])
 
 
@@ -246,6 +254,8 @@ func _emboscar(cuantos: int) -> void:
 func _soltar(cuantos: int, corredores: float) -> void:
 	_desde_grupo = 0.0
 	_corredores = corredores
+	ola_num += 1
+	ola_empezada.emit(ola_num, cuantos, corredores, hora())
 	var angulo := randf() * TAU
 	var lados := 2 if cuantos >= DE_DOS_LADOS else 1
 	for i in cuantos:
