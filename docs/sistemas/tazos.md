@@ -1,0 +1,51 @@
+# Tazos and skills (AG's proposal, spec §4.12; the team hasn't voted on it)
+
+> Moved from the root `CLAUDE.md` on 2026-11-11, word for word. Keep it in sync with the code; the root keeps only a pointer here.
+
+- **`Tazos` autoload** (`scripts/Tazos.gd`) holds the run's progression:
+  - `puntos` earned, `niveles` per skill, `desbloqueadas`, `coleccion` (with repeats), and signal `cambio`.
+  - Kept when you faint; `Partida._otra_vez` and the safehouse's F12 call `reiniciar()`.
+  - **Points come only from new tazos**: a rare gives 1, a holo 2, and every `COMUNES_POR_PUNTO` (3) new commons give 1 (`comunes_nuevos`). The 48 add up to exactly the full skill tree, 40 (`Tazos.puntos_coleccion()` = `Habilidades.costo_total()`; `_ready` warns if they drift, so change costs and tazo points together). No start, night or series points; completing a series still shows confetti (`series_premiadas`, `ultima_serie`). The craftable "punto" estampita (`Bonos.usar_estampita`) is the only extra. `ultimos_puntos` is what the last tazo gave (for the reveal text, `TazoRevelacion.texto_puntos`).
+  - **Repeats give nothing**: trade them with the tazo kid (`scripts/map/NinoTazos.gd`, by day at the extra spot `MisionesMundo` asks for after the mission givers): `REPETIDOS_POR_CAMBIO` (3) spare copies of one rarity → a random missing one of that rarity (`repetidos`, `faltantes`, `puede_cambiar`, `cambiar`), shown with its reveal while the tree is paused.
+  - Gameplay reads it through the `factor_*` helpers, `pesos_extra()`, `factor_precio()`, `espacio_extra()`, `factor_persigue()`, `extra_aparicion()` and `probabilidad_bolsa()`.
+- **Data:**
+  - `scripts/Habilidades.gd` is the static skill table (14 skills), with every number at the top. Categories are CUERPO, SOBREVIVIR and NEGOCIO. `efecto_texto(id, nivel, base)` writes the real numbers the page shows; `base` comes from `Player.valores_sin_tazos()`.
+  - `scripts/TazoData.gd` is the tazo resource: series, rarity COMUN/RARO/HOLO, points, the skill it unlocks, face and silhouette.
+  - **48 tazos in 4 series of 12** (6 common, 4 rare, 2 holo each: La colonia, La noche, Los vecinos, GelA). `tools/tazos/caras.gd` holds them all as 16×16 ASCII art plus `FICHAS` (name, series, unlock). Running `godot --path . --headless -s tools/tazos/caras.gd`, then `--import`, writes the faces (`textures/tazos/`), silhouettes (`textures/tazos/silueta/`), skill icons (`textures/habilidades/`) **and** the `.tres` files. It checks every drawing is 16 wide and the numbers are consecutive. `Tazos` lists `resources/tazos/`, so a new tazo needs no code: add it to the tool and rerun.
+- **Bags:**
+  - The item is `resources/productos/takis_tazo.tres` (`InventoryItemData.bolsa_tazo`). The inventory shows it as **Abrir**.
+  - `Tazos.abrir_bolsa()` picks by rarity weight and prefers tazos you don't have.
+  - Sources:
+    - `Interior._comprar`: 1 in 8 Takis (`Tazos.probabilidad_bolsa()`, raised by Buena racha);
+    - the `premios` of two missions;
+    - `Partida._poner_bolsas`: 4 `WorldItem`s beside map-piece spots, with a beam.
+- **Reveal:** `scripts/TazoRevelacion.gd` (`TazoRevelacion.abrir`, signal `termino`).
+  - A CanvasLayer on layer 12 that always processes, so it works under the paused inventory.
+  - It has an opaque background and its own SubViewport world: the disc is built with SurfaceTool (face, back, rim) and uses `shaders/tazo.gdshader` for the face and the holo foil.
+  - Steps run per rarity on the real clock. Enter skips the show, then closes it. When the tazo unlocks a skill or completes a series, H closes it and opens the skills page with that skill selected (`ir_a_habilidades`).
+  - One motion: the tazo leaves the bag spinning and shaking (`GIRO`, `VUELTAS` per rarity), and the spin slows until it lands face-front (no separate flip). Common: then the flash. Rare/holo: the rumble grows over the end of the spin (`RETUMBO_DESDE`), it zooms at the camera (`ZUMBIDO`) and everything bursts together on the boom (flash, aro, sparkles, charge; holo also full foil and rays, tilting while it fades and ending where the idle sway starts). The holo foil ramps in as the spin slows (`ARCOIRIS_DESDE`). The shader's `suavidad` blends the 8 pixel bands into a gradient (0.7); the album uses the same shader.
+  - pixelfx sheets in 2D (`_hoja_2d`/`_lanzar`, stepped in `_process` on the real clock): sparkles per rarity (`tazo_brillo_*`), sunburst rays behind holo (`tazo_rayos`, loop, follows the disc through `unproject_position`), a charge for rare/holo whose release (`CARGA_SUELTA`) lands on the boom (`tazo_carga_*`), and confetti on series complete (`tazo_confeti`, behind the disc). With `EfectosPixel.extras` off, only the old `recoger_brillo` plays.
+  - Gold particles need `QuadMesh.size` set, because billboard modes ignore particle scale.
+  - `TazoRevelacion.crear_disco(tazo)` (static, shared mesh) builds the 3D tazo; the album uses it too.
+- **Skills page:** `scripts/HabilidadesUI.gd` is inventory state `HABILIDADES`, opened with `inventory_skills` (H / gamepad Y, only while the inventory is open).
+  - It shows the list with icons and level squares, a detail panel with real numbers ("Ahora" / "Siguiente"), the cost (red when you can't pay), and the silhouette of the tazo that unlocks a locked skill.
+  - Rows are placed by hand rather than in containers, so the tweens (pop, flash, shake) aren't undone by layout. They run while paused because the inventory always processes.
+  - The inventory hint turns yellow and shows the unspent points.
+- **Album:** `scripts/AlbumTazos.gd` is inventory state `ALBUM`, opened with `inventory_album` (T / gamepad LB) from the list or the skills page.
+  - One series per screen: faces, silhouettes with "?", repeat counts, and ★ when complete. The chosen tazo spins in a small SubViewport that only renders while the page is open.
+  - The arrows are both `inspect_*` and `inventory_*`, so the album checks `inspect_*` first to move the cursor; only Q/E fall through to switch series.
+- **Mochilero:** `Inventory.capacidad()` adds the bonus slots. Compare backpacks with `capacidad_mochila()`, not `capacidad()` (`equipar_mochila`, `WorldItem`). Lowering it when full drops nothing.
+- **Pies de gato** pushes loose spawns out (`Zombis._lugar_libre`, not mobs) and shortens `Zombie._persigue()`, except for the boss.
+- **Effect hooks:**
+  - `Player._aplicar_cuerpo` covers life, damage, speed and reach on top of `Personaje`, and keeps the life fraction when a skill changes. Piel dura is in `Player.recibir_dano`.
+  - Segundo aire is `Supervivencia._segundo_aire`.
+  - Buen diente is in `InventoryUI._utilizar`.
+  - Bolsillos is `Zombie` payout.
+  - Regateo is `Interior._factor`, on top of the skin-tone factor; it never reads `Personaje`.
+  - Imán is `WorldItem._revisar_iman`.
+  - Ojo de halcón is `MapMinimapa._dibujar_zombis`.
+- **Safehouse:**
+  - O gives a bag, and Shift+O cycles a forced rarity (`Tazos.rareza_forzada`).
+  - I gives +5 points, and Shift+I gives every missing tazo (fills the album and pays the series bonuses).
+  - The safehouse's own T and H only work while the player is free, so they don't clash with the inventory's.
+- **Later:** combat moves (roll, charged swing, counter) and Blender tazo models.
