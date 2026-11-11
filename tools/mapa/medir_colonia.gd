@@ -15,7 +15,7 @@ const LUGARES := {
 	"tianguis": Vector3(-278.0, 1.2, 400.0),
 	"vecindad": Vector3(-215.0, 1.2, 395.0),
 	"avenida": Vector3(-300.0, 1.2, 462.0),
-	"cancha": Vector3(-389.0, 1.2, 305.0),
+	"cancha": Vector3(-392.0, 1.2, 305.5),
 }
 
 var _escena: Node

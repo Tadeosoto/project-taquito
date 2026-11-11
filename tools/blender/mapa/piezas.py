@@ -13,6 +13,10 @@ LONAS = {"rojo": (0.8, 0.18, 0.2), "azul": (0.15, 0.4, 0.78), "amarillo": (0.92,
          "verde": (0.2, 0.62, 0.32), "rosa": (0.9, 0.42, 0.62), "naranja": (0.92, 0.5, 0.15)}
 for _n, _c in LONAS.items():
     COLORES_PIEZA["lona_" + _n] = _c
+# Pintura del piso de la cancha (franjas como la de la foto de AG)
+COLORES_PIEZA["cancha_verde"] = (0.16, 0.36, 0.3)
+COLORES_PIEZA["cancha_amarilla"] = (0.9, 0.7, 0.1)
+COLORES_PIEZA["cancha_muro"] = (0.16, 0.33, 0.78)
 
 
 def puesto(nombre, p):
@@ -412,78 +416,155 @@ def atrio(nombre, p):
 
 
 def cancha(nombre, p):
-    """Cancha de futbol rapido del barrio (como las de la foto de AG): losa de concreto con sus
-    rayas blancas, bardita de block y malla ciclonica encima, porterias con red, cuatro postes de
-    luz, una banca para los que esperan y la entrada por un costado (+x, a media cancha)."""
+    """Cancha de futbolito encajonada entre casas (la foto de AG de la favela): losa pintada a
+    franjas verde y amarillo con rayas blancas, muro de block pintado de azul con murales por
+    dentro, malla ciclonica encima con lonas de anuncios, porterias con red, dos postes con
+    reflectores, un escalon por dentro para los que miran y la entrada (`entrada`: "+x", "-x",
+    "+z" o "-z") a media cancha. `tam` = [ancho (x), largo (z)] de las rayas."""
     k = Constructor(nombre)
-    ancho, largo = p.get("tam", [18.0, 32.0])         # x, z
-    orilla = 2.0                                     # concreto entre las rayas y la barda
+    ancho, largo = p.get("tam", [11.0, 18.0])        # x, z
+    orilla = p.get("orilla", 0.8)                    # concreto entre las rayas y el muro
+    muro = p.get("muro_alto", 2.2)                   # block pintado; arriba, la malla
+    alto = p.get("alto", 5.0)                        # hasta donde llega la malla
+    pintura = p.get("pintura", "cancha_muro")        # material liso del muro (COLORES_PIEZA)
+    entrada = p.get("entrada", "+x")
+    semilla = sum((i + 1) * ord(c) for i, c in enumerate(nombre))
     hx, hz = ancho / 2 + orilla, largo / 2 + orilla
-    # Losa (un poco arriba del piso) y rayas
-    k.cara([(-hx, 0.05, hz), (hx, 0.05, hz), (hx, 0.05, -hz), (-hx, 0.05, -hz)], "banqueta")
-    def raya(x0, z0, x1, z1, grueso=0.12):
-        dx, dz = x1 - x0, z1 - z0
-        l = math.hypot(dx, dz) or 1.0
-        nx, nz = -dz / l * grueso / 2, dx / l * grueso / 2
-        k.cara([(x0 - nx, 0.06, z0 - nz), (x1 - nx, 0.06, z1 - nz), (x1 + nx, 0.06, z1 + nz), (x0 + nx, 0.06, z0 + nz)], "blanco_cal")
     w, l = ancho / 2, largo / 2
+
+    # Losa verde con franjas amarillas a lo ancho, como la pintura de la foto
+    k.cara([(-hx, 0.05, hz), (hx, 0.05, hz), (hx, 0.05, -hz), (-hx, 0.05, -hz)], "cancha_verde")
+    franjas = max(4, round(largo / 2.2))
+    paso = 2 * hz / franjas
+    for i in range(1, franjas, 2):
+        z0, z1 = -hz + i * paso, -hz + (i + 1) * paso
+        k.cara([(-hx, 0.055, z1), (hx, 0.055, z1), (hx, 0.055, z0), (-hx, 0.055, z0)], "cancha_amarilla")
+
+    def raya(x0, z0, x1, z1, grueso=0.1):
+        dx, dz = x1 - x0, z1 - z0
+        ll = math.hypot(dx, dz) or 1.0
+        nx, nz = -dz / ll * grueso / 2, dx / ll * grueso / 2
+        k.cara([(x0 - nx, 0.06, z0 - nz), (x1 - nx, 0.06, z1 - nz), (x1 + nx, 0.06, z1 + nz), (x0 + nx, 0.06, z0 + nz)], "blanco_cal")
     for a, b in (((-w, -l), (w, -l)), ((w, -l), (w, l)), ((w, l), (-w, l)), ((-w, l), (-w, -l)), ((-w, 0), (w, 0))):
         raya(a[0], a[1], b[0], b[1])
-    circulo = [(math.cos(i * math.tau / 16) * 3.0, math.sin(i * math.tau / 16) * 3.0) for i in range(17)]
+    r_centro = min(2.0, ancho / 4)
+    circulo = [(math.cos(i * math.tau / 16) * r_centro, math.sin(i * math.tau / 16) * r_centro) for i in range(17)]
     for a, b in zip(circulo, circulo[1:]):
         raya(a[0], a[1], b[0], b[1])
-    for signo in (-1, 1):                            # areas: medio circulo de 6 m frente a cada porteria
-        arco = [(math.cos(math.pi * i / 10) * 6.0, signo * (l - math.sin(math.pi * i / 10) * 6.0)) for i in range(11)]
+    r_area = min(3.5, ancho / 3, largo / 5)
+    for signo in (-1, 1):                            # areas: medio circulo frente a cada porteria
+        arco = [(math.cos(math.pi * i / 10) * r_area, signo * (l - math.sin(math.pi * i / 10) * r_area)) for i in range(11)]
         for a, b in zip(arco, arco[1:]):
             raya(a[0], a[1], b[0], b[1])
-    # Porterias de futbol rapido (3 x 2 m) con red de alambre atras
+
+    # Porterias de futbolito (3 x 2 m) con red de alambre atras
     for signo in (-1, 1):
         z = signo * l
         for x in (-1.5, 1.5):
             k.caja((x, 1.0, z), (0.1, 2.0, 0.1), "blanco_cal")
-            k.caja((x, 0.05, z + signo * 0.6), (0.06, 0.06, 1.2), "blanco_cal")
+            k.caja((x, 0.05, z + signo * 0.5), (0.06, 0.06, 1.0), "blanco_cal")
         k.caja((0, 2.0, z), (3.1, 0.1, 0.1), "blanco_cal")
-        k.caja((0, 1.0, z + signo * 1.2), (3.0, 2.0, 0.02), "malla")
-        k.choques.append(((0, 1.0, z + signo * 0.6), (3.2, 2.0, 1.3), 0.0))
-    # Bardita de block y malla ciclonica: postes cada 2.5 m, tubos arriba, abajo y a media altura,
-    # y la malla como alambres parados cada 0.4 m (una lamina oscura se veia como muro)
-    alto = 4.5
-    puerta = 2.0
-    for (ax, az), (bx, bz) in (((-hx, -hz), (hx, -hz)), ((hx, -hz), (hx, hz)), ((hx, hz), (-hx, hz)), ((-hx, hz), (-hx, -hz))):
+        k.caja((0, 1.0, z + signo * 0.6), (3.0, 2.0, 0.02), "malla")
+        k.choques.append(((0, 1.0, z + signo * 0.3), (3.2, 2.0, 0.7), 0.0))
+
+    # Lados: (nombre, a, b, normal hacia adentro); a -> b deja la normal como en barda()
+    # (direccion = (n.z, -n.x)), asi los murales quedan viendo hacia adentro
+    lados = [("-z", (hx, -hz), (-hx, -hz), (0.0, 1.0)), ("+z", (-hx, hz), (hx, hz), (0.0, -1.0)),
+             ("-x", (-hx, -hz), (-hx, hz), (1.0, 0.0)), ("+x", (hx, hz), (hx, -hz), (-1.0, 0.0))]
+    puerta = 1.2
+    puerta_en = None
+    n_mural = 0
+    for nom, (ax, az), (bx, bz), (nx, nz) in lados:
         dx, dz = bx - ax, bz - az
         lado = math.hypot(dx, dz)
         ux, uz = dx / lado, dz / lado
-        giro = math.atan2(dx, dz) - math.pi / 2
-        hueco = ax == hx and bx == hx                  # la entrada, a media cancha del lado +x
+        giro = math.atan2(-uz, ux)
         tramos = [(0.0, lado)]
-        if hueco:
+        if nom == entrada:
             tramos = [(0.0, lado / 2 - puerta / 2), (lado / 2 + puerta / 2, lado)]
+            puerta_en = ((ax + bx) / 2, (az + bz) / 2, ux, uz, nx, nz, giro)
         for t0, t1 in tramos:
             mx, mz = ax + ux * (t0 + t1) / 2, az + uz * (t0 + t1) / 2
             tl = t1 - t0
-            k.caja((mx, 0.45, mz), (tl, 0.9, 0.2), "foto_block", giro, choca=True)
-            k.choques.append(((mx, alto / 2, mz), (tl, alto, 0.1), giro))
-            for y in (0.95, 2.7, alto):
+            k.caja((mx, muro / 2, mz), (tl, muro, 0.2), pintura, giro)
+            k.caja((mx, muro + 0.04, mz), (tl, 0.08, 0.26), "concreto", giro)
+            k.choques.append(((mx, alto / 2, mz), (tl, alto, 0.2), giro))
+            # Murales por dentro, en tramos de ~4 m (no todos)
+            for i in range(int(tl / 4.0)):
+                n_mural += 1
+                if (semilla * 31 + n_mural * 17) % 100 >= 60:
+                    continue
+                s0 = t0 + i * 4.0 + 0.3
+                s1 = s0 + 3.4
+                diseno = elegir_mural(semilla + n_mural * 13, "propaganda" if (semilla + n_mural) % 3 == 0 else "grafiti")
+                a = (ax + ux * s0, az + uz * s0)
+                b = (ax + ux * s1, az + uz * s1)
+                esquinas, uvs = esquinas_mural(a, b, 0.25, (nx, nz), diseno, 3.4, muro - 0.45, salir=0.13)
+                k.cara([(x, z, y) for x, y, z in esquinas], "mural", uvs=uvs)
+            # Malla ciclonica encima del muro: tubos, alambres parados cada 0.4 m y postes cada 2.5 m
+            for y in (muro + 0.1, (muro + alto) / 2, alto):
                 k.caja((mx, y, mz), (tl, 0.06, 0.06), "fierro_verde", giro)
             for i in range(int(tl / 0.4)):
                 t = t0 + 0.2 + i * 0.4
-                k.caja((ax + ux * t, (0.95 + alto) / 2, az + uz * t), (0.025, alto - 0.95, 0.025), "malla", giro)
+                k.caja((ax + ux * t, (muro + alto) / 2, az + uz * t), (0.025, alto - muro, 0.025), "malla", giro)
             n = max(1, round(tl / 2.5))
             for i in range(n + 1):
                 t = t0 + tl * i / n
-                k.cilindro((ax + ux * t, 0.9, az + uz * t), 0.05, alto - 0.9, "fierro_verde", lados=5)
-    # Cuatro postes de luz en las esquinas, con sus reflectores viendo a la cancha
-    for sx in (-1, 1):
-        for sz in (-1, 1):
-            x, z = sx * (hx + 0.4), sz * (hz - 4.0)
-            k.cilindro((x, 0, z), 0.14, 9.0, "concreto", lados=6, radio_arriba=0.09)
-            k.caja((x - sx * 0.5, 9.0, z), (1.0, 0.08, 0.08), "fierro")
-            k.caja((x - sx * 0.9, 8.8, z), (0.4, 0.3, 0.25), "farol")
-            k.choques.append(((x, 4.5, z), (0.3, 9.0, 0.3), 0.0))
-    # Banca de los que esperan turno, junto a la entrada por fuera
-    k.caja((hx + 1.2, 0.45, -3.0), (0.4, 0.06, 2.4), "concreto", choca=True)
-    for z in (-4.0, -2.0):
-        k.caja((hx + 1.2, 0.22, z), (0.35, 0.44, 0.12), "concreto")
+                k.cilindro((ax + ux * t, muro, az + uz * t), 0.05, alto - muro, "fierro_verde", lados=5)
+        # Lonas de anuncio amarradas a la malla de los lados largos (el anuncio por dentro, el
+        # reverso azul por fuera)
+        if nom in ("-x", "+x") and nom != entrada:
+            for i, s in enumerate((lado * 0.3, lado * 0.7)):
+                diseno = elegir_mural(semilla * 3 + i * 7 + (11 if nom == "+x" else 0), "propaganda")
+                a = (ax + ux * (s - 1.8), az + uz * (s - 1.8))
+                b = (ax + ux * (s + 1.8), az + uz * (s + 1.8))
+                esquinas, uvs = esquinas_mural(a, b, muro + 0.3, (nx, nz), diseno, 3.6, alto - muro - 0.8, salir=0.06)
+                frente = [(x, z, y) for x, y, z in esquinas]
+                k.cara(frente, "mural", uvs=uvs)
+                k.cara(frente[::-1], "lona_azul")
+
+    # Entrada: marco de fierro con dintel (la malla sigue arriba) y la reja abierta hacia adentro
+    if puerta_en:
+        ex, ez, ux, uz, nx, nz, giro = puerta_en
+        for s in (-1, 1):
+            k.caja((ex + ux * s * puerta / 2, 1.15, ez + uz * s * puerta / 2), (0.08, 2.3, 0.08), "fierro_verde")
+        k.caja((ex, 2.3, ez), (puerta + 0.1, 0.08, 0.08), "fierro_verde", giro)
+        for i in range(3):
+            t = -puerta / 2 + 0.2 + i * 0.4
+            k.caja((ex + ux * t, (2.3 + alto) / 2, ez + uz * t), (0.025, alto - 2.3, 0.025), "malla", giro)
+        # La hoja de la reja, abierta 90 grados contra el muro de adentro
+        cx, cz = ex + ux * puerta / 2 + nx * puerta / 2, ez + uz * puerta / 2 + nz * puerta / 2
+        giro_hoja = math.atan2(-nz, nx)
+        for y in (0.1, 1.0, 2.0):
+            k.caja((cx, y, cz), (puerta - 0.1, 0.06, 0.06), "fierro_verde", giro_hoja)
+        for i in range(4):
+            t = -puerta / 2 + 0.2 + i * 0.27
+            k.caja((cx + nx * t, 1.05, cz + nz * t), (0.025, 1.9, 0.025), "malla", giro_hoja)
+        # Banca de los que esperan turno, por dentro junto a la entrada (afuera llegan las casas)
+        bx, bz = ex + nx * 0.45 - ux * 2.6, ez + nz * 0.45 - uz * 2.6
+        k.caja((bx, 0.45, bz), (2.4, 0.06, 0.4), "concreto", giro, choca=True)
+        for s in (-0.9, 0.9):
+            k.caja((bx + ux * s, 0.22, bz + uz * s), (0.12, 0.44, 0.35), "concreto", giro)
+
+    # Escalon de concreto por dentro, en el lado de enfrente de la entrada: ahi se sientan y se
+    # paran los que miran (como los ninos de la foto)
+    opuesto = {"+x": "-x", "-x": "+x", "+z": "-z", "-z": "+z"}[entrada]
+    for nom, (ax, az), (bx, bz), (nx, nz) in lados:
+        if nom != opuesto:
+            continue
+        dx, dz = bx - ax, bz - az
+        lado = math.hypot(dx, dz)
+        giro = math.atan2(-dz / lado, dx / lado)
+        mx, mz = (ax + bx) / 2 + nx * 0.35, (az + bz) / 2 + nz * 0.35
+        k.caja((mx, 0.225, mz), (lado - 2.4, 0.45, 0.5), "concreto", giro, choca=True)
+
+    # Dos postes en esquinas opuestas con reflectores viendo a la cancha
+    for sx, sz in ((-1, -1), (1, 1)):
+        x, z = sx * (hx - 0.25), sz * (hz - 0.25)
+        k.cilindro((x, 0, z), 0.12, 7.5, "concreto", lados=6, radio_arriba=0.08)
+        k.caja((x - sx * 0.75, 7.35, z - sz * 0.75), (0.4, 0.3, 0.25), "farol")
+        k.caja((x - sx * 0.35, 7.5, z - sz * 0.35), (0.08, 0.08, 1.0), "fierro", math.atan2(sz, -sx))
+        k.choques.append(((x, 3.75, z), (0.3, 7.5, 0.3), 0.0))
     return k
 
 

@@ -76,6 +76,7 @@ const SUBIDA_HACIA := Vector3(0.0, 0.0, -1.0)
 # Escalera: la de la ruta de azoteas de Pipilingue (rutas del .json), de la banqueta hacia arriba
 const ESCALERA := "Ruta_Pipilingue_Escalera"
 const AZOTEA := 5.5         # m: dos pisos (bloqueo.ALTO_AZOTEA)
+const CANCHA_DESDE := Vector3(-406.0, 1.2, 305.5)
 
 
 func _subir_banqueta(escena: Node) -> void:
@@ -94,6 +95,10 @@ func _subir_banqueta(escena: Node) -> void:
 		var e := await _caminar(escena, desde, sube, 300)
 		_revisar("sube la escalera a la azotea", e["y_max"] - 1.0 > AZOTEA - 0.4,
 			"llego a %.2f m (azotea a %.2f)" % [e["y_max"] - 1.0, AZOTEA])
+	# La cancha encajonada: del callejon que sale de Pelagatos se entra por la reja hasta la
+	# media cancha (el muro de la entrada esta en x -398.3)
+	var c := await _caminar(escena, CANCHA_DESDE, Vector3(1.0, 0.0, 0.0), 300)
+	_revisar("entra a la cancha", c["hasta"].x > -394.0, "hasta %s" % c["hasta"])
 
 
 func _caminar(escena: Node, desde: Vector3, hacia: Vector3, cuadros: int) -> Dictionary:
