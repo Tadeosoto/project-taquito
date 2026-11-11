@@ -192,7 +192,7 @@ Historia: AG la jugó el 2026-11-10 dos veces. La primera: "no te agarra, la ani
 | Onda | 8 (antes 13), 0.45 de ancho, solo le pega al que está **afuera** del radio del pisotón: adentro se rueda el pisotón, a media distancia se brinca la onda | `ONDA_*`, `_seguir_onda` |
 | Agarrón | igual; aprieta 6 (antes 8); 6 apretones para zafarte (antes 8); espera 5.5 s entre agarrones (antes 4) | `DANO_APRIETA`, `ZAFARSE`, `ESPERAS` |
 | Fase 2 | grito: 3-5 zombis (antes 2-3), hasta 8 vivos (antes 4); además uno cada 10 s desde los portales mientras dure la fase | `AYUDANTES*`, `GOTEO_CADA` |
-| Carros y ofrendas | los revienta al chocar con ellos, con el pisotón (4.5 m) y con la barrida (5 m); si se atora en algo que no rompe, rodea de lado 1.4 s | `ROMPE_*`, `ATASCO_*`, `RODEO_DURA` |
+| Jardineras y ofrendas | los revienta al chocar con ellos, con el pisotón (4.5 m) y con la barrida (5 m); si se atora en algo que no rompe, rodea de lado 1.4 s | `ROMPE_*`, `ATASCO_*`, `RODEO_DURA` |
 | Lo demás | igual que antes: pose cada 4-5 ataques, flores 4 × 70 (a balazos solo con la guardia abierta), aguante 200, fuego × 1.15 por parte quemada, combos, carga de lejos, bala a más de 15 m a la mitad | |
 
 **El bot**: pelea por intentos como en el juego (desmayarse reinicia la pelea; cada intento empieza con vida llena y 5 tacos). Rueda antes de cada golpe (75 % de acierto, o 90 % con `--bueno`), no sabe de los amagos, brinca la onda, mata a los zombis que se le acercan, se cura abajo de 40. `--modo=machete` le pega encima, rueda hacia ella en el pisotón y castiga el pie y las flores bajas; `--modo=mixto` además dispara (simulado: 8 por tiro cada 0.3 s, 60 % de puntería, a las flores si está abierta). `--intentos=N` (8).

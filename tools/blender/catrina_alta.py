@@ -20,9 +20,10 @@ import math
 import random
 from mathutils import Vector, Matrix, noise
 
-RUTA = r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender"
+import os
+RUTA = os.path.dirname(os.path.abspath(__file__)) if "__file__" in globals() else r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender"
 _m = {"SOLO_FUNCIONES": True, "__name__": "catrina_malla"}
-exec(open(RUTA + r"\catrina_malla.py", encoding="utf-8").read(), _m)
+exec(open(os.path.join(RUTA, "catrina_malla.py"), encoding="utf-8").read(), _m)
 ZONAS = _m["ZONAS"]
 NOMBRES_ZONAS = _m["NOMBRES_ZONAS"]
 SUAVES = _m["SUAVES"]

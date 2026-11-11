@@ -33,8 +33,8 @@ En orden:
 8. `catrina_exportar.py`: `catrina.glb`, `preview.png` y `fuente/catrina.blend`.
 9. `catrina_props.py`: `femur.glb`, `corona.glb`, `craneo_caido.glb`, `pompon.glb`.
 10. `plaza.py`: la plaza (`models/escenarios/plaza_catrina/plaza_catrina.glb`) con sus colisiones
-   `-colonly`. Cada carro y ofrenda es su objeto (`Carro_0`...) con su copia aplastada
-   (`Carro_0_Roto`) para `scripts/catrina/Rompible.gd`. Tambien seis braseros (`Brasero_i`, con su colision
+   `-colonly`. Cada jardinera con arbol y ofrenda es su objeto (`Jardinera_0`...) con su copia aplastada
+   (`Jardinera_0_Roto`) para `scripts/catrina/Rompible.gd`. Tambien seis braseros (`Brasero_i`, con su colision
    y su vacio `Brasero_i_Fuego`) y vacios en las puntas de las velas de las ofrendas
    (`Ofrenda_i_Vela_k`), donde Godot pone el fuego de pixelfx.
 
