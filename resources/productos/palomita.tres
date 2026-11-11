@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/palomita.tscn" id="1_modelo"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+
+[resource]
+script = ExtResource("2_item")
+item_name = "Palomita"
+description = "Cohete de papel con su mecha. Truena como balazo y deja a todos zumbando."
+inspection_model = ExtResource("1_modelo")
+efecto = "Tecla 3 y clic: aviéntala. Los zombis que le truenan cerca se quedan atontados mientras te zumban los oídos."
+precio = 0
+arrojar = 3

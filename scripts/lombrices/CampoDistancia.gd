@@ -200,6 +200,65 @@ func _terminar(_hasta: int) -> void:
 	listo = true
 
 
+# --- Guardar y cargar (EnjambreLombrices.guardar_campo) ---
+
+const VERSION_ARCHIVO := 1
+
+# Un numero que cambia si cambia cualquier colision de la capa 1 que toque la caja: su forma, su
+# medida y donde esta. Asi un campo guardado solo se usa si el lugar es el mismo
+static func firma(arbol: SceneTree, desde: Vector3, tam: Vector3) -> int:
+	var caja := AABB(desde, tam)
+	var partes := PackedStringArray()
+	for forma: CollisionShape3D in arbol.root.find_children("*", "CollisionShape3D", true, false):
+		var cuerpo := forma.get_parent() as CollisionObject3D
+		if cuerpo == null or cuerpo is CharacterBody3D or cuerpo is Area3D or cuerpo.collision_layer & 1 == 0 or forma.disabled or forma.shape == null:
+			continue
+		var t := forma.global_transform
+		if not caja.grow(1.0).has_point(t.origin) and not forma.shape is WorldBoundaryShape3D:
+			continue
+		var medida := ""
+		if forma.shape is BoxShape3D:
+			medida = str((forma.shape as BoxShape3D).size)
+		elif forma.shape is CylinderShape3D:
+			medida = "%s,%s" % [(forma.shape as CylinderShape3D).radius, (forma.shape as CylinderShape3D).height]
+		elif forma.shape is CapsuleShape3D:
+			medida = "%s,%s" % [(forma.shape as CapsuleShape3D).radius, (forma.shape as CapsuleShape3D).height]
+		elif forma.shape is SphereShape3D:
+			medida = str((forma.shape as SphereShape3D).radius)
+		partes.append("%s|%s|%s" % [forma.shape.get_class(), medida, str(t).sha1_text().left(12)])
+	partes.sort()
+	return ("%s|%s|%d|" % [desde, tam, VERSION_ARCHIVO] + "/".join(partes)).hash()
+
+
+func guardar(ruta: String, firma_: int) -> void:
+	var archivo := FileAccess.open_compressed(ruta, FileAccess.WRITE, FileAccess.COMPRESSION_ZSTD)
+	if archivo == null:
+		return
+	archivo.store_32(VERSION_ARCHIVO)
+	archivo.store_64(firma_)
+	archivo.store_var([origen, celda, nx, ny, nz])
+	archivo.store_buffer(datos.to_byte_array())
+
+
+# true si habia un campo guardado de este mismo lugar y ya quedo listo
+func cargar(ruta: String, firma_: int) -> bool:
+	if not FileAccess.file_exists(ruta):
+		return false
+	var archivo := FileAccess.open_compressed(ruta, FileAccess.READ, FileAccess.COMPRESSION_ZSTD)
+	if archivo == null or archivo.get_32() != VERSION_ARCHIVO or archivo.get_64() != firma_:
+		return false
+	var cabeza: Array = archivo.get_var()
+	if cabeza.size() != 5 or not (cabeza[0] as Vector3).is_equal_approx(origen) or not is_equal_approx(cabeza[1], celda) \
+			or cabeza[2] != nx or cabeza[3] != ny or cabeza[4] != nz:
+		return false
+	var bytes := archivo.get_buffer(nx * ny * nz * 4)
+	if bytes.size() != nx * ny * nz * 4:
+		return false
+	datos = bytes.to_float32_array()
+	_terminar(0)
+	return true
+
+
 # Puntos del piso (a la altura `piso`) junto a una columna solida que sube de piso + `desde` a
 # piso + `hasta` sin huecos: el pie de un muro o de un pilar, por donde se puede trepar. Uno de
 # cada `cada` celdas. Regresa [puntos, hacia la pared]

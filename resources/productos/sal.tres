@@ -5,10 +5,11 @@
 
 [resource]
 script = ExtResource("2_item")
-item_name = "Sal de grano"
+item_name = "Bolsa de sal"
 description = "Un kilo de sal. A las lombrices del carcamo no les gusta nadita."
 inspection_model = ExtResource("1_modelo")
-efecto = "Tecla 3 y clic: aviéntala. Deja un círculo que se come a las lombrices y no las deja pasar."
+efecto = "Tecla 3 y clic: aviéntala. Cada bolsa da 10 puñados; cada uno deja un círculo que se come a las lombrices y no las deja pasar."
 precio = 25
 tinte = Color(0.95, 0.95, 0.92, 1)
 arrojar = 1
+usos = 10

@@ -32,7 +32,26 @@ const ATAQUE_MAXIMO := 1       # zombis a los que le pega un mismo golpe: el mas
 const INVULNERABLE := 0.7     # s despues de recibir un golpe
 # Q (accion curarse) se come la curacion que mejor llene lo que falta, sin abrir el
 # inventario (pausar rompia la tension). Mientras, no caminas ni pegas
-const CURAR_DURA := 0.8
+# Drink dura 3 s: el brazo sube hasta 0.6 s, sostiene el trago hasta ~2 y baja. A 2x son 1.5 s; te
+# suelta a 1.2 s (el brazo ya va bajando, el fundido de salida lo termina)
+const CURAR_VELOCIDAD := 2.0
+const CURAR_DURA := 1.2
+# El punado de sal es Sword_Heavy_A (UAL2 Source, 0.73 s), medido en el_compa: se arma girando
+# a la derecha hasta 0.37 s, la mano da casi toda la vuelta entre 0.38 y 0.57 (pasa por enfrente
+# de la izquierda a la derecha hacia 0.40-0.53, a ~0.85 m, hasta 30 m/s) y se queda quieto desde
+# 0.63. El arco de humo y la sal solo van enfrente (JJ): la parte del recorrido de la mano que cae
+# dentro de AVIENTA_ARCO a cada lado de donde ves
+const AVIENTA_ESTELA := Vector2(0.385, 0.57)  # s del clip en que se sigue a la mano
+const AVIENTA_ARCO := deg_to_rad(75.0)  # rad a cada lado del frente
+const AVIENTA_PASO := deg_to_rad(5.0)   # rad entre pedazo y pedazo del arco de humo
+const AVIENTA_HUMO := Vector2(0.9, 3.1) # m del cuerpo: orilla de adentro y de afuera del arco
+const AVIENTA_BAJA := Vector2(0.1, 0.55) # m bajo la mano de cada orilla: se avienta al piso
+const AVIENTA_SUELTA := 0.45    # suena la sal (la mano pasa por enfrente)
+const AVIENTA_DURA := 0.66      # ya te puedes mover
+# La molotov es OverhandThrow (UAL2, 1.33 s), medido en el_compa: echa la mano atras hasta 0.27 s,
+# la suelta arriba y adelante a 0.33 (lo mas rapido, 20 m/s), termina abajo a 0.43 y regresa
+const MOLOTOV_SUELTA := 0.33
+const MOLOTOV_DURA := 0.6
 const ARMA_TAMANO := 0.95    # m; con 0.6 el machete parecia cuchillo
 # El mango va en el puño: crear_modelo centra y deja lo largo en X con el mango en +X. En la mano
 # (RightHand del retarget) X es hacia el pulgar, Y hacia los dedos y Z la palma: la hoja sale del
@@ -377,6 +396,13 @@ var _buffer_dir := Vector2.ZERO   # las teclas de direccion al pedir la rodada
 var _invulnerable := 0.0
 var _curando := 0.0
 var sin_combate := false       # la casa propia (CasaPropia.gd): sin armas, rodadas ni curarse, y nada te hace daño
+var _aturdido := 0.0           # s que quedan aturdido: te tronó la palomita en la mano (aturdirte)
+var _aventando := -1.0          # s del punado de sal; -1 = no
+var _avienta_dir := Vector3.FORWARD
+var _avienta_solto := false
+var _avienta_molotov := false  # lo que se esta aventando es la molotov (si no, la sal)
+var _avienta_ang := INF        # angulo de la mano respecto al frente (en planta) el cuadro pasado
+var _humo: Node              # EstelaBarrido.gd con humo: el arco de la sal
 var golpes := 0           # para medir el balance (MonitorDefensa)
 var golpes_pegaron := 0
 var muertes_espada := 0
@@ -996,7 +1022,7 @@ func _probar_buffer(delta: float) -> void:
 # Rodando, a media estocada o giro, o curandote: nada mas sale
 func _ocupado() -> bool:
 	return _rodada_t >= 0.0 or (_estocada_t >= 0.0 and _estocada_t < (TAJO_LIBRE if _tajo else ESTOCADA_LIBRE)) \
-			or _giro >= 0.0 or _curando > 0.0
+			or _giro >= 0.0 or _curando > 0.0 or _aventando >= 0.0 or _aturdido > 0.0
 
 
 # Lo que queda de la estocada (pasado ESTOCADA_LIBRE) se corta para que salga otra accion.
@@ -1271,7 +1297,8 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0, de: Node = null) -> 
 	# Te pegan cargando: se pierde la carga (el golpe que recibes tapa la pose)
 	if _pose_carga:
 		_cancelar_carga(false)
-	if figura.has_method("accion"):
+	# Aventando sal no se interrumpe: el arco y la sal siguen a la mano, y el golpe la tapaba
+	if figura.has_method("accion") and _aventando < 0.0:
 		figura.accion("RecieveHit")
 	_sonar("dolor")
 	var hacia := global_position - desde
@@ -1304,6 +1331,29 @@ func _dano_recibido(dano: int, de: Node) -> int:
 		var jefe: bool = de != null and de.get("es_jefe") == true
 		dano = maxi(roundi(dano * bonos.factor_recibido(de_noche, cazador, cazador or jefe)), 1)
 	return dano
+
+
+# Te tronó la palomita en la mano (Lanzador.soltar_molotov): `segundos` sin moverte ni hacer nada
+# (lo que dura el zumbido), tapandote la cara (Crying), y te baja `dano` aunque estes
+# invulnerable o rodando: no es un golpe de nadie, ni se bloquea
+func aturdirte(segundos: float, dano: int) -> void:
+	if _pose_carga:
+		_cancelar_carga(false)
+	_soltar_combo()
+	# Truena a medio OverhandThrow: se corta, o al acabar (_seguir_aventada) soltaba el Crying
+	_aventando = -1.0
+	_avienta_molotov = false
+	_aturdido = segundos
+	if figura.has_method("accion"):
+		figura.accion("aturdido")
+	_sonar("dolor")
+	_flash_hasta = Time.get_ticks_msec() + FLASH_MS
+	_pintar_blanco(true)
+	_sacude_fuerza = SACUDE_GOLPEADO
+	_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
+	efecto("herido", frijol.global_basis.z)
+	golpeado.emit()
+	get_node("/root/Salud").vida -= dano
 
 
 # Un golpe de frente parado con el machete: poco dano y un arrastre hacia donde iba el golpe
@@ -1405,9 +1455,105 @@ func _curarse() -> void:
 		return
 	inventario.usar_curacion(cual)
 	Sonidos.tocar(self, "inv_usar", -4.0)
-	efecto("curar", Vector3.ZERO)
+	beber()
+
+
+# La animacion de curarse (Drink), tambien desde el inventario (InventoryUI._utilizar): puedes
+# caminar mientras tanto, el brazo va solo arriba
+func beber() -> void:
 	_soltar_combo()
 	_curando = CURAR_DURA
+	if figura.has_method("curar"):
+		figura.curar(CURAR_VELOCIDAD)
+
+
+# El punado de sal: voltea hacia `dir` y barre la mano con Sword_Heavy_A; mientras la mano pasa por
+# enfrente (_seguir_aventada) deja un arco de humo blanco como la estela del machete y sala ese
+# mismo pedazo de arco (Lanzador.salar_tramo): el golpe sigue a la animacion. false si ya andaba
+func aventar_sal(dir: Vector3) -> bool:
+	if _aventando >= 0.0 or not is_on_floor():
+		return false
+	_aventando = 0.0
+	_avienta_molotov = false
+	_avienta_dir = dir
+	_avienta_solto = false
+	_avienta_ang = INF
+	_lanzador.empezar_punado()
+	_soltar_combo()
+	frijol.global_transform = frijol.global_transform.looking_at(frijol.global_position + dir, Vector3.UP)
+	if figura.has_method("accion"):
+		figura.accion("aventar")
+	if _humo == null:
+		_humo = ESTELA.new()
+		_humo.humo = true
+		add_child(_humo)
+	return true
+
+
+# La molotov (Lanzador.soltar_clic): voltea hacia `dir` y avienta por encima del hombro; a
+# MOLOTOV_SUELTA sale de la mano (Lanzador.soltar_molotov). false si ya andaba
+func aventar_molotov(dir: Vector3) -> bool:
+	if _aventando >= 0.0 or not is_on_floor():
+		return false
+	_aventando = 0.0
+	_avienta_molotov = true
+	_avienta_dir = dir
+	_avienta_solto = false
+	_soltar_combo()
+	frijol.global_transform = frijol.global_transform.looking_at(frijol.global_position + dir, Vector3.UP)
+	if figura.has_method("accion"):
+		figura.accion("molotov")
+	return true
+
+
+func _seguir_aventada(delta: float) -> void:
+	_aventando += delta
+	if _avienta_molotov:
+		if not _avienta_solto and _aventando >= MOLOTOV_SUELTA:
+			_avienta_solto = true
+			_lanzador.soltar_molotov()
+		if _aventando >= MOLOTOV_DURA:
+			_aventando = -1.0
+			_avienta_molotov = false
+			if figura.has_method("terminar_accion"):
+				figura.terminar_accion()
+		return
+	var mano := _mano.global_position if _mano and _mano.is_inside_tree() else frijol.global_position + Vector3.UP
+	if _aventando >= AVIENTA_ESTELA.x and _aventando <= AVIENTA_ESTELA.y:
+		_arco_sal(mano)
+	if not _avienta_solto and _aventando >= AVIENTA_SUELTA:
+		_avienta_solto = true
+		_lanzador.sonar_punado()
+	if _aventando >= AVIENTA_DURA:
+		_aventando = -1.0
+		if figura.has_method("terminar_accion"):
+			figura.terminar_accion()
+
+
+# La mano esta en `mano`: lo que barrio desde el cuadro pasado, recortado a AVIENTA_ARCO del
+# frente, deja pedazos del arco de humo cada AVIENTA_PASO y sala ese sector
+func _arco_sal(mano: Vector3) -> void:
+	var centro := global_position
+	var hacia := Vector3(mano.x - centro.x, 0.0, mano.z - centro.z)
+	if hacia.length_squared() < 0.0025:
+		return
+	var ang := _avienta_dir.signed_angle_to(hacia, Vector3.UP)
+	var antes := _avienta_ang
+	_avienta_ang = ang
+	# El primer cuadro, o si da la vuelta por atras (de 180 a -180), no hay tramo
+	if is_inf(antes) or absf(ang - antes) > PI:
+		return
+	var a := clampf(antes, -AVIENTA_ARCO, AVIENTA_ARCO)
+	var b := clampf(ang, -AVIENTA_ARCO, AVIENTA_ARCO)
+	if is_equal_approx(a, b):
+		return
+	_lanzador.salar_tramo(_avienta_dir.rotated(Vector3.UP, a), _avienta_dir.rotated(Vector3.UP, b))
+	var pasos := maxi(1, ceili(absf(b - a) / AVIENTA_PASO))
+	for k in pasos + 1:
+		var d := _avienta_dir.rotated(Vector3.UP, lerpf(a, b, float(k) / pasos))
+		var adentro := Vector3(centro.x, mano.y - AVIENTA_BAJA.x, centro.z) + d * AVIENTA_HUMO.x
+		var afuera := Vector3(centro.x, mano.y - AVIENTA_BAJA.y, centro.z) + d * AVIENTA_HUMO.y
+		_humo.agregar(adentro, afuera, true)
 
 
 # Se queda quieto y deja de contestar (al desmayarse, Supervivencia.gd)
@@ -1616,7 +1762,8 @@ func _mostrar_arma() -> void:
 	var pistola: bool = _pistola != null and _pistola.activa
 	if pistola:
 		arma = _dato_pistola
-	elif _a_punos():
+	elif _a_punos() or (_lanzador and _lanzador.activo):
+		# Con la sal o la molotov en la mano no se ve el machete
 		arma = null
 	if sin_combate:
 		arma = null
@@ -1689,6 +1836,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			atrapado_por.forcejear()
 			if _colgado and figura.has_method("colgar_patada"):
 				figura.colgar_patada()
+	elif _aturdido > 0.0:
+		# Aturdido solo puedes voltear la camara
+		pass
 	elif event.is_action_pressed("cambiar_arma") and is_physics_processing() and not sin_combate:
 		_lanzador.soltar()
 		_pistola.cambiar()
@@ -1712,9 +1862,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		_pedir_accion("rodar")
 	elif event.is_action_pressed("curarse") and is_physics_processing() and _rodada_t < 0.0:
 		_curarse()
+	elif event.is_action_released("attack") and _lanzador.activo:
+		# La molotov cargada sale al soltar el clic
+		_lanzador.soltar_clic()
 	elif event.is_action_pressed("attack") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		if _lanzador.activo:
-			if _curando <= 0.0 and _rodada_t < 0.0:
+			if _curando <= 0.0 and _rodada_t < 0.0 and _aventando < 0.0:
 				_lanzador.lanzar()
 		elif _pistola.activa:
 			# Viendo al personaje de frente la mira apunta hacia ti: no dispara
@@ -1836,10 +1989,13 @@ func _gotear_sangre() -> void:
 	_sangre_arma.visible = true
 
 
-# 1-5 (arma_1..arma_5) sin Shift: en el safehouse Shift+1/2/3 son de las maquinitas
+# 1-5 (arma_1..arma_5), aunque traigas Shift (corriendo) o Alt (rodar) apretados: con la coincidencia
+# exacta, corriendo no cambiaba de arma (JJ). Solo en el safehouse Shift+1/2/3 son de las maquinitas
 func _tecla_arma(event: InputEvent) -> int:
+	if event is InputEventKey and event.shift_pressed and _en_safehouse():
+		return -1
 	for i in ARMAS_TECLAS:
-		if event.is_action_pressed("arma_%d" % (i + 1), false, true):
+		if event.is_action_pressed("arma_%d" % (i + 1)):
 			return i
 	return -1
 
@@ -1854,6 +2010,11 @@ func poner_sin_combate(valor: bool) -> void:
 	_mostrar_arma()
 
 
+func _en_safehouse() -> bool:
+	var escena := get_tree().current_scene
+	return escena != null and escena.scene_file_path.ends_with("safehouse.tscn")
+
+
 # 0 = el arma de golpe (machete o puño), 1 = la pistola, 2 = lo que se avienta (Lanzador:
 # sal, molotov); 3-4 aun no hay nada
 func cambiar_arma(indice: int) -> void:
@@ -1865,6 +2026,7 @@ func cambiar_arma(indice: int) -> void:
 			_mostrar_arma()
 		_soltar_combo()
 		_lanzador.tomar()
+		_mostrar_arma()
 		return
 	if indice > 2:
 		return
@@ -2029,6 +2191,12 @@ func _physics_process(delta: float) -> void:
 			_atacar()
 	_invulnerable = maxf(_invulnerable - delta, 0.0)
 	_curando = maxf(_curando - delta, 0.0)
+	if _aturdido > 0.0:
+		_aturdido -= delta
+		if _aturdido <= 0.0 and figura.has_method("terminar_accion"):
+			figura.terminar_accion()
+	if _aventando >= 0.0:
+		_seguir_aventada(delta)
 	if _pega_en >= 0.0:
 		_pega_en -= delta
 		if _pega_en < 0.0:
@@ -2042,7 +2210,9 @@ func _physics_process(delta: float) -> void:
 	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
 	var golpeando := (_enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento) or _pose_carga
 	# Girando en el aire sigues tu salto (y lo puedes dirigir); en el suelo te quedas en tu lugar
-	if atrapado() or _curando > 0.0 or (_giro >= 0.0 and is_on_floor()) or _estocada_t >= 0.0 or _rodada_t >= 0.0:
+	# (curandote si caminas, despacio: camina, abajo)
+	if atrapado() or (_giro >= 0.0 and is_on_floor()) or _estocada_t >= 0.0 or _rodada_t >= 0.0 \
+			or _aventando >= 0.0 or _aturdido > 0.0:
 		input_direction = Vector2.ZERO
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z
@@ -2077,7 +2247,7 @@ func _physics_process(delta: float) -> void:
 			and not corre_pegando
 	# La pistola en la mano sola no cambia nada: trotas y corres normal. Walk solo apuntando
 	# (clic derecho), a medio machetazo o bloqueando (JJ)
-	var camina: bool = (_apuntando or machetazo or _bloqueando) and not corre_pegando
+	var camina: bool = (_apuntando or machetazo or _bloqueando or _curando > 0.0) and not corre_pegando
 	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint") and not machete_lento and not camina \
 			and not corre_pegando
 	var move_speed: float = sprint_speed if is_sprinting else speed
@@ -2095,7 +2265,7 @@ func _physics_process(delta: float) -> void:
 		move_speed *= factor
 	# Caminando, el barrido va solo arriba: las piernas siguen trotando
 	if figura.has_method("golpe_caminando"):
-		figura.golpe_caminando(is_moving and (en_golpe or _bloqueando))
+		figura.golpe_caminando(is_moving and (en_golpe or _bloqueando or _curando > 0.0))
 	var target_horizontal := Vector3.ZERO
 	# Apuntando, o a medio machetazo, ve siempre hacia donde apunta la camara, aunque camine
 	# para otro lado: el golpe sale hacia donde ves. Con la pistola sin apuntar, solo parado (para

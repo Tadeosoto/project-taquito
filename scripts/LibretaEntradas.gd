@@ -88,9 +88,9 @@ const ENTRADAS := [
 		"id": "madre",
 		"titulo": "La Madre del Cárcamo",
 		"apodo": "\"la que vive en el lodo\"",
-		"que": "La lombriz más vieja: del grueso de un tambo, con sacos de Serenol en el lomo que brillan en lo oscuro. Vive en el charco del fondo del cárcamo y sale a morder, a barrer y a escupir crías y lodo.",
+		"que": "La lombriz más vieja: del grueso de un tambo, con sacos de Serenol en el lomo que brillan en lo oscuro. Vive en el charco del fondo del cárcamo y sale a morder, a embestir, a vomitar crías y a escupir.",
 		"por_que": "Es lo que el agua de GelA hizo con lo que vive en el fondo de sus pozos. Sus sacos son Serenol puro, concentrado. Si los revientas, se cae y sus crías se quedan sin madre. Nadie de GelA ha bajado a verla; o nadie que haya salido.",
-		"como": "Solo le duelen los sacos, y solo cuando está afuera: tirada, barriendo o asomada. Antes de morder se oye un retumbo y sale tierra bajo tus pies: muévete. Cada saco cambia de turquesa a amarillo a rojo; cuando revienta uno, se desploma un ratito: ve por el que brilla más. Cada dos sacos se pone peor. Ten molotovs y sal a la mano.",
+		"como": "Solo le duele cuando está afuera: tirada, embistiendo o asomada. Los balazos, nomás en las crestas del lomo; en el cuero rebotan. Con el machete, los machetazos normales ni le hacen cosquillas: cárgalo y suéltale el tajo, que ese sí le abre lo que alcance. Antes de morder se oye un retumbo y sale tierra bajo tus pies: muévete. Lo que escupe va derecho como bala: rueda. Cada cresta pasa de morado a rosa a naranja; cuando revienta una, se desploma un ratito: ve por la que brilla más. Cada dos se pone peor. Ten molotovs y sal a la mano.",
 		"pista_por_que": "Pégale a un saco.",
 		"pista_como": "Mátala.",
 	},
@@ -108,9 +108,9 @@ const ENTRADAS := [
 		"id": "remedios",
 		"titulo": "Remedios",
 		"apodo": "\"lo que sirve\"",
-		"que": "Lo que he visto que funciona contra lo de abajo. La sal de grano (la tiendita), las molotovs (caguama con alcohol de la licorería) y los tambos prendidos. Se avientan con la tecla 3.",
+		"que": "Lo que he visto que funciona contra lo de abajo. La sal de grano (la tiendita), las molotovs (botella vacía llena de gasolina en la gasolinera, y un trapo) y los tambos prendidos. Se avientan con la tecla 3.",
 		"por_que": "La abuela lo sabía: \"a las babosas, sal\". La sal les quita el agua del cuerpo; el fuego las seca sin partirlas. Los tambos no los quieren cerca. Nada de esto le sirve a un zombi: es para las del cárcamo.",
-		"como": "Sal: un círculo que se come cabezas y no las deja pasar; si te cae encima, quema las que traes pegadas. Molotov: fuego que las encoge por la cola y le quema los sacos a la Madre, pero también te quema a ti. Patea un tambo y riega fuego. Tu estela de fuego, si la tienes, las quema en vez de partirlas.",
+		"como": "Sal: un círculo que se come cabezas y no las deja pasar; si te cae encima, quema las que traes pegadas. Molotov: la que toca el fuego se achicharra de una, y también le quema los sacos a la Madre, pero a ti también te quema. Patea un tambo y riega fuego. Tu estela de fuego, si la tienes, las quema en vez de partirlas.",
 		"pista_por_que": "Usa uno contra ellas.",
 		"pista_como": "Mata con fuego o con sal.",
 	},
@@ -167,6 +167,6 @@ static func datos(id: String) -> String:
 			return "Vida %d · pisotón %d · agarrón %d cada %.1f s · trenza %d · %d flores de %.0f · %d apretones para zafarte" % [
 				_C.VIDA, _C.DANO_PISA, _C.DANO_APRIETA, _C.APRIETA_CADA, _C.DANO_TRENZA, _C.FLORES, _C.FLOR_VIDA, roundi(_C.ZAFARSE)]
 		"remedios":
-			return "Sal: %.1f m por %.0f s · molotov: %.1f m por %.0f s" % [
-				_AR.SAL_RADIO, _AR.SAL_DURA, _AR.FUEGO_RADIO, _AR.FUEGO_DURA]
+			return "Sal: %.1f m por %.0f s · molotov de limón: %.1f m por %.0f s · de cereza: %.1f m" % [
+				_AR.SAL_RADIO, _AR.SAL_DURA, _AR.FUEGO_RADIO, _AR.FUEGO_DURA, _AR.FUEGO_RADIO * _AR.CEREZA_ALCANCE]
 	return ""

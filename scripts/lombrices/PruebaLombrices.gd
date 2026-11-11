@@ -1,8 +1,9 @@
 extends Node3D
-# El carcamo de la Madre (scenes/lombrices.tscn): un patio de PATIO m con un charco de lodo de
-# Serenol en medio (donde vive la Madre: MadreCarcamo.gd), cuatro pilares con pasarelas y
-# rampas, tambos prendidos que alejan a las crias (patealos para regar fuego) y una caja de sal
-# y una de molotov que se rellenan cada que sube la fase (cada 2 sacos).
+# El carcamo de la Madre (scenes/lombrices.tscn): el cuarto de bombeo de CarcamoNivel, con la
+# alberca de Serenol en medio (donde vive la Madre: MadreCarcamo.gd) y el mezzanine alrededor
+# por donde entras; tambos prendidos que alejan a las crias (patealos para regar fuego) y una
+# caja de sal y una de molotov abajo, que se rellenan cada que sube la fase (cada 2 sacos).
+# Desde el mezzanine no le haces dano a la Madre (MadreCarcamo.arriba): hay que bajar.
 #
 # La pelea empieza en cuanto se hornea el campo. Si te desmayas, se reinicia toda (tus cosas se
 # quedan). Si la matas: $PAGA, un tazo holo y el Diente de la Madre.
@@ -10,21 +11,28 @@ extends Node3D
 # tarda cada parte del paso (tambien con -- --perfil). -- --lento=<ms> hace el paso lento a
 # proposito, para ver que el juego no se traba aunque el hilo no alcance.
 # Con -- --medir=<s> corre sola esos segundos (prueba balazo, machetazo, sal, molotov y sacos),
-# imprime lo que paso y sale.
+# imprime lo que paso y sale. Con -- --fotos=<dir> guarda las VISTAS del cuarto en <dir> y sale.
 
-const PATIO := 22.0
-const MURO_ALTO := 3.0
-const CHARCO := 3.5             # medio lado del charco
-const CHARCO_HONDO := 0.6
-const PASARELA_ALTO := 2.5
-const ENTRADA := Vector3(0.0, 1.1, 9.5)
+const ENTRADA := CarcamoNivel.ENTRADA
 const PAGA := 400
+# [desde, hacia] de cada foto de -- --fotos
+const VISTAS := [
+	[Vector3(0, 5.9, -13.6), Vector3(0, 0.5, 3)],          # la entrada, arriba
+	[Vector3(-12.6, 6.4, -12.6), Vector3(0, -0.5, 1)],     # todo el cuarto desde la esquina
+	[Vector3(-6.5, 1.7, -7.5), Vector3(5, 2.2, 11)],       # desde abajo: alberca, escaleras
+	[Vector3(2.5, 1.6, -7.2), Vector3(0, -0.9, -0.5)],     # la alberca de cerca
+	[Vector3(-6.5, 2.6, -1.0), Vector3(-11, 1.8, -10)],    # la rampa oeste
+	[Vector3(6, 1.7, 2), Vector3(14, 2.2, -6)],            # muro este: letreros y manchas
+	[Vector3(9, 5.0, 12.5), Vector3(-4, 1, -4)],           # desde el mezzanine sur
+]
 const SAL := "res://resources/productos/sal.tres"
 const MOLOTOV := "res://resources/productos/molotov.tres"
 const DIENTE := "res://resources/productos/diente_madre.tres"
 const ALUMBRADO := preload("res://scripts/map/MapAlumbrado.gd")
-const TAMBOS := [Vector3(-10, 0, 3), Vector3(10, 0, -3), Vector3(-3, 0, 10), Vector3(3, 0, -10)]
-const CAJAS := [[Vector3(-9.5, 0.5, 9.5), SAL], [Vector3(9.5, 0.5, 9.5), MOLOTOV]]
+# Entre el barandal de la alberca y el mezzanine, fuera del camino de rampas y escaleras
+const TAMBOS := [Vector3(-8.3, 0, 2.5), Vector3(8.3, 0, -2.5), Vector3(-2.5, 0, -8.3), Vector3(2.5, 0, 8.3)]
+# En las esquinas del sur, abajo del mezzanine
+const CAJAS := [[Vector3(-12.8, 0.5, 12.8), SAL], [Vector3(12.8, 0.5, 12.8), MOLOTOV]]
 
 var _enjambre: EnjambreLombrices
 var _madre: MadreCarcamo
@@ -32,6 +40,11 @@ var _barra: BarraMadre
 var _jugador: Node3D
 var _salud: Node
 var _letrero: Label
+# Tu vida (arriba a la izquierda; en el carcamo no hay Supervivencia) y los controles abajo
+var _vida_relleno: ColorRect
+var _vida_texto: Label
+const VIDA_ANCHO := 120.0
+const CONTROLES := "Clic: pegar / disparar / aventar · 1 machete · 2 pistola · 3 sal (otra vez 3: molotov)\nQ curar · Alt + dirección rodar (te quita las pegadas) · clic der. cubrirte · F3 rendimiento"
 var _aviso: Label
 var _negro: ColorRect
 var _cajas: Array = []
@@ -45,6 +58,10 @@ var _cuadros := 0
 var _pruebas := 0
 var _perfil := false
 var _perfil_t := 0.0
+var _fotos := ""
+# Vida infinita para probar la pelea (-- --inmortal, o F4): los golpes pegan pero la vida se rellena
+var inmortal := false
+var _retratando := false
 
 
 func _ready() -> void:
@@ -53,13 +70,39 @@ func _ready() -> void:
 		add_child(Liquido.new())
 	if get_tree().get_first_node_in_group("efectos_pixel") == null:
 		add_child(EfectosPixel.new())
+	var nivel := CarcamoNivel.new()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--ambiente="):
+			nivel.ambiente = float(arg.trim_prefix("--ambiente="))
+	add_child(nivel)
 	_nivel()
 	_enjambre = $EnjambreLombrices
 	_enjambre.horneado.connect(_empezar)
-	# Por donde suben las crias si te trepas a una pasarela: [pie, punta] de cada rampa
-	_enjambre.rampas = [[Vector3(-9.5, 0.0, -1.0), Vector3(-9.5, PASARELA_ALTO, -6.4)],
-		[Vector3(9.5, 0.0, 1.0), Vector3(9.5, PASARELA_ALTO, 6.4)]]
+	# Por donde suben las crias si te subes al mezzanine: [pie, punta] de cada rampa y escalera;
+	# ya arriba te siguen por el anillo
+	_enjambre.rampas = nivel.rampas
+	_enjambre.anillo = CarcamoNivel.EJE_MEZZ
 	_jugador = $Player
+	# El barandal de la alberca esta en la capa 2: solo te detiene a ti
+	(_jugador as CollisionObject3D).collision_mask |= 2
+	# Los ataques especiales de golpe-direccion, como en la safehouse y la defensa (JJ): tajo cargado,
+	# giro aereo (y la estocada en el aire con Shift) y la estela del protagonista. Les pegan a las
+	# crias y a la Madre (Player los manda al grupo "lombrices"). Se apagan en _exit_tree
+	Player.golpe_cargado = true
+	Player.giro_aereo = true
+	get_node("/root/Personaje").mejora_estela = true
+	_jugador.aplicar_personaje()
+	# Curas infinitas para probar (JJ): con al menos un botiquin, Q cura sin gastarlo
+	INVENTARIO.curas_infinitas = true
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario and inventario.curaciones() == 0:
+		inventario.add_item(load("res://resources/productos/botiquin.tres"))
+	# Sal y molotov desde el principio, infinitas (JJ): con una de cada en el inventario basta
+	Lanzador.infinitos = true
+	for ruta: String in [SAL, MOLOTOV]:
+		var cosa := load(ruta) as InventoryItemData
+		if inventario and _jugador.get_node("Lanzador").cuantos(cosa.arrojar) == 0 and not inventario.add_item(cosa):
+			push_warning("Lombrices: no cupo %s en el inventario" % cosa.item_name)
 	_salud = get_node_or_null("/root/Salud")
 	var capa := CanvasLayer.new()
 	capa.layer = 5
@@ -70,6 +113,7 @@ func _ready() -> void:
 	_letrero.add_theme_color_override("font_outline_color", Color.BLACK)
 	_letrero.add_theme_constant_override("outline_size", 4)
 	capa.add_child(_letrero)
+	_armar_vida(capa)
 	_aviso = Label.new()
 	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -87,6 +131,11 @@ func _ready() -> void:
 		if arg.begins_with("--medir="):
 			_medir = float(arg.trim_prefix("--medir="))
 			_medir_total = _medir
+		elif arg.begins_with("--fotos="):
+			_fotos = arg.trim_prefix("--fotos=")
+		elif arg == "--inmortal":
+			inmortal = true
+			print("Lombrices: vida infinita (F4 la quita)")
 		elif arg == "--perfil":
 			_perfil = true
 		elif arg.begins_with("--lento="):
@@ -95,58 +144,17 @@ func _ready() -> void:
 
 # --- El carcamo ---
 
+# El cuarto lo arma CarcamoNivel; aqui va lo de la pelea: la alberca que frena y los tambos
 func _nivel() -> void:
-	var gris := StandardMaterial3D.new()
-	gris.albedo_color = Color(0.4, 0.41, 0.42)
-	var piso_mat := StandardMaterial3D.new()
-	piso_mat.albedo_color = Color(0.27, 0.28, 0.25)
-	var fondo := StandardMaterial3D.new()
-	fondo.albedo_color = Color(0.12, 0.16, 0.13)
-	var medio := PATIO / 2.0
-	# El piso con el hueco del charco: cuatro losas alrededor y el fondo mas abajo
-	var ancho := medio - CHARCO
-	_caja(Vector3(PATIO + 2.0, 1.0, ancho + 1.0), Vector3(0, -0.5, -(CHARCO + (ancho + 1.0) / 2.0)), piso_mat)
-	_caja(Vector3(PATIO + 2.0, 1.0, ancho + 1.0), Vector3(0, -0.5, CHARCO + (ancho + 1.0) / 2.0), piso_mat)
-	_caja(Vector3(ancho + 1.0, 1.0, CHARCO * 2.0), Vector3(-(CHARCO + (ancho + 1.0) / 2.0), -0.5, 0), piso_mat)
-	_caja(Vector3(ancho + 1.0, 1.0, CHARCO * 2.0), Vector3(CHARCO + (ancho + 1.0) / 2.0, -0.5, 0), piso_mat)
-	_caja(Vector3(CHARCO * 2.0, 0.4, CHARCO * 2.0), Vector3(0, -CHARCO_HONDO - 0.2, 0), fondo)
-	# El lodo: una superficie turbia (no detiene nada) y una zona que te frena
-	var lodo := MeshInstance3D.new()
-	var plano := PlaneMesh.new()
-	plano.size = Vector2.ONE * CHARCO * 2.0
-	var lodo_mat := StandardMaterial3D.new()
-	lodo_mat.albedo_color = Color(0.13, 0.3, 0.25, 0.82)
-	lodo_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	lodo_mat.emission_enabled = true
-	lodo_mat.emission = Color(0.03, 0.18, 0.14)
-	lodo_mat.roughness = 0.15
-	plano.material = lodo_mat
-	lodo.mesh = plano
-	lodo.position.y = -0.15
-	add_child(lodo)
+	# Meterse a la alberca te frena (el Serenol se ve claro pero es espeso)
 	var zona := ZonaLombrices.new()
 	zona.tipo = ZonaLombrices.Tipo.LODO
-	zona.radio = CHARCO
+	zona.radio = CarcamoNivel.ALBERCA
 	zona.dura = 0.0
 	zona.frena = 0.7
-	zona.position = Vector3(0, -CHARCO_HONDO, 0)
+	zona.ver = false
+	zona.position = Vector3(0, -CarcamoNivel.HONDO, 0)
 	add_child(zona)
-	# Muros
-	for lado in [Vector3.FORWARD, Vector3.BACK, Vector3.LEFT, Vector3.RIGHT]:
-		var medida := Vector3(PATIO + 2.0, MURO_ALTO, 1.0) if lado.x == 0.0 else Vector3(1.0, MURO_ALTO, PATIO + 2.0)
-		_caja(medida, lado * (medio + 0.5) + Vector3.UP * MURO_ALTO / 2.0, gris)
-	# Pilares, pasarelas y rampas
-	for x in [-7.0, 7.0]:
-		for z in [-7.0, 7.0]:
-			_pilar(Vector3(x, 0, z), gris)
-	for z in [-7.0, 7.0]:
-		_caja(Vector3(20.6, 0.3, 1.6), Vector3(0, PASARELA_ALTO - 0.15, z), gris)
-	var angulo := atan2(PASARELA_ALTO, 5.0)
-	var largo := sqrt(PASARELA_ALTO * PASARELA_ALTO + 25.0)
-	var rampa := _caja(Vector3(1.6, 0.25, largo), Vector3(-9.5, PASARELA_ALTO / 2.0 - 0.1, -3.7), gris)
-	rampa.rotation.x = angulo
-	rampa = _caja(Vector3(1.6, 0.25, largo), Vector3(9.5, PASARELA_ALTO / 2.0 - 0.1, 3.7), gris)
-	rampa.rotation.x = -angulo
 	# Tambos prendidos
 	for lugar: Vector3 in TAMBOS:
 		var tambo := ZonaLombrices.new()
@@ -168,62 +176,6 @@ func _nivel() -> void:
 		luz.position.y = 1.4
 		tambo.add_child(luz)
 	_rellenar_cajas()
-	var sol := DirectionalLight3D.new()
-	sol.rotation = Vector3(deg_to_rad(-55.0), deg_to_rad(30.0), 0)
-	sol.light_energy = 0.35
-	sol.light_color = Color(0.6, 0.7, 0.9)
-	sol.shadow_enabled = true
-	add_child(sol)
-	var mundo := WorldEnvironment.new()
-	var ambiente := Environment.new()
-	ambiente.background_mode = Environment.BG_COLOR
-	ambiente.background_color = Color(0.05, 0.06, 0.08)
-	ambiente.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	ambiente.ambient_light_color = Color(0.3, 0.35, 0.4)
-	ambiente.fog_enabled = true
-	ambiente.fog_light_color = Color(0.08, 0.12, 0.11)
-	ambiente.fog_density = 0.03
-	mundo.environment = ambiente
-	add_child(mundo)
-
-
-func _caja(medida: Vector3, donde: Vector3, material: Material) -> StaticBody3D:
-	var cuerpo := StaticBody3D.new()
-	var forma := CollisionShape3D.new()
-	var caja := BoxShape3D.new()
-	caja.size = medida
-	forma.shape = caja
-	cuerpo.add_child(forma)
-	var malla := MeshInstance3D.new()
-	var bm := BoxMesh.new()
-	bm.size = medida
-	bm.material = material
-	malla.mesh = bm
-	cuerpo.add_child(malla)
-	cuerpo.position = donde
-	add_child(cuerpo)
-	return cuerpo
-
-
-func _pilar(donde: Vector3, material: Material) -> void:
-	var cuerpo := StaticBody3D.new()
-	var forma := CollisionShape3D.new()
-	var cilindro := CylinderShape3D.new()
-	cilindro.radius = 0.6
-	cilindro.height = MURO_ALTO + 1.0
-	forma.shape = cilindro
-	cuerpo.add_child(forma)
-	var malla := MeshInstance3D.new()
-	var cm := CylinderMesh.new()
-	cm.top_radius = 0.6
-	cm.bottom_radius = 0.6
-	cm.height = MURO_ALTO + 1.0
-	cm.radial_segments = 8
-	cm.material = material
-	malla.mesh = cm
-	cuerpo.add_child(malla)
-	cuerpo.position = donde + Vector3.UP * (MURO_ALTO + 1.0) / 2.0
-	add_child(cuerpo)
 
 
 # Las cajas de sal y molotov que se tomaron vuelven a salir
@@ -248,6 +200,10 @@ func _empezar() -> void:
 		_madre = MadreCarcamo.new()
 		_madre.enjambre = _enjambre
 		_madre.charco = Vector3.ZERO
+		# Solo nada dentro de la alberca; en el cemento salta y se arrastra
+		_madre.alberca = CarcamoNivel.ALBERCA
+		_madre.barandal = CarcamoNivel.BARANDAL
+		_madre.barandal_a = CarcamoNivel.BARANDAL_ALBERCA
 		add_child(_madre)
 		_madre.muerta.connect(_gano_pelea)
 		_madre.saco_reventado.connect(func(q: int) -> void:
@@ -261,6 +217,8 @@ func _empezar() -> void:
 	_madre.set_physics_process(true)
 	_gano = false
 	_avisar("LA MADRE DEL CÁRCAMO", 2.5)
+	if not _fotos.is_empty():
+		_tomar_fotos()
 
 
 func _reiniciar_pelea() -> void:
@@ -310,14 +268,63 @@ func _avisar(texto: String, dura: float) -> void:
 	tween.tween_property(_aviso, "modulate:a", 0.0, 0.6)
 
 
+func _armar_vida(capa: CanvasLayer) -> void:
+	var caja := VBoxContainer.new()
+	caja.position = Vector2(8, 8)
+	caja.theme = BarraMadre.TEMA
+	caja.add_theme_constant_override("separation", 2)
+	capa.add_child(caja)
+	_vida_texto = Label.new()
+	_vida_texto.add_theme_font_size_override("font_size", 10)
+	_vida_texto.add_theme_color_override("font_outline_color", Color.BLACK)
+	_vida_texto.add_theme_constant_override("outline_size", 3)
+	caja.add_child(_vida_texto)
+	var fondo := ColorRect.new()
+	fondo.color = Color(0.05, 0.05, 0.05, 0.85)
+	fondo.custom_minimum_size = Vector2(VIDA_ANCHO + 4.0, 10.0)
+	caja.add_child(fondo)
+	_vida_relleno = ColorRect.new()
+	_vida_relleno.position = Vector2(2, 2)
+	_vida_relleno.size = Vector2(VIDA_ANCHO, 6.0)
+	fondo.add_child(_vida_relleno)
+
+
+func _pintar_vida() -> void:
+	if _salud == null:
+		return
+	var f := clampf(float(_salud.vida) / maxf(float(_salud.vida_max), 1.0), 0.0, 1.0)
+	_vida_relleno.size.x = VIDA_ANCHO * f
+	_vida_relleno.color = Color(0.85, 0.15, 0.12) if f < 0.35 else (Color(0.95, 0.75, 0.15) if f < 0.65 else Color(0.35, 0.85, 0.3))
+	_vida_texto.text = "Vida %d / %d%s" % [_salud.vida, _salud.vida_max, "  (infinita)" if inmortal else ""]
+
+
+# Cuantas sales y molotovs traes (InventoryItemData.arrojar: 1 sal, 2 molotov)
+func _arrojables() -> String:
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario == null:
+		return ""
+	var cuenta := [0, 0, 0]
+	for item: InventoryItemData in inventario.items:
+		if item and item.arrojar > 0:
+			cuenta[item.arrojar] += 1
+	return "Sal %d · Molotov %d · todo infinito (curas, sal y molotov)" % [cuenta[1], cuenta[2]]
+
+
 func _process(delta: float) -> void:
+	_pintar_vida()
 	if _enjambre.horneando:
 		_letrero.text = "Horneando el cárcamo..."
 		return
-	_letrero.text = "paso %.1f ms (hilo, %d/s) · pensar %.1f · dibujar %.1f ms · %d FPS · %d pegadas%s" % [
-		_enjambre.ms_solver, _enjambre.hz, _enjambre.ms_pensar, _enjambre.ms_pintar,
-		Engine.get_frames_per_second(), _enjambre.pegadas(),
-		" · calidad: -%d lombrices" % _enjambre.quitadas if _enjambre.quitadas > 0 else ""]
+	if _perfil:
+		_letrero.position.y = 440
+		_letrero.text = "paso %.1f ms (hilo, %d/s) · pensar %.1f · dibujar %.1f ms · %d FPS · %d pegadas%s" % [
+			_enjambre.ms_solver, _enjambre.hz, _enjambre.ms_pensar, _enjambre.ms_pintar,
+			Engine.get_frames_per_second(), _enjambre.pegadas(),
+			" · calidad: -%d lombrices" % _enjambre.quitadas if _enjambre.quitadas > 0 else ""]
+	else:
+		# Abajo a la izquierda: lo que traes para aventar y los controles
+		_letrero.position.y = 480 - 44
+		_letrero.text = _arrojables() + "\n" + CONTROLES
 	if _perfil:
 		_perfil_t -= delta
 		if _perfil_t <= 0.0:
@@ -325,20 +332,106 @@ func _process(delta: float) -> void:
 			var f: PackedInt64Array = _enjambre.solver.perfil
 			print("Perfil (us): integrar %d · parejas %d · hilos %d · separar %d · campo %d · limites %d | pensar %d · dibujar %d | %d FPS" % [
 				f[0], f[1], f[2], f[3], f[4], f[5], int(_enjambre.ms_pensar * 1000.0), int(_enjambre.ms_pintar * 1000.0), Engine.get_frames_per_second()])
+	# Que no se desmaye mientras saca las fotos (si no, se reinicia y las crias vuelven al piso)
+	if _retratando and _salud and _salud.vida < 30:
+		_salud.vida = _salud.vida_max
+	if inmortal and _salud and _salud.vida < _salud.vida_max:
+		_salud.vida = _salud.vida_max
 	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0:
 		_reiniciar_pelea()
 	if _medir > 0.0:
 		_seguir_medida(delta)
 
 
+const ESTELA := preload("res://scripts/EstelaBarrido.gd")
+const INVENTARIO := preload("res://scripts/Inventory.gd")
+
+func _exit_tree() -> void:
+	Lanzador.infinitos = false
+	INVENTARIO.curas_infinitas = false
+	Player.golpe_cargado = false
+	Player.giro_aereo = false
+	get_node("/root/Personaje").mejora_estela = false
+	ESTELA.estilo = ESTELA.Estilo.NORMAL
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F3:
 		_perfil = not _perfil
+	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F4:
+		inmortal = not inmortal
+		print("Lombrices: vida infinita %s" % ("si" if inmortal else "no"))
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_COMMA:
 		if event.shift_pressed:
 			EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())
 		elif not _reiniciando:
 			_reiniciar_pelea()
+
+
+# --- Fotos (-- --fotos=<dir>) ---
+
+func _tomar_fotos() -> void:
+	var dir := _fotos
+	_fotos = ""
+	_retratando = true
+	DirAccess.make_dir_recursive_absolute(dir)
+	_letrero.visible = false
+	# Que se vaya el letrero de la pelea y la Madre empiece a moverse
+	await get_tree().create_timer(3.5).timeout
+	var camara := Camera3D.new()
+	camara.fov = 70.0
+	add_child(camara)
+	camara.current = true
+	for n in VISTAS.size():
+		camara.look_at_from_position(VISTAS[n][0], VISTAS[n][1])
+		for i in 15:
+			await get_tree().process_frame
+		var imagen := get_viewport().get_texture().get_image()
+		imagen.save_png(dir.path_join("carcamo_%d.png" % (n + 1)))
+	print("Fotos: %d en %s" % [VISTAS.size(), dir])
+	# Lo que cuesta la rejilla del mezzanine: GPU y llamadas de dibujo con y sin ella, desde arriba
+	camara.look_at_from_position(VISTAS[6][0], VISTAS[6][1])
+	var rid := get_viewport().get_viewport_rid()
+	RenderingServer.viewport_set_measure_render_time(rid, true)
+	for con: bool in [true, false, true, false]:
+		for nodo in get_tree().get_nodes_in_group("carcamo_rejilla"):
+			(nodo as Node3D).visible = con
+		var gpu := 0.0
+		var llamadas := 0
+		for i in 120:
+			await get_tree().process_frame
+			if i >= 60:
+				gpu += RenderingServer.viewport_get_measured_render_time_gpu(rid)
+				llamadas = int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
+		print("  %s rejilla: gpu %.2f ms · %d llamadas · %d piezas" % ["con" if con else "sin", gpu / 60.0, llamadas,
+			get_tree().get_nodes_in_group("carcamo_rejilla").size()])
+	# Cuantas crias ya llegaron contigo al mezzanine (entras arriba)
+	await get_tree().create_timer(15.0).timeout
+	var arriba := 0
+	var total := 0
+	for i in _enjambre.vista.size():
+		if _enjambre.vivos[i] == 1 and i % _enjambre.puntos == 0:
+			total += 1
+			if _enjambre.vista[i].y > CarcamoNivel.MEZZ_ALTO - 0.5:
+				arriba += 1
+	# Por cual rampa o escalera subio cada una (0 rampa oeste, 1 rampa este, 2-3 escaleras)
+	var por := [0, 0, 0, 0]
+	for h in _enjambre._cabezas:
+		var k: int = _enjambre._por_rampa[h]
+		if k >= 0 and k < por.size():
+			por[k] += 1
+	print("  crias arriba %d de %d · por rampa %s · madre %s" % [arriba, total, por, _madre.cuenta])
+	camara.look_at_from_position(Vector3(-6.5, 2.6, -1.0), Vector3(-11, 1.8, -10))
+	for i in 15:
+		await get_tree().process_frame
+	get_viewport().get_texture().get_image().save_png(dir.path_join("carcamo_rampa_despues.png"))
+	# Un escupitajo de la Madre pasando de lado frente a la camara
+	camara.look_at_from_position(Vector3(-4.0, 2.0, 3.0), Vector3(-4.0, 2.2, -3.0))
+	Arrojadizo.lanzar(self, Vector3(-8.0, 2.0, -1.5), Vector3(9.0, 3.0, 0.0), 3, [])
+	for i in 24:
+		await get_tree().physics_frame
+	get_viewport().get_texture().get_image().save_png(dir.path_join("carcamo_escupitajo.png"))
+	get_tree().quit()
 
 
 # --- Prueba sola (-- --medir=<s>) ---

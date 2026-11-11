@@ -2,12 +2,14 @@
 
 [ext_resource type="PackedScene" path="res://models/aguamala.glb" id="1_modelo"]
 [ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+[ext_resource type="Resource" path="res://resources/productos/botella_vacia.tres" id="9_deja"]
 
 [resource]
 script = ExtResource("2_item")
 item_name = "Caguama"
 description = "Agua Mala, bien helada (o casi)."
 inspection_model = ExtResource("1_modelo")
-efecto = "Recupera vida pero te marea un rato. Vacía sirve para molotov."
+efecto = "Recupera vida pero te marea un rato. Te queda la botella."
 precio = 50
 curacion = 25
+deja = ExtResource("9_deja")

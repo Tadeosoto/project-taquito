@@ -329,6 +329,109 @@ const PALETA_FUEGO := """vec3(0.300, 0.030, 0.020), vec3(0.620, 0.070, 0.030), v
 # Felipe: de afuera (0) hacia adentro, del carbon de los cuadros al blanco, sin amarillo ni naranja (JJ)
 const PALETA_FELIPE := """vec3(0.100, 0.110, 0.140), vec3(0.250, 0.260, 0.290), vec3(0.420, 0.430, 0.460),
 	vec3(0.620, 0.630, 0.650), vec3(0.820, 0.830, 0.840), vec3(0.970, 0.970, 0.970)"""
+# El arco de humo del punado de sal (Player._seguir_aventada, JJ): la misma media luna que la estela,
+# pero de humo suave (JJ: no de puntitos): ruido que corre a lo largo, transparente, blanco a gris,
+# mas denso a media cinta y que se adelgaza y se desvanece conforme envejece. Sin nubes de pixel
+const HUMO_VIDA := 0.55
+const SHADER_HUMO := """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled, depth_draw_never;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+float ruido(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+		mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+float fbm(vec2 p) {
+	float v = 0.0;
+	float a = 0.5;
+	for (int k = 0; k < 4; k++) {
+		v += a * ruido(p);
+		p = p * 2.03 + vec2(1.7, 9.2);
+		a *= 0.5;
+	}
+	return v;
+}
+
+void fragment() {
+	float edad = UV.y;
+	// La orilla de adentro se va comiendo con la edad, como la estela
+	float borde = edad * 0.55;
+	float k = (UV.x - borde) / max(1.0 - borde, 0.001);
+	if (k <= 0.0) {
+		discard;
+	}
+	vec2 q = vec2(UV2.x * 0.22, k * 2.5) + vec2(TIME * 0.4, -TIME * 0.9 - edad * 1.5);
+	float n = fbm(q);
+	float n2 = fbm(q * 2.3 + vec2(4.0, 1.0));
+	float forma = smoothstep(0.0, 0.35, k) * smoothstep(1.0, 0.7, k);
+	float alfa = smoothstep(0.25, 0.75, n * 0.7 + n2 * 0.45 + forma * 0.35) * forma;
+	alfa *= pow(1.0 - edad, 1.4) * 0.9;
+	ALBEDO = pow(mix(vec3(0.70, 0.70, 0.69), vec3(1.0, 1.0, 0.985), n2), vec3(2.2));
+	ALPHA = clamp(alfa, 0.0, 1.0);
+}
+"""
+static var _material_humo: ShaderMaterial
+# Las nubes que suelta el arco de humo (JJ): bolas de humo suave, no de pixel, que salen hacia
+# afuera del arco, crecen, suben un poco y se deshacen
+const HUMO_NUBE_CADA := 2           # pedazos del arco entre nube y nube
+const HUMO_NUBE_VIDA := 0.9
+const HUMO_NUBE_TAMANO := Vector2(0.45, 1.4)   # m, al salir y al final
+const HUMO_NUBE_SALE := Vector2(0.4, 1.8)      # m/s hacia afuera del arco
+const HUMO_NUBE_SUBE := 0.3
+const SHADER_NUBE_HUMO := """
+shader_type spatial;
+render_mode unshaded, cull_disabled, shadows_disabled, fog_disabled, depth_draw_never;
+
+instance uniform float edad = 0.0;
+instance uniform float semilla = 0.0;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+float ruido(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+		mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+float fbm(vec2 p) {
+	float v = 0.0;
+	float a = 0.5;
+	for (int k = 0; k < 4; k++) {
+		v += a * ruido(p);
+		p = p * 2.03 + vec2(1.7, 9.2);
+		a *= 0.5;
+	}
+	return v;
+}
+
+void vertex() {
+	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(INV_VIEW_MATRIX[0], INV_VIEW_MATRIX[1], INV_VIEW_MATRIX[2], MODEL_MATRIX[3]);
+	MODELVIEW_MATRIX = MODELVIEW_MATRIX * mat4(vec4(length(MODEL_MATRIX[0].xyz), 0.0, 0.0, 0.0),
+		vec4(0.0, length(MODEL_MATRIX[1].xyz), 0.0, 0.0), vec4(0.0, 0.0, length(MODEL_MATRIX[2].xyz), 0.0),
+		vec4(0.0, 0.0, 0.0, 1.0));
+	MODELVIEW_NORMAL_MATRIX = mat3(MODELVIEW_MATRIX);
+}
+
+void fragment() {
+	vec2 p = UV - 0.5;
+	vec2 q = UV * 3.0 + vec2(semilla * 17.0, semilla * 5.0 - edad * 1.2);
+	float n = fbm(q);
+	float d = length(p) * 2.0 + (n - 0.5) * 0.7;
+	float alfa = smoothstep(1.0, 0.35, d) * smoothstep(0.15, 0.6, n + 0.25 - edad * 0.35);
+	alfa *= pow(1.0 - edad, 1.5) * 0.8;
+	ALBEDO = pow(mix(vec3(0.66, 0.66, 0.65), vec3(1.0, 1.0, 0.985), clamp(n * 1.3 - p.y, 0.0, 1.0)), vec3(2.2));
+	ALPHA = clamp(alfa, 0.0, 1.0);
+}
+"""
+static var _material_nube_humo: ShaderMaterial
 const POLVO_GRIS := """vec3(0.961, 0.957, 0.937), vec3(0.851, 0.847, 0.827), vec3(0.698, 0.698, 0.686),
 	vec3(0.549, 0.553, 0.549)"""
 
@@ -340,6 +443,7 @@ var _nube_vel: Array[Vector3] = []     # las del estallido salen disparadas; las
 var _nube_escala: Array[float] = []
 var _siguiente := 0
 var _cuenta := 0
+var humo := false               # el arco de la sal: SHADER_HUMO, HUMO_VIDA, nubes blancas
 
 
 func _ready() -> void:
@@ -442,11 +546,13 @@ func _de_rayos() -> bool:
 
 
 func _tamano_nube() -> Vector2:
+	if humo:
+		return HUMO_NUBE_TAMANO
 	return RAYO_TAMANO if _de_rayos() else NUBE_TAMANO
 
 
 func _modo() -> int:
-	return estilo
+	return 0 if humo else estilo
 
 
 func _de_agua() -> bool:
@@ -459,6 +565,13 @@ func agregar(mano: Vector3, punta: Vector3, a_puno := false) -> void:
 	var de_agua := _de_agua()
 	if _pedazos.is_empty():
 		material_override = [_material, _material_agua, _material_monarca, _material_fuego, _material_rayos, _material_flamas][_modo()]
+		if humo:
+			if _material_humo == null:
+				var shader := Shader.new()
+				shader.code = SHADER_HUMO
+				_material_humo = ShaderMaterial.new()
+				_material_humo.shader = shader
+			material_override = _material_humo
 	var desde := AGUA_DESDE if de_agua else DESDE
 	var baja := AGUA_BAJA if de_agua else ADENTRO_BAJA
 	if a_puno:
@@ -466,7 +579,11 @@ func agregar(mano: Vector3, punta: Vector3, a_puno := false) -> void:
 		baja = 0.0
 	_pedazos.append([mano.lerp(punta, desde) + Vector3.DOWN * baja, punta, 0.0, float(_cuenta)])
 	_cuenta += 1
-	if _de_rayos():
+	if humo:
+		if _cuenta % HUMO_NUBE_CADA == 0:
+			var i := _soltar_nube(mano.lerp(punta, randf_range(0.25, 1.0)))
+			_nube_vel[i] = (punta - mano).normalized() * randf_range(HUMO_NUBE_SALE.x, HUMO_NUBE_SALE.y)
+	elif _de_rayos():
 		if _cuenta % RAYO_CADA == 0:
 			_soltar_nube(punta + (punta - mano).normalized() * RAYO_AFUERA)
 	elif _cuenta % NUBE_CADA == 0:
@@ -496,6 +613,13 @@ func _soltar_nube(donde: Vector3) -> int:
 	var nube := _nubes[i]
 	nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * _tamano_nube().x), donde)
 	nube.material_override = [_material_nube, _material_espuma, _material_polen, _material_chispas, _material_rayo, _material_chispas_felipe][_modo()]
+	if humo:
+		if _material_nube_humo == null:
+			var shader := Shader.new()
+			shader.code = SHADER_NUBE_HUMO
+			_material_nube_humo = ShaderMaterial.new()
+			_material_nube_humo.shader = shader
+		nube.material_override = _material_nube_humo
 	nube.set_instance_shader_parameter("semilla", randf())
 	nube.set_instance_shader_parameter("edad", 0.0)
 	nube.visible = true
@@ -508,7 +632,7 @@ func _soltar_nube(donde: Vector3) -> int:
 func _process(delta: float) -> void:
 	for pedazo: Array in _pedazos:
 		pedazo[2] += delta
-	var vida := AGUA_VIDA if _de_agua() else VIDA
+	var vida := HUMO_VIDA if humo else (AGUA_VIDA if _de_agua() else VIDA)
 	while not _pedazos.is_empty() and _pedazos[0][2] >= vida:
 		_pedazos.pop_front()
 	var hay_nubes := _mover_nubes(delta)
@@ -536,7 +660,7 @@ func _mover_nubes(delta: float) -> bool:
 			continue
 		_nube_edad[i] += delta
 		var nube := _nubes[i]
-		var edad := _nube_edad[i] / NUBE_VIDA
+		var edad := _nube_edad[i] / (HUMO_NUBE_VIDA if humo else NUBE_VIDA)
 		if edad >= 1.0:
 			_nube_edad[i] = -1.0
 			nube.visible = false
@@ -545,7 +669,7 @@ func _mover_nubes(delta: float) -> bool:
 		var tam := _tamano_nube()
 		var tamano := lerpf(tam.x, tam.y, ease(edad, 0.4)) * _nube_escala[i]
 		# Los rayos no suben como el humo
-		var sube := 0.0 if _de_rayos() else NUBE_SUBE
+		var sube := 0.0 if _de_rayos() else (HUMO_NUBE_SUBE if humo else NUBE_SUBE)
 		_nube_vel[i] = _nube_vel[i].move_toward(Vector3.ZERO, ESTALLIDO_FRENA * delta)
 		nube.global_transform = Transform3D(Basis.from_scale(Vector3.ONE * tamano),
 			nube.global_position + (Vector3.UP * sube + _nube_vel[i]) * delta)

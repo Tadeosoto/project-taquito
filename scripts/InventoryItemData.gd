@@ -21,6 +21,14 @@ extends Resource
 # Vida que recupera con "Utilizar" en el inventario; 0 = no se puede utilizar
 @export var curacion : int = 0
 
+# Lo que te queda en la mano al usarlo (Inventory.usar_curacion): el refresco y la caguama dejan la
+# botella vacia, que con gasolina y un trapo es molotov. Con esto se puede utilizar aunque no cure
+@export var deja : InventoryItemData
+
+# Para comprarlo hace falta traer esto, y se gasta: la gasolinera te llena una botella vacia, no te
+# vende la gasolina suelta (Interior._comprar)
+@export var requiere : InventoryItemData
+
 # Si es arma: lo que le quita a un zombi de un golpe (Player._golpear). 0 = no es arma
 @export var dano : int = 0
 
@@ -70,8 +78,13 @@ func es_amuleto() -> bool:
 # Lo que se gasta se apila en un solo lugar del inventario (Inventory.MAX_PILA)
 func apilable() -> bool:
 	return curacion > 0 or bolsa_tazo or estampita != ""
-# Se avienta con el Lanzador (tecla 3): sal o molotov contra las lombrices (ZonaLombrices)
-@export_enum("No", "Sal", "Molotov") var arrojar : int = 0
+
+
+# Se avienta con el Lanzador (tecla 3): sal o molotov (de limon o de cereza, que quema 1.5 veces mas lejos) contra las lombrices (ZonaLombrices), la
+# palomita que aturde a los zombis (Arrojadizo.PALOMITA) o la bocina que los jala (Senuelo)
+@export_enum("No", "Sal", "Molotov", "Palomita", "Bocina", "Bocina encintada", "Molotov de cereza") var arrojar : int = 0
+# Cuantos lanzamientos da una pieza (la bolsa de sal: 10; JJ, 2026-11-10)
+@export var usos : int = 1
 
 
 # El modelo centrado y escalado a una caja de `tamano` m (los de Sketchfab vienen en

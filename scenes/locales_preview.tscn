@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://dl4dng0djto2e" path="res://models/tiendas/tienda_3b/tienda_3b.scn" id="7_tienda"]
 [ext_resource type="PackedScene" uid="uid://dfr64otgywr5b" path="res://models/tiendas/farmacia_guadalajara/farmacia_guadalajara.scn" id="8_farmacia"]
 [ext_resource type="PackedScene" uid="uid://8wpebuoddyiq" path="res://models/tiendas/puesto_tacos/puesto_tacos.scn" id="9_puesto"]
-[ext_resource type="PackedScene" uid="uid://b6rm74tkw20hu" path="res://models/tiendas/pemex/pemex.scn" id="13_pemex"]
+[ext_resource type="PackedScene" path="res://models/tiendas/gasolinera/gasolinera.scn" id="13_pemex"]
 [ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="14_carrito"]
 [ext_resource type="PackedScene" uid="uid://ddpadu7v45ldh" path="res://models/props/alto/alto.scn" id="18_alto"]
 [ext_resource type="PackedScene" uid="uid://cisd7p02ivmq6" path="res://models/casas/urbi/urbi.scn" id="20_urbi"]
@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://scripts/map/MapNocheDebug.gd" id="41_noche"]
 [ext_resource type="PackedScene" path="res://models/personajes/dr_simi/dr_simi.scn" id="42_similares"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="44_tiendita"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/gasolinera.tscn" id="gasolinera_escena"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/licoreria.tscn" id="44_licoreria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/abarrotes.tscn" id="44_abarrotes"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="44_farmacia"]
@@ -205,7 +206,7 @@ escenas = Dictionary[String, PackedScene]({
 "abarrotes": ExtResource("44_abarrotes"),
 "farmacia": ExtResource("44_farmacia"),
 "ferreteria": ExtResource("44_ferreteria"),
-"gasolinera": ExtResource("44_tiendita"),
+"gasolinera": ExtResource("gasolinera_escena"),
 "licoreria": ExtResource("44_licoreria"),
 "oxxo": ExtResource("44_tiendita"),
 "punto": ExtResource("44_punto"),

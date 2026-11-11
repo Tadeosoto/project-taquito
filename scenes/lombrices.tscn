@@ -9,9 +9,11 @@
 script = ExtResource("1_prueba")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 9.5)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 4.6, -12.8)
 
 [node name="EnjambreLombrices" type="Node3D" parent="."]
 script = ExtResource("3_enjambre")
+caja = Vector3(29, 6, 29)
+guardar_campo = "user://campo_carcamo.bin"
 
 [node name="InventoryUI" parent="." instance=ExtResource("4_inventario")]

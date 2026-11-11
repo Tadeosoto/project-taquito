@@ -58,6 +58,10 @@ const ACCIONES := {
 	"bloqueo": "Sword_Block",          # clic derecho con el machete (Player.bloquear)          # la pose mientras cargas: el amago de la estocada, quieto
 	"herido": "Hit_Chest",
 	"recoger": "PickUp_Table",
+	"curar": "Drink",                 # curarse con Q (Player._curarse): UAL1 Source, el brazo sube, toma y baja
+	"aventar": "Sword_Heavy_A",       # el punado de sal (Player.aventar_sal): el tajo pesado de UAL2 Source
+	"molotov": "OverhandThrow",        # la molotov (Player.aventar_molotov): por encima del hombro
+	"aturdido": "Crying",              # te tronó la palomita en la mano (Player.aturdirte): te tapas la cara
 }
 const PUNETAZOS := ["puno_jab", "puno_cruzado", "puno_gancho"]
 # Que sigue a cada golpe cuando nadie lo corta
@@ -215,12 +219,12 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	raiz.connect_node("giro_vel", 0, "giro_salta")
 	# La estocada y la pose de carga pueden empezar a media animacion: al soltar la carga, la
 	# estocada sale del mismo cuadro en que estaba la pose. La pose va a velocidad 0
-	for entrada: String in ["estocada", "tajo", "pose_carga", "rodar", "bloqueo"]:
+	for entrada: String in ["estocada", "tajo", "pose_carga", "rodar", "bloqueo", "curar"]:
 		raiz.add_node(entrada + "_salta", AnimationNodeTimeSeek.new())
 		raiz.connect_node(entrada + "_salta", 0, "c_" + entrada)
 		raiz.add_node(entrada + "_vel", AnimationNodeTimeScale.new())
 		raiz.connect_node(entrada + "_vel", 0, entrada + "_salta")
-	var entra_por := {"golpe_giro": "giro_vel", "estocada": "estocada_vel", "tajo": "tajo_vel", "pose_carga": "pose_carga_vel", "rodar": "rodar_vel", "bloqueo": "bloqueo_vel"}
+	var entra_por := {"golpe_giro": "giro_vel", "estocada": "estocada_vel", "tajo": "tajo_vel", "pose_carga": "pose_carga_vel", "rodar": "rodar_vel", "bloqueo": "bloqueo_vel", "curar": "curar_vel"}
 	i = 0
 	for entrada: String in ACCIONES:
 		raiz.connect_node("cual", i, entra_por.get(entrada, "c_" + entrada))
@@ -402,6 +406,16 @@ func rodar(velocidad: float) -> void:
 	if _accion_nodo:
 		_accion_nodo.filter_enabled = false
 	_lanzar("rodar", 0.0, velocidad)
+
+
+# Curarse: el trago de Drink (3 s a 1x) a `velocidad`, de todo el cuerpo
+func curar(velocidad: float) -> void:
+	_golpe_t = -1.0
+	_arbol.set("parameters/curar_vel/scale", velocidad)
+	_arbol.set("parameters/curar_salta/seek_request", 0.0)
+	if _accion_nodo:
+		_accion_nodo.filter_enabled = false
+	_lanzar("curar", 0.0, velocidad)
 
 
 # Grados que se dobla la columna hacia adelante (0 = derecho); entra y sale suave

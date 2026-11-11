@@ -11,6 +11,10 @@ const MODELO := "res://models/personajes/protagonistas/el_compa/el_compa.fbx"
 const FUENTES := [
 	"res://models/animaciones/quaternius_ual1/Animation Library[Standard]/Godot/AnimationLibrary_Godot_Standard.glb",
 	"res://models/animaciones/quaternius_ual2/Universal Animation Library 2 [Standard]/Unreal-Godot/UAL2_Standard.glb",
+	# La version Source de UAL2 (CC0), al final: solo aporta lo que las Standard no traen
+	"res://models/animaciones/quaternius_ual2_source/UAL2_Source.glb",
+	# La Source de UAL1 (CC0, de nooneisreal): trae Drink, que usa Player._curarse
+	"res://models/animaciones/quaternius_ual1_source/UAL1_Source.glb",
 ]
 const CLIPS := [
 	# Andar
@@ -27,6 +31,14 @@ const CLIPS := [
 	# Lo demas
 	"Punch_Jab", "Punch_Cross", "Hit_Chest", "Hit_Head", "Death01", "PickUp_Table", "Consume",
 	"Interact", "Sitting_Enter", "Sitting_Idle", "Sitting_Exit", "Idle_Talking", "Roll",
+	# El punado de sal (Player.aventar_sal), de UAL2 Source
+	"Sword_Heavy_A",
+	# La molotov (Player.aventar_molotov)
+	"OverhandThrow",
+	# Curarse (Q), de UAL1 Source
+	"Drink",
+	# Zombi aturdido por la palomita (Zombie.aturdir): se tapa la cara, de UAL1 Source
+	"Crying",
 ]
 
 

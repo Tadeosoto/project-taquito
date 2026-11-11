@@ -321,6 +321,12 @@ func _comprar() -> void:
 	if (cartera.agua if en_agua else cartera.pesos) < precio:
 		_ui.decir("No te alcanza.", 1.5)
 		return
+	# Lo que se vende llenando algo que traes (la gasolina, en una botella vacia): sin eso no hay
+	# venta, y ocupa el lugar de lo que se gasta
+	var hueco: int = inventario.items.find(producto.requiere) if producto.requiere else -1
+	if producto.requiere and hueco < 0:
+		_ui.decir("Te hace falta: %s." % producto.requiere.item_name.to_lower(), 2.0)
+		return
 	# De vez en cuando los Takis traen tazo (Tazos.gd): te dan la bolsa especial en su lugar
 	# (la habilidad Buena racha la sube)
 	var tazos := get_node_or_null("/root/Tazos")
@@ -336,6 +342,8 @@ func _comprar() -> void:
 		if not inventario.equipar_mochila(lleva):
 			_ui.decir("Ya traes una mochila mejor.", 1.5)
 			return
+	elif hueco >= 0:
+		inventario.cambiar(hueco, lleva)
 	elif not inventario.add_item(lleva):
 		var pila_llena: bool = lleva.apilable() and inventario.cuantos(lleva) >= inventario.MAX_PILA
 		_ui.decir("Ya traes %d, no te caben más." % inventario.MAX_PILA if pila_llena else "Ya no te cabe.", 1.5)
@@ -344,7 +352,10 @@ func _comprar() -> void:
 		cartera.agua -= precio
 	else:
 		cartera.pesos -= precio
-	_ui.decir("¡Te salió una bolsa especial! Ábrela en el inventario." if especial else "Compraste: %s" % producto.item_name, 2.5 if especial else 1.5)
+	var dicho := "Compraste: %s" % producto.item_name
+	if hueco >= 0:
+		dicho = "Te llenaron la botella: %s" % producto.item_name.to_lower()
+	_ui.decir("¡Te salió una bolsa especial! Ábrela en el inventario." if especial else dicho, 2.5 if especial else 1.5)
 
 
 func _process(delta: float) -> void:

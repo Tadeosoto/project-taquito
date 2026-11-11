@@ -12,10 +12,15 @@ extends RefCounted
 const SHADER := preload("res://shaders/lombriz.gdshader")
 const LADOS := 6
 const DIENTES := 8
+const SHADER_MADRE := preload("res://shaders/madre.gdshader")
 
 static var _segmento: ArrayMesh
 static var _cabeza: ArrayMesh
 static var _material: ShaderMaterial
+static var _material_madre: ShaderMaterial
+static var _material_crias: ShaderMaterial
+static var _espina: ArrayMesh
+static var _aleta: ArrayMesh
 
 
 static func material() -> ShaderMaterial:
@@ -23,6 +28,70 @@ static func material() -> ShaderMaterial:
 		_material = ShaderMaterial.new()
 		_material.shader = SHADER
 	return _material
+
+
+# La piel de la Madre (shaders/madre.gdshader): se pone como material_override de sus nodos
+static func material_madre() -> ShaderMaterial:
+	if _material_madre == null:
+		_material_madre = ShaderMaterial.new()
+		_material_madre.shader = SHADER_MADRE
+	return _material_madre
+
+
+# Las crias tienen la misma piel que la Madre, en su propio material: EnjambreLombrices le sube
+# el brillo de noche sin tocar el de la Madre
+static func material_crias() -> ShaderMaterial:
+	if _material_crias == null:
+		_material_crias = ShaderMaterial.new()
+		_material_crias.shader = SHADER_MADRE
+		# La linea azul del lomo (JJ): que se distingan entre tantas grietas
+		_material_crias.set_shader_parameter("linea_lomo", 1.0)
+	return _material_crias
+
+
+# Una espina del lomo: piramide de 4 caras de y = 0 (base) a 1 (punta), radio 1 en la base.
+# UV.x = 3.5 para que el shader de la Madre la pinte; UV.y = 0 base, 1 punta.
+static func espina() -> ArrayMesh:
+	if _espina:
+		return _espina
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_smooth_group(0)
+	var punta := Vector3(0.0, 1.0, 0.0)
+	for k in 4:
+		var a0 := TAU * k / 4.0 + PI / 4.0
+		var a1 := TAU * (k + 1) / 4.0 + PI / 4.0
+		var b0 := Vector3(cos(a0), 0.0, sin(a0))
+		var b1 := Vector3(cos(a1), 0.0, sin(a1))
+		st.set_uv(Vector2(3.5, 0.0)); st.add_vertex(b0)
+		st.set_uv(Vector2(3.5, 0.0)); st.add_vertex(b1)
+		st.set_uv(Vector2(3.5, 1.0)); st.add_vertex(punta)
+	st.generate_normals()
+	_espina = st.commit()
+	_espina.surface_set_material(0, material_madre())
+	return _espina
+
+
+# Una aleta del lomo, plana como las del espinosaurio o la cola de Godzilla: ancha a lo largo del
+# cuerpo (x, de -1 a 1), delgada de lado (z) y con la punta (x = 0.35) echada hacia la cola (+x).
+# Mismo marcador de UV que la espina (x = 3.5; y = 0 base, 1 punta).
+static func aleta() -> ArrayMesh:
+	if _aleta:
+		return _aleta
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_smooth_group(-1)
+	var grueso := 0.14
+	var b := [Vector3(-1.0, 0.0, -grueso), Vector3(1.0, 0.0, -grueso), Vector3(1.0, 0.0, grueso), Vector3(-1.0, 0.0, grueso)]
+	var punta := Vector3(0.35, 1.0, 0.0)
+	for k in 4:
+		st.set_uv(Vector2(3.5, 0.0)); st.add_vertex(b[k])
+		st.set_uv(Vector2(3.5, 0.0)); st.add_vertex(b[(k + 1) % 4])
+		st.set_uv(Vector2(3.5, 1.0)); st.add_vertex(punta)
+	st.generate_normals()
+	_aleta = st.commit()
+	_aleta.surface_set_material(0, material_madre())
+	return _aleta
 
 
 static func segmento() -> ArrayMesh:
@@ -46,19 +115,21 @@ static func cabeza() -> ArrayMesh:
 	st.set_smooth_group(0)
 	# Cuello, cachete y labio: (y, radio)
 	_anillos(st, [Vector2(-0.5, 1.0), Vector2(0.15, 1.18), Vector2(0.5, 1.0)], DIENTES, 0.0)
-	# El labio dobla hacia adentro hasta la garganta
+	# El labio dobla hacia adentro hasta la garganta (de los dos lados: se ve desde la boca)
 	_anillos(st, [Vector2(0.5, 1.0), Vector2(0.38, 0.6)], DIENTES, 0.0)
+	# Plano: si comparte grupo con la de afuera, sus normales se cancelan
 	st.set_smooth_group(-1)
-	# Fondo oscuro de la garganta
+	_anillos(st, [Vector2(0.5, 1.0), Vector2(0.38, 0.6)], DIENTES, 0.0, true)
+	# El fondo de la garganta, de los dos lados (el shader de la Madre lo enciende)
 	for k in DIENTES:
 		var a0 := TAU * k / DIENTES
 		var a1 := TAU * (k + 1) / DIENTES
-		st.set_uv(Vector2(0.5, 2.0))
-		st.add_vertex(Vector3(0.0, 0.3, 0.0))
-		st.set_uv(Vector2(0.5, 2.0))
-		st.add_vertex(Vector3(cos(a1) * 0.6, 0.38, sin(a1) * 0.6))
-		st.set_uv(Vector2(0.5, 2.0))
-		st.add_vertex(Vector3(cos(a0) * 0.6, 0.38, sin(a0) * 0.6))
+		var c := Vector3(0.0, 0.3, 0.0)
+		var p0 := Vector3(cos(a0) * 0.6, 0.38, sin(a0) * 0.6)
+		var p1 := Vector3(cos(a1) * 0.6, 0.38, sin(a1) * 0.6)
+		for v in [c, p1, p0, c, p0, p1]:
+			st.set_uv(Vector2(0.5, 2.0))
+			st.add_vertex(v)
 	# Dientes: un triangulo por diente, de la orilla del labio hacia el centro y adelante
 	for k in DIENTES * 2:
 		var a := TAU * (k + 0.5) / (DIENTES * 2)
@@ -81,7 +152,7 @@ static func cabeza() -> ArrayMesh:
 
 
 # Un tubo por anillos (y, radio), UV.x alrededor y UV.y a lo largo
-static func _anillos(st: SurfaceTool, anillos: Array, lados: int, giro: float) -> void:
+static func _anillos(st: SurfaceTool, anillos: Array, lados: int, giro: float, adentro := false) -> void:
 	for r in anillos.size() - 1:
 		var a: Vector2 = anillos[r]
 		var b: Vector2 = anillos[r + 1]
@@ -96,12 +167,23 @@ static func _anillos(st: SurfaceTool, anillos: Array, lados: int, giro: float) -
 			var p11 := Vector3(cos(t1) * b.y, b.x, sin(t1) * b.y)
 			var u0 := float(k) / lados
 			var u1 := float(k + 1) / lados
+			# Caras hacia afuera (en el orden de antes se veia el tubo por dentro: desde arriba se
+			# veia la cara de abajo, y la linea del lomo de las crias no salia)
+			# (adentro: las caras hacia el eje, para el labio que se ve desde la boca)
+			if adentro:
+				st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
+				st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
+				st.set_uv(Vector2(u1, va)); st.add_vertex(p01)
+				st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
+				st.set_uv(Vector2(u0, vb)); st.add_vertex(p10)
+				st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
+				continue
 			st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
-			st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
 			st.set_uv(Vector2(u1, va)); st.add_vertex(p01)
-			st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
-			st.set_uv(Vector2(u0, vb)); st.add_vertex(p10)
 			st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
+			st.set_uv(Vector2(u0, va)); st.add_vertex(p00)
+			st.set_uv(Vector2(u1, vb)); st.add_vertex(p11)
+			st.set_uv(Vector2(u0, vb)); st.add_vertex(p10)
 
 
 # La transformacion de un tramo de `a` a `b` con `grueso` de radio (para el buffer del MultiMesh)

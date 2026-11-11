@@ -5,7 +5,8 @@ extends Node
 signal inventory_changed
 
 # Lo que se puede hacer con "Combinar" (docs/especificaciones.md 4.5)
-const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres"), preload("res://resources/recetas/molotov.tres")]
+const RECETAS := [preload("res://resources/recetas/machete_reforzado.tres"), preload("res://resources/recetas/molotov.tres"),
+	preload("res://resources/recetas/molotov_cereza.tres"), preload("res://resources/recetas/bocina_encintada.tres")]
 
 # Cuantos objetos caben sin mochila (docs/especificaciones.md 4.4)
 const CAPACIDAD_BASE := 6
@@ -170,17 +171,24 @@ func curaciones() -> int:
 	return cuantas
 
 
-# Se come el de `index` y regresa cuanta vida subio. Buen diente (Habilidades.gd) hace que
+# Se come el de `index` y regresa cuanta vida subio; si deja algo (la botella vacia) queda en su lugar. Buen diente (Habilidades.gd) hace que
 # la comida cure mas. Lo usan Utilizar (InventoryUI) y la tecla Q
+# Para pruebas (la arena del carcamo, JJ): curarse no gasta la cura
+static var curas_infinitas := false
+
+
 func usar_curacion(index: int) -> int:
 	var item := get_item(index)
-	if item == null or item.curacion <= 0:
+	if item == null or (item.curacion <= 0 and item.deja == null):
 		return 0
 	var salud := get_node("/root/Salud")
 	var tazos := get_node_or_null("/root/Tazos")
 	var antes: int = salud.vida
 	salud.vida += roundi(item.curacion * (tazos.factor_curacion() if tazos else 1.0))
-	remove_item(index)
+	if not curas_infinitas:
+		# Deja su botella en su lugar (cambiar); si sale de una pila y la botella ya no cabe, se tira
+		if not item.deja or not cambiar(index, item.deja):
+			remove_item(index)
 	return salud.vida - antes
 
 
@@ -222,6 +230,30 @@ func add_item(item: InventoryItemData) -> bool:
 	else:
 		items.append(item)
 		cantidades.append(1)
+	inventory_changed.emit()
+	return true
+
+
+# Cambia uno del lugar `index` por `nuevo` (la gasolinera llena la botella vacia, el jarrito deja
+# su botella: no ocupa otro lugar). De una pila sale solo uno y `nuevo` va a otro lugar (o a su
+# pila); regresa false si no hay nada ahi o si `nuevo` no cabe
+func cambiar(index: int, nuevo: InventoryItemData) -> bool:
+	if nuevo == null or index < 0 or index >= items.size():
+		return false
+	if cantidades[index] > 1:
+		if not cabe(nuevo):
+			return false
+		cantidades[index] -= 1
+		return add_item(nuevo)
+	var pila := _lugar_de(nuevo) if nuevo.apilable() else -1
+	if pila >= 0 and pila != index and cantidades[pila] < MAX_PILA:
+		cantidades[pila] += 1
+		_quitar_lugar(index)
+	else:
+		items[index] = nuevo
+		cantidades[index] = 1
+	if equipada and not items.has(equipada):
+		equipada = null
 	inventory_changed.emit()
 	return true
 

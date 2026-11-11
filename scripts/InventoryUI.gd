@@ -496,8 +496,9 @@ func _comandos_visibles() -> Array[int]:
 		return lista
 	if is_instance_valid(current_model):
 		lista.append(Comando.EXAMINAR)
-	# Utilizar tambien es Abrir (bolsa), Equipar (arma), Ponerse (amuleto) y Usar (estampita)
-	if item.curacion > 0 or item.bolsa_tazo or item.dano > 0 or item.es_amuleto() or item.estampita != "":
+	# Utilizar tambien es Abrir (bolsa), Equipar (arma), Ponerse (amuleto), Usar (estampita) y
+	# tomarse lo que deja botella
+	if item.curacion > 0 or item.bolsa_tazo or item.dano > 0 or item.es_amuleto() or item.estampita != "" or item.deja:
 		lista.append(Comando.UTILIZAR)
 	if inventory.get_item_count() > 1:
 		lista.append(Comando.COMBINAR)
@@ -568,7 +569,8 @@ func _utilizar() -> void:
 		return
 	# El Milagro del tinaco tambien sirve con la vida llena si ya usaste Segundo aire
 	var recarga := item.recarga_segundo_aire and Tazos.segundo_aire_usado
-	if Salud.llena() and not recarga:
+	# Lo que deja botella se puede tomar con la vida llena (para sacar la botella)
+	if Salud.llena() and not recarga and item.deja == null:
 		_sonar("ui_error")
 		_mostrar_mensaje("No lo necesitas ahorita.")
 		return
@@ -576,11 +578,17 @@ func _utilizar() -> void:
 	var subio: int = inventory.usar_curacion(current_item_index)
 	if item.recarga_segundo_aire:
 		Tazos.segundo_aire_usado = false
-	# La flor de curar a los pies: el juego esta en pausa, se ve al cerrar (EfectosPixel)
+	# La flor de curar a los pies y, al cerrar el inventario, el personaje toma (animacion Drink):
+	# el juego esta en pausa, se ve al cerrar (EfectosPixel)
 	var jugador := get_tree().get_first_node_in_group("jugador")
 	if jugador and jugador.has_method("efecto"):
 		jugador.efecto("curar", Vector3.ZERO)
-	_mostrar_mensaje("%s: +%d de vida." % [item.item_name, subio])
+	if jugador and jugador.has_method("beber"):
+		jugador.beber()
+	var mensaje := "%s: +%d de vida." % [item.item_name, subio] if item.curacion > 0 else "Te tomaste el %s." % item.item_name
+	if item.deja:
+		mensaje += " Te queda: %s." % item.deja.item_name.to_lower()
+	_mostrar_mensaje(mensaje)
 
 # Una bolsa especial de Takis: se gasta, sale un tazo (Tazos.abrir_bolsa) y su show encima
 # del inventario (TazoRevelacion). Al cerrarlo regresas a la lista

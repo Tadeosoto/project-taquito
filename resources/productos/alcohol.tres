@@ -8,6 +8,5 @@ script = ExtResource("2_item")
 item_name = "Alcohol del 96"
 description = "Para curaciones, dice la etiqueta."
 inspection_model = ExtResource("1_modelo")
-efecto = "Combínalo con una caguama: molotov."
 precio = 40
 tinte = Color(0.75, 0.88, 0.95, 1)

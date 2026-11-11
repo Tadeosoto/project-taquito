@@ -13,11 +13,12 @@
 [ext_resource type="Script" path="res://scripts/map/MapCasas.gd" id="10_casas"]
 [ext_resource type="Script" path="res://scripts/interiores/Interiores.gd" id="11_interiores"]
 [ext_resource type="PackedScene" uid="uid://cisd7p02ivmq6" path="res://models/casas/urbi/urbi.scn" id="12_urbi"]
-[ext_resource type="PackedScene" uid="uid://b6rm74tkw20hu" path="res://models/tiendas/pemex/pemex.scn" id="13_pemex"]
+[ext_resource type="PackedScene" path="res://models/tiendas/gasolinera/gasolinera.scn" id="13_pemex"]
 [ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="14_carrito"]
 [ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="15_npc"]
 [ext_resource type="PackedScene" path="res://models/personajes/dr_simi/simi_botarga.scn" id="16_botarga"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/tiendita.tscn" id="17_tiendita"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/gasolinera.tscn" id="gasolinera_escena"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/licoreria.tscn" id="18_licoreria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/abarrotes.tscn" id="19_abarrotes"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="20_farmacia"]
@@ -177,7 +178,7 @@ escenas = Dictionary[String, PackedScene]({
 "abarrotes": ExtResource("19_abarrotes"),
 "farmacia": ExtResource("20_farmacia"),
 "ferreteria": ExtResource("22_ferreteria"),
-"gasolinera": ExtResource("17_tiendita"),
+"gasolinera": ExtResource("gasolinera_escena"),
 "licoreria": ExtResource("18_licoreria"),
 "oxxo": ExtResource("17_tiendita"),
 "punto": ExtResource("24_punto"),

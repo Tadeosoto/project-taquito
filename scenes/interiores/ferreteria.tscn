@@ -12,6 +12,7 @@
 [ext_resource type="Resource" path="res://resources/productos/cinta.tres" id="p_cinta"]
 [ext_resource type="Resource" path="res://resources/productos/bate.tres" id="p_bate"]
 [ext_resource type="Resource" path="res://resources/productos/machete.tres" id="p_machete"]
+[ext_resource type="Resource" path="res://resources/productos/trapo.tres" id="p_trapo"]
 
 [node name="Ferreteria" type="Node3D"]
 script = ExtResource("1_interior")
@@ -23,7 +24,7 @@ color_muro = Color(0.6, 0.6, 0.57, 1)
 energia_luz = 0.7
 luz_mostrador = false
 color_piso = Color(0.6, 0.6, 0.6, 1)
-productos = Array[ExtResource("p_script")]([ExtResource("p_tablas"), ExtResource("p_cinta"), ExtResource("p_bate"), ExtResource("p_machete")])
+productos = Array[ExtResource("p_script")]([ExtResource("p_tablas"), ExtResource("p_cinta"), ExtResource("p_bate"), ExtResource("p_machete"), ExtResource("p_trapo")])
 
 [node name="Camara" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.99996, -0.0087, 0, 0.0087, 0.99996, 0, 1.35, 4)

@@ -52,6 +52,7 @@ const ABAJO := 1.0              # m de la caja debajo del piso: el piso cae en u
 const PRESUPUESTO_HORNEO := 6000  # us por cuadro horneando
 const GRUESO := 0.085           # m de radio de la carne (el punto mide S.RADIO)
 const COLOR_CARNE := Color(0.5, 0.4, 0.37)
+const COLOR_PIEL := Color(0.25, 0.27, 0.28)   # la piel de carbon de la Madre (shaders/madre.gdshader)
 const COLOR_SANGRE := Color(0.38, 0.04, 0.05)
 const COLOR_AGUA := Color(0.33, 0.36, 0.27)    # agua sucia, como la de los zombis
 const COLOR_TIERRA := Color(0.3, 0.24, 0.18)
@@ -106,7 +107,6 @@ const ALTO_GOLPE := Vector2(-1.3, 1.0)
 const PEDAZO_MINIMO := 3
 # Zonas (ZonaLombrices.gd)
 const SAL_CADA := 0.8           # s: la sal se come una cabeza por lombriz cada esto
-const FUEGO_CADA := 0.25        # s: el fuego le quema la cola (un punto) a cada lombriz adentro
 const EMPUJE_ZONA := 3.0
 # Infectar zombis
 const INFECTA_PROB := 0.3
@@ -139,11 +139,11 @@ const BOLA_DANO := 18
 const BOLA_VIDA := 40.0
 const BOLA_RUEDA_MAX := 6.0
 const BOLA_SAL := 8.0            # de vida por tick de sal
-const BOLA_FUEGO := 6.0
 const ATONTADA_DURA := 1.5
 # Subir a la pasarela
 const SUBE_DESDE := 1.2          # m que estas mas arriba que ella
 const SUBE_MAX := 10.0
+const CARGA_RAMPA := 1.5        # m de mas que cuesta una rampa por cada cria que ya va subiendo por ella
 # Efectos: lo menos que pasa entre dos hojas iguales (un tajo corta 12 y no salen 12 hojas)
 const FX_ESPERA := {"cria_corte": 80, "cria_cabeza": 100, "pegada_mordida": 200,
 	"pegada_suelta": 300, "madre_tierra": 300, "torre_golpe": 500}
@@ -160,6 +160,9 @@ const GOTAS_CHORRO := 24
 @export var puntos := 12
 @export var caja := Vector3(24.0, 5.0, 24.0)
 @export var celda := 0.25
+# Archivo donde guardar el campo horneado ("" = hornear siempre). Lleva la firma de la geometria
+# (CampoDistancia.firma): si el lugar cambia, se hornea otra vez solo
+@export var guardar_campo := ""
 @export var hornear_al_entrar := true   # la escena de prueba; el safehouse hornea al soltarlas
 # El paso corre en otro hilo (WorkerThreadPool) mientras el juego sigue; se recoge el cuadro
 # siguiente. Lo que se ve y lo que preguntan las armas es `vista`, la foto del ultimo paso.
@@ -201,6 +204,8 @@ var _jugador: Node3D
 var _salud: Node
 var _malla_seg: MultiMesh
 var _malla_cab: MultiMesh
+var _malla_esp: MultiMesh
+var _buf_esp := PackedFloat32Array()
 var _buf_seg := PackedFloat32Array()
 var _buf_cab := PackedFloat32Array()
 var _soltar_en := Vector3.INF
@@ -240,7 +245,6 @@ var _torre_pego := false
 var _anillo_torre: MeshInstance3D
 var _crece_t := 0.0
 var _sal_t := 0.0
-var _fuego_t := 0.0
 var _chupa := 0.0
 var _zombis_t := 0.0
 var _tierra_t := 0.0
@@ -270,7 +274,11 @@ var _trepa_hacia := PackedVector3Array()
 var _subir := PackedVector3Array()
 # Rampas de la escena: [pie, punta] por rampa (PruebaLombrices las registra)
 var rampas: Array = []
+# Medio lado del eje de un mezzanine cuadrado alrededor del centro (la escena; 0 = no hay): arriba
+# contigo te siguen por el anillo, de esquina en esquina, en vez de irse derecho por el hueco
+var anillo := 0.0
 var _por_rampa := PackedInt32Array()  # por cabeza: la rampa que va subiendo (-1 = pilar)
+var _firma := 0
 var _plataforma := {}            # CampoDistancia.plataforma de donde estas parado
 var _plataforma_de := -1         # la celda de tus pies con la que se calculo
 var _utiles := PackedInt32Array() # trepaderos cuyo pilar o muro llega a tu plataforma
@@ -323,6 +331,7 @@ func _vaciar() -> void:
 	_latigos.clear()
 	_soltar_pegadas()
 	_malla_seg.visible_instance_count = 0
+	_malla_esp.visible_instance_count = 0
 	_malla_cab.visible_instance_count = 0
 
 
@@ -426,20 +435,32 @@ func _armar(centro: Vector3) -> void:
 	_buf_cab.resize(total * 20)
 
 
+# El campo ya esta (horneado o cargado del archivo): suelta el enjambre
+func _listo_campo(como: String) -> void:
+	horneando = false
+	ms_horneo = Time.get_ticks_msec() - _horneo_desde
+	print("Lombrices: campo %dx%dx%d %s en %d ms" % [campo.nx, campo.ny, campo.nz, como, ms_horneo])
+	_armar(_soltar_en)
+	var t := campo.trepaderos(piso)
+	_trepaderos = t[0]
+	_trepa_hacia = t[1]
+	horneado.emit()
+
+
 func _physics_process(delta: float) -> void:
 	if horneando:
 		if _espera > 0:
 			_espera -= 1
+			# Ya con todo en la fisica: si ya se habia horneado este mismo lugar, se carga
+			if _espera == 0 and not guardar_campo.is_empty():
+				_firma = CampoDistancia.firma(get_tree(), campo.origen, campo.tamano())
+				if campo.cargar(guardar_campo, _firma):
+					_listo_campo("cargado")
 			return
 		if campo.hornear_paso(get_world_3d().direct_space_state, PRESUPUESTO_HORNEO):
-			horneando = false
-			ms_horneo = Time.get_ticks_msec() - _horneo_desde
-			print("Lombrices: campo %dx%dx%d horneado en %d ms" % [campo.nx, campo.ny, campo.nz, ms_horneo])
-			_armar(_soltar_en)
-			var t := campo.trepaderos(piso)
-			_trepaderos = t[0]
-			_trepa_hacia = t[1]
-			horneado.emit()
+			if not guardar_campo.is_empty():
+				campo.guardar(guardar_campo, _firma)
+			_listo_campo("horneado")
 		return
 	if vivos.is_empty():
 		return
@@ -635,7 +656,7 @@ func _pensar(delta: float) -> void:
 				var lugar := adelante + Vector3(cos(_angulo[h]), 0.3, sin(_angulo[h])) * r
 				# Arriba contigo (pasarela angosta): derecho a ti, sin anillo, o se caen por la orilla
 				if pies.y - piso > SUBE_DESDE and absf(p.y - pies.y) < 0.8:
-					lugar = pies + Vector3.UP * 0.3
+					lugar = _por_anillo(p, pies) + Vector3.UP * 0.3
 				_arranque[h] -= delta
 				if _arranque[h] <= 0.0 and randf() < ARRANQUE_PROB * delta:
 					_arranque[h] = ARRANQUE_DURA
@@ -1013,13 +1034,59 @@ func _pensar_torre(delta: float, yo: Vector3, pies: Vector3) -> void:
 
 # --- Subir hasta ti ---
 
+# Arriba en el mezzanine: si estas en otro lado del anillo, primero a la esquina de su lado que
+# deja el camino mas corto (derecho se iban por el hueco del centro)
+func _por_anillo(p: Vector3, pies: Vector3) -> Vector3:
+	if anillo <= 0.0:
+		return pies
+	var c := _soltar_en if _soltar_en != Vector3.INF else global_position
+	var yo := _lado_anillo(p - c)
+	if yo == _lado_anillo(pies - c):
+		return pies
+	var esquinas: Array[Vector3] = []
+	for s in [-1.0, 1.0]:
+		match yo:
+			0, 1: esquinas.append(Vector3(anillo if yo == 0 else -anillo, 0.0, s * anillo))
+			_: esquinas.append(Vector3(s * anillo, 0.0, anillo if yo == 2 else -anillo))
+	var mejor := pies
+	var menos := INF
+	for e in esquinas:
+		var punto := Vector3(c.x + e.x, p.y, c.z + e.z)
+		var d := p.distance_to(punto) + punto.distance_to(pies)
+		if d < menos:
+			menos = d
+			mejor = punto
+	return mejor
+
+
+# 0 = +x, 1 = -x, 2 = +z, 3 = -z
+func _lado_anillo(d: Vector3) -> int:
+	if absf(d.x) > absf(d.z):
+		return 0 if d.x > 0.0 else 1
+	return 2 if d.z > 0.0 else 3
+
+
 # Escoge un pie de pilar o muro que de veras llegue a donde estas parado (su columna toca tu
 # plataforma: la pasarela con sus pilares, no el muro de enfrente), cerca de ti y repartidos
 func _empezar_subida(h: int, pies: Vector3) -> bool:
 	if not rampas.is_empty():
+		# La que deja el camino mas corto (hasta el pie, y arriba de la punta a ti; con anillo,
+		# por las orillas del cuadro) contando las que ya van subiendo por cada una: asi no se
+		# amontonan todas en la mas cercana
+		var subiendo := PackedInt32Array()
+		subiendo.resize(rampas.size())
+		for otra in _cabezas:
+			if _estado[otra] == Estado.SUBE and _por_rampa[otra] >= 0:
+				subiendo[_por_rampa[otra]] += 1
 		var mejor := 0
+		var menos := INF
 		for k in rampas.size():
-			if (rampas[k][1] as Vector3).distance_squared_to(pies) < (rampas[mejor][1] as Vector3).distance_squared_to(pies):
+			var pie: Vector3 = rampas[k][0]
+			var punta: Vector3 = rampas[k][1]
+			var arriba := absf(punta.x - pies.x) + absf(punta.z - pies.z) if anillo > 0.0 else punta.distance_to(pies)
+			var costo := pos[h].distance_to(pie) + arriba + subiendo[k] * CARGA_RAMPA
+			if costo < menos:
+				menos = costo
 				mejor = k
 		_por_rampa[h] = mejor
 		_estado[h] = Estado.SUBE
@@ -1380,18 +1447,73 @@ func _parir(donde: Vector3, hacia: Vector3, cuantas: int) -> int:
 
 # --- Zonas: sal, fuego, tambos (ZonaLombrices.gd) ---
 
+# El punado de sal (Lanzador._punado): a cada cria con algun punto en el cono le come `come`
+# puntos desde la cabeza y la avienta para atras; a la bola le baja vida; las pegadas se queman
+# (te caen granos encima)
+# `ya` (opcional, compartido por toda una aventada): los bloques de 12 ya salados no se vuelven a
+# salar, para que el punado, que llama esto cada cuadro con el pedazo de arco que barrio la mano,
+# no se coma la misma cria varias veces
+func salar_cono(origen: Vector3, dir: Vector3, alcance: float, cono: float, come: int, ya := {}) -> void:
+	if _ocupado():
+		_ordenes.append(_salar_cono.bind(origen, dir, alcance, cono, come, ya))
+		return
+	_salar_cono(origen, dir, alcance, cono, come, ya)
+
+
+func _salar_cono(origen: Vector3, dir: Vector3, alcance: float, cono: float, come: int, ya := {}) -> void:
+	var plano := Vector3(dir.x, 0.0, dir.z).normalized()
+	var dt := 1.0 / hz
+	var bola: bool = ya.has("bola")
+	for h in _cabezas.duplicate():
+		if vivos[h] == 0 or ya.has(h / puntos):
+			continue
+		if _estado[h] == Estado.PEGADA:
+			ya[h / puntos] = true
+			_matar_tramo(h, "saladas")
+			continue
+		for i in range(h, _cola[h] + 1):
+			var hacia := pos[i] - origen
+			var dy := hacia.y
+			hacia.y = 0.0
+			var d := hacia.length()
+			if d > alcance or absf(dy) > 2.0:
+				continue
+			if d > 0.3 and hacia.normalized().dot(plano) < cono:
+				continue
+			# Con come 0 las de la bola tambien mueren enteras (y si quedan menos de 3, se deshace)
+			if _estado[h] == Estado.BOLA and come > 0:
+				if not bola:
+					bola = true
+					ya["bola"] = true
+					_herir_bola(BOLA_SAL * 2.0, pos[i])
+				break
+			ya[h / puntos] = true
+			# come 0: la lombriz entera (el punado de sal, JJ: la que alcanza muere al instante)
+			if come <= 0:
+				_matar_tramo(h, "saladas")
+				break
+			var empuja := (hacia.normalized() if d > 0.01 else plano) + Vector3.UP * 0.4
+			var cola := _cola[h]
+			for j in range(h, cola + 1):
+				old_pos[j] -= empuja * EMPUJE_ZONA * 2.0 * dt
+			for j in range(h, mini(h + come, cola + 1)):
+				_matar(j)
+			cuenta.saladas += 1
+			_remedio_muerte()
+			sangrar(pos[h], Vector3.UP, 0.4)
+			_limpiar_tramo(h)
+			break
+	_nota("pelear", "crias")
+
+
 func _zonas(delta: float) -> void:
 	var zonas := get_tree().get_nodes_in_group("zonas_lombriz")
 	if zonas.is_empty():
 		return
 	_sal_t -= delta
-	_fuego_t -= delta
 	var sala := _sal_t <= 0.0
-	var quema := _fuego_t <= 0.0
 	if sala:
 		_sal_t = SAL_CADA
-	if quema:
-		_fuego_t = FUEGO_CADA
 	var dt := 1.0 / hz
 	for zona: Node3D in zonas:
 		var tipo: int = zona.tipo
@@ -1409,12 +1531,14 @@ func _zonas(delta: float) -> void:
 				var dz := p.z - centro.z
 				if dx * dx + dz * dz > r2 or absf(p.y - centro.y) > 2.0:
 					continue
+				# El fuego (molotov, tambo pateado) las mata enteras al instante (JJ), las de la bola tambien
+				if tipo == ZonaLombrices.Tipo.FUEGO:
+					_matar_tramo(h, "quemadas")
+					break
 				if _estado[h] == Estado.BOLA:
-					# La bola se derrite en la sal y el fuego
+					# La bola se derrite en la sal
 					if tipo == ZonaLombrices.Tipo.SAL and sala:
 						_herir_bola(BOLA_SAL, p)
-					elif tipo == ZonaLombrices.Tipo.FUEGO and quema:
-						_herir_bola(BOLA_FUEGO, p)
 					break
 				# Las empuja para afuera
 				var fuera := Vector3(dx, 0.0, dz).normalized()
@@ -1426,16 +1550,6 @@ func _zonas(delta: float) -> void:
 					_remedio_muerte()
 					sangrar(pos[h], Vector3.UP, 0.4)
 					_limpiar_tramo(h + 1)
-					break
-				if tipo == ZonaLombrices.Tipo.FUEGO and quema:
-					# Se le quema la cola, un punto a la vez: se encoge sin partirse
-					var cola := _cola[h]
-					_matar(cola)
-					sangrar(pos[cola], Vector3.UP, 0.2)
-					if cola == h:
-						cuenta.quemadas += 1
-						_remedio_muerte()
-					_limpiar_bloque(h / puntos)
 					break
 	# Sal sobre ti: quema a las que traes pegadas
 	for zona: Node3D in zonas:
@@ -1477,19 +1591,20 @@ func _pintar() -> void:
 		return
 	var ns := 0
 	var nc := 0
+	var ne := 0
 	var noche := 1.0
 	if _ciclo == null:
 		_ciclo = get_tree().get_first_node_in_group("ciclo")
 	if _ciclo and _ciclo.has_method("es_noche") and _ciclo.es_noche():
 		noche = 2.5
-	MallaLombriz.material().set_shader_parameter("brillo_venas", 0.35 * noche)
+	MallaLombriz.material_crias().set_shader_parameter("brillo", 0.6 * noche)
 	for h in _cabezas:
 		if h >= vivos.size() or vivos[h] == 0:
 			continue
 		var cola := _cola[h]
 		var largo := float(cola - h + 1)
 		var e := _estado[h]
-		var tinte := COLOR_CARNE.darkened(float((h / puntos) % 5) * 0.05)
+		var tinte := COLOR_PIEL.darkened(float((h / puntos) % 5) * 0.05)
 		var prisa := 2.0 if e == Estado.SALTA or e == Estado.LATIGO or e == Estado.ERGUIDA else 1.0
 		var semilla := float((h * 37) % 100) / 100.0
 		for i in range(h, cola):
@@ -1497,8 +1612,24 @@ func _pintar() -> void:
 			var afina := lerpf(1.1, 0.55, k / largo)
 			var late := 1.0 + 0.18 * sin(_t * 7.0 * prisa - k * 0.9 + semilla * 6.0)
 			var t := MallaLombriz.tramo(q[i + 1], q[i], GRUESO * afina * late)
-			MallaLombriz.escribir(_buf_seg, ns, t, tinte, Color(0.0, semilla, 0.0, 0.0))
+			# Como la Madre: .g las grietas, que brillan mas hacia la cola; .a la semilla de la piel
+			var grietas := lerpf(0.3, 1.0, k / largo)
+			MallaLombriz.escribir(_buf_seg, ns, t, tinte, Color(0.0, grietas, 0.0, fmod(semilla + k * 0.37, 1.0)))
 			ns += 1
+			# Una espina cada dos tramos, hacia arriba del tubo e inclinada hacia la cola
+			if (i - h) % 2 == 1:
+				var atras := (q[i + 1] - q[i]).normalized()
+				var arriba := Vector3.UP - atras * atras.dot(Vector3.UP)
+				if arriba.length_squared() < 0.01:
+					arriba = Vector3.RIGHT - atras * atras.dot(Vector3.RIGHT)
+				arriba = arriba.normalized()
+				var dir := (arriba + atras * 0.45).normalized()
+				var ex := dir.cross(atras).normalized()
+				var ez := ex.cross(dir)
+				var ancho := GRUESO * afina * 0.55
+				var base := q[i] + arriba * GRUESO * afina * 0.75
+				MallaLombriz.escribir(_buf_esp, ne, Transform3D(Basis(ex * ancho, dir * GRUESO * afina * 1.6, ez * ancho), base), tinte, Color(0.0, grietas, 0.0, 0.0))
+				ne += 1
 		# La boca: hacia adelante, del segundo punto a la cabeza
 		if cola > h:
 			var adelante := (q[h] - q[h + 1]).normalized()
@@ -1510,12 +1641,14 @@ func _pintar() -> void:
 			else:
 				abre = maxf(sin(_t * 3.0 + semilla * 9.0), 0.0) * 0.25
 			var t := MallaLombriz.tramo(q[h] - adelante * 0.06, q[h] + adelante * 0.14, GRUESO * 1.25, 1.0)
-			MallaLombriz.escribir(_buf_cab, nc, t, tinte.darkened(0.15), Color(abre, semilla, 0.0, 0.0))
+			MallaLombriz.escribir(_buf_cab, nc, t, tinte.darkened(0.15), Color(abre, 0.1, 0.0, semilla))
 			nc += 1
 	_malla_seg.buffer = _buf_seg
 	_malla_seg.visible_instance_count = ns
 	_malla_cab.buffer = _buf_cab
 	_malla_cab.visible_instance_count = nc
+	_malla_esp.buffer = _buf_esp
+	_malla_esp.visible_instance_count = ne
 	ms_pintar = (Time.get_ticks_usec() - t0) / 1000.0
 
 
@@ -1523,11 +1656,16 @@ func _armar_mallas() -> void:
 	var total := maxi(lombrices * puntos, 1)
 	_malla_seg = MallaLombriz.multimesh(MallaLombriz.segmento(), total)
 	_malla_cab = MallaLombriz.multimesh(MallaLombriz.cabeza(), total)
+	_malla_esp = MallaLombriz.multimesh(MallaLombriz.espina(), total)
 	_buf_seg.resize(total * 20)
 	_buf_cab.resize(total * 20)
-	# Sin sombras: mil tubos en el mapa de sombras costaban mas que dibujarlos
-	add_child(MallaLombriz.nodo(_malla_seg, false))
-	add_child(MallaLombriz.nodo(_malla_cab, false))
+	_buf_esp.resize(total * 20)
+	# Sin sombras: mil tubos en el mapa de sombras costaban mas que dibujarlos. La piel es la de
+	# la Madre (MallaLombriz.material_crias)
+	for mm in [_malla_seg, _malla_cab, _malla_esp]:
+		var nodo := MallaLombriz.nodo(mm, false)
+		nodo.material_override = MallaLombriz.material_crias()
+		add_child(nodo)
 
 
 # La sombra de la torre: un disco oscuro y tenue que crece mientras suben (sin anillo rojo)

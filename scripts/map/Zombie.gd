@@ -33,6 +33,7 @@ const ALTO_VARIA := Vector2(0.94, 1.06)
 const CLIPS_SKIN := {
 	"idle": "h/Zombie_Idle", "camina": "h/Zombie_Walk_Fwd", "run": "h/Jog_Fwd", "sprint": "h/Sprint",
 	"attack1": "h/Zombie_Scratch", "attack2": "h/Zombie_Scratch", "hit": "h/Hit_Chest", "die": "h/Death01",
+	"trueno": "h/Hit_Head", "aturdido": "h/Crying",
 }
 const BUCLES_SKIN := ["h/Zombie_Idle", "h/Zombie_Walk_Fwd", "h/Jog_Fwd", "h/Sprint"]
 # m/s a los que cada clip se ve a su velocidad, para que no patinen (como Gente.PASO)
@@ -87,6 +88,10 @@ const HERIDO_DURA := 0.45
 const CORTE := 0.3
 const ATURDE_PROB := 0.2
 const ATURDIR := false
+# La palomita (aturdir, JJ): el trueno les jala la cabeza (Hit_Head, 0.43 s) y luego se tapan la
+# cara (Crying, 4.8 s) mientras te zumban los oidos. El gordo no tiene esos clips: su idle lento
+const TRUENO_DURA := 0.43
+const ATONTADO_VEL := 0.35
 # m/s con el golpe de un machete; se escala con el dano. Con 2.5 (unos 0.5 m, pedido de Alan)
 # el zombi quedaba fuera del alcance y el combo fallaba el segundo golpe (en las pruebas el
 # machete pego 44-57 %): JJ lo quito. Si vuelve, se aplica camine, ataque o este aturdido
@@ -244,6 +249,7 @@ var estado := Estado.CAMINA
 var jugador: Player
 var zombis: Zombis
 var es_jefe := false
+var _herido_dura := HERIDO_DURA   # lo que dura el HERIDO de ahora: mas con la palomita (aturdir)
 var tipo := Tipo.NORMAL
 var skin := -1              # indice en SKINS; -1 = al azar (antes de entrar al arbol)
 var cazador := false
@@ -570,6 +576,7 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	add_to_group("zombis")
 	activos.append(self)
 	estado = Estado.CAMINA
+	_herido_dura = HERIDO_DURA
 	collision_layer = 2
 	# La capa 3 son las barricadas: el jugador pasa, ellos no. Y entre ellos no se enciman
 	collision_mask = 1 | EntradaRefugio.CAPA | CAPA_ZOMBIS
@@ -691,8 +698,15 @@ func _physics_process(delta: float) -> void:
 		Estado.ATACA:
 			_atacar()
 		Estado.HERIDO:
-			if _tiempo >= HERIDO_DURA:
+			if _herido_dura > HERIDO_DURA and _tiempo >= TRUENO_DURA and not gordo():
+				_animar("aturdido", 1.0)
+			if _tiempo >= _herido_dura:
+				var atontado := _herido_dura > HERIDO_DURA
+				_herido_dura = HERIDO_DURA
 				_seguir_caminando()
+				# Se le pasa el aturdimiento de la palomita: ya sabe que andas ahi
+				if atontado:
+					alertar(false)
 		Estado.MUERTO:
 			if _tiempo >= MUERTO_DURA:
 				if _ceniza:
@@ -974,6 +988,14 @@ func _zombi_que_estorba() -> Zombie:
 # A donde camina; deja en _blanco a quien le pegaria al llegar y en _guia su camino
 func _destino() -> Vector3:
 	_guia = zombis.campo_jugador if zombis else null
+	# Una bocina sonando que lo alcanza (Senuelo) le gana a todo, a ti y al tinaco; va derecho
+	# y la rasguña al llegar. Al jefe no lo jala
+	if not es_jefe:
+		var bocina := Senuelo.la_que_oye(global_position)
+		if bocina:
+			_blanco = bocina
+			_guia = null
+			return bocina.global_position
 	# Defensa del tinaco: van por el tinaco, y por el jugador solo si lo tienen cerca y mas
 	# que al tinaco (pararse junto al tinaco no lo protege). Ya roto, por el jugador
 	var al_jugador := global_position.distance_to(jugador.global_position)
@@ -1073,6 +1095,21 @@ func _atacar() -> void:
 			_blanco.recibir_golpe(JEFE_DANO_RECINTO if es_jefe else DANO_RECINTO)
 	if _tiempo >= ATAQUE_DURA:
 		_seguir_caminando()
+
+
+# La palomita le trono cerca (Arrojadizo PALOMITA): se queda atontado `segundos`, sin caminar
+# ni pegar, aunque ATURDIR este apagado. Al jefe no
+func aturdir(segundos: float) -> void:
+	if estado == Estado.MUERTO or es_jefe:
+		return
+	estado = Estado.HERIDO
+	_tiempo = 0.0
+	_herido_dura = maxf(segundos, HERIDO_DURA)
+	_retroceso = Vector3.ZERO
+	if gordo():
+		_animar("idle", ATONTADO_VEL, true)
+	else:
+		_animar("trueno", 1.0, true)
 
 
 func _seguir_caminando() -> void:

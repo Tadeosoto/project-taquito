@@ -36,7 +36,7 @@
 | **Gansito** | *"El de siempre. Recuérdame."* | +10 vida | 15 | 🧱 `models/objetos/gansito/` |
 | **Mazapán** | *"Se desmorona nomás de verlo."* | +10 vida | 8 | 🧱 `models/objetos/mazapan/` |
 | **Takis Fuego** | *"Pican hasta el alma."* | +daño de golpe por 30 s | 25 | 🧱 `models/objetos/takis/` |
-| **Jarritos** | *"De tamarindo, medio tibio."* | Recupera estamina | 20 | 🧱 `models/objetos/jarritos/` |
+| **Jarritos** | *"De tamarindo, medio tibio."* | Recupera vida (25, igual que la caguama) | 20 | 🧱 `models/objetos/jarritos/` |
 | **Botiquín del Simi** | *"Trae de todo, menos doctor."* | +70 vida | 120 | 🧱 `models/objetos/botiquin/` |
 | **Vaporub** | *"Lo cura todo, dice tu abuela."* | Cura 100 (raro) | 2 (agua → pasar a pesos) | 🧱 `models/objetos/vaporub/` |
 | **Tachas** | *"No preguntes."* | Velocidad y estamina sin fin 20 s; luego el bajón | 80 | 🧱 `models/objetos/tachas/` |
@@ -66,8 +66,8 @@
 | Objeto | Descripción | Efecto | Precio | Modelo |
 |---|---|---|---|---|
 | **Balas** | — | Para pistola (¿y cuerno?); apilables | 💡 | 🧱 `models/armas/balas/` |
-| **Bomba molotov** | *"Caguama con alcohol y un trapo. No es para tomar."* | Fuego en área de 2 m por 5 s; les quema la cola punto por punto a las lombrices (sin partirlas) y los sacos de la Madre del Cárcamo; te quema si te metes. Se avienta con la tecla 3 (`Lanzador`). ✅ en el juego: `resources/productos/molotov.tres`, receta caguama + alcohol (`resources/recetas/molotov.tres`) | Crafteo | 🧱 por ahora la caguama teñida; luego `models/objetos/botella/` + `trapo/` |
-| **Sal de grano** | *"Un kilo de sal. A las lombrices del cárcamo no les gusta nadita."* | Se avienta con la tecla 3: un círculo de 1.5 m por 12 s que se come las cabezas de las lombrices y no las deja pasar; si te cae encima, quema las que traes pegadas. ✅ `resources/productos/sal.tres`, en la tiendita | $25 💡 | 🧱 por ahora la bolsa de Takis teñida de blanco |
+| **Bomba molotov** | *"Botella con gasolina de limón y un trapo. No es para tomar."* (la de cereza: *"Más brava que la de limón."*) | Fuego en área de 2 m por 5 s (de cereza, 3 m); mata al instante a toda lombriz que toca el fuego y los sacos de la Madre del Cárcamo; te quema si te metes. Se avienta con la tecla 3 (`Lanzador`): dejas apretado el clic y el área que va a quemar avanza en el piso hacia donde ves (de 3 a 16 m en 1.2 s); al soltar, la avientas por encima del hombro. ✅ en el juego: `resources/productos/molotov.tres`, receta botella con gasolina de limón + trapo (`resources/recetas/molotov.tres`); la de cereza (`molotov_cereza.tres`) quema 1.5 veces más lejos | Crafteo | 🧱 por ahora la caguama teñida; luego `models/objetos/botella/` + `trapo/` |
+| **Bolsa de sal** (10 puñados) | *"Un kilo de sal. A las lombrices del cárcamo no les gusta nadita."* | Tecla 3 y clic: avientas un puño de sal con un barrido pesado (Sword_Heavy_A): enfrente queda un arco de humo blanco como la estela del machete, que sigue a la mano y suelta nubes de humo; toda lombriz que barre muere al instante, hasta 3.3 m enfrente (75° a cada lado), y quema las que traes pegadas. No deja nada en el piso (JJ, 2026-11-09; antes era una bolsa que dejaba un círculo de 1.5 m por 12 s). ✅ `resources/productos/sal.tres`, en la tiendita | $25 💡 | 🧱 por ahora la bolsa de Takis teñida de blanco |
 | **Paloma (cohete)** | — | Aturde a los enemigos cercanos | 💡 | ❌ (el modelo bajado salía mal) |
 | **Bocina con banda** | — | Atrae a todos los zombis cercanos; luego explota (o no) | 💡 | 🧱 `models/objetos/bocina/` |
 | **Chancla** | *"La de tu jefa nunca falla."* | Aturde a uno; se recoge de nuevo | 💡 | 🧱 `models/objetos/chancla/` |
@@ -76,7 +76,7 @@
 
 ## 4. Materiales y crafteo
 
-- **Alcohol del 96** (*"Para curaciones, dice la etiqueta."*): con una caguama hace una molotov. ✅ `resources/productos/alcohol.tres`, en la licorería, $40 💡.
+- **Alcohol del 96** (*"Para curaciones, dice la etiqueta."*): ya no hace molotov (la gasolina de la gasolinera la reemplazó). ✅ `resources/productos/alcohol.tres`, en la licorería, $40 💡.
 - **Diente de la Madre** (*"Un colmillo de la Madre del Cárcamo, todavía tibio."*): trofeo de matar a la Madre del Cárcamo. ✅ `resources/productos/diente_madre.tres`. ❓ Quién lo compra y a cuánto.
 
 | Objeto | Descripción | Efecto | Precio | Modelo |
@@ -90,7 +90,7 @@
 
 **Recetas:**
 
-- **Molotov** = botella + trapo + **gasolina** (gasolinera) o **alcohol** (tequila/caguama vacía, más flojo).
+- **Molotov** = botella vacía (de caguama o refresco) + **gasolina** (la gasolinera te llena la botella: **limón** $30 o **cereza** $40, la de cereza quema 1.5 veces más lejos) + **trapo** (ferretería, $10). Gasolinera: el despachador (un civil al azar) junto a una bomba; su flecha amarilla cambia el ángulo y te enseña los precios.
 - **Machete reforzado** = machete + cinta canela.
 - **Agua limpia** = agua sucia + Cloralex (es delito; el Decreto 47 lo prohíbe).
 
@@ -191,7 +191,7 @@ Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Re
 | Gansito | 15 | pesos | +10 vida | 10 | — | — |
 | Mazapán | 8 | pesos | +10 vida | 10 | — | — |
 | Takis Fuego | 25 | pesos | +daño 30 s | — | — | — |
-| Jarritos | 20 | pesos | +estamina | — | — | — |
+| Jarritos | 20 | pesos | +25 vida | — | — | — |
 | Botiquín del Simi | 120 | pesos | +70 vida | 70 | — | — |
 | Vaporub | 2 | **agua** | cura 100 | 100 | — | — |
 | Tachas | 80 | pesos | velocidad 20 s | — | — | — |

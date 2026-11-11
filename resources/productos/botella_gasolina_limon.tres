@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/botella_gasolina_limon.tscn" id="1_modelo"]
+[ext_resource type="Script" uid="uid://s387l0w3an5w" path="res://scripts/InventoryItemData.gd" id="2_item"]
+[ext_resource type="Resource" path="res://resources/productos/botella_vacia.tres" id="3_vacia"]
+
+[resource]
+script = ExtResource("2_item")
+item_name = "Gasolina de limón"
+description = "Una botella llena de gasolina verde. Huele a limón de mentiritas."
+inspection_model = ExtResource("1_modelo")
+efecto = "Te llenan una botella vacía. Con un trapo: molotov de limón."
+precio = 30
+requiere = ExtResource("3_vacia")

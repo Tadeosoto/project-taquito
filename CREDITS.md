@@ -26,6 +26,7 @@
 - [Cara1 Puesto de Tacos PI Cubo Mexicano 2022](https://sketchfab.com/3d-models/03046667e027461baaaa47697d502e74) de Felipe Samma, licencia CC Attribution (`models/tiendas/puesto_tacos/`).
 - [Tacos_ Props](https://sketchfab.com/3d-models/f8bbafe18488483f8ab79bc52d1edc79) de Elbolillo, licencia CC Attribution (`models/tiendas/tacos_props/`).
 - [Pemex Low Poly](https://sketchfab.com/3d-models/1e070d51657e4c169c517f81de973e41) de VladimirLaruso, licencia CC Attribution (`models/tiendas/pemex/`).
+- [Lowpoly Gas Station](https://sketchfab.com/3d-models/02a11319cb744999adddd7236a46bf8e) de AspectStudios, licencia CC Attribution (`models/tiendas/gasolinera/`).
 - [Low Poly Street Food Cart](https://sketchfab.com/3d-models/a74ed86472c945328f3f2cf98fb26977) de chongdashu, licencia CC Attribution (`models/tiendas/carrito/`).
 
 ## Casas (`models/casas/`, Sketchfab)
@@ -111,6 +112,8 @@
 ## Animaciones (`models/animaciones/`, CC0)
 - [Universal Animation Library (Standard) de Quaternius](https://opengameart.org/content/universal-animation-library), licencia CC0 (`models/animaciones/quaternius_ual1/`).
 - [Universal Animation Library 2 (Standard) de Quaternius](https://opengameart.org/content/universal-animation-library-2), licencia CC0 (`models/animaciones/quaternius_ual2/`).
+- Universal Animation Library (Source) de Quaternius, licencia CC0 (`models/animaciones/quaternius_ual1_source/`; de aqui sale `Drink`).
+- Universal Animation Library 2 (Source) de Quaternius, licencia CC0 (`models/animaciones/quaternius_ual2_source/`; de aqui sale `Sword_Heavy_A`).
 
 ## Interiores (`models/interiores/`, Sketchfab)
 - [PSX - Vending Machine](https://sketchfab.com/3d-models/aff31f282155471d8222287596c7ac59) de Kasugay𓅂, licencia CC Attribution (`models/interiores/maquina_refrescos/`).

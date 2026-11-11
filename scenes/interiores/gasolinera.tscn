@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/interiores/Gasolinera.gd" id="1_gasolinera"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="3_npc"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="p_script"]
+[ext_resource type="Resource" path="res://resources/productos/botella_gasolina_limon.tres" id="p_limon"]
+[ext_resource type="Resource" path="res://resources/productos/botella_gasolina_cereza.tres" id="p_cereza"]
+
+[node name="Gasolinera" type="Node3D"]
+script = ExtResource("1_gasolinera")
+energia_luz = 0.8
+productos = Array[ExtResource("p_script")]([ExtResource("p_limon"), ExtResource("p_cereza")])
+
+[node name="Camara" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.99756, 0.06976, 0, -0.06976, 0.99756, 0.05, 1.5, 3.2)
+fov = 42.0
+
+[node name="Mostrador" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, 0.15, -1.9)
+
+[node name="Vendedor" parent="." instance=ExtResource("3_npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 0.15, -1.45)
+dialogue = "¿Verde o roja, joven? Traiga su botella vacía."
+
+[node name="Vitrina" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 1.2, 1.8)
