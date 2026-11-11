@@ -177,6 +177,24 @@
 			"x": -201.98,
 			"z": 303.95,
 			"rot": 1.6063
+		},
+		{
+			"nombre": "Reflector_Cancha_0",
+			"tipo": "reflector",
+			"x": -398.05,
+			"z": 295.95,
+			"y": 7.3,
+			"rot": 0.565,
+			"baja": 33
+		},
+		{
+			"nombre": "Reflector_Cancha_1",
+			"tipo": "reflector",
+			"x": -385.95,
+			"z": 315.05,
+			"y": 7.3,
+			"rot": -2.577,
+			"baja": 33
 		}
 	]
 }

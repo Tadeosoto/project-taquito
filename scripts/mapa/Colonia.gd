@@ -13,6 +13,8 @@ extends Node3D
 #   yonke   El Yonke de Don Chava (YonkeMapa, con su barda), con su +Z a la calle
 #   casa_propia  la flecha de la casa del jugador (CasaPropia, la casa de JJ que se camina)
 #   casa_vecino  la flecha de la casa de un vecino (CasaPropia con scenes/casas/<quien>.tscn)
+#   reflector  una luz de reflector (los postes de la cancha) a la altura "y", viendo hacia su +Z
+#           inclinada "baja" grados hacia el piso; se prende de noche con Ciclo.valor()
 
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
@@ -32,6 +34,14 @@ const LETRERO_COLOR := Color(1.0, 0.92, 0.55)
 
 var _puntos: MapPuntos
 var _marcas: Array = []
+var _reflectores: Array[SpotLight3D] = []
+var _ciclo: Node
+
+# Reflectores (marca "reflector"): luz calida sin sombra, como los de la cancha de la foto
+const REFLECTOR_ENERGIA := 4.0
+const REFLECTOR_ALCANCE := 24.0
+const REFLECTOR_ANGULO := 55.0
+const REFLECTOR_COLOR := Color(1.0, 0.93, 0.78)
 
 
 func _enter_tree() -> void:
@@ -62,8 +72,41 @@ func _ready() -> void:
 				_casa_propia(marca)
 			"casa_vecino":
 				_casa_vecino(marca)
+			"reflector":
+				_reflector(marca)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
+
+
+	set_process(not _reflectores.is_empty())
+
+
+# Los reflectores siguen a Ciclo.valor() (0 de dia, 1 de noche), asi se prenden al oscurecer
+func _process(_delta: float) -> void:
+	if _ciclo == null:
+		_ciclo = get_tree().get_first_node_in_group("ciclo")
+		if _ciclo == null:
+			return
+	var energia := REFLECTOR_ENERGIA * float(_ciclo.valor())
+	for luz in _reflectores:
+		luz.light_energy = energia
+		luz.visible = energia > 0.01
+
+
+func _reflector(marca: Dictionary) -> void:
+	var luz := SpotLight3D.new()
+	luz.name = String(marca.get("nombre", "Reflector"))
+	luz.spot_range = REFLECTOR_ALCANCE
+	luz.spot_angle = REFLECTOR_ANGULO
+	luz.light_color = REFLECTOR_COLOR
+	luz.shadow_enabled = false
+	luz.visible = false
+	# La luz ve hacia su -Z: se voltea para que vea al +Z de la marca y se baja "baja" grados
+	var t := lugar(marca)
+	t.basis = t.basis * Basis(Vector3.UP, PI) * Basis(Vector3.RIGHT, -deg_to_rad(float(marca.get("baja", 35.0))))
+	luz.transform = t
+	add_child(luz)
+	_reflectores.append(luz)
 
 
 static func lugar(marca: Dictionary) -> Transform3D:

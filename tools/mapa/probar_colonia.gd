@@ -240,6 +240,8 @@ func _vida(escena: Node) -> void:
 	_revisar("hay gente en la calle", gente > 0, "%d" % gente)
 	var npcs := root.get_tree().get_nodes_in_group("npc").size()
 	_revisar("hay quien da misiones", npcs > 0, "%d npc" % npcs)
+	var reflector := escena.find_child("Reflector_Cancha_0", true, false) as Light3D
+	_revisar("reflector de la cancha apagado de dia", reflector != null and not reflector.visible, "%s" % reflector)
 	var ciclo := escena.get_node("Ciclo")
 	ciclo.set("_tiempo", float(ciclo.get("dia_duracion")) + 30.0)
 	var zombis := 0
@@ -250,6 +252,8 @@ func _vida(escena: Node) -> void:
 			if zombis > 0:
 				break
 	_revisar("salen zombis de noche", zombis > 0, "%d" % zombis)
+	_revisar("reflector de la cancha prendido de noche", reflector != null and reflector.visible and reflector.light_energy > 1.0,
+		"energia %.2f" % (reflector.light_energy if reflector else -1.0))
 
 
 func _revisar(que: String, bien: bool, detalle: String) -> void:
