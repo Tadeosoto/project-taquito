@@ -799,19 +799,18 @@ def barda(nombre, p):
     return k
 
 
-def _carro(k, x, z, giro, color, quemado=False):
-    """Un vochito de cajas: carroceria, cabina, vidrios y llantas (sin llantas si esta quemado)."""
+def _carro(k, x, z, giro, color, quemado=False, ladrillos=False):
+    """Un vochito de cajas: carroceria, cabina, vidrios y llantas (sin llantas si esta quemado;
+    sobre bloques si esta en ladrillos, un poco mas abajo)."""
     c, s_ = math.cos(giro), math.sin(giro)
     def p(lx, y, lz):
         return (x + lx * c + lz * s_, y, z - lx * s_ + lz * c)
     cuerpo = "hueco" if quemado else color
-    k.caja(p(0, 0.65, 0), (1.6, 0.7, 3.8), cuerpo, giro)
-    k.caja(p(0, 1.25, -0.2), (1.4, 0.55, 1.9), cuerpo, giro)
-    k.caja(p(0, 1.25, 0.78), (1.3, 0.45, 0.05), "hueco" if quemado else "vidrio", giro)
-    if not quemado:
-        for lx in (-0.8, 0.8):
-            for lz in (-1.2, 1.2):
-                k.cilindro(p(lx, 0.0, lz), 0.32, 0.3, "fierro", lados=6)
+    baja = -0.1 if ladrillos else 0.0
+    k.caja(p(0, 0.65 + baja, 0), (1.6, 0.7, 3.8), cuerpo, giro)
+    k.caja(p(0, 1.25 + baja, -0.2), (1.4, 0.55, 1.9), cuerpo, giro)
+    k.caja(p(0, 1.25 + baja, 0.78), (1.3, 0.45, 0.05), "hueco" if quemado else "vidrio", giro)
+    _ruedas(k, p, (-0.8, 0.8), (-1.2, 1.2), quemado, ladrillos)
     k.choques.append((p(0, 0.75, 0), (1.6, 1.5, 3.8), giro))
 
 
@@ -913,10 +912,43 @@ def lote(nombre, p):
 
 
 def carro(nombre, p):
-    """Carro suelto (o quemado: los tapones de las calles, docs/mapa/colonias/santa_mugre.md)."""
+    """Carro suelto (o quemado: los tapones de las calles, docs/mapa/colonias/santa_mugre.md).
+    `estado`: "normal", "ladrillos" (sin llantas, sobre bloques) o "quemado"; `modelo`: "vocho"
+    o "combi". Su largo va a lo largo de z."""
     k = Constructor(nombre)
-    _carro(k, 0, 0, 0.0, p.get("color", "rojo"), p.get("quemado", False))
+    estado = p.get("estado", "quemado" if p.get("quemado", False) else "normal")
+    if p.get("modelo") == "combi":
+        _combi(k, p.get("color", "blanco_cal"), estado)
+    else:
+        _carro(k, 0, 0, 0.0, p.get("color", "rojo"), estado == "quemado", estado == "ladrillos")
     return k
+
+
+def _combi(k, color, estado):
+    """La combi de pasaje: una caja alta con su franja de ventanas, parabrisas y llantas (o
+    bloques, o quemada)."""
+    quemada = estado == "quemado"
+    sube = 0.15 if estado == "ladrillos" else 0.0
+    cuerpo = "hueco" if quemada else color
+    k.caja((0, 1.15 + sube, 0), (1.8, 1.7, 4.4), cuerpo)
+    vidrio = "hueco" if quemada else "vidrio"
+    for lado in (-1, 1):
+        k.caja((lado * 0.91, 1.5 + sube, -0.3), (0.02, 0.5, 3.0), vidrio)
+    k.caja((0, 1.45 + sube, 2.21), (1.6, 0.6, 0.02), vidrio)
+    if not quemada:
+        k.caja((0, 0.6 + sube, 2.21), (1.7, 0.12, 0.03), "blanco_cal")
+    _ruedas(k, lambda lx, y, lz: (lx, y, lz), (-0.85, 0.85), (-1.5, 1.5), quemada, estado == "ladrillos")
+    k.choques.append(((0, 1.0, 0), (1.8, 2.0, 4.4), 0.0))
+
+
+def _ruedas(k, p, xs, zs, quemado, ladrillos):
+    """Llantas, o nada si esta quemado, o dos bloques apilados donde iban si esta en ladrillos."""
+    for lx in xs:
+        for lz in zs:
+            if ladrillos:
+                k.caja(p(lx * 0.8, 0.16, lz), (0.4, 0.32, 0.2), "foto_block")
+            elif not quemado:
+                k.cilindro(p(lx, 0.0, lz), 0.32, 0.3, "fierro", lados=6)
 
 
 def patio(nombre, p):

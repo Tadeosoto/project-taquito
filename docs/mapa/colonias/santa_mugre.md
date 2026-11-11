@@ -132,6 +132,8 @@ Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
 18. Pasillo angosto de tierra (1.1 m, `Pasillo_Tianguis`, con su reserva) que cruza la manzana grande de Bahia de Sin Agua a la calle de la vecindad a la altura de la tortilleria: de noche los zombis te siguen en fila. No es callejon (tierra, no empedrado), asi que sin casas de frente, basura ni tendederos. `bloqueo._encima` ahora revisa lado por lado las reservas de menos de `TIRA` 2 m: el relleno ponia una casa encima (con todas las reservas perdia 40 casas del relleno, por eso solo las angostas). Prueba nueva: se cruza caminando.
 19. De noche la cancha es trampa (AG): con los reflectores prendidos, si estas adentro cada 6 s hace `Zombie.ruido` a 35 m, como un balazo (`scripts/mapa/LuzTrampa.gd`, marca `trampa`). Una sola reja: la aguantas o te acorralan. Numeros para ajustar jugando.
 20. La tortilleria ya se entra: `scenes/interiores/tortilleria.tscn` (ventanilla verde, la señora de la masa) vende **Kilo de tortillas** (`resources/productos/tortillas.tres`, $22, cura 15, se apila; modelito en `models/objetos/tortillas/`) y Jarritos. Giro `tortilleria` en `mapa.tscn` y en el safehouse (local de taqueria al final de la fila). Prueba nueva. Doña Mary sigue en "Proximamente".
+21. El palacio de gobierno se ilumina de noche "como si nada" (`lore.md`): cuatro reflectores en el piso viendo a la fachada y cinco focos bajo el portal (marcas `reflector` y `foco`). Fila de cuatro civiles en la tortilleria de dia (marcas `vecino` `Fila_Tortilleria_*`).
+22. Carros abandonados (32) junto a la banqueta de las calles: la mitad enteros, los demas sobre ladrillos o quemados, alguna combi (`carro` con `estado` y `modelo`; `colonia.carros_estacionados` los pone cada 28-50 m lejos de marcas, puestos, el reten y los cruces; con choque, no van al `.json`).
 
 Costo medido con `tools/mapa/medir_colonia.gd` (maquina de AG, de dia), antes de esta noche y despues de los 7 puntos: plaza 293 a 287 fps (primitivas 124k a 228k), tianguis 283 a 278 (195k a 339k), vecindad 287 a 280, avenida 335 a 321, cancha 304 a 298 (llamadas de dibujo 539 a 661). Baja 2-4 % de fps pero casi se doblan las primitivas: **Arreglado (2026-11-11):** los detalles (material `detalle_kit` de las casas y los objetos `Detalle_*` de los callejones, partidos en trozos de 20 m) van en cuadros de 24 m aparte que `MapaPostImport` deja de dibujar a 55 m y que no hacen sombra. Medido despues: plaza 132k primitivas (antes 228k, sin detalles 124k), 560 llamadas, tianguis 206k, cancha 151k; los fps quedan igual.
 
@@ -140,7 +142,6 @@ Para revisar caminando (`scenes/mapa.tscn`): el color del muro y del piso de la 
 Ideas que siguen, en orden (del plan de esa noche):
 - Topes con choque en rampa y baches con charco.
 - Puertas de herreria (zaguanes).
-- Carros abandonados sobre ladrillos (`carro` con `estado`).
 - La fila de la tortilleria (gente de dia) y el interior de Doña Mary.
 - Mercado techado de lamina.
 - Mas pasillos como el del tianguis donde haga falta (casi todas las manzanas ya tienen callejon).

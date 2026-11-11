@@ -67,6 +67,7 @@ def armar(nombre):
             ob[DATO] = "pieza:" + p["nombre"]
 
     _postes_y_cables(sc, mundo, datos.get("postes", []))
+    _carros(mundo, datos)
     _tendederos(mundo, datos)
     _vida_callejones(mundo, datos)
 
@@ -396,6 +397,53 @@ def botin_azoteas(datos):
         cz = p["z"] + sum(q[1] for q in pts) / len(pts)
         botin.append((round(cx, 2), round(p.get("pisos", 1) * 2.75 + 0.05, 2), round(cz, 2), BOTIN_TIPOS[i % len(BOTIN_TIPOS)]))
     return botin
+
+
+CARRO_CADA = (28.0, 50.0)     # m entre carros estacionados a lo largo de una calle
+CARRO_LIBRE = 7.0             # m sin carros alrededor de marcas (puertas, flechas) y de puestos
+CARRO_ESQUINA = 9.0           # m sin carros desde las puntas de cada tramo (los cruces)
+CARRO_COLORES = ["rojo", "lona_azul", "lona_amarillo", "blanco_cal", "lona_verde", "naranja_gela"]
+
+
+def carros_estacionados(datos):
+    """Carros abandonados junto a la banqueta de las calles con banqueta: la mitad enteros, los
+    demas sobre ladrillos o quemados, alguna combi. Lejos de puertas, puestos, el reten de GelA y
+    los cruces. Fijos por nombre de calle. Son piezas "carro" (con choque) que no van al .json."""
+    import random
+    estorban = [(m["x"], m["z"]) for m in datos.get("marcas", [])]
+    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela", "tiendita", "tortilleria")]
+    carros = []
+    for p in datos.get("piezas", []):
+        if p["tipo"] != "calle" or p.get("banqueta", 0) <= 0 or p.get("material", "asfalto") != "asfalto":
+            continue
+        r = random.Random(sum((i + 1) * ord(ch) for i, ch in enumerate(p["nombre"])) * 13 + 7)
+        pts = [(p["x"] + a, p["z"] + b) for a, b in p["puntos"]]
+        for k, ((ax, az), (bx, bz)) in enumerate(zip(pts, pts[1:])):
+            largo = math.hypot(bx - ax, bz - az)
+            if largo < 2 * CARRO_ESQUINA + 4.0:
+                continue
+            ux, uz = (bx - ax) / largo, (bz - az) / largo
+            s = CARRO_ESQUINA + r.uniform(0.0, 12.0)
+            while s < largo - CARRO_ESQUINA:
+                lado = r.choice((-1, 1))
+                d = p["ancho"] / 2 - 1.1
+                x, z = ax + ux * s - uz * lado * d, az + uz * s + ux * lado * d
+                if all(math.hypot(x - ex, z - ez) > CARRO_LIBRE for ex, ez in estorban):
+                    tiro = r.random()
+                    estado = "normal" if tiro < 0.5 else ("ladrillos" if tiro < 0.8 else "quemado")
+                    carro = {"nombre": "Carro_%s_%d_%d" % (p["nombre"], k, int(s)), "tipo": "carro",
+                             "x": round(x, 2), "z": round(z, 2), "rot": round(math.atan2(ux, uz) + r.uniform(-0.12, 0.12), 4),
+                             "color": r.choice(CARRO_COLORES), "estado": estado}
+                    if r.random() < 0.15:
+                        carro["modelo"] = "combi"
+                    carros.append(carro)
+                s += r.uniform(*CARRO_CADA)
+    return carros
+
+
+def _carros(mundo, datos):
+    for p in carros_estacionados(datos):
+        _pieza(mundo, p)
 
 LADRILLO_CADA = 5        # una de cada tantas casas "auto" de dos pisos o mas sale de ladrillo
 

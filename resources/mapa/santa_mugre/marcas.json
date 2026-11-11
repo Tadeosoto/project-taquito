@@ -47,7 +47,7 @@
 			"x": -395.05,
 			"z": 320.2,
 			"y": 14.85,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -50,
 			"alcance": 7.0
 		},
@@ -282,6 +282,114 @@
 			"rot": 0.0,
 			"tam": [12.6, 19.6],
 			"radio": 35.0
+		},
+		{
+			"nombre": "Reflector_Palacio_0",
+			"tipo": "reflector",
+			"x": -367.0,
+			"z": 383.5,
+			"y": 0.3,
+			"rot": -3.1416,
+			"baja": -48,
+			"alcance": 14.0
+		},
+		{
+			"nombre": "Reflector_Palacio_1",
+			"tipo": "reflector",
+			"x": -354.0,
+			"z": 383.5,
+			"y": 0.3,
+			"rot": -3.1416,
+			"baja": -48,
+			"alcance": 14.0
+		},
+		{
+			"nombre": "Reflector_Palacio_2",
+			"tipo": "reflector",
+			"x": -341.0,
+			"z": 383.5,
+			"y": 0.3,
+			"rot": -3.1416,
+			"baja": -48,
+			"alcance": 14.0
+		},
+		{
+			"nombre": "Reflector_Palacio_3",
+			"tipo": "reflector",
+			"x": -328.0,
+			"z": 383.5,
+			"y": 0.3,
+			"rot": -3.1416,
+			"baja": -48,
+			"alcance": 14.0
+		},
+		{
+			"nombre": "Foco_Portal_Palacio_0",
+			"tipo": "foco",
+			"x": -367.5,
+			"z": 377.4,
+			"y": 4.2,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Foco_Portal_Palacio_1",
+			"tipo": "foco",
+			"x": -357.5,
+			"z": 377.4,
+			"y": 4.2,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Foco_Portal_Palacio_2",
+			"tipo": "foco",
+			"x": -347.5,
+			"z": 377.4,
+			"y": 4.2,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Foco_Portal_Palacio_3",
+			"tipo": "foco",
+			"x": -337.5,
+			"z": 377.4,
+			"y": 4.2,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Foco_Portal_Palacio_4",
+			"tipo": "foco",
+			"x": -327.5,
+			"z": 377.4,
+			"y": 4.2,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Fila_Tortilleria_0",
+			"tipo": "vecino",
+			"x": -274.9,
+			"z": 436.3,
+			"rot": 1.5708
+		},
+		{
+			"nombre": "Fila_Tortilleria_1",
+			"tipo": "vecino",
+			"x": -275.7,
+			"z": 436.45,
+			"rot": 1.5708
+		},
+		{
+			"nombre": "Fila_Tortilleria_2",
+			"tipo": "vecino",
+			"x": -276.5,
+			"z": 436.2,
+			"rot": 1.5708
+		},
+		{
+			"nombre": "Fila_Tortilleria_3",
+			"tipo": "vecino",
+			"x": -277.3,
+			"z": 436.5,
+			"rot": 1.5708
 		},
 		{
 			"nombre": "Foco_0",
