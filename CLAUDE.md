@@ -489,7 +489,7 @@ The "Vela del tinaco" mission (`docs/misiones.md` §0) as a standalone scene: on
 
 ## graphify (narrative graph)
 
-`docs/graphify-out/` holds a knowledge graph of the six narrative docs (`lore`, `personajes`, `misiones`, `items`, `especificaciones`, `revision-historia`): 367 nodes, 12 communities, built by `/graphify` (the skill is in `.claude/skills/graphify/`). There is no graph of the code. Install with `uv tool install graphifyy`.
+`docs/graphify-out/` holds a knowledge graph of the six narrative docs (`lore`, `personajes`, `misiones`, `items`, `especificaciones`, `revision-historia`): 458 nodes, 22 communities (rebuilt 2026-11-11), built by `/graphify`. `docs/graphify-out/.graphify_build.json` excludes the rest of `docs/` (mapa, prompts, pruebas, notes, `mejoras.md`) so an update stays on those six (the skill is in `.claude/skills/graphify/`). There is no graph of the code. Install with `uv tool install graphifyy`.
 
 - For a story question, ask the graph before reading a whole doc, from the repo root: `graphify query "<question>" --graph docs/graphify-out/graph.json`; `graphify explain "<node>"` and `graphify path "<A>" "<B>" --undirected` take the same `--graph`. Then read only the sections it names (each node carries its doc and heading). Every narrative skill, `/game-quest`, `/game-lore` and the `narrative-writer` agent say this in their adaptation block; keep it in any new one.
 - `docs/graphify-out/graph.html` is the browsable view and `GRAPH_REPORT.md` the summary (hubs, communities, loose ends).
