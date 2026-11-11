@@ -48,6 +48,10 @@ ANCHO = 5.0
 FONDO = 12.0
 FONDO_MIN = 8.0
 FONDO_TOPE = 16.0      # lo mas que se busca detras de un frente (la gasolinera)
+# Las casas se amplian hacia atras (un cuarto de un piso, MapCasas "ampliacion") hasta tocar la de
+# espaldas, a la mitad de la manzana, sin pasar de este fondo de lote ni encimarse con nada
+FONDO_LOTE = 24.0
+PASO_AMPLIA = 0.5
 COCHERA = 5.0          # de la banqueta a la fachada
 FONDO_CASA = 7.0       # de la fachada al fondo
 # Las casa-local de scripts/map/MapPuntos.gd (GIROS_LOCAL)
@@ -231,14 +235,14 @@ class Hileras:
         self.puestas = []
         self.casas = []
 
-    def fondo_libre(self, cx, cz, ux, uz):
+    def fondo_libre(self, cx, cz, ux, uz, tope=FONDO_TOPE):
         """Cuanto fondo cabe antes de topar con otra calle: la mitad si la manzana es angosta."""
-        for d10 in range(10, 300, 5):
+        for d10 in range(10, int(tope * 20) - 20, 5):
             d = d10 / 10
             q = caja(cx - ux * d, cz - uz * d, ux, uz, ANCHO * 0.6, 0.2)
             if any(se_tocan(q, r) for r in self.rect_calles):
-                return min(FONDO_TOPE, d / 2)
-        return FONDO_TOPE
+                return min(tope, d / 2)
+        return tope
 
     def cabe(self, cx, cz, ux, uz, ancho=ANCHO, fondo_min=FONDO_MIN, en_plaza=False):
         fondo = self.fondo_libre(cx, cz, ux, uz)
@@ -338,10 +342,32 @@ class Hileras:
         self.bardas = [e for e in bardas if any(dentro(*pt) for pt in e["puntos"]) and not toca(e)]
         self.rect_bardas = [r for e in self.bardas for r in tramos(e["puntos"], 0.3)]
         self.estorbos += self.rect_bardas
+        self.ampliar()
         for n in faltan:
             if n[6] == "hueco":
                 self.negocio(azar, n, mas)
         return self.casas, mas
+
+    def ampliar(self):
+        """Alarga cada casa hacia atras, de PASO_AMPLIA en PASO_AMPLIA, hasta la mitad de la manzana (donde
+        llega la de espaldas) o hasta topar con otra casa, su ampliacion, un estorbo, una calle o el pasto."""
+        for c in self.casas:
+            r = c["rotacion_y"]
+            ux, uz = math.sin(r), math.cos(r)
+            cx, cz = c["x"], c["z"]
+            tope = self.fondo_libre(cx, cz, ux, uz, FONDO_LOTE)
+            d = FONDO
+            while d + PASO_AMPLIA <= tope:
+                q = caja(cx - ux * (d + 0.03), cz - uz * (d + 0.03), ux, uz, ANCHO - 0.06, PASO_AMPLIA - 0.06)
+                if any(any(en_poligono(x, z, a) for a in self.areas) for x, z in q) \
+                        or any(se_tocan(q, e) for e in self.estorbos) or any(se_tocan(q, e) for e in self.rect_calles) \
+                        or any(se_tocan(q, e) for e in self.puestas):
+                    break
+                d += PASO_AMPLIA
+            if d - FONDO >= 1.0:
+                c["ampliacion"] = round(d - FONDO, 2)
+                self.puestas.append(caja(cx - ux * (FONDO + 0.03), cz - uz * (FONDO + 0.03), ux, uz, ANCHO - 0.06,
+                                         d - FONDO - 0.06))
 
     def casas_en_hileras(self, azar):
         for h, pts, m in self.calles:

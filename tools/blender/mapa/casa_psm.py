@@ -7,7 +7,8 @@
 #   muro      cemento enjarrado (white_stucco_02, tambien en los arcos): se repite cada 2.5 m y lo pinta el color de
 #             vertice (la textura va en gris)
 #   azotea    losa de concreto (concrete_wall_008), cada 2 m
-#   concreto  el piso de la cochera (concrete_floor_01), cada 2 m
+#   concreto  el piso de la cochera: la misma de las banquetas de map_test (textures/map/banqueta.png,
+#             dirty_concrete), cada 3 m como ellas
 #   pasto     pasto de verdad (leafy_grass, a color), cada 2 m
 #   detalle   un atlas (no se repite) con las ventanas (vidrio, cortina de lino, marco y herreria
 #             blanca ornamental con sombra), las puertas lisas (blanca, negra y cafe), el arco pintado,
@@ -66,8 +67,8 @@ PX_REJA = 80              # y de las rejas
 PX_VIDRIO = 256           # las ventanas van al doble: la herreria es delgada y se pixeleaba
 COLORES_HERRERIA = {"blanca": (0.95, 0.95, 0.93), "negra": (0.07, 0.07, 0.08)}
 # Metros que cubre una repeticion de cada textura, y de donde sale la imagen
-REPETICION = {"muro": 2.5, "azotea": 2.0, "concreto": 2.0, "pasto": 2.0, "tinaco": 1.0}
-IMAGEN_REPO = {"concreto": "textures/mapa/casa_psm_concreto.png", "pasto": "textures/mapa/casa_psm_pasto.png",
+REPETICION = {"muro": 2.5, "azotea": 2.0, "concreto": 3.0, "pasto": 2.0, "tinaco": 1.0}
+IMAGEN_REPO = {"concreto": "textures/map/banqueta.png", "pasto": "textures/mapa/casa_psm_pasto.png",
                "muro": "textures/mapa/casa_psm_muro.png", "azotea": "textures/mapa/casa_psm_azotea.png"}
 TEXTURA_METAL = "textures/mapa/casa_psm_metal.png"
 TEXTURA_TELA = "textures/mapa/casa_psm_tela.png"

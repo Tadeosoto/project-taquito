@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="17_player"]
 [ext_resource type="PackedScene" path="res://models/mapa/santa_mugre/kiosco_iglesia.glb" id="18_kiosco_iglesia"]
 [ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="19_dron"]
+[ext_resource type="Script" path="res://scripts/map/DeterioroEscena.gd" id="20_deterioro"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -61,6 +62,10 @@ shader_parameter/affine_enabled = false
 size = Vector3(900, 0.2, 900)
 
 [node name="SantaMugrePSM" type="Node3D"]
+
+[node name="Deterioro" type="Node" parent="."]
+script = ExtResource("20_deterioro")
+maximo = 0.5
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_mapa")

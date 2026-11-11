@@ -9,7 +9,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -20,7 +21,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -31,7 +33,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 8.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -75,7 +78,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -86,7 +90,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_b",
@@ -97,7 +102,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -108,7 +114,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -119,7 +126,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -130,7 +138,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -174,7 +183,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -185,7 +195,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -196,7 +207,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -207,7 +219,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -251,7 +264,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 7.0
 		},
 		{
 			"modelo": "psm_2p_a",
@@ -262,7 +276,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 10.0
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -273,7 +288,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 9.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -284,7 +300,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -339,7 +356,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 1.0
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -350,7 +368,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 2.0
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -361,7 +380,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 2.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -372,7 +392,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 2.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -383,7 +404,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_2p_c",
@@ -394,7 +416,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -405,7 +428,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -416,7 +440,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -427,7 +452,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -438,7 +464,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -449,7 +476,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -493,7 +521,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -504,7 +533,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -515,7 +545,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -526,7 +557,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -537,7 +569,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -548,7 +581,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -559,7 +593,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -570,7 +605,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -581,7 +617,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_b",
@@ -592,7 +629,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 6.5
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -603,7 +641,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -614,7 +653,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -625,7 +665,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -636,7 +677,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -647,7 +689,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -691,7 +734,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -702,7 +746,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -713,7 +758,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -735,7 +781,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -746,7 +793,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -757,7 +805,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -768,7 +817,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -779,7 +829,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -823,7 +874,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -834,7 +886,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -845,7 +898,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -856,7 +910,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -867,7 +922,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -878,7 +934,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -889,7 +946,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -900,7 +958,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_2p_a",
@@ -911,7 +970,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -922,7 +982,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 6.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -933,7 +994,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 6.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -944,7 +1006,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -955,7 +1018,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_2p_c",
@@ -966,7 +1030,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -977,7 +1042,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -988,7 +1054,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 1.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -999,7 +1066,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_2p_a",
@@ -1021,7 +1089,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -1032,7 +1101,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1043,7 +1113,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1054,7 +1125,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_c",
@@ -1065,7 +1137,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1076,7 +1149,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -1087,7 +1161,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_c",
@@ -1098,7 +1173,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1131,7 +1207,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -1142,7 +1219,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -1153,7 +1231,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1164,7 +1243,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1175,7 +1255,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_2p_b",
@@ -1186,7 +1267,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -1197,7 +1279,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -1208,7 +1291,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1219,7 +1303,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -1230,7 +1315,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1241,7 +1327,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -1252,7 +1339,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1263,7 +1351,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -1274,7 +1363,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1285,7 +1375,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1318,7 +1409,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -1329,7 +1421,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1340,7 +1433,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 2.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -1351,7 +1445,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 2.5
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -1362,7 +1457,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 2.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1373,7 +1469,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1384,7 +1481,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1395,7 +1493,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -1406,7 +1505,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1417,7 +1517,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -1428,7 +1529,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_2p_c",
@@ -1439,7 +1541,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1450,7 +1553,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1461,7 +1565,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -1472,7 +1577,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1483,7 +1589,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -1494,7 +1601,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1505,7 +1613,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1516,7 +1625,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1527,7 +1637,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1538,7 +1649,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1549,7 +1661,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -1560,7 +1673,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -1571,7 +1685,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1582,7 +1697,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1593,7 +1709,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -1604,7 +1721,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -1615,7 +1733,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -1626,7 +1745,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -1637,7 +1757,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -1670,7 +1791,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 2.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1681,7 +1803,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 2.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1692,7 +1815,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 2.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -1703,7 +1827,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 9.0
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1736,7 +1861,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -1747,7 +1873,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -1758,7 +1885,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -1769,7 +1897,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -1780,7 +1909,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1791,7 +1921,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1802,7 +1933,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1846,7 +1978,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1857,7 +1990,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -1868,7 +2002,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -1879,7 +2014,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_2p_c",
@@ -1890,7 +2026,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -1901,7 +2038,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 12.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1945,7 +2083,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 1.0
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1956,7 +2095,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 1.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -1967,7 +2107,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 1.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -1978,7 +2119,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 1.0
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -1989,7 +2131,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2000,7 +2143,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -2011,7 +2155,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -2022,7 +2167,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -2033,7 +2179,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -2044,7 +2191,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -2055,7 +2203,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -2066,7 +2215,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -2077,7 +2227,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2088,7 +2239,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -2099,7 +2251,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -2110,7 +2263,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_b",
@@ -2121,7 +2275,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -2132,7 +2287,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2143,7 +2299,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -2154,7 +2311,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2165,7 +2323,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -2176,7 +2335,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2187,7 +2347,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -2198,7 +2359,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -2209,7 +2371,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -2220,7 +2383,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2231,7 +2395,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -2242,7 +2407,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -2253,7 +2419,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -2264,7 +2431,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -2297,7 +2465,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -2308,7 +2477,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -2319,7 +2489,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -2330,7 +2501,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -2374,7 +2546,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_a",
@@ -2385,7 +2558,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -2396,7 +2570,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -2407,7 +2582,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.5
 		},
 		{
 			"modelo": "psm_2p_c",
@@ -2418,7 +2594,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 1.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -2429,7 +2606,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -2440,7 +2618,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -2451,7 +2630,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -2462,7 +2642,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -2473,7 +2654,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_1p_c",
@@ -2484,7 +2666,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 5.0
 		},
 		{
 			"modelo": "psm_2p_tablones",
@@ -2495,7 +2678,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2c94c",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_b",
@@ -2506,7 +2690,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -2517,7 +2702,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2528,7 +2714,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -2539,7 +2726,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -2550,7 +2738,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -2561,7 +2750,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -2572,7 +2762,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2594,7 +2785,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#a47ad1",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2605,7 +2797,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#d9608f",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.5
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -2616,7 +2809,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_persiana",
@@ -2627,7 +2821,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#7cc06a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -2638,7 +2833,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_tablones",
@@ -2649,7 +2845,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#5b8fd9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -2660,7 +2857,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 3.0
 		},
 		{
 			"modelo": "psm_2p_c",
@@ -2671,7 +2869,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_barrotes",
@@ -2682,7 +2881,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_barrotes",
@@ -2693,7 +2893,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#3fa7b5",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_persiana",
@@ -2704,7 +2905,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#e05a47",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_a",
@@ -2715,7 +2917,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f2994a",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_1p_a",
@@ -2726,7 +2929,8 @@
 			"fondo": 12.0,
 			"pisos": 1,
 			"color": "#e8d7b9",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 4.0
 		},
 		{
 			"modelo": "psm_2p_a",
@@ -2737,7 +2941,8 @@
 			"fondo": 12.0,
 			"pisos": 2,
 			"color": "#f7f4ec",
-			"colonia": "PARQUES DE SANTA MARIA"
+			"colonia": "PARQUES DE SANTA MARIA",
+			"ampliacion": 1.5
 		}
 	]
 }

@@ -30,6 +30,10 @@ const NUCLEO_FRENTE := 1.5
 # punto, siempre); un segundo con zona - GRAFITI_SEGUNDO. Solo en tramos planos
 # del muro de enfrente (ver _paredes), a la altura de la gente.
 const GRAFITI_SEGUNDO := 0.4
+# "ampliacion" en casas.json (m): un cuarto de un piso del color de la casa detras del modelo, para que
+# el lote llegue hasta la casa de espaldas (tools/map_import/recorte_santa_mugre.py)
+const AMPLIACION_ALTO := 2.8
+const AMPLIACION_LOSA := Color(0.42, 0.41, 0.39)   # la azotea, gris como la de las casas
 const GRAFITI_ANCHO := Vector2(0.9, 1.8)
 const GRAFITI_ALTO := Vector2(0.35, 2.1)
 
@@ -216,6 +220,21 @@ func _crear_celda(casas: Array) -> Node3D:
 			var core := Vector3(size.x - 2.0 * NUCLEO_MARGEN, size.y * nucleo[modelo], size.z - NUCLEO_MARGEN - NUCLEO_FRENTE)
 			var center := Vector3(0.0, core.y / 2.0, -NUCLEO_FRENTE - core.z / 2.0)
 			bardas.append([lote * Transform3D(Basis.from_scale(core), center), color])
+
+		var ampliacion: float = casa.get("ampliacion", 0.0)
+		if ampliacion > 0.0:
+			var cuarto := Vector3(size.x, AMPLIACION_ALTO, ampliacion)
+			var centro := Vector3(0.0, cuarto.y / 2.0, -size.z - cuarto.z / 2.0)
+			bardas.append([lote * Transform3D(Basis.from_scale(cuarto), centro), color])
+			var losa := Vector3(cuarto.x, 0.06, cuarto.z)
+			bardas.append([lote * Transform3D(Basis.from_scale(losa), Vector3(0.0, cuarto.y + 0.03, centro.z)),
+				Color(AMPLIACION_LOSA, color.a)])
+			var forma := CollisionShape3D.new()
+			var caja := BoxShape3D.new()
+			caja.size = cuarto
+			forma.shape = caja
+			forma.transform = lote * Transform3D(Basis.IDENTITY, centro)
+			body.add_child(forma)
 
 		# Bardas a los lados si el modelo no llena el frente
 		var hueco := (ancho - size.x) / 2.0
