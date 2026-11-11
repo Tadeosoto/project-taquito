@@ -30,6 +30,10 @@ const TEXTO_PUERTA := "Sal por la puerta"
 # Script de un Node que se cuelga de la casa al entrar (scripts/interiores/MueblesCasa.gd: dormir,
 # el baul, el ropero...). Sin el, la casa es solo para caminar
 @export var muebles: Script
+# Cuando se puede entrar (las casas de los vecinos: Sofia solo abre de noche); cerrada, el
+# letrero lo dice y no pasa nada
+@export_enum("siempre", "noche", "dia") var abierto := "siempre"
+@export var texto_cerrado := "Nadie abre."
 
 var _player: Player
 var _zombis: Zombis
@@ -100,6 +104,15 @@ func _physics_process(_delta: float) -> void:
 func _entrar() -> void:
 	if _ocupado or _casa:
 		return
+	if abierto != "siempre":
+		var ciclo := get_tree().get_first_node_in_group("ciclo")
+		if ciclo and ciclo.es_noche() != (abierto == "noche"):
+			_letrero.text = "%s\n%s" % [nombre, texto_cerrado]
+			var tween := create_tween()
+			tween.tween_property(_letrero, "modulate:a", 1.0, 0.2)
+			tween.tween_interval(2.0)
+			tween.tween_property(_letrero, "modulate:a", 0.0, 0.6)
+			return
 	_ocupado = true
 	_salida = _area.global_transform
 	_player.process_mode = Node.PROCESS_MODE_DISABLED

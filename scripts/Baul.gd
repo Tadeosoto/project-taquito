@@ -11,11 +11,15 @@ const CAPACIDAD := 24
 
 var items: Array[InventoryItemData] = []
 var cantidades: Array[int] = []
+# Casas de los vecinos ya saqueadas en esta partida (CasaVecino.gd, la clausurada): lo que dejaron
+# sale una vez por partida
+var saqueadas := {}
 
 
 func reiniciar() -> void:
 	items.clear()
 	cantidades.clear()
+	saqueadas.clear()
 	cambio.emit()
 
 

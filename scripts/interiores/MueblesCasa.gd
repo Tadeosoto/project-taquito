@@ -2,8 +2,8 @@ extends Node3D
 
 # Lo que se hace en la casa del jugador (la de JJ, scenes/casa_personaje.tscn): CasaPropia lo
 # cuelga de la casa al entrar (su export `muebles`). Cada mueble del que se puede usar algo lleva
-# un MuebleCasa (Area3D del grupo "interactuable": con el boton de brincar/interactuar, el mas
-# cercano). Busca los muebles de JJ por su nombre de nodo, asi que su constructor
+# un MuebleCasa (scripts/interiores/MuebleCasa.gd: Area3D del grupo "interactuable", con el
+# boton de brincar/interactuar el mas cercano). Busca los muebles de JJ por su nombre de nodo, asi que su constructor
 # (tools/construir_casa_personaje.gd) puede rehacer la casa sin romper esto, y pone los que faltan:
 #   Cama       dormir hasta el siguiente amanecer o anochecer (Ciclo.saltar) y curarte del todo
 #   Closet     el ropero: CreadorPersonaje (como la C del safehouse)
@@ -76,46 +76,6 @@ func _ready() -> void:
 
 # --- Muebles que se usan ---
 
-class MuebleCasa extends Area3D:
-	var accion: Callable
-	var _dentro := false
-	var _letrero: Label3D
-
-	func armar(texto: String, radio: float) -> void:
-		add_to_group("interactuable")
-		monitorable = false
-		var forma := CollisionShape3D.new()
-		var esfera := SphereShape3D.new()
-		esfera.radius = radio
-		forma.shape = esfera
-		forma.position.y = 1.0
-		add_child(forma)
-		_letrero = Label3D.new()
-		_letrero.text = "Espacio: %s" % texto
-		_letrero.font_size = 32
-		_letrero.pixel_size = 0.005
-		_letrero.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		_letrero.no_depth_test = true
-		_letrero.outline_size = 8
-		_letrero.position.y = 1.9
-		_letrero.visible = false
-		add_child(_letrero)
-		body_entered.connect(func(b: Node3D) -> void:
-			if b is Player:
-				_dentro = true
-				_letrero.visible = true)
-		body_exited.connect(func(b: Node3D) -> void:
-			if b is Player:
-				_dentro = false
-				_letrero.visible = false)
-
-	func is_player_inside() -> bool:
-		return _dentro
-
-	func interact() -> void:
-		accion.call()
-
-
 func _mueble(casa: Node, nodo: String, texto: String, accion: Callable, en := Vector3.INF) -> void:
 	var lugar := en
 	if lugar == Vector3.INF:
@@ -124,11 +84,8 @@ func _mueble(casa: Node, nodo: String, texto: String, accion: Callable, en := Ve
 			push_warning("MueblesCasa: la casa no tiene %s" % nodo)
 			return
 		lugar = Vector3(mueble.position.x, 0.0, mueble.position.z)
-	var area := MuebleCasa.new()
+	var area := MuebleCasa.crear(texto, lugar, accion, RADIO)
 	area.name = "Usar" + nodo
-	area.accion = accion
-	area.position = lugar
-	area.armar(texto, RADIO)
 	add_child(area)
 
 

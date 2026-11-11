@@ -12,6 +12,7 @@ extends Node3D
 #           con su giro, igual que YonkeMapa; su +Z da a la calle (ahi te deja Interiores al salir)
 #   yonke   El Yonke de Don Chava (YonkeMapa, con su barda), con su +Z a la calle
 #   casa_propia  la flecha de la casa del jugador (CasaPropia, la casa de JJ que se camina)
+#   casa_vecino  la flecha de la casa de un vecino (CasaPropia con scenes/casas/<quien>.tscn)
 
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
@@ -59,6 +60,8 @@ func _ready() -> void:
 				_yonke(marca)
 			"casa_propia":
 				_casa_propia(marca)
+			"casa_vecino":
+				_casa_vecino(marca)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
@@ -90,6 +93,26 @@ func _casa_propia(marca: Dictionary) -> void:
 	casa.set("calle_giro", float(marca.get("rot", 0.0)))
 	casa.set("nombre", String(marca.get("texto", "Tu casa")))
 	casa.set("muebles", MUEBLES)
+	var jugador := get_node_or_null(jugador_path)
+	if jugador:
+		casa.set("player_path", jugador.get_path())
+	var zombis := get_parent().get_node_or_null("Zombis")
+	if zombis:
+		casa.set("zombis_path", zombis.get_path())
+	add_child(casa)
+
+
+# Las casas de los vecinos (scenes/casas/*.tscn, CasaVecino.gd): se entran como la del jugador,
+# sin muebles que se usen; `abierto` (siempre, noche, dia) y su escena vienen en la marca
+func _casa_vecino(marca: Dictionary) -> void:
+	var casa: Node = CASA_PROPIA.new()
+	casa.name = String(marca.get("nombre", "CasaVecino"))
+	casa.set("escena", load(String(marca["escena"])))
+	casa.set("flecha_en", Vector3(float(marca["x"]), float(marca.get("y", 0.0)), float(marca["z"])))
+	casa.set("calle_giro", float(marca.get("rot", 0.0)))
+	casa.set("nombre", String(marca.get("texto", "Casa")))
+	casa.set("abierto", String(marca.get("abierto", "siempre")))
+	casa.set("texto_cerrado", String(marca.get("cerrado", "Nadie abre.")))
 	var jugador := get_node_or_null(jugador_path)
 	if jugador:
 		casa.set("player_path", jugador.get_path())

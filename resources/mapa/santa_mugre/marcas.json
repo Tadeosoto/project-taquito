@@ -132,6 +132,51 @@
 			"x": -347.4,
 			"z": 291.98,
 			"rot": 1.5708
+		},
+		{
+			"nombre": "Casa_guero",
+			"tipo": "casa_vecino",
+			"auto": true,
+			"escena": "res://scenes/casas/guero.tscn",
+			"texto": "Casa del Guero",
+			"abierto": "siempre",
+			"x": -248.82,
+			"z": 324.39,
+			"rot": 0.0404
+		},
+		{
+			"nombre": "Casa_sofia",
+			"tipo": "casa_vecino",
+			"auto": true,
+			"escena": "res://scenes/casas/sofia.tscn",
+			"texto": "Taller",
+			"abierto": "noche",
+			"x": -319.65,
+			"z": 310.84,
+			"rot": -1.5328,
+			"cerrado": "La cortina esta abajo. De dia aqui no hay nadie."
+		},
+		{
+			"nombre": "Casa_tono",
+			"tipo": "casa_vecino",
+			"auto": true,
+			"escena": "res://scenes/casas/tono.tscn",
+			"texto": "Casa de Toño",
+			"abierto": "siempre",
+			"x": -253.44,
+			"z": 383.04,
+			"rot": -3.1149
+		},
+		{
+			"nombre": "Casa_clausurada",
+			"tipo": "casa_vecino",
+			"auto": true,
+			"escena": "res://scenes/casas/clausurada.tscn",
+			"texto": "Casa clausurada",
+			"abierto": "siempre",
+			"x": -201.98,
+			"z": 303.95,
+			"rot": 1.6063
 		}
 	]
 }

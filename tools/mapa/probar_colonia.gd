@@ -62,6 +62,7 @@ func _probar() -> void:
 	await _subir_banqueta(escena)
 	await _vida(escena)
 	await _casa(escena)
+	await _vecinos(escena)
 	print("RESULTADO: %s" % ("BIEN" if _fallas == 0 else "%d FALLAS" % _fallas))
 	quit(_fallas)
 
@@ -169,6 +170,53 @@ func _casa(escena: Node) -> void:
 	await _cuadros(90)
 	_revisar("sale de la casa", jugador.global_position.y < 10.0 and not jugador.sin_combate,
 		"jugador en %s" % jugador.global_position)
+
+
+# Las casas de los vecinos (CasaVecino.gd): cada una con quien vive; el taller de Sofia no abre
+# de dia; lo de la clausurada sale una vez por partida
+func _vecinos(escena: Node) -> void:
+	var jugador := escena.get_node("Player") as Player
+	var ciclo := escena.get_node("Ciclo")
+	for nombre: String in ["Casa_guero", "Casa_tono", "Casa_clausurada", "Casa_sofia"]:
+		var casa := escena.get_node_or_null("Colonia/" + nombre)
+		if casa == null:
+			_revisar("esta " + nombre, false, "")
+			continue
+		var noche := nombre == "Casa_sofia"
+		if noche:
+			ciclo.set("_tiempo", 100.0)
+			await _cuadros(20)
+			jugador.global_position = (casa.get("flecha_en") as Vector3) + Vector3.UP * 1.2
+			await _cuadros(60)
+			_revisar("el taller de Sofia no abre de dia", casa.get("_casa") == null, "")
+			jugador.global_position += Vector3(0, 0, 4)
+			ciclo.set("_tiempo", float(ciclo.get("dia_duracion")) + 30.0)
+			await _cuadros(30)
+		jugador.global_position = (casa.get("flecha_en") as Vector3) + Vector3.UP * 1.2
+		await _cuadros(120)
+		var adentro: Node = casa.get("_casa")
+		var detalle := ""
+		var bien := adentro != null and jugador.global_position.y > 400.0
+		if adentro and nombre != "Casa_clausurada":
+			bien = bien and adentro.get_node_or_null("Vecino") != null
+		if adentro and nombre == "Casa_clausurada":
+			var botin := adentro.find_children("*", "Node3D", false, false).filter(func(n: Node) -> bool: return n.has_method("interact") and not n is Area3D).size()
+			detalle = "%d cosas tiradas" % botin
+			bien = bien and botin > 0
+		_revisar("se entra a " + nombre, bien, detalle)
+		if adentro:
+			casa.call("_salir")
+			await _cuadros(90)
+	var clausurada := escena.get_node_or_null("Colonia/Casa_clausurada")
+	if clausurada:
+		jugador.global_position = (clausurada.get("flecha_en") as Vector3) + Vector3.UP * 1.2
+		await _cuadros(120)
+		var otra_vez: Node = clausurada.get("_casa")
+		var quedan := otra_vez.find_children("*", "Node3D", false, false).filter(func(n: Node) -> bool: return n.has_method("interact") and not n is Area3D).size() if otra_vez else -1
+		_revisar("la clausurada ya no tiene nada la segunda vez", quedan == 0, "%d" % quedan)
+		if otra_vez:
+			clausurada.call("_salir")
+			await _cuadros(90)
 
 
 # Lo de juego de la colonia (paso 5): una pieza del mapa, gente en las banquetas, quien da
