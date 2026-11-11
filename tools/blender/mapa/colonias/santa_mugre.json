@@ -9004,5 +9004,15 @@
 			],
 			"fondo": 1.2
 		}
-	]
+	],
+	"nombres_calles": {
+		"Calle_1_0": "Av. Bahía de Todos los Sedientos",
+		"Calle_3_0": "Av. Bahía de Todos los Sedientos",
+		"Calle_18_0": "Calle Bahía de Sin Agua",
+		"Calle_17_0": "Calle Bahía de Pipilingue",
+		"Calle_16_0": "Calle Bahía de Pelagatos",
+		"Calle_4_0": "Privada del Tinaco",
+		"Calle_22_0": "Callejón del Medidor",
+		"Calle_2_0": "Cerrada de la Gota"
+	}
 }

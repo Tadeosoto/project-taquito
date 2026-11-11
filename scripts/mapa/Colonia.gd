@@ -26,6 +26,8 @@ extends Node3D
 #           pies); de noche no esta
 #   trampa  un lugar iluminado que de noche atrae zombis si estas adentro (LuzTrampa): "tam"
 #           [ancho, largo] y "radio" m
+#   placa   la placa azul con el nombre de la calle ("texto") en su poste, legible por los dos
+#           lados (tambien de exportar.py: colonia.placas_calles)
 #   letrero  un letrero de texto ("texto") viendo a su +Z, como el de las puertas (el mercado)
 #   mision  un punto con nombre para las misiones (Colonia.puntos_mision): donde se para el que
 #           da una ("donde" de MisionData) o donde esta lo que hay que recoger
@@ -128,6 +130,8 @@ func _ready() -> void:
 				_trampa(marca)
 			"letrero":
 				_letrero(marca)
+			"placa":
+				_placa(marca)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
@@ -204,6 +208,53 @@ func _ninos(marca: Dictionary) -> void:
 	ninos.cuantos = int(marca.get("cuantos", 6))
 	ninos.transform = lugar(marca)
 	add_child(ninos)
+
+
+const PLACA_ALTO := 2.5
+const PLACA_LEJOS := 30.0
+static var _placa_material: StandardMaterial3D
+static var _poste_malla: BoxMesh
+
+
+func _placa(marca: Dictionary) -> void:
+	if _placa_material == null:
+		_placa_material = StandardMaterial3D.new()
+		_placa_material.albedo_color = Color(0.1, 0.25, 0.6)
+		_poste_malla = BoxMesh.new()
+		_poste_malla.size = Vector3(0.06, PLACA_ALTO + 0.15, 0.06)
+		_poste_malla.material = _placa_material
+	var texto := String(marca.get("texto", ""))
+	var nodo := Node3D.new()
+	nodo.name = String(marca.get("nombre", "Placa"))
+	nodo.transform = lugar(marca)
+	add_child(nodo)
+	var poste := MeshInstance3D.new()
+	poste.mesh = _poste_malla
+	poste.position.y = (PLACA_ALTO + 0.15) / 2.0
+	poste.visibility_range_end = LETRERO_LEJOS
+	nodo.add_child(poste)
+	var tabla := MeshInstance3D.new()
+	var malla := BoxMesh.new()
+	malla.size = Vector3(0.2 + texto.length() * 0.062, 0.22, 0.03)
+	malla.material = _placa_material
+	tabla.mesh = malla
+	# Colgada a un lado del poste, no atravesada por el
+	var lado_x := malla.size.x / 2.0 + 0.03
+	tabla.position = Vector3(lado_x, PLACA_ALTO, 0.0)
+	tabla.visibility_range_end = LETRERO_LEJOS
+	nodo.add_child(tabla)
+	for lado in [1.0, -1.0]:
+		var letra := Label3D.new()
+		letra.text = texto
+		letra.font_size = 32
+		letra.pixel_size = 0.0035
+		letra.modulate = Color.WHITE
+		letra.outline_size = 0
+		letra.double_sided = false
+		letra.position = Vector3(lado_x, PLACA_ALTO, 0.02 * lado)
+		letra.rotation.y = 0.0 if lado > 0 else PI
+		letra.visibility_range_end = PLACA_LEJOS
+		nodo.add_child(letra)
 
 
 func _letrero(marca: Dictionary) -> void:

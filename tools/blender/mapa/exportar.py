@@ -89,7 +89,9 @@ def exportar(nombre):
     # Y el botin de las azoteas (colonia.botin_azoteas) como marcas "botin"
     botin = [{"nombre": "Botin_%d" % i, "tipo": "botin", "que": que, "x": x, "z": z, "y": y}
              for i, (x, y, z, que) in enumerate(botin_azoteas(datos))]
-    guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "marcas": datos.get("marcas", []) + focos + botin})
+    # Y las placas de las calles (colonia.placas_calles) como marcas "placa"
+    placas = [dict(pl, nombre="Placa_%d" % i, tipo="placa") for i, pl in enumerate(placas_calles(datos))]
+    guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "marcas": datos.get("marcas", []) + focos + botin + placas})
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", [])})
     guardar_json(os.path.join(datos_dir, "alumbrado.json"), {"postes": datos.get("postes", [])})
     guardar_json(os.path.join(datos_dir, "casas.json"), {"casas": casas_juego(datos)})

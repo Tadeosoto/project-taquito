@@ -72,6 +72,7 @@ exec(open(R + r"\colonia.py", encoding="utf-8").read(), {"__name__": "colonia", 
   - `letrero`: un letrero de texto (`texto`) viendo a su +Z.
   - `trampa`: lugar iluminado que de noche atrae zombis si estas adentro (`tam`, `radio`).
   - `botin`: tampoco se escribe a mano; `exportar.py` pone uno por ruta de azoteas y en `colonia.BOTIN_EXTRA` (`que`: `chatarra`, `bolsa` o `curacion`).
+  - `placa`: tampoco a mano: `exportar.py` pone las placas de las calles que tengan nombre en `nombres_calles` (pieza -> nombre).
   - `foco`: no se escribe a mano; `exportar.py` agrega uno por cada foco colgado de los callejones (`colonia.focos_callejones`).
 - **Hundidos** (`hundidos`): rectangulos (`puntos` [[x0, z0], [x1, z1]], `fondo` m) donde el piso baja; lo de adentro lleva su `y` negativa y la pieza `bajada` hace la zanja con escalones para llegar.
 - **Rutas** (`rutas`): tramos de frente de calle (`a`, `b`, `lado`, `fondo`) que `bloqueo.py` reserva y llena con una fila de casas de dos pisos con la azotea pareja y una `escalera` en la punta `a`: por ahi se escapa de los zombis de noche.

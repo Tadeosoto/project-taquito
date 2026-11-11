@@ -679,6 +679,382 @@
 			"x": -402.55,
 			"z": 311.25,
 			"y": 5.55
+		},
+		{
+			"x": -188.42,
+			"z": 464.49,
+			"rot": -0.1405,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_0",
+			"tipo": "placa"
+		},
+		{
+			"x": -216.01,
+			"z": 468.75,
+			"rot": 3.1019,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_1",
+			"tipo": "placa"
+		},
+		{
+			"x": -243.82,
+			"z": 459.94,
+			"rot": -0.0397,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_2",
+			"tipo": "placa"
+		},
+		{
+			"x": -280.44,
+			"z": 465.96,
+			"rot": 3.0455,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_3",
+			"tipo": "placa"
+		},
+		{
+			"x": -322.25,
+			"z": 454.19,
+			"rot": -0.0959,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_4",
+			"tipo": "placa"
+		},
+		{
+			"x": -363.97,
+			"z": 457.92,
+			"rot": 3.0457,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_5",
+			"tipo": "placa"
+		},
+		{
+			"x": -412.71,
+			"z": 446.07,
+			"rot": 0.0384,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_6",
+			"tipo": "placa"
+		},
+		{
+			"x": -415.85,
+			"z": 453.89,
+			"rot": -3.1032,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_7",
+			"tipo": "placa"
+		},
+		{
+			"x": -235.7,
+			"z": 376.23,
+			"rot": 1.539,
+			"texto": "Cerrada de la Gota",
+			"nombre": "Placa_8",
+			"tipo": "placa"
+		},
+		{
+			"x": -228.92,
+			"z": 383.11,
+			"rot": -1.5283,
+			"texto": "Cerrada de la Gota",
+			"nombre": "Placa_9",
+			"tipo": "placa"
+		},
+		{
+			"x": -233.89,
+			"z": 424.11,
+			"rot": 1.6136,
+			"texto": "Cerrada de la Gota",
+			"nombre": "Placa_10",
+			"tipo": "placa"
+		},
+		{
+			"x": -226.72,
+			"z": 434.75,
+			"rot": -1.528,
+			"texto": "Cerrada de la Gota",
+			"nombre": "Placa_11",
+			"tipo": "placa"
+		},
+		{
+			"x": -415.87,
+			"z": 462.5,
+			"rot": -3.106,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_12",
+			"tipo": "placa"
+		},
+		{
+			"x": -403.89,
+			"z": 454.9,
+			"rot": -0.09,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_13",
+			"tipo": "placa"
+		},
+		{
+			"x": -352.74,
+			"z": 467.24,
+			"rot": 3.0516,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_14",
+			"tipo": "placa"
+		},
+		{
+			"x": -287.16,
+			"z": 465.51,
+			"rot": -0.0982,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_15",
+			"tipo": "placa"
+		},
+		{
+			"x": -271.95,
+			"z": 474.51,
+			"rot": 3.1011,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_16",
+			"tipo": "placa"
+		},
+		{
+			"x": -244.18,
+			"z": 467.93,
+			"rot": -0.0405,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_17",
+			"tipo": "placa"
+		},
+		{
+			"x": -209.46,
+			"z": 477.42,
+			"rot": 3.0027,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_18",
+			"tipo": "placa"
+		},
+		{
+			"x": -188.43,
+			"z": 472.58,
+			"rot": -0.1389,
+			"texto": "Av. Bahía de Todos los Sedientos",
+			"nombre": "Placa_19",
+			"tipo": "placa"
+		},
+		{
+			"x": -236.31,
+			"z": 369.1,
+			"rot": 0.0263,
+			"texto": "Privada del Tinaco",
+			"nombre": "Placa_20",
+			"tipo": "placa"
+		},
+		{
+			"x": -275.26,
+			"z": 376.82,
+			"rot": -3.1153,
+			"texto": "Privada del Tinaco",
+			"nombre": "Placa_21",
+			"tipo": "placa"
+		},
+		{
+			"x": -420.27,
+			"z": 262.17,
+			"rot": 1.6094,
+			"texto": "Calle Bahía de Pelagatos",
+			"nombre": "Placa_22",
+			"tipo": "placa"
+		},
+		{
+			"x": -411.22,
+			"z": 271.13,
+			"rot": -1.5312,
+			"texto": "Calle Bahía de Pelagatos",
+			"nombre": "Placa_23",
+			"tipo": "placa"
+		},
+		{
+			"x": -419.66,
+			"z": 277.79,
+			"rot": 1.61,
+			"texto": "Calle Bahía de Pelagatos",
+			"nombre": "Placa_24",
+			"tipo": "placa"
+		},
+		{
+			"x": -409.06,
+			"z": 326.1,
+			"rot": -1.5316,
+			"texto": "Calle Bahía de Pelagatos",
+			"nombre": "Placa_25",
+			"tipo": "placa"
+		},
+		{
+			"x": -415.41,
+			"z": 386.19,
+			"rot": 1.61,
+			"texto": "Calle Bahía de Pelagatos",
+			"nombre": "Placa_26",
+			"tipo": "placa"
+		},
+		{
+			"x": -404.06,
+			"z": 453.59,
+			"rot": -1.5313,
+			"texto": "Calle Bahía de Pelagatos",
+			"nombre": "Placa_27",
+			"tipo": "placa"
+		},
+		{
+			"x": -412.41,
+			"z": 462.54,
+			"rot": 1.6101,
+			"texto": "Calle Bahía de Pelagatos",
+			"nombre": "Placa_28",
+			"tipo": "placa"
+		},
+		{
+			"x": -403.1,
+			"z": 477.83,
+			"rot": -1.5315,
+			"texto": "Calle Bahía de Pelagatos",
+			"nombre": "Placa_29",
+			"tipo": "placa"
+		},
+		{
+			"x": -276.76,
+			"z": 334.58,
+			"rot": -3.1009,
+			"texto": "Calle Bahía de Pipilingue",
+			"nombre": "Placa_30",
+			"tipo": "placa"
+		},
+		{
+			"x": -239.62,
+			"z": 324.36,
+			"rot": 0.0407,
+			"texto": "Calle Bahía de Pipilingue",
+			"nombre": "Placa_31",
+			"tipo": "placa"
+		},
+		{
+			"x": -193.77,
+			"z": 331.2,
+			"rot": -3.1001,
+			"texto": "Calle Bahía de Pipilingue",
+			"nombre": "Placa_32",
+			"tipo": "placa"
+		},
+		{
+			"x": -187.47,
+			"z": 322.17,
+			"rot": 0.0579,
+			"texto": "Calle Bahía de Pipilingue",
+			"nombre": "Placa_33",
+			"tipo": "placa"
+		},
+		{
+			"x": -188.74,
+			"z": 330.95,
+			"rot": -3.0837,
+			"texto": "Calle Bahía de Pipilingue",
+			"nombre": "Placa_34",
+			"tipo": "placa"
+		},
+		{
+			"x": -271.59,
+			"z": 466.34,
+			"rot": -1.5345,
+			"texto": "Calle Bahía de Sin Agua",
+			"nombre": "Placa_35",
+			"tipo": "placa"
+		},
+		{
+			"x": -280.57,
+			"z": 458.67,
+			"rot": 1.6075,
+			"texto": "Calle Bahía de Sin Agua",
+			"nombre": "Placa_36",
+			"tipo": "placa"
+		},
+		{
+			"x": -273.24,
+			"z": 421.37,
+			"rot": -1.5341,
+			"texto": "Calle Bahía de Sin Agua",
+			"nombre": "Placa_37",
+			"tipo": "placa"
+		},
+		{
+			"x": -283.58,
+			"z": 376.7,
+			"rot": 1.6067,
+			"texto": "Calle Bahía de Sin Agua",
+			"nombre": "Placa_38",
+			"tipo": "placa"
+		},
+		{
+			"x": -275.14,
+			"z": 369.42,
+			"rot": -1.534,
+			"texto": "Calle Bahía de Sin Agua",
+			"nombre": "Placa_39",
+			"tipo": "placa"
+		},
+		{
+			"x": -285.42,
+			"z": 326.57,
+			"rot": 1.6075,
+			"texto": "Calle Bahía de Sin Agua",
+			"nombre": "Placa_40",
+			"tipo": "placa"
+		},
+		{
+			"x": -277.91,
+			"z": 294.05,
+			"rot": -1.5341,
+			"texto": "Calle Bahía de Sin Agua",
+			"nombre": "Placa_41",
+			"tipo": "placa"
+		},
+		{
+			"x": -287.79,
+			"z": 262.16,
+			"rot": 1.6075,
+			"texto": "Calle Bahía de Sin Agua",
+			"nombre": "Placa_42",
+			"tipo": "placa"
+		},
+		{
+			"x": -330.78,
+			"z": 267.92,
+			"rot": 1.5966,
+			"texto": "Callejón del Medidor",
+			"nombre": "Placa_43",
+			"tipo": "placa"
+		},
+		{
+			"x": -323.3,
+			"z": 298.04,
+			"rot": -1.545,
+			"texto": "Callejón del Medidor",
+			"nombre": "Placa_44",
+			"tipo": "placa"
+		},
+		{
+			"x": -329.01,
+			"z": 336.51,
+			"rot": 1.5964,
+			"texto": "Callejón del Medidor",
+			"nombre": "Placa_45",
+			"tipo": "placa"
+		},
+		{
+			"x": -322.04,
+			"z": 346.67,
+			"rot": -1.5451,
+			"texto": "Callejón del Medidor",
+			"nombre": "Placa_46",
+			"tipo": "placa"
 		}
 	]
 }

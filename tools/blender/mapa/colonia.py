@@ -514,6 +514,39 @@ def _carros(mundo, datos):
     for p in carros_estacionados(datos):
         _pieza(mundo, p)
 
+
+PLACA_CADA = 60.0      # m: ademas de las puntas, una placa a medio tramo en los tramos mas largos
+PLACA_LIBRE = 2.5      # m sin placas alrededor de otras marcas (flechas de negocio)
+
+
+def placas_calles(datos):
+    """Placas con el nombre de la calle (`nombres_calles` del .json: nombre de pieza -> nombre
+    parodiado) en la banqueta, en cada punta de cada calle con nombre y a medio tramo en los
+    largos, turnando lado. [{x, z, rot, texto}]; exportar.py las vuelve marcas "placa"."""
+    nombres = datos.get("nombres_calles", {})
+    estorban = [(m["x"], m["z"]) for m in datos.get("marcas", [])]
+    placas = []
+    for p in datos.get("piezas", []):
+        texto = nombres.get(p["nombre"])
+        if p["tipo"] != "calle" or not texto:
+            continue
+        pts = [(p["x"] + a, p["z"] + b) for a, b in p["puntos"]]
+        d = p["ancho"] / 2 + 0.35
+        lado = 1
+        for k, ((ax, az), (bx, bz)) in enumerate(zip(pts, pts[1:])):
+            largo = math.hypot(bx - ax, bz - az)
+            if largo < 6.0:
+                continue
+            ux, uz = (bx - ax) / largo, (bz - az) / largo
+            paradas = [4.0] + ([largo / 2] if largo > PLACA_CADA else []) + ([largo - 4.0] if k == len(pts) - 2 else [])
+            for s in paradas:
+                x, z = ax + ux * s - uz * lado * d, az + uz * s + ux * lado * d
+                if all(math.hypot(x - ex, z - ez) > PLACA_LIBRE for ex, ez in estorban):
+                    # La placa corre a lo largo de la calle: su +Z ve hacia el arroyo
+                    placas.append({"x": round(x, 2), "z": round(z, 2), "rot": round(math.atan2(uz * lado, -ux * lado), 4), "texto": texto})
+                lado = -lado
+    return placas
+
 LADRILLO_CADA = 5        # una de cada tantas casas "auto" de dos pisos o mas sale de ladrillo
 
 
