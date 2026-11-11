@@ -256,9 +256,16 @@ const NOCHE_ESPERA := 90.0     # s de noche (cuadros de fisica) para que salga e
 
 
 func _vida(escena: Node) -> void:
+	# De lejos (mas de NinosCancha.LEJOS) no se dibujan: se para al jugador junto a la cancha
+	var jugador := root.get_tree().get_first_node_in_group("jugador") as Node3D
+	var antes := jugador.global_position
+	jugador.global_position = Vector3(-401.0, 1.2, 304.0)
+	await _cuadros(90)
 	var chamacos := escena.find_child("Ninos_Cancha", true, false) as Node3D
 	_revisar("de dia juegan chamacos en la cancha", chamacos != null and chamacos.visible and chamacos.get_child_count() > 3,
 		"%s" % chamacos)
+	jugador.global_position = antes
+	await _cuadros(5)
 	var piezas := root.get_tree().get_nodes_in_group("piezas_mapa").size()
 	var botin := 0
 	for n in escena.find_children("Botin_*", "", true, false):

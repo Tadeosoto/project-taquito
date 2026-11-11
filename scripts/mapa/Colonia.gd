@@ -56,7 +56,9 @@ var _marcas: Array = []
 var _reflectores: Array[Light3D] = []
 var _energias: Array[float] = []      # la de cada luz de _reflectores, de noche
 var _parpadean: Array[bool] = []
-var _de_dia: Array[Node3D] = []      # los "vecino": se esconden de noche
+var _de_dia: Array[Node3D] = []      # los "vecino": se esconden de noche y de lejos
+var _jugador: Node3D
+var _revisa_vecinos := 0.0
 var _ciclo: Node
 
 # Reflectores (marca "reflector"): luz calida sin sombra, como los de la cancha de la foto
@@ -125,14 +127,23 @@ func _ready() -> void:
 
 
 # Los reflectores siguen a Ciclo.valor() (0 de dia, 1 de noche), asi se prenden al oscurecer
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _ciclo == null:
 		_ciclo = get_tree().get_first_node_in_group("ciclo")
 		if _ciclo == null:
 			return
 	var noche := float(_ciclo.valor())
-	for vecino in _de_dia:
-		vecino.visible = noche < NinosCancha.NOCHE_DESDE
+	_revisa_vecinos -= delta
+	if _revisa_vecinos <= 0.0:
+		_revisa_vecinos = NinosCancha.REVISA_NOCHE
+		if _jugador == null:
+			_jugador = get_tree().get_first_node_in_group("jugador") as Node3D
+		for vecino in _de_dia:
+			var cerca := _jugador == null or _jugador.global_position.distance_to(vecino.global_position) < NinosCancha.LEJOS
+			vecino.visible = noche < NinosCancha.NOCHE_DESDE and cerca
+			var animacion := vecino.find_child("AnimationPlayer", true, false) as AnimationPlayer
+			if animacion:
+				animacion.active = vecino.visible
 	var t := Time.get_ticks_msec() / 1000.0
 	for i in _reflectores.size():
 		var energia := _energias[i] * noche

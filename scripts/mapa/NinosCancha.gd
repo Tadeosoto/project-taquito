@@ -13,6 +13,7 @@ const PATEA_A := 0.7             # m: a esta distancia la patea
 const SEPARA := 1.6              # m: los que no van por ella se quedan a esta distancia, rodeando
 const NOCHE_DESDE := 0.4         # Ciclo.valor() desde el que ya no hay nadie
 const REVISA_NOCHE := 1.0        # s entre revisiones de la hora
+const LEJOS := 70.0               # m: mas lejos del jugador no se dibujan ni piensan
 
 var tam := Vector2(9.0, 16.0)     # ancho (x local) y largo (z local) donde juegan
 var cuantos := 6
@@ -23,6 +24,7 @@ var _corriendo: Array[bool] = []
 var _pelota: MeshInstance3D
 var _destino := Vector3.ZERO
 var _ciclo: Node
+var _jugador: Node3D
 var _revisa := 0.0
 
 
@@ -65,7 +67,13 @@ func _process(delta: float) -> void:
 		_revisa = REVISA_NOCHE
 		if _ciclo == null:
 			_ciclo = get_tree().get_first_node_in_group("ciclo")
-		visible = _ciclo == null or float(_ciclo.valor()) < NOCHE_DESDE
+		if _jugador == null:
+			_jugador = get_tree().get_first_node_in_group("jugador") as Node3D
+		var de_dia := _ciclo == null or float(_ciclo.valor()) < NOCHE_DESDE
+		var cerca := _jugador == null or _jugador.global_position.distance_to(global_position) < LEJOS
+		visible = de_dia and cerca
+		for animacion in _animaciones:
+			animacion.active = visible
 	if not visible:
 		return
 	# La pelota rueda a su destino
