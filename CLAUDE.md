@@ -65,6 +65,13 @@ Read the file before changing that system, and keep it in sync with the code. Fi
 - `scripts/catrina/CLAUDE.md`: La Mojiganga and its plaza.
 - `scripts/defensa/CLAUDE.md`: the tinaco defence test (barricade, hordes, HUD, chained nights) and JJ's two test modes on it: godmode (mechanics) and career (economy, `escena_carrera.tscn`), with the `Pruebas`, `Mejoras` and `Registro` autoloads, `ConfigZombis` and the `Menú test`/`Pruebas` launchers on the start screen.
 
+## CLAUDE.md layout (split on 2026-11-11, commit 52a3103)
+
+- This root file is an index: overview, commands, rules that cross systems, and one pointer line per system. Keep it under 25 KB; the hook below blocks commits on `main-testing` past that.
+- A system's detail goes in its own file. A new system gets `scripts/<folder>/CLAUDE.md` (Claude Code loads it on its own) or `docs/sistemas/<x>.md`, plus one line in "Systems" above.
+- **Merging a branch cut before the split** (`git merge-base --is-ancestor 52a3103 <branch>` fails; it still has the old ~160 KB file): keep `main-testing`'s root (`git checkout --ours CLAUDE.md`), read the branch's `CLAUDE.md` diff since the merge base, and move each change into the file that now owns that section. Drop notes that only say which branch the work lives in. Never set a `merge=ours` attribute for `CLAUDE.md`: it would drop those edits silently.
+- The guard is `tools/git-hooks/claude-md.sh` (run by `pre-commit` and `pre-merge-commit`). Turn it on once per clone: `git config core.hooksPath tools/git-hooks`.
+
 ## Missions
 
 `Misiones` autoload (`scripts/Misiones.gd`): one active at a time, each once per day; it fails at nightfall or when its timer ends, and can be retried the next day. Offers stop at the dusk warning. `scripts/map/MisionesMundo.gd`, created by `Partida`, holds what's in the world: givers (`npc.tscn` using `al_hablar`, a callable returning the line for each press), the objective arrow, delivery spots, the dog (`CosaMision.gd`), the objective line, and the minimap and paper-map targets. **To add a mission without code:** copy a `.tres` in `resources/misiones/` (`MisionData` with `PasoMision` steps: `TENER_OBJETOS`, `ENTREGAR`, `VISITAR`, `RECOGER`) and add it to `Misiones.ARCHIVOS`. Each needs a giver spot, and a new `lugar` keyword or step type needs code in `MisionesMundo`. `Player.cargar`/`soltar_carga` show something held, with `Walk_Carry`. Stepping onto a store's yellow arrow enters the store, so tests must stand beside it.
