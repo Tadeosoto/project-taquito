@@ -67,6 +67,7 @@ def armar(nombre):
             ob[DATO] = "pieza:" + p["nombre"]
 
     _postes_y_cables(sc, mundo, datos.get("postes", []))
+    _tendederos(mundo, datos)
 
     for m in datos.get("marcas", []):
         ob = vacio(marcas, m["nombre"], m["x"], m["z"], m.get("rot", 0.0), tamano=1.5)
@@ -410,6 +411,62 @@ def _postes_y_cables(sc, mundo, postes):
     bm.free()
     malla.materials.append(material("cable", (0.05, 0.05, 0.05)))
     ob = bpy.data.objects.new("Cables", malla)
+    mundo.objects.link(ob)
+
+
+TENDEDERO_CADA = (4.5, 8.0)   # m entre cuerdas a lo largo de un callejon
+TENDEDERO_ALTO = (3.4, 5.2)   # m de alto en las puntas (del primer al segundo piso)
+
+
+def _tendederos(mundo, datos):
+    """Cuerdas de un lado al otro de cada callejon (calles de empedrado sin banqueta), de fachada
+    a fachada, colgadas a la mitad, la mayoria con ropa y algunas solo cable de luz: una sola
+    malla. Mismo azar en cada armada (semilla por callejon)."""
+    pz = _piezas()
+    c = pz["Constructor"]("Tendederos")
+    colores = ["lona_" + n for n in pz["LONAS"]] + ["blanco_cal"]
+    hubo = False
+    for p in datos.get("piezas", []):
+        if p["tipo"] != "calle" or p.get("material") != "empedrado" or p.get("banqueta", 0) > 0:
+            continue
+        semilla = sum((i + 1) * ord(ch) for i, ch in enumerate(p["nombre"]))
+        r = __import__("random").Random(semilla)
+        medio = p["ancho"] / 2 + 0.5
+        for (ax, az), (bx, bz) in zip(p["puntos"], p["puntos"][1:]):
+            ax, az, bx, bz = ax + p["x"], az + p["z"], bx + p["x"], bz + p["z"]
+            largo = math.hypot(bx - ax, bz - az)
+            if largo < 3.0:
+                continue
+            ux, uz = (bx - ax) / largo, (bz - az) / largo
+            nx, nz = -uz, ux
+            s = r.uniform(1.5, 4.0)
+            while s < largo - 1.5:
+                hubo = True
+                mx, mz = ax + ux * s, az + uz * s
+                y0, y1 = r.uniform(*TENDEDERO_ALTO), r.uniform(*TENDEDERO_ALTO)
+                cuelga = r.uniform(0.25, 0.5)
+                pa = (mx - nx * medio, y0, mz - nz * medio)
+                pb = (mx + nx * medio, y1, mz + nz * medio)
+                def punto(t):
+                    return (pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t - cuelga * 4 * t * (1 - t),
+                            pa[2] + (pb[2] - pa[2]) * t)
+                pasos = 6
+                giro = math.atan2(-nz, nx)
+                for j in range(pasos):
+                    q0, q1 = punto(j / pasos), punto((j + 1) / pasos)
+                    lx = math.hypot(q1[0] - q0[0], q1[2] - q0[2])
+                    c.caja(((q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2 - 0.01, (q0[2] + q1[2]) / 2), (lx, 0.02, 0.02), "cable", giro)
+                if r.random() < 0.75:
+                    prendas = r.randint(2, 5)
+                    for i in range(prendas):
+                        t = (i + r.uniform(0.2, 0.8)) / prendas * 0.8 + 0.1
+                        q = punto(t)
+                        ancho, colgado = r.uniform(0.3, 0.55), r.uniform(0.35, 0.7)
+                        c.caja((q[0], q[1] - colgado / 2, q[2]), (ancho, colgado, 0.02), r.choice(colores), giro, sin_abajo=False)
+                s += r.uniform(*TENDEDERO_CADA)
+    if not hubo:
+        return
+    ob = bpy.data.objects.new("Tendederos", c.terminar())
     mundo.objects.link(ob)
 
 
