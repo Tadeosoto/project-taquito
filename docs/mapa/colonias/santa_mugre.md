@@ -120,6 +120,8 @@ Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
 6. Capillitas de la Virgen del Tinaco cerca de la entrada de los callejones y basura junto a sus paredes (`colonia._vida_callejones`, malla `Callejones_Vida`, sin choque).
 7. Rejas de herreria (negras, blancas, verdes o rojas, una por casa) en las ventanas de planta baja (`kit._detalles_casa`, sobre el mosaico `VENTANA_ABAJO`).
 
+Costo medido con `tools/mapa/medir_colonia.gd` (maquina de AG, de dia), antes de esta noche y despues de los 7 puntos: plaza 293 a 287 fps (primitivas 124k a 228k), tianguis 283 a 278 (195k a 339k), vecindad 287 a 280, avenida 335 a 321, cancha 304 a 298 (llamadas de dibujo 539 a 661). Baja 2-4 % de fps pero casi se doblan las primitivas: si pesa en maquinas lentas, lo primero es quitar los barrotes de las rejas y los climas de las casas lejanas (o darles `visibility_range_end` en Godot como a los cuadros de `map_test`).
+
 Para revisar caminando (`scenes/mapa.tscn`): el color del muro y del piso de la cancha en Godot (en Blender se ven deslavados), si la ropa y los cables se ven bien de noche, y si los espectaculares se leen de lejos con la niebla.
 
 Ideas que siguen, en orden (del plan de esa noche):
