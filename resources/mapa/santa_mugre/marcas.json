@@ -202,7 +202,7 @@
 			"x": -395.05,
 			"z": 320.2,
 			"y": 14.85,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -50,
 			"alcance": 7.0
 		},
@@ -215,6 +215,24 @@
 			"rot": 0.0,
 			"baja": -50,
 			"alcance": 7.0
+		},
+		{
+			"nombre": "Puerta_tortilleria_0",
+			"tipo": "puerta",
+			"giro": "tortilleria",
+			"texto": "TORTILLERIA LA LUPITA",
+			"x": -271.9,
+			"z": 436.29,
+			"rot": -1.5308
+		},
+		{
+			"nombre": "Puerta_tiendita_0",
+			"tipo": "puerta",
+			"giro": "tiendita",
+			"texto": "ABARROTES DOÑA MARY",
+			"x": -408.2,
+			"z": 311.25,
+			"rot": -1.5708
 		},
 		{
 			"nombre": "Foco_0",

@@ -718,6 +718,54 @@ def base_gela(nombre, p):
     return k
 
 
+def _toldo(k, ancho, sale, alto, mat):
+    """Toldo de lona saliendo de la fachada (z = 0) hacia +Z, con dos postes al frente."""
+    k.cara([(-ancho / 2, alto, 0.0), (ancho / 2, alto, 0.0), (ancho / 2, alto - 0.35, sale), (-ancho / 2, alto - 0.35, sale)], mat)
+    k.cara([(-ancho / 2, alto - 0.35, sale), (ancho / 2, alto - 0.35, sale), (ancho / 2, alto, 0.0), (-ancho / 2, alto, 0.0)], mat)
+    for x in (-ancho / 2 + 0.1, ancho / 2 - 0.1):
+        k.caja((x, (alto - 0.35) / 2, sale - 0.05), (0.06, alto - 0.35, 0.06), "fierro")
+
+
+def tiendita(nombre, p):
+    """Tiendita en la cochera de una casa (pegada a su fachada, frente a +Z): toldo rojo, el refri
+    rojo de refrescos y el blanco de paletas, rejas de plastico apiladas y un banquito. El letrero
+    lo pone Godot con la marca "puerta"."""
+    k = Constructor(nombre)
+    ancho = p.get("ancho", 3.4)
+    _toldo(k, ancho, 1.4, 2.5, "lona_rojo")
+    k.caja((-ancho / 2 + 0.55, 0.95, 0.45), (0.8, 1.9, 0.7), "rojo", choca=True)
+    k.caja((-ancho / 2 + 0.55, 1.05, 0.81), (0.62, 1.4, 0.02), "vidrio")
+    k.caja((-ancho / 2 + 0.55, 1.75, 0.82), (0.66, 0.22, 0.02), "blanco_cal")
+    k.caja((ancho / 2 - 0.6, 0.45, 0.45), (0.95, 0.9, 0.6), "blanco_cal", choca=True)
+    k.caja((ancho / 2 - 0.6, 0.91, 0.45), (0.9, 0.04, 0.55), "vidrio")
+    for i, (x, z) in enumerate(((0.2, 0.5), (0.2, 0.5), (0.2, 0.5), (0.65, 0.4))):
+        alto = i * 0.3 if i < 3 else 0.0
+        k.caja((x, alto + 0.15, z), (0.42, 0.3, 0.34), "lona_amarillo" if i % 2 == 0 else "lona_azul")
+    k.cilindro((0.6, 0.0, 1.0), 0.17, 0.45, "lona_rojo", lados=6)
+    return k
+
+
+def tortilleria(nombre, p):
+    """Tortilleria pegada a la fachada (frente a +Z): toldo verde, mostrador de azulejo con la
+    bascula y las tortillas envueltas, la maquina de fierro con su banda y su chimenea atras y
+    costales de harina. El letrero lo pone Godot con la marca "puerta"."""
+    k = Constructor(nombre)
+    ancho = p.get("ancho", 4.0)
+    _toldo(k, ancho, 1.8, 2.6, "lona_verde")
+    k.caja((0.0, 0.5, 1.2), (ancho - 0.8, 1.0, 0.6), "foto_azulejo_amarillo", choca=True)
+    k.caja((0.0, 1.02, 1.2), (ancho - 0.7, 0.05, 0.66), "blanco_cal")
+    k.caja((0.8, 1.13, 1.2), (0.35, 0.18, 0.3), "fierro")
+    for i in range(4):
+        k.cilindro((-0.9 + i * 0.32, 1.05, 1.2), 0.13, 0.12 + (i % 2) * 0.06, "veladora", lados=6)
+    # La maquina: cuerpo, la banda por donde salen y la chimenea
+    k.caja((-0.3, 0.7, 0.45), (2.0, 1.0, 0.6), "fierro", choca=True)
+    k.caja((-0.3, 1.23, 0.45), (2.1, 0.05, 0.5), "concreto")
+    k.cilindro((-1.1, 1.2, 0.3), 0.08, 1.6, "fierro", lados=5)
+    for i in range(3):
+        k.caja((ancho / 2 - 0.5, 0.18 + i * 0.3, 0.5), (0.5, 0.28, 0.75), "blanco_cal")
+    return k
+
+
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -1106,6 +1154,6 @@ def escombro(nombre, p):
 
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
-          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}
