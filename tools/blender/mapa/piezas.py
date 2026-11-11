@@ -768,6 +768,26 @@ def tortilleria(nombre, p):
     return k
 
 
+def tope(nombre, p):
+    """Tope de concreto atravesado en la calle (a lo largo de x, `ancho` m), con franjas
+    amarillas y negras. Su choque es una rampa (Constructor.rampas): se pasa por encima."""
+    k = Constructor(nombre)
+    ancho = p.get("ancho", 6.0)
+    alto, base, corona = 0.1, 0.35, 0.12
+    n = max(2, round(ancho / 0.5))
+    for i in range(n):
+        x0, x1 = -ancho / 2 + ancho * i / n, -ancho / 2 + ancho * (i + 1) / n
+        mat = "lona_amarillo" if i % 2 == 0 else "hueco"
+        k.cara([(x0, 0.0, base), (x1, 0.0, base), (x1, alto, corona), (x0, alto, corona)], mat)
+        k.cara([(x0, alto, corona), (x1, alto, corona), (x1, alto, -corona), (x0, alto, -corona)], mat)
+        k.cara([(x0, alto, -corona), (x1, alto, -corona), (x1, 0.0, -base), (x0, 0.0, -base)], mat)
+    h = ancho / 2
+    k.rampas.append([(-h, 0.0, base), (h, 0.0, base), (-h, alto, corona), (h, alto, corona),
+                     (-h, alto, -corona), (h, alto, -corona), (-h, 0.0, -base), (h, 0.0, -base),
+                     (-h, -0.2, 0.0), (h, -0.2, 0.0)])
+    return k
+
+
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -1188,6 +1208,6 @@ def escombro(nombre, p):
 
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
-          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}

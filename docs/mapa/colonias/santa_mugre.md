@@ -135,13 +135,14 @@ Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
 21. El palacio de gobierno se ilumina de noche "como si nada" (`lore.md`): cuatro reflectores en el piso viendo a la fachada y cinco focos bajo el portal (marcas `reflector` y `foco`). Fila de cuatro civiles en la tortilleria de dia (marcas `vecino` `Fila_Tortilleria_*`).
 22. Carros abandonados (32) junto a la banqueta de las calles: la mitad enteros, los demas sobre ladrillos o quemados, alguna combi (`carro` con `estado` y `modelo`; `colonia.carros_estacionados` los pone cada 28-50 m lejos de marcas, puestos, el reten y los cruces; con choque, no van al `.json`).
 23. Muros envejecidos (`shaders/ps1_fachada_kit.gdshader`): franja de humedad oscura y verdosa que sube del piso con borde ondulado (`humedad_alto` 0.5-1.2 m, `humedad_fuerza`), costra blanca de salitre en su orilla (`salitre_fuerza`) y `saturacion` 1.2 para que el color de las casas no se vea deslavado. Solo en las casas del mapa en Blender.
+24. Topes (15) a media cuadra en los tramos de mas de 40 m de las calles con banqueta, amarillo y negro, con choque en rampa: se pasan caminando (`tope`, `colonia.topes`, no van al `.json`; prueba nueva). Los baches y grietas ya los pinta `ps1_suelo` segun el deterioro.
 
 Costo medido con `tools/mapa/medir_colonia.gd` (maquina de AG, de dia), antes de esta noche y despues de los 7 puntos: plaza 293 a 287 fps (primitivas 124k a 228k), tianguis 283 a 278 (195k a 339k), vecindad 287 a 280, avenida 335 a 321, cancha 304 a 298 (llamadas de dibujo 539 a 661). Baja 2-4 % de fps pero casi se doblan las primitivas: **Arreglado (2026-11-11):** los detalles (material `detalle_kit` de las casas y los objetos `Detalle_*` de los callejones, partidos en trozos de 20 m) van en cuadros de 24 m aparte que `MapaPostImport` deja de dibujar a 55 m y que no hacen sombra. Medido despues: plaza 132k primitivas (antes 228k, sin detalles 124k), 560 llamadas, tianguis 206k, cancha 151k; los fps quedan igual.
 
 Para revisar caminando (`scenes/mapa.tscn`): el color del muro y del piso de la cancha en Godot (en Blender se ven deslavados), si la ropa y los cables se ven bien de noche, y si los espectaculares se leen de lejos con la niebla.
 
 Ideas que siguen, en orden (del plan de esa noche):
-- Topes con choque en rampa y baches con charco.
+- Charcos en los baches (que reflejen de noche).
 - Puertas de herreria (zaguanes).
 - La fila de la tortilleria (gente de dia) y el interior de Doña Mary.
 - Mercado techado de lamina.

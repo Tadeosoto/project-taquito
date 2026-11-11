@@ -114,6 +114,10 @@ func _subir_banqueta(escena: Node) -> void:
 	# media cancha (el muro de la entrada esta en x -398.3)
 	var c := await _caminar(escena, CANCHA_DESDE, Vector3(1.0, 0.0, 0.0), 300)
 	_revisar("entra a la cancha", c["hasta"].x > -394.0, "hasta %s" % c["hasta"])
+	# Un tope de la avenida (colonia.topes: Tope_Calle_1_0_1) se pasa por encima sin atorarse
+	var t := await _caminar(escena, Vector3(-238.98, 1.2, 463.98), Vector3(-1.0, 0.0, -0.04).normalized(), 200)
+	_revisar("pasa el tope de la avenida", t["hasta"].x < -247.0 and t["subio"] > 0.03 and t["subio"] < 0.4,
+		"subio %.2f m, hasta %s" % [t["subio"], t["hasta"]])
 	# El pasillo de 1.1 m entre Bahia de Sin Agua y la calle de la vecindad se cruza caminando
 	var p := await _caminar(escena, Vector3(-273.5, 1.2, 418.0), Vector3(1.0, 0.0, 0.0), 760)
 	_revisar("se cruza el pasillo del tianguis", p["hasta"].x > -237.0, "hasta %s" % p["hasta"])

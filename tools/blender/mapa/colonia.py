@@ -68,6 +68,7 @@ def armar(nombre):
 
     _postes_y_cables(sc, mundo, datos.get("postes", []))
     _carros(mundo, datos)
+    _topes(mundo, datos)
     _tendederos(mundo, datos)
     _vida_callejones(mundo, datos)
 
@@ -440,6 +441,39 @@ def carros_estacionados(datos):
                 s += r.uniform(*CARRO_CADA)
     return carros
 
+
+
+TOPE_DESDE = 40.0     # m: los tramos de calle mas largos llevan un tope a la mitad
+
+
+def topes(datos):
+    """Un tope a media cuadra en cada tramo largo de las calles de asfalto con banqueta, si no cae
+    junto a una marca, un puesto o un carro estacionado. Piezas "tope" que no van al .json."""
+    estorban = [(m["x"], m["z"]) for m in datos.get("marcas", [])]
+    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela")]
+    estorban += [(c["x"], c["z"]) for c in carros_estacionados(datos)]
+    lista = []
+    for p in datos.get("piezas", []):
+        if p["tipo"] != "calle" or p.get("banqueta", 0) <= 0 or p.get("material", "asfalto") != "asfalto":
+            continue
+        pts = [(p["x"] + a, p["z"] + b) for a, b in p["puntos"]]
+        for k, ((ax, az), (bx, bz)) in enumerate(zip(pts, pts[1:])):
+            largo = math.hypot(bx - ax, bz - az)
+            if largo < TOPE_DESDE:
+                continue
+            x, z = (ax + bx) / 2, (az + bz) / 2
+            if any(math.hypot(x - ex, z - ez) < 5.0 for ex, ez in estorban):
+                continue
+            # Atravesado: su x a lo ancho de la calle
+            ux, uz = (bx - ax) / largo, (bz - az) / largo
+            lista.append({"nombre": "Tope_%s_%d" % (p["nombre"], k), "tipo": "tope", "x": round(x, 2), "z": round(z, 2),
+                          "rot": round(math.atan2(ux, uz), 4), "ancho": p["ancho"]})
+    return lista
+
+
+def _topes(mundo, datos):
+    for p in topes(datos):
+        _pieza(mundo, p)
 
 def _carros(mundo, datos):
     for p in carros_estacionados(datos):
