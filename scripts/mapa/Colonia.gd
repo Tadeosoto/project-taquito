@@ -59,6 +59,8 @@ var _parpadean: Array[bool] = []
 var _de_dia: Array[Node3D] = []      # los "vecino": se esconden de noche y de lejos
 var _jugador: Node3D
 var _revisa_vecinos := 0.0
+# Cuadros "Dia_*" del .glb (MapaPostImport.SOLO_DIA): lonas y mercancia del tianguis
+var _solo_dia: Array[Node] = []
 var _ciclo: Node
 
 # Reflectores (marca "reflector"): luz calida sin sombra, como los de la cancha de la foto
@@ -123,7 +125,8 @@ func _ready() -> void:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
 
-	set_process(not _reflectores.is_empty() or not _de_dia.is_empty())
+	_solo_dia = find_children("Dia_*", "MeshInstance3D", true, false)
+	set_process(not _reflectores.is_empty() or not _de_dia.is_empty() or not _solo_dia.is_empty())
 
 
 # Los reflectores siguen a Ciclo.valor() (0 de dia, 1 de noche), asi se prenden al oscurecer
@@ -138,6 +141,8 @@ func _process(delta: float) -> void:
 		_revisa_vecinos = NinosCancha.REVISA_NOCHE
 		if _jugador == null:
 			_jugador = get_tree().get_first_node_in_group("jugador") as Node3D
+		for nodo in _solo_dia:
+			(nodo as Node3D).visible = noche < NinosCancha.NOCHE_DESDE
 		for vecino in _de_dia:
 			var cerca := _jugador == null or _jugador.global_position.distance_to(vecino.global_position) < NinosCancha.LEJOS
 			vecino.visible = noche < NinosCancha.NOCHE_DESDE and cerca

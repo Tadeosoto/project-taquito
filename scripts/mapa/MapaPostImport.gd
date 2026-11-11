@@ -24,6 +24,9 @@ const CUADRO := 64.0
 const DETALLE_CUADRO := 24.0
 const DETALLE_LEJOS := 55.0
 const DETALLE_MARGEN := 8.0
+# Lo que solo esta de dia (objetos "Dia_*": la lona y la mercancia de los puestos del tianguis) va
+# en sus propios cuadros, en el grupo SOLO_DIA, que Colonia.gd esconde de noche
+const SOLO_DIA := "solo_dia"
 
 # Pisos: material de kit.PISOS -> [textura, metros por repeticion, modo de ps1_suelo, piso_tipo
 # (deterioro: 1 asfalto con baches, 2 banqueta, 3 empedrado)], como MapPostImport.GROUND_TEXTURES
@@ -61,6 +64,7 @@ func _post_import(scene: Node) -> Object:
 	# cuadro (Vector2i) -> { [nombre de material, material original, formato] -> SurfaceTool }
 	var cuadros := {}
 	var detalles := {}
+	var de_dia := {}
 	var mallas: Array[MeshInstance3D] = []
 	for nodo in scene.find_children("*", "MeshInstance3D", true, false):
 		var instancia := nodo as MeshInstance3D
@@ -72,6 +76,7 @@ func _post_import(scene: Node) -> Object:
 		var cuadro := Vector2i(floori(centro.x / CUADRO), floori(centro.z / CUADRO))
 		var chico := Vector2i(floori(centro.x / DETALLE_CUADRO), floori(centro.z / DETALLE_CUADRO))
 		var todo_detalle := String(instancia.name).begins_with("Detalle_")
+		var solo_dia := String(instancia.name).begins_with("Dia_")
 		var malla := instancia.mesh
 		for i in malla.get_surface_count():
 			var original: Material = malla.surface_get_material(i)
@@ -79,7 +84,9 @@ func _post_import(scene: Node) -> Object:
 				original = instancia.get_active_material(i)
 			var nombre := String(original.resource_name) if original else ""
 			var herramientas: Dictionary
-			if todo_detalle or nombre == "detalle_kit":
+			if solo_dia:
+				herramientas = de_dia.get_or_add(cuadro, {})
+			elif todo_detalle or nombre == "detalle_kit":
 				herramientas = detalles.get_or_add(chico, {})
 			else:
 				herramientas = cuadros.get_or_add(cuadro, {})
@@ -114,6 +121,17 @@ func _post_import(scene: Node) -> Object:
 		nodo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		scene.add_child(nodo)
 		nodo.owner = scene
+	for cuadro: Vector2i in de_dia:
+		var array_mesh := ArrayMesh.new()
+		for clave: Array in de_dia[cuadro]:
+			(de_dia[cuadro][clave] as SurfaceTool).commit(array_mesh)
+			array_mesh.surface_set_material(array_mesh.get_surface_count() - 1, _material(clave[0], clave[1]))
+		var nodo := MeshInstance3D.new()
+		nodo.name = "Dia_%d_%d" % [cuadro.x, cuadro.y]
+		nodo.mesh = array_mesh
+		scene.add_child(nodo)
+		nodo.owner = scene
+		nodo.add_to_group(SOLO_DIA, true)
 	print("MapaPostImport: %d mallas -> %d cuadros de %d m y %d de detalles de %d m, %d materiales" % [
 			mallas.size(), cuadros.size(), CUADRO, detalles.size(), DETALLE_CUADRO, _materiales.size()])
 	return scene

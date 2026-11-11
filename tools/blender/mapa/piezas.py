@@ -23,13 +23,18 @@ COLORES_PIEZA["carton"] = (0.6, 0.45, 0.28)
 
 
 def puesto(nombre, p):
-    """Puesto de tianguis: cuatro tubos, una lona inclinada, la mesa con su mercancia en cajas."""
+    """Puesto de tianguis: cuatro tubos, una lona inclinada, la mesa con su mercancia en cajas.
+    La lona y la mercancia van en `k.dia` (solo de dia, docs/mapa/colonias/santa_mugre.md: de
+    noche quedan los fierros y el tablon)."""
     k = Constructor(nombre)
+    tubos = k
+    k = Constructor(nombre + "_Dia")
+    tubos.dia = k
     ancho, fondo, alto = p.get("tam", [3.0, 2.2, 2.4])
     lona = "lona_" + p.get("lona", "rojo")
     for x in (-ancho / 2 + 0.05, ancho / 2 - 0.05):
         for z, h in ((fondo / 2 - 0.05, alto - 0.6), (-fondo / 2 + 0.05, alto)):
-            k.caja((x, h / 2, z), (0.05, h, 0.05), "fierro")
+            tubos.caja((x, h / 2, z), (0.05, h, 0.05), "fierro")
     # Lona: inclinada hacia el frente y colgando un poco al centro
     # Bien inclinada: casi plana, a la altura de los ojos solo se veia de canto
     a, b = alto, alto - 0.6
@@ -39,15 +44,15 @@ def puesto(nombre, p):
     k.cara([(-ancho / 2, medio, 0), (-ancho / 2, a, -fondo / 2), (ancho / 2, a, -fondo / 2), (ancho / 2, medio, 0)], lona)
     k.cara([(-ancho / 2, b, fondo / 2 + 0.2), (-ancho / 2, medio, 0), (ancho / 2, medio, 0), (ancho / 2, b, fondo / 2 + 0.2)], lona)
     # Mesa y cajas de fruta
-    k.caja((0, 0.85, 0.2), (ancho - 0.3, 0.06, fondo * 0.55), "foto_madera", choca=False)
-    k.caja((0, 0.42, 0.2), (ancho - 0.4, 0.84, fondo * 0.5), "foto_madera")
+    tubos.caja((0, 0.85, 0.2), (ancho - 0.3, 0.06, fondo * 0.55), "foto_madera", choca=False)
+    tubos.caja((0, 0.42, 0.2), (ancho - 0.4, 0.84, fondo * 0.5), "foto_madera")
     for i, x in enumerate((-0.8, 0.0, 0.8)):
         if abs(x) < ancho / 2 - 0.3:
             fruta = ("rojo", "naranja_gela", "pasto_muerto")[(i + len(nombre)) % 3]
             k.caja((x, 1.0, 0.25), (0.6, 0.24, 0.45), "foto_madera")
             k.caja((x, 1.13, 0.25), (0.52, 0.04, 0.38), fruta)
-    k.choques.append(((0, 0.5, 0.2), (ancho - 0.3, 1.0, fondo * 0.55), 0.0))
-    return k
+    tubos.choques.append(((0, 0.5, 0.2), (ancho - 0.3, 1.0, fondo * 0.55), 0.0))
+    return tubos
 
 
 def banca(nombre, p):

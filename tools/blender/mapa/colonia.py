@@ -146,6 +146,13 @@ def _pieza(col, p):
             colision(col, "%s_choque%d" % (nombre, i), wx, wz, rot + giro, tam, y + cy - tam[1] / 2)
         for i, puntos in enumerate(k.rampas):
             _casco(col, "%s_rampa%d" % (nombre, i), puntos, ob)
+        # Lo que solo esta de dia (la lona y la mercancia de un puesto): otro objeto, "Dia_<nombre>",
+        # que MapaPostImport junta aparte y Colonia.gd esconde de noche
+        dia = getattr(k, "dia", None)
+        if dia is not None:
+            de_dia = bpy.data.objects.new("Dia_" + nombre, dia.terminar())
+            de_dia.location, de_dia.rotation_euler = ob.location, ob.rotation_euler
+            col.objects.link(de_dia)
         return ob
     if tipo == "suelo":
         # Abajo de las calles y andadores (que van a 1-2 cm); "material" es un piso de kit.PISOS
