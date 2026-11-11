@@ -308,3 +308,7 @@ Misiones de apoyo, atadas a personajes:
 - [ ] 💡 ¿Las misiones de historia se pueden perder para siempre?
 - [ ] 💡 ¿Cuántos contratos se pueden aceptar a la vez?
 - [ ] 💡 ¿El barrio recuerda los fracasos (reputación) o solo la paga?
+
+## La pelota en la azotea (Santa Mugre, propuesta de AG, 2026-11-11)
+
+Mision chica de dia en la cancha de futbolito: el profe de la cascarita dice que los chamacos volaron la pelota a la azotea del mirador. Subes por la escalera del callejon, la bajas y se la regresas: 50 pesos. Sirve para enseñar que las azoteas se caminan (rutas de escape y botin). Archivo: `resources/misiones/pelota.tres`.

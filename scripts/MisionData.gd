@@ -20,3 +20,6 @@ extends Resource
 # Un pedazo de mapa, el primero que falte; si ya estan todos, `pesos_si_sobra`
 @export var pieza_de_mapa := false
 @export var pesos_si_sobra := 0
+# Donde se para el que la da: "marca:<nombre>" una marca "mision" de la colonia del mapa en
+# Blender (Colonia.puntos_mision); vacio, o sin esa marca, junto a un poste como siempre
+@export var donde := ""

@@ -60,6 +60,7 @@ func _probar() -> void:
 		_revisar("sale frente a la puerta", interiores.get("_interior") == null and d < 0.6,
 			"jugador en %s, esperado %s" % [jugador.global_position, esperado])
 	await _subir_banqueta(escena)
+	await _pelota(escena)
 	await _vida(escena)
 	await _casa(escena)
 	await _vecinos(escena)
@@ -261,6 +262,37 @@ func _vida(escena: Node) -> void:
 		"energia %.2f" % (reflector.light_energy if reflector else -1.0))
 	var foco := escena.find_child("Foco_0", true, false) as Light3D
 	_revisar("foco del callejon prendido de noche", foco != null and foco.visible, "%s" % foco)
+
+
+# La mision de la cancha: el profe esta en su marca, la pelota en la azotea del mirador y al
+# levantarla toca regresarsela (MisionData.donde y RECOGER con "marca:")
+func _pelota(escena: Node) -> void:
+	var misiones := root.get_node("/root/Misiones")
+	var mision: MisionData = null
+	for m: MisionData in misiones.get("todas"):
+		if m.id == "pelota":
+			mision = m
+	var mundo := escena.find_children("*", "MisionesMundo", true, false)
+	if mision == null or mundo.is_empty():
+		_revisar("hay mision de la pelota", false, "mision %s, MisionesMundo %d" % [mision, mundo.size()])
+		return
+	var profe: Transform3D = Colonia.puntos_mision.get("Profe_Cancha", Transform3D())
+	var lugar := Vector3.INF
+	for v: Dictionary in mundo[0].get("vecinos"):
+		if v["mision"] == mision:
+			lugar = v["lugar"]
+	_revisar("el profe esta en la cancha", lugar.distance_to(profe.origin) < 0.5, "%s" % lugar)
+	misiones.call("aceptar", mision)
+	await _cuadros(5)
+	var cosa: Node3D = mundo[0].get("_perro")
+	var pelota: Transform3D = Colonia.puntos_mision.get("Pelota", Transform3D())
+	_revisar("la pelota esta en la azotea", cosa != null and cosa.global_position.distance_to(pelota.origin) < 0.5,
+		"%s" % (cosa.global_position if cosa else Vector3.INF))
+	if cosa:
+		cosa.call("interact")
+		await _cuadros(5)
+	var paso: PasoMision = misiones.call("paso")
+	_revisar("con la pelota toca regresarla", paso != null and paso.tipo == PasoMision.Tipo.ENTREGAR, "%s" % paso)
 
 
 func _revisar(que: String, bien: bool, detalle: String) -> void:

@@ -109,9 +109,13 @@ func _poner_vecinos() -> void:
 		npc.remove_child(ninja)
 		ninja.free()
 		add_child(npc)
+		var marca: Variant = _marca(mision.donde)
+		if marca != null:
+			# Parado en su marca de la colonia, viendo a donde ve la marca
+			lugares[i] = (marca as Transform3D).origin
 		npc.global_position = lugares[i]
 		var hacia := _jugador.global_position - lugares[i]
-		npc.rotation.y = atan2(hacia.x, hacia.z)
+		npc.rotation.y = atan2(hacia.x, hacia.z) if marca == null else (marca as Transform3D).basis.get_euler().y
 		Gente.poner_modelo(npc, load("res://models/personajes/%s/%s.scn" % [mision.modelo, mision.modelo]), ALTO_PERSONA)
 		var signo := Label3D.new()
 		signo.text = "!"
@@ -243,7 +247,10 @@ func _cambio() -> void:
 			if _puntos.is_empty():
 				_poner_puntos(paso)
 		PasoMision.Tipo.RECOGER:
-			_poner_perro()
+			if paso.lugar.begins_with("marca:") and _marca(paso.lugar) != null:
+				_poner_cosa(paso)
+			else:
+				_poner_perro()
 
 
 func _apuntar(donde: Vector3, radio := 0.0) -> void:
@@ -367,6 +374,48 @@ func _poner_perro() -> void:
 	# El circulo no esta centrado en el: hay que buscar y oir
 	var corrido := Vector2.from_angle(randf() * TAU) * randf() * PERRO_BUSCAR * 0.7
 	_apuntar(_perro_lugar + Vector3(corrido.x, 0.0, corrido.y), PERRO_BUSCAR)
+
+
+# Una marca "mision" de la colonia del mapa en Blender ("marca:<nombre>"), o null
+func _marca(lugar: String) -> Variant:
+	if not lugar.begins_with("marca:"):
+		return null
+	return Colonia.puntos_mision.get(lugar.trim_prefix("marca:"))
+
+
+# Lo que hay que recoger en una marca (la pelota en la azotea): como el perro, pero se sabe
+# donde esta, asi que va con flecha y sin ladridos
+func _poner_cosa(paso: PasoMision) -> void:
+	if _perro:
+		return
+	var donde := (_marca(paso.lugar) as Transform3D).origin
+	_perro = load("res://scripts/map/CosaMision.gd").new()
+	var objeto: InventoryItemData = paso.objetos[0] if not paso.objetos.is_empty() else null
+	if objeto:
+		_perro.set("que", objeto.item_name.to_lower())
+		_perro.add_child(objeto.crear_modelo(0.3))
+	else:
+		_perro.set("que", "la pelota")
+		_perro.add_child(_pelota())
+	add_child(_perro)
+	_perro.global_position = donde
+	_perro.set("al_recoger", _perro_recogido)
+	_apuntar(donde)
+
+
+static func _pelota() -> MeshInstance3D:
+	var malla := SphereMesh.new()
+	malla.radius = 0.11
+	malla.height = 0.22
+	malla.radial_segments = 8
+	malla.rings = 4
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.95, 0.95, 0.9)
+	malla.material = material
+	var pelota := MeshInstance3D.new()
+	pelota.mesh = malla
+	pelota.position.y = 0.11
+	return pelota
 
 
 func _lugar_perro() -> Vector3:

@@ -5,7 +5,9 @@ extends Resource
 # TENER_OBJETOS: traer `objetos` en el inventario; `lugar` dice donde conseguirlos.
 # ENTREGAR: volver con el que dio la mision; si hay `objetos`, se los queda.
 # VISITAR: pasar por `cuantos` lugares (`lugar`), en `segundos` si no es 0.
-# RECOGER: buscar la cosa `lugar` en un area y levantarla con Espacio.
+# RECOGER: buscar la cosa `lugar` en un area y levantarla con Espacio: "perro", o
+# "marca:<nombre>" (una marca "mision" de la colonia: ahi esta la cosa, con flecha; `objetos`[0]
+# da su modelo y su nombre, o una pelota si no hay).
 
 enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER }
 

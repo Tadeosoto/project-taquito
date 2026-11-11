@@ -14,6 +14,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/garrafones.tres",
 	"res://resources/misiones/perro.tres",
 	"res://resources/misiones/cangurera.tres",
+	"res://resources/misiones/pelota.tres",
 ]
 const REVISAR_CADA := 0.25
 

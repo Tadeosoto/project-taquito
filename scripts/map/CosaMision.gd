@@ -6,6 +6,8 @@ extends Node3D
 const RADIO := 2.2
 
 var al_recoger := Callable()
+# Lo que dice el aviso: "Espacio: levantar <que>"
+var que := "al perro"
 
 var _player_inside := false
 var _aviso: Label3D
@@ -19,7 +21,7 @@ func _ready() -> void:
 	_aviso.pixel_size = 0.006
 	_aviso.position.y = 1.0
 	_aviso.visible = false
-	_aviso.text = "Espacio: levantar al perro" if Input.get_connected_joypads().is_empty() else "X: levantar al perro"
+	_aviso.text = ("Espacio: levantar " if Input.get_connected_joypads().is_empty() else "X: levantar ") + que
 	add_child(_aviso)
 	var area := Area3D.new()
 	area.collision_layer = 0

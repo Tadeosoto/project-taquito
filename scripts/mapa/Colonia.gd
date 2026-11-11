@@ -18,6 +18,8 @@ extends Node3D
 #           "alcance" m; se prende de noche con Ciclo.valor()
 #   foco    un foco colgado de un cable en un callejon (los escribe exportar.py, no van en el
 #           .json): luz chica y calida, de noche, y uno de cada FOCO_PARPADEA parpadea
+#   mision  un punto con nombre para las misiones (Colonia.puntos_mision): donde se para el que
+#           da una ("donde" de MisionData) o donde esta lo que hay que recoger
 #   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
 #           (un monton de Chatarra), "bolsa" (Takis con tazo) o "curacion" (tacos o caguama)
 
@@ -36,6 +38,10 @@ const LETRERO_COLOR := Color(1.0, 0.92, 0.55)
 # MapPuntos: Interiores escucha su señal entrar_negocio
 @export var puntos_path: NodePath
 @export var jugador_path: NodePath
+
+# Marcas "mision" de la colonia cargada: nombre -> Transform3D (MisionesMundo las busca como
+# "marca:<nombre>"). Se llenan en _enter_tree, antes que Partida arme MisionesMundo
+static var puntos_mision := {}
 
 var _puntos: MapPuntos
 var _marcas: Array = []
@@ -63,9 +69,12 @@ func _enter_tree() -> void:
 		push_warning("Colonia: no se pudo leer %s" % marcas_path)
 		return
 	_marcas = datos.get("marcas", [])
+	puntos_mision.clear()
 	for marca: Dictionary in _marcas:
 		if marca.get("tipo") == "spawn":
 			_spawn(marca)
+		elif marca.get("tipo") == "mision":
+			puntos_mision[String(marca.get("nombre", ""))] = lugar(marca)
 
 
 func _ready() -> void:
@@ -75,7 +84,7 @@ func _ready() -> void:
 		add_child(modelo.instantiate())
 	for marca: Dictionary in _marcas:
 		match String(marca.get("tipo", "")):
-			"spawn":
+			"spawn", "mision":
 				pass
 			"puerta":
 				_puerta(marca)

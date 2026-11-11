@@ -225,7 +225,8 @@ func _ready() -> void:
 	_partida.supervivencia_path = get_node("Supervivencia").get_path()
 	_partida.refugio_path = _refugio.get_path()
 	_partida.piezas_en_el_mapa = false
-	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(-30.0, 0.0, 10.0)]
+	# Uno por mision (Misiones.ARCHIVOS) y el ultimo para el nino de los tazos
+	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(10.0, 0.0, 2.0), Vector3(-30.0, 0.0, 10.0)]
 	_partida.misiones_config = {"puntos_path": PUNTOS_JSON, "casas_path": CASAS_JSON, "vecinos_fijos": vecinos, "perro_fijo": Vector3(38.0, 0.0, 20.0)}
 	add_child(_partida)
 	_poner_pieza_prueba()
