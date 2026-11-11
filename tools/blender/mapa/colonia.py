@@ -55,12 +55,12 @@ def armar(nombre):
     cx, cz = (x1 + x2) / 2, (z1 + z2) / 2
     # El piso entre casas es concreto, como la banqueta (en Godot, ps1_suelo con banqueta.png),
     # con los huecos de los `hundidos` (la cancha hundida y la zanja de su bajada)
-    _piso(mundo, datos)
+    huecos = _piso(mundo, datos)
 
     _arroyos(datos)
     terrazas = _terrazas(mundo, datos)
     for p in datos.get("piezas", []):
-        alto = _en_terraza(p, terrazas)
+        alto = _en_terraza(p, terrazas) - bajar_en_hundido(p, huecos)
         if alto:
             p = dict(p, y=p.get("y", 0.0) + alto)
         ob = _pieza(mundo, p)
@@ -167,33 +167,129 @@ def _pieza(col, p):
 
 
 
+def poligono_hundido(h, datos):
+    """El poligono [(x, z)...] de un hundido: su `poligono`, el rectangulo de `puntos`, o la huella
+    de la pieza `pieza` (un jardin de la plaza)."""
+    if "poligono" in h:
+        return [tuple(q) for q in h["poligono"]]
+    if "pieza" in h:
+        p = next(q for q in datos.get("piezas", []) if q["nombre"] == h["pieza"])
+        return [(p["x"] + a, p["z"] + b) for a, b in p["puntos"]]
+    (a, b), (c_, d) = h["puntos"]
+    return [(min(a, c_), min(b, d)), (max(a, c_), min(b, d)), (max(a, c_), max(b, d)), (min(a, c_), max(b, d))]
+
+
+def _area(pol):
+    return sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(pol, pol[1:] + pol[:1])) / 2
+
+
+def _hacia_adentro(pol, d):
+    """El poligono recorrido `d` m hacia adentro (cada vertice por la bisectriz de sus lados)."""
+    if d <= 0:
+        return list(pol)
+    signo = 1.0 if _area(pol) > 0 else -1.0
+    n = len(pol)
+    nuevo = []
+    for i in range(n):
+        a, b, c = pol[i - 1], pol[i], pol[(i + 1) % n]
+        normales = []
+        for p0, p1 in ((a, b), (b, c)):
+            dx, dz = p1[0] - p0[0], p1[1] - p0[1]
+            l = math.hypot(dx, dz) or 1.0
+            normales.append((-dz / l * signo, dx / l * signo))
+        mx, mz = normales[0][0] + normales[1][0], normales[0][1] + normales[1][1]
+        l = math.hypot(mx, mz) or 1.0
+        mx, mz = mx / l, mz / l
+        coseno = max(0.35, mx * normales[0][0] + mz * normales[0][1])
+        nuevo.append((b[0] + mx * d / coseno, b[1] + mz * d / coseno))
+    return nuevo
+
+
+def bajar_en_hundido(p, huecos):
+    """Cuanto baja la pieza `p` por caer en un hundido con `bajar_piezas` (un jardin)."""
+    if not huecos or p["tipo"] == "calle":
+        return 0.0
+    x, z = p["x"], p["z"]
+    if p.get("puntos") and p["tipo"] in ("casa", "suelo"):
+        x += sum(q[0] for q in p["puntos"]) / len(p["puntos"])
+        z += sum(q[1] for q in p["puntos"]) / len(p["puntos"])
+    for pol, hondo, bajar in huecos:
+        if bajar and _dentro(x, z, pol):
+            return hondo
+    return 0.0
+
+
+def _dentro(x, z, pol):
+    dentro = False
+    j = len(pol) - 1
+    for i in range(len(pol)):
+        xi, zi = pol[i]
+        xj, zj = pol[j]
+        if (zi > z) != (zj > z) and x < (xj - xi) * (z - zi) / (zj - zi or 1e-9) + xi:
+            dentro = not dentro
+        j = i
+    return dentro
+
+
+def _malla_caras(nombre, caras, arriba=True):
+    """Una malla de caras [[(x, y, z) de Godot...]...], cada una volteada para que vea hacia
+    arriba (si `arriba`) o como venga."""
+    bm = bmesh.new()
+    for cara in caras:
+        f = bm.faces.new([bm.verts.new(a_blender(x, z, y)) for x, y, z in cara])
+        f.normal_update()
+        if arriba and f.normal.z < 0:
+            f.normal_flip()
+    malla = bpy.data.meshes.new(nombre)
+    bm.to_mesh(malla)
+    bm.free()
+    return malla
+
+
+def _con_choque(mundo, nombre, caras, mat, arriba=True):
+    ob = bpy.data.objects.new(nombre, _malla_caras(nombre, caras, arriba))
+    ob.data.materials.append(mat)
+    mundo.objects.link(ob)
+    ob[DATO] = "piso"
+    choque = bpy.data.objects.new(nombre + "-colonly", _malla_caras(nombre + "_col", caras, arriba))
+    choque.display_type = "WIRE"
+    mundo.objects.link(choque)
+    return ob
+
+
 def _piso(mundo, datos):
-    """El piso del recorte en cajas que dejan fuera los rectangulos de `hundidos`
-    ([{"nombre", "puntos": [[x0, z0], [x1, z1]], "fondo": m}]), y un piso al fondo de cada uno.
-    Las orillas de un hundido las tapa lo que se ponga ahi (los muros de la cancha, la zanja)."""
+    """El piso del recorte: una malla a y = 0 con los huecos de `hundidos` (poligonos: `poligono`,
+    el rectangulo de `puntos` o la huella de una `pieza`), triangulada con tessellate_polygon, y en
+    cada hueco su fondo a -`fondo` y sus orillas: verticales, o en talud de `borde` m (los jardines
+    de la plaza: se entra y se sale caminando). Todo con su choque de malla. Devuelve los huecos
+    [(poligono, fondo, bajar_piezas)] para bajar lo que cae adentro."""
+    import mathutils
+    from mathutils.geometry import tessellate_polygon
     mat = _kit()["mat_piso"]("banqueta")
     x1, z1, x2, z2 = datos["recorte"]
+    afuera = [(x1, z1), (x2, z1), (x2, z2), (x1, z2)]
     huecos = []
     for h in datos.get("hundidos", []):
-        (a, b), (c_, d) = h["puntos"]
-        huecos.append((min(a, c_), min(b, d), max(a, c_), max(b, d), h.get("fondo", 1.0), h["nombre"]))
-    xs = sorted({x1, x2} | {v for h in huecos for v in (h[0], h[2])})
-    zs = sorted({z1, z2} | {v for h in huecos for v in (h[1], h[3])})
-    n = 0
-    for i in range(len(xs) - 1):
-        for j in range(len(zs) - 1):
-            mx, mz = (xs[i] + xs[i + 1]) / 2, (zs[j] + zs[j + 1]) / 2
-            if any(h[0] < mx < h[2] and h[1] < mz < h[3] for h in huecos):
-                continue
-            nombre = "Piso" if n == 0 else "Piso_%d" % n
-            piso = caja(mundo, nombre, mx, mz, 0.0, (xs[i + 1] - xs[i], PISO_GRUESO, zs[j + 1] - zs[j]), mat,
-                        y=-PISO_GRUESO, choca=True)
-            piso[DATO] = "piso"
-            n += 1
-    for hx0, hz0, hx1, hz1, hondo, nombre in huecos:
-        piso = caja(mundo, "Piso_" + nombre, (hx0 + hx1) / 2, (hz0 + hz1) / 2, 0.0, (hx1 - hx0, PISO_GRUESO, hz1 - hz0), mat,
-                    y=-hondo - PISO_GRUESO, choca=True)
-        piso[DATO] = "piso"
+        huecos.append((poligono_hundido(h, datos), h.get("fondo", 1.0), h.get("bajar_piezas", False), h.get("borde", 0.0), h["nombre"]))
+    lineas = [afuera] + [hueco[0] for hueco in huecos]
+    planos = [[mathutils.Vector((x, z, 0.0)) for x, z in linea] for linea in lineas]
+    todos = [q for linea in lineas for q in linea]
+    caras = [[(todos[i][0], 0.0, todos[i][1]) for i in tri] for tri in tessellate_polygon(planos)]
+    _con_choque(mundo, "Piso", caras, mat)
+    for pol, hondo, bajar, borde, nombre in huecos:
+        fondo_pol = _hacia_adentro(pol, borde)
+        tris = tessellate_polygon([[mathutils.Vector((x, z, 0.0)) for x, z in fondo_pol]])
+        caras = [[(fondo_pol[i][0], -hondo, fondo_pol[i][1]) for i in tri] for tri in tris]
+        # Orillas: de la orilla a y 0 al fondo (recorrido `borde` hacia adentro)
+        n = len(pol)
+        for i in range(n):
+            j = (i + 1) % n
+            caras.append([(pol[i][0], 0.0, pol[i][1]), (pol[j][0], 0.0, pol[j][1]),
+                          (fondo_pol[j][0], -hondo, fondo_pol[j][1]), (fondo_pol[i][0], -hondo, fondo_pol[i][1])])
+        fondo_caras, orillas = caras[:len(tris)], caras[len(tris):]
+        _con_choque(mundo, "Piso_" + nombre, fondo_caras, mat)
+        _con_choque(mundo, "Piso_%s_Orilla" % nombre, orillas, mat, arriba=borde > 0)
+    return [(pol, hondo, bajar) for pol, hondo, bajar, borde, nombre in huecos]
 
 
 def _terrazas(mundo, datos):
