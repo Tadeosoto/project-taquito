@@ -17,6 +17,9 @@ for _n, _c in LONAS.items():
 COLORES_PIEZA["cancha_verde"] = (0.16, 0.36, 0.3)
 COLORES_PIEZA["cancha_amarilla"] = (0.9, 0.7, 0.1)
 COLORES_PIEZA["cancha_muro"] = (0.16, 0.33, 0.78)
+# Basura de los callejones (colonia._vida_callejones)
+COLORES_PIEZA["bolsa_negra"] = (0.05, 0.05, 0.06)
+COLORES_PIEZA["carton"] = (0.6, 0.45, 0.28)
 
 
 def puesto(nombre, p):

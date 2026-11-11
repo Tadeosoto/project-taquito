@@ -68,6 +68,7 @@ def armar(nombre):
 
     _postes_y_cables(sc, mundo, datos.get("postes", []))
     _tendederos(mundo, datos)
+    _vida_callejones(mundo, datos)
 
     for m in datos.get("marcas", []):
         ob = vacio(marcas, m["nombre"], m["x"], m["z"], m.get("rot", 0.0), tamano=1.5)
@@ -468,6 +469,78 @@ def _tendederos(mundo, datos):
         return
     ob = bpy.data.objects.new("Tendederos", c.terminar())
     mundo.objects.link(ob)
+
+
+def _capilla(c, x, z, giro):
+    """Capillita de la Virgen del Tinaco (lore: el culto se cuela en Santa Mugre): pedestal,
+    nicho de cal con techito azul, un tinaquito de yeso con su aureola, veladoras y flores.
+    Su frente (+Z local) ve al callejon."""
+    co, si = math.cos(giro), math.sin(giro)
+    def p(lx, ly, lz):
+        return (x + lx * co + lz * si, ly, z - lx * si + lz * co)
+    c.caja(p(0, 0.5, 0), (0.7, 1.0, 0.5), "concreto", giro)
+    c.caja(p(0, 1.0 + 0.45, -0.22), (0.6, 0.9, 0.06), "blanco_cal", giro)
+    for lx in (-0.28, 0.28):
+        c.caja(p(lx, 1.45, -0.02), (0.06, 0.9, 0.42), "blanco_cal", giro)
+    c.caja(p(0, 1.93, -0.02), (0.8, 0.06, 0.55), "azul_gela", giro)
+    c.cono(p(0, 1.96, -0.02), 0.45, 0.3, "azul_gela", lados=4)
+    c.cilindro(p(0, 1.02, -0.05), 0.11, 0.24, "tinaco", lados=8)
+    c.esfera(p(0, 1.4, -0.05), 0.09, "blanco_cal", seg=6, anillos=4)
+    c.caja(p(0, 1.4, -0.13), (0.34, 0.34, 0.02), "oro", giro)
+    for i in range(5):
+        c.caja(p(-0.24 + i * 0.12, 1.06, 0.14), (0.05, 0.1, 0.05), "veladora", giro)
+    for lx, col in ((-0.3, "lona_rosa"), (0.3, "lona_amarillo"), (0.22, "lona_rojo")):
+        c.esfera(p(lx, 1.08, 0.18), 0.08, col, seg=5, anillos=3)
+
+
+def _basura(c, x, z, r):
+    """Montón de basura junto a la pared: bolsas negras, cajas de cartón y llantas."""
+    for i in range(r.randint(2, 5)):
+        rad = r.uniform(0.2, 0.32)
+        c.esfera((x + r.uniform(-0.5, 0.5), rad * 0.7, z + r.uniform(-0.4, 0.4)), rad, "bolsa_negra", seg=6, anillos=4, aplastar=0.75)
+    for i in range(r.randint(0, 2)):
+        lado = r.uniform(0.3, 0.5)
+        c.caja((x + r.uniform(-0.6, 0.6), lado / 2, z + r.uniform(-0.4, 0.4)), (lado, lado * 0.8, lado), "carton", r.uniform(0, 3))
+    if r.random() < 0.4:
+        lx, lz = x + r.uniform(-0.6, 0.6), z + r.uniform(-0.4, 0.4)
+        for i in range(r.randint(1, 3)):
+            c.cilindro((lx, i * 0.24, lz), 0.33, 0.22, "fierro", lados=8)
+
+
+def _vida_callejones(mundo, datos):
+    """Basura junto a las paredes de cada callejon y, en uno de cada dos, una capillita cerca de
+    la entrada. Sin choque (no estorban el paso). Una sola malla, mismo azar en cada armada."""
+    pz = _piezas()
+    c = pz["Constructor"]("Callejones_Vida")
+    hubo = False
+    for p in datos.get("piezas", []):
+        if p["tipo"] != "calle" or p.get("material") != "empedrado" or p.get("banqueta", 0) > 0:
+            continue
+        semilla = sum((i + 1) * ord(ch) for i, ch in enumerate(p["nombre"]))
+        r = __import__("random").Random(semilla * 7 + 3)
+        orilla = p["ancho"] / 2 - 0.35
+        pts = [(p["x"] + a, p["z"] + b) for a, b in p["puntos"]]
+        (ax, az), (bx, bz) = pts[0], pts[1]
+        largo = math.hypot(bx - ax, bz - az)
+        if largo < 4.0:
+            continue
+        hubo = True
+        ux, uz = (bx - ax) / largo, (bz - az) / largo
+        nx, nz = -uz, ux
+        if semilla % 2 == 0:
+            lado = 1 if semilla % 4 == 0 else -1
+            s = min(2.5, largo / 3)
+            # Su frente (+Z local) hacia el centro del callejon: -n * lado
+            fx, fz = -nx * lado, -nz * lado
+            _capilla(c, ax + ux * s + nx * lado * (orilla + 0.1), az + uz * s + nz * lado * (orilla + 0.1), math.atan2(fx, fz))
+        s = r.uniform(3.0, 6.0)
+        while s < largo - 1.0:
+            lado = r.choice((-1, 1))
+            _basura(c, ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r)
+            s += r.uniform(8.0, 16.0)
+    if not hubo:
+        return
+    mundo.objects.link(bpy.data.objects.new("Callejones_Vida", c.terminar()))
 
 
 def leer(nombre):
