@@ -3,6 +3,8 @@
 [ext_resource type="Shader" uid="uid://d3accbyfflppx" path="res://shaders/dittershader.gdshader" id="1_dither"]
 [ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="3_puntos"]
+[ext_resource type="Script" path="res://scripts/mapa/ArbolesModelo.gd" id="21_arboles_modelo"]
+[ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="19_carrito"]
 [ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="4_ciclo"]
 [ext_resource type="Script" path="res://scripts/mapa/Colonia.gd" id="5_colonia"]
 [ext_resource type="PackedScene" path="res://models/mapa/santa_mugre/santa_mugre.glb" id="6_santa_mugre"]
@@ -80,9 +82,18 @@ mouse_filter = 2
 
 [node name="Puntos" type="Node3D" parent="."]
 script = ExtResource("3_puntos")
-puntos_path = "res://resources/mapa/sin_puntos.json"
+puntos_path = "res://resources/mapa/santa_mugre/puntos.json"
+prefabs = Dictionary[String, PackedScene]({
+"puesto": ExtResource("19_carrito")
+})
+prefab_ancho = Dictionary[String, float]({
+"puesto": 2.5
+})
 target_path = NodePath("../Dron")
 interiores_path = NodePath("../Interiores")
+
+[node name="ArbolesModelo" type="Node3D" parent="."]
+script = ExtResource("21_arboles_modelo")
 
 [node name="Ciclo" type="Node" parent="."]
 script = ExtResource("4_ciclo")

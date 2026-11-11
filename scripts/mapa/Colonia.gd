@@ -10,6 +10,8 @@ extends Node3D
 #           antes que el jugador, el dron y Supervivencia en la escena.
 #   puerta  la flecha amarilla de un negocio o casa: al pisarla emite MapPuntos.entrar_negocio
 #           con su giro, igual que YonkeMapa; su +Z da a la calle (ahi te deja Interiores al salir)
+#   tinaco  el tinaco comunitario sobre la plataforma del kiosco ("y" lo alto de la plataforma, "litros" lo que
+#           le cabe, 20 mil): el modelo del tinaco de la defensa, que es de 10 mil, escalado por el volumen
 #   yonke   El Yonke de Don Chava (YonkeMapa, con su barda), con su +Z a la calle
 #   casa_propia  la flecha de la casa del jugador (CasaPropia, la casa de JJ que se camina)
 #   casa_vecino  la flecha de la casa de un vecino (CasaPropia con scenes/casas/<quien>.tscn)
@@ -35,6 +37,8 @@ extends Node3D
 #   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
 #           (un monton de Chatarra), "bolsa" (Takis con tazo) o "curacion" (tacos o caguama)
 
+const MODELO_TINACO := preload("res://models/props/tinaco/tinaco.scn")
+const TINACO_PIEZAS := ["Tinaco_3er_capa", "Bomba_1", "Tapa"]
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
 const CASA_ESCENA := "res://scenes/casa_personaje.tscn"
@@ -110,7 +114,11 @@ func _ready() -> void:
 			"spawn", "mision":
 				pass
 			"puerta":
-				_puerta(marca)
+				# Los negocios "local" (su casa la reemplaza MapPuntos) ya traen su flecha y su letrero
+				if not marca.get("local", false):
+					_puerta(marca)
+			"tinaco":
+				_tinaco_comunitario(marca)
 			"yonke":
 				_yonke(marca)
 			"casa_propia":
@@ -133,6 +141,8 @@ func _ready() -> void:
 				_letrero(marca)
 			"placa":
 				_placa(marca)
+			"tianguis":
+				_tianguis(marca)
 			"caja_gela":
 				var caja := CajaGela.new()
 				caja.name = String(marca.get("nombre", "CajaGela"))
@@ -354,6 +364,21 @@ static func lugar(marca: Dictionary) -> Transform3D:
 	return Transform3D(base, Vector3(float(marca["x"]), float(marca.get("y", 0.0)), float(marca["z"])))
 
 
+# Un tramo de tianguis sobre la calle (exportar.py: tianguis_marcas): la marca esta al inicio del
+# tramo, en medio del arroyo, y su +X va a lo largo de la calle
+func _tianguis(marca: Dictionary) -> void:
+	var t := Tianguis.new()
+	t.name = String(marca.get("nombre", "Tianguis"))
+	t.transform = lugar(marca)
+	t.largo = float(marca.get("largo", 40.0))
+	t.arroyo = float(marca.get("arroyo", 8.0))
+	t.pasillo = float(marca.get("pasillo", 2.6))
+	t.semilla = int(marca.get("semilla", 7))
+	t.huecos = marca.get("huecos", [])
+	t.reservados = marca.get("reservados", [])
+	add_child(t)
+
+
 func _spawn(marca: Dictionary) -> void:
 	var jugador := get_node_or_null(jugador_path) as Node3D
 	if jugador == null:
@@ -403,6 +428,38 @@ func _casa_vecino(marca: Dictionary) -> void:
 	if zombis:
 		casa.set("zombis_path", zombis.get_path())
 	add_child(casa)
+
+
+# El tinaco comunitario sobre la plataforma del kiosco (marca "tinaco": "y" es lo alto de la plataforma y
+# "litros" lo que le cabe). Es el modelo del tinaco de la defensa (Barricada._tinaco: el modelo trae tres, se
+# deja uno completo), que es uno de 10 mil litros (Barricada.TINACO_ALTO); uno de mas litros crece parejo, con
+# el volumen (la raiz cubica de la proporcion)
+func _tinaco_comunitario(marca: Dictionary) -> void:
+	var cuerpo := StaticBody3D.new()
+	cuerpo.name = "TinacoComunitario"
+	cuerpo.add_to_group("tinaco_comunitario")   # donde va la mision de la defensa del tinaco
+	cuerpo.transform = lugar(marca)
+	var modelo := MODELO_TINACO.instantiate() as Node3D
+	for pieza in modelo.find_children("*", "Node3D"):
+		if pieza.name.begins_with("Tinaco_") and pieza.get_parent().name == "Tinaco" and not pieza.name in TINACO_PIEZAS:
+			pieza.get_parent().remove_child(pieza)
+			pieza.queue_free()
+	var caja := Barricada._caja_de(modelo)
+	var alto: float = Barricada.TINACO_ALTO * pow(float(marca.get("litros", 10000.0)) / 10000.0, 1.0 / 3.0)
+	var escala := alto / caja.size.y
+	var sosten := Node3D.new()
+	sosten.scale = Vector3.ONE * escala
+	sosten.position = Vector3(-caja.get_center().x * escala, -caja.position.y * escala, -caja.get_center().z * escala)
+	sosten.add_child(modelo)
+	cuerpo.add_child(sosten)
+	var forma := CollisionShape3D.new()
+	var cilindro := CylinderShape3D.new()
+	cilindro.radius = maxf(caja.size.x, caja.size.z) * escala / 2.0
+	cilindro.height = alto
+	forma.shape = cilindro
+	forma.position.y = alto / 2.0
+	cuerpo.add_child(forma)
+	add_child(cuerpo)
 
 
 func _yonke(marca: Dictionary) -> void:

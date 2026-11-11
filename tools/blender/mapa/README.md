@@ -36,6 +36,14 @@ exec(open(R + r"\colonia.py", encoding="utf-8").read(), {"__name__": "colonia", 
    - `resources/mapa/<colonia>/puntos.json`.
    Después, en Godot: `godot --path . --headless --import`.
 
+Los scripts leen la raiz del proyecto de la variable de entorno `TAQUITO_RAIZ` (si no esta, usan la ruta de Windows de Alan).
+
+**Negocios.** `tiendas` del `.json` dice que negocio va y cerca de donde; `bloqueo.py` le da la casa libre mas cercana que mida entre `LOCAL_MIN` y `LOCAL_MAX` y cuyo frente de a una calle de verdad, la marca `local` (`colonia.py` no la arma: su fachada la pone `MapPuntos` en el juego, con la huella de la casa, sus alturas y los colores de su giro) y escribe el negocio en `negocios` (con `ajustado`). `puestos_calle` son los puestos de tacos y tejuino puestos a mano. Ambos salen en `resources/mapa/<colonia>/puntos.json`. Para volver a elegir las casas sin rehacer el resto del bloqueo: `REASIGNAR = True` antes de correr `bloqueo.py`.
+
+**Arboles de Sketchfab.** `fetch_sketchfab.py arboles/arce arboles/realista arboles/roble` los baja, `extraer_arboles.gd` saca sus mallas y texturas a `resources/mapa/arboles_modelos.json` y `reducir_arboles.py` (en Blender, ruta absoluta) los baja de 12k/20k/7k caras a ~5.6k/7.2k/4k (corteza decimada, hojas con menos tarjetas y mas grandes). `exportar.py` escribe sus lugares en `resources/mapa/<colonia>/arboles_modelo.json` y `scripts/mapa/ArbolesModelo.gd` los dibuja con un MultiMesh por tipo (no van en el `.glb`). Si se vuelve a correr el extractor, hay que volver a correr el reductor.
+
+**Arboles.** La pieza `ficus` usa los arboles de *Tacos_ Props*: `godot --headless --path . -s tools/blender/mapa/extraer_arbol_tacos.gd` escribe `modelos/arbol_tacos.json` y las dos texturas (hay que correrlo una vez, o si cambia el modelo).
+
 `comun.py` tiene lo compartido: conversión de coordenadas, cajas, cajas de choque, vacíos, materiales y el guardado del `.json`.
 
 ## El `.json` de una colonia
@@ -74,6 +82,8 @@ exec(open(R + r"\colonia.py", encoding="utf-8").read(), {"__name__": "colonia", 
   - `botin`: tampoco se escribe a mano; `exportar.py` pone uno por ruta de azoteas y en `colonia.BOTIN_EXTRA` (`que`: `chatarra`, `bolsa` o `curacion`).
   - `placa`: tampoco a mano: `exportar.py` pone las placas de las calles que tengan nombre en `nombres_calles` (pieza -> nombre).
   - `foco`: no se escribe a mano; `exportar.py` agrega uno por cada foco colgado de los callejones (`colonia.focos_callejones`).
+  - `tianguis`: tampoco a mano; `exportar.tianguis_marcas` pone una por tramo de `tianguis` (abajo).
+- **Tianguis** (`tianguis`): tramos de calle con dos filas de carpas de lona que casi se tocan sobre el pasillo (`scripts/mapa/Tianguis.gd`, giros llenos con piezas del proyecto, gente cerca de la camara, de noche quedan los fierros y las mesas). Cada tramo: `nombre`, `a` y `b` (los extremos sobre el eje de la calle), `arroyo` (de banqueta a banqueta), `banqueta`, `pasillo` (libre entre los tubos de enfrente), `semilla` y `libres` [[x, z, ancho]] (huecos a mano: las calles que cruzan). Los huecos frente a las puertas (marcas `puerta`, `casa_vecino`, `casa_propia`, `yonke` y la entrada de cada negocio, `PUESTO_LIBRE` m a cada lado) salen solos. Un `puestos_calle` con `"bajo_carpa": true` queda dentro del tramo con una carpa vacia encima (el de tacos sin su toldo); va a unos 2.9 m del eje, con su frente al pasillo. En Blender se ve donde van las lonas en la coleccion `Vista`.
 - **Terrazas** (`terrazas`): rectangulos (`puntos`, `alto`) donde una manzana sube sobre su muro de contencion; lo que cae adentro sube solo al armar (no se escribe en el `.json`) y se llega con piezas `escalinata`.
 - **Hundidos** (`hundidos`): donde el piso baja `fondo` m. La forma es un `poligono` [[x, z]...], el rectangulo de `puntos` [[x0, z0], [x1, z1]] o la huella de una `pieza`; `borde` > 0 hace la orilla en talud de esos metros (si no, vertical) y `bajar_piezas` baja lo que cae adentro (si no, lo de adentro lleva su `y` a mano, como la cancha). El piso del recorte es una malla triangulada con esos huecos y choque de malla. La pieza `bajada` hace una zanja con escalones para llegar.
 - **Rutas** (`rutas`): tramos de frente de calle (`a`, `b`, `lado`, `fondo`) que `bloqueo.py` reserva y llena con una fila de casas de dos pisos con la azotea pareja y una `escalera` en la punta `a`: por ahi se escapa de los zombis de noche.

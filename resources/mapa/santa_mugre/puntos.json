@@ -12,7 +12,8 @@
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "OXO"
+			"origen": "OXO",
+			"ajustado": true
 		},
 		{
 			"tipo": "taqueria",
@@ -26,35 +27,38 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Tacos La Casa del Taco"
+			"origen": "Tacos La Casa del Taco",
+			"ajustado": true
 		},
 		{
 			"tipo": "abarrotes",
 			"giro": "abarrotes",
 			"nombre": "Mini Super Santa Mugre",
-			"x": -266.0,
-			"z": 408.28,
-			"rotacion_y": -1.5417,
-			"ancho": 5.16,
-			"fondo": 5.17,
+			"x": -290.91,
+			"z": 391.94,
+			"rotacion_y": 1.6084,
+			"ancho": 6.11,
+			"fondo": 13.44,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Mini Super Santa Mugre"
+			"origen": "Mini Super Santa Mugre",
+			"ajustado": true
 		},
 		{
 			"tipo": "taqueria",
 			"giro": "taqueria",
 			"nombre": "Carnitas Via Mugre",
-			"x": -291.12,
-			"z": 285.37,
-			"rotacion_y": 1.6078,
-			"ancho": 3.51,
-			"fondo": 3.09,
+			"x": -272.13,
+			"z": 283.95,
+			"rotacion_y": -1.5343,
+			"ancho": 7.39,
+			"fondo": 10.0,
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Carnitas Via Mugre"
+			"origen": "Carnitas Via Mugre",
+			"ajustado": true
 		},
 		{
 			"tipo": "abarrotes",
@@ -68,7 +72,8 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Abarrotes San Ignacio"
+			"origen": "Abarrotes San Ignacio",
+			"ajustado": true
 		},
 		{
 			"tipo": "farmacia",
@@ -82,49 +87,53 @@
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Farmacia Mas o Menos Buena"
+			"origen": "Farmacia Mas o Menos Buena",
+			"ajustado": true
 		},
 		{
 			"tipo": "ferreteria",
 			"giro": "ferreteria",
 			"nombre": "Ferreteria El Clavo",
-			"x": -373.76,
-			"z": 468.98,
-			"rotacion_y": 3.057,
-			"ancho": 5.09,
-			"fondo": 3.66,
-			"pisos": 2,
+			"x": -360.34,
+			"z": 474.27,
+			"rotacion_y": 3.0841,
+			"ancho": 7.13,
+			"fondo": 11.73,
+			"pisos": 3,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Ferreteria El Clavo"
+			"origen": "Ferreteria El Clavo",
+			"ajustado": true
 		},
 		{
 			"tipo": "abarrotes",
 			"giro": "abarrotes",
 			"nombre": "Cremeria La Casita",
-			"x": -341.37,
-			"z": 478.73,
-			"rotacion_y": 3.0589,
-			"ancho": 5.45,
-			"fondo": 9.09,
+			"x": -349.46,
+			"z": 478.61,
+			"rotacion_y": 3.0332,
+			"ancho": 7.86,
+			"fondo": 7.55,
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Cremeria La Casita"
+			"origen": "Cremeria La Casita",
+			"ajustado": true
 		},
 		{
 			"tipo": "licoreria",
 			"giro": "licoreria",
 			"nombre": "Vinos y Licores El Ultimo",
-			"x": -242.09,
-			"z": 478.87,
-			"rotacion_y": 3.1016,
-			"ancho": 4.5,
-			"fondo": 4.0,
-			"pisos": 1,
+			"x": -240.6,
+			"z": 454.41,
+			"rotacion_y": -0.039,
+			"ancho": 6.4,
+			"fondo": 9.0,
+			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Vinos y Licores El Ultimo"
+			"origen": "Vinos y Licores El Ultimo",
+			"ajustado": true
 		},
 		{
 			"tipo": "purificadora",
@@ -138,7 +147,8 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Purificadora Gota Pura"
+			"origen": "Purificadora Gota Pura",
+			"ajustado": true
 		},
 		{
 			"tipo": "punto",
@@ -152,7 +162,70 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "El Punto"
+			"origen": "El Punto",
+			"sin_flecha": true
+		},
+		{
+			"tipo": "puesto_tacos",
+			"nombre": "Tacos El Guero",
+			"x": -279.54,
+			"z": 448.81,
+			"rotacion_y": 1.6075,
+			"ancho": 2.6,
+			"fondo": 1.6,
+			"origen": "Tacos El Guero",
+			"giro": "puesto_tacos",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false,
+			"bajo_carpa": true
+		},
+		{
+			"tipo": "puesto",
+			"nombre": "Tejuino de Don Chuy",
+			"x": -282.06,
+			"z": 378.83,
+			"rotacion_y": 1.6075,
+			"ancho": 2.5,
+			"fondo": 2.0,
+			"origen": "Tejuino de Don Chuy",
+			"giro": "tejuino",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false,
+			"bajo_carpa": true
+		},
+		{
+			"tipo": "puesto_tacos",
+			"nombre": "Tacos Mi Compadre",
+			"x": -300.42,
+			"z": 464.74,
+			"rotacion_y": 3.05,
+			"ancho": 2.6,
+			"fondo": 1.6,
+			"origen": "Tacos Mi Compadre",
+			"giro": "puesto_tacos",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false
+		},
+		{
+			"tipo": "puesto",
+			"nombre": "Tejuino La Frescura",
+			"x": -338.98,
+			"z": 461.02,
+			"rotacion_y": 3.05,
+			"ancho": 2.5,
+			"fondo": 2.0,
+			"origen": "Tejuino La Frescura",
+			"giro": "tejuino",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false
 		}
 	]
 }

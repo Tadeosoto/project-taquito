@@ -158,3 +158,8 @@
 - [Antique Wooden Wardrobe](https://sketchfab.com/3d-models/a3c221e5504d40a8ba019f8f1bf5ab0e) de Kuutti Siitonen, licencia CC Attribution (`closet/`).
 - [Retro CRT TV](https://sketchfab.com/3d-models/6bc462b233ce4c78904dfcadf5123e29) de meipal, licencia CC Attribution (`tele/`).
 - [Single Bed 2](https://sketchfab.com/3d-models/81ada0e24e1647d8a0d6d0708a696f84) de rhcreations, licencia CC Attribution (`cama/`).
+
+## Arboles (`models/arboles/`, Sketchfab)
+- [Maple tree](https://sketchfab.com/3d-models/4b27adcf92f644bdabf8ecc6c5bef399) de atrodler, licencia CC Attribution (`models/arboles/arce/`).
+- [Realistic Tree](https://sketchfab.com/3d-models/d989c0f801d847b9a74992ec4ddcfdfc) de Daniel, licencia CC Attribution (`models/arboles/realista/`).
+- [Oak tree](https://sketchfab.com/3d-models/3dc59560f2d24345bdbe65c44636453b) de massive-graphisme, licencia CC Attribution (`models/arboles/roble/`).

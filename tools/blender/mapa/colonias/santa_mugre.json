@@ -631,8 +631,7 @@
 			"pisos": 2,
 			"frente": 1,
 			"color": "terracota",
-			"desgaste": 0.47,
-			"tienda": true
+			"desgaste": 0.47
 		},
 		{
 			"nombre": "Casa_27",
@@ -668,7 +667,9 @@
 			"pisos": 3,
 			"frente": 3,
 			"color": "azul",
-			"desgaste": 0.62
+			"desgaste": 0.62,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Casa_37",
@@ -750,10 +751,10 @@
 				[4.42, -1.79],
 				[-3.91, -2.74]
 			],
-			"pisos": 2,
+			"pisos": 1,
 			"frente": 1,
 			"color": "naranja",
-			"desgaste": 0.44
+			"desgaste": 1.0
 		},
 		{
 			"nombre": "Casa_50",
@@ -1321,7 +1322,8 @@
 			"frente": 0,
 			"color": "morado",
 			"desgaste": 0.44,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Casa_211",
@@ -1339,7 +1341,8 @@
 			"frente": 0,
 			"color": "crema",
 			"desgaste": 1.0,
-			"tienda": false
+			"tienda": false,
+			"local": false
 		},
 		{
 			"nombre": "Casa_217",
@@ -1407,7 +1410,9 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "turquesa",
-			"desgaste": 0.65
+			"desgaste": 0.65,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Casa_232",
@@ -1514,7 +1519,8 @@
 			"frente": 1,
 			"color": "crema",
 			"desgaste": 0.69,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Casa_258",
@@ -1654,8 +1660,7 @@
 			"pisos": 2,
 			"frente": 2,
 			"color": "terracota",
-			"desgaste": 0.57,
-			"tienda": true
+			"desgaste": 0.57
 		},
 		{
 			"nombre": "Casa_275",
@@ -1825,8 +1830,7 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "verde",
-			"desgaste": 0.79,
-			"tienda": true
+			"desgaste": 0.79
 		},
 		{
 			"nombre": "Casa_297",
@@ -2500,8 +2504,7 @@
 			"pisos": 1,
 			"frente": 2,
 			"color": "terracota",
-			"desgaste": 0.5,
-			"tienda": true
+			"desgaste": 0.5
 		},
 		{
 			"nombre": "Casa_436",
@@ -3333,8 +3336,7 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "rosa",
-			"desgaste": 0.58,
-			"tienda": true
+			"desgaste": 0.58
 		},
 		{
 			"nombre": "Lote_20",
@@ -3437,7 +3439,8 @@
 			"frente": 0,
 			"color": "lima",
 			"desgaste": 0.7,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Lote_26",
@@ -3932,7 +3935,9 @@
 			"pisos": 1,
 			"frente": 0,
 			"color": "crema",
-			"desgaste": 0.35
+			"desgaste": 0.35,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Lote_56",
@@ -3967,7 +3972,8 @@
 			"frente": 0,
 			"color": "rosa",
 			"desgaste": 0.56,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Lote_58",
@@ -4975,7 +4981,7 @@
 			"auto": true,
 			"x": -246.86,
 			"z": 355.2,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [8.94, 4.0],
 			"variante": "fonda"
 		},
@@ -5457,7 +5463,9 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "morado",
-			"desgaste": 0.57
+			"desgaste": 0.57,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Ruta_Avenida_Casa_4",
@@ -5509,7 +5517,8 @@
 			"frente": 0,
 			"color": "morado",
 			"desgaste": 0.65,
-			"tienda": true
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Ruta_Avenida_Escalera",
@@ -5622,7 +5631,9 @@
 			"pisos": 2,
 			"frente": 0,
 			"color": "rosa",
-			"desgaste": 0.73
+			"desgaste": 0.73,
+			"tienda": true,
+			"local": true
 		},
 		{
 			"nombre": "Ruta_SinAgua_Casa_6",
@@ -5763,21 +5774,11 @@
 			"murales": 60
 		},
 		{
-			"nombre": "Plinto_Kiosco",
-			"tipo": "plinto",
+			"nombre": "Tinaco_Comunitario",
+			"tipo": "tinaco_comunitario",
 			"x": -345.0,
 			"z": 404.0,
-			"rot": 0.0,
-			"radio": 5.6,
-			"alto": 0.45
-		},
-		{
-			"nombre": "Kiosco",
-			"tipo": "kiosco",
-			"x": -345.0,
-			"z": 404.0,
-			"rot": 0.0,
-			"y": 0.45
+			"rot": 0.0
 		},
 		{
 			"nombre": "Basamento_Palacio",
@@ -6300,420 +6301,6 @@
 			"radio": 2.5
 		},
 		{
-			"nombre": "Puesto_0",
-			"tipo": "puesto",
-			"x": -283.63,
-			"z": 335.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_1",
-			"tipo": "puesto",
-			"x": -277.83,
-			"z": 335.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_2",
-			"tipo": "puesto",
-			"x": -283.5,
-			"z": 338.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_3",
-			"tipo": "puesto",
-			"x": -277.7,
-			"z": 338.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_4",
-			"tipo": "puesto",
-			"x": -283.36,
-			"z": 342.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_5",
-			"tipo": "puesto",
-			"x": -277.56,
-			"z": 342.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_7",
-			"tipo": "puesto",
-			"x": -277.43,
-			"z": 345.8,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_8",
-			"tipo": "puesto",
-			"x": -283.1,
-			"z": 349.4,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_10",
-			"tipo": "puesto",
-			"x": -282.96,
-			"z": 353.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_11",
-			"tipo": "puesto",
-			"x": -277.16,
-			"z": 353.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_12",
-			"tipo": "puesto",
-			"x": -282.83,
-			"z": 356.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_13",
-			"tipo": "puesto",
-			"x": -277.03,
-			"z": 356.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_14",
-			"tipo": "puesto",
-			"x": -282.7,
-			"z": 360.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_15",
-			"tipo": "puesto",
-			"x": -276.9,
-			"z": 360.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_16",
-			"tipo": "puesto",
-			"x": -282.56,
-			"z": 363.8,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_17",
-			"tipo": "puesto",
-			"x": -276.76,
-			"z": 363.8,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_18",
-			"tipo": "puesto",
-			"x": -281.69,
-			"z": 389.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_19",
-			"tipo": "puesto",
-			"x": -275.89,
-			"z": 389.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_20",
-			"tipo": "puesto",
-			"x": -281.56,
-			"z": 392.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_21",
-			"tipo": "puesto",
-			"x": -275.76,
-			"z": 392.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_22",
-			"tipo": "puesto",
-			"x": -281.43,
-			"z": 396.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_23",
-			"tipo": "puesto",
-			"x": -275.63,
-			"z": 396.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_24",
-			"tipo": "puesto",
-			"x": -281.29,
-			"z": 399.8,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_25",
-			"tipo": "puesto",
-			"x": -275.49,
-			"z": 399.8,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_26",
-			"tipo": "puesto",
-			"x": -281.16,
-			"z": 403.4,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_27",
-			"tipo": "puesto",
-			"x": -275.36,
-			"z": 403.4,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_28",
-			"tipo": "puesto",
-			"x": -281.03,
-			"z": 407.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_30",
-			"tipo": "puesto",
-			"x": -280.9,
-			"z": 410.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_31",
-			"tipo": "puesto",
-			"x": -275.1,
-			"z": 410.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_32",
-			"tipo": "puesto",
-			"x": -280.77,
-			"z": 414.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_33",
-			"tipo": "puesto",
-			"x": -274.97,
-			"z": 414.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_34",
-			"tipo": "puesto",
-			"x": -280.64,
-			"z": 417.8,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_35",
-			"tipo": "puesto",
-			"x": -274.84,
-			"z": 417.8,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_36",
-			"tipo": "puesto",
-			"x": -280.5,
-			"z": 421.4,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_37",
-			"tipo": "puesto",
-			"x": -274.7,
-			"z": 421.4,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_38",
-			"tipo": "puesto",
-			"x": -280.37,
-			"z": 425.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_39",
-			"tipo": "puesto",
-			"x": -274.57,
-			"z": 425.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
-			"nombre": "Puesto_40",
-			"tipo": "puesto",
-			"x": -280.24,
-			"z": 428.6,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_41",
-			"tipo": "puesto",
-			"x": -274.44,
-			"z": 428.6,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_42",
-			"tipo": "puesto",
-			"x": -280.11,
-			"z": 432.2,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_43",
-			"tipo": "puesto",
-			"x": -274.31,
-			"z": 432.2,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
-			"nombre": "Puesto_44",
-			"tipo": "puesto",
-			"x": -279.98,
-			"z": 435.8,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "amarillo"
-		},
-		{
-			"nombre": "Puesto_46",
-			"tipo": "puesto",
-			"x": -279.85,
-			"z": 439.4,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rosa"
-		},
-		{
-			"nombre": "Puesto_47",
-			"tipo": "puesto",
-			"x": -274.05,
-			"z": 439.4,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "naranja"
-		},
-		{
-			"nombre": "Puesto_48",
-			"tipo": "puesto",
-			"x": -279.71,
-			"z": 443.0,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
-			"nombre": "Puesto_49",
-			"tipo": "puesto",
-			"x": -273.91,
-			"z": 443.0,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "azul"
-		},
-		{
 			"nombre": "Andador_0",
 			"tipo": "calle",
 			"x": -345.0,
@@ -7018,7 +6605,7 @@
 			"tipo": "escalera",
 			"x": -405.8,
 			"z": 307.1,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"alto": 5.55,
 			"ancho": 1.0,
 			"sentido": -1
@@ -7051,7 +6638,7 @@
 			"x": -269.6,
 			"z": 477.75,
 			"y": 8.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"alto": 3.5,
 			"tam": [8.0, 4.0],
 			"anuncio": "gela",
@@ -7079,7 +6666,7 @@
 			"tipo": "mercado",
 			"x": -347.0,
 			"z": 347.0,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [30.0, 18.0]
 		},
 		{
@@ -7127,7 +6714,7 @@
 			"tipo": "escalera",
 			"x": -315.1,
 			"z": 471.0,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"alto": 5.15,
 			"ancho": 1.0,
 			"sentido": 1
@@ -7360,7 +6947,7 @@
 			"tipo": "patio",
 			"x": -305.0,
 			"z": 304.8,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7404,7 +6991,7 @@
 			"tipo": "patio",
 			"x": -255.0,
 			"z": 356.8,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7448,7 +7035,7 @@
 			"tipo": "patio",
 			"x": -347.5,
 			"z": 306.8,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7456,7 +7043,7 @@
 			"tipo": "vecindad",
 			"x": -215.5,
 			"z": 400.0,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [22.0, 52.0]
 		}
 	],
@@ -7507,7 +7094,7 @@
 			"x": -395.05,
 			"z": 320.2,
 			"y": 14.85,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -50,
 			"alcance": 7.0
 		},
@@ -7595,7 +7182,7 @@
 			"x": -367.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -7605,7 +7192,7 @@
 			"x": -354.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -7615,7 +7202,7 @@
 			"x": -341.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -7625,7 +7212,7 @@
 			"x": -328.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -7704,7 +7291,7 @@
 			"x": -347.0,
 			"z": 337.6,
 			"y": 4.6,
-			"rot": -3.1416
+			"rot": 3.1416
 		},
 		{
 			"nombre": "Fila_Agua_0",
@@ -7807,7 +7394,8 @@
 			"texto": "OXO",
 			"x": -262.3,
 			"z": 458.86,
-			"rot": -0.0394
+			"rot": -0.0394,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_taqueria_1",
@@ -7817,7 +7405,8 @@
 			"texto": "Tacos La Casa del Taco",
 			"x": -269.28,
 			"z": 383.47,
-			"rot": -3.1148
+			"rot": -3.1148,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_abarrotes_2",
@@ -7825,9 +7414,10 @@
 			"auto": true,
 			"giro": "abarrotes",
 			"texto": "Mini Super Santa Mugre",
-			"x": -269.38,
-			"z": 408.38,
-			"rot": -1.5417
+			"x": -283.4,
+			"z": 391.66,
+			"rot": 1.6084,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_taqueria_3",
@@ -7835,9 +7425,10 @@
 			"auto": true,
 			"giro": "taqueria",
 			"texto": "Carnitas Via Mugre",
-			"x": -288.78,
-			"z": 285.29,
-			"rot": 1.6078
+			"x": -277.92,
+			"z": 284.16,
+			"rot": -1.5343,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_abarrotes_4",
@@ -7847,7 +7438,8 @@
 			"texto": "Abarrotes San Ignacio",
 			"x": -287.98,
 			"z": 269.19,
-			"rot": 1.607
+			"rot": 1.607,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_farmacia_5",
@@ -7857,7 +7449,8 @@
 			"texto": "Farmacia Mas o Menos Buena",
 			"x": -388.13,
 			"z": 465.27,
-			"rot": -3.1083
+			"rot": -3.1083,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_ferreteria_6",
@@ -7865,9 +7458,10 @@
 			"auto": true,
 			"giro": "ferreteria",
 			"texto": "Ferreteria El Clavo",
-			"x": -373.54,
-			"z": 466.36,
-			"rot": 3.057
+			"x": -360.27,
+			"z": 467.6,
+			"rot": 3.0841,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_abarrotes_7",
@@ -7875,9 +7469,10 @@
 			"auto": true,
 			"giro": "abarrotes",
 			"texto": "Cremeria La Casita",
-			"x": -340.98,
-			"z": 473.4,
-			"rot": 3.0589
+			"x": -348.97,
+			"z": 474.06,
+			"rot": 3.0332,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_licoreria_8",
@@ -7885,9 +7480,10 @@
 			"auto": true,
 			"giro": "licoreria",
 			"texto": "Vinos y Licores El Ultimo",
-			"x": -241.98,
-			"z": 476.07,
-			"rot": 3.1016
+			"x": -240.81,
+			"z": 459.7,
+			"rot": -0.039,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_purificadora_9",
@@ -7897,7 +7493,8 @@
 			"texto": "Purificadora Gota Pura",
 			"x": -275.5,
 			"z": 350.4,
-			"rot": -1.5335
+			"rot": -1.5335,
+			"local": true
 		},
 		{
 			"nombre": "Puerta_punto_10",
@@ -7953,6 +7550,14 @@
 			"x": -201.98,
 			"z": 303.95,
 			"rot": 1.6063
+		},
+		{
+			"nombre": "TinacoComunitario",
+			"tipo": "tinaco",
+			"x": -345.0,
+			"z": 404.0,
+			"y": 0.15,
+			"litros": 20000
 		}
 	],
 	"negocios": [
@@ -7968,7 +7573,8 @@
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "OXO"
+			"origen": "OXO",
+			"ajustado": true
 		},
 		{
 			"tipo": "taqueria",
@@ -7982,35 +7588,38 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Tacos La Casa del Taco"
+			"origen": "Tacos La Casa del Taco",
+			"ajustado": true
 		},
 		{
 			"tipo": "abarrotes",
 			"giro": "abarrotes",
 			"nombre": "Mini Super Santa Mugre",
-			"x": -266.0,
-			"z": 408.28,
-			"rotacion_y": -1.5417,
-			"ancho": 5.16,
-			"fondo": 5.17,
+			"x": -290.91,
+			"z": 391.94,
+			"rotacion_y": 1.6084,
+			"ancho": 6.11,
+			"fondo": 13.44,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Mini Super Santa Mugre"
+			"origen": "Mini Super Santa Mugre",
+			"ajustado": true
 		},
 		{
 			"tipo": "taqueria",
 			"giro": "taqueria",
 			"nombre": "Carnitas Via Mugre",
-			"x": -291.12,
-			"z": 285.37,
-			"rotacion_y": 1.6078,
-			"ancho": 3.51,
-			"fondo": 3.09,
+			"x": -272.13,
+			"z": 283.95,
+			"rotacion_y": -1.5343,
+			"ancho": 7.39,
+			"fondo": 10.0,
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Carnitas Via Mugre"
+			"origen": "Carnitas Via Mugre",
+			"ajustado": true
 		},
 		{
 			"tipo": "abarrotes",
@@ -8024,7 +7633,8 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Abarrotes San Ignacio"
+			"origen": "Abarrotes San Ignacio",
+			"ajustado": true
 		},
 		{
 			"tipo": "farmacia",
@@ -8038,49 +7648,53 @@
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Farmacia Mas o Menos Buena"
+			"origen": "Farmacia Mas o Menos Buena",
+			"ajustado": true
 		},
 		{
 			"tipo": "ferreteria",
 			"giro": "ferreteria",
 			"nombre": "Ferreteria El Clavo",
-			"x": -373.76,
-			"z": 468.98,
-			"rotacion_y": 3.057,
-			"ancho": 5.09,
-			"fondo": 3.66,
-			"pisos": 2,
+			"x": -360.34,
+			"z": 474.27,
+			"rotacion_y": 3.0841,
+			"ancho": 7.13,
+			"fondo": 11.73,
+			"pisos": 3,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Ferreteria El Clavo"
+			"origen": "Ferreteria El Clavo",
+			"ajustado": true
 		},
 		{
 			"tipo": "abarrotes",
 			"giro": "abarrotes",
 			"nombre": "Cremeria La Casita",
-			"x": -341.37,
-			"z": 478.73,
-			"rotacion_y": 3.0589,
-			"ancho": 5.45,
-			"fondo": 9.09,
+			"x": -349.46,
+			"z": 478.61,
+			"rotacion_y": 3.0332,
+			"ancho": 7.86,
+			"fondo": 7.55,
 			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Cremeria La Casita"
+			"origen": "Cremeria La Casita",
+			"ajustado": true
 		},
 		{
 			"tipo": "licoreria",
 			"giro": "licoreria",
 			"nombre": "Vinos y Licores El Ultimo",
-			"x": -242.09,
-			"z": 478.87,
-			"rotacion_y": 3.1016,
-			"ancho": 4.5,
-			"fondo": 4.0,
-			"pisos": 1,
+			"x": -240.6,
+			"z": 454.41,
+			"rotacion_y": -0.039,
+			"ancho": 6.4,
+			"fondo": 9.0,
+			"pisos": 2,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Vinos y Licores El Ultimo"
+			"origen": "Vinos y Licores El Ultimo",
+			"ajustado": true
 		},
 		{
 			"tipo": "purificadora",
@@ -8094,7 +7708,8 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "Purificadora Gota Pura"
+			"origen": "Purificadora Gota Pura",
+			"ajustado": true
 		},
 		{
 			"tipo": "punto",
@@ -8108,7 +7723,8 @@
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
-			"origen": "El Punto"
+			"origen": "El Punto",
+			"sin_flecha": true
 		}
 	],
 	"reservas": [
@@ -9169,6 +8785,97 @@
 				[-197.8, 278.2]
 			],
 			"alto": 0.75
+		}
+	],
+	"puestos_calle": [
+		{
+			"tipo": "puesto_tacos",
+			"nombre": "Tacos El Guero",
+			"x": -279.54,
+			"z": 448.81,
+			"rotacion_y": 1.6075,
+			"ancho": 2.6,
+			"fondo": 1.6,
+			"origen": "Tacos El Guero",
+			"giro": "puesto_tacos",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false,
+			"bajo_carpa": true
+		},
+		{
+			"tipo": "puesto",
+			"nombre": "Tejuino de Don Chuy",
+			"x": -282.06,
+			"z": 378.83,
+			"rotacion_y": 1.6075,
+			"ancho": 2.5,
+			"fondo": 2.0,
+			"origen": "Tejuino de Don Chuy",
+			"giro": "tejuino",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false,
+			"bajo_carpa": true
+		},
+		{
+			"tipo": "puesto_tacos",
+			"nombre": "Tacos Mi Compadre",
+			"x": -300.42,
+			"z": 464.74,
+			"rotacion_y": 3.05,
+			"ancho": 2.6,
+			"fondo": 1.6,
+			"origen": "Tacos Mi Compadre",
+			"giro": "puesto_tacos",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false
+		},
+		{
+			"tipo": "puesto",
+			"nombre": "Tejuino La Frescura",
+			"x": -338.98,
+			"z": 461.02,
+			"rotacion_y": 3.05,
+			"ancho": 2.5,
+			"fondo": 2.0,
+			"origen": "Tejuino La Frescura",
+			"giro": "tejuino",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": true,
+			"interactivo": false
+		}
+	],
+	"tianguis": [
+		{
+			"nombre": "Tianguis_Sur",
+			"a": [-276.47, 452.0],
+			"b": [-279.26, 376.0],
+			"arroyo": 8.0,
+			"banqueta": 1.5,
+			"pasillo": 2.6,
+			"semilla": 11,
+			"libres": [
+				[-274.0, 380.5, 7.5],
+				[-272.6, 418.0, 2.0]
+			]
+		},
+		{
+			"nombre": "Tianguis_Norte",
+			"a": [-279.51, 369.0],
+			"b": [-280.84, 333.0],
+			"arroyo": 8.0,
+			"banqueta": 1.5,
+			"pasillo": 2.6,
+			"semilla": 23,
+			"libres": [
+				[-275.0, 352.0, 3.5]
+			]
 		}
 	]
 }

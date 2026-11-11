@@ -1,0 +1,20 @@
+{
+	"res://models/casa_personaje/mesa/mesa.glb::ArrayMesh_5jjha#0": "res://models/tianguis/ligeras/mesa.glb__ArrayMesh_5jjha_0.res",
+	"res://models/casa_personaje/mesa/mesa.glb::ArrayMesh_8a2qj#0": "res://models/tianguis/ligeras/mesa.glb__ArrayMesh_8a2qj_0.res",
+	"res://models/interiores/estante_fruta/estante_fruta.scn::ArrayMesh_tysei#0": "res://models/tianguis/ligeras/estante_fruta.scn__ArrayMesh_tysei_0.res",
+	"res://models/objetos/carrito_super/carrito_super.scn::ArrayMesh_0q527#0": "res://models/tianguis/ligeras/carrito_super.scn__ArrayMesh_0q527_0.res",
+	"res://models/objetos/carrito_super/carrito_super.scn::ArrayMesh_gw4nx#0": "res://models/tianguis/ligeras/carrito_super.scn__ArrayMesh_gw4nx_0.res",
+	"res://models/objetos/chancla/chancla.scn::ArrayMesh_56qnq#0": "res://models/tianguis/ligeras/chancla.scn__ArrayMesh_56qnq_0.res",
+	"res://models/objetos/cloralex/cloralex.scn::ArrayMesh_u4jtk#0": "res://models/tianguis/ligeras/cloralex.scn__ArrayMesh_u4jtk_0.res",
+	"res://models/objetos/galon_agua/galon_agua.scn::ArrayMesh_6yt04#0": "res://models/tianguis/ligeras/galon_agua.scn__ArrayMesh_6yt04_0.res",
+	"res://models/objetos/gansito/gansito.scn::ArrayMesh_5ypgk#0": "res://models/tianguis/ligeras/gansito.scn__ArrayMesh_5ypgk_0.res",
+	"res://models/objetos/mexican_starter_pack/mochila.scn::ArrayMesh_8tnmc#0": "res://models/tianguis/ligeras/mochila.scn__ArrayMesh_8tnmc_0.res",
+	"res://models/objetos/mexican_starter_pack/mochila.scn::ArrayMesh_t0ec8#0": "res://models/tianguis/ligeras/mochila.scn__ArrayMesh_t0ec8_0.res",
+	"res://models/objetos/takis/takis.scn::ArrayMesh_g0mrs#0": "res://models/tianguis/ligeras/takis.scn__ArrayMesh_g0mrs_0.res",
+	"res://models/objetos/trapo/trapo.scn::ArrayMesh_p1tu6#0": "res://models/tianguis/ligeras/trapo.scn__ArrayMesh_p1tu6_0.res",
+	"res://models/tiendas/carrito/carrito.scn::ArrayMesh_5bpjh#0": "res://models/tianguis/ligeras/carrito.scn__ArrayMesh_5bpjh_0.res",
+	"res://models/tiendas/carrito/carrito.scn::ArrayMesh_8q73r#0": "res://models/tianguis/ligeras/carrito.scn__ArrayMesh_8q73r_0.res",
+	"res://models/tiendas/tacos_props/tacos_props.scn::ArrayMesh_dsery#0": "res://models/tianguis/ligeras/tacos_props.scn__ArrayMesh_dsery_0.res",
+	"res://models/tiendas/tacos_props/tacos_props.scn::ArrayMesh_qlht4#0": "res://models/tianguis/ligeras/tacos_props.scn__ArrayMesh_qlht4_0.res",
+	"res://models/tiendas/tacos_props/tacos_props.scn::ArrayMesh_w468k#0": "res://models/tianguis/ligeras/tacos_props.scn__ArrayMesh_w468k_0.res"
+}

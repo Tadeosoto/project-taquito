@@ -16,23 +16,25 @@
 #     edificio  "puntos": [[x, z]...] relativos a (x, z), la huella; "alto"; con choque (gris)
 #     casa      "puntos" (la huella), "pisos", "color" (nombre de kit.PALETA o [r, g, b]),
 #               "frente" (indice del lado que da a la calle: del punto i al i+1), "desgaste" 0-1,
-#               "tienda" (cortina en la planta baja), "tinaco"; con choque (kit.casa_malla)
+#               "tienda" (cortina en la planta baja), "tinaco"; con choque (kit.casa_malla);
+#               "local": no se arma (su fachada de negocio la pone MapPuntos, ver bloqueo._tiendas)
 #     suelo     "puntos": la mancha plana (pasto de la plaza, un baldio); sin choque
 #     calle     "puntos": el eje, "ancho" del arroyo y "banqueta" de cada lado; sin choque (va
 #               pintada sobre el piso). "material" (asfalto) y "material_banqueta" (banqueta)
 #               son pisos de kit.PISOS: un andador de la plaza es una calle de banqueta
-#     kiosco, puesto, banca, jardinera, fuente, parroquia, palacio
+#     tinaco_comunitario, puesto, banca, jardinera, fuente, parroquia, palacio
 #               piezas armadas de piezas.py, con sus parametros (ver cada funcion)
 #   "marcas": [{"nombre", "tipo": "spawn" | "puerta", "x", "z", "rot", ...}]
 #     puerta: "giro" (llave de Interiores.escenas) y "texto" (el nombre del negocio); su +Z da a
 #     la calle, como la flecha de las tiendas. Las marcas no van al .glb: exportar.py las escribe
 #     en resources/mapa/<colonia>/marcas.json y scripts/mapa/Colonia.gd las arma en Godot.
 
+import os
 import bpy
 import math
 
 _c = {"__name__": "comun"}
-exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\mapa\comun.py", encoding="utf-8").read(), _c)
+exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "comun.py"), encoding="utf-8").read(), _c)
 globals().update({k: v for k, v in _c.items() if not k.startswith("__")})
 
 PISO_COLOR = (0.32, 0.32, 0.30)
@@ -60,6 +62,8 @@ def armar(nombre):
     _arroyos(datos)
     terrazas = _terrazas(mundo, datos)
     for p in datos.get("piezas", []):
+        if p.get("local"):
+            continue    # la fachada de este negocio la pone MapPuntos (scripts/map/MapPuntos.gd)
         alto = _en_terraza(p, terrazas) - bajar_en_hundido(p, huecos)
         if alto:
             p = dict(p, y=p.get("y", 0.0) + alto)
@@ -70,6 +74,7 @@ def armar(nombre):
             ob[DATO] = "pieza:" + p["nombre"]
 
     _postes_y_cables(sc, mundo, datos.get("postes", []))
+    _tianguis_vista(sc, datos.get("tianguis", []))
     _carros(mundo, datos)
     _topes(mundo, datos)
     _tendederos(mundo, datos)
@@ -739,6 +744,27 @@ def _postes_y_cables(sc, mundo, postes):
     malla.materials.append(material("cable", (0.05, 0.05, 0.05)))
     ob = bpy.data.objects.new("Cables", malla)
     mundo.objects.link(ob)
+
+
+def _tianguis_vista(sc, tramos):
+    """Donde van las lonas del tianguis, para verlas en Blender (no se exporta): las carpas, los
+    puestos y los huecos frente a las puertas los arma Godot (scripts/mapa/Tianguis.gd con las
+    marcas de exportar.tianguis_marcas)."""
+    if not tramos:
+        return
+    vista = next((c for c in sc.collection.children if c.name.startswith(VISTA)), None) or coleccion(sc, VISTA)
+    lona = material("lona_tianguis", (0.85, 0.2, 0.45))
+    for t in tramos:
+        (ax, az), (bx, bz) = t["a"], t["b"]
+        largo = math.hypot(bx - ax, bz - az)
+        rot = math.atan2(-(bz - az), bx - ax)
+        arroyo, pasillo = t.get("arroyo", 8.0), t.get("pasillo", 2.6)
+        fondo = arroyo / 2 - pasillo / 2
+        for lado in (1, -1):
+            d = lado * (arroyo / 2 - fondo / 2)
+            x = (ax + bx) / 2 + math.sin(rot) * d
+            z = (az + bz) / 2 + math.cos(rot) * d
+            caja(vista, "%s_%d" % (t["nombre"], lado), x, z, rot, (largo, 0.05, fondo), lona, y=2.5, choca=False)
 
 
 DETALLE_TROZO = 20.0          # m: lo de los callejones va en objetos de este largo

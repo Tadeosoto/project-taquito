@@ -138,7 +138,7 @@ func _post_import(scene: Node) -> Object:
 
 
 func _por_nombre(nombre: String) -> bool:
-	return nombre == "fachada_kit" or nombre == "detalle_kit" or nombre == "azotea" or nombre == "mural" or PISOS.has(nombre)
+	return nombre == "fachada_kit" or nombre == "detalle_kit" or nombre == "azotea" or nombre == "mural" or nombre.begins_with("arbol_") or PISOS.has(nombre)
 
 
 # La escena importada todavia no esta en el arbol: el transform se arma con los de los padres
@@ -169,6 +169,16 @@ func _material(nombre: String, original: Material) -> Material:
 		material = ShaderMaterial.new()
 		material.shader = MURAL_SHADER
 		material.set_shader_parameter("albedo_texture", load("res://textures/mapa/murales.png"))
+		material.set_shader_parameter("affine_enabled", false)
+		material.set_shader_parameter("wobble_enabled", false)
+		material.set_shader_parameter("jitter_enabled", false)
+	elif nombre.begins_with("arbol_"):
+		# Los arboles de Tacos_ Props y de Sketchfab (textures/mapa/<nombre>.png, que el .glb no lleva):
+		# la corteza con ps1_combined y las hojas recortadas por alfa y sin culling
+		var ruta_arbol := "res://textures/mapa/%s.png" % nombre
+		material = ShaderMaterial.new()
+		material.shader = MURAL_SHADER if nombre.ends_with("hojas") else PS1_SHADER
+		material.set_shader_parameter("albedo_texture", load(ruta_arbol) if ResourceLoader.exists(ruta_arbol) else _blanca)
 		material.set_shader_parameter("affine_enabled", false)
 		material.set_shader_parameter("wobble_enabled", false)
 		material.set_shader_parameter("jitter_enabled", false)

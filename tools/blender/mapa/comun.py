@@ -16,7 +16,7 @@ import os
 import re
 from mathutils import Vector
 
-RAIZ = r"C:\Users\Big Boss\Documents\GitHub\project-taquito"
+RAIZ = os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito")
 MAPA = os.path.join(RAIZ, "tools", "blender", "mapa")
 COLONIAS = os.path.join(MAPA, "colonias")
 MODELOS = os.path.join(RAIZ, "models", "mapa")

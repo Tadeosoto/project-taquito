@@ -3,10 +3,11 @@
 # del .json de la colonia; colonia.py pone la malla y sus cajas de choque "-colonly".
 # Las medidas van en metros; el frente de cada pieza es su +Z (la calle o la plaza).
 
+import os
 import math
 
 _k = {"__name__": "kit", "SOLO_FUNCIONES": True}
-exec(open(r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\mapa\kit.py", encoding="utf-8").read(), _k)
+exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "kit.py"), encoding="utf-8").read(), _k)
 globals().update({k: v for k, v in _k.items() if not k.startswith("__") and k != "SOLO_FUNCIONES"})
 
 LONAS = {"rojo": (0.8, 0.18, 0.2), "azul": (0.15, 0.4, 0.78), "amarillo": (0.92, 0.75, 0.15),
@@ -93,81 +94,32 @@ def fuente(nombre, p):
     return k
 
 
-def kiosco(nombre, p):
-    """El kiosco de la plaza (como el de Arandas: basamento octagonal de cantera con arquitos,
-    galeria de vidrio con marcos de fierro verde, techo verde abombado y linternilla), que se
-    volvio la torre de agua del barrio: el tinaco comunitario va montado arriba, con su
-    escalera, la manguera que baja a la llave y el letrero de GelA."""
+def tinaco_comunitario(nombre, p):
+    """Lo que rodea al tinaco comunitario, en el centro de la plaza (el tinaco lo pone Colonia.gd, marca "tinaco", y ahi
+    va la mision de la defensa del tinaco): una losa baja de concreto, la llave del agua y el letrero de GelA."""
     k = Constructor(nombre)
-    r = p.get("radio", 4.4)
-    lados = 8
-    giro0 = math.tau / 16
-    def anillo(radio, y):
-        return [(math.cos(i * math.tau / lados + giro0) * radio, y, math.sin(i * math.tau / lados + giro0) * radio) for i in range(lados)]
-    # Escalones y basamento con un arquito oscuro en cada cara
-    k.cilindro((0, 0, 0), r + 0.9, 0.2, "foto_cantera_rosa", lados=lados, choca=True)
-    k.cilindro((0, 0.2, 0), r + 0.5, 0.2, "foto_cantera_rosa", lados=lados)
-    k.cilindro((0, 0.4, 0), r, 1.0, "foto_cantera_rosa", lados=lados, choca=True)
-    ab = anillo(r + 0.01, 0.4)
-    for i in range(lados):
-        a, b = ab[i], ab[(i + 1) % lados]
-        mx, mz = (a[0] + b[0]) / 2, (a[2] + b[2]) / 2
-        giro = math.atan2(mx, mz)
-        k.caja((mx, 0.85, mz), (0.9, 0.6, 0.05), "vidrio", giro)
-    piso = 1.4
-    # Galeria: marcos de fierro verde, vidrio entre ellos, una puerta al frente
-    rg = r - 0.4
-    pg = anillo(rg, piso)
-    alto_g = 2.6
-    for i in range(lados):
-        a = pg[i]
-        k.cilindro((a[0], piso, a[2]), 0.09, alto_g + 0.6, "fierro_verde", lados=5)
-    for i in range(lados):
-        a, b = pg[i], pg[(i + 1) % lados]
-        if i == 2:          # la puerta (frente, +Z)
-            k.caja(((a[0] + b[0]) / 2, piso + alto_g, (a[2] + b[2]) / 2), (math.hypot(b[0] - a[0], b[2] - a[2]), 0.12, 0.12),
-                   "fierro_verde", math.atan2((a[0] + b[0]) / 2, (a[2] + b[2]) / 2))
-            continue
-        k.cara([(b[0], piso + 0.1, b[2]), (a[0], piso + 0.1, a[2]), (a[0], piso + alto_g, a[2]), (b[0], piso + alto_g, b[2])], "vidrio")
-        k.cara([(a[0], piso + 0.1, a[2]), (b[0], piso + 0.1, b[2]), (b[0], piso + alto_g, b[2]), (a[0], piso + alto_g, a[2])], "vidrio")
-        for y in (piso + 0.1, piso + 1.0, piso + alto_g):
-            k.caja(((a[0] + b[0]) / 2, y, (a[2] + b[2]) / 2), (math.hypot(b[0] - a[0], b[2] - a[2]), 0.08, 0.08),
-                   "fierro_verde", math.atan2((a[0] + b[0]) / 2, (a[2] + b[2]) / 2))
-    # Techo: cornisa, faldon verde abombado (dos tramos) y la linternilla
-    techo = piso + alto_g + 0.6
-    k.cilindro((0, techo - 0.25, 0), r + 0.4, 0.3, "fierro_verde", lados=lados)
-    k.cilindro((0, techo + 0.05, 0), r + 0.4, 0.9, "foto_lamina_verde", lados=lados, radio_arriba=r * 0.6, tapa=False)
-    k.cilindro((0, techo + 0.95, 0), r * 0.6, 0.7, "foto_lamina_verde", lados=lados, radio_arriba=1.9, tapa=False)
-    losa = techo + 1.65
-    k.cilindro((0, losa, 0), 2.0, 0.25, "concreto", lados=lados)
-    # El tinaco comunitario (2.2 m, 10 mil litros) con su tapa, en lugar de la linternilla
-    tinaco = losa + 0.25
-    k.cilindro((0, tinaco, 0), 1.5, 2.2, "tinaco", lados=12)
-    k.cono((0, tinaco + 2.2, 0), 1.5, 0.45, "tinaco", lados=12)
-    # Escalera de gato por atras, de la galeria al tinaco
-    atras = -(r + 0.45)
-    for lado in (-0.25, 0.25):
-        k.caja((lado, (piso + tinaco + 2.2) / 2, atras), (0.05, tinaco + 2.2 - piso, 0.05), "fierro")
-    for y in range(int((tinaco + 2.2 - piso) / 0.35)):
-        k.caja((0, piso + 0.3 + y * 0.35, atras), (0.5, 0.04, 0.04), "fierro")
-    # La manguera baja por un marco a la llave, al pie del basamento, y su letrero de GelA
-    col = pg[1]
-    k.caja((col[0] * 1.08, (0.6 + losa) / 2, col[2] * 1.08), (0.08, losa - 0.6, 0.08), "manguera")
-    k.caja((col[0] * 1.2, 0.9, col[2] * 1.2), (0.14, 0.14, 0.4), "llave", math.atan2(col[0], col[2]))
-    k.caja((r + 0.55, 1.6, -1.6), (0.05, 0.8, 1.4), "azul_gela", math.pi / 2)
+    k.cilindro((0, 0, 0), 2.3, 0.15, "concreto", lados=12)
+    k.caja((1.95, 0.45, 0), (0.14, 0.14, 0.4), "llave", math.pi / 2)
+    for lado in (-0.6, 0.6):
+        k.caja((2.9, 0.6, lado), (0.08, 1.2, 0.08), "fierro")
+    k.caja((2.9, 1.4, 0), (0.05, 0.8, 1.4), "azul_gela", math.pi / 2)
     return k
 
 
 def ficus(nombre, p):
-    """Ficus podado en bola, como los de la plaza de Arandas, en su cajete de cantera con pasto."""
+    """Arbol en su cajete de cantera con pasto: uno de cuatro tipos, al azar (antes un ficus podado en bola)."""
     k = Constructor(nombre)
     alto = p.get("alto", 4.2)
     radio = p.get("radio", 2.0)
     k.caja((0, 0.15, 0), (1.6, 0.3, 1.6), "foto_cantera_rosa")
     k.cara([(-0.7, 0.31, 0.7), (0.7, 0.31, 0.7), (0.7, 0.31, -0.7), (-0.7, 0.31, -0.7)], "hojas")
-    k.cilindro((0, 0.3, 0), 0.18, alto - radio, "foto_madera", lados=6, radio_arriba=0.13)
-    k.esfera((0, alto, 0), radio, "hojas", seg=8, anillos=6, aplastar=0.85)
-    k.choques.append(((0, 0.9, 0), (0.6, 1.8, 0.6), 0.0))
+    # Al azar (fijo por nombre, kit.arbol_tipo): el arbolito de Tacos_ Props (extraer_arbol_tacos.gd), con dos
+    # variantes giradas distinto, o uno de Sketchfab (kit.ARBOLES_EXTRA), que dibuja ArbolesModelo.gd y no se arma aqui
+    tipo = arbol_tipo(nombre)
+    semilla = sum(ord(c) for c in nombre)
+    if tipo == 0:
+        k.arbol_modelo((0, 0.3, 0), radio * 2, variante=semilla, giro=semilla * 0.7, alto_max=alto + radio * 0.85)
+        k.choques.append(((0, 0.9, 0), (0.6, 1.8, 0.6), 0.0))
     return k
 
 
@@ -1414,7 +1366,7 @@ def escombro(nombre, p):
     return k
 
 
-PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
+PIEZAS = {"tinaco_comunitario": tinaco_comunitario, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
           "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "escalinata": escalinata, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
