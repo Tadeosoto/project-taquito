@@ -20,7 +20,7 @@ godot --path . --headless --check-only --script res://scripts/player.gd  # parse
 
 ## Work in progress (tell the user when a session starts)
 
-- **Protagonist swap** (merged into `golpe-direccion`): the ninja protagonist is now `el_compa` with retargeted Quaternius clips (see `docs/sistemas/personaje.md`): the swing is the sword clips, the trail follows the weapon tip, and the pistol uses the pistol clips. Store sellers and street walkers are PSX-pack civilians too (see NPC and People); other NPCs stay ninja. Clothes colour for the new model is pending.
+- **Protagonist swap** (in `main-testing`): the ninja protagonist is now `el_compa` with retargeted Quaternius clips (see `docs/sistemas/personaje.md`): the swing is the sword clips, the trail follows the weapon tip, and the pistol uses the pistol clips. Store sellers and street walkers are PSX-pack civilians too (see NPC and People); other NPCs stay ninja. Clothes colour for the new model is pending.
 - **Pending fight work (JJ, 2026-11-04)**, listed in Spanish in `docs/pruebas-balance.md` ("Pendientes de la pelea"): a new healing animation (Q, `Player._curarse`; Quaternius has `Consume`), a 10 % chance that a zombie blocks a melee hit (the machete bounces back with a little lag), and a better fight HUD, and a better block sound.
 - **Balance pending**: weapon damage, zombie life/speed, tinaco life, hordes and pay are first guesses. `docs/pruebas-balance.md` (Spanish) lists every number, where it lives and how Alan should run the test; record results there.
 

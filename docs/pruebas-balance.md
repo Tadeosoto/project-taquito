@@ -1,6 +1,6 @@
 # Pendiente: pruebas de balance de la pelea
 
-Rama: `testing-juanjo` (antes `golpe-direccion` y `qatest`, unidas el 2026-11-11). Hasta ahora los números se pusieron a ojo, solo para que la escena funcione. Falta jugarla para decidir cuánto vale cada cosa. Esta guía es para quien haga la prueba (Alan, para empezar).
+Rama: `main-testing` (el trabajo de `testing-juanjo`, antes `golpe-direccion` y `qatest`, se mezcló el 2026-11-11). Hasta ahora los números se pusieron a ojo, solo para que la escena funcione. Falta jugarla para decidir cuánto vale cada cosa. Esta guía es para quien haga la prueba (Alan, para empezar).
 
 > **Nuevo (2026-11): dos escenarios de prueba con datos.** Ya no hay que correr comandos para probar. En el menú principal, **Inicio → Menú test** abre un menú alternativo con las tres entradas visibles: **Map test**, **Test de mecánicas (godmode)** y **Test de economía (carrera)** (ahí mismo se cambian dificultad y duración). **Inicio → Pruebas** sigue siendo el lanzador detallado, con la config de enemigos y el botón para abrir la carpeta de datos. Los dos tests usan **la misma defensa** (arena, zombis, Hordas, tinaco, ítems y estética): lo que cambies allí entra en los dos.
 >

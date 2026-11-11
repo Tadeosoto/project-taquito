@@ -96,7 +96,7 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 
 > En multijugador por navegador, B es también lo más simple de sincronizar (se manda "disparé al zombi #123", no un rayo).
 >
-> 🧪 **En prueba (rama `testing-juanjo`, decisión de JJ para probar, no cierra la votación):** la A, estilo Fortnite: cámara al hombro, el personaje viendo hacia donde apuntas, clic derecho para apuntar con zoom, mira al centro y una ayuda chica (el zombi más cercano a la mira dentro de 4° si se ve). Pistola con R, cargador de 12 y recarga sola, balas sin fin. Ver `scripts/Pistola.gd`.
+> 🧪 **En prueba (en `main-testing`, decisión de JJ para probar, no cierra la votación):** la A, estilo Fortnite: cámara al hombro, el personaje viendo hacia donde apuntas, clic derecho para apuntar con zoom, mira al centro y una ayuda chica (el zombi más cercano a la mira dentro de 4° si se ve). Pistola con R, cargador de 12 y recarga sola, balas sin fin. Ver `scripts/Pistola.gd`.
 
 ### 1.5 🗳️ Qué pasa al morir
 
