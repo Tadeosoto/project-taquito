@@ -470,8 +470,9 @@ def cancha(nombre, p):
         k.caja((0, 1.0, z + signo * 0.6), (3.0, 2.0, 0.02), "malla")
         k.choques.append(((0, 1.0, z + signo * 0.3), (3.2, 2.0, 0.7), 0.0))
 
-    # Lados: (nombre, a, b, normal hacia adentro); a -> b deja la normal como en barda()
-    # (direccion = (n.z, -n.x)), asi los murales quedan viendo hacia adentro
+    # Lados: (nombre, a, b, normal hacia adentro). Ojo: a -> b va al reves que en barda()
+    # (alla la direccion es (n.z, -n.x)), por eso los murales se piden de b a a; si no, se leen
+    # en espejo desde adentro
     lados = [("-z", (hx, -hz), (-hx, -hz), (0.0, 1.0)), ("+z", (-hx, hz), (hx, hz), (0.0, -1.0)),
              ("-x", (-hx, -hz), (-hx, hz), (1.0, 0.0)), ("+x", (hx, hz), (hx, -hz), (-1.0, 0.0))]
     puerta = 1.2
@@ -502,7 +503,7 @@ def cancha(nombre, p):
                 diseno = elegir_mural(semilla + n_mural * 13, "propaganda" if (semilla + n_mural) % 3 == 0 else "grafiti")
                 a = (ax + ux * s0, az + uz * s0)
                 b = (ax + ux * s1, az + uz * s1)
-                esquinas, uvs = esquinas_mural(a, b, 0.25, (nx, nz), diseno, 3.4, muro - 0.45, salir=0.13)
+                esquinas, uvs = esquinas_mural(b, a, 0.25, (nx, nz), diseno, 3.4, muro - 0.45, salir=0.13)
                 k.cara([(x, z, y) for x, y, z in esquinas], "mural", uvs=uvs)
             # Malla ciclonica encima del muro: tubos, alambres parados cada 0.4 m y postes cada 2.5 m
             for y in (muro + 0.1, (muro + alto) / 2, alto):
@@ -521,10 +522,11 @@ def cancha(nombre, p):
                 diseno = elegir_mural(semilla * 3 + i * 7 + (11 if nom == "+x" else 0), "propaganda")
                 a = (ax + ux * (s - 1.8), az + uz * (s - 1.8))
                 b = (ax + ux * (s + 1.8), az + uz * (s + 1.8))
-                esquinas, uvs = esquinas_mural(a, b, muro + 0.3, (nx, nz), diseno, 3.6, alto - muro - 0.8, salir=0.06)
+                esquinas, uvs = esquinas_mural(b, a, muro + 0.3, (nx, nz), diseno, 3.6, alto - muro - 0.8, salir=0.06)
                 frente = [(x, z, y) for x, y, z in esquinas]
                 k.cara(frente, "mural", uvs=uvs)
-                k.cara(frente[::-1], "lona_azul")
+                # El reverso 3 cm mas afuera: el mural no tiene culling y en el mismo plano peleaban
+                k.cara([(x - nx * 0.03, y, z - nz * 0.03) for x, y, z in frente][::-1], "lona_azul")
 
     # Entrada: marco de fierro con dintel (la malla sigue arriba) y la reja abierta hacia adentro
     if puerta_en:

@@ -235,6 +235,9 @@ const NOCHE_ESPERA := 90.0     # s de noche (cuadros de fisica) para que salga e
 
 
 func _vida(escena: Node) -> void:
+	var chamacos := escena.find_child("Ninos_Cancha", true, false) as Node3D
+	_revisar("de dia juegan chamacos en la cancha", chamacos != null and chamacos.visible and chamacos.get_child_count() > 3,
+		"%s" % chamacos)
 	var piezas := root.get_tree().get_nodes_in_group("piezas_mapa").size()
 	var botin := 0
 	for n in escena.find_children("Botin_*", "", true, false):
@@ -260,6 +263,10 @@ func _vida(escena: Node) -> void:
 	_revisar("salen zombis de noche", zombis > 0, "%d" % zombis)
 	_revisar("reflector de la cancha prendido de noche", reflector != null and reflector.visible and reflector.light_energy > 1.0,
 		"energia %.2f" % (reflector.light_energy if reflector else -1.0))
+	var ninos := escena.find_child("Ninos_Cancha", true, false) as Node3D
+	var guardia := escena.find_child("Guardia_GelA_0", true, false) as Node3D
+	_revisar("de noche no hay chamacos ni guardias", ninos != null and not ninos.visible and guardia != null and not guardia.visible,
+		"%s %s" % [ninos, guardia])
 	var foco := escena.find_child("Foco_0", true, false) as Light3D
 	_revisar("foco del callejon prendido de noche", foco != null and foco.visible, "%s" % foco)
 

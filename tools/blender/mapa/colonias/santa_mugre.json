@@ -6821,15 +6821,6 @@
 			"lona": "amarillo"
 		},
 		{
-			"nombre": "Puesto_45",
-			"tipo": "puesto",
-			"x": -274.18,
-			"z": 435.8,
-			"rot": -1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "verde"
-		},
-		{
 			"nombre": "Puesto_46",
 			"tipo": "puesto",
 			"x": -279.85,
@@ -7202,10 +7193,10 @@
 		{
 			"nombre": "Tortilleria_Lupita",
 			"tipo": "tortilleria",
-			"x": -269.62,
-			"z": 436.2,
+			"x": -271.57,
+			"z": 436.24,
 			"rot": -1.5308,
-			"ancho": 4.4
+			"ancho": 3.6
 		},
 		{
 			"nombre": "Cancha_Casa_E1",
@@ -7692,8 +7683,8 @@
 			"tipo": "puerta",
 			"giro": "tortilleria",
 			"texto": "TORTILLERIA LA LUPITA",
-			"x": -271.9,
-			"z": 436.29,
+			"x": -273.85,
+			"z": 436.33,
 			"rot": -1.5308
 		},
 		{
@@ -7719,6 +7710,29 @@
 			"z": 313.8,
 			"y": 5.55,
 			"rot": 0.0
+		},
+		{
+			"nombre": "Ninos_Cancha",
+			"tipo": "ninos",
+			"x": -392.0,
+			"z": 305.5,
+			"rot": 0.0,
+			"tam": [9.0, 15.0],
+			"cuantos": 6
+		},
+		{
+			"nombre": "Guardia_GelA_0",
+			"tipo": "vecino",
+			"x": -342.8,
+			"z": 453.7,
+			"rot": 3.0457
+		},
+		{
+			"nombre": "Guardia_GelA_1",
+			"tipo": "vecino",
+			"x": -346.0,
+			"z": 453.3,
+			"rot": 3.0457
 		}
 	],
 	"negocios": [

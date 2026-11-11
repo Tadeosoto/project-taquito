@@ -534,7 +534,9 @@ def bloquear(nombre):
     marcas += _vecinos(datos.get("vecinos", []), todas_casas, usadas)
     datos["marcas"] = [m for m in datos.get("marcas", []) if not m.get("auto")] + marcas
     # Ningun puesto del tianguis enfrente de una puerta (si no, no se llega a la flecha)
-    tapan = [p for p in piezas if p["tipo"] == "puesto" and any(math.hypot(p["x"] - m["x"], p["z"] - m["z"]) < PUESTO_LIBRE for m in marcas)]
+    # (las puertas puestas a mano tambien: la tortilleria)
+    puertas = [m for m in datos["marcas"] if m.get("tipo") == "puerta"]
+    tapan = [p for p in piezas if p["tipo"] == "puesto" and any(math.hypot(p["x"] - m["x"], p["z"] - m["z"]) < PUESTO_LIBRE for m in puertas)]
     piezas = [p for p in piezas if p not in tapan]
     datos["piezas"] = nuevas + piezas
     guardar_json(ruta_colonia(nombre), datos)

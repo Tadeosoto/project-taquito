@@ -221,8 +221,8 @@
 			"tipo": "puerta",
 			"giro": "tortilleria",
 			"texto": "TORTILLERIA LA LUPITA",
-			"x": -271.9,
-			"z": 436.29,
+			"x": -273.85,
+			"z": 436.33,
 			"rot": -1.5308
 		},
 		{
@@ -248,6 +248,29 @@
 			"z": 313.8,
 			"y": 5.55,
 			"rot": 0.0
+		},
+		{
+			"nombre": "Ninos_Cancha",
+			"tipo": "ninos",
+			"x": -392.0,
+			"z": 305.5,
+			"rot": 0.0,
+			"tam": [9.0, 15.0],
+			"cuantos": 6
+		},
+		{
+			"nombre": "Guardia_GelA_0",
+			"tipo": "vecino",
+			"x": -342.8,
+			"z": 453.7,
+			"rot": 3.0457
+		},
+		{
+			"nombre": "Guardia_GelA_1",
+			"tipo": "vecino",
+			"x": -346.0,
+			"z": 453.3,
+			"rot": 3.0457
 		},
 		{
 			"nombre": "Foco_0",

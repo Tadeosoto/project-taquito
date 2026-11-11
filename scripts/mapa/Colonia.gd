@@ -18,6 +18,10 @@ extends Node3D
 #           "alcance" m; se prende de noche con Ciclo.valor()
 #   foco    un foco colgado de un cable en un callejon (los escribe exportar.py, no van en el
 #           .json): luz chica y calida, de noche, y uno de cada FOCO_PARPADEA parpadea
+#   ninos   chamacos jugando futbolito de dia (NinosCancha) en un rectangulo "tam" [ancho, largo]
+#           alrededor de la marca, "cuantos"
+#   vecino  un civil parado ahi de dia (los guardias del reten de GelA): "clip" (Idle por
+#           omision) y "modelo" de Civiles (o uno fijo por su nombre); de noche no esta
 #   mision  un punto con nombre para las misiones (Colonia.puntos_mision): donde se para el que
 #           da una ("donde" de MisionData) o donde esta lo que hay que recoger
 #   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
@@ -48,6 +52,7 @@ var _marcas: Array = []
 var _reflectores: Array[Light3D] = []
 var _energias: Array[float] = []      # la de cada luz de _reflectores, de noche
 var _parpadean: Array[bool] = []
+var _de_dia: Array[Node3D] = []      # los "vecino": se esconden de noche
 var _ciclo: Node
 
 # Reflectores (marca "reflector"): luz calida sin sombra, como los de la cancha de la foto
@@ -100,11 +105,15 @@ func _ready() -> void:
 				_foco(marca)
 			"botin":
 				_botin(marca)
+			"ninos":
+				_ninos(marca)
+			"vecino":
+				_vecino(marca)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
 
-	set_process(not _reflectores.is_empty())
+	set_process(not _reflectores.is_empty() or not _de_dia.is_empty())
 
 
 # Los reflectores siguen a Ciclo.valor() (0 de dia, 1 de noche), asi se prenden al oscurecer
@@ -114,6 +123,8 @@ func _process(_delta: float) -> void:
 		if _ciclo == null:
 			return
 	var noche := float(_ciclo.valor())
+	for vecino in _de_dia:
+		vecino.visible = noche < NinosCancha.NOCHE_DESDE
 	var t := Time.get_ticks_msec() / 1000.0
 	for i in _reflectores.size():
 		var energia := _energias[i] * noche
@@ -152,6 +163,29 @@ func _foco(marca: Dictionary) -> void:
 	luz.transform = lugar(marca)
 	add_child(luz)
 	_agregar_luz(luz, FOCO_ENERGIA, _reflectores.size() % FOCO_PARPADEA == 1)
+
+
+func _ninos(marca: Dictionary) -> void:
+	var ninos := NinosCancha.new()
+	ninos.name = String(marca.get("nombre", "Ninos"))
+	var tam: Array = marca.get("tam", [9.0, 16.0])
+	ninos.tam = Vector2(float(tam[0]), float(tam[1]))
+	ninos.cuantos = int(marca.get("cuantos", 6))
+	ninos.transform = lugar(marca)
+	add_child(ninos)
+
+
+func _vecino(marca: Dictionary) -> void:
+	var nodo := Node3D.new()
+	nodo.name = String(marca.get("nombre", "Vecino"))
+	# El civil ve hacia el -Z de su padre y la marca hacia su +Z: se voltea
+	var t := lugar(marca)
+	t.basis = t.basis * Basis(Vector3.UP, PI)
+	nodo.transform = t
+	add_child(nodo)
+	var modelo := String(marca.get("modelo", Civiles.elegir(nodo.name)))
+	Civiles.poner(nodo, modelo, String(marca.get("clip", "Idle")))
+	_de_dia.append(nodo)
 
 
 func _botin(marca: Dictionary) -> void:
