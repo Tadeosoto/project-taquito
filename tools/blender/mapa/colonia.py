@@ -471,6 +471,40 @@ def _tendederos(mundo, datos):
     mundo.objects.link(ob)
 
 
+FOCO_CADA = (10.0, 15.0)      # m entre focos colgados a lo largo de un callejon
+FOCO_ALTO = (3.7, 4.3)        # m del cable que lo cuelga
+
+
+def focos_callejones(datos):
+    """Donde cuelga un foco en cada callejon: [(x, y, z), ...] en metros del juego. colonia.py
+    dibuja el foco y su cable; exportar.py los vuelve marcas "foco" (Colonia.gd pone la luz)."""
+    focos = []
+    for p in datos.get("piezas", []):
+        if p["tipo"] != "calle" or p.get("material") != "empedrado" or p.get("banqueta", 0) > 0:
+            continue
+        semilla = sum((i + 1) * ord(ch) for i, ch in enumerate(p["nombre"]))
+        r = __import__("random").Random(semilla * 11 + 5)
+        (ax, az), (bx, bz) = [(p["x"] + a, p["z"] + b) for a, b in p["puntos"][:2]]
+        largo = math.hypot(bx - ax, bz - az)
+        ux, uz = (bx - ax) / (largo or 1.0), (bz - az) / (largo or 1.0)
+        s = r.uniform(4.0, 8.0)
+        while s < largo - 2.0:
+            focos.append((round(ax + ux * s, 2), round(r.uniform(*FOCO_ALTO), 2), round(az + uz * s, 2), p["ancho"], ux, uz))
+            s += r.uniform(*FOCO_CADA)
+    return focos
+
+
+def _focos(c, datos):
+    """El cable de fachada a fachada y el foco colgando de un cordon, en el Constructor `c`."""
+    for x, y, z, ancho, ux, uz in focos_callejones(datos):
+        nx, nz = -uz, ux
+        medio = ancho / 2 + 0.5
+        giro = math.atan2(-nz, nx)
+        c.caja((x, y, z), (medio * 2, 0.02, 0.02), "cable", giro)
+        c.caja((x, y - 0.15, z), (0.015, 0.3, 0.015), "cable")
+        c.esfera((x, y - 0.36, z), 0.08, "farol", seg=6, anillos=4)
+
+
 def _capilla(c, x, z, giro):
     """Capillita de la Virgen del Tinaco (lore: el culto se cuela en Santa Mugre): pedestal,
     nicho de cal con techito azul, un tinaquito de yeso con su aureola, veladoras y flores.
@@ -538,6 +572,7 @@ def _vida_callejones(mundo, datos):
             lado = r.choice((-1, 1))
             _basura(c, ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r)
             s += r.uniform(8.0, 16.0)
+    _focos(c, datos)
     if not hubo:
         return
     mundo.objects.link(bpy.data.objects.new("Callejones_Vida", c.terminar()))

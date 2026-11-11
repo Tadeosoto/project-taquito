@@ -121,6 +121,7 @@ Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
 7. Rejas de herreria (negras, blancas, verdes o rojas, una por casa) en las ventanas de planta baja (`kit._detalles_casa`, sobre el mosaico `VENTANA_ABAJO`).
 8. Media canchita de basquet como quinta variante de los lotes (`lote` `basquet`; `bloqueo.VARIANTES_LOTE` se turna, asi que los baldios cambiaron de variante).
 9. Reflectores de la cancha prendidos de noche (marca nueva `reflector` en `Colonia.gd`, dos `SpotLight3D` sin sombra que siguen a `Ciclo.valor()`; prueba nueva de dia y de noche). Los dos espectaculares tambien se iluminan de noche (reflectores hacia arriba, `baja` negativa, `alcance` 7 m).
+10. Focos colgados en los callejones (24, uno cada 10-15 m): `colonia.focos_callejones` da donde van, `colonia.py` dibuja cable y foco, `exportar.py` los escribe como marcas `foco` (no van en el `.json`) y `Colonia.gd` pone una `OmniLight3D` chica de noche; uno de cada cuatro parpadea.
 
 Costo medido con `tools/mapa/medir_colonia.gd` (maquina de AG, de dia), antes de esta noche y despues de los 7 puntos: plaza 293 a 287 fps (primitivas 124k a 228k), tianguis 283 a 278 (195k a 339k), vecindad 287 a 280, avenida 335 a 321, cancha 304 a 298 (llamadas de dibujo 539 a 661). Baja 2-4 % de fps pero casi se doblan las primitivas: si pesa en maquinas lentas, lo primero es quitar los barrotes de las rejas y los climas de las casas lejanas (o darles `visibility_range_end` en Godot como a los cuadros de `map_test`).
 
@@ -133,7 +134,6 @@ Ideas que siguen, en orden (del plan de esa noche):
 - Tiendita en cochera; tortilleria con fila.
 - Base chica de GelA con pipa de agua; mercado techado de lamina.
 - Atajos por patios (huecos en bardas) y botin en azoteas (premia subir).
-- Luz de noche: focos colgados en las privadas (marcas `reflector` o luces de `MapAlumbrado`).
 - Fachadas: mas saturadas, salitre y humedad abajo; casas de ladrillo aparente como en la foto (`casa` con `acabado`).
 - Suelo: grietas, parches, banquetas rotas por las raices.
 

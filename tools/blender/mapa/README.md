@@ -66,6 +66,7 @@ exec(open(R + r"\colonia.py", encoding="utf-8").read(), {"__name__": "colonia", 
   - `puerta`: la flecha amarilla de un negocio o casa. Su `giro` es la llave de `Interiores.escenas` y su +Z da a la calle. Sin interior dice "Próximamente".
   - `yonke`: el Yonke de Don Chava (`YonkeMapa`, con su barda), su +Z a la calle.
   - `reflector`: una luz de reflector a la altura `y`, viendo a su +Z e inclinada `baja` grados; se prende de noche (`Ciclo.valor()`). Los de la cancha van en sus postes.
+  - `foco`: no se escribe a mano; `exportar.py` agrega uno por cada foco colgado de los callejones (`colonia.focos_callejones`).
 - **Rutas** (`rutas`): tramos de frente de calle (`a`, `b`, `lado`, `fondo`) que `bloqueo.py` reserva y llena con una fila de casas de dos pisos con la azotea pareja y una `escalera` en la punta `a`: por ahi se escapa de los zombis de noche.
 - **Postes** (`postes`, los pone `bloqueo.py`): uno cada 26 m por calle, turnando la banqueta, con el esquema de `resources/map/alumbrado_mapa.json`. `exportar.py` los escribe en `resources/mapa/<colonia>/alumbrado.json` y en Godot los arma `MapAlumbrado` (con su luz de noche); en Blender salen de vista en la coleccion `Vista`, que no se exporta, y los cables colgados de poste a poste si van al .glb.
 - **Callejones:** calles de `empedrado` sin banqueta puestas a mano (con su reserva y un `patio`); `bloqueo.py` les pone casas que les dan el frente.

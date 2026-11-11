@@ -254,6 +254,8 @@ func _vida(escena: Node) -> void:
 	_revisar("salen zombis de noche", zombis > 0, "%d" % zombis)
 	_revisar("reflector de la cancha prendido de noche", reflector != null and reflector.visible and reflector.light_energy > 1.0,
 		"energia %.2f" % (reflector.light_energy if reflector else -1.0))
+	var foco := escena.find_child("Foco_0", true, false) as Light3D
+	_revisar("foco del callejon prendido de noche", foco != null and foco.visible, "%s" % foco)
 
 
 func _revisar(que: String, bien: bool, detalle: String) -> void:

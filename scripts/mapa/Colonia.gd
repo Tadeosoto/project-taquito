@@ -16,6 +16,8 @@ extends Node3D
 #   reflector  una luz de reflector (los postes de la cancha) a la altura "y", viendo hacia su +Z
 #           inclinada "baja" grados hacia el piso (negativo: hacia arriba, para un anuncio) y con
 #           "alcance" m; se prende de noche con Ciclo.valor()
+#   foco    un foco colgado de un cable en un callejon (los escribe exportar.py, no van en el
+#           .json): luz chica y calida, de noche, y uno de cada FOCO_PARPADEA parpadea
 
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
@@ -35,7 +37,9 @@ const LETRERO_COLOR := Color(1.0, 0.92, 0.55)
 
 var _puntos: MapPuntos
 var _marcas: Array = []
-var _reflectores: Array[SpotLight3D] = []
+var _reflectores: Array[Light3D] = []
+var _energias: Array[float] = []      # la de cada luz de _reflectores, de noche
+var _parpadean: Array[bool] = []
 var _ciclo: Node
 
 # Reflectores (marca "reflector"): luz calida sin sombra, como los de la cancha de la foto
@@ -43,6 +47,10 @@ const REFLECTOR_ENERGIA := 4.0
 const REFLECTOR_ALCANCE := 24.0
 const REFLECTOR_ANGULO := 55.0
 const REFLECTOR_COLOR := Color(1.0, 0.93, 0.78)
+const FOCO_ENERGIA := 1.6
+const FOCO_ALCANCE := 6.0
+const FOCO_COLOR := Color(1.0, 0.8, 0.5)
+const FOCO_PARPADEA := 4
 
 
 func _enter_tree() -> void:
@@ -75,6 +83,8 @@ func _ready() -> void:
 				_casa_vecino(marca)
 			"reflector":
 				_reflector(marca)
+			"foco":
+				_foco(marca)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
@@ -88,10 +98,17 @@ func _process(_delta: float) -> void:
 		_ciclo = get_tree().get_first_node_in_group("ciclo")
 		if _ciclo == null:
 			return
-	var energia := REFLECTOR_ENERGIA * float(_ciclo.valor())
-	for luz in _reflectores:
-		luz.light_energy = energia
-		luz.visible = energia > 0.01
+	var noche := float(_ciclo.valor())
+	var t := Time.get_ticks_msec() / 1000.0
+	for i in _reflectores.size():
+		var energia := _energias[i] * noche
+		if _parpadean[i] and energia > 0.0:
+			# Foco que falla: casi siempre prendido, con cortes cortos e irregulares
+			var n := sin(t * 23.0 + i * 7.1) + sin(t * 3.7 + i * 1.3)
+			if n > 1.55:
+				energia *= 0.08
+		_reflectores[i].light_energy = energia
+		_reflectores[i].visible = energia > 0.01
 
 
 func _reflector(marca: Dictionary) -> void:
@@ -107,7 +124,25 @@ func _reflector(marca: Dictionary) -> void:
 	t.basis = t.basis * Basis(Vector3.UP, PI) * Basis(Vector3.RIGHT, -deg_to_rad(float(marca.get("baja", 35.0))))
 	luz.transform = t
 	add_child(luz)
+	_agregar_luz(luz, REFLECTOR_ENERGIA, false)
+
+
+func _foco(marca: Dictionary) -> void:
+	var luz := OmniLight3D.new()
+	luz.name = String(marca.get("nombre", "Foco"))
+	luz.omni_range = FOCO_ALCANCE
+	luz.light_color = FOCO_COLOR
+	luz.shadow_enabled = false
+	luz.visible = false
+	luz.transform = lugar(marca)
+	add_child(luz)
+	_agregar_luz(luz, FOCO_ENERGIA, _reflectores.size() % FOCO_PARPADEA == 1)
+
+
+func _agregar_luz(luz: Light3D, energia: float, parpadea: bool) -> void:
 	_reflectores.append(luz)
+	_energias.append(energia)
+	_parpadean.append(parpadea)
 
 
 static func lugar(marca: Dictionary) -> Transform3D:
