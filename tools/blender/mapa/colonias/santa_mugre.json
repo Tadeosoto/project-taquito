@@ -3754,23 +3754,6 @@
 			"nombre": "Lote_37",
 			"tipo": "casa",
 			"auto": true,
-			"x": -404.99,
-			"z": 311.24,
-			"puntos": [
-				[-3.65, -3.85],
-				[-3.34, 4.12],
-				[3.65, 3.85],
-				[3.34, -4.12]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "naranja",
-			"desgaste": 0.64
-		},
-		{
-			"nombre": "Lote_38",
-			"tipo": "casa",
-			"auto": true,
 			"x": -405.86,
 			"z": 327.28,
 			"puntos": [
@@ -3781,11 +3764,11 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "rosa",
+			"color": "mostaza",
 			"desgaste": 0.51
 		},
 		{
-			"nombre": "Lote_39",
+			"nombre": "Lote_38",
 			"tipo": "casa",
 			"auto": true,
 			"x": -403.43,
@@ -3798,11 +3781,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "lima",
+			"color": "rosa",
 			"desgaste": 0.58
 		},
 		{
-			"nombre": "Lote_40",
+			"nombre": "Lote_39",
 			"tipo": "casa",
 			"auto": true,
 			"x": -403.1,
@@ -3815,11 +3798,11 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "morado",
+			"color": "naranja",
 			"desgaste": 0.45
 		},
 		{
-			"nombre": "Lote_41",
+			"nombre": "Lote_40",
 			"tipo": "casa",
 			"auto": true,
 			"x": -402.76,
@@ -3832,11 +3815,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "rosa",
 			"desgaste": 0.52
 		},
 		{
-			"nombre": "Lote_42",
+			"nombre": "Lote_41",
 			"tipo": "casa",
 			"auto": true,
 			"x": -402.41,
@@ -3849,11 +3832,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.37
 		},
 		{
-			"nombre": "Lote_43",
+			"nombre": "Lote_42",
 			"tipo": "casa",
 			"auto": true,
 			"x": -402.08,
@@ -3866,11 +3849,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "gris",
+			"color": "verde",
 			"desgaste": 0.42
 		},
 		{
-			"nombre": "Lote_44",
+			"nombre": "Lote_43",
 			"tipo": "casa",
 			"auto": true,
 			"x": -400.3,
@@ -3883,27 +3866,44 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "blanco",
+			"color": "crema",
 			"desgaste": 0.73
+		},
+		{
+			"nombre": "Lote_44",
+			"tipo": "casa",
+			"auto": true,
+			"x": -400.08,
+			"z": 474.53,
+			"puntos": [
+				[-2.13, -3.38],
+				[-1.86, 3.54],
+				[2.13, 3.38],
+				[1.86, -3.54]
+			],
+			"pisos": 1,
+			"frente": 0,
+			"color": "blanco",
+			"desgaste": 0.62
 		},
 		{
 			"nombre": "Baldio_45",
 			"tipo": "lote",
 			"auto": true,
-			"x": -400.08,
-			"z": 474.53,
-			"rot": -1.5314,
-			"tam": [6.93, 4.0],
+			"x": -270.63,
+			"z": 340.65,
+			"rot": -3.1008,
+			"tam": [7.74, 10.32],
 			"variante": "baldio"
 		},
 		{
 			"nombre": "Baldio_45_Barda",
 			"tipo": "barda",
 			"auto": true,
-			"x": -402.08,
-			"z": 474.61,
-			"rot": -1.5314,
-			"largo": 6.93,
+			"x": -270.84,
+			"z": 335.5,
+			"rot": -3.1008,
+			"largo": 7.74,
 			"alto": 2.2,
 			"grueso": 0.12,
 			"material": "foto_lamina_verde",
@@ -3911,23 +3911,6 @@
 		},
 		{
 			"nombre": "Lote_46",
-			"tipo": "casa",
-			"auto": true,
-			"x": -270.63,
-			"z": 340.65,
-			"puntos": [
-				[-4.08, -5.0],
-				[3.66, -5.31],
-				[4.08, 5.0],
-				[-3.66, 5.31]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "terracota",
-			"desgaste": 0.53
-		},
-		{
-			"nombre": "Lote_47",
 			"tipo": "casa",
 			"auto": true,
 			"x": -262.86,
@@ -3940,11 +3923,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "turquesa",
+			"color": "mostaza",
 			"desgaste": 0.64
 		},
 		{
-			"nombre": "Lote_48",
+			"nombre": "Lote_47",
 			"tipo": "casa",
 			"auto": true,
 			"x": -253.78,
@@ -3957,11 +3940,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "crema",
+			"color": "azul",
 			"desgaste": 0.59
 		},
 		{
-			"nombre": "Lote_49",
+			"nombre": "Lote_48",
 			"tipo": "casa",
 			"auto": true,
 			"x": -246.39,
@@ -3974,11 +3957,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "gris",
+			"color": "verde",
 			"desgaste": 0.77
 		},
 		{
-			"nombre": "Lote_50",
+			"nombre": "Lote_49",
 			"tipo": "casa",
 			"auto": true,
 			"x": -237.03,
@@ -3991,11 +3974,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "lima",
+			"color": "rosa",
 			"desgaste": 0.76
 		},
 		{
-			"nombre": "Lote_51",
+			"nombre": "Lote_50",
 			"tipo": "casa",
 			"auto": true,
 			"x": -225.92,
@@ -4008,11 +3991,11 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "blanco",
+			"color": "crema",
 			"desgaste": 0.74
 		},
 		{
-			"nombre": "Lote_52",
+			"nombre": "Lote_51",
 			"tipo": "casa",
 			"auto": true,
 			"x": -215.04,
@@ -4025,11 +4008,11 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.51
 		},
 		{
-			"nombre": "Lote_53",
+			"nombre": "Lote_52",
 			"tipo": "casa",
 			"auto": true,
 			"x": -207.83,
@@ -4042,27 +4025,44 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "naranja",
+			"color": "blanco",
 			"desgaste": 0.78
+		},
+		{
+			"nombre": "Lote_53",
+			"tipo": "casa",
+			"auto": true,
+			"x": -221.86,
+			"z": 318.99,
+			"puntos": [
+				[-4.34, 3.68],
+				[4.62, 3.31],
+				[4.34, -3.68],
+				[-4.62, -3.31]
+			],
+			"pisos": 2,
+			"frente": 0,
+			"color": "mostaza",
+			"desgaste": 0.76
 		},
 		{
 			"nombre": "Baldio_54",
 			"tipo": "lote",
 			"auto": true,
-			"x": -221.86,
-			"z": 318.99,
+			"x": -214.04,
+			"z": 320.17,
 			"rot": 0.0408,
-			"tam": [8.97, 7.0],
+			"tam": [6.57, 4.0],
 			"variante": "juegos"
 		},
 		{
 			"nombre": "Baldio_54_Barda",
 			"tipo": "barda",
 			"auto": true,
-			"x": -221.72,
-			"z": 322.48,
+			"x": -213.96,
+			"z": 322.17,
 			"rot": 0.0408,
-			"largo": 8.97,
+			"largo": 6.57,
 			"alto": 1.2,
 			"grueso": 0.12,
 			"material": "foto_lamina_verde",
@@ -4070,23 +4070,6 @@
 		},
 		{
 			"nombre": "Lote_55",
-			"tipo": "casa",
-			"auto": true,
-			"x": -214.04,
-			"z": 320.17,
-			"puntos": [
-				[-3.2, 2.13],
-				[3.36, 1.86],
-				[3.2, -2.13],
-				[-3.36, -1.86]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "azul",
-			"desgaste": 0.65
-		},
-		{
-			"nombre": "Lote_56",
 			"tipo": "casa",
 			"auto": true,
 			"x": -206.67,
@@ -4099,11 +4082,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "gris",
+			"color": "verde",
 			"desgaste": 0.67
 		},
 		{
-			"nombre": "Lote_57",
+			"nombre": "Lote_56",
 			"tipo": "casa",
 			"auto": true,
 			"x": -269.27,
@@ -4116,11 +4099,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "rosa",
 			"desgaste": 0.48
 		},
 		{
-			"nombre": "Lote_58",
+			"nombre": "Lote_57",
 			"tipo": "casa",
 			"auto": true,
 			"x": -269.55,
@@ -4133,11 +4116,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.71
 		},
 		{
-			"nombre": "Lote_59",
+			"nombre": "Lote_58",
 			"tipo": "casa",
 			"auto": true,
 			"x": -269.82,
@@ -4150,11 +4133,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "lima",
+			"color": "rosa",
 			"desgaste": 0.36
 		},
 		{
-			"nombre": "Lote_60",
+			"nombre": "Lote_59",
 			"tipo": "casa",
 			"auto": true,
 			"x": -270.57,
@@ -4167,12 +4150,12 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "turquesa",
+			"color": "mostaza",
 			"desgaste": 0.56,
 			"tienda": true
 		},
 		{
-			"nombre": "Lote_61",
+			"nombre": "Lote_60",
 			"tipo": "casa",
 			"auto": true,
 			"x": -266.5,
@@ -4185,11 +4168,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "blanco",
+			"color": "crema",
 			"desgaste": 0.7
 		},
 		{
-			"nombre": "Lote_62",
+			"nombre": "Lote_61",
 			"tipo": "casa",
 			"auto": true,
 			"x": -290.91,
@@ -4202,39 +4185,38 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.35
+		},
+		{
+			"nombre": "Lote_62",
+			"tipo": "casa",
+			"auto": true,
+			"x": -287.88,
+			"z": 386.52,
+			"puntos": [
+				[3.58, 2.12],
+				[3.42, -2.38],
+				[-3.58, -2.12],
+				[-3.42, 2.38]
+			],
+			"pisos": 2,
+			"frente": 0,
+			"color": "blanco",
+			"desgaste": 0.43
 		},
 		{
 			"nombre": "Baldio_63",
 			"tipo": "lote",
 			"auto": true,
-			"x": -287.88,
-			"z": 386.52,
-			"rot": 1.6075,
-			"tam": [4.5, 7.0],
+			"x": -271.2,
+			"z": 350.24,
+			"rot": -1.5341,
+			"tam": [8.04, 7.0],
 			"variante": "fonda"
 		},
 		{
 			"nombre": "Lote_64",
-			"tipo": "casa",
-			"auto": true,
-			"x": -271.2,
-			"z": 350.24,
-			"puntos": [
-				[-3.35, 4.15],
-				[-3.65, -3.89],
-				[3.35, -4.15],
-				[3.65, 3.89]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "crema",
-			"desgaste": 0.56,
-			"tienda": true
-		},
-		{
-			"nombre": "Lote_65",
 			"tipo": "casa",
 			"auto": true,
 			"x": -288.54,
@@ -4247,11 +4229,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.58
 		},
 		{
-			"nombre": "Lote_66",
+			"nombre": "Lote_65",
 			"tipo": "casa",
 			"auto": true,
 			"x": -287.88,
@@ -4264,11 +4246,12 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "naranja",
-			"desgaste": 0.41
+			"color": "blanco",
+			"desgaste": 0.41,
+			"tienda": true
 		},
 		{
-			"nombre": "Lote_67",
+			"nombre": "Lote_66",
 			"tipo": "casa",
 			"auto": true,
 			"x": -288.26,
@@ -4281,11 +4264,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.5
 		},
 		{
-			"nombre": "Lote_68",
+			"nombre": "Lote_67",
 			"tipo": "casa",
 			"auto": true,
 			"x": -274.2,
@@ -4298,11 +4281,11 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "rosa",
+			"color": "mostaza",
 			"desgaste": 0.39
 		},
 		{
-			"nombre": "Lote_69",
+			"nombre": "Lote_68",
 			"tipo": "casa",
 			"auto": true,
 			"x": -274.42,
@@ -4315,11 +4298,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.36
 		},
 		{
-			"nombre": "Lote_70",
+			"nombre": "Lote_69",
 			"tipo": "casa",
 			"auto": true,
 			"x": -288.62,
@@ -4332,11 +4315,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "turquesa",
+			"color": "mostaza",
 			"desgaste": 0.58
 		},
 		{
-			"nombre": "Lote_71",
+			"nombre": "Lote_70",
 			"tipo": "casa",
 			"auto": true,
 			"x": -292.82,
@@ -4349,38 +4332,38 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "crema",
+			"color": "azul",
 			"desgaste": 0.43
+		},
+		{
+			"nombre": "Lote_71",
+			"tipo": "casa",
+			"auto": true,
+			"x": -293.26,
+			"z": 303.67,
+			"puntos": [
+				[5.92, 2.03],
+				[5.75, -2.46],
+				[-5.92, -2.03],
+				[-5.75, 2.46]
+			],
+			"pisos": 1,
+			"frente": 0,
+			"color": "lima",
+			"desgaste": 0.62
 		},
 		{
 			"nombre": "Baldio_72",
 			"tipo": "lote",
 			"auto": true,
-			"x": -293.26,
-			"z": 303.67,
+			"x": -289.7,
+			"z": 296.03,
 			"rot": 1.6075,
-			"tam": [4.5, 11.68],
+			"tam": [4.5, 4.0],
 			"variante": "taller"
 		},
 		{
 			"nombre": "Lote_73",
-			"tipo": "casa",
-			"auto": true,
-			"x": -289.7,
-			"z": 296.03,
-			"puntos": [
-				[2.08, 2.18],
-				[1.92, -2.32],
-				[-2.08, -2.18],
-				[-1.92, 2.32]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "mostaza",
-			"desgaste": 0.51
-		},
-		{
-			"nombre": "Lote_74",
 			"tipo": "casa",
 			"auto": true,
 			"x": -290.3,
@@ -4393,11 +4376,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "crema",
+			"color": "azul",
 			"desgaste": 0.62
 		},
 		{
-			"nombre": "Lote_75",
+			"nombre": "Lote_74",
 			"tipo": "casa",
 			"auto": true,
 			"x": -349.92,
@@ -4410,11 +4393,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "verde",
+			"color": "morado",
 			"desgaste": 0.49
 		},
 		{
-			"nombre": "Lote_76",
+			"nombre": "Lote_75",
 			"tipo": "casa",
 			"auto": true,
 			"x": -359.45,
@@ -4431,7 +4414,7 @@
 			"desgaste": 0.35
 		},
 		{
-			"nombre": "Lote_77",
+			"nombre": "Lote_76",
 			"tipo": "casa",
 			"auto": true,
 			"x": -351.38,
@@ -4444,11 +4427,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.49
 		},
 		{
-			"nombre": "Lote_78",
+			"nombre": "Lote_77",
 			"tipo": "casa",
 			"auto": true,
 			"x": -338.94,
@@ -4461,11 +4444,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "crema",
+			"color": "azul",
 			"desgaste": 0.44
 		},
 		{
-			"nombre": "Lote_79",
+			"nombre": "Lote_78",
 			"tipo": "casa",
 			"auto": true,
 			"x": -394.32,
@@ -4478,11 +4461,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "rosa",
+			"color": "turquesa",
 			"desgaste": 0.71
 		},
 		{
-			"nombre": "Lote_80",
+			"nombre": "Lote_79",
 			"tipo": "casa",
 			"auto": true,
 			"x": -385.62,
@@ -4495,27 +4478,44 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "crema",
+			"color": "azul",
 			"desgaste": 0.56
+		},
+		{
+			"nombre": "Lote_80",
+			"tipo": "casa",
+			"auto": true,
+			"x": -378.42,
+			"z": 281.74,
+			"puntos": [
+				[-2.51, -5.69],
+				[1.98, -5.9],
+				[2.51, 5.69],
+				[-1.98, 5.9]
+			],
+			"pisos": 1,
+			"frente": 0,
+			"color": "lima",
+			"desgaste": 0.64
 		},
 		{
 			"nombre": "Baldio_81",
 			"tipo": "lote",
 			"auto": true,
-			"x": -378.42,
-			"z": 281.74,
-			"rot": -3.0959,
-			"tam": [4.5, 11.6],
+			"x": -210.04,
+			"z": 289.85,
+			"rot": 1.6069,
+			"tam": [6.39, 13.48],
 			"variante": "baldio"
 		},
 		{
 			"nombre": "Baldio_81_Barda",
 			"tipo": "barda",
 			"auto": true,
-			"x": -378.68,
-			"z": 275.94,
-			"rot": -3.0959,
-			"largo": 4.5,
+			"x": -203.31,
+			"z": 289.61,
+			"rot": 1.6069,
+			"largo": 6.39,
 			"alto": 2.2,
 			"grueso": 0.12,
 			"material": "foto_lamina_verde",
@@ -4523,23 +4523,6 @@
 		},
 		{
 			"nombre": "Lote_82",
-			"tipo": "casa",
-			"auto": true,
-			"x": -210.04,
-			"z": 289.85,
-			"puntos": [
-				[6.62, -3.44],
-				[6.85, 2.95],
-				[-6.62, 3.44],
-				[-6.85, -2.95]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "gris",
-			"desgaste": 0.74
-		},
-		{
-			"nombre": "Lote_83",
 			"tipo": "casa",
 			"auto": true,
 			"x": -206.53,
@@ -4556,7 +4539,7 @@
 			"desgaste": 0.78
 		},
 		{
-			"nombre": "Lote_84",
+			"nombre": "Lote_83",
 			"tipo": "casa",
 			"auto": true,
 			"x": -208.1,
@@ -4573,7 +4556,7 @@
 			"desgaste": 0.75
 		},
 		{
-			"nombre": "Lote_85",
+			"nombre": "Lote_84",
 			"tipo": "casa",
 			"auto": true,
 			"x": -332.43,
@@ -4586,11 +4569,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "rosa",
 			"desgaste": 0.7
 		},
 		{
-			"nombre": "Lote_86",
+			"nombre": "Lote_85",
 			"tipo": "casa",
 			"auto": true,
 			"x": -321.33,
@@ -4603,11 +4586,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.48
 		},
 		{
-			"nombre": "Lote_87",
+			"nombre": "Lote_86",
 			"tipo": "casa",
 			"auto": true,
 			"x": -321.09,
@@ -4620,11 +4603,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "lima",
+			"color": "rosa",
 			"desgaste": 0.69
 		},
 		{
-			"nombre": "Lote_88",
+			"nombre": "Lote_87",
 			"tipo": "casa",
 			"auto": true,
 			"x": -320.87,
@@ -4637,11 +4620,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "turquesa",
+			"color": "mostaza",
 			"desgaste": 0.77
 		},
 		{
-			"nombre": "Lote_89",
+			"nombre": "Lote_88",
 			"tipo": "casa",
 			"auto": true,
 			"x": -316.23,
@@ -4654,26 +4637,43 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.63
+		},
+		{
+			"nombre": "Lote_89",
+			"tipo": "casa",
+			"auto": true,
+			"x": -316.62,
+			"z": 326.02,
+			"puntos": [
+				[-5.36, -2.11],
+				[-5.24, 2.39],
+				[5.36, 2.11],
+				[5.24, -2.39]
+			],
+			"pisos": 2,
+			"frente": 0,
+			"color": "turquesa",
+			"desgaste": 0.47
 		},
 		{
 			"nombre": "Baldio_90",
 			"tipo": "lote",
 			"auto": true,
-			"x": -316.62,
-			"z": 326.02,
-			"rot": -1.545,
-			"tam": [4.5, 10.6],
+			"x": -319.65,
+			"z": 336.53,
+			"rot": -1.5452,
+			"tam": [4.5, 4.0],
 			"variante": "juegos"
 		},
 		{
 			"nombre": "Baldio_90_Barda",
 			"tipo": "barda",
 			"auto": true,
-			"x": -321.92,
-			"z": 326.16,
-			"rot": -1.545,
+			"x": -321.65,
+			"z": 336.58,
+			"rot": -1.5452,
 			"largo": 4.5,
 			"alto": 1.2,
 			"grueso": 0.12,
@@ -4682,23 +4682,6 @@
 		},
 		{
 			"nombre": "Lote_91",
-			"tipo": "casa",
-			"auto": true,
-			"x": -319.65,
-			"z": 336.53,
-			"puntos": [
-				[-2.06, -2.2],
-				[-1.94, 2.3],
-				[2.06, 2.2],
-				[1.94, -2.3]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "azul",
-			"desgaste": 0.7
-		},
-		{
-			"nombre": "Lote_92",
 			"tipo": "casa",
 			"auto": true,
 			"x": -319.51,
@@ -4711,11 +4694,11 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "terracota",
+			"color": "rosa",
 			"desgaste": 0.78
 		},
 		{
-			"nombre": "Lote_93",
+			"nombre": "Lote_92",
 			"tipo": "casa",
 			"auto": true,
 			"x": -243.49,
@@ -4728,11 +4711,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.8
 		},
 		{
-			"nombre": "Lote_94",
+			"nombre": "Lote_93",
 			"tipo": "casa",
 			"auto": true,
 			"x": -361.46,
@@ -4745,11 +4728,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.57
 		},
 		{
-			"nombre": "Lote_95",
+			"nombre": "Lote_94",
 			"tipo": "casa",
 			"auto": true,
 			"x": -352.58,
@@ -4766,7 +4749,7 @@
 			"desgaste": 0.51
 		},
 		{
-			"nombre": "Lote_96",
+			"nombre": "Lote_95",
 			"tipo": "casa",
 			"auto": true,
 			"x": -339.97,
@@ -4779,11 +4762,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "crema",
+			"color": "azul",
 			"desgaste": 0.48
 		},
 		{
-			"nombre": "Lote_97",
+			"nombre": "Lote_96",
 			"tipo": "casa",
 			"auto": true,
 			"x": -374.82,
@@ -4796,11 +4779,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.58
 		},
 		{
-			"nombre": "Lote_98",
+			"nombre": "Lote_97",
 			"tipo": "casa",
 			"auto": true,
 			"x": -374.52,
@@ -4813,38 +4796,38 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "rosa",
+			"color": "mostaza",
 			"desgaste": 0.62
+		},
+		{
+			"nombre": "Lote_98",
+			"tipo": "casa",
+			"auto": true,
+			"x": -374.25,
+			"z": 309.1,
+			"puntos": [
+				[1.9, -3.15],
+				[2.1, 3.02],
+				[-1.9, 3.15],
+				[-2.1, -3.02]
+			],
+			"pisos": 1,
+			"frente": 0,
+			"color": "turquesa",
+			"desgaste": 0.39
 		},
 		{
 			"nombre": "Baldio_99",
 			"tipo": "lote",
 			"auto": true,
-			"x": -374.25,
-			"z": 309.1,
+			"x": -374.01,
+			"z": 316.51,
 			"rot": 1.6036,
-			"tam": [6.18, 4.0],
+			"tam": [8.64, 4.0],
 			"variante": "fonda"
 		},
 		{
 			"nombre": "Lote_100",
-			"tipo": "casa",
-			"auto": true,
-			"x": -374.01,
-			"z": 316.51,
-			"puntos": [
-				[1.86, -4.38],
-				[2.14, 4.25],
-				[-1.86, 4.38],
-				[-2.14, -4.25]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "gris",
-			"desgaste": 0.4
-		},
-		{
-			"nombre": "Lote_101",
 			"tipo": "casa",
 			"auto": true,
 			"x": -373.76,
@@ -4857,11 +4840,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "lima",
+			"color": "rosa",
 			"desgaste": 0.46
 		},
 		{
-			"nombre": "Lote_102",
+			"nombre": "Lote_101",
 			"tipo": "casa",
 			"auto": true,
 			"x": -359.82,
@@ -4874,11 +4857,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "terracota",
+			"color": "rosa",
 			"desgaste": 0.4
 		},
 		{
-			"nombre": "Lote_103",
+			"nombre": "Lote_102",
 			"tipo": "casa",
 			"auto": true,
 			"x": -361.25,
@@ -4891,11 +4874,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "turquesa",
+			"color": "mostaza",
 			"desgaste": 0.77
 		},
 		{
-			"nombre": "Lote_104",
+			"nombre": "Lote_103",
 			"tipo": "casa",
 			"auto": true,
 			"x": -360.63,
@@ -4908,11 +4891,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "crema",
+			"color": "azul",
 			"desgaste": 0.5
 		},
 		{
-			"nombre": "Lote_105",
+			"nombre": "Lote_104",
 			"tipo": "casa",
 			"auto": true,
 			"x": -373.24,
@@ -4925,11 +4908,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "rosa",
 			"desgaste": 0.41
 		},
 		{
-			"nombre": "Lote_106",
+			"nombre": "Lote_105",
 			"tipo": "casa",
 			"auto": true,
 			"x": -373.04,
@@ -4942,11 +4925,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "naranja",
+			"color": "blanco",
 			"desgaste": 0.53
 		},
 		{
-			"nombre": "Lote_107",
+			"nombre": "Lote_106",
 			"tipo": "casa",
 			"auto": true,
 			"x": -361.17,
@@ -4959,38 +4942,38 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "gris",
+			"color": "verde",
+			"desgaste": 0.45
+		},
+		{
+			"nombre": "Lote_107",
+			"tipo": "casa",
+			"auto": true,
+			"x": -242.2,
+			"z": 290.4,
+			"puntos": [
+				[-2.35, -1.88],
+				[2.15, -2.11],
+				[2.35, 1.88],
+				[-2.15, 2.11]
+			],
+			"pisos": 3,
+			"frente": 0,
+			"color": "terracota",
 			"desgaste": 0.45
 		},
 		{
 			"nombre": "Baldio_108",
 			"tipo": "lote",
 			"auto": true,
-			"x": -242.2,
-			"z": 290.4,
-			"rot": -3.0916,
-			"tam": [4.5, 4.0],
+			"x": -229.94,
+			"z": 294.17,
+			"rot": -3.0919,
+			"tam": [8.55, 12.76],
 			"variante": "taller"
 		},
 		{
 			"nombre": "Lote_109",
-			"tipo": "casa",
-			"auto": true,
-			"x": -229.94,
-			"z": 294.17,
-			"puntos": [
-				[-4.59, -6.16],
-				[3.95, -6.58],
-				[4.59, 6.16],
-				[-3.95, 6.58]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "lima",
-			"desgaste": 0.59
-		},
-		{
-			"nombre": "Lote_110",
 			"tipo": "casa",
 			"auto": true,
 			"x": -221.41,
@@ -5003,11 +4986,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "rosa",
+			"color": "turquesa",
 			"desgaste": 0.63
 		},
 		{
-			"nombre": "Lote_111",
+			"nombre": "Lote_110",
 			"tipo": "casa",
 			"auto": true,
 			"x": -230.0,
@@ -5020,11 +5003,11 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "morado",
+			"color": "naranja",
 			"desgaste": 0.39
 		},
 		{
-			"nombre": "Lote_112",
+			"nombre": "Lote_111",
 			"tipo": "casa",
 			"auto": true,
 			"x": -200.08,
@@ -5037,11 +5020,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "morado",
+			"color": "naranja",
 			"desgaste": 0.74
 		},
 		{
-			"nombre": "Lote_113",
+			"nombre": "Lote_112",
 			"tipo": "casa",
 			"auto": true,
 			"x": -219.13,
@@ -5054,11 +5037,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "gris",
+			"color": "verde",
 			"desgaste": 0.73
 		},
 		{
-			"nombre": "Lote_114",
+			"nombre": "Lote_113",
 			"tipo": "casa",
 			"auto": true,
 			"x": -211.97,
@@ -5071,11 +5054,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.5
 		},
 		{
-			"nombre": "Lote_115",
+			"nombre": "Lote_114",
 			"tipo": "casa",
 			"auto": true,
 			"x": -350.2,
@@ -5088,11 +5071,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "gris",
+			"color": "verde",
 			"desgaste": 0.4
 		},
 		{
-			"nombre": "Lote_116",
+			"nombre": "Lote_115",
 			"tipo": "casa",
 			"auto": true,
 			"x": -350.2,
@@ -5105,28 +5088,45 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "rosa",
 			"desgaste": 1.0,
 			"tienda": false
+		},
+		{
+			"nombre": "Lote_116",
+			"tipo": "casa",
+			"auto": true,
+			"x": -351.7,
+			"z": 312.98,
+			"puntos": [
+				[3.5, -2.25],
+				[3.5, 2.25],
+				[-3.5, 2.25],
+				[-3.5, -2.25]
+			],
+			"pisos": 2,
+			"frente": 0,
+			"color": "lima",
+			"desgaste": 0.49
 		},
 		{
 			"nombre": "Baldio_117",
 			"tipo": "lote",
 			"auto": true,
-			"x": -351.7,
-			"z": 312.98,
-			"rot": 1.5708,
-			"tam": [4.5, 7.0],
+			"x": -306.89,
+			"z": 296.8,
+			"rot": -0.0,
+			"tam": [6.21, 4.0],
 			"variante": "baldio"
 		},
 		{
 			"nombre": "Baldio_117_Barda",
 			"tipo": "barda",
 			"auto": true,
-			"x": -348.2,
-			"z": 312.98,
-			"rot": 1.5708,
-			"largo": 4.5,
+			"x": -306.89,
+			"z": 298.8,
+			"rot": -0.0,
+			"largo": 6.21,
 			"alto": 2.2,
 			"grueso": 0.12,
 			"material": "foto_lamina_verde",
@@ -5134,23 +5134,6 @@
 		},
 		{
 			"nombre": "Lote_118",
-			"tipo": "casa",
-			"auto": true,
-			"x": -306.89,
-			"z": 296.8,
-			"puntos": [
-				[-3.11, 2.0],
-				[3.1, 2.0],
-				[3.1, -2.0],
-				[-3.11, -2.0]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "terracota",
-			"desgaste": 0.4
-		},
-		{
-			"nombre": "Lote_119",
 			"tipo": "casa",
 			"auto": true,
 			"x": -223.2,
@@ -5163,11 +5146,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.59
 		},
 		{
-			"nombre": "Lote_120",
+			"nombre": "Lote_119",
 			"tipo": "casa",
 			"auto": true,
 			"x": -223.2,
@@ -5180,11 +5163,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "terracota",
+			"color": "rosa",
 			"desgaste": 0.37
 		},
 		{
-			"nombre": "Lote_121",
+			"nombre": "Lote_120",
 			"tipo": "casa",
 			"auto": true,
 			"x": -215.3,
@@ -5197,11 +5180,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "morado",
+			"color": "naranja",
 			"desgaste": 0.8
 		},
 		{
-			"nombre": "Lote_122",
+			"nombre": "Lote_121",
 			"tipo": "casa",
 			"auto": true,
 			"x": -216.8,
@@ -5214,11 +5197,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.75
 		},
 		{
-			"nombre": "Lote_123",
+			"nombre": "Lote_122",
 			"tipo": "casa",
 			"auto": true,
 			"x": -215.3,
@@ -5231,11 +5214,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "azul",
+			"color": "lima",
 			"desgaste": 0.7
 		},
 		{
-			"nombre": "Lote_124",
+			"nombre": "Lote_123",
 			"tipo": "casa",
 			"auto": true,
 			"x": -262.66,
@@ -5248,11 +5231,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "morado",
+			"color": "naranja",
 			"desgaste": 0.57
 		},
 		{
-			"nombre": "Lote_125",
+			"nombre": "Lote_124",
 			"tipo": "casa",
 			"auto": true,
 			"x": -246.86,
@@ -5265,27 +5248,44 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.8
+		},
+		{
+			"nombre": "Lote_125",
+			"tipo": "casa",
+			"auto": true,
+			"x": -239.14,
+			"z": 355.2,
+			"puntos": [
+				[-2.25, -2.0],
+				[2.25, -2.0],
+				[2.25, 2.0],
+				[-2.25, 2.0]
+			],
+			"pisos": 2,
+			"frente": 0,
+			"color": "azul",
+			"desgaste": 0.51
 		},
 		{
 			"nombre": "Baldio_126",
 			"tipo": "lote",
 			"auto": true,
-			"x": -239.14,
-			"z": 355.2,
-			"rot": -3.1416,
-			"tam": [4.5, 4.0],
+			"x": -264.01,
+			"z": 348.8,
+			"rot": -0.0,
+			"tam": [7.98, 4.0],
 			"variante": "juegos"
 		},
 		{
 			"nombre": "Baldio_126_Barda",
 			"tipo": "barda",
 			"auto": true,
-			"x": -239.14,
-			"z": 353.2,
-			"rot": -3.1416,
-			"largo": 4.5,
+			"x": -264.01,
+			"z": 350.8,
+			"rot": -0.0,
+			"largo": 7.98,
 			"alto": 1.2,
 			"grueso": 0.12,
 			"material": "foto_lamina_verde",
@@ -5293,23 +5293,6 @@
 		},
 		{
 			"nombre": "Lote_127",
-			"tipo": "casa",
-			"auto": true,
-			"x": -264.01,
-			"z": 348.8,
-			"puntos": [
-				[-3.99, 2.0],
-				[3.99, 2.0],
-				[3.99, -2.0],
-				[-3.99, -2.0]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "lima",
-			"desgaste": 0.71
-		},
-		{
-			"nombre": "Lote_128",
 			"tipo": "casa",
 			"auto": true,
 			"x": -254.74,
@@ -5322,11 +5305,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "morado",
+			"color": "naranja",
 			"desgaste": 0.74
 		},
 		{
-			"nombre": "Lote_129",
+			"nombre": "Lote_128",
 			"tipo": "casa",
 			"auto": true,
 			"x": -246.29,
@@ -5339,11 +5322,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "crema",
+			"color": "azul",
 			"desgaste": 0.56
 		},
 		{
-			"nombre": "Lote_130",
+			"nombre": "Lote_129",
 			"tipo": "casa",
 			"auto": true,
 			"x": -251.2,
@@ -5356,11 +5339,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "rosa",
+			"color": "mostaza",
 			"desgaste": 0.69
 		},
 		{
-			"nombre": "Lote_131",
+			"nombre": "Lote_130",
 			"tipo": "casa",
 			"auto": true,
 			"x": -251.2,
@@ -5373,11 +5356,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "rosa",
+			"color": "turquesa",
 			"desgaste": 0.42
 		},
 		{
-			"nombre": "Lote_132",
+			"nombre": "Lote_131",
 			"tipo": "casa",
 			"auto": true,
 			"x": -254.56,
@@ -5390,11 +5373,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "naranja",
+			"color": "blanco",
 			"desgaste": 0.67
 		},
 		{
-			"nombre": "Lote_133",
+			"nombre": "Lote_132",
 			"tipo": "casa",
 			"auto": true,
 			"x": -254.96,
@@ -5407,11 +5390,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "verde",
+			"color": "morado",
 			"desgaste": 0.56
 		},
 		{
-			"nombre": "Lote_134",
+			"nombre": "Lote_133",
 			"tipo": "casa",
 			"auto": true,
 			"x": -244.8,
@@ -5424,38 +5407,38 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "gris",
+			"color": "verde",
 			"desgaste": 0.59
+		},
+		{
+			"nombre": "Lote_134",
+			"tipo": "casa",
+			"auto": true,
+			"x": -244.8,
+			"z": 396.45,
+			"puntos": [
+				[-2.0, -4.43],
+				[-2.0, 4.43],
+				[2.0, 4.43],
+				[2.0, -4.43]
+			],
+			"pisos": 1,
+			"frente": 0,
+			"color": "mostaza",
+			"desgaste": 0.73
 		},
 		{
 			"nombre": "Baldio_135",
 			"tipo": "lote",
 			"auto": true,
 			"x": -244.8,
-			"z": 396.45,
+			"z": 405.27,
 			"rot": -1.5708,
-			"tam": [8.85, 4.0],
+			"tam": [6.78, 4.0],
 			"variante": "fonda"
 		},
 		{
 			"nombre": "Lote_136",
-			"tipo": "casa",
-			"auto": true,
-			"x": -244.8,
-			"z": 405.27,
-			"puntos": [
-				[-2.0, -3.39],
-				[-2.0, 3.39],
-				[2.0, 3.39],
-				[2.0, -3.39]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "crema",
-			"desgaste": 0.5
-		},
-		{
-			"nombre": "Lote_137",
 			"tipo": "casa",
 			"auto": true,
 			"x": -243.3,
@@ -5468,11 +5451,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "terracota",
+			"color": "rosa",
 			"desgaste": 0.55
 		},
 		{
-			"nombre": "Lote_138",
+			"nombre": "Lote_137",
 			"tipo": "casa",
 			"auto": true,
 			"x": -244.8,
@@ -5485,11 +5468,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.64
 		},
 		{
-			"nombre": "Lote_139",
+			"nombre": "Lote_138",
 			"tipo": "casa",
 			"auto": true,
 			"x": -244.8,
@@ -5502,11 +5485,11 @@
 			],
 			"pisos": 1,
 			"frente": 0,
-			"color": "turquesa",
+			"color": "mostaza",
 			"desgaste": 0.41
 		},
 		{
-			"nombre": "Lote_140",
+			"nombre": "Lote_139",
 			"tipo": "casa",
 			"auto": true,
 			"x": -241.16,
@@ -5519,11 +5502,11 @@
 			],
 			"pisos": 2,
 			"frente": 0,
-			"color": "mostaza",
+			"color": "terracota",
 			"desgaste": 0.63
 		},
 		{
-			"nombre": "Lote_141",
+			"nombre": "Lote_140",
 			"tipo": "casa",
 			"auto": true,
 			"x": -339.68,
@@ -5536,7 +5519,7 @@
 			],
 			"pisos": 3,
 			"frente": 0,
-			"color": "terracota",
+			"color": "gris",
 			"desgaste": 0.57
 		},
 		{
@@ -6540,15 +6523,6 @@
 			"lona": "naranja"
 		},
 		{
-			"nombre": "Puesto_6",
-			"tipo": "puesto",
-			"x": -283.23,
-			"z": 345.8,
-			"rot": 1.5708,
-			"tam": [3.0, 2.2, 2.4],
-			"lona": "rojo"
-		},
-		{
 			"nombre": "Puesto_7",
 			"tipo": "puesto",
 			"x": -277.43,
@@ -7170,9 +7144,37 @@
 				[0.0, 0.0],
 				[9.2, 0.0]
 			],
-			"ancho": 2.4,
+			"ancho": 3.2,
 			"banqueta": 0.0,
 			"material": "empedrado"
+		},
+		{
+			"nombre": "Cancha_Mirador",
+			"tipo": "casa",
+			"x": -402.55,
+			"z": 311.25,
+			"rot": 0.0,
+			"puntos": [
+				[-3.9499999999999886, -4.149999999999977],
+				[3.9499999999999886, -4.149999999999977],
+				[3.9499999999999886, 4.149999999999977],
+				[-3.9499999999999886, 4.149999999999977]
+			],
+			"pisos": 2,
+			"frente": 0,
+			"color": "lima",
+			"desgaste": 0.7,
+			"detalles": false
+		},
+		{
+			"nombre": "Cancha_Mirador_Escalera",
+			"tipo": "escalera",
+			"x": -405.8,
+			"z": 307.1,
+			"rot": -3.1416,
+			"alto": 5.55,
+			"ancho": 1.0,
+			"sentido": -1
 		},
 		{
 			"nombre": "Cancha_Casa_E1",
@@ -7334,7 +7336,7 @@
 			"tipo": "patio",
 			"x": -305.0,
 			"z": 304.8,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7378,7 +7380,7 @@
 			"tipo": "patio",
 			"x": -255.0,
 			"z": 356.8,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7422,7 +7424,7 @@
 			"tipo": "patio",
 			"x": -347.5,
 			"z": 306.8,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7430,7 +7432,7 @@
 			"tipo": "vecindad",
 			"x": -215.5,
 			"z": 400.0,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [22.0, 52.0]
 		}
 	],
@@ -7553,9 +7555,9 @@
 			"auto": true,
 			"giro": "purificadora",
 			"texto": "Purificadora Gota Pura",
-			"x": -275.5,
-			"z": 350.4,
-			"rot": -1.5335
+			"x": -285.08,
+			"z": 345.56,
+			"rot": 1.6063
 		},
 		{
 			"nombre": "Puerta_punto_10",
@@ -7744,11 +7746,11 @@
 			"tipo": "purificadora",
 			"giro": "purificadora",
 			"nombre": "Purificadora Gota Pura",
-			"x": -271.2,
-			"z": 350.24,
-			"rotacion_y": -1.5335,
-			"ancho": 8.05,
-			"fondo": 7.0,
+			"x": -287.88,
+			"z": 345.66,
+			"rotacion_y": 1.6063,
+			"ancho": 4.5,
+			"fondo": 4.0,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
@@ -7818,10 +7820,19 @@
 		{
 			"nombre": "Callejon_Cancha",
 			"puntos": [
-				[-407.5, 306.75],
-				[-398.3, 306.75],
-				[-398.3, 304.25],
-				[-407.5, 304.25]
+				[-407.5, 307.1],
+				[-398.3, 307.1],
+				[-398.3, 303.9],
+				[-407.5, 303.9]
+			]
+		},
+		{
+			"nombre": "Cancha_Mirador",
+			"puntos": [
+				[-406.5, 307.1],
+				[-398.6, 307.1],
+				[-398.6, 315.4],
+				[-406.5, 315.4]
 			]
 		},
 		{

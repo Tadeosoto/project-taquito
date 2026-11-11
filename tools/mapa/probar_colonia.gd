@@ -99,6 +99,10 @@ func _subir_banqueta(escena: Node) -> void:
 	# media cancha (el muro de la entrada esta en x -398.3)
 	var c := await _caminar(escena, CANCHA_DESDE, Vector3(1.0, 0.0, 0.0), 300)
 	_revisar("entra a la cancha", c["hasta"].x > -394.0, "hasta %s" % c["hasta"])
+	# y la escalera del mirador (Cancha_Mirador_Escalera) sube a su azotea, que ve a la cancha
+	var m := await _caminar(escena, Vector3(-406.4, 1.2, 306.6), Vector3(1.0, 0.0, 0.0), 300)
+	_revisar("sube al mirador de la cancha", m["y_max"] - 1.0 > AZOTEA - 0.4,
+		"llego a %.2f m (azotea a %.2f)" % [m["y_max"] - 1.0, AZOTEA])
 
 
 func _caminar(escena: Node, desde: Vector3, hacia: Vector3, cuadros: int) -> Dictionary:

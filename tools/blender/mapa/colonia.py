@@ -117,7 +117,8 @@ def _pieza(col, p):
         color = p.get("color", "crema")
         color = k["PALETA"].get(color, (0.8, 0.8, 0.8)) if isinstance(color, str) else color
         malla = k["casa_malla"](nombre, p["puntos"], p.get("pisos", 1), color, p.get("frente", 0),
-                                p.get("desgaste", 0.5), p.get("tienda", False), p.get("tinaco", True), p.get("varillas"))
+                                p.get("desgaste", 0.5), p.get("tienda", False), p.get("tinaco", True), p.get("varillas"),
+                                p.get("detalles", True))
         ob = bpy.data.objects.new(nombre, malla)
         ob.location = a_blender(x, z, y)
         ob.rotation_euler = (0.0, 0.0, rot)

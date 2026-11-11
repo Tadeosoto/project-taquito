@@ -119,9 +119,9 @@
 			"auto": true,
 			"giro": "purificadora",
 			"texto": "Purificadora Gota Pura",
-			"x": -275.5,
-			"z": 350.4,
-			"rot": -1.5335
+			"x": -285.08,
+			"z": 345.56,
+			"rot": 1.6063
 		},
 		{
 			"nombre": "Puerta_punto_10",
