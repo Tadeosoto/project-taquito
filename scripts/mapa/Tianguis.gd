@@ -94,6 +94,9 @@ const CHICO_HASTA := 35.0
 @export var arroyo := 8.0           # de banqueta a banqueta
 @export var pasillo := 2.6          # libre entre los tubos de enfrente de las dos filas
 @export var gente := true           # marchantes, compradores y los que pasan (civiles del juego)
+# Que parte de la gente se queda (JJ: 75 %, luego mas abajo). Se decide con su propio azar, aparte de _rng, para que
+# los puestos y la mercancia queden igual que antes
+@export_range(0.0, 1.0) var proporcion_gente := 0.55
 @export var caminantes_por_m := 0.3
 @export var compradores := 0.6      # probabilidad de un comprador frente a cada puesto
 # [lado (1 = +Z, -1 = -Z, 0 = los dos), desde, hasta] en X: sin puestos (puertas, calles que cruzan)
@@ -104,6 +107,7 @@ const CHICO_HASTA := 35.0
 
 static var _ligeras := {}           # clave de malla -> ruta de la aligerada
 static var _ligeras_cargadas := {}
+static var _vivos := 0              # tianguis en el arbol: el ultimo en irse suelta los caches
 
 var _rng := RandomNumberGenerator.new()
 var _escenas := {}
@@ -115,6 +119,7 @@ var _mallas := {}                   # [malla, superficie] -> malla de una superf
 var _bolsa: Array[String] = []
 # Gente: {t: Transform3D (en el tramo), modelo, clip, vel (0 = quieto), nodo, en_cola}
 var _gente: Array[Dictionary] = []
+var _azar_gente := RandomNumberGenerator.new()
 var _cola: Array[Dictionary] = []
 var _de_dia: Array[Node3D] = []     # lo horneado de dia y los carritos: se esconde de noche
 var _es_de_dia := true
@@ -122,8 +127,22 @@ var _revisa := 0.0
 var _ciclo: Node
 
 
+func _exit_tree() -> void:
+	_vivos -= 1
+	if _vivos <= 0:
+		_vivos = 0
+		Piezas.vaciar()
+		_ligeras.clear()
+		_ligeras_cargadas.clear()
+
+
+func _enter_tree() -> void:
+	_vivos += 1
+
+
 func _ready() -> void:
 	_rng.seed = semilla
+	_azar_gente.seed = semilla + 1
 	_mat_fierro = _material(Color(0.4, 0.38, 0.36), 0.5, 0.6)
 	_mat_madera = _material(Color(0.5, 0.36, 0.22), 0.95)
 	var fondo := arroyo / 2.0 - pasillo / 2.0 - 0.15
@@ -204,9 +223,12 @@ func _crear(e: Dictionary) -> void:
 
 
 func _persona(t: Transform3D, clip: String, vel := 0.0) -> void:
-	if gente:
-		_gente.append({"t": t, "modelo": Civiles.MODELOS[_rng.randi() % Civiles.MODELOS.size()],
-			"clip": clip, "vel": vel, "nodo": null, "en_cola": false})
+	if not gente:
+		return
+	# El modelo se saca siempre, se quede o no: _rng sigue el mismo camino y nada mas cambia
+	var modelo: String = Civiles.MODELOS[_rng.randi() % Civiles.MODELOS.size()]
+	if _azar_gente.randf() < proporcion_gente:
+		_gente.append({"t": t, "modelo": modelo, "clip": clip, "vel": vel, "nodo": null, "en_cola": false})
 
 
 func _caminantes() -> void:

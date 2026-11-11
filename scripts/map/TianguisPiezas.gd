@@ -19,6 +19,16 @@ static var _cache := {}
 static var _abiertos := {}
 
 
+# Suelta lo guardado: las escenas abiertas quedan fuera del arbol y, sin liberarlas, Godot las reporta
+# como fugas al cerrar (hay que llamarla cuando ya no queda ningun Tianguis)
+static func vaciar() -> void:
+	for escena: Node in _abiertos.values():
+		if is_instance_valid(escena):
+			escena.free()
+	_abiertos.clear()
+	_cache.clear()
+
+
 static func pieza(pack: String, nodo: String) -> Node3D:
 	var clave := pack + "/" + nodo
 	if not _cache.has(clave):

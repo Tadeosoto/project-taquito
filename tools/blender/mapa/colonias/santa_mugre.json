@@ -4981,7 +4981,7 @@
 			"auto": true,
 			"x": -246.86,
 			"z": 355.2,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [8.94, 4.0],
 			"variante": "fonda"
 		},
@@ -6446,6 +6446,789 @@
 			"radio": 2.3
 		},
 		{
+			"nombre": "Ficus_N1",
+			"tipo": "ficus",
+			"x": -210.6,
+			"z": 426.2,
+			"rot": -1.9018,
+			"alto": 3.8,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N2",
+			"tipo": "ficus",
+			"x": -197.4,
+			"z": 420.9,
+			"rot": 2.8466,
+			"alto": 4.5,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N3",
+			"tipo": "ficus",
+			"x": -194.3,
+			"z": 463.3,
+			"rot": 2.2061,
+			"alto": 3.6,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N4",
+			"tipo": "ficus",
+			"x": -208.0,
+			"z": 461.3,
+			"rot": 1.9689,
+			"alto": 4.1,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N5",
+			"tipo": "ficus",
+			"x": -226.2,
+			"z": 460.2,
+			"rot": -1.1217,
+			"alto": 3.7,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N6",
+			"tipo": "ficus",
+			"x": -241.7,
+			"z": 459.6,
+			"rot": -1.8537,
+			"alto": 3.8,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N7",
+			"tipo": "ficus",
+			"x": -255.7,
+			"z": 459.1,
+			"rot": 0.3776,
+			"alto": 4.0,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N8",
+			"tipo": "ficus",
+			"x": -269.0,
+			"z": 458.5,
+			"rot": 2.1331,
+			"alto": 4.5,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N9",
+			"tipo": "ficus",
+			"x": -285.2,
+			"z": 457.4,
+			"rot": 2.1975,
+			"alto": 3.7,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N10",
+			"tipo": "ficus",
+			"x": -298.5,
+			"z": 456.1,
+			"rot": 1.7691,
+			"alto": 4.1,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N11",
+			"tipo": "ficus",
+			"x": -313.5,
+			"z": 454.6,
+			"rot": 1.7394,
+			"alto": 4.1,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N12",
+			"tipo": "ficus",
+			"x": -402.4,
+			"z": 446.1,
+			"rot": -2.7873,
+			"alto": 4.4,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N13",
+			"tipo": "ficus",
+			"x": -228.8,
+			"z": 381.9,
+			"rot": -1.7646,
+			"alto": 4.0,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N14",
+			"tipo": "ficus",
+			"x": -235.2,
+			"z": 396.7,
+			"rot": -0.7268,
+			"alto": 4.5,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N15",
+			"tipo": "ficus",
+			"x": -227.6,
+			"z": 409.7,
+			"rot": -2.8937,
+			"alto": 3.9,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N16",
+			"tipo": "ficus",
+			"x": -226.9,
+			"z": 427.3,
+			"rot": 3.0513,
+			"alto": 4.4,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N17",
+			"tipo": "ficus",
+			"x": -233.4,
+			"z": 438.9,
+			"rot": -0.179,
+			"alto": 4.2,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N18",
+			"tipo": "ficus",
+			"x": -399.9,
+			"z": 463.4,
+			"rot": 2.6092,
+			"alto": 4.4,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N19",
+			"tipo": "ficus",
+			"x": -384.3,
+			"z": 464.8,
+			"rot": -2.7508,
+			"alto": 4.0,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N20",
+			"tipo": "ficus",
+			"x": -367.8,
+			"z": 466.3,
+			"rot": -2.9737,
+			"alto": 3.6,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N21",
+			"tipo": "ficus",
+			"x": -350.7,
+			"z": 467.8,
+			"rot": -2.4287,
+			"alto": 4.0,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N22",
+			"tipo": "ficus",
+			"x": -333.7,
+			"z": 469.4,
+			"rot": -2.2894,
+			"alto": 3.8,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N23",
+			"tipo": "ficus",
+			"x": -308.3,
+			"z": 471.7,
+			"rot": -2.1096,
+			"alto": 3.6,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N24",
+			"tipo": "ficus",
+			"x": -286.3,
+			"z": 473.7,
+			"rot": 0.0095,
+			"alto": 3.9,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N25",
+			"tipo": "ficus",
+			"x": -261.9,
+			"z": 475.3,
+			"rot": 0.6353,
+			"alto": 4.0,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N26",
+			"tipo": "ficus",
+			"x": -236.9,
+			"z": 369.0,
+			"rot": -1.2878,
+			"alto": 3.8,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N27",
+			"tipo": "ficus",
+			"x": -250.8,
+			"z": 369.3,
+			"rot": 0.577,
+			"alto": 3.7,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N28",
+			"tipo": "ficus",
+			"x": -268.5,
+			"z": 369.8,
+			"rot": -2.5765,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N29",
+			"tipo": "ficus",
+			"x": -260.3,
+			"z": 383.5,
+			"rot": -2.4599,
+			"alto": 4.2,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N30",
+			"tipo": "ficus",
+			"x": -239.3,
+			"z": 382.9,
+			"rot": 0.2044,
+			"alto": 4.3,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N31",
+			"tipo": "ficus",
+			"x": -191.7,
+			"z": 413.1,
+			"rot": -1.3602,
+			"alto": 4.4,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N32",
+			"tipo": "ficus",
+			"x": -191.9,
+			"z": 397.6,
+			"rot": -1.1623,
+			"alto": 3.8,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N33",
+			"tipo": "ficus",
+			"x": -192.1,
+			"z": 382.9,
+			"rot": 1.4113,
+			"alto": 4.2,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N34",
+			"tipo": "ficus",
+			"x": -192.6,
+			"z": 362.5,
+			"rot": 0.9769,
+			"alto": 4.0,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N35",
+			"tipo": "ficus",
+			"x": -300.6,
+			"z": 473.6,
+			"rot": 2.6697,
+			"alto": 3.8,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N36",
+			"tipo": "ficus",
+			"x": -410.2,
+			"z": 287.4,
+			"rot": -1.8088,
+			"alto": 4.3,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N37",
+			"tipo": "ficus",
+			"x": -408.9,
+			"z": 319.1,
+			"rot": 0.5011,
+			"alto": 4.1,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N38",
+			"tipo": "ficus",
+			"x": -408.2,
+			"z": 336.6,
+			"rot": -2.3883,
+			"alto": 4.2,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N39",
+			"tipo": "ficus",
+			"x": -407.6,
+			"z": 353.2,
+			"rot": 0.9594,
+			"alto": 3.9,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N40",
+			"tipo": "ficus",
+			"x": -407.0,
+			"z": 369.6,
+			"rot": 0.5208,
+			"alto": 3.9,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N41",
+			"tipo": "ficus",
+			"x": -406.4,
+			"z": 384.0,
+			"rot": -0.8826,
+			"alto": 4.2,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N42",
+			"tipo": "ficus",
+			"x": -405.9,
+			"z": 397.0,
+			"rot": -0.3151,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N43",
+			"tipo": "ficus",
+			"x": -405.2,
+			"z": 413.7,
+			"rot": 0.2081,
+			"alto": 4.3,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N44",
+			"tipo": "ficus",
+			"x": -404.5,
+			"z": 431.2,
+			"rot": -0.7799,
+			"alto": 3.7,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N45",
+			"tipo": "ficus",
+			"x": -412.7,
+			"z": 465.5,
+			"rot": -1.4975,
+			"alto": 4.1,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N46",
+			"tipo": "ficus",
+			"x": -273.7,
+			"z": 334.9,
+			"rot": -2.7036,
+			"alto": 4.1,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N47",
+			"tipo": "ficus",
+			"x": -261.3,
+			"z": 324.8,
+			"rot": 1.3494,
+			"alto": 3.8,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N48",
+			"tipo": "ficus",
+			"x": -247.4,
+			"z": 333.8,
+			"rot": 1.6929,
+			"alto": 3.9,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N49",
+			"tipo": "ficus",
+			"x": -235.9,
+			"z": 323.8,
+			"rot": 0.4864,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N50",
+			"tipo": "ficus",
+			"x": -221.4,
+			"z": 332.7,
+			"rot": 0.3564,
+			"alto": 3.8,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N51",
+			"tipo": "ficus",
+			"x": -209.8,
+			"z": 322.7,
+			"rot": 0.7155,
+			"alto": 4.5,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N52",
+			"tipo": "ficus",
+			"x": -195.4,
+			"z": 331.7,
+			"rot": -1.008,
+			"alto": 4.2,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N53",
+			"tipo": "ficus",
+			"x": -286.1,
+			"z": 318.1,
+			"rot": -1.5443,
+			"alto": 4.3,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N54",
+			"tipo": "ficus",
+			"x": -277.1,
+			"z": 305.1,
+			"rot": -2.2272,
+			"alto": 3.8,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N55",
+			"tipo": "ficus",
+			"x": -287.1,
+			"z": 293.1,
+			"rot": -0.0464,
+			"alto": 4.2,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N56",
+			"tipo": "ficus",
+			"x": -278.1,
+			"z": 279.0,
+			"rot": -2.7145,
+			"alto": 3.9,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N57",
+			"tipo": "ficus",
+			"x": -288.1,
+			"z": 264.2,
+			"rot": 0.5169,
+			"alto": 4.0,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N58",
+			"tipo": "ficus",
+			"x": -361.2,
+			"z": 330.1,
+			"rot": 1.1752,
+			"alto": 4.3,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N59",
+			"tipo": "ficus",
+			"x": -347.7,
+			"z": 336.6,
+			"rot": 2.6088,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N60",
+			"tipo": "ficus",
+			"x": -330.7,
+			"z": 336.1,
+			"rot": -0.4424,
+			"alto": 4.3,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N61",
+			"tipo": "ficus",
+			"x": -401.6,
+			"z": 276.5,
+			"rot": 0.0704,
+			"alto": 4.0,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N62",
+			"tipo": "ficus",
+			"x": -386.0,
+			"z": 275.8,
+			"rot": -0.7019,
+			"alto": 4.4,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N63",
+			"tipo": "ficus",
+			"x": -202.5,
+			"z": 298.4,
+			"rot": -0.9412,
+			"alto": 3.7,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N64",
+			"tipo": "ficus",
+			"x": -201.9,
+			"z": 315.5,
+			"rot": -2.1017,
+			"alto": 4.0,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N65",
+			"tipo": "ficus",
+			"x": -330.9,
+			"z": 268.5,
+			"rot": 1.7136,
+			"alto": 3.7,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N66",
+			"tipo": "ficus",
+			"x": -323.5,
+			"z": 282.5,
+			"rot": -0.1686,
+			"alto": 3.7,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N67",
+			"tipo": "ficus",
+			"x": -330.2,
+			"z": 294.8,
+			"rot": 1.3805,
+			"alto": 4.1,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N68",
+			"tipo": "ficus",
+			"x": -322.8,
+			"z": 309.9,
+			"rot": -2.4683,
+			"alto": 4.5,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N69",
+			"tipo": "ficus",
+			"x": -322.5,
+			"z": 323.4,
+			"rot": -2.7765,
+			"alto": 3.9,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N70",
+			"tipo": "ficus",
+			"x": -322.1,
+			"z": 338.2,
+			"rot": -2.6586,
+			"alto": 3.8,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N71",
+			"tipo": "ficus",
+			"x": -328.8,
+			"z": 350.5,
+			"rot": 2.3904,
+			"alto": 4.2,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N72",
+			"tipo": "ficus",
+			"x": -233.5,
+			"z": 275.6,
+			"rot": -2.0169,
+			"alto": 4.1,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N73",
+			"tipo": "ficus",
+			"x": -361.7,
+			"z": 268.7,
+			"rot": 0.138,
+			"alto": 3.9,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N74",
+			"tipo": "ficus",
+			"x": -345.7,
+			"z": 268.0,
+			"rot": 2.7965,
+			"alto": 3.7,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N75",
+			"tipo": "ficus",
+			"x": -321.3,
+			"z": 267.1,
+			"rot": 1.4207,
+			"alto": 4.1,
+			"radio": 2.3
+		},
+		{
+			"nombre": "Ficus_N76",
+			"tipo": "ficus",
+			"x": -365.8,
+			"z": 277.2,
+			"rot": -1.3578,
+			"alto": 4.3,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N77",
+			"tipo": "ficus",
+			"x": -365.3,
+			"z": 293.6,
+			"rot": -1.0694,
+			"alto": 4.0,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N78",
+			"tipo": "ficus",
+			"x": -371.9,
+			"z": 306.0,
+			"rot": 1.8812,
+			"alto": 3.6,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N79",
+			"tipo": "ficus",
+			"x": -364.4,
+			"z": 319.3,
+			"rot": 1.7182,
+			"alto": 4.1,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N80",
+			"tipo": "ficus",
+			"x": -370.9,
+			"z": 336.5,
+			"rot": -2.5696,
+			"alto": 3.8,
+			"radio": 2.6
+		},
+		{
+			"nombre": "Ficus_N81",
+			"tipo": "ficus",
+			"x": -249.2,
+			"z": 288.2,
+			"rot": 1.3526,
+			"alto": 3.8,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N82",
+			"tipo": "ficus",
+			"x": -232.0,
+			"z": 287.4,
+			"rot": 3.0696,
+			"alto": 4.2,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N83",
+			"tipo": "ficus",
+			"x": -212.3,
+			"z": 286.4,
+			"rot": -2.0064,
+			"alto": 4.0,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N84",
+			"tipo": "ficus",
+			"x": -196.7,
+			"z": 276.4,
+			"rot": -2.8282,
+			"alto": 3.6,
+			"radio": 2.4
+		},
+		{
+			"nombre": "Ficus_N85",
+			"tipo": "ficus",
+			"x": -223.3,
+			"z": 368.6,
+			"rot": -0.4848,
+			"alto": 4.4,
+			"radio": 2.5
+		},
+		{
+			"nombre": "Ficus_N86",
+			"tipo": "ficus",
+			"x": -207.4,
+			"z": 368.2,
+			"rot": 2.5475,
+			"alto": 3.6,
+			"radio": 2.7
+		},
+		{
+			"nombre": "Ficus_N87",
+			"tipo": "ficus",
+			"x": -194.1,
+			"z": 374.8,
+			"rot": 2.3543,
+			"alto": 3.7,
+			"radio": 2.4
+		},
+		{
 			"nombre": "Banca_0",
 			"tipo": "banca",
 			"x": -378.0,
@@ -6814,7 +7597,7 @@
 			"tipo": "escalera",
 			"x": -405.8,
 			"z": 307.1,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"alto": 5.55,
 			"ancho": 1.0,
 			"sentido": -1
@@ -6847,7 +7630,7 @@
 			"x": -269.6,
 			"z": 477.75,
 			"y": 8.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"alto": 3.5,
 			"tam": [8.0, 4.0],
 			"anuncio": "gela",
@@ -6875,7 +7658,7 @@
 			"tipo": "mercado",
 			"x": -347.0,
 			"z": 347.0,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [30.0, 18.0]
 		},
 		{
@@ -6923,7 +7706,7 @@
 			"tipo": "escalera",
 			"x": -315.1,
 			"z": 471.0,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"alto": 5.15,
 			"ancho": 1.0,
 			"sentido": 1
@@ -7156,7 +7939,7 @@
 			"tipo": "patio",
 			"x": -305.0,
 			"z": 304.8,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7200,7 +7983,7 @@
 			"tipo": "patio",
 			"x": -255.0,
 			"z": 356.8,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7244,7 +8027,7 @@
 			"tipo": "patio",
 			"x": -347.5,
 			"z": 306.8,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7252,7 +8035,7 @@
 			"tipo": "vecindad",
 			"x": -215.5,
 			"z": 400.0,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [22.0, 52.0]
 		}
 	],
@@ -7303,7 +8086,7 @@
 			"x": -395.05,
 			"z": 320.2,
 			"y": 14.85,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -50,
 			"alcance": 7.0
 		},
@@ -7391,7 +8174,7 @@
 			"x": -367.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -7401,7 +8184,7 @@
 			"x": -354.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -7411,7 +8194,7 @@
 			"x": -341.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -7421,7 +8204,7 @@
 			"x": -328.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -7500,7 +8283,7 @@
 			"x": -347.0,
 			"z": 337.6,
 			"y": 4.6,
-			"rot": 3.1416
+			"rot": -3.1416
 		},
 		{
 			"nombre": "Fila_Agua_0",
