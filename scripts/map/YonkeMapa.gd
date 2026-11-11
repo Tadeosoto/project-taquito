@@ -23,6 +23,8 @@ const CARRO_COLORES := [Color(0.55, 0.18, 0.15), Color(0.2, 0.35, 0.5), Color(0.
 # En el mapa la barda ya existe (MapBardas: el baldio); en el safehouse se arma aqui
 @export var con_barda := false
 @export var barda_largo := 14.0
+const PORTON := 4.0              # m abiertos en el medio de la barda, frente a la flecha
+const BARDA_ALTO := 1.6
 
 var _puntos: MapPuntos
 
@@ -43,7 +45,13 @@ func _ready() -> void:
 		monton.rotation.y = en.x
 		add_child(monton)
 	if con_barda:
-		_caja(Vector3(barda_largo, 2.2, 0.12), Vector3(0.0, 1.1, 0.0), LAMINA_GRIS)
+		# Un muro liso de 2.2 m tapaba todo el patio y el yonke se veia como una pared: ahora es una
+		# barda de lamina mas baja con un porton abierto donde esta la flecha, y se ve la chatarra
+		var lado := (barda_largo - PORTON) / 2.0
+		for signo in [-1.0, 1.0]:
+			_caja(Vector3(lado, BARDA_ALTO, 0.12), Vector3(signo * (PORTON + lado) / 2.0, BARDA_ALTO / 2.0, 0.0), LAMINA_GRIS)
+			# Poste del porton, mas alto que la barda
+			_caja(Vector3(0.22, 2.4, 0.22), Vector3(signo * PORTON / 2.0, 1.2, 0.0), LAMINA)
 	var letrero := Label3D.new()
 	letrero.text = "YONKE\nDON CHAVA"
 	letrero.font_size = 64
