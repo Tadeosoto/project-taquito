@@ -419,20 +419,23 @@ def atrio(nombre, p):
             if alto > 3:
                 k.esfera((x, alto + 0.7, hz), 0.3, "farol", seg=6, anillos=4)
     # Veladoras al pie de la reja: vasos con su flama, la mitad con el tinaco impreso (una franja
-    # negra), y en medio el tinaquito de yeso de la Virgen con flores
+    # negra), y en medio el tinaquito de yeso de la Virgen con flores. Si el atrio va sobre un
+    # basamento (`y`), van en la calle: al piso y mas alla de los escalones
+    abajo = -p.get("y", 0.0)
+    sale = 0.0 if abajo == 0.0 else 0.75
     for i in range(13):
-        x, z = -hx + 0.9 + i * 0.32, hz + 0.45 + (i % 3) * 0.14
+        x, z = -hx + 0.9 + i * 0.32, hz + 0.45 + sale + (i % 3) * 0.14
         alto = 0.16 + (i % 2) * 0.08
-        k.cilindro((x, 0.0, z), 0.05, alto, "veladora", lados=6)
-        k.esfera((x, alto + 0.03, z), 0.025, "farol", seg=4, anillos=3)
+        k.cilindro((x, abajo, z), 0.05, alto, "veladora", lados=6)
+        k.esfera((x, abajo + alto + 0.03, z), 0.025, "farol", seg=4, anillos=3)
         if i % 2 == 0:
-            k.caja((x, alto * 0.55, z + 0.045), (0.06, 0.04, 0.01), "tinaco")
+            k.caja((x, abajo + alto * 0.55, z + 0.045), (0.06, 0.04, 0.01), "tinaco")
     tx = -hx + 0.9 + 6 * 0.32
-    k.caja((tx, 0.12, hz + 0.95), (0.5, 0.24, 0.4), "foto_cantera_rosa")
-    k.cilindro((tx, 0.24, hz + 0.95), 0.15, 0.3, "tinaco", lados=8)
-    k.cono((tx, 0.54, hz + 0.95), 0.16, 0.08, "tinaco", lados=8)
+    k.caja((tx, abajo + 0.12, hz + 0.95 + sale), (0.5, 0.24, 0.4), "foto_cantera_rosa")
+    k.cilindro((tx, abajo + 0.24, hz + 0.95 + sale), 0.15, 0.3, "tinaco", lados=8)
+    k.cono((tx, abajo + 0.54, hz + 0.95 + sale), 0.16, 0.08, "tinaco", lados=8)
     for j, col in enumerate(("lona_rosa", "lona_amarillo", "lona_rojo", "blanco_cal")):
-        k.esfera((tx - 0.3 + j * 0.2, 0.12, hz + 1.25), 0.07, col, seg=5, anillos=3)
+        k.esfera((tx - 0.3 + j * 0.2, abajo + 0.12, hz + 1.25 + sale), 0.07, col, seg=5, anillos=3)
     # Estampitas pegadas en la reja de los dos lados de la entrada
     for lado in (-1, 1):
         for i in range(7):
@@ -942,6 +945,36 @@ def puente(nombre, p):
     return k
 
 
+def plinto(nombre, p):
+    """Plataforma octagonal de cantera (bajo el kiosco): `radio` arriba, `alto` m, con escalones
+    alrededor hasta el piso. Su choque son ocho cuñas en rampa, del centro a cada lado."""
+    k = Constructor(nombre)
+    r, alto = p.get("radio", 5.6), p.get("alto", 0.45)
+    lados = 8
+    escalones = max(2, round(alto / 0.15))
+    huella = 0.3
+    giro0 = math.tau / 16
+    def anillo(radio, y):
+        return [(math.cos(i * math.tau / lados + giro0) * radio, y, math.sin(i * math.tau / lados + giro0) * radio) for i in range(lados)]
+    for e in range(escalones):
+        y = alto * (escalones - e) / escalones
+        rad = r + e * huella
+        arriba = anillo(rad, y)
+        k.cara(arriba[::-1], "foto_cantera_rosa")
+        abajo = anillo(rad, 0.0)
+        for i in range(lados):
+            j = (i + 1) % lados
+            k.cara([abajo[j], abajo[i], arriba[i], arriba[j]], "foto_cantera_rosa")
+    fuera = r + escalones * huella
+    for i in range(lados):
+        a0, a1 = i * math.tau / lados + giro0, (i + 1) * math.tau / lados + giro0
+        k.rampas.append([(0.0, alto, 0.0), (0.0, -0.2, 0.0),
+                         (math.cos(a0) * r, alto, math.sin(a0) * r), (math.cos(a1) * r, alto, math.sin(a1) * r),
+                         (math.cos(a0) * fuera, 0.0, math.sin(a0) * fuera), (math.cos(a1) * fuera, 0.0, math.sin(a1) * fuera),
+                         (math.cos(a0) * fuera, -0.2, math.sin(a0) * fuera), (math.cos(a1) * fuera, -0.2, math.sin(a1) * fuera)])
+    return k
+
+
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -1362,6 +1395,6 @@ def escombro(nombre, p):
 
 PIEZAS = {"kiosco": kiosco, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
-          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
+          "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}
