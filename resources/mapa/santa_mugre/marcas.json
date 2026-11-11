@@ -195,6 +195,26 @@
 			"y": 7.3,
 			"rot": -2.577,
 			"baja": 33
+		},
+		{
+			"nombre": "Reflector_Espectacular_Cancha",
+			"tipo": "reflector",
+			"x": -395.05,
+			"z": 320.2,
+			"y": 14.85,
+			"rot": -3.1416,
+			"baja": -50,
+			"alcance": 7.0
+		},
+		{
+			"nombre": "Reflector_Espectacular_Avenida",
+			"tipo": "reflector",
+			"x": -269.6,
+			"z": 476.05,
+			"y": 12.1,
+			"rot": 0.0,
+			"baja": -50,
+			"alcance": 7.0
 		}
 	]
 }

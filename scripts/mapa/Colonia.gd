@@ -14,7 +14,8 @@ extends Node3D
 #   casa_propia  la flecha de la casa del jugador (CasaPropia, la casa de JJ que se camina)
 #   casa_vecino  la flecha de la casa de un vecino (CasaPropia con scenes/casas/<quien>.tscn)
 #   reflector  una luz de reflector (los postes de la cancha) a la altura "y", viendo hacia su +Z
-#           inclinada "baja" grados hacia el piso; se prende de noche con Ciclo.valor()
+#           inclinada "baja" grados hacia el piso (negativo: hacia arriba, para un anuncio) y con
+#           "alcance" m; se prende de noche con Ciclo.valor()
 
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
@@ -96,7 +97,7 @@ func _process(_delta: float) -> void:
 func _reflector(marca: Dictionary) -> void:
 	var luz := SpotLight3D.new()
 	luz.name = String(marca.get("nombre", "Reflector"))
-	luz.spot_range = REFLECTOR_ALCANCE
+	luz.spot_range = float(marca.get("alcance", REFLECTOR_ALCANCE))
 	luz.spot_angle = REFLECTOR_ANGULO
 	luz.light_color = REFLECTOR_COLOR
 	luz.shadow_enabled = false
