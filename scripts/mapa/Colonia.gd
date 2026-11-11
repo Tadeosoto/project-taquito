@@ -21,7 +21,8 @@ extends Node3D
 #   ninos   chamacos jugando futbolito de dia (NinosCancha) en un rectangulo "tam" [ancho, largo]
 #           alrededor de la marca, "cuantos"
 #   vecino  un civil parado ahi de dia (los guardias del reten de GelA): "clip" (Idle por
-#           omision) y "modelo" de Civiles (o uno fijo por su nombre); de noche no esta
+#           omision), "modelo" de Civiles (o uno fijo por su nombre) y "uniforme" ("gela":
+#           chaleco y gorra azules, UniformeGela); de noche no esta
 #   trampa  un lugar iluminado que de noche atrae zombis si estas adentro (LuzTrampa): "tam"
 #           [ancho, largo] y "radio" m
 #   mision  un punto con nombre para las misiones (Colonia.puntos_mision): donde se para el que
@@ -199,6 +200,8 @@ func _vecino(marca: Dictionary) -> void:
 	add_child(nodo)
 	var modelo := String(marca.get("modelo", Civiles.elegir(nodo.name)))
 	Civiles.poner(nodo, modelo, String(marca.get("clip", "Idle")))
+	if marca.get("uniforme", "") == "gela":
+		UniformeGela.vestir(nodo)
 	_de_dia.append(nodo)
 
 

@@ -68,7 +68,7 @@ exec(open(R + r"\colonia.py", encoding="utf-8").read(), {"__name__": "colonia", 
   - `reflector`: una luz de reflector a la altura `y`, viendo a su +Z e inclinada `baja` grados; se prende de noche (`Ciclo.valor()`). Los de la cancha van en sus postes.
   - `mision`: un punto con nombre para `MisionData.donde` y los pasos `RECOGER` ("marca:<nombre>").
   - `ninos`: chamacos jugando de dia (`NinosCancha`) en `tam` [ancho, largo], `cuantos`.
-  - `vecino`: un civil parado de dia (`clip`, `modelo`).
+  - `vecino`: un civil parado de dia (`clip`, `modelo`, `uniforme`: `gela` le pone chaleco y gorra azules).
   - `trampa`: lugar iluminado que de noche atrae zombis si estas adentro (`tam`, `radio`).
   - `botin`: tampoco se escribe a mano; `exportar.py` pone uno por ruta de azoteas y en `colonia.BOTIN_EXTRA` (`que`: `chatarra`, `bolsa` o `curacion`).
   - `foco`: no se escribe a mano; `exportar.py` agrega uno por cada foco colgado de los callejones (`colonia.focos_callejones`).

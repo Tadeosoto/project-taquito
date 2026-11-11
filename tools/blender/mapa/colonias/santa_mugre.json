@@ -7567,14 +7567,16 @@
 			"tipo": "vecino",
 			"x": -342.8,
 			"z": 453.7,
-			"rot": 3.0457
+			"rot": 3.0457,
+			"uniforme": "gela"
 		},
 		{
 			"nombre": "Guardia_GelA_1",
 			"tipo": "vecino",
 			"x": -346.0,
 			"z": 453.3,
-			"rot": 3.0457
+			"rot": 3.0457,
+			"uniforme": "gela"
 		},
 		{
 			"nombre": "Puerta_oxxo_0",
