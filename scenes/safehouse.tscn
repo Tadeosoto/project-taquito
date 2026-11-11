@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/abarrotes.tscn" id="19_abarrotes"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="20_farmacia"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/taqueria.tscn" id="21_taqueria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/tortilleria.tscn" id="21_tortilleria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="22_ferreteria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="23_purificadora"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="24_punto"]
@@ -181,7 +182,8 @@ escenas = Dictionary[String, PackedScene]({
 "oxxo": ExtResource("17_tiendita"),
 "punto": ExtResource("24_punto"),
 "purificadora": ExtResource("23_purificadora"),
-"taqueria": ExtResource("21_taqueria")
+"taqueria": ExtResource("21_taqueria"),
+"tortilleria": ExtResource("21_tortilleria")
 })
 puntos_path = NodePath("../Puntos")
 player_path = NodePath("../Player")

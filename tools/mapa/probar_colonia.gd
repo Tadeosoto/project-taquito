@@ -59,6 +59,20 @@ func _probar() -> void:
 		var d := Vector2(jugador.global_position.x - esperado.x, jugador.global_position.z - esperado.z).length()
 		_revisar("sale frente a la puerta", interiores.get("_interior") == null and d < 0.6,
 			"jugador en %s, esperado %s" % [jugador.global_position, esperado])
+	# La tortilleria (giro nuevo, sin negocio en puntos.json): su flecha mete y vende tortillas
+	for m: Dictionary in marcas["marcas"]:
+		if m.get("giro", "") == "tortilleria":
+			jugador.global_position = Vector3(m["x"], 1.2, m["z"])
+			await _cuadros(120)
+			var adentro: Node = interiores.get("_interior")
+			var vende := false
+			if adentro:
+				for item: InventoryItemData in adentro.get("productos"):
+					vende = vende or item.item_name == "Kilo de tortillas"
+			_revisar("la tortilleria vende tortillas", vende, "%s" % adentro)
+			if adentro:
+				interiores.call("_salir")
+				await _cuadros(90)
 	await _subir_banqueta(escena)
 	await _pelota(escena)
 	await _vida(escena)

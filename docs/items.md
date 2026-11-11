@@ -218,3 +218,7 @@ Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Re
 - [ ] 💡 ¿El agua sucia se junta de los charcos o solo de la llave?
 - [ ] 💡 ¿La torta ahogada y el tejuino entran al catálogo o se quedan como sugerencia?
 - [ ] 💡 ¿Los precios de arriba se quedan o se rebalancean?
+
+## Kilo de tortillas (propuesta de AG, 2026-11-11)
+
+Se compra en la Tortilleria La Lupita de Santa Mugre ($22). Cura poco (15) y se apila: la curacion barata del barrio. Archivo: `resources/productos/tortillas.tres`.
