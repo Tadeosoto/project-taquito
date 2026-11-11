@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://bombdcr6oghau" path="res://scenes/player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="3_puntos"]
 [ext_resource type="Script" path="res://scripts/mapa/ArbolesModelo.gd" id="21_arboles_modelo"]
+[ext_resource type="Script" path="res://scripts/mapa/CarrosColonia.gd" id="22_carros_colonia"]
 [ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="19_carrito"]
 [ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="4_ciclo"]
 [ext_resource type="Script" path="res://scripts/mapa/Colonia.gd" id="5_colonia"]
@@ -95,6 +96,9 @@ interiores_path = NodePath("../Interiores")
 
 [node name="ArbolesModelo" type="Node3D" parent="."]
 script = ExtResource("21_arboles_modelo")
+
+[node name="CarrosColonia" type="Node3D" parent="."]
+script = ExtResource("22_carros_colonia")
 
 [node name="Ciclo" type="Node" parent="."]
 script = ExtResource("4_ciclo")

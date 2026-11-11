@@ -165,3 +165,9 @@
 - [Maple tree](https://sketchfab.com/3d-models/4b27adcf92f644bdabf8ecc6c5bef399) de atrodler, licencia CC Attribution (`models/arboles/arce/`).
 - [Realistic Tree](https://sketchfab.com/3d-models/d989c0f801d847b9a74992ec4ddcfdfc) de Daniel, licencia CC Attribution (`models/arboles/realista/`).
 - [Oak tree](https://sketchfab.com/3d-models/3dc59560f2d24345bdbe65c44636453b) de massive-graphisme, licencia CC Attribution (`models/arboles/roble/`).
+
+## Vehiculos (`models/vehiculos/`, Sketchfab)
+- [Suzuki Grand Vitara - PS1 Low Poly](https://sketchfab.com/3d-models/03e3db7b0d4a42d5a52f6740a3d5657d) de Wersaus33, licencia CC Attribution (`models/vehiculos/grand_vitara/`).
+- [Retro Lowpoly Nissan Tsuru](https://sketchfab.com/3d-models/94faafff28ce4bb3b3ab338da0b24eec) de jomalon, licencia CC Attribution (`models/vehiculos/tsuru/`).
+- [1967 Volkswagen Beetle](https://sketchfab.com/3d-models/769ada1c8d2c4cddb33a8c66b93e1099) de zairiq-zairiq-123-pixar-cars-bfdi, licencia CC Attribution (`models/vehiculos/vocho/`).
+- [White Van - PS1 Low Poly](https://sketchfab.com/3d-models/1cac40905d494bae8108a556d870e23e) de Wersaus33, licencia CC Attribution (`models/vehiculos/van_blanca/`).

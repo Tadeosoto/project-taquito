@@ -11,6 +11,7 @@
 #   COLONIA = "santa_mugre"; exec(open(r"...\tools\blender\mapa\exportar.py", encoding="utf-8").read())
 
 import bpy
+import json
 import os
 
 _k = {"__name__": "colonia", "SOLO_FUNCIONES": True}
@@ -144,6 +145,8 @@ def exportar(nombre):
     modelo = [[p["x"], p["z"], round((p.get("alto", 4.2) + p.get("radio", 2.0)) * 1.5, 1), round(p.get("radio", 2.0) * 4.6, 1), extra[arbol_tipo(p["nombre"]) - 1]]
               for p in datos.get("piezas", []) if p["tipo"] == "ficus" and arbol_tipo(p["nombre"]) >= 1]
     guardar_json(os.path.join(datos_dir, "arboles_modelo.json"), {"arboles": modelo})
+    # Los carros de Sketchfab (models/vehiculos): [x, z, giro, modelo, estado, y]; los dibuja scripts/mapa/CarrosColonia.gd
+    guardar_json(os.path.join(datos_dir, "carros_modelo.json"), {"carros": json.loads(sc.get("carros_modelo", "[]"))})
     guardar_json(os.path.join(datos_dir, "alumbrado.json"), {"postes": datos.get("postes", [])})
     guardar_json(os.path.join(datos_dir, "casas.json"), {"casas": casas_juego(datos)})
     guardar_json(os.path.join(datos_dir, "banquetas.json"), {"banquetas": banquetas(datos)})

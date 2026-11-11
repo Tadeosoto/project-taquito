@@ -48,6 +48,7 @@ def nombre_escena(nombre):
 
 def armar(nombre):
     datos = leer_colonia(nombre)
+    CARROS_MODELO.clear()
     sc = escena(nombre_escena(nombre))
     mundo = coleccion(sc, MUNDO)
     marcas = coleccion(sc, MARCAS)
@@ -84,7 +85,10 @@ def armar(nombre):
         ob = vacio(marcas, m["nombre"], m["x"], m["z"], m.get("rot", 0.0), tamano=1.5)
         ob[DATO] = "marca:" + m["nombre"]
 
-    print("colonia %s: %d piezas, %d marcas" % (nombre, len(datos.get("piezas", [])), len(datos.get("marcas", []))))
+    # exportar.py carga colonia.py otra vez en su propio espacio: los carros viajan en la escena
+    import json
+    sc["carros_modelo"] = json.dumps(CARROS_MODELO)
+    print("colonia %s: %d piezas, %d marcas, %d carros" % (nombre, len(datos.get("piezas", [])), len(datos.get("marcas", [])), len(CARROS_MODELO)))
     return sc
 
 
@@ -152,6 +156,8 @@ def _pieza(col, p):
         for i, ((cx, cy, cz), tam, giro) in enumerate(k.choques):
             wx, wz = x + cx * c + cz * s, z - cx * s + cz * c
             colision(col, "%s_choque%d" % (nombre, i), wx, wz, rot + giro, tam, y + cy - tam[1] / 2)
+        for (cx, cz, giro, modelo, estado) in getattr(k, "coches", []):
+            CARROS_MODELO.append([round(x + cx * c + cz * s, 2), round(z - cx * s + cz * c, 2), round(rot + giro, 4), modelo, estado, round(y, 2)])
         for i, puntos in enumerate(k.rampas):
             _casco(col, "%s_rampa%d" % (nombre, i), puntos, ob)
         # Lo que solo esta de dia (la lona y la mercancia de un puesto): otro objeto, "Dia_<nombre>",
@@ -609,8 +615,9 @@ def carros_estacionados(datos):
                     carro = {"nombre": "Carro_%s_%d_%d" % (p["nombre"], k, int(s)), "tipo": "carro",
                              "x": round(x, 2), "z": round(z, 2), "rot": round(math.atan2(ux, uz) + r.uniform(-0.12, 0.12), 4),
                              "color": r.choice(CARRO_COLORES), "estado": estado}
-                    if r.random() < 0.15:
-                        carro["modelo"] = "combi"
+                    q = r.random()
+                    # Cual de los cuatro (la van, una de cada 5; el mismo tiro de antes: las posiciones no cambian)
+                    carro["modelo"] = "van_blanca" if q < 0.2 else ("tsuru" if q < 0.47 else ("vocho" if q < 0.74 else "grand_vitara"))
                     carros.append(carro)
                 s += r.uniform(*CARRO_CADA)
     return carros
@@ -648,6 +655,12 @@ def topes(datos):
 def _topes(mundo, datos):
     for p in topes(datos):
         _pieza(mundo, p)
+
+# Donde va cada carro de modelo de Sketchfab: [x, z, giro, modelo, estado, y]. _pieza lo llena con lo
+# que pone cada pieza (`k.coches`: carros sueltos, el taller, la casa derrumbada) y exportar.py lo
+# escribe en resources/mapa/<colonia>/carros_modelo.json (scripts/mapa/CarrosColonia.gd).
+CARROS_MODELO = []
+
 
 def _carros(mundo, datos):
     for p in carros_estacionados(datos):

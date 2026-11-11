@@ -152,6 +152,11 @@ MODELS = {
 	"bodegas/rack": "593e7d15f27346efa2dcc0149edb6ef2",             # Pallet Racking, 1.3k
 	"bodegas/cajas": "5d3d508061e544739e37c685af235684",            # Cardboard Box Set- Low Poly, 110
 	"bodegas/estante_oxidado": "3ce07d0518154759841236045efafd72",  # Old Rusty Shelving Unit, 160
+	# Carros estacionados del mapa (piezas.py `carro`), en lugar de los de cajas
+	"vehiculos/grand_vitara": "03e3db7b0d4a42d5a52f6740a3d5657d",   # Suzuki Grand Vitara - PS1 Low Poly, 232
+	"vehiculos/tsuru": "94faafff28ce4bb3b3ab338da0b24eec",          # Retro Lowpoly Nissan Tsuru, 1.4k
+	"vehiculos/vocho": "769ada1c8d2c4cddb33a8c66b93e1099",          # 1967 Volkswagen Beetle, 1.8k
+	"vehiculos/van_blanca": "1cac40905d494bae8108a556d870e23e",     # White Van - PS1 Low Poly, 140
 }
 
 # Titulo de la seccion de CREDITS.md para cada carpeta de primer nivel
@@ -165,6 +170,7 @@ CREDIT_HEADERS = {
 	"armas": "## Armas (`models/armas/`, Sketchfab)",
 	"interiores": "## Interiores (`models/interiores/`, Sketchfab)",
 	"bodegas": "## Bodegas (`models/bodegas/`, Sketchfab)",
+	"vehiculos": "## Vehiculos (`models/vehiculos/`, Sketchfab)",
 }
 
 
