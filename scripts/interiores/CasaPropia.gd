@@ -19,6 +19,10 @@ const SALIDA_DISTANCIA := 2.2
 const ADENTRO := Vector3(2.2, 1.2, 3.11)
 const PUERTA := Vector3(0.35, 0.0, 3.11)
 const TEXTO_PUERTA := "Sal por la puerta"
+# La casa se hizo con techo de 2.6 m y puerta de 2.0 m, y el jugador (1.8-2.0 m con su talla) parecia un
+# gigante adentro: se agranda toda, uniforme, al instanciarla (techo ~3.3 m, puerta ~2.5 m). ADENTRO
+# y PUERTA estan en medidas de la escena, y esto las lleva al mundo.
+const ESCALA := 1.25
 
 @export var escena: PackedScene
 @export var player_path: NodePath
@@ -123,11 +127,12 @@ func _entrar() -> void:
 	if ambiente:
 		ambiente.free()
 	_casa.position = Vector3(flecha_en.x, ALTURA, flecha_en.z)
+	_casa.scale = Vector3.ONE * ESCALA
 	add_child(_casa)
 	if muebles:
 		_casa.add_child(muebles.new())
 	_casa.add_child(_marcador(PUERTA, 0.0, _salir))
-	_poner_jugador(_casa.global_position + ADENTRO, -PI / 2.0)
+	_poner_jugador(_casa.global_position + ADENTRO * ESCALA, -PI / 2.0)
 	_player.poner_sin_combate(true)
 	if _zombis:
 		_espontaneos = _zombis.espontaneos
