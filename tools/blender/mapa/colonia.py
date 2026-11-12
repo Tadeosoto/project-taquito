@@ -167,6 +167,13 @@ def _pieza(col, p):
             de_dia = bpy.data.objects.new("Dia_" + nombre, dia.terminar())
             de_dia.location, de_dia.rotation_euler = ob.location, ob.rotation_euler
             col.objects.link(de_dia)
+        # Lo chico de una pieza grande (postes, alambre y pintas de la muralla): otro objeto,
+        # "Detalle_<nombre>", que MapaPostImport junta en cuadros chicos que no se dibujan de lejos
+        detalle = getattr(k, "detalle", None)
+        if detalle is not None:
+            chico = bpy.data.objects.new("Detalle_" + nombre, detalle.terminar())
+            chico.location, chico.rotation_euler = ob.location, ob.rotation_euler
+            col.objects.link(chico)
         return ob
     if tipo == "suelo":
         # Abajo de las calles y andadores (que van a 1-2 cm); "material" es un piso de kit.PISOS

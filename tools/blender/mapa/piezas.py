@@ -1359,6 +1359,8 @@ def _semilla_nombre(nombre):
 
 VELAS = ("vela_roja", "vela_blanca", "vela_azul", "vela_verde")
 # Tintes de la lamina (color de vertice sobre foto_lamina_verde: no son materiales nuevos)
+# Los tambos de la muralla: la misma lamina tenida de azul, rojo o negro (sin materiales nuevos)
+TINTES_TAMBO = ((0.4, 0.55, 1.0), (1.0, 0.4, 0.35), (0.3, 0.3, 0.32))
 TINTES_LAMINA = ((1.0, 1.0, 1.0), (0.75, 0.82, 0.95), (1.0, 0.82, 0.62), (0.7, 0.7, 0.7), (0.95, 0.95, 0.8))
 
 
@@ -1369,7 +1371,8 @@ def _veladoras(k, x0, x1, z, semilla, y=0.0, n=None):
         x = x0 + (x1 - x0) * (i + 0.5) / n
         h = 0.14 + ((semilla + i * 7) % 3) * 0.04
         zz = z + ((semilla + i * 5) % 3 - 1) * 0.08
-        k.cilindro((x, y, zz), 0.05, h, VELAS[(semilla + i) % 4], lados=6)
+        # Todas del mismo material: cada color era otra superficie en cada cuadro de la muralla
+        k.cilindro((x, y, zz), 0.05, h, "vela_roja", lados=6)
         k.caja((x, y + h + 0.03, zz), (0.03, 0.06, 0.03), "farol")
 
 
@@ -1385,15 +1388,18 @@ def muralla(nombre, p):
     de block de antes (`base` m) y, encima, lo que los vecinos le fueron subiendo hasta `alto`:
     lamina de varios colores, tablones y filas de tambos, sobre postes de fierro, con alambre de
     puas arriba. Por la cara de adentro (`dentro`: 1 si adentro queda a +Z, -1 si a -Z) lleva
-    pintas de la Virgen y grafitis, y veladoras al pie de cada Virgen. Choca en todo su alto."""
+    pintas de la Virgen y grafitis, y veladoras al pie de cada Virgen. Choca en todo su alto.
+    Lo chico (postes, alambre, pintas, veladoras) va en `k.detalle`: de lejos no se dibuja."""
     k = Constructor(nombre)
+    d = Constructor(nombre + "_Detalle")
+    k.detalle = d
     largo, alto, grueso = p.get("largo", 10.0), p.get("alto", 4.5), p.get("grueso", 0.3)
     base = min(p.get("base", 2.6), alto)
     dentro = 1 if p.get("dentro", 1) > 0 else -1
     semilla = _semilla_nombre(nombre)
     k.caja((0, base / 2, 0), (largo, base, grueso), "foto_block")
     for i in range(int(largo / 3.0) + 1):
-        k.caja((-largo / 2 + min(i * 3.0, largo), base / 2, 0), (0.3, base + 0.1, grueso + 0.06), "concreto")
+        k.caja((-largo / 2 + min(i * 3.0, largo), base / 2, 0), (0.3, base + 0.1, grueso + 0.06), "foto_block", color=(0.78, 0.78, 0.78))
     n = max(1, round(largo / 2.4))
     paso = largo / n
     arriba = alto - base
@@ -1411,13 +1417,11 @@ def muralla(nombre, p):
             for fila in range(2):
                 for j in range(3 - fila):
                     k.cilindro((x - paso / 2 + (j + 0.5 + fila * 0.5) * paso / 3, base + fila * 0.9, 0), min(0.32, paso / 6 - 0.03), 0.9,
-                               ("tinaco", "vela_azul", "rojo")[(r + j + fila) % 3], lados=8)
-        k.caja((x - paso / 2, base + arriba / 2 + 0.2, dentro * (grueso / 2 + 0.04)), (0.08, arriba + 0.4, 0.08), "fierro")
-    # Alambre de puas: dos hilos y sus puas cada metro
+                               "foto_lamina_verde", lados=6, color=TINTES_TAMBO[(r + j + fila) % 3])
+        d.caja((x - paso / 2, base + arriba / 2 + 0.2, dentro * (grueso / 2 + 0.04)), (0.08, arriba + 0.4, 0.08), "fierro")
+    # Alambre de puas: dos hilos (las puas de cada metro casi no se veian y eran 11 mil triangulos)
     for y in (alto + 0.22, alto + 0.38):
-        k.caja((0, y, dentro * (grueso / 2 + 0.04)), (largo, 0.02, 0.02), "cable")
-    for i in range(int(largo)):
-        k.caja((-largo / 2 + i + 0.5, alto + 0.3, dentro * (grueso / 2 + 0.04)), (0.02, 0.22, 0.1), "cable")
+        d.caja((0, y, dentro * (grueso / 2 + 0.04)), (largo, 0.02, 0.02), "fierro")
     # Pintas por dentro: una Virgen de cada dos, con sus veladoras al pie
     tramo = 4.5
     for i in range(int(largo / tramo)):
@@ -1428,9 +1432,9 @@ def muralla(nombre, p):
         virgen = (semilla + i) % 2 == 0
         diseno = elegir_mural(semilla + i * 13, "virgen" if virgen else "grafiti")
         abajo = 0.7 if virgen else 0.2
-        _mural_en_x(k, x0, x1, abajo, dentro, grueso / 2 + 0.03, diseno, 3.4, base - abajo - 0.15)
+        _mural_en_x(d, x0, x1, abajo, dentro, grueso / 2 + 0.03, diseno, 3.4, base - abajo - 0.15)
         if virgen:
-            _veladoras(k, (x0 + x1) / 2 - 0.9, (x0 + x1) / 2 + 0.9, dentro * (grueso / 2 + 0.3), semilla + i, n=5)
+            _veladoras(d, (x0 + x1) / 2 - 0.9, (x0 + x1) / 2 + 0.9, dentro * (grueso / 2 + 0.3), semilla + i, n=5)
     k.choques.append(((0, alto / 2, 0), (largo, alto + 0.4, grueso + 0.1), 0.0))
     return k
 
@@ -1577,8 +1581,6 @@ def reja(nombre, p):
             k.caja((x, 1.15, z), (0.12, 0.4, 0.2), "fierro")
     for y in (alto + 0.7, alto + 0.86):
         k.caja((0, y, 0), (largo, 0.02, 0.02), "cable")
-    for i in range(int(largo)):
-        k.caja((-largo / 2 + i + 0.5, alto + 0.78, 0), (0.02, 0.22, 0.1), "cable")
     k.choques.append(((0, alto / 2, 0), (largo, alto + 0.6, grueso + 0.2), 0.0))
     return k
 
