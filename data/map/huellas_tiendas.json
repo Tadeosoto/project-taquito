@@ -14,9 +14,53 @@
 	],
 	"_nota": "Generado por tools/map_import/huellas_tiendas.gd: [frente, fondo] en metros",
 	"casas": {
-		"mexican_house_3": [
-			6.06,
-			5.76
+		"psm_1p_a": [
+			5.0,
+			12.0
+		],
+		"psm_1p_b": [
+			5.0,
+			12.0
+		],
+		"psm_1p_barrotes": [
+			5.0,
+			12.0
+		],
+		"psm_1p_c": [
+			5.0,
+			12.0
+		],
+		"psm_1p_persiana": [
+			5.0,
+			12.0
+		],
+		"psm_1p_tablones": [
+			5.0,
+			12.0
+		],
+		"psm_2p_a": [
+			5.0,
+			12.0
+		],
+		"psm_2p_b": [
+			5.0,
+			12.0
+		],
+		"psm_2p_barrotes": [
+			5.0,
+			12.0
+		],
+		"psm_2p_c": [
+			5.0,
+			12.0
+		],
+		"psm_2p_persiana": [
+			5.0,
+			12.0
+		],
+		"psm_2p_tablones": [
+			5.0,
+			12.0
 		],
 		"semi_residencial": [
 			8.07,
@@ -27,23 +71,23 @@
 			7.37
 		],
 		"urbi_1p_b": [
-			6.8,
+			6.74,
 			7.37
 		],
 		"urbi_1p_c": [
-			7.59,
+			7.5,
 			7.37
 		],
 		"urbi_2p_a": [
-			7.5,
+			7.25,
 			6.94
 		],
 		"urbi_2p_b": [
-			8.42,
+			7.5,
 			6.94
 		],
 		"urbi_2p_c": [
-			8.58,
+			7.97,
 			6.94
 		]
 	},

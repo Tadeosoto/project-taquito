@@ -53,6 +53,9 @@ PALETTE = [
 
 # Colores de las casas modelo (MapCasas): mas vivos que PALETTE, porque el shader
 # los multiplica por la sombra de la textura y la niebla los deslava
+# x0, z0, x1, z1 del recorte de Parques de Santa Mugre (el muro de MuroColonia.gd)
+RECORTE_MURO = (-420.0, 258.0, -185.0, 482.0)
+
 CASA_PALETTE = [
 	"#e05a47",  # rojo
 	"#f2994a",  # naranja
@@ -2736,6 +2739,13 @@ def main() -> None:
 			if quitados:
 				print(f"  Negocios encimados en otro: {len(quitados)} quitados ("
 					+ ", ".join(f"{p['tipo']} {p.get('nombre', '')}" for p in quitados) + ")")
+		# Parques de Santa Mugre va encerrada por un muro (scripts/map/MuroColonia.gd): ahi se entra por la
+		# flecha amarilla al mapa de Blender, asi que sus negocios no existen en este mapa
+		x0, z0, x1, z1 = RECORTE_MURO
+		dentro = [p for p in placed if x0 <= p["x"] <= x1 and z0 <= p["z"] <= z1]
+		if dentro:
+			placed = [p for p in placed if p not in dentro]
+			print(f"  Negocios dentro del muro de Santa Mugre: {len(dentro)} quitados")
 		conteo = marcar_interactivos([p for p in placed if p["tipo"] != "alto"])
 		print("  Interactivos: " + ", ".join(f"{g} {n}" for g, n in conteo.most_common())
 			+ f" (de {sum(1 for p in placed if p.get('giro'))} con giro)")

@@ -1,25 +1,182 @@
 {
 	"_ayuda": [
 		"Que casas modelo van en cada colonia (la colonia de cada manzana sale del DENUE, ver prepare_osm.py).",
-		"Por colonia: pisos (\"1\", \"2\" o \"*\" = cualquiera) -> lista de [modelo, peso]. Los modelos son los de Casas.modelos en scenes/map_test.tscn (urbi_1p_* y urbi_2p_* son las 6 casas del modelo Urbi).",
+		"Por colonia: pisos (\"1\", \"2\" o \"*\" = cualquiera) -> lista de [modelo, peso]. Los modelos son los de Casas.modelos en scenes/map_test.tscn (psm_* son las 12 variantes de la casa de Parques de Santa Maria, casas_psm.glb: 1 o 2 pisos, un tercio sin reja y dos tercios con tablones, barrotes o persiana; urbi_* son las 6 casas del modelo Urbi).",
 		"Cada lado de cada cuadra se llena de casas pegadas donde hay casas de Google/OSM (huecos de mas de 10 m quedan vacios); frente y fondo de cada modelo: data/map/huellas_tiendas.json (huellas_tiendas.gd).",
 		"\"_proporcion\": fraccion de los lados de cuadra que se cambian (1 = todos). \"*\" = las demas colonias (y las manzanas sin colonia). AGUA BLANCA INDUSTRIAL va con 0 porque sus huellas son bodegas (las grandes las pone place_bodegas como bodegas huecas).",
 		"Correcciones de colonia por manzana: data/map/colonias.json. Despues de editar: bash tools/map_import/build_glb.sh"
 	],
 	"HACIENDAS DE SAN JOSE": {
-		"1": [["urbi_1p_a", 1], ["urbi_1p_b", 1], ["urbi_1p_c", 1]],
-		"2": [["urbi_2p_a", 1], ["urbi_2p_b", 1], ["urbi_2p_c", 1], ["semi_residencial", 3]]
+		"1": [
+			[
+				"psm_1p_a",
+				1
+			],
+			[
+				"psm_1p_b",
+				1
+			],
+			[
+				"psm_1p_c",
+				1
+			],
+			[
+				"psm_1p_tablones",
+				2
+			],
+			[
+				"psm_1p_barrotes",
+				2
+			],
+			[
+				"psm_1p_persiana",
+				2
+			]
+		],
+		"2": [
+			[
+				"psm_2p_a",
+				1
+			],
+			[
+				"psm_2p_b",
+				1
+			],
+			[
+				"psm_2p_c",
+				1
+			],
+			[
+				"psm_2p_tablones",
+				2
+			],
+			[
+				"psm_2p_barrotes",
+				2
+			],
+			[
+				"psm_2p_persiana",
+				2
+			]
+		]
 	},
 	"PARQUES DE SANTA MARIA": {
-		"1": [["urbi_1p_a", 1], ["urbi_1p_b", 1], ["urbi_1p_c", 1]],
-		"2": [["urbi_2p_a", 1], ["urbi_2p_b", 1], ["urbi_2p_c", 1], ["semi_residencial", 3]]
+		"1": [
+			[
+				"psm_1p_a",
+				1
+			],
+			[
+				"psm_1p_b",
+				1
+			],
+			[
+				"psm_1p_c",
+				1
+			],
+			[
+				"psm_1p_tablones",
+				2
+			],
+			[
+				"psm_1p_barrotes",
+				2
+			],
+			[
+				"psm_1p_persiana",
+				2
+			]
+		],
+		"2": [
+			[
+				"psm_2p_a",
+				1
+			],
+			[
+				"psm_2p_b",
+				1
+			],
+			[
+				"psm_2p_c",
+				1
+			],
+			[
+				"psm_2p_tablones",
+				2
+			],
+			[
+				"psm_2p_barrotes",
+				2
+			],
+			[
+				"psm_2p_persiana",
+				2
+			]
+		]
 	},
 	"PARQUES DEL BOSQUE": {
-		"*": [["semi_residencial", 3], ["mexican_house_3", 1]]
+		"*": [
+			[
+				"semi_residencial",
+				1
+			]
+		]
 	},
-	"AGUA BLANCA INDUSTRIAL": {"_proporcion": 0},
+	"AGUA BLANCA INDUSTRIAL": {
+		"_proporcion": 0
+	},
 	"*": {
-		"1": [["urbi_1p_a", 1], ["urbi_1p_b", 1], ["urbi_1p_c", 1]],
-		"2": [["urbi_2p_a", 1], ["urbi_2p_b", 1], ["urbi_2p_c", 1], ["semi_residencial", 3]]
+		"1": [
+			[
+				"psm_1p_a",
+				1
+			],
+			[
+				"psm_1p_b",
+				1
+			],
+			[
+				"psm_1p_c",
+				1
+			],
+			[
+				"psm_1p_tablones",
+				2
+			],
+			[
+				"psm_1p_barrotes",
+				2
+			],
+			[
+				"psm_1p_persiana",
+				2
+			]
+		],
+		"2": [
+			[
+				"psm_2p_a",
+				1
+			],
+			[
+				"psm_2p_b",
+				1
+			],
+			[
+				"psm_2p_c",
+				1
+			],
+			[
+				"psm_2p_tablones",
+				2
+			],
+			[
+				"psm_2p_barrotes",
+				2
+			],
+			[
+				"psm_2p_persiana",
+				2
+			]
+		]
 	}
 }

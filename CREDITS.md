@@ -35,6 +35,7 @@
 - [Casa Tipo Semi Residencial](https://sketchfab.com/3d-models/4431db9690aa4d6ea23f50b8fdfa0cd3) de alecsvaldez, licencia CC Attribution (`models/casas/semi_residencial/`).
 - [Mexican House 3](https://sketchfab.com/3d-models/8f7b73d6ba1e4642b3230ed15f3db421) de Hollow_Soul_09, licencia CC Attribution (`models/casas/mexican_house_3/`).
 - [Edificio multifamiliar](https://sketchfab.com/3d-models/afff4fd9e05549f6b1d5668b9eb36af7) de alecsvaldez, licencia CC Attribution (`models/casas/multifamiliar/`).
+- La casa base de Parques de Santa María (`models/casas/psm/`, `tools/blender/mapa/casa_psm.py`): el enjarre, la azotea, el metal pintado de las rejas, la herrería y las puertas, y el tejido de la cortina salen de texturas de [Poly Haven](https://polyhaven.com) (CC0): white_stucco_02, concrete_wall_008, painted_metal_shutter, rough_linen, oak_veneer_01 (la veta de las puertas) y leafy_grass (el pasto del jardín) (`python3 -I tools/blender/mapa/texturas_casa.py` las baja y las deja en `textures/mapa/casa_psm_*.png`); el piso de la cochera es la textura de las banquetas (dirty_concrete, arriba); el tinaco de la azotea es el Rtp Tinaco de arriba.
 
 ## Props de calle (`models/props/`, Sketchfab)
 
