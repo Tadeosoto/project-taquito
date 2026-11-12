@@ -64,7 +64,17 @@ const CAMINA := 2.0            # m/s
 const CAMINA_FASE_2 := 1.15    # x en la fase 2 (todo va asi de rapido)
 const GATEA := 1.8             # m/s en la fase 3
 const GIRA := 2.2              # rad/s al voltear caminando
-const GIRA_AVISO := 1.0        # rad/s mientras avisa un ataque (te sigue tantito)
+const GIRA_AVISO := 2.4        # rad/s mientras avisa un ataque (antes 1.0: se le escapaba de lado)
+# Voltea como cuerpo pesado (AG: giraba como estatua sobre su eje): acelera, se pasa tantito y
+# se asienta, con el pecho y la cabeza por delante (GiroTorso.gd)
+const GIRO_RIGIDEZ := 4.0      # rad/s que quiere por cada rad que le falta
+const GIRO_ACEL := 2.5         # x la rapidez de ese giro, por segundo: lo que tarda en arrancar y frenar
+const TORSO_ADELANTA := 0.3    # s de giro que el pecho y la cabeza van por delante de la cadera
+const TORSO_MAX := 0.7         # rad, tope de esa torcida
+# Al avisar un ataque te apunta a donde vas a estar (tu velocidad, hasta PREVE_MAX s) y se
+# fija los ultimos AVISO_FIJA s: hacerse a un lado temprano ya no basta, rodar a tiempo si
+const PREVE_MAX := 0.5
+const AVISO_FIJA := 0.2
 const PARA_A := 2.8            # m: mas cerca deja de caminar
 const DECIDE_CADA := 0.15
 const DESPIERTA_A := 14.0      # m: dormida (estatua) hasta que te acercas
@@ -225,6 +235,9 @@ var _mano_min := INF
 var _ultimo_piso := Vector3.ZERO
 var _mascara_jugador := -1     # la capa de choque del jugador mientras lo tiene colgado
 var _t := 0.0
+var _giro_vel := 0.0          # rad/s con que va volteando (GIRO_*)
+var _giro_usado := false      # ya giro en este cuadro (si no, la inercia se va frenando)
+var _torso: Node              # GiroTorso.gd, solo con el modelo real
 var _decide := 0.0
 var _modelo: Node3D
 var _anim: AnimationPlayer
@@ -362,6 +375,10 @@ func _armar_modelo() -> void:
 		var esqueletos := _modelo.find_children("*", "Skeleton3D")
 		if not esqueletos.is_empty():
 			var esqueleto := esqueletos[0] as Skeleton3D
+			# Antes de los resortes, para que la trenza siga al cuerpo torcido
+			_torso = preload("res://scripts/catrina/GiroTorso.gd").new()
+			_torso.name = "GiroTorso"
+			esqueleto.add_child(_torso)
 			_resortes(esqueleto)
 			for nombre: String in MARCAS:
 				if esqueleto.find_bone(nombre) >= 0:
@@ -556,12 +573,37 @@ func _mirar(hacia: Vector3) -> void:
 	hacia.y = 0.0
 	if hacia.length_squared() > 0.0001:
 		rotation.y = atan2(-hacia.x, -hacia.z)
+		_giro_vel = 0.0
 
 
+# Voltea hacia `hacia` hasta `rapidez` rad/s, como cuerpo pesado: la velocidad de giro arranca y
+# frena con GIRO_ACEL (asi se pasa tantito y se asienta) en vez de girar parejo sobre su eje
 func _girar(hacia: Vector3, rapidez: float, delta: float) -> void:
 	hacia.y = 0.0
-	if hacia.length_squared() > 0.0001:
-		rotation.y = rotate_toward(rotation.y, atan2(-hacia.x, -hacia.z), rapidez * delta)
+	if hacia.length_squared() <= 0.0001:
+		return
+	var falta := wrapf(atan2(-hacia.x, -hacia.z) - rotation.y, -PI, PI)
+	var quiere := clampf(falta * GIRO_RIGIDEZ, -rapidez, rapidez)
+	_giro_vel = move_toward(_giro_vel, quiere, GIRO_ACEL * maxf(rapidez, GIRA) * delta)
+	rotation.y = wrapf(rotation.y + _giro_vel * delta, -PI, PI)
+	_giro_usado = true
+
+
+# Sin girar en este cuadro: la inercia del giro se frena sola, y el pecho se endereza
+func _frenar_giro(delta: float) -> void:
+	if not _giro_usado and _giro_vel != 0.0:
+		_giro_vel = move_toward(_giro_vel, 0.0, GIRO_ACEL * GIRA * delta)
+		rotation.y = wrapf(rotation.y + _giro_vel * delta, -PI, PI)
+	_giro_usado = false
+	if _torso:
+		_torso.angulo = clampf(_giro_vel * TORSO_ADELANTA, -TORSO_MAX, TORSO_MAX)
+
+
+# Avisando un ataque al que le quedan `resta` s: te sigue apuntando a donde vas (_al_jugador_previsto)
+# y se queda fija los ultimos AVISO_FIJA s, para que una rodada a tiempo si la libre
+func _seguir_aviso(resta: float, rapidez: float, delta: float, corrimiento := Vector3.ZERO) -> void:
+	if resta > AVISO_FIJA:
+		_girar(_al_jugador_previsto(resta) - corrimiento, rapidez, delta)
 
 
 func _frente() -> Vector3:
@@ -572,6 +614,13 @@ func _frente() -> Vector3:
 
 func _al_jugador() -> Vector3:
 	var d := jugador.global_position - global_position
+	d.y = 0.0
+	return d
+
+
+# Hacia donde va a estar el jugador en `segundos` (hasta PREVE_MAX), por su velocidad
+func _al_jugador_previsto(segundos: float) -> Vector3:
+	var d := _al_jugador() + jugador.velocity * clampf(segundos, 0.0, PREVE_MAX)
 	d.y = 0.0
 	return d
 
@@ -621,6 +670,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if not _jugador_libre():
 		return
+	_frenar_giro(delta)
 	# Red de seguridad: si algo la saca del piso, vuelve a donde estaba parada
 	if is_on_floor():
 		_ultimo_piso = global_position
@@ -942,7 +992,7 @@ func _posar() -> void:
 
 func _pisar(delta: float) -> void:
 	if _t < PISA_AVISA + _retraso:
-		_girar(_al_jugador(), GIRA_AVISO, delta)
+		_seguir_aviso(PISA_AVISA + _retraso - _t, GIRA_AVISO, delta)
 		_pose({"pie_r": 1.0, "inclinar": -0.1, "brazo_l": 0.3})
 		# El amago: el pie se queda arriba (el clip se detiene en lo alto)
 		_clip_quieto(_t > PISA_AVISA * 0.85 and _t < PISA_AVISA + _retraso - 0.05)
@@ -1038,7 +1088,7 @@ func _alcanzar(delta: float) -> void:
 	lado.y = 0.0
 	var al := _al_jugador() - lado
 	if _t < AGARRA_AVISA:
-		_girar(al, GIRA_AGARRE, delta)
+		_seguir_aviso(AGARRA_AVISA - _t, GIRA_AGARRE, delta, lado)
 		# Se agacha de la cintura y echa la mano para atras; al final da un paso hacia ti
 		_pose({"inclinar": 0.35, "brazo_r": -0.6})
 		_paso_agarre(al)
@@ -1203,7 +1253,7 @@ func _soltar_jugador() -> void:
 func _trenzar(delta: float) -> void:
 	var cabeza := _marca("Cabeza").global_position
 	if _t < TRENZA_AVISA:
-		_girar(_al_jugador(), GIRA_AVISO, delta)
+		_seguir_aviso(TRENZA_AVISA - _t, GIRA_AVISO, delta)
 		_trenza_hacia = jugador.global_position - Vector3.UP * 0.4
 		_pose({"inclinar": -0.15, "trenza": 0.0, "trenza_hacia": _trenza_hacia})
 		return
@@ -1370,7 +1420,7 @@ func _manotazo() -> void:
 
 func _embestir(delta: float) -> void:
 	if _t < EMBESTIDA_AVISA:
-		_girar(_al_jugador(), GIRA_AVISO * 2.0, delta)
+		_seguir_aviso(EMBESTIDA_AVISA - _t, GIRA_AVISO * 2.0, delta)
 		_rumbo = _frente()
 		_pose({"inclinar": -0.2})
 		return
