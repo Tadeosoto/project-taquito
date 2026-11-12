@@ -339,8 +339,8 @@ func pantalla(nombre: String, desde: float, hasta: float, aditivo := false, alfa
 # dura la hoja; mas = un hueco sin nada entre vuelta y vuelta. `con_direccion`: la hoja ve a la
 # derecha y cada cuadro se voltea segun su instance uniform `hacia`
 # `de_pie`: de pie en el piso (solo gira en vertical), para charcos, burbujas y lo que sale del suelo
-static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false) -> ShaderMaterial:
-	var clave := "%s|%s|%s|%s|%s" % [nombre, alfa, periodo, con_direccion, de_pie]
+static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false, eje_mundo := false) -> ShaderMaterial:
+	var clave := "%s|%s|%s|%s|%s|%s" % [nombre, alfa, periodo, con_direccion, de_pie, eje_mundo]
 	if _materiales.has(clave):
 		return _materiales[clave]
 	var hoja := hoja_de(nombre)
@@ -359,6 +359,7 @@ static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_dire
 	material.set_shader_parameter("pixel", PIXEL)
 	material.set_shader_parameter("con_direccion", con_direccion)
 	material.set_shader_parameter("de_pie", de_pie)
+	material.set_shader_parameter("eje_mundo", eje_mundo)
 	material.set_meta("alfa", alfa)
 	material.set_shader_parameter("alfa", alfa if extras else 0.0)
 	_materiales[clave] = material
@@ -401,8 +402,8 @@ static func malla_quad() -> QuadMesh:
 
 # Uno solo que se repite, para colgarlo de algo (el pivote de la hoja queda en su origen).
 # `escala` multiplica el tamano a escala de personaje; cada uno arranca en otra fase
-static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false) -> MeshInstance3D:
-	var material := material_bucle(nombre, alfa, periodo, con_direccion, de_pie)
+static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false, eje_mundo := false) -> MeshInstance3D:
+	var material := material_bucle(nombre, alfa, periodo, con_direccion, de_pie, eje_mundo)
 	if material == null:
 		return null
 	var cuadro := MeshInstance3D.new()

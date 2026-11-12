@@ -36,7 +36,7 @@ func armar(nuevo_radio: float, nuevo_alto: float) -> void:
 	alto = nuevo_alto
 	for datos: Array in CHORROS:
 		var hacia := Vector3(cos(datos[0]), 0.0, sin(datos[0]))
-		var chorro := EfectosPixel.cuadro_bucle("tinaco_chorro", CHORRO_ESCALA, 1.0, 0.0, true)
+		var chorro := EfectosPixel.cuadro_bucle("tinaco_chorro", CHORRO_ESCALA, 1.0, 0.0, false, false, true)
 		if chorro == null:
 			return
 		chorro.position = hacia * radio * 0.95 + Vector3.UP * alto * datos[1]
