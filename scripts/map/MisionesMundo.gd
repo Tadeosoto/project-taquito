@@ -23,8 +23,10 @@ const PERRO_LADRA := Vector2(2.0, 4.0)
 const PERRO_OIDO := 65.0
 const SIGNO_ALTO := 2.75
 const TEXTO_ACEPTAR := "\nEspacio: aceptar"
-const TEXTO_OCUPADO := "Primero acaba lo que traes."
+const TEXTO_OCUPADO := "Ya traes mucho pendiente. Acaba algo y vienes."
 const TEXTO_TARDE := "Ya va a oscurecer. Mejor mañana."
+# Al aceptar una que no es de esta hora (Misiones.hora_que_falta)
+const TEXTO_HORA := "\n(Eso es %s.)"
 
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
 @export_file("*.json") var casas_path := "res://resources/map/casas_mapa.json"
@@ -51,7 +53,12 @@ var _ladra_en := 0.0
 var _voz_perro: AudioStreamPlayer3D
 var _texto: Label
 var _voz: AudioStreamPlayer
-var _trae_carga := false
+# Lo que trae en las manos: el `carga` del paso (solo a su hora) o la cosa levantada (el perro)
+var _carga_item: InventoryItemData = null
+var _cosa_en_manos := false
+# De que mision son la cosa (en el suelo o en las manos) y los puntos de visita
+var _perro_de: MisionData = null
+var _puntos_de: MisionData = null
 
 
 func _ready() -> void:
@@ -62,7 +69,11 @@ func _ready() -> void:
 	_flecha = MapPuntos.flecha()
 	_flecha.visible = false
 	add_child(_flecha)
-	Misiones.reiniciar()
+	# No se reinicia: la mision sigue de una escena a otra (Inicio y la safehouse la reinician).
+	# La hora la pone el Ciclo: si esta escena empieza de noche, emite anochecio en su primer cuadro
+	Misiones.es_noche = false
+	# Lo que traias en brazos se quedo en la otra escena
+	Misiones.manos_ocupadas = false
 	Misiones.cambio.connect(_cambio)
 	Misiones.termino.connect(_termino)
 	Misiones.sobra.connect(_sobra)
@@ -174,18 +185,21 @@ func _hablar(i: int) -> String:
 		if Misiones.paso().tipo == PasoMision.Tipo.ENTREGAR and Misiones.entregar():
 			return ("%s %s" % [mision.gracias, Personaje.linea("paga")]).strip_edges()
 		return mision.recuerda
-	if Misiones.activa != null:
-		return TEXTO_OCUPADO
+	if Misiones.aceptada(mision):
+		return mision.recuerda
 	if Misiones.hecha_hoy(mision) or Misiones.ya_tienes_el_premio(mision):
 		return mision.despedida
 	if not Misiones.ofreciendo:
 		return TEXTO_TARDE
+	if Misiones.lleno():
+		return TEXTO_OCUPADO
 	if not v["visto"]:
 		v["visto"] = true
 		return ("%s %s" % [Personaje.linea("vecino"), mision.oferta]).strip_edges() + TEXTO_ACEPTAR
 	v["visto"] = false
 	Misiones.aceptar(mision)
-	return mision.aceptada
+	var falta := Misiones.hora_que_falta(mision.pasos[0] if not mision.pasos.is_empty() else null)
+	return mision.aceptada + (TEXTO_HORA % falta if falta != "" else "")
 
 
 func _actualizar_signos() -> void:
@@ -231,12 +245,17 @@ func _cambio() -> void:
 	_actualizar_signos()
 	_quitar_puntos()
 	var paso := Misiones.paso()
+	# Se acabo la mision de la cosa (y ya entro la siguiente): se suelta
+	if _cosa_en_manos and _perro_de != Misiones.activa:
+		_soltar_carga()
+	if _perro and (_perro_de != Misiones.activa or paso == null or paso.tipo != PasoMision.Tipo.RECOGER):
+		_quitar_cosa()
 	if paso == null:
 		_soltar_carga()
 		Misiones.hay_objetivo = false
 		_flecha.visible = false
 		return
-	_llevar(paso.carga)
+	_ajustar_carga(paso)
 	match paso.tipo:
 		PasoMision.Tipo.TENER_OBJETOS:
 			_apuntar(_tienda(paso.lugar))
@@ -304,6 +323,8 @@ func _poner_puntos(paso: PasoMision) -> void:
 			opciones.append(c)
 	opciones.shuffle()
 	var lugares: Array[Vector3] = []
+	# Al volver de otra escena, solo las que faltan
+	var faltan := paso.cuantos - Misiones.visitados
 	for c: Dictionary in opciones:
 		var ry := float(c["rotacion_y"])
 		var punto := Vector3(c["x"] + sin(ry) * CASA_FRENTE, desde.y, c["z"] + cos(ry) * CASA_FRENTE)
@@ -313,10 +334,11 @@ func _poner_puntos(paso: PasoMision) -> void:
 				lejos = false
 		if lejos:
 			lugares.append(punto)
-		if lugares.size() >= paso.cuantos:
+		if lugares.size() >= faltan:
 			break
 	# Si no hay tantas casas (el safehouse), con las que haya
-	Misiones.meta_visitas = lugares.size()
+	Misiones.meta_visitas = Misiones.visitados + lugares.size()
+	_puntos_de = Misiones.activa
 	for lugar in lugares:
 		_puntos.append(_punto_de_visita(lugar))
 	_apuntar_al_punto_cercano()
@@ -337,7 +359,8 @@ func _punto_de_visita(lugar: Vector3) -> Area3D:
 	add_child(area)
 	area.global_position = lugar
 	area.body_entered.connect(func(body: Node3D) -> void:
-		if body is Player:
+		# Fuera de su hora el punto se queda: cuenta cuando sea de noche (o de dia)
+		if body is Player and Misiones.en_hora():
 			_puntos.erase(area)
 			area.queue_free()
 			_sonar("moneda")
@@ -358,7 +381,7 @@ func _apuntar_al_punto_cercano() -> void:
 func _quitar_puntos() -> void:
 	# Los que siguen pendientes del mismo paso se quedan
 	var paso := Misiones.paso()
-	if paso and paso.tipo == PasoMision.Tipo.VISITAR and not _puntos.is_empty():
+	if paso and paso.tipo == PasoMision.Tipo.VISITAR and not _puntos.is_empty() and _puntos_de == Misiones.activa:
 		return
 	for area in _puntos:
 		area.queue_free()
@@ -370,6 +393,7 @@ func _poner_perro() -> void:
 		return
 	_perro_lugar = _lugar_perro()
 	_perro = load("res://scripts/map/CosaMision.gd").new()
+	_perro_de = Misiones.activa
 	add_child(_perro)
 	_perro.global_position = _perro_lugar
 	Gente.poner_modelo(_perro, PERRO, ALTO_PERRO)
@@ -399,6 +423,7 @@ func _poner_cosa(paso: PasoMision) -> void:
 		return
 	var donde := (_marca(paso.lugar) as Transform3D).origin
 	_perro = load("res://scripts/map/CosaMision.gd").new()
+	_perro_de = Misiones.activa
 	var objeto: InventoryItemData = paso.objetos[0] if not paso.objetos.is_empty() else null
 	if objeto:
 		_perro.set("que", objeto.item_name.to_lower())
@@ -447,23 +472,42 @@ func _perro_recogido() -> void:
 	_perro = null
 	_voz_perro = null
 	cuerpo.get_parent().remove_child(cuerpo)
-	_trae_carga = true
+	_carga_item = null
+	_cosa_en_manos = true
+	# Con la cosa en brazos no se cambia de mision en el diario
+	Misiones.manos_ocupadas = true
 	_jugador.cargar(cuerpo)
 	Misiones.recogido()
 
 
 # --- Lo que trae en las manos ---
 
-func _llevar(objeto: InventoryItemData) -> void:
-	if objeto and not _trae_carga:
-		_trae_carga = true
-		_jugador.cargar(objeto.crear_modelo(0.5))
+# El `carga` del paso, solo a su hora: la medicina de noche no se carga todo el dia
+func _ajustar_carga(paso: PasoMision) -> void:
+	if _cosa_en_manos:
+		return
+	var quiere: InventoryItemData = paso.carga if paso and Misiones.en_hora() else null
+	if quiere == _carga_item:
+		return
+	if _carga_item:
+		_jugador.soltar_carga()
+		_carga_item = null
+	if quiere:
+		_jugador.cargar(quiere.crear_modelo(0.5))
+		_carga_item = quiere
 
 
 func _soltar_carga() -> void:
-	if _trae_carga:
-		_trae_carga = false
+	if _carga_item or _cosa_en_manos:
 		_jugador.soltar_carga()
+	_carga_item = null
+	_cosa_en_manos = false
+	Misiones.manos_ocupadas = false
+	_quitar_cosa()
+
+
+# La cosa que seguia en el suelo
+func _quitar_cosa() -> void:
 	if _perro:
 		_perro.queue_free()
 		_perro = null
@@ -491,6 +535,10 @@ func _process(delta: float) -> void:
 		_texto.text = ""
 		return
 	var linea := paso.texto
+	var falta := Misiones.hora_que_falta(paso)
+	if falta != "":
+		_texto.text = "%s (%s)" % [linea, falta]
+		return
 	if paso.tipo == PasoMision.Tipo.VISITAR:
 		linea += " (%d/%d)" % [Misiones.visitados, Misiones.meta_visitas]
 		_apuntar_al_punto_cercano()

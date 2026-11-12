@@ -22,6 +22,35 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 | 2026-11-12 | L10 | `misiones.md`, sección "Las misiones de la mafia, las cacerías y GelA": **✅ JJ: las misiones de la mafia desbloquean la entrada a La Gotera** (💡 cuatro escalones: afuera, mandadero, de confianza, de la casa; túneles y Madre en el 3), entregas punto a punto con el Primo y Nemesio, Las cuentas claras, cacerías de la Mojiganga y la Madre pedidas desde La Gotera, y GelA (guardia, Arturo, Gerardo, zombi del coto). A4 y A6 reescritas sin Doña Refugio. **Pendiente:** medir los 19 puntos en tres grupos y las clínicas; actualizar `lore.md` (Gotera: permiso) en L11/L12b | L11 |
 | 2026-11-12 | L11 | `especificaciones.md` §2 (fortalezas, culto sin Refugio, facciones), §4.8 (zombis reconocen Serenol, defensa externa) y §6 (contratos y misiones de fuera, mafia, GelA); `revision-historia.md`: tabla "Cambios posteriores". **Pendiente:** el §14 y las preguntas abiertas de la spec, y el ajuste de `lore.md` sobre el permiso de La Gotera (L12b) | L12b |
 | 2026-11-12 | L12b | Grep de frases viejas en los docs narrativos: arreglados `lore.md` (barrio sabe que se vende adentro, permiso de La Gotera por escalones, regla 17), `personajes.md` (Villalobos sin golf, en Haciendas, Arturo ex jardinero) y `misiones.md` (sótano en Haciendas). Sin problema: "noche sin ley" (el Estado se retira, coherente), "la mayoría de la ciudad" (solo en el glosario, "los de la llave"), "palacio" de Santa Mugre (ya es escuela). **Pendiente:** §14 y preguntas abiertas de la spec | L13 o fase S |
+| 2026-11-12 | S1a | Plan de S1 con JJ: la gente da las misiones de día; diario con varias aceptadas y **una activa**; hora por paso (`PasoMision.cuando`); misiones de lugar (`MisionData.inicio`) sin diario; volver con el dador si lo pide; iniciales de los dadores en el mapa. Hecho S1a: `Misiones` con `aceptadas`/`elegir`/`empezar_en_lugar`, fuera de hora espera (sin falla ni tiempo), sobrevive al cambio de escena (`reiniciar` solo en `Inicio` y la safehouse), puntos de visita que esperan su hora y no se repiten al volver, misión de prueba `medicina_noche` (de noche + avisar de día), dador en la safehouse. Prueba headless de la lógica: 22/22 | S1b (diario y línea del Noc), S1c (iniciales en el mapa) |
+| 2026-11-12 | S1b | Diario (`MisionesUI.gd`, pestaña "Diario" del inventario, J / botón 15 del control): misiones aceptadas, la activa con ▶, lo que falta, "Esto es de noche/día"; Enter la vuelve activa y abre el mapa con su puntero. El dador avisa "(Eso es de noche.)" al aceptar (leí "el noc" como el NPC). La carga del paso solo se lleva a su hora; la cosa en el suelo y los puntos de visita son de su misión y se quitan al cambiar; con el perro en brazos no se cambia de misión (`Misiones.manos_ocupadas`). Pruebas headless OK | S1c (iniciales en el mapa) |
+
+## Para la siguiente sesión (dejado el 2026-11-12, cambio de PC)
+
+**Hecho en la sesión del 2026-11-12:** L10, L11 y L12b (texto: mafia y puerta de La Gotera por escalones, cacerías, GelA; spec y revisión al día; grep de coherencia), S1a y S1b (código: misiones de día o de noche, diario). Ver las filas del registro de arriba.
+
+**Hoy toca: S1c** (S): iniciales de los dadores importantes en el mapa de papel (`MapaUI.gd`) y el minimapa (`MapMinimapa`), como en RDR2; luego tachar S1.
+
+**Por probar en ventana** (no se ha jugado, solo pruebas headless):
+- Safehouse (`godot --path . scenes/safehouse.tscn`): aceptar "Medicina de noche" (dador nuevo, el último de la fila, en x = 34) y otra; Tab y J abren el diario; Enter cambia la activa y abre el mapa con el puntero; de noche llevar la medicina (la carga solo aparece de noche) y de día volver a cobrar.
+- Las 8 misiones de día de antes siguen igual (ya no fallan al anochecer: esperan al día siguiente).
+- Las pestañas de abajo del inventario ahora son 7: revisar que "Habilidades ¡N!" no se encime.
+- Cruzar la reja de Santa Mugre (PasoColonia) con una misión a medias: debe seguir y recolocar su puntero.
+
+**Detalles conocidos sin arreglar:**
+- Si estás parado dentro de un punto de visita cuando cambia la hora, no cuenta hasta salir y volver a entrar (`body_entered`).
+- Si cambias de escena con el perro en brazos, el perro se queda en la otra escena (el paso ya cuenta como recogido; `manos_ocupadas` se limpia).
+- Botón del control para el diario: el 15 (Share/Capture), el único libre; quizá no exista en todos los controles.
+- `Misiones.empezar_en_lugar` existe pero nada lo usa todavía (lo usarán F1, F2 y M1 a M3).
+
+**Dudas para JJ:**
+- "El noc te explica que es de noche": se leyó como **el NPC** (el que da la misión dice "(Eso es de noche.)"). Si era el Nocturno (el protagonista), se cambia.
+- Máximo de misiones en el diario: 5 (💡 por probar).
+- Pagas de "Medicina de noche" (80) y de todas las de L10: 💡, se fijan con el balance.
+- Los escalones de La Gotera (3/6/7 entregas) y "Las cuentas claras": 💡.
+- S7 (mercado ilegal) necesita guardar el escalón de La Gotera en la partida: no tiene bloque propio.
+- L12 (reconstruir el grafo, ~750k tokens) y L13 (grafo del código con Alan) siguen pendientes; el grafo narrativo está viejo respecto a L7 a L12b.
+- §14 y las preguntas abiertas de `especificaciones.md` no se revisaron.
 
 ## Decisiones de JJ (✅)
 
@@ -110,7 +139,7 @@ Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.no
 
 ### Fase S: sistemas (cada uno con su plan al empezar; dependen de que L esté lista en lo que toquen)
 
-- [ ] **S1** Misión nocturna: `MisionData.noche`, dadores de tarde, la misión sobrevive al cambio de escena (hoy fallan al anochecer y los dadores desaparecen) (M)
+- [ ] **S1** (S1a y S1b ✅; falta S1c mapa) Misión nocturna: `MisionData.noche`, dadores de tarde, la misión sobrevive al cambio de escena (hoy fallan al anochecer y los dadores desaparecen) (M)
 - [ ] **S2** Pasos nuevos: DEFENDER, ESCOLTAR, LLEVAR_CARGA (amanecer = policía), CAZAR, ENTRAR_A (L)
 - [ ] **S3** Policía de día que dispara a quien lleva agua (no hay código de policía hoy) (M)
 - [ ] **S4** Hordas de noche de afuera, continuas pero menores que la defensa (`Hordas`, `Zombis.espontaneos`) (M)

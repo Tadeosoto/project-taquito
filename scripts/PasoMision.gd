@@ -9,9 +9,15 @@ extends Resource
 # "marca:<nombre>" (una marca "mision" de la colonia: ahi esta la cosa, con flecha; `objetos`[0]
 # da su modelo y su nombre, o una pelota si no hay).
 
+# `cuando`: a que hora se puede cumplir este paso. Fuera de su hora la mision espera (no falla
+# y su tiempo no corre): una entrega de noche con un ENTREGAR de dia se acaba con el que te la
+# dio a la mañana siguiente.
+
 enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER }
+enum Cuando { DIA, NOCHE, CUALQUIERA }
 
 @export var tipo: Tipo = Tipo.ENTREGAR
+@export var cuando: Cuando = Cuando.DIA
 # Lo que se lee en pantalla mientras dura este paso
 @export var texto := ""
 @export var objetos: Array[InventoryItemData] = []

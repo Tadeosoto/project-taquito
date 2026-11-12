@@ -205,6 +205,8 @@ func _jugar() -> void:
 	_cargando.visible = true
 	# Suena desde aqui y no desde el creador, que ya se borro al emitir listo
 	_sonar("inicio_partida")
+	# Las misiones sobreviven al cambio de escena: aqui empieza la partida
+	Misiones.reiniciar()
 	_fundir_ambiente(-60.0, AMBIENTE_SALE)
 	ResourceLoader.load_threaded_request(MAPA)
 

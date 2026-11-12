@@ -423,6 +423,7 @@ Misiones de apoyo, atadas a personajes:
 - `MisionData` (Resource `.tres`): nombre, NPC que la da, descripción, recompensa, si es de día o de noche, y una **lista de pasos**.
 - Pasos reutilizables: `ir_a(punto)`, `recoger(objeto, n)`, `entregar(objeto, npc)`, `derrotar(tipo, n)`, `seguirme(npc, n)`, `sobrevivir(segundos)`, `alcanzar(npc)`, `defender(objetivo, segundos)`.
 - Un gestor (autoload, como `Inventory`) lleva la misión activa, el marcador del minimapa y la flecha en pantalla.
+- ✅ (JJ, 2026-11-12, S1) **La gente da las misiones de día**, sean de día o de noche. Se aceptan varias (💡 hasta 5) y quedan en el **diario** del menú de pausa, pero **solo una está activa** y se completan de una en una; al elegirla en el diario sale el puntero en el mapa. **Cada paso tiene su hora** (día, noche o cualquiera): fuera de ella la misión espera y no falla; si es de noche, quien te la da te lo dice al aceptarla y el diario lo recuerda. Algunas exigen **volver con el dador** (de día). Las misiones **de lugar** (la defensa del tinaco, la reja) se aceptan al acercarte al sitio, no entran al diario y se juegan en el momento. Los dadores importantes salen con **su inicial en el mapa** (como en *Red Dead Redemption 2*).
 - El **celular** muestra los contratos disponibles y las misiones activas.
 - La **cuadrilla** (Gabriel) reparte los contratos de la noche; el barrio y los NPCs, las de día.
 

@@ -23,3 +23,7 @@ extends Resource
 # Donde se para el que la da: "marca:<nombre>" una marca "mision" de la colonia del mapa en
 # Blender (Colonia.puntos_mision); vacio, o sin esa marca, junto a un poste como siempre
 @export var donde := ""
+# DADOR: te la da alguien de dia y queda en el diario. LUGAR: se acepta al acercarte a un sitio
+# (la reja, el tinaco), no entra al diario y se juega en el momento (Misiones.empezar_en_lugar)
+enum Inicio { DADOR, LUGAR }
+@export var inicio: Inicio = Inicio.DADOR

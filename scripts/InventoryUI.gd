@@ -15,7 +15,8 @@ enum InventoryState {
 	REVELANDO,     # abriendo una bolsa especial (TazoRevelacion.gd): sus teclas son de ella
 	ALBUM,         # el album de tazos (AlbumTazos.gd), con T / LB
 	TILICHES,        # los materiales del taller (TilichesUI.gd), con B / RB
-	LIBRETA          # la libreta del Nocturno (LibretaUI.gd), con L / R3
+	LIBRETA,         # la libreta del Nocturno (LibretaUI.gd), con L / R3
+	DIARIO           # las misiones aceptadas (MisionesUI.gd), con J / Share
 }
 
 enum Comando { EXAMINAR, UTILIZAR, COMBINAR }
@@ -51,7 +52,7 @@ const COLOR_EQUIPO := Color(0.85, 0.85, 0.85)
 const COLOR_VACIO := Color(0.4, 0.4, 0.42)
 const COLOR_MARCO := Color(0.75, 0.62, 0.12)
 # Pestanas de abajo: nombre, tecla, boton del control
-const PESTANAS := [["Objetos", "Tab", "Start"], ["Tiliches", "B", "RB"], ["Habilidades", "H", "Y"], ["Álbum", "T", "LB"], ["Libreta", "L", "R3"], ["Mapa", "M", "Select"]]
+const PESTANAS := [["Objetos", "Tab", "Start"], ["Tiliches", "B", "RB"], ["Habilidades", "H", "Y"], ["Álbum", "T", "LB"], ["Libreta", "L", "R3"], ["Mapa", "M", "Select"], ["Diario", "J", "Share"]]
 const PESTANAS_Y := 452.0
 const MENSAJE_Y := 430.0
 # Tinte de la foto de Estado segun la vida (como en Silent Hill 2): color y fuerza en Bien,
@@ -124,6 +125,7 @@ var habilidades_ui: Control
 # El album de tazos; `_album_desde` es el estado al que regresa (la lista o las habilidades)
 var album_ui: Control
 var libreta_ui: Control
+var diario_ui: Control
 var _album_desde := InventoryState.NAVIGATING
 # Los tiliches (Tiliches.gd): los materiales del taller
 var tiliches_ui: Control
@@ -159,6 +161,12 @@ func _ready() -> void:
 	libreta_ui = load("res://scripts/LibretaUI.gd").new()
 	libreta_ui.visible = false
 	$MainPanel.add_child(libreta_ui)
+	diario_ui = load("res://scripts/MisionesUI.gd").new()
+	$MainPanel.add_child(diario_ui)
+	# Elegir una mision en el diario abre el mapa con su puntero
+	diario_ui.ver_en_mapa.connect(func() -> void:
+		diario_ui.cerrar()
+		_abrir_mapa())
 	var libreta := get_node_or_null("/root/Libreta")
 	if libreta:
 		libreta.nueva_nota.connect(func(_id: String, _n: int) -> void: update_hint())
@@ -239,6 +247,8 @@ func abrir_pagina(cual: String) -> void:
 			_abrir_album(InventoryState.NAVIGATING)
 		"libreta":
 			_abrir_libreta()
+		"diario":
+			_abrir_diario()
 
 func cerrar(sonido := "inv_cerrar") -> void:
 	if visible:
@@ -248,6 +258,7 @@ func cerrar(sonido := "inv_cerrar") -> void:
 	habilidades_ui.visible = false
 	album_ui.cerrar()
 	tiliches_ui.cerrar()
+	diario_ui.cerrar()
 	inspect_viewer.set_inspection_active(false)
 	current_state = InventoryState.NAVIGATING
 	clear_all_models()
@@ -375,6 +386,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		_abrir_libreta()
 		get_viewport().set_input_as_handled()
 		return
+	if current_state == InventoryState.DIARIO:
+		if event.is_action_pressed("inventory_back") or event.is_action_pressed("inventory_journal"):
+			_cerrar_diario()
+		else:
+			diario_ui.manejar(event)
+		get_viewport().set_input_as_handled()
+		return
+	if current_state == InventoryState.NAVIGATING and event.is_action_pressed("inventory_journal"):
+		_abrir_diario()
+		get_viewport().set_input_as_handled()
+		return
 
 	if event.is_action_pressed("inventory_back"):
 		_regresar()
@@ -461,6 +483,19 @@ func _abrir_libreta() -> void:
 func _cerrar_libreta() -> void:
 	_sonar("ui_cancelar")
 	libreta_ui.cerrar()
+	current_state = InventoryState.NAVIGATING
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	update_hint()
+
+func _abrir_diario() -> void:
+	Sonidos.tocar(self, "lapiz", -8.0)
+	current_state = InventoryState.DIARIO
+	preview_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	diario_ui.mostrar()
+
+func _cerrar_diario() -> void:
+	_sonar("ui_cancelar")
+	diario_ui.cerrar()
 	current_state = InventoryState.NAVIGATING
 	preview_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	update_hint()

@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/productos/botiquin.tres" id="3_botiquin"]
+
+[sub_resource type="Resource" id="paso_llevar"]
+script = ExtResource("2_paso")
+tipo = 2
+cuando = 1
+texto = "Llévale la medicina a su compadre"
+lugar = "casas"
+cuantos = 1
+carga = ExtResource("3_botiquin")
+
+[sub_resource type="Resource" id="paso_volver"]
+script = ExtResource("2_paso")
+tipo = 1
+cuando = 0
+texto = "Avísale que ya llegó la medicina"
+
+[resource]
+script = ExtResource("1_mision")
+id = "medicina_noche"
+nombre = "Medicina de noche"
+modelo = "hombre_psx"
+oferta = "Llévale esto a mi compadre, pero de noche: de día los blancos revisan."
+aceptada = "Espera a que oscurezca. Y que no te vean con eso."
+recuerda = "De noche, joven. Y luego me avisas, ya de día."
+gracias = "¿Llegó? Gracias a Dios. Tenga lo suyo."
+despedida = "Mi compadre ya está mejor. Mañana le encargo otra."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar"), SubResource("paso_volver")])
+pesos = 80
