@@ -288,6 +288,7 @@ target_path = NodePath("../Dron")
 
 [node name="MuroSantaMugre" type="Node3D" parent="."]
 script = ExtResource("muro_colonia_gd")
+jugador_path = NodePath("../Player")
 
 [node name="Bardas" type="Node3D" parent="."]
 script = ExtResource("37_bardas")

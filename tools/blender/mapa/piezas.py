@@ -1307,6 +1307,34 @@ def valla_gela(nombre, p):
     return k
 
 
+def reja(nombre, p):
+    """Reja de fierro en la barda donde sale una avenida (a lo largo de x, como la barda): dos hojas
+    de barrotes con travesanos arriba y abajo, picos y postes de concreto en las orillas y al medio.
+    Cerrada: la salida es la flecha amarilla de adentro (Colonia.gd, marca "salida_colonia")."""
+    k = Constructor(nombre)
+    largo, alto, grueso = p.get("largo", 18.0), p.get("alto", 2.6), p.get("grueso", 0.3)
+    # Postes de concreto en las orillas y al centro (donde se juntan las dos hojas)
+    for x in (-largo / 2 + 0.3, 0.0, largo / 2 - 0.3):
+        k.caja((x, (alto + 0.3) / 2, 0), (0.6, alto + 0.3, grueso + 0.1), "concreto")
+    # Travesanos y barrotes de cada hoja, entre los postes
+    for lado in (-1, 1):
+        x0, x1 = (-largo / 2 + 0.6, -0.3) if lado < 0 else (0.3, largo / 2 - 0.6)
+        ancho = x1 - x0
+        xm = (x0 + x1) / 2
+        for y in (0.25, alto - 0.35):
+            k.caja((xm, y, 0), (ancho, 0.08, 0.08), "fierro")
+        k.caja((xm, alto * 0.5, 0), (ancho, 0.06, 0.06), "fierro")
+        n = max(2, int(ancho / 0.2))
+        for i in range(n + 1):
+            x = x0 + ancho * i / n
+            k.caja((x, alto / 2 - 0.05, 0), (0.035, alto - 0.1, 0.035), "fierro")
+            # El pico de cada barrote
+            k.caja((x, alto - 0.12, 0), (0.07, 0.14, 0.04), "fierro")
+    # Choque cerrado de lado a lado (los barrotes no se atraviesan ni entre ellos)
+    k.choques.append(((0, alto / 2, 0), (largo, alto + 0.2, grueso + 0.1), 0.0))
+    return k
+
+
 def camion_volteado(nombre, p):
     """Camion de redilas volteado atravesado en la calle (a lo largo de x): cabina, caja con
     redilas y llantas para arriba, con garrafones regados."""
@@ -1351,4 +1379,4 @@ PIEZAS = {"tinaco_comunitario": tinaco_comunitario, "puesto": puesto, "banca": b
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
           "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "escalinata": escalinata, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
-          "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro}
+          "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro, "reja": reja}

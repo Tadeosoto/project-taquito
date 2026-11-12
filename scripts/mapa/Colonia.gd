@@ -99,6 +99,14 @@ func _enter_tree() -> void:
 			_spawn(marca)
 		elif marca.get("tipo") == "mision":
 			puntos_mision[String(marca.get("nombre", ""))] = lugar(marca)
+	# Si se llego del mapa grande por una reja (PasoColonia), se aparece adentro de esa reja y no en el spawn
+	var por := PasoColonia.tomar_lado()
+	if por != "":
+		for marca: Dictionary in _marcas:
+			if marca.get("tipo") == "salida_colonia" and marca.get("lado") == por and marca.has("llegada"):
+				var llegada: Array = marca["llegada"]
+				# Mirando hacia adentro: el rot de la marca es hacia donde queda adentro, y el jugador mira a -Z
+				_spawn({"x": llegada[0], "z": llegada[1], "rot": float(marca.get("rot", 0.0)) + PI})
 
 
 # Carros que se quitaron de carros_modelo.json pero cuya caja "-colonly" sigue horneada en el .glb (una
@@ -137,6 +145,8 @@ func _ready() -> void:
 				_casa_propia(marca)
 			"casa_vecino":
 				_casa_vecino(marca)
+			"salida_colonia":
+				_salida_colonia(marca)
 			"reflector":
 				_reflector(marca)
 			"foco":
@@ -420,6 +430,38 @@ func _casa_propia(marca: Dictionary) -> void:
 	if zombis:
 		casa.set("zombis_path", zombis.get_path())
 	add_child(casa)
+
+
+# La flecha amarilla de adentro de una reja de la avenida: pisarla regresa al mapa grande (map_test)
+# por esa misma reja (PasoColonia). Su +Z mira a la reja
+func _salida_colonia(marca: Dictionary) -> void:
+	var lado := String(marca.get("lado", ""))
+	var area := Area3D.new()
+	area.name = String(marca.get("nombre", "Salida"))
+	area.transform = lugar(marca)
+	area.monitorable = false
+	var forma := CollisionShape3D.new()
+	var cilindro := CylinderShape3D.new()
+	cilindro.radius = MapPuntos.MARCADOR_RADIO
+	cilindro.height = 2.0
+	forma.shape = cilindro
+	forma.position.y = 1.0
+	area.add_child(forma)
+	area.add_child(MapPuntos.flecha())
+	var letrero := Label3D.new()
+	letrero.text = String(marca.get("texto", "Salir"))
+	letrero.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	letrero.pixel_size = 0.008
+	letrero.font_size = 48
+	letrero.outline_size = 12
+	letrero.modulate = MapPuntos.MARCADOR_COLOR
+	letrero.position = Vector3(0.0, 2.6, 0.0)
+	letrero.visibility_range_end = 25.0
+	area.add_child(letrero)
+	area.body_entered.connect(func(cuerpo: Node3D) -> void:
+		if cuerpo is Player:
+			PasoColonia.ir_a(self, PasoColonia.MAPA_GRANDE, lado))
+	add_child(area)
 
 
 # Las casas de los vecinos (scenes/casas/*.tscn, CasaVecino.gd): se entran como la del jugador,

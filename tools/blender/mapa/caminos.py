@@ -17,7 +17,6 @@ MARGEN = 0.6        # m que se ensancha cada huella: la gente no pasa pegada a l
 PASO = 0.5          # m entre los puntos con que se prueba cada tramo
 MINIMO = 3.0        # m: un tramo mas corto se descarta
 TOLERANCIA = 0.15   # m que puede separarse el camino simplificado del original
-RAIZ = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
 
 
 def _dentro(x, z, poligono):
@@ -160,6 +159,8 @@ def banquetas(datos):
 
 
 def _principal():
+    # __file__ no existe cuando exportar.py lo corre con exec: solo se necesita al correr suelto
+    RAIZ = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
     nombre = sys.argv[1] if len(sys.argv) > 1 else "santa_mugre"
     ruta = os.path.join(RAIZ, "tools", "blender", "mapa", "colonias", nombre + ".json")
     datos = json.load(open(ruta, encoding="utf-8"))

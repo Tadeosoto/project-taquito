@@ -80,7 +80,7 @@ El recorte se cierra sin paredes invisibles, con cosas que tienen sentido en el 
 - **Poniente** (Bahía de Pelícanos): se camina la calle; del otro lado, **bardas y lotes enrejados**.
 - **Oriente** (calle de x -188): una **casa derrumbada** sobre la calle y coches quemados.
 - **Sur** (la avenida): se caminan los dos lados y el camellón. Del lado sur, las casas son **fachadas** (las tiendas sí se entran). En las puntas de la avenida, un **camión volteado** (poniente) y el **derrumbe** (oriente); las calles que salen al sur se tapan con barda.
-- En el bloqueo (`tools/blender/mapa/colonias/santa_mugre.json`, `bordes`) cada lado tiene un tapón de color: norte GelA (naranja), poniente camión, oriente derrumbe, sur barda. Una barda gris rodea todo el recorte.
+- En el bloqueo (`tools/blender/mapa/colonias/santa_mugre.json`, `bordes`) cada lado tiene un tapón de color: norte GelA (naranja), poniente camión, oriente derrumbe, sur barda. Una barda gris rodea todo el recorte; donde la avenida (Av. Bahía de Todos los Sedientos) sale por el poniente y el oriente, en lugar del camión y el derrumbe hay una **reja de fierro** (`rejas` del `.json`, pieza `reja`), con la barda partida alrededor. Adentro de cada reja hay una flecha amarilla de salida (marca `salida_colonia`) que lleva a `map_test` por ese lado; en `map_test` la misma reja (`MuroColonia`) tiene su flecha de entrada por fuera. El paso lo hace `scripts/mapa/PasoColonia.gd` (fundido, la hora del día y el lado).
 
 ## Gente, luz y noche
 
