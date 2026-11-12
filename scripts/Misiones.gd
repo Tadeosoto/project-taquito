@@ -34,6 +34,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/caceria_noche.tres",
 	"res://resources/misiones/entrada_dia.tres",
 	"res://resources/misiones/defender_tinaco.tres",
+	"res://resources/misiones/camioneta_noche.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -50,6 +51,9 @@ var manos_ocupadas := false
 var tiempo_queda := 0.0
 # ESCOLTAR: la vida del que escoltas; -1 si todavia no sale (se queda al cambiar de escena)
 var vida_acompanante := -1
+# CAMIONETA con lugar "salida_colonia": afuera de que reja de la colonia sale la camioneta
+# ("poniente", "oriente"); MisionesMundo la escoge al azar al aceptar y ahi te deja
+var salida_camioneta := ""
 var visitados := 0
 var meta_visitas := 1
 # Lo pone MisionesMundo: a donde apuntan los mapas
@@ -174,12 +178,13 @@ func avance(mision: MisionData) -> Dictionary:
 	return _guardado.get(mision.id, _nuevo_avance(mision, 0))
 
 
-# El paso de la activa es de ruta (ESCOLTAR, LLEVAR_CARGA, DEFENDER) y ya esta en su hora: lleva a alguien o
+# El paso de la activa es de ruta (ESCOLTAR, LLEVAR_CARGA, DEFENDER, CAMIONETA) y ya esta en su hora: lleva a alguien o
 # algo, y no se puede dejar a medias ni cambiar de mision
 func ruta_en_curso() -> bool:
 	var p := paso()
 	return p != null and en_hora() and (p.tipo == PasoMision.Tipo.ESCOLTAR \
-			or p.tipo == PasoMision.Tipo.LLEVAR_CARGA or p.tipo == PasoMision.Tipo.DEFENDER)
+			or p.tipo == PasoMision.Tipo.LLEVAR_CARGA or p.tipo == PasoMision.Tipo.DEFENDER \
+			or p.tipo == PasoMision.Tipo.CAMIONETA)
 
 
 # Se esta jugando una de LUGAR: el diario espera
@@ -212,6 +217,7 @@ func _poner_activa(mision: MisionData) -> void:
 	meta_visitas = paso().cuantos
 	tiempo_queda = avance["tiempo"]
 	vida_acompanante = -1
+	salida_camioneta = ""
 	_ruta_hora = ruta_en_curso()
 	cambio.emit()
 
@@ -222,6 +228,7 @@ func _entrar_paso(i: int) -> void:
 	meta_visitas = paso().cuantos
 	tiempo_queda = paso().segundos
 	vida_acompanante = -1
+	salida_camioneta = ""
 	_ruta_hora = ruta_en_curso()
 	cambio.emit()
 
@@ -276,10 +283,10 @@ func visitado() -> void:
 		return
 	var tipo := paso().tipo
 	if tipo != PasoMision.Tipo.VISITAR and tipo != PasoMision.Tipo.LLEVAR_CARGA \
-			and tipo != PasoMision.Tipo.ENTRAR_A:
+			and tipo != PasoMision.Tipo.ENTRAR_A and tipo != PasoMision.Tipo.CAMIONETA:
 		return
 	var pago := roundi(paso().pesos_por_entrega * get_node("/root/Personaje").factor_paga())
-	if tipo == PasoMision.Tipo.LLEVAR_CARGA and pago > 0:
+	if (tipo == PasoMision.Tipo.LLEVAR_CARGA or tipo == PasoMision.Tipo.CAMIONETA) and pago > 0:
 		get_node("/root/Cartera").pesos += pago
 		entrega.emit(pago)
 	visitados += 1
@@ -315,9 +322,13 @@ func defendiendo(delta: float) -> void:
 		_avanzar()
 
 
-# ESCOLTAR o DEFENDER: lo mataron los zombis
+# ESCOLTAR, DEFENDER o CAMIONETA: lo mataron los zombis
 func acompanante_cayo() -> void:
-	if ruta_en_curso() and paso().tipo != PasoMision.Tipo.LLEVAR_CARGA:
+	if not ruta_en_curso() or paso().tipo == PasoMision.Tipo.LLEVAR_CARGA:
+		return
+	if paso().tipo == PasoMision.Tipo.CAMIONETA:
+		fallar("La camioneta no aguantó. Se perdió el agua.")
+	else:
 		fallar("Lo perdiste. No debiste dejarlo solo.")
 
 
@@ -333,6 +344,9 @@ func _texto_ruta_perdida(p: PasoMision) -> String:
 				else "Se hizo de noche y lo dejaste a su suerte."
 	if p.tipo == PasoMision.Tipo.DEFENDER:
 		return "No aguantaste hasta el final y el lugar se perdió."
+	if p.tipo == PasoMision.Tipo.CAMIONETA:
+		return "Amaneció con la camioneta en la calle: los cerdos se la llevaron." if not es_noche \
+				else "Te desmayaste y la camioneta siguió sin ti."
 	return "Te amaneció con la carga: los cerdos se la llevaron." if p.cuando == PasoMision.Cuando.NOCHE \
 			else "Se hizo de noche con la carga encima y la perdiste."
 
@@ -431,6 +445,7 @@ func reiniciar() -> void:
 	_previa = null
 	manos_ocupadas = false
 	vida_acompanante = -1
+	salida_camioneta = ""
 	_ruta_hora = false
 	indice_paso = 0
 	ofreciendo = true

@@ -31,6 +31,9 @@ var _material_fierro: ShaderMaterial
 
 
 func _enter_tree() -> void:
+	add_to_group("muro_colonia")
+	# Los carros (CallesRuta) no cruzan por adentro: aqui el recorte esta cerrado
+	CallesRuta.cerrar(rect)
 	# Si se llego del mapa de Blender por una reja (PasoColonia), el jugador aparece afuera de ella.
 	# Esto va aqui, antes de que el jugador, el dron y Supervivencia lean su posicion (este nodo va
 	# antes que ellos en la escena y todavia no entran al arbol)
@@ -45,6 +48,10 @@ func _enter_tree() -> void:
 		return
 	var donde := _afuera(por, LLEGADA_FUERA)
 	jugador.position = Vector3(donde.x, 1.5, donde.y)
+
+
+func _exit_tree() -> void:
+	CallesRuta.abrir(rect)
 
 
 func _ready() -> void:
@@ -106,6 +113,17 @@ func _pared(centro: Vector3, tam: Vector3, material: Material) -> void:
 
 
 # --- Las rejas de la avenida ---
+
+# El punto a `m` metros afuera de la reja de `lado`, en el piso (la camioneta de reparto sale de ahi)
+func afuera(lado: String, m: float) -> Vector3:
+	var donde := _afuera(lado, m)
+	return Vector3(donde.x, global_position.y, donde.y)
+
+
+# Hacia donde es afuera por la reja de `lado`
+static func hacia_afuera(lado: String) -> Vector3:
+	return Vector3.LEFT if lado == "poniente" else Vector3.RIGHT
+
 
 # Punto (x, z) a `m` metros de la reja de `lado`, hacia afuera del recorte
 func _afuera(lado: String, m: float) -> Vector2:

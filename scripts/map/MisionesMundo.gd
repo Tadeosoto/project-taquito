@@ -27,6 +27,17 @@ const TEXTO_TARDE := "Ya va a oscurecer. Mejor mañana."
 # Al aceptar una que no es de esta hora (Misiones.hora_que_falta): lo piensa el protagonista
 const ACOMPANANTE_SALE_A := 30.0  # m: si el que dio la mision esta mas lejos, sale junto a ti
 const ESCOLTA_LLEGA := 4.0        # m a la meta, de los dos
+const CAMIONETA_CANDIDATAS := 14   # casas que se prueban para armar la ruta de la camioneta
+const CAMIONETA_NOCHE_SIN_CICLO := 300.0 # s de ruta si el Ciclo no esta de noche
+const CAMIONETA_CASAS := Vector2(40.0, 400.0)   # m del que da la mision a las casas de la ruta (toda la noche)
+const CAMIONETA_PRIMERA_OLA := 1.5 # s despues de pararse la camioneta llega la primera turba
+const CAMIONETA_LEJOS := 25.0      # m: mas lejos que esto, la linea de abajo dice a cuanto esta
+# "salida_colonia": de donde arranca la camioneta, afuera de la reja de la avenida (apareces a
+# MuroColonia.LLEGADA_FUERA, detras de ella)
+const CAMIONETA_AFUERA := 13.0     # m de la reja hacia afuera
+const CAMIONETA_AL_LADO := 3.5     # m a un lado, para no tapar la flecha de entrada
+const CAMIONETA_PRIMERA_OLA_AFUERA := 4.0   # s para la primera turba al salir
+const CAMIONETA_CORTE := 1.5       # s despues de aceptar, para leer al chofer, antes del corte
 const DEFENDER_RADIO := 20.0      # m del lugar: mas lejos, el tiempo no corre
 const DEFENDER_PRIMERA := 4.0     # s para la primera turba
 const CAZA_BUSCAR := 25.0         # m de radio del area marcada en los mapas
@@ -67,6 +78,10 @@ var _puntos_de: MisionData = null
 # ESCOLTAR: el que te sigue, de que paso, y a donde lo llevas (se guarda para no cambiarla en cada _cambio)
 var _acomp: Acompanante = null
 var _acomp_de: PasoMision = null
+var _camioneta: CamionetaReparto = null
+var _camioneta_de: PasoMision = null
+var _camioneta_parada := false
+var _ola_andando_en := 0.0         # s para la siguiente turba con la camioneta andando
 var _escolta_de: PasoMision = null
 var _escolta_meta := Vector3.ZERO
 # DEFENDER: de que paso es la cuenta de turbas y en cuanto sale la siguiente
@@ -234,10 +249,19 @@ func _hablar(i: int) -> String:
 		return ("%s %s" % [Personaje.linea("vecino"), mision.oferta]).strip_edges() + TEXTO_ACEPTAR
 	v["visto"] = false
 	Misiones.aceptar(mision)
+	if _sale_por_la_reja(mision):
+		_salir_por_la_reja(mision)
+		return mision.aceptada
 	var falta := Misiones.hora_que_falta(mision.pasos[0] if not mision.pasos.is_empty() else null)
 	if falta != "" and _supervivencia:
 		_supervivencia.avisar(TEXTO_HORA % [Personaje.nombre, falta])
 	return mision.aceptada
+
+
+# La del chofer: su primer paso es CAMIONETA desde la reja, y se acepta en la colonia
+func _sale_por_la_reja(mision: MisionData) -> bool:
+	return not mision.pasos.is_empty() and mision.pasos[0].tipo == PasoMision.Tipo.CAMIONETA \
+			and mision.pasos[0].lugar == "salida_colonia" and get_tree().get_first_node_in_group("colonia") != null
 
 
 func _actualizar_signos() -> void:
@@ -290,6 +314,7 @@ func _cambio() -> void:
 	_quitar_puntos()
 	var paso := Misiones.paso()
 	_ajustar_acompanante(paso)
+	_ajustar_camioneta(paso)
 	_ajustar_cazado(paso)
 	# Se acabo la mision de la cosa (y ya entro la siguiente): se suelta
 	if _cosa_en_manos and _perro_de != Misiones.activa:
@@ -323,6 +348,9 @@ func _cambio() -> void:
 				Misiones.meta_visitas = 1
 				_puntos.append(_punto_de_visita(_meta_de_escolta(paso)))
 				_apuntar_al_punto_cercano()
+		PasoMision.Tipo.CAMIONETA:
+			if is_instance_valid(_camioneta):
+				_apuntar(_camioneta.global_position)
 		PasoMision.Tipo.DEFENDER:
 			_apuntar(_meta_de_escolta(paso))
 			if _defensa_de != paso:
@@ -393,12 +421,12 @@ func _poner_puntos(paso: PasoMision) -> void:
 	_apuntar_al_punto_cercano()
 
 
-# `faltan` frentes de casa a CASAS_DISTANCIA de `desde`, lejos entre si
-func _lugares_de_casas(desde: Vector3, faltan: int) -> Array[Vector3]:
+# `faltan` frentes de casa a `distancia` (min, max) de `desde`, lejos entre si
+func _lugares_de_casas(desde: Vector3, faltan: int, distancia := CASAS_DISTANCIA) -> Array[Vector3]:
 	var opciones := []
 	for c: Dictionary in _casas:
 		var d := Vector2(desde.x, desde.z).distance_to(Vector2(c["x"], c["z"]))
-		if d >= CASAS_DISTANCIA.x and d <= CASAS_DISTANCIA.y:
+		if d >= distancia.x and d <= distancia.y:
 			opciones.append(c)
 	opciones.shuffle()
 	var lugares: Array[Vector3] = []
@@ -547,6 +575,124 @@ func _quitar_acompanante() -> void:
 		_acomp.queue_free()
 	_acomp = null
 	_acomp_de = null
+
+
+# --- La camioneta de reparto ---
+
+# Sale al empezar su hora, donde el que dio la mision (o junto a ti si ya estas lejos), con la
+# ruta armada para que acabe antes del amanecer; se quita al acabar el paso. Con `lugar`
+# "salida_colonia" (el chofer de Santa Mugre) sale afuera de la reja de la colonia por la que
+# llegaste (Misiones.salida_camioneta, al azar al aceptar: _salir_por_la_reja), en el mapa grande
+func _ajustar_camioneta(paso: PasoMision) -> void:
+	var quiere := paso != null and paso.tipo == PasoMision.Tipo.CAMIONETA and Misiones.en_hora()
+	if is_instance_valid(_camioneta) and (not quiere or _camioneta_de != paso):
+		_quitar_camioneta()
+	if not quiere or is_instance_valid(_camioneta):
+		return
+	if paso.lugar == "salida_colonia":
+		var muro := get_tree().get_first_node_in_group("muro_colonia") as MuroColonia
+		if muro == null or not muro.rejas.has(Misiones.salida_camioneta):
+			return   # en la colonia no sale: la ruta es afuera
+		var lado := Misiones.salida_camioneta
+		var afuera := MuroColonia.hacia_afuera(lado)
+		_salir_camioneta(paso, muro.afuera(lado, CAMIONETA_AFUERA) + afuera.cross(Vector3.UP) * CAMIONETA_AL_LADO, afuera)
+		# Los zombis no tardan: la primera turba llega casi de inmediato
+		_ola_andando_en = CAMIONETA_PRIMERA_OLA_AFUERA
+		return
+	var desde := _lugar_de_vecino(Misiones.activa)
+	if desde.distance_to(_jugador.global_position) > ACOMPANANTE_SALE_A:
+		desde = _jugador.global_position + Vector3(6.0, 0.0, 0.0)
+	_salir_camioneta(paso, desde, Vector3.ZERO)
+
+
+# Al aceptar la del chofer en la colonia: se corta la pantalla y apareces ya de noche afuera de una
+# de las rejas de la avenida, al azar, con la camioneta arrancando (PasoColonia)
+func _salir_por_la_reja(mision: MisionData) -> void:
+	if not Misiones.elegir(mision):
+		return
+	Misiones.salida_camioneta = ["poniente", "oriente"].pick_random()
+	await get_tree().create_timer(CAMIONETA_CORTE).timeout
+	if not is_inside_tree() or Misiones.activa != mision:
+		return
+	var hora := -2.0
+	if _ciclo:
+		hora = _ciclo.dia_duracion / (_ciclo.dia_duracion + _ciclo.noche_duracion)
+	PasoColonia.ir_a(self, PasoColonia.MAPA_GRANDE, Misiones.salida_camioneta, hora)
+
+
+# Arma la ruta desde `desde` (con `rumbo`, hacia donde arranca) y la echa a andar
+func _salir_camioneta(paso: PasoMision, desde: Vector3, rumbo: Vector3) -> void:
+	var vida := Misiones.vida_acompanante if Misiones.vida_acompanante >= 0 else paso.vida_acompanante
+	var restante: float = _ciclo.segundos_para_amanecer() if _ciclo else 0.0
+	if restante <= 0.0:
+		restante = CAMIONETA_NOCHE_SIN_CICLO   # el Ciclo no sabe de noche (escenas de prueba)
+	var casas := _lugares_de_casas(desde, CAMIONETA_CANDIDATAS * 2, CAMIONETA_CASAS)
+	# Ninguna adentro de la colonia amurallada (ahi no entra)
+	var muro := get_tree().get_first_node_in_group("muro_colonia") as MuroColonia
+	var candidatas: Array[Vector3] = []
+	for casa in casas:
+		if (muro == null or not muro.rect.grow(CAMIONETA_AFUERA).has_point(Vector2(casa.x, casa.z))) and candidatas.size() < CAMIONETA_CANDIDATAS:
+			candidatas.append(casa)
+	_camioneta = CamionetaReparto.crear_reparto(self, desde, candidatas, paso.cuantos, vida, paso.vida_acompanante, \
+			restante, paso.descarga_s, rumbo)
+	_camioneta_de = paso
+	_camioneta_parada = false
+	_ola_en = paso.ola_cada
+	_ola_andando_en = paso.ola_andando
+	# Las entregas son las paradas que cupieron antes del amanecer
+	Misiones.meta_visitas = _camioneta.paradas.size()
+	_camioneta.cayo.connect(Misiones.acompanante_cayo)
+	_camioneta.entrega.connect(_camioneta_entrego)
+
+
+func _quitar_camioneta() -> void:
+	if is_instance_valid(_camioneta):
+		_camioneta.queue_free()
+	_camioneta = null
+	_camioneta_de = null
+
+
+func _camioneta_entrego(_numero: int) -> void:
+	_sonar("moneda")
+	Misiones.visitado()
+
+
+# Mientras descarga llega una turba cada `ola_cada` s (el tinaco movil) y andando una mas chica cada
+# `ola_andando` s; lo que se agrega a la
+# linea de abajo
+func _revisar_camioneta(paso: PasoMision, delta: float) -> String:
+	if not is_instance_valid(_camioneta) or _camioneta_de != paso:
+		return ""
+	Misiones.vida_acompanante = _camioneta.vida
+	_apuntar(_camioneta.global_position)
+	var linea := " · camioneta %d%%" % roundi(100.0 * _camioneta.vida / maxf(_camioneta.vida_max, 1))
+	if _camioneta.estado == CamionetaReparto.Estado.DESCARGA:
+		if not _camioneta_parada:
+			_camioneta_parada = true
+			_ola_en = CAMIONETA_PRIMERA_OLA
+		_ola_en -= delta
+		if _ola_en <= 0.0:
+			_ola_en = paso.ola_cada
+			_turba(paso.turba)
+		linea += " · descarga %d s" % ceili(_camioneta.descargando_queda())
+	elif _camioneta.estado == CamionetaReparto.Estado.ANDA:
+		# Andando tambien la alcanzan, menos y mas espaciadas que en las paradas
+		_camioneta_parada = false
+		if paso.ola_andando > 0.0:
+			_ola_andando_en -= delta
+			if _ola_andando_en <= 0.0:
+				_ola_andando_en = paso.ola_andando
+				_turba(paso.turba_andando)
+		var lejos := Vector2(_jugador.global_position.x, _jugador.global_position.z).distance_to(Vector2(_camioneta.global_position.x, _camioneta.global_position.z))
+		if lejos > CAMIONETA_LEJOS:
+			linea += " · a %d m" % roundi(lejos)
+	return linea
+
+
+func _turba(cuantos: int) -> void:
+	var mando := get_tree().get_first_node_in_group("zombis_mando") as Zombis
+	if mando:
+		mando.aparecer_turba(cuantos)
 
 
 # A donde lo llevas o donde aguantas: "giro:<giro>", "marca:<nombre>" o "casas" (una al azar), una sola vez por paso
@@ -767,6 +913,9 @@ func _process(delta: float) -> void:
 		_apuntar_al_punto_cercano()
 	elif paso.tipo == PasoMision.Tipo.ESCOLTAR:
 		_revisar_escolta(paso)
+	elif paso.tipo == PasoMision.Tipo.CAMIONETA:
+		linea += " (%d/%d)" % [Misiones.visitados, Misiones.meta_visitas]
+		linea += _revisar_camioneta(paso, delta)
 	elif paso.tipo == PasoMision.Tipo.DEFENDER:
 		linea += _revisar_defensa(paso, delta)
 	elif paso.tipo == PasoMision.Tipo.CAZAR:

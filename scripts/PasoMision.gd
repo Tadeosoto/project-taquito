@@ -24,6 +24,14 @@ extends Resource
 # llega. Con `escena` entra a esa pelea de jefe (PasoJefe) y el paso se cumple al ganarla: `lugar`
 # puede ser "entrada:<id>", una EntradaJefe fija del mapa (la flecha ya esta ahi; solo se apunta),
 # o cualquiera de las otras formas (la mision pone su propia flecha).
+# CAMIONETA: la camioneta del gremio (CamionetaReparto) sale de donde el que dio la mision y hace
+# una ruta de hasta `cuantos` entregas a casas (`lugar`: "casas"), por las calles y a tu trote, sin
+# esperarte: hay que seguirla toda la noche. En cada casa se para `descarga_s` segundos (el tinaco
+# movil) y llegan turbas de `turba` zombis cada `ola_cada` s; andando tambien llegan, de
+# `turba_andando` cada `ola_andando` s. La ruta se arma para acabar antes del amanecer. Con `lugar`
+# "salida_colonia" (el chofer de Santa Mugre, se acepta de dia en la colonia): se corta la pantalla
+# y apareces de noche afuera de una de las rejas, al azar, con la camioneta arrancando. Cada entrega paga `pesos_por_entrega`. Los zombis la atacan (lleva agua): la vida de la
+# camioneta es `vida_acompanante`; si cae, o te amanece en la ruta, o te desmayas, la mision falla.
 # LLEVAR_CARGA: lo de VISITAR (`lugar`, `cuantos` entregas) con la `carga` en brazos, y cada
 # entrega paga `pesos_por_entrega`. Es de una hora: si se acaba con la carga encima (amanecer =
 # los cuicos) o te desmayas, se pierde y la mision falla.
@@ -32,7 +40,7 @@ extends Resource
 # y su tiempo no corre): una entrega de noche con un ENTREGAR de dia se acaba con el que te la
 # dio a la mañana siguiente.
 
-enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER, ESCOLTAR, LLEVAR_CARGA, DEFENDER, CAZAR, ENTRAR_A }
+enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER, ESCOLTAR, LLEVAR_CARGA, DEFENDER, CAZAR, ENTRAR_A, CAMIONETA }
 enum Cuando { DIA, NOCHE, CUALQUIERA }
 
 @export var tipo: Tipo = Tipo.ENTREGAR
@@ -52,7 +60,13 @@ enum Cuando { DIA, NOCHE, CUALQUIERA }
 @export var vida_acompanante := 60
 # ENTRAR_A: la escena de jefe a la que se entra (vacio: solo llegar)
 @export_file("*.tscn") var escena := ""
-# DEFENDER: cada cuantos segundos llega otra turba
+# DEFENDER y CAMIONETA: cada cuantos segundos llega otra turba
 @export var ola_cada := 14.0
+# CAMIONETA: cuantos zombis trae cada turba y cuanto dura la descarga en cada casa
+@export var turba := 4
+@export var descarga_s := 20.0
+# CAMIONETA: las turbas que la alcanzan mientras va por la calle (0 = ninguna)
+@export var ola_andando := 18.0
+@export var turba_andando := 3
 # LLEVAR_CARGA: lo que paga cada entrega, aparte de los `pesos` de la mision
 @export var pesos_por_entrega := 0

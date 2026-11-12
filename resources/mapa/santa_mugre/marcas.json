@@ -318,6 +318,13 @@
 			"rot": -2.7489
 		},
 		{
+			"nombre": "Chofer",
+			"tipo": "mision",
+			"x": -352.0,
+			"z": 400.0,
+			"rot": 1.5708
+		},
+		{
 			"nombre": "Marchante_Mercado",
 			"tipo": "mision",
 			"x": -352.0,

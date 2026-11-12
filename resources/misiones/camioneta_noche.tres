@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_camioneta"]
+script = ExtResource("2_paso")
+tipo = 9
+cuando = 1
+texto = "Sigue la camioneta y cuida el agua"
+lugar = "salida_colonia"
+cuantos = 3
+vida_acompanante = 150
+ola_cada = 7.0
+turba = 4
+ola_andando = 18.0
+turba_andando = 3
+descarga_s = 20.0
+pesos_por_entrega = 80
+
+[resource]
+script = ExtResource("1_mision")
+id = "camioneta_noche"
+nombre = "El agua de afuera"
+modelo = "hombre_psx"
+donde = "marca:Chofer"
+oferta = "Esta noche saco el agua a las casas de afuera de la colonia. Sola no llega: ¿me cuidas la camioneta?"
+aceptada = "Ya está cargada. Vámonos: en cuanto salgamos de la reja no me detengo más que en las casas."
+recuerda = "No te me quedes atrás. Si nos amanece afuera, los cerdos se quedan con todo."
+despedida = "Llegó toda el agua. Mañana hay más casas, si te animas."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_camioneta")])
+pesos = 40

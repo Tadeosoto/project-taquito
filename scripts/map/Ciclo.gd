@@ -130,6 +130,14 @@ static func texto_hora(h: float) -> String:
 	return "%d:%02d" % [minutos / 60, minutos % 60]
 
 
+# Segundos de juego que faltan para que amanezca (la hora de Hordas llega a las 6:00 a media
+# transicion); 0 de dia
+func segundos_para_amanecer() -> float:
+	if not _es_noche:
+		return 0.0
+	return maxf(dia_duracion + noche_duracion - transicion / 2.0 - _tiempo, 0.0)
+
+
 # Segundos desde que empezo el dia (de 0 a dia_duracion + noche_duracion)
 func tiempo() -> float:
 	return _tiempo

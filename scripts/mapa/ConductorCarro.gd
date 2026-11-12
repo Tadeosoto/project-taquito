@@ -24,6 +24,7 @@ signal llego
 
 const ADELANTE_RUMBO := 2.0        # m al frente a donde mira para tomar el rumbo (suaviza el cuadro a cuadro)
 const GIRO_SUAVE := 7.0            # 1/s: que tan rapido el rumbo alcanza al de la ruta
+const GIRO_MAX := 100.0            # grados/s: lo mas rapido que da vuelta (una curva de 5 m a 9 m/s son ~100)
 const CURVA_MIRA := 14.0           # m al frente a donde busca curvas para frenar
 const CURVA_LENTO := 0.45          # fraccion de vel_max en una esquina de 90 grados o mas
 const CURVA_GRADOS := 90.0
@@ -39,7 +40,9 @@ var _total := 0.0
 var _activo := false
 
 
-func iniciar(nodo: Node3D, ruta: PackedVector3Array, desde_cero := true) -> void:
+# `desde_cero`: arranca parado. `ajustar_rumbo`: el vehiculo se pone de frente a la ruta de golpe
+# (la primera vez); si no, el rumbo lo alcanza poco a poco (un carro que sigue su camino).
+func iniciar(nodo: Node3D, ruta: PackedVector3Array, desde_cero := true, ajustar_rumbo := true) -> void:
 	_nodo = nodo
 	_ruta = ruta
 	_acumulado = [0.0]
@@ -51,7 +54,7 @@ func iniciar(nodo: Node3D, ruta: PackedVector3Array, desde_cero := true) -> void
 		velocidad = 0.0
 	_activo = ruta.size() > 1
 	if _activo:
-		_poner(0.0, true)
+		_poner(0.0, ajustar_rumbo)
 
 
 func _process(delta: float) -> void:
@@ -103,4 +106,10 @@ func _poner(metros: float, de_golpe: bool, delta := 0.0) -> void:
 	_nodo.global_position = _punto(metros)
 	var rumbo := _rumbo(metros)
 	var yaw := atan2(rumbo.x, rumbo.z)   # su frente esta en +Z
-	_nodo.rotation.y = yaw if de_golpe else lerp_angle(_nodo.rotation.y, yaw, minf(GIRO_SUAVE * delta, 1.0))
+	if de_golpe:
+		_nodo.rotation.y = yaw
+		return
+	# Hacia el rumbo de la ruta, poco a poco y sin pasar de GIRO_MAX
+	var falta := angle_difference(_nodo.rotation.y, yaw) * minf(GIRO_SUAVE * delta, 1.0)
+	var tope := deg_to_rad(GIRO_MAX) * delta
+	_nodo.rotation.y += clampf(falta, -tope, tope)

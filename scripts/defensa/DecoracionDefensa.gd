@@ -18,14 +18,6 @@ const PATA_LARGO := 0.9
 const PATA_ABRE := 30.0            # grados contra la vertical
 const POSTE_COLOR := Color(0.3, 0.3, 0.32)
 
-const PICKUP := preload("res://models/vehiculos/pickup/pickup.scn")   # PS1 Ford F150: frente en +Z
-const PICKUP_ESCALA := 1.1                           # el modelo mide 4.66 de largo: unos 5.1 m
-const PICKUP_PISO := 0.84                            # lo que el modelo baja de su origen (las llantas)
-const PICKUP_TECHO := 0.89                           # altura del techo de la cabina (en el modelo)
-const PICKUP_CAJA_PISO := -0.12                      # el piso de la caja (en el modelo)
-const PICKUP_CAJA_Z := -1.33                         # centro de los tambos (en el modelo): pegados a la cabina, los de atras quedan dentro de la compuerta
-const PICKUP_TINTE := Color(0.85, 0.82, 0.74)        # pintura deslavada
-const PICKUP_DESGASTE := 0.8                         # ps1_gastado: fierro pintado, percudido
 const FURGONETA_CAJA := Vector3(2.2, 2.0, 5.4)      # lo que ocupa, para no ponerla sobre una casa o un arbol
 const FURGONETA_ANGULOS := 36                       # pares de lados opuestos que se prueban
 const FURGONETA_HOLGURA := 0.5                      # m entre la caja de la camioneta y el anillo de afuera
@@ -40,12 +32,6 @@ const CALLE_RECORRE := 120.0                        # m que sigue la calle antes
 const SALIDA_CURVA := 8                             # puntos de la vuelta
 const FURGONETA_SALE := [26.0, 29.0]                # a que hora (Hordas.hora) recoge su manguera y se va: a media noche y casi al amanecer
 const RUTAS_CONTRARIAS := -0.3                      # coseno: las dos se pierden por lados contrarios del parque
-const TAMBOS_FILAS := 2                             # en la caja: 2 hileras de 3 a lo largo
-const TAMBOS_POR_FILA := 3
-const ROLLO := preload("res://models/props/rollo_manguera/rollo_manguera.scn")   # Garden Hose Reel: eje en Z, 1 m de diametro
-const ROLLO_ESCALA := 0.8
-const ROLLO_RADIO := 0.5                            # del modelo, con el centro en su origen
-const ROLLO_COLA := "Object_5"                      # la punta de manguera que cuelga del modelo: la pone la animacion
 # La manguera: del rollo baja por atras de la cabina, pasa sobre los tambos y la compuerta y va
 # por el piso (encima de la barricada) hasta el tinaco, al que le da la vuelta hasta su bomba
 const MANGUERA_RADIO := 0.06                        # mas gruesa que una real: a 640x480 la de 2 cm no se ve
@@ -69,7 +55,6 @@ var hordas: Hordas
 var barricada: Barricada
 
 var _furgonetas: Array[Dictionary] = []   # {nodo, rollo, ruta, sale_a, estado, manguera, puntos, largo, queda}
-var _pintura: Dictionary = {}               # material del modelo -> su copia percudida
 var _material_manguera: StandardMaterial3D
 var _armado := 0                             # cuenta los armar(): uno viejo que espera ya no pone nada
 
@@ -297,32 +282,9 @@ func _furgoneta(lugar: Vector3, angulo: float, ruta: PackedVector3Array, sale_a:
 	add_child(nodo)
 	nodo.global_position = lugar
 	nodo.basis = _de_reversa(angulo)
-	var pickup: Node3D = PICKUP.instantiate()
-	pickup.scale = Vector3.ONE * PICKUP_ESCALA
-	pickup.position.y = PICKUP_PISO * PICKUP_ESCALA
-	nodo.add_child(pickup)
-	_percudir(pickup)
-	# Los tambos azules en la caja (Tambos.gd, los de la purificadora)
-	for fila in TAMBOS_FILAS:
-		var tambos := Tambos.new()
-		tambos.columnas = TAMBOS_POR_FILA
-		tambos.niveles = 1
-		tambos.semilla = fila + int(sale_a)
-		tambos.rotation.y = PI / 2.0   # la hilera (su X) a lo largo de la caja
-		var lado := (fila - (TAMBOS_FILAS - 1) / 2.0) * (Tambos.RADIO * 2.0 + 0.04)
-		tambos.position = Vector3(lado, (PICKUP_PISO + PICKUP_CAJA_PISO) * PICKUP_ESCALA, PICKUP_CAJA_Z * PICKUP_ESCALA)
-		nodo.add_child(tambos)
-	# El rollo de manguera parado en el techo de la cabina, con el eje de lado a lado para que gire
-	# y la manguera salga hacia atras, a los tambos. La bomba jala el agua del tinaco y la
-	# manguera la lleva a los tambos.
-	var rollo: Node3D = ROLLO.instantiate()
-	rollo.scale = Vector3.ONE * ROLLO_ESCALA
-	rollo.rotation.y = PI / 2.0
-	rollo.position = Vector3(0.0, (PICKUP_PISO + PICKUP_TECHO) * PICKUP_ESCALA + ROLLO_RADIO * ROLLO_ESCALA, 0.0)
-	nodo.add_child(rollo)
-	var cola := rollo.find_child(ROLLO_COLA, true, false) as Node3D
-	if cola != null:
-		cola.visible = false
+	var modelo := CamionetaModelo.crear(int(sale_a), true)
+	nodo.add_child(modelo)
+	var rollo := modelo.get_node("Rollo") as Node3D
 	var puntos := _camino_manguera(nodo)
 	var largo := 0.0
 	for i in range(1, puntos.size()):
@@ -334,23 +296,6 @@ func _furgoneta(lugar: Vector3, angulo: float, ruta: PackedVector3Array, sale_a:
 			"manguera": manguera, "puntos": puntos, "largo": largo, "queda": largo}
 	_furgonetas.append(f)
 	_dibujar_manguera(f)
-
-
-# Cambia la pintura del modelo por la misma con el desgaste de fierro de ps1_gastado
-func _percudir(modelo: Node) -> void:
-	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):
-		for i in malla.mesh.get_surface_count():
-			var original := malla.mesh.surface_get_material(i) as ShaderMaterial
-			if original == null:
-				continue
-			if not _pintura.has(original):
-				var sucio := original.duplicate() as ShaderMaterial
-				sucio.set_shader_parameter("deterioro_modo", 4)
-				sucio.set_shader_parameter("desgaste", PICKUP_DESGASTE)
-				sucio.set_shader_parameter("metal", true)
-				sucio.set_shader_parameter("tint", PICKUP_TINTE)
-				_pintura[original] = sucio
-			malla.set_surface_override_material(i, _pintura[original])
 
 
 # Para las capturas de revision (DefensaTinaco --capturas): [nombre, desde, hacia] en global
@@ -402,7 +347,7 @@ func _process(delta: float) -> void:
 				# La punta se arrastra hacia la camioneta y el rollo gira a la par
 				var recoge: float = minf(f["largo"] / MANGUERA_DURA * delta, f["queda"])
 				f["queda"] -= recoge
-				(f["rollo"] as Node3D).rotate_object_local(Vector3.BACK, recoge / (MANGUERA_ENROLLA * ROLLO_ESCALA))
+				(f["rollo"] as Node3D).rotate_object_local(Vector3.BACK, recoge / (MANGUERA_ENROLLA * CamionetaModelo.ROLLO_ESCALA))
 				_dibujar_manguera(f)
 				if f["queda"] <= 0.0:
 					f["estado"] = SE_FUE

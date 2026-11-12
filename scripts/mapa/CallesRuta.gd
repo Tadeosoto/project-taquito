@@ -27,7 +27,10 @@ const ANCHO_MAX := 16.0                # m que mide a los lados para centrarse
 # entre(): A* sobre una rejilla de CELDA m
 const CELDA := 2.0
 const MAX_NODOS := 12000               # lo mas que expande antes de rendirse
+const RODEO := 2.0                     # la ruta no se aparta mas que esto de la recta: celdas con (a ellas + de ellas a b) > RODEO * recta + RODEO_EXTRA no se miran
+const RODEO_EXTRA := 80.0              # m
 const BUSCA_CALLE := 30.0              # m a la redonda para encontrar la calle mas cercana a un punto
+const SALE_ADELANTE := 0.2             # coseno: de donde esta parado solo sale a menos de ~78 grados de su rumbo
 const ORILLA := 3.0                    # m: una celda con menos calle que esto a algun lado cuesta mas (anda por en medio)
 const ORILLA_COSTO := 1.5
 
@@ -41,12 +44,16 @@ const MIN_GIRO := 4.0                  # grados: menos que eso no es esquina
 static var _calles: Image
 static var _origen := Vector2.ZERO
 static var _m_por_pixel := 1.0
+static var _cerradas: Array[Rect2] = []   # x, z de zonas por donde no se pasa (el muro de una colonia)
 static var _celdas := {}               # celda -> 0 sin calle, 1 calle, 2 calle pegada a la orilla (A* mira cada una varias veces)
 
 
 static func es_calle(punto: Vector3) -> bool:
 	if _calles == null and not _cargar():
 		return false
+	for zona in _cerradas:
+		if zona.has_point(Vector2(punto.x, punto.z)):
+			return false
 	var px := int((punto.x - _origen.x) / _m_por_pixel)
 	var pz := int((punto.z - _origen.y) / _m_por_pixel)
 	if px < 0 or pz < 0 or px >= _calles.get_width() or pz >= _calles.get_height():
@@ -68,6 +75,27 @@ static func _cargar() -> bool:
 	_origen = Vector2(datos["x0"], datos["z0"])
 	_m_por_pixel = float(datos["metros_por_pixel"])
 	return true
+
+
+# Hacia donde apunta la ruta en su primer tramo (`al_inicio`) o en el ultimo, en el plano
+# Una zona (x, z) por la que las rutas no pasan aunque el minimapa tenga calles: la colonia
+# amurallada en el mapa grande (MuroColonia). `abrir` la quita al salir de esa escena
+static func cerrar(zona: Rect2) -> void:
+	if not _cerradas.has(zona):
+		_cerradas.append(zona)
+		_celdas.clear()
+
+
+static func abrir(zona: Rect2) -> void:
+	if _cerradas.has(zona):
+		_cerradas.erase(zona)
+		_celdas.clear()
+
+
+static func rumbo_final(ruta: PackedVector3Array, al_inicio := false) -> Vector3:
+	var d := (ruta[1] - ruta[0]) if al_inicio else (ruta[ruta.size() - 1] - ruta[ruta.size() - 2])
+	d.y = 0.0
+	return d.normalized()
 
 
 # El largo de una ruta (m)
@@ -132,13 +160,17 @@ static func calle_cercana(punto: Vector3) -> Vector3:
 # Ruta por las calles de `a` a `b` (las dos se llevan a la calle mas cercana), ya enderezada.
 # Vacia si alguna no tiene calle cerca o no hay camino. A* sobre una rejilla de CELDA m: de 8 lados,
 # sin cortar esquinas, y las celdas pegadas a la orilla de la calle cuestan un poco mas.
-static func entre(a: Vector3, b: Vector3) -> PackedVector3Array:
+# Con `rumbo` (hacia donde mira el carro parado en `a`) la ruta no sale en sentido contrario: el
+# carro no da media vuelta en su lugar, rodea la cuadra si hace falta.
+static func entre(a: Vector3, b: Vector3, rumbo := Vector3.ZERO) -> PackedVector3Array:
 	var inicio := calle_cercana(a)
 	var final := calle_cercana(b)
 	if inicio == Vector3.INF or final == Vector3.INF:
 		return PackedVector3Array()
 	var de := _celda(inicio)
 	var a_ := _celda(final)
+	var recta := inicio.distance_to(final)
+	var limite := RODEO * recta + RODEO_EXTRA
 	var vino := {de: de}
 	var costo := {de: 0.0}
 	var monton: Array = [[_h(de, a_), de]]   # montículo binario de [f, celda]
@@ -154,7 +186,15 @@ static func entre(a: Vector3, b: Vector3) -> PackedVector3Array:
 			for dz in range(-1, 2):
 				if dx == 0 and dz == 0:
 					continue
+				# Del lugar donde esta parado no sale hacia atras ni de lado
+				if actual == de and rumbo != Vector3.ZERO and Vector3(dx, 0.0, dz).normalized().dot(rumbo) < SALE_ADELANTE:
+					continue
 				var sig := actual + Vector2i(dx, dz)
+				# Fuera de la elipse alrededor de la recta no vale la pena buscar (y es lo que cuesta
+				# cuando no hay camino)
+				var donde := _punto(sig, 0.0)
+				if donde.distance_to(inicio) + donde.distance_to(final) > limite:
+					continue
 				var tipo := _tipo(sig)
 				if tipo == 0:
 					continue
@@ -178,7 +218,97 @@ static func entre(a: Vector3, b: Vector3) -> PackedVector3Array:
 		ruta.append(_punto(celda, inicio.y))
 	ruta[0] = inicio
 	ruta[ruta.size() - 1] = final
-	return suavizar(ruta)
+	var suave := suavizar(ruta)
+	# Enderezar pudo torcer el primer tramo hacia atras
+	if rumbo != Vector3.ZERO and suave.size() > 1 and rumbo_final(suave, true).dot(rumbo) < 0.0:
+		return PackedVector3Array()
+	return suave
+
+
+# Rutas de `a` a cada uno de `destinos` con una sola busqueda (Dijkstra), alineadas con `destinos`:
+# vacia la de un destino al que no se llega en `max_metros` de calle, o que obliga a salir de `a`
+# hacia atras (ver `rumbo` en `entre`). Es lo que se usa para escoger entre muchas casas: buscar
+# una por una cuesta una busqueda completa por cada casa sin camino.
+static func entre_varias(a: Vector3, destinos: Array[Vector3], rumbo := Vector3.ZERO, max_metros := 400.0) -> Array[PackedVector3Array]:
+	var rutas: Array[PackedVector3Array] = []
+	rutas.resize(destinos.size())
+	var inicio := calle_cercana(a)
+	if inicio == Vector3.INF:
+		return rutas
+	var metas := {}   # celda -> indices de destinos que caen ahi
+	var finales: Array[Vector3] = []
+	for i in destinos.size():
+		var f := calle_cercana(destinos[i])
+		finales.append(f)
+		if f != Vector3.INF:
+			var c := _celda(f)
+			if not metas.has(c):
+				metas[c] = []
+			metas[c].append(i)
+	var de := _celda(inicio)
+	var vino := {de: de}
+	var costo := {de: 0.0}
+	var monton: Array = [[0.0, de]]
+	var nodos := 0
+	var faltan := metas.size()
+	var limite := max_metros / CELDA * 1.3   # el costo es en celdas y las orillas cuestan de mas
+	while not monton.is_empty() and nodos < MAX_NODOS and faltan > 0:
+		var sacado := _sacar(monton)
+		var actual: Vector2i = sacado[1]
+		if sacado[0] > costo[actual] + 0.001:
+			continue
+		if metas.has(actual):
+			faltan -= 1
+			if faltan == 0:
+				break
+		nodos += 1
+		if costo[actual] > limite:
+			continue
+		for dx in range(-1, 2):
+			for dz in range(-1, 2):
+				if dx == 0 and dz == 0:
+					continue
+				if actual == de and rumbo != Vector3.ZERO and Vector3(dx, 0.0, dz).normalized().dot(rumbo) < SALE_ADELANTE:
+					continue
+				var sig := actual + Vector2i(dx, dz)
+				var tipo := _tipo(sig)
+				if tipo == 0:
+					continue
+				if dx != 0 and dz != 0 and (_tipo(actual + Vector2i(dx, 0)) == 0 or _tipo(actual + Vector2i(0, dz)) == 0):
+					continue
+				var nuevo: float = costo[actual] + (1.4142 if dx != 0 and dz != 0 else 1.0) + (ORILLA_COSTO if tipo == 2 else 0.0)
+				if not costo.has(sig) or nuevo < costo[sig]:
+					costo[sig] = nuevo
+					vino[sig] = actual
+					_meter(monton, [nuevo, sig])
+	for i in destinos.size():
+		if finales[i] == Vector3.INF:
+			continue
+		var meta := _celda(finales[i])
+		if not vino.has(meta) or costo[meta] > limite:
+			continue
+		var ruta := _armar(vino, de, meta, inicio, finales[i], rumbo)
+		if not ruta.is_empty():
+			rutas[i] = ruta
+	return rutas
+
+
+# La ruta (suavizada) de `de` a `meta` siguiendo `vino`; vacia si queda saliendo hacia atras
+static func _armar(vino: Dictionary, de: Vector2i, meta: Vector2i, inicio: Vector3, final: Vector3, rumbo: Vector3) -> PackedVector3Array:
+	var celdas: Array[Vector2i] = [meta]
+	while celdas[celdas.size() - 1] != de:
+		celdas.append(vino[celdas[celdas.size() - 1]])
+	celdas.reverse()
+	var ruta := PackedVector3Array()
+	for celda in celdas:
+		ruta.append(_punto(celda, inicio.y))
+	ruta[0] = inicio
+	ruta[ruta.size() - 1] = final
+	var suave := suavizar(ruta)
+	# Enderezar pudo torcer el primer tramo hacia atras
+	if rumbo != Vector3.ZERO and suave.size() > 1 and rumbo_final(suave, true).dot(rumbo) < 0.0:
+		return PackedVector3Array()
+	return suave
 
 
 static func _celda(punto: Vector3) -> Vector2i:
