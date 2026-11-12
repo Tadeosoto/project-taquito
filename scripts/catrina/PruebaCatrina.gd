@@ -113,6 +113,7 @@ var _plaza_frenesi := false
 var _frenesi_t := 0.0
 var _captura_frenesi := false
 var _captura_jardinera := false
+var _romper_jardineras := false
 
 
 func _ready() -> void:
@@ -178,11 +179,34 @@ func _ready() -> void:
 			_captura_frenesi = true
 		elif arg == "--cheese":
 			_cheese = 0.0
+		elif arg == "--romper":
+			_romper_jardineras = true
 	_empezar()
+	if _romper_jardineras:
+		_ciclo_jardineras()
 	if _captura != "":
 		_capturar()
 	# Pixelify dibuja mal la ligadura "fi" (desfile): mejor sin ella
 	_avisar("La plaza de la Mojiganga", 2.5)
+
+
+# -- --romper: sin pelea, revienta las jardineras una por una (cada ROMPE_CADA s) y las vuelve a armar,
+# para verlas romperse. Ella sigue dormida: el jugador esta lejos.
+const ROMPE_CADA := 3.0
+
+func _ciclo_jardineras() -> void:
+	var jardineras: Array[Rompible] = []
+	for r in _rompibles:
+		if not r.caidos.is_empty():
+			jardineras.append(r)
+	while is_inside_tree():
+		await get_tree().create_timer(ROMPE_CADA).timeout
+		for r in jardineras:
+			r.romper(CATRINA_EN)
+			await get_tree().create_timer(ROMPE_CADA).timeout
+		await get_tree().create_timer(ROMPE_CADA).timeout
+		for r in jardineras:
+			r.restaurar()
 
 
 # --- La plaza ---
