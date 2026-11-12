@@ -706,6 +706,20 @@ def rectangulo(x, z, rot, ancho, z_frente, z_fondo) -> list:
 		for lx, lz in ((-ancho / 2, z_frente), (ancho / 2, z_frente), (ancho / 2, z_fondo), (-ancho / 2, z_fondo))]
 
 
+def casa_toca_muro(c, grueso=0.3, margen=0.3) -> bool:
+	"""Si el lote de la casa modelo `c` toca una de las cuatro paredes de RECORTE_MURO."""
+	x0, z0, x1, z1 = RECORTE_MURO
+	g = grueso / 2 + margen
+	paredes = [
+		[(x0 - g, z0 - g), (x1 + g, z0 - g), (x1 + g, z0 + g), (x0 - g, z0 + g)],
+		[(x0 - g, z1 - g), (x1 + g, z1 - g), (x1 + g, z1 + g), (x0 - g, z1 + g)],
+		[(x0 - g, z0 - g), (x0 + g, z0 - g), (x0 + g, z1 + g), (x0 - g, z1 + g)],
+		[(x1 - g, z0 - g), (x1 + g, z0 - g), (x1 + g, z1 + g), (x1 - g, z1 + g)],
+	]
+	lote = rectangulo(c["x"], c["z"], c["rotacion_y"], c["ancho"], 0.0, -c["fondo"])
+	return any(se_enciman(lote, w) for w in paredes)
+
+
 def se_enciman(a, b) -> bool:
 	"""Si dos poligonos (listas de (x, z), sin repetir el primero) se tocan por dentro."""
 	if max(p[0] for p in a) < min(p[0] for p in b) or max(p[0] for p in b) < min(p[0] for p in a) \
@@ -2720,6 +2734,11 @@ def main() -> None:
 			for h in huellas_negocios)]
 		if antes != len(casas):
 			print(f"  Casas modelo encimadas en un negocio: {antes - len(casas)} quitadas")
+		# Las casas que tocan el muro de Santa Mugre (scripts/map/MuroColonia.gd) se quitan
+		antes = len(casas)
+		casas = [c for c in casas if not casa_toca_muro(c)]
+		if antes != len(casas):
+			print(f"  Casas modelo que tocan el muro de Santa Mugre: {antes - len(casas)} quitadas")
 		if args.salida_puntos:
 			punto = elegir_puntos(casas)
 			placed += punto
