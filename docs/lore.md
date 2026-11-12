@@ -31,11 +31,15 @@ Igual que la spec, cada punto lleva etiqueta:
 - [7. El índice de deterioro es el índice de infección](#7-el-índice-de-deterioro-es-el-índice-de-infección)
 - [8. Los zombis](#8-los-zombis)
 - [9. El culto a la Virgen del Tinaco](#9-el-culto-a-la-virgen-del-tinaco)
+  - [El templo de Santa Mugre](#el-templo-de-santa-mugre)
 - [10. El agua es ilegal](#10-el-agua-es-ilegal)
 - [11. El crimen organizado](#11-el-crimen-organizado)
 - [12. La ciudad](#12-la-ciudad)
 - [13. Las nueve zonas](#13-las-nueve-zonas)
+  - [Las tres fortalezas](#las-tres-fortalezas)
+  - [Los Reservorios](#los-reservorios)
 - [14. Los contratos de la noche](#14-los-contratos-de-la-noche)
+  - [El agua de noche (el negocio del gremio)](#el-agua-de-noche-el-negocio-del-gremio)
 - [15. El protagonista](#15-el-protagonista)
 - [16. Subhistorias y leyendas](#16-subhistorias-y-leyendas)
 - [17. La revelación](#17-la-revelación)
@@ -151,6 +155,7 @@ Es la forma en que lo hacen muchos RPG: el mundo te cuenta lo que pasó mientras
 | **2030** | GelA añade el **Serenol (G-7)** al agua de los no suscriptores, "para estabilizar la red". Y se publica la **Ley de Reúso y Calidad del Agua (Decreto 47)**: tratar agua por tu cuenta es delito. |
 | **2031** | **Georgina Lazcano**, hija de Germán, gana la gubernatura con el **voto de la llave**. El mismo año, un tinaco de Los Garrafones amanece con una mancha con forma de la Virgen de Guadalupe. Nace el culto. |
 | **2032** | La **Reforma Hídrica**: reelección indefinida, el agua como "servicio estratégico", la policía del agua, la oposición comprada o presa. La capilla del tinaco es declarada centro de tratamiento ilegal. |
+| **2032-2033** | ✅ **Las fortalezas.** Con la capilla clausurada, los fieles del tinaco se refugian en Parques de Santa Mugre, levantan una barda con rejas y mudan el tinaco de la Virgen a la plaza (💡 fechas por confirmar). Los Gotera amurallan La Gotera y los pobres del sureste se meten ahí. Los Lazcano se encierran en una tercera fortaleza, **los Reservorios**. Ver [§13](#las-tres-fortalezas). |
 | **2033** | **Ahora.** El estado-empresa: la familia Lazcano tiene el agua y el gobierno. La ciudad vive de día y se encierra de noche. Hay agua limpia de sobra; la escasez es contable. |
 
 💡 **Detalle de sabor.** La gente no dice "antes de la concesión" ni "en el 29": dice **"cuando el agua sabía a agua"**. Es la única forma en que la ciudad mide el tiempo.
@@ -198,7 +203,7 @@ Cada seis años hay elecciones de verdad: urnas, spots, debates, casillas. Gana 
 - **La oposición** es chica y está comprada, presa o muerta. El que se atreve a hacer campaña en serio amanece sin agua, sin crédito o sin vida.
 - **La Reforma Hídrica (2032)** reformó la constitución local para permitir la reelección indefinida y declarar el agua "servicio estratégico de seguridad nacional". Con eso, cualquier protesta por el agua es delito federal.
 - **La policía del agua** (los **blancos**, por el traje blanco de los inspectores de GelA) revisa medidores, clausura tomas clandestinas y cierra la capilla cada tanto. La policía municipal los escolta.
-- **El palacio** está en el centro, en Parques de Santa Mugre. **La casa de la gobernadora**, en Haciendas de San Jodido, detrás de la barda, las plumas y la caseta.
+- **El palacio** está en el centro de la ciudad, **afuera** de las fortalezas, en o junto a la plaza de la Catrina (✅ 2026-11-11). **La casa de la gobernadora** ya no está en Haciendas de San Jodido: está dentro de los **Reservorios**, la fortaleza de los Lazcano, detrás de la barda y las plumas.
 
 ### Cómo se gobierna con una llave
 
@@ -219,11 +224,13 @@ Cada seis años hay elecciones de verdad: urnas, spots, debates, casillas. Gana 
 
 **Quién la hace cumplir.** Nadie. La policía municipal no sale: no le pagan el riesgo y sabe a quién se va a encontrar. La Guardia Nacional está en la presa y en la potabilizadora. El ejército no se mete en asuntos del estado. **El Estado protege el agua, no a la gente.**
 
+✅ **La policía es de día** (2026-11-11). Patrulla las calles, cuida las purificadoras y **dispara a quien reparte agua** ilegal: por eso el reparto clandestino es de noche, y por eso, si te amanece con el tambo, te disparan. A las 22:00 desaparece. **A las fortalezas no entra nunca**, ni de día ni de noche.
+
 **Qué pasa si matas.** Si te atacan, es defensa. Matar a un zombi no es homicidio: es como matar a un animal rabioso, y nadie va a investigar porque no hay escena, no hay perito y no hay fiscal que salga de noche. Al amanecer, GelA pasa por el cuerpo y la familia recibe un **acta de ausencia nocturna** y un vale de agua.
 
 **La consecuencia que sí existe.** La ley no existe; **la memoria del barrio sí**. Si una señora te ve por la ventana matar a un vecino —aunque ya estuviera muerto—, no te denuncia (no hay a quién): lo cuenta. El barrio deja de venderte agua, de darte crédito, de abrirte la puerta. Y si matas a un dócil vivo, el barrio se entera igual.
 
-**El impuesto a los pobres.** Como el zombi ataca a **la gente** y no abre puertas, la casa es segura con solo cerrarla. Por eso la noche no castiga a todos: castiga a **los que tienen que salir**. El que se queda adentro se salva; el que sale a buscar agua, a trabajar o a hacer un mandado, es el que se topa con la caminata. El régimen no necesita matar a nadie: la noche cobra sola.
+**El impuesto a los pobres.** Como el zombi ataca a **la gente que no trae Serenol** (a los demás no los ve, ver [§8](#8-los-zombis)) y no abre puertas, la casa es segura con solo cerrarla. Y como **afuera nada abre de noche**, nadie tiene motivo para salir. Por eso la noche no castiga a todos: castiga a **los que tienen que salir**. El que se queda adentro se salva; el que sale a buscar agua, a trabajar o a hacer un mandado, es el que se topa con la caminata. El régimen no necesita matar a nadie: la noche cobra sola.
 
 **Por qué le conviene a GelA.** Los zombis son el producto defectuoso (no trabajan, no pagan, asustan), la evidencia caminando de que el agua hace algo, y el miedo que sostiene el toque de queda, la policía del agua y la reelección. El programa interno se llama **"Contención"** y su regla es: *"no los matamos: los guardamos"*.
 
@@ -319,7 +326,7 @@ Son los que se murieron en la madrugada y se levantaron. Tienen **dos hambres**:
 1. **Carne.** Son caníbales: comen gente. Por eso atacan a quien se mueve, y por eso no hay negociación posible.
 2. **Agua sin Serenol.** El cuerpo se les va en buscar el agua limpia: el tinaco, la purificadora, la cisterna, la capilla. La beben y no se llenan: ya no les sirve.
 
-**Por qué te atacan a ti.** Porque eres **carne y agua**: caminas y cargas garrafones. No hay más razón. No te reconocen, no te odian, no te quieren: te comen y te beben.
+**Por qué te atacan a ti.** ✅ Porque eres **carne y agua limpia**: caminas y cargas garrafones. Los zombis **reconocen el Serenol**: la gente que lo trae en el cuerpo (nueve de cada diez, casi toda la ciudad) les es invisible; pasan junto a ellos sin mirarlos. Los atrae lo que **no** huele a Serenol (la gente limpia y el agua limpia) y el **sonido**: una bocina, un disparo, un grito. No te odian, no te quieren: te comen y te beben. *(Antes decía "no te reconocen"; ahora reconocen a los demás, no a ti.)*
 
 **De día.** Se esconden del sol en **bodegas abandonadas**, drenajes y túneles. Ahí están las **camadas**: si el jugador entra a una bodega de día, encuentra zombis dormidos (y lo que dejaron). Es la mazmorra del juego.
 
@@ -394,13 +401,23 @@ Cincuenta y tantos, del barrio, flaco, con una camisa que fue blanca. No es un s
 
 - **Lo que quiere:** que su gente no se muera y que nadie le cierre la capilla.
 - **Lo que teme:** que la diócesis se entere del filtro y lo venda, o que GelA lo mande a cerrar.
-- **Lo que no sabe:** que el agua limpia les quita el **Serenol** (ni siquiera sabe que el Serenol existe). Sabe que su gente se siente mejor, y con eso le basta.
+- **Lo que sospecha:** ✅ (2026-11-11) que el agua limpia les quita *algo* a los de afuera. Ve que quien toma de su pozo no se "apaga", y no sabe cómo se llama lo que se quita (nunca ha oído de Serenol), pero lo sospecha y **lo calla**: el culto y su gente dependen de que el milagro siga siendo milagro.
 
 ### Por qué el milagro funciona
 
 El agua de la capilla es agua limpia de verdad. Quien la toma a diario, en semanas, **deja el Serenol**. Los vecinos lo notan: "a la señora le volvió el apetito", "el muchacho ya duerme", "ya no anda raro de noche". Para el barrio es la Virgen. Para GelA es una fuga en el negocio: **la única cura de la ciudad es gratis y está en un tinaco.**
 
 Y hay algo que lo vuelve más milagro todavía: **el agua no siempre se deja tomar**. El dócil que ya trae la sed encima la avienta, porque el Serenol le tiene el cuerpo acostumbrado; los que llegan mansos, con la sed justa, sí la aceptan. Los zombis, en cambio, beben y no se curan: el cuerpo ya no la retiene. Por eso el cura no hace milagros: **a veces el agua entra y a veces no**, y el barrio lo interpreta como voluntad de la Virgen.
+
+### El templo de Santa Mugre
+
+✅ **La mudanza (2026-11-11).** Cuando la capilla de Los Garrafones fue clausurada (2032), el padre Chuy y los fieles se llevaron el tinaco de la Virgen a la plaza de Parques de Santa Mugre y se encerraron en la colonia: la **parroquia** de la plaza es ahora el templo, y Santa Mugre es un **refugio religioso**, la fortaleza de la Virgen del Tinaco (💡 por qué ahí y no en otro lado: la parroquia es la única con sótano). El jugador empieza aquí.
+
+- **El tinaco de la plaza** es el de la mancha. Quien lo bebe, no se "apaga". Lo que cree la colonia: **los de fuera están poseídos por el demonio** y el agua del tinaco protege. No es mentira: el agua no trae Serenol.
+- **El templo se puede visitar por dentro.** Detrás del altar hay una puerta de lámina y un **cuarto subterráneo con un pozo**: de ahí saca el agua el padre, la **filtra** (con el filtro Puri-GelA que ya tenía bajo el altar) y la reparte "bendita". La colonia no baja; el que baja, ve.
+- **Doña Refugio** es la vieja que cuida el pozo (ver [§16](#el-tinaco-que-no-se-vacía): es el mismo pozo de los abuelos). Chuy lo administra; ella sabe de dónde viene. 💡 Su casa, con el tinaco que no se vacía, queda dentro de la barda.
+- **Quién vive dentro:** los que salieron de Serenol o nunca lo tomaron, pocos y fieles, y algunos dóciles que no saben lo que son y se refugiaron con sus familias. No hay inspectores ni trámites adentro; no entra la policía.
+- **De noche** no hay zombis dentro de la barda... salvo la noche en que **falla la reja** (ver [§14](#el-agua-de-noche-el-negocio-del-gremio)).
 
 ### La política de la capilla
 
@@ -449,7 +466,12 @@ Y hay algo que lo vuelve más milagro todavía: **el agua no siempre se deja tom
 - **El pozo de los abuelos** (La Palmada): agua buena de toda la vida, escondida bajo una tapa de lámina.
 - **La lluvia**: en temporada, la gente pone cubetas. Es legal juntarla; es ilegal tomarla. Absurdo, y real.
 - **La capilla**: gratis, con cupo, al amanecer.
-- ✅ **La toma de los Gotera no cuenta**: está cerrada (ver [§11](#la-válvula)).
+- ✅ **El pozo del templo de Santa Mugre**: el padre lo filtra y lo reparte dentro de la barda (ver [§9](#el-templo-de-santa-mugre)).
+- ✅ **El yacimiento de La Gotera**: agua subterránea que la mafia descubrió y vende dentro de su fortaleza a precio justo (ver [§11](#11-el-crimen-organizado)). La válvula del acueducto sigue cerrada.
+
+### En las fortalezas
+
+✅ (2026-11-11) Las purificadoras de GelA son legales y caras; **el agua sin Serenol es ilegal**. Pero **a las fortalezas no entra la policía**, así que dentro de ellas se vende agua limpia **sin Serenol y sin sobreprecio**: en Santa Mugre la reparte la parroquia, en La Gotera la vende la mafia, y en los Reservorios no la venden porque la tienen. Afuera solo existe lo clandestino: el que se atreve, de noche, y el gremio que lo reparte ([§14](#el-agua-de-noche-el-negocio-del-gremio)).
 
 ### Por qué el agua es cara
 
@@ -467,7 +489,11 @@ Y hay algo que lo vuelve más milagro todavía: **el agua no siempre se deja tom
 
 ## 11. El crimen organizado
 
-✅ **Los Gotera.** La familia que controla **La Gotera**, la toma clandestina del acueducto en la zona sureste. Drogas y armas. **Nunca agua**: el agua no es su negocio y no quieren pelear con GelA.
+✅ **Los Gotera.** La familia que controla **La Gotera**, la toma clandestina del acueducto en la zona sureste, y que ahora es una **ciudad amurallada con estética de favela**, donde viven los pobres. Drogas y armas. ✅ (2026-11-11) **Y agua limpia a precio justo, dentro de la barda:** descubrieron un **yacimiento subterráneo**, notaron que los que bebían de ahí y no del suministro de GelA **no cambiaban de personalidad**, y levantaron su propia barricada. **Saben que el agua de GelA tiene algo** (no saben qué: ver [el reparto del secreto](#quién-sabe-qué)). *(Antes decía "nunca agua": cambió.)*
+
+#### Quién sabe qué
+
+✅ Cuatro niveles: los **Reservorios** (la fortaleza rica) lo saben todo; los **trabajadores de GelA**, casi todos, están bajo Serenol y no saben nada; **la mafia** sabe que "algo hay en el agua de la llave"; **Santa Mugre** solo tiene la fe. Y **afuera hay gente que sabe que el agua tiene algo** y pide agua limpia: **tu gremio es el que se la lleva**.
 
 ### Lo que son
 
@@ -482,11 +508,11 @@ Y hay algo que lo vuelve más milagro todavía: **el agua no siempre se deja tom
 
 Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 
-> **Don Nemesio, desde la camioneta.** *"¿Nosotros? Nosotros vendemos cosas. El agua se la chuparon otros. Pero díselo al pueblo, a ver si te cree."*
+> **Don Nemesio, desde la camioneta.** *"¿Nosotros? Nosotros vendemos cosas. Y aquí adentro el agua se vende a lo justo, que se sepa. Lo que pase allá afuera es de otros. Pero díselo al pueblo, a ver si te cree."*
 
 ### La válvula
 
-✅ **La toma está cerrada, y es su seguro de vida.** Debajo de La Gotera pasa el acueducto, con agua de **antes** de que GelA le ponga el Serenol. Los Gotera la tienen cerrada con una válvula: no la venden porque no la necesitan vender. Es la pistola que le apuntan a la familia Lazcano: si la abren, media ciudad toma agua sin Serenol, se cura y se enoja. **Por eso Gela no los toca, y por eso ellos nunca venden agua.** El pacto no es amistad: es un rehén.
+✅ **La toma está cerrada, y es su seguro de vida.** Debajo de La Gotera pasa el acueducto, con agua de **antes** de que GelA le ponga el Serenol. Los Gotera la tienen cerrada con una válvula: no la venden porque no la necesitan vender. Es la pistola que le apuntan a la familia Lazcano: si la abren, media ciudad toma agua sin Serenol, se cura y se enoja. **Por eso Gela no los toca.** El pacto no es amistad: es un rehén. ✅ (2026-11-11) Lo que sí venden es el agua del **yacimiento**, más profundo y propio, solo dentro de la fortaleza y a precio justo; la **válvula del acueducto** sigue cerrada y sigue siendo su palanca contra los Lazcano.
 
 - **Lo que sabe el barrio:** que en La Gotera "hay agua", y que no se vende.
 - **Lo que sabe don Nemesio:** que el día que abra la válvula se acaba el pacto, y él también.
@@ -585,11 +611,23 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 | **Los Garrafones** | Inventado (la cuadrilla) | 0.30-0.40 | El milagro del tinaco | Zombis, blancos, peregrinos |
 | **La Florida Marchita** | La Florida | 0.35-0.50 | Suscripción a medias | Tranquilo, pero no tanto |
 | **La Palmada** | La Palmada | 0.40-0.55 | Pozo de los abuelos | Medio, con bolsas sanas |
-| **Parques de Santa Mugre** | Parques de Santa María | 0.55-0.70 | De la llave | Muy peligroso |
+| **Parques de Santa Mugre** | Parques de Santa María | 0.55-0.70 | Pozo del templo y tinaco de la plaza (sin Serenol) | Seguro dentro de la barda; afuera, muy peligroso |
 | **Parques del Mosco** | Parques del Bosque | 0.60-0.75 | La peor | El peor |
 | **Haciendas de San Jodido** | Haciendas de San José | 0.20-0.30 | Pozo y suscripción | Seguro para ellos, no para ti |
 | **El Último Trago** | Inventado (las cantinas) | 0.50-0.65 | Garrafón caro | El tianguis de la noche |
-| **La Gotera** | Inventado (la toma) | 0.70-0.80 | Embotellada; la toma, cerrada | No se entra |
+| **La Gotera** | Inventado (la toma) | 0.70-0.80 | Del yacimiento, a precio justo, dentro de la barda; la toma, cerrada | Fortaleza: no se entra sin permiso |
+
+### Las tres fortalezas
+
+✅ (2026-11-11) Tres zonas amuralladas. **Regla común:** no entra la policía, no hay zombis de noche (salvo que falle la defensa), y se vende o se tiene agua sin Serenol a precio justo. **Afuera:** policía de día, gente bajo Serenol, nada abre de noche y hordas que solo ve quien sale.
+
+| Fortaleza | Dónde | Quién | Qué creen / qué saben | Entrada |
+|---|---|---|---|---|
+| **Santa Mugre** (la Virgen del Tinaco) | Parques de Santa Mugre | Los fieles, el padre Chuy, Doña Refugio | Que los de fuera están poseídos y que el tinaco los protege (la fe, que es verdad) | Dos rejas en la avenida (poniente y oriente) |
+| **La Gotera** (la mafia) | Sureste, favela amurallada | Los Gotera, los pobres | Que "algo hay en el agua de la llave"; tienen un yacimiento propio | Barda con puerta vigilada; túneles bajo la zona (después) |
+| **Los Reservorios** (GelA) | Detrás de Haciendas de San Jodido, sobre las canchas de fútbol del ITESO, junto a bodegas grandes | Los Lazcano, los ricos, una resistencia | Todo: el Serenol, para qué sirve, quién lo pone | Caseta con pluma; entran los que dejan entrar |
+
+**La gente de fuera.** ✅ Casi todos están bajo Serenol (los "zombis" de la ciudad, en sentido figurado): **no dan misiones** y dicen cosas como *"yo amo a GelA"*, *"hay que trabajar, mijo"*, *"gracias a GelA tengo qué tomar"*. Los zombis (los de verdad) no los atacan. Algunos, pocos, saben que el agua tiene algo y piden agua limpia.
 
 ### El Mante Tieso
 
@@ -599,9 +637,9 @@ El pulmón industrial del poniente: bodegas, patios de trailers, turnos que empi
 
 ### Los Garrafones
 
-El barrio de la cuadrilla. Purificadoras de franquicia en cada esquina, el mercado de garrafones, gente que cambia agua por lo que sea. La **capilla del Tinaco** está aquí, en un patio de vecindad, con la mancha en la pared. Es la zona con más agua buena de la ciudad y la más vigilada.
+El barrio de la cuadrilla. Purificadoras de franquicia en cada esquina, el mercado de garrafones, gente que cambia agua por lo que sea. La **capilla del Tinaco** estuvo aquí, en un patio de vecindad, con la mancha en la pared; ✅ (2026-11-11) tras la clausura de 2032 el cura y el tinaco se mudaron a Santa Mugre y el patio quedó con la pared marcada y las veladoras de los que no pudieron irse. Sigue siendo la zona con más purificadoras y la más vigilada.
 
-**De noche:** peregrinos, veladoras, blancos escondidos, y un cura que no duerme. **Gancho:** la misión del cura, la ruta del garrafón, el cupo del amanecer. **Se oye:** *"Traes sed? Aquí hay. Traes varos? Aquí también."*
+**De noche:** veladoras, blancos escondidos, y la pared vacía. **Gancho:** la misión del cura, la ruta del garrafón, el cupo del amanecer. **Se oye:** *"Traes sed? Aquí hay. Traes varos? Aquí también."*
 
 ### La Florida Marchita
 
@@ -617,9 +655,9 @@ El barrio viejo del suroeste. Calles angostas, casas de adobe, el **pozo de los 
 
 ### Parques de Santa Mugre
 
-El centro denso: vecindades, tinacos en cada azotea, el tianguis, el palacio de gobierno, las filas del agua. Aquí vive la mayoría de la ciudad y aquí se siente el peso del régimen: los trámites, los inspectores, la propaganda en cada pared. En el parque está el **tinaco comunitario**: el banco de agua del barrio.
+✅ (2026-11-11) **El refugio religioso de la Virgen del Tinaco**, amurallado, con dos rejas en la avenida. Vecindades, tinacos en cada azotea, el tianguis, la escuela (el edificio que era el palacio, ahora una escuela), la parroquia con su pozo y, en la plaza, el **tinaco de la Virgen**. Viven los que salieron de Serenol, pocos y fieles. No hay inspectores adentro, no entra la policía; la colonia cree que los de fuera están poseídos. *(Antes: "aquí vive la mayoría de la ciudad", con el palacio y el peso del régimen.)*
 
-**De noche:** muy peligroso; los zombis salen en grupo y el palacio se ilumina como si nada. **Gancho:** la marcha, el trámite, el archivo del registro civil. **Se oye:** *"Aquí el que manda es la Gota, y la Gota no tiene cara."*
+**De noche:** seguro dentro de la barda, hasta la noche que **falla la reja**. **Gancho:** el templo y su pozo, la reja, el tinaco de la plaza, la salida de noche. **Se oye:** *"Allá afuera andan poseídos, mijo. Aquí tomamos de la Virgen."*
 
 ### Parques del Mosco
 
@@ -629,9 +667,19 @@ El oriente inundado. El agua se estanca, los moscos son una plaga, y el drenaje 
 
 ### Haciendas de San Jodido
 
-El noreste rico: cotos con pluma, casetas, jardines verdes (regados con agua buena), el campo de golf, la **casa de la gobernadora**. Aquí el agua sabe a agua y nadie lo comenta.
+El noreste de clase media-alta: muchas casas chicas juntas, cotos con pluma y caseta de adorno, jardines verdes regados con suscripción. ✅ (2026-11-11) Ya **no** tiene el campo de golf ni la casa de la gobernadora: se fueron a los **Reservorios**, la fortaleza que queda detrás, sobre las canchas del ITESO. Aquí el agua sabe a agua y nadie lo comenta, pero son vecinos, no Lazcano.
 
-**De noche:** seguro para los de adentro; para el de afuera, la caseta y el perro. **Gancho:** entrar a la casa, el jardinero, la fiesta de la gobernadora, el agua del golf. **Se oye:** *"¿Y usted qué hace aquí? ¿Es de la empresa?"*
+**De noche:** seguro para los de adentro de cada coto; para el de afuera, la caseta y el perro. **Gancho:** la caseta, el vecino que ve pasar a los camiones de GelA hacia los Reservorios. **Se oye:** *"¿Y usted qué hace aquí? ¿Es de la empresa?"*
+
+### Los Reservorios
+
+✅ (2026-11-11) **La fortaleza de los Lazcano**, el pedazo amurallado del noreste (💡 el nombre por confirmar), construido sobre las **canchas de fútbol del ITESO** y un trozo de las casas de alrededor, junto a las **bodegas grandes** que son la fábrica de GelA. Albercas, mansiones, campos de golf, la **casa de la gobernadora** y de Gerardo. Y **dos reservorios inmensos**: uno para los Lazcano y los suyos (muy pocos), y otro para el suministro general, donde **se ve a simple vista que le agregan algo al agua de los demás**: tinas, tubos, un cielo azul turquesa.
+
+- **Todos saben el secreto del Serenol**, hasta el jardinero. Y todos saben que los de fuera no lo saben.
+- **Por qué te dejan entrar:** quieren **protección contra los zombis**, que de vez en cuando se meten (los atrae el agua limpia de su reservorio y el ruido de las fiestas). Dejan entrar a quien les sirva, de noche, con un arma.
+- **Hay una resistencia adentro**: gente de la propia fortaleza (un **hijo rebelde de GelA** al frente, 💡 nombre por votar) que ve que los zombis hacen daño a todos, aunque esclavicen y den ganancias.
+
+**De noche:** seguro, con guardias, hasta que alguna noche entra uno. **Gancho:** el reservorio de los demás, el hijo rebelde, la resistencia, la bodega de la fábrica. **Se oye:** *"Esto no es para ti. Pero ya que estás aquí, ¿sabes disparar?"*
 
 ### El Último Trago
 
@@ -641,9 +689,9 @@ El sur de las cantinas: cerveza, tequila, música, y el **tianguis de la noche**
 
 ### La Gotera
 
-El sureste de los Gotera: la toma clandestina del acueducto, las casas de lámina, el camión con placas de otro estado. Aquí no entra la policía y la gobernadora no manda. Debajo pasa el agua de media ciudad, y la válvula está cerrada: aquí el agua no se vende, se guarda.
+El sureste de los Gotera: la toma clandestina del acueducto, las casas de lámina, el camión con placas de otro estado. ✅ (2026-11-11) Hoy es una **ciudad amurallada con estética de favela**, de los pobres: calles angostas de lámina, cableado colgado, tinacos de colores y un **yacimiento subterráneo** propio. Aquí no entra la policía y la gobernadora no manda. La válvula del acueducto sigue cerrada; el yacimiento, no: se vende dentro, a precio justo. Bajo la zona hay **túneles** (se trabajan después) que conectan con los cárcamos de GelA.
 
-**De noche:** no se entra sin permiso; el que entra sin permiso no sale. **Gancho:** la toma, la válvula, el pacto, el final. **Se oye:** *"Aquí el agua no se vende, jefe. Se guarda."*
+**De noche:** no se entra sin permiso; el que entra sin permiso no sale. **Gancho:** el yacimiento, la válvula, el pacto, los túneles, las entregas de punto a punto. **Se oye:** *"Aquí el agua se vende a lo justo, jefe. La válvula, esa se guarda."*
 
 ---
 
@@ -657,8 +705,11 @@ La lista completa —con detalles, pagos y riesgo— está en [`docs/misiones.md
 
 | Contrato | Quién te contrata | Qué haces | Paga | Riesgo |
 |---|---|---|---|---|
-| **Vela** | La cuadrilla, el barrio | Cuidas el tinaco comunitario (o uno de una casa) hasta el amanecer | Pesos + agua | Los zombis vienen por el agua |
-| **Reparto clandestino** | La cuadrilla, un cliente | Llevas agua filtrada (ilegal) a un domicilio | Pesos | Los zombis y los blancos |
+| **Defensa del tinaco** (la antigua Vela, ahora afuera) | La cuadrilla | Armas una barricada con un tinaco y bocinas para atraer a los zombis y repartes agua limpia a las casas de fuera; ver [El agua de noche](#el-agua-de-noche-el-negocio-del-gremio) | Pesos + mejoras | Una horda numerosa |
+| **Camioneta de reparto** | La cuadrilla | Defiendes la camioneta mientras hace las entregas | Pesos + mejoras | Zombis y los últimos policías al amanecer |
+| **Guardia de la reja** | La parroquia | Defiendes la reja de Santa Mugre (recurrente); si falla, hay noche de defensa | Pesos | Una horda en la reja |
+| **Reparto clandestino** | La cuadrilla, un cliente | Llevas agua filtrada (ilegal) a un domicilio de fuera, a pie, antes del amanecer | Pesos | Los zombis y, de día, la policía |
+| **Entregas de la mafia** | Los Gotera | Llevas cosas de un negocio "punto" a otro; desbloquea compras ilegales | Pesos + acceso | Las hordas del camino |
 | **Recolección** | La cuadrilla, un comprador | Juntas el loot de los muertos: pesos, herramientas, lo que traían | Pesos | Más zombis, la bodega |
 | **Encargo** | Una señora, el cura | Llevas algo (o a alguien) de un punto a otro | Pesos | La caminata |
 | **Cacería** | La colonia, la iglesia | Bajas al zombi que se comió a alguien | Pesos/objeto | Alto |
@@ -670,6 +721,21 @@ La lista completa —con detalles, pagos y riesgo— está en [`docs/misiones.md
 - **De noche** los zombis lo **huelen**: llegan, empujan, trepan, muerden la tapa. Por eso hay **turnos de vela**.
 - **De día** es la fila del agua, el chisme, la reunión del barrio y el trueque. Es el **centro social** de la zona.
 - **La amenaza es doble**: los zombis lo quieren para beber; los **blancos** lo quieren para clausurar. La vela también es contra GelA.
+
+### El agua de noche (el negocio del gremio)
+
+✅ (2026-11-11) **Gran parte del juego: el dinero y las mejoras salen de aquí.** Afuera de las fortalezas, mucha gente sabe (o sospecha) que el agua de la llave tiene algo y quiere **agua sin Serenol**. Tu gremio, la cuadrilla, se la lleva. Pero:
+
+- **De día no se puede:** la policía **dispara** a quien reparte agua ilegal. Por eso se reparte **de noche**, cuando el Estado se retira y nada abre.
+- **De noche hay hordas.** Los zombis los atrae el **agua limpia** y el **sonido**. La estrategia: montar una **barricada con un tinaco y bocinas** en un sitio fuera de las casas, para atraer a la mayor cantidad de zombis hacia ahí, y **repartir el agua mientras están ocupados** en el tinaco.
+- **Dos formas del contrato:** (1) **defender el tinaco** (te quedas en la barricada mientras otro reparte, o repartes tú por tandas), y (2) **defender la camioneta** mientras hace las entregas, siguiendo su ruta.
+- **Llegar y volver:** a pie, antes del amanecer. Si te amanece y te ven con el tambo, **te disparan** los policías.
+- **Qué rinde:** pesos y **mejoras** del personaje (ver [`docs/mejoras.md`](mejoras.md)). Es el ciclo central: salir, repartir, volver con dinero.
+- **Hordas de fuera:** menos que en la defensa del tinaco de Santa Mugre, pero **continuas**: hay que disparar sin parar. Y **drops raros** escondidos en el mapa.
+
+#### Dentro de la fortaleza
+
+✅ **La defensa del tinaco de Santa Mugre no se acepta.** Una noche al azar **falla la reja** y se meten zombis: cae la noche, te avisan *"corre al tinaco, se metieron los zombis"* y hay que defender el tinaco de la plaza. **Defender la reja** es, en cambio, un contrato **recurrente y voluntario** que la parroquia te ofrece.
 
 ### El botín
 
@@ -747,7 +813,7 @@ Ojo: **no toda casa en obra negra es del lote del 84.** Hay paracaidistas y vend
 
 ### El tinaco que no se vacía
 
-✅ **Leyenda.** En una casa de La Palmada hay un tinaco que nunca se vacía, aunque la familia lo use todo el día. La gente dice que es un milagro; los vecinos, que la casa está colgada de la toma de los Gotera. **Ninguna de las dos:** es la casa de doña Refugio, y el tinaco se llena del **pozo de los abuelos**, agua viva de verdad. **Gancho:** el rumor lleva al pozo, y el pozo lo quieren todos: GelA, Chava y los Gotera.
+✅ **Leyenda.** En una casa hay un tinaco que nunca se vacía, aunque la familia lo use todo el día. La gente dice que es un milagro; los vecinos, que la casa está colgada de la toma de los Gotera. **Ninguna de las dos:** es la casa de doña Refugio, y el tinaco se llena del **pozo de los abuelos**, agua viva de verdad. ✅ (2026-11-11) **Es el mismo pozo que hay bajo el templo de Santa Mugre** ([§9](#el-templo-de-santa-mugre)): doña Refugio es la vieja que lo cuida y el padre Chuy, quien lo administra. 💡 Consecuencia por votar: La Palmada ya no tiene "el pozo de los abuelos" en un patio; su pozo quedó bajo el templo, y los abuelos de La Palmada que se refugiaron en Santa Mugre son sus guardianes. **Gancho:** el rumor lleva al pozo, y el pozo lo quieren todos: GelA, Chava y los Gotera.
 
 
 ### La Madre del Cárcamo
@@ -757,6 +823,7 @@ Ojo: **no toda casa en obra negra es del lote del 84.** Hay paracaidistas y vend
 - **La Madre del Cárcamo** es la más vieja: una lombriz del grueso de un tambo, con **sacos de Serenol** en el lomo que brillan en la oscuridad. Vive en el charco del fondo y sale a morder.
 - **Sus crías** se arrastran a cientos, trepan muros y se pegan a la gente para chuparle el agua del cuerpo. Partidas a la mitad, **cada mitad sigue viva y vuelve a crecer**: el machete a lo loco las multiplica. Lo que las mata de veras es pegarles en la cabeza, el **fuego** y la **sal** (la abuela de toda la colonia lo sabe: "a las babosas, sal").
 - **Montan zombis**: una cría en el lomo de un zombi lo maneja como un jinete; corre más y caza.
+- **Dónde se entra.** ✅ (2026-11-11) Por unos **túneles** cuya entrada queda **fuera de la ciudad y de las fortalezas**, ligados a La Gotera (los túneles se trabajan después). Los túneles conectan con el sistema de cárcamos de GelA; **el yacimiento de la mafia y la Madre son cosas separadas**: la mafia bebe de una veta limpia y la Madre vive en el lodo de abajo.
 - **Lo que se queda.** Los colmillos de la Madre brillan tantito de noche. Hay quien los compra (¿un laboratorio de GelA? ¿la capilla del padre Chuy?): ❓ sin decidir.
 
 **Por qué encaja.** No contradice que el zombi sea víctima (§8): las lombrices no son gente, son lo que el Serenol le hace a todo lo demás. Y apuntan de nuevo a GelA: en el fondo de su agua hay algo vivo.
@@ -769,6 +836,7 @@ En el juego: `scripts/lombrices/` (`MadreCarcamo.gd`, `EnjambreLombrices.gd`) y 
 
 - **Cómo se levantó.** Empezó todo una semana antes del desfile y la dejaron parada en la plaza, junto al templete. Le llovió agua de la llave encima por días (el Serenol) y se empapó hasta el armazón. Los zombis que se metieron debajo de su falda a esconderse del sol se quedaron pegados al carrizo, enredados unos con otros: **un nudo de ellos la mueve desde el pecho**, como los muchachos que bailaban adentro. Por eso gotea agua sucia y por eso no arde: está mojada hasta el alma.
 - **Qué hace.** Camina la plaza. Pisa a quien se le acerca, agarra y avienta, chicotea con la trenza. Cuando se le rompe el vestido se ve el carrizo y los zombis adentro, y algunos se caen de la falda. Cuando se le cae la cabeza, se arrastra.
+- **Dónde se entra.** ✅ (2026-11-11) Desde **la plaza de la Catrina**, **fuera de la fortaleza**, cerca del nuevo palacio de gobierno (hay que ir de noche, pasando las hordas).
 - **Lo que se queda.** Un fémur del armazón, duro como piedra, y las flores del peinado, que no se marchitan. ❓ Si las flores sirven para algo más (las flores de cempasúchil guían a los muertos) está sin decidir.
 
 **Por qué encaja.** No contradice que el zombi sea víctima (§8): la Mojiganga no es nadie, es una fiesta que el agua de GelA echó a perder. Los que la mueven sí fueron gente, y siguen ahí adentro. Es el Día de Muertos al revés: los muertos no regresan a visitar, se quedan atorados.
@@ -882,7 +950,9 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 | Enemigos | **los zombis** | Prensa: "violencia de pandillas"; GelA: "síndrome de la sed" |
 | Cura | Agua limpia | La de la capilla es la única gratis |
 | Culto | **la Virgen del Tinaco**; **el padre Chuy**; "la vigilia" | La mancha del tinaco |
-| Cártel | **los Gotera** | La toma (cerrada); drogas y armas; no infectados |
+| Cártel | **los Gotera** | La toma (cerrada); drogas, armas y agua del yacimiento; no infectados; fortaleza de favela |
+| Fortalezas | **Santa Mugre** (la Virgen), **La Gotera** (la mafia), **los Reservorios** (GelA) | Sin policía; agua sin Serenol dentro (ver [§13](#las-tres-fortalezas)) |
+| Pozo | **el pozo del templo** / **el pozo de los abuelos** | Es el mismo; lo cuida doña Refugio |
 | Cuadrilla | **la cuadrilla** | Los que reparten los contratos |
 | Mercado nocturno | **el tianguis de la noche** | ×2-×3 |
 | Inspectores | **los blancos** | Traje blanco; policía del agua |
@@ -968,7 +1038,10 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 - [ ] 💡 ¿La partida de 3 noches se queda como modo reto o se convierte en la campaña?
 - [ ] 💡 ¿Cuántos NPCs reconocen al jugador como el Nocturno, y cuántos lo delatan?
 - [ ] 💡 ¿La capilla se puede perder para siempre si fallas una misión (y con ella la cura)?
-- [ ] 💡 ¿Los Gotera son solo antagonistas o también clientes del jugador?
+- [ ] 💡 ¿Los Gotera son solo antagonistas o también clientes del jugador? *(2026-11-11: ahora también venden agua limpia y dan entregas de punto a punto: son clientes.)*
+- [ ] 💡 Nombres por votar: el hijo rebelde de GelA, los Reservorios (fortaleza GelA), la escuela de Santa Mugre, el nuevo palacio, el chofer de la camioneta.
+- [ ] 💡 La Palmada ya no tiene el pozo de los abuelos en un patio: ¿su pozo quedó bajo el templo y los abuelos se refugiaron en Santa Mugre? (ver §16)
+- [ ] 💡 ¿Por qué falla la reja una noche al azar? ¿Un sabotaje, un descuido, o los zombis que huelen el agua del tinaco?
 - [ ] 💡 ¿La gobernadora aparece en persona o solo en spots y noticieros?
 - [x] ~~¿El expediente del cobalto es una misión aparte o parte de la revelación principal?~~ ✅ Aparte: la misión de Elena (§17, 2026-11-02).
 - [ ] 💡 ¿La Virgen del Tinaco tiene un "milagro" jugable (agua infinita un día) o solo cupo?
