@@ -33,7 +33,22 @@ Nada de esto cambia el canon por sí solo. Cuando el equipo decida, se corrige e
 | §4 | Los diez detalles (fechas, "los dejamos salir" como giro, GelA Total sin Serenol, botarga, regla 7, Botarga de la Gota, Sofía, el jefe que era alguien) | lore §0, §5, §6, §8, §9, §19, §20; misiones §0, §3, §4 |
 | §5 | Arturo trabaja en la casa de **Villalobos**; Karla es **los ojos del obispo** | personajes §4, §5, §6 |
 
-**Sigue pendiente:** 2.4 (los tres motivos, 💡 en lore §18), 3.1 (los secretos repetidos), 3.2 (el secreto de Gerardo). Y un detalle que salió después: en `docs/items.md` el **Botiquín del Simi** también lleva una marca real (lore §18).
+### Cambios posteriores (megaplan "Noches de fuera", 2026-11-11 y 2026-11-12)
+
+✅ Reemplazan o ajustan lo de arriba (detalle en `docs/plan-noche.md`):
+
+| # | Cambio | Dónde quedó |
+|---|---|---|
+| 1.1 | Los Gotera **sí venden agua limpia a precio justo** (yacimiento propio) dentro de su fortaleza; la válvula sigue cerrada como palanca. **Sus misiones abren la puerta de La Gotera** (2026-11-12) | lore §11, §13; misiones (L10) |
+| 1.2 | Los zombis **reconocen el Serenol** y no atacan a quien lo trae; los atrae el agua limpia y el sonido | lore §8 |
+| 1.5b | **Doña Refugio y la leyenda se eliminan**: el pozo del templo es solo de Chuy; el de La Palmada es de Chava | lore §9, §16; personajes |
+| 2.2 | La policía son los **blancos**, anónimos, solo de día; de noche el Estado se retira | lore §5; personajes |
+| 3.2 | **Gerardo** es el hijo rebelde (medio hermano de Georgina): ya sabe del Serenol y filtra a la resistencia | personajes; misiones A4 |
+| 3.3 | **Chuy nunca habla**: su silencio es su pecado | personajes |
+| — | **Tres fortalezas**; Haciendas queda como colonia común y los Lazcano viven en los Reservorios; el palacio está afuera y el de Santa Mugre pasa a escuela | lore §13 |
+| — | Reja de Santa Mugre falla por **desgaste**; defender el tinaco de la fortaleza es muy esporádico | misiones (L8) |
+
+**Sigue pendiente:** 2.4 (los tres motivos, 💡 en lore §18), 3.1 (los secretos repetidos), 3.2 (resuelto: Gerardo sabe y filtra). Y un detalle que salió después: en `docs/items.md` el **Botiquín del Simi** también lleva una marca real (lore §18).
 
 ---
 

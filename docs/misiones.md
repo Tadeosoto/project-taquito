@@ -305,6 +305,73 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 
 ---
 
+## Las misiones de la mafia, las cacerías y GelA (megaplan "Noches de fuera", L10, 2026-11-12)
+
+✅ **Regla de entrada (JJ, 2026-11-12): las misiones de la mafia desbloquean la entrada a su fortaleza.** La Gotera tiene una puerta vigilada y **no se entra sin permiso**: el permiso se gana trabajando para don Nemesio. La fortaleza de GelA funciona igual con otra llave (se entra **contratado de guardia**, ver abajo). Santa Mugre es la única fortaleza abierta desde el principio.
+
+### La puerta de La Gotera (escalones de confianza)
+
+💡 La mafia te mide por lo que llevas y por si llegas. Cada escalón se abre al cumplir las entregas de su fila y se guarda en la partida.
+
+| Escalón | Cómo se llega | Qué abre | Si lo fuerzas |
+|---|---|---|---|
+| **0. Afuera** | Al empezar | Nada: la puerta te la cierran con una advertencia ("Aquí no, jefe") y el **Primo** (el cobrador) te habla afuera | Si te metes a la fuerza, **no sales**: pierdes el botín, reapareces en el refugio y la mafia deja de darte trabajo un tiempo |
+| **1. Mandadero** | 3 entregas de punto a punto de las cercanas | **La puerta de día**: calles, agua limpia a precio justo, el cuarto del gremio | — |
+| **2. De confianza** | 6 entregas más (puntos medianos) | El mercado ilegal (×2 a ×3), de noche también, y **hablar con Nemesio** | — |
+| **3. De la casa** | 7 entregas lejanas + **Las cuentas claras** | Los **túneles** (entrada a la Madre), su cacería y las misiones de la válvula | — |
+
+✅ Una vez abierta, la puerta no se vuelve a cerrar, salvo que traiciones a Nemesio (A5, abrir la válvula): ahí se cierra para siempre.
+
+### Entregas de punto a punto (la mafia)
+
+✅ **Quién da:** el **Primo** afuera de la puerta (escalones 0 a 2) y **Nemesio** adentro (del 2 en adelante). **Qué se hace:** llevar una **carga** de un negocio "punto" a otro de los **19** del mapa. **Cargas:** paquete (droga), armas, agua del yacimiento. **De noche** (se prepara de día). 💡 Los puntos se reparten en tres grupos, por medir con `MapPuntos`: **cercanos** (el más próximo, (-656, 609), a ~282 m de la reja poniente), **medianos** y **lejanos** (de una orilla del mapa a la otra).
+
+- **Riesgo:** las hordas del camino y, si te amanece con la carga, los blancos. **Si sueltas o pierdes la carga:** se pierde, fallas y el Primo te cobra su valor.
+- **Paga:** 💡 pesos por entrega (referencia: 60-100 las cercanas, hasta 150 las lejanas) y el avance del escalón. **Reusa:** `MapPuntos`, `Misiones`, `entregar`, `Player.cargar`; la ruta larga necesita LLEVAR_CARGA (S2).
+- **Qué cambia:** a mayor escalón, mejor precio en el mercado ilegal.
+
+### Las cuentas claras (del escalón 2 al 3)
+
+💡 **Da:** Nemesio. **Qué se hace:** cobrar una deuda a un negocio "punto" que no ha pagado (alguien de fuera, bajo Serenol, que "ya no se acuerda"). No lo matas: lo traes o dejas el aviso. **Es la prueba de que no eres de GelA**: un hombre de Buenrostro lo habría reportado. **Paga:** pesos y el escalón 3.
+
+### Cacerías
+
+✅ Las dos se piden **desde La Gotera** y entran **por fuera de las fortalezas**, como ya dice el lore.
+
+| Cacería | Da | Cómo se entra | Por qué la pide | Paga |
+|---|---|---|---|---|
+| **La Mojiganga** | Nemesio (escalón 2) | La plaza de la Catrina, de noche, pasando las hordas, junto al nuevo palacio | Es la ruta más corta de sus camionetas y la Catrina espanta a los de fuera que le compran | 💡 200-300 o un objeto único |
+| **La Madre del Cárcamo** | Nemesio (escalón 3) | Los **túneles** de La Gotera, que bajan a los cárcamos de GelA | Los túneles son su ruta secreta hacia GelA y la Madre los tiene cerrados | 💡 más que la Mojiganga, y las llaves de los túneles |
+
+**Reusa:** `scenes/catrina.tscn` y `lombrices.tscn` (hoy terminan con `quit()`). ⛔ No se programan hasta S8.
+
+### GelA y el hijo rebelde (la otra llave)
+
+✅ **Cómo se entra a los Reservorios (L7):** **contratado de guardia**, porque se les metieron zombis. **Arturo**, el jardinero, te recluta por debajo.
+
+| Misión | Quién da | Dónde | Objetivo | Riesgo | Paga | Prog. |
+|---|---|---|---|---|---|---|
+| **De guardia en los Reservorios** | Un jefe de seguridad de GelA (sin nombre) | La fortaleza, de noche | Defender un muro o un reservorio de los zombis que se meten | La horda; te vigilan | 💡 pesos (más que la guardia de la reja) | M |
+| **El jardinero** | Arturo | Jardines y sótano de los Reservorios | Que te enseñe el servicio y el mapa; prueba tu silencio | Los guardias de GelA | Confianza de la resistencia | S |
+| **El heredero** (A4) | Gerardo | Dentro de los Reservorios | Gerardo ya sabe del Serenol: decide si te cree y qué papeles quiere | Que Buenrostro lo descubra | Acceso a Georgina | M |
+| **El zombi del coto** | Arturo | El sótano de Villalobos (Haciendas, fuera de los Reservorios) | Un vecino esconde a un hijo convertido: lo sacas, lo dejas o lo reportas | Que se descubra | Una pista | S |
+
+💡 La resistencia no se fía entre sí; **Gerardo es el puente** y el jugador decide a quién le da lo que sabe. **Germán se hace el ciego**: nunca confirma lo que sabe.
+
+### Pasada de coherencia (L10)
+
+| Regla | ¿Se cumple? |
+|---|---|
+| Nemesio es "una transacción", no aliado | Sí: te paga y te debe, pero no te protege si lo traicionas |
+| "Si te metes a La Gotera sin permiso, no sales" | Sí: es el escalón 0 |
+| Las cacerías entran por fuera de las fortalezas | Sí: plaza de la Catrina y túneles |
+| La Madre y el yacimiento están separados | Sí: los túneles son solo la entrada (choque 3) |
+| Los Gotera venden agua limpia dentro | Sí: desde el escalón 1 |
+| Entras a GelA contratado, no por Gerardo | Sí (L7) |
+| Gerardo ya sabe; sin Doña Refugio | Sí: A4 y A6 reescritas |
+
+---
+
 ## 4. Las misiones de historia
 
 Son las de [La revelación](lore.md#17-la-revelación): opcionales, repartidas por el mapa, y cada una entrega una pista.
@@ -322,9 +389,9 @@ Misiones de apoyo, atadas a personajes:
 - **La capilla** (padre Chuy): llevar agua, reparar el filtro, defender la vigilia.
 - **El cobalto** (Elena): entrar al drenaje y sacar el expediente.
 - **La verdad** (Sofía): llevar las pruebas a la radio.
-- **El heredero** (Gerardo): contarle lo que sabes y ver qué elige.
+- **El heredero** (Gerardo): ya sabe del Serenol; contarle lo que sabes y ver qué elige.
 - **La toma** (don Nemesio): abrir la válvula (y romper el pacto) o venderle el secreto a Buenrostro.
-- **El pozo** (doña Refugio y Chava): decidir de quién es el pozo.
+- **El pozo** (Chava): decidir de quién es el pozo (GelA lo sella, los Gotera lo cobran o el gremio lo defiende).
 
 ### El registro de las misiones de historia
 
@@ -341,9 +408,9 @@ Misiones de apoyo, atadas a personajes:
 | A1 | La capilla | Padre Chuy | Los Garrafones | Robar un filtro nuevo de una Puri-GelA | Comprárselo a los Gotera (y deberles) | La cura de Los Garrafones sube; el régimen contesta | Agua gratis con más cupo | — |
 | A2 | El cobalto | Elena | Parques del Mosco | Bajar al drenaje de día (las camadas duermen) | Cambiarle el expediente por botas y linterna | El expediente; se marcan los postes del 84 | — | Confianza con Elena |
 | A3 | La verdad | Sofía | Parques de Santa Mugre | Llevarle dos pruebas (manifiesto, hoja, expediente) | Grabar a López o a Buenrostro diciéndolo | El enojo sube **solo donde ya hay cura** | — | 2 de H3, H4, A2 |
-| A4 | El heredero | Gerardo | Haciendas de San Jodido | Enseñarle los papeles: se vuelve aliado (acceso al palacio) | Callarte y usarlo: su firma te abre puertas, y él se entera después | Gerardo aliado, enemigo o víctima | Acceso | H3 o H4 |
+| A4 | El heredero | Gerardo | Fortaleza GelA (Reservorios) | Enseñarle los papeles: te cree (ya sabía del Serenol) y se vuelve aliado (acceso a Georgina) | Callarte y usarlo: su firma te abre puertas y, cuando se entere, él decide si te delata | Gerardo aliado, enemigo o víctima; la resistencia | Acceso | H3 o H4 y haber entrado de guardia |
 | A5 | La toma | Don Nemesio | La Gotera | Abrir la válvula: el sureste se cura de golpe y los Gotera se vuelven contra ti | Venderle el secreto a Buenrostro: GelA sella la toma y te paga | La válvula; la cura del sureste o el escalón de toda la ciudad | Venderla: 1,000 (B) | H5 |
-| A6 | El pozo | Doña Refugio y Chava | La Palmada | Convencer a Chava de quedarse (o pagarle tú la salida) | Dejarlo vender: a GelA (lo sella) o a los Gotera (lo cobran) | El pozo; el agua viva de La Palmada | Lo que pague el comprador (B) | — |
+| A6 | El pozo | Chava | La Palmada | Convencer a Chava de quedarse y protegerlo (o pagarle tú la salida) | Dejarlo vender: a GelA (lo sella) o a los Gotera (lo cobran) | El pozo; el agua viva de La Palmada | Lo que pague el comprador (B) | — |
 
 **Coherencia:** cada misión usa personajes, zonas y bandos que ya existen. Ninguna saca al Nocturno del sandbox: todas se toman de día, se juegan con sistemas de los contratos (ir a, recoger, entregar, sobrevivir) y dejan un dato del estado del mundo.
 

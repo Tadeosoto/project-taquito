@@ -593,7 +593,7 @@ La **resistencia** (✅ 2026-11-12) la forman **gente de servicio** (jardineros,
 | | |
 |---|---|
 | **Zona** | Haciendas de San Jodido |
-| **Horario** | Día (casa, golf) |
+| **Horario** | Día (casa, alberca) |
 | **Te da** | Dinero, contactos, un cliente |
 | **Quiere** | Que no le falte el agua para la casa y el pasto |
 | **Teme** | Que la ciudad se le meta |
@@ -602,7 +602,7 @@ La **resistencia** (✅ 2026-11-12) la forman **gente de servicio** (jardineros,
 
 **Historia.** Cincuenta y tantos, arquitecto, casa blanca, alberca. Compra agua para la alberca sin culpa: para él, el agua es un servicio, no un derecho. No es malo: es **cómodo**, que en esta ciudad es peor.
 
-**Rol.** Es el **cliente rico**: te compra agua, te paga bien y te enseña el otro lado. Arturo es su jardinero: por él se entra a la casa y al sótano. 💡 Puede ser el puente con Gerardo, o el que te venda a los blancos.
+**Rol.** Es el **cliente rico**: te compra agua, te paga bien y te enseña el otro lado. Arturo fue su jardinero antes de pasar a los Reservorios y conserva la llave del sótano: por él se entra a la casa y al sótano. Villalobos vive en Haciendas, **fuera** de la fortaleza. 💡 Puede ser el puente con Gerardo, o el que te venda a los blancos.
 
 ### Inspector Nava — el blanco
 

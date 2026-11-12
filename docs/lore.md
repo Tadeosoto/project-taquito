@@ -514,7 +514,7 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 
 ✅ **La toma está cerrada, y es su seguro de vida.** Debajo de La Gotera pasa el acueducto, con agua de **antes** de que GelA le ponga el Serenol. Los Gotera la tienen cerrada con una válvula: no la venden porque no la necesitan vender. Es la pistola que le apuntan a la familia Lazcano: si la abren, media ciudad toma agua sin Serenol, se cura y se enoja. **Por eso Gela no los toca.** El pacto no es amistad: es un rehén. ✅ (2026-11-11) Lo que sí venden es el agua del **yacimiento**, más profundo y propio, solo dentro de la fortaleza y a precio justo; la **válvula del acueducto** sigue cerrada y sigue siendo su palanca contra los Lazcano.
 
-- **Lo que sabe el barrio:** que en La Gotera "hay agua", y que no se vende.
+- **Lo que sabe el barrio:** que en La Gotera "hay agua" y que se vende a lo justo, pero solo adentro, y que a la toma nadie la toca.
 - **Lo que sabe don Nemesio:** que el día que abra la válvula se acaba el pacto, y él también.
 - **Lo que puede hacer el jugador:** abrirla, venderle el secreto a Buenrostro o dejarla como está (ver [el final de la válvula](#17-la-revelación)).
 
@@ -522,7 +522,7 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 
 - **Misiones de noche**: llevar un paquete, escoltar una camioneta, cobrar una cuota, "convencer" a un vecino.
 - **Compras**: armas, balas, tachas. Lo que en la tienda no hay.
-- **Peligro**: si te metes a La Gotera sin permiso, no sales.
+- **Peligro**: si te metes a La Gotera sin permiso, no sales. ✅ (2026-11-12) **El permiso se gana con sus misiones**: las entregas de punto a punto suben cuatro escalones (afuera, mandadero, de confianza, de la casa); ver `misiones.md`.
 - **Información**: saben más del agua de lo que dicen, porque necesitan saber qué le pasa a la gente antes de tratarla.
 
 ---
@@ -986,7 +986,7 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 14. **El jugador no es especial.** No es inmune, no es el elegido: es el que reparte.
 15. **El zombi suelta lo que traía.** El cuerpo se va; lo que traía se queda. No hay que limpiar nada.
 16. **El zombi bebe y no se cura.** Busca el agua limpia, la bebe y no le sirve: el cuerpo ya no la retiene.
-17. **Los Gotera nunca venden agua.** La toma está cerrada: es su seguro contra GelA, no su negocio.
+17. **La toma de los Gotera nunca se vende ni se abre.** Está cerrada: es su seguro contra GelA. Lo que sí venden, dentro de su fortaleza y a precio justo, es el agua de su yacimiento.
 18. **La verdad sola no despierta a nadie.** Primero el agua, luego el enojo, luego la verdad.
 19. **No hay final.** La ciudad cambia y GelA contesta; nada se gana para siempre.
 

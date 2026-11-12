@@ -135,11 +135,12 @@ Lo que hay que saber:
 
 - **El agua es el centro de todo.** Es cara, es medicina (la cura de la "sed" es agua limpia) y es poder (quien la controla controla el voto).
 - **La familia Lazcano tiene dos tronos**: **Germán** es dueño de GelA; su hija **Georgina "Gela"** es la gobernadora. Los dóciles votan por ella: es el **voto de la llave**.
-- **El crimen organizado real no toma de la llave** (los Gotera: drogas y armas; compran agua embotellada). La ciudad le echa la culpa a "las pandillas", que es justo lo que el régimen necesita.
-- **El culto de la Virgen del Tinaco**: un tinaco manchado con la Virgen; la gente cree que limpia el agua y en realidad la limpia el **padre Chuy** con un filtro robado. El milagro sí cura (es agua limpia), y por eso GelA lo quiere cerrar.
+- **El crimen organizado** (los Gotera: drogas, armas y agua limpia del yacimiento) amuralló su propia fortaleza, **La Gotera**, y no toma de la llave. La ciudad le echa la culpa a "las pandillas", que es justo lo que el régimen necesita. ✅ (2026-11-12) **Sus misiones desbloquean la entrada a su fortaleza** (`misiones.md`).
+- ✅ **Tres fortalezas (2026-11-11):** **Santa Mugre** (refugio de la Virgen del Tinaco, donde empiezas), **La Gotera** (la mafia, favela amurallada) y **los Reservorios** (GelA, en las canchas del ITESO). Dentro no entra la policía y hay agua sin Serenol. **Afuera** casi todos están bajo Serenol y no dan misiones; la policía (los blancos) solo sale de día y dispara a quien reparte agua, por eso el reparto es **de noche** (`lore.md` §13, §14).
+- **El culto de la Virgen del Tinaco**: un tinaco manchado en la plaza de Santa Mugre; se llena de agua "bendita" que **el padre Chuy** saca de un pozo bajo el templo y filtra. El milagro sí cura (es agua limpia) y Chuy sospecha por qué, pero calla. ✅ (2026-11-12) No hay Doña Refugio ni leyenda del tinaco que no se vacía; el pozo del reparto es otro, el de **Chava** en La Palmada.
 - **Subhistorias**: el **cobalto** de la varilla del 84 (las casas en obra negra y unas lámparas que bajan vida) y las **cruces de caca** de un vecino loco. Se cuentan hablando con la gente, no en cinemáticas.
 - **El lore no bloquea nada**: el sandbox se juega sin saberlo (ver `docs/lore.md` §1).
-- **Facciones** (para misiones): la **cuadrilla** de contratos, el culto del tinaco, los cotos de San Jodido, los Gotera, los blancos de GelA y la propia gobernadora.
+- **Facciones** (para misiones): la **cuadrilla/gremio** de contratos, el culto del tinaco, los cotos de San Jodido, los Gotera, los blancos de GelA (la policía, anónima), la resistencia de GelA (Arturo, Gerardo) y la propia gobernadora.
 - **El mapa** 🧱: ~1.7 × 1.7 km reales de Zapopan, con nueve zonas de nombre parodia (El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera). Ver `docs/mapa/README.md` y `docs/lore.md` §13.
 
 
@@ -270,7 +271,7 @@ Referencia del grupo: [reel de Instagram](https://www.instagram.com/reel/Dehepkq
 ✅ **La mecánica definida** (`docs/lore.md` §8):
 
 - **Son caníbales.** Comen a quien se mueve. Por eso atacan al jugador y a cualquier NPC en la calle.
-- **Tienen sed de agua sin Serenol.** Atacan el tinaco comunitario, las purificadoras y la capilla. **La vela** es el contrato de defender el tinaco hasta el amanecer.
+- **Tienen sed de agua sin Serenol y reconocen el Serenol.** Los atrae el agua limpia y el sonido; **no atacan a quien trae Serenol** (la mayoría de la gente de fuera). Atacan el tinaco, las purificadoras y la capilla. ✅ (2026-11-11) **Defender el tinaco** (antes "la vela") es el contrato de noche de la defensa externa: barricada con tinaco y bocinas mientras se reparte el agua. La defensa del tinaco de Santa Mugre es el **evento de la reja**, muy esporádico.
 - **De día se esconden del sol** en bodegas abandonadas, drenajes y túneles. Ahí están las **camadas**: la mazmorra del juego.
 - **La puerta cerrada los detiene**: empujan, no abren. La barricada es del refugio, no de la casa.
 - **Uno de cada diez** infectados se muere y se levanta; los otros nueve son dóciles y viven normal.
@@ -447,8 +448,8 @@ Resumen:
 
 Resumen:
 
-- **El piloto:** defender el **tinaco comunitario** hasta el amanecer (8 minutos, tres oleadas).
-- **Contratos de la noche:** vela, reparto clandestino, recolección, encargo y cacería.
+- **El piloto:** defender el **tinaco comunitario** hasta el amanecer (8 minutos, tres oleadas); su forma final es la defensa externa.
+- **Contratos de la noche:** defensa externa (tinaco y camioneta), guardia de la reja, reparto clandestino, recolección, encargo y cacería. ✅ (2026-11-12) **Misiones de fuera** (médico, antena, Decreto 47, hija de Nava), **de la mafia** (entregas punto a punto que desbloquean La Gotera) y **de GelA** (guardia, Arturo, Gerardo): todas en `misiones.md`.
 - **Misiones de día:** transportar, encontrar, corretear, tiro al blanco, manifestación, acompañar, defender el puesto, limpiar una camada, etc.
 - **Historia:** las cinco pistas de `docs/lore.md` §17.
 
