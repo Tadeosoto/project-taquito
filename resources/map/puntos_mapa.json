@@ -122,21 +122,6 @@
 		},
 		{
 			"tipo": "abarrotes",
-			"nombre": "Fruteria El Chavito",
-			"x": -400.538,
-			"z": 143.297,
-			"rotacion_y": -1.5321,
-			"ancho": 9.0,
-			"fondo": 9.59,
-			"casa_reemplazada": "way/2000000000004281",
-			"origen": "denue 10579306 461130",
-			"pisos": 2,
-			"giro": "abarrotes",
-			"aire_libre": false,
-			"interactivo": true
-		},
-		{
-			"tipo": "abarrotes",
 			"nombre": "Polleria Nene",
 			"x": -137.707,
 			"z": 461.652,
@@ -164,21 +149,6 @@
 			"giro": "taqueria",
 			"aire_libre": false,
 			"interactivo": true
-		},
-		{
-			"tipo": "abarrotes",
-			"nombre": "Fruteria El Chavito",
-			"x": -393.385,
-			"z": 252.476,
-			"rotacion_y": 0.0394,
-			"ancho": 9.0,
-			"fondo": 12.99,
-			"casa_reemplazada": "way/2000000000005248",
-			"origen": "denue 10861968 461130",
-			"pisos": 2,
-			"giro": "abarrotes",
-			"aire_libre": false,
-			"interactivo": false
 		},
 		{
 			"tipo": "farmacia",
@@ -719,21 +689,6 @@
 			"giro": "purificadora",
 			"aire_libre": false,
 			"interactivo": true
-		},
-		{
-			"tipo": "abarrotes",
-			"nombre": "Carniceria Patty",
-			"x": -423.557,
-			"z": 395.29,
-			"rotacion_y": 1.61,
-			"ancho": 5.73,
-			"fondo": 11.62,
-			"casa_reemplazada": "way/2000000000005156",
-			"origen": "denue 1942568 461121",
-			"pisos": 1,
-			"giro": "abarrotes",
-			"aire_libre": false,
-			"interactivo": false
 		},
 		{
 			"tipo": "abarrotes",

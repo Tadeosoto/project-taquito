@@ -706,6 +706,25 @@ def rectangulo(x, z, rot, ancho, z_frente, z_fondo) -> list:
 		for lx, lz in ((-ancho / 2, z_frente), (ancho / 2, z_frente), (ancho / 2, z_fondo), (-ancho / 2, z_fondo))]
 
 
+def huella_toca_muro(huella, grueso=0.3, margen=0.3) -> bool:
+	"""Si la huella (esquinas x, z; o None) toca una de las cuatro paredes de RECORTE_MURO."""
+	if not huella:
+		return False
+	return poligono_toca_muro(huella, grueso, margen)
+
+
+def poligono_toca_muro(poligono, grueso=0.3, margen=0.3) -> bool:
+	x0, z0, x1, z1 = RECORTE_MURO
+	g = grueso / 2 + margen
+	paredes = [
+		[(x0 - g, z0 - g), (x1 + g, z0 - g), (x1 + g, z0 + g), (x0 - g, z0 + g)],
+		[(x0 - g, z1 - g), (x1 + g, z1 - g), (x1 + g, z1 + g), (x0 - g, z1 + g)],
+		[(x0 - g, z0 - g), (x0 + g, z0 - g), (x0 + g, z1 + g), (x0 - g, z1 + g)],
+		[(x1 - g, z0 - g), (x1 + g, z0 - g), (x1 + g, z1 + g), (x1 - g, z1 + g)],
+	]
+	return any(se_enciman(poligono, w) for w in paredes)
+
+
 def casa_toca_muro(c, grueso=0.3, margen=0.3) -> bool:
 	"""Si el lote de la casa modelo `c` toca una de las cuatro paredes de RECORTE_MURO."""
 	x0, z0, x1, z1 = RECORTE_MURO
@@ -2761,7 +2780,8 @@ def main() -> None:
 		# Parques de Santa Mugre va encerrada por un muro (scripts/map/MuroColonia.gd): ahi se entra por la
 		# flecha amarilla al mapa de Blender, asi que sus negocios no existen en este mapa
 		x0, z0, x1, z1 = RECORTE_MURO
-		dentro = [p for p in placed if x0 <= p["x"] <= x1 and z0 <= p["z"] <= z1]
+		dentro = [p for p in placed if x0 <= p["x"] <= x1 and z0 <= p["z"] <= z1
+			or (huellas and huella_toca_muro(huella_negocio(p, huellas)))]
 		if dentro:
 			placed = [p for p in placed if p not in dentro]
 			print(f"  Negocios dentro del muro de Santa Mugre: {len(dentro)} quitados")
