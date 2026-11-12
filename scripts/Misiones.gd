@@ -30,6 +30,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/medicina_noche.tres",
 	"res://resources/misiones/escolta_noche.tres",
 	"res://resources/misiones/reparto_noche.tres",
+	"res://resources/misiones/antena_noche.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -170,11 +171,12 @@ func avance(mision: MisionData) -> Dictionary:
 	return _guardado.get(mision.id, _nuevo_avance(mision, 0))
 
 
-# El paso de la activa es de ruta (ESCOLTAR, LLEVAR_CARGA) y ya esta en su hora: lleva a alguien o
+# El paso de la activa es de ruta (ESCOLTAR, LLEVAR_CARGA, DEFENDER) y ya esta en su hora: lleva a alguien o
 # algo, y no se puede dejar a medias ni cambiar de mision
 func ruta_en_curso() -> bool:
 	var p := paso()
-	return p != null and en_hora() and (p.tipo == PasoMision.Tipo.ESCOLTAR or p.tipo == PasoMision.Tipo.LLEVAR_CARGA)
+	return p != null and en_hora() and (p.tipo == PasoMision.Tipo.ESCOLTAR \
+			or p.tipo == PasoMision.Tipo.LLEVAR_CARGA or p.tipo == PasoMision.Tipo.DEFENDER)
 
 
 # Se esta jugando una de LUGAR: el diario espera
@@ -240,7 +242,8 @@ func _process(delta: float) -> void:
 	_ruta_hora = en_ruta
 	if not en_hora():
 		return
-	if tiempo_queda > 0.0:
+	# En DEFENDER el tiempo es lo que aguantas (defendiendo()), y al acabarse ganas
+	if tiempo_queda > 0.0 and paso().tipo != PasoMision.Tipo.DEFENDER:
 		tiempo_queda -= delta
 		if tiempo_queda <= 0.0:
 			fallar("Se te fue el tiempo. Mañana será.")
@@ -293,9 +296,18 @@ func escoltado() -> void:
 		_avanzar()
 
 
-# ESCOLTAR: lo mataron los zombis
+# DEFENDER: otro segundo aguantado (MisionesMundo, solo si estas en el lugar); al acabar, ganas
+func defendiendo(delta: float) -> void:
+	if activa == null or paso().tipo != PasoMision.Tipo.DEFENDER or not en_hora():
+		return
+	tiempo_queda -= delta
+	if tiempo_queda <= 0.0:
+		_avanzar()
+
+
+# ESCOLTAR o DEFENDER: lo mataron los zombis
 func acompanante_cayo() -> void:
-	if ruta_en_curso() and paso().tipo == PasoMision.Tipo.ESCOLTAR:
+	if ruta_en_curso() and paso().tipo != PasoMision.Tipo.LLEVAR_CARGA:
 		fallar("Lo perdiste. No debiste dejarlo solo.")
 
 
@@ -309,6 +321,8 @@ func _texto_ruta_perdida(p: PasoMision) -> String:
 	if p.tipo == PasoMision.Tipo.ESCOLTAR:
 		return "Se te acabó la noche y lo dejaste a su suerte." if p.cuando == PasoMision.Cuando.NOCHE \
 				else "Se hizo de noche y lo dejaste a su suerte."
+	if p.tipo == PasoMision.Tipo.DEFENDER:
+		return "No aguantaste hasta el final y el lugar se perdió."
 	return "Te amaneció con la carga: los cerdos se la llevaron." if p.cuando == PasoMision.Cuando.NOCHE \
 			else "Se hizo de noche con la carga encima y la perdiste."
 

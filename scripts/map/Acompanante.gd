@@ -18,10 +18,15 @@ const ALTO := 1.7
 const GRAVEDAD := 25.0
 const POR_CAMPO_DESDE := 3.5  # m: mas cerca que esto va derecho, sin campo
 
+# DEFENDER: se queda donde esta (`quieto`) y atrae a los zombis desde `atrae` m, aunque estes mas cerca
+const ATRAE_QUIETO := 22.0
+
 static var activos: Array[Acompanante] = []
 
 var vida := 60
 var vida_max := 60
+var quieto := false
+var atrae := 0.0
 
 var _jugador: Node3D
 var _campo: CampoFlujo
@@ -31,22 +36,25 @@ var _atorado := 0.0
 var _cayo := false
 
 
-# El mas cercano a `desde` dentro de `radio` m; null si ninguno
-static func el_mas_cercano(desde: Vector3, radio: float) -> Acompanante:
+# El mas cercano a `desde` dentro de `radio` m (o de lo que atraiga, si es mas) y mas cerca que
+# `al_jugador`; null si ninguno
+static func el_mas_cercano(desde: Vector3, radio: float, al_jugador: float) -> Acompanante:
 	var mejor: Acompanante = null
-	var cerca := radio
+	var cerca := al_jugador
 	for a in activos:
 		if not is_instance_valid(a) or a._cayo:
 			continue
 		var d := desde.distance_to(a.global_position)
-		if d <= cerca:
+		if d <= maxf(radio, a.atrae) and d < cerca:
 			cerca = d
 			mejor = a
 	return mejor
 
 
-static func crear(padre: Node, donde: Vector3, modelo: String, con_vida: int, vida_total: int) -> Acompanante:
+static func crear(padre: Node, donde: Vector3, modelo: String, con_vida: int, vida_total: int, se_queda := false) -> Acompanante:
 	var a := Acompanante.new()
+	a.quieto = se_queda
+	a.atrae = ATRAE_QUIETO if se_queda else 0.0
 	a.vida = con_vida
 	a.vida_max = vida_total
 	padre.add_child(a)
@@ -80,7 +88,7 @@ func _exit_tree() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if _cayo or _jugador == null:
+	if _cayo or _jugador == null or quieto:
 		return
 	var hacia := _jugador.global_position - global_position
 	hacia.y = 0.0

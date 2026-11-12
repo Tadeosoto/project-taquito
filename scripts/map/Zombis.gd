@@ -293,6 +293,9 @@ func _separar_encimados() -> void:
 func _physics_process(delta: float) -> void:
 	_no_encimar()
 	_quitar_lejanos()
+	# Una turba pedida (el Director, o una mision DEFENDER) sale aunque no haya sueltos
+	if _turba_pendiente > 0 and _jugador.can_process() and _jugador.is_physics_processing():
+		_sacar_de_turba()
 	if not espontaneos:
 		return
 	if not _ciclo.es_noche() or not _jugador.can_process() or not _jugador.is_physics_processing():
@@ -300,8 +303,6 @@ func _physics_process(delta: float) -> void:
 	var turba := director.avanzar(delta, _atacado(), _jugador.velocity.length() > MOVIENDOSE, noches)
 	if turba > 0 and turbas and ritmo == null:
 		aparecer_turba(turba)
-	if _turba_pendiente > 0:
-		_sacar_de_turba()
 	_revisar_saltabardas(delta)
 	if ritmo:
 		_seguir_ritmo(delta)

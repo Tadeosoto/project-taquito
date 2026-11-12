@@ -12,6 +12,11 @@ extends Resource
 # que dio la mision y te sigue, mas lento que tu, hasta `lugar` ("casas", "giro:<giro>" o
 # "marca:<nombre>"). Los zombis lo atacan; si cae, o si se acaba la hora con el en camino,
 # la mision falla.
+# DEFENDER: aguantar `segundos` cerca de `lugar` ("casas", "giro:<giro>" o "marca:<nombre>"; a
+# 20 m, fuera de ahi el tiempo no corre) mientras llegan turbas de `cuantos` zombis cada
+# `ola_cada` s (Zombis.aparecer_turba). Si `acompanante` no esta vacio, ese alguien se queda en
+# el lugar (quien sube la torre, quien baja el agua): los zombis lo atraen y, si cae, falla. Si
+# la hora se acaba antes o te desmayas, tambien.
 # LLEVAR_CARGA: lo de VISITAR (`lugar`, `cuantos` entregas) con la `carga` en brazos, y cada
 # entrega paga `pesos_por_entrega`. Es de una hora: si se acaba con la carga encima (amanecer =
 # los cuicos) o te desmayas, se pierde y la mision falla.
@@ -20,7 +25,7 @@ extends Resource
 # y su tiempo no corre): una entrega de noche con un ENTREGAR de dia se acaba con el que te la
 # dio a la mañana siguiente.
 
-enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER, ESCOLTAR, LLEVAR_CARGA }
+enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER, ESCOLTAR, LLEVAR_CARGA, DEFENDER }
 enum Cuando { DIA, NOCHE, CUALQUIERA }
 
 @export var tipo: Tipo = Tipo.ENTREGAR
@@ -38,5 +43,7 @@ enum Cuando { DIA, NOCHE, CUALQUIERA }
 # ESCOLTAR: quien te sigue, su vida (los zombis le pegan 3 por golpe) y que tan rapido camina
 @export var acompanante := ""
 @export var vida_acompanante := 60
+# DEFENDER: cada cuantos segundos llega otra turba
+@export var ola_cada := 14.0
 # LLEVAR_CARGA: lo que paga cada entrega, aparte de los `pesos` de la mision
 @export var pesos_por_entrega := 0

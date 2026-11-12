@@ -1013,7 +1013,7 @@ func _destino() -> Vector3:
 	var al_jugador := global_position.distance_to(jugador.global_position)
 	# Alguien a quien escoltas (Acompanante), si lo tiene a la vista y mas cerca que a ti
 	if not es_jefe:
-		var escoltado := Acompanante.el_mas_cercano(global_position, minf(_persigue(), al_jugador))
+		var escoltado := Acompanante.el_mas_cercano(global_position, _persigue(), al_jugador)
 		if escoltado:
 			_blanco = escoltado
 			_guia = null

@@ -27,6 +27,8 @@ const TEXTO_TARDE := "Ya va a oscurecer. Mejor mañana."
 # Al aceptar una que no es de esta hora (Misiones.hora_que_falta): lo piensa el protagonista
 const ACOMPANANTE_SALE_A := 30.0  # m: si el que dio la mision esta mas lejos, sale junto a ti
 const ESCOLTA_LLEGA := 4.0        # m a la meta, de los dos
+const DEFENDER_RADIO := 20.0      # m del lugar: mas lejos, el tiempo no corre
+const DEFENDER_PRIMERA := 4.0     # s para la primera turba
 const TEXTO_HORA := "%s: \"Esto me toca %s.\""
 
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
@@ -65,6 +67,9 @@ var _acomp: Acompanante = null
 var _acomp_de: PasoMision = null
 var _escolta_de: PasoMision = null
 var _escolta_meta := Vector3.ZERO
+# DEFENDER: de que paso es la cuenta de turbas y en cuanto sale la siguiente
+var _defensa_de: PasoMision = null
+var _ola_en := 0.0
 
 
 func _ready() -> void:
@@ -279,6 +284,11 @@ func _cambio() -> void:
 			_apuntar(_lugar_de_vecino(Misiones.activa))
 		PasoMision.Tipo.ESCOLTAR:
 			_apuntar(_meta_de_escolta(paso))
+		PasoMision.Tipo.DEFENDER:
+			_apuntar(_meta_de_escolta(paso))
+			if _defensa_de != paso:
+				_defensa_de = paso
+				_ola_en = DEFENDER_PRIMERA
 		PasoMision.Tipo.VISITAR, PasoMision.Tipo.LLEVAR_CARGA:
 			# Tambien llega aqui en cada entrega: los que quedan se quedan
 			if _puntos.is_empty():
@@ -417,16 +427,18 @@ func _quitar_puntos() -> void:
 # Sale al empezar su hora, donde el que dio la mision (o junto a ti si ya estas lejos, o viniste de
 # otra escena), con la vida que traia; se quita al acabar el paso
 func _ajustar_acompanante(paso: PasoMision) -> void:
-	var quiere := paso != null and paso.tipo == PasoMision.Tipo.ESCOLTAR and Misiones.en_hora()
+	var quiere := paso != null and Misiones.en_hora() and (paso.tipo == PasoMision.Tipo.ESCOLTAR \
+			or (paso.tipo == PasoMision.Tipo.DEFENDER and paso.acompanante != ""))
 	if is_instance_valid(_acomp) and (not quiere or _acomp_de != paso):
 		_quitar_acompanante()
 	if not quiere or is_instance_valid(_acomp):
 		return
-	var donde := _lugar_de_vecino(Misiones.activa)
-	if donde.distance_to(_jugador.global_position) > ACOMPANANTE_SALE_A:
+	var se_queda := paso.tipo == PasoMision.Tipo.DEFENDER
+	var donde := _meta_de_escolta(paso) if se_queda else _lugar_de_vecino(Misiones.activa)
+	if not se_queda and donde.distance_to(_jugador.global_position) > ACOMPANANTE_SALE_A:
 		donde = _jugador.global_position + Vector3(1.5, 0.0, 0.0)
 	var vida := Misiones.vida_acompanante if Misiones.vida_acompanante >= 0 else paso.vida_acompanante
-	_acomp = Acompanante.crear(self, donde, paso.acompanante, vida, paso.vida_acompanante)
+	_acomp = Acompanante.crear(self, donde, paso.acompanante, vida, paso.vida_acompanante, se_queda)
 	_acomp_de = paso
 	_acomp.cayo.connect(Misiones.acompanante_cayo)
 
@@ -438,7 +450,7 @@ func _quitar_acompanante() -> void:
 	_acomp_de = null
 
 
-# A donde lo llevas: "giro:<giro>", "marca:<nombre>" o "casas" (una al azar), una sola vez por paso
+# A donde lo llevas o donde aguantas: "giro:<giro>", "marca:<nombre>" o "casas" (una al azar), una sola vez por paso
 func _meta_de_escolta(paso: PasoMision) -> Vector3:
 	if _escolta_de == paso:
 		return _escolta_meta
@@ -452,6 +464,25 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 		var casas := _lugares_de_casas(desde, 1)
 		_escolta_meta = casas[0] if not casas.is_empty() else desde + Vector3(40.0, 0.0, 0.0)
 	return _escolta_meta
+
+
+# DEFENDER: el tiempo corre solo cerca del lugar, y cada `ola_cada` s llega otra turba. Lo que
+# se agrega a la linea de abajo
+func _revisar_defensa(paso: PasoMision, delta: float) -> String:
+	if is_instance_valid(_acomp) and _acomp_de == paso:
+		Misiones.vida_acompanante = _acomp.vida
+	var meta := _meta_de_escolta(paso)
+	var lejos := Vector2(_jugador.global_position.x, _jugador.global_position.z).distance_to(Vector2(meta.x, meta.z)) > DEFENDER_RADIO
+	if lejos:
+		return " · vuelve al lugar"
+	Misiones.defendiendo(delta)
+	_ola_en -= delta
+	if _ola_en <= 0.0:
+		_ola_en = paso.ola_cada
+		var mando := get_tree().get_first_node_in_group("zombis_mando") as Zombis
+		if mando:
+			mando.aparecer_turba(paso.cuantos)
+	return ""
 
 
 # Llegaron los dos a la meta
@@ -595,6 +626,7 @@ func _quitar_cosa() -> void:
 
 func _termino(_mision: MisionData, exito: bool, texto: String) -> void:
 	_escolta_de = null
+	_defensa_de = null
 	_sonar("moneda" if exito else "perder")
 	if _supervivencia:
 		_supervivencia.avisar(texto)
@@ -630,6 +662,8 @@ func _process(delta: float) -> void:
 		_apuntar_al_punto_cercano()
 	elif paso.tipo == PasoMision.Tipo.ESCOLTAR:
 		_revisar_escolta(paso)
+	elif paso.tipo == PasoMision.Tipo.DEFENDER:
+		linea += _revisar_defensa(paso, delta)
 	if paso.segundos > 0.0:
 		linea += " · %d s" % ceili(Misiones.tiempo_queda)
 	_texto.text = linea
