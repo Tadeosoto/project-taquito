@@ -1,0 +1,11 @@
+Model Information:
+* title:	Speaker Stage
+* source:	https://sketchfab.com/3d-models/speaker-stage-39289063695d42f5a67b0a33318badb4
+* author:	Eveston - Elite Big Speakerman - Hugo (https://sketchfab.com/EvesStudio2008)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Speaker Stage" (https://sketchfab.com/3d-models/speaker-stage-39289063695d42f5a67b0a33318badb4) by Eveston - Elite Big Speakerman - Hugo (https://sketchfab.com/EvesStudio2008) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

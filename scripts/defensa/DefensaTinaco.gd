@@ -56,6 +56,7 @@ const DIFICULTAD_POR_NOCHE := 1.25
 const DANO_POR_NOCHE := 1
 const DANO_TOPE := 12
 const FUNDIDO_SALE := 0.25             # s a negro antes de rearmar la noche
+const SALIDA_ESPERA := 4.0               # s de aviso antes de volver al mapa (desde el juego)
 const MODO_CARRERA := 1                  # Pruebas.Modo.CARRERA
 const MODO_GODMODE := 2                  # Pruebas.Modo.GODMODE
 const FUNDIDO_ENTRA := 0.6             # s de regreso desde negro
@@ -130,6 +131,7 @@ const CIERRES_DESMAYO := ["El tinaco no se cuida solo.", "Mañana la colonia te 
 @onready var _jugador := $Player as Player
 var _tinaco: TinacoDefensa
 var _hordas: Hordas
+var _decoracion: DecoracionDefensa   # bocinas y camionetas que se van (visual)
 var _hora: Label
 var _amanecer: ColorRect
 var _vida_tinaco: ColorRect
@@ -184,6 +186,9 @@ func _ready() -> void:
 	_hordas.zombis = _zombis
 	_hordas.ciclo = _ciclo
 	add_child(_hordas)
+	_decoracion = DecoracionDefensa.new()
+	_decoracion.name = "Decoracion"
+	add_child(_decoracion)
 	_tinaco.aviso.connect(_supervivencia.avisar)
 	_tinaco.cayo.connect(_tinaco_roto)
 	_supervivencia.desmayo_final = _desmayado
@@ -197,7 +202,9 @@ func _ready() -> void:
 	# Si se lanza directo (sin lanzador), es el godmode de mecanicas. El refugio pone CARRERA
 	# antes de cargar esta escena.
 	var pruebas = _pruebas()
-	if pruebas and pruebas.modo == 0:
+	# Desde el juego (PasoJefe, una mision ENTRAR_A a esta escena) no es un test: tu equipo, sin
+	# godmode, sin carrera ni registro, y al acabar vuelves al mapa
+	if pruebas and pruebas.modo == 0 and not PasoJefe.desde_juego:
 		pruebas.preparar_test(pruebas.Modo.GODMODE, pruebas.dificultad, pruebas.duracion_noche)
 	var semilla := 0
 	var capturas := ""
@@ -285,7 +292,7 @@ func _exit_tree() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
-	if _listo and event.physical_keycode == KEY_C and not (_pruebas() and _pruebas().es_carrera()):
+	if _listo and event.physical_keycode == KEY_C and not PasoJefe.desde_juego and not (_pruebas() and _pruebas().es_carrera()):
 		_cambiar_personaje()
 		return
 	if _listo and event.physical_keycode == KEY_G:
@@ -336,6 +343,7 @@ func _generar(semilla: int) -> void:
 	_barricada.generar(semilla)
 	_zombis.olvidar_paredes()
 	_zombis.usar_huecos(_barricada.huecos_mundo)
+	_decoracion.armar(_barricada, _hordas)
 	_minimapa.usar_mapa(_dibujar_mapa(), Vector2(CENTRO.x - MAPA_LADO, CENTRO.z - MAPA_LADO), Vector2.ONE * MAPA_LADO * 2.0)
 	print("Barricada: semilla %d, %d piezas no cupieron" % [_barricada.semilla_usada, _barricada.quitadas])
 
@@ -361,16 +369,21 @@ func _dar_provisiones() -> void:
 # Arranque de la noche (las dos ramas del test): estado, dificultad, registro y musica.
 func _iniciar_noche() -> void:
 	var pruebas = _pruebas()
-	var godmode: bool = pruebas == null or pruebas.modo == MODO_GODMODE
+	var godmode: bool = not PasoJefe.desde_juego and (pruebas == null or pruebas.modo == MODO_GODMODE)
 	noche = pruebas.noche if (pruebas and pruebas.modo == MODO_CARRERA) else 1
 	# En los tests no hay drops de zombis: todo se compra con la paga
-	_zombis.paga_muertes = false
-	if godmode:
+	_zombis.paga_muertes = PasoJefe.desde_juego
+	if PasoJefe.desde_juego:
+		pass
+	elif godmode:
 		_aplicar_godmode()
 	else:
 		_aplicar_mejoras()
 	_aplicar_noche()
 	_preparar_noche()
+	if PasoJefe.desde_juego:
+		_arrancar_reloj()
+		return
 	if pruebas:
 		pruebas.empezar_noche()
 	_registro_inicio()
@@ -379,6 +392,11 @@ func _iniciar_noche() -> void:
 			_hordas.ola_empezada.connect(_registro_ola)
 		if not _hordas.emboscada_empezada.is_connected(_registro_emboscada):
 			_hordas.emboscada_empezada.connect(_registro_emboscada)
+	_arrancar_reloj()
+
+
+# Corre el ciclo (la noche) y entra la musica
+func _arrancar_reloj() -> void:
 	_ciclo.process_mode = Node.PROCESS_MODE_INHERIT
 	_musica.play()
 	_musica.stream_paused = _musica_apagada
@@ -587,10 +605,23 @@ func _cerrar_noche(gano: bool, desmayo: bool) -> void:
 	if _noche_cerrada:
 		return
 	_noche_cerrada = true
+	if PasoJefe.desde_juego:
+		_volver_al_mapa(gano, desmayo)
+		return
 	var pruebas = _pruebas()
 	if pruebas:
 		pruebas.terminar_noche(gano)
 	_pantalla_noche(gano, desmayo)
+
+
+# Desde el juego (PasoJefe): un aviso y de regreso al mapa. Aguantar hasta el amanecer cumple el
+# paso de la mision (que es la que paga); perder no
+func _volver_al_mapa(gano: bool, desmayo: bool) -> void:
+	var texto := "Amaneció y el tinaco aguantó." if gano \
+			else ("Te desmayaste. El tinaco quedó solo." if desmayo else "El tinaco no aguantó.")
+	_supervivencia.avisar(texto)
+	await get_tree().create_timer(SALIDA_ESPERA).timeout
+	PasoJefe.volver(self, gano)
 
 
 # Gano: paga y deja seguir con la noche siguiente (carrera) o repetir (godmode). Perdio:
@@ -980,6 +1011,16 @@ func _capturas(carpeta: String) -> void:
 			await get_tree().process_frame
 		var imagen := get_viewport().get_texture().get_image()
 		imagen.save_png(carpeta.path_join("%s.png" % vista[0]))
+	# De cerca: las bocinas y las camionetas (DecoracionDefensa.vistas)
+	ambiente.ambient_light_energy = LUZ_REVISION
+	ambiente.fog_enabled = false
+	_jugador.visible = false
+	_decoracion.dibujar_rutas()
+	for vista: Array in _decoracion.vistas():
+		camara.look_at_from_position(vista[1], vista[2], Vector3.UP)
+		for i in 8:
+			await get_tree().process_frame
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("%s.png" % vista[0]))
 	# Y el minimapa solo, para ver la barricada sobre las calles
 	var minimapa := _minimapa.mapa as Texture2D
 	minimapa.get_image().save_png(carpeta.path_join("minimapa.png"))

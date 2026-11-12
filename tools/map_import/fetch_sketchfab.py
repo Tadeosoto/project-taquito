@@ -128,6 +128,9 @@ MODELS = {
 	"props/coladera": "bbf5c9aa04c24fbaba328728d955777d",           # Manhole, 72
 	"props/tinaco": "fb34a8ff0a04447e91a9ef1d793a192a",             # Rtp Tinaco, 424k (reducido)
 	"props/bano_portatil": "8083b3d2134f4e98a34d891fa7915dcc",      # Abandoned Toilet Cabin, 3.9k
+	# Defensa del tinaco (scripts/defensa/DecoracionDefensa.gd)
+	"props/bocina_escenario": "39289063695d42f5a67b0a33318badb4",   # Speaker Stage
+	"props/rollo_manguera": "33a5089d9dd1438386d80bdf31a46a55",     # Garden Hose Reel
 	"personajes/perro": "647fa9e3f53b4898826ef398f0a9f6dd",         # French Bulldog PSX, 770, 1 animacion
 	"personajes/taquero": "452927fd544d476eaf2c00a11e18965c",       # Chef Erik (Walking), 2.7k, 1 animacion
 	"personajes/encargada": "8898a87225604a1fb335b47efff9c088",     # Female Secretary Character PSX, 932
@@ -157,6 +160,7 @@ MODELS = {
 	"vehiculos/tsuru": "94faafff28ce4bb3b3ab338da0b24eec",          # Retro Lowpoly Nissan Tsuru, 1.4k
 	"vehiculos/vocho": "769ada1c8d2c4cddb33a8c66b93e1099",          # 1967 Volkswagen Beetle, 1.8k
 	"vehiculos/van_blanca": "1cac40905d494bae8108a556d870e23e",     # White Van - PS1 Low Poly, 140
+	"vehiculos/pickup": "e9be0ceddd344ca2871e1b84621bdf66",         # PS1 Ford F150 Pickup truck, 1.4k (defensa del tinaco)
 }
 
 # Titulo de la seccion de CREDITS.md para cada carpeta de primer nivel

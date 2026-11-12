@@ -319,7 +319,8 @@ func pantalla(nombre: String, desde: float, hasta: float, aditivo := false, alfa
 	var tamano: Vector2 = hoja["tamano"]
 	var dura: float = hoja["cuadros"] / hoja["fps"]
 	var t := desde
-	while t < hasta and is_instance_valid(cuadro):
+	# Si la escena se cierra a media animacion (un jefe o la defensa que vuelven al mapa) se acaba
+	while t < hasta and is_instance_valid(cuadro) and is_inside_tree():
 		var i := mini(int(fmod(t, dura) * hoja["fps"]) if hoja["loop"] else int(t * hoja["fps"]), hoja["cuadros"] - 1)
 		region.region = Rect2(Vector2(i % hoja["columnas"], i / hoja["columnas"]) * tamano, tamano - Vector2(0.0, recorte))
 		var k := alfa

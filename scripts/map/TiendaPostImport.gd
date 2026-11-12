@@ -37,6 +37,8 @@ const MAX_TRIANGULOS := {
 	# Barricada de la defensa del tinaco (scenes/defensa_tinaco.tscn)
 	"tinaco": 6000,   # trae tres tinacos y se usa uno
 	"bano_portatil": 1500,
+	"bocina_escenario": 3000,
+	"rollo_manguera": 1500,
 }
 
 # Carpeta -> caja (coordenadas del glTF) de lo que se queda: mallas con centro

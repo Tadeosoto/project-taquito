@@ -46,6 +46,8 @@
 - [Abandoned Toilet Cabin (Low Poly)](https://sketchfab.com/3d-models/8083b3d2134f4e98a34d891fa7915dcc) de Berk Gedik, licencia CC Attribution (`models/props/bano_portatil/`).
 - [Jar with candle](https://sketchfab.com/3d-models/4c9e6738b88f4160a76c9d9fc497de78) de Marcin.Kwiatkowski, licencia CC Attribution (`models/props/veladora/`).
 - [Calendula flower](https://sketchfab.com/3d-models/d813ac09f52849a3a8c57e14076e4b83) de Maf'j Alvarez, licencia CC Attribution (`models/props/calendula/`).
+- [Speaker Stage](https://sketchfab.com/3d-models/39289063695d42f5a67b0a33318badb4) de Eveston - Elite Big Speakerman - Hugo, licencia CC Attribution (`models/props/bocina_escenario/`).
+- [Garden hose Reel](https://sketchfab.com/3d-models/33a5089d9dd1438386d80bdf31a46a55) de Cliffcographics, licencia CC Attribution (`models/props/rollo_manguera/`).
 
 ## Objetos (`models/objetos/`, Sketchfab)
 
@@ -172,3 +174,4 @@
 - [Retro Lowpoly Nissan Tsuru](https://sketchfab.com/3d-models/94faafff28ce4bb3b3ab338da0b24eec) de jomalon, licencia CC Attribution (`models/vehiculos/tsuru/`).
 - [1967 Volkswagen Beetle](https://sketchfab.com/3d-models/769ada1c8d2c4cddb33a8c66b93e1099) de zairiq-zairiq-123-pixar-cars-bfdi, licencia CC Attribution (`models/vehiculos/vocho/`).
 - [White Van - PS1 Low Poly](https://sketchfab.com/3d-models/1cac40905d494bae8108a556d870e23e) de Wersaus33, licencia CC Attribution (`models/vehiculos/van_blanca/`).
+- [PS1 Ford F150 Pickup truck](https://sketchfab.com/3d-models/e9be0ceddd344ca2871e1b84621bdf66) de Blue3D, licencia CC Attribution (`models/vehiculos/pickup/`).
