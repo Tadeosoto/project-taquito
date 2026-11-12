@@ -34,23 +34,12 @@ def casas_juego(datos):
 
 
 def banquetas(datos):
-    """Por donde camina la gente (Gente.gd): el medio de cada banqueta de cada calle."""
-    lineas = []
-    for p in datos.get("piezas", []):
-        if p["tipo"] != "calle" or p.get("banqueta", 0) <= 0:
-            continue
-        pts = [(p["x"] + x, p["z"] + z) for x, z in p["puntos"]]
-        d = p["ancho"] / 2 + p["banqueta"] / 2
-        for lado in (1, -1):
-            linea = []
-            for i, (x, z) in enumerate(pts):
-                a = pts[max(i - 1, 0)]
-                b = pts[min(i + 1, len(pts) - 1)]
-                ux, uz = b[0] - a[0], b[1] - a[1]
-                l = math.hypot(ux, uz) or 1.0
-                linea.append([round(x - uz / l * d * lado, 2), round(z + ux / l * d * lado, 2)])
-            lineas.append(linea)
-    return lineas
+    """Por donde camina la gente (Gente.gd): el medio de cada banqueta y de cada callejon, recortado
+    contra las casas y edificios grandes para que no los atraviese (tools/blender/mapa/caminos.py,
+    que tambien corre suelto: python3 caminos.py santa_mugre)."""
+    k = {"__name__": "caminos"}
+    exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "caminos.py"), encoding="utf-8").read(), k)
+    return k["banquetas"](datos)
 
 # Frente a una puerta o un negocio el tianguis deja un hueco de 2 * PUESTO_LIBRE m de ese lado
 PUESTO_LIBRE = 2.5

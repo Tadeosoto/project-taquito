@@ -32,6 +32,9 @@ const QUITAR_A := 75.0
 const CADA := 0.5
 const INTENTOS := 6
 const CELDA := 32.0
+# Cada cuantos metros se prueba el suelo de adelante, y cuanto adelante (la banqueta mide 1-1.5 m)
+const PRUEBA_CADA := 1.5
+const PRUEBA_ADELANTE := 1.2
 const UNE_A := 14.0        # m: al acabarse una banqueta sigue por otra si esta asi de cerca
 const ALTO_LIBRE := 0.6    # arriba de esto es una azotea o una barda
 const ALTO_PERSONA := 1.7
@@ -205,6 +208,17 @@ func _caminar(delta: float) -> void:
 			c["avance"] -= largo
 			continue
 		var p := a.lerp(b, c["avance"] / maxf(largo, 0.01))
+		# Entre vertice y vertice puede haber una casa (los tramos miden decenas de metros): cada
+		# PRUEBA_CADA m se mira el suelo de adelante y, si es pared, da la vuelta
+		c["prueba"] = float(c.get("prueba", 0.0)) - velocidad * delta
+		if c["prueba"] <= 0.0:
+			c["prueba"] = PRUEBA_CADA
+			var adelante := p + (b - a).normalized() * PRUEBA_ADELANTE
+			if _altura(adelante) == INF:
+				c["sentido"] = -c["sentido"]
+				c["i"] = siguiente
+				c["avance"] = largo - c["avance"]
+				continue
 		var nodo: Node3D = c["nodo"]
 		nodo.global_position = Vector3(p.x, c["y"], p.y)
 		nodo.rotation.y = atan2(-(b.x - a.x), -(b.y - a.y))
