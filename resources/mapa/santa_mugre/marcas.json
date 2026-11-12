@@ -1559,6 +1559,18 @@
 				[1, 15.07, 18.57]
 			],
 			"reservados": []
+		},
+		{
+			"nombre": "Templo",
+			"tipo": "casa_vecino",
+			"escena": "res://scenes/casas/templo.tscn",
+			"texto": "Parroquia de Santo Toribio",
+			"abierto": "dia",
+			"cerrado": "El portón está cerrado. El padre abre al amanecer.",
+			"x": -313.4,
+			"z": 420.0,
+			"y": 0.6,
+			"rot": -1.5708
 		}
 	]
 }

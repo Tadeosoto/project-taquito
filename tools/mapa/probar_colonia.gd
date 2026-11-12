@@ -87,6 +87,7 @@ func _probar() -> void:
 	await _pelota(escena)
 	await _vida(escena)
 	await _casa(escena)
+	await _templo(escena)
 	await _vecinos(escena)
 	print("RESULTADO: %s" % ("BIEN" if _fallas == 0 else "%d FALLAS" % _fallas))
 	quit(_fallas)
@@ -230,6 +231,39 @@ func _casa(escena: Node) -> void:
 	await _cuadros(90)
 	_revisar("sale de la casa", jugador.global_position.y < 10.0 and not jugador.sin_combate,
 		"jugador en %s" % jugador.global_position)
+
+
+# El templo (scripts/interiores/Templo.gd, tools/construir_templo.gd): de dia se entra por el atrio,
+# esta el padre Chuy y detras del retablo se baja caminando al cuarto del pozo; de noche no abre
+func _templo(escena: Node) -> void:
+	var templo := escena.get_node_or_null("Colonia/Templo")
+	_revisar("esta el templo", templo != null, "")
+	if templo == null:
+		return
+	var jugador := escena.get_node("Player") as Player
+	var ciclo := escena.get_node("Ciclo")
+	var flecha := (templo.get("flecha_en") as Vector3) + Vector3.UP * 1.2
+	ciclo.set("_tiempo", float(ciclo.get("dia_duracion")) + 60.0)
+	await _cuadros(30)
+	jugador.global_position = flecha
+	await _cuadros(60)
+	_revisar("el templo no abre de noche", templo.get("_casa") == null, "")
+	jugador.global_position = flecha + Vector3(-5, 0, 0)
+	ciclo.set("_tiempo", 100.0)
+	await _cuadros(30)
+	jugador.global_position = flecha
+	await _cuadros(120)
+	var adentro := templo.get("_casa") as Node3D
+	_revisar("se entra al templo y esta el padre", adentro != null and adentro.get_node_or_null("PadreChuy") != null, "%s" % adentro)
+	if adentro == null:
+		return
+	# Del pasillo de atras del retablo, por la rampa, hasta el fondo del cuarto del pozo (2.8 m abajo)
+	var escala: float = adentro.scale.x
+	var r: Dictionary = await _caminar(escena, adentro.global_position + Vector3(14.8, 1.4, 5.45) * escala, Vector3(1, 0, 0), 260)
+	var bajo: float = adentro.global_position.y - (r["hasta"] as Vector3).y
+	_revisar("se baja caminando al pozo", bajo > 2.0 * escala - 1.2 and r["avance"] > 5.0, "bajo %.2f m, avanzo %.2f" % [bajo, r["avance"]])
+	templo.call("_salir")
+	await _cuadros(90)
 
 
 # Las casas de los vecinos (CasaVecino.gd): cada una con quien vive; el taller de Sofia no abre
