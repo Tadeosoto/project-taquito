@@ -1480,7 +1480,9 @@ def mirador_muro(nombre, p):
         q = [(-largo, 0, z), (0, alto, z), (0, alto - 0.25, z), (-largo, -0.25, z)]
         k.cara(q, "foto_madera")
         k.cara(q[::-1], "foto_madera")
-    xa, xb = -largo - 0.3, 0.2
+    # La rampa llega justo a la altura de la plataforma en su orilla (x = 0) y de ahi sigue plana:
+    # si acababa mas adentro (0.2) quedaba 15 cm abajo del canto de la losa y el cuerpo se atoraba
+    xa, xb = -largo - 0.3, 0.0
     k.rampas.append([(xa, 0.0, z0), (xa, 0.0, z0 + 1.0), (xb, alto, z0), (xb, alto, z0 + 1.0),
                      (xb, alto - 0.3, z0), (xb, alto - 0.3, z0 + 1.0), (xa, -0.3, z0), (xa, -0.3, z0 + 1.0)])
     return k

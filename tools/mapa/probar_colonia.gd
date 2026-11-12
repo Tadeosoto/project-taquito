@@ -87,6 +87,9 @@ func _probar() -> void:
 	await _pelota(escena)
 	await _vida(escena)
 	await _casa(escena)
+	# Un mirador de la muralla (pieza mirador_muro): su escalera es rampa de choque y se sube caminando
+	var r_mirador: Dictionary = await _caminar(escena, Vector3(-349.7, 1.1, 259.2), Vector3(1, 0, 0), 190)
+	_revisar("se sube al mirador de la muralla", r_mirador["subio"] > 3.0, "subio %.2f m" % r_mirador["subio"])
 	await _templo(escena)
 	await _vecinos(escena)
 	print("RESULTADO: %s" % ("BIEN" if _fallas == 0 else "%d FALLAS" % _fallas))
