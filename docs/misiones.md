@@ -345,7 +345,7 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 
 **La Mojiganga es la madre del Machetes** (✅ JJ, 2026-11-12; lore §15 y §16). Él no lo sabe: la caza por contrato, como a cualquier otro jefe, y **se entera después de matarla**. La cacería se juega igual que hoy; lo que cambia es lo que viene después. 💡 Al acabar, algo de lo que suelta (las flores que no se marchitan, o algo de su ropa de antes) lleva a la verdad, y el Dr. López es quien se la cuenta.
 
-**Reusa:** `scenes/catrina.tscn` y `lombrices.tscn` (hoy terminan con `quit()`). ⛔ No se programan hasta S8.
+**Reusa:** `scenes/catrina.tscn` y `lombrices.tscn` con `PasoJefe` (S8 ✅, 2026-11-12): un paso ENTRAR_A con `escena` entra a la pelea desde el mapa y ganarla lo cumple. Las entradas son nodos `EntradaJefe` fijos en el mapa y siempre abiertos (✅ JJ, 2026-11-12): encontrarlas antes de tiempo es una sorpresa, y sin la misión ganar no da premio ni avanza nada (llegas débil). Faltan colocarlas (P5, P6) y las misiones de Nemesio (M8, M9), que apuntan con `lugar = "entrada:<id>"`.
 
 ### GelA y el hijo rebelde (la otra llave)
 

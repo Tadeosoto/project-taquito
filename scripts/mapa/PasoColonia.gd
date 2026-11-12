@@ -21,8 +21,9 @@ static var fraccion_del_dia := -1.0
 static var _yendo := false
 
 
-## Cambia a `escena` por la reja de `por`. `desde` es cualquier nodo del arbol (la flecha pisada)
-static func ir_a(desde: Node, escena: String, por: String) -> void:
+## Cambia a `escena` por la reja de `por`. `desde` es cualquier nodo del arbol (la flecha pisada).
+## `hora` (fraccion del dia) fuerza la hora de la escena nueva; -2 es la de la escena de la que se sale
+static func ir_a(desde: Node, escena: String, por: String, hora := -2.0) -> void:
 	if _yendo:
 		return
 	_yendo = true
@@ -48,6 +49,8 @@ static func ir_a(desde: Node, escena: String, por: String) -> void:
 	fraccion_del_dia = -1.0
 	if ciclo:
 		fraccion_del_dia = ciclo.tiempo() / maxf(ciclo.dia_duracion + ciclo.noche_duracion, 0.001)
+	if hora != -2.0:
+		fraccion_del_dia = hora
 	lado = por
 	arbol.change_scene_to_file(escena)
 	for i in ESPERA_FRAMES:

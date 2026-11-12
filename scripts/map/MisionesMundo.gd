@@ -101,6 +101,24 @@ func _ready() -> void:
 		_ciclo.amanecio.connect(_amanecio)
 	_poner_vecinos()
 	_cambio()
+	_resolver_jefe(PasoJefe.tomar_resultado())
+
+
+# Se vuelve de una escena de jefe: ganar cumple el paso ENTRAR_A (cuando el Ciclo ya dijo la hora);
+# perder lo deja para otro intento
+func _resolver_jefe(resultado: PasoJefe.Resultado) -> void:
+	if resultado == PasoJefe.Resultado.NADA:
+		return
+	await get_tree().create_timer(0.6).timeout
+	if not is_inside_tree():
+		return
+	var paso := Misiones.paso()
+	if resultado == PasoJefe.Resultado.GANO:
+		if paso and paso.tipo == PasoMision.Tipo.ENTRAR_A and paso.escena != "":
+			_sonar("moneda")
+			Misiones.visitado()
+	elif _supervivencia:
+		_supervivencia.avisar("Te sacaron de ahí. Ya habrá otra.")
 
 
 func _exit_tree() -> void:
@@ -297,7 +315,10 @@ func _cambio() -> void:
 			var corrido := Vector2.from_angle(randf() * TAU) * randf() * CAZA_BUSCAR * 0.6
 			_apuntar(meta + Vector3(corrido.x, 0.0, corrido.y), CAZA_BUSCAR)
 		PasoMision.Tipo.ENTRAR_A:
-			if _puntos.is_empty():
+			if paso.lugar.begins_with("entrada:"):
+				# La entrada ya existe en el mapa: solo se apunta a ella
+				_apuntar(_meta_de_escolta(paso))
+			elif _puntos.is_empty():
 				_puntos_de = Misiones.activa
 				Misiones.meta_visitas = 1
 				_puntos.append(_punto_de_visita(_meta_de_escolta(paso)))
@@ -414,6 +435,11 @@ func _punto_de_visita(lugar: Vector3) -> Area3D:
 		if body is Player and Misiones.en_hora():
 			_puntos.erase(area)
 			area.queue_free()
+			# ENTRAR_A con `escena`: se entra al jefe y el paso se cumple al ganar (PasoJefe)
+			var paso_actual := Misiones.paso()
+			if paso_actual and paso_actual.tipo == PasoMision.Tipo.ENTRAR_A and paso_actual.escena != "":
+				PasoJefe.entrar(self, paso_actual.escena, true)
+				return
 			_sonar("moneda")
 			Misiones.visitado())
 	return area
@@ -529,7 +555,13 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 		return _escolta_meta
 	_escolta_de = paso
 	var desde := _lugar_de_vecino(Misiones.activa)
-	if paso.lugar.begins_with("giro:"):
+	if paso.lugar.begins_with("entrada:"):
+		# Una EntradaJefe fija del mapa
+		_escolta_meta = desde
+		for entrada: EntradaJefe in get_tree().get_nodes_in_group("entradas_jefe"):
+			if entrada.id == paso.lugar.trim_prefix("entrada:"):
+				_escolta_meta = entrada.global_position
+	elif paso.lugar.begins_with("giro:"):
 		_escolta_meta = _tienda(paso.lugar)
 	elif _marca(paso.lugar) != null:
 		_escolta_meta = (_marca(paso.lugar) as Transform3D).origin

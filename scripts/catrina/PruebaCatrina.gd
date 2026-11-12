@@ -693,7 +693,11 @@ func _gano_pelea() -> void:
 	create_tween().tween_property(_musica, "volume_db", -60.0, 4.0)
 	var texto := "¡La Mojiganga cayó!"
 	var inventario := get_node_or_null("/root/Inventory")
-	for ruta: String in [FEMUR, CORONA]:
+	# Llegaste por tu cuenta (EntradaJefe, sin mision): nadie te paga esto
+	var premios: Array = [FEMUR, CORONA] if PasoJefe.hay_premio() else []
+	if premios.is_empty():
+		texto += "\nNadie te encargó esto: no hay quien te pague."
+	for ruta: String in premios:
 		var cosa: InventoryItemData = load(ruta)
 		if inventario and inventario.add_item(cosa):
 			texto += "\n+ %s" % cosa.item_name
@@ -704,6 +708,11 @@ func _gano_pelea() -> void:
 			add_child(objeto)
 			objeto.global_position = _jugador.global_position + Vector3(randf_range(-1.0, 1.0), -0.6, -1.5)
 			texto += "\n%s (en el piso)" % cosa.item_name
+	if PasoJefe.desde_juego:
+		_avisar(texto, 6.0)
+		await get_tree().create_timer(6.0).timeout
+		PasoJefe.volver(self, true)
+		return
 	_avisar(texto + "\n( , otra vez )", 10.0)
 
 
@@ -719,7 +728,12 @@ func _process(delta: float) -> void:
 	_adornos(delta)
 	_letrero.text = "vida %d · %d FPS" % [_salud.vida if _salud else 0, Engine.get_frames_per_second()]
 	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0 and _bot < 0.0:
-		_reiniciar_pelea()
+		# Desde una mision (PasoJefe) te saca al mapa; como prueba suelta, reinicia
+		if PasoJefe.desde_juego:
+			_reiniciando = true
+			PasoJefe.volver(self, false)
+		else:
+			_reiniciar_pelea()
 	if _medir > 0.0:
 		_seguir_medida(delta)
 	if _bot > 0.0:

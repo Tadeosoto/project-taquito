@@ -245,18 +245,28 @@ func _reiniciar_pelea() -> void:
 func _gano_pelea() -> void:
 	_gano = true
 	_enjambre.disolver()
-	var cartera := get_node_or_null("/root/Cartera")
-	if cartera:
-		cartera.pesos += PAGA
-	var texto := "¡La Madre del Cárcamo cayó!\n+$%d" % PAGA
-	var tazos := get_node_or_null("/root/Tazos")
-	if tazos:
-		var tazo: TazoData = tazos.abrir_bolsa(TazoData.Rareza.HOLO)
-		if tazo:
-			texto += " · tazo holo: %s" % tazo.nombre
-	var inventario := get_node_or_null("/root/Inventory")
-	if inventario and inventario.add_item(load(DIENTE)):
-		texto += " · Diente de la Madre"
+	var texto := "¡La Madre del Cárcamo cayó!"
+	# Llegaste por tu cuenta (EntradaJefe, sin mision): nadie te paga esto
+	if not PasoJefe.hay_premio():
+		texto += "\nNadie te encargó esto: no hay quien te pague."
+	else:
+		var cartera := get_node_or_null("/root/Cartera")
+		if cartera:
+			cartera.pesos += PAGA
+		texto += "\n+$%d" % PAGA
+		var tazos := get_node_or_null("/root/Tazos")
+		if tazos:
+			var tazo: TazoData = tazos.abrir_bolsa(TazoData.Rareza.HOLO)
+			if tazo:
+				texto += " · tazo holo: %s" % tazo.nombre
+		var inventario := get_node_or_null("/root/Inventory")
+		if inventario and inventario.add_item(load(DIENTE)):
+			texto += " · Diente de la Madre"
+	if PasoJefe.desde_juego:
+		_avisar(texto, 6.0)
+		await get_tree().create_timer(6.0).timeout
+		PasoJefe.volver(self, true)
+		return
 	_avisar(texto + "\n( , otra vez )", 10.0)
 
 
@@ -338,7 +348,12 @@ func _process(delta: float) -> void:
 	if inmortal and _salud and _salud.vida < _salud.vida_max:
 		_salud.vida = _salud.vida_max
 	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0:
-		_reiniciar_pelea()
+		# Desde una mision (PasoJefe) te saca al mapa; como prueba suelta, reinicia
+		if PasoJefe.desde_juego:
+			_reiniciando = true
+			PasoJefe.volver(self, false)
+		else:
+			_reiniciar_pelea()
 	if _medir > 0.0:
 		_seguir_medida(delta)
 

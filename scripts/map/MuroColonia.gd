@@ -34,11 +34,14 @@ func _enter_tree() -> void:
 	# Si se llego del mapa de Blender por una reja (PasoColonia), el jugador aparece afuera de ella.
 	# Esto va aqui, antes de que el jugador, el dron y Supervivencia lean su posicion (este nodo va
 	# antes que ellos en la escena y todavia no entran al arbol)
-	var por := PasoColonia.tomar_lado()
-	if por == "" or not rejas.has(por):
-		return
 	var jugador := get_node_or_null(jugador_path) as Node3D
-	if jugador == null:
+	# Si se vuelve de una escena de jefe (PasoJefe), donde se entro a ella
+	var de_regreso := PasoJefe.tomar_regreso()
+	if de_regreso != Vector3.INF and jugador:
+		jugador.position = de_regreso
+		return
+	var por := PasoColonia.tomar_lado()
+	if por == "" or not rejas.has(por) or jugador == null:
 		return
 	var donde := _afuera(por, LLEGADA_FUERA)
 	jugador.position = Vector3(donde.x, 1.5, donde.y)

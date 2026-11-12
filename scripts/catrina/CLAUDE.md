@@ -61,5 +61,6 @@ A Dark Souls-style boss: the colonia's 6 m cartonería parade catrina, soaked wi
   - `-- --cheese`: the player hides behind a float ~10 m away shooting; passes if she breaks it or reaches the player within 6 s.
   - `-- --captura=<png> --agarre`: a shot of the player hanging in her fist.
 - **Safehouse**: Shift+X brings her in awake 18 m ahead (plain X still clears). `-- --catrina` spawns her on load, and `-- --salir=<s>` prints her state and quits.
+- **From the game (S8):** if `PasoJefe.desde_juego` is true the scene was opened by a mission (ENTRAR_A with `escena`): a win shows the prize for 6 s and calls `PasoJefe.volver(self, true)`, a faint calls `volver(self, false)`, both back to the map. Without the flag (launched alone, captures, `--medir`, `--bot`) nothing changes: it restarts with `,`.
 
 > Moved from the root `CLAUDE.md` on 2026-11-11, word for word. Keep it in sync with the code; the root keeps only a pointer here.

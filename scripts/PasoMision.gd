@@ -21,7 +21,9 @@ extends Resource
 # "marca:<nombre>"); los mapas marcan el area, no el punto. Al bajarlo se cumple el paso. Si lo
 # matan al amanecer no cuenta, y si se aleja o se acaba la hora vuelve a salir.
 # ENTRAR_A: llegar a la entrada de `lugar` (una flecha, como VISITAR con un solo punto). Hoy solo
-# llega: el cambio de escena a los jefes (`escena`) es de S8 y todavia no se usa.
+# llega. Con `escena` entra a esa pelea de jefe (PasoJefe) y el paso se cumple al ganarla: `lugar`
+# puede ser "entrada:<id>", una EntradaJefe fija del mapa (la flecha ya esta ahi; solo se apunta),
+# o cualquiera de las otras formas (la mision pone su propia flecha).
 # LLEVAR_CARGA: lo de VISITAR (`lugar`, `cuantos` entregas) con la `carga` en brazos, y cada
 # entrega paga `pesos_por_entrega`. Es de una hora: si se acaba con la carga encima (amanecer =
 # los cuicos) o te desmayas, se pierde y la mision falla.
@@ -48,7 +50,7 @@ enum Cuando { DIA, NOCHE, CUALQUIERA }
 # ESCOLTAR: quien te sigue, su vida (los zombis le pegan 3 por golpe) y que tan rapido camina
 @export var acompanante := ""
 @export var vida_acompanante := 60
-# ENTRAR_A: la escena a la que se entra (S8; vacio no cambia de escena)
+# ENTRAR_A: la escena de jefe a la que se entra (vacio: solo llegar)
 @export_file("*.tscn") var escena := ""
 # DEFENDER: cada cuantos segundos llega otra turba
 @export var ola_cada := 14.0

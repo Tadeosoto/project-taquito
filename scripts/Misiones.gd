@@ -33,6 +33,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/antena_noche.tres",
 	"res://resources/misiones/caceria_noche.tres",
 	"res://resources/misiones/entrada_dia.tres",
+	"res://resources/misiones/defender_tinaco.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -423,6 +424,7 @@ func cambio_de_escena() -> void:
 
 # Partida nueva (Inicio, la safehouse): no al cambiar de escena
 func reiniciar() -> void:
+	PasoJefe.reiniciar()
 	activa = null
 	aceptadas.clear()
 	_guardado.clear()
