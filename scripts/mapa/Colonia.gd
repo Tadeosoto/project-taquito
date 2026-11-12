@@ -101,11 +101,26 @@ func _enter_tree() -> void:
 			puntos_mision[String(marca.get("nombre", ""))] = lugar(marca)
 
 
+# Carros que se quitaron de carros_modelo.json pero cuya caja "-colonly" sigue horneada en el .glb (una
+# combi frente a la vecindad: dejaba un muro invisible en la entrada). Se borran al cargar; si se
+# vuelve a exportar el .glb sin ellos, esta lista ya no hace nada.
+const CARROS_OMITIDOS := ["Carro_Calle_32_0_0_17"]
+
+
+func _quitar_carros_omitidos(raiz: Node) -> void:
+	for nombre: String in CARROS_OMITIDOS:
+		for nodo in raiz.find_children(nombre + "*", "", true, false):
+			if is_instance_valid(nodo):
+				nodo.free()
+
+
 func _ready() -> void:
 	add_to_group("colonia")
 	_puntos = get_node_or_null(puntos_path) as MapPuntos
 	if modelo:
-		add_child(modelo.instantiate())
+		var raiz := modelo.instantiate()
+		add_child(raiz)
+		_quitar_carros_omitidos(raiz)
 	for marca: Dictionary in _marcas:
 		match String(marca.get("tipo", "")):
 			"spawn", "mision":
