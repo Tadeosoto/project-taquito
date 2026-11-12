@@ -19,6 +19,11 @@ exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Docume
 globals().update({k: v for k, v in _k.items() if not k.startswith("__") and k != "SOLO_FUNCIONES"})
 
 
+# Carros que se quitan a mano de cada colonia: [x, z] (la combi que tapaba la entrada de la vecindad
+# de Santa Mugre). Su caja de choque tambien se borra al cargar (Colonia.CARROS_OMITIDOS).
+CARROS_OMITIDOS = {"santa_mugre": [(-214.91, 373.78)]}
+
+
 def casas_juego(datos):
     """Las casas con el esquema de resources/map/casas_mapa.json (MisionesMundo: a donde mandar a
     visitar; Partida: las de obra negra), con su frente hacia la calle."""
@@ -135,7 +140,9 @@ def exportar(nombre):
               for p in datos.get("piezas", []) if p["tipo"] == "ficus" and arbol_tipo(p["nombre"]) >= 1]
     guardar_json(os.path.join(datos_dir, "arboles_modelo.json"), {"arboles": modelo})
     # Los carros de Sketchfab (models/vehiculos): [x, z, giro, modelo, estado, y]; los dibuja scripts/mapa/CarrosColonia.gd
-    guardar_json(os.path.join(datos_dir, "carros_modelo.json"), {"carros": json.loads(sc.get("carros_modelo", "[]"))})
+    carros = [c for c in json.loads(sc.get("carros_modelo", "[]"))
+              if not any(abs(c[0] - ox) < 0.05 and abs(c[1] - oz) < 0.05 for ox, oz in CARROS_OMITIDOS.get(nombre, []))]
+    guardar_json(os.path.join(datos_dir, "carros_modelo.json"), {"carros": carros})
     guardar_json(os.path.join(datos_dir, "alumbrado.json"), {"postes": datos.get("postes", [])})
     guardar_json(os.path.join(datos_dir, "casas.json"), {"casas": casas_juego(datos)})
     guardar_json(os.path.join(datos_dir, "banquetas.json"), {"banquetas": banquetas(datos)})

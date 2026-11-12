@@ -479,6 +479,10 @@ def bloquear(nombre):
     rutas = datos.get("rutas", [])
     reservas = [r["puntos"] for r in datos.get("reservas", [])] + [_banda_ruta(r)[0] for r in rutas]
     bordes = datos.get("bordes", {})
+    # "rejas": [{"nombre", "lado", "z0", "z1" (o "x0", "x1" en norte y sur), "calles": ["Calle_1_0", ...]}]
+    # una reja en la barda donde sale una avenida: sustituye al tapon de esas calles y parte la barda
+    rejas = datos.get("rejas", [])
+    sin_tapon = {c for r in rejas for c in r.get("calles", [])}
     calles_osm, areas, huellas = datos_osm(recorte)
     piezas = [p for p in datos.get("piezas", []) if not p.get("auto")]
     nuevas = []
@@ -499,7 +503,7 @@ def bloquear(nombre):
                 para_postes.append((tramo, ancho / 2 + banqueta, ancho, c["tipo"] in ("tertiary", "secondary", "primary")))
             for punta in (tramo[0], tramo[-1]):
                 lado = _lado(punta[0], punta[1], recorte)
-                if lado and bordes.get(lado) in TAPON:
+                if lado and bordes.get(lado) in TAPON and "Calle_%d_%d" % (i, j) not in sin_tapon:
                     color, alto = TAPON[bordes[lado]]
                     a, b = (tramo[0], tramo[1]) if punta is tramo[0] else (tramo[-1], tramo[-2])
                     rot = math.atan2(b[0] - a[0], b[1] - a[1])
@@ -568,15 +572,37 @@ def bloquear(nombre):
                                           "poniente": (x1 + a, (z1 + z2) / 2, BARDA_GRUESO, z2 - z1),
                                           "oriente": (x2 - a, (z1 + z2) / 2, BARDA_GRUESO, z2 - z1)}.items():
         a_lo_largo_x = ancho > fondo
-        nuevas.append({"nombre": "Barda_" + lado, "tipo": "barda", "auto": True, "x": round(cx, 2), "z": round(cz, 2),
-                       "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(max(ancho, fondo), 2),
-                       "alto": BARDA_ALTO, "grueso": BARDA_GRUESO, "murales": 60})
+        # Los huecos de las rejas de este lado (de menor a mayor) parten la barda en tramos
+        huecos = sorted((r.get("x0", r.get("z0")), r.get("x1", r.get("z1"))) for r in rejas if r["lado"] == lado)
+        desde, hasta = (x1, x2) if a_lo_largo_x else (z1, z2)
+        tramos, cursor = [], desde
+        for h0, h1 in huecos:
+            tramos.append((cursor, h0))
+            cursor = h1
+        tramos.append((cursor, hasta))
+        for n, (t0, t1) in enumerate(tramos):
+            nombre_barda = "Barda_" + lado if len(tramos) == 1 else "Barda_%s_%s" % (lado, "abcdefgh"[n])
+            medio = (t0 + t1) / 2
+            nuevas.append({"nombre": nombre_barda, "tipo": "barda", "auto": True,
+                           "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
+                           "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(t1 - t0, 2),
+                           "alto": BARDA_ALTO, "grueso": BARDA_GRUESO, "murales": 60})
+        for r in rejas:
+            if r["lado"] != lado:
+                continue
+            h0, h1 = r.get("x0", r.get("z0")), r.get("x1", r.get("z1"))
+            medio = (h0 + h1) / 2
+            nuevas.append({"nombre": r["nombre"], "tipo": "reja", "auto": True,
+                           "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
+                           "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(h1 - h0, 2),
+                           "alto": BARDA_ALTO, "grueso": BARDA_GRUESO})
 
     datos["postes"] = _postes(para_postes, [(t, a / 2) for t, m, a, av in para_postes])
     todas_casas = [p for p in nuevas + piezas if p["tipo"] == "casa"]
     usadas = set()
     marcas, datos["negocios"] = _tiendas(datos.get("tiendas", []), todas_casas, usadas, calles)
     marcas += _vecinos(datos.get("vecinos", []), todas_casas, usadas)
+    marcas += salidas_colonia(rejas, recorte)
     datos["marcas"] = [m for m in datos.get("marcas", []) if not m.get("auto")] + marcas
     # Ningun puesto del tianguis enfrente de una puerta (si no, no se llega a la flecha)
     # (las puertas puestas a mano tambien: la tortilleria)
@@ -590,6 +616,30 @@ def bloquear(nombre):
         cuenta[p["tipo"]] = cuenta.get(p["tipo"], 0) + 1
     print("bloqueo %s: %s; huellas quitadas %s; relleno: %d casas y %d baldios; azoteas: %d rutas con %d casas; %d postes; %d negocios; %d piezas a mano" % (
         nombre, cuenta, quitadas, lotes, baldios, escaleras, casas_ruta, len(datos["postes"]), len(datos["negocios"]), len(piezas)))
+
+
+SALIDA_DENTRO = 2.2    # m de la reja a la flecha de salida
+LLEGADA_DENTRO = 5.4   # m de la reja a donde aparece el jugador al entrar por ella
+
+
+def salidas_colonia(rejas, recorte):
+    """La flecha amarilla de adentro de cada reja (Colonia.gd, "salida_colonia"): al pisarla se sale
+    al mapa grande (map_test) por el mismo lado, y "llegada" es donde se aparece al entrar por esa reja."""
+    x1, z1, x2, z2 = recorte
+    marcas = []
+    for r in rejas:
+        lado = r["lado"]
+        h0, h1 = r.get("x0", r.get("z0")), r.get("x1", r.get("z1"))
+        medio = (h0 + h1) / 2
+        # (x, z) de la reja y hacia donde queda "adentro" (poniente: +x, oriente: -x, norte: +z, sur: -z)
+        base, (dx, dz) = {"poniente": ((x1 + BARDA_ADENTRO, medio), (1, 0)), "oriente": ((x2 - BARDA_ADENTRO, medio), (-1, 0)),
+                          "norte": ((medio, z1 + BARDA_ADENTRO), (0, 1)), "sur": ((medio, z2 - BARDA_ADENTRO), (0, -1))}[lado]
+        marcas.append({"nombre": "Salida_" + lado, "tipo": "salida_colonia", "auto": True, "lado": lado,
+                       "x": round(base[0] + dx * SALIDA_DENTRO, 2), "z": round(base[1] + dz * SALIDA_DENTRO, 2),
+                       "rot": round(math.atan2(dx, dz), 4),
+                       "llegada": [round(base[0] + dx * LLEGADA_DENTRO, 2), round(base[1] + dz * LLEGADA_DENTRO, 2)],
+                       "texto": "Salir de Santa Mugre"})
+    return marcas
 
 
 def reasignar_negocios(nombre):

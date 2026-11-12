@@ -36,26 +36,6 @@
 			"real": "Avenida Bahía de Todos los Santos"
 		},
 		{
-			"nombre": "Tapon_1_0_a",
-			"auto": true,
-			"x": -186.49,
-			"z": 468.64,
-			"rot": -1.7114,
-			"borde": "derrumbe",
-			"tipo": "escombro",
-			"largo": 10.0
-		},
-		{
-			"nombre": "Tapon_1_0_b",
-			"auto": true,
-			"x": -418.5,
-			"z": 450.14,
-			"rot": 1.6091,
-			"borde": "camion",
-			"tipo": "camion_volteado",
-			"largo": 10.0
-		},
-		{
 			"nombre": "Calle_2_0",
 			"tipo": "calle",
 			"auto": true,
@@ -89,26 +69,6 @@
 			"ancho": 7.0,
 			"banqueta": 1.5,
 			"real": "Avenida Bahía de Todos los Santos"
-		},
-		{
-			"nombre": "Tapon_3_0_a",
-			"auto": true,
-			"x": -418.5,
-			"z": 458.74,
-			"rot": 1.6061,
-			"borde": "camion",
-			"tipo": "camion_volteado",
-			"largo": 10.0
-		},
-		{
-			"nombre": "Tapon_3_0_b",
-			"auto": true,
-			"x": -186.49,
-			"z": 476.74,
-			"rot": -1.7099,
-			"borde": "derrumbe",
-			"tipo": "escombro",
-			"largo": 10.0
 		},
 		{
 			"nombre": "Calle_4_0",
@@ -5750,30 +5710,6 @@
 			"murales": 60
 		},
 		{
-			"nombre": "Barda_poniente",
-			"tipo": "barda",
-			"auto": true,
-			"x": -419.6,
-			"z": 370.0,
-			"rot": 1.5708,
-			"largo": 224,
-			"alto": 2.6,
-			"grueso": 0.3,
-			"murales": 60
-		},
-		{
-			"nombre": "Barda_oriente",
-			"tipo": "barda",
-			"auto": true,
-			"x": -185.4,
-			"z": 370.0,
-			"rot": 1.5708,
-			"largo": 224,
-			"alto": 2.6,
-			"grueso": 0.3,
-			"murales": 60
-		},
-		{
 			"nombre": "Tinaco_Comunitario",
 			"tipo": "tinaco_comunitario",
 			"x": -345.0,
@@ -8037,6 +7973,76 @@
 			"z": 400.0,
 			"rot": 3.1416,
 			"tam": [22.0, 52.0]
+		},
+		{
+			"nombre": "Barda_poniente_a",
+			"tipo": "barda",
+			"auto": true,
+			"x": -419.6,
+			"z": 351.5,
+			"rot": 1.5708,
+			"largo": 187.0,
+			"alto": 2.6,
+			"grueso": 0.3,
+			"murales": 60
+		},
+		{
+			"nombre": "Barda_poniente_b",
+			"tipo": "barda",
+			"auto": true,
+			"x": -419.6,
+			"z": 473.0,
+			"rot": 1.5708,
+			"largo": 18.0,
+			"alto": 2.6,
+			"grueso": 0.3,
+			"murales": 60
+		},
+		{
+			"nombre": "Reja_poniente",
+			"tipo": "reja",
+			"auto": true,
+			"x": -419.6,
+			"z": 454.5,
+			"rot": 1.5708,
+			"largo": 19.0,
+			"alto": 2.6,
+			"grueso": 0.3
+		},
+		{
+			"nombre": "Barda_oriente_a",
+			"tipo": "barda",
+			"auto": true,
+			"x": -185.4,
+			"z": 360.9,
+			"rot": 1.5708,
+			"largo": 205.8,
+			"alto": 2.6,
+			"grueso": 0.3,
+			"murales": 60
+		},
+		{
+			"nombre": "Barda_oriente_b",
+			"tipo": "barda",
+			"auto": true,
+			"x": -185.4,
+			"z": 481.7,
+			"rot": 1.5708,
+			"largo": 0.6,
+			"alto": 2.6,
+			"grueso": 0.3,
+			"murales": 60
+		},
+		{
+			"nombre": "Reja_oriente",
+			"tipo": "reja",
+			"auto": true,
+			"x": -185.4,
+			"z": 472.6,
+			"rot": 1.5708,
+			"largo": 17.6,
+			"alto": 2.6,
+			"grueso": 0.3
 		}
 	],
 	"marcas": [
@@ -8550,6 +8556,28 @@
 			"z": 404.0,
 			"y": 0.0,
 			"litros": 50000
+		},
+		{
+			"nombre": "Salida_poniente",
+			"tipo": "salida_colonia",
+			"auto": true,
+			"lado": "poniente",
+			"x": -417.4,
+			"z": 454.5,
+			"rot": 1.5708,
+			"llegada": [-414.2, 454.5],
+			"texto": "Salir de Santa Mugre"
+		},
+		{
+			"nombre": "Salida_oriente",
+			"tipo": "salida_colonia",
+			"auto": true,
+			"lado": "oriente",
+			"x": -187.6,
+			"z": 472.6,
+			"rot": -1.5708,
+			"llegada": [-190.8, 472.6],
+			"texto": "Salir de Santa Mugre"
 		}
 	],
 	"negocios": [
@@ -9867,6 +9895,28 @@
 			"semilla": 23,
 			"libres": [
 				[-275.0, 352.0, 3.5]
+			]
+		}
+	],
+	"rejas": [
+		{
+			"nombre": "Reja_poniente",
+			"lado": "poniente",
+			"z0": 445.0,
+			"z1": 464.0,
+			"calles": [
+				"Calle_1_0",
+				"Calle_3_0"
+			]
+		},
+		{
+			"nombre": "Reja_oriente",
+			"lado": "oriente",
+			"z0": 463.8,
+			"z1": 481.4,
+			"calles": [
+				"Calle_1_0",
+				"Calle_3_0"
 			]
 		}
 	]

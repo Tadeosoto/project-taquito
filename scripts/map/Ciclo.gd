@@ -52,6 +52,10 @@ func _ready() -> void:
 		_dia["niebla"] = _env.fog_light_color
 		_dia["fondo"] = _env.background_color
 	_tiempo = inicio
+	# Si se llego por la reja de Santa Mugre (PasoColonia) sigue la hora de la escena de la que se vino
+	var traida := PasoColonia.tomar_hora()
+	if traida >= 0.0:
+		_tiempo = traida * (dia_duracion + noche_duracion)
 	_aplicar(valor())
 
 
