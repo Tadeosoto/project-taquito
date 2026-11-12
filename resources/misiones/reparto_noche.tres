@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="3_galon"]
+
+[sub_resource type="Resource" id="paso_llevar"]
+script = ExtResource("2_paso")
+tipo = 5
+cuando = 1
+texto = "Reparte el agua limpia antes del amanecer"
+lugar = "casas"
+cuantos = 2
+carga = ExtResource("3_galon")
+pesos_por_entrega = 40
+
+[resource]
+script = ExtResource("1_mision")
+id = "reparto_noche"
+nombre = "Agua de noche"
+modelo = "mujer_psx"
+oferta = "Hay dos casas sin agua limpia. Llévala de noche y antes de que amanezca."
+aceptada = "Sale de noche. Si te amanece con el garrafón, los marranos lo quitan."
+recuerda = "De noche, y antes del amanecer. Si no, se pierde."
+despedida = "Ya les llegó el agua. Mañana vemos si hay más."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar")])
+pesos = 30

@@ -15,6 +15,8 @@ extends Node
 signal cambio
 signal termino(mision: MisionData, exito: bool, texto: String)
 signal sobra(objeto: InventoryItemData)
+# LLEVAR_CARGA: lo que pago una entrega
+signal entrega(pesos: int)
 
 const ARCHIVOS := [
 	"res://resources/misiones/encargo.tres",
@@ -26,6 +28,8 @@ const ARCHIVOS := [
 	"res://resources/misiones/agua_fila.tres",
 	"res://resources/misiones/chiles.tres",
 	"res://resources/misiones/medicina_noche.tres",
+	"res://resources/misiones/escolta_noche.tres",
+	"res://resources/misiones/reparto_noche.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -40,6 +44,8 @@ var es_noche := false
 # Traes algo levantado para la activa (el perro): MisionesMundo lo pone
 var manos_ocupadas := false
 var tiempo_queda := 0.0
+# ESCOLTAR: la vida del que escoltas; -1 si todavia no sale (se queda al cambiar de escena)
+var vida_acompanante := -1
 var visitados := 0
 var meta_visitas := 1
 # Lo pone MisionesMundo: a donde apuntan los mapas
@@ -56,6 +62,8 @@ var _espera := 0.0
 var _guardado := {}
 # La que estaba activa antes de empezar una de LUGAR: vuelve al acabar esta
 var _previa: MisionData = null
+# La hora del paso de ruta (ESCOLTAR, LLEVAR_CARGA) ya estaba en curso: si se acaba, falla
+var _ruta_hora := false
 
 
 func _ready() -> void:
@@ -134,7 +142,7 @@ func aceptar(mision: MisionData) -> void:
 func elegir(mision: MisionData) -> bool:
 	if mision == activa:
 		return true
-	if not aceptada(mision) or en_lugar() or manos_ocupadas:
+	if not aceptada(mision) or en_lugar() or manos_ocupadas or ruta_en_curso():
 		return false
 	_guardar_activa()
 	_poner_activa(mision)
@@ -160,6 +168,13 @@ func avance(mision: MisionData) -> Dictionary:
 	if mision == activa:
 		return {"paso": indice_paso, "visitados": visitados, "tiempo": tiempo_queda}
 	return _guardado.get(mision.id, _nuevo_avance(mision, 0))
+
+
+# El paso de la activa es de ruta (ESCOLTAR, LLEVAR_CARGA) y ya esta en su hora: lleva a alguien o
+# algo, y no se puede dejar a medias ni cambiar de mision
+func ruta_en_curso() -> bool:
+	var p := paso()
+	return p != null and en_hora() and (p.tipo == PasoMision.Tipo.ESCOLTAR or p.tipo == PasoMision.Tipo.LLEVAR_CARGA)
 
 
 # Se esta jugando una de LUGAR: el diario espera
@@ -191,6 +206,8 @@ func _poner_activa(mision: MisionData) -> void:
 	visitados = avance["visitados"]
 	meta_visitas = paso().cuantos
 	tiempo_queda = avance["tiempo"]
+	vida_acompanante = -1
+	_ruta_hora = ruta_en_curso()
 	cambio.emit()
 
 
@@ -199,6 +216,8 @@ func _entrar_paso(i: int) -> void:
 	visitados = 0
 	meta_visitas = paso().cuantos
 	tiempo_queda = paso().segundos
+	vida_acompanante = -1
+	_ruta_hora = ruta_en_curso()
 	cambio.emit()
 
 
@@ -210,7 +229,16 @@ func _avanzar() -> void:
 
 
 func _process(delta: float) -> void:
-	if activa == null or not en_hora():
+	if activa == null:
+		return
+	# Se acabo la hora con la ruta en camino: los cuicos (amanecer) o la oscuridad
+	var en_ruta := ruta_en_curso()
+	if _ruta_hora and not en_ruta:
+		_ruta_hora = false
+		fallar(_texto_ruta_perdida(paso()))
+		return
+	_ruta_hora = en_ruta
+	if not en_hora():
 		return
 	if tiempo_queda > 0.0:
 		tiempo_queda -= delta
@@ -238,8 +266,15 @@ func tiene_objetos(p: PasoMision) -> bool:
 
 
 func visitado() -> void:
-	if activa == null or paso().tipo != PasoMision.Tipo.VISITAR or not en_hora():
+	if activa == null or not en_hora():
 		return
+	var tipo := paso().tipo
+	if tipo != PasoMision.Tipo.VISITAR and tipo != PasoMision.Tipo.LLEVAR_CARGA:
+		return
+	var pago := roundi(paso().pesos_por_entrega * get_node("/root/Personaje").factor_paga())
+	if tipo == PasoMision.Tipo.LLEVAR_CARGA and pago > 0:
+		get_node("/root/Cartera").pesos += pago
+		entrega.emit(pago)
 	visitados += 1
 	if visitados >= meta_visitas:
 		_avanzar()
@@ -250,6 +285,32 @@ func visitado() -> void:
 func recogido() -> void:
 	if activa and paso().tipo == PasoMision.Tipo.RECOGER and en_hora():
 		_avanzar()
+
+
+# ESCOLTAR: los dos llegaron
+func escoltado() -> void:
+	if activa and paso().tipo == PasoMision.Tipo.ESCOLTAR and en_hora():
+		_avanzar()
+
+
+# ESCOLTAR: lo mataron los zombis
+func acompanante_cayo() -> void:
+	if ruta_en_curso() and paso().tipo == PasoMision.Tipo.ESCOLTAR:
+		fallar("Lo perdiste. No debiste dejarlo solo.")
+
+
+# Te desmayaste: lo que llevabas o a quien llevabas se pierde
+func desmayo() -> void:
+	if ruta_en_curso():
+		fallar(_texto_ruta_perdida(paso()))
+
+
+func _texto_ruta_perdida(p: PasoMision) -> String:
+	if p.tipo == PasoMision.Tipo.ESCOLTAR:
+		return "Se te acabó la noche y lo dejaste a su suerte." if p.cuando == PasoMision.Cuando.NOCHE \
+				else "Se hizo de noche y lo dejaste a su suerte."
+	return "Te amaneció con la carga: los cerdos se la llevaron." if p.cuando == PasoMision.Cuando.NOCHE \
+			else "Se hizo de noche con la carga encima y la perdiste."
 
 
 # Con el que dio la mision. Falso si todavia no le traes lo que pidio
@@ -330,6 +391,13 @@ func amanecer() -> void:
 	cambio.emit()
 
 
+# Escena nueva: no se sabe la hora hasta que el Ciclo la diga (anochecio sale en su primer cuadro);
+# una ruta en curso no debe fallar por ese cuadro de duda
+func cambio_de_escena() -> void:
+	es_noche = false
+	_ruta_hora = false
+
+
 # Partida nueva (Inicio, la safehouse): no al cambiar de escena
 func reiniciar() -> void:
 	activa = null
@@ -337,6 +405,8 @@ func reiniciar() -> void:
 	_guardado.clear()
 	_previa = null
 	manos_ocupadas = false
+	vida_acompanante = -1
+	_ruta_hora = false
 	indice_paso = 0
 	ofreciendo = true
 	es_noche = false

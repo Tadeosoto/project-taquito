@@ -248,6 +248,7 @@ func _segundo_aire() -> bool:
 
 func _desmayarse() -> void:
 	_desmayado = true
+	Misiones.desmayo()
 	_jugador.detener()
 	_jugador.caer()
 	if desmayo_final.is_valid():

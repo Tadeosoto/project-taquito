@@ -1011,6 +1011,13 @@ func _destino() -> Vector3:
 	# Defensa del tinaco: van por el tinaco, y por el jugador solo si lo tienen cerca y mas
 	# que al tinaco (pararse junto al tinaco no lo protege). Ya roto, por el jugador
 	var al_jugador := global_position.distance_to(jugador.global_position)
+	# Alguien a quien escoltas (Acompanante), si lo tiene a la vista y mas cerca que a ti
+	if not es_jefe:
+		var escoltado := Acompanante.el_mas_cercano(global_position, minf(_persigue(), al_jugador))
+		if escoltado:
+			_blanco = escoltado
+			_guia = null
+			return escoltado.global_position
 	if is_instance_valid(_tinaco) and _tinaco.vida > 0 and not (emboscada or por_jugador) and (al_jugador > _persigue() or al_jugador > global_position.distance_to(_tinaco.global_position) - _tinaco.radio):
 		# Primero a su hueco, de paso; ya pasandolo, al tinaco
 		if _hueco >= 0 and _hueco < zombis.huecos.size():

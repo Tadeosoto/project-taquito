@@ -8,12 +8,19 @@ extends Resource
 # RECOGER: buscar la cosa `lugar` en un area y levantarla con Espacio: "perro", o
 # "marca:<nombre>" (una marca "mision" de la colonia: ahi esta la cosa, con flecha; `objetos`[0]
 # da su modelo y su nombre, o una pelota si no hay).
+# ESCOLTAR: alguien (`acompanante`, un civil de Civiles.gd; vacio, uno al azar) sale de donde el
+# que dio la mision y te sigue, mas lento que tu, hasta `lugar` ("casas", "giro:<giro>" o
+# "marca:<nombre>"). Los zombis lo atacan; si cae, o si se acaba la hora con el en camino,
+# la mision falla.
+# LLEVAR_CARGA: lo de VISITAR (`lugar`, `cuantos` entregas) con la `carga` en brazos, y cada
+# entrega paga `pesos_por_entrega`. Es de una hora: si se acaba con la carga encima (amanecer =
+# los cuicos) o te desmayas, se pierde y la mision falla.
 
 # `cuando`: a que hora se puede cumplir este paso. Fuera de su hora la mision espera (no falla
 # y su tiempo no corre): una entrega de noche con un ENTREGAR de dia se acaba con el que te la
 # dio a la mañana siguiente.
 
-enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER }
+enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER, ESCOLTAR, LLEVAR_CARGA }
 enum Cuando { DIA, NOCHE, CUALQUIERA }
 
 @export var tipo: Tipo = Tipo.ENTREGAR
@@ -28,3 +35,8 @@ enum Cuando { DIA, NOCHE, CUALQUIERA }
 @export var segundos := 0.0
 # Lo que trae en las manos durante este paso
 @export var carga: InventoryItemData
+# ESCOLTAR: quien te sigue, su vida (los zombis le pegan 3 por golpe) y que tan rapido camina
+@export var acompanante := ""
+@export var vida_acompanante := 60
+# LLEVAR_CARGA: lo que paga cada entrega, aparte de los `pesos` de la mision
+@export var pesos_por_entrega := 0

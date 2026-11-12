@@ -25,6 +25,8 @@ const SIGNO_ALTO := 2.75
 const TEXTO_ACEPTAR := "\nEspacio: aceptar"
 const TEXTO_TARDE := "Ya va a oscurecer. Mejor mañana."
 # Al aceptar una que no es de esta hora (Misiones.hora_que_falta): lo piensa el protagonista
+const ACOMPANANTE_SALE_A := 30.0  # m: si el que dio la mision esta mas lejos, sale junto a ti
+const ESCOLTA_LLEGA := 4.0        # m a la meta, de los dos
 const TEXTO_HORA := "%s: \"Esto me toca %s.\""
 
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
@@ -58,6 +60,11 @@ var _cosa_en_manos := false
 # De que mision son la cosa (en el suelo o en las manos) y los puntos de visita
 var _perro_de: MisionData = null
 var _puntos_de: MisionData = null
+# ESCOLTAR: el que te sigue, de que paso, y a donde lo llevas (se guarda para no cambiarla en cada _cambio)
+var _acomp: Acompanante = null
+var _acomp_de: PasoMision = null
+var _escolta_de: PasoMision = null
+var _escolta_meta := Vector3.ZERO
 
 
 func _ready() -> void:
@@ -70,12 +77,13 @@ func _ready() -> void:
 	add_child(_flecha)
 	# No se reinicia: la mision sigue de una escena a otra (Inicio y la safehouse la reinician).
 	# La hora la pone el Ciclo: si esta escena empieza de noche, emite anochecio en su primer cuadro
-	Misiones.es_noche = false
+	Misiones.cambio_de_escena()
 	# Lo que traias en brazos se quedo en la otra escena
 	Misiones.manos_ocupadas = false
 	Misiones.cambio.connect(_cambio)
 	Misiones.termino.connect(_termino)
 	Misiones.sobra.connect(_sobra)
+	Misiones.entrega.connect(_entrega)
 	if _ciclo:
 		_ciclo.aviso_atardecer.connect(Misiones.atardecer)
 		_ciclo.anochecio.connect(_anochecio)
@@ -90,6 +98,7 @@ func _exit_tree() -> void:
 		Misiones.cambio.disconnect(_cambio)
 		Misiones.termino.disconnect(_termino)
 		Misiones.sobra.disconnect(_sobra)
+		Misiones.entrega.disconnect(_entrega)
 
 
 # Al cargar y no al aceptar una mision: leer las casas (1 MB) trabaria el juego a medio dia
@@ -251,6 +260,7 @@ func _cambio() -> void:
 	_actualizar_signos()
 	_quitar_puntos()
 	var paso := Misiones.paso()
+	_ajustar_acompanante(paso)
 	# Se acabo la mision de la cosa (y ya entro la siguiente): se suelta
 	if _cosa_en_manos and _perro_de != Misiones.activa:
 		_soltar_carga()
@@ -267,7 +277,9 @@ func _cambio() -> void:
 			_apuntar(_tienda(paso.lugar))
 		PasoMision.Tipo.ENTREGAR:
 			_apuntar(_lugar_de_vecino(Misiones.activa))
-		PasoMision.Tipo.VISITAR:
+		PasoMision.Tipo.ESCOLTAR:
+			_apuntar(_meta_de_escolta(paso))
+		PasoMision.Tipo.VISITAR, PasoMision.Tipo.LLEVAR_CARGA:
 			# Tambien llega aqui en cada entrega: los que quedan se quedan
 			if _puntos.is_empty():
 				_poner_puntos(paso)
@@ -322,6 +334,18 @@ func _tienda(lugar: String) -> Vector3:
 # Casas a repartir: frente a la fachada, cerca del que la dio y lejos entre ellas
 func _poner_puntos(paso: PasoMision) -> void:
 	var desde := _lugar_de_vecino(Misiones.activa)
+	# Al volver de otra escena, solo las que faltan
+	var lugares := _lugares_de_casas(desde, paso.cuantos - Misiones.visitados)
+	# Si no hay tantas casas (el safehouse), con las que haya
+	Misiones.meta_visitas = Misiones.visitados + lugares.size()
+	_puntos_de = Misiones.activa
+	for lugar in lugares:
+		_puntos.append(_punto_de_visita(lugar))
+	_apuntar_al_punto_cercano()
+
+
+# `faltan` frentes de casa a CASAS_DISTANCIA de `desde`, lejos entre si
+func _lugares_de_casas(desde: Vector3, faltan: int) -> Array[Vector3]:
 	var opciones := []
 	for c: Dictionary in _casas:
 		var d := Vector2(desde.x, desde.z).distance_to(Vector2(c["x"], c["z"]))
@@ -329,8 +353,6 @@ func _poner_puntos(paso: PasoMision) -> void:
 			opciones.append(c)
 	opciones.shuffle()
 	var lugares: Array[Vector3] = []
-	# Al volver de otra escena, solo las que faltan
-	var faltan := paso.cuantos - Misiones.visitados
 	for c: Dictionary in opciones:
 		var ry := float(c["rotacion_y"])
 		var punto := Vector3(c["x"] + sin(ry) * CASA_FRENTE, desde.y, c["z"] + cos(ry) * CASA_FRENTE)
@@ -342,12 +364,7 @@ func _poner_puntos(paso: PasoMision) -> void:
 			lugares.append(punto)
 		if lugares.size() >= faltan:
 			break
-	# Si no hay tantas casas (el safehouse), con las que haya
-	Misiones.meta_visitas = Misiones.visitados + lugares.size()
-	_puntos_de = Misiones.activa
-	for lugar in lugares:
-		_puntos.append(_punto_de_visita(lugar))
-	_apuntar_al_punto_cercano()
+	return lugares
 
 
 func _punto_de_visita(lugar: Vector3) -> Area3D:
@@ -387,11 +404,67 @@ func _apuntar_al_punto_cercano() -> void:
 func _quitar_puntos() -> void:
 	# Los que siguen pendientes del mismo paso se quedan
 	var paso := Misiones.paso()
-	if paso and paso.tipo == PasoMision.Tipo.VISITAR and not _puntos.is_empty() and _puntos_de == Misiones.activa:
+	if paso and (paso.tipo == PasoMision.Tipo.VISITAR or paso.tipo == PasoMision.Tipo.LLEVAR_CARGA) \
+			and not _puntos.is_empty() and _puntos_de == Misiones.activa:
 		return
 	for area in _puntos:
 		area.queue_free()
 	_puntos.clear()
+
+
+# --- A quien escoltas ---
+
+# Sale al empezar su hora, donde el que dio la mision (o junto a ti si ya estas lejos, o viniste de
+# otra escena), con la vida que traia; se quita al acabar el paso
+func _ajustar_acompanante(paso: PasoMision) -> void:
+	var quiere := paso != null and paso.tipo == PasoMision.Tipo.ESCOLTAR and Misiones.en_hora()
+	if is_instance_valid(_acomp) and (not quiere or _acomp_de != paso):
+		_quitar_acompanante()
+	if not quiere or is_instance_valid(_acomp):
+		return
+	var donde := _lugar_de_vecino(Misiones.activa)
+	if donde.distance_to(_jugador.global_position) > ACOMPANANTE_SALE_A:
+		donde = _jugador.global_position + Vector3(1.5, 0.0, 0.0)
+	var vida := Misiones.vida_acompanante if Misiones.vida_acompanante >= 0 else paso.vida_acompanante
+	_acomp = Acompanante.crear(self, donde, paso.acompanante, vida, paso.vida_acompanante)
+	_acomp_de = paso
+	_acomp.cayo.connect(Misiones.acompanante_cayo)
+
+
+func _quitar_acompanante() -> void:
+	if is_instance_valid(_acomp):
+		_acomp.queue_free()
+	_acomp = null
+	_acomp_de = null
+
+
+# A donde lo llevas: "giro:<giro>", "marca:<nombre>" o "casas" (una al azar), una sola vez por paso
+func _meta_de_escolta(paso: PasoMision) -> Vector3:
+	if _escolta_de == paso:
+		return _escolta_meta
+	_escolta_de = paso
+	var desde := _lugar_de_vecino(Misiones.activa)
+	if paso.lugar.begins_with("giro:"):
+		_escolta_meta = _tienda(paso.lugar)
+	elif _marca(paso.lugar) != null:
+		_escolta_meta = (_marca(paso.lugar) as Transform3D).origin
+	else:
+		var casas := _lugares_de_casas(desde, 1)
+		_escolta_meta = casas[0] if not casas.is_empty() else desde + Vector3(40.0, 0.0, 0.0)
+	return _escolta_meta
+
+
+# Llegaron los dos a la meta
+func _revisar_escolta(paso: PasoMision) -> void:
+	if not is_instance_valid(_acomp) or _acomp_de != paso or _acomp.vida <= 0:
+		return
+	Misiones.vida_acompanante = _acomp.vida
+	var meta := _meta_de_escolta(paso)
+	var a := Vector2(meta.x, meta.z)
+	if Vector2(_jugador.global_position.x, _jugador.global_position.z).distance_to(a) <= ESCOLTA_LLEGA \
+			and Vector2(_acomp.global_position.x, _acomp.global_position.z).distance_to(a) <= ESCOLTA_LLEGA:
+		_sonar("moneda")
+		Misiones.escoltado()
 
 
 func _poner_perro() -> void:
@@ -521,9 +594,16 @@ func _quitar_cosa() -> void:
 
 
 func _termino(_mision: MisionData, exito: bool, texto: String) -> void:
+	_escolta_de = null
 	_sonar("moneda" if exito else "perder")
 	if _supervivencia:
 		_supervivencia.avisar(texto)
+
+
+func _entrega(pesos: int) -> void:
+	_sonar("moneda")
+	if _supervivencia:
+		_supervivencia.avisar("+$%d" % pesos)
 
 
 func _sobra(objeto: InventoryItemData) -> void:
@@ -545,9 +625,11 @@ func _process(delta: float) -> void:
 	if falta != "":
 		_texto.text = "%s (%s)" % [linea, falta]
 		return
-	if paso.tipo == PasoMision.Tipo.VISITAR:
+	if paso.tipo == PasoMision.Tipo.VISITAR or paso.tipo == PasoMision.Tipo.LLEVAR_CARGA:
 		linea += " (%d/%d)" % [Misiones.visitados, Misiones.meta_visitas]
 		_apuntar_al_punto_cercano()
+	elif paso.tipo == PasoMision.Tipo.ESCOLTAR:
+		_revisar_escolta(paso)
 	if paso.segundos > 0.0:
 		linea += " · %d s" % ceili(Misiones.tiempo_queda)
 	_texto.text = linea

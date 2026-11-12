@@ -201,7 +201,8 @@ func _armar() -> Zombie:
 
 # De noche, y un poco antes para tenerlos listos
 func _campos(delta: float) -> void:
-	if not _ciclo.es_noche() and _ciclo.valor() <= 0.0:
+	# De dia solo si alguien te sigue (Acompanante usa el campo del jugador)
+	if not _ciclo.es_noche() and _ciclo.valor() <= 0.0 and Acompanante.activos.is_empty():
 		return
 	var espacio := get_world_3d().direct_space_state
 	var metas: Array[Vector3] = [_jugador.global_position]
