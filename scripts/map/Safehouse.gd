@@ -41,6 +41,8 @@ const NEGOCIOS := [
 	["puesto", "tejuino", "Tejuino", 2.5, 2.0, true],
 	# La de Santa Mugre (mapa en Blender): local de taqueria, interior de tortilleria
 	["taqueria", "tortilleria", "Tortilleria", 6.0, 10.0, false],
+	# Abarrotes Doña Mary, la tiendita de cochera de Santa Mugre: local de abarrotes, interior de dona_mary
+	["abarrotes", "tiendita", "Doña Mary", 6.0, 10.0, false],
 ]
 # Frente y fondo de las casas Urbi (huellas_tiendas.json)
 const CASAS := {"urbi_1p_a": Vector2(6.79, 7.37), "urbi_1p_b": Vector2(6.8, 7.37), "urbi_1p_c": Vector2(7.59, 7.37),

@@ -73,6 +73,16 @@ func _probar() -> void:
 			if adentro:
 				interiores.call("_salir")
 				await _cuadros(90)
+	# Abarrotes Doña Mary (giro "tiendita"): ya se entra y vende
+	for m: Dictionary in marcas["marcas"]:
+		if m.get("giro", "") == "tiendita":
+			jugador.global_position = Vector3(m["x"], 1.2, m["z"])
+			await _cuadros(120)
+			var en_mary: Node = interiores.get("_interior")
+			_revisar("Doña Mary se entra y vende", en_mary != null and not (en_mary.get("productos") as Array).is_empty(), "%s" % en_mary)
+			if en_mary:
+				interiores.call("_salir")
+				await _cuadros(90)
 	await _subir_banqueta(escena)
 	await _pelota(escena)
 	await _vida(escena)
