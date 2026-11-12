@@ -31,9 +31,20 @@
 [ext_resource type="Script" path="res://scripts/map/Partida.gd" id="16_partida"]
 [ext_resource type="Script" path="res://scripts/map/Gente.gd" id="17_gente"]
 [ext_resource type="Resource" path="res://resources/zombis/noche_mapa.tres" id="18_ritmo"]
+[ext_resource type="Shader" path="res://shaders/cielo_ps1.gdshader" id="23_cielo"]
+[ext_resource type="Script" path="res://scripts/mapa/Horizonte.gd" id="24_horizonte"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cielo"]
+shader = ExtResource("23_cielo")
+
+[sub_resource type="Sky" id="Sky_mapa"]
+sky_material = SubResource("ShaderMaterial_cielo")
+radiance_size = 0
 
 [sub_resource type="Environment" id="Environment_mapa"]
-background_mode = 1
+background_mode = 2
+sky = SubResource("Sky_mapa")
+fog_sky_affect = 0.0
 background_color = Color(0.30240002, 0.31872, 0.36, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.62, 0.66, 0.72, 1)
@@ -106,6 +117,9 @@ script = ExtResource("21_arboles_modelo")
 
 [node name="CarrosColonia" type="Node3D" parent="."]
 script = ExtResource("22_carros_colonia")
+
+[node name="Horizonte" type="Node3D" parent="."]
+script = ExtResource("24_horizonte")
 
 [node name="Ciclo" type="Node" parent="."]
 script = ExtResource("4_ciclo")
