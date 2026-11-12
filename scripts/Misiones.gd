@@ -4,7 +4,7 @@ extends Node
 # traes aceptadas (el diario), cual es la activa, en que paso va cada una y la paga. Lo que esta
 # en el mundo (los que las dan, los lugares, la flecha) es de scripts/map/MisionesMundo.gd.
 #
-# - La gente las da de dia, sean de dia o de noche. Se pueden traer hasta MAX_ACEPTADAS, pero
+# - La gente las da de dia, sean de dia o de noche. Se pueden traer todas las que quieras, pero
 #   solo avanza la activa: las demas esperan con su avance guardado.
 # - Cada paso tiene su hora (PasoMision.cuando). Fuera de ella la mision espera: no falla y su
 #   tiempo no corre. Una de dia que no acabaste sigue al dia siguiente.
@@ -28,8 +28,6 @@ const ARCHIVOS := [
 	"res://resources/misiones/medicina_noche.tres",
 ]
 const REVISAR_CADA := 0.25
-# Cuantas puede traer pendientes el diario (💡 por probar)
-const MAX_ACEPTADAS := 5
 
 var todas: Array[MisionData] = []
 # Las del diario, en el orden en que se aceptaron (la activa incluida si es de DADOR)
@@ -48,6 +46,9 @@ var meta_visitas := 1
 var hay_objetivo := false
 var objetivo := Vector2.ZERO
 var objetivo_radio := 0.0
+# Lo pone MisionesMundo: los dadores con inicial (MisionData.inicial) que tienen trabajo ahorita,
+# [[Vector2 xz, "C"], ...], para los mapas
+var dadores: Array = []
 
 var _hechas := {}
 var _espera := 0.0
@@ -76,12 +77,8 @@ func aceptada(mision: MisionData) -> bool:
 	return aceptadas.has(mision)
 
 
-func lleno() -> bool:
-	return aceptadas.size() >= MAX_ACEPTADAS
-
-
 func disponible(mision: MisionData) -> bool:
-	return ofreciendo and not aceptada(mision) and not lleno() and not hecha_hoy(mision) \
+	return ofreciendo and not aceptada(mision) and not hecha_hoy(mision) \
 			and not ya_tienes_el_premio(mision)
 
 
@@ -345,5 +342,6 @@ func reiniciar() -> void:
 	es_noche = false
 	tiempo_queda = 0.0
 	hay_objetivo = false
+	dadores.clear()
 	_hechas.clear()
 	cambio.emit()

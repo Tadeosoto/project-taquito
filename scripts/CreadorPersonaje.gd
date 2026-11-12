@@ -127,7 +127,7 @@ func _actualizar() -> void:
 		if renglon["tipo"] == Tipo.ROPA:
 			(renglon["valor"] as Label).text = "< %s >" % Personaje.ROPA_NOMBRES[Personaje.ropa]
 		elif renglon["tipo"] == Tipo.PROTAGONISTA:
-			(renglon["valor"] as Label).text = "< %s >" % Personaje.PROTAGONISTAS[Personaje.protagonista]
+			(renglon["valor"] as Label).text = "< %d de %d >" % [Personaje.protagonista + 1, Personaje.PROTAGONISTAS.size()]
 
 
 func _marcar() -> void:
@@ -153,7 +153,7 @@ func _armar() -> void:
 	columna.add_theme_constant_override("separation", 5)
 	add_child(columna)
 	columna.add_child(_texto(TITULO, 24, AMARILLO))
-	_renglon_eleccion(columna, "Personaje", Tipo.PROTAGONISTA)
+	_renglon_eleccion(columna, "Look", Tipo.PROTAGONISTA)
 	_renglon_nombre(columna)
 	_deslizador(columna, "Tono de piel", "tono")
 	var piel := _texto(TEXTO_PIEL, 12, Color(0.85, 0.85, 0.8))
@@ -213,11 +213,11 @@ func _vista() -> void:
 
 
 func _renglon_nombre(padre: Control) -> void:
-	var fila := _fila(padre, "Nombre", Tipo.NOMBRE)
+	var fila := _fila(padre, "Tu apodo", Tipo.NOMBRE)
 	_nombre = LineEdit.new()
 	_nombre.max_length = Personaje.NOMBRE_MAX
 	_nombre.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_nombre.placeholder_text = "Sin nombre"
+	_nombre.placeholder_text = Personaje.APODO
 	_nombre.add_theme_font_size_override("font_size", 15)
 	fila.add_child(_nombre)
 	_nombre.text_submitted.connect(func(_texto_nuevo: String) -> void: _soltar_nombre())

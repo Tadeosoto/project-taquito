@@ -158,6 +158,20 @@ func _dibujar_objetivo(centro: Vector2, limite: float) -> void:
 		_marcas.draw_polyline(rombo, NEGRO, 1.0)
 
 
+# Los dadores importantes con trabajo (Misiones.dadores): su inicial, solo si cae adentro
+func _dibujar_dadores(centro: Vector2, limite: float) -> void:
+	var misiones := get_node_or_null("/root/Misiones")
+	if misiones == null:
+		return
+	for dador: Array in misiones.dadores:
+		var p := _a_pantalla(dador[0])
+		if p.length() < limite:
+			_marcas.draw_circle(centro + p, 5.5, NEGRO)
+			_marcas.draw_circle(centro + p, 4.5, Color.WHITE)
+			_marcas.draw_string(ThemeDB.fallback_font, centro + p + Vector2(-3.5, 3.5), dador[1],
+				HORIZONTAL_ALIGNMENT_CENTER, 7.0, 9, NEGRO)
+
+
 # Ojo de halcon (Tazos.gd): los zombis vivos como puntos rojos. Por ruta, como Misiones
 func _dibujar_zombis(centro: Vector2, limite: float) -> void:
 	var tazos := get_node_or_null("/root/Tazos")
@@ -181,6 +195,7 @@ func _dibujar_marcas() -> void:
 			_marcas.draw_rect(Rect2(centro + p - Vector2(2.5, 2.5), Vector2(5.0, 5.0)), NEGRO)
 			_marcas.draw_rect(Rect2(centro + p - Vector2(1.5, 1.5), Vector2(3.0, 3.0)), punto[1])
 
+	_dibujar_dadores(centro, limite)
 	_dibujar_objetivo(centro, limite)
 	_dibujar_zombis(centro, limite)
 	# Flecha del jugador (al centro, salvo con centro_fijo)

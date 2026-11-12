@@ -9,6 +9,9 @@ extends Resource
 @export var nombre := ""
 # Modelo del que la da: una carpeta de models/personajes/ con clip propio
 @export var modelo := "psx_man"
+# Los dadores importantes (Chava, el padre Chuy...): su inicial sale en el mapa de papel y en el
+# minimapa mientras tienen trabajo para ti, como en RDR2. Vacio: el vecino de siempre, sin inicial
+@export var inicial := ""
 @export_multiline var oferta := ""
 @export_multiline var aceptada := ""
 @export_multiline var recuerda := ""

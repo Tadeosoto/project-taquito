@@ -24,17 +24,19 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 | 2026-11-12 | L12b | Grep de frases viejas en los docs narrativos: arreglados `lore.md` (barrio sabe que se vende adentro, permiso de La Gotera por escalones, regla 17), `personajes.md` (Villalobos sin golf, en Haciendas, Arturo ex jardinero) y `misiones.md` (sótano en Haciendas). Sin problema: "noche sin ley" (el Estado se retira, coherente), "la mayoría de la ciudad" (solo en el glosario, "los de la llave"), "palacio" de Santa Mugre (ya es escuela). **Pendiente:** §14 y preguntas abiertas de la spec | L13 o fase S |
 | 2026-11-12 | S1a | Plan de S1 con JJ: la gente da las misiones de día; diario con varias aceptadas y **una activa**; hora por paso (`PasoMision.cuando`); misiones de lugar (`MisionData.inicio`) sin diario; volver con el dador si lo pide; iniciales de los dadores en el mapa. Hecho S1a: `Misiones` con `aceptadas`/`elegir`/`empezar_en_lugar`, fuera de hora espera (sin falla ni tiempo), sobrevive al cambio de escena (`reiniciar` solo en `Inicio` y la safehouse), puntos de visita que esperan su hora y no se repiten al volver, misión de prueba `medicina_noche` (de noche + avisar de día), dador en la safehouse. Prueba headless de la lógica: 22/22 | S1b (diario y línea del Noc), S1c (iniciales en el mapa) |
 | 2026-11-12 | S1b | Diario (`MisionesUI.gd`, pestaña "Diario" del inventario, J / botón 15 del control): misiones aceptadas, la activa con ▶, lo que falta, "Esto es de noche/día"; Enter la vuelve activa y abre el mapa con su puntero. El dador avisa "(Eso es de noche.)" al aceptar (leí "el noc" como el NPC). La carga del paso solo se lleva a su hora; la cosa en el suelo y los puntos de visita son de su misión y se quitan al cambiar; con el perro en brazos no se cambia de misión (`Misiones.manos_ocupadas`). Pruebas headless OK | S1c (iniciales en el mapa) |
+| 2026-11-12 | S1c | Iniciales de los dadores importantes (`MisionData.inicial`) en el mapa de papel y el minimapa, círculo blanco con la letra, solo mientras ofrecen trabajo (de noche no). De prueba, "M" en Medicina de noche. Además, con JJ: **el aviso de "es de noche" lo piensa el protagonista** (sale en pantalla "<nombre>: Esto me toca de noche."), ya no lo dice el dador; **el diario no tiene límite** (la lista se recorre de 10 en 10). Prueba headless en la safehouse: 6/6 | S2 |
 
 ## Para la siguiente sesión (dejado el 2026-11-12, cambio de PC)
 
 **Hecho en la sesión del 2026-11-12:** L10, L11 y L12b (texto: mafia y puerta de La Gotera por escalones, cacerías, GelA; spec y revisión al día; grep de coherencia), S1a y S1b (código: misiones de día o de noche, diario). Ver las filas del registro de arriba.
 
-**Hoy toca: S1c** (S): iniciales de los dadores importantes en el mapa de papel (`MapaUI.gd`) y el minimapa (`MapMinimapa`), como en RDR2; luego tachar S1.
+**Hoy toca: S2** (L): pasos nuevos DEFENDER, ESCOLTAR, LLEVAR_CARGA, CAZAR, ENTRAR_A. (S1 completo el 2026-11-12.)
 
 **Por probar en ventana** (no se ha jugado, solo pruebas headless):
 - Safehouse (`godot --path . scenes/safehouse.tscn`): aceptar "Medicina de noche" (dador nuevo, el último de la fila, en x = 34) y otra; Tab y J abren el diario; Enter cambia la activa y abre el mapa con el puntero; de noche llevar la medicina (la carga solo aparece de noche) y de día volver a cobrar.
 - Las 8 misiones de día de antes siguen igual (ya no fallan al anochecer: esperan al día siguiente).
 - Las pestañas de abajo del inventario ahora son 7: revisar que "Habilidades ¡N!" no se encime.
+- S1c: la "M" de Medicina de noche en el mapa de papel (M) y en el minimapa, que se quita al aceptarla y de noche; el pensamiento del Machetes al aceptarla; el diario con más de 10 misiones (▲▼).
 - Cruzar la reja de Santa Mugre (PasoColonia) con una misión a medias: debe seguir y recolocar su puntero.
 
 **Detalles conocidos sin arreglar:**
@@ -44,8 +46,8 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 - `Misiones.empezar_en_lugar` existe pero nada lo usa todavía (lo usarán F1, F2 y M1 a M3).
 
 **Dudas para JJ:**
-- "El noc te explica que es de noche": se leyó como **el NPC** (el que da la misión dice "(Eso es de noche.)"). Si era el Nocturno (el protagonista), se cambia.
-- Máximo de misiones en el diario: 5 (💡 por probar).
+- ✅ Resuelto el 2026-11-12: "el noc" era **el protagonista** (ya lo piensa él) y el diario va **sin límite**.
+- ¿Qué dadores llevan inicial? Ninguno de los vecinos de ahora es personaje importante; la "M" de Medicina de noche es de prueba y se quita cuando haya dadores reales (Chava, Gabriel, el padre Chuy, Arturo...).
 - Pagas de "Medicina de noche" (80) y de todas las de L10: 💡, se fijan con el balance.
 - Los escalones de La Gotera (3/6/7 entregas) y "Las cuentas claras": 💡.
 - S7 (mercado ilegal) necesita guardar el escalón de La Gotera en la partida: no tiene bloque propio.
@@ -139,7 +141,7 @@ Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.no
 
 ### Fase S: sistemas (cada uno con su plan al empezar; dependen de que L esté lista en lo que toquen)
 
-- [ ] **S1** (S1a y S1b ✅; falta S1c mapa) Misión nocturna: `MisionData.noche`, dadores de tarde, la misión sobrevive al cambio de escena (hoy fallan al anochecer y los dadores desaparecen) (M)
+- [x] **S1** (S1a, S1b y S1c ✅) Misión nocturna: `MisionData.noche`, dadores de tarde, la misión sobrevive al cambio de escena (hoy fallan al anochecer y los dadores desaparecen) (M)
 - [ ] **S2** Pasos nuevos: DEFENDER, ESCOLTAR, LLEVAR_CARGA (amanecer = policía), CAZAR, ENTRAR_A (L)
 - [ ] **S3** Policía de día que dispara a quien lleva agua (no hay código de policía hoy) (M)
 - [ ] **S4** Hordas de noche de afuera, continuas pero menores que la defensa (`Hordas`, `Zombis.espontaneos`) (M)

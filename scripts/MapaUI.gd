@@ -99,10 +99,20 @@ func _draw() -> void:
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	for i in _rasgados.size():
 		_nombre_en_mapa(i)
+	_dadores_en_mapa()
 	_objetivo_en_mapa()
 	_tapar_fuera_del_marco()
 	_jugador_en_mapa()
 	_columna(aqui)
+
+
+# Los dadores importantes con trabajo (Misiones.dadores): su inicial en un circulo, como en RDR2
+func _dadores_en_mapa() -> void:
+	for dador: Array in Misiones.dadores:
+		var p := _en_pantalla(ZonasMapa.a_mapa(dador[0].x, dador[0].y))
+		draw_circle(p, 8.0, Color.BLACK)
+		draw_circle(p, 6.5, Color.WHITE)
+		_texto(dador[1], p + Vector2(0.0, 4.0), 11, Color.BLACK, HORIZONTAL_ALIGNMENT_CENTER, 20.0)
 
 
 # A donde va la mision: un rombo, aunque ese pedazo todavia no se tenga

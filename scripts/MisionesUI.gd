@@ -20,8 +20,12 @@ const LISTA_X := 12.0
 const LISTA_Y := 60.0
 const LISTA_ALTO := 34.0
 const LISTA_ANCHO := 196.0
+# Renglones que caben; si traes mas, la lista se recorre con la elegida
+const RENGLONES := 10
 
 var elegido := 0
+# La primera que se ve en la lista
+var _desde := 0
 var _renglones: Array[Label] = []
 var _papel: Control
 var _titulo: Label
@@ -57,7 +61,7 @@ func _ready() -> void:
 	_cuenta = _label("", 10, Color(0.7, 0.66, 0.58))
 	_cuenta.position = Vector2(16.0, 34.0)
 	add_child(_cuenta)
-	for i in Misiones.MAX_ACEPTADAS:
+	for i in RENGLONES:
 		var renglon := _label("", 11, TINTA)
 		renglon.position = Vector2(LISTA_X, LISTA_Y + i * LISTA_ALTO)
 		renglon.size = Vector2(LISTA_ANCHO, LISTA_ALTO - 6.0)
@@ -157,9 +161,15 @@ func _seguir() -> void:
 
 func _actualizar() -> void:
 	var lista := Misiones.aceptadas
-	_cuenta.text = "%d de %d" % [lista.size(), Misiones.MAX_ACEPTADAS]
-	for i in _renglones.size():
-		var renglon := _renglones[i]
+	elegido = clampi(elegido, 0, maxi(0, lista.size() - 1))
+	_desde = clampi(_desde, elegido - RENGLONES + 1, elegido)
+	_desde = clampi(_desde, 0, maxi(0, lista.size() - RENGLONES))
+	_cuenta.text = "%d pendiente%s" % [lista.size(), "" if lista.size() == 1 else "s"]
+	if lista.size() > RENGLONES:
+		_cuenta.text += "  %s%s" % ["▲" if _desde > 0 else " ", "▼" if _desde + RENGLONES < lista.size() else ""]
+	for r in _renglones.size():
+		var renglon := _renglones[r]
+		var i := _desde + r
 		renglon.visible = i < lista.size()
 		if not renglon.visible:
 			continue
@@ -175,7 +185,6 @@ func _actualizar() -> void:
 	if lista.is_empty():
 		_titulo.text = ""
 		return
-	elegido = clampi(elegido, 0, lista.size() - 1)
 	var mision: MisionData = lista[elegido]
 	_titulo.text = mision.nombre
 	_texto.text = _hoja(mision)

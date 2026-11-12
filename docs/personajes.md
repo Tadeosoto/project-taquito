@@ -67,19 +67,25 @@ Si no cumple ninguna: **habitante**. Y si solo llena la calle de lejos: **siluet
 
 ## 1. El protagonista
 
-### El Nocturno
+### Marcial López, "el Machetes"
 
 | | |
 |---|---|
-| **Quién** | El jugador. Avatar silencioso, sin nombre fijo. |
-| **Oficio** | Cazarecompensas de la noche y contrabandista por necesidad: toma contratos que nadie quiere. |
-| **Quiere** | Vivir un día más sin volverse uno de los que salen de noche. |
-| **Esconde** | Nada fijo: no tiene historia, así que lo que calla lo pone el jugador. |
-| **Precio** | Su lista de contratos, su machete, su lugar en la cuadrilla. |
+| **Quién** | El jugador. ✅ (JJ, 2026-11-12) Se llama **Marcial López**, pero **nadie lo sabe**: todos lo conocen por sus **dos apodos**, **el Machetes** (fijo) y el que elige el jugador en el creador; la gente usa uno u otro al azar. |
+| **Zona** | Vive en **Santa Mugre**, la fortaleza de la Virgen del Tinaco; trabaja afuera |
+| **Oficio** | **El brazo armado de la compañía de agua**: socio de Chava (el agua) y de Gabriel (el trabajo); defiende el tinaco, la camioneta y a quien reparte |
+| **Fama** | ✅ **Bueno para matar zombis**: violento con los no vivos, a golpes y a machetazos; con la gente viva casi no se mete |
+| **Quiere** | Que el agua llegue y vivir un día más sin volverse uno de los que salen de noche |
+| **Esconde** | Lo que siente por Sofía. Y algo que ni él sabe: cree que es huérfano, pero es **hijo de Germán Lazcano** y de la mujer que hoy es **la Mojiganga** |
+| **Precio** | Su parte de la compañía, su machete, sus socios |
 
-**Historia.** No hay una: cada jugador la pone. El mundo solo le da tres cosas: **una lista de contratos** (vela, recolección, reparto, cacería), **un lugar en la cuadrilla** (deudas, favores) y **un machete**. No es inmune, no es el elegido: es **el que sale cuando ya no anda nadie**, y eso también lo vuelve culpable.
+**Historia.** ✅ Lo crio **una familia de Santa Mugre** y **cree que es huérfano**; de su madre le quedó el apellido, López (💡 lo único que venía con él), y nada más. Se quedó con el machete porque era lo que había, y con el machete se hizo un lugar: cuando Chava y Gabriel armaron la compañía para llevar agua limpia a los de fuera, necesitaban a alguien que la defendiera de noche, y ese fue él. Es **socio**, no empleado. Su fama es una sola: **mata zombis como nadie**. El barrio le tiene respeto y un poco de miedo, pero no porque se pelee con los vivos (casi nunca lo hace), sino por lo que hace con los muertos. **No es inmune ni el elegido**: es el que sale cuando ya no anda nadie.
 
-**Rol en el juego.** Es el cuerpo del jugador y el único que no habla. El barrio lo llama **"el Nocturno"**; los NPCs le hablan a él, no a un nombre. Su arco no es "salvar la ciudad": es **decidir qué hace con lo que sabe**, y si sigue tomando contratos o se mete a cambiarlo.
+**Su sangre.** ✅ (JJ, 2026-11-12) Su madre era una muchacha muy bella, **hermana del Dr. López**. Germán la quería y ella **no lo quiso**; Germán **abusó de ella**, y así nació Marcial. Para callarla, Germán le dio **una primera versión del Serenol** y ella se volvió un monstruo: hoy es **la Mojiganga**, el jefe de la plaza de la Catrina. Marcial es **medio hermano de Georgina y de Gerardo** y **sobrino del Dr. López**. ✅ **Se entera después de la cacería de la Mojiganga**: primero la mata por contrato, y solo después sabe que era su madre.
+
+**Sofía.** ✅ Tiene **sus cosas con Sofía**, la de la radio: algo que no se dice. Por eso la apoya, aunque la antena y la verdad no le dejen dinero.
+
+**Rol en el juego.** Es el cuerpo del jugador. ✅ **Habla poco**: frases cortas en momentos clave y lo que piensa en pantalla; los NPCs le hablan por uno de sus dos apodos, al azar. Su arco no es "salvar la ciudad": es **decidir qué hace con lo que sabe**, y si sigue repartiendo o se mete a cambiarlo, sobre todo cuando sepa que GelA es su familia.
 
 **La tentación.** Puede tomar agua de la llave para ahorrar. Le sale gratis, le quita la sed del momento y le sube la "sed" de verdad: de día se vuelve más dócil (le fían, le creen, le bajan precios) y, si se llena, **se muere y se levanta**. Es la decisión central: **ahorrar agua o ahorrarte el monstruo**.
 
@@ -98,10 +104,12 @@ La familia que tiene el agua y el gobierno. No son monstruos de caricatura: son 
 | **Te da** | Nada directo: sale en spots, en el periódico y en la radio |
 | **Quiere** | Que la empresa dure cien años y que su hija la herede entera (y que su hijo menor lo quiera, ver Gerardo) |
 | **Teme** | Que el secreto del Serenol salga a la luz, no por moral, sino porque lo obligaría a regalar el agua |
-| **Secreto** | Sabe perfectamente qué le hace el agua a la gente |
+| **Secreto** | Sabe perfectamente qué le hace el agua a la gente, **porque lo probó primero en una mujer**. ✅ Abusó de la única que quiso, que lo había rechazado, y la calló con la primera versión del Serenol (hoy es la Mojiganga); de ella tiene un hijo que nunca reconoció, **el Machetes** (💡 si lo sabe o no, por decidir) |
 | **Precio** | Un favor político, una firma, un silencio |
 
 **Historia.** Setenta y tantos, guayabera, sombrero de palma para las fotos, uñas limpias de tanto lavarse las manos. Empezó llenando garrafones en una purificadora de la colonia y le puso a la marca las iniciales de su apellido: **GelA**. De ahí a las franquicias **Puri-GelA**, los refrescos **GelA-Cola** y las farmacias **FarmagelA**. No es un genio del mal: es un comerciante que entendió que el agua es el único producto que no se puede dejar de comprar, y que la gente con sed es gente agradecida.
+
+**El no.** ✅ (JJ, 2026-11-12) De joven quiso a una muchacha muy bella, hermana del químico que luego haría el Serenol, y **ella no lo quiso**. No aceptó el no: abusó de ella y, para callarla, le dio una primera versión del compuesto; ella se volvió un monstruo (la Mojiganga) y el hijo que tuvieron creció en Santa Mugre sin saber nada (el Machetes). **Se casó dos veces y tuvo hijos con mujeres que no amaba**: Georgina con la primera, Gerardo con la segunda. 💡 Todo lo que construyó después viene de ese rechazo: una ciudad que no le puede decir que no.
 
 **Rol en el juego.** Es el **origen** de todo y el **techo** del poder. No es un enemigo al que le pegas: es una firma, un spot, una voz en la radio. Aparece en la revelación (el manifiesto, el expediente) y en el final, cuando hay que decidir si se le puede tocar. 💡 Tiene un detalle humano que lo vuelve peor: **regala agua en los funerales**. Le gusta que lo quieran.
 
@@ -118,7 +126,7 @@ La familia que tiene el agua y el gobierno. No son monstruos de caricatura: son 
 | **Secreto** | Sabe que su agua vuelve dóciles a los que no pagan y levanta a uno de cada diez; lo usa como excusa |
 | **Precio** | No hay precio: no se compra, se negocia con ella desde el poder |
 
-**Historia.** Cuarenta y pocos, traje claro, sonrisa de campaña, el pelo siempre perfecto. Es la hija de Germán y la cara de la empresa **y** la gobernadora. Su padre construyó el agua; ella construyó el estado que la protege. Ganó con el **voto de la llave**: el electorado infectado es agradecido y dócil, y al que no vota le falta el agua. No hace falta hacer trampa: la dependencia ya es la trampa.
+**Historia.** Cuarenta y pocos, traje claro, sonrisa de campaña, el pelo siempre perfecto. Es la hija de Germán (de su **primera esposa**, con la que se casó sin quererla) y la cara de la empresa **y** la gobernadora. Su padre construyó el agua; ella construyó el estado que la protege. Ganó con el **voto de la llave**: el electorado infectado es agradecido y dócil, y al que no vota le falta el agua. No hace falta hacer trampa: la dependencia ya es la trampa.
 
 **Rol en el juego.** Es la **antagonista visible**: la que sale en la tele, la que firma el Decreto 47, la que manda a los blancos a cerrar la capilla. No la enfrentas con un machete: la enfrentas **desmontando su historia**, y eso se hace con papeles, testigos y agua. 💡 Cuando la ciudad se le pone difícil, **corta el agua a todos** y el gobierno federal queda como el malo; ella queda como la única que puede resolverlo.
 
@@ -139,7 +147,7 @@ Lo último es la mejor escena del antagonista: el régimen no te caza, **te cont
 |---|---|
 | **Zona** | La fortaleza GelA (los Reservorios): siempre ha vivido ahí, en el coto de los Lazcano |
 | **Horario** | Día (el heredero modelo, se deja ver); noche (la resistencia) |
-| **Oficio** | El hijo menor de Germán, **medio hermano de Georgina**, veintidós; el **hijo rebelde** de GelA |
+| **Oficio** | El hijo menor de Germán (de su **segunda esposa**), **medio hermano de Georgina** y, sin saberlo, del Machetes; veintidós; el **hijo rebelde** de GelA |
 | **Te da** | Información de la fortaleza, acceso a los Reservorios y a la fábrica, una firma que no debería tener |
 | **Quiere** | Tirar la fortaleza desde adentro: abrir el agua limpia para todos |
 | **Teme** | Que su padre abra los ojos y tenga que elegir; que Georgina lo descubra |
@@ -192,7 +200,7 @@ La **cuadrilla** es la central de contratos del barrio: reparte los mandados de 
 
 **Historia.** Empezó repartiendo mandados cuando GelA todavía no era GelA. Inventó **la ficha**: un papelito con un número que dice quién pidió el trabajo, cuánto paga y qué se lleva. Sin ficha, el contrato no existe. Por eso la cuadrilla no es una pandilla: es una **agencia de trabajo**. Gabriel es el que decide quién entra, quién sale y quién cobra.
 
-**Rol en el juego.** Es el **jefe del jugador**: le da los contratos y las fichas. También es el que puede **quitarle la ficha** (y con eso, el trabajo). 💡 Su debilidad es el pacto con los Gotera: si el jugador la descubre, puede usarla o chantajearlo.
+**Rol en el juego.** ✅ (JJ, 2026-11-12) Es **socio del jugador** en la compañía de agua, con Chava: Gabriel pone el trabajo (contratos, fichas, clientes), Chava el agua y el Machetes la defensa. Como reparte las fichas, sigue siendo el que **le da los contratos** y puede **quitarle una ficha** (un contrato), pero no correrlo: es su socio. 💡 Su debilidad es el pacto con los Gotera: si el jugador la descubre, puede usarla o chantajearlo.
 
 ### Beto Ríos
 
@@ -386,7 +394,7 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Secreto** | Ya habló con un blanco: le ofrecieron comprarle el pozo "por seguridad" y no ha dicho que no del todo |
 | **Precio** | Dinero para el gremio, una noche de vela, un favor |
 
-**Historia.** Veinte y pocos, de La Palmada, cansado de cargar cubetas desde niño. Heredó el **pozo de los abuelos**, agua viva de verdad, fuera de las fortalezas, y en vez de venderlo lo puso al servicio del gremio de reparto de agua y defensa del tinaco. Es **parte de la cuadrilla**: de su pozo sale el agua limpia que llevas de noche a la gente de fuera, y su camioneta la maneja Nacho.
+**Historia.** Veinte y pocos, de La Palmada, cansado de cargar cubetas desde niño. Heredó el **pozo de los abuelos**, agua viva de verdad, fuera de las fortalezas, y en vez de venderlo lo puso al servicio del gremio de reparto de agua y defensa del tinaco. ✅ (JJ, 2026-11-12) **La compañía de agua es de tres socios**: Chava pone el agua, Gabriel el trabajo y **el Machetes** el machete. Es **parte de la cuadrilla**: de su pozo sale el agua limpia que llevas de noche a la gente de fuera, y su camioneta la maneja Nacho.
 
 **Rol.** Es la **base del reparto nocturno** y el conflicto de la zona: el pozo lo quieren GelA (para sellarlo), los Gotera (para cobrarlo) y el régimen (para clausurarlo). El jugador puede ayudarlo a defenderlo, comprarlo o dejar que lo vendan. Lo que decida cambia el agua de la gente de fuera para siempre.
 
@@ -568,14 +576,14 @@ La **resistencia** (✅ 2026-11-12) la forman **gente de servicio** (jardineros,
 | **Culto** | Enemigos: la capilla es la cura gratis | Aliados | | Tensos: el obispo quiere el filtro y Karla lo espía | Les cobran cuota (el Primo) | — |
 | **Diócesis** | Socios: Marín quiere venderle el filtro a GelA | — | Tensos | | — | Donativos |
 | **Gotera** | **El pacto**: la válvula cerrada es su rehén | Acreedores | Cobran cuota; el Primo le teme a la Virgen | — | | Nemesio tiene un hijo en el coto (o un hermano en el gobierno) |
-| **Coto** | Clientes de GelA Total | Le compran agua al Nocturno | — | Dan donativos | Vecinos incómodos | |
+| **Coto** | Clientes de GelA Total | Le compran agua al Machetes | — | Dan donativos | Vecinos incómodos | |
 | **Radio y ciencia** (Sofía, López) | Enemigos: los buscan | — | — | — | — | — |
 
 **Las palancas del jugador:** la deuda de Gabriel con los Gotera, el espionaje de Karla, el pacto de la válvula, el hijo de Nemesio en el coto, el sótano de Villalobos, el silencio de Chuy, la doble cara de Gerardo y el secreto de Nacho. Cada uno es un secreto que se puede cobrar, vender o callar.
 
 #### Las tres fortalezas y el gremio (✅ 2026-11-12)
 
-| | **Santa Mugre** (la Virgen) | **La Gotera** (la mafia) | **Fortaleza GelA** (los Lazcano) | **El gremio** (Gabriel, Chava, Nacho) |
+| | **Santa Mugre** (la Virgen) | **La Gotera** (la mafia) | **Fortaleza GelA** (los Lazcano) | **El gremio** (la compañía de agua: Gabriel, Chava y el Machetes, socios; Nacho) |
 |---|---|---|---|---|
 | **Quién manda** | Chuy (calla lo que sospecha) | Nemesio (protector con manos sucias) | Georgina y Germán (que se hace el ciego) | Gabriel (la ficha); Chava (el pozo) |
 | **Qué sabe del Serenol** | Solo la fe: "los de fuera están poseídos" | "Algo hay en el agua de la llave"; sabe que GelA esconde algo | Todo, adentro; la resistencia lo sabe | Gente de fuera pide agua limpia y el gremio se la lleva |
@@ -636,6 +644,8 @@ La **resistencia** (✅ 2026-11-12) la forman **gente de servicio** (jardineros,
 
 **Historia.** Treinta y tantos, voz de radio, manos de soldador. Transmite desde un taller con una antena hecha con tubos. Es la única que dice en voz alta lo que el noticiero calla.
 
+**Con el Machetes.** ✅ (JJ, 2026-11-12) Tienen **sus cosas**: algo que ninguno dice en voz alta. Por eso él la apoya, aunque la radio no deje dinero y sí deje pleitos.
+
 **Rol.** Es el **canal de la verdad**: si le llevas las pruebas, la revelación se vuelve pública. Sin ella, la verdad se queda en un cajón.
 
 ### Dr. López — el químico desertor
@@ -653,6 +663,8 @@ La **resistencia** (✅ 2026-11-12) la forman **gente de servicio** (jardineros,
 **Historia.** Cincuenta y tantos, lentes, manos temblorosas. Trabajó en la "Dirección de Innovación Hídrica" y firmó el ensayo que volvió dócil a medio barrio. Renunció cuando leyó los resultados adversos. Lleva dos años escondido, tomando agua de garrafón y escribiendo lo que sabe.
 
 **Rol.** Es la **prueba viva**: el que puede explicar el Serenol y confirmar la revelación. Es el objetivo de GelA y la llave del final.
+
+**Con el Machetes.** ✅ (JJ, 2026-11-12) Es **su tío**: la madre de Marcial era su hermana, la que Germán calló con la primera versión del Serenol (hoy la Mojiganga). 💡 Él hizo esa primera versión sin saber para quién era, y lo supo después; esa culpa es más vieja que el ensayo 4. 💡 Es el que puede contarle a Marcial quién es: quién fue su padre y qué es su madre.
 
 ### La Chava — la del yonke 💡 (propuesta de AG)
 
@@ -821,7 +833,7 @@ Una lista de frases por contexto, que se elige al pasar cerca:
 ## 11. Preguntas abiertas
 
 - [x] ✅ (2026-11-12) Gerardo es el **medio hermano** de Georgina (hijo menor de Germán) y el hijo rebelde de GelA; ya sabe del Serenol.
-- [ ] 💡 La edad de Gerardo (22) con Germán de setenta y tantos: ¿su madre es una segunda esposa? Falta decidir si se menciona.
+- [x] ✅ (2026-11-12) Germán se casó **dos veces**, con mujeres que no amaba: Georgina es de la primera esposa y Gerardo de la segunda. 💡 ¿Viven, y cómo se llaman?
 - [ ] 💡 Nombre del chofer: Nacho Garrafón (propuesto por Claude, 2026-11-12); confirmar.
 - [ ] 💡 ¿Gerardo llega a saber lo de "Contención" (los conteos)? Sería la segunda revelación suya.
 - [ ] 💡 ¿Quién queda de Doña Refugio en La Palmada? Nadie: el pozo es de Chava. Confirmar que Chava y Nacho viven ahí.
@@ -833,7 +845,11 @@ Una lista de frases por contexto, que se elige al pasar cerca:
 - [ ] 💡 ¿Don Nemesio es aliado, cliente o solo una transacción?
 - [ ] 💡 ¿Dos voces por zona alcanzan, o las zonas grandes (Parques de Santa Mugre, La Gotera) piden tres?
 - [ ] 💡 ¿Los vendedores tienen nombre propio (doña Chayo, don Beto) o se quedan como arquetipos?
-- [ ] 💡 ¿El protagonista tiene nombre en el guardado/HUD, o siempre es "el Nocturno"?
+- [x] ✅ (2026-11-12) El protagonista es **Marcial López**, pero nadie lo sabe: la gente le dice **el Machetes** o el apodo que eligió el jugador, al azar.
+- [ ] 💡 ¿Germán sabe que Marcial es su hijo? ¿Cuándo se entera Marcial, y quién se lo dice (💡 el Dr. López)?
+- [x] ✅ (2026-11-12) El Dr. López es **tío** de Marcial: su madre era la hermana del doctor, y hoy es la Mojiganga.
+- [ ] 💡 ¿El Dr. López sabe que su hermana es la Mojiganga? ¿Y que el Machetes es su sobrino?
+- [ ] 💡 Lo de Sofía y el Machetes: ¿se dice en algún momento, o se queda en lo que no se dice?
 
 ---
 

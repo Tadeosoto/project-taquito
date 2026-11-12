@@ -133,7 +133,7 @@ Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Re
 | **2** (3 hechas) | Suero oral (+40) | Lámpara de pilas (alumbra), Escapulario (−10 %), Pulsera de San Benito (+25 vida), Cadena gruesa (+10 % fuerza, −5 %), Coderas (−10 %, +5 % alcance) | Antorcha de thinner (10, quema), Bate con alambre de púas (17, empuja más) |
 | **3** (9) | Estampita de San Expedito (+1 punto de habilidad), Varilla armada (material) | Rosario de semillas (−20 % de noche), Medalla de la Virgen (más tazos raros y holo), Faja de cargador (+40 vida), Cadena de oro (+20 % fuerza) | Coa afilada (20, más alcance) |
 | **4** (15) | Té de la Virgen (cura todo), Estampita del Santo Niño (−5 % daño la partida) | Ojo de venado (−20 % de cazadores y jefe, +15 vida), Herradura (−20 % de turbas), Brazalete de cobre (arrojables, todavía sin uso), Corona de lata (de todo un poco) | Machete de cañero (24, golpe rápido) |
-| **5** (21) | Milagro del tinaco (cura todo y recarga Segundo aire), Estampita de San Miguel (+5 % fuerza la partida), Varilla del 84 (material) | Chamarra del Nocturno (+30 vida, −10 %, +10 % pesos), Medalla de GelA (+30 % pesos, −5 %), Listón de la Virgen (−20 % de todo) | Marro (30, empuja mucho, golpe lento) |
+| **5** (21) | Milagro del tinaco (cura todo y recarga Segundo aire), Estampita de San Miguel (+5 % fuerza la partida), Varilla del 84 (material) | Chamarra del Machetes (+30 vida, −10 %, +10 % pesos), Medalla de GelA (+30 % pesos, −5 %), Listón de la Virgen (−20 % de todo) | Marro (30, empuja mucho, golpe lento) |
 | **6** (las 36 anteriores y su plano) | — | — | Machetón del 84 (40, rápido), Lanza de varilla (30, mucho alcance), Bate con clavos de cobalto (32, empuja muchísimo) |
 
 ---

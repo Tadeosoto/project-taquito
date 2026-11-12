@@ -23,10 +23,9 @@ const PERRO_LADRA := Vector2(2.0, 4.0)
 const PERRO_OIDO := 65.0
 const SIGNO_ALTO := 2.75
 const TEXTO_ACEPTAR := "\nEspacio: aceptar"
-const TEXTO_OCUPADO := "Ya traes mucho pendiente. Acaba algo y vienes."
 const TEXTO_TARDE := "Ya va a oscurecer. Mejor mañana."
-# Al aceptar una que no es de esta hora (Misiones.hora_que_falta)
-const TEXTO_HORA := "\n(Eso es %s.)"
+# Al aceptar una que no es de esta hora (Misiones.hora_que_falta): lo piensa el protagonista
+const TEXTO_HORA := "%s: \"Esto me toca %s.\""
 
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
 @export_file("*.json") var casas_path := "res://resources/map/casas_mapa.json"
@@ -86,6 +85,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	Misiones.dadores.clear()
 	if Misiones.cambio.is_connected(_cambio):
 		Misiones.cambio.disconnect(_cambio)
 		Misiones.termino.disconnect(_termino)
@@ -191,23 +191,28 @@ func _hablar(i: int) -> String:
 		return mision.despedida
 	if not Misiones.ofreciendo:
 		return TEXTO_TARDE
-	if Misiones.lleno():
-		return TEXTO_OCUPADO
 	if not v["visto"]:
 		v["visto"] = true
 		return ("%s %s" % [Personaje.linea("vecino"), mision.oferta]).strip_edges() + TEXTO_ACEPTAR
 	v["visto"] = false
 	Misiones.aceptar(mision)
 	var falta := Misiones.hora_que_falta(mision.pasos[0] if not mision.pasos.is_empty() else null)
-	return mision.aceptada + (TEXTO_HORA % falta if falta != "" else "")
+	if falta != "" and _supervivencia:
+		_supervivencia.avisar(TEXTO_HORA % [Personaje.nombre, falta])
+	return mision.aceptada
 
 
 func _actualizar_signos() -> void:
+	Misiones.dadores.clear()
 	for v: Dictionary in vecinos:
 		var mision: MisionData = v["mision"]
 		var con_trabajo: bool = Misiones.disponible(mision)
 		var esperando: bool = Misiones.activa == mision and Misiones.paso().tipo == PasoMision.Tipo.ENTREGAR
 		(v["signo"] as Label3D).visible = con_trabajo or esperando
+		# Su inicial en los mapas mientras ofrece (de noche no esta)
+		if con_trabajo and mision.inicial != "" and (v["nodo"] as Node3D).is_inside_tree():
+			var lugar: Vector3 = v["lugar"]
+			Misiones.dadores.append([Vector2(lugar.x, lugar.z), mision.inicial])
 
 
 # De noche no estan: se quitan del arbol y regresan al amanecer
@@ -221,6 +226,7 @@ func _anochecio() -> void:
 	if nino and nino.is_inside_tree():
 		nino.soltar()
 		remove_child(nino)
+	_actualizar_signos()
 
 
 func _amanecio() -> void:

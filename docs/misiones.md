@@ -343,6 +343,8 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 | **La Mojiganga** | Nemesio (escalón 2) | La plaza de la Catrina, de noche, pasando las hordas, junto al nuevo palacio | Es la ruta más corta de sus camionetas y la Catrina espanta a los de fuera que le compran | 💡 200-300 o un objeto único |
 | **La Madre del Cárcamo** | Nemesio (escalón 3) | Los **túneles** de La Gotera, que bajan a los cárcamos de GelA | Los túneles son su ruta secreta hacia GelA y la Madre los tiene cerrados | 💡 más que la Mojiganga, y las llaves de los túneles |
 
+**La Mojiganga es la madre del Machetes** (✅ JJ, 2026-11-12; lore §15 y §16). Él no lo sabe: la caza por contrato, como a cualquier otro jefe, y **se entera después de matarla**. La cacería se juega igual que hoy; lo que cambia es lo que viene después. 💡 Al acabar, algo de lo que suelta (las flores que no se marchitan, o algo de su ropa de antes) lleva a la verdad, y el Dr. López es quien se la cuenta.
+
 **Reusa:** `scenes/catrina.tscn` y `lombrices.tscn` (hoy terminan con `quit()`). ⛔ No se programan hasta S8.
 
 ### GelA y el hijo rebelde (la otra llave)
@@ -412,7 +414,7 @@ Misiones de apoyo, atadas a personajes:
 | A5 | La toma | Don Nemesio | La Gotera | Abrir la válvula: el sureste se cura de golpe y los Gotera se vuelven contra ti | Venderle el secreto a Buenrostro: GelA sella la toma y te paga | La válvula; la cura del sureste o el escalón de toda la ciudad | Venderla: 1,000 (B) | H5 |
 | A6 | El pozo | Chava | La Palmada | Convencer a Chava de quedarse y protegerlo (o pagarle tú la salida) | Dejarlo vender: a GelA (lo sella) o a los Gotera (lo cobran) | El pozo; el agua viva de La Palmada | Lo que pague el comprador (B) | — |
 
-**Coherencia:** cada misión usa personajes, zonas y bandos que ya existen. Ninguna saca al Nocturno del sandbox: todas se toman de día, se juegan con sistemas de los contratos (ir a, recoger, entregar, sobrevivir) y dejan un dato del estado del mundo.
+**Coherencia:** cada misión usa personajes, zonas y bandos que ya existen. Ninguna saca al Machetes del sandbox: todas se toman de día, se juegan con sistemas de los contratos (ir a, recoger, entregar, sobrevivir) y dejan un dato del estado del mundo.
 
 ---
 
@@ -423,7 +425,7 @@ Misiones de apoyo, atadas a personajes:
 - `MisionData` (Resource `.tres`): nombre, NPC que la da, descripción, recompensa, si es de día o de noche, y una **lista de pasos**.
 - Pasos reutilizables: `ir_a(punto)`, `recoger(objeto, n)`, `entregar(objeto, npc)`, `derrotar(tipo, n)`, `seguirme(npc, n)`, `sobrevivir(segundos)`, `alcanzar(npc)`, `defender(objetivo, segundos)`.
 - Un gestor (autoload, como `Inventory`) lleva la misión activa, el marcador del minimapa y la flecha en pantalla.
-- ✅ (JJ, 2026-11-12, S1) **La gente da las misiones de día**, sean de día o de noche. Se aceptan varias (💡 hasta 5) y quedan en el **diario** del menú de pausa, pero **solo una está activa** y se completan de una en una; al elegirla en el diario sale el puntero en el mapa. **Cada paso tiene su hora** (día, noche o cualquiera): fuera de ella la misión espera y no falla; si es de noche, quien te la da te lo dice al aceptarla y el diario lo recuerda. Algunas exigen **volver con el dador** (de día). Las misiones **de lugar** (la defensa del tinaco, la reja) se aceptan al acercarte al sitio, no entran al diario y se juegan en el momento. Los dadores importantes salen con **su inicial en el mapa** (como en *Red Dead Redemption 2*).
+- ✅ (JJ, 2026-11-12, S1) **La gente da las misiones de día**, sean de día o de noche. Se aceptan **sin límite** (✅ JJ) y quedan en el **diario** del menú de pausa, pero **solo una está activa** y se completan de una en una; al elegirla en el diario sale el puntero en el mapa. **Cada paso tiene su hora** (día, noche o cualquiera): fuera de ella la misión espera y no falla; si es de noche, **el Machetes lo piensa** al aceptarla (✅ JJ: "Esto me toca de noche", en pantalla) y el diario lo recuerda. Algunas exigen **volver con el dador** (de día). Las misiones **de lugar** (la defensa del tinaco, la reja) se aceptan al acercarte al sitio, no entran al diario y se juegan en el momento. Los dadores importantes salen con **su inicial en el mapa** de papel y en el minimapa mientras tienen trabajo para ti (como en *Red Dead Redemption 2*; `MisionData.inicial`).
 - El **celular** muestra los contratos disponibles y las misiones activas.
 - La **cuadrilla** (Gabriel) reparte los contratos de la noche; el barrio y los NPCs, las de día.
 

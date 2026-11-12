@@ -47,6 +47,7 @@ Nada de esto cambia el canon por sí solo. Cuando el equipo decida, se corrige e
 | 3.3 | **Chuy nunca habla**: su silencio es su pecado | personajes |
 | — | **Tres fortalezas**; Haciendas queda como colonia común y los Lazcano viven en los Reservorios; el palacio está afuera y el de Santa Mugre pasa a escuela | lore §13 |
 | — | Reja de Santa Mugre falla por **desgaste**; defender el tinaco de la fortaleza es muy esporádico | misiones (L8) |
+| 1.5c | ✅ (JJ, 2026-11-12) **El protagonista ya no es "el Nocturno"**: es **Marcial López**, pero nadie lo sabe: le dicen **"el Machetes"** o el apodo que elige el jugador, al azar; famoso por matar zombis, no por pelear con los vivos; brazo armado y socio de la compañía de agua con Chava y Gabriel, vive en Santa Mugre, habla poco, tiene sus cosas con Sofía, es pariente del Dr. López y, sin saberlo, **hijo de Germán Lazcano**, que abusó de su madre (hermana del Dr. López) y la calló con la primera versión del Serenol: ella es **la Mojiganga**; él creció en una familia de Santa Mugre creyéndose huérfano. Toda la tragedia sale del rechazo de ella a Germán. Reemplaza "sin nombre fijo" y "sin historia" de 1.5 | lore §0, §3, §6, §15, §16, §19; personajes §1, §2, §3, §6 |
 
 **Sigue pendiente:** 2.4 (los tres motivos, 💡 en lore §18), 3.1 (los secretos repetidos), 3.2 (resuelto: Gerardo sabe y filtra). Y un detalle que salió después: en `docs/items.md` el **Botiquín del Simi** también lleva una marca real (lore §18).
 

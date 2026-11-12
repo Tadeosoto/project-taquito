@@ -24,6 +24,7 @@ script = ExtResource("1_mision")
 id = "medicina_noche"
 nombre = "Medicina de noche"
 modelo = "hombre_psx"
+inicial = "M"
 oferta = "Llévale esto a mi compadre, pero de noche: de día los blancos revisan."
 aceptada = "Espera a que oscurezca. Y que no te vean con eso."
 recuerda = "De noche, joven. Y luego me avisas, ya de día."

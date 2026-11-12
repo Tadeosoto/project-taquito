@@ -55,7 +55,7 @@ Igual que la spec, cada punto lleva etiqueta:
 
 **En una línea.** En Guadalajara, una empresa embotelladora se quedó con el agua de la ciudad, y con el agua se quedó con todo.
 
-**En un párrafo.** Hace cinco años, el estado le entregó el agua de Guadalajara a **GelA**, la purificadora de la familia Lazcano. Desde entonces el agua limpia es un privilegio: se paga por suscripción, y quien no paga recibe del grifo un caldo turbio. Lo que nadie sabe es que ese caldo lleva **Serenol**, un aditivo que vuelve a la gente dócil y agradecida: nueve de cada diez se quedan trabajando sin quejarse, y uno de cada diez se muere y se levanta como **zombi**. La ciudad se acostumbró a vivir así: trabaja, compra, se divierte y se encierra cuando oscurece. De noche solo sale el que tiene que salir. Tú eres **el Nocturno**: un cazarecompensas, y contrabandista por necesidad, que toma los contratos que nadie quiere, porque la noche paga el triple.
+**En un párrafo.** Hace cinco años, el estado le entregó el agua de Guadalajara a **GelA**, la purificadora de la familia Lazcano. Desde entonces el agua limpia es un privilegio: se paga por suscripción, y quien no paga recibe del grifo un caldo turbio. Lo que nadie sabe es que ese caldo lleva **Serenol**, un aditivo que vuelve a la gente dócil y agradecida: nueve de cada diez se quedan trabajando sin quejarse, y uno de cada diez se muere y se levanta como **zombi**. La ciudad se acostumbró a vivir así: trabaja, compra, se divierte y se encierra cuando oscurece. De noche solo sale el que tiene que salir. Tú eres **Marcial López, "el Machetes"**: el brazo armado de la compañía de agua de Chava, que de noche lleva agua limpia a las casas de fuera de las fortalezas, porque de día los blancos disparan a quien la reparte.
 
 **Tono.** Caricatura con fondo oscuro. La gobernadora sale en spots con una gota de caricatura; el barrio se ríe de todo; el horror es real y no se subraya.
 
@@ -149,6 +149,7 @@ Es la forma en que lo hacen muchos RPG: el mundo te cuenta lo que pasó mientras
 |---|---|
 | **1984** | El **cobalto**: al taller de chatarra de un primo llega una máquina de radioterapia de un hospital. La varilla sale contaminada y se reparte por medio país. A Guadalajara le toca un lote. Se construyen casas y postes con él. El expediente se entierra. |
 | **1988-2019** | **Germán Lazcano** abre una purificadora de barrio en Zapopan. Le pone a la marca las iniciales de su apellido: **GelA**. Crece a franquicias **Puri-GelA**, refrescos **GelA-Cola** y farmacias **FarmagelA**. |
+| **~2005** | ✅ 💡 (año por confirmar) Germán abusa de la muchacha que lo rechazó, hermana del joven Dr. López, y la calla con una **primera versión del Serenol**: se vuelve un monstruo (la futura Mojiganga). Nace su hijo, **Marcial**, que crece en una familia de Santa Mugre creyéndose huérfano ([§15](#15-el-protagonista)). |
 | **2022-2026** | La crisis real: el lago de Chapala, la presa El Zapotillo, las plantas al límite, los tandeos, las marchas exigiendo agua limpia. La política jura que jamás se privatizará. |
 | **2028** | La federación y el estado no se ponen de acuerdo en el presupuesto del acueducto. Se firma la **Concesión de Rescate Hídrico**: 40 años de agua a GelA bajo un modelo de "colaboración" (el CMRO). No se llama privatización; se llama asociación. |
 | **2029** | El gobernador que firmó la concesión "renuncia por salud". Entran los medidores y la suscripción **GelA Total**; quien no paga cae en la tarifa **Agua Cero** y del grifo sale **el caldo**. |
@@ -241,6 +242,8 @@ Cada seis años hay elecciones de verdad: urnas, spots, debates, casillas. Gana 
 ## 6. El Serenol
 
 ✅ **Qué es.** Un compuesto psicoactivo que GelA diseñó en su "Dirección de Innovación Hídrica" y que se añade al agua de los que no pagan. En los papeles es un **estabilizador organoléptico G-7**; en la calle, **"la calma"** o **"el agua blanca"**.
+
+**De dónde salió.** ✅ (JJ, 2026-11-12) Antes de ser G-7 fue **un remedio para callar a una mujer**: Germán se lo dio a la que lo rechazó, la madre del Machetes, y ella se volvió un monstruo ([§15](#15-el-protagonista)). 💡 Esa primera versión la hizo el joven **Dr. López** en el laboratorio de la primera purificadora, sin saber para quién era; la víctima era su hermana. Lo que salió mal con ella (un monstruo en lugar de una mujer mansa) es lo que Germán le mandó corregir durante veinte años, hasta el G-7: que calme sin matar, o que mate a pocos. 💡 El doctor supo después a quién se lo habían dado, y se quedó por miedo y por dinero; el ensayo 4 fue lo último que aguantó.
 
 **Por qué existe.** No es un veneno: es un **arma de control**. Una ciudad con gente que se queja es una ciudad que protesta; una ciudad con gente dócil es una ciudad que **trabaja, paga y vota**. GelA no vende agua: vende mansedumbre, y el agua es el envase.
 
@@ -768,19 +771,35 @@ El que se queda dormido de día, de noche no tiene qué vender.
 
 ## 15. El protagonista
 
-✅ **Quién eres.** El **Nocturno**: un **cazarecompensas de la noche** y, por necesidad, **contrabandista**: el agua que repartes es ilegal ([§10](#10-el-agua-es-ilegal)). No eres héroe y no tienes causa: tienes **una lista de contratos** y una necesidad. El que se queda adentro no come; el que sale, cobra.
+✅ (JJ, 2026-11-12) **Quién eres.** **Marcial López**, pero **nadie sabe que te llamas así**: en todos lados eres **el Machetes**. Eres **el brazo armado de la compañía de agua** que lleva agua limpia a las casas de fuera de las fortalezas. La compañía es de **tres socios**: **Chava** pone el agua (su pozo de La Palmada), **Gabriel** pone el trabajo (las fichas, los clientes, la ruta) y **tú** pones el machete (defender el tinaco, la camioneta y a quien la lleva). El agua que repartes es ilegal ([§10](#10-el-agua-es-ilegal)): por eso se reparte de noche y por eso hace falta alguien como tú.
 
-**El nombre.** En el barrio no te dicen por tu nombre: te dicen **"el Nocturno"**, porque eres el que anda cuando ya no anda nadie.
+**Dónde vives.** Al empezar, en **Santa Mugre**, la fortaleza de la Virgen del Tinaco ([§13](#las-tres-fortalezas)). Adentro no entran los blancos ni, de noche, los zombis; afuera está el trabajo.
 
-**Lo que tienes.** Un machete (herramienta, no arma de héroe), una mochila, una lámpara y **un lugar en la cuadrilla**: contratos, deudas, favores.
+**Los apodos.** ✅ Tienes **dos apodos**: **el Machetes**, que te puso el barrio y no cambia, y **otro que eliges tú** en el creador (si no eliges, solo el Machetes). La gente te dice uno u otro, al azar. **Nadie sabe que te llamas Marcial**, ni tus socios: para todos eres tus dos apodos.
 
-**Por qué sales.** Porque los contratos nocturnos pagan el triple y nadie más se atreve. No hay causa noble: hay renta, hay deudas, hay un plato que poner.
+**De qué eres famoso.** ✅ Eres **bueno para matar zombis**: te agarras a golpes y a machetazos con los no vivos como nadie, y eso es lo que el barrio sabe de ti. Tienes fama de violento, pero **solo con los no vivos**: con la gente viva y con los del pueblo casi no te metes. No eres matón ni pandillero; eres el que limpia la calle de muertos para que el agua llegue.
+
+**Lo que tienes.** Un machete, una mochila, una lámpara y **un tercio de la compañía**: socios, deudas, favores y una lista de casas que esperan el agua.
+
+**Por qué sales.** Porque la noche paga y porque a los de fuera nadie más les lleva agua. Tú dices que es por el dinero; tus socios saben que no es solo eso.
+
+**Lo que dices.** ✅ **Habla poco**: frases cortas cuando importa y lo que piensa en pantalla ("Esto me toca de noche"). No es el que explica: es el que llega.
+
+**Sofía.** ✅ Tienes **tus cosas con Sofía**, la de la radio pirata ([personajes §6](personajes.md#sofía--la-radio-pirata)): algo que ninguno de los dos dice en voz alta. Por eso la apoyas, aunque te meta en pleitos que no son tuyos (la cadena de la antena, [misiones](misiones.md)).
+
+**Tu sangre.** ✅ (JJ, 2026-11-12) Creciste con **una familia de Santa Mugre** que te crio como suyo, y **crees que eres huérfano**. No lo eres:
+- Tu madre fue **una muchacha muy bella** a la que **Germán Lazcano** pretendía. **Ella no lo quiso.** Germán no aceptó el no: **abusó de ella**, y de eso naciste tú.
+- Para callarla, Germán le dio **una de las primeras versiones del Serenol**, y tu madre **se convirtió en un monstruo**: es **la Mojiganga** ([§16](#la-mojiganga)), el jefe de la plaza de la Catrina.
+- Tu madre era **hermana del Dr. López**, el químico que hizo el Serenol: él es tu tío. Por eso, en secreto, eres **Marcial Lazcano** y medio hermano de Georgina y de Gerardo.
+- ✅ (JJ, 2026-11-12) **Te enteras después de la cacería.** El que mata zombis como nadie tiene una madre zombi: aceptas el contrato de cazar a la Mojiganga (lo pide Nemesio), la matas, y **solo después** sabes quién era.
+
+**El rechazo.** ✅ Toda la tragedia sale de **un no**. 💡 Germán nunca perdonó que tu madre lo rechazara, y lo que quiso desde entonces fue **gente que no pudiera decirle que no**: el Serenol vuelve a la gente **dócil y agradecida**, que quiere a la empresa y no actúa en su contra. La ciudad entera es mansa porque una mujer no lo fue. Germán se casó dos veces y tuvo hijos con mujeres que no amaba (Georgina y Gerardo); a la única que quiso la volvió un monstruo.
 
 **La tentación.** El agua de la llave es gratis. Si la tomas, te vuelves **dócil** (te fían, te creen, te bajan precios) o te mueres y te levantas. La decisión es la misma: **ahorrar agua o ahorrarte el monstruo.**
 
 **El espejo.** **Beto**, el novato de la cuadrilla, es el que puede terminar como tú o peor.
 
-✅ **La mentira y la verdad.** La tentación de la llave es la mentira del Nocturno hecha mecánica. **La mentira:** *"Yo nomás cobro. No es mi pleito."* **La verdad:** *"Yo también tomo de esa agua."* El arco lo elige el jugador: si se mete (la cura, la válvula, la verdad), cambia; si vende a todos y toma de la llave, cae (el dócil que trabaja para GelA, o el que se levanta); si nomás reparte, es el sandbox.
+✅ **La mentira y la verdad.** La tentación de la llave es la mentira del Machetes hecha mecánica. **La mentira:** *"Yo nomás cobro. No es mi pleito."* **La verdad:** *"Yo también tomo de esa agua"*, y, cuando sepa de quién es hijo, *"este pleito es de mi familia"*. El arco lo elige el jugador: si se mete (la cura, la válvula, la verdad), cambia; si vende a todos y toma de la llave, cae (el dócil que trabaja para GelA, o el que se levanta); si nomás reparte, es el sandbox.
 
 
 ## 16. Subhistorias y leyendas
@@ -840,7 +859,9 @@ En el juego: `scripts/lombrices/` (`MadreCarcamo.gd`, `EnjambreLombrices.gd`) y 
 - **Dónde se entra.** ✅ (2026-11-11) Desde **la plaza de la Catrina**, **fuera de la fortaleza**, cerca del nuevo palacio de gobierno (hay que ir de noche, pasando las hordas).
 - **Lo que se queda.** Un fémur del armazón, duro como piedra, y las flores del peinado, que no se marchitan. ❓ Si las flores sirven para algo más (las flores de cempasúchil guían a los muertos) está sin decidir.
 
-**Por qué encaja.** No contradice que el zombi sea víctima (§8): la Mojiganga no es nadie, es una fiesta que el agua de GelA echó a perder. Los que la mueven sí fueron gente, y siguen ahí adentro. Es el Día de Muertos al revés: los muertos no regresan a visitar, se quedan atorados.
+- **Quién está adentro.** ✅ (JJ, 2026-11-12) **La madre del Machetes.** La primera que Germán calló con el Serenol ([§15](#15-el-protagonista)) es el corazón del nudo: los demás zombis se le pegaron a ella. 💡 Durante años anduvo de noche, más fuerte y más rara que los zombis de ahora (la versión vieja no la mató: la cambió), hasta que se metió bajo la falda de la catrina, una mujer hermosa de seis metros, y ya no salió. 💡 Por eso el punto débil del pecho es ella, y por eso las flores del chongo no se marchitan.
+
+**Por qué encaja.** No contradice que el zombi sea víctima (§8): la catrina es una fiesta que el agua de GelA echó a perder, y quien la mueve es **la primera víctima del Serenol**. Los que la mueven fueron gente, y siguen ahí adentro. Es el Día de Muertos al revés: los muertos no regresan a visitar, se quedan atorados.
 
 En el juego: `scripts/catrina/` (`Catrina.gd`, con un cuerpo provisional de figuras hasta que exista el modelo de `docs/prompts/blender_catrina.md`) y la escena de prueba `scenes/catrina.tscn`, la plaza del desfile.
 
@@ -871,12 +892,12 @@ En el juego: `scripts/catrina/` (`Catrina.gd`, con un cuerpo provisional de figu
 1. **El agua despierta.** Con la capilla, el pozo o la válvula, la gente de una zona deja el Serenol.
 2. **El que despierta se enoja.** El agua viva "devuelve el enojo" ([§10](#las-tres-aguas)): marchas, grafitis, gente que ya no le agradece a la Gota.
 3. **La verdad le dice contra quién.** Los papeles y la radio de Sofía solo los oye el que ya no toma de la llave. En una zona que sigue tomando, la verdad no mueve nada: *"Los demás aplaudieron el noticiero."*
-4. **GelA contesta.** Cada zona enojada sube un escalón del régimen ([personajes §2](personajes.md#georgina-gela-lazcano)): spots, blancos, cortes, y al final un contrato para el Nocturno.
+4. **GelA contesta.** Cada zona enojada sube un escalón del régimen ([personajes §2](personajes.md#georgina-gela-lazcano)): spots, blancos, cortes, y al final un contrato para el Machetes.
 
 | Lo que puede hacer el jugador | Qué cambia | Cómo contesta GelA |
 |---|---|---|
 | **La cura**: llevar agua de la capilla, zona por zona | Lento: cada zona curada es una zona enojada | Clausura la capilla, manda a los blancos, compra al obispo |
-| **La válvula**: abrir la toma de La Gotera | Rápido: medio sureste amanece sin Serenol. Se rompe el pacto de los Gotera ([§11](#la-válvula)) | Cortes masivos y "agua contaminada del mercado negro" en el noticiero; los Gotera, sin seguro, se vuelven contra el Nocturno |
+| **La válvula**: abrir la toma de La Gotera | Rápido: medio sureste amanece sin Serenol. Se rompe el pacto de los Gotera ([§11](#la-válvula)) | Cortes masivos y "agua contaminada del mercado negro" en el noticiero; los Gotera, sin seguro, se vuelven contra el Machetes |
 | **La verdad**: los papeles por la radio | Solo donde ya hay agua viva: ahí cambia el voto | Busca a Sofía y a López; el noticiero dice que es "propaganda del crimen organizado" |
 | **Nada**: repartir y cobrar | La ciudad sigue igual | No contesta: no hace falta. También es una respuesta |
 
@@ -958,7 +979,7 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 | Mercado nocturno | **el tianguis de la noche** | ×2-×3 |
 | Policía | **los blancos** | Traje blanco; el brazo armado de Gela, a las órdenes de Buenrostro |
 | Mascota | **la Gota** | El logo de la empresa |
-| Jugador | **el Nocturno** | Cazarecompensas de la noche |
+| Jugador | **el Machetes** y el apodo que elige el jugador (en secreto, Marcial López) | El brazo armado de la compañía de agua; famoso por matar zombis |
 | Tinaco | **el comunitario** | El banco de agua del barrio |
 | Moneda | **pesos** ("varos") | El agua es un recurso caro; el garrafón es un envase |
 | Leyenda | **la varilla del 84**, **la luz que te chupa** | El cobalto |
@@ -981,9 +1002,9 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 9. **No todos los dóciles se vuelven zombis.** Uno de cada diez se muere y se levanta; el resto vive dócil y no lo sabe.
 10. **El milagro es plomería.** La capilla cura porque filtra, no porque rece.
 11. **El régimen se sostiene con el voto de la llave.** No con tanques; con dependencia.
-12. **Nadie es puro.** El cura calla, el Nocturno se queda con el botín, la franquicia cobra, el vecino delata.
+12. **Nadie es puro.** El cura calla, el Machetes se queda con el botín, la franquicia cobra, el vecino delata.
 13. **El deterioro es la pobreza.** Visual y químico: la misma causa.
-14. **El jugador no es especial.** No es inmune, no es el elegido: es el que reparte.
+14. **El jugador no es especial.** No es inmune, no es el elegido: es el que reparte. Ser hijo de Germán (§15) no le da poderes: le da un pleito.
 15. **El zombi suelta lo que traía.** El cuerpo se va; lo que traía se queda. No hay que limpiar nada.
 16. **El zombi bebe y no se cura.** Busca el agua limpia, la bebe y no le sirve: el cuerpo ya no la retiene.
 17. **La toma de los Gotera nunca se vende ni se abre.** Está cerrada: es su seguro contra GelA. Lo que sí venden, dentro de su fortaleza y a precio justo, es el agua de su yacimiento.
@@ -1022,7 +1043,7 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 | El agua cura a los dóciles | §4.3, §4.9 | `Salud`, `Cartera` | 💡 Por hacer |
 | El botín de los zombis | §4.8, §5 | `BolsaMuerte.gd` (reuso de bolsa), `WorldItem.gd`, `Cartera.gd` | 💡 Por hacer |
 | El tinaco comunitario | §4.6, §14 | `scripts/map/Refugio.gd`, `EntradaRefugio.gd` (reuso) | 💡 Por hacer |
-| El Nocturno | §15 | `scripts/player.gd` | 🧱 Ya existe (jugador) |
+| El Machetes | §15 | `scripts/player.gd`, `scripts/Personaje.gd` (el apodo) | 🧱 Ya existe (jugador) |
 | La capilla = cura | §4.3 | `Salud`, `Deterioro` | 💡 Por hacer |
 | Las máquinas de frutas | §4.6 | `scripts/tragamonedas.gd`, `Maquinita.gd` | 🧱 Ya existe |
 | La Gota como botarga | §9 | `models/personajes/dr_simi/simi_botarga.scn` (reuso) | 💡 Por hacer |
@@ -1037,7 +1058,9 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 - [ ] 💡 ¿El jugador puede tomar agua de la llave a propósito (la tentación) o eso rompe el balance? (ver §15)
 - [x] ~~¿El final es "sacar la verdad", "abrir la válvula" o "curar a la ciudad"?~~ ✅ No hay final: es sandbox, y la ciudad cambia por zona en el orden agua → enojo → verdad (§17, 2026-11-02).
 - [ ] 💡 ¿La partida de 3 noches se queda como modo reto o se convierte en la campaña?
-- [ ] 💡 ¿Cuántos NPCs reconocen al jugador como el Nocturno, y cuántos lo delatan?
+- [ ] 💡 ¿Cuántos NPCs reconocen al jugador como el Machetes, y cuántos lo delatan?
+- [ ] 💡 ¿Cuándo y cómo se entera Marcial de que es hijo de Germán y de la Mojiganga? (✅ después de la cacería) ¿Germán sabe que tiene ese hijo? ¿Cómo se llamaba su madre? ¿La familia que lo crio sabía de quién era? (§15)
+- [ ] 💡 ¿Cómo llegó el bebé a Santa Mugre (en 2005 todavía no era fortaleza)? 💡 El Dr. López se lo llevó a una familia de la colonia y nunca volvió.
 - [ ] 💡 ¿La capilla se puede perder para siempre si fallas una misión (y con ella la cura)?
 - [ ] 💡 ¿Los Gotera son solo antagonistas o también clientes del jugador? *(2026-11-11: ahora también venden agua limpia y dan entregas de punto a punto: son clientes.)*
 - [ ] 💡 Nombres por votar: los Reservorios (fortaleza GelA), la escuela de Santa Mugre, el nuevo palacio. (El hijo rebelde es Gerardo; el chofer es Nacho Garrafón, propuesto, confirmar.)
