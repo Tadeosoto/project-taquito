@@ -125,9 +125,7 @@ func _subir_banqueta(escena: Node) -> void:
 	var ba := await _caminar(escena, Vector3(-347.5, 1.2, 382.0), Vector3(0.0, 0.0, -1.0), 90)
 	_revisar("sube al basamento del palacio", ba["y_max"] - 1.0 > 0.35 and ba["avance"] > 2.0,
 		"llego a %.2f m, avanzo %.1f" % [ba["y_max"] - 1.0, ba["avance"]])
-	# El plinto del kiosco y el atrio de la parroquia se suben por sus escalones
-	var ki := await _caminar(escena, Vector3(-345.0, 1.2, 413.0), Vector3(0.0, 0.0, -1.0), 140)
-	_revisar("sube al plinto del kiosco", ki["y_max"] - 1.0 > 0.4, "llego a %.2f m" % (ki["y_max"] - 1.0))
+	# El atrio de la parroquia se sube por sus escalones (el kiosco con su plinto ya no esta)
 	var at := await _caminar(escena, Vector3(-324.0, 1.2, 420.0), Vector3(1.0, 0.0, 0.0), 140)
 	_revisar("sube al atrio", at["y_max"] - 1.0 > 0.55, "llego a %.2f m" % (at["y_max"] - 1.0))
 	# La terraza del noreste (0.75 m) se sube por su escalinata de la calle sur

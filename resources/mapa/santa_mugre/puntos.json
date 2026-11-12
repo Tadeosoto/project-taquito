@@ -226,6 +226,21 @@
 			"pisos": 1,
 			"aire_libre": true,
 			"interactivo": false
+		},
+		{
+			"tipo": "gasolinera",
+			"nombre": "Gasolinera Bahía",
+			"x": -198.68,
+			"z": 452.88,
+			"rotacion_y": -0.147,
+			"ancho": 22.0,
+			"fondo": 18.0,
+			"origen": "Gasolinera Bahía",
+			"giro": "gasolinera",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": false,
+			"interactivo": true
 		}
 	]
 }
