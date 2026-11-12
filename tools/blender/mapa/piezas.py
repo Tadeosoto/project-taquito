@@ -18,6 +18,9 @@ for _n, _c in LONAS.items():
 COLORES_PIEZA["cancha_verde"] = (0.16, 0.36, 0.3)
 COLORES_PIEZA["cancha_amarilla"] = (0.9, 0.7, 0.1)
 COLORES_PIEZA["cancha_muro"] = (0.16, 0.33, 0.78)
+# La escuela (palacio con uso "escuela"). Lo de los fieles (muralla, puesto_guardia...) usa
+# colores que ya existen: cada color nuevo es otra superficie por cuadro
+COLORES_PIEZA["verde_escuela"] = (0.13, 0.42, 0.26)
 # Basura de los callejones (colonia._vida_callejones)
 COLORES_PIEZA["bolsa_negra"] = (0.05, 0.05, 0.06)
 COLORES_PIEZA["carton"] = (0.6, 0.45, 0.28)
@@ -225,8 +228,12 @@ def portal(nombre, p):
 def palacio(nombre, p):
     """Palacio de gobierno: los portales en la planta baja y un segundo piso de aplanado blanco
     con ventanas de marco de cantera, el balcon corrido, el escudo de los Lazcano, el asta y las
-    mantas de GelA colgadas de los arcos."""
+    mantas de GelA colgadas de los arcos. Con `uso` "escuela" (lore del 2026-11-12: el palacio
+    quedo afuera y este edificio es la primaria de la fortaleza) no lleva escudo ni mantas: el
+    remate es la placa verde del nombre (el texto lo pone una marca `letrero`), guardapolvo
+    verde en los pilares, la campana del recreo y un avioncito pintado en el piso del portal."""
     k = Constructor(nombre)
+    escuela = p.get("uso", "palacio") == "escuela"
     ancho, alto, fondo = p.get("tam", [50.0, 9.5, 18.0])
     alto_arco = 4.8
     atras = _arcada(k, ancho, fondo, alto_arco, None, alto_arco + 1.6)
@@ -251,13 +258,31 @@ def palacio(nombre, p):
     # Cornisa, remate con el escudo y el asta
     k.caja((0, alto + 0.2, frente - 1.8), (ancho + 0.8, 0.4, 3.8), "foto_cantera_rosa")
     k.caja((0, alto + 1.4, frente - 0.4), (7.0, 2.4, 0.5), "foto_cantera_rosa")
-    # El escudo de los Lazcano: un octagono dorado parado en el remate
-    k.cara([(math.cos(a) * 0.9, alto + 1.4 + math.sin(a) * 0.9, frente - 0.12) for a in (i * math.tau / 8 + math.tau / 16 for i in range(8))], "oro")
     k.caja((0, alto + 4.5, frente - 0.6), (0.1, 4.5, 0.1), "fierro")
-    # Mantas de GelA colgadas de los arcos
-    for x in (-ancho * 0.3, ancho * 0.3):
-        k.caja((x, alto_arco + 0.9, frente + 0.12), (5.0, 1.4, 0.04), "azul_gela")
-        k.caja((x, alto_arco + 0.9, frente + 0.15), (4.4, 0.8, 0.03), "manta_gela")
+    if escuela:
+        # Placa verde del nombre en el remate y la bandera en el asta
+        k.caja((0, alto + 1.4, frente - 0.13), (6.4, 1.8, 0.06), "verde_escuela")
+        k.caja((0.75, alto + 6.2, frente - 0.6), (1.4, 0.9, 0.03), "verde_escuela")
+        # Guardapolvo verde en cada pilar del portal y la campana del recreo colgada de un arco
+        for i in range(arcos + 1):
+            x = -ancho / 2 + paso * i
+            k.caja((x, 0.6, frente + 0.01), (0.62, 1.2, 0.5), "verde_escuela")
+        k.caja((paso * 0.5, alto_arco - 0.5, frente - 0.4), (0.04, 0.5, 0.04), "fierro")
+        k.cilindro((paso * 0.5, alto_arco - 1.05, frente - 0.4), 0.2, 0.3, "oro", lados=8, radio_arriba=0.08)
+        # Avioncito de gis en el piso del portal
+        for j, (dx, n) in enumerate(((0, 1), (0, 1), (0, 2), (0, 1), (0, 2), (0, 1))):
+            for m in range(n):
+                ox = (m - (n - 1) / 2) * 0.62
+                k.cara([(-ancho * 0.25 + ox - 0.28, 0.03, frente - 0.9 - j * 0.6), (-ancho * 0.25 + ox + 0.28, 0.03, frente - 0.9 - j * 0.6),
+                        (-ancho * 0.25 + ox + 0.28, 0.03, frente - 1.46 - j * 0.6), (-ancho * 0.25 + ox - 0.28, 0.03, frente - 1.46 - j * 0.6)],
+                       "blanco_cal" if (j + m) % 2 == 0 else "flor_rosa")
+    else:
+        # El escudo de los Lazcano: un octagono dorado parado en el remate
+        k.cara([(math.cos(a) * 0.9, alto + 1.4 + math.sin(a) * 0.9, frente - 0.12) for a in (i * math.tau / 8 + math.tau / 16 for i in range(8))], "oro")
+        # Mantas de GelA colgadas de los arcos
+        for x in (-ancho * 0.3, ancho * 0.3):
+            k.caja((x, alto_arco + 0.9, frente + 0.12), (5.0, 1.4, 0.04), "azul_gela")
+            k.caja((x, alto_arco + 0.9, frente + 0.15), (4.4, 0.8, 0.03), "manta_gela")
     return k
 
 
@@ -556,8 +581,8 @@ def cancha(nombre, p):
 
 
 def _mural_por_archivo(texto, semilla=0):
-    """El primer diseño de propaganda cuyo archivo lleva `texto` (o uno cualquiera)."""
-    lista = [d for d in lista_murales() if d["tipo"] == "propaganda" and texto in d["archivo"]]
+    """El primer diseño de propaganda o de la Virgen cuyo archivo lleva `texto` (o uno cualquiera)."""
+    lista = [d for d in lista_murales() if d["tipo"] in ("propaganda", "virgen") and texto in d["archivo"]]
     return lista[semilla % len(lista)] if lista else elegir_mural(semilla, "propaganda")
 
 
@@ -885,7 +910,7 @@ def puente(nombre, p):
             k.caja((lado * w, alto + 0.5, min(z0 + i * 0.6, z1)), (0.03, 1.0, 0.03), "fierro_verde")
         k.choques.append(((lado * w, alto + 0.5, (z0 + z1) / 2), (0.1, 1.0, z1 - z0), 0.0))
         # Manta de GelA por fuera del barandal
-        diseno = _mural_por_archivo("gela", semilla + (0 if lado > 0 else 5))
+        diseno = _mural_por_archivo(p.get("anuncio", "gela"), semilla + (0 if lado > 0 else 5))
         # Como en barda(): con la normal n, de a a b se va hacia (n.z, -n.x)
         a, b = ((0.0, largo * 0.7), (0.0, largo * 0.3)) if lado > 0 else ((0.0, largo * 0.3), (0.0, largo * 0.7))
         a, b = (lado * (w + 0.05), a[1]), (lado * (w + 0.05), b[1])
@@ -1219,6 +1244,27 @@ def vecindad(nombre, p):
                 else:
                     esquinas = [(cara_x - 0.02, y0, z0), (cara_x - 0.02, y0, z1), (cara_x - 0.02, y1, z1), (cara_x - 0.02, y1, z0)]
                 k.mosaico(esquinas, celda, color)
+        # La cara de afuera (a la calle) y las dos puntas de la tira: antes era la caja blanca
+        # lisa. Cada cuarto con su color, ventana arriba y pared (o ventana con reja) abajo
+        fuera_x = lado * (hx + 0.02)
+        for piso in range(2):
+            y0, y1 = piso * PISO, (piso + 1) * PISO
+            for i in range(n):
+                z0, z1 = -hz + i * paso, -hz + (i + 1) * paso
+                color = colores[(i * 3 + piso * 5 + (lado > 0) * 2) % len(colores)]
+                celda = VENTANA_ARRIBA[(i + 2) % 4] if piso == 1 else (VENTANA_ABAJO if i % 3 == 1 else LISO)
+                if lado > 0:
+                    esquinas = [(fuera_x, y0, z1), (fuera_x, y0, z0), (fuera_x, y1, z0), (fuera_x, y1, z1)]
+                else:
+                    esquinas = [(fuera_x, y0, z0), (fuera_x, y0, z1), (fuera_x, y1, z1), (fuera_x, y1, z0)]
+                k.mosaico(esquinas, celda, color)
+            x0, x1 = xc - tira / 2, xc + tira / 2
+            for signo in (-1, 1):
+                z = signo * (hz + 0.02)
+                color = colores[(piso * 5 + (lado > 0) * 2 + (signo > 0) * 3) % len(colores)]
+                a, b = (x0, x1) if signo > 0 else (x1, x0)
+                for xa, xb in ((a, (a + b) / 2), ((a + b) / 2, b)):
+                    k.mosaico([(xa, y0, z), (xb, y0, z), (xb, y1, z), (xa, y1, z)], LISO, color)
         # Corredor del segundo piso: losa volada de 1.4 m, barandal y su choque
         cx = cara_x - lado * 0.7
         k.caja((cx, PISO - 0.1, 0), (1.4, 0.2, fondo), "concreto")
@@ -1307,7 +1353,237 @@ def valla_gela(nombre, p):
     return k
 
 
+def _semilla_nombre(nombre):
+    return sum((i + 1) * ord(c) for i, c in enumerate(nombre))
+
+
+VELAS = ("vela_roja", "vela_blanca", "vela_azul", "vela_verde")
+# Tintes de la lamina (color de vertice sobre foto_lamina_verde: no son materiales nuevos)
+TINTES_LAMINA = ((1.0, 1.0, 1.0), (0.75, 0.82, 0.95), (1.0, 0.82, 0.62), (0.7, 0.7, 0.7), (0.95, 0.95, 0.8))
+
+
+def _veladoras(k, x0, x1, z, semilla, y=0.0, n=None):
+    """Fila de veladoras con su flama entre x0 y x1, a la altura `y`."""
+    n = n or max(3, int((x1 - x0) / 0.35))
+    for i in range(n):
+        x = x0 + (x1 - x0) * (i + 0.5) / n
+        h = 0.14 + ((semilla + i * 7) % 3) * 0.04
+        zz = z + ((semilla + i * 5) % 3 - 1) * 0.08
+        k.cilindro((x, y, zz), 0.05, h, VELAS[(semilla + i) % 4], lados=6)
+        k.caja((x, y + h + 0.03, zz), (0.03, 0.06, 0.03), "farol")
+
+
+def _mural_en_x(k, x0, x1, base, lado, z, diseno, ancho, alto):
+    """Un diseño del atlas de murales en un muro que corre en x, en su cara z (viendo a `lado` en z)."""
+    a, b = ((x0, 0.0), (x1, 0.0)) if lado > 0 else ((x1, 0.0), (x0, 0.0))
+    esquinas, uvs = esquinas_mural(a, b, base, (0.0, lado), diseno, ancho, alto, salir=z)
+    k.cara([(x, zz, y) for x, y, zz in esquinas], "mural", uvs=uvs)
+
+
+def muralla(nombre, p):
+    """La muralla de la fortaleza de la Virgen del Tinaco (a lo largo de x, como la barda): la barda
+    de block de antes (`base` m) y, encima, lo que los vecinos le fueron subiendo hasta `alto`:
+    lamina de varios colores, tablones y filas de tambos, sobre postes de fierro, con alambre de
+    puas arriba. Por la cara de adentro (`dentro`: 1 si adentro queda a +Z, -1 si a -Z) lleva
+    pintas de la Virgen y grafitis, y veladoras al pie de cada Virgen. Choca en todo su alto."""
+    k = Constructor(nombre)
+    largo, alto, grueso = p.get("largo", 10.0), p.get("alto", 4.5), p.get("grueso", 0.3)
+    base = min(p.get("base", 2.6), alto)
+    dentro = 1 if p.get("dentro", 1) > 0 else -1
+    semilla = _semilla_nombre(nombre)
+    k.caja((0, base / 2, 0), (largo, base, grueso), "foto_block")
+    for i in range(int(largo / 3.0) + 1):
+        k.caja((-largo / 2 + min(i * 3.0, largo), base / 2, 0), (0.3, base + 0.1, grueso + 0.06), "concreto")
+    n = max(1, round(largo / 2.4))
+    paso = largo / n
+    arriba = alto - base
+    for i in range(n):
+        x = -largo / 2 + paso * (i + 0.5)
+        r = (semilla * 13 + i * 29) % 100
+        sube = arriba + ((r % 5) - 2) * 0.12
+        if r < 62:                                   # lamina acanalada
+            k.caja((x, base + sube / 2, 0), (paso - 0.04, sube, 0.05), "foto_lamina_verde", color=TINTES_LAMINA[r % len(TINTES_LAMINA)])
+        elif r < 82:                                 # tablones parados, disparejos
+            for j in range(4):
+                h = sube - ((r + j * 3) % 4) * 0.14
+                k.caja((x - paso / 2 + (j + 0.5) * paso / 4, base + h / 2, 0), (paso / 4 - 0.05, h, 0.06), "foto_madera")
+        else:                                        # tambos en dos hileras
+            for fila in range(2):
+                for j in range(3 - fila):
+                    k.cilindro((x - paso / 2 + (j + 0.5 + fila * 0.5) * paso / 3, base + fila * 0.9, 0), min(0.32, paso / 6 - 0.03), 0.9,
+                               ("tinaco", "vela_azul", "rojo")[(r + j + fila) % 3], lados=8)
+        k.caja((x - paso / 2, base + arriba / 2 + 0.2, dentro * (grueso / 2 + 0.04)), (0.08, arriba + 0.4, 0.08), "fierro")
+    # Alambre de puas: dos hilos y sus puas cada metro
+    for y in (alto + 0.22, alto + 0.38):
+        k.caja((0, y, dentro * (grueso / 2 + 0.04)), (largo, 0.02, 0.02), "cable")
+    for i in range(int(largo)):
+        k.caja((-largo / 2 + i + 0.5, alto + 0.3, dentro * (grueso / 2 + 0.04)), (0.02, 0.22, 0.1), "cable")
+    # Pintas por dentro: una Virgen de cada dos, con sus veladoras al pie
+    tramo = 4.5
+    for i in range(int(largo / tramo)):
+        if (semilla * 31 + i * 17) % 100 >= p.get("murales", 60):
+            continue
+        x0 = -largo / 2 + i * tramo + 0.3
+        x1 = x0 + tramo - 0.6
+        virgen = (semilla + i) % 2 == 0
+        diseno = elegir_mural(semilla + i * 13, "virgen" if virgen else "grafiti")
+        abajo = 0.7 if virgen else 0.2
+        _mural_en_x(k, x0, x1, abajo, dentro, grueso / 2 + 0.03, diseno, 3.4, base - abajo - 0.15)
+        if virgen:
+            _veladoras(k, (x0 + x1) / 2 - 0.9, (x0 + x1) / 2 + 0.9, dentro * (grueso / 2 + 0.3), semilla + i, n=5)
+    k.choques.append(((0, alto / 2, 0), (largo, alto + 0.4, grueso + 0.1), 0.0))
+    return k
+
+
+def mirador_muro(nombre, p):
+    """Puesto de vigia pegado a la muralla por dentro: plataforma de tablones a `alto` m sobre
+    postes de madera, techo de lamina, barandal y su escalera de tablones (choque en rampa, como
+    `escalera`). El origen va en la cara de adentro de la muralla; la muralla corre en x y el
+    frente (+Z) es adentro. La plataforma va de x = 0 a 3.2 y la escalera baja hacia -x."""
+    k = Constructor(nombre)
+    alto = p.get("alto", 3.4)
+    ancho, fondo = 3.2, 2.0
+    z0, z1 = 0.15, 0.15 + fondo
+    zm = (z0 + z1) / 2
+    k.caja((ancho / 2, alto - 0.06, zm), (ancho, 0.12, fondo), "foto_madera")
+    k.choques.append(((ancho / 2, alto - 0.15, zm), (ancho, 0.3, fondo), 0.0))
+    for x in (0.1, ancho - 0.1):
+        for z in (z0 + 0.1, z1 - 0.1):
+            k.caja((x, (alto + 2.2) / 2, z), (0.12, alto + 2.2, 0.12), "foto_madera")
+    k.caja((ancho / 2, alto + 2.25, zm), (ancho + 0.4, 0.05, fondo + 0.5), "foto_lamina_verde")
+    # Barandal: el lado de adentro, la punta y el lado de la escalera (libre donde llega)
+    for y in (alto + 0.5, alto + 0.95):
+        k.caja((ancho / 2, y, z1 - 0.05), (ancho, 0.06, 0.06), "foto_madera")
+        k.caja((ancho - 0.05, y, zm), (0.06, 0.06, fondo), "foto_madera")
+        k.caja((0.05, y, z0 + 1.0 + (fondo - 1.0) / 2), (0.06, 0.06, fondo - 1.0), "foto_madera")
+    k.choques.append(((ancho / 2, alto + 0.5, z1 - 0.04), (ancho, 1.0, 0.08), 0.0))
+    k.choques.append(((ancho - 0.04, alto + 0.5, zm), (0.08, 1.0, fondo), 0.0))
+    k.choques.append(((0.04, alto + 0.5, z0 + 1.0 + (fondo - 1.0) / 2), (0.08, 1.0, fondo - 1.0), 0.0))
+    # Que nadie brinque la muralla desde aqui: choque alto detras de la plataforma
+    k.choques.append(((ancho / 2, alto + 1.7, -0.1), (ancho + 1.0, 3.4, 0.2), 0.0))
+    # Reflector y costales
+    k.caja((ancho / 2, alto + 2.05, z0 + 0.15), (0.3, 0.2, 0.25), "farol")
+    for i in range(4):
+        k.caja((0.5 + i * 0.75, alto + 0.14, z0 + 0.2), (0.7, 0.28, 0.4), "concreto")
+    # Escalera de tablones hacia -x, de 1 m de ancho pegada a la muralla
+    escalones = max(4, round(alto / 0.26))
+    paso = 0.3
+    largo = escalones * paso
+    subida = alto / escalones
+    for i in range(escalones):
+        k.caja((-largo + (i + 0.5) * paso, (i + 1) * subida - 0.03, z0 + 0.5), (paso, 0.06, 1.0), "foto_madera")
+    for z in (z0 + 0.02, z0 + 0.98):
+        q = [(-largo, 0, z), (0, alto, z), (0, alto - 0.25, z), (-largo, -0.25, z)]
+        k.cara(q, "foto_madera")
+        k.cara(q[::-1], "foto_madera")
+    xa, xb = -largo - 0.3, 0.2
+    k.rampas.append([(xa, 0.0, z0), (xa, 0.0, z0 + 1.0), (xb, alto, z0), (xb, alto, z0 + 1.0),
+                     (xb, alto - 0.3, z0), (xb, alto - 0.3, z0 + 1.0), (xa, -0.3, z0), (xa, -0.3, z0 + 1.0)])
+    return k
+
+
+def nicho_virgen(nombre, p):
+    """Altar de calle de la Virgen del Tinaco, donde una calle topa con la muralla (a lo largo de
+    x, de frente a +Z): un pedazo de barda con su pinta, techito de lamina, repisa con veladoras
+    y flores, y tambos de agua a los lados."""
+    k = Constructor(nombre)
+    largo = min(p.get("largo", 8.0), 5.0)
+    semilla = _semilla_nombre(nombre)
+    k.caja((0, 1.6, 0), (largo, 3.2, 0.25), "foto_block", choca=True)
+    _mural_en_x(k, -largo / 2 + 0.3, largo / 2 - 0.3, 1.0, 1, 0.16, _mural_por_archivo("virgen_nos_cuida", semilla), largo - 0.8, 2.0)
+    k.caja((0, 3.3, 0.5), (largo + 0.4, 0.06, 1.4), "foto_lamina_verde")
+    for x in (-largo / 2 + 0.1, largo / 2 - 0.1):
+        k.caja((x, 1.65, 1.1), (0.08, 3.3, 0.08), "fierro")
+    k.caja((0, 0.4, 0.45), (largo * 0.8, 0.8, 0.6), "concreto", choca=True)
+    _veladoras(k, -largo * 0.36, largo * 0.36, 0.5, semilla, y=0.8)
+    _veladoras(k, -largo * 0.3, largo * 0.3, 1.0, semilla + 3)
+    for i, x in enumerate((-largo * 0.38, largo * 0.38)):
+        for j in range(3):
+            k.esfera((x + (j - 1) * 0.12, 0.93 + (j % 2) * 0.08, 0.3), 0.1, ("flor_naranja", "flor_amarilla", "flor_blanca")[(i + j) % 3], seg=6, anillos=3)
+    for x in (-largo / 2 - 0.5, largo / 2 + 0.5):
+        k.cilindro((x, 0.0, 0.3), 0.3, 0.9, "vela_azul", lados=8, choca=True)
+    return k
+
+
+def puesto_guardia(nombre, p):
+    """Puesto de guardia de los fieles junto a una reja (frente a +Z, la calle): caseta de block
+    con techo de lamina y la pinta de la Virgen, la campana de aviso en su poste, tambos de agua
+    y una banca. Ocupa unos 5.5 x 3 m."""
+    k = Constructor(nombre)
+    semilla = _semilla_nombre(nombre)
+    cx = -1.2
+    k.caja((cx, 1.2, -0.4), (2.6, 2.4, 2.2), "foto_block", choca=True)
+    k.caja((cx, 2.5, -0.3), (3.2, 0.06, 2.9), "foto_lamina_verde", color=TINTES_LAMINA[semilla % len(TINTES_LAMINA)])
+    k.caja((cx, 1.5, 0.71), (1.2, 0.7, 0.04), "hueco")
+    k.caja((cx + 1.31, 1.0, -0.4), (0.04, 2.0, 0.9), "foto_madera")
+    diseno = _mural_por_archivo("virgen_nos_cuida", semilla)
+    esquinas, uvs = esquinas_mural((cx - 1.3, -1.5), (cx - 1.3, 0.7), 0.3, (-1.0, 0.0), diseno, 2.0, 1.8, salir=0.02)
+    k.cara([(x, z, y) for x, y, z in esquinas], "mural", uvs=uvs)
+    # La campana de aviso
+    k.caja((1.6, 1.5, 0.6), (0.1, 3.0, 0.1), "fierro", choca=True)
+    k.caja((1.9, 2.9, 0.6), (0.7, 0.08, 0.08), "fierro")
+    k.cilindro((2.15, 2.35, 0.6), 0.22, 0.4, "bronce", lados=8, radio_arriba=0.08)
+    k.caja((2.15, 2.82, 0.6), (0.03, 0.16, 0.03), "fierro")
+    # Tambos y banca
+    for i in range(3):
+        k.cilindro((1.0 + i * 0.66, 0.0, -1.2), 0.3, 0.9, ("vela_azul", "tinaco", "vela_azul")[i], lados=8)
+    k.choques.append(((1.66, 0.45, -1.2), (2.0, 0.9, 0.6), 0.0))
+    k.caja((1.2, 0.42, 0.0), (1.4, 0.08, 0.4), "foto_madera")
+    for x in (0.6, 1.8):
+        k.caja((x, 0.2, 0.0), (0.08, 0.4, 0.36), "foto_madera")
+    _veladoras(k, cx - 1.9, cx - 1.45, -0.4, semilla, n=3)
+    return k
+
+
 def reja(nombre, p):
+    """El porton de la fortaleza donde sale una avenida (a lo largo de x, como la muralla): postes
+    de concreto, dintel, dos hojas de lamina con marco de fierro y su mirilla con barrotes, la
+    tranca de madera atravesada y alambre de puas arriba. Lleva pintas por las dos caras.
+    Cerrado: la salida es la flecha amarilla de adentro (Colonia.gd, marca "salida_colonia").
+    Con `alto` menor a 3 m queda la reja de barrotes de antes (`reja_fierro`)."""
+    largo, alto, grueso = p.get("largo", 18.0), p.get("alto", 4.5), p.get("grueso", 0.3)
+    if alto < 3.0:
+        return reja_fierro(nombre, p)
+    k = Constructor(nombre)
+    semilla = _semilla_nombre(nombre)
+    for x in (-largo / 2 + 0.4, 0.0, largo / 2 - 0.4):
+        k.caja((x, (alto + 0.6) / 2, 0), (0.8, alto + 0.6, grueso + 0.3), "concreto")
+    k.caja((0, alto + 0.35, 0), (largo, 0.5, grueso + 0.2), "concreto")
+    for lado in (-1, 1):
+        x0, x1 = (-largo / 2 + 0.8, -0.4) if lado < 0 else (0.4, largo / 2 - 0.8)
+        ancho = x1 - x0
+        xm = (x0 + x1) / 2
+        k.caja((xm, alto / 2 + 0.05, 0), (ancho, alto - 0.1, 0.06), "foto_lamina_verde", color=(0.62, 0.68, 0.62))
+        for y in (0.2, alto * 0.5, alto - 0.15):
+            for z in (-0.06, 0.06):
+                k.caja((xm, y, z), (ancho, 0.1, 0.06), "fierro")
+        for x in (x0 + 0.05, xm, x1 - 0.05):
+            for z in (-0.06, 0.06):
+                k.caja((x, alto / 2, z), (0.1, alto - 0.1, 0.06), "fierro")
+        # Mirilla con barrotes
+        mx = xm + lado * ancho * 0.22
+        for z in (-0.045, 0.045):
+            k.caja((mx, 1.6, z), (0.7, 0.4, 0.02), "hueco")
+            for i in range(4):
+                k.caja((mx - 0.27 + i * 0.18, 1.6, z * 1.4), (0.03, 0.4, 0.02), "fierro")
+        # Pintas por las dos caras
+        for cara in (-1, 1):
+            archivo = "virgen_no_abras" if (lado * cara) > 0 else "virgen_nos_cuida"
+            _mural_en_x(k, x0 + 0.4, x1 - 0.4, alto * 0.5 + 0.15, cara, 0.1, _mural_por_archivo(archivo, semilla), min(ancho - 1.0, 4.2), alto * 0.4)
+    # La tranca y sus soportes, por las dos caras
+    for z in (-0.16, 0.16):
+        k.caja((0, 1.15, z), (largo - 2.2, 0.2, 0.14), "foto_madera")
+        for x in (-largo * 0.3, -1.0, 1.0, largo * 0.3):
+            k.caja((x, 1.15, z), (0.12, 0.4, 0.2), "fierro")
+    for y in (alto + 0.7, alto + 0.86):
+        k.caja((0, y, 0), (largo, 0.02, 0.02), "cable")
+    for i in range(int(largo)):
+        k.caja((-largo / 2 + i + 0.5, alto + 0.78, 0), (0.02, 0.22, 0.1), "cable")
+    k.choques.append(((0, alto / 2, 0), (largo, alto + 0.6, grueso + 0.2), 0.0))
+    return k
+
+
+def reja_fierro(nombre, p):
     """Reja de fierro en la barda donde sale una avenida (a lo largo de x, como la barda): dos hojas
     de barrotes con travesanos arriba y abajo, picos y postes de concreto en las orillas y al medio.
     Cerrada: la salida es la flecha amarilla de adentro (Colonia.gd, marca "salida_colonia")."""
@@ -1379,4 +1655,6 @@ PIEZAS = {"tinaco_comunitario": tinaco_comunitario, "puesto": puesto, "banca": b
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
           "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "escalinata": escalinata, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
-          "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro, "reja": reja}
+          "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro, "reja": reja,
+          "reja_fierro": reja_fierro, "muralla": muralla, "mirador_muro": mirador_muro, "nicho_virgen": nicho_virgen,
+          "puesto_guardia": puesto_guardia}

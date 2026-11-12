@@ -269,8 +269,12 @@ _MURALES = []
 def murales():
     """Arma el atlas de murales (cada diseño reducido sin suavizar a MURAL_PX de lado)."""
     disenos = []
-    for carpeta, tipo in (("grafitis", "grafiti"), ("propaganda", "propaganda")):
+    # "virgen": lo que pintan los fieles de Santa Mugre (tools/map_import/make_murales_virgen.py);
+    # va aparte de propaganda/ para que las bardas de map_test no cambien de diseño
+    for carpeta, tipo in (("grafitis", "grafiti"), ("propaganda", "propaganda"), ("virgen", "virgen")):
         ruta = os.path.join(TEXTURAS_MAPA, carpeta)
+        if not os.path.isdir(ruta):
+            continue
         for archivo in sorted(os.listdir(ruta)):
             if archivo.lower().endswith((".png", ".webp", ".jpg")):
                 disenos.append((os.path.join(ruta, archivo), tipo))

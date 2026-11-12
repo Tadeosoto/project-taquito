@@ -13,6 +13,14 @@ const CONTENIDO := [
 	"res://resources/productos/cinta.tres",
 ]
 const NOCHE_DESDE := 0.5          # Ciclo.valor() desde el que ya no hay guardias
+# De quien es (marca "de"): "gela" es la del reten de antes; "ofrendas" es la caja de ofrendas de
+# los fieles junto a la reja de Santa Mugre (la fortaleza ya no tiene reten de GelA): de dia la
+# reparten las señoras y de noche el que hace guardia toma lo que necesita
+const TEXTOS := {
+	"gela": ["%s: abrir la caja de GelA", "Caja de GelA (de dia la cuidan)", Color(0.1, 0.33, 0.72)],
+	"ofrendas": ["%s: tomar de las ofrendas", "Ofrendas a la Virgen (se reparten de noche)", Color(0.1, 0.38, 0.36)],
+}
+var de := "gela"
 
 var _player_inside := false
 var _aviso: Label3D
@@ -20,7 +28,8 @@ var _abierta := false
 var _ciclo: Node
 var _tapa: Node3D                 # la bisagra de la tapa
 
-static var _material: StandardMaterial3D
+static var _materiales := {}
+var _material: StandardMaterial3D
 
 
 func _ready() -> void:
@@ -65,9 +74,9 @@ func _avisar() -> void:
 	if _abierta:
 		_aviso.text = "Ya la vaciaste"
 	elif _de_noche():
-		_aviso.text = "%s: abrir la caja de GelA" % tecla
+		_aviso.text = String(TEXTOS[de][0]) % tecla
 	else:
-		_aviso.text = "Caja de GelA (de dia la cuidan)"
+		_aviso.text = String(TEXTOS[de][1])
 	_aviso.visible = true
 
 
@@ -99,9 +108,13 @@ func _llenar() -> void:
 
 
 func _armar_caja() -> void:
-	if _material == null:
-		_material = StandardMaterial3D.new()
-		_material.albedo_color = Color(0.1, 0.33, 0.72)
+	if not TEXTOS.has(de):
+		de = "gela"
+	if not _materiales.has(de):
+		var nuevo := StandardMaterial3D.new()
+		nuevo.albedo_color = TEXTOS[de][2]
+		_materiales[de] = nuevo
+	_material = _materiales[de]
 	var cuerpo := MeshInstance3D.new()
 	var malla := BoxMesh.new()
 	malla.size = Vector3(1.0, 0.6, 0.6)

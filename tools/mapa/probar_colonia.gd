@@ -307,13 +307,29 @@ func _vida(escena: Node) -> void:
 			zombis = root.get_tree().get_nodes_in_group("zombis").filter(func(z: Node) -> bool: return z.is_inside_tree() and (z as Node3D).visible).size()
 			if zombis > 0:
 				break
-	_revisar("salen zombis de noche", zombis > 0, "%d" % zombis)
+	# Santa Mugre es fortaleza (lore del 2026-11-12): adentro no salen zombis de noche (Zombis.espontaneos
+	# apagado en mapa.tscn) hasta que falle la reja (bloque F1 de docs/plan-noche.md)
+	_revisar("en la fortaleza no salen zombis de noche", zombis == 0, "%d" % zombis)
 	_revisar("reflector de la cancha prendido de noche", reflector != null and reflector.visible and reflector.light_energy > 1.0,
 		"energia %.2f" % (reflector.light_energy if reflector else -1.0))
 	var ninos := escena.find_child("Ninos_Cancha", true, false) as Node3D
-	var guardia := escena.find_child("Guardia_GelA_0", true, false) as Node3D
-	_revisar("de noche no hay chamacos ni guardias", ninos != null and not ninos.visible and guardia != null and not guardia.visible,
-		"%s %s" % [ninos, guardia])
+	_revisar("de noche no hay chamacos", ninos != null and not ninos.visible, "%s" % ninos)
+	# Los vigias de los fieles ("cuando": "siempre") y la vela del tinaco ("noche"): se ven de noche
+	# estando cerca (a mas de NinosCancha.LEJOS no se dibujan)
+	var jugador_vela := escena.get_node("Player") as Node3D
+	var vela := escena.find_child("Vela_Tinaco_0", true, false) as Node3D
+	var guardia := escena.find_child("Guardia_Reja_poniente_0", true, false) as Node3D
+	if vela and guardia:
+		var antes_vela := jugador_vela.global_position
+		jugador_vela.global_position = vela.global_position + Vector3(3.0, 0.5, 0.0)
+		await _cuadros(90)
+		var vela_ok := vela.visible
+		jugador_vela.global_position = guardia.global_position + Vector3(3.0, 0.5, 0.0)
+		await _cuadros(90)
+		_revisar("de noche hay vela en el tinaco y guardia en la reja", vela_ok and guardia.visible, "%s %s" % [vela_ok, guardia.visible])
+		jugador_vela.global_position = antes_vela
+	else:
+		_revisar("de noche hay vela en el tinaco y guardia en la reja", false, "%s %s" % [vela, guardia])
 	# Tianguis.gd: de noche se esconden las lonas, la mercancia y los carritos (lo que va en _de_dia)
 	var tramos := escena.find_children("Tianguis_*", "Node3D", true, false).filter(func(n: Node) -> bool: return n is Tianguis)
 	var lonas: Array = []
@@ -321,18 +337,18 @@ func _vida(escena: Node) -> void:
 		lonas.append_array(t.get("_de_dia"))
 	_revisar("de noche el tianguis queda en fierros", not lonas.is_empty() and lonas.all(func(n: Node) -> bool: return not (n as Node3D).visible),
 		"%d tramos, %d cosas de dia" % [tramos.size(), lonas.size()])
-	# La caja del reten: de noche se abre una vez y da algo
-	var caja := escena.find_child("Caja_GelA", true, false)
+	# La caja de ofrendas junto a la reja poniente: de noche se abre una vez y da algo
+	var caja := escena.find_child("Caja_Ofrendas", true, false)
 	if caja:
 		caja.set("_player_inside", true)
 		var inventario := root.get_node("/root/Inventory")
 		var antes_caja: int = inventario.call("unidades").size()
 		caja.call("interact")
 		var despues: int = inventario.call("unidades").size()
-		_revisar("la caja de GelA se saquea de noche, una vez", despues > antes_caja and not caja.call("is_player_inside"),
+		_revisar("la caja de ofrendas da algo de noche, una vez", despues > antes_caja and not caja.call("is_player_inside"),
 			"%d -> %d" % [antes_caja, despues])
 	else:
-		_revisar("la caja de GelA se saquea de noche, una vez", false, "no hay caja")
+		_revisar("la caja de ofrendas da algo de noche, una vez", false, "no hay caja")
 	var trampa := escena.find_child("Trampa_Cancha", true, false)
 	_revisar("la cancha atrapa de noche", trampa != null and trampa.call("adentro", Vector3(-392.0, 1.0, 305.5))
 		and not trampa.call("adentro", Vector3(-372.0, 1.0, 432.0)), "%s" % trampa)

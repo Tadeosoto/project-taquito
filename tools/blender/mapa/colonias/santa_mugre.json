@@ -165,8 +165,8 @@
 			"x": -416.02,
 			"z": 259.5,
 			"rot": 0.0392,
-			"borde": "gela",
-			"tipo": "valla_gela",
+			"borde": "fieles",
+			"tipo": "nicho_virgen",
 			"largo": 11.0
 		},
 		{
@@ -231,8 +231,8 @@
 			"x": -283.54,
 			"z": 259.5,
 			"rot": 0.0367,
-			"borde": "gela",
-			"tipo": "valla_gela",
+			"borde": "fieles",
+			"tipo": "nicho_virgen",
 			"largo": 11.0
 		},
 		{
@@ -312,8 +312,8 @@
 			"x": -237.6,
 			"z": 259.5,
 			"rot": 0.0352,
-			"borde": "gela",
-			"tipo": "valla_gela",
+			"borde": "fieles",
+			"tipo": "nicho_virgen",
 			"largo": 8.0
 		},
 		{
@@ -383,8 +383,8 @@
 			"x": -194.26,
 			"z": 259.5,
 			"rot": 0.0639,
-			"borde": "gela",
-			"tipo": "valla_gela",
+			"borde": "fieles",
+			"tipo": "nicho_virgen",
 			"largo": 8.0
 		},
 		{
@@ -5585,27 +5585,31 @@
 		},
 		{
 			"nombre": "Barda_norte",
-			"tipo": "barda",
+			"tipo": "muralla",
 			"auto": true,
 			"x": -302.5,
 			"z": 258.4,
 			"rot": 0.0,
 			"largo": 235,
-			"alto": 2.6,
+			"alto": 4.5,
 			"grueso": 0.3,
-			"murales": 60
+			"murales": 60,
+			"base": 2.6,
+			"dentro": 1
 		},
 		{
 			"nombre": "Barda_sur",
-			"tipo": "barda",
+			"tipo": "muralla",
 			"auto": true,
 			"x": -302.5,
 			"z": 481.6,
 			"rot": 0.0,
 			"largo": 235,
-			"alto": 2.6,
+			"alto": 4.5,
 			"grueso": 0.3,
-			"murales": 60
+			"murales": 60,
+			"base": 2.6,
+			"dentro": -1
 		},
 		{
 			"nombre": "Tinaco_Comunitario",
@@ -5839,7 +5843,8 @@
 			"z": 370.0,
 			"rot": 0.0,
 			"tam": [50.0, 9.5, 18.0],
-			"y": 0.45
+			"y": 0.45,
+			"uso": "escuela"
 		},
 		{
 			"nombre": "Parroquia",
@@ -6028,15 +6033,6 @@
 			"radio": 2.6
 		},
 		{
-			"nombre": "Ficus_14",
-			"tipo": "ficus",
-			"x": -355.0,
-			"z": 391.5,
-			"rot": -1.3332,
-			"alto": 4.1,
-			"radio": 2.3
-		},
-		{
 			"nombre": "Ficus_15",
 			"tipo": "ficus",
 			"x": -355.0,
@@ -6046,15 +6042,6 @@
 			"radio": 2.6
 		},
 		{
-			"nombre": "Ficus_16",
-			"tipo": "ficus",
-			"x": -349.0,
-			"z": 391.5,
-			"rot": 2.067,
-			"alto": 3.9,
-			"radio": 2.3
-		},
-		{
 			"nombre": "Ficus_17",
 			"tipo": "ficus",
 			"x": -349.0,
@@ -6062,15 +6049,6 @@
 			"rot": -2.5162,
 			"alto": 4.1,
 			"radio": 2.6
-		},
-		{
-			"nombre": "Ficus_20",
-			"tipo": "ficus",
-			"x": -337.0,
-			"z": 391.5,
-			"rot": 2.584,
-			"alto": 4.1,
-			"radio": 2.3
 		},
 		{
 			"nombre": "Ficus_21",
@@ -6213,15 +6191,6 @@
 			"x": -324.0,
 			"z": 439.5,
 			"rot": -2.8152,
-			"alto": 3.7,
-			"radio": 2.6
-		},
-		{
-			"nombre": "Ficus_45",
-			"tipo": "ficus",
-			"x": -332.0,
-			"z": 402.0,
-			"rot": 1.102,
 			"alto": 3.7,
 			"radio": 2.6
 		},
@@ -7455,8 +7424,8 @@
 			"rot": 0.0,
 			"alto": 3.5,
 			"tam": [7.0, 3.5],
-			"anuncio": "gela",
-			"anuncio_atras": "lazcano"
+			"anuncio": "virgen_sobre_gela",
+			"anuncio_atras": "virgen_nos_cuida"
 		},
 		{
 			"nombre": "Espectacular_Avenida",
@@ -7467,8 +7436,8 @@
 			"rot": -3.1416,
 			"alto": 3.5,
 			"tam": [8.0, 4.0],
-			"anuncio": "gela",
-			"anuncio_atras": "garrafon"
+			"anuncio": "virgen_sobre_gela",
+			"anuncio_atras": "virgen_agua_bendita"
 		},
 		{
 			"nombre": "Antena_Sofia",
@@ -7479,13 +7448,6 @@
 			"rot": 0.0,
 			"alto": 12.0,
 			"vientos": 2.2
-		},
-		{
-			"nombre": "Base_GelA",
-			"tipo": "base_gela",
-			"x": -345.0,
-			"z": 455.9,
-			"rot": 3.0457
 		},
 		{
 			"nombre": "Mercado",
@@ -7523,7 +7485,8 @@
 			"rot": 0.0,
 			"largo": 18.0,
 			"alto": 5.0,
-			"ancho": 1.6
+			"ancho": 1.6,
+			"anuncio": "virgen"
 		},
 		{
 			"nombre": "Puente_Avenida_Escalera_N",
@@ -7874,27 +7837,31 @@
 		},
 		{
 			"nombre": "Barda_poniente_a",
-			"tipo": "barda",
+			"tipo": "muralla",
 			"auto": true,
 			"x": -419.6,
 			"z": 351.5,
 			"rot": 1.5708,
 			"largo": 187.0,
-			"alto": 2.6,
+			"alto": 4.5,
 			"grueso": 0.3,
-			"murales": 60
+			"murales": 60,
+			"base": 2.6,
+			"dentro": 1
 		},
 		{
 			"nombre": "Barda_poniente_b",
-			"tipo": "barda",
+			"tipo": "muralla",
 			"auto": true,
 			"x": -419.6,
 			"z": 473.0,
 			"rot": 1.5708,
 			"largo": 18.0,
-			"alto": 2.6,
+			"alto": 4.5,
 			"grueso": 0.3,
-			"murales": 60
+			"murales": 60,
+			"base": 2.6,
+			"dentro": 1
 		},
 		{
 			"nombre": "Reja_poniente",
@@ -7904,32 +7871,36 @@
 			"z": 454.5,
 			"rot": 1.5708,
 			"largo": 19.0,
-			"alto": 2.6,
+			"alto": 4.5,
 			"grueso": 0.3
 		},
 		{
 			"nombre": "Barda_oriente_a",
-			"tipo": "barda",
+			"tipo": "muralla",
 			"auto": true,
 			"x": -185.4,
 			"z": 360.9,
 			"rot": 1.5708,
 			"largo": 205.8,
-			"alto": 2.6,
+			"alto": 4.5,
 			"grueso": 0.3,
-			"murales": 60
+			"murales": 60,
+			"base": 2.6,
+			"dentro": -1
 		},
 		{
 			"nombre": "Barda_oriente_b",
-			"tipo": "barda",
+			"tipo": "muralla",
 			"auto": true,
 			"x": -185.4,
 			"z": 481.7,
 			"rot": 1.5708,
 			"largo": 0.6,
-			"alto": 2.6,
+			"alto": 4.5,
 			"grueso": 0.3,
-			"murales": 60
+			"murales": 60,
+			"base": 2.6,
+			"dentro": -1
 		},
 		{
 			"nombre": "Reja_oriente",
@@ -7939,8 +7910,140 @@
 			"z": 472.6,
 			"rot": 1.5708,
 			"largo": 17.6,
-			"alto": 2.6,
+			"alto": 4.5,
 			"grueso": 0.3
+		},
+		{
+			"nombre": "Puesto_Guardia_poniente",
+			"tipo": "puesto_guardia",
+			"x": -413.5,
+			"z": 447.2,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Puesto_Guardia_oriente",
+			"tipo": "puesto_guardia",
+			"x": -191.5,
+			"z": 466.0,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Mirador_poniente_0",
+			"tipo": "mirador_muro",
+			"x": -419.45,
+			"z": 365.0,
+			"rot": 1.5708,
+			"alto": 3.4
+		},
+		{
+			"nombre": "Mirador_poniente_1",
+			"tipo": "mirador_muro",
+			"x": -419.45,
+			"z": 290.0,
+			"rot": 1.5708,
+			"alto": 3.4
+		},
+		{
+			"nombre": "Mirador_norte_0",
+			"tipo": "mirador_muro",
+			"x": -398.0,
+			"z": 258.55,
+			"rot": 0.0,
+			"alto": 3.4
+		},
+		{
+			"nombre": "Mirador_norte_1",
+			"tipo": "mirador_muro",
+			"x": -345.0,
+			"z": 258.55,
+			"rot": 0.0,
+			"alto": 3.4
+		},
+		{
+			"nombre": "Mirador_norte_2",
+			"tipo": "mirador_muro",
+			"x": -252.0,
+			"z": 258.55,
+			"rot": 0.0,
+			"alto": 3.4
+		},
+		{
+			"nombre": "Mirador_oriente_0",
+			"tipo": "mirador_muro",
+			"x": -185.55,
+			"z": 296.0,
+			"rot": -1.5708,
+			"alto": 3.4
+		},
+		{
+			"nombre": "Mirador_oriente_1",
+			"tipo": "mirador_muro",
+			"x": -185.55,
+			"z": 398.0,
+			"rot": -1.5708,
+			"alto": 3.4
+		},
+		{
+			"nombre": "Mirador_sur_0",
+			"tipo": "mirador_muro",
+			"x": -215.0,
+			"z": 481.45,
+			"rot": 3.1416,
+			"alto": 3.4
+		},
+		{
+			"nombre": "Parapeto_Tinaco_0",
+			"tipo": "jardinera",
+			"x": -339.97,
+			"z": 394.9,
+			"rot": -0.5051,
+			"tam": [3.6, 1.1],
+			"arbol": false
+		},
+		{
+			"nombre": "Parapeto_Tinaco_1",
+			"tipo": "jardinera",
+			"x": -334.6,
+			"z": 404.14,
+			"rot": -1.5845,
+			"tam": [3.6, 1.1],
+			"arbol": false
+		},
+		{
+			"nombre": "Parapeto_Tinaco_2",
+			"tipo": "jardinera",
+			"x": -340.09,
+			"z": 413.17,
+			"rot": -2.6502,
+			"tam": [3.6, 1.1],
+			"arbol": false
+		},
+		{
+			"nombre": "Parapeto_Tinaco_3",
+			"tipo": "jardinera",
+			"x": -349.47,
+			"z": 413.39,
+			"rot": 2.697,
+			"tam": [3.6, 1.1],
+			"arbol": false
+		},
+		{
+			"nombre": "Parapeto_Tinaco_4",
+			"tipo": "jardinera",
+			"x": -354.8,
+			"z": 407.48,
+			"rot": 1.9116,
+			"tam": [3.1899152513610973, 1.1],
+			"arbol": false
+		},
+		{
+			"nombre": "Parapeto_Tinaco_5",
+			"tipo": "jardinera",
+			"x": -352.35,
+			"z": 396.65,
+			"rot": 0.7854,
+			"tam": [3.6, 1.1],
+			"arbol": false
 		}
 	],
 	"marcas": [
@@ -8048,22 +8151,6 @@
 			"y": -1.2
 		},
 		{
-			"nombre": "Guardia_GelA_0",
-			"tipo": "vecino",
-			"x": -342.8,
-			"z": 453.7,
-			"rot": 3.0457,
-			"uniforme": "gela"
-		},
-		{
-			"nombre": "Guardia_GelA_1",
-			"tipo": "vecino",
-			"x": -346.0,
-			"z": 453.3,
-			"rot": 3.0457,
-			"uniforme": "gela"
-		},
-		{
 			"nombre": "Trampa_Cancha",
 			"tipo": "trampa",
 			"x": -392.0,
@@ -8071,46 +8158,6 @@
 			"rot": 0.0,
 			"tam": [12.6, 19.6],
 			"radio": 35.0
-		},
-		{
-			"nombre": "Reflector_Palacio_0",
-			"tipo": "reflector",
-			"x": -367.0,
-			"z": 383.5,
-			"y": 0.3,
-			"rot": -3.1416,
-			"baja": -48,
-			"alcance": 14.0
-		},
-		{
-			"nombre": "Reflector_Palacio_1",
-			"tipo": "reflector",
-			"x": -354.0,
-			"z": 383.5,
-			"y": 0.3,
-			"rot": -3.1416,
-			"baja": -48,
-			"alcance": 14.0
-		},
-		{
-			"nombre": "Reflector_Palacio_2",
-			"tipo": "reflector",
-			"x": -341.0,
-			"z": 383.5,
-			"y": 0.3,
-			"rot": -3.1416,
-			"baja": -48,
-			"alcance": 14.0
-		},
-		{
-			"nombre": "Reflector_Palacio_3",
-			"tipo": "reflector",
-			"x": -328.0,
-			"z": 383.5,
-			"y": 0.3,
-			"rot": -3.1416,
-			"baja": -48,
-			"alcance": 14.0
 		},
 		{
 			"nombre": "Foco_Portal_Palacio_0",
@@ -8274,13 +8321,6 @@
 			"z": 432.2,
 			"y": 0.9,
 			"rot": 0.0
-		},
-		{
-			"nombre": "Caja_GelA",
-			"tipo": "caja_gela",
-			"x": -339.1,
-			"z": 454.8,
-			"rot": 3.0457
 		},
 		{
 			"nombre": "Puerta_oxxo_0",
@@ -8476,6 +8516,432 @@
 			"rot": -1.5708,
 			"llegada": [-190.8, 472.6],
 			"texto": "Salir de Santa Mugre"
+		},
+		{
+			"nombre": "Guardia_Reja_poniente_0",
+			"tipo": "vecino",
+			"x": -410.6,
+			"z": 448.6,
+			"rot": 0.0,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Guardia_Reja_poniente_1",
+			"tipo": "vecino",
+			"x": -415.2,
+			"z": 460.8,
+			"rot": 1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Guardia_Reja_oriente_0",
+			"tipo": "vecino",
+			"x": -188.6,
+			"z": 467.4,
+			"rot": 0.0,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Guardia_Reja_oriente_1",
+			"tipo": "vecino",
+			"x": -189.8,
+			"z": 478.6,
+			"rot": -1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Caja_Ofrendas",
+			"tipo": "caja_gela",
+			"de": "ofrendas",
+			"x": -409.6,
+			"z": 446.4,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Reflector_Reja_poniente",
+			"tipo": "reflector",
+			"x": -417.0,
+			"z": 454.5,
+			"y": 5.0,
+			"rot": 1.5708,
+			"baja": 38,
+			"alcance": 20.0
+		},
+		{
+			"nombre": "Reflector_Reja_oriente",
+			"tipo": "reflector",
+			"x": -188.0,
+			"z": 472.6,
+			"y": 5.0,
+			"rot": -1.5708,
+			"baja": 38,
+			"alcance": 20.0
+		},
+		{
+			"nombre": "Letrero_Escuela",
+			"tipo": "letrero",
+			"texto": "ESCUELA PRIMARIA SANTA MUGRE",
+			"x": -347.5,
+			"z": 379.1,
+			"y": 11.15,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Vigia_poniente_0",
+			"tipo": "vecino",
+			"x": -418.55,
+			"z": 363.4,
+			"y": 3.4,
+			"rot": -1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_poniente_0",
+			"tipo": "reflector",
+			"x": -419.15,
+			"z": 363.4,
+			"y": 5.4,
+			"rot": 1.5708,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_poniente_1",
+			"tipo": "vecino",
+			"x": -418.55,
+			"z": 288.4,
+			"y": 3.4,
+			"rot": -1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_poniente_1",
+			"tipo": "reflector",
+			"x": -419.15,
+			"z": 288.4,
+			"y": 5.4,
+			"rot": 1.5708,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_norte_0",
+			"tipo": "vecino",
+			"x": -396.4,
+			"z": 259.45,
+			"y": 3.4,
+			"rot": 3.1416,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_norte_0",
+			"tipo": "reflector",
+			"x": -396.4,
+			"z": 258.85,
+			"y": 5.4,
+			"rot": 0.0,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_norte_1",
+			"tipo": "vecino",
+			"x": -343.4,
+			"z": 259.45,
+			"y": 3.4,
+			"rot": 3.1416,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_norte_1",
+			"tipo": "reflector",
+			"x": -343.4,
+			"z": 258.85,
+			"y": 5.4,
+			"rot": 0.0,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_norte_2",
+			"tipo": "vecino",
+			"x": -250.4,
+			"z": 259.45,
+			"y": 3.4,
+			"rot": 3.1416,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_norte_2",
+			"tipo": "reflector",
+			"x": -250.4,
+			"z": 258.85,
+			"y": 5.4,
+			"rot": 0.0,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_oriente_0",
+			"tipo": "vecino",
+			"x": -186.45,
+			"z": 297.6,
+			"y": 3.4,
+			"rot": 1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_oriente_0",
+			"tipo": "reflector",
+			"x": -185.85,
+			"z": 297.6,
+			"y": 5.4,
+			"rot": -1.5708,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_oriente_1",
+			"tipo": "vecino",
+			"x": -186.45,
+			"z": 399.6,
+			"y": 3.4,
+			"rot": 1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_oriente_1",
+			"tipo": "reflector",
+			"x": -185.85,
+			"z": 399.6,
+			"y": 5.4,
+			"rot": -1.5708,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_sur_0",
+			"tipo": "vecino",
+			"x": -216.6,
+			"z": 480.55,
+			"y": 3.4,
+			"rot": 0.0,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_sur_0",
+			"tipo": "reflector",
+			"x": -216.6,
+			"z": 481.15,
+			"y": 5.4,
+			"rot": 3.1416,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Barricada_0",
+			"tipo": "mision",
+			"x": -345.0,
+			"z": 390.0,
+			"rot": -3.1416
+		},
+		{
+			"nombre": "Barricada_1",
+			"tipo": "mision",
+			"x": -333.14,
+			"z": 396.56,
+			"rot": 2.1315
+		},
+		{
+			"nombre": "Barricada_2",
+			"tipo": "mision",
+			"x": -333.35,
+			"z": 411.77,
+			"rot": 0.9828
+		},
+		{
+			"nombre": "Barricada_3",
+			"tipo": "mision",
+			"x": -345.0,
+			"z": 418.0,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Barricada_4",
+			"tipo": "mision",
+			"x": -355.87,
+			"z": 412.82,
+			"rot": -0.8892
+		},
+		{
+			"nombre": "Barricada_5",
+			"tipo": "mision",
+			"x": -359.0,
+			"z": 404.0,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Vela_Tinaco_0",
+			"tipo": "vecino",
+			"x": -339.51,
+			"z": 405.11,
+			"rot": -1.7708,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_1",
+			"tipo": "vecino",
+			"x": -341.51,
+			"z": 408.38,
+			"rot": -2.4689,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_2",
+			"tipo": "vecino",
+			"x": -345.14,
+			"z": 409.6,
+			"rot": 3.1161,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_3",
+			"tipo": "vecino",
+			"x": -348.71,
+			"z": 408.2,
+			"rot": 2.418,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_4",
+			"tipo": "vecino",
+			"x": -350.54,
+			"z": 404.83,
+			"rot": 1.7199,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_5",
+			"tipo": "vecino",
+			"x": -349.78,
+			"z": 401.08,
+			"rot": 1.0217,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_6",
+			"tipo": "vecino",
+			"x": -346.78,
+			"z": 398.69,
+			"rot": 0.3236,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_7",
+			"tipo": "vecino",
+			"x": -342.95,
+			"z": 398.79,
+			"rot": -0.3745,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_8",
+			"tipo": "vecino",
+			"x": -340.08,
+			"z": 401.32,
+			"rot": -1.0727,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Foco_Vela_0",
+			"tipo": "foco",
+			"x": -341.33,
+			"z": 407.09,
+			"y": 0.5,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Foco_Vela_1",
+			"tipo": "foco",
+			"x": -349.51,
+			"z": 405.63,
+			"y": 0.5,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Foco_Vela_2",
+			"tipo": "foco",
+			"x": -344.16,
+			"z": 399.27,
+			"y": 0.5,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Vela_Atrio_0",
+			"tipo": "vecino",
+			"x": -323.4,
+			"z": 410.6,
+			"rot": 1.5708,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Atrio_1",
+			"tipo": "vecino",
+			"x": -323.4,
+			"z": 413.2,
+			"rot": 1.5708,
+			"clip": "Kneel_Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Ninos_Escuela",
+			"tipo": "ninos",
+			"x": -347.5,
+			"z": 384.4,
+			"rot": 0.0,
+			"tam": [26.0, 4.6],
+			"cuantos": 5
+		},
+		{
+			"nombre": "Maestra_Escuela",
+			"tipo": "vecino",
+			"x": -340.0,
+			"z": 381.6,
+			"rot": 0.0,
+			"clip": "Idle"
 		}
 	],
 	"negocios": [
@@ -8873,7 +9339,7 @@
 		}
 	],
 	"bordes": {
-		"norte": "gela",
+		"norte": "fieles",
 		"sur": "barda",
 		"poniente": "camion",
 		"oriente": "derrumbe"

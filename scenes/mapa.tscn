@@ -176,6 +176,7 @@ ocultar = Array[NodePath]([NodePath("../Minimapa")])
 
 [node name="Zombis" type="Node3D" parent="."]
 script = ExtResource("14_zombis")
+espontaneos = false
 jugador_path = NodePath("../Player")
 ciclo_path = NodePath("../Ciclo")
 ritmo = ExtResource("18_ritmo")
