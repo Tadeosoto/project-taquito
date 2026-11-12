@@ -96,6 +96,11 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _bocina_musica()
 			"bocina_apaga":
 				_sonidos[nombre] = _tono(620.0, 0.45, -540.0, 0.45)
+			# Las campanas de Santa Mugre (scripts/mapa/Campana.gd): la de la parroquia y la de la escuela
+			"campana":
+				_sonidos[nombre] = _campana(196.0, 3.2, 0.5)
+			"campana_escuela":
+				_sonidos[nombre] = _campana(880.0, 0.9, 0.4)
 			"reventar":
 				_sonidos[nombre] = _reventar()
 			# La Madre del Carcamo y sus crias (scripts/lombrices/)
@@ -577,6 +582,23 @@ static func _eco(seco: PackedFloat32Array, retardos: Array[int], realimentacion:
 	for i in fundido:
 		salida[total - 1 - i] *= float(i) / fundido
 	return salida
+
+
+# Campana de bronce: el golpe y varios parciales que no son armonicos exactos (por eso suena a
+# campana y no a flauta), cada uno apagandose a su paso; los agudos se van primero
+static func _campana(frecuencia: float, duracion: float, volumen: float) -> AudioStreamWAV:
+	var parciales := [[0.5, 0.5, 1.0], [1.0, 1.0, 1.4], [1.19, 0.6, 1.8], [1.56, 0.45, 2.4], [2.0, 0.5, 3.0], [2.66, 0.25, 4.2], [3.76, 0.15, 6.0]]
+	var b := _vacio(duracion)
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		var valor := 0.0
+		for p: Array in parciales:
+			valor += sin(TAU * frecuencia * float(p[0]) * t) * float(p[1]) * exp(-t * float(p[2]) * 3.2 / duracion)
+		# El badajo: un chasquido de ruido en los primeros milisegundos
+		if t < 0.012:
+			valor += (randf() * 2.0 - 1.0) * (1.0 - t / 0.012) * 0.8
+		b[i] = valor * volumen * 0.3
+	return _a_wav(b)
 
 
 static func _a_wav(b: PackedFloat32Array) -> AudioStreamWAV:

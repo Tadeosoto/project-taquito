@@ -47,7 +47,7 @@
 			"x": -395.05,
 			"z": 320.2,
 			"y": 14.85,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -50,
 			"alcance": 7.0
 		},
@@ -188,7 +188,7 @@
 			"x": -347.0,
 			"z": 337.6,
 			"y": 4.6,
-			"rot": -3.1416
+			"rot": 3.1416
 		},
 		{
 			"nombre": "Fila_Agua_0",
@@ -590,7 +590,7 @@
 			"x": -396.4,
 			"z": 259.45,
 			"y": 3.4,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"uniforme": "fiel",
 			"cuando": "siempre"
 		},
@@ -610,7 +610,7 @@
 			"x": -343.4,
 			"z": 259.45,
 			"y": 3.4,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"uniforme": "fiel",
 			"cuando": "siempre"
 		},
@@ -630,7 +630,7 @@
 			"x": -250.4,
 			"z": 259.45,
 			"y": 3.4,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"uniforme": "fiel",
 			"cuando": "siempre"
 		},
@@ -700,7 +700,7 @@
 			"x": -216.6,
 			"z": 481.15,
 			"y": 5.4,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": 40,
 			"alcance": 16.0
 		},
@@ -709,7 +709,7 @@
 			"tipo": "mision",
 			"x": -345.0,
 			"z": 390.0,
-			"rot": -3.1416
+			"rot": 3.1416
 		},
 		{
 			"nombre": "Barricada_1",
@@ -752,7 +752,7 @@
 			"x": -339.51,
 			"z": 405.11,
 			"rot": -1.7708,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -762,7 +762,7 @@
 			"x": -341.51,
 			"z": 408.38,
 			"rot": -2.4689,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -772,7 +772,7 @@
 			"x": -345.14,
 			"z": 409.6,
 			"rot": 3.1161,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -782,7 +782,7 @@
 			"x": -348.71,
 			"z": 408.2,
 			"rot": 2.418,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -792,7 +792,7 @@
 			"x": -350.54,
 			"z": 404.83,
 			"rot": 1.7199,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -802,7 +802,7 @@
 			"x": -349.78,
 			"z": 401.08,
 			"rot": 1.0217,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -812,7 +812,7 @@
 			"x": -346.78,
 			"z": 398.69,
 			"rot": 0.3236,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -822,7 +822,7 @@
 			"x": -342.95,
 			"z": 398.79,
 			"rot": -0.3745,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -832,7 +832,7 @@
 			"x": -340.08,
 			"z": 401.32,
 			"rot": -1.0727,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -866,7 +866,7 @@
 			"x": -323.4,
 			"z": 410.6,
 			"rot": 1.5708,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -876,7 +876,7 @@
 			"x": -323.4,
 			"z": 413.2,
 			"rot": 1.5708,
-			"clip": "Kneel_Idle",
+			"clip": "Idle",
 			"cuando": "noche",
 			"veladora": true
 		},
@@ -896,6 +896,77 @@
 			"z": 381.6,
 			"rot": 0.0,
 			"clip": "Idle"
+		},
+		{
+			"nombre": "Campana_Parroquia",
+			"tipo": "campana",
+			"de": "templo",
+			"x": -311.0,
+			"z": 426.0,
+			"y": 14.0,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Campana_Escuela",
+			"tipo": "campana",
+			"de": "escuela",
+			"x": -345.4,
+			"z": 378.6,
+			"y": 4.2,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Palomas_Plaza",
+			"tipo": "palomas",
+			"x": -336.0,
+			"z": 414.0,
+			"rot": 0.0,
+			"tam": [10.0, 9.0],
+			"cuantas": 14
+		},
+		{
+			"nombre": "Palomas_Escuela",
+			"tipo": "palomas",
+			"x": -362.0,
+			"z": 384.0,
+			"rot": 0.0,
+			"tam": [12.0, 4.0],
+			"cuantas": 9
+		},
+		{
+			"nombre": "Perro_Reja_poniente",
+			"tipo": "perro",
+			"x": -411.2,
+			"z": 449.6,
+			"rot": 0.6
+		},
+		{
+			"nombre": "Perro_Reja_oriente",
+			"tipo": "perro",
+			"x": -189.4,
+			"z": 468.6,
+			"rot": -0.9
+		},
+		{
+			"nombre": "Perro_Vecindad",
+			"tipo": "perro",
+			"x": -214.0,
+			"z": 407.0,
+			"rot": 2.2
+		},
+		{
+			"nombre": "Perro_Mercado",
+			"tipo": "perro",
+			"x": -338.0,
+			"z": 336.4,
+			"rot": 3.0
+		},
+		{
+			"nombre": "Perro_Atrio",
+			"tipo": "perro",
+			"x": -322.6,
+			"z": 428.0,
+			"rot": 1.2
 		},
 		{
 			"nombre": "Foco_0",

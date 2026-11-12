@@ -268,6 +268,12 @@ func _ready() -> void:
 	yonke.con_barda = true
 	yonke.puntos_path = get_node("Puntos").get_path()
 	add_child(yonke)
+	# Palomas (scripts/mapa/Palomas.gd, las de la plaza de Santa Mugre): se espantan si pasas corriendo
+	var palomas := Palomas.new()
+	palomas.name = "Palomas"
+	palomas.tam = Vector2(8.0, 8.0)
+	palomas.position = Vector3(14.0, 0.0, 6.0)
+	add_child(palomas)
 	_armar_panel()
 
 

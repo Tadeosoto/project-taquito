@@ -167,6 +167,28 @@ func _ready() -> void:
 				_placa(marca)
 			"tianguis":
 				_tianguis(marca)
+			"campana":
+				var campana := Campana.new()
+				campana.name = String(marca.get("nombre", "Campana"))
+				campana.de = String(marca.get("de", "templo"))
+				campana.transform = lugar(marca)
+				add_child(campana)
+			"palomas":
+				var palomas := Palomas.new()
+				palomas.name = String(marca.get("nombre", "Palomas"))
+				var tam_palomas: Array = marca.get("tam", [16.0, 16.0])
+				palomas.tam = Vector2(float(tam_palomas[0]), float(tam_palomas[1]))
+				palomas.cuantas = int(marca.get("cuantas", 14))
+				palomas.transform = lugar(marca)
+				add_child(palomas)
+			"perro":
+				# Un perro echado (el de Gente.gd), de dia y de noche; de lejos no se dibuja
+				var perro := Node3D.new()
+				perro.name = String(marca.get("nombre", "Perro"))
+				perro.transform = lugar(marca)
+				add_child(perro)
+				Gente.poner_modelo(perro, Gente.PERRO, Gente.ALTO_PERRO)
+				_siempre.append(perro)
 			"caja_gela":
 				var caja := CajaGela.new()
 				caja.name = String(marca.get("nombre", "CajaGela"))
