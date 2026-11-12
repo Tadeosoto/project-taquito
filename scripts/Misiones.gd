@@ -31,6 +31,8 @@ const ARCHIVOS := [
 	"res://resources/misiones/escolta_noche.tres",
 	"res://resources/misiones/reparto_noche.tres",
 	"res://resources/misiones/antena_noche.tres",
+	"res://resources/misiones/caceria_noche.tres",
+	"res://resources/misiones/entrada_dia.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -272,7 +274,8 @@ func visitado() -> void:
 	if activa == null or not en_hora():
 		return
 	var tipo := paso().tipo
-	if tipo != PasoMision.Tipo.VISITAR and tipo != PasoMision.Tipo.LLEVAR_CARGA:
+	if tipo != PasoMision.Tipo.VISITAR and tipo != PasoMision.Tipo.LLEVAR_CARGA \
+			and tipo != PasoMision.Tipo.ENTRAR_A:
 		return
 	var pago := roundi(paso().pesos_por_entrega * get_node("/root/Personaje").factor_paga())
 	if tipo == PasoMision.Tipo.LLEVAR_CARGA and pago > 0:
@@ -287,6 +290,12 @@ func visitado() -> void:
 
 func recogido() -> void:
 	if activa and paso().tipo == PasoMision.Tipo.RECOGER and en_hora():
+		_avanzar()
+
+
+# CAZAR: bajaron al zombi marcado
+func cazado() -> void:
+	if activa and paso().tipo == PasoMision.Tipo.CAZAR and en_hora():
 		_avanzar()
 
 

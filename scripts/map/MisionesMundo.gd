@@ -29,6 +29,8 @@ const ACOMPANANTE_SALE_A := 30.0  # m: si el que dio la mision esta mas lejos, s
 const ESCOLTA_LLEGA := 4.0        # m a la meta, de los dos
 const DEFENDER_RADIO := 20.0      # m del lugar: mas lejos, el tiempo no corre
 const DEFENDER_PRIMERA := 4.0     # s para la primera turba
+const CAZA_BUSCAR := 25.0         # m de radio del area marcada en los mapas
+const CAZA_APARECE := 70.0        # m del lugar a los que sale el zombi marcado
 const TEXTO_HORA := "%s: \"Esto me toca %s.\""
 
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
@@ -70,6 +72,10 @@ var _escolta_meta := Vector3.ZERO
 # DEFENDER: de que paso es la cuenta de turbas y en cuanto sale la siguiente
 var _defensa_de: PasoMision = null
 var _ola_en := 0.0
+# CAZAR: el zombi marcado, de que paso, y su "!"
+var _cazado: Zombie = null
+var _cazado_de: PasoMision = null
+var _marca_cazado: Label3D = null
 
 
 func _ready() -> void:
@@ -266,6 +272,7 @@ func _cambio() -> void:
 	_quitar_puntos()
 	var paso := Misiones.paso()
 	_ajustar_acompanante(paso)
+	_ajustar_cazado(paso)
 	# Se acabo la mision de la cosa (y ya entro la siguiente): se suelta
 	if _cosa_en_manos and _perro_de != Misiones.activa:
 		_soltar_carga()
@@ -284,6 +291,17 @@ func _cambio() -> void:
 			_apuntar(_lugar_de_vecino(Misiones.activa))
 		PasoMision.Tipo.ESCOLTAR:
 			_apuntar(_meta_de_escolta(paso))
+		PasoMision.Tipo.CAZAR:
+			# El area, no el punto: hay que buscarlo
+			var meta := _meta_de_escolta(paso)
+			var corrido := Vector2.from_angle(randf() * TAU) * randf() * CAZA_BUSCAR * 0.6
+			_apuntar(meta + Vector3(corrido.x, 0.0, corrido.y), CAZA_BUSCAR)
+		PasoMision.Tipo.ENTRAR_A:
+			if _puntos.is_empty():
+				_puntos_de = Misiones.activa
+				Misiones.meta_visitas = 1
+				_puntos.append(_punto_de_visita(_meta_de_escolta(paso)))
+				_apuntar_al_punto_cercano()
 		PasoMision.Tipo.DEFENDER:
 			_apuntar(_meta_de_escolta(paso))
 			if _defensa_de != paso:
@@ -414,12 +432,67 @@ func _apuntar_al_punto_cercano() -> void:
 func _quitar_puntos() -> void:
 	# Los que siguen pendientes del mismo paso se quedan
 	var paso := Misiones.paso()
-	if paso and (paso.tipo == PasoMision.Tipo.VISITAR or paso.tipo == PasoMision.Tipo.LLEVAR_CARGA) \
-			and not _puntos.is_empty() and _puntos_de == Misiones.activa:
+	if paso and (paso.tipo == PasoMision.Tipo.VISITAR or paso.tipo == PasoMision.Tipo.LLEVAR_CARGA \
+			or paso.tipo == PasoMision.Tipo.ENTRAR_A) and not _puntos.is_empty() and _puntos_de == Misiones.activa:
 		return
 	for area in _puntos:
 		area.queue_free()
 	_puntos.clear()
+
+
+# --- El zombi que cazas ---
+
+# Se quita si el paso ya no es de CAZAR o no es su hora; el nuevo sale al acercarte (_revisar_caza)
+func _ajustar_cazado(paso: PasoMision) -> void:
+	var quiere := paso != null and paso.tipo == PasoMision.Tipo.CAZAR and Misiones.en_hora()
+	if not quiere or _cazado_de != paso:
+		_quitar_cazado()
+	if quiere:
+		_cazado_de = paso
+
+
+func _quitar_cazado() -> void:
+	if is_instance_valid(_marca_cazado):
+		_marca_cazado.queue_free()
+	_marca_cazado = null
+	_cazado = null
+	_cazado_de = null
+
+
+# Sale cuando estas a CAZA_APARECE m del lugar (los lejanos se guardan solos: si se le pierde,
+# vuelve a salir); al morir a golpes se cumple el paso
+func _revisar_caza(paso: PasoMision) -> void:
+	if _cazado_de != paso:
+		_cazado_de = paso
+	if _cazado != null:
+		if not is_instance_valid(_cazado) or (not _cazado.despierto and _cazado.estado != Zombie.Estado.MUERTO):
+			_quitar_cazado()
+			_cazado_de = paso
+		elif _cazado.estado == Zombie.Estado.MUERTO:
+			var por_amanecer := _cazado.cayo_al_amanecer
+			_quitar_cazado()
+			if not por_amanecer:
+				_sonar("moneda")
+				Misiones.cazado()
+			return
+		else:
+			return
+	var meta := _meta_de_escolta(paso)
+	if Vector2(_jugador.global_position.x, _jugador.global_position.z).distance_to(Vector2(meta.x, meta.z)) > CAZA_APARECE:
+		return
+	var mando := get_tree().get_first_node_in_group("zombis_mando") as Zombis
+	if mando == null:
+		return
+	_cazado = mando.sacar(meta, false)
+	_marca_cazado = Label3D.new()
+	_marca_cazado.text = "!"
+	_marca_cazado.font_size = 96
+	_marca_cazado.pixel_size = 0.012
+	_marca_cazado.modulate = Color(0.9, 0.1, 0.1)
+	_marca_cazado.outline_size = 24
+	_marca_cazado.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_marca_cazado.position.y = SIGNO_ALTO
+	_cazado.add_child(_marca_cazado)
 
 
 # --- A quien escoltas ---
@@ -664,6 +737,8 @@ func _process(delta: float) -> void:
 		_revisar_escolta(paso)
 	elif paso.tipo == PasoMision.Tipo.DEFENDER:
 		linea += _revisar_defensa(paso, delta)
+	elif paso.tipo == PasoMision.Tipo.CAZAR:
+		_revisar_caza(paso)
 	if paso.segundos > 0.0:
 		linea += " · %d s" % ceili(Misiones.tiempo_queda)
 	_texto.text = linea

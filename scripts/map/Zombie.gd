@@ -251,6 +251,8 @@ var zombis: Zombis
 var es_jefe := false
 var _herido_dura := HERIDO_DURA   # lo que dura el HERIDO de ahora: mas con la palomita (aturdir)
 var tipo := Tipo.NORMAL
+# Murio porque amanecio, no a golpes (las misiones de CAZAR no lo cuentan)
+var cayo_al_amanecer := false
 var skin := -1              # indice en SKINS; -1 = al azar (antes de entrar al arbol)
 var cazador := false
 # Zombi raro (Zombis.gd): "gela" (uniforme de GelA) o "cobalto" (brilla, en zonas de obra negra)
@@ -564,6 +566,7 @@ func calentar() -> void:
 # Sale de la reserva, como nuevo. `con_prisa`: de turba
 func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	despierto = true
+	cayo_al_amanecer = false
 	infectado = false
 	cazador = con_prisa
 	emboscada = false
@@ -1266,6 +1269,7 @@ func _morir(pagado: bool, truena_en := 0, espera := 0) -> void:
 
 func caer_al_amanecer() -> void:
 	if estado != Estado.MUERTO:
+		cayo_al_amanecer = true
 		_morir(false)
 
 
