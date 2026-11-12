@@ -351,12 +351,13 @@ func _tambalear(delta: float) -> void:
 # --- Golpes que recibe (machete, pistola) ---
 
 # Igual que Zombie.recibir_golpe: 0 = nada, 1 = pego, 2 = mato
-func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, _truena_en := 80, _cuerpo_a_cuerpo := true, cabeza := false) -> int:
+func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, _truena_en := 80, cuerpo_a_cuerpo := true, cabeza := false, _fuente := "") -> int:
 	if estado == Estado.MUERTO:
 		return 0
 	_vida -= dano * (2 if cabeza else 1)
 	_nota("pelear")
-	if zombis and zombis.get("efectos"):
+	# El balazo pinta su impacto donde pego (Pistola.disparar); aqui solo el machete
+	if cuerpo_a_cuerpo and zombis and zombis.get("efectos"):
 		zombis.efectos.lanzar("impacto", global_position + Vector3.UP * 0.6, (global_position - desde).normalized())
 	Sonidos.tocar(self, "whack", -8.0)
 	if _vida <= 0:

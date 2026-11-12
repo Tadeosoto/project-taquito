@@ -1644,7 +1644,7 @@ func _gotear(delta: float) -> void:
 # --- Golpes que recibe ---
 
 # Igual que Zombie.recibir_golpe: 0 = nada, 1 = pego, 2 = mato
-func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, cuerpo_a_cuerpo := true, _cabeza := false) -> int:
+func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, cuerpo_a_cuerpo := true, _cabeza := false, _fuente := "") -> int:
 	if estado == Estado.MUERTA:
 		return 0
 	if dormida:

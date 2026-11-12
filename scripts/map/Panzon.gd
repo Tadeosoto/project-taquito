@@ -504,7 +504,7 @@ func _sacudir(fuerza: float) -> void:
 # --- Golpes que recibe ---
 
 # Igual que Zombie.recibir_golpe: 0 = nada, 1 = pego, 2 = mato
-func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, _cuerpo_a_cuerpo := true, cabeza := false) -> int:
+func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, cuerpo_a_cuerpo := true, cabeza := false, _fuente := "") -> int:
 	if estado == Estado.MUERTO:
 		return 0
 	var mult := (ATARANTADO_MULT if estado == Estado.ATARANTADO else 1) * (2 if cabeza else 1)
@@ -512,7 +512,8 @@ func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, 
 	cambio.emit(maxi(_vida, 0), VIDA)
 	_nota("pelear")
 	var zs = zombis
-	if zs and zs.get("efectos"):
+	# El balazo pinta su impacto donde pego (Pistola.disparar); aqui solo el machete
+	if cuerpo_a_cuerpo and zs and zs.get("efectos"):
 		zs.efectos.lanzar("impacto", global_position + Vector3.UP * 1.3, (global_position - desde).normalized())
 	Sonidos.tocar(self, "whack", -6.0, 0.8)
 	if _vida <= 0:

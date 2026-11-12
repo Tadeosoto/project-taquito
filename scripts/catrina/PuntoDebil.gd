@@ -42,7 +42,7 @@ func activo(si: bool) -> void:
 
 
 # Igual que Zombie.recibir_golpe: 0 = nada, 1 = pego, 2 = mato
-func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, cuerpo_a_cuerpo := true, _cabeza := false) -> int:
+func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, cuerpo_a_cuerpo := true, _cabeza := false, _fuente := "") -> int:
 	if catrina == null or not is_instance_valid(catrina) or not visible:
 		return 0
 	return catrina.golpe_punto(id, dano, desde, cuerpo_a_cuerpo)
