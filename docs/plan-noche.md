@@ -16,8 +16,19 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 |---|---|---|---|
 | 2026-11-11 | Diseño | Se plantearon las tres fortalezas, el ciclo del agua de noche y se votaron 10 choques de lore (abajo). Se creó este megaplan y la rama `lore-noche-fortalezas` | L1 |
 | 2026-11-11 | L0 a L6 | Pasada de `lore.md`: línea de tiempo, §5 (policía de día, palacio afuera), §8 (zombis reconocen el Serenol), §9 (Chuy sospecha, templo de Santa Mugre), §10, §11 (Gotera vende agua limpia), §13 (tres fortalezas, Reservorios, Haciendas sin gobernadora), §14 (agua de noche, defensa de la reja), §16 (Doña Refugio, túneles, plaza de la Catrina), índice, nombres y preguntas | L7 |
+| 2026-11-12 | L7 | `personajes.md`: Gerardo (rebelde, medio hermano, ya sabe), Germán ciego, Chuy que calla, sin Doña Refugio ni la leyenda (tinaco manchado), Chava con pozo propio y Nacho Garrafón, Nemesio protector, Arturo y la resistencia, policías sin cara, matriz de fortalezas. `lore.md` ajustado (§9, §13, §14, §16, glosario). **Pendiente para L8 a L10:** `misiones.md` A4 (Gerardo ya no es "falsa esperanza ingenua": sabe) y A6 (pozo: Chava contra GelA y Gotera, sin Refugio) | L8 |
+| 2026-11-12 | L8 | `misiones.md`: la Vela pasa a "Defensa externa" (defender el tinaco fuera de las fortalezas, dado por Chava/Gabriel; defender la camioneta con Nacho), guardia de la reja (recurrente, la da la parroquia) y evento de la reja (no misión; la reja falla por desgaste que baja con cada guardia). El piloto de prueba no cambia. **Pendiente:** `misiones.md` A4 y A6 siguen nombrando a Doña Refugio y a Gerardo ingenuo; se arreglan en L10 | L9 |
+| 2026-11-12 | L9 | `misiones.md`, sección "Las misiones de fuera": al médico (Karla, fiel mordido, casa con cruz verde), cadena de la antena (piezas y luego defender el pie de la torre mientras alguien sube), Decreto 47 en la bodega de GelA cerca de la reja poniente (H4 actualizada), reparto (Chava desde su casa, Gabriel en Santa Mugre, gremio en La Gotera, también desde la fortaleza hacia afuera) y la hija de Nava; pasada de coherencia. `personajes.md`: Gabriel pasa a Santa Mugre. **Decidido después:** Nava paga antes de salir; Sofía sube la torre; el médico es anónimo (solo dejas al enfermo en su enfermería); si no hay torre a ≤250 m de una reja, se coloca una. **Pendiente:** medir las clínicas a ≤250 m; A4 y A6 (L10) | L10 |
 
 ## Decisiones de JJ (✅)
+
+**Personajes (L7, 2026-11-12)**
+- **Gerardo = el hijo rebelde de GelA**: medio hermano de Georgina (hijo menor de Germán), siempre vivió en la fortaleza, **supo del Serenol hace poco**. Doble cara: heredero modelo de cara a todos, infiltrado que filtra a la resistencia. Germán se hace el ciego.
+- **Resistencia GelA** = gente de servicio + familias ricas con un hijo arrepentido; no se fían entre sí. Contacto del jugador: **Arturo**. Entras a la fortaleza **contratado de guardia** porque se les metieron zombis.
+- **Chuy nunca habla**: su silencio es su pecado; el jugador decide si lo delata o lo deja.
+- **Doña Refugio y la leyenda del tinaco que no se vacía se eliminan.** El culto venera un **tinaco manchado** en la plaza de Santa Mugre. Pozo del templo: solo de Chuy.
+- **Chava** tiene un **pozo propio en La Palmada, fuera de las fortalezas**: de ahí sale el agua del reparto; es parte del gremio y quiere proteger a los de afuera. **Nacho Garrafón** (💡 nombre de Claude) es el chofer fijo de la camioneta.
+- **La reja de Santa Mugre falla por descuido**: desgaste que sube cada noche y baja con cada guardia de la reja, probabilidad de evento según el desgaste (L8). **Solo falla si estás dentro de Santa Mugre; es muy esporádico; si pierdes el tinaco hay **tres reintentos**, la dificultad sigue el progreso del juego (siempre defendible) **y cada reintento la baja un poco**; **si pierden el tinaco, los fieles se ponen tristes**; **paga el padre y el monto se decide con el balance económico**; si dejas que se pierda, lo sustituyen por uno nuevo y ya no hay **ofrenda y velas bajo la silueta de la Virgen** (el altar del templo no se toca); si ganas, te pagan en dinero. El tinaco se llena de **agua bendita del templo** y la Virgen era una manifestación de esa agua.** **Nemesio** = protector de los pobres con las manos sucias; teme que GelA descubra el yacimiento. **Policías** = anónimos y sin cara, y **son los blancos**: el brazo armado de Gela. **Buenrostro es su jefe y vive en la fortaleza GelA.** **El Inspector Nava** (el único blanco con nombre) tiene a su hija convertida en zombi y perdida entre los de la noche: "que sufra el policía". **Su misión:** te manda a buscarla con su vestimenta y descripción, la reconoces por la ropa, **no la matas (si la matas, fallas)**, y **llevas a Nava hasta ella**: él te lo dice, quiere terminar con su sufrimiento y **se deja matar por su hija en lugar de que tú la mates**. **Te paga igual.** Es un policía normal: no pasa nada con su puesto. Se diseña en L9.
 
 **El mundo**
 - **Santa Mugre = fortaleza de la Virgen del Tinaco**, un refugio religioso donde empieza el personaje. Dentro no hay zombis de noche (salvo que falle la reja), no entra la policía. Creen que los de fuera están poseídos por el demonio y que el agua del tinaco de la plaza los protege, y no es mentira (es agua sin Serenol).
@@ -41,7 +52,7 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 | # | Choque | Decisión |
 |---|---|---|
 | 1 | Chuy no sabe del Serenol (§9) vs el pozo que protege | **Chuy sospecha**: nota que quienes toman de su pozo no se "apagan" y lo calla porque el culto le conviene |
-| 2 | Pozo del templo vs Doña Refugio / "El tinaco que no se vacía" | **Es el mismo pozo**: Doña Refugio es la vieja del pozo bajo el templo; el padre lo administra |
+| 2 | Pozo del templo vs Doña Refugio / "El tinaco que no se vacía" | **Es el mismo pozo**: Doña Refugio es la vieja del pozo bajo el templo; el padre lo administra. ⚠️ **Reemplazado el 2026-11-12:** Doña Refugio y la leyenda se eliminan; el pozo del templo es solo de Chuy y el de La Palmada es otro, de Chava |
 | 3 | Madre del Cárcamo (nace del lodo de GelA, §16) vs túneles de la mafia | **Los túneles son solo la entrada**: la Madre y el yacimiento quedan separados; los túneles conectan con los cárcamos de GelA. §16 intacto |
 | 4 | Los Gotera "nunca venden agua", dueños de la válvula (1.1) | **Venden agua limpia a precio justo**: la mafia que protege a los pobres; la válvula sigue como su palanca contra GelA |
 | 5 | Quién sabe del Serenol (3.1) | **Cuatro niveles**: GelA lo sabe todo; trabajadores de GelA casi todos bajo Serenol; la mafia sabe que "algo hay en el agua de la llave"; Santa Mugre solo la fe. **Gente de fuera sabe que el agua tiene algo y pide agua limpia: tu gremio se la lleva** |
@@ -56,7 +67,7 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 - La Palmada ya no tiene el pozo de los abuelos en un patio (quedó bajo el templo de Santa Mugre): confirmar, y quién queda en La Palmada.
 - La capilla de Los Garrafones se mudó a Santa Mugre tras la clausura de 2032 (el tinaco de la Virgen en la plaza): confirmar.
 - Nombre del hijo rebelde de GelA, del chofer/camioneta, de la escuela de Santa Mugre y del nuevo palacio.
-- Cuándo se amuralla cada fortaleza (línea de tiempo §3) y qué incidente hace fallar la reja de Santa Mugre.
+- Cuándo se amuralla cada fortaleza (línea de tiempo §3). (✅ Resuelto el 2026-11-12: la reja falla por **desgaste**, que sube cada noche y baja con cada guardia de la reja; ver `misiones.md` "El evento de la reja".)
 - Cuánto cuesta el agua limpia en cada fortaleza (economía, ligar con `mejoras.md`).
 
 ## Sitios medidos en `map_test` (coordenadas del juego)
@@ -84,9 +95,9 @@ Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.no
 - [x] **L4** `lore.md`: agua clandestina de noche (de día disparan; barricada + tinaco + bocinas; defender tinaco o camioneta; ciclo de dinero y mejoras), evento de la reja, jefes con entrada fuera (plaza de la Catrina, túneles) (M)
 - [x] **L5** `lore.md`: fortaleza de la mafia (favela, yacimiento, túneles, saben del agua de GelA); reescribir §11 y §13 La Gotera (M)
 - [x] **L6** `lore.md`: fortaleza GelA en las canchas del ITESO (albercas, golf, dos reservorios, todos saben, resistencia, hijo rebelde, fábrica en bodegas); mudar gobernadora y Gerardo; palacio afuera y escuela en Santa Mugre; línea de tiempo, §13, índice, §19 (L)
-- [ ] **L7** `personajes.md`: padre Chuy, Doña Refugio, hijo rebelde, resistencia, jefes de la mafia ajustados, Gerardo, policías, chofer; matriz "Quién está con quién" (M)
-- [ ] **L8** `misiones.md`: reescribir el piloto 0 y la Vela como familia "Defensa externa" (defender tinaco, defender camioneta), guardia de la reja (recurrente), evento de la reja (no misión) (M)
-- [ ] **L9** `misiones.md`: misiones de fuera (al médico, antena de Sofía, Decreto 47, reparto) con quién da, dónde, objetivo, riesgo y paga, y pasada de coherencia (M)
+- [x] **L7** `personajes.md`: padre Chuy, ~~Doña Refugio~~ (eliminada), hijo rebelde (= Gerardo), resistencia, jefes de la mafia ajustados, Gerardo, policías, chofer; matriz "Quién está con quién" (M)
+- [x] **L8** `misiones.md`: reescribir el piloto 0 y la Vela como familia "Defensa externa" (defender tinaco, defender camioneta), guardia de la reja (recurrente), evento de la reja (no misión) (M)
+- [x] **L9** `misiones.md`: misiones de fuera (al médico, antena de Sofía, Decreto 47, reparto) con quién da, dónde, objetivo, riesgo y paga, y pasada de coherencia (M)
 - [ ] **L10** `misiones.md`: mafia punto a punto (19 puntos, desbloquea compras ilegales), cacerías (Mojiganga, Madre), GelA e hijo rebelde (M)
 - [ ] **L11** `especificaciones.md` §2, §4.8 y §6, y `revision-historia.md` "Lo decidido" (S)
 - [ ] **L12** Reconstruir el grafo: `/graphify docs --update` desde `docs/`, revisar aristas sueltas, commit aparte de `docs/graphify-out/` (la extracción completa costó ~750k tokens de entrada; puede posponerse) (M)

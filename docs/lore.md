@@ -202,7 +202,7 @@ Cada seis años hay elecciones de verdad: urnas, spots, debates, casillas. Gana 
 
 - **La oposición** es chica y está comprada, presa o muerta. El que se atreve a hacer campaña en serio amanece sin agua, sin crédito o sin vida.
 - **La Reforma Hídrica (2032)** reformó la constitución local para permitir la reelección indefinida y declarar el agua "servicio estratégico de seguridad nacional". Con eso, cualquier protesta por el agua es delito federal.
-- **La policía del agua** (los **blancos**, por el traje blanco de los inspectores de GelA) revisa medidores, clausura tomas clandestinas y cierra la capilla cada tanto. La policía municipal los escolta.
+- **La policía** (los **blancos**, por el traje blanco) es el **brazo armado de Gela**: revisa medidores, clausura tomas clandestinas, cierra la capilla cada tanto y, de día, **dispara a quien reparte agua**. ✅ (2026-11-12) **Los blancos y la policía son lo mismo**; los manda **Buenrostro**, que es su jefe y vive en la fortaleza GelA. De noche se retiran.
 - **El palacio** está en el centro de la ciudad, **afuera** de las fortalezas, en o junto a la plaza de la Catrina (✅ 2026-11-11). **La casa de la gobernadora** ya no está en Haciendas de San Jodido: está dentro de los **Reservorios**, la fortaleza de los Lazcano, detrás de la barda y las plumas.
 
 ### Cómo se gobierna con una llave
@@ -415,7 +415,7 @@ Y hay algo que lo vuelve más milagro todavía: **el agua no siempre se deja tom
 
 - **El tinaco de la plaza** es el de la mancha. Quien lo bebe, no se "apaga". Lo que cree la colonia: **los de fuera están poseídos por el demonio** y el agua del tinaco protege. No es mentira: el agua no trae Serenol.
 - **El templo se puede visitar por dentro.** Detrás del altar hay una puerta de lámina y un **cuarto subterráneo con un pozo**: de ahí saca el agua el padre, la **filtra** (con el filtro Puri-GelA que ya tenía bajo el altar) y la reparte "bendita". La colonia no baja; el que baja, ve.
-- **Doña Refugio** es la vieja que cuida el pozo (ver [§16](#el-tinaco-que-no-se-vacía): es el mismo pozo de los abuelos). Chuy lo administra; ella sabe de dónde viene. 💡 Su casa, con el tinaco que no se vacía, queda dentro de la barda.
+- ✅ (2026-11-12) **El pozo es solo de Chuy:** él lo administra y nadie más baja. **Doña Refugio y la leyenda del "tinaco que no se vacía" se eliminaron**; el pozo de los abuelos de La Palmada es otro pozo, de Chava, fuera de las fortalezas (ver [§14](#el-agua-de-noche-el-negocio-del-gremio)). Lo que la colonia venera es **el tinaco manchado de la plaza**.
 - **Quién vive dentro:** los que salieron de Serenol o nunca lo tomaron, pocos y fieles, y algunos dóciles que no saben lo que son y se refugiaron con sus familias. No hay inspectores ni trámites adentro; no entra la policía.
 - **De noche** no hay zombis dentro de la barda... salvo la noche en que **falla la reja** (ver [§14](#el-agua-de-noche-el-negocio-del-gremio)).
 
@@ -580,7 +580,7 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 | **La calma / el agua blanca** | El agua con Serenol; "el agua blanca" por la espuma |
 | **Los de la llave** | Los que toman agua de la llave (despectivo, y la mayoría de la ciudad) |
 | **Los zombis** | Los muertos que se levantan (caníbales, con sed de agua limpia) |
-| **Los blancos** | Los inspectores de GelA; la policía del agua |
+| **Los blancos** | La policía: el brazo armado de Gela; los manda Buenrostro |
 | **El voto de la llave** | El voto cautivo de los infectados |
 | **La luz que te chupa** | Las lámparas del lote del 84 (ver [Subhistorias](#16-subhistorias-y-leyendas)) |
 | **Varos** | Pesos |
@@ -623,7 +623,7 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 
 | Fortaleza | Dónde | Quién | Qué creen / qué saben | Entrada |
 |---|---|---|---|---|
-| **Santa Mugre** (la Virgen del Tinaco) | Parques de Santa Mugre | Los fieles, el padre Chuy, Doña Refugio | Que los de fuera están poseídos y que el tinaco los protege (la fe, que es verdad) | Dos rejas en la avenida (poniente y oriente) |
+| **Santa Mugre** (la Virgen del Tinaco) | Parques de Santa Mugre | Los fieles, el padre Chuy | Que los de fuera están poseídos y que el tinaco los protege (la fe, que es verdad) | Dos rejas en la avenida (poniente y oriente) |
 | **La Gotera** (la mafia) | Sureste, favela amurallada | Los Gotera, los pobres | Que "algo hay en el agua de la llave"; tienen un yacimiento propio | Barda con puerta vigilada; túneles bajo la zona (después) |
 | **Los Reservorios** (GelA) | Detrás de Haciendas de San Jodido, sobre las canchas de fútbol del ITESO, junto a bodegas grandes | Los Lazcano, los ricos, una resistencia | Todo: el Serenol, para qué sirve, quién lo pone | Caseta con pluma; entran los que dejan entrar |
 
@@ -651,7 +651,7 @@ La clase media que se cayó: casas bonitas con jardines muertos, la secundaria c
 
 El barrio viejo del suroeste. Calles angostas, casas de adobe, el **pozo de los abuelos** con su tapa de lámina, escondido en un patio. La gente mayor recuerda el agua buena del grifo y no le tiene miedo a GelA porque ya no le compra nada.
 
-**De noche:** es la zona con más bolsas sanas (el pozo), y por eso los zombis vienen de otras colonias a buscar agua. **Gancho:** el pozo, la abuela que lo cuida, los que quieren comprarlo. **Se oye:** *"Mi abuelo cavó ese pozo antes de que existiera GelA. Ese pozo no es de nadie."*
+**De noche:** es la zona con más bolsas sanas (el pozo), y por eso los zombis vienen de otras colonias a buscar agua. **Gancho:** el pozo de Chava (de donde sale el agua limpia del gremio), los que quieren sellarlo o cobrarlo. **Se oye:** *"Mi abuelo cavó ese pozo antes de que existiera GelA. Ese pozo no es de nadie."*
 
 ### Parques de Santa Mugre
 
@@ -677,7 +677,7 @@ El noreste de clase media-alta: muchas casas chicas juntas, cotos con pluma y ca
 
 - **Todos saben el secreto del Serenol**, hasta el jardinero. Y todos saben que los de fuera no lo saben.
 - **Por qué te dejan entrar:** quieren **protección contra los zombis**, que de vez en cuando se meten (los atrae el agua limpia de su reservorio y el ruido de las fiestas). Dejan entrar a quien les sirva, de noche, con un arma.
-- **Hay una resistencia adentro**: gente de la propia fortaleza (un **hijo rebelde de GelA** al frente, 💡 nombre por votar) que ve que los zombis hacen daño a todos, aunque esclavicen y den ganancias.
+- **Hay una resistencia adentro**: gente de servicio (con **Arturo**, el jardinero, de contacto) y familias ricas con algún hijo arrepentido, con **Gerardo Lazcano**, medio hermano de la gobernadora, de puente (✅ 2026-11-12; ver `personajes.md`). Ven que los zombis hacen daño a todos, aunque esclavicen y den ganancias. **Germán, su padre, se hace el ciego.** Los de servicio y los ricos **no se fían entre sí**.
 
 **De noche:** seguro, con guardias, hasta que alguna noche entra uno. **Gancho:** el reservorio de los demás, el hijo rebelde, la resistencia, la bodega de la fábrica. **Se oye:** *"Esto no es para ti. Pero ya que estás aquí, ¿sabes disparar?"*
 
@@ -729,6 +729,7 @@ La lista completa —con detalles, pagos y riesgo— está en [`docs/misiones.md
 - **De día no se puede:** la policía **dispara** a quien reparte agua ilegal. Por eso se reparte **de noche**, cuando el Estado se retira y nada abre.
 - **De noche hay hordas.** Los zombis los atrae el **agua limpia** y el **sonido**. La estrategia: montar una **barricada con un tinaco y bocinas** en un sitio fuera de las casas, para atraer a la mayor cantidad de zombis hacia ahí, y **repartir el agua mientras están ocupados** en el tinaco.
 - **Dos formas del contrato:** (1) **defender el tinaco** (te quedas en la barricada mientras otro reparte, o repartes tú por tandas), y (2) **defender la camioneta** mientras hace las entregas, siguiendo su ruta.
+- **De dónde sale el agua y quién la lleva** ✅ (2026-11-12): del **pozo de Chava**, en La Palmada, fuera de las fortalezas; Chava es parte del gremio y da los contratos de reparto. La camioneta es del gremio y la maneja **Nacho Garrafón** (💡 nombre propuesto), que va contigo y nunca se queda a pelear: si cae, la misión falla.
 - **Llegar y volver:** a pie, antes del amanecer. Si te amanece y te ven con el tambo, **te disparan** los policías.
 - **Qué rinde:** pesos y **mejoras** del personaje (ver [`docs/mejoras.md`](mejoras.md)). Es el ciclo central: salir, repartir, volver con dinero.
 - **Hordas de fuera:** menos que en la defensa del tinaco de Santa Mugre, pero **continuas**: hay que disparar sin parar. Y **drops raros** escondidos en el mapa.
@@ -811,9 +812,9 @@ Ojo: **no toda casa en obra negra es del lote del 84.** Hay paracaidistas y vend
 - **El jugador se lo puede encontrar:** un señor con una brocha a las 3 de la mañana, muy amable, que te ofrece bendecir tu casa.
 - 💡 **Propuesta de mecánica:** una calcomanía de cruz en una colonia al azar por partida, y un NPC no infectado con el que se puede platicar de noche (recordatorio de que no todo lo que anda de noche es un zombi).
 
-### El tinaco que no se vacía
+### El tinaco manchado
 
-✅ **Leyenda.** En una casa hay un tinaco que nunca se vacía, aunque la familia lo use todo el día. La gente dice que es un milagro; los vecinos, que la casa está colgada de la toma de los Gotera. **Ninguna de las dos:** es la casa de doña Refugio, y el tinaco se llena del **pozo de los abuelos**, agua viva de verdad. ✅ (2026-11-11) **Es el mismo pozo que hay bajo el templo de Santa Mugre** ([§9](#el-templo-de-santa-mugre)): doña Refugio es la vieja que lo cuida y el padre Chuy, quien lo administra. 💡 Consecuencia por votar: La Palmada ya no tiene "el pozo de los abuelos" en un patio; su pozo quedó bajo el templo, y los abuelos de La Palmada que se refugiaron en Santa Mugre son sus guardianes. **Gancho:** el rumor lleva al pozo, y el pozo lo quieren todos: GelA, Chava y los Gotera.
+✅ (2026-11-12) **Sustituye a la leyenda del "tinaco que no se vacía"**, que se elimina junto con doña Refugio. En la plaza de Santa Mugre hay un **tinaco manchado** al que la colonia le rinde culto como a la Virgen ([§9](#el-templo-de-santa-mugre)). Quien lo bebe no se "apaga"; el pozo de donde sale el agua está bajo el templo y solo lo conoce el padre Chuy. **No hay "pozo de los abuelos" bajo el templo:** el pozo de los abuelos de La Palmada es **otro**, de **Chava**, fuera de las fortalezas, de donde el gremio saca el agua limpia del reparto nocturno. ✅ (2026-11-12) **El tinaco se llena de "agua bendita" del templo**, y **la Virgen era una manifestación de esa agua bendita**. **Se puede perder:** si una noche de la reja falla y el jugador agota los tres reintentos o deja que el tinaco caiga, lo sustituyen por uno nuevo y **ya no hay ofrenda ni velas bajo la silueta de la Virgen** (el altar del templo y el pozo no se tocan) (ver `misiones.md`, "El evento de la reja"). **Gancho:** el pozo de Chava lo quieren GelA (para sellarlo), los Gotera (para cobrarlo) y el régimen (para clausurarlo).
 
 
 ### La Madre del Cárcamo
@@ -890,7 +891,7 @@ En el juego: `scripts/catrina/` (`Catrina.gd`, con un cuerpo provisional de figu
 | **Escalón del régimen** (0-3) | Por zona | El enojo | Tiempo sin problemas | Spots → blancos → cortes → el contrato de Buenrostro |
 | **Confianza** (0-1) | Por zona | Velas cumplidas, repartos, no matar dóciles | Fracasos, delatar, que te vean matar a un vecino ([§5](#la-noche-sin-ley)) | Precios, fiado, puertas que abren o no |
 | **La capilla** | Global | — | — | Abierta / clausurada / del obispo |
-| **El pozo** | La Palmada | — | — | De Refugio / vendido a GelA / de los Gotera |
+| **El pozo** | La Palmada | — | — | De Chava (gremio) / sellado por GelA / cobrado por los Gotera |
 | **La válvula** | Global | — | — | Cerrada / abierta / vendida a Buenrostro (GelA la sella) |
 | **Beto** | Global | — | — | Vivo / dócil / zombi (puede ser el jefe del modo reto) |
 
@@ -952,10 +953,10 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 | Culto | **la Virgen del Tinaco**; **el padre Chuy**; "la vigilia" | La mancha del tinaco |
 | Cártel | **los Gotera** | La toma (cerrada); drogas, armas y agua del yacimiento; no infectados; fortaleza de favela |
 | Fortalezas | **Santa Mugre** (la Virgen), **La Gotera** (la mafia), **los Reservorios** (GelA) | Sin policía; agua sin Serenol dentro (ver [§13](#las-tres-fortalezas)) |
-| Pozo | **el pozo del templo** / **el pozo de los abuelos** | Es el mismo; lo cuida doña Refugio |
+| Pozo | **el pozo del templo** / **el pozo de los abuelos** | Son **dos**: el del templo (Chuy, Santa Mugre) y el de los abuelos (Chava, La Palmada, fuera de las fortalezas) |
 | Cuadrilla | **la cuadrilla** | Los que reparten los contratos |
 | Mercado nocturno | **el tianguis de la noche** | ×2-×3 |
-| Inspectores | **los blancos** | Traje blanco; policía del agua |
+| Policía | **los blancos** | Traje blanco; el brazo armado de Gela, a las órdenes de Buenrostro |
 | Mascota | **la Gota** | El logo de la empresa |
 | Jugador | **el Nocturno** | Cazarecompensas de la noche |
 | Tinaco | **el comunitario** | El banco de agua del barrio |
@@ -1039,8 +1040,8 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 - [ ] 💡 ¿Cuántos NPCs reconocen al jugador como el Nocturno, y cuántos lo delatan?
 - [ ] 💡 ¿La capilla se puede perder para siempre si fallas una misión (y con ella la cura)?
 - [ ] 💡 ¿Los Gotera son solo antagonistas o también clientes del jugador? *(2026-11-11: ahora también venden agua limpia y dan entregas de punto a punto: son clientes.)*
-- [ ] 💡 Nombres por votar: el hijo rebelde de GelA, los Reservorios (fortaleza GelA), la escuela de Santa Mugre, el nuevo palacio, el chofer de la camioneta.
-- [ ] 💡 La Palmada ya no tiene el pozo de los abuelos en un patio: ¿su pozo quedó bajo el templo y los abuelos se refugiaron en Santa Mugre? (ver §16)
+- [ ] 💡 Nombres por votar: los Reservorios (fortaleza GelA), la escuela de Santa Mugre, el nuevo palacio. (El hijo rebelde es Gerardo; el chofer es Nacho Garrafón, propuesto, confirmar.)
+- [x] ✅ (2026-11-12) Doña Refugio y la leyenda del tinaco que no se vacía se eliminan; el pozo de La Palmada es de Chava y es independiente del del templo (ver §16).
 - [ ] 💡 ¿Por qué falla la reja una noche al azar? ¿Un sabotaje, un descuido, o los zombis que huelen el agua del tinaco?
 - [ ] 💡 ¿La gobernadora aparece en persona o solo en spots y noticieros?
 - [x] ~~¿El expediente del cobalto es una misión aparte o parte de la revelación principal?~~ ✅ Aparte: la misión de Elena (§17, 2026-11-02).

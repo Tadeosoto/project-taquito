@@ -2,7 +2,7 @@
 
 > Quién es quién en la ciudad: los que te venden, los que te usan y los que te esconden algo. Documento hermano de [`docs/lore.md`](lore.md) (el mundo) y [`docs/especificaciones.md`](especificaciones.md) (las mecánicas).
 >
-> Última actualización: 2026-11-02
+> Última actualización: 2026-11-12 (bloque L7 del megaplan "Noches de fuera": Gerardo rebelde, Chuy calla, sin Doña Refugio, Chava y Nacho en el gremio, Nemesio protector, policías sin cara)
 
 ## Cómo usar este documento
 
@@ -92,11 +92,11 @@ La familia que tiene el agua y el gobierno. No son monstruos de caricatura: son 
 
 | | |
 |---|---|
-| **Zona** | Haciendas de San Jodido (vive), El Mante Tieso (la planta vieja) |
+| **Zona** | La fortaleza GelA (vive), El Mante Tieso (la planta vieja) |
 | **Horario** | Día; de noche no sale |
 | **Oficio** | Fundador de GelA; dueño del agua |
 | **Te da** | Nada directo: sale en spots, en el periódico y en la radio |
-| **Quiere** | Que la empresa dure cien años y que su hija la herede entera |
+| **Quiere** | Que la empresa dure cien años y que su hija la herede entera (y que su hijo menor lo quiera, ver Gerardo) |
 | **Teme** | Que el secreto del Serenol salga a la luz, no por moral, sino porque lo obligaría a regalar el agua |
 | **Secreto** | Sabe perfectamente qué le hace el agua a la gente |
 | **Precio** | Un favor político, una firma, un silencio |
@@ -109,7 +109,7 @@ La familia que tiene el agua y el gobierno. No son monstruos de caricatura: son 
 
 | | |
 |---|---|
-| **Zona** | Palacio (Parques de Santa Mugre) y su casa de San Jodido |
+| **Zona** | Palacio (afuera, cerca de la plaza de la Catrina) y la fortaleza GelA (donde vive) |
 | **Horario** | Día; de noche manda, no sale |
 | **Oficio** | Gobernadora; la cara de GelA |
 | **Te da** | Nada: te quita (el agua, el voto, la calle) |
@@ -137,33 +137,37 @@ Lo último es la mejor escena del antagonista: el régimen no te caza, **te cont
 
 | | |
 |---|---|
-| **Zona** | Haciendas de San Jodido / el palacio |
-| **Horario** | Día (estudia, camina, se deja ver) |
-| **Oficio** | El heredero: hijo de Georgina, veintidós |
-| **Te da** | Información del palacio, acceso, una firma que no debería tener |
-| **Quiere** | "Democratizar el agua": abrir la llave para todos |
-| **Teme** | Descubrir que su madre es lo que es |
-| **Secreto** | No sabe lo del Serenol ni lo de "Contención" |
-| **Precio** | Que le digas la verdad, y que la verdad no lo rompa |
+| **Zona** | La fortaleza GelA (los Reservorios): siempre ha vivido ahí, en el coto de los Lazcano |
+| **Horario** | Día (el heredero modelo, se deja ver); noche (la resistencia) |
+| **Oficio** | El hijo menor de Germán, **medio hermano de Georgina**, veintidós; el **hijo rebelde** de GelA |
+| **Te da** | Información de la fortaleza, acceso a los Reservorios y a la fábrica, una firma que no debería tener |
+| **Quiere** | Tirar la fortaleza desde adentro: abrir el agua limpia para todos |
+| **Teme** | Que su padre abra los ojos y tenga que elegir; que Georgina lo descubra |
+| **Secreto** | ✅ **Ya sabe lo del Serenol** (lo supo hace poco) y filtra a la resistencia. 💡 Todavía no sabe lo de "Contención" (los conteos de los que no vuelven), y firmó sin leer algo que sirvió para la fábrica o los Reservorios |
+| **Precio** | Que no lo expongas, y la verdad sobre su familia |
 
-**Historia.** Creció en el coto, estudió fuera, volvió con ideas. Es el Lazcano **bueno**: educado, sincero, incómodo con la fortuna de su familia. Cree que el problema es de "gestión" y que con transparencia se arregla; no sabe que el negocio no es el agua, es la dependencia. Es la **falsa esperanza**: el jugador puede creer que con él basta, y no basta.
+**Historia.** Creció dentro de los muros, estudió fuera, volvió con ideas y, hace poco, entendió **qué lleva el agua y por qué todos en la fortaleza lo callan**. Es el hijo tardío de Germán y el único Lazcano que no le debe nada a la llave. De cara a la fortaleza es el **heredero modelo**: sale en las fotos, firma lo que le ponen delante y Georgina lo cree manejable. En secreto **filtra** lo que ve a la resistencia, y duda: acaba de descubrir que su familia hizo esto y todavía no sabe cuánto está dispuesto a perder.
 
-**Rol en el juego.** Es la puerta al palacio y el espejo de la revelación: lo que le cuentas le cambia la cara. 💡 Puede volverse aliado (si le enseñas los papeles), víctima (si su madre lo descubre) o enemigo (si elige a la familia). No es un jefe: es una **decisión**.
+**Germán se hace el ciego.** ✅ Su padre sospecha de la doble cara de su hijo y **prefiere no ver**: es el único de la familia que lo quiere sin deberle agua. Es una palanca: si alguien (Georgina, o el jugador por un error) lo obliga a mirar, Germán tiene que elegir entre su hijo y su imperio.
+
+**Rol en el juego.** Es el **contacto de alto riesgo** de la resistencia y el espejo de la revelación: lo que le cuentas le cambia la cara. ✅ **Riesgo del jugador:** cada misión que haces para él puede delatarlo. 💡 Sigue abierto si termina aliado (si lo cuidas), víctima (si Georgina lo descubre) o enemigo (si elige a la familia). No es un jefe: es una **decisión**.
+
+**Cómo llegas a él.** ✅ No entras por Gerardo: entras a la fortaleza **contratado como guardia**, porque se les metieron zombis y los ricos necesitan músculo. **Arturo**, el jardinero, te recluta por debajo y, cuando confía, te lleva a Gerardo.
 
 ### Lic. Saúl Buenrostro
 
 | | |
 |---|---|
-| **Zona** | Palacio; el "Centro de Innovación Hídrica" |
+| **Zona** | Vive en la fortaleza GelA; despacha en el palacio (afuera) y el "Centro de Innovación Hídrica" |
 | **Horario** | Día y noche (no duerme, no tiene por qué) |
-| **Oficio** | Director de "Contención"; el operador real del régimen |
+| **Oficio** | Director de "Contención" y **jefe de la policía** (los blancos); el operador real del régimen |
 | **Te da** | Contratos, acceso, la letra chica del Decreto 47 |
 | **Quiere** | Orden: que la ciudad funcione como un reloj |
 | **Teme** | El desorden, la prensa, los números que no cuadran |
 | **Secreto** | Firma las hojas de conteo: sabe cuántos salen y cuántos no vuelven |
 | **Precio** | Un trámite, un favor, una firma: todo se puede, nada es gratis |
 
-**Historia.** Abogado de la vieja escuela, el que le pone la letra fina a las decisiones de Gela. No es un villano de risa: es el que **hace que el sistema funcione**. Él redactó la Ley de Convivencia Nocturna, él firma las actas de ausencia, él sabe que el agua se llama "estabilizador organoléptico". Si la gobernadora es la cara, Buenrostro es el **cerebro frío**.
+**Historia.** Abogado de la vieja escuela, el que le pone la letra fina a las decisiones de Gela. ✅ (2026-11-12) **Manda a los blancos**, el brazo armado de Gela, y vive dentro de la fortaleza GelA, donde la resistencia lo tiene a unos pasos. No es un villano de risa: es el que **hace que el sistema funcione**. Él redactó la Ley de Convivencia Nocturna, él firma las actas de ausencia, él sabe que el agua se llama "estabilizador organoléptico". Si la gobernadora es la cara, Buenrostro es el **cerebro frío**.
 
 **Rol en el juego.** Es el **antagonista de escritorio**: el que te da una misión para "arreglar" algo y en realidad te está usando. Es el mejor interlocutor para la revelación: si lo aprietas con papeles, suelta más de lo que quiere. 💡 Si cae él, cae la estructura; si cae Gela, la estructura sigue.
 
@@ -177,7 +181,7 @@ La **cuadrilla** es la central de contratos del barrio: reparte los mandados de 
 
 | | |
 |---|---|
-| **Zona** | Los Garrafones (el mercado), toda la ciudad |
+| **Zona** | ✅ (2026-11-12) **Santa Mugre** (donde está el jugador; antes, el mercado de Los Garrafones), toda la ciudad |
 | **Horario** | Día y madrugada |
 | **Oficio** | Líder de la cuadrilla |
 | **Te da** | Contratos, pagos, contactos, la ficha |
@@ -207,6 +211,23 @@ La **cuadrilla** es la central de contratos del barrio: reparte los mandados de 
 
 **Rol en el juego.** Es el **tutorial humano**: te enseña los contratos, la ficha y el precio. Y es la **consecuencia moral**: si lo descuidas, lo pierdes; si lo cuidas, te saca de un apuro. 💡 Puede morirse y levantarse, y el jugador puede encontrarlo de noche sin saber que es él.
 
+### Nacho Garrafón — el chofer
+
+| | |
+|---|---|
+| **Zona** | La Palmada (el pozo de Chava) y la ruta de reparto |
+| **Horario** | Noche (el reparto); de día duerme |
+| **Oficio** | Chofer de la camioneta del gremio, cincuenta y tantos |
+| **Te da** | El viaje: maneja la camioneta que defiendes en cada reparto |
+| **Quiere** | Terminar el reparto y volver a casa con sus hijas |
+| **Teme** | Quedarse parado: la camioneta quieta de noche |
+| **Secreto** | Fue chofer de reparto de GelA, de los que llevaban el agua con Serenol. Sabe cuántas colonias la recibieron y no se lo ha dicho a nadie, ni a Chava |
+| **Precio** | Que no lo dejes solo con la camioneta |
+
+**Historia.** 💡 (nombre propuesto, 2026-11-12) Ignacio "Nacho" Garrafón, bigote, gorra de la purificadora de su barrio, manos grandes de cargar garrafones. Maneja con una cumbia bajita y habla poco, casi nada si hay zombis. Es de los que **nunca se quedan a pelear**: tiene hijas.
+
+**Rol en el juego.** Compañero fijo de las misiones de **defender la camioneta**: si él cae, la misión falla. Es el personaje al que el jugador teme perder en una escolta. Su secreto da pie a una misión suya más adelante (L9/L10).
+
 
 ## 4. El culto
 
@@ -216,26 +237,26 @@ La fe del barrio. No es una religión organizada: es un tinaco manchado, una se�
 
 | | |
 |---|---|
-| **Zona** | Los Garrafones (la capilla del Tinaco) |
+| **Zona** | Parques de Santa Mugre (el templo; antes, la capilla de Los Garrafones) |
 | **Horario** | Madrugada (4-7) y misa de 7; de noche no abre |
-| **Oficio** | Cura de barrio |
+| **Oficio** | Cura de barrio; administra el pozo bajo el templo |
 | **Te da** | Agua limpia (con cupo), techo, la misión del filtro |
-| **Quiere** | Que su gente no se muera y que nadie le cierre la capilla |
-| **Teme** | Que la diócesis venda el filtro o que GelA lo clausure |
-| **Secreto** | Él filtra el agua: no hay milagro |
+| **Quiere** | Que su gente no se muera y que nadie le cierre el templo |
+| **Teme** | Que la diócesis venda el filtro, que GelA lo clausure o que alguien le diga qué le quita el agua a la gente |
+| **Secreto** | Él filtra el agua: no hay milagro. ✅ **Sospecha que el agua les quita *algo*** (quien la toma no se "apaga") y **lo calla**: el culto y su gente dependen de que el milagro siga siendo milagro |
 | **Precio** | Que no le digas a nadie, y que le lleves tu agua sucia |
 
-**Historia.** Cincuenta y tantos, flaco, con una camisa que fue blanca. Vio a su gente apagarse (dormir mal, no quejarse de nada, morirse) y encontró la única forma que tenía de ayudar: un **filtro Puri-GelA robado** escondido debajo del altar. Cada madrugada pasa el agua que la gente deja y la devuelve limpia. Lleva dos años así. No dice que hace milagros: deja que la gente lo crea, porque la fe sostiene más que la verdad.
+**Historia.** Cincuenta y tantos, flaco, con una camisa que fue blanca. Vio a su gente apagarse (dormir mal, no quejarse de nada, morirse) y encontró la única forma que tenía de ayudar: un **filtro Puri-GelA robado** escondido debajo del altar. Cada madrugada saca agua del pozo del cuarto subterráneo, la filtra y la reparte "bendita". Lleva dos años así. No dice que hace milagros: deja que la gente lo crea, porque la fe sostiene más que la verdad. Cuida el pozo **solo**: nadie más baja.
 
-**Rol en el juego.** Es la **fuente de agua gratis** (con cupo) y el **mejor punto de lore**: sabe del filtro, del delito y de la gente. 💡 No sabe que existe el Serenol: sabe que su agua "les cae mejor", y con eso le basta. Si GelA lo cierra, la ciudad pierde la única cura gratuita.
+**Rol en el juego.** Es la **fuente de agua gratis** (con cupo) y el **mejor punto de lore**: sabe del filtro, del delito y de la gente. ✅ **Nunca habla.** Nadie le saca lo que sospecha: su silencio es su pecado, y el jugador decide si lo **delata** o lo **deja**. Si GelA lo cierra, la ciudad pierde la única cura gratuita.
 
 ### Doña Rosa "la del tinaco"
 
 | | |
 |---|---|
-| **Zona** | Los Garrafones (el patio de la capilla) |
+| **Zona** | Parques de Santa Mugre (la plaza, junto al tinaco manchado) |
 | **Horario** | Día y madrugada |
-| **Oficio** | La primera creyente; la dueña del tinaco |
+| **Oficio** | La primera creyente; la dueña de la casa donde amaneció la mancha |
 | **Te da** | La historia del milagro, la llave del patio, el rezo |
 | **Quiere** | Que el milagro sea verdad |
 | **Teme** | Que alguien le diga que no lo es |
@@ -250,7 +271,7 @@ La fe del barrio. No es una religión organizada: es un tinaco manchado, una se�
 
 | | |
 |---|---|
-| **Zona** | Los Garrafones y las peregrinaciones |
+| **Zona** | Parques de Santa Mugre y las peregrinaciones |
 | **Horario** | Día y noche (la vigilia) |
 | **Oficio** | La mano derecha de la capilla |
 | **Te da** | Información, veladoras benditas, la lista de los que ayudan |
@@ -352,35 +373,22 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 
 ### La Palmada
 
-#### Doña Refugio — la abuela del pozo
+> ✅ (2026-11-12) **Doña Refugio y la leyenda del "tinaco que no se vacía" se eliminan.** El pozo de los abuelos de La Palmada ya no es de una abuela: es de Chava y es **otro pozo**, fuera de las fortalezas, distinto al del templo de Santa Mugre. La gente de Santa Mugre le rinde culto a un tinaco manchado en su plaza.
+
+#### Chava — el del pozo
 
 | | |
 |---|---|
-| **Horario** | Día y atardecer |
-| **Te da** | Agua del pozo, la historia de "cuando el agua sabía a agua" |
-| **Quiere** | Que el pozo quede para el barrio |
-| **Teme** | Que GelA lo compre o que su nieto lo venda |
-| **Secreto** | Los Gotera le ofrecieron comprarle el pozo (o "protegérselo") y no les ha contestado |
-| **Precio** | Un mandado, un favor, una visita |
+| **Horario** | Día (el pozo, la fila) y noche (el reparto) |
+| **Te da** | El agua limpia del reparto, los contratos de defender el tinaco y la camioneta, un trato |
+| **Quiere** | Proteger a la gente de fuera de las fortalezas: que el agua limpia les llegue |
+| **Teme** | Que GelA selle el pozo o que los Gotera se lo cobren; perder a alguien del gremio en una noche |
+| **Secreto** | Ya habló con un blanco: le ofrecieron comprarle el pozo "por seguridad" y no ha dicho que no del todo |
+| **Precio** | Dinero para el gremio, una noche de vela, un favor |
 
-**Historia.** Setenta y tantos, el pelo blanco, las manos de cavar. Su abuelo cavó el pozo antes de que existiera GelA. Ella lo cuidó toda la vida y ahora su nieto quiere venderlo. Es la **memoria viva** de la ciudad: la única que se acuerda de que el agua del grifo sabía a agua.
+**Historia.** Veinte y pocos, de La Palmada, cansado de cargar cubetas desde niño. Heredó el **pozo de los abuelos**, agua viva de verdad, fuera de las fortalezas, y en vez de venderlo lo puso al servicio del gremio de reparto de agua y defensa del tinaco. Es **parte de la cuadrilla**: de su pozo sale el agua limpia que llevas de noche a la gente de fuera, y su camioneta la maneja Nacho.
 
-**Rol.** Es la **fuente de agua buena** de la zona y la que cuenta el pasado. Su pozo es la verdad detrás de la leyenda del tinaco que no se vacía: no hay toma, hay agua viva. Y por eso lo quieren GelA, su nieto y los Gotera.
-
-#### Chava — el nieto
-
-| | |
-|---|---|
-| **Horario** | Día y noche (trabaja en la tienda) |
-| **Te da** | Acceso al patio, información del pozo, un trato |
-| **Quiere** | Vender el pozo e irse |
-| **Teme** | Quedarse atrapado como su abuela |
-| **Secreto** | Ya habló con un blanco |
-| **Precio** | Dinero, una salida |
-
-**Historia.** Veinte y pocos, cansado de cargar cubetas. Quiere venderle el pozo a GelA y mudarse. No es malo: es joven y no entiende por qué su abuela defiende un agujero.
-
-**Rol.** Es el **conflicto de la zona**: el jugador puede convencerlo, comprarlo o dejarlo vender el pozo. Lo que decida cambia el agua de La Palmada para siempre.
+**Rol.** Es la **base del reparto nocturno** y el conflicto de la zona: el pozo lo quieren GelA (para sellarlo), los Gotera (para cobrarlo) y el régimen (para clausurarlo). El jugador puede ayudarlo a defenderlo, comprarlo o dejar que lo vendan. Lo que decida cambia el agua de la gente de fuera para siempre.
 
 ### Parques de Santa Mugre
 
@@ -446,22 +454,26 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 
 **Rol.** Es el **aviso temprano**: te dice por dónde va a salir la caminata esa noche. Si lo cuidas, te salva la vida; si no, lo pierdes.
 
-### Haciendas de San Jodido
+### Haciendas de San Jodido y la fortaleza GelA
+
+> ✅ (2026-11-11) Haciendas de San Jodido queda como colonia común de casas chicas; los Lazcano viven en la fortaleza GelA. Arturo, Sergio y la resistencia pasan a trabajar ahí.
 
 #### Arturo — el jardinero
 
 | | |
 |---|---|
-| **Horario** | Día (jardines) |
-| **Te da** | La llave del jardín, el mapa de la casa, el acceso |
-| **Quiere** | Que no lo corran |
+| **Horario** | Día (jardines, campos de golf); noche (la resistencia) |
+| **Te da** | La entrada por el servicio, el mapa de la fortaleza, el acceso a Gerardo |
+| **Quiere** | Que no lo corran y que el servicio salga vivo |
 | **Teme** | A la gobernadora |
-| **Secreto** | Tiene la llave del sótano |
+| **Secreto** | Es el puente de la resistencia: su esposa es del barrio, su hijo es amigo de Gerardo, y tiene la llave del sótano |
 | **Precio** | Agua para su familia |
 
-**Historia.** Cincuenta y tantos, poda, riega, barre. Riega el pasto del coto con agua que en el barrio no alcanza ni para tomar. Trabaja en la casa del **Arq. Villalobos**. Sabe lo que hay en su sótano y no lo dice.
+**Historia.** Cincuenta y tantos, poda, riega, barre. Riega el pasto de la fortaleza con agua que afuera no alcanza ni para tomar. Los ricos no lo ven, y por eso **ve todo**. Sabe lo que hay en el sótano de la casa de Villalobos y no lo dice.
 
-**Rol.** Es la **entrada al coto**: te abre el jardín y te deja ver cómo se vive del otro lado. 💡 Su sótano puede esconder al "zombi del coto": el hijo de algún vecino que nadie saca a la calle.
+**Rol.** ✅ Es el **contacto del jugador** en la resistencia. Cuando los zombis se meten a la fortaleza y los ricos te contratan de guardia, él te recluta por debajo: te abre el servicio, te deja ver cómo se vive adentro (albercas, golf, reservorios) y, cuando confía, te lleva a Gerardo. 💡 Su sótano puede esconder al "zombi del coto": el hijo de algún vecino que nadie saca a la calle.
+
+La **resistencia** (✅ 2026-11-12) la forman **gente de servicio** (jardineros, choferes, cocineras, guardias) y **familias ricas con algún hijo arrepentido**. Los de servicio saben qué pasa, los ricos saben por qué, y **ninguno se fía del otro**: Gerardo es el puente. Estar contratado para defender los muros es la contradicción del jugador: mantiene viva la fortaleza que la resistencia quiere que caiga.
 
 #### Sergio — el guardia del coto
 
@@ -517,15 +529,15 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | | |
 |---|---|
 | **Horario** | Día y noche (no se esconde) |
-| **Te da** | Encargos, protección, armas, información |
-| **Quiere** | Que el negocio siga |
-| **Teme** | Que GelA lo traicione |
+| **Te da** | Encargos (entregas punto a punto), protección, armas, información, agua limpia a precio justo |
+| **Quiere** | Que su gente coma y beba, y que el negocio siga |
+| **Teme** | Que GelA descubra el yacimiento y lo tome o lo sabotee |
 | **Secreto** | Tiene un hermano en el gobierno (o un hijo en el coto) |
 | **Precio** | Un favor, un silencio, una vida |
 
-**Historia.** Sesenta y tantos, camioneta buena, playera limpia, tenis blancos. Controla la toma clandestina del acueducto (cerrada: es su seguro contra GelA, ver lore §11) y el negocio de drogas y armas. **No está infectado**: compra agua embotellada, por caja. Sabe lo que le pasa a los que toman de la llave y por eso no la toca. Su frase: *"¿Nosotros? Nosotros vendemos cosas. El agua se la chuparon otros."*
+**Historia.** Sesenta y tantos, camioneta buena, playera limpia, tenis blancos. Manda en la **fortaleza de la Gotera**, la ciudad amurallada tipo favela donde viven los pobres. ✅ (2026-11-12) Es **el protector de los pobres, con las manos sucias**: sigue en drogas y armas, pero su gente come y bebe gracias a él. Descubrieron un **yacimiento subterráneo**, notaron que quien bebe de ahí no cambia de personalidad y levantaron su propia barricada; venden agua limpia a **precio justo**. Controla además la toma clandestina del acueducto (cerrada: su palanca contra GelA, ver lore §11). **No está infectado** y sabe que el agua de la llave "tiene algo". Para el barrio es un santo; para quien entra de fuera, un delincuente. Su frase: *"¿Nosotros? Nosotros vendemos cosas. El agua se la chuparon otros."*
 
-**Rol.** Es el **poder paralelo**: te da las misiones peligrosas, las armas y la información que GelA esconde. No es aliado ni enemigo: es una **transacción**. Si lo traicionas, no sales de La Gotera.
+**Rol.** Es el **poder paralelo**: te da las misiones peligrosas (entregas de punto a punto, cacerías), las armas y la información que GelA esconde. No es aliado ni enemigo: es una **transacción**. Si lo traicionas, no sales de La Gotera.
 
 #### El Primo
 
@@ -559,7 +571,22 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | **Coto** | Clientes de GelA Total | Le compran agua al Nocturno | — | Dan donativos | Vecinos incómodos | |
 | **Radio y ciencia** (Sofía, López) | Enemigos: los buscan | — | — | — | — | — |
 
-**Las palancas del jugador:** la deuda de Gabriel con los Gotera, el espionaje de Karla, el pacto de la válvula, el hijo de Nemesio en el coto y el sótano de Villalobos. Cada uno es un secreto que se puede cobrar, vender o callar.
+**Las palancas del jugador:** la deuda de Gabriel con los Gotera, el espionaje de Karla, el pacto de la válvula, el hijo de Nemesio en el coto, el sótano de Villalobos, el silencio de Chuy, la doble cara de Gerardo y el secreto de Nacho. Cada uno es un secreto que se puede cobrar, vender o callar.
+
+#### Las tres fortalezas y el gremio (✅ 2026-11-12)
+
+| | **Santa Mugre** (la Virgen) | **La Gotera** (la mafia) | **Fortaleza GelA** (los Lazcano) | **El gremio** (Gabriel, Chava, Nacho) |
+|---|---|---|---|---|
+| **Quién manda** | Chuy (calla lo que sospecha) | Nemesio (protector con manos sucias) | Georgina y Germán (que se hace el ciego) | Gabriel (la ficha); Chava (el pozo) |
+| **Qué sabe del Serenol** | Solo la fe: "los de fuera están poseídos" | "Algo hay en el agua de la llave"; sabe que GelA esconde algo | Todo, adentro; la resistencia lo sabe | Gente de fuera pide agua limpia y el gremio se la lleva |
+| **Con Santa Mugre** | — | Cobra cuota (el Primo) | Enemigos: el tinaco es una fuga en su negocio | Aliados: la reja y el tinaco de la plaza |
+| **Con la Gotera** | Cuota | — | La válvula cerrada es su rehén | Gabriel le debe favores; Nemesio quiere cobrar el pozo de Chava |
+| **Con GelA** | Enemigos | Sabe que el yacimiento los puede delatar | — | Los blancos (la policía de Buenrostro) los persiguen de día |
+| **Dentro** | Fieles y dóciles mezclados que no saben | Los pobres lo respetan como a un santo | **Resistencia**: servicio (Arturo) + ricos arrepentidos (Gerardo); no se fían entre sí | Nacho calla su pasado de chofer de GelA |
+
+#### Los policías
+
+✅ (2026-11-12) **Los policías son los blancos**: el brazo armado de Gela, con **Buenrostro de jefe**. Anónimos y sin cara: traje blanco, casco, nada que decir, una amenaza y no personajes (la excepción con nombre es el Inspector Nava, ver abajo). Solo salen **de día**, en las colonias de fuera (de noche el Estado se retira), y **disparan a quien reparte agua**. Sin nombre, sin diálogo y sin horario más allá de ese: son un sistema, no una voz (ver S3 en `docs/plan-noche.md`).
 
 ### Arq. Villalobos — el del coto
 
@@ -582,16 +609,18 @@ Dos voces por zona: una de día y una de noche. Los Garrafones ya tiene a los su
 | | |
 |---|---|
 | **Zona** | Toda la ciudad (operativos) |
-| **Horario** | Día (y noche en operativos) |
-| **Te da** | Avisos, multas, una tregua |
-| **Quiere** | No ser el malo |
-| **Teme** | Que Buenrostro lo use y lo tire |
-| **Secreto** | Tiene una hija que toma de la llave |
-| **Precio** | Una prueba, un favor, un nombre |
+| **Horario** | Día (de noche el Estado se retira) |
+| **Te da** | Avisos, multas, una tregua, la misión de su hija |
+| **Quiere** | **Terminar con su sufrimiento**: que su hija lo mate a él, no que otro la mate a ella |
+| **Teme** | Que Buenrostro se entere de su hija; que otro la mate antes que él llegue |
+| **Secreto** | ✅ **Su hija se volvió zombi** (por el agua de la llave) y anda perdida entre los de la noche |
+| **Precio** | Una prueba, un favor, un nombre; y lo que hagas con su hija |
 
-**Historia.** Cuarenta y tantos, traje blanco, credencial, esposas. Clausura tomas y cierra la capilla "por sanitario". Sabe que lo que hace está mal y lo hace igual, porque tiene una hija y un sueldo.
+**Historia.** Cuarenta y tantos, traje blanco, credencial, esposas. Es **el único blanco con nombre**, el mismo que clausura tomas y cierra la capilla "por sanitario". Sabe que lo que hace está mal y lo hace igual. ✅ (2026-11-12) Hace tiempo que **su hija se levantó**: tomaba de la llave, como todos los que él cuida con su placa, y ahora es una de esos que él persigue de día. Se le escapó y anda perdida entre los zombis de la noche. Es el castigo de la historia para un policía: **sufre lo que le hace al barrio**.
 
-**Rol.** Es el **policía del agua**: el que te persigue y el que puede ayudarte. Si le muestras lo de su hija (o la hoja de conteo), cambia de bando.
+**Rol.** Es el **policía que sufre**: el que te persigue de día y el que, de noche, no puede ni mirarse en el espejo.
+
+✅ **Su misión (2026-11-12):** te pone a **buscar a su hija**. Te da su **vestimenta y descripción**, y de noche la **encuentras por la ropa** entre los zombis. **No la matas: si la matas, fallas la misión.** Nava **te lo dice claro**: quiere que lo **lleves con ella para terminar con su sufrimiento**. Él se deja matar por su hija **en lugar de que tú la mates**: el policía muere a manos de su hija y ella sigue siendo su hija hasta el final. **Te paga igual** (la paga no depende de que él sobreviva). Es un policía normal: **no pasa nada con su puesto** entre los blancos, y nadie lo extraña. Se diseña en L9 (`misiones.md`). Pide un zombi con atuendo propio en la horda que **no se pueda matar por accidente** (los demás zombis y tú) y a Nava como acompañante en una escolta de noche (sistema S: ESCOLTAR).
 
 ### Sofía — la radio pirata
 
@@ -685,9 +714,9 @@ No son parte del reparto principal: son rumores con cara que el jugador se puede
 
 **Rol.** Es el **recordatorio de que no todo lo que anda de noche es un zombi**. El barrio lo culpa de todo (el diablo, los zombis, un culto rival). Se puede platicar con él: es amable y está completamente ido.
 
-### El tinaco que no se vacía
+### El tinaco manchado
 
-No es una persona: es la casa de **doña Refugio**. La leyenda dice que el tinaco nunca se vacía; la verdad es el pozo de los abuelos, agua viva. El jugador lo puede descubrir siguiendo el rumor.
+✅ (2026-11-12) Sustituye a la leyenda del "tinaco que no se vacía" (que desaparece junto con Doña Refugio). No es una persona: es el **tinaco manchado de la plaza de Santa Mugre**, al que la gente le rinde culto como a la Virgen. El jugador lo ve cada día; solo el que baja al pozo del templo entiende de dónde sale el agua.
 
 ---
 
@@ -697,9 +726,9 @@ No es una persona: es la casa de **doña Refugio**. La leyenda dice que el tinac
 
 | Grupo | Personajes | Total |
 |---|---|---|
-| Zonas | Armando, Martín, Chuy, Rosa, Marisol, Lalo, Refugio, Chava, Toño, Güero, Elena, Tito, Arturo, Sergio, Silverio, Yolanda, Nemesio, Primo | **18** |
+| Zonas | Armando, Martín, Chuy, Rosa, Marisol, Lalo, Chava, Toño, Güero, Elena, Tito, Arturo, Sergio, Silverio, Yolanda, Nemesio, Primo | **17** |
 | La casa Lazcano | Germán, Georgina, Gerardo, Buenrostro | **4** |
-| La cuadrilla | Gabriel, Beto | **2** |
+| La cuadrilla | Gabriel, Beto, Nacho | **3** |
 | El culto | Karla, obispo Marín | **2** |
 | Facciones | Villalobos, Nava, Sofía, López | **4** |
 | **Total** | | **30** |
@@ -791,7 +820,11 @@ Una lista de frases por contexto, que se elige al pasar cerca:
 
 ## 11. Preguntas abiertas
 
-- [ ] 💡 ¿Gerardo es hijo de Georgina (veintidós) o hermano menor de ella? Hoy está escrito como hijo; confirma.
+- [x] ✅ (2026-11-12) Gerardo es el **medio hermano** de Georgina (hijo menor de Germán) y el hijo rebelde de GelA; ya sabe del Serenol.
+- [ ] 💡 La edad de Gerardo (22) con Germán de setenta y tantos: ¿su madre es una segunda esposa? Falta decidir si se menciona.
+- [ ] 💡 Nombre del chofer: Nacho Garrafón (propuesto por Claude, 2026-11-12); confirmar.
+- [ ] 💡 ¿Gerardo llega a saber lo de "Contención" (los conteos)? Sería la segunda revelación suya.
+- [ ] 💡 ¿Quién queda de Doña Refugio en La Palmada? Nadie: el pozo es de Chava. Confirmar que Chava y Nacho viven ahí.
 - [ ] 💡 ¿El sótano de la casa del coto esconde a un "zombi del coto"? Sería un giro fuerte: el rico también tiene su monstruo.
 - [ ] 💡 ¿Yolanda amanece mansa si el jugador no la ayuda, o se salva siempre?
 - [ ] 💡 ¿Beto se puede salvar del todo o es una tragedia anunciada?

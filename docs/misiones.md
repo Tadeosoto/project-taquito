@@ -2,7 +2,7 @@
 
 > La lista de misiones del juego: la del **piloto**, los **contratos de la noche**, las de **día** y las de **historia**. Documento hermano de [`docs/lore.md`](lore.md) (el mundo), [`docs/especificaciones.md`](especificaciones.md) (las mecánicas) y [`docs/personajes.md`](personajes.md) (quién las da).
 >
-> Última actualización: 2026-11-02
+> Última actualización: 2026-11-12 (bloque L8 del megaplan "Noches de fuera": familia "Defensa externa", guardia de la reja y evento de la reja)
 
 ## Cómo usar este documento
 
@@ -20,6 +20,7 @@
 - [1. Cómo se juegan](#1-cómo-se-juegan)
 - [2. Los contratos de la noche](#2-los-contratos-de-la-noche)
 - [3. Las misiones de día](#3-las-misiones-de-día)
+- [Las misiones de fuera](#las-misiones-de-fuera-megaplan-noches-de-fuera-l9-2026-11-12)
 - [4. Las misiones de historia](#4-las-misiones-de-historia)
 - [5. El sistema de misiones](#5-el-sistema-de-misiones)
 - [6. Cómo se agrega una misión](#6-cómo-se-agrega-una-misión)
@@ -32,11 +33,13 @@
 
 ✅ **La misión del piloto.** Es la que se programa primero, la que se enseña y la que decide si el juego jala. Reúne todo el núcleo: la noche, los zombis, el agua, el tinaco, los pesos y el barrio.
 
+> ✅ **Replanteo del 2026-11-12 (megaplan "Noches de fuera"):** la antigua *Vela* es ahora **Defender el tinaco**, la primera mitad de la familia **"Defensa externa"** (la otra es [Defender la camioneta](#defender-la-camioneta)). Se juega **fuera de las fortalezas**, como parte del reparto de agua de noche del gremio ([lore §14](lore.md#el-agua-de-noche-el-negocio-del-gremio)), no en el tinaco de Santa Mugre: ese pasa a ser el [evento de la reja](#el-evento-de-la-reja-no-es-misión), que no se acepta. Las oleadas, el tinaco con vida y la escena de prueba (`defensa_tinaco.tscn`) siguen igual.
+
 | | |
 |---|---|
-| **Nombre** | Vela del tinaco |
-| **Quién la da** | La **cuadrilla** (Gabriel) o el barrio, por turnos |
-| **Dónde** | El **tinaco comunitario** de un parque o baldío (Parques de Santa Mugre, La Palmada o Parques del Mosco) |
+| **Nombre** | Defender el tinaco (antes, Vela del tinaco) |
+| **Quién la da** | **Chava** (el pozo, el gremio) o **Gabriel** (la cuadrilla y la ficha), por turnos |
+| **Dónde** | Una **barricada con un tinaco y bocinas** en un baldío o parque **fuera de las casas y de las fortalezas** (La Palmada, Parques del Mosco y otras colonias de fuera) |
 | **Cuándo** | Noche completa, hasta el amanecer |
 | **Duración** | 8 minutos de juego (la noche entera). En la prueba (`scenes/defensa_tinaco.tscn`) son 3:30 min (`duracion_noche`; antes 6, se hacía larga), por decisión de JJ |
 | **Paga** | Pesos + un galón de agua + la **ficha** sellada + confianza del barrio |
@@ -91,9 +94,9 @@ Desmayarte **acaba la misión**, sin paga, igual que si rompen el tinaco (decisi
 
 **Tipo:** repetible, de proteger. **El objetivo es uno: que ningún zombi llegue al tinaco, y eso se logra matándolos.** No tiene caminos alternativos y no le hacen falta: es el contrato que se repite cada noche, y la variedad sale de la zona, de los zombis y de cómo usa el jugador sus herramientas. Se puede tomar cada noche; cambian la zona, los zombis y el escalón del régimen.
 
-**Quién la da:** Gabriel "el Patrón" Hinojosa (la cuadrilla), en el mercado de Los Garrafones, o el barrio de la zona, con un vecino en la fila del agua. Se acepta de día, antes de las 19:00.
+**Quién la da:** ✅ (2026-11-12) **Chava**, en el pozo de La Palmada (de ahí sale el agua del reparto), o **Gabriel** "el Patrón" Hinojosa (la cuadrilla), **en Santa Mugre** (✅ 2026-11-12, donde está el jugador), que sella la ficha. Se acepta de día, antes de las 19:00.
 
-**Dónde:** el tinaco comunitario de **Parques de Santa Mugre** (el del parque), **La Palmada** o **Parques del Mosco**. La zona decide cuántos zombis salen (`Zombis.maximo()` con el índice) y cuánto paga.
+**Dónde:** la barricada se monta en un sitio **fuera de las casas y de las fortalezas**: **La Palmada**, **Parques del Mosco** u otra colonia de fuera. El **tinaco comunitario de Santa Mugre** ya no es de esta misión (es el [evento de la reja](#el-evento-de-la-reja-no-es-misión)). La zona decide cuántos zombis salen (`Zombis.maximo()` con el índice) y cuánto paga. Esta misión **protege a la gente de fuera**: mientras los zombis están ocupados en el tinaco, el agua limpia se reparte a las casas que la necesitan.
 
 ```mermaid
 flowchart TD
@@ -119,7 +122,7 @@ flowchart TD
 
 **Paga** (sin validar con el balance):
 
-- **Pesos:** 150 (Santa Mugre), 200 (La Palmada), 250 (Parques del Mosco); +25 % por cada escalón del régimen de la zona, porque hay más riesgo. Coincide con la tabla de contratos (150-250).
+- **Pesos:** 200 (La Palmada), 250 (Parques del Mosco); 💡 150 para una colonia de fuera más tranquila (antes era Santa Mugre, que ya no entra aquí). +25 % por cada escalón del régimen de la zona, porque hay más riesgo. Coincide con la tabla de contratos (150-250). **Además, mejoras del personaje** (`docs/mejoras.md`), como en el resto del reparto de noche.
 - **Objetos:** 1 galón (35) y la **ficha sellada** de la cuadrilla.
 - **Confianza** de la zona: sube si el tinaco queda entero; baja si se rompe.
 
@@ -155,7 +158,9 @@ flowchart TD
 
 | Contrato | Quién | Qué se hace | Paga | Riesgo | Reusa | Prog. |
 |---|---|---|---|---|---|---|
-| **Vela** | La cuadrilla | Defender el tinaco comunitario (o uno de una casa) hasta el amanecer | Pesos + agua | Los zombis vienen por el agua | Tinaco, Refugio, Zombis | M |
+| **Defender el tinaco** (antes Vela) | Chava, Gabriel (la cuadrilla) | Barricada con tinaco y bocinas fuera de las fortalezas hasta el amanecer, mientras se reparte el agua | Pesos + mejoras + ficha | Una horda numerosa y continua | Tinaco, Refugio, Zombis | M |
+| **Defender la camioneta** | Chava, Nacho (el gremio) | Proteger la camioneta del gremio y a Nacho en una ruta de entregas | Pesos por entrega + mejoras | Zombis y, al amanecer, los blancos | Zombis, Misiones, ESCOLTAR (S2) | L |
+| **Guardia de la reja** | La parroquia (Chuy, Karla) | Defender una reja de Santa Mugre un rato de noche; recurrente y voluntaria | Pesos | Una horda en la reja | Zombis, rejas | M |
 | **Reparto clandestino** | La cuadrilla, un cliente | Llevar agua filtrada (ilegal) del tinaco, el pozo o la capilla al domicilio | Pesos | Los zombis y los blancos | WorldItem, Misiones | S |
 | **Recolección** | La cuadrilla, un comprador | Juntar el botín de los muertos en una bodega o una calle | Pesos | Más zombis, las camadas | Botín, Zombis | S |
 | **Encargo** | Una señora, el cura | Llevar algo (o a alguien) de un punto a otro | Pesos | La caminata | Seguir, Misiones | S |
@@ -165,15 +170,47 @@ flowchart TD
 
 | Contrato | Paga | Extra |
 |---|---|---|
-| Vela | 150-250 | 1 galón + la ficha sellada; si cae el tinaco, la mitad |
+| Defender el tinaco | 150-250 | 1 galón + la ficha sellada + mejoras; si cae el tinaco, nada |
+| Defender la camioneta | 60-100 por entrega | Mejoras; sube la cura de la zona; si cae Nacho, la misión falla |
+| Guardia de la reja | 💡 80-120 | Baja el desgaste de la reja (menos riesgo del evento) |
 | Reparto clandestino | 60-100 por entrega | Sube la cura de la zona |
 | Recolección | 30-50 + lo que encuentres | — |
 | Encargo | 40-80 | Sube la confianza |
 | Cacería | 200-300 o un objeto | El oficio del zombi dice qué suelta |
 
-### Vela
+### Defensa externa (antes, la Vela)
 
-El contrato principal. Se defiende un tinaco (el comunitario o uno de una casa) desde el atardecer hasta el amanecer. La versión pulida es [el piloto](#0-el-piloto-defender-el-tinaco-comunitario).
+✅ (2026-11-12) La familia principal de contratos de noche. Tiene dos formas, las dos **fuera de las fortalezas**, las dos al servicio del reparto de agua limpia del gremio ([lore §14](lore.md#el-agua-de-noche-el-negocio-del-gremio)). **Quién da:** Chava (el pozo) y Gabriel (la ficha). **De dónde sale el agua:** el pozo de Chava, en La Palmada. **Por qué de noche:** de día la policía (los blancos) dispara a quien reparte agua. **Amanecer:** si te amanece y te ven con el tambo, disparan.
+
+#### Defender el tinaco
+
+El contrato de siempre, ya con su lugar en el mundo: [el piloto](#0-el-piloto-defender-el-tinaco-comunitario). Montas una **barricada con un tinaco y bocinas** en un sitio fuera de las casas, la horda llega al agua y al sonido, y mientras están ocupados **se reparte el agua** a las casas de fuera. Se puede hacer **quedándote en la barricada** mientras otro reparte, o **repartiendo tú por tandas**.
+
+#### Defender la camioneta
+
+✅ (2026-11-12) **Quién da:** Chava, con Nacho al volante. **Qué se hace:** la camioneta del gremio sale del pozo de La Palmada con garrafones y recorre una ruta de **tres a cinco entregas** a casas de fuera de las fortalezas. En cada parada Nacho baja el agua (unos 20 a 30 s, 💡) y **tú sostienes a los zombis** que llegan por el agua y el ruido. **Nacho** va contigo: maneja, no pelea ("nunca se queda a pelear"); si él **cae**, la misión falla. Si **la camioneta se rompe** (💡 tiene vida, como el tinaco), también. **Paga:** 60-100 por entrega + mejoras, y sube la cura de la zona; si te amanece en la ruta, los blancos disparan. **Riesgo:** zombis continuos (menos que en la defensa del tinaco de la fortaleza) y policías al amanecer. **Reusa:** `Zombis`, `Misiones`; **necesita** los pasos nuevos DEFENDER, ESCOLTAR y LLEVAR_CARGA (S2). Tamaño **L**.
+
+### Guardia de la reja
+
+✅ (2026-11-11 y 2026-11-12) **Quién da:** la parroquia (el padre Chuy o Karla). **Dónde:** una de las **dos rejas** de Santa Mugre, la poniente (-420, ~455) o la oriente (-185, ~473). **Qué se hace:** defender la reja un turno de noche; llegan zombis atraídos por el agua del tinaco, sin llegar al nivel del evento. **Es recurrente y voluntaria** (no es la defensa del tinaco de la fortaleza, que no se acepta). **Paga:** 💡 80-120 pesos. **Qué cambia:** cada guardia **baja el desgaste de la reja** (ver abajo): cuantas más haces, menos probable es el evento. **Reusa:** `Zombis`, el código de las rejas de la rama `rejas-avenida-santa-mugre`.
+
+### El evento de la reja (no es misión)
+
+✅ (2026-11-11) **No se acepta como contrato** (y, ver abajo, solo se paga si ganas). Una noche **al azar** la reja de Santa Mugre falla, se meten zombis, cae la noche y te avisan: *"corre al tinaco, se metieron los zombis"*. Hay que **defender el tinaco de la plaza** (el tinaco manchado, el del culto), que es la escena de prueba actual (`defensa_tinaco.tscn`).
+
+✅ **Por qué falla (2026-11-12): descuido, y tú influyes.** La reja tiene un **desgaste** (0 a 1) que **sube cada noche** y **baja con cada guardia de la reja** que cumples. La **probabilidad** de que falle esa noche depende del desgaste: con la reja cuidada es baja, con la reja olvidada es alta. La noche sigue siendo al azar, pero el jugador puede evitarla.
+
+✅ **Solo si estás dentro (2026-11-12).** La reja **solo falla si estás dentro de Santa Mugre** cuando cae la noche. Si pasas la noche fuera, no hay evento.
+
+✅ **Muy esporádico (2026-11-12).** La defensa de este tinaco **debe ser muy rara**: es un susto, no la rutina (la rutina es la defensa externa). 💡 Primeros números para probar (`docs/pruebas-balance.md`): el desgaste sube +0.05 por noche y baja −0.25 por guardia; probabilidad = desgaste ÷ 3, mínimo 2 %; y **nunca dos noches seguidas** (tras un evento, el desgaste vuelve a 0 y hay un enfriamiento de varias noches). Con la reja descuidada debería pasar una vez cada varias noches, no cada una.
+
+✅ **Si pierdes el tinaco, pierdes y puedes reintentar tres veces (2026-11-12).** Si el tinaco llega a 0 **pierdes**, y el juego te da la opción de **intentarlo de nuevo, hasta tres reintentos**. **La dificultad va de acuerdo al progreso del juego** (tus armas, tus mejoras, la noche en que vas), así que el evento **siempre es defendible**: no hay una noche imposible. ✅ **Además, cada reintento la baja un poco** respecto a esa dificultad base. 💡 Cuánto baja cada reintento se prueba con el balance (`docs/pruebas-balance.md`).
+
+✅ **Qué es el tinaco (2026-11-12).** El tinaco de la plaza se llena de **"agua bendita" del templo** (la que el padre Chuy saca del pozo y filtra). **La Virgen era una manifestación de esa agua bendita**: lo que la colonia venera es el agua, vista como silueta en la mancha.
+
+✅ **Si dejas que se pierda, se sustituye (2026-11-12).** Si **gastas los reintentos o decides no reintentar** y dejas que el tinaco se pierda, **lo sustituyen por uno nuevo y ya no hay altar ni Virgen manchada**. **El altar** aquí es **la ofrenda y las velas bajo la silueta de la Virgen** en la plaza, no el del templo: el pozo, la puerta bajo el altar del templo y el secreto de Chuy no se tocan. El culto pierde su símbolo visible, para siempre. Es consecuencia de lo que haces, no un castigo automático. ✅ **Cómo reacciona Santa Mugre:** **se ponen tristes** (Chuy y los fieles; sin castigo mecánico, solo duelo en los barks y en la plaza). 💡 Por decidir si el agua bendita sigue saliendo del templo igual (lo más sencillo es que sí).
+
+✅ **Si ganas, te dan una paga en dinero (2026-11-12).** El evento no es un contrato y no tiene paga fija, pero **si defiendes el tinaco, te pagan en pesos**. ✅ **Paga el padre (Chuy).** 💡 **El monto se decide después, con el balance económico** (`docs/mejoras.md` y `docs/pruebas-balance.md`); referencia: la defensa externa paga 150-250.
 
 ### Reparto clandestino
 
@@ -221,6 +258,53 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 
 ---
 
+## Las misiones de fuera (megaplan "Noches de fuera", L9, 2026-11-12)
+
+✅ Las misiones que salen de Santa Mugre hacia **afuera de las fortalezas**, con quién da, dónde, objetivo, riesgo y paga. **Regla de dónde viven los dadores:** casi todos los NPC de fuera están bajo Serenol y **no dan misiones**; por eso las dan el gremio (Chava, **Gabriel en Santa Mugre**, y un miembro del gremio en La Gotera), la parroquia (Karla, Chuy), Sofía, el Güero y Nava. **Regla de distancia:** todo lo de la primera tanda a ≤ ~250 m de una reja (ver `docs/plan-noche.md`, "Viabilidad a pie"). Las pagas son 💡 y se ajustan con el balance económico.
+
+| Misión | Quién da | Dónde | Objetivo | Riesgo | Paga | Prog. |
+|---|---|---|---|---|---|---|
+| **Al médico** | Karla (parroquia) | Santa Mugre → una casa con cruz verde | Llevar a un fiel mordido al médico sin que lo alcancen | La caminata; si muere, falla | 💡 80-120 + confianza de la parroquia | M |
+| **Las piezas de la antena** (1.ª de 2) | Sofía | Fuera, ≤250 m de una reja | Encontrar las piezas (tubos, cable, repetidor) | Zombis | 💡 pesos + desbloquea la 2.ª | S |
+| **Subir la antena** (2.ª de 2) | Sofía | Una torre de luz (`power=tower`) | Defender el pie de la torre mientras alguien sube | Una horda por el ruido | 💡 pesos; la radio llega más lejos | M |
+| **El Decreto 47** (H4) | El Güero o Sofía | La bodega de GelA cerca de la reja poniente (-333, 645) | Sacar el expediente y la hoja de conteo | Camadas dormidas; los zombis | Copias: 200 (A) | M |
+| **Reparto** | Chava, Gabriel o el gremio de La Gotera | De la casa de Chava / de Santa Mugre a casas de fuera | Llevar agua limpia a pie antes del amanecer | Zombis; los blancos al amanecer | 💡 60-100 por entrega | S |
+| **La hija de Nava** | El Inspector Nava | De noche, entre los zombis de fuera | Encontrar a su hija por la ropa y llevarlo a ella | La horda; que alguien la mate | Paga igual, antes de salir | L |
+
+### Al médico
+
+✅ **Da:** Karla, la mano derecha de la parroquia. **Qué se hace:** un fiel salió herido o mordido y la parroquia no puede curarlo; hay que llevarlo de noche a una **casa con cruz verde** (clínica clandestina, fuera de la reja). El fiel **te sigue**, camina más lento que tú y puede morir. **Repetible:** cada vez es un herido distinto. **Si muere:** falla, no hay paga y la parroquia se pone triste. **Reusa:** `Seguir` y ESCOLTAR (S2). ✅ **El médico es anónimo (2026-11-12):** no sale ni habla; **solo dejas al enfermo en su enfermería** (la casa con cruz verde) y la misión termina. Hay varias clínicas (una casa con cruz verde por colonia cercana). 💡 Por medir: cuáles quedan a ≤250 m de una reja.
+
+### Las piezas de la antena y Subir la antena (cadena)
+
+✅ **Cadena de dos:** la segunda no se abre sin la primera. **Da:** Sofía (su taller, dentro de Santa Mugre; transmite de noche). **1. Las piezas:** encuentra N piezas sueltas (tubos, cable, un repetidor) en sitios de fuera; es un `recoger` con zombis cerca. **2. Subir la antena:** en una **torre de luz** (hay 32 en el mapa, `power=tower`), **Sofía sube** (✅ 2026-11-12; tiene manos de soldador) y **tú defiendes el pie de la torre** mientras sube y la instala. El ruido de la instalación atrae a la horda; el tiempo de subida (💡 60 a 90 s) es el que hay que aguantar. **Qué cambia:** la señal de Sofía llega más lejos (💡 alcance de su radio, y de ahí A3 "La verdad"). **Reusa:** el paso DEFENDER (S2), el sistema de oleadas. ✅ **Si no hay torre de luz a ≤250 m de una reja, se coloca una en un lugar conveniente** (2026-11-12): se agrega al mapa una torre junto a la reja, sin depender del OSM. 💡 Por medir: qué torres reales ya quedan cerca.
+
+### El Decreto 47 (H4 actualizada)
+
+✅ **Da:** el Güero (el empleado del palacio, que vende copias) o Sofía. **Dónde:** la **bodega de GelA cerca de la reja poniente**, en (-333, 645), a unos 209 m: la oficina de GelA de fuera. **Qué se hace:** entrar de noche y sacar el **expediente del Decreto 47 y la hoja de conteo**. **Dos caminos:** (A) el Güero te vende la llave de la bodega y la caja donde están, y tú los sacas; (B) entras sin él, forzando la bodega. **Riesgo:** las **camadas** que duermen adentro y los zombis de la calle; de noche no hay blancos (el Estado se retira). **Qué cambia:** la hoja de conteo (los nombres son los de la lista de Marisol); **Buenrostro empieza a buscar al Güero**, y como vive en la fortaleza GelA, ya no tiene que salir a hacerlo. **Reusa:** `MapBodegas`, `WorldItem`, camadas.
+
+### Reparto
+
+✅ **Quién da (2026-11-12):** **Chava, desde su casa** en La Palmada (agua limpia de su pozo); **Gabriel**, que **convenientemente está en Santa Mugre**, donde empieza el jugador (reparte la ficha y los contratos); y **un miembro del gremio en La Gotera**. **Dos formas:** (1) **sales desde el pozo de Chava** a casas de fuera de las fortalezas; (2) **sales desde la fortaleza llevando agua hacia afuera** (la bendita de Santa Mugre, o el agua limpia de La Gotera), a pie, antes del amanecer. **Reglas:** de día no se puede (los blancos disparan); si amanece y te ven con el tambo, te disparan. **Paga:** 💡 60-100 por entrega, y sube la cura de la zona. **Reusa:** `WorldItem`, `Misiones`, el paso `entregar`. Es la versión corta y repetible del contrato de reparto clandestino (§2).
+
+### La hija de Nava
+
+✅ **Da:** el Inspector Nava, un blanco normal; lo encuentras de día en las colonias de fuera. **Qué hace:** te pone a buscar a su hija; te da su **ropa y descripción**. De noche la **encuentras entre los zombis**, **no la matas (si la matas, falla)** y **llevas a Nava hasta ella**. Nava **te dice claro** que quiere terminar con su sufrimiento: **se deja matar por su hija en lugar de que tú la mates**. **Te paga igual**; no pasa nada con su puesto. ✅ **Paga antes de salir (2026-11-12):** te da el pago, en un sobre, antes de que empiecen a buscar a su hija. **Reusa:** ESCOLTAR (S2) con Nava como acompañante; **necesita** un zombi con atuendo propio en la horda, que **no se pueda matar por accidente** (ni tú ni los otros zombis). Tamaño **L**.
+
+### Pasada de coherencia (L9)
+
+| Regla | ¿Se cumple? |
+|---|---|
+| Los NPC de fuera bajo Serenol no dan misiones | Sí: dan gremio, parroquia, Sofía, el Güero y Nava (ninguno bajo Serenol) |
+| De día los blancos disparan al que reparte | Sí: el reparto y el resto son de noche; solo Nava se encuentra de día |
+| De noche el Estado se retira | Sí: sin blancos de noche, incluso en la bodega de GelA |
+| Todo a ≤250 m de una reja (primera tanda) | La bodega sí (209 m); las torres, si no hay a ≤250 m, se colocan; **falta medir** las clínicas |
+| Reja de Santa Mugre y fortaleza | Todas salen de Santa Mugre, el sitio donde empieza el jugador |
+| El pozo del templo sigue secreto | Sí: ninguna misión baja al pozo; el agua bendita solo se reparte |
+| Gabriel está donde está el jugador | Sí: pasa a Santa Mugre (ver `personajes.md`) |
+
+---
+
 ## 4. Las misiones de historia
 
 Son las de [La revelación](lore.md#17-la-revelación): opcionales, repartidas por el mapa, y cada una entrega una pista.
@@ -252,7 +336,7 @@ Misiones de apoyo, atadas a personajes:
 | H1 | El agua sabe distinto | Nadie | Cualquiera | Beber de la llave y del garrafón y comparar | Preguntarle a la encargada de abarrotes | Nada: es la primera pista | — | — |
 | H2 | Los zombis eran vecinos | Marisol | La Florida Marchita | Comparar su lista con un **acta de ausencia** (del Güero o de un papel raro) | Encontrar a su sobrino amarrado: ayudarla a esconderlo o bajarlo | Confianza de la zona; Marisol te da la llave de la cisterna | Agua para la escuela (o nada, si lo bajas) | Un acta de ausencia (A) |
 | H3 | El G-7 | Dr. López | La Florida → El Mante Tieso | De noche, entrar a la planta con Martín (una cuota) y robar un manifiesto | De día, con la ruta de Armando, llevarle a López **muestras de agua** para que las pruebe | El manifiesto (documento); el escalón del Mante sube | 150 + la prueba del agua | — |
-| H4 | El Decreto 47 | El Güero o Sofía | Parques de Santa Mugre | Comprarle al Güero las copias y la **hoja de conteo** | Entrar al archivo del palacio de noche | La hoja de conteo (sus nombres son los de la lista de Marisol); Buenrostro empieza a buscar al Güero | Copias: 200 (A) | — |
+| H4 | El Decreto 47 | El Güero o Sofía | Parques de Santa Mugre | Comprarle al Güero la llave y la caja de la **bodega de GelA** (reja poniente) | Entrar a esa bodega de noche (ver "Las misiones de fuera") | La hoja de conteo (sus nombres son los de la lista de Marisol); Buenrostro empieza a buscar al Güero | Copias: 200 (A) | — |
 | H5 | La presa está llena | El cura, don Nemesio o el Güero | La Gotera / Los Garrafones | Que Nemesio te enseñe la válvula (te cobra un favor) | Que Chuy te confiese el filtro (si la confianza es alta) | El jugador sabe; nada cambia hasta que actúe | — | — |
 | A1 | La capilla | Padre Chuy | Los Garrafones | Robar un filtro nuevo de una Puri-GelA | Comprárselo a los Gotera (y deberles) | La cura de Los Garrafones sube; el régimen contesta | Agua gratis con más cupo | — |
 | A2 | El cobalto | Elena | Parques del Mosco | Bajar al drenaje de día (las camadas duermen) | Cambiarle el expediente por botas y linterna | El expediente; se marcan los postes del 84 | — | Confianza con Elena |
