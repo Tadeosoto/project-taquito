@@ -20,6 +20,8 @@ godot --path . --headless --check-only --script res://scripts/player.gd  # parse
 
 ## Work in progress (tell the user when a session starts)
 
+- **Campaña "Noches de fuera"** (megaplan, JJ, 2026-11-11): Santa Mugre fortress, the outside under Serenol, night water delivery, and two more fortresses. **At session start read `docs/plan-noche.md`, tell JJ "Hoy toca: <first block with unchecked boxes>", and when the block is done tick it and add a row to its session log.** Lore and missions go together (`docs/lore.md`, `docs/misiones.md`).
+
 - **Protagonist swap** (in `main-testing`): the ninja protagonist is now `el_compa` with retargeted Quaternius clips (see `docs/sistemas/personaje.md`): the swing is the sword clips, the trail follows the weapon tip, and the pistol uses the pistol clips. Store sellers and street walkers are PSX-pack civilians too (see NPC and People); other NPCs stay ninja. Clothes colour for the new model is pending.
 - **Pending fight work (JJ, 2026-11-04)**, listed in Spanish in `docs/pruebas-balance.md` ("Pendientes de la pelea"): a new healing animation (Q, `Player._curarse`; Quaternius has `Consume`), a 10 % chance that a zombie blocks a melee hit (the machete bounces back with a little lag), and a better fight HUD, and a better block sound.
 - **Balance pending**: weapon damage, zombie life/speed, tinaco life, hordes and pay are first guesses. `docs/pruebas-balance.md` (Spanish) lists every number, where it lives and how Alan should run the test; record results there.
