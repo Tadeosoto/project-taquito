@@ -56,6 +56,9 @@
 | **Bate** | *"De aluminio, ya abollado."* | Cuerpo a cuerpo | 150 | 🧱 `models/armas/bate/` |
 | **Pistola** | — | Daño medio, poco ruido relativo | 💡 | 🧱 `models/armas/pistola_mk23/`, `pistola_colt/` |
 | **Cuerno de chivo** | — | Automática, mucho daño y **mucho ruido**; rara | 💡 | 🧱 `models/armas/cuerno_de_chivo/` |
+| **La Tinaquera** 💡 (propuesta de AG, 2026-11-11) | *"Escopeta de corredera con boca de trabuco. Trae su estampita de la Virgen del Tinaco, por si las dudas."* | Escopeta: 8 perdigones por tiro, de cerca | 900 | 🧱 `models/armas/la_tinaquera/` |
+| **La Matraca** 💡 (propuesta de AG) | *"Suena como matraca de feria y no deja dormir a nadie. La herradura es contra las turbas."* | Ametralladora automática, cinta de 100, **mucho ruido** | 2500 | 🧱 `models/armas/la_matraca/` |
+| **La Chicharra** 💡 (propuesta de AG) | *"Chiquita, rosa y escandalosa. Cuando empieza no hay quien la calle."* | Subfusil automático, cargador de 30 | 1200 | 🧱 `models/armas/la_chicharra/` |
 | **Ballesta** | — | Silenciosa; se recuperan las flechas | 💡 | 🧱 `models/armas/ballesta/` |
 | **Resortera** | — | Silenciosa; piedras infinitas pero débil | 💡 | 🧱 `models/armas/resortera/` |
 

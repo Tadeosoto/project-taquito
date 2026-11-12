@@ -334,6 +334,16 @@ const CORREDERA_Y := 0.07
 const RACK_PUNTO := Vector3(0.3, 0.17, 0.0) # donde la agarra la izquierda: arriba, atras
 const CARGADOR_MANO_GIRO := Vector3(0.0, 0.0, 90.0) # lo largo hacia el pulgar (-X en la izquierda), saliendo del puno
 const ARRIBA_TRAS_TIRO := 0.8 # s que sigue apuntando despues de disparar desde la cadera
+# Las otras armas de fuego (Pistola.ARMAS; AG, 2026-11-11), en la mano como la pistola: boca hacia -X
+# del modelo. tamano = lo que miden de largo (m); mango mueve el modelo para que la cacha quede en
+# el puno, canon y expulsion son la boca y el puerto ya con ese corrimiento. En metros, medidos de
+# la malla al exportarla de Blender (models/armas/fuente/armas_caricatura.blend). No tienen
+# corredera que se corte ni sueltan cargador
+const ARMAS_FUEGO := {
+	"escopeta": {"tamano": 0.888, "mango": Vector3(-0.204, 0.015, 0.042), "canon": Vector3(-0.648, 0.096, 0.028), "expulsion": Vector3(-0.179, 0.088, 0.0)},
+	"ametralladora": {"tamano": 0.914, "mango": Vector3(-0.273, -0.011, 0.028), "canon": Vector3(-0.730, 0.118, 0.028), "expulsion": Vector3(-0.240, 0.068, -0.013)},
+	"subfusil": {"tamano": 0.592, "mango": Vector3(-0.130, 0.004, 0.042), "canon": Vector3(-0.426, 0.105, 0.028), "expulsion": Vector3(-0.199, 0.119, -0.002)},
+}
 const MIRA_LEJOS := 20.0      # m: a donde apuntan los brazos sobre el rayo de la mira
 const PECHO := 0.5            # m sobre el centro del cuerpo: de ahi se mide a que altura apunta
 # Con la pistola, camara al hombro como Fortnite: mas cerca y mas alta, a la derecha (con el
@@ -1801,8 +1811,14 @@ func _mostrar_arma() -> void:
 	var inventario := get_node_or_null("/root/Inventory")
 	var arma: InventoryItemData = inventario.arma() if inventario else null
 	var pistola: bool = _pistola != null and _pistola.activa
+	# La escopeta, la ametralladora o el subfusil (Pistola.arma): su modelo es el de su objeto
+	var fuego: Dictionary = {}
 	if pistola:
 		arma = _dato_pistola
+		var otra: InventoryItemData = _pistola.item()
+		if otra and ARMAS_FUEGO.has(_pistola.arma):
+			arma = otra
+			fuego = ARMAS_FUEGO[_pistola.arma]
 	elif _a_punos() or (_lanzador and _lanzador.activo):
 		# Con la sal o la molotov en la mano no se ve el machete
 		arma = null
@@ -1821,7 +1837,8 @@ func _mostrar_arma() -> void:
 		hijo.queue_free()
 	if arma == null:
 		return
-	var modelo := arma.crear_modelo(PISTOLA_TAMANO if pistola else ARMA_TAMANO)
+	var tamano: float = fuego.tamano if not fuego.is_empty() else (PISTOLA_TAMANO if pistola else ARMA_TAMANO)
+	var modelo := arma.crear_modelo(tamano)
 	if modelo:
 		_mano.add_child(modelo)
 		modelo.visible = false
@@ -1835,7 +1852,16 @@ func _mostrar_arma() -> void:
 		modelo.rotation_degrees = PISTOLA_GIRO if pistola else ARMA_GIRO
 		if pistola:
 			modelo.basis = modelo.basis * Basis(Vector3.RIGHT, deg_to_rad(PISTOLA_ROLL))
-		if pistola:
+		if pistola and not fuego.is_empty():
+			(modelo.get_child(0) as Node3D).position += fuego.mango
+			_canon = Marker3D.new()
+			_canon.position = fuego.canon
+			modelo.add_child(_canon)
+			_expulsion = Marker3D.new()
+			_expulsion.position = fuego.expulsion
+			modelo.add_child(_expulsion)
+			_canon_local = (modelo.basis * Vector3.LEFT).normalized()
+		elif pistola:
 			(modelo.get_child(0) as Node3D).position += PISTOLA_MANGO * PISTOLA_TAMANO
 			_canon = Marker3D.new()
 			_canon.position = (PISTOLA_MANGO + PISTOLA_CANON) * PISTOLA_TAMANO
@@ -2077,10 +2103,23 @@ func cambiar_arma(indice: int) -> void:
 	if (indice == 1) == _pistola.activa:
 		if traia:
 			_mostrar_arma()
+		elif indice == 1:
+			# Ya la traias en la mano: 2 otra vez pasa a la siguiente arma de fuego que traigas
+			_pistola.siguiente()
+			_soltar_combo()
+			_mostrar_arma()
 		return
 	_pistola.cambiar()
 	_soltar_combo()
 	_mostrar_arma()
+
+
+# Pistola.gd pregunta antes de un tiro automatico (clic sostenido): lo mismo que pide el clic
+# en _unhandled_input para disparar
+func puede_disparar() -> bool:
+	return is_physics_processing() and can_process() and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED \
+		and not atrapado() and not _colgado and _aturdido <= 0.0 and not sin_combate \
+		and not _lanzador.activo and _curando <= 0.0 and _rodada_t < 0.0 and not mirando_atras()
 
 
 # Cada tiro te recorre tantito para atras de a donde apuntas

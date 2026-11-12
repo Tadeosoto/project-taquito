@@ -90,11 +90,28 @@ const RACK_DURA_SIN_ARCHIVO := 0.8
 const CIERRA_VOLUMEN := -14.0 # dB del cock: sutil, por debajo del balazo (AG)
 const CARGADORES := 6         # cargadores vacios en el piso, se reusan
 const MIRA_COLOR := Color(1.0, 0.95, 0.8, 0.9)
+# Las demas armas de fuego (AG, 2026-11-11): la misma pistola con otros numeros. Se traen como
+# objeto del inventario (InventoryItemData.arma_fuego) y la tecla 2, ya con la de fuego en la mano,
+# pasa a la siguiente (siguiente()). perdigones = rayos por tiro; auto = dispara mientras
+# sostengas el clic; tono = pitch del balazo; patada = x la de la pistola. Solo la pistola suelta
+# cargador y corre corredera. Numeros a ojo: docs/pruebas-balance.md
+const ARMAS := {
+	"pistola": {"nombre": "Pistola", "dano": DANO, "cadencia": CADENCIA, "cargador": CARGADOR, "recarga": RECARGA,
+		"perdigones": 1, "dispersion": DISPERSION, "apunta": APUNTA_DISPERSION, "auto": false, "alcance": ALCANCE, "tono": 1.0, "patada": 1.0},
+	"escopeta": {"nombre": "La Tinaquera", "dano": 6, "cadencia": 0.85, "cargador": 6, "recarga": 2.2,
+		"perdigones": 8, "dispersion": 0.06, "apunta": 0.04, "auto": false, "alcance": 22.0, "tono": 0.62, "patada": 3.0},
+	"ametralladora": {"nombre": "La Matraca", "dano": 7, "cadencia": 0.09, "cargador": 100, "recarga": 3.5,
+		"perdigones": 1, "dispersion": 0.03, "apunta": 0.016, "auto": true, "alcance": 70.0, "tono": 0.8, "patada": 0.5},
+	"subfusil": {"nombre": "La Chicharra", "dano": 4, "cadencia": 0.07, "cargador": 30, "recarga": 1.6,
+		"perdigones": 1, "dispersion": 0.028, "apunta": 0.012, "auto": true, "alcance": 40.0, "tono": 1.25, "patada": 0.35},
+}
 const TEXTO_COLOR := Color(1.0, 0.85, 0.1)
 
 var jugador: Player
 var activa := false
+var arma := "pistola"         # llave de ARMAS: la que traes en la mano
 var balas := CARGADOR
+var _balas_de := {}           # arma -> balas que le quedaban al guardarla
 var tiros := 0      # para medir el balance (MonitorDefensa)
 var aciertos := 0
 
@@ -139,6 +156,9 @@ func _ready() -> void:
 	_armar_fogonazo()
 	_armar_balas()
 	_armar_pantalla()
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario:
+		inventario.inventory_changed.connect(_revisar_arma)
 
 
 func cambiar() -> void:
@@ -155,73 +175,138 @@ func disparar() -> void:
 	var camara := get_viewport().get_camera_3d()
 	if camara == null:
 		return
-	_espera = CADENCIA
+	var d: Dictionary = ARMAS[arma]
+	_espera = d.cadencia
 	tiros += 1
 	balas -= 1
 	var registro = get_node_or_null("/root/Registro")
 	if registro:
-		registro.uso_ataque("pistola")
+		registro.uso_ataque(arma)
 	# Hace ruido: despierta a los zombis de alrededor (la ballesta, cuando la haya, no)
 	Zombie.ruido(jugador.global_position, Zombie.OYE_DISPARO)
 	var centro := get_viewport().get_visible_rect().size / 2.0
 	var origen := camara.project_ray_origin(centro)
 	var mira := camara.project_ray_normal(centro)
-	var desvio := (APUNTA_DISPERSION if jugador._apuntando else DISPERSION) * (1.0 + NERVIOS_DISPERSION * _nervios)
-	var hacia := mira.rotated(camara.global_basis.y, randf_range(-desvio, desvio)) \
-		.rotated(camara.global_basis.x, randf_range(-desvio, desvio))
+	var desvio: float = (d.apunta if jugador._apuntando else d.dispersion) * (1.0 + NERVIOS_DISPERSION * _nervios)
+	var alcance: float = d.alcance
 	var espacio := jugador.get_world_3d().direct_space_state
 	var excluir: Array[RID] = [jugador.get_rid()]
-	var rayo := PhysicsRayQueryParameters3D.create(origen, origen + hacia * ALCANCE, 1 | CAPA_ZOMBIS, excluir)
-	var pego := espacio.intersect_ray(rayo)
-	var punto: Vector3 = pego.position if pego else origen + hacia * ALCANCE
-	# Un zombi o un Saltabardas (no es Zombie, pero contesta igual a recibir_golpe). La Mojiganga
-	# (Catrina) y sus flores y nudo (PuntoDebil) tambien
-	var blanco: Node3D = pego.collider if pego and (pego.collider is Zombie or pego.collider is Saltabardas or pego.collider is Panzon 		or pego.collider is Catrina or pego.collider is PuntoDebil) else null
-	# Lombrices (EnjambreLombrices): no tienen colliders, se les pregunta aparte. Si un punto
-	# esta mas cerca que la pared o el zombi, el tiro es suyo
-	var lombriz := EnjambreLombrices.rayo(get_tree(), origen, hacia, origen.distance_to(punto), RADIO_LOMBRIZ)
-	if not lombriz.is_empty():
-		punto = lombriz.position
-		blanco = null
-	# Solo un tiro que de de veras arriba de la capsula es a la cabeza; la ayuda nunca
-	var tamano: float = blanco.get("_tamano") if blanco is Zombie else 1.0
-	# La Mojiganga mide 6 m: su "cabeza" son sus flores, que ella cuenta aparte
-	var cabeza := blanco != null and not (blanco is Catrina or blanco is PuntoDebil) and punto.y - blanco.global_position.y >= CABEZA_DESDE * tamano
-	if blanco == null and lombriz.is_empty():
-		blanco = _ayuda(espacio, excluir, origen, mira)
-		if blanco:
-			punto = blanco.global_position + Vector3.UP * PECHO
-	var dano := maxi(roundi(DANO * jugador._factor_dano), 1) * (CABEZA_MULT if cabeza else 1)
+	var efectos := get_tree().get_first_node_in_group("efectos_pixel") as EfectosPixel
 	var sacude := SACUDE_TIRO
-	if blanco and blanco.recibir_golpe(dano, jugador.global_position, FUERZA, 80, false, cabeza, "pistola_cabeza" if cabeza else "pistola") != 0:
-		sacude = SACUDE_PEGA
+	var pego_alguno := false
+	# Un rayo por perdigon (la pistola, uno): cada quien su desvio, su blanco y su trazo
+	for perdigon in int(d.perdigones):
+		var hacia := mira.rotated(camara.global_basis.y, randf_range(-desvio, desvio)) \
+			.rotated(camara.global_basis.x, randf_range(-desvio, desvio))
+		var rayo := PhysicsRayQueryParameters3D.create(origen, origen + hacia * alcance, 1 | CAPA_ZOMBIS, excluir)
+		var pego := espacio.intersect_ray(rayo)
+		var punto: Vector3 = pego.position if pego else origen + hacia * alcance
+		# Un zombi o un Saltabardas (no es Zombie, pero contesta igual a recibir_golpe). La Mojiganga
+		# (Catrina) y sus flores y nudo (PuntoDebil) tambien
+		var blanco: Node3D = pego.collider if pego and (pego.collider is Zombie or pego.collider is Saltabardas or pego.collider is Panzon \
+			or pego.collider is Catrina or pego.collider is PuntoDebil) else null
+		# Lombrices (EnjambreLombrices): no tienen colliders, se les pregunta aparte. Si un punto
+		# esta mas cerca que la pared o el zombi, el tiro es suyo
+		var lombriz := EnjambreLombrices.rayo(get_tree(), origen, hacia, origen.distance_to(punto), RADIO_LOMBRIZ)
+		if not lombriz.is_empty():
+			punto = lombriz.position
+			blanco = null
+		# Solo un tiro que de de veras arriba de la capsula es a la cabeza; la ayuda nunca
+		var tamano: float = blanco.get("_tamano") if blanco is Zombie else 1.0
+		# La Mojiganga mide 6 m: su "cabeza" son sus flores, que ella cuenta aparte
+		var cabeza := blanco != null and not (blanco is Catrina or blanco is PuntoDebil) and punto.y - blanco.global_position.y >= CABEZA_DESDE * tamano
+		# La ayuda de punteria, solo al primer perdigon
+		if blanco == null and lombriz.is_empty() and perdigon == 0:
+			blanco = _ayuda(espacio, excluir, origen, mira)
+			if blanco:
+				punto = blanco.global_position + Vector3.UP * PECHO
+		var dano := maxi(roundi(d.dano * jugador._factor_dano), 1) * (CABEZA_MULT if cabeza else 1)
+		if blanco and blanco.recibir_golpe(dano, jugador.global_position, FUERZA, 80, false, cabeza, arma + ("_cabeza" if cabeza else "")) != 0:
+			sacude = SACUDE_PEGA
+			if not pego_alguno:
+				Sonidos.tocar(self, "whack", -4.0 if cabeza else -10.0)
+			pego_alguno = true
+		if not lombriz.is_empty():
+			lombriz.enjambre.bullet_hit(lombriz.dot_index, lombriz.position, hacia)
+			sacude = SACUDE_PEGA
+			if not pego_alguno:
+				Sonidos.tocar(self, "whack", -10.0)
+			pego_alguno = true
+		_dibujar_tiro(punto)
+		if efectos:
+			# Pared o suelo: chispas (al zombi ya lo salpica su agua)
+			if pego and blanco == null and lombriz.is_empty():
+				efectos.lanzar("bala", punto - Vector3.UP * BALA_IMPACTO_ALTO, hacia)
+			# El Panzon y el Saltabardas son grandes: su impacto va donde pego la bala, no en un punto fijo del cuerpo
+			elif blanco is Panzon or blanco is Saltabardas:
+				efectos.lanzar("impacto", punto, hacia)
+	if pego_alguno:
 		aciertos += 1
-		Sonidos.tocar(self, "whack", -4.0 if cabeza else -10.0)
-	if not lombriz.is_empty():
-		lombriz.enjambre.bullet_hit(lombriz.dot_index, lombriz.position, hacia)
-		sacude = SACUDE_PEGA
-		aciertos += 1
-		Sonidos.tocar(self, "whack", -10.0)
 	var balazo := "disparo_pistola" if Sonidos.sonido("disparo_pistola") else "disparo_%d" % randi_range(1, DISPAROS)
-	Sonidos.tocar(self, balazo, -4.0, randf_range(TONO_MIN, TONO_MAX))
+	Sonidos.tocar(self, balazo, -4.0, randf_range(TONO_MIN, TONO_MAX) * d.tono)
 	jugador._sacude_fuerza = sacude
 	jugador._sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	jugador.pose_tiro()
-	jugador.empujar_tiro(hacia)
-	jugador.patear_mira(APUNTA_PATADA if jugador._apuntando else MIRA_PATADA)
+	jugador.empujar_tiro(mira)
+	jugador.patear_mira((APUNTA_PATADA if jugador._apuntando else MIRA_PATADA) * d.patada)
 	_floracion += MIRA_FLORECE
-	_dibujar_tiro(punto)
-	var efectos := get_tree().get_first_node_in_group("efectos_pixel") as EfectosPixel
-	if efectos:
-		# Pared o suelo: chispas (al zombi ya lo salpica su agua)
-		if pego and blanco == null and lombriz.is_empty():
-			efectos.lanzar("bala", punto - Vector3.UP * BALA_IMPACTO_ALTO, hacia)
-		# El Panzon y el Saltabardas son grandes: su impacto va donde pego la bala, no en un punto fijo del cuerpo
-		elif blanco is Panzon or blanco is Saltabardas:
-			efectos.lanzar("impacto", punto, hacia)
 	_expulsar_casquillo(camara)
 	if balas <= 0:
 		_recargar()
+
+
+# --- Cual arma de fuego ---
+
+# Las que traes: la pistola siempre, y las que esten en el inventario
+func armas() -> Array[String]:
+	var lista: Array[String] = ["pistola"]
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario:
+		for cosa in inventario.items:
+			var id: String = cosa.arma_fuego
+			if ARMAS.has(id) and not lista.has(id):
+				lista.append(id)
+	return lista
+
+
+# El objeto del inventario del arma en la mano (Player._mostrar_arma saca de ahi su modelo); null con la pistola
+func item() -> InventoryItemData:
+	var inventario := get_node_or_null("/root/Inventory")
+	if inventario and arma != "pistola":
+		for cosa in inventario.items:
+			if cosa.arma_fuego == arma:
+				return cosa
+	return null
+
+
+# La tecla 2 con el arma de fuego ya en la mano: la que sigue de las que traes
+func siguiente() -> void:
+	var lista := armas()
+	poner(lista[(lista.find(arma) + 1) % lista.size()])
+
+
+func poner(id: String) -> void:
+	if id == arma or not ARMAS.has(id):
+		return
+	# A media recarga, la recarga se pierde
+	if _recargando > 0.0:
+		_recargando = 0.0
+		_terminar_recarga()
+	_balas_de[arma] = balas
+	arma = id
+	balas = _balas_de.get(id, int(ARMAS[id].cargador))
+	_espera = 0.3
+	Sonidos.tocar(self, "boton", -6.0)
+
+
+# Soltaste o vendiste la que traias en la mano: de vuelta a la pistola
+func _revisar_arma() -> void:
+	if not armas().has(arma):
+		poner("pistola")
+
+
+func _cargador() -> int:
+	return int(ARMAS[arma].cargador)
 
 
 func recargando() -> bool:
@@ -272,18 +357,19 @@ func _ayuda(espacio: PhysicsDirectSpaceState3D, excluir: Array[RID], origen: Vec
 
 # R: recarga antes de vaciar el cargador. La bala de la recamara se queda: 12+1
 func recargar() -> void:
-	if balas < CARGADOR + 1:
+	if balas < _cargador() + (1 if arma == "pistola" else 0):
 		_recargar()
 
 
 func _recargar() -> void:
 	if _recargando > 0.0:
 		return
-	_vacia = balas <= 0
+	_vacia = balas <= 0 and arma == "pistola"
+	var recarga: float = ARMAS[arma].recarga
 	var cock := Sonidos.sonido("recarga_cierra")
 	_rack_dura = cock.get_length() if cock else RACK_DURA_SIN_ARCHIVO
 	# En seco dura hasta meter el cargador mas la corredera; si no, el clip entero
-	_recargando = (METE_EN * RECARGA / CLIP_RECARGA + RACK_ACERCA + _rack_dura) if _vacia else RECARGA
+	_recargando = (METE_EN * RECARGA / CLIP_RECARGA + RACK_ACERCA + _rack_dura) if _vacia else recarga
 	_recarga_t = 0.0
 	_recarga_paso = 0
 	_rack_t = -1.0
@@ -354,8 +440,13 @@ func _physics_process(delta: float) -> void:
 		_seguir_recarga(delta)
 		if _recargando <= 0.0:
 			_recargando = 0.0
-			balas = CARGADOR if _vacia else CARGADOR + 1
+			balas = _cargador() if (_vacia or arma != "pistola") else _cargador() + 1
+			if arma != "pistola" and activa:
+				Sonidos.tocar(self, "recarga_cierra", CIERRA_VOLUMEN + 6.0)
 			_terminar_recarga()
+	# Las automaticas disparan mientras sostengas el clic (la pistola, un tiro por clic: Player._unhandled_input)
+	if activa and ARMAS[arma].auto and Input.is_action_pressed("attack") and jugador.puede_disparar():
+		disparar()
 
 
 # Cada momento de la recarga una vez, cuando su tiempo (en s del clip) ya paso
@@ -370,6 +461,9 @@ func _seguir_recarga(delta: float) -> void:
 	if not activa:
 		# Cambiaste de arma a media recarga: termina sin ruido ni cargadores
 		_terminar_recarga()
+		return
+	# El cargador que cae, el nuevo en la mano y la corredera son de la pistola
+	if arma != "pistola":
 		return
 	var clip := _recarga_t * CLIP_RECARGA / RECARGA
 	if _recarga_paso == 0 and clip >= SUELTA_EN:
@@ -434,8 +528,10 @@ func _texto_arma() -> String:
 	var inventario := get_node_or_null("/root/Inventory")
 	var curar := "\nQ curar (%d)" % (inventario.curaciones() if inventario else 0)
 	if activa:
-		var cuantas := "%d+1" % CARGADOR if balas > CARGADOR else "%d/%d" % [balas, CARGADOR]
-		return ("Pistola  recargando..." if _recargando > 0.0 else "Pistola  " + cuantas) + curar
+		var nombre: String = ARMAS[arma].nombre
+		var cuantas := "%d+1" % _cargador() if balas > _cargador() else "%d/%d" % [balas, _cargador()]
+		var otra := "\n2 cambia de arma" if armas().size() > 1 else ""
+		return (nombre + "  recargando..." if _recargando > 0.0 else nombre + "  " + cuantas) + otra + curar
 	var arma: InventoryItemData = inventario.arma() if inventario else null
 	return (arma.item_name if arma else "Puño") + curar
 

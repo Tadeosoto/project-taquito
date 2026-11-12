@@ -32,6 +32,10 @@ extends Resource
 # Si es arma: lo que le quita a un zombi de un golpe (Player._golpear). 0 = no es arma
 @export var dano : int = 0
 
+# Si es arma de fuego: su llave en Pistola.ARMAS ("escopeta", "ametralladora", "subfusil"). Traerla
+# en el inventario la suma a las que cambia la tecla 2 (Pistola.siguiente). "" = no lo es
+@export var arma_fuego : String = ""
+
 # Si es mochila: cuantos objetos caben con ella (Inventory.equipar_mochila). 0 = no es mochila
 @export var capacidad : int = 0
 
