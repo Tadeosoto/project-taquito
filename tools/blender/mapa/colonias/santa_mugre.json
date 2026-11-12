@@ -812,23 +812,6 @@
 			"desgaste": 0.78
 		},
 		{
-			"nombre": "Casa_72",
-			"tipo": "casa",
-			"auto": true,
-			"x": -195.41,
-			"z": 458.92,
-			"puntos": [
-				[3.3, -1.93],
-				[-2.47, -2.92],
-				[-3.3, 1.92],
-				[2.47, 2.93]
-			],
-			"pisos": 3,
-			"frente": 2,
-			"color": "rosa",
-			"desgaste": 0.39
-		},
-		{
 			"nombre": "Casa_74",
 			"tipo": "casa",
 			"auto": true,
@@ -1271,23 +1254,6 @@
 			"desgaste": 0.48
 		},
 		{
-			"nombre": "Casa_208",
-			"tipo": "casa",
-			"auto": true,
-			"x": -205.13,
-			"z": 454.19,
-			"puntos": [
-				[2.15, 6.38],
-				[2.82, -6.11],
-				[-2.15, -6.38],
-				[-2.82, 6.11]
-			],
-			"pisos": 1,
-			"frente": 3,
-			"color": "blanco",
-			"desgaste": 0.4
-		},
-		{
 			"nombre": "Casa_209",
 			"tipo": "casa",
 			"auto": true,
@@ -1451,23 +1417,6 @@
 			"desgaste": 0.49
 		},
 		{
-			"nombre": "Casa_242",
-			"tipo": "casa",
-			"auto": true,
-			"x": -192.93,
-			"z": 443.34,
-			"puntos": [
-				[3.19, 2.69],
-				[3.67, -1.98],
-				[-3.19, -2.69],
-				[-3.67, 1.98]
-			],
-			"pisos": 2,
-			"frente": 0,
-			"color": "rosa",
-			"desgaste": 0.72
-		},
-		{
 			"nombre": "Casa_243",
 			"tipo": "casa",
 			"auto": true,
@@ -1627,23 +1576,6 @@
 			"frente": 0,
 			"color": "mostaza",
 			"desgaste": 0.39
-		},
-		{
-			"nombre": "Casa_271",
-			"tipo": "casa",
-			"auto": true,
-			"x": -192.93,
-			"z": 452.76,
-			"puntos": [
-				[4.75, -3.37],
-				[-4.01, -4.27],
-				[-4.8, 3.38],
-				[4.05, 4.26]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "mostaza",
-			"desgaste": 0.5
 		},
 		{
 			"nombre": "Casa_274",
@@ -2817,23 +2749,6 @@
 			"desgaste": 0.56
 		},
 		{
-			"nombre": "Casa_523",
-			"tipo": "casa",
-			"auto": true,
-			"x": -197.58,
-			"z": 446.82,
-			"puntos": [
-				[4.55, -1.13],
-				[-4.24, -2.05],
-				[-4.57, 1.14],
-				[4.26, 2.04]
-			],
-			"pisos": 2,
-			"frente": 3,
-			"color": "morado",
-			"desgaste": 0.61
-		},
-		{
 			"nombre": "Casa_531",
 			"tipo": "casa",
 			"auto": true,
@@ -3036,23 +2951,6 @@
 			"frente": 0,
 			"color": "terracota",
 			"desgaste": 0.54
-		},
-		{
-			"nombre": "Lote_3",
-			"tipo": "casa",
-			"auto": true,
-			"x": -189.22,
-			"z": 461.19,
-			"puntos": [
-				[1.95, 2.3],
-				[-2.51, 1.66],
-				[-1.95, -2.3],
-				[2.51, -1.66]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"color": "mostaza",
-			"desgaste": 0.5
 		},
 		{
 			"nombre": "Lote_4",
@@ -4981,7 +4879,7 @@
 			"auto": true,
 			"x": -246.86,
 			"z": 355.2,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [8.94, 4.0],
 			"variante": "fonda"
 		},
@@ -7597,7 +7495,7 @@
 			"tipo": "escalera",
 			"x": -405.8,
 			"z": 307.1,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"alto": 5.55,
 			"ancho": 1.0,
 			"sentido": -1
@@ -7630,7 +7528,7 @@
 			"x": -269.6,
 			"z": 477.75,
 			"y": 8.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"alto": 3.5,
 			"tam": [8.0, 4.0],
 			"anuncio": "gela",
@@ -7658,7 +7556,7 @@
 			"tipo": "mercado",
 			"x": -347.0,
 			"z": 347.0,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"tam": [30.0, 18.0]
 		},
 		{
@@ -7706,7 +7604,7 @@
 			"tipo": "escalera",
 			"x": -315.1,
 			"z": 471.0,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"alto": 5.15,
 			"ancho": 1.0,
 			"sentido": 1
@@ -7939,7 +7837,7 @@
 			"tipo": "patio",
 			"x": -305.0,
 			"z": 304.8,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -7983,7 +7881,7 @@
 			"tipo": "patio",
 			"x": -255.0,
 			"z": 356.8,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -8027,7 +7925,7 @@
 			"tipo": "patio",
 			"x": -347.5,
 			"z": 306.8,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [7.0, 7.0]
 		},
 		{
@@ -8035,7 +7933,7 @@
 			"tipo": "vecindad",
 			"x": -215.5,
 			"z": 400.0,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"tam": [22.0, 52.0]
 		}
 	],
@@ -8086,7 +7984,7 @@
 			"x": -395.05,
 			"z": 320.2,
 			"y": 14.85,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -50,
 			"alcance": 7.0
 		},
@@ -8174,7 +8072,7 @@
 			"x": -367.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -8184,7 +8082,7 @@
 			"x": -354.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -8194,7 +8092,7 @@
 			"x": -341.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -8204,7 +8102,7 @@
 			"x": -328.0,
 			"z": 383.5,
 			"y": 0.3,
-			"rot": -3.1416,
+			"rot": 3.1416,
 			"baja": -48,
 			"alcance": 14.0
 		},
@@ -8283,7 +8181,7 @@
 			"x": -347.0,
 			"z": 337.6,
 			"y": 4.6,
-			"rot": -3.1416
+			"rot": 3.1416
 		},
 		{
 			"nombre": "Fila_Agua_0",
@@ -8934,6 +8832,15 @@
 				[-265.04, 475.93],
 				[-265.2, 479.93],
 				[-274.16, 479.57]
+			]
+		},
+		{
+			"nombre": "Gasolinera",
+			"puntos": [
+				[-208.24, 442.36],
+				[-186.48, 445.59],
+				[-189.12, 463.39],
+				[-210.88, 460.17]
 			]
 		}
 	],
@@ -9841,6 +9748,21 @@
 			"pisos": 1,
 			"aire_libre": true,
 			"interactivo": false
+		},
+		{
+			"tipo": "gasolinera",
+			"nombre": "Gasolinera Bahía",
+			"x": -198.68,
+			"z": 452.88,
+			"rotacion_y": -0.147,
+			"ancho": 22.0,
+			"fondo": 18.0,
+			"origen": "Gasolinera Bahía",
+			"giro": "gasolinera",
+			"casa_reemplazada": null,
+			"pisos": 1,
+			"aire_libre": false,
+			"interactivo": true
 		}
 	],
 	"tianguis": [

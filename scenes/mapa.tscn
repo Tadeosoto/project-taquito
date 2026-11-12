@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/mapa/ArbolesModelo.gd" id="21_arboles_modelo"]
 [ext_resource type="Script" path="res://scripts/mapa/CarrosColonia.gd" id="22_carros_colonia"]
 [ext_resource type="PackedScene" uid="uid://lafcfjgvn6br" path="res://models/tiendas/carrito/carrito.scn" id="19_carrito"]
+[ext_resource type="PackedScene" path="res://models/tiendas/gasolinera/gasolinera.scn" id="19_gasolinera"]
 [ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="4_ciclo"]
 [ext_resource type="Script" path="res://scripts/mapa/Colonia.gd" id="5_colonia"]
 [ext_resource type="PackedScene" path="res://models/mapa/santa_mugre/santa_mugre.glb" id="6_santa_mugre"]
@@ -22,6 +23,7 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="11_ferreteria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="11_purificadora"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="11_punto"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/gasolinera.tscn" id="11_gasolinera"]
 [ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="12_inventario"]
 [ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="13_alumbrado"]
 [ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="14_zombis"]
@@ -86,9 +88,14 @@ mouse_filter = 2
 script = ExtResource("3_puntos")
 puntos_path = "res://resources/mapa/santa_mugre/puntos.json"
 prefabs = Dictionary[String, PackedScene]({
+"gasolinera": ExtResource("19_gasolinera"),
 "puesto": ExtResource("19_carrito")
 })
+prefab_rotacion = Dictionary[String, float]({
+"gasolinera": -90.0
+})
 prefab_ancho = Dictionary[String, float]({
+"gasolinera": 14.0,
 "puesto": 2.5
 })
 target_path = NodePath("../Dron")
@@ -152,6 +159,7 @@ escenas = Dictionary[String, PackedScene]({
 "abarrotes": ExtResource("11_abarrotes"),
 "farmacia": ExtResource("11_farmacia"),
 "ferreteria": ExtResource("11_ferreteria"),
+"gasolinera": ExtResource("11_gasolinera"),
 "licoreria": ExtResource("11_licoreria"),
 "oxxo": ExtResource("11_tiendita"),
 "punto": ExtResource("11_punto"),
