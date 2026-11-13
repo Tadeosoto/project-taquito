@@ -1449,12 +1449,13 @@ def mirador_muro(nombre, p):
     ancho, fondo = 3.2, 2.0
     z0, z1 = 0.15, 0.15 + fondo
     zm = (z0 + z1) / 2
-    k.caja((ancho / 2, alto - 0.06, zm), (ancho, 0.12, fondo), "foto_madera")
+    # Con su cara de abajo (sin_abajo=False): desde la calle se ven por debajo
+    k.caja((ancho / 2, alto - 0.06, zm), (ancho, 0.12, fondo), "foto_madera", sin_abajo=False)
     k.choques.append(((ancho / 2, alto - 0.15, zm), (ancho, 0.3, fondo), 0.0))
     for x in (0.1, ancho - 0.1):
         for z in (z0 + 0.1, z1 - 0.1):
             k.caja((x, (alto + 2.2) / 2, z), (0.12, alto + 2.2, 0.12), "foto_madera")
-    k.caja((ancho / 2, alto + 2.25, zm), (ancho + 0.4, 0.05, fondo + 0.5), "foto_lamina_verde")
+    k.caja((ancho / 2, alto + 2.25, zm), (ancho + 0.4, 0.05, fondo + 0.5), "foto_lamina_verde", sin_abajo=False)
     # Barandal: el lado de adentro, la punta y el lado de la escalera (libre donde llega)
     for y in (alto + 0.5, alto + 0.95):
         k.caja((ancho / 2, y, z1 - 0.05), (ancho, 0.06, 0.06), "foto_madera")
@@ -1497,7 +1498,7 @@ def nicho_virgen(nombre, p):
     semilla = _semilla_nombre(nombre)
     k.caja((0, 1.6, 0), (largo, 3.2, 0.25), "foto_block", choca=True)
     _mural_en_x(k, -largo / 2 + 0.3, largo / 2 - 0.3, 1.0, 1, 0.16, _mural_por_archivo("virgen_nos_cuida", semilla), largo - 0.8, 2.0)
-    k.caja((0, 3.3, 0.5), (largo + 0.4, 0.06, 1.4), "foto_lamina_verde")
+    k.caja((0, 3.3, 0.5), (largo + 0.4, 0.06, 1.4), "foto_lamina_verde", sin_abajo=False)
     for x in (-largo / 2 + 0.1, largo / 2 - 0.1):
         k.caja((x, 1.65, 1.1), (0.08, 3.3, 0.08), "fierro")
     k.caja((0, 0.4, 0.45), (largo * 0.8, 0.8, 0.6), "concreto", choca=True)
@@ -1519,7 +1520,7 @@ def puesto_guardia(nombre, p):
     semilla = _semilla_nombre(nombre)
     cx = -1.2
     k.caja((cx, 1.2, -0.4), (2.6, 2.4, 2.2), "foto_block", choca=True)
-    k.caja((cx, 2.5, -0.3), (3.2, 0.06, 2.9), "foto_lamina_verde", color=TINTES_LAMINA[semilla % len(TINTES_LAMINA)])
+    k.caja((cx, 2.5, -0.3), (3.2, 0.06, 2.9), "foto_lamina_verde", color=TINTES_LAMINA[semilla % len(TINTES_LAMINA)], sin_abajo=False)
     k.caja((cx, 1.5, 0.71), (1.2, 0.7, 0.04), "hueco")
     k.caja((cx + 1.31, 1.0, -0.4), (0.04, 2.0, 0.9), "foto_madera")
     diseno = _mural_por_archivo("virgen_nos_cuida", semilla)
