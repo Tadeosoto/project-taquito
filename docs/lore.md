@@ -710,7 +710,7 @@ La lista completa —con detalles, pagos y riesgo— está en [`docs/misiones.md
 |---|---|---|---|---|
 | **Defensa del tinaco** (la antigua Vela, ahora afuera) | La cuadrilla | Armas una barricada con un tinaco y bocinas para atraer a los zombis y repartes agua limpia a las casas de fuera; ver [El agua de noche](#el-agua-de-noche-el-negocio-del-gremio) | Pesos + mejoras | Una horda numerosa |
 | **Camioneta de reparto** | La cuadrilla | Defiendes la camioneta mientras hace las entregas | Pesos + mejoras | Zombis y los últimos policías al amanecer |
-| **Guardia de la reja** | La parroquia | Defiendes la reja de Santa Mugre (recurrente); si falla, hay noche de defensa | Pesos | Una horda en la reja |
+| **Guardia de la reja** | El padre Chuy | ✅ (2026-11-12) Una sola vez, el tutorial de la primera horda: defiendes una reja de Santa Mugre 3 minutos y se abre la salida; el susto de que entren los zombis es el evento al azar | $120 | Una horda en la reja |
 | **Reparto clandestino** | La cuadrilla, un cliente | Llevas agua filtrada (ilegal) a un domicilio de fuera, a pie, antes del amanecer | Pesos | Los zombis y, de día, la policía |
 | **Entregas de la mafia** | Los Gotera | Llevas cosas de un negocio "punto" a otro; desbloquea compras ilegales | Pesos + acceso | Las hordas del camino |
 | **Recolección** | La cuadrilla, un comprador | Juntas el loot de los muertos: pesos, herramientas, lo que traían | Pesos | Más zombis, la bodega |

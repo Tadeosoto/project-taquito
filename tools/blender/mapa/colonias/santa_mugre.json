@@ -8283,6 +8283,27 @@
 			"rot": 0.0
 		},
 		{
+			"nombre": "Chuy_Atrio",
+			"tipo": "mision",
+			"x": -324.5,
+			"z": 414.0,
+			"rot": 1.5708
+		},
+		{
+			"nombre": "Guardia_poniente",
+			"tipo": "mision",
+			"x": -410.0,
+			"z": 454.5,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Guardia_oriente",
+			"tipo": "mision",
+			"x": -195.0,
+			"z": 472.6,
+			"rot": 1.5708
+		},
+		{
 			"nombre": "Caja_GelA",
 			"tipo": "caja_gela",
 			"x": -339.1,

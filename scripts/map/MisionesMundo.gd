@@ -291,6 +291,9 @@ func _hablar(i: int) -> String:
 	if v.has("gabriel"):
 		_salir_con_gabriel(mision, v["lugar"], v["gabriel"])
 		return mision.aceptada
+	if _es_guardia_de_reja(mision):
+		_ir_a_la_reja(mision)
+		return mision.aceptada
 	if _sale_por_la_reja(mision):
 		_salir_por_la_reja(mision)
 		return mision.aceptada
@@ -312,6 +315,27 @@ func _entrar_al_tinaco(mision: MisionData, k: int) -> void:
 	if not is_inside_tree() or Misiones.activa != mision or paso == null or paso.escena == "":
 		return
 	PasoJefe.entrar(self, paso.escena, true)
+
+
+# La guardia de la reja (padre Chuy), aceptada en la colonia de Blender: el primer paso es DEFENDER en "reja_guardia"
+func _es_guardia_de_reja(mision: MisionData) -> bool:
+	return not mision.pasos.is_empty() and mision.pasos[0].lugar == "reja_guardia" \
+			and get_tree().get_first_node_in_group("colonia") != null
+
+
+# Una de las dos rejas al azar: se corta la pantalla y se recarga la colonia de noche con el jugador adentro de
+# esa reja (PasoColonia, igual que al volver de afuera) y el paso DEFENDER la toma de lugar (`_meta_de_escolta`)
+func _ir_a_la_reja(mision: MisionData) -> void:
+	if not Misiones.elegir(mision):
+		return
+	Misiones.reja_guardia = ["poniente", "oriente"].pick_random()
+	await get_tree().create_timer(CAMIONETA_CORTE).timeout
+	if not is_inside_tree() or Misiones.activa != mision:
+		return
+	var hora := -2.0
+	if _ciclo:
+		hora = _ciclo.dia_duracion / (_ciclo.dia_duracion + _ciclo.noche_duracion)
+	PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, Misiones.reja_guardia, hora)
 
 
 # La camioneta de Gabriel, aceptada donde para: se corta la pantalla y se recarga el mapa de noche, con
@@ -786,6 +810,10 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 		for entrada: EntradaJefe in get_tree().get_nodes_in_group("entradas_jefe"):
 			if entrada.id == paso.lugar.trim_prefix("entrada:"):
 				_escolta_meta = entrada.global_position
+	elif paso.lugar == "reja_guardia":
+		# La guardia: la marca de la reja que le toco (Guardia_poniente / Guardia_oriente)
+		var marca_reja: Variant = _marca("marca:Guardia_" + (Misiones.reja_guardia if Misiones.reja_guardia != "" else "poniente"))
+		_escolta_meta = (marca_reja as Transform3D).origin if marca_reja != null else desde
 	elif paso.lugar == "sitio_tinaco" and SitiosTinaco.elegido >= 0:
 		# Volver al tinaco (si perdiste): la flecha junto a su Chava, no encima del tinaco
 		_escolta_meta = SitiosTinaco.centro() + Vector3(SitiosTinaco.CHAVA_A, 0.0, 0.0)

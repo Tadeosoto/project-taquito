@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_guardia"]
+script = ExtResource("2_paso")
+tipo = 6
+cuando = 1
+texto = "Aguanta en la reja hasta que se calmen"
+lugar = "reja_guardia"
+segundos = 180.0
+ola_cada = 15.0
+turba = 3
+
+[resource]
+script = ExtResource("1_mision")
+id = "guardia_reja"
+nombre = "La guardia de la reja"
+modelo = "hombre_psx"
+donde = "marca:Chuy_Atrio"
+oferta = "Hijo, para salir de la colonia primero hay que cuidar la reja. Esta noche los de afuera huelen el agua del tinaco y se pegan a ella: aguanta hasta que se calmen y te la abro, para que puedas salir."
+aceptada = "Dios te lo pague. Ya es de noche: ve a la reja y no te muevas de ahí hasta que se calmen. Cuando acabes, la reja es tuya."
+recuerda = "La reja no se cuida sola. No te alejes de ella."
+despedida = "Ya cuidaste la reja, hijo. Ve con Dios."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_guardia")])
+pesos = 120
+una_vez = true

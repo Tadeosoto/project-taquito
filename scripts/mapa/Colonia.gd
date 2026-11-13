@@ -52,6 +52,7 @@ const LETRERO_COLOR := Color(1.0, 0.92, 0.55)
 @export var puntos_path: NodePath
 @export var jugador_path: NodePath
 
+const TEXTO_REJA_CERRADA := "La reja está cerrada. Antes habla con el padre Chuy, en el atrio."
 # Marcas "mision" de la colonia cargada: nombre -> Transform3D (MisionesMundo las busca como
 # "marca:<nombre>"). Se llenan en _enter_tree, antes que Partida arme MisionesMundo
 static var puntos_mision := {}
@@ -459,8 +460,15 @@ func _salida_colonia(marca: Dictionary) -> void:
 	letrero.visibility_range_end = 25.0
 	area.add_child(letrero)
 	area.body_entered.connect(func(cuerpo: Node3D) -> void:
-		if cuerpo is Player:
-			PasoColonia.ir_a(self, PasoColonia.MAPA_GRANDE, lado))
+		if not (cuerpo is Player):
+			return
+		# Hasta cumplir la guardia de la reja del padre Chuy (el tutorial de la primera horda) no se sale
+		if not Misiones.reja_abierta():
+			var aviso := get_node_or_null("../Supervivencia")
+			if aviso:
+				aviso.avisar(TEXTO_REJA_CERRADA)
+			return
+		PasoColonia.ir_a(self, PasoColonia.MAPA_GRANDE, lado))
 	add_child(area)
 
 

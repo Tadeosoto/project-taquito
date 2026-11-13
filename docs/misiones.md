@@ -172,7 +172,7 @@ flowchart TD
 |---|---|---|
 | Defender el tinaco | 150-250 | 1 galón + la ficha sellada + mejoras; si cae el tinaco, nada |
 | Defender la camioneta | 60-100 por entrega | Mejoras; sube la cura de la zona; si cae Nacho, la misión falla |
-| Guardia de la reja | 💡 80-120 | Baja el desgaste de la reja (menos riesgo del evento) |
+| Guardia de la reja | 120 | Una sola vez: abre la salida de Santa Mugre |
 | Reparto clandestino | 60-100 por entrega | Sube la cura de la zona |
 | Recolección | 30-50 + lo que encuentres | — |
 | Encargo | 40-80 | Sube la confianza |
@@ -192,13 +192,15 @@ El contrato de siempre, ya con su lugar en el mundo: [el piloto](#0-el-piloto-de
 
 ### Guardia de la reja
 
-✅ (2026-11-11 y 2026-11-12) **Quién da:** la parroquia (el padre Chuy o Karla). **Dónde:** una de las **dos rejas** de Santa Mugre, la poniente (-420, ~455) o la oriente (-185, ~473). **Qué se hace:** defender la reja un turno de noche; llegan zombis atraídos por el agua del tinaco, sin llegar al nivel del evento. **Es recurrente y voluntaria** (no es la defensa del tinaco de la fortaleza, que no se acepta). **Paga:** 💡 80-120 pesos. **Qué cambia:** cada guardia **baja el desgaste de la reja** (ver abajo): cuantas más haces, menos probable es el evento. **Reusa:** `Zombis`, el código de las rejas de la rama `rejas-avenida-santa-mugre`.
+✅ (2026-11-12, M3, con JJ) **Es el tutorial de la primera horda y se hace una sola vez**, una de las primeras misiones del juego: **abre la salida de Santa Mugre**. Hasta cumplirla, las flechas "Salir de Santa Mugre" de las dos rejas no sacan ("La reja está cerrada. Antes habla con el padre Chuy, en el atrio."). Ya no es recurrente (antes lo era): el susto repetido de que los zombis entren a Santa Mugre es **el evento de la reja**, que ocurre **al azar** (abajo).
+
+**Quién da:** el padre Chuy, parado en el atrio de la parroquia (marca `Chuy_Atrio`). **Cómo va:** de día la aceptas con él y **se corta a la noche**: la colonia se recarga de noche y apareces adentro de una de las dos rejas al azar, la poniente o la oriente (marcas `Guardia_poniente`/`Guardia_oriente`, paso `DEFENDER` con `lugar = "reja_guardia"`). Aguantas **3 minutos** sin alejarte más de 20 m de la reja mientras llegan **turbas de 3 zombis cada 15 s** (más suaves que las del tinaco; es el tutorial). **Paga $120.** Al acabar, la reja queda abierta para siempre (`Misiones.reja_abierta()`) y el padre ya no vuelve a ofrecerla (`MisionData.una_vez`). Si te desmayas o te alejas, falla y la puedes volver a tomar. `Misiones.guardias_reja` cuenta las guardias hechas (hoy solo 0 o 1).
 
 ### El evento de la reja (no es misión)
 
 ✅ (2026-11-11) **No se acepta como contrato** (y, ver abajo, solo se paga si ganas). Una noche **al azar** la reja de Santa Mugre falla, se meten zombis, cae la noche y te avisan: *"corre al tinaco, se metieron los zombis"*. Hay que **defender el tinaco de la plaza** (el tinaco manchado, el del culto), que es la escena de prueba actual (`defensa_tinaco.tscn`).
 
-✅ **Por qué falla (2026-11-12): descuido, y tú influyes.** La reja tiene un **desgaste** (0 a 1) que **sube cada noche** y **baja con cada guardia de la reja** que cumples. La **probabilidad** de que falle esa noche depende del desgaste: con la reja cuidada es baja, con la reja olvidada es alta. La noche sigue siendo al azar, pero el jugador puede evitarla.
+✅ **Por qué falla (2026-11-12): descuido, y tú influyes.** La reja tiene un **desgaste** (0 a 1) que **sube cada noche**. ⚠️ (2026-11-12, JJ) Ya **no baja con la guardia de la reja**, que es de una sola vez; cómo se decide ahora el evento (al azar, sin que el jugador lo evite, o con otra forma de cuidar la reja) **queda por decidir en F1**. La **probabilidad** de que falle esa noche depende del desgaste: con la reja cuidada es baja, con la reja olvidada es alta. La noche sigue siendo al azar.
 
 ✅ **Solo si estás dentro (2026-11-12).** La reja **solo falla si estás dentro de Santa Mugre** cuando cae la noche. Si pasas la noche fuera, no hay evento.
 

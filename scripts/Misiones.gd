@@ -36,6 +36,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/defender_tinaco.tres",
 	"res://resources/misiones/camioneta_noche.tres",
 	"res://resources/misiones/camioneta_gabriel.tres",
+	"res://resources/misiones/guardia_reja.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -61,6 +62,11 @@ var pagos_especiales := {}
 # CAMIONETA con lugar "salida_giver" (Gabriel, en el mapa grande): de donde sale la camioneta, que es donde
 # lo encontraste; MisionesMundo lo pone al aceptar y la escena de noche lo lee (Vector3.INF: ninguno)
 var arranque_camioneta := Vector3.INF
+# La guardia de la reja (padre Chuy, una sola vez: el tutorial de la primera horda): en cual de las dos rejas de
+# Santa Mugre toca ("poniente", "oriente"; la escoge MisionesMundo al aceptar). Con una guardia cumplida la
+# colonia deja salir (`reja_abierta`: Colonia, las flechas de salida)
+var reja_guardia := ""
+var guardias_reja := 0
 var visitados := 0
 var meta_visitas := 1
 # Lo pone MisionesMundo: a donde apuntan los mapas
@@ -72,6 +78,8 @@ var objetivo_radio := 0.0
 var dadores: Array = []
 
 var _hechas := {}
+# Las `una_vez` ya cumplidas: no se borran al amanecer
+var _hechas_siempre := {}
 var _espera := 0.0
 # id -> {"paso", "visitados", "tiempo"} de las que no son la activa
 var _guardado := {}
@@ -93,7 +101,12 @@ func paso() -> PasoMision:
 
 
 func hecha_hoy(mision: MisionData) -> bool:
-	return _hechas.has(mision.id)
+	return _hechas.has(mision.id) or _hechas_siempre.has(mision.id)
+
+
+# Santa Mugre deja salir una vez que cumpliste la guardia de la reja
+func reja_abierta() -> bool:
+	return guardias_reja > 0
 
 
 func aceptada(mision: MisionData) -> bool:
@@ -375,6 +388,10 @@ func _completar() -> void:
 	_quitar(mision)
 	var pago: int = pagos_especiales.get(mision.id, mision.pesos)
 	pagos_especiales.erase(mision.id)
+	if mision.una_vez:
+		_hechas_siempre[mision.id] = true
+	if mision.id == "guardia_reja":
+		guardias_reja += 1
 	if mision.pieza_de_mapa:
 		var piezas := get_node("/root/PiezasMapa")
 		var falta: int = piezas.siguiente_faltante()
@@ -458,6 +475,8 @@ func reiniciar() -> void:
 	salida_camioneta = ""
 	pagos_especiales.clear()
 	arranque_camioneta = Vector3.INF
+	reja_guardia = ""
+	guardias_reja = 0
 	SitiosTinaco.elegido = -1
 	_ruta_hora = false
 	indice_paso = 0
@@ -467,4 +486,5 @@ func reiniciar() -> void:
 	hay_objetivo = false
 	dadores.clear()
 	_hechas.clear()
+	_hechas_siempre.clear()
 	cambio.emit()
