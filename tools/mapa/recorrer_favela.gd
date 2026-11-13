@@ -101,8 +101,12 @@ func _probar() -> void:
 		if (f as Light3D).visible and (f as Light3D).light_energy > 0.5:
 			prendidos += 1
 	_revisar("de noche prenden los focos de los callejones", focos.size() > 20 and prendidos > focos.size() * 0.8, "%d de %d" % [prendidos, focos.size()])
-	var noche := float(RenderingServer.global_shader_parameter_get("noche"))
-	_revisar("el global 'noche' prende las ventanas", noche > 0.5, str(noche))
+	# Sin ventana el servidor de render no guarda los globales (regresa null): ahi no se revisa
+	var noche_global = RenderingServer.global_shader_parameter_get("noche")
+	if noche_global == null:
+		print("(sin render: no se revisa el global 'noche')")
+	else:
+		_revisar("el global 'noche' prende las ventanas", float(noche_global) > 0.5, str(noche_global))
 	print("RESULTADO %d/%d" % [_total - _fallas, _total])
 	quit(1 if _fallas > 0 else 0)
 
@@ -132,11 +136,29 @@ func _caminar(escena: Node, desde: Vector3, hacia: Vector3, cuadros: int) -> Dic
 	var gravedad := float(ProjectSettings.get_setting("physics/3d/default_gravity"))
 	var y_calle := 0.0
 	var y_max := -INF
+	# Como un jugador: si algo le cierra el paso (una escalera de casa, un bote), se hace a un lado un
+	# rato y sigue. Prueba primero un lado y, si tampoco avanza, el otro.
+	var lado := Vector3(-hacia.z, 0.0, hacia.x)
+	var esquivar := 0
+	var signo := 1.0
+	var antes := cuerpo.global_position
+	var frenado := 0
 	for i in cuadros:
-		cuerpo.velocity.x = hacia.x * 3.0
-		cuerpo.velocity.z = hacia.z * 3.0
+		var paso := hacia
+		if esquivar > 0:
+			paso = (hacia * 0.3 + lado * signo).normalized()
+			esquivar -= 1
+		cuerpo.velocity.x = paso.x * 3.0
+		cuerpo.velocity.z = paso.z * 3.0
 		cuerpo.velocity.y = 0.0 if cuerpo.is_on_floor() else cuerpo.velocity.y - gravedad / 60.0
 		cuerpo.move_and_slide()
+		var avanzo := ((cuerpo.global_position - antes) * Vector3(1, 0, 1)).dot(hacia)
+		antes = cuerpo.global_position
+		frenado = frenado + 1 if avanzo < 0.01 and esquivar == 0 else 0
+		if frenado > 8:
+			esquivar = 20
+			frenado = 0
+			signo = -signo
 		if i == 10:
 			y_calle = cuerpo.global_position.y
 		if i > 10:

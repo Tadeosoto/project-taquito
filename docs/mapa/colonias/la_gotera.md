@@ -68,7 +68,8 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 - **Rejas de La Gotera de fierro de 3.2 m** (`reja_fierro`), `libre` (no piden la guardia de Chuy).
 - **Guardias y vigías con los civiles `hombre_*`:** los `asesino_*` del pack PSX no están retargeteados (sin animación).
 - **La favela ignora la traza de OSM** (JJ a media noche): `favela.py` tira calles, casas, lotes, tapones y postes del bloqueo y deja solo la muralla.
-- **Casas de la favela sin detalles de azotea** (`detalles: false`) y tendederos cada 9–15 m: con 600 casas y 550 callejones el `.glb` se iba a 40 MB.
+- **Casas de la favela sin detalles de azotea** (`detalles: false`) y los adornos de los callejones espaciados (`"callejones"` del `.json`: tendederos cada 13–22 m, focos cada 16–24 m, capillitas cada 13, basura desde 12 m): con 650 casas y 600 callejones el `.glb` se iba a 52 MB; así queda en 24 MiB, bajo el límite de 25 MB.
+- **Escaleras de fierro solo donde caben a lo largo de la fachada** (unos 6.6 m con su rampa): con fachadas más cortas se salían de la esquina y tapaban el callejón de al lado. Hoy queda una. Si dos callejones llegan al mismo borde de banda, ponen una sola escalinata.
 - **Las casas van juntas por bloques de 6×6 celdas** (`"grupo"` → una malla por bloque, `colonia._juntar_grupos`) para que el `.glb` y la importación pesen menos.
 - **Nombres parodia** (`"nombres_parodia"`, real → juego): Av. del Cedro Seco, Calle Primavera Marchita, Calle Nogal Hueco, Calle Roble Torcido, Av. Parota Sin Sombra, Calle Caobilla Apolillada, Privada Roble Quebrado, Privada del Chorro, Privada de la Fuga, Calle Sin Número, Calle Tres Cuartos, Privada del Gotero, Calle Monte Caramelo, Privada Monte Caramelo, Calle Ébano Quemado, Calle Seis Cerrada. En la favela ya no hay placas (no hay calles).
 - **El LSD de las tiendas (M7c) no se tocó**, como se pidió.

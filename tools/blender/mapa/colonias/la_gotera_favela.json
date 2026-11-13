@@ -650,38 +650,11 @@
 			"nombre": "Callejon_5",
 			"tipo": "calle",
 			"favela": true,
-			"x": 785.61,
+			"x": 785.59,
 			"z": -326.4,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.65,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_5",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 784.59,
-			"z": -326.49,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.55,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_5_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 784.0,
-			"z": -326.54,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.65,
 			"banqueta": 0.0,
@@ -749,38 +722,11 @@
 			"nombre": "Callejon_9",
 			"tipo": "calle",
 			"favela": true,
-			"x": 841.66,
+			"x": 841.64,
 			"z": -321.4,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.71,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_9",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 840.65,
-			"z": -321.49,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.61,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_9_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 840.05,
-			"z": -321.54,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.71,
 			"banqueta": 0.0,
@@ -953,38 +899,11 @@
 			"nombre": "Callejon_20",
 			"tipo": "calle",
 			"favela": true,
-			"x": 784.98,
+			"x": 784.96,
 			"z": -319.34,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.11,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_20",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 783.96,
-			"z": -319.43,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 2.01,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_20_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 783.37,
-			"z": -319.48,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.11,
 			"banqueta": 0.0,
@@ -1052,38 +971,11 @@
 			"nombre": "Callejon_24",
 			"tipo": "calle",
 			"favela": true,
-			"x": 841.03,
+			"x": 841.01,
 			"z": -314.34,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.22,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_24",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 840.02,
-			"z": -314.43,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.12,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_24_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 839.42,
-			"z": -314.48,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.22,
 			"banqueta": 0.0,
@@ -1226,38 +1118,11 @@
 			"nombre": "Callejon_33",
 			"tipo": "calle",
 			"favela": true,
-			"x": 784.35,
+			"x": 784.33,
 			"z": -312.28,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.9,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_33",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 783.33,
-			"z": -312.37,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.8,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_33_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 782.74,
-			"z": -312.43,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.9,
 			"banqueta": 0.0,
@@ -1325,38 +1190,11 @@
 			"nombre": "Callejon_37",
 			"tipo": "calle",
 			"favela": true,
-			"x": 840.4,
+			"x": 840.38,
 			"z": -307.28,
 			"puntos": [
 				[0.0, 0.0],
-				[21.0, 1.87]
-			],
-			"ancho": 1.22,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_37",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 839.39,
-			"z": -307.37,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.12,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_37_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 838.79,
-			"z": -307.43,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[21.02, 1.88]
 			],
 			"ancho": 1.22,
 			"banqueta": 0.0,
@@ -1454,38 +1292,11 @@
 			"nombre": "Callejon_43",
 			"tipo": "calle",
 			"favela": true,
-			"x": 783.72,
+			"x": 783.7,
 			"z": -305.23,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.66,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_43",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 782.7,
-			"z": -305.32,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.56,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_43_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 782.11,
-			"z": -305.37,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.66,
 			"banqueta": 0.0,
@@ -1553,38 +1364,11 @@
 			"nombre": "Callejon_47",
 			"tipo": "calle",
 			"favela": true,
-			"x": 839.77,
-			"z": -300.22,
+			"x": 839.75,
+			"z": -300.23,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.19,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_47",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 838.76,
-			"z": -300.31,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 2.09,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_47_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 838.16,
-			"z": -300.37,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.19,
 			"banqueta": 0.0,
@@ -1682,38 +1466,11 @@
 			"nombre": "Callejon_53",
 			"tipo": "calle",
 			"favela": true,
-			"x": 783.09,
+			"x": 783.07,
 			"z": -298.17,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.31,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_53",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 782.07,
-			"z": -298.26,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.21,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_53_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 781.48,
-			"z": -298.31,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.31,
 			"banqueta": 0.0,
@@ -1751,38 +1508,11 @@
 			"nombre": "Callejon_55",
 			"tipo": "calle",
 			"favela": true,
-			"x": 839.14,
+			"x": 839.12,
 			"z": -293.17,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.66,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_55",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 838.13,
-			"z": -293.26,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.56,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_55_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 837.53,
-			"z": -293.31,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.66,
 			"banqueta": 0.0,
@@ -1925,38 +1655,11 @@
 			"nombre": "Callejon_64",
 			"tipo": "calle",
 			"favela": true,
-			"x": 782.46,
+			"x": 782.44,
 			"z": -291.11,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.43,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_64",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 781.44,
-			"z": -291.2,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.33,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_64_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 780.85,
-			"z": -291.25,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.43,
 			"banqueta": 0.0,
@@ -2009,38 +1712,11 @@
 			"nombre": "Callejon_67",
 			"tipo": "calle",
 			"favela": true,
-			"x": 838.51,
+			"x": 838.49,
 			"z": -286.11,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.85,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_67",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 837.5,
-			"z": -286.2,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.75,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_67_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 836.9,
-			"z": -286.25,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.85,
 			"banqueta": 0.0,
@@ -2183,38 +1859,11 @@
 			"nombre": "Callejon_76",
 			"tipo": "calle",
 			"favela": true,
-			"x": 781.83,
+			"x": 781.81,
 			"z": -284.05,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.05,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_76",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 780.81,
-			"z": -284.14,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.95,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_76_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 780.22,
-			"z": -284.2,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.05,
 			"banqueta": 0.0,
@@ -2282,38 +1931,11 @@
 			"nombre": "Callejon_80",
 			"tipo": "calle",
 			"favela": true,
-			"x": 837.88,
+			"x": 837.86,
 			"z": -279.05,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.18,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_80",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 836.87,
-			"z": -279.14,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 2.08,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_80_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 836.27,
-			"z": -279.19,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.18,
 			"banqueta": 0.0,
@@ -2456,38 +2078,11 @@
 			"nombre": "Callejon_89",
 			"tipo": "calle",
 			"favela": true,
-			"x": 781.2,
-			"z": -276.99,
+			"x": 781.18,
+			"z": -277.0,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.93,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_89",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 780.18,
-			"z": -277.09,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.83,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_89_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 779.59,
-			"z": -277.14,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.93,
 			"banqueta": 0.0,
@@ -2540,38 +2135,11 @@
 			"nombre": "Callejon_92",
 			"tipo": "calle",
 			"favela": true,
-			"x": 837.25,
+			"x": 837.23,
 			"z": -271.99,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.2,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_92",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 836.24,
-			"z": -272.08,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 2.1,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_92_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 835.64,
-			"z": -272.14,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.2,
 			"banqueta": 0.0,
@@ -2714,38 +2282,11 @@
 			"nombre": "Callejon_101",
 			"tipo": "calle",
 			"favela": true,
-			"x": 780.57,
+			"x": 780.55,
 			"z": -269.94,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.54,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_101",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 779.55,
-			"z": -270.03,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.44,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_101_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 778.96,
-			"z": -270.08,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.54,
 			"banqueta": 0.0,
@@ -2828,38 +2369,11 @@
 			"nombre": "Callejon_106",
 			"tipo": "calle",
 			"favela": true,
-			"x": 836.62,
+			"x": 836.6,
 			"z": -264.94,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.53,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_106",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 835.61,
-			"z": -265.03,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.43,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_106_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 835.01,
-			"z": -265.08,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.53,
 			"banqueta": 0.0,
@@ -2957,38 +2471,11 @@
 			"nombre": "Callejon_112",
 			"tipo": "calle",
 			"favela": true,
-			"x": 779.94,
+			"x": 779.92,
 			"z": -262.88,
 			"puntos": [
 				[0.0, 0.0],
-				[28.01, 2.5]
-			],
-			"ancho": 1.75,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_112",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 778.92,
-			"z": -262.97,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.65,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_112_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 778.33,
-			"z": -263.02,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[28.03, 2.5]
 			],
 			"ancho": 1.75,
 			"banqueta": 0.0,
@@ -3026,38 +2513,11 @@
 			"nombre": "Callejon_114",
 			"tipo": "calle",
 			"favela": true,
-			"x": 835.99,
+			"x": 835.97,
 			"z": -257.88,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.02,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_114",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 834.98,
-			"z": -257.97,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.92,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_114_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 834.38,
-			"z": -258.02,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.02,
 			"banqueta": 0.0,
@@ -3170,38 +2630,11 @@
 			"nombre": "Callejon_121",
 			"tipo": "calle",
 			"favela": true,
-			"x": 779.31,
+			"x": 779.29,
 			"z": -255.82,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.07,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_121",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 778.29,
-			"z": -255.91,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.97,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_121_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 777.7,
-			"z": -255.97,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.07,
 			"banqueta": 0.0,
@@ -3269,38 +2702,11 @@
 			"nombre": "Callejon_125",
 			"tipo": "calle",
 			"favela": true,
-			"x": 835.36,
+			"x": 835.34,
 			"z": -250.82,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.06,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_125",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 834.35,
-			"z": -250.91,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.96,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_125_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 833.75,
-			"z": -250.96,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.06,
 			"banqueta": 0.0,
@@ -3413,38 +2819,11 @@
 			"nombre": "Callejon_132",
 			"tipo": "calle",
 			"favela": true,
-			"x": 778.68,
-			"z": -248.76,
+			"x": 778.66,
+			"z": -248.77,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.79,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_132",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 777.67,
-			"z": -248.85,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.69,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_132_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 777.07,
-			"z": -248.91,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.79,
 			"banqueta": 0.0,
@@ -3497,38 +2876,11 @@
 			"nombre": "Callejon_135",
 			"tipo": "calle",
 			"favela": true,
-			"x": 834.73,
+			"x": 834.71,
 			"z": -243.76,
 			"puntos": [
 				[0.0, 0.0],
-				[28.01, 2.5]
-			],
-			"ancho": 1.67,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_135",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 833.72,
-			"z": -243.85,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.57,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_135_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 833.12,
-			"z": -243.91,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[28.03, 2.5]
 			],
 			"ancho": 1.67,
 			"banqueta": 0.0,
@@ -3626,38 +2978,11 @@
 			"nombre": "Callejon_141",
 			"tipo": "calle",
 			"favela": true,
-			"x": 778.05,
+			"x": 778.03,
 			"z": -241.71,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.57,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_141",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 777.04,
-			"z": -241.8,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.47,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_141_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 776.44,
-			"z": -241.85,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.57,
 			"banqueta": 0.0,
@@ -3740,38 +3065,11 @@
 			"nombre": "Callejon_146",
 			"tipo": "calle",
 			"favela": true,
-			"x": 834.1,
-			"z": -236.7,
+			"x": 834.08,
+			"z": -236.71,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.11,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_146",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 833.09,
-			"z": -236.8,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 2.01,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_146_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 832.49,
-			"z": -236.85,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.11,
 			"banqueta": 0.0,
@@ -3914,38 +3212,11 @@
 			"nombre": "Callejon_155",
 			"tipo": "calle",
 			"favela": true,
-			"x": 777.42,
+			"x": 777.4,
 			"z": -234.65,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.17,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_155",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 776.41,
-			"z": -234.74,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 2.07,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_155_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 775.81,
-			"z": -234.79,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.17,
 			"banqueta": 0.0,
@@ -3998,38 +3269,11 @@
 			"nombre": "Callejon_158",
 			"tipo": "calle",
 			"favela": true,
-			"x": 833.47,
+			"x": 833.45,
 			"z": -229.65,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.98,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_158",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 832.46,
-			"z": -229.74,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.88,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_158_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 831.86,
-			"z": -229.79,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.98,
 			"banqueta": 0.0,
@@ -4127,38 +3371,11 @@
 			"nombre": "Callejon_164",
 			"tipo": "calle",
 			"favela": true,
-			"x": 776.79,
+			"x": 776.77,
 			"z": -227.59,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.45,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_164",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 775.78,
-			"z": -227.68,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.35,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_164_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 775.18,
-			"z": -227.74,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.45,
 			"banqueta": 0.0,
@@ -4196,38 +3413,11 @@
 			"nombre": "Callejon_166",
 			"tipo": "calle",
 			"favela": true,
-			"x": 832.84,
+			"x": 832.82,
 			"z": -222.59,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.65,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_166",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 831.83,
-			"z": -222.68,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.55,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_166_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 831.23,
-			"z": -222.73,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.65,
 			"banqueta": 0.0,
@@ -4355,38 +3545,11 @@
 			"nombre": "Callejon_174",
 			"tipo": "calle",
 			"favela": true,
-			"x": 776.16,
-			"z": -220.53,
+			"x": 776.14,
+			"z": -220.54,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.74,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_174",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 775.15,
-			"z": -220.62,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.64,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_174_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 774.55,
-			"z": -220.68,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.74,
 			"banqueta": 0.0,
@@ -4424,38 +3587,11 @@
 			"nombre": "Callejon_176",
 			"tipo": "calle",
 			"favela": true,
-			"x": 832.21,
+			"x": 832.2,
 			"z": -215.53,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.92,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_176",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 831.2,
-			"z": -215.62,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.82,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_176_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 830.6,
-			"z": -215.68,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.92,
 			"banqueta": 0.0,
@@ -4583,38 +3719,11 @@
 			"nombre": "Callejon_184",
 			"tipo": "calle",
 			"favela": true,
-			"x": 775.53,
+			"x": 775.51,
 			"z": -213.48,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.71,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_184",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 774.52,
-			"z": -213.57,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.61,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_184_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 773.92,
-			"z": -213.62,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.71,
 			"banqueta": 0.0,
@@ -4652,38 +3761,11 @@
 			"nombre": "Callejon_186",
 			"tipo": "calle",
 			"favela": true,
-			"x": 831.59,
-			"z": -208.47,
+			"x": 831.57,
+			"z": -208.48,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.01,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_186",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 830.57,
-			"z": -208.56,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.91,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_186_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 829.97,
-			"z": -208.62,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.01,
 			"banqueta": 0.0,
@@ -4811,38 +3893,11 @@
 			"nombre": "Callejon_194",
 			"tipo": "calle",
 			"favela": true,
-			"x": 774.9,
+			"x": 774.88,
 			"z": -206.42,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.41,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_194",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 773.89,
-			"z": -206.51,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.31,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_194_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 773.29,
-			"z": -206.56,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.41,
 			"banqueta": 0.0,
@@ -4910,38 +3965,11 @@
 			"nombre": "Callejon_198",
 			"tipo": "calle",
 			"favela": true,
-			"x": 830.96,
+			"x": 830.94,
 			"z": -201.42,
 			"puntos": [
 				[0.0, 0.0],
-				[28.01, 2.5]
-			],
-			"ancho": 2.04,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_198",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 829.94,
-			"z": -201.51,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.94,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_198_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 829.34,
-			"z": -201.56,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[28.03, 2.5]
 			],
 			"ancho": 2.04,
 			"banqueta": 0.0,
@@ -5054,38 +4082,11 @@
 			"nombre": "Callejon_205",
 			"tipo": "calle",
 			"favela": true,
-			"x": 774.27,
+			"x": 774.25,
 			"z": -199.36,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.71,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_205",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 773.26,
-			"z": -199.45,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.61,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_205_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 772.66,
-			"z": -199.5,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.71,
 			"banqueta": 0.0,
@@ -5153,38 +4154,11 @@
 			"nombre": "Callejon_209",
 			"tipo": "calle",
 			"favela": true,
-			"x": 830.33,
+			"x": 830.31,
 			"z": -194.36,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.75,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_209",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 829.31,
-			"z": -194.45,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.65,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_209_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 828.71,
-			"z": -194.5,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.75,
 			"banqueta": 0.0,
@@ -5312,38 +4286,11 @@
 			"nombre": "Callejon_217",
 			"tipo": "calle",
 			"favela": true,
-			"x": 773.64,
+			"x": 773.62,
 			"z": -192.3,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.64,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_217",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 772.63,
-			"z": -192.39,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.54,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_217_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 772.03,
-			"z": -192.45,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.64,
 			"banqueta": 0.0,
@@ -5396,38 +4343,11 @@
 			"nombre": "Callejon_220",
 			"tipo": "calle",
 			"favela": true,
-			"x": 829.7,
+			"x": 829.68,
 			"z": -187.3,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.03,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_220",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 828.68,
-			"z": -187.39,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.93,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_220_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 828.08,
-			"z": -187.44,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.03,
 			"banqueta": 0.0,
@@ -5540,38 +4460,11 @@
 			"nombre": "Callejon_227",
 			"tipo": "calle",
 			"favela": true,
-			"x": 773.01,
+			"x": 772.99,
 			"z": -185.25,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 2.09,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_227",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 772.0,
-			"z": -185.34,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.99,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_227_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 771.4,
-			"z": -185.39,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 2.09,
 			"banqueta": 0.0,
@@ -5639,38 +4532,11 @@
 			"nombre": "Callejon_231",
 			"tipo": "calle",
 			"favela": true,
-			"x": 829.07,
+			"x": 829.05,
 			"z": -180.24,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.46,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_231",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 828.05,
-			"z": -180.33,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.36,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_231_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 827.45,
-			"z": -180.39,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.46,
 			"banqueta": 0.0,
@@ -5783,38 +4649,11 @@
 			"nombre": "Callejon_238",
 			"tipo": "calle",
 			"favela": true,
-			"x": 772.38,
+			"x": 772.36,
 			"z": -178.19,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.44,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_238",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 771.37,
-			"z": -178.28,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.34,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_238_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 770.77,
-			"z": -178.33,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.44,
 			"banqueta": 0.0,
@@ -5882,38 +4721,11 @@
 			"nombre": "Callejon_242",
 			"tipo": "calle",
 			"favela": true,
-			"x": 828.44,
+			"x": 828.42,
 			"z": -173.19,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.71,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_242",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 827.42,
-			"z": -173.28,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.61,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_242_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 826.82,
-			"z": -173.33,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.71,
 			"banqueta": 0.0,
@@ -6041,38 +4853,11 @@
 			"nombre": "Callejon_250",
 			"tipo": "calle",
 			"favela": true,
-			"x": 771.75,
+			"x": 771.73,
 			"z": -171.13,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.38,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_250",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 770.74,
-			"z": -171.22,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.28,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_250_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 770.14,
-			"z": -171.27,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.38,
 			"banqueta": 0.0,
@@ -6140,38 +4925,11 @@
 			"nombre": "Callejon_254",
 			"tipo": "calle",
 			"favela": true,
-			"x": 827.81,
+			"x": 827.79,
 			"z": -166.13,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.04,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_254",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 826.79,
-			"z": -166.22,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.94,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_254_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 826.19,
-			"z": -166.27,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.04,
 			"banqueta": 0.0,
@@ -6299,38 +5057,11 @@
 			"nombre": "Callejon_262",
 			"tipo": "calle",
 			"favela": true,
-			"x": 771.12,
+			"x": 771.1,
 			"z": -164.07,
 			"puntos": [
 				[0.0, 0.0],
-				[21.0, 1.87]
-			],
-			"ancho": 1.77,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_262",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 770.11,
-			"z": -164.16,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.67,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_262_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 769.51,
-			"z": -164.22,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[21.02, 1.88]
 			],
 			"ancho": 1.77,
 			"banqueta": 0.0,
@@ -6398,38 +5129,11 @@
 			"nombre": "Callejon_266",
 			"tipo": "calle",
 			"favela": true,
-			"x": 827.18,
+			"x": 827.16,
 			"z": -159.07,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 2.07,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_266",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 826.16,
-			"z": -159.16,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.97,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_266_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 825.56,
-			"z": -159.21,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 2.07,
 			"banqueta": 0.0,
@@ -6572,38 +5276,11 @@
 			"nombre": "Callejon_275",
 			"tipo": "calle",
 			"favela": true,
-			"x": 770.49,
-			"z": -157.01,
+			"x": 770.47,
+			"z": -157.02,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.46,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_275",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 769.48,
-			"z": -157.11,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.36,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_275_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 768.88,
-			"z": -157.16,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.46,
 			"banqueta": 0.0,
@@ -6656,38 +5333,11 @@
 			"nombre": "Callejon_278",
 			"tipo": "calle",
 			"favela": true,
-			"x": 826.55,
+			"x": 826.53,
 			"z": -152.01,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.38,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_278",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 825.53,
-			"z": -152.1,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.28,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_278_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 824.93,
-			"z": -152.16,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.38,
 			"banqueta": 0.0,
@@ -6815,38 +5465,11 @@
 			"nombre": "Callejon_286",
 			"tipo": "calle",
 			"favela": true,
-			"x": 769.86,
+			"x": 769.84,
 			"z": -149.96,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.24,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_286",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 768.85,
-			"z": -150.05,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.14,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_286_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 768.25,
-			"z": -150.1,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.24,
 			"banqueta": 0.0,
@@ -6914,38 +5537,11 @@
 			"nombre": "Callejon_290",
 			"tipo": "calle",
 			"favela": true,
-			"x": 825.92,
-			"z": -144.95,
+			"x": 825.9,
+			"z": -144.96,
 			"puntos": [
 				[0.0, 0.0],
-				[28.01, 2.5]
-			],
-			"ancho": 2.19,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_290",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 824.9,
-			"z": -145.05,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 2.09,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_290_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 824.3,
-			"z": -145.1,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[28.03, 2.5]
 			],
 			"ancho": 2.19,
 			"banqueta": 0.0,
@@ -7073,38 +5669,11 @@
 			"nombre": "Callejon_298",
 			"tipo": "calle",
 			"favela": true,
-			"x": 769.23,
+			"x": 769.21,
 			"z": -142.9,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.25,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_298",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 768.22,
-			"z": -142.99,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.15,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_298_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 767.62,
-			"z": -143.04,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.25,
 			"banqueta": 0.0,
@@ -7172,38 +5741,11 @@
 			"nombre": "Callejon_302",
 			"tipo": "calle",
 			"favela": true,
-			"x": 825.29,
+			"x": 825.27,
 			"z": -137.9,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 2.01,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_302",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 824.27,
-			"z": -137.99,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.91,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_302_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 823.67,
-			"z": -138.04,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 2.01,
 			"banqueta": 0.0,
@@ -7346,38 +5888,11 @@
 			"nombre": "Callejon_311",
 			"tipo": "calle",
 			"favela": true,
-			"x": 768.6,
+			"x": 768.58,
 			"z": -135.84,
 			"puntos": [
 				[0.0, 0.0],
-				[21.0, 1.87]
-			],
-			"ancho": 1.47,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_311",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 767.59,
-			"z": -135.93,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.37,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_311_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 766.99,
-			"z": -135.99,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[21.02, 1.88]
 			],
 			"ancho": 1.47,
 			"banqueta": 0.0,
@@ -7430,38 +5945,11 @@
 			"nombre": "Callejon_314",
 			"tipo": "calle",
 			"favela": true,
-			"x": 824.66,
+			"x": 824.64,
 			"z": -130.84,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.75,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_314",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 823.64,
-			"z": -130.93,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.65,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_314_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 823.04,
-			"z": -130.98,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.75,
 			"banqueta": 0.0,
@@ -7604,38 +6092,11 @@
 			"nombre": "Callejon_323",
 			"tipo": "calle",
 			"favela": true,
-			"x": 767.97,
-			"z": -128.78,
+			"x": 767.95,
+			"z": -128.79,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.26,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_323",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 766.96,
-			"z": -128.87,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.16,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_323_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 766.36,
-			"z": -128.93,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.26,
 			"banqueta": 0.0,
@@ -7688,38 +6149,11 @@
 			"nombre": "Callejon_326",
 			"tipo": "calle",
 			"favela": true,
-			"x": 824.03,
+			"x": 824.01,
 			"z": -123.78,
 			"puntos": [
 				[0.0, 0.0],
-				[6.99, 0.62]
-			],
-			"ancho": 1.55,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_326",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 823.01,
-			"z": -123.87,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.45,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_326_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 822.41,
-			"z": -123.93,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[7.01, 0.63]
 			],
 			"ancho": 1.55,
 			"banqueta": 0.0,
@@ -7832,38 +6266,11 @@
 			"nombre": "Callejon_333",
 			"tipo": "calle",
 			"favela": true,
-			"x": 767.34,
+			"x": 767.32,
 			"z": -121.73,
 			"puntos": [
 				[0.0, 0.0],
-				[21.0, 1.87]
-			],
-			"ancho": 1.47,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_333",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 766.33,
-			"z": -121.82,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.37,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_333_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 765.73,
-			"z": -121.87,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[21.02, 1.88]
 			],
 			"ancho": 1.47,
 			"banqueta": 0.0,
@@ -7916,38 +6323,11 @@
 			"nombre": "Callejon_336",
 			"tipo": "calle",
 			"favela": true,
-			"x": 823.4,
-			"z": -116.72,
+			"x": 823.38,
+			"z": -116.73,
 			"puntos": [
 				[0.0, 0.0],
-				[13.99, 1.25]
-			],
-			"ancho": 1.6,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_336",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 822.38,
-			"z": -116.81,
-			"y": 0.75,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.5,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_336_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 821.78,
-			"z": -116.87,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[14.01, 1.25]
 			],
 			"ancho": 1.6,
 			"banqueta": 0.0,
@@ -8060,38 +6440,11 @@
 			"nombre": "Callejon_343",
 			"tipo": "calle",
 			"favela": true,
-			"x": 766.71,
+			"x": 766.69,
 			"z": -114.67,
 			"puntos": [
 				[0.0, 0.0],
-				[28.01, 2.5]
-			],
-			"ancho": 1.74,
-			"banqueta": 0.0,
-			"material": "empedrado",
-			"real": ""
-		},
-		{
-			"nombre": "Escalinata_343",
-			"tipo": "escalinata",
-			"favela": true,
-			"x": 765.7,
-			"z": -114.76,
-			"y": 0.0,
-			"rot": -0.089,
-			"largo": 1.0,
-			"ancho": 1.64,
-			"alto": 0.75
-		},
-		{
-			"nombre": "Callejon_343_b",
-			"tipo": "calle",
-			"favela": true,
-			"x": 765.1,
-			"z": -114.81,
-			"puntos": [
-				[0.0, 0.0],
-				[0.6, 0.05]
+				[28.03, 2.5]
 			],
 			"ancho": 1.74,
 			"banqueta": 0.0,
@@ -12981,17 +11334,6 @@
 			"ventanal": false
 		},
 		{
-			"nombre": "Escalera_2_3",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 748.94,
-			"z": -323.52,
-			"rot": -0.089,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
-		},
-		{
 			"nombre": "Casa_3_3",
 			"tipo": "casa",
 			"favela": true,
@@ -14793,17 +13135,6 @@
 			"obra": "castillos"
 		},
 		{
-			"nombre": "Escalera_19_6",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 861.08,
-			"z": -291.51,
-			"rot": -1.6598,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
-		},
-		{
 			"nombre": "Casa_20_6",
 			"tipo": "casa",
 			"favela": true,
@@ -14943,17 +13274,6 @@
 			"ventanas": [0, 2],
 			"acabado": "block",
 			"ventanal": false
-		},
-		{
-			"nombre": "Escalera_25_6",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 903.26,
-			"z": -288.68,
-			"rot": -1.6598,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
 		},
 		{
 			"nombre": "Casa_1_7",
@@ -16246,17 +14566,6 @@
 			"obra": "castillos"
 		},
 		{
-			"nombre": "Escalera_16_9",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 843.21,
-			"z": -272.45,
-			"rot": -0.089,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
-		},
-		{
 			"nombre": "Patio_17_9",
 			"tipo": "patio",
 			"favela": true,
@@ -16541,17 +14850,6 @@
 			"acabado": "ladrillo",
 			"ventanal": true,
 			"obra": "losa"
-		},
-		{
-			"nombre": "Escalera_11_10",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 808.27,
-			"z": -274.28,
-			"rot": 1.4818,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
 		},
 		{
 			"nombre": "Casa_12_10",
@@ -16869,17 +15167,6 @@
 			"ventanas": [0, 1],
 			"acabado": "ladrillo",
 			"ventanal": false
-		},
-		{
-			"nombre": "Escalera_2_11",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 738.8,
-			"z": -266.85,
-			"rot": -1.6598,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
 		},
 		{
 			"nombre": "Casa_3_11",
@@ -18306,17 +16593,6 @@
 			"obra": "castillos"
 		},
 		{
-			"nombre": "Escalera_2_14",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 736.84,
-			"z": -251.6,
-			"rot": 3.0526,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
-		},
-		{
 			"nombre": "Casa_3_14",
 			"tipo": "casa",
 			"favela": true,
@@ -19735,17 +18011,6 @@
 			"ventanal": false
 		},
 		{
-			"nombre": "Escalera_2_17",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 734.95,
-			"z": -230.41,
-			"rot": 3.0526,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
-		},
-		{
 			"nombre": "Patio_3_17",
 			"tipo": "patio",
 			"favela": true,
@@ -20731,17 +18996,6 @@
 			"obra": "castillos"
 		},
 		{
-			"nombre": "Escalera_7_19",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 768.72,
-			"z": -213.18,
-			"rot": 3.0526,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
-		},
-		{
 			"nombre": "Casa_8_19",
 			"tipo": "casa",
 			"favela": true,
@@ -20972,17 +19226,6 @@
 			"ventanas": [2, 3],
 			"acabado": "ladrillo",
 			"ventanal": false
-		},
-		{
-			"nombre": "Escalera_22_19",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 874.88,
-			"z": -203.67,
-			"rot": 3.0526,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
 		},
 		{
 			"nombre": "Casa_23_19",
@@ -21630,17 +19873,6 @@
 			"ventanas": [0],
 			"acabado": "ladrillo",
 			"ventanal": true
-		},
-		{
-			"nombre": "Escalera_9_21",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 781.58,
-			"z": -191.9,
-			"rot": -1.6598,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
 		},
 		{
 			"nombre": "Casa_10_21",
@@ -22885,17 +21117,6 @@
 			"obra": "castillos"
 		},
 		{
-			"nombre": "Escalera_19_23",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 856.17,
-			"z": -177.52,
-			"rot": 1.4818,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
-		},
-		{
 			"nombre": "Patio_20_23",
 			"tipo": "patio",
 			"favela": true,
@@ -23334,17 +21555,6 @@
 			"ventanas": [0],
 			"acabado": "ladrillo",
 			"ventanal": false
-		},
-		{
-			"nombre": "Escalera_19_24",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 849.78,
-			"z": -164.47,
-			"rot": -1.6598,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
 		},
 		{
 			"nombre": "Casa_20_24",
@@ -23904,17 +22114,6 @@
 			"ventanal": true
 		},
 		{
-			"nombre": "Escalera_19_25",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 854.86,
-			"z": -163.41,
-			"rot": 1.4818,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
-		},
-		{
 			"nombre": "Casa_20_25",
 			"tipo": "casa",
 			"favela": true,
@@ -24062,17 +22261,6 @@
 			"ventanas": [1, 3],
 			"acabado": "block",
 			"ventanal": false
-		},
-		{
-			"nombre": "Escalera_26_25",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 903.3,
-			"z": -153.16,
-			"rot": -0.089,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
 		},
 		{
 			"nombre": "Casa_27_25",
@@ -24392,17 +22580,6 @@
 			"ventanas": [2],
 			"acabado": "block",
 			"ventanal": false
-		},
-		{
-			"nombre": "Escalera_17_26",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 834.38,
-			"z": -157.51,
-			"rot": 3.0526,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
 		},
 		{
 			"nombre": "Casa_18_26",
@@ -26749,17 +24926,6 @@
 			"ventanal": false
 		},
 		{
-			"nombre": "Escalera_26_30",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 895.13,
-			"z": -118.41,
-			"rot": -1.6598,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
-		},
-		{
 			"nombre": "Casa_27_30",
 			"tipo": "casa",
 			"favela": true,
@@ -27038,17 +25204,6 @@
 			"acabado": "block",
 			"ventanal": true,
 			"obra": "castillos"
-		},
-		{
-			"nombre": "Escalera_13_31",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 808.99,
-			"z": -124.82,
-			"rot": 1.4818,
-			"alto": 5.55,
-			"ancho": 0.9,
-			"sentido": 1
 		},
 		{
 			"nombre": "Casa_14_31",
@@ -28113,48 +26268,114 @@
 			"nombre": "Tablon_0",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 875.85,
-			"z": -190.3,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.16,
+			"x": 768.82,
+			"z": -217.63,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 2.93,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_1",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 747.8,
-			"z": -219.51,
-			"y": 5.57,
+			"x": 839.52,
+			"z": -218.44,
+			"y": 7.07,
 			"rot": -0.089,
-			"largo": 2.8,
+			"largo": 2.66,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_2",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 839.48,
-			"z": -257.57,
+			"x": 859.79,
+			"z": -326.89,
 			"y": 7.07,
 			"rot": -1.6598,
-			"largo": 3.22,
+			"largo": 2.7,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_3",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 796.3,
-			"z": -129.81,
-			"y": 6.32,
+			"x": 847.86,
+			"z": -153.67,
+			"y": 7.07,
 			"rot": -0.089,
 			"largo": 2.73,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_4",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 838.22,
+			"z": -243.45,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.87,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_5",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 834.44,
+			"z": -201.11,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.24,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_6",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 891.0,
+			"z": -320.55,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.02,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_7",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 837.67,
+			"z": -158.13,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.27,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_8",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 862.54,
+			"z": -120.34,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.33,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_9",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 738.24,
+			"z": -231.03,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.27,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_10",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 745.2,
@@ -28165,7 +26386,7 @@
 			"ancho": 0.7
 		},
 		{
-			"nombre": "Tablon_5",
+			"nombre": "Tablon_11",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 747.17,
@@ -28176,106 +26397,117 @@
 			"ancho": 0.7
 		},
 		{
-			"nombre": "Tablon_6",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 786.06,
-			"z": -173.41,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 3.08,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_7",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 894.94,
-			"z": -206.38,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.05,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_8",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 818.58,
-			"z": -142.05,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 3.27,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_9",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 738.87,
-			"z": -238.09,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.01,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_10",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 875.1,
-			"z": -300.63,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.62,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_11",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 840.11,
-			"z": -264.62,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.73,
-			"ancho": 0.7
-		},
-		{
 			"nombre": "Tablon_12",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 838.93,
-			"z": -172.25,
-			"y": 7.07,
+			"x": 737.05,
+			"z": -138.66,
+			"y": 5.57,
 			"rot": -1.6598,
-			"largo": 2.91,
+			"largo": 3.33,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_13",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 792.28,
-			"z": -322.25,
-			"y": 6.32,
+			"x": 857.39,
+			"z": -181.27,
+			"y": 7.07,
 			"rot": -0.089,
-			"largo": 2.81,
+			"largo": 3.2,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_14",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 748.39,
-			"z": -265.69,
-			"y": 5.57,
+			"x": 784.21,
+			"z": -113.11,
+			"y": 6.32,
 			"rot": -1.6598,
-			"largo": 2.53,
+			"largo": 2.94,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_15",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 865.02,
+			"z": -187.71,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.01,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_16",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 793.58,
+			"z": -297.23,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.51,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_17",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 736.9,
+			"z": -295.18,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.2,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_18",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 814.72,
+			"z": -177.97,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 2.93,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_19",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 764.37,
+			"z": -207.36,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 2.6,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_20",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 782.79,
+			"z": -255.51,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 3.27,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_21",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 865.1,
+			"z": -109.45,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.32,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_22",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 892.97,
@@ -28286,18 +26518,7 @@
 			"ancho": 0.7
 		},
 		{
-			"nombre": "Tablon_16",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 787.2,
-			"z": -304.91,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.86,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_17",
+			"nombre": "Tablon_23",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 754.18,
@@ -28308,469 +26529,29 @@
 			"ancho": 0.7
 		},
 		{
-			"nombre": "Tablon_18",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 863.69,
-			"z": -251.85,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.06,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_19",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 776.5,
-			"z": -184.93,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 3.29,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_20",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 737.53,
-			"z": -302.23,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.04,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_21",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 836.33,
-			"z": -222.28,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.85,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_22",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 749.06,
-			"z": -233.62,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.04,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_23",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 873.17,
-			"z": -318.58,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.02,
-			"ancho": 0.7
-		},
-		{
 			"nombre": "Tablon_24",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 875.14,
-			"z": -261.5,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.74,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_25",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 900.77,
-			"z": -113.38,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.47,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_26",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 752.33,
-			"z": -151.52,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.03,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_27",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 779.05,
-			"z": -174.04,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.73,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_28",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 764.45,
-			"z": -129.1,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.28,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_29",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 852.15,
-			"z": -320.46,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.15,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_30",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 837.71,
-			"z": -119.0,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.8,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_31",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 874.47,
-			"z": -293.57,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.62,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_32",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 830.58,
-			"z": -237.02,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 3.07,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_33",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 849.16,
-			"z": -128.65,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.7,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_34",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 838.85,
-			"z": -250.51,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.26,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_35",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 777.83,
-			"z": -120.79,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.67,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_36",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 746.62,
-			"z": -127.13,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.27,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_37",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 897.54,
-			"z": -156.35,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.14,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_38",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 863.61,
-			"z": -330.11,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.64,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_39",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 756.15,
-			"z": -154.74,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.19,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_40",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 842.63,
-			"z": -292.86,
+			"x": 839.56,
+			"z": -179.31,
 			"y": 7.07,
 			"rot": -1.6598,
 			"largo": 2.86,
 			"ancho": 0.7
 		},
 		{
-			"nombre": "Tablon_41",
+			"nombre": "Tablon_25",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 879.08,
-			"z": -147.32,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.28,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_42",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 807.0,
-			"z": -249.79,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.95,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_43",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 802.04,
-			"z": -115.07,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 3.18,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_44",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 880.89,
-			"z": -246.76,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.31,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_45",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 905.84,
-			"z": -130.71,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.48,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_46",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 872.74,
-			"z": -115.88,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.12,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_47",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 796.14,
-			"z": -286.33,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.87,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_48",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 747.76,
-			"z": -258.64,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.03,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_49",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 800.0,
-			"z": -250.42,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.84,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_50",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 741.97,
-			"z": -312.51,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 2.83,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_51",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 892.46,
-			"z": -139.02,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.51,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_52",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 898.64,
-			"z": -326.98,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.83,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_53",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 772.09,
-			"z": -135.53,
+			"x": 833.1,
+			"z": -265.25,
 			"y": 6.32,
 			"rot": -1.6598,
-			"largo": 2.67,
+			"largo": 2.76,
 			"ancho": 0.7
 		},
 		{
-			"nombre": "Tablon_54",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 887.93,
-			"z": -207.0,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.02,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_55",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 782.16,
-			"z": -248.45,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.99,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_56",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 843.96,
-			"z": -228.71,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.18,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_57",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 852.94,
-			"z": -171.0,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.34,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_58",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 850.89,
-			"z": -306.35,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.42,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_59",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 858.06,
-			"z": -149.2,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.51,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_60",
+			"nombre": "Tablon_26",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 739.57,
@@ -28781,601 +26562,7 @@
 			"ancho": 0.7
 		},
 		{
-			"nombre": "Tablon_61",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 745.36,
-			"z": -113.02,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 2.64,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_62",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 896.83,
-			"z": -227.55,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.08,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_63",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 877.19,
-			"z": -126.15,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.73,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_64",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 905.8,
-			"z": -169.84,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.63,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_65",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 842.0,
-			"z": -285.8,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.05,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_66",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 908.99,
-			"z": -166.0,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.92,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_67",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 779.57,
-			"z": -298.48,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.03,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_68",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 841.37,
-			"z": -278.74,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.38,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_69",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 817.83,
-			"z": -252.38,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 3.27,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_70",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 836.96,
-			"z": -229.34,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.18,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_71",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 736.98,
-			"z": -216.92,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 2.76,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_72",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 765.59,
-			"z": -260.6,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 2.42,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_73",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 888.52,
-			"z": -253.19,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.9,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_74",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 908.36,
-			"z": -158.94,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.53,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_75",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 788.46,
-			"z": -319.03,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 3.31,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_76",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 792.44,
-			"z": -165.73,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.77,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_77",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 797.44,
-			"z": -261.32,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.95,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_78",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 842.74,
-			"z": -175.47,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.15,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_79",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 885.34,
-			"z": -257.03,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.01,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_80",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 830.5,
-			"z": -315.28,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.62,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_81",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 825.54,
-			"z": -180.56,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.7,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_82",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 870.81,
-			"z": -133.83,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.75,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_83",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 855.38,
-			"z": -277.49,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.3,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_84",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 837.59,
-			"z": -236.39,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.31,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_85",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 809.05,
-			"z": -114.45,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 3.32,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_86",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 804.52,
-			"z": -182.43,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.43,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_87",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 765.08,
-			"z": -136.16,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.32,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_88",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 830.7,
-			"z": -119.63,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.83,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_89",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 803.14,
-			"z": -285.71,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.84,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_90",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 876.48,
-			"z": -197.35,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.77,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_91",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 832.43,
-			"z": -297.32,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.41,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_92",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 833.81,
-			"z": -194.05,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.95,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_93",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 802.52,
-			"z": -278.65,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.88,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_94",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 898.8,
-			"z": -170.46,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.07,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_95",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 772.01,
-			"z": -213.79,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.23,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_96",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 820.39,
-			"z": -241.49,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.66,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_97",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 759.37,
-			"z": -111.77,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 2.97,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_98",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 781.46,
-			"z": -319.66,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 2.67,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_99",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 867.46,
-			"z": -294.2,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.59,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_100",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 894.82,
-			"z": -323.77,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.99,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_101",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 771.46,
-			"z": -128.47,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.46,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_102",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 840.74,
-			"z": -271.68,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.4,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_103",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 816.61,
-			"z": -199.14,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 3.38,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_104",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 786.61,
-			"z": -258.73,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.56,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_105",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 779.72,
-			"z": -141.96,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.45,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_106",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 794.41,
-			"z": -108.64,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 2.64,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_107",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 751.7,
-			"z": -144.46,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 2.82,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_108",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 868.09,
-			"z": -301.25,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.59,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_109",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 861.21,
-			"z": -184.49,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.15,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_110",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 814.01,
-			"z": -249.17,
-			"y": 6.32,
-			"rot": -0.089,
-			"largo": 3.09,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_111",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 757.96,
-			"z": -254.17,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.01,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_112",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 776.38,
-			"z": -302.32,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 2.64,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_113",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 878.92,
-			"z": -303.84,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.27,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_114",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 908.21,
-			"z": -315.46,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.0,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_115",
+			"nombre": "Tablon_27",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 829.24,
@@ -29386,40 +26573,40 @@
 			"ancho": 0.7
 		},
 		{
-			"nombre": "Tablon_116",
+			"nombre": "Tablon_28",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 886.71,
-			"z": -153.76,
+			"x": 858.1,
+			"z": -110.07,
 			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 3.13,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_117",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 868.92,
-			"z": -112.66,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.69,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_118",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 826.68,
-			"z": -312.06,
-			"y": 6.32,
 			"rot": -0.089,
-			"largo": 2.6,
+			"largo": 3.33,
 			"ancho": 0.7
 		},
 		{
-			"nombre": "Tablon_119",
+			"nombre": "Tablon_29",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 747.84,
+			"z": -180.38,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.15,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_30",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 837.04,
+			"z": -151.08,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.86,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_31",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 758.0,
@@ -29427,6 +26614,974 @@
 			"y": 5.57,
 			"rot": -1.6598,
 			"largo": 2.8,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_32",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 908.99,
+			"z": -166.0,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.92,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_33",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 894.98,
+			"z": -167.25,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.58,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_34",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 872.03,
+			"z": -187.08,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.94,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_35",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 817.2,
+			"z": -245.33,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 3.06,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_36",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 789.09,
+			"z": -326.09,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.85,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_37",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 888.52,
+			"z": -253.19,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.9,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_38",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 756.62,
+			"z": -318.31,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 3.03,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_39",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 908.36,
+			"z": -158.94,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.53,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_40",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 788.46,
+			"z": -319.03,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 3.31,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_41",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 898.05,
+			"z": -280.8,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.96,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_42",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 805.19,
+			"z": -150.36,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 2.55,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_43",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 895.61,
+			"z": -174.31,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.91,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_44",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 765.59,
+			"z": -260.6,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 2.42,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_45",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 825.54,
+			"z": -180.56,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.7,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_46",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 864.35,
+			"z": -219.78,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.32,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_47",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 827.51,
+			"z": -123.47,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.75,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_48",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 775.79,
+			"z": -256.14,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 2.57,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_49",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 887.19,
+			"z": -317.33,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.37,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_50",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 802.04,
+			"z": -115.07,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 3.18,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_51",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 863.72,
+			"z": -212.72,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.8,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_52",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 830.7,
+			"z": -119.63,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.83,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_53",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 791.22,
+			"z": -112.48,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.94,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_54",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 801.41,
+			"z": -108.02,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 3.18,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_55",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 771.46,
+			"z": -128.47,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.46,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_56",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 870.69,
+			"z": -251.22,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.28,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_57",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 749.14,
+			"z": -155.36,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 3.39,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_58",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 741.97,
+			"z": -312.51,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 2.83,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_59",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 884.63,
+			"z": -328.23,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.7,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_60",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 848.45,
+			"z": -199.85,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.24,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_61",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 898.01,
+			"z": -319.93,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.83,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_62",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 835.15,
+			"z": -129.9,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.95,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_63",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 848.33,
+			"z": -317.24,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.41,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_64",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 783.46,
+			"z": -223.44,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 2.87,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_65",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 757.37,
+			"z": -207.98,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 2.6,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_66",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 745.79,
+			"z": -315.72,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.28,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_67",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 816.06,
+			"z": -113.82,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 2.61,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_68",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 795.04,
+			"z": -115.7,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 2.47,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_69",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 767.52,
+			"z": -242.65,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 2.97,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_70",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 905.8,
+			"z": -169.84,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.63,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_71",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 896.16,
+			"z": -259.62,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.59,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_72",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 863.13,
+			"z": -166.53,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.24,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_73",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 866.99,
+			"z": -130.62,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.01,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_74",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 743.43,
+			"z": -130.97,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 2.56,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_75",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 797.4,
+			"z": -300.45,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 3.27,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_76",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 764.45,
+			"z": -129.1,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.28,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_77",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 854.2,
+			"z": -185.11,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.15,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_78",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 894.86,
+			"z": -284.64,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.05,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_79",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 792.44,
+			"z": -165.73,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 2.77,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_80",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 822.87,
+			"z": -308.85,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 3.11,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_81",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 880.34,
+			"z": -161.44,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.35,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_82",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 872.11,
+			"z": -108.82,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.72,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_83",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 901.4,
+			"z": -120.43,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.47,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_84",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 743.31,
+			"z": -248.36,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 2.59,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_85",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 852.27,
+			"z": -203.07,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.89,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_86",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 760.44,
+			"z": -321.53,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.06,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_87",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 833.06,
+			"z": -304.38,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 2.64,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_88",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 851.09,
+			"z": -110.7,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.09,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_89",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 759.88,
+			"z": -236.21,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.35,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_90",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 869.43,
+			"z": -237.11,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.09,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_91",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 773.19,
+			"z": -306.17,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 2.6,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_92",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 877.66,
+			"z": -289.73,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.04,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_93",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 849.67,
+			"z": -253.1,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.51,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_94",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 749.61,
+			"z": -318.94,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 2.74,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_95",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 759.96,
+			"z": -157.95,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.36,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_96",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 772.72,
+			"z": -142.59,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.45,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_97",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 838.93,
+			"z": -172.25,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.91,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_98",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 759.33,
+			"z": -150.9,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.03,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_99",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 748.39,
+			"z": -265.69,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 2.53,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_100",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 805.23,
+			"z": -111.23,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.63,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_101",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 786.61,
+			"z": -258.73,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 2.56,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_102",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 776.5,
+			"z": -184.93,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 3.29,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_103",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 772.09,
+			"z": -135.53,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.67,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_104",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 744.02,
+			"z": -177.16,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 3.14,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_105",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 763.82,
+			"z": -122.04,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.26,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_106",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 864.32,
+			"z": -258.91,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.93,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_107",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 852.94,
+			"z": -171.0,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 3.34,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_108",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 737.53,
+			"z": -302.23,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.04,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_109",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 905.17,
+			"z": -162.78,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.63,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_110",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 803.81,
+			"z": -253.64,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.5,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_111",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 814.01,
+			"z": -249.17,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 3.09,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_112",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 874.0,
+			"z": -129.99,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 2.63,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_113",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 874.51,
+			"z": -254.44,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.9,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_114",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 763.19,
+			"z": -114.98,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.15,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_115",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 776.38,
+			"z": -302.32,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 2.64,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_116",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 894.35,
+			"z": -160.19,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.81,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_117",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 884.15,
+			"z": -164.66,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.36,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_118",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 793.62,
+			"z": -258.1,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 3.09,
+			"ancho": 0.7
+		},
+		{
+			"nombre": "Tablon_119",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 875.14,
+			"z": -261.5,
+			"y": 7.07,
+			"rot": -1.6598,
+			"largo": 2.74,
 			"ancho": 0.7
 		},
 		{
@@ -29444,55 +27599,55 @@
 			"nombre": "Tablon_121",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 866.99,
-			"z": -130.62,
-			"y": 7.07,
+			"x": 792.91,
+			"z": -329.3,
+			"y": 6.32,
 			"rot": -0.089,
-			"largo": 3.01,
+			"largo": 2.81,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_122",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 742.68,
-			"z": -241.31,
+			"x": 754.81,
+			"z": -218.88,
 			"y": 5.57,
 			"rot": -0.089,
-			"largo": 2.59,
+			"largo": 2.69,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_123",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 786.1,
-			"z": -134.28,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 2.67,
+			"x": 742.05,
+			"z": -234.25,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 2.59,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_124",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 896.16,
-			"z": -259.62,
-			"y": 7.07,
-			"rot": -1.6598,
-			"largo": 2.59,
+			"x": 779.05,
+			"z": -174.04,
+			"y": 6.32,
+			"rot": -0.089,
+			"largo": 2.73,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_125",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 740.87,
-			"z": -141.87,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.39,
+			"x": 777.2,
+			"z": -113.73,
+			"y": 6.32,
+			"rot": -1.6598,
+			"largo": 2.94,
 			"ancho": 0.7
 		},
 		{
@@ -29510,66 +27665,33 @@
 			"nombre": "Tablon_127",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 738.16,
-			"z": -309.29,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 2.51,
+			"x": 858.73,
+			"z": -117.13,
+			"y": 7.07,
+			"rot": -0.089,
+			"largo": 3.33,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_128",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 904.51,
-			"z": -194.85,
-			"y": 7.07,
+			"x": 831.13,
+			"z": -322.34,
+			"y": 6.32,
 			"rot": -1.6598,
-			"largo": 3.29,
+			"largo": 2.73,
 			"ancho": 0.7
 		},
 		{
 			"nombre": "Tablon_129",
 			"tipo": "tablon",
 			"favela": true,
-			"x": 901.4,
-			"z": -120.43,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 2.47,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_130",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 891.63,
-			"z": -327.61,
-			"y": 7.07,
-			"rot": -0.089,
-			"largo": 3.02,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_131",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 822.87,
-			"z": -308.85,
-			"y": 6.32,
-			"rot": -1.6598,
-			"largo": 3.11,
-			"ancho": 0.7
-		},
-		{
-			"nombre": "Tablon_132",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 880.34,
-			"z": -161.44,
+			"x": 838.85,
+			"z": -250.51,
 			"y": 7.07,
 			"rot": -1.6598,
-			"largo": 3.35,
+			"largo": 3.26,
 			"ancho": 0.7
 		},
 		{
@@ -30199,12 +28321,13 @@
 		"tuneles": true
 	},
 	"callejones": {
-		"tendedero_cada": [9.0, 15.0],
+		"tendedero_cada": [13.0, 22.0],
 		"basura_cada": [26.0, 44.0],
-		"foco_cada": [12.0, 18.0],
-		"capilla_cada": [9],
+		"foco_cada": [16.0, 24.0],
+		"capilla_cada": [13],
 		"bolsas": [1, 3],
-		"prendas": [2, 3]
+		"prendas": [2, 3],
+		"basura_min": [12.0]
 	},
 	"hundidos": [
 		{

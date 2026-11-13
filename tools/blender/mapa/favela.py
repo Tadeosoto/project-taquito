@@ -310,6 +310,7 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
         xb, zb = marco.mundo(ub, vb)
         return {"nombre": nombre, "tipo": "calle", "favela": True, "x": round(xa, 2), "z": round(za, 2),
                 "puntos": [[0.0, 0.0], [round(xb - xa, 2), round(zb - za, 2)]], "ancho": w, "banqueta": 0.0, "material": "empedrado", "real": ""}
+    escalinatas_en = set()   # (columna del borde, fila): dos cadenas que se juntan ahi ponian dos escalinatas
     for cadena, w in runs:
         (a, b), d = cadena[0]
         (c, e_), _d = cadena[-1]
@@ -317,7 +318,8 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
             ua, va, ub, vb = a * pu, b * pv, (c + 1) * pu, b * pv
             # Si la cadena termina en el borde de una banda (su ultima arista llega a el), ahi va la escalinata
             k = cuenta["callejones"]
-            if (c + 1) in bordes_banda and c + 1 < nx and alto_de(c + 1) != alto_de(c):
+            if (c + 1) in bordes_banda and c + 1 < nx and alto_de(c + 1) != alto_de(c) and (c + 1, b) not in escalinatas_en:
+                escalinatas_en.add((c + 1, b))
                 sube = alto_de(c + 1) - alto_de(c)
                 largo = 1.0 if abs(sube) <= 0.8 else 2.0
                 piezas.append(pieza_calle("Callejon_%d" % k, ua, va, ub - 0.02, vb, w))
@@ -325,7 +327,8 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
                 piezas.append({"nombre": "Escalinata_%d" % k, "tipo": "escalinata", "favela": True, "x": round(xe, 2), "z": round(ze, 2),
                                "y": alto_de(c), "rot": marco.rot, "largo": largo, "ancho": round(w - 0.1, 2), "alto": sube})
                 cuenta["escalinatas"] += 1
-            elif a in bordes_banda and a > 0 and alto_de(a) != alto_de(a - 1):
+            elif a in bordes_banda and a > 0 and alto_de(a) != alto_de(a - 1) and (a, b) not in escalinatas_en:
+                escalinatas_en.add((a, b))
                 # La cadena arranca en el borde: la escalinata sube desde el lado de abajo (poniente)
                 sube = alto_de(a) - alto_de(a - 1)
                 largo = 1.0 if abs(sube) <= 0.8 else 2.0
@@ -438,7 +441,12 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
             l = "NESO"[frente]
             normal = {"N": (0, -1), "S": (0, 1), "E": (1, 0), "O": (-1, 0)}[l]
             largo_f = (u_b - u_a) if l in "NS" else (v_b - v_a)
-            if largo_f < 4.0:
+            # La escalera (piezas.escalera) sube a lo largo de la fachada: unos 40 grados, escalones
+            # de 0.3 m y su rampa de choque 0.3 m antes y 0.2 m despues. Si no cabe, se salia de la
+            # esquina y tapaba el callejon de al lado.
+            alto_e = pisos * PISO + AZOTEA
+            largo_e = max(4, round(alto_e / 0.26)) * 0.3 + 0.2
+            if largo_f < 0.3 + largo_e + 0.3:
                 continue
             if l == "N":
                 pu0, pv0 = u_a + 0.3, v_a - 0.12
