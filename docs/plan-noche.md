@@ -46,12 +46,12 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 
 **Hecho en la sesión del 2026-11-12:** L10, L11 y L12b (texto: mafia y puerta de La Gotera por escalones, cacerías, GelA; spec y revisión al día; grep de coherencia), S1a y S1b (código: misiones de día o de noche, diario). Ver las filas del registro de arriba.
 
-**Hoy toca: M7c** (lo que vende cada punto; el LSD sigue en pausa). M7a y M7b hechos el 2026-11-13; S2, S8, S10, S11 y M1 a M6 el 2026-11-12.
+**Hoy toca: M7c, pero ⏸️ en revisión** (JJ, 2026-11-13: lo que vende cada punto está sujeto a revisión; no programarlo hasta que JJ lo confirme. Mientras, otro bloque). M7a y M7b hechos el 2026-11-13; S2, S8, S10, S11 y M1 a M6 el 2026-11-12.
 
 **M7 en tres partes (JJ, 2026-11-13):**
 - [x] **M7a** La cadena de entregas: El Punto y los 8 puntos, la caja que se suelta, la P en los mapas y la reja de La Gotera con 5.
 - [x] **M7b** De día la caja es de **sigilo**: **cuicos caminando en map_test** (modelos `policia_*` y `policia_mujer_*` de `pack_psx`); si un cuico te ve con la caja, te dispara. De noche, los zombis de siempre.
-- [ ] **M7c** Lo que vende cada punto al descubrirlo (las armas de fuego al final): 1 La Palmira **LSD** (⏸️ **pendiente, JJ 2026-11-13: no programarlo todavía**; la idea: un minuto de filtros, sepia, blanco y negro, negativo y ondulaciones como LSD de verdad, evaluando qué tan difícil es la ondulación), 2 Arroyo Seco **palomita** (granada aturdidora, ya existe), 3 Arroyuelo **tachas** (estamina infinita un rato; el `.tres` existe, falta el efecto), 4 a 8 **mejoras de armas**, y lo último **escopeta, rifle y metralleta** (no existen: solo hay el modelo `cuerno_de_chivo`; son su propio bloque).
+- [ ] **M7c** ⏸️ **En revisión (JJ, 2026-11-13): la lista de abajo puede cambiar; confirmar con JJ antes de programar.** Lo que vende cada punto al descubrirlo (las armas de fuego al final): 1 La Palmira **LSD** (⏸️ **pendiente, JJ 2026-11-13: no programarlo todavía**; la idea: un minuto de filtros, sepia, blanco y negro, negativo y ondulaciones como LSD de verdad, evaluando qué tan difícil es la ondulación), 2 Arroyo Seco **palomita** (granada aturdidora, ya existe), 3 Arroyuelo **tachas** (estamina infinita un rato; el `.tres` existe, falta el efecto), 4 a 8 **mejoras de armas**, y lo último **escopeta, rifle y metralleta** (no existen: solo hay el modelo `cuerno_de_chivo`; son su propio bloque).
 
 **Por probar en ventana** (no se ha jugado, solo pruebas headless):
 - Safehouse (`godot --path . scenes/safehouse.tscn`): aceptar "Medicina de noche" (dador nuevo, el último de la fila, en x = 34) y otra; Tab y J abren el diario; Enter cambia la activa y abre el mapa con el puntero; de noche llevar la medicina (la carga solo aparece de noche) y de día volver a cobrar.
