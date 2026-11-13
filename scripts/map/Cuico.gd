@@ -339,8 +339,9 @@ func _mirar_a(punto: Vector3) -> void:
 		rotation.y = atan2(-hacia.x, -hacia.z)
 
 
+# La caja de la mafia o el agua del reparto en brazos (MisionesMundo._marcar_carga)
 func _trae_la_caja() -> bool:
-	return bool(_jugador.get("carga_soltable"))
+	return bool(_jugador.get_meta("carga_ilegal", false)) or bool(_jugador.get("carga_soltable"))
 
 
 # Dentro del cono (o a OIDO m) y sin pared en medio. `persiguiendo`: ya te tiene, no hace falta el cono

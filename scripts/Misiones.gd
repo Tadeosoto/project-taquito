@@ -17,8 +17,6 @@ signal termino(mision: MisionData, exito: bool, texto: String)
 signal sobra(objeto: InventoryItemData)
 # LLEVAR_CARGA: lo que pago una entrega
 signal entrega(pesos: int)
-# Te amanecio con el reparto en camino (agua o camioneta): los cuicos ya te buscan (Cuicos.gd, S3)
-signal amanecio_con_carga
 
 const ARCHIVOS := [
 	"res://resources/misiones/encargo.tres",
@@ -65,6 +63,9 @@ var indice_paso := 0
 # La gente ofrece de dia; al aviso de atardecer ya no
 var ofreciendo := true
 var es_noche := false
+# S3: te amanecio con una carga `ilegal` en camino (el reparto de agua): el paso sigue de dia, hasta que
+# lo acabes, te desmayes o se acabe su tiempo; los cuicos te disparan si te ven con ella (Cuico.gd)
+var sigue_de_dia := false
 # Traes algo levantado para la activa (el perro): MisionesMundo lo pone
 var manos_ocupadas := false
 var tiempo_queda := 0.0
@@ -185,7 +186,7 @@ func a_su_hora(p: PasoMision) -> bool:
 		PasoMision.Cuando.DIA:
 			return not es_noche
 		PasoMision.Cuando.NOCHE:
-			return es_noche
+			return es_noche or (sigue_de_dia and p == paso())
 	return true
 
 
@@ -273,6 +274,7 @@ func _guardar_activa() -> void:
 
 func _poner_activa(mision: MisionData) -> void:
 	activa = mision
+	sigue_de_dia = false
 	if mision == null:
 		indice_paso = 0
 		visitados = 0
@@ -293,6 +295,7 @@ func _poner_activa(mision: MisionData) -> void:
 
 func _entrar_paso(i: int) -> void:
 	indice_paso = i
+	sigue_de_dia = false
 	visitados = 0
 	meta_visitas = paso().cuantos
 	tiempo_queda = paso().segundos
@@ -316,12 +319,7 @@ func _process(delta: float) -> void:
 	var en_ruta := ruta_en_curso()
 	if _ruta_hora and not en_ruta:
 		_ruta_hora = false
-		var p := paso()
-		var con_carga := not es_noche and p.cuando == PasoMision.Cuando.NOCHE \
-				and p.tipo in [PasoMision.Tipo.LLEVAR_CARGA, PasoMision.Tipo.CAMIONETA]
-		fallar(_texto_ruta_perdida(p))
-		if con_carga:
-			amanecio_con_carga.emit()
+		fallar(_texto_ruta_perdida(paso()))
 		return
 	_ruta_hora = en_ruta
 	if not en_hora():
@@ -436,8 +434,8 @@ func _texto_ruta_perdida(p: PasoMision) -> String:
 	if p.tipo == PasoMision.Tipo.CAMIONETA:
 		return "Amaneció con la camioneta en la calle: los cerdos se la llevaron." if not es_noche \
 				else "Te desmayaste y la camioneta siguió sin ti."
-	if p.cuando == PasoMision.Cuando.CUALQUIERA:
-		return "Te desmayaste y la caja se perdió."
+	if p.cuando == PasoMision.Cuando.CUALQUIERA or sigue_de_dia:
+		return "Te desmayaste y la caja se perdió." if p.soltable else "Te desmayaste y la carga se perdió."
 	return "Te amaneció con la carga: los cerdos se la llevaron." if p.cuando == PasoMision.Cuando.NOCHE \
 			else "Se hizo de noche con la carga encima y la perdiste."
 
@@ -521,11 +519,16 @@ func atardecer() -> void:
 func anochecer() -> void:
 	ofreciendo = false
 	es_noche = true
+	sigue_de_dia = false
 	cambio.emit()
 
 
 func amanecer() -> void:
 	ofreciendo = true
+	# Con el agua en camino no se pierde: sigue de dia (S3)
+	var p := paso()
+	if es_noche and p != null and p.ilegal and p.tipo == PasoMision.Tipo.LLEVAR_CARGA and p.cuando == PasoMision.Cuando.NOCHE:
+		sigue_de_dia = true
 	es_noche = false
 	_hechas.clear()
 	cambio.emit()
@@ -557,6 +560,7 @@ func reiniciar() -> void:
 	decreto_47 = false
 	SitiosTinaco.elegido = -1
 	_ruta_hora = false
+	sigue_de_dia = false
 	indice_paso = 0
 	ofreciendo = true
 	es_noche = false

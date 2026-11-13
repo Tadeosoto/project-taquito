@@ -1280,7 +1280,7 @@ func _ajustar_carga(paso: PasoMision) -> void:
 			return
 		_quitar_caja_suelo()
 	if quiere == _carga_item:
-		_jugador.set("carga_soltable", quiere != null and paso.soltable)
+		_marcar_carga(quiere != null and paso.soltable, quiere != null and (paso.soltable or paso.ilegal))
 		return
 	if _carga_item:
 		_jugador.soltar_carga()
@@ -1289,7 +1289,15 @@ func _ajustar_carga(paso: PasoMision) -> void:
 		_jugador.cargar(quiere.crear_modelo(0.5))
 		_carga_item = quiere
 		_caja_de = paso
-	_jugador.set("carga_soltable", quiere != null and paso.soltable)
+	_marcar_carga(quiere != null and paso.soltable, quiere != null and (paso.soltable or paso.ilegal))
+
+
+# `soltable`: el clic la suelta (Player.carga_soltable). `ilegal`: los cuicos te disparan si te ven
+# con ella (la caja de la mafia, el agua del reparto; Cuico._trae_la_caja). Meta y no variable para
+# no tocar player.gd
+func _marcar_carga(soltable: bool, ilegal: bool) -> void:
+	_jugador.set("carga_soltable", soltable)
+	_jugador.set_meta("carga_ilegal", ilegal)
 
 
 # El clic de ataque con la caja en brazos (Player.pidio_soltar_carga): queda a tus pies y se levanta con Espacio
@@ -1327,7 +1335,7 @@ func _quitar_caja_suelo() -> void:
 func _soltar_carga() -> void:
 	if _carga_item or _cosa_en_manos:
 		_jugador.soltar_carga()
-	_jugador.set("carga_soltable", false)
+	_marcar_carga(false, false)
 	_carga_item = null
 	_cosa_en_manos = false
 	Misiones.manos_ocupadas = false

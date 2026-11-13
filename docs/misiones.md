@@ -270,7 +270,7 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 | **Las piezas de la antena** (1.ª de 2) | Sofía | Fuera, ≤250 m de una reja | Encontrar las piezas (tubos, cable, repetidor) | Zombis | 💡 pesos + desbloquea la 2.ª | S |
 | **Subir la antena** (2.ª de 2) | Sofía | Una torre de luz (`power=tower`) | Defender el pie de la torre mientras alguien sube | Una horda por el ruido | 💡 pesos; la radio llega más lejos | M |
 | **El Decreto 47** (H4) | El Güero o Sofía | La bodega de GelA cerca de la reja poniente (-333, 645) | Sacar el expediente y la hoja de conteo | Camadas dormidas; los zombis | Copias: 200 (A) | M |
-| **Reparto** | Chava, Gabriel o el gremio de La Gotera | De la casa de Chava / de Santa Mugre a casas de fuera | Llevar agua limpia a pie antes del amanecer | Zombis; los blancos al amanecer | 💡 60-100 por entrega | S |
+| **Reparto** | Chava, Gabriel o el gremio de La Gotera | De la casa de Chava / de Santa Mugre a casas de fuera | Llevar agua limpia a pie, mejor de noche | Zombis; si te amanece, **no fallas**: la acabas de día, pero los cuicos te disparan si te ven con el agua (S3, JJ 2026-11-13) | 💡 60-100 por entrega | S |
 | **La hija de Nava** | El Inspector Nava | De noche, entre los zombis de fuera | Encontrar a su hija por la ropa y llevarlo a ella | La horda; que alguien la mate | Paga igual, antes de salir | L |
 
 ### Al médico
