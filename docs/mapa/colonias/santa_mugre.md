@@ -1,6 +1,6 @@
 # Parques de Santa Mugre (colonia piloto del mapa en Blender)
 
-> **Estado:** aprobada por AG (2026-11-10). Nada de esto está modelado todavía; sigue la tubería de Blender.
+> **Estado:** aprobada por AG (2026-11-10) y modelada. **Desde el 2026-11-12 es la fortaleza de la Virgen del Tinaco** (lore de JJ, `docs/plan-noche.md`): lee primero ["La fortaleza"](#la-fortaleza-2026-11-12), que manda sobre lo de abajo donde se contradigan (el palacio es la primaria, no hay retén ni gente de GelA adentro, de noche no salen zombis).
 > Croquis: [`santa_mugre_croquis.png`](santa_mugre_croquis.png) (calles de OSM, huellas de Google Open Buildings, tiendas reales del DENUE; rejilla cada 20 m en coordenadas del juego).
 
 ## Qué es
@@ -40,7 +40,7 @@ Los números son los del croquis.
    - ✅ El tinaco va **encima del kiosco**: el kiosco de la música se volvió la torre de agua del barrio, con mangueras, una llave abajo y la fila alrededor. Se ve desde las calles.
 2. **Parroquia de Santo Toribio** (x -325 a -292, z 393 a 452). La iglesia real. Por fuera es una fachada grande; no se entra (por ahora).
    - ✅ **Se le nota un poco** el culto a la Virgen del Tinaco: la iglesia es normal, pero afuera hay veladoras con tinacos dibujados y estampitas pegadas en el portón. El culto vive en Los Garrafones y se está colando.
-3. **Palacio de gobierno** (x -375 a -320, z 352 a 386). En el lado norte de la plaza, frente al kiosco, donde hoy hay un edificio largo. Dos pisos, portales, escudo de la familia Lazcano, mantas de GelA ("Trabajamos para llevarte agua"). **De noche se ilumina como si nada.** Aquí trabaja el Güero y está el archivo de la misión H4 (El Decreto 47). Por ahora solo la fachada y su puerta como marcador para el futuro.
+3. **Palacio de gobierno** (hoy la **Escuela Primaria Santa Mugre**; el palacio quedó afuera, ver "La fortaleza") (x -375 a -320, z 352 a 386). En el lado norte de la plaza, frente al kiosco, donde hoy hay un edificio largo. Dos pisos, portales, escudo de la familia Lazcano, mantas de GelA ("Trabajamos para llevarte agua"). **De noche se ilumina como si nada.** Aquí trabaja el Güero y está el archivo de la misión H4 (El Decreto 47). Por ahora solo la fachada y su puerta como marcador para el futuro.
 4. **El tianguis** (Calle Bahía de Santiago, de Pichilingue a la avenida). Carpas de lona de colores sobre tubos a los dos lados de la calle, con la espalda en la banqueta y las lonas casi tocándose sobre el pasillo: un techo seguido de lona, apretado y caótico, con las banquetas libres. Solo de día; de noche quedan los fierros y las mesas. El **puesto de fruta de Toño** va en la esquina con la avenida, junto a la parroquia.
 5. **La vecindad del jugador** (x -231 a -190, z 372 a 428). La privada real que entra desde la calle de z 372. Un patio largo con lavaderos, tendederos, tinacos en las azoteas, una escalera de fierro y puertas a los cuartos. Uno es **el cuarto del jugador** (escena aparte, segura). En el patio, 2-3 vecinos de día: la señora del lavadero, un niño y un señor en su silla. De noche el patio es calle, y es peligroso.
 6. **El Yonke de Don Chava** (x -406 a -376, z 336 a 386). Se muda aquí desde donde está hoy (-232, 115, fuera del recorte): un baldío sobre Bahía de Pelícanos, junto a la plaza. Usa el mismo `YonkeMapa.gd`.
@@ -74,6 +74,8 @@ Cada una con su flecha amarilla y su interior de `scenes/interiores/`, como hoy.
 
 ## Los bordes
 
+> Hoy todo el borde es la **muralla** de los fieles, con dos portones (ver "La fortaleza"). Lo que sigue es como era antes.
+
 El recorte se cierra sin paredes invisibles, con cosas que tienen sentido en el barrio:
 
 - **Norte** (calle de z 263): **vallas de obra de GelA** atravesadas, tubos apilados y una manta: "Trabajamos para llevarte agua".
@@ -86,7 +88,7 @@ El recorte se cierra sin paredes invisibles, con cosas que tienen sentido en el 
 
 - **De día:** el tianguis lleno, gente caminando por las banquetas (`Gente.gd`), la fila del agua en el tinaco, los vecinos de la vecindad.
 - **Postes:** en las banquetas de la avenida y de Bahía de Santiago, más los de la plaza. En las privadas, focos colgados de los cables.
-- **De noche:** "muy peligroso; los zombis salen en grupo y el palacio se ilumina como si nada" (`lore.md`). El índice de deterioro de Santa Mugre es 0.55-0.70: pocas tiendas con la cortina rota, algún tambo encendido.
+- **De noche (antes del 2026-11-12):** "muy peligroso; los zombis salen en grupo y el palacio se ilumina como si nada" (`lore.md`). Hoy adentro la noche es en paz (ver "La fortaleza"). El índice de deterioro de Santa Mugre es 0.55-0.70: pocas tiendas con la cortina rota, algún tambo encendido.
 
 ## Lo que sigue (después de aprobar esto)
 
@@ -158,6 +160,34 @@ Hecho (un commit cada uno, `probar_colonia.gd` en BIEN despues de cada uno):
 Costo medido con `tools/mapa/medir_colonia.gd` (maquina de AG, de dia), antes de esta noche y despues de los 7 puntos: plaza 293 a 287 fps (primitivas 124k a 228k), tianguis 283 a 278 (195k a 339k), vecindad 287 a 280, avenida 335 a 321, cancha 304 a 298 (llamadas de dibujo 539 a 661). Baja 2-4 % de fps pero casi se doblan las primitivas: **Arreglado (2026-11-11):** los detalles (material `detalle_kit` de las casas y los objetos `Detalle_*` de los callejones, partidos en trozos de 20 m) van en cuadros de 24 m aparte que `MapaPostImport` deja de dibujar a 55 m y que no hacen sombra. Medido despues: plaza 132k primitivas (antes 228k, sin detalles 124k), 560 llamadas, tianguis 206k, cancha 151k; los fps quedan igual.
 
 Para revisar caminando (`scenes/mapa.tscn`): el color del muro y del piso de la cancha en Godot (en Blender se ven deslavados), si la ropa y los cables se ven bien de noche, y si los espectaculares se leen de lejos con la niebla.
+
+## La fortaleza (2026-11-12)
+
+Santa Mugre es la fortaleza de la Virgen del Tinaco: un refugio religioso amurallado donde empieza el personaje. Adentro no entra la policía ni GelA, y de noche no hay zombis mientras la reja aguante (`docs/lore.md`, `docs/plan-noche.md`). Decisiones de AG de ese día y cómo quedó en el mapa (`tools/blender/mapa/colonias/santa_mugre.json`):
+
+- **Muralla** (pieza `muralla`, 32 tramos de hasta 30 m): la barda de block de 2.6 m que ya había, subida por los vecinos a 4.5 m con lámina de colores, tablones y tambos, sobre postes de fierro y con alambre de púas. Por dentro, pintas de la Virgen (`textures/map/virgen/`, las dibuja `tools/map_import/make_murales_virgen.py`) con veladoras al pie, y grafitis. Los postes, el alambre, las pintas y las veladoras van aparte (`Detalle_<tramo>`) y no se dibujan a más de 55 m.
+- **Portones** (pieza `reja`, las mismas dos de la avenida): dos hojas de lámina con marco de fierro y mirilla, tranca de madera, dintel y alambre. De un lado dice "Afuera andan los poseídos. No abras la reja" y del otro "La Virgen del Tinaco nos cuida". Reflector de noche. La flecha amarilla y `PasoColonia` no cambiaron. La reja de barrotes de antes quedó como `reja_fierro`.
+- **Puestos de guardia** (`puesto_guardia`, uno junto a cada portón): caseta de block con techo de lámina y la Virgen pintada, la campana de aviso, tambos y banca. Dos fieles de guardia en cada portón, de día y de noche (`uniforme` "fiel": chaleco verde del manto y paliacate rojo), un perro y, en el poniente, la **caja de ofrendas** (la que era de GelA: de noche da 1-2 cosas una vez).
+- **Miradores** (`mirador_muro`, ocho): plataforma de tablones a 3.4 m pegada a la muralla, con techo de lámina y escalera que se sube caminando, un vigía y un reflector. Van donde una calle corre junto a la muralla: dos al poniente (Pelagatos), tres al norte, dos al oriente y uno al sur (la punta oriente de la avenida). Desde arriba se ve el afuera.
+- **Altares de calle** (`nicho_virgen`): donde las calles del norte topaban con las vallas de obra de GelA hay ahora un altar con la Virgen pintada, veladoras, flores y tambos. El borde norte del `.json` es `fieles`.
+- **Sin GelA adentro:** se quitó el retén de la avenida con su pipa y sus guardias. Los dos espectaculares y las mantas del puente tienen la Virgen pintada encima del anuncio de GelA ("Aquí manda la Virgen del Tinaco"). La propaganda vieja en las casas se queda: es de antes.
+- **La escuela:** el palacio es la **Escuela Primaria Santa Mugre** (`palacio` con `"uso": "escuela"`; el nombre está por votar en `plan-noche.md`): placa verde en el remate, guardapolvo verde en los pilares, la campana, un avioncito de gis en el portal, recreo en el patio de enfrente (cinco chamacos con su pelota) y la maestra en la puerta. Suena la campana a media mañana y a mediodía. Sin escudo de los Lazcano, mantas ni reflectores.
+- **La plaza como arena:** el tinaco ya se ve desde la escuela y las calles (se quitaron los cuatro árboles a menos de 18 m). Entre los seis andadores que llegan a la glorieta hay parapetos bajos de cantera (`Parapeto_Tinaco_0..5`), y en la boca de cada andador una marca `Barricada_0..5` para la defensa del tinaco (bloque F1 de JJ).
+- **La noche en paz:** `Zombis.espontaneos` está apagado en `scenes/mapa.tscn`. De noche hay **vela del tinaco**: nueve fieles alrededor con su veladora y dos frente al atrio (marcas `vecino` con `"cuando": "noche"`). La cancha sigue llamando zombis con sus reflectores (`LuzTrampa`), pero no hay a quién llamar hasta que falle la reja.
+- **El templo se entra** (marca `casa_vecino` "Templo" en el atrio; de día): la nave con bancas y vitrales, el presbiterio con la Virgen del Tinaco y el padre Chuy, que platica y nunca dice lo que sospecha. Detrás de la cortina del retablo se baja al **cuarto del pozo**: el brocal, el filtro con la etiqueta raspada, garrafones y el cuaderno del padre. Sin misiones ni reparto de agua todavía (bloque F3). Lo arma `tools/construir_templo.gd`.
+- **Abarrotes Doña Mary** ya se entra (`scenes/interiores/dona_mary.tscn`).
+- **Vida:** la campana de la parroquia repica al amanecer y con el aviso del atardecer (`Campana.gd`); palomas en la glorieta y frente a la escuela que salen volando si pasas corriendo (`Palomas.gd`); perros echados en los portones, la vecindad, el mercado y el atrio.
+- **Cielo y horizonte** (solo este mapa): cielo de PS1 con esmog, nubes de pixeles, atardecer y estrellas (`shaders/cielo_ps1.gdshader`), y más allá de la muralla un anillo de siluetas (casas con tinaco, torres de luz, dos naves de GelA y cerros) que de noche prende ventanas (`scripts/mapa/Horizonte.gd`).
+- **La vecindad** por fuera ya no es una caja blanca: fachada de colores con ventanas.
+
+Costo (`tools/mapa/medir_colonia.gd`, máquina de AG, antes y después): plaza de día 206 a 179 fps (llamadas 666 a 746), tianguis 131 a 124, vecindad 200 a 185, avenida 183 a 175, cancha 205 a 187; de noche, plaza 259 a 218 y las demás 5 a 11 % menos. Las primitivas quedaron casi igual (plaza 247k a 263k). El cielo y el horizonte no cuestan (medido quitándolos); lo que pesa son los civiles nuevos (recreo, vigías, vela) y unas 20 a 80 llamadas más por lugar.
+
+Pendiente o para revisar jugando:
+- Las líneas del Güero (`CasaVecino.LINEAS["guero"]`) todavía hablan del palacio: es narrativa, queda para JJ.
+- El `.json` de la colonia trae `Tapon_*` del oriente (derrumbe) y del sur (barda) como antes.
+- En `map_test` el muro por fuera (`scripts/map/MuroColonia.gd`) ya sube a 4.5 m con lámina lisa y portón cerrado, pero sin el detalle de adentro (tablones, tambos, pintas).
+- La procesión del atardecer con la Virgen (idea guardada).
+- Si se ve gente en T: `Civiles.poner` ya cae a `Idle` cuando la biblioteca no trae el clip (no trae `Kneel_Idle`: los de la vela están de pie).
 
 Ideas que siguen, en orden (del plan de esa noche):
 - Puertas de herreria (zaguanes).
