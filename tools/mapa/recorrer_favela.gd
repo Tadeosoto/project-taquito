@@ -98,6 +98,20 @@ func _probar() -> void:
 		var desde := Vector3(float(p["x"]), 1.1, float(p["z"])) - dir * 0.8
 		var r := await _caminar(escena, desde, dir, 240)
 		_revisar("baja a los tuneles por la zanja %s" % p["nombre"], r["hasta"].y < -1.4, "quedo en %s" % r["hasta"])
+		# Y del pie de la escalera, por el pasillo, hasta adentro de la bodega bajo el tinaco
+		for b: Dictionary in datos["piezas"]:
+			if b["tipo"] != "bodega_tunel" or not b.get("favela", false):
+				continue
+			var centro := Vector3(float(b["x"]), float(b.get("y", 0.0)), float(b["z"]))
+			var hasta: Vector3 = r["hasta"]
+			var puerta := Vector3(centro.x, hasta.y, hasta.z)
+			var r2 := await _caminar(escena, hasta + Vector3.UP * 0.2, (puerta - hasta).normalized() if hasta.distance_to(puerta) > 0.5 else dir, int(hasta.distance_to(puerta) / 3.0 * 60.0) + 10)
+			var r3 := await _caminar(escena, r2["hasta"] + Vector3.UP * 0.2, ((centro - r2["hasta"]) * Vector3(1, 0, 1)).normalized(), 200)
+			# Adentro de sus muros (frente a la puerta norte esta el mostrador de la fayuca)
+			var tam: Array = b.get("tam", [14.0, 12.0])
+			var d: Vector3 = r3["hasta"] - centro
+			var adentro := absf(d.x) < float(tam[0]) / 2.0 - 0.5 and absf(d.z) < float(tam[1]) / 2.0 - 0.5
+			_revisar("llega por el pasillo a la bodega bajo el tinaco", adentro and r3["hasta"].y < centro.y + 1.5, "quedo en %s" % r3["hasta"])
 	_revisar("hay cuartos del tunel", not escena.find_children("Tunel_*", "", true, false).is_empty() or true, "")
 	# El ambiente de la colonia cerrada (MapaColonia._ambiente) y la gente en los callejones
 	var marcas: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://resources/mapa/%s/marcas.json" % colonia))

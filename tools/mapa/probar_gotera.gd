@@ -239,7 +239,7 @@ func _favela() -> void:
 	for p: Dictionary in puntos._puntos:
 		if not p.get("puerta_transitable", false):
 			puertas_ok = false
-	_revisar("favela: las puertas dan a un callejon abierto", puertas_ok, "")
+	_revisar("favela: las puertas son transitables", puertas_ok, "")
 	var miniatura := escena.get_node("Minimapa")
 	var tipos_icono := {}
 	for ic: Dictionary in miniatura._iconos:
@@ -301,6 +301,40 @@ func _favela() -> void:
 				"techo %.2f, y %.2f, en piso %s" % [techo, jugador.global_position.y, jugador.is_on_floor()])
 	else:
 		_revisar("favela: hay azoteas caminables", false, "ninguna casa con choque arriba de 3.2 m")
+	# Las tiendas de la favela dan a un patio: se entra, se sale y quedas parado en el patio, no
+	# metido en la casa de enfrente
+	var interiores := escena.get_node("Interiores")
+	var salen := 0
+	var tiendas_favela := 0
+	var flechas: Array = []
+	for n in puntos.find_children("Flecha", "MeshInstance3D", true, false):
+		if n.get_parent() is Area3D:
+			flechas.append(n.get_parent())
+	for flecha: Node3D in flechas:
+		var m := {"giro": String(flecha.get_parent().name)}
+		tiendas_favela += 1
+		jugador.global_position = flecha.global_position + Vector3(0.0, 1.0, 0.0)
+		jugador.velocity = Vector3.ZERO
+		await _cuadros(90)
+		if interiores.get("_interior") == null:
+			print("   %s: no entro" % m["giro"])
+			continue
+		interiores.call("_salir")
+		await _cuadros(90)
+		var forma := PhysicsShapeQueryParameters3D.new()
+		var capsula := CapsuleShape3D.new()
+		capsula.radius = 0.38
+		capsula.height = 1.6
+		forma.shape = capsula
+		forma.transform = Transform3D(Basis(), jugador.global_position + Vector3.UP * 0.15)
+		forma.exclude = [jugador.get_rid()]
+		var encima: Array = espacio.intersect_shape(forma, 4)
+		var bien := interiores.get("_interior") == null and jugador.is_on_floor() and jugador.global_position.y < 1.6 and encima.is_empty()
+		print("   %s: salio en %s, en piso %s, choca con %d" % [m["giro"], jugador.global_position, jugador.is_on_floor(), encima.size()])
+		if bien:
+			salen += 1
+	_revisar("favela: se entra y se sale de cada tienda a su patio", tiendas_favela == 6 and salen == tiendas_favela,
+		"%d de %d" % [salen, tiendas_favela])
 	# De noche se entra a la tienda del tunel y abre su interior propio
 	PasoColonia.lado = ""
 	await _anochecer(escena)

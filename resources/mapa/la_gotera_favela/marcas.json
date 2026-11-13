@@ -298,10 +298,10 @@
 			"local": true,
 			"giro": "farmacia",
 			"texto": "Farmacia La Bendición",
-			"x": 896.52,
-			"z": -181.16,
+			"x": 806.23,
+			"z": -169.1,
 			"y": 0.0,
-			"rot": -1.4818
+			"rot": 3.0526
 		},
 		{
 			"nombre": "Puerta_abarrotes",
@@ -310,10 +310,10 @@
 			"local": true,
 			"giro": "abarrotes",
 			"texto": "Abarrotes Doña Chelo",
-			"x": 746.7,
-			"z": -206.88,
+			"x": 832.99,
+			"z": -127.46,
 			"y": 0.0,
-			"rot": 0.089
+			"rot": 3.0526
 		},
 		{
 			"nombre": "Puerta_licoreria",
@@ -322,10 +322,10 @@
 			"local": true,
 			"giro": "licoreria",
 			"texto": "La Última Gota",
-			"x": 792.51,
-			"z": -159.17,
+			"x": 867.41,
+			"z": -199.93,
 			"y": 0.0,
-			"rot": 1.6598
+			"rot": 1.4818
 		},
 		{
 			"nombre": "Puerta_ferreteria",
@@ -334,10 +334,10 @@
 			"local": true,
 			"giro": "ferreteria",
 			"texto": "El Tornillo Flojo",
-			"x": 812.66,
-			"z": -256.57,
+			"x": 896.52,
+			"z": -181.3,
 			"y": 0.0,
-			"rot": -3.0526
+			"rot": -1.6598
 		},
 		{
 			"nombre": "Puerta_oxxo",
@@ -346,10 +346,10 @@
 			"local": true,
 			"giro": "oxxo",
 			"texto": "OXO",
-			"x": 781.97,
-			"z": -119.61,
+			"x": 799.04,
+			"z": -317.78,
 			"y": 0.0,
-			"rot": -1.4818
+			"rot": 1.4818
 		},
 		{
 			"nombre": "Puerta_taqueria",
@@ -358,10 +358,10 @@
 			"local": true,
 			"giro": "taqueria",
 			"texto": "Tacos El Callejón",
-			"x": 791.8,
-			"z": -318.28,
+			"x": 746.56,
+			"z": -206.88,
 			"y": 0.0,
-			"rot": -1.4818
+			"rot": -0.089
 		},
 		{
 			"nombre": "Garrafones_Tunel",
@@ -400,18 +400,18 @@
 			"nombre": "Tunel_Entrada_0",
 			"tipo": "mision",
 			"favela": true,
-			"x": 828.22,
+			"x": 824.22,
 			"z": -226.15,
 			"y": 0.0,
-			"rot": -3.1416
+			"rot": 0.0
 		},
 		{
 			"nombre": "Letrero_Tuneles",
 			"tipo": "letrero",
 			"favela": true,
 			"texto": "TÚNELES",
-			"x": 829.82,
-			"z": -227.55,
+			"x": 824.72,
+			"z": -227.95,
 			"y": 0.0,
 			"rot": 2.3562
 		},
@@ -2666,47 +2666,40 @@
 		{
 			"nombre": "Foco_318",
 			"tipo": "foco",
-			"x": 825.22,
+			"x": 833.22,
 			"z": -225.85,
 			"y": -1.1
 		},
 		{
 			"nombre": "Foco_319",
 			"tipo": "foco",
-			"x": 832.22,
+			"x": 840.22,
 			"z": -225.85,
 			"y": -1.1
 		},
 		{
 			"nombre": "Foco_320",
 			"tipo": "foco",
-			"x": 839.22,
-			"z": -225.85,
-			"y": -1.1
-		},
-		{
-			"nombre": "Foco_321",
-			"tipo": "foco",
 			"x": 842.72,
 			"z": -226.15,
 			"y": -1.3
 		},
 		{
-			"nombre": "Foco_322",
+			"nombre": "Foco_321",
 			"tipo": "foco",
 			"x": 824.72,
 			"z": -218.95,
 			"y": -1.3
 		},
 		{
-			"nombre": "Foco_323",
+			"nombre": "Foco_322",
 			"tipo": "foco",
 			"x": 833.72,
 			"z": -210.95,
 			"y": -1.3
 		},
 		{
-			"nombre": "Foco_324",
+			"nombre": "Foco_323",
 			"tipo": "foco",
 			"x": 842.72,
 			"z": -218.95,

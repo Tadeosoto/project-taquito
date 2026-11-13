@@ -9475,6 +9475,29 @@
 			"ventanal": false
 		},
 		{
+			"nombre": "Casa_11_11",
+			"tipo": "casa",
+			"favela": true,
+			"grupo": "Favela_1_1",
+			"x": 812.43,
+			"z": -252.38,
+			"rot": -0.089,
+			"puntos": [
+				[-3.29, -3.41],
+				[3.29, -3.41],
+				[3.29, 3.41],
+				[-3.29, 3.41]
+			],
+			"pisos": 1,
+			"frente": 0,
+			"desgaste": 0.47,
+			"tapado": 0.3,
+			"detalles": true,
+			"ventanas": [1],
+			"acabado": "block",
+			"ventanal": false
+		},
+		{
 			"nombre": "Casa_12_11",
 			"tipo": "casa",
 			"favela": true,
@@ -11278,29 +11301,6 @@
 			"detalles": true,
 			"ventanas": [1],
 			"color": "naranja"
-		},
-		{
-			"nombre": "Casa_18_17",
-			"tipo": "casa",
-			"favela": true,
-			"grupo": "Favela_3_2",
-			"x": 863.77,
-			"z": -200.25,
-			"rot": -0.089,
-			"puntos": [
-				[-2.85, -3.02],
-				[2.85, -3.02],
-				[2.85, 3.02],
-				[-2.85, 3.02]
-			],
-			"pisos": 1,
-			"frente": 1,
-			"desgaste": 0.78,
-			"tapado": 0.3,
-			"detalles": true,
-			"ventanas": [0, 2, 3],
-			"acabado": "block",
-			"ventanal": false
 		},
 		{
 			"nombre": "Plazuela_19_17",
@@ -13416,29 +13416,6 @@
 			"ventanal": false
 		},
 		{
-			"nombre": "Casa_11_22",
-			"tipo": "casa",
-			"favela": true,
-			"grupo": "Favela_1_3",
-			"x": 805.84,
-			"z": -164.77,
-			"rot": -0.089,
-			"puntos": [
-				[-3.34, -3.55],
-				[3.34, -3.55],
-				[3.34, 3.55],
-				[-3.34, 3.55]
-			],
-			"pisos": 1,
-			"frente": 3,
-			"desgaste": 0.6,
-			"tapado": 0.3,
-			"detalles": true,
-			"ventanas": [0],
-			"acabado": "block",
-			"ventanal": false
-		},
-		{
 			"nombre": "Casa_12_22",
 			"tipo": "casa",
 			"favela": true,
@@ -13746,6 +13723,29 @@
 			"acabado": "block",
 			"ventanal": false,
 			"obra": "castillos"
+		},
+		{
+			"nombre": "Casa_9_23",
+			"tipo": "casa",
+			"favela": true,
+			"grupo": "Favela_1_3",
+			"x": 788.41,
+			"z": -159.39,
+			"rot": -0.089,
+			"puntos": [
+				[-3.32, -3.36],
+				[3.32, -3.36],
+				[3.32, 3.36],
+				[-3.32, 3.36]
+			],
+			"pisos": 1,
+			"frente": 1,
+			"desgaste": 0.62,
+			"tapado": 0.3,
+			"detalles": true,
+			"ventanas": [2],
+			"acabado": "block",
+			"ventanal": false
 		},
 		{
 			"nombre": "Casa_10_23",
@@ -15228,30 +15228,6 @@
 			"obra": "castillos"
 		},
 		{
-			"nombre": "Casa_15_27",
-			"tipo": "casa",
-			"favela": true,
-			"grupo": "Favela_2_4",
-			"x": 832.61,
-			"z": -123.23,
-			"rot": -0.089,
-			"puntos": [
-				[-3.48, -3.45],
-				[3.48, -3.45],
-				[3.48, 3.45],
-				[-3.48, 3.45]
-			],
-			"pisos": 1,
-			"frente": 2,
-			"desgaste": 0.44,
-			"tapado": 0.3,
-			"detalles": true,
-			"ventanas": [1],
-			"acabado": "block",
-			"ventanal": true,
-			"obra": "losa"
-		},
-		{
 			"nombre": "Casa_16_27",
 			"tipo": "casa",
 			"favela": true,
@@ -15542,6 +15518,30 @@
 			"ventanas": [0, 1],
 			"acabado": "block",
 			"ventanal": true
+		},
+		{
+			"nombre": "Casa_9_28",
+			"tipo": "casa",
+			"favela": true,
+			"grupo": "Favela_1_4",
+			"x": 785.53,
+			"z": -119.43,
+			"rot": -0.089,
+			"puntos": [
+				[-2.77, -3.41],
+				[2.77, -3.41],
+				[2.77, 3.41],
+				[-2.77, 3.41]
+			],
+			"pisos": 1,
+			"frente": 3,
+			"desgaste": 0.7,
+			"tapado": 0.3,
+			"detalles": true,
+			"ventanas": [1, 2],
+			"acabado": "block",
+			"ventanal": false,
+			"obra": "castillos"
 		},
 		{
 			"nombre": "Casa_10_28",
@@ -16059,6 +16059,28 @@
 			"ancho": 1.2
 		},
 		{
+			"nombre": "Tablon_13",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 865.35,
+			"z": -308.5,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.43,
+			"ancho": 1.2
+		},
+		{
+			"nombre": "Tablon_14",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 873.16,
+			"z": -307.8,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 3.43,
+			"ancho": 1.2
+		},
+		{
 			"nombre": "Tablon_15",
 			"tipo": "tablon",
 			"favela": true,
@@ -16169,17 +16191,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_27",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 894.47,
-			"z": -281.8,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.66,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_28",
 			"tipo": "tablon",
 			"favela": true,
@@ -16257,17 +16268,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_35",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 829.82,
-			"z": -263.48,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.64,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_36",
 			"tipo": "tablon",
 			"favela": true,
@@ -16323,7 +16323,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_41",
+			"nombre": "Puente_1",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 797.14,
@@ -16331,7 +16331,8 @@
 			"y": 5.57,
 			"rot": -1.6598,
 			"largo": 3.27,
-			"ancho": 1.2
+			"ancho": 1.35,
+			"puente": true
 		},
 		{
 			"nombre": "Tablon_42",
@@ -16364,6 +16365,17 @@
 			"y": 5.57,
 			"rot": -1.6598,
 			"largo": 3.68,
+			"ancho": 1.2
+		},
+		{
+			"nombre": "Tablon_45",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 867.47,
+			"z": -244.05,
+			"y": 5.57,
+			"rot": -1.6598,
+			"largo": 2.9,
 			"ancho": 1.2
 		},
 		{
@@ -16972,7 +16984,18 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_106",
+			"nombre": "Tablon_105",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 869.61,
+			"z": -312.13,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 3.07,
+			"ancho": 1.2
+		},
+		{
+			"nombre": "Puente_0",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 751.67,
@@ -16980,7 +17003,8 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.72,
-			"ancho": 1.2
+			"ancho": 1.35,
+			"puente": true
 		},
 		{
 			"nombre": "Tablon_107",
@@ -17079,6 +17103,17 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.09,
+			"ancho": 1.2
+		},
+		{
+			"nombre": "Tablon_117",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 899.45,
+			"z": -293.41,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 3.6,
 			"ancho": 1.2
 		},
 		{
@@ -17335,6 +17370,17 @@
 			"ancho": 1.2
 		},
 		{
+			"nombre": "Tablon_145",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 753.8,
+			"z": -250.18,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 3.28,
+			"ancho": 1.2
+		},
+		{
 			"nombre": "Tablon_146",
 			"tipo": "tablon",
 			"favela": true,
@@ -17354,6 +17400,17 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.11,
+			"ancho": 1.2
+		},
+		{
+			"nombre": "Tablon_148",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 863.21,
+			"z": -240.42,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 3.51,
 			"ancho": 1.2
 		},
 		{
@@ -17533,17 +17590,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_165",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 890.91,
-			"z": -197.79,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.71,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_166",
 			"tipo": "tablon",
 			"favela": true,
@@ -17552,6 +17598,17 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.61,
+			"ancho": 1.2
+		},
+		{
+			"nombre": "Tablon_167",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 772.98,
+			"z": -200.28,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 3.79,
 			"ancho": 1.2
 		},
 		{
@@ -17654,7 +17711,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Puente_0",
+			"nombre": "Tablon_177",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 763.74,
@@ -17662,8 +17719,7 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.27,
-			"ancho": 1.35,
-			"puente": true
+			"ancho": 1.2
 		},
 		{
 			"nombre": "Tablon_178",
@@ -17677,7 +17733,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Puente_2",
+			"nombre": "Tablon_179",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 888.78,
@@ -17685,8 +17741,7 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.33,
-			"ancho": 1.35,
-			"puente": true
+			"ancho": 1.2
 		},
 		{
 			"nombre": "Tablon_180",
@@ -17700,7 +17755,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_181",
+			"nombre": "Puente_3",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 747.4,
@@ -17708,7 +17763,8 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.08,
-			"ancho": 1.2
+			"ancho": 1.35,
+			"puente": true
 		},
 		{
 			"nombre": "Tablon_182",
@@ -17719,17 +17775,6 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.03,
-			"ancho": 1.2
-		},
-		{
-			"nombre": "Tablon_183",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 763.03,
-			"z": -177.07,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.73,
 			"ancho": 1.2
 		},
 		{
@@ -17865,7 +17910,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Puente_1",
+			"nombre": "Tablon_196",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 761.61,
@@ -17873,8 +17918,7 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.27,
-			"ancho": 1.35,
-			"puente": true
+			"ancho": 1.2
 		},
 		{
 			"nombre": "Tablon_197",
@@ -17965,6 +18009,17 @@
 			"ancho": 1.2
 		},
 		{
+			"nombre": "Tablon_208",
+			"tipo": "tablon",
+			"favela": true,
+			"x": 878.12,
+			"z": -142.71,
+			"y": 5.57,
+			"rot": -0.089,
+			"largo": 3.68,
+			"ancho": 1.2
+		},
+		{
 			"nombre": "Tablon_209",
 			"tipo": "tablon",
 			"favela": true,
@@ -17976,7 +18031,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Puente_3",
+			"nombre": "Tablon_210",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 893.75,
@@ -17984,8 +18039,7 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.58,
-			"ancho": 1.35,
-			"puente": true
+			"ancho": 1.2
 		},
 		{
 			"nombre": "Tablon_211",
@@ -17999,7 +18053,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_212",
+			"nombre": "Puente_2",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 822.7,
@@ -18007,7 +18061,8 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.06,
-			"ancho": 1.2
+			"ancho": 1.35,
+			"puente": true
 		},
 		{
 			"nombre": "Tablon_214",
@@ -18163,8 +18218,7 @@
 			"variante": "tinaco",
 			"claro": true,
 			"tinaco": true,
-			"sin_piso": true,
-			"hueco": [-6.5, -7.0, 9.0, 5.0]
+			"sin_piso": true
 		},
 		{
 			"nombre": "Poste_Tinaco",
@@ -18319,6 +18373,79 @@
 			"alto": 3.5
 		},
 		{
+			"nombre": "Casa_11_22",
+			"tipo": "casa",
+			"favela": true,
+			"x": 805.84,
+			"z": -164.77,
+			"rot": -0.089,
+			"puntos": [
+				[-3.34, -3.55],
+				[3.34, -3.55],
+				[3.34, 3.55],
+				[-3.34, 3.55]
+			],
+			"pisos": 1,
+			"frente": 0,
+			"desgaste": 0.6,
+			"tapado": 0.3,
+			"detalles": true,
+			"ventanas": [0],
+			"acabado": "block",
+			"ventanal": false,
+			"local": true,
+			"tienda": true
+		},
+		{
+			"nombre": "Casa_15_27",
+			"tipo": "casa",
+			"favela": true,
+			"x": 832.61,
+			"z": -123.23,
+			"rot": -0.089,
+			"puntos": [
+				[-3.48, -3.45],
+				[3.48, -3.45],
+				[3.48, 3.45],
+				[-3.48, 3.45]
+			],
+			"pisos": 1,
+			"frente": 0,
+			"desgaste": 0.44,
+			"tapado": 0.3,
+			"detalles": true,
+			"ventanas": [1],
+			"acabado": "block",
+			"ventanal": true,
+			"obra": "losa",
+			"local": true,
+			"tienda": true
+		},
+		{
+			"nombre": "Casa_18_17",
+			"tipo": "casa",
+			"favela": true,
+			"x": 863.77,
+			"z": -200.25,
+			"rot": -0.089,
+			"puntos": [
+				[-2.85, -3.02],
+				[2.85, -3.02],
+				[2.85, 3.02],
+				[-2.85, 3.02]
+			],
+			"pisos": 1,
+			"frente": 1,
+			"desgaste": 0.78,
+			"tapado": 0.3,
+			"detalles": true,
+			"ventanas": [0, 2, 3],
+			"acabado": "block",
+			"ventanal": false,
+			"local": true,
+			"tienda": true
+		},
+		{
 			"nombre": "Casa_23_19",
 			"tipo": "casa",
 			"favela": true,
@@ -18339,6 +18466,30 @@
 			"ventanas": [1, 2],
 			"acabado": "ladrillo",
 			"ventanal": false,
+			"obra": "castillos",
+			"local": true,
+			"tienda": true
+		},
+		{
+			"nombre": "Casa_8_3",
+			"tipo": "casa",
+			"favela": true,
+			"x": 795.42,
+			"z": -318.1,
+			"rot": -0.089,
+			"puntos": [
+				[-2.83, -3.35],
+				[2.83, -3.35],
+				[2.83, 3.35],
+				[-2.83, 3.35]
+			],
+			"pisos": 1,
+			"frente": 1,
+			"desgaste": 0.85,
+			"tapado": 0.3,
+			"detalles": true,
+			"ventanas": [0, 1],
+			"color": "lima",
 			"obra": "castillos",
 			"local": true,
 			"tienda": true
@@ -18369,188 +18520,91 @@
 			"tienda": true
 		},
 		{
-			"nombre": "Casa_9_23",
-			"tipo": "casa",
-			"favela": true,
-			"x": 788.41,
-			"z": -159.39,
-			"rot": -0.089,
-			"puntos": [
-				[-3.32, -3.36],
-				[3.32, -3.36],
-				[3.32, 3.36],
-				[-3.32, 3.36]
-			],
-			"pisos": 1,
-			"frente": 1,
-			"desgaste": 0.62,
-			"tapado": 0.3,
-			"detalles": true,
-			"ventanas": [2],
-			"acabado": "block",
-			"ventanal": false,
-			"local": true,
-			"tienda": true
-		},
-		{
-			"nombre": "Casa_11_11",
-			"tipo": "casa",
-			"favela": true,
-			"x": 812.43,
-			"z": -252.38,
-			"rot": -0.089,
-			"puntos": [
-				[-3.29, -3.41],
-				[3.29, -3.41],
-				[3.29, 3.41],
-				[-3.29, 3.41]
-			],
-			"pisos": 1,
-			"frente": 0,
-			"desgaste": 0.47,
-			"tapado": 0.3,
-			"detalles": true,
-			"ventanas": [1],
-			"acabado": "block",
-			"ventanal": false,
-			"local": true,
-			"tienda": true
-		},
-		{
-			"nombre": "Casa_9_28",
-			"tipo": "casa",
-			"favela": true,
-			"x": 785.53,
-			"z": -119.43,
-			"rot": -0.089,
-			"puntos": [
-				[-2.77, -3.41],
-				[2.77, -3.41],
-				[2.77, 3.41],
-				[-2.77, 3.41]
-			],
-			"pisos": 1,
-			"frente": 3,
-			"desgaste": 0.7,
-			"tapado": 0.3,
-			"detalles": true,
-			"ventanas": [1, 2],
-			"acabado": "block",
-			"ventanal": false,
-			"obra": "castillos",
-			"local": true,
-			"tienda": true
-		},
-		{
-			"nombre": "Casa_8_3",
-			"tipo": "casa",
-			"favela": true,
-			"x": 795.42,
-			"z": -318.1,
-			"rot": -0.089,
-			"puntos": [
-				[-2.83, -3.35],
-				[2.83, -3.35],
-				[2.83, 3.35],
-				[-2.83, 3.35]
-			],
-			"pisos": 1,
-			"frente": 3,
-			"desgaste": 0.85,
-			"tapado": 0.3,
-			"detalles": true,
-			"ventanas": [0, 1],
-			"color": "lima",
-			"obra": "castillos",
-			"local": true,
-			"tienda": true
-		},
-		{
-			"nombre": "Escalera_(17, 12)_0",
+			"nombre": "Escalera_(8, 4)_0",
 			"tipo": "escalera",
 			"favela": true,
-			"x": 862.53,
-			"z": -244.51,
-			"rot": 1.6598,
+			"x": 792.18,
+			"z": -315.03,
+			"rot": -1.6598,
 			"alto": 5.55,
-			"ancho": 1.2,
+			"ancho": 1.0,
 			"sentido": 1
 		},
 		{
-			"nombre": "Escalera_(7, 18)_1",
+			"nombre": "Escalera_(2, 4)_1",
 			"tipo": "escalera",
 			"favela": true,
-			"x": 773.79,
-			"z": -196.17,
-			"rot": -1.4818,
+			"x": 745.31,
+			"z": -319.21,
+			"rot": -1.6598,
 			"alto": 5.55,
-			"ancho": 1.2,
+			"ancho": 1.0,
 			"sentido": 1
 		},
 		{
-			"nombre": "Escalera_(20, 25)_2",
+			"nombre": "Escalera_(5, 21)_2",
 			"tipo": "escalera",
 			"favela": true,
-			"x": 877.64,
+			"x": 761.53,
+			"z": -173.19,
+			"rot": 1.4818,
+			"alto": 5.55,
+			"ancho": 1.0,
+			"sentido": 1
+		},
+		{
+			"nombre": "Escalera_(22, 17)_3",
+			"tipo": "escalera",
+			"favela": true,
+			"x": 892.41,
+			"z": -201.67,
+			"rot": -1.6598,
+			"alto": 5.55,
+			"ancho": 1.0,
+			"sentido": 1
+		},
+		{
+			"nombre": "Escalera_(20, 25)_4",
+			"tipo": "escalera",
+			"favela": true,
+			"x": 877.67,
 			"z": -137.61,
-			"rot": -3.0526,
+			"rot": 3.0526,
 			"alto": 5.55,
-			"ancho": 1.2,
+			"ancho": 1.0,
 			"sentido": 1
 		},
 		{
-			"nombre": "Escalera_(20, 16)_3",
+			"nombre": "Escalera_(13, 10)_5",
 			"tipo": "escalera",
 			"favela": true,
-			"x": 883.04,
-			"z": -210.56,
-			"rot": 1.6598,
+			"x": 833.62,
+			"z": -262.03,
+			"rot": 3.0526,
 			"alto": 5.55,
-			"ancho": 1.2,
-			"sentido": 1
-		},
-		{
-			"nombre": "Escalera_(17, 4)_4",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 869.14,
-			"z": -307.16,
-			"rot": -3.0526,
-			"alto": 5.55,
-			"ancho": 1.2,
-			"sentido": 1
-		},
-		{
-			"nombre": "Escalera_(22, 5)_5",
-			"tipo": "escalera",
-			"favela": true,
-			"x": 900.17,
-			"z": -289.3,
-			"rot": -1.4818,
-			"alto": 5.55,
-			"ancho": 1.2,
+			"ancho": 1.0,
 			"sentido": 1
 		},
 		{
 			"nombre": "Escalera_(3, 12)_6",
 			"tipo": "escalera",
 			"favela": true,
-			"x": 746.8,
-			"z": -247.61,
-			"rot": -1.4818,
+			"x": 747.44,
+			"z": -254.76,
+			"rot": -1.6598,
 			"alto": 5.55,
-			"ancho": 1.2,
+			"ancho": 1.0,
 			"sentido": 1
 		},
 		{
-			"nombre": "Escalera_(10, 22)_7",
+			"nombre": "Escalera_(21, 6)_7",
 			"tipo": "escalera",
 			"favela": true,
-			"x": 800.7,
-			"z": -169.72,
-			"rot": 1.6598,
+			"x": 891.9,
+			"z": -283.15,
+			"rot": -0.089,
 			"alto": 5.55,
-			"ancho": 1.2,
+			"ancho": 1.0,
 			"sentido": 1
 		},
 		{
@@ -20060,43 +20114,41 @@
 			"alto": 3.4
 		},
 		{
-			"nombre": "Tunel_Pasillo",
-			"tipo": "tunel",
-			"favela": true,
-			"x": 831.22,
-			"z": -226.15,
-			"y": -4.2,
-			"rot": 0.0,
-			"largo": 19.0,
-			"ancho": 2.4,
-			"huecos": [
-				[2.5, 2.4, -1]
-			]
-		},
-		{
 			"nombre": "Tunel_Escalera",
 			"tipo": "bajada",
 			"favela": true,
-			"x": 828.22,
+			"x": 824.22,
 			"z": -226.15,
 			"y": 0.0,
-			"rot": -3.1416,
-			"largo": 4.5,
+			"rot": 0.0,
+			"largo": 5.5,
 			"ancho": 2.4,
 			"fondo": 4.2
 		},
 		{
-			"nombre": "Tunel_Tope",
-			"tipo": "barda",
+			"nombre": "Tunel_Frente",
+			"tipo": "caja",
 			"favela": true,
-			"x": 821.72,
+			"x": 829.87,
+			"z": -226.15,
+			"y": -1.7,
+			"rot": 0.0,
+			"tam": [0.3, 1.7, 2.8],
+			"material": "foto_ladrillo_rojo"
+		},
+		{
+			"nombre": "Tunel_Pasillo",
+			"tipo": "tunel",
+			"favela": true,
+			"x": 835.22,
 			"z": -226.15,
 			"y": -4.2,
-			"rot": 1.5708,
-			"largo": 2.8,
-			"alto": 3.0,
-			"grueso": 0.3,
-			"material": "foto_block"
+			"rot": 0.0,
+			"largo": 11.0,
+			"ancho": 2.4,
+			"huecos": [
+				[-1.5, 2.8, 1]
+			]
 		},
 		{
 			"nombre": "Tunel_Casa_Este",
@@ -20141,7 +20193,7 @@
 			"x": 842.72,
 			"z": -218.95,
 			"y": -4.2,
-			"rot": 1.5708,
+			"rot": -1.5708,
 			"tam": [5.0, 4.0],
 			"alto": 3.2,
 			"uso": "armas"
@@ -20431,10 +20483,10 @@
 			"local": true,
 			"giro": "farmacia",
 			"texto": "Farmacia La Bendición",
-			"x": 896.52,
-			"z": -181.16,
+			"x": 806.23,
+			"z": -169.1,
 			"y": 0.0,
-			"rot": -1.4818
+			"rot": 3.0526
 		},
 		{
 			"nombre": "Puerta_abarrotes",
@@ -20443,10 +20495,10 @@
 			"local": true,
 			"giro": "abarrotes",
 			"texto": "Abarrotes Doña Chelo",
-			"x": 746.7,
-			"z": -206.88,
+			"x": 832.99,
+			"z": -127.46,
 			"y": 0.0,
-			"rot": 0.089
+			"rot": 3.0526
 		},
 		{
 			"nombre": "Puerta_licoreria",
@@ -20455,10 +20507,10 @@
 			"local": true,
 			"giro": "licoreria",
 			"texto": "La Última Gota",
-			"x": 792.51,
-			"z": -159.17,
+			"x": 867.41,
+			"z": -199.93,
 			"y": 0.0,
-			"rot": 1.6598
+			"rot": 1.4818
 		},
 		{
 			"nombre": "Puerta_ferreteria",
@@ -20467,10 +20519,10 @@
 			"local": true,
 			"giro": "ferreteria",
 			"texto": "El Tornillo Flojo",
-			"x": 812.66,
-			"z": -256.57,
+			"x": 896.52,
+			"z": -181.3,
 			"y": 0.0,
-			"rot": -3.0526
+			"rot": -1.6598
 		},
 		{
 			"nombre": "Puerta_oxxo",
@@ -20479,10 +20531,10 @@
 			"local": true,
 			"giro": "oxxo",
 			"texto": "OXO",
-			"x": 781.97,
-			"z": -119.61,
+			"x": 799.04,
+			"z": -317.78,
 			"y": 0.0,
-			"rot": -1.4818
+			"rot": 1.4818
 		},
 		{
 			"nombre": "Puerta_taqueria",
@@ -20491,10 +20543,10 @@
 			"local": true,
 			"giro": "taqueria",
 			"texto": "Tacos El Callejón",
-			"x": 791.8,
-			"z": -318.28,
+			"x": 746.56,
+			"z": -206.88,
 			"y": 0.0,
-			"rot": -1.4818
+			"rot": -0.089
 		},
 		{
 			"nombre": "Garrafones_Tunel",
@@ -20533,18 +20585,18 @@
 			"nombre": "Tunel_Entrada_0",
 			"tipo": "mision",
 			"favela": true,
-			"x": 828.22,
+			"x": 824.22,
 			"z": -226.15,
 			"y": 0.0,
-			"rot": -3.1416
+			"rot": 0.0
 		},
 		{
 			"nombre": "Letrero_Tuneles",
 			"tipo": "letrero",
 			"favela": true,
 			"texto": "TÚNELES",
-			"x": 829.82,
-			"z": -227.55,
+			"x": 824.72,
+			"z": -227.95,
 			"y": 0.0,
 			"rot": 2.3562
 		},
@@ -20586,12 +20638,12 @@
 			"tipo": "farmacia",
 			"giro": "farmacia",
 			"nombre": "Farmacia La Bendición",
-			"x": 900.75,
-			"z": -180.92,
+			"x": 805.84,
+			"z": -164.77,
 			"y": 0.0,
-			"rotacion_y": -1.4818,
-			"ancho": 5.58,
-			"fondo": 6.9,
+			"rotacion_y": 3.0526,
+			"ancho": 6.68,
+			"fondo": 7.1,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
@@ -20600,19 +20652,19 @@
 			"favela": true,
 			"sin_gente": true,
 			"puerta_transitable": true,
-			"frente_lado": "O",
-			"frente_ancho": 5.58
+			"frente_lado": "N",
+			"frente_ancho": 6.68
 		},
 		{
 			"tipo": "abarrotes",
 			"giro": "abarrotes",
 			"nombre": "Abarrotes Doña Chelo",
-			"x": 746.94,
-			"z": -211.15,
+			"x": 832.61,
+			"z": -123.23,
 			"y": 0.0,
-			"rotacion_y": 0.089,
-			"ancho": 6.72,
-			"fondo": 6.98,
+			"rotacion_y": 3.0526,
+			"ancho": 6.96,
+			"fondo": 6.9,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
@@ -20621,19 +20673,19 @@
 			"favela": true,
 			"sin_gente": true,
 			"puerta_transitable": true,
-			"frente_lado": "S",
-			"frente_ancho": 2.05
+			"frente_lado": "N",
+			"frente_ancho": 6.96
 		},
 		{
 			"tipo": "licoreria",
 			"giro": "licoreria",
 			"nombre": "La Última Gota",
-			"x": 788.41,
-			"z": -159.39,
+			"x": 863.77,
+			"z": -200.25,
 			"y": 0.0,
-			"rotacion_y": 1.6598,
-			"ancho": 6.72,
-			"fondo": 6.64,
+			"rotacion_y": 1.4818,
+			"ancho": 6.04,
+			"fondo": 5.7,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
@@ -20643,18 +20695,18 @@
 			"sin_gente": true,
 			"puerta_transitable": true,
 			"frente_lado": "E",
-			"frente_ancho": 2.43
+			"frente_ancho": 6.04
 		},
 		{
 			"tipo": "ferreteria",
 			"giro": "ferreteria",
 			"nombre": "El Tornillo Flojo",
-			"x": 812.43,
-			"z": -252.38,
+			"x": 900.75,
+			"z": -180.92,
 			"y": 0.0,
-			"rotacion_y": -3.0526,
-			"ancho": 6.58,
-			"fondo": 6.82,
+			"rotacion_y": -1.6598,
+			"ancho": 5.58,
+			"fondo": 6.9,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
@@ -20663,19 +20715,19 @@
 			"favela": true,
 			"sin_gente": true,
 			"puerta_transitable": true,
-			"frente_lado": "N",
-			"frente_ancho": 2.38
+			"frente_lado": "O",
+			"frente_ancho": 5.58
 		},
 		{
 			"tipo": "oxxo",
 			"giro": "oxxo",
 			"nombre": "OXO",
-			"x": 785.53,
-			"z": -119.43,
+			"x": 795.42,
+			"z": -318.1,
 			"y": 0.0,
-			"rotacion_y": -1.4818,
-			"ancho": 6.82,
-			"fondo": 5.54,
+			"rotacion_y": 1.4818,
+			"ancho": 6.7,
+			"fondo": 5.66,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
@@ -20684,19 +20736,19 @@
 			"favela": true,
 			"sin_gente": true,
 			"puerta_transitable": true,
-			"frente_lado": "O",
-			"frente_ancho": 2.46
+			"frente_lado": "E",
+			"frente_ancho": 6.7
 		},
 		{
 			"tipo": "taqueria",
 			"giro": "taqueria",
 			"nombre": "Tacos El Callejón",
-			"x": 795.42,
-			"z": -318.1,
+			"x": 746.94,
+			"z": -211.15,
 			"y": 0.0,
-			"rotacion_y": -1.4818,
-			"ancho": 6.7,
-			"fondo": 5.66,
+			"rotacion_y": -0.089,
+			"ancho": 6.72,
+			"fondo": 6.98,
 			"pisos": 1,
 			"interactivo": true,
 			"aire_libre": false,
@@ -20705,8 +20757,8 @@
 			"favela": true,
 			"sin_gente": true,
 			"puerta_transitable": true,
-			"frente_lado": "O",
-			"frente_ancho": 2.41
+			"frente_lado": "S",
+			"frente_ancho": 6.72
 		}
 	],
 	"nombres_calles": {},
@@ -20726,10 +20778,10 @@
 			"fondo": 4.2,
 			"abiertos": [1, 3],
 			"poligono": [
-				[823.52, -227.35],
-				[828.42, -227.35],
-				[828.42, -224.95],
-				[823.52, -224.95]
+				[824.02, -227.35],
+				[829.72, -227.35],
+				[829.72, -224.95],
+				[824.02, -224.95]
 			]
 		}
 	],

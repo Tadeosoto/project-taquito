@@ -54,6 +54,7 @@ MARGEN = 1.6            # m libres junto a la muralla
 # Tuneles (piezas.tunel): el piso de la galeria y la zanja de cada boca
 TUNEL_PISO = -4.2
 TUNEL_ANCHO = 2.4
+TUNEL_ALTO = 2.5        # como piezas.TUNEL_ALTO: al arranque de la boveda
 ZANJA_LARGO = 6.6       # la bajada (5.0 m a 40 grados) y el descanso
 ZANJA_ANCHO = 2.4       # como la galeria, para que la zanja abra justo en ella
 TUNELES = 3             # bocas
@@ -642,6 +643,12 @@ def _mundo_local(casa, lx, lz):
     return casa["x"] + lx * c + lz * s, casa["z"] - lx * s + lz * c
 
 
+def _girar(casa, v):
+    """Un vector local de la casa al mundo, con el mismo giro que _mundo_local."""
+    c, s = math.cos(casa["rot"]), math.sin(casa["rot"])
+    return v[0] * c + v[1] * s, -v[0] * s + v[1] * c
+
+
 def _celda_simple(casa, pu, pv):
     xs = [p[0] for p in casa["puntos"]]
     zs = [p[1] for p in casa["puntos"]]
@@ -659,8 +666,7 @@ def _frente(casa, pu, pv):
     hw, hh = _lados(casa)
     l = "NESO"[int(casa.get("frente", 0)) % 4]
     normal = {"N": (0.0, -1.0), "E": (1.0, 0.0), "S": (0.0, 1.0), "O": (-1.0, 0.0)}[l]
-    c, s = math.cos(casa["rot"]), math.sin(casa["rot"])
-    nx, nz = c * normal[0] - s * normal[1], s * normal[0] + c * normal[1]
+    nx, nz = _girar(casa, normal)
     if l in "NS":
         ancho, fondo = hw * 2.0, hh * 2.0
     else:
@@ -685,19 +691,24 @@ def _en_patio(x, z, piezas, margen=1.2):
     return False
 
 
+# Interiores._salir te deja 3 m delante de la fachada (la flecha a 0.8 m y 2.2 m mas): a esa
+# distancia, mas el radio del jugador, tiene que haber patio y no la casa de enfrente
+SALIDA_TIENDA = 3.6
+
+
 def _lado_a_patio(casa, piezas):
     """(lado, normal local, normal mundo, ancho, fondo, ancho de frente) del lado de la casa que
-    da directamente a un patio o claro abierto, o None."""
+    da a un patio o claro abierto (pegado o del otro lado del callejon), o None. Lo que cuenta es
+    que el punto donde te deja la salida de la tienda caiga en el patio."""
     hw, hh = _lados(casa)
-    c, s = math.cos(casa["rot"]), math.sin(casa["rot"])
     for lado, lx, lz in (("N", 0.0, -hh), ("E", hw, 0.0), ("S", 0.0, hh), ("O", -hw, 0.0)):
         ancho, fondo = (hw * 2.0, hh * 2.0) if lado in "NS" else (hh * 2.0, hw * 2.0)
         if ancho < 2.0:
             continue
         normal = {"N": (0.0, -1.0), "E": (1.0, 0.0), "S": (0.0, 1.0), "O": (-1.0, 0.0)}[lado]
-        nx, nz = c * normal[0] - s * normal[1], s * normal[0] + c * normal[1]
+        nx, nz = _girar(casa, normal)
         mx, mz = _mundo_local(casa, lx, lz)
-        if _en_patio(mx, mz, piezas):
+        if _en_patio(mx + nx * SALIDA_TIENDA, mz + nz * SALIDA_TIENDA, piezas, margen=0.0):
             return lado, normal, (nx, nz), ancho, fondo, ancho
     return None
 
@@ -909,24 +920,10 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
         protegidos.append((cx, cz))
         cuenta["claros"] += 1
 
-    # 3. Tiendas de favela: una por giro, repartidas. La Farmacia La Bendicion va en una casa
-    # que da directamente a un patio/claro; las otras cinco, en callejones anchos.
+    # 3. Tiendas de favela: una por giro, repartidas, todas en una casa que da directamente a un
+    # patio, plazuela o claro (JJ, 2026-11-13): con la puerta a un callejon se atoraba uno al
+    # entrar y al salir. La Farmacia La Bendicion va primero.
     candidatos = []
-    for cell, casa in list(casas.items()):
-        if casa.get("local") or casa.get("pisos") != 1:
-            continue
-        if not _celda_simple(casa, pu, pv):
-            continue
-        if cell in celdas_zanja:
-            continue
-        if not libre_de(casa, 20.0):
-            continue
-        if frente_abierto(cell, casa) < 2.0:
-            continue
-        candidatos.append((cell, casa))
-    rng = random.Random(int(op.get("semilla", 7)) + 101)
-    rng.shuffle(candidatos)
-    farmacia_cand = None
     for cell, casa in list(casas.items()):
         if casa.get("local") or casa.get("pisos") != 1:
             continue
@@ -936,45 +933,28 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
             continue
         info = _lado_a_patio(casa, piezas)
         if info is not None and info[3] >= 2.0:
-            farmacia_cand = (cell, casa, info)
+            candidatos.append((cell, casa, info))
+    rng = random.Random(int(op.get("semilla", 7)) + 101)
+    rng.shuffle(candidatos)
+    tiendas = []
+    for separacion in (TIENDAS_SEPARACION, 28.0, 22.0, 18.0, 12.0):
+        tiendas = []
+        for cell, casa, info in candidatos:
+            if len(tiendas) >= len(TIENDAS_FAVELA):
+                break
+            if all(_dist((casa["x"], casa["z"]), (t[1]["x"], t[1]["z"])) >= separacion for t in tiendas):
+                tiendas.append((cell, casa, info))
+        if len(tiendas) >= len(TIENDAS_FAVELA):
             break
-    if farmacia_cand is not None:
-        base = [farmacia_cand]
-        resto = [(c, ca, None) for c, ca in candidatos if c != farmacia_cand[0]]
-        tiendas = []
-        for separacion in (TIENDAS_SEPARACION, 28.0, 22.0, 18.0):
-            tiendas = list(base)
-            for cell, casa, info in resto:
-                if len(tiendas) >= len(TIENDAS_FAVELA):
-                    break
-                if all(_dist((casa["x"], casa["z"]), (t[1]["x"], t[1]["z"])) >= separacion for t in tiendas):
-                    tiendas.append((cell, casa, None))
-            if len(tiendas) >= len(TIENDAS_FAVELA):
-                break
-        giros = [("farmacia", "Farmacia La Bendición")] + [g for g in TIENDAS_FAVELA if g[0] != "farmacia"]
-    else:
-        tiendas = []
-        for separacion in (TIENDAS_SEPARACION, 28.0, 22.0, 18.0):
-            tiendas = []
-            for cell, casa in candidatos:
-                if len(tiendas) >= len(TIENDAS_FAVELA):
-                    break
-                if all(_dist((casa["x"], casa["z"]), (t[1]["x"], t[1]["z"])) >= separacion for t in tiendas):
-                    tiendas.append((cell, casa, None))
-            if len(tiendas) >= len(TIENDAS_FAVELA):
-                break
-        giros = list(TIENDAS_FAVELA)
+    if len(tiendas) < len(TIENDAS_FAVELA):
+        print("favela: solo %d casas de tienda dan a un patio (faltan %d giros)" % (len(tiendas), len(TIENDAS_FAVELA) - len(tiendas)))
+    giros = [("farmacia", "Farmacia La Bendición")] + [g for g in TIENDAS_FAVELA if g[0] != "farmacia"]
     for i, (cell, casa, info) in enumerate(tiendas[:len(TIENDAS_FAVELA)]):
         giro, nombre = giros[i]
         a, b = cell
         y = alto_de(a)
-        if info is not None:
-            lado, normal_local, normal, ancho, fondo, frente_ancho = info
-            local_frente = "NESO".index(lado)
-        else:
-            lado, normal_local, normal, ancho, fondo = _frente(casa, pu, pv)
-            frente_ancho = frente_abierto(cell, casa)
-            local_frente = None
+        lado, normal_local, normal, ancho, fondo, frente_ancho = info
+        local_frente = "NESO".index(lado)
         rot = math.atan2(normal[0], normal[1])
         # La casa local sigue en casas.json y en el minimapa, pero colonia.py no la dibuja
         local = dict(casa)
@@ -982,8 +962,7 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
         local["tienda"] = True
         local["favela"] = True
         local["detalles"] = True
-        if local_frente is not None:
-            local["frente"] = local_frente
+        local["frente"] = local_frente
         local.pop("grupo", None)
         piezas[:] = [p for p in piezas if p is not casa]
         piezas.append(local)
@@ -1036,15 +1015,37 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
     hechas = []
     existentes = [(p["x"], p["z"]) for p in piezas if p["tipo"] == "escalera"]
     tablones_previos = [p for p in piezas if p.get("tipo") == "tablon"]
+    def tablones_de(casa):
+        """Los tablones que salen de la azotea de esta casa: su centro queda en el callejon
+        pegado a una de sus fachadas."""
+        hw, hh = _lados(casa)
+        c, s = math.cos(casa["rot"]), math.sin(casa["rot"])
+        de = []
+        for t in piezas:
+            if t.get("tipo") != "tablon":
+                continue
+            dx, dz = t["x"] - casa["x"], t["z"] - casa["z"]
+            lx, lz = dx * c - dz * s, dx * s + dz * c
+            if abs(lx) <= hw + 2.0 and abs(lz) <= hh + 2.0 and (abs(lx) > hw - 0.5 or abs(lz) > hh - 0.5):
+                de.append(t)
+        return de
+
     def tiene_tablon(casa):
-        return any(_dist((casa["x"], casa["z"]), (t["x"], t["z"])) < 7.0 for t in tablones_previos)
+        return bool(tablones_de(casa))
+
+    def estorba(t, sx, sz, dx, dz, largo):
+        """Un tablon encima de la mitad alta de la escalera le pega en la cabeza al subir."""
+        rx, rz = t["x"] - sx, t["z"] - sz
+        a = rx * dx + rz * dz                 # a lo largo de la escalera
+        b = abs(-rx * dz + rz * dx)           # hacia el callejon
+        return largo * 0.4 - 1.0 <= a <= largo + 1.2 and b <= 3.0
     for pisos, cuantas in ((2, 8),):
         candidatos = []
         for cell, casa in list(casas.items()):
             if casa.get("local") or casa.get("pisos") != pisos:
                 continue
             ancho_calle = frente_abierto(cell, casa)
-            if ancho_calle < 2.2:      # la escalera ocupa 0.9 m; deja al menos 1.3 m de paso
+            if ancho_calle < 2.4:      # la escalera ocupa 1.1 m; deja al menos 1.3 m de paso
                 continue
             lado, normal_local, normal, ancho, fondo = _frente(casa, pu, pv)
             alto_e = pisos * PISO + AZOTEA
@@ -1065,18 +1066,24 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
             hw, hh = _lados(casa)
             # El extremo de la fachada: la escalera corre hacia el otro extremo y su +Z mira al
             # callejon (normal). Se empieza en el extremo para que no se salga de la fachada.
-            ex, ez = {"N": (hw, -hh), "E": (hw, -hh), "S": (-hw, hh), "O": (-hw, hh)}[lado]
+            # Con rot = atan2(normal) el +x de la escalera es la normal girada -90 grados: en la
+            # fachada N corre hacia -x local, en la E hacia -z, en la S hacia +x y en la O hacia +z.
+            ex, ez = {"N": (hw, -hh), "E": (hw, hh), "S": (-hw, hh), "O": (-hw, -hh)}[lado]
             sx, sz = _mundo_local(casa, ex, ez)
             sx += normal[0] * 0.12
             sz += normal[1] * 0.12
             rot = math.atan2(normal[0], normal[1])
+            dx, dz = math.cos(rot), -math.sin(rot)
+            # Sin tablon que le estorbe y con al menos uno que siga desde esa azotea: si no, la
+            # escalera sube a un techo sin salida.
+            quitar = [t for t in tablones_de(casa) if estorba(t, sx, sz, dx, dz, largo_e)]
+            if len(quitar) == len(tablones_de(casa)):
+                continue
             piezas.append({"nombre": "Escalera_%s_%d" % (cell, len(hechas)), "tipo": "escalera", "favela": True,
                            "x": round(sx, 2), "z": round(sz, 2), "rot": round(rot, 4),
-                           "alto": round(alto_e, 2), "ancho": 1.2, "sentido": 1})
-            # Un tablon o puente sobre la misma fachada tapa la salida de la escalera:
-            # se quita el que este cerca de su arranque/azotea.
-            piezas[:] = [t for t in piezas
-                         if not (t.get("tipo") == "tablon" and _dist((t["x"], t["z"]), (sx, sz)) < 7.5)]
+                           "alto": round(alto_e, 2), "ancho": 1.0, "sentido": 1})
+            # El tablon que pasa encima de la escalera le tapa la subida: se quita
+            piezas[:] = [t for t in piezas if not any(t is q for q in quitar)]
             hechas.append((casa["x"], casa["z"], pisos, cell, casa, ancho_calle))
             cuenta["escaleras"] += 1
 
@@ -1244,44 +1251,40 @@ def _tuneles_mini(datos, piezas, hundidos, marcas, cuenta, surcos, marco):
     for i, (fx, fz) in enumerate(((-4.0, -3.0), (4.0, 3.0), (0.0, 0.0))):
         marcas.append({"nombre": "Foco_Bodega_%d" % i, "tipo": "foco", "favela": True,
                        "x": round(hx + fx, 2), "z": round(hz + fz, 2), "y": round(by + 3.0, 2)})
-    # Pasillo al norte de la bodega; su pared sur se abre a la puerta norte de la bodega
-    cor_x, cor_z = hx - 2.5, hz - 7.2
-    piezas.append({"nombre": "Tunel_Pasillo", "tipo": "tunel", "favela": True,
-                   "x": round(cor_x, 2), "z": round(cor_z, 2), "y": by, "rot": 0.0,
-                   "largo": 19.0, "ancho": 2.4, "huecos": [[2.5, 2.4, -1]]})
-    cuenta["tuneles"] += 1
-    # Escalera dentro del patio, junto al tinaco: baja hacia el poniente hasta el extremo del
-    # pasillo, sin atravesar su techo ni el muro bajo del lote.
-    escalera_x, escalera_z = hx - 5.5, cor_z
+    # Escalera dentro del patio, al poniente del tinaco: baja hacia el oriente, a cielo abierto en
+    # su zanja, y en su pie arranca el pasillo (asi la boveda no le queda encima).
+    cor_z = hz - 7.2
+    largo_esc = 5.5                         # 4.2 m en 5.5 m: unos 37 grados
+    pie_x = hx - 4.0                        # la cabecera queda 1.5 m adentro del muro bajo de la plaza
+    escalera_x = pie_x - largo_esc
     piezas.append({"nombre": "Tunel_Escalera", "tipo": "bajada", "favela": True,
-                   "x": round(escalera_x, 2), "z": round(escalera_z, 2), "y": round(hy, 2),
-                   "rot": round(math.pi, 4), "largo": 4.5, "ancho": 2.4, "fondo": hondo})
+                   "x": round(escalera_x, 2), "z": round(cor_z, 2), "y": round(hy, 2),
+                   "rot": 0.0, "largo": largo_esc, "ancho": 2.4, "fondo": hondo})
     # Mismo sentido (antihorario) que los hundidos de los tuneles viejos: tessellate_polygon
-    # solo resta el hueco si el anillo va en ese sentido.
-    pol = [(hx - 10.2, escalera_z - 1.2), (escalera_x + 0.2, escalera_z - 1.2),
-           (escalera_x + 0.2, escalera_z + 1.2), (hx - 10.2, escalera_z + 1.2)]
+    # solo resta el hueco si el anillo va en ese sentido. Abiertos: el pie (1) y la cabecera (3).
+    pol = [(escalera_x - 0.2, cor_z - 1.2), (pie_x, cor_z - 1.2),
+           (pie_x, cor_z + 1.2), (escalera_x - 0.2, cor_z + 1.2)]
     hundidos.append({"nombre": "Tunel_Boca", "favela": True, "fondo": hondo,
                      "abiertos": [1, 3], "poligono": [[round(x, 2), round(z, 2)] for x, z in pol]})
+    # La frente de ladrillo sobre la boca del pasillo: tapa la tierra entre la boveda y el patio.
+    # Va ya dentro del pasillo, donde el piso es plano: sobre la escalera se pegaba la cabeza
+    piezas.append({"nombre": "Tunel_Frente", "tipo": "caja", "favela": True,
+                   "x": round(pie_x + 0.15, 2), "z": round(cor_z, 2), "y": round(by + TUNEL_ALTO, 2),
+                   "rot": 0.0, "tam": [0.3, round(hondo - TUNEL_ALTO + hy, 2), 2.8],
+                   "material": "foto_ladrillo_rojo"})
     marcas.append({"nombre": "Tunel_Entrada_0", "tipo": "mision", "favela": True,
-                   "x": round(escalera_x, 2), "z": round(escalera_z, 2), "y": round(hy, 2), "rot": round(math.pi, 4)})
+                   "x": round(escalera_x, 2), "z": round(cor_z, 2), "y": round(hy, 2), "rot": 0.0})
     marcas.append({"nombre": "Letrero_Tuneles", "tipo": "letrero", "favela": True,
-                   "texto": "TÚNELES", "x": round(escalera_x + 1.6, 2), "z": round(escalera_z - 1.4, 2),
+                   "texto": "TÚNELES", "x": round(escalera_x + 0.5, 2), "z": round(cor_z - 1.8, 2),
                    "y": round(hy, 2), "rot": round(math.pi * 0.75, 4)})
-    # El piso de la plaza tambien lleva el hueco de la escalera: el lote es una cara aparte del
-    # terreno y sin esto se podia caminar encima de la escalera sin caer al tunnel.
-    centro_x, centro_z = escalera_x - 2.25, cor_z
-    for lote in piezas:
-        if lote.get("tipo") == "lote" and lote.get("tinaco"):
-            lu, lv = marco.local(centro_x, centro_z)
-            lu0, lv0 = marco.local(lote["x"], lote["z"])
-            lote["hueco"] = [-6.5, -7.0, 9.0, 5.0]
-            break
-    # Tope de block al poniente del pasillo: la escalera baja justo aqui y sin el se podia
-    # seguir de largo y caer al vacio por la punta abierta del tunel.
-    piezas.append({"nombre": "Tunel_Tope", "tipo": "barda", "favela": True,
-                   "x": round(hx - 12.0, 2), "z": round(cor_z, 2), "y": by,
-                   "rot": round(math.pi / 2.0, 4), "largo": 2.8, "alto": 3.0,
-                   "grueso": 0.3, "material": "foto_block"})
+    # Pasillo del pie de la escalera a la casa del oriente; su pared sur (+Z) se abre a la puerta
+    # norte de la bodega
+    cor_b = hx + 7.0
+    cor_x = (pie_x + cor_b) / 2.0
+    piezas.append({"nombre": "Tunel_Pasillo", "tipo": "tunel", "favela": True,
+                   "x": round(cor_x, 2), "z": round(cor_z, 2), "y": by, "rot": 0.0,
+                   "largo": round(cor_b - pie_x, 2), "ancho": 2.4, "huecos": [[round(hx - cor_x, 2), 2.8, 1]]})
+    cuenta["tuneles"] += 1
     # Casa al final oriente del pasillo
     casa_e = {"nombre": "Tunel_Casa_Este", "tipo": "tunel_cuarto", "favela": True,
               "x": round(hx + 9.0, 2), "z": round(cor_z, 2), "y": by, "rot": round(-math.pi / 2.0, 4),
@@ -1300,7 +1303,7 @@ def _tuneles_mini(datos, piezas, hundidos, marcas, cuenta, surcos, marco):
                    "x": round(hx, 2), "z": round(hz + 6.0, 2), "y": by, "rot": round(math.pi, 4)})
     # Tienda de armas al oriente de la bodega
     piezas.append({"nombre": "Tunel_Tienda_Armas", "tipo": "tunel_cuarto", "favela": True,
-                   "x": round(hx + 9.0, 2), "z": round(hz, 2), "y": by, "rot": round(math.pi / 2.0, 4),
+                   "x": round(hx + 9.0, 2), "z": round(hz, 2), "y": by, "rot": round(-math.pi / 2.0, 4),
                    "tam": [5.0, 4.0], "alto": 3.2, "uso": "armas"})
     marcas.append({"nombre": "Puerta_Tunel_Tienda_4", "tipo": "puerta", "favela": True,
                    "giro": "armas_tunel", "texto": "Balas y Veladoras",
