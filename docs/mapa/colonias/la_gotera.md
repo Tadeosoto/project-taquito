@@ -50,7 +50,7 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
   |---|---|---|
   | Plaza de los Gotera | Corazón de la favela (806, −222): cancha de futbolito encajonada, puestos, bancas, chamacos de día, reflectores de noche y dos de la casa parados | `Nemesio_Plaza` |
   | Casa de don Nemesio | Fondo, junto a la orilla (898, −246): la única con enjarre y pintura (mostaza, dos pisos) | `Nemesio_Casa` |
-  | Plaza del Tinaco | El claro 3×3 más cercano al centro del recorte (~843, −218): tinaco comunitario de **50,000 L**, sin la Virgen, sin ofrenda y sin defensa; el claro más grande de los cinco | `Tinaco_Favela` |
+  | Plaza del Tinaco | El claro 3×3 más cercano al centro del recorte (~843, −218): tinaco comunitario de **50,000 L**, sin la Virgen, sin ofrenda y sin defensa; el mayor de los cuatro claros grandes | `Tinaco_Favela` |
   | Cuarto de garrafones | En el túnel, el cuarto `garrafones` (ya no es la Bodega del Agua) | `Garrafones_Tunel` |
   | Bocas de los túneles | Tres patios de la banda a nivel, con su zanja y escalones | `Tunel_Entrada_0..2` |
   | La válvula | En el túnel, cuarto `valvula`: el pozo con la rueda, tras un barandal | `Valvula` |
@@ -67,8 +67,9 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 ## Cambios de la tarde (JJ, 2026-11-13)
 
 - **Sin Bodega del Agua**: se quitó su reserva, su casa-local, su puerta, su negocio `purificadora` y la marca `Bodega_Agua`; el cuarto de garrafones del túnel sigue como `Garrafones_Tunel`. El laberinto se reacomoda en el hueco que dejó la reserva.
-- **Plaza del Tinaco**: el claro **3×3** (unos 21×21 m) más cercano al centro del recorte, el más grande de los cinco. Tinaco de **50,000 L** (~4.79 m de alto, ~3.74 m de diámetro) con `TinacoComunitario.armar(litros, con_virgen, comunitario)`: **sin** mancha de la Virgen, sin ofrenda, sin veladoras y sin grupo de defensa. La variante `lote` "tinaco" tiene piso de concreto, bancas, macetas y una pared baja; su poste de luz va en una esquina.
-- **Cuatro claros más** de 2×2 (unos 14×14 m) con variantes `juegos`, `basquet`, `fonda`, `baldio`/`taller`, repartidos a ≥40 m del tinaco y entre sí.
+- **Plaza del Tinaco**: el claro **3×3** (unos 21×21 m) más cercano al centro del recorte, el mayor de los cuatro claros grandes. Tinaco de **50,000 L** (~4.79 m de alto, ~3.74 m de diámetro) con `TinacoComunitario.armar(litros, con_virgen, comunitario)`: **sin** mancha de la Virgen, sin ofrenda, sin veladoras y sin grupo de defensa. La variante `lote` "tinaco" tiene piso de concreto, bancas, macetas y una pared baja; su poste de luz va en una esquina.
+- **Tres claros grandes más** de 3×3 (unos 21×21 m) repartidos a ≥45 m del tinaco y entre sí, y **cuatro claros pequeños** de 2×2 (unos 14×14 m), con variantes `juegos`, `basquet`, `fonda`, `baldio`/`taller`. Total: **4 grandes** (tinaco + 3) y **4 pequeños**.
+- **Puertas de las tiendas**: solo se eligen casas cuyo lado de la fachada da a un callejón abierto (`frente_abierto`), no a otra casa ni a un lote cerrado; cada punto guarda `puerta_transitable: true` y `frente_lado`.
 - **Seis tiendas de favela**, una por giro de `MapPuntos.GIROS_LOCAL` (abarrotes, licorería, farmacia, ferretería, OXO, taquería), en casas de una celda de un piso, a ≥35 m entre sí, con `casa local` + `puerta local` + `negocio` (`y` de su banda, `favela: true`, `sin_gente: true`). `MapPuntos` las dibuja con paleta de obra negra, sin banda/botarga/maquinita/puesto de taquería, con letrero pintado y cortina de lona; el interior es el de siempre. La gasolinera queda fuera y la purificadora ya no existe.
 - **Puentes**: los 4 tablones más anchos (1.8–2.3 m de hueco) se ensanchan a 1.1 m y llevan barandales de fierro; los 143 tablones restantes se ensanchan a 0.95 m. Las 5 escaleras dejan subir a la red de azoteas.
 - **Toldos**: 203 lonas de fachada a fachada sobre los callejones, a 3.0–3.4 m, con caída y cables; sin choque. Para que `Gente` no los tome como techo, su rayo baja desde 2.6 m.

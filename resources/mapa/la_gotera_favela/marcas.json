@@ -329,36 +329,60 @@
 			"y": 4.8
 		},
 		{
+			"nombre": "Poste_Grande_0_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 791.79,
+			"z": -303.3,
+			"y": 4.05
+		},
+		{
+			"nombre": "Poste_Grande_1_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 867.06,
+			"z": -196.99,
+			"y": 4.8
+		},
+		{
+			"nombre": "Poste_Grande_2_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 879.02,
+			"z": -331.09,
+			"y": 4.8
+		},
+		{
 			"nombre": "Poste_Claro_0_Foco",
 			"tipo": "foco",
 			"favela": true,
-			"x": 889.89,
-			"z": -294.55,
+			"x": 879.18,
+			"z": -174.57,
 			"y": 4.8
 		},
 		{
 			"nombre": "Poste_Claro_1_Foco",
 			"tipo": "foco",
 			"favela": true,
-			"x": 764.48,
-			"z": -234.6,
+			"x": 747.24,
+			"z": -278.82,
 			"y": 3.3
 		},
 		{
 			"nombre": "Poste_Claro_2_Foco",
 			"tipo": "foco",
 			"favela": true,
-			"x": 810.93,
-			"z": -280.25,
+			"x": 801.48,
+			"z": -174.39,
 			"y": 4.05
 		},
 		{
 			"nombre": "Poste_Claro_3_Foco",
 			"tipo": "foco",
 			"favela": true,
-			"x": 782.35,
-			"z": -197.44,
-			"y": 4.05
+			"x": 842.26,
+			"z": -156.52,
+			"y": 4.8
 		},
 		{
 			"nombre": "Puerta_abarrotes",
@@ -367,10 +391,10 @@
 			"local": true,
 			"giro": "abarrotes",
 			"texto": "Abarrotes Doña Chelo",
-			"x": 850.86,
-			"z": -189.16,
-			"y": 1.5,
-			"rot": -1.4818
+			"x": 763.19,
+			"z": -200.08,
+			"y": 0.0,
+			"rot": -3.0526
 		},
 		{
 			"nombre": "Puerta_licoreria",
@@ -391,10 +415,10 @@
 			"local": true,
 			"giro": "farmacia",
 			"texto": "Farmacia La Bendición",
-			"x": 854.41,
-			"z": -270.28,
-			"y": 1.5,
-			"rot": -3.0526
+			"x": 833.59,
+			"z": -265.2,
+			"y": 0.75,
+			"rot": 0.089
 		},
 		{
 			"nombre": "Puerta_ferreteria",
@@ -403,10 +427,10 @@
 			"local": true,
 			"giro": "ferreteria",
 			"texto": "El Tornillo Flojo",
-			"x": 883.84,
-			"z": -321.02,
-			"y": 1.5,
-			"rot": 1.6598
+			"x": 774.58,
+			"z": -320.21,
+			"y": 0.0,
+			"rot": 0.089
 		},
 		{
 			"nombre": "Puerta_oxxo",
@@ -427,8 +451,8 @@
 			"local": true,
 			"giro": "taqueria",
 			"texto": "Tacos El Callejón",
-			"x": 818.06,
-			"z": -174.05,
+			"x": 797.23,
+			"z": -183.12,
 			"y": 0.75,
 			"rot": 0.089
 		},

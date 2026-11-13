@@ -62,6 +62,10 @@ TUNELES = 3             # bocas
 TINACO_LITROS = 50000
 CLAROS_EXTRA = 4
 CLAROS_SEPARACION = 40.0
+# Ademas del claro del tinaco (3x3), otros 3 claros grandes 3x3 repartidos; los CLAROS_EXTRA
+# siguen siendo los pequenos 2x2.
+CLAROS_GRANDES = 3
+CLAROS_GRANDES_SEPARACION = 45.0
 TINACO_SEPARACION = 40.0
 # Las tiendas de favela: un giro de MapPuntos.GIROS_LOCAL por tienda (la gasolinera no va)
 TIENDAS_FAVELA = [
@@ -179,7 +183,7 @@ def generar(nombre):
             libre[j][i] = True
     piezas, terrazas, hundidos, marcas = [], [], [], []
     cuenta = {"casas": 0, "patios": 0, "plazuelas": 0, "callejones": 0, "bocas": 0, "tablones": 0, "escaleras": 0, "escalinatas": 0, "tuneles": 0, "tiendas_tunel": 0,
-              "tiendas": 0, "claros": 0, "tinacos": 0, "puentes": 0, "toldos": 0, "postes": 0}
+              "tiendas": 0, "claros": 0, "grandes": 0, "tinacos": 0, "puentes": 0, "toldos": 0, "postes": 0}
     _laberinto(datos, libre, reservado, u0, v0, W, H, marco, r, paso, callejon, piezas, terrazas, hundidos, marcas, cuenta, op)
     datos["piezas"] += piezas
     datos["terrazas"] = [t for t in datos.get("terrazas", []) if not t.get("favela")] + terrazas
@@ -735,6 +739,14 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
         p = (casa["x"], casa["z"])
         return all(_dist(p, q) >= cerca for q in protegidos)
 
+    def frente_abierto(cell, casa):
+        """La puerta da a un callejon abierto, no a una casa ni a un lote cerrado."""
+        a, b = cell
+        lado = "NESO"[int(casa.get("frente", 0)) % 4]
+        borde = {"N": ((a, b), "h"), "E": ((a + 1, b), "v"),
+                 "S": ((a, b + 1), "h"), "O": ((a, b), "v")}[lado]
+        return borde in abiertas and ancho_de.get(borde, 0.0) > 0.0
+
     # 1. Plaza del Tinaco: bloque 3x3 de casas simples de un piso, lo mas cerca del centro.
     libres = set(celdas)
     mejor = None
@@ -766,7 +778,41 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
         cuenta["claros"] += 1
         protegidos.append((cx, cz))
 
-    # 2. Cuatro claros 2x2, lejos del tinaco y entre si.
+    # 2. Tres claros grandes 3x3, repartidos; el del tinaco ya es el cuarto grande.
+    rng_g = random.Random(int(op.get("semilla", 7)) + 106)
+    candidatos_g = []
+    for a in range(nx - 2):
+        for b in range(nz - 2):
+            if any(banda(a + i) != banda(a) for i in range(3)):
+                continue
+            bloque = [(a + i, b + j) for i in range(3) for j in range(3)]
+            if any(c not in libres or c in celdas_zanja for c in bloque):
+                continue
+            cx, cz = marco.mundo((a + 1.5) * pu, (b + 1.5) * pv)
+            if not all(_dist((cx, cz), q) >= CLAROS_GRANDES_SEPARACION for q in protegidos):
+                continue
+            candidatos_g.append((a, b, bloque, cx, cz))
+    rng_g.shuffle(candidatos_g)
+    grandes = []
+    for (a, b, bloque, cx, cz) in candidatos_g:
+        if len(grandes) >= CLAROS_GRANDES:
+            break
+        if all(_dist((cx, cz), (q[3], q[4])) >= CLAROS_GRANDES_SEPARACION for q in grandes):
+            grandes.append((a, b, bloque, cx, cz))
+    variantes_g = ["juegos", "basquet", "fonda", "baldio", "taller"]
+    for i, (a, b, bloque, cx, cz) in enumerate(grandes):
+        _quitar_casas(casas, piezas, bloque)
+        libres.difference_update(bloque)
+        y = alto_de(a)
+        _lote(piezas, "Claro_Grande_%d" % i, cx, cz, marco.rot, (3 * pu - 0.3, 3 * pv - 0.3),
+              variantes_g[i % len(variantes_g)], {"claro": True, "grande": True})
+        px, pz = marco.mundo(a * pu + 1.2, b * pv + 1.2)
+        _poste_luz(piezas, marcas, cuenta, px, pz, y, "Poste_Grande_%d" % i)
+        protegidos.append((cx, cz))
+        cuenta["claros"] += 1
+        cuenta["grandes"] += 1
+
+    # 3. Cuatro claros 2x2, lejos del tinaco, de los grandes y entre si.
     claros = []
     candidatos = []
     for a in range(nx - 1):
@@ -854,7 +900,8 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
             "x": round(casa["x"], 2), "z": round(casa["z"], 2), "y": round(y, 2),
             "rotacion_y": round(rot, 4), "ancho": round(ancho, 2), "fondo": round(fondo, 2), "pisos": 1,
             "interactivo": True, "aire_libre": False, "origen": "Favela_%s" % giro,
-            "ajustado": True, "favela": True, "sin_gente": True})
+            "ajustado": True, "favela": True, "sin_gente": True,
+            "puerta_transitable": True, "frente_lado": lado})
         # La flecha va 0.8 m delante del centro de la fachada
         hw, hh = _lados(casa)
         fx, fz = {"N": (0.0, -hh), "E": (hw, 0.0), "S": (0.0, hh), "O": (-hw, 0.0)}[lado]
