@@ -90,6 +90,21 @@ func _probar() -> void:
 	# Un mirador de la muralla (pieza mirador_muro): su escalera es rampa de choque y se sube caminando
 	var r_mirador: Dictionary = await _caminar(escena, Vector3(-349.7, 1.1, 259.2), Vector3(1, 0, 0), 190)
 	_revisar("se sube al mirador de la muralla", r_mirador["subio"] > 3.0, "subio %.2f m" % r_mirador["subio"])
+	# La procesion del atardecer (Procesion.gd): con el aviso de Ciclo salen los fieles con las andas
+	# y avanzan por su camino
+	var procesion := escena.find_child("Procesion_Atardecer", true, false)
+	if procesion:
+		var ciclo_p := escena.get_node("Ciclo")
+		ciclo_p.set("_tiempo", 100.0)
+		await _cuadros(30)
+		ciclo_p.set("_tiempo", float(ciclo_p.get("dia_duracion")) - float(ciclo_p.get("aviso_antes")) + 1.0)
+		await _cuadros(120)
+		var fieles := procesion.find_children("Fiel_*", "Node3D", false, false)
+		var paso: float = (fieles[0] as Node3D).global_position.distance_to(Vector3(-323.6, 0.0, 418.6)) if not fieles.is_empty() else 0.0
+		_revisar("sale la procesion al atardecer", procesion.call("en_marcha") and fieles.size() == 7 and paso > 1.0,
+			"%d fieles, el primero lleva %.1f m" % [fieles.size(), paso])
+	else:
+		_revisar("sale la procesion al atardecer", false, "no hay marca")
 	await _templo(escena)
 	await _vecinos(escena)
 	print("RESULTADO: %s" % ("BIEN" if _fallas == 0 else "%d FALLAS" % _fallas))

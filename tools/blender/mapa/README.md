@@ -80,6 +80,7 @@ Los scripts leen la raiz del proyecto de la variable de entorno `TAQUITO_RAIZ` (
   - `campana`: suena sola (`de`: `templo`, al amanecer y con el aviso del atardecer; `escuela`, a media manana y a mediodia).
   - `palomas`: parvada que picotea en `tam` [ancho, largo] y sale volando si pasas corriendo (`cuantas`).
   - `perro`: un perro echado.
+  - `procesion`: la procesion del atardecer; `puntos` [[x, z], ...] es su camino en metros del mundo (sale con el aviso de Ciclo).
   - `caja_gela`: la caja que da 1-2 cosas una vez por noche (`de`: `gela` u `ofrendas`).
   - `casa_vecino`: una casa que se camina (`escena`, `texto`, `abierto`: `siempre`, `dia` o `noche`, `cerrado`); las de los vecinos las pone `bloqueo.py`, la del templo va a mano.
   - `letrero`: un letrero de texto (`texto`) viendo a su +Z.

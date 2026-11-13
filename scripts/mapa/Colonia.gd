@@ -167,6 +167,12 @@ func _ready() -> void:
 				_placa(marca)
 			"tianguis":
 				_tianguis(marca)
+			"procesion":
+				# La procesion del atardecer (Procesion.gd): "puntos" es su camino, en metros del mundo
+				var procesion := Procesion.new()
+				procesion.name = String(marca.get("nombre", "Procesion"))
+				procesion.puntos = marca.get("puntos", [])
+				add_child(procesion)
 			"campana":
 				var campana := Campana.new()
 				campana.name = String(marca.get("nombre", "Campana"))

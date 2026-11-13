@@ -177,6 +177,8 @@ Santa Mugre es la fortaleza de la Virgen del Tinaco: un refugio religioso amural
 - **El templo se entra** (marca `casa_vecino` "Templo" en el atrio; de día): la nave con bancas y vitrales, el presbiterio con la Virgen del Tinaco y el padre Chuy, que platica y nunca dice lo que sospecha. Detrás de la cortina del retablo se baja al **cuarto del pozo**: el brocal, el filtro con la etiqueta raspada, garrafones y el cuaderno del padre. Sin misiones ni reparto de agua todavía (bloque F3). Lo arma `tools/construir_templo.gd`.
 - **Abarrotes Doña Mary** ya se entra (`scenes/interiores/dona_mary.tscn`).
 - **Vida:** la campana de la parroquia repica al amanecer y con el aviso del atardecer (`Campana.gd`); palomas en la glorieta y frente a la escuela que salen volando si pasas corriendo (`Palomas.gd`); perros echados en los portones, la vecindad, el mercado y el atrio.
+- **Procesión del atardecer** (`Procesion.gd`, marca `procesion` con su camino en `puntos`): con el aviso de que va a oscurecer (y las campanas) siete fieles salen del atrio con la Virgen del Tinaco en andas, le dan la vuelta al tinaco y ahí acaba; luego sigue la vela. Se arman al empezar y se quitan al terminar.
+- **Portales:** los costados de los dos portales de la parroquia ya no son paredes blancas lisas (zócalo, una pinta y ventanas).
 - **Cielo y horizonte** (solo este mapa): cielo de PS1 con esmog, nubes de pixeles, atardecer y estrellas (`shaders/cielo_ps1.gdshader`), y más allá de la muralla un anillo de siluetas (casas con tinaco, torres de luz, dos naves de GelA y cerros) que de noche prende ventanas (`scripts/mapa/Horizonte.gd`).
 - **La vecindad** por fuera ya no es una caja blanca: fachada de colores con ventanas.
 - **Ventanas prendidas de noche:** tres de cada diez ventanas de las casas se prenden al anochecer (`shaders/ps1_fachada_kit.gdshader`, `ventanas_prendidas`; usa el global `noche` de `Alumbrado`): adentro la gente está en su casa.
@@ -188,7 +190,6 @@ Pendiente o para revisar jugando:
 - Las líneas del Güero (`CasaVecino.LINEAS["guero"]`) todavía hablan del palacio: es narrativa, queda para JJ.
 - El `.json` de la colonia trae `Tapon_*` del oriente (derrumbe) y del sur (barda) como antes.
 - En `map_test` el muro por fuera (`scripts/map/MuroColonia.gd`) ya sube a 4.5 m con lámina lisa y portón cerrado, pero sin el detalle de adentro (tablones, tambos, pintas).
-- La procesión del atardecer con la Virgen (idea guardada).
 - Si se ve gente en T: `Civiles.poner` ya cae a `Idle` cuando la biblioteca no trae el clip (no trae `Kneel_Idle`: los de la vela están de pie).
 
 Ideas que siguen, en orden (del plan de esa noche):
