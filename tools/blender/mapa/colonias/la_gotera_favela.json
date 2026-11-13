@@ -3,6 +3,7 @@
 	"ficha": "docs/mapa/colonias/la_gotera.md",
 	"recorte": [730.0, -336.0, 914.0, -104.0],
 	"abierto_24h": true,
+	"ambiente": {"niebla": 0.045, "lejos": 85.0, "gente": {"caminantes": 16, "anillo": [12.0, 38.0], "quitar_a": 50.0, "alto_libre": 2.0, "rayo_desde": 4.0}},
 	"bordes": {
 		"norte": "barda",
 		"sur": "barda",

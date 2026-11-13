@@ -59,6 +59,15 @@ const LINEAS := {
 
 @export_file("*.json") var banquetas_path := "res://resources/map/banquetas_mapa.json"
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
+# Por colonia (MapaColonia los pone con el "ambiente" de marcas.json; la favela de La Gotera):
+# cuantos caminan, a que distancia aparecen y se quitan, y el suelo que cuenta como camino. En la
+# favela las terrazas suben 0.75 y 1.5 m (con ALTO_LIBRE parecian azoteas) y hay tablones de azotea
+# a azotea: el rayo sale de `rayo_desde`, abajo de los tablones y arriba de las terrazas.
+@export var caminantes := CAMINANTES
+@export var anillo := ANILLO
+@export var quitar_a := QUITAR_A
+@export var alto_libre := ALTO_LIBRE
+@export var rayo_desde := 12.0
 
 var caminando: Array[Dictionary] = []
 var platicando := {}       # indice de lugar -> nodo
@@ -127,7 +136,7 @@ func _armar_reserva() -> void:
 				_garrafonero["nodo"].add_child(galon)
 			_libres.append(_garrafonero)
 			CargaCuadro.gastar(inicio)
-	elif _libres.size() + caminando.size() < CAMINANTES and CargaCuadro.hay():
+	elif _libres.size() + caminando.size() < caminantes and CargaCuadro.hay():
 		var inicio := Time.get_ticks_usec()
 		_libres.append(_armar_caminante(CLIP_CAMINA))
 		CargaCuadro.gastar(inicio)
@@ -151,7 +160,7 @@ func _sacar_caminante() -> void:
 	var centro := _jugador.global_position
 	for intento in INTENTOS:
 		var giro := randf() * TAU
-		var radio := randf_range(ANILLO.x, ANILLO.y)
+		var radio := randf_range(anillo.x, anillo.y)
 		var punto := centro + Vector3(cos(giro) * radio, 0.0, sin(giro) * radio)
 		var opciones: Array = _celdas.get(_celda(Vector2(punto.x, punto.z)), [])
 		if opciones.is_empty():
@@ -161,7 +170,7 @@ func _sacar_caminante() -> void:
 		var i: int = opcion[1]
 		var donde: Vector2 = linea[i]
 		var en_mundo := Vector3(donde.x, 1.0, donde.y)
-		if centro.distance_to(en_mundo) < ANILLO.x:
+		if centro.distance_to(en_mundo) < anillo.x:
 			continue
 		if camara and not camara.is_position_behind(en_mundo) and camara.is_position_in_frustum(en_mundo):
 			continue
@@ -229,7 +238,7 @@ func _caminar(delta: float) -> void:
 		nodo.rotation.y = atan2(-(b.x - a.x), -(b.y - a.y))
 	if Engine.get_process_frames() % 30 == 0:
 		for c: Dictionary in caminando.duplicate():
-			if (c["nodo"] as Node3D).global_position.distance_to(_jugador.global_position) > QUITAR_A:
+			if (c["nodo"] as Node3D).global_position.distance_to(_jugador.global_position) > quitar_a:
 				_guardar(c)
 
 
@@ -433,10 +442,10 @@ func _cargar_lugares() -> void:
 
 # Altura de la banqueta; INF si ahi hay una casa o una barda
 func _altura(punto: Vector2) -> float:
-	_rayo.from = Vector3(punto.x, 12.0, punto.y)
+	_rayo.from = Vector3(punto.x, rayo_desde, punto.y)
 	_rayo.to = Vector3(punto.x, -2.0, punto.y)
 	var pego := get_world_3d().direct_space_state.intersect_ray(_rayo)
-	if pego.is_empty() or pego.position.y > ALTO_LIBRE:
+	if pego.is_empty() or pego.position.y > alto_libre:
 		return INF
 	return pego.position.y
 

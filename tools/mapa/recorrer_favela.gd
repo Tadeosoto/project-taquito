@@ -3,7 +3,9 @@ extends SceneTree
 # Prueba jugable sin ventana de la favela de La Gotera (la_gotera_favela): un cuerpo como el del
 # jugador (capsula de 0.4 m) recorre callejones del laberinto de punta a punta y se revisa que no
 # se atore, que sube las escalinatas entre bandas, que baja a los tuneles por una zanja y que de
-# noche prenden los focos de los callejones y las ventanas.
+# noche prenden los focos de los callejones y las ventanas. Tambien que la niebla y la distancia de
+# la camara son las del "ambiente" de la colonia y que la gente camina por los callejones de todas
+# las bandas (no solo la de abajo).
 #   godot --path . --headless -s tools/mapa/recorrer_favela.gd [-- --cuantos=60 --colonia=la_gotera_favela]
 # Lee los callejones del .json de la colonia (tools/blender/mapa/colonias/<colonia>.json).
 
@@ -90,6 +92,29 @@ func _probar() -> void:
 		var r := await _caminar(escena, desde, dir, 240)
 		_revisar("baja a los tuneles por la zanja %s" % p["nombre"], r["hasta"].y < -3.0, "quedo en %s" % r["hasta"])
 	_revisar("hay cuartos del tunel", not escena.find_children("Tunel_*", "", true, false).is_empty() or true, "")
+	# El ambiente de la colonia cerrada (MapaColonia._ambiente) y la gente en los callejones
+	var marcas: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://resources/mapa/%s/marcas.json" % colonia))
+	var ambiente: Dictionary = marcas.get("ambiente", {})
+	if not ambiente.is_empty():
+		var niebla := (escena.get_node("WorldEnvironment") as WorldEnvironment).environment.fog_density
+		var lejos := (jugador.get_node("CameraPivot/SpringArm3D/Camera3D") as Camera3D).far
+		_revisar("la niebla y la distancia de la camara de la colonia", is_equal_approx(niebla, float(ambiente.get("niebla", niebla)))
+			and is_equal_approx(lejos, float(ambiente.get("lejos", lejos))), "niebla %.4f, lejos %.0f m" % [niebla, lejos])
+	jugador.global_position = Vector3(800.0, 2.6, -230.0)
+	jugador.velocity = Vector3.ZERO
+	for i in 900:
+		await process_frame
+	var gente := escena.get_node("Gente")
+	var arriba := 0
+	var cerca := 0
+	for c: Dictionary in gente.caminando:
+		var p := (c["nodo"] as Node3D).global_position
+		if p.y > 0.5:
+			arriba += 1
+		if p.distance_to(jugador.global_position) < 40.0:
+			cerca += 1
+	_revisar("la gente camina por los callejones de las terrazas", gente.caminando.size() >= 8 and arriba >= 4 and cerca >= 4,
+		"%d caminando, %d en terrazas, %d a menos de 40 m" % [gente.caminando.size(), arriba, cerca])
 	# De noche: focos de los callejones prendidos y el global de la noche para las ventanas
 	var ciclo := escena.get_node("Ciclo")
 	ciclo.set("_tiempo", float(ciclo.get("dia_duracion")) + 200.0)

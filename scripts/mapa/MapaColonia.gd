@@ -31,6 +31,8 @@ func _enter_tree() -> void:
 	actual = cual
 	var marcas = JSON.parse_string(FileAccess.get_file_as_string(DATOS % [cual, "marcas.json"]))
 	abierto_24h = marcas is Dictionary and bool(marcas.get("abierto_24h", false))
+	if marcas is Dictionary and marcas.get("ambiente") is Dictionary:
+		_ambiente(marcas["ambiente"])
 	if cual == colonia:
 		return   # la escena ya apunta a ella
 	var puntos := DATOS % [cual, "puntos.json"]
@@ -50,6 +52,35 @@ func _enter_tree() -> void:
 	if marcas is Dictionary and marcas.has("recorte"):
 		var r: Array = marcas["recorte"]
 		_poner("Horizonte", "rect", Rect2(float(r[0]), float(r[1]), float(r[2]) - float(r[0]), float(r[3]) - float(r[1])))
+
+
+## El "ambiente" de una colonia cerrada (la favela de La Gotera; exportar.py lo copia del .json):
+##   niebla  fog_density del WorldEnvironment (la escena trae 0.0196: el 5 % se ve a 150 m)
+##   lejos   m hasta donde dibuja la camara del jugador (el dron no cambia); con niebla espesa lo de
+##           mas alla ya no se ve y no se gasta en dibujarlo
+##   gente   {caminantes, anillo [cerca, lejos], quitar_a, alto_libre, rayo_desde} para Gente.gd
+## El Environment se duplica: es un sub_resource de mapa.tscn y cambiarlo se quedaba para la
+## siguiente colonia que cargara la escena.
+func _ambiente(datos: Dictionary) -> void:
+	var entorno := get_node_or_null("WorldEnvironment") as WorldEnvironment
+	if entorno and datos.has("niebla"):
+		entorno.environment = entorno.environment.duplicate()
+		entorno.environment.fog_density = float(datos["niebla"])
+	var camara := get_node_or_null("Player/CameraPivot/SpringArm3D/Camera3D") as Camera3D
+	if camara and datos.has("lejos"):
+		camara.far = float(datos["lejos"])
+	var gente := get_node_or_null("Gente")
+	if gente and datos.get("gente") is Dictionary:
+		var g: Dictionary = datos["gente"]
+		for clave: String in g:
+			var valor = g[clave]
+			if valor is Array:
+				valor = Vector2(float(valor[0]), float(valor[1]))
+			elif clave == "caminantes":
+				valor = int(valor)
+			else:
+				valor = float(valor)
+			gente.set(clave, valor)
 
 
 func _exit_tree() -> void:

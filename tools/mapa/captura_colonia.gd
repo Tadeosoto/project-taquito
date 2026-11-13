@@ -53,7 +53,9 @@ func _tomar() -> void:
 		var ambiente := (escena.get_node("WorldEnvironment") as WorldEnvironment).environment
 		ambiente.fog_density = float(args["niebla"])
 	var camara := Camera3D.new()
-	camara.far = 600.0
+	# Hasta donde ve el jugador (MapaColonia: "lejos" de una colonia cerrada); con --niebla, de lejos
+	var del_jugador := escena.get_node_or_null("Player/CameraPivot/SpringArm3D/Camera3D") as Camera3D
+	camara.far = 600.0 if args.has("niebla") or del_jugador == null else minf(600.0, del_jugador.far)
 	escena.add_child(camara)
 	var fotos := []
 	if args.has("vistas"):

@@ -72,6 +72,10 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 - **Guardias y vigías con los civiles `hombre_*`:** los `asesino_*` del pack PSX no están retargeteados (sin animación).
 - **La favela ignora la traza de OSM** (JJ a media noche): `favela.py` tira calles, casas, lotes, tapones y postes del bloqueo y deja solo la muralla.
 - **Casas de la favela sin detalles de azotea** (`detalles: false`) y los adornos de los callejones espaciados (`"callejones"` del `.json`: tendederos cada 13–22 m, focos cada 16–24 m, capillitas cada 13, basura desde 12 m): con 650 casas y 600 callejones el `.glb` se iba a 52 MB; así queda en 24 MiB, bajo el límite de 25 MB.
+- **La favela es cerrada y con niebla** (JJ, 2026-11-13). Su `.json` lleva `"ambiente"`, que `exportar.py` copia a `marcas.json` y `MapaColonia._ambiente` aplica al cargar:
+  - `niebla` 0.045 en vez de 0.0196: el 5 % se ve a unos 67 m en lugar de 150 m.
+  - `lejos` 85 m: la cámara del jugador no dibuja más allá, porque la niebla ya lo tapa. El dron no cambia.
+  - `gente`: hasta 16 caminantes que salen entre 12 y 38 m del jugador y se quitan a 50 m. El suelo cuenta como camino hasta 2 m de alto, por las terrazas de 0.75 y 1.5 m, y el rayo baja desde 4 m, abajo de los tablones. Antes solo caminaban por la franja de abajo.
 - **Escaleras de fierro solo donde caben a lo largo de la fachada** (unos 6.6 m con su rampa): con fachadas más cortas se salían de la esquina y tapaban el callejón de al lado. Hoy queda una. Si dos callejones llegan al mismo borde de banda, ponen una sola escalinata.
 - **Las casas van juntas por bloques de 6×6 celdas** (`"grupo"` → una malla por bloque, `colonia._juntar_grupos`) para que el `.glb` y la importación pesen menos.
 - **Nombres parodia** (`"nombres_parodia"`, real → juego): Av. del Cedro Seco, Calle Primavera Marchita, Calle Nogal Hueco, Calle Roble Torcido, Av. Parota Sin Sombra, Calle Caobilla Apolillada, Privada Roble Quebrado, Privada del Chorro, Privada de la Fuga, Calle Sin Número, Calle Tres Cuartos, Privada del Gotero, Calle Monte Caramelo, Privada Monte Caramelo, Calle Ébano Quemado, Calle Seis Cerrada. En la favela ya no hay placas (no hay calles).
@@ -96,10 +100,10 @@ Las capturas están en `~/casa_psm/gotera/` con su lista en `00_resumen.md` (fue
 | La Gotera, tianguis de armas | 8.4 ms | 7.3 ms | 324 |
 | La Gotera, tramo del agua | 12.9 ms | 8.5 ms | 933 |
 | La Gotera, tramo de comida | 10.5 ms | 8.3 ms | 1321 |
-| Favela, boca | 7.2 ms | 9.6 ms | 557 |
-| Favela, callejón | 7.2 ms | 10.0 ms | 755 |
-| Favela, plaza | 7.2 ms | 9.0 ms | 660 |
-| Favela, fondo | 7.8 ms | 10.1 ms | 732 |
-| Favela, túnel | 5.2 ms | 5.9 ms | 508 |
+| Favela, boca | 7.0 ms | 8.4 ms | 519 |
+| Favela, callejón | 6.9 ms | 8.5 ms | 703 |
+| Favela, plaza | 6.8 ms | 7.8 ms | 613 |
+| Favela, fondo | 7.8 ms | 8.9 ms | 690 |
+| Favela, túnel | 5.2 ms | 5.4 ms | 444 |
 
-Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La favela se midió con el modelo final (2026-11-13). Pruebas: `tools/mapa/probar_gotera.gd -- --favela` y `tools/mapa/recorrer_favela.gd -- --cuantos=120` (120 callejones sin atorarse, escalinatas, bajada al túnel, focos de noche).
+Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La favela se midió con el modelo final, su niebla, la cámara a 85 m y 16 caminantes (2026-11-13). Con la niebla de la escena y la cámara sin límite de noche llegaba a 10.1 ms. Pruebas: `tools/mapa/probar_gotera.gd -- --favela` y `tools/mapa/recorrer_favela.gd -- --cuantos=120` (120 callejones sin atorarse, escalinatas, bajada al túnel, focos de noche).

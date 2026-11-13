@@ -150,6 +150,9 @@ def exportar(nombre):
     salida = {"colonia": nombre, "recorte": datos["recorte"]}
     if datos.get("abierto_24h"):
         salida["abierto_24h"] = True
+    # "ambiente": niebla, lejos (camara) y gente de una colonia cerrada (MapaColonia._ambiente)
+    if datos.get("ambiente"):
+        salida["ambiente"] = datos["ambiente"]
     salida["marcas"] = datos.get("marcas", []) + focos + botin + placas + tianguis
     guardar_json(os.path.join(datos_dir, "marcas.json"), salida)
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", []) + datos.get("puestos_calle", [])})
