@@ -2,7 +2,7 @@
 
 > La lista de misiones del juego: la del **piloto**, los **contratos de la noche**, las de **día** y las de **historia**. Documento hermano de [`docs/lore.md`](lore.md) (el mundo), [`docs/especificaciones.md`](especificaciones.md) (las mecánicas) y [`docs/personajes.md`](personajes.md) (quién las da).
 >
-> Última actualización: 2026-11-12 (bloque L8 del megaplan "Noches de fuera": familia "Defensa externa", guardia de la reja y evento de la reja)
+> Última actualización: 2026-11-13 (ideas sin programar para el laberinto de La Gotera, en las misiones de la mafia). Antes: 2026-11-12, bloque L8 del megaplan "Noches de fuera".
 
 ## Cómo usar este documento
 
@@ -377,6 +377,21 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 | Los Gotera venden agua limpia dentro | Sí: desde el escalón 1 |
 | Entras a GelA contratado, no por Gerardo | Sí (L7) |
 | Gerardo ya sabe; sin Doña Refugio | Sí: A4 y A6 reescritas |
+
+### Ideas para el laberinto de La Gotera (💡, 2026-11-13)
+
+💡 Propuestas de JJ con Claude para la favela de Blender (`la_gotera_favela`: callejones de 1.2 a 2.2 m, terrazas con escalinatas, tablones entre azoteas, niebla espesa, túneles con tiendas, la plaza, la bodega del agua y la válvula). **Nada está programado ni es canon todavía**: se cortan o cambian al pasarlas por `/game-quest`. Para probarlas sin las entregas de la mafia: `godot --path . scenes/prueba_gotera.tscn` (ver `docs/mapa/colonias/la_gotera.md`).
+
+| Idea | Da | Qué se hace | Riesgo | Reusa | Tamaño |
+|---|---|---|---|---|---|
+| **El recado sin mapa** | Nemesio | Llevar algo a "la del tinaco azul, junto a la capilla": adentro el minimapa no ayuda y la niebla tapa; te orientas con murales, capillitas y tendederos | Perderte; que se acabe el tiempo | `VISITAR`/`ENTREGAR` con una marca sin flecha en el mapa | S |
+| **La persecución por las azoteas** | Un marchante del tianguis | Un ratero huye por la favela: callejones, escalinatas y tablones. Si lo pierdes en la niebla, la gente que camina te dice hacia dónde corrió | Caerte de un tablón; perderlo | Algo nuevo: un NPC que huye por las banquetas de `Gente` y las azoteas | M |
+| **Escoltar al cobrador** | Nemesio | Acompañar al Primo casa por casa a cobrar la cuota por los pasillos angostos; en algunas puertas no quieren pagar | Que el Primo caiga | `ESCOLTAR` con varias paradas (`Acompanante`) | S |
+| **El cargamento por los túneles** | Balas y Veladoras | Llevar una caja del túnel a una boca del tianguis antes de que acabe la hora; si te golpean la sueltas. Más corto, pero es el territorio de la Madre del Cárcamo | Soltar la caja; la hora | `LLEVAR_CARGA` con caja `soltable` (las entregas de la mafia) | S |
+| **Defender la plaza** | Los Gotera | De noche algo entra por la muralla y hay que aguantar en la cancha; los callejones angostos dejan controlar por dónde llegan | Las oleadas | `DEFENDER` con `lugar` en la plaza (hoy La Gotera no tiene zombis sueltos: serían turbas de misión) | S |
+| **El chamaco perdido** | Una vecina de la cancha | Un niño no volvió: preguntas a la gente, sigues pistas de una capillita a un tendedero y lo encuentras en un cuarto del túnel. Presenta a los vecinos de la favela | Pocas: es de día | `VISITAR` en cadena (pistas) y `ESCOLTAR` de regreso | M |
+| **La válvula** (A5, La toma) | Nemesio | La misión de historia que ya existe: cruzar la favela sin que te vean los vigías; la niebla esconde y los focos delatan. Abrirla o venderle el secreto a Buenrostro cambia la favela para siempre | Que te vean; traicionar a Nemesio | A5 de §4; el sigilo sería nuevo | L |
+| **La carrera de los chamacos** | Los niños de la cancha | Una carrera de la plaza a la bodega del agua por donde quieras. Si ganas te enseñan atajos (un tablón escondido, una casa con dos puertas) que sirven en las otras misiones | Ninguno | `VISITAR` con tiempo; los atajos serían nuevos | S |
 
 ---
 
