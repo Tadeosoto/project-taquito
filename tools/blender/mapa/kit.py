@@ -644,13 +644,21 @@ LONAS_TAPADO = [(0.15, 0.4, 0.78), (0.2, 0.62, 0.32), (0.85, 0.15, 0.15), (0.92,
 def _estructura(cara, muros, ccw, pisos):
     """Dalas de concreto gris en cada losa y castillos en las esquinas, saliendo un poco del muro:
     lo que se le ve a una casa de ladrillo sin aplanar. Con la fachada (no se esconde de lejos)."""
+    cx = sum(p[0] for p in ccw) / len(ccw)
+    cy = sum(p[1] for p in ccw) / len(ccw)
     for a, b, _t in muros:
         largo = math.hypot(b[0] - a[0], b[1] - a[1])
         u = ((b[0] - a[0]) / largo, (b[1] - a[1]) / largo)
+        n = (-u[1], u[0])
         m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+        if n[0] * (m[0] - cx) + n[1] * (m[1] - cy) < 0:
+            n = (-n[0], -n[1])
+        # Una banda plana apenas saliente por piso (era una caja: seis caras por muro y piso)
         for piso in range(1, pisos + 1):
-            _caja_detalle(cara, (m[0], m[1], piso * PISO - 0.22), u, largo + 0.12, 0.1, 0.24, COLOR_CONCRETO,
-                          abajo=True, mat="fachada_kit")
+            z0, z1 = piso * PISO - 0.22, piso * PISO + 0.02
+            p0 = (a[0] + n[0] * 0.05 - u[0] * 0.06, a[1] + n[1] * 0.05 - u[1] * 0.06)
+            p1 = (b[0] + n[0] * 0.05 + u[0] * 0.06, b[1] + n[1] * 0.05 + u[1] * 0.06)
+            _cara_hacia(cara, [(p0[0], p0[1], z0), (p1[0], p1[1], z0), (p1[0], p1[1], z1), (p0[0], p0[1], z1)], (n[0], n[1], 0), COLOR_CONCRETO, mat="fachada_kit")
     for x, y in ccw:
         _caja_detalle(cara, (x, y, 0.0), (1.0, 0.0), 0.3, 0.3, pisos * PISO, COLOR_CONCRETO, mat="fachada_kit")
 
@@ -666,17 +674,18 @@ def _obra_arriba(cara, nombre, muros, ccw, alto, obra, celda):
     castillos = list(ccw)
     for a, b, _t in muros:
         largo = math.hypot(b[0] - a[0], b[1] - a[1])
-        n = int(largo / 4.0)
+        n = int(largo / 6.5)
         for i in range(1, n + 1):
             f = i / (n + 1)
             castillos.append((a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f))
-    for x, y in castillos:
+    for n_c, (x, y) in enumerate(castillos):
         # Un poco hacia adentro, para no colgar del pretil
         px, py = x + (cx - x) * 0.04, y + (cy - y) * 0.04
         h = PISO * azar(0.75, 1.0) if obra == "castillos" else PISO
         _caja_detalle(cara, (px, py, alto), (1.0, 0.0), 0.3, 0.3, h, COLOR_CONCRETO, mat="fachada_kit")
-        for dx, dy in ((-0.08, -0.08), (0.08, -0.08), (0.08, 0.08), (-0.08, 0.08)):
-            _caja_detalle(cara, (px + dx, py + dy, alto + h), (1.0, 0.0), 0.035, 0.035, azar(0.5, 1.1), COLOR_OXIDO)
+        # Dos varillas en los de esquina, una en los de en medio (eran cuatro: pesaban)
+        for dx, dy in ((0.04, 0.04),):
+            _caja_detalle(cara, (px + dx, py + dy, alto + h), (1.0, 0.0), 0.04, 0.04, azar(0.5, 1.1), COLOR_OXIDO)
     if obra == "losa":
         # La losa sobre la mitad de atras (la mas lejos del frente, que es el primer muro)
         a, b, _t = muros[0]
@@ -732,10 +741,10 @@ def _huecos_obra(cara, nombre, ccw, ventanales, tapadas):
         a, b = en(s0, 0.02), en(s1, 0.02)
         _cara_hacia(cara, [(a[0], a[1], z0), (b[0], b[1], z0), (b[0], b[1], z1), (a[0], a[1], z1)], (nx, ny, 0), (0.05, 0.05, 0.06))
         # La cuadricula: barrotes a cada 0.3 m y tres travesanos, saliendo 7 cm
-        for z in (z0, (z0 + z1) / 2, z1 - 0.04):
+        for z in (z0, z1 - 0.04):
             x, y = en((s0 + s1) / 2, 0.07)
-            _caja_detalle(cara, (x, y, z), (ux, uy), s1 - s0, 0.04, 0.04, color_reja, abajo=True)
-        barrotes = max(4, round((s1 - s0) / 0.3))
+            _caja_detalle(cara, (x, y, z), (ux, uy), s1 - s0, 0.04, 0.04, color_reja)
+        barrotes = max(3, round((s1 - s0) / 0.6))
         for i in range(barrotes + 1):
             x, y = en(s0 + (s1 - s0) * i / barrotes, 0.07)
             _caja_detalle(cara, (x, y, z0), (ux, uy), 0.035, 0.035, z1 - z0, color_reja)
@@ -744,17 +753,21 @@ def _huecos_obra(cara, nombre, ccw, ventanales, tapadas):
         # La ventana del mosaico va mas o menos de 0.22 a 0.8 del ancho y de 0.25 a 0.8 del alto
         s0, s1 = 0.2 * largo, 0.82 * largo
         z0, z1 = zb + 0.22 * PISO, zb + 0.82 * PISO
-        if lona:
-            c = azar.elegir(LONAS_TAPADO)
+        if lona or True:
+            c = azar.elegir(LONAS_TAPADO) if lona else COLOR_TABLA
             a = (p0[0] + ux * s0 + nx * 0.025, p0[1] + uy * s0 + ny * 0.025)
             b = (p0[0] + ux * s1 + nx * 0.025, p0[1] + uy * s1 + ny * 0.025)
             _cara_hacia(cara, [(a[0], a[1], z0), (b[0], b[1], z0), (b[0], b[1], z1 + 0.05), (a[0], a[1], z1 + 0.05)], (nx, ny, 0), c)
         else:
-            tablas = 4
+            # Dos tablas anchas (eran cuatro: pesaban), con un hueco oscuro entre ellas
+            tablas = 2
+            a = (p0[0] + ux * s0 + nx * 0.02, p0[1] + uy * s0 + ny * 0.02)
+            b = (p0[0] + ux * s1 + nx * 0.02, p0[1] + uy * s1 + ny * 0.02)
+            _cara_hacia(cara, [(a[0], a[1], z0), (b[0], b[1], z0), (b[0], b[1], z1), (a[0], a[1], z1)], (nx, ny, 0), (0.05, 0.05, 0.06))
             for i in range(tablas):
                 z = z0 + (z1 - z0) * (i + 0.5) / tablas
                 x, y = p0[0] + ux * (s0 + s1) / 2 + nx * 0.04, p0[1] + uy * (s0 + s1) / 2 + ny * 0.04
-                _caja_detalle(cara, (x, y, z - 0.1), (ux, uy), (s1 - s0) * azar(0.9, 1.1), 0.04, 0.2, COLOR_TABLA, abajo=True)
+                _caja_detalle(cara, (x, y, z - 0.17), (ux, uy), (s1 - s0) * azar(0.9, 1.1), 0.04, 0.34, COLOR_TABLA)
 
 
 def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ventanas=()):

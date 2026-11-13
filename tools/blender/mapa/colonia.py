@@ -355,6 +355,13 @@ def _piso(mundo, datos):
     todos = [q for linea in lineas for q in linea]
     caras = [[(todos[i][0], 0.0, todos[i][1]) for i in tri] for tri in tessellate_polygon(planos)]
     _con_choque(mundo, "Piso", caras, mat)
+    # Si hay tuneles (un hundido abierto), el piso tambien se ve por abajo: una copia volteada, sin choque,
+    # para no ver el cielo desde la galeria por las rendijas
+    if any(h[5] for h in huecos):
+        abajo = bpy.data.objects.new("Piso_Abajo", _malla_caras("Piso_Abajo", [[(x, -0.02, z) for x, _y, z in cara][::-1] for cara in caras], arriba=False))
+        abajo.data.materials.append(_kit()["foto"]("tierra") if "tierra" in _kit()["FOTOS"] else mat)
+        mundo.objects.link(abajo)
+        abajo[DATO] = "piso"
     for pol, hondo, bajar, borde, nombre, abiertos in huecos:
         fondo_pol = _hacia_adentro(pol, borde)
         tris = tessellate_polygon([[mathutils.Vector((x, z, 0.0)) for x, z in fondo_pol]])
@@ -946,7 +953,7 @@ def _tendederos(mundo, datos):
                     lx = math.hypot(q1[0] - q0[0], q1[2] - q0[2])
                     c.caja(((q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2 - 0.01, (q0[2] + q1[2]) / 2), (lx, 0.02, 0.02), "cable", giro)
                 if r.random() < 0.75:
-                    prendas = r.randint(2, 5)
+                    prendas = r.randint(*tuple(int(b) for b in _cada(datos, "prendas", (2, 5))))
                     for i in range(prendas):
                         t = (i + r.uniform(0.2, 0.8)) / prendas * 0.8 + 0.1
                         q = punto(t)
@@ -1014,9 +1021,9 @@ def _capilla(c, x, z, giro):
         c.esfera(p(lx, 1.08, 0.18), 0.08, col, seg=5, anillos=3)
 
 
-def _basura(c, x, z, r):
+def _basura(c, x, z, r, bolsas=(2, 5)):
     """Montón de basura junto a la pared: bolsas negras, cajas de cartón y llantas."""
-    for i in range(r.randint(2, 5)):
+    for i in range(r.randint(*bolsas)):
         rad = r.uniform(0.2, 0.32)
         c.esfera((x + r.uniform(-0.5, 0.5), rad * 0.7, z + r.uniform(-0.4, 0.4)), rad, "bolsa_negra", seg=6, anillos=4, aplastar=0.75)
     for i in range(r.randint(0, 2)):
@@ -1048,7 +1055,8 @@ def _vida_callejones(mundo, datos):
         hubo = True
         ux, uz = (bx - ax) / largo, (bz - az) / largo
         nx, nz = -uz, ux
-        if semilla % 2 == 0:
+        # Una capillita en uno de cada "capilla_cada" callejones (dos, salvo que la colonia diga otra cosa)
+        if semilla % int(_cada(datos, "capilla_cada", (2,))[0]) == 0:
             lado = 1 if semilla % 4 == 0 else -1
             s = min(2.5, largo / 3)
             # Su frente (+Z local) hacia el centro del callejon: -n * lado
@@ -1057,7 +1065,8 @@ def _vida_callejones(mundo, datos):
         s = r.uniform(3.0, 6.0)
         while s < largo - 1.0:
             lado = r.choice((-1, 1))
-            _basura(trozo(p["nombre"], s), ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r)
+            _basura(trozo(p["nombre"], s), ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r,
+                    tuple(int(b) for b in _cada(datos, "bolsas", (2, 5))))
             s += r.uniform(*_cada(datos, "basura_cada", BASURA_CADA))
     _focos(trozo, datos)
     trozo.poner(mundo)
