@@ -22,7 +22,7 @@ Como Santa Mugre: muralla en `map_test` → reja con flecha amarilla → escena 
 
 ### Cambio de lógica respecto a M7a
 
-Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la muralla está abierta (el tianguis es de todos) y ese mismo requisito guarda las bocas de la favela. `FortalezasMapa` ya no escucha `Misiones.cambio`; `Misiones.favela_abierta()` se reusa tal cual. `docs/misiones.md` dice lo mismo. Prueba: `godot --path . --headless -s tools/mapa/probar_gotera.gd` (18/18: llegadas por cada reja y boca, el guardia que regresa, el paso con cinco entregas, las rejas abiertas de `map_test` con su flecha).
+Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la muralla está abierta (el tianguis es de todos) y ese mismo requisito guarda las bocas de la favela. `FortalezasMapa` ya no escucha `Misiones.cambio`; `Misiones.favela_abierta()` se reusa tal cual. `docs/misiones.md` dice lo mismo. Prueba: `godot --path . --headless -s tools/mapa/probar_gotera.gd` (21/21 con `--favela`: llegadas por cada reja y boca, el guardia que regresa, el paso con cinco entregas, las rejas abiertas de `map_test` con su flecha).
 
 ## El tianguis
 
@@ -84,4 +84,19 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 
 ## Rendimiento y capturas
 
-Ver `~/casa_psm/gotera/00_resumen.md` (la lista de capturas) y la sección de números al final de este archivo cuando se midió.
+Las capturas están en `~/casa_psm/gotera/` con su lista en `00_resumen.md` (fuera del repo). Números de `godot --path . -s tools/mapa/medir_gotera.gd -- --colonia=<colonia>` (mediana del tiempo de GPU, Intel HD 520, 640×480). El presupuesto es no pasar de ~5 ms sobre el tianguis de Santa Mugre.
+
+| Lugar | GPU día | GPU noche | Llamadas día |
+|---|---|---|---|
+| Santa Mugre, tianguis a lo largo (referencia) | 10.1 ms | 8.3 ms | 786 |
+| Santa Mugre, tianguis de lado (referencia) | 10.7 ms | 9.3 ms | 905 |
+| La Gotera, tianguis de armas | 8.4 ms | 7.3 ms | 324 |
+| La Gotera, tramo del agua | 12.9 ms | 8.5 ms | 933 |
+| La Gotera, tramo de comida | 10.5 ms | 8.3 ms | 1321 |
+| Favela, boca | 7.2 ms | 9.6 ms | 557 |
+| Favela, callejón | 7.2 ms | 10.0 ms | 755 |
+| Favela, plaza | 7.2 ms | 9.0 ms | 660 |
+| Favela, fondo | 7.8 ms | 10.1 ms | 732 |
+| Favela, túnel | 5.2 ms | 5.9 ms | 508 |
+
+Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La favela se midió con el modelo final (2026-11-13). Pruebas: `tools/mapa/probar_gotera.gd -- --favela` (21/21) y `tools/mapa/recorrer_favela.gd -- --cuantos=120` (120 callejones sin atorarse, escalinatas, bajada al túnel, focos de noche).
