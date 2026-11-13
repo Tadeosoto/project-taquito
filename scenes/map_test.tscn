@@ -32,6 +32,7 @@
 [ext_resource type="Texture2D" path="res://textures/map/banqueta.png" id="36_banqueta"]
 [ext_resource type="Script" path="res://scripts/map/MapBardas.gd" id="37_bardas"]
 [ext_resource type="Script" path="res://scripts/map/MuroColonia.gd" id="muro_colonia_gd"]
+[ext_resource type="Script" path="res://scripts/map/FortalezasMapa.gd" id="fortalezas_gd"]
 [ext_resource type="Texture2D" path="res://textures/map/barda.png" id="38_barda"]
 [ext_resource type="Texture2D" path="res://textures/map/malla.png" id="39_malla"]
 [ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="40_alumbrado"]
@@ -289,6 +290,9 @@ target_path = NodePath("../Dron")
 [node name="MuroSantaMugre" type="Node3D" parent="."]
 script = ExtResource("muro_colonia_gd")
 jugador_path = NodePath("../Player")
+
+[node name="Fortalezas" type="Node3D" parent="."]
+script = ExtResource("fortalezas_gd")
 
 [node name="Bardas" type="Node3D" parent="."]
 script = ExtResource("37_bardas")
