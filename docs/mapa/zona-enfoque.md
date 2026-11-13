@@ -34,7 +34,7 @@ Lejos de las rejas, en parques o llanos (JJ, 2026-11-12):
 | 4 | Parque "monos rojos" | 20.603248, −103.410248 | (494, −529) | 301 m (reja norte de La Gotera) |
 | 5 | Parques del Mosco | 20.597642, −103.411822 | (330, 95) | 433 m |
 
-✅ (M1, 2026-11-12) Cada uno es un `SitiosTinaco.SITIOS`: tiene un tinaco puesto en el mapa (`FortalezasMapa`) y a Chava parado afuera, que ofrece la defensa de día; al aceptar empieza la defensa de ESE tinaco. **Nivel y paga por tinaco** (los dos más cerca de Santa Mugre son los más fáciles): Bahía de Banderas 1 ($150), Parques del Mosco 2 ($175), Parque Triangulito 3 ($200), Parque Central 4 ($225) y Monos Rojos 5 ($250). El Jardín Imperial queda solo como el parque de la escena de prueba (`DefensaTinaco.CENTRO`).
+✅ (M1, 2026-11-12) Cada uno es un `SitiosTinaco.SITIOS`: tiene un tinaco puesto en el mapa (`FortalezasMapa`) y a Chava parado afuera, que ofrece la defensa de día; al aceptar empieza la defensa de ESE tinaco. **Nivel y paga por tinaco** (al principio por distancia a Santa Mugre; JJ cambió entre sí el 2 y el 3): Bahía de Banderas 1 ($150), Parque Triangulito 2 ($175), Parques del Mosco 3 ($200), Parque Central 4 ($225) y Monos Rojos 5 ($250). El Jardín Imperial queda solo como el parque de la escena de prueba (`DefensaTinaco.CENTRO`).
 
 ## Qué implica
 

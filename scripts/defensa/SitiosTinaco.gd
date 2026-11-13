@@ -6,14 +6,16 @@ extends RefCounted
 ## parado afuera dando el contrato de dia (MisionesMundo). Al aceptarlo se entra a la defensa de ESE
 ## tinaco (PasoJefe + DefensaTinaco), de noche. Cada uno tiene su nivel: los dos mas cerca de Santa
 ## Mugre son los mas faciles y se complican conforme se alejan (JJ, 2026-11-12); la paga sube igual.
+## (JJ intercambio despues los niveles de Parques del Mosco y de Parque Triangulito: el Mosco es el 3 y el
+## Triangulito el 2.)
 ##
 ## `nivel` 1 a 5, `modo` el de Hordas.MODOS, `factor` lo que multiplica a `dificultad` (el tamano de
 ## los grupos), `pesos` lo que paga al amanecer (mas el galon de agua del .tres).
 
 const SITIOS := [
 	{"nombre": "Bahía de Banderas", "pos": Vector2(-336.0, -1.0), "nivel": 1, "modo": "facil", "factor": 1.0, "pesos": 150},
-	{"nombre": "Parques del Mosco", "pos": Vector2(330.0, 95.0), "nivel": 2, "modo": "facil", "factor": 1.2, "pesos": 175},
-	{"nombre": "Parque Triangulito", "pos": Vector2(-331.0, -359.0), "nivel": 3, "modo": "medio", "factor": 1.0, "pesos": 200},
+	{"nombre": "Parques del Mosco", "pos": Vector2(330.0, 95.0), "nivel": 3, "modo": "medio", "factor": 1.0, "pesos": 200},
+	{"nombre": "Parque Triangulito", "pos": Vector2(-331.0, -359.0), "nivel": 2, "modo": "facil", "factor": 1.2, "pesos": 175},
 	{"nombre": "Parque Central", "pos": Vector2(157.0, -344.0), "nivel": 4, "modo": "medio", "factor": 1.2, "pesos": 225},
 	{"nombre": "Monos Rojos", "pos": Vector2(494.0, -529.0), "nivel": 5, "modo": "dificil", "factor": 1.0, "pesos": 250},
 ]
