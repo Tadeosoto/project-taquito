@@ -17,6 +17,8 @@
 #     casa      "puntos" (la huella), "pisos", "color" (nombre de kit.PALETA o [r, g, b]),
 #               "frente" (indice del lado que da a la calle: del punto i al i+1), "desgaste" 0-1,
 #               "tienda" (cortina en la planta baja), "tinaco"; con choque (kit.casa_malla);
+#               obra negra: "acabado" ("ladrillo" o "block"), "obra" ("castillos" o "losa": el piso
+#               que falta, encima), "ventanal" y "tapado" (0-1, ventanas con lona o tabla)
 #               "local": no se arma (su fachada de negocio la pone MapPuntos, ver bloqueo._tiendas)
 #     suelo     "puntos": la mancha plana (pasto de la plaza, un baldio); sin choque
 #     calle     "puntos": el eje, "ancho" del arroyo y "banqueta" de cada lado; sin choque (va
@@ -134,7 +136,7 @@ def _pieza(col, p):
         color = k["PALETA"].get(color, (0.8, 0.8, 0.8)) if isinstance(color, str) else color
         malla = k["casa_malla"](nombre, p["puntos"], p.get("pisos", 1), color, p.get("frente", 0),
                                 p.get("desgaste", 0.5), p.get("tienda", False), p.get("tinaco", True), p.get("varillas"),
-                                p.get("detalles", True), _acabado(p))
+                                p.get("detalles", True), _acabado(p), p.get("obra"), p.get("ventanal", False), p.get("tapado", 0.0))
         ob = bpy.data.objects.new(nombre, malla)
         ob.location = a_blender(x, z, y)
         ob.rotation_euler = (0.0, 0.0, rot)
