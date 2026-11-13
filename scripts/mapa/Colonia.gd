@@ -74,6 +74,14 @@ var _marcas: Array = []
 var _reflectores: Array[Light3D] = []
 var _energias: Array[float] = []      # la de cada luz de _reflectores, de noche
 var _parpadean: Array[bool] = []
+var _todo_el_dia: Array[bool] = []   # las luces de adentro (casas abandonadas): prenden tambien de dia
+# Lo que se cruza por dentro (marcas "interior" de favela.py): [{"inversa", "medio", "grupo",
+# "techos": [MeshInstance3D], "choques": [CollisionObject3D]}]. Adentro, los techos de su grupo
+# solo dan sombra, el resorte de la camara no choca con ellos y la camara sube a verte desde arriba
+var _interiores: Array[Dictionary] = []
+var _grupo_adentro := -1
+var _pitch_afuera := 0.0
+var _regresa_pitch := false
 var _de_dia: Array[Node3D] = []      # los "vecino": se esconden de noche y de lejos
 var _de_noche: Array[Node3D] = []    # los "vecino" con "cuando": "noche" (la vela del tinaco)
 var _siempre: Array[Node3D] = []     # los de "cuando": "siempre" (los vigias): solo se esconden de lejos
@@ -92,6 +100,10 @@ const FOCO_ENERGIA := 1.8
 const FOCO_ALCANCE := 8.0
 const FOCO_COLOR := Color(1.0, 0.8, 0.5)
 const FOCO_PARPADEA := 4
+# La camara adentro: brazo mas corto y mirando hacia abajo, por encima de los muros
+const INTERIOR_BRAZO := 3.4
+const INTERIOR_PITCH := -52.0
+const INTERIOR_CAMBIA := 5.0
 const BOTIN_BOLSA := "res://resources/productos/takis_tazo.tres"
 const BOTIN_CURACION := ["res://resources/productos/tacos.tres", "res://resources/productos/caguama.tres"]
 
@@ -168,6 +180,10 @@ func _ready() -> void:
 				_reflector(marca)
 			"foco":
 				_foco(marca)
+			"interior":
+				_interiores.append({"inversa": lugar(marca).affine_inverse(), "grupo": int(marca.get("grupo", 0)),
+					"medio": Vector2(float(marca["tam"][0]), float(marca["tam"][1])) / 2.0,
+					"nombres": marca.get("techos", [])})
 			"botin":
 				_botin(marca)
 			"ninos":
@@ -221,12 +237,24 @@ func _ready() -> void:
 
 
 	_solo_dia = find_children("Dia_*", "MeshInstance3D", true, false)
+	for interior: Dictionary in _interiores:
+		var techos: Array[MeshInstance3D] = []
+		var choques: Array[CollisionObject3D] = []
+		for n: String in interior["nombres"]:
+			for t in find_children("Techo_" + n, "MeshInstance3D", true, false):
+				techos.append(t)
+			for c in find_children(n + "_techo*", "CollisionObject3D", true, false):
+				choques.append(c)
+		interior["techos"] = techos
+		interior["choques"] = choques
 	set_process(not _reflectores.is_empty() or not _de_dia.is_empty() or not _solo_dia.is_empty()
-			or not _de_noche.is_empty() or not _siempre.is_empty())
+			or not _de_noche.is_empty() or not _siempre.is_empty() or not _interiores.is_empty())
 
 
 # Los reflectores siguen a Ciclo.valor() (0 de dia, 1 de noche), asi se prenden al oscurecer
 func _process(delta: float) -> void:
+	if not _interiores.is_empty():
+		_camara_interior(delta)
 	if _ciclo == null:
 		_ciclo = get_tree().get_first_node_in_group("ciclo")
 		if _ciclo == null:
@@ -249,7 +277,7 @@ func _process(delta: float) -> void:
 					animacion.active = vecino.visible
 	var t := Time.get_ticks_msec() / 1000.0
 	for i in _reflectores.size():
-		var energia := _energias[i] * noche
+		var energia := _energias[i] * (1.0 if _todo_el_dia[i] else noche)
 		if _parpadean[i] and energia > 0.0:
 			# Foco que falla: casi siempre prendido, con cortes cortos e irregulares
 			var n := sin(t * 23.0 + i * 7.1) + sin(t * 3.7 + i * 1.3)
@@ -284,7 +312,8 @@ func _foco(marca: Dictionary) -> void:
 	luz.visible = false
 	luz.transform = lugar(marca)
 	add_child(luz)
-	_agregar_luz(luz, FOCO_ENERGIA, _reflectores.size() % FOCO_PARPADEA == 1)
+	_agregar_luz(luz, FOCO_ENERGIA, bool(marca.get("parpadea", _reflectores.size() % FOCO_PARPADEA == 1)),
+			bool(marca.get("siempre", false)))
 
 
 func _ninos(marca: Dictionary) -> void:
@@ -466,10 +495,58 @@ func _botin(marca: Dictionary) -> void:
 	add_child(nodo)
 
 
-func _agregar_luz(luz: Light3D, energia: float, parpadea: bool) -> void:
+func _agregar_luz(luz: Light3D, energia: float, parpadea: bool, todo_el_dia := false) -> void:
 	_reflectores.append(luz)
 	_energias.append(energia)
 	_parpadean.append(parpadea)
+	_todo_el_dia.append(todo_el_dia)
+
+
+# Entrar a una casa abandonada o a un callejon techado: su techo se vuelve invisible (sigue dando
+# sombra), el resorte lo ignora y la camara sube; al salir todo vuelve y el angulo regresa al de antes
+func _camara_interior(delta: float) -> void:
+	var jugador := get_tree().get_first_node_in_group("jugador") as Player
+	if jugador == null:
+		return
+	var grupo := -1
+	var p := jugador.global_position
+	for interior: Dictionary in _interiores:
+		var local: Vector3 = interior["inversa"] * p
+		var medio: Vector2 = interior["medio"]
+		if absf(local.x) < medio.x and absf(local.z) < medio.y and local.y < 2.5:
+			grupo = int(interior["grupo"])
+			break
+	if grupo != _grupo_adentro:
+		_marcar_grupo(jugador, _grupo_adentro, false)
+		_marcar_grupo(jugador, grupo, true)
+		if _grupo_adentro < 0 and grupo >= 0:
+			_pitch_afuera = jugador.camera_pitch
+			_regresa_pitch = false
+		elif grupo < 0:
+			_regresa_pitch = true
+		_grupo_adentro = grupo
+		jugador.brazo_interior = INTERIOR_BRAZO if grupo >= 0 else 0.0
+	var paso := 1.0 - exp(-INTERIOR_CAMBIA * delta)
+	if _grupo_adentro >= 0 and jugador.camera_pitch > INTERIOR_PITCH:
+		jugador.camera_pitch = lerpf(jugador.camera_pitch, INTERIOR_PITCH, paso)
+	elif _regresa_pitch:
+		jugador.camera_pitch = lerpf(jugador.camera_pitch, _pitch_afuera, paso)
+		_regresa_pitch = absf(jugador.camera_pitch - _pitch_afuera) > 0.5
+
+
+func _marcar_grupo(jugador: Player, grupo: int, adentro: bool) -> void:
+	if grupo < 0:
+		return
+	for interior: Dictionary in _interiores:
+		if int(interior["grupo"]) != grupo:
+			continue
+		for t: MeshInstance3D in interior["techos"]:
+			t.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if adentro else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		for c: CollisionObject3D in interior["choques"]:
+			if adentro:
+				jugador.spring_arm.add_excluded_object(c.get_rid())
+			else:
+				jugador.spring_arm.remove_excluded_object(c.get_rid())
 
 
 static func lugar(marca: Dictionary) -> Transform3D:
@@ -683,7 +760,8 @@ func _puerta(marca: Dictionary) -> void:
 		letrero.pixel_size = 0.01
 		letrero.modulate = LETRERO_COLOR
 		letrero.outline_size = 10
-		letrero.position = Vector3(0.0, LETRERO_ALTO, -LETRERO_ATRAS)
+		# Bajo techo (las tiendas del tunel, dentro de una casa abandonada) la marca lo baja
+		letrero.position = Vector3(0.0, float(marca.get("letrero_alto", LETRERO_ALTO)), -LETRERO_ATRAS)
 		letrero.visibility_range_end = LETRERO_LEJOS
 		area.add_child(letrero)
 	add_child(area)

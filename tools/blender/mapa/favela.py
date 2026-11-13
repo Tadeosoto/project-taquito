@@ -78,6 +78,23 @@ TIENDAS_FAVELA = [
     ("taqueria", "Tacos El Callejón"),
 ]
 TIENDAS_SEPARACION = 35.0
+# Lo que se cruza por dentro (JJ, 2026-11-13): casas abandonadas con un marco de puerta abierto
+# en dos lados (pasantes), cadenas de casas abandonadas comunicadas por dentro (pasadizos) y
+# callejones techados. Vacias, sin gente, con un foco adentro que a veces parpadea. Por ahora
+# pocas y cerca del spawn, para verlas (vista previa).
+ABANDONADAS = {"pasantes": 2, "pasadizos": 2, "techados": 2}
+# Los pasadizos son cuevas: una hilera larga de casas abandonadas que da vueltas por dentro de la
+# manzana, con focos que fallan mas. Las dos tiendas del tunel (con su flecha e interior propio)
+# van en casas de en medio del primero.
+PASADIZO_CASAS = 6
+PASADIZO_PARPADEA = 0.6
+# Por ahora (JJ, 2026-11-13): sin la red subterranea bajo el tinaco ni escaleras a las azoteas
+SUBTERRANEO = False
+ESCALERAS_AZOTEA = 0
+ABANDONADA_PUERTA = 1.5
+ABANDONADA_PARPADEA = 0.4
+TIENDA_TUNEL_ADENTRO = 0.8  # m de la flecha al muro (como PUERTA_AFUERA en Colonia.gd)
+TECHADO_ESQUINA = 1.3     # m que el techo de un callejon se queda antes de cada esquina
 # Puentes largos entre azoteas de dos pisos (los tablones normales ya existen)
 PUENTES = 4
 PUENTE_ANCHO = 1.35
@@ -543,7 +560,230 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
                        "y": round(2 * PISO + AZOTEA + 0.02 + alto_de(a if d == "v" else a), 2), "rot": rot, "largo": round(ancho_de[e] + 1.2, 2), "ancho": 1.2})
         cuenta["tablones"] += 1
     surcos = _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, banda, alto_de, nx, nz, pu, pv, abiertas, ancho_de, celdas_de, cuenta, op)
-    _tuneles_mini(datos, piezas, hundidos, marcas, cuenta, surcos, marco)
+    if op.get("subterraneo", SUBTERRANEO):
+        _tuneles_mini(datos, piezas, hundidos, marcas, cuenta, surcos, marco)
+
+
+_BORDES = {"N": lambda a, b: ((a, b), "h"), "E": lambda a, b: ((a + 1, b), "v"),
+           "S": lambda a, b: ((a, b + 1), "h"), "O": lambda a, b: ((a, b), "v")}
+_VECINO = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "O": (-1, 0)}
+
+
+def _abandonadas(piezas, marcas, casas, abiertas, ancho_de, marco, pu, pv, protegidos, spawn, cuenta, op):
+    """Casas pasantes, pasadizos y callejones techados (ABANDONADAS), los mas cercanos a `spawn`.
+    Cada casa abandonada sustituye a su casa (misma huella y pisos, tipo "abandonada", con sus
+    "puertas"); cada una lleva su foco y una marca "interior" con los techos que Colonia.gd
+    esconde mientras estas adentro."""
+    rng = random.Random(int(op.get("semilla", 7)) + 106)
+    hechas = []     # centros, para no amontonarlas
+
+    def libre(x, z, cerca=12.0):
+        return all(_dist((x, z), q) >= cerca for q in protegidos + hechas)
+
+    # Las casas dobles ocupan su celda y la de al lado (+u): cada celda -> la celda llave de su casa
+    dueno = {}
+    for llave, casa in casas.items():
+        if casa.get("local"):
+            continue
+        dueno[llave] = llave
+        if not _celda_simple(casa, pu, pv):
+            dueno[(llave[0] + 1, llave[1])] = llave
+
+    def celdas_de_casa(llave):
+        return [c for c, k in dueno.items() if k == llave]
+
+    def lados_abiertos(llave):
+        """[(lado, celda)] de los lados de la casa que dan a un callejon de ancho para pasar."""
+        fuera = []
+        for c in sorted(celdas_de_casa(llave)):
+            for l in "NESO":
+                borde = _BORDES[l](*c)
+                if borde in abiertas and ancho_de.get(borde, 0.0) >= 1.6:
+                    fuera.append((l, c))
+        return fuera
+
+    def sirve(cell):
+        casa = casas.get(cell)
+        return casa is not None and not casa.get("local") and _celda_simple(casa, pu, pv)
+
+    def punto_de_arista(c, l):
+        a, b = c
+        u, v = {"N": ((a + 0.5) * pu, b * pv), "E": ((a + 1) * pu, (b + 0.5) * pv),
+                "S": ((a + 0.5) * pu, (b + 1) * pv), "O": (a * pu, (b + 0.5) * pv)}[l]
+        return marco.mundo(u, v)
+
+    def t_en_lado(casa, lado, punto):
+        """Donde cae `punto` a lo largo del lado (desde su punto inicial, como en piezas.abandonada)."""
+        hw, hh = _lados(casa)
+        c, s_ = math.cos(casa["rot"]), math.sin(casa["rot"])
+        dx, dz = punto[0] - casa["x"], punto[1] - casa["z"]
+        lx, lz = dx * c - dz * s_, dx * s_ + dz * c
+        largo = 2 * (hw if lado in "NS" else hh)
+        t = {"N": lx + hw, "E": lz + hh, "S": hw - lx, "O": hh - lz}[lado]
+        m = ABANDONADA_PUERTA / 2 + 0.25
+        return min(max(t, m), largo - m)
+
+    def pegado(casa, lado, punto):
+        """El muro de ese lado pasa por `punto` (no esta recorrido por un callejon de enfrente)."""
+        hw, hh = _lados(casa)
+        c, s_ = math.cos(casa["rot"]), math.sin(casa["rot"])
+        dx, dz = punto[0] - casa["x"], punto[1] - casa["z"]
+        lx, lz = dx * c - dz * s_, dx * s_ + dz * c
+        return abs({"N": lz + hh, "E": lx - hw, "S": lz - hh, "O": lx + hw}[lado]) < 0.15
+
+    def abandonar(cell, puertas, techos, n, parpadea=ABANDONADA_PARPADEA):
+        casa = casas.pop(cell)
+        nombre = "Abandonada_%d_%d" % cell
+        nueva = {"nombre": nombre, "tipo": "abandonada", "favela": True, "x": casa["x"], "z": casa["z"], "rot": casa["rot"],
+                 "puntos": casa["puntos"], "pisos": casa.get("pisos", 1), "acabado": casa.get("acabado", "block"),
+                 "puertas": [["NESO".index(l), round(t, 2), ABANDONADA_PUERTA] for l, t in puertas]}
+        piezas[:] = [p for p in piezas if p is not casa]
+        piezas.append(nueva)
+        marcas.append({"nombre": "Foco_" + nombre, "tipo": "foco", "favela": True, "x": casa["x"], "z": casa["z"],
+                       "y": round(PISO - 0.5, 2), "siempre": True, "parpadea": rng.random() < parpadea})
+        hw, hh = _lados(casa)
+        techos.append(nombre)
+        hechas.append((casa["x"], casa["z"]))
+        cuenta["abandonadas"] = cuenta.get("abandonadas", 0) + 1
+        return {"nombre": "Interior_" + nombre, "tipo": "interior", "favela": True, "x": casa["x"], "z": casa["z"],
+                "rot": casa["rot"], "tam": [round(hw * 2, 2), round(hh * 2, 2)], "grupo": n}
+
+    def cerca_del_spawn(cell):
+        return _dist((casas[cell]["x"], casas[cell]["z"]), spawn)
+
+    # Pasadizos (cuevas): PASADIZO_CASAS casas pegadas (sencillas o dobles, sin callejon entre
+    # ellas) que dan vueltas; la primera y la ultima salen a callejones; adentro se pasa de una a
+    # otra por un marco en el muro compartido
+    opuesto = {"N": "S", "S": "N", "E": "O", "O": "E"}
+
+    def vecinas(llave):
+        """[(llave vecina, lado, celda propia)] de las casas pegadas por un muro sin callejon."""
+        res = []
+        for c in sorted(celdas_de_casa(llave)):
+            for l in "NESO":
+                da, db = _VECINO[l]
+                otra = dueno.get((c[0] + da, c[1] + db))
+                if otra is None or otra == llave or _BORDES[l](*c) in abiertas:
+                    continue
+                punto = punto_de_arista(c, l)
+                if pegado(casas[llave], l, punto) and pegado(casas[otra], opuesto[l], punto):
+                    res.append((otra, l, c))
+        return res
+
+    cadenas = []
+    usadas = set()
+    for llave in sorted(set(dueno.values()), key=cerca_del_spawn):
+        if len(cadenas) >= ABANDONADAS["pasadizos"]:
+            break
+        if llave in usadas or not lados_abiertos(llave) or not libre(casas[llave]["x"], casas[llave]["z"], 20.0):
+            continue
+        pila = [([llave], [])]
+        pasos = 0
+        while pila and pasos < 20000:
+            pasos += 1
+            camino, pasos_ = pila.pop()
+            if len(camino) == PASADIZO_CASAS:
+                entra = [x for x in lados_abiertos(camino[0]) if x[0] != pasos_[0][1]]
+                sale = [x for x in lados_abiertos(camino[-1]) if x[0] != opuesto[pasos_[-1][1]]]
+                if entra and sale:
+                    cadenas.append((camino, pasos_, entra[0], sale[0]))
+                    usadas.update(camino)
+                    break
+                continue
+            for otra, l, c in vecinas(camino[-1]):
+                if otra not in camino and otra not in usadas:
+                    pila.append((camino + [otra], pasos_ + [(c, l)]))
+    n_grupo = 0
+    for camino, pasos_, entra, sale in cadenas:
+        puertas = {k: [] for k in camino}
+        for i, (c, l) in enumerate(pasos_):
+            punto = punto_de_arista(c, l)
+            puertas[camino[i]].append((l, t_en_lado(casas[camino[i]], l, punto)))
+            puertas[camino[i + 1]].append((opuesto[l], t_en_lado(casas[camino[i + 1]], opuesto[l], punto)))
+        for k, (l, c) in ((camino[0], entra), (camino[-1], sale)):
+            puertas[k].append((l, t_en_lado(casas[k], l, punto_de_arista(c, l))))
+        techos = []
+        if not cuenta.get("tiendas_tunel"):
+            # Las tiendas del tunel en dos casas de en medio, en un muro sin puerta, viendo hacia adentro
+            for k, (giro, texto) in zip((len(camino) // 3, 2 * len(camino) // 3), TIENDAS_TUNEL):
+                casa = casas[camino[k]]
+                usados = {l for l, _t in puertas[camino[k]]}
+                lado = next(l for l in "NESO" if l not in usados)
+                hw, hh = _lados(casa)
+                n = {"N": (0.0, -1.0), "E": (1.0, 0.0), "S": (0.0, 1.0), "O": (-1.0, 0.0)}[lado]
+                fondo = (hh if lado in "NS" else hw) - 0.2 - TIENDA_TUNEL_ADENTRO
+                mx, mz = _mundo_local(casa, n[0] * fondo, n[1] * fondo)
+                nx, nz = _girar(casa, (-n[0], -n[1]))
+                marcas.append({"nombre": "Puerta_Tunel_Tienda_%d" % (k + 1), "tipo": "puerta", "favela": True,
+                               "giro": giro, "texto": texto, "letrero_alto": 2.35, "x": round(mx, 2), "z": round(mz, 2), "y": 0.0,
+                               "rot": round(math.atan2(nx, nz), 4)})
+                cuenta["tiendas_tunel"] = cuenta.get("tiendas_tunel", 0) + 1
+        interiores = [abandonar(k, puertas[k], techos, n_grupo, PASADIZO_PARPADEA) for k in camino]
+        for i in interiores:
+            i["techos"] = techos
+            marcas.append(i)
+        cuenta["pasadizos"] = cuenta.get("pasadizos", 0) + 1
+        n_grupo += 1
+
+    # Casas pasantes: un marco en dos lados que dan a callejones distintos (de preferencia opuestos)
+    pasantes = 0
+    for cell in sorted([c for c in casas if sirve(c)], key=cerca_del_spawn):
+        if pasantes >= ABANDONADAS["pasantes"]:
+            break
+        abiertos = [l for l, _c in lados_abiertos(cell)]
+        if len(abiertos) < 2 or not libre(casas[cell]["x"], casas[cell]["z"]):
+            continue
+        par = next(([x, y] for x, y in (("N", "S"), ("E", "O")) if x in abiertos and y in abiertos), abiertos[:2])
+        techos = []
+        i = abandonar(cell, [(l, t_en_lado(casas[cell], l, punto_de_arista(cell, l))) for l in par], techos, n_grupo)
+        i["techos"] = techos
+        marcas.append(i)
+        pasantes += 1
+        n_grupo += 1
+    cuenta["pasantes"] = pasantes
+
+    # Callejones techados: tramos de una sola arista, con casa de los dos lados
+    def en_casa(x, z):
+        for c in casas.values():
+            lx, lz = marco.local(x, z)
+            cx, cz = marco.local(c["x"], c["z"])
+            hw, hh = _lados(c)
+            if abs(lx - cx) <= hw and abs(lz - cz) <= hh:
+                return True
+        return False
+    techados = 0
+    callejones = [p for p in piezas if p.get("tipo") == "calle" and p.get("nombre", "").startswith("Callejon")]
+    def medio(p):
+        return p["x"] + p["puntos"][1][0] / 2, p["z"] + p["puntos"][1][1] / 2
+    for p in sorted(callejones, key=lambda p: _dist(medio(p), spawn)):
+        if techados >= ABANDONADAS["techados"]:
+            break
+        dx, dz = p["puntos"][1]
+        largo = math.hypot(dx, dz)
+        if largo < 3.0 + 2 * TECHADO_ESQUINA or largo > max(pu, pv) * 1.1:
+            continue
+        mx, mz = medio(p)
+        ux, uz = dx / largo, dz / largo
+        lado = p["ancho"] / 2 + 1.0
+        if not libre(mx, mz) or not (en_casa(mx - uz * lado, mz + ux * lado) and en_casa(mx + uz * lado, mz - ux * lado)):
+            continue
+        nombre = "Techado_%d" % techados
+        rot = math.atan2(-dz, dx)
+        # El tramo va de esquina a esquina; en las esquinas cruzan o dan vuelta los otros callejones,
+        # asi que el techo y sus marcos se quedan entre las fachadas
+        largo -= 2 * TECHADO_ESQUINA
+        piezas.append({"nombre": nombre, "tipo": "techo_callejon", "favela": True, "x": round(mx, 2), "z": round(mz, 2),
+                       "rot": round(rot, 4), "largo": round(largo, 2), "ancho": round(p["ancho"], 2)})
+        # Sin toldo sobre la losa
+        piezas[:] = [t for t in piezas if not (t.get("tipo") == "toldo" and _dist((t["x"], t["z"]), (mx, mz)) < largo / 2 + 1.0)]
+        marcas.append({"nombre": "Foco_" + nombre, "tipo": "foco", "favela": True, "x": round(mx, 2), "z": round(mz, 2),
+                       "y": round(PISO - 0.5, 2), "siempre": True, "parpadea": rng.random() < ABANDONADA_PARPADEA})
+        marcas.append({"nombre": "Interior_" + nombre, "tipo": "interior", "favela": True, "x": round(mx, 2), "z": round(mz, 2),
+                       "rot": round(rot, 4), "tam": [round(largo, 2), round(p["ancho"], 2)], "techos": [nombre], "grupo": n_grupo})
+        hechas.append((mx, mz))
+        techados += 1
+        n_grupo += 1
+    cuenta["techados"] = techados
 
 
 def _tuneles(marco, r, zanjas, nx, nz, pu, pv, piezas, hundidos, marcas, cuenta):
@@ -987,6 +1227,10 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
         protegidos.append((casa["x"], casa["z"]))
         cuenta["tiendas"] += 1
 
+    # 3b. Lo que se cruza por dentro
+    spawn = next(((m["x"], m["z"]) for m in datos.get("marcas", []) if m.get("tipo") == "spawn"), centro_mapa)
+    _abandonadas(piezas, marcas, casas, abiertas, ancho_de, marco, pu, pv, protegidos, spawn, cuenta, op)
+
     # 4. Escaleras extra: 2 de dos pisos (fachada larga) y 2 de un piso.
     rng = random.Random(int(op.get("semilla", 7)) + 103)
     # La ruta de techos se garantiza en la componente mas grande de casas de dos pisos: las
@@ -1039,7 +1283,7 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
         a = rx * dx + rz * dz                 # a lo largo de la escalera
         b = abs(-rx * dz + rz * dx)           # hacia el callejon
         return largo * 0.4 - 1.0 <= a <= largo + 1.2 and b <= 3.0
-    for pisos, cuantas in ((2, 8),):
+    for pisos, cuantas in ((2, ESCALERAS_AZOTEA),):
         candidatos = []
         for cell, casa in list(casas.items()):
             if casa.get("local") or casa.get("pisos") != pisos:

@@ -236,6 +236,17 @@ def _pieza(col, p):
             chico = bpy.data.objects.new("Detalle_" + nombre, detalle.terminar())
             chico.location, chico.rotation_euler = ob.location, ob.rotation_euler
             col.objects.link(chico)
+        # El techo de lo que se cruza por dentro (casas abandonadas, callejones techados): otro
+        # objeto, "Techo_<nombre>", que MapaPostImport deja suelto y Colonia.gd esconde mientras
+        # estas adentro; sus choques se llaman "<nombre>_techo<i>" para que la camara los ignore
+        techo = getattr(k, "techo", None)
+        if techo is not None:
+            arriba = bpy.data.objects.new("Techo_" + nombre, techo.terminar())
+            arriba.location, arriba.rotation_euler = ob.location, ob.rotation_euler
+            col.objects.link(arriba)
+        for i, ((cx, cy, cz), tam, giro) in enumerate(getattr(k, "choques_techo", [])):
+            wx, wz = x + cx * c + cz * s, z - cx * s + cz * c
+            colision(col, "%s_techo%d" % (nombre, i), wx, wz, rot + giro, tam, y + cy - tam[1] / 2)
         return ob
     if tipo == "suelo":
         # Abajo de las calles y andadores (que van a 1-2 cm); "material" es un piso de kit.PISOS

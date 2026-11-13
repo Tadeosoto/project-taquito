@@ -2101,10 +2101,115 @@ def bodega_tunel(nombre, p):
     return k
 
 
+# --- Casas abandonadas y callejones techados de la favela (JJ, 2026-11-13): se cruzan por dentro.
+# Lo de arriba de la planta baja (losa, piso de arriba, azotea) va en `k.techo`, que colonia.py
+# saca como objeto aparte "Techo_<nombre>" y Colonia.gd esconde mientras estas adentro, para que
+# la camara te vea desde arriba. Sus choques van en `k.choques_techo` ("<nombre>_techo<i>"), que
+# el resorte de la camara ignora adentro.
+ABANDONADA_PUERTA = 2.1     # alto del hueco de la puerta
+ABANDONADA_MURO = 0.2
+
+
+def _muro_con_puertas(k, a, b, alto, huecos, mat, choca=True):
+    """Muro recto de `a` a `b` (puntos (x, z) en un eje), con huecos [(centro, ancho)] medidos
+    desde `a`. Cada hueco lleva su marco de concreto y el dintel arriba."""
+    (ax, az), (bx, bz) = a, b
+    largo = math.hypot(bx - ax, bz - az)
+    ux, uz = (bx - ax) / largo, (bz - az) / largo
+    giro = math.atan2(-uz, ux)
+    def tramo(t0, t1, y0, y1, material, con_choque):
+        if t1 - t0 < 0.02 or y1 - y0 < 0.02:
+            return
+        t = (t0 + t1) / 2
+        k.caja((ax + ux * t, (y0 + y1) / 2, az + uz * t), (t1 - t0, y1 - y0, ABANDONADA_MURO), material, giro=giro, choca=con_choque)
+    t = 0.0
+    for centro, ancho in sorted(huecos):
+        t0, t1 = centro - ancho / 2, centro + ancho / 2
+        tramo(t, t0, 0.0, alto, mat, choca)
+        tramo(t0, t1, ABANDONADA_PUERTA, alto, mat, False)
+        # Marco: jambas y cabezal de concreto que salen un poco del muro
+        for tj in (t0 + 0.06, t1 - 0.06):
+            k.caja((ax + ux * tj, ABANDONADA_PUERTA / 2, az + uz * tj), (0.12, ABANDONADA_PUERTA, ABANDONADA_MURO + 0.08), "concreto", giro=giro)
+        k.caja((ax + ux * (t0 + t1) / 2, ABANDONADA_PUERTA + 0.08, az + uz * (t0 + t1) / 2), (t1 - t0, 0.16, ABANDONADA_MURO + 0.08), "concreto", giro=giro)
+        t = t1
+    tramo(t, largo, 0.0, alto, mat, choca)
+
+
+def abandonada(nombre, p):
+    """Casa abandonada que se cruza: muros de obra negra con un marco de puerta abierto en cada
+    lado de `puertas` [[lado, centro, ancho]] (lado 0..3 = N, E, S, O de la huella, centro a lo
+    largo del lado desde su punto inicial), piso de tierra, sin muebles. Un foco colgado (la luz
+    es una marca "foco" de favela.py)."""
+    k = Constructor(nombre)
+    k.techo = Constructor(nombre + "_techo")
+    k.choques_techo = []
+    xs = [q[0] for q in p["puntos"]]
+    zs = [q[1] for q in p["puntos"]]
+    x0, x1, z0, z1 = min(xs), max(xs), min(zs), max(zs)
+    pisos = int(p.get("pisos", 1))
+    piso = PISO
+    alto = pisos * piso
+    mat = "foto_ladrillo_rojo" if p.get("acabado") == "ladrillo" else "foto_block"
+    m = ABANDONADA_MURO / 2
+    # Los lados en el orden de la huella (N, E, S, O), metidos medio muro
+    lados = [((x0, z0 + m), (x1, z0 + m)), ((x1 - m, z0), (x1 - m, z1)),
+             ((x1, z1 - m), (x0, z1 - m)), ((x0 + m, z1), (x0 + m, z0))]
+    huecos = {i: [] for i in range(4)}
+    for lado, centro, ancho in p.get("puertas", []):
+        huecos[int(lado)].append((float(centro), float(ancho)))
+    for i, (a, b) in enumerate(lados):
+        _muro_con_puertas(k, a, b, piso, huecos[i], mat)
+        if pisos > 1:
+            (ax, az), (bx, bz) = a, b
+            largo = math.hypot(bx - ax, bz - az)
+            k.techo.caja(((ax + bx) / 2, piso + (alto - piso) / 2, (az + bz) / 2), (largo, alto - piso, ABANDONADA_MURO), mat,
+                         giro=math.atan2(-(bz - az), bx - ax))
+    if pisos > 1:
+        # El piso de arriba es macizo (no se entra): su choque va con los del techo
+        k.choques_techo.append((((x0 + x1) / 2, piso + 0.16 + (alto - piso - 0.16) / 2, (z0 + z1) / 2), (x1 - x0, alto - piso - 0.16, z1 - z0), 0.0))
+    # Piso de tierra con manchas de cascajo
+    k.cara([(x0, 0.03, z1), (x1, 0.03, z1), (x1, 0.03, z0), (x0, 0.03, z0)], "tierra")
+    k.choques.append((((x0 + x1) / 2, -0.15, (z0 + z1) / 2), (x1 - x0, 0.3, z1 - z0), 0.0))
+    # La losa (vista desde abajo), la azotea con su pretil y un foco pelon colgado del centro
+    cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
+    k.techo.caja((cx, piso + 0.08, cz), (x1 - x0, 0.16, z1 - z0), "concreto", sin_abajo=False)
+    if pisos > 1:
+        k.techo.caja((cx, alto + 0.04, cz), (x1 - x0, 0.08, z1 - z0), "concreto")
+    for (a, b) in lados:
+        (ax, az), (bx, bz) = a, b
+        k.techo.caja(((ax + bx) / 2, alto + 0.2, (az + bz) / 2), (math.hypot(bx - ax, bz - az), 0.4, 0.15), mat,
+                     giro=math.atan2(-(bz - az), bx - ax))
+    k.choques_techo.append(((cx, alto - 0.15, cz), (x1 - x0, 0.3, z1 - z0), 0.0))
+    k.techo.caja((cx, piso - 0.2, cz), (0.015, 0.4, 0.015), "cable")
+    k.esfera((cx, piso - 0.46, cz), 0.07, "farol", seg=6, anillos=4)
+    return k
+
+
+def techo_callejon(nombre, p):
+    """Callejon techado: una losa de fachada a fachada sobre el tramo (a lo largo de x, `largo`,
+    `ancho` el del callejon) y un marco de puerta abierto en cada boca. Un foco colgado."""
+    k = Constructor(nombre)
+    k.techo = Constructor(nombre + "_techo")
+    k.choques_techo = []
+    largo, ancho = p.get("largo", 6.0), p.get("ancho", 2.0)
+    hx, hz = largo / 2, ancho / 2
+    piso = PISO
+    k.techo.caja((0.0, piso + 0.08, 0.0), (largo, 0.16, ancho + 0.3), "concreto", sin_abajo=False)
+    k.choques_techo.append(((0.0, piso + 0.08, 0.0), (largo, 0.16, ancho + 0.3), 0.0))
+    for x in (-hx + 0.15, hx - 0.15):
+        for s in (-1, 1):
+            k.caja((x, piso / 2, s * (hz - 0.12)), (0.3, piso, 0.24), "foto_block", choca=True)
+        k.caja((x, ABANDONADA_PUERTA + (piso - ABANDONADA_PUERTA) / 2, 0.0), (0.3, piso - ABANDONADA_PUERTA, ancho), "foto_block")
+        k.caja((x, ABANDONADA_PUERTA + 0.06, 0.0), (0.34, 0.12, ancho - 0.4), "concreto")
+    k.techo.caja((0.0, piso - 0.2, 0.0), (0.015, 0.4, 0.015), "cable")
+    k.esfera((0.0, piso - 0.46, 0.0), 0.07, "farol", seg=6, anillos=4)
+    return k
+
+
 PIEZAS = {"bodega_tunel": bodega_tunel, "tinaco_comunitario": tinaco_comunitario, "tunel": tunel, "tunel_cuarto": tunel_cuarto, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
           "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "escalinata": escalinata, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "toldo": toldo, "poste_luz": poste_luz, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro, "reja": reja,
           "reja_fierro": reja_fierro, "muralla": muralla, "mirador_muro": mirador_muro, "nicho_virgen": nicho_virgen,
-          "puesto_guardia": puesto_guardia}
+          "puesto_guardia": puesto_guardia, "abandonada": abandonada, "techo_callejon": techo_callejon}

@@ -247,8 +247,9 @@ func _favela() -> void:
 	_revisar("favela: minimapa propio (sin OSM)",
 			miniatura.mapa != null and miniatura.mapa.resource_path.ends_with("minimapa_la_gotera_favela.png")
 			and miniatura.datos_path.ends_with("la_gotera_favela/minimapa.json")
-			and miniatura._iconos.size() >= 8
-			and tipos_icono.has("tunel") and tipos_icono.has("bodega") and tipos_icono.has("tinaco") and tipos_icono.has("azotea"),
+			and miniatura._iconos.size() >= 6
+			# Por ahora sin tunel subterraneo ni escaleras a las azoteas: solo el tinaco y las salidas
+			and tipos_icono.has("tinaco") and tipos_icono.has("salida"),
 			"%s / %s / %d iconos %s" % [miniatura.mapa.resource_path if miniatura.mapa else "sin mapa", miniatura.datos_path, miniatura._iconos.size(), str(tipos_icono.keys())])
 	var tinacos := colonia.find_children("*", "TinacoComunitario", true, false)
 	var tinaco: Node = tinacos[0] if not tinacos.is_empty() else null
@@ -335,18 +336,29 @@ func _favela() -> void:
 			salen += 1
 	_revisar("favela: se entra y se sale de cada tienda a su patio", tiendas_favela == 6 and salen == tiendas_favela,
 		"%d de %d" % [salen, tiendas_favela])
-	# De noche se entra a la tienda del tunel y abre su interior propio
+	# De noche se entran las tiendas del tunel (dentro de las casas abandonadas de la cueva) y
+	# abren su interior propio; al salir quedas parado adentro de la casa
 	PasoColonia.lado = ""
 	await _anochecer(escena)
-	var puerta := colonia.get_node_or_null("Puerta_Tunel_Tienda_2") as Area3D
-	_revisar("favela: esta la puerta de la Fayuca del Tunel", puerta != null, "")
-	if puerta:
+	for giro in ["fayuca_tunel", "armas_tunel"]:
+		var puerta: Area3D = null
+		for m: Dictionary in colonia_datos.get("marcas", []):
+			if m.get("tipo") == "puerta" and m.get("giro") == giro:
+				puerta = colonia.get_node_or_null(String(m["nombre"])) as Area3D
+		_revisar("favela: esta la puerta de %s" % giro, puerta != null, "")
+		if puerta == null:
+			continue
 		jugador.global_position = puerta.global_position + Vector3(0.0, 1.0, 0.0)
 		jugador.velocity = Vector3.ZERO
 		await _cuadros(90)
-		var interior = escena.get_node("Interiores").get("_interior")
-		_revisar("favela: de noche se entra a la Fayuca del Tunel", interior != null and interior.giro == "fayuca_tunel",
+		var interior = interiores.get("_interior")
+		_revisar("favela: de noche se entra a %s" % giro, interior != null and interior.giro == giro,
 			"interior %s" % (interior.giro if interior else "ninguno"))
+		if interior != null:
+			interiores.call("_salir")
+			await _cuadros(90)
+			_revisar("favela: se sale de %s parado en la casa" % giro, jugador.is_on_floor() and jugador.global_position.y < 1.6,
+				"quedo en %s" % jugador.global_position)
 	PasoColonia.lado = ""
 	escena.queue_free()
 	await _cuadros(2)

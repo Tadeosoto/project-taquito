@@ -43,7 +43,7 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 ## La favela
 
 - **Un solo laberinto en toda la zona** (JJ, 2026-11-13): la favela **no respeta la traza de OSM**, no deja huecos y se siente angosta. `tools/blender/mapa/favela.py` (Python puro, después de `bloqueo.py`; `~/gotera_work/run_colonia.py` lo corre en orden) lo genera determinista por semilla: cuadrícula de 7 m girada como las calles de Haciendas, DFS desde la boca del poniente más lazos, **callejones de 1.2 a 2.2 m** en tramos rectos que se quiebran, cada celda una **casa de obra negra pegada a la de al lado** (block o ladrillo sin enjarre, castillos con varilla, media losa, ventanales de herrería, lonas y tablas en las ventanas; una de cada ocho pintada de un color), casas dobles, **patios** con tendederos y **plazuelas** con puesto de lona, **tablones y puentes** entre azoteas, **escaleras** a las azoteas, **toldos de lona** sobre los callejones, tendederos, cables, focos y basura. Desde la tarde del 2026-11-13 es el **perfil detallado** (detalles de azotea y adornos de callejón por omisión); el `.glb` pesa ~56 MB y se sube en Git normal (GitHub avisa a partir de 50 MiB pero lo acepta; el tope duro son 100 MiB).
-- **Favela plana:** todo el terreno al nivel del piso (sin terrazas, escalinatas ni rampas). Solo suben las escaleras a las azoteas y baja la escalera de la entrada a los túneles.
+- **Favela plana:** todo el terreno al nivel del piso (sin terrazas, escalinatas ni rampas). Por ahora no hay escaleras a las azoteas ni bajada a túneles.
 - **Lugares clave** (marcas `mision` para los dadores):
 
   | Lugar | Dónde | Marca |
@@ -55,6 +55,16 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
   | Bocas de los túneles | Tres patios de la banda a nivel, con su zanja y escalones | `Tunel_Entrada_0..2` |
   | La válvula | En el túnel, cuarto `valvula`: el pozo con la rueda, tras un barandal | `Valvula` |
   | Boca final | El fin de la galería principal, tapada con block, "A los cárcamos. No pasar" | `Boca_Tuneles` |
+
+## Cuevas, casas abandonadas y callejones techados (JJ, 2026-11-13)
+
+**Por ahora sin la red subterránea ni escaleras a las azoteas** (`favela.SUBTERRANEO = False`, `ESCALERAS_AZOTEA = 0`; el código de los túneles sigue en `favela._tuneles_mini` y `piezas.tunel*` por si vuelve). Lo de abajo de "Túneles" es historia de esa red. En su lugar, cosas que se cruzan por dentro a nivel de piso (`favela._abandonadas`, cantidades en `ABANDONADAS`; por ahora pocas y cerca del spawn):
+
+- **Casas abandonadas** (pieza `abandonada`, `piezas.abandonada`): misma huella y pisos que la casa que sustituyen, muros de obra negra, **marcos de puerta abiertos** de 1.5 m (`puertas`: lado, posición, ancho), piso de tierra, **sin muebles ni gente**. Un foco colgado (marca `foco` con `"siempre": true`, prende también de día, y `"parpadea"` al azar).
+- **Casas pasantes**: una casa sencilla con marco en dos lados que dan a callejones distintos: un atajo.
+- **Cuevas (pasadizos)**: `PASADIZO_CASAS` (6) casas pegadas, sencillas o dobles, que dan vueltas por dentro de la manzana; se pasa de una a otra por un marco en el muro compartido (solo donde los dos muros están pegados de verdad, sin rendija) y la primera y la última salen a callejones. Sus focos fallan más (`PASADIZO_PARPADEA`). **Las dos tiendas del túnel** (Fayuca del Túnel y Balas y Veladoras, con su flecha e interior propio) van en casas de en medio de la primera cueva, en un muro sin puerta y viendo hacia adentro; el letrero se baja a 2.35 m (`letrero_alto` en la marca `puerta`) para no quedar en la losa.
+- **Callejones techados** (pieza `techo_callejon`): losa de fachada a fachada y un marco en cada boca, en tramos de una sola arista con casa de los dos lados; se quedan `TECHADO_ESQUINA` (1.3 m) antes de cada esquina para no tapar las vueltas. Se quitan los toldos de encima.
+- **La cámara adentro**: lo de arriba de la planta baja va en un objeto aparte `Techo_<nombre>` (`MapaPostImport` no lo funde) y sus choques se llaman `<nombre>_techo<i>`. Cada pieza deja una marca `interior` (rectángulo y techos de su grupo; una cueva es un grupo). Con el jugador adentro, `Colonia._camara_interior` deja esos techos solo dando sombra, el resorte de la cámara los ignora, el brazo baja a 3.4 m (`Player.brazo_interior`) y el ángulo baja a −52°: se ve desde arriba como casa de muñecas. Al salir todo vuelve y el ángulo regresa al de antes.
 
 ## Túneles
 
@@ -132,4 +142,4 @@ Las capturas están en `~/casa_psm/gotera/` con su lista en `00_resumen.md` (fue
 | Favela, fondo | 7.8 ms | 8.9 ms | 690 |
 | Favela, túnel | 5.2 ms | 5.4 ms | 444 |
 
-Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La tabla es del **perfil simplificado** (24 MiB); el detallado (~56 MB, 203 toldos, 443 focos y 5 escaleras) está pendiente de medir en ventana con `medir_gotera.gd`. Pruebas: `tools/mapa/probar_gotera.gd -- --favela` (**44/44**: tiendas, entrar y salir de cada una a su patio, minimapa propio, tinaco sin Virgen y giro con WASD) y `tools/mapa/recorrer_favela.gd -- --cuantos=20` (**10/10**: callejones planos, las 8 escaleras hasta la azotea, bajada al túnel y por el pasillo hasta la bodega bajo el tinaco, gente y focos de noche).
+Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La tabla es del **perfil simplificado** (24 MiB); el detallado (~56 MB, 203 toldos, 443 focos y 5 escaleras) está pendiente de medir en ventana con `medir_gotera.gd`. Pruebas: `tools/mapa/probar_gotera.gd -- --favela` (**48/48**: tiendas, entrar y salir de cada una a su patio, las dos tiendas del túnel dentro de la cueva, minimapa propio, tinaco sin Virgen y giro con WASD) y `tools/mapa/recorrer_favela.gd -- --cuantos=20` (**9/9**: callejones planos, cruzar cada casa abandonada y callejón techado, la cámara adentro, gente y focos de noche; las pruebas de escaleras y túnel se saltan mientras no haya).

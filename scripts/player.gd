@@ -6,6 +6,9 @@ class_name Player
 # En el laberinto de la favela (GiroFavela.gd): con W apretado, A/D giran la camara en vez de
 # hacer strafe. En azoteas, tianguis y demas colonias queda false y A/D vuelven a ser strafe.
 @export var giro_con_wasd := false
+# Largo del brazo de la camara adentro de una casa abandonada o un callejon techado (lo pone
+# Colonia._camara_interior); 0 = el de siempre
+var brazo_interior := 0.0
 @export var rotation_speed: float = 16.0
 @export var speed: float = 5.0
 @export var sprint_speed: float = 9.0
@@ -2233,7 +2236,7 @@ func _camara_al_hombro() -> void:
 	_apuntando = pistola and is_physics_processing() and Input.is_action_pressed("apuntar") and carretilla == null
 	_hombro = lerpf(_hombro, (APUNTA_HOMBRO if _apuntando else HOMBRO) if pistola else 0.0, paso)
 	_alzar = lerpf(_alzar, HOMBRO_ALTO if pistola else 0.0, paso)
-	spring_arm.spring_length = lerpf(spring_arm.spring_length, (APUNTA_BRAZO if _apuntando else HOMBRO_BRAZO) if pistola else _brazo_base, paso)
+	spring_arm.spring_length = lerpf(spring_arm.spring_length, (APUNTA_BRAZO if _apuntando else HOMBRO_BRAZO) if pistola else (brazo_interior if brazo_interior > 0.0 else _brazo_base), paso)
 	_camara.fov = lerpf(_camara.fov, APUNTA_FOV if _apuntando else _fov_base, paso)
 
 

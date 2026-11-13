@@ -88,8 +88,9 @@ func _probar() -> void:
 		print("   escalera %s: hasta %s, alto %.2f" % [p["nombre"], r["hasta"], float(p.get("alto", 5.55))])
 		if float(r["hasta"].y) > float(p.get("alto", 5.55)) - 0.6:
 			subieron += 1
-	_revisar("sube las escaleras a la azotea", probadas_escaleras > 0 and subieron == probadas_escaleras,
-		"%d de %d" % [subieron, probadas_escaleras])
+	# Por ahora la favela va sin escaleras a las azoteas (favela.ESCALERAS_AZOTEA)
+	if probadas_escaleras > 0:
+		_revisar("sube las escaleras a la azotea", subieron == probadas_escaleras, "%d de %d" % [subieron, probadas_escaleras])
 	# Los tuneles: bajar por una zanja hasta la galeria
 	if not zanjas.is_empty():
 		var p: Dictionary = zanjas[0]
@@ -113,6 +114,65 @@ func _probar() -> void:
 			var adentro := absf(d.x) < float(tam[0]) / 2.0 - 0.5 and absf(d.z) < float(tam[1]) / 2.0 - 0.5
 			_revisar("llega por el pasillo a la bodega bajo el tinaco", adentro and r3["hasta"].y < centro.y + 1.5, "quedo en %s" % r3["hasta"])
 	_revisar("hay cuartos del tunel", not escena.find_children("Tunel_*", "", true, false).is_empty() or true, "")
+	# Lo que se cruza por dentro: de un marco al otro de cada casa abandonada y de punta a punta
+	# de cada callejon techado
+	var cruzan := 0
+	var cruces := 0
+	var normales := [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)]
+	for p: Dictionary in datos["piezas"]:
+		var tramos: Array[Vector3] = []
+		var base := Transform3D(Basis(Vector3.UP, float(p.get("rot", 0.0))), Vector3(float(p["x"]), 1.1, float(p["z"])))
+		if p["tipo"] == "abandonada" and p["puertas"].size() >= 2:
+			var hw := absf(float(p["puntos"][1][0]))
+			var hh := absf(float(p["puntos"][2][1]))
+			# De afuera a justo adentro de cada marco, y por el centro (en una casa doble la recta
+			# de afuera al centro pega en el muro junto al marco)
+			var afuera: Array[Vector3] = []
+			var adentro: Array[Vector3] = []
+			for puerta: Array in p["puertas"].slice(0, 2):
+				var lado := int(puerta[0])
+				var t := float(puerta[1])
+				var en: Vector2 = [Vector2(-hw + t, -hh), Vector2(hw, -hh + t), Vector2(hw - t, hh), Vector2(-hw, hh - t)][lado]
+				var n: Vector2 = normales[lado]
+				afuera.append(base * Vector3(en.x + n.x * 1.2, 0.0, en.y + n.y * 1.2))
+				adentro.append(base * Vector3(en.x - n.x * 1.0, 0.0, en.y - n.y * 1.0))
+			tramos = [afuera[0], adentro[0], base.origin, adentro[1], afuera[1]]
+		elif p["tipo"] == "techo_callejon":
+			var medio := float(p["largo"]) / 2.0 + 1.3      # de esquina a esquina (favela.TECHADO_ESQUINA)
+			tramos = [base * Vector3(-medio, 0.0, 0.0), base * Vector3(medio, 0.0, 0.0)]
+		else:
+			continue
+		cruces += 1
+		# Cada tramo cuenta si avanzo todo su largo en esa direccion (puede pasarse un poco)
+		var falta := 0.0
+		for i in range(1, tramos.size()):
+			var hacia := (tramos[i] - tramos[i - 1]) * Vector3(1, 0, 1)
+			var r := await _caminar(escena, tramos[i - 1], hacia.normalized(), int(hacia.length() / 3.0 * 60.0) + 20)
+			var avanzo: float = ((r["hasta"] - tramos[i - 1]) * Vector3(1, 0, 1)).dot(hacia.normalized())
+			falta = maxf(falta, hacia.length() - avanzo)
+		print("   cruza %s: le falto %.2f m en el peor tramo" % [p["nombre"], falta])
+		# 0.5: en la esquina del techado la pared de enfrente lo para a su radio (0.4 m)
+		if falta < 0.5:
+			cruzan += 1
+	if cruces > 0:
+		_revisar("se cruzan las casas abandonadas y los callejones techados", cruzan == cruces, "%d de %d" % [cruzan, cruces])
+		# Con el jugador adentro la camara sube y el techo solo da sombra; al salir vuelve
+		var interior: Dictionary = {}
+		for m: Dictionary in datos["marcas"]:
+			if m.get("tipo") == "interior":
+				interior = m
+				break
+		var techo := escena.find_child("Techo_" + String(interior["techos"][0]), true, false) as GeometryInstance3D
+		jugador.global_position = Vector3(float(interior["x"]), 1.1, float(interior["z"]))
+		jugador.velocity = Vector3.ZERO
+		await _cuadros(30)
+		var adentro_ok: bool = float(jugador.get("brazo_interior")) > 0.0 and techo != null and techo.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+		var pitch_adentro: float = jugador.get("camera_pitch")
+		jugador.global_position = Vector3(800.0, 2.6, -230.0)
+		await _cuadros(120)
+		var afuera_ok: bool = float(jugador.get("brazo_interior")) == 0.0 and techo != null and techo.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		_revisar("adentro la camara sube y el techo se esconde; afuera vuelve", adentro_ok and afuera_ok,
+			"techo %s, pitch adentro %.1f, afuera %.1f" % [techo != null, pitch_adentro, float(jugador.get("camera_pitch"))])
 	# El ambiente de la colonia cerrada (MapaColonia._ambiente) y la gente en los callejones
 	var marcas: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://resources/mapa/%s/marcas.json" % colonia))
 	var ambiente: Dictionary = marcas.get("ambiente", {})
