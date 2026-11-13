@@ -41,6 +41,16 @@ const CAMIONETA_CORTE := 1.5       # s despues de aceptar, para leer al chofer, 
 const DEFENDER_RADIO := 20.0      # m del lugar: mas lejos, el tiempo no corre
 const DEFENDER_PRIMERA := 4.0     # s para la primera turba
 const CAZA_BUSCAR := 25.0         # m de radio del area marcada en los mapas
+## Donde para Gabriel en el mapa grande (afuera de las fortalezas), cada uno [el, de donde sale la camioneta]:
+## 1 poniente (junto a un poste), 2 en la Av. Padre Xavier Scheifler, 3 en la calle Bahia de Acapulco y
+## 4 en la Av. Agricola (JJ, 2026-11-12): el, en la banqueta, y la camioneta en el eje de la calle, el punto de
+## la avenida mas cerca de donde estaba
+const GABRIEL_SITIOS := [
+	[Vector2(-542.0, 159.8), Vector2(-538.5, 159.8)],
+	[Vector2(92.7, 279.3), Vector2(97.6, 280.3)],
+	[Vector2(-104.6, -422.5), Vector2(-104.1, -417.5)],
+	[Vector2(529.6, 55.2), Vector2(528.4, 60.0)],
+]
 const TINACO_CORTE := 1.4         # s entre aceptar con Chava y el corte a la defensa
 const CAZA_APARECE := 70.0        # m del lugar a los que sale el zombi marcado
 const TEXTO_HORA := "%s: \"Esto me toca %s.\""
@@ -178,6 +188,16 @@ func _poner_vecinos() -> void:
 				dador["sitio"] = k
 				vecinos.append(dador)
 			continue
+		# La camioneta de Gabriel, en el mapa grande: parado en cada uno de sus puntos de afuera
+		if mision.donde == "gabrieles" and get_tree().get_first_node_in_group("fortalezas") != null:
+			for sitio: Array in GABRIEL_SITIOS:
+				var piso := _jugador.global_position.y - 1.0
+				var lugar := Vector3(sitio[0].x, piso, sitio[0].y)
+				var calle := Vector3(sitio[1].x, piso, sitio[1].y)
+				var dador := _nuevo_dador(mision, lugar, calle - lugar)   # mirando a la calle
+				dador["gabriel"] = calle
+				vecinos.append(dador)
+			continue
 		var marca: Variant = _marca(mision.donde)
 		if marca != null:
 			# Parado en su marca de la colonia, viendo a donde ve la marca
@@ -268,6 +288,9 @@ func _hablar(i: int) -> String:
 	if v.has("sitio"):
 		_entrar_al_tinaco(mision, v["sitio"])
 		return mision.aceptada
+	if v.has("gabriel"):
+		_salir_con_gabriel(mision, v["lugar"], v["gabriel"])
+		return mision.aceptada
 	if _sale_por_la_reja(mision):
 		_salir_por_la_reja(mision)
 		return mision.aceptada
@@ -289,6 +312,24 @@ func _entrar_al_tinaco(mision: MisionData, k: int) -> void:
 	if not is_inside_tree() or Misiones.activa != mision or paso == null or paso.escena == "":
 		return
 	PasoJefe.entrar(self, paso.escena, true)
+
+
+# La camioneta de Gabriel, aceptada donde para: se corta la pantalla y se recarga el mapa de noche, con
+# el jugador en ese mismo lugar y la camioneta arrancando de ahi (`Misiones.arranque_camioneta`)
+func _salir_con_gabriel(mision: MisionData, lugar: Vector3, calle: Vector3) -> void:
+	if not Misiones.elegir(mision):
+		return
+	Misiones.arranque_camioneta = calle
+	await get_tree().create_timer(CAMIONETA_CORTE).timeout
+	if not is_inside_tree() or Misiones.activa != mision:
+		return
+	var hora := -2.0
+	if _ciclo:
+		hora = _ciclo.dia_duracion / (_ciclo.dia_duracion + _ciclo.noche_duracion)
+	# El jugador, del otro lado de Gabriel (lejos de la calle)
+	var fuera := (lugar - calle).normalized()
+	PasoJefe.regreso = Vector3(lugar.x + fuera.x * CAMIONETA_AL_LADO, 1.5, lugar.z + fuera.z * CAMIONETA_AL_LADO)
+	PasoColonia.ir_a(self, PasoColonia.MAPA_GRANDE, "", hora)
 
 
 # La del chofer: su primer paso es CAMIONETA desde la reja, y se acepta en la colonia
@@ -630,6 +671,11 @@ func _ajustar_camioneta(paso: PasoMision) -> void:
 		var afuera := MuroColonia.hacia_afuera(lado)
 		_salir_camioneta(paso, muro.afuera(lado, CAMIONETA_AFUERA) + afuera.cross(Vector3.UP) * CAMIONETA_AL_LADO, afuera)
 		# Los zombis no tardan: la primera turba llega casi de inmediato
+		_ola_andando_en = CAMIONETA_PRIMERA_OLA_AFUERA
+		return
+	if paso.lugar == "salida_giver" and Misiones.arranque_camioneta != Vector3.INF:
+		# La de Gabriel: sale de donde lo encontraste, y los zombis no tardan (se acaba de hacer de noche)
+		_salir_camioneta(paso, Misiones.arranque_camioneta, Vector3.ZERO)
 		_ola_andando_en = CAMIONETA_PRIMERA_OLA_AFUERA
 		return
 	var desde := _lugar_de_vecino(Misiones.activa)

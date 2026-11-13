@@ -35,6 +35,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/entrada_dia.tres",
 	"res://resources/misiones/defender_tinaco.tres",
 	"res://resources/misiones/camioneta_noche.tres",
+	"res://resources/misiones/camioneta_gabriel.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -57,6 +58,9 @@ var salida_camioneta := ""
 # Lo que paga una mision distinta de su `pesos`, por id (Defender el tinaco: cada tinaco paga lo suyo,
 # SitiosTinaco); se borra al cobrar
 var pagos_especiales := {}
+# CAMIONETA con lugar "salida_giver" (Gabriel, en el mapa grande): de donde sale la camioneta, que es donde
+# lo encontraste; MisionesMundo lo pone al aceptar y la escena de noche lo lee (Vector3.INF: ninguno)
+var arranque_camioneta := Vector3.INF
 var visitados := 0
 var meta_visitas := 1
 # Lo pone MisionesMundo: a donde apuntan los mapas
@@ -402,6 +406,8 @@ func _quitar(mision: MisionData) -> void:
 	_hechas[mision.id] = true
 	aceptadas.erase(mision)
 	_guardado.erase(mision.id)
+	if mision.id == "camioneta_gabriel":
+		arranque_camioneta = Vector3.INF
 	activa = null
 
 
@@ -451,6 +457,7 @@ func reiniciar() -> void:
 	vida_acompanante = -1
 	salida_camioneta = ""
 	pagos_especiales.clear()
+	arranque_camioneta = Vector3.INF
 	SitiosTinaco.elegido = -1
 	_ruta_hora = false
 	indice_paso = 0

@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_camioneta"]
+script = ExtResource("2_paso")
+tipo = 9
+cuando = 1
+texto = "Sigue la camioneta y cuida el agua"
+lugar = "salida_giver"
+cuantos = 3
+vida_acompanante = 150
+ola_cada = 7.0
+turba = 4
+ola_andando = 18.0
+turba_andando = 3
+descarga_s = 20.0
+pesos_por_entrega = 80
+
+[resource]
+script = ExtResource("1_mision")
+id = "camioneta_gabriel"
+nombre = "La ficha de la camioneta"
+modelo = "hombre_psx"
+donde = "gabrieles"
+oferta = "Traigo una ficha para esta noche: tres casas de por aquí que ya pagaron su agua limpia. La camioneta sale con Nacho; tú me la cuidas de lo que salga por el agua, y a cada casa que llegue se le paga."
+aceptada = "Pues ya es de noche. Nacho ya va y la camioneta sale ahorita: no se me quede atrás."
+recuerda = "La ficha dice tres casas y el amanecer. Cuide esa camioneta."
+despedida = "Esa ficha ya se cumplió. Mañana hay otra, si se anima."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_camioneta")])
+pesos = 40
