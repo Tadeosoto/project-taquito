@@ -9,7 +9,8 @@ extends Node3D
 ##   por la banqueta sur de Primavera, la del sur por la banqueta norte de Nogal y la del oriente por la orilla
 ##   del mapa. Una reja cerrada donde la avenida sale por el norte y por el sur. Todavia no se entra: por dentro
 ##   siguen las casas de map_test hasta que se haga la colonia en Blender.
-## - Los cinco tinacos de la defensa (solo el tinaco, sin barricada: la defensa es la escena defensa_tinaco).
+## - Los cinco tinacos de la defensa (SitiosTinaco: solo el tinaco, sin barricada; Chava los ofrece de dia y
+##   la defensa es la escena defensa_tinaco).
 ## Todo choca en la capa 1, como las casas y el muro de Santa Mugre.
 
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
@@ -48,10 +49,6 @@ const GOTERA_REJAS := [
 ## Primavera y Nogal
 const GOTERA_CALLES := Rect2(704.0, -324.0, 210.0, 210.0)
 
-## Los cinco tinacos (x, z): Bahia de Banderas, Parque Triangulito, Parque Central, monos rojos, Parques del Mosco
-const TINACOS := [
-	Vector2(-336.0, -1.0), Vector2(-331.0, -359.0), Vector2(157.0, -344.0), Vector2(494.0, -529.0), Vector2(330.0, 95.0),
-]
 const TINACO_ALTO := 2.8                # Barricada.TINACO_ALTO
 const TINACO_PIEZAS := ["Tinaco_3er_capa", "Bomba_1", "Tapa"]   # Barricada.TINACO_PIEZAS
 
@@ -74,8 +71,9 @@ func _ready() -> void:
 	_fierro = _material(COLOR_FIERRO)
 	_gela()
 	_gotera()
-	for donde: Vector2 in TINACOS:
-		_tinaco(donde)
+	add_to_group("fortalezas")
+	for sitio: Dictionary in SitiosTinaco.SITIOS:
+		_tinaco(sitio["pos"])
 
 
 # --- Los Reservorios ---

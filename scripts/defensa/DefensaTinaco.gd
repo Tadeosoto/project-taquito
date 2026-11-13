@@ -26,7 +26,7 @@ extends Node3D
 const MapAlumbrado := preload("res://scripts/map/MapAlumbrado.gd")
 const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 
-const CENTRO := Vector3(163.0, 0.0, -515.0)
+const CENTRO := Vector3(163.0, 0.0, -515.0)   # el Jardin Imperial: donde se juega la escena de prueba
 const LADO := 50.0                     # medio lado de donde se puede andar
 const JUGADOR_SALE := Vector3(2.5, 1.2, 2.5)   # junto al tinaco (Barricada.JUGADOR_SALE)
 const PARED_CAPA := 16                 # capa 5: solo la tiene el jugador en su mascara
@@ -147,6 +147,7 @@ var _musica_apagada := false
 var _hora_fin := 0.0          # a que hora se perdio
 # La noche de la carrera (1, 2, 3...). Sube con Siguiente y NO baja al reintentar la misma
 var noche := 1
+var _centro := CENTRO          # donde se arma esta defensa (uno de SitiosTinaco si se entra desde el mapa)
 var _dificultad_base := 1.0   # la del modo (Hordas.MODOS) antes de la escalada
 var _dano_base := 6           # Zombis.dano_jugador de la escena antes de la escalada
 var _menu_capa: CanvasLayer   # el menu de entre noches, si esta abierto
@@ -159,16 +160,38 @@ var _creador_abierto := false
 
 
 func _enter_tree() -> void:
+	_elegir_sitio()
 	# Antes del _ready de Puntos
 	var todos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://resources/map/puntos_mapa.json"))
 	var cerca := []
 	for punto: Dictionary in todos["puntos"]:
-		if Vector2(punto["x"] - CENTRO.x, punto["z"] - CENTRO.z).length() <= PUNTOS_RADIO:
+		if Vector2(punto["x"] - _centro.x, punto["z"] - _centro.z).length() <= PUNTOS_RADIO:
 			punto["interactivo"] = false
 			cerca.append(punto)
 	var archivo := FileAccess.open(PUNTOS_JSON, FileAccess.WRITE)
 	archivo.store_string(JSON.stringify({"puntos": cerca}))
 	archivo.close()
+
+
+# El tinaco del mapa donde se juega: el de la mision (PasoJefe.desde_juego) o `-- --sitio=N` (pruebas);
+# sin ninguno, el parque de siempre. Se corre la escena entera (Centro, barricada, jugador, minimapa)
+# antes de que cualquier nodo lea su lugar
+func _elegir_sitio() -> void:
+	var pedido := -1
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--sitio="):
+			pedido = int(arg.trim_prefix("--sitio="))
+	if pedido >= 0:
+		SitiosTinaco.elegido = pedido
+	if not (PasoJefe.desde_juego or pedido >= 0) or SitiosTinaco.sitio().is_empty():
+		return
+	_centro = SitiosTinaco.centro()
+	var movido := _centro - CENTRO
+	for ruta in ["Centro", "Barricada", "Player"]:
+		var nodo := get_node(ruta) as Node3D
+		nodo.position += movido
+	var minimapa := get_node("Minimapa")
+	minimapa.set("centro_mundo", Vector2(_centro.x, _centro.z))
 
 
 func _ready() -> void:
@@ -182,7 +205,7 @@ func _ready() -> void:
 	_armar_fundido()
 	_hordas = Hordas.new()
 	_hordas.name = "Hordas"
-	_hordas.centro = CENTRO
+	_hordas.centro = _centro
 	_hordas.zombis = _zombis
 	_hordas.ciclo = _ciclo
 	add_child(_hordas)
@@ -227,6 +250,11 @@ func _ready() -> void:
 			_jugador.aplicar_personaje()
 		elif arg.begins_with("--monitor="):
 			monitor_pedido = true
+	# Un tinaco del mapa trae su modo (SitiosTinaco: los cercanos a Santa Mugre, faciles)
+	var sitio := SitiosTinaco.sitio() if _centro != CENTRO else {}
+	if not sitio.is_empty():
+		modo = sitio["modo"]
+		modo_arg = true
 	if pruebas:
 		if not modo_arg:
 			modo = pruebas.dificultad
@@ -236,9 +264,11 @@ func _ready() -> void:
 		pruebas.duracion_noche = duracion_noche
 	_ciclo.noche_duracion = duracion_noche
 	_hordas.usar_modo(modo)
+	if not sitio.is_empty():
+		_hordas.dificultad *= sitio["factor"]
 	_dificultad_base = _hordas.dificultad
 	_dano_base = _zombis.dano_jugador
-	print("Defensa: modo %s, noche de %.0f s" % [modo, duracion_noche])
+	print("Defensa: modo %s, noche de %.0f s%s" % [modo, duracion_noche, "" if sitio.is_empty() else ", %s (nivel %d)" % [sitio["nombre"], sitio["nivel"]]])
 	await _esperar_mapa()
 	_al_suelo()
 	_generar(semilla)
@@ -331,7 +361,7 @@ func _esperar_mapa() -> void:
 
 # El tinaco y el jugador a la altura del suelo del parque
 func _al_suelo() -> void:
-	var rayo := PhysicsRayQueryParameters3D.create(CENTRO + Vector3.UP * 5.0, CENTRO + Vector3.DOWN * 5.0, 1, [_jugador.get_rid(), _tinaco.get_rid()])
+	var rayo := PhysicsRayQueryParameters3D.create(_centro + Vector3.UP * 5.0, _centro + Vector3.DOWN * 5.0, 1, [_jugador.get_rid(), _tinaco.get_rid()])
 	var pego := get_world_3d().direct_space_state.intersect_ray(rayo)
 	if pego:
 		_barricada.global_position = pego.position
@@ -344,7 +374,7 @@ func _generar(semilla: int) -> void:
 	_zombis.olvidar_paredes()
 	_zombis.usar_huecos(_barricada.huecos_mundo)
 	_decoracion.armar(_barricada, _hordas)
-	_minimapa.usar_mapa(_dibujar_mapa(), Vector2(CENTRO.x - MAPA_LADO, CENTRO.z - MAPA_LADO), Vector2.ONE * MAPA_LADO * 2.0)
+	_minimapa.usar_mapa(_dibujar_mapa(), Vector2(_centro.x - MAPA_LADO, _centro.z - MAPA_LADO), Vector2.ONE * MAPA_LADO * 2.0)
 	print("Barricada: semilla %d, %d piezas no cupieron" % [_barricada.semilla_usada, _barricada.quitadas])
 
 
@@ -920,7 +950,7 @@ func _armar_paredes() -> void:
 		caja.size = Vector3(LADO * 2.0 + 2.0, PARED_ALTO, 1.0)
 		forma.shape = caja
 		var hacia := Vector3(sin(i * PI / 2.0), 0.0, -cos(i * PI / 2.0))
-		forma.transform = Transform3D(Basis(Vector3.UP, i * PI / 2.0), CENTRO + hacia * (LADO + 0.5) + Vector3.UP * PARED_ALTO / 4.0)
+		forma.transform = Transform3D(Basis(Vector3.UP, i * PI / 2.0), _centro + hacia * (LADO + 0.5) + Vector3.UP * PARED_ALTO / 4.0)
 		paredes.add_child(forma)
 
 
@@ -932,14 +962,14 @@ func _dibujar_mapa() -> ImageTexture:
 	var completo := (load(MINIMAPA) as Texture2D).get_image()
 	completo.decompress()
 	var lado := int(MAPA_LADO * 2.0 / por_pixel)
-	var desde := Vector2i(int((CENTRO.x - MAPA_LADO - datos["x0"]) / por_pixel), int((CENTRO.z - MAPA_LADO - datos["z0"]) / por_pixel))
+	var desde := Vector2i(int((_centro.x - MAPA_LADO - datos["x0"]) / por_pixel), int((_centro.z - MAPA_LADO - datos["z0"]) / por_pixel))
 	var imagen := completo.get_region(Rect2i(desde, Vector2i(lado, lado)))
 	imagen.convert(Image.FORMAT_RGB8)
 	var final := int(MAPA_LADO * 2.0 / MAPA_M_POR_PIXEL)
 	imagen.resize(final, final, Image.INTERPOLATE_NEAREST)
 	# Fuera de las paredes, oscuro
-	var adentro := _pixel(Vector3(CENTRO.x - LADO, 0.0, CENTRO.z - LADO))
-	var hasta := _pixel(Vector3(CENTRO.x + LADO, 0.0, CENTRO.z + LADO))
+	var adentro := _pixel(Vector3(_centro.x - LADO, 0.0, _centro.z - LADO))
+	var hasta := _pixel(Vector3(_centro.x + LADO, 0.0, _centro.z + LADO))
 	for px in final:
 		for pz in final:
 			if px < adentro.x or pz < adentro.y or px >= hasta.x or pz >= hasta.y:
@@ -955,11 +985,11 @@ func _dibujar_mapa() -> ImageTexture:
 
 # Del mundo al pixel del minimapa: columna = x, fila = z, desde la esquina de menor valor
 func _pixel(mundo: Vector3) -> Vector2i:
-	return Vector2i(int((mundo.x - CENTRO.x + MAPA_LADO) / MAPA_M_POR_PIXEL), int((mundo.z - CENTRO.z + MAPA_LADO) / MAPA_M_POR_PIXEL))
+	return Vector2i(int((mundo.x - _centro.x + MAPA_LADO) / MAPA_M_POR_PIXEL), int((mundo.z - _centro.z + MAPA_LADO) / MAPA_M_POR_PIXEL))
 
 
 func _mundo(px: int, pz: int) -> Vector3:
-	return Vector3(CENTRO.x - MAPA_LADO + (px + 0.5) * MAPA_M_POR_PIXEL, 0.0, CENTRO.z - MAPA_LADO + (pz + 0.5) * MAPA_M_POR_PIXEL)
+	return Vector3(_centro.x - MAPA_LADO + (px + 0.5) * MAPA_M_POR_PIXEL, 0.0, _centro.z - MAPA_LADO + (pz + 0.5) * MAPA_M_POR_PIXEL)
 
 
 # Solo recorre los pixeles de la caja que la encierra

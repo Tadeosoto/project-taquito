@@ -54,6 +54,9 @@ var vida_acompanante := -1
 # CAMIONETA con lugar "salida_colonia": afuera de que reja de la colonia sale la camioneta
 # ("poniente", "oriente"); MisionesMundo la escoge al azar al aceptar y ahi te deja
 var salida_camioneta := ""
+# Lo que paga una mision distinta de su `pesos`, por id (Defender el tinaco: cada tinaco paga lo suyo,
+# SitiosTinaco); se borra al cobrar
+var pagos_especiales := {}
 var visitados := 0
 var meta_visitas := 1
 # Lo pone MisionesMundo: a donde apuntan los mapas
@@ -366,7 +369,8 @@ func entregar() -> bool:
 func _completar() -> void:
 	var mision := activa
 	_quitar(mision)
-	var pago := mision.pesos
+	var pago: int = pagos_especiales.get(mision.id, mision.pesos)
+	pagos_especiales.erase(mision.id)
 	if mision.pieza_de_mapa:
 		var piezas := get_node("/root/PiezasMapa")
 		var falta: int = piezas.siguiente_faltante()
@@ -446,6 +450,8 @@ func reiniciar() -> void:
 	manos_ocupadas = false
 	vida_acompanante = -1
 	salida_camioneta = ""
+	pagos_especiales.clear()
+	SitiosTinaco.elegido = -1
 	_ruta_hora = false
 	indice_paso = 0
 	ofreciendo = true

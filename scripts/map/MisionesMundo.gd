@@ -41,6 +41,7 @@ const CAMIONETA_CORTE := 1.5       # s despues de aceptar, para leer al chofer, 
 const DEFENDER_RADIO := 20.0      # m del lugar: mas lejos, el tiempo no corre
 const DEFENDER_PRIMERA := 4.0     # s para la primera turba
 const CAZA_BUSCAR := 25.0         # m de radio del area marcada en los mapas
+const TINACO_CORTE := 1.4         # s entre aceptar con Chava y el corte a la defensa
 const CAZA_APARECE := 70.0        # m del lugar a los que sale el zombi marcado
 const TEXTO_HORA := "%s: \"Esto me toca %s.\""
 
@@ -168,30 +169,21 @@ func _poner_vecinos() -> void:
 	var cuantos := mini(lugares.size(), Misiones.todas.size())
 	for i in cuantos:
 		var mision := Misiones.todas[i]
-		var npc := NPC.instantiate() as Node3D
-		var ninja := npc.get_node("Model")
-		npc.remove_child(ninja)
-		ninja.free()
-		add_child(npc)
+		# Defender el tinaco, en el mapa grande: Chava esta parado afuera de cada uno de los cinco tinacos
+		if mision.donde == "tinacos" and get_tree().get_first_node_in_group("fortalezas") != null:
+			for k in SitiosTinaco.SITIOS.size():
+				var centro := SitiosTinaco.centro(k)
+				var lugar := Vector3(centro.x + SitiosTinaco.CHAVA_A, _jugador.global_position.y - 1.0, centro.z)
+				var dador := _nuevo_dador(mision, lugar, centro - lugar)
+				dador["sitio"] = k
+				vecinos.append(dador)
+			continue
 		var marca: Variant = _marca(mision.donde)
 		if marca != null:
 			# Parado en su marca de la colonia, viendo a donde ve la marca
 			lugares[i] = (marca as Transform3D).origin
-		npc.global_position = lugares[i]
 		var hacia := _jugador.global_position - lugares[i]
-		npc.rotation.y = atan2(hacia.x, hacia.z) if marca == null else (marca as Transform3D).basis.get_euler().y
-		Gente.poner_modelo(npc, load("res://models/personajes/%s/%s.scn" % [mision.modelo, mision.modelo]), ALTO_PERSONA)
-		var signo := Label3D.new()
-		signo.text = "!"
-		signo.font_size = 96
-		signo.pixel_size = 0.012
-		signo.modulate = MapPuntos.MARCADOR_COLOR
-		signo.outline_size = 24
-		signo.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		signo.position.y = SIGNO_ALTO
-		npc.add_child(signo)
-		npc.set("al_hablar", _hablar.bind(i))
-		vecinos.append({"mision": mision, "nodo": npc, "signo": signo, "lugar": lugares[i], "visto": false})
+		vecinos.append(_nuevo_dador(mision, lugares[i], hacia, marca if marca != null else null))
 	if lugares.size() > cuantos:
 		_nino_lugar = lugares[cuantos]
 		nino = NinoTazos.new()
@@ -200,6 +192,30 @@ func _poner_vecinos() -> void:
 		var hacia := _jugador.global_position - _nino_lugar
 		nino.rotation.y = atan2(hacia.x, hacia.z)
 	_actualizar_signos()
+
+
+# Un dador parado en `lugar` mirando hacia `hacia` (o con el giro de su `marca`), con su signo de
+# admiracion. Lo que se guarda en `vecinos`; `_hablar` lo busca por su lugar en esa lista
+func _nuevo_dador(mision: MisionData, lugar: Vector3, hacia: Vector3, marca: Variant = null) -> Dictionary:
+	var npc := NPC.instantiate() as Node3D
+	var ninja := npc.get_node("Model")
+	npc.remove_child(ninja)
+	ninja.free()
+	add_child(npc)
+	npc.global_position = lugar
+	npc.rotation.y = atan2(hacia.x, hacia.z) if marca == null else (marca as Transform3D).basis.get_euler().y
+	Gente.poner_modelo(npc, load("res://models/personajes/%s/%s.scn" % [mision.modelo, mision.modelo]), ALTO_PERSONA)
+	var signo := Label3D.new()
+	signo.text = "!"
+	signo.font_size = 96
+	signo.pixel_size = 0.012
+	signo.modulate = MapPuntos.MARCADOR_COLOR
+	signo.outline_size = 24
+	signo.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	signo.position.y = SIGNO_ALTO
+	npc.add_child(signo)
+	npc.set("al_hablar", _hablar.bind(vecinos.size()))
+	return {"mision": mision, "nodo": npc, "signo": signo, "lugar": lugar, "visto": false}
 
 
 # Junto a los postes mas cercanos a donde empiezas, sin caer en el refugio
@@ -249,6 +265,9 @@ func _hablar(i: int) -> String:
 		return ("%s %s" % [Personaje.linea("vecino"), mision.oferta]).strip_edges() + TEXTO_ACEPTAR
 	v["visto"] = false
 	Misiones.aceptar(mision)
+	if v.has("sitio"):
+		_entrar_al_tinaco(mision, v["sitio"])
+		return mision.aceptada
 	if _sale_por_la_reja(mision):
 		_salir_por_la_reja(mision)
 		return mision.aceptada
@@ -256,6 +275,20 @@ func _hablar(i: int) -> String:
 	if falta != "" and _supervivencia:
 		_supervivencia.avisar(TEXTO_HORA % [Personaje.nombre, falta])
 	return mision.aceptada
+
+
+# Defender el tinaco, aceptada con Chava en el tinaco `k`: ese es el que toca y paga lo suyo; se corta y
+# la defensa de ese tinaco empieza de noche (ENTRAR_A con `escena`), como si el dia pasara de golpe
+func _entrar_al_tinaco(mision: MisionData, k: int) -> void:
+	SitiosTinaco.elegido = k
+	Misiones.pagos_especiales[mision.id] = SitiosTinaco.sitio(k)["pesos"]
+	if not Misiones.elegir(mision):
+		return
+	await get_tree().create_timer(TINACO_CORTE).timeout
+	var paso := Misiones.paso()
+	if not is_inside_tree() or Misiones.activa != mision or paso == null or paso.escena == "":
+		return
+	PasoJefe.entrar(self, paso.escena, true)
 
 
 # La del chofer: su primer paso es CAMIONETA desde la reja, y se acepta en la colonia
@@ -707,6 +740,9 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 		for entrada: EntradaJefe in get_tree().get_nodes_in_group("entradas_jefe"):
 			if entrada.id == paso.lugar.trim_prefix("entrada:"):
 				_escolta_meta = entrada.global_position
+	elif paso.lugar == "sitio_tinaco" and SitiosTinaco.elegido >= 0:
+		# Volver al tinaco (si perdiste): la flecha junto a su Chava, no encima del tinaco
+		_escolta_meta = SitiosTinaco.centro() + Vector3(SitiosTinaco.CHAVA_A, 0.0, 0.0)
 	elif paso.lugar.begins_with("giro:"):
 		_escolta_meta = _tienda(paso.lugar)
 	elif _marca(paso.lugar) != null:
