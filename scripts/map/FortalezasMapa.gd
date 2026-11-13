@@ -52,6 +52,16 @@ const GOTERA_CALLES := Rect2(704.0, -324.0, 210.0, 210.0)
 const TINACO_ALTO := 2.8                # Barricada.TINACO_ALTO
 const TINACO_PIEZAS := ["Tinaco_3er_capa", "Bomba_1", "Tapa"]   # Barricada.TINACO_PIEZAS
 
+## La torre de la antena de Sofia (M4): no hay torre de luz de OSM a <=250 m de una reja, asi que se pone una a
+## ~140 m afuera de la reja poniente de Santa Mugre, en un llano junto a la avenida. Un piloon de celosia hecho
+## en codigo; la mision "antena_sofia" defiende su pie (MisionesMundo, `lugar = "torre_antena"`)
+const TORRE_ANTENA := Vector2(-516.0, 348.0)
+const TORRE_ALTO := 30.0
+const TORRE_BASE := 3.0           # medio ancho abajo (m)
+const TORRE_PUNTA := 0.7          # medio ancho arriba
+const TORRE_NIVELES := 6
+const TORRE_COLOR := Color(0.55, 0.57, 0.6)
+
 const GRUESO := 0.3
 const COLOR_FIERRO := Color(0.12, 0.12, 0.13)
 
@@ -72,6 +82,7 @@ func _ready() -> void:
 	_gela()
 	_gotera()
 	add_to_group("fortalezas")
+	_torre()
 	for sitio: Dictionary in SitiosTinaco.SITIOS:
 		_tinaco(sitio["pos"])
 
@@ -230,6 +241,59 @@ func _tinaco(donde: Vector2) -> void:
 	forma.shape = cilindro
 	forma.position.y = TINACO_ALTO / 2.0
 	cuerpo.add_child(forma)
+
+
+# --- La torre de la antena ---
+
+func _torre() -> void:
+	var nodo := Node3D.new()
+	nodo.name = "TorreAntena"
+	nodo.position = Vector3(TORRE_ANTENA.x, 0.0, TORRE_ANTENA.y)
+	add_child(nodo)
+	var barras: Array[Transform3D] = []   # cada una una caja unitaria estirada de a a b
+	var nivel := func(j: int) -> float: return TORRE_ALTO * j / float(TORRE_NIVELES)
+	var ancho := func(y: float) -> float: return lerpf(TORRE_BASE, TORRE_PUNTA, y / TORRE_ALTO)
+	var esquinas := [Vector2(1, 1), Vector2(-1, 1), Vector2(-1, -1), Vector2(1, -1)]
+	for j in TORRE_NIVELES:
+		var y0: float = nivel.call(j)
+		var y1: float = nivel.call(j + 1)
+		var w0: float = ancho.call(y0)
+		var w1: float = ancho.call(y1)
+		for k in 4:
+			var a: Vector2 = esquinas[k]
+			var b: Vector2 = esquinas[(k + 1) % 4]
+			# Pata y aro del nivel de arriba
+			barras.append(_barra(Vector3(a.x * w0, y0, a.y * w0), Vector3(a.x * w1, y1, a.y * w1), 0.22))
+			barras.append(_barra(Vector3(a.x * w1, y1, a.y * w1), Vector3(b.x * w1, y1, b.y * w1), 0.12))
+			# Una diagonal por cara
+			barras.append(_barra(Vector3(a.x * w0, y0, a.y * w0), Vector3(b.x * w1, y1, b.y * w1), 0.1))
+	# Dos brazos arriba
+	for brazo in [[TORRE_ALTO - 1.6, 4.6], [TORRE_ALTO - 5.2, 3.6]]:
+		barras.append(_barra(Vector3(-brazo[1], brazo[0], 0.0), Vector3(brazo[1], brazo[0], 0.0), 0.2))
+	var caja := BoxMesh.new()
+	caja.size = Vector3.ONE
+	var multi := MultiMesh.new()
+	multi.transform_format = MultiMesh.TRANSFORM_3D
+	multi.mesh = caja
+	multi.instance_count = barras.size()
+	for i in barras.size():
+		multi.set_instance_transform(i, barras[i])
+	var malla := MultiMeshInstance3D.new()
+	malla.multimesh = multi
+	malla.material_override = _material(TORRE_COLOR)
+	nodo.add_child(malla)
+	# Choque: solo las cuatro patas de abajo
+	for esquina: Vector2 in esquinas:
+		_choque(nodo, Vector3(esquina.x * TORRE_BASE, 1.5, esquina.y * TORRE_BASE), Vector3(0.6, 3.0, 0.6))
+
+
+# La transformacion de una caja unitaria que va de `a` a `b` con `grosor` de lado
+static func _barra(a: Vector3, b: Vector3, grosor: float) -> Transform3D:
+	var largo := a.distance_to(b)
+	var dir := (b - a) / largo
+	var arriba := Vector3.UP if absf(dir.y) < 0.99 else Vector3.RIGHT
+	var base := Basis.looking_at(dir, arriba)
+	return Transform3D(base.scaled_local(Vector3(grosor, grosor, largo)), (a + b) / 2.0)
 
 
 # --- Piezas ---

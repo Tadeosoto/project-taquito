@@ -37,6 +37,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/camioneta_noche.tres",
 	"res://resources/misiones/camioneta_gabriel.tres",
 	"res://resources/misiones/guardia_reja.tres",
+	"res://resources/misiones/antena_sofia.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -67,6 +68,8 @@ var arranque_camioneta := Vector3.INF
 # colonia deja salir (`reja_abierta`: Colonia, las flechas de salida)
 var reja_guardia := ""
 var guardias_reja := 0
+# La antena de Sofia ya esta puesta (mision `antena_sofia` cumplida): su radio llega mas lejos (A3, "La verdad")
+var antena_instalada := false
 var visitados := 0
 var meta_visitas := 1
 # Lo pone MisionesMundo: a donde apuntan los mapas
@@ -316,6 +319,21 @@ func visitado() -> void:
 		cambio.emit()
 
 
+# RECOGER con varias piezas (`cuantos`, las de la antena): cada una paga `pesos_por_entrega`
+func pieza_recogida() -> void:
+	if activa == null or paso().tipo != PasoMision.Tipo.RECOGER or not en_hora():
+		return
+	var pago := roundi(paso().pesos_por_entrega * get_node("/root/Personaje").factor_paga())
+	if pago > 0:
+		get_node("/root/Cartera").pesos += pago
+		entrega.emit(pago)
+	visitados += 1
+	if visitados >= meta_visitas:
+		_avanzar()
+	else:
+		cambio.emit()
+
+
 func recogido() -> void:
 	if activa and paso().tipo == PasoMision.Tipo.RECOGER and en_hora():
 		_avanzar()
@@ -392,6 +410,8 @@ func _completar() -> void:
 		_hechas_siempre[mision.id] = true
 	if mision.id == "guardia_reja":
 		guardias_reja += 1
+	if mision.id == "antena_sofia":
+		antena_instalada = true
 	if mision.pieza_de_mapa:
 		var piezas := get_node("/root/PiezasMapa")
 		var falta: int = piezas.siguiente_faltante()
@@ -477,6 +497,7 @@ func reiniciar() -> void:
 	arranque_camioneta = Vector3.INF
 	reja_guardia = ""
 	guardias_reja = 0
+	antena_instalada = false
 	SitiosTinaco.elegido = -1
 	_ruta_hora = false
 	indice_paso = 0

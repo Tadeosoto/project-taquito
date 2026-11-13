@@ -8304,6 +8304,13 @@
 			"rot": 1.5708
 		},
 		{
+			"nombre": "Sofia_Taller",
+			"tipo": "mision",
+			"x": -320.5,
+			"z": 314.2,
+			"rot": -1.5328
+		},
+		{
 			"nombre": "Caja_GelA",
 			"tipo": "caja_gela",
 			"x": -339.1,

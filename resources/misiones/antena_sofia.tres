@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_piezas"]
+script = ExtResource("2_paso")
+tipo = 3
+cuando = 0
+texto = "Junta las piezas de la antena de Sofía"
+lugar = "piezas_antena"
+cuantos = 2
+pesos_por_entrega = 30
+
+[sub_resource type="Resource" id="paso_subir"]
+script = ExtResource("2_paso")
+tipo = 6
+cuando = 1
+texto = "Cuida a Sofía mientras sube la antena"
+lugar = "torre_antena"
+cuantos = 3
+segundos = 75.0
+acompanante = "mujer_05"
+vida_acompanante = 80
+ola_cada = 10.0
+
+[resource]
+script = ExtResource("1_mision")
+id = "antena_sofia"
+nombre = "La antena de Sofía"
+modelo = "mujer_psx"
+donde = "marca:Sofia_Taller"
+oferta = "Mi radio no llega ni a la esquina. Si junto un par de piezas afuera —unos tubos y un repetidor— y subo una antena a una torre, me oye media ciudad. Tú las traes, y de noche me cuidas el pie de la torre mientras instalo."
+aceptada = "Son dos piezas, lejos de la reja y con zombis cerca. Tráelas de día. Luego, de noche, a la torre; ahí te espero."
+recuerda = "Las piezas son los tubos y el repetidor, afuera. Luego la torre, de noche."
+despedida = "La antena quedó puesta. Escucha mi radio: ya llega lejos."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_piezas"), SubResource("paso_subir")])
+pesos = 120
+una_vez = true

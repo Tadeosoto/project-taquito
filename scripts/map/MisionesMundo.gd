@@ -51,6 +51,12 @@ const GABRIEL_SITIOS := [
 	[Vector2(-104.6, -422.5), Vector2(-104.1, -417.5)],
 	[Vector2(529.6, 55.2), Vector2(528.4, 60.0)],
 ]
+## Las dos piezas de la antena de Sofia (tubos y un repetidor): afuera, a ~330 m de la reja poniente,
+## junto a un poste de avenida, una al norte y otra al sur (M4)
+const PIEZAS_ANTENA := [Vector2(-415.9, 125.7), Vector2(-102.3, 578.1)]
+const PIEZAS_NOMBRES := ["los tubos", "el repetidor"]
+const PIEZAS_ZOMBIS := 2          # zombis sueltos que salen junto a cada pieza al acercarte
+const PIEZAS_AVISO := 60.0        # m de la pieza a los que salen
 const TINACO_CORTE := 1.4         # s entre aceptar con Chava y el corte a la defensa
 const CAZA_APARECE := 70.0        # m del lugar a los que sale el zombi marcado
 const TEXTO_HORA := "%s: \"Esto me toca %s.\""
@@ -63,6 +69,9 @@ const TEXTO_HORA := "%s: \"Esto me toca %s.\""
 @export var perro_fijo := Vector3.INF
 
 var vecinos: Array[Dictionary] = []
+var _piezas: Array[Node3D] = []
+var _piezas_zombis: Array[bool] = []
+var _piezas_de: MisionData
 var nino: NinoTazos
 var _nino_lugar := Vector3.ZERO
 
@@ -419,6 +428,8 @@ func _cambio() -> void:
 		_soltar_carga()
 	if _perro and (_perro_de != Misiones.activa or paso == null or paso.tipo != PasoMision.Tipo.RECOGER):
 		_quitar_cosa()
+	if not _piezas.is_empty() and (_piezas_de != Misiones.activa or paso == null or paso.lugar != "piezas_antena"):
+		_quitar_piezas()
 	if paso == null:
 		_soltar_carga()
 		Misiones.hay_objetivo = false
@@ -459,7 +470,9 @@ func _cambio() -> void:
 			if _puntos.is_empty():
 				_poner_puntos(paso)
 		PasoMision.Tipo.RECOGER:
-			if paso.lugar.begins_with("marca:") and _marca(paso.lugar) != null:
+			if paso.lugar == "piezas_antena":
+				_poner_piezas(paso)
+			elif paso.lugar.begins_with("marca:") and _marca(paso.lugar) != null:
 				_poner_cosa(paso)
 			else:
 				_poner_perro()
@@ -810,6 +823,8 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 		for entrada: EntradaJefe in get_tree().get_nodes_in_group("entradas_jefe"):
 			if entrada.id == paso.lugar.trim_prefix("entrada:"):
 				_escolta_meta = entrada.global_position
+	elif paso.lugar == "torre_antena":
+		_escolta_meta = Vector3(FortalezasMapa.TORRE_ANTENA.x + 3.0, 0.0, FortalezasMapa.TORRE_ANTENA.y)
 	elif paso.lugar == "reja_guardia":
 		# La guardia: la marca de la reja que le toco (Guardia_poniente / Guardia_oriente)
 		var marca_reja: Variant = _marca("marca:Guardia_" + (Misiones.reja_guardia if Misiones.reja_guardia != "" else "poniente"))
@@ -889,6 +904,112 @@ func _marca(lugar: String) -> Variant:
 
 # Lo que hay que recoger en una marca (la pelota en la azotea): como el perro, pero se sabe
 # donde esta, asi que va con flecha y sin ladridos
+# Las piezas de la antena: en el mapa grande y de a una por lugar (en la colonia de Blender no estan); al
+# acercarte salen unos zombis sueltos. Cada una recogida cuenta y paga (Misiones.pieza_recogida)
+func _poner_piezas(paso: PasoMision) -> void:
+	if not _piezas.is_empty() or get_tree().get_first_node_in_group("colonia") != null:
+		_apuntar_a_pieza()
+		return
+	_piezas_de = Misiones.activa
+	_piezas_zombis.clear()
+	var piso := _jugador.global_position.y - 1.0
+	for i in mini(paso.cuantos, PIEZAS_ANTENA.size()):
+		var donde := Vector3(PIEZAS_ANTENA[i].x, piso, PIEZAS_ANTENA[i].y)
+		var pieza: Node3D = load("res://scripts/map/CosaMision.gd").new()
+		pieza.set("que", PIEZAS_NOMBRES[i])
+		pieza.add_child(_modelo_pieza(i))
+		add_child(pieza)
+		pieza.global_position = donde
+		pieza.set("al_recoger", _pieza_recogida.bind(pieza))
+		_piezas.append(pieza)
+		_piezas_zombis.append(false)
+	_apuntar_a_pieza()
+
+
+func _quitar_piezas() -> void:
+	for pieza in _piezas:
+		if is_instance_valid(pieza):
+			pieza.queue_free()
+	_piezas.clear()
+	_piezas_zombis.clear()
+	_piezas_de = null
+
+
+func _pieza_recogida(pieza: Node3D) -> void:
+	_piezas.erase(pieza)
+	pieza.queue_free()
+	_sonar("moneda")
+	Misiones.pieza_recogida()
+	_apuntar_a_pieza()
+
+
+func _apuntar_a_pieza() -> void:
+	var mas_cerca := INF
+	for pieza in _piezas:
+		var d := pieza.global_position.distance_to(_jugador.global_position)
+		if d < mas_cerca:
+			mas_cerca = d
+			_apuntar(pieza.global_position)
+
+
+# Al acercarte a una pieza salen unos zombis sueltos junto a ella (una vez por pieza)
+func _revisar_piezas() -> void:
+	var mando := get_tree().get_first_node_in_group("zombis_mando") as Zombis
+	if mando == null:
+		return
+	for i in _piezas.size():
+		var pieza := _piezas[i]
+		if not is_instance_valid(pieza) or pieza.global_position.distance_to(_jugador.global_position) > PIEZAS_AVISO:
+			continue
+		var clave := PIEZAS_ANTENA.find(Vector2(pieza.global_position.x, pieza.global_position.z))
+		if clave < 0 or _piezas_zombis[clave]:
+			continue
+		_piezas_zombis[clave] = true
+		for k in PIEZAS_ZOMBIS:
+			var cerca := Vector2.from_angle(randf() * TAU) * (6.0 + randf() * 6.0)
+			var donde := pieza.global_position + Vector3(cerca.x, 0.0, cerca.y)
+			mando.sacar(donde, false)
+
+
+# Una pieza hecha de cajas y cilindros, para cada una: 0 unos tubos, 1 un repetidor con su antena
+static func _modelo_pieza(i: int) -> Node3D:
+	var raiz := Node3D.new()
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.62, 0.64, 0.66) if i == 0 else Color(0.2, 0.22, 0.24)
+	material.roughness = 0.8
+	if i == 0:
+		for k in 3:
+			var tubo := MeshInstance3D.new()
+			var cil := CylinderMesh.new()
+			cil.top_radius = 0.07
+			cil.bottom_radius = 0.07
+			cil.height = 1.3
+			cil.radial_segments = 8
+			cil.material = material
+			tubo.mesh = cil
+			tubo.rotation.z = PI / 2.0
+			tubo.position = Vector3(0.0, 0.1 + 0.14 * (k % 2), (k - 1) * 0.16)
+			raiz.add_child(tubo)
+	else:
+		var caja := MeshInstance3D.new()
+		var cubo := BoxMesh.new()
+		cubo.size = Vector3(0.5, 0.28, 0.34)
+		cubo.material = material
+		caja.mesh = cubo
+		caja.position.y = 0.14
+		raiz.add_child(caja)
+		var antena := MeshInstance3D.new()
+		var cil := CylinderMesh.new()
+		cil.top_radius = 0.015
+		cil.bottom_radius = 0.015
+		cil.height = 0.6
+		cil.material = material
+		antena.mesh = cil
+		antena.position = Vector3(0.18, 0.55, 0.0)
+		raiz.add_child(antena)
+	return raiz
+
+
 func _poner_cosa(paso: PasoMision) -> void:
 	if _perro:
 		return
@@ -1021,6 +1142,9 @@ func _process(delta: float) -> void:
 	if paso.tipo == PasoMision.Tipo.VISITAR or paso.tipo == PasoMision.Tipo.LLEVAR_CARGA:
 		linea += " (%d/%d)" % [Misiones.visitados, Misiones.meta_visitas]
 		_apuntar_al_punto_cercano()
+	elif paso.tipo == PasoMision.Tipo.RECOGER and paso.lugar == "piezas_antena":
+		linea += " (%d/%d)" % [Misiones.visitados, Misiones.meta_visitas]
+		_revisar_piezas()
 	elif paso.tipo == PasoMision.Tipo.ESCOLTAR:
 		_revisar_escolta(paso)
 	elif paso.tipo == PasoMision.Tipo.CAMIONETA:
