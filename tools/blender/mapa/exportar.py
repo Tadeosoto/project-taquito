@@ -84,9 +84,14 @@ def tianguis_marcas(datos):
                 lx, lz = local(p["x"], p["z"])
                 if 0 < lx < largo and abs(lz) < arroyo / 2:
                     reservados.append([1 if lz > 0 else -1, round(lx, 2), round(p["ancho"] + 0.5, 2)])
-        marcas.append({"nombre": t["nombre"], "tipo": "tianguis", "x": ax, "z": az, "rot": round(rot, 4),
-                       "largo": round(largo, 2), "arroyo": arroyo, "pasillo": t.get("pasillo", 2.6),
-                       "semilla": t.get("semilla", 7), "huecos": huecos, "reservados": reservados})
+        marca = {"nombre": t["nombre"], "tipo": "tianguis", "x": ax, "z": az, "rot": round(rot, 4),
+                 "largo": round(largo, 2), "arroyo": arroyo, "pasillo": t.get("pasillo", 2.6),
+                 "semilla": t.get("semilla", 7), "huecos": huecos, "reservados": reservados}
+        # Tramos por giro (el tianguis de La Gotera): solo esos giros y el color de sus lonas
+        for llave in ("giros", "lona"):
+            if llave in t:
+                marca[llave] = t[llave]
+        marcas.append(marca)
     return marcas
 
 

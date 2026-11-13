@@ -72,6 +72,32 @@ const GIROS := {
 	"tortillas": {"mesa": [[O + "tortillas/tortillas.tscn", 0.3], ["tacos:plastic_bag_P", 0.4], ["tacos:Napkins", 0.25]],
 		"suelo": [["tacos:bucket", 0.4]]},
 	"ropa": {"mesa": [], "colgado": [[O + "mexican_starter_pack/mochila.scn", 0.35]], "ropa": true},
+	# Los giros del tianguis de La Gotera (docs/mapa/colonias/la_gotera.md): un tramo por giro
+	"armas": {"mesa": [["res://models/armas/machete/machete.scn", 0.6], ["res://models/armas/balas/balas.scn", 0.14],
+			["res://models/armas/resortera/resortera.scn", 0.3], ["res://models/armas/bate/bate.scn", 0.75],
+			["res://models/armas/pistola_colt/pistola_colt.scn", 0.25]],
+		"colgado": [["res://models/armas/machete/machete.scn", 0.6], ["res://models/armas/bate/bate.scn", 0.75]],
+		"atras": [["estante:", 1.7]]},
+	"agua": {"mesa": [[O + "botella/botella.scn", 0.25], [O + "galon_agua/galon_agua.scn", 0.4]],
+		"suelo": [[O + "galon_agua/galon_agua.scn", 0.4], [O + "galon_agua/galon_agua.scn", 0.4], ["tacos:bucket", 0.4]],
+		"atras": [["estante:", 1.7]]},
+	"fayuca": {"mesa": [[O + "bocina/bocina.scn", 0.35], [O + "cinta/cinta.scn", 0.1], [O + "cigarro/cigarro.scn", 0.1],
+			[O + "patito/patito.scn", 0.12], [O + "llave/llave.scn", 0.15], [O + "moneda_peso/moneda_peso.scn", 0.05]],
+		"colgado": [[O + "mexican_starter_pack/mochila.scn", 0.35], [O + "chancla/chancla.scn", 0.26]],
+		"atras": [["estante:", 1.7]]},
+	"farmacia": {"mesa": [[O + "vaporub/vaporub.scn", 0.07], [O + "botiquin/botiquin.scn", 0.3], [O + "tachas/tachas.scn", 0.08],
+			[O + "cigarro/cigarro.scn", 0.1], [O + "botella/botella.scn", 0.25]],
+		"suelo": [["tacos:bucket", 0.4]], "atras": [["estante:", 1.7]]},
+}
+# Lonas de un solo color (la familia) para los tramos por giro: "lona" de la marca
+const LONAS := {
+	"negro": [Color(0.12, 0.12, 0.13), Color(0.2, 0.2, 0.22), Color(0.3, 0.28, 0.26)],
+	"azul": [Color(0.1, 0.3, 0.75), Color(0.35, 0.65, 0.9), Color(0.15, 0.4, 0.78)],
+	"amarillo": [Color(0.95, 0.78, 0.1), Color(0.95, 0.55, 0.08), Color(0.92, 0.75, 0.15)],
+	"blanco": [Color(0.92, 0.92, 0.88), Color(0.85, 0.88, 0.9), Color(0.95, 0.95, 0.9)],
+	"rosa": [Color(0.89, 0.12, 0.45), Color(0.95, 0.55, 0.65), Color(0.45, 0.22, 0.65)],
+	"rojo": [Color(0.82, 0.12, 0.12), Color(0.9, 0.3, 0.1), Color(0.7, 0.1, 0.1)],
+	"verde": [Color(0.15, 0.6, 0.3), Color(0.2, 0.62, 0.32), Color(0.4, 0.7, 0.3)],
 }
 const GIRO_PESOS := {"fruta": 4, "verdura": 2, "abarrotes": 2, "tejuino": 1, "chacharas": 3, "limpieza": 1,
 	"tortillas": 1, "tacos": 2, "ropa": 3}
@@ -104,6 +130,10 @@ const CHICO_HASTA := 35.0
 # [lado, x del centro, ancho]: carpa vacia encima de un puesto suelto de MapPuntos
 @export var reservados: Array = []
 @export var hornear := true         # false: deja los nodos (aligerar_piezas.gd los recorre)
+# Tramo por giro (La Gotera): solo estos giros (vacio: la bolsa de GIRO_PESOS) y la familia de color de
+# sus lonas (llave de LONAS; "" las de siempre)
+@export var giros: Array = []
+@export var lona := ""
 
 static var _ligeras := {}           # clave de malla -> ruta de la aligerada
 static var _ligeras_cargadas := {}
@@ -320,8 +350,9 @@ func _sacar_carpa() -> int:
 func _pintar(carpa: Node3D, rayas: bool) -> void:
 	# Un color por hueco de lona (lona_0, lona_1, lona_2); el fierro con lo de siempre
 	var colores := []
+	var familia: Array = LONAS.get(lona, COLORES)
 	for i in 3:
-		var c: Color = COLORES[_rng.randi() % COLORES.size()]
+		var c: Color = familia[_rng.randi() % familia.size()]
 		colores.append(c.lerp(Color(0.8, 0.8, 0.78), _rng.randf_range(0.0, 0.35)))
 	if rayas:
 		colores[0] = Color(0.9, 0.9, 0.86)
@@ -478,9 +509,14 @@ func _sacar_giro() -> String:
 	# De una bolsa revuelta con cada giro tantas veces como su peso: sale de todo y no se repiten
 	# cinco fruterias seguidas
 	if _bolsa.is_empty():
-		for g in GIRO_PESOS:
-			for k in GIRO_PESOS[g]:
-				_bolsa.append(g)
+		if not giros.is_empty():
+			for g in giros:
+				if GIROS.has(g):
+					_bolsa.append(String(g))
+		if _bolsa.is_empty():
+			for g in GIRO_PESOS:
+				for k in GIRO_PESOS[g]:
+					_bolsa.append(g)
 		for i in range(_bolsa.size() - 1, 0, -1):
 			var j := _rng.randi_range(0, i)
 			var t := _bolsa[i]

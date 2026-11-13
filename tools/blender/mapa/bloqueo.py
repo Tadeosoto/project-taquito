@@ -15,6 +15,14 @@
 #   "bordes": {"norte"|"sur"|"oriente"|"poniente": "gela"|"barda"|"derrumbe"|"camion"|"fieles"}
 #   ("fieles": un altar de calle de la Virgen, piezas.nicho_virgen; Santa Mugre es fortaleza)
 #            el tapon de las calles que salen por ese lado (norte = z chica)
+#   "sin_barda": ["poniente", ...]   lados del recorte sin la muralla automatica (La Gotera: su
+#            muralla poniente va a mano, sesgada por la banqueta de la avenida)
+#   "muralla": {"alto", "base", "murales"}   como es la muralla del recorte (sin esto, la de los
+#            fieles de Santa Mugre: block de 2.6 m y lamina hasta 4.5)
+#   "nombres_parodia": {"<nombre real de OSM>": "<nombre del juego>"}   llena "nombres_calles"
+#            (pieza -> nombre) con cada calle de ese nombre real, para las placas
+#   "rejas": las "calles" de una reja pueden ser nombres de pieza ("Calle_1_0") o el nombre real
+#            de la calle de OSM ("Avenida del Cedro")
 
 import os
 import math
@@ -508,7 +516,7 @@ def bloquear(nombre):
                 para_postes.append((tramo, ancho / 2 + banqueta, ancho, c["tipo"] in ("tertiary", "secondary", "primary")))
             for punta in (tramo[0], tramo[-1]):
                 lado = _lado(punta[0], punta[1], recorte)
-                if lado and bordes.get(lado) in TAPON and "Calle_%d_%d" % (i, j) not in sin_tapon:
+                if lado and bordes.get(lado) in TAPON and "Calle_%d_%d" % (i, j) not in sin_tapon and c["nombre"] not in sin_tapon:
                     color, alto = TAPON[bordes[lado]]
                     a, b = (tramo[0], tramo[1]) if punta is tramo[0] else (tramo[-1], tramo[-2])
                     rot = math.atan2(b[0] - a[0], b[1] - a[1])
@@ -573,10 +581,16 @@ def bloquear(nombre):
 
     # Barda alrededor
     a = BARDA_ADENTRO
+    muralla = datos.get("muralla", {})
+    muralla_alto = muralla.get("alto", MURALLA_ALTO)
+    muralla_base = muralla.get("base", BARDA_ALTO)
+    muralla_murales = muralla.get("murales", 60)
     for lado, (cx, cz, ancho, fondo) in {"norte": ((x1 + x2) / 2, z1 + a, x2 - x1, BARDA_GRUESO),
                                           "sur": ((x1 + x2) / 2, z2 - a, x2 - x1, BARDA_GRUESO),
                                           "poniente": (x1 + a, (z1 + z2) / 2, BARDA_GRUESO, z2 - z1),
                                           "oriente": (x2 - a, (z1 + z2) / 2, BARDA_GRUESO, z2 - z1)}.items():
+        if lado in datos.get("sin_barda", []):
+            continue
         a_lo_largo_x = ancho > fondo
         # Los huecos de las rejas de este lado (de menor a mayor) parten la barda en tramos
         huecos = sorted((r.get("x0", r.get("z0")), r.get("x1", r.get("z1"))) for r in rejas if r["lado"] == lado)
@@ -597,18 +611,26 @@ def bloquear(nombre):
                 nuevas.append({"nombre": "%s_%d" % (nombre_barda, k), "tipo": "muralla", "auto": True,
                                "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
                                "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(s1 - s0, 2),
-                               "alto": MURALLA_ALTO, "base": BARDA_ALTO, "dentro": MURALLA_DENTRO[lado],
-                               "grueso": BARDA_GRUESO, "murales": 60})
+                               "alto": muralla_alto, "base": muralla_base, "dentro": MURALLA_DENTRO[lado],
+                               "grueso": BARDA_GRUESO, "murales": muralla_murales})
         for r in rejas:
             if r["lado"] != lado:
                 continue
             h0, h1 = r.get("x0", r.get("z0")), r.get("x1", r.get("z1"))
             medio = (h0 + h1) / 2
-            nuevas.append({"nombre": r["nombre"], "tipo": "reja", "auto": True,
+            nuevas.append({"nombre": r["nombre"], "tipo": r.get("tipo", "reja"), "auto": True,
                            "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
                            "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(h1 - h0, 2),
-                           "alto": MURALLA_ALTO, "grueso": BARDA_GRUESO})
+                           "alto": r.get("alto", muralla_alto), "grueso": BARDA_GRUESO})
 
+    # Las placas: el nombre del juego de cada calle real ("nombres_parodia"), por pieza
+    parodia = datos.get("nombres_parodia", {})
+    if parodia:
+        nombres = {k: v for k, v in datos.get("nombres_calles", {}).items() if not any(p["nombre"] == k and p.get("auto") for p in nuevas)}
+        for p in nuevas:
+            if p["tipo"] == "calle" and p.get("real") in parodia:
+                nombres[p["nombre"]] = parodia[p["real"]]
+        datos["nombres_calles"] = nombres
     datos["postes"] = _postes(para_postes, [(t, a / 2) for t, m, a, av in para_postes])
     todas_casas = [p for p in nuevas + piezas if p["tipo"] == "casa"]
     usadas = set()

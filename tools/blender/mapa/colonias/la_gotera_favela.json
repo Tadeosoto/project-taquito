@@ -1,0 +1,156 @@
+{
+	"nombre": "la_gotera_favela",
+	"ficha": "docs/mapa/colonias/la_gotera.md",
+	"recorte": [730.0, -336.0, 914.0, -104.0],
+	"bordes": {
+		"norte": "barda",
+		"sur": "barda",
+		"oriente": "barda",
+		"poniente": "barda"
+	},
+	"muralla": {
+		"alto": 3.6,
+		"base": 3.6,
+		"murales": 45
+	},
+	"rejas": [],
+	"nombres_parodia": {
+		"Avenida del Cedro": "Av. del Cedro Seco",
+		"Primavera": "Calle Primavera Marchita",
+		"Nogal": "Calle Nogal Hueco",
+		"Calle Nogal": "Calle Nogal Hueco",
+		"Calle Roble": "Calle Roble Torcido",
+		"Avenida Parota": "Av. Parota Sin Sombra",
+		"Caobilla": "Calle Caobilla Apolillada",
+		"Roble Privada B": "Privada Roble Quebrado",
+		"Privada 4": "Privada del Chorro",
+		"Privada 5": "Privada de la Fuga",
+		"Calle 1-2": "Calle Sin Número",
+		"Calle 3-4": "Calle Tres Cuartos",
+		"Privada 6": "Privada del Gotero",
+		"Calle Monte Carmelo": "Calle Monte Caramelo",
+		"Avenida Monte Carmelo Privada 4": "Privada Monte Caramelo",
+		"Calle Ébano": "Calle Ébano Quemado",
+		"Calle 6": "Calle Seis Cerrada"
+	},
+	"reservas": [],
+	"piezas": [],
+	"marcas": [
+		{
+			"nombre": "Spawn",
+			"tipo": "spawn",
+			"x": 737.0,
+			"z": -271.9,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Boca_privada_fuga",
+			"tipo": "paso",
+			"lado": "privada_fuga",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -308.8,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -308.8]
+		},
+		{
+			"nombre": "Guardia_privada_fuga",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_29",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -311.0,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_roble_quebrado",
+			"tipo": "paso",
+			"lado": "roble_quebrado",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -271.9,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -271.9]
+		},
+		{
+			"nombre": "Guardia_roble_quebrado",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_30",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -274.1,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_parota",
+			"tipo": "paso",
+			"lado": "parota",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -228.0,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -228.0]
+		},
+		{
+			"nombre": "Guardia_parota",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_31",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -230.2,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_caobilla",
+			"tipo": "paso",
+			"lado": "caobilla",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -181.6,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -181.6]
+		},
+		{
+			"nombre": "Guardia_caobilla",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_32",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -183.8,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_sin_numero",
+			"tipo": "paso",
+			"lado": "sin_numero",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -145.9,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -145.9]
+		},
+		{
+			"nombre": "Guardia_sin_numero",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_16",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -148.1,
+			"rot": 1.9708
+		}
+	],
+	"tiendas": [],
+	"tianguis": [],
+	"puestos_calle": [],
+	"negocios": []
+}

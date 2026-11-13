@@ -1,0 +1,714 @@
+{
+	"colonia": "la_gotera",
+	"recorte": [700.0, -343.0, 768.0, -110.0],
+	"marcas": [
+		{
+			"nombre": "Spawn",
+			"tipo": "spawn",
+			"x": 730.56,
+			"z": -333.0,
+			"rot": -3.1416
+		},
+		{
+			"nombre": "Boca_privada_fuga",
+			"tipo": "paso",
+			"lado": "privada_fuga",
+			"a": "la_gotera_favela",
+			"x": 733.24,
+			"z": -308.8,
+			"rot": -1.5708,
+			"texto": "Entrar a la favela",
+			"requiere": "favela",
+			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
+			"llegada": [730.74, -308.8]
+		},
+		{
+			"nombre": "Guardia_privada_fuga",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_29",
+			"clip": "Idle",
+			"x": 733.54,
+			"z": -306.6,
+			"rot": -2.0708
+		},
+		{
+			"nombre": "Letrero_privada_fuga",
+			"tipo": "letrero",
+			"texto": "Solo gente de la casa",
+			"x": 734.74,
+			"z": -311.4,
+			"y": 2.6,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Foco_boca_privada_fuga",
+			"tipo": "reflector",
+			"x": 734.24,
+			"z": -308.8,
+			"y": 4.2,
+			"rot": -1.5708,
+			"baja": 60,
+			"alcance": 10
+		},
+		{
+			"nombre": "Boca_roble_quebrado",
+			"tipo": "paso",
+			"lado": "roble_quebrado",
+			"a": "la_gotera_favela",
+			"x": 730.24,
+			"z": -271.9,
+			"rot": -1.5708,
+			"texto": "Entrar a la favela",
+			"requiere": "favela",
+			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
+			"llegada": [727.74, -271.9]
+		},
+		{
+			"nombre": "Guardia_roble_quebrado",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_30",
+			"clip": "Idle",
+			"x": 730.54,
+			"z": -269.7,
+			"rot": -2.0708
+		},
+		{
+			"nombre": "Letrero_roble_quebrado",
+			"tipo": "letrero",
+			"texto": "Solo gente de la casa",
+			"x": 731.74,
+			"z": -274.5,
+			"y": 2.6,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Foco_boca_roble_quebrado",
+			"tipo": "reflector",
+			"x": 731.24,
+			"z": -271.9,
+			"y": 4.2,
+			"rot": -1.5708,
+			"baja": 60,
+			"alcance": 10
+		},
+		{
+			"nombre": "Boca_parota",
+			"tipo": "paso",
+			"lado": "parota",
+			"a": "la_gotera_favela",
+			"x": 726.66,
+			"z": -228.0,
+			"rot": -1.5708,
+			"texto": "Entrar a la favela",
+			"requiere": "favela",
+			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
+			"llegada": [724.16, -228.0]
+		},
+		{
+			"nombre": "Guardia_parota",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_31",
+			"clip": "Idle",
+			"x": 726.96,
+			"z": -225.8,
+			"rot": -2.0708
+		},
+		{
+			"nombre": "Letrero_parota",
+			"tipo": "letrero",
+			"texto": "Solo gente de la casa",
+			"x": 728.16,
+			"z": -230.6,
+			"y": 2.6,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Foco_boca_parota",
+			"tipo": "reflector",
+			"x": 727.66,
+			"z": -228.0,
+			"y": 4.2,
+			"rot": -1.5708,
+			"baja": 60,
+			"alcance": 10
+		},
+		{
+			"nombre": "Boca_caobilla",
+			"tipo": "paso",
+			"lado": "caobilla",
+			"a": "la_gotera_favela",
+			"x": 722.94,
+			"z": -181.6,
+			"rot": -1.5708,
+			"texto": "Entrar a la favela",
+			"requiere": "favela",
+			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
+			"llegada": [720.44, -181.6]
+		},
+		{
+			"nombre": "Guardia_caobilla",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_32",
+			"clip": "Idle",
+			"x": 723.24,
+			"z": -179.4,
+			"rot": -2.0708
+		},
+		{
+			"nombre": "Letrero_caobilla",
+			"tipo": "letrero",
+			"texto": "Solo gente de la casa",
+			"x": 724.44,
+			"z": -184.2,
+			"y": 2.6,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Foco_boca_caobilla",
+			"tipo": "reflector",
+			"x": 723.94,
+			"z": -181.6,
+			"y": 4.2,
+			"rot": -1.5708,
+			"baja": 60,
+			"alcance": 10
+		},
+		{
+			"nombre": "Boca_sin_numero",
+			"tipo": "paso",
+			"lado": "sin_numero",
+			"a": "la_gotera_favela",
+			"x": 720.05,
+			"z": -145.9,
+			"rot": -1.5708,
+			"texto": "Entrar a la favela",
+			"requiere": "favela",
+			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
+			"llegada": [717.55, -145.9]
+		},
+		{
+			"nombre": "Guardia_sin_numero",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_16",
+			"clip": "Idle",
+			"x": 720.35,
+			"z": -143.7,
+			"rot": -2.0708
+		},
+		{
+			"nombre": "Letrero_sin_numero",
+			"tipo": "letrero",
+			"texto": "Solo gente de la casa",
+			"x": 721.55,
+			"z": -148.5,
+			"y": 2.6,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Foco_boca_sin_numero",
+			"tipo": "reflector",
+			"x": 721.05,
+			"z": -145.9,
+			"y": 4.2,
+			"rot": -1.5708,
+			"baja": 60,
+			"alcance": 10
+		},
+		{
+			"nombre": "Vigia_norte",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_13",
+			"clip": "Idle",
+			"x": 724.14,
+			"z": -333.6,
+			"y": 3.05,
+			"rot": 1.5708
+		},
+		{
+			"nombre": "Vigia_sur",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_13",
+			"clip": "Idle",
+			"x": 707.42,
+			"z": -122.6,
+			"y": 3.05,
+			"rot": 1.5708
+		},
+		{
+			"nombre": "Puerta_punto_0",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "punto",
+			"texto": "El Punto de La Gotera",
+			"x": 731.46,
+			"z": -320.57,
+			"rot": -1.6524
+		},
+		{
+			"nombre": "Puerta_purificadora_1",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "purificadora",
+			"texto": "Agua del Yacimiento",
+			"x": 738.71,
+			"z": -304.09,
+			"rot": 3.0634,
+			"local": true
+		},
+		{
+			"nombre": "Puerta_abarrotes_2",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "abarrotes",
+			"texto": "Fayuca El Pirata",
+			"x": 736.04,
+			"z": -263.76,
+			"rot": 3.0508,
+			"local": true
+		},
+		{
+			"nombre": "Puerta_farmacia_3",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "farmacia",
+			"texto": "Farmacia Sin Receta",
+			"x": 733.25,
+			"z": -187.52,
+			"rot": 0.0079,
+			"local": true
+		},
+		{
+			"nombre": "Puerta_taqueria_4",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "taqueria",
+			"texto": "Tacos El Gotero",
+			"x": 724.05,
+			"z": -140.4,
+			"rot": 3.0609,
+			"local": true
+		},
+		{
+			"nombre": "Puerta_licoreria_5",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "licoreria",
+			"texto": "Vinos y Licores La Última Gota",
+			"x": 727.54,
+			"z": -172.77,
+			"rot": 3.0537,
+			"local": true
+		},
+		{
+			"nombre": "Salida_norte",
+			"tipo": "salida_colonia",
+			"auto": true,
+			"lado": "norte",
+			"x": 728.6,
+			"z": -340.4,
+			"rot": 0.0,
+			"llegada": [728.6, -337.2],
+			"texto": "Salir de La Gotera",
+			"libre": true
+		},
+		{
+			"nombre": "Salida_sur",
+			"tipo": "salida_colonia",
+			"auto": true,
+			"lado": "sur",
+			"x": 709.6,
+			"z": -112.6,
+			"rot": -3.1416,
+			"llegada": [709.6, -115.8],
+			"texto": "Salir de La Gotera",
+			"libre": true
+		},
+		{
+			"x": 723.91,
+			"z": -339.37,
+			"rot": 1.4896,
+			"texto": "Av. del Cedro Seco",
+			"nombre": "Placa_0",
+			"tipo": "placa"
+		},
+		{
+			"x": 729.85,
+			"z": -305.12,
+			"rot": -1.6522,
+			"texto": "Av. del Cedro Seco",
+			"nombre": "Placa_1",
+			"tipo": "placa"
+		},
+		{
+			"x": 718.17,
+			"z": -268.93,
+			"rot": 1.4894,
+			"texto": "Av. del Cedro Seco",
+			"nombre": "Placa_2",
+			"tipo": "placa"
+		},
+		{
+			"x": 723.76,
+			"z": -230.45,
+			"rot": -1.6522,
+			"texto": "Av. del Cedro Seco",
+			"nombre": "Placa_3",
+			"tipo": "placa"
+		},
+		{
+			"x": 714.17,
+			"z": -219.89,
+			"rot": 1.4897,
+			"texto": "Av. del Cedro Seco",
+			"nombre": "Placa_4",
+			"tipo": "placa"
+		},
+		{
+			"x": 719.49,
+			"z": -177.97,
+			"rot": -1.6522,
+			"texto": "Av. del Cedro Seco",
+			"nombre": "Placa_5",
+			"tipo": "placa"
+		},
+		{
+			"x": 707.9,
+			"z": -142.87,
+			"rot": 1.4896,
+			"texto": "Av. del Cedro Seco",
+			"nombre": "Placa_6",
+			"tipo": "placa"
+		},
+		{
+			"x": 714.25,
+			"z": -113.63,
+			"rot": -1.652,
+			"texto": "Av. del Cedro Seco",
+			"nombre": "Placa_7",
+			"tipo": "placa"
+		},
+		{
+			"x": 703.57,
+			"z": -307.19,
+			"rot": 3.0474,
+			"texto": "Privada del Chorro",
+			"nombre": "Placa_8",
+			"tipo": "placa"
+		},
+		{
+			"x": 722.26,
+			"z": -314.17,
+			"rot": -0.0942,
+			"texto": "Privada del Chorro",
+			"nombre": "Placa_9",
+			"tipo": "placa"
+		},
+		{
+			"x": 729.4,
+			"z": -304.75,
+			"rot": 3.0473,
+			"texto": "Privada de la Fuga",
+			"nombre": "Placa_10",
+			"tipo": "placa"
+		},
+		{
+			"x": 762.95,
+			"z": -310.32,
+			"rot": -0.0943,
+			"texto": "Privada de la Fuga",
+			"nombre": "Placa_11",
+			"tipo": "placa"
+		},
+		{
+			"x": 708.99,
+			"z": -151.21,
+			"rot": -0.0945,
+			"texto": "Calle Seis Cerrada",
+			"nombre": "Placa_12",
+			"tipo": "placa"
+		},
+		{
+			"x": 703.57,
+			"z": -142.98,
+			"rot": 3.0471,
+			"texto": "Calle Seis Cerrada",
+			"nombre": "Placa_13",
+			"tipo": "placa"
+		},
+		{
+			"x": 747.81,
+			"z": -147.63,
+			"rot": -0.0914,
+			"texto": "Calle Sin Número",
+			"nombre": "Placa_14",
+			"tipo": "placa"
+		},
+		{
+			"x": 716.15,
+			"z": -141.79,
+			"rot": 3.0502,
+			"texto": "Calle Sin Número",
+			"nombre": "Placa_15",
+			"tipo": "placa"
+		},
+		{
+			"x": 703.58,
+			"z": -179.04,
+			"rot": 3.0495,
+			"texto": "Calle Caobilla Apolillada",
+			"nombre": "Placa_16",
+			"tipo": "placa"
+		},
+		{
+			"x": 711.9,
+			"z": -187.01,
+			"rot": -0.0921,
+			"texto": "Calle Caobilla Apolillada",
+			"nombre": "Placa_17",
+			"tipo": "placa"
+		},
+		{
+			"x": 719.1,
+			"z": -177.64,
+			"rot": 3.0567,
+			"texto": "Calle Caobilla Apolillada",
+			"nombre": "Placa_18",
+			"tipo": "placa"
+		},
+		{
+			"x": 764.38,
+			"z": -182.51,
+			"rot": -0.0849,
+			"texto": "Calle Caobilla Apolillada",
+			"nombre": "Placa_19",
+			"tipo": "placa"
+		},
+		{
+			"x": 722.36,
+			"z": -218.78,
+			"rot": 3.0382,
+			"texto": "Av. Parota Sin Sombra",
+			"nombre": "Placa_20",
+			"tipo": "placa"
+		},
+		{
+			"x": 764.47,
+			"z": -223.16,
+			"rot": -0.1034,
+			"texto": "Av. Parota Sin Sombra",
+			"nombre": "Placa_21",
+			"tipo": "placa"
+		},
+		{
+			"x": 703.62,
+			"z": -220.42,
+			"rot": 3.0584,
+			"texto": "Av. Parota Sin Sombra",
+			"nombre": "Placa_22",
+			"tipo": "placa"
+		},
+		{
+			"x": 715.21,
+			"z": -228.19,
+			"rot": -0.0832,
+			"texto": "Av. Parota Sin Sombra",
+			"nombre": "Placa_23",
+			"tipo": "placa"
+		},
+		{
+			"x": 716.14,
+			"z": -239.47,
+			"rot": -0.0869,
+			"texto": "Av. Parota Sin Sombra",
+			"nombre": "Placa_24",
+			"tipo": "placa"
+		},
+		{
+			"x": 703.61,
+			"z": -231.83,
+			"rot": 3.0547,
+			"texto": "Av. Parota Sin Sombra",
+			"nombre": "Placa_25",
+			"tipo": "placa"
+		},
+		{
+			"x": 764.39,
+			"z": -235.27,
+			"rot": -0.0866,
+			"texto": "Av. Parota Sin Sombra",
+			"nombre": "Placa_26",
+			"tipo": "placa"
+		},
+		{
+			"x": 723.36,
+			"z": -230.1,
+			"rot": 3.055,
+			"texto": "Av. Parota Sin Sombra",
+			"nombre": "Placa_27",
+			"tipo": "placa"
+		},
+		{
+			"x": 726.41,
+			"z": -267.86,
+			"rot": 3.0484,
+			"texto": "Privada Roble Quebrado",
+			"nombre": "Placa_28",
+			"tipo": "placa"
+		},
+		{
+			"x": 764.42,
+			"z": -273.04,
+			"rot": -0.0932,
+			"texto": "Privada Roble Quebrado",
+			"nombre": "Placa_29",
+			"tipo": "placa"
+		},
+		{
+			"x": 703.58,
+			"z": -270.0,
+			"rot": 3.0481,
+			"texto": "Privada Roble Quebrado",
+			"nombre": "Placa_30",
+			"tipo": "placa"
+		},
+		{
+			"x": 719.25,
+			"z": -277.26,
+			"rot": -0.0935,
+			"texto": "Privada Roble Quebrado",
+			"nombre": "Placa_31",
+			"tipo": "placa"
+		},
+		{
+			"nombre": "Tianguis_Armas",
+			"tipo": "tianguis",
+			"x": 728.02,
+			"z": -336.0,
+			"rot": -1.6545,
+			"largo": 25.59,
+			"arroyo": 8.0,
+			"pasillo": 1.8,
+			"semilla": 45,
+			"huecos": [
+				[-1, 12.59, 17.59],
+				[-1, 12.59, 17.59],
+				[-1, 23.46, 30.46],
+				[1, 22.22, 28.22]
+			],
+			"reservados": [],
+			"giros": [
+				"armas"
+			],
+			"lona": "negro"
+		},
+		{
+			"nombre": "Tianguis_Agua",
+			"tipo": "tianguis",
+			"x": 725.52,
+			"z": -306.0,
+			"rot": -1.6522,
+			"largo": 32.11,
+			"arroyo": 8.0,
+			"pasillo": 1.8,
+			"semilla": 44,
+			"huecos": [
+				[-1, -6.63, 0.37],
+				[-1, 30.39, 37.39],
+				[1, 29.63, 35.63]
+			],
+			"reservados": [],
+			"giros": [
+				"agua"
+			],
+			"lona": "azul"
+		},
+		{
+			"nombre": "Tianguis_Fayuca",
+			"tipo": "tianguis",
+			"x": 722.59,
+			"z": -270.0,
+			"rot": -1.6526,
+			"largo": 25.08,
+			"arroyo": 8.0,
+			"pasillo": 1.8,
+			"semilla": 46,
+			"huecos": [
+				[-1, -5.73, 1.27]
+			],
+			"reservados": [],
+			"giros": [
+				"fayuca"
+			],
+			"lona": "amarillo"
+		},
+		{
+			"nombre": "Tianguis_Farmacia",
+			"tipo": "tianguis",
+			"x": 717.88,
+			"z": -212.0,
+			"rot": -1.6506,
+			"largo": 28.09,
+			"arroyo": 8.0,
+			"pasillo": 1.8,
+			"semilla": 48,
+			"huecos": [
+				[-1, 26.68, 33.68],
+				[1, 25.01, 31.01]
+			],
+			"reservados": [],
+			"giros": [
+				"farmacia"
+			],
+			"lona": "blanco"
+		},
+		{
+			"nombre": "Tianguis_Ropa",
+			"tipo": "tianguis",
+			"x": 715.23,
+			"z": -179.0,
+			"rot": -1.6516,
+			"largo": 30.6,
+			"arroyo": 8.0,
+			"pasillo": 1.8,
+			"semilla": 44,
+			"huecos": [
+				[-1, -6.43, 0.57],
+				[-1, 29.39, 36.39],
+				[1, 28.22, 34.22]
+			],
+			"reservados": [],
+			"giros": [
+				"ropa"
+			],
+			"lona": "rosa"
+		},
+		{
+			"nombre": "Tianguis_Comida",
+			"tipo": "tianguis",
+			"x": 712.35,
+			"z": -143.5,
+			"rot": -1.6536,
+			"largo": 26.59,
+			"arroyo": 8.0,
+			"pasillo": 1.8,
+			"semilla": 46,
+			"huecos": [
+				[-1, -6.24, 0.76]
+			],
+			"reservados": [],
+			"giros": [
+				"tacos",
+				"tejuino",
+				"fruta"
+			],
+			"lona": "rojo"
+		}
+	]
+}

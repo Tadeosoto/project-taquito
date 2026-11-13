@@ -489,6 +489,9 @@ func _tianguis(marca: Dictionary) -> void:
 	t.semilla = int(marca.get("semilla", 7))
 	t.huecos = marca.get("huecos", [])
 	t.reservados = marca.get("reservados", [])
+	# Tramos por giro (La Gotera): solo esos giros y las lonas de un color
+	t.giros = marca.get("giros", [])
+	t.lona = String(marca.get("lona", ""))
 	add_child(t)
 
 
