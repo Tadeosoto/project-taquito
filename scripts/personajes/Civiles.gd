@@ -78,6 +78,9 @@ static func poner(padre: Node3D, nombre: String, clip := "Idle") -> AnimationPla
 	if not animacion.has_animation_library(LIB):
 		animacion.add_animation_library(LIB, BIBLIOTECA)
 	var nombre_clip := LIB + "/" + clip
+	# Un clip que la biblioteca no trae (p. ej. Kneel_Idle) dejaba al civil en T: cae a Idle
+	if not animacion.has_animation(nombre_clip):
+		nombre_clip = LIB + "/Idle"
 	if animacion.has_animation(nombre_clip):
 		var a := animacion.get_animation(nombre_clip)
 		a.loop_mode = Animation.LOOP_LINEAR

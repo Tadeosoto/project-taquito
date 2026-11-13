@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="11_farmacia"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/taqueria.tscn" id="11_taqueria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/tortilleria.tscn" id="11_tortilleria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/dona_mary.tscn" id="11_dona_mary"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="11_ferreteria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="11_purificadora"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="11_punto"]
@@ -31,9 +32,20 @@
 [ext_resource type="Script" path="res://scripts/map/Partida.gd" id="16_partida"]
 [ext_resource type="Script" path="res://scripts/map/Gente.gd" id="17_gente"]
 [ext_resource type="Resource" path="res://resources/zombis/noche_mapa.tres" id="18_ritmo"]
+[ext_resource type="Shader" path="res://shaders/cielo_ps1.gdshader" id="23_cielo"]
+[ext_resource type="Script" path="res://scripts/mapa/Horizonte.gd" id="24_horizonte"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cielo"]
+shader = ExtResource("23_cielo")
+
+[sub_resource type="Sky" id="Sky_mapa"]
+sky_material = SubResource("ShaderMaterial_cielo")
+radiance_size = 0
 
 [sub_resource type="Environment" id="Environment_mapa"]
-background_mode = 1
+background_mode = 2
+sky = SubResource("Sky_mapa")
+fog_sky_affect = 0.0
 background_color = Color(0.30240002, 0.31872, 0.36, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.62, 0.66, 0.72, 1)
@@ -107,6 +119,9 @@ script = ExtResource("21_arboles_modelo")
 [node name="CarrosColonia" type="Node3D" parent="."]
 script = ExtResource("22_carros_colonia")
 
+[node name="Horizonte" type="Node3D" parent="."]
+script = ExtResource("24_horizonte")
+
 [node name="Ciclo" type="Node" parent="."]
 script = ExtResource("4_ciclo")
 sol_path = NodePath("../DirectionalLight3D")
@@ -165,6 +180,7 @@ escenas = Dictionary[String, PackedScene]({
 "punto": ExtResource("11_punto"),
 "purificadora": ExtResource("11_purificadora"),
 "taqueria": ExtResource("11_taqueria"),
+"tiendita": ExtResource("11_dona_mary"),
 "tortilleria": ExtResource("11_tortilleria")
 })
 puntos_path = NodePath("../Puntos")
@@ -176,6 +192,7 @@ ocultar = Array[NodePath]([NodePath("../Minimapa")])
 
 [node name="Zombis" type="Node3D" parent="."]
 script = ExtResource("14_zombis")
+espontaneos = false
 jugador_path = NodePath("../Player")
 ciclo_path = NodePath("../Ciclo")
 ritmo = ExtResource("18_ritmo")

@@ -18,6 +18,13 @@ uniform float saturacion = 1.2;
 uniform vec2 humedad_alto = vec2(0.5, 1.2);
 uniform float humedad_fuerza = 0.3;
 uniform float salitre_fuerza = 0.6;
+// De noche se prenden algunas ventanas (Santa Mugre es fortaleza: la gente esta en su casa y a
+// salvo). `noche` es el global de Alumbrado.gd (0 de dia, 1 de noche). El vidrio es lo azul oscuro
+// de los mosaicos de ventana enteros (los dos primeros renglones del atlas) fuera de la mascara
+global uniform float noche;
+uniform float ventanas_prendidas : hint_range(0.0, 1.0) = 0.3;
+uniform vec3 ventana_luz : source_color = vec3(1.0, 0.72, 0.36);
+uniform float ventana_energia = 1.6;
 
 varying vec3 world_pos;
 
@@ -52,4 +59,14 @@ void fragment() {
 	vec3 muro = humedad(muro_sucio(tex * clamp(color, 0.0, 1.0), world_pos, zona), world_pos);
 	ALBEDO = mix(mugre(tex, world_pos, zona), muro, wall);
 	ROUGHNESS = 1.0;
+	if (noche > 0.01 && wall < 0.5 && UV.y < 0.4) {
+		float brillo = dot(tex, vec3(0.299, 0.587, 0.114));
+		float vidrio = step(tex.r * 1.15, tex.b) * step(brillo, 0.35);
+		// Una ventana = un cuarto de unos 3.5 m de frente y un piso de alto: el mismo azar para todo el vidrio
+		vec3 cuarto = floor(vec3(world_pos.x + world_pos.z, world_pos.y, world_pos.x - world_pos.z) / vec3(3.5, 2.8, 3.5));
+		float prendida = step(1.0 - ventanas_prendidas, fract(sin(dot(cuarto, vec3(12.9898, 78.233, 37.719))) * 43758.5453));
+		float luz = vidrio * prendida * smoothstep(0.45, 1.0, noche);
+		ALBEDO = mix(ALBEDO, ventana_luz, luz);
+		EMISSION = ventana_luz * luz * ventana_energia;
+	}
 }

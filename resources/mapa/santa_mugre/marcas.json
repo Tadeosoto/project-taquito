@@ -47,7 +47,7 @@
 			"x": -395.05,
 			"z": 320.2,
 			"y": 14.85,
-			"rot": 3.1416,
+			"rot": -3.1416,
 			"baja": -50,
 			"alcance": 7.0
 		},
@@ -105,22 +105,6 @@
 			"y": -1.2
 		},
 		{
-			"nombre": "Guardia_GelA_0",
-			"tipo": "vecino",
-			"x": -342.8,
-			"z": 453.7,
-			"rot": 3.0457,
-			"uniforme": "gela"
-		},
-		{
-			"nombre": "Guardia_GelA_1",
-			"tipo": "vecino",
-			"x": -346.0,
-			"z": 453.3,
-			"rot": 3.0457,
-			"uniforme": "gela"
-		},
-		{
 			"nombre": "Trampa_Cancha",
 			"tipo": "trampa",
 			"x": -392.0,
@@ -128,46 +112,6 @@
 			"rot": 0.0,
 			"tam": [12.6, 19.6],
 			"radio": 35.0
-		},
-		{
-			"nombre": "Reflector_Palacio_0",
-			"tipo": "reflector",
-			"x": -367.0,
-			"z": 383.5,
-			"y": 0.3,
-			"rot": -3.1416,
-			"baja": -48,
-			"alcance": 14.0
-		},
-		{
-			"nombre": "Reflector_Palacio_1",
-			"tipo": "reflector",
-			"x": -354.0,
-			"z": 383.5,
-			"y": 0.3,
-			"rot": -3.1416,
-			"baja": -48,
-			"alcance": 14.0
-		},
-		{
-			"nombre": "Reflector_Palacio_2",
-			"tipo": "reflector",
-			"x": -341.0,
-			"z": 383.5,
-			"y": 0.3,
-			"rot": -3.1416,
-			"baja": -48,
-			"alcance": 14.0
-		},
-		{
-			"nombre": "Reflector_Palacio_3",
-			"tipo": "reflector",
-			"x": -328.0,
-			"z": 383.5,
-			"y": 0.3,
-			"rot": -3.1416,
-			"baja": -48,
-			"alcance": 14.0
 		},
 		{
 			"nombre": "Foco_Portal_Palacio_0",
@@ -244,7 +188,7 @@
 			"x": -347.0,
 			"z": 337.6,
 			"y": 4.6,
-			"rot": -3.1416
+			"rot": 3.1416
 		},
 		{
 			"nombre": "Fila_Agua_0",
@@ -373,13 +317,6 @@
 			"x": -323.0,
 			"z": 418.2,
 			"rot": 1.5708
-		},
-		{
-			"nombre": "Caja_GelA",
-			"tipo": "caja_gela",
-			"x": -339.1,
-			"z": 454.8,
-			"rot": 3.0457
 		},
 		{
 			"nombre": "Puerta_oxxo_0",
@@ -575,6 +512,515 @@
 			"rot": -1.5708,
 			"llegada": [-190.8, 472.6],
 			"texto": "Salir de Santa Mugre"
+		},
+		{
+			"nombre": "Guardia_Reja_poniente_0",
+			"tipo": "vecino",
+			"x": -410.6,
+			"z": 448.6,
+			"rot": 0.0,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Guardia_Reja_poniente_1",
+			"tipo": "vecino",
+			"x": -415.2,
+			"z": 460.8,
+			"rot": 1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Guardia_Reja_oriente_0",
+			"tipo": "vecino",
+			"x": -188.6,
+			"z": 467.4,
+			"rot": 0.0,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Guardia_Reja_oriente_1",
+			"tipo": "vecino",
+			"x": -189.8,
+			"z": 478.6,
+			"rot": -1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Caja_Ofrendas",
+			"tipo": "caja_gela",
+			"de": "ofrendas",
+			"x": -409.6,
+			"z": 446.4,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Reflector_Reja_poniente",
+			"tipo": "reflector",
+			"x": -417.0,
+			"z": 454.5,
+			"y": 5.0,
+			"rot": 1.5708,
+			"baja": 38,
+			"alcance": 20.0
+		},
+		{
+			"nombre": "Reflector_Reja_oriente",
+			"tipo": "reflector",
+			"x": -188.0,
+			"z": 472.6,
+			"y": 5.0,
+			"rot": -1.5708,
+			"baja": 38,
+			"alcance": 20.0
+		},
+		{
+			"nombre": "Letrero_Escuela",
+			"tipo": "letrero",
+			"texto": "ESCUELA PRIMARIA SANTA MUGRE",
+			"x": -347.5,
+			"z": 379.1,
+			"y": 11.15,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Vigia_poniente_0",
+			"tipo": "vecino",
+			"x": -418.55,
+			"z": 363.4,
+			"y": 3.4,
+			"rot": -1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_poniente_0",
+			"tipo": "reflector",
+			"x": -419.15,
+			"z": 363.4,
+			"y": 5.4,
+			"rot": 1.5708,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_poniente_1",
+			"tipo": "vecino",
+			"x": -418.55,
+			"z": 288.4,
+			"y": 3.4,
+			"rot": -1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_poniente_1",
+			"tipo": "reflector",
+			"x": -419.15,
+			"z": 288.4,
+			"y": 5.4,
+			"rot": 1.5708,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_norte_0",
+			"tipo": "vecino",
+			"x": -396.4,
+			"z": 259.45,
+			"y": 3.4,
+			"rot": -3.1416,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_norte_0",
+			"tipo": "reflector",
+			"x": -396.4,
+			"z": 258.85,
+			"y": 5.4,
+			"rot": 0.0,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_norte_1",
+			"tipo": "vecino",
+			"x": -343.4,
+			"z": 259.45,
+			"y": 3.4,
+			"rot": -3.1416,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_norte_1",
+			"tipo": "reflector",
+			"x": -343.4,
+			"z": 258.85,
+			"y": 5.4,
+			"rot": 0.0,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_norte_2",
+			"tipo": "vecino",
+			"x": -250.4,
+			"z": 259.45,
+			"y": 3.4,
+			"rot": -3.1416,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_norte_2",
+			"tipo": "reflector",
+			"x": -250.4,
+			"z": 258.85,
+			"y": 5.4,
+			"rot": 0.0,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_oriente_0",
+			"tipo": "vecino",
+			"x": -186.45,
+			"z": 297.6,
+			"y": 3.4,
+			"rot": 1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_oriente_0",
+			"tipo": "reflector",
+			"x": -185.85,
+			"z": 297.6,
+			"y": 5.4,
+			"rot": -1.5708,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_oriente_1",
+			"tipo": "vecino",
+			"x": -186.45,
+			"z": 399.6,
+			"y": 3.4,
+			"rot": 1.5708,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_oriente_1",
+			"tipo": "reflector",
+			"x": -185.85,
+			"z": 399.6,
+			"y": 5.4,
+			"rot": -1.5708,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Vigia_sur_0",
+			"tipo": "vecino",
+			"x": -216.6,
+			"z": 480.55,
+			"y": 3.4,
+			"rot": 0.0,
+			"uniforme": "fiel",
+			"cuando": "siempre"
+		},
+		{
+			"nombre": "Reflector_Mirador_sur_0",
+			"tipo": "reflector",
+			"x": -216.6,
+			"z": 481.15,
+			"y": 5.4,
+			"rot": -3.1416,
+			"baja": 40,
+			"alcance": 16.0
+		},
+		{
+			"nombre": "Barricada_0",
+			"tipo": "mision",
+			"x": -345.0,
+			"z": 390.0,
+			"rot": 3.1416
+		},
+		{
+			"nombre": "Barricada_1",
+			"tipo": "mision",
+			"x": -333.14,
+			"z": 396.56,
+			"rot": 2.1315
+		},
+		{
+			"nombre": "Barricada_2",
+			"tipo": "mision",
+			"x": -333.35,
+			"z": 411.77,
+			"rot": 0.9828
+		},
+		{
+			"nombre": "Barricada_3",
+			"tipo": "mision",
+			"x": -345.0,
+			"z": 418.0,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Barricada_4",
+			"tipo": "mision",
+			"x": -355.87,
+			"z": 412.82,
+			"rot": -0.8892
+		},
+		{
+			"nombre": "Barricada_5",
+			"tipo": "mision",
+			"x": -359.0,
+			"z": 404.0,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Vela_Tinaco_0",
+			"tipo": "vecino",
+			"x": -339.51,
+			"z": 405.11,
+			"rot": -1.7708,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_1",
+			"tipo": "vecino",
+			"x": -341.51,
+			"z": 408.38,
+			"rot": -2.4689,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_2",
+			"tipo": "vecino",
+			"x": -345.14,
+			"z": 409.6,
+			"rot": 3.1161,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_3",
+			"tipo": "vecino",
+			"x": -348.71,
+			"z": 408.2,
+			"rot": 2.418,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_4",
+			"tipo": "vecino",
+			"x": -350.54,
+			"z": 404.83,
+			"rot": 1.7199,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_5",
+			"tipo": "vecino",
+			"x": -349.78,
+			"z": 401.08,
+			"rot": 1.0217,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_6",
+			"tipo": "vecino",
+			"x": -346.78,
+			"z": 398.69,
+			"rot": 0.3236,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_7",
+			"tipo": "vecino",
+			"x": -342.95,
+			"z": 398.79,
+			"rot": -0.3745,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Tinaco_8",
+			"tipo": "vecino",
+			"x": -340.08,
+			"z": 401.32,
+			"rot": -1.0727,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Foco_Vela_0",
+			"tipo": "foco",
+			"x": -341.33,
+			"z": 407.09,
+			"y": 0.5,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Foco_Vela_1",
+			"tipo": "foco",
+			"x": -349.51,
+			"z": 405.63,
+			"y": 0.5,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Foco_Vela_2",
+			"tipo": "foco",
+			"x": -344.16,
+			"z": 399.27,
+			"y": 0.5,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Vela_Atrio_0",
+			"tipo": "vecino",
+			"x": -323.4,
+			"z": 410.6,
+			"rot": 1.5708,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Vela_Atrio_1",
+			"tipo": "vecino",
+			"x": -323.4,
+			"z": 413.2,
+			"rot": 1.5708,
+			"clip": "Idle",
+			"cuando": "noche",
+			"veladora": true
+		},
+		{
+			"nombre": "Ninos_Escuela",
+			"tipo": "ninos",
+			"x": -347.5,
+			"z": 384.4,
+			"rot": 0.0,
+			"tam": [26.0, 4.6],
+			"cuantos": 5
+		},
+		{
+			"nombre": "Maestra_Escuela",
+			"tipo": "vecino",
+			"x": -340.0,
+			"z": 381.6,
+			"rot": 0.0,
+			"clip": "Idle"
+		},
+		{
+			"nombre": "Campana_Parroquia",
+			"tipo": "campana",
+			"de": "templo",
+			"x": -311.0,
+			"z": 426.0,
+			"y": 14.0,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Campana_Escuela",
+			"tipo": "campana",
+			"de": "escuela",
+			"x": -345.4,
+			"z": 378.6,
+			"y": 4.2,
+			"rot": 0.0
+		},
+		{
+			"nombre": "Palomas_Plaza",
+			"tipo": "palomas",
+			"x": -336.0,
+			"z": 414.0,
+			"rot": 0.0,
+			"tam": [10.0, 9.0],
+			"cuantas": 14
+		},
+		{
+			"nombre": "Palomas_Escuela",
+			"tipo": "palomas",
+			"x": -362.0,
+			"z": 384.0,
+			"rot": 0.0,
+			"tam": [12.0, 4.0],
+			"cuantas": 9
+		},
+		{
+			"nombre": "Perro_Reja_poniente",
+			"tipo": "perro",
+			"x": -411.2,
+			"z": 449.6,
+			"rot": 0.6
+		},
+		{
+			"nombre": "Perro_Reja_oriente",
+			"tipo": "perro",
+			"x": -189.4,
+			"z": 468.6,
+			"rot": -0.9
+		},
+		{
+			"nombre": "Perro_Vecindad",
+			"tipo": "perro",
+			"x": -214.0,
+			"z": 407.0,
+			"rot": 2.2
+		},
+		{
+			"nombre": "Perro_Mercado",
+			"tipo": "perro",
+			"x": -338.0,
+			"z": 336.4,
+			"rot": 3.0
+		},
+		{
+			"nombre": "Perro_Atrio",
+			"tipo": "perro",
+			"x": -322.6,
+			"z": 428.0,
+			"rot": 1.2
+		},
+		{
+			"nombre": "Templo",
+			"tipo": "casa_vecino",
+			"escena": "res://scenes/casas/templo.tscn",
+			"texto": "Parroquia de Santo Toribio",
+			"abierto": "dia",
+			"cerrado": "El portón está cerrado. El padre abre al amanecer.",
+			"x": -313.4,
+			"z": 420.0,
+			"y": 0.6,
+			"rot": -1.5708
 		},
 		{
 			"nombre": "Foco_0",
@@ -866,19 +1312,11 @@
 			"tipo": "placa"
 		},
 		{
-			"x": -415.87,
-			"z": 462.5,
-			"rot": -3.106,
-			"texto": "Av. Bahía de Todos los Sedientos",
-			"nombre": "Placa_11",
-			"tipo": "placa"
-		},
-		{
 			"x": -403.89,
 			"z": 454.9,
 			"rot": -0.09,
 			"texto": "Av. Bahía de Todos los Sedientos",
-			"nombre": "Placa_12",
+			"nombre": "Placa_11",
 			"tipo": "placa"
 		},
 		{
@@ -886,7 +1324,7 @@
 			"z": 467.24,
 			"rot": 3.0516,
 			"texto": "Av. Bahía de Todos los Sedientos",
-			"nombre": "Placa_13",
+			"nombre": "Placa_12",
 			"tipo": "placa"
 		},
 		{
@@ -894,7 +1332,7 @@
 			"z": 465.51,
 			"rot": -0.0982,
 			"texto": "Av. Bahía de Todos los Sedientos",
-			"nombre": "Placa_14",
+			"nombre": "Placa_13",
 			"tipo": "placa"
 		},
 		{
@@ -902,7 +1340,7 @@
 			"z": 474.51,
 			"rot": 3.1011,
 			"texto": "Av. Bahía de Todos los Sedientos",
-			"nombre": "Placa_15",
+			"nombre": "Placa_14",
 			"tipo": "placa"
 		},
 		{
@@ -910,7 +1348,7 @@
 			"z": 467.93,
 			"rot": -0.0405,
 			"texto": "Av. Bahía de Todos los Sedientos",
-			"nombre": "Placa_16",
+			"nombre": "Placa_15",
 			"tipo": "placa"
 		},
 		{
@@ -918,7 +1356,7 @@
 			"z": 477.42,
 			"rot": 3.0027,
 			"texto": "Av. Bahía de Todos los Sedientos",
-			"nombre": "Placa_17",
+			"nombre": "Placa_16",
 			"tipo": "placa"
 		},
 		{
@@ -926,7 +1364,7 @@
 			"z": 369.1,
 			"rot": 0.0263,
 			"texto": "Privada del Tinaco",
-			"nombre": "Placa_18",
+			"nombre": "Placa_17",
 			"tipo": "placa"
 		},
 		{
@@ -934,7 +1372,7 @@
 			"z": 376.82,
 			"rot": -3.1153,
 			"texto": "Privada del Tinaco",
-			"nombre": "Placa_19",
+			"nombre": "Placa_18",
 			"tipo": "placa"
 		},
 		{
@@ -942,7 +1380,7 @@
 			"z": 262.17,
 			"rot": 1.6094,
 			"texto": "Calle Bahía de Pelagatos",
-			"nombre": "Placa_20",
+			"nombre": "Placa_19",
 			"tipo": "placa"
 		},
 		{
@@ -950,7 +1388,7 @@
 			"z": 271.13,
 			"rot": -1.5312,
 			"texto": "Calle Bahía de Pelagatos",
-			"nombre": "Placa_21",
+			"nombre": "Placa_20",
 			"tipo": "placa"
 		},
 		{
@@ -958,7 +1396,7 @@
 			"z": 277.79,
 			"rot": 1.61,
 			"texto": "Calle Bahía de Pelagatos",
-			"nombre": "Placa_22",
+			"nombre": "Placa_21",
 			"tipo": "placa"
 		},
 		{
@@ -966,7 +1404,7 @@
 			"z": 326.1,
 			"rot": -1.5316,
 			"texto": "Calle Bahía de Pelagatos",
-			"nombre": "Placa_23",
+			"nombre": "Placa_22",
 			"tipo": "placa"
 		},
 		{
@@ -974,7 +1412,7 @@
 			"z": 386.19,
 			"rot": 1.61,
 			"texto": "Calle Bahía de Pelagatos",
-			"nombre": "Placa_24",
+			"nombre": "Placa_23",
 			"tipo": "placa"
 		},
 		{
@@ -982,7 +1420,7 @@
 			"z": 453.59,
 			"rot": -1.5313,
 			"texto": "Calle Bahía de Pelagatos",
-			"nombre": "Placa_25",
+			"nombre": "Placa_24",
 			"tipo": "placa"
 		},
 		{
@@ -990,7 +1428,7 @@
 			"z": 462.54,
 			"rot": 1.6101,
 			"texto": "Calle Bahía de Pelagatos",
-			"nombre": "Placa_26",
+			"nombre": "Placa_25",
 			"tipo": "placa"
 		},
 		{
@@ -998,7 +1436,7 @@
 			"z": 477.83,
 			"rot": -1.5315,
 			"texto": "Calle Bahía de Pelagatos",
-			"nombre": "Placa_27",
+			"nombre": "Placa_26",
 			"tipo": "placa"
 		},
 		{
@@ -1006,7 +1444,7 @@
 			"z": 334.58,
 			"rot": -3.1009,
 			"texto": "Calle Bahía de Pipilingue",
-			"nombre": "Placa_28",
+			"nombre": "Placa_27",
 			"tipo": "placa"
 		},
 		{
@@ -1014,7 +1452,7 @@
 			"z": 324.36,
 			"rot": 0.0407,
 			"texto": "Calle Bahía de Pipilingue",
-			"nombre": "Placa_29",
+			"nombre": "Placa_28",
 			"tipo": "placa"
 		},
 		{
@@ -1022,7 +1460,7 @@
 			"z": 331.2,
 			"rot": -3.1001,
 			"texto": "Calle Bahía de Pipilingue",
-			"nombre": "Placa_30",
+			"nombre": "Placa_29",
 			"tipo": "placa"
 		},
 		{
@@ -1030,7 +1468,7 @@
 			"z": 322.17,
 			"rot": 0.0579,
 			"texto": "Calle Bahía de Pipilingue",
-			"nombre": "Placa_31",
+			"nombre": "Placa_30",
 			"tipo": "placa"
 		},
 		{
@@ -1038,7 +1476,7 @@
 			"z": 330.95,
 			"rot": -3.0837,
 			"texto": "Calle Bahía de Pipilingue",
-			"nombre": "Placa_32",
+			"nombre": "Placa_31",
 			"tipo": "placa"
 		},
 		{
@@ -1046,7 +1484,7 @@
 			"z": 466.34,
 			"rot": -1.5345,
 			"texto": "Calle Bahía de Sin Agua",
-			"nombre": "Placa_33",
+			"nombre": "Placa_32",
 			"tipo": "placa"
 		},
 		{
@@ -1054,7 +1492,7 @@
 			"z": 458.67,
 			"rot": 1.6075,
 			"texto": "Calle Bahía de Sin Agua",
-			"nombre": "Placa_34",
+			"nombre": "Placa_33",
 			"tipo": "placa"
 		},
 		{
@@ -1062,7 +1500,7 @@
 			"z": 421.37,
 			"rot": -1.5341,
 			"texto": "Calle Bahía de Sin Agua",
-			"nombre": "Placa_35",
+			"nombre": "Placa_34",
 			"tipo": "placa"
 		},
 		{
@@ -1070,7 +1508,7 @@
 			"z": 376.7,
 			"rot": 1.6067,
 			"texto": "Calle Bahía de Sin Agua",
-			"nombre": "Placa_36",
+			"nombre": "Placa_35",
 			"tipo": "placa"
 		},
 		{
@@ -1078,7 +1516,7 @@
 			"z": 369.42,
 			"rot": -1.534,
 			"texto": "Calle Bahía de Sin Agua",
-			"nombre": "Placa_37",
+			"nombre": "Placa_36",
 			"tipo": "placa"
 		},
 		{
@@ -1086,7 +1524,7 @@
 			"z": 326.57,
 			"rot": 1.6075,
 			"texto": "Calle Bahía de Sin Agua",
-			"nombre": "Placa_38",
+			"nombre": "Placa_37",
 			"tipo": "placa"
 		},
 		{
@@ -1094,7 +1532,7 @@
 			"z": 294.05,
 			"rot": -1.5341,
 			"texto": "Calle Bahía de Sin Agua",
-			"nombre": "Placa_39",
+			"nombre": "Placa_38",
 			"tipo": "placa"
 		},
 		{
@@ -1102,7 +1540,7 @@
 			"z": 262.16,
 			"rot": 1.6075,
 			"texto": "Calle Bahía de Sin Agua",
-			"nombre": "Placa_40",
+			"nombre": "Placa_39",
 			"tipo": "placa"
 		},
 		{
@@ -1110,7 +1548,7 @@
 			"z": 267.92,
 			"rot": 1.5966,
 			"texto": "Callejón del Medidor",
-			"nombre": "Placa_41",
+			"nombre": "Placa_40",
 			"tipo": "placa"
 		},
 		{
@@ -1118,7 +1556,7 @@
 			"z": 298.04,
 			"rot": -1.545,
 			"texto": "Callejón del Medidor",
-			"nombre": "Placa_42",
+			"nombre": "Placa_41",
 			"tipo": "placa"
 		},
 		{
@@ -1126,7 +1564,7 @@
 			"z": 336.51,
 			"rot": 1.5964,
 			"texto": "Callejón del Medidor",
-			"nombre": "Placa_43",
+			"nombre": "Placa_42",
 			"tipo": "placa"
 		},
 		{
@@ -1134,7 +1572,7 @@
 			"z": 346.67,
 			"rot": -1.5451,
 			"texto": "Callejón del Medidor",
-			"nombre": "Placa_44",
+			"nombre": "Placa_43",
 			"tipo": "placa"
 		},
 		{
@@ -1175,6 +1613,30 @@
 				[1, 15.07, 18.57]
 			],
 			"reservados": []
+		},
+		{
+			"nombre": "Procesion_Atardecer",
+			"tipo": "procesion",
+			"x": -323.6,
+			"z": 418.6,
+			"rot": 0.0,
+			"puntos": [
+				[-323.6, 418.6],
+				[-337.12, 409.31],
+				[-341.02, 406.68],
+				[-342.9, 408.31],
+				[-345.33, 408.79],
+				[-347.68, 407.98],
+				[-349.31, 406.1],
+				[-349.79, 403.67],
+				[-348.98, 401.32],
+				[-347.1, 399.69],
+				[-344.67, 399.21],
+				[-342.32, 400.02],
+				[-340.69, 401.9],
+				[-340.21, 404.33],
+				[-341.02, 406.68]
+			]
 		}
 	]
 }

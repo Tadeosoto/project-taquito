@@ -3,7 +3,8 @@ extends Node3D
 ## El muro que encierra Parques de Santa Mugre en el mapa completo: ahi se entra por la flecha
 ## amarilla a la escena con mas detalle (el mapa de Blender), no caminando. Coincide con las cuatro
 ## bardas de tools/blender/mapa/colonias/santa_mugre.json (Barda_norte/sur/poniente/oriente): el
-## rectangulo `recorte`, 2.6 m de alto y 0.3 m de grueso, centradas sobre cada borde.
+## rectangulo `recorte`, 2.6 m de block y encima lamina hasta 4.5 m (`alto_muralla`), 0.3 m de
+## grueso, centradas sobre cada borde.
 ## Donde la avenida (Av. Bahia de Todos los Sedientos) cruza el muro hay una reja de fierro, cerrada
 ## y solida, con una flecha amarilla por fuera: pisarla lleva a scenes/mapa.tscn por esa reja
 ## (PasoColonia). Las rejas coinciden con `rejas` del mismo .json.
@@ -14,6 +15,10 @@ const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 ## x0, z0, x1, z1 del recorte (el mismo de santa_mugre.json y recorte_santa_mugre.py)
 @export var rect := Rect2(-420.0, 258.0, 235.0, 224.0)
 @export var alto := 2.6
+## Hasta donde subieron la barda los fieles con lamina (piezas.muralla del mapa de Blender, 4.5 m):
+## Santa Mugre es fortaleza (docs/mapa/colonias/santa_mugre.md, "La fortaleza")
+@export var alto_muralla := 4.5
+@export var color_lamina := Color(0.3, 0.36, 0.3)
 @export var grueso := 0.3
 @export var color := Color(0.62, 0.6, 0.57)
 @export var color_fierro := Color(0.12, 0.12, 0.13)
@@ -28,6 +33,7 @@ const TEXTO_ENTRADA := "Entrar a Santa Mugre"
 
 var _material_muro: ShaderMaterial
 var _material_fierro: ShaderMaterial
+var _material_lamina: ShaderMaterial
 
 
 func _enter_tree() -> void:
@@ -57,6 +63,7 @@ func _exit_tree() -> void:
 func _ready() -> void:
 	_material_muro = _material(color)
 	_material_fierro = _material(color_fierro)
+	_material_lamina = _material(color_lamina)
 
 	var x0 := rect.position.x
 	var z0 := rect.position.y
@@ -110,6 +117,25 @@ func _pared(centro: Vector3, tam: Vector3, material: Material) -> void:
 	malla.material_override = material
 	cuerpo.add_child(malla)
 	add_child(cuerpo)
+	# Encima de la barda de block, la lamina hasta alto_muralla (con su choque: no se brinca)
+	var sube := alto_muralla - tam.y
+	if sube <= 0.0:
+		return
+	var arriba := StaticBody3D.new()
+	arriba.position = centro + Vector3(0.0, tam.y + sube / 2.0, 0.0)
+	var forma_arriba := CollisionShape3D.new()
+	var caja_arriba := BoxShape3D.new()
+	caja_arriba.size = Vector3(tam.x, sube, tam.z)
+	forma_arriba.shape = caja_arriba
+	arriba.add_child(forma_arriba)
+	var malla_arriba := MeshInstance3D.new()
+	var box_arriba := BoxMesh.new()
+	# Mas delgada que el block: es lamina
+	box_arriba.size = Vector3(tam.x if tam.x > tam.z else 0.06, sube, tam.z if tam.z > tam.x else 0.06)
+	malla_arriba.mesh = box_arriba
+	malla_arriba.material_override = _material_lamina
+	arriba.add_child(malla_arriba)
+	add_child(arriba)
 
 
 # --- Las rejas de la avenida ---
@@ -168,12 +194,20 @@ func _reja(lado: String, x: float, tramo: Vector2) -> void:
 	barrotes.multimesh = multi
 	barrotes.material_override = _material_fierro
 	reja.add_child(barrotes)
+	# El porton de los fieles: las dos hojas de lamina detras de los barrotes hasta alto_muralla, los
+	# postes alargados y el dintel (como piezas.reja del mapa de Blender)
+	if alto_muralla > alto:
+		_caja(reja, Vector3(0.06, alto_muralla, largo - 1.2), Vector3(0.0, alto_muralla / 2.0, 0.0), _material_lamina)
+		for z in [-largo / 2.0 + 0.3, 0.0, largo / 2.0 - 0.3]:
+			_caja(reja, Vector3(grueso + 0.1, alto_muralla - alto, 0.6), Vector3(0.0, (alto + alto_muralla) / 2.0 + 0.3, z), _material_muro)
+		_caja(reja, Vector3(grueso + 0.2, 0.5, largo), Vector3(0.0, alto_muralla + 0.35, 0.0), _material_muro)
 	# Choque cerrado de lado a lado, como el muro (capa 1)
+	var alto_choque := maxf(alto, alto_muralla)
 	var cuerpo := StaticBody3D.new()
-	cuerpo.position = Vector3(0.0, alto / 2.0 - 0.5, 0.0)
+	cuerpo.position = Vector3(0.0, alto_choque / 2.0 - 0.5, 0.0)
 	var forma := CollisionShape3D.new()
 	var caja := BoxShape3D.new()
-	caja.size = Vector3(grueso + 0.1, alto + 1.0, largo)
+	caja.size = Vector3(grueso + 0.1, alto_choque + 1.0, largo)
 	forma.shape = caja
 	cuerpo.add_child(forma)
 	reja.add_child(cuerpo)

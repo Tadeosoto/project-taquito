@@ -12,7 +12,8 @@
 #
 # Lo que lee del .json, ademas del recorte:
 #   "reservas": [{"nombre", "puntos": [[x, z]...]}]   areas sin edificios reales (los lugares)
-#   "bordes": {"norte"|"sur"|"oriente"|"poniente": "gela"|"barda"|"derrumbe"|"camion"}
+#   "bordes": {"norte"|"sur"|"oriente"|"poniente": "gela"|"barda"|"derrumbe"|"camion"|"fieles"}
+#   ("fieles": un altar de calle de la Virgen, piezas.nicho_virgen; Santa Mugre es fortaleza)
 #            el tapon de las calles que salen por ese lado (norte = z chica)
 
 import os
@@ -33,10 +34,14 @@ COLORES = ["terracota", "mostaza", "turquesa", "rosa", "lima", "azul", "crema", 
            "naranja", "morado", "verde", "gris", "terracota", "mostaza", "rosa"]
 # Desgaste de las casas (Santa Mugre: indice 0.55-0.70, docs/lore.md)
 DESGASTE = (0.35, 0.8)
-BARDA_ALTO = 2.6
+BARDA_ALTO = 2.6           # la barda de block de antes: hoy es la base de la muralla
+MURALLA_TROZO = 30.0       # m: largo maximo de cada objeto de muralla
+MURALLA_ALTO = 4.5         # hasta donde la subieron los fieles (piezas.muralla y el porton, piezas.reja)
+# De que lado queda adentro en cada muralla (+Z o -Z de la pieza, que corre en x)
+MURALLA_DENTRO = {"norte": 1, "sur": -1, "poniente": 1, "oriente": -1}
 BARDA_GRUESO = 0.3
 BARDA_ADENTRO = 0.4        # m del borde del recorte
-TAPON = {"gela": ((0.9, 0.45, 0.1), 2.2), "barda": ((0.62, 0.6, 0.56), 2.6),
+TAPON = {"gela": ((0.9, 0.45, 0.1), 2.2), "barda": ((0.62, 0.6, 0.56), 2.6), "fieles": ((0.6, 0.6, 0.56), 3.2),
          "derrumbe": ((0.45, 0.36, 0.28), 2.8), "camion": ((0.75, 0.75, 0.72), 3.2)}
 
 
@@ -515,6 +520,7 @@ def bloquear(nombre):
                     largo_tapon = round(ancho + 2 * banqueta, 2)
                     # Cada borde con su pieza (piezas.py); la barda es la de block con murales
                     pieza.update({"gela": {"tipo": "valla_gela", "largo": largo_tapon},
+                                  "fieles": {"tipo": "nicho_virgen", "largo": largo_tapon},
                                   "camion": {"tipo": "camion_volteado", "largo": largo_tapon},
                                   "derrumbe": {"tipo": "escombro", "largo": largo_tapon},
                                   "barda": {"tipo": "barda", "largo": largo_tapon, "alto": alto, "murales": 80}}[bordes[lado]])
@@ -582,11 +588,17 @@ def bloquear(nombre):
         tramos.append((cursor, hasta))
         for n, (t0, t1) in enumerate(tramos):
             nombre_barda = "Barda_" + lado if len(tramos) == 1 else "Barda_%s_%s" % (lado, "abcdefgh"[n])
-            medio = (t0 + t1) / 2
-            nuevas.append({"nombre": nombre_barda, "tipo": "barda", "auto": True,
-                           "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
-                           "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(t1 - t0, 2),
-                           "alto": BARDA_ALTO, "grueso": BARDA_GRUESO, "murales": 60})
+            # En trozos de hasta MURALLA_TROZO m: un objeto de 235 m caia en un solo cuadro de
+            # MapaPostImport y se dibujaba desde toda la colonia
+            trozos = max(1, math.ceil((t1 - t0) / MURALLA_TROZO))
+            for k in range(trozos):
+                s0, s1 = t0 + (t1 - t0) * k / trozos, t0 + (t1 - t0) * (k + 1) / trozos
+                medio = (s0 + s1) / 2
+                nuevas.append({"nombre": "%s_%d" % (nombre_barda, k), "tipo": "muralla", "auto": True,
+                               "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
+                               "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(s1 - s0, 2),
+                               "alto": MURALLA_ALTO, "base": BARDA_ALTO, "dentro": MURALLA_DENTRO[lado],
+                               "grueso": BARDA_GRUESO, "murales": 60})
         for r in rejas:
             if r["lado"] != lado:
                 continue
@@ -595,7 +607,7 @@ def bloquear(nombre):
             nuevas.append({"nombre": r["nombre"], "tipo": "reja", "auto": True,
                            "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
                            "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(h1 - h0, 2),
-                           "alto": BARDA_ALTO, "grueso": BARDA_GRUESO})
+                           "alto": MURALLA_ALTO, "grueso": BARDA_GRUESO})
 
     datos["postes"] = _postes(para_postes, [(t, a / 2) for t, m, a, av in para_postes])
     todas_casas = [p for p in nuevas + piezas if p["tipo"] == "casa"]

@@ -183,3 +183,9 @@ func _aplicar(nuevo: float) -> void:
 		_env.ambient_light_energy = lerpf(_dia["ambiente_energia"], ambiente_energia, _valor)
 		_env.fog_light_color = _dia["niebla"].lerp(niebla_color, _valor)
 		_env.background_color = _dia["fondo"].lerp(fondo_color, _valor)
+		# Con cielo de shader (shaders/cielo_ps1.gdshader, el mapa de Blender) el fondo no es un
+		# color: se le pasa la hora y el color de la niebla, que es el de su horizonte
+		var cielo := (_env.sky.sky_material as ShaderMaterial) if _env.sky else null
+		if cielo:
+			cielo.set_shader_parameter("noche", _valor)
+			cielo.set_shader_parameter("niebla", _env.fog_light_color)

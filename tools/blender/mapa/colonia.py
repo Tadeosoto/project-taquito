@@ -167,6 +167,13 @@ def _pieza(col, p):
             de_dia = bpy.data.objects.new("Dia_" + nombre, dia.terminar())
             de_dia.location, de_dia.rotation_euler = ob.location, ob.rotation_euler
             col.objects.link(de_dia)
+        # Lo chico de una pieza grande (postes, alambre y pintas de la muralla): otro objeto,
+        # "Detalle_<nombre>", que MapaPostImport junta en cuadros chicos que no se dibujan de lejos
+        detalle = getattr(k, "detalle", None)
+        if detalle is not None:
+            chico = bpy.data.objects.new("Detalle_" + nombre, detalle.terminar())
+            chico.location, chico.rotation_euler = ob.location, ob.rotation_euler
+            col.objects.link(chico)
         return ob
     if tipo == "suelo":
         # Abajo de las calles y andadores (que van a 1-2 cm); "material" es un piso de kit.PISOS
@@ -592,7 +599,7 @@ def carros_estacionados(datos):
     los cruces. Fijos por nombre de calle. Son piezas "carro" (con choque) que no van al .json."""
     import random
     estorban = [(m["x"], m["z"]) for m in datos.get("marcas", [])]
-    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela", "tiendita", "tortilleria")]
+    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela", "tiendita", "tortilleria", "puesto_guardia", "mirador_muro", "nicho_virgen")]
     carros = []
     for p in datos.get("piezas", []):
         if p["tipo"] != "calle" or p.get("banqueta", 0) <= 0 or p.get("material", "asfalto") != "asfalto":
@@ -631,7 +638,7 @@ def topes(datos):
     """Un tope a media cuadra en cada tramo largo de las calles de asfalto con banqueta, si no cae
     junto a una marca, un puesto o un carro estacionado. Piezas "tope" que no van al .json."""
     estorban = [(m["x"], m["z"]) for m in datos.get("marcas", [])]
-    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela")]
+    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela", "puesto_guardia", "mirador_muro", "nicho_virgen")]
     estorban += [(c["x"], c["z"]) for c in carros_estacionados(datos)]
     lista = []
     for p in datos.get("piezas", []):

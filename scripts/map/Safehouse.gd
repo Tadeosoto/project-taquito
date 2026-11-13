@@ -41,6 +41,8 @@ const NEGOCIOS := [
 	["puesto", "tejuino", "Tejuino", 2.5, 2.0, true],
 	# La de Santa Mugre (mapa en Blender): local de taqueria, interior de tortilleria
 	["taqueria", "tortilleria", "Tortilleria", 6.0, 10.0, false],
+	# Abarrotes Doña Mary, la tiendita de cochera de Santa Mugre: local de abarrotes, interior de dona_mary
+	["abarrotes", "tiendita", "Doña Mary", 6.0, 10.0, false],
 ]
 # Frente y fondo de las casas Urbi (huellas_tiendas.json)
 const CASAS := {"urbi_1p_a": Vector2(6.79, 7.37), "urbi_1p_b": Vector2(6.8, 7.37), "urbi_1p_c": Vector2(7.59, 7.37),
@@ -279,6 +281,12 @@ func _ready() -> void:
 	yonke.con_barda = true
 	yonke.puntos_path = get_node("Puntos").get_path()
 	add_child(yonke)
+	# Palomas (scripts/mapa/Palomas.gd, las de la plaza de Santa Mugre): se espantan si pasas corriendo
+	var palomas := Palomas.new()
+	palomas.name = "Palomas"
+	palomas.tam = Vector2(8.0, 8.0)
+	palomas.position = Vector3(14.0, 0.0, 6.0)
+	add_child(palomas)
 	_armar_panel()
 
 

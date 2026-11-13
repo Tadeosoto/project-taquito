@@ -69,6 +69,8 @@ var _reflectores: Array[Light3D] = []
 var _energias: Array[float] = []      # la de cada luz de _reflectores, de noche
 var _parpadean: Array[bool] = []
 var _de_dia: Array[Node3D] = []      # los "vecino": se esconden de noche y de lejos
+var _de_noche: Array[Node3D] = []    # los "vecino" con "cuando": "noche" (la vela del tinaco)
+var _siempre: Array[Node3D] = []     # los de "cuando": "siempre" (los vigias): solo se esconden de lejos
 var _jugador: Node3D
 var _revisa_vecinos := 0.0
 # Cuadros "Dia_*" del .glb (MapaPostImport.SOLO_DIA): lonas y mercancia del tianguis
@@ -172,9 +174,38 @@ func _ready() -> void:
 				_placa(marca)
 			"tianguis":
 				_tianguis(marca)
+			"procesion":
+				# La procesion del atardecer (Procesion.gd): "puntos" es su camino, en metros del mundo
+				var procesion := Procesion.new()
+				procesion.name = String(marca.get("nombre", "Procesion"))
+				procesion.puntos = marca.get("puntos", [])
+				add_child(procesion)
+			"campana":
+				var campana := Campana.new()
+				campana.name = String(marca.get("nombre", "Campana"))
+				campana.de = String(marca.get("de", "templo"))
+				campana.transform = lugar(marca)
+				add_child(campana)
+			"palomas":
+				var palomas := Palomas.new()
+				palomas.name = String(marca.get("nombre", "Palomas"))
+				var tam_palomas: Array = marca.get("tam", [16.0, 16.0])
+				palomas.tam = Vector2(float(tam_palomas[0]), float(tam_palomas[1]))
+				palomas.cuantas = int(marca.get("cuantas", 14))
+				palomas.transform = lugar(marca)
+				add_child(palomas)
+			"perro":
+				# Un perro echado (el de Gente.gd), de dia y de noche; de lejos no se dibuja
+				var perro := Node3D.new()
+				perro.name = String(marca.get("nombre", "Perro"))
+				perro.transform = lugar(marca)
+				add_child(perro)
+				Gente.poner_modelo(perro, Gente.PERRO, Gente.ALTO_PERRO)
+				_siempre.append(perro)
 			"caja_gela":
 				var caja := CajaGela.new()
 				caja.name = String(marca.get("nombre", "CajaGela"))
+				caja.de = String(marca.get("de", "gela"))
 				caja.transform = lugar(marca)
 				add_child(caja)
 			var otro:
@@ -182,7 +213,8 @@ func _ready() -> void:
 
 
 	_solo_dia = find_children("Dia_*", "MeshInstance3D", true, false)
-	set_process(not _reflectores.is_empty() or not _de_dia.is_empty() or not _solo_dia.is_empty())
+	set_process(not _reflectores.is_empty() or not _de_dia.is_empty() or not _solo_dia.is_empty()
+			or not _de_noche.is_empty() or not _siempre.is_empty())
 
 
 # Los reflectores siguen a Ciclo.valor() (0 de dia, 1 de noche), asi se prenden al oscurecer
@@ -199,12 +231,14 @@ func _process(delta: float) -> void:
 			_jugador = get_tree().get_first_node_in_group("jugador") as Node3D
 		for nodo in _solo_dia:
 			(nodo as Node3D).visible = noche < NinosCancha.NOCHE_DESDE
-		for vecino in _de_dia:
-			var cerca := _jugador == null or _jugador.global_position.distance_to(vecino.global_position) < NinosCancha.LEJOS
-			vecino.visible = noche < NinosCancha.NOCHE_DESDE and cerca
-			var animacion := vecino.find_child("AnimationPlayer", true, false) as AnimationPlayer
-			if animacion:
-				animacion.active = vecino.visible
+		var es_dia := noche < NinosCancha.NOCHE_DESDE
+		for grupo in [[_de_dia, es_dia], [_de_noche, not es_dia], [_siempre, true]]:
+			for vecino: Node3D in grupo[0]:
+				var cerca := _jugador == null or _jugador.global_position.distance_to(vecino.global_position) < NinosCancha.LEJOS
+				vecino.visible = grupo[1] and cerca
+				var animacion := vecino.find_child("AnimationPlayer", true, false) as AnimationPlayer
+				if animacion:
+					animacion.active = vecino.visible
 	var t := Time.get_ticks_msec() / 1000.0
 	for i in _reflectores.size():
 		var energia := _energias[i] * noche
@@ -336,14 +370,56 @@ func _vecino(marca: Dictionary) -> void:
 	var modelo := String(marca.get("modelo", Civiles.elegir(nodo.name)))
 	Civiles.poner(nodo, modelo, String(marca.get("clip", "Idle")))
 	nodo.scale = Vector3.ONE * float(marca.get("escala", 1.0))
-	if marca.get("uniforme", "") == "gela":
-		UniformeGela.vestir(nodo)
+	var uniforme := String(marca.get("uniforme", ""))
+	if uniforme == "gela" or uniforme == "fiel":
+		UniformeGela.vestir(nodo, uniforme)
 	if marca.get("garrafon", false):
 		nodo.add_child(_garrafon())
-	_de_dia.append(nodo)
+	if marca.get("veladora", false):
+		nodo.add_child(_veladora())
+	# "cuando": "dia" (por omision), "noche" (la vela del tinaco) o "siempre" (los vigias)
+	match String(marca.get("cuando", "dia")):
+		"noche":
+			_de_noche.append(nodo)
+		"siempre":
+			_siempre.append(nodo)
+		_:
+			_de_dia.append(nodo)
 
 
 static var _malla_garrafon: CylinderMesh
+static var _malla_veladora: CylinderMesh
+static var _malla_flama: BoxMesh
+
+
+# La veladora prendida frente al que vela (la vela del tinaco, de noche): mallas compartidas, sin
+# luz propia (la da un "foco" de la marca de al lado)
+static func _veladora() -> MeshInstance3D:
+	if _malla_veladora == null:
+		_malla_veladora = CylinderMesh.new()
+		_malla_veladora.top_radius = 0.05
+		_malla_veladora.bottom_radius = 0.05
+		_malla_veladora.height = 0.2
+		_malla_veladora.radial_segments = 6
+		_malla_veladora.rings = 1
+		var vaso := StandardMaterial3D.new()
+		vaso.albedo_color = Color(0.7, 0.1, 0.1)
+		_malla_veladora.material = vaso
+		_malla_flama = BoxMesh.new()
+		_malla_flama.size = Vector3(0.035, 0.07, 0.035)
+		var flama := StandardMaterial3D.new()
+		flama.albedo_color = Color(1.0, 0.82, 0.4)
+		flama.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_malla_flama.material = flama
+	var veladora := MeshInstance3D.new()
+	veladora.mesh = _malla_veladora
+	# Enfrente de las rodillas (el civil ve a -Z de su nodo)
+	veladora.position = Vector3(0.0, 0.1, -0.55)
+	var flama_nodo := MeshInstance3D.new()
+	flama_nodo.mesh = _malla_flama
+	flama_nodo.position.y = 0.14
+	veladora.add_child(flama_nodo)
+	return veladora
 
 
 # El garrafon azul de 20 L a los pies (la fila del agua): una malla compartida
