@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/misiones/caja_misteriosa.tres" id="3_caja"]
+
+[sub_resource type="Resource" id="paso_llevar"]
+script = ExtResource("2_paso")
+tipo = 5
+cuando = 2
+texto = "Lleva la caja a La Palmira"
+lugar = "punto:punto LA PALMIRA"
+cuantos = 1
+carga = ExtResource("3_caja")
+soltable = true
+
+[resource]
+script = ExtResource("1_mision")
+id = "mafia_1"
+nombre = "Entrega a La Palmira"
+modelo = "gangster_dealer"
+donde = "punto:El Punto"
+oferta = "Tú eres el que anda de noche afuera, ¿no? Don Nemesio busca mandaderos. Lleva esta caja a La Palmira, el punto de allá afuera. No la abras."
+aceptada = "Por la reja poniente y luego derecho. Si tienes que pelear, suéltala, pero no la dejes tirada."
+recuerda = "La caja va a La Palmira. Ni la abras ni la pierdas."
+gracias = "Llegó cerrada. Así me gusta. Toma lo tuyo."
+despedida = "Ya te conocen en La Palmira. Allá te dan la que sigue."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar")])
+pesos = 60
+una_vez = true
+abierto_de_noche = true

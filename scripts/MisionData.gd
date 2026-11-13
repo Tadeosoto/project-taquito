@@ -28,6 +28,10 @@ extends Resource
 @export var donde := ""
 # Una sola vez en toda la partida (la guardia de la reja, el tutorial de la primera horda): ya hecha, no se ofrece mas
 @export var una_vez := false
+# Solo se ofrece ya cumplida (para siempre) la mision con este id: las entregas de la mafia van en cadena
+@export var requiere := ""
+# Tambien ofrece de noche y no se va al oscurecer (los puntos de la mafia: el negocio no cierra)
+@export var abierto_de_noche := false
 # DADOR: te la da alguien de dia y queda en el diario. LUGAR: se acepta al acercarte a un sitio
 # (la reja, el tinaco), no entra al diario y se juega en el momento (Misiones.empezar_en_lugar)
 enum Inicio { DADOR, LUGAR }

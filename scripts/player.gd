@@ -97,6 +97,8 @@ const COLOR_SANGRE := Color(0.62, 0.02, 0.03)
 signal golpeado
 # Un zombi cayo a filo de espada (el machete, no a punos): la defensa del tinaco cuenta para la estela
 signal mato_con_espada
+# Con una carga que se puede soltar en brazos (la caja de la mafia), el clic de ataque pide dejarla en el piso
+signal pidio_soltar_carga
 
 const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
@@ -417,6 +419,8 @@ var _pos_ahora := Vector3.ZERO
 var _frijol_base := Vector3.ZERO
 var _pivote_base := Vector3.ZERO
 var _carga: Node3D
+# La carga de ahora se suelta con el clic de ataque en vez de pegar (MisionesMundo, PasoMision.soltable)
+var carga_soltable := false
 var _retroceso := Vector3.ZERO
 var _retroceso_freno := 42.0
 var _flash_hasta := 0
@@ -1499,6 +1503,7 @@ func cargar(cosa: Node3D) -> void:
 
 
 func soltar_carga() -> void:
+	carga_soltable = false
 	if _carga:
 		_carga.queue_free()
 		_carga = null
@@ -1906,6 +1911,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif carretilla != null and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not event.is_action("ui_cancel"):
 		# Con las manos en la carretilla: ni armas, ni rodadas, ni curarse (Espacio la suelta, en _physics_process)
 		pass
+	elif _carga != null and carga_soltable and event.is_action_pressed("attack") \
+			and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and is_physics_processing():
+		# La caja de la mafia: el primer clic la deja a tus pies para pelear (Espacio la levanta)
+		pidio_soltar_carga.emit()
 	elif event.is_action_pressed("cambiar_arma") and is_physics_processing() and not sin_combate:
 		_lanzador.soltar()
 		_pistola.cambiar()

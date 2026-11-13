@@ -34,7 +34,8 @@ extends Resource
 # camioneta es `vida_acompanante`; si cae, o te amanece en la ruta, o te desmayas, la mision falla.
 # LLEVAR_CARGA: lo de VISITAR (`lugar`, `cuantos` entregas) con la `carga` en brazos, y cada
 # entrega paga `pesos_por_entrega`. Es de una hora: si se acaba con la carga encima (amanecer =
-# los cuicos) o te desmayas, se pierde y la mision falla.
+# los cuicos) o te desmayas, se pierde y la mision falla. Con `lugar` "punto:<origen>" la entrega es en
+# ese negocio "punto" (el `origen` de su JSON); con `cuando` CUALQUIERA no hay hora que se acabe.
 
 # `cuando`: a que hora se puede cumplir este paso. Fuera de su hora la mision espera (no falla
 # y su tiempo no corre): una entrega de noche con un ENTREGAR de dia se acaba con el que te la
@@ -70,3 +71,6 @@ enum Cuando { DIA, NOCHE, CUALQUIERA }
 @export var turba_andando := 3
 # LLEVAR_CARGA: lo que paga cada entrega, aparte de los `pesos` de la mision
 @export var pesos_por_entrega := 0
+# LLEVAR_CARGA: la carga se puede dejar en el piso para pelear (el clic de ataque la suelta y Espacio la
+# levanta); sin ella en brazos el punto de entrega no cuenta. La caja de la mafia (M7)
+@export var soltable := false

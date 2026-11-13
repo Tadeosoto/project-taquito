@@ -40,7 +40,19 @@ const ARCHIVOS := [
 	"res://resources/misiones/antena_sofia.tres",
 	"res://resources/misiones/al_medico.tres",
 	"res://resources/misiones/decreto_47.tres",
+	"res://resources/misiones/mafia_1.tres",
+	"res://resources/misiones/mafia_2.tres",
+	"res://resources/misiones/mafia_3.tres",
+	"res://resources/misiones/mafia_4.tres",
+	"res://resources/misiones/mafia_5.tres",
+	"res://resources/misiones/mafia_6.tres",
+	"res://resources/misiones/mafia_7.tres",
+	"res://resources/misiones/mafia_8.tres",
 ]
+# Las entregas de la mafia (M7): las `mafia_N` en cadena, de El Punto de Santa Mugre a los ocho puntos del
+# mapa. Con estas ya cumplidas se abre la reja de La Gotera (FortalezasMapa)
+const MAFIA := "mafia_"
+const FAVELA_ENTREGAS := 5
 const REVISAR_CADA := 0.25
 
 var todas: Array[MisionData] = []
@@ -85,6 +97,8 @@ var objetivo_radio := 0.0
 # Lo pone MisionesMundo: los dadores con inicial (MisionData.inicial) que tienen trabajo ahorita,
 # [[Vector2 xz, "C"], ...], para los mapas
 var dadores: Array = []
+# Lo pone MisionesMundo: los negocios "punto" de la mafia que ya conoces, [[Vector2 xz, nombre], ...]
+var puntos_vistos: Array = []
 
 var _hechas := {}
 # Las `una_vez` ya cumplidas: no se borran al amanecer
@@ -128,8 +142,27 @@ func hecha_siempre(mision: MisionData) -> bool:
 
 
 func disponible(mision: MisionData) -> bool:
-	return ofreciendo and not aceptada(mision) and not hecha_hoy(mision) \
-			and not ya_tienes_el_premio(mision)
+	return (ofreciendo or mision.abierto_de_noche) and not aceptada(mision) and not hecha_hoy(mision) \
+			and not ya_tienes_el_premio(mision) and requisito_cumplido(mision)
+
+
+# La de antes en la cadena (MisionData.requiere) ya se cumplio
+func requisito_cumplido(mision: MisionData) -> bool:
+	return mision.requiere == "" or _hechas_siempre.has(mision.requiere)
+
+
+# Cuantas entregas de la mafia llevas (las de la cadena son de una sola vez)
+func entregas_mafia() -> int:
+	var n := 0
+	for id: String in _hechas_siempre:
+		if id.begins_with(MAFIA):
+			n += 1
+	return n
+
+
+# La reja de La Gotera ya te deja pasar
+func favela_abierta() -> bool:
+	return entregas_mafia() >= FAVELA_ENTREGAS
 
 
 # La de la cangurera ya no se ofrece si traes una: solo se puede traer una
@@ -396,6 +429,8 @@ func _texto_ruta_perdida(p: PasoMision) -> String:
 	if p.tipo == PasoMision.Tipo.CAMIONETA:
 		return "Amaneció con la camioneta en la calle: los cerdos se la llevaron." if not es_noche \
 				else "Te desmayaste y la camioneta siguió sin ti."
+	if p.cuando == PasoMision.Cuando.CUALQUIERA:
+		return "Te desmayaste y la caja se perdió."
 	return "Te amaneció con la carga: los cerdos se la llevaron." if p.cuando == PasoMision.Cuando.NOCHE \
 			else "Se hizo de noche con la carga encima y la perdiste."
 
@@ -521,6 +556,7 @@ func reiniciar() -> void:
 	tiempo_queda = 0.0
 	hay_objetivo = false
 	dadores.clear()
+	puntos_vistos.clear()
 	_hechas.clear()
 	_hechas_siempre.clear()
 	cambio.emit()

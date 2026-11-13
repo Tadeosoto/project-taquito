@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/misiones/caja_misteriosa.tres" id="3_caja"]
+
+[sub_resource type="Resource" id="paso_llevar"]
+script = ExtResource("2_paso")
+tipo = 5
+cuando = 2
+texto = "Lleva la caja a Arroyo Seco"
+lugar = "punto:punto ARROYO SECO"
+cuantos = 1
+carga = ExtResource("3_caja")
+soltable = true
+
+[resource]
+script = ExtResource("1_mision")
+id = "mafia_2"
+nombre = "Entrega a Arroyo Seco"
+modelo = "cholo"
+donde = "punto:punto LA PALMIRA"
+oferta = "Conque tú eres el de Santa Mugre. Esta otra va a Arroyo Seco, rumbo al centro. Paga mejor."
+aceptada = "De día los cerdos revisan: que no te vean. De noche, ya sabes qué sale."
+recuerda = "A Arroyo Seco. Y sin que te vean los cuicos."
+gracias = "Bien. Aquí no hacemos preguntas. Toma."
+despedida = "Pásale cuando quieras. Ya sabes dónde estamos."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar")])
+pesos = 70
+una_vez = true
+requiere = "mafia_1"
+abierto_de_noche = true

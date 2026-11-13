@@ -69,6 +69,13 @@ const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
 const DANO_TINACO := 100
 const TURBA_PRUEBA := 12
 const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
+## Los puntos de la mafia (M7) en fila junto a la barda oriente, en el orden de la cadena: el de cada uno da la caja
+## para el siguiente
+const PUNTOS_MAFIA := ["El Punto", "punto LA PALMIRA", "punto ARROYO SECO", "punto ARROYUELO", "punto REAL DEL MONTE",
+		"punto HACIENDAS DE SAN JOSE", "punto PARQUES DEL BOSQUE", "punto BAHIA DE BANDERA 2575", "punto EL MANTE"]
+const PUNTOS_MAFIA_X := 46.0
+const PUNTOS_MAFIA_Z := -36.0
+const PUNTOS_MAFIA_PASO := 9.0
 const CHATARRA_EN := [Vector3(17.0, 0.0, 6.0), Vector3(19.5, 0.0, 6.0)]
 const MATERIALES_PRUEBA := 5   # de cada material comun y especial con Shift+P
 const CANGURERA := "res://resources/productos/cangurera.tres"
@@ -248,7 +255,11 @@ func _ready() -> void:
 	_partida.piezas_en_el_mapa = false
 	# Uno por mision (Misiones.ARCHIVOS) y el ultimo para el nino de los tazos
 	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(10.0, 0.0, 2.0), Vector3(16.0, 0.0, 2.0), Vector3(22.0, 0.0, 2.0), Vector3(28.0, 0.0, 2.0), Vector3(34.0, 0.0, 2.0), Vector3(-22.0, 0.0, 10.0), Vector3(-14.0, 0.0, 10.0), Vector3(-6.0, 0.0, 10.0), Vector3(2.0, 0.0, 10.0), Vector3(10.0, 0.0, 10.0), Vector3(18.0, 0.0, 10.0), Vector3(-38.0, 0.0, 10.0), Vector3(-30.0, 0.0, 10.0)]
-	_partida.misiones_config = {"puntos_path": PUNTOS_JSON, "casas_path": CASAS_JSON, "vecinos_fijos": vecinos, "perro_fijo": Vector3(38.0, 0.0, 20.0)}
+	var puntos_mafia := {}
+	for i in PUNTOS_MAFIA.size():
+		puntos_mafia[PUNTOS_MAFIA[i]] = Vector3(PUNTOS_MAFIA_X, 0.0, PUNTOS_MAFIA_Z + i * PUNTOS_MAFIA_PASO)
+	_partida.misiones_config = {"puntos_path": PUNTOS_JSON, "casas_path": CASAS_JSON, "vecinos_fijos": vecinos,
+			"perro_fijo": Vector3(38.0, 0.0, 20.0), "puntos_fijos": puntos_mafia}
 	add_child(_partida)
 	_poner_pieza_prueba()
 	var gente := Gente.new()

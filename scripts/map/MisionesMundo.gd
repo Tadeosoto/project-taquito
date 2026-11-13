@@ -63,6 +63,14 @@ const TEXTO_REJA_ANTES := "Hay un herido, pero de noche se sale por la reja y si
 const TINACO_CORTE := 1.4         # s entre aceptar con Chava y el corte a la defensa
 const CAZA_APARECE := 70.0        # m del lugar a los que sale el zombi marcado
 const TEXTO_HORA := "%s: \"Esto me toca %s.\""
+# Las entregas de la mafia (M7): se entrega a un lado de la puerta del punto, lejos de su flecha amarilla (pisarla
+# te mete a la tienda), y el puntero espera junto; sin la entrega de antes no te conoce
+const ENTREGA_AL_LADO := 3.5
+const PUNTERO_AL_LADO := 4.6
+const TEXTO_NO_TE_CONOZCO := "¿Y tú quién eres? Aquí no se vende nada, compa."
+const TEXTO_FALTA_CAJA := "Sin la caja no hay entrega. Ve por ella."
+const TEXTO_PUNTO_REJA := "Tengo trabajo, pero es allá afuera y la reja sigue cerrada. Cuando te dejen salir, regresas."
+const PUNTOS_MAPA := "res://resources/map/puntos_mapa.json"
 
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
 @export_file("*.json") var casas_path := "res://resources/map/casas_mapa.json"
@@ -70,6 +78,8 @@ const TEXTO_HORA := "%s: \"Esto me toca %s.\""
 # El safehouse: donde van, en vez de buscar postes
 @export var vecinos_fijos: Array[Vector3] = []
 @export var perro_fijo := Vector3.INF
+# El safehouse: donde estan los negocios "punto" de la mafia, por su `origen` (en el mapa salen del JSON)
+@export var puntos_fijos := {}
 
 var vecinos: Array[Dictionary] = []
 var _piezas: Array[Node3D] = []
@@ -114,6 +124,11 @@ var _ola_en := 0.0
 var _cazado: Zombie = null
 var _cazado_de: PasoMision = null
 var _marca_cazado: Label3D = null
+# La caja de la mafia en el piso (PasoMision.soltable): de que paso es; levantarla la vuelve a la mano
+var _caja_suelo: Node3D = null
+var _caja_de: PasoMision = null
+# Donde estan los "punto" del mapa grande, por `origen` (para dibujar los que ya conoces aunque estes en la colonia)
+static var _puntos_del_mapa := {}
 
 
 func _ready() -> void:
@@ -133,6 +148,8 @@ func _ready() -> void:
 	Misiones.termino.connect(_termino)
 	Misiones.sobra.connect(_sobra)
 	Misiones.entrega.connect(_entrega)
+	if _jugador.has_signal("pidio_soltar_carga"):
+		_jugador.pidio_soltar_carga.connect(_soltar_caja_al_piso)
 	if _ciclo:
 		_ciclo.aviso_atardecer.connect(Misiones.atardecer)
 		_ciclo.anochecio.connect(_anochecio)
@@ -187,10 +204,12 @@ func avisos_por(supervivencia: Node) -> void:
 # --- Los que las dan ---
 
 func _poner_vecinos() -> void:
+	_poner_punteros()
+	var normales := _misiones_normales()
 	var lugares := vecinos_fijos if not vecinos_fijos.is_empty() else _lugares_vecinos()
-	var cuantos := mini(lugares.size(), Misiones.todas.size())
+	var cuantos := mini(lugares.size(), normales.size())
 	for i in cuantos:
-		var mision := Misiones.todas[i]
+		var mision := normales[i]
 		# Defender el tinaco, en el mapa grande: Chava esta parado afuera de cada uno de los cinco tinacos
 		if mision.donde == "tinacos" and get_tree().get_first_node_in_group("fortalezas") != null:
 			for k in SitiosTinaco.SITIOS.size():
@@ -227,6 +246,65 @@ func _poner_vecinos() -> void:
 		var hacia := _jugador.global_position - _nino_lugar
 		nino.rotation.y = atan2(hacia.x, hacia.z)
 	_actualizar_signos()
+
+
+# Las que da un vecino (todas menos las de los puntos de la mafia, que tienen su lugar fijo)
+func _misiones_normales() -> Array[MisionData]:
+	var normales: Array[MisionData] = []
+	for mision in Misiones.todas:
+		if not mision.donde.begins_with("punto:"):
+			normales.append(mision)
+	return normales
+
+
+# Los punteros de la mafia (M7): cada uno a un lado de la puerta de su negocio "punto", mirando a la calle. Solo
+# los de esta escena: El Punto en la colonia, los otros ocho en el mapa grande
+func _poner_punteros() -> void:
+	for mision in Misiones.todas:
+		if not mision.donde.begins_with("punto:"):
+			continue
+		var punto := _punto_mafia(mision.donde.trim_prefix("punto:"))
+		if punto.is_empty():
+			continue
+		var frente: Vector3 = punto[0]
+		var hacia: Vector3 = punto[1]
+		vecinos.append(_nuevo_dador(mision, frente + _lado(hacia) * PUNTERO_AL_LADO, hacia))
+
+
+# Hacia que lado de la puerta del punto van la entrega y el puntero
+static func _lado(hacia: Vector3) -> Vector3:
+	return hacia.cross(Vector3.UP)
+
+
+# [frente de la puerta, hacia afuera] del negocio "punto" con ese `origen`, o [] si no esta en esta escena
+func _punto_mafia(origen: String) -> Array:
+	if puntos_fijos.has(origen):
+		var fijo: Vector3 = puntos_fijos[origen]
+		return [fijo, Vector3(0.0, 0.0, 1.0)]
+	for p: Dictionary in _tiendas:
+		if p.get("tipo", "") == "punto" and p.get("origen", "") == origen:
+			var r := float(p["rotacion_y"])
+			var frente := Vector2(sin(r), cos(r))
+			var en := Vector2(p["x"], p["z"]) + frente * (float(p.get("fondo", 8.0)) / 2.0 + 1.5)
+			return [Vector3(en.x, _jugador.global_position.y - 1.0, en.y), Vector3(frente.x, 0.0, frente.y)]
+	return []
+
+
+# Los "punto" del mapa grande ya conocidos (a donde ya llevaste una caja), para el mapa de papel y el minimapa
+func _puntos_conocidos() -> Array:
+	var conocidos := []
+	if not puntos_fijos.is_empty():
+		return conocidos   # el safehouse no esta en el mapa de papel
+	if _puntos_del_mapa.is_empty():
+		for p: Dictionary in _lista(PUNTOS_MAPA, "puntos"):
+			if p.get("tipo", "") == "punto":
+				_puntos_del_mapa[p.get("origen", "")] = Vector2(p["x"], p["z"])
+	for mision in Misiones.todas:
+		if mision.id.begins_with(Misiones.MAFIA) and Misiones.hecha_siempre(mision) and not mision.pasos.is_empty():
+			var origen := mision.pasos[0].lugar.trim_prefix("punto:")
+			if _puntos_del_mapa.has(origen):
+				conocidos.append([_puntos_del_mapa[origen], mision.nombre.trim_prefix("Entrega a ")])
+	return conocidos
 
 
 # De las misiones que se dan en la misma marca, la que toca: la primera que no se ha cumplido para siempre
@@ -290,7 +368,7 @@ func _lugares_vecinos() -> Array[Vector3]:
 		if lejos:
 			lugares.append(en_mundo)
 		# Uno mas para el nino de los tazos
-		if lugares.size() >= Misiones.todas.size() + 1:
+		if lugares.size() >= _misiones_normales().size() + 1:
 			break
 	return lugares
 
@@ -306,14 +384,21 @@ func _hablar(i: int) -> String:
 		return mision.recuerda
 	if Misiones.hecha_hoy(mision) or Misiones.ya_tienes_el_premio(mision):
 		return mision.despedida
-	if not Misiones.ofreciendo:
+	if not Misiones.ofreciendo and not mision.abierto_de_noche:
 		return TEXTO_TARDE
+	# La cadena de la mafia: sin la entrega de antes, este puntero no te conoce
+	if not Misiones.requisito_cumplido(mision):
+		return TEXTO_NO_TE_CONOZCO
+	# El Punto de Santa Mugre manda la caja afuera: hasta que se abra la reja (la guardia del padre Chuy) no la da
+	if _entrega_afuera_de_la_colonia(mision) and not Misiones.reja_abierta():
+		return TEXTO_PUNTO_REJA
 	# Al medico se sale por la reja: hasta que se abra (la guardia del padre Chuy) no se ofrece
 	if not mision.pasos.is_empty() and mision.pasos[0].lugar == "clinica" and not Misiones.reja_abierta():
 		return TEXTO_REJA_ANTES
 	if not v["visto"]:
 		v["visto"] = true
-		return ("%s %s" % [Personaje.linea("vecino"), mision.oferta]).strip_edges() + TEXTO_ACEPTAR
+		var saludo: String = "" if mision.abierto_de_noche else Personaje.linea("vecino")
+		return ("%s %s" % [saludo, mision.oferta]).strip_edges() + TEXTO_ACEPTAR
 	v["visto"] = false
 	Misiones.aceptar(mision)
 	if v.has("sitio"):
@@ -332,6 +417,13 @@ func _hablar(i: int) -> String:
 	if falta != "" and _supervivencia:
 		_supervivencia.avisar(TEXTO_HORA % [Personaje.nombre, falta])
 	return mision.aceptada
+
+
+# Una entrega de la mafia que se acepta en la colonia y se entrega en el mapa grande
+func _entrega_afuera_de_la_colonia(mision: MisionData) -> bool:
+	return not mision.pasos.is_empty() and mision.pasos[0].lugar.begins_with("punto:") \
+			and get_tree().get_first_node_in_group("colonia") != null \
+			and _punto_mafia(mision.pasos[0].lugar.trim_prefix("punto:")).is_empty()
 
 
 # Defender el tinaco, aceptada con Chava en el tinaco `k`: ese es el que toca y paga lo suyo; se corta y
@@ -395,6 +487,7 @@ func _sale_por_la_reja(mision: MisionData) -> bool:
 
 
 func _actualizar_signos() -> void:
+	Misiones.puntos_vistos = _puntos_conocidos()
 	Misiones.dadores.clear()
 	for v: Dictionary in vecinos:
 		var mision: MisionData = v["mision"]
@@ -412,6 +505,9 @@ func _anochecio() -> void:
 	Misiones.anochecer()
 	for v: Dictionary in vecinos:
 		var npc: Node3D = v["nodo"]
+		# Los puntos de la mafia no cierran
+		if (v["mision"] as MisionData).abierto_de_noche:
+			continue
 		if npc.is_inside_tree():
 			npc.set("_player_inside", false)
 			remove_child(npc)
@@ -455,6 +551,7 @@ func _cambio() -> void:
 		_quitar_piezas()
 	if paso == null:
 		_soltar_carga()
+		_quitar_caja_suelo()
 		Misiones.hay_objetivo = false
 		_flecha.visible = false
 		return
@@ -544,6 +641,9 @@ func _tienda(lugar: String) -> Vector3:
 
 # Casas a repartir: frente a la fachada, cerca del que la dio y lejos entre ellas
 func _poner_puntos(paso: PasoMision) -> void:
+	if paso.lugar.begins_with("punto:"):
+		_poner_punto_mafia(paso)
+		return
 	var desde := _lugar_de_vecino(Misiones.activa)
 	# Al volver de otra escena, solo las que faltan
 	var lugares := _lugares_de_casas(desde, paso.cuantos - Misiones.visitados)
@@ -552,6 +652,21 @@ func _poner_puntos(paso: PasoMision) -> void:
 	_puntos_de = Misiones.activa
 	for lugar in lugares:
 		_puntos.append(_punto_de_visita(lugar))
+	_apuntar_al_punto_cercano()
+
+
+# La entrega de la mafia: la puerta de ese negocio "punto". Si no esta en esta escena (sales de la colonia
+# hacia el mapa grande), la flecha va a la salida poniente de la colonia
+func _poner_punto_mafia(paso: PasoMision) -> void:
+	Misiones.meta_visitas = 1
+	var punto := _punto_mafia(paso.lugar.trim_prefix("punto:"))
+	if punto.is_empty():
+		if Colonia.salidas.has("poniente"):
+			_apuntar(Colonia.salidas["poniente"])
+		return
+	_puntos_de = Misiones.activa
+	var frente: Vector3 = punto[0]
+	_puntos.append(_punto_de_visita(frente + _lado(punto[1]) * ENTREGA_AL_LADO))
 	_apuntar_al_punto_cercano()
 
 
@@ -593,18 +708,29 @@ func _punto_de_visita(lugar: Vector3) -> Area3D:
 	add_child(area)
 	area.global_position = lugar
 	area.body_entered.connect(func(body: Node3D) -> void:
-		# Fuera de su hora el punto se queda: cuenta cuando sea de noche (o de dia)
-		if body is Player and Misiones.en_hora():
-			_puntos.erase(area)
-			area.queue_free()
-			# ENTRAR_A con `escena`: se entra al jefe y el paso se cumple al ganar (PasoJefe)
-			var paso_actual := Misiones.paso()
-			if paso_actual and paso_actual.tipo == PasoMision.Tipo.ENTRAR_A and paso_actual.escena != "":
-				PasoJefe.entrar(self, paso_actual.escena, true)
-				return
-			_sonar("moneda")
-			Misiones.visitado())
+		if body is Player:
+			_llegar_a(area))
 	return area
+
+
+# Fuera de su hora el punto se queda: cuenta cuando sea de noche (o de dia)
+func _llegar_a(area: Area3D) -> void:
+	if not Misiones.en_hora() or not _puntos.has(area):
+		return
+	var paso_actual := Misiones.paso()
+	# La caja de la mafia se entrega en brazos: si la dejaste tirada, no cuenta
+	if paso_actual and paso_actual.soltable and is_instance_valid(_caja_suelo):
+		if _supervivencia:
+			_supervivencia.avisar(TEXTO_FALTA_CAJA)
+		return
+	_puntos.erase(area)
+	area.queue_free()
+	# ENTRAR_A con `escena`: se entra al jefe y el paso se cumple al ganar (PasoJefe)
+	if paso_actual and paso_actual.tipo == PasoMision.Tipo.ENTRAR_A and paso_actual.escena != "":
+		PasoJefe.entrar(self, paso_actual.escena, true)
+		return
+	_sonar("moneda")
+	Misiones.visitado()
 
 
 func _apuntar_al_punto_cercano() -> void:
@@ -1148,7 +1274,13 @@ func _ajustar_carga(paso: PasoMision) -> void:
 	if _cosa_en_manos:
 		return
 	var quiere: InventoryItemData = paso.carga if paso and Misiones.en_hora() else null
+	# La caja tirada en el piso es de este paso: hasta que la levantes, las manos van vacias
+	if is_instance_valid(_caja_suelo):
+		if quiere != null and _caja_de == paso:
+			return
+		_quitar_caja_suelo()
 	if quiere == _carga_item:
+		_jugador.set("carga_soltable", quiere != null and paso.soltable)
 		return
 	if _carga_item:
 		_jugador.soltar_carga()
@@ -1156,11 +1288,46 @@ func _ajustar_carga(paso: PasoMision) -> void:
 	if quiere:
 		_jugador.cargar(quiere.crear_modelo(0.5))
 		_carga_item = quiere
+		_caja_de = paso
+	_jugador.set("carga_soltable", quiere != null and paso.soltable)
+
+
+# El clic de ataque con la caja en brazos (Player.pidio_soltar_carga): queda a tus pies y se levanta con Espacio
+func _soltar_caja_al_piso() -> void:
+	var paso := Misiones.paso()
+	if _carga_item == null or paso == null or not paso.soltable:
+		return
+	var item := _carga_item
+	_jugador.soltar_carga()
+	_carga_item = null
+	_caja_suelo = load("res://scripts/map/CosaMision.gd").new()
+	_caja_suelo.set("que", "la caja")
+	_caja_suelo.add_child(item.crear_modelo(0.5))
+	add_child(_caja_suelo)
+	_caja_suelo.global_position = _jugador.global_position + Vector3.DOWN * 1.0
+	_caja_suelo.set("al_recoger", _caja_levantada)
+	_caja_de = paso
+
+
+func _caja_levantada() -> void:
+	_quitar_caja_suelo()
+	_ajustar_carga(Misiones.paso())
+	# Si la levantas ya parado en la puerta del punto, ahi mismo cuenta
+	for area in _puntos.duplicate():
+		if is_instance_valid(area) and area.overlaps_body(_jugador):
+			_llegar_a(area)
+
+
+func _quitar_caja_suelo() -> void:
+	if is_instance_valid(_caja_suelo):
+		_caja_suelo.queue_free()
+	_caja_suelo = null
 
 
 func _soltar_carga() -> void:
 	if _carga_item or _cosa_en_manos:
 		_jugador.soltar_carga()
+	_jugador.set("carga_soltable", false)
 	_carga_item = null
 	_cosa_en_manos = false
 	Misiones.manos_ocupadas = false
@@ -1175,10 +1342,13 @@ func _quitar_cosa() -> void:
 		_voz_perro = null
 
 
-func _termino(_mision: MisionData, exito: bool, texto: String) -> void:
+func _termino(mision: MisionData, exito: bool, texto: String) -> void:
 	_escolta_de = null
 	_defensa_de = null
 	_sonar("moneda" if exito else "perder")
+	# Al llegar con la caja, el del punto te dice algo y te paga
+	if exito and mision.id.begins_with(Misiones.MAFIA) and mision.gracias != "":
+		texto = "%s %s" % [mision.gracias, texto]
 	if _supervivencia:
 		_supervivencia.avisar(texto)
 

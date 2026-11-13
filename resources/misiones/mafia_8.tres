@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/misiones/caja_misteriosa.tres" id="3_caja"]
+
+[sub_resource type="Resource" id="paso_llevar"]
+script = ExtResource("2_paso")
+tipo = 5
+cuando = 2
+texto = "Lleva la caja a El Mante"
+lugar = "punto:punto EL MANTE"
+cuantos = 1
+carga = ExtResource("3_caja")
+soltable = true
+
+[resource]
+script = ExtResource("1_mision")
+id = "mafia_8"
+nombre = "Entrega a El Mante"
+modelo = "indian_gangster"
+donde = "punto:punto BAHIA DE BANDERA 2575"
+oferta = "La última, la más lejos: El Mante, en la orilla de arriba. Llévala y ya conoces todos los puntos."
+aceptada = "El Mante, al norte, casi en la orilla. Allá no llega nadie."
+recuerda = "A El Mante con la caja."
+gracias = "Ya recorriste todos los puntos. Don Nemesio quiere hablar contigo."
+despedida = "Don Nemesio te espera en La Gotera."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar")])
+pesos = 150
+una_vez = true
+requiere = "mafia_7"
+abierto_de_noche = true

@@ -99,11 +99,21 @@ func _draw() -> void:
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	for i in _rasgados.size():
 		_nombre_en_mapa(i)
+	_puntos_en_mapa()
 	_dadores_en_mapa()
 	_objetivo_en_mapa()
 	_tapar_fuera_del_marco()
 	_jugador_en_mapa()
 	_columna(aqui)
+
+
+# Los negocios "punto" de la mafia que ya conoces (Misiones.puntos_vistos): una P blanca en un cuadro negro
+func _puntos_en_mapa() -> void:
+	for punto: Array in Misiones.puntos_vistos:
+		var p := _en_pantalla(ZonasMapa.a_mapa(punto[0].x, punto[0].y))
+		draw_rect(Rect2(p - Vector2(7.0, 7.0), Vector2(14.0, 14.0)), Color.WHITE)
+		draw_rect(Rect2(p - Vector2(5.5, 5.5), Vector2(11.0, 11.0)), Color.BLACK)
+		_texto("P", p + Vector2(0.0, 4.0), 11, Color.WHITE, HORIZONTAL_ALIGNMENT_CENTER, 20.0)
 
 
 # Los dadores importantes con trabajo (Misiones.dadores): su inicial en un circulo, como en RDR2

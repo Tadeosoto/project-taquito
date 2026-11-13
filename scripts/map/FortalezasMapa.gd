@@ -7,8 +7,9 @@ extends Node3D
 ## - La Gotera: en Haciendas de San Jodido (docs/mapa/colonias/la_gotera.md), por las calles para no partir
 ##   casas: la barda va por la banqueta poniente de la Av. del Cedro (la avenida queda adentro), la del norte
 ##   por la banqueta sur de Primavera, la del sur por la banqueta norte de Nogal y la del oriente por la orilla
-##   del mapa. Una reja cerrada donde la avenida sale por el norte y por el sur. Todavia no se entra: por dentro
-##   siguen las casas de map_test hasta que se haga la colonia en Blender.
+##   del mapa. Una reja donde la avenida sale por el norte y por el sur, cerrada hasta la quinta entrega de la
+##   mafia (Misiones.favela_abierta, M7); luego se quitan las hojas. Por dentro siguen las casas de map_test
+##   hasta que se haga la colonia en Blender.
 ## - Los cinco tinacos de la defensa (SitiosTinaco: solo el tinaco, sin barricada; Chava los ofrece de dia y
 ##   la defensa es la escena defensa_tinaco).
 ## Todo choca en la capa 1, como las casas y el muro de Santa Mugre.
@@ -48,6 +49,7 @@ const GOTERA_REJAS := [
 ## Lo que se cierra a los carros (CallesRuta solo cierra rectangulos): de la avenida a la orilla, entre
 ## Primavera y Nogal
 const GOTERA_CALLES := Rect2(704.0, -324.0, 210.0, 210.0)
+const GOTERA_LETRERO := "SOLO GENTE DE LA CASA"
 
 const TINACO_ALTO := 2.8                # Barricada.TINACO_ALTO
 const TINACO_PIEZAS := ["Tinaco_3er_capa", "Bomba_1", "Tapa"]   # Barricada.TINACO_PIEZAS
@@ -75,6 +77,8 @@ const GRUESO := 0.3
 const COLOR_FIERRO := Color(0.12, 0.12, 0.13)
 
 var _fierro: ShaderMaterial
+# Las hojas de las dos rejas de La Gotera (con su choque y su letrero): se quitan al abrir la favela
+var _hojas_gotera: Array[Node3D] = []
 
 
 func _enter_tree() -> void:
@@ -145,7 +149,32 @@ func _gotera() -> void:
 		huecos.append([reja[0], reja[2]])
 	_barda(puntos, true, huecos, GOTERA_ALTO, _material(GOTERA_COLOR))
 	for reja: Array in GOTERA_REJAS:
-		_reja(reja[0], reja[1], reja[2], GOTERA_ALTO)
+		var hojas := _reja(reja[0], reja[1], reja[2], GOTERA_ALTO)
+		var letrero := Label3D.new()
+		letrero.text = GOTERA_LETRERO
+		letrero.font_size = 48
+		letrero.pixel_size = 0.01
+		letrero.outline_size = 12
+		letrero.modulate = Color(0.9, 0.85, 0.7)
+		letrero.position = Vector3(0.0, GOTERA_ALTO + 0.6, 0.0)
+		letrero.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
+		hojas.add_child(letrero)
+		_hojas_gotera.append(hojas)
+	var misiones := get_node_or_null("/root/Misiones")
+	if misiones:
+		misiones.cambio.connect(_revisar_favela)
+	_revisar_favela()
+
+
+# Con cinco entregas de la mafia la reja de La Gotera ya no se cierra: se quitan las hojas, su choque y el letrero
+func _revisar_favela() -> void:
+	var misiones := get_node_or_null("/root/Misiones")
+	if misiones == null or not misiones.favela_abierta():
+		return
+	for hojas in _hojas_gotera:
+		if is_instance_valid(hojas):
+			hojas.queue_free()
+	_hojas_gotera.clear()
 
 
 # --- Bardas ---
@@ -191,15 +220,20 @@ func _pared(a: Vector2, b: Vector2, alto: float, material: Material) -> void:
 
 
 # Reja de fierro cerrada a lo largo de `dir`, como las de MuroColonia: postes, travesanos y barrotes
-func _reja(centro: Vector2, dir: Vector2, largo: float, alto: float) -> void:
-	var nodo := Node3D.new()
-	nodo.name = "Reja"
-	nodo.position = Vector3(centro.x, 0.0, centro.y)
-	nodo.rotation.y = atan2(dir.x, dir.y)
-	add_child(nodo)
+# La reja con sus postes de concreto; devuelve lo que se quita al abrirla (las hojas, el poste de en medio y el choque)
+func _reja(centro: Vector2, dir: Vector2, largo: float, alto: float) -> Node3D:
+	var postes := Node3D.new()
+	postes.name = "Reja"
+	postes.position = Vector3(centro.x, 0.0, centro.y)
+	postes.rotation.y = atan2(dir.x, dir.y)
+	add_child(postes)
 	var concreto := _material(GOTERA_COLOR)
-	for z in [-largo / 2.0 + 0.3, 0.0, largo / 2.0 - 0.3]:
-		_caja(nodo, Vector3(GRUESO + 0.1, alto + 0.3, 0.6), Vector3(0.0, (alto + 0.3) / 2.0, z), concreto)
+	for z in [-largo / 2.0 + 0.3, largo / 2.0 - 0.3]:
+		_caja(postes, Vector3(GRUESO + 0.1, alto + 0.3, 0.6), Vector3(0.0, (alto + 0.3) / 2.0, z), concreto)
+	var nodo := Node3D.new()
+	nodo.name = "Hojas"
+	postes.add_child(nodo)
+	_caja(nodo, Vector3(GRUESO + 0.1, alto + 0.3, 0.6), Vector3(0.0, (alto + 0.3) / 2.0, 0.0), concreto)
 	var zs: Array[float] = []
 	for hoja in [-1.0, 1.0]:
 		var z0: float = -largo / 2.0 + 0.6 if hoja < 0.0 else 0.3
@@ -222,6 +256,7 @@ func _reja(centro: Vector2, dir: Vector2, largo: float, alto: float) -> void:
 	barrotes.material_override = _fierro
 	nodo.add_child(barrotes)
 	_choque(nodo, Vector3(0.0, alto / 2.0 - 0.5, 0.0), Vector3(GRUESO + 0.1, alto + 1.0, largo))
+	return nodo
 
 
 # --- Tinacos ---
