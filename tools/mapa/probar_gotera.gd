@@ -241,10 +241,15 @@ func _favela() -> void:
 			puertas_ok = false
 	_revisar("favela: las puertas dan a un callejon abierto", puertas_ok, "")
 	var miniatura := escena.get_node("Minimapa")
+	var tipos_icono := {}
+	for ic: Dictionary in miniatura._iconos:
+		tipos_icono[String(ic.get("tipo", ""))] = true
 	_revisar("favela: minimapa propio (sin OSM)",
 			miniatura.mapa != null and miniatura.mapa.resource_path.ends_with("minimapa_la_gotera_favela.png")
 			and miniatura.datos_path.ends_with("la_gotera_favela/minimapa.json")
-			and miniatura._iconos.size() >= 14, "%s / %s / %d iconos" % [miniatura.mapa.resource_path if miniatura.mapa else "sin mapa", miniatura.datos_path, miniatura._iconos.size()])
+			and miniatura._iconos.size() >= 8
+			and tipos_icono.has("tunel") and tipos_icono.has("bodega") and tipos_icono.has("tinaco") and tipos_icono.has("azotea"),
+			"%s / %s / %d iconos %s" % [miniatura.mapa.resource_path if miniatura.mapa else "sin mapa", miniatura.datos_path, miniatura._iconos.size(), str(tipos_icono.keys())])
 	var tinacos := colonia.find_children("*", "TinacoComunitario", true, false)
 	var tinaco: Node = tinacos[0] if not tinacos.is_empty() else null
 	_revisar("favela: hay un tinaco comunitario", tinaco != null, str(tinacos.size()))

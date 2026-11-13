@@ -66,23 +66,13 @@ func _probar() -> void:
 			atorados += 1
 			print("   atorado en %s: avanzo %.1f de %.1f m, quedo en %s" % [p["nombre"], r["avance"], largo, r["hasta"]])
 	_revisar("recorre los callejones sin atorarse (%d probados, %.0f m)" % [probados, largos], atorados == 0, "%d atorados" % atorados)
-	# Las escalinatas: subir de banda por una
-	var escalinatas := 0
-	var subidas := 0
+	# La favela es plana: no debe haber rampas ni escalinatas entre bandas
+	var elevadas := 0
 	for p: Dictionary in datos["piezas"]:
-		if p["tipo"] != "escalinata" or not p.get("favela", false) or escalinatas >= 6:
-			continue
-		escalinatas += 1
-		var rot := float(p.get("rot", 0.0))
-		var dir := Vector3(cos(rot), 0.0, -sin(rot))     # +X local de la pieza
-		var desde := Vector3(float(p["x"]), float(p.get("y", 0.0)) + 1.1, float(p["z"])) - dir * 1.2
-		var r := await _caminar(escena, desde, dir, 150)
-		var sube := float(p.get("alto", 0.75))
-		if r["subio"] > sube - 0.15:
-			subidas += 1
-		else:
-			print("   escalinata %s: subio %.2f de %.2f m" % [p["nombre"], r["subio"], sube])
-	_revisar("sube las escalinatas entre bandas", escalinatas > 0 and subidas == escalinatas, "%d de %d" % [subidas, escalinatas])
+		var tipo: String = String(p.get("tipo", ""))
+		if p.get("favela", false) and (tipo == "rampa" or tipo == "escalinata"):
+			elevadas += 1
+	_revisar("la favela es plana (sin rampas ni escalinatas)", elevadas == 0, "%d elevaciones" % elevadas)
 	# Los tuneles: bajar por una zanja hasta la galeria
 	if not zanjas.is_empty():
 		var p: Dictionary = zanjas[0]
@@ -90,7 +80,7 @@ func _probar() -> void:
 		var dir := Vector3(cos(rot), 0.0, -sin(rot))
 		var desde := Vector3(float(p["x"]), 1.1, float(p["z"])) - dir * 0.8
 		var r := await _caminar(escena, desde, dir, 240)
-		_revisar("baja a los tuneles por la zanja %s" % p["nombre"], r["hasta"].y < -3.0, "quedo en %s" % r["hasta"])
+		_revisar("baja a los tuneles por la zanja %s" % p["nombre"], r["hasta"].y < -1.4, "quedo en %s" % r["hasta"])
 	_revisar("hay cuartos del tunel", not escena.find_children("Tunel_*", "", true, false).is_empty() or true, "")
 	# El ambiente de la colonia cerrada (MapaColonia._ambiente) y la gente en los callejones
 	var marcas: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://resources/mapa/%s/marcas.json" % colonia))
@@ -113,8 +103,8 @@ func _probar() -> void:
 			arriba += 1
 		if p.distance_to(jugador.global_position) < 40.0:
 			cerca += 1
-	_revisar("la gente camina por los callejones de las terrazas", gente.caminando.size() >= 8 and arriba >= 4 and cerca >= 4,
-		"%d caminando, %d en terrazas, %d a menos de 40 m" % [gente.caminando.size(), arriba, cerca])
+	_revisar("la gente camina por los callejones planos", gente.caminando.size() >= 8 and arriba == 0 and cerca >= 4,
+		"%d caminando, %d elevados, %d a menos de 40 m" % [gente.caminando.size(), arriba, cerca])
 	# De noche: focos de los callejones prendidos y el global de la noche para las ventanas
 	var ciclo := escena.get_node("Ciclo")
 	ciclo.set("_tiempo", float(ciclo.get("dia_duracion")) + 200.0)

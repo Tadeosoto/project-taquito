@@ -26,12 +26,12 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 
 ## El tianguis
 
-- `scripts/mapa/Tianguis.gd` y las carpas de `tools/blender/tianguis/carpas.py`, con `pasillo` 1.8 m y pocos `libres` (solo las calles que cruzan y las bocas).
+- `scripts/mapa/Tianguis.gd` y las carpas de `tools/blender/tianguis/carpas.py`. Ahora el tianguis lineal se genera **igual que el de Santa Mugre**: `pasillo` 2.6 m y **todos los giros y colores** en cada tramo (sin `giros`/`lona` por tramo), con los `libres` de las calles que cruzan y las bocas.
 - **Seis tramos por giro, cada uno con su color de lona** (`"giros"` y `"lona"` del tramo, nuevos en `Tianguis.gd`), de la reja norte a la sur:
 
   | Tramo | Giro | Lona | Qué hay |
   |---|---|---|---|
-  | Tianguis_Armas | `armas` | negra | machetes, bates, resorteras, balas, una Colt; El Punto de La Gotera (la **tienda ilegal**, giro `punto`) a media cuadra |
+  | Tianguis_Armas | general | — | Ya no es un tramo de un solo giro: usa los puestos variados de Santa Mugre. El Punto de La Gotera (la **tienda ilegal**, giro `punto`) sigue a media cuadra |
   | Tianguis_Agua | `agua` | azul | garrafones y botellas; el local **Agua del Yacimiento** (`purificadora`) |
   | Tianguis_Fayuca | `fayuca` | amarilla | bocinas, cintas, cigarros, patitos, llaves, monedas; **Fayuca El Pirata** |
   | Tianguis_Farmacia | `farmacia` | blanca | Vaporub, botiquines, tachas, cigarros; **Farmacia Sin Receta** |
@@ -43,7 +43,7 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 ## La favela
 
 - **Un solo laberinto en toda la zona** (JJ, 2026-11-13): la favela **no respeta la traza de OSM**, no deja huecos y se siente angosta. `tools/blender/mapa/favela.py` (Python puro, después de `bloqueo.py`; `~/gotera_work/run_colonia.py` lo corre en orden) lo genera determinista por semilla: cuadrícula de 7 m girada como las calles de Haciendas, DFS desde la boca del poniente más lazos, **callejones de 1.2 a 2.2 m** en tramos rectos que se quiebran, cada celda una **casa de obra negra pegada a la de al lado** (block o ladrillo sin enjarre, castillos con varilla, media losa, ventanales de herrería, lonas y tablas en las ventanas; una de cada ocho pintada de un color), casas dobles, **patios** con tendederos y **plazuelas** con puesto de lona, **tablones y puentes** entre azoteas, **escaleras** a las azoteas, **toldos de lona** sobre los callejones, tendederos, cables, focos y basura. Desde la tarde del 2026-11-13 es el **perfil detallado** (detalles de azotea y adornos de callejón por omisión); el `.glb` pesa ~56 MB y se sube en Git normal (GitHub avisa a partir de 50 MiB pero lo acepta; el tope duro son 100 MiB).
-- **Terrazas por distancia a la avenida:** tres bandas (a nivel hasta 55 m, +0.75 m hasta 115 m, +1.5 m el fondo) con una **escalinata** donde un callejón cruza de banda.
+- **Favela plana:** todo el terreno al nivel del piso (sin terrazas, escalinatas ni rampas). Solo suben las escaleras a las azoteas y baja la escalera de la entrada a los túneles.
 - **Lugares clave** (marcas `mision` para los dadores):
 
   | Lugar | Dónde | Marca |
@@ -76,7 +76,7 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 - **Focos**: 443 en total (cada 10–15 m), bombilla de 0.11 m con pantalla cónica, alcance 8 m y energía 1.8; un poste de luz por claro (5).
 - **Minimapa propio**: `tools/blender/mapa/minimapa_colonia.py` escribe `textures/map/minimapa_la_gotera_favela.png` (0.5 m/px) y `resources/mapa/la_gotera_favela/minimapa.json` (radio 55 m, iconos). `MapMinimapa` pinta callejones, casas, claros, túneles punteados, tablones y los iconos **T** (entradas de túnel), **A** (azoteas), **S** (salidas) y la gota azul del tinaco. `MapaColonia` cambia `Minimapa.mapa`/`datos_path`; si falta el PNG o el JSON se queda el minimapa real.
 - **Cámara de callejón**: `scripts/mapa/GiroFavela.gd` pone `Player.giro_con_wasd` solo en `la_gotera_favela` y en el piso por debajo de 3.2 m. Con W, A/D giran la cámara; en azoteas, tianguis y demás colonias A/D vuelven a ser strafe y la cámara se gira con el ratón. En el safehouse, F11 lo prende/apaga para probarlo.
-- **Gente**: `une_a` 2.2 en la favela; `_fin_de_linea` solo une extremos si el tramo es piso caminable y no cambia de banda >0.35 m; `_caminar` interpola la altura; las escalinatas tienen su propia línea en `banquetas.json` (`caminos.py`). Se saltan las tiendas `sin_gente`.
+- **Gente**: `une_a` 2.2 en la favela; camina por callejones planos, sin escalinatas ni cambios de banda. Se saltan las tiendas `sin_gente`.
 
 ## Decisiones de la noche (sin JJ)
 
@@ -132,4 +132,4 @@ Las capturas están en `~/casa_psm/gotera/` con su lista en `00_resumen.md` (fue
 | Favela, fondo | 7.8 ms | 8.9 ms | 690 |
 | Favela, túnel | 5.2 ms | 5.4 ms | 444 |
 
-Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La tabla es del **perfil simplificado** (24 MiB); el detallado (~56 MB, 203 toldos, 443 focos y 5 escaleras) está pendiente de medir en ventana con `medir_gotera.gd`. Pruebas: `tools/mapa/probar_gotera.gd -- --favela` (40/40: tiendas, minimapa propio, tinaco sin Virgen y giro con WASD) y `tools/mapa/recorrer_favela.gd -- --cuantos=20` (callejones, escalinatas, túnel, gente y focos de noche).
+Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La tabla es del **perfil simplificado** (24 MiB); el detallado (~56 MB, 203 toldos, 443 focos y 5 escaleras) está pendiente de medir en ventana con `medir_gotera.gd`. Pruebas: `tools/mapa/probar_gotera.gd -- --favela` (**43/43**: tiendas, minimapa propio, tinaco sin Virgen y giro con WASD) y `tools/mapa/recorrer_favela.gd -- --cuantos=20` (**8/8**: callejones planos, entrada al túnel, gente y focos de noche).

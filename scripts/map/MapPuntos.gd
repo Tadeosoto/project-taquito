@@ -1066,6 +1066,24 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 		_fachada_tramo(body, Vector2(minf(tramo.x, tramo.y), maxf(tramo.x, tramo.y)), 0.0, dintel_arriba, z, LOCAL_MURO, acento, muro)
 	_fachada_tramo(body, Vector2(-puerta / 2.0, puerta / 2.0), VANO_ALTO, dintel_arriba, z, LOCAL_MURO, acento, muro)
 	_marco(body, puerta, z, info.get("marco", acento))
+	# Tienda de favela: juntas de block sobre la fachada (no es una pared lisa de color)
+	if favela:
+		for y in [0.9, 1.7, 2.5]:
+			if y >= dintel_arriba:
+				continue
+			for lado in [-1.0, 1.0]:
+				var x0: float = puerta / 2.0 + 0.12
+				var x1: float = w / 2.0 - 0.05
+				if x1 > x0:
+					_local_box(body, Vector3(x1 - x0, 0.022, 0.022),
+						Vector3(lado * (x0 + x1) / 2.0, y, front + 0.012), Color(0.34, 0.33, 0.31), false)
+		var alto_junta: float = minf(dintel_arriba - 0.2, 2.6)
+		for lado in [-1.0, 1.0]:
+			var x: float = puerta / 2.0 + 0.5
+			while x < w / 2.0 - 0.2:
+				_local_box(body, Vector3(0.022, alto_junta, 0.022),
+					Vector3(lado * x, 0.2 + alto_junta / 2.0, front + 0.012), Color(0.34, 0.33, 0.31), false)
+				x += 0.85
 	if pisos > 1:
 		_piso_alto(body, w, sala, cuarto, front, alto, planta, m["pretil"], muro, acento)
 	# Techo y piso del cuarto, tubo de luz y la cortina enrollada (por dentro, arriba

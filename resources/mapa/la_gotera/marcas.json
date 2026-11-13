@@ -1,6 +1,11 @@
 {
 	"colonia": "la_gotera",
-	"recorte": [700.0, -343.0, 768.0, -110.0],
+	"recorte": [
+		700.0,
+		-343.0,
+		768.0,
+		-110.0
+	],
 	"abierto_24h": true,
 	"marcas": [
 		{
@@ -21,7 +26,10 @@
 			"texto": "Entrar a la favela",
 			"requiere": "favela",
 			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
-			"llegada": [730.74, -308.8]
+			"llegada": [
+				730.74,
+				-308.8
+			]
 		},
 		{
 			"nombre": "Guardia_privada_fuga",
@@ -63,7 +71,10 @@
 			"texto": "Entrar a la favela",
 			"requiere": "favela",
 			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
-			"llegada": [727.74, -271.9]
+			"llegada": [
+				727.74,
+				-271.9
+			]
 		},
 		{
 			"nombre": "Guardia_roble_quebrado",
@@ -105,7 +116,10 @@
 			"texto": "Entrar a la favela",
 			"requiere": "favela",
 			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
-			"llegada": [724.16, -228.0]
+			"llegada": [
+				724.16,
+				-228.0
+			]
 		},
 		{
 			"nombre": "Guardia_parota",
@@ -147,7 +161,10 @@
 			"texto": "Entrar a la favela",
 			"requiere": "favela",
 			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
-			"llegada": [720.44, -181.6]
+			"llegada": [
+				720.44,
+				-181.6
+			]
 		},
 		{
 			"nombre": "Guardia_caobilla",
@@ -189,7 +206,10 @@
 			"texto": "Entrar a la favela",
 			"requiere": "favela",
 			"cerrado": "Aquí no, jefe. Esto es solo para gente de la casa.",
-			"llegada": [717.55, -145.9]
+			"llegada": [
+				717.55,
+				-145.9
+			]
 		},
 		{
 			"nombre": "Guardia_sin_numero",
@@ -315,7 +335,10 @@
 			"x": 728.6,
 			"z": -340.4,
 			"rot": 0.0,
-			"llegada": [728.6, -337.2],
+			"llegada": [
+				728.6,
+				-337.2
+			],
 			"texto": "Salir de La Gotera",
 			"libre": true
 		},
@@ -327,7 +350,10 @@
 			"x": 709.6,
 			"z": -112.6,
 			"rot": -3.1416,
-			"llegada": [709.6, -115.8],
+			"llegada": [
+				709.6,
+				-115.8
+			],
 			"texto": "Salir de La Gotera",
 			"libre": true
 		},
@@ -595,19 +621,31 @@
 			"rot": -1.6545,
 			"largo": 25.59,
 			"arroyo": 8.0,
-			"pasillo": 1.8,
+			"pasillo": 2.6,
 			"semilla": 45,
 			"huecos": [
-				[-1, 12.59, 17.59],
-				[-1, 12.59, 17.59],
-				[-1, 23.46, 30.46],
-				[1, 22.22, 28.22]
+				[
+					-1,
+					12.59,
+					17.59
+				],
+				[
+					-1,
+					12.59,
+					17.59
+				],
+				[
+					-1,
+					23.46,
+					30.46
+				],
+				[
+					1,
+					22.22,
+					28.22
+				]
 			],
-			"reservados": [],
-			"giros": [
-				"armas"
-			],
-			"lona": "negro"
+			"reservados": []
 		},
 		{
 			"nombre": "Tianguis_Agua",
@@ -617,18 +655,26 @@
 			"rot": -1.6522,
 			"largo": 32.11,
 			"arroyo": 8.0,
-			"pasillo": 1.8,
+			"pasillo": 2.6,
 			"semilla": 44,
 			"huecos": [
-				[-1, -6.63, 0.37],
-				[-1, 30.39, 37.39],
-				[1, 29.63, 35.63]
+				[
+					-1,
+					-6.63,
+					0.37
+				],
+				[
+					-1,
+					30.39,
+					37.39
+				],
+				[
+					1,
+					29.63,
+					35.63
+				]
 			],
-			"reservados": [],
-			"giros": [
-				"agua"
-			],
-			"lona": "azul"
+			"reservados": []
 		},
 		{
 			"nombre": "Tianguis_Fayuca",
@@ -638,16 +684,16 @@
 			"rot": -1.6526,
 			"largo": 25.08,
 			"arroyo": 8.0,
-			"pasillo": 1.8,
+			"pasillo": 2.6,
 			"semilla": 46,
 			"huecos": [
-				[-1, -5.73, 1.27]
+				[
+					-1,
+					-5.73,
+					1.27
+				]
 			],
-			"reservados": [],
-			"giros": [
-				"fayuca"
-			],
-			"lona": "amarillo"
+			"reservados": []
 		},
 		{
 			"nombre": "Tianguis_Farmacia",
@@ -657,17 +703,21 @@
 			"rot": -1.6506,
 			"largo": 28.09,
 			"arroyo": 8.0,
-			"pasillo": 1.8,
+			"pasillo": 2.6,
 			"semilla": 48,
 			"huecos": [
-				[-1, 26.68, 33.68],
-				[1, 25.01, 31.01]
+				[
+					-1,
+					26.68,
+					33.68
+				],
+				[
+					1,
+					25.01,
+					31.01
+				]
 			],
-			"reservados": [],
-			"giros": [
-				"farmacia"
-			],
-			"lona": "blanco"
+			"reservados": []
 		},
 		{
 			"nombre": "Tianguis_Ropa",
@@ -677,18 +727,26 @@
 			"rot": -1.6516,
 			"largo": 30.6,
 			"arroyo": 8.0,
-			"pasillo": 1.8,
+			"pasillo": 2.6,
 			"semilla": 44,
 			"huecos": [
-				[-1, -6.43, 0.57],
-				[-1, 29.39, 36.39],
-				[1, 28.22, 34.22]
+				[
+					-1,
+					-6.43,
+					0.57
+				],
+				[
+					-1,
+					29.39,
+					36.39
+				],
+				[
+					1,
+					28.22,
+					34.22
+				]
 			],
-			"reservados": [],
-			"giros": [
-				"ropa"
-			],
-			"lona": "rosa"
+			"reservados": []
 		},
 		{
 			"nombre": "Tianguis_Comida",
@@ -698,18 +756,16 @@
 			"rot": -1.6536,
 			"largo": 26.59,
 			"arroyo": 8.0,
-			"pasillo": 1.8,
+			"pasillo": 2.6,
 			"semilla": 46,
 			"huecos": [
-				[-1, -6.24, 0.76]
+				[
+					-1,
+					-6.24,
+					0.76
+				]
 			],
-			"reservados": [],
-			"giros": [
-				"tacos",
-				"tejuino",
-				"fruta"
-			],
-			"lona": "rojo"
+			"reservados": []
 		}
 	]
 }

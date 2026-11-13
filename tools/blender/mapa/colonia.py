@@ -417,7 +417,7 @@ def _terrazas(mundo, datos):
 def _en_terraza(p, terrazas):
     """Cuanto sube la pieza `p` por caer en una terraza (por su centro; una casa por el de su huella;
     un callejon por el medio de su tramo)."""
-    if not terrazas or p["tipo"] in ("suelo", "escalinata", "tunel", "tunel_cuarto", "bajada"):
+    if not terrazas or p["tipo"] in ("suelo", "escalinata", "rampa", "tunel", "tunel_cuarto", "bodega_tunel", "bajada"):
         return 0.0
     x, z = p["x"], p["z"]
     if p.get("puntos") and p["tipo"] == "casa":

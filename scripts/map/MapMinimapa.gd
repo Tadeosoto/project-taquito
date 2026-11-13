@@ -236,6 +236,11 @@ func _dibujar_iconos(centro: Vector2, limite: float) -> void:
 				_marcas.draw_circle(q, 6.0, NEGRO)
 				_marcas.draw_circle(q, 4.8, Color(0.28, 0.55, 0.9))
 				_marcas.draw_circle(q + Vector2(0.0, 0.5), 2.0, Color(0.75, 0.88, 1.0))
+			"bodega":
+				_marcas.draw_rect(Rect2(q - Vector2(5.0, 5.0), Vector2(10.0, 10.0)), NEGRO)
+				_marcas.draw_rect(Rect2(q - Vector2(4.0, 4.0), Vector2(8.0, 8.0)), Color(0.35, 0.55, 0.85))
+				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), "B",
+					HORIZONTAL_ALIGNMENT_CENTER, 7.0, 8, Color.WHITE)
 
 
 func _dibujar_marcas() -> void:

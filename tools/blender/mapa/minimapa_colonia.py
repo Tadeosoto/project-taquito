@@ -34,8 +34,18 @@ CASA = (105, 103, 98)
 CASA_PINTADA = (125, 120, 100)
 PATIO = (88, 76, 57)
 CLARO = (112, 100, 66)
+CLARO_GRANDE = (152, 136, 90)
+CLARO_BORDE = (204, 188, 132)
 CALLE = (188, 180, 160)
+TIENDAS = {"abarrotes": (240, 205, 50), "licoreria": (60, 95, 220), "farmacia": (55, 200, 185),
+           "ferreteria": (185, 105, 45), "oxxo": (220, 50, 40), "taqueria": (240, 130, 35)}
 TUNEL = (78, 60, 48)
+BODEGA = (92, 76, 58)
+CASA_TUNEL = (122, 96, 72)
+TIENDA_TUNEL = (178, 122, 56)
+ARMAS_TUNEL = (150, 68, 58)
+GARRAFONES_TUNEL = (68, 108, 164)
+ICONO_BODEGA = (90, 140, 220)
 TABLON = (150, 142, 126)
 ICONO_AZOTEA = (230, 230, 225)
 ICONO_TUNEL = (225, 150, 60)
@@ -106,6 +116,12 @@ class Lienzo:
         pts = [_mundo(p, x, z) for x, z in ((-w / 2, -h / 2), (w / 2, -h / 2), (w / 2, h / 2), (-w / 2, h / 2))]
         self.poligono(pts, color)
 
+    def contorno(self, p, color, ancho=1.4):
+        w, h = p.get("tam", [6.0, 6.0])
+        pts = [_mundo(p, x, z) for x, z in ((-w / 2, -h / 2), (w / 2, -h / 2), (w / 2, h / 2), (-w / 2, h / 2))]
+        for a, b in zip(pts, pts[1:] + pts[:1]):
+            self.linea([a, b], ancho, color)
+
 
 def _icono(lienzo, x, z, color):
     c, f = lienzo.px(x, z)
@@ -150,7 +166,13 @@ def generar(datos):
         if p.get("tipo") == "patio":
             lienzo.rectangulo(p, PATIO)
         elif p.get("tipo") == "lote":
-            lienzo.rectangulo(p, CLARO if p.get("claro") or p.get("variante") == "tinaco" else PATIO)
+            grande = p.get("claro") and (p.get("grande") or p.get("tinaco"))
+            lienzo.rectangulo(p, CLARO_GRANDE if grande else (CLARO if p.get("claro") or p.get("variante") == "tinaco" else PATIO))
+
+    # Contorno de los claros grandes, para que se lean en el minimapa
+    for p in datos.get("piezas", []):
+        if p.get("tipo") == "lote" and p.get("claro") and (p.get("grande") or p.get("tinaco")):
+            lienzo.contorno(p, CLARO_BORDE, 1.4)
 
     # Casas
     for p in datos.get("piezas", []):
@@ -168,9 +190,34 @@ def generar(datos):
         if len(pts) >= 2:
             lienzo.linea(pts, max(float(p.get("ancho", 1.5)), 1.6), CALLE)
 
-    # Túneles (punteados)
+    # Tiendas de la superficie: punto de color y una linea corta hacia su puerta
+    for n in datos.get("negocios", []):
+        color = TIENDAS.get(n.get("tipo", ""), (240, 240, 240))
+        c, f = lienzo.px(float(n["x"]), float(n["z"]))
+        c, f = int(c), int(f)
+        for dx in range(-2, 3):
+            for dy in range(-2, 3):
+                lienzo.punto(c + dx, f + dy, (16, 16, 16))
+        for dx in range(-1, 2):
+            for dy in range(-1, 2):
+                lienzo.punto(c + dx, f + dy, color)
+        r = float(n.get("rotacion_y", 0.0))
+        nx, nz = math.sin(r), math.cos(r)
+        lienzo.linea([(float(n["x"]), float(n["z"])), (float(n["x"]) + nx * 4.0, float(n["z"]) + nz * 4.0)], 0.8, (235, 235, 220))
+
+    # Túneles (punteados) y la bodega central
     for p in datos.get("piezas", []):
-        if p.get("tipo") not in ("tunel", "tunel_cuarto"):
+        if p.get("tipo") == "bodega_tunel":
+            lienzo.rectangulo(p, BODEGA)
+            _icono(lienzo, p["x"] + 2.0, p["z"] + 2.0, ICONO_BODEGA)
+            continue
+        if p.get("tipo") == "tunel_cuarto":
+            uso = p.get("uso", "casa")
+            color = {"casa": CASA_TUNEL, "dormitorio": CASA_TUNEL, "tienda": TIENDA_TUNEL,
+                     "armas": ARMAS_TUNEL, "garrafones": GARRAFONES_TUNEL}.get(uso, TUNEL)
+            lienzo.rectangulo(p, color)
+            continue
+        if p.get("tipo") != "tunel":
             continue
         r = float(p.get("rot", 0.0))
         largo = float(p.get("largo", 8.0))
@@ -194,6 +241,8 @@ def generar(datos):
     # Iconos: azoteas (escaleras), túneles, salidas y tinaco
     iconos = []
     for p in datos.get("piezas", []):
+        if p.get("tipo") == "bodega_tunel":
+            iconos.append({"tipo": "bodega", "x": round(p["x"] + 2.0, 2), "z": round(p["z"] + 2.0, 2)})
         if p.get("tipo") == "escalera":
             iconos.append({"tipo": "azotea", "x": round(p["x"], 2), "z": round(p["z"], 2)})
     for m in datos.get("marcas", []):
@@ -204,7 +253,8 @@ def generar(datos):
         elif m.get("tipo") == "tinaco":
             iconos.append({"tipo": "tinaco", "x": round(m["x"], 2), "z": round(m["z"], 2)})
     for i in iconos:
-        color = {"azotea": ICONO_AZOTEA, "tunel": ICONO_TUNEL, "salida": ICONO_SALIDA, "tinaco": ICONO_TINACO}[i["tipo"]]
+        color = {"azotea": ICONO_AZOTEA, "tunel": ICONO_TUNEL, "salida": ICONO_SALIDA,
+             "tinaco": ICONO_TINACO, "bodega": ICONO_BODEGA}[i["tipo"]]
         _icono(lienzo, i["x"], i["z"], color)
 
     os.makedirs(TEXTURAS, exist_ok=True)
