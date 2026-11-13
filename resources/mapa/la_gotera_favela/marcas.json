@@ -1,12 +1,13 @@
 {
 	"colonia": "la_gotera_favela",
 	"recorte": [730.0, -336.0, 914.0, -104.0],
+	"abierto_24h": true,
 	"marcas": [
 		{
 			"nombre": "Spawn",
 			"tipo": "spawn",
-			"x": 737.0,
-			"z": -271.9,
+			"x": 733.54,
+			"z": -231.45,
 			"rot": -1.5708
 		},
 		{
@@ -14,11 +15,11 @@
 			"tipo": "paso",
 			"lado": "privada_fuga",
 			"a": "la_gotera",
-			"x": 733.5,
-			"z": -308.8,
+			"x": 730.97,
+			"z": -309.93,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [736.0, -308.8]
+			"llegada": [733.46, -309.71]
 		},
 		{
 			"nombre": "Guardia_privada_fuga",
@@ -35,11 +36,11 @@
 			"tipo": "paso",
 			"lado": "roble_quebrado",
 			"a": "la_gotera",
-			"x": 733.5,
-			"z": -271.9,
+			"x": 730.81,
+			"z": -274.38,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [736.0, -271.9]
+			"llegada": [733.3, -274.16]
 		},
 		{
 			"nombre": "Guardia_roble_quebrado",
@@ -56,11 +57,11 @@
 			"tipo": "paso",
 			"lado": "parota",
 			"a": "la_gotera",
-			"x": 733.5,
-			"z": -228.0,
+			"x": 731.05,
+			"z": -231.67,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [736.0, -228.0]
+			"llegada": [733.54, -231.45]
 		},
 		{
 			"nombre": "Guardia_parota",
@@ -77,11 +78,11 @@
 			"tipo": "paso",
 			"lado": "caobilla",
 			"a": "la_gotera",
-			"x": 733.5,
-			"z": -181.6,
+			"x": 733.51,
+			"z": -181.66,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [736.0, -181.6]
+			"llegada": [736.0, -181.43]
 		},
 		{
 			"nombre": "Guardia_caobilla",
@@ -98,11 +99,11 @@
 			"tipo": "paso",
 			"lado": "sin_numero",
 			"a": "la_gotera",
-			"x": 733.5,
-			"z": -145.9,
+			"x": 730.81,
+			"z": -146.33,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [736.0, -145.9]
+			"llegada": [733.3, -146.11]
 		},
 		{
 			"nombre": "Guardia_sin_numero",
@@ -251,7 +252,7 @@
 			"nombre": "Puerta_Tunel_Tienda_2",
 			"tipo": "puerta",
 			"favela": true,
-			"giro": "tiendita",
+			"giro": "fayuca_tunel",
 			"texto": "Fayuca del Túnel",
 			"x": 815.92,
 			"z": -268.14,
@@ -262,8 +263,8 @@
 			"nombre": "Puerta_Tunel_Tienda_4",
 			"tipo": "puerta",
 			"favela": true,
-			"giro": "tiendita",
-			"texto": "Fayuca del Túnel",
+			"giro": "armas_tunel",
+			"texto": "Balas y Veladoras",
 			"x": 862.88,
 			"z": -263.95,
 			"y": -4.2,

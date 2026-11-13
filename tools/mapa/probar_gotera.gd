@@ -13,7 +13,11 @@ extends SceneTree
 #     ese lado (PasoColonia.colonia y lado), igual que la reja de la muralla manda a map_test;
 #   - llegar por la reja norte te deja en su "llegada";
 #   - en map_test, FortalezasMapa tiene las dos rejas de La Gotera abiertas (sin poste de en medio)
-#     con flecha de entrada, y volver de la colonia por la reja sur te deja afuera de ella.
+#     con flecha de entrada, y volver de la colonia por la reja sur te deja afuera de ella;
+#   - La Gotera abre las 24 horas sin zombis (MapaColonia.abierto_24h): de noche el tianguis sigue
+#     con gente y prende sus luces, las cortinas no bajan, no hay sueltos ni avisos, y en map_test
+#     la bandera ya no sigue puesta;
+#   - con --favela: de noche se entra a la tienda "Fayuca del Tunel" (su interior propio).
 
 const MAPA := "res://scenes/mapa.tscn"
 const MAPA_GRANDE := "res://scenes/map_test.tscn"
@@ -30,6 +34,7 @@ func _probar() -> void:
 	# Los pasos solo se anotan (no se cambia de escena): se revisan PasoColonia.colonia y lado
 	PasoColonia.simular = true
 	await _colonia()
+	await _noche()
 	await _mapa_grande()
 	if "--favela" in OS.get_cmdline_user_args():
 		await _favela()
@@ -120,9 +125,43 @@ func _colonia() -> void:
 	await _cuadros(2)
 
 
+func _anochecer(escena: Node) -> void:
+	var ciclo := escena.get_node("Ciclo")
+	ciclo.set("_tiempo", float(ciclo.get("dia_duracion")) + 200.0)
+	await _cuadros(40)
+
+
+func _noche() -> void:
+	var escena := await _cargar(MAPA, "la_gotera")
+	await _cuadros(30)
+	_revisar("La Gotera abre las 24 horas", MapaColonia.abierto_24h, "")
+	await _anochecer(escena)
+	_revisar("ya es de noche", escena.get_node("Ciclo").es_noche(), "")
+	var zombis := escena.get_node("Zombis")
+	_revisar("sin zombis sueltos ni Saltabardas", not zombis.espontaneos and not zombis.saltabardas, "")
+	var luces := 0
+	var prendidas := 0
+	var de_dia := 0
+	var tramos := escena.get_node("Colonia").find_children("Tianguis_*", "Node3D", false, false)
+	for t in tramos:
+		if t.get("_es_de_dia"):
+			de_dia += 1
+		for l in t.find_children("Luz_*", "OmniLight3D", false, false):
+			luces += 1
+			if (l as Light3D).visible:
+				prendidas += 1
+	_revisar("de noche el tianguis sigue puesto", de_dia == tramos.size() and tramos.size() == 6, "%d de %d" % [de_dia, tramos.size()])
+	_revisar("de noche prenden las luces del tianguis", luces >= tramos.size() and prendidas == luces, "%d de %d" % [prendidas, luces])
+	_revisar("de noche sigue la gente", escena.get_node("Gente").hay_gente(), "")
+	_revisar("las cortinas no bajan", float(escena.get_node("Puntos").get("_cierre")) <= 0.0, str(escena.get_node("Puntos").get("_cierre")))
+	escena.queue_free()
+	await _cuadros(2)
+
+
 func _mapa_grande() -> void:
 	# Se llega de la colonia por la reja sur: el jugador aparece afuera de ella
 	var escena := await _cargar(MAPA_GRANDE, "la_gotera", "sur")
+	_revisar("en map_test ya no sigue abierto las 24 horas", not MapaColonia.abierto_24h, "")
 	var jugador := escena.get_node("Player") as Node3D
 	var donde := Vector2(jugador.global_position.x, jugador.global_position.z)
 	var reja: Vector2 = FortalezasMapa.GOTERA_REJAS[1][0]
@@ -172,6 +211,18 @@ func _favela() -> void:
 		await _cuadros(3)
 		_revisar("favela: la boca regresa al tianguis por el mismo lado", PasoColonia.colonia == "la_gotera" and PasoColonia.lado == "privada_fuga",
 			"colonia %s lado '%s'" % [PasoColonia.colonia, PasoColonia.lado])
+	# De noche se entra a la tienda del tunel y abre su interior propio
+	PasoColonia.lado = ""
+	await _anochecer(escena)
+	var puerta := colonia.get_node_or_null("Puerta_Tunel_Tienda_2") as Area3D
+	_revisar("favela: esta la puerta de la Fayuca del Tunel", puerta != null, "")
+	if puerta:
+		jugador.global_position = puerta.global_position + Vector3(0.0, 1.0, 0.0)
+		jugador.velocity = Vector3.ZERO
+		await _cuadros(90)
+		var interior = escena.get_node("Interiores").get("_interior")
+		_revisar("favela: de noche se entra a la Fayuca del Tunel", interior != null and interior.giro == "fayuca_tunel",
+			"interior %s" % (interior.giro if interior else "ninguno"))
 	PasoColonia.lado = ""
 	escena.queue_free()
 	await _cuadros(2)

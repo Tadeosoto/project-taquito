@@ -22,7 +22,7 @@ Como Santa Mugre: muralla en `map_test` → reja con flecha amarilla → escena 
 
 ### Cambio de lógica respecto a M7a
 
-Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la muralla está abierta (el tianguis es de todos) y ese mismo requisito guarda las bocas de la favela. `FortalezasMapa` ya no escucha `Misiones.cambio`; `Misiones.favela_abierta()` se reusa tal cual. `docs/misiones.md` dice lo mismo. Prueba: `godot --path . --headless -s tools/mapa/probar_gotera.gd` (21/21 con `--favela`: llegadas por cada reja y boca, el guardia que regresa, el paso con cinco entregas, las rejas abiertas de `map_test` con su flecha).
+Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la muralla está abierta (el tianguis es de todos) y ese mismo requisito guarda las bocas de la favela. `FortalezasMapa` ya no escucha `Misiones.cambio`; `Misiones.favela_abierta()` se reusa tal cual. `docs/misiones.md` dice lo mismo. Prueba: `godot --path . --headless -s tools/mapa/probar_gotera.gd` (con `--favela` también la favela: llegadas por cada reja y boca, el guardia que regresa, el paso con cinco entregas, las rejas abiertas de `map_test` con su flecha).
 
 ## El tianguis
 
@@ -38,7 +38,7 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
   | Tianguis_Ropa | `ropa` | rosa | ropa y tenis piratas; **Vinos y Licores La Última Gota** |
   | Tianguis_Comida | `tacos`, `tejuino`, `fruta` | roja | fritangas; **Tacos El Gotero** |
 
-- De noche el tianguis sigue abierto en el lore (§14); en el juego quedan los fierros y las mesas como en Santa Mugre (los marchantes de noche son S7, pendiente).
+- **Abierto las 24 horas y sin zombis** (JJ, 2026-11-13). El tianguis y la favela llevan `"abierto_24h": true` en su `.json`, que `exportar.py` copia a `marcas.json` y `MapaColonia.abierto_24h` lee al cargar. De noche los puestos siguen con su mercancía y su gente, y los focos del pasillo alumbran (una luz cada 9 m, solo de noche). Las tiendas no cierran ni bajan cortina, la gente de la banqueta se queda, no salen zombis sueltos ni el Saltabardas y no hay avisos de "Ya va a oscurecer" ni "Ya salieron". Las turbas que pide una misión sí salen. La bandera vuelve a false al salir de la escena, así que `map_test` y Santa Mugre siguen igual.
 
 ## La favela
 
@@ -58,7 +58,10 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 ## Túneles
 
 - **Geometría aparte en la misma escena, bajo el piso** (no un hundido abierto): piezas `tunel` (galería de ladrillo con bóveda, piso de tierra, tubería y focos) y `tunel_cuarto` (dormitorio, garrafones, armas, tienda con mostrador y lona, válvula) a `y = −4.2`. Se baja por un `hundidos` con `"abiertos": [lado]` (nuevo: esa orilla no se tapa) y una `bajada` de 5 m a 40°. Por qué así: el piso del recorte sigue siendo una sola malla triangulada con tres huecos chicos (nada que rompa el piso ni la física), y lo de abajo son cajas y quads baratos que `MapaPostImport` junta por cuadro; un hundido abierto habría sido una zanja a cielo abierto, no un túnel.
-- Trazo: de cada boca una galería al oriente hasta una **espina** norte–sur; de la espina la **principal** al oriente con los cuartos alternando lados (dormitorio, garrafones, tienda "Fayuca del Túnel", armas, tienda "Balas y Veladoras", dormitorio, válvula) y la boca final tapada. Las tiendas llevan marca `puerta` (giro `tiendita`, "Próximamente" hasta que tengan interior).
+- Trazo: de cada boca una galería al oriente hasta una **espina** norte–sur; de la espina la **principal** al oriente con los cuartos alternando lados (dormitorio, garrafones, tienda "Fayuca del Túnel", armas, tienda "Balas y Veladoras", dormitorio, válvula) y la boca final tapada. Las dos tiendas llevan marca `puerta` con su giro propio (`favela.TIENDAS_TUNEL`) y su interior de cuarto de ladrillo con foco:
+  - **Fayuca del Túnel** (`fayuca_tunel`, `scenes/interiores/tunel_fayuca.tscn`): cigarros, bocina, cinta, botiquín, Vaporub, caguama, alcohol y plata, a 0.85 del precio.
+  - **Balas y Veladoras** (`armas_tunel`, `scenes/interiores/tunel_armas.tscn`): machete, bate, sal, trapo, gasolina y alcohol (lo del molotov), a 1.15 del precio, con un altarcito de veladoras. Balas no hay todavía: el objeto no existe (`docs/items.md`).
+  Los precios son primera propuesta. Las dos están también en el safehouse.
 
 ## Decisiones de la noche (sin JJ)
 
@@ -78,8 +81,8 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 
 - Nombre definitivo de la Av. del Cedro Seco y de las bocas; si la favela debe tener placas de sus callejones.
 - Los dadores de la mafia dentro de la favela (Nemesio, el Primo, el gremio) son marcas `mision` sin misión todavía (M8/M9 y S7, el mercado ilegal).
-- Interiores de las tiendas del túnel y de la tienda ilegal de La Gotera (hoy es un segundo `punto`).
-- Si los Gotera dejan entrar al tianguis de noche con zombis o sin ellos (`Zombis.espontaneos` es false en `mapa.tscn`: dentro no hay).
+- Interior de la tienda ilegal de La Gotera (hoy es un segundo `punto`).
+- Si las balas de la pistola se venden en "Balas y Veladoras": falta el objeto.
 - Zombi de cobalto en "zonas con obra negra": la casa ya existe en el kit.
 
 ## Rendimiento y capturas
@@ -99,4 +102,4 @@ Las capturas están en `~/casa_psm/gotera/` con su lista en `00_resumen.md` (fue
 | Favela, fondo | 7.8 ms | 10.1 ms | 732 |
 | Favela, túnel | 5.2 ms | 5.9 ms | 508 |
 
-Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La favela se midió con el modelo final (2026-11-13). Pruebas: `tools/mapa/probar_gotera.gd -- --favela` (21/21) y `tools/mapa/recorrer_favela.gd -- --cuantos=120` (120 callejones sin atorarse, escalinatas, bajada al túnel, focos de noche).
+Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La favela se midió con el modelo final (2026-11-13). Pruebas: `tools/mapa/probar_gotera.gd -- --favela` y `tools/mapa/recorrer_favela.gd -- --cuantos=120` (120 callejones sin atorarse, escalinatas, bajada al túnel, focos de noche).

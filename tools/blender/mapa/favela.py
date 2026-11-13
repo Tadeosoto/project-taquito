@@ -35,7 +35,12 @@ COLONIAS = os.path.join(RAIZ, "tools", "blender", "mapa", "colonias")
 
 PASO = 7.0              # m de la cuadricula: cada celda es un lote
 CALLEJON = (1.2, 2.2)   # m de ancho de los callejones
+# Las tiendas de los cuartos "tienda" del tunel: [giro, letrero]; el giro abre su interior
+# (Interiores.escenas en scenes/mapa.tscn: scenes/interiores/tunel_fayuca.tscn y tunel_armas.tscn)
+TIENDAS_TUNEL = [("fayuca_tunel", "Fayuca del Túnel"), ("armas_tunel", "Balas y Veladoras")]
 BOCA_ANCHO = 2.2        # m de las bocas al tianguis
+BOCA_LLEGADA = 6.0      # m de la orilla poniente del recorte (como mucho: antes de la esquina) a la llegada de una boca
+BOCA_FLECHA = 2.5       # m antes de la llegada, la flecha de regreso al tianguis
 LAZOS = 0.10            # que parte de las paredes entre celdas se abre ademas del arbol
 PATIO = 0.06            # que parte de las celdas son patio de tendederos
 PLAZUELA = 0.04         # ... o plazuela con un puesto de lona (donde cruzan 3 callejones o mas)
@@ -134,7 +139,7 @@ def generar(nombre):
                 continue
             libre[j][i] = True
     piezas, terrazas, hundidos, marcas = [], [], [], []
-    cuenta = {"casas": 0, "patios": 0, "plazuelas": 0, "callejones": 0, "bocas": 0, "tablones": 0, "escaleras": 0, "escalinatas": 0, "tuneles": 0}
+    cuenta = {"casas": 0, "patios": 0, "plazuelas": 0, "callejones": 0, "bocas": 0, "tablones": 0, "escaleras": 0, "escalinatas": 0, "tuneles": 0, "tiendas_tunel": 0}
     _laberinto(datos, libre, reservado, u0, v0, W, H, marco, r, paso, callejon, piezas, terrazas, hundidos, marcas, cuenta, op)
     datos["piezas"] += piezas
     datos["terrazas"] = [t for t in datos.get("terrazas", []) if not t.get("favela")] + terrazas
@@ -230,7 +235,24 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
         a = next((a for a in range(nx + 1) if (a, b) in vecinas), None)
         if a is not None:
             bocas.append(((a, b), (mu, mv)))
-    inicio = bocas[0][0] if bocas else min(vecinas, key=lambda k: (k[0], abs(k[1] - nz / 2)))
+            # La flecha y la llegada, sobre el eje del callejon de la boca (la linea b de la cuadricula,
+            # hasta 3.5 m de la marca a mano) y antes de su esquina: si no, se llegaba junto a una casa
+            # o encima de un tablon
+            x0, x1 = marco.mundo(0.0, b * pv)[0], marco.mundo(1.0, b * pv)[0]
+            def u_en_x(xt):
+                return (xt - x0) / (x1 - x0)
+            u_llega = min(u_en_x(datos["recorte"][0] + BOCA_LLEGADA), a * pu - 1.2)
+            u_llega = max(u_llega, u_en_x(datos["recorte"][0] + BOCA_FLECHA + 0.8))
+            x, z = marco.mundo(u_llega - BOCA_FLECHA, b * pv)
+            m["x"], m["z"] = round(x, 2), round(z, 2)
+            x, z = marco.mundo(u_llega, b * pv)
+            m["llegada"] = [round(x, 2), round(z, 2)]
+    # Sin lado (las pruebas, entrar directo) se aparece en la llegada de la boca de en medio
+    pasos = [m for m in datos.get("marcas", []) if m.get("tipo") == "paso" and "llegada" in m]
+    for m in datos.get("marcas", []):
+        if m.get("tipo") == "spawn" and pasos:
+            m["x"], m["z"] = pasos[len(pasos) // 2]["llegada"]
+    inicio =bocas[0][0] if bocas else min(vecinas, key=lambda k: (k[0], abs(k[1] - nz / 2)))
     visitado = {inicio}
     abiertas = set()
     pila = [inicio]
@@ -462,7 +484,9 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
                            "rot": round(math.atan2(nx_, nz_), 4), "alto": round(pisos * PISO + AZOTEA, 2), "ancho": 0.9, "sentido": 1})
             cuenta["escaleras"] += 1
     # Tablones: sobre una arista angosta entre dos casas de dos pisos
-    for e in abiertas:
+    # En orden fijo: las aristas llevan "h"/"v" y un set con texto cambia de orden en cada corrida
+    # (PYTHONHASHSEED), y con el el azar de todo lo que sigue
+    for e in sorted(abiertas, key=lambda e: (e[1], e[0][1], e[0][0])):
         if ancho_de.get(e, 9.0) > TABLON_MAX or r.random() > 0.35:
             continue
         c0, c1 = celdas_de(e)
@@ -534,8 +558,11 @@ def _tuneles(marco, r, zanjas, nx, nz, pu, pv, piezas, hundidos, marcas, cuenta)
         piezas.append({"nombre": nombre + "_Paso", "tipo": "tunel", "favela": True, "x": round(xp, 2), "z": round(zp, 2), "y": TUNEL_PISO,
                        "rot": marco.rot_v, "largo": 0.6, "ancho": 1.4})
         if uso == "tienda":
+            # Las tiendas del tunel, en orden: su giro abre su interior (scenes/interiores/tunel_*.tscn)
+            giro, texto = TIENDAS_TUNEL[cuenta["tiendas_tunel"] % len(TIENDAS_TUNEL)]
+            cuenta["tiendas_tunel"] += 1
             xd, zd = marco.mundo(du, v_main + lado * (TUNEL_ANCHO / 2 + 0.9))
-            marcas.append({"nombre": "Puerta_%s" % nombre, "tipo": "puerta", "favela": True, "giro": "tiendita", "texto": ["Fayuca del Túnel", "Balas y Veladoras"][i % 2],
+            marcas.append({"nombre": "Puerta_%s" % nombre, "tipo": "puerta", "favela": True, "giro": giro, "texto": texto,
                            "x": round(xd, 2), "z": round(zd, 2), "y": TUNEL_PISO, "rot": round(marco.rot + (math.pi if lado > 0 else 0.0), 4)})
         elif uso == "valvula":
             marcas.append({"nombre": "Valvula", "tipo": "mision", "favela": True, "x": round(x, 2), "z": round(z, 2), "y": TUNEL_PISO, "rot": rot})

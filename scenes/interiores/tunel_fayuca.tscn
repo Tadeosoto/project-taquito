@@ -1,0 +1,93 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/interiores/Interior.gd" id="1_interior"]
+[ext_resource type="Script" path="res://scripts/interiores/Mueble.gd" id="2_mueble"]
+[ext_resource type="PackedScene" uid="uid://cnpcscene0001" path="res://scenes/npc.tscn" id="3_npc"]
+[ext_resource type="Script" path="res://scripts/interiores/Estante.gd" id="4_estante"]
+[ext_resource type="PackedScene" path="res://models/bodegas/cajas/cajas.scn" id="5_cajas"]
+[ext_resource type="PackedScene" path="res://models/objetos/bocina/bocina.scn" id="6_bocina"]
+[ext_resource type="PackedScene" path="res://models/objetos/paquete/paquete.scn" id="7_paquete"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="p_script"]
+[ext_resource type="Resource" path="res://resources/productos/cigarros.tres" id="p_cigarros"]
+[ext_resource type="Resource" path="res://resources/productos/bocina.tres" id="p_bocina"]
+[ext_resource type="Resource" path="res://resources/productos/cinta.tres" id="p_cinta"]
+[ext_resource type="Resource" path="res://resources/productos/botiquin.tres" id="p_botiquin"]
+[ext_resource type="Resource" path="res://resources/productos/vaporub.tres" id="p_vaporub"]
+[ext_resource type="Resource" path="res://resources/productos/alcohol.tres" id="p_alcohol"]
+[ext_resource type="Resource" path="res://resources/productos/plata_taxco.tres" id="p_plata"]
+[ext_resource type="Resource" path="res://resources/productos/caguama.tres" id="p_caguama"]
+
+[node name="TunelFayuca" type="Node3D"]
+script = ExtResource("1_interior")
+ancho = 4.6
+fondo = 3.6
+alto = 2.5
+frente = 2.2
+color_muro = Color(0.62, 0.36, 0.28, 1)
+color_piso = Color(0.36, 0.33, 0.3, 1)
+color_techo = Color(0.32, 0.22, 0.18, 1)
+color_luz = Color(1, 0.78, 0.5, 1)
+energia_luz = 2.2
+foco_parpadea = false
+luz_mostrador = false
+precio_factor = 0.85
+productos = Array[ExtResource("p_script")]([ExtResource("p_cigarros"), ExtResource("p_bocina"), ExtResource("p_cinta"), ExtResource("p_botiquin"), ExtResource("p_vaporub"), ExtResource("p_alcohol"), ExtResource("p_plata"), ExtResource("p_caguama")])
+obra_negra = true
+grafitis = 4
+foco = true
+semilla = 11
+
+[node name="Camara" type="Camera3D" parent="."]
+transform = Transform3D(0.99875, -0.00919, 0.04908, 0, 0.98291, 0.18407, -0.04994, -0.18384, 0.98169, 0.1, 1.6, 2)
+fov = 62.0
+
+[node name="Mostrador" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0, -0.9)
+script = ExtResource("2_mueble")
+modelo = ExtResource("5_cajas")
+medida = 0.9
+colision = 2
+
+[node name="Vendedor" parent="." instance=ExtResource("3_npc")]
+transform = Transform3D(-1.1325, 0, 0.1997, 0, 1.15, 0, -0.1997, 0, -1.1325, 0.4, 0, -1.8)
+tint = Color(0.55, 0.5, 0.45, 1)
+dialogue = "Todo original, compa. Bueno, casi todo."
+
+[node name="Vitrina" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.3, 0.92)
+
+[node name="Muebles" type="Node3D" parent="."]
+
+[node name="Repisas" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0, -3.35)
+script = ExtResource("4_estante")
+ancho = 2.6
+alto = 2.2
+fondo = 0.4
+color = Color(0.45, 0.4, 0.35, 1)
+color_filo = Color(0.85, 0.25, 0.2, 1)
+niveles = 5
+surtido = 0.7
+semilla = 3
+
+[node name="Cajas" type="Node3D" parent="Muebles"]
+transform = Transform3D(0.97, 0, 0.24, 0, 1, 0, -0.24, 0, 0.97, 1.6, 0, -2.6)
+script = ExtResource("2_mueble")
+modelo = ExtResource("5_cajas")
+medida = 1.0
+colision = 2
+
+[node name="Bocina" type="Node3D" parent="Muebles"]
+transform = Transform3D(0.94, 0, -0.34, 0, 1, 0, 0.34, 0, 0.94, -1.7, 0, -1.6)
+script = ExtResource("2_mueble")
+modelo = ExtResource("6_bocina")
+medida = 0.5
+eje = 1
+colision = 2
+
+[node name="Paquete" type="Node3D" parent="Muebles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.9, -2.5)
+script = ExtResource("2_mueble")
+modelo = ExtResource("7_paquete")
+medida = 0.4
+colision = 0

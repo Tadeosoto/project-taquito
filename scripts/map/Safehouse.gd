@@ -43,6 +43,10 @@ const NEGOCIOS := [
 	["taqueria", "tortilleria", "Tortilleria", 6.0, 10.0, false],
 	# Abarrotes Doña Mary, la tiendita de cochera de Santa Mugre: local de abarrotes, interior de dona_mary
 	["abarrotes", "tiendita", "Doña Mary", 6.0, 10.0, false],
+	# Las tiendas de los tuneles de La Gotera (la_gotera_favela): un local angosto (la fila llega a la
+	# barda del patio) con el interior del tunel
+	["abarrotes", "fayuca_tunel", "Fayuca del Túnel", 2.0, 3.0, false],
+	["abarrotes", "armas_tunel", "Balas y Veladoras", 2.0, 3.0, false],
 ]
 # Frente y fondo de las casas Urbi (huellas_tiendas.json)
 const CASAS := {"urbi_1p_a": Vector2(6.79, 7.37), "urbi_1p_b": Vector2(6.8, 7.37), "urbi_1p_c": Vector2(7.59, 7.37),

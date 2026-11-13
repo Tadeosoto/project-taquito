@@ -26,6 +26,8 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="11_purificadora"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="11_punto"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/gasolinera.tscn" id="11_gasolinera"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/tunel_fayuca.tscn" id="11_tunel_fayuca"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/tunel_armas.tscn" id="11_tunel_armas"]
 [ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="12_inventario"]
 [ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="13_alumbrado"]
 [ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="14_zombis"]
@@ -174,7 +176,9 @@ radio_dron = 320.0
 script = ExtResource("10_interiores")
 escenas = Dictionary[String, PackedScene]({
 "abarrotes": ExtResource("11_abarrotes"),
+"armas_tunel": ExtResource("11_tunel_armas"),
 "farmacia": ExtResource("11_farmacia"),
+"fayuca_tunel": ExtResource("11_tunel_fayuca"),
 "ferreteria": ExtResource("11_ferreteria"),
 "gasolinera": ExtResource("11_gasolinera"),
 "licoreria": ExtResource("11_licoreria"),
