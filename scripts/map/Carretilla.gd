@@ -19,20 +19,22 @@ const ESCALA_CARRETILLA := 0.8
 ## En el marco del modelo ya escalado: el eje de la llanta y donde se agarran los mangos (x = ±)
 const EJE := Vector3(0.0, 0.17, -0.54)
 const MANGO := Vector3(0.22, 0.46, 0.76)
-## El herido (la foto de JJ): sentado en la tina, la espalda del lado de la llanta, echado 50 grados hacia
-## atras y las piernas por encima del borde, hacia los mangos
-const ASIENTO := Vector3(0.0, 0.45, 0.72)
+## El herido (la foto de JJ): sentado en la tina, echado hacia atras con la cabeza recargada en el borde del
+## lado de la llanta y las piernas por encima del borde, hacia los mangos
+const ASIENTO := Vector3(0.0, 0.47, 0.55)
 const ESCALA_HERIDO := 1.0
-const RECLINADO := 50.0
+const RECLINADO := 64.0
+## Grados que se estiran las rodillas (Rodillas): suben los pies para que no atraviesen el borde de la tina
+const RODILLAS := -18.0
 ## Agarrada: a que altura van los mangos (m sobre el piso) y que tan atras del centro del jugador
-const MANOS_ALTO := 0.85
-const MANOS_ATRAS := 0.0
+const MANOS_ALTO := 1.0
+const MANOS_ATRAS := -0.15
 const ALCANCE := 1.6           # m del jugador a los mangos para poder agarrarla
-const TIRON := 20.0
-const VEL_MAX := 14.0
+const VEL_MAX := 30.0          # m/s: agarrada llega a donde va en un cuadro (con resorte se quedaba atras y las manos se despegaban)
 const LEJOS := 2.5             # m: agarrada y mas lejos que esto de donde va, aparece ahi (se atoro)
 
 var agarrada := false
+var asiento: Node3D           # el herido cuelga de aqui
 var _inclina: Node3D           # gira sobre el eje de la llanta: sube los mangos al agarrarla
 var _herido := ""
 
@@ -60,6 +62,8 @@ func _armar() -> void:
 	if _herido == "":
 		_herido = HERIDOS[0]
 	add_to_group("interactuable")
+	# Despues del jugador: se acomoda a donde ya quedo el en este cuadro
+	process_physics_priority = 10
 	cayo.connect(soltar)
 	# Todo cuelga de un nodo en el eje de la llanta, para inclinarla sin que se separen
 	_inclina = Node3D.new()
@@ -69,12 +73,18 @@ func _armar() -> void:
 	modelo.scale = Vector3.ONE * ESCALA_CARRETILLA
 	modelo.position = -EJE
 	_inclina.add_child(modelo)
-	var asiento := Node3D.new()
+	asiento = Node3D.new()
 	asiento.position = ASIENTO - EJE
 	asiento.rotation = Vector3(deg_to_rad(RECLINADO), PI, 0.0)
 	asiento.scale = Vector3.ONE * ESCALA_HERIDO
 	_inclina.add_child(asiento)
 	_animacion = Civiles.poner(asiento, _herido, "Sitting_Idle")
+	var esqueletos := asiento.find_children("*", "Skeleton3D", true, false)
+	if not esqueletos.is_empty():
+		var rodillas := Rodillas.new()
+		rodillas.name = "Rodillas"
+		rodillas.grados = RODILLAS
+		esqueletos[0].add_child(rodillas)
 	_clip = ""
 	_poner_clip("Sitting_Idle")
 
@@ -122,6 +132,20 @@ func soltar() -> void:
 		_jugador.soltar_carretilla()
 
 
+# El modelo del jugador se dibuja suavizado entre cuadros de fisica (Player._process): agarrada, la carretilla
+# se dibuja con el mismo desfase para que los mangos no se le adelanten ni se le queden a las manos
+func _process(_delta: float) -> void:
+	if _inclina == null:
+		return
+	var desfase := Vector3.ZERO
+	if agarrada and is_instance_valid(_jugador):
+		var figura := _jugador.get_node_or_null("Frijol") as Node3D
+		var base = _jugador.get("_frijol_base")
+		if figura and base is Vector3:
+			desfase = figura.global_position - _jugador.to_global(base)
+	_inclina.global_position = to_global(EJE) + desfase
+
+
 func _physics_process(delta: float) -> void:
 	if _cayo or _jugador == null:
 		return
@@ -149,10 +173,30 @@ func _physics_process(delta: float) -> void:
 		global_position = Vector3(meta.x, global_position.y, meta.z)
 		velocity = Vector3.ZERO
 		return
-	var quiere := falta * TIRON
+	var quiere := falta / maxf(delta, 0.0001)
 	if quiere.length() > VEL_MAX:
 		quiere = quiere.normalized() * VEL_MAX
 	velocity.x = quiere.x
 	velocity.z = quiere.z
 	velocity.y = velocity.y - GRAVEDAD * delta if not is_on_floor() else 0.0
 	move_and_slide()
+
+
+## Las rodillas del herido un poco estiradas encima del clip sentado: los pies suben y pasan por encima del borde
+class Rodillas extends SkeletonModifier3D:
+	const ESPINILLAS := ["LeftLowerLeg", "RightLowerLeg"]
+	var grados := 0.0
+
+	func _process_modification_with_delta(_delta: float) -> void:
+		var esqueleto := get_skeleton()
+		if esqueleto == null or absf(grados) < 0.01:
+			return
+		for nombre: String in ESPINILLAS:
+			var i := esqueleto.find_bone(nombre)
+			if i < 0:
+				continue
+			var global := esqueleto.get_bone_global_pose(i)
+			var nuevo := Basis(Vector3.RIGHT, deg_to_rad(grados)) * global.basis
+			var padre := esqueleto.get_bone_parent(i)
+			var base := esqueleto.get_bone_global_pose(padre).basis if padre >= 0 else Basis()
+			esqueleto.set_bone_pose_rotation(i, (base.inverse() * nuevo).get_rotation_quaternion())
