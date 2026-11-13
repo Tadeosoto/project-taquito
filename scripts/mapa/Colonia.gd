@@ -492,6 +492,7 @@ func _tianguis(marca: Dictionary) -> void:
 	# Tramos por giro (La Gotera): solo esos giros y las lonas de un color
 	t.giros = marca.get("giros", [])
 	t.lona = String(marca.get("lona", ""))
+	t.de_noche = MapaColonia.abierto_24h
 	add_child(t)
 
 

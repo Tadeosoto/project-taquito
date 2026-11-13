@@ -146,7 +146,12 @@ def exportar(nombre):
     # Y los tramos de tianguis como marcas "tianguis"
     tianguis = tianguis_marcas(datos)
     # El recorte va tambien: MapaColonia.gd le da ese rectangulo al Horizonte
-    guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "recorte": datos["recorte"], "marcas": datos.get("marcas", []) + focos + botin + placas + tianguis})
+    # "abierto_24h": MapaColonia.abierto_24h (tiendas y tianguis de noche, sin zombis)
+    salida = {"colonia": nombre, "recorte": datos["recorte"]}
+    if datos.get("abierto_24h"):
+        salida["abierto_24h"] = True
+    salida["marcas"] = datos.get("marcas", []) + focos + botin + placas + tianguis
+    guardar_json(os.path.join(datos_dir, "marcas.json"), salida)
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", []) + datos.get("puestos_calle", [])})
     # Los arboles de Sketchfab (tipos 1 a 3 de kit.arbol_tipo): [x, z, altura, ancho de copa, nombre]
     arbol_tipo, extra = _kit()["arbol_tipo"], _kit()["ARBOLES_EXTRA"]

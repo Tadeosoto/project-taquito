@@ -83,8 +83,10 @@ func _ready() -> void:
 	_jugador = get_tree().get_first_node_in_group("jugador")
 	_ciclo = get_tree().get_first_node_in_group("ciclo")
 	if _ciclo:
-		_ciclo.aviso_atardecer.connect(func() -> void: _saliendo = true)
-		_ciclo.anochecio.connect(_quitar_a_todos)
+		_ciclo.aviso_atardecer.connect(func() -> void: _saliendo = not MapaColonia.abierto_24h)
+		_ciclo.anochecio.connect(func() -> void:
+			if not MapaColonia.abierto_24h:
+				_quitar_a_todos())
 		_ciclo.amanecio.connect(func() -> void: _saliendo = false)
 	_cargar_banquetas()
 	_cargar_lugares()
@@ -106,6 +108,9 @@ func _process(delta: float) -> void:
 
 
 func hay_gente() -> bool:
+	# Colonia abierta las 24 horas (MapaColonia.abierto_24h): la gente sigue de noche
+	if MapaColonia.abierto_24h:
+		return true
 	return not _saliendo and not (_ciclo and _ciclo.es_noche())
 
 

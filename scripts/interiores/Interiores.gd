@@ -105,8 +105,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _entrar(_tipo: String, giro: String, nombre: String, aire_libre: bool, marcador: Node3D) -> void:
 	if _ocupado or _interior or _zoom:
 		return
-	# De noche todo cierra, si no serian un escondite gratis (docs/especificaciones.md 4.6)
-	if _ciclo and _ciclo.es_noche():
+	# De noche todo cierra, si no serian un escondite gratis (docs/especificaciones.md 4.6). En una
+	# colonia abierta las 24 horas (La Gotera, MapaColonia.abierto_24h) no hay de que esconderse
+	if _ciclo and _ciclo.es_noche() and not MapaColonia.abierto_24h:
 		_puntos.avisar("%s: cerrado. Ya salieron." % nombre)
 		return
 	# Con escena se entra aunque sea al aire libre (el punto te mete a su cuarto)
@@ -163,6 +164,8 @@ func _salir() -> void:
 
 # Anochecio contigo adentro: a la calle
 func _echar() -> void:
+	if MapaColonia.abierto_24h:
+		return
 	while _ocupado:
 		await get_tree().process_frame
 	if _zoom:

@@ -107,6 +107,10 @@ const ALTO_MESA := 0.78
 # POR_CUADRO por cuadro (el primer civil de cada modelo tarda unos ms)
 const RADIO_GENTE := 32.0
 const RADIO_SUELTA := 40.0
+# Las luces del pasillo cuando el tianguis sigue de noche: cada cuanto, su alcance y hasta donde se ven
+const LUZ_CADA := 9.0
+const LUZ_ALCANCE := 7.5
+const LUZ_LEJOS := 70.0
 const REVISA := 0.3
 const POR_CUADRO := 2
 # Lo chico que se hornea (mercancia, menos de CHICO m) va en trozos de TROZO m a lo largo del
@@ -133,6 +137,9 @@ const CHICO_HASTA := 35.0
 # Tramo por giro (La Gotera): solo estos giros (vacio: la bolsa de GIRO_PESOS) y la familia de color de
 # sus lonas (llave de LONAS; "" las de siempre)
 @export var giros: Array = []
+# Abierto toda la noche (Colonia.gd lo prende con MapaColonia.abierto_24h, La Gotera): de noche no
+# se va nada y los focos del pasillo alumbran de verdad (una OmniLight cada LUZ_CADA m, solo de noche)
+@export var de_noche := false
 @export var lona := ""
 
 static var _ligeras := {}           # clave de malla -> ruta de la aligerada
@@ -152,6 +159,8 @@ var _gente: Array[Dictionary] = []
 var _azar_gente := RandomNumberGenerator.new()
 var _cola: Array[Dictionary] = []
 var _de_dia: Array[Node3D] = []     # lo horneado de dia y los carritos: se esconde de noche
+var _luces: Array[OmniLight3D] = []  # solo con de_noche: prenden de noche
+var _luces_prendidas := false
 var _es_de_dia := true
 var _revisa := 0.0
 var _ciclo: Node
@@ -183,6 +192,8 @@ func _ready() -> void:
 	ambiente.set_meta("dia", true)
 	add_child(ambiente)
 	_focos(ambiente)
+	if de_noche:
+		_luces_noche()
 	_estorbos(ambiente)
 	if gente:
 		_caminantes()
@@ -222,7 +233,12 @@ func _process(delta: float) -> void:
 func _revisar() -> void:
 	if _ciclo == null:
 		_ciclo = get_tree().get_first_node_in_group("ciclo")
-	var de_dia := _ciclo == null or float(_ciclo.valor()) < NinosCancha.NOCHE_DESDE
+	var noche := _ciclo != null and float(_ciclo.valor()) >= NinosCancha.NOCHE_DESDE
+	if noche != _luces_prendidas and de_noche:
+		_luces_prendidas = noche
+		for luz in _luces:
+			luz.visible = noche
+	var de_dia := not noche or de_noche
 	if de_dia != _es_de_dia:
 		_es_de_dia = de_dia
 		for nodo in _de_dia:
@@ -577,6 +593,27 @@ func _focos(padre: Node3D) -> void:
 			mi.position = Vector3(x, 2.45 - cuelga - 0.05, z)
 			padre.add_child(mi)
 			x += _rng.randf_range(2.5, 5.0)
+
+
+func _luces_noche() -> void:
+	# Fuera del Ambiente (el horneado no se lleva las luces); empiezan apagadas, _revisar las prende
+	var x := LUZ_CADA / 2.0
+	while x < largo:
+		var luz := OmniLight3D.new()
+		luz.name = "Luz_%d" % _luces.size()
+		luz.position = Vector3(x, 2.2, 0.0)
+		luz.light_color = Color(1.0, 0.82, 0.55)
+		luz.light_energy = 1.6
+		luz.omni_range = LUZ_ALCANCE
+		luz.omni_attenuation = 1.2
+		luz.shadow_enabled = false
+		luz.distance_fade_enabled = true
+		luz.distance_fade_begin = LUZ_LEJOS - 15.0
+		luz.distance_fade_length = 15.0
+		luz.visible = false
+		add_child(luz)
+		_luces.append(luz)
+		x += LUZ_CADA
 
 
 func _estorbos(padre: Node3D) -> void:

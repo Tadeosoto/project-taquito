@@ -1,6 +1,7 @@
 {
 	"colonia": "la_gotera",
 	"recorte": [700.0, -343.0, 768.0, -110.0],
+	"abierto_24h": true,
 	"marcas": [
 		{
 			"nombre": "Spawn",

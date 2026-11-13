@@ -554,6 +554,9 @@ func _cortinas() -> void:
 	if _ciclo == null or not is_instance_valid(_ciclo):
 		_ciclo = get_tree().get_first_node_in_group("ciclo")
 	var cierre: float = _ciclo.cierre_negocios() if _ciclo else 0.0
+	# Colonia abierta las 24 horas (MapaColonia.abierto_24h): las cortinas no bajan
+	if MapaColonia.abierto_24h:
+		cierre = 0.0
 	if is_equal_approx(cierre, _cierre):
 		return
 	var antes := _cierre

@@ -13,6 +13,12 @@ const MODELO := "res://models/mapa/%s/%s.glb"
 
 ## La colonia cargada (para quien pregunte: Colonia.gd, las pruebas)
 static var actual := ""
+## Colonia abierta las 24 horas y sin zombis ("abierto_24h" en su .json, exportar.py lo copia a
+## marcas.json): de noche no cierran las tiendas ni bajan las cortinas (Interiores, MapPuntos), el
+## tianguis y la gente se quedan (Tianguis, Gente), no salen zombis sueltos (Zombis) ni los avisos
+## de la noche (Supervivencia). La Gotera: los Gotera cuidan su muralla. Vuelve a false al salir
+## de la escena, para que map_test y las otras colonias no lo hereden.
+static var abierto_24h := false
 
 
 func _enter_tree() -> void:
@@ -23,6 +29,8 @@ func _enter_tree() -> void:
 		if arg.begins_with("--colonia="):
 			cual = arg.trim_prefix("--colonia=")
 	actual = cual
+	var marcas = JSON.parse_string(FileAccess.get_file_as_string(DATOS % [cual, "marcas.json"]))
+	abierto_24h = marcas is Dictionary and bool(marcas.get("abierto_24h", false))
 	if cual == colonia:
 		return   # la escena ya apunta a ella
 	var puntos := DATOS % [cual, "puntos.json"]
@@ -39,10 +47,13 @@ func _enter_tree() -> void:
 	_poner("ArbolesModelo", "arboles_path", DATOS % [cual, "arboles_modelo.json"])
 	_poner("CarrosColonia", "carros_path", DATOS % [cual, "carros_modelo.json"])
 	# El horizonte rodea el recorte de la colonia (exportar.py lo escribe en marcas.json)
-	var marcas = JSON.parse_string(FileAccess.get_file_as_string(DATOS % [cual, "marcas.json"]))
 	if marcas is Dictionary and marcas.has("recorte"):
 		var r: Array = marcas["recorte"]
 		_poner("Horizonte", "rect", Rect2(float(r[0]), float(r[1]), float(r[2]) - float(r[0]), float(r[3]) - float(r[1])))
+
+
+func _exit_tree() -> void:
+	abierto_24h = false
 
 
 func _poner(nodo: String, propiedad: String, valor: Variant) -> void:

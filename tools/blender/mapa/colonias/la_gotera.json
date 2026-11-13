@@ -2,6 +2,7 @@
 	"nombre": "la_gotera",
 	"ficha": "docs/mapa/colonias/la_gotera.md",
 	"recorte": [700.0, -343.0, 768.0, -110.0],
+	"abierto_24h": true,
 	"bordes": {
 		"norte": "barda",
 		"sur": "barda",
