@@ -199,9 +199,19 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
                     continue
                 if d == "v" and a in bordes_banda:
                     continue
-                lados = [c for c in celdas_de(((a, b), d)) if dentro.get(c)]
-                if lados:
-                    aristas[((a, b), d)] = lados
+                par = celdas_de(((a, b), d))
+                lados = [c for c in par if dentro.get(c)]
+                if not lados:
+                    continue
+                if len(lados) == 1:
+                    # Una arista de la orilla: solo si del otro lado hay una reserva (la plaza, la casa de
+                    # Nemesio); pegada a la muralla o fuera del recorte, no (el muro tapaba el callejon)
+                    otra = [c for c in par if not dentro.get(c)][0]
+                    cu, cv = (otra[0] + 0.5) * pu, (otra[1] + 0.5) * pv
+                    i, j = int(cu), int(cv)
+                    if not (0 <= i < W and 0 <= j < H and reservado[j][i]):
+                        continue
+                aristas[((a, b), d)] = lados
     def extremos(e):
         (a, b), d = e
         return (a, b), ((a + 1, b) if d == "h" else (a, b + 1))
@@ -239,6 +249,15 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
             p0, p1 = extremos(e)
             if p0 in visitado and p1 in visitado:
                 abiertas.add(e)
+    # Donde un callejon horizontal llega al borde de una banda, sigue del otro lado (la escalinata no da a un muro)
+    for e in list(abiertas):
+        (a, b), d = e
+        if d != "h":
+            continue
+        if (a + 1) in bordes_banda and ((a + 1, b), "h") in aristas:
+            abiertas.add(((a + 1, b), "h"))
+        if a in bordes_banda and ((a - 1, b), "h") in aristas:
+            abiertas.add(((a - 1, b), "h"))
     # Cada celda con al menos un lado de callejon (si no, se le abre uno)
     def lados_celda(a, b):
         return {"N": ((a, b), "h"), "S": ((a, b + 1), "h"), "O": ((a, b), "v"), "E": ((a + 1, b), "v")}
@@ -360,7 +379,7 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
         cruces = len(frentes)
         dado = r.random()
         tipo = "casa"
-        if cruces >= 3 and dado < PLAZUELA * 5:
+        if cruces >= 3 and dado < PLAZUELA:
             tipo = "plazuela"
         elif dado < PATIO and frentes:
             tipo = "patio"
@@ -391,6 +410,8 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
             continue
         lados = {"N": 0, "E": 1, "S": 2, "O": 3}
         frente = lados[r.choice(frentes)] if frentes else lados[r.choice("NSEO")]
+        # Los otros lados que dan a un callejon llevan ventanas (sin puerta): no son muro ciego
+        ventanas = sorted({lados[l] for l in frentes} - {frente})
         dado = r.random()
         pisos = 1 if dado < 0.25 else 2 if dado < 0.85 else 3
         obra = None
@@ -400,7 +421,8 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
             obra = "castillos" if r.random() < 0.7 else "losa"
         casa = {"nombre": "Casa_" + nombre, "tipo": "casa", "favela": True, "grupo": "Favela_%d_%d" % (a // 6, b // 6), "x": round(x, 2), "z": round(z, 2), "rot": marco.rot,
                 "puntos": [[round(-hw, 2), round(-hh, 2)], [round(hw, 2), round(-hh, 2)], [round(hw, 2), round(hh, 2)], [round(-hw, 2), round(hh, 2)]],
-                "pisos": pisos, "frente": frente, "desgaste": round(r.uniform(0.4, 0.8), 2), "tapado": 0.3, "detalles": False}
+                "pisos": pisos, "frente": frente, "desgaste": round(r.uniform(0.4, 0.8), 2), "tapado": 0.3, "detalles": False,
+                "ventanas": ventanas}
         if r.random() < 0.12:
             casa["color"] = r.choice(PINTADAS)
             casa["desgaste"] = 0.85
@@ -412,7 +434,7 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
         piezas.append(casa)
         casas[(a, b)] = casa
         cuenta["casas"] += 1
-        if pisos == 2 and r.random() < 0.1:
+        if pisos == 2 and r.random() < 0.12 and ancho_lado(a, b, "NESO"[frente]) >= 2.0:
             l = "NESO"[frente]
             normal = {"N": (0, -1), "S": (0, 1), "E": (1, 0), "O": (-1, 0)}[l]
             largo_f = (u_b - u_a) if l in "NS" else (v_b - v_a)

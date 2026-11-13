@@ -437,7 +437,7 @@ def _celda_fachada(azar, piso, en_frente, tramo, puerta_en, desgaste, tienda):
 
 
 def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgaste=0.5, tienda=False,
-               tinaco=True, varillas=None, detalles=True, acabado=None, obra=None, ventanal=False, tapado=0.0):
+               tinaco=True, varillas=None, detalles=True, acabado=None, obra=None, ventanal=False, tapado=0.0, ventanas_en=None):
     """La casa como una malla: paredes en tramos del atlas, pretil, azotea, tinaco y varillas.
     `puntos` es la huella ([x, z] relativos al origen de la pieza) y `frente` el indice del lado
     que da a la calle (el lado i va del punto i al i+1, en el orden del .json).
@@ -445,7 +445,9 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
     (tabique gris), los dos sin enjarre y con dalas y castillos de concreto; `obra` "castillos" (el
     piso que nunca se construyo: castillos con la varilla de fuera encima de la azotea) o "losa"
     (ademas media losa colada sobre ellos); `ventanal` (un ventanal de herreria en la planta baja
-    del frente) y `tapado` (que parte de las ventanas de arriba estan tapadas con lona o tabla)."""
+    del frente) y `tapado` (que parte de las ventanas de arriba estan tapadas con lona o tabla).
+    `ventanas_en`: indices de otros lados que tambien llevan ventanas (sin puerta): los que dan a un
+    callejon de la favela, para que no sean puro muro ciego."""
     import bmesh
     azar = _Azar(_semilla(nombre))
     mats = materiales()
@@ -493,10 +495,10 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
         largo = math.hypot(b[0] - a[0], b[1] - a[1])
         if largo < 0.05:
             continue
-        en_frente = i == frente
+        en_frente = i == frente or (ventanas_en is not None and i in ventanas_en)
         tramos = max(1, round(largo / PISO))
         muros.append((a, b, tramos))
-        puerta_en = tramos // 2 if en_frente else -1
+        puerta_en = tramos // 2 if i == frente else -1
         for piso in range(pisos):
             for t in range(tramos):
                 u0, u1 = t / tramos, (t + 1) / tramos
@@ -507,10 +509,10 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
                 if ladrillo and celda in (LISO, CAIDO):
                     celda = crudo
                 # El ventanal de herreria: el tramo junto a la puerta, en la planta baja del frente
-                if ventanal and en_frente and piso == 0 and tramos >= 2 and t == (puerta_en + 1 if puerta_en + 1 < tramos else puerta_en - 1):
+                if ventanal and i == frente and piso == 0 and tramos >= 2 and t == (puerta_en + 1 if puerta_en + 1 < tramos else puerta_en - 1):
                     celda = crudo or LISO
                     ventanales.append((p0, p1))
-                if en_frente and piso == 0 and celda in (LISO, CAIDO):
+                if i == frente and piso == 0 and celda in (LISO, CAIDO):
                     lisos.append((p0, p1))
                 if piso == 0 and celda == VENTANA_ABAJO:
                     ventanas.append((p0, p1))

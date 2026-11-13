@@ -1687,6 +1687,12 @@ TUNEL_PISO = -3.6
 TUNEL_FOCO_CADA = 7.0
 
 
+def _dos(k, pts, mat):
+    """Una cara por los dos lados (las galerias se ven desde adentro y no importa el sentido)."""
+    k.cara(pts, mat)
+    k.cara(pts[::-1], mat)
+
+
 def _boveda(k, x0, x1, ancho, alto, mat, lados=5, z0=0.0):
     """Media boveda de canon a lo largo de x, de x0 a x1, entre z0 - ancho/2 y z0 + ancho/2, que
     arranca en `alto` (vista desde adentro)."""
@@ -1695,7 +1701,7 @@ def _boveda(k, x0, x1, ancho, alto, mat, lados=5, z0=0.0):
         a0, a1 = math.pi * i / lados, math.pi * (i + 1) / lados
         za, ya = z0 + math.cos(a0) * r, alto + math.sin(a0) * r
         zb, yb = z0 + math.cos(a1) * r, alto + math.sin(a1) * r
-        k.cara([(x0, ya, za), (x1, ya, za), (x1, yb, zb), (x0, yb, zb)], mat)
+        _dos(k, [(x0, ya, za), (x1, ya, za), (x1, yb, zb), (x0, yb, zb)], mat)
 
 
 def _tunel_tramo(k, x0, x1, ancho, alto, lados=("+", "-")):
@@ -1755,14 +1761,14 @@ def tunel(nombre, p):
         for c0, c1 in cortes + [(hx, hx)]:
             if c0 > x + 0.05:
                 z = s * hz
-                k.cara([(x, 0.0, z), (c0, 0.0, z), (c0, alto, z), (x, alto, z)][::s], "foto_ladrillo_rojo")
+                _dos(k, [(x, 0.0, z), (c0, 0.0, z), (c0, alto, z), (x, alto, z)][::s], "foto_ladrillo_rojo")
                 k.choques.append((((x + c0) / 2, alto / 2 + 0.6, z + s * 0.15), (c0 - x, alto + 1.2 + ancho / 2, 0.3), 0.0))
             x = max(x, c1)
         # Arriba de cada hueco sigue el ladrillo hasta la boveda
         for c0, c1 in cortes:
             z = s * hz
-            k.cara([(c0, alto - 0.5, z), (c1, alto - 0.5, z), (c1, alto, z), (c0, alto, z)][::s], "foto_ladrillo_rojo")
-    k.cara([(-hx, 0.0, -hz), (hx, 0.0, -hz), (hx, 0.0, hz), (-hx, 0.0, hz)], "tierra")
+            _dos(k, [(c0, alto - 0.5, z), (c1, alto - 0.5, z), (c1, alto, z), (c0, alto, z)][::s], "foto_ladrillo_rojo")
+    _dos(k, [(-hx, 0.0, -hz), (hx, 0.0, -hz), (hx, 0.0, hz), (-hx, 0.0, hz)], "tierra")
     k.choques.append(((0.0, -0.15, 0.0), (largo, 0.3, ancho), 0.0))
     _boveda(k, -hx, hx, ancho, alto, "foto_ladrillo_rojo")
     # Tuberia pegada a la boveda del lado -Z, con sus abrazaderas
@@ -1775,7 +1781,7 @@ def tunel(nombre, p):
     if cerrado:
         x = hx if cerrado == "b" else -hx
         s = -1 if cerrado == "b" else 1
-        k.cara([(x, 0.0, -hz), (x, 0.0, hz), (x, alto + ancho / 2, hz), (x, alto + ancho / 2, -hz)][::s], "foto_block")
+        _dos(k, [(x, 0.0, -hz), (x, 0.0, hz), (x, alto + ancho / 2, hz), (x, alto + ancho / 2, -hz)][::s], "foto_block")
         k.choques.append(((x - s * 0.1, (alto + ancho / 2) / 2, 0.0), (0.2, alto + ancho / 2, ancho), 0.0))
         # Tambos y costales arrimados al tapon
         for i in range(2):
@@ -1799,19 +1805,19 @@ def tunel_cuarto(nombre, p):
     k.cara([(-hx, 0.0, -hz), (hx, 0.0, -hz), (hx, 0.0, hz), (-hx, 0.0, hz)], "tierra" if uso != "tienda" else "concreto")
     k.choques.append(((0.0, -0.15, 0.0), (ancho, 0.3, fondo), 0.0))
     # Muros: fondo (-Z), los dos lados, y el frente con su puerta
-    k.cara([(hx, 0.0, -hz), (-hx, 0.0, -hz), (-hx, alto, -hz), (hx, alto, -hz)], "foto_ladrillo_rojo")
+    _dos(k, [(hx, 0.0, -hz), (-hx, 0.0, -hz), (-hx, alto, -hz), (hx, alto, -hz)], "foto_ladrillo_rojo")
     k.choques.append(((0.0, alto / 2, -hz - 0.15), (ancho, alto, 0.3), 0.0))
     for s in (-1, 1):
         x = s * hx
-        k.cara([(x, 0.0, -hz), (x, 0.0, hz), (x, alto, hz), (x, alto, -hz)][::-s], "foto_ladrillo_rojo")
+        _dos(k, [(x, 0.0, -hz), (x, 0.0, hz), (x, alto, hz), (x, alto, -hz)][::-s], "foto_ladrillo_rojo")
         k.choques.append(((x + s * 0.15, alto / 2, 0.0), (0.3, alto, fondo), 0.0))
     pa = 0.6
     for x0, x1 in ((-hx, -pa), (pa, hx)):
-        k.cara([(x1, 0.0, hz), (x0, 0.0, hz), (x0, alto, hz), (x1, alto, hz)], "foto_ladrillo_rojo")
+        _dos(k, [(x1, 0.0, hz), (x0, 0.0, hz), (x0, alto, hz), (x1, alto, hz)], "foto_ladrillo_rojo")
         k.choques.append((((x0 + x1) / 2, alto / 2, hz + 0.15), (x1 - x0, alto, 0.3), 0.0))
-    k.cara([(pa, alto - 0.4, hz), (-pa, alto - 0.4, hz), (-pa, alto, hz), (pa, alto, hz)], "foto_ladrillo_rojo")
+    _dos(k, [(pa, alto - 0.4, hz), (-pa, alto - 0.4, hz), (-pa, alto, hz), (pa, alto, hz)], "foto_ladrillo_rojo")
     # Techo plano de losa (visto desde abajo)
-    k.cara([(-hx, alto, -hz), (hx, alto, -hz), (hx, alto, hz), (-hx, alto, hz)][::-1], "concreto")
+    _dos(k, [(-hx, alto, -hz), (hx, alto, -hz), (hx, alto, hz), (-hx, alto, hz)][::-1], "concreto")
     k.caja((0.0, alto - 0.3, 0.0), (0.015, 0.3, 0.015), "cable")
     k.esfera((0.0, alto - 0.48, 0.0), 0.08, "farol", seg=6, anillos=4)
     if uso == "dormitorio":
@@ -1867,9 +1873,9 @@ def tunel_cuarto(nombre, p):
         pozo, hondo = min(ancho, fondo) - 2.2, 2.6
         hp = pozo / 2
         for s in (-1, 1):
-            k.cara([(s * hp, 0.0, -hp), (s * hp, 0.0, hp), (s * hp, -hondo, hp), (s * hp, -hondo, -hp)][::s], "foto_ladrillo_rojo")
-            k.cara([(-hp, 0.0, s * hp), (hp, 0.0, s * hp), (hp, -hondo, s * hp), (-hp, -hondo, s * hp)][::-s], "foto_ladrillo_rojo")
-        k.cara([(-hp, -hondo, -hp), (hp, -hondo, -hp), (hp, -hondo, hp), (-hp, -hondo, hp)], "concreto")
+            _dos(k, [(s * hp, 0.0, -hp), (s * hp, 0.0, hp), (s * hp, -hondo, hp), (s * hp, -hondo, -hp)][::s], "foto_ladrillo_rojo")
+            _dos(k, [(-hp, 0.0, s * hp), (hp, 0.0, s * hp), (hp, -hondo, s * hp), (-hp, -hondo, s * hp)][::-s], "foto_ladrillo_rojo")
+        _dos(k, [(-hp, -hondo, -hp), (hp, -hondo, -hp), (hp, -hondo, hp), (-hp, -hondo, hp)], "concreto")
         for z in (-hp - 0.1, hp + 0.1):
             for x in (-hp - 0.1, hp + 0.1):
                 k.caja((x, 0.5, z), (0.05, 1.0, 0.05), "fierro")

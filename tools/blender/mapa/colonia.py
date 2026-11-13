@@ -195,7 +195,8 @@ def _pieza(col, p):
         color = k["PALETA"].get(color, (0.8, 0.8, 0.8)) if isinstance(color, str) else color
         malla = k["casa_malla"](nombre, p["puntos"], p.get("pisos", 1), color, p.get("frente", 0),
                                 p.get("desgaste", 0.5), p.get("tienda", False), p.get("tinaco", True), p.get("varillas"),
-                                p.get("detalles", True), _acabado(p), p.get("obra"), p.get("ventanal", False), p.get("tapado", 0.0))
+                                p.get("detalles", True), _acabado(p), p.get("obra"), p.get("ventanal", False), p.get("tapado", 0.0),
+                                p.get("ventanas"))
         ob = bpy.data.objects.new(nombre, malla)
         ob.location = a_blender(x, z, y)
         ob.rotation_euler = (0.0, 0.0, rot)
@@ -310,14 +311,14 @@ def _dentro(x, z, pol):
     return dentro
 
 
-def _malla_caras(nombre, caras, arriba=True):
+def _malla_caras(nombre, caras, arriba=True, abajo=False):
     """Una malla de caras [[(x, y, z) de Godot...]...], cada una volteada para que vea hacia
-    arriba (si `arriba`) o como venga."""
+    arriba (si `arriba`), hacia abajo (si `abajo`) o como venga."""
     bm = bmesh.new()
     for cara in caras:
         f = bm.faces.new([bm.verts.new(a_blender(x, z, y)) for x, y, z in cara])
         f.normal_update()
-        if arriba and f.normal.z < 0:
+        if (arriba and f.normal.z < 0) or (abajo and f.normal.z > 0):
             f.normal_flip()
     malla = bpy.data.meshes.new(nombre)
     bm.to_mesh(malla)
@@ -358,7 +359,7 @@ def _piso(mundo, datos):
     # Si hay tuneles (un hundido abierto), el piso tambien se ve por abajo: una copia volteada, sin choque,
     # para no ver el cielo desde la galeria por las rendijas
     if any(h[5] for h in huecos):
-        abajo = bpy.data.objects.new("Piso_Abajo", _malla_caras("Piso_Abajo", [[(x, -0.02, z) for x, _y, z in cara][::-1] for cara in caras], arriba=False))
+        abajo = bpy.data.objects.new("Piso_Abajo", _malla_caras("Piso_Abajo", [[(x, -0.02, z) for x, _y, z in cara] for cara in caras], arriba=False, abajo=True))
         abajo.data.materials.append(_kit()["foto"]("tierra") if "tierra" in _kit()["FOTOS"] else mat)
         mundo.objects.link(abajo)
         abajo[DATO] = "piso"
@@ -416,7 +417,7 @@ def _terrazas(mundo, datos):
 def _en_terraza(p, terrazas):
     """Cuanto sube la pieza `p` por caer en una terraza (por su centro; una casa por el de su huella;
     un callejon por el medio de su tramo)."""
-    if not terrazas or p["tipo"] in ("suelo", "escalinata"):
+    if not terrazas or p["tipo"] in ("suelo", "escalinata", "tunel", "tunel_cuarto", "bajada"):
         return 0.0
     x, z = p["x"], p["z"]
     if p.get("puntos") and p["tipo"] == "casa":
@@ -946,7 +947,7 @@ def _tendederos(mundo, datos):
                 def punto(t):
                     return (pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t - cuelga * 4 * t * (1 - t),
                             pa[2] + (pb[2] - pa[2]) * t)
-                pasos = 6
+                pasos = 4
                 giro = math.atan2(-nz, nx)
                 for j in range(pasos):
                     q0, q1 = punto(j / pasos), punto((j + 1) / pasos)
@@ -958,7 +959,12 @@ def _tendederos(mundo, datos):
                         t = (i + r.uniform(0.2, 0.8)) / prendas * 0.8 + 0.1
                         q = punto(t)
                         ancho, colgado = r.uniform(0.3, 0.55), r.uniform(0.35, 0.7)
-                        c.caja((q[0], q[1] - colgado / 2, q[2]), (ancho, colgado, 0.02), r.choice(colores), giro, sin_abajo=False)
+                        # Una prenda es un quad por las dos caras (era una caja: seis caras)
+                        col = r.choice(colores)
+                        hx, hz = math.cos(giro) * ancho / 2, -math.sin(giro) * ancho / 2
+                        esq = [(q[0] - hx, q[1] - colgado, q[2] - hz), (q[0] + hx, q[1] - colgado, q[2] + hz), (q[0] + hx, q[1], q[2] + hz), (q[0] - hx, q[1], q[2] - hz)]
+                        c.cara(esq, col)
+                        c.cara(esq[::-1], col)
                 s += r.uniform(*_cada(datos, "tendedero_cada", TENDEDERO_CADA))
     if hubo:
         trozo.poner(mundo)
@@ -996,7 +1002,7 @@ def _focos(trozo, datos):
         giro = math.atan2(-nz, nx)
         c.caja((x, y, z), (medio * 2, 0.02, 0.02), "cable", giro)
         c.caja((x, y - 0.15, z), (0.015, 0.3, 0.015), "cable")
-        c.esfera((x, y - 0.36, z), 0.08, "farol", seg=6, anillos=4)
+        c.esfera((x, y - 0.36, z), 0.08, "farol", seg=5, anillos=3)
 
 
 def _capilla(c, x, z, giro):
@@ -1025,7 +1031,7 @@ def _basura(c, x, z, r, bolsas=(2, 5)):
     """Montón de basura junto a la pared: bolsas negras, cajas de cartón y llantas."""
     for i in range(r.randint(*bolsas)):
         rad = r.uniform(0.2, 0.32)
-        c.esfera((x + r.uniform(-0.5, 0.5), rad * 0.7, z + r.uniform(-0.4, 0.4)), rad, "bolsa_negra", seg=6, anillos=4, aplastar=0.75)
+        c.esfera((x + r.uniform(-0.5, 0.5), rad * 0.7, z + r.uniform(-0.4, 0.4)), rad, "bolsa_negra", seg=5, anillos=3, aplastar=0.75)
     for i in range(r.randint(0, 2)):
         lado = r.uniform(0.3, 0.5)
         c.caja((x + r.uniform(-0.6, 0.6), lado / 2, z + r.uniform(-0.4, 0.4)), (lado, lado * 0.8, lado), "carton", r.uniform(0, 3))
@@ -1055,6 +1061,8 @@ def _vida_callejones(mundo, datos):
         hubo = True
         ux, uz = (bx - ax) / largo, (bz - az) / largo
         nx, nz = -uz, ux
+        # "basura_min": en callejones mas cortos no hay basura (la favela tiene cientos de 7 m)
+        sin_basura = largo < _cada(datos, "basura_min", (0.0,))[0]
         # Una capillita en uno de cada "capilla_cada" callejones (dos, salvo que la colonia diga otra cosa)
         if semilla % int(_cada(datos, "capilla_cada", (2,))[0]) == 0:
             lado = 1 if semilla % 4 == 0 else -1
@@ -1063,7 +1071,7 @@ def _vida_callejones(mundo, datos):
             fx, fz = -nx * lado, -nz * lado
             _capilla(trozo(p["nombre"], s), ax + ux * s + nx * lado * (orilla + 0.1), az + uz * s + nz * lado * (orilla + 0.1), math.atan2(fx, fz))
         s = r.uniform(3.0, 6.0)
-        while s < largo - 1.0:
+        while s < largo - 1.0 and not sin_basura:
             lado = r.choice((-1, 1))
             _basura(trozo(p["nombre"], s), ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r,
                     tuple(int(b) for b in _cada(datos, "bolsas", (2, 5))))

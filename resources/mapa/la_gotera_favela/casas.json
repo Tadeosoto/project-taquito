@@ -1,0 +1,6184 @@
+{
+	"casas": [
+		{
+			"modelo": "blender",
+			"x": 898.0,
+			"z": -246.0,
+			"rotacion_y": -1.6598,
+			"ancho": 10.0,
+			"fondo": 11.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 760.0,
+			"z": -300.0,
+			"rotacion_y": -1.6598,
+			"ancho": 8.0,
+			"fondo": 9.0,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 867.22,
+			"z": -329.79,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.54,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 874.43,
+			"z": -329.03,
+			"rotacion_y": -0.089,
+			"ancho": 6.4,
+			"fondo": 5.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 880.7,
+			"z": -328.51,
+			"rotacion_y": 1.4818,
+			"ancho": 5.38,
+			"fondo": 6.2,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 888.54,
+			"z": -327.81,
+			"rotacion_y": 3.0526,
+			"ancho": 6.2,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 895.13,
+			"z": -327.23,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.38,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 902.14,
+			"z": -326.66,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 908.61,
+			"z": -325.62,
+			"rotacion_y": 1.4818,
+			"ancho": 6.16,
+			"fondo": 6.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 775.4,
+			"z": -330.9,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 782.4,
+			"z": -330.28,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 789.07,
+			"z": -329.57,
+			"rotacion_y": -0.089,
+			"ancho": 6.36,
+			"fondo": 5.38,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 796.71,
+			"z": -328.5,
+			"rotacion_y": -1.6598,
+			"ancho": 6.16,
+			"fondo": 6.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 803.42,
+			"z": -328.37,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.24,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 810.05,
+			"z": -327.63,
+			"rotacion_y": 3.0526,
+			"ancho": 6.3,
+			"fondo": 5.52,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 817.35,
+			"z": -327.12,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 824.9,
+			"z": -326.54,
+			"rotacion_y": -1.6598,
+			"ancho": 5.46,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 831.46,
+			"z": -325.96,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 838.46,
+			"z": -325.33,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 845.42,
+			"z": -324.15,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 852.46,
+			"z": -323.93,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 859.04,
+			"z": -323.35,
+			"rotacion_y": -0.089,
+			"ancho": 6.18,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 873.46,
+			"z": -321.72,
+			"rotacion_y": -1.6598,
+			"ancho": 6.3,
+			"fondo": 5.76,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 880.81,
+			"z": -321.52,
+			"rotacion_y": -0.089,
+			"ancho": 6.4,
+			"fondo": 5.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 891.02,
+			"z": -320.7,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 908.48,
+			"z": -318.99,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 740.04,
+			"z": -326.38,
+			"rotacion_y": -1.6598,
+			"ancho": 6.04,
+			"fondo": 6.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 746.44,
+			"z": -326.42,
+			"rotacion_y": 3.0526,
+			"ancho": 6.42,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 754.02,
+			"z": -325.28,
+			"rotacion_y": 3.0526,
+			"ancho": 6.42,
+			"fondo": 6.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 760.75,
+			"z": -325.04,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.36,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 771.25,
+			"z": -324.0,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.56,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 781.76,
+			"z": -323.06,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.56,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 788.77,
+			"z": -322.5,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.66,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 795.43,
+			"z": -321.97,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 803.14,
+			"z": -321.22,
+			"rotacion_y": -1.6598,
+			"ancho": 5.34,
+			"fondo": 6.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 812.85,
+			"z": -320.5,
+			"rotacion_y": 3.0526,
+			"ancho": 13.16,
+			"fondo": 5.64,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 824.26,
+			"z": -319.34,
+			"rotacion_y": -0.089,
+			"ancho": 6.12,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 830.44,
+			"z": -318.39,
+			"rotacion_y": 1.4818,
+			"ancho": 6.18,
+			"fondo": 6.36,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 838.16,
+			"z": -318.12,
+			"rotacion_y": 3.0526,
+			"ancho": 6.36,
+			"fondo": 5.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 852.14,
+			"z": -316.49,
+			"rotacion_y": -1.6598,
+			"ancho": 6.26,
+			"fondo": 6.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 858.84,
+			"z": -316.23,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.58,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 868.85,
+			"z": -315.5,
+			"rotacion_y": 3.0526,
+			"ancho": 13.04,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 880.37,
+			"z": -314.31,
+			"rotacion_y": 3.0526,
+			"ancho": 6.0,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 886.51,
+			"z": -313.84,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.3,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 894.23,
+			"z": -313.03,
+			"rotacion_y": 3.0526,
+			"ancho": 6.3,
+			"fondo": 5.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 900.84,
+			"z": -312.03,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 907.39,
+			"z": -311.97,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 738.91,
+			"z": -319.89,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 749.68,
+			"z": -318.89,
+			"rotacion_y": 1.4818,
+			"ancho": 5.34,
+			"fondo": 12.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 760.19,
+			"z": -317.99,
+			"rotacion_y": 3.0526,
+			"ancho": 5.3,
+			"fondo": 5.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 767.01,
+			"z": -317.39,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.2,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 774.28,
+			"z": -316.42,
+			"rotacion_y": 3.0526,
+			"ancho": 5.32,
+			"fondo": 6.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 781.5,
+			"z": -316.25,
+			"rotacion_y": 3.0526,
+			"ancho": 6.34,
+			"fondo": 5.5,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 787.6,
+			"z": -315.22,
+			"rotacion_y": 3.0526,
+			"ancho": 6.0,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 802.0,
+			"z": -313.86,
+			"rotacion_y": 3.0526,
+			"ancho": 5.22,
+			"fondo": 6.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 809.67,
+			"z": -313.48,
+			"rotacion_y": 3.0526,
+			"ancho": 6.0,
+			"fondo": 5.66,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 816.18,
+			"z": -313.08,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 822.68,
+			"z": -312.01,
+			"rotacion_y": 1.4818,
+			"ancho": 6.28,
+			"fondo": 6.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 830.69,
+			"z": -312.21,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 837.19,
+			"z": -311.12,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 844.19,
+			"z": -310.36,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 851.24,
+			"z": -310.28,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 857.78,
+			"z": -308.95,
+			"rotacion_y": 1.4818,
+			"ancho": 6.4,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 865.22,
+			"z": -308.95,
+			"rotacion_y": 1.4818,
+			"ancho": 6.44,
+			"fondo": 5.34,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 872.13,
+			"z": -307.85,
+			"rotacion_y": -0.089,
+			"ancho": 5.12,
+			"fondo": 5.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 879.3,
+			"z": -306.99,
+			"rotacion_y": 1.4818,
+			"ancho": 6.32,
+			"fondo": 5.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 889.86,
+			"z": -306.5,
+			"rotacion_y": -1.6598,
+			"ancho": 5.24,
+			"fondo": 12.62,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 900.23,
+			"z": -305.5,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.76,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 907.09,
+			"z": -304.89,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 738.08,
+			"z": -313.38,
+			"rotacion_y": -0.089,
+			"ancho": 6.16,
+			"fondo": 6.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 745.48,
+			"z": -312.2,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.28,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 752.42,
+			"z": -311.16,
+			"rotacion_y": 3.0526,
+			"ancho": 5.22,
+			"fondo": 6.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 759.56,
+			"z": -310.91,
+			"rotacion_y": -1.6598,
+			"ancho": 5.48,
+			"fondo": 5.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 766.51,
+			"z": -310.32,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 773.55,
+			"z": -309.69,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.56,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 780.84,
+			"z": -308.88,
+			"rotacion_y": -0.089,
+			"ancho": 6.34,
+			"fondo": 5.52,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 787.55,
+			"z": -308.83,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 794.52,
+			"z": -307.82,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.52,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 801.57,
+			"z": -307.58,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 808.55,
+			"z": -306.65,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.7,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 815.1,
+			"z": -305.5,
+			"rotacion_y": 3.0526,
+			"ancho": 6.22,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 822.95,
+			"z": -305.28,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 829.19,
+			"z": -304.74,
+			"rotacion_y": 3.0526,
+			"ancho": 6.28,
+			"fondo": 5.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 836.95,
+			"z": -304.13,
+			"rotacion_y": -1.6598,
+			"ancho": 5.22,
+			"fondo": 6.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 843.58,
+			"z": -303.53,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.58,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 857.96,
+			"z": -302.51,
+			"rotacion_y": -0.089,
+			"ancho": 6.34,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 874.71,
+			"z": -300.89,
+			"rotacion_y": -0.089,
+			"ancho": 13.24,
+			"fondo": 5.34,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 885.51,
+			"z": -299.2,
+			"rotacion_y": 3.0526,
+			"ancho": 5.26,
+			"fondo": 6.1,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 892.78,
+			"z": -299.05,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 899.52,
+			"z": -298.45,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.6,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 906.64,
+			"z": -297.81,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 737.79,
+			"z": -305.24,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 744.45,
+			"z": -305.61,
+			"rotacion_y": -0.089,
+			"ancho": 6.16,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 751.86,
+			"z": -304.95,
+			"rotacion_y": -1.6598,
+			"ancho": 6.22,
+			"fondo": 5.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 773.07,
+			"z": -303.02,
+			"rotacion_y": 1.4818,
+			"ancho": 6.28,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 780.17,
+			"z": -301.67,
+			"rotacion_y": -1.6598,
+			"ancho": 6.46,
+			"fondo": 6.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 786.4,
+			"z": -301.35,
+			"rotacion_y": 3.0526,
+			"ancho": 6.06,
+			"fondo": 5.68,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 800.89,
+			"z": -300.06,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.68,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 807.4,
+			"z": -299.16,
+			"rotacion_y": 3.0526,
+			"ancho": 6.08,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 814.99,
+			"z": -298.88,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 822.05,
+			"z": -298.56,
+			"rotacion_y": -1.6598,
+			"ancho": 6.46,
+			"fondo": 5.62,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 829.21,
+			"z": -297.41,
+			"rotacion_y": -1.6598,
+			"ancho": 5.42,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 835.92,
+			"z": -296.81,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.42,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 842.43,
+			"z": -296.01,
+			"rotacion_y": 3.0526,
+			"ancho": 6.08,
+			"fondo": 6.24,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 860.44,
+			"z": -294.62,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 870.62,
+			"z": -293.88,
+			"rotacion_y": 1.4818,
+			"ancho": 4.94,
+			"fondo": 6.34,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 877.9,
+			"z": -293.26,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.5,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 884.93,
+			"z": -292.64,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 891.93,
+			"z": -292.01,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 899.11,
+			"z": -291.37,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.16,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 906.04,
+			"z": -291.06,
+			"rotacion_y": -0.089,
+			"ancho": 5.42,
+			"fondo": 6.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 737.36,
+			"z": -299.15,
+			"rotacion_y": 1.4818,
+			"ancho": 6.18,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 744.11,
+			"z": -297.65,
+			"rotacion_y": -1.6598,
+			"ancho": 6.22,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 751.15,
+			"z": -297.02,
+			"rotacion_y": 3.0526,
+			"ancho": 5.22,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 772.25,
+			"z": -295.64,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 779.3,
+			"z": -295.48,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 785.79,
+			"z": -294.58,
+			"rotacion_y": 3.0526,
+			"ancho": 6.06,
+			"fondo": 5.42,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 793.72,
+			"z": -293.35,
+			"rotacion_y": 3.0526,
+			"ancho": 6.06,
+			"fondo": 6.46,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 799.88,
+			"z": -293.18,
+			"rotacion_y": 1.4818,
+			"ancho": 5.7,
+			"fondo": 6.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 807.17,
+			"z": -292.46,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 814.84,
+			"z": -292.29,
+			"rotacion_y": -0.089,
+			"ancho": 6.02,
+			"fondo": 6.06,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 821.29,
+			"z": -291.19,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.84,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 828.31,
+			"z": -290.7,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.58,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 835.28,
+			"z": -289.64,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.46,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 841.89,
+			"z": -289.89,
+			"rotacion_y": -0.089,
+			"ancho": 6.08,
+			"fondo": 6.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 855.84,
+			"z": -287.78,
+			"rotacion_y": 3.0526,
+			"ancho": 6.12,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 863.44,
+			"z": -287.44,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.42,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 870.33,
+			"z": -286.81,
+			"rotacion_y": -1.6598,
+			"ancho": 5.04,
+			"fondo": 5.64,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 877.17,
+			"z": -286.22,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 884.41,
+			"z": -285.57,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 891.3,
+			"z": -284.95,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 898.89,
+			"z": -284.28,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.98,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 905.38,
+			"z": -283.79,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.66,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 743.04,
+			"z": -291.07,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.94,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 757.71,
+			"z": -289.29,
+			"rotacion_y": 3.0526,
+			"ancho": 5.24,
+			"fondo": 6.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 778.6,
+			"z": -287.7,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.34,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 785.17,
+			"z": -287.23,
+			"rotacion_y": -0.089,
+			"ancho": 6.12,
+			"fondo": 5.18,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 793.09,
+			"z": -286.61,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 799.65,
+			"z": -286.06,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.5,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 806.69,
+			"z": -285.81,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 817.15,
+			"z": -284.35,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 827.16,
+			"z": -283.12,
+			"rotacion_y": 1.4818,
+			"ancho": 6.2,
+			"fondo": 6.1,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 835.18,
+			"z": -283.32,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 6.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 841.68,
+			"z": -282.26,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 855.72,
+			"z": -281.35,
+			"rotacion_y": -1.6598,
+			"ancho": 6.42,
+			"fondo": 5.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 862.81,
+			"z": -280.38,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 869.56,
+			"z": -279.72,
+			"rotacion_y": 1.4818,
+			"ancho": 5.2,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 876.72,
+			"z": -279.14,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 884.25,
+			"z": -278.96,
+			"rotacion_y": -0.089,
+			"ancho": 6.06,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 890.2,
+			"z": -277.94,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 897.84,
+			"z": -277.65,
+			"rotacion_y": -1.6598,
+			"ancho": 6.3,
+			"fondo": 5.06,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 904.72,
+			"z": -276.24,
+			"rotacion_y": 3.0526,
+			"ancho": 5.24,
+			"fondo": 6.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 735.49,
+			"z": -284.23,
+			"rotacion_y": 3.0526,
+			"ancho": 6.18,
+			"fondo": 6.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 743.42,
+			"z": -284.4,
+			"rotacion_y": -0.089,
+			"ancho": 6.18,
+			"fondo": 6.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 749.97,
+			"z": -283.36,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 760.02,
+			"z": -282.33,
+			"rotacion_y": -0.089,
+			"ancho": 13.18,
+			"fondo": 5.12,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 771.47,
+			"z": -281.89,
+			"rotacion_y": -0.089,
+			"ancho": 6.14,
+			"fondo": 6.16,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 778.0,
+			"z": -280.97,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 788.16,
+			"z": -279.81,
+			"rotacion_y": -0.089,
+			"ancho": 13.42,
+			"fondo": 5.58,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 798.84,
+			"z": -278.56,
+			"rotacion_y": -1.6598,
+			"ancho": 6.26,
+			"fondo": 5.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 813.54,
+			"z": -278.14,
+			"rotacion_y": -0.089,
+			"ancho": 6.08,
+			"fondo": 6.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 819.53,
+			"z": -276.72,
+			"rotacion_y": 3.0526,
+			"ancho": 6.1,
+			"fondo": 6.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 827.51,
+			"z": -276.42,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 834.04,
+			"z": -275.77,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.36,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 841.05,
+			"z": -275.15,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 851.12,
+			"z": -274.43,
+			"rotacion_y": 1.4818,
+			"ancho": 5.52,
+			"fondo": 13.16,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 862.18,
+			"z": -273.33,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 869.42,
+			"z": -272.69,
+			"rotacion_y": -0.089,
+			"ancho": 6.34,
+			"fondo": 5.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 879.21,
+			"z": -271.77,
+			"rotacion_y": -0.089,
+			"ancho": 13.3,
+			"fondo": 5.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 890.52,
+			"z": -271.25,
+			"rotacion_y": -1.6598,
+			"ancho": 6.18,
+			"fondo": 6.28,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 903.76,
+			"z": -270.03,
+			"rotacion_y": 1.4818,
+			"ancho": 6.26,
+			"fondo": 6.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 735.3,
+			"z": -277.53,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 756.33,
+			"z": -275.22,
+			"rotacion_y": 3.0526,
+			"ancho": 5.26,
+			"fondo": 6.2,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 763.83,
+			"z": -275.53,
+			"rotacion_y": -1.6598,
+			"ancho": 6.02,
+			"fondo": 6.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 770.36,
+			"z": -274.44,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 777.36,
+			"z": -273.81,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.16,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 784.34,
+			"z": -272.84,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 791.38,
+			"z": -272.63,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.64,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 797.92,
+			"z": -271.95,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 805.9,
+			"z": -271.72,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 811.97,
+			"z": -270.22,
+			"rotacion_y": 1.4818,
+			"ancho": 6.14,
+			"fondo": 6.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 819.35,
+			"z": -270.41,
+			"rotacion_y": 1.4818,
+			"ancho": 6.34,
+			"fondo": 5.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 826.41,
+			"z": -269.4,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 833.89,
+			"z": -268.8,
+			"rotacion_y": -1.6598,
+			"ancho": 5.36,
+			"fondo": 6.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 839.92,
+			"z": -267.75,
+			"rotacion_y": 3.0526,
+			"ancho": 6.1,
+			"fondo": 6.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 847.43,
+			"z": -267.08,
+			"rotacion_y": 1.4818,
+			"ancho": 6.18,
+			"fondo": 5.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 854.4,
+			"z": -266.91,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.28,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 861.59,
+			"z": -266.72,
+			"rotacion_y": 1.4818,
+			"ancho": 6.18,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 872.3,
+			"z": -265.31,
+			"rotacion_y": 3.0526,
+			"ancho": 13.38,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 882.45,
+			"z": -264.25,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.58,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 888.89,
+			"z": -263.37,
+			"rotacion_y": 3.0526,
+			"ancho": 5.96,
+			"fondo": 6.18,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 896.57,
+			"z": -263.14,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 903.93,
+			"z": -262.58,
+			"rotacion_y": -0.089,
+			"ancho": 6.16,
+			"fondo": 5.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 741.74,
+			"z": -269.3,
+			"rotacion_y": -1.6598,
+			"ancho": 6.0,
+			"fondo": 5.5,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 749.08,
+			"z": -269.59,
+			"rotacion_y": -0.089,
+			"ancho": 6.36,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 755.28,
+			"z": -268.64,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 766.64,
+			"z": -267.44,
+			"rotacion_y": 3.0526,
+			"ancho": 13.2,
+			"fondo": 5.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 776.72,
+			"z": -266.58,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 783.41,
+			"z": -266.51,
+			"rotacion_y": -0.089,
+			"ancho": 6.32,
+			"fondo": 6.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 790.53,
+			"z": -265.08,
+			"rotacion_y": 3.0526,
+			"ancho": 5.24,
+			"fondo": 6.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 797.83,
+			"z": -264.84,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 812.18,
+			"z": -263.9,
+			"rotacion_y": -0.089,
+			"ancho": 6.26,
+			"fondo": 6.4,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 818.27,
+			"z": -262.64,
+			"rotacion_y": 1.4818,
+			"ancho": 6.34,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 825.79,
+			"z": -262.34,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 833.25,
+			"z": -261.71,
+			"rotacion_y": 3.0526,
+			"ancho": 6.12,
+			"fondo": 5.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 839.33,
+			"z": -261.14,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 846.83,
+			"z": -260.84,
+			"rotacion_y": 1.4818,
+			"ancho": 6.34,
+			"fondo": 5.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 854.28,
+			"z": -259.8,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 867.35,
+			"z": -258.71,
+			"rotacion_y": 1.4818,
+			"ancho": 5.14,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 874.83,
+			"z": -257.97,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.14,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 881.82,
+			"z": -257.04,
+			"rotacion_y": 3.0526,
+			"ancho": 5.16,
+			"fondo": 6.48,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 889.35,
+			"z": -257.22,
+			"rotacion_y": -1.6598,
+			"ancho": 6.0,
+			"fondo": 6.12,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 895.89,
+			"z": -256.64,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 902.52,
+			"z": -255.54,
+			"rotacion_y": 3.0526,
+			"ancho": 6.36,
+			"fondo": 4.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 909.7,
+			"z": -254.35,
+			"rotacion_y": 3.0526,
+			"ancho": 5.48,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 744.54,
+			"z": -262.51,
+			"rotacion_y": -0.089,
+			"ancho": 12.3,
+			"fondo": 5.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 755.15,
+			"z": -261.96,
+			"rotacion_y": -1.6598,
+			"ancho": 6.24,
+			"fondo": 5.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 762.12,
+			"z": -260.91,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.36,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 769.5,
+			"z": -260.29,
+			"rotacion_y": -0.089,
+			"ancho": 6.22,
+			"fondo": 5.58,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 776.07,
+			"z": -259.31,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 783.12,
+			"z": -259.14,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 789.69,
+			"z": -258.93,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 797.13,
+			"z": -257.79,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 804.62,
+			"z": -257.44,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 6.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 810.56,
+			"z": -256.25,
+			"rotacion_y": 3.0526,
+			"ancho": 5.94,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 818.21,
+			"z": -255.91,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 825.27,
+			"z": -255.28,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 832.51,
+			"z": -254.62,
+			"rotacion_y": 3.0526,
+			"ancho": 6.32,
+			"fondo": 5.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 839.2,
+			"z": -254.48,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.2,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 845.67,
+			"z": -253.08,
+			"rotacion_y": 3.0526,
+			"ancho": 6.08,
+			"fondo": 6.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 853.38,
+			"z": -253.17,
+			"rotacion_y": 1.4818,
+			"ancho": 6.3,
+			"fondo": 5.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 860.44,
+			"z": -251.61,
+			"rotacion_y": -1.6598,
+			"ancho": 6.04,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 867.18,
+			"z": -251.45,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 884.67,
+			"z": -249.75,
+			"rotacion_y": -1.6598,
+			"ancho": 5.36,
+			"fondo": 12.8,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 740.85,
+			"z": -255.7,
+			"rotacion_y": -0.089,
+			"ancho": 6.2,
+			"fondo": 5.38,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 750.53,
+			"z": -254.92,
+			"rotacion_y": 3.0526,
+			"ancho": 13.2,
+			"fondo": 5.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 775.88,
+			"z": -253.0,
+			"rotacion_y": -0.089,
+			"ancho": 6.28,
+			"fondo": 6.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 782.47,
+			"z": -251.86,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 796.32,
+			"z": -250.75,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.44,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 806.96,
+			"z": -249.99,
+			"rotacion_y": 1.4818,
+			"ancho": 5.46,
+			"fondo": 12.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 817.62,
+			"z": -249.29,
+			"rotacion_y": -0.089,
+			"ancho": 5.0,
+			"fondo": 6.2,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 824.99,
+			"z": -248.19,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.08,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 831.53,
+			"z": -247.62,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 838.04,
+			"z": -246.94,
+			"rotacion_y": -0.089,
+			"ancho": 6.06,
+			"fondo": 5.46,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 846.05,
+			"z": -246.67,
+			"rotacion_y": -1.6598,
+			"ancho": 6.36,
+			"fondo": 6.06,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 852.54,
+			"z": -245.7,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.58,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 859.12,
+			"z": -245.51,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 6.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 866.56,
+			"z": -244.04,
+			"rotacion_y": 1.4818,
+			"ancho": 6.22,
+			"fondo": 5.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 873.68,
+			"z": -243.84,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.56,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 880.92,
+			"z": -243.59,
+			"rotacion_y": -1.6598,
+			"ancho": 6.3,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 739.48,
+			"z": -248.64,
+			"rotacion_y": 1.4818,
+			"ancho": 5.48,
+			"fondo": 6.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 746.69,
+			"z": -248.06,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 754.26,
+			"z": -247.2,
+			"rotacion_y": -0.089,
+			"ancho": 6.12,
+			"fondo": 5.42,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 760.4,
+			"z": -247.36,
+			"rotacion_y": -0.089,
+			"ancho": 6.08,
+			"fondo": 6.06,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 768.36,
+			"z": -246.65,
+			"rotacion_y": -1.6598,
+			"ancho": 6.06,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 774.85,
+			"z": -245.64,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.2,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 781.5,
+			"z": -244.6,
+			"rotacion_y": 3.0526,
+			"ancho": 6.4,
+			"fondo": 6.38,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 788.86,
+			"z": -244.3,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.76,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 799.33,
+			"z": -243.9,
+			"rotacion_y": 1.4818,
+			"ancho": 6.02,
+			"fondo": 12.64,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 810.26,
+			"z": -242.21,
+			"rotacion_y": -0.089,
+			"ancho": 6.24,
+			"fondo": 5.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 816.48,
+			"z": -241.71,
+			"rotacion_y": 1.4818,
+			"ancho": 5.54,
+			"fondo": 6.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 823.85,
+			"z": -241.18,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 837.9,
+			"z": -239.89,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.7,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 844.58,
+			"z": -239.3,
+			"rotacion_y": -0.089,
+			"ancho": 6.38,
+			"fondo": 5.7,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 851.81,
+			"z": -238.32,
+			"rotacion_y": -1.6598,
+			"ancho": 6.36,
+			"fondo": 5.6,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 865.56,
+			"z": -238.0,
+			"rotacion_y": 1.4818,
+			"ancho": 6.0,
+			"fondo": 6.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 879.55,
+			"z": -235.81,
+			"rotacion_y": 1.4818,
+			"ancho": 6.3,
+			"fondo": 6.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 886.98,
+			"z": -235.54,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.66,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 893.78,
+			"z": -235.24,
+			"rotacion_y": 1.4818,
+			"ancho": 6.48,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 901.15,
+			"z": -233.96,
+			"rotacion_y": -1.6598,
+			"ancho": 6.44,
+			"fondo": 5.34,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 907.76,
+			"z": -233.37,
+			"rotacion_y": -1.6598,
+			"ancho": 6.44,
+			"fondo": 5.4,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 764.06,
+			"z": -239.4,
+			"rotacion_y": -1.6598,
+			"ancho": 5.02,
+			"fondo": 13.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 774.17,
+			"z": -237.98,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.06,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 780.95,
+			"z": -238.42,
+			"rotacion_y": -0.089,
+			"ancho": 6.4,
+			"fondo": 6.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 788.23,
+			"z": -237.24,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.76,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 830.73,
+			"z": -233.77,
+			"rotacion_y": -1.6598,
+			"ancho": 6.44,
+			"fondo": 6.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 840.45,
+			"z": -232.61,
+			"rotacion_y": 3.0526,
+			"ancho": 13.42,
+			"fondo": 5.7,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 851.22,
+			"z": -231.62,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.6,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 865.36,
+			"z": -230.34,
+			"rotacion_y": -0.089,
+			"ancho": 5.22,
+			"fondo": 4.94,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 872.23,
+			"z": -229.2,
+			"rotacion_y": 1.4818,
+			"ancho": 6.0,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 879.4,
+			"z": -229.11,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 889.62,
+			"z": -227.88,
+			"rotacion_y": -1.6598,
+			"ancho": 6.48,
+			"fondo": 12.3,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 900.86,
+			"z": -227.19,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.98,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 906.89,
+			"z": -227.17,
+			"rotacion_y": 1.4818,
+			"ancho": 6.06,
+			"fondo": 6.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 738.55,
+			"z": -234.08,
+			"rotacion_y": 3.0526,
+			"ancho": 5.28,
+			"fondo": 6.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 752.91,
+			"z": -232.8,
+			"rotacion_y": 3.0526,
+			"ancho": 6.24,
+			"fondo": 6.14,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 759.15,
+			"z": -233.07,
+			"rotacion_y": -0.089,
+			"ancho": 6.12,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 766.67,
+			"z": -231.53,
+			"rotacion_y": 1.4818,
+			"ancho": 6.06,
+			"fondo": 5.5,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 780.11,
+			"z": -230.86,
+			"rotacion_y": 1.4818,
+			"ancho": 4.96,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 787.76,
+			"z": -230.17,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 829.65,
+			"z": -226.55,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.56,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 836.31,
+			"z": -225.48,
+			"rotacion_y": 1.4818,
+			"ancho": 6.38,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 851.03,
+			"z": -225.06,
+			"rotacion_y": -1.6598,
+			"ancho": 6.02,
+			"fondo": 6.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 857.62,
+			"z": -223.4,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.02,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 864.2,
+			"z": -222.82,
+			"rotacion_y": 1.4818,
+			"ancho": 6.02,
+			"fondo": 6.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 871.65,
+			"z": -222.68,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 878.69,
+			"z": -222.48,
+			"rotacion_y": -0.089,
+			"ancho": 5.18,
+			"fondo": 6.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 885.87,
+			"z": -221.41,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 892.62,
+			"z": -221.3,
+			"rotacion_y": 1.4818,
+			"ancho": 6.1,
+			"fondo": 5.6,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 899.69,
+			"z": -220.18,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 738.38,
+			"z": -227.46,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 744.92,
+			"z": -226.82,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.76,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 751.55,
+			"z": -226.78,
+			"rotacion_y": 1.4818,
+			"ancho": 6.12,
+			"fondo": 6.16,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 766.06,
+			"z": -224.99,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 773.33,
+			"z": -224.76,
+			"rotacion_y": -1.6598,
+			"ancho": 6.26,
+			"fondo": 6.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 779.47,
+			"z": -223.68,
+			"rotacion_y": 1.4818,
+			"ancho": 5.18,
+			"fondo": 6.08,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 786.99,
+			"z": -223.12,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 829.5,
+			"z": -219.29,
+			"rotacion_y": -1.6598,
+			"ancho": 5.42,
+			"fondo": 6.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 835.71,
+			"z": -218.78,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 843.36,
+			"z": -218.49,
+			"rotacion_y": -0.089,
+			"ancho": 6.42,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 849.54,
+			"z": -217.01,
+			"rotacion_y": 3.0526,
+			"ancho": 6.14,
+			"fondo": 6.02,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 857.13,
+			"z": -217.37,
+			"rotacion_y": 1.4818,
+			"ancho": 6.08,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 871.05,
+			"z": -215.62,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 4.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 878.57,
+			"z": -215.05,
+			"rotacion_y": -0.089,
+			"ancho": 6.0,
+			"fondo": 5.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 884.76,
+			"z": -214.4,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 892.37,
+			"z": -213.76,
+			"rotacion_y": -0.089,
+			"ancho": 6.44,
+			"fondo": 5.06,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 899.12,
+			"z": -213.65,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 905.61,
+			"z": -212.72,
+			"rotacion_y": 1.4818,
+			"ancho": 5.42,
+			"fondo": 6.06,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 737.35,
+			"z": -220.9,
+			"rotacion_y": -0.089,
+			"ancho": 5.22,
+			"fondo": 6.18,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 744.18,
+			"z": -219.53,
+			"rotacion_y": -1.6598,
+			"ancho": 6.48,
+			"fondo": 5.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 754.89,
+			"z": -218.87,
+			"rotacion_y": 1.4818,
+			"ancho": 5.14,
+			"fondo": 12.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 765.77,
+			"z": -217.9,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 772.34,
+			"z": -217.45,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 779.33,
+			"z": -216.67,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 785.96,
+			"z": -216.42,
+			"rotacion_y": 1.4818,
+			"ancho": 6.44,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 835.41,
+			"z": -212.02,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 842.0,
+			"z": -210.7,
+			"rotacion_y": 3.0526,
+			"ancho": 6.32,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 849.75,
+			"z": -210.41,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 856.0,
+			"z": -209.73,
+			"rotacion_y": 3.0526,
+			"ancho": 6.24,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 863.29,
+			"z": -209.2,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 870.48,
+			"z": -208.91,
+			"rotacion_y": 1.4818,
+			"ancho": 6.4,
+			"fondo": 5.02,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 877.35,
+			"z": -207.42,
+			"rotacion_y": 3.0526,
+			"ancho": 5.04,
+			"fondo": 6.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 884.69,
+			"z": -207.82,
+			"rotacion_y": -0.089,
+			"ancho": 5.42,
+			"fondo": 6.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 891.73,
+			"z": -206.66,
+			"rotacion_y": 3.0526,
+			"ancho": 6.44,
+			"fondo": 4.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 898.4,
+			"z": -205.54,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 904.96,
+			"z": -205.38,
+			"rotacion_y": -0.089,
+			"ancho": 6.06,
+			"fondo": 5.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 736.65,
+			"z": -213.24,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.56,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 743.13,
+			"z": -212.81,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.96,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 750.86,
+			"z": -212.12,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 757.98,
+			"z": -211.0,
+			"rotacion_y": -1.6598,
+			"ancho": 6.12,
+			"fondo": 6.34,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 764.72,
+			"z": -211.26,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 771.65,
+			"z": -209.72,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 778.28,
+			"z": -209.64,
+			"rotacion_y": -0.089,
+			"ancho": 6.2,
+			"fondo": 5.56,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 786.09,
+			"z": -208.66,
+			"rotacion_y": -1.6598,
+			"ancho": 6.44,
+			"fondo": 6.2,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 828.25,
+			"z": -205.26,
+			"rotacion_y": 3.0526,
+			"ancho": 6.02,
+			"fondo": 5.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 834.28,
+			"z": -204.79,
+			"rotacion_y": -0.089,
+			"ancho": 6.06,
+			"fondo": 5.54,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 841.89,
+			"z": -204.0,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 848.65,
+			"z": -203.39,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 856.24,
+			"z": -202.66,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 5.66,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 869.76,
+			"z": -201.16,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 883.79,
+			"z": -200.1,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 890.43,
+			"z": -199.14,
+			"rotacion_y": 1.4818,
+			"ancho": 6.04,
+			"fondo": 6.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 897.64,
+			"z": -199.02,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 905.29,
+			"z": -197.93,
+			"rotacion_y": -1.6598,
+			"ancho": 6.28,
+			"fondo": 6.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 735.89,
+			"z": -206.03,
+			"rotacion_y": 3.0526,
+			"ancho": 5.08,
+			"fondo": 6.48,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 743.16,
+			"z": -205.69,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 750.12,
+			"z": -205.07,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.5,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 757.04,
+			"z": -204.85,
+			"rotacion_y": -0.089,
+			"ancho": 5.56,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 771.38,
+			"z": -203.18,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 777.66,
+			"z": -202.59,
+			"rotacion_y": 3.0526,
+			"ancho": 6.2,
+			"fondo": 5.68,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 785.52,
+			"z": -202.25,
+			"rotacion_y": -1.6598,
+			"ancho": 6.4,
+			"fondo": 6.2,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 791.57,
+			"z": -200.96,
+			"rotacion_y": 3.0526,
+			"ancho": 6.08,
+			"fondo": 6.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 799.56,
+			"z": -200.58,
+			"rotacion_y": -1.6598,
+			"ancho": 5.58,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 813.39,
+			"z": -199.0,
+			"rotacion_y": -1.6598,
+			"ancho": 6.24,
+			"fondo": 6.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 819.61,
+			"z": -198.87,
+			"rotacion_y": -0.089,
+			"ancho": 6.02,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 827.58,
+			"z": -197.73,
+			"rotacion_y": 3.0526,
+			"ancho": 6.02,
+			"fondo": 6.24,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 833.64,
+			"z": -197.59,
+			"rotacion_y": 1.4818,
+			"ancho": 5.38,
+			"fondo": 6.06,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 841.09,
+			"z": -196.96,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 848.71,
+			"z": -196.81,
+			"rotacion_y": -0.089,
+			"ancho": 5.98,
+			"fondo": 6.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 854.6,
+			"z": -195.81,
+			"rotacion_y": 1.4818,
+			"ancho": 5.64,
+			"fondo": 5.94,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 862.34,
+			"z": -194.73,
+			"rotacion_y": 3.0526,
+			"ancho": 5.28,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 869.13,
+			"z": -194.86,
+			"rotacion_y": 1.4818,
+			"ancho": 6.28,
+			"fondo": 5.6,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 876.01,
+			"z": -193.43,
+			"rotacion_y": 1.4818,
+			"ancho": 6.28,
+			"fondo": 5.24,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 889.88,
+			"z": -192.95,
+			"rotacion_y": 1.4818,
+			"ancho": 6.4,
+			"fondo": 6.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 904.22,
+			"z": -191.32,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 735.5,
+			"z": -199.69,
+			"rotacion_y": -1.6598,
+			"ancho": 6.22,
+			"fondo": 5.44,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 749.52,
+			"z": -198.36,
+			"rotacion_y": -0.089,
+			"ancho": 5.48,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 763.43,
+			"z": -196.77,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 770.82,
+			"z": -196.11,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 777.45,
+			"z": -195.66,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.44,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 784.07,
+			"z": -195.07,
+			"rotacion_y": 3.0526,
+			"ancho": 6.26,
+			"fondo": 5.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 791.4,
+			"z": -194.61,
+			"rotacion_y": -1.6598,
+			"ancho": 6.42,
+			"fondo": 5.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 798.9,
+			"z": -193.27,
+			"rotacion_y": -1.6598,
+			"ancho": 6.42,
+			"fondo": 6.08,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 805.48,
+			"z": -193.14,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.5,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 812.13,
+			"z": -192.8,
+			"rotacion_y": 1.4818,
+			"ancho": 6.34,
+			"fondo": 6.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 819.87,
+			"z": -191.78,
+			"rotacion_y": -0.089,
+			"ancho": 6.26,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 826.53,
+			"z": -191.61,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 833.02,
+			"z": -190.68,
+			"rotacion_y": 1.4818,
+			"ancho": 5.2,
+			"fondo": 6.06,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 840.72,
+			"z": -190.41,
+			"rotacion_y": 1.4818,
+			"ancho": 6.02,
+			"fondo": 5.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 847.81,
+			"z": -189.24,
+			"rotacion_y": 3.0526,
+			"ancho": 6.42,
+			"fondo": 4.96,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 861.92,
+			"z": -188.44,
+			"rotacion_y": -0.089,
+			"ancho": 6.32,
+			"fondo": 6.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 868.49,
+			"z": -186.99,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 878.6,
+			"z": -186.82,
+			"rotacion_y": -0.089,
+			"ancho": 13.12,
+			"fondo": 6.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 889.99,
+			"z": -185.13,
+			"rotacion_y": -1.6598,
+			"ancho": 6.4,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 896.05,
+			"z": -184.94,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.02,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 903.52,
+			"z": -184.27,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 4.92,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 735.16,
+			"z": -191.75,
+			"rotacion_y": 3.0526,
+			"ancho": 6.18,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 741.78,
+			"z": -191.61,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.68,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 756.11,
+			"z": -190.33,
+			"rotacion_y": 3.0526,
+			"ancho": 6.4,
+			"fondo": 5.68,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 762.45,
+			"z": -190.22,
+			"rotacion_y": 1.4818,
+			"ancho": 6.14,
+			"fondo": 6.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 770.19,
+			"z": -189.05,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 784.11,
+			"z": -187.33,
+			"rotacion_y": -1.6598,
+			"ancho": 6.12,
+			"fondo": 6.36,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 790.84,
+			"z": -187.41,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.36,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 797.41,
+			"z": -187.16,
+			"rotacion_y": 1.4818,
+			"ancho": 6.02,
+			"fondo": 6.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 808.8,
+			"z": -185.54,
+			"rotacion_y": 3.0526,
+			"ancho": 13.14,
+			"fondo": 5.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 818.26,
+			"z": -184.29,
+			"rotacion_y": 3.0526,
+			"ancho": 5.94,
+			"fondo": 6.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 826.36,
+			"z": -183.57,
+			"rotacion_y": -1.6598,
+			"ancho": 6.14,
+			"fondo": 5.94,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 843.45,
+			"z": -182.49,
+			"rotacion_y": -1.6598,
+			"ancho": 5.02,
+			"fondo": 12.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 854.34,
+			"z": -182.06,
+			"rotacion_y": -1.6598,
+			"ancho": 6.06,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 860.3,
+			"z": -180.55,
+			"rotacion_y": 1.4818,
+			"ancho": 6.16,
+			"fondo": 5.94,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 868.07,
+			"z": -180.85,
+			"rotacion_y": -1.6598,
+			"ancho": 6.04,
+			"fondo": 5.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 884.91,
+			"z": -178.82,
+			"rotacion_y": -0.089,
+			"ancho": 13.04,
+			"fondo": 5.78,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 895.92,
+			"z": -177.83,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 910.0,
+			"z": -176.24,
+			"rotacion_y": -1.6598,
+			"ancho": 6.42,
+			"fondo": 5.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 741.66,
+			"z": -184.12,
+			"rotacion_y": 3.0526,
+			"ancho": 5.94,
+			"fondo": 6.36,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 748.15,
+			"z": -183.85,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.74,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 755.13,
+			"z": -182.92,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 762.16,
+			"z": -182.51,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 769.2,
+			"z": -182.35,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.44,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 775.83,
+			"z": -181.26,
+			"rotacion_y": 1.4818,
+			"ancho": 5.38,
+			"fondo": 6.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 783.02,
+			"z": -181.14,
+			"rotacion_y": -0.089,
+			"ancho": 5.28,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 790.33,
+			"z": -179.95,
+			"rotacion_y": 3.0526,
+			"ancho": 5.18,
+			"fondo": 5.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 797.08,
+			"z": -179.01,
+			"rotacion_y": 3.0526,
+			"ancho": 5.32,
+			"fondo": 6.02,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 804.37,
+			"z": -179.2,
+			"rotacion_y": -1.6598,
+			"ancho": 6.48,
+			"fondo": 5.44,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 818.02,
+			"z": -177.67,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.22,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 825.82,
+			"z": -177.46,
+			"rotacion_y": -0.089,
+			"ancho": 5.94,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 835.32,
+			"z": -176.13,
+			"rotacion_y": 3.0526,
+			"ancho": 13.24,
+			"fondo": 5.06,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 846.28,
+			"z": -175.15,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 853.59,
+			"z": -173.98,
+			"rotacion_y": -1.6598,
+			"ancho": 6.06,
+			"fondo": 6.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 863.75,
+			"z": -173.43,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 877.78,
+			"z": -172.37,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.72,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 887.93,
+			"z": -171.45,
+			"rotacion_y": -0.089,
+			"ancho": 6.32,
+			"fondo": 5.74,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 895.13,
+			"z": -170.79,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 902.27,
+			"z": -170.15,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 4.9,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 909.44,
+			"z": -169.93,
+			"rotacion_y": -1.6598,
+			"ancho": 6.26,
+			"fondo": 5.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 740.62,
+			"z": -177.96,
+			"rotacion_y": -0.089,
+			"ancho": 4.98,
+			"fondo": 6.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 747.58,
+			"z": -176.53,
+			"rotacion_y": -1.6598,
+			"ancho": 6.48,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 754.93,
+			"z": -176.19,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.24,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 765.04,
+			"z": -175.28,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.76,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 775.55,
+			"z": -174.36,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.68,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 782.53,
+			"z": -173.38,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.4,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 789.19,
+			"z": -173.26,
+			"rotacion_y": -0.089,
+			"ancho": 6.26,
+			"fondo": 5.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 796.49,
+			"z": -172.48,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 804.05,
+			"z": -171.9,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 5.68,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 810.23,
+			"z": -171.25,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 817.94,
+			"z": -170.56,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 824.58,
+			"z": -169.79,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.5,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 846.03,
+			"z": -168.06,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.2,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 852.21,
+			"z": -167.82,
+			"rotacion_y": -0.089,
+			"ancho": 6.14,
+			"fondo": 6.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 859.71,
+			"z": -166.48,
+			"rotacion_y": 3.0526,
+			"ancho": 5.48,
+			"fondo": 6.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 866.97,
+			"z": -166.14,
+			"rotacion_y": -0.089,
+			"ancho": 6.36,
+			"fondo": 5.74,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 873.12,
+			"z": -165.59,
+			"rotacion_y": 3.0526,
+			"ancho": 5.98,
+			"fondo": 5.74,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 880.83,
+			"z": -164.95,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.28,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 894.47,
+			"z": -163.74,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.34,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 905.25,
+			"z": -162.87,
+			"rotacion_y": 3.0526,
+			"ancho": 12.12,
+			"fondo": 5.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 753.94,
+			"z": -169.67,
+			"rotacion_y": -0.089,
+			"ancho": 5.04,
+			"fondo": 6.06,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 761.38,
+			"z": -168.17,
+			"rotacion_y": -1.6598,
+			"ancho": 6.42,
+			"fondo": 6.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 767.92,
+			"z": -167.99,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.62,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 774.61,
+			"z": -167.34,
+			"rotacion_y": 1.4818,
+			"ancho": 5.62,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 795.43,
+			"z": -165.46,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 6.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 802.91,
+			"z": -164.39,
+			"rotacion_y": 3.0526,
+			"ancho": 4.98,
+			"fondo": 6.28,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 810.12,
+			"z": -164.15,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.3,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 817.35,
+			"z": -163.97,
+			"rotacion_y": -0.089,
+			"ancho": 6.32,
+			"fondo": 6.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 823.97,
+			"z": -162.94,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.82,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 830.97,
+			"z": -162.2,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 837.94,
+			"z": -161.19,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 844.56,
+			"z": -161.54,
+			"rotacion_y": 1.4818,
+			"ancho": 6.16,
+			"fondo": 6.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 855.64,
+			"z": -160.18,
+			"rotacion_y": -0.089,
+			"ancho": 12.46,
+			"fondo": 5.66,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 865.82,
+			"z": -158.86,
+			"rotacion_y": 3.0526,
+			"ancho": 5.38,
+			"fondo": 6.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 873.53,
+			"z": -158.73,
+			"rotacion_y": 3.0526,
+			"ancho": 6.04,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 879.72,
+			"z": -158.49,
+			"rotacion_y": -0.089,
+			"ancho": 6.34,
+			"fondo": 5.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 887.38,
+			"z": -157.26,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 894.08,
+			"z": -157.2,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 908.19,
+			"z": -155.92,
+			"rotacion_y": -0.089,
+			"ancho": 5.02,
+			"fondo": 6.06,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 738.86,
+			"z": -162.88,
+			"rotacion_y": 1.4818,
+			"ancho": 6.06,
+			"fondo": 6.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 750.12,
+			"z": -162.41,
+			"rotacion_y": -0.089,
+			"ancho": 13.36,
+			"fondo": 5.0,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 767.7,
+			"z": -160.95,
+			"rotacion_y": 3.0526,
+			"ancho": 6.24,
+			"fondo": 5.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 774.29,
+			"z": -160.16,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.7,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 781.29,
+			"z": -159.47,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.48,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 787.77,
+			"z": -158.92,
+			"rotacion_y": 3.0526,
+			"ancho": 5.96,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 802.14,
+			"z": -157.75,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 809.87,
+			"z": -157.4,
+			"rotacion_y": -0.089,
+			"ancho": 6.0,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 816.29,
+			"z": -156.02,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.16,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 823.36,
+			"z": -156.07,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 829.95,
+			"z": -154.88,
+			"rotacion_y": 3.0526,
+			"ancho": 6.3,
+			"fondo": 6.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 837.3,
+			"z": -155.14,
+			"rotacion_y": -0.089,
+			"ancho": 5.38,
+			"fondo": 6.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 848.01,
+			"z": -153.63,
+			"rotacion_y": 1.4818,
+			"ancho": 5.26,
+			"fondo": 12.5,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 864.93,
+			"z": -152.59,
+			"rotacion_y": -0.089,
+			"ancho": 6.04,
+			"fondo": 6.2,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 872.83,
+			"z": -150.89,
+			"rotacion_y": -1.6598,
+			"ancho": 5.98,
+			"fondo": 6.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 879.39,
+			"z": -150.83,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 4.94,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 885.87,
+			"z": -150.28,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 893.88,
+			"z": -149.01,
+			"rotacion_y": -1.6598,
+			"ancho": 6.0,
+			"fondo": 5.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 900.4,
+			"z": -148.88,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 907.03,
+			"z": -148.35,
+			"rotacion_y": 3.0526,
+			"ancho": 6.26,
+			"fondo": 5.08,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 738.82,
+			"z": -156.28,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.24,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 745.48,
+			"z": -155.69,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 753.1,
+			"z": -154.48,
+			"rotacion_y": -1.6598,
+			"ancho": 6.02,
+			"fondo": 6.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 763.14,
+			"z": -153.96,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 773.68,
+			"z": -153.34,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.52,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 780.67,
+			"z": -152.62,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.64,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 791.18,
+			"z": -151.65,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.58,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 801.21,
+			"z": -151.12,
+			"rotacion_y": -0.089,
+			"ancho": 6.0,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 808.84,
+			"z": -149.69,
+			"rotacion_y": 1.4818,
+			"ancho": 6.4,
+			"fondo": 5.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 815.56,
+			"z": -149.44,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 823.18,
+			"z": -148.59,
+			"rotacion_y": -1.6598,
+			"ancho": 5.26,
+			"fondo": 6.06,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 829.76,
+			"z": -148.68,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 839.91,
+			"z": -147.12,
+			"rotacion_y": 1.4818,
+			"ancho": 5.28,
+			"fondo": 13.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 854.13,
+			"z": -145.98,
+			"rotacion_y": -1.6598,
+			"ancho": 5.32,
+			"fondo": 12.64,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 864.67,
+			"z": -145.04,
+			"rotacion_y": -0.089,
+			"ancho": 5.22,
+			"fondo": 5.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 871.92,
+			"z": -144.85,
+			"rotacion_y": -1.6598,
+			"ancho": 6.22,
+			"fondo": 5.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 878.76,
+			"z": -143.27,
+			"rotacion_y": 3.0526,
+			"ancho": 5.64,
+			"fondo": 6.04,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 885.59,
+			"z": -143.53,
+			"rotacion_y": -0.089,
+			"ancho": 5.32,
+			"fondo": 6.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 892.99,
+			"z": -142.53,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.34,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 906.78,
+			"z": -141.19,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 738.19,
+			"z": -149.23,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 745.4,
+			"z": -149.1,
+			"rotacion_y": -0.089,
+			"ancho": 6.32,
+			"fondo": 6.04,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 751.73,
+			"z": -148.33,
+			"rotacion_y": 1.4818,
+			"ancho": 6.46,
+			"fondo": 6.4,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 758.79,
+			"z": -147.01,
+			"rotacion_y": 1.4818,
+			"ancho": 6.34,
+			"fondo": 5.4,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 766.57,
+			"z": -147.13,
+			"rotacion_y": -1.6598,
+			"ancho": 6.22,
+			"fondo": 6.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 787.01,
+			"z": -144.47,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 801.48,
+			"z": -143.18,
+			"rotacion_y": -1.6598,
+			"ancho": 6.3,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 807.77,
+			"z": -143.51,
+			"rotacion_y": 1.4818,
+			"ancho": 6.1,
+			"fondo": 6.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 814.93,
+			"z": -142.38,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 822.58,
+			"z": -141.87,
+			"rotacion_y": -0.089,
+			"ancho": 6.06,
+			"fondo": 5.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 828.71,
+			"z": -141.18,
+			"rotacion_y": -0.089,
+			"ancho": 6.28,
+			"fondo": 5.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 836.06,
+			"z": -140.11,
+			"rotacion_y": 3.0526,
+			"ancho": 5.52,
+			"fondo": 6.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 846.98,
+			"z": -139.55,
+			"rotacion_y": -1.6598,
+			"ancho": 5.28,
+			"fondo": 13.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 857.1,
+			"z": -138.53,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.52,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 864.11,
+			"z": -137.9,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.52,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 871.13,
+			"z": -137.44,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.2,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 885.15,
+			"z": -136.29,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.38,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 895.66,
+			"z": -135.31,
+			"rotacion_y": 3.0526,
+			"ancho": 14.06,
+			"fondo": 5.3,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 905.74,
+			"z": -134.35,
+			"rotacion_y": 1.4818,
+			"ancho": 5.42,
+			"fondo": 6.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 737.95,
+			"z": -142.54,
+			"rotacion_y": -1.6598,
+			"ancho": 6.28,
+			"fondo": 5.94,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 743.85,
+			"z": -141.49,
+			"rotacion_y": 3.0526,
+			"ancho": 6.0,
+			"fondo": 5.24,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 757.92,
+			"z": -140.75,
+			"rotacion_y": -0.089,
+			"ancho": 6.02,
+			"fondo": 6.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 765.86,
+			"z": -139.2,
+			"rotacion_y": 3.0526,
+			"ancho": 6.02,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 771.95,
+			"z": -139.05,
+			"rotacion_y": -0.089,
+			"ancho": 6.12,
+			"fondo": 5.64,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 779.43,
+			"z": -138.04,
+			"rotacion_y": 1.4818,
+			"ancho": 6.32,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 786.44,
+			"z": -137.81,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.48,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 800.3,
+			"z": -136.57,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 811.43,
+			"z": -135.46,
+			"rotacion_y": -0.089,
+			"ancho": 13.06,
+			"fondo": 5.36,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 821.43,
+			"z": -134.51,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 835.43,
+			"z": -133.95,
+			"rotacion_y": -1.6598,
+			"ancho": 6.06,
+			"fondo": 5.66,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 842.88,
+			"z": -133.16,
+			"rotacion_y": -0.089,
+			"ancho": 6.28,
+			"fondo": 6.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 849.47,
+			"z": -132.1,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.38,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 859.56,
+			"z": -131.32,
+			"rotacion_y": -0.089,
+			"ancho": 13.2,
+			"fondo": 5.62,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 874.04,
+			"z": -129.94,
+			"rotacion_y": -0.089,
+			"ancho": 12.42,
+			"fondo": 5.14,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 884.38,
+			"z": -128.55,
+			"rotacion_y": -1.6598,
+			"ancho": 6.06,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 891.98,
+			"z": -128.36,
+			"rotacion_y": -1.6598,
+			"ancho": 5.08,
+			"fondo": 6.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 898.52,
+			"z": -127.83,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.2,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 905.07,
+			"z": -126.76,
+			"rotacion_y": 1.4818,
+			"ancho": 6.18,
+			"fondo": 6.18,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 736.73,
+			"z": -135.1,
+			"rotacion_y": 3.0526,
+			"ancho": 4.86,
+			"fondo": 5.54,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 758.08,
+			"z": -132.82,
+			"rotacion_y": 3.0526,
+			"ancho": 6.32,
+			"fondo": 6.28,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 764.8,
+			"z": -133.02,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 771.34,
+			"z": -132.21,
+			"rotacion_y": -0.089,
+			"ancho": 6.12,
+			"fondo": 5.4,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 778.83,
+			"z": -131.37,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.32,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 789.36,
+			"z": -130.98,
+			"rotacion_y": 1.4818,
+			"ancho": 6.0,
+			"fondo": 12.52,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 799.67,
+			"z": -129.51,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 806.85,
+			"z": -128.87,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 813.76,
+			"z": -127.88,
+			"rotacion_y": 3.0526,
+			"ancho": 5.16,
+			"fondo": 6.34,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 821.29,
+			"z": -127.57,
+			"rotacion_y": -1.6598,
+			"ancho": 5.62,
+			"fondo": 6.08,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 827.83,
+			"z": -127.03,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 4.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 834.84,
+			"z": -126.4,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 4.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 841.44,
+			"z": -125.4,
+			"rotacion_y": 1.4818,
+			"ancho": 6.32,
+			"fondo": 6.3,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 859.81,
+			"z": -124.28,
+			"rotacion_y": 3.0526,
+			"ancho": 13.18,
+			"fondo": 5.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 869.32,
+			"z": -122.83,
+			"rotacion_y": 3.0526,
+			"ancho": 6.02,
+			"fondo": 6.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 876.98,
+			"z": -122.61,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.24,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 883.8,
+			"z": -122.0,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 890.85,
+			"z": -120.89,
+			"rotacion_y": 1.4818,
+			"ancho": 6.12,
+			"fondo": 5.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 898.3,
+			"z": -120.22,
+			"rotacion_y": 3.0526,
+			"ancho": 6.12,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 736.61,
+			"z": -127.65,
+			"rotacion_y": 3.0526,
+			"ancho": 5.96,
+			"fondo": 6.34,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 743.16,
+			"z": -127.9,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 750.12,
+			"z": -126.77,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.18,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 756.74,
+			"z": -126.69,
+			"rotacion_y": 1.4818,
+			"ancho": 6.18,
+			"fondo": 6.16,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 764.57,
+			"z": -125.59,
+			"rotacion_y": -0.089,
+			"ancho": 6.16,
+			"fondo": 5.38,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 774.24,
+			"z": -124.57,
+			"rotacion_y": 1.4818,
+			"ancho": 5.26,
+			"fondo": 13.26,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 785.06,
+			"z": -123.7,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.24,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 792.61,
+			"z": -122.48,
+			"rotacion_y": 3.0526,
+			"ancho": 6.04,
+			"fondo": 6.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 798.71,
+			"z": -122.96,
+			"rotacion_y": -0.089,
+			"ancho": 6.02,
+			"fondo": 6.14,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 806.22,
+			"z": -121.81,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.1,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 820.66,
+			"z": -120.52,
+			"rotacion_y": 3.0526,
+			"ancho": 6.08,
+			"fondo": 5.66,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 827.15,
+			"z": -119.4,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.0,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 841.66,
+			"z": -118.65,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 6.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 848.19,
+			"z": -117.76,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 6.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 854.75,
+			"z": -118.02,
+			"rotacion_y": -0.089,
+			"ancho": 5.98,
+			"fondo": 6.02,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 869.28,
+			"z": -116.54,
+			"rotacion_y": -1.6598,
+			"ancho": 6.4,
+			"fondo": 5.0,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 879.86,
+			"z": -115.74,
+			"rotacion_y": -1.6598,
+			"ancho": 6.1,
+			"fondo": 12.2,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 890.23,
+			"z": -114.32,
+			"rotacion_y": -1.6598,
+			"ancho": 7.08,
+			"fondo": 5.26,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 904.68,
+			"z": -113.04,
+			"rotacion_y": 3.0526,
+			"ancho": 6.22,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 736.04,
+			"z": -121.29,
+			"rotacion_y": -0.089,
+			"ancho": 5.96,
+			"fondo": 6.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 742.47,
+			"z": -120.26,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.54,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 752.99,
+			"z": -119.37,
+			"rotacion_y": -0.089,
+			"ancho": 14.06,
+			"fondo": 5.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 773.66,
+			"z": -117.58,
+			"rotacion_y": 1.4818,
+			"ancho": 5.5,
+			"fondo": 13.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 784.35,
+			"z": -116.65,
+			"rotacion_y": 1.4818,
+			"ancho": 7.08,
+			"fondo": 5.28,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 798.53,
+			"z": -114.91,
+			"rotacion_y": -1.6598,
+			"ancho": 6.14,
+			"fondo": 5.1,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 806.05,
+			"z": -115.15,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 6.22,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 812.09,
+			"z": -114.3,
+			"rotacion_y": 3.0526,
+			"ancho": 6.08,
+			"fondo": 5.62,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 820.05,
+			"z": -113.63,
+			"rotacion_y": -0.089,
+			"ancho": 6.08,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 826.09,
+			"z": -113.24,
+			"rotacion_y": -0.089,
+			"ancho": 6.02,
+			"fondo": 6.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 834.04,
+			"z": -111.79,
+			"rotacion_y": -1.6598,
+			"ancho": 6.24,
+			"fondo": 6.02,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 840.14,
+			"z": -112.0,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 6.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 847.72,
+			"z": -111.33,
+			"rotacion_y": 1.4818,
+			"ancho": 6.44,
+			"fondo": 5.38,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 858.43,
+			"z": -109.83,
+			"rotacion_y": 3.0526,
+			"ancho": 13.36,
+			"fondo": 5.36,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 868.62,
+			"z": -109.26,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 875.11,
+			"z": -108.85,
+			"rotacion_y": -0.089,
+			"ancho": 5.98,
+			"fondo": 6.48,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 882.67,
+			"z": -107.38,
+			"rotacion_y": -1.6598,
+			"ancho": 6.1,
+			"fondo": 5.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 734.86,
+			"z": -114.07,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.56,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 741.87,
+			"z": -113.44,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.56,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 748.87,
+			"z": -112.82,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.56,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 755.86,
+			"z": -112.01,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 5.72,
+			"pisos": 1,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 762.87,
+			"z": -111.33,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.46,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 769.89,
+			"z": -110.89,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 776.9,
+			"z": -110.26,
+			"rotacion_y": 3.0526,
+			"ancho": 7.04,
+			"fondo": 5.44,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 783.41,
+			"z": -110.07,
+			"rotacion_y": 1.4818,
+			"ancho": 6.2,
+			"fondo": 5.98,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 791.42,
+			"z": -108.81,
+			"rotacion_y": -0.089,
+			"ancho": 5.98,
+			"fondo": 5.12,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 797.94,
+			"z": -108.66,
+			"rotacion_y": -0.089,
+			"ancho": 7.04,
+			"fondo": 6.42,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		},
+		{
+			"modelo": "blender",
+			"x": 804.46,
+			"z": -107.76,
+			"rotacion_y": -0.089,
+			"ancho": 6.1,
+			"fondo": 5.32,
+			"pisos": 2,
+			"colonia": "LA_GOTERA_FAVELA"
+		}
+	]
+}

@@ -1,0 +1,3139 @@
+{
+	"colonia": "la_gotera_favela",
+	"recorte": [730.0, -336.0, 914.0, -104.0],
+	"marcas": [
+		{
+			"nombre": "Spawn",
+			"tipo": "spawn",
+			"x": 737.0,
+			"z": -271.9,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Boca_privada_fuga",
+			"tipo": "paso",
+			"lado": "privada_fuga",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -308.8,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -308.8]
+		},
+		{
+			"nombre": "Guardia_privada_fuga",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_29",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -311.0,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_roble_quebrado",
+			"tipo": "paso",
+			"lado": "roble_quebrado",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -271.9,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -271.9]
+		},
+		{
+			"nombre": "Guardia_roble_quebrado",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_30",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -274.1,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_parota",
+			"tipo": "paso",
+			"lado": "parota",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -228.0,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -228.0]
+		},
+		{
+			"nombre": "Guardia_parota",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_31",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -230.2,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_caobilla",
+			"tipo": "paso",
+			"lado": "caobilla",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -181.6,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -181.6]
+		},
+		{
+			"nombre": "Guardia_caobilla",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_32",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -183.8,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_sin_numero",
+			"tipo": "paso",
+			"lado": "sin_numero",
+			"a": "la_gotera",
+			"x": 733.5,
+			"z": -145.9,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [736.0, -145.9]
+		},
+		{
+			"nombre": "Guardia_sin_numero",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_16",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -148.1,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Nemesio_Plaza",
+			"tipo": "mision",
+			"x": 796.0,
+			"z": -222.0,
+			"rot": -1.6598
+		},
+		{
+			"nombre": "Nemesio_Casa",
+			"tipo": "mision",
+			"x": 890.0,
+			"z": -246.0,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Plaza_Letrero",
+			"tipo": "letrero",
+			"texto": "Plaza de los Gotera",
+			"x": 806.0,
+			"z": -238.0,
+			"y": 3.2,
+			"rot": 3.0526
+		},
+		{
+			"nombre": "Nemesio_Letrero",
+			"tipo": "letrero",
+			"texto": "Don Nemesio",
+			"x": 891.5,
+			"z": -246.0,
+			"y": 3.0,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Plaza_Ninos",
+			"tipo": "ninos",
+			"x": 806.0,
+			"z": -222.0,
+			"rot": -0.089,
+			"tam": [9.0, 16.0],
+			"cuantos": 6
+		},
+		{
+			"nombre": "Plaza_Reflector_0",
+			"tipo": "reflector",
+			"x": 800.0,
+			"z": -231.0,
+			"y": 5.0,
+			"rot": -0.689,
+			"baja": 40
+		},
+		{
+			"nombre": "Plaza_Reflector_1",
+			"tipo": "reflector",
+			"x": 812.0,
+			"z": -213.0,
+			"y": 5.0,
+			"rot": 2.4526,
+			"baja": 40
+		},
+		{
+			"nombre": "Gotera_Plaza_0",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_30",
+			"clip": "Idle_Talking",
+			"x": 797.0,
+			"z": -224.5,
+			"rot": -1.6598
+		},
+		{
+			"nombre": "Gotera_Plaza_1",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_31",
+			"clip": "Idle",
+			"x": 797.2,
+			"z": -226.0,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Gotera_Nemesio",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_13",
+			"clip": "Idle",
+			"x": 891.0,
+			"z": -243.5,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Puerta_purificadora_0",
+			"tipo": "puerta",
+			"auto": true,
+			"giro": "purificadora",
+			"texto": "Bodega del Agua",
+			"x": 754.72,
+			"z": -300.47,
+			"rot": -1.6598,
+			"local": true
+		},
+		{
+			"nombre": "Tunel_Entrada_0",
+			"tipo": "mision",
+			"favela": true,
+			"x": 742.52,
+			"z": -276.94,
+			"rot": -0.089
+		},
+		{
+			"nombre": "Tunel_Entrada_1",
+			"tipo": "mision",
+			"favela": true,
+			"x": 739.8,
+			"z": -241.67,
+			"rot": -0.089
+		},
+		{
+			"nombre": "Tunel_Entrada_2",
+			"tipo": "mision",
+			"favela": true,
+			"x": 740.15,
+			"z": -170.41,
+			"rot": -0.089
+		},
+		{
+			"nombre": "Bodega_Agua",
+			"tipo": "mision",
+			"favela": true,
+			"x": 789.59,
+			"z": -241.24,
+			"y": -4.2,
+			"rot": -0.089
+		},
+		{
+			"nombre": "Puerta_Tunel_Tienda_2",
+			"tipo": "puerta",
+			"favela": true,
+			"giro": "tiendita",
+			"texto": "Fayuca del Túnel",
+			"x": 812.58,
+			"z": -233.07,
+			"y": -4.2,
+			"rot": 3.0526
+		},
+		{
+			"nombre": "Puerta_Tunel_Tienda_4",
+			"tipo": "puerta",
+			"favela": true,
+			"giro": "tiendita",
+			"texto": "Fayuca del Túnel",
+			"x": 859.63,
+			"z": -228.87,
+			"y": -4.2,
+			"rot": 3.0526
+		},
+		{
+			"nombre": "Valvula",
+			"tipo": "mision",
+			"favela": true,
+			"x": 906.48,
+			"z": -222.28,
+			"y": -4.2,
+			"rot": 3.0526
+		},
+		{
+			"nombre": "Letrero_Valvula",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "La toma. Ni la toques.",
+			"x": 906.48,
+			"z": -222.28,
+			"y": -2.3000000000000003,
+			"rot": 3.0526
+		},
+		{
+			"nombre": "Boca_Tuneles",
+			"tipo": "mision",
+			"favela": true,
+			"x": 916.7,
+			"z": -225.89,
+			"y": -4.2,
+			"rot": 3.0526
+		},
+		{
+			"nombre": "Letrero_Tuneles",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "A los cárcamos. No pasar",
+			"x": 916.7,
+			"z": -225.89,
+			"y": -2.4000000000000004,
+			"rot": 3.0526
+		},
+		{
+			"nombre": "Foco_0",
+			"tipo": "foco",
+			"x": 854.17,
+			"z": -334.51,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_1",
+			"tipo": "foco",
+			"x": 885.83,
+			"z": -331.68,
+			"y": 3.46
+		},
+		{
+			"nombre": "Foco_2",
+			"tipo": "foco",
+			"x": 905.09,
+			"z": -329.96,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_3",
+			"tipo": "foco",
+			"x": 777.74,
+			"z": -334.22,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_4",
+			"tipo": "foco",
+			"x": 793.12,
+			"z": -332.85,
+			"y": 3.76
+		},
+		{
+			"nombre": "Foco_5",
+			"tipo": "foco",
+			"x": 811.0,
+			"z": -331.25,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_6",
+			"tipo": "foco",
+			"x": 828.99,
+			"z": -329.64,
+			"y": 3.58
+		},
+		{
+			"nombre": "Foco_7",
+			"tipo": "foco",
+			"x": 849.47,
+			"z": -327.81,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_8",
+			"tipo": "foco",
+			"x": 875.14,
+			"z": -325.53,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_9",
+			"tipo": "foco",
+			"x": 887.6,
+			"z": -324.42,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_10",
+			"tipo": "foco",
+			"x": 902.54,
+			"z": -323.07,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_11",
+			"tipo": "foco",
+			"x": 749.0,
+			"z": -329.66,
+			"y": 3.46
+		},
+		{
+			"nombre": "Foco_12",
+			"tipo": "foco",
+			"x": 762.09,
+			"z": -328.5,
+			"y": 3.59
+		},
+		{
+			"nombre": "Foco_13",
+			"tipo": "foco",
+			"x": 774.67,
+			"z": -327.37,
+			"y": 3.63
+		},
+		{
+			"nombre": "Foco_14",
+			"tipo": "foco",
+			"x": 826.34,
+			"z": -322.76,
+			"y": 3.63
+		},
+		{
+			"nombre": "Foco_15",
+			"tipo": "foco",
+			"x": 853.58,
+			"z": -320.33,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_16",
+			"tipo": "foco",
+			"x": 881.46,
+			"z": -317.84,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_17",
+			"tipo": "foco",
+			"x": 894.71,
+			"z": -316.66,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_18",
+			"tipo": "foco",
+			"x": 902.39,
+			"z": -315.98,
+			"y": 3.76
+		},
+		{
+			"nombre": "Foco_19",
+			"tipo": "foco",
+			"x": 776.18,
+			"z": -320.12,
+			"y": 3.82
+		},
+		{
+			"nombre": "Foco_20",
+			"tipo": "foco",
+			"x": 805.33,
+			"z": -317.52,
+			"y": 3.82
+		},
+		{
+			"nombre": "Foco_21",
+			"tipo": "foco",
+			"x": 823.2,
+			"z": -315.93,
+			"y": 3.8
+		},
+		{
+			"nombre": "Foco_22",
+			"tipo": "foco",
+			"x": 755.36,
+			"z": -314.87,
+			"y": 3.59
+		},
+		{
+			"nombre": "Foco_23",
+			"tipo": "foco",
+			"x": 781.75,
+			"z": -312.52,
+			"y": 3.81
+		},
+		{
+			"nombre": "Foco_24",
+			"tipo": "foco",
+			"x": 795.58,
+			"z": -311.28,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_25",
+			"tipo": "foco",
+			"x": 809.97,
+			"z": -309.99,
+			"y": 3.36
+		},
+		{
+			"nombre": "Foco_26",
+			"tipo": "foco",
+			"x": 831.36,
+			"z": -308.08,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_27",
+			"tipo": "foco",
+			"x": 866.75,
+			"z": -304.93,
+			"y": 3.88
+		},
+		{
+			"nombre": "Foco_28",
+			"tipo": "foco",
+			"x": 738.88,
+			"z": -309.22,
+			"y": 3.68
+		},
+		{
+			"nombre": "Foco_29",
+			"tipo": "foco",
+			"x": 788.08,
+			"z": -304.84,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_30",
+			"tipo": "foco",
+			"x": 800.79,
+			"z": -303.71,
+			"y": 3.36
+		},
+		{
+			"nombre": "Foco_31",
+			"tipo": "foco",
+			"x": 833.59,
+			"z": -300.78,
+			"y": 3.37
+		},
+		{
+			"nombre": "Foco_32",
+			"tipo": "foco",
+			"x": 851.07,
+			"z": -299.22,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_33",
+			"tipo": "foco",
+			"x": 747.96,
+			"z": -301.3,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_34",
+			"tipo": "foco",
+			"x": 790.73,
+			"z": -297.49,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_35",
+			"tipo": "foco",
+			"x": 822.56,
+			"z": -294.64,
+			"y": 3.73
+		},
+		{
+			"nombre": "Foco_36",
+			"tipo": "foco",
+			"x": 851.07,
+			"z": -292.1,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_37",
+			"tipo": "foco",
+			"x": 761.2,
+			"z": -293.0,
+			"y": 3.39
+		},
+		{
+			"nombre": "Foco_38",
+			"tipo": "foco",
+			"x": 801.44,
+			"z": -289.41,
+			"y": 3.9
+		},
+		{
+			"nombre": "Foco_39",
+			"tipo": "foco",
+			"x": 845.38,
+			"z": -285.5,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_40",
+			"tipo": "foco",
+			"x": 800.45,
+			"z": -282.39,
+			"y": 3.58
+		},
+		{
+			"nombre": "Foco_41",
+			"tipo": "foco",
+			"x": 850.96,
+			"z": -277.89,
+			"y": 3.54
+		},
+		{
+			"nombre": "Foco_42",
+			"tipo": "foco",
+			"x": 884.16,
+			"z": -274.92,
+			"y": 3.39
+		},
+		{
+			"nombre": "Foco_43",
+			"tipo": "foco",
+			"x": 898.67,
+			"z": -273.62,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_44",
+			"tipo": "foco",
+			"x": 772.37,
+			"z": -277.79,
+			"y": 3.57
+		},
+		{
+			"nombre": "Foco_45",
+			"tipo": "foco",
+			"x": 834.26,
+			"z": -272.26,
+			"y": 3.6
+		},
+		{
+			"nombre": "Foco_46",
+			"tipo": "foco",
+			"x": 843.77,
+			"z": -271.41,
+			"y": 3.48
+		},
+		{
+			"nombre": "Foco_47",
+			"tipo": "foco",
+			"x": 871.06,
+			"z": -268.97,
+			"y": 3.59
+		},
+		{
+			"nombre": "Foco_48",
+			"tipo": "foco",
+			"x": 886.66,
+			"z": -267.58,
+			"y": 3.6
+		},
+		{
+			"nombre": "Foco_49",
+			"tipo": "foco",
+			"x": 904.59,
+			"z": -265.98,
+			"y": 3.57
+		},
+		{
+			"nombre": "Foco_50",
+			"tipo": "foco",
+			"x": 772.49,
+			"z": -270.66,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_51",
+			"tipo": "foco",
+			"x": 863.55,
+			"z": -262.53,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_52",
+			"tipo": "foco",
+			"x": 883.41,
+			"z": -260.76,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_53",
+			"tipo": "foco",
+			"x": 905.48,
+			"z": -258.79,
+			"y": 3.69
+		},
+		{
+			"nombre": "Foco_54",
+			"tipo": "foco",
+			"x": 773.33,
+			"z": -263.47,
+			"y": 3.6
+		},
+		{
+			"nombre": "Foco_55",
+			"tipo": "foco",
+			"x": 784.69,
+			"z": -262.46,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_56",
+			"tipo": "foco",
+			"x": 812.39,
+			"z": -259.98,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_57",
+			"tipo": "foco",
+			"x": 833.01,
+			"z": -258.14,
+			"y": 3.36
+		},
+		{
+			"nombre": "Foco_58",
+			"tipo": "foco",
+			"x": 864.16,
+			"z": -255.36,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_59",
+			"tipo": "foco",
+			"x": 892.58,
+			"z": -252.82,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_60",
+			"tipo": "foco",
+			"x": 741.43,
+			"z": -259.21,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_61",
+			"tipo": "foco",
+			"x": 786.6,
+			"z": -255.17,
+			"y": 3.79
+		},
+		{
+			"nombre": "Foco_62",
+			"tipo": "foco",
+			"x": 854.32,
+			"z": -249.12,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_63",
+			"tipo": "foco",
+			"x": 867.65,
+			"z": -247.94,
+			"y": 3.56
+		},
+		{
+			"nombre": "Foco_64",
+			"tipo": "foco",
+			"x": 740.95,
+			"z": -252.13,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_65",
+			"tipo": "foco",
+			"x": 839.26,
+			"z": -243.36,
+			"y": 3.79
+		},
+		{
+			"nombre": "Foco_66",
+			"tipo": "foco",
+			"x": 855.88,
+			"z": -241.87,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_67",
+			"tipo": "foco",
+			"x": 880.87,
+			"z": -239.64,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_68",
+			"tipo": "foco",
+			"x": 904.85,
+			"z": -237.51,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_69",
+			"tipo": "foco",
+			"x": 761.67,
+			"z": -243.17,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_70",
+			"tipo": "foco",
+			"x": 774.86,
+			"z": -241.99,
+			"y": 3.46
+		},
+		{
+			"nombre": "Foco_71",
+			"tipo": "foco",
+			"x": 805.19,
+			"z": -239.28,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_72",
+			"tipo": "foco",
+			"x": 839.04,
+			"z": -236.26,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_73",
+			"tipo": "foco",
+			"x": 869.86,
+			"z": -233.52,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_74",
+			"tipo": "foco",
+			"x": 739.88,
+			"z": -238.0,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_75",
+			"tipo": "foco",
+			"x": 859.44,
+			"z": -227.33,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_76",
+			"tipo": "foco",
+			"x": 907.86,
+			"z": -223.01,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_77",
+			"tipo": "foco",
+			"x": 760.47,
+			"z": -229.05,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_78",
+			"tipo": "foco",
+			"x": 851.25,
+			"z": -220.94,
+			"y": 3.44
+		},
+		{
+			"nombre": "Foco_79",
+			"tipo": "foco",
+			"x": 879.57,
+			"z": -218.42,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_80",
+			"tipo": "foco",
+			"x": 753.12,
+			"z": -222.59,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_81",
+			"tipo": "foco",
+			"x": 893.02,
+			"z": -210.1,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_82",
+			"tipo": "foco",
+			"x": 772.99,
+			"z": -213.7,
+			"y": 3.57
+		},
+		{
+			"nombre": "Foco_83",
+			"tipo": "foco",
+			"x": 786.66,
+			"z": -212.48,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_84",
+			"tipo": "foco",
+			"x": 885.62,
+			"z": -203.65,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_85",
+			"tipo": "foco",
+			"x": 736.96,
+			"z": -209.8,
+			"y": 3.52
+		},
+		{
+			"nombre": "Foco_86",
+			"tipo": "foco",
+			"x": 779.87,
+			"z": -205.98,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_87",
+			"tipo": "foco",
+			"x": 796.65,
+			"z": -204.48,
+			"y": 3.48
+		},
+		{
+			"nombre": "Foco_88",
+			"tipo": "foco",
+			"x": 807.81,
+			"z": -203.48,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_89",
+			"tipo": "foco",
+			"x": 822.25,
+			"z": -202.19,
+			"y": 3.36
+		},
+		{
+			"nombre": "Foco_90",
+			"tipo": "foco",
+			"x": 858.83,
+			"z": -198.93,
+			"y": 3.79
+		},
+		{
+			"nombre": "Foco_91",
+			"tipo": "foco",
+			"x": 780.27,
+			"z": -198.82,
+			"y": 3.38
+		},
+		{
+			"nombre": "Foco_92",
+			"tipo": "foco",
+			"x": 803.02,
+			"z": -196.8,
+			"y": 3.64
+		},
+		{
+			"nombre": "Foco_93",
+			"tipo": "foco",
+			"x": 848.4,
+			"z": -192.74,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_94",
+			"tipo": "foco",
+			"x": 736.47,
+			"z": -195.62,
+			"y": 3.94
+		},
+		{
+			"nombre": "Foco_95",
+			"tipo": "foco",
+			"x": 744.46,
+			"z": -194.91,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_96",
+			"tipo": "foco",
+			"x": 777.88,
+			"z": -191.92,
+			"y": 3.63
+		},
+		{
+			"nombre": "Foco_97",
+			"tipo": "foco",
+			"x": 805.8,
+			"z": -189.43,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_98",
+			"tipo": "foco",
+			"x": 820.62,
+			"z": -188.11,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_99",
+			"tipo": "foco",
+			"x": 833.98,
+			"z": -186.92,
+			"y": 3.56
+		},
+		{
+			"nombre": "Foco_100",
+			"tipo": "foco",
+			"x": 876.05,
+			"z": -183.16,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_101",
+			"tipo": "foco",
+			"x": 744.26,
+			"z": -187.81,
+			"y": 3.42
+		},
+		{
+			"nombre": "Foco_102",
+			"tipo": "foco",
+			"x": 794.19,
+			"z": -183.36,
+			"y": 3.75
+		},
+		{
+			"nombre": "Foco_103",
+			"tipo": "foco",
+			"x": 833.6,
+			"z": -179.84,
+			"y": 3.79
+		},
+		{
+			"nombre": "Foco_104",
+			"tipo": "foco",
+			"x": 854.19,
+			"z": -178.0,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_105",
+			"tipo": "foco",
+			"x": 883.97,
+			"z": -175.35,
+			"y": 3.44
+		},
+		{
+			"nombre": "Foco_106",
+			"tipo": "foco",
+			"x": 763.0,
+			"z": -179.02,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_107",
+			"tipo": "foco",
+			"x": 778.52,
+			"z": -177.64,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_108",
+			"tipo": "foco",
+			"x": 834.95,
+			"z": -172.61,
+			"y": 3.57
+		},
+		{
+			"nombre": "Foco_109",
+			"tipo": "foco",
+			"x": 860.96,
+			"z": -170.29,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_110",
+			"tipo": "foco",
+			"x": 765.39,
+			"z": -171.69,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_111",
+			"tipo": "foco",
+			"x": 776.72,
+			"z": -170.69,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_112",
+			"tipo": "foco",
+			"x": 790.09,
+			"z": -169.49,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_113",
+			"tipo": "foco",
+			"x": 825.5,
+			"z": -166.33,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_114",
+			"tipo": "foco",
+			"x": 835.65,
+			"z": -165.43,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_115",
+			"tipo": "foco",
+			"x": 867.23,
+			"z": -162.61,
+			"y": 3.44
+		},
+		{
+			"nombre": "Foco_116",
+			"tipo": "foco",
+			"x": 902.56,
+			"z": -159.46,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_117",
+			"tipo": "foco",
+			"x": 741.61,
+			"z": -166.7,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_118",
+			"tipo": "foco",
+			"x": 754.61,
+			"z": -165.54,
+			"y": 3.51
+		},
+		{
+			"nombre": "Foco_119",
+			"tipo": "foco",
+			"x": 783.11,
+			"z": -163.0,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_120",
+			"tipo": "foco",
+			"x": 877.05,
+			"z": -154.62,
+			"y": 3.56
+		},
+		{
+			"nombre": "Foco_121",
+			"tipo": "foco",
+			"x": 894.99,
+			"z": -153.01,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_122",
+			"tipo": "foco",
+			"x": 755.64,
+			"z": -158.34,
+			"y": 3.73
+		},
+		{
+			"nombre": "Foco_123",
+			"tipo": "foco",
+			"x": 782.42,
+			"z": -155.95,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_124",
+			"tipo": "foco",
+			"x": 795.63,
+			"z": -154.77,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_125",
+			"tipo": "foco",
+			"x": 854.53,
+			"z": -149.52,
+			"y": 3.64
+		},
+		{
+			"nombre": "Foco_126",
+			"tipo": "foco",
+			"x": 880.58,
+			"z": -147.19,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_127",
+			"tipo": "foco",
+			"x": 907.72,
+			"z": -144.77,
+			"y": 3.52
+		},
+		{
+			"nombre": "Foco_128",
+			"tipo": "foco",
+			"x": 760.16,
+			"z": -150.82,
+			"y": 3.42
+		},
+		{
+			"nombre": "Foco_129",
+			"tipo": "foco",
+			"x": 774.83,
+			"z": -149.52,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_130",
+			"tipo": "foco",
+			"x": 784.6,
+			"z": -148.64,
+			"y": 3.48
+		},
+		{
+			"nombre": "Foco_131",
+			"tipo": "foco",
+			"x": 802.09,
+			"z": -147.08,
+			"y": 3.8
+		},
+		{
+			"nombre": "Foco_132",
+			"tipo": "foco",
+			"x": 823.79,
+			"z": -145.15,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_133",
+			"tipo": "foco",
+			"x": 852.15,
+			"z": -142.61,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_134",
+			"tipo": "foco",
+			"x": 864.14,
+			"z": -141.54,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_135",
+			"tipo": "foco",
+			"x": 902.38,
+			"z": -138.13,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_136",
+			"tipo": "foco",
+			"x": 752.86,
+			"z": -144.36,
+			"y": 3.52
+		},
+		{
+			"nombre": "Foco_137",
+			"tipo": "foco",
+			"x": 775.46,
+			"z": -142.34,
+			"y": 3.77
+		},
+		{
+			"nombre": "Foco_138",
+			"tipo": "foco",
+			"x": 794.31,
+			"z": -140.66,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_139",
+			"tipo": "foco",
+			"x": 851.18,
+			"z": -135.58,
+			"y": 3.94
+		},
+		{
+			"nombre": "Foco_140",
+			"tipo": "foco",
+			"x": 859.16,
+			"z": -134.88,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_141",
+			"tipo": "foco",
+			"x": 871.55,
+			"z": -133.77,
+			"y": 3.63
+		},
+		{
+			"nombre": "Foco_142",
+			"tipo": "foco",
+			"x": 879.34,
+			"z": -133.07,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_143",
+			"tipo": "foco",
+			"x": 900.22,
+			"z": -131.21,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_144",
+			"tipo": "foco",
+			"x": 737.89,
+			"z": -138.58,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_145",
+			"tipo": "foco",
+			"x": 745.67,
+			"z": -137.88,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_146",
+			"tipo": "foco",
+			"x": 759.52,
+			"z": -136.65,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_147",
+			"tipo": "foco",
+			"x": 816.65,
+			"z": -131.55,
+			"y": 3.69
+		},
+		{
+			"nombre": "Foco_148",
+			"tipo": "foco",
+			"x": 829.55,
+			"z": -130.4,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_149",
+			"tipo": "foco",
+			"x": 843.13,
+			"z": -129.19,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_150",
+			"tipo": "foco",
+			"x": 860.03,
+			"z": -127.68,
+			"y": 3.63
+		},
+		{
+			"nombre": "Foco_151",
+			"tipo": "foco",
+			"x": 893.16,
+			"z": -124.72,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_152",
+			"tipo": "foco",
+			"x": 771.97,
+			"z": -128.43,
+			"y": 3.74
+		},
+		{
+			"nombre": "Foco_153",
+			"tipo": "foco",
+			"x": 829.51,
+			"z": -123.29,
+			"y": 3.41
+		},
+		{
+			"nombre": "Foco_154",
+			"tipo": "foco",
+			"x": 849.09,
+			"z": -121.54,
+			"y": 3.88
+		},
+		{
+			"nombre": "Foco_155",
+			"tipo": "foco",
+			"x": 744.73,
+			"z": -123.75,
+			"y": 3.61
+		},
+		{
+			"nombre": "Foco_156",
+			"tipo": "foco",
+			"x": 759.32,
+			"z": -122.44,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_157",
+			"tipo": "foco",
+			"x": 775.09,
+			"z": -121.04,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_158",
+			"tipo": "foco",
+			"x": 813.88,
+			"z": -117.57,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_159",
+			"tipo": "foco",
+			"x": 866.08,
+			"z": -112.92,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_160",
+			"tipo": "foco",
+			"x": 884.4,
+			"z": -111.27,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_161",
+			"tipo": "foco",
+			"x": 899.67,
+			"z": -109.91,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_162",
+			"tipo": "foco",
+			"x": 738.64,
+			"z": -117.18,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_163",
+			"tipo": "foco",
+			"x": 757.4,
+			"z": -115.5,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_164",
+			"tipo": "foco",
+			"x": 772.55,
+			"z": -114.15,
+			"y": 3.57
+		},
+		{
+			"nombre": "Foco_165",
+			"tipo": "foco",
+			"x": 792.12,
+			"z": -112.39,
+			"y": 3.44
+		},
+		{
+			"nombre": "Foco_166",
+			"tipo": "foco",
+			"x": 806.44,
+			"z": -111.12,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_167",
+			"tipo": "foco",
+			"x": 842.66,
+			"z": -107.89,
+			"y": 3.36
+		},
+		{
+			"nombre": "Foco_168",
+			"tipo": "foco",
+			"x": 855.51,
+			"z": -106.75,
+			"y": 3.76
+		},
+		{
+			"nombre": "Foco_169",
+			"tipo": "foco",
+			"x": 737.17,
+			"z": -110.19,
+			"y": 3.73
+		},
+		{
+			"nombre": "Foco_170",
+			"tipo": "foco",
+			"x": 771.35,
+			"z": -107.14,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_171",
+			"tipo": "foco",
+			"x": 788.26,
+			"z": -105.63,
+			"y": 3.54
+		},
+		{
+			"nombre": "Foco_172",
+			"tipo": "foco",
+			"x": 805.87,
+			"z": -104.06,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_173",
+			"tipo": "foco",
+			"x": 863.45,
+			"z": -328.38,
+			"y": 3.38
+		},
+		{
+			"nombre": "Foco_174",
+			"tipo": "foco",
+			"x": 870.38,
+			"z": -326.82,
+			"y": 3.73
+		},
+		{
+			"nombre": "Foco_175",
+			"tipo": "foco",
+			"x": 912.53,
+			"z": -324.32,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_176",
+			"tipo": "foco",
+			"x": 911.0,
+			"z": -307.19,
+			"y": 3.77
+		},
+		{
+			"nombre": "Foco_177",
+			"tipo": "foco",
+			"x": 813.88,
+			"z": -326.82,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_178",
+			"tipo": "foco",
+			"x": 820.8,
+			"z": -325.3,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_179",
+			"tipo": "foco",
+			"x": 735.92,
+			"z": -323.8,
+			"y": 3.64
+		},
+		{
+			"nombre": "Foco_180",
+			"tipo": "foco",
+			"x": 750.11,
+			"z": -324.52,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_181",
+			"tipo": "foco",
+			"x": 848.26,
+			"z": -316.44,
+			"y": 3.42
+		},
+		{
+			"nombre": "Foco_182",
+			"tipo": "foco",
+			"x": 876.24,
+			"z": -313.3,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_183",
+			"tipo": "foco",
+			"x": 742.48,
+			"z": -318.19,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_184",
+			"tipo": "foco",
+			"x": 756.32,
+			"z": -315.03,
+			"y": 3.56
+		},
+		{
+			"nombre": "Foco_185",
+			"tipo": "foco",
+			"x": 755.13,
+			"z": -301.62,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_186",
+			"tipo": "foco",
+			"x": 763.33,
+			"z": -314.35,
+			"y": 3.79
+		},
+		{
+			"nombre": "Foco_187",
+			"tipo": "foco",
+			"x": 777.27,
+			"z": -312.39,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_188",
+			"tipo": "foco",
+			"x": 805.56,
+			"z": -312.8,
+			"y": 3.52
+		},
+		{
+			"nombre": "Foco_189",
+			"tipo": "foco",
+			"x": 868.68,
+			"z": -307.76,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_190",
+			"tipo": "foco",
+			"x": 882.53,
+			"z": -304.73,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_191",
+			"tipo": "foco",
+			"x": 896.59,
+			"z": -303.93,
+			"y": 3.75
+		},
+		{
+			"nombre": "Foco_192",
+			"tipo": "foco",
+			"x": 741.85,
+			"z": -311.15,
+			"y": 3.94
+		},
+		{
+			"nombre": "Foco_193",
+			"tipo": "foco",
+			"x": 748.78,
+			"z": -309.54,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_194",
+			"tipo": "foco",
+			"x": 769.9,
+			"z": -308.87,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_195",
+			"tipo": "foco",
+			"x": 818.91,
+			"z": -304.13,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_196",
+			"tipo": "foco",
+			"x": 832.94,
+			"z": -303.02,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_197",
+			"tipo": "foco",
+			"x": 854.01,
+			"z": -301.69,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_198",
+			"tipo": "foco",
+			"x": 888.97,
+			"z": -297.8,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_199",
+			"tipo": "foco",
+			"x": 903.0,
+			"z": -296.71,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_200",
+			"tipo": "foco",
+			"x": 909.82,
+			"z": -293.97,
+			"y": 3.69
+		},
+		{
+			"nombre": "Foco_201",
+			"tipo": "foco",
+			"x": 776.25,
+			"z": -300.96,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_202",
+			"tipo": "foco",
+			"x": 790.31,
+			"z": -300.12,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_203",
+			"tipo": "foco",
+			"x": 811.37,
+			"z": -298.72,
+			"y": 3.61
+		},
+		{
+			"nombre": "Foco_204",
+			"tipo": "foco",
+			"x": 846.28,
+			"z": -294.22,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_205",
+			"tipo": "foco",
+			"x": 874.08,
+			"z": -289.19,
+			"y": 3.45
+		},
+		{
+			"nombre": "Foco_206",
+			"tipo": "foco",
+			"x": 895.28,
+			"z": -289.24,
+			"y": 3.37
+		},
+		{
+			"nombre": "Foco_207",
+			"tipo": "foco",
+			"x": 733.66,
+			"z": -298.55,
+			"y": 3.74
+		},
+		{
+			"nombre": "Foco_208",
+			"tipo": "foco",
+			"x": 859.78,
+			"z": -287.23,
+			"y": 3.88
+		},
+		{
+			"nombre": "Foco_209",
+			"tipo": "foco",
+			"x": 858.3,
+			"z": -270.73,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_210",
+			"tipo": "foco",
+			"x": 866.73,
+			"z": -285.92,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_211",
+			"tipo": "foco",
+			"x": 865.15,
+			"z": -268.24,
+			"y": 3.37
+		},
+		{
+			"nombre": "Foco_212",
+			"tipo": "foco",
+			"x": 880.77,
+			"z": -285.04,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_213",
+			"tipo": "foco",
+			"x": 852.1,
+			"z": -280.31,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_214",
+			"tipo": "foco",
+			"x": 901.1,
+			"z": -275.49,
+			"y": 3.68
+		},
+		{
+			"nombre": "Foco_215",
+			"tipo": "foco",
+			"x": 739.14,
+			"z": -280.76,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_216",
+			"tipo": "foco",
+			"x": 737.81,
+			"z": -265.85,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_217",
+			"tipo": "foco",
+			"x": 802.43,
+			"z": -277.69,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_218",
+			"tipo": "foco",
+			"x": 801.16,
+			"z": -263.52,
+			"y": 3.91
+		},
+		{
+			"nombre": "Foco_219",
+			"tipo": "foco",
+			"x": 823.4,
+			"z": -275.25,
+			"y": 3.38
+		},
+		{
+			"nombre": "Foco_220",
+			"tipo": "foco",
+			"x": 731.51,
+			"z": -274.39,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_221",
+			"tipo": "foco",
+			"x": 759.61,
+			"z": -272.73,
+			"y": 3.73
+		},
+		{
+			"nombre": "Foco_222",
+			"tipo": "foco",
+			"x": 758.21,
+			"z": -257.02,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_223",
+			"tipo": "foco",
+			"x": 822.72,
+			"z": -267.6,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_224",
+			"tipo": "foco",
+			"x": 821.22,
+			"z": -250.87,
+			"y": 3.38
+		},
+		{
+			"nombre": "Foco_225",
+			"tipo": "foco",
+			"x": 843.54,
+			"z": -263.52,
+			"y": 3.56
+		},
+		{
+			"nombre": "Foco_226",
+			"tipo": "foco",
+			"x": 850.82,
+			"z": -265.97,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_227",
+			"tipo": "foco",
+			"x": 899.84,
+			"z": -261.35,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_228",
+			"tipo": "foco",
+			"x": 787.12,
+			"z": -264.37,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_229",
+			"tipo": "foco",
+			"x": 808.21,
+			"z": -263.3,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_230",
+			"tipo": "foco",
+			"x": 829.15,
+			"z": -260.53,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_231",
+			"tipo": "foco",
+			"x": 850.01,
+			"z": -256.84,
+			"y": 3.34
+		},
+		{
+			"nombre": "Foco_232",
+			"tipo": "foco",
+			"x": 885.2,
+			"z": -255.55,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_233",
+			"tipo": "foco",
+			"x": 751.5,
+			"z": -261.05,
+			"y": 3.42
+		},
+		{
+			"nombre": "Foco_234",
+			"tipo": "foco",
+			"x": 765.47,
+			"z": -259.16,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_235",
+			"tipo": "foco",
+			"x": 814.51,
+			"z": -254.86,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_236",
+			"tipo": "foco",
+			"x": 877.54,
+			"z": -248.9,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_237",
+			"tipo": "foco",
+			"x": 891.35,
+			"z": -245.3,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_238",
+			"tipo": "foco",
+			"x": 792.88,
+			"z": -249.9,
+			"y": 3.52
+		},
+		{
+			"nombre": "Foco_239",
+			"tipo": "foco",
+			"x": 791.77,
+			"z": -237.39,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_240",
+			"tipo": "foco",
+			"x": 863.01,
+			"z": -244.24,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_241",
+			"tipo": "foco",
+			"x": 869.86,
+			"z": -241.84,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_242",
+			"tipo": "foco",
+			"x": 868.57,
+			"z": -227.44,
+			"y": 3.38
+		},
+		{
+			"nombre": "Foco_243",
+			"tipo": "foco",
+			"x": 764.21,
+			"z": -245.13,
+			"y": 3.94
+		},
+		{
+			"nombre": "Foco_244",
+			"tipo": "foco",
+			"x": 785.23,
+			"z": -243.19,
+			"y": 3.69
+		},
+		{
+			"nombre": "Foco_245",
+			"tipo": "foco",
+			"x": 806.27,
+			"z": -241.59,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_246",
+			"tipo": "foco",
+			"x": 820.25,
+			"z": -239.98,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_247",
+			"tipo": "foco",
+			"x": 827.27,
+			"z": -239.5,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_248",
+			"tipo": "foco",
+			"x": 848.34,
+			"z": -238.17,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_249",
+			"tipo": "foco",
+			"x": 847.07,
+			"z": -223.87,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_250",
+			"tipo": "foco",
+			"x": 855.27,
+			"z": -236.78,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_251",
+			"tipo": "foco",
+			"x": 883.32,
+			"z": -234.44,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_252",
+			"tipo": "foco",
+			"x": 897.14,
+			"z": -231.08,
+			"y": 3.69
+		},
+		{
+			"nombre": "Foco_253",
+			"tipo": "foco",
+			"x": 911.35,
+			"z": -232.0,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_254",
+			"tipo": "foco",
+			"x": 756.65,
+			"z": -239.57,
+			"y": 3.61
+		},
+		{
+			"nombre": "Foco_255",
+			"tipo": "foco",
+			"x": 875.64,
+			"z": -227.57,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_256",
+			"tipo": "foco",
+			"x": 734.83,
+			"z": -232.42,
+			"y": 3.37
+		},
+		{
+			"nombre": "Foco_257",
+			"tipo": "foco",
+			"x": 742.01,
+			"z": -233.78,
+			"y": 3.74
+		},
+		{
+			"nombre": "Foco_258",
+			"tipo": "foco",
+			"x": 762.81,
+			"z": -229.37,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_259",
+			"tipo": "foco",
+			"x": 783.75,
+			"z": -226.61,
+			"y": 3.6
+		},
+		{
+			"nombre": "Foco_260",
+			"tipo": "foco",
+			"x": 840.04,
+			"z": -224.27,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_261",
+			"tipo": "foco",
+			"x": 882.11,
+			"z": -220.89,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_262",
+			"tipo": "foco",
+			"x": 889.05,
+			"z": -219.49,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_263",
+			"tipo": "foco",
+			"x": 887.95,
+			"z": -207.18,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_264",
+			"tipo": "foco",
+			"x": 825.41,
+			"z": -218.67,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_265",
+			"tipo": "foco",
+			"x": 824.26,
+			"z": -205.72,
+			"y": 3.63
+		},
+		{
+			"nombre": "Foco_266",
+			"tipo": "foco",
+			"x": 860.28,
+			"z": -213.72,
+			"y": 3.4
+		},
+		{
+			"nombre": "Foco_267",
+			"tipo": "foco",
+			"x": 867.41,
+			"z": -214.47,
+			"y": 3.68
+		},
+		{
+			"nombre": "Foco_268",
+			"tipo": "foco",
+			"x": 909.27,
+			"z": -208.66,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_269",
+			"tipo": "foco",
+			"x": 747.52,
+			"z": -216.35,
+			"y": 3.9
+		},
+		{
+			"nombre": "Foco_270",
+			"tipo": "foco",
+			"x": 789.76,
+			"z": -214.79,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_271",
+			"tipo": "foco",
+			"x": 845.57,
+			"z": -207.06,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_272",
+			"tipo": "foco",
+			"x": 873.78,
+			"z": -206.73,
+			"y": 3.38
+		},
+		{
+			"nombre": "Foco_273",
+			"tipo": "foco",
+			"x": 753.93,
+			"z": -209.06,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_274",
+			"tipo": "foco",
+			"x": 752.78,
+			"z": -196.2,
+			"y": 3.4
+		},
+		{
+			"nombre": "Foco_275",
+			"tipo": "foco",
+			"x": 781.96,
+			"z": -206.58,
+			"y": 3.6
+		},
+		{
+			"nombre": "Foco_276",
+			"tipo": "foco",
+			"x": 838.05,
+			"z": -202.01,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_277",
+			"tipo": "foco",
+			"x": 836.53,
+			"z": -185.02,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_278",
+			"tipo": "foco",
+			"x": 852.21,
+			"z": -202.32,
+			"y": 3.42
+		},
+		{
+			"nombre": "Foco_279",
+			"tipo": "foco",
+			"x": 894.24,
+			"z": -198.49,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_280",
+			"tipo": "foco",
+			"x": 901.04,
+			"z": -195.61,
+			"y": 3.58
+		},
+		{
+			"nombre": "Foco_281",
+			"tipo": "foco",
+			"x": 899.78,
+			"z": -181.51,
+			"y": 3.41
+		},
+		{
+			"nombre": "Foco_282",
+			"tipo": "foco",
+			"x": 732.15,
+			"z": -202.41,
+			"y": 3.41
+		},
+		{
+			"nombre": "Foco_283",
+			"tipo": "foco",
+			"x": 760.32,
+			"z": -201.53,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_284",
+			"tipo": "foco",
+			"x": 767.44,
+			"z": -202.11,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_285",
+			"tipo": "foco",
+			"x": 795.43,
+			"z": -199.28,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_286",
+			"tipo": "foco",
+			"x": 858.6,
+			"z": -194.89,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_287",
+			"tipo": "foco",
+			"x": 766.76,
+			"z": -194.5,
+			"y": 3.64
+		},
+		{
+			"nombre": "Foco_288",
+			"tipo": "foco",
+			"x": 787.88,
+			"z": -193.78,
+			"y": 3.42
+		},
+		{
+			"nombre": "Foco_289",
+			"tipo": "foco",
+			"x": 815.85,
+			"z": -190.64,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_290",
+			"tipo": "foco",
+			"x": 857.89,
+			"z": -186.96,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_291",
+			"tipo": "foco",
+			"x": 906.77,
+			"z": -180.61,
+			"y": 3.79
+		},
+		{
+			"nombre": "Foco_292",
+			"tipo": "foco",
+			"x": 779.95,
+			"z": -184.01,
+			"y": 3.46
+		},
+		{
+			"nombre": "Foco_293",
+			"tipo": "foco",
+			"x": 800.97,
+			"z": -182.22,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_294",
+			"tipo": "foco",
+			"x": 822.22,
+			"z": -182.85,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_295",
+			"tipo": "foco",
+			"x": 850.28,
+			"z": -180.76,
+			"y": 3.52
+		},
+		{
+			"nombre": "Foco_296",
+			"tipo": "foco",
+			"x": 892.38,
+			"z": -177.6,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_297",
+			"tipo": "foco",
+			"x": 913.24,
+			"z": -173.94,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_298",
+			"tipo": "foco",
+			"x": 911.95,
+			"z": -159.54,
+			"y": 3.38
+		},
+		{
+			"nombre": "Foco_299",
+			"tipo": "foco",
+			"x": 737.48,
+			"z": -182.96,
+			"y": 3.75
+		},
+		{
+			"nombre": "Foco_300",
+			"tipo": "foco",
+			"x": 736.39,
+			"z": -170.75,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_301",
+			"tipo": "foco",
+			"x": 793.39,
+			"z": -176.44,
+			"y": 3.48
+		},
+		{
+			"nombre": "Foco_302",
+			"tipo": "foco",
+			"x": 807.59,
+			"z": -177.17,
+			"y": 3.69
+		},
+		{
+			"nombre": "Foco_303",
+			"tipo": "foco",
+			"x": 814.61,
+			"z": -176.83,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_304",
+			"tipo": "foco",
+			"x": 842.61,
+			"z": -173.96,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_305",
+			"tipo": "foco",
+			"x": 849.63,
+			"z": -173.48,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_306",
+			"tipo": "foco",
+			"x": 891.72,
+			"z": -170.28,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_307",
+			"tipo": "foco",
+			"x": 898.65,
+			"z": -168.88,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_308",
+			"tipo": "foco",
+			"x": 743.9,
+			"z": -175.74,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_309",
+			"tipo": "foco",
+			"x": 862.76,
+			"z": -162.34,
+			"y": 3.51
+		},
+		{
+			"nombre": "Foco_310",
+			"tipo": "foco",
+			"x": 877.1,
+			"z": -164.8,
+			"y": 3.61
+		},
+		{
+			"nombre": "Foco_311",
+			"tipo": "foco",
+			"x": 883.98,
+			"z": -162.73,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_312",
+			"tipo": "foco",
+			"x": 778.38,
+			"z": -166.51,
+			"y": 3.74
+		},
+		{
+			"nombre": "Foco_313",
+			"tipo": "foco",
+			"x": 806.27,
+			"z": -162.38,
+			"y": 3.42
+		},
+		{
+			"nombre": "Foco_314",
+			"tipo": "foco",
+			"x": 869.41,
+			"z": -157.63,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_315",
+			"tipo": "foco",
+			"x": 904.47,
+			"z": -154.87,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_316",
+			"tipo": "foco",
+			"x": 742.62,
+			"z": -161.41,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_317",
+			"tipo": "foco",
+			"x": 741.52,
+			"z": -149.1,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_318",
+			"tipo": "foco",
+			"x": 889.65,
+			"z": -147.1,
+			"y": 3.38
+		},
+		{
+			"nombre": "Foco_319",
+			"tipo": "foco",
+			"x": 734.99,
+			"z": -155.15,
+			"y": 3.68
+		},
+		{
+			"nombre": "Foco_320",
+			"tipo": "foco",
+			"x": 733.48,
+			"z": -138.18,
+			"y": 3.52
+		},
+		{
+			"nombre": "Foco_321",
+			"tipo": "foco",
+			"x": 811.88,
+			"z": -146.21,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_322",
+			"tipo": "foco",
+			"x": 818.97,
+			"z": -146.44,
+			"y": 3.49
+		},
+		{
+			"nombre": "Foco_323",
+			"tipo": "foco",
+			"x": 861.16,
+			"z": -144.4,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_324",
+			"tipo": "foco",
+			"x": 762.28,
+			"z": -144.31,
+			"y": 3.6
+		},
+		{
+			"nombre": "Foco_325",
+			"tipo": "foco",
+			"x": 797.49,
+			"z": -143.18,
+			"y": 3.42
+		},
+		{
+			"nombre": "Foco_326",
+			"tipo": "foco",
+			"x": 832.51,
+			"z": -139.97,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_327",
+			"tipo": "foco",
+			"x": 839.32,
+			"z": -137.1,
+			"y": 3.58
+		},
+		{
+			"nombre": "Foco_328",
+			"tipo": "foco",
+			"x": 909.29,
+			"z": -129.69,
+			"y": 3.41
+		},
+		{
+			"nombre": "Foco_329",
+			"tipo": "foco",
+			"x": 747.73,
+			"z": -139.68,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_330",
+			"tipo": "foco",
+			"x": 775.64,
+			"z": -135.82,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_331",
+			"tipo": "foco",
+			"x": 782.68,
+			"z": -135.51,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_332",
+			"tipo": "foco",
+			"x": 789.79,
+			"z": -136.09,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_333",
+			"tipo": "foco",
+			"x": 796.77,
+			"z": -135.14,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_334",
+			"tipo": "foco",
+			"x": 866.95,
+			"z": -130.12,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_335",
+			"tipo": "foco",
+			"x": 880.8,
+			"z": -127.03,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_336",
+			"tipo": "foco",
+			"x": 887.84,
+			"z": -126.8,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_337",
+			"tipo": "foco",
+			"x": 754.13,
+			"z": -132.12,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_338",
+			"tipo": "foco",
+			"x": 803.23,
+			"z": -128.38,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_339",
+			"tipo": "foco",
+			"x": 810.09,
+			"z": -126.12,
+			"y": 3.58
+		},
+		{
+			"nombre": "Foco_340",
+			"tipo": "foco",
+			"x": 817.11,
+			"z": -125.63,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_341",
+			"tipo": "foco",
+			"x": 873.15,
+			"z": -120.49,
+			"y": 3.79
+		},
+		{
+			"nombre": "Foco_342",
+			"tipo": "foco",
+			"x": 894.16,
+			"z": -118.59,
+			"y": 3.94
+		},
+		{
+			"nombre": "Foco_343",
+			"tipo": "foco",
+			"x": 732.31,
+			"z": -125.03,
+			"y": 3.8
+		},
+		{
+			"nombre": "Foco_344",
+			"tipo": "foco",
+			"x": 837.57,
+			"z": -117.53,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_345",
+			"tipo": "foco",
+			"x": 886.41,
+			"z": -110.79,
+			"y": 3.61
+		},
+		{
+			"nombre": "Foco_346",
+			"tipo": "foco",
+			"x": 787.68,
+			"z": -112.42,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_347",
+			"tipo": "foco",
+			"x": 850.96,
+			"z": -109.27,
+			"y": 3.69
+		},
+		{
+			"nombre": "Foco_348",
+			"tipo": "foco",
+			"x": 879.01,
+			"z": -107.05,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_349",
+			"tipo": "foco",
+			"x": 808.28,
+			"z": -105.89,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_350",
+			"tipo": "foco",
+			"x": 732.32,
+			"z": -309.81,
+			"y": 3.73
+		},
+		{
+			"nombre": "Foco_351",
+			"tipo": "foco",
+			"x": 727.75,
+			"z": -274.65,
+			"y": 3.8
+		},
+		{
+			"nombre": "Foco_352",
+			"tipo": "foco",
+			"x": 727.49,
+			"z": -231.98,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_353",
+			"tipo": "foco",
+			"x": 723.2,
+			"z": -182.58,
+			"y": 3.54
+		},
+		{
+			"nombre": "Foco_354",
+			"tipo": "foco",
+			"x": 717.0,
+			"z": -147.56,
+			"y": 3.85
+		},
+		{
+			"nombre": "Foco_355",
+			"tipo": "foco",
+			"x": 729.54,
+			"z": -146.44,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_356",
+			"tipo": "foco",
+			"x": 765.4,
+			"z": -235.87,
+			"y": -2.0
+		},
+		{
+			"nombre": "Foco_357",
+			"tipo": "foco",
+			"x": 789.59,
+			"z": -241.24,
+			"y": -2.0
+		},
+		{
+			"nombre": "Foco_358",
+			"tipo": "foco",
+			"x": 812.45,
+			"z": -231.67,
+			"y": -2.0
+		},
+		{
+			"nombre": "Foco_359",
+			"tipo": "foco",
+			"x": 836.6,
+			"z": -236.55,
+			"y": -2.0
+		},
+		{
+			"nombre": "Foco_360",
+			"tipo": "foco",
+			"x": 859.51,
+			"z": -227.47,
+			"y": -2.0
+		},
+		{
+			"nombre": "Foco_361",
+			"tipo": "foco",
+			"x": 883.66,
+			"z": -232.35,
+			"y": -2.0
+		},
+		{
+			"nombre": "Foco_362",
+			"tipo": "foco",
+			"x": 906.48,
+			"z": -222.28,
+			"y": -2.0
+		},
+		{
+			"nombre": "Foco_363",
+			"tipo": "foco",
+			"x": 752.55,
+			"z": -275.75,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_364",
+			"tipo": "foco",
+			"x": 749.84,
+			"z": -240.47,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_365",
+			"tipo": "foco",
+			"x": 757.99,
+			"z": -273.26,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_366",
+			"tipo": "foco",
+			"x": 757.37,
+			"z": -266.28,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_367",
+			"tipo": "foco",
+			"x": 756.75,
+			"z": -259.31,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_368",
+			"tipo": "foco",
+			"x": 756.13,
+			"z": -252.34,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_369",
+			"tipo": "foco",
+			"x": 755.5,
+			"z": -245.37,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_370",
+			"tipo": "foco",
+			"x": 754.88,
+			"z": -238.39,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_371",
+			"tipo": "foco",
+			"x": 754.26,
+			"z": -231.42,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_372",
+			"tipo": "foco",
+			"x": 753.64,
+			"z": -224.45,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_373",
+			"tipo": "foco",
+			"x": 753.01,
+			"z": -217.48,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_374",
+			"tipo": "foco",
+			"x": 752.39,
+			"z": -210.5,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_375",
+			"tipo": "foco",
+			"x": 751.77,
+			"z": -203.53,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_376",
+			"tipo": "foco",
+			"x": 751.15,
+			"z": -196.56,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_377",
+			"tipo": "foco",
+			"x": 750.53,
+			"z": -189.59,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_378",
+			"tipo": "foco",
+			"x": 749.9,
+			"z": -182.62,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_379",
+			"tipo": "foco",
+			"x": 749.28,
+			"z": -175.64,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_380",
+			"tipo": "foco",
+			"x": 748.66,
+			"z": -168.67,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_381",
+			"tipo": "foco",
+			"x": 759.95,
+			"z": -239.57,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_382",
+			"tipo": "foco",
+			"x": 766.92,
+			"z": -238.95,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_383",
+			"tipo": "foco",
+			"x": 773.89,
+			"z": -238.33,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_384",
+			"tipo": "foco",
+			"x": 780.87,
+			"z": -237.7,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_385",
+			"tipo": "foco",
+			"x": 787.84,
+			"z": -237.08,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_386",
+			"tipo": "foco",
+			"x": 794.81,
+			"z": -236.46,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_387",
+			"tipo": "foco",
+			"x": 801.78,
+			"z": -235.84,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_388",
+			"tipo": "foco",
+			"x": 808.76,
+			"z": -235.22,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_389",
+			"tipo": "foco",
+			"x": 815.73,
+			"z": -234.59,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_390",
+			"tipo": "foco",
+			"x": 822.7,
+			"z": -233.97,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_391",
+			"tipo": "foco",
+			"x": 829.67,
+			"z": -233.35,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_392",
+			"tipo": "foco",
+			"x": 836.65,
+			"z": -232.73,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_393",
+			"tipo": "foco",
+			"x": 843.62,
+			"z": -232.11,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_394",
+			"tipo": "foco",
+			"x": 850.59,
+			"z": -231.48,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_395",
+			"tipo": "foco",
+			"x": 857.56,
+			"z": -230.86,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_396",
+			"tipo": "foco",
+			"x": 864.53,
+			"z": -230.24,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_397",
+			"tipo": "foco",
+			"x": 871.51,
+			"z": -229.62,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_398",
+			"tipo": "foco",
+			"x": 878.48,
+			"z": -228.99,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_399",
+			"tipo": "foco",
+			"x": 885.45,
+			"z": -228.37,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_400",
+			"tipo": "foco",
+			"x": 892.42,
+			"z": -227.75,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_401",
+			"tipo": "foco",
+			"x": 899.4,
+			"z": -227.13,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_402",
+			"tipo": "foco",
+			"x": 906.37,
+			"z": -226.51,
+			"y": -1.1
+		},
+		{
+			"nombre": "Foco_403",
+			"tipo": "foco",
+			"x": 913.34,
+			"z": -225.88,
+			"y": -1.1
+		}
+	]
+}

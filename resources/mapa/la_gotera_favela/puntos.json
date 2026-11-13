@@ -1,0 +1,19 @@
+{
+	"puntos": [
+		{
+			"tipo": "purificadora",
+			"giro": "purificadora",
+			"nombre": "Bodega del Agua",
+			"x": 760.0,
+			"z": -300.0,
+			"rotacion_y": -1.6598,
+			"ancho": 8.0,
+			"fondo": 9.0,
+			"pisos": 1,
+			"interactivo": true,
+			"aire_libre": false,
+			"origen": "Bodega del Agua",
+			"ajustado": true
+		}
+	]
+}
