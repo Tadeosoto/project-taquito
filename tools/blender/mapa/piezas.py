@@ -1677,7 +1677,217 @@ def escombro(nombre, p):
     return k
 
 
-PIEZAS = {"tinaco_comunitario": tinaco_comunitario, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
+# --- Los tuneles de La Gotera (lore §11: bajan a los carcamos de GelA y a la valvula del acueducto) ---
+# Van bajo el piso del recorte: su "y" es el piso del tunel (TUNEL_PISO, negativo). Se entra por un
+# hundido con una `bajada` (ver favela.py, tuneles()). Boveda y muros de ladrillo, piso de tierra,
+# focos colgados (exportar.py pone la luz) y una tuberia pegada a la boveda.
+TUNEL_ANCHO = 2.4
+TUNEL_ALTO = 2.5          # al arranque de la boveda; la boveda sube ANCHO / 2 mas
+TUNEL_PISO = -3.6
+TUNEL_FOCO_CADA = 7.0
+
+
+def _boveda(k, x0, x1, ancho, alto, mat, lados=5, z0=0.0):
+    """Media boveda de canon a lo largo de x, de x0 a x1, entre z0 - ancho/2 y z0 + ancho/2, que
+    arranca en `alto` (vista desde adentro)."""
+    r = ancho / 2
+    for i in range(lados):
+        a0, a1 = math.pi * i / lados, math.pi * (i + 1) / lados
+        za, ya = z0 + math.cos(a0) * r, alto + math.sin(a0) * r
+        zb, yb = z0 + math.cos(a1) * r, alto + math.sin(a1) * r
+        k.cara([(x0, ya, za), (x1, ya, za), (x1, yb, zb), (x0, yb, zb)], mat)
+
+
+def _tunel_tramo(k, x0, x1, ancho, alto, lados=("+", "-")):
+    """Un tramo de galeria a lo largo de x: piso de tierra, los dos muros (si estan en `lados`) y la
+    boveda. Las caras ven hacia adentro. Choque en el piso y en cada muro."""
+    hz = ancho / 2
+    k.cara([(x0, 0.0, -hz), (x1, 0.0, -hz), (x1, 0.0, hz), (x0, 0.0, hz)], "tierra")
+    k.choques.append((((x0 + x1) / 2, -0.15, 0.0), (x1 - x0, 0.3, ancho), 0.0))
+    for lado, z in (("+", hz), ("-", -hz)):
+        if lado not in lados:
+            continue
+        s = 1 if lado == "+" else -1
+        k.cara([(x0, 0.0, z), (x1, 0.0, z), (x1, alto, z), (x0, alto, z)][::s], "foto_ladrillo_rojo")
+        k.choques.append((((x0 + x1) / 2, alto / 2 + 0.6, z + s * 0.15), (x1 - x0, alto + 1.2 + ancho / 2, 0.3), 0.0))
+    _boveda(k, x0, x1, ancho, alto, "foto_ladrillo_rojo")
+
+
+def _focos_tunel(k, x0, x1, alto, ancho, cada=TUNEL_FOCO_CADA, z=0.0):
+    """El cable a lo largo de la boveda y un foco colgando cada tantos metros (la luz la pone
+    Colonia.gd con las marcas "foco" que escribe exportar.py: focos_tunel)."""
+    k.caja(((x0 + x1) / 2, alto + ancho / 2 - 0.12, z + 0.3), (x1 - x0, 0.02, 0.02), "cable")
+    x = x0 + cada / 2
+    while x < x1:
+        k.caja((x, alto + ancho / 2 - 0.3, z + 0.3), (0.015, 0.36, 0.015), "cable")
+        k.esfera((x, alto + ancho / 2 - 0.52, z + 0.3), 0.07, "farol", seg=6, anillos=4)
+        x += cada
+
+
+def focos_de_tunel(p):
+    """Donde cuelga cada foco de una pieza tunel/tunel_cuarto, en metros de la pieza (x, y, z)."""
+    alto = p.get("alto", TUNEL_ALTO)
+    ancho = p.get("ancho", TUNEL_ANCHO)
+    focos = []
+    if p["tipo"] == "tunel":
+        largo = p.get("largo", 20.0)
+        x = -largo / 2 + TUNEL_FOCO_CADA / 2
+        while x < largo / 2:
+            focos.append((x, alto + ancho / 2 - 0.6, 0.3))
+            x += TUNEL_FOCO_CADA
+    else:
+        focos.append((0.0, alto - 0.3, 0.0))
+    return focos
+
+
+def tunel(nombre, p):
+    """Galeria de ladrillo a lo largo de x (`largo`, centrada), `ancho` y `alto` al arranque de la
+    boveda. `huecos` [[x, ancho, lado]] abren el muro de ese lado (+1: +Z, -1: -Z) para un ramal o
+    un cuarto; `cerrado` ("a" o "b") tapa esa punta con un muro de block y su letrero pintado (la
+    boca final hacia los carcamos). Una tuberia oxidada corre pegada a la boveda."""
+    k = Constructor(nombre)
+    largo, ancho, alto = p.get("largo", 20.0), p.get("ancho", TUNEL_ANCHO), p.get("alto", TUNEL_ALTO)
+    hx, hz = largo / 2, ancho / 2
+    huecos = sorted(p.get("huecos", []), key=lambda h: h[0])
+    for lado, s in (("+", 1), ("-", -1)):
+        cortes = [(h[0] - h[1] / 2, h[0] + h[1] / 2) for h in huecos if h[2] == s]
+        x = -hx
+        for c0, c1 in cortes + [(hx, hx)]:
+            if c0 > x + 0.05:
+                z = s * hz
+                k.cara([(x, 0.0, z), (c0, 0.0, z), (c0, alto, z), (x, alto, z)][::s], "foto_ladrillo_rojo")
+                k.choques.append((((x + c0) / 2, alto / 2 + 0.6, z + s * 0.15), (c0 - x, alto + 1.2 + ancho / 2, 0.3), 0.0))
+            x = max(x, c1)
+        # Arriba de cada hueco sigue el ladrillo hasta la boveda
+        for c0, c1 in cortes:
+            z = s * hz
+            k.cara([(c0, alto - 0.5, z), (c1, alto - 0.5, z), (c1, alto, z), (c0, alto, z)][::s], "foto_ladrillo_rojo")
+    k.cara([(-hx, 0.0, -hz), (hx, 0.0, -hz), (hx, 0.0, hz), (-hx, 0.0, hz)], "tierra")
+    k.choques.append(((0.0, -0.15, 0.0), (largo, 0.3, ancho), 0.0))
+    _boveda(k, -hx, hx, ancho, alto, "foto_ladrillo_rojo")
+    # Tuberia pegada a la boveda del lado -Z, con sus abrazaderas
+    k.cilindro((-hx, alto + 0.3, -hz + 0.35), 0.09, 0.0, "fierro", lados=6, tapa=False)
+    _prisma_x(k, -hx, hx, alto + 0.35, -hz + 0.35, 0.09, "fierro", lados=6)
+    for i in range(int(largo / 4.0)):
+        k.caja((-hx + 2.0 + i * 4.0, alto + 0.35, -hz + 0.35), (0.06, 0.26, 0.26), "concreto")
+    _focos_tunel(k, -hx, hx, alto, ancho)
+    cerrado = p.get("cerrado")
+    if cerrado:
+        x = hx if cerrado == "b" else -hx
+        s = -1 if cerrado == "b" else 1
+        k.cara([(x, 0.0, -hz), (x, 0.0, hz), (x, alto + ancho / 2, hz), (x, alto + ancho / 2, -hz)][::s], "foto_block")
+        k.choques.append(((x - s * 0.1, (alto + ancho / 2) / 2, 0.0), (0.2, alto + ancho / 2, ancho), 0.0))
+        # Tambos y costales arrimados al tapon
+        for i in range(2):
+            k.cilindro((x + s * (0.5 + i * 0.7), 0.0, -hz + 0.5), 0.3, 0.88, ("vela_azul", "tinaco")[i], lados=8)
+        k.choques.append(((x + s * 0.85, 0.45, -hz + 0.5), (1.5, 0.9, 0.7), 0.0))
+    return k
+
+
+def tunel_cuarto(nombre, p):
+    """Cuarto de ladrillo pegado a una galeria, `tam` [ancho (x), fondo (z)], con su puerta al frente
+    (+Z, hacia la galeria, un hueco de 1.2 m al centro). `uso`: "dormitorio" (catres y una mesa),
+    "garrafones" (la bodega del agua del yacimiento), "armas" (estante con cajas y fierros),
+    "tienda" (mostrador de tablas con lona y mercancia colgada: la marca "puerta" le pone letrero),
+    "valvula" (el pozo con la escalera a la valvula del acueducto, tras una reja)."""
+    k = Constructor(nombre)
+    ancho, fondo = p.get("tam", [5.0, 4.0])
+    alto = p.get("alto", TUNEL_ALTO)
+    hx, hz = ancho / 2, fondo / 2
+    uso = p.get("uso", "dormitorio")
+    semilla = _semilla_nombre(nombre)
+    k.cara([(-hx, 0.0, -hz), (hx, 0.0, -hz), (hx, 0.0, hz), (-hx, 0.0, hz)], "tierra" if uso != "tienda" else "concreto")
+    k.choques.append(((0.0, -0.15, 0.0), (ancho, 0.3, fondo), 0.0))
+    # Muros: fondo (-Z), los dos lados, y el frente con su puerta
+    k.cara([(hx, 0.0, -hz), (-hx, 0.0, -hz), (-hx, alto, -hz), (hx, alto, -hz)], "foto_ladrillo_rojo")
+    k.choques.append(((0.0, alto / 2, -hz - 0.15), (ancho, alto, 0.3), 0.0))
+    for s in (-1, 1):
+        x = s * hx
+        k.cara([(x, 0.0, -hz), (x, 0.0, hz), (x, alto, hz), (x, alto, -hz)][::-s], "foto_ladrillo_rojo")
+        k.choques.append(((x + s * 0.15, alto / 2, 0.0), (0.3, alto, fondo), 0.0))
+    pa = 0.6
+    for x0, x1 in ((-hx, -pa), (pa, hx)):
+        k.cara([(x1, 0.0, hz), (x0, 0.0, hz), (x0, alto, hz), (x1, alto, hz)], "foto_ladrillo_rojo")
+        k.choques.append((((x0 + x1) / 2, alto / 2, hz + 0.15), (x1 - x0, alto, 0.3), 0.0))
+    k.cara([(pa, alto - 0.4, hz), (-pa, alto - 0.4, hz), (-pa, alto, hz), (pa, alto, hz)], "foto_ladrillo_rojo")
+    # Techo plano de losa (visto desde abajo)
+    k.cara([(-hx, alto, -hz), (hx, alto, -hz), (hx, alto, hz), (-hx, alto, hz)][::-1], "concreto")
+    k.caja((0.0, alto - 0.3, 0.0), (0.015, 0.3, 0.015), "cable")
+    k.esfera((0.0, alto - 0.48, 0.0), 0.08, "farol", seg=6, anillos=4)
+    if uso == "dormitorio":
+        for i, x in enumerate((-hx + 1.0, hx - 1.0)):
+            k.caja((x, 0.25, -hz + 1.2), (0.9, 0.5, 2.0), "fierro", choca=True)
+            k.caja((x, 0.55, -hz + 1.2), (0.86, 0.1, 1.9), ("lona_azul", "lona_verde")[i])
+            k.caja((x, 0.66, -hz + 0.5), (0.5, 0.12, 0.35), "blanco_cal")
+        k.caja((0.0, 0.38, hz - 1.0), (1.0, 0.76, 0.6), "foto_madera", choca=True)
+        k.cilindro((0.2, 0.76, hz - 1.0), 0.06, 0.25, "veladora", lados=6)
+        k.cilindro((-0.25, 0.76, hz - 1.1), 0.12, 0.3, "lona_rojo", lados=6)
+    elif uso == "garrafones":
+        n = 0
+        for fila in range(int(fondo / 0.45) - 1):
+            for col in range(int(ancho / 0.45) - 2):
+                if (semilla + n * 7) % 5 == 0:
+                    n += 1
+                    continue
+                x = -hx + 0.55 + col * 0.45
+                z = -hz + 0.45 + fila * 0.45
+                if abs(x) < 0.7 and z > hz - 1.4:
+                    continue   # el pasillo a la puerta
+                k.cilindro((x, 0.0, z), 0.14, 0.5, "azul_gela", lados=6)
+                if (semilla + n) % 3 == 0:
+                    k.cilindro((x, 0.5, z), 0.14, 0.5, "azul_gela", lados=6)
+                n += 1
+        k.choques.append(((-hx / 2 - 0.35, 0.5, 0.0), (hx - 0.7, 1.0, fondo - 0.6), 0.0))
+        k.choques.append(((hx / 2 + 0.35, 0.5, 0.0), (hx - 0.7, 1.0, fondo - 0.6), 0.0))
+    elif uso == "armas":
+        for s in (-1, 1):
+            x = s * (hx - 0.3)
+            k.caja((x, 1.0, -hz / 2), (0.4, 2.0, fondo - 1.5), "fierro", choca=True)
+            for y in (0.35, 0.95, 1.55):
+                k.caja((x, y, -hz / 2), (0.5, 0.04, fondo - 1.5), "foto_madera")
+                for i in range(int((fondo - 1.5) / 0.6)):
+                    k.caja((x, y + 0.14, -hz + 1.0 + i * 0.6), (0.36, 0.26, 0.4), "carton" if (semilla + i) % 2 else "lona_verde")
+        k.caja((0.0, 0.42, -hz + 0.6), (1.6, 0.84, 0.7), "foto_madera", choca=True)
+        for i in range(4):
+            k.caja((-0.6 + i * 0.4, 0.9, -hz + 0.6), (0.06, 0.08, 0.9), "fierro", giro=0.3 * (i % 2))
+    elif uso == "tienda":
+        # Mostrador de tablas al frente, la lona de tianguis colgada atras y la mercancia
+        k.caja((0.0, 0.5, hz - 1.5), (ancho - 1.4, 1.0, 0.7), "foto_madera", choca=True)
+        k.caja((0.0, alto - 0.05, -0.2), (ancho - 0.6, 0.06, fondo - 1.6), ("lona_amarillo", "lona_rojo", "lona_azul")[semilla % 3])
+        for i in range(int((ancho - 1.6) / 0.5)):
+            x = -hx + 0.9 + i * 0.5
+            k.caja((x, 1.05 + (i % 2) * 0.1, hz - 1.5), (0.3, 0.1 + (i % 3) * 0.1, 0.3), ("lona_rosa", "blanco_cal", "veladora", "lona_verde")[(semilla + i) % 4])
+        for i in range(int((ancho - 1.0) / 0.7)):
+            x = -hx + 0.7 + i * 0.7
+            k.caja((x, alto - 0.6, -hz + 0.3), (0.45, 0.7, 0.03), ("rojo", "azul_gela", "lona_amarillo", "blanco_cal")[(semilla + i) % 4])
+        k.caja((-hx + 0.6, 0.9, -hz + 0.6), (0.9, 1.8, 0.4), "fierro", choca=True)
+    elif uso == "valvula":
+        # El pozo cuadrado con la escalera de fierro que baja a la valvula (se ve, no se baja: lo
+        # cierra una reja), la rueda de la valvula al fondo y los tubos del acueducto
+        pozo, hondo = min(ancho, fondo) - 2.2, 2.6
+        hp = pozo / 2
+        for s in (-1, 1):
+            k.cara([(s * hp, 0.0, -hp), (s * hp, 0.0, hp), (s * hp, -hondo, hp), (s * hp, -hondo, -hp)][::s], "foto_ladrillo_rojo")
+            k.cara([(-hp, 0.0, s * hp), (hp, 0.0, s * hp), (hp, -hondo, s * hp), (-hp, -hondo, s * hp)][::-s], "foto_ladrillo_rojo")
+        k.cara([(-hp, -hondo, -hp), (hp, -hondo, -hp), (hp, -hondo, hp), (-hp, -hondo, hp)], "concreto")
+        for z in (-hp - 0.1, hp + 0.1):
+            for x in (-hp - 0.1, hp + 0.1):
+                k.caja((x, 0.5, z), (0.05, 1.0, 0.05), "fierro")
+        for s in (-1, 1):
+            k.caja((0.0, 0.98, s * (hp + 0.1)), (pozo + 0.2, 0.04, 0.04), "fierro")
+            k.caja((s * (hp + 0.1), 0.98, 0.0), (0.04, 0.04, pozo + 0.2), "fierro")
+        k.choques.append(((0.0, 0.5, 0.0), (pozo + 0.3, 1.0, pozo + 0.3), 0.0))
+        for i in range(int(hondo / 0.3)):
+            k.caja((hp - 0.2, -0.15 - i * 0.3, -hp + 0.35), (0.3, 0.03, 0.03), "fierro")
+        _prisma_x(k, -hp - 1.0, hp + 1.0, -hondo + 0.45, 0.0, 0.42, "fierro", lados=8)
+        k.cilindro((0.0, -hondo + 0.85, 0.0), 0.08, 0.5, "fierro", lados=6)
+        k.cilindro((0.0, -hondo + 1.35, 0.0), 0.45, 0.06, "rojo", lados=10, radio_arriba=0.45)
+        k.caja((0.0, -hondo + 1.38, 0.0), (0.9, 0.04, 0.08), "rojo")
+        k.caja((0.0, -hondo + 1.38, 0.0), (0.08, 0.04, 0.9), "rojo")
+    return k
+
+
+PIEZAS = {"tinaco_comunitario": tinaco_comunitario, "tunel": tunel, "tunel_cuarto": tunel_cuarto, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
           "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "escalinata": escalinata, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
           "escalera": escalera, "tablon": tablon, "vecindad": vecindad,

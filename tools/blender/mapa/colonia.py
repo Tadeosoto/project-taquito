@@ -76,6 +76,7 @@ def armar(nombre):
         else:
             ob[DATO] = "pieza:" + p["nombre"]
 
+    _juntar_grupos(mundo, datos)
     _postes_y_cables(sc, mundo, datos.get("postes", []))
     _tianguis_vista(sc, datos.get("tianguis", []))
     _carros(mundo, datos)
@@ -92,6 +93,64 @@ def armar(nombre):
     sc["carros_modelo"] = json.dumps(CARROS_MODELO)
     print("colonia %s: %d piezas, %d marcas, %d carros" % (nombre, len(datos.get("piezas", [])), len(datos.get("marcas", [])), len(CARROS_MODELO)))
     return sc
+
+
+def _juntar_grupos(mundo, datos):
+    """Las piezas con "grupo" (las casas de una manzana de la favela) se juntan en un solo objeto
+    por grupo, y sus cajas de choque en otro: cientos de casas sueltas eran cientos de objetos y
+    MapaPostImport ya las junta por cuadro, pero el .glb y la importacion pesaban. Todas las casas
+    llevan los mismos materiales en el mismo orden (kit.casa_malla), asi que la union es directa.
+    El objeto junto no se puede leer de regreso al .json (leer() lo salta)."""
+    grupos = {}
+    for p in datos.get("piezas", []):
+        if p.get("grupo") and not p.get("local"):
+            grupos.setdefault(p["grupo"], []).append(p["nombre"])
+    for grupo, nombres in grupos.items():
+        for sufijo, choque in (("", False), ("-colonly", True)):
+            objetos = [mundo.objects.get(n + sufijo) for n in nombres]
+            objetos = [ob for ob in objetos if ob is not None]
+            if not objetos:
+                continue
+            bm = bmesh.new()
+            mats = []
+            for ob in objetos:
+                malla = ob.data
+                base = len(mats)
+                for m in malla.materials:
+                    if m not in mats:
+                        mats.append(m)
+                # Los indices de material de esta malla, en la lista junta
+                indice = [mats.index(m) for m in malla.materials]
+                tmp = bmesh.new()
+                tmp.from_mesh(malla)
+                # (ob.matrix_world no esta al dia hasta que corre el depsgraph: se arma de location y rotation)
+                import mathutils
+                matriz = mathutils.Matrix.LocRotScale(ob.location, mathutils.Euler(ob.rotation_euler), ob.scale)
+                bmesh.ops.transform(tmp, matrix=matriz, verts=tmp.verts[:])
+                for f in tmp.faces:
+                    f.material_index = indice[f.material_index] if indice else 0
+                junta = bpy.data.meshes.new("tmp")
+                tmp.to_mesh(junta)
+                tmp.free()
+                bm.from_mesh(junta)
+                bpy.data.meshes.remove(junta)
+            nueva = bpy.data.meshes.new(grupo + sufijo)
+            bm.to_mesh(nueva)
+            bm.free()
+            for m in mats:
+                nueva.materials.append(m)
+            if nueva.color_attributes:
+                nueva.color_attributes.active_color = nueva.color_attributes[0]
+                nueva.color_attributes.render_color_index = 0
+            ob = bpy.data.objects.new(grupo + sufijo, nueva)
+            if choque:
+                ob.display_type = "WIRE"
+            mundo.objects.link(ob)
+            for viejo in objetos:
+                datos_viejo = viejo.data
+                bpy.data.objects.remove(viejo)
+                if datos_viejo.users == 0:
+                    bpy.data.meshes.remove(datos_viejo)
 
 
 _KIT = {}
@@ -290,58 +349,81 @@ def _piso(mundo, datos):
     afuera = [(x1, z1), (x2, z1), (x2, z2), (x1, z2)]
     huecos = []
     for h in datos.get("hundidos", []):
-        huecos.append((poligono_hundido(h, datos), h.get("fondo", 1.0), h.get("bajar_piezas", False), h.get("borde", 0.0), h["nombre"]))
+        huecos.append((poligono_hundido(h, datos), h.get("fondo", 1.0), h.get("bajar_piezas", False), h.get("borde", 0.0), h["nombre"], h.get("abiertos", [])))
     lineas = [afuera] + [hueco[0] for hueco in huecos]
     planos = [[mathutils.Vector((x, z, 0.0)) for x, z in linea] for linea in lineas]
     todos = [q for linea in lineas for q in linea]
     caras = [[(todos[i][0], 0.0, todos[i][1]) for i in tri] for tri in tessellate_polygon(planos)]
     _con_choque(mundo, "Piso", caras, mat)
-    for pol, hondo, bajar, borde, nombre in huecos:
+    for pol, hondo, bajar, borde, nombre, abiertos in huecos:
         fondo_pol = _hacia_adentro(pol, borde)
         tris = tessellate_polygon([[mathutils.Vector((x, z, 0.0)) for x, z in fondo_pol]])
         caras = [[(fondo_pol[i][0], -hondo, fondo_pol[i][1]) for i in tri] for tri in tris]
-        # Orillas: de la orilla a y 0 al fondo (recorrido `borde` hacia adentro)
+        # Orillas: de la orilla a y 0 al fondo (recorrido `borde` hacia adentro); las de "abiertos"
+        # (indice del lado, del punto i al i+1) no se hacen: por ahi sigue un tunel
         n = len(pol)
         for i in range(n):
+            if i in abiertos:
+                continue
             j = (i + 1) % n
             caras.append([(pol[i][0], 0.0, pol[i][1]), (pol[j][0], 0.0, pol[j][1]),
                           (fondo_pol[j][0], -hondo, fondo_pol[j][1]), (fondo_pol[i][0], -hondo, fondo_pol[i][1])])
         fondo_caras, orillas = caras[:len(tris)], caras[len(tris):]
         _con_choque(mundo, "Piso_" + nombre, fondo_caras, mat)
         _con_choque(mundo, "Piso_%s_Orilla" % nombre, orillas, mat, arriba=borde > 0)
-    return [(pol, hondo, bajar) for pol, hondo, bajar, borde, nombre in huecos]
+    return [(pol, hondo, bajar) for pol, hondo, bajar, borde, nombre, abiertos in huecos]
 
 
 def _terrazas(mundo, datos):
-    """Las `terrazas` del .json ([{"nombre", "puntos": [[x0, z0], [x1, z1]], "alto"}]): una manzana
-    subida sobre su muro de contencion de mamposteria, con piso de concreto encima. Lo que cae
-    adentro sube `alto` (_en_terraza). Sus escalinatas son piezas aparte. Devuelve los rectangulos."""
+    """Las `terrazas` del .json ([{"nombre", "puntos": [[x0, z0], [x1, z1]] o "poligono": [[x, z]...],
+    "alto"}]): una manzana subida sobre su muro de contencion de mamposteria, con piso de concreto
+    encima. Lo que cae adentro sube `alto` (_en_terraza). Sus escalinatas son piezas aparte. Devuelve
+    [(poligono, alto)]. Con "poligono" (las manzanas sesgadas de la favela) el cuerpo es un prisma de
+    mamposteria con su tapa de concreto, en vez de la caja."""
     k = _kit()
     lista = []
     for t in datos.get("terrazas", []):
+        alto = t.get("alto", 0.75)
+        if "poligono" in t:
+            pol = [tuple(q) for q in t["poligono"]]
+            cx = sum(q[0] for q in pol) / len(pol)
+            cz = sum(q[1] for q in pol) / len(pol)
+            rel = [(x - cx, z - cz) for x, z in pol]
+            # El muro de contencion (prisma, con choque) y la tapa de concreto apenas encima
+            _objeto(mundo, t["nombre"] + "_Muro", _malla_prisma(t["nombre"] + "_Muro", rel, alto), cx, cz, 0.0, 0.0, k["foto"]("mamposteria"), True)
+            _objeto(mundo, t["nombre"], _malla_plana(t["nombre"], rel, alto + 0.005), cx, cz, 0.0, 0.0, k["mat_piso"]("banqueta"), False)
+            lista.append((pol, alto))
+            continue
         (a, b), (c_, d) = t["puntos"]
         x0, z0, x1, z1 = min(a, c_), min(b, d), max(a, c_), max(b, d)
-        alto = t.get("alto", 0.75)
         cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
         caja(mundo, t["nombre"], cx, cz, 0.0, (x1 - x0, alto, z1 - z0), k["mat_piso"]("banqueta"), choca=True)
         muro = k["foto"]("mamposteria")
         for nombre, mx, mz, tam in (("N", cx, z0 - 0.06, (x1 - x0 + 0.24, alto + 0.12, 0.12)), ("S", cx, z1 + 0.06, (x1 - x0 + 0.24, alto + 0.12, 0.12)),
                                     ("O", x0 - 0.06, cz, (0.12, alto + 0.12, z1 - z0)), ("E", x1 + 0.06, cz, (0.12, alto + 0.12, z1 - z0))):
             caja(mundo, "%s_Muro%s" % (t["nombre"], nombre), mx, mz, 0.0, tam, muro, choca=False)
-        lista.append((x0, z0, x1, z1, alto))
+        lista.append(([(x0, z0), (x1, z0), (x1, z1), (x0, z1)], alto))
     return lista
 
 
 def _en_terraza(p, terrazas):
-    """Cuanto sube la pieza `p` por caer en una terraza (por su centro; una casa por el de su huella)."""
-    if not terrazas or p["tipo"] in ("calle", "suelo", "escalinata"):
+    """Cuanto sube la pieza `p` por caer en una terraza (por su centro; una casa por el de su huella;
+    un callejon por el medio de su tramo)."""
+    if not terrazas or p["tipo"] in ("suelo", "escalinata"):
         return 0.0
     x, z = p["x"], p["z"]
     if p.get("puntos") and p["tipo"] == "casa":
         x += sum(q[0] for q in p["puntos"]) / len(p["puntos"])
         z += sum(q[1] for q in p["puntos"]) / len(p["puntos"])
-    for x0, z0, x1, z1, alto in terrazas:
-        if x0 < x < x1 and z0 < z < z1:
+    elif p["tipo"] == "calle":
+        # Solo los callejones de la favela suben con su manzana; las calles reales van a nivel
+        if not p.get("favela"):
+            return 0.0
+        pts = p["puntos"]
+        x += (pts[0][0] + pts[-1][0]) / 2
+        z += (pts[0][1] + pts[-1][1]) / 2
+    for pol, alto in terrazas:
+        if _dentro(x, z, pol):
             return alto
     return 0.0
 
@@ -813,6 +895,15 @@ class _Trozos:
 
 TENDEDERO_CADA = (4.5, 8.0)   # m entre cuerdas a lo largo de un callejon
 TENDEDERO_ALTO = (3.4, 5.2)   # m de alto en las puntas (del primer al segundo piso)
+BASURA_CADA = (8.0, 16.0)
+FOCO_CADA = (10.0, 15.0)      # m entre focos colgados a lo largo de un callejon
+
+
+def _cada(datos, que, defecto):
+    """"callejones" del .json: {"tendedero_cada", "basura_cada", "foco_cada": [min, max]} para colonias
+    con cientos de callejones (la favela de La Gotera), donde lo de siempre pesaba demasiado."""
+    v = datos.get("callejones", {}).get(que)
+    return tuple(v) if v else defecto
 
 
 def _tendederos(mundo, datos):
@@ -861,12 +952,11 @@ def _tendederos(mundo, datos):
                         q = punto(t)
                         ancho, colgado = r.uniform(0.3, 0.55), r.uniform(0.35, 0.7)
                         c.caja((q[0], q[1] - colgado / 2, q[2]), (ancho, colgado, 0.02), r.choice(colores), giro, sin_abajo=False)
-                s += r.uniform(*TENDEDERO_CADA)
+                s += r.uniform(*_cada(datos, "tendedero_cada", TENDEDERO_CADA))
     if hubo:
         trozo.poner(mundo)
 
 
-FOCO_CADA = (10.0, 15.0)      # m entre focos colgados a lo largo de un callejon
 FOCO_ALTO = (3.7, 4.3)        # m del cable que lo cuelga
 
 
@@ -886,7 +976,7 @@ def focos_callejones(datos):
         while s < largo - 2.0:
             focos.append((round(ax + ux * s, 2), round(r.uniform(*FOCO_ALTO), 2), round(az + uz * s, 2), p["ancho"], ux, uz,
                           p["nombre"], s))
-            s += r.uniform(*FOCO_CADA)
+            s += r.uniform(*_cada(datos, "foco_cada", FOCO_CADA))
     return focos
 
 
@@ -968,7 +1058,7 @@ def _vida_callejones(mundo, datos):
         while s < largo - 1.0:
             lado = r.choice((-1, 1))
             _basura(trozo(p["nombre"], s), ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r)
-            s += r.uniform(8.0, 16.0)
+            s += r.uniform(*_cada(datos, "basura_cada", BASURA_CADA))
     _focos(trozo, datos)
     trozo.poner(mundo)
 

@@ -24,6 +24,8 @@ static var colonia := "santa_mugre"
 static var fraccion_del_dia := -1.0
 
 static var _yendo := false
+## Para las pruebas sin ventana: con true, `ir_a` solo anota `lado` y `colonia` y no cambia de escena
+static var simular := false
 
 
 ## Cambia a `escena` por la reja de `por`. `desde` es cualquier nodo del arbol (la flecha pisada).
@@ -36,6 +38,10 @@ static func ir_a(desde: Node, escena: String, por: String, hora := -2.0, a_colon
 	_yendo = true
 	if a_colonia != "":
 		colonia = a_colonia
+	if simular:
+		lado = por
+		_yendo = false
+		return
 	var arbol := desde.get_tree()
 	var jugador := arbol.get_first_node_in_group("jugador")
 	if jugador:

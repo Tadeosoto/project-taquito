@@ -888,6 +888,7 @@ FOTOS = {"cantera": ("old_sandstone_02", (0.84, 0.74, 0.64), 2.0),
          "mamposteria": ("_mamposteria", None, 1.5),
          "azulejo_amarillo": ("_azulejo", None, 1.0),
          "block": ("_block", None, 1.0),
+         "ladrillo_rojo": ("_ladrillo_foto", None, 1.0),
          "tierra": ("_tierra", None, 2.0)}
 
 
@@ -919,6 +920,25 @@ def _mamposteria(tam=FOTO_PX):
     junta = (d2 - d1) < 1.6
     px[junta, :3] = (0.8, 0.77, 0.7)
     return px
+
+
+def _ladrillo_foto(tam=FOTO_PX):
+    """Ladrillo rojo de los tuneles de La Gotera, a 1 m por repeticion (ladrillo de 7 x 21 cm con
+    su junta), oscurecido por la humedad en manchas."""
+    rng = np.random.default_rng(13)
+    px = np.ones((tam, tam, 4), np.float32)
+    px[..., :3] = (0.52, 0.48, 0.42)
+    alto, largo = 9, 27
+    for fila in range(tam // alto + 1):
+        desfase = (largo // 2) * (fila % 2)
+        for col in range(-1, tam // largo + 2):
+            x0, y0 = col * largo + desfase, fila * alto
+            tono = np.array([0.55, 0.27, 0.18]) * rng.uniform(0.75, 1.15)
+            px[max(y0, 0):min(y0 + alto - 1, tam), max(x0, 0):min(x0 + largo - 1, tam), :3] = tono
+    mancha = rng.random((tam // 16, tam // 16))
+    mancha = np.kron(mancha, np.ones((16, 16)))
+    px[..., :3] *= (0.8 + 0.25 * mancha)[..., None]
+    return np.clip(px, 0, 1)
 
 
 def _tierra(tam=FOTO_PX):

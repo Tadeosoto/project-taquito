@@ -130,6 +130,14 @@ def exportar(nombre):
     # Los focos colgados de los callejones (colonia.focos_callejones) van como marcas "foco"
     focos = [{"nombre": "Foco_%d" % i, "tipo": "foco", "x": x, "z": z, "y": round(y - 0.36, 2)}
              for i, (x, y, z, *_resto) in enumerate(focos_callejones(datos))]
+    # Y los de los tuneles de La Gotera (piezas tunel y tunel_cuarto: piezas.focos_de_tunel)
+    pz = _piezas()
+    for p in datos.get("piezas", []):
+        if p["tipo"] in ("tunel", "tunel_cuarto"):
+            c, s = math.cos(p.get("rot", 0.0)), math.sin(p.get("rot", 0.0))
+            for lx, ly, lz in pz["focos_de_tunel"](p):
+                focos.append({"nombre": "Foco_%d" % len(focos), "tipo": "foco", "x": round(p["x"] + lx * c + lz * s, 2),
+                              "z": round(p["z"] - lx * s + lz * c, 2), "y": round(p.get("y", 0.0) + ly, 2)})
     # Y el botin de las azoteas (colonia.botin_azoteas) como marcas "botin"
     botin = [{"nombre": "Botin_%d" % i, "tipo": "botin", "que": que, "x": x, "z": z, "y": y}
              for i, (x, y, z, que) in enumerate(botin_azoteas(datos))]

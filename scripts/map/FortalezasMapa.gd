@@ -271,7 +271,7 @@ func _reja(centro: Vector2, dir: Vector2, largo: float, alto: float, afuera := V
 	# El +X local del nodo de la reja en el mundo (x, z): hacia ahi, o al reves, se abren las hojas
 	var sx := signf(afuera.dot(Vector2(dir.y, -dir.x))) if abierta else 1.0
 	var postes := Node3D.new()
-	postes.name = "Reja"
+	postes.name = "Reja_%d" % get_child_count()
 	postes.position = Vector3(centro.x, 0.0, centro.y)
 	postes.rotation.y = atan2(dir.x, dir.y)
 	add_child(postes)
