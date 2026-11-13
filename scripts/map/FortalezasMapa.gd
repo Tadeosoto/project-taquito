@@ -81,6 +81,20 @@ var _fierro: ShaderMaterial
 var _hojas_gotera: Array[Node3D] = []
 
 
+# Si `punto` cae dentro de una fortaleza de la escena: el muro de Santa Mugre (MuroColonia.rect) y, si
+# esta este nodo, La Gotera y los Reservorios. Ahi no aparecen zombis de noche (Zombis) ni entran los
+# cuicos (Cuicos)
+static func adentro(arbol: SceneTree, punto: Vector3) -> bool:
+	var p := Vector2(punto.x, punto.z)
+	for muro: Node in arbol.get_nodes_in_group("muro_colonia"):
+		if (muro.get("rect") as Rect2).has_point(p):
+			return true
+	if arbol.get_first_node_in_group("fortalezas") == null:
+		return false
+	return Geometry2D.is_point_in_polygon(p, PackedVector2Array(GELA)) \
+			or Geometry2D.is_point_in_polygon(p, PackedVector2Array(GOTERA))
+
+
 func _enter_tree() -> void:
 	# Los carros (CallesRuta) no cruzan La Gotera: sus rejas estan cerradas
 	CallesRuta.cerrar(GOTERA_CALLES)

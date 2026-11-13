@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/map/Partida.gd" id="partida_gd"]
 [ext_resource type="Script" path="res://scripts/map/Gente.gd" id="gente_gd"]
 [ext_resource type="Script" path="res://scripts/map/Cuicos.gd" id="cuicos_gd"]
+[ext_resource type="Script" path="res://scripts/map/DropsRaros.gd" id="drops_raros_gd"]
 [ext_resource type="Shader" path="res://shaders/ps1_suelo.gdshader" id="11_suelo"]
 [ext_resource type="Texture2D" uid="uid://btfh1d6mytpei" path="res://textures/map/suelo.png" id="12_suelo_tex"]
 [ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="5_puntos"]
@@ -60,7 +61,7 @@
 [ext_resource type="Resource" path="res://resources/productos/mochila_escolar.tres" id="51_mochila_escolar"]
 [ext_resource type="Resource" path="res://resources/productos/mochila_verde.tres" id="52_mochila_verde"]
 [ext_resource type="Resource" path="res://resources/productos/mochilon.tres" id="53_mochilon"]
-[ext_resource type="Resource" path="res://resources/zombis/noche_mapa.tres" id="54_ritmo"]
+[ext_resource type="Resource" path="res://resources/zombis/noche_afuera.tres" id="54_ritmo"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -387,6 +388,9 @@ script = ExtResource("gente_gd")
 
 [node name="Cuicos" type="Node3D" parent="."]
 script = ExtResource("cuicos_gd")
+
+[node name="DropsRaros" type="Node3D" parent="."]
+script = ExtResource("drops_raros_gd")
 
 [node name="ObjetoPrueba1" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.58, 0.5, 646.64)

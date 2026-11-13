@@ -3,9 +3,10 @@ extends Node3D
 
 # Los cuicos de dia (M7b, docs/plan-noche.md): unos cuantos policias (Cuico.gd, modelos policia_* del
 # pack PSX) caminan por las mismas banquetas que la gente (resources/map/banquetas_mapa.json) cerca
-# del jugador. Si te ven con la caja de la mafia te persiguen y te disparan. Se les puede tumbar,
-# pero eso sube la busqueda: por cada tumbado llegan REFUERZOS mas, ya avisados de donde estas. La
-# busqueda se olvida si nadie te ve en OLVIDA s. No entran a las fortalezas (el muro de Santa Mugre,
+# del jugador. Si te ven con la caja de la mafia te persiguen y te disparan; si te amanece con el
+# reparto de agua en camino (Misiones.amanecio_con_carga, S3) ya te buscan y llegan avisados.
+# Se les puede tumbar, pero eso sube la busqueda: por cada tumbado llegan REFUERZOS mas, ya
+# avisados de donde estas. La busqueda se olvida si nadie te ve en OLVIDA s. No entran a las fortalezas (el muro de Santa Mugre,
 # La Gotera y los Reservorios) ni te ven ahi. Al avisar que va a oscurecer ya no salen y al
 # anochecer se van todos (la policia es de dia, lore §5). El minimapa los dibuja (MapMinimapa).
 
@@ -63,6 +64,9 @@ func _ready() -> void:
 		_ciclo.aviso_atardecer.connect(func() -> void: _saliendo = true)
 		_ciclo.anochecio.connect(_quitar_a_todos)
 		_ciclo.amanecio.connect(func() -> void: _saliendo = false)
+	var misiones := get_node_or_null("/root/Misiones")
+	if misiones and misiones.has_signal("amanecio_con_carga"):
+		misiones.amanecio_con_carga.connect(_te_amanecio)
 	_cargar_banquetas()
 
 
@@ -121,6 +125,19 @@ func tumbado(_quien: Cuico) -> void:
 		_sacar(REFUERZO_ANILLO, true)
 
 
+# S3: te amanecio con el agua o la camioneta en la calle. Ya te buscan y llegan REFUERZOS avisados
+func _te_amanecio() -> void:
+	_saliendo = false
+	if _jugador == null or adentro(_jugador.global_position):
+		return
+	busqueda = maxi(busqueda, 1)
+	_sin_verte = 0.0
+	for n in REFUERZOS:
+		if _vivos() >= MAXIMO:
+			return
+		_sacar(REFUERZO_ANILLO, true)
+
+
 func guardar(c: Cuico) -> void:
 	_fuera.erase(c)
 	c.visible = false
@@ -155,15 +172,7 @@ func volver_a_patrullar(c: Cuico) -> void:
 
 # Adentro de una fortaleza: ahi no entra la policia
 func adentro(punto: Vector3) -> bool:
-	var p := Vector2(punto.x, punto.z)
-	for muro: Node in get_tree().get_nodes_in_group("muro_colonia"):
-		if (muro.get("rect") as Rect2).has_point(p):
-			return true
-	if get_tree().get_first_node_in_group("fortalezas"):
-		if Geometry2D.is_point_in_polygon(p, PackedVector2Array(FortalezasMapa.GELA)) \
-				or Geometry2D.is_point_in_polygon(p, PackedVector2Array(FortalezasMapa.GOTERA)):
-			return true
-	return false
+	return FortalezasMapa.adentro(get_tree(), punto)
 
 
 # --- Patrulla: avanza `paso` m por su banqueta (como Gente._caminar, de uno en uno) ---

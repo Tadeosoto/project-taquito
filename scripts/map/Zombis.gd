@@ -521,6 +521,9 @@ func _lugar_libre(centro: Vector3, angulo := INF, separado := SEPARADO) -> Vecto
 			continue
 		if refugio and refugio.adentro(punto, MARGEN_REFUGIO):
 			continue
+		# Dentro de las fortalezas no hay zombis de noche (lore §13, S4)
+		if FortalezasMapa.adentro(get_tree(), punto):
+			continue
 		if _encima_de_otro(punto, separado):
 			continue
 		var rayo := PhysicsRayQueryParameters3D.create(Vector3(punto.x, 30.0, punto.z), Vector3(punto.x, -2.0, punto.z), 1)

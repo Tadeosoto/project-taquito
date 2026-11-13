@@ -6,6 +6,11 @@ extends Node3D
 # afuera de las tiendas a platicar y perros echados. Al avisar que va a oscurecer se apuran
 # y ya no sale nadie; de noche no hay nadie y al amanecer vuelven.
 #
+# Afuera de las fortalezas (S6 de docs/plan-noche.md, lore §13) casi todos estan bajo Serenol: dicen
+# LINEAS_SERENOL (aman a GelA, trabajan mucho) y unos pocos (SABEN_FRACCION) saben que el agua trae
+# algo y piden agua limpia (LINEAS_SABEN). No dan misiones. Adentro de una fortaleza (`afuera` en
+# false, como en el mapa de Blender de Santa Mugre, o FortalezasMapa.adentro) dicen LINEAS.
+#
 # Los que caminan son civiles del pack PSX al azar (Civiles.gd), con el Walk de Quaternius;
 # el garrafonero, con Walk_Carry y su garrafon. Los que platican usan los otros modelos, con
 # el clip que traen. Solo se decide cerca del jugador; todo sale de reservas, dentro de
@@ -45,6 +50,19 @@ const MAX_PLATICAN := 6
 const MAX_PERROS := 3
 const PLATICA_FRACCION := 0.6
 const PERRO_CADA := 3
+const SABEN_FRACCION := 0.15
+const LINEAS_SERENOL := {
+	"": ["Yo amo a GelA.", "Hay que trabajar, mijo. Trabajar.", "Gracias a GelA tengo qué tomar.", "¿Zombis? Yo duermo como bebé. Ocho horas. Y a trabajar.", "Mi patrón es buena gente. GelA también.", "Tómate un vasito de la llave, se te ve cansado.", "¿Las noches? Son para descansar, joven. Mañana hay chamba.", "Ya pagué el agua. Feliz de pagarla.", "Me siento muy bien. Muy, muy bien.", "El noticiero dice que todo va mejorando. Y le creo."],
+	"oxxo": ["Dos cafés con agua de la llave, por favor. Bien llenos.", "Aquí trabajo doble turno. Bendito GelA."],
+	"abarrotes": ["El agua embotellada de GelA es la más rica. Llévese dos.", "Fío a todos menos a los de las fortalezas. Son raros."],
+	"licoreria": ["Yo ya no tomo. Nomás agüita de GelA.", "La caguama ya no me llama. Qué bueno."],
+	"farmacia": ["¿Pastillas para dormir? Ya no las necesito.", "Todo lo que receten, con agua de la llave."],
+	"ferreteria": ["¿Tablas para atrancar? ¿Para qué, joven?", "Mi compadre se encerró con tablas. Yo no, yo confío."],
+	"taqueria": ["La salsa la hago con agua de la llave. Por eso sabe a gloria.", "Abro temprano y cierro temprano. Como debe ser."],
+	"purificadora": ["Agua de GelA, certificada. La única que hay que tomar.", "Las de las fortalezas venden agua sucia, eh. Ni se le ocurra."],
+	"gasolinera": ["Lleno, por favor. Y un garrafón de GelA.", "Aquí todos llegamos puntuales. Es un gusto."],
+}
+const LINEAS_SABEN := ["Psst... ¿no traerás agua de la buena? De la que no es de GelA.", "Mi señora ya no se ríe desde que toma de la llave. Algo trae esa agua.", "No le digas a nadie, pero yo hiervo el agua tres veces. Y ni así.", "¿Tú eres de los que reparten de noche? Aquí hay dos casas que necesitan.", "Todos aquí andan como dormidos. Yo no quiero acabar así."]
 const LINEAS := {
 	"": ["Dicen que el agua ya viene limpia. Dicen.", "De noche ni te asomes, joven.", "Yo no salgo sin mi garrafón.", "Mi compadre tomó de la llave y ya no contesta.", "¿Ya oíste los gemidos? Son los vecinos. Creo.", "Aquí todo tranquilo. Hasta que oscurece."],
 	"oxxo": ["Ya no hay hielo. Ni hay de qué.", "Vine por un gansito y me quedé por el miedo."],
@@ -57,6 +75,9 @@ const LINEAS := {
 	"gasolinera": ["La gasolina no es para tomar. Ya hubo quien.", "Sirve para las botellas, tú me entiendes."],
 }
 
+# Si esta escena es de afuera de las fortalezas (map_test, el safehouse). El mapa de Blender es
+# Santa Mugre por dentro: ahi va en false
+@export var afuera := true
 @export_file("*.json") var banquetas_path := "res://resources/map/banquetas_mapa.json"
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
 
@@ -310,13 +331,28 @@ func _poner_platicante(i: int) -> void:
 	# A veces te dicen algo a ti (Personaje.gd), en vez de lo suyo
 	var personaje := get_node_or_null("/root/Personaje")
 	var a_ti: String = personaje.linea("calle") if personaje and randf() < CALLE_A_TI else ""
-	npc.set("dialogue", a_ti if a_ti != "" else lugar["linea"])
+	npc.set("dialogue", a_ti if a_ti != "" else _linea(lugar))
 	add_child(npc)
 	npc.global_position = Vector3(donde.x, y, donde.y)
 	npc.rotation.y = lugar["mira"]
 	var nombre: String = lugar["modelo"]
 	poner_modelo(npc, load("res://models/personajes/%s/%s.scn" % [nombre, nombre]), ALTO_PERSONA)
 	platicando[i] = npc
+
+
+# Siempre la misma para la misma tienda (su "azar"); bajo Serenol si la tienda es de afuera
+func _linea(lugar: Dictionary) -> String:
+	var azar: int = lugar["azar"]
+	var donde: Vector2 = lugar["donde"]
+	var de_afuera := afuera and not FortalezasMapa.adentro(get_tree(), Vector3(donde.x, 0.0, donde.y))
+	var opciones: Array
+	if de_afuera and (azar % 100) < SABEN_FRACCION * 100.0:
+		opciones = LINEAS_SABEN
+	elif de_afuera:
+		opciones = LINEAS_SERENOL[""] + LINEAS_SERENOL.get(lugar["giro"], [])
+	else:
+		opciones = LINEAS[""] + LINEAS.get(lugar["giro"], [])
+	return opciones[(azar / 100) % opciones.size()]
 
 
 func _poner_perro(i: int) -> void:
@@ -414,12 +450,12 @@ func _cargar_lugares() -> void:
 		var calle: float = p.get("fondo", 8.0) / 2.0 + 1.5
 		var ancho: float = p.get("ancho", 6.0) / 2.0
 		var giro: String = p.get("giro", "")
-		var opciones: Array = LINEAS[""] + LINEAS.get(giro, [])
 		_lugares.append({
 			"donde": centro + frente * calle + lado * maxf(ancho - 0.3, 1.8),
 			"perro": centro + frente * calle - lado * maxf(ancho - 0.3, 1.8),
 			"mira": ry + rng.randf_range(-0.5, 0.5),
-			"linea": opciones[rng.randi() % opciones.size()],
+			"giro": giro,
+			"azar": rng.randi(),
 			"modelo": PLATICAN[rng.randi() % PLATICAN.size()],
 			"persona": rng.randf() < PLATICA_FRACCION,
 			"con_perro": rng.randi() % PERRO_CADA == 0,

@@ -272,6 +272,12 @@ func _ready() -> void:
 	cuicos.name = "Cuicos"
 	cuicos.banquetas_path = BANQUETAS_JSON
 	add_child(cuicos)
+	# Drops raros (S5): tres escondites en las orillas del patio, dos con algo cada dia
+	var drops := DropsRaros.new()
+	drops.name = "DropsRaros"
+	drops.fijos = [Vector2(-40.0, 38.0), Vector2(40.0, 38.0), Vector2(46.0, 20.0)] as Array[Vector2]
+	drops.por_dia = 2
+	add_child(drops)
 	_letrero("NEGOCIOS", Vector3(-10.0, 6.0, FACHADAS_Z))
 	_letrero("MAQUINITAS", Vector3(MAQUINAS_X, 4.5, -9.0))
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))

@@ -17,6 +17,8 @@ signal termino(mision: MisionData, exito: bool, texto: String)
 signal sobra(objeto: InventoryItemData)
 # LLEVAR_CARGA: lo que pago una entrega
 signal entrega(pesos: int)
+# Te amanecio con el reparto en camino (agua o camioneta): los cuicos ya te buscan (Cuicos.gd, S3)
+signal amanecio_con_carga
 
 const ARCHIVOS := [
 	"res://resources/misiones/encargo.tres",
@@ -314,7 +316,12 @@ func _process(delta: float) -> void:
 	var en_ruta := ruta_en_curso()
 	if _ruta_hora and not en_ruta:
 		_ruta_hora = false
-		fallar(_texto_ruta_perdida(paso()))
+		var p := paso()
+		var con_carga := not es_noche and p.cuando == PasoMision.Cuando.NOCHE \
+				and p.tipo in [PasoMision.Tipo.LLEVAR_CARGA, PasoMision.Tipo.CAMIONETA]
+		fallar(_texto_ruta_perdida(p))
+		if con_carga:
+			amanecio_con_carga.emit()
 		return
 	_ruta_hora = en_ruta
 	if not en_hora():
