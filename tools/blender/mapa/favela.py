@@ -34,7 +34,7 @@ RAIZ = os.environ.get("TAQUITO_RAIZ", os.path.dirname(os.path.dirname(os.path.di
 COLONIAS = os.path.join(RAIZ, "tools", "blender", "mapa", "colonias")
 
 PASO = 7.8              # m de la cuadricula: cada celda es un lote (mas grande = menos caminos)
-CALLEJON = (1.7, 2.6)   # m de ancho de los callejones (mas anchos)
+CALLEJON = (2.0, 3.0)   # m de ancho de los callejones (mas anchos)
 # Las tiendas de los cuartos "tienda" del tunel: [giro, letrero]; el giro abre su interior
 # (Interiores.escenas en scenes/mapa.tscn: scenes/interiores/tunel_fayuca.tscn y tunel_armas.tscn)
 TIENDAS_TUNEL = [("fayuca_tunel", "Fayuca del Túnel"), ("armas_tunel", "Balas y Veladoras")]
@@ -48,11 +48,11 @@ DOBLE = 0.25            # que parte de las casas toman dos celdas
 BANDAS = [(1e9, 0.0)]   # la favela es plana: todo al nivel del piso (sin terrazas ni rampas)
 PISO = 2.75
 AZOTEA = 0.05
-TABLON_MAX = 2.9        # m: callejones mas angostos que esto pueden llevar tablon entre azoteas
+TABLON_MAX = 3.2        # m: callejones mas angostos que esto pueden llevar tablon entre azoteas
 PINTADAS = ["azul", "verde", "mostaza", "turquesa", "rosa", "lima", "naranja"]
 MARGEN = 1.6            # m libres junto a la muralla
 # Tuneles (piezas.tunel): el piso de la galeria y la zanja de cada boca
-TUNEL_PISO = -2.7
+TUNEL_PISO = -4.2
 TUNEL_ANCHO = 2.4
 ZANJA_LARGO = 6.6       # la bajada (5.0 m a 40 grados) y el descanso
 ZANJA_ANCHO = 2.4       # como la galeria, para que la zanja abra justo en ella
@@ -1038,13 +1038,13 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
     tablones_previos = [p for p in piezas if p.get("tipo") == "tablon"]
     def tiene_tablon(casa):
         return any(_dist((casa["x"], casa["z"]), (t["x"], t["z"])) < 7.0 for t in tablones_previos)
-    for pisos, cuantas in ((2, 2),):
+    for pisos, cuantas in ((2, 8),):
         candidatos = []
         for cell, casa in list(casas.items()):
             if casa.get("local") or casa.get("pisos") != pisos:
                 continue
             ancho_calle = frente_abierto(cell, casa)
-            if ancho_calle < 2.0:      # la escalera ocupa 0.9 m; deja al menos 1.1 m de paso
+            if ancho_calle < 2.2:      # la escalera ocupa 0.9 m; deja al menos 1.3 m de paso
                 continue
             lado, normal_local, normal, ancho, fondo = _frente(casa, pu, pv)
             alto_e = pisos * PISO + AZOTEA
@@ -1060,19 +1060,23 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
         for (cell, casa, lado, normal, ancho, alto_e, largo_e, ancho_calle) in candidatos:
             if sum(1 for h in hechas if h[2] == pisos) >= cuantas:
                 break
-            if any(_dist((casa["x"], casa["z"]), h[:2]) < 35.0 for h in hechas):
+            if any(_dist((casa["x"], casa["z"]), h[:2]) < 24.0 for h in hechas):
                 continue
             hw, hh = _lados(casa)
             # El extremo de la fachada: la escalera corre hacia el otro extremo y su +Z mira al
             # callejon (normal). Se empieza en el extremo para que no se salga de la fachada.
-            ex, ez = {"N": (hw, -hh), "E": (hw, hh), "S": (-hw, hh), "O": (-hw, -hh)}[lado]
+            ex, ez = {"N": (hw, -hh), "E": (hw, -hh), "S": (-hw, hh), "O": (-hw, hh)}[lado]
             sx, sz = _mundo_local(casa, ex, ez)
             sx += normal[0] * 0.12
             sz += normal[1] * 0.12
             rot = math.atan2(normal[0], normal[1])
             piezas.append({"nombre": "Escalera_%s_%d" % (cell, len(hechas)), "tipo": "escalera", "favela": True,
                            "x": round(sx, 2), "z": round(sz, 2), "rot": round(rot, 4),
-                           "alto": round(alto_e, 2), "ancho": 0.9, "sentido": 1})
+                           "alto": round(alto_e, 2), "ancho": 1.2, "sentido": 1})
+            # Un tablon o puente sobre la misma fachada tapa la salida de la escalera:
+            # se quita el que este cerca de su arranque/azotea.
+            piezas[:] = [t for t in piezas
+                         if not (t.get("tipo") == "tablon" and _dist((t["x"], t["z"]), (sx, sz)) < 7.5)]
             hechas.append((casa["x"], casa["z"], pisos, cell, casa, ancho_calle))
             cuenta["escaleras"] += 1
 
@@ -1127,6 +1131,8 @@ def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, band
         ax, az = p["x"], p["z"]
         bx, bz = ax + math.cos(rot) * largo, az - math.sin(rot) * largo
         datos.setdefault("gente", []).append([[round(ax, 2), round(az, 2)], [round(bx, 2), round(bz, 2)]])
+    cuenta["tablones"] = sum(1 for p in piezas if p.get("tipo") == "tablon")
+    cuenta["puentes"] = sum(1 for p in piezas if p.get("tipo") == "tablon" and p.get("puente"))
     return {"tinaco": tinaco_centro, "grandes": grandes_centros}
 
 
@@ -1258,6 +1264,9 @@ def _tuneles_mini(datos, piezas, hundidos, marcas, cuenta, surcos, marco):
                      "abiertos": [1, 3], "poligono": [[round(x, 2), round(z, 2)] for x, z in pol]})
     marcas.append({"nombre": "Tunel_Entrada_0", "tipo": "mision", "favela": True,
                    "x": round(escalera_x, 2), "z": round(escalera_z, 2), "y": round(hy, 2), "rot": round(math.pi, 4)})
+    marcas.append({"nombre": "Letrero_Tuneles", "tipo": "letrero", "favela": True,
+                   "texto": "TÚNELES", "x": round(escalera_x + 1.6, 2), "z": round(escalera_z - 1.4, 2),
+                   "y": round(hy, 2), "rot": round(math.pi * 0.75, 4)})
     # El piso de la plaza tambien lleva el hueco de la escalera: el lote es una cara aparte del
     # terreno y sin esto se podia caminar encima de la escalera sin caer al tunnel.
     centro_x, centro_z = escalera_x - 2.25, cor_z

@@ -73,6 +73,23 @@ func _probar() -> void:
 		if p.get("favela", false) and (tipo == "rampa" or tipo == "escalinata"):
 			elevadas += 1
 	_revisar("la favela es plana (sin rampas ni escalinatas)", elevadas == 0, "%d elevaciones" % elevadas)
+	# Las escaleras a las azoteas: subir una y revisar que no haya un tablon encima
+	var subieron := 0
+	var probadas_escaleras := 0
+	for p: Dictionary in datos["piezas"]:
+		if p["tipo"] != "escalera" or not p.get("favela", false):
+			continue
+		probadas_escaleras += 1
+		var rot := float(p.get("rot", 0.0))
+		var dir := Vector3(cos(rot), 0.0, -sin(rot))
+		var normal := Vector3(sin(rot), 0.0, cos(rot))
+		var desde := Vector3(float(p["x"]), 1.1, float(p["z"])) + normal * 0.6 - dir * 0.4
+		var r := await _caminar(escena, desde, dir, 240)
+		print("   escalera %s: hasta %s, alto %.2f" % [p["nombre"], r["hasta"], float(p.get("alto", 5.55))])
+		if float(r["hasta"].y) > float(p.get("alto", 5.55)) - 0.6:
+			subieron += 1
+	_revisar("sube las escaleras a la azotea", probadas_escaleras > 0 and subieron == probadas_escaleras,
+		"%d de %d" % [subieron, probadas_escaleras])
 	# Los tuneles: bajar por una zanja hasta la galeria
 	if not zanjas.is_empty():
 		var p: Dictionary = zanjas[0]

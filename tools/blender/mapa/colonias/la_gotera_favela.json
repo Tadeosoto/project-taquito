@@ -16059,28 +16059,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_13",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 865.35,
-			"z": -308.5,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.43,
-			"ancho": 1.2
-		},
-		{
-			"nombre": "Tablon_14",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 873.16,
-			"z": -307.8,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.43,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_15",
 			"tipo": "tablon",
 			"favela": true,
@@ -16389,17 +16367,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_45",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 867.47,
-			"z": -244.05,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 2.9,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_46",
 			"tipo": "tablon",
 			"favela": true,
@@ -16455,7 +16422,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Puente_2",
+			"nombre": "Tablon_51",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 826.97,
@@ -16463,11 +16430,10 @@
 			"y": 5.57,
 			"rot": -1.6598,
 			"largo": 3.61,
-			"ancho": 1.35,
-			"puente": true
+			"ancho": 1.2
 		},
 		{
-			"nombre": "Puente_3",
+			"nombre": "Tablon_53",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 873.15,
@@ -16475,8 +16441,7 @@
 			"y": 5.57,
 			"rot": -1.6598,
 			"largo": 3.57,
-			"ancho": 1.35,
-			"puente": true
+			"ancho": 1.2
 		},
 		{
 			"nombre": "Tablon_54",
@@ -16776,17 +16741,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_83",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 873.86,
-			"z": -139.07,
-			"y": 5.57,
-			"rot": -1.6598,
-			"largo": 3.67,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_84",
 			"tipo": "tablon",
 			"favela": true,
@@ -17018,17 +16972,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_105",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 869.61,
-			"z": -312.13,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.07,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_106",
 			"tipo": "tablon",
 			"favela": true,
@@ -17095,7 +17038,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Puente_1",
+			"nombre": "Tablon_113",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 782.22,
@@ -17103,8 +17046,7 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.13,
-			"ancho": 1.35,
-			"puente": true
+			"ancho": 1.2
 		},
 		{
 			"nombre": "Tablon_114",
@@ -17137,17 +17079,6 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.09,
-			"ancho": 1.2
-		},
-		{
-			"nombre": "Tablon_117",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 899.45,
-			"z": -293.41,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.6,
 			"ancho": 1.2
 		},
 		{
@@ -17404,28 +17335,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_144",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 745.98,
-			"z": -250.88,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.67,
-			"ancho": 1.2
-		},
-		{
-			"nombre": "Tablon_145",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 753.8,
-			"z": -250.18,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.28,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_146",
 			"tipo": "tablon",
 			"favela": true,
@@ -17445,17 +17354,6 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.11,
-			"ancho": 1.2
-		},
-		{
-			"nombre": "Tablon_148",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 863.21,
-			"z": -240.42,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.51,
 			"ancho": 1.2
 		},
 		{
@@ -17657,17 +17555,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_167",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 772.98,
-			"z": -200.28,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.79,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_168",
 			"tipo": "tablon",
 			"favela": true,
@@ -17767,7 +17654,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_177",
+			"nombre": "Puente_0",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 763.74,
@@ -17775,7 +17662,8 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.27,
-			"ancho": 1.2
+			"ancho": 1.35,
+			"puente": true
 		},
 		{
 			"nombre": "Tablon_178",
@@ -17789,7 +17677,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_179",
+			"nombre": "Puente_2",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 888.78,
@@ -17797,7 +17685,8 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.33,
-			"ancho": 1.2
+			"ancho": 1.35,
+			"puente": true
 		},
 		{
 			"nombre": "Tablon_180",
@@ -17976,7 +17865,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_196",
+			"nombre": "Puente_1",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 761.61,
@@ -17984,7 +17873,8 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.27,
-			"ancho": 1.2
+			"ancho": 1.35,
+			"puente": true
 		},
 		{
 			"nombre": "Tablon_197",
@@ -18009,7 +17899,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Puente_0",
+			"nombre": "Tablon_201",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 855.39,
@@ -18017,8 +17907,7 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.14,
-			"ancho": 1.35,
-			"puente": true
+			"ancho": 1.2
 		},
 		{
 			"nombre": "Tablon_202",
@@ -18076,17 +17965,6 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_208",
-			"tipo": "tablon",
-			"favela": true,
-			"x": 878.12,
-			"z": -142.71,
-			"y": 5.57,
-			"rot": -0.089,
-			"largo": 3.68,
-			"ancho": 1.2
-		},
-		{
 			"nombre": "Tablon_209",
 			"tipo": "tablon",
 			"favela": true,
@@ -18098,7 +17976,7 @@
 			"ancho": 1.2
 		},
 		{
-			"nombre": "Tablon_210",
+			"nombre": "Puente_3",
 			"tipo": "tablon",
 			"favela": true,
 			"x": 893.75,
@@ -18106,7 +17984,8 @@
 			"y": 5.57,
 			"rot": -0.089,
 			"largo": 3.58,
-			"ancho": 1.2
+			"ancho": 1.35,
+			"puente": true
 		},
 		{
 			"nombre": "Tablon_211",
@@ -18587,25 +18466,91 @@
 			"tienda": true
 		},
 		{
-			"nombre": "Escalera_(13, 10)_0",
+			"nombre": "Escalera_(17, 12)_0",
 			"tipo": "escalera",
 			"favela": true,
-			"x": 833.6,
-			"z": -262.03,
-			"rot": -3.0526,
+			"x": 862.53,
+			"z": -244.51,
+			"rot": 1.6598,
 			"alto": 5.55,
-			"ancho": 0.9,
+			"ancho": 1.2,
 			"sentido": 1
 		},
 		{
-			"nombre": "Escalera_(17, 18)_1",
+			"nombre": "Escalera_(7, 18)_1",
 			"tipo": "escalera",
 			"favela": true,
-			"x": 857.42,
-			"z": -188.74,
+			"x": 773.79,
+			"z": -196.17,
+			"rot": -1.4818,
+			"alto": 5.55,
+			"ancho": 1.2,
+			"sentido": 1
+		},
+		{
+			"nombre": "Escalera_(20, 25)_2",
+			"tipo": "escalera",
+			"favela": true,
+			"x": 877.64,
+			"z": -137.61,
+			"rot": -3.0526,
+			"alto": 5.55,
+			"ancho": 1.2,
+			"sentido": 1
+		},
+		{
+			"nombre": "Escalera_(20, 16)_3",
+			"tipo": "escalera",
+			"favela": true,
+			"x": 883.04,
+			"z": -210.56,
 			"rot": 1.6598,
 			"alto": 5.55,
-			"ancho": 0.9,
+			"ancho": 1.2,
+			"sentido": 1
+		},
+		{
+			"nombre": "Escalera_(17, 4)_4",
+			"tipo": "escalera",
+			"favela": true,
+			"x": 869.14,
+			"z": -307.16,
+			"rot": -3.0526,
+			"alto": 5.55,
+			"ancho": 1.2,
+			"sentido": 1
+		},
+		{
+			"nombre": "Escalera_(22, 5)_5",
+			"tipo": "escalera",
+			"favela": true,
+			"x": 900.17,
+			"z": -289.3,
+			"rot": -1.4818,
+			"alto": 5.55,
+			"ancho": 1.2,
+			"sentido": 1
+		},
+		{
+			"nombre": "Escalera_(3, 12)_6",
+			"tipo": "escalera",
+			"favela": true,
+			"x": 746.8,
+			"z": -247.61,
+			"rot": -1.4818,
+			"alto": 5.55,
+			"ancho": 1.2,
+			"sentido": 1
+		},
+		{
+			"nombre": "Escalera_(10, 22)_7",
+			"tipo": "escalera",
+			"favela": true,
+			"x": 800.7,
+			"z": -169.72,
+			"rot": 1.6598,
+			"alto": 5.55,
+			"ancho": 1.2,
 			"sentido": 1
 		},
 		{
@@ -20109,7 +20054,7 @@
 			"favela": true,
 			"x": 833.72,
 			"z": -218.95,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": 0.0,
 			"tam": [14.0, 12.0],
 			"alto": 3.4
@@ -20120,7 +20065,7 @@
 			"favela": true,
 			"x": 831.22,
 			"z": -226.15,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": 0.0,
 			"largo": 19.0,
 			"ancho": 2.4,
@@ -20138,7 +20083,7 @@
 			"rot": -3.1416,
 			"largo": 4.5,
 			"ancho": 2.4,
-			"fondo": 2.7
+			"fondo": 4.2
 		},
 		{
 			"nombre": "Tunel_Tope",
@@ -20146,7 +20091,7 @@
 			"favela": true,
 			"x": 821.72,
 			"z": -226.15,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": 1.5708,
 			"largo": 2.8,
 			"alto": 3.0,
@@ -20159,7 +20104,7 @@
 			"favela": true,
 			"x": 842.72,
 			"z": -226.15,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": -1.5708,
 			"tam": [5.0, 4.0],
 			"alto": 3.2,
@@ -20171,7 +20116,7 @@
 			"favela": true,
 			"x": 824.72,
 			"z": -218.95,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": 1.5708,
 			"tam": [5.0, 4.0],
 			"alto": 3.2,
@@ -20183,7 +20128,7 @@
 			"favela": true,
 			"x": 833.72,
 			"z": -210.95,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": -3.1416,
 			"tam": [5.0, 4.0],
 			"alto": 3.2,
@@ -20195,7 +20140,7 @@
 			"favela": true,
 			"x": 842.72,
 			"z": -218.95,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": 1.5708,
 			"tam": [5.0, 4.0],
 			"alto": 3.2,
@@ -20557,7 +20502,7 @@
 			"favela": true,
 			"x": 833.72,
 			"z": -218.95,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": 0.0
 		},
 		{
@@ -20566,7 +20511,7 @@
 			"favela": true,
 			"x": 829.72,
 			"z": -221.95,
-			"y": 0.3
+			"y": -1.2
 		},
 		{
 			"nombre": "Foco_Bodega_1",
@@ -20574,7 +20519,7 @@
 			"favela": true,
 			"x": 837.72,
 			"z": -215.95,
-			"y": 0.3
+			"y": -1.2
 		},
 		{
 			"nombre": "Foco_Bodega_2",
@@ -20582,7 +20527,7 @@
 			"favela": true,
 			"x": 833.72,
 			"z": -218.95,
-			"y": 0.3
+			"y": -1.2
 		},
 		{
 			"nombre": "Tunel_Entrada_0",
@@ -20594,6 +20539,16 @@
 			"rot": -3.1416
 		},
 		{
+			"nombre": "Letrero_Tuneles",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "TÚNELES",
+			"x": 829.82,
+			"z": -227.55,
+			"y": 0.0,
+			"rot": 2.3562
+		},
+		{
 			"nombre": "Puerta_Tunel_Tienda_2",
 			"tipo": "puerta",
 			"favela": true,
@@ -20601,7 +20556,7 @@
 			"texto": "Fayuca del Túnel",
 			"x": 833.72,
 			"z": -212.95,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": -3.1416
 		},
 		{
@@ -20612,7 +20567,7 @@
 			"texto": "Balas y Veladoras",
 			"x": 840.72,
 			"z": -218.95,
-			"y": -2.7,
+			"y": -4.2,
 			"rot": 1.5708
 		}
 	],
@@ -20768,7 +20723,7 @@
 		{
 			"nombre": "Tunel_Boca",
 			"favela": true,
-			"fondo": 2.7,
+			"fondo": 4.2,
 			"abiertos": [1, 3],
 			"poligono": [
 				[823.52, -227.35],
