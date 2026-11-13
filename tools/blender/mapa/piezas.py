@@ -222,6 +222,26 @@ def portal(nombre, p):
     cuerpo = fondo - 3.6
     k.caja((0, alto / 2, atras - cuerpo / 2 - 0.01), (largo, alto, cuerpo), "foto_aplanado_blanco", choca=True)
     k.caja((0, alto + 0.25, fondo / 2 - 0.3), (largo + 0.6, 0.5, 0.7), "foto_cantera_rosa")
+    # Los costados eran una pared blanca lisa de 8 x 6 m (el de la avenida da al tianguis):
+    # zocalo de cantera, una pinta grande (la Virgen o un grafiti) y dos ventanas arriba
+    if p.get("costados", True):
+        semilla = _semilla_nombre(nombre)
+        z0, z1 = atras - cuerpo, atras
+        for lado in (-1, 1):
+            x = lado * (largo / 2 + 0.02)
+            k.caja((lado * (largo / 2 + 0.03), 0.45, (z0 + z1) / 2), (0.06, 0.9, cuerpo), "foto_cantera_rosa")
+            diseno = elegir_mural(semilla + lado, "virgen" if (semilla + lado) % 2 == 0 else "grafiti")
+            a, b = ((x, z1 - 0.6), (x, z0 + 0.6)) if lado > 0 else ((x, z0 + 0.6), (x, z1 - 0.6))
+            esquinas, uvs = esquinas_mural(a, b, 1.0, (float(lado), 0.0), diseno, min(cuerpo - 1.5, 5.5), 2.6, salir=0.03)
+            k.cara([(xx, zz, yy) for xx, yy, zz in esquinas], "mural", uvs=uvs)
+            for i in range(2):
+                zc = z0 + cuerpo * (i + 1) / 3
+                ya, yb = alto - 2.4, alto - 0.3
+                if lado > 0:
+                    q = [(x, ya, zc + 1.0), (x, ya, zc - 1.0), (x, yb, zc - 1.0), (x, yb, zc + 1.0)]
+                else:
+                    q = [(x, ya, zc - 1.0), (x, ya, zc + 1.0), (x, yb, zc + 1.0), (x, yb, zc - 1.0)]
+                k.mosaico(q, VENTANA_ARRIBA[(semilla + i) % 4], (0.92, 0.9, 0.84))
     return k
 
 
@@ -1359,8 +1379,9 @@ def _semilla_nombre(nombre):
 
 VELAS = ("vela_roja", "vela_blanca", "vela_azul", "vela_verde")
 # Tintes de la lamina (color de vertice sobre foto_lamina_verde: no son materiales nuevos)
-# Los tambos de la muralla: la misma lamina tenida de azul, rojo o negro (sin materiales nuevos)
-TINTES_TAMBO = ((0.4, 0.55, 1.0), (1.0, 0.4, 0.35), (0.3, 0.3, 0.32))
+# Los tambos de la muralla: colores planos. En Godot los materiales foto_<x> no usan el color de
+# vertice (MapaPostImport los pasa a ps1_combined con su textura), asi que tenirlos no sirve
+TAMBOS = ("vela_azul", "rojo", "tinaco")
 TINTES_LAMINA = ((1.0, 1.0, 1.0), (0.75, 0.82, 0.95), (1.0, 0.82, 0.62), (0.7, 0.7, 0.7), (0.95, 0.95, 0.8))
 
 
@@ -1417,7 +1438,7 @@ def muralla(nombre, p):
             for fila in range(2):
                 for j in range(3 - fila):
                     k.cilindro((x - paso / 2 + (j + 0.5 + fila * 0.5) * paso / 3, base + fila * 0.9, 0), min(0.32, paso / 6 - 0.03), 0.9,
-                               "foto_lamina_verde", lados=6, color=TINTES_TAMBO[(r + j + fila) % 3])
+                               TAMBOS[(r + j + fila) % 3], lados=6)
         d.caja((x - paso / 2, base + arriba / 2 + 0.2, dentro * (grueso / 2 + 0.04)), (0.08, arriba + 0.4, 0.08), "fierro")
     # Alambre de puas: dos hilos (las puas de cada metro casi no se veian y eran 11 mil triangulos)
     for y in (alto + 0.22, alto + 0.38):
