@@ -39,6 +39,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/guardia_reja.tres",
 	"res://resources/misiones/antena_sofia.tres",
 	"res://resources/misiones/al_medico.tres",
+	"res://resources/misiones/decreto_47.tres",
 ]
 const REVISAR_CADA := 0.25
 
@@ -71,6 +72,10 @@ var reja_guardia := ""
 var guardias_reja := 0
 # La antena de Sofia ya esta puesta (mision `antena_sofia` cumplida): su radio llega mas lejos (A3, "La verdad")
 var antena_instalada := false
+# El Decreto 47 (Sofia): la cortina de la bodega de GelA ya se forzo (se queda abierta; BodegaGela) y ya le
+# llevaste el expediente y la hoja de conteo (Buenrostro empieza a buscar al Guero)
+var bodega_gela_abierta := false
+var decreto_47 := false
 var visitados := 0
 var meta_visitas := 1
 # Lo pone MisionesMundo: a donde apuntan los mapas
@@ -115,6 +120,11 @@ func reja_abierta() -> bool:
 
 func aceptada(mision: MisionData) -> bool:
 	return aceptadas.has(mision)
+
+
+# Las de una sola vez (MisionData.una_vez) que ya cumpliste
+func hecha_siempre(mision: MisionData) -> bool:
+	return _hechas_siempre.has(mision.id)
 
 
 func disponible(mision: MisionData) -> bool:
@@ -413,6 +423,8 @@ func _completar() -> void:
 		guardias_reja += 1
 	if mision.id == "antena_sofia":
 		antena_instalada = true
+	if mision.id == "decreto_47":
+		decreto_47 = true
 	if mision.pieza_de_mapa:
 		var piezas := get_node("/root/PiezasMapa")
 		var falta: int = piezas.siguiente_faltante()
@@ -499,6 +511,8 @@ func reiniciar() -> void:
 	reja_guardia = ""
 	guardias_reja = 0
 	antena_instalada = false
+	bodega_gela_abierta = false
+	decreto_47 = false
 	SitiosTinaco.elegido = -1
 	_ruta_hora = false
 	indice_paso = 0

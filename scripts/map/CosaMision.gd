@@ -36,11 +36,14 @@ func _ready() -> void:
 	area.body_entered.connect(func(body: Node3D) -> void:
 		if body is Player:
 			_player_inside = true
-			_aviso.visible = true)
+			if is_instance_valid(_aviso):
+				_aviso.visible = true)
 	area.body_exited.connect(func(body: Node3D) -> void:
 		if body is Player:
 			_player_inside = false
-			_aviso.visible = false)
+			# Ya levantada, el aviso se borro antes que el area
+			if is_instance_valid(_aviso):
+				_aviso.visible = false)
 
 
 func is_player_inside() -> bool:

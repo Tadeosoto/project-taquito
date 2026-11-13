@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_papeles"]
+script = ExtResource("2_paso")
+tipo = 3
+cuando = 1
+texto = "Fuerza la bodega de GelA y saca el expediente y la hoja de conteo"
+lugar = "papeles_decreto"
+cuantos = 2
+
+[sub_resource type="Resource" id="paso_entregar"]
+script = ExtResource("2_paso")
+tipo = 1
+cuando = 2
+texto = "Llévale los papeles a Sofía"
+
+[resource]
+script = ExtResource("1_mision")
+id = "decreto_47"
+nombre = "El Decreto 47"
+modelo = "mujer_psx"
+donde = "marca:Sofia_Taller"
+oferta = "Con la antena ya me oyen lejos, pero sin pruebas nadie me cree. GelA tiene una bodega afuera, cerca de la reja poniente: ahí guardan el expediente del Decreto 47 y la hoja de conteo de los que se llevan de noche. No hay llave. Hay que forzar la cortina, de noche, cuando se van los blancos."
+aceptada = "Espera a que oscurezca. La cortina hace ruido al forzarla y adentro hay zombis. Los papeles están al fondo."
+recuerda = "La bodega de GelA, cerca de la reja poniente. De noche, forzando la cortina. Los papeles están al fondo."
+gracias = "Esto es. Los nombres de la hoja… son los de la lista de Marisol. Esta noche lo leo al aire."
+despedida = "Ya lo leí al aire. Dicen que Buenrostro anda buscando al Güero."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_papeles"), SubResource("paso_entregar")])
+pesos = 150
+una_vez = true

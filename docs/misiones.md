@@ -283,6 +283,8 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 
 ### El Decreto 47 (H4 actualizada)
 
+✅ (2026-11-12, M6, con JJ) **Hecha así:** la da **Sofía** frente a su taller, cuando ya puso la antena (en una marca solo hay una persona: primero la antena, luego el Decreto). **No hay llave:** la bodega de GelA (la de (-333, 645), `BodegaGela.gd`) está toda cerrada y **una de sus cortinas se fuerza de noche manteniendo Espacio 5 s**; de día no se puede ("hay blancos cuidando"). El ruido trae **3 zombis de la calle** y al abrirse salen **4 de adentro** (zombis normales, sin camadas). Al fondo hay dos cajas de archivo: **el expediente del Decreto 47 y la hoja de conteo**; con las dos, se las llevas a Sofía, que **paga $150** y queda anotado que **Buenrostro busca al Güero** (`Misiones.decreto_47`). Una sola vez. **Original:**
+
 ✅ **Da:** el Güero (el empleado del palacio, que vende copias) o Sofía. **Dónde:** la **bodega de GelA cerca de la reja poniente**, en (-333, 645), a unos 209 m: la oficina de GelA de fuera. **Qué se hace:** entrar de noche y sacar el **expediente del Decreto 47 y la hoja de conteo**. **Dos caminos:** (A) el Güero te vende la llave de la bodega y la caja donde están, y tú los sacas; (B) entras sin él, forzando la bodega. **Riesgo:** las **camadas** que duermen adentro y los zombis de la calle; de noche no hay blancos (el Estado se retira). **Qué cambia:** la hoja de conteo (los nombres son los de la lista de Marisol); **Buenrostro empieza a buscar al Güero**, y como vive en la fortaleza GelA, ya no tiene que salir a hacerlo. **Reusa:** `MapBodegas`, `WorldItem`, camadas.
 
 ### Reparto

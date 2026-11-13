@@ -55,6 +55,8 @@ const GABRIEL_SITIOS := [
 ## junto a un poste de avenida, una al norte y otra al sur (M4)
 const PIEZAS_ANTENA := [Vector2(-415.9, 125.7), Vector2(-102.3, 578.1)]
 const PIEZAS_NOMBRES := ["los tubos", "el repetidor"]
+# Los papeles del Decreto 47 (M6), al fondo de la bodega de GelA (BodegaGela.PAPELES): RECOGER como las piezas
+const PAPELES_NOMBRES := ["el expediente del Decreto 47", "la hoja de conteo"]
 const PIEZAS_ZOMBIS := 2          # zombis sueltos que salen junto a cada pieza al acercarte
 const PIEZAS_AVISO := 60.0        # m de la pieza a los que salen
 const TEXTO_REJA_ANTES := "Hay un herido, pero de noche se sale por la reja y sigue cerrada. Antes habla con el padre Chuy."
@@ -208,6 +210,9 @@ func _poner_vecinos() -> void:
 				dador["gabriel"] = calle
 				vecinos.append(dador)
 			continue
+		# Una sola persona por marca: Sofia da la antena y, ya puesta, el Decreto 47
+		if mision.donde.begins_with("marca:") and not _dador_de_su_marca(mision):
+			continue
 		var marca: Variant = _marca(mision.donde)
 		if marca != null:
 			# Parado en su marca de la colonia, viendo a donde ve la marca
@@ -222,6 +227,19 @@ func _poner_vecinos() -> void:
 		var hacia := _jugador.global_position - _nino_lugar
 		nino.rotation.y = atan2(hacia.x, hacia.z)
 	_actualizar_signos()
+
+
+# De las misiones que se dan en la misma marca, la que toca: la primera que no se ha cumplido para siempre
+# (MisionData.una_vez), o la ultima si ya se cumplieron todas
+func _dador_de_su_marca(mision: MisionData) -> bool:
+	var toca: MisionData = null
+	for otra: MisionData in Misiones.todas:
+		if otra.donde != mision.donde:
+			continue
+		toca = otra
+		if not Misiones.hecha_siempre(otra):
+			break
+	return toca == mision
 
 
 # Un dador parado en `lugar` mirando hacia `hacia` (o con el giro de su `marca`), con su signo de
@@ -433,7 +451,7 @@ func _cambio() -> void:
 		_soltar_carga()
 	if _perro and (_perro_de != Misiones.activa or paso == null or paso.tipo != PasoMision.Tipo.RECOGER):
 		_quitar_cosa()
-	if not _piezas.is_empty() and (_piezas_de != Misiones.activa or paso == null or paso.lugar != "piezas_antena"):
+	if not _piezas.is_empty() and (_piezas_de != Misiones.activa or paso == null or not _de_piezas(paso.lugar)):
 		_quitar_piezas()
 	if paso == null:
 		_soltar_carga()
@@ -475,7 +493,7 @@ func _cambio() -> void:
 			if _puntos.is_empty():
 				_poner_puntos(paso)
 		PasoMision.Tipo.RECOGER:
-			if paso.lugar == "piezas_antena":
+			if _de_piezas(paso.lugar):
 				_poner_piezas(paso)
 			elif paso.lugar.begins_with("marca:") and _marca(paso.lugar) != null:
 				_poner_cosa(paso)
@@ -925,11 +943,13 @@ func _poner_piezas(paso: PasoMision) -> void:
 	_piezas_de = Misiones.activa
 	_piezas_zombis.clear()
 	var piso := _jugador.global_position.y - 1.0
-	for i in mini(paso.cuantos, PIEZAS_ANTENA.size()):
-		var donde := Vector3(PIEZAS_ANTENA[i].x, piso, PIEZAS_ANTENA[i].y)
+	var papeles := paso.lugar == "papeles_decreto"
+	for i in mini(paso.cuantos, (BodegaGela.PAPELES if papeles else PIEZAS_ANTENA).size()):
+		var donde := BodegaGela.punto(BodegaGela.PAPELES[i]) if papeles \
+				else Vector3(PIEZAS_ANTENA[i].x, piso, PIEZAS_ANTENA[i].y)
 		var pieza: Node3D = load("res://scripts/map/CosaMision.gd").new()
-		pieza.set("que", PIEZAS_NOMBRES[i])
-		pieza.add_child(_modelo_pieza(i))
+		pieza.set("que", PAPELES_NOMBRES[i] if papeles else PIEZAS_NOMBRES[i])
+		pieza.add_child(_modelo_papeles(i) if papeles else _modelo_pieza(i))
 		add_child(pieza)
 		pieza.global_position = donde
 		pieza.set("al_recoger", _pieza_recogida.bind(pieza))
@@ -955,7 +975,16 @@ func _pieza_recogida(pieza: Node3D) -> void:
 	_apuntar_a_pieza()
 
 
+func _de_piezas(lugar: String) -> bool:
+	return lugar == "piezas_antena" or lugar == "papeles_decreto"
+
+
 func _apuntar_a_pieza() -> void:
+	# Los papeles: mientras la bodega siga cerrada (o no la veas aun, desde la colonia), a su cortina
+	var paso := Misiones.paso()
+	if paso and paso.lugar == "papeles_decreto" and (not Misiones.bodega_gela_abierta or _piezas.is_empty()):
+		_apuntar(BodegaGela.frente_cortina if BodegaGela.frente_cortina != Vector3.INF else BodegaGela.punto(Vector3(0.0, 0.0, 2.0)))
+		return
 	var mas_cerca := INF
 	for pieza in _piezas:
 		var d := pieza.global_position.distance_to(_jugador.global_position)
@@ -974,6 +1003,8 @@ func _revisar_piezas() -> void:
 		if not is_instance_valid(pieza) or pieza.global_position.distance_to(_jugador.global_position) > PIEZAS_AVISO:
 			continue
 		var clave := PIEZAS_ANTENA.find(Vector2(pieza.global_position.x, pieza.global_position.z))
+		if clave >= _piezas_zombis.size():
+			continue
 		if clave < 0 or _piezas_zombis[clave]:
 			continue
 		_piezas_zombis[clave] = true
@@ -1019,6 +1050,32 @@ static func _modelo_pieza(i: int) -> Node3D:
 		antena.mesh = cil
 		antena.position = Vector3(0.18, 0.55, 0.0)
 		raiz.add_child(antena)
+	return raiz
+
+
+# Una caja de archivo de carton con un folder amarillo encima (0 el expediente, 1 la hoja de conteo)
+static func _modelo_papeles(i: int) -> Node3D:
+	var raiz := Node3D.new()
+	var carton := StandardMaterial3D.new()
+	carton.albedo_color = Color(0.55, 0.42, 0.27)
+	carton.roughness = 1.0
+	var caja := MeshInstance3D.new()
+	var cubo := BoxMesh.new()
+	cubo.size = Vector3(0.45, 0.3, 0.33)
+	cubo.material = carton
+	caja.mesh = cubo
+	caja.position.y = 0.15
+	raiz.add_child(caja)
+	var folder := MeshInstance3D.new()
+	var hoja := BoxMesh.new()
+	hoja.size = Vector3(0.32, 0.02, 0.24) if i == 0 else Vector3(0.22, 0.01, 0.3)
+	var papel := StandardMaterial3D.new()
+	papel.albedo_color = Color(0.86, 0.74, 0.38) if i == 0 else Color(0.92, 0.92, 0.88)
+	hoja.material = papel
+	folder.mesh = hoja
+	folder.position.y = 0.31
+	folder.rotation.y = 0.3 if i == 0 else -0.2
+	raiz.add_child(folder)
 	return raiz
 
 
@@ -1147,6 +1204,9 @@ func _process(delta: float) -> void:
 		_texto.text = ""
 		return
 	var linea := paso.texto
+	# Los papeles del Decreto: la flecha va a la cortina (en cuanto se arma su celda) y, abierta, a los papeles
+	if paso.lugar == "papeles_decreto":
+		_apuntar_a_pieza()
 	var falta := Misiones.hora_que_falta(paso)
 	if falta != "":
 		_texto.text = "%s (%s)" % [linea, falta]
@@ -1154,7 +1214,7 @@ func _process(delta: float) -> void:
 	if paso.tipo == PasoMision.Tipo.VISITAR or paso.tipo == PasoMision.Tipo.LLEVAR_CARGA:
 		linea += " (%d/%d)" % [Misiones.visitados, Misiones.meta_visitas]
 		_apuntar_al_punto_cercano()
-	elif paso.tipo == PasoMision.Tipo.RECOGER and paso.lugar == "piezas_antena":
+	elif paso.tipo == PasoMision.Tipo.RECOGER and _de_piezas(paso.lugar):
 		linea += " (%d/%d)" % [Misiones.visitados, Misiones.meta_visitas]
 		_revisar_piezas()
 	elif paso.tipo == PasoMision.Tipo.ESCOLTAR:

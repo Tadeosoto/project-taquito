@@ -162,6 +162,17 @@ func _agregar(key: Vector2i, res: Array) -> void:
 	var node: Node3D = res[0]
 	node.name = "celda_%d_%d" % [key.x, key.y]
 	node.add_child(_cuerpo(res[1]))
+	for g: Dictionary in (res[2] if res.size() > 2 else []):
+		var cerrada: Array[Node3D] = [_cuerpo(g["cerrada"])]
+		var abierta: Array[Node3D] = [_cuerpo(g["abierta"])]
+		for tipo: String in ["cerrado", "abierto"]:
+			if _vanos.has(tipo):
+				var malla := MeshInstance3D.new()
+				malla.mesh = _vanos[tipo]
+				malla.transform = g["xform"]
+				malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+				(cerrada if tipo == "cerrado" else abierta).append(malla)
+		node.add_child(BodegaGela.armar(cerrada, abierta, g["frente"]))
 	add_child(node)
 	_nodos[key] = node
 
@@ -191,7 +202,7 @@ func _crear_celda(bodegas: Array) -> Array:
 			celda.add_child(_multimesh(_vanos[tipo], vanos[tipo], muros_end))
 	for nombre: String in props:
 		celda.add_child(_multimesh(_props[nombre]["mesh"], props[nombre], adentro_end))
-	return [celda, cajas]
+	return [celda, cajas, vanos.get("gela", [])]
 
 
 # Origen de la bodega en el centro de su frente, +Z hacia la calle: adentro es
@@ -204,6 +215,10 @@ func _armar_bodega(b: Dictionary, tools: Dictionary, vanos: Dictionary, props: D
 	var color := Color.html(b["color"])
 	var fierro := Color(0.32, 0.31, 0.3)
 	var zona := Deterioro.zona(b["x"], b["z"])
+	# La de GelA (BodegaGela, M6): toda cerrada y sin hoyos; su vano `siempre` es la cortina que se fuerza
+	var gela := BodegaGela.es(b)
+	if gela:
+		zona = 0.0
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(b["semilla"])
 	# Los grafitis con su propia semilla: no cambian lo demas de la bodega
@@ -223,6 +238,11 @@ func _armar_bodega(b: Dictionary, tools: Dictionary, vanos: Dictionary, props: D
 		var cx := -ancho / 2.0 + (i + 0.5) * vano
 		var abierto := i == siempre or rng.randf() < 0.15 + zona * 0.5
 		var xform := lote * Transform3D(Basis.from_scale(Vector3(vano, alto, alto)), Vector3(cx, 0.0, 0.0))
+		if gela:
+			if i == siempre:
+				_cortina_gela(vanos, lote, xform, cx, vano, alto, puerta)
+				continue
+			abierto = false
 		vanos["abierto" if abierto else "cerrado"].append([xform, Color.WHITE])
 		if abierto:
 			var x0 := cx + puerta.x * vano
@@ -301,6 +321,24 @@ func _armar_bodega(b: Dictionary, tools: Dictionary, vanos: Dictionary, props: D
 		Vector3(ancho / 2.0, 0.04, -fondo), Vector3(-ancho / 2.0, 0.04, -fondo)], Vector3.UP, Color.WHITE, false)
 
 	_acomodar_adentro(lote, ancho, fondo, alto, zona, rng, props, cajas)
+
+
+# La cortina que se fuerza (BodegaGela): sus dos versiones, cerrada y abierta, con su colision, van aparte en
+# vanos["gela"] y _agregar las arma en el hilo principal
+func _cortina_gela(vanos: Dictionary, lote: Transform3D, xform: Transform3D, cx: float, vano: float, alto: float, puerta: Vector3) -> void:
+	var cerrada := []
+	var abierta := []
+	_colision(cerrada, lote, Vector3(cx, alto / 2.0, -0.2), Vector3(vano, alto, 0.4))
+	var x0 := cx + puerta.x * vano
+	var x1 := cx + puerta.y * vano
+	var y1 := puerta.z * alto
+	_colision(abierta, lote, Vector3((x0 + cx - vano / 2.0) / 2.0, alto / 2.0, -0.2), Vector3(x0 - cx + vano / 2.0, alto, 0.4))
+	_colision(abierta, lote, Vector3((x1 + cx + vano / 2.0) / 2.0, alto / 2.0, -0.2), Vector3(cx + vano / 2.0 - x1, alto, 0.4))
+	_colision(abierta, lote, Vector3((x0 + x1) / 2.0, (y1 + alto) / 2.0, -0.2), Vector3(x1 - x0, alto - y1, 0.4))
+	if not vanos.has("gela"):
+		vanos["gela"] = []
+	vanos["gela"].append({"xform": xform, "cerrada": cerrada, "abierta": abierta,
+		"frente": lote * Vector3((x0 + x1) / 2.0, 0.0, 0.6)})
 
 
 # Grafitis en un muro: en el plano z = 0 de `ejes`, de x0 a x1, uno posible por
