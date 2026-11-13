@@ -49,6 +49,9 @@ func _enter_tree() -> void:
 	if de_regreso != Vector3.INF and jugador:
 		jugador.position = de_regreso
 		return
+	# (solo si se viene de Santa Mugre: La Gotera tiene sus rejas en FortalezasMapa)
+	if PasoColonia.colonia != "santa_mugre":
+		return
 	var por := PasoColonia.tomar_lado()
 	if por == "" or not rejas.has(por) or jugador == null:
 		return
@@ -251,5 +254,5 @@ func _flecha_de_entrada(lado: String) -> void:
 	area.add_child(letrero)
 	area.body_entered.connect(func(cuerpo: Node3D) -> void:
 		if cuerpo is Player:
-			PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, lado))
+			PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, lado, -2.0, "santa_mugre"))
 	add_child(area)

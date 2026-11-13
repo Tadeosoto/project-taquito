@@ -35,6 +35,12 @@ extends Node3D
 #           da una ("donde" de MisionData) o donde esta lo que hay que recoger
 #   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
 #           (un monton de Chatarra), "bolsa" (Takis con tazo) o "curacion" (tacos o caguama)
+#   paso    una flecha amarilla que lleva a otra escena (PasoColonia): "a" es otra colonia de Blender
+#           ("la_gotera_favela") o "mapa_grande" (map_test); "lado" es el nombre del paso (el mismo
+#           en las dos escenas: al volver se aparece en "llegada" [x, z] de la marca con ese lado,
+#           viendo a su -Z); "texto" el letrero; "requiere": "favela" solo deja pasar con
+#           Misiones.favela_abierta(), si no "cerrado" sale en pantalla y el guardia te regresa.
+#           Las bocas de la favela de La Gotera (docs/mapa/colonias/la_gotera.md)
 
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
@@ -108,11 +114,11 @@ func _enter_tree() -> void:
 			_spawn(marca)
 		elif marca.get("tipo") == "mision":
 			puntos_mision[String(marca.get("nombre", ""))] = lugar(marca)
-	# Si se llego del mapa grande por una reja (PasoColonia), se aparece adentro de esa reja y no en el spawn
+	# Si se llego de otra escena por una reja o una boca (PasoColonia), se aparece junto a ella y no en el spawn
 	var por := PasoColonia.tomar_lado()
 	if por != "":
 		for marca: Dictionary in _marcas:
-			if marca.get("tipo") == "salida_colonia" and marca.get("lado") == por and marca.has("llegada"):
+			if marca.get("tipo") in ["salida_colonia", "paso"] and marca.get("lado") == por and marca.has("llegada"):
 				var llegada: Array = marca["llegada"]
 				# Mirando hacia adentro: el rot de la marca es hacia donde queda adentro, y el jugador mira a -Z
 				_spawn({"x": llegada[0], "z": llegada[1], "rot": float(marca.get("rot", 0.0)) + PI})
@@ -156,6 +162,8 @@ func _ready() -> void:
 				_casa_vecino(marca)
 			"salida_colonia":
 				_salida_colonia(marca)
+			"paso":
+				_paso(marca)
 			"reflector":
 				_reflector(marca)
 			"foco":
@@ -545,12 +553,63 @@ func _salida_colonia(marca: Dictionary) -> void:
 		if not (cuerpo is Player):
 			return
 		# Hasta cumplir la guardia de la reja del padre Chuy (el tutorial de la primera horda) no se sale
-		if not Misiones.reja_abierta():
+		# (solo en Santa Mugre: las rejas con "libre" no piden nada)
+		# (Misiones por ruta: las herramientas con -s cargan esta escena antes de que existan los autoloads)
+		if not marca.get("libre", false) and not get_node("/root/Misiones").reja_abierta():
 			var aviso := get_node_or_null("../Supervivencia")
 			if aviso:
 				aviso.avisar(TEXTO_REJA_CERRADA)
 			return
-		PasoColonia.ir_a(self, PasoColonia.MAPA_GRANDE, lado))
+		PasoColonia.ir_a(self, PasoColonia.MAPA_GRANDE, lado, -2.0, MapaColonia.actual))
+	add_child(area)
+
+
+# Una boca a otra escena (marca "paso"): la flecha amarilla con su letrero; pisarla cambia de escena por
+# PasoColonia con el mismo `lado`, y la otra escena te pone en su marca de ese lado. Con "requiere":
+# "favela" solo pasa quien ya hizo las entregas de la mafia (Misiones.favela_abierta): si no, el aviso
+# "cerrado" y el guardia te regresa un paso atras (hacia el +Z de la marca, la calle)
+const PASO_REGRESO := 2.0
+
+func _paso(marca: Dictionary) -> void:
+	var lado := String(marca.get("lado", ""))
+	var a := String(marca.get("a", "mapa_grande"))
+	var area := Area3D.new()
+	area.name = String(marca.get("nombre", "Paso"))
+	area.transform = lugar(marca)
+	area.monitorable = false
+	var forma := CollisionShape3D.new()
+	var cilindro := CylinderShape3D.new()
+	cilindro.radius = MapPuntos.MARCADOR_RADIO
+	cilindro.height = 2.0
+	forma.shape = cilindro
+	forma.position.y = 1.0
+	area.add_child(forma)
+	area.add_child(MapPuntos.flecha())
+	var letrero := Label3D.new()
+	letrero.text = String(marca.get("texto", "Pasar"))
+	letrero.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	letrero.pixel_size = 0.008
+	letrero.font_size = 48
+	letrero.outline_size = 12
+	letrero.modulate = MapPuntos.MARCADOR_COLOR
+	letrero.position = Vector3(0.0, 2.6, 0.0)
+	letrero.visibility_range_end = 25.0
+	area.add_child(letrero)
+	area.body_entered.connect(func(cuerpo: Node3D) -> void:
+		if not (cuerpo is Player):
+			return
+		if marca.get("requiere", "") == "favela" and not get_node("/root/Misiones").favela_abierta():
+			var aviso := get_node_or_null("../Supervivencia")
+			if aviso:
+				aviso.avisar(String(marca.get("cerrado", "Aquí no, jefe. Esto es solo para gente de la casa.")))
+			# El guardia te regresa: un paso atras, hacia la calle (+Z de la marca)
+			var atras := area.global_transform.basis * Vector3(0.0, 0.0, PASO_REGRESO)
+			cuerpo.global_position = area.global_position + atras + Vector3.UP * 0.2
+			if cuerpo is CharacterBody3D:
+				(cuerpo as CharacterBody3D).velocity = Vector3.ZERO
+			return
+		var escena := PasoColonia.MAPA_GRANDE if a == "mapa_grande" else PasoColonia.MAPA_COLONIA
+		PasoColonia.ir_a(self, escena, lado, -2.0, MapaColonia.actual if a == "mapa_grande" else a))
 	add_child(area)
 
 

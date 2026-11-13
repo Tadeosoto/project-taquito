@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://models/tiendas/gasolinera/gasolinera.scn" id="19_gasolinera"]
 [ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="4_ciclo"]
 [ext_resource type="Script" path="res://scripts/mapa/Colonia.gd" id="5_colonia"]
+[ext_resource type="Script" path="res://scripts/mapa/MapaColonia.gd" id="5_mapa_colonia"]
 [ext_resource type="PackedScene" path="res://models/mapa/santa_mugre/santa_mugre.glb" id="6_santa_mugre"]
 [ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="7_dron"]
 [ext_resource type="Script" path="res://scripts/map/MapMinimapa.gd" id="8_minimapa"]
@@ -68,6 +69,7 @@ shader_parameter/contraste = 1.1
 shader_parameter/vineta = 0.3
 
 [node name="Mapa" type="Node3D"]
+script = ExtResource("5_mapa_colonia")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_mapa")

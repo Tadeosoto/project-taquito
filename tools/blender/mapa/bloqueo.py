@@ -646,11 +646,15 @@ def salidas_colonia(rejas, recorte):
         # (x, z) de la reja y hacia donde queda "adentro" (poniente: +x, oriente: -x, norte: +z, sur: -z)
         base, (dx, dz) = {"poniente": ((x1 + BARDA_ADENTRO, medio), (1, 0)), "oriente": ((x2 - BARDA_ADENTRO, medio), (-1, 0)),
                           "norte": ((medio, z1 + BARDA_ADENTRO), (0, 1)), "sur": ((medio, z2 - BARDA_ADENTRO), (0, -1))}[lado]
-        marcas.append({"nombre": "Salida_" + lado, "tipo": "salida_colonia", "auto": True, "lado": lado,
-                       "x": round(base[0] + dx * SALIDA_DENTRO, 2), "z": round(base[1] + dz * SALIDA_DENTRO, 2),
-                       "rot": round(math.atan2(dx, dz), 4),
-                       "llegada": [round(base[0] + dx * LLEGADA_DENTRO, 2), round(base[1] + dz * LLEGADA_DENTRO, 2)],
-                       "texto": "Salir de Santa Mugre"})
+        marca = {"nombre": "Salida_" + lado, "tipo": "salida_colonia", "auto": True, "lado": lado,
+                 "x": round(base[0] + dx * SALIDA_DENTRO, 2), "z": round(base[1] + dz * SALIDA_DENTRO, 2),
+                 "rot": round(math.atan2(dx, dz), 4),
+                 "llegada": [round(base[0] + dx * LLEGADA_DENTRO, 2), round(base[1] + dz * LLEGADA_DENTRO, 2)],
+                 "texto": r.get("texto", "Salir de Santa Mugre")}
+        # "libre": la reja no pide la guardia del padre Chuy (La Gotera; Colonia.gd)
+        if r.get("libre"):
+            marca["libre"] = True
+        marcas.append(marca)
     return marcas
 
 

@@ -132,7 +132,8 @@ def exportar(nombre):
     placas = [dict(pl, nombre="Placa_%d" % i, tipo="placa") for i, pl in enumerate(placas_calles(datos))]
     # Y los tramos de tianguis como marcas "tianguis"
     tianguis = tianguis_marcas(datos)
-    guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "marcas": datos.get("marcas", []) + focos + botin + placas + tianguis})
+    # El recorte va tambien: MapaColonia.gd le da ese rectangulo al Horizonte
+    guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "recorte": datos["recorte"], "marcas": datos.get("marcas", []) + focos + botin + placas + tianguis})
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", []) + datos.get("puestos_calle", [])})
     # Los arboles de Sketchfab (tipos 1 a 3 de kit.arbol_tipo): [x, z, altura, ancho de copa, nombre]
     arbol_tipo, extra = _kit()["arbol_tipo"], _kit()["ARBOLES_EXTRA"]

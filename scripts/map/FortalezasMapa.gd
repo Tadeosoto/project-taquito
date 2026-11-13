@@ -7,9 +7,11 @@ extends Node3D
 ## - La Gotera: en Haciendas de San Jodido (docs/mapa/colonias/la_gotera.md), por las calles para no partir
 ##   casas: la barda va por la banqueta poniente de la Av. del Cedro (la avenida queda adentro), la del norte
 ##   por la banqueta sur de Primavera, la del sur por la banqueta norte de Nogal y la del oriente por la orilla
-##   del mapa. Una reja donde la avenida sale por el norte y por el sur, cerrada hasta la quinta entrega de la
-##   mafia (Misiones.favela_abierta, M7); luego se quitan las hojas. Por dentro siguen las casas de map_test
-##   hasta que se haga la colonia en Blender.
+##   del mapa. Donde la avenida sale por el norte y por el sur hay una reja abierta (solo los postes) con una
+##   flecha amarilla por fuera que lleva a la colonia de Blender `la_gotera` (el tianguis lineal de la avenida,
+##   abierto para cualquiera; PasoColonia). La quinta entrega de la mafia (Misiones.favela_abierta, M7) ya no
+##   abre esta reja: abre las bocas de la favela, adentro del tianguis (Colonia.gd, marcas "paso"). Por dentro
+##   del muro siguen las casas de map_test (no se camina: se entra por la flecha).
 ## - Los cinco tinacos de la defensa (SitiosTinaco: solo el tinaco, sin barricada; Chava los ofrece de dia y
 ##   la defensa es la escena defensa_tinaco).
 ## Todo choca en la capa 1, como las casas y el muro de Santa Mugre.
@@ -49,7 +51,13 @@ const GOTERA_REJAS := [
 ## Lo que se cierra a los carros (CallesRuta solo cierra rectangulos): de la avenida a la orilla, entre
 ## Primavera y Nogal
 const GOTERA_CALLES := Rect2(704.0, -324.0, 210.0, 210.0)
-const GOTERA_LETRERO := "SOLO GENTE DE LA CASA"
+const GOTERA_ENTRAR := "Entrar a La Gotera"
+## Nombre de la colonia de Blender del tianguis y el lado de cada reja (PasoColonia.lado), en el orden de GOTERA_REJAS
+const GOTERA_COLONIA := "la_gotera"
+const GOTERA_LADOS := ["norte", "sur"]
+## De la reja a la flecha de entrada, y a donde aparece el jugador al salir de la colonia (como MuroColonia)
+const FLECHA_FUERA := 2.2
+const LLEGADA_FUERA := 5.4
 
 const TINACO_ALTO := 2.8                # Barricada.TINACO_ALTO
 const TINACO_PIEZAS := ["Tinaco_3er_capa", "Bomba_1", "Tapa"]   # Barricada.TINACO_PIEZAS
@@ -77,13 +85,24 @@ const GRUESO := 0.3
 const COLOR_FIERRO := Color(0.12, 0.12, 0.13)
 
 var _fierro: ShaderMaterial
-# Las hojas de las dos rejas de La Gotera (con su choque y su letrero): se quitan al abrir la favela
-var _hojas_gotera: Array[Node3D] = []
 
 
 func _enter_tree() -> void:
-	# Los carros (CallesRuta) no cruzan La Gotera: sus rejas estan cerradas
+	# Los carros (CallesRuta) no cruzan La Gotera: adentro es el tianguis
 	CallesRuta.cerrar(GOTERA_CALLES)
+	# Si se vuelve de la colonia de Blender de La Gotera por una de sus rejas (PasoColonia), el jugador
+	# aparece afuera de ella (antes de que el jugador y el dron lean su posicion, como MuroColonia)
+	if PasoColonia.colonia != GOTERA_COLONIA:
+		return
+	var por := PasoColonia.tomar_lado()
+	var cual := GOTERA_LADOS.find(por)
+	var jugador := get_tree().get_first_node_in_group("jugador") as Node3D
+	if jugador == null:
+		jugador = get_parent().get_node_or_null("Player") as Node3D
+	if cual < 0 or jugador == null:
+		return
+	var donde := _gotera_afuera(cual, LLEGADA_FUERA)
+	jugador.position = Vector3(donde.x, 1.5, donde.y)
 
 
 func _exit_tree() -> void:
@@ -148,33 +167,57 @@ func _gotera() -> void:
 	for reja: Array in GOTERA_REJAS:
 		huecos.append([reja[0], reja[2]])
 	_barda(puntos, true, huecos, GOTERA_ALTO, _material(GOTERA_COLOR))
-	for reja: Array in GOTERA_REJAS:
-		var hojas := _reja(reja[0], reja[1], reja[2], GOTERA_ALTO)
-		var letrero := Label3D.new()
-		letrero.text = GOTERA_LETRERO
-		letrero.font_size = 48
-		letrero.pixel_size = 0.01
-		letrero.outline_size = 12
-		letrero.modulate = Color(0.9, 0.85, 0.7)
-		letrero.position = Vector3(0.0, GOTERA_ALTO + 0.6, 0.0)
-		letrero.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
-		hojas.add_child(letrero)
-		_hojas_gotera.append(hojas)
-	var misiones := get_node_or_null("/root/Misiones")
-	if misiones:
-		misiones.cambio.connect(_revisar_favela)
-	_revisar_favela()
+	for i in GOTERA_REJAS.size():
+		var reja: Array = GOTERA_REJAS[i]
+		# La reja abierta: sus postes, las hojas abiertas contra el muro y el choque cerrado de lado a lado
+		# (adentro no se camina en map_test: se entra por la flecha a la colonia de Blender)
+		_reja(reja[0], reja[1], reja[2], GOTERA_ALTO, _gotera_hacia_afuera(i))
+		_flecha_gotera(i)
 
 
-# Con cinco entregas de la mafia la reja de La Gotera ya no se cierra: se quitan las hojas, su choque y el letrero
-func _revisar_favela() -> void:
-	var misiones := get_node_or_null("/root/Misiones")
-	if misiones == null or not misiones.favela_abierta():
-		return
-	for hojas in _hojas_gotera:
-		if is_instance_valid(hojas):
-			hojas.queue_free()
-	_hojas_gotera.clear()
+# Hacia donde queda afuera de la reja `cual` de La Gotera: al norte de la del norte, al sur de la del sur
+static func _gotera_hacia_afuera(cual: int) -> Vector2:
+	var dir: Vector2 = GOTERA_REJAS[cual][1]
+	var normal := Vector2(-dir.y, dir.x)
+	return normal if (normal.y < 0.0) == (cual == 0) else -normal
+
+
+# El punto (x, z) a `m` metros afuera de la reja `cual`
+static func _gotera_afuera(cual: int, m: float) -> Vector2:
+	var centro: Vector2 = GOTERA_REJAS[cual][0]
+	return centro + _gotera_hacia_afuera(cual) * m
+
+
+# La flecha amarilla por fuera de la reja: pisarla entra a la colonia de Blender del tianguis por ese lado
+func _flecha_gotera(cual: int) -> void:
+	var donde := _gotera_afuera(cual, FLECHA_FUERA)
+	var area := Area3D.new()
+	area.name = "Entrada_" + GOTERA_LADOS[cual]
+	area.position = Vector3(donde.x, 0.0, donde.y)
+	area.monitorable = false
+	var forma := CollisionShape3D.new()
+	var cilindro := CylinderShape3D.new()
+	cilindro.radius = MapPuntos.MARCADOR_RADIO
+	cilindro.height = 2.0
+	forma.shape = cilindro
+	forma.position.y = 1.0
+	area.add_child(forma)
+	area.add_child(MapPuntos.flecha())
+	var letrero := Label3D.new()
+	letrero.text = GOTERA_ENTRAR
+	letrero.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	letrero.pixel_size = 0.008
+	letrero.font_size = 48
+	letrero.outline_size = 12
+	letrero.modulate = MapPuntos.MARCADOR_COLOR
+	letrero.position = Vector3(0.0, 2.6, 0.0)
+	letrero.visibility_range_end = 25.0
+	area.add_child(letrero)
+	var lado: String = GOTERA_LADOS[cual]
+	area.body_entered.connect(func(cuerpo: Node3D) -> void:
+		if cuerpo is Player:
+			PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, lado, -2.0, GOTERA_COLONIA))
+	add_child(area)
 
 
 # --- Bardas ---
@@ -219,9 +262,14 @@ func _pared(a: Vector2, b: Vector2, alto: float, material: Material) -> void:
 	_cuerpo(nodo, Vector3(0.0, alto / 2.0 - 0.5, 0.0), Vector3(GRUESO, alto + 1.0, largo), material)
 
 
-# Reja de fierro cerrada a lo largo de `dir`, como las de MuroColonia: postes, travesanos y barrotes
-# La reja con sus postes de concreto; devuelve lo que se quita al abrirla (las hojas, el poste de en medio y el choque)
-func _reja(centro: Vector2, dir: Vector2, largo: float, alto: float) -> Node3D:
+# Reja de fierro a lo largo de `dir`, como las de MuroColonia: postes de concreto, travesanos y barrotes.
+# Cerrada (las dos hojas juntas al centro, con el poste de en medio) o abierta (`afuera`: hacia donde queda
+# afuera): cada hoja girada 90 grados sobre su poste, hacia afuera, y el hueco libre. Las dos chocan de lado
+# a lado (en map_test no se entra caminando: se entra por la flecha)
+func _reja(centro: Vector2, dir: Vector2, largo: float, alto: float, afuera := Vector2.ZERO) -> Node3D:
+	var abierta := afuera != Vector2.ZERO
+	# El +X local del nodo de la reja en el mundo (x, z): hacia ahi, o al reves, se abren las hojas
+	var sx := signf(afuera.dot(Vector2(dir.y, -dir.x))) if abierta else 1.0
 	var postes := Node3D.new()
 	postes.name = "Reja"
 	postes.position = Vector3(centro.x, 0.0, centro.y)
@@ -233,28 +281,39 @@ func _reja(centro: Vector2, dir: Vector2, largo: float, alto: float) -> Node3D:
 	var nodo := Node3D.new()
 	nodo.name = "Hojas"
 	postes.add_child(nodo)
-	_caja(nodo, Vector3(GRUESO + 0.1, alto + 0.3, 0.6), Vector3(0.0, (alto + 0.3) / 2.0, 0.0), concreto)
-	var zs: Array[float] = []
+	if not abierta:
+		_caja(nodo, Vector3(GRUESO + 0.1, alto + 0.3, 0.6), Vector3(0.0, (alto + 0.3) / 2.0, 0.0), concreto)
 	for hoja in [-1.0, 1.0]:
 		var z0: float = -largo / 2.0 + 0.6 if hoja < 0.0 else 0.3
 		var z1: float = -0.3 if hoja < 0.0 else largo / 2.0 - 0.6
+		var ancho_hoja := z1 - z0
+		var raiz := Node3D.new()
+		nodo.add_child(raiz)
+		if abierta:
+			# La bisagra en el poste de su orilla; la hoja girada hacia afuera
+			raiz.position = Vector3(0.0, 0.0, z0 if hoja < 0.0 else z1)
+			raiz.rotation.y = (sx if hoja < 0.0 else -sx) * PI / 2.0
+			z0 = 0.0 if hoja < 0.0 else -ancho_hoja
+			z1 = z0 + ancho_hoja
+			_choque(raiz, Vector3(0.0, alto / 2.0 - 0.5, (z0 + z1) / 2.0), Vector3(0.12, alto + 1.0, ancho_hoja))
+		var zs: Array[float] = []
 		for y in [0.25, alto - 0.35, alto * 0.5]:
-			_caja(nodo, Vector3(0.07, 0.07, z1 - z0), Vector3(0.0, y, (z0 + z1) / 2.0), _fierro)
-		var cuantos := maxi(2, int((z1 - z0) / 0.2))
+			_caja(raiz, Vector3(0.07, 0.07, ancho_hoja), Vector3(0.0, y, (z0 + z1) / 2.0), _fierro)
+		var cuantos := maxi(2, int(ancho_hoja / 0.2))
 		for i in cuantos + 1:
-			zs.append(z0 + (z1 - z0) * i / cuantos)
-	var barrote := BoxMesh.new()
-	barrote.size = Vector3(0.035, alto - 0.1, 0.035)
-	var multi := MultiMesh.new()
-	multi.transform_format = MultiMesh.TRANSFORM_3D
-	multi.mesh = barrote
-	multi.instance_count = zs.size()
-	for i in zs.size():
-		multi.set_instance_transform(i, Transform3D(Basis.IDENTITY, Vector3(0.0, alto / 2.0 - 0.05, zs[i])))
-	var barrotes := MultiMeshInstance3D.new()
-	barrotes.multimesh = multi
-	barrotes.material_override = _fierro
-	nodo.add_child(barrotes)
+			zs.append(z0 + ancho_hoja * i / cuantos)
+		var barrote := BoxMesh.new()
+		barrote.size = Vector3(0.035, alto - 0.1, 0.035)
+		var multi := MultiMesh.new()
+		multi.transform_format = MultiMesh.TRANSFORM_3D
+		multi.mesh = barrote
+		multi.instance_count = zs.size()
+		for i in zs.size():
+			multi.set_instance_transform(i, Transform3D(Basis.IDENTITY, Vector3(0.0, alto / 2.0 - 0.05, zs[i])))
+		var barrotes := MultiMeshInstance3D.new()
+		barrotes.multimesh = multi
+		barrotes.material_override = _fierro
+		raiz.add_child(barrotes)
 	_choque(nodo, Vector3(0.0, alto / 2.0 - 0.5, 0.0), Vector3(GRUESO + 0.1, alto + 1.0, largo))
 	return nodo
 

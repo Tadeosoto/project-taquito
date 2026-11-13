@@ -50,7 +50,9 @@ const ARCHIVOS := [
 	"res://resources/misiones/mafia_8.tres",
 ]
 # Las entregas de la mafia (M7): las `mafia_N` en cadena, de El Punto de Santa Mugre a los ocho puntos del
-# mapa. Con estas ya cumplidas se abre la reja de La Gotera (FortalezasMapa)
+# mapa. Con estas ya cumplidas los guardias de las bocas de la favela de La Gotera te dejan pasar (las marcas
+# "paso" con "requiere": "favela" de Colonia.gd); el tianguis de la avenida es de todos y sus rejas de la
+# muralla estan abiertas (FortalezasMapa)
 const MAFIA := "mafia_"
 const FAVELA_ENTREGAS := 5
 const REVISAR_CADA := 0.25
@@ -160,7 +162,7 @@ func entregas_mafia() -> int:
 	return n
 
 
-# La reja de La Gotera ya te deja pasar
+# Los guardias de las bocas de la favela de La Gotera ya te dejan pasar (el tianguis siempre fue de todos)
 func favela_abierta() -> bool:
 	return entregas_mafia() >= FAVELA_ENTREGAS
 
