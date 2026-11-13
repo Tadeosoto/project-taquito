@@ -188,7 +188,7 @@ Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.no
 
 Cada una: texto listo en `misiones.md` (fase L) → código → safehouse → prueba en ventana → tachar.
 
-- [x] **M1** Defensa externa del tinaco · [x] **M2** Camioneta de reparto · [x] **M3** Guardia de la reja · [x] **M4** Radio de Sofía · [x] **M5** Al médico · [x] **M6** Decreto 47 · **M7** Entregas de la mafia ([x] M7a · [x] M7b · M7c) · **M8** Cacería de la Mojiganga · **M9** Cacería de la Madre · **M10** Hijo rebelde y resistencia
+- [x] **M1** Defensa externa del tinaco · [x] **M2** Camioneta de reparto · [x] **M3** Guardia de la reja · [x] **M4** Radio de Sofía · [x] **M5** Al médico · [x] **M6** Decreto 47 · **M7** Entregas de la mafia ([x] M7a · [x] M7b · M7c) · **M8** Cacería de la Mojiganga (⏸️ pendiente, JJ 2026-11-13) · **M9** Cacería de la Madre (⏸️ pendiente, JJ 2026-11-13) · **M10** Hijo rebelde y resistencia
 
 ### Orden y riesgos
 
