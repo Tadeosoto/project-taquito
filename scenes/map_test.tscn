@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="10_dron"]
 [ext_resource type="Script" path="res://scripts/map/Partida.gd" id="partida_gd"]
 [ext_resource type="Script" path="res://scripts/map/Gente.gd" id="gente_gd"]
+[ext_resource type="Script" path="res://scripts/map/Cuicos.gd" id="cuicos_gd"]
 [ext_resource type="Shader" path="res://shaders/ps1_suelo.gdshader" id="11_suelo"]
 [ext_resource type="Texture2D" uid="uid://btfh1d6mytpei" path="res://textures/map/suelo.png" id="12_suelo_tex"]
 [ext_resource type="Script" path="res://scripts/map/MapPuntos.gd" id="5_puntos"]
@@ -383,6 +384,9 @@ supervivencia_path = NodePath("../Supervivencia")
 
 [node name="Gente" type="Node3D" parent="."]
 script = ExtResource("gente_gd")
+
+[node name="Cuicos" type="Node3D" parent="."]
+script = ExtResource("cuicos_gd")
 
 [node name="ObjetoPrueba1" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.58, 0.5, 646.64)

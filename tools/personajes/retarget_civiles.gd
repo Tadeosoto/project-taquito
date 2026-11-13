@@ -1,13 +1,13 @@
 extends SceneTree
 # Pone el retarget (como el de el_compa) en los .import de los civiles del pack PSX
-# (hombre_* y mujer_*) y en los monstruos de EXTRA, para que queden con un %GeneralSkeleton de SkeletonProfileHumanoid y
+# (hombre_*, mujer_* y los policia_* de los cuicos) y en los monstruos de EXTRA, para que queden con un %GeneralSkeleton de SkeletonProfileHumanoid y
 # les sirvan las animaciones de Quaternius (resources/personajes/animaciones_humanas.res).
 # Los usa scripts/personajes/Civiles.gd. Se puede correr otra vez: los ya puestos no cambian.
 #   godot --path . --headless -s tools/personajes/retarget_civiles.gd
 #   godot --path . --headless --import
 
 const CARPETA := "res://models/personajes/pack_psx/"
-const PREFIJOS := ["hombre_", "mujer_"]
+const PREFIJOS := ["hombre_", "mujer_", "policia_"]
 # Los zombis normales (scripts/map/Zombie.gd): solo estos monstruos, el 04 y el 05 no
 const EXTRA := ["monstruo_00", "monstruo_01", "monstruo_02", "monstruo_03"]
 const RETARGET := """_subresources={

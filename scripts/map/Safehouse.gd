@@ -267,6 +267,11 @@ func _ready() -> void:
 	gente.banquetas_path = BANQUETAS_JSON
 	gente.puntos_path = PUNTOS_JSON
 	add_child(gente)
+	# Los cuicos de dia (M7b): con la caja de la mafia te disparan
+	var cuicos := Cuicos.new()
+	cuicos.name = "Cuicos"
+	cuicos.banquetas_path = BANQUETAS_JSON
+	add_child(cuicos)
 	_letrero("NEGOCIOS", Vector3(-10.0, 6.0, FACHADAS_Z))
 	_letrero("MAQUINITAS", Vector3(MAQUINAS_X, 4.5, -9.0))
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))

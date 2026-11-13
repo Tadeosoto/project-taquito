@@ -26,6 +26,11 @@ const NEGRO := Color(0.05, 0.05, 0.05)
 const OBJETIVO_COLOR := Color(1.0, 0.85, 0.1)
 const ZOMBI_COLOR := Color(0.95, 0.15, 0.1)
 const OBJETIVO_PARPADEA_MS := 350
+const CERDO_COLOR := Color(1.0, 0.62, 0.72)
+const CERDO_OSCURO := Color(0.88, 0.4, 0.52)
+const CONO_COLOR := Color(1.0, 0.95, 0.6, 0.28)
+const CONO_ALERTA := Color(1.0, 0.2, 0.15, 0.38)
+const CONO_PASOS := 8
 
 @export var mapa: Texture2D
 @export var player_path: NodePath
@@ -192,12 +197,45 @@ func _dibujar_zombis(centro: Vector2, limite: float) -> void:
 	if not zombis_siempre and (tazos == null or not tazos.tiene("ojo_halcon")):
 		return
 	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
-		if zombi.get("estado") == 3:   # Zombie.Estado.MUERTO
+		if zombi.get("estado") == 3 or zombi.is_in_group("cuicos"):   # Zombie.Estado.MUERTO
 			continue
 		var p := _a_pantalla(Vector2(zombi.global_position.x, zombi.global_position.z))
 		if p.length() < limite:
 			_marcas.draw_circle(centro + p, 2.5, NEGRO)
 			_marcas.draw_circle(centro + p, 1.6, ZOMBI_COLOR)
+
+
+# Los cuicos de dia (Cuicos.gd, M7b): un cerdito rosa en un circulo y su cono de vista, siempre
+func _dibujar_cuicos(centro: Vector2, limite: float) -> void:
+	for cuico: Node3D in get_tree().get_nodes_in_group("cuicos"):
+		if not cuico.visible or not cuico.vivo():
+			continue
+		var xz := Vector2(cuico.global_position.x, cuico.global_position.z)
+		var p := _a_pantalla(xz)
+		if p.length() > limite + 6.0:
+			continue
+		var f: Vector3 = cuico.frente()
+		var frente := Vector2(f.x, f.z).normalized()
+		var cono := PackedVector2Array([centro + p])
+		for paso in CONO_PASOS + 1:
+			var a := deg_to_rad(lerpf(-Cuicos.VISTA_ANGULO, Cuicos.VISTA_ANGULO, float(paso) / CONO_PASOS))
+			var q := _a_pantalla(xz + frente.rotated(a) * Cuicos.VISTA)
+			cono.append(centro + (q.normalized() * limite if q.length() > limite else q))
+		var activo: bool = cuico.activo()
+		_marcas.draw_colored_polygon(cono, CONO_ALERTA if activo else CONO_COLOR)
+		if p.length() > limite:
+			continue
+		var c := centro + p
+		# Orejas, cara y trompa
+		for lado in [-1.0, 1.0]:
+			_marcas.draw_colored_polygon(PackedVector2Array([c + Vector2(lado * 4.5, -1.5), c + Vector2(lado * 4.0, -6.0), c + Vector2(lado * 1.2, -4.0)]), CERDO_OSCURO)
+		_marcas.draw_circle(c, 4.8, NEGRO)
+		_marcas.draw_circle(c, 4.0, CERDO_COLOR)
+		_marcas.draw_circle(c + Vector2(0.0, 1.2), 1.9, CERDO_OSCURO)
+		_marcas.draw_circle(c + Vector2(-0.7, 1.2), 0.45, NEGRO)
+		_marcas.draw_circle(c + Vector2(0.7, 1.2), 0.45, NEGRO)
+		_marcas.draw_circle(c + Vector2(-1.6, -1.2), 0.5, NEGRO)
+		_marcas.draw_circle(c + Vector2(1.6, -1.2), 0.5, NEGRO)
 
 
 func _dibujar_marcas() -> void:
@@ -213,6 +251,7 @@ func _dibujar_marcas() -> void:
 	_dibujar_dadores(centro, limite)
 	_dibujar_objetivo(centro, limite)
 	_dibujar_zombis(centro, limite)
+	_dibujar_cuicos(centro, limite)
 	# Flecha del jugador (al centro, salvo con centro_fijo)
 	var donde := centro
 	if centro_fijo:
