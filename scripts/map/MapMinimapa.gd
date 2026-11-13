@@ -52,6 +52,7 @@ var _material: ShaderMaterial
 var _origen := Vector2.ZERO
 var _tam_metros := Vector2.ONE
 var _puntos: Array = []              # [[Vector2 xz, Color], ...]
+var _iconos: Array = []              # [{tipo, x, z}, ...] del minimapa.json de la colonia
 
 # Lo que se calcula cada cuadro y usa _dibujar_marcas
 var _pos := Vector2.ZERO
@@ -71,6 +72,13 @@ func _ready() -> void:
 		var datos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(datos_path))
 		_origen = Vector2(datos["x0"], datos["z0"])
 		_tam_metros = Vector2(datos["ancho"], datos["alto"]) * float(datos["metros_por_pixel"])
+		if datos.has("radio"):
+			radio_metros = float(datos["radio"])
+		if datos.has("radio_dron"):
+			radio_dron = float(datos["radio_dron"])
+		for icono: Variant in datos.get("iconos", []):
+			if icono is Dictionary:
+				_iconos.append(icono)
 	if puntos_path != "":
 		var puntos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(puntos_path))
 		for punto in puntos["puntos"]:
@@ -200,9 +208,40 @@ func _dibujar_zombis(centro: Vector2, limite: float) -> void:
 			_marcas.draw_circle(centro + p, 1.6, ZOMBI_COLOR)
 
 
+# Iconos del minimapa de la colonia: entradas de tunel (T), subidas a azotea (A), salidas a
+# otra escena (S) y el tinaco de la plaza (gota azul).
+func _dibujar_iconos(centro: Vector2, limite: float) -> void:
+	for icono: Dictionary in _iconos:
+		var p := _a_pantalla(Vector2(float(icono.get("x", 0.0)), float(icono.get("z", 0.0))))
+		if p.length() >= limite:
+			continue
+		var q := centro + p
+		match String(icono.get("tipo", "")):
+			"tunel":
+				_marcas.draw_rect(Rect2(q - Vector2(5.0, 5.0), Vector2(10.0, 10.0)), NEGRO)
+				_marcas.draw_rect(Rect2(q - Vector2(4.0, 4.0), Vector2(8.0, 8.0)), Color(0.85, 0.55, 0.2))
+				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), "T",
+					HORIZONTAL_ALIGNMENT_CENTER, 7.0, 8, NEGRO)
+			"azotea":
+				_marcas.draw_rect(Rect2(q - Vector2(5.0, 5.0), Vector2(10.0, 10.0)), NEGRO)
+				_marcas.draw_rect(Rect2(q - Vector2(4.0, 4.0), Vector2(8.0, 8.0)), Color(0.88, 0.88, 0.85))
+				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), "A",
+					HORIZONTAL_ALIGNMENT_CENTER, 7.0, 8, NEGRO)
+			"salida":
+				_marcas.draw_circle(q, 5.5, NEGRO)
+				_marcas.draw_circle(q, 4.3, OBJETIVO_COLOR)
+				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), "S",
+					HORIZONTAL_ALIGNMENT_CENTER, 6.0, 8, NEGRO)
+			"tinaco":
+				_marcas.draw_circle(q, 6.0, NEGRO)
+				_marcas.draw_circle(q, 4.8, Color(0.28, 0.55, 0.9))
+				_marcas.draw_circle(q + Vector2(0.0, 0.5), 2.0, Color(0.75, 0.88, 1.0))
+
+
 func _dibujar_marcas() -> void:
 	var centro := Vector2(tamano, tamano) / 2.0
 	var limite := tamano / 2.0 - 6.0
+	_dibujar_iconos(centro, limite)
 	for punto in _puntos:
 		var p := _a_pantalla(punto[0])
 		if p.length() < limite:

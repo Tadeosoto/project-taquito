@@ -38,6 +38,12 @@ func _enter_tree() -> void:
 	var puntos := DATOS % [cual, "puntos.json"]
 	_poner("Puntos", "puntos_path", puntos)
 	_poner("Minimapa", "puntos_path", puntos)
+	# Minimapa propio de la colonia (la favela no sigue OSM): solo si estan el JSON y el PNG
+	var minijson := DATOS % [cual, "minimapa.json"]
+	var minitex := "res://textures/map/minimapa_%s.png" % cual
+	if FileAccess.file_exists(minijson) and ResourceLoader.exists(minitex):
+		_poner("Minimapa", "datos_path", minijson)
+		_poner("Minimapa", "mapa", load(minitex))
 	_poner("Alumbrado", "alumbrado_path", DATOS % [cual, "alumbrado.json"])
 	_poner("Colonia", "marcas_path", DATOS % [cual, "marcas.json"])
 	_poner("Colonia", "modelo", load(MODELO % [cual, cual]))

@@ -53,9 +53,10 @@ var _luz_base := 0.0
 var _t := 0.0
 
 
-func armar(litros: float) -> void:
+func armar(litros: float, con_virgen := true, comunitario := true) -> void:
 	name = "TinacoComunitario"
-	add_to_group("tinaco_comunitario")   # donde va la mision de la defensa del tinaco
+	if comunitario:
+		add_to_group("tinaco_comunitario")   # donde va la mision de la defensa del tinaco
 	alto = ALTO_10MIL * pow(litros / 10000.0, 1.0 / 3.0)
 	radio = alto * RADIO
 	var factor := pow(litros / 20000.0, 1.0 / 3.0)   # contra uno de 20 mil litros
@@ -70,18 +71,19 @@ func armar(litros: float) -> void:
 	forma.shape = cilindro
 	forma.position.y = alto / 2.0
 	add_child(forma)
-	add_child(_mancha())
-	add_child(_ofrenda(factor))
-	add_child(_petalos(factor))
-	# La luz de las veladoras, al pie de la mancha; titila
-	_luz = OmniLight3D.new()
-	_luz.name = "LuzVeladoras"
-	_luz.light_color = Color(1.0, 0.62, 0.28)
-	_luz_base = 0.7 * factor
-	_luz.light_energy = _luz_base
-	_luz.omni_range = 4.0 * factor
-	_luz.position = _al_frente(radio + 0.45 * factor, 0.0) + Vector3(0.0, 0.6, 0.0)
-	add_child(_luz)
+	if con_virgen:
+		add_child(_mancha())
+		add_child(_ofrenda(factor))
+		add_child(_petalos(factor))
+		# La luz de las veladoras, al pie de la mancha; titila
+		_luz = OmniLight3D.new()
+		_luz.name = "LuzVeladoras"
+		_luz.light_color = Color(1.0, 0.62, 0.28)
+		_luz_base = 0.7 * factor
+		_luz.light_energy = _luz_base
+		_luz.omni_range = 4.0 * factor
+		_luz.position = _al_frente(radio + 0.45 * factor, 0.0) + Vector3(0.0, 0.6, 0.0)
+		add_child(_luz)
 
 
 func _process(delta: float) -> void:

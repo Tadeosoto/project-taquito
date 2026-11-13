@@ -223,6 +223,60 @@ func _favela() -> void:
 		await _cuadros(3)
 		_revisar("favela: la boca regresa al tianguis por el mismo lado", PasoColonia.colonia == "la_gotera" and PasoColonia.lado == "privada_fuga",
 			"colonia %s lado '%s'" % [PasoColonia.colonia, PasoColonia.lado])
+	# Las tiendas de favela, el minimapa propio, el tinaco sin Virgen y el giro con WASD
+	var puntos := escena.get_node("Puntos")
+	var giros := {}
+	for p: Dictionary in puntos._puntos:
+		giros[String(p.get("tipo", ""))] = true
+	_revisar("favela: seis tiendas, una por giro, sin purificadora",
+			["abarrotes", "licoreria", "farmacia", "ferreteria", "oxxo", "taqueria"].all(func(g: String) -> bool: return giros.has(g))
+			and not giros.has("purificadora") and puntos._puntos.size() == 6, str(giros.keys()))
+	jugador.global_position = Vector3(822.0, 3.0, -220.0)
+	jugador.velocity = Vector3.ZERO
+	await _cuadros(90)
+	_revisar("favela: las tiendas se armaron", puntos._nodes.size() >= 6, str(puntos._nodes.size()))
+	var miniatura := escena.get_node("Minimapa")
+	_revisar("favela: minimapa propio (sin OSM)",
+			miniatura.mapa != null and miniatura.mapa.resource_path.ends_with("minimapa_la_gotera_favela.png")
+			and miniatura.datos_path.ends_with("la_gotera_favela/minimapa.json")
+			and miniatura._iconos.size() >= 14, "%s / %s / %d iconos" % [miniatura.mapa.resource_path if miniatura.mapa else "sin mapa", miniatura.datos_path, miniatura._iconos.size()])
+	var tinacos := colonia.find_children("*", "TinacoComunitario", true, false)
+	var tinaco: Node = tinacos[0] if not tinacos.is_empty() else null
+	_revisar("favela: hay un tinaco comunitario", tinaco != null, str(tinacos.size()))
+	if tinaco:
+		_revisar("favela: el tinaco no tiene Virgen ni ofrenda",
+				tinaco.find_child("ManchaVirgen", true, false) == null
+				and tinaco.find_child("Ofrenda", true, false) == null
+				and tinaco.find_child("Petalos", true, false) == null
+				and tinaco.find_child("LuzVeladoras", true, false) == null,
+				"hijos: %s" % [tinaco.get_children().map(func(n: Node) -> String: return n.name)])
+		_revisar("favela: tinaco de 50 mil litros, sin defensa",
+				absf(float(tinaco.get("alto")) - 4.79) < 0.1 and absf(float(tinaco.get("radio")) - 1.87) < 0.1
+				and not tinaco.is_in_group("tinaco_comunitario"),
+				"alto %.2f, radio %.2f" % [float(tinaco.get("alto")), float(tinaco.get("radio"))])
+	_revisar("favela: el callejon gira con WASD", jugador.giro_con_wasd, str(jugador.giro_con_wasd))
+	var colonia_datos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/blender/mapa/colonias/la_gotera_favela.json"))
+	var casa_azotea: Dictionary = {}
+	var techo := INF
+	var espacio: PhysicsDirectSpaceState3D = escena.get_world_3d().direct_space_state
+	for p: Dictionary in colonia_datos["piezas"]:
+		if p.get("tipo") != "casa" or p.get("local") or int(p.get("pisos", 1)) < 1:
+			continue
+		var rayo := PhysicsRayQueryParameters3D.create(
+			Vector3(float(p["x"]), 20.0, float(p["z"])), Vector3(float(p["x"]), -1.0, float(p["z"])), 1)
+		var pego: Dictionary = espacio.intersect_ray(rayo)
+		if not pego.is_empty() and float(pego.position.y) > 3.2:
+			casa_azotea = p
+			techo = float(pego.position.y)
+			break
+	if not casa_azotea.is_empty():
+		jugador.global_position = Vector3(float(casa_azotea["x"]), techo + 1.1, float(casa_azotea["z"]))
+		jugador.velocity = Vector3.ZERO
+		await _cuadros(40)
+		_revisar("favela: en la azotea no gira con WASD", not jugador.giro_con_wasd,
+				"techo %.2f, y %.2f, en piso %s" % [techo, jugador.global_position.y, jugador.is_on_floor()])
+	else:
+		_revisar("favela: hay azoteas caminables", false, "ninguna casa con choque arriba de 3.2 m")
 	# De noche se entra a la tienda del tunel y abre su interior propio
 	PasoColonia.lado = ""
 	await _anochecer(escena)

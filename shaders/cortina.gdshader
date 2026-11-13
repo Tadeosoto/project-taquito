@@ -16,6 +16,8 @@ uniform vec3 color : source_color = vec3(0.55, 0.57, 0.6);
 uniform vec3 oxido : source_color = vec3(0.42, 0.24, 0.13);
 // m entre canal y canal de la lamina
 uniform float canal = 0.08;
+// 1 = lona de favela (pliegues verticales, tela), 0 = lamina de los demas locales
+uniform float lona = 0.0;
 
 varying float desde_abajo;
 varying float lado;
@@ -33,26 +35,39 @@ void vertex() {
 }
 
 void fragment() {
-	// Cuadritos de 1/16 m como lo demas del mundo
-	float y = floor(desde_abajo * 64.0) / 64.0;
-	float onda = fract(y / canal);
-	float sombra = mix(0.78, 1.08, smoothstep(0.0, 0.5, onda) * (1.0 - smoothstep(0.5, 1.0, onda)));
-	vec3 c = color * sombra;
-	// Mas sucia abajo, donde salpica la calle
-	c *= mix(0.75, 1.0, smoothstep(0.0, 0.6, desde_abajo));
-	// Oxido segun lo deteriorado de la cuadra
-	vec3 p = floor(mundo * 16.0) / 16.0;
-	float zona = zona_deterioro(mundo.xz);
-	float mancha = smoothstep(0.55, 0.8, ruido2(vec2(p.x + p.z, p.y) * 2.5) + zona * 0.35);
-	c = mix(c, oxido * sombra, mancha * zona);
-	// La solera de abajo y la jaladera con su candado al centro
-	if (desde_abajo < 0.07) {
-		c = color * 0.45;
+	vec3 c;
+	if (lona > 0.5) {
+		// Lona de favela: pliegues verticales y tela sucia, no lamina
+		float pliegue = 0.5 + 0.5 * sin(lado * 26.0 + desde_abajo * 2.0);
+		c = color * mix(0.80, 1.08, pliegue);
+		c *= mix(0.78, 1.0, smoothstep(0.0, 0.6, desde_abajo));
+		float zona_l = zona_deterioro(mundo.xz);
+		c = mix(c, color * 0.62, smoothstep(0.55, 0.9, ruido2(vec2(lado * 3.0, desde_abajo * 2.0)) + zona_l * 0.3));
+		ALBEDO = c;
+		ROUGHNESS = 0.92;
+		METALLIC = 0.0;
+	} else {
+		// Cuadritos de 1/16 m como lo demas del mundo
+		float y = floor(desde_abajo * 64.0) / 64.0;
+		float onda = fract(y / canal);
+		float sombra = mix(0.78, 1.08, smoothstep(0.0, 0.5, onda) * (1.0 - smoothstep(0.5, 1.0, onda)));
+		c = color * sombra;
+		// Mas sucia abajo, donde salpica la calle
+		c *= mix(0.75, 1.0, smoothstep(0.0, 0.6, desde_abajo));
+		// Oxido segun lo deteriorado de la cuadra
+		vec3 p = floor(mundo * 16.0) / 16.0;
+		float zona = zona_deterioro(mundo.xz);
+		float mancha = smoothstep(0.55, 0.8, ruido2(vec2(p.x + p.z, p.y) * 2.5) + zona * 0.35);
+		c = mix(c, oxido * sombra, mancha * zona);
+		// La solera de abajo y la jaladera con su candado al centro
+		if (desde_abajo < 0.07) {
+			c = color * 0.45;
+		}
+		if (abs(lado) < 0.07 && desde_abajo > 0.09 && desde_abajo < 0.2) {
+			c = vec3(0.12, 0.12, 0.13);
+		}
+		ALBEDO = c;
+		ROUGHNESS = 0.6;
+		METALLIC = 0.3;
 	}
-	if (abs(lado) < 0.07 && desde_abajo > 0.09 && desde_abajo < 0.2) {
-		c = vec3(0.12, 0.12, 0.13);
-	}
-	ALBEDO = c;
-	ROUGHNESS = 0.6;
-	METALLIC = 0.3;
 }

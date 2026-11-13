@@ -1117,6 +1117,17 @@ def lote(nombre, p):
         raya(1.0, -hz + 0.3, 1.0, zp + 3.0)
         raya(-1.0, zp + 3.0, 1.0, zp + 3.0)
         k.esfera((hx - 1.0, 0.12, hz - 1.5), 0.12, "naranja_gela", seg=6, anillos=4)
+    elif variante == "tinaco":
+        # Plaza del Tinaco: piso de concreto, bancas y macetas; el tinaco lo pone Colonia.gd
+        k.cara([(-hx, 0.03, hz), (hx, 0.03, hz), (hx, 0.03, -hz), (-hx, 0.03, -hz)], "banqueta")
+        # Pared baja de cal en un lado, sin cerrar la plaza
+        k.caja((-hx + 0.12, 0.45, 0), (0.25, 0.9, ancho - 0.6), "blanco_cal", choca=True)
+        for z in (-hz / 2, hz / 2):
+            k.caja((hx - 1.0, 0.22, z), (0.42, 0.44, 0.42), "azul_gela")
+            k.caja((hx - 1.0, 0.65, z), (0.06, 0.45, 0.42), "azul_gela")
+        for x in (-hx / 2, hx / 2):
+            k.caja((x, 0.25, -hz + 0.8), (0.5, 0.5, 0.5), "concreto", choca=True)
+            k.esfera((x, 0.75, -hz + 0.8), 0.35, "hojas", seg=6, anillos=3)
     elif variante == "fonda":
         # Lona amarilla sobre tres mesas con sillas de plastico rojas y el carrito de tacos al frente
         for x in (-hx + 0.4, hx - 0.4):
@@ -1220,12 +1231,60 @@ def escalera(nombre, p):
 
 
 def tablon(nombre, p):
-    """Tablon de una azotea a otra por encima de un callejon (a lo largo de x), con su choque."""
+    """Tablon de una azotea a otra por encima de un callejon (a lo largo de x), con su choque.
+    Con "puente": vigas y barandales de fierro a los lados, para que se lea como puente."""
     k = Constructor(nombre)
     largo, ancho = p.get("largo", 4.0), p.get("ancho", 0.6)
     k.caja((0, -0.03, 0), (largo, 0.06, ancho), "foto_madera", choca=True)
     for z in (-ancho / 3, ancho / 3):
         k.caja((0, -0.08, z), (largo, 0.05, 0.08), "foto_madera")
+    if p.get("puente", False):
+        for z in (-ancho / 2, ancho / 2):
+            k.caja((0, 0.35, z), (largo, 0.05, 0.05), "fierro")
+            for i in range(int(largo / 1.2) + 1):
+                k.caja((-largo / 2 + i * 1.2, 0.18, z), (0.04, 0.36, 0.04), "fierro")
+    return k
+
+
+def toldo(nombre, p):
+    """Toldo de lona sobre un callejon: `largo` a lo largo de x, `ancho` de fachada a fachada en z,
+    a `alto` m; la lona cae al centro y lleva cables a las esquinas. Sin choque."""
+    k = Constructor(nombre)
+    largo, ancho = p.get("largo", 3.0), p.get("ancho", 2.4)
+    alto = p.get("alto", 3.2)
+    color = p.get("color", "lona_rojo")
+    nx, nz = 3, 3
+    puntos = []
+    for i in range(nx + 1):
+        fila = []
+        for j in range(nz + 1):
+            x = -largo / 2 + largo * i / nx
+            z = -ancho / 2 + ancho * j / nz
+            s = 0.22 * math.sin(math.pi * i / nx) * math.sin(math.pi * j / nz)
+            fila.append((x, alto - s, z))
+        puntos.append(fila)
+    for i in range(nx):
+        for j in range(nz):
+            q = [puntos[i][j], puntos[i + 1][j], puntos[i + 1][j + 1], puntos[i][j + 1]]
+            k.cara(q, color)
+            k.cara(q[::-1], color)
+    # Cables de las esquinas a las fachadas
+    for x in (-largo / 2, largo / 2):
+        for z in (-ancho / 2, ancho / 2):
+            k.caja((x, alto - 0.08, z + (0.4 if z > 0 else -0.4)), (0.02, 0.02, 0.8), "cable")
+    return k
+
+
+def poste_luz(nombre, p):
+    """Poste de luz de la plaza/claro: poste de fierro con base de concreto, brazo y bombilla. La
+    luz la pone Colonia.gd desde la marca "foco" que escribe exportar.py/favela.py."""
+    k = Constructor(nombre)
+    alto = p.get("alto", 3.5)
+    k.caja((0, 0.15, 0), (0.5, 0.3, 0.5), "concreto", choca=True)
+    k.caja((0, alto / 2, 0), (0.14, alto, 0.14), "fierro", choca=True)
+    k.caja((0.35, alto - 0.1, 0), (0.8, 0.08, 0.08), "fierro")
+    k.caja((0.7, alto - 0.35, 0), (0.02, 0.5, 0.02), "cable")
+    k.esfera((0.7, alto - 0.45, 0), 0.12, "farol", seg=6, anillos=4)
     return k
 
 
@@ -1896,7 +1955,7 @@ def tunel_cuarto(nombre, p):
 PIEZAS = {"tinaco_comunitario": tinaco_comunitario, "tunel": tunel, "tunel_cuarto": tunel_cuarto, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
           "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "escalinata": escalinata, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
-          "escalera": escalera, "tablon": tablon, "vecindad": vecindad,
+          "escalera": escalera, "tablon": tablon, "toldo": toldo, "poste_luz": poste_luz, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro, "reja": reja,
           "reja_fierro": reja_fierro, "muralla": muralla, "mirador_muro": mirador_muro, "nicho_virgen": nicho_virgen,
           "puesto_guardia": puesto_guardia}

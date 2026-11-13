@@ -37,6 +37,7 @@
 [ext_resource type="Resource" path="res://resources/zombis/noche_mapa.tres" id="18_ritmo"]
 [ext_resource type="Shader" path="res://shaders/cielo_ps1.gdshader" id="23_cielo"]
 [ext_resource type="Script" path="res://scripts/mapa/Horizonte.gd" id="24_horizonte"]
+[ext_resource type="Script" path="res://scripts/mapa/GiroFavela.gd" id="25_giro_favela"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cielo"]
 shader = ExtResource("23_cielo")
@@ -153,6 +154,10 @@ jugador_path = NodePath("../Player")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -262, 1.5, 455)
+
+[node name="GiroFavela" type="Node" parent="."]
+script = ExtResource("25_giro_favela")
+player_path = NodePath("../Player")
 
 [node name="Dron" type="Node3D" parent="."]
 script = ExtResource("7_dron")

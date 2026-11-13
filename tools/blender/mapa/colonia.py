@@ -1002,7 +1002,8 @@ def _focos(trozo, datos):
         giro = math.atan2(-nz, nx)
         c.caja((x, y, z), (medio * 2, 0.02, 0.02), "cable", giro)
         c.caja((x, y - 0.15, z), (0.015, 0.3, 0.015), "cable")
-        c.esfera((x, y - 0.36, z), 0.08, "farol", seg=5, anillos=3)
+        c.cono((x, y - 0.30, z), 0.13, 0.10, "fierro", lados=6)
+        c.esfera((x, y - 0.36, z), 0.11, "farol", seg=6, anillos=3)
 
 
 def _capilla(c, x, z, giro):

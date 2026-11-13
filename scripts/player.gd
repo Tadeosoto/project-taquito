@@ -3,6 +3,9 @@ class_name Player
 
 @export var camera_sensitivity: float = 2.5
 @export var mouse_sensitivity: float = 0.0025
+# En el laberinto de la favela (GiroFavela.gd): con W apretado, A/D giran la camara en vez de
+# hacer strafe. En azoteas, tianguis y demas colonias queda false y A/D vuelven a ser strafe.
+@export var giro_con_wasd := false
 @export var rotation_speed: float = 16.0
 @export var speed: float = 5.0
 @export var sprint_speed: float = 9.0
@@ -21,6 +24,7 @@ var camera_pitch: float = -4.6
 # Con que le pega a los zombis (Zombie.gd): el mejor `dano` del inventario, o a puño limpio.
 # Inventario y Salud se piden por su ruta: los scripts de tools/ cargan esta clase antes
 # de que existan los autoloads
+const GIRO_WASD := 2.4        # rad/s del timon A/D en el laberinto
 const DANO_PUNO := 5
 const ATAQUE_ENFRIAR := 0.6
 # Medido (tools/_combo_tmp): la hoja pasa por enfrente entre 0.233 y 0.25 s del clip, con la mano
@@ -2286,6 +2290,10 @@ func _physics_process(delta: float) -> void:
 		"move_forward",
 		"move_backward"
 	)
+	# Laberinto de la favela: caminando hacia adelante, A/D son el timon de la camara (no strafe).
+	if giro_con_wasd and input_direction.y < -0.2:
+		camera_pivot.rotation.y -= Input.get_axis("move_left", "move_right") * GIRO_WASD * delta
+		input_direction.x = 0.0
 	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
 	var golpeando := (_enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento) or _pose_carga
 	# Girando en el aire sigues tu salto (y lo puedes dirigir); en el suelo te quedas en tu lugar

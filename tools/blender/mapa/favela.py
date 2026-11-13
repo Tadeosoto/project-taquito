@@ -57,6 +57,30 @@ TUNEL_ANCHO = 2.4
 ZANJA_LARGO = 6.6       # la bajada (5.0 m a 40 grados) y el descanso
 ZANJA_ANCHO = 2.4       # como la galeria, para que la zanja abra justo en ella
 TUNELES = 3             # bocas
+# La plaza del tinaco y los claros (docs/mapa/colonias/la_gotera.md): el del tinaco es 3x3 y va lo
+# mas cerca del centro; los demas son 2x2 y se reparten. Ya no hay Bodega del Agua.
+TINACO_LITROS = 50000
+CLAROS_EXTRA = 4
+CLAROS_SEPARACION = 40.0
+TINACO_SEPARACION = 40.0
+# Las tiendas de favela: un giro de MapPuntos.GIROS_LOCAL por tienda (la gasolinera no va)
+TIENDAS_FAVELA = [
+    ("abarrotes", "Abarrotes Doña Chelo"),
+    ("licoreria", "La Última Gota"),
+    ("farmacia", "Farmacia La Bendición"),
+    ("ferreteria", "El Tornillo Flojo"),
+    ("oxxo", "OXO"),
+    ("taqueria", "Tacos El Callejón"),
+]
+TIENDAS_SEPARACION = 35.0
+# Puentes largos entre azoteas de dos pisos (los tablones normales ya existen)
+PUENTES = 4
+PUENTE_ANCHO = 1.1
+PUENTE_HUECO = (1.8, 2.3)
+# Toldos de lona sobre los callejones: uno de cada 3 o 4, a 3.0-3.4 m
+TOLDO_CADA = (25.0, 45.0)
+TOLDO_LARGO = (2.5, 4.5)
+TOLDO_ALTO = (3.0, 3.4)
 
 
 def _dentro(x, z, pol):
@@ -121,6 +145,21 @@ def generar(nombre):
     datos["postes"] = []
     datos["nombres_calles"] = {}
     datos["hundidos"] = [h for h in datos.get("hundidos", []) if not h.get("favela")]
+    # La Bodega del Agua ya no existe (JJ): fuera su reserva, su casa-local, su puerta, su negocio
+    # y la marca de mision del cuarto de garrafones. El cuarto sigue; su marca se rehace abajo.
+    datos["reservas"] = [r for r in datos.get("reservas", []) if r.get("nombre") != "Bodega_Agua"]
+    datos["piezas"] = [p for p in datos["piezas"] if p.get("nombre") != "Bodega_Agua"]
+    datos["marcas"] = [m for m in datos.get("marcas", [])
+        if m.get("nombre") not in ("Puerta_purificadora_0", "Bodega_Agua")
+        and not (m.get("tipo") == "puerta" and m.get("giro") == "purificadora")]
+    datos["negocios"] = [n for n in datos.get("negocios", [])
+        if n.get("nombre") != "Bodega del Agua" and n.get("origen") != "Bodega del Agua"
+        and n.get("tipo") != "purificadora" and not n.get("favela")
+        and not str(n.get("origen", "")).startswith("Favela_")]
+    # Perfil detallado (el de ~52 MB): detalles de azotea y adornos de callejon por omision.
+    # Al quitar "callejones" del .json, colonia._cada() usa TENDEDERO_CADA/BASURA_CADA/FOCO_CADA.
+    datos.pop("callejones", None)
+    datos["gente"] = []
     reservas = [res["puntos"] for res in datos.get("reservas", [])]
     # El raster a 1 m en el marco local, hasta donde alcance el recorte girado
     esquinas = [marco.local(x, z) for x, z in ((x1, z1), (x2, z1), (x2, z2), (x1, z2))]
@@ -139,7 +178,8 @@ def generar(nombre):
                 continue
             libre[j][i] = True
     piezas, terrazas, hundidos, marcas = [], [], [], []
-    cuenta = {"casas": 0, "patios": 0, "plazuelas": 0, "callejones": 0, "bocas": 0, "tablones": 0, "escaleras": 0, "escalinatas": 0, "tuneles": 0, "tiendas_tunel": 0}
+    cuenta = {"casas": 0, "patios": 0, "plazuelas": 0, "callejones": 0, "bocas": 0, "tablones": 0, "escaleras": 0, "escalinatas": 0, "tuneles": 0, "tiendas_tunel": 0,
+              "tiendas": 0, "claros": 0, "tinacos": 0, "puentes": 0, "toldos": 0, "postes": 0}
     _laberinto(datos, libre, reservado, u0, v0, W, H, marco, r, paso, callejon, piezas, terrazas, hundidos, marcas, cuenta, op)
     datos["piezas"] += piezas
     datos["terrazas"] = [t for t in datos.get("terrazas", []) if not t.get("favela")] + terrazas
@@ -446,7 +486,7 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
             obra = "castillos" if r.random() < 0.7 else "losa"
         casa = {"nombre": "Casa_" + nombre, "tipo": "casa", "favela": True, "grupo": "Favela_%d_%d" % (a // 6, b // 6), "x": round(x, 2), "z": round(z, 2), "rot": marco.rot,
                 "puntos": [[round(-hw, 2), round(-hh, 2)], [round(hw, 2), round(-hh, 2)], [round(hw, 2), round(hh, 2)], [round(-hw, 2), round(hh, 2)]],
-                "pisos": pisos, "frente": frente, "desgaste": round(r.uniform(0.4, 0.8), 2), "tapado": 0.3, "detalles": False,
+                "pisos": pisos, "frente": frente, "desgaste": round(r.uniform(0.4, 0.8), 2), "tapado": 0.3, "detalles": True,
                 "ventanas": ventanas}
         if r.random() < 0.12:
             casa["color"] = r.choice(PINTADAS)
@@ -502,10 +542,11 @@ def _laberinto(datos, libre, reservado, u0, v0, W, H, marco0, r, paso, callejon,
             rot = marco.rot
         x, z = marco.mundo(um, vm)
         piezas.append({"nombre": "Tablon_%d" % cuenta["tablones"], "tipo": "tablon", "favela": True, "x": round(x, 2), "z": round(z, 2),
-                       "y": round(2 * PISO + AZOTEA + 0.02 + alto_de(a if d == "v" else a), 2), "rot": rot, "largo": round(ancho_de[e] + 1.2, 2), "ancho": 0.7})
+                       "y": round(2 * PISO + AZOTEA + 0.02 + alto_de(a if d == "v" else a), 2), "rot": rot, "largo": round(ancho_de[e] + 1.2, 2), "ancho": 0.95})
         cuenta["tablones"] += 1
     if zanjas and all(len(z) == 3 for z in zanjas):
         _tuneles(marco, r, zanjas, nx, nz, pu, pv, piezas, hundidos, marcas, cuenta)
+    _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, banda, alto_de, nx, nz, pu, pv, abiertas, ancho_de, celdas_de, cuenta, op)
 
 
 def _tuneles(marco, r, zanjas, nx, nz, pu, pv, piezas, hundidos, marcas, cuenta):
@@ -569,7 +610,7 @@ def _tuneles(marco, r, zanjas, nx, nz, pu, pv, piezas, hundidos, marcas, cuenta)
             marcas.append({"nombre": "Letrero_Valvula", "tipo": "letrero", "favela": True, "texto": "La toma. Ni la toques.",
                            "x": round(x, 2), "z": round(z, 2), "y": TUNEL_PISO + 1.9, "rot": rot})
         elif uso == "garrafones":
-            marcas.append({"nombre": "Bodega_Agua", "tipo": "mision", "favela": True, "x": round(x, 2), "z": round(z, 2), "y": TUNEL_PISO, "rot": rot})
+            marcas.append({"nombre": "Garrafones_Tunel", "tipo": "mision", "favela": True, "x": round(x, 2), "z": round(z, 2), "y": TUNEL_PISO, "rot": rot})
     tramos.append((espina_u + TUNEL_ANCHO / 2 - 0.05, v_main, u_fin, v_main, {"huecos": huecos, "cerrado": "b"}))
     # La boca final, tapada: una marca y su letrero
     xf, zf = marco.mundo(u_fin - 1.2, v_main)
@@ -594,6 +635,324 @@ def _tuneles(marco, r, zanjas, nx, nz, pu, pv, piezas, hundidos, marcas, cuenta)
         piezas.append(pieza)
         cuenta["tuneles"] += 1
 
+
+
+# --- Lo nuevo de la favela (JJ, 2026-11-13): Plaza del Tinaco, claros, tiendas, escaleras, puentes,
+# toldos y lineas de gente. Todo se elige DESPUES de _laberinto, con RNG aparte, para no volver a
+# sortear el laberinto; solo se quitan/anaden casas y piezas.
+
+def _mundo_local(casa, lx, lz):
+    c, s = math.cos(casa["rot"]), math.sin(casa["rot"])
+    return casa["x"] + lx * c + lz * s, casa["z"] - lx * s + lz * c
+
+
+def _celda_simple(casa, pu, pv):
+    xs = [p[0] for p in casa["puntos"]]
+    zs = [p[1] for p in casa["puntos"]]
+    return (max(xs) - min(xs)) <= pu * 0.95 and (max(zs) - min(zs)) <= pv * 0.95
+
+
+def _lados(casa):
+    xs = [p[0] for p in casa["puntos"]]
+    zs = [p[1] for p in casa["puntos"]]
+    return (max(xs) - min(xs)) / 2.0, (max(zs) - min(zs)) / 2.0
+
+
+def _frente(casa, pu, pv):
+    """(lado, normal local, normal mundo, ancho, fondo) de la fachada de una casa."""
+    hw, hh = _lados(casa)
+    l = "NESO"[int(casa.get("frente", 0)) % 4]
+    normal = {"N": (0.0, -1.0), "E": (1.0, 0.0), "S": (0.0, 1.0), "O": (-1.0, 0.0)}[l]
+    c, s = math.cos(casa["rot"]), math.sin(casa["rot"])
+    nx, nz = c * normal[0] - s * normal[1], s * normal[0] + c * normal[1]
+    if l in "NS":
+        ancho, fondo = hw * 2.0, hh * 2.0
+    else:
+        ancho, fondo = hh * 2.0, hw * 2.0
+    return l, normal, (nx, nz), ancho, fondo
+
+
+def _quitar_casas(casas, piezas, celdas):
+    """Quita las casas del bloque y lo que colgaba de ellas (tablones y escaleras) para que el
+    claro no deje una tabla o una escalera flotando."""
+    casas_quitadas = []
+    for c in celdas:
+        casa = casas.pop(c, None)
+        if casa is not None:
+            casas_quitadas.append(casa)
+            piezas[:] = [p for p in piezas if p is not casa]
+    if not casas_quitadas:
+        return
+    xs = [c["x"] for c in casas_quitadas]
+    zs = [c["z"] for c in casas_quitadas]
+    x0, x1 = min(xs) - 2.0, max(xs) + 2.0
+    z0, z1 = min(zs) - 2.0, max(zs) + 2.0
+    piezas[:] = [p for p in piezas
+                 if not (p.get("tipo") in ("tablon", "escalera")
+                         and x0 <= p.get("x", 0.0) <= x1 and z0 <= p.get("z", 0.0) <= z1)]
+
+
+def _dist(a, b):
+    return math.hypot(a[0] - b[0], a[1] - b[1])
+
+
+def _centro_reserva(r):
+    pts = r["puntos"]
+    return (sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts))
+
+
+def _poste_luz(piezas, marcas, cuenta, x, z, y, nombre):
+    piezas.append({"nombre": nombre, "tipo": "poste_luz", "favela": True, "x": round(x, 2), "z": round(z, 2),
+                   "rot": 0.0, "alto": 3.5})
+    marcas.append({"nombre": nombre + "_Foco", "tipo": "foco", "favela": True,
+                   "x": round(x, 2), "z": round(z, 2), "y": round(y + 3.3, 2)})
+    cuenta["postes"] += 1
+
+
+def _lote(piezas, nombre, x, z, rot, tam, variante, extra=None):
+    p = {"nombre": nombre, "tipo": "lote", "favela": True, "x": round(x, 2), "z": round(z, 2), "rot": rot,
+         "tam": [round(tam[0], 2), round(tam[1], 2)], "variante": variante}
+    if extra:
+        p.update(extra)
+    piezas.append(p)
+    return p
+
+
+def _post_favela(datos, piezas, marcas, casas, celdas, celdas_zanja, marco, banda, alto_de, nx, nz, pu, pv,
+                 abiertas, ancho_de, celdas_de, cuenta, op):
+    x1, z1, x2, z2 = datos["recorte"]
+    centro_mapa = ((x1 + x2) / 2.0, (z1 + z2) / 2.0)
+    # Lo que no debe quedar pegado a una tienda o a un claro
+    protegidos = []
+    for r in datos.get("reservas", []):
+        if r.get("nombre") != "Bodega_Agua":
+            protegidos.append(_centro_reserva(r))
+    for m in datos.get("marcas", []):
+        if m.get("tipo") in ("spawn", "paso", "Tunel_Entrada"):
+            protegidos.append((m["x"], m["z"]))
+
+    def libre_de(casa, cerca):
+        p = (casa["x"], casa["z"])
+        return all(_dist(p, q) >= cerca for q in protegidos)
+
+    # 1. Plaza del Tinaco: bloque 3x3 de casas simples de un piso, lo mas cerca del centro.
+    libres = set(celdas)
+    mejor = None
+    for a in range(nx - 2):
+        for b in range(nz - 2):
+            if any(banda(a + i) != banda(a) for i in range(3)):
+                continue
+            bloque = [(a + i, b + j) for i in range(3) for j in range(3)]
+            if any(c not in libres or c in celdas_zanja for c in bloque):
+                continue
+            cx, cz = marco.mundo((a + 1.5) * pu, (b + 1.5) * pv)
+            d = _dist((cx, cz), centro_mapa)
+            if mejor is None or d < mejor[0]:
+                mejor = (d, a, b, bloque, cx, cz)
+    if mejor:
+        _d, a, b, bloque, cx, cz = mejor
+        _quitar_casas(casas, piezas, bloque)
+        libres.difference_update(bloque)
+        y = alto_de(a)
+        _lote(piezas, "Plaza_Tinaco", cx, cz, marco.rot, (3 * pu - 0.3, 3 * pv - 0.3), "tinaco",
+              {"claro": True, "tinaco": True})
+        marcas.append({"nombre": "Tinaco_Favela", "tipo": "tinaco", "favela": True,
+                       "x": round(cx, 2), "z": round(cz, 2), "y": round(y + 0.03, 2),
+                       "litros": TINACO_LITROS, "sin_virgen": True, "sin_defensa": True})
+        # Poste en una esquina del claro, no encima del tinaco
+        px, pz = marco.mundo((a + 0.35) * pu, (b + 0.35) * pv)
+        _poste_luz(piezas, marcas, cuenta, px, pz, y, "Poste_Tinaco")
+        cuenta["tinacos"] += 1
+        cuenta["claros"] += 1
+        protegidos.append((cx, cz))
+
+    # 2. Cuatro claros 2x2, lejos del tinaco y entre si.
+    claros = []
+    candidatos = []
+    for a in range(nx - 1):
+        for b in range(nz - 1):
+            if any(banda(a + i) != banda(a) for i in range(2)):
+                continue
+            bloque = [(a + i, b + j) for i in range(2) for j in range(2)]
+            if any(c not in libres or c in celdas_zanja for c in bloque):
+                continue
+            cx, cz = marco.mundo((a + 1.0) * pu, (b + 1.0) * pv)
+            if not all(_dist((cx, cz), q) >= 20.0 for q in protegidos):
+                continue
+            candidatos.append((a, b, bloque, cx, cz))
+    rng = random.Random(int(op.get("semilla", 7)) + 102)
+    rng.shuffle(candidatos)
+    separacion = CLAROS_SEPARACION
+    for separacion in (CLAROS_SEPARACION, 30.0, 22.0):
+        claros = []
+        for (a, b, celdas, cx, cz) in candidatos:
+            if len(claros) >= CLAROS_EXTRA:
+                break
+            if all(_dist((cx, cz), (q[3], q[4])) >= separacion for q in claros):
+                claros.append((a, b, celdas, cx, cz))
+        if len(claros) >= CLAROS_EXTRA:
+            break
+    variantes = ["juegos", "basquet", "fonda", "baldio", "taller"]
+    for i, (a, b, bloque, cx, cz) in enumerate(claros[:CLAROS_EXTRA]):
+        _quitar_casas(casas, piezas, bloque)
+        libres.difference_update(bloque)
+        y = alto_de(a)
+        _lote(piezas, "Claro_%d" % i, cx, cz, marco.rot, (2 * pu - 0.3, 2 * pv - 0.3), variantes[i % len(variantes)],
+              {"claro": True})
+        px, pz = marco.mundo(a * pu + 1.2, b * pv + 1.2)
+        _poste_luz(piezas, marcas, cuenta, px, pz, y, "Poste_Claro_%d" % i)
+        protegidos.append((cx, cz))
+        cuenta["claros"] += 1
+
+    # 3. Tiendas de favela: una por giro, repartidas.
+    candidatos = []
+    dbg = {"uno": 0, "simple": 0, "zanja": 0, "libre": 0}
+    for cell, casa in list(casas.items()):
+        if casa.get("local") or casa.get("pisos") != 1:
+            continue
+        dbg["uno"] += 1
+        if not _celda_simple(casa, pu, pv):
+            continue
+        dbg["simple"] += 1
+        if cell in celdas_zanja:
+            dbg["zanja"] += 1
+            continue
+        if not libre_de(casa, 20.0):
+            continue
+        dbg["libre"] += 1
+        candidatos.append((cell, casa))
+    rng = random.Random(int(op.get("semilla", 7)) + 101)
+    rng.shuffle(candidatos)
+    tiendas = []
+    for separacion in (TIENDAS_SEPARACION, 28.0, 22.0):
+        tiendas = []
+        for cell, casa in candidatos:
+            if len(tiendas) >= len(TIENDAS_FAVELA):
+                break
+            if all(_dist((casa["x"], casa["z"]), (c[1]["x"], c[1]["z"])) >= separacion for c in tiendas):
+                tiendas.append((cell, casa))
+        if len(tiendas) >= len(TIENDAS_FAVELA):
+            break
+    for i, (cell, casa) in enumerate(tiendas[:len(TIENDAS_FAVELA)]):
+        giro, nombre = TIENDAS_FAVELA[i]
+        a, b = cell
+        y = alto_de(a)
+        lado, normal_local, normal, ancho, fondo = _frente(casa, pu, pv)
+        rot = math.atan2(normal[0], normal[1])
+        # La casa local sigue en casas.json y en el minimapa, pero colonia.py no la dibuja
+        local = dict(casa)
+        local["local"] = True
+        local["tienda"] = True
+        local["favela"] = True
+        local["detalles"] = True
+        local.pop("grupo", None)
+        piezas[:] = [p for p in piezas if p is not casa]
+        piezas.append(local)
+        casas[cell] = local
+        datos.setdefault("negocios", []).append({
+            "tipo": giro, "giro": giro, "nombre": nombre,
+            "x": round(casa["x"], 2), "z": round(casa["z"], 2), "y": round(y, 2),
+            "rotacion_y": round(rot, 4), "ancho": round(ancho, 2), "fondo": round(fondo, 2), "pisos": 1,
+            "interactivo": True, "aire_libre": False, "origen": "Favela_%s" % giro,
+            "ajustado": True, "favela": True, "sin_gente": True})
+        # La flecha va 0.8 m delante del centro de la fachada
+        hw, hh = _lados(casa)
+        fx, fz = {"N": (0.0, -hh), "E": (hw, 0.0), "S": (0.0, hh), "O": (-hw, 0.0)}[lado]
+        mx, mz = _mundo_local(casa, fx, fz)
+        mx += normal[0] * 0.8
+        mz += normal[1] * 0.8
+        marcas.append({"nombre": "Puerta_%s" % giro, "tipo": "puerta", "favela": True, "local": True,
+                       "giro": giro, "texto": nombre, "x": round(mx, 2), "z": round(mz, 2),
+                       "y": round(y, 2), "rot": round(rot, 4)})
+        protegidos.append((casa["x"], casa["z"]))
+        cuenta["tiendas"] += 1
+
+    # 4. Escaleras extra: 2 de dos pisos (fachada larga) y 2 de un piso.
+    rng = random.Random(int(op.get("semilla", 7)) + 103)
+    hechas = []
+    existentes = [(p["x"], p["z"]) for p in piezas if p["tipo"] == "escalera"]
+    for pisos, cuantas in ((2, 2), (1, 2)):
+        candidatos = []
+        for cell, casa in list(casas.items()):
+            if casa.get("local") or casa.get("pisos") != pisos:
+                continue
+            lado, normal_local, normal, ancho, fondo = _frente(casa, pu, pv)
+            alto_e = pisos * PISO + AZOTEA
+            largo_e = max(4, round(alto_e / 0.26)) * 0.3 + 0.2
+            if ancho < largo_e + 0.6:
+                continue
+            if any(_dist((casa["x"], casa["z"]), q) < 25.0 for q in existentes + hechas):
+                continue
+            candidatos.append((cell, casa, lado, normal, ancho, alto_e, largo_e))
+        rng.shuffle(candidatos)
+        for (cell, casa, lado, normal, ancho, alto_e, largo_e) in candidatos:
+            if sum(1 for h in hechas if h[2] == pisos) >= cuantas:
+                break
+            if any(_dist((casa["x"], casa["z"]), h[:2]) < 35.0 for h in hechas):
+                continue
+            hw, hh = _lados(casa)
+            # El extremo de la fachada: la escalera corre hacia el otro extremo y su +Z mira al
+            # callejon (normal). Se empieza en el extremo para que no se salga de la fachada.
+            ex, ez = {"N": (hw, -hh), "E": (hw, hh), "S": (-hw, hh), "O": (-hw, -hh)}[lado]
+            sx, sz = _mundo_local(casa, ex, ez)
+            sx += normal[0] * 0.12
+            sz += normal[1] * 0.12
+            rot = math.atan2(normal[0], normal[1])
+            piezas.append({"nombre": "Escalera_%s_%d" % (cell, len(hechas)), "tipo": "escalera", "favela": True,
+                           "x": round(sx, 2), "z": round(sz, 2), "rot": round(rot, 4),
+                           "alto": round(alto_e, 2), "ancho": 0.9, "sentido": 1})
+            hechas.append((casa["x"], casa["z"], pisos))
+            cuenta["escaleras"] += 1
+
+    # 5. Puentes: los 4 tablones mas anchos (1.8-2.3 m de hueco) se ensanchan a 1.1 m y llevan
+    # barandales. No hay calles mas anchas en la favela; el resto de tablones se queda como tabla.
+    rng = random.Random(int(op.get("semilla", 7)) + 104)
+    tablones = [p for p in piezas if p.get("tipo") == "tablon" and float(p.get("largo", 0.0)) - 1.2 >= 1.8]
+    rng.shuffle(tablones)
+    puentes = []
+    for p in tablones:
+        if any(_dist((p["x"], p["z"]), q) < 22.0 for q in puentes):
+            continue
+        p["puente"] = True
+        p["ancho"] = PUENTE_ANCHO
+        p["nombre"] = "Puente_%d" % len(puentes)
+        puentes.append((p["x"], p["z"]))
+        cuenta["puentes"] += 1
+        if len(puentes) >= PUENTES:
+            break
+
+    # 6. Toldos de lona sobre los callejones (uno de cada 3 o 4).
+    rng = random.Random(int(op.get("semilla", 7)) + 105)
+    colores = ["lona_rojo", "lona_azul", "lona_verde", "lona_amarillo", "lona_rosa", "blanco_cal"]
+    for p in [q for q in piezas if q["tipo"] == "calle" and q.get("nombre", "").startswith("Callejon")]:
+        if rng.random() > 0.32:
+            continue
+        ax, az = p["x"], p["z"]
+        bx, bz = ax + p["puntos"][1][0], az + p["puntos"][1][1]
+        dx, dz = bx - ax, bz - az
+        largo_calle = math.hypot(dx, dz)
+        if largo_calle < 3.0:
+            continue
+        largo = min(rng.uniform(*TOLDO_LARGO), largo_calle - 0.8)
+        if largo < 1.5:
+            continue
+        f = rng.uniform(0.3, 0.7)
+        x, z = ax + dx * f, az + dz * f
+        piezas.append({"nombre": "Toldo_%d" % cuenta["toldos"], "tipo": "toldo", "favela": True,
+                       "x": round(x, 2), "z": round(z, 2), "rot": round(math.atan2(-dz, dx), 4),
+                       "largo": round(largo, 2), "ancho": round(p["ancho"] + 0.8, 2),
+                       "alto": round(rng.uniform(*TOLDO_ALTO), 2), "color": rng.choice(colores)})
+        cuenta["toldos"] += 1
+
+    # 7. Lineas de gente por las escalinatas (las suben en vez de saltar de banda).
+    for p in piezas:
+        if p["tipo"] != "escalinata":
+            continue
+        rot = float(p.get("rot", 0.0))
+        largo = float(p.get("largo", 1.0))
+        ax, az = p["x"], p["z"]
+        bx, bz = ax + math.cos(rot) * largo, az - math.sin(rot) * largo
+        datos.setdefault("gente", []).append([[round(ax, 2), round(az, 2)], [round(bx, 2), round(bz, 2)]])
 
 if __name__ == "__main__":
     generar(sys.argv[1] if len(sys.argv) > 1 else "la_gotera_favela")

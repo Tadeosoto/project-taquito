@@ -68,6 +68,9 @@ const LINEAS := {
 @export var quitar_a := QUITAR_A
 @export var alto_libre := ALTO_LIBRE
 @export var rayo_desde := 12.0
+# m: al acabarse una linea, a que distancia se puede saltar a otra. La favela usa 2.2 (callejones
+# de 1.2-2.2 y casas pegadas); en las colonias de OSM el default 14 une banquetas de la misma calle.
+@export var une_a := UNE_A
 
 var caminando: Array[Dictionary] = []
 var platicando := {}       # indice de lugar -> nodo
@@ -185,6 +188,7 @@ func _sacar_caminante() -> void:
 			c["sentido"] = -1
 		c["avance"] = 0.0
 		c["y"] = y
+		c["seg"] = Vector2i(-1, -1)
 		var nodo: Node3D = c["nodo"]
 		nodo.visible = true
 		nodo.process_mode = Node.PROCESS_MODE_INHERIT
@@ -209,6 +213,11 @@ func _caminar(delta: float) -> void:
 		var a: Vector2 = linea[i]
 		var b: Vector2 = linea[siguiente]
 		var largo := a.distance_to(b)
+		var clave := Vector2i(i, c["sentido"])
+		if c.get("seg") != clave:
+			c["seg"] = clave
+			var y_b := _altura(b)
+			c["y_b"] = c["y"] if y_b == INF else y_b
 		c["avance"] += velocidad * delta
 		if c["avance"] >= largo:
 			# Lo que sigue tiene que ser banqueta: si no, se da la vuelta
@@ -220,6 +229,7 @@ func _caminar(delta: float) -> void:
 			c["y"] = y
 			c["i"] = siguiente
 			c["avance"] -= largo
+			c["seg"] = Vector2i(-1, -1)
 			continue
 		var p := a.lerp(b, c["avance"] / maxf(largo, 0.01))
 		# Entre vertice y vertice puede haber una casa (los tramos miden decenas de metros): cada
@@ -234,7 +244,8 @@ func _caminar(delta: float) -> void:
 				c["avance"] = largo - c["avance"]
 				continue
 		var nodo: Node3D = c["nodo"]
-		nodo.global_position = Vector3(p.x, c["y"], p.y)
+		var f := clampf(c["avance"] / maxf(largo, 0.01), 0.0, 1.0)
+		nodo.global_position = Vector3(p.x, lerpf(c["y"], float(c.get("y_b", c["y"])), f), p.y)
 		nodo.rotation.y = atan2(-(b.x - a.x), -(b.y - a.y))
 	if Engine.get_process_frames() % 30 == 0:
 		for c: Dictionary in caminando.duplicate():
@@ -245,12 +256,12 @@ func _caminar(delta: float) -> void:
 func _fin_de_linea(c: Dictionary) -> void:
 	var fin: Vector2 = (c["linea"] as Array)[c["i"]]
 	var mejor: Array = []
-	var cerca := UNE_A
+	var cerca := une_a
 	for clave in [_celda(fin)] + _vecinas(_celda(fin)):
 		for otro: Array in _finales.get(clave, []):
 			var punto: Vector2 = (_lineas[otro[0]] as Array)[otro[1]]
 			var d := fin.distance_to(punto)
-			if _lineas[otro[0]] != c["linea"] and d < cerca and _altura(punto) != INF:
+			if _lineas[otro[0]] != c["linea"] and d < cerca and _altura(punto) != INF and _puede_unir(fin, punto):
 				cerca = d
 				mejor = otro
 	if mejor.is_empty():
@@ -261,6 +272,23 @@ func _fin_de_linea(c: Dictionary) -> void:
 	c["i"] = mejor[1]
 	c["sentido"] = 1 if mejor[1] == 0 else -1
 	c["avance"] = 0.0
+	c["y"] = _altura((c["linea"] as Array)[c["i"]])
+	c["seg"] = Vector2i(-1, -1)
+
+
+# Un cambio de linea solo vale si el tramo entre los dos extremos es piso caminable (no cruza una
+# casa) y no cambia de banda mas de 0.35 m. Sin esto, en la favela saltaban de un callejon a otro.
+func _puede_unir(a: Vector2, b: Vector2) -> bool:
+	var ya := _altura(a)
+	var yb := _altura(b)
+	if ya == INF or yb == INF or absf(ya - yb) > 0.35:
+		return false
+	var largo := a.distance_to(b)
+	var n := maxi(2, int(ceil(largo / 0.75)))
+	for i in n + 1:
+		if _altura(a.lerp(b, float(i) / n)) == INF:
+			return false
+	return true
 
 
 func _guardar(c: Dictionary) -> void:
@@ -417,7 +445,7 @@ func _cargar_lugares() -> void:
 		push_warning("Gente: no se pudo leer %s" % puntos_path)
 		return
 	for p: Dictionary in datos["puntos"]:
-		if not p.get("interactivo", false) or p["tipo"] == "punto" or p.get("aire_libre", false):
+		if not p.get("interactivo", false) or p["tipo"] == "punto" or p.get("aire_libre", false) or p.get("sin_gente", false):
 			continue
 		var rng := RandomNumberGenerator.new()
 		rng.seed = String(p.get("origen", p.get("nombre", ""))).hash()

@@ -380,7 +380,7 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 
 ### Ideas para el laberinto de La Gotera (💡, 2026-11-13)
 
-💡 Propuestas de JJ con Claude para la favela de Blender (`la_gotera_favela`: callejones de 1.2 a 2.2 m, terrazas con escalinatas, tablones entre azoteas, niebla espesa, túneles con tiendas, la plaza, la bodega del agua y la válvula). **Nada está programado ni es canon todavía**: se cortan o cambian al pasarlas por `/game-quest`. Para probarlas sin las entregas de la mafia: `godot --path . scenes/prueba_gotera.tscn` (ver `docs/mapa/colonias/la_gotera.md`).
+💡 Propuestas de JJ con Claude para la favela de Blender (`la_gotera_favela`: callejones de 1.2 a 2.2 m, terrazas con escalinatas, tablones entre azoteas, niebla espesa, túneles con tiendas, la plaza, la Plaza del Tinaco y la válvula). **Nada está programado ni es canon todavía**: se cortan o cambian al pasarlas por `/game-quest`. Para probarlas sin las entregas de la mafia: `godot --path . scenes/prueba_gotera.tscn` (ver `docs/mapa/colonias/la_gotera.md`).
 
 | Idea | Da | Qué se hace | Riesgo | Reusa | Tamaño |
 |---|---|---|---|---|---|
@@ -391,7 +391,7 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 | **Defender la plaza** | Los Gotera | De noche algo entra por la muralla y hay que aguantar en la cancha; los callejones angostos dejan controlar por dónde llegan | Las oleadas | `DEFENDER` con `lugar` en la plaza (hoy La Gotera no tiene zombis sueltos: serían turbas de misión) | S |
 | **El chamaco perdido** | Una vecina de la cancha | Un niño no volvió: preguntas a la gente, sigues pistas de una capillita a un tendedero y lo encuentras en un cuarto del túnel. Presenta a los vecinos de la favela | Pocas: es de día | `VISITAR` en cadena (pistas) y `ESCOLTAR` de regreso | M |
 | **La válvula** (A5, La toma) | Nemesio | La misión de historia que ya existe: cruzar la favela sin que te vean los vigías; la niebla esconde y los focos delatan. Abrirla o venderle el secreto a Buenrostro cambia la favela para siempre | Que te vean; traicionar a Nemesio | A5 de §4; el sigilo sería nuevo | L |
-| **La carrera de los chamacos** | Los niños de la cancha | Una carrera de la plaza a la bodega del agua por donde quieras. Si ganas te enseñan atajos (un tablón escondido, una casa con dos puertas) que sirven en las otras misiones | Ninguno | `VISITAR` con tiempo; los atajos serían nuevos | S |
+| **La carrera de los chamacos** | Los niños de la cancha | Una carrera de la plaza al tinaco de la Plaza del Tinaco por donde quieras. Si ganas te enseñan atajos (un tablón escondido, una casa con dos puertas) que sirven en las otras misiones | Ninguno | `VISITAR` con tiempo; los atajos serían nuevos | S |
 
 ---
 

@@ -88,8 +88,8 @@ const REFLECTOR_ENERGIA := 4.0
 const REFLECTOR_ALCANCE := 24.0
 const REFLECTOR_ANGULO := 55.0
 const REFLECTOR_COLOR := Color(1.0, 0.93, 0.78)
-const FOCO_ENERGIA := 1.6
-const FOCO_ALCANCE := 6.0
+const FOCO_ENERGIA := 1.8
+const FOCO_ALCANCE := 8.0
 const FOCO_COLOR := Color(1.0, 0.8, 0.5)
 const FOCO_PARPADEA := 4
 const BOTIN_BOLSA := "res://resources/productos/takis_tazo.tres"
@@ -641,7 +641,9 @@ func _casa_vecino(marca: Dictionary) -> void:
 # TinacoComunitario
 func _tinaco_comunitario(marca: Dictionary) -> void:
 	var tinaco := TinacoComunitario.new()
-	tinaco.armar(float(marca.get("litros", 10000.0)))
+	# La favela estrena su tinaco de 50 mil litros sin la Virgen y sin defensa (sin_virgen/sin_defensa)
+	tinaco.armar(float(marca.get("litros", 10000.0)),
+			not marca.get("sin_virgen", false), not marca.get("sin_defensa", false))
 	tinaco.transform = lugar(marca)
 	add_child(tinaco)
 

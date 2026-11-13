@@ -168,6 +168,12 @@ def exportar(nombre):
     guardar_json(os.path.join(datos_dir, "alumbrado.json"), {"postes": datos.get("postes", [])})
     guardar_json(os.path.join(datos_dir, "casas.json"), {"casas": casas_juego(datos)})
     guardar_json(os.path.join(datos_dir, "banquetas.json"), {"banquetas": banquetas(datos)})
+    # El minimapa propio de la favela (sin OSM): callejones, claros, tuneles, tablones e iconos
+    if datos.get("favela"):
+        _mm = {"__name__": "minimapa_colonia"}
+        raiz = os.environ.get("TAQUITO_RAIZ", "") or os.getcwd()
+        exec(open(os.path.join(raiz, "tools", "blender", "mapa", "minimapa_colonia.py"), encoding="utf-8").read(), _mm)
+        _mm["generar"](datos)
     print("colonia %s exportada: %d objetos, %d marcas" % (nombre, len(mundo.all_objects), len(datos.get("marcas", []))))
 
 
