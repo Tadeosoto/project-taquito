@@ -156,7 +156,7 @@ Es la forma en que lo hacen muchos RPG: el mundo te cuenta lo que pasó mientras
 | **2030** | GelA añade el **Serenol (G-7)** al agua de los no suscriptores, "para estabilizar la red". Y se publica la **Ley de Reúso y Calidad del Agua (Decreto 47)**: tratar agua por tu cuenta es delito. |
 | **2031** | **Georgina Lazcano**, hija de Germán, gana la gubernatura con el **voto de la llave**. El mismo año, un tinaco de Los Garrafones amanece con una mancha con forma de la Virgen de Guadalupe. Nace el culto. |
 | **2032** | La **Reforma Hídrica**: reelección indefinida, el agua como "servicio estratégico", la policía del agua, la oposición comprada o presa. La capilla del tinaco es declarada centro de tratamiento ilegal. |
-| **2032-2033** | ✅ **Las fortalezas.** Con la capilla clausurada, los fieles del tinaco se refugian en Parques de Santa Mugre, levantan una barda con rejas y mudan el tinaco de la Virgen a la plaza (💡 fechas por confirmar). Los Gotera amurallan La Gotera y los pobres del sureste se meten ahí. Los Lazcano se encierran en una tercera fortaleza, **los Reservorios**. Ver [§13](#las-tres-fortalezas). |
+| **2032-2033** | ✅ **Las fortalezas.** Con la capilla clausurada, los fieles del tinaco se refugian en Parques de Santa Mugre, levantan una barda con rejas y mudan el tinaco de la Virgen a la plaza (💡 fechas por confirmar). Los Gotera amurallan La Gotera, una favela en Haciendas de San Jodido, y los pobres de la zona se meten ahí. Los Lazcano se encierran en una tercera fortaleza, **los Reservorios**. Ver [§13](#las-tres-fortalezas). |
 | **2033** | **Ahora.** El estado-empresa: la familia Lazcano tiene el agua y el gobierno. La ciudad vive de día y se encierra de noche. Hay agua limpia de sobra; la escasez es contable. |
 
 💡 **Detalle de sabor.** La gente no dice "antes de la concesión" ni "en el 29": dice **"cuando el agua sabía a agua"**. Es la única forma en que la ciudad mide el tiempo.
@@ -492,7 +492,7 @@ Y hay algo que lo vuelve más milagro todavía: **el agua no siempre se deja tom
 
 ## 11. El crimen organizado
 
-✅ **Los Gotera.** La familia que controla **La Gotera**, la toma clandestina del acueducto en la zona sureste, y que ahora es una **ciudad amurallada con estética de favela**, donde viven los pobres. Drogas y armas. ✅ (2026-11-11) **Y agua limpia a precio justo, dentro de la barda:** descubrieron un **yacimiento subterráneo**, notaron que los que bebían de ahí y no del suministro de GelA **no cambiaban de personalidad**, y levantaron su propia barricada. **Saben que el agua de GelA tiene algo** (no saben qué: ver [el reparto del secreto](#quién-sabe-qué)). *(Antes decía "nunca agua": cambió.)*
+✅ **Los Gotera.** La familia que controla **La Gotera**, la toma clandestina del acueducto, y que ahora es una **ciudad amurallada con estética de favela** dentro de Haciendas de San Jodido, donde viven los pobres. ✅ (2026-11-12) La fortaleza se mudó ahí desde "el sureste": se amurallaron sobre el acueducto, que pasa por debajo. Drogas y armas. ✅ (2026-11-11) **Y agua limpia a precio justo, dentro de la barda:** descubrieron un **yacimiento subterráneo**, notaron que los que bebían de ahí y no del suministro de GelA **no cambiaban de personalidad**, y levantaron su propia barricada. **Saben que el agua de GelA tiene algo** (no saben qué: ver [el reparto del secreto](#quién-sabe-qué)). *(Antes decía "nunca agua": cambió.)*
 
 #### Quién sabe qué
 
@@ -515,7 +515,7 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 
 ### La válvula
 
-✅ **La toma está cerrada, y es su seguro de vida.** Debajo de La Gotera pasa el acueducto, con agua de **antes** de que GelA le ponga el Serenol. Los Gotera la tienen cerrada con una válvula: no la venden porque no la necesitan vender. Es la pistola que le apuntan a la familia Lazcano: si la abren, media ciudad toma agua sin Serenol, se cura y se enoja. **Por eso Gela no los toca.** El pacto no es amistad: es un rehén. ✅ (2026-11-11) Lo que sí venden es el agua del **yacimiento**, más profundo y propio, solo dentro de la fortaleza y a precio justo; la **válvula del acueducto** sigue cerrada y sigue siendo su palanca contra los Lazcano.
+✅ **La toma está cerrada, y es su seguro de vida.** Debajo de La Gotera (la favela de Haciendas) pasa el acueducto, con agua de **antes** de que GelA le ponga el Serenol. Los Gotera la tienen cerrada con una válvula: no la venden porque no la necesitan vender. Es la pistola que le apuntan a la familia Lazcano: si la abren, media ciudad toma agua sin Serenol, se cura y se enoja. **Por eso Gela no los toca.** El pacto no es amistad: es un rehén. ✅ (2026-11-11) Lo que sí venden es el agua del **yacimiento**, más profundo y propio, solo dentro de la fortaleza y a precio justo; la **válvula del acueducto** sigue cerrada y sigue siendo su palanca contra los Lazcano.
 
 - **Lo que sabe el barrio:** que en La Gotera "hay agua" y que se vende a lo justo, pero solo adentro, y que a la toma nadie la toca.
 - **Lo que sabe don Nemesio:** que el día que abra la válvula se acaba el pacto, y él también.
@@ -618,7 +618,7 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 | **Parques del Mosco** | Parques del Bosque | 0.60-0.75 | La peor | El peor |
 | **Haciendas de San Jodido** | Haciendas de San José | 0.20-0.30 | Pozo y suscripción | Seguro para ellos, no para ti |
 | **El Último Trago** | Inventado (las cantinas) | 0.50-0.65 | Garrafón caro | El tianguis de la noche |
-| **La Gotera** | Inventado (la toma) | 0.70-0.80 | Del yacimiento, a precio justo, dentro de la barda; la toma, cerrada | Fortaleza: no se entra sin permiso |
+| **Sureste (sin nombre propio)** 💡 | Inventado | 0.70-0.80 | La de la llave; afuera de todo | Orilla del mapa: sin fortaleza, para cosas escondidas |
 
 ### Las tres fortalezas
 
@@ -627,8 +627,8 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 | Fortaleza | Dónde | Quién | Qué creen / qué saben | Entrada |
 |---|---|---|---|---|
 | **Santa Mugre** (la Virgen del Tinaco) | Parques de Santa Mugre | Los fieles, el padre Chuy | Que los de fuera están poseídos y que el tinaco los protege (la fe, que es verdad) | Dos rejas en la avenida (poniente y oriente) |
-| **La Gotera** (la mafia) | Sureste, favela amurallada | Los Gotera, los pobres | Que "algo hay en el agua de la llave"; tienen un yacimiento propio | Barda con puerta vigilada; túneles bajo la zona (después) |
-| **Los Reservorios** (GelA) | Detrás de Haciendas de San Jodido, sobre las canchas de fútbol del ITESO, junto a bodegas grandes | Los Lazcano, los ricos, una resistencia | Todo: el Serenol, para qué sirve, quién lo pone | Caseta con pluma; entran los que dejan entrar |
+| **La Gotera** (la mafia) | Haciendas de San Jodido, en la orilla oriente del mapa: favela amurallada sobre la Av. del Cedro, de la calle Nogal a Primavera (✅ 2026-11-12) | Los Gotera, los pobres | Que "algo hay en el agua de la llave"; tienen un yacimiento propio | **Dos rejas en la avenida (norte y sur), que es un tianguis lineal abierto**; a los lados no se pasa sin permiso; túneles bajo la zona (después) |
+| **Los Reservorios** (GelA) | Al norte del mapa, sobre el ITESO (las canchas de fútbol y el campus): en el mapa se ve la barda y la caseta, el resto del campus queda fuera y se entra a una escena aparte (✅ 2026-11-12) | Los Lazcano, los ricos, una resistencia | Todo: el Serenol, para qué sirve, quién lo pone | Caseta con pluma; entran los que dejan entrar |
 
 **La gente de fuera.** ✅ Casi todos están bajo Serenol (los "zombis" de la ciudad, en sentido figurado): **no dan misiones** y dicen cosas como *"yo amo a GelA"*, *"hay que trabajar, mijo"*, *"gracias a GelA tengo qué tomar"*. Los zombis (los de verdad) no los atacan. Algunos, pocos, saben que el agua tiene algo y piden agua limpia.
 
@@ -670,13 +670,13 @@ El oriente inundado. El agua se estanca, los moscos son una plaga, y el drenaje 
 
 ### Haciendas de San Jodido
 
-El noreste de clase media-alta: muchas casas chicas juntas, cotos con pluma y caseta de adorno, jardines verdes regados con suscripción. ✅ (2026-11-11) Ya **no** tiene el campo de golf ni la casa de la gobernadora: se fueron a los **Reservorios**, la fortaleza que queda detrás, sobre las canchas del ITESO. Aquí el agua sabe a agua y nadie lo comenta, pero son vecinos, no Lazcano.
+El noreste de clase media-alta: muchas casas chicas juntas, cotos con pluma y caseta de adorno, jardines verdes regados con suscripción. ✅ (2026-11-11) Ya **no** tiene el campo de golf ni la casa de la gobernadora: se fueron a los **Reservorios**, la fortaleza que queda al norte, sobre el ITESO. ✅ (2026-11-12) En su orilla oriente, entre la Av. del Cedro y el borde del mapa, está **La Gotera**: la favela amurallada de la mafia, con un tianguis lineal en la avenida. Aquí el agua sabe a agua y nadie lo comenta, pero son vecinos, no Lazcano.
 
-**De noche:** seguro para los de adentro de cada coto; para el de afuera, la caseta y el perro. **Gancho:** la caseta, el vecino que ve pasar a los camiones de GelA hacia los Reservorios. **Se oye:** *"¿Y usted qué hace aquí? ¿Es de la empresa?"*
+**De noche:** seguro para los de adentro de cada coto; para el de afuera, la caseta y el perro. **Gancho:** la caseta, el vecino que ve pasar a los camiones de GelA hacia los Reservorios y, del otro lado, las luces del tianguis de La Gotera. **Se oye:** *"¿Y usted qué hace aquí? ¿Es de la empresa?"*
 
 ### Los Reservorios
 
-✅ (2026-11-11) **La fortaleza de los Lazcano**, el pedazo amurallado del noreste (💡 el nombre por confirmar), construido sobre las **canchas de fútbol del ITESO** y un trozo de las casas de alrededor, junto a las **bodegas grandes** que son la fábrica de GelA. Albercas, mansiones, campos de golf, la **casa de la gobernadora** y de Gerardo. Y **dos reservorios inmensos**: uno para los Lazcano y los suyos (muy pocos), y otro para el suministro general, donde **se ve a simple vista que le agregan algo al agua de los demás**: tinas, tubos, un cielo azul turquesa.
+✅ (2026-11-11) **La fortaleza de los Lazcano**, el pedazo amurallado del noreste (💡 el nombre por confirmar), construido sobre el **ITESO**: sus canchas de fútbol y el campus, junto a las **bodegas grandes** que son la fábrica de GelA. ✅ (2026-11-12) En el mapa solo se ve una franja de su barda con la **caseta y la pluma** en la avenida de arriba; el resto del campus queda más al norte, fuera del mapa, y adentro es **otra escena**. Albercas, mansiones, campos de golf, la **casa de la gobernadora** y de Gerardo. Y **dos reservorios inmensos**: uno para los Lazcano y los suyos (muy pocos), y otro para el suministro general, donde **se ve a simple vista que le agregan algo al agua de los demás**: tinas, tubos, un cielo azul turquesa.
 
 - **Todos saben el secreto del Serenol**, hasta el jardinero. Y todos saben que los de fuera no lo saben.
 - **Por qué te dejan entrar:** quieren **protección contra los zombis**, que de vez en cuando se meten (los atrae el agua limpia de su reservorio y el ruido de las fiestas). Dejan entrar a quien les sirva, de noche, con un arma.
@@ -692,9 +692,9 @@ El sur de las cantinas: cerveza, tequila, música, y el **tianguis de la noche**
 
 ### La Gotera
 
-El sureste de los Gotera: la toma clandestina del acueducto, las casas de lámina, el camión con placas de otro estado. ✅ (2026-11-11) Hoy es una **ciudad amurallada con estética de favela**, de los pobres: calles angostas de lámina, cableado colgado, tinacos de colores y un **yacimiento subterráneo** propio. Aquí no entra la policía y la gobernadora no manda. La válvula del acueducto sigue cerrada; el yacimiento, no: se vende dentro, a precio justo. Bajo la zona hay **túneles** (se trabajan después) que conectan con los cárcamos de GelA.
+El barrio de los Gotera: la toma clandestina del acueducto, las casas de lámina, el camión con placas de otro estado. ✅ (2026-11-11) Hoy es una **ciudad amurallada con estética de favela**, de los pobres: calles angostas de lámina, cableado colgado, tinacos de colores y un **yacimiento subterráneo** propio. ✅ (2026-11-12) Está en **Haciendas de San Jodido**, pegada a la orilla oriente del mapa, y **la avenida (la Av. del Cedro) es un tianguis lineal tipo Tepito**, abierto de día y de noche, que cualquiera cruza de una reja a la otra; **a los lados no se pasa sin permiso**: ahí está la favela, un laberinto de casas de obra negra y callejones angostos que suben y bajan (Guanajuato o São Paulo, pero horizontal). Diseño en `docs/mapa/colonias/la_gotera.md`. Aquí no entra la policía y la gobernadora no manda. La válvula del acueducto sigue cerrada; el yacimiento, no: se vende dentro, a precio justo. Bajo la favela, junto a la **válvula del acueducto**, hay **túneles** (se trabajan después) que conectan con los cárcamos de GelA.
 
-**De noche:** no se entra sin permiso; el que entra sin permiso no sale. **Gancho:** el yacimiento, la válvula, el pacto, los túneles, las entregas de punto a punto. **Se oye:** *"Aquí el agua se vende a lo justo, jefe. La válvula, esa se guarda."*
+**De noche:** el tianguis sigue abierto (aquí todo cuesta ×2 o ×3 y el que vende está armado); a la favela no se entra sin permiso, y el que entra sin permiso no sale. **Gancho:** el yacimiento, la válvula, el pacto, los túneles, las entregas de punto a punto. **Se oye:** *"Aquí el agua se vende a lo justo, jefe. La válvula, esa se guarda."*
 
 ---
 
@@ -897,7 +897,7 @@ En el juego: `scripts/catrina/` (`Catrina.gd`, con un cuerpo provisional de figu
 | Lo que puede hacer el jugador | Qué cambia | Cómo contesta GelA |
 |---|---|---|
 | **La cura**: llevar agua de la capilla, zona por zona | Lento: cada zona curada es una zona enojada | Clausura la capilla, manda a los blancos, compra al obispo |
-| **La válvula**: abrir la toma de La Gotera | Rápido: medio sureste amanece sin Serenol. Se rompe el pacto de los Gotera ([§11](#la-válvula)) | Cortes masivos y "agua contaminada del mercado negro" en el noticiero; los Gotera, sin seguro, se vuelven contra el Machetes |
+| **La válvula**: abrir la toma de La Gotera | Rápido: media ciudad amanece sin Serenol. Se rompe el pacto de los Gotera ([§11](#la-válvula)) | Cortes masivos y "agua contaminada del mercado negro" en el noticiero; los Gotera, sin seguro, se vuelven contra el Machetes |
 | **La verdad**: los papeles por la radio | Solo donde ya hay agua viva: ahí cambia el voto | Busca a Sofía y a López; el noticiero dice que es "propaganda del crimen organizado" |
 | **Nada**: repartir y cobrar | La ciudad sigue igual | No contesta: no hace falta. También es una respuesta |
 
@@ -1063,6 +1063,7 @@ La prueba de cada misión: **¿aquí el jugador elige entre compartir el agua y 
 - [ ] 💡 ¿Cómo llegó el bebé a Santa Mugre (en 2005 todavía no era fortaleza)? 💡 El Dr. López se lo llevó a una familia de la colonia y nunca volvió.
 - [ ] 💡 ¿La capilla se puede perder para siempre si fallas una misión (y con ella la cura)?
 - [ ] 💡 ¿Los Gotera son solo antagonistas o también clientes del jugador? *(2026-11-11: ahora también venden agua limpia y dan entregas de punto a punto: son clientes.)*
+- [x] ✅ (2026-11-12) La pieza del mapa de papel del sureste queda **sin nombre** (JJ): `ZonasMapa.gd` con `nombre` vacío, `etiqueta()` la muestra como "Sin nombre" y `Partida` no avisa al entrar.
 - [ ] 💡 Nombres por votar: los Reservorios (fortaleza GelA), la escuela de Santa Mugre, el nuevo palacio. (El hijo rebelde es Gerardo; el chofer es Nacho Garrafón, propuesto, confirmar.)
 - [x] ✅ (2026-11-12) Doña Refugio y la leyenda del tinaco que no se vacía se eliminan; el pozo de La Palmada es de Chava y es independiente del del templo (ver §16).
 - [ ] 💡 ¿Por qué falla la reja una noche al azar? ¿Un sabotaje, un descuido, o los zombis que huelen el agua del tinaco?

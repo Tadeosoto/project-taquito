@@ -83,7 +83,7 @@ func _ready() -> void:
 	_ciclo.amanecio.connect(_amanecio)
 	_armar_pantalla()
 	PiezasMapa.recogida.connect(func(zona: int) -> void:
-		_supervivencia.avisar(TEXTO_PIEZA % ZonasMapa.nombre(zona)))
+		_supervivencia.avisar(TEXTO_PIEZA % ZonasMapa.etiqueta(zona)))
 	# Las hazanas que dan trofeos para el taller (Hazanas.gd)
 	var hazanas := Hazanas.new()
 	hazanas.name = "Hazanas"
@@ -275,7 +275,8 @@ func _revisar_zona(delta: float) -> void:
 	var zona := ZonasMapa.zona_en(_jugador.global_position.x, _jugador.global_position.z)
 	if zona >= 0 and zona != _zona_actual:
 		_zona_actual = zona
-		_supervivencia.avisar(TEXTO_ZONA % ZonasMapa.nombre(zona))
+		if ZonasMapa.nombre(zona) != "":   # las zonas sin nombre (el sureste) no avisan
+			_supervivencia.avisar(TEXTO_ZONA % ZonasMapa.nombre(zona))
 
 
 func _unhandled_input(event: InputEvent) -> void:

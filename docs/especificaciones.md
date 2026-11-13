@@ -136,12 +136,12 @@ Lo que hay que saber:
 - **El agua es el centro de todo.** Es cara, es medicina (la cura de la "sed" es agua limpia) y es poder (quien la controla controla el voto).
 - **La familia Lazcano tiene dos tronos**: **Germán** es dueño de GelA; su hija **Georgina "Gela"** es la gobernadora. Los dóciles votan por ella: es el **voto de la llave**.
 - **El crimen organizado** (los Gotera: drogas, armas y agua limpia del yacimiento) amuralló su propia fortaleza, **La Gotera**, y no toma de la llave. La ciudad le echa la culpa a "las pandillas", que es justo lo que el régimen necesita. ✅ (2026-11-12) **Sus misiones desbloquean la entrada a su fortaleza** (`misiones.md`).
-- ✅ **Tres fortalezas (2026-11-11):** **Santa Mugre** (refugio de la Virgen del Tinaco, donde empiezas), **La Gotera** (la mafia, favela amurallada) y **los Reservorios** (GelA, en las canchas del ITESO). Dentro no entra la policía y hay agua sin Serenol. **Afuera** casi todos están bajo Serenol y no dan misiones; la policía (los blancos) solo sale de día y dispara a quien reparte agua, por eso el reparto es **de noche** (`lore.md` §13, §14).
+- ✅ **Tres fortalezas (2026-11-11):** **Santa Mugre** (refugio de la Virgen del Tinaco, donde empiezas), **La Gotera** (la mafia, favela amurallada en Haciendas de San Jodido, con un tianguis lineal en la avenida) y **los Reservorios** (GelA, sobre el ITESO, al norte del mapa). Dentro no entra la policía y hay agua sin Serenol. **Afuera** casi todos están bajo Serenol y no dan misiones; la policía (los blancos) solo sale de día y dispara a quien reparte agua, por eso el reparto es **de noche** (`lore.md` §13, §14).
 - **El culto de la Virgen del Tinaco**: un tinaco manchado en la plaza de Santa Mugre; se llena de agua "bendita" que **el padre Chuy** saca de un pozo bajo el templo y filtra. El milagro sí cura (es agua limpia) y Chuy sospecha por qué, pero calla. ✅ (2026-11-12) No hay Doña Refugio ni leyenda del tinaco que no se vacía; el pozo del reparto es otro, el de **Chava** en La Palmada.
 - **Subhistorias**: el **cobalto** de la varilla del 84 (las casas en obra negra y unas lámparas que bajan vida) y las **cruces de caca** de un vecino loco. Se cuentan hablando con la gente, no en cinemáticas.
 - **El lore no bloquea nada**: el sandbox se juega sin saberlo (ver `docs/lore.md` §1).
 - **Facciones** (para misiones): la **cuadrilla/gremio** de contratos, el culto del tinaco, los cotos de San Jodido, los Gotera, los blancos de GelA (la policía, anónima), la resistencia de GelA (Arturo, Gerardo) y la propia gobernadora.
-- **El mapa** 🧱: ~1.7 × 1.7 km reales de Zapopan, con nueve zonas de nombre parodia (El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera). Ver `docs/mapa/README.md` y `docs/lore.md` §13.
+- **El mapa** 🧱: ~1.7 × 1.7 km reales de Zapopan, con nueve zonas en el mapa de papel: ocho de nombre parodia (El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido y El Último Trago) y el sureste, sin nombre ni lore (✅ 2026-11-12; la fortaleza La Gotera está en Haciendas de San Jodido). Ver `docs/mapa/README.md` y `docs/lore.md` §13.
 
 
 ## 3. Ciclo principal (core loop)
@@ -349,7 +349,7 @@ Presupuesto 💡: ~30 zombis completos cerca + ~200 "baratos" lejos (hay que med
 
 ### 4.11 Mapa de papel 🧱
 
-Con el inventario abierto, **M** (Select en el control) muestra el mapa, en 9 pedazos con nombre: El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera. Empiezas con el de donde apareces y los demás se encuentran tirados frente a una tienda de cada zona; los que faltan salen en negro con un signo. No ocupan lugar, no se pierden al desmayarte y se acaban con la partida. Al cruzar a otra zona sale su nombre. 💡 Después podrían venderse o darse en misiones.
+Con el inventario abierto, **M** (Select en el control) muestra el mapa, en 9 pedazos: El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y el del sureste, que no tiene nombre (sale como "Sin nombre" en la lista y no avisa al entrar). Empiezas con el de donde apareces y los demás se encuentran tirados frente a una tienda de cada zona; los que faltan salen en negro con un signo. No ocupan lugar, no se pierden al desmayarte y se acaban con la partida. Al cruzar a otra zona sale su nombre. 💡 Después podrían venderse o darse en misiones.
 
 ### 4.12 Tazos y habilidades 💡🧱 (propuesta de AG, falta que el equipo la confirme)
 

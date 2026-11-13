@@ -84,5 +84,6 @@
 ## Pendiente de decidir
 
 - Nombre parodia de la Av. del Cedro y de las calles de adentro.
-- Qué pasa con la zona "La Gotera" del sureste en el mapa de papel (renombrarla; el mapa no se recorta).
+- La pieza "La Gotera" del sureste en el mapa de papel (`ZonasMapa.gd`) ya no es la fortaleza: JJ decidió que la zona "ya no es nada" y todo el lore de la mafia pasó a la favela de Haciendas (✅ 2026-11-12). ✅ Quedó **sin nombre** en `ZonasMapa.gd`.
+- ✅ El tianguis de la avenida es abierto de día y de noche, para cualquiera. ✅ La válvula del acueducto queda bajo la favela.
 - Si los Gotera dejan entrar al tianguis de noche (la regla común de las fortalezas dice que dentro no hay zombis).

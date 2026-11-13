@@ -144,6 +144,8 @@ func _nombre_en_mapa(zona: int) -> void:
 		_texto("?", donde + Vector2(0.0, 9.0), 26, FALTA_TEXTO, HORIZONTAL_ALIGNMENT_CENTER)
 		return
 	var nombre := ZonasMapa.nombre(zona)
+	if nombre == "":
+		return
 	var partes := nombre.split(" ")
 	var mitad := ceili(partes.size() / 2.0)
 	if partes.size() <= 2:
@@ -194,9 +196,9 @@ func _columna(aqui: int) -> void:
 	_texto("Piezas: %d de %d" % [PiezasMapa.cuantas(), ZonasMapa.cuantas()], Vector2(LISTA_X, 24.0), 14, Color.WHITE, HORIZONTAL_ALIGNMENT_LEFT, 180.0)
 	if aqui >= 0 and PiezasMapa.tiene(aqui):
 		_texto("Estás en:", Vector2(LISTA_X, 46.0), 11, Color(0.75, 0.75, 0.75), HORIZONTAL_ALIGNMENT_LEFT, 180.0)
-		_texto(ZonasMapa.nombre(aqui), Vector2(LISTA_X, 62.0), 11, AMARILLO, HORIZONTAL_ALIGNMENT_LEFT, 180.0)
+		_texto(ZonasMapa.etiqueta(aqui), Vector2(LISTA_X, 62.0), 11, AMARILLO, HORIZONTAL_ALIGNMENT_LEFT, 180.0)
 	for i in ZonasMapa.cuantas():
-		var nombre := ZonasMapa.nombre(i) if PiezasMapa.tiene(i) else "? ? ?"
+		var nombre := ZonasMapa.etiqueta(i) if PiezasMapa.tiene(i) else "? ? ?"
 		var color := Color.WHITE if PiezasMapa.tiene(i) else FALTA_TEXTO
 		if i == aqui and PiezasMapa.tiene(i):
 			color = AMARILLO
