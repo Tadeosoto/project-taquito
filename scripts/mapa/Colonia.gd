@@ -602,7 +602,7 @@ func _paso(marca: Dictionary) -> void:
 	area.body_entered.connect(func(cuerpo: Node3D) -> void:
 		if not (cuerpo is Player):
 			return
-		if marca.get("requiere", "") == "favela" and not get_node("/root/Misiones").favela_abierta():
+		if marca.get("requiere", "") == "favela" and not PasoColonia.sin_candados and not get_node("/root/Misiones").favela_abierta():
 			var aviso := get_node_or_null("../Supervivencia")
 			if aviso:
 				aviso.avisar(String(marca.get("cerrado", "Aquí no, jefe. Esto es solo para gente de la casa.")))

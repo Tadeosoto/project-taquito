@@ -89,6 +89,16 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 - Si las balas de la pistola se venden en "Balas y Veladoras": falta el objeto.
 - Zombi de cobalto en "zonas con obra negra": la casa ya existe en el kit.
 
+## Probar sin restricciones
+
+`scenes/prueba_gotera.tscn` entra directo al tianguis con las bocas abiertas, sin las entregas de la mafia (`PasoColonia.sin_candados`, que dura hasta volver a la pantalla de inicio). Se puede ir y venir por cualquier boca y salir a `map_test` por las rejas.
+
+```bash
+godot --path . scenes/prueba_gotera.tscn               # en el tianguis, de día
+godot --path . scenes/prueba_gotera.tscn -- --favela   # en la favela
+godot --path . scenes/prueba_gotera.tscn -- --noche    # de noche
+```
+
 ## Rendimiento y capturas
 
 Las capturas están en `~/casa_psm/gotera/` con su lista en `00_resumen.md` (fuera del repo). Números de `godot --path . -s tools/mapa/medir_gotera.gd -- --colonia=<colonia>` (mediana del tiempo de GPU, Intel HD 520, 640×480). El presupuesto es no pasar de ~5 ms sobre el tianguis de Santa Mugre.

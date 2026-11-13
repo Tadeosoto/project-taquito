@@ -26,6 +26,9 @@ static var fraccion_del_dia := -1.0
 static var _yendo := false
 ## Para las pruebas sin ventana: con true, `ir_a` solo anota `lado` y `colonia` y no cambia de escena
 static var simular := false
+## Sin candados (scenes/prueba_gotera.tscn): las bocas con "requiere" dejan pasar aunque falten las
+## misiones (Colonia._paso). Dura hasta volver a la pantalla de inicio (Inicio.gd lo apaga)
+static var sin_candados := false
 
 
 ## Cambia a `escena` por la reja de `por`. `desde` es cualquier nodo del arbol (la flecha pisada).

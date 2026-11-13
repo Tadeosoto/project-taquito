@@ -96,6 +96,18 @@ func _colonia() -> void:
 	var d := Vector2(jugador.global_position.x - antes.x, jugador.global_position.z - antes.z).length()
 	_revisar("sin entregas el guardia te regresa", d > 1.5 and PasoColonia.lado == "" and PasoColonia.colonia == "la_gotera",
 		"a %.2f m de la flecha; colonia %s lado '%s'" % [d, PasoColonia.colonia, PasoColonia.lado])
+	# Sin candados (scenes/prueba_gotera.tscn): pasa aunque falten las entregas
+	PasoColonia.sin_candados = true
+	jugador.global_position = antes + Vector3(0.0, 1.0, 0.0)
+	jugador.velocity = Vector3.ZERO
+	await _cuadros(3)
+	_revisar("sin candados la boca deja pasar sin entregas", PasoColonia.colonia == "la_gotera_favela" and PasoColonia.lado == "privada_fuga",
+		"colonia %s lado '%s'" % [PasoColonia.colonia, PasoColonia.lado])
+	PasoColonia.sin_candados = false
+	PasoColonia.colonia = "la_gotera"
+	PasoColonia.lado = ""
+	jugador.global_position = antes + Vector3(0.0, 1.0, 3.0)
+	await _cuadros(3)
 	# Con cinco entregas: pasa a la favela por ese lado
 	for i in range(1, 6):
 		misiones._hechas_siempre["mafia_%d" % i] = true
