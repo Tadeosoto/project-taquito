@@ -1,0 +1,11 @@
+Model Information:
+* title:	lowpoly wheelbarrow
+* source:	https://sketchfab.com/3d-models/lowpoly-wheelbarrow-fdce753e4dc147fcbfa18e809dde7bf9
+* author:	creosine (https://sketchfab.com/creosine)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "lowpoly wheelbarrow" (https://sketchfab.com/3d-models/lowpoly-wheelbarrow-fdce753e4dc147fcbfa18e809dde7bf9) by creosine (https://sketchfab.com/creosine) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

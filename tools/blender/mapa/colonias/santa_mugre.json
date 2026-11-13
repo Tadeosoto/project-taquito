@@ -8311,6 +8311,13 @@
 			"rot": -1.5328
 		},
 		{
+			"nombre": "Karla_Atrio",
+			"tipo": "mision",
+			"x": -323.0,
+			"z": 418.2,
+			"rot": 1.5708
+		},
+		{
 			"nombre": "Caja_GelA",
 			"tipo": "caja_gela",
 			"x": -339.1,

@@ -30,6 +30,7 @@
 [ext_resource type="Script" path="res://scripts/interiores/CasaPropia.gd" id="25_casa_propia"]
 [ext_resource type="PackedScene" path="res://scenes/casa_personaje.tscn" id="26_casa_personaje"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto_mejoras.tscn" id="27_mejoras"]
+[ext_resource type="Script" path="res://scripts/map/Carretilla.gd" id="28_carretilla"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -166,6 +167,10 @@ target_path = NodePath("../Dron")
 
 [node name="Player" parent="." instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 6)
+
+[node name="Carretilla" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.3, 4)
+script = ExtResource("28_carretilla")
 
 [node name="Dron" type="Node3D" parent="."]
 script = ExtResource("4_dron")

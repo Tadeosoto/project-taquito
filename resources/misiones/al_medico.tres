@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_medico"]
+script = ExtResource("2_paso")
+tipo = 4
+cuando = 1
+texto = "Lleva al herido en la carretilla a la enfermería"
+lugar = "clinica"
+acompanante = "carretilla"
+vida_acompanante = 24
+
+[resource]
+script = ExtResource("1_mision")
+id = "al_medico"
+nombre = "Al médico"
+modelo = "mujer_psx"
+donde = "marca:Karla_Atrio"
+oferta = "Una de las fieles salió herida y aquí no la podemos curar. Hay una enfermería, la casa de la cruz verde, afuera de la reja. Se la lleva en la carretilla y hay que cuidarla: de dos golpes no sale."
+aceptada = "Ya es de noche y ahí tiene la carretilla. Jálela con cuidado y sin parar: la cruz verde se ve de lejos."
+recuerda = "La enfermería es la casa con la cruz verde, abajo de la colonia. No la suelte."
+despedida = "La dejó con el médico, gracias a Dios. Mañana quizá haya otro herido."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_medico")])
+pesos = 100

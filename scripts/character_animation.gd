@@ -116,6 +116,7 @@ var _rec_en := -1.0          # s para que acabe el golpe y siga su _Rec (REC); -
 var _moviendo := false       # lo ultimo que dijo update_animation
 var _inclinar: SkeletonModifier3D   # InclinarCuerpo.gd: la columna hacia adelante (inclinar)
 var _agarre: SkeletonModifier3D     # AgarrePistola.gd: canon a la mira y la izquierda en la cacha (agarre)
+var _mangos: SkeletonModifier3D     # ManosMangos.gd: las dos manos en los mangos de la carretilla (mangos)
 
 
 func _ready() -> void:
@@ -148,6 +149,9 @@ func _ready() -> void:
 		_agarre = preload("res://scripts/AgarrePistola.gd").new()
 		_agarre.name = "AgarrePistola"
 		esqueletos[0].add_child(_agarre)
+		_mangos = preload("res://scripts/ManosMangos.gd").new()
+		_mangos.name = "ManosMangos"
+		esqueletos[0].add_child(_mangos)
 
 
 func _armar_arbol() -> AnimationNodeBlendTree:
@@ -434,6 +438,14 @@ func agarre(activo: bool, mira: Vector3, canon_local: Vector3, apunta := 1.0) ->
 		_agarre.apunta_a = mira
 		_agarre.canon_local = canon_local
 		_agarre.apunta = apunta
+
+
+# Llevando la carretilla (Player.carretilla): las manos en sus mangos `izq` y `der` (globales)
+func mangos(activo: bool, izq := Vector3.ZERO, der := Vector3.ZERO) -> void:
+	if _mangos:
+		_mangos.peso = 1.0 if activo else 0.0
+		if activo:
+			_mangos.mangos = [izq, der]
 
 
 # La izquierda en la corredera (`objetivo`, un Marker3D que se mueve con ella), `peso` 0-1

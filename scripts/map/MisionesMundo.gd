@@ -57,6 +57,7 @@ const PIEZAS_ANTENA := [Vector2(-415.9, 125.7), Vector2(-102.3, 578.1)]
 const PIEZAS_NOMBRES := ["los tubos", "el repetidor"]
 const PIEZAS_ZOMBIS := 2          # zombis sueltos que salen junto a cada pieza al acercarte
 const PIEZAS_AVISO := 60.0        # m de la pieza a los que salen
+const TEXTO_REJA_ANTES := "Hay un herido, pero de noche se sale por la reja y sigue cerrada. Antes habla con el padre Chuy."
 const TINACO_CORTE := 1.4         # s entre aceptar con Chava y el corte a la defensa
 const CAZA_APARECE := 70.0        # m del lugar a los que sale el zombi marcado
 const TEXTO_HORA := "%s: \"Esto me toca %s.\""
@@ -289,6 +290,9 @@ func _hablar(i: int) -> String:
 		return mision.despedida
 	if not Misiones.ofreciendo:
 		return TEXTO_TARDE
+	# Al medico se sale por la reja: hasta que se abra (la guardia del padre Chuy) no se ofrece
+	if not mision.pasos.is_empty() and mision.pasos[0].lugar == "clinica" and not Misiones.reja_abierta():
+		return TEXTO_REJA_ANTES
 	if not v["visto"]:
 		v["visto"] = true
 		return ("%s %s" % [Personaje.linea("vecino"), mision.oferta]).strip_edges() + TEXTO_ACEPTAR
@@ -300,7 +304,7 @@ func _hablar(i: int) -> String:
 	if v.has("gabriel"):
 		_salir_con_gabriel(mision, v["lugar"], v["gabriel"])
 		return mision.aceptada
-	if _es_guardia_de_reja(mision):
+	if _empieza_en_la_reja(mision):
 		_ir_a_la_reja(mision)
 		return mision.aceptada
 	if _sale_por_la_reja(mision):
@@ -326,9 +330,10 @@ func _entrar_al_tinaco(mision: MisionData, k: int) -> void:
 	PasoJefe.entrar(self, paso.escena, true)
 
 
-# La guardia de la reja (padre Chuy), aceptada en la colonia de Blender: el primer paso es DEFENDER en "reja_guardia"
-func _es_guardia_de_reja(mision: MisionData) -> bool:
-	return not mision.pasos.is_empty() and mision.pasos[0].lugar == "reja_guardia" \
+# Las que arrancan de noche adentro de una reja, aceptadas en la colonia de Blender: la guardia de la reja (padre Chuy,
+# primer paso DEFENDER en "reja_guardia") y Al medico (Karla, ESCOLTAR a la "clinica": el herido sale contigo)
+func _empieza_en_la_reja(mision: MisionData) -> bool:
+	return not mision.pasos.is_empty() and mision.pasos[0].lugar in ["reja_guardia", "clinica"] \
 			and get_tree().get_first_node_in_group("colonia") != null
 
 
@@ -676,7 +681,12 @@ func _ajustar_acompanante(paso: PasoMision) -> void:
 	if not se_queda and donde.distance_to(_jugador.global_position) > ACOMPANANTE_SALE_A:
 		donde = _jugador.global_position + Vector3(1.5, 0.0, 0.0)
 	var vida := Misiones.vida_acompanante if Misiones.vida_acompanante >= 0 else paso.vida_acompanante
-	_acomp = Acompanante.crear(self, donde, paso.acompanante, vida, paso.vida_acompanante, se_queda)
+	if paso.acompanante.begins_with("carretilla"):
+		# El herido de "Al medico": en una carretilla que jalas (`carretilla` o `carretilla:<modelo del herido>`)
+		var partes := paso.acompanante.split(":")
+		_acomp = Carretilla.crear_carretilla(self, donde, partes[1] if partes.size() > 1 else "", vida, paso.vida_acompanante)
+	else:
+		_acomp = Acompanante.crear(self, donde, paso.acompanante, vida, paso.vida_acompanante, se_queda)
 	_acomp_de = paso
 	_acomp.cayo.connect(Misiones.acompanante_cayo)
 
@@ -823,6 +833,8 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 		for entrada: EntradaJefe in get_tree().get_nodes_in_group("entradas_jefe"):
 			if entrada.id == paso.lugar.trim_prefix("entrada:"):
 				_escolta_meta = entrada.global_position
+	elif paso.lugar == "clinica":
+		_escolta_meta = Vector3(FortalezasMapa.CLINICA_LLEGADA.x, 0.0, FortalezasMapa.CLINICA_LLEGADA.y)
 	elif paso.lugar == "torre_antena":
 		_escolta_meta = Vector3(FortalezasMapa.TORRE_ANTENA.x + 3.0, 0.0, FortalezasMapa.TORRE_ANTENA.y)
 	elif paso.lugar == "reja_guardia":

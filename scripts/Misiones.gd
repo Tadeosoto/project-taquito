@@ -38,6 +38,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/camioneta_gabriel.tres",
 	"res://resources/misiones/guardia_reja.tres",
 	"res://resources/misiones/antena_sofia.tres",
+	"res://resources/misiones/al_medico.tres",
 ]
 const REVISAR_CADA := 0.25
 

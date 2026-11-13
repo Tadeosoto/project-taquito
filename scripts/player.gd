@@ -396,6 +396,11 @@ var _buffer_dir := Vector2.ZERO   # las teclas de direccion al pedir la rodada
 var _invulnerable := 0.0
 var _curando := 0.0
 var sin_combate := false       # la casa propia (CasaPropia.gd): sin armas, rodadas ni curarse, y nada te hace daño
+# La carretilla que llevas de los mangos (Carretilla.gd, M5): Espacio la agarra y la suelta; con ella
+# solo avanzas (W) y giras despacio (A/D), sin armas, brincos ni rodadas (JJ)
+var carretilla: Node3D = null
+const CARRETILLA_GIRO := 1.4        # rad/s que giras con A/D
+const CARRETILLA_VELOCIDAD := 0.8   # x la velocidad de trote
 var _aturdido := 0.0           # s que quedan aturdido: te tronó la palomita en la mano (aturdirte)
 var _aventando := -1.0          # s del punado de sal; -1 = no
 var _avienta_dir := Vector3.FORWARD
@@ -1418,7 +1423,7 @@ func _parar_golpe(dano: int, hacia: Vector3, empuja: float) -> void:
 # ocupe. Un espadazo, la rodada o la estocada la tapan; al terminar, si sigues apretando, vuelve
 func _revisar_bloqueo(delta: float) -> void:
 	_agachado = maxf(_agachado - delta, 0.0)
-	var quiere: bool = Input.is_action_pressed("bloquear") and not _pistola.activa and not _ocupado() \
+	var quiere: bool = Input.is_action_pressed("bloquear") and not _pistola.activa and not _ocupado() and carretilla == null \
 			and not _barriendo() and is_on_floor() and not sin_combate
 	if quiere == _bloqueando:
 		return
@@ -1463,6 +1468,24 @@ func _pintar_blanco(prendido: bool) -> void:
 		_material_blanco.disable_fog = true
 	for malla: MeshInstance3D in frijol.find_children("*", "MeshInstance3D", true, false):
 		malla.material_overlay = _material_blanco if prendido else null
+
+
+# Carretilla.interact: las manos a los mangos. Se guarda la pistola o lo que traigas para aventar
+func agarrar_carretilla(cual: Node3D) -> void:
+	carretilla = cual
+	if _pistola.activa:
+		_pistola.cambiar()
+	_lanzador.soltar()
+	_soltar_combo()
+	_mostrar_arma()
+
+
+# Carretilla.soltar (Espacio otra vez, se cayo el herido o se acabo la mision)
+func soltar_carretilla() -> void:
+	carretilla = null
+	if figura.has_method("mangos"):
+		figura.mangos(false)
+	_mostrar_arma()
 
 
 # Algo en las manos, enfrente: una mision (MisionesMundo.gd)
@@ -1806,7 +1829,7 @@ func _mostrar_arma() -> void:
 	elif _a_punos() or (_lanzador and _lanzador.activo):
 		# Con la sal o la molotov en la mano no se ve el machete
 		arma = null
-	if sin_combate:
+	if sin_combate or carretilla != null:
 		arma = null
 	if arma == _arma_visible:
 		return
@@ -1879,6 +1902,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				figura.colgar_patada()
 	elif _aturdido > 0.0:
 		# Aturdido solo puedes voltear la camara
+		pass
+	elif carretilla != null and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not event.is_action("ui_cancel"):
+		# Con las manos en la carretilla: ni armas, ni rodadas, ni curarse (Espacio la suelta, en _physics_process)
 		pass
 	elif event.is_action_pressed("cambiar_arma") and is_physics_processing() and not sin_combate:
 		_lanzador.soltar()
@@ -1958,6 +1984,8 @@ func _process(_delta: float) -> void:
 # Los brazos con la pistola (clips Pistol_* de Quaternius, character_animation.gd): sosteniendola,
 # o apuntando a la mira al apuntar o recien disparado desde la cadera, a la altura de la mira
 func _posar() -> void:
+	if carretilla and is_instance_valid(carretilla) and figura.has_method("mangos"):
+		figura.mangos(true, carretilla.mango(0), carretilla.mango(1))
 	if not figura.has_method("pistola"):
 		return
 	var centro := get_viewport().get_visible_rect().size / 2.0
@@ -2189,7 +2217,7 @@ func canon() -> Vector3:
 func _camara_al_hombro() -> void:
 	var paso := clampf(CAMARA_CAMBIA * get_process_delta_time() / maxf(Engine.time_scale, 0.001), 0.0, 1.0)
 	var pistola: bool = _pistola.activa
-	_apuntando = pistola and is_physics_processing() and Input.is_action_pressed("apuntar")
+	_apuntando = pistola and is_physics_processing() and Input.is_action_pressed("apuntar") and carretilla == null
 	_hombro = lerpf(_hombro, (APUNTA_HOMBRO if _apuntando else HOMBRO) if pistola else 0.0, paso)
 	_alzar = lerpf(_alzar, HOMBRO_ALTO if pistola else 0.0, paso)
 	spring_arm.spring_length = lerpf(spring_arm.spring_length, (APUNTA_BRAZO if _apuntando else HOMBRO_BRAZO) if pistola else _brazo_base, paso)
@@ -2265,6 +2293,12 @@ func _physics_process(delta: float) -> void:
 	right = right.normalized()
 
 	var direction: Vector3 = right * input_direction.x + forward * -input_direction.y
+	# Con la carretilla: W avanza hacia donde ves y A/D giran despacio; no hay reversa ni de lado
+	if carretilla:
+		frijol.rotate_y(-input_direction.x * CARRETILLA_GIRO * delta)
+		var frente := -frijol.global_transform.basis.z
+		frente.y = 0.0
+		direction = frente.normalized() * maxf(-input_direction.y, 0.0)
 
 	var is_moving: bool = direction.length_squared() > 0.01
 	# Haciendo otra cosa a la vez, caminas (Walk, sin correr). Todo el enfriamiento del golpe, no
@@ -2291,7 +2325,7 @@ func _physics_process(delta: float) -> void:
 	# (clic derecho), a medio machetazo o bloqueando (JJ)
 	var camina: bool = (_apuntando or machetazo or _bloqueando or _curando > 0.0) and not corre_pegando
 	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint") and not machete_lento and not camina \
-			and not corre_pegando
+			and not corre_pegando and carretilla == null
 	var move_speed: float = sprint_speed if is_sprinting else speed
 	if _apuntando:
 		move_speed = speed * APUNTA_VELOCIDAD
@@ -2303,6 +2337,8 @@ func _physics_process(delta: float) -> void:
 		move_speed = minf(move_speed, CAMINA_PISTOLA if _apuntando or (_bloqueando and _punos()) else CAMINA_MAXIMO)
 	if _bloqueando:
 		move_speed = minf(move_speed, speed * BLOQUEO_VELOCIDAD)
+	if carretilla:
+		move_speed *= CARRETILLA_VELOCIDAD
 	for factor: float in lastres.values():
 		move_speed *= factor
 	# Caminando, el barrido va solo arriba: las piernas siguen trotando
@@ -2383,7 +2419,9 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("jump") and is_on_floor() and not atrapado():
 		var cercano := _nearby_interactable()
-		if cercano != null:
+		if carretilla:
+			carretilla.soltar()
+		elif cercano != null:
 			cercano.interact()
 		else:
 			_pedir_accion("brinco")

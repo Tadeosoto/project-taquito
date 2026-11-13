@@ -48,6 +48,7 @@
 - [Calendula flower](https://sketchfab.com/3d-models/d813ac09f52849a3a8c57e14076e4b83) de Maf'j Alvarez, licencia CC Attribution (`models/props/calendula/`).
 - [Speaker Stage](https://sketchfab.com/3d-models/39289063695d42f5a67b0a33318badb4) de Eveston - Elite Big Speakerman - Hugo, licencia CC Attribution (`models/props/bocina_escenario/`).
 - [Garden hose Reel](https://sketchfab.com/3d-models/33a5089d9dd1438386d80bdf31a46a55) de Cliffcographics, licencia CC Attribution (`models/props/rollo_manguera/`).
+- [lowpoly wheelbarrow](https://sketchfab.com/3d-models/fdce753e4dc147fcbfa18e809dde7bf9) de creosine, licencia CC Attribution (`models/props/carretilla/`).
 
 ## Objetos (`models/objetos/`, Sketchfab)
 

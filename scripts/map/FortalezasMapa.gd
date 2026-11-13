@@ -62,6 +62,15 @@ const TORRE_PUNTA := 0.7          # medio ancho arriba
 const TORRE_NIVELES := 6
 const TORRE_COLOR := Color(0.55, 0.57, 0.6)
 
+## La enfermeria de "Al medico" (M5): una casa de la calle de abajo de Santa Mugre, a ~150 m de las dos rejas, con una cruz
+## verde luminosa en la fachada (la casa es de casas_mapa.json; aqui solo se marca). `CLINICA_LLEGADA` es donde termina la
+## escolta, en la banqueta frente a la casa
+const CLINICA_CASA := Vector2(-297.6, 560.1)
+const CLINICA_GIRO := 3.0        # rotacion_y de la casa: su frente mira hacia (sin, cos)
+const CLINICA_FONDO := 12.0
+const CLINICA_LLEGADA := Vector2(-296.3, 551.0)
+const CRUZ_VERDE := Color(0.1, 0.9, 0.35)
+
 const GRUESO := 0.3
 const COLOR_FIERRO := Color(0.12, 0.12, 0.13)
 
@@ -83,6 +92,7 @@ func _ready() -> void:
 	_gotera()
 	add_to_group("fortalezas")
 	_torre()
+	_clinica()
 	for sitio: Dictionary in SitiosTinaco.SITIOS:
 		_tinaco(sitio["pos"])
 
@@ -241,6 +251,49 @@ func _tinaco(donde: Vector2) -> void:
 	forma.shape = cilindro
 	forma.position.y = TINACO_ALTO / 2.0
 	cuerpo.add_child(forma)
+
+
+# --- La enfermeria ---
+
+func _clinica() -> void:
+	var frente := Vector2(sin(CLINICA_GIRO), cos(CLINICA_GIRO))
+	var punto := CLINICA_CASA + frente * (CLINICA_FONDO / 2.0 + 0.45)
+	var nodo := Node3D.new()
+	nodo.name = "Enfermeria"
+	nodo.position = Vector3(punto.x, 0.0, punto.y)
+	nodo.rotation.y = atan2(frente.x, frente.y)   # +Z hacia la calle
+	add_child(nodo)
+	var verde := StandardMaterial3D.new()
+	verde.albedo_color = CRUZ_VERDE
+	verde.emission_enabled = true
+	verde.emission = CRUZ_VERDE
+	verde.emission_energy_multiplier = 2.2
+	verde.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	for tam in [Vector3(0.38, 1.5, 0.1), Vector3(1.5, 0.38, 0.1)]:
+		var barra := MeshInstance3D.new()
+		var caja := BoxMesh.new()
+		caja.size = tam
+		caja.material = verde
+		barra.mesh = caja
+		barra.position = Vector3(0.0, 3.4, 0.0)
+		barra.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		nodo.add_child(barra)
+	var letrero := Label3D.new()
+	letrero.text = "Enfermería"
+	letrero.pixel_size = 0.006
+	letrero.font_size = 48
+	letrero.outline_size = 12
+	letrero.modulate = Color(0.75, 1.0, 0.8)
+	letrero.position = Vector3(0.0, 2.45, 0.1)
+	letrero.visibility_range_end = 30.0
+	nodo.add_child(letrero)
+	var luz := OmniLight3D.new()
+	luz.light_color = CRUZ_VERDE
+	luz.light_energy = 1.6
+	luz.omni_range = 12.0
+	luz.position = Vector3(0.0, 3.2, 1.2)
+	luz.shadow_enabled = false
+	nodo.add_child(luz)
 
 
 # --- La torre de la antena ---

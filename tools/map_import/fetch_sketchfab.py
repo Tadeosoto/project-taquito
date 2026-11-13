@@ -126,6 +126,7 @@ MODELS = {
 	"armas/resortera": "7c00a1667b2c4413b4dcb24500f05892",          # Slingshot, 6k
 	"props/despachador_agua": "25bdfe807c8e437885ed3be6ec0d11d8",   # water dispenser, 724
 	"props/coladera": "bbf5c9aa04c24fbaba328728d955777d",           # Manhole, 72
+	"props/carretilla": "fdce753e4dc147fcbfa18e809dde7bf9",         # Lowpoly Wheelbarrow (la carretilla de Al medico)
 	"props/tinaco": "fb34a8ff0a04447e91a9ef1d793a192a",             # Rtp Tinaco, 424k (reducido)
 	"props/bano_portatil": "8083b3d2134f4e98a34d891fa7915dcc",      # Abandoned Toilet Cabin, 3.9k
 	# Defensa del tinaco (scripts/defensa/DecoracionDefensa.gd)
