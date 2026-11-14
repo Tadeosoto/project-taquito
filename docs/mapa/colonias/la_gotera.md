@@ -157,7 +157,7 @@ JJ pidió que la favela **se sienta favela y sea divertida de caminar**. Lo que 
 | `python3 tools/blender/mapa/variantes.py <colonia> [--semillas=..] [--usar=N]` | Varios trazados con su minimapa (~6 s cada uno), **sin Blender ni render**, para escoger semilla. `--usar=N` la fija en el `.json`. |
 | `recorrer_favela.gd -- --solo=callejones,cuevas,gente,noche` | Correr sólo unas pruebas en vez de la vuelta completa. |
 
-La semilla en uso es la **73**, escogida por JJ entre ocho minimapas (`capturas_favela/mapa_<semilla>.png`).
+La semilla en uso es la **73**, escogida por JJ entre ocho minimapas de `variantes.py`. Las imágenes no se guardan en el repo (se regeneran en ~6 s cada una, por omisión en `capturas_favela/`).
 
 ## Probar sin restricciones
 

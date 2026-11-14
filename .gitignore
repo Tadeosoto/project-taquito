@@ -48,3 +48,4 @@ tools/blender/cache/
 # Basura de correr Blender/Godot a mano
 nohup.out
 export_final.log
+capturas_favela/*.png
