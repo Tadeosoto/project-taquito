@@ -209,7 +209,7 @@ func _dibujar_zombis(centro: Vector2, limite: float) -> void:
 
 
 # Iconos del minimapa de la colonia: entradas de tunel (T), subidas a azotea (A), salidas a
-# otra escena (S) y el tinaco de la plaza (gota azul).
+# otra escena (S, o la inicial de la boca de la favela en "letra") y el tinaco de la plaza (gota azul).
 func _dibujar_iconos(centro: Vector2, limite: float) -> void:
 	for icono: Dictionary in _iconos:
 		var p := _a_pantalla(Vector2(float(icono.get("x", 0.0)), float(icono.get("z", 0.0))))
@@ -230,7 +230,7 @@ func _dibujar_iconos(centro: Vector2, limite: float) -> void:
 			"salida":
 				_marcas.draw_circle(q, 5.5, NEGRO)
 				_marcas.draw_circle(q, 4.3, OBJETIVO_COLOR)
-				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), "S",
+				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), String(icono.get("letra", "S")),
 					HORIZONTAL_ALIGNMENT_CENTER, 6.0, 8, NEGRO)
 			"tinaco":
 				_marcas.draw_circle(q, 6.0, NEGRO)

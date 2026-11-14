@@ -1088,27 +1088,6 @@ def escalinata(nombre, p):
 
 
 
-def rampa(nombre, p):
-    """Rampa lisa de concreto que sube `alto` m a lo largo de +x en `largo` m, `ancho` en z, con
-    sus muros de contencion. Sustituye a las escalinatas de la favela: los peatones no tropiezan
-    con los escalones y la colision sigue siendo una rampa (no se atora al subir)."""
-    k = Constructor(nombre)
-    largo, ancho, alto = p.get("largo", 1.6), p.get("ancho", 1.6), p.get("alto", 0.75)
-    w = ancho / 2
-    # Superficie inclinada y su remate plano de 0.8 m en la terraza de arriba
-    k.cara([(-0.15, 0.0, -w), (largo, alto, -w), (largo, alto, w), (-0.15, 0.0, w)], "concreto")
-    k.cara([(largo, alto, -w), (largo + 0.8, alto, -w), (largo + 0.8, alto, w), (largo, alto, w)], "concreto")
-    # Muros de contencion a los lados
-    for lado in (-1, 1):
-        k.caja((largo / 2, alto / 2 + 0.12, lado * (w + 0.12)), (largo, alto + 0.24, 0.24), "foto_mamposteria", choca=True)
-        k.caja((largo + 0.4, alto / 2 + 0.12, lado * (w + 0.12)), (0.8, alto + 0.24, 0.24), "foto_mamposteria", choca=True)
-    # La misma rampa de choque que la escalinata, para que el CharacterBody3D suba caminando
-    k.rampas.append([(-0.15, 0.0, -w), (-0.15, 0.0, w), (largo, alto, -w), (largo, alto, w),
-                     (largo + 0.8, alto, -w), (largo + 0.8, alto, w),
-                     (largo + 0.8, -0.2, -w), (largo + 0.8, -0.2, w), (-0.15, -0.2, -w), (-0.15, -0.2, w)])
-    return k
-
-
 def barda(nombre, p):
     """Barda de block (o de lamina) a lo largo de x, con murales pintados en sus dos caras:
     grafitis y propaganda (catalogos de textures/map/, kit.murales)."""
@@ -1161,9 +1140,48 @@ def _carro(k, x, z, giro, color, quemado=False, ladrillos=False, modelo=None):
     k.choques.append(((x, alto / 2, z), (ancho, alto, largo), giro))
 
 
+# Props de la libreria que pone una pieza (JJ, 2026-11-14: nada de cilindros y bolas de color liso).
+# `k.props_modelo`: (x, z, giro, pack, nodo, medida, y, choca, tumbada) en locales de la pieza;
+# colonia.py los lleva al mundo y exportar.py los suma a props_modelo.json (PropsColonia.gd).
+# `k.marcas_pieza`: (tipo, x, z, giro) que exportar.py vuelve marcas (el tambo de MapAlumbrado).
+LLANTA = "res://models/props/llanta/llanta.scn"          # Poly Haven, fetch_polyhaven.py
+LLANTA_MEDIDA = [0.62, 0.2]
+LLANTA_GRUESO = 0.17       # m que sube cada llanta acostada de la pila (su alto ya escalado)
+BOLSA = "res://models/props/bolsa_basura/bolsa_basura.scn"
+GALON = "res://models/objetos/galon_agua/galon_agua.scn"
+GALON_MEDIDA = [0.37, 0.6]  # el garrafon de 50 L mide 60 cm (JJ, 2026-11-14)
+CUBETA = ("tacos", "bucket", [0.35, 0.4])
+TINACO = ("res://models/props/tinaco/tinaco.scn", "Tinaco_3er_capa", [1.1, 1.25])  # uno de los tres, sin tapa
+
+
+def _prop(k, x, z, pack, medida, nodo="", giro=0.0, y=0.0, choca=False, tumbada=0.0):
+    if not hasattr(k, "props_modelo"):
+        k.props_modelo = []
+    k.props_modelo.append((x, z, giro, pack, nodo, medida, y, choca, tumbada))
+
+
+def _marca_pieza(k, tipo, x, z, giro=0.0):
+    if not hasattr(k, "marcas_pieza"):
+        k.marcas_pieza = []
+    k.marcas_pieza.append((tipo, x, z, giro))
+
+
+def _tambo(k, x, z, fuego=True):
+    """El tambo de fierro de MapAlumbrado (el de la defensa y el mapa viejo): con su fuego o
+    apagado (JJ, 2026-11-14). Colonia.gd le pone choque."""
+    _marca_pieza(k, "tambo_fuego" if fuego else "tambo", x, z)
+
+
+def _bolsa(k, x, z, semilla, y=0.0):
+    alto = 0.42 + (semilla * 37 % 11) / 100
+    _prop(k, x, z, BOLSA, [alto * 1.05, alto], giro=(semilla * 1.7) % math.tau, y=y)
+
+
 def _llantas(k, x, z, n):
+    """Pila de llantas viejas acostadas (el modelo de Poly Haven)."""
     for i in range(n):
-        k.cilindro((x, i * 0.25, z), 0.35, 0.24, "fierro", lados=8)
+        _prop(k, x + ((i * 3) % 5 - 2) * 0.02, z + ((i * 7) % 5 - 2) * 0.02, LLANTA, LLANTA_MEDIDA,
+              giro=i * 1.3, y=i * LLANTA_GRUESO, tumbada=math.pi / 2)
 
 
 # --- Adornos de calle de la favela (JJ, 2026-11-14): lo que la hace sentirse favela ---
@@ -1231,14 +1249,15 @@ def _lona_sombra(k, x, z, ancho, fondo, semilla, alto=2.6):
 
 
 def _fila_garrafones(k, x, z, dx, dz, n, semilla):
-    """La fila de garrafones y cubetas que esperan turno de agua, a lo largo de (dx, dz)."""
+    """La fila de garrafones y cubetas que esperan turno de agua, a lo largo de (dx, dz). El
+    garrafon de 50 L mide 60 cm con todo y cuello (JJ, 2026-11-14)."""
     for i in range(n):
-        px, pz = x + dx * i * 0.42, z + dz * i * 0.42
+        px, pz = x + dx * i * 0.46, z + dz * i * 0.46
+        giro = ((semilla + i) * 2.3) % math.tau
         if (semilla + i) % 5 == 0:
-            k.cilindro((px, 0.0, pz), 0.17, 0.33, ("lona_rojo", "lona_amarillo", "lona_azul")[(semilla + i) % 3], lados=6)
-            continue
-        k.cilindro((px, 0.0, pz), 0.14, 0.38, "azul_gela", lados=6)
-        k.cilindro((px, 0.38, pz), 0.14, 0.1, "azul_gela", lados=6, radio_arriba=0.06)
+            _prop(k, px, pz, CUBETA[0], CUBETA[2], CUBETA[1], giro=giro)
+        else:
+            _prop(k, px, pz, GALON, GALON_MEDIDA, giro=giro)
 
 
 def lote(nombre, p):
@@ -1276,7 +1295,7 @@ def lote(nombre, p):
         _llantas(k, hx - 0.8, hz - 1.2, 4)
         _llantas(k, hx - 1.6, hz - 1.0, 3)
         for i in range(2):
-            k.cilindro((-hx + 0.8 + i * 0.7, 0, hz - 1.0), 0.3, 0.9, "azul_gela", lados=8, choca=True)
+            _tambo(k, -hx + 0.8 + i * 0.7, hz - 1.0, fuego=False)
     elif variante == "juegos":
         # Columpios (marco con dos asientos), resbaladilla y sube y baja, todo oxidado
         for sx in (-1.6, 1.6):
@@ -1323,9 +1342,10 @@ def lote(nombre, p):
         k.cara([(-hx, 0.03, hz), (hx, 0.03, hz), (hx, 0.03, -hz), (-hx, 0.03, -hz)], "banqueta")
         # Pared baja de cal en un lado, sin cerrar la plaza
         k.caja((-hx + 0.12, 0.45, 0), (0.25, 0.9, ancho - 0.6), "blanco_cal", choca=True)
-        # Tambos de agua junto a la pared (JJ, 2026-11-14: las macetas con la bola verde fuera)
+        # Tambos de agua junto a la pared (JJ, 2026-11-14: las macetas con la bola verde fuera): el
+        # tambo de MapAlumbrado apagado, que de estos se toma agua
         for i, x in enumerate((-hx / 2, hx / 2)):
-            k.cilindro((x, 0.0, -hz + 0.8), 0.32, 0.9, TAMBOS[(semilla + i) % len(TAMBOS)], lados=8, choca=True)
+            _tambo(k, x, -hz + 0.8, fuego=False)
             _llantas(k, x + 0.9, -hz + 0.8, 2 + (semilla + i) % 2)
         # La plaza quedaba pelona: papel picado cruzado, una lona de sombra en una esquina y la
         # fila de garrafones y cubetas que esperan su turno de agua (JJ, 2026-11-14)
@@ -1347,12 +1367,12 @@ def lote(nombre, p):
             k.caja((-hx + 1.6, 0.42, z), (0.55, 0.1, 1.8), "foto_madera", choca=True)
             for dz in (-0.8, 0.8):
                 k.caja((-hx + 1.6, 0.2, z + dz), (0.08, 0.4, 0.08), "fierro")
-        # En las esquinas, tambos y llantas pintadas (antes macetas con una bola verde: JJ las quito)
+        # En las esquinas, tambos con fuego y llantas (antes macetas con una bola verde: JJ las quito)
         for i, x in enumerate((-hx + 1.0, hx - 1.0)):
             for j, z in enumerate((-hz + 1.0, hz - 1.0)):
                 r = semilla + i * 3 + j
                 if r % 2:
-                    k.cilindro((x, 0.0, z), 0.32, 0.9, TAMBOS[r % len(TAMBOS)], lados=8, choca=True)
+                    _tambo(k, x, z)
                 else:
                     _llantas(k, x, z, 2 + r % 3)
         # Pared baja de cal en un lado, sin cerrar
@@ -1361,29 +1381,24 @@ def lote(nombre, p):
         _papel_picado(k, (-hx + 1.0, 4.6, -hz + 1.0), (hx - 1.0, 4.2, hz - 1.0), semilla + 3)
         _lona_sombra(k, -hx + 3.6, -hz + 3.6, 3.6, 3.0, semilla + 5)
     elif variante == "fonda":
-        # Lona amarilla sobre tres mesas con sillas de plastico rojas y el carrito de tacos al frente
+        # Lona amarilla sobre sus cuatro postes. Las mesas y sillas son las de la taqueria
+        # (marcas "mesa" de favela.py, Mesa.gd en Godot): las de cajas rojas y el carrito de cajas
+        # blancas se veian como cubos de colores (JJ, 2026-11-14)
         for x in (-hx + 0.4, hx - 0.4):
             for z in (-hz + 1.0, hz - 1.5):
                 k.caja((x, 1.3, z), (0.08, 2.6, 0.08), "fierro")
         k.caja((0, 2.6, -0.25), (ancho - 0.6, 0.05, fondo - 2.5), "lona_amarillo")
-        for z in (-hz + 2.5, 0.0, hz - 3.0):
-            k.caja((0, 0.72, z), (1.2, 0.05, 0.8), "blanco_cal", choca=True)
-            k.caja((0, 0.36, z), (0.08, 0.7, 0.08), "blanco_cal")
-            for dx in (-0.85, 0.85):
-                k.caja((dx, 0.22, z), (0.42, 0.44, 0.42), "rojo")
-                k.caja((dx * 1.25, 0.65, z), (0.06, 0.45, 0.42), "rojo")
-        k.caja((hx - 1.2, 0.6, hz - 0.8), (1.6, 1.2, 0.8), "blanco_cal", choca=True)
-        k.caja((hx - 1.2, 1.9, hz - 0.8), (1.8, 0.05, 1.0), "lona_rojo")
-        k.cilindro((hx - 1.2, 1.2, hz - 0.8), 0.35, 0.05, "fierro", lados=8)
     else:
-        # Basura: bolsas negras, llantas viejas, un colchon y escombro
+        # Basura: bolsas negras y llantas viejas (modelos de Poly Haven, props de PropsColonia)
+        # Las bolsas amontonadas contra la pared del fondo (JJ, 2026-11-14: no regadas): tres en el
+        # piso y dos encima
+        x0 = -hx + 1.2 + (semilla % int(max(ancho - 3.5, 1) * 10)) / 10
         for i in range(5):
-            x = -hx + 1.0 + (semilla * (i + 3) % int(max(ancho - 2, 1) * 10)) / 10
-            z = -hz + 1.0 + (semilla * (i + 7) % int(max(fondo - 2, 1) * 10)) / 10
-            k.esfera((x, 0.25, z), 0.35, "hueco", seg=6, anillos=4, aplastar=0.7)
+            arriba = i >= 3
+            x = x0 + ((i - 3) * 0.42 + 0.21 if arriba else i * 0.42)
+            _bolsa(k, x, -hz + (0.2 if arriba else 0.24), semilla + i, y=0.28 if arriba else 0.0)
         _llantas(k, hx - 1.0, -hz + 1.5, 2)
-        k.caja((-hx + 2.0, 0.12, -hz + 2.5), (1.4, 0.24, 1.9), "blanco_cal", 0.3)
-        k.caja((0.5, 0.3, -hz + 1.2), (2.0, 0.6, 1.2), "foto_block", 0.6)
+        # (el colchon y el bloque de cajas lisas se quitaron: JJ, 2026-11-14)
     return k
 
 
@@ -1450,7 +1465,7 @@ def patio(nombre, p):
     k.caja((-hx + 0.8, 0.93, -hz + 0.6), (1.2, 0.06, 0.6), "fierro")
     # Tinaco en su base de block
     k.caja((hx - 1.0, 0.6, -hz + 1.0), (1.4, 1.2, 1.4), "foto_block", choca=True)
-    k.cilindro((hx - 1.0, 1.2, -hz + 1.0), 0.6, 1.2, "tinaco", lados=10)
+    _prop(k, hx - 1.0, -hz + 1.0, TINACO[0], TINACO[2], TINACO[1], giro=0.4, y=1.2)
     # Tendederos: dos postes, dos lazos que cuelgan y ropa con forma
     semilla = _semilla_nombre(nombre)
     for x in (-hx + 0.4, hx - 0.4):
@@ -1470,10 +1485,10 @@ def patio(nombre, p):
             x = x0 + (x1 - x0) * t
             prenda(k, (x, 2.2 - cuelga * 4 * t * (1 - t), z), 0.0,
                    ROPA_TENDIDA[(i + j * 2 + semilla) % len(ROPA_TENDIDA)], semilla + i * 7 + j * 31)
-    # Cubetas y una silla de plastico
-    k.cilindro((0.5, 0.0, -hz + 0.6), 0.18, 0.35, "lona_rojo", lados=6)
-    k.cilindro((1.0, 0.0, -hz + 0.5), 0.18, 0.35, "lona_amarillo", lados=6)
-    k.caja((hx - 1.2, 0.22, hz - 1.0), (0.42, 0.44, 0.42), "rojo")
+    # Cubetas (la de la libreria). La silla es la plegable (exportar.sillas_patios): la de cajas
+    # rojas se veia como un cubo de color (JJ, 2026-11-14)
+    _prop(k, 0.5, -hz + 0.6, CUBETA[0], CUBETA[2], CUBETA[1], giro=0.7)
+    _prop(k, 1.0, -hz + 0.5, CUBETA[0], CUBETA[2], CUBETA[1], giro=2.1)
     return k
 
 

@@ -136,9 +136,10 @@ func _armar_reserva() -> void:
 		if CargaCuadro.hay():
 			var inicio := Time.get_ticks_usec()
 			_garrafonero = _armar_caminante(CLIP_CARGA)
-			var galon: Node3D = GALON.crear_modelo(0.4)
+			# El garrafon de 50 L mide 60 cm (JJ, 2026-11-14: a 0.4 m se veia chico); va centrado
+			var galon: Node3D = GALON.crear_modelo(0.6)
 			if galon:
-				galon.position = Vector3(0.0, 0.65, -0.55)  # como Player.CARGA_LUGAR, desde los pies
+				galon.position = Vector3(0.0, 0.75, -0.55)  # como Player.CARGA_LUGAR, desde los pies
 				_garrafonero["nodo"].add_child(galon)
 			_libres.append(_garrafonero)
 			CargaCuadro.gastar(inicio)

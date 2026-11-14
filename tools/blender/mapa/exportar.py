@@ -46,6 +46,54 @@ def banquetas(datos):
     exec(open(os.path.join(os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito"), "tools", "blender", "mapa", "caminos.py"), encoding="utf-8").read(), k)
     return k["banquetas"](datos)
 
+# Las fondas (lote "fonda") llevan las mesas de la taqueria (Mesa.gd: cubierta roja, sillas
+# plegables, salseros) como marcas "mesa", y cada patio una silla plegable de la libreria como
+# prop: las de cajas de piezas.py se veian como cubos de colores (JJ, 2026-11-14)
+MESAS_FONDA_PASO = 2.0                         # m entre mesas
+MESA_SILLAS = [15, 15, 7, 11, 13, 14, 6, 9]    # flags de Mesa.sillas: atras, izquierda, derecha, adelante
+SILLA_PATIO = ["silla", "", [0.5, 0.85]]
+
+
+def _en_mundo(p, lx, lz):
+    c, s = math.cos(p.get("rot", 0.0)), math.sin(p.get("rot", 0.0))
+    return p["x"] + lx * c + lz * s, p["z"] - lx * s + lz * c
+
+
+def mesas_fondas(datos):
+    """Una fila de una a tres marcas "mesa" bajo la lona de cada fonda (piezas.lote)."""
+    import random
+    marcas = []
+    for p in datos.get("piezas", []):
+        if p.get("tipo") != "lote" or p.get("variante") != "fonda":
+            continue
+        rng = random.Random(p["nombre"])
+        ancho = p.get("tam", [8.0, 12.0])[0]
+        n = max(1, min(3, int((ancho - 1.6) / MESAS_FONDA_PASO)))
+        for i in range(n):
+            lx = (i - (n - 1) / 2.0) * MESAS_FONDA_PASO + rng.uniform(-0.15, 0.15)
+            x, z = _en_mundo(p, lx, -0.25 + rng.uniform(-0.2, 0.2))     # bajo el centro de la lona
+            marcas.append({"nombre": "Mesa_%s_%d" % (p["nombre"], i), "tipo": "mesa",
+                           "x": round(x, 2), "z": round(z, 2), "y": round(float(p.get("y", 0.0)), 2),
+                           "rot": round(p.get("rot", 0.0) + rng.uniform(-0.25, 0.25), 3),
+                           "semilla": rng.randint(0, 999), "sillas": rng.choice(MESA_SILLAS)})
+    return marcas
+
+
+def sillas_patios(datos):
+    """La silla plegable de cada patio (piezas.patio), donde iba la de cajas: [x, z, giro, pack,
+    nodo, y, choca, medida] como los props de PropsColonia."""
+    import random
+    props = []
+    for p in datos.get("piezas", []):
+        if p.get("tipo") != "patio" or not p.get("tam"):
+            continue
+        rng = random.Random(p["nombre"])
+        x, z = _en_mundo(p, p["tam"][0] / 2.0 - 1.2, p["tam"][1] / 2.0 - 1.0)
+        props.append([round(x, 2), round(z, 2), round(p.get("rot", 0.0) + math.pi + rng.uniform(-0.6, 0.6), 3),
+                      SILLA_PATIO[0], SILLA_PATIO[1], round(float(p.get("y", 0.0)), 2), False, SILLA_PATIO[2]])
+    return props
+
+
 # Frente a una puerta o un negocio el tianguis deja un hueco de 2 * PUESTO_LIBRE m de ese lado
 PUESTO_LIBRE = 2.5
 
@@ -159,7 +207,9 @@ def exportar(nombre):
     # "ambiente": niebla, lejos (camara) y gente de una colonia cerrada (MapaColonia._ambiente)
     if datos.get("ambiente"):
         salida["ambiente"] = datos["ambiente"]
-    salida["marcas"] = datos.get("marcas", []) + focos + botin + placas + tianguis
+    # Las marcas que ponen las piezas (el tambo de MapAlumbrado de las plazas: piezas._tambo)
+    de_piezas = [dict(m, nombre="%s_p%d" % (m["tipo"], i)) for i, m in enumerate(json.loads(sc.get("marcas_pieza", "[]")))]
+    salida["marcas"] = datos.get("marcas", []) + focos + botin + placas + tianguis + mesas_fondas(datos) + de_piezas
     guardar_json(os.path.join(datos_dir, "marcas.json"), salida)
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", []) + datos.get("puestos_calle", [])})
     # Los arboles de Sketchfab (tipos 1 a 3 de kit.arbol_tipo): [x, z, altura, ancho de copa, nombre]
@@ -167,10 +217,13 @@ def exportar(nombre):
     modelo = [[p["x"], p["z"], round((p.get("alto", 4.2) + p.get("radio", 2.0)) * 1.5, 1), round(p.get("radio", 2.0) * 4.6, 1), extra[arbol_tipo(p["nombre"]) - 1]]
               for p in datos.get("piezas", []) if p["tipo"] == "ficus" and arbol_tipo(p["nombre"]) >= 1]
     guardar_json(os.path.join(datos_dir, "arboles_modelo.json"), {"arboles": modelo})
-    # Props de la libreria puestos por el generador (las cuevas de la favela): [x, z, giro, pack, nodo, y, choca];
-    # los pone scripts/mapa/PropsColonia.gd
-    if datos.get("props"):
-        guardar_json(os.path.join(datos_dir, "props_modelo.json"), {"props": datos["props"]})
+    # Props de la libreria puestos por el generador (las cuevas de la favela), la silla de cada
+    # patio y los que ponen las piezas y la basura de los callejones (colonia.PROPS_PIEZA: llantas,
+    # bolsas, garrafones, cubetas): [x, z, giro, pack, nodo, y, choca, medida(, tumbada)]; los pone
+    # scripts/mapa/PropsColonia.gd
+    props = datos.get("props", []) + sillas_patios(datos) + json.loads(sc.get("props_pieza", "[]"))
+    if props:
+        guardar_json(os.path.join(datos_dir, "props_modelo.json"), {"props": props})
     # Los carros de Sketchfab (models/vehiculos): [x, z, giro, modelo, estado, y]; los dibuja scripts/mapa/CarrosColonia.gd
     carros = [c for c in json.loads(sc.get("carros_modelo", "[]"))
               if not any(abs(c[0] - ox) < 0.05 and abs(c[1] - oz) < 0.05 for ox, oz in CARROS_OMITIDOS.get(nombre, []))]

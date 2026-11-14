@@ -40,7 +40,9 @@
 			"z": -311.94,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [738.87, -311.75]
+			"llegada": [738.87, -311.75],
+			"letra": "F",
+			"nombre_boca": "La Fuga"
 		},
 		{
 			"nombre": "Guardia_privada_fuga",
@@ -61,7 +63,9 @@
 			"z": -272.1,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [735.32, -271.91]
+			"llegada": [735.32, -271.91],
+			"letra": "R",
+			"nombre_boca": "Roble Quebrado"
 		},
 		{
 			"nombre": "Guardia_roble_quebrado",
@@ -82,7 +86,9 @@
 			"z": -231.56,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [739.58, -231.37]
+			"llegada": [739.58, -231.37],
+			"letra": "P",
+			"nombre_boca": "La Parota"
 		},
 		{
 			"nombre": "Guardia_parota",
@@ -103,7 +109,9 @@
 			"z": -183.75,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [735.31, -183.56]
+			"llegada": [735.31, -183.56],
+			"letra": "C",
+			"nombre_boca": "Caobilla"
 		},
 		{
 			"nombre": "Guardia_caobilla",
@@ -124,7 +132,9 @@
 			"z": -143.21,
 			"rot": 1.5708,
 			"texto": "Salir al tianguis",
-			"llegada": [739.57, -143.02]
+			"llegada": [739.57, -143.02],
+			"letra": "N",
+			"nombre_boca": "Sin Número"
 		},
 		{
 			"nombre": "Guardia_sin_numero",
@@ -2205,7 +2215,7 @@
 			"z": -298.02,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": false
+			"parpadea": true
 		},
 		{
 			"nombre": "Garrafones_Tunel",
@@ -2224,7 +2234,7 @@
 			"z": -136.51,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": true
+			"parpadea": false
 		},
 		{
 			"nombre": "Foco_Abandonada_19_22_Cuarto0",
@@ -2234,7 +2244,7 @@
 			"z": -159.25,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": true
+			"parpadea": false
 		},
 		{
 			"nombre": "Foco_Abandonada_20_1_Cuarto0",
@@ -2244,7 +2254,7 @@
 			"z": -326.06,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": false
+			"parpadea": true
 		},
 		{
 			"nombre": "Foco_Abandonada_22_2_Cuarto0",
@@ -2284,7 +2294,7 @@
 			"z": -306.95,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": false
+			"parpadea": true
 		},
 		{
 			"nombre": "Puerta_Tunel_armas_tunel",
@@ -2306,7 +2316,7 @@
 			"z": -296.59,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": true
+			"parpadea": false
 		},
 		{
 			"nombre": "Foco_Abandonada_18_28_Cuarto0",
@@ -2356,7 +2366,7 @@
 			"z": -113.18,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": false
+			"parpadea": true
 		},
 		{
 			"nombre": "Foco_Abandonada_17_26_Cuarto0",
@@ -2366,7 +2376,7 @@
 			"z": -129.94,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": true
+			"parpadea": false
 		},
 		{
 			"nombre": "Foco_Abandonada_23_21_Cuarto0",
@@ -2376,7 +2386,7 @@
 			"z": -165.52,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": false
+			"parpadea": true
 		},
 		{
 			"nombre": "Foco_Abandonada_18_27_Cuarto0",
@@ -2386,7 +2396,7 @@
 			"z": -120.5,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": true
+			"parpadea": false
 		},
 		{
 			"nombre": "Foco_Abandonada_4_14_Cuarto0",
@@ -2396,7 +2406,7 @@
 			"z": -232.44,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": true
+			"parpadea": false
 		},
 		{
 			"nombre": "Foco_Abandonada_7_24_Cuarto0",
@@ -2416,7 +2426,7 @@
 			"z": -308.09,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": false
+			"parpadea": true
 		},
 		{
 			"nombre": "Foco_Abandonada_3_14_Cuarto0",
@@ -2436,7 +2446,7 @@
 			"z": -307.37,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": false
+			"parpadea": true
 		},
 		{
 			"nombre": "Foco_Abandonada_4_22_Cuarto0",
@@ -2446,7 +2456,7 @@
 			"z": -171.5,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": true
+			"parpadea": false
 		},
 		{
 			"nombre": "Foco_Abandonada_10_22_Cuarto0",
@@ -2466,7 +2476,7 @@
 			"z": -167.14,
 			"y": 2.2,
 			"siempre": true,
-			"parpadea": true
+			"parpadea": false
 		},
 		{
 			"nombre": "Foco_Abandonada_20_22_Cuarto0",
@@ -2507,6 +2517,564 @@
 			"y": 2.2,
 			"siempre": true,
 			"parpadea": true
+		},
+		{
+			"nombre": "Tambo_Callejon_2",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 894.03,
+			"z": -320.98,
+			"y": 0.0,
+			"rot": 0.073
+		},
+		{
+			"nombre": "Tambo_Callejon_4",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 799.72,
+			"z": -323.37,
+			"y": 0.0,
+			"rot": -1.247
+		},
+		{
+			"nombre": "Tambo_Callejon_5",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 820.82,
+			"z": -321.45,
+			"y": 0.0,
+			"rot": -1.533
+		},
+		{
+			"nombre": "Tambo_Callejon_7",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 866.14,
+			"z": -317.32,
+			"y": 0.0,
+			"rot": -1.885
+		},
+		{
+			"nombre": "Tambo_Callejon_9",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 748.21,
+			"z": -319.97,
+			"y": 0.0,
+			"rot": 1.609
+		},
+		{
+			"nombre": "Tambo_Callejon_16",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 841.97,
+			"z": -311.36,
+			"y": 0.0,
+			"rot": 1.233
+		},
+		{
+			"nombre": "Tambo_Callejon_24",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 766.32,
+			"z": -302.3,
+			"y": 0.0,
+			"rot": 2.559
+		},
+		{
+			"nombre": "Tambo_Callejon_28",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 863.85,
+			"z": -291.66,
+			"y": 0.0,
+			"rot": -1.752
+		},
+		{
+			"nombre": "Tambo_Callejon_30",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 745.89,
+			"z": -293.95,
+			"y": 0.0,
+			"rot": -0.144
+		},
+		{
+			"nombre": "Tambo_Callejon_33",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 820.3,
+			"z": -289.31,
+			"y": 0.0,
+			"rot": -1.637
+		},
+		{
+			"nombre": "Tambo_Callejon_39",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 776.45,
+			"z": -283.26,
+			"y": 0.0,
+			"rot": -0.848
+		},
+		{
+			"nombre": "Tambo_Callejon_51",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 838.43,
+			"z": -271.67,
+			"y": 0.0,
+			"rot": 1.9
+		},
+		{
+			"nombre": "Tambo_Callejon_53",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 877.34,
+			"z": -266.4,
+			"y": 0.0,
+			"rot": -1.219
+		},
+		{
+			"nombre": "Tambo_Callejon_55",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 900.79,
+			"z": -264.24,
+			"y": 0.0,
+			"rot": 1.05
+		},
+		{
+			"nombre": "Tambo_Callejon_56",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 735.97,
+			"z": -271.0,
+			"y": 0.0,
+			"rot": 0.013
+		},
+		{
+			"nombre": "Tambo_Callejon_59",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 806.46,
+			"z": -266.49,
+			"y": 0.0,
+			"rot": 1.512
+		},
+		{
+			"nombre": "Tambo_Callejon_66",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 778.24,
+			"z": -259.26,
+			"y": 0.0,
+			"rot": -1.629
+		},
+		{
+			"nombre": "Tambo_Callejon_68",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 827.46,
+			"z": -254.73,
+			"y": 0.0,
+			"rot": -1.603
+		},
+		{
+			"nombre": "Tambo_Callejon_70",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 860.44,
+			"z": -253.49,
+			"y": 0.0,
+			"rot": 1.128
+		},
+		{
+			"nombre": "Tambo_Callejon_80",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 805.91,
+			"z": -242.67,
+			"y": 0.0,
+			"rot": -0.932
+		},
+		{
+			"nombre": "Tambo_Callejon_85",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 786.26,
+			"z": -234.35,
+			"y": 0.0,
+			"rot": 0.413
+		},
+		{
+			"nombre": "Tambo_Callejon_87",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 859.1,
+			"z": -229.64,
+			"y": 0.0,
+			"rot": 1.123
+		},
+		{
+			"nombre": "Tambo_Callejon_89",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 893.49,
+			"z": -226.62,
+			"y": 0.0,
+			"rot": -1.722
+		},
+		{
+			"nombre": "Tambo_Callejon_98",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 874.1,
+			"z": -212.31,
+			"y": 0.0,
+			"rot": 1.706
+		},
+		{
+			"nombre": "Tambo_Callejon_99",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 762.42,
+			"z": -214.38,
+			"y": 0.0,
+			"rot": -0.519
+		},
+		{
+			"nombre": "Tambo_Callejon_107",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 824.22,
+			"z": -200.73,
+			"y": 0.0,
+			"rot": -1.484
+		},
+		{
+			"nombre": "Tambo_Callejon_110",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 772.7,
+			"z": -197.14,
+			"y": 0.0,
+			"rot": 0.861
+		},
+		{
+			"nombre": "Tambo_Callejon_111",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 799.87,
+			"z": -192.73,
+			"y": 0.0,
+			"rot": 1.187
+		},
+		{
+			"nombre": "Tambo_Callejon_114",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 889.93,
+			"z": -186.75,
+			"y": 0.0,
+			"rot": -2.906
+		},
+		{
+			"nombre": "Tambo_Callejon_120",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 842.33,
+			"z": -182.96,
+			"y": 0.0,
+			"rot": -0.426
+		},
+		{
+			"nombre": "Tambo_Callejon_121",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 863.44,
+			"z": -181.17,
+			"y": 0.0,
+			"rot": -1.842
+		},
+		{
+			"nombre": "Tambo_Callejon_126",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 759.39,
+			"z": -180.4,
+			"y": 0.0,
+			"rot": 0.426
+		},
+		{
+			"nombre": "Tambo_Callejon_128",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 782.84,
+			"z": -178.32,
+			"y": 0.0,
+			"rot": 2.714
+		},
+		{
+			"nombre": "Tambo_Callejon_138",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 821.2,
+			"z": -166.9,
+			"y": 0.0,
+			"rot": -1.114
+		},
+		{
+			"nombre": "Tambo_Callejon_148",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 875.36,
+			"z": -155.88,
+			"y": 0.0,
+			"rot": 1.254
+		},
+		{
+			"nombre": "Tambo_Callejon_149",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 757.44,
+			"z": -158.52,
+			"y": 0.0,
+			"rot": 1.046
+		},
+		{
+			"nombre": "Tambo_Callejon_150",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 779.93,
+			"z": -154.61,
+			"y": 0.0,
+			"rot": 2.206
+		},
+		{
+			"nombre": "Tambo_Callejon_160",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 864.41,
+			"z": -139.05,
+			"y": 0.0,
+			"rot": 2.469
+		},
+		{
+			"nombre": "Tambo_Callejon_165",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 795.09,
+			"z": -139.12,
+			"y": 0.0,
+			"rot": -0.49
+		},
+		{
+			"nombre": "Tambo_Callejon_169",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 882.45,
+			"z": -129.4,
+			"y": 0.0,
+			"rot": 0.523
+		},
+		{
+			"nombre": "Tambo_Callejon_170",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 747.49,
+			"z": -135.31,
+			"y": 0.0,
+			"rot": 2.56
+		},
+		{
+			"nombre": "Tambo_Callejon_172",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 770.94,
+			"z": -133.34,
+			"y": 0.0,
+			"rot": -0.306
+		},
+		{
+			"nombre": "Tambo_Callejon_175",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 848.9,
+			"z": -124.23,
+			"y": 0.0,
+			"rot": -1.559
+		},
+		{
+			"nombre": "Tambo_Callejon_186",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 759.95,
+			"z": -116.1,
+			"y": 0.0,
+			"rot": 1.385
+		},
+		{
+			"nombre": "Tambo_Callejon_188",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 791.22,
+			"z": -113.31,
+			"y": 0.0,
+			"rot": -0.553
+		},
+		{
+			"nombre": "Tambo_Callejon_208",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 901.15,
+			"z": -301.29,
+			"y": 0.0,
+			"rot": -1.898
+		},
+		{
+			"nombre": "Tambo_Callejon_255",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 753.81,
+			"z": -260.62,
+			"y": 0.0,
+			"rot": 0.186
+		},
+		{
+			"nombre": "Tambo_Callejon_270",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 743.82,
+			"z": -238.21,
+			"y": 0.0,
+			"rot": 2.896
+		},
+		{
+			"nombre": "Tambo_Callejon_284",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 839.33,
+			"z": -226.49,
+			"y": 0.0,
+			"rot": -1.403
+		},
+		{
+			"nombre": "Tambo_Callejon_298",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 898.4,
+			"z": -205.15,
+			"y": 0.0,
+			"rot": -1.638
+		},
+		{
+			"nombre": "Tambo_Callejon_334",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 903.18,
+			"z": -168.58,
+			"y": 0.0,
+			"rot": -0.479
+		},
+		{
+			"nombre": "Tambo_Callejon_359",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 900.64,
+			"z": -140.7,
+			"y": 0.0,
+			"rot": -1.077
+		},
+		{
+			"nombre": "Tambo_Callejon_391",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 898.63,
+			"z": -116.78,
+			"y": 0.0,
+			"rot": -0.808
+		},
+		{
+			"nombre": "Letrero_boca_privada_fuga",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca de\nla Fuga",
+			"x": 735.86,
+			"z": -312.02,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_boca_roble_quebrado",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca del\nRoble Quebrado",
+			"x": 732.31,
+			"z": -272.17,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_boca_parota",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca de\nla Parota",
+			"x": 736.57,
+			"z": -231.64,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_boca_caobilla",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca de\nla Caobilla",
+			"x": 732.3,
+			"z": -183.83,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_boca_sin_numero",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca\nSin Número",
+			"x": 736.56,
+			"z": -143.29,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_plaza_tinaco_0",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Plaza del Tinaco",
+			"x": 822.78,
+			"z": -223.95,
+			"y": 0.5,
+			"rot": 1.4818,
+			"tam": 0.004,
+			"color": [0.93, 0.9, 0.8],
+			"lejos": 35.0
+		},
+		{
+			"nombre": "Letrero_plaza_tinaco_1",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Plaza del Tinaco",
+			"x": 822.47,
+			"z": -223.98,
+			"y": 0.5,
+			"rot": -1.6598,
+			"tam": 0.004,
+			"color": [0.93, 0.9, 0.8],
+			"lejos": 35.0
 		},
 		{
 			"nombre": "Foco_0",
@@ -3424,6 +3992,100 @@
 			"x": 798.77,
 			"z": -174.73,
 			"y": 2.2
+		},
+		{
+			"nombre": "Mesa_Plazuela_3_5_0",
+			"tipo": "mesa",
+			"x": 754.35,
+			"z": -306.52,
+			"y": 0.0,
+			"rot": -0.018,
+			"semilla": 469,
+			"sillas": 7
+		},
+		{
+			"nombre": "Mesa_Plazuela_3_5_1",
+			"tipo": "mesa",
+			"x": 756.35,
+			"z": -306.56,
+			"y": 0.0,
+			"rot": -0.118,
+			"semilla": 505,
+			"sillas": 15
+		},
+		{
+			"nombre": "Mesa_Plazuela_7_14_0",
+			"tipo": "mesa",
+			"x": 780.05,
+			"z": -232.61,
+			"y": 0.0,
+			"rot": 0.118,
+			"semilla": 168,
+			"sillas": 14
+		},
+		{
+			"tipo": "tambo",
+			"x": 826.96,
+			"z": -230.65,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_p0"
+		},
+		{
+			"tipo": "tambo",
+			"x": 834.63,
+			"z": -229.97,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_p1"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 814.36,
+			"z": -121.44,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p2"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 828.92,
+			"z": -133.9,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p3"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 775.3,
+			"z": -301.62,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p4"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 789.86,
+			"z": -314.08,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p5"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 876.17,
+			"z": -196.24,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p6"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 890.73,
+			"z": -208.7,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p7"
 		}
 	]
 }

@@ -39,6 +39,8 @@
 
 ## Props de calle (`models/props/`, Sketchfab)
 
+- [Old Tyre](https://polyhaven.com/a/old_tyre) de MP y [Trashbag](https://polyhaven.com/a/trashbag) de Benny Weimer, de [Poly Haven](https://polyhaven.com) (CC0), reducidos y con la textura a 256 px (`models/props/llanta/`, `models/props/bolsa_basura/`, `tools/map_import/fetch_polyhaven.py`).
+
 - [Señal Alto](https://sketchfab.com/3d-models/d2de3788e5f24c3e8189001d2a1f6e92) de VictorGram, licencia CC Attribution (`models/props/alto/`).
 - [water dispenser](https://sketchfab.com/3d-models/25bdfe807c8e437885ed3be6ec0d11d8) de ChoboiAssets, licencia CC Attribution (`models/props/despachador_agua/`).
 - [Manhole](https://sketchfab.com/3d-models/bbf5c9aa04c24fbaba328728d955777d) de DJMaesen, licencia CC Attribution (`models/props/coladera/`).

@@ -46,6 +46,8 @@ const COLORES := [
 # (en filas apretadas), "suelo" al pie del puesto, "colgado" del tubo de enfrente, "atras"
 # contra la espalda del puesto.
 const O := "res://models/objetos/"
+# El garrafon azul de 50 L mide 60 cm de alto (JJ, 2026-11-14: a 0.4 m se veia chico)
+const GALON_ALTO := 0.6
 const GIROS := {
 	"fruta": {"sin_mesa": true, "suelo": [[O + "costal_chiles/costal_chiles.tscn", 0.6]]},
 	"verdura": {"mesa": [[O + "costal_chiles/costal_chiles.tscn", 0.45], ["tacos:Onion_Coriander", 0.3],
@@ -54,7 +56,7 @@ const GIROS := {
 	"abarrotes": {"mesa": [[O + "takis/takis.scn", 0.2], [O + "gansito/gansito.scn", 0.12],
 			[O + "refrescos/refrescos.scn", 0.3],
 			[O + "mexican_starter_pack/mazapan.scn", 0.08], ["tacos:Soda_001", 0.3]],
-		"suelo": [["tacos:Soda_Box_01", 0.75], [O + "galon_agua/galon_agua.scn", 0.4]],
+		"suelo": [["tacos:Soda_Box_01", 0.75], [O + "galon_agua/galon_agua.scn", GALON_ALTO]],
 		"atras": [["tacos:Refrigerator", 1.8]]},
 	# Los puestos sueltos del mapa, debajo de la carpa: el carrito del tejuino (el prefab "puesto"
 	# de MapPuntos) y el carrito de tacos (Mostrador estilo puesto, sin su toldo)
@@ -68,7 +70,7 @@ const GIROS := {
 		"atras": [["estante:", 1.7]]},
 	"limpieza": {"mesa": [[O + "cloralex/cloralex.scn", 0.3], [O + "vaporub/vaporub.scn", 0.07],
 			[O + "trapo/trapo.scn", 0.3]],
-		"suelo": [[O + "galon_agua/galon_agua.scn", 0.4], ["tacos:bucket", 0.4]]},
+		"suelo": [[O + "galon_agua/galon_agua.scn", GALON_ALTO], ["tacos:bucket", 0.4]]},
 	"tortillas": {"mesa": [[O + "tortillas/tortillas.tscn", 0.3], ["tacos:plastic_bag_P", 0.4], ["tacos:Napkins", 0.25]],
 		"suelo": [["tacos:bucket", 0.4]]},
 	"ropa": {"mesa": [], "colgado": [[O + "mexican_starter_pack/mochila.scn", 0.35]], "ropa": true},
@@ -78,8 +80,8 @@ const GIROS := {
 			["res://models/armas/pistola_colt/pistola_colt.scn", 0.25]],
 		"colgado": [["res://models/armas/machete/machete.scn", 0.6], ["res://models/armas/bate/bate.scn", 0.75]],
 		"atras": [["estante:", 1.7]]},
-	"agua": {"mesa": [[O + "botella/botella.scn", 0.25], [O + "galon_agua/galon_agua.scn", 0.4]],
-		"suelo": [[O + "galon_agua/galon_agua.scn", 0.4], [O + "galon_agua/galon_agua.scn", 0.4], ["tacos:bucket", 0.4]],
+	"agua": {"mesa": [[O + "botella/botella.scn", 0.25], [O + "galon_agua/galon_agua.scn", GALON_ALTO]],
+		"suelo": [[O + "galon_agua/galon_agua.scn", GALON_ALTO], [O + "galon_agua/galon_agua.scn", GALON_ALTO], ["tacos:bucket", 0.4]],
 		"atras": [["estante:", 1.7]]},
 	"fayuca": {"mesa": [[O + "bocina/bocina.scn", 0.35], [O + "cinta/cinta.scn", 0.1], [O + "cigarro/cigarro.scn", 0.1],
 			[O + "patito/patito.scn", 0.12], [O + "llave/llave.scn", 0.15], [O + "moneda_peso/moneda_peso.scn", 0.05]],

@@ -39,6 +39,9 @@ const MAX_TRIANGULOS := {
 	"bano_portatil": 1500,
 	"bocina_escenario": 3000,
 	"rollo_manguera": 1500,
+	# Basura de la favela de La Gotera (Poly Haven, fetch_polyhaven.py): se repiten cientos de veces
+	"llanta": 400,
+	"bolsa_basura": 500,
 }
 
 # Carpeta -> caja (coordenadas del glTF) de lo que se queda: mallas con centro

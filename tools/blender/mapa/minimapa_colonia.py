@@ -38,6 +38,8 @@ CLARO_GRANDE = (152, 136, 90)
 CLARO_BORDE = (204, 188, 132)
 CANCHA = (70, 96, 120)
 CALLE = (188, 180, 160)
+# El callejon principal de cada boca a la Plaza del Tinaco (favela._orientarse): mas claro
+CALLE_PRINCIPAL = (236, 226, 190)
 TIENDAS = {"abarrotes": (240, 205, 50), "licoreria": (60, 95, 220), "farmacia": (55, 200, 185),
            "ferreteria": (185, 105, 45), "oxxo": (220, 50, 40), "taqueria": (240, 130, 35)}
 TUNEL = (78, 60, 48)
@@ -222,6 +224,8 @@ def generar(datos):
         pts = [(p["x"] + a, p["z"] + b) for a, b in p.get("puntos", [])]
         if len(pts) >= 2:
             lienzo.linea(pts, max(float(p.get("ancho", 1.5)), 1.6), CALLE)
+    for c in datos.get("principales", []):
+        lienzo.linea([(q[0], q[1]) for q in c["puntos"]], 2.2, CALLE_PRINCIPAL)
 
     # Tiendas de la superficie: punto de color y una linea corta hacia su puerta
     for n in datos.get("negocios", []):
@@ -289,7 +293,10 @@ def generar(datos):
         if m.get("tipo") == "mision" and str(m.get("nombre", "")).startswith("Tunel_Entrada"):
             iconos.append({"tipo": "tunel", "x": round(m["x"], 2), "z": round(m["z"], 2)})
         elif m.get("tipo") == "paso":
-            iconos.append({"tipo": "salida", "x": round(m["x"], 2), "z": round(m["z"], 2)})
+            icono = {"tipo": "salida", "x": round(m["x"], 2), "z": round(m["z"], 2)}
+            if m.get("letra"):
+                icono["letra"] = m["letra"]      # la inicial de la boca (favela.NOMBRES_BOCAS)
+            iconos.append(icono)
         elif m.get("tipo") == "tinaco":
             iconos.append({"tipo": "tinaco", "x": round(m["x"], 2), "z": round(m["z"], 2)})
     for i in iconos:

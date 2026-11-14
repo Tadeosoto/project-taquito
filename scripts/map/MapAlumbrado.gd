@@ -263,7 +263,8 @@ func _crear_celda(key: Vector2i) -> void:
 
 # Tambos de fierro con fuego encima: un MultiMesh de tambos (malla y material compartidos) y
 # otro del fuego de pixel (EfectosPixel, cada uno en otra fase). `lugares`: el pie de cada tambo
-static func armar_tambos(lugares: Array[Transform3D], fin: float) -> Array[Node3D]:
+# `con_fuego` false: el mismo tambo apagado (las plazas de la favela, Colonia.gd)
+static func armar_tambos(lugares: Array[Transform3D], fin: float, con_fuego := true) -> Array[Node3D]:
 	var nodos: Array[Node3D] = []
 	if lugares.is_empty():
 		return nodos
@@ -286,6 +287,8 @@ static func armar_tambos(lugares: Array[Transform3D], fin: float) -> Array[Node3
 		cuerpos.append([lugar * Transform3D(Basis.IDENTITY, Vector3.UP * TAMBO_ALTO / 2.0)])
 		bocas.append(lugar.origin + Vector3.UP * TAMBO_ALTO)
 	nodos.append(_multimesh(_malla_tambo, _material_tambo, cuerpos, false, fin))
+	if not con_fuego:
+		return nodos
 	var fuego := _sprites("fuego_tambo", bocas, FUEGO_ESCALA, 0.0, fin)
 	if fuego:
 		nodos.append(fuego)

@@ -51,6 +51,8 @@ def nombre_escena(nombre):
 def armar(nombre):
     datos = leer_colonia(nombre)
     CARROS_MODELO.clear()
+    PROPS_PIEZA.clear()
+    MARCAS_PIEZA.clear()
     sc = escena(nombre_escena(nombre))
     mundo = coleccion(sc, MUNDO)
     marcas = coleccion(sc, MARCAS)
@@ -91,6 +93,8 @@ def armar(nombre):
     # exportar.py carga colonia.py otra vez en su propio espacio: los carros viajan en la escena
     import json
     sc["carros_modelo"] = json.dumps(CARROS_MODELO)
+    sc["props_pieza"] = json.dumps(PROPS_PIEZA)
+    sc["marcas_pieza"] = json.dumps(MARCAS_PIEZA)
     print("colonia %s: %d piezas, %d marcas, %d carros" % (nombre, len(datos.get("piezas", [])), len(datos.get("marcas", [])), len(CARROS_MODELO)))
     return sc
 
@@ -220,6 +224,12 @@ def _pieza(col, p):
             colision(col, "%s_choque%d" % (nombre, i), wx, wz, rot + giro, tam, y + cy - tam[1] / 2)
         for (cx, cz, giro, modelo, estado) in getattr(k, "coches", []):
             CARROS_MODELO.append([round(x + cx * c + cz * s, 2), round(z - cx * s + cz * c, 2), round(rot + giro, 4), modelo, estado, round(y, 2)])
+        for (cx, cz, giro, pack, nodo, medida, cy, choca, tumbada) in getattr(k, "props_modelo", []):
+            PROPS_PIEZA.append([round(x + cx * c + cz * s, 2), round(z - cx * s + cz * c, 2), round(rot + giro, 3),
+                                pack, nodo, round(y + cy, 3), choca, medida, round(tumbada, 4)])
+        for (tipo_marca, cx, cz, giro) in getattr(k, "marcas_pieza", []):
+            MARCAS_PIEZA.append({"tipo": tipo_marca, "x": round(x + cx * c + cz * s, 2), "z": round(z - cx * s + cz * c, 2),
+                                 "y": round(y, 2), "rot": round(rot + giro, 4)})
         for i, puntos in enumerate(k.rampas):
             _casco(col, "%s_rampa%d" % (nombre, i), puntos, ob)
         # Lo que solo esta de dia (la lona y la mercancia de un puesto): otro objeto, "Dia_<nombre>",
@@ -428,7 +438,7 @@ def _terrazas(mundo, datos):
 def _en_terraza(p, terrazas):
     """Cuanto sube la pieza `p` por caer en una terraza (por su centro; una casa por el de su huella;
     un callejon por el medio de su tramo)."""
-    if not terrazas or p["tipo"] in ("suelo", "escalinata", "rampa", "tunel", "tunel_cuarto", "bodega_tunel", "bajada"):
+    if not terrazas or p["tipo"] in ("suelo", "escalinata", "tunel", "tunel_cuarto", "bodega_tunel", "bajada"):
         return 0.0
     x, z = p["x"], p["z"]
     if p.get("puntos") and p["tipo"] == "casa":
@@ -770,6 +780,12 @@ def _topes(mundo, datos):
 # que pone cada pieza (`k.coches`: carros sueltos, el taller, la casa derrumbada) y exportar.py lo
 # escribe en resources/mapa/<colonia>/carros_modelo.json (scripts/mapa/CarrosColonia.gd).
 CARROS_MODELO = []
+# Props de la libreria y marcas que ponen las piezas (piezas._prop, piezas._marca_pieza: llantas,
+# bolsas, garrafones, el tambo de MapAlumbrado) y la basura de los callejones, ya en el mundo:
+# [x, z, giro, pack, nodo, y, choca, medida, tumbada] y {tipo, x, z, y, rot}. Viajan en la escena
+# como los carros y exportar.py los suma a props_modelo.json y marcas.json.
+PROPS_PIEZA = []
+MARCAS_PIEZA = []
 
 
 def _carros(mundo, datos):
@@ -913,6 +929,7 @@ class _Trozos:
 
 
 TENDEDERO_CADA = (4.5, 8.0)   # m entre cuerdas a lo largo de un callejon
+TENDEDERO_SIN_BOCA = 7.0      # m alrededor de las bocas de la favela sin tendederos
 TENDEDERO_ALTO = (3.4, 5.2)   # m de alto en las puntas (del primer al segundo piso)
 TENDEDERO_BAJO = (2.3, 2.9)   # ... y entre casas de un piso
 BASURA_CADA = (8.0, 16.0)
@@ -1025,6 +1042,8 @@ def _tendederos(mundo, datos):
     hubo = False
     # En la favela solo cuelgan de casas de dos pisos de los dos lados (si no, flotan)
     paredes = _paredes_favela(datos) if datos.get("favela") else None
+    # Ni junto a las bocas de la favela: la ropa tapaba el nombre pintado sobre la reja
+    bocas = [(m["x"], m["z"]) for m in datos.get("marcas", []) if m.get("tipo") == "paso"] if datos.get("favela") else []
     for p in datos.get("piezas", []):
         if p["tipo"] != "calle" or p.get("material") != "empedrado" or p.get("banqueta", 0) > 0:
             continue
@@ -1043,6 +1062,9 @@ def _tendederos(mundo, datos):
                 mx, mz = ax + ux * s, az + uz * s
                 d0 = d1 = medio
                 alto_cuerda = TENDEDERO_ALTO
+                if any(math.hypot(mx - bx_, mz - bz_) < TENDEDERO_SIN_BOCA for bx_, bz_ in bocas):
+                    s += r.uniform(*_cada(datos, "tendedero_cada", TENDEDERO_CADA))
+                    continue
                 if paredes is not None:
                     hay = _entre_paredes(paredes, mx, mz, nx, nz, p["ancho"])
                     if hay is None:
@@ -1140,24 +1162,47 @@ def _capilla(c, x, z, giro):
     c.cilindro(p(0, 1.02, -0.05), 0.11, 0.24, "tinaco", lados=8)
     c.esfera(p(0, 1.4, -0.05), 0.09, "blanco_cal", seg=6, anillos=4)
     c.caja(p(0, 1.4, -0.13), (0.34, 0.34, 0.02), "oro", giro)
+    # Veladoras: el modelo de la libreria (eran cajitas de color: JJ, 2026-11-14)
     for i in range(5):
-        c.caja(p(-0.24 + i * 0.12, 1.06, 0.14), (0.05, 0.1, 0.05), "veladora", giro)
+        vx, _vy, vz = p(-0.24 + i * 0.12, 1.0, 0.14)
+        PROPS_PIEZA.append([round(vx, 2), round(vz, 2), round(giro + i * 1.1, 3), "res://models/props/veladora/veladora.scn", "",
+                            1.0, False, [0.07, 0.12], 0.0])
     for lx, col in ((-0.3, "lona_rosa"), (0.3, "lona_amarillo"), (0.22, "lona_rojo")):
         c.esfera(p(lx, 1.08, 0.18), 0.08, col, seg=5, anillos=3)
 
 
-def _basura(c, x, z, r, bolsas=(2, 5)):
-    """Montón de basura junto a la pared: bolsas negras, cajas de cartón y llantas."""
-    for i in range(r.randint(*bolsas)):
-        rad = r.uniform(0.2, 0.32)
-        c.esfera((x + r.uniform(-0.5, 0.5), rad * 0.7, z + r.uniform(-0.4, 0.4)), rad, "bolsa_negra", seg=5, anillos=3, aplastar=0.75)
+BOLSA = "res://models/props/bolsa_basura/bolsa_basura.scn"     # Poly Haven (fetch_polyhaven.py)
+LLANTA = "res://models/props/llanta/llanta.scn"
+
+
+def _basura(c, x, z, r, bolsas=(2, 5), u=(1.0, 0.0), h=(0.0, 1.0)):
+    """Montón de basura al pie de la pared: (x, z) es el pie de la pared, `u` va a lo largo de ella
+    y `h` de la pared hacia el callejon. Las bolsas negras (Poly Haven, props de PropsColonia)
+    amontonadas pegadas a la pared, una fila en el piso y las demas encima (JJ, 2026-11-14: estaban
+    regadas por el piso); delante, cajas de carton y a veces llantas."""
+    def en(t, d):
+        return x + u[0] * t + h[0] * d, z + u[1] * t + h[1] * d
+    n = r.randint(*bolsas)
+    abajo = min(n, 3)
+    for i in range(n):
+        alto = r.uniform(0.4, 0.52)
+        ancho = alto * 1.05
+        if i < abajo:
+            t, y, d = (i - (abajo - 1) / 2) * 0.42, 0.0, ancho * 0.42
+        else:
+            t, y, d = (i - abajo - (n - abajo - 1) / 2) * 0.42, 0.28, ancho * 0.36
+        bx, bz = en(t + r.uniform(-0.05, 0.05), d)
+        PROPS_PIEZA.append([round(bx, 2), round(bz, 2), round(r.uniform(0, math.tau), 3),
+                            BOLSA, "", y, False, [round(ancho, 2), round(alto, 2)], 0.0])
     for i in range(r.randint(0, 2)):
         lado = r.uniform(0.3, 0.5)
-        c.caja((x + r.uniform(-0.6, 0.6), lado / 2, z + r.uniform(-0.4, 0.4)), (lado, lado * 0.8, lado), "foto_carton", r.uniform(0, 3))
+        cx, cz = en(r.choice((-1, 1)) * (abajo * 0.21 + 0.1 + lado / 2), lado / 2 + 0.02)
+        c.caja((cx, lado / 2, cz), (lado, lado * 0.8, lado), "foto_carton", r.uniform(0, 3))
     if r.random() < 0.4:
-        lx, lz = x + r.uniform(-0.6, 0.6), z + r.uniform(-0.4, 0.4)
+        lx, lz = en(r.choice((-1, 1)) * (abajo * 0.21 + 0.45), 0.34)
         for i in range(r.randint(1, 3)):
-            c.cilindro((lx, i * 0.24, lz), 0.33, 0.22, "fierro", lados=8)
+            PROPS_PIEZA.append([round(lx, 2), round(lz, 2), round(i * 1.3, 3), LLANTA, "", round(i * 0.17, 3), False,
+                                [0.62, 0.2], round(math.pi / 2, 4)])
 
 
 CAPILLAS_FAVELA = 8            # altares (capillitas de la Virgen) en toda la favela
@@ -1205,6 +1250,7 @@ def _vida_callejones(mundo, datos):
     trozo = _Trozos("Callejon")
     hubo = False
     capillas = _capillas_favela(datos) if datos.get("favela") else None
+    paredes = _paredes_favela(datos) if datos.get("favela") else None
     for p in datos.get("piezas", []):
         if p["tipo"] != "calle" or p.get("material") != "empedrado" or p.get("banqueta", 0) > 0:
             continue
@@ -1235,8 +1281,20 @@ def _vida_callejones(mundo, datos):
         s = r.uniform(3.0, 6.0)
         while s < largo - 1.0 and not sin_basura:
             lado = r.choice((-1, 1))
-            _basura(trozo(p["nombre"], s), ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r,
-                    tuple(int(b) for b in _cada(datos, "bolsas", (2, 5))))
+            # Al pie de la pared de verdad (en la favela las casas no siempre llegan a la orilla)
+            pared = p["ancho"] / 2
+            if paredes is not None:
+                pared = None
+                for sg in (lado, -lado):
+                    d = p["ancho"] / 2 - 0.3
+                    while d < p["ancho"] / 2 + 2.0 and not _pared_en(paredes, ax + ux * s + nx * sg * d, az + uz * s + nz * sg * d):
+                        d += 0.05
+                    if d < p["ancho"] / 2 + 2.0:
+                        pared, lado = d, sg
+                        break
+            if pared is not None:
+                _basura(trozo(p["nombre"], s), ax + ux * s + nx * lado * pared, az + uz * s + nz * lado * pared, r,
+                        tuple(int(b) for b in _cada(datos, "bolsas", (2, 5))), (ux, uz), (-nx * lado, -nz * lado))
             s += r.uniform(*_cada(datos, "basura_cada", BASURA_CADA))
     _focos(trozo, datos)
     trozo.poner(mundo)

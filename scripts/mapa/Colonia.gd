@@ -30,7 +30,14 @@ extends Node3D
 #   caja_gela  la caja del reten de GelA: de noche se abre una vez y suelta 1-2 cosas (CajaGela)
 #   placa   la placa azul con el nombre de la calle ("texto") en su poste, legible por los dos
 #           lados (tambien de exportar.py: colonia.placas_calles)
-#   letrero  un letrero de texto ("texto") viendo a su +Z, como el de las puertas (el mercado)
+#   letrero  un letrero de texto ("texto") viendo a su +Z, como el de las puertas (el mercado).
+#           Opcionales: "tam" (pixel_size), "color" [r, g, b] y "lejos" (m): los nombres pintados
+#           de las bocas y de la Plaza del Tinaco de la favela (favela._orientarse)
+#   mesa    una mesa de taqueria (Mesa.gd) con sus sillas plegables: "semilla" y "sillas" (flags de
+#           Mesa.sillas), con una caja de choque; las fondas de la favela
+#   tambo   el mismo tambo apagado, con su choque y sin luz (las plazas de la favela: piezas._tambo)
+#   tambo_fuego  un tambo de fierro con fuego (MapAlumbrado.armar_tambos, todos en un MultiMesh) con
+#           su choque y una luz naranja prendida siempre; los pasillos oscuros de la favela
 #   mision  un punto con nombre para las misiones (Colonia.puntos_mision): donde se para el que
 #           da una ("donde" de MisionData) o donde esta lo que hay que recoger
 #   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
@@ -46,6 +53,7 @@ const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
 const CASA_ESCENA := "res://scenes/casa_personaje.tscn"
 const MUEBLES := preload("res://scripts/interiores/MueblesCasa.gd")
+const MapAlumbrado := preload("res://scripts/map/MapAlumbrado.gd")
 # Letrero del negocio: arriba de la puerta y casi contra la fachada (la marca va 0.8 m delante)
 const LETRERO_ALTO := 3.0
 const LETRERO_ATRAS := 0.7
@@ -89,6 +97,8 @@ var _jugador: Node3D
 var _revisa_vecinos := 0.0
 # Cuadros "Dia_*" del .glb (MapaPostImport.SOLO_DIA): lonas y mercancia del tianguis
 var _solo_dia: Array[Node] = []
+var _tambos: Array[Transform3D] = []   # las marcas "tambo_fuego": se arman juntas al final de _ready
+var _tambos_apagados: Array[Transform3D] = []   # las marcas "tambo": el mismo tambo sin fuego ni luz
 var _ciclo: Node
 
 # Reflectores (marca "reflector"): luz calida sin sombra, como los de la cancha de la foto
@@ -205,6 +215,12 @@ func _ready() -> void:
 				_trampa(marca)
 			"letrero":
 				_letrero(marca)
+			"mesa":
+				_mesa(marca)
+			"tambo_fuego":
+				_tambos.append(lugar(marca))
+			"tambo":
+				_tambos_apagados.append(lugar(marca))
 			"placa":
 				_placa(marca)
 			"tianguis":
@@ -247,6 +263,7 @@ func _ready() -> void:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
 
+	_armar_tambos()
 	_solo_dia = find_children("Dia_*", "MeshInstance3D", true, false)
 	for interior: Dictionary in _interiores:
 		var techos: Array[MeshInstance3D] = []
@@ -389,12 +406,79 @@ func _letrero(marca: Dictionary) -> void:
 	letrero.name = String(marca.get("nombre", "Letrero"))
 	letrero.text = String(marca.get("texto", "")).to_upper()
 	letrero.font_size = 64
-	letrero.pixel_size = 0.01
-	letrero.modulate = LETRERO_COLOR
+	letrero.pixel_size = float(marca.get("tam", 0.01))
+	var color: Array = marca.get("color", [])
+	letrero.modulate = Color(float(color[0]), float(color[1]), float(color[2])) if color.size() >= 3 else LETRERO_COLOR
 	letrero.outline_size = 12
-	letrero.visibility_range_end = LETRERO_LEJOS
+	letrero.visibility_range_end = float(marca.get("lejos", LETRERO_LEJOS))
 	letrero.transform = lugar(marca)
 	add_child(letrero)
+
+
+# Mesa de taqueria con sus sillas (las fondas de la favela). Mesa no trae choque: una caja del
+# tamano de la cubierta
+const MESA_LEJOS := 45.0
+const MESA_COLOR := Color(0.88, 0.07, 0.05)   # el de MapPuntos.TAQUERIA_MESA
+
+
+func _mesa(marca: Dictionary) -> void:
+	var mesa := Mesa.new()
+	mesa.name = String(marca.get("nombre", "Mesa"))
+	mesa.color = MESA_COLOR
+	mesa.semilla = int(marca.get("semilla", 0))
+	mesa.sillas = int(marca.get("sillas", 15))
+	mesa.transform = lugar(marca)
+	add_child(mesa)
+	for malla: GeometryInstance3D in mesa.find_children("*", "GeometryInstance3D", true, false):
+		malla.visibility_range_end = MESA_LEJOS
+	var cuerpo := StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var caja := BoxShape3D.new()
+	caja.size = Vector3(Mesa.LADO, Mesa.ALTO_MESA, Mesa.LADO)
+	forma.shape = caja
+	forma.position = Vector3(0.0, Mesa.ALTO_MESA / 2.0, 0.0)
+	cuerpo.add_child(forma)
+	mesa.add_child(cuerpo)
+
+
+# Los tambos con fuego de las marcas "tambo_fuego": un MultiMesh de tambos y otro de fuego
+# (MapAlumbrado), un cuerpo con un cilindro por tambo y una luz naranja cada uno, prendida de dia
+# y de noche (estan en lo oscuro: casas abandonadas y callejones techados)
+const TAMBO_LEJOS := 60.0
+const TAMBO_LUZ := Color(1.0, 0.55, 0.2)   # el de Barricada.FUEGO_LUZ
+const TAMBO_ENERGIA := 1.4
+const TAMBO_ALCANCE := 6.0
+
+
+func _armar_tambos() -> void:
+	if _tambos.is_empty() and _tambos_apagados.is_empty():
+		return
+	# Sin alcance (0): el MultiMesh abarca toda la favela y el alcance se mide al centro de su caja,
+	# asi que con 60 m el fuego no salia; la niebla y el "lejos" de la camara ya lo tapan
+	for nodo in MapAlumbrado.armar_tambos(_tambos, 0.0):
+		add_child(nodo)
+	for nodo in MapAlumbrado.armar_tambos(_tambos_apagados, 0.0, false):
+		add_child(nodo)
+	var cuerpo := StaticBody3D.new()
+	cuerpo.name = "Tambos"
+	add_child(cuerpo)
+	for lugar_tambo in _tambos_apagados:
+		cuerpo.add_child(MapAlumbrado.colision_tambo(lugar_tambo))
+	for i in _tambos.size():
+		var lugar_tambo: Transform3D = _tambos[i]
+		cuerpo.add_child(MapAlumbrado.colision_tambo(lugar_tambo))
+		var luz := OmniLight3D.new()
+		luz.name = "FuegoTambo_%d" % i
+		luz.light_color = TAMBO_LUZ
+		luz.omni_range = TAMBO_ALCANCE
+		luz.shadow_enabled = false
+		luz.distance_fade_enabled = true
+		luz.distance_fade_begin = TAMBO_LEJOS - 20.0
+		luz.distance_fade_length = 15.0
+		luz.visible = false
+		luz.position = lugar_tambo.origin + Vector3.UP * (MapAlumbrado.TAMBO_ALTO + 0.4)
+		add_child(luz)
+		_agregar_luz(luz, TAMBO_ENERGIA, false, true)
 
 
 func _trampa(marca: Dictionary) -> void:
@@ -470,13 +554,13 @@ static func _veladora() -> MeshInstance3D:
 	return veladora
 
 
-# El garrafon azul de 20 L a los pies (la fila del agua): una malla compartida
+# El garrafon azul de 50 L (60 cm de alto) a los pies (la fila del agua): una malla compartida
 static func _garrafon() -> MeshInstance3D:
 	if _malla_garrafon == null:
 		_malla_garrafon = CylinderMesh.new()
-		_malla_garrafon.top_radius = 0.12
-		_malla_garrafon.bottom_radius = 0.15
-		_malla_garrafon.height = 0.48
+		_malla_garrafon.top_radius = 0.14
+		_malla_garrafon.bottom_radius = 0.17
+		_malla_garrafon.height = 0.6
 		_malla_garrafon.radial_segments = 8
 		_malla_garrafon.rings = 1
 		var material := StandardMaterial3D.new()
@@ -485,7 +569,7 @@ static func _garrafon() -> MeshInstance3D:
 	var garrafon := MeshInstance3D.new()
 	garrafon.mesh = _malla_garrafon
 	# A un lado de los pies (el civil ve a -Z de su nodo)
-	garrafon.position = Vector3(0.35, 0.24, 0.0)
+	garrafon.position = Vector3(0.4, 0.3, 0.0)
 	return garrafon
 
 

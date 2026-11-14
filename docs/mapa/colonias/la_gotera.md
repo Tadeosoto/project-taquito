@@ -121,7 +121,7 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 
 ## Qué falta / pide decisión de JJ
 
-- Nombre definitivo de la Av. del Cedro Seco y de las bocas; si la favela debe tener placas de sus callejones.
+- Nombre definitivo de la Av. del Cedro Seco y de las bocas (las de la favela ya llevan nombre: ver "Orientarse").
 - Los dadores de la mafia dentro de la favela (Nemesio, el Primo, el gremio) son marcas `mision` sin misión todavía (M8/M9 y S7, el mercado ilegal).
 - ~~Interior de la tienda ilegal de La Gotera~~ (resuelto: es un segundo `punto`).
 - Revisar en ventana la Plaza del Tinaco (50,000 L, sin Virgen) y las 6 tiendas de favela; el `.glb` detallado (~56 MB) hay que medirlo en la GPU.
@@ -159,7 +159,30 @@ JJ pidió que la favela **se sienta favela y sea divertida de caminar**. Lo que 
 
 La semilla en uso es la **73**, escogida por JJ entre ocho minimapas de `variantes.py`. Las imágenes no se guardan en el repo (se regeneran en ~6 s cada una, por omisión en `capturas_favela/`).
 
+## Orientarse y adornos de los claros (JJ, 2026-11-14)
+
+JJ pidió que el laberinto sea divertido y no frustrante, sin depender de ninguna misión. Quedaron los nombres de las bocas y un callejón principal por boca en el minimapa.
+
+- **Nombre de cada boca**, de la calle real que salía de la avenida: La Fuga, Roble Quebrado, La Parota, Caobilla y Sin Número (`favela.NOMBRES_BOCAS`). Va pintado en la tapa de block encima de su reja, del lado de adentro ("Boca de la Fuga", a 3.85 m), para encontrar la salida al regresar. A menos de 7 m de una boca ya no hay tendederos (`colonia.TENDEDERO_SIN_BOCA`): la ropa tapaba el nombre.
+- **Callejones principales**: de cada boca, el camino más corto por callejones a la Plaza del Tinaco (`favela._orientarse`: grafo de las piezas `calle`, Dijkstra). Donde dos se juntan cerca de la plaza, el tramo se queda con el más corto. Los caminos quedan en `"principales"` del `.json` y solo se ven en el minimapa.
+- **Sin placas en los callejones**: hubo 44 placas pintadas en los cruces de los callejones principales, con flechas a la salida y al tinaco; JJ las quitó el mismo día.
+- **"Plaza del Tinaco"** pintado en las dos caras de su pared baja de cal.
+- **Minimapa**: los callejones principales van más claros y cada salida lleva la inicial de su boca (F, R, P, C, N) en lugar de la S.
+- **Props** (lo que JJ vio en ventana):
+  - **Fuera los cubos de colores sin textura**: el pack `cajas` de los cuartos (ahora cajas de refresco), la silla de cajas rojas de los patios (ahora la silla plegable de la librería), el colchón y el bloque de los baldíos, y las mesas, sillas y carrito de cajas de las fondas.
+  - **Las fondas llevan las mesas de la taquería** (`Mesa.gd`: cubierta roja, sillas plegables, salseros) con su caja de choque, una a tres bajo la lona. Las pone `exportar.mesas_fondas` para cualquier colonia, así que Santa Mugre y el tianguis también las tendrán al rehacerse (hoy sus `.glb` todavía traen las de cajas).
+  - **Fuera los patios y plazuelas encimados en un claro** (`favela._quitar_dentro_de_claros`): los claros se hacen después y solo quitaban casas, y había una fonda dentro de la Plaza del Tinaco. Se fueron 5; quedan 2 fondas con 3 mesas.
+  - **Tambos de fierro con fuego** (`MapAlumbrado.armar_tambos`, con choque y luz naranja siempre prendida) en los callejones abiertos: 59, pegados a la pared de verdad, uno por callejón de 6 m o más, a 20 m uno de otro, lejos de bocas, patios, claros y techados (`favela._tambos_fuego`). Primero iban dentro de las casas abandonadas y bajo los techados, y JJ no los quería en lo cerrado. En las esquinas de las plazas también hay con fuego; en la Plaza del Tinaco y el taller, el mismo tambo apagado (marca `tambo`, `piezas._tambo`). Su MultiMesh va sin alcance de dibujo: abarca toda la favela y el alcance se mide al centro de su caja, así que con 60 m no salían.
+  - **El garrafón azul de 50 L mide 60 cm** (antes 0.38 a 0.5 m): los de la librería en la favela y el tianguis, el del garrafonero de `Gente`, los horneados de la fila del agua de la Plaza del Tinaco y el de los vecinos (`Colonia._garrafon`). Los de la ventana de la purificadora y la casa del protagonista se quedaron como estaban.
+
+  - **Fuera los props hechos por código que quedaban** (JJ, 2026-11-14): las bolsas de basura y las llantas son modelos CC0 de Poly Haven (`models/props/bolsa_basura`, `models/props/llanta`, `tools/map_import/fetch_polyhaven.py`, reducidos a 280 y 360 triángulos). Las bolsas van amontonadas pegadas a la pared (una fila en el piso y las demás encima), en los callejones (`colonia._basura`, que busca la pared de verdad), los baldíos y los montones de `PROPS_CALLE`. Las llantas van acostadas en pila (campo `tumbada` de `PropsColonia`). La fila de garrafones, las cubetas y el tinaco de los patios son los de la librería; las veladoras de las capillas, el modelo de veladora. Fuera el tinaco de 46 cm de los callejones y la manguera. Quedan hechos por código, a propósito, la capilla, los tambos de la muralla y las cajas de cartón (con textura de foto).
+  - **Las piezas ponen props y marcas**: `piezas._prop` y `piezas._marca_pieza` los anotan en locales, `colonia.py` los lleva al mundo (`PROPS_PIEZA`, `MARCAS_PIEZA`, como los carros) y `exportar.py` los suma a `props_modelo.json` y `marcas.json`. Sirve para todas las colonias.
+  - **Menos jitter en los props**: `PropsColonia` les quita el wobble y les pone el snap a 320 (un pixel), con una copia por material y por malla, no por instancia. Son 3 mil props (1,600 bolsas), así que van en MultiMesh por cuadro de 24 m y no como nodos.
+
+Pruebas: `probar_gotera.gd -- --favela` **48/48** y `atorones.gd` **0 atorones** con los tambos, las mesas y la basura puestos; capturas con ventana de cada cosa. **Falta:** jugarlo en ventana y medir los FPS con las 59 luces de los tambos (`medir_gotera.gd`).
+
 ## Probar sin restricciones
+
 
 `scenes/prueba_gotera.tscn` entra directo al tianguis con las bocas abiertas, sin las entregas de la mafia (`PasoColonia.sin_candados`, que dura hasta volver a la pantalla de inicio). Se puede ir y venir por cualquier boca y salir a `map_test` por las rejas.
 
