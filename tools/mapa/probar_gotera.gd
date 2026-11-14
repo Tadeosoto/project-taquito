@@ -271,16 +271,18 @@ func _favela() -> void:
 	for p: Dictionary in colonia_datos["piezas"]:
 		if p.get("tipo") == "lote" and p.get("claro"):
 			lotes_claros.append(p)
-	var grandes := lotes_claros.filter(func(p: Dictionary) -> bool: return float(p["tam"][0]) > 18.0)
-	var chicos := lotes_claros.filter(func(p: Dictionary) -> bool: return float(p["tam"][0]) <= 18.0)
+	# Medianos: los de dos celdas (el del tinaco y los tres repartidos). Chicos: los de una celda.
+	# JJ, 2026-11-14: los de 3x3 se comian el laberinto.
+	var grandes := lotes_claros.filter(func(p: Dictionary) -> bool: return float(p["tam"][0]) > 11.0)
+	var chicos := lotes_claros.filter(func(p: Dictionary) -> bool: return float(p["tam"][0]) <= 11.0)
 	var dist_min := INF
 	for i in grandes.size():
 		for j in range(i + 1, grandes.size()):
 			dist_min = minf(dist_min, Vector2(float(grandes[i]["x"]), float(grandes[i]["z"])).distance_to(
 				Vector2(float(grandes[j]["x"]), float(grandes[j]["z"]))))
-	_revisar("favela: 4 claros grandes (tinaco + 3) y 4 pequenos", lotes_claros.size() == 8 and grandes.size() == 4 and chicos.size() == 4,
-		"%d total, %d grandes, %d pequenos" % [lotes_claros.size(), grandes.size(), chicos.size()])
-	_revisar("favela: los claros grandes estan repartidos", dist_min >= 40.0, "separacion minima %.1f m" % dist_min)
+	_revisar("favela: 4 claros medianos (tinaco + 3) y 7 chicos", lotes_claros.size() == 11 and grandes.size() == 4 and chicos.size() == 7,
+		"%d total, %d medianos, %d chicos" % [lotes_claros.size(), grandes.size(), chicos.size()])
+	_revisar("favela: los claros medianos estan repartidos", dist_min >= 40.0, "separacion minima %.1f m" % dist_min)
 	var casa_azotea: Dictionary = {}
 	var techo := INF
 	var espacio: PhysicsDirectSpaceState3D = escena.get_world_3d().direct_space_state

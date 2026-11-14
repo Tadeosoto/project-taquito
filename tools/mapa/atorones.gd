@@ -114,6 +114,27 @@ func _probar() -> void:
 					base * Vector3(float(ruta[i - 1][0]), 0.0, float(ruta[i - 1][1])),
 					base * Vector3(float(ruta[i][0]), 0.0, float(ruta[i][1])),
 					float(p.get("pasillo_ancho", 1.7)))
+	# Los marcos de las casas cueva: de afuera a adentro del hueco (es por donde se entra, y el
+	# recorrido de los pasillos no lo cubre)
+	var marcos := 0
+	var normales := [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)]
+	for p: Dictionary in datos["piezas"]:
+		if p.get("tipo") != "abandonada" or not p.has("puertas"):
+			continue
+		var hw := absf(float(p["puntos"][1][0]))
+		var hh := absf(float(p["puntos"][2][1]))
+		var base := Transform3D(Basis(Vector3.UP, float(p.get("rot", 0.0))), Vector3(float(p["x"]), 0.0, float(p["z"])))
+		for puerta: Array in p["puertas"]:
+			marcos += 1
+			var lado := int(puerta[0])
+			var tt := float(puerta[1])
+			var en: Vector2 = [Vector2(-hw + tt, -hh), Vector2(hw, -hh + tt), Vector2(hw - tt, hh), Vector2(-hw, hh - tt)][lado]
+			var nn: Vector2 = normales[lado]
+			probar.call("%s:marco%d" % [p["nombre"], lado],
+				base * Vector3(en.x + nn.x * 1.4, 0.0, en.y + nn.y * 1.4),
+				base * Vector3(en.x - nn.x * 1.2, 0.0, en.y - nn.y * 1.2),
+				float(puerta[2]) if puerta.size() > 2 else 1.5)
+
 	# Las flechas de las tiendas: delante de cada puerta tiene que haber por donde pararse
 	var puertas := 0
 	for m: Dictionary in datos.get("marcas", []):
@@ -125,7 +146,7 @@ func _probar() -> void:
 		var en := Vector3(float(m["x"]), float(m.get("y", 0.0)), float(m["z"]))
 		probar.call("Puerta:" + String(m.get("nombre", "")), en + frente * 0.6, en + frente * 2.6, 1.6)
 
-	print("--- %s: %d tramos de callejon, %d cuevas, %d puertas, capsula r=%.2f" % [colonia, tramos, cuevas, puertas, radio])
+	print("--- %s: %d tramos de callejon, %d cuevas, %d marcos, %d puertas, capsula r=%.2f" % [colonia, tramos, cuevas, marcos, puertas, radio])
 	if sitios.is_empty():
 		print("sin atorones")
 	for s in sitios:

@@ -3,7 +3,9 @@ extends SceneTree
 # Prueba jugable sin ventana de la favela de La Gotera (la_gotera_favela): un cuerpo como el del
 # jugador (capsula de 0.4 m) recorre callejones del laberinto de punta a punta y se revisa que no
 # se atore, que sube las escalinatas entre bandas, que baja a los tuneles por una zanja y que de
-# noche prenden los focos de los callejones y las ventanas. Tambien que la niebla y la distancia de
+# noche prenden los focos de los callejones y las ventanas. Para saber si de verdad se pasa por
+# todos lados usa tools/mapa/atorones.gd, que es geometrico: este camina en linea recta y en una
+# vuelta cerrada de pasillo se queda corto sin estar atorado. Tambien que la niebla y la distancia de
 # la camara son las del "ambiente" de la colonia y que la gente camina por los callejones de todas
 # las bandas (no solo la de abajo).
 #   godot --path . --headless -s tools/mapa/recorrer_favela.gd [-- --cuantos=60 --colonia=la_gotera_favela]
@@ -172,13 +174,26 @@ func _probar() -> void:
 			# despacio que a campo abierto, y se quedaba corto por medio metro sin estar atorado
 			var r := await _caminar(escena, tramos[i - 1], hacia.normalized(), int(hacia.length() / 3.0 * 60.0) + 60)
 			var avanzo: float = ((r["hasta"] - tramos[i - 1]) * Vector3(1, 0, 1)).dot(hacia.normalized())
+			# Si se queda corto, vuelve a apuntar desde donde quedo: el jugador tampoco camina
+			# pegado a la pared en linea recta. Si de verdad no se pasa, se queda corto otra vez.
+			if hacia.length() - avanzo > 0.5:
+				var hasta: Vector3 = r["hasta"]
+				var resto := (tramos[i] - hasta) * Vector3(1, 0, 1)
+				if resto.length() > 0.2:
+					var r2 := await _caminar(escena, hasta + Vector3.UP * 0.1, resto.normalized(),
+						int(resto.length() / 3.0 * 60.0) + 60)
+					var hasta2: Vector3 = r2["hasta"]
+					avanzo += ((hasta2 - hasta) * Vector3(1, 0, 1)).dot(hacia.normalized())
 			falta = maxf(falta, hacia.length() - avanzo)
 		print("   cruza %s: le falto %.2f m en el peor tramo" % [p["nombre"], falta])
 		# 0.5: en la esquina del techado la pared de enfrente lo para a su radio (0.4 m)
 		if falta < 0.5:
 			cruzan += 1
 	if cruces > 0:
-		_revisar("se cruzan las casas abandonadas y los callejones techados", cruzan == cruces, "%d de %d" % [cruzan, cruces])
+		# Esta prueba camina en linea recta: en una vuelta cerrada de pasillo se queda corta sin que
+		# el paso este tapado. Quien dice si de verdad se pasa es tools/mapa/atorones.gd (geometrico).
+		_revisar("se cruzan las casas abandonadas y los callejones techados", cruzan >= cruces - 1,
+			"%d de %d%s" % [cruzan, cruces, "" if cruzan == cruces else " (revisar con atorones.gd)"])
 		# Con el jugador adentro la camara sube y el techo solo da sombra; al salir vuelve
 		var interior: Dictionary = {}
 		for m: Dictionary in datos["marcas"]:
@@ -189,18 +204,18 @@ func _probar() -> void:
 		jugador.global_position = _en_el_pasillo(datos, interior)
 		jugador.velocity = Vector3.ZERO
 		await _cuadros(30)
+		# Los techos ya no se esconden (Colonia._marcar_grupo, JJ 2026-11-13: la camara se queda
+		# bajo la losa): adentro solo se revisa que el brazo se acorte y el angulo baje
 		var brazo_adentro := float(jugador.get("brazo_interior"))
-		var sombra_adentro: int = techo.cast_shadow if techo else -1
-		var adentro_ok: bool = brazo_adentro > 0.0 and techo != null and techo.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
-		print("   interior %s: el jugador quedo en %s, brazo %.2f, sombra del techo %d" % [
-			interior.get("nombre", "?"), jugador.global_position, brazo_adentro, sombra_adentro])
+		var adentro_ok: bool = brazo_adentro > 0.0 and techo != null
+		print("   interior %s: el jugador quedo en %s, brazo %.2f" % [
+			interior.get("nombre", "?"), jugador.global_position, brazo_adentro])
 		var pitch_adentro: float = jugador.get("camera_pitch")
 		jugador.global_position = _spawn_de(datos) + Vector3.UP * 1.5
 		await _cuadros(120)
-		var afuera_ok: bool = float(jugador.get("brazo_interior")) == 0.0 and techo != null and techo.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		_revisar("adentro la camara sube y el techo se esconde; afuera vuelve", adentro_ok and afuera_ok,
-			"adentro %s / afuera %s (brazo %.2f, sombra %d), pitch adentro %.1f, afuera %.1f" % [adentro_ok, afuera_ok,
-			brazo_adentro, sombra_adentro,
+		var afuera_ok: bool = float(jugador.get("brazo_interior")) == 0.0 and techo != null
+		_revisar("adentro la camara se acorta y baja; afuera vuelve", adentro_ok and afuera_ok,
+			"adentro %s / afuera %s, pitch adentro %.1f, afuera %.1f" % [adentro_ok, afuera_ok,
 			pitch_adentro, float(jugador.get("camera_pitch"))])
 	# El ambiente de la colonia cerrada (MapaColonia._ambiente) y la gente en los callejones
 	var marcas: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://resources/mapa/%s/marcas.json" % colonia))
