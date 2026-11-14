@@ -42,3 +42,9 @@ docs/graphify-out/cache/last_query_stamp
 
 # Texturas de Poly Haven bajadas por tools/blender/catrina_textura.py (no se versionan)
 tools/blender/cache/
+
+# Dependencias de Python que el MCP de Blender baja aparte (71 MB, por maquina)
+.blenderdeps/
+# Basura de correr Blender/Godot a mano
+nohup.out
+export_final.log

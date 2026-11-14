@@ -35,6 +35,9 @@ const CELDA := 32.0
 # Cada cuantos metros se prueba el suelo de adelante, y cuanto adelante (la banqueta mide 1-1.5 m)
 const PRUEBA_CADA := 1.5
 const PRUEBA_ADELANTE := 1.2
+const PRUEBA_ALTO := 1.1       # m de altura del rayo que busca pared (a la cintura)
+const REBOTE_MAX := 3          # vueltas en U seguidas antes de quitar al caminante
+const REBOTE_LEJOS := 22.0     # ... y solo si esta a mas de esto del jugador
 const UNE_A := 14.0        # m: al acabarse una banqueta sigue por otra si esta asi de cerca
 const ALTO_LIBRE := 0.6    # arriba de esto es una azotea o una barda
 const ALTO_PERSONA := 1.7
@@ -223,13 +226,13 @@ func _caminar(delta: float) -> void:
 			# Lo que sigue tiene que ser banqueta: si no, se da la vuelta
 			var y := _altura(b)
 			if y == INF:
-				c["sentido"] = -c["sentido"]
-				c["avance"] = 0.0
+				_regresar(c)
 				continue
 			c["y"] = y
 			c["i"] = siguiente
 			c["avance"] -= largo
 			c["seg"] = Vector2i(-1, -1)
+			c["rebotes"] = 0
 			continue
 		var p := a.lerp(b, c["avance"] / maxf(largo, 0.01))
 		# Entre vertice y vertice puede haber una casa (los tramos miden decenas de metros): cada
@@ -238,10 +241,12 @@ func _caminar(delta: float) -> void:
 		if c["prueba"] <= 0.0:
 			c["prueba"] = PRUEBA_CADA
 			var adelante := p + (b - a).normalized() * PRUEBA_ADELANTE
-			if _altura(adelante) == INF:
+			if _altura(adelante) == INF or _pared(p, adelante, c["y"]):
 				c["sentido"] = -c["sentido"]
 				c["i"] = siguiente
 				c["avance"] = largo - c["avance"]
+				c["rebotes"] = int(c.get("rebotes", 0)) + 1
+				_si_atorado(c)
 				continue
 		var nodo: Node3D = c["nodo"]
 		var f := clampf(c["avance"] / maxf(largo, 0.01), 0.0, 1.0)
@@ -253,6 +258,25 @@ func _caminar(delta: float) -> void:
 				_guardar(c)
 
 
+## Da la vuelta y cuenta el rebote: un tramo suelto, sin vecino al que saltar, dejaba al caminante
+## yendo y viniendo para siempre (las lineas de la favela son de dos puntos)
+func _regresar(c: Dictionary) -> void:
+	c["sentido"] = -c["sentido"]
+	c["avance"] = 0.0
+	c["rebotes"] = int(c.get("rebotes", 0)) + 1
+	_si_atorado(c)
+
+
+func _si_atorado(c: Dictionary) -> void:
+	if int(c.get("rebotes", 0)) < REBOTE_MAX:
+		return
+	var nodo: Node3D = c["nodo"]
+	if _jugador and nodo.global_position.distance_to(_jugador.global_position) < REBOTE_LEJOS:
+		return
+	c["rebotes"] = 0
+	_guardar(c)
+
+
 func _fin_de_linea(c: Dictionary) -> void:
 	var fin: Vector2 = (c["linea"] as Array)[c["i"]]
 	var mejor: Array = []
@@ -261,17 +285,17 @@ func _fin_de_linea(c: Dictionary) -> void:
 		for otro: Array in _finales.get(clave, []):
 			var punto: Vector2 = (_lineas[otro[0]] as Array)[otro[1]]
 			var d := fin.distance_to(punto)
-			if _lineas[otro[0]] != c["linea"] and d < cerca and _altura(punto) != INF and _puede_unir(fin, punto):
+			if _lineas[otro[0]] != c["linea"] and d < cerca and _altura(punto) != INF and _puede_unir(fin, punto) and not _pared(fin, punto, c["y"]):
 				cerca = d
 				mejor = otro
 	if mejor.is_empty():
-		c["sentido"] = -c["sentido"]
-		c["avance"] = 0.0
+		_regresar(c)
 		return
 	c["linea"] = _lineas[mejor[0]]
 	c["i"] = mejor[1]
 	c["sentido"] = 1 if mejor[1] == 0 else -1
 	c["avance"] = 0.0
+	c["rebotes"] = 0
 	c["y"] = _altura((c["linea"] as Array)[c["i"]])
 	c["seg"] = Vector2i(-1, -1)
 
@@ -476,6 +500,17 @@ func _altura(punto: Vector2) -> float:
 	if pego.is_empty() or pego.position.y > alto_libre:
 		return INF
 	return pego.position.y
+
+
+## Si entre los dos puntos hay pared (o un prop, o un carro), a la altura de la cintura. En la
+## favela el rayo de _altura nace adentro de los muros (miden 2.75 m y el rayo sale de 2.6) y les
+## pegaba por abajo: todo le parecia piso y los caminantes atravesaban las casas.
+func _pared(a: Vector2, b: Vector2, y: float) -> bool:
+	_rayo.from = Vector3(a.x, y + PRUEBA_ALTO, a.y)
+	_rayo.to = Vector3(b.x, y + PRUEBA_ALTO, b.y)
+	var pego := get_world_3d().direct_space_state.intersect_ray(_rayo)
+	_rayo.to = Vector3(b.x, -2.0, b.y)      # se deja como la deja _altura
+	return not pego.is_empty()
 
 
 func _celda(punto: Vector2) -> Vector2i:

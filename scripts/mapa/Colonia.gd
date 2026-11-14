@@ -100,9 +100,15 @@ const FOCO_ENERGIA := 1.8
 const FOCO_ALCANCE := 8.0
 const FOCO_COLOR := Color(1.0, 0.8, 0.5)
 const FOCO_PARPADEA := 4
+# Una colonia cerrada puede subirlos desde "ambiente": {"focos": [energia, alcance]} de su
+# marcas.json (la favela de La Gotera, que de noche quedaba a oscuras)
+var foco_energia := FOCO_ENERGIA
+var foco_alcance := FOCO_ALCANCE
 # La camara adentro: brazo mas corto y mirando hacia abajo, por encima de los muros
-const INTERIOR_BRAZO := 3.4
-const INTERIOR_PITCH := -52.0
+# Adentro de una casa cueva (JJ, 2026-11-13): camara corta y casi a la altura de los ojos, bajo la
+# losa (el resorte choca con ella y con los muros: nunca se ve desde arriba ni sobre el techo)
+const INTERIOR_BRAZO := 1.8
+const INTERIOR_PITCH := -12.0
 const INTERIOR_CAMBIA := 5.0
 const BOTIN_BOLSA := "res://resources/productos/takis_tazo.tres"
 const BOTIN_CURACION := ["res://resources/productos/tacos.tres", "res://resources/productos/caguama.tres"]
@@ -114,6 +120,11 @@ func _enter_tree() -> void:
 		push_warning("Colonia: no se pudo leer %s" % marcas_path)
 		return
 	_marcas = datos.get("marcas", [])
+	var ambiente = datos.get("ambiente")
+	if ambiente is Dictionary and ambiente.get("focos") is Array:
+		var f: Array = ambiente["focos"]
+		foco_energia = float(f[0])
+		foco_alcance = float(f[1])
 	puntos_mision.clear()
 	puertas.clear()
 	salidas.clear()
@@ -306,13 +317,13 @@ func _reflector(marca: Dictionary) -> void:
 func _foco(marca: Dictionary) -> void:
 	var luz := OmniLight3D.new()
 	luz.name = String(marca.get("nombre", "Foco"))
-	luz.omni_range = FOCO_ALCANCE
+	luz.omni_range = foco_alcance
 	luz.light_color = FOCO_COLOR
 	luz.shadow_enabled = false
 	luz.visible = false
 	luz.transform = lugar(marca)
 	add_child(luz)
-	_agregar_luz(luz, FOCO_ENERGIA, bool(marca.get("parpadea", _reflectores.size() % FOCO_PARPADEA == 1)),
+	_agregar_luz(luz, foco_energia, bool(marca.get("parpadea", _reflectores.size() % FOCO_PARPADEA == 1)),
 			bool(marca.get("siempre", false)))
 
 
@@ -527,26 +538,23 @@ func _camara_interior(delta: float) -> void:
 		_grupo_adentro = grupo
 		jugador.brazo_interior = INTERIOR_BRAZO if grupo >= 0 else 0.0
 	var paso := 1.0 - exp(-INTERIOR_CAMBIA * delta)
-	if _grupo_adentro >= 0 and jugador.camera_pitch > INTERIOR_PITCH:
+	if _grupo_adentro >= 0 and absf(jugador.camera_pitch - INTERIOR_PITCH) > 0.5:
 		jugador.camera_pitch = lerpf(jugador.camera_pitch, INTERIOR_PITCH, paso)
 	elif _regresa_pitch:
 		jugador.camera_pitch = lerpf(jugador.camera_pitch, _pitch_afuera, paso)
 		_regresa_pitch = absf(jugador.camera_pitch - _pitch_afuera) > 0.5
 
 
-func _marcar_grupo(jugador: Player, grupo: int, adentro: bool) -> void:
+func _marcar_grupo(jugador: Player, grupo: int, _adentro: bool) -> void:
 	if grupo < 0:
 		return
 	for interior: Dictionary in _interiores:
 		if int(interior["grupo"]) != grupo:
 			continue
-		for t: MeshInstance3D in interior["techos"]:
-			t.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if adentro else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		# Los techos ya no se esconden ni el resorte los ignora: la camara se queda bajo la losa.
+		# Solo se quita lo que el resorte ignoraba de antes (por si quedo de otra version).
 		for c: CollisionObject3D in interior["choques"]:
-			if adentro:
-				jugador.spring_arm.add_excluded_object(c.get_rid())
-			else:
-				jugador.spring_arm.remove_excluded_object(c.get_rid())
+			jugador.spring_arm.remove_excluded_object(c.get_rid())
 
 
 static func lugar(marca: Dictionary) -> Transform3D:

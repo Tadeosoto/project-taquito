@@ -121,10 +121,16 @@ def exportar(nombre):
             if ob.name.endswith("-colonly"):
                 ob.hide_set(True)
 
+    # RAPIDO=1 (al estar probando): sin guardar el .blend ni rehacer el minimapa, que son lo lento
+    # y no los usa el juego para correr. Antes de commitear hay que correrlo una vez sin RAPIDO.
+    rapido = os.environ.get("RAPIDO", "") not in ("", "0")
     carpeta = os.path.join(salida, "fuente")
     os.makedirs(carpeta, exist_ok=True)
     open(os.path.join(carpeta, ".gdignore"), "w").close()
-    bpy.data.libraries.write(os.path.join(carpeta, nombre + ".blend"), {sc}, fake_user=True, compress=True)
+    if rapido:
+        print("RAPIDO: sin .blend ni minimapa")
+    else:
+        bpy.data.libraries.write(os.path.join(carpeta, nombre + ".blend"), {sc}, fake_user=True, compress=True)
 
     datos_dir = os.path.join(DATOS, nombre)
     # Los focos colgados de los callejones (colonia.focos_callejones) van como marcas "foco"
@@ -161,6 +167,10 @@ def exportar(nombre):
     modelo = [[p["x"], p["z"], round((p.get("alto", 4.2) + p.get("radio", 2.0)) * 1.5, 1), round(p.get("radio", 2.0) * 4.6, 1), extra[arbol_tipo(p["nombre"]) - 1]]
               for p in datos.get("piezas", []) if p["tipo"] == "ficus" and arbol_tipo(p["nombre"]) >= 1]
     guardar_json(os.path.join(datos_dir, "arboles_modelo.json"), {"arboles": modelo})
+    # Props de la libreria puestos por el generador (las cuevas de la favela): [x, z, giro, pack, nodo, y, choca];
+    # los pone scripts/mapa/PropsColonia.gd
+    if datos.get("props"):
+        guardar_json(os.path.join(datos_dir, "props_modelo.json"), {"props": datos["props"]})
     # Los carros de Sketchfab (models/vehiculos): [x, z, giro, modelo, estado, y]; los dibuja scripts/mapa/CarrosColonia.gd
     carros = [c for c in json.loads(sc.get("carros_modelo", "[]"))
               if not any(abs(c[0] - ox) < 0.05 and abs(c[1] - oz) < 0.05 for ox, oz in CARROS_OMITIDOS.get(nombre, []))]
@@ -169,7 +179,7 @@ def exportar(nombre):
     guardar_json(os.path.join(datos_dir, "casas.json"), {"casas": casas_juego(datos)})
     guardar_json(os.path.join(datos_dir, "banquetas.json"), {"banquetas": banquetas(datos)})
     # El minimapa propio de la favela (sin OSM): callejones, claros, tuneles, tablones e iconos
-    if datos.get("favela"):
+    if datos.get("favela") and not rapido:
         _mm = {"__name__": "minimapa_colonia"}
         raiz = os.environ.get("TAQUITO_RAIZ", "") or os.getcwd()
         exec(open(os.path.join(raiz, "tools", "blender", "mapa", "minimapa_colonia.py"), encoding="utf-8").read(), _mm)

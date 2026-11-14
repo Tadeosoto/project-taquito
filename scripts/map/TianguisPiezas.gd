@@ -64,7 +64,8 @@ static func _sacar(pack: String, nodo: String) -> Array:
 	# Instancia la escena una vez (fuera del arbol), busca el nodo y junta sus mallas con su
 	# transformacion respecto a la raiz de la escena; luego las recorre para que la base quede en 0
 	if not _abiertos.has(pack):
-		_abiertos[pack] = (load(PACKS[pack]) as PackedScene).instantiate()
+		# Un pack de PACKS o la ruta de una escena (PropsColonia usa modelos sueltos)
+		_abiertos[pack] = (load(PACKS.get(pack, pack)) as PackedScene).instantiate()
 	var escena: Node3D = _abiertos[pack]
 	var desde: Node = escena if nodo == "" else escena.find_child(nodo, true, false)
 	if desde == null:

@@ -54,6 +54,13 @@ func _enter_tree() -> void:
 	_poner("Gente", "puntos_path", puntos)
 	_poner("ArbolesModelo", "arboles_path", DATOS % [cual, "arboles_modelo.json"])
 	_poner("CarrosColonia", "carros_path", DATOS % [cual, "carros_modelo.json"])
+	# Props de la libreria que pone el generador (las cuevas de la favela), si la colonia los trae
+	var props_json := DATOS % [cual, "props_modelo.json"]
+	if FileAccess.file_exists(props_json):
+		var props := PropsColonia.new()
+		props.name = "PropsColonia"
+		props.props_path = props_json
+		add_child(props)
 	# El horizonte rodea el recorte de la colonia (exportar.py lo escribe en marcas.json)
 	if marcas is Dictionary and marcas.has("recorte"):
 		var r: Array = marcas["recorte"]
@@ -65,6 +72,11 @@ func _enter_tree() -> void:
 ##   lejos   m hasta donde dibuja la camara del jugador (el dron no cambia); con niebla espesa lo de
 ##           mas alla ya no se ve y no se gasta en dibujarlo
 ##   gente   {caminantes, anillo [cerca, lejos], quitar_a, alto_libre, rayo_desde} para Gente.gd
+##   noche   {sol_energia, ambiente_energia, ambiente_color, niebla_color, fondo_color} que le
+##           cambian a Ciclo.gd sus valores de noche, y "niebla" (fog_density de noche, que la
+##           colonia interpola ella sola). La favela de La Gotera se quedaba a oscuras: niebla
+##           espesa de color casi negro
+##   focos   [energia, alcance] de las marcas "foco" (Colonia.gd)
 ## El Environment se duplica: es un sub_resource de mapa.tscn y cambiarlo se quedaba para la
 ## siguiente colonia que cargara la escena.
 func _ambiente(datos: Dictionary) -> void:
@@ -75,6 +87,20 @@ func _ambiente(datos: Dictionary) -> void:
 	var camara := get_node_or_null("Player/CameraPivot/SpringArm3D/Camera3D") as Camera3D
 	if camara and datos.has("lejos"):
 		camara.far = float(datos["lejos"])
+	# La noche de esta colonia: los valores de noche de Ciclo.gd, antes de que lea los del dia
+	var ciclo := get_node_or_null("Ciclo")
+	if ciclo and datos.get("noche") is Dictionary:
+		var n: Dictionary = datos["noche"]
+		for clave: String in n:
+			var valor = n[clave]
+			if valor is Array:
+				valor = Color(float(valor[0]), float(valor[1]), float(valor[2]))
+			elif clave == "niebla":
+				ciclo.set("niebla_densidad", float(valor))
+				continue
+			else:
+				valor = float(valor)
+			ciclo.set(clave, valor)
 	var gente := get_node_or_null("Gente")
 	if gente and datos.get("gente") is Dictionary:
 		var g: Dictionary = datos["gente"]

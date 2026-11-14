@@ -116,8 +116,10 @@ def ficus(nombre, p):
     k = Constructor(nombre)
     alto = p.get("alto", 4.2)
     radio = p.get("radio", 2.0)
-    k.caja((0, 0.15, 0), (1.6, 0.3, 1.6), "foto_cantera_rosa")
-    k.cara([(-0.7, 0.31, 0.7), (0.7, 0.31, 0.7), (0.7, 0.31, -0.7), (-0.7, 0.31, -0.7)], "hojas")
+    cajete = p.get("cajete", True)      # La Gotera: el arbol va en el piso o en su jardinera_plaza
+    if cajete:
+        k.caja((0, 0.15, 0), (1.6, 0.3, 1.6), "foto_cantera_rosa")
+        k.cara([(-0.7, 0.31, 0.7), (0.7, 0.31, 0.7), (0.7, 0.31, -0.7), (-0.7, 0.31, -0.7)], "hojas")
     # Al azar (fijo por nombre, kit.arbol_tipo): el arbolito de Tacos_ Props (extraer_arbol_tacos.gd), con dos
     # variantes giradas distinto, o uno de Sketchfab (kit.ARBOLES_EXTRA), que dibuja ArbolesModelo.gd y no se arma aqui
     tipo = arbol_tipo(nombre)
@@ -125,6 +127,79 @@ def ficus(nombre, p):
     if tipo == 0:
         k.arbol_modelo((0, 0.3, 0), radio * 2, variante=semilla, giro=semilla * 0.7, alto_max=alto + radio * 0.85)
         k.choques.append(((0, 0.9, 0), (0.6, 1.8, 0.6), 0.0))
+    return k
+
+
+CUARTO_MURO = 0.2       # grueso de los muros de los cuartos de las casas cueva
+CUARTO_ALTO = 2.5
+CUARTO_PUERTA = 1.1
+CUARTO_VENTANA = (1.0, 1.0, 1.9)     # ancho, de y a y
+
+
+def _cuarto_cueva(k, ancho, fondo, mat, uso):
+    """Cuarto de una casa cueva (favela._cuartos_cueva): muros de 0.2 m por dentro de su huella,
+    con choque, la puerta al centro del frente (+Z) y una ventana con barrotes a cada lado de ella
+    si cabe, para asomarse desde el pasillo. Sin techo (la losa es la de la casa, y la camara de
+    adentro la quita) ni muebles: esos son modelos de la libreria (props_modelo.json)."""
+    hx, hz, t, alto = ancho / 2, fondo / 2, CUARTO_MURO, CUARTO_ALTO
+    k.cara([(-hx, 0.05, -hz), (hx, 0.05, -hz), (hx, 0.05, hz), (-hx, 0.05, hz)], "concreto" if uso == "tienda" else "tierra")
+    k.caja((0, alto / 2, -hz + t / 2), (ancho, alto, t), mat, choca=True)
+    for sx in (-1, 1):
+        k.caja((sx * (hx - t / 2), alto / 2, 0), (t, alto, fondo - 2 * t), mat, choca=True)
+    # El frente en tramos: muro, ventana, muro, puerta, muro, ventana, muro
+    zf = hz - t / 2
+    pa = CUARTO_PUERTA / 2
+    va, v0, v1 = CUARTO_VENTANA
+    huecos = [(-pa, pa, 0.0, alto - 0.35)]
+    if ancho >= 3.4:
+        for sx in (-1, 1):
+            c = sx * (pa + (hx - pa) / 2)
+            huecos.append((c - va / 2, c + va / 2, v0, v1))
+    huecos.sort()
+    x = -hx
+    for a, b, y0, y1 in huecos:
+        if a > x:
+            k.caja(((x + a) / 2, alto / 2, zf), (a - x, alto, t), mat, choca=True)
+        if y0 > 0:      # pretil bajo la ventana
+            k.caja(((a + b) / 2, y0 / 2, zf), (b - a, y0, t), mat, choca=True)
+        k.caja(((a + b) / 2, (y1 + alto) / 2, zf), (b - a, alto - y1, t), mat)
+        if y0 > 0:      # ventana: repisa y barrotes, con choque (no se pasa por ahi)
+            k.caja(((a + b) / 2, y0 + 0.02, zf), (b - a + 0.1, 0.04, t + 0.08), "concreto")
+            for i in range(1, 5):
+                k.caja((a + (b - a) * i / 5, (y0 + y1) / 2, zf), (0.03, y1 - y0, 0.03), "fierro")
+            k.choques.append((((a + b) / 2, (y0 + y1) / 2, zf), (b - a, y1 - y0, t), 0.0))
+        x = b
+    if x < hx:
+        k.caja(((x + hx) / 2, alto / 2, zf), (hx - x, alto, t), mat, choca=True)
+    k.caja((0.0, alto - 0.15, 0.0), (0.015, 0.3, 0.015), "cable")
+    k.esfera((0.0, alto - 0.33, 0.0), 0.08, "farol", seg=6, anillos=4)
+    return k
+
+
+def jardinera_plaza(nombre, p):
+    """La jardinera de La Mojiganga (tools/blender/plaza.py, jardinera()) para las plazas grandes de
+    la favela: cajon de 2.6 x 7.2 m (largo en z) y 1.1 de alto, borde grueso encima, zocalo de cimbra
+    y tierra revuelta con terrones. Con los materiales de la favela (block sin aplanar, borde de
+    concreto). El arbol es un modelo aparte (pieza ficus sin cajete en el mismo lugar). Choca."""
+    import random as _r
+    k = Constructor(nombre)
+    rnd = _r.Random(sum(ord(c) for c in nombre))
+    for sx in (-1, 1):
+        k.caja((sx * 1.0, 0.55, 0), (0.4, 1.1, 7.0), "foto_block")
+    for sz in (-1, 1):
+        k.caja((0, 0.55, sz * 3.3), (2.4, 1.1, 0.4), "foto_block")
+    for sx in (-1, 1):
+        k.caja((sx * 1.1, 1.15, 0), (0.55, 0.2, 7.2), "concreto")
+    for sz in (-1, 1):
+        k.caja((0, 1.15, sz * 3.4), (2.6, 0.2, 0.55), "concreto")
+    for sx in (-1, 1):
+        k.caja((sx * 1.2, 0.12, 0), (0.2, 0.24, 7.2), "concreto")
+    for sz in (-1, 1):
+        k.caja((0, 0.12, sz * 3.5), (2.6, 0.24, 0.2), "concreto")
+    k.caja((0, 0.95, 0), (1.7, 0.2, 6.4), "tierra")
+    for _i in range(9):
+        k.esfera((rnd.uniform(-0.65, 0.65), 1.05, rnd.uniform(-2.9, 2.9)), rnd.uniform(0.15, 0.3), "tierra", seg=6, anillos=3, aplastar=0.5)
+    k.choques.append(((0, 0.75, 0), (2.7, 1.5, 7.3), 0.0))
     return k
 
 
@@ -458,6 +533,10 @@ def cancha(nombre, p):
     alto = p.get("alto", 5.0)                        # hasta donde llega la malla
     pintura = p.get("pintura", "cancha_muro")        # material liso del muro (COLORES_PIEZA)
     entrada = p.get("entrada", "+x")
+    # `abierta`: sin muro ni malla, al aire libre, nada mas la losa pintada con su guarnicion, las
+    # porterias, las gradas y los postes (JJ, 2026-11-14: la cancha encajonada de la favela se veia
+    # como un edificio sin paso en medio de la plaza)
+    abierta = bool(p.get("abierta", False))
     semilla = sum((i + 1) * ord(c) for i, c in enumerate(nombre))
     hx, hz = ancho / 2 + orilla, largo / 2 + orilla
     w, l = ancho / 2, largo / 2
@@ -505,7 +584,7 @@ def cancha(nombre, p):
     puerta = 1.2
     puerta_en = None
     n_mural = 0
-    for nom, (ax, az), (bx, bz), (nx, nz) in lados:
+    for nom, (ax, az), (bx, bz), (nx, nz) in (lados if not abierta else []):
         dx, dz = bx - ax, bz - az
         lado = math.hypot(dx, dz)
         ux, uz = dx / lado, dz / lado
@@ -578,10 +657,22 @@ def cancha(nombre, p):
         for s in (-0.9, 0.9):
             k.caja((bx + ux * s, 0.22, bz + uz * s), (0.12, 0.44, 0.35), "concreto", giro)
 
+    # Al aire libre: una guarnicion baja marca la orilla de la losa (no estorba el paso) y en un
+    # lado largo van dos gradas de concreto para los que miran
+    if abierta:
+        for (ax, az), (bx, bz) in (((-hx, -hz), (hx, -hz)), ((hx, hz), (-hx, hz)),
+                                   ((-hx, hz), (-hx, -hz)), ((hx, -hz), (hx, hz))):
+            lado = math.hypot(bx - ax, bz - az)
+            giro = math.atan2(-(bz - az) / lado, (bx - ax) / lado)
+            k.caja(((ax + bx) / 2, 0.06, (az + bz) / 2), (lado, 0.12, 0.22), "concreto", giro)
+        for i, (dz, ancho_grada) in enumerate(((0.0, 0.45), (0.5, 0.45))):
+            k.caja((0.0, 0.14 + i * 0.26, -hz - 0.45 - dz), (ancho * 0.7, 0.28 + i * 0.26, ancho_grada),
+                   "concreto", 0.0, choca=True)
+
     # Escalon de concreto por dentro, en el lado de enfrente de la entrada: ahi se sientan y se
     # paran los que miran (como los ninos de la foto)
     opuesto = {"+x": "-x", "-x": "+x", "+z": "-z", "-z": "+z"}[entrada]
-    for nom, (ax, az), (bx, bz), (nx, nz) in lados:
+    for nom, (ax, az), (bx, bz), (nx, nz) in (lados if not abierta else []):
         if nom != opuesto:
             continue
         dx, dz = bx - ax, bz - az
@@ -861,7 +952,7 @@ def mercado(nombre, p):
                     k.caja((fx, 1.0, z + mira * 0.1), (0.42, 0.12, 0.34), "foto_madera")
                     k.caja((fx, 1.07, z + mira * 0.1), (0.38, 0.04, 0.3), frutas[(i + j) % 2])
                 else:                                # costales de frijol y maiz
-                    k.cilindro((fx, 0.94, z + mira * 0.1), 0.18, 0.4, "carton", lados=6)
+                    k.cilindro((fx, 0.94, z + mira * 0.1), 0.18, 0.4, "foto_carton", lados=6)
             # Foco colgado del techo y mecate
             k.caja((x, alero - 0.6, z + mira * 0.3), (0.015, 1.2, 0.015), "cable")
             k.esfera((x, alero - 1.25, z + mira * 0.3), 0.08, "farol", seg=6, anillos=4)
@@ -1075,6 +1166,81 @@ def _llantas(k, x, z, n):
         k.cilindro((x, i * 0.25, z), 0.35, 0.24, "fierro", lados=8)
 
 
+# --- Adornos de calle de la favela (JJ, 2026-11-14): lo que la hace sentirse favela ---
+
+def _papel_picado(k, a, b, semilla, cada=1.1):
+    """Un hilo de papel picado de a a b (puntos (x, y, z)), colgado con su curva. Cada banderin es
+    un cuadrito de color de dos caras."""
+    cuelga = 1.2 + (semilla % 7) * 0.12
+    largo = math.hypot(b[0] - a[0], b[2] - a[2])
+    if largo < 2.0:
+        return
+    giro = math.atan2(-(b[2] - a[2]), b[0] - a[0])
+    n = max(3, int(largo / cada))
+
+    def punto(t):
+        return (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t - cuelga * 4 * t * (1 - t),
+                a[2] + (b[2] - a[2]) * t)
+
+    for i in range(n):
+        q0, q1 = punto(i / n), punto((i + 1) / n)
+        k.caja(((q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2, (q0[2] + q1[2]) / 2),
+               (math.hypot(q1[0] - q0[0], q1[2] - q0[2]), 0.02, 0.02), "cable", giro)
+        q = punto((i + 0.5) / n)
+        col = ("lona_rosa", "lona_amarillo", "lona_verde", "lona_azul", "lona_naranja", "blanco_cal")[(semilla + i) % 6]
+        e = [(q[0] - math.cos(giro) * 0.16, q[1], q[2] + math.sin(giro) * 0.16),
+             (q[0] + math.cos(giro) * 0.16, q[1], q[2] - math.sin(giro) * 0.16),
+             (q[0] + math.cos(giro) * 0.16, q[1] - 0.26, q[2] - math.sin(giro) * 0.16),
+             (q[0] - math.cos(giro) * 0.16, q[1] - 0.26, q[2] + math.sin(giro) * 0.16)]
+        k.cara(e, col)
+        k.cara(e[::-1], col)
+
+
+def papel_picado(nombre, p):
+    """Un hilo de papel picado cruzando un espacio, a lo largo de x (`largo`), colgado a `alto` m
+    con la curva de siempre. Para las plazas y los claros puestos a mano."""
+    k = Constructor(nombre)
+    largo, alto = p.get("largo", 12.0), p.get("alto", 4.4)
+    _papel_picado(k, (-largo / 2, alto, 0.0), (largo / 2, alto - p.get("baja", 0.3), 0.0), _semilla_nombre(nombre))
+    return k
+
+
+def lona_sombra(nombre, p):
+    """Una lona de sombra sobre cuatro tubos (`tam`: [ancho, fondo]), como las de los puestos."""
+    k = Constructor(nombre)
+    ancho, fondo = p.get("tam", [4.0, 3.2])
+    _lona_sombra(k, 0.0, 0.0, ancho, fondo, _semilla_nombre(nombre), p.get("alto", 2.6))
+    return k
+
+
+def _lona_sombra(k, x, z, ancho, fondo, semilla, alto=2.6):
+    """Una lona de sombra sobre cuatro tubos, como las de los puestos: la tela cuelga de las
+    esquinas y se hunde al centro."""
+    color = ("lona_azul", "lona_verde", "lona_naranja")[semilla % 3]
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            k.caja((x + sx * ancho / 2, alto / 2, z + sz * fondo / 2), (0.07, alto, 0.07), "fierro", choca=True)
+    # Cuatro triangulos de la orilla al centro hundido
+    esq = [(x - ancho / 2, alto, z - fondo / 2), (x + ancho / 2, alto, z - fondo / 2),
+           (x + ancho / 2, alto, z + fondo / 2), (x - ancho / 2, alto, z + fondo / 2)]
+    centro = (x, alto - 0.28, z)
+    for i in range(4):
+        tri = [esq[i], esq[(i + 1) % 4], centro]
+        k.cara(tri, color)
+        k.cara(tri[::-1], color)
+
+
+def _fila_garrafones(k, x, z, dx, dz, n, semilla):
+    """La fila de garrafones y cubetas que esperan turno de agua, a lo largo de (dx, dz)."""
+    for i in range(n):
+        px, pz = x + dx * i * 0.42, z + dz * i * 0.42
+        if (semilla + i) % 5 == 0:
+            k.cilindro((px, 0.0, pz), 0.17, 0.33, ("lona_rojo", "lona_amarillo", "lona_azul")[(semilla + i) % 3], lados=6)
+            continue
+        k.cilindro((px, 0.0, pz), 0.14, 0.38, "azul_gela", lados=6)
+        k.cilindro((px, 0.38, pz), 0.14, 0.1, "azul_gela", lados=6, radio_arriba=0.06)
+
+
 def lote(nombre, p):
     """Un baldio con vida (frente a +Z, tam = [frente, fondo]): "taller" mecanico al aire libre,
     "juegos" oxidados, "fonda" de lona con sillas de plastico, "basquet" (media canchita con aro
@@ -1157,12 +1323,16 @@ def lote(nombre, p):
         k.cara([(-hx, 0.03, hz), (hx, 0.03, hz), (hx, 0.03, -hz), (-hx, 0.03, -hz)], "banqueta")
         # Pared baja de cal en un lado, sin cerrar la plaza
         k.caja((-hx + 0.12, 0.45, 0), (0.25, 0.9, ancho - 0.6), "blanco_cal", choca=True)
-        for z in (-hz / 2, hz / 2):
-            k.caja((hx - 1.0, 0.22, z), (0.42, 0.44, 0.42), "azul_gela")
-            k.caja((hx - 1.0, 0.65, z), (0.06, 0.45, 0.42), "azul_gela")
-        for x in (-hx / 2, hx / 2):
-            k.caja((x, 0.25, -hz + 0.8), (0.5, 0.5, 0.5), "concreto", choca=True)
-            k.esfera((x, 0.75, -hz + 0.8), 0.35, "hojas", seg=6, anillos=3)
+        # Tambos de agua junto a la pared (JJ, 2026-11-14: las macetas con la bola verde fuera)
+        for i, x in enumerate((-hx / 2, hx / 2)):
+            k.cilindro((x, 0.0, -hz + 0.8), 0.32, 0.9, TAMBOS[(semilla + i) % len(TAMBOS)], lados=8, choca=True)
+            _llantas(k, x + 0.9, -hz + 0.8, 2 + (semilla + i) % 2)
+        # La plaza quedaba pelona: papel picado cruzado, una lona de sombra en una esquina y la
+        # fila de garrafones y cubetas que esperan su turno de agua (JJ, 2026-11-14)
+        _papel_picado(k, (-hx + 1.0, 4.6, -hz + 1.0), (hx - 1.0, 4.2, hz - 1.0), semilla)
+        _papel_picado(k, (hx - 1.0, 4.4, -hz + 1.0), (-hx + 1.0, 4.4, hz - 1.0), semilla + 11)
+        _lona_sombra(k, hx - 3.4, hz - 3.4, 4.0, 3.2, semilla)
+        _fila_garrafones(k, -hx + 2.2, hz - 2.0, 1.0, 0.0, 9, semilla)
     elif variante == "plaza":
         # Claro grande de concreto, como la plaza del tinaco: piso firme, bancas, macetas y una
         # pared baja de cal. El tinaco no va aqui (solo en la Plaza del Tinaco).
@@ -1177,13 +1347,19 @@ def lote(nombre, p):
             k.caja((-hx + 1.6, 0.42, z), (0.55, 0.1, 1.8), "foto_madera", choca=True)
             for dz in (-0.8, 0.8):
                 k.caja((-hx + 1.6, 0.2, z + dz), (0.08, 0.4, 0.08), "fierro")
-        # Macetas en las esquinas
-        for x in (-hx + 1.0, hx - 1.0):
-            for z in (-hz + 1.0, hz - 1.0):
-                k.caja((x, 0.3, z), (0.75, 0.6, 0.75), "concreto", choca=True)
-                k.esfera((x, 0.85, z), 0.42, "hojas", seg=6, anillos=3)
+        # En las esquinas, tambos y llantas pintadas (antes macetas con una bola verde: JJ las quito)
+        for i, x in enumerate((-hx + 1.0, hx - 1.0)):
+            for j, z in enumerate((-hz + 1.0, hz - 1.0)):
+                r = semilla + i * 3 + j
+                if r % 2:
+                    k.cilindro((x, 0.0, z), 0.32, 0.9, TAMBOS[r % len(TAMBOS)], lados=8, choca=True)
+                else:
+                    _llantas(k, x, z, 2 + r % 3)
         # Pared baja de cal en un lado, sin cerrar
         k.caja((-hx + 0.12, 0.45, 0), (0.25, 0.9, ancho - 0.6), "blanco_cal", choca=True)
+        # Papel picado cruzado y una lona de sombra: un claro pelado no parecia plaza de barrio
+        _papel_picado(k, (-hx + 1.0, 4.6, -hz + 1.0), (hx - 1.0, 4.2, hz - 1.0), semilla + 3)
+        _lona_sombra(k, -hx + 3.6, -hz + 3.6, 3.6, 3.0, semilla + 5)
     elif variante == "fonda":
         # Lona amarilla sobre tres mesas con sillas de plastico rojas y el carrito de tacos al frente
         for x in (-hx + 0.4, hx - 0.4):
@@ -1224,6 +1400,44 @@ def carro(nombre, p):
     return k
 
 
+# La ropa tendida va con textura de tela (kit.TELAS), no de color liso: parecian cartulinas
+ROPA_TENDIDA = ["foto_tela_" + n for n in ("rojo", "azul", "amarillo", "verde", "rosa", "blanco", "morado", "naranja")]
+
+
+def prenda(k, centro, giro, color, semilla, ancho=0.55):
+    """Una prenda colgada de la cuerda: camiseta, pantalon, sabana o calcetines, con su forma (dos
+    caras planas, que se ven de los dos lados) y sus dos pinzas. `centro` es el punto de la cuerda
+    de donde cuelga; `giro` es el de la cuerda. Antes eran cajas lisas y parecian cartulinas."""
+    ax, az = math.cos(giro), -math.sin(giro)
+    r = (semilla * 2654435761) % 1000 / 1000.0
+    ladeo = ((semilla * 7919) % 100 / 100.0 - 0.5) * 0.25
+
+    def dos(pts):
+        e = [(centro[0] + ax * (a + h * ladeo), centro[1] + h, centro[2] + az * (a + h * ladeo)) for a, h in pts]
+        k.cara(e, color)
+        k.cara(e[::-1], color)
+
+    w = ancho
+    if r < 0.38:                             # camiseta: hombros con mangas y cuerpo
+        dos([(-w / 2, 0.0), (w / 2, 0.0), (w * 0.46, -0.22), (-w * 0.46, -0.22)])
+        dos([(-w * 0.3, -0.22), (w * 0.3, -0.22), (w * 0.3, -0.72), (-w * 0.3, -0.72)])
+    elif r < 0.64:                           # pantalon: cintura y dos piernas
+        w *= 0.72
+        largo = 0.62 + r * 0.4
+        dos([(-w / 2, 0.0), (w / 2, 0.0), (w / 2, -0.16), (-w / 2, -0.16)])
+        dos([(-w / 2, -0.16), (-0.02, -0.16), (-0.03, -largo), (-w / 2 + 0.03, -largo)])
+        dos([(0.02, -0.16), (w / 2, -0.16), (w / 2 - 0.03, -largo), (0.03, -largo)])
+    elif r < 0.85:                           # sabana o toalla, con la orilla despareja
+        h = 0.55 + r * 0.5
+        dos([(-w * 0.9, 0.0), (w * 0.9, 0.0), (w * 0.9, -h), (-w * 0.9, -h * 0.92)])
+    else:                                    # un par de calcetines
+        for lado in (-1, 1):
+            dos([(lado * 0.11 - 0.05, 0.0), (lado * 0.11 + 0.05, 0.0), (lado * 0.11 + 0.05, -0.26), (lado * 0.11 - 0.05, -0.26)])
+    for s in (-1, 1):                        # las pinzas sobre la cuerda
+        k.caja((centro[0] + ax * s * w * 0.4, centro[1] + 0.02, centro[2] + az * s * w * 0.4),
+               (0.04, 0.08, 0.03), "blanco_cal", giro)
+
+
 def patio(nombre, p):
     """Patio de atras a media cuadra (donde se ensancha un callejon): piso de cemento, lavadero,
     tendederos con ropa colgada, un tinaco en su base, cubetas y una silla."""
@@ -1233,22 +1447,32 @@ def patio(nombre, p):
     k.cara([(-hx, 0.04, hz), (hx, 0.04, hz), (hx, 0.04, -hz), (-hx, 0.04, -hz)], "concreto")
     # Lavadero de cemento con su pileta
     k.caja((-hx + 0.8, 0.45, -hz + 0.6), (1.4, 0.9, 0.8), "concreto", choca=True)
-    k.caja((-hx + 0.8, 0.93, -hz + 0.6), (1.2, 0.06, 0.6), "azul_gela")
+    k.caja((-hx + 0.8, 0.93, -hz + 0.6), (1.2, 0.06, 0.6), "fierro")
     # Tinaco en su base de block
     k.caja((hx - 1.0, 0.6, -hz + 1.0), (1.4, 1.2, 1.4), "foto_block", choca=True)
     k.cilindro((hx - 1.0, 1.2, -hz + 1.0), 0.6, 1.2, "tinaco", lados=10)
-    # Tendederos: dos postes, dos lazos y ropa de colores
-    ropa = ["rojo", "azul_gela", "blanco_cal", "lona_amarillo", "lona_rosa", "lona_verde"]
+    # Tendederos: dos postes, dos lazos que cuelgan y ropa con forma
+    semilla = _semilla_nombre(nombre)
     for x in (-hx + 0.4, hx - 0.4):
         k.caja((x, 1.2, 0.5), (0.08, 2.4, 0.08), "fierro")
     for j, z in enumerate((0.2, 0.8)):
-        k.caja((0, 2.2, z), (ancho - 0.8, 0.02, 0.02), "cable")
+        x0, x1 = -hx + 0.4, hx - 0.4
+        cuelga = 0.18 + (semilla + j) % 10 * 0.012
+        pasos = 6
+        for s in range(pasos):
+            t0, t1 = s / pasos, (s + 1) / pasos
+            def alto(t):
+                return 2.2 - cuelga * 4 * t * (1 - t)
+            xa, xb = x0 + (x1 - x0) * t0, x0 + (x1 - x0) * t1
+            k.caja(((xa + xb) / 2, (alto(t0) + alto(t1)) / 2, z), (xb - xa, 0.02, 0.02), "cable")
         for i in range(5):
-            x = -hx + 1.0 + i * (ancho - 2.0) / 4
-            k.caja((x, 1.85, z), (0.55, 0.7, 0.02), ropa[(i + j * 2 + len(nombre)) % len(ropa)])
+            t = (i + 0.5) / 5
+            x = x0 + (x1 - x0) * t
+            prenda(k, (x, 2.2 - cuelga * 4 * t * (1 - t), z), 0.0,
+                   ROPA_TENDIDA[(i + j * 2 + semilla) % len(ROPA_TENDIDA)], semilla + i * 7 + j * 31)
     # Cubetas y una silla de plastico
     k.cilindro((0.5, 0.0, -hz + 0.6), 0.18, 0.35, "lona_rojo", lados=6)
-    k.cilindro((1.0, 0.0, -hz + 0.5), 0.18, 0.35, "azul_gela", lados=6)
+    k.cilindro((1.0, 0.0, -hz + 0.5), 0.18, 0.35, "lona_amarillo", lados=6)
     k.caja((hx - 1.2, 0.22, hz - 1.0), (0.42, 0.44, 0.42), "rojo")
     return k
 
@@ -1744,12 +1968,21 @@ def reja_fierro(nombre, p):
     Cerrada: la salida es la flecha amarilla de adentro (Colonia.gd, marca "salida_colonia")."""
     k = Constructor(nombre)
     largo, alto, grueso = p.get("largo", 18.0), p.get("alto", 2.6), p.get("grueso", 0.3)
-    # Postes de concreto en las orillas y al centro (donde se juntan las dos hojas)
-    for x in (-largo / 2 + 0.3, 0.0, largo / 2 - 0.3):
-        k.caja((x, (alto + 0.3) / 2, 0), (0.6, alto + 0.3, grueso + 0.1), "concreto")
+    # Postes de concreto en las orillas y al centro (donde se juntan las dos hojas). En una reja
+    # angosta (la boca de la favela, 3 m) los de 0.6 m se comian el hueco: van a escala
+    poste = min(0.6, max(0.24, largo * 0.11))
+    medio = largo >= 5.0
+    for x in ([-largo / 2 + poste / 2, largo / 2 - poste / 2] + ([0.0] if medio else [])):
+        k.caja((x, (alto + 0.3) / 2, 0), (poste, alto + 0.3, grueso + 0.1), "concreto")
+    # Con "cerrar_hasta" se tapa de `alto` hasta ahi con el muro (la reja no llega al alto de la
+    # barda y quedaba un hueco de cielo encima del porton)
+    if p.get("cerrar_hasta", 0.0) > alto:
+        tapa = float(p["cerrar_hasta"])
+        k.caja((0, (alto + 0.3 + tapa) / 2, 0), (largo, tapa - alto - 0.3, grueso), "foto_block", choca=True)
     # Travesanos y barrotes de cada hoja, entre los postes
     for lado in (-1, 1):
-        x0, x1 = (-largo / 2 + 0.6, -0.3) if lado < 0 else (0.3, largo / 2 - 0.6)
+        x0, x1 = ((-largo / 2 + poste, -0.15) if medio else (-largo / 2 + poste, 0.0)) if lado < 0 else \
+                 ((0.15, largo / 2 - poste) if medio else (0.0, largo / 2 - poste))
         ancho = x1 - x0
         xm = (x0 + x1) / 2
         for y in (0.25, alto - 0.35):
@@ -1930,29 +2163,35 @@ def tunel_cuarto(nombre, p):
     alto = p.get("alto", TUNEL_ALTO)
     hx, hz = ancho / 2, fondo / 2
     uso = p.get("uso", "dormitorio")
+    if p.get("cueva"):
+        return _cuarto_cueva(k, ancho, fondo, p.get("material", "foto_block"), uso)
     semilla = _semilla_nombre(nombre)
+    # En las casas cueva (favela._cuartos_cueva) los choques van por dentro del cuarto: afuera esta
+    # el pasillo angosto y no se le puede quitar nada
+    e = -0.15 if p.get("choque_adentro") else 0.15
     k.cara([(-hx, 0.0, -hz), (hx, 0.0, -hz), (hx, 0.0, hz), (-hx, 0.0, hz)], "tierra" if uso != "tienda" else "concreto")
     k.choques.append(((0.0, -0.15, 0.0), (ancho, 0.3, fondo), 0.0))
     # Muros: fondo (-Z), los dos lados, y el frente con su puerta
     _dos(k, [(hx, 0.0, -hz), (-hx, 0.0, -hz), (-hx, alto, -hz), (hx, alto, -hz)], "foto_ladrillo_rojo")
-    k.choques.append(((0.0, alto / 2, -hz - 0.15), (ancho, alto, 0.3), 0.0))
+    k.choques.append(((0.0, alto / 2, -hz - e), (ancho, alto, 0.3), 0.0))
     for s in (-1, 1):
         x = s * hx
         _dos(k, [(x, 0.0, -hz), (x, 0.0, hz), (x, alto, hz), (x, alto, -hz)][::-s], "foto_ladrillo_rojo")
-        k.choques.append(((x + s * 0.15, alto / 2, 0.0), (0.3, alto, fondo), 0.0))
+        k.choques.append(((x + s * e, alto / 2, 0.0), (0.3, alto, fondo), 0.0))
     pa = 0.6
     for x0, x1 in ((-hx, -pa), (pa, hx)):
         _dos(k, [(x1, 0.0, hz), (x0, 0.0, hz), (x0, alto, hz), (x1, alto, hz)], "foto_ladrillo_rojo")
-        k.choques.append((((x0 + x1) / 2, alto / 2, hz + 0.15), (x1 - x0, alto, 0.3), 0.0))
+        k.choques.append((((x0 + x1) / 2, alto / 2, hz + e), (x1 - x0, alto, 0.3), 0.0))
     _dos(k, [(pa, alto - 0.4, hz), (-pa, alto - 0.4, hz), (-pa, alto, hz), (pa, alto, hz)], "foto_ladrillo_rojo")
     # Techo plano de losa (visto desde abajo)
     _dos(k, [(-hx, alto, -hz), (hx, alto, -hz), (hx, alto, hz), (-hx, alto, hz)][::-1], "concreto")
     k.caja((0.0, alto - 0.3, 0.0), (0.015, 0.3, 0.015), "cable")
     k.esfera((0.0, alto - 0.48, 0.0), 0.08, "farol", seg=6, anillos=4)
+    cama = min(2.0, fondo - 0.4)        # catres mas cortos en los cuartos chicos de las casas cueva
     if uso == "dormitorio":
-        for i, x in enumerate((-hx + 1.0, hx - 1.0)):
-            k.caja((x, 0.25, -hz + 1.2), (0.9, 0.5, 2.0), "fierro", choca=True)
-            k.caja((x, 0.55, -hz + 1.2), (0.86, 0.1, 1.9), ("lona_azul", "lona_verde")[i])
+        for i, x in enumerate((-hx + 0.55, hx - 0.55)):      # catres contra los muros (caben en 3.2 m)
+            k.caja((x, 0.25, -hz + 0.2 + cama / 2), (0.9, 0.5, cama), "fierro", choca=True)
+            k.caja((x, 0.55, -hz + 0.2 + cama / 2), (0.86, 0.1, cama - 0.1), ("lona_azul", "lona_verde")[i])
             k.caja((x, 0.66, -hz + 0.5), (0.5, 0.12, 0.35), "blanco_cal")
         k.caja((0.0, 0.38, hz - 1.0), (1.0, 0.76, 0.6), "foto_madera", choca=True)
         k.cilindro((0.2, 0.76, hz - 1.0), 0.06, 0.25, "veladora", lados=6)
@@ -1976,12 +2215,12 @@ def tunel_cuarto(nombre, p):
         k.choques.append(((hx / 2 + 0.35, 0.5, 0.0), (hx - 0.7, 1.0, fondo - 0.6), 0.0))
     elif uso == "casa":
         # Casa subterranea: cama, mesa con sillas, estufa, repisa y tapete
-        k.caja((-hx + 1.0, 0.25, -hz + 1.2), (0.9, 0.5, 2.0), "fierro", choca=True)
-        k.caja((-hx + 1.0, 0.55, -hz + 1.2), (0.86, 0.1, 1.9), "lona_rosa")
+        k.caja((-hx + 1.0, 0.25, -hz + 0.2 + cama / 2), (0.9, 0.5, cama), "fierro", choca=True)
+        k.caja((-hx + 1.0, 0.55, -hz + 0.2 + cama / 2), (0.86, 0.1, cama - 0.1), "lona_rosa")
         k.caja((-hx + 1.0, 0.66, -hz + 0.5), (0.5, 0.12, 0.35), "blanco_cal")
         k.caja((hx - 1.1, 0.4, -hz + 1.0), (0.8, 0.8, 0.8), "foto_madera", choca=True)
-        for sx in (-1, 1):
-            k.caja((sx * 0.9, 0.22, hz - 1.0), (0.4, 0.44, 0.4), "azul_gela")
+        for sx, sz in ((hx - 1.1, -hz + 1.75), (hx - 0.35, -hz + 1.0)):     # bancos junto a la mesa
+            k.caja((sx, 0.22, sz), (0.4, 0.44, 0.4), "azul_gela")
         k.caja((hx - 0.4, 0.6, hz - 0.6), (0.6, 1.0, 0.6), "fierro", choca=True)
         k.caja((hx - 0.4, 1.1, hz - 0.6), (0.62, 0.06, 0.62), "concreto")
         k.caja((0.0, 0.02, 0.0), (2.4, 0.02, 1.6), "lona_azul")
@@ -1995,7 +2234,7 @@ def tunel_cuarto(nombre, p):
             for y in (0.35, 0.95, 1.55):
                 k.caja((x, y, -hz / 2), (0.5, 0.04, fondo - 1.5), "foto_madera")
                 for i in range(int((fondo - 1.5) / 0.6)):
-                    k.caja((x, y + 0.14, -hz + 1.0 + i * 0.6), (0.36, 0.26, 0.4), "carton" if (semilla + i) % 2 else "lona_verde")
+                    k.caja((x, y + 0.14, -hz + 1.0 + i * 0.6), (0.36, 0.26, 0.4), "foto_carton" if (semilla + i) % 2 else "lona_verde")
         k.caja((0.0, 0.42, -hz + 0.6), (1.6, 0.84, 0.7), "foto_madera", choca=True)
         for i in range(4):
             k.caja((-0.6 + i * 0.4, 0.9, -hz + 0.6), (0.06, 0.08, 0.9), "fierro", giro=0.3 * (i % 2))
@@ -2089,7 +2328,7 @@ def bodega_tunel(nombre, p):
         for y in (0.5, 1.2):
             k.caja((x, y, 0.0), (0.5, 0.05, fondo - 3.2), "foto_madera")
         for i in range(5):
-            k.caja((x, 0.35 + (i % 2) * 0.7, -hz + 2.2 + i * 0.8), (0.42, 0.5, 0.55), "carton", choca=True)
+            k.caja((x, 0.35 + (i % 2) * 0.7, -hz + 2.2 + i * 0.8), (0.42, 0.5, 0.55), "foto_carton", choca=True)
     for z in (-hz + 2.3, hz - 2.3):
         k.caja((0.0, 0.5, z), (3.2, 1.0, 0.7), "foto_madera", choca=True)
         k.caja((0.0, 1.05, z), (3.0, 0.06, 0.55), "lona_rojo" if z < 0 else "lona_azul")
@@ -2135,6 +2374,62 @@ def _muro_con_puertas(k, a, b, alto, huecos, mat, choca=True):
     tramo(t, largo, 0.0, alto, mat, choca)
 
 
+CUEVA_CELDA = 0.2      # m de la reticula con la que se rellena una casa cueva
+
+
+def _relleno_cueva(k, pasillos, ancho, x0, x1, z0, z1, alto, mat, cuartos=()):
+    """Rellena de muro macizo (con choque) el interior de x0..x1, z0..z1 menos los pasillos: las
+    celdas a mas de ancho/2 de cualquier tramo de los pasillos se juntan en rectangulos (filas y
+    luego columnas iguales) y cada uno es una caja hasta la losa."""
+    g = CUEVA_CELDA
+    nx, nz = max(1, int((x1 - x0) / g)), max(1, int((z1 - z0) / g))
+    gx, gz = (x1 - x0) / nx, (z1 - z0) / nz
+    tramos = [(a, b) for ruta in pasillos for a, b in zip(ruta, ruta[1:])]
+    # Media celda de mas: la celda cuyo centro cae justo afuera se dejaba maciza y se comia hasta
+    # 0.2 m de cada lado del pasillo (y mas en las vueltas)
+    r2 = (ancho / 2 + g * 0.5) ** 2
+
+    def libre(px, pz):
+        for (ax, az), (bx, bz) in tramos:
+            dx, dz = bx - ax, bz - az
+            l2 = dx * dx + dz * dz
+            t = 0.0 if l2 == 0 else max(0.0, min(1.0, ((px - ax) * dx + (pz - az) * dz) / l2))
+            ex, ez = ax + dx * t - px, az + dz * t - pz
+            if ex * ex + ez * ez <= r2:
+                return True
+        return False
+
+    def en_cuarto(px, pz):      # los cuartos de favela._cuartos_cueva: [cx, cz, medio x, medio z, ...]
+        return any(abs(px - q[0]) < q[2] + 0.05 and abs(pz - q[1]) < q[3] + 0.05 for q in cuartos)
+
+    lleno = [[not libre(x0 + (i + 0.5) * gx, z0 + (j + 0.5) * gz) and not en_cuarto(x0 + (i + 0.5) * gx, z0 + (j + 0.5) * gz)
+              for i in range(nx)] for j in range(nz)]
+    # Corridas por fila y luego se juntan las iguales de filas seguidas
+    abiertos = {}
+    rects = []
+    for j in range(nz + 1):
+        corridas = set()
+        if j < nz:
+            i = 0
+            while i < nx:
+                if lleno[j][i]:
+                    i0 = i
+                    while i < nx and lleno[j][i]:
+                        i += 1
+                    corridas.add((i0, i))
+                else:
+                    i += 1
+        for c in list(abiertos):
+            if c not in corridas:
+                rects.append((c[0], c[1], abiertos.pop(c), j))
+        for c in corridas:
+            abiertos.setdefault(c, j)
+    for i0, i1, j0, j1 in rects:
+        ax, bx = x0 + i0 * gx, x0 + i1 * gx
+        az, bz = z0 + j0 * gz, z0 + j1 * gz
+        k.caja(((ax + bx) / 2, alto / 2, (az + bz) / 2), (bx - ax, alto, bz - az), mat, choca=True)
+
+
 def abandonada(nombre, p):
     """Casa abandonada que se cruza: muros de obra negra con un marco de puerta abierto en cada
     lado de `puertas` [[lado, centro, ancho]] (lado 0..3 = N, E, S, O de la huella, centro a lo
@@ -2167,21 +2462,27 @@ def abandonada(nombre, p):
     if pisos > 1:
         # El piso de arriba es macizo (no se entra): su choque va con los del techo
         k.choques_techo.append((((x0 + x1) / 2, piso + 0.16 + (alto - piso - 0.16) / 2, (z0 + z1) / 2), (x1 - x0, alto - piso - 0.16, z1 - z0), 0.0))
+    # Casa cueva: todo relleno menos los pasillos angostos de puerta a puerta (favela._pasillos)
+    if p.get("pasillos"):
+        _relleno_cueva(k, p["pasillos"], float(p.get("pasillo_ancho", 1.4)), x0 + ABANDONADA_MURO, x1 - ABANDONADA_MURO,
+                       z0 + ABANDONADA_MURO, z1 - ABANDONADA_MURO, piso, mat, p.get("cuartos", ()))
     # Piso de tierra con manchas de cascajo
     k.cara([(x0, 0.03, z1), (x1, 0.03, z1), (x1, 0.03, z0), (x0, 0.03, z0)], "tierra")
     k.choques.append((((x0 + x1) / 2, -0.15, (z0 + z1) / 2), (x1 - x0, 0.3, z1 - z0), 0.0))
     # La losa (vista desde abajo), la azotea con su pretil y un foco pelon colgado del centro
     cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
-    k.techo.caja((cx, piso + 0.08, cz), (x1 - x0, 0.16, z1 - z0), "concreto", sin_abajo=False)
+    # La losa, con la textura del muro: en concreto liso se veia blanca desde adentro (JJ, 2026-11-14)
+    k.techo.caja((cx, piso + 0.08, cz), (x1 - x0, 0.16, z1 - z0), mat, sin_abajo=False)
     if pisos > 1:
-        k.techo.caja((cx, alto + 0.04, cz), (x1 - x0, 0.08, z1 - z0), "concreto")
+        k.techo.caja((cx, alto + 0.04, cz), (x1 - x0, 0.08, z1 - z0), mat)
     for (a, b) in lados:
         (ax, az), (bx, bz) = a, b
         k.techo.caja(((ax + bx) / 2, alto + 0.2, (az + bz) / 2), (math.hypot(bx - ax, bz - az), 0.4, 0.15), mat,
                      giro=math.atan2(-(bz - az), bx - ax))
     k.choques_techo.append(((cx, alto - 0.15, cz), (x1 - x0, 0.3, z1 - z0), 0.0))
-    k.techo.caja((cx, piso - 0.2, cz), (0.015, 0.4, 0.015), "cable")
-    k.esfera((cx, piso - 0.46, cz), 0.07, "farol", seg=6, anillos=4)
+    if not p.get("cuartos"):        # con cuartos, cada uno lleva su foco y la luz va al pasillo
+        k.techo.caja((cx, piso - 0.2, cz), (0.015, 0.4, 0.015), "cable")
+        k.esfera((cx, piso - 0.46, cz), 0.07, "farol", seg=6, anillos=4)
     return k
 
 
@@ -2194,11 +2495,13 @@ def techo_callejon(nombre, p):
     largo, ancho = p.get("largo", 6.0), p.get("ancho", 2.0)
     hx, hz = largo / 2, ancho / 2
     piso = PISO
-    k.techo.caja((0.0, piso + 0.08, 0.0), (largo, 0.16, ancho + 0.3), "concreto", sin_abajo=False)
+    # La losa con la textura del muro (en concreto liso se veia blanca desde abajo)
+    k.techo.caja((0.0, piso + 0.08, 0.0), (largo, 0.16, ancho + 0.3), "foto_block", sin_abajo=False)
     k.choques_techo.append(((0.0, piso + 0.08, 0.0), (largo, 0.16, ancho + 0.3), 0.0))
+    # Los postes de las bocas, delgados y metidos en la pared: de 0.24 m dejaban 1.2 m de paso
     for x in (-hx + 0.15, hx - 0.15):
         for s in (-1, 1):
-            k.caja((x, piso / 2, s * (hz - 0.12)), (0.3, piso, 0.24), "foto_block", choca=True)
+            k.caja((x, piso / 2, s * (hz - 0.05)), (0.3, piso, 0.1), "foto_block")
         k.caja((x, ABANDONADA_PUERTA + (piso - ABANDONADA_PUERTA) / 2, 0.0), (0.3, piso - ABANDONADA_PUERTA, ancho), "foto_block")
         k.caja((x, ABANDONADA_PUERTA + 0.06, 0.0), (0.34, 0.12, ancho - 0.4), "concreto")
     k.techo.caja((0.0, piso - 0.2, 0.0), (0.015, 0.4, 0.015), "cable")
@@ -2209,7 +2512,8 @@ def techo_callejon(nombre, p):
 PIEZAS = {"bodega_tunel": bodega_tunel, "tinaco_comunitario": tinaco_comunitario, "tunel": tunel, "tunel_cuarto": tunel_cuarto, "puesto": puesto, "banca": banca, "jardinera": jardinera, "fuente": fuente,
           "parroquia": parroquia, "palacio": palacio, "ficus": ficus, "portal": portal, "atrio": atrio,
           "cancha": cancha, "espectacular": espectacular, "base_gela": base_gela, "tiendita": tiendita, "tortilleria": tortilleria, "tope": tope, "mercado": mercado, "bajada": bajada, "basamento": basamento, "plinto": plinto, "escalinata": escalinata, "puente": puente, "antena_radio": antena_radio, "barda": barda, "lote": lote, "carro": carro, "patio": patio,
-          "escalera": escalera, "tablon": tablon, "toldo": toldo, "poste_luz": poste_luz, "vecindad": vecindad,
+          "escalera": escalera, "tablon": tablon, "jardinera_plaza": jardinera_plaza, "toldo": toldo, "poste_luz": poste_luz, "vecindad": vecindad,
           "valla_gela": valla_gela, "camion_volteado": camion_volteado, "escombro": escombro, "reja": reja,
           "reja_fierro": reja_fierro, "muralla": muralla, "mirador_muro": mirador_muro, "nicho_virgen": nicho_virgen,
-          "puesto_guardia": puesto_guardia, "abandonada": abandonada, "techo_callejon": techo_callejon}
+          "puesto_guardia": puesto_guardia, "abandonada": abandonada, "techo_callejon": techo_callejon,
+          "papel_picado": papel_picado, "lona_sombra": lona_sombra}

@@ -196,7 +196,7 @@ def _pieza(col, p):
         malla = k["casa_malla"](nombre, p["puntos"], p.get("pisos", 1), color, p.get("frente", 0),
                                 p.get("desgaste", 0.5), p.get("tienda", False), p.get("tinaco", True), p.get("varillas"),
                                 p.get("detalles", True), _acabado(p), p.get("obra"), p.get("ventanal", False), p.get("tapado", 0.0),
-                                p.get("ventanas"))
+                                p.get("ventanas"), p.get("limpio", False), p.get("balcones"))
         ob = bpy.data.objects.new(nombre, malla)
         ob.location = a_blender(x, z, y)
         ob.rotation_euler = (0.0, 0.0, rot)
@@ -914,6 +914,7 @@ class _Trozos:
 
 TENDEDERO_CADA = (4.5, 8.0)   # m entre cuerdas a lo largo de un callejon
 TENDEDERO_ALTO = (3.4, 5.2)   # m de alto en las puntas (del primer al segundo piso)
+TENDEDERO_BAJO = (2.3, 2.9)   # ... y entre casas de un piso
 BASURA_CADA = (8.0, 16.0)
 FOCO_CADA = (10.0, 15.0)      # m entre focos colgados a lo largo de un callejon
 
@@ -925,14 +926,105 @@ def _cada(datos, que, defecto):
     return tuple(v) if v else defecto
 
 
+def _prenda(c, q, giro, r, colores):
+    """Una prenda colgada de la cuerda en `q`: camiseta, pantalon, sabana, vestido o calcetines,
+    cada una de dos caras planas y con su giro al azar, como mecida por el aire. Quads convexos."""
+    yaw = giro + r.uniform(-0.3, 0.3)
+    ax, az = math.cos(yaw), -math.sin(yaw)
+    col = r.choice(colores)
+    def punto(a, h):
+        return (q[0] + ax * a, q[1] + h, q[2] + az * a)
+    def dos(pts, color):
+        e = [punto(a, h) for a, h in pts]
+        c.cara(e, color)
+        c.cara(e[::-1], color)
+    tipo = r.random()
+    ancho_pinzas = 0.22
+    if tipo < 0.35:                      # camiseta: hombros con mangas y el cuerpo
+        w = r.uniform(0.44, 0.6)
+        ancho_pinzas = w * 0.4
+        dos([(-w / 2, 0.0), (w / 2, 0.0), (w / 2 * 0.95, -0.2), (-w / 2 * 0.95, -0.2)], col)
+        dos([(-w * 0.3, -0.2), (w * 0.3, -0.2), (w * 0.3, -r.uniform(0.6, 0.7)), (-w * 0.3, -r.uniform(0.6, 0.7))], col)
+    elif tipo < 0.6:                     # pantalon: cintura y dos piernas
+        w = r.uniform(0.34, 0.44)
+        largo = r.uniform(0.6, 0.85)
+        dos([(-w / 2, 0.0), (w / 2, 0.0), (w / 2, -0.15), (-w / 2, -0.15)], col)
+        dos([(-w / 2, -0.15), (-0.02, -0.15), (-0.03, -largo), (-w / 2 + 0.03, -largo)], col)
+        dos([(0.02, -0.15), (w / 2, -0.15), (w / 2 - 0.03, -largo), (0.03, -largo)], col)
+    elif tipo < 0.75:                    # sabana o toalla
+        w, h = r.uniform(0.7, 1.1), r.uniform(0.6, 0.95)
+        dos([(-w / 2, 0.0), (w / 2, 0.0), (w / 2, -h), (-w / 2, -h * 0.94)], col)
+    elif tipo < 0.87:                    # vestido
+        w = r.uniform(0.3, 0.4)
+        dos([(-w * 0.4, 0.0), (w * 0.4, 0.0), (w * 0.85, -r.uniform(0.65, 0.9)), (-w * 0.85, -r.uniform(0.65, 0.9))], col)
+    else:                                # un par de calcetines
+        for lado in (-1, 1):
+            dos([(lado * 0.1 - 0.05, 0.0), (lado * 0.1 + 0.05, 0.0), (lado * 0.1 + 0.05, -0.24), (lado * 0.1 - 0.05, -0.24)], col)
+    # Las dos pinzas sobre la cuerda
+    for s in (-1, 1):
+        q = punto(s * ancho_pinzas, 0.02)
+        c.caja(q, (0.04, 0.08, 0.03), "blanco_cal", yaw)
+
+
+def _paredes_favela(datos):
+    """[(x0, z0, x1, z1, poligono, pisos)] de las casas de la favela (casas y abandonadas) en el
+    mundo: sirve para saber si de un lado de un callejon hay pared de verdad."""
+    res = []
+    for p in datos.get("piezas", []):
+        if p["tipo"] not in ("casa", "abandonada") or not p.get("puntos"):
+            continue
+        c, s = math.cos(p.get("rot", 0.0)), math.sin(p.get("rot", 0.0))
+        poli = [(p["x"] + lx * c + lz * s, p["z"] - lx * s + lz * c) for lx, lz in p["puntos"]]
+        res.append((min(q[0] for q in poli), min(q[1] for q in poli), max(q[0] for q in poli),
+                    max(q[1] for q in poli), poli, int(p.get("pisos", 1))))
+    return res
+
+
+def _pared_en(paredes, x, z):
+    """Los pisos de la casa que cubre (x, z), o 0 si ahi no hay casa."""
+    for x0, z0, x1, z1, poli, pisos in paredes:
+        if x0 <= x <= x1 and z0 <= z <= z1:
+            dentro = False
+            j = len(poli) - 1
+            for i in range(len(poli)):
+                if (poli[i][1] > z) != (poli[j][1] > z) and x < (poli[j][0] - poli[i][0]) * (z - poli[i][1]) / (poli[j][1] - poli[i][1]) + poli[i][0]:
+                    dentro = not dentro
+                j = i
+            if dentro:
+                return pisos
+    return 0
+
+
+def _entre_paredes(paredes, x, z, nx, nz, ancho):
+    """Del eje de un callejon en (x, z) hacia los dos lados (n y -n): (distancia a la pared de -n,
+    distancia a la de +n, pisos de la casa mas baja), o None si de algun lado no hay casa cerca.
+    Las casas de la favela no siempre llegan a la orilla del callejon (hay rendijas): lo colgado
+    tiene que llegar hasta la pared de verdad, si no queda flotando."""
+    lados = []
+    for sg in (-1, 1):
+        d, pisos = 0.2, 0
+        while d < ancho / 2 + 2.5:
+            pisos = _pared_en(paredes, x + nx * sg * d, z + nz * sg * d)
+            if pisos:
+                break
+            d += 0.05
+        if not pisos:
+            return None
+        lados.append((d, pisos))
+    return lados[0][0], lados[1][0], min(lados[0][1], lados[1][1])
+
+
 def _tendederos(mundo, datos):
     """Cuerdas de un lado al otro de cada callejon (calles de empedrado sin banqueta), de fachada
     a fachada, colgadas a la mitad, la mayoria con ropa y algunas solo cable de luz, en trozos
     (_Trozos). Mismo azar en cada armada (semilla por callejon)."""
     pz = _piezas()
     trozo = _Trozos("Tendedero")
-    colores = ["lona_" + n for n in pz["LONAS"]] + ["blanco_cal"]
+    # Con textura de tela (kit.TELAS): los colores lisos parecian cartulinas colgadas
+    colores = ["foto_tela_" + n for n in _kit()["TELAS"]]
     hubo = False
+    # En la favela solo cuelgan de casas de dos pisos de los dos lados (si no, flotan)
+    paredes = _paredes_favela(datos) if datos.get("favela") else None
     for p in datos.get("piezas", []):
         if p["tipo"] != "calle" or p.get("material") != "empedrado" or p.get("banqueta", 0) > 0:
             continue
@@ -948,34 +1040,39 @@ def _tendederos(mundo, datos):
             nx, nz = -uz, ux
             s = r.uniform(1.5, 4.0)
             while s < largo - 1.5:
+                mx, mz = ax + ux * s, az + uz * s
+                d0 = d1 = medio
+                alto_cuerda = TENDEDERO_ALTO
+                if paredes is not None:
+                    hay = _entre_paredes(paredes, mx, mz, nx, nz, p["ancho"])
+                    if hay is None:
+                        s += r.uniform(*_cada(datos, "tendedero_cada", TENDEDERO_CADA))
+                        continue
+                    # Tambien entre casas de un piso, mas abajo: con solo las de dos pisos habia
+                    # pocos tendederos en la favela (JJ, 2026-11-14)
+                    if hay[2] < 2:
+                        alto_cuerda = TENDEDERO_BAJO
+                    d0, d1 = hay[0] + 0.1, hay[1] + 0.1     # hasta la pared de verdad
                 hubo = True
                 c = trozo(p["nombre"], s)
-                mx, mz = ax + ux * s, az + uz * s
-                y0, y1 = r.uniform(*TENDEDERO_ALTO), r.uniform(*TENDEDERO_ALTO)
+                y0, y1 = r.uniform(*alto_cuerda), r.uniform(*alto_cuerda)
                 cuelga = r.uniform(0.25, 0.5)
-                pa = (mx - nx * medio, y0, mz - nz * medio)
-                pb = (mx + nx * medio, y1, mz + nz * medio)
+                pa = (mx - nx * d0, y0, mz - nz * d0)
+                pb = (mx + nx * d1, y1, mz + nz * d1)
                 def punto(t):
                     return (pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t - cuelga * 4 * t * (1 - t),
                             pa[2] + (pb[2] - pa[2]) * t)
-                pasos = 4
+                pasos = 6
                 giro = math.atan2(-nz, nx)
                 for j in range(pasos):
                     q0, q1 = punto(j / pasos), punto((j + 1) / pasos)
                     lx = math.hypot(q1[0] - q0[0], q1[2] - q0[2])
                     c.caja(((q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2 - 0.01, (q0[2] + q1[2]) / 2), (lx, 0.02, 0.02), "cable", giro)
-                if r.random() < 0.75:
-                    prendas = r.randint(*tuple(int(b) for b in _cada(datos, "prendas", (2, 5))))
+                if r.random() < 0.8:
+                    prendas = r.randint(*tuple(int(b) for b in _cada(datos, "prendas", (3, 7))))
                     for i in range(prendas):
                         t = (i + r.uniform(0.2, 0.8)) / prendas * 0.8 + 0.1
-                        q = punto(t)
-                        ancho, colgado = r.uniform(0.3, 0.55), r.uniform(0.35, 0.7)
-                        # Una prenda es un quad por las dos caras (era una caja: seis caras)
-                        col = r.choice(colores)
-                        hx, hz = math.cos(giro) * ancho / 2, -math.sin(giro) * ancho / 2
-                        esq = [(q[0] - hx, q[1] - colgado, q[2] - hz), (q[0] + hx, q[1] - colgado, q[2] + hz), (q[0] + hx, q[1], q[2] + hz), (q[0] - hx, q[1], q[2] - hz)]
-                        c.cara(esq, col)
-                        c.cara(esq[::-1], col)
+                        _prenda(c, punto(t), giro, r, colores)
                 s += r.uniform(*_cada(datos, "tendedero_cada", TENDEDERO_CADA))
     if hubo:
         trozo.poner(mundo)
@@ -988,6 +1085,8 @@ def focos_callejones(datos):
     """Donde cuelga un foco en cada callejon: [(x, y, z), ...] en metros del juego. colonia.py
     dibuja el foco y su cable; exportar.py los vuelve marcas "foco" (Colonia.gd pone la luz)."""
     focos = []
+    # En la favela el cable solo va de pared a pared de casas de dos pisos (si no, flota)
+    paredes = _paredes_favela(datos) if datos.get("favela") else None
     for p in datos.get("piezas", []):
         if p["tipo"] != "calle" or p.get("material") != "empedrado" or p.get("banqueta", 0) > 0:
             continue
@@ -998,20 +1097,28 @@ def focos_callejones(datos):
         ux, uz = (bx - ax) / (largo or 1.0), (bz - az) / (largo or 1.0)
         s = r.uniform(4.0, 8.0)
         while s < largo - 2.0:
-            focos.append((round(ax + ux * s, 2), round(r.uniform(*FOCO_ALTO), 2), round(az + uz * s, 2), p["ancho"], ux, uz,
-                          p["nombre"], s))
+            x, z, y = ax + ux * s, az + uz * s, r.uniform(*FOCO_ALTO)
+            d0 = d1 = p["ancho"] / 2 + 0.5
+            if paredes is not None:
+                hay = _entre_paredes(paredes, x, z, -uz, ux, p["ancho"])
+                if hay is None or hay[2] < 2:
+                    s += r.uniform(*_cada(datos, "foco_cada", FOCO_CADA))
+                    continue
+                d0, d1 = hay[0] + 0.1, hay[1] + 0.1
+            focos.append((round(x, 2), round(y, 2), round(z, 2), p["ancho"], ux, uz, p["nombre"], s, d0, d1))
             s += r.uniform(*_cada(datos, "foco_cada", FOCO_CADA))
     return focos
 
 
 def _focos(trozo, datos):
     """El cable de fachada a fachada y el foco colgando de un cordon, en su trozo de callejon."""
-    for x, y, z, ancho, ux, uz, callejon, s in focos_callejones(datos):
+    for x, y, z, ancho, ux, uz, callejon, s, d0, d1 in focos_callejones(datos):
         c = trozo(callejon, s)
         nx, nz = -uz, ux
-        medio = ancho / 2 + 0.5
         giro = math.atan2(-nz, nx)
-        c.caja((x, y, z), (medio * 2, 0.02, 0.02), "cable", giro)
+        # El cable de pared a pared (d0 hacia -n, d1 hacia +n); el foco cuelga del eje
+        cx, cz = x + nx * (d1 - d0) / 2, z + nz * (d1 - d0) / 2
+        c.caja((cx, y, cz), (d0 + d1, 0.02, 0.02), "cable", giro)
         c.caja((x, y - 0.15, z), (0.015, 0.3, 0.015), "cable")
         c.cono((x, y - 0.30, z), 0.13, 0.10, "fierro", lados=6)
         c.esfera((x, y - 0.36, z), 0.11, "farol", seg=6, anillos=3)
@@ -1046,11 +1153,49 @@ def _basura(c, x, z, r, bolsas=(2, 5)):
         c.esfera((x + r.uniform(-0.5, 0.5), rad * 0.7, z + r.uniform(-0.4, 0.4)), rad, "bolsa_negra", seg=5, anillos=3, aplastar=0.75)
     for i in range(r.randint(0, 2)):
         lado = r.uniform(0.3, 0.5)
-        c.caja((x + r.uniform(-0.6, 0.6), lado / 2, z + r.uniform(-0.4, 0.4)), (lado, lado * 0.8, lado), "carton", r.uniform(0, 3))
+        c.caja((x + r.uniform(-0.6, 0.6), lado / 2, z + r.uniform(-0.4, 0.4)), (lado, lado * 0.8, lado), "foto_carton", r.uniform(0, 3))
     if r.random() < 0.4:
         lx, lz = x + r.uniform(-0.6, 0.6), z + r.uniform(-0.4, 0.4)
         for i in range(r.randint(1, 3)):
             c.cilindro((lx, i * 0.24, lz), 0.33, 0.22, "fierro", lados=8)
+
+
+CAPILLAS_FAVELA = 8            # altares (capillitas de la Virgen) en toda la favela
+CAPILLAS_SEPARACION = 40.0     # m entre dos de ellas
+
+
+def _capillas_favela(datos):
+    """{callejon: lado} de las CAPILLAS_FAVELA capillitas de la favela: repartidas, y cada una con
+    una casa pegada de ese lado (la capilla va recargada en la pared, nunca en un claro)."""
+    paredes = _paredes_favela(datos)
+    r = __import__("random").Random(int(datos.get("favela", {}).get("semilla", 7)) + 77)
+    calles = [p for p in datos.get("piezas", [])
+              if p["tipo"] == "calle" and p.get("material") == "empedrado" and not p.get("banqueta", 0) > 0]
+    r.shuffle(calles)
+    elegidas, puestas = {}, []
+    for p in calles:
+        (ax, az), (bx, bz) = [(p["x"] + a, p["z"] + b) for a, b in p["puntos"][:2]]
+        largo = math.hypot(bx - ax, bz - az)
+        if largo < 4.0:
+            continue
+        ux, uz = (bx - ax) / largo, (bz - az) / largo
+        nx, nz = -uz, ux
+        s = min(2.5, largo / 3)
+        px, pz = ax + ux * s, az + uz * s
+        if any(math.hypot(px - qx, pz - qz) < CAPILLAS_SEPARACION for qx, qz in puestas):
+            continue
+        lados = [1, -1]
+        r.shuffle(lados)
+        for lado in lados:
+            # Pared de casa a los dos lados de la capilla (0.6 m a lo largo) y a 0.3 m de su fondo
+            fuera = p["ancho"] / 2 + 0.3
+            if all(_pared_en(paredes, px + nx * lado * fuera + ux * d, pz + nz * lado * fuera + uz * d) for d in (-0.6, 0.0, 0.6)):
+                elegidas[p["nombre"]] = lado
+                puestas.append((px, pz))
+                break
+        if len(elegidas) >= CAPILLAS_FAVELA:
+            break
+    return elegidas
 
 
 def _vida_callejones(mundo, datos):
@@ -1059,6 +1204,7 @@ def _vida_callejones(mundo, datos):
     pz = _piezas()
     trozo = _Trozos("Callejon")
     hubo = False
+    capillas = _capillas_favela(datos) if datos.get("favela") else None
     for p in datos.get("piezas", []):
         if p["tipo"] != "calle" or p.get("material") != "empedrado" or p.get("banqueta", 0) > 0:
             continue
@@ -1075,9 +1221,13 @@ def _vida_callejones(mundo, datos):
         nx, nz = -uz, ux
         # "basura_min": en callejones mas cortos no hay basura (la favela tiene cientos de 7 m)
         sin_basura = largo < _cada(datos, "basura_min", (0.0,))[0]
-        # Una capillita en uno de cada "capilla_cada" callejones (dos, salvo que la colonia diga otra cosa)
-        if semilla % int(_cada(datos, "capilla_cada", (2,))[0]) == 0:
-            lado = 1 if semilla % 4 == 0 else -1
+        # Una capillita en uno de cada "capilla_cada" callejones (dos, salvo que la colonia diga otra
+        # cosa); en la favela, solo las CAPILLAS_FAVELA elegidas, siempre pegadas a una pared
+        if capillas is not None:
+            lado = capillas.get(p["nombre"], 0)
+        else:
+            lado = (1 if semilla % 4 == 0 else -1) if semilla % int(_cada(datos, "capilla_cada", (2,))[0]) == 0 else 0
+        if lado:
             s = min(2.5, largo / 3)
             # Su frente (+Z local) hacia el centro del callejon: -n * lado
             fx, fz = -nx * lado, -nz * lado
