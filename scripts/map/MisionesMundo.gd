@@ -855,11 +855,11 @@ func _ajustar_camioneta(paso: PasoMision) -> void:
 	if not quiere or is_instance_valid(_camioneta):
 		return
 	if paso.lugar == "salida_colonia":
-		var muro := get_tree().get_first_node_in_group("muro_colonia") as MuroColonia
-		if muro == null or not muro.rejas.has(Misiones.salida_camioneta):
+		var muro := MuroColonia.de(get_tree(), "santa_mugre")
+		if muro == null or not muro.tiene_reja(Misiones.salida_camioneta):
 			return   # en la colonia no sale: la ruta es afuera
 		var lado := Misiones.salida_camioneta
-		var afuera := MuroColonia.hacia_afuera(lado)
+		var afuera := muro.hacia_afuera(lado)
 		_salir_camioneta(paso, muro.afuera(lado, CAMIONETA_AFUERA) + afuera.cross(Vector3.UP) * CAMIONETA_AL_LADO, afuera)
 		# Los zombis no tardan: la primera turba llega casi de inmediato
 		_ola_andando_en = CAMIONETA_PRIMERA_OLA_AFUERA
@@ -897,11 +897,13 @@ func _salir_camioneta(paso: PasoMision, desde: Vector3, rumbo: Vector3) -> void:
 	if restante <= 0.0:
 		restante = CAMIONETA_NOCHE_SIN_CICLO   # el Ciclo no sabe de noche (escenas de prueba)
 	var casas := _lugares_de_casas(desde, CAMIONETA_CANDIDATAS * 2, CAMIONETA_CASAS)
-	# Ninguna adentro de la colonia amurallada (ahi no entra)
-	var muro := get_tree().get_first_node_in_group("muro_colonia") as MuroColonia
+	# Ninguna adentro de una fortaleza (ahi no entra)
+	var muros := get_tree().get_nodes_in_group("muro_colonia")
 	var candidatas: Array[Vector3] = []
 	for casa in casas:
-		if (muro == null or not muro.rect.grow(CAMIONETA_AFUERA).has_point(Vector2(casa.x, casa.z))) and candidatas.size() < CAMIONETA_CANDIDATAS:
+		var libre := muros.all(func(muro: MuroColonia) -> bool:
+			return not muro.contiene(Vector2(casa.x, casa.z), CAMIONETA_AFUERA))
+		if libre and candidatas.size() < CAMIONETA_CANDIDATAS:
 			candidatas.append(casa)
 	_camioneta = CamionetaReparto.crear_reparto(self, desde, candidatas, paso.cuantos, vida, paso.vida_acompanante, \
 			restante, paso.descarga_s, rumbo)

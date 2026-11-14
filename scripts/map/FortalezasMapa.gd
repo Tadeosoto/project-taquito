@@ -1,63 +1,13 @@
 class_name FortalezasMapa
 extends Node3D
-## Las otras dos fortalezas y las cinco defensas del tinaco en el mapa completo (docs/mapa/zona-enfoque.md).
-## Santa Mugre tiene su propio muro (MuroColonia); aqui van:
-## - Los Reservorios (GelA): barda alrededor del ITESO de OSM, recortado en la orilla norte del mapa,
-##   con una caseta y su pluma (cerrada) en la avenida de arriba.
-## - La Gotera: en Haciendas de San Jodido (docs/mapa/colonias/la_gotera.md), por las calles para no partir
-##   casas: la barda va por la banqueta poniente de la Av. del Cedro (la avenida queda adentro), la del norte
-##   por la banqueta sur de Primavera, la del sur por la banqueta norte de Nogal y la del oriente por la orilla
-##   del mapa. Donde la avenida sale por el norte y por el sur hay una reja abierta (solo los postes) con una
-##   flecha amarilla por fuera que lleva a la colonia de Blender `la_gotera` (el tianguis lineal de la avenida,
-##   abierto para cualquiera; PasoColonia). La quinta entrega de la mafia (Misiones.favela_abierta, M7) ya no
-##   abre esta reja: abre las bocas de la favela, adentro del tianguis (Colonia.gd, marcas "paso"). Por dentro
-##   del muro siguen las casas de map_test (no se camina: se entra por la flecha).
-## - Los cinco tinacos de la defensa (SitiosTinaco: solo el tinaco, sin barricada; Chava los ofrece de dia y
-##   la defensa es la escena defensa_tinaco).
-## Todo choca en la capa 1, como las casas y el muro de Santa Mugre.
+## Lo que se pone en el mapa completo fuera de las bardas: las cinco defensas del tinaco (SitiosTinaco: solo
+## el tinaco, sin barricada; Chava los ofrece de dia y la defensa es la escena defensa_tinaco), la torre de
+## la antena (M4) y la enfermeria (M5). Las fortalezas amuralladas (Santa Mugre, La Gotera y Los Reservorios)
+## son nodos MuroColonia leidos de resources/map/fortalezas.json (S9).
+## Todo choca en la capa 1, como las casas.
 
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 const MODELO_TINACO := preload("res://models/props/tinaco/tinaco.scn")
-
-## Vertices (x, z) de la barda de GelA: el poligono "ITESO" de OSM; el ultimo tramo corre por la orilla norte
-const GELA := [
-	Vector2(279.0, -897.5), Vector2(278.4, -651.4), Vector2(-75.1, -749.9), Vector2(-103.8, -760.3),
-	Vector2(-166.9, -777.5), Vector2(-318.3, -828.1), Vector2(-432.8, -787.1), Vector2(-459.9, -846.9),
-	Vector2(-473.7, -897.5),
-]
-const GELA_ALTO := 3.6
-const GELA_COLOR := Color(0.86, 0.87, 0.88)
-## La caseta, sobre el tramo de la avenida (GELA[1] a GELA[2]): centro del hueco y su ancho
-const CASETA := Vector2(-50.0, -742.9)
-const CASETA_HUECO := 7.0
-
-## Vertices (x, z) de la barda de La Gotera: las calles de OSM corridas BANQUETA m hacia afuera de su eje.
-## De la esquina noroeste baja por la Av. del Cedro, sigue al oriente por Nogal, sube por la orilla del mapa
-## y regresa por Primavera
-const GOTERA := [
-	Vector2(722.9, -341.5), Vector2(720.4, -309.9), Vector2(717.4, -273.0), Vector2(714.3, -235.2),
-	Vector2(713.4, -224.0), Vector2(710.0, -182.8), Vector2(707.1, -146.9), Vector2(704.4, -113.9),
-	Vector2(709.9, -113.4), Vector2(790.8, -106.4), Vector2(914.0, -95.7), Vector2(914.0, -324.1),
-	Vector2(811.5, -333.4), Vector2(728.4, -341.0),
-]
-const BANQUETA := 5.5        # m del eje de la calle a la barda: media calle de 7 m y la banqueta
-const GOTERA_ALTO := 3.2
-const GOTERA_COLOR := Color(0.5, 0.5, 0.47)
-## Donde sale la Av. del Cedro: centro (x, z) de cada reja (el eje de la avenida), su rumbo y su largo
-const GOTERA_REJAS := [
-	[Vector2(728.4, -341.0), Vector2(0.9959, 0.0909), 2.0 * BANQUETA],
-	[Vector2(709.9, -113.5), Vector2(0.996, 0.0895), 2.0 * BANQUETA],
-]
-## Lo que se cierra a los carros (CallesRuta solo cierra rectangulos): de la avenida a la orilla, entre
-## Primavera y Nogal
-const GOTERA_CALLES := Rect2(704.0, -324.0, 210.0, 210.0)
-const GOTERA_ENTRAR := "Entrar a La Gotera"
-## Nombre de la colonia de Blender del tianguis y el lado de cada reja (PasoColonia.lado), en el orden de GOTERA_REJAS
-const GOTERA_COLONIA := "la_gotera"
-const GOTERA_LADOS := ["norte", "sur"]
-## De la reja a la flecha de entrada, y a donde aparece el jugador al salir de la colonia (como MuroColonia)
-const FLECHA_FUERA := 2.2
-const LLEGADA_FUERA := 5.4
 
 const TINACO_ALTO := 2.8                # Barricada.TINACO_ALTO
 const TINACO_PIEZAS := ["Tinaco_3er_capa", "Bomba_1", "Tapa"]   # Barricada.TINACO_PIEZAS
@@ -81,255 +31,12 @@ const CLINICA_FONDO := 12.0
 const CLINICA_LLEGADA := Vector2(-296.3, 551.0)
 const CRUZ_VERDE := Color(0.1, 0.9, 0.35)
 
-const GRUESO := 0.3
-const COLOR_FIERRO := Color(0.12, 0.12, 0.13)
-
-var _fierro: ShaderMaterial
-
-
-# Si `punto` cae dentro de una fortaleza de la escena: el muro de Santa Mugre (MuroColonia.rect) y, si
-# esta este nodo, La Gotera y los Reservorios. Ahi no aparecen zombis de noche (Zombis) ni entran los
-# cuicos (Cuicos)
-static func adentro(arbol: SceneTree, punto: Vector3) -> bool:
-	var p := Vector2(punto.x, punto.z)
-	for muro: Node in arbol.get_nodes_in_group("muro_colonia"):
-		if (muro.get("rect") as Rect2).has_point(p):
-			return true
-	if arbol.get_first_node_in_group("fortalezas") == null:
-		return false
-	return Geometry2D.is_point_in_polygon(p, PackedVector2Array(GELA)) \
-			or Geometry2D.is_point_in_polygon(p, PackedVector2Array(GOTERA))
-
-
-func _enter_tree() -> void:
-	# Los carros (CallesRuta) no cruzan La Gotera: adentro es el tianguis
-	CallesRuta.cerrar(GOTERA_CALLES)
-	# Si se vuelve de la colonia de Blender de La Gotera por una de sus rejas (PasoColonia), el jugador
-	# aparece afuera de ella (antes de que el jugador y el dron lean su posicion, como MuroColonia)
-	if PasoColonia.colonia != GOTERA_COLONIA:
-		return
-	var por := PasoColonia.tomar_lado()
-	var cual := GOTERA_LADOS.find(por)
-	var jugador := get_tree().get_first_node_in_group("jugador") as Node3D
-	if jugador == null:
-		jugador = get_parent().get_node_or_null("Player") as Node3D
-	if cual < 0 or jugador == null:
-		return
-	var donde := _gotera_afuera(cual, LLEGADA_FUERA)
-	jugador.position = Vector3(donde.x, 1.5, donde.y)
-
-
-func _exit_tree() -> void:
-	CallesRuta.abrir(GOTERA_CALLES)
-
-
 func _ready() -> void:
-	_fierro = _material(COLOR_FIERRO)
-	_gela()
-	_gotera()
 	add_to_group("fortalezas")
 	_torre()
 	_clinica()
 	for sitio: Dictionary in SitiosTinaco.SITIOS:
 		_tinaco(sitio["pos"])
-
-
-# --- Los Reservorios ---
-
-func _gela() -> void:
-	var muro := _material(GELA_COLOR)
-	var puntos: Array[Vector2] = []
-	puntos.assign(GELA)
-	_barda(puntos, true, [[CASETA, CASETA_HUECO]], GELA_ALTO, muro)
-	_caseta(muro)
-
-
-# La caseta de vigilancia a un lado del hueco, por fuera, y la pluma cerrada atravesada
-func _caseta(muro: Material) -> void:
-	var a: Vector2 = GELA[1]
-	var b: Vector2 = GELA[2]
-	var largo := (b - a).normalized()
-	var afuera := Vector2(-largo.y, largo.x)
-	if afuera.dot(_centro(GELA) - CASETA) > 0.0:
-		afuera = -afuera
-	var nodo := Node3D.new()
-	nodo.name = "Caseta"
-	nodo.position = Vector3(CASETA.x, 0.0, CASETA.y)
-	nodo.rotation.y = atan2(largo.x, largo.y)
-	add_child(nodo)
-	# En local, +Z corre a lo largo de la barda y +X hacia afuera (o al reves: se voltea con `lado`)
-	var lado := signf(Vector2(largo.y, -largo.x).dot(afuera))
-	var cuarto := Vector3(lado * 2.2, 0.0, CASETA_HUECO / 2.0 + 1.6)
-	_cuerpo(nodo, cuarto + Vector3(0.0, 1.3, 0.0), Vector3(2.6, 2.6, 2.4), muro)
-	_cuerpo(nodo, cuarto + Vector3(0.0, 2.75, 0.0), Vector3(3.2, 0.2, 3.0), _material(Color(0.2, 0.35, 0.65)))
-	# La pluma: brazo a rayas rojas y blancas a 1 m, de poste a poste; el choque cierra todo el hueco
-	_caja(nodo, Vector3(0.3, 1.2, 0.3), Vector3(0.0, 0.6, CASETA_HUECO / 2.0 - 0.2), _fierro)
-	var tramos := 7
-	for i in tramos:
-		var z := CASETA_HUECO / 2.0 - 0.4 - (CASETA_HUECO - 0.6) * (i + 0.5) / tramos
-		var color := Color(0.8, 0.12, 0.1) if i % 2 == 0 else Color(0.92, 0.92, 0.9)
-		_caja(nodo, Vector3(0.1, 0.1, (CASETA_HUECO - 0.6) / tramos), Vector3(0.0, 1.0, z), _material(color))
-	_choque(nodo, Vector3(0.0, 1.0, 0.0), Vector3(GRUESO, 3.0, CASETA_HUECO))
-
-
-# --- La Gotera ---
-
-func _gotera() -> void:
-	var puntos: Array[Vector2] = []
-	puntos.assign(GOTERA)
-	var huecos: Array = []
-	for reja: Array in GOTERA_REJAS:
-		huecos.append([reja[0], reja[2]])
-	_barda(puntos, true, huecos, GOTERA_ALTO, _material(GOTERA_COLOR))
-	for i in GOTERA_REJAS.size():
-		var reja: Array = GOTERA_REJAS[i]
-		# La reja abierta: sus postes, las hojas abiertas contra el muro y el choque cerrado de lado a lado
-		# (adentro no se camina en map_test: se entra por la flecha a la colonia de Blender)
-		_reja(reja[0], reja[1], reja[2], GOTERA_ALTO, _gotera_hacia_afuera(i))
-		_flecha_gotera(i)
-
-
-# Hacia donde queda afuera de la reja `cual` de La Gotera: al norte de la del norte, al sur de la del sur
-static func _gotera_hacia_afuera(cual: int) -> Vector2:
-	var dir: Vector2 = GOTERA_REJAS[cual][1]
-	var normal := Vector2(-dir.y, dir.x)
-	return normal if (normal.y < 0.0) == (cual == 0) else -normal
-
-
-# El punto (x, z) a `m` metros afuera de la reja `cual`
-static func _gotera_afuera(cual: int, m: float) -> Vector2:
-	var centro: Vector2 = GOTERA_REJAS[cual][0]
-	return centro + _gotera_hacia_afuera(cual) * m
-
-
-# La flecha amarilla por fuera de la reja: pisarla entra a la colonia de Blender del tianguis por ese lado
-func _flecha_gotera(cual: int) -> void:
-	var donde := _gotera_afuera(cual, FLECHA_FUERA)
-	var area := Area3D.new()
-	area.name = "Entrada_" + GOTERA_LADOS[cual]
-	area.position = Vector3(donde.x, 0.0, donde.y)
-	area.monitorable = false
-	var forma := CollisionShape3D.new()
-	var cilindro := CylinderShape3D.new()
-	cilindro.radius = MapPuntos.MARCADOR_RADIO
-	cilindro.height = 2.0
-	forma.shape = cilindro
-	forma.position.y = 1.0
-	area.add_child(forma)
-	area.add_child(MapPuntos.flecha())
-	var letrero := Label3D.new()
-	letrero.text = GOTERA_ENTRAR
-	letrero.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	letrero.pixel_size = 0.008
-	letrero.font_size = 48
-	letrero.outline_size = 12
-	letrero.modulate = MapPuntos.MARCADOR_COLOR
-	letrero.position = Vector3(0.0, 2.6, 0.0)
-	letrero.visibility_range_end = 25.0
-	area.add_child(letrero)
-	var lado: String = GOTERA_LADOS[cual]
-	area.body_entered.connect(func(cuerpo: Node3D) -> void:
-		if cuerpo is Player:
-			PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, lado, -2.0, GOTERA_COLONIA))
-	add_child(area)
-
-
-# --- Bardas ---
-
-# Una barda por los `puntos`, con huecos ([centro, ancho]) donde caen sobre la linea de un tramo. Un hueco
-# puede caer en una esquina y abarcar dos tramos: a cada uno le quita su parte
-func _barda(puntos: Array[Vector2], cerrada: bool, huecos: Array, alto: float, material: Material) -> void:
-	var n := puntos.size() if cerrada else puntos.size() - 1
-	for i in n:
-		var a := puntos[i]
-		var b := puntos[(i + 1) % puntos.size()]
-		var cortes: Array[Vector2] = []   # (desde, hasta) en metros sobre el tramo
-		var largo := a.distance_to(b)
-		var dir := (b - a) / largo
-		for hueco: Array in huecos:
-			var c: Vector2 = hueco[0]
-			var t := (c - a).dot(dir)
-			var desde_hueco := maxf(t - hueco[1] / 2.0, 0.0)
-			var hasta_hueco := minf(t + hueco[1] / 2.0, largo)
-			if absf((c - a).cross(dir)) < 1.0 and desde_hueco < hasta_hueco:
-				cortes.append(Vector2(desde_hueco, hasta_hueco))
-		cortes.sort_custom(func(p: Vector2, q: Vector2) -> bool: return p.x < q.x)
-		var desde := -GRUESO / 2.0   # cada tramo se pasa medio grueso para cerrar las esquinas
-		for corte in cortes:
-			if corte.x > desde:
-				_pared(a + dir * desde, a + dir * corte.x, alto, material)
-			desde = corte.y
-		_pared(a + dir * desde, a + dir * (largo + GRUESO / 2.0), alto, material)
-
-
-func _pared(a: Vector2, b: Vector2, alto: float, material: Material) -> void:
-	var largo := a.distance_to(b)
-	if largo < 0.05:
-		return
-	var dir := (b - a) / largo
-	var centro := (a + b) / 2.0
-	var nodo := Node3D.new()
-	nodo.position = Vector3(centro.x, 0.0, centro.y)
-	nodo.rotation.y = atan2(dir.x, dir.y)
-	add_child(nodo)
-	# Baja 1 m bajo el piso por si el terreno sube, como MuroColonia
-	_cuerpo(nodo, Vector3(0.0, alto / 2.0 - 0.5, 0.0), Vector3(GRUESO, alto + 1.0, largo), material)
-
-
-# Reja de fierro a lo largo de `dir`, como las de MuroColonia: postes de concreto, travesanos y barrotes.
-# Cerrada (las dos hojas juntas al centro, con el poste de en medio) o abierta (`afuera`: hacia donde queda
-# afuera): cada hoja girada 90 grados sobre su poste, hacia afuera, y el hueco libre. Las dos chocan de lado
-# a lado (en map_test no se entra caminando: se entra por la flecha)
-func _reja(centro: Vector2, dir: Vector2, largo: float, alto: float, afuera := Vector2.ZERO) -> Node3D:
-	var abierta := afuera != Vector2.ZERO
-	# El +X local del nodo de la reja en el mundo (x, z): hacia ahi, o al reves, se abren las hojas
-	var sx := signf(afuera.dot(Vector2(dir.y, -dir.x))) if abierta else 1.0
-	var postes := Node3D.new()
-	postes.name = "Reja_%d" % get_child_count()
-	postes.position = Vector3(centro.x, 0.0, centro.y)
-	postes.rotation.y = atan2(dir.x, dir.y)
-	add_child(postes)
-	var concreto := _material(GOTERA_COLOR)
-	for z in [-largo / 2.0 + 0.3, largo / 2.0 - 0.3]:
-		_caja(postes, Vector3(GRUESO + 0.1, alto + 0.3, 0.6), Vector3(0.0, (alto + 0.3) / 2.0, z), concreto)
-	var nodo := Node3D.new()
-	nodo.name = "Hojas"
-	postes.add_child(nodo)
-	if not abierta:
-		_caja(nodo, Vector3(GRUESO + 0.1, alto + 0.3, 0.6), Vector3(0.0, (alto + 0.3) / 2.0, 0.0), concreto)
-	for hoja in [-1.0, 1.0]:
-		var z0: float = -largo / 2.0 + 0.6 if hoja < 0.0 else 0.3
-		var z1: float = -0.3 if hoja < 0.0 else largo / 2.0 - 0.6
-		var ancho_hoja := z1 - z0
-		var raiz := Node3D.new()
-		nodo.add_child(raiz)
-		if abierta:
-			# La bisagra en el poste de su orilla; la hoja girada hacia afuera
-			raiz.position = Vector3(0.0, 0.0, z0 if hoja < 0.0 else z1)
-			raiz.rotation.y = (sx if hoja < 0.0 else -sx) * PI / 2.0
-			z0 = 0.0 if hoja < 0.0 else -ancho_hoja
-			z1 = z0 + ancho_hoja
-			_choque(raiz, Vector3(0.0, alto / 2.0 - 0.5, (z0 + z1) / 2.0), Vector3(0.12, alto + 1.0, ancho_hoja))
-		var zs: Array[float] = []
-		for y in [0.25, alto - 0.35, alto * 0.5]:
-			_caja(raiz, Vector3(0.07, 0.07, ancho_hoja), Vector3(0.0, y, (z0 + z1) / 2.0), _fierro)
-		var cuantos := maxi(2, int(ancho_hoja / 0.2))
-		for i in cuantos + 1:
-			zs.append(z0 + ancho_hoja * i / cuantos)
-		var barrote := BoxMesh.new()
-		barrote.size = Vector3(0.035, alto - 0.1, 0.035)
-		var multi := MultiMesh.new()
-		multi.transform_format = MultiMesh.TRANSFORM_3D
-		multi.mesh = barrote
-		multi.instance_count = zs.size()
-		for i in zs.size():
-			multi.set_instance_transform(i, Transform3D(Basis.IDENTITY, Vector3(0.0, alto / 2.0 - 0.05, zs[i])))
-		var barrotes := MultiMeshInstance3D.new()
-		barrotes.multimesh = multi
-		barrotes.material_override = _fierro
-		raiz.add_child(barrotes)
-	_choque(nodo, Vector3(0.0, alto / 2.0 - 0.5, 0.0), Vector3(GRUESO + 0.1, alto + 1.0, largo))
-	return nodo
 
 
 # --- Tinacos ---
@@ -470,16 +177,6 @@ func _material(base: Color) -> ShaderMaterial:
 	return material
 
 
-func _caja(padre: Node3D, tam: Vector3, donde: Vector3, material: Material) -> void:
-	var malla := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = tam
-	malla.mesh = box
-	malla.position = donde
-	malla.material_override = material
-	padre.add_child(malla)
-
-
 func _choque(padre: Node3D, donde: Vector3, tam: Vector3) -> void:
 	var cuerpo := StaticBody3D.new()
 	cuerpo.position = donde
@@ -489,16 +186,3 @@ func _choque(padre: Node3D, donde: Vector3, tam: Vector3) -> void:
 	forma.shape = caja
 	cuerpo.add_child(forma)
 	padre.add_child(cuerpo)
-
-
-# Caja con malla y choque
-func _cuerpo(padre: Node3D, donde: Vector3, tam: Vector3, material: Material) -> void:
-	_choque(padre, donde, tam)
-	_caja(padre, tam, donde, material)
-
-
-static func _centro(puntos: Array) -> Vector2:
-	var suma := Vector2.ZERO
-	for p: Vector2 in puntos:
-		suma += p
-	return suma / puntos.size()

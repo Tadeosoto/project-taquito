@@ -33,13 +33,10 @@ SOLO = 10.0                 # m: una punta de banqueta sin otra banqueta asi de 
 DETRAS = 2.0                # m detras de la pared de la bodega
 FORTALEZA_MARGEN = 40.0
 
-# FortalezasMapa.GELA y GOTERA, y el recorte de Santa Mugre (MuroColonia.rect)
-GELA = [(279.0, -897.5), (278.4, -651.4), (-75.1, -749.9), (-103.8, -760.3), (-166.9, -777.5),
-        (-318.3, -828.1), (-432.8, -787.1), (-459.9, -846.9), (-473.7, -897.5)]
-GOTERA = [(722.9, -341.5), (720.4, -309.9), (717.4, -273.0), (714.3, -235.2), (713.4, -224.0),
-          (710.0, -182.8), (707.1, -146.9), (704.4, -113.9), (709.9, -113.4), (790.8, -106.4),
-          (914.0, -95.7), (914.0, -324.1), (811.5, -333.4), (728.4, -341.0)]
-SANTA_MUGRE = (-420.0, 258.0, -185.0, 482.0)
+# Las barda de las fortalezas de map_test (MuroColonia): Santa Mugre, La Gotera y Los Reservorios
+FORTALEZAS = [[tuple(v) for v in f["poligono"]]
+              for k, f in json.loads((RAIZ / "resources/map/fortalezas.json").read_text()).items()
+              if not k.startswith("_")]
 # SitiosTinaco.SITIOS (zona-enfoque.md)
 TINACOS = [(-336, -1), (-331, -359), (157, -344), (494, -529), (330, 95)]
 TINACO_MARGEN = 50.0
@@ -72,10 +69,7 @@ def prohibido(x, z):
     x0, z0, x1, z1 = MAPA
     if not (x0 + ORILLA_MAPA < x < x1 - ORILLA_MAPA and z0 + ORILLA_MAPA < z < z1 - ORILLA_MAPA):
         return True
-    sx0, sz0, sx1, sz1 = SANTA_MUGRE
-    if sx0 - FORTALEZA_MARGEN < x < sx1 + FORTALEZA_MARGEN and sz0 - FORTALEZA_MARGEN < z < sz1 + FORTALEZA_MARGEN:
-        return True
-    for poli in (GELA, GOTERA):
+    for poli in FORTALEZAS:
         if adentro_poligono(x, z, poli) or dist_poligono(x, z, poli) < FORTALEZA_MARGEN:
             return True
     return any(math.hypot(x - tx, z - tz) < TINACO_MARGEN for tx, tz in TINACOS)

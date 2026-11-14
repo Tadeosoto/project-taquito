@@ -10,7 +10,7 @@
   - **norte:** por la banqueta sur de la calle **Primavera**;
   - **sur:** por la banqueta norte de la calle **Nogal**;
   - **oriente:** la orilla del mapa.
-  Mide unos 195 m de ancho (de x ≈ 705–723 a 914) y 230 m de fondo (de z ≈ −341 a −96). Los vértices están en `FortalezasMapa.GOTERA`.
+  Mide unos 195 m de ancho (de x ≈ 705–723 a 914) y 230 m de fondo (de z ≈ −341 a −96). Los vértices están en el `poligono` de `la_gotera` de `resources/map/fortalezas.json` (antes `FortalezasMapa.GOTERA`).
 - **La única entrada es la Av. del Cedro:** **reja norte** en la esquina con Primavera (728, −341) y **reja sur** en la esquina con Nogal (710, −114), las dos de 11 m. Son ~228 m de avenida entre las dos.
 
 ## Cómo está armada (dos escenas de Blender)
@@ -22,7 +22,7 @@ Como Santa Mugre: muralla en `map_test` → reja con flecha amarilla → escena 
 
 ### Cambio de lógica respecto a M7a
 
-Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la muralla está abierta (el tianguis es de todos) y ese mismo requisito guarda las bocas de la favela. `FortalezasMapa` ya no escucha `Misiones.cambio`; `Misiones.favela_abierta()` se reusa tal cual. `docs/misiones.md` dice lo mismo. Prueba: `godot --path . --headless -s tools/mapa/probar_gotera.gd` (con `--favela` también la favela: llegadas por cada reja y boca, el guardia que regresa, el paso con cinco entregas, las rejas abiertas de `map_test` con su flecha).
+Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la muralla está abierta (el tianguis es de todos) y ese mismo requisito guarda las bocas de la favela. El muro de `map_test` (`MuroColonia`, `id` `la_gotera`) ya no escucha `Misiones.cambio`; `Misiones.favela_abierta()` se reusa tal cual. `docs/misiones.md` dice lo mismo. Prueba: `godot --path . --headless -s tools/mapa/probar_gotera.gd` (con `--favela` también la favela: llegadas por cada reja y boca, el guardia que regresa, el paso con cinco entregas, las rejas abiertas de `map_test` con su flecha).
 
 ## El tianguis
 
@@ -91,7 +91,7 @@ Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la mur
 ## Decisiones de la noche (sin JJ)
 
 - **Dos escenas, no una:** el tianguis es una franja (x 700–768) y la favela otra colonia que empieza en x 730; se traslapan 38 m para que las bocas queden en las dos. Barato y reversible: si se quiere una sola escena, se junta en un `.json`.
-- **La muralla poniente del tianguis va a mano** (piezas `muralla` sesgadas por `FortalezasMapa.GOTERA`) y `bloqueo.py` no pone la del recorte por ese lado (`"sin_barda"`). Entre la muralla y la orilla del recorte queda una franja de piso de hasta 20 m que solo se ve desde arriba.
+- **La muralla poniente del tianguis va a mano** (piezas `muralla` sesgadas por el polígono de `la_gotera` de `resources/map/fortalezas.json` (antes `FortalezasMapa.GOTERA`)) y `bloqueo.py` no pone la del recorte por ese lado (`"sin_barda"`). Entre la muralla y la orilla del recorte queda una franja de piso de hasta 20 m que solo se ve desde arriba.
 - **Muralla de puro block de 3.6 m** (`"muralla": {"base": 3.6}`) en vez de la de lámina y tambos de los fieles: la ficha pedía "barda alta de block con alambre".
 - **Rejas de La Gotera de fierro de 3.2 m** (`reja_fierro`), `libre` (no piden la guardia de Chuy).
 - **Guardias y vigías con los civiles `hombre_*`:** los `asesino_*` del pack PSX no están retargeteados (sin animación).

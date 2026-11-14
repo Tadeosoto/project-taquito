@@ -12,7 +12,7 @@ extends SceneTree
 #     escena); con cinco entregas (Misiones.favela_abierta) la boca manda a la_gotera_favela por
 #     ese lado (PasoColonia.colonia y lado), igual que la reja de la muralla manda a map_test;
 #   - llegar por la reja norte te deja en su "llegada";
-#   - en map_test, FortalezasMapa tiene las dos rejas de La Gotera abiertas (sin poste de en medio)
+#   - en map_test, MuroGotera (MuroColonia) tiene las dos rejas de La Gotera abiertas (sin poste de en medio)
 #     con flecha de entrada, y volver de la colonia por la reja sur te deja afuera de ella;
 #   - La Gotera abre las 24 horas sin zombis (MapaColonia.abierto_24h): de noche el tianguis sigue
 #     con gente y prende sus luces, las cortinas no bajan, no hay sueltos ni avisos, y en map_test
@@ -176,11 +176,11 @@ func _mapa_grande() -> void:
 	_revisar("en map_test ya no sigue abierto las 24 horas", not MapaColonia.abierto_24h, "")
 	var jugador := escena.get_node("Player") as Node3D
 	var donde := Vector2(jugador.global_position.x, jugador.global_position.z)
-	var reja: Vector2 = FortalezasMapa.GOTERA_REJAS[1][0]
+	var fortalezas := escena.get_node("MuroGotera") as MuroColonia
+	var reja: Vector2 = fortalezas.rejas[1]["centro"]
 	await _cuadros(20)
 	_revisar("vuelve de la colonia afuera de la reja sur", donde.distance_to(reja) > 4.0 and donde.distance_to(reja) < 7.0 and donde.y > reja.y,
 		"jugador en %s, reja en %s" % [donde, reja])
-	var fortalezas := escena.get_node("Fortalezas") as FortalezasMapa
 	var entradas := fortalezas.find_children("Entrada_*", "Area3D", false, false)
 	_revisar("las dos rejas de La Gotera tienen flecha de entrada", entradas.size() == 2, str(entradas.size()))
 	var rejas := fortalezas.find_children("Reja*", "Node3D", false, false)

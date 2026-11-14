@@ -9,7 +9,7 @@ extends Node3D
 # Afuera de las fortalezas (S6 de docs/plan-noche.md, lore §13) casi todos estan bajo Serenol: dicen
 # LINEAS_SERENOL (aman a GelA, trabajan mucho) y unos pocos (SABEN_FRACCION) saben que el agua trae
 # algo y piden agua limpia (LINEAS_SABEN). No dan misiones. Adentro de una fortaleza (`afuera` en
-# false, como en el mapa de Blender de Santa Mugre, o FortalezasMapa.adentro) dicen LINEAS.
+# false, como en el mapa de Blender de Santa Mugre, o MuroColonia.adentro) dicen LINEAS.
 #
 # Los que caminan son civiles del pack PSX al azar (Civiles.gd), con el Walk de Quaternius;
 # el garrafonero, con Walk_Carry y su garrafon. Los que platican usan los otros modelos, con
@@ -386,7 +386,7 @@ func _poner_platicante(i: int) -> void:
 func _linea(lugar: Dictionary) -> String:
 	var azar: int = lugar["azar"]
 	var donde: Vector2 = lugar["donde"]
-	var de_afuera := afuera and not FortalezasMapa.adentro(get_tree(), Vector3(donde.x, 0.0, donde.y))
+	var de_afuera := afuera and not MuroColonia.adentro(get_tree(), Vector3(donde.x, 0.0, donde.y))
 	var opciones: Array
 	if de_afuera and (azar % 100) < SABEN_FRACCION * 100.0:
 		opciones = LINEAS_SABEN

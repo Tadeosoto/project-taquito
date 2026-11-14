@@ -527,7 +527,7 @@ func _lugar_libre(centro: Vector3, angulo := INF, separado := SEPARADO) -> Vecto
 		if refugio and refugio.adentro(punto, MARGEN_REFUGIO):
 			continue
 		# Dentro de las fortalezas no hay zombis de noche (lore §13, S4)
-		if FortalezasMapa.adentro(get_tree(), punto):
+		if MuroColonia.adentro(get_tree(), punto):
 			continue
 		if _encima_de_otro(punto, separado):
 			continue

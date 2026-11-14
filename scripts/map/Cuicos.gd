@@ -156,7 +156,7 @@ func volver_a_patrullar(c: Cuico) -> void:
 
 # Adentro de una fortaleza: ahi no entra la policia
 func adentro(punto: Vector3) -> bool:
-	return FortalezasMapa.adentro(get_tree(), punto)
+	return MuroColonia.adentro(get_tree(), punto)
 
 
 # --- Patrulla: avanza `paso` m por su banqueta (como Gente._caminar, de uno en uno) ---
