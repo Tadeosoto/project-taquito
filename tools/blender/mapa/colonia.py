@@ -17,6 +17,8 @@
 #     casa      "puntos" (la huella), "pisos", "color" (nombre de kit.PALETA o [r, g, b]),
 #               "frente" (indice del lado que da a la calle: del punto i al i+1), "desgaste" 0-1,
 #               "tienda" (cortina en la planta baja), "tinaco"; con choque (kit.casa_malla);
+#               obra negra: "acabado" ("ladrillo" o "block"), "obra" ("castillos" o "losa": el piso
+#               que falta, encima), "ventanal" y "tapado" (0-1, ventanas con lona o tabla)
 #               "local": no se arma (su fachada de negocio la pone MapPuntos, ver bloqueo._tiendas)
 #     suelo     "puntos": la mancha plana (pasto de la plaza, un baldio); sin choque
 #     calle     "puntos": el eje, "ancho" del arroyo y "banqueta" de cada lado; sin choque (va
@@ -74,6 +76,7 @@ def armar(nombre):
         else:
             ob[DATO] = "pieza:" + p["nombre"]
 
+    _juntar_grupos(mundo, datos)
     _postes_y_cables(sc, mundo, datos.get("postes", []))
     _tianguis_vista(sc, datos.get("tianguis", []))
     _carros(mundo, datos)
@@ -90,6 +93,64 @@ def armar(nombre):
     sc["carros_modelo"] = json.dumps(CARROS_MODELO)
     print("colonia %s: %d piezas, %d marcas, %d carros" % (nombre, len(datos.get("piezas", [])), len(datos.get("marcas", [])), len(CARROS_MODELO)))
     return sc
+
+
+def _juntar_grupos(mundo, datos):
+    """Las piezas con "grupo" (las casas de una manzana de la favela) se juntan en un solo objeto
+    por grupo, y sus cajas de choque en otro: cientos de casas sueltas eran cientos de objetos y
+    MapaPostImport ya las junta por cuadro, pero el .glb y la importacion pesaban. Todas las casas
+    llevan los mismos materiales en el mismo orden (kit.casa_malla), asi que la union es directa.
+    El objeto junto no se puede leer de regreso al .json (leer() lo salta)."""
+    grupos = {}
+    for p in datos.get("piezas", []):
+        if p.get("grupo") and not p.get("local"):
+            grupos.setdefault(p["grupo"], []).append(p["nombre"])
+    for grupo, nombres in grupos.items():
+        for sufijo, choque in (("", False), ("-colonly", True)):
+            objetos = [mundo.objects.get(n + sufijo) for n in nombres]
+            objetos = [ob for ob in objetos if ob is not None]
+            if not objetos:
+                continue
+            bm = bmesh.new()
+            mats = []
+            for ob in objetos:
+                malla = ob.data
+                base = len(mats)
+                for m in malla.materials:
+                    if m not in mats:
+                        mats.append(m)
+                # Los indices de material de esta malla, en la lista junta
+                indice = [mats.index(m) for m in malla.materials]
+                tmp = bmesh.new()
+                tmp.from_mesh(malla)
+                # (ob.matrix_world no esta al dia hasta que corre el depsgraph: se arma de location y rotation)
+                import mathutils
+                matriz = mathutils.Matrix.LocRotScale(ob.location, mathutils.Euler(ob.rotation_euler), ob.scale)
+                bmesh.ops.transform(tmp, matrix=matriz, verts=tmp.verts[:])
+                for f in tmp.faces:
+                    f.material_index = indice[f.material_index] if indice else 0
+                junta = bpy.data.meshes.new("tmp")
+                tmp.to_mesh(junta)
+                tmp.free()
+                bm.from_mesh(junta)
+                bpy.data.meshes.remove(junta)
+            nueva = bpy.data.meshes.new(grupo + sufijo)
+            bm.to_mesh(nueva)
+            bm.free()
+            for m in mats:
+                nueva.materials.append(m)
+            if nueva.color_attributes:
+                nueva.color_attributes.active_color = nueva.color_attributes[0]
+                nueva.color_attributes.render_color_index = 0
+            ob = bpy.data.objects.new(grupo + sufijo, nueva)
+            if choque:
+                ob.display_type = "WIRE"
+            mundo.objects.link(ob)
+            for viejo in objetos:
+                datos_viejo = viejo.data
+                bpy.data.objects.remove(viejo)
+                if datos_viejo.users == 0:
+                    bpy.data.meshes.remove(datos_viejo)
 
 
 _KIT = {}
@@ -134,7 +195,8 @@ def _pieza(col, p):
         color = k["PALETA"].get(color, (0.8, 0.8, 0.8)) if isinstance(color, str) else color
         malla = k["casa_malla"](nombre, p["puntos"], p.get("pisos", 1), color, p.get("frente", 0),
                                 p.get("desgaste", 0.5), p.get("tienda", False), p.get("tinaco", True), p.get("varillas"),
-                                p.get("detalles", True), _acabado(p))
+                                p.get("detalles", True), _acabado(p), p.get("obra"), p.get("ventanal", False), p.get("tapado", 0.0),
+                                p.get("ventanas"))
         ob = bpy.data.objects.new(nombre, malla)
         ob.location = a_blender(x, z, y)
         ob.rotation_euler = (0.0, 0.0, rot)
@@ -167,6 +229,24 @@ def _pieza(col, p):
             de_dia = bpy.data.objects.new("Dia_" + nombre, dia.terminar())
             de_dia.location, de_dia.rotation_euler = ob.location, ob.rotation_euler
             col.objects.link(de_dia)
+        # Lo chico de una pieza grande (postes, alambre y pintas de la muralla): otro objeto,
+        # "Detalle_<nombre>", que MapaPostImport junta en cuadros chicos que no se dibujan de lejos
+        detalle = getattr(k, "detalle", None)
+        if detalle is not None:
+            chico = bpy.data.objects.new("Detalle_" + nombre, detalle.terminar())
+            chico.location, chico.rotation_euler = ob.location, ob.rotation_euler
+            col.objects.link(chico)
+        # El techo de lo que se cruza por dentro (casas abandonadas, callejones techados): otro
+        # objeto, "Techo_<nombre>", que MapaPostImport deja suelto y Colonia.gd esconde mientras
+        # estas adentro; sus choques se llaman "<nombre>_techo<i>" para que la camara los ignore
+        techo = getattr(k, "techo", None)
+        if techo is not None:
+            arriba = bpy.data.objects.new("Techo_" + nombre, techo.terminar())
+            arriba.location, arriba.rotation_euler = ob.location, ob.rotation_euler
+            col.objects.link(arriba)
+        for i, ((cx, cy, cz), tam, giro) in enumerate(getattr(k, "choques_techo", [])):
+            wx, wz = x + cx * c + cz * s, z - cx * s + cz * c
+            colision(col, "%s_techo%d" % (nombre, i), wx, wz, rot + giro, tam, y + cy - tam[1] / 2)
         return ob
     if tipo == "suelo":
         # Abajo de las calles y andadores (que van a 1-2 cm); "material" es un piso de kit.PISOS
@@ -242,14 +322,14 @@ def _dentro(x, z, pol):
     return dentro
 
 
-def _malla_caras(nombre, caras, arriba=True):
+def _malla_caras(nombre, caras, arriba=True, abajo=False):
     """Una malla de caras [[(x, y, z) de Godot...]...], cada una volteada para que vea hacia
-    arriba (si `arriba`) o como venga."""
+    arriba (si `arriba`), hacia abajo (si `abajo`) o como venga."""
     bm = bmesh.new()
     for cara in caras:
         f = bm.faces.new([bm.verts.new(a_blender(x, z, y)) for x, y, z in cara])
         f.normal_update()
-        if arriba and f.normal.z < 0:
+        if (arriba and f.normal.z < 0) or (abajo and f.normal.z > 0):
             f.normal_flip()
     malla = bpy.data.meshes.new(nombre)
     bm.to_mesh(malla)
@@ -281,58 +361,88 @@ def _piso(mundo, datos):
     afuera = [(x1, z1), (x2, z1), (x2, z2), (x1, z2)]
     huecos = []
     for h in datos.get("hundidos", []):
-        huecos.append((poligono_hundido(h, datos), h.get("fondo", 1.0), h.get("bajar_piezas", False), h.get("borde", 0.0), h["nombre"]))
+        huecos.append((poligono_hundido(h, datos), h.get("fondo", 1.0), h.get("bajar_piezas", False), h.get("borde", 0.0), h["nombre"], h.get("abiertos", [])))
     lineas = [afuera] + [hueco[0] for hueco in huecos]
     planos = [[mathutils.Vector((x, z, 0.0)) for x, z in linea] for linea in lineas]
     todos = [q for linea in lineas for q in linea]
     caras = [[(todos[i][0], 0.0, todos[i][1]) for i in tri] for tri in tessellate_polygon(planos)]
     _con_choque(mundo, "Piso", caras, mat)
-    for pol, hondo, bajar, borde, nombre in huecos:
+    # Si hay tuneles (un hundido abierto), el piso tambien se ve por abajo: una copia volteada, sin choque,
+    # para no ver el cielo desde la galeria por las rendijas
+    if any(h[5] for h in huecos):
+        abajo = bpy.data.objects.new("Piso_Abajo", _malla_caras("Piso_Abajo", [[(x, -0.02, z) for x, _y, z in cara] for cara in caras], arriba=False, abajo=True))
+        abajo.data.materials.append(_kit()["foto"]("tierra") if "tierra" in _kit()["FOTOS"] else mat)
+        mundo.objects.link(abajo)
+        abajo[DATO] = "piso"
+    for pol, hondo, bajar, borde, nombre, abiertos in huecos:
         fondo_pol = _hacia_adentro(pol, borde)
         tris = tessellate_polygon([[mathutils.Vector((x, z, 0.0)) for x, z in fondo_pol]])
         caras = [[(fondo_pol[i][0], -hondo, fondo_pol[i][1]) for i in tri] for tri in tris]
-        # Orillas: de la orilla a y 0 al fondo (recorrido `borde` hacia adentro)
+        # Orillas: de la orilla a y 0 al fondo (recorrido `borde` hacia adentro); las de "abiertos"
+        # (indice del lado, del punto i al i+1) no se hacen: por ahi sigue un tunel
         n = len(pol)
         for i in range(n):
+            if i in abiertos:
+                continue
             j = (i + 1) % n
             caras.append([(pol[i][0], 0.0, pol[i][1]), (pol[j][0], 0.0, pol[j][1]),
                           (fondo_pol[j][0], -hondo, fondo_pol[j][1]), (fondo_pol[i][0], -hondo, fondo_pol[i][1])])
         fondo_caras, orillas = caras[:len(tris)], caras[len(tris):]
         _con_choque(mundo, "Piso_" + nombre, fondo_caras, mat)
         _con_choque(mundo, "Piso_%s_Orilla" % nombre, orillas, mat, arriba=borde > 0)
-    return [(pol, hondo, bajar) for pol, hondo, bajar, borde, nombre in huecos]
+    return [(pol, hondo, bajar) for pol, hondo, bajar, borde, nombre, abiertos in huecos]
 
 
 def _terrazas(mundo, datos):
-    """Las `terrazas` del .json ([{"nombre", "puntos": [[x0, z0], [x1, z1]], "alto"}]): una manzana
-    subida sobre su muro de contencion de mamposteria, con piso de concreto encima. Lo que cae
-    adentro sube `alto` (_en_terraza). Sus escalinatas son piezas aparte. Devuelve los rectangulos."""
+    """Las `terrazas` del .json ([{"nombre", "puntos": [[x0, z0], [x1, z1]] o "poligono": [[x, z]...],
+    "alto"}]): una manzana subida sobre su muro de contencion de mamposteria, con piso de concreto
+    encima. Lo que cae adentro sube `alto` (_en_terraza). Sus escalinatas son piezas aparte. Devuelve
+    [(poligono, alto)]. Con "poligono" (las manzanas sesgadas de la favela) el cuerpo es un prisma de
+    mamposteria con su tapa de concreto, en vez de la caja."""
     k = _kit()
     lista = []
     for t in datos.get("terrazas", []):
+        alto = t.get("alto", 0.75)
+        if "poligono" in t:
+            pol = [tuple(q) for q in t["poligono"]]
+            cx = sum(q[0] for q in pol) / len(pol)
+            cz = sum(q[1] for q in pol) / len(pol)
+            rel = [(x - cx, z - cz) for x, z in pol]
+            # El muro de contencion (prisma, con choque) y la tapa de concreto apenas encima
+            _objeto(mundo, t["nombre"] + "_Muro", _malla_prisma(t["nombre"] + "_Muro", rel, alto), cx, cz, 0.0, 0.0, k["foto"]("mamposteria"), True)
+            _objeto(mundo, t["nombre"], _malla_plana(t["nombre"], rel, alto + 0.005), cx, cz, 0.0, 0.0, k["mat_piso"]("banqueta"), False)
+            lista.append((pol, alto))
+            continue
         (a, b), (c_, d) = t["puntos"]
         x0, z0, x1, z1 = min(a, c_), min(b, d), max(a, c_), max(b, d)
-        alto = t.get("alto", 0.75)
         cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
         caja(mundo, t["nombre"], cx, cz, 0.0, (x1 - x0, alto, z1 - z0), k["mat_piso"]("banqueta"), choca=True)
         muro = k["foto"]("mamposteria")
         for nombre, mx, mz, tam in (("N", cx, z0 - 0.06, (x1 - x0 + 0.24, alto + 0.12, 0.12)), ("S", cx, z1 + 0.06, (x1 - x0 + 0.24, alto + 0.12, 0.12)),
                                     ("O", x0 - 0.06, cz, (0.12, alto + 0.12, z1 - z0)), ("E", x1 + 0.06, cz, (0.12, alto + 0.12, z1 - z0))):
             caja(mundo, "%s_Muro%s" % (t["nombre"], nombre), mx, mz, 0.0, tam, muro, choca=False)
-        lista.append((x0, z0, x1, z1, alto))
+        lista.append(([(x0, z0), (x1, z0), (x1, z1), (x0, z1)], alto))
     return lista
 
 
 def _en_terraza(p, terrazas):
-    """Cuanto sube la pieza `p` por caer en una terraza (por su centro; una casa por el de su huella)."""
-    if not terrazas or p["tipo"] in ("calle", "suelo", "escalinata"):
+    """Cuanto sube la pieza `p` por caer en una terraza (por su centro; una casa por el de su huella;
+    un callejon por el medio de su tramo)."""
+    if not terrazas or p["tipo"] in ("suelo", "escalinata", "rampa", "tunel", "tunel_cuarto", "bodega_tunel", "bajada"):
         return 0.0
     x, z = p["x"], p["z"]
     if p.get("puntos") and p["tipo"] == "casa":
         x += sum(q[0] for q in p["puntos"]) / len(p["puntos"])
         z += sum(q[1] for q in p["puntos"]) / len(p["puntos"])
-    for x0, z0, x1, z1, alto in terrazas:
-        if x0 < x < x1 and z0 < z < z1:
+    elif p["tipo"] == "calle":
+        # Solo los callejones de la favela suben con su manzana; las calles reales van a nivel
+        if not p.get("favela"):
+            return 0.0
+        pts = p["puntos"]
+        x += (pts[0][0] + pts[-1][0]) / 2
+        z += (pts[0][1] + pts[-1][1]) / 2
+    for pol, alto in terrazas:
+        if _dentro(x, z, pol):
             return alto
     return 0.0
 
@@ -592,7 +702,7 @@ def carros_estacionados(datos):
     los cruces. Fijos por nombre de calle. Son piezas "carro" (con choque) que no van al .json."""
     import random
     estorban = [(m["x"], m["z"]) for m in datos.get("marcas", [])]
-    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela", "tiendita", "tortilleria")]
+    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela", "tiendita", "tortilleria", "puesto_guardia", "mirador_muro", "nicho_virgen")]
     carros = []
     for p in datos.get("piezas", []):
         if p["tipo"] != "calle" or p.get("banqueta", 0) <= 0 or p.get("material", "asfalto") != "asfalto":
@@ -631,7 +741,7 @@ def topes(datos):
     """Un tope a media cuadra en cada tramo largo de las calles de asfalto con banqueta, si no cae
     junto a una marca, un puesto o un carro estacionado. Piezas "tope" que no van al .json."""
     estorban = [(m["x"], m["z"]) for m in datos.get("marcas", [])]
-    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela")]
+    estorban += [(p["x"], p["z"]) for p in datos.get("piezas", []) if p["tipo"] in ("puesto", "base_gela", "puesto_guardia", "mirador_muro", "nicho_virgen")]
     estorban += [(c["x"], c["z"]) for c in carros_estacionados(datos)]
     lista = []
     for p in datos.get("piezas", []):
@@ -804,6 +914,15 @@ class _Trozos:
 
 TENDEDERO_CADA = (4.5, 8.0)   # m entre cuerdas a lo largo de un callejon
 TENDEDERO_ALTO = (3.4, 5.2)   # m de alto en las puntas (del primer al segundo piso)
+BASURA_CADA = (8.0, 16.0)
+FOCO_CADA = (10.0, 15.0)      # m entre focos colgados a lo largo de un callejon
+
+
+def _cada(datos, que, defecto):
+    """"callejones" del .json: {"tendedero_cada", "basura_cada", "foco_cada": [min, max]} para colonias
+    con cientos de callejones (la favela de La Gotera), donde lo de siempre pesaba demasiado."""
+    v = datos.get("callejones", {}).get(que)
+    return tuple(v) if v else defecto
 
 
 def _tendederos(mundo, datos):
@@ -839,25 +958,29 @@ def _tendederos(mundo, datos):
                 def punto(t):
                     return (pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t - cuelga * 4 * t * (1 - t),
                             pa[2] + (pb[2] - pa[2]) * t)
-                pasos = 6
+                pasos = 4
                 giro = math.atan2(-nz, nx)
                 for j in range(pasos):
                     q0, q1 = punto(j / pasos), punto((j + 1) / pasos)
                     lx = math.hypot(q1[0] - q0[0], q1[2] - q0[2])
                     c.caja(((q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2 - 0.01, (q0[2] + q1[2]) / 2), (lx, 0.02, 0.02), "cable", giro)
                 if r.random() < 0.75:
-                    prendas = r.randint(2, 5)
+                    prendas = r.randint(*tuple(int(b) for b in _cada(datos, "prendas", (2, 5))))
                     for i in range(prendas):
                         t = (i + r.uniform(0.2, 0.8)) / prendas * 0.8 + 0.1
                         q = punto(t)
                         ancho, colgado = r.uniform(0.3, 0.55), r.uniform(0.35, 0.7)
-                        c.caja((q[0], q[1] - colgado / 2, q[2]), (ancho, colgado, 0.02), r.choice(colores), giro, sin_abajo=False)
-                s += r.uniform(*TENDEDERO_CADA)
+                        # Una prenda es un quad por las dos caras (era una caja: seis caras)
+                        col = r.choice(colores)
+                        hx, hz = math.cos(giro) * ancho / 2, -math.sin(giro) * ancho / 2
+                        esq = [(q[0] - hx, q[1] - colgado, q[2] - hz), (q[0] + hx, q[1] - colgado, q[2] + hz), (q[0] + hx, q[1], q[2] + hz), (q[0] - hx, q[1], q[2] - hz)]
+                        c.cara(esq, col)
+                        c.cara(esq[::-1], col)
+                s += r.uniform(*_cada(datos, "tendedero_cada", TENDEDERO_CADA))
     if hubo:
         trozo.poner(mundo)
 
 
-FOCO_CADA = (10.0, 15.0)      # m entre focos colgados a lo largo de un callejon
 FOCO_ALTO = (3.7, 4.3)        # m del cable que lo cuelga
 
 
@@ -877,7 +1000,7 @@ def focos_callejones(datos):
         while s < largo - 2.0:
             focos.append((round(ax + ux * s, 2), round(r.uniform(*FOCO_ALTO), 2), round(az + uz * s, 2), p["ancho"], ux, uz,
                           p["nombre"], s))
-            s += r.uniform(*FOCO_CADA)
+            s += r.uniform(*_cada(datos, "foco_cada", FOCO_CADA))
     return focos
 
 
@@ -890,7 +1013,8 @@ def _focos(trozo, datos):
         giro = math.atan2(-nz, nx)
         c.caja((x, y, z), (medio * 2, 0.02, 0.02), "cable", giro)
         c.caja((x, y - 0.15, z), (0.015, 0.3, 0.015), "cable")
-        c.esfera((x, y - 0.36, z), 0.08, "farol", seg=6, anillos=4)
+        c.cono((x, y - 0.30, z), 0.13, 0.10, "fierro", lados=6)
+        c.esfera((x, y - 0.36, z), 0.11, "farol", seg=6, anillos=3)
 
 
 def _capilla(c, x, z, giro):
@@ -915,11 +1039,11 @@ def _capilla(c, x, z, giro):
         c.esfera(p(lx, 1.08, 0.18), 0.08, col, seg=5, anillos=3)
 
 
-def _basura(c, x, z, r):
+def _basura(c, x, z, r, bolsas=(2, 5)):
     """Montón de basura junto a la pared: bolsas negras, cajas de cartón y llantas."""
-    for i in range(r.randint(2, 5)):
+    for i in range(r.randint(*bolsas)):
         rad = r.uniform(0.2, 0.32)
-        c.esfera((x + r.uniform(-0.5, 0.5), rad * 0.7, z + r.uniform(-0.4, 0.4)), rad, "bolsa_negra", seg=6, anillos=4, aplastar=0.75)
+        c.esfera((x + r.uniform(-0.5, 0.5), rad * 0.7, z + r.uniform(-0.4, 0.4)), rad, "bolsa_negra", seg=5, anillos=3, aplastar=0.75)
     for i in range(r.randint(0, 2)):
         lado = r.uniform(0.3, 0.5)
         c.caja((x + r.uniform(-0.6, 0.6), lado / 2, z + r.uniform(-0.4, 0.4)), (lado, lado * 0.8, lado), "carton", r.uniform(0, 3))
@@ -949,17 +1073,21 @@ def _vida_callejones(mundo, datos):
         hubo = True
         ux, uz = (bx - ax) / largo, (bz - az) / largo
         nx, nz = -uz, ux
-        if semilla % 2 == 0:
+        # "basura_min": en callejones mas cortos no hay basura (la favela tiene cientos de 7 m)
+        sin_basura = largo < _cada(datos, "basura_min", (0.0,))[0]
+        # Una capillita en uno de cada "capilla_cada" callejones (dos, salvo que la colonia diga otra cosa)
+        if semilla % int(_cada(datos, "capilla_cada", (2,))[0]) == 0:
             lado = 1 if semilla % 4 == 0 else -1
             s = min(2.5, largo / 3)
             # Su frente (+Z local) hacia el centro del callejon: -n * lado
             fx, fz = -nx * lado, -nz * lado
             _capilla(trozo(p["nombre"], s), ax + ux * s + nx * lado * (orilla + 0.1), az + uz * s + nz * lado * (orilla + 0.1), math.atan2(fx, fz))
         s = r.uniform(3.0, 6.0)
-        while s < largo - 1.0:
+        while s < largo - 1.0 and not sin_basura:
             lado = r.choice((-1, 1))
-            _basura(trozo(p["nombre"], s), ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r)
-            s += r.uniform(8.0, 16.0)
+            _basura(trozo(p["nombre"], s), ax + ux * s + nx * lado * orilla, az + uz * s + nz * lado * orilla, r,
+                    tuple(int(b) for b in _cada(datos, "bolsas", (2, 5))))
+            s += r.uniform(*_cada(datos, "basura_cada", BASURA_CADA))
     _focos(trozo, datos)
     trozo.poner(mundo)
 

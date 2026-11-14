@@ -155,6 +155,13 @@ def banquetas(datos):
         for tramo in recortar(linea, h):
             if _largo(tramo) >= MINIMO:
                 salida.append([[round(x, 2), round(z, 2)] for x, z in _aligerar(tramo)])
+    # Lineas de gente de la favela (escalinatas): son cortas, no se les aplica MINIMO; asi la
+    # gente sube la escalinata en vez de saltar de banda.
+    for linea in datos.get("gente", []):
+        pts = [(float(q[0]), float(q[1])) for q in linea]
+        for tramo in recortar(pts, h):
+            if _largo(tramo) >= 0.5:
+                salida.append([[round(x, 2), round(z, 2)] for x, z in _aligerar(tramo)])
     return salida
 
 

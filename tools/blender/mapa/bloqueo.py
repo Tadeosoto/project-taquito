@@ -12,8 +12,17 @@
 #
 # Lo que lee del .json, ademas del recorte:
 #   "reservas": [{"nombre", "puntos": [[x, z]...]}]   areas sin edificios reales (los lugares)
-#   "bordes": {"norte"|"sur"|"oriente"|"poniente": "gela"|"barda"|"derrumbe"|"camion"}
+#   "bordes": {"norte"|"sur"|"oriente"|"poniente": "gela"|"barda"|"derrumbe"|"camion"|"fieles"}
+#   ("fieles": un altar de calle de la Virgen, piezas.nicho_virgen; Santa Mugre es fortaleza)
 #            el tapon de las calles que salen por ese lado (norte = z chica)
+#   "sin_barda": ["poniente", ...]   lados del recorte sin la muralla automatica (La Gotera: su
+#            muralla poniente va a mano, sesgada por la banqueta de la avenida)
+#   "muralla": {"alto", "base", "murales"}   como es la muralla del recorte (sin esto, la de los
+#            fieles de Santa Mugre: block de 2.6 m y lamina hasta 4.5)
+#   "nombres_parodia": {"<nombre real de OSM>": "<nombre del juego>"}   llena "nombres_calles"
+#            (pieza -> nombre) con cada calle de ese nombre real, para las placas
+#   "rejas": las "calles" de una reja pueden ser nombres de pieza ("Calle_1_0") o el nombre real
+#            de la calle de OSM ("Avenida del Cedro")
 
 import os
 import math
@@ -33,10 +42,14 @@ COLORES = ["terracota", "mostaza", "turquesa", "rosa", "lima", "azul", "crema", 
            "naranja", "morado", "verde", "gris", "terracota", "mostaza", "rosa"]
 # Desgaste de las casas (Santa Mugre: indice 0.55-0.70, docs/lore.md)
 DESGASTE = (0.35, 0.8)
-BARDA_ALTO = 2.6
+BARDA_ALTO = 2.6           # la barda de block de antes: hoy es la base de la muralla
+MURALLA_TROZO = 30.0       # m: largo maximo de cada objeto de muralla
+MURALLA_ALTO = 4.5         # hasta donde la subieron los fieles (piezas.muralla y el porton, piezas.reja)
+# De que lado queda adentro en cada muralla (+Z o -Z de la pieza, que corre en x)
+MURALLA_DENTRO = {"norte": 1, "sur": -1, "poniente": 1, "oriente": -1}
 BARDA_GRUESO = 0.3
 BARDA_ADENTRO = 0.4        # m del borde del recorte
-TAPON = {"gela": ((0.9, 0.45, 0.1), 2.2), "barda": ((0.62, 0.6, 0.56), 2.6),
+TAPON = {"gela": ((0.9, 0.45, 0.1), 2.2), "barda": ((0.62, 0.6, 0.56), 2.6), "fieles": ((0.6, 0.6, 0.56), 3.2),
          "derrumbe": ((0.45, 0.36, 0.28), 2.8), "camion": ((0.75, 0.75, 0.72), 3.2)}
 
 
@@ -503,7 +516,7 @@ def bloquear(nombre):
                 para_postes.append((tramo, ancho / 2 + banqueta, ancho, c["tipo"] in ("tertiary", "secondary", "primary")))
             for punta in (tramo[0], tramo[-1]):
                 lado = _lado(punta[0], punta[1], recorte)
-                if lado and bordes.get(lado) in TAPON and "Calle_%d_%d" % (i, j) not in sin_tapon:
+                if lado and bordes.get(lado) in TAPON and "Calle_%d_%d" % (i, j) not in sin_tapon and c["nombre"] not in sin_tapon:
                     color, alto = TAPON[bordes[lado]]
                     a, b = (tramo[0], tramo[1]) if punta is tramo[0] else (tramo[-1], tramo[-2])
                     rot = math.atan2(b[0] - a[0], b[1] - a[1])
@@ -515,6 +528,7 @@ def bloquear(nombre):
                     largo_tapon = round(ancho + 2 * banqueta, 2)
                     # Cada borde con su pieza (piezas.py); la barda es la de block con murales
                     pieza.update({"gela": {"tipo": "valla_gela", "largo": largo_tapon},
+                                  "fieles": {"tipo": "nicho_virgen", "largo": largo_tapon},
                                   "camion": {"tipo": "camion_volteado", "largo": largo_tapon},
                                   "derrumbe": {"tipo": "escombro", "largo": largo_tapon},
                                   "barda": {"tipo": "barda", "largo": largo_tapon, "alto": alto, "murales": 80}}[bordes[lado]])
@@ -567,10 +581,16 @@ def bloquear(nombre):
 
     # Barda alrededor
     a = BARDA_ADENTRO
+    muralla = datos.get("muralla", {})
+    muralla_alto = muralla.get("alto", MURALLA_ALTO)
+    muralla_base = muralla.get("base", BARDA_ALTO)
+    muralla_murales = muralla.get("murales", 60)
     for lado, (cx, cz, ancho, fondo) in {"norte": ((x1 + x2) / 2, z1 + a, x2 - x1, BARDA_GRUESO),
                                           "sur": ((x1 + x2) / 2, z2 - a, x2 - x1, BARDA_GRUESO),
                                           "poniente": (x1 + a, (z1 + z2) / 2, BARDA_GRUESO, z2 - z1),
                                           "oriente": (x2 - a, (z1 + z2) / 2, BARDA_GRUESO, z2 - z1)}.items():
+        if lado in datos.get("sin_barda", []):
+            continue
         a_lo_largo_x = ancho > fondo
         # Los huecos de las rejas de este lado (de menor a mayor) parten la barda en tramos
         huecos = sorted((r.get("x0", r.get("z0")), r.get("x1", r.get("z1"))) for r in rejas if r["lado"] == lado)
@@ -582,21 +602,35 @@ def bloquear(nombre):
         tramos.append((cursor, hasta))
         for n, (t0, t1) in enumerate(tramos):
             nombre_barda = "Barda_" + lado if len(tramos) == 1 else "Barda_%s_%s" % (lado, "abcdefgh"[n])
-            medio = (t0 + t1) / 2
-            nuevas.append({"nombre": nombre_barda, "tipo": "barda", "auto": True,
-                           "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
-                           "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(t1 - t0, 2),
-                           "alto": BARDA_ALTO, "grueso": BARDA_GRUESO, "murales": 60})
+            # En trozos de hasta MURALLA_TROZO m: un objeto de 235 m caia en un solo cuadro de
+            # MapaPostImport y se dibujaba desde toda la colonia
+            trozos = max(1, math.ceil((t1 - t0) / MURALLA_TROZO))
+            for k in range(trozos):
+                s0, s1 = t0 + (t1 - t0) * k / trozos, t0 + (t1 - t0) * (k + 1) / trozos
+                medio = (s0 + s1) / 2
+                nuevas.append({"nombre": "%s_%d" % (nombre_barda, k), "tipo": "muralla", "auto": True,
+                               "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
+                               "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(s1 - s0, 2),
+                               "alto": muralla_alto, "base": muralla_base, "dentro": MURALLA_DENTRO[lado],
+                               "grueso": BARDA_GRUESO, "murales": muralla_murales})
         for r in rejas:
             if r["lado"] != lado:
                 continue
             h0, h1 = r.get("x0", r.get("z0")), r.get("x1", r.get("z1"))
             medio = (h0 + h1) / 2
-            nuevas.append({"nombre": r["nombre"], "tipo": "reja", "auto": True,
+            nuevas.append({"nombre": r["nombre"], "tipo": r.get("tipo", "reja"), "auto": True,
                            "x": round(medio if a_lo_largo_x else cx, 2), "z": round(cz if a_lo_largo_x else medio, 2),
                            "rot": 0.0 if a_lo_largo_x else round(math.pi / 2, 4), "largo": round(h1 - h0, 2),
-                           "alto": BARDA_ALTO, "grueso": BARDA_GRUESO})
+                           "alto": r.get("alto", muralla_alto), "grueso": BARDA_GRUESO})
 
+    # Las placas: el nombre del juego de cada calle real ("nombres_parodia"), por pieza
+    parodia = datos.get("nombres_parodia", {})
+    if parodia:
+        nombres = {k: v for k, v in datos.get("nombres_calles", {}).items() if not any(p["nombre"] == k and p.get("auto") for p in nuevas)}
+        for p in nuevas:
+            if p["tipo"] == "calle" and p.get("real") in parodia:
+                nombres[p["nombre"]] = parodia[p["real"]]
+        datos["nombres_calles"] = nombres
     datos["postes"] = _postes(para_postes, [(t, a / 2) for t, m, a, av in para_postes])
     todas_casas = [p for p in nuevas + piezas if p["tipo"] == "casa"]
     usadas = set()
@@ -634,11 +668,15 @@ def salidas_colonia(rejas, recorte):
         # (x, z) de la reja y hacia donde queda "adentro" (poniente: +x, oriente: -x, norte: +z, sur: -z)
         base, (dx, dz) = {"poniente": ((x1 + BARDA_ADENTRO, medio), (1, 0)), "oriente": ((x2 - BARDA_ADENTRO, medio), (-1, 0)),
                           "norte": ((medio, z1 + BARDA_ADENTRO), (0, 1)), "sur": ((medio, z2 - BARDA_ADENTRO), (0, -1))}[lado]
-        marcas.append({"nombre": "Salida_" + lado, "tipo": "salida_colonia", "auto": True, "lado": lado,
-                       "x": round(base[0] + dx * SALIDA_DENTRO, 2), "z": round(base[1] + dz * SALIDA_DENTRO, 2),
-                       "rot": round(math.atan2(dx, dz), 4),
-                       "llegada": [round(base[0] + dx * LLEGADA_DENTRO, 2), round(base[1] + dz * LLEGADA_DENTRO, 2)],
-                       "texto": "Salir de Santa Mugre"})
+        marca = {"nombre": "Salida_" + lado, "tipo": "salida_colonia", "auto": True, "lado": lado,
+                 "x": round(base[0] + dx * SALIDA_DENTRO, 2), "z": round(base[1] + dz * SALIDA_DENTRO, 2),
+                 "rot": round(math.atan2(dx, dz), 4),
+                 "llegada": [round(base[0] + dx * LLEGADA_DENTRO, 2), round(base[1] + dz * LLEGADA_DENTRO, 2)],
+                 "texto": r.get("texto", "Salir de Santa Mugre")}
+        # "libre": la reja no pide la guardia del padre Chuy (La Gotera; Colonia.gd)
+        if r.get("libre"):
+            marca["libre"] = True
+        marcas.append(marca)
     return marcas
 
 

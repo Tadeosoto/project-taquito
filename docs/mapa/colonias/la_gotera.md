@@ -1,6 +1,6 @@
-# La Gotera (fortaleza de la mafia) — plan de diseño
+# La Gotera (fortaleza de la mafia) — ficha y lo que quedó hecho
 
-💡 **Borrador** (JJ, 2026-11-12), para hacerlo después en Blender. Bloque **F4** de `docs/plan-noche.md`. La historia de los Gotera está en `docs/lore.md` §11; la zona del contenido, en [`../zona-enfoque.md`](../zona-enfoque.md).
+💡 Borrador (JJ, 2026-11-12) → ✅ **primera versión en Blender (Claude, noche del 2026-11-13, rama `gotera-blender`)**. Bloque **F4** de `docs/plan-noche.md`. La historia de los Gotera está en `docs/lore.md` §11; la zona del contenido, en [`../zona-enfoque.md`](../zona-enfoque.md). Lo que se decidió sin JJ está en "Decisiones de la noche", abajo.
 
 ## Dónde
 
@@ -13,77 +13,133 @@
   Mide unos 195 m de ancho (de x ≈ 705–723 a 914) y 230 m de fondo (de z ≈ −341 a −96). Los vértices están en `FortalezasMapa.GOTERA`.
 - **La única entrada es la Av. del Cedro:** **reja norte** en la esquina con Primavera (728, −341) y **reja sur** en la esquina con Nogal (710, −114), las dos de 11 m. Son ~228 m de avenida entre las dos.
 
-## La idea: Tepito con favela
+## Cómo está armada (dos escenas de Blender)
 
-1. **El tianguis lineal** es la avenida entre las dos rejas. **Cualquiera entra y sale** por ahí. Es la fortaleza que se ve.
-2. **A los lados no se pasa sin permiso.** Del lado poniente está la barda; la favela queda **solo al oriente** del tianguis, entre la avenida y la orilla del mapa. El tianguis es un pasillo con muro de un lado y favela del otro.
+Como Santa Mugre: muralla en `map_test` → reja con flecha amarilla → escena de Blender. `scenes/mapa.tscn` ya sirve para cualquier colonia (`MapaColonia.gd` apunta los datos a `resources/mapa/<colonia>/` según `PasoColonia.colonia` o `--colonia=`).
+
+1. **`la_gotera`, el tianguis lineal** (`tools/blender/mapa/colonias/la_gotera.json`, recorte x 700–768, z −343–−110): solo la avenida y la primera hilera de casas de cada lado. **Abierto para cualquiera**, de día y de noche: las dos rejas de la muralla en `map_test` están **abiertas** (hojas giradas contra el muro, `FortalezasMapa`) y su flecha "Entrar a La Gotera" te mete por ese lado; adentro, la flecha "Salir de La Gotera" de cada reja (`salida_colonia` con `libre`: no pide la guardia de Chuy) te saca. La muralla poniente va a mano, sesgada por la banqueta de la avenida (`FortalezasMapa.GOTERA`), con un **mirador con vigía** junto a cada reja; la del norte, sur y oriente las pone `bloqueo.py` (`"muralla": alto 3.6, puro block, sin lámina).
+2. **`la_gotera_favela`** (`la_gotera_favela.json`, recorte x 730–914, z −336–−104): **otra escena**. Se entra por las **cinco bocas** del lado oriente del tianguis (las calles reales que salían de la avenida: Privada de la Fuga, Privada Roble Quebrado, Av. Parota Sin Sombra, Calle Caobilla Apolillada y Calle Sin Número), cada una con su guardia, su letrero "Solo gente de la casa", un reflector y la flecha "Entrar a la favela". **No te dejan pasar si no has hecho las misiones de la mafia:** la marca `paso` lleva `"requiere": "favela"` y `Colonia.gd` consulta `Misiones.favela_abierta()` (la misma función de M7a: cinco entregas); sin permiso el guardia te regresa un paso y sale el aviso. Al salir de la favela apareces en la boca por la que entraste (`lado` de la marca, el mismo en las dos escenas, y su `llegada`).
+
+### Cambio de lógica respecto a M7a
+
+Antes la quinta entrega quitaba las hojas de la reja de la muralla. Ahora la muralla está abierta (el tianguis es de todos) y ese mismo requisito guarda las bocas de la favela. `FortalezasMapa` ya no escucha `Misiones.cambio`; `Misiones.favela_abierta()` se reusa tal cual. `docs/misiones.md` dice lo mismo. Prueba: `godot --path . --headless -s tools/mapa/probar_gotera.gd` (con `--favela` también la favela: llegadas por cada reja y boca, el guardia que regresa, el paso con cinco entregas, las rejas abiertas de `map_test` con su flecha).
 
 ## El tianguis
 
-- Se reutilizan `scripts/mapa/Tianguis.gd` y las carpas de `tools/blender/tianguis/carpas.py`: una entrada `tianguis` con `a`/`b` sobre la avenida, más apretada que en Santa Mugre (`pasillo` ~1.8 m, pocos `libres`) y con las lonas encimadas que casi tapen el cielo.
-- **Tramos por giro**, cada uno con su color de lona, para que se lea como Tepito:
-  - armas y fierros;
-  - agua del yacimiento y garrafones (lo único que se vende a precio justo);
-  - fayuca y electrónica;
-  - farmacia "sin receta";
-  - ropa y tenis piratas;
-  - comida (fritangas, tejuino, tacos).
-- La **tienda ilegal** (balas, tachas, lo que en la tienda no hay) es un local de la avenida, no un puesto.
-- De noche el tianguis sigue abierto: es el mercado clandestino del lore (§14), con todo ×2 o ×3.
+- `scripts/mapa/Tianguis.gd` y las carpas de `tools/blender/tianguis/carpas.py`. Ahora el tianguis lineal se genera **igual que el de Santa Mugre**: `pasillo` 2.6 m y **todos los giros y colores** en cada tramo (sin `giros`/`lona` por tramo), con los `libres` de las calles que cruzan y las bocas.
+- **Seis tramos por giro, cada uno con su color de lona** (`"giros"` y `"lona"` del tramo, nuevos en `Tianguis.gd`), de la reja norte a la sur:
+
+  | Tramo | Giro | Lona | Qué hay |
+  |---|---|---|---|
+  | Tianguis_Armas | general | — | Ya no es un tramo de un solo giro: usa los puestos variados de Santa Mugre. El Punto de La Gotera (la **tienda ilegal**, giro `punto`) sigue a media cuadra |
+  | Tianguis_Agua | `agua` | azul | garrafones y botellas; el local **Agua del Yacimiento** (`purificadora`) |
+  | Tianguis_Fayuca | `fayuca` | amarilla | bocinas, cintas, cigarros, patitos, llaves, monedas; **Fayuca El Pirata** |
+  | Tianguis_Farmacia | `farmacia` | blanca | Vaporub, botiquines, tachas, cigarros; **Farmacia Sin Receta** |
+  | Tianguis_Ropa | `ropa` | rosa | ropa y tenis piratas; **Vinos y Licores La Última Gota** |
+  | Tianguis_Comida | `tacos`, `tejuino`, `fruta` | roja | fritangas; **Tacos El Gotero** |
+
+- **Abierto las 24 horas y sin zombis** (JJ, 2026-11-13). El tianguis y la favela llevan `"abierto_24h": true` en su `.json`, que `exportar.py` copia a `marcas.json` y `MapaColonia.abierto_24h` lee al cargar. De noche los puestos siguen con su mercancía y su gente, y los focos del pasillo alumbran (una luz cada 9 m, solo de noche). Las tiendas no cierran ni bajan cortina, la gente de la banqueta se queda, no salen zombis sueltos ni el Saltabardas y no hay avisos de "Ya va a oscurecer" ni "Ya salieron". Las turbas que pide una misión sí salen. La bandera vuelve a false al salir de la escena, así que `map_test` y Santa Mugre siguen igual.
 
 ## La favela
 
-- **Laberinto de casas de obra negra.** Los callejones salen del lado oriente del tianguis y se meten hacia la barda oriente.
-- **Callejones de Guanajuato o São Paulo, en horizontal:**
-  - de 1.2 a 2.5 m de ancho, quebrados, muchos sin salida;
-  - escalones y rampas que suben y bajan sobre `terrazas` de 0.75 a 1.5 m, porque no hay cerro;
-  - tendederos, cables colgando y puentecitos de lámina entre azoteas.
-- **Permiso por escalones** (`misiones.md`: afuera, mandadero, de confianza, de la casa). Cada boca de callejón tiene un Gotera de guardia, y cada escalón abre un pedazo más del laberinto. Sin permiso, el guardia te regresa; si te metes, "no sales".
-- Para que el minimapa no mienta, conviene **conservar la traza real de Haciendas** como callejones principales y meter el laberinto dentro de cada manzana.
+- **Un solo laberinto en toda la zona** (JJ, 2026-11-13): la favela **no respeta la traza de OSM**, no deja huecos y se siente angosta. `tools/blender/mapa/favela.py` (Python puro, después de `bloqueo.py`; `~/gotera_work/run_colonia.py` lo corre en orden) lo genera determinista por semilla: cuadrícula de 7 m girada como las calles de Haciendas, DFS desde la boca del poniente más lazos, **callejones de 1.2 a 2.2 m** en tramos rectos que se quiebran, cada celda una **casa de obra negra pegada a la de al lado** (block o ladrillo sin enjarre, castillos con varilla, media losa, ventanales de herrería, lonas y tablas en las ventanas; una de cada ocho pintada de un color), casas dobles, **patios** con tendederos y **plazuelas** con puesto de lona, **tablones y puentes** entre azoteas, **escaleras** a las azoteas, **toldos de lona** sobre los callejones, tendederos, cables, focos y basura. Desde la tarde del 2026-11-13 es el **perfil detallado** (detalles de azotea y adornos de callejón por omisión); el `.glb` pesa ~56 MB y se sube en Git normal (GitHub avisa a partir de 50 MiB pero lo acepta; el tope duro son 100 MiB).
+- **Favela plana:** todo el terreno al nivel del piso (sin terrazas, escalinatas ni rampas). Por ahora no hay escaleras a las azoteas ni bajada a túneles.
+- **Lugares clave** (marcas `mision` para los dadores):
 
-## Lugares clave
+  | Lugar | Dónde | Marca |
+  |---|---|---|
+  | Plaza de los Gotera | Corazón de la favela (806, −222): cancha de futbolito encajonada, puestos, bancas, chamacos de día, reflectores de noche y dos de la casa parados | `Nemesio_Plaza` |
+  | Casa de don Nemesio | Fondo, junto a la orilla (898, −246): la única con enjarre y pintura (mostaza, dos pisos) | `Nemesio_Casa` |
+  | Plaza del Tinaco | El claro 3×3 más cercano al centro del recorte (~843, −218): tinaco comunitario de **50,000 L**, sin la Virgen, sin ofrenda y sin defensa; el mayor de los cuatro claros grandes | `Tinaco_Favela` |
+  | Cuarto de garrafones | En el túnel, el cuarto `garrafones` (ya no es la Bodega del Agua) | `Garrafones_Tunel` |
+  | Bocas de los túneles | Tres patios de la banda a nivel, con su zanja y escalones | `Tunel_Entrada_0..2` |
+  | La válvula | En el túnel, cuarto `valvula`: el pozo con la rueda, tras un barandal | `Valvula` |
+  | Boca final | El fin de la galería principal, tapada con block, "A los cárcamos. No pasar" | `Boca_Tuneles` |
 
-| Lugar | Dónde | Qué es |
-|---|---|---|
-| Rejas norte y sur | Avenida | Vigilancia, puestos de vigía en las azoteas de junto |
-| Tienda ilegal | Avenida, tramo de armas | La tienda de la mafia |
-| Agua del yacimiento | Avenida, a media cuadra | Venta a precio justo |
-| Plaza o cancha de los Gotera | Corazón de la favela | Donde se juntan; dador de misiones |
-| Casa de don Nemesio | Fondo de la favela, junto a la orilla | La única con enjarre y pintura; escalón "de la casa" |
-| Bodega del agua | Junto a la barda poniente o al fondo | Garrafones del yacimiento |
-| La válvula / bajada al acueducto | Escondida en la favela | La palanca contra los Lazcano (lore §11) |
-| Boca de los túneles | Tapada, para después | Los túneles salen fuera de la ciudad (lore) |
+## Cuevas, casas abandonadas y callejones techados (JJ, 2026-11-13)
 
-## En Blender
+**Por ahora sin la red subterránea ni escaleras a las azoteas** (`favela.SUBTERRANEO = False`, `ESCALERAS_AZOTEA = 0`; el código de los túneles sigue en `favela._tuneles_mini` y `piezas.tunel*` por si vuelve). Lo de abajo de "Túneles" es historia de esa red. En su lugar, cosas que se cruzan por dentro a nivel de piso (`favela._abandonadas`, cantidades en `ABANDONADAS`; por ahora pocas y cerca del spawn):
 
-1. **Ficha aprobada** (esta) → JJ y AG.
-2. **La casa de obra negra** en `tools/blender/mapa/kit.py`, junto a `casa_malla`:
-   - block gris sin enjarre y castillos con varilla saliendo;
-   - losa a medias y ventanas sin marco, con lona o tabla;
-   - tinaco negro viejo en la azotea;
-   - de 1 a 3 pisos, el tercero solo con castillos.
-   Sirve también para el zombi de cobalto ("zonas con obra negra"). Antes de seguir, enseñar capturas.
-3. **`tools/blender/mapa/colonias/la_gotera.json`** con:
-   - `recorte` [704, −342, 914, −95] (la caja que la contiene; la barda sigue los vértices de `FortalezasMapa.GOTERA`);
-   - `bordes`: oriente = la orilla del mapa (barda alta de block con alambre, sin tapones de calle), sur = sobre la calle Nogal, poniente = barda (o la avenida si se pega), norte y sur = barda con reja en la avenida;
-   - `reservas` para la avenida, la plaza y la casa del jefe;
-   - `tianguis`, `marcas` (rejas, guardias, dadores, tienda ilegal, válvula, túneles) y `tiendas`;
-   - `nombres_calles` parodiados (la Av. del Cedro necesita nombre: p. ej. "Av. del Cedro Seco").
-4. **Generador del laberinto** (nuevo, en `bloqueo.py` o en su propio script):
-   - cuadrícula de ~4 m con un DFS de una sola semilla (la favela está de un solo lado);
-   - abrir algunos muros para que haya lazos y no sea un árbol perfecto;
-   - meter lotes de 4 a 6 m de frente a los lados de cada pasillo;
-   - las `terrazas` de los escalones salen de la distancia a la avenida (más adentro, más alto).
-5. `colonia.py` → `referencia.py` (comparar con OSM) → ajustar → `exportar.py` (con `~/run_exportar.py` en esta PC) → `godot --headless --import` → probar en `mapa.tscn`.
-6. **Medir**:
-   - el tianguis ya cuesta +3 a 5 ms de GPU (`tools/tianguis/medir_tianguis.gd`);
-   - el laberinto denso es el riesgo, así que van pocas mallas por manzana (una por bloque de casas, no una por casa);
-   - las casas de adentro se esconden con `visibility_range`.
-7. Trabajar en **rama propia**, aparte de `Map-Blender-Creation` de Alan.
+- **Casas abandonadas** (pieza `abandonada`, `piezas.abandonada`): misma huella y pisos que la casa que sustituyen, muros de obra negra, **marcos de puerta abiertos** de 1.5 m (`puertas`: lado, posición, ancho), piso de tierra, **sin muebles ni gente**. Un foco colgado (marca `foco` con `"siempre": true`, prende también de día, y `"parpadea"` al azar).
+- **Casas pasantes**: una casa sencilla con marco en dos lados que dan a callejones distintos: un atajo.
+- **Cuevas (pasadizos)**: `PASADIZO_CASAS` (6) casas pegadas, sencillas o dobles, que dan vueltas por dentro de la manzana; se pasa de una a otra por un marco en el muro compartido (solo donde los dos muros están pegados de verdad, sin rendija) y la primera y la última salen a callejones. Sus focos fallan más (`PASADIZO_PARPADEA`). **Las dos tiendas del túnel** (Fayuca del Túnel y Balas y Veladoras, con su flecha e interior propio) van en casas de en medio de la primera cueva, en un muro sin puerta y viendo hacia adentro; el letrero se baja a 2.35 m (`letrero_alto` en la marca `puerta`) para no quedar en la losa.
+- **Callejones techados** (pieza `techo_callejon`): losa de fachada a fachada y un marco en cada boca, en tramos de una sola arista con casa de los dos lados; se quedan `TECHADO_ESQUINA` (1.3 m) antes de cada esquina para no tapar las vueltas. Se quitan los toldos de encima.
+- **La cámara adentro**: lo de arriba de la planta baja va en un objeto aparte `Techo_<nombre>` (`MapaPostImport` no lo funde) y sus choques se llaman `<nombre>_techo<i>`. Cada pieza deja una marca `interior` (rectángulo y techos de su grupo; una cueva es un grupo). Con el jugador adentro, `Colonia._camara_interior` deja esos techos solo dando sombra, el resorte de la cámara los ignora, el brazo baja a 3.4 m (`Player.brazo_interior`) y el ángulo baja a −52°: se ve desde arriba como casa de muñecas. Al salir todo vuelve y el ángulo regresa al de antes.
 
-## Pendiente de decidir
+## Túneles
 
-- Nombre parodia de la Av. del Cedro y de las calles de adentro.
-- La pieza "La Gotera" del sureste en el mapa de papel (`ZonasMapa.gd`) ya no es la fortaleza: JJ decidió que la zona "ya no es nada" y todo el lore de la mafia pasó a la favela de Haciendas (✅ 2026-11-12). ✅ Quedó **sin nombre** en `ZonasMapa.gd`.
-- ✅ El tianguis de la avenida es abierto de día y de noche, para cualquiera. ✅ La válvula del acueducto queda bajo la favela.
-- Si los Gotera dejan entrar al tianguis de noche (la regla común de las fortalezas dice que dentro no hay zombis).
+- **Geometría aparte en la misma escena, bajo el piso** (no un hundido abierto): piezas `tunel` (galería de ladrillo con bóveda, piso de tierra, tubería y focos) y `tunel_cuarto` (dormitorio, garrafones, armas, tienda con mostrador y lona, válvula) a `y = −4.2`. Se baja por un `hundidos` con `"abiertos": [lado]` (nuevo: esa orilla no se tapa) y una `bajada` de 5 m a 40°. Por qué así: el piso del recorte sigue siendo una sola malla triangulada con tres huecos chicos (nada que rompa el piso ni la física), y lo de abajo son cajas y quads baratos que `MapaPostImport` junta por cuadro; un hundido abierto habría sido una zanja a cielo abierto, no un túnel.
+- Trazo: de cada boca una galería al oriente hasta una **espina** norte–sur; de la espina la **principal** al oriente con los cuartos alternando lados (dormitorio, garrafones, tienda "Fayuca del Túnel", armas, tienda "Balas y Veladoras", dormitorio, válvula) y la boca final tapada. Las dos tiendas llevan marca `puerta` con su giro propio (`favela.TIENDAS_TUNEL`) y su interior de cuarto de ladrillo con foco:
+  - **Fayuca del Túnel** (`fayuca_tunel`, `scenes/interiores/tunel_fayuca.tscn`): cigarros, bocina, cinta, botiquín, Vaporub, caguama, alcohol y plata, a 0.85 del precio.
+  - **Balas y Veladoras** (`armas_tunel`, `scenes/interiores/tunel_armas.tscn`): machete, bate, sal, trapo, gasolina y alcohol (lo del molotov), a 1.15 del precio, con un altarcito de veladoras. Balas no hay todavía: el objeto no existe (`docs/items.md`).
+  Los precios son primera propuesta. Las dos están también en el safehouse.
+
+## Cambios de la tarde (JJ, 2026-11-13)
+
+- **Sin Bodega del Agua**: se quitó su reserva, su casa-local, su puerta, su negocio `purificadora` y la marca `Bodega_Agua`; el cuarto de garrafones del túnel sigue como `Garrafones_Tunel`. El laberinto se reacomoda en el hueco que dejó la reserva.
+- **Plaza del Tinaco**: el claro **3×3** (unos 21×21 m) más cercano al centro del recorte, el mayor de los cuatro claros grandes. Tinaco de **50,000 L** (~4.79 m de alto, ~3.74 m de diámetro) con `TinacoComunitario.armar(litros, con_virgen, comunitario)`: **sin** mancha de la Virgen, sin ofrenda, sin veladoras y sin grupo de defensa. La variante `lote` "tinaco" tiene piso de concreto, bancas, macetas y una pared baja; su poste de luz va en una esquina.
+- **Tres claros grandes más** de 3×3 (unos 21×21 m) repartidos a ≥45 m del tinaco y entre sí, y **cuatro claros pequeños** de 2×2 (unos 14×14 m), con variantes `juegos`, `basquet`, `fonda`, `baldio`/`taller`. Total: **4 grandes** (tinaco + 3) y **4 pequeños**.
+- **Puertas de las tiendas** (JJ, 2026-11-13): todas dan a un **patio, plazuela o claro**, nunca a un callejón: al salir, `Interiores._salir` te deja 3 m delante de la fachada y en un callejón eso caía dentro de la casa de enfrente. `favela._lado_a_patio` pide que el punto a `SALIDA_TIENDA` (3.6 m) delante de la puerta caiga en un patio, pegado a la casa o del otro lado del callejón; la puerta va en ese lado (`frente`). Cada punto guarda `puerta_transitable: true` y `frente_lado`.
+- **Seis tiendas de favela**, una por giro de `MapPuntos.GIROS_LOCAL` (abarrotes, licorería, farmacia, ferretería, OXO, taquería), en casas de una celda de un piso, a ≥35 m entre sí, con `casa local` + `puerta local` + `negocio` (`y` de su banda, `favela: true`, `sin_gente: true`). `MapPuntos` las dibuja con paleta de obra negra, sin banda/botarga/maquinita/puesto de taquería, con letrero pintado y cortina de lona; el interior es el de siempre. La gasolinera queda fuera y la purificadora ya no existe.
+- **Puentes**: los 4 tablones más anchos (1.8–2.3 m de hueco) se ensanchan a 1.1 m y llevan barandales de fierro; los 143 tablones restantes se ensanchan a 0.95 m. Las 5 escaleras dejan subir a la red de azoteas.
+- **Toldos**: 203 lonas de fachada a fachada sobre los callejones, a 3.0–3.4 m, con caída y cables; sin choque. Para que `Gente` no los tome como techo, su rayo baja desde 2.6 m.
+- **Focos**: 443 en total (cada 10–15 m), bombilla de 0.11 m con pantalla cónica, alcance 8 m y energía 1.8; un poste de luz por claro (5).
+- **Minimapa propio**: `tools/blender/mapa/minimapa_colonia.py` escribe `textures/map/minimapa_la_gotera_favela.png` (0.5 m/px) y `resources/mapa/la_gotera_favela/minimapa.json` (radio 55 m, iconos). `MapMinimapa` pinta callejones, casas, claros, túneles punteados, tablones y los iconos **T** (entradas de túnel), **A** (azoteas), **S** (salidas) y la gota azul del tinaco. `MapaColonia` cambia `Minimapa.mapa`/`datos_path`; si falta el PNG o el JSON se queda el minimapa real.
+- **Cámara de callejón**: `scripts/mapa/GiroFavela.gd` pone `Player.giro_con_wasd` solo en `la_gotera_favela` y en el piso por debajo de 3.2 m. Con W, A/D giran la cámara; en azoteas, tianguis y demás colonias A/D vuelven a ser strafe y la cámara se gira con el ratón. En el safehouse, F11 lo prende/apaga para probarlo.
+- **Gente**: `une_a` 2.2 en la favela; camina por callejones planos, sin escalinatas ni cambios de banda. Se saltan las tiendas `sin_gente`.
+
+## Decisiones de la noche (sin JJ)
+
+- **Dos escenas, no una:** el tianguis es una franja (x 700–768) y la favela otra colonia que empieza en x 730; se traslapan 38 m para que las bocas queden en las dos. Barato y reversible: si se quiere una sola escena, se junta en un `.json`.
+- **La muralla poniente del tianguis va a mano** (piezas `muralla` sesgadas por `FortalezasMapa.GOTERA`) y `bloqueo.py` no pone la del recorte por ese lado (`"sin_barda"`). Entre la muralla y la orilla del recorte queda una franja de piso de hasta 20 m que solo se ve desde arriba.
+- **Muralla de puro block de 3.6 m** (`"muralla": {"base": 3.6}`) en vez de la de lámina y tambos de los fieles: la ficha pedía "barda alta de block con alambre".
+- **Rejas de La Gotera de fierro de 3.2 m** (`reja_fierro`), `libre` (no piden la guardia de Chuy).
+- **Guardias y vigías con los civiles `hombre_*`:** los `asesino_*` del pack PSX no están retargeteados (sin animación).
+- **La favela ignora la traza de OSM** (JJ a media noche): `favela.py` tira calles, casas, lotes, tapones y postes del bloqueo y deja solo la muralla.
+- **Perfil detallado** (JJ, 2026-11-13 tarde): se quitaron `detalles: false` y el perfil `"callejones"` espaciado; vuelven los detalles de azotea y los adornos por omisión (tendedero cada 4.5–8 m, basura cada 8–16, foco cada 10–15, capillita cada 2). El `.glb` queda en **~56 MB** y se sube con Git normal (no LFS): GitHub acepta hasta 100 MiB y avisa a partir de 50 MiB. El repo ya pesaba ~516 MB; conviene commitear solo la versión final del `.glb`.
+- **La favela es cerrada y con niebla** (JJ, 2026-11-13). Su `.json` lleva `"ambiente"`, que `exportar.py` copia a `marcas.json` y `MapaColonia._ambiente` aplica al cargar:
+  - `niebla` 0.045 en vez de 0.0196: el 5 % se ve a unos 67 m en lugar de 150 m.
+  - `lejos` 85 m: la cámara del jugador no dibuja más allá, porque la niebla ya lo tapa. El dron no cambia.
+  - `gente`: hasta 16 caminantes que salen entre 12 y 38 m del jugador y se quitan a 50 m. El suelo cuenta como camino hasta 2 m de alto, por las terrazas de 0.75 y 1.5 m; el rayo baja desde **2.6 m** (arriba de las terrazas y abajo de toldos, tablones y focos). `une_a` 2.2: solo cambian de línea si el tramo es piso caminable y no salta de banda más de 0.35 m.
+- **Escaleras de fierro solo donde caben a lo largo de la fachada** (unos 6.6 m con su rampa): con fachadas más cortas se salían de la esquina y tapaban el callejón de al lado. Por eso la generación anterior solo dejó una: casi ninguna fachada de 2 pisos llega a 7.1 m útiles. Ahora hay **5**: 2 en casas de 2 pisos largas/dobles (azotea a 5.55 m) y 2 en casas de 1 piso (azotea a 3.2 m), más la original.
+- **Las casas van juntas por bloques de 6×6 celdas** (`"grupo"` → una malla por bloque, `colonia._juntar_grupos`) para que el `.glb` y la importación pesen menos.
+- **Nombres parodia** (`"nombres_parodia"`, real → juego): Av. del Cedro Seco, Calle Primavera Marchita, Calle Nogal Hueco, Calle Roble Torcido, Av. Parota Sin Sombra, Calle Caobilla Apolillada, Privada Roble Quebrado, Privada del Chorro, Privada de la Fuga, Calle Sin Número, Calle Tres Cuartos, Privada del Gotero, Calle Monte Caramelo, Privada Monte Caramelo, Calle Ébano Quemado, Calle Seis Cerrada. En la favela ya no hay placas (no hay calles).
+- **El LSD de las tiendas (M7c) no se tocó**, como se pidió.
+
+## Qué falta / pide decisión de JJ
+
+- Nombre definitivo de la Av. del Cedro Seco y de las bocas; si la favela debe tener placas de sus callejones.
+- Los dadores de la mafia dentro de la favela (Nemesio, el Primo, el gremio) son marcas `mision` sin misión todavía (M8/M9 y S7, el mercado ilegal).
+- ~~Interior de la tienda ilegal de La Gotera~~ (resuelto: es un segundo `punto`).
+- Revisar en ventana la Plaza del Tinaco (50,000 L, sin Virgen) y las 6 tiendas de favela; el `.glb` detallado (~56 MB) hay que medirlo en la GPU.
+- Si las balas de la pistola se venden en "Balas y Veladoras": falta el objeto.
+- Zombi de cobalto en "zonas con obra negra": la casa ya existe en el kit.
+
+## Probar sin restricciones
+
+`scenes/prueba_gotera.tscn` entra directo al tianguis con las bocas abiertas, sin las entregas de la mafia (`PasoColonia.sin_candados`, que dura hasta volver a la pantalla de inicio). Se puede ir y venir por cualquier boca y salir a `map_test` por las rejas.
+
+```bash
+godot --path . scenes/prueba_gotera.tscn               # en el tianguis, de día
+godot --path . scenes/prueba_gotera.tscn -- --favela   # en la favela
+godot --path . scenes/prueba_gotera.tscn -- --noche    # de noche
+```
+
+## Rendimiento y capturas
+
+Las capturas están en `~/casa_psm/gotera/` con su lista en `00_resumen.md` (fuera del repo). Números de `godot --path . -s tools/mapa/medir_gotera.gd -- --colonia=<colonia>` (mediana del tiempo de GPU, Intel HD 520, 640×480). El presupuesto es no pasar de ~5 ms sobre el tianguis de Santa Mugre.
+
+| Lugar | GPU día | GPU noche | Llamadas día |
+|---|---|---|---|
+| Santa Mugre, tianguis a lo largo (referencia) | 10.1 ms | 8.3 ms | 786 |
+| Santa Mugre, tianguis de lado (referencia) | 10.7 ms | 9.3 ms | 905 |
+| La Gotera, tianguis de armas | 8.4 ms | 7.3 ms | 324 |
+| La Gotera, tramo del agua | 12.9 ms | 8.5 ms | 933 |
+| La Gotera, tramo de comida | 10.5 ms | 8.3 ms | 1321 |
+| Favela, boca | 7.0 ms | 8.4 ms | 519 |
+| Favela, callejón | 6.9 ms | 8.5 ms | 703 |
+| Favela, plaza | 6.8 ms | 7.8 ms | 613 |
+| Favela, fondo | 7.8 ms | 8.9 ms | 690 |
+| Favela, túnel | 5.2 ms | 5.4 ms | 444 |
+
+Lo más caro es el tramo del agua del tianguis, 2.2 ms sobre Santa Mugre. La tabla es del **perfil simplificado** (24 MiB); el detallado (~56 MB, 203 toldos, 443 focos y 5 escaleras) está pendiente de medir en ventana con `medir_gotera.gd`. Pruebas: `tools/mapa/probar_gotera.gd -- --favela` (**48/48**: tiendas, entrar y salir de cada una a su patio, las dos tiendas del túnel dentro de la cueva, minimapa propio, tinaco sin Virgen y giro con WASD) y `tools/mapa/recorrer_favela.gd -- --cuantos=20` (**9/9**: callejones planos, cruzar cada casa abandonada y callejón techado, la cámara adentro, gente y focos de noche; las pruebas de escaleras y túnel se saltan mientras no haya).

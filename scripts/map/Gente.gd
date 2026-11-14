@@ -80,6 +80,18 @@ const LINEAS := {
 @export var afuera := true
 @export_file("*.json") var banquetas_path := "res://resources/map/banquetas_mapa.json"
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
+# Por colonia (MapaColonia los pone con el "ambiente" de marcas.json; la favela de La Gotera):
+# cuantos caminan, a que distancia aparecen y se quitan, y el suelo que cuenta como camino. En la
+# favela las terrazas suben 0.75 y 1.5 m (con ALTO_LIBRE parecian azoteas) y hay tablones de azotea
+# a azotea: el rayo sale de `rayo_desde`, abajo de los tablones y arriba de las terrazas.
+@export var caminantes := CAMINANTES
+@export var anillo := ANILLO
+@export var quitar_a := QUITAR_A
+@export var alto_libre := ALTO_LIBRE
+@export var rayo_desde := 12.0
+# m: al acabarse una linea, a que distancia se puede saltar a otra. La favela usa 2.2 (callejones
+# de 1.2-2.2 y casas pegadas); en las colonias de OSM el default 14 une banquetas de la misma calle.
+@export var une_a := UNE_A
 
 var caminando: Array[Dictionary] = []
 var platicando := {}       # indice de lugar -> nodo
@@ -104,8 +116,10 @@ func _ready() -> void:
 	_jugador = get_tree().get_first_node_in_group("jugador")
 	_ciclo = get_tree().get_first_node_in_group("ciclo")
 	if _ciclo:
-		_ciclo.aviso_atardecer.connect(func() -> void: _saliendo = true)
-		_ciclo.anochecio.connect(_quitar_a_todos)
+		_ciclo.aviso_atardecer.connect(func() -> void: _saliendo = not MapaColonia.abierto_24h)
+		_ciclo.anochecio.connect(func() -> void:
+			if not MapaColonia.abierto_24h:
+				_quitar_a_todos())
 		_ciclo.amanecio.connect(func() -> void: _saliendo = false)
 	_cargar_banquetas()
 	_cargar_lugares()
@@ -127,6 +141,9 @@ func _process(delta: float) -> void:
 
 
 func hay_gente() -> bool:
+	# Colonia abierta las 24 horas (MapaColonia.abierto_24h): la gente sigue de noche
+	if MapaColonia.abierto_24h:
+		return true
 	return not _saliendo and not (_ciclo and _ciclo.es_noche())
 
 
@@ -143,7 +160,7 @@ func _armar_reserva() -> void:
 				_garrafonero["nodo"].add_child(galon)
 			_libres.append(_garrafonero)
 			CargaCuadro.gastar(inicio)
-	elif _libres.size() + caminando.size() < CAMINANTES and CargaCuadro.hay():
+	elif _libres.size() + caminando.size() < caminantes and CargaCuadro.hay():
 		var inicio := Time.get_ticks_usec()
 		_libres.append(_armar_caminante(CLIP_CAMINA))
 		CargaCuadro.gastar(inicio)
@@ -167,7 +184,7 @@ func _sacar_caminante() -> void:
 	var centro := _jugador.global_position
 	for intento in INTENTOS:
 		var giro := randf() * TAU
-		var radio := randf_range(ANILLO.x, ANILLO.y)
+		var radio := randf_range(anillo.x, anillo.y)
 		var punto := centro + Vector3(cos(giro) * radio, 0.0, sin(giro) * radio)
 		var opciones: Array = _celdas.get(_celda(Vector2(punto.x, punto.z)), [])
 		if opciones.is_empty():
@@ -177,7 +194,7 @@ func _sacar_caminante() -> void:
 		var i: int = opcion[1]
 		var donde: Vector2 = linea[i]
 		var en_mundo := Vector3(donde.x, 1.0, donde.y)
-		if centro.distance_to(en_mundo) < ANILLO.x:
+		if centro.distance_to(en_mundo) < anillo.x:
 			continue
 		if camara and not camara.is_position_behind(en_mundo) and camara.is_position_in_frustum(en_mundo):
 			continue
@@ -192,6 +209,7 @@ func _sacar_caminante() -> void:
 			c["sentido"] = -1
 		c["avance"] = 0.0
 		c["y"] = y
+		c["seg"] = Vector2i(-1, -1)
 		var nodo: Node3D = c["nodo"]
 		nodo.visible = true
 		nodo.process_mode = Node.PROCESS_MODE_INHERIT
@@ -216,6 +234,11 @@ func _caminar(delta: float) -> void:
 		var a: Vector2 = linea[i]
 		var b: Vector2 = linea[siguiente]
 		var largo := a.distance_to(b)
+		var clave := Vector2i(i, c["sentido"])
+		if c.get("seg") != clave:
+			c["seg"] = clave
+			var y_b := _altura(b)
+			c["y_b"] = c["y"] if y_b == INF else y_b
 		c["avance"] += velocidad * delta
 		if c["avance"] >= largo:
 			# Lo que sigue tiene que ser banqueta: si no, se da la vuelta
@@ -227,6 +250,7 @@ func _caminar(delta: float) -> void:
 			c["y"] = y
 			c["i"] = siguiente
 			c["avance"] -= largo
+			c["seg"] = Vector2i(-1, -1)
 			continue
 		var p := a.lerp(b, c["avance"] / maxf(largo, 0.01))
 		# Entre vertice y vertice puede haber una casa (los tramos miden decenas de metros): cada
@@ -241,23 +265,24 @@ func _caminar(delta: float) -> void:
 				c["avance"] = largo - c["avance"]
 				continue
 		var nodo: Node3D = c["nodo"]
-		nodo.global_position = Vector3(p.x, c["y"], p.y)
+		var f := clampf(c["avance"] / maxf(largo, 0.01), 0.0, 1.0)
+		nodo.global_position = Vector3(p.x, lerpf(c["y"], float(c.get("y_b", c["y"])), f), p.y)
 		nodo.rotation.y = atan2(-(b.x - a.x), -(b.y - a.y))
 	if Engine.get_process_frames() % 30 == 0:
 		for c: Dictionary in caminando.duplicate():
-			if (c["nodo"] as Node3D).global_position.distance_to(_jugador.global_position) > QUITAR_A:
+			if (c["nodo"] as Node3D).global_position.distance_to(_jugador.global_position) > quitar_a:
 				_guardar(c)
 
 
 func _fin_de_linea(c: Dictionary) -> void:
 	var fin: Vector2 = (c["linea"] as Array)[c["i"]]
 	var mejor: Array = []
-	var cerca := UNE_A
+	var cerca := une_a
 	for clave in [_celda(fin)] + _vecinas(_celda(fin)):
 		for otro: Array in _finales.get(clave, []):
 			var punto: Vector2 = (_lineas[otro[0]] as Array)[otro[1]]
 			var d := fin.distance_to(punto)
-			if _lineas[otro[0]] != c["linea"] and d < cerca and _altura(punto) != INF:
+			if _lineas[otro[0]] != c["linea"] and d < cerca and _altura(punto) != INF and _puede_unir(fin, punto):
 				cerca = d
 				mejor = otro
 	if mejor.is_empty():
@@ -268,6 +293,23 @@ func _fin_de_linea(c: Dictionary) -> void:
 	c["i"] = mejor[1]
 	c["sentido"] = 1 if mejor[1] == 0 else -1
 	c["avance"] = 0.0
+	c["y"] = _altura((c["linea"] as Array)[c["i"]])
+	c["seg"] = Vector2i(-1, -1)
+
+
+# Un cambio de linea solo vale si el tramo entre los dos extremos es piso caminable (no cruza una
+# casa) y no cambia de banda mas de 0.35 m. Sin esto, en la favela saltaban de un callejon a otro.
+func _puede_unir(a: Vector2, b: Vector2) -> bool:
+	var ya := _altura(a)
+	var yb := _altura(b)
+	if ya == INF or yb == INF or absf(ya - yb) > 0.35:
+		return false
+	var largo := a.distance_to(b)
+	var n := maxi(2, int(ceil(largo / 0.75)))
+	for i in n + 1:
+		if _altura(a.lerp(b, float(i) / n)) == INF:
+			return false
+	return true
 
 
 func _guardar(c: Dictionary) -> void:
@@ -439,7 +481,7 @@ func _cargar_lugares() -> void:
 		push_warning("Gente: no se pudo leer %s" % puntos_path)
 		return
 	for p: Dictionary in datos["puntos"]:
-		if not p.get("interactivo", false) or p["tipo"] == "punto" or p.get("aire_libre", false):
+		if not p.get("interactivo", false) or p["tipo"] == "punto" or p.get("aire_libre", false) or p.get("sin_gente", false):
 			continue
 		var rng := RandomNumberGenerator.new()
 		rng.seed = String(p.get("origen", p.get("nombre", ""))).hash()
@@ -464,10 +506,10 @@ func _cargar_lugares() -> void:
 
 # Altura de la banqueta; INF si ahi hay una casa o una barda
 func _altura(punto: Vector2) -> float:
-	_rayo.from = Vector3(punto.x, 12.0, punto.y)
+	_rayo.from = Vector3(punto.x, rayo_desde, punto.y)
 	_rayo.to = Vector3(punto.x, -2.0, punto.y)
 	var pego := get_world_3d().direct_space_state.intersect_ray(_rayo)
-	if pego.is_empty() or pego.position.y > ALTO_LIBRE:
+	if pego.is_empty() or pego.position.y > alto_libre:
 		return INF
 	return pego.position.y
 

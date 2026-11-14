@@ -84,9 +84,14 @@ def tianguis_marcas(datos):
                 lx, lz = local(p["x"], p["z"])
                 if 0 < lx < largo and abs(lz) < arroyo / 2:
                     reservados.append([1 if lz > 0 else -1, round(lx, 2), round(p["ancho"] + 0.5, 2)])
-        marcas.append({"nombre": t["nombre"], "tipo": "tianguis", "x": ax, "z": az, "rot": round(rot, 4),
-                       "largo": round(largo, 2), "arroyo": arroyo, "pasillo": t.get("pasillo", 2.6),
-                       "semilla": t.get("semilla", 7), "huecos": huecos, "reservados": reservados})
+        marca = {"nombre": t["nombre"], "tipo": "tianguis", "x": ax, "z": az, "rot": round(rot, 4),
+                 "largo": round(largo, 2), "arroyo": arroyo, "pasillo": t.get("pasillo", 2.6),
+                 "semilla": t.get("semilla", 7), "huecos": huecos, "reservados": reservados}
+        # Tramos por giro (el tianguis de La Gotera): solo esos giros y el color de sus lonas
+        for llave in ("giros", "lona"):
+            if llave in t:
+                marca[llave] = t[llave]
+        marcas.append(marca)
     return marcas
 
 
@@ -125,6 +130,14 @@ def exportar(nombre):
     # Los focos colgados de los callejones (colonia.focos_callejones) van como marcas "foco"
     focos = [{"nombre": "Foco_%d" % i, "tipo": "foco", "x": x, "z": z, "y": round(y - 0.36, 2)}
              for i, (x, y, z, *_resto) in enumerate(focos_callejones(datos))]
+    # Y los de los tuneles de La Gotera (piezas tunel y tunel_cuarto: piezas.focos_de_tunel)
+    pz = _piezas()
+    for p in datos.get("piezas", []):
+        if p["tipo"] in ("tunel", "tunel_cuarto"):
+            c, s = math.cos(p.get("rot", 0.0)), math.sin(p.get("rot", 0.0))
+            for lx, ly, lz in pz["focos_de_tunel"](p):
+                focos.append({"nombre": "Foco_%d" % len(focos), "tipo": "foco", "x": round(p["x"] + lx * c + lz * s, 2),
+                              "z": round(p["z"] - lx * s + lz * c, 2), "y": round(p.get("y", 0.0) + ly, 2)})
     # Y el botin de las azoteas (colonia.botin_azoteas) como marcas "botin"
     botin = [{"nombre": "Botin_%d" % i, "tipo": "botin", "que": que, "x": x, "z": z, "y": y}
              for i, (x, y, z, que) in enumerate(botin_azoteas(datos))]
@@ -132,7 +145,16 @@ def exportar(nombre):
     placas = [dict(pl, nombre="Placa_%d" % i, tipo="placa") for i, pl in enumerate(placas_calles(datos))]
     # Y los tramos de tianguis como marcas "tianguis"
     tianguis = tianguis_marcas(datos)
-    guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "marcas": datos.get("marcas", []) + focos + botin + placas + tianguis})
+    # El recorte va tambien: MapaColonia.gd le da ese rectangulo al Horizonte
+    # "abierto_24h": MapaColonia.abierto_24h (tiendas y tianguis de noche, sin zombis)
+    salida = {"colonia": nombre, "recorte": datos["recorte"]}
+    if datos.get("abierto_24h"):
+        salida["abierto_24h"] = True
+    # "ambiente": niebla, lejos (camara) y gente de una colonia cerrada (MapaColonia._ambiente)
+    if datos.get("ambiente"):
+        salida["ambiente"] = datos["ambiente"]
+    salida["marcas"] = datos.get("marcas", []) + focos + botin + placas + tianguis
+    guardar_json(os.path.join(datos_dir, "marcas.json"), salida)
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", []) + datos.get("puestos_calle", [])})
     # Los arboles de Sketchfab (tipos 1 a 3 de kit.arbol_tipo): [x, z, altura, ancho de copa, nombre]
     arbol_tipo, extra = _kit()["arbol_tipo"], _kit()["ARBOLES_EXTRA"]
@@ -146,6 +168,12 @@ def exportar(nombre):
     guardar_json(os.path.join(datos_dir, "alumbrado.json"), {"postes": datos.get("postes", [])})
     guardar_json(os.path.join(datos_dir, "casas.json"), {"casas": casas_juego(datos)})
     guardar_json(os.path.join(datos_dir, "banquetas.json"), {"banquetas": banquetas(datos)})
+    # El minimapa propio de la favela (sin OSM): callejones, claros, tuneles, tablones e iconos
+    if datos.get("favela"):
+        _mm = {"__name__": "minimapa_colonia"}
+        raiz = os.environ.get("TAQUITO_RAIZ", "") or os.getcwd()
+        exec(open(os.path.join(raiz, "tools", "blender", "mapa", "minimapa_colonia.py"), encoding="utf-8").read(), _mm)
+        _mm["generar"](datos)
     print("colonia %s exportada: %d objetos, %d marcas" % (nombre, len(mundo.all_objects), len(datos.get("marcas", []))))
 
 

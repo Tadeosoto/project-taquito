@@ -30,6 +30,10 @@ Para ver los negocios sin cargar el mapa, `scenes/locales_preview.tscn` es una c
 
 Se arranca a pie, enfrente de una Farmacia Guadalajara con un puesto. Al pasar del dron al jugador, el jugador aterriza justo debajo del dron, en la calle o en una azotea.
 
+### El `.glb` de La Gotera
+
+El mapa de la favela de La Gotera es un `.glb` **detallado de ~56 MB** (no LFS). Se sube con `git add`/`git commit`/`git push`, no arrastrándolo a la web (el navegador corta en 25 MiB). GitHub acepta hasta **100 MiB** y avisa a partir de **50 MiB**, pero el push se completa. Como cada versión del `.glb` se queda en el historial, conviene commitear solo la versión final; si algún día se pasa de 100 MiB, hay que recortar densidad, partir el mapa o instalar Git LFS.
+
 ## Qué hay en el mapa
 
 - **Calles y edificios**:

@@ -73,10 +73,39 @@ func _probar() -> void:
 			if adentro:
 				interiores.call("_salir")
 				await _cuadros(90)
+	# Abarrotes Doña Mary (giro "tiendita"): ya se entra y vende
+	for m: Dictionary in marcas["marcas"]:
+		if m.get("giro", "") == "tiendita":
+			jugador.global_position = Vector3(m["x"], 1.2, m["z"])
+			await _cuadros(120)
+			var en_mary: Node = interiores.get("_interior")
+			_revisar("Doña Mary se entra y vende", en_mary != null and not (en_mary.get("productos") as Array).is_empty(), "%s" % en_mary)
+			if en_mary:
+				interiores.call("_salir")
+				await _cuadros(90)
 	await _subir_banqueta(escena)
 	await _pelota(escena)
 	await _vida(escena)
 	await _casa(escena)
+	# Un mirador de la muralla (pieza mirador_muro): su escalera es rampa de choque y se sube caminando
+	var r_mirador: Dictionary = await _caminar(escena, Vector3(-349.7, 1.1, 259.2), Vector3(1, 0, 0), 190)
+	_revisar("se sube al mirador de la muralla", r_mirador["subio"] > 3.0, "subio %.2f m" % r_mirador["subio"])
+	# La procesion del atardecer (Procesion.gd): con el aviso de Ciclo salen los fieles con las andas
+	# y avanzan por su camino
+	var procesion := escena.find_child("Procesion_Atardecer", true, false)
+	if procesion:
+		var ciclo_p := escena.get_node("Ciclo")
+		ciclo_p.set("_tiempo", 100.0)
+		await _cuadros(30)
+		ciclo_p.set("_tiempo", float(ciclo_p.get("dia_duracion")) - float(ciclo_p.get("aviso_antes")) + 1.0)
+		await _cuadros(120)
+		var fieles := procesion.find_children("Fiel_*", "Node3D", false, false)
+		var paso: float = (fieles[0] as Node3D).global_position.distance_to(Vector3(-323.6, 0.0, 418.6)) if not fieles.is_empty() else 0.0
+		_revisar("sale la procesion al atardecer", procesion.call("en_marcha") and fieles.size() == 7 and paso > 1.0,
+			"%d fieles, el primero lleva %.1f m" % [fieles.size(), paso])
+	else:
+		_revisar("sale la procesion al atardecer", false, "no hay marca")
+	await _templo(escena)
 	await _vecinos(escena)
 	print("RESULTADO: %s" % ("BIEN" if _fallas == 0 else "%d FALLAS" % _fallas))
 	quit(_fallas)
@@ -222,6 +251,39 @@ func _casa(escena: Node) -> void:
 		"jugador en %s" % jugador.global_position)
 
 
+# El templo (scripts/interiores/Templo.gd, tools/construir_templo.gd): de dia se entra por el atrio,
+# esta el padre Chuy y detras del retablo se baja caminando al cuarto del pozo; de noche no abre
+func _templo(escena: Node) -> void:
+	var templo := escena.get_node_or_null("Colonia/Templo")
+	_revisar("esta el templo", templo != null, "")
+	if templo == null:
+		return
+	var jugador := escena.get_node("Player") as Player
+	var ciclo := escena.get_node("Ciclo")
+	var flecha := (templo.get("flecha_en") as Vector3) + Vector3.UP * 1.2
+	ciclo.set("_tiempo", float(ciclo.get("dia_duracion")) + 60.0)
+	await _cuadros(30)
+	jugador.global_position = flecha
+	await _cuadros(60)
+	_revisar("el templo no abre de noche", templo.get("_casa") == null, "")
+	jugador.global_position = flecha + Vector3(-5, 0, 0)
+	ciclo.set("_tiempo", 100.0)
+	await _cuadros(30)
+	jugador.global_position = flecha
+	await _cuadros(120)
+	var adentro := templo.get("_casa") as Node3D
+	_revisar("se entra al templo y esta el padre", adentro != null and adentro.get_node_or_null("PadreChuy") != null, "%s" % adentro)
+	if adentro == null:
+		return
+	# Del pasillo de atras del retablo, por la rampa, hasta el fondo del cuarto del pozo (2.8 m abajo)
+	var escala: float = adentro.scale.x
+	var r: Dictionary = await _caminar(escena, adentro.global_position + Vector3(14.8, 1.4, 5.45) * escala, Vector3(1, 0, 0), 260)
+	var bajo: float = adentro.global_position.y - (r["hasta"] as Vector3).y
+	_revisar("se baja caminando al pozo", bajo > 2.0 * escala - 1.2 and r["avance"] > 5.0, "bajo %.2f m, avanzo %.2f" % [bajo, r["avance"]])
+	templo.call("_salir")
+	await _cuadros(90)
+
+
 # Las casas de los vecinos (CasaVecino.gd): cada una con quien vive; el taller de Sofia no abre
 # de dia; lo de la clausurada sale una vez por partida
 func _vecinos(escena: Node) -> void:
@@ -307,13 +369,29 @@ func _vida(escena: Node) -> void:
 			zombis = root.get_tree().get_nodes_in_group("zombis").filter(func(z: Node) -> bool: return z.is_inside_tree() and (z as Node3D).visible).size()
 			if zombis > 0:
 				break
-	_revisar("salen zombis de noche", zombis > 0, "%d" % zombis)
+	# Santa Mugre es fortaleza (lore del 2026-11-12): adentro no salen zombis de noche (Zombis.espontaneos
+	# apagado en mapa.tscn) hasta que falle la reja (bloque F1 de docs/plan-noche.md)
+	_revisar("en la fortaleza no salen zombis de noche", zombis == 0, "%d" % zombis)
 	_revisar("reflector de la cancha prendido de noche", reflector != null and reflector.visible and reflector.light_energy > 1.0,
 		"energia %.2f" % (reflector.light_energy if reflector else -1.0))
 	var ninos := escena.find_child("Ninos_Cancha", true, false) as Node3D
-	var guardia := escena.find_child("Guardia_GelA_0", true, false) as Node3D
-	_revisar("de noche no hay chamacos ni guardias", ninos != null and not ninos.visible and guardia != null and not guardia.visible,
-		"%s %s" % [ninos, guardia])
+	_revisar("de noche no hay chamacos", ninos != null and not ninos.visible, "%s" % ninos)
+	# Los vigias de los fieles ("cuando": "siempre") y la vela del tinaco ("noche"): se ven de noche
+	# estando cerca (a mas de NinosCancha.LEJOS no se dibujan)
+	var jugador_vela := escena.get_node("Player") as Node3D
+	var vela := escena.find_child("Vela_Tinaco_0", true, false) as Node3D
+	var guardia := escena.find_child("Guardia_Reja_poniente_0", true, false) as Node3D
+	if vela and guardia:
+		var antes_vela := jugador_vela.global_position
+		jugador_vela.global_position = vela.global_position + Vector3(3.0, 0.5, 0.0)
+		await _cuadros(90)
+		var vela_ok := vela.visible
+		jugador_vela.global_position = guardia.global_position + Vector3(3.0, 0.5, 0.0)
+		await _cuadros(90)
+		_revisar("de noche hay vela en el tinaco y guardia en la reja", vela_ok and guardia.visible, "%s %s" % [vela_ok, guardia.visible])
+		jugador_vela.global_position = antes_vela
+	else:
+		_revisar("de noche hay vela en el tinaco y guardia en la reja", false, "%s %s" % [vela, guardia])
 	# Tianguis.gd: de noche se esconden las lonas, la mercancia y los carritos (lo que va en _de_dia)
 	var tramos := escena.find_children("Tianguis_*", "Node3D", true, false).filter(func(n: Node) -> bool: return n is Tianguis)
 	var lonas: Array = []
@@ -321,18 +399,18 @@ func _vida(escena: Node) -> void:
 		lonas.append_array(t.get("_de_dia"))
 	_revisar("de noche el tianguis queda en fierros", not lonas.is_empty() and lonas.all(func(n: Node) -> bool: return not (n as Node3D).visible),
 		"%d tramos, %d cosas de dia" % [tramos.size(), lonas.size()])
-	# La caja del reten: de noche se abre una vez y da algo
-	var caja := escena.find_child("Caja_GelA", true, false)
+	# La caja de ofrendas junto a la reja poniente: de noche se abre una vez y da algo
+	var caja := escena.find_child("Caja_Ofrendas", true, false)
 	if caja:
 		caja.set("_player_inside", true)
 		var inventario := root.get_node("/root/Inventory")
 		var antes_caja: int = inventario.call("unidades").size()
 		caja.call("interact")
 		var despues: int = inventario.call("unidades").size()
-		_revisar("la caja de GelA se saquea de noche, una vez", despues > antes_caja and not caja.call("is_player_inside"),
+		_revisar("la caja de ofrendas da algo de noche, una vez", despues > antes_caja and not caja.call("is_player_inside"),
 			"%d -> %d" % [antes_caja, despues])
 	else:
-		_revisar("la caja de GelA se saquea de noche, una vez", false, "no hay caja")
+		_revisar("la caja de ofrendas da algo de noche, una vez", false, "no hay caja")
 	var trampa := escena.find_child("Trampa_Cancha", true, false)
 	_revisar("la cancha atrapa de noche", trampa != null and trampa.call("adentro", Vector3(-392.0, 1.0, 305.5))
 		and not trampa.call("adentro", Vector3(-372.0, 1.0, 432.0)), "%s" % trampa)

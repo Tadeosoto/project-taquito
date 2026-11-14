@@ -64,6 +64,8 @@ var _ambiente_tween: Tween
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# La prueba de La Gotera (scenes/prueba_gotera.tscn) quita los candados de las bocas: aqui vuelven
+	PasoColonia.sin_candados = false
 	_escena()
 	_dither()
 	_interfaz()

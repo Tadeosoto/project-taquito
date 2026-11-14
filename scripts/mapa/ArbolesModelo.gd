@@ -10,6 +10,8 @@ extends Node3D
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 # Hojas recortadas por alfa y sin culling, como los murales
 const HOJAS_SHADER := preload("res://shaders/ps1_casa.gdshader")
+# La textura de hojas del roble viene casi negra: se aclara (tint de ps1_casa)
+const TINTE_HOJAS := {"roble": Color(1.9, 2.0, 1.7)}
 
 # Lo que sube el arbol sobre el piso: el borde del cajete de cantera (tools/blender/mapa/piezas.py)
 const BASE_Y := 0.3
@@ -104,9 +106,19 @@ func _malla(nombre: String, modelo: Dictionary) -> ArrayMesh:
 		arrays[Mesh.ARRAY_VERTEX] = vertices
 		arrays[Mesh.ARRAY_TEX_UV] = uvs
 		arrays[Mesh.ARRAY_INDEX] = indices
+		if rol == "hojas":
+			# Sin normales las hojas quedaban sin luz y de cerca (desde una azotea o un mirador, con
+			# la camara entre la copa) eran bloques negros. Todas hacia arriba: la copa recibe el
+			# sol pareja, sin caras oscuras segun hacia donde vea cada tarjeta
+			var normales := PackedVector3Array()
+			normales.resize(vertices.size())
+			normales.fill(Vector3.UP)
+			arrays[Mesh.ARRAY_NORMAL] = normales
 		var material := ShaderMaterial.new()
 		material.shader = HOJAS_SHADER if rol == "hojas" else PS1_SHADER
 		material.set_shader_parameter("albedo_texture", load("res://textures/mapa/arbol_%s_%s.png" % [nombre, rol]))
+		if rol == "hojas" and TINTE_HOJAS.has(nombre):
+			material.set_shader_parameter("tint", TINTE_HOJAS[nombre])
 		material.set_shader_parameter("affine_enabled", false)
 		material.set_shader_parameter("wobble_enabled", false)
 		material.set_shader_parameter("jitter_enabled", false)
