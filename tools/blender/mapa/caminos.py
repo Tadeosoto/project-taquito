@@ -28,13 +28,24 @@ def _dentro(x, z, poligono):
 
 
 def _ensanchar(poligono, m):
-    """Cada vertice se aleja del centro m metros (basta para huellas chicas y convexas)."""
-    cx = sum(p[0] for p in poligono) / len(poligono)
-    cz = sum(p[1] for p in poligono) / len(poligono)
+    """La huella crecida m metros por cada lado. Antes cada vertice se alejaba del centro, y en un
+    rectangulo largo (las casas de la favela) los lados largos crecian mucho menos que m."""
+    n = len(poligono)
+    if n < 3:
+        return poligono
+    # Sentido del poligono: con area positiva (antihorario en x-z) la normal de afuera es (-dz, dx)
+    area = sum(poligono[i][0] * poligono[(i + 1) % n][1] - poligono[(i + 1) % n][0] * poligono[i][1] for i in range(n))
+    sg = 1.0 if area > 0 else -1.0
     salida = []
-    for x, z in poligono:
-        d = math.hypot(x - cx, z - cz) or 1.0
-        salida.append((x + (x - cx) / d * m, z + (z - cz) / d * m))
+    for i in range(n):
+        p = poligono[i]
+        for a, b in ((poligono[i - 1], p), (p, poligono[(i + 1) % n])):
+            dx, dz = b[0] - a[0], b[1] - a[1]
+            d = math.hypot(dx, dz) or 1.0
+            # El vertice se corre por las normales de sus dos lados: en una esquina recta queda
+            # justo en la esquina crecida
+            p = (p[0] - dz / d * m * sg, p[1] + dx / d * m * sg)
+        salida.append(p)
     return salida
 
 
@@ -46,15 +57,25 @@ def _rectangulo(x, z, rot, ancho, fondo):
 
 
 def huellas(datos):
-    """Las huellas en el mundo de todo lo que estorba al caminar: casas y edificios grandes."""
+    """Las huellas en el mundo de todo lo que estorba al caminar: casas (tambien las abandonadas,
+    que son macizas por dentro), edificios grandes y lo armado que ocupa su cuadro."""
     salida = []
     for p in datos.get("piezas", []):
         t = p["tipo"]
-        if t == "casa":
-            salida.append(_ensanchar([(p["x"] + a, p["z"] + b) for a, b in p["puntos"]], MARGEN))
+        if t in ("casa", "abandonada") and p.get("puntos"):
+            c, s = math.cos(p.get("rot", 0.0)), math.sin(p.get("rot", 0.0))
+            salida.append(_ensanchar([(p["x"] + a * c + b * s, p["z"] - a * s + b * c) for a, b in p["puntos"]], MARGEN))
         elif t in ("palacio", "parroquia", "mercado") and "tam" in p:
             tam = p["tam"]
             ancho, fondo = (tam[0], tam[2]) if t == "palacio" else (tam[0], tam[1])
+            salida.append(_rectangulo(p["x"], p["z"], p.get("rot", 0.0), ancho + 2 * MARGEN, fondo + 2 * MARGEN))
+        elif t in ("tunel_cuarto", "techo_callejon", "muralla", "reja_fierro") and p.get("y", 0.0) >= -0.1:
+            if t in ("muralla", "reja_fierro"):
+                ancho, fondo = p.get("largo", 2.0), p.get("grueso", 0.3)
+            elif t == "techo_callejon":
+                continue          # se cruza por debajo
+            else:
+                ancho, fondo = p.get("tam", [3.0, 3.0])
             salida.append(_rectangulo(p["x"], p["z"], p.get("rot", 0.0), ancho + 2 * MARGEN, fondo + 2 * MARGEN))
     return salida
 

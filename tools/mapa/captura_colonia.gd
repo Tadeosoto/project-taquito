@@ -20,6 +20,18 @@ const VISTAS := {
 	"cancha": [Vector3(-398.0, 10.0, 318.0), Vector3(-385.0, 0.0, 300.0)],
 	"muralla": [Vector3(-300.0, 9.0, 300.0), Vector3(-300.0, 2.0, 258.0)],
 }
+# Las de la favela de La Gotera (--colonia=la_gotera_favela): se usan en lugar de VISTAS
+const VISTAS_FAVELA := {
+	"boca": [Vector3(733.0, 1.7, -231.6), Vector3(752.0, 1.5, -230.7)],
+	"boca_atras": [Vector3(745.0, 1.7, -231.3), Vector3(730.0, 2.2, -231.8)],
+	"cancha": [Vector3(790.0, 10.0, -240.0), Vector3(806.0, 1.0, -222.0)],
+	"plaza_gotera": [Vector3(794.0, 2.0, -234.0), Vector3(810.0, 2.0, -220.0)],
+	"tinaco": [Vector3(822.0, 2.4, -230.0), Vector3(831.0, 1.8, -222.0)],
+	"cueva": [Vector3(889.4, 1.5, -168.7), Vector3(891.5, 1.3, -167.2)],
+	"cueva2": [Vector3(838.9, 1.5, -308.5), Vector3(841.0, 1.3, -306.9)],
+	"arriba": [Vector3(700.0, 110.0, -120.0), Vector3(830.0, 0.0, -230.0)],
+}
+
 
 
 func _initialize() -> void:
@@ -31,6 +43,10 @@ func _tomar() -> void:
 	for arg in OS.get_cmdline_user_args():
 		var partes := arg.trim_prefix("--").split("=", true, 1)
 		args[partes[0]] = partes[1] if partes.size() > 1 else ""
+	# --colonia=la_gotera_favela: la colonia de Blender que arma mapa.tscn (por omision, Santa Mugre)
+	if args.has("colonia"):
+		PasoColonia.colonia = String(args["colonia"])
+		PasoColonia.sin_candados = true
 	var escena: Node = (load(ESCENA) as PackedScene).instantiate()
 	root.add_child(escena)
 	# Sin jugador ni interfaz encima: solo el mundo
@@ -59,10 +75,11 @@ func _tomar() -> void:
 	escena.add_child(camara)
 	var fotos := []
 	if args.has("vistas"):
-		var pedidas: Array = VISTAS.keys() if args["vistas"] == "todas" else Array(String(args["vistas"]).split(","))
+		var cuales: Dictionary = VISTAS_FAVELA if String(args.get("colonia", "")) == "la_gotera_favela" else VISTAS
+		var pedidas: Array = cuales.keys() if args["vistas"] == "todas" else Array(String(args["vistas"]).split(","))
 		for v in pedidas:
-			if VISTAS.has(v):
-				fotos.append([VISTAS[v][0], VISTAS[v][1], String(args.get("carpeta", OS.get_user_data_dir())).path_join(v + ("_noche" if noche else "") + ".png")])
+			if cuales.has(v):
+				fotos.append([cuales[v][0], cuales[v][1], String(args.get("carpeta", OS.get_user_data_dir())).path_join(v + ("_noche" if noche else "") + ".png")])
 	else:
 		fotos.append([_vec(args.get("desde", "-392,5,446")), _vec(args.get("hacia", "-345,3,404")),
 			String(args.get("captura", OS.get_user_data_dir().path_join("colonia.png")))])

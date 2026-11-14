@@ -36,7 +36,10 @@ PATIO = (88, 76, 57)
 CLARO = (112, 100, 66)
 CLARO_GRANDE = (152, 136, 90)
 CLARO_BORDE = (204, 188, 132)
+CANCHA = (70, 96, 120)
 CALLE = (188, 180, 160)
+# El callejon principal de cada boca a la Plaza del Tinaco (favela._orientarse): mas claro
+CALLE_PRINCIPAL = (236, 226, 190)
 TIENDAS = {"abarrotes": (240, 205, 50), "licoreria": (60, 95, 220), "farmacia": (55, 200, 185),
            "ferreteria": (185, 105, 45), "oxxo": (220, 50, 40), "taqueria": (240, 130, 35)}
 TUNEL = (78, 60, 48)
@@ -123,6 +126,27 @@ class Lienzo:
             self.linea([a, b], ancho, color)
 
 
+def _punteada(lienzo, pts, ancho, color, raya=1.6, hueco=1.4):
+    """Linea punteada por la poligonal `pts` (metros): rayas de `raya` m separadas `hueco` m."""
+    resto, pinta = 0.0, True
+    for (ax, az), (bx, bz) in zip(pts, pts[1:]):
+        largo = math.hypot(bx - ax, bz - az)
+        if largo == 0:
+            continue
+        t = 0.0
+        while t < largo:
+            paso = min(resto if resto > 0 else (raya if pinta else hueco), largo - t)
+            if pinta:
+                lienzo.linea([(ax + (bx - ax) * t / largo, az + (bz - az) * t / largo),
+                              (ax + (bx - ax) * (t + paso) / largo, az + (bz - az) * (t + paso) / largo)], ancho, color)
+            t += paso
+            if resto > 0:
+                resto -= paso
+            if resto <= 1e-9:
+                pinta = not pinta
+                resto = 0.0
+
+
 def _icono(lienzo, x, z, color):
     c, f = lienzo.px(x, z)
     c, f = int(c), int(f)
@@ -174,6 +198,17 @@ def generar(datos):
         if p.get("tipo") == "lote" and p.get("claro") and (p.get("grande") or p.get("tinaco")):
             lienzo.contorno(p, CLARO_BORDE, 1.4)
 
+    # Las reservas puestas a mano (la plaza de los Gotera con su cancha, la casa de don Nemesio):
+    # sin esto quedaban como un cuadro negro enorme en medio del minimapa
+    for r in datos.get("reservas", []):
+        if r.get("puntos"):
+            lienzo.poligono([(q[0], q[1]) for q in r["puntos"]], PATIO)
+    for p in datos.get("piezas", []):
+        if p.get("tipo") == "cancha":
+            tam = p.get("tam", [11.0, 18.0])
+            lienzo.rectangulo({"x": p["x"], "z": p["z"], "rot": p.get("rot", 0.0),
+                               "tam": [tam[0] + 2.0, tam[-1] + 2.0]}, CANCHA)
+
     # Casas
     for p in datos.get("piezas", []):
         if p.get("tipo") != "casa":
@@ -189,6 +224,8 @@ def generar(datos):
         pts = [(p["x"] + a, p["z"] + b) for a, b in p.get("puntos", [])]
         if len(pts) >= 2:
             lienzo.linea(pts, max(float(p.get("ancho", 1.5)), 1.6), CALLE)
+    for c in datos.get("principales", []):
+        lienzo.linea([(q[0], q[1]) for q in c["puntos"]], 2.2, CALLE_PRINCIPAL)
 
     # Tiendas de la superficie: punto de color y una linea corta hacia su puerta
     for n in datos.get("negocios", []):
@@ -238,6 +275,13 @@ def generar(datos):
         lienzo.linea([(p["x"] - dx * largo / 2, p["z"] - dz * largo / 2),
                       (p["x"] + dx * largo / 2, p["z"] + dz * largo / 2)], 1.0, TABLON)
 
+    # Casas pasantes, cuevas y callejones techados: el camino que conectan va punteado, como un
+    # callejon mas (la ruta la deja favela.py en la marca "interior" de cada una)
+    for m in datos.get("marcas", []):
+        ruta = m.get("ruta")
+        if m.get("tipo") == "interior" and ruta and len(ruta) >= 2:
+            _punteada(lienzo, [(q[0], q[1]) for q in ruta], 1.5, CALLE, raya=2.0, hueco=1.6)
+
     # Iconos: azoteas (escaleras), túneles, salidas y tinaco
     iconos = []
     for p in datos.get("piezas", []):
@@ -249,7 +293,10 @@ def generar(datos):
         if m.get("tipo") == "mision" and str(m.get("nombre", "")).startswith("Tunel_Entrada"):
             iconos.append({"tipo": "tunel", "x": round(m["x"], 2), "z": round(m["z"], 2)})
         elif m.get("tipo") == "paso":
-            iconos.append({"tipo": "salida", "x": round(m["x"], 2), "z": round(m["z"], 2)})
+            icono = {"tipo": "salida", "x": round(m["x"], 2), "z": round(m["z"], 2)}
+            if m.get("letra"):
+                icono["letra"] = m["letra"]      # la inicial de la boca (favela.NOMBRES_BOCAS)
+            iconos.append(icono)
         elif m.get("tipo") == "tinaco":
             iconos.append({"tipo": "tinaco", "x": round(m["x"], 2), "z": round(m["z"], 2)})
     for i in iconos:
