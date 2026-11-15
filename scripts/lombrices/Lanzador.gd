@@ -253,6 +253,7 @@ func soltar_molotov() -> void:
 	var tiro := _tiro(_desde_mano(), _destino)
 	var padre := jugador.get_tree().current_scene
 	_solto = true
+	Sonidos.tocar(jugador, "lanzar", -4.0, randf_range(0.95, 1.05))
 	if tipo != 3:
 		Arrojadizo.lanzar(padre, tiro.desde, tiro.vel, ARROJADIZOS[tipo], [jugador.get_rid()])
 		return

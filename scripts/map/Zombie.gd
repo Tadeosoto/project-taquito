@@ -451,12 +451,17 @@ func alertar(contagia := true) -> void:
 	if alerta or not despierto or estado == Estado.MUERTO:
 		return
 	alerta = true
-	if jugador and is_instance_valid(jugador) and jugador.global_position.distance_to(global_position) < VE_DESDE:
+	var te_ve: bool = jugador and is_instance_valid(jugador) and jugador.global_position.distance_to(global_position) < VE_DESDE
+	if te_ve:
 		_nota("ver")
 	_rumbo = Vector3.ZERO
 	_atorado = 0.0
 	if contagia:
-		_rugir("rugido")
+		# Te vio de verdad: el grito de aviso (S-045). Si lo alerto otra cosa (ruido, golpe), el rugido de siempre
+		if te_ve:
+			_sonar("zombi_alerta")
+		else:
+			_rugir("rugido")
 		for zombi in activos:
 			if zombi != self and not zombi.alerta and zombi.global_position.distance_squared_to(global_position) <= CONTAGIA * CONTAGIA:
 				zombi.alertar(false)
@@ -1114,6 +1119,7 @@ func _atacar() -> void:
 			hacia.y = 0.0
 			if hacia.length() <= _alcance_golpe and absf(jugador.global_position.y - global_position.y) <= _alcance_golpe:
 				jugador.recibir_dano(_dano, global_position, JEFE_EMPUJA if es_jefe else 1.0, self)
+				_sonar("zombi_mordida")
 				_nota("pelear")
 				acerto = true
 		elif is_instance_valid(_blanco) and _blanco.has_method("recibir_golpe"):
@@ -1182,6 +1188,8 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 		velocity = Vector3.ZERO
 		_al_morir = atras
 		_sin_cabeza = cabeza and not es_jefe
+		if _sin_cabeza:
+			Sonidos.tocar(self, "headshot_zombi", -2.0, randf_range(0.95, 1.05))
 		# Solo el zombi se congela con un balazo; el machete ya congela todo (Player._congelar)
 		var espera := FUENTE_MS if _sin_cabeza else (0 if cuerpo_a_cuerpo or es_jefe else CONGELA_PISTOLA_MS)
 		_nota("matar")
@@ -1193,6 +1201,9 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 		return GOLPE_PEGO
 	if cuerpo_a_cuerpo:
 		_retroceso = atras * EMPUJON * fuerza
+	# Quejido corto al recibir un golpe sin morir (S-050), sin cortar el que ya esta sonando
+	if not _voz.playing:
+		_sonar("zombi_quejido")
 	if not ATURDIR or (not _en_corte() and not (cuerpo_a_cuerpo and randf() < ATURDE_PROB)):
 		return GOLPE_PEGO
 	estado = Estado.HERIDO

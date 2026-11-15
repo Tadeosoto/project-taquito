@@ -91,3 +91,7 @@ A boss built on the Hitman ragdoll trick: Verlet dots joined by distance constra
 - **From the game (S8):** if `PasoJefe.desde_juego` is true the scene was opened by a mission (ENTRAR_A with `escena`): a win shows the prize for 6 s and calls `PasoJefe.volver(self, true)`, a faint calls `volver(self, false)`, both back to the map. Without the flag (launched alone, captures, `--medir`, `--bot`) nothing changes: it restarts with `,`.
 
 > Moved from the root `CLAUDE.md` on 2026-11-11, word for word. Keep it in sync with the code; the root keeps only a pointer here.
+
+## Sounds from files (Splice, 2026-11-15)
+
+Sound details live in `docs/sonidos.csv` (S-090, S-094..096). `Sonidos.ARCHIVOS` has them: `chillido` (sac popped / phase change), `chillido_muerte` (her death), `madre_rugido` (`MadreCarcamo._rugir`, every 9-16 s while alive), `madre_escupe` (each spit ball, lower pitch when she vomits crias), `crias_enjambre` (`EnjambreLombrices._rumor`: 3D at the centre of the crias in RODEA/SUBE within 30 m, only when 10 or more; volume rises up to 40). A sword hit that only lands on worms plays `squelch`, not the zombie `whack` (`Player._sentir_golpe(..., lombriz)`). The player's `dolor` has a 1.3 s cooldown (`Player._sonar_dolor`) so bites don't stack the voice.

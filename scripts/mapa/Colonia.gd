@@ -253,6 +253,13 @@ func _ninos(marca: Dictionary) -> void:
 	ninos.cuantos = int(marca.get("cuantos", 6))
 	ninos.transform = lugar(marca)
 	add_child(ninos)
+	# El ruido de la cancha: solo de dia, como los chamacos
+	var ruido := AmbienteZona.new()
+	ruido.sonido = "ambiente_cancha"
+	ruido.radio = maxf(ninos.tam.length(), 25.0)
+	ruido.solo_dia = true
+	ruido.transform = ninos.transform * Transform3D(Basis.IDENTITY, Vector3(0.0, 1.5, 0.0))
+	add_child(ruido)
 
 
 const PLACA_ALTO := 2.5
@@ -406,6 +413,19 @@ func _tianguis(marca: Dictionary) -> void:
 	t.huecos = marca.get("huecos", [])
 	t.reservados = marca.get("reservados", [])
 	add_child(t)
+	# El bullicio del mercado, en medio del tramo (suena de dia y de noche: el tianguis no cierra)
+	var bullicio := AmbienteZona.new()
+	bullicio.sonido = "ambiente_tianguis"
+	bullicio.radio = maxf(t.largo * 0.6, 30.0)
+	bullicio.transform = t.transform * Transform3D(Basis.IDENTITY, Vector3(t.largo * 0.5, 1.5, 0.0))
+	add_child(bullicio)
+	# Y la multitud: muchos NPC juntos
+	var multitud := AmbienteZona.new()
+	multitud.sonido = "ambiente_multitud"
+	multitud.radio = maxf(t.largo * 0.5, 25.0)
+	multitud.volumen_db = -10.0
+	multitud.transform = bullicio.transform
+	add_child(multitud)
 
 
 func _spawn(marca: Dictionary) -> void:

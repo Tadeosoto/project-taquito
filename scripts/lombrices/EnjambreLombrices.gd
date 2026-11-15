@@ -149,6 +149,12 @@ const FX_ESPERA := {"cria_corte": 80, "cria_cabeza": 100, "pegada_mordida": 200,
 	"pegada_suelta": 300, "madre_tierra": 300, "torre_golpe": 500}
 # Rendimiento
 const PASO_MAX := 0.05          # s: si el hilo tardo, el siguiente paso no avanza mas que esto
+# El rumor de las crias yendo hacia ti (crias_enjambre): suena cuando RUMOR_DESDE o mas de las
+# que rodean (o suben por) a menos de RUMOR_RADIO m se mueven; mas fuerte con RUMOR_LLENO
+const RUMOR_DESDE := 10
+const RUMOR_LLENO := 40
+const RUMOR_RADIO := 30.0
+const RUMOR_VOLUMEN := Vector2(-12.0, -2.0)   # dB, con RUMOR_DESDE y con RUMOR_LLENO
 const LEJOS_DESDE := 14.0       # m: mas lejos, una lombriz que solo rodea duerme 2 de cada 3 pasos
 const CALIDAD_ALTA := 22.0      # ms del paso (de 33 a 30/s): arriba de esto por CALIDAD_ESPERA s quita lombrices
 const CALIDAD_ESPERA := 2.0
@@ -221,6 +227,7 @@ var _intervalo := 1.0 / 30.0    # s entre las dos ultimas fotos
 var _acumulado := 0.0
 var _ordenes: Array[Callable] = []
 var _paso_n := 0
+var _voz_rumor: AudioStreamPlayer3D
 var _ema := 0.0
 var _calidad_t := 0.0
 var _ciclo: Node
@@ -491,6 +498,7 @@ func _physics_process(delta: float) -> void:
 			_matar_tramo(h, "")
 		_tramos()
 	_pensar(delta)
+	_rumor()
 	_zonas(delta)
 	_crecer(delta)
 	_morder(delta)
@@ -593,6 +601,37 @@ func biomasa() -> float:
 
 
 # --- Lo que piensa cada lombriz ---
+
+# Cuando hay muchas yendo hacia ti suena su rumor, en medio de ellas y mas fuerte con mas
+func _rumor() -> void:
+	if _jugador == null:
+		return
+	if _voz_rumor == null:
+		_voz_rumor = AudioStreamPlayer3D.new()
+		_voz_rumor.max_distance = 45.0
+		_voz_rumor.unit_size = 12.0
+		add_child(_voz_rumor)
+	if _voz_rumor.playing:
+		return
+	var yo := _jugador.global_position
+	var cuantas := 0
+	var centro := Vector3.ZERO
+	for h in _cabezas:
+		var e := _estado[h]
+		if (e == Estado.RODEA or e == Estado.SUBE) and pos[h].distance_squared_to(yo) < RUMOR_RADIO * RUMOR_RADIO:
+			cuantas += 1
+			centro += pos[h]
+	if cuantas < RUMOR_DESDE:
+		return
+	var stream := Sonidos.sonido("crias_enjambre")
+	if stream == null:
+		return
+	_voz_rumor.stream = stream
+	_voz_rumor.global_position = centro / cuantas
+	_voz_rumor.volume_db = lerpf(RUMOR_VOLUMEN.x, RUMOR_VOLUMEN.y, clampf(float(cuantas - RUMOR_DESDE) / (RUMOR_LLENO - RUMOR_DESDE), 0.0, 1.0))
+	_voz_rumor.pitch_scale = randf_range(0.95, 1.05)
+	_voz_rumor.play()
+
 
 func _pensar(delta: float) -> void:
 	if _jugador == null:

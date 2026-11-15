@@ -609,8 +609,8 @@ func _utilizar() -> void:
 		_sonar("ui_error")
 		_mostrar_mensaje("No lo necesitas ahorita.")
 		return
-	_sonar("inv_usar")
 	var subio: int = inventory.usar_curacion(current_item_index)
+	Sonidos.usar_item(self, item, subio)
 	if item.recarga_segundo_aire:
 		Tazos.segundo_aire_usado = false
 	# La flor de curar a los pies y, al cerrar el inventario, el personaje toma (animacion Drink):

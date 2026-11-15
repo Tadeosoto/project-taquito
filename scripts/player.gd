@@ -62,6 +62,7 @@ const ARMA_MANGO := ARMA_TAMANO * 0.4
 const DANO_MACHETE := 12.0
 const FUERZA_MIN := 0.5
 const FUERZA_MAX := 1.5
+const DOLOR_ESPERA_MS := 1300   # entre un quejido de dolor y el siguiente
 const SWING_VOLUMEN := -14.0  # dB: para que resalte el whack (JJ lo bajo a la mitad: -6 dB)
 const WHACK_VOLUMEN := -6.0   # dB: a la mitad, como el swing
 # m/s que rebotas hacia atras al pegarle a algo. En 0 a peticion de JJ: tu no te mueves con
@@ -392,6 +393,7 @@ var _rodada_dir := Vector3.ZERO
 var _rodar_espera := 0.0
 var _bloqueando := false
 var _agachado := 0.0        # s que le quedan al agachado del arrastre por un golpe parado
+var _dolor_hasta := 0
 var _buffer := ""            # "golpe", "brinco", "rodar" o "estocada"; "" = nada
 var _buffer_edad := 0.0       # s de juego desde que se pidio (la congelada tambien la frena)
 var _buffer_dir := Vector2.ZERO   # las teclas de direccion al pedir la rodada
@@ -728,6 +730,7 @@ func _golpear(giro := false) -> void:
 			_conto_espada()
 	# Las lombrices (EnjambreLombrices, MadreCarcamo) no estan en "zombis": el golpe les corta los
 	# hilos aparte
+	var pego_zombi := pego
 	for enjambre in get_tree().get_nodes_in_group("lombrices"):
 		if enjambre.golpe_cuerpo(global_position, frente, _alcance * (GIRO_ALCANCE if giro else 1.0), ATAQUE_ANGULO, dano, giro):
 			pego = true
@@ -740,7 +743,7 @@ func _golpear(giro := false) -> void:
 	golpes += 1
 	if pego:
 		golpes_pegaron += 1
-		_sentir_golpe(frente, fuerza, mato)
+		_sentir_golpe(frente, fuerza, mato, not pego_zombi)
 		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
 
 
@@ -895,7 +898,7 @@ func _girar(aire := false) -> void:
 	figura.golpe_giro(velocidad, _giro)
 	_estela_antes = []
 	_mariposa_pendiente = true
-	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.8)
+	Sonidos.tocar(self, "golpe_giratorio", SWING_VOLUMEN, 0.95)
 
 
 # Para que el azote del giro (o la estocada desde el aire) caiga justo al tocar el piso: el clip
@@ -982,7 +985,8 @@ func _estocar(desde := 0.0, aire := false) -> void:
 		figura.golpe_tajo(desde)
 	_estela_antes = []
 	_mariposa_pendiente = true
-	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.55 if _tajo else 0.7)
+	# El tajo cargado suena como el giro; el dash aereo (estocada) tiene el suyo
+	Sonidos.tocar(self, "golpe_giratorio" if _tajo else "espadazo_dash", SWING_VOLUMEN, 0.85 if _tajo else 1.0)
 
 
 # Esquivar rodando: corta lo que estuvieras haciendo con el machete (combo, carga)
@@ -1248,6 +1252,7 @@ func _pegar_estocada() -> void:
 			if resultado == 2 and not _sin_arma():
 				_conto_espada()
 	# Lombrices: una vez por estocada o tajo, en cuanto alcanza alguna
+	var pego_zombi := pego
 	if not _estocada_lombrices:
 		for enjambre in get_tree().get_nodes_in_group("lombrices"):
 			# El tajo cargado corta todo lo que alcanza
@@ -1256,7 +1261,7 @@ func _pegar_estocada() -> void:
 				pego = true
 	if pego:
 		golpes_pegaron += 1
-		_sentir_golpe(_estocada_dir, fuerza, mato)
+		_sentir_golpe(_estocada_dir, fuerza, mato, not pego_zombi)
 		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
 
 
@@ -1270,9 +1275,10 @@ func _velocidad_estocada(delta: float) -> Vector3:
 
 
 # Una vez por golpe, aunque le pegue a varios: el whack, el rebote, la sacudida y la congelada
-func _sentir_golpe(frente: Vector3, fuerza: float, mato: bool) -> void:
+# `lombriz`: solo le pego a lombrices (crias, Madre): suena mojado, no el whack de un zombi
+func _sentir_golpe(frente: Vector3, fuerza: float, mato: bool, lombriz := false) -> void:
 	_voz.pitch_scale = randf_range(0.9, 1.12)
-	_sonar("whack", WHACK_VOLUMEN)
+	_sonar("squelch" if lombriz else "whack", WHACK_VOLUMEN)
 	_retroceso = -frente * RETROCESO * fuerza
 	_retroceso_freno = RETROCESO * RETROCESO_CAIDA
 	_sacude_fuerza = SACUDE * fuerza * (SACUDE_MATA if mato else 1.0)
@@ -1339,7 +1345,7 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0, de: Node = null) -> 
 	# Aventando sal no se interrumpe: el arco y la sal siguen a la mano, y el golpe la tapaba
 	if figura.has_method("accion") and _aventando < 0.0:
 		figura.accion("RecieveHit")
-	_sonar("dolor")
+	_sonar_dolor()
 	var hacia := global_position - desde
 	hacia.y = 0.0
 	hacia = hacia.normalized() if hacia.length_squared() > 0.001 else frijol.global_basis.z
@@ -1389,7 +1395,7 @@ func aturdirte(segundos: float, dano: int) -> void:
 	_aturdido = segundos
 	if figura.has_method("accion"):
 		figura.accion("aturdido")
-	_sonar("dolor")
+	_sonar_dolor()
 	_flash_hasta = Time.get_ticks_msec() + FLASH_MS
 	_pintar_blanco(true)
 	_sacude_fuerza = SACUDE_GOLPEADO
@@ -1522,8 +1528,9 @@ func _curarse() -> void:
 	if salud.llena() or cual < 0:
 		Sonidos.tocar(self, "ui_error", -6.0)
 		return
-	inventario.usar_curacion(cual)
-	Sonidos.tocar(self, "inv_usar", -4.0)
+	var que: InventoryItemData = inventario.get_item(cual)
+	var subio: int = inventario.usar_curacion(cual)
+	Sonidos.usar_item(self, que, subio)
 	beber()
 
 
@@ -1884,6 +1891,15 @@ func _mostrar_arma() -> void:
 			_punta.position = Vector3(-(ARMA_TAMANO * 0.5 + ARMA_MANGO), 0.0, 0.0)
 			modelo.add_child(_punta)
 		modelo.visible = true
+
+
+# El quejido no se repite hasta que acaba el anterior: las crias muerden cada tanto y se encimaban
+func _sonar_dolor() -> void:
+	var ahora := Time.get_ticks_msec()
+	if ahora < _dolor_hasta:
+		return
+	_dolor_hasta = ahora + DOLOR_ESPERA_MS
+	_sonar("dolor")
 
 
 func _sonar(nombre: String, volumen := 0.0) -> void:

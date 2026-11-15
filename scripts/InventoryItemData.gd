@@ -29,6 +29,9 @@ extends Resource
 # vende la gasolina suelta (Interior._comprar)
 @export var requiere : InventoryItemData
 
+# Con que sonido se usa: "comer", "beber" o "curar". Vacio = se deduce (sonido_de_uso)
+@export var sonido_uso := ""
+
 # Si es arma: lo que le quita a un zombi de un golpe (Player._golpear). 0 = no es arma
 @export var dano : int = 0
 
@@ -124,3 +127,20 @@ func _pintar(nodo: Node) -> void:
 				malla.set_surface_override_material(i, copia)
 	for hijo in nodo.get_children():
 		_pintar(hijo)
+
+
+# "comer", "beber" o "curar" (Sonidos.usar_item). Lo que deja botella se bebe; el botiquin y las
+# medicinas se curan; todo lo demas se come
+func sonido_de_uso() -> String:
+	if sonido_uso != "":
+		return sonido_uso
+	if deja != null:
+		return "beber"
+	var nombre := item_name.to_lower()
+	for palabra in ["botiq", "vaporub", "remedio", "milagro"]:
+		if nombre.contains(palabra):
+			return "curar"
+	for palabra in ["suero", "caldo", "té", "agua"]:
+		if nombre.contains(palabra):
+			return "beber"
+	return "comer"

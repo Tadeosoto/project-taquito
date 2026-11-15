@@ -46,11 +46,20 @@ func armar(nuevo_radio: float, nuevo_alto: float) -> void:
 	_goteras()
 
 
+const TINACO_GOLPE_S := 0.18
+var _ultimo_golpe_ms := 0
+
+
 # Lo que le pega un zombi
 func recibir_golpe(dano: int) -> void:
 	if vida <= 0:
 		return
 	vida = maxi(vida - dano, 0)
+	# Un golpe suena a lo mas cada TINACO_GOLPE_S: una horda pegandole a la vez no lo satura
+	var ahora := Time.get_ticks_msec()
+	if ahora - _ultimo_golpe_ms >= int(TINACO_GOLPE_S * 1000.0):
+		_ultimo_golpe_ms = ahora
+		Sonidos.tocar(self, "tinaco_golpe", -4.0, randf_range(0.92, 1.08))
 	_goteras()
 	cambio.emit()
 	if vida <= 0:

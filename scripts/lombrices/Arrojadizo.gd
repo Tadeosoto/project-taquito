@@ -213,7 +213,7 @@ func _reventar(donde: Vector3) -> void:
 			rumbo = atan2(velocidad.z, velocidad.x)
 		ZonaLombrices.crear(padre, donde, ZonaLombrices.Tipo.FUEGO, fuego_radio(tipo), FUEGO_DURA, rumbo)
 		ZonaLombrices.estallido(padre, donde, fuego_radio(tipo))
-		Sonidos.tocar(self, "whack", -6.0, 0.6)
+		Sonidos.tocar(padre, "molotov_vidrio", -4.0, randf_range(0.95, 1.05))
 	elif tipo == 3:
 		pass
 	elif tipo == BOCINA or tipo == BOCINA_AGUA:

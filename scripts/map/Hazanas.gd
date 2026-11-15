@@ -65,6 +65,7 @@ func _trofeo(id: String) -> void:
 	if _ya.has(id):
 		return
 	_ya[id] = true
+	Sonidos.tocar(self, "logro", -6.0)
 	get_node("/root/Tiliches").dar(id)
 
 

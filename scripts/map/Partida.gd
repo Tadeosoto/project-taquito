@@ -89,6 +89,13 @@ func _ready() -> void:
 	hazanas.name = "Hazanas"
 	hazanas.refugio = _refugio
 	add_child(hazanas)
+	# Pasos y latido del jugador (SonidosJugador.gd)
+	var cuerpo := SonidosJugador.new()
+	cuerpo.name = "SonidosJugador"
+	add_child(cuerpo)
+	var ambiente := AmbienteMundo.new()
+	ambiente.name = "AmbienteMundo"
+	add_child(ambiente)
 	if piezas_en_el_mapa:
 		_poner_piezas()
 		_poner_bolsas()

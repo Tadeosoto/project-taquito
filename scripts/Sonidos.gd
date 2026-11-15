@@ -15,13 +15,95 @@ static var solo: Array[String] = []
 # detectan, y para el aviso de que van a pegar el pico ya bajando. Ya vienen mas bajos
 # (de "rugido zombie.mpeg" con ffmpeg).
 const ARCHIVOS := {
+	"paso_interior": "res://audio/jugador/paso_interior.ogg",   # pasos dentro de tiendas y casas (SonidosJugador)
+	"paso_tierra": "res://audio/jugador/paso_tierra.ogg",   # tierra y pasto (SonidosJugador)
+	"lanzar": "res://audio/jugador/lanzar.ogg",   # al arrojar un objeto (Lanzador)
+	"salto": "res://audio/jugador/salto.ogg",   # al brincar (SonidosJugador)
+	"juntar": "res://audio/items/juntar.ogg",   # al recoger un objeto (WorldItem)
+	"reja": "res://audio/mundo/reja.ogg",   # reja que se abre al entrar a una fortaleza (EntradaJefe)
+	"cortina": "res://audio/mundo/cortina.ogg",   # se cierran las tiendas (MapPuntos)
+	"campana": "res://audio/mundo/campanadas.ogg",   # aviso del atardecer (Supervivencia)
+	"ya_salieron": "res://audio/mundo/ya_salieron.ogg",   # bajito, al anochecer cuando salen los zombis (AmbienteMundo)
+	"ui_mover": "res://audio/ui/ui_nav.ogg",   # navegar menus e inventario
+	"noche_zombis": "res://audio/ambiente/noche_zombis.ogg",   # viento lejano de noche con zombis cerca (AmbienteMundo)
 	"rugido": "res://audio/zombis/rugido.ogg",
 	"rugido_corto": "res://audio/zombis/rugido_corto.ogg",
-	"disparo_pistola": "res://audio/weapons/pistol_shot.wav",   # grabado (CC0); Pistola.gd
+	"disparo_pistola": "res://audio/weapons/disparo_pistola.ogg",   # Splice (antes pistol_shot.wav, CC0); Pistola.gd
 	# La recarga de la pistola (Pistola._seguir_recarga), grabados (CC0)
 	"recarga_suelta": "res://audio/weapons/pistol_mag_drop.wav",  # sale con el cargador (Cargador.gd)
 	"recarga_mete": "res://audio/weapons/pistol_clip_insert.wav",
 	"recarga_cierra": "res://audio/weapons/pistol_cock.wav",
+	# Splice (Epic Stock Media), comprimidos a ogg mono 44.1 kHz (ffmpeg, pico a -1.5 dB)
+	"morir_zombi": "res://audio/zombis/morir_zombi.ogg",   # S-008
+	"zombi_alerta": "res://audio/zombis/zombi_alerta.ogg",   # S-045: te detecta y pasa a perseguir
+	"zombi_mordida": "res://audio/zombis/zombi_mordida.ogg",   # S-048: el ataque
+	"zombi_quejido": "res://audio/zombis/zombi_quejido.ogg",   # S-050: golpe sin morir
+	"latido": "res://audio/jugador/latido.ogg",   # S-054: un latido (lub-dub); se repite mas rapido con menos vida
+	"paso_asfalto": "res://audio/jugador/paso_asfalto.ogg",   # S-051: un paso; la cadencia y el tono los pone quien lo toca
+	"chillido": "res://audio/lombrices/chillido.ogg",   # S-090: la Madre recibe dano
+	"chillido_muerte": "res://audio/lombrices/chillido_muerte.ogg",   # S-090: la Madre muere (dragon, 3.2 s)
+	"madre_rugido": "res://audio/lombrices/madre_rugido.ogg",   # el rugido (resoplido) ocasional de la Madre
+	"madre_escupe": "res://audio/lombrices/madre_escupe.ogg",   # la Madre escupe baba o pare crias
+	"crias_enjambre": "res://audio/lombrices/crias_enjambre.ogg",   # 10 o mas crias yendo hacia ti (EnjambreLombrices._rumor)
+	"ronda_gana": "res://audio/arcade/ronda_gana.ogg",   # S-067
+	"ronda_inicia": "res://audio/arcade/ronda_inicia.ogg",   # S-067: DefensaTinaco._aplicar_noche
+	"headshot_zombi": "res://audio/zombis/headshot_zombi.ogg",   # un balazo a la cabeza mata a un zombi (Zombie.recibir_golpe)
+	"impacto_bala_zombi": "res://audio/weapons/impacto_bala_zombi.ogg",   # S-058: el balazo pega en un zombi (Pistola.gd). El de pared no va
+	"respiracion_cansada": "res://audio/jugador/respiracion_cansada.ogg",   # S-053: loop; SonidosJugador.gd
+	"comer": "res://audio/items/comer.ogg",   # S-076: ver usar_item() y InventoryItemData.sonido_de_uso()
+	"beber": "res://audio/items/beber.ogg",
+	"curar": "res://audio/items/curar.ogg",   # el botiquin y las medicinas
+	"vida_sube": "res://audio/items/vida_sube.ogg",   # al final de los tres de arriba si de veras subio la vida
+	# Ambientes en loop (LOOPS): el de dia en todo el mapa (AmbienteMundo.gd), los otros en un lugar (AmbienteZona.gd)
+	"ambiente_dia": "res://audio/ambiente/ambiente_dia.ogg",   # S-079
+	"ambiente_tianguis": "res://audio/ambiente/ambiente_tianguis.ogg",
+	"ambiente_noche": "res://audio/ambiente/ambiente_noche.ogg",   # S-078: grillos de noche (AmbienteMundo)
+	"susto_noche": "res://audio/ambiente/susto_noche.ogg",   # suena al azar de noche en el mapa para dar miedo (AmbienteMundo)
+	"misterio_zombis": "res://audio/ambiente/misterio_zombis.ogg",   # al azar cerca de varios zombis, para dar misterio (AmbienteMundo)
+	"ambiente_multitud": "res://audio/ambiente/ambiente_multitud.ogg",   # lugares con mucho NPC: el tianguis y la favela (Colonia._tianguis)
+	"ambiente_cueva": "res://audio/ambiente/ambiente_cueva.ogg",   # cuevas y subterraneos: la arena de la Madre del Carcamo (MadreCarcamo._ready)
+	"agua_fluyendo": "res://audio/ambiente/agua_fluyendo.ogg",   # agua corriendo, bajito, en esas cuevas
+	"fuego_loop": "res://audio/weapons/fuego_loop.ogg",   # fuego de la molotov y de los botes prendidos (ZonaLombrices)
+	"molotov_vidrio": "res://audio/weapons/molotov_vidrio.ogg",   # S-062: la botella molotov cae y se rompe (Arrojadizo._reventar)
+	"bloqueo": "res://audio/weapons/bloqueo.ogg",   # S-061: golpe mientras bloqueas con la espada (Player.recibir_dano)
+	"casquillo": "res://audio/weapons/casquillo.ogg",   # S-059 (Casquillo.gd)
+	"recarga": "res://audio/weapons/recarga.ogg",   # S-005: la recarga suelta, sin conectar todavia (la pistola usa recarga_suelta/mete/cierra)
+	"golpe_giratorio": "res://audio/weapons/swing_1.ogg",   # el giro aereo y el tajo cargado usan el mismo que el primer espadazo
+	"espadazo_dash": "res://audio/weapons/espadazo_dash.ogg",   # el dash aereo (estocada)
+	"muerte": "res://audio/jugador/muerte.ogg",   # S-055: te desmayas (Supervivencia._desmayarse)
+	"logro": "res://audio/arcade/logro.ogg",   # un logro (hazana) da un trofeo (Hazanas._trofeo)
+	"comprar": "res://audio/items/comprar.ogg",   # S-071: compras algo en una tienda (Interior._comprar)
+	"mejora_maxima": "res://audio/arcade/mejora_maxima.ogg",   # S-069: la mejora llega a su nivel maximo (MejorasUI.comprar)
+	"mejora_compra": "res://audio/arcade/mejora_compra.ogg",   # S-069: compras una mejora (MejorasUI.comprar)
+	"ambiente_cancha": "res://audio/ambiente/ambiente_cancha.ogg",   # la cancha de Santa Mugre y la plaza de la favela, de dia
+}
+
+# Los que se repiten solos (ya vienen con el final empalmado con el principio)
+const LOOPS := ["ambiente_dia", "ambiente_noche", "ambiente_tianguis", "ambiente_cancha", "ambiente_multitud",
+	"ambiente_cueva", "noche_zombis", "agua_fluyendo", "fuego_loop", "respiracion_cansada"]
+
+# Sonidos con varias tomas: `sonido()` elige una al azar cada vez que lo piden (los que
+# llaman solo pasan el nombre). Cada archivo se carga una vez.
+const VARIANTES := {
+	"whack": [   # el golpe que acierta en un zombi (3 tomas)
+		"res://audio/weapons/golpe_1.ogg",
+		"res://audio/weapons/golpe_2.ogg",
+		"res://audio/weapons/golpe_3.ogg",
+	],
+	"tinaco_golpe": [   # S-064: un zombi le pega al tinaco (TinacoDefensa.recibir_golpe)
+		"res://audio/defensa/tinaco_golpe_1.ogg",
+		"res://audio/defensa/tinaco_golpe_2.ogg",
+	],
+	"machetazo": [   # el swing de la espada y del puño (S-057), suena tambien al pegar
+		"res://audio/weapons/swing_1.ogg",
+		"res://audio/weapons/swing_2.ogg",
+	],
+	"dolor": [   # S-006 y S-056: el quejido del jugador al recibir dano
+		"res://audio/jugador/dolor_1.ogg",
+		"res://audio/jugador/dolor_2.ogg",
+		"res://audio/jugador/dolor_3.ogg",
+		"res://audio/jugador/dolor_4.ogg",
+	],
 }
 
 # Cupo de rugidos: con una horda de 15 todos querian rugir a la vez y tapaban todo.
@@ -59,10 +141,19 @@ static func turno(nombre: String, tono := 1.0) -> bool:
 static func sonido(nombre: String) -> AudioStream:
 	if not solo.is_empty() and not solo.has(nombre):
 		return null
+	if VARIANTES.has(nombre):
+		var tomas: Array = VARIANTES[nombre]
+		var ruta: String = tomas[randi() % tomas.size()]
+		if not _sonidos.has(ruta):
+			_sonidos[ruta] = load(ruta)
+		return _sonidos[ruta]
 	if not _sonidos.has(nombre):
 		if ARCHIVOS.has(nombre):
-			_sonidos[nombre] = load(ARCHIVOS[nombre])
-			return _sonidos[nombre]
+			var cargado: AudioStream = load(ARCHIVOS[nombre])
+			if cargado is AudioStreamOggVorbis and LOOPS.has(nombre):
+				cargado.loop = true
+			_sonidos[nombre] = cargado
+			return cargado
 		match nombre:
 			"paso":
 				_sonidos[nombre] = _tono(880.0, 0.035, 0.0, 0.5)
@@ -218,6 +309,41 @@ static func _botin() -> AudioStreamWAV:
 
 # Toca `nombre` una vez colgado de `donde` y se borra al terminar. Suena aunque el
 # juego este en pausa (el inventario pausa el arbol).
+# Un loop de ambiente que acompana a `donde` mientras exista (la arena de la Madre, una cueva).
+# Devuelve el reproductor, o null si ese sonido no suena (Sonidos.solo)
+static func ambiente(donde: Node, nombre: String, volumen_db := -14.0) -> AudioStreamPlayer:
+	var stream := sonido(nombre)
+	if donde == null or stream == null:
+		return null
+	var voz := AudioStreamPlayer.new()
+	voz.stream = stream
+	voz.volume_db = volumen_db
+	voz.process_mode = Node.PROCESS_MODE_PAUSABLE
+	donde.add_child(voz)
+	voz.play(randf() * stream.get_length())
+	return voz
+
+
+# Usar algo de la mochila (comer, beber o curar segun el item) y, si de veras subio la vida
+# (`subio` > 0), al terminar suena el aviso de que sube (vida_sube)
+static func usar_item(donde: Node, item: InventoryItemData, subio: int, volumen_db := -4.0) -> void:
+	if donde == null or not donde.is_inside_tree() or item == null:
+		return
+	var stream := sonido(item.sonido_de_uso())
+	if stream == null:
+		return
+	var voz := AudioStreamPlayer.new()
+	voz.stream = stream
+	voz.volume_db = volumen_db
+	voz.process_mode = Node.PROCESS_MODE_ALWAYS
+	voz.finished.connect(func() -> void:
+		if subio > 0 and is_instance_valid(donde) and donde.is_inside_tree():
+			tocar(donde, "vida_sube", volumen_db - 2.0)
+		voz.queue_free())
+	donde.add_child(voz)
+	voz.play()
+
+
 static func tocar(donde: Node, nombre: String, volumen_db := 0.0, tono := 1.0) -> void:
 	if donde == null or not donde.is_inside_tree():
 		return

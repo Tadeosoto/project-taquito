@@ -196,7 +196,7 @@ func disparar() -> void:
 	if blanco and blanco.recibir_golpe(dano, jugador.global_position, FUERZA, 80, false, cabeza, "pistola_cabeza" if cabeza else "pistola") != 0:
 		sacude = SACUDE_PEGA
 		aciertos += 1
-		Sonidos.tocar(self, "whack", -4.0 if cabeza else -10.0)
+		Sonidos.tocar(self, "impacto_bala_zombi", -3.0, randf_range(0.92, 1.08))
 	if not lombriz.is_empty():
 		lombriz.enjambre.bullet_hit(lombriz.dot_index, lombriz.position, hacia)
 		sacude = SACUDE_PEGA

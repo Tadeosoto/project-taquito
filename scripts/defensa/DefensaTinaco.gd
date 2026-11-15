@@ -100,7 +100,7 @@ const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 const ESTELA_MUERTES := 27
 # golpe y morir_zombi: el Panzon (azotones, pisotones, losas) y su muerte; zumbido_oidos y
 # bocina_*: la palomita y la bocina senuelo
-const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto", "casquillo", "disparo_pistola", "recarga_suelta", "recarga_mete", "recarga_cierra", "golpe", "morir_zombi", "zumbido_oidos", "bocina_musica", "bocina_apaga"]
+const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto", "casquillo", "disparo_pistola", "recarga_suelta", "recarga_mete", "recarga_cierra", "golpe", "morir_zombi", "zombi_alerta", "zombi_mordida", "zombi_quejido", "headshot_zombi", "impacto_bala_zombi", "tinaco_golpe", "molotov_vidrio", "fuego_loop", "golpe_giratorio", "espadazo_dash", "muerte", "logro", "mejora_compra", "mejora_maxima", "comprar", "casquillo", "ronda_inicia", "ronda_gana", "comer", "beber", "curar", "vida_sube", "zumbido_oidos", "lanzar", "salto", "juntar", "ui_mover", "campana", "bocina_musica", "bocina_apaga"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
 const MUSICA_ENTRA := 2.0      # s
@@ -383,6 +383,7 @@ func _generar(semilla: int) -> void:
 # La dificultad de la noche que va: los grupos del modo crecen y el zombi pega mas. Los
 # grupos los limita Zombis.max_total (40), asi que en algun momento ya no se puede ganar.
 func _aplicar_noche() -> void:
+	Sonidos.tocar(self, "ronda_inicia", -6.0)
 	_hordas.dificultad = _dificultad_base * pow(DIFICULTAD_POR_NOCHE, maxi(noche, 1) - 1)
 	_zombis.dano_jugador = mini(_dano_base + (maxi(noche, 1) - 1) * DANO_POR_NOCHE, DANO_TOPE)
 	print("Noche %d: grupos x%.2f, zombi pega %d" % [noche, _hordas.dificultad, _zombis.dano_jugador])
@@ -764,7 +765,9 @@ func _pantalla_noche(gano: bool, desmayo: bool) -> void:
 		titulo.modulate.a = 0.0
 		tween.tween_property(titulo, "modulate:a", 1.0, 0.15)
 		tween.parallel().tween_property(titulo, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tween.tween_callback(func() -> void: Sonidos.tocar(capa, "boom", -6.0))
+		tween.tween_callback(func() -> void:
+			Sonidos.tocar(capa, "boom", -6.0)
+			Sonidos.tocar(capa, "ronda_gana", -4.0))
 		tween.tween_property(titulo, "rotation", 0.05, 0.06)
 		tween.tween_property(titulo, "rotation", -0.04, 0.06)
 		tween.tween_property(titulo, "rotation", 0.0, 0.06)
