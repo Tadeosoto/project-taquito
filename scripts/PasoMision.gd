@@ -74,3 +74,6 @@ enum Cuando { DIA, NOCHE, CUALQUIERA }
 # LLEVAR_CARGA: la carga se puede dejar en el piso para pelear (el clic de ataque la suelta y Espacio la
 # levanta); sin ella en brazos el punto de entrega no cuenta. La caja de la mafia (M7)
 @export var soltable := false
+# LLEVAR_CARGA de noche con carga ilegal (el agua sin Serenol del reparto, S3): si te amanece en camino
+# no falla, sigue de dia (Misiones.sigue_de_dia), y los cuicos te disparan si te ven con ella
+@export var ilegal := false

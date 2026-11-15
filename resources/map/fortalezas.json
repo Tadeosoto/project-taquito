@@ -1,0 +1,47 @@
+{
+	"_nota": "Fortalezas amuralladas del mapa grande (map_test), una por nodo MuroColonia (su `id`). poligono: vertices (x, z) de la barda en metros del juego; cerrada false deja abierto el tramo del ultimo al primero. rejas: centro (x, z), rumbo (a lo largo de la barda), largo, lado (PasoColonia.lado) y abierta (hojas abiertas contra el muro; si no, cerradas al centro); hacia afuera se calcula. Con colonia, cada reja tiene una flecha por fuera a scenes/mapa.tscn con esa colonia de Blender. alto_muralla: lamina de los fieles encima del block. calles: rectangulo x0, z0, x1, z1 cerrado a los carros (CallesRuta). caseta: centro (x, z) y hueco de una caseta con pluma cerrada. Santa Mugre debe coincidir con recorte y rejas de tools/blender/mapa/colonias/santa_mugre.json (Barda_*: 2.6 m de block, 0.3 m de grueso).",
+	"santa_mugre": {
+		"nombre": "Parques de Santa Mugre",
+		"colonia": "santa_mugre",
+		"entrar": "Entrar a Santa Mugre",
+		"poligono": [[-420.0, 258.0], [-185.0, 258.0], [-185.0, 482.0], [-420.0, 482.0]],
+		"alto": 2.6,
+		"alto_muralla": 4.5,
+		"color": [0.62, 0.6, 0.57],
+		"color_lamina": [0.3, 0.36, 0.3],
+		"calles": [-420.0, 258.0, -185.0, 482.0],
+		"rejas": [
+			{"lado": "poniente", "centro": [-420.0, 454.5], "rumbo": [0.0, 1.0], "largo": 19.0},
+			{"lado": "oriente", "centro": [-185.0, 472.6], "rumbo": [0.0, 1.0], "largo": 17.6}
+		]
+	},
+	"la_gotera": {
+		"nombre": "La Gotera",
+		"colonia": "la_gotera",
+		"entrar": "Entrar a La Gotera",
+		"poligono": [
+			[722.9, -341.5], [720.4, -309.9], [717.4, -273.0], [714.3, -235.2],
+			[713.4, -224.0], [710.0, -182.8], [707.1, -146.9], [704.4, -113.9],
+			[709.9, -113.4], [790.8, -106.4], [914.0, -95.7], [914.0, -324.1],
+			[811.5, -333.4], [728.4, -341.0]
+		],
+		"alto": 3.2,
+		"color": [0.5, 0.5, 0.47],
+		"calles": [704.0, -324.0, 914.0, -114.0],
+		"rejas": [
+			{"lado": "norte", "centro": [728.4, -341.0], "rumbo": [0.9959, 0.0909], "largo": 11.0, "abierta": true},
+			{"lado": "sur", "centro": [709.9, -113.5], "rumbo": [0.996, 0.0895], "largo": 11.0, "abierta": true}
+		]
+	},
+	"gela": {
+		"nombre": "Los Reservorios",
+		"poligono": [
+			[279.0, -897.5], [278.4, -651.4], [-75.1, -749.9], [-103.8, -760.3],
+			[-166.9, -777.5], [-318.3, -828.1], [-432.8, -787.1], [-459.9, -846.9],
+			[-473.7, -897.5]
+		],
+		"alto": 3.6,
+		"color": [0.86, 0.87, 0.88],
+		"caseta": {"centro": [-50.0, -742.9], "hueco": 7.0}
+	}
+}

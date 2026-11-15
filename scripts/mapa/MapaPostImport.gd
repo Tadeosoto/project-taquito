@@ -74,6 +74,12 @@ func _post_import(scene: Node) -> Object:
 		var instancia := nodo as MeshInstance3D
 		if instancia.mesh == null:
 			continue
+		# Los techos de lo que se cruza por dentro se quedan sueltos: Colonia.gd los esconde
+		if String(instancia.name).begins_with("Techo_"):
+			for i in instancia.mesh.get_surface_count():
+				var propio: Material = instancia.mesh.surface_get_material(i)
+				instancia.set_surface_override_material(i, _material(String(propio.resource_name) if propio else "", propio))
+			continue
 		mallas.append(instancia)
 		var xform := _transform_en_escena(scene, instancia)
 		var centro := xform * instancia.mesh.get_aabb().get_center()

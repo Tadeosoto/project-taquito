@@ -2,7 +2,7 @@
 
 > La lista de misiones del juego: la del **piloto**, los **contratos de la noche**, las de **día** y las de **historia**. Documento hermano de [`docs/lore.md`](lore.md) (el mundo), [`docs/especificaciones.md`](especificaciones.md) (las mecánicas) y [`docs/personajes.md`](personajes.md) (quién las da).
 >
-> Última actualización: 2026-11-12 (bloque L8 del megaplan "Noches de fuera": familia "Defensa externa", guardia de la reja y evento de la reja)
+> Última actualización: 2026-11-13 (ideas sin programar para el laberinto de La Gotera, en las misiones de la mafia). Antes: 2026-11-12, bloque L8 del megaplan "Noches de fuera".
 
 ## Cómo usar este documento
 
@@ -270,7 +270,7 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 | **Las piezas de la antena** (1.ª de 2) | Sofía | Fuera, ≤250 m de una reja | Encontrar las piezas (tubos, cable, repetidor) | Zombis | 💡 pesos + desbloquea la 2.ª | S |
 | **Subir la antena** (2.ª de 2) | Sofía | Una torre de luz (`power=tower`) | Defender el pie de la torre mientras alguien sube | Una horda por el ruido | 💡 pesos; la radio llega más lejos | M |
 | **El Decreto 47** (H4) | El Güero o Sofía | La bodega de GelA cerca de la reja poniente (-333, 645) | Sacar el expediente y la hoja de conteo | Camadas dormidas; los zombis | Copias: 200 (A) | M |
-| **Reparto** | Chava, Gabriel o el gremio de La Gotera | De la casa de Chava / de Santa Mugre a casas de fuera | Llevar agua limpia a pie antes del amanecer | Zombis; los blancos al amanecer | 💡 60-100 por entrega | S |
+| **Reparto** | Chava, Gabriel o el gremio de La Gotera | De la casa de Chava / de Santa Mugre a casas de fuera | Llevar agua limpia a pie, mejor de noche | Zombis; si te amanece, **no fallas**: la acabas de día, pero los cuicos te disparan si te ven con el agua (S3, JJ 2026-11-13) | 💡 60-100 por entrega | S |
 | **La hija de Nava** | El Inspector Nava | De noche, entre los zombis de fuera | Encontrar a su hija por la ropa y llevarlo a ella | La horda; que alguien la mate | Paga igual, antes de salir | L |
 
 ### Al médico
@@ -319,7 +319,7 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 
 | Escalón | Cómo se llega | Qué abre | Si lo fuerzas |
 |---|---|---|---|
-| **0. Afuera** | Al empezar | Nada: la puerta te la cierran con una advertencia ("Aquí no, jefe") y el **Primo** (el cobrador) te habla afuera | Si te metes a la fuerza, **no sales**: pierdes el botín, reapareces en el refugio y la mafia deja de darte trabajo un tiempo |
+| **0. Afuera** | Al empezar | El **tianguis** de la avenida sí (es de todos); las **bocas de la favela** te las cierran con una advertencia ("Aquí no, jefe") y el **Primo** (el cobrador) te habla afuera | Si te metes a la fuerza, **no sales**: pierdes el botín, reapareces en el refugio y la mafia deja de darte trabajo un tiempo |
 | **1. Mandadero** | 3 entregas de punto a punto de las cercanas | **La puerta de día**: calles, agua limpia a precio justo, el cuarto del gremio | — |
 | **2. De confianza** | 6 entregas más (puntos medianos) | El mercado ilegal (×2 a ×3), de noche también, y **hablar con Nemesio** | — |
 | **3. De la casa** | 7 entregas lejanas + **Las cuentas claras** | Los **túneles** (entrada a la Madre), su cacería y las misiones de la válvula | — |
@@ -328,7 +328,7 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 
 ### Entregas de punto a punto (la mafia)
 
-✅ **Cómo quedó en el juego (JJ, 2026-11-13, M7a; manda sobre lo de abajo y sobre los escalones de arriba):** las entregas son **dentro de la zona del contenido** y en **map_test**. De los 13 negocios "punto" del cuadro se quitaron los cinco más pegados a otro y quedan **8**. **El Punto de Santa Mugre** no vende nada: solo da la **primera caja misteriosa** (y no la da mientras la reja de la colonia siga cerrada). Cada caja se lleva al **siguiente punto** de una **ruta fija**; ahí te pagan y su puntero te da la siguiente caja si la aceptas: El Punto → **La Palmira** ($60) → **Arroyo Seco** ($70) → **Arroyuelo** ($80) → **Real del Monte** ($90) → **Haciendas de San José** ($100, junto a la reja de La Gotera) → **Parques del Bosque** ($120) → **Bahía de Banderas** ($130) → **El Mante** ($150). **Con la quinta entrega (Haciendas) se abre la reja de La Gotera** (la favela): ya no hay escalones ni Primo en la puerta para esto. Los puntos salen en el mapa conforme los vas conociendo. **La caja** se puede **soltar para pelear** (clic) y levantar otra vez (Espacio); sin ella en brazos no se entrega, y si te desmayas se pierde. Se puede hacer **de día** (sigilo: si un **cuico** te ve con ella, te dispara; M7b) o **de noche** (los zombis). Los punteros no cierran de noche. **Lo que vende cada punto al conocerlo** (M7c): 1 LSD (un minuto de filtros; ⏸️ pendiente de programar), 2 la palomita, 3 tachas, y del 4 al 8 mejoras de armas; las armas de fuego (escopeta, rifle, metralleta) son lo último. Cadena en `resources/misiones/mafia_1.tres` a `mafia_8.tres`.
+✅ **Cómo quedó en el juego (JJ, 2026-11-13, M7a; manda sobre lo de abajo y sobre los escalones de arriba):** las entregas son **dentro de la zona del contenido** y en **map_test**. De los 13 negocios "punto" del cuadro se quitaron los cinco más pegados a otro y quedan **8**. **El Punto de Santa Mugre** no vende nada: solo da la **primera caja misteriosa** (y no la da mientras la reja de la colonia siga cerrada). Cada caja se lleva al **siguiente punto** de una **ruta fija**; ahí te pagan y su puntero te da la siguiente caja si la aceptas: El Punto → **La Palmira** ($60) → **Arroyo Seco** ($70) → **Arroyuelo** ($80) → **Real del Monte** ($90) → **Haciendas de San José** ($100, junto a la reja de La Gotera) → **Parques del Bosque** ($120) → **Bahía de Banderas** ($130) → **El Mante** ($150). **Con la quinta entrega (Haciendas) se abre la favela de La Gotera**: ya no hay escalones ni Primo en la puerta para esto. ✅ (2026-11-13, F4) **La muralla de La Gotera está abierta para cualquiera**: por sus dos rejas de la Av. del Cedro Seco se entra al **tianguis lineal** de día y de noche (`scenes/mapa.tscn`, colonia `la_gotera`). Lo que las cinco entregas abren son las **bocas de la favela**, las cinco calles que salen del tianguis al oriente: cada una tiene su guardia y su flecha; sin permiso el guardia te regresa un paso ("Aquí no, jefe. Esto es solo para gente de la casa.") y con permiso pasas a `la_gotera_favela` (`Misiones.favela_abierta`, marcas `paso` de `Colonia.gd`). Ver `docs/mapa/colonias/la_gotera.md`. Los puntos salen en el mapa conforme los vas conociendo. **La caja** se puede **soltar para pelear** (clic) y levantar otra vez (Espacio); sin ella en brazos no se entrega, y si te desmayas se pierde. Se puede hacer **de día** (sigilo: si un **cuico** te ve con ella, te dispara; M7b, hecho: patrullan las banquetas, salen en el minimapa como un cerdito con su cono de vista, te persiguen disparando y se les puede tumbar, pero cada tumbado trae dos más; no entran a las fortalezas) o **de noche** (los zombis). Los punteros no cierran de noche. **Lo que vende cada punto al conocerlo** (M7c): 1 LSD (un minuto de filtros; ⏸️ pendiente de programar), 2 la palomita, 3 tachas, y del 4 al 8 mejoras de armas; las armas de fuego (escopeta, rifle, metralleta) son lo último. Cadena en `resources/misiones/mafia_1.tres` a `mafia_8.tres`.
 
 ✅ **Quién da:** el **Primo** afuera de la puerta (escalones 0 a 2) y **Nemesio** adentro (del 2 en adelante). **Qué se hace:** llevar una **carga** de un negocio "punto" a otro de los **19** del mapa. **Cargas:** paquete (droga), armas, agua del yacimiento. **De noche** (se prepara de día). 💡 Los puntos se reparten en tres grupos, por medir con `MapPuntos`: **cercanos** (el más próximo, (-656, 609), a ~282 m de la reja poniente), **medianos** y **lejanos** (de una orilla del mapa a la otra).
 
@@ -377,6 +377,21 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 | Los Gotera venden agua limpia dentro | Sí: desde el escalón 1 |
 | Entras a GelA contratado, no por Gerardo | Sí (L7) |
 | Gerardo ya sabe; sin Doña Refugio | Sí: A4 y A6 reescritas |
+
+### Ideas para el laberinto de La Gotera (💡, 2026-11-13)
+
+💡 Propuestas de JJ con Claude para la favela de Blender (`la_gotera_favela`: callejones de 1.2 a 2.2 m, terrazas con escalinatas, tablones entre azoteas, niebla espesa, túneles con tiendas, la plaza, la Plaza del Tinaco y la válvula). **Nada está programado ni es canon todavía**: se cortan o cambian al pasarlas por `/game-quest`. Para probarlas sin las entregas de la mafia: `godot --path . scenes/prueba_gotera.tscn` (ver `docs/mapa/colonias/la_gotera.md`).
+
+| Idea | Da | Qué se hace | Riesgo | Reusa | Tamaño |
+|---|---|---|---|---|---|
+| **El recado sin mapa** | Nemesio | Llevar algo a "la del tinaco azul, junto a la capilla": adentro el minimapa no ayuda y la niebla tapa; te orientas con murales, capillitas y tendederos | Perderte; que se acabe el tiempo | `VISITAR`/`ENTREGAR` con una marca sin flecha en el mapa | S |
+| **La persecución por las azoteas** | Un marchante del tianguis | Un ratero huye por la favela: callejones, escalinatas y tablones. Si lo pierdes en la niebla, la gente que camina te dice hacia dónde corrió | Caerte de un tablón; perderlo | Algo nuevo: un NPC que huye por las banquetas de `Gente` y las azoteas | M |
+| **Escoltar al cobrador** | Nemesio | Acompañar al Primo casa por casa a cobrar la cuota por los pasillos angostos; en algunas puertas no quieren pagar | Que el Primo caiga | `ESCOLTAR` con varias paradas (`Acompanante`) | S |
+| **El cargamento por los túneles** | Balas y Veladoras | Llevar una caja del túnel a una boca del tianguis antes de que acabe la hora; si te golpean la sueltas. Más corto, pero es el territorio de la Madre del Cárcamo | Soltar la caja; la hora | `LLEVAR_CARGA` con caja `soltable` (las entregas de la mafia) | S |
+| **Defender la plaza** | Los Gotera | De noche algo entra por la muralla y hay que aguantar en la cancha; los callejones angostos dejan controlar por dónde llegan | Las oleadas | `DEFENDER` con `lugar` en la plaza (hoy La Gotera no tiene zombis sueltos: serían turbas de misión) | S |
+| **El chamaco perdido** | Una vecina de la cancha | Un niño no volvió: preguntas a la gente, sigues pistas de una capillita a un tendedero y lo encuentras en un cuarto del túnel. Presenta a los vecinos de la favela | Pocas: es de día | `VISITAR` en cadena (pistas) y `ESCOLTAR` de regreso | M |
+| **La válvula** (A5, La toma) | Nemesio | La misión de historia que ya existe: cruzar la favela sin que te vean los vigías; la niebla esconde y los focos delatan. Abrirla o venderle el secreto a Buenrostro cambia la favela para siempre | Que te vean; traicionar a Nemesio | A5 de §4; el sigilo sería nuevo | L |
+| **La carrera de los chamacos** | Los niños de la cancha | Una carrera de la plaza al tinaco de la Plaza del Tinaco por donde quieras. Si ganas te enseñan atajos (un tablón escondido, una casa con dos puertas) que sirven en las otras misiones | Ninguno | `VISITAR` con tiempo; los atajos serían nuevos | S |
 
 ---
 

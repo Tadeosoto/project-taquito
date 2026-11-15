@@ -41,6 +41,12 @@ const NEGOCIOS := [
 	["puesto", "tejuino", "Tejuino", 2.5, 2.0, true],
 	# La de Santa Mugre (mapa en Blender): local de taqueria, interior de tortilleria
 	["taqueria", "tortilleria", "Tortilleria", 6.0, 10.0, false],
+	# Abarrotes Doña Mary, la tiendita de cochera de Santa Mugre: local de abarrotes, interior de dona_mary
+	["abarrotes", "tiendita", "Doña Mary", 6.0, 10.0, false],
+	# Las tiendas de los tuneles de La Gotera (la_gotera_favela): un local angosto (la fila llega a la
+	# barda del patio) con el interior del tunel
+	["abarrotes", "fayuca_tunel", "Fayuca del Túnel", 2.0, 3.0, false],
+	["abarrotes", "armas_tunel", "Balas y Veladoras", 2.0, 3.0, false],
 ]
 # Frente y fondo de las casas Urbi (huellas_tiendas.json)
 const CASAS := {"urbi_1p_a": Vector2(6.79, 7.37), "urbi_1p_b": Vector2(6.8, 7.37), "urbi_1p_c": Vector2(7.59, 7.37),
@@ -96,7 +102,7 @@ V dron · N siguiente atardecer/amanecer
 H curar · J -%d de vida · P +$100
 Y vaciar inventario (sin machete pegas a puñetazos)
 C crear personaje · K deterioro
-F12 reiniciar todo · F10 ir al mapa"""},
+F12 reiniciar todo · F10 ir al mapa · F11 giro WASD (favela)"""},
 	{"titulo": "Pelea", "efectos": true, "texto": """1 2 machete / pistola · R recargar
 9 golpe a tiempo (córtalo cuando gruñe) / sin aturdir
 8 estela del protagonista (su mejora) / la de siempre
@@ -175,9 +181,14 @@ func _puntos() -> Array:
 				lista[i][1] = "mejoras"
 	for i in lista.size():
 		var n: Array = lista[i]
-		puntos.append({"tipo": n[0], "giro": n[1], "nombre": n[2], "x": x + n[3] / 2.0, "z": FACHADAS_Z - n[4] / 2.0,
+		var p := {"tipo": n[0], "giro": n[1], "nombre": n[2], "x": x + n[3] / 2.0, "z": FACHADAS_Z - n[4] / 2.0,
 			"rotacion_y": 0.0, "ancho": n[3], "fondo": n[4], "pisos": 1, "interactivo": true, "aire_libre": n[5],
-			"origen": "safehouse/%d" % i})
+			"origen": "safehouse/%d" % i}
+		# La tienda de abarrotes se ve con el estilo de la favela (cortina de lona, letrero pintado)
+		if n[1] == "abarrotes":
+			p["favela"] = true
+			p["sin_gente"] = true
+		puntos.append(p)
 		x += n[3] + SEPARACION
 	return puntos
 
@@ -267,6 +278,17 @@ func _ready() -> void:
 	gente.banquetas_path = BANQUETAS_JSON
 	gente.puntos_path = PUNTOS_JSON
 	add_child(gente)
+	# Los cuicos de dia (M7b): con la caja de la mafia te disparan
+	var cuicos := Cuicos.new()
+	cuicos.name = "Cuicos"
+	cuicos.banquetas_path = BANQUETAS_JSON
+	add_child(cuicos)
+	# Drops raros (S5): tres escondites en las orillas del patio, dos con algo cada dia
+	var drops := DropsRaros.new()
+	drops.name = "DropsRaros"
+	drops.fijos = [Vector2(-40.0, 38.0), Vector2(40.0, 38.0), Vector2(46.0, 20.0)] as Array[Vector2]
+	drops.por_dia = 2
+	add_child(drops)
 	_letrero("NEGOCIOS", Vector3(-10.0, 6.0, FACHADAS_Z))
 	_letrero("MAQUINITAS", Vector3(MAQUINAS_X, 4.5, -9.0))
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))
@@ -279,6 +301,12 @@ func _ready() -> void:
 	yonke.con_barda = true
 	yonke.puntos_path = get_node("Puntos").get_path()
 	add_child(yonke)
+	# Palomas (scripts/mapa/Palomas.gd, las de la plaza de Santa Mugre): se espantan si pasas corriendo
+	var palomas := Palomas.new()
+	palomas.name = "Palomas"
+	palomas.tam = Vector2(8.0, 8.0)
+	palomas.position = Vector3(14.0, 0.0, 6.0)
+	add_child(palomas)
 	_armar_panel()
 
 
@@ -669,6 +697,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7:
 			_zombis.efectos.cambiar(EFECTOS_LUGARES[EFECTOS_TECLAS.find(tecla)])
 			_mostrar_efectos()
+		KEY_F11:
+			_jugador.giro_con_wasd = not _jugador.giro_con_wasd
 		KEY_F8:
 			var frente := -_jugador.frijol.global_transform.basis.z
 			frente.y = 0.0

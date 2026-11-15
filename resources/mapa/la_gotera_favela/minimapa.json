@@ -1,0 +1,46 @@
+{
+	"x0": 724.0,
+	"z0": -342.0,
+	"ancho": 392,
+	"alto": 488,
+	"metros_por_pixel": 0.5,
+	"radio": 55.0,
+	"radio_dron": 130.0,
+	"iconos": [
+		{
+			"tipo": "salida",
+			"x": 736.78,
+			"z": -311.94,
+			"letra": "F"
+		},
+		{
+			"tipo": "salida",
+			"x": 733.23,
+			"z": -272.1,
+			"letra": "R"
+		},
+		{
+			"tipo": "salida",
+			"x": 737.49,
+			"z": -231.56,
+			"letra": "P"
+		},
+		{
+			"tipo": "salida",
+			"x": 733.22,
+			"z": -183.75,
+			"letra": "C"
+		},
+		{
+			"tipo": "salida",
+			"x": 737.48,
+			"z": -143.21,
+			"letra": "N"
+		},
+		{
+			"tipo": "tinaco",
+			"x": 826.62,
+			"z": -227.62
+		}
+	]
+}

@@ -26,6 +26,11 @@ const NEGRO := Color(0.05, 0.05, 0.05)
 const OBJETIVO_COLOR := Color(1.0, 0.85, 0.1)
 const ZOMBI_COLOR := Color(0.95, 0.15, 0.1)
 const OBJETIVO_PARPADEA_MS := 350
+const CERDO_COLOR := Color(1.0, 0.62, 0.72)
+const CERDO_OSCURO := Color(0.88, 0.4, 0.52)
+const CONO_COLOR := Color(1.0, 0.95, 0.6, 0.28)
+const CONO_ALERTA := Color(1.0, 0.2, 0.15, 0.38)
+const CONO_PASOS := 8
 
 @export var mapa: Texture2D
 @export var player_path: NodePath
@@ -52,6 +57,7 @@ var _material: ShaderMaterial
 var _origen := Vector2.ZERO
 var _tam_metros := Vector2.ONE
 var _puntos: Array = []              # [[Vector2 xz, Color], ...]
+var _iconos: Array = []              # [{tipo, x, z}, ...] del minimapa.json de la colonia
 
 # Lo que se calcula cada cuadro y usa _dibujar_marcas
 var _pos := Vector2.ZERO
@@ -71,6 +77,13 @@ func _ready() -> void:
 		var datos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(datos_path))
 		_origen = Vector2(datos["x0"], datos["z0"])
 		_tam_metros = Vector2(datos["ancho"], datos["alto"]) * float(datos["metros_por_pixel"])
+		if datos.has("radio"):
+			radio_metros = float(datos["radio"])
+		if datos.has("radio_dron"):
+			radio_dron = float(datos["radio_dron"])
+		for icono: Variant in datos.get("iconos", []):
+			if icono is Dictionary:
+				_iconos.append(icono)
 	if puntos_path != "":
 		var puntos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(puntos_path))
 		for punto in puntos["puntos"]:
@@ -192,7 +205,7 @@ func _dibujar_zombis(centro: Vector2, limite: float) -> void:
 	if not zombis_siempre and (tazos == null or not tazos.tiene("ojo_halcon")):
 		return
 	for zombi: Node3D in get_tree().get_nodes_in_group("zombis"):
-		if zombi.get("estado") == 3:   # Zombie.Estado.MUERTO
+		if zombi.get("estado") == 3 or zombi.is_in_group("cuicos"):   # Zombie.Estado.MUERTO
 			continue
 		var p := _a_pantalla(Vector2(zombi.global_position.x, zombi.global_position.z))
 		if p.length() < limite:
@@ -200,9 +213,78 @@ func _dibujar_zombis(centro: Vector2, limite: float) -> void:
 			_marcas.draw_circle(centro + p, 1.6, ZOMBI_COLOR)
 
 
+# Los cuicos de dia (Cuicos.gd, M7b): un cerdito rosa en un circulo y su cono de vista, siempre
+func _dibujar_cuicos(centro: Vector2, limite: float) -> void:
+	for cuico: Node3D in get_tree().get_nodes_in_group("cuicos"):
+		if not cuico.visible or not cuico.vivo():
+			continue
+		var xz := Vector2(cuico.global_position.x, cuico.global_position.z)
+		var p := _a_pantalla(xz)
+		if p.length() > limite + 6.0:
+			continue
+		var f: Vector3 = cuico.frente()
+		var frente := Vector2(f.x, f.z).normalized()
+		var cono := PackedVector2Array([centro + p])
+		for paso in CONO_PASOS + 1:
+			var a := deg_to_rad(lerpf(-Cuicos.VISTA_ANGULO, Cuicos.VISTA_ANGULO, float(paso) / CONO_PASOS))
+			var q := _a_pantalla(xz + frente.rotated(a) * Cuicos.VISTA)
+			cono.append(centro + (q.normalized() * limite if q.length() > limite else q))
+		var activo: bool = cuico.activo()
+		_marcas.draw_colored_polygon(cono, CONO_ALERTA if activo else CONO_COLOR)
+		if p.length() > limite:
+			continue
+		var c := centro + p
+		# Orejas, cara y trompa
+		for lado in [-1.0, 1.0]:
+			_marcas.draw_colored_polygon(PackedVector2Array([c + Vector2(lado * 4.5, -1.5), c + Vector2(lado * 4.0, -6.0), c + Vector2(lado * 1.2, -4.0)]), CERDO_OSCURO)
+		_marcas.draw_circle(c, 4.8, NEGRO)
+		_marcas.draw_circle(c, 4.0, CERDO_COLOR)
+		_marcas.draw_circle(c + Vector2(0.0, 1.2), 1.9, CERDO_OSCURO)
+		_marcas.draw_circle(c + Vector2(-0.7, 1.2), 0.45, NEGRO)
+		_marcas.draw_circle(c + Vector2(0.7, 1.2), 0.45, NEGRO)
+		_marcas.draw_circle(c + Vector2(-1.6, -1.2), 0.5, NEGRO)
+		_marcas.draw_circle(c + Vector2(1.6, -1.2), 0.5, NEGRO)
+
+
+# Iconos del minimapa de la colonia: entradas de tunel (T), subidas a azotea (A), salidas a
+# otra escena (S, o la inicial de la boca de la favela en "letra") y el tinaco de la plaza (gota azul).
+func _dibujar_iconos(centro: Vector2, limite: float) -> void:
+	for icono: Dictionary in _iconos:
+		var p := _a_pantalla(Vector2(float(icono.get("x", 0.0)), float(icono.get("z", 0.0))))
+		if p.length() >= limite:
+			continue
+		var q := centro + p
+		match String(icono.get("tipo", "")):
+			"tunel":
+				_marcas.draw_rect(Rect2(q - Vector2(5.0, 5.0), Vector2(10.0, 10.0)), NEGRO)
+				_marcas.draw_rect(Rect2(q - Vector2(4.0, 4.0), Vector2(8.0, 8.0)), Color(0.85, 0.55, 0.2))
+				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), "T",
+					HORIZONTAL_ALIGNMENT_CENTER, 7.0, 8, NEGRO)
+			"azotea":
+				_marcas.draw_rect(Rect2(q - Vector2(5.0, 5.0), Vector2(10.0, 10.0)), NEGRO)
+				_marcas.draw_rect(Rect2(q - Vector2(4.0, 4.0), Vector2(8.0, 8.0)), Color(0.88, 0.88, 0.85))
+				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), "A",
+					HORIZONTAL_ALIGNMENT_CENTER, 7.0, 8, NEGRO)
+			"salida":
+				_marcas.draw_circle(q, 5.5, NEGRO)
+				_marcas.draw_circle(q, 4.3, OBJETIVO_COLOR)
+				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), String(icono.get("letra", "S")),
+					HORIZONTAL_ALIGNMENT_CENTER, 6.0, 8, NEGRO)
+			"tinaco":
+				_marcas.draw_circle(q, 6.0, NEGRO)
+				_marcas.draw_circle(q, 4.8, Color(0.28, 0.55, 0.9))
+				_marcas.draw_circle(q + Vector2(0.0, 0.5), 2.0, Color(0.75, 0.88, 1.0))
+			"bodega":
+				_marcas.draw_rect(Rect2(q - Vector2(5.0, 5.0), Vector2(10.0, 10.0)), NEGRO)
+				_marcas.draw_rect(Rect2(q - Vector2(4.0, 4.0), Vector2(8.0, 8.0)), Color(0.35, 0.55, 0.85))
+				_marcas.draw_string(ThemeDB.fallback_font, q + Vector2(-2.5, 3.0), "B",
+					HORIZONTAL_ALIGNMENT_CENTER, 7.0, 8, Color.WHITE)
+
+
 func _dibujar_marcas() -> void:
 	var centro := Vector2(tamano, tamano) / 2.0
 	var limite := tamano / 2.0 - 6.0
+	_dibujar_iconos(centro, limite)
 	for punto in _puntos:
 		var p := _a_pantalla(punto[0])
 		if p.length() < limite:
@@ -213,6 +295,7 @@ func _dibujar_marcas() -> void:
 	_dibujar_dadores(centro, limite)
 	_dibujar_objetivo(centro, limite)
 	_dibujar_zombis(centro, limite)
+	_dibujar_cuicos(centro, limite)
 	# Flecha del jugador (al centro, salvo con centro_fijo)
 	var donde := centro
 	if centro_fijo:

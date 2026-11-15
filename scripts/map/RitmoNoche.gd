@@ -8,7 +8,9 @@ extends Resource
 # una noche de 6 min (en la defensa del tinaco, frenetica, son ~80). Zombis.gd lo usa si
 # tiene `ritmo`; si no, el Director de siempre. Todo es para ajustar jugando: al amanecer
 # Partida dice cuantos salieron y cuantos mataste (y la consola, con mas detalle).
-# El de map_test y el safehouse es resources/zombis/noche_mapa.tres.
+# El del safehouse y el mapa de Blender es resources/zombis/noche_mapa.tres. El de map_test (afuera
+# de las fortalezas, S4 de docs/plan-noche.md) es noche_afuera.tres: continuo pero menos que la
+# defensa (lore §14): grupitos de 1-3 cada 12-30 s, hasta 4-7 sueltos y 2-3 turbas de 6-8, ~50 por noche.
 
 @export_group("Sueltos")
 # s sin nada al anochecer

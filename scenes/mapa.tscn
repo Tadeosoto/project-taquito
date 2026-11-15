@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://models/tiendas/gasolinera/gasolinera.scn" id="19_gasolinera"]
 [ext_resource type="Script" path="res://scripts/map/Ciclo.gd" id="4_ciclo"]
 [ext_resource type="Script" path="res://scripts/mapa/Colonia.gd" id="5_colonia"]
+[ext_resource type="Script" path="res://scripts/mapa/MapaColonia.gd" id="5_mapa_colonia"]
 [ext_resource type="PackedScene" path="res://models/mapa/santa_mugre/santa_mugre.glb" id="6_santa_mugre"]
 [ext_resource type="Script" path="res://scripts/map/MapDron.gd" id="7_dron"]
 [ext_resource type="Script" path="res://scripts/map/MapMinimapa.gd" id="8_minimapa"]
@@ -20,10 +21,13 @@
 [ext_resource type="PackedScene" path="res://scenes/interiores/farmacia.tscn" id="11_farmacia"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/taqueria.tscn" id="11_taqueria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/tortilleria.tscn" id="11_tortilleria"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/dona_mary.tscn" id="11_dona_mary"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/ferreteria.tscn" id="11_ferreteria"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/purificadora.tscn" id="11_purificadora"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto.tscn" id="11_punto"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/gasolinera.tscn" id="11_gasolinera"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/tunel_fayuca.tscn" id="11_tunel_fayuca"]
+[ext_resource type="PackedScene" path="res://scenes/interiores/tunel_armas.tscn" id="11_tunel_armas"]
 [ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="12_inventario"]
 [ext_resource type="Script" path="res://scripts/map/MapAlumbrado.gd" id="13_alumbrado"]
 [ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="14_zombis"]
@@ -31,9 +35,21 @@
 [ext_resource type="Script" path="res://scripts/map/Partida.gd" id="16_partida"]
 [ext_resource type="Script" path="res://scripts/map/Gente.gd" id="17_gente"]
 [ext_resource type="Resource" path="res://resources/zombis/noche_mapa.tres" id="18_ritmo"]
+[ext_resource type="Shader" path="res://shaders/cielo_ps1.gdshader" id="23_cielo"]
+[ext_resource type="Script" path="res://scripts/mapa/Horizonte.gd" id="24_horizonte"]
+[ext_resource type="Script" path="res://scripts/mapa/GiroFavela.gd" id="25_giro_favela"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cielo"]
+shader = ExtResource("23_cielo")
+
+[sub_resource type="Sky" id="Sky_mapa"]
+sky_material = SubResource("ShaderMaterial_cielo")
+radiance_size = 0
 
 [sub_resource type="Environment" id="Environment_mapa"]
-background_mode = 1
+background_mode = 2
+sky = SubResource("Sky_mapa")
+fog_sky_affect = 0.0
 background_color = Color(0.30240002, 0.31872, 0.36, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.62, 0.66, 0.72, 1)
@@ -56,6 +72,7 @@ shader_parameter/contraste = 1.1
 shader_parameter/vineta = 0.3
 
 [node name="Mapa" type="Node3D"]
+script = ExtResource("5_mapa_colonia")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_mapa")
@@ -107,6 +124,9 @@ script = ExtResource("21_arboles_modelo")
 [node name="CarrosColonia" type="Node3D" parent="."]
 script = ExtResource("22_carros_colonia")
 
+[node name="Horizonte" type="Node3D" parent="."]
+script = ExtResource("24_horizonte")
+
 [node name="Ciclo" type="Node" parent="."]
 script = ExtResource("4_ciclo")
 sol_path = NodePath("../DirectionalLight3D")
@@ -135,6 +155,10 @@ jugador_path = NodePath("../Player")
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -262, 1.5, 455)
 
+[node name="GiroFavela" type="Node" parent="."]
+script = ExtResource("25_giro_favela")
+player_path = NodePath("../Player")
+
 [node name="Dron" type="Node3D" parent="."]
 script = ExtResource("7_dron")
 player_path = NodePath("../Player")
@@ -157,7 +181,9 @@ radio_dron = 320.0
 script = ExtResource("10_interiores")
 escenas = Dictionary[String, PackedScene]({
 "abarrotes": ExtResource("11_abarrotes"),
+"armas_tunel": ExtResource("11_tunel_armas"),
 "farmacia": ExtResource("11_farmacia"),
+"fayuca_tunel": ExtResource("11_tunel_fayuca"),
 "ferreteria": ExtResource("11_ferreteria"),
 "gasolinera": ExtResource("11_gasolinera"),
 "licoreria": ExtResource("11_licoreria"),
@@ -165,6 +191,7 @@ escenas = Dictionary[String, PackedScene]({
 "punto": ExtResource("11_punto"),
 "purificadora": ExtResource("11_purificadora"),
 "taqueria": ExtResource("11_taqueria"),
+"tiendita": ExtResource("11_dona_mary"),
 "tortilleria": ExtResource("11_tortilleria")
 })
 puntos_path = NodePath("../Puntos")
@@ -176,6 +203,7 @@ ocultar = Array[NodePath]([NodePath("../Minimapa")])
 
 [node name="Zombis" type="Node3D" parent="."]
 script = ExtResource("14_zombis")
+espontaneos = false
 jugador_path = NodePath("../Player")
 ciclo_path = NodePath("../Ciclo")
 ritmo = ExtResource("18_ritmo")
@@ -196,5 +224,6 @@ supervivencia_path = NodePath("../Supervivencia")
 
 [node name="Gente" type="Node3D" parent="."]
 script = ExtResource("17_gente")
+afuera = false
 banquetas_path = "res://resources/mapa/santa_mugre/banquetas.json"
 puntos_path = "res://resources/mapa/santa_mugre/puntos.json"

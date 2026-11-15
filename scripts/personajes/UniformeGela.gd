@@ -6,8 +6,12 @@ extends RefCounted
 # se les cuelgan dos mallas de los huesos Chest y Head (BoneAttachment3D), medidas en metros del
 # mundo desde la pose de descanso, como el gorro de Ramon (GorroPescador). Una malla y un
 # material compartidos por todos.
+# Con `estilo` "fiel" es lo de los vigias de la Virgen del Tinaco (Santa Mugre ya es fortaleza y
+# no tiene guardias de GelA): chaleco verde del manto y paliacate rojo en la cabeza, sin visera.
 
 const COLOR := Color(0.1, 0.33, 0.72)
+const COLOR_FIEL := Color(0.1, 0.38, 0.36)
+const COLOR_PALIACATE := Color(0.7, 0.12, 0.1)
 const CHALECO := Vector3(0.44, 0.5, 0.28)     # ancho, alto, fondo (m)
 const CHALECO_BAJA := 0.06                    # m debajo del hueso Chest
 const GORRA_RADIO := 0.115
@@ -19,16 +23,22 @@ static var _material: StandardMaterial3D
 static var _chaleco: BoxMesh
 static var _gorra: CylinderMesh
 static var _visera: BoxMesh
+static var _chaleco_fiel: BoxMesh
+static var _paliacate: CylinderMesh
 
 
 # `civil` es el nodo padre de Civiles.poner, ya en el arbol; su -Z es el frente del civil
-static func vestir(civil: Node3D) -> void:
+static func vestir(civil: Node3D, estilo := "gela") -> void:
 	var esqueletos := civil.find_children("*", "Skeleton3D", true, false)
 	if esqueletos.is_empty():
 		return
 	var esqueleto := esqueletos[0] as Skeleton3D
 	_armar()
 	var frente := -civil.global_basis.z.normalized()
+	if estilo == "fiel":
+		_colgar(esqueleto, "Chest", _chaleco_fiel, Vector3.DOWN * CHALECO_BAJA, frente)
+		_colgar(esqueleto, "Head", _paliacate, Vector3.UP * (GORRA_SUBE - 0.03), frente)
+		return
 	_colgar(esqueleto, "Chest", _chaleco, Vector3.DOWN * CHALECO_BAJA, frente)
 	_colgar(esqueleto, "Head", _gorra, Vector3.UP * GORRA_SUBE, frente)
 	_colgar(esqueleto, "Head", _visera, Vector3.UP * (GORRA_SUBE - GORRA_ALTO / 2 + 0.01) + frente * (GORRA_RADIO + 0.03), frente)
@@ -65,6 +75,20 @@ static func _armar() -> void:
 	_gorra.radial_segments = 8
 	_gorra.rings = 1
 	_gorra.material = _material
+	var verde := StandardMaterial3D.new()
+	verde.albedo_color = COLOR_FIEL
+	_chaleco_fiel = BoxMesh.new()
+	_chaleco_fiel.size = CHALECO
+	_chaleco_fiel.material = verde
+	var rojo := StandardMaterial3D.new()
+	rojo.albedo_color = COLOR_PALIACATE
+	_paliacate = CylinderMesh.new()
+	_paliacate.top_radius = GORRA_RADIO + 0.005
+	_paliacate.bottom_radius = GORRA_RADIO + 0.005
+	_paliacate.height = 0.06
+	_paliacate.radial_segments = 8
+	_paliacate.rings = 1
+	_paliacate.material = rojo
 	_visera = BoxMesh.new()
 	_visera.size = VISERA
 	_visera.material = _material

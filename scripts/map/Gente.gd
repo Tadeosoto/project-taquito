@@ -6,6 +6,11 @@ extends Node3D
 # afuera de las tiendas a platicar y perros echados. Al avisar que va a oscurecer se apuran
 # y ya no sale nadie; de noche no hay nadie y al amanecer vuelven.
 #
+# Afuera de las fortalezas (S6 de docs/plan-noche.md, lore §13) casi todos estan bajo Serenol: dicen
+# LINEAS_SERENOL (aman a GelA, trabajan mucho) y unos pocos (SABEN_FRACCION) saben que el agua trae
+# algo y piden agua limpia (LINEAS_SABEN). No dan misiones. Adentro de una fortaleza (`afuera` en
+# false, como en el mapa de Blender de Santa Mugre, o MuroColonia.adentro) dicen LINEAS.
+#
 # Los que caminan son civiles del pack PSX al azar (Civiles.gd), con el Walk de Quaternius;
 # el garrafonero, con Walk_Carry y su garrafon. Los que platican usan los otros modelos, con
 # el clip que traen. Solo se decide cerca del jugador; todo sale de reservas, dentro de
@@ -35,6 +40,9 @@ const CELDA := 32.0
 # Cada cuantos metros se prueba el suelo de adelante, y cuanto adelante (la banqueta mide 1-1.5 m)
 const PRUEBA_CADA := 1.5
 const PRUEBA_ADELANTE := 1.2
+const PRUEBA_ALTO := 1.1       # m de altura del rayo que busca pared (a la cintura)
+const REBOTE_MAX := 3          # vueltas en U seguidas antes de quitar al caminante
+const REBOTE_LEJOS := 22.0     # ... y solo si esta a mas de esto del jugador
 const UNE_A := 14.0        # m: al acabarse una banqueta sigue por otra si esta asi de cerca
 const ALTO_LIBRE := 0.6    # arriba de esto es una azotea o una barda
 const ALTO_PERSONA := 1.7
@@ -45,6 +53,19 @@ const MAX_PLATICAN := 6
 const MAX_PERROS := 3
 const PLATICA_FRACCION := 0.6
 const PERRO_CADA := 3
+const SABEN_FRACCION := 0.15
+const LINEAS_SERENOL := {
+	"": ["Yo amo a GelA.", "Hay que trabajar, mijo. Trabajar.", "Gracias a GelA tengo qué tomar.", "¿Zombis? Yo duermo como bebé. Ocho horas. Y a trabajar.", "Mi patrón es buena gente. GelA también.", "Tómate un vasito de la llave, se te ve cansado.", "¿Las noches? Son para descansar, joven. Mañana hay chamba.", "Ya pagué el agua. Feliz de pagarla.", "Me siento muy bien. Muy, muy bien.", "El noticiero dice que todo va mejorando. Y le creo."],
+	"oxxo": ["Dos cafés con agua de la llave, por favor. Bien llenos.", "Aquí trabajo doble turno. Bendito GelA."],
+	"abarrotes": ["El agua embotellada de GelA es la más rica. Llévese dos.", "Fío a todos menos a los de las fortalezas. Son raros."],
+	"licoreria": ["Yo ya no tomo. Nomás agüita de GelA.", "La caguama ya no me llama. Qué bueno."],
+	"farmacia": ["¿Pastillas para dormir? Ya no las necesito.", "Todo lo que receten, con agua de la llave."],
+	"ferreteria": ["¿Tablas para atrancar? ¿Para qué, joven?", "Mi compadre se encerró con tablas. Yo no, yo confío."],
+	"taqueria": ["La salsa la hago con agua de la llave. Por eso sabe a gloria.", "Abro temprano y cierro temprano. Como debe ser."],
+	"purificadora": ["Agua de GelA, certificada. La única que hay que tomar.", "Las de las fortalezas venden agua sucia, eh. Ni se le ocurra."],
+	"gasolinera": ["Lleno, por favor. Y un garrafón de GelA.", "Aquí todos llegamos puntuales. Es un gusto."],
+}
+const LINEAS_SABEN := ["Psst... ¿no traerás agua de la buena? De la que no es de GelA.", "Mi señora ya no se ríe desde que toma de la llave. Algo trae esa agua.", "No le digas a nadie, pero yo hiervo el agua tres veces. Y ni así.", "¿Tú eres de los que reparten de noche? Aquí hay dos casas que necesitan.", "Todos aquí andan como dormidos. Yo no quiero acabar así."]
 const LINEAS := {
 	"": ["Dicen que el agua ya viene limpia. Dicen.", "De noche ni te asomes, joven.", "Yo no salgo sin mi garrafón.", "Mi compadre tomó de la llave y ya no contesta.", "¿Ya oíste los gemidos? Son los vecinos. Creo.", "Aquí todo tranquilo. Hasta que oscurece."],
 	"oxxo": ["Ya no hay hielo. Ni hay de qué.", "Vine por un gansito y me quedé por el miedo."],
@@ -57,8 +78,23 @@ const LINEAS := {
 	"gasolinera": ["La gasolina no es para tomar. Ya hubo quien.", "Sirve para las botellas, tú me entiendes."],
 }
 
+# Si esta escena es de afuera de las fortalezas (map_test, el safehouse). El mapa de Blender es
+# Santa Mugre por dentro: ahi va en false
+@export var afuera := true
 @export_file("*.json") var banquetas_path := "res://resources/map/banquetas_mapa.json"
 @export_file("*.json") var puntos_path := "res://resources/map/puntos_mapa.json"
+# Por colonia (MapaColonia los pone con el "ambiente" de marcas.json; la favela de La Gotera):
+# cuantos caminan, a que distancia aparecen y se quitan, y el suelo que cuenta como camino. En la
+# favela las terrazas suben 0.75 y 1.5 m (con ALTO_LIBRE parecian azoteas) y hay tablones de azotea
+# a azotea: el rayo sale de `rayo_desde`, abajo de los tablones y arriba de las terrazas.
+@export var caminantes := CAMINANTES
+@export var anillo := ANILLO
+@export var quitar_a := QUITAR_A
+@export var alto_libre := ALTO_LIBRE
+@export var rayo_desde := 12.0
+# m: al acabarse una linea, a que distancia se puede saltar a otra. La favela usa 2.2 (callejones
+# de 1.2-2.2 y casas pegadas); en las colonias de OSM el default 14 une banquetas de la misma calle.
+@export var une_a := UNE_A
 
 var caminando: Array[Dictionary] = []
 var platicando := {}       # indice de lugar -> nodo
@@ -83,8 +119,10 @@ func _ready() -> void:
 	_jugador = get_tree().get_first_node_in_group("jugador")
 	_ciclo = get_tree().get_first_node_in_group("ciclo")
 	if _ciclo:
-		_ciclo.aviso_atardecer.connect(func() -> void: _saliendo = true)
-		_ciclo.anochecio.connect(_quitar_a_todos)
+		_ciclo.aviso_atardecer.connect(func() -> void: _saliendo = not MapaColonia.abierto_24h)
+		_ciclo.anochecio.connect(func() -> void:
+			if not MapaColonia.abierto_24h:
+				_quitar_a_todos())
 		_ciclo.amanecio.connect(func() -> void: _saliendo = false)
 	_cargar_banquetas()
 	_cargar_lugares()
@@ -106,6 +144,9 @@ func _process(delta: float) -> void:
 
 
 func hay_gente() -> bool:
+	# Colonia abierta las 24 horas (MapaColonia.abierto_24h): la gente sigue de noche
+	if MapaColonia.abierto_24h:
+		return true
 	return not _saliendo and not (_ciclo and _ciclo.es_noche())
 
 
@@ -116,13 +157,14 @@ func _armar_reserva() -> void:
 		if CargaCuadro.hay():
 			var inicio := Time.get_ticks_usec()
 			_garrafonero = _armar_caminante(CLIP_CARGA)
-			var galon: Node3D = GALON.crear_modelo(0.4)
+			# El garrafon de 50 L mide 60 cm (JJ, 2026-11-14: a 0.4 m se veia chico); va centrado
+			var galon: Node3D = GALON.crear_modelo(0.6)
 			if galon:
-				galon.position = Vector3(0.0, 0.65, -0.55)  # como Player.CARGA_LUGAR, desde los pies
+				galon.position = Vector3(0.0, 0.75, -0.55)  # como Player.CARGA_LUGAR, desde los pies
 				_garrafonero["nodo"].add_child(galon)
 			_libres.append(_garrafonero)
 			CargaCuadro.gastar(inicio)
-	elif _libres.size() + caminando.size() < CAMINANTES and CargaCuadro.hay():
+	elif _libres.size() + caminando.size() < caminantes and CargaCuadro.hay():
 		var inicio := Time.get_ticks_usec()
 		_libres.append(_armar_caminante(CLIP_CAMINA))
 		CargaCuadro.gastar(inicio)
@@ -146,7 +188,7 @@ func _sacar_caminante() -> void:
 	var centro := _jugador.global_position
 	for intento in INTENTOS:
 		var giro := randf() * TAU
-		var radio := randf_range(ANILLO.x, ANILLO.y)
+		var radio := randf_range(anillo.x, anillo.y)
 		var punto := centro + Vector3(cos(giro) * radio, 0.0, sin(giro) * radio)
 		var opciones: Array = _celdas.get(_celda(Vector2(punto.x, punto.z)), [])
 		if opciones.is_empty():
@@ -156,7 +198,7 @@ func _sacar_caminante() -> void:
 		var i: int = opcion[1]
 		var donde: Vector2 = linea[i]
 		var en_mundo := Vector3(donde.x, 1.0, donde.y)
-		if centro.distance_to(en_mundo) < ANILLO.x:
+		if centro.distance_to(en_mundo) < anillo.x:
 			continue
 		if camara and not camara.is_position_behind(en_mundo) and camara.is_position_in_frustum(en_mundo):
 			continue
@@ -171,6 +213,7 @@ func _sacar_caminante() -> void:
 			c["sentido"] = -1
 		c["avance"] = 0.0
 		c["y"] = y
+		c["seg"] = Vector2i(-1, -1)
 		var nodo: Node3D = c["nodo"]
 		nodo.visible = true
 		nodo.process_mode = Node.PROCESS_MODE_INHERIT
@@ -195,17 +238,23 @@ func _caminar(delta: float) -> void:
 		var a: Vector2 = linea[i]
 		var b: Vector2 = linea[siguiente]
 		var largo := a.distance_to(b)
+		var clave := Vector2i(i, c["sentido"])
+		if c.get("seg") != clave:
+			c["seg"] = clave
+			var y_b := _altura(b)
+			c["y_b"] = c["y"] if y_b == INF else y_b
 		c["avance"] += velocidad * delta
 		if c["avance"] >= largo:
 			# Lo que sigue tiene que ser banqueta: si no, se da la vuelta
 			var y := _altura(b)
 			if y == INF:
-				c["sentido"] = -c["sentido"]
-				c["avance"] = 0.0
+				_regresar(c)
 				continue
 			c["y"] = y
 			c["i"] = siguiente
 			c["avance"] -= largo
+			c["seg"] = Vector2i(-1, -1)
+			c["rebotes"] = 0
 			continue
 		var p := a.lerp(b, c["avance"] / maxf(largo, 0.01))
 		# Entre vertice y vertice puede haber una casa (los tramos miden decenas de metros): cada
@@ -214,39 +263,78 @@ func _caminar(delta: float) -> void:
 		if c["prueba"] <= 0.0:
 			c["prueba"] = PRUEBA_CADA
 			var adelante := p + (b - a).normalized() * PRUEBA_ADELANTE
-			if _altura(adelante) == INF:
+			if _altura(adelante) == INF or _pared(p, adelante, c["y"]):
 				c["sentido"] = -c["sentido"]
 				c["i"] = siguiente
 				c["avance"] = largo - c["avance"]
+				c["rebotes"] = int(c.get("rebotes", 0)) + 1
+				_si_atorado(c)
 				continue
 		var nodo: Node3D = c["nodo"]
-		nodo.global_position = Vector3(p.x, c["y"], p.y)
+		var f := clampf(c["avance"] / maxf(largo, 0.01), 0.0, 1.0)
+		nodo.global_position = Vector3(p.x, lerpf(c["y"], float(c.get("y_b", c["y"])), f), p.y)
 		nodo.rotation.y = atan2(-(b.x - a.x), -(b.y - a.y))
 	if Engine.get_process_frames() % 30 == 0:
 		for c: Dictionary in caminando.duplicate():
-			if (c["nodo"] as Node3D).global_position.distance_to(_jugador.global_position) > QUITAR_A:
+			if (c["nodo"] as Node3D).global_position.distance_to(_jugador.global_position) > quitar_a:
 				_guardar(c)
+
+
+## Da la vuelta y cuenta el rebote: un tramo suelto, sin vecino al que saltar, dejaba al caminante
+## yendo y viniendo para siempre (las lineas de la favela son de dos puntos)
+func _regresar(c: Dictionary) -> void:
+	c["sentido"] = -c["sentido"]
+	c["avance"] = 0.0
+	c["rebotes"] = int(c.get("rebotes", 0)) + 1
+	_si_atorado(c)
+
+
+func _si_atorado(c: Dictionary) -> void:
+	if int(c.get("rebotes", 0)) < REBOTE_MAX:
+		return
+	var nodo: Node3D = c["nodo"]
+	if _jugador and nodo.global_position.distance_to(_jugador.global_position) < REBOTE_LEJOS:
+		return
+	c["rebotes"] = 0
+	_guardar(c)
 
 
 func _fin_de_linea(c: Dictionary) -> void:
 	var fin: Vector2 = (c["linea"] as Array)[c["i"]]
 	var mejor: Array = []
-	var cerca := UNE_A
+	var cerca := une_a
 	for clave in [_celda(fin)] + _vecinas(_celda(fin)):
 		for otro: Array in _finales.get(clave, []):
 			var punto: Vector2 = (_lineas[otro[0]] as Array)[otro[1]]
 			var d := fin.distance_to(punto)
-			if _lineas[otro[0]] != c["linea"] and d < cerca and _altura(punto) != INF:
+			if _lineas[otro[0]] != c["linea"] and d < cerca and _altura(punto) != INF and _puede_unir(fin, punto) and not _pared(fin, punto, c["y"]):
 				cerca = d
 				mejor = otro
 	if mejor.is_empty():
-		c["sentido"] = -c["sentido"]
-		c["avance"] = 0.0
+		_regresar(c)
 		return
 	c["linea"] = _lineas[mejor[0]]
 	c["i"] = mejor[1]
 	c["sentido"] = 1 if mejor[1] == 0 else -1
 	c["avance"] = 0.0
+	c["rebotes"] = 0
+	c["y"] = _altura((c["linea"] as Array)[c["i"]])
+	c["seg"] = Vector2i(-1, -1)
+
+
+# Un cambio de linea solo vale si el tramo entre los dos extremos es piso caminable (no cruza una
+# casa) y no cambia de banda mas de 0.35 m. Sin esto, en la favela saltaban de un callejon a otro.
+func _puede_unir(a: Vector2, b: Vector2) -> bool:
+	var ya := _altura(a)
+	var yb := _altura(b)
+	if ya == INF or yb == INF or absf(ya - yb) > 0.35:
+		return false
+	var largo := a.distance_to(b)
+	var n := maxi(2, int(ceil(largo / 0.75)))
+	for i in n + 1:
+		if _altura(a.lerp(b, float(i) / n)) == INF:
+			return false
+	return true
 
 
 func _guardar(c: Dictionary) -> void:
@@ -310,13 +398,28 @@ func _poner_platicante(i: int) -> void:
 	# A veces te dicen algo a ti (Personaje.gd), en vez de lo suyo
 	var personaje := get_node_or_null("/root/Personaje")
 	var a_ti: String = personaje.linea("calle") if personaje and randf() < CALLE_A_TI else ""
-	npc.set("dialogue", a_ti if a_ti != "" else lugar["linea"])
+	npc.set("dialogue", a_ti if a_ti != "" else _linea(lugar))
 	add_child(npc)
 	npc.global_position = Vector3(donde.x, y, donde.y)
 	npc.rotation.y = lugar["mira"]
 	var nombre: String = lugar["modelo"]
 	poner_modelo(npc, load("res://models/personajes/%s/%s.scn" % [nombre, nombre]), ALTO_PERSONA)
 	platicando[i] = npc
+
+
+# Siempre la misma para la misma tienda (su "azar"); bajo Serenol si la tienda es de afuera
+func _linea(lugar: Dictionary) -> String:
+	var azar: int = lugar["azar"]
+	var donde: Vector2 = lugar["donde"]
+	var de_afuera := afuera and not MuroColonia.adentro(get_tree(), Vector3(donde.x, 0.0, donde.y))
+	var opciones: Array
+	if de_afuera and (azar % 100) < SABEN_FRACCION * 100.0:
+		opciones = LINEAS_SABEN
+	elif de_afuera:
+		opciones = LINEAS_SERENOL[""] + LINEAS_SERENOL.get(lugar["giro"], [])
+	else:
+		opciones = LINEAS[""] + LINEAS.get(lugar["giro"], [])
+	return opciones[(azar / 100) % opciones.size()]
 
 
 func _poner_perro(i: int) -> void:
@@ -403,7 +506,7 @@ func _cargar_lugares() -> void:
 		push_warning("Gente: no se pudo leer %s" % puntos_path)
 		return
 	for p: Dictionary in datos["puntos"]:
-		if not p.get("interactivo", false) or p["tipo"] == "punto" or p.get("aire_libre", false):
+		if not p.get("interactivo", false) or p["tipo"] == "punto" or p.get("aire_libre", false) or p.get("sin_gente", false):
 			continue
 		var rng := RandomNumberGenerator.new()
 		rng.seed = String(p.get("origen", p.get("nombre", ""))).hash()
@@ -414,12 +517,12 @@ func _cargar_lugares() -> void:
 		var calle: float = p.get("fondo", 8.0) / 2.0 + 1.5
 		var ancho: float = p.get("ancho", 6.0) / 2.0
 		var giro: String = p.get("giro", "")
-		var opciones: Array = LINEAS[""] + LINEAS.get(giro, [])
 		_lugares.append({
 			"donde": centro + frente * calle + lado * maxf(ancho - 0.3, 1.8),
 			"perro": centro + frente * calle - lado * maxf(ancho - 0.3, 1.8),
 			"mira": ry + rng.randf_range(-0.5, 0.5),
-			"linea": opciones[rng.randi() % opciones.size()],
+			"giro": giro,
+			"azar": rng.randi(),
 			"modelo": PLATICAN[rng.randi() % PLATICAN.size()],
 			"persona": rng.randf() < PLATICA_FRACCION,
 			"con_perro": rng.randi() % PERRO_CADA == 0,
@@ -428,12 +531,23 @@ func _cargar_lugares() -> void:
 
 # Altura de la banqueta; INF si ahi hay una casa o una barda
 func _altura(punto: Vector2) -> float:
-	_rayo.from = Vector3(punto.x, 12.0, punto.y)
+	_rayo.from = Vector3(punto.x, rayo_desde, punto.y)
 	_rayo.to = Vector3(punto.x, -2.0, punto.y)
 	var pego := get_world_3d().direct_space_state.intersect_ray(_rayo)
-	if pego.is_empty() or pego.position.y > ALTO_LIBRE:
+	if pego.is_empty() or pego.position.y > alto_libre:
 		return INF
 	return pego.position.y
+
+
+## Si entre los dos puntos hay pared (o un prop, o un carro), a la altura de la cintura. En la
+## favela el rayo de _altura nace adentro de los muros (miden 2.75 m y el rayo sale de 2.6) y les
+## pegaba por abajo: todo le parecia piso y los caminantes atravesaban las casas.
+func _pared(a: Vector2, b: Vector2, y: float) -> bool:
+	_rayo.from = Vector3(a.x, y + PRUEBA_ALTO, a.y)
+	_rayo.to = Vector3(b.x, y + PRUEBA_ALTO, b.y)
+	var pego := get_world_3d().direct_space_state.intersect_ray(_rayo)
+	_rayo.to = Vector3(b.x, -2.0, b.y)      # se deja como la deja _altura
+	return not pego.is_empty()
 
 
 func _celda(punto: Vector2) -> Vector2i:

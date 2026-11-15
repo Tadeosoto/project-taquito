@@ -30,16 +30,30 @@ extends Node3D
 #   caja_gela  la caja del reten de GelA: de noche se abre una vez y suelta 1-2 cosas (CajaGela)
 #   placa   la placa azul con el nombre de la calle ("texto") en su poste, legible por los dos
 #           lados (tambien de exportar.py: colonia.placas_calles)
-#   letrero  un letrero de texto ("texto") viendo a su +Z, como el de las puertas (el mercado)
+#   letrero  un letrero de texto ("texto") viendo a su +Z, como el de las puertas (el mercado).
+#           Opcionales: "tam" (pixel_size), "color" [r, g, b] y "lejos" (m): los nombres pintados
+#           de las bocas y de la Plaza del Tinaco de la favela (favela._orientarse)
+#   mesa    una mesa de taqueria (Mesa.gd) con sus sillas plegables: "semilla" y "sillas" (flags de
+#           Mesa.sillas), con una caja de choque; las fondas de la favela
+#   tambo   el mismo tambo apagado, con su choque y sin luz (las plazas de la favela: piezas._tambo)
+#   tambo_fuego  un tambo de fierro con fuego (MapAlumbrado.armar_tambos, todos en un MultiMesh) con
+#           su choque y una luz naranja prendida siempre; los pasillos oscuros de la favela
 #   mision  un punto con nombre para las misiones (Colonia.puntos_mision): donde se para el que
 #           da una ("donde" de MisionData) o donde esta lo que hay que recoger
 #   botin   algo en una azotea para el que sube (tambien de exportar.py): "que" es "chatarra"
 #           (un monton de Chatarra), "bolsa" (Takis con tazo) o "curacion" (tacos o caguama)
+#   paso    una flecha amarilla que lleva a otra escena (PasoColonia): "a" es otra colonia de Blender
+#           ("la_gotera_favela") o "mapa_grande" (map_test); "lado" es el nombre del paso (el mismo
+#           en las dos escenas: al volver se aparece en "llegada" [x, z] de la marca con ese lado,
+#           viendo a su -Z); "texto" el letrero; "requiere": "favela" solo deja pasar con
+#           Misiones.favela_abierta(), si no "cerrado" sale en pantalla y el guardia te regresa.
+#           Las bocas de la favela de La Gotera (docs/mapa/colonias/la_gotera.md)
 
 const PUERTA_RADIO := 0.8
 const CASA_PROPIA := preload("res://scripts/interiores/CasaPropia.gd")
 const CASA_ESCENA := "res://scenes/casa_personaje.tscn"
 const MUEBLES := preload("res://scripts/interiores/MueblesCasa.gd")
+const MapAlumbrado := preload("res://scripts/map/MapAlumbrado.gd")
 # Letrero del negocio: arriba de la puerta y casi contra la fachada (la marca va 0.8 m delante)
 const LETRERO_ALTO := 3.0
 const LETRERO_ATRAS := 0.7
@@ -68,11 +82,23 @@ var _marcas: Array = []
 var _reflectores: Array[Light3D] = []
 var _energias: Array[float] = []      # la de cada luz de _reflectores, de noche
 var _parpadean: Array[bool] = []
+var _todo_el_dia: Array[bool] = []   # las luces de adentro (casas abandonadas): prenden tambien de dia
+# Lo que se cruza por dentro (marcas "interior" de favela.py): [{"inversa", "medio", "grupo",
+# "techos": [MeshInstance3D], "choques": [CollisionObject3D]}]. Adentro, los techos de su grupo
+# solo dan sombra, el resorte de la camara no choca con ellos y la camara sube a verte desde arriba
+var _interiores: Array[Dictionary] = []
+var _grupo_adentro := -1
+var _pitch_afuera := 0.0
+var _regresa_pitch := false
 var _de_dia: Array[Node3D] = []      # los "vecino": se esconden de noche y de lejos
+var _de_noche: Array[Node3D] = []    # los "vecino" con "cuando": "noche" (la vela del tinaco)
+var _siempre: Array[Node3D] = []     # los de "cuando": "siempre" (los vigias): solo se esconden de lejos
 var _jugador: Node3D
 var _revisa_vecinos := 0.0
 # Cuadros "Dia_*" del .glb (MapaPostImport.SOLO_DIA): lonas y mercancia del tianguis
 var _solo_dia: Array[Node] = []
+var _tambos: Array[Transform3D] = []   # las marcas "tambo_fuego": se arman juntas al final de _ready
+var _tambos_apagados: Array[Transform3D] = []   # las marcas "tambo": el mismo tambo sin fuego ni luz
 var _ciclo: Node
 
 # Reflectores (marca "reflector"): luz calida sin sombra, como los de la cancha de la foto
@@ -80,10 +106,20 @@ const REFLECTOR_ENERGIA := 4.0
 const REFLECTOR_ALCANCE := 24.0
 const REFLECTOR_ANGULO := 55.0
 const REFLECTOR_COLOR := Color(1.0, 0.93, 0.78)
-const FOCO_ENERGIA := 1.6
-const FOCO_ALCANCE := 6.0
+const FOCO_ENERGIA := 1.8
+const FOCO_ALCANCE := 8.0
 const FOCO_COLOR := Color(1.0, 0.8, 0.5)
 const FOCO_PARPADEA := 4
+# Una colonia cerrada puede subirlos desde "ambiente": {"focos": [energia, alcance]} de su
+# marcas.json (la favela de La Gotera, que de noche quedaba a oscuras)
+var foco_energia := FOCO_ENERGIA
+var foco_alcance := FOCO_ALCANCE
+# La camara adentro: brazo mas corto y mirando hacia abajo, por encima de los muros
+# Adentro de una casa cueva (JJ, 2026-11-13): camara corta y casi a la altura de los ojos, bajo la
+# losa (el resorte choca con ella y con los muros: nunca se ve desde arriba ni sobre el techo)
+const INTERIOR_BRAZO := 1.8
+const INTERIOR_PITCH := -12.0
+const INTERIOR_CAMBIA := 5.0
 const BOTIN_BOLSA := "res://resources/productos/takis_tazo.tres"
 const BOTIN_CURACION := ["res://resources/productos/tacos.tres", "res://resources/productos/caguama.tres"]
 
@@ -94,6 +130,11 @@ func _enter_tree() -> void:
 		push_warning("Colonia: no se pudo leer %s" % marcas_path)
 		return
 	_marcas = datos.get("marcas", [])
+	var ambiente = datos.get("ambiente")
+	if ambiente is Dictionary and ambiente.get("focos") is Array:
+		var f: Array = ambiente["focos"]
+		foco_energia = float(f[0])
+		foco_alcance = float(f[1])
 	puntos_mision.clear()
 	puertas.clear()
 	salidas.clear()
@@ -106,11 +147,11 @@ func _enter_tree() -> void:
 			_spawn(marca)
 		elif marca.get("tipo") == "mision":
 			puntos_mision[String(marca.get("nombre", ""))] = lugar(marca)
-	# Si se llego del mapa grande por una reja (PasoColonia), se aparece adentro de esa reja y no en el spawn
+	# Si se llego de otra escena por una reja o una boca (PasoColonia), se aparece junto a ella y no en el spawn
 	var por := PasoColonia.tomar_lado()
 	if por != "":
 		for marca: Dictionary in _marcas:
-			if marca.get("tipo") == "salida_colonia" and marca.get("lado") == por and marca.has("llegada"):
+			if marca.get("tipo") in ["salida_colonia", "paso"] and marca.get("lado") == por and marca.has("llegada"):
 				var llegada: Array = marca["llegada"]
 				# Mirando hacia adentro: el rot de la marca es hacia donde queda adentro, y el jugador mira a -Z
 				_spawn({"x": llegada[0], "z": llegada[1], "rot": float(marca.get("rot", 0.0)) + PI})
@@ -154,10 +195,16 @@ func _ready() -> void:
 				_casa_vecino(marca)
 			"salida_colonia":
 				_salida_colonia(marca)
+			"paso":
+				_paso(marca)
 			"reflector":
 				_reflector(marca)
 			"foco":
 				_foco(marca)
+			"interior":
+				_interiores.append({"inversa": lugar(marca).affine_inverse(), "grupo": int(marca.get("grupo", 0)),
+					"medio": Vector2(float(marca["tam"][0]), float(marca["tam"][1])) / 2.0,
+					"nombres": marca.get("techos", [])})
 			"botin":
 				_botin(marca)
 			"ninos":
@@ -168,25 +215,74 @@ func _ready() -> void:
 				_trampa(marca)
 			"letrero":
 				_letrero(marca)
+			"mesa":
+				_mesa(marca)
+			"tambo_fuego":
+				_tambos.append(lugar(marca))
+			"tambo":
+				_tambos_apagados.append(lugar(marca))
 			"placa":
 				_placa(marca)
 			"tianguis":
 				_tianguis(marca)
+			"procesion":
+				# La procesion del atardecer (Procesion.gd): "puntos" es su camino, en metros del mundo
+				var procesion := Procesion.new()
+				procesion.name = String(marca.get("nombre", "Procesion"))
+				procesion.puntos = marca.get("puntos", [])
+				add_child(procesion)
+			"campana":
+				var campana := Campana.new()
+				campana.name = String(marca.get("nombre", "Campana"))
+				campana.de = String(marca.get("de", "templo"))
+				campana.transform = lugar(marca)
+				add_child(campana)
+			"palomas":
+				var palomas := Palomas.new()
+				palomas.name = String(marca.get("nombre", "Palomas"))
+				var tam_palomas: Array = marca.get("tam", [16.0, 16.0])
+				palomas.tam = Vector2(float(tam_palomas[0]), float(tam_palomas[1]))
+				palomas.cuantas = int(marca.get("cuantas", 14))
+				palomas.transform = lugar(marca)
+				add_child(palomas)
+			"perro":
+				# Un perro echado (el de Gente.gd), de dia y de noche; de lejos no se dibuja
+				var perro := Node3D.new()
+				perro.name = String(marca.get("nombre", "Perro"))
+				perro.transform = lugar(marca)
+				add_child(perro)
+				Gente.poner_modelo(perro, Gente.PERRO, Gente.ALTO_PERRO)
+				_siempre.append(perro)
 			"caja_gela":
 				var caja := CajaGela.new()
 				caja.name = String(marca.get("nombre", "CajaGela"))
+				caja.de = String(marca.get("de", "gela"))
 				caja.transform = lugar(marca)
 				add_child(caja)
 			var otro:
 				push_warning("Colonia: marca %s de tipo desconocido '%s'" % [marca.get("nombre", "?"), otro])
 
 
+	_armar_tambos()
 	_solo_dia = find_children("Dia_*", "MeshInstance3D", true, false)
-	set_process(not _reflectores.is_empty() or not _de_dia.is_empty() or not _solo_dia.is_empty())
+	for interior: Dictionary in _interiores:
+		var techos: Array[MeshInstance3D] = []
+		var choques: Array[CollisionObject3D] = []
+		for n: String in interior["nombres"]:
+			for t in find_children("Techo_" + n, "MeshInstance3D", true, false):
+				techos.append(t)
+			for c in find_children(n + "_techo*", "CollisionObject3D", true, false):
+				choques.append(c)
+		interior["techos"] = techos
+		interior["choques"] = choques
+	set_process(not _reflectores.is_empty() or not _de_dia.is_empty() or not _solo_dia.is_empty()
+			or not _de_noche.is_empty() or not _siempre.is_empty() or not _interiores.is_empty())
 
 
 # Los reflectores siguen a Ciclo.valor() (0 de dia, 1 de noche), asi se prenden al oscurecer
 func _process(delta: float) -> void:
+	if not _interiores.is_empty():
+		_camara_interior(delta)
 	if _ciclo == null:
 		_ciclo = get_tree().get_first_node_in_group("ciclo")
 		if _ciclo == null:
@@ -199,15 +295,17 @@ func _process(delta: float) -> void:
 			_jugador = get_tree().get_first_node_in_group("jugador") as Node3D
 		for nodo in _solo_dia:
 			(nodo as Node3D).visible = noche < NinosCancha.NOCHE_DESDE
-		for vecino in _de_dia:
-			var cerca := _jugador == null or _jugador.global_position.distance_to(vecino.global_position) < NinosCancha.LEJOS
-			vecino.visible = noche < NinosCancha.NOCHE_DESDE and cerca
-			var animacion := vecino.find_child("AnimationPlayer", true, false) as AnimationPlayer
-			if animacion:
-				animacion.active = vecino.visible
+		var es_dia := noche < NinosCancha.NOCHE_DESDE
+		for grupo in [[_de_dia, es_dia], [_de_noche, not es_dia], [_siempre, true]]:
+			for vecino: Node3D in grupo[0]:
+				var cerca := _jugador == null or _jugador.global_position.distance_to(vecino.global_position) < NinosCancha.LEJOS
+				vecino.visible = grupo[1] and cerca
+				var animacion := vecino.find_child("AnimationPlayer", true, false) as AnimationPlayer
+				if animacion:
+					animacion.active = vecino.visible
 	var t := Time.get_ticks_msec() / 1000.0
 	for i in _reflectores.size():
-		var energia := _energias[i] * noche
+		var energia := _energias[i] * (1.0 if _todo_el_dia[i] else noche)
 		if _parpadean[i] and energia > 0.0:
 			# Foco que falla: casi siempre prendido, con cortes cortos e irregulares
 			var n := sin(t * 23.0 + i * 7.1) + sin(t * 3.7 + i * 1.3)
@@ -236,13 +334,14 @@ func _reflector(marca: Dictionary) -> void:
 func _foco(marca: Dictionary) -> void:
 	var luz := OmniLight3D.new()
 	luz.name = String(marca.get("nombre", "Foco"))
-	luz.omni_range = FOCO_ALCANCE
+	luz.omni_range = foco_alcance
 	luz.light_color = FOCO_COLOR
 	luz.shadow_enabled = false
 	luz.visible = false
 	luz.transform = lugar(marca)
 	add_child(luz)
-	_agregar_luz(luz, FOCO_ENERGIA, _reflectores.size() % FOCO_PARPADEA == 1)
+	_agregar_luz(luz, foco_energia, bool(marca.get("parpadea", _reflectores.size() % FOCO_PARPADEA == 1)),
+			bool(marca.get("siempre", false)))
 
 
 func _ninos(marca: Dictionary) -> void:
@@ -314,12 +413,79 @@ func _letrero(marca: Dictionary) -> void:
 	letrero.name = String(marca.get("nombre", "Letrero"))
 	letrero.text = String(marca.get("texto", "")).to_upper()
 	letrero.font_size = 64
-	letrero.pixel_size = 0.01
-	letrero.modulate = LETRERO_COLOR
+	letrero.pixel_size = float(marca.get("tam", 0.01))
+	var color: Array = marca.get("color", [])
+	letrero.modulate = Color(float(color[0]), float(color[1]), float(color[2])) if color.size() >= 3 else LETRERO_COLOR
 	letrero.outline_size = 12
-	letrero.visibility_range_end = LETRERO_LEJOS
+	letrero.visibility_range_end = float(marca.get("lejos", LETRERO_LEJOS))
 	letrero.transform = lugar(marca)
 	add_child(letrero)
+
+
+# Mesa de taqueria con sus sillas (las fondas de la favela). Mesa no trae choque: una caja del
+# tamano de la cubierta
+const MESA_LEJOS := 45.0
+const MESA_COLOR := Color(0.88, 0.07, 0.05)   # el de MapPuntos.TAQUERIA_MESA
+
+
+func _mesa(marca: Dictionary) -> void:
+	var mesa := Mesa.new()
+	mesa.name = String(marca.get("nombre", "Mesa"))
+	mesa.color = MESA_COLOR
+	mesa.semilla = int(marca.get("semilla", 0))
+	mesa.sillas = int(marca.get("sillas", 15))
+	mesa.transform = lugar(marca)
+	add_child(mesa)
+	for malla: GeometryInstance3D in mesa.find_children("*", "GeometryInstance3D", true, false):
+		malla.visibility_range_end = MESA_LEJOS
+	var cuerpo := StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var caja := BoxShape3D.new()
+	caja.size = Vector3(Mesa.LADO, Mesa.ALTO_MESA, Mesa.LADO)
+	forma.shape = caja
+	forma.position = Vector3(0.0, Mesa.ALTO_MESA / 2.0, 0.0)
+	cuerpo.add_child(forma)
+	mesa.add_child(cuerpo)
+
+
+# Los tambos con fuego de las marcas "tambo_fuego": un MultiMesh de tambos y otro de fuego
+# (MapAlumbrado), un cuerpo con un cilindro por tambo y una luz naranja cada uno, prendida de dia
+# y de noche (estan en lo oscuro: casas abandonadas y callejones techados)
+const TAMBO_LEJOS := 60.0
+const TAMBO_LUZ := Color(1.0, 0.55, 0.2)   # el de Barricada.FUEGO_LUZ
+const TAMBO_ENERGIA := 1.4
+const TAMBO_ALCANCE := 6.0
+
+
+func _armar_tambos() -> void:
+	if _tambos.is_empty() and _tambos_apagados.is_empty():
+		return
+	# Sin alcance (0): el MultiMesh abarca toda la favela y el alcance se mide al centro de su caja,
+	# asi que con 60 m el fuego no salia; la niebla y el "lejos" de la camara ya lo tapan
+	for nodo in MapAlumbrado.armar_tambos(_tambos, 0.0):
+		add_child(nodo)
+	for nodo in MapAlumbrado.armar_tambos(_tambos_apagados, 0.0, false):
+		add_child(nodo)
+	var cuerpo := StaticBody3D.new()
+	cuerpo.name = "Tambos"
+	add_child(cuerpo)
+	for lugar_tambo in _tambos_apagados:
+		cuerpo.add_child(MapAlumbrado.colision_tambo(lugar_tambo))
+	for i in _tambos.size():
+		var lugar_tambo: Transform3D = _tambos[i]
+		cuerpo.add_child(MapAlumbrado.colision_tambo(lugar_tambo))
+		var luz := OmniLight3D.new()
+		luz.name = "FuegoTambo_%d" % i
+		luz.light_color = TAMBO_LUZ
+		luz.omni_range = TAMBO_ALCANCE
+		luz.shadow_enabled = false
+		luz.distance_fade_enabled = true
+		luz.distance_fade_begin = TAMBO_LEJOS - 20.0
+		luz.distance_fade_length = 15.0
+		luz.visible = false
+		luz.position = lugar_tambo.origin + Vector3.UP * (MapAlumbrado.TAMBO_ALTO + 0.4)
+		add_child(luz)
+		_agregar_luz(luz, TAMBO_ENERGIA, false, true)
 
 
 func _trampa(marca: Dictionary) -> void:
@@ -343,23 +509,65 @@ func _vecino(marca: Dictionary) -> void:
 	var modelo := String(marca.get("modelo", Civiles.elegir(nodo.name)))
 	Civiles.poner(nodo, modelo, String(marca.get("clip", "Idle")))
 	nodo.scale = Vector3.ONE * float(marca.get("escala", 1.0))
-	if marca.get("uniforme", "") == "gela":
-		UniformeGela.vestir(nodo)
+	var uniforme := String(marca.get("uniforme", ""))
+	if uniforme == "gela" or uniforme == "fiel":
+		UniformeGela.vestir(nodo, uniforme)
 	if marca.get("garrafon", false):
 		nodo.add_child(_garrafon())
-	_de_dia.append(nodo)
+	if marca.get("veladora", false):
+		nodo.add_child(_veladora())
+	# "cuando": "dia" (por omision), "noche" (la vela del tinaco) o "siempre" (los vigias)
+	match String(marca.get("cuando", "dia")):
+		"noche":
+			_de_noche.append(nodo)
+		"siempre":
+			_siempre.append(nodo)
+		_:
+			_de_dia.append(nodo)
 
 
 static var _malla_garrafon: CylinderMesh
+static var _malla_veladora: CylinderMesh
+static var _malla_flama: BoxMesh
 
 
-# El garrafon azul de 20 L a los pies (la fila del agua): una malla compartida
+# La veladora prendida frente al que vela (la vela del tinaco, de noche): mallas compartidas, sin
+# luz propia (la da un "foco" de la marca de al lado)
+static func _veladora() -> MeshInstance3D:
+	if _malla_veladora == null:
+		_malla_veladora = CylinderMesh.new()
+		_malla_veladora.top_radius = 0.05
+		_malla_veladora.bottom_radius = 0.05
+		_malla_veladora.height = 0.2
+		_malla_veladora.radial_segments = 6
+		_malla_veladora.rings = 1
+		var vaso := StandardMaterial3D.new()
+		vaso.albedo_color = Color(0.7, 0.1, 0.1)
+		_malla_veladora.material = vaso
+		_malla_flama = BoxMesh.new()
+		_malla_flama.size = Vector3(0.035, 0.07, 0.035)
+		var flama := StandardMaterial3D.new()
+		flama.albedo_color = Color(1.0, 0.82, 0.4)
+		flama.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_malla_flama.material = flama
+	var veladora := MeshInstance3D.new()
+	veladora.mesh = _malla_veladora
+	# Enfrente de las rodillas (el civil ve a -Z de su nodo)
+	veladora.position = Vector3(0.0, 0.1, -0.55)
+	var flama_nodo := MeshInstance3D.new()
+	flama_nodo.mesh = _malla_flama
+	flama_nodo.position.y = 0.14
+	veladora.add_child(flama_nodo)
+	return veladora
+
+
+# El garrafon azul de 50 L (60 cm de alto) a los pies (la fila del agua): una malla compartida
 static func _garrafon() -> MeshInstance3D:
 	if _malla_garrafon == null:
 		_malla_garrafon = CylinderMesh.new()
-		_malla_garrafon.top_radius = 0.12
-		_malla_garrafon.bottom_radius = 0.15
-		_malla_garrafon.height = 0.48
+		_malla_garrafon.top_radius = 0.14
+		_malla_garrafon.bottom_radius = 0.17
+		_malla_garrafon.height = 0.6
 		_malla_garrafon.radial_segments = 8
 		_malla_garrafon.rings = 1
 		var material := StandardMaterial3D.new()
@@ -368,7 +576,7 @@ static func _garrafon() -> MeshInstance3D:
 	var garrafon := MeshInstance3D.new()
 	garrafon.mesh = _malla_garrafon
 	# A un lado de los pies (el civil ve a -Z de su nodo)
-	garrafon.position = Vector3(0.35, 0.24, 0.0)
+	garrafon.position = Vector3(0.4, 0.3, 0.0)
 	return garrafon
 
 
@@ -389,10 +597,55 @@ func _botin(marca: Dictionary) -> void:
 	add_child(nodo)
 
 
-func _agregar_luz(luz: Light3D, energia: float, parpadea: bool) -> void:
+func _agregar_luz(luz: Light3D, energia: float, parpadea: bool, todo_el_dia := false) -> void:
 	_reflectores.append(luz)
 	_energias.append(energia)
 	_parpadean.append(parpadea)
+	_todo_el_dia.append(todo_el_dia)
+
+
+# Entrar a una casa abandonada o a un callejon techado: su techo se vuelve invisible (sigue dando
+# sombra), el resorte lo ignora y la camara sube; al salir todo vuelve y el angulo regresa al de antes
+func _camara_interior(delta: float) -> void:
+	var jugador := get_tree().get_first_node_in_group("jugador") as Player
+	if jugador == null:
+		return
+	var grupo := -1
+	var p := jugador.global_position
+	for interior: Dictionary in _interiores:
+		var local: Vector3 = interior["inversa"] * p
+		var medio: Vector2 = interior["medio"]
+		if absf(local.x) < medio.x and absf(local.z) < medio.y and local.y < 2.5:
+			grupo = int(interior["grupo"])
+			break
+	if grupo != _grupo_adentro:
+		_marcar_grupo(jugador, _grupo_adentro, false)
+		_marcar_grupo(jugador, grupo, true)
+		if _grupo_adentro < 0 and grupo >= 0:
+			_pitch_afuera = jugador.camera_pitch
+			_regresa_pitch = false
+		elif grupo < 0:
+			_regresa_pitch = true
+		_grupo_adentro = grupo
+		jugador.brazo_interior = INTERIOR_BRAZO if grupo >= 0 else 0.0
+	var paso := 1.0 - exp(-INTERIOR_CAMBIA * delta)
+	if _grupo_adentro >= 0 and absf(jugador.camera_pitch - INTERIOR_PITCH) > 0.5:
+		jugador.camera_pitch = lerpf(jugador.camera_pitch, INTERIOR_PITCH, paso)
+	elif _regresa_pitch:
+		jugador.camera_pitch = lerpf(jugador.camera_pitch, _pitch_afuera, paso)
+		_regresa_pitch = absf(jugador.camera_pitch - _pitch_afuera) > 0.5
+
+
+func _marcar_grupo(jugador: Player, grupo: int, _adentro: bool) -> void:
+	if grupo < 0:
+		return
+	for interior: Dictionary in _interiores:
+		if int(interior["grupo"]) != grupo:
+			continue
+		# Los techos ya no se esconden ni el resorte los ignora: la camara se queda bajo la losa.
+		# Solo se quita lo que el resorte ignoraba de antes (por si quedo de otra version).
+		for c: CollisionObject3D in interior["choques"]:
+			jugador.spring_arm.remove_excluded_object(c.get_rid())
 
 
 static func lugar(marca: Dictionary) -> Transform3D:
@@ -412,6 +665,10 @@ func _tianguis(marca: Dictionary) -> void:
 	t.semilla = int(marca.get("semilla", 7))
 	t.huecos = marca.get("huecos", [])
 	t.reservados = marca.get("reservados", [])
+	# Tramos por giro (La Gotera): solo esos giros y las lonas de un color
+	t.giros = marca.get("giros", [])
+	t.lona = String(marca.get("lona", ""))
+	t.de_noche = MapaColonia.abierto_24h
 	add_child(t)
 	# El bullicio del mercado, en medio del tramo (suena de dia y de noche: el tianguis no cierra)
 	var bullicio := AmbienteZona.new()
@@ -489,12 +746,63 @@ func _salida_colonia(marca: Dictionary) -> void:
 		if not (cuerpo is Player):
 			return
 		# Hasta cumplir la guardia de la reja del padre Chuy (el tutorial de la primera horda) no se sale
-		if not Misiones.reja_abierta():
+		# (solo en Santa Mugre: las rejas con "libre" no piden nada)
+		# (Misiones por ruta: las herramientas con -s cargan esta escena antes de que existan los autoloads)
+		if not marca.get("libre", false) and not get_node("/root/Misiones").reja_abierta():
 			var aviso := get_node_or_null("../Supervivencia")
 			if aviso:
 				aviso.avisar(TEXTO_REJA_CERRADA)
 			return
-		PasoColonia.ir_a(self, PasoColonia.MAPA_GRANDE, lado))
+		PasoColonia.ir_a(self, PasoColonia.MAPA_GRANDE, lado, -2.0, MapaColonia.actual))
+	add_child(area)
+
+
+# Una boca a otra escena (marca "paso"): la flecha amarilla con su letrero; pisarla cambia de escena por
+# PasoColonia con el mismo `lado`, y la otra escena te pone en su marca de ese lado. Con "requiere":
+# "favela" solo pasa quien ya hizo las entregas de la mafia (Misiones.favela_abierta): si no, el aviso
+# "cerrado" y el guardia te regresa un paso atras (hacia el +Z de la marca, la calle)
+const PASO_REGRESO := 2.0
+
+func _paso(marca: Dictionary) -> void:
+	var lado := String(marca.get("lado", ""))
+	var a := String(marca.get("a", "mapa_grande"))
+	var area := Area3D.new()
+	area.name = String(marca.get("nombre", "Paso"))
+	area.transform = lugar(marca)
+	area.monitorable = false
+	var forma := CollisionShape3D.new()
+	var cilindro := CylinderShape3D.new()
+	cilindro.radius = MapPuntos.MARCADOR_RADIO
+	cilindro.height = 2.0
+	forma.shape = cilindro
+	forma.position.y = 1.0
+	area.add_child(forma)
+	area.add_child(MapPuntos.flecha())
+	var letrero := Label3D.new()
+	letrero.text = String(marca.get("texto", "Pasar"))
+	letrero.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	letrero.pixel_size = 0.008
+	letrero.font_size = 48
+	letrero.outline_size = 12
+	letrero.modulate = MapPuntos.MARCADOR_COLOR
+	letrero.position = Vector3(0.0, 2.6, 0.0)
+	letrero.visibility_range_end = 25.0
+	area.add_child(letrero)
+	area.body_entered.connect(func(cuerpo: Node3D) -> void:
+		if not (cuerpo is Player):
+			return
+		if marca.get("requiere", "") == "favela" and not PasoColonia.sin_candados and not get_node("/root/Misiones").favela_abierta():
+			var aviso := get_node_or_null("../Supervivencia")
+			if aviso:
+				aviso.avisar(String(marca.get("cerrado", "Aquí no, jefe. Esto es solo para gente de la casa.")))
+			# El guardia te regresa: un paso atras, hacia la calle (+Z de la marca)
+			var atras := area.global_transform.basis * Vector3(0.0, 0.0, PASO_REGRESO)
+			cuerpo.global_position = area.global_position + atras + Vector3.UP * 0.2
+			if cuerpo is CharacterBody3D:
+				(cuerpo as CharacterBody3D).velocity = Vector3.ZERO
+			return
+		var escena := PasoColonia.MAPA_GRANDE if a == "mapa_grande" else PasoColonia.MAPA_COLONIA
+		PasoColonia.ir_a(self, escena, lado, -2.0, MapaColonia.actual if a == "mapa_grande" else a))
 	add_child(area)
 
 
@@ -522,7 +830,9 @@ func _casa_vecino(marca: Dictionary) -> void:
 # TinacoComunitario
 func _tinaco_comunitario(marca: Dictionary) -> void:
 	var tinaco := TinacoComunitario.new()
-	tinaco.armar(float(marca.get("litros", 10000.0)))
+	# La favela estrena su tinaco de 50 mil litros sin la Virgen y sin defensa (sin_virgen/sin_defensa)
+	tinaco.armar(float(marca.get("litros", 10000.0)),
+			not marca.get("sin_virgen", false), not marca.get("sin_defensa", false))
 	tinaco.transform = lugar(marca)
 	add_child(tinaco)
 
@@ -562,7 +872,8 @@ func _puerta(marca: Dictionary) -> void:
 		letrero.pixel_size = 0.01
 		letrero.modulate = LETRERO_COLOR
 		letrero.outline_size = 10
-		letrero.position = Vector3(0.0, LETRERO_ALTO, -LETRERO_ATRAS)
+		# Bajo techo (las tiendas del tunel, dentro de una casa abandonada) la marca lo baja
+		letrero.position = Vector3(0.0, float(marca.get("letrero_alto", LETRERO_ALTO)), -LETRERO_ATRAS)
 		letrero.visibility_range_end = LETRERO_LEJOS
 		area.add_child(letrero)
 	add_child(area)

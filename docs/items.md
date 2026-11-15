@@ -175,6 +175,18 @@ Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Re
 
 ## 8. Objetos que faltan o están pendientes
 
+### Drops raros (S5, 2026-11-13) ⏸️ lista por llenar
+
+✅ **Dónde:** 36 escondites fijos en `map_test` (`resources/map/escondites.json`: atrás de bodegas y en callejones; 24 en las orillas del mapa y 12 dentro del cuadro del contenido; nunca en las fortalezas). **No hay drop en todos:** cada amanecer se sortean 6 y solo esos tienen algo; lo que recoges ya no sale hasta el siguiente sorteo. No salen en los mapas.
+
+⏸️ **Qué sale: pendiente (JJ).** Mientras la lista esté vacía sale **"Algo raro"**, un paquete morado de relleno (`resources/drops_raros/pendiente.tres`). Para agregar uno: su `.tres` en `resources/` y su ruta en `DropsRaros.LISTA`.
+
+| Drop | Qué es | Qué tan raro | `.tres` |
+|---|---|---|---|
+| _(por llenar)_ | | | |
+
+💡 Ideas que ya están en los docs: el **papel raro** (§6, recibos y hojas del lore), un **tazo raro**, piezas del taller.
+
 - ❌ **Botella de agua** y **garrafón**: los modelos bajados salían mal. Se usan el galón y el `despachador_agua` como referencia.
 - ❌ **Agua sucia**: sin modelo; es un material de crafteo.
 - ❌ **Paloma (cohete)**, **veladora**, **lámpara/celular**, **torta ahogada**, **tequila**.

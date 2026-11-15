@@ -8,11 +8,12 @@
 script = ExtResource("2_paso")
 tipo = 5
 cuando = 1
-texto = "Reparte el agua limpia antes del amanecer"
+texto = "Reparte el agua limpia"
 lugar = "casas"
 cuantos = 2
 carga = ExtResource("3_galon")
 pesos_por_entrega = 40
+ilegal = true
 
 [resource]
 script = ExtResource("1_mision")
@@ -20,8 +21,8 @@ id = "reparto_noche"
 nombre = "Agua de noche"
 modelo = "mujer_psx"
 oferta = "Hay dos casas sin agua limpia. Llévala de noche y antes de que amanezca."
-aceptada = "Sale de noche. Si te amanece con el garrafón, los marranos lo quitan."
-recuerda = "De noche, y antes del amanecer. Si no, se pierde."
+aceptada = "Sale de noche. Si te amanece con el garrafón, que no te vean los marranos: disparan."
+recuerda = "De noche es más fácil. De día, cuídate de los cuicos."
 despedida = "Ya les llegó el agua. Mañana vemos si hay más."
 pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar")])
 pesos = 30

@@ -855,11 +855,11 @@ func _ajustar_camioneta(paso: PasoMision) -> void:
 	if not quiere or is_instance_valid(_camioneta):
 		return
 	if paso.lugar == "salida_colonia":
-		var muro := get_tree().get_first_node_in_group("muro_colonia") as MuroColonia
-		if muro == null or not muro.rejas.has(Misiones.salida_camioneta):
+		var muro := MuroColonia.de(get_tree(), "santa_mugre")
+		if muro == null or not muro.tiene_reja(Misiones.salida_camioneta):
 			return   # en la colonia no sale: la ruta es afuera
 		var lado := Misiones.salida_camioneta
-		var afuera := MuroColonia.hacia_afuera(lado)
+		var afuera := muro.hacia_afuera(lado)
 		_salir_camioneta(paso, muro.afuera(lado, CAMIONETA_AFUERA) + afuera.cross(Vector3.UP) * CAMIONETA_AL_LADO, afuera)
 		# Los zombis no tardan: la primera turba llega casi de inmediato
 		_ola_andando_en = CAMIONETA_PRIMERA_OLA_AFUERA
@@ -897,11 +897,13 @@ func _salir_camioneta(paso: PasoMision, desde: Vector3, rumbo: Vector3) -> void:
 	if restante <= 0.0:
 		restante = CAMIONETA_NOCHE_SIN_CICLO   # el Ciclo no sabe de noche (escenas de prueba)
 	var casas := _lugares_de_casas(desde, CAMIONETA_CANDIDATAS * 2, CAMIONETA_CASAS)
-	# Ninguna adentro de la colonia amurallada (ahi no entra)
-	var muro := get_tree().get_first_node_in_group("muro_colonia") as MuroColonia
+	# Ninguna adentro de una fortaleza (ahi no entra)
+	var muros := get_tree().get_nodes_in_group("muro_colonia")
 	var candidatas: Array[Vector3] = []
 	for casa in casas:
-		if (muro == null or not muro.rect.grow(CAMIONETA_AFUERA).has_point(Vector2(casa.x, casa.z))) and candidatas.size() < CAMIONETA_CANDIDATAS:
+		var libre := muros.all(func(muro: MuroColonia) -> bool:
+			return not muro.contiene(Vector2(casa.x, casa.z), CAMIONETA_AFUERA))
+		if libre and candidatas.size() < CAMIONETA_CANDIDATAS:
 			candidatas.append(casa)
 	_camioneta = CamionetaReparto.crear_reparto(self, desde, candidatas, paso.cuantos, vida, paso.vida_acompanante, \
 			restante, paso.descarga_s, rumbo)
@@ -1280,7 +1282,7 @@ func _ajustar_carga(paso: PasoMision) -> void:
 			return
 		_quitar_caja_suelo()
 	if quiere == _carga_item:
-		_jugador.set("carga_soltable", quiere != null and paso.soltable)
+		_marcar_carga(quiere != null and paso.soltable, quiere != null and (paso.soltable or paso.ilegal))
 		return
 	if _carga_item:
 		_jugador.soltar_carga()
@@ -1289,7 +1291,15 @@ func _ajustar_carga(paso: PasoMision) -> void:
 		_jugador.cargar(quiere.crear_modelo(0.5))
 		_carga_item = quiere
 		_caja_de = paso
-	_jugador.set("carga_soltable", quiere != null and paso.soltable)
+	_marcar_carga(quiere != null and paso.soltable, quiere != null and (paso.soltable or paso.ilegal))
+
+
+# `soltable`: el clic la suelta (Player.carga_soltable). `ilegal`: los cuicos te disparan si te ven
+# con ella (la caja de la mafia, el agua del reparto; Cuico._trae_la_caja). Meta y no variable para
+# no tocar player.gd
+func _marcar_carga(soltable: bool, ilegal: bool) -> void:
+	_jugador.set("carga_soltable", soltable)
+	_jugador.set_meta("carga_ilegal", ilegal)
 
 
 # El clic de ataque con la caja en brazos (Player.pidio_soltar_carga): queda a tus pies y se levanta con Espacio
@@ -1327,7 +1337,7 @@ func _quitar_caja_suelo() -> void:
 func _soltar_carga() -> void:
 	if _carga_item or _cosa_en_manos:
 		_jugador.soltar_carga()
-	_jugador.set("carga_soltable", false)
+	_marcar_carga(false, false)
 	_carga_item = null
 	_cosa_en_manos = false
 	Misiones.manos_ocupadas = false

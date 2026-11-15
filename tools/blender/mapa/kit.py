@@ -30,7 +30,7 @@ import numpy as np
 
 PISO = 2.75                     # m por piso y por tramo de fachada
 MOSAICO = 64                    # px
-COLUMNAS, FILAS = 4, 5
+COLUMNAS, FILAS = 4, 6
 TEXTURAS_MAPA = os.path.join(RAIZ, "textures", "map")
 TEXTURAS_KIT = os.path.join(RAIZ, "textures", "mapa")
 ATLAS = os.path.join(TEXTURAS_KIT, "fachadas_kit.png")
@@ -41,6 +41,9 @@ CACHE = os.path.join(RAIZ, "tools", "blender", "cache")
 VENTANA_ARRIBA = [(0, 0), (1, 0), (2, 0), (3, 0)]
 PUERTA, CORTINA, VENTANA_ABAJO, ZAGUAN = (0, 1), (1, 1), (2, 1), (3, 1)
 LISO, CAIDO, LADRILLO, BLOCK = (0, 4), (1, 4), (2, 4), (3, 4)
+# Fila 5 (fotos de Poly Haven para La Gotera, JJ 2026-11-13): el segundo ladrillo, el aplanado
+# dañado (de las casas pintadas) y las tablas viejas que tapan ventanas
+LADRILLO2, YESO, TABLA = (0, 5), (1, 5), (2, 5)
 
 # Pisos: textura de textures/map/ y metros por repeticion (los mismos que MapPostImport)
 PISOS = {"asfalto": ("asfalto.png", 4.0), "banqueta": ("banqueta.png", 3.0), "empedrado": ("empedrado.png", 2.5),
@@ -89,6 +92,32 @@ def _foto_mosaico(nombre, tam=MOSAICO):
     ys = (np.arange(tam) * (h / 2 / tam)).astype(int)
     xs = (np.arange(tam) * (w / 2 / tam)).astype(int)
     return px[ys][:, xs]
+
+
+def _foto_celda(nombre, tam=MOSAICO, brillo=None):
+    """La foto completa de Poly Haven (centrada y cuadrada) reducida a tam x tam promediando
+    bloques: una repeticion por celda. `brillo`: media a la que se lleva (para fotos muy oscuras)."""
+    px = _leer_png(os.path.join(CACHE, nombre + "_diff_1k.jpg"))
+    h, w = px.shape[:2]
+    lado = min(h, w) // tam * tam
+    y0, x0 = (h - lado) // 2, (w - lado) // 2
+    c = px[y0:y0 + lado, x0:x0 + lado, :3]
+    k = lado // tam
+    c = c.reshape(tam, k, tam, k, 3).mean(axis=(1, 3))
+    if brillo is not None:
+        c = np.clip(c * (brillo / max(float(c.mean()), 1e-4)), 0, 1)
+    return np.concatenate([c, np.ones((tam, tam, 1), np.float32)], 2).astype(np.float32)
+
+
+def _yeso_danado(tam=MOSAICO):
+    """Aplanado dañado (foto): el yeso se tiñe con el color de la casa (mascara 1) y los parches
+    de ladrillo que se asoman quedan de su color (mascara 0). Devuelve (color, mascara)."""
+    foto = _foto_celda("damaged_plaster", tam)
+    gris = foto[..., :3].mean(axis=2, keepdims=True)
+    mascara = np.clip((gris - 0.38) / 0.15, 0.0, 1.0)
+    claro = np.clip(0.86 + (gris - gris[mascara > 0.5].mean()) * 0.8, 0, 1).repeat(3, 2)
+    color = np.where(mascara > 0.5, np.concatenate([claro, np.ones((tam, tam, 1))], 2), foto)
+    return color.astype(np.float32), mascara.astype(np.float32)
 
 
 def _ladrillo(tam=MOSAICO):
@@ -141,9 +170,19 @@ def atlas():
     caido_m = (ruido > 0.35).astype(np.float32)
     caido = np.where(caido_m[..., None] > 0.5, liso, lad)
     fila = T * 4
-    for col, (color, mascara) in enumerate([(liso, 1.0), (caido, caido_m[..., None]), (lad, 0.0), (_block(), 0.0)]):
+    # La Gotera: ladrillo, block y tablas son fotos de Poly Haven (brick_wall_005, concrete_block_wall,
+    # old_planks_02); el block de la foto es casi negro y se lleva a un gris de obra negra
+    lad = _foto_celda("brick_wall_005")
+    block = _foto_celda("concrete_block_wall", brillo=0.38)
+    for col, (color, mascara) in enumerate([(liso, 1.0), (caido, caido_m[..., None]), (lad, 0.0), (block, 0.0)]):
         px[fila:fila + T, col * T:(col + 1) * T] = color
         m[fila:fila + T, col * T:(col + 1) * T, :3] = mascara
+    yeso_d, yeso_m = _yeso_danado()
+    fila5 = T * 5
+    for col, (color, mascara) in enumerate([(_foto_celda("broken_brick_wall"), 0.0), (yeso_d, yeso_m),
+                                            (_foto_celda("old_planks_02"), 0.0)]):
+        px[fila5:fila5 + T, col * T:(col + 1) * T] = color
+        m[fila5:fila5 + T, col * T:(col + 1) * T, :3] = mascara
     os.makedirs(TEXTURAS_KIT, exist_ok=True)
     _escribir_png(ATLAS, px)
     _escribir_png(ATLAS_MASCARA, m)
@@ -269,8 +308,12 @@ _MURALES = []
 def murales():
     """Arma el atlas de murales (cada diseño reducido sin suavizar a MURAL_PX de lado)."""
     disenos = []
-    for carpeta, tipo in (("grafitis", "grafiti"), ("propaganda", "propaganda")):
+    # "virgen": lo que pintan los fieles de Santa Mugre (tools/map_import/make_murales_virgen.py);
+    # va aparte de propaganda/ para que las bardas de map_test no cambien de diseño
+    for carpeta, tipo in (("grafitis", "grafiti"), ("propaganda", "propaganda"), ("virgen", "virgen")):
         ruta = os.path.join(TEXTURAS_MAPA, carpeta)
+        if not os.path.isdir(ruta):
+            continue
         for archivo in sorted(os.listdir(ruta)):
             if archivo.lower().endswith((".png", ".webp", ".jpg")):
                 disenos.append((os.path.join(ruta, archivo), tipo))
@@ -433,10 +476,20 @@ def _celda_fachada(azar, piso, en_frente, tramo, puerta_en, desgaste, tienda):
 
 
 def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgaste=0.5, tienda=False,
-               tinaco=True, varillas=None, detalles=True, acabado=None):
+               tinaco=True, varillas=None, detalles=True, acabado=None, obra=None, ventanal=False, tapado=0.0, ventanas_en=None, limpio=False, balcones=None):
     """La casa como una malla: paredes en tramos del atlas, pretil, azotea, tinaco y varillas.
     `puntos` es la huella ([x, z] relativos al origen de la pieza) y `frente` el indice del lado
-    que da a la calle (el lado i va del punto i al i+1, en el orden del .json)."""
+    que da a la calle (el lado i va del punto i al i+1, en el orden del .json).
+    Obra negra (La Gotera, docs/mapa/colonias/la_gotera.md): `acabado` "ladrillo" (rojo) o "block"
+    (tabique gris), los dos sin enjarre y con dalas y castillos de concreto; `obra` "castillos" (el
+    piso que nunca se construyo: castillos con la varilla de fuera encima de la azotea) o "losa"
+    (ademas media losa colada sobre ellos); `ventanal` (un ventanal de herreria en la planta baja
+    del frente) y `tapado` (que parte de las ventanas de arriba estan tapadas con lona o tabla).
+    `ventanas_en`: indices de otros lados que tambien llevan ventanas (sin puerta): los que dan a un
+    callejon de la favela, para que no sean puro muro ciego.
+    `limpio`: sin panel solar ni tendedero en la azotea (La Gotera: solo hay tendederos en los
+    callejones). `balcones`: [[lado, "balcon" | "volado"]], un balcon de fierro o un segundo piso
+    volado sobre el callejon, en esos lados (solo casas de dos pisos)."""
     import bmesh
     azar = _Azar(_semilla(nombre))
     mats = materiales()
@@ -446,16 +499,24 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
     indice = {"fachada_kit": 0, "azotea": 1, "tinaco": 2, "varilla": 3, "mural": 4, "detalle": 5}
     alto = pisos * PISO
     lisos = []      # tramos lisos de la planta baja del frente: ahi va el mural, si toca
-    pretil = LADRILLO if acabado == "ladrillo" else LISO
+    # Dos fotos de ladrillo, una u otra por casa (por nombre: sin tocar el azar de las fachadas)
+    crudo = {"ladrillo": LADRILLO if _semilla(nombre) % 2 else LADRILLO2, "block": BLOCK}.get(acabado)
+    pretil = crudo if crudo else LISO
     muros = []      # (a, b, tramos) de cada lado, para los detalles de las fachadas
+    lados_ab = {}   # indice de lado -> (a, b), para los balcones
     ocupado = []    # (x, y, radio) de lo que ya hay en la azotea
     ventanas = []   # (p0, p1) de los tramos con ventana en la planta baja: llevan reja
+    ventanales = [] # (p0, p1) del tramo del ventanal de herreria (obra negra)
+    ventanas_obra = []  # (p0, p1, z0) de las ventanas de geometria (La Gotera)
+    tapadas = []    # (p0, p1, z0, lona) ventanas de arriba tapadas con lona o con tabla
     # Los colores de la paleta estan en sRGB; el color de vertice va lineal
-    ladrillo = acabado == "ladrillo"
-    if ladrillo:
+    ladrillo = crudo is not None
+    if acabado == "ladrillo":
         # Obra negra de ladrillo (la foto de la cancha de AG): los muros lisos son el mosaico de
         # ladrillo y lo que rodea las ventanas va del color del ladrillo
         color = COLOR_LADRILLO
+    elif acabado == "block":
+        color = COLOR_BLOCK
     rgba = tuple(c ** 2.2 for c in color[:3]) + (1.0,)
 
     # El orden del .json decide cual es el frente; para las caras hace falta el sentido
@@ -479,10 +540,11 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
         largo = math.hypot(b[0] - a[0], b[1] - a[1])
         if largo < 0.05:
             continue
-        en_frente = i == frente
+        en_frente = i == frente or (ventanas_en is not None and i in ventanas_en)
         tramos = max(1, round(largo / PISO))
         muros.append((a, b, tramos))
-        puerta_en = tramos // 2 if en_frente else -1
+        lados_ab[i] = (a, b)
+        puerta_en = tramos // 2 if i == frente else -1
         for piso in range(pisos):
             for t in range(tramos):
                 u0, u1 = t / tramos, (t + 1) / tramos
@@ -491,11 +553,24 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
                 z0, z1 = piso * PISO, (piso + 1) * PISO
                 celda = _celda_fachada(azar, piso, en_frente, t, puerta_en, desgaste, tienda)
                 if ladrillo and celda in (LISO, CAIDO):
-                    celda = LADRILLO
-                if en_frente and piso == 0 and celda in (LISO, CAIDO):
+                    celda = crudo
+                elif limpio and celda in (LISO, CAIDO):
+                    celda = YESO        # casa pintada de La Gotera: aplanado dañado de foto
+                # El ventanal de herreria: el tramo junto a la puerta, en la planta baja del frente
+                if ventanal and i == frente and piso == 0 and tramos >= 2 and t == (puerta_en + 1 if puerta_en + 1 < tramos else puerta_en - 1):
+                    celda = crudo or LISO
+                    ventanales.append((p0, p1))
+                if i == frente and piso == 0 and celda in (LISO, CAIDO):
                     lisos.append((p0, p1))
                 if piso == 0 and celda == VENTANA_ABAJO:
                     ventanas.append((p0, p1))
+                if piso > 0 and celda in VENTANA_ARRIBA and azar() < tapado:
+                    tapadas.append((p0, p1, z0, azar() < 0.6))
+                # La Gotera: las ventanas del mosaico (marco blanco grueso, hueco enorme) se
+                # cambian por muro de obra y una ventana de geometria, mas chica y con su marco
+                if limpio and (celda in VENTANA_ARRIBA or celda in ((0, 2), (1, 2), (2, 2), (3, 2), VENTANA_ABAJO, (2, 3))):
+                    ventanas_obra.append((p0, p1, z0))
+                    celda = crudo or YESO
                 cara([(p0[0], p0[1], z0), (p1[0], p1[1], z0), (p1[0], p1[1], z1), (p0[0], p0[1], z1)],
                      [uv_mosaico(celda, 0, 0), uv_mosaico(celda, 1, 0), uv_mosaico(celda, 1, 1), uv_mosaico(celda, 0, 1)], "fachada_kit")
         # Pretil: lo de abajo del aplanado liso
@@ -532,9 +607,17 @@ def casa_malla(nombre, puntos, pisos=1, color=(0.8, 0.8, 0.8), frente=0, desgast
             _caja_bm(cara, (esquina[0] * 0.9, esquina[1] * 0.9, alto), 0.05, 1.2, "varilla")
             ocupado.append((esquina[0] * 0.9, esquina[1] * 0.9, 0.3))
     if detalles:
-        _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ventanas)
+        _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ventanas, limpio)
+    if balcones and pisos >= 2:
+        _balcones_casa(cara, nombre, lados_ab, ccw, balcones)
     if ladrillo:
         _estructura(cara, muros, ccw, pisos)
+    if obra in ("castillos", "losa"):
+        _obra_arriba(cara, nombre, muros, ccw, alto, obra, crudo or BLOCK)
+    if ventanas_obra:
+        _ventanas_obra(cara, nombre, ccw, ventanas_obra)
+    if ventanales or tapadas:
+        _huecos_obra(cara, nombre, ccw, ventanales, tapadas)
 
     malla = bpy.data.meshes.new(nombre)
     bm.to_mesh(malla)
@@ -582,14 +665,18 @@ HERRERIA = [(0.08, 0.08, 0.09), (0.08, 0.08, 0.09), (0.85, 0.85, 0.82), (0.15, 0
 ROPA = [(0.8, 0.18, 0.2), (0.15, 0.4, 0.78), (0.92, 0.75, 0.15), (0.9, 0.9, 0.88), (0.9, 0.42, 0.62), (0.2, 0.62, 0.32)]
 
 
-def _cara_hacia(cara, puntos, normal, color, mat="detalle"):
-    """Una cara de color liso con su frente hacia `normal` (voltea los puntos si hace falta)."""
+def _cara_hacia(cara, puntos, normal, color, mat="detalle", celda=None):
+    """Una cara de color liso con su frente hacia `normal` (voltea los puntos si hace falta).
+    Con `celda` (4 puntos) lleva esa celda del atlas entera en lugar del color liso."""
     import mathutils
     a, b, c = (mathutils.Vector(p) for p in puntos[:3])
+    if celda is not None:
+        uvs = [uv_mosaico(celda, 0, 0), uv_mosaico(celda, 1, 0), uv_mosaico(celda, 1, 1), uv_mosaico(celda, 0, 1)]
+    else:
+        uvs = [uv_mosaico(LISO, 0.5, 0.5)] * len(puntos)
     if (b - a).cross(c - a).dot(mathutils.Vector(normal)) < 0:
-        puntos = puntos[::-1]
-    uv = uv_mosaico(LISO, 0.5, 0.5)
-    cara(puntos, [uv] * len(puntos), mat, tuple(k ** 2.2 for k in color) + (1.0,))
+        puntos, uvs = puntos[::-1], uvs[::-1]
+    cara(puntos, uvs, mat, tuple(k ** 2.2 for k in color) + (1.0,))
 
 
 def _caja_detalle(cara, centro, u, ancho, fondo, alto, color, abajo=False, mat="detalle"):
@@ -610,24 +697,244 @@ def _caja_detalle(cara, centro, u, ancho, fondo, alto, color, abajo=False, mat="
 
 
 COLOR_LADRILLO = (0.66, 0.34, 0.22)
+COLOR_BLOCK = (0.6, 0.6, 0.58)
 COLOR_CONCRETO = (0.62, 0.61, 0.58)
+COLOR_OXIDO = (0.42, 0.22, 0.12)
+COLOR_TABLA = (0.5, 0.36, 0.22)
+LONAS_TAPADO = [(0.15, 0.4, 0.78), (0.2, 0.62, 0.32), (0.85, 0.15, 0.15), (0.92, 0.75, 0.15), (0.1, 0.1, 0.12)]
 
 
 def _estructura(cara, muros, ccw, pisos):
     """Dalas de concreto gris en cada losa y castillos en las esquinas, saliendo un poco del muro:
     lo que se le ve a una casa de ladrillo sin aplanar. Con la fachada (no se esconde de lejos)."""
+    cx = sum(p[0] for p in ccw) / len(ccw)
+    cy = sum(p[1] for p in ccw) / len(ccw)
     for a, b, _t in muros:
         largo = math.hypot(b[0] - a[0], b[1] - a[1])
         u = ((b[0] - a[0]) / largo, (b[1] - a[1]) / largo)
+        n = (-u[1], u[0])
         m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+        if n[0] * (m[0] - cx) + n[1] * (m[1] - cy) < 0:
+            n = (-n[0], -n[1])
+        # Una banda plana apenas saliente por piso (era una caja: seis caras por muro y piso)
         for piso in range(1, pisos + 1):
-            _caja_detalle(cara, (m[0], m[1], piso * PISO - 0.22), u, largo + 0.12, 0.1, 0.24, COLOR_CONCRETO,
-                          abajo=True, mat="fachada_kit")
+            z0, z1 = piso * PISO - 0.22, piso * PISO + 0.02
+            p0 = (a[0] + n[0] * 0.05 - u[0] * 0.06, a[1] + n[1] * 0.05 - u[1] * 0.06)
+            p1 = (b[0] + n[0] * 0.05 + u[0] * 0.06, b[1] + n[1] * 0.05 + u[1] * 0.06)
+            _cara_hacia(cara, [(p0[0], p0[1], z0), (p1[0], p1[1], z0), (p1[0], p1[1], z1), (p0[0], p0[1], z1)], (n[0], n[1], 0), COLOR_CONCRETO, mat="fachada_kit")
     for x, y in ccw:
         _caja_detalle(cara, (x, y, 0.0), (1.0, 0.0), 0.3, 0.3, pisos * PISO, COLOR_CONCRETO, mat="fachada_kit")
 
 
-def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ventanas=()):
+def _obra_arriba(cara, nombre, muros, ccw, alto, obra, celda):
+    """El piso que nunca se construyo (obra negra de La Gotera): castillos de concreto en las
+    esquinas y a media pared subiendo un piso mas desde la azotea, con las varillas oxidadas de
+    fuera; con `obra` "losa", ademas media losa colada encima (la mitad de atras de la casa) y un
+    pedazo de muro de block de un metro bajo ella."""
+    azar = _Azar(_semilla(nombre) * 5 + 2)
+    cx = sum(p[0] for p in ccw) / len(ccw)
+    cy = sum(p[1] for p in ccw) / len(ccw)
+    castillos = list(ccw)
+    for a, b, _t in muros:
+        largo = math.hypot(b[0] - a[0], b[1] - a[1])
+        n = int(largo / 6.5)
+        for i in range(1, n + 1):
+            f = i / (n + 1)
+            castillos.append((a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f))
+    for n_c, (x, y) in enumerate(castillos):
+        # Un poco hacia adentro, para no colgar del pretil
+        px, py = x + (cx - x) * 0.04, y + (cy - y) * 0.04
+        h = PISO * azar(0.75, 1.0) if obra == "castillos" else PISO
+        _caja_detalle(cara, (px, py, alto), (1.0, 0.0), 0.3, 0.3, h, COLOR_CONCRETO, mat="fachada_kit")
+        # Dos varillas en los de esquina, una en los de en medio (eran cuatro: pesaban)
+        for dx, dy in ((0.04, 0.04),):
+            _caja_detalle(cara, (px + dx, py + dy, alto + h), (1.0, 0.0), 0.04, 0.04, azar(0.5, 1.1), COLOR_OXIDO)
+    if obra == "losa":
+        # La losa sobre la mitad de atras (la mas lejos del frente, que es el primer muro)
+        a, b, _t = muros[0]
+        fx, fy = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+        nx, ny = cx - fx, cy - fy
+        ln = math.hypot(nx, ny) or 1.0
+        nx, ny = nx / ln, ny / ln
+        ux, uy = -ny, nx
+        anchos = [abs((p[0] - cx) * ux + (p[1] - cy) * uy) for p in ccw]
+        fondos = [(p[0] - cx) * nx + (p[1] - cy) * ny for p in ccw]
+        ancho = 2 * max(anchos) - 0.3
+        fondo = max(fondos) * 1.05
+        mx, my = cx + nx * fondo / 2, cy + ny * fondo / 2
+        _caja_detalle(cara, (mx, my, alto + PISO), (ux, uy), ancho, fondo, 0.14, COLOR_CONCRETO, abajo=True, mat="fachada_kit")
+        for i in range(3):
+            _caja_detalle(cara, (mx + ux * (i - 1) * ancho * 0.3, my + uy * (i - 1) * ancho * 0.3, alto + PISO + 0.14), (1.0, 0.0), 0.035, 0.035, azar(0.4, 0.9), COLOR_OXIDO)
+        # Un metro de block sobre el muro de atras, abajo de la losa
+        tras = max(muros[1:], key=lambda m: (m[0][0] + m[1][0]) / 2 * nx + (m[0][1] + m[1][1]) / 2 * ny) if len(muros) > 1 else None
+        if tras:
+            p0, p1 = tras[0], tras[1]
+            lx = math.hypot(p1[0] - p0[0], p1[1] - p0[1]) / PISO
+            cara([(p0[0], p0[1], alto + 0.05), (p1[0], p1[1], alto + 0.05), (p1[0], p1[1], alto + 1.0), (p0[0], p0[1], alto + 1.0)],
+                 [uv_mosaico(celda, 0, 0), uv_mosaico(celda, lx % 1 or 1, 0), uv_mosaico(celda, lx % 1 or 1, 0.35), uv_mosaico(celda, 0, 0.35)], "fachada_kit")
+            cara([(p1[0], p1[1], alto + 0.05), (p0[0], p0[1], alto + 0.05), (p0[0], p0[1], alto + 1.0), (p1[0], p1[1], alto + 1.0)],
+                 [uv_mosaico(celda, 0, 0), uv_mosaico(celda, lx % 1 or 1, 0), uv_mosaico(celda, lx % 1 or 1, 0.35), uv_mosaico(celda, 0, 0.35)], "fachada_kit")
+
+
+VENT_S = (0.30, 0.70)       # de la ventana de geometria: del 30 al 70 % del tramo
+VENT_Z = (0.95, 2.0)        # y de 0.95 a 2.0 m sobre el piso del nivel
+COLOR_VIDRIO = (0.04, 0.045, 0.055)
+CORTINAS = [(0.62, 0.2, 0.2), (0.82, 0.7, 0.3), (0.3, 0.45, 0.6), (0.85, 0.82, 0.74), (0.35, 0.5, 0.35)]
+
+
+def _ventanas_obra(cara, nombre, ccw, ventanas):
+    """Ventanas de geometria para las casas de La Gotera: hueco oscuro metido en el muro, marco
+    delgado de concreto, repisa que sale y, en una de cada cuatro, una cortina a medio cerrar."""
+    azar = _Azar(_semilla(nombre) * 13 + 5)
+    cx = sum(p[0] for p in ccw) / len(ccw)
+    cy = sum(p[1] for p in ccw) / len(ccw)
+    for p0, p1, zb in ventanas:
+        largo = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
+        ux, uy = (p1[0] - p0[0]) / largo, (p1[1] - p0[1]) / largo
+        nx, ny = -uy, ux
+        mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
+        if nx * (mx - cx) + ny * (my - cy) < 0:
+            nx, ny = -nx, -ny
+        s0, s1 = VENT_S[0] * largo, VENT_S[1] * largo
+        z0, z1 = zb + VENT_Z[0], zb + VENT_Z[1]
+        def en(s, salir):
+            return (p0[0] + ux * s + nx * salir, p0[1] + uy * s + ny * salir)
+        a, b = en(s0, 0.02), en(s1, 0.02)
+        _cara_hacia(cara, [(a[0], a[1], z0), (b[0], b[1], z0), (b[0], b[1], z1), (a[0], a[1], z1)], (nx, ny, 0), COLOR_VIDRIO)
+        if azar() < 0.25:
+            # Cortina cayendo del riel hasta tres cuartas partes de la ventana
+            col = azar.elegir(CORTINAS)
+            zc = z1 - (z1 - z0) * azar(0.45, 0.8)
+            a2, b2 = en(s0, 0.035), en(s1, 0.035)
+            _cara_hacia(cara, [(a2[0], a2[1], zc), (b2[0], b2[1], zc), (b2[0], b2[1], z1), (a2[0], a2[1], z1)], (nx, ny, 0), col)
+        # Marco: cuatro tiras planas de concreto pegadas al muro, de 8 cm
+        g = 0.08
+        a3, b3 = en(s0 - g, 0.035), en(s1 + g, 0.035)
+        ai, bi = en(s0, 0.035), en(s1, 0.035)
+        for q0, q1, qa, qb in ((a3, b3, z0 - g, z0), (a3, b3, z1, z1 + g)):
+            _cara_hacia(cara, [(q0[0], q0[1], qa), (q1[0], q1[1], qa), (q1[0], q1[1], qb), (q0[0], q0[1], qb)], (nx, ny, 0), COLOR_CONCRETO)
+        for q0, q1 in ((a3, ai), (bi, b3)):
+            _cara_hacia(cara, [(q0[0], q0[1], z0), (q1[0], q1[1], z0), (q1[0], q1[1], z1), (q0[0], q0[1], z1)], (nx, ny, 0), COLOR_CONCRETO)
+        # Repisa: una caja baja que sale del muro
+        mxs, mys = en((s0 + s1) / 2, 0.08)
+        _caja_detalle(cara, (mxs, mys, z0 - g - 0.05), (ny, -nx), (s1 - s0) + 2 * g + 0.16, 0.16, 0.06, COLOR_CONCRETO, abajo=True, mat="fachada_kit")
+
+
+def _huecos_obra(cara, nombre, ccw, ventanales, tapadas):
+    """Lo que tapa los huecos de una obra negra: el ventanal de herreria de la planta baja (hueco
+    oscuro con su cuadricula de fierro) y las ventanas de arriba tapadas con una lona de color o
+    con tablas, porque todavia no hay vidrio."""
+    azar = _Azar(_semilla(nombre) * 11 + 7)
+    cx = sum(p[0] for p in ccw) / len(ccw)
+    cy = sum(p[1] for p in ccw) / len(ccw)
+
+    def marco(p0, p1):
+        largo = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
+        ux, uy = (p1[0] - p0[0]) / largo, (p1[1] - p0[1]) / largo
+        nx, ny = -uy, ux
+        mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
+        if nx * (mx - cx) + ny * (my - cy) < 0:
+            nx, ny = -nx, -ny
+        return largo, (ux, uy), (nx, ny)
+
+    color_reja = azar.elegir(HERRERIA)
+    for p0, p1 in ventanales:
+        largo, (ux, uy), (nx, ny) = marco(p0, p1)
+        s0, s1 = 0.1 * largo, 0.9 * largo
+        z0, z1 = 0.35, PISO - 0.45
+        def en(s, salir=0.03):
+            return (p0[0] + ux * s + nx * salir, p0[1] + uy * s + ny * salir)
+        # El hueco oscuro, apenas afuera del muro
+        a, b = en(s0, 0.02), en(s1, 0.02)
+        _cara_hacia(cara, [(a[0], a[1], z0), (b[0], b[1], z0), (b[0], b[1], z1), (a[0], a[1], z1)], (nx, ny, 0), (0.05, 0.05, 0.06))
+        # La cuadricula: barrotes a cada 0.3 m y tres travesanos, saliendo 7 cm
+        for z in (z0, z1 - 0.04):
+            x, y = en((s0 + s1) / 2, 0.07)
+            _caja_detalle(cara, (x, y, z), (ux, uy), s1 - s0, 0.04, 0.04, color_reja)
+        barrotes = max(3, round((s1 - s0) / 0.6))
+        for i in range(barrotes + 1):
+            x, y = en(s0 + (s1 - s0) * i / barrotes, 0.07)
+            _caja_detalle(cara, (x, y, z0), (ux, uy), 0.035, 0.035, z1 - z0, color_reja)
+    for p0, p1, zb, lona in tapadas:
+        largo, (ux, uy), (nx, ny) = marco(p0, p1)
+        # La ventana del mosaico va mas o menos de 0.22 a 0.8 del ancho y de 0.25 a 0.8 del alto
+        s0, s1 = VENT_S[0] * largo, VENT_S[1] * largo
+        z0, z1 = zb + VENT_Z[0], zb + VENT_Z[1]
+        if lona or True:
+            c = azar.elegir(LONAS_TAPADO) if lona else COLOR_TABLA
+            a = (p0[0] + ux * s0 + nx * 0.025, p0[1] + uy * s0 + ny * 0.025)
+            b = (p0[0] + ux * s1 + nx * 0.025, p0[1] + uy * s1 + ny * 0.025)
+            esq = [(a[0], a[1], z0), (b[0], b[1], z0), (b[0], b[1], z1 + 0.05), (a[0], a[1], z1 + 0.05)]
+            if lona:
+                _cara_hacia(cara, esq, (nx, ny, 0), c)
+            else:
+                # Tablas viejas (foto de Poly Haven)
+                _cara_hacia(cara, esq, (nx, ny, 0), (1.0, 1.0, 1.0), mat="fachada_kit", celda=TABLA)
+        else:
+            # Dos tablas anchas (eran cuatro: pesaban), con un hueco oscuro entre ellas
+            tablas = 2
+            a = (p0[0] + ux * s0 + nx * 0.02, p0[1] + uy * s0 + ny * 0.02)
+            b = (p0[0] + ux * s1 + nx * 0.02, p0[1] + uy * s1 + ny * 0.02)
+            _cara_hacia(cara, [(a[0], a[1], z0), (b[0], b[1], z0), (b[0], b[1], z1), (a[0], a[1], z1)], (nx, ny, 0), (0.05, 0.05, 0.06))
+            for i in range(tablas):
+                z = z0 + (z1 - z0) * (i + 0.5) / tablas
+                x, y = p0[0] + ux * (s0 + s1) / 2 + nx * 0.04, p0[1] + uy * (s0 + s1) / 2 + ny * 0.04
+                _caja_detalle(cara, (x, y, z - 0.17), (ux, uy), (s1 - s0) * azar(0.9, 1.1), 0.04, 0.34, COLOR_TABLA)
+
+
+def _balcones_casa(cara, nombre, lados_ab, ccw, balcones):
+    """Balcones de fierro y segundos pisos volados: salen del muro hacia el callejon, a la altura
+    del segundo piso (pasan por encima de la cabeza). Sin choque."""
+    azar = _Azar(_semilla(nombre) * 9 + 4)
+    cx = sum(p[0] for p in ccw) / len(ccw)
+    cy = sum(p[1] for p in ccw) / len(ccw)
+    herreria = azar.elegir(HERRERIA)
+    for lado, tipo in balcones:
+        if lado not in lados_ab:
+            continue
+        a, b = lados_ab[lado]
+        largo = math.hypot(b[0] - a[0], b[1] - a[1])
+        if largo < 2.5:
+            continue
+        ux, uy = (b[0] - a[0]) / largo, (b[1] - a[1]) / largo
+        nx, ny = -uy, ux
+        if nx * ((a[0] + b[0]) / 2 - cx) + ny * ((a[1] + b[1]) / 2 - cy) < 0:
+            nx, ny = -nx, -ny
+        u = (ny, -nx)       # _caja_detalle saca su fondo en (-u1, u0) = la normal de salida
+        volado = tipo == "volado"
+        ancho = largo * 0.82 if volado else min(largo * 0.6, 3.4)
+        sale = 0.75 if volado else 0.8
+        s = largo / 2 if volado else largo * azar(0.35, 0.65)
+        s = min(max(s, ancho / 2 + 0.1), largo - ancho / 2 - 0.1)
+        mx, my = a[0] + ux * s, a[1] + uy * s
+        cxm, cym = mx + nx * (sale / 2 - 0.02), my + ny * (sale / 2 - 0.02)
+        # Losa de concreto bajo el piso de arriba
+        _caja_detalle(cara, (cxm, cym, PISO - 0.16), u, ancho, sale + 0.04, 0.18, COLOR_CONCRETO, abajo=True, mat="fachada_kit")
+        if volado:
+            # El cuarto: cajon de block sobre la losa con un ventanal oscuro al frente
+            _caja_detalle(cara, (cxm, cym, PISO + 0.02), u, ancho, sale + 0.04, PISO - 0.2, COLOR_BLOCK, mat="fachada_kit")
+            fx, fy = cxm + nx * (sale / 2 + 0.03), cym + ny * (sale / 2 + 0.03)
+            ux2, uy2 = ux * ancho * 0.28, uy * ancho * 0.28
+            z0, z1 = PISO + 0.7, PISO + PISO - 0.55
+            _cara_hacia(cara, [(fx - ux2, fy - uy2, z0), (fx + ux2, fy + uy2, z0), (fx + ux2, fy + uy2, z1), (fx - ux2, fy - uy2, z1)],
+                        (nx, ny, 0), (0.05, 0.05, 0.06))
+            _caja_detalle(cara, (cxm, cym, 2 * PISO - 0.18), u, ancho + 0.1, sale + 0.1, 0.2, COLOR_CONCRETO, abajo=True, mat="fachada_kit")
+        else:
+            # Barandal de fierro: pasamanos al frente y a los lados, con barrotes cada 0.25 m
+            alto_b = 1.0
+            fx, fy = mx + nx * (sale - 0.03), my + ny * (sale - 0.03)
+            _caja_detalle(cara, (fx, fy, PISO + alto_b), u, ancho, 0.04, 0.04, herreria)
+            for k in range(int(ancho / 0.25) + 1):
+                t = -ancho / 2 + k * 0.25
+                _caja_detalle(cara, (fx + ux * t, fy + uy * t, PISO), u, 0.025, 0.025, alto_b, herreria)
+            for sg in (-1, 1):
+                px, py = mx + ux * sg * (ancho / 2 - 0.03), my + uy * sg * (ancho / 2 - 0.03)
+                _caja_detalle(cara, (px + nx * sale / 2, py + ny * sale / 2, PISO + alto_b), (nx, ny), sale, 0.04, 0.04, herreria)
+                for k in range(1, int(sale / 0.25)):
+                    _caja_detalle(cara, (px + nx * k * 0.25, py + ny * k * 0.25, PISO), u, 0.025, 0.025, alto_b, herreria)
+
+
+def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ventanas=(), limpio=False):
     """Climas de ventana en las fachadas y, en la azotea, antena, calentador solar, tanque de
     gas y tendedero con ropa. Con su propio azar, para no cambiar las fachadas ya armadas."""
     azar = _Azar(_semilla(nombre) * 3 + 1)
@@ -659,8 +966,8 @@ def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ven
         mx, my = (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
         if nx * (mx - cx) + ny * (my - cy) < 0:
             nx, ny = -nx, -ny
-        s0, s1 = 0.22 * largo, 0.81 * largo
-        z0, z1 = 0.26 * PISO, 0.77 * PISO
+        s0, s1 = (VENT_S[0] * largo, VENT_S[1] * largo) if limpio else (0.22 * largo, 0.81 * largo)
+        z0, z1 = VENT_Z if limpio else (0.26 * PISO, 0.77 * PISO)
         sale = 0.07
         def en(s, salir=sale):
             return (p0[0] + ux * s + nx * salir, p0[1] + uy * s + ny * salir)
@@ -695,7 +1002,7 @@ def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ven
             _caja_detalle(cara, (x, y, z), u, 0.05, 0.05, 2.6, COLOR_NEGRO)
             for i, (h, l) in enumerate(((1.8, 1.0), (2.15, 0.75), (2.5, 0.5))):
                 _caja_detalle(cara, (x, y, z + h), u, l, 0.03, 0.03, COLOR_NEGRO)
-    if azar() < 0.22:
+    if azar() < 0.22 and not limpio:
         sitio = lugar(1.0)
         if sitio:
             x, y = sitio
@@ -721,7 +1028,7 @@ def _detalles_casa(cara, nombre, muros, ccw, alto, pisos, desgaste, ocupado, ven
                 _cara_hacia(cara, [(p0[0], p0[1], z), (p1[0], p1[1], z), (p1[0], p1[1], z + 1.1), (p0[0], p0[1], z + 1.1)],
                             ((p0[0] + p1[0]) / 2 - x, (p0[1] + p1[1]) / 2 - y, 0), COLOR_GAS)
             _cara_hacia(cara, [(px, py, z + 1.1) for px, py in anillo], (0, 0, 1), COLOR_GAS)
-    if azar() < 0.3 + desgaste * 0.2:
+    if azar() < 0.3 + desgaste * 0.2 and not limpio:
         sitio = lugar(1.4)
         if sitio:
             x, y = sitio
@@ -758,6 +1065,7 @@ FOTOS = {"cantera": ("old_sandstone_02", (0.84, 0.74, 0.64), 2.0),
          "mamposteria": ("_mamposteria", None, 1.5),
          "azulejo_amarillo": ("_azulejo", None, 1.0),
          "block": ("_block", None, 1.0),
+         "ladrillo_rojo": ("_ladrillo_foto", None, 1.0),
          "tierra": ("_tierra", None, 2.0)}
 
 
@@ -791,6 +1099,25 @@ def _mamposteria(tam=FOTO_PX):
     return px
 
 
+def _ladrillo_foto(tam=FOTO_PX):
+    """Ladrillo rojo de los tuneles de La Gotera, a 1 m por repeticion (ladrillo de 7 x 21 cm con
+    su junta), oscurecido por la humedad en manchas."""
+    rng = np.random.default_rng(13)
+    px = np.ones((tam, tam, 4), np.float32)
+    px[..., :3] = (0.52, 0.48, 0.42)
+    alto, largo = 9, 27
+    for fila in range(tam // alto + 1):
+        desfase = (largo // 2) * (fila % 2)
+        for col in range(-1, tam // largo + 2):
+            x0, y0 = col * largo + desfase, fila * alto
+            tono = np.array([0.55, 0.27, 0.18]) * rng.uniform(0.75, 1.15)
+            px[max(y0, 0):min(y0 + alto - 1, tam), max(x0, 0):min(x0 + largo - 1, tam), :3] = tono
+    mancha = rng.random((tam // 16, tam // 16))
+    mancha = np.kron(mancha, np.ones((16, 16)))
+    px[..., :3] *= (0.8 + 0.25 * mancha)[..., None]
+    return np.clip(px, 0, 1)
+
+
 def _tierra(tam=FOTO_PX):
     """Tierra seca de baldio: cafe con manchas, piedritas y terrones (se repite sin costura)."""
     rng = np.random.default_rng(9)
@@ -804,6 +1131,56 @@ def _tierra(tam=FOTO_PX):
     piedras = rng.random((tam, tam)) > 0.985
     px[piedras, :3] = (0.62, 0.58, 0.52)
     return np.clip(px, 0, 1)
+
+
+def _tela(tam=FOTO_PX):
+    """Tela de la ropa tendida: trama de hilos, algo de desgaste y, cruzadas, unas rayas mas
+    claras (asi una camiseta no es un cuadro de color liso). Se repite sin costura."""
+    rng = np.random.default_rng(23)
+    yy, xx = np.mgrid[0:tam, 0:tam]
+    # Trama: hilos verticales y horizontales que se alternan
+    trama = 0.5 + 0.5 * np.cos(xx * math.pi) * 0.5 + 0.5 * np.cos(yy * math.pi) * 0.5
+    brillo = 0.86 + trama * 0.16
+    # Rayas: una de cada ocho columnas mas clara, con la orilla deshilachada
+    rayas = ((xx // 8) % 4 == 0).astype(np.float32)
+    brillo += rayas * 0.12
+    # Manchas de uso y lavadas
+    manchas = rng.random((tam // 8, tam // 8))
+    manchas = np.kron(manchas, np.ones((8, 8)))
+    brillo *= 0.92 + manchas * 0.16
+    px = np.ones((tam, tam, 4), np.float32)
+    px[..., :3] = np.clip(brillo, 0, 2)[..., None]
+    return np.clip(px, 0, 1)
+
+
+def _carton(tam=FOTO_PX):
+    """Carton corrugado de las cajas tiradas: cafe claro con la canaleta, la cinta de la union y
+    manchas de mojado (antes eran cajas de color liso, sin textura)."""
+    rng = np.random.default_rng(31)
+    yy, xx = np.mgrid[0:tam, 0:tam]
+    brillo = 0.95 + 0.05 * np.cos(xx * math.tau / 6.0)          # la canaleta
+    manchas = rng.random((tam // 16, tam // 16))
+    manchas = np.kron(manchas, np.ones((16, 16)))
+    brillo *= 0.88 + manchas * 0.2
+    brillo += (rng.random((tam, tam)) - 0.5) * 0.06
+    px = np.ones((tam, tam, 4), np.float32)
+    px[..., :3] = np.array((0.62, 0.47, 0.31)) * brillo[..., None]
+    # La cinta canela de la union, a lo ancho
+    cinta = (yy > tam * 0.46) & (yy < tam * 0.54)
+    px[cinta, :3] = (0.66, 0.55, 0.38)
+    return np.clip(px, 0, 1)
+
+
+FOTOS["carton"] = ("_carton", None, 0.8)
+
+
+# Los colores de la ropa tendida: cada uno es la misma tela teñida (los materiales foto_<x> no
+# usan el color de la pieza, por eso va uno por color). piezas.prenda y colonia._prenda los usan.
+TELAS = {"rojo": (0.72, 0.2, 0.2), "azul": (0.22, 0.38, 0.72), "amarillo": (0.88, 0.76, 0.3),
+         "verde": (0.3, 0.6, 0.38), "rosa": (0.86, 0.5, 0.64), "blanco": (0.88, 0.87, 0.82),
+         "morado": (0.45, 0.34, 0.6), "naranja": (0.88, 0.55, 0.26)}
+for _t, _c in TELAS.items():
+    FOTOS["tela_" + _t] = ("_tela", _c, 0.7)
 
 
 def _azulejo(tam=FOTO_PX):

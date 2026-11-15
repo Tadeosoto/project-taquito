@@ -1,0 +1,4091 @@
+{
+	"colonia": "la_gotera_favela",
+	"recorte": [730.0, -336.0, 914.0, -104.0],
+	"abierto_24h": true,
+	"ambiente": {
+		"niebla": 0.045,
+		"lejos": 85.0,
+		"gente": {
+			"caminantes": 16,
+			"anillo": [12.0, 38.0],
+			"quitar_a": 50.0,
+			"alto_libre": 2.0,
+			"rayo_desde": 2.6,
+			"une_a": 2.2
+		},
+		"focos": [2.5, 11.0],
+		"noche": {
+			"niebla": 0.028,
+			"sol_energia": 0.26,
+			"ambiente_energia": 0.62,
+			"ambiente_color": [0.4, 0.44, 0.58],
+			"niebla_color": [0.13, 0.14, 0.19],
+			"fondo_color": [0.07, 0.08, 0.13]
+		}
+	},
+	"marcas": [
+		{
+			"nombre": "Spawn",
+			"tipo": "spawn",
+			"x": 739.58,
+			"z": -231.37,
+			"rot": -1.5708
+		},
+		{
+			"nombre": "Boca_privada_fuga",
+			"tipo": "paso",
+			"lado": "privada_fuga",
+			"a": "la_gotera",
+			"x": 736.78,
+			"z": -311.94,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [738.87, -311.75],
+			"letra": "F",
+			"nombre_boca": "La Fuga"
+		},
+		{
+			"nombre": "Guardia_privada_fuga",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_29",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -311.0,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_roble_quebrado",
+			"tipo": "paso",
+			"lado": "roble_quebrado",
+			"a": "la_gotera",
+			"x": 733.23,
+			"z": -272.1,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [735.32, -271.91],
+			"letra": "R",
+			"nombre_boca": "Roble Quebrado"
+		},
+		{
+			"nombre": "Guardia_roble_quebrado",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_30",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -274.1,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_parota",
+			"tipo": "paso",
+			"lado": "parota",
+			"a": "la_gotera",
+			"x": 737.49,
+			"z": -231.56,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [739.58, -231.37],
+			"letra": "P",
+			"nombre_boca": "La Parota"
+		},
+		{
+			"nombre": "Guardia_parota",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_31",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -230.2,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_caobilla",
+			"tipo": "paso",
+			"lado": "caobilla",
+			"a": "la_gotera",
+			"x": 733.22,
+			"z": -183.75,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [735.31, -183.56],
+			"letra": "C",
+			"nombre_boca": "Caobilla"
+		},
+		{
+			"nombre": "Guardia_caobilla",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_32",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -183.8,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Boca_sin_numero",
+			"tipo": "paso",
+			"lado": "sin_numero",
+			"a": "la_gotera",
+			"x": 737.48,
+			"z": -143.21,
+			"rot": 1.5708,
+			"texto": "Salir al tianguis",
+			"llegada": [739.57, -143.02],
+			"letra": "N",
+			"nombre_boca": "Sin Número"
+		},
+		{
+			"nombre": "Guardia_sin_numero",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_16",
+			"clip": "Idle_Talking",
+			"x": 734.0,
+			"z": -148.1,
+			"rot": 1.9708
+		},
+		{
+			"nombre": "Nemesio_Plaza",
+			"tipo": "mision",
+			"x": 796.0,
+			"z": -222.0,
+			"rot": -1.6598
+		},
+		{
+			"nombre": "Nemesio_Casa",
+			"tipo": "mision",
+			"x": 890.0,
+			"z": -246.0,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Plaza_Letrero",
+			"tipo": "letrero",
+			"texto": "Plaza de los Gotera",
+			"x": 806.0,
+			"z": -238.0,
+			"y": 3.2,
+			"rot": 3.0526
+		},
+		{
+			"nombre": "Nemesio_Letrero",
+			"tipo": "letrero",
+			"texto": "Don Nemesio",
+			"x": 891.5,
+			"z": -246.0,
+			"y": 3.0,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Plaza_Ninos",
+			"tipo": "ninos",
+			"x": 806.0,
+			"z": -222.0,
+			"rot": -0.089,
+			"tam": [9.0, 16.0],
+			"cuantos": 6
+		},
+		{
+			"nombre": "Plaza_Reflector_0",
+			"tipo": "reflector",
+			"x": 800.0,
+			"z": -231.0,
+			"y": 5.0,
+			"rot": -0.689,
+			"baja": 40
+		},
+		{
+			"nombre": "Plaza_Reflector_1",
+			"tipo": "reflector",
+			"x": 812.0,
+			"z": -213.0,
+			"y": 5.0,
+			"rot": 2.4526,
+			"baja": 40
+		},
+		{
+			"nombre": "Gotera_Plaza_0",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_30",
+			"clip": "Idle_Talking",
+			"x": 797.0,
+			"z": -224.5,
+			"rot": -1.6598
+		},
+		{
+			"nombre": "Gotera_Plaza_1",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_31",
+			"clip": "Idle",
+			"x": 797.2,
+			"z": -226.0,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Gotera_Nemesio",
+			"tipo": "vecino",
+			"cuando": "siempre",
+			"modelo": "hombre_13",
+			"clip": "Idle",
+			"x": 891.0,
+			"z": -243.5,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Tinaco_Favela",
+			"tipo": "tinaco",
+			"favela": true,
+			"x": 826.62,
+			"z": -227.62,
+			"y": 0.03,
+			"litros": 50000,
+			"sin_virgen": true,
+			"sin_defensa": true
+		},
+		{
+			"nombre": "Poste_Tinaco_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 834.79,
+			"z": -217.65,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Grande_0_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 815.62,
+			"z": -135.03,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Grande_1_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 776.56,
+			"z": -315.22,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Grande_2_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 877.44,
+			"z": -209.83,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Claro_0_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 900.88,
+			"z": -207.74,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Claro_1_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 782.94,
+			"z": -121.88,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Claro_2_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 855.42,
+			"z": -227.86,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Claro_3_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 833.39,
+			"z": -157.54,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Claro_4_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 785.79,
+			"z": -242.11,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Claro_5_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 821.31,
+			"z": -198.78,
+			"y": 3.3
+		},
+		{
+			"nombre": "Poste_Claro_6_Foco",
+			"tipo": "foco",
+			"favela": true,
+			"x": 824.16,
+			"z": -319.0,
+			"y": 3.3
+		},
+		{
+			"nombre": "Puerta_farmacia",
+			"tipo": "puerta",
+			"favela": true,
+			"local": true,
+			"giro": "farmacia",
+			"texto": "Farmacia La Bendición",
+			"x": 882.64,
+			"z": -278.28,
+			"y": 0.0,
+			"rot": -1.6598
+		},
+		{
+			"nombre": "Puerta_abarrotes",
+			"tipo": "puerta",
+			"favela": true,
+			"local": true,
+			"giro": "abarrotes",
+			"texto": "Abarrotes Doña Chelo",
+			"x": 872.28,
+			"z": -115.61,
+			"y": 0.0,
+			"rot": -0.089
+		},
+		{
+			"nombre": "Puerta_licoreria",
+			"tipo": "puerta",
+			"favela": true,
+			"local": true,
+			"giro": "licoreria",
+			"texto": "La Última Gota",
+			"x": 885.28,
+			"z": -185.78,
+			"y": 0.0,
+			"rot": 3.0526
+		},
+		{
+			"nombre": "Puerta_ferreteria",
+			"tipo": "puerta",
+			"favela": true,
+			"local": true,
+			"giro": "ferreteria",
+			"texto": "El Tornillo Flojo",
+			"x": 809.49,
+			"z": -261.39,
+			"y": 0.0,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Puerta_oxxo",
+			"tipo": "puerta",
+			"favela": true,
+			"local": true,
+			"giro": "oxxo",
+			"texto": "OXO",
+			"x": 771.42,
+			"z": -191.78,
+			"y": 0.0,
+			"rot": -1.6598
+		},
+		{
+			"nombre": "Puerta_taqueria",
+			"tipo": "puerta",
+			"favela": true,
+			"local": true,
+			"giro": "taqueria",
+			"texto": "Tacos El Callejón",
+			"x": 843.46,
+			"z": -274.94,
+			"y": 0.0,
+			"rot": 1.4818
+		},
+		{
+			"nombre": "Foco_Abandonada_22_3",
+			"tipo": "foco",
+			"favela": true,
+			"x": 903.4,
+			"z": -312.08,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_22_2",
+			"tipo": "foco",
+			"favela": true,
+			"x": 904.11,
+			"z": -320.05,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_22_1",
+			"tipo": "foco",
+			"favela": true,
+			"x": 903.08,
+			"z": -322.25,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_21_1",
+			"tipo": "foco",
+			"favela": true,
+			"x": 895.38,
+			"z": -324.2,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_20_1",
+			"tipo": "foco",
+			"favela": true,
+			"x": 887.97,
+			"z": -329.53,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_18_1",
+			"tipo": "foco",
+			"favela": true,
+			"x": 885.45,
+			"z": -324.89,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Abandonada_22_3",
+			"tipo": "interior",
+			"favela": true,
+			"x": 905.39,
+			"z": -308.94,
+			"rot": -0.089,
+			"tam": [6.62, 8.0],
+			"grupo": 0,
+			"ruta": [
+				[900.87, -309.34],
+				[905.39, -308.94],
+				[912.95, -312.28],
+				[906.1, -316.91],
+				[913.66, -320.25],
+				[906.2, -324.93],
+				[902.29, -325.28],
+				[898.44, -326.26],
+				[894.48, -325.98],
+				[890.62, -326.96],
+				[886.66, -326.68],
+				[878.89, -327.9],
+				[874.58, -323.74]
+			],
+			"techos": [
+				"Abandonada_22_3",
+				"Abandonada_22_2",
+				"Abandonada_22_1",
+				"Abandonada_21_1",
+				"Abandonada_20_1",
+				"Abandonada_18_1"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_22_2",
+			"tipo": "interior",
+			"favela": true,
+			"x": 906.1,
+			"z": -316.91,
+			"rot": -0.089,
+			"tam": [6.62, 8.0],
+			"grupo": 0,
+			"techos": [
+				"Abandonada_22_3",
+				"Abandonada_22_2",
+				"Abandonada_22_1",
+				"Abandonada_21_1",
+				"Abandonada_20_1",
+				"Abandonada_18_1"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_22_1",
+			"tipo": "interior",
+			"favela": true,
+			"x": 906.2,
+			"z": -324.93,
+			"rot": -0.089,
+			"tam": [7.84, 8.0],
+			"grupo": 0,
+			"techos": [
+				"Abandonada_22_3",
+				"Abandonada_22_2",
+				"Abandonada_22_1",
+				"Abandonada_21_1",
+				"Abandonada_20_1",
+				"Abandonada_18_1"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_21_1",
+			"tipo": "interior",
+			"favela": true,
+			"x": 898.44,
+			"z": -326.26,
+			"rot": -0.089,
+			"tam": [7.84, 6.74],
+			"grupo": 0,
+			"techos": [
+				"Abandonada_22_3",
+				"Abandonada_22_2",
+				"Abandonada_22_1",
+				"Abandonada_21_1",
+				"Abandonada_20_1",
+				"Abandonada_18_1"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_20_1",
+			"tipo": "interior",
+			"favela": true,
+			"x": 890.62,
+			"z": -326.96,
+			"rot": -0.089,
+			"tam": [7.84, 6.74],
+			"grupo": 0,
+			"techos": [
+				"Abandonada_22_3",
+				"Abandonada_22_2",
+				"Abandonada_22_1",
+				"Abandonada_21_1",
+				"Abandonada_20_1",
+				"Abandonada_18_1"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_18_1",
+			"tipo": "interior",
+			"favela": true,
+			"x": 878.89,
+			"z": -327.9,
+			"rot": -0.089,
+			"tam": [15.7, 6.94],
+			"grupo": 0,
+			"techos": [
+				"Abandonada_22_3",
+				"Abandonada_22_2",
+				"Abandonada_22_1",
+				"Abandonada_21_1",
+				"Abandonada_20_1",
+				"Abandonada_18_1"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Foco_Abandonada_10_21",
+			"tipo": "foco",
+			"favela": true,
+			"x": 796.19,
+			"z": -171.15,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_10_22",
+			"tipo": "foco",
+			"favela": true,
+			"x": 800.6,
+			"z": -168.65,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_11_22",
+			"tipo": "foco",
+			"favela": true,
+			"x": 802.17,
+			"z": -162.58,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_11_23",
+			"tipo": "foco",
+			"favela": true,
+			"x": 807.72,
+			"z": -159.99,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_12_23",
+			"tipo": "foco",
+			"favela": true,
+			"x": 809.28,
+			"z": -153.92,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_12_24",
+			"tipo": "foco",
+			"favela": true,
+			"x": 813.77,
+			"z": -151.41,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Abandonada_10_21",
+			"tipo": "interior",
+			"favela": true,
+			"x": 798.09,
+			"z": -173.94,
+			"rot": -0.089,
+			"tam": [5.38, 8.0],
+			"grupo": 1,
+			"ruta": [
+				[794.29, -174.28],
+				[798.09, -173.94],
+				[797.84, -169.95],
+				[798.04, -165.92],
+				[801.39, -165.62],
+				[808.62, -164.32],
+				[804.94, -161.28],
+				[805.22, -157.79],
+				[808.5, -156.95],
+				[811.88, -156.65],
+				[812.05, -152.62],
+				[811.74, -149.14],
+				[815.6, -148.28]
+			],
+			"techos": [
+				"Abandonada_10_21",
+				"Abandonada_10_22",
+				"Abandonada_11_22",
+				"Abandonada_11_23",
+				"Abandonada_12_23",
+				"Abandonada_12_24"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_10_22",
+			"tipo": "interior",
+			"favela": true,
+			"x": 798.04,
+			"z": -165.92,
+			"rot": -0.089,
+			"tam": [6.72, 8.0],
+			"grupo": 1,
+			"techos": [
+				"Abandonada_10_21",
+				"Abandonada_10_22",
+				"Abandonada_11_22",
+				"Abandonada_11_23",
+				"Abandonada_12_23",
+				"Abandonada_12_24"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_11_22",
+			"tipo": "interior",
+			"favela": true,
+			"x": 808.62,
+			"z": -164.32,
+			"rot": -0.089,
+			"tam": [14.64, 6.72],
+			"grupo": 1,
+			"techos": [
+				"Abandonada_10_21",
+				"Abandonada_10_22",
+				"Abandonada_11_22",
+				"Abandonada_11_23",
+				"Abandonada_12_23",
+				"Abandonada_12_24"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_11_23",
+			"tipo": "interior",
+			"favela": true,
+			"x": 805.22,
+			"z": -157.79,
+			"rot": -0.089,
+			"tam": [6.68, 6.92],
+			"grupo": 1,
+			"techos": [
+				"Abandonada_10_21",
+				"Abandonada_10_22",
+				"Abandonada_11_22",
+				"Abandonada_11_23",
+				"Abandonada_12_23",
+				"Abandonada_12_24"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_12_23",
+			"tipo": "interior",
+			"favela": true,
+			"x": 811.88,
+			"z": -156.65,
+			"rot": -0.089,
+			"tam": [6.8, 8.0],
+			"grupo": 1,
+			"techos": [
+				"Abandonada_10_21",
+				"Abandonada_10_22",
+				"Abandonada_11_22",
+				"Abandonada_11_23",
+				"Abandonada_12_23",
+				"Abandonada_12_24"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_12_24",
+			"tipo": "interior",
+			"favela": true,
+			"x": 811.74,
+			"z": -149.14,
+			"rot": -0.089,
+			"tam": [5.74, 6.98],
+			"grupo": 1,
+			"techos": [
+				"Abandonada_10_21",
+				"Abandonada_10_22",
+				"Abandonada_11_22",
+				"Abandonada_11_23",
+				"Abandonada_12_23",
+				"Abandonada_12_24"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Foco_Abandonada_7_24",
+			"tipo": "foco",
+			"favela": true,
+			"x": 774.57,
+			"z": -153.68,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_6_24",
+			"tipo": "foco",
+			"favela": true,
+			"x": 767.92,
+			"z": -155.5,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_6_23",
+			"tipo": "foco",
+			"favela": true,
+			"x": 762.39,
+			"z": -158.1,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_5_23",
+			"tipo": "foco",
+			"favela": true,
+			"x": 760.83,
+			"z": -164.17,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_5_22",
+			"tipo": "foco",
+			"favela": true,
+			"x": 755.29,
+			"z": -166.76,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_4_22",
+			"tipo": "foco",
+			"favela": true,
+			"x": 753.3,
+			"z": -168.07,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Abandonada_7_24",
+			"tipo": "interior",
+			"favela": true,
+			"x": 772.03,
+			"z": -151.56,
+			"rot": -0.089,
+			"tam": [6.78, 6.78],
+			"grupo": 2,
+			"ruta": [
+				[776.52, -151.77],
+				[772.03, -151.56],
+				[768.71, -152.47],
+				[765.3, -152.77],
+				[765.16, -156.8],
+				[764.92, -160.84],
+				[761.61, -161.14],
+				[758.43, -162.06],
+				[758.05, -165.47],
+				[761.59, -168.51],
+				[754.5, -169.8],
+				[751.29, -170.65],
+				[750.24, -166.17]
+			],
+			"techos": [
+				"Abandonada_7_24",
+				"Abandonada_6_24",
+				"Abandonada_6_23",
+				"Abandonada_5_23",
+				"Abandonada_5_22",
+				"Abandonada_4_22"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_6_24",
+			"tipo": "interior",
+			"favela": true,
+			"x": 765.3,
+			"z": -152.77,
+			"rot": -0.089,
+			"tam": [6.84, 8.0],
+			"grupo": 2,
+			"techos": [
+				"Abandonada_7_24",
+				"Abandonada_6_24",
+				"Abandonada_6_23",
+				"Abandonada_5_23",
+				"Abandonada_5_22",
+				"Abandonada_4_22"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_6_23",
+			"tipo": "interior",
+			"favela": true,
+			"x": 764.92,
+			"z": -160.84,
+			"rot": -0.089,
+			"tam": [6.66, 8.0],
+			"grupo": 2,
+			"techos": [
+				"Abandonada_7_24",
+				"Abandonada_6_24",
+				"Abandonada_6_23",
+				"Abandonada_5_23",
+				"Abandonada_5_22",
+				"Abandonada_4_22"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_5_23",
+			"tipo": "interior",
+			"favela": true,
+			"x": 758.43,
+			"z": -162.06,
+			"rot": -0.089,
+			"tam": [6.5, 6.72],
+			"grupo": 2,
+			"techos": [
+				"Abandonada_7_24",
+				"Abandonada_6_24",
+				"Abandonada_6_23",
+				"Abandonada_5_23",
+				"Abandonada_5_22",
+				"Abandonada_4_22"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_5_22",
+			"tipo": "interior",
+			"favela": true,
+			"x": 761.59,
+			"z": -168.51,
+			"rot": -0.089,
+			"tam": [14.34, 6.7],
+			"grupo": 2,
+			"techos": [
+				"Abandonada_7_24",
+				"Abandonada_6_24",
+				"Abandonada_6_23",
+				"Abandonada_5_23",
+				"Abandonada_5_22",
+				"Abandonada_4_22"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_4_22",
+			"tipo": "interior",
+			"favela": true,
+			"x": 751.29,
+			"z": -170.65,
+			"rot": -0.089,
+			"tam": [6.56, 6.88],
+			"grupo": 2,
+			"techos": [
+				"Abandonada_7_24",
+				"Abandonada_6_24",
+				"Abandonada_6_23",
+				"Abandonada_5_23",
+				"Abandonada_5_22",
+				"Abandonada_4_22"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Foco_Abandonada_19_22",
+			"tipo": "foco",
+			"favela": true,
+			"x": 870.84,
+			"z": -161.16,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_20_22",
+			"tipo": "foco",
+			"favela": true,
+			"x": 873.04,
+			"z": -162.19,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_20_21",
+			"tipo": "foco",
+			"favela": true,
+			"x": 878.94,
+			"z": -163.76,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_21_21",
+			"tipo": "foco",
+			"favela": true,
+			"x": 886.88,
+			"z": -164.44,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_22_21",
+			"tipo": "foco",
+			"favela": true,
+			"x": 894.7,
+			"z": -163.74,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_23_21",
+			"tipo": "foco",
+			"favela": true,
+			"x": 896.79,
+			"z": -163.56,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Abandonada_19_22",
+			"tipo": "interior",
+			"favela": true,
+			"x": 867.77,
+			"z": -159.08,
+			"rot": -0.089,
+			"tam": [7.84, 6.78],
+			"grupo": 3,
+			"ruta": [
+				[868.18, -163.67],
+				[867.77, -159.08],
+				[871.73, -159.34],
+				[875.03, -159.66],
+				[875.99, -162.98],
+				[876.86, -166.3],
+				[880.25, -166.61],
+				[884.22, -166.95],
+				[888.07, -165.91],
+				[892.04, -166.25],
+				[895.88, -165.22],
+				[899.24, -165.61],
+				[899.44, -160.88]
+			],
+			"techos": [
+				"Abandonada_19_22",
+				"Abandonada_20_22",
+				"Abandonada_20_21",
+				"Abandonada_21_21",
+				"Abandonada_22_21",
+				"Abandonada_23_21"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_20_22",
+			"tipo": "interior",
+			"favela": true,
+			"x": 875.03,
+			"z": -159.66,
+			"rot": -0.089,
+			"tam": [6.52, 6.78],
+			"grupo": 3,
+			"techos": [
+				"Abandonada_19_22",
+				"Abandonada_20_22",
+				"Abandonada_20_21",
+				"Abandonada_21_21",
+				"Abandonada_22_21",
+				"Abandonada_23_21"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_20_21",
+			"tipo": "interior",
+			"favela": true,
+			"x": 876.86,
+			"z": -166.3,
+			"rot": -0.089,
+			"tam": [6.7, 6.78],
+			"grupo": 3,
+			"techos": [
+				"Abandonada_19_22",
+				"Abandonada_20_22",
+				"Abandonada_20_21",
+				"Abandonada_21_21",
+				"Abandonada_22_21",
+				"Abandonada_23_21"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_21_21",
+			"tipo": "interior",
+			"favela": true,
+			"x": 884.22,
+			"z": -166.95,
+			"rot": -0.089,
+			"tam": [7.84, 6.62],
+			"grupo": 3,
+			"techos": [
+				"Abandonada_19_22",
+				"Abandonada_20_22",
+				"Abandonada_20_21",
+				"Abandonada_21_21",
+				"Abandonada_22_21",
+				"Abandonada_23_21"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_22_21",
+			"tipo": "interior",
+			"favela": true,
+			"x": 892.04,
+			"z": -166.25,
+			"rot": -0.089,
+			"tam": [7.84, 6.62],
+			"grupo": 3,
+			"techos": [
+				"Abandonada_19_22",
+				"Abandonada_20_22",
+				"Abandonada_20_21",
+				"Abandonada_21_21",
+				"Abandonada_22_21",
+				"Abandonada_23_21"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_23_21",
+			"tipo": "interior",
+			"favela": true,
+			"x": 899.24,
+			"z": -165.61,
+			"rot": -0.089,
+			"tam": [6.62, 6.62],
+			"grupo": 3,
+			"techos": [
+				"Abandonada_19_22",
+				"Abandonada_20_22",
+				"Abandonada_20_21",
+				"Abandonada_21_21",
+				"Abandonada_22_21",
+				"Abandonada_23_21"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Foco_Abandonada_17_5",
+			"tipo": "foco",
+			"favela": true,
+			"x": 861.26,
+			"z": -295.01,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_16_5",
+			"tipo": "foco",
+			"favela": true,
+			"x": 853.34,
+			"z": -294.55,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_15_5",
+			"tipo": "foco",
+			"favela": true,
+			"x": 845.95,
+			"z": -300.02,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_14_5",
+			"tipo": "foco",
+			"favela": true,
+			"x": 843.95,
+			"z": -301.32,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_14_4",
+			"tipo": "foco",
+			"favela": true,
+			"x": 838.42,
+			"z": -303.93,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_12_4",
+			"tipo": "foco",
+			"favela": true,
+			"x": 824.22,
+			"z": -310.01,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Abandonada_17_5",
+			"tipo": "interior",
+			"favela": true,
+			"x": 863.74,
+			"z": -297.17,
+			"rot": -0.089,
+			"tam": [6.66, 6.84],
+			"grupo": 4,
+			"ruta": [
+				[863.92, -292.56],
+				[863.74, -297.17],
+				[860.37, -296.89],
+				[856.41, -296.68],
+				[852.56, -297.59],
+				[848.6, -297.38],
+				[844.74, -298.29],
+				[840.88, -299.17],
+				[841.19, -302.62],
+				[840.84, -306.11],
+				[837.64, -306.95],
+				[830.27, -307.06],
+				[822.01, -308.35]
+			],
+			"techos": [
+				"Abandonada_17_5",
+				"Abandonada_16_5",
+				"Abandonada_15_5",
+				"Abandonada_14_5",
+				"Abandonada_14_4",
+				"Abandonada_12_4"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_16_5",
+			"tipo": "interior",
+			"favela": true,
+			"x": 856.41,
+			"z": -296.68,
+			"rot": -0.089,
+			"tam": [7.84, 6.88],
+			"grupo": 4,
+			"techos": [
+				"Abandonada_17_5",
+				"Abandonada_16_5",
+				"Abandonada_15_5",
+				"Abandonada_14_5",
+				"Abandonada_14_4",
+				"Abandonada_12_4"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_15_5",
+			"tipo": "interior",
+			"favela": true,
+			"x": 848.6,
+			"z": -297.38,
+			"rot": -0.089,
+			"tam": [7.84, 6.88],
+			"grupo": 4,
+			"techos": [
+				"Abandonada_17_5",
+				"Abandonada_16_5",
+				"Abandonada_15_5",
+				"Abandonada_14_5",
+				"Abandonada_14_4",
+				"Abandonada_12_4"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_14_5",
+			"tipo": "interior",
+			"favela": true,
+			"x": 840.88,
+			"z": -299.17,
+			"rot": -0.089,
+			"tam": [7.84, 6.92],
+			"grupo": 4,
+			"techos": [
+				"Abandonada_17_5",
+				"Abandonada_16_5",
+				"Abandonada_15_5",
+				"Abandonada_14_5",
+				"Abandonada_14_4",
+				"Abandonada_12_4"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_14_4",
+			"tipo": "interior",
+			"favela": true,
+			"x": 840.84,
+			"z": -306.11,
+			"rot": -0.089,
+			"tam": [6.54, 6.88],
+			"grupo": 4,
+			"techos": [
+				"Abandonada_17_5",
+				"Abandonada_16_5",
+				"Abandonada_15_5",
+				"Abandonada_14_5",
+				"Abandonada_14_4",
+				"Abandonada_12_4"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_12_4",
+			"tipo": "interior",
+			"favela": true,
+			"x": 830.27,
+			"z": -307.06,
+			"rot": -0.089,
+			"tam": [14.68, 6.9],
+			"grupo": 4,
+			"techos": [
+				"Abandonada_17_5",
+				"Abandonada_16_5",
+				"Abandonada_15_5",
+				"Abandonada_14_5",
+				"Abandonada_14_4",
+				"Abandonada_12_4"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Foco_Abandonada_16_28",
+			"tipo": "foco",
+			"favela": true,
+			"x": 850.93,
+			"z": -114.58,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_18_28",
+			"tipo": "foco",
+			"favela": true,
+			"x": 853.14,
+			"z": -115.77,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_18_27",
+			"tipo": "foco",
+			"favela": true,
+			"x": 854.93,
+			"z": -123.64,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_18_26",
+			"tipo": "foco",
+			"favela": true,
+			"x": 854.04,
+			"z": -125.83,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_17_26",
+			"tipo": "foco",
+			"favela": true,
+			"x": 852.46,
+			"z": -131.89,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_17_25",
+			"tipo": "foco",
+			"favela": true,
+			"x": 853.08,
+			"z": -138.75,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Abandonada_16_28",
+			"tipo": "interior",
+			"favela": true,
+			"x": 843.96,
+			"z": -112.93,
+			"rot": -0.089,
+			"tam": [15.7, 6.62],
+			"grupo": 5,
+			"ruta": [
+				[840.46, -117.95],
+				[843.96, -112.93],
+				[851.83, -112.92],
+				[855.74, -112.58],
+				[856.09, -116.56],
+				[856.49, -120.54],
+				[856.81, -124.53],
+				[856.58, -128.56],
+				[853.25, -128.86],
+				[849.91, -129.83],
+				[849.7, -133.19],
+				[850.62, -136.57],
+				[850.41, -141.16]
+			],
+			"techos": [
+				"Abandonada_16_28",
+				"Abandonada_18_28",
+				"Abandonada_18_27",
+				"Abandonada_18_26",
+				"Abandonada_17_26",
+				"Abandonada_17_25"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_18_28",
+			"tipo": "interior",
+			"favela": true,
+			"x": 855.74,
+			"z": -112.58,
+			"rot": -0.089,
+			"tam": [7.84, 8.0],
+			"grupo": 5,
+			"techos": [
+				"Abandonada_16_28",
+				"Abandonada_18_28",
+				"Abandonada_18_27",
+				"Abandonada_18_26",
+				"Abandonada_17_26",
+				"Abandonada_17_25"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_18_27",
+			"tipo": "interior",
+			"favela": true,
+			"x": 856.49,
+			"z": -120.54,
+			"rot": -0.089,
+			"tam": [5.76, 8.0],
+			"grupo": 5,
+			"techos": [
+				"Abandonada_16_28",
+				"Abandonada_18_28",
+				"Abandonada_18_27",
+				"Abandonada_18_26",
+				"Abandonada_17_26",
+				"Abandonada_17_25"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_18_26",
+			"tipo": "interior",
+			"favela": true,
+			"x": 856.58,
+			"z": -128.56,
+			"rot": -0.089,
+			"tam": [6.68, 8.0],
+			"grupo": 5,
+			"techos": [
+				"Abandonada_16_28",
+				"Abandonada_18_28",
+				"Abandonada_18_27",
+				"Abandonada_18_26",
+				"Abandonada_17_26",
+				"Abandonada_17_25"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_17_26",
+			"tipo": "interior",
+			"favela": true,
+			"x": 849.91,
+			"z": -129.83,
+			"rot": -0.089,
+			"tam": [6.82, 6.66],
+			"grupo": 5,
+			"techos": [
+				"Abandonada_16_28",
+				"Abandonada_18_28",
+				"Abandonada_18_27",
+				"Abandonada_18_26",
+				"Abandonada_17_26",
+				"Abandonada_17_25"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_17_25",
+			"tipo": "interior",
+			"favela": true,
+			"x": 850.62,
+			"z": -136.57,
+			"rot": -0.089,
+			"tam": [6.62, 6.88],
+			"grupo": 5,
+			"techos": [
+				"Abandonada_16_28",
+				"Abandonada_18_28",
+				"Abandonada_18_27",
+				"Abandonada_18_26",
+				"Abandonada_17_26",
+				"Abandonada_17_25"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Foco_Abandonada_5_14",
+			"tipo": "foco",
+			"favela": true,
+			"x": 761.08,
+			"z": -231.57,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_4_14",
+			"tipo": "foco",
+			"favela": true,
+			"x": 753.56,
+			"z": -235.77,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_3_14",
+			"tipo": "foco",
+			"favela": true,
+			"x": 751.58,
+			"z": -237.27,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_3_13",
+			"tipo": "foco",
+			"favela": true,
+			"x": 751.05,
+			"z": -245.36,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_2_12",
+			"tipo": "foco",
+			"favela": true,
+			"x": 739.48,
+			"z": -254.42,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_3_11",
+			"tipo": "foco",
+			"favela": true,
+			"x": 748.73,
+			"z": -255.7,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Abandonada_5_14",
+			"tipo": "interior",
+			"favela": true,
+			"x": 764.09,
+			"z": -233.06,
+			"rot": -0.089,
+			"tam": [7.84, 5.6],
+			"grupo": 6,
+			"ruta": [
+				[763.74, -229.21],
+				[764.09, -233.06],
+				[760.19, -233.55],
+				[756.22, -233.23],
+				[752.38, -234.24],
+				[749.16, -235.19],
+				[748.82, -238.58],
+				[749.19, -242.56],
+				[749.53, -246.55],
+				[741.44, -251.28],
+				[750.25, -254.51],
+				[750.6, -258.5],
+				[746.69, -258.85]
+			],
+			"techos": [
+				"Abandonada_5_14",
+				"Abandonada_4_14",
+				"Abandonada_3_14",
+				"Abandonada_3_13",
+				"Abandonada_2_12",
+				"Abandonada_3_11"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_4_14",
+			"tipo": "interior",
+			"favela": true,
+			"x": 756.22,
+			"z": -233.23,
+			"rot": -0.089,
+			"tam": [7.84, 6.68],
+			"grupo": 6,
+			"techos": [
+				"Abandonada_5_14",
+				"Abandonada_4_14",
+				"Abandonada_3_14",
+				"Abandonada_3_13",
+				"Abandonada_2_12",
+				"Abandonada_3_11"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_3_14",
+			"tipo": "interior",
+			"favela": true,
+			"x": 749.16,
+			"z": -235.19,
+			"rot": -0.089,
+			"tam": [6.56, 6.68],
+			"grupo": 6,
+			"techos": [
+				"Abandonada_5_14",
+				"Abandonada_4_14",
+				"Abandonada_3_14",
+				"Abandonada_3_13",
+				"Abandonada_2_12",
+				"Abandonada_3_11"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_3_13",
+			"tipo": "interior",
+			"favela": true,
+			"x": 749.19,
+			"z": -242.56,
+			"rot": -0.089,
+			"tam": [5.3, 8.0],
+			"grupo": 6,
+			"techos": [
+				"Abandonada_5_14",
+				"Abandonada_4_14",
+				"Abandonada_3_14",
+				"Abandonada_3_13",
+				"Abandonada_2_12",
+				"Abandonada_3_11"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_2_12",
+			"tipo": "interior",
+			"favela": true,
+			"x": 741.44,
+			"z": -251.28,
+			"rot": -0.089,
+			"tam": [6.56, 8.0],
+			"grupo": 6,
+			"techos": [
+				"Abandonada_5_14",
+				"Abandonada_4_14",
+				"Abandonada_3_14",
+				"Abandonada_3_13",
+				"Abandonada_2_12",
+				"Abandonada_3_11"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Interior_Abandonada_3_11",
+			"tipo": "interior",
+			"favela": true,
+			"x": 750.6,
+			"z": -258.5,
+			"rot": -0.089,
+			"tam": [5.32, 8.0],
+			"grupo": 6,
+			"techos": [
+				"Abandonada_5_14",
+				"Abandonada_4_14",
+				"Abandonada_3_14",
+				"Abandonada_3_13",
+				"Abandonada_2_12",
+				"Abandonada_3_11"
+			],
+			"clase": "pasadizo"
+		},
+		{
+			"nombre": "Foco_Abandonada_7_8",
+			"tipo": "foco",
+			"favela": true,
+			"x": 784.12,
+			"z": -280.14,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Abandonada_7_8",
+			"tipo": "interior",
+			"favela": true,
+			"x": 784.12,
+			"z": -280.14,
+			"rot": -0.089,
+			"tam": [5.28, 6.94],
+			"grupo": 7,
+			"ruta": [
+				[787.9, -279.27],
+				[784.12, -280.14],
+				[780.09, -279.96]
+			],
+			"techos": [
+				"Abandonada_7_8"
+			],
+			"clase": "pasante"
+		},
+		{
+			"nombre": "Foco_Abandonada_18_20",
+			"tipo": "foco",
+			"favela": true,
+			"x": 860.77,
+			"z": -176.37,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Abandonada_18_20",
+			"tipo": "interior",
+			"favela": true,
+			"x": 860.77,
+			"z": -176.37,
+			"rot": -0.089,
+			"tam": [6.52, 5.32],
+			"grupo": 8,
+			"ruta": [
+				[861.78, -180.31],
+				[860.77, -176.37],
+				[861.07, -172.34]
+			],
+			"techos": [
+				"Abandonada_18_20"
+			],
+			"clase": "pasante"
+		},
+		{
+			"nombre": "Foco_Abandonada_6_17",
+			"tipo": "foco",
+			"favela": true,
+			"x": 769.83,
+			"z": -209.24,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Abandonada_6_17",
+			"tipo": "interior",
+			"favela": true,
+			"x": 769.83,
+			"z": -209.24,
+			"rot": -0.089,
+			"tam": [5.08, 6.72],
+			"grupo": 9,
+			"ruta": [
+				[773.69, -208.25],
+				[769.83, -209.24],
+				[765.87, -208.95]
+			],
+			"techos": [
+				"Abandonada_6_17"
+			],
+			"clase": "pasante"
+		},
+		{
+			"nombre": "Foco_Abandonada_8_11",
+			"tipo": "foco",
+			"favela": true,
+			"x": 789.82,
+			"z": -255.65,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Abandonada_8_11",
+			"tipo": "interior",
+			"favela": true,
+			"x": 789.82,
+			"z": -255.65,
+			"rot": -0.089,
+			"tam": [5.28, 6.7],
+			"grupo": 10,
+			"ruta": [
+				[793.58, -254.66],
+				[789.82, -255.65],
+				[785.77, -255.36]
+			],
+			"techos": [
+				"Abandonada_8_11"
+			],
+			"clase": "pasante"
+		},
+		{
+			"nombre": "Foco_Abandonada_2_7",
+			"tipo": "foco",
+			"favela": true,
+			"x": 745.05,
+			"z": -290.94,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Abandonada_2_7",
+			"tipo": "interior",
+			"favela": true,
+			"x": 745.05,
+			"z": -290.94,
+			"rot": -0.089,
+			"tam": [6.7, 5.64],
+			"grupo": 11,
+			"ruta": [
+				[745.99, -295.05],
+				[745.05, -290.94],
+				[745.27, -287.09]
+			],
+			"techos": [
+				"Abandonada_2_7"
+			],
+			"clase": "pasante"
+		},
+		{
+			"nombre": "Foco_Abandonada_16_2",
+			"tipo": "foco",
+			"favela": true,
+			"x": 858.49,
+			"z": -320.62,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Abandonada_16_2",
+			"tipo": "interior",
+			"favela": true,
+			"x": 858.49,
+			"z": -320.62,
+			"rot": -0.089,
+			"tam": [5.34, 6.94],
+			"grupo": 12,
+			"ruta": [
+				[862.5, -320.8],
+				[858.49, -320.62],
+				[854.69, -321.5]
+			],
+			"techos": [
+				"Abandonada_16_2"
+			],
+			"clase": "pasante"
+		},
+		{
+			"nombre": "Foco_Abandonada_16_21",
+			"tipo": "foco",
+			"favela": true,
+			"x": 845.77,
+			"z": -169.67,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Abandonada_16_21",
+			"tipo": "interior",
+			"favela": true,
+			"x": 845.77,
+			"z": -169.67,
+			"rot": -0.089,
+			"tam": [6.46, 5.4],
+			"grupo": 13,
+			"ruta": [
+				[845.44, -173.73],
+				[845.77, -169.67],
+				[844.73, -165.76]
+			],
+			"techos": [
+				"Abandonada_16_21"
+			],
+			"clase": "pasante"
+		},
+		{
+			"nombre": "Foco_Abandonada_19_12",
+			"tipo": "foco",
+			"favela": true,
+			"x": 874.36,
+			"z": -239.55,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Abandonada_19_12",
+			"tipo": "interior",
+			"favela": true,
+			"x": 874.36,
+			"z": -239.55,
+			"rot": -0.089,
+			"tam": [6.68, 5.72],
+			"grupo": 14,
+			"ruta": [
+				[875.29, -243.36],
+				[874.36, -239.55],
+				[874.58, -235.39]
+			],
+			"techos": [
+				"Abandonada_19_12"
+			],
+			"clase": "pasante"
+		},
+		{
+			"nombre": "Foco_Techado_0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 742.42,
+			"z": -211.03,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Techado_0",
+			"tipo": "interior",
+			"favela": true,
+			"x": 742.42,
+			"z": -211.03,
+			"rot": -1.6596,
+			"tam": [5.4, 2.07],
+			"techos": [
+				"Techado_0"
+			],
+			"grupo": 15,
+			"clase": "techado",
+			"ruta": [
+				[742.66, -213.73],
+				[742.19, -208.34]
+			]
+		},
+		{
+			"nombre": "Foco_Techado_1",
+			"tipo": "foco",
+			"favela": true,
+			"x": 765.88,
+			"z": -253.12,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Techado_1",
+			"tipo": "interior",
+			"favela": true,
+			"x": 765.88,
+			"z": -253.12,
+			"rot": -0.0893,
+			"tam": [5.25, 2.21],
+			"techos": [
+				"Techado_1"
+			],
+			"grupo": 16,
+			"clase": "techado",
+			"ruta": [
+				[763.26, -253.35],
+				[768.5, -252.89]
+			]
+		},
+		{
+			"nombre": "Foco_Techado_2",
+			"tipo": "foco",
+			"favela": true,
+			"x": 752.37,
+			"z": -190.07,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Techado_2",
+			"tipo": "interior",
+			"favela": true,
+			"x": 752.37,
+			"z": -190.07,
+			"rot": -0.0893,
+			"tam": [5.25, 2.26],
+			"techos": [
+				"Techado_2"
+			],
+			"grupo": 17,
+			"clase": "techado",
+			"ruta": [
+				[749.75, -190.3],
+				[754.99, -189.84]
+			]
+		},
+		{
+			"nombre": "Foco_Techado_3",
+			"tipo": "foco",
+			"favela": true,
+			"x": 768.01,
+			"z": -277.02,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Techado_3",
+			"tipo": "interior",
+			"favela": true,
+			"x": 768.01,
+			"z": -277.02,
+			"rot": -0.0893,
+			"tam": [5.25, 2.63],
+			"techos": [
+				"Techado_3"
+			],
+			"grupo": 18,
+			"clase": "techado",
+			"ruta": [
+				[765.39, -277.25],
+				[770.63, -276.79]
+			]
+		},
+		{
+			"nombre": "Foco_Techado_4",
+			"tipo": "foco",
+			"favela": true,
+			"x": 795.72,
+			"z": -190.21,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Techado_4",
+			"tipo": "interior",
+			"favela": true,
+			"x": 795.72,
+			"z": -190.21,
+			"rot": -1.6596,
+			"tam": [5.4, 2.15],
+			"techos": [
+				"Techado_4"
+			],
+			"grupo": 19,
+			"clase": "techado",
+			"ruta": [
+				[795.95, -192.91],
+				[795.48, -187.52]
+			]
+		},
+		{
+			"nombre": "Foco_Techado_5",
+			"tipo": "foco",
+			"favela": true,
+			"x": 808.5,
+			"z": -245.29,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Interior_Techado_5",
+			"tipo": "interior",
+			"favela": true,
+			"x": 808.5,
+			"z": -245.29,
+			"rot": -1.6596,
+			"tam": [5.4, 2.12],
+			"techos": [
+				"Techado_5"
+			],
+			"grupo": 20,
+			"clase": "techado",
+			"ruta": [
+				[808.74, -247.99],
+				[808.27, -242.6]
+			]
+		},
+		{
+			"nombre": "Foco_Techado_6",
+			"tipo": "foco",
+			"favela": true,
+			"x": 824.85,
+			"z": -251.88,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Techado_6",
+			"tipo": "interior",
+			"favela": true,
+			"x": 824.85,
+			"z": -251.88,
+			"rot": -1.6596,
+			"tam": [5.4, 2.68],
+			"techos": [
+				"Techado_6"
+			],
+			"grupo": 21,
+			"clase": "techado",
+			"ruta": [
+				[825.08, -254.57],
+				[824.61, -249.18]
+			]
+		},
+		{
+			"nombre": "Foco_Techado_7",
+			"tipo": "foco",
+			"favela": true,
+			"x": 801.4,
+			"z": -298.14,
+			"y": 2.25,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Interior_Techado_7",
+			"tipo": "interior",
+			"favela": true,
+			"x": 801.4,
+			"z": -298.14,
+			"rot": -0.0893,
+			"tam": [5.25, 2.21],
+			"techos": [
+				"Techado_7"
+			],
+			"grupo": 22,
+			"clase": "techado",
+			"ruta": [
+				[798.78, -298.37],
+				[804.02, -297.91]
+			]
+		},
+		{
+			"nombre": "Foco_Abandonada_22_21_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 891.5,
+			"z": -167.15,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Puerta_Tunel_fayuca_tunel",
+			"tipo": "puerta",
+			"favela": true,
+			"giro": "fayuca_tunel",
+			"texto": "Fayuca del Túnel",
+			"letrero_alto": 2.35,
+			"x": 889.31,
+			"z": -167.35,
+			"y": 0.0,
+			"rot": -0.089
+		},
+		{
+			"nombre": "Foco_Abandonada_17_5_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 863.79,
+			"z": -298.02,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Garrafones_Tunel",
+			"tipo": "mision",
+			"favela": true,
+			"x": 863.79,
+			"z": -298.02,
+			"y": 0.0,
+			"rot": -1.6598
+		},
+		{
+			"nombre": "Foco_Abandonada_17_25_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 849.76,
+			"z": -136.51,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_19_22_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 866.93,
+			"z": -159.25,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_20_1_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 891.16,
+			"z": -326.06,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_22_2_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 906.88,
+			"z": -316.14,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_21_1_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 899.13,
+			"z": -327.05,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_18_1_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 879.87,
+			"z": -327.64,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_14_4_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 840.95,
+			"z": -306.95,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Puerta_Tunel_armas_tunel",
+			"tipo": "puerta",
+			"favela": true,
+			"giro": "armas_tunel",
+			"texto": "Balas y Veladoras",
+			"letrero_alto": 2.35,
+			"x": 838.75,
+			"z": -307.15,
+			"y": 0.0,
+			"rot": -0.089
+		},
+		{
+			"nombre": "Foco_Abandonada_15_5_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 847.91,
+			"z": -296.59,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_18_28_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 855.05,
+			"z": -111.79,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_18_26_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 856.62,
+			"z": -129.41,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_2_12_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 742.22,
+			"z": -250.51,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_5_22_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 764.27,
+			"z": -168.22,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_16_28_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 841.27,
+			"z": -113.18,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_17_26_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 849.07,
+			"z": -129.94,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_23_21_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 900.09,
+			"z": -165.52,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_18_27_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 856.91,
+			"z": -120.5,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_4_14_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 755.53,
+			"z": -232.44,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_7_24_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 772.04,
+			"z": -150.71,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_22_3_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 905.3,
+			"z": -308.09,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_3_14_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 749.06,
+			"z": -234.35,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_12_4_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 828.44,
+			"z": -307.37,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_4_22_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 751.35,
+			"z": -171.5,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_10_22_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 798.02,
+			"z": -165.07,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Foco_Abandonada_20_21_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 876.99,
+			"z": -167.14,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_20_22_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 874.99,
+			"z": -158.81,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_5_22_Cuarto1",
+			"tipo": "foco",
+			"favela": true,
+			"x": 760.59,
+			"z": -168.55,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_6_24_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 765.34,
+			"z": -151.91,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": false
+		},
+		{
+			"nombre": "Foco_Abandonada_10_21_Cuarto0",
+			"tipo": "foco",
+			"favela": true,
+			"x": 798.77,
+			"z": -174.73,
+			"y": 2.2,
+			"siempre": true,
+			"parpadea": true
+		},
+		{
+			"nombre": "Tambo_Callejon_2",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 894.03,
+			"z": -320.98,
+			"y": 0.0,
+			"rot": 0.073
+		},
+		{
+			"nombre": "Tambo_Callejon_4",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 799.72,
+			"z": -323.37,
+			"y": 0.0,
+			"rot": -1.247
+		},
+		{
+			"nombre": "Tambo_Callejon_5",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 820.82,
+			"z": -321.45,
+			"y": 0.0,
+			"rot": -1.533
+		},
+		{
+			"nombre": "Tambo_Callejon_7",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 866.14,
+			"z": -317.32,
+			"y": 0.0,
+			"rot": -1.885
+		},
+		{
+			"nombre": "Tambo_Callejon_9",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 748.21,
+			"z": -319.97,
+			"y": 0.0,
+			"rot": 1.609
+		},
+		{
+			"nombre": "Tambo_Callejon_16",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 841.97,
+			"z": -311.36,
+			"y": 0.0,
+			"rot": 1.233
+		},
+		{
+			"nombre": "Tambo_Callejon_24",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 766.32,
+			"z": -302.3,
+			"y": 0.0,
+			"rot": 2.559
+		},
+		{
+			"nombre": "Tambo_Callejon_28",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 863.85,
+			"z": -291.66,
+			"y": 0.0,
+			"rot": -1.752
+		},
+		{
+			"nombre": "Tambo_Callejon_30",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 745.89,
+			"z": -293.95,
+			"y": 0.0,
+			"rot": -0.144
+		},
+		{
+			"nombre": "Tambo_Callejon_33",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 820.3,
+			"z": -289.31,
+			"y": 0.0,
+			"rot": -1.637
+		},
+		{
+			"nombre": "Tambo_Callejon_39",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 776.45,
+			"z": -283.26,
+			"y": 0.0,
+			"rot": -0.848
+		},
+		{
+			"nombre": "Tambo_Callejon_51",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 838.43,
+			"z": -271.67,
+			"y": 0.0,
+			"rot": 1.9
+		},
+		{
+			"nombre": "Tambo_Callejon_53",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 877.34,
+			"z": -266.4,
+			"y": 0.0,
+			"rot": -1.219
+		},
+		{
+			"nombre": "Tambo_Callejon_55",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 900.79,
+			"z": -264.24,
+			"y": 0.0,
+			"rot": 1.05
+		},
+		{
+			"nombre": "Tambo_Callejon_56",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 735.97,
+			"z": -271.0,
+			"y": 0.0,
+			"rot": 0.013
+		},
+		{
+			"nombre": "Tambo_Callejon_59",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 806.46,
+			"z": -266.49,
+			"y": 0.0,
+			"rot": 1.512
+		},
+		{
+			"nombre": "Tambo_Callejon_66",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 778.24,
+			"z": -259.26,
+			"y": 0.0,
+			"rot": -1.629
+		},
+		{
+			"nombre": "Tambo_Callejon_68",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 827.46,
+			"z": -254.73,
+			"y": 0.0,
+			"rot": -1.603
+		},
+		{
+			"nombre": "Tambo_Callejon_70",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 860.44,
+			"z": -253.49,
+			"y": 0.0,
+			"rot": 1.128
+		},
+		{
+			"nombre": "Tambo_Callejon_80",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 805.91,
+			"z": -242.67,
+			"y": 0.0,
+			"rot": -0.932
+		},
+		{
+			"nombre": "Tambo_Callejon_85",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 786.26,
+			"z": -234.35,
+			"y": 0.0,
+			"rot": 0.413
+		},
+		{
+			"nombre": "Tambo_Callejon_87",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 859.1,
+			"z": -229.64,
+			"y": 0.0,
+			"rot": 1.123
+		},
+		{
+			"nombre": "Tambo_Callejon_89",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 893.49,
+			"z": -226.62,
+			"y": 0.0,
+			"rot": -1.722
+		},
+		{
+			"nombre": "Tambo_Callejon_98",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 874.1,
+			"z": -212.31,
+			"y": 0.0,
+			"rot": 1.706
+		},
+		{
+			"nombre": "Tambo_Callejon_99",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 762.42,
+			"z": -214.38,
+			"y": 0.0,
+			"rot": -0.519
+		},
+		{
+			"nombre": "Tambo_Callejon_107",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 824.22,
+			"z": -200.73,
+			"y": 0.0,
+			"rot": -1.484
+		},
+		{
+			"nombre": "Tambo_Callejon_110",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 772.7,
+			"z": -197.14,
+			"y": 0.0,
+			"rot": 0.861
+		},
+		{
+			"nombre": "Tambo_Callejon_111",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 799.87,
+			"z": -192.73,
+			"y": 0.0,
+			"rot": 1.187
+		},
+		{
+			"nombre": "Tambo_Callejon_114",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 889.93,
+			"z": -186.75,
+			"y": 0.0,
+			"rot": -2.906
+		},
+		{
+			"nombre": "Tambo_Callejon_120",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 842.33,
+			"z": -182.96,
+			"y": 0.0,
+			"rot": -0.426
+		},
+		{
+			"nombre": "Tambo_Callejon_121",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 863.44,
+			"z": -181.17,
+			"y": 0.0,
+			"rot": -1.842
+		},
+		{
+			"nombre": "Tambo_Callejon_126",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 759.39,
+			"z": -180.4,
+			"y": 0.0,
+			"rot": 0.426
+		},
+		{
+			"nombre": "Tambo_Callejon_128",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 782.84,
+			"z": -178.32,
+			"y": 0.0,
+			"rot": 2.714
+		},
+		{
+			"nombre": "Tambo_Callejon_138",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 821.2,
+			"z": -166.9,
+			"y": 0.0,
+			"rot": -1.114
+		},
+		{
+			"nombre": "Tambo_Callejon_148",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 875.36,
+			"z": -155.88,
+			"y": 0.0,
+			"rot": 1.254
+		},
+		{
+			"nombre": "Tambo_Callejon_149",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 757.44,
+			"z": -158.52,
+			"y": 0.0,
+			"rot": 1.046
+		},
+		{
+			"nombre": "Tambo_Callejon_150",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 779.93,
+			"z": -154.61,
+			"y": 0.0,
+			"rot": 2.206
+		},
+		{
+			"nombre": "Tambo_Callejon_160",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 864.41,
+			"z": -139.05,
+			"y": 0.0,
+			"rot": 2.469
+		},
+		{
+			"nombre": "Tambo_Callejon_165",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 795.09,
+			"z": -139.12,
+			"y": 0.0,
+			"rot": -0.49
+		},
+		{
+			"nombre": "Tambo_Callejon_169",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 882.45,
+			"z": -129.4,
+			"y": 0.0,
+			"rot": 0.523
+		},
+		{
+			"nombre": "Tambo_Callejon_170",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 747.49,
+			"z": -135.31,
+			"y": 0.0,
+			"rot": 2.56
+		},
+		{
+			"nombre": "Tambo_Callejon_172",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 770.94,
+			"z": -133.34,
+			"y": 0.0,
+			"rot": -0.306
+		},
+		{
+			"nombre": "Tambo_Callejon_175",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 848.9,
+			"z": -124.23,
+			"y": 0.0,
+			"rot": -1.559
+		},
+		{
+			"nombre": "Tambo_Callejon_186",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 759.95,
+			"z": -116.1,
+			"y": 0.0,
+			"rot": 1.385
+		},
+		{
+			"nombre": "Tambo_Callejon_188",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 791.22,
+			"z": -113.31,
+			"y": 0.0,
+			"rot": -0.553
+		},
+		{
+			"nombre": "Tambo_Callejon_208",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 901.15,
+			"z": -301.29,
+			"y": 0.0,
+			"rot": -1.898
+		},
+		{
+			"nombre": "Tambo_Callejon_255",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 753.81,
+			"z": -260.62,
+			"y": 0.0,
+			"rot": 0.186
+		},
+		{
+			"nombre": "Tambo_Callejon_270",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 743.82,
+			"z": -238.21,
+			"y": 0.0,
+			"rot": 2.896
+		},
+		{
+			"nombre": "Tambo_Callejon_284",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 839.33,
+			"z": -226.49,
+			"y": 0.0,
+			"rot": -1.403
+		},
+		{
+			"nombre": "Tambo_Callejon_298",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 898.4,
+			"z": -205.15,
+			"y": 0.0,
+			"rot": -1.638
+		},
+		{
+			"nombre": "Tambo_Callejon_334",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 903.18,
+			"z": -168.58,
+			"y": 0.0,
+			"rot": -0.479
+		},
+		{
+			"nombre": "Tambo_Callejon_359",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 900.64,
+			"z": -140.7,
+			"y": 0.0,
+			"rot": -1.077
+		},
+		{
+			"nombre": "Tambo_Callejon_391",
+			"tipo": "tambo_fuego",
+			"favela": true,
+			"x": 898.63,
+			"z": -116.78,
+			"y": 0.0,
+			"rot": -0.808
+		},
+		{
+			"nombre": "Letrero_boca_privada_fuga",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca de\nla Fuga",
+			"x": 735.86,
+			"z": -312.02,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_boca_roble_quebrado",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca del\nRoble Quebrado",
+			"x": 732.31,
+			"z": -272.17,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_boca_parota",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca de\nla Parota",
+			"x": 736.57,
+			"z": -231.64,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_boca_caobilla",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca de\nla Caobilla",
+			"x": 732.3,
+			"z": -183.83,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_boca_sin_numero",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Boca\nSin Número",
+			"x": 736.56,
+			"z": -143.29,
+			"y": 3.85,
+			"rot": 1.4818,
+			"tam": 0.0045
+		},
+		{
+			"nombre": "Letrero_plaza_tinaco_0",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Plaza del Tinaco",
+			"x": 822.78,
+			"z": -223.95,
+			"y": 0.5,
+			"rot": 1.4818,
+			"tam": 0.004,
+			"color": [0.93, 0.9, 0.8],
+			"lejos": 35.0
+		},
+		{
+			"nombre": "Letrero_plaza_tinaco_1",
+			"tipo": "letrero",
+			"favela": true,
+			"texto": "Plaza del Tinaco",
+			"x": 822.47,
+			"z": -223.98,
+			"y": 0.5,
+			"rot": -1.6598,
+			"tam": 0.004,
+			"color": [0.93, 0.9, 0.8],
+			"lejos": 35.0
+		},
+		{
+			"nombre": "Foco_0",
+			"tipo": "foco",
+			"x": 843.67,
+			"z": -326.5,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_1",
+			"tipo": "foco",
+			"x": 882.79,
+			"z": -306.94,
+			"y": 3.63
+		},
+		{
+			"nombre": "Foco_2",
+			"tipo": "foco",
+			"x": 740.61,
+			"z": -311.6,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_3",
+			"tipo": "foco",
+			"x": 890.81,
+			"z": -290.17,
+			"y": 3.37
+		},
+		{
+			"nombre": "Foco_4",
+			"tipo": "foco",
+			"x": 765.27,
+			"z": -293.34,
+			"y": 3.91
+		},
+		{
+			"nombre": "Foco_5",
+			"tipo": "foco",
+			"x": 886.99,
+			"z": -282.47,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_6",
+			"tipo": "foco",
+			"x": 895.36,
+			"z": -273.69,
+			"y": 3.82
+		},
+		{
+			"nombre": "Foco_7",
+			"tipo": "foco",
+			"x": 785.37,
+			"z": -275.48,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_8",
+			"tipo": "foco",
+			"x": 776.15,
+			"z": -268.27,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_9",
+			"tipo": "foco",
+			"x": 807.96,
+			"z": -265.43,
+			"y": 3.8
+		},
+		{
+			"nombre": "Foco_10",
+			"tipo": "foco",
+			"x": 831.61,
+			"z": -263.32,
+			"y": 3.61
+		},
+		{
+			"nombre": "Foco_11",
+			"tipo": "foco",
+			"x": 862.43,
+			"z": -260.57,
+			"y": 3.46
+		},
+		{
+			"nombre": "Foco_12",
+			"tipo": "foco",
+			"x": 886.34,
+			"z": -258.43,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_13",
+			"tipo": "foco",
+			"x": 744.22,
+			"z": -263.08,
+			"y": 3.9
+		},
+		{
+			"nombre": "Foco_14",
+			"tipo": "foco",
+			"x": 776.78,
+			"z": -260.18,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_15",
+			"tipo": "foco",
+			"x": 869.87,
+			"z": -251.87,
+			"y": 3.69
+		},
+		{
+			"nombre": "Foco_16",
+			"tipo": "foco",
+			"x": 775.3,
+			"z": -252.28,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_17",
+			"tipo": "foco",
+			"x": 813.91,
+			"z": -248.83,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_18",
+			"tipo": "foco",
+			"x": 852.56,
+			"z": -245.39,
+			"y": 3.58
+		},
+		{
+			"nombre": "Foco_19",
+			"tipo": "foco",
+			"x": 883.98,
+			"z": -242.58,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_20",
+			"tipo": "foco",
+			"x": 767.75,
+			"z": -228.85,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_21",
+			"tipo": "foco",
+			"x": 858.12,
+			"z": -204.73,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_22",
+			"tipo": "foco",
+			"x": 832.98,
+			"z": -190.9,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_23",
+			"tipo": "foco",
+			"x": 752.64,
+			"z": -190.05,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_24",
+			"tipo": "foco",
+			"x": 831.4,
+			"z": -183.02,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_25",
+			"tipo": "foco",
+			"x": 840.36,
+			"z": -182.22,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_26",
+			"tipo": "foco",
+			"x": 877.79,
+			"z": -178.88,
+			"y": 3.56
+		},
+		{
+			"nombre": "Foco_27",
+			"tipo": "foco",
+			"x": 778.93,
+			"z": -179.67,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_28",
+			"tipo": "foco",
+			"x": 790.78,
+			"z": -178.61,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_29",
+			"tipo": "foco",
+			"x": 823.2,
+			"z": -175.71,
+			"y": 3.36
+		},
+		{
+			"nombre": "Foco_30",
+			"tipo": "foco",
+			"x": 830.43,
+			"z": -175.07,
+			"y": 3.79
+		},
+		{
+			"nombre": "Foco_31",
+			"tipo": "foco",
+			"x": 858.69,
+			"z": -172.55,
+			"y": 3.8
+		},
+		{
+			"nombre": "Foco_32",
+			"tipo": "foco",
+			"x": 884.42,
+			"z": -162.23,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_33",
+			"tipo": "foco",
+			"x": 776.03,
+			"z": -163.86,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_34",
+			"tipo": "foco",
+			"x": 875.71,
+			"z": -154.97,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_35",
+			"tipo": "foco",
+			"x": 773.79,
+			"z": -156.03,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_36",
+			"tipo": "foco",
+			"x": 804.16,
+			"z": -153.33,
+			"y": 3.71
+		},
+		{
+			"nombre": "Foco_37",
+			"tipo": "foco",
+			"x": 843.81,
+			"z": -149.79,
+			"y": 3.44
+		},
+		{
+			"nombre": "Foco_38",
+			"tipo": "foco",
+			"x": 891.0,
+			"z": -145.57,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_39",
+			"tipo": "foco",
+			"x": 789.08,
+			"z": -146.63,
+			"y": 3.74
+		},
+		{
+			"nombre": "Foco_40",
+			"tipo": "foco",
+			"x": 899.05,
+			"z": -136.82,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_41",
+			"tipo": "foco",
+			"x": 741.64,
+			"z": -142.84,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_42",
+			"tipo": "foco",
+			"x": 755.73,
+			"z": -141.59,
+			"y": 3.54
+		},
+		{
+			"nombre": "Foco_43",
+			"tipo": "foco",
+			"x": 795.86,
+			"z": -137.99,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_44",
+			"tipo": "foco",
+			"x": 881.53,
+			"z": -130.35,
+			"y": 3.57
+		},
+		{
+			"nombre": "Foco_45",
+			"tipo": "foco",
+			"x": 865.72,
+			"z": -123.73,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_46",
+			"tipo": "foco",
+			"x": 882.09,
+			"z": -122.28,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_47",
+			"tipo": "foco",
+			"x": 886.66,
+			"z": -113.83,
+			"y": 3.41
+		},
+		{
+			"nombre": "Foco_48",
+			"tipo": "foco",
+			"x": 901.46,
+			"z": -315.89,
+			"y": 3.75
+		},
+		{
+			"nombre": "Foco_49",
+			"tipo": "foco",
+			"x": 767.93,
+			"z": -320.29,
+			"y": 3.94
+		},
+		{
+			"nombre": "Foco_50",
+			"tipo": "foco",
+			"x": 869.59,
+			"z": -311.97,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_51",
+			"tipo": "foco",
+			"x": 743.77,
+			"z": -314.35,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_52",
+			"tipo": "foco",
+			"x": 868.73,
+			"z": -302.26,
+			"y": 3.89
+		},
+		{
+			"nombre": "Foco_53",
+			"tipo": "foco",
+			"x": 875.73,
+			"z": -292.4,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_54",
+			"tipo": "foco",
+			"x": 883.65,
+			"z": -292.91,
+			"y": 3.44
+		},
+		{
+			"nombre": "Foco_55",
+			"tipo": "foco",
+			"x": 779.3,
+			"z": -271.2,
+			"y": 3.7
+		},
+		{
+			"nombre": "Foco_56",
+			"tipo": "foco",
+			"x": 843.99,
+			"z": -289.78,
+			"y": 3.5
+		},
+		{
+			"nombre": "Foco_57",
+			"tipo": "foco",
+			"x": 757.27,
+			"z": -289.04,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_58",
+			"tipo": "foco",
+			"x": 772.95,
+			"z": -288.27,
+			"y": 3.62
+		},
+		{
+			"nombre": "Foco_59",
+			"tipo": "foco",
+			"x": 819.81,
+			"z": -283.71,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_60",
+			"tipo": "foco",
+			"x": 850.97,
+			"z": -279.8,
+			"y": 3.57
+		},
+		{
+			"nombre": "Foco_61",
+			"tipo": "foco",
+			"x": 858.91,
+			"z": -280.53,
+			"y": 3.44
+		},
+		{
+			"nombre": "Foco_62",
+			"tipo": "foco",
+			"x": 890.07,
+			"z": -276.61,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_63",
+			"tipo": "foco",
+			"x": 865.91,
+			"z": -270.63,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_64",
+			"tipo": "foco",
+			"x": 740.24,
+			"z": -274.7,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_65",
+			"tipo": "foco",
+			"x": 748.0,
+			"z": -273.51,
+			"y": 3.38
+		},
+		{
+			"nombre": "Foco_66",
+			"tipo": "foco",
+			"x": 762.77,
+			"z": -262.42,
+			"y": 3.64
+		},
+		{
+			"nombre": "Foco_67",
+			"tipo": "foco",
+			"x": 761.58,
+			"z": -249.04,
+			"y": 3.58
+		},
+		{
+			"nombre": "Foco_68",
+			"tipo": "foco",
+			"x": 880.18,
+			"z": -254.04,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_69",
+			"tipo": "foco",
+			"x": 801.28,
+			"z": -252.72,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_70",
+			"tipo": "foco",
+			"x": 745.0,
+			"z": -239.76,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_71",
+			"tipo": "foco",
+			"x": 847.41,
+			"z": -239.94,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_72",
+			"tipo": "foco",
+			"x": 768.57,
+			"z": -239.18,
+			"y": 3.73
+		},
+		{
+			"nombre": "Foco_73",
+			"tipo": "foco",
+			"x": 901.54,
+			"z": -228.61,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_74",
+			"tipo": "foco",
+			"x": 743.8,
+			"z": -226.48,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_75",
+			"tipo": "foco",
+			"x": 751.44,
+			"z": -223.76,
+			"y": 3.36
+		},
+		{
+			"nombre": "Foco_76",
+			"tipo": "foco",
+			"x": 851.75,
+			"z": -200.29,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_77",
+			"tipo": "foco",
+			"x": 859.45,
+			"z": -198.33,
+			"y": 3.86
+		},
+		{
+			"nombre": "Foco_78",
+			"tipo": "foco",
+			"x": 741.65,
+			"z": -202.33,
+			"y": 3.72
+		},
+		{
+			"nombre": "Foco_79",
+			"tipo": "foco",
+			"x": 755.78,
+			"z": -184.07,
+			"y": 3.65
+		},
+		{
+			"nombre": "Foco_80",
+			"tipo": "foco",
+			"x": 802.75,
+			"z": -180.77,
+			"y": 3.78
+		},
+		{
+			"nombre": "Foco_81",
+			"tipo": "foco",
+			"x": 833.92,
+			"z": -177.04,
+			"y": 3.67
+		},
+		{
+			"nombre": "Foco_82",
+			"tipo": "foco",
+			"x": 865.25,
+			"z": -175.02,
+			"y": 3.93
+		},
+		{
+			"nombre": "Foco_83",
+			"tipo": "foco",
+			"x": 880.8,
+			"z": -172.69,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_84",
+			"tipo": "foco",
+			"x": 817.6,
+			"z": -170.68,
+			"y": 3.64
+		},
+		{
+			"nombre": "Foco_85",
+			"tipo": "foco",
+			"x": 833.33,
+			"z": -170.45,
+			"y": 3.42
+		},
+		{
+			"nombre": "Foco_86",
+			"tipo": "foco",
+			"x": 872.35,
+			"z": -166.39,
+			"y": 3.87
+		},
+		{
+			"nombre": "Foco_87",
+			"tipo": "foco",
+			"x": 879.33,
+			"z": -156.21,
+			"y": 3.43
+		},
+		{
+			"nombre": "Foco_88",
+			"tipo": "foco",
+			"x": 893.91,
+			"z": -143.01,
+			"y": 3.56
+		},
+		{
+			"nombre": "Foco_89",
+			"tipo": "foco",
+			"x": 855.24,
+			"z": -151.13,
+			"y": 3.73
+		},
+		{
+			"nombre": "Foco_90",
+			"tipo": "foco",
+			"x": 902.11,
+			"z": -146.7,
+			"y": 3.84
+		},
+		{
+			"nombre": "Foco_91",
+			"tipo": "foco",
+			"x": 900.86,
+			"z": -132.75,
+			"y": 3.55
+		},
+		{
+			"nombre": "Foco_92",
+			"tipo": "foco",
+			"x": 760.83,
+			"z": -152.48,
+			"y": 3.92
+		},
+		{
+			"nombre": "Foco_93",
+			"tipo": "foco",
+			"x": 744.45,
+			"z": -145.47,
+			"y": 3.53
+		},
+		{
+			"nombre": "Foco_94",
+			"tipo": "foco",
+			"x": 752.28,
+			"z": -144.93,
+			"y": 3.66
+		},
+		{
+			"nombre": "Foco_95",
+			"tipo": "foco",
+			"x": 869.55,
+			"z": -134.94,
+			"y": 3.47
+		},
+		{
+			"nombre": "Foco_96",
+			"tipo": "foco",
+			"x": 885.22,
+			"z": -134.01,
+			"y": 3.61
+		},
+		{
+			"nombre": "Foco_97",
+			"tipo": "foco",
+			"x": 892.91,
+			"z": -131.87,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_98",
+			"tipo": "foco",
+			"x": 798.54,
+			"z": -133.73,
+			"y": 3.74
+		},
+		{
+			"nombre": "Foco_99",
+			"tipo": "foco",
+			"x": 861.03,
+			"z": -127.77,
+			"y": 3.35
+		},
+		{
+			"nombre": "Foco_100",
+			"tipo": "foco",
+			"x": 900.04,
+			"z": -123.5,
+			"y": 3.83
+		},
+		{
+			"nombre": "Foco_101",
+			"tipo": "foco",
+			"x": 891.5,
+			"z": -167.15,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_102",
+			"tipo": "foco",
+			"x": 863.79,
+			"z": -298.02,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_103",
+			"tipo": "foco",
+			"x": 849.76,
+			"z": -136.51,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_104",
+			"tipo": "foco",
+			"x": 866.93,
+			"z": -159.25,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_105",
+			"tipo": "foco",
+			"x": 891.16,
+			"z": -326.06,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_106",
+			"tipo": "foco",
+			"x": 906.88,
+			"z": -316.14,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_107",
+			"tipo": "foco",
+			"x": 899.13,
+			"z": -327.05,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_108",
+			"tipo": "foco",
+			"x": 879.87,
+			"z": -327.64,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_109",
+			"tipo": "foco",
+			"x": 840.95,
+			"z": -306.95,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_110",
+			"tipo": "foco",
+			"x": 847.91,
+			"z": -296.59,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_111",
+			"tipo": "foco",
+			"x": 855.05,
+			"z": -111.79,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_112",
+			"tipo": "foco",
+			"x": 856.62,
+			"z": -129.41,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_113",
+			"tipo": "foco",
+			"x": 742.22,
+			"z": -250.51,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_114",
+			"tipo": "foco",
+			"x": 764.27,
+			"z": -168.22,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_115",
+			"tipo": "foco",
+			"x": 841.27,
+			"z": -113.18,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_116",
+			"tipo": "foco",
+			"x": 849.07,
+			"z": -129.94,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_117",
+			"tipo": "foco",
+			"x": 900.09,
+			"z": -165.52,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_118",
+			"tipo": "foco",
+			"x": 856.91,
+			"z": -120.5,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_119",
+			"tipo": "foco",
+			"x": 755.53,
+			"z": -232.44,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_120",
+			"tipo": "foco",
+			"x": 772.04,
+			"z": -150.71,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_121",
+			"tipo": "foco",
+			"x": 905.3,
+			"z": -308.09,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_122",
+			"tipo": "foco",
+			"x": 749.06,
+			"z": -234.35,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_123",
+			"tipo": "foco",
+			"x": 828.44,
+			"z": -307.37,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_124",
+			"tipo": "foco",
+			"x": 751.35,
+			"z": -171.5,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_125",
+			"tipo": "foco",
+			"x": 798.02,
+			"z": -165.07,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_126",
+			"tipo": "foco",
+			"x": 876.99,
+			"z": -167.14,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_127",
+			"tipo": "foco",
+			"x": 874.99,
+			"z": -158.81,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_128",
+			"tipo": "foco",
+			"x": 760.59,
+			"z": -168.55,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_129",
+			"tipo": "foco",
+			"x": 765.34,
+			"z": -151.91,
+			"y": 2.2
+		},
+		{
+			"nombre": "Foco_130",
+			"tipo": "foco",
+			"x": 798.77,
+			"z": -174.73,
+			"y": 2.2
+		},
+		{
+			"nombre": "Mesa_Plazuela_3_5_0",
+			"tipo": "mesa",
+			"x": 754.35,
+			"z": -306.52,
+			"y": 0.0,
+			"rot": -0.018,
+			"semilla": 469,
+			"sillas": 7
+		},
+		{
+			"nombre": "Mesa_Plazuela_3_5_1",
+			"tipo": "mesa",
+			"x": 756.35,
+			"z": -306.56,
+			"y": 0.0,
+			"rot": -0.118,
+			"semilla": 505,
+			"sillas": 15
+		},
+		{
+			"nombre": "Mesa_Plazuela_7_14_0",
+			"tipo": "mesa",
+			"x": 780.05,
+			"z": -232.61,
+			"y": 0.0,
+			"rot": 0.118,
+			"semilla": 168,
+			"sillas": 14
+		},
+		{
+			"tipo": "tambo",
+			"x": 826.96,
+			"z": -230.65,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_p0"
+		},
+		{
+			"tipo": "tambo",
+			"x": 834.63,
+			"z": -229.97,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_p1"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 814.36,
+			"z": -121.44,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p2"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 828.92,
+			"z": -133.9,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p3"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 775.3,
+			"z": -301.62,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p4"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 789.86,
+			"z": -314.08,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p5"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 876.17,
+			"z": -196.24,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p6"
+		},
+		{
+			"tipo": "tambo_fuego",
+			"x": 890.73,
+			"z": -208.7,
+			"y": 0.0,
+			"rot": -0.089,
+			"nombre": "tambo_fuego_p7"
+		}
+	]
+}

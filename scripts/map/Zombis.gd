@@ -117,6 +117,11 @@ func _ready() -> void:
 	add_to_group("zombis_mando")
 	_jugador = get_node(jugador_path) as Player
 	_ciclo = get_node(ciclo_path) as Ciclo
+	# Colonia abierta las 24 horas (La Gotera, MapaColonia.abierto_24h): sin sueltos ni Saltabardas.
+	# Las turbas que pide una mision (aparecer_turba) si salen.
+	if MapaColonia.abierto_24h:
+		espontaneos = false
+		saltabardas = false
 	process_physics_priority = 10
 	liquido = Liquido.new()
 	add_child(liquido)
@@ -520,6 +525,9 @@ func _lugar_libre(centro: Vector3, angulo := INF, separado := SEPARADO) -> Vecto
 		if a_la_vista(camara, punto):
 			continue
 		if refugio and refugio.adentro(punto, MARGEN_REFUGIO):
+			continue
+		# Dentro de las fortalezas no hay zombis de noche (lore §13, S4)
+		if MuroColonia.adentro(get_tree(), punto):
 			continue
 		if _encima_de_otro(punto, separado):
 			continue

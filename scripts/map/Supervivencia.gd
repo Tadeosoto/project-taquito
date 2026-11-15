@@ -90,14 +90,21 @@ func _ready() -> void:
 	_salud.cambio.connect(_cambio_vida)
 	var ciclo := get_node(ciclo_path) as Ciclo
 	_ciclo = ciclo
+	# En una colonia abierta las 24 horas y sin zombis (MapaColonia.abierto_24h) la noche no avisa nada
 	ciclo.aviso_atardecer.connect(func() -> void:
+		if MapaColonia.abierto_24h:
+			return
 		_avisar(TEXTO_AVISO)
 		_sonar("campana"))
 	_zombis.turba_cerca.connect(func() -> void:
 		_avisar(TEXTO_TURBA)
 		_sonar("rugido"))
-	ciclo.anochecio.connect(func() -> void: _avisar(TEXTO_NOCHE))
+	ciclo.anochecio.connect(func() -> void:
+		if not MapaColonia.abierto_24h:
+			_avisar(TEXTO_NOCHE))
 	ciclo.amanecio.connect(func() -> void:
+		if MapaColonia.abierto_24h:
+			return
 		_avisar(TEXTO_DIA)
 		var efectos := _efectos()
 		if efectos:
