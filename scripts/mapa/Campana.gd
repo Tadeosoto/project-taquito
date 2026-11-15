@@ -2,8 +2,9 @@ class_name Campana
 extends Node3D
 
 # Una campana que suena sola (marca "campana" de Colonia.gd). `de`:
-#   "templo"   la de la parroquia de Santa Mugre: repica al amanecer y cuando Ciclo avisa que va a
-#              oscurecer (aviso_atardecer): es la senal de que hay que guardarse
+#   "templo"   la de la parroquia de Santa Mugre: repica al amanecer. Al atardecer la senal de
+#              guardarse son las campanadas grabadas de Supervivencia; esta solo repica si no hay
+#              Supervivencia o en una colonia abierta toda la noche
 #   "escuela"  la del recreo y la de la salida de la primaria, a media manana y a mediodia
 # El sonido se arma en Sonidos ("campana", "campana_escuela") y sale de aqui (3D): de lejos se
 # oye bajito y se sabe de donde viene.
@@ -35,7 +36,15 @@ func _ready() -> void:
 	_ciclo = get_tree().get_first_node_in_group("ciclo")
 	if _ciclo and de == "templo":
 		_ciclo.amanecio.connect(repicar)
-		_ciclo.aviso_atardecer.connect(repicar)
+		# Al atardecer ya suenan las campanadas grabadas en todo el mapa (Supervivencia,
+		# "campanadas"): si repicara aqui tambien se enciman dos campanas distintas
+		_ciclo.aviso_atardecer.connect(_al_atardecer)
+
+
+func _al_atardecer() -> void:
+	# Supervivencia calla en una colonia abierta toda la noche: ahi repica la del templo como antes
+	if get_tree().get_first_node_in_group("supervivencia") == null or MapaColonia.abierto_24h:
+		repicar()
 
 
 func repicar() -> void:

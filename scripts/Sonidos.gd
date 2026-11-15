@@ -11,9 +11,9 @@ static var _sonidos := {}
 # nada. La defensa del tinaco deja solo los machetazos y los balazos, con su musica
 static var solo: Array[String] = []
 
-# Los unicos que vienen de archivo: el rugido de los zombis (JJ), la subida y la bajada sin lo de en medio para cuando te
-# detectan, y para el aviso de que van a pegar el pico ya bajando. Ya vienen mas bajos
-# (de "rugido zombie.mpeg" con ffmpeg).
+# Los que vienen de archivo (se piden por nombre, como los armados). Casi todos son de Splice,
+# comprimidos a ogg mono 44.1 kHz; la lista con origen y licencia esta en docs/sonidos.csv.
+# Si un nombre esta aqui, gana sobre el que se arma en codigo en sonido().
 const ARCHIVOS := {
 	"paso_interior": "res://audio/jugador/paso_interior.ogg",   # pasos dentro de tiendas y casas (SonidosJugador)
 	"paso_tierra": "res://audio/jugador/paso_tierra.ogg",   # tierra y pasto (SonidosJugador)
@@ -22,7 +22,7 @@ const ARCHIVOS := {
 	"juntar": "res://audio/items/juntar.ogg",   # al recoger un objeto (WorldItem)
 	"reja": "res://audio/mundo/reja.ogg",   # reja que se abre al entrar a una fortaleza (EntradaJefe)
 	"cortina": "res://audio/mundo/cortina.ogg",   # se cierran las tiendas (MapPuntos)
-	"campana": "res://audio/mundo/campanadas.ogg",   # aviso del atardecer (Supervivencia)
+	"campanadas": "res://audio/mundo/campanadas.ogg",   # varias campanadas: aviso del atardecer (Supervivencia). "campana" sola (un toque) sigue armada abajo
 	"ya_salieron": "res://audio/mundo/ya_salieron.ogg",   # bajito, al anochecer cuando salen los zombis (AmbienteMundo)
 	"ui_mover": "res://audio/ui/ui_nav.ogg",   # navegar menus e inventario
 	"noche_zombis": "res://audio/ambiente/noche_zombis.ogg",   # viento lejano de noche con zombis cerca (AmbienteMundo)
@@ -113,11 +113,19 @@ const RUGIDOS_MAX := 2
 const RUGIDO_SEPARA := 2.5
 const CORTOS_MAX := 3
 const CORTO_SEPARA := 0.35
-static var _sonando := {"rugido": [], "rugido_corto": []}   # cuando acaba cada uno (ms)
-static var _ultimo := {"rugido": -100000, "rugido_corto": -100000}
+# El grito de "te vi" (zombi_alerta, 3 s): si te ven varios a la vez no gritan todos
+const ALERTAS_MAX := 2
+const ALERTA_SEPARA := 1.5
+const CUPOS := {
+	"rugido": [RUGIDOS_MAX, RUGIDO_SEPARA],
+	"rugido_corto": [CORTOS_MAX, CORTO_SEPARA],
+	"zombi_alerta": [ALERTAS_MAX, ALERTA_SEPARA],
+}
+static var _sonando := {"rugido": [], "rugido_corto": [], "zombi_alerta": []}   # cuando acaba cada uno (ms)
+static var _ultimo := {"rugido": -100000, "rugido_corto": -100000, "zombi_alerta": -100000}
 
 
-# true si `nombre` ("rugido" o "rugido_corto") puede sonar ahora, y lo aparta
+# true si `nombre` ("rugido", "rugido_corto" o "zombi_alerta") puede sonar ahora, y lo aparta
 static func turno(nombre: String, tono := 1.0) -> bool:
 	if not _sonando.has(nombre):
 		return true
@@ -125,13 +133,13 @@ static func turno(nombre: String, tono := 1.0) -> bool:
 	if stream == null:
 		return false
 	var ahora := Time.get_ticks_msec()
-	var corto := nombre == "rugido_corto"
+	var cupo: Array = CUPOS[nombre]
 	var lista: Array = _sonando[nombre]
 	lista = lista.filter(func(fin: int) -> bool: return fin > ahora)
 	_sonando[nombre] = lista
-	if lista.size() >= (CORTOS_MAX if corto else RUGIDOS_MAX):
+	if lista.size() >= int(cupo[0]):
 		return false
-	if ahora - int(_ultimo[nombre]) < int((CORTO_SEPARA if corto else RUGIDO_SEPARA) * 1000.0):
+	if ahora - int(_ultimo[nombre]) < int(float(cupo[1]) * 1000.0):
 		return false
 	_ultimo[nombre] = ahora
 	lista.append(ahora + int(stream.get_length() / maxf(tono, 0.1) * 1000.0))
@@ -173,7 +181,9 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _ruido(0.18, 0.2, 2.0)
 			"ladrido":
 				_sonidos[nombre] = _tono(420.0, 0.11, -200.0, 0.7)
-			"whack":
+			# El golpe seco de antes, para lo que no es carne: forzar la cortina de la bodega,
+			# el martillazo del taller. "whack" ya es el golpe que acierta en un zombi (archivos)
+			"whack", "golpe_seco":
 				_sonidos[nombre] = _whack()
 			"bloqueo":
 				_sonidos[nombre] = _bloqueo()
@@ -352,14 +362,26 @@ static func usar_item(donde: Node, item: InventoryItemData, subio: int, volumen_
 static func tocar(donde: Node, nombre: String, volumen_db := 0.0, tono := 1.0) -> void:
 	if donde == null or not donde.is_inside_tree():
 		return
+	var stream := sonido(nombre)
+	# Sin sonido (filtrado por `solo`) el reproductor nunca acaba y se quedaria colgado
+	if stream == null:
+		return
 	var voz := AudioStreamPlayer.new()
-	voz.stream = sonido(nombre)
+	voz.stream = stream
 	voz.volume_db = volumen_db
 	voz.pitch_scale = tono
 	voz.process_mode = Node.PROCESS_MODE_ALWAYS
 	voz.finished.connect(voz.queue_free)
 	donde.add_child(voz)
 	voz.play()
+
+
+# Como tocar(), pero el reproductor cuelga de la raiz: sigue sonando aunque `desde` se borre
+# en ese mismo cuadro (un objeto que recoges) o se cambie de escena (la reja de una fortaleza)
+static func tocar_suelto(desde: Node, nombre: String, volumen_db := 0.0, tono := 1.0) -> void:
+	if desde == null or not desde.is_inside_tree():
+		return
+	tocar(desde.get_tree().root, nombre, volumen_db, tono)
 
 
 # --- Menus e inventario ------------------------------------------------------

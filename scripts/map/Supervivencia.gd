@@ -80,6 +80,10 @@ var _goteo := 0.0
 var _curate_avisado := false   # ya salio el "Cúrate wey" en esta bajada de vida
 
 
+func _enter_tree() -> void:
+	add_to_group("supervivencia")   # Campana.gd: si estoy, la del templo no repica al atardecer
+
+
 func _ready() -> void:
 	layer = 8
 	_jugador = get_node(jugador_path) as Player
@@ -95,7 +99,8 @@ func _ready() -> void:
 		if MapaColonia.abierto_24h:
 			return
 		_avisar(TEXTO_AVISO)
-		_sonar("campana"))
+		# Las campanadas grabadas (6.5 s): en su propia voz, para que el rugido de una turba no las corte
+		Sonidos.tocar(self, "campanadas", -6.0))
 	_zombis.turba_cerca.connect(func() -> void:
 		_avisar(TEXTO_TURBA)
 		_sonar("rugido"))

@@ -99,7 +99,7 @@ func interact() -> void:
 	if efectos:
 		efectos.lanzar("recoger", global_position)
 
-	Sonidos.tocar(self, "juntar", -6.0, randf_range(0.97, 1.05))
+	Sonidos.tocar_suelto(self, "juntar", -6.0, randf_range(0.97, 1.05))
 	# Sonidito
 	if pickup_sound:
 		# Hacer chingon luego

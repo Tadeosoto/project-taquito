@@ -122,7 +122,7 @@ func interact() -> void:
 	if plano != "":
 		get_node("/root/Taller").dar_plano(plano)
 		tiliches.avisar("¡Plano! " + Recetas.PLANOS.get(plano, plano))
-	Sonidos.tocar(self, "inv_examinar", -4.0)
+	Sonidos.tocar_suelto(self, "juntar", -6.0, randf_range(0.97, 1.05))
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos:
 		efectos.lanzar("recoger", global_position)

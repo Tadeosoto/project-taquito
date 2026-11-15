@@ -37,6 +37,7 @@ var _voz_aliento: AudioStreamPlayer
 var _recorrido := 0.0
 var _lado := 0
 var _estaba_en_suelo := true
+var _pasto: Node   # MapPasto del mapa grande, si hay
 var _latido := 0.0
 var _voz_paso: Array[AudioStreamPlayer] = []
 var _voz_latido: AudioStreamPlayer
@@ -73,12 +74,20 @@ func _salto() -> void:
 	_estaba_en_suelo = en_suelo
 
 
-# Que sample de paso toca: dentro de una tienda o casa, el de interior; si el piso que pisas
-# esta en el grupo "tierra" o "pasto", el de tierra; si no, asfalto
+# Que sample de paso toca:
+#  - adentro de una casa (la propia o la de un vecino: CasaPropia te pone sin combate), el de
+#    interior. En las tiendas no se camina (escena fija con el jugador apagado)
+#  - en el mapa grande donde la mascara de pasto dice pasto (MapPasto.hay_pasto, donde salen las
+#    matas), o sobre un piso en el grupo "tierra" o "pasto", el de tierra
+#  - si no, asfalto
+# Los parches de pasto del mapa de Blender (piezas "suelo" del .json) no llegan al juego todavia
 func _suelo() -> String:
-	var interiores := get_tree().get_first_node_in_group("interiores")
-	if interiores != null and interiores.get("_interior") != null:
+	if _jugador.sin_combate:
 		return "paso_interior"
+	if _pasto == null or not is_instance_valid(_pasto):
+		_pasto = get_tree().get_first_node_in_group("mapa_pasto")
+	if _pasto and _pasto.hay_pasto(_jugador.global_position):
+		return "paso_tierra"
 	for i in _jugador.get_slide_collision_count():
 		var c := _jugador.get_slide_collision(i).get_collider()
 		if c is Node and (c.is_in_group("tierra") or c.is_in_group("pasto")):

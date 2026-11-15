@@ -670,9 +670,11 @@ func _tianguis(marca: Dictionary) -> void:
 	t.lona = String(marca.get("lona", ""))
 	t.de_noche = MapaColonia.abierto_24h
 	add_child(t)
-	# El bullicio del mercado, en medio del tramo (suena de dia y de noche: el tianguis no cierra)
+	# El bullicio del mercado, en medio del tramo. De noche se calla con su gente (Tianguis._revisar),
+	# salvo en una colonia abierta toda la noche (La Gotera)
 	var bullicio := AmbienteZona.new()
 	bullicio.sonido = "ambiente_tianguis"
+	bullicio.solo_dia = not MapaColonia.abierto_24h
 	bullicio.radio = maxf(t.largo * 0.6, 30.0)
 	bullicio.transform = t.transform * Transform3D(Basis.IDENTITY, Vector3(t.largo * 0.5, 1.5, 0.0))
 	add_child(bullicio)
@@ -681,6 +683,7 @@ func _tianguis(marca: Dictionary) -> void:
 	multitud.sonido = "ambiente_multitud"
 	multitud.radio = maxf(t.largo * 0.5, 25.0)
 	multitud.volumen_db = -10.0
+	multitud.solo_dia = bullicio.solo_dia
 	multitud.transform = bullicio.transform
 	add_child(multitud)
 

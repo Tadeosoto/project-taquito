@@ -7,7 +7,9 @@ extends Node
 #  - De noche (S-078): grillos en loop, al reves, y de vez en cuando un sonido que da miedo
 #    (`susto_noche`).
 #  - Cerca de varios zombis, a cualquier hora, un sonido de vez en cuando para dar misterio
-#    (`misterio_zombis`).
+#    (`misterio_zombis`). De noche con ellos cerca entra ademas un viento lejano en loop
+#    (`noche_zombis`), encima de los grillos, que sube y baja despacio.
+#  - Al anochecer, bajito, el aviso de que ya salieron (`ya_salieron`).
 
 const DIA_DB := -14.0
 const NOCHE_DB := -15.0
@@ -41,13 +43,20 @@ func _ready() -> void:
 	_voz_dia = _loop("ambiente_dia")
 	_voz_noche = _loop("ambiente_noche")
 	_voz_zombis = _loop("noche_zombis")
-	_ciclo.anochecio.connect(func() -> void:
-		if not _salieron:
-			_salieron = true
-			Sonidos.tocar(self, "ya_salieron", YA_SALIERON_DB))
-	_ciclo.amanecio.connect(func() -> void: _salieron = false)
 	if _ciclo == null:
 		set_process(false)
+		return
+	_ciclo.anochecio.connect(_anochecio)
+	_ciclo.amanecio.connect(func() -> void: _salieron = false)
+
+
+# Ya salieron los zombis: un aviso bajito. No en una colonia abierta toda la noche (La Gotera),
+# donde no salen
+func _anochecio() -> void:
+	if _salieron or MapaColonia.abierto_24h:
+		return
+	_salieron = true
+	Sonidos.tocar(self, "ya_salieron", YA_SALIERON_DB)
 
 
 func _loop(nombre: String) -> AudioStreamPlayer:

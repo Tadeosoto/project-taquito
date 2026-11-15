@@ -43,6 +43,7 @@ var _timer := 0.0
 
 
 func _ready() -> void:
+	add_to_group("mapa_pasto")   # SonidosJugador: los pasos suenan a tierra donde hay pasto
 	var textura := load(mascara_path) as Texture2D
 	var info = JSON.parse_string(FileAccess.get_file_as_string(mascara_json)) if FileAccess.file_exists(mascara_json) else null
 	if textura == null or not info is Dictionary:
@@ -108,6 +109,11 @@ func _distancia(key: Vector2i, p: Vector3) -> float:
 	var dx := maxf(maxf(key.x * CELDA - p.x, p.x - (key.x + 1) * CELDA), 0.0)
 	var dz := maxf(maxf(key.y * CELDA - p.z, p.z - (key.y + 1) * CELDA), 0.0)
 	return Vector2(dx, dz).length()
+
+
+# Si en `donde` hay pasto (lo mismo que decide donde salen las matas)
+func hay_pasto(donde: Vector3) -> bool:
+	return _mascara != null and _valor(donde.x, donde.z) >= MASCARA_MIN
 
 
 func _valor(x: float, z: float) -> float:

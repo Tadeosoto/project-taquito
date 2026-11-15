@@ -279,6 +279,7 @@ var _aviso_tween: Tween
 var _cierre := -1.0
 var _ciclo: Node
 var _voz_cortina: AudioStreamPlayer3D
+var _cortina_sono := false   # traqueteo esta bajada o subida: al llegar suena el tope
 
 
 func _ready() -> void:
@@ -585,7 +586,9 @@ func _cortinas() -> void:
 	var moviendo := cierre > 0.0 and cierre < 1.0
 	if moviendo and (antes <= 0.0 or antes >= 1.0):
 		_traquetear()
-	elif not moviendo and _voz_cortina and _voz_cortina.playing:
+	elif not moviendo and _voz_cortina and _cortina_sono:
+		# El tope suena aunque el traqueteo ya haya acabado: la cortina tarda mas que el sample
+		_cortina_sono = false
 		_voz_cortina.stop()
 		_voz_cortina.stream = Sonidos.sonido("cortina_tope")
 		_voz_cortina.play()
@@ -615,6 +618,7 @@ func _traquetear() -> void:
 	_voz_cortina.global_position = (cerca.get_node("Cortina") as Node3D).global_position
 	_voz_cortina.stream = sonido
 	_voz_cortina.play()
+	_cortina_sono = true
 
 
 func _mostrar_flecha(node: Node3D) -> void:

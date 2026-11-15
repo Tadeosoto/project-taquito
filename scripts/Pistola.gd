@@ -201,7 +201,7 @@ func disparar() -> void:
 		lombriz.enjambre.bullet_hit(lombriz.dot_index, lombriz.position, hacia)
 		sacude = SACUDE_PEGA
 		aciertos += 1
-		Sonidos.tocar(self, "whack", -10.0)
+		Sonidos.tocar(self, "squelch", -10.0)
 	var balazo := "disparo_pistola" if Sonidos.sonido("disparo_pistola") else "disparo_%d" % randi_range(1, DISPAROS)
 	Sonidos.tocar(self, balazo, -4.0, randf_range(TONO_MIN, TONO_MAX))
 	jugador._sacude_fuerza = sacude

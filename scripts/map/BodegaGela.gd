@@ -131,7 +131,7 @@ func _process(delta: float) -> void:
 	_golpe_en -= delta
 	if _golpe_en <= 0.0:
 		_golpe_en = RUIDO_CADA
-		Sonidos.tocar(self, "whack", -4.0)
+		Sonidos.tocar(self, "golpe_seco", -4.0)
 	if _progreso >= FORZAR:
 		_abrir()
 

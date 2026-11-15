@@ -166,7 +166,7 @@ func _hacer(id: String) -> void:
 		_sonar("ui_error")
 		decir(Yonke.LINEAS_NO.get(razon, "No se puede."), 2.5)
 		return
-	_sonar("whack")
+	_sonar("golpe_seco")
 	_sonar("brillo")
 	if yonke:
 		yonke.chispas()

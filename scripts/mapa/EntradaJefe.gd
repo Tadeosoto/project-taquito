@@ -100,5 +100,4 @@ func interact() -> void:
 
 
 func _entrar() -> void:
-	Sonidos.tocar(self, "reja", -3.0)
 	PasoJefe.entrar(self, escena, con_mision(), global_position + global_transform.basis.z * SALIDA_A + Vector3.UP)

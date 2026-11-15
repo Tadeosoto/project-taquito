@@ -59,6 +59,10 @@ static func ir_a(desde: Node, escena: String, por: String, hora := -2.0, a_colon
 	negro.modulate.a = 0.0
 	capa.add_child(negro)
 	arbol.root.add_child(capa)
+	# Entrando a una fortaleza por su reja (no al salir al mapa grande ni en los pasos sin reja,
+	# como el de un jefe): la reja de fierro que se abre. Cuelga de la raiz: sigue en la escena nueva
+	if por != "" and escena != MAPA_GRANDE:
+		Sonidos.tocar(arbol.root, "reja", -3.0)
 	var entra := capa.create_tween()
 	entra.tween_property(negro, "modulate:a", 1.0, FUNDIDO)
 	await entra.finished

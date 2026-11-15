@@ -457,8 +457,10 @@ func alertar(contagia := true) -> void:
 	_rumbo = Vector3.ZERO
 	_atorado = 0.0
 	if contagia:
-		# Te vio de verdad: el grito de aviso (S-045). Si lo alerto otra cosa (ruido, golpe), el rugido de siempre
-		if te_ve:
+		# Te vio de verdad: el grito de aviso (S-045), con su cupo (Sonidos.turno) para que una horda
+		# que te ve junta no grite entera. Sin turno, o si lo alerto otra cosa (ruido, golpe), el
+		# rugido de siempre (que tiene el suyo)
+		if te_ve and Sonidos.turno("zombi_alerta"):
 			_sonar("zombi_alerta")
 		else:
 			_rugir("rugido")
