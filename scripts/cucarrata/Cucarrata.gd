@@ -34,6 +34,13 @@ const COLA_HASTA := 1.0
 # El cuerpo cafe de cucaracha de casa con las vetas azules; la cabeza de rata queda gris piedra
 # (el color_piel del shader)
 const CUERPO_COLOR := Color(0.66, 0.44, 0.28)
+# El cuerpo del glb es plano (2.2 veces mas ancho que alto): se estira de arriba a abajo (JJ: mas
+# gordo, mas cilindrico). Solo los huesos del cuerpo; el eje que no se mueve va cerca de la panza,
+# asi crece casi todo hacia el lomo y la panza no se mete al piso. Las alas suben con el lomo
+const GORDURA := 2.1
+const GORDURA_EJE := 0.3   # de la panza (0) al lomo (1) de cada pedazo
+const HUESOS_CUERPO := ["body_02_01", "body_03_02", "body_04_03", "body_02.001_036"]
+const HUESO_ALAS := "body_03_02"   # las alas se pegan al lomo de este pedazo
 
 # Nombres cortos de las animaciones (en el glb van con "giant_cockroach_armature|")
 const ANIMS := {
@@ -162,7 +169,12 @@ func parir(tipos: Array = [], con_animacion := true) -> void:
 				return
 			_soltar(tipos[k])
 	if con_animacion:
-		await anim.animation_finished
+		# No await animation_finished: si "pare" acabo antes que la ultima cria (los pujos van con
+		# el reloj real), la senal ya paso y se quedaba parada para siempre
+		while anim.is_playing() and anim.current_animation == "pare":
+			await get_tree().process_frame
+			if not is_inside_tree():
+				return
 		animar("quieta", 0.3)
 
 
@@ -244,6 +256,7 @@ static func preparar_cucaracha(malla: Mesh, skin: Skin, esq: Skeleton3D, quitar_
 		es_cabeza[i] = 1 if hueso == cabeza and quitar_cabeza else 0
 		huesos_de.append(hueso)
 	_marcar_antenas(arr, skin, esq, huesos_de)
+	_engordar(arr, skin, esq, huesos_de)
 	var indices: PackedInt32Array = arr[Mesh.ARRAY_INDEX]
 	var quedan := PackedInt32Array()
 	for t in range(0, indices.size(), 3):
@@ -257,6 +270,52 @@ static func preparar_cucaracha(malla: Mesh, skin: Skin, esq: Skeleton3D, quitar_
 	nueva.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr, [], {}, formato)
 	nueva.surface_set_material(0, malla.surface_get_material(0))
 	return nueva
+
+
+# Estira en Y (de la malla) los vertices del cuerpo alrededor de su eje, mezclado por cuanto pesan
+# los huesos del cuerpo en cada vertice (las raices de las patas se mueven poco y no se despegan)
+static func _engordar(arr: Array, skin: Skin, esq: Skeleton3D, huesos_de: PackedInt32Array) -> void:
+	var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+	var normales: PackedVector3Array = arr[Mesh.ARRAY_NORMAL]
+	var huesos: PackedInt32Array = arr[Mesh.ARRAY_BONES]
+	var pesos: PackedFloat32Array = arr[Mesh.ARRAY_WEIGHTS]
+	var por_vertice := huesos.size() / v.size()
+	var rango := {}   # hueso -> [y de la panza, y del lomo]
+	for i in v.size():
+		var nombre := esq.get_bone_name(huesos_de[i]) if huesos_de[i] >= 0 else ""
+		if nombre in HUESOS_CUERPO:
+			var r: Array = rango.get(nombre, [v[i].y, v[i].y])
+			rango[nombre] = [minf(r[0], v[i].y), maxf(r[1], v[i].y)]
+	if not rango.has(HUESO_ALAS):
+		return
+	var eje := {}
+	for nombre in rango:
+		eje[nombre] = lerpf(rango[nombre][0], rango[nombre][1], GORDURA_EJE)
+	var sube_alas: float = (rango[HUESO_ALAS][1] - eje[HUESO_ALAS]) * (GORDURA - 1.0)
+	for i in v.size():
+		var nombre := esq.get_bone_name(huesos_de[i]) if huesos_de[i] >= 0 else ""
+		if nombre.begins_with("wing_"):
+			v[i].y += sube_alas
+			continue
+		var w_cuerpo := 0.0
+		var centro := 0.0
+		for k in por_vertice:
+			var w := pesos[i * por_vertice + k]
+			var hueso := skin.get_bind_name(huesos[i * por_vertice + k])
+			if w > 0.0 and eje.has(String(hueso)):
+				w_cuerpo += w
+				centro += w * eje[String(hueso)]
+		if w_cuerpo <= 0.0:
+			continue
+		centro /= w_cuerpo
+		var f := lerpf(1.0, GORDURA, w_cuerpo)
+		v[i].y = centro + (v[i].y - centro) * f
+		if normales.size() == v.size():
+			var n := normales[i]
+			normales[i] = Vector3(n.x, n.y / f, n.z).normalized()
+	arr[Mesh.ARRAY_VERTEX] = v
+	if normales.size() == v.size():
+		arr[Mesh.ARRAY_NORMAL] = normales
 
 
 # Las antenas (huesos horns_*) se marcan en el color de vertice para el shader: g = 1 en la
