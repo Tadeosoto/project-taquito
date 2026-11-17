@@ -419,37 +419,78 @@ func explotar(con_dano := true) -> void:
 	queue_free()
 
 
-# Una bola azul que crece y se apaga, con luz: se ve aunque no haya EfectosPixel en la escena
+# Estallido azul Serenol brillante (JJ): un nucleo celeste que revienta, una onda azul que
+# crece y se apaga, chispas azules que salen volando y una luz fuerte. Todo con emision por encima
+# de 1 para que el glow lo agarre. Se ve aunque no haya EfectosPixel en la escena
 static func _estallido(padre: Node, donde: Vector3, radio: float) -> void:
 	if padre == null:
 		return
-	var bola := MeshInstance3D.new()
-	var esfera := SphereMesh.new()
-	esfera.radial_segments = 8
-	esfera.rings = 4
-	bola.mesh = esfera
+	var nodo := Node3D.new()
+	padre.add_child(nodo)
+	nodo.global_position = donde
+	var nucleo := _bola_brillante(Color(0.45, 0.88, 1.0), 6.0, 0.9)
+	var onda := _bola_brillante(Color(0.05, 0.45, 1.0), 4.0, 0.8)
+	nodo.add_child(nucleo)
+	nodo.add_child(onda)
+	nucleo.scale = Vector3.ONE * 0.2
+	onda.scale = Vector3.ONE * 0.3
+	var chispas := CPUParticles3D.new()
+	chispas.one_shot = true
+	chispas.explosiveness = 1.0
+	chispas.amount = int(18 + radio * 10)
+	chispas.lifetime = 0.6
+	chispas.direction = Vector3.UP
+	chispas.spread = 180.0
+	chispas.initial_velocity_min = radio * 2.5
+	chispas.initial_velocity_max = radio * 5.0
+	chispas.gravity = Vector3(0, -6, 0)
+	chispas.scale_amount_min = 0.6
+	chispas.scale_amount_max = 1.4
+	var caja := BoxMesh.new()
+	caja.size = Vector3.ONE * 0.09
+	caja.material = _brillo_material(AZUL, 7.0, 1.0)
+	chispas.mesh = caja
+	nodo.add_child(chispas)
+	chispas.emitting = true
+	var luz := OmniLight3D.new()
+	luz.light_color = AZUL
+	luz.light_energy = 14.0
+	luz.omni_range = radio * 4.0
+	luz.shadow_enabled = false
+	nodo.add_child(luz)
+	var mn: StandardMaterial3D = nucleo.material_override
+	var mo: StandardMaterial3D = onda.material_override
+	var t := nodo.create_tween().set_parallel()
+	t.tween_property(nucleo, "scale", Vector3.ONE * radio * 0.8, 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	t.tween_property(mn, "albedo_color:a", 0.0, 0.22).set_delay(0.06)
+	t.tween_property(onda, "scale", Vector3.ONE * radio * 1.5, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	t.tween_property(mo, "albedo_color:a", 0.0, 0.4).set_delay(0.08)
+	t.tween_property(luz, "light_energy", 0.0, 0.55).set_ease(Tween.EASE_IN)
+	t.chain().tween_interval(0.3)
+	t.chain().tween_callback(nodo.queue_free)
+
+
+static func _brillo_material(color: Color, energia: float, alfa: float) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	mat.albedo_color = Color(AZUL.r, AZUL.g, AZUL.b, 0.55)
-	bola.material_override = mat
+	mat.albedo_color = Color(color.r, color.g, color.b, alfa)
+	mat.emission_enabled = true
+	mat.emission = color
+	mat.emission_energy_multiplier = energia
+	return mat
+
+
+static func _bola_brillante(color: Color, energia: float, alfa: float) -> MeshInstance3D:
+	var bola := MeshInstance3D.new()
+	var esfera := SphereMesh.new()
+	esfera.radial_segments = 10
+	esfera.rings = 5
+	bola.mesh = esfera
+	bola.material_override = _brillo_material(color, energia, alfa)
 	bola.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var luz := OmniLight3D.new()
-	luz.light_color = AZUL
-	luz.light_energy = 4.0
-	luz.omni_range = radio * 2.5
-	var nodo := Node3D.new()
-	padre.add_child(nodo)
-	nodo.global_position = donde
-	nodo.add_child(bola)
-	nodo.add_child(luz)
-	bola.scale = Vector3.ONE * 0.2
-	var t := nodo.create_tween().set_parallel()
-	t.tween_property(bola, "scale", Vector3.ONE * radio * 1.3, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	t.tween_property(mat, "albedo_color:a", 0.0, 0.3)
-	t.tween_property(luz, "light_energy", 0.0, 0.45)
-	t.chain().tween_callback(nodo.queue_free)
+	return bola
 
 
 func _fx(lugar: String, donde: Vector3) -> void:
