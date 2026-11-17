@@ -18,14 +18,19 @@ func _ready() -> void:
 	entorno.environment.background_mode = Environment.BG_COLOR
 	entorno.environment.background_color = Color(0.08, 0.09, 0.12)
 	entorno.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	entorno.environment.ambient_light_color = Color(0.5, 0.5, 0.6)
+	entorno.environment.ambient_light_color = Color(0.3, 0.35, 0.45)
+	entorno.environment.glow_enabled = true   # como de noche: que se vean las grietas
 	add_child(entorno)
 	var sol := DirectionalLight3D.new()
 	sol.rotation_degrees = Vector3(-50, 30, 0)
+	sol.light_energy = 0.6
 	add_child(sol)
 	var piso := MeshInstance3D.new()
 	piso.mesh = PlaneMesh.new()
 	piso.mesh.size = Vector2(12, 12)
+	var concreto := StandardMaterial3D.new()
+	concreto.albedo_color = Color(0.3, 0.3, 0.32)
+	piso.material_override = concreto
 	add_child(piso)
 	cuca = Cucarrata.new()
 	add_child(cuca)

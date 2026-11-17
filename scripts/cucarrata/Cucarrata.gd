@@ -24,11 +24,12 @@ const CUELLO_TAPA := 0.25
 # Ojos: posicion en la rata (antes de escalar; los ojos negros del modelo), espejo en X
 const OJO := Vector3(0.19, 0.265, 0.08)
 const OJO_RADIO := 0.042
-const OJO_COLOR := Color(0.35, 0.6, 1.0)
-# Tintes sobre las texturas: la cucaracha roja pasa a cafe casi negro y la rata gris a cafe sucio,
-# como el dibujo de referencia
-const CUERPO_COLOR := Color(0.5, 0.38, 0.32)
-const RATA_COLOR := Color(0.72, 0.62, 0.55)
+const OJO_COLOR := Color(0.18, 0.77, 1.0)   # el azul de las grietas de la Madre (#2EC4FF)
+# La piel es la de la Madre del Carcamo (shaders/cucarrata.gdshader): sus grietas brillan mas
+# de COLA_DESDE a COLA_HASTA (z del modelo; la cabeza esta en -Z y el abdomen en +Z)
+const SHADER_PIEL := preload("res://shaders/cucarrata.gdshader")
+const COLA_DESDE := -0.6
+const COLA_HASTA := 1.0
 
 # Nombres cortos de las animaciones (en el glb van con "giant_cockroach_armature|")
 const ANIMS := {
@@ -41,8 +42,8 @@ const EN_CICLO := ["quieta", "camina", "vuela", "agarra"]
 @export var animacion_inicial := "camina"
 @export var ojos_con_luz := true
 
-static var _mat_cuerpo: StandardMaterial3D
-static var _mat_rata: StandardMaterial3D
+static var _mat_cuerpo: ShaderMaterial
+static var _mat_rata: ShaderMaterial
 static var _mat_ojo: StandardMaterial3D
 static var _malla_cuerpo: ArrayMesh   # la cucaracha sin cabeza, compartida
 static var _malla_rata: ArrayMesh     # la cabeza de rata, ya volteada y escalada
@@ -62,7 +63,7 @@ func _ready() -> void:
 	if _malla_cuerpo == null:
 		_malla_cuerpo = _sin_cabeza(cuerpo.mesh, cuerpo.skin)
 	cuerpo.mesh = _malla_cuerpo
-	cuerpo.material_override = _material_cuerpo(cuerpo.mesh)
+	cuerpo.material_override = _material_cuerpo(cuerpo)
 	_poner_cabeza()
 	for corto in EN_CICLO:
 		var a := anim.get_animation(_nombre(corto))
@@ -244,29 +245,36 @@ func _a_cucaracha_dir(d: Vector3) -> Vector3:
 	return Vector3(-d.x, d.y, -d.z).normalized()
 
 
-func _material_cuerpo(malla: Mesh) -> StandardMaterial3D:
+# El cuerpo: grietas mas hacia la cola. La malla con esqueleto queda en el espacio del
+# MeshInstance (el glb la gira y la escala), asi que el eje "hacia la cola" (+Z del modelo) se
+# pasa a ese espacio para el shader
+func _material_cuerpo(cuerpo: MeshInstance3D) -> ShaderMaterial:
 	if _mat_cuerpo == null:
-		_mat_cuerpo = _material_de(malla.surface_get_material(0), CUERPO_COLOR)
+		_mat_cuerpo = _material_piel(cuerpo.mesh.surface_get_material(0), 0.6, 1.0)
+		var t := _modelo.global_transform.affine_inverse() * cuerpo.global_transform
+		var fila_z := Vector3(t.basis.x.z, t.basis.y.z, t.basis.z.z)
+		_mat_cuerpo.set_shader_parameter("eje_cola", fila_z)
+		_mat_cuerpo.set_shader_parameter("cola_desde", COLA_DESDE - t.origin.z)
+		_mat_cuerpo.set_shader_parameter("cola_hasta", COLA_HASTA - t.origin.z)
 	return _mat_cuerpo
 
 
-func _material_rata() -> StandardMaterial3D:
+# La cabeza: menos grietas y mas de la textura, para que se lea la cara de rata
+func _material_rata() -> ShaderMaterial:
 	if _mat_rata == null:
-		_mat_rata = _material_de(_malla_rata.surface_get_material(0), RATA_COLOR)
+		_mat_rata = _material_piel(_malla_rata.surface_get_material(0), 0.8, 0.7)
+		_mat_rata.set_shader_parameter("escala_celdas", Vector2(18.0, 18.0))
 	return _mat_rata
 
 
-# El glb trae la cucaracha sin luz (unlit) y la rata con normal map: se pasan a un material con
-# luz, sin brillo y con pixeles duros, de doble cara (las alas son planos)
-func _material_de(original: Material, color: Color) -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
-	m.albedo_color = color
+# La piel de la Madre del Carcamo (shaders/cucarrata.gdshader) sobre la textura del glb
+func _material_piel(original: Material, sombras: float, grietas: float) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = SHADER_PIEL
 	if original is BaseMaterial3D:
-		m.albedo_texture = (original as BaseMaterial3D).albedo_texture
-	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	m.cull_mode = BaseMaterial3D.CULL_DISABLED
-	m.roughness = 1.0
-	m.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+		m.set_shader_parameter("textura", (original as BaseMaterial3D).albedo_texture)
+	m.set_shader_parameter("sombras_textura", sombras)
+	m.set_shader_parameter("grietas", grietas)
 	return m
 
 
