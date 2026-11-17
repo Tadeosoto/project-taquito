@@ -43,6 +43,7 @@ const RATA_CORRE := 0.9          # segundos que corre al caer, antes de ir por e
 const ALTURA_VUELO := Vector2(1.5, 2.6)   # metros sobre el piso donde revolotean las cucarachas
 const RADIO := 0.25              # para el machete y las balas (la rata)
 const RADIO_CUCARACHA := 0.35
+const BALAZOS_CUCARACHA := 2
 # El centro del cuerpo de la cucaracha en el glb (pose de vuelo, antes de escalar y pararla)
 const CENTRO_CUCARACHA := Vector3(0.0, 0.7, 0.0)
 # El origen del jugador es el centro de su capsula, ~1 m sobre el piso: el pecho queda poco arriba
@@ -129,6 +130,7 @@ var _chupa := 0.0
 var _jugador: Node3D
 var _meta := Vector3.ZERO        # el punto al que vuela, alrededor del jugador
 var _meta_reloj := 0.0
+var _balazos := 0
 var _rapidez := 6.0
 var _turno := false              # esta cucaracha tiene uno de los ATACAN_JUNTAS
 
@@ -598,7 +600,13 @@ func query_ray_hit(origen: Vector3, dir: Vector3, max_dist: float, radio: float)
 	return {"dot_index": 0, "position": origen + dir * t, "distance": t}
 
 
-func bullet_hit(_i: int, _punto: Vector3, _dir: Vector3) -> void:
+# La rata muere de un balazo; la cucaracha de BALAZOS_CUCARACHA (JJ: 2)
+func bullet_hit(_i: int, punto: Vector3, _dir: Vector3) -> void:
+	_balazos += 1
+	if tipo == Tipo.CUCARACHA and _balazos < BALAZOS_CUCARACHA:
+		_fx("cria_corte", punto)
+		Sonidos.tocar(self, "squelch", -10.0, 1.5)
+		return
 	_morir()
 
 

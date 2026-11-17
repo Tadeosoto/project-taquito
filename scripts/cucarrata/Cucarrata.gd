@@ -64,8 +64,9 @@ const ENJAMBRE_VARIA := Vector2(0.75, 1.3)   # la velocidad de salida se multipl
 
 signal pario(cria: CriaCucarrata)
 
-# Alto en metros sin las antenas (JJ: 3 m, gigante). El modelo mide ALTO_MODELO
-@export var alto := 3.0
+# Alto en metros sin las antenas (JJ: primero 3 m, gigante; en la pelea se veia demasiado grande:
+# 2 m, ~7 de largo). El modelo mide ALTO_MODELO
+@export var alto := 2.0
 @export var animacion_inicial := "camina"
 @export var ojos_con_luz := true
 
@@ -129,30 +130,40 @@ var siguiente_tipo := CriaCucarrata.Tipo.RATA
 
 # Suelta crias por la cola, POR_PUJO[tipo] por contraccion (tipos: CriaCucarrata.Tipo, uno
 # por pujo, en orden). Sin tipos, pare una tanda de siguiente_tipo y alterna. Las crias van al
-# padre de la cucarrata (no se mueven con ella). Al acabar vuelve a "quieta"
-func parir(tipos: Array = []) -> void:
+# padre de la cucarrata (no se mueven con ella). Al acabar vuelve a "quieta". Sin animacion (volando:
+# "pare" le pararia las alas) solo las suelta al ritmo de los pujos
+func parir(tipos: Array = [], con_animacion := true) -> void:
 	if tipos.is_empty():
 		for i in TANDA[siguiente_tipo]:
 			tipos.append(siguiente_tipo)
 		siguiente_tipo = CriaCucarrata.Tipo.CUCARACHA if siguiente_tipo == CriaCucarrata.Tipo.RATA \
 				else CriaCucarrata.Tipo.RATA
-	animar("pare", 0.2)
+	if con_animacion:
+		animar("pare", 0.2)
 	var inicio := Time.get_ticks_msec()
 	for k in tipos.size():
 		var n := k % PARE_PUJOS.size()
 		if n == 0 and k > 0:
-			anim.play("pare", 0.1)   # mas crias que pujos: otra vuelta
+			if con_animacion:
+				anim.play("pare", 0.1)   # mas crias que pujos: otra vuelta
 			inicio = Time.get_ticks_msec()
 		while (Time.get_ticks_msec() - inicio) / 1000.0 < PARE_PUJOS[n]:
+			if not is_inside_tree():
+				return
 			await get_tree().process_frame
 		for j in POR_PUJO[tipos[k]]:
 			if j > 0:
 				var desde := Time.get_ticks_msec()
 				while (Time.get_ticks_msec() - desde) / 1000.0 < ENJAMBRE_CADA:
+					if not is_inside_tree():
+						return
 					await get_tree().process_frame
+			if not is_inside_tree():
+				return
 			_soltar(tipos[k])
-	await anim.animation_finished
-	animar("quieta", 0.3)
+	if con_animacion:
+		await anim.animation_finished
+		animar("quieta", 0.3)
 
 
 func punta_cola() -> Vector3:

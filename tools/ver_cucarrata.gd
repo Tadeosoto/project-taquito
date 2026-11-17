@@ -3,6 +3,7 @@ extends Node3D
 # godot --path . tools/ver_cucarrata.tscn            (1-6 animaciones, 7 pare crias, flechas giran, rueda acerca)
 # godot --path . tools/ver_cucarrata.tscn -- --fotos <carpeta>   (guarda las vistas y sale)
 # godot --path . tools/ver_cucarrata.tscn -- --crias <carpeta>   (fotos de las crias y sale)
+# Movie Maker (--write-movie x.avi --fixed-fps 30) con -- --video [--solo-pare [--cucarachas]]
 
 var cuca: Cucarrata
 var cam: Camera3D
@@ -102,11 +103,13 @@ func _video() -> void:
 	var girar := true
 	if OS.get_cmdline_user_args().has("--solo-pare"):
 		# Camara quieta de tres cuartos por detras, para ver la cola y a donde caen las crias
-		tomas = [["quieta", 1.0], ["pare", 6.0]]
+		tomas = [["quieta", 1.0], ["pare", 7.0]]
 		girar = false
-		angulo = 0.7
-		alto = 1.6
-		distancia = 5.5
+		if OS.get_cmdline_user_args().has("--cucarachas"):
+			cuca.siguiente_tipo = CriaCucarrata.Tipo.CUCARACHA
+		angulo = 1.3
+		alto = 0.75
+		distancia = 2.6
 	for toma in tomas:
 		if toma[0] == "pare":
 			letrero.text = "pare  (suelta crias por la cola)"
