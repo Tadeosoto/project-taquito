@@ -796,8 +796,9 @@ func _cucarrata_pare() -> void:
 		_cucarrata.global_position = donde
 		# La cabeza (-Z) para alla: la cola (+Z) te ve
 		_cucarrata.look_at(donde + frente, Vector3.UP)
+	# 9 ratas y 4 cucarachas (Cucarrata.POR_PUJO)
 	_cucarrata.parir([CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA, CriaCucarrata.Tipo.RATA,
-			CriaCucarrata.Tipo.CUCARACHA, CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA])
+			CriaCucarrata.Tipo.CUCARACHA, CriaCucarrata.Tipo.RATA])
 
 
 # Un enjambre de lombrices (scripts/lombrices/) LOMBRICES_ENFRENTE m enfrente, en el piso

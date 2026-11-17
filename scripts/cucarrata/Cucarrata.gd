@@ -55,9 +55,9 @@ const PARE_PUJA := 1.28       # escala en cada contraccion
 const PARE_PUJOS := [0.8, 1.2, 1.6, 2.0]   # segundos de cada contraccion (una cria cada una)
 const PUNTA_COLA := Vector3(0.0, 0.32, 1.0)   # en el modelo en reposo
 const CRIA_SALE := Vector2(3.5, 3.5)   # m/s hacia atras y hacia arriba al salir
-# Sale un enjambre (JJ): cada pujo suelta POR_PUJO crias del mismo tipo, una tras otra cada
+# Sale un enjambre (JJ): cada pujo suelta POR_PUJO[tipo] crias de ese tipo, una tras otra cada
 # ENJAMBRE_CADA s, abiertas hacia los lados y con velocidades distintas
-const POR_PUJO := 3
+const POR_PUJO := { CriaCucarrata.Tipo.RATA: 3, CriaCucarrata.Tipo.CUCARACHA: 2 }   # JJ: cucarachas, la mitad
 const ENJAMBRE_CADA := 0.06
 const ENJAMBRE_ABRE := 2.2     # m/s de lado, al azar a cada lado
 const ENJAMBRE_VARIA := Vector2(0.75, 1.3)   # la velocidad de salida se multiplica por esto
@@ -121,7 +121,7 @@ func _nombre(corto: String) -> String:
 	return "giant_cockroach_armature|" + ANIMS.get(corto, corto)
 
 
-# Suelta crias por la cola, POR_PUJO de cada tipo por contraccion (tipos: CriaCucarrata.Tipo, uno
+# Suelta crias por la cola, POR_PUJO[tipo] por contraccion (tipos: CriaCucarrata.Tipo, uno
 # por pujo, en orden). Las crias van al padre de la cucarrata (no se mueven con ella). Al acabar vuelve a
 # "quieta"
 func parir(tipos: Array = [CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA,
@@ -135,7 +135,7 @@ func parir(tipos: Array = [CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA
 			inicio = Time.get_ticks_msec()
 		while (Time.get_ticks_msec() - inicio) / 1000.0 < PARE_PUJOS[n]:
 			await get_tree().process_frame
-		for j in POR_PUJO:
+		for j in POR_PUJO[tipos[k]]:
 			if j > 0:
 				var desde := Time.get_ticks_msec()
 				while (Time.get_ticks_msec() - desde) / 1000.0 < ENJAMBRE_CADA:

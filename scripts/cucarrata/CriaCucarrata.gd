@@ -6,7 +6,8 @@ extends Node3D
 # de milimetros, asi que cada una lleva sus propias celdas, grandes y en pixeles gruesos, y brilla
 # mas. Mismos modelos que la cucarrata (rata.glb entera y cucaracha.glb con su cabeza).
 # Lo que hacen (JJ, 2026-11-17; numeros de primera, para el balance):
-# - Cucaracha: bomba kamikaze. Vuela horizontal hacia el jugador; a PICADA_DESDE m se para en
+# - Cucaracha: bomba kamikaze. Vuela horizontal a su lugar alrededor del jugador (se reparten y
+#   atacan de una en una); cuando le toca se frena, se para en
 #   vertical y acelera a estrellarse, y truena en azul Serenol (dana a EXPLOTA_RADIO; rodando se
 #   esquiva, como cualquier golpe). Un machetazo o un balazo la revientan sin dano.
 # - Rata: corre hacia el jugador, salta y muerde, y se queda pegada (frena y chupa vida) hasta que
@@ -49,12 +50,19 @@ const PECHO := 0.35              # pecho del jugador sobre su origen
 const PIES := 1.0                # piso bajo el origen del jugador
 # Cucaracha kamikaze
 const VUELO_VEL := 4.5           # m/s volando horizontal hacia el jugador
-const PICADA_DESDE := 4.5        # m: aqui se frena, se para en vertical y luego se lanza
+# Se reparten alrededor del jugador, cada una en su lugar (angulo por el angulo aureo, a su
+# distancia y altura), girando despacio; y atacan de una en una: a lo mas ATACAN_JUNTAS a la vez
+# y ATAQUE_CADA s entre que empieza una y la siguiente
+const RONDA_RADIO := Vector2(5.0, 8.0)
+const RONDA_GIRA := 0.25         # rad/s que gira cada lugar alrededor del jugador
+const RONDA_LISTA := 1.2         # m de su lugar para poder atacar
+const ATACAN_JUNTAS := 1
+const ATAQUE_CADA := 1.4
 const APUNTA_DURA := 0.8         # s quieta en el aire acomodandose en vertical (el aviso para rodar)
 const PICADA_VEL := 11.0         # m/s al final de la picada
 const PICADA_ACELERA := 18.0     # m/s2
 const PICADA_GIRA := 2.5         # que tanto corrige el rumbo en la picada (rad/s): rodar la esquiva
-const PICADA_MAX := 1.6          # s: si no pego, truena igual
+const PICADA_MAX := 1.8          # s: si no pego, truena igual
 const EXPLOTA_TOCA := 1.0        # m del pecho (al centro de la cucaracha) para tronar
 const EXPLOTA_RADIO := 2.2       # m: hasta donde dana
 const EXPLOTA_DANO := 15
@@ -81,6 +89,9 @@ static var _mat_rata: ShaderMaterial
 static var _mat_cucaracha: ShaderMaterial
 static var _quito_en := -1       # cuadro del ultimo machetazo que ya quito una rata pegada
 static var pegadas: Array[CriaCucarrata] = []
+static var _atacando := 0        # cucarachas apuntando o en picada
+static var _ultimo_ataque := -100000
+static var _lugares := 0         # para repartir el angulo de cada cucaracha
 
 var anim: AnimationPlayer   # la cucaracha
 var _modelo: Node3D
@@ -96,6 +107,9 @@ var _salto_hasta := Vector3.ZERO
 var _en_jugador := Vector3.ZERO   # donde va pegada, en el espacio del cuerpo del jugador
 var _chupa := 0.0
 var _jugador: Node3D
+var _lugar_angulo := 0.0
+var _lugar_radio := 0.0
+var _turno := false              # esta cucaracha tiene uno de los ATACAN_JUNTAS
 
 
 func _ready() -> void:
@@ -108,6 +122,13 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	_despegar()
+	_soltar_turno()
+
+
+func _soltar_turno() -> void:
+	if _turno:
+		_turno = false
+		_atacando = maxi(_atacando - 1, 0)
 
 
 func animar(corto: String, mezcla := 0.15) -> void:
@@ -127,6 +148,9 @@ func lanzar(velocidad: Vector3, piso_y: float) -> void:
 	if tipo == Tipo.CUCARACHA:
 		animar("vuela", 0.1)
 		_altura = piso_y + randf_range(ALTURA_VUELO.x, ALTURA_VUELO.y)
+		_lugar_angulo = _lugares * 2.39996   # angulo aureo: ninguna cae junto a otra
+		_lugares += 1
+		_lugar_radio = randf_range(RONDA_RADIO.x, RONDA_RADIO.y)
 
 
 func _process(delta: float) -> void:
@@ -289,7 +313,8 @@ func _despegar() -> void:
 
 # --- Cucaracha ---
 
-# Revolotea a su altura; con jugador, vuela horizontal hacia el y a PICADA_DESDE se lanza
+# Revolotea a su altura; con jugador, vuela horizontal a su lugar alrededor de el y, cuando le
+# toca el turno, apunta
 func _cucaracha_vuela(delta: float) -> void:
 	var meneo := Vector3(sin(_t * 2.3), sin(_t * 3.1) * 0.6, cos(_t * 1.9)) * 0.25
 	if _jugador == null:
@@ -297,15 +322,23 @@ func _cucaracha_vuela(delta: float) -> void:
 		_vel.y = (_altura - global_position.y) * 2.0
 		global_position += (_vel + meneo) * delta
 		return
-	var objetivo := _jugador.global_position + Vector3.UP * (_altura - _piso - PIES)
+	# Su lugar alrededor del jugador, girando
+	_lugar_angulo += RONDA_GIRA * delta
+	var objetivo := _jugador.global_position + Vector3(cos(_lugar_angulo), 0, sin(_lugar_angulo)) * _lugar_radio
+	objetivo.y = _altura + (_jugador.global_position.y - PIES - _piso)
 	var hacia := objetivo - global_position
-	var quiere := hacia.normalized() * VUELO_VEL
+	var quiere := hacia.normalized() * minf(VUELO_VEL, hacia.length() * 2.0)
 	_vel = _vel.lerp(quiere, delta * 2.5)
 	global_position += (_vel + meneo) * delta
-	_mirar_plano(_vel)
+	# Volando, la cabeza a donde va; ya en su lugar, hacia el jugador
+	_mirar_plano(_vel if hacia.length() > 1.5 else _jugador.global_position - global_position)
 	# Horizontal: la pose de vuelo del glb es parada, se acuesta con la cabeza al frente
 	_modelo.rotation.x = lerp_angle(_modelo.rotation.x, -PI * 0.5, delta * 6.0)
-	if global_position.distance_to(_pecho()) <= PICADA_DESDE and _reloj > 0.6:
+	if hacia.length() < RONDA_LISTA and _reloj > 0.6 and _atacando < ATACAN_JUNTAS \
+			and Time.get_ticks_msec() - _ultimo_ataque > int(ATAQUE_CADA * 1000.0):
+		_atacando += 1
+		_turno = true
+		_ultimo_ataque = Time.get_ticks_msec()
 		_estado = Estado.APUNTA
 		_reloj = 0.0
 		Sonidos.tocar(self, "chillido", -16.0, 2.2)
@@ -349,6 +382,7 @@ func explotar(con_dano := true) -> void:
 	if _estado == Estado.MUERTA:
 		return
 	_estado = Estado.MUERTA
+	_soltar_turno()
 	var donde := global_position
 	if con_dano and _jugador and _jugador.global_position.distance_to(donde) < EXPLOTA_RADIO + 0.5 \
 			and _pecho().distance_to(donde) < EXPLOTA_RADIO and _jugador.has_method("recibir_dano"):
