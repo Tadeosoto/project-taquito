@@ -158,6 +158,9 @@
 ## Música (`audio/musica/`)
 - `pt_tema.mp3`: tema de la defensa del tinaco, de Juan José Rodríguez (JJ), del equipo.
 
+## Música de pelea (`soundtrack/`)
+- `PT tema.mp3`, `icdtanfd.mp3`, `mrr.mp3`, `notprfect.mp3`, `pefd.mp3`, `regg-pt.mp3`: autor pendiente (confirmar con JJ).
+
 ## Casa del personaje (`models/casa_personaje/`, Sketchfab)
 
 - [Old Sofa (FREE)](https://sketchfab.com/3d-models/90be7242f24749c3a8e0b0a69c616fc1) de RenderRum Filip Rumin, licencia CC Attribution (`sillon/`).

@@ -27,7 +27,7 @@ const CATRINA_EN := Vector3(0.0, 0.0, -11.0)
 const MOLOTOV := "res://resources/productos/molotov.tres"
 const FEMUR := "res://resources/productos/femur_catrina.tres"
 const CORONA := "res://resources/productos/corona_flores.tres"
-const MUSICA := "res://audio/musica/pt_tema.mp3"
+const MUSICA := MusicaPelea.RESPALDO   # al despertar se cambia por una al azar
 const MUSICA_VOLUMEN := -10.0
 const CAJAS := [Vector3(-14.0, 0.5, 12.0), Vector3(14.0, 0.5, 12.0)]
 const ARBOL_JARDINERA := "realista"    # el mas pesado de models/arboles (~7.2k triangulos; roble 3.9k y arce 5.6k no gustaron)
@@ -664,6 +664,8 @@ func _empezar() -> void:
 
 func _desperto() -> void:
 	_avisar("LA MOJIGANGA", 2.5)
+	# Una cancion al azar de soundtrack/ cada vez que despierta (MusicaPelea)
+	_musica.stream = MusicaPelea.pista_al_azar()
 	_musica.volume_db = -40.0
 	_musica.play()
 	create_tween().tween_property(_musica, "volume_db", MUSICA_VOLUMEN, 3.0)

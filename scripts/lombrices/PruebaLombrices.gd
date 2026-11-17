@@ -48,6 +48,8 @@ const CONTROLES := "Clic: pegar / disparar / aventar · 1 machete · 2 pistola �
 var _aviso: Label
 var _negro: ColorRect
 var _cajas: Array = []
+# Una cancion al azar de soundtrack/ por cada intento (MusicaPelea)
+var _musica: MusicaPelea
 var _reiniciando := false
 var _gano := false
 var _medir := -1.0
@@ -226,6 +228,12 @@ func _empezar() -> void:
 	_madre.set_physics_process(true)
 	_gano = false
 	_avisar("LA MADRE DEL CÁRCAMO", 2.5)
+	if _musica == null:
+		_musica = MusicaPelea.new()
+		_musica.volumen = -10.0
+		_musica.entra = 3.0
+		add_child(_musica)
+	_musica.entrar()
 	if not _fotos.is_empty():
 		_tomar_fotos()
 
@@ -242,6 +250,7 @@ func _reiniciar_pelea() -> void:
 			_salud.vida = _salud.vida_max
 		_jugador.global_position = ENTRADA
 		_jugador.velocity = Vector3.ZERO
+		_musica.cortar()
 		_enjambre.rearmar()
 		_empezar()
 		_rellenar_cajas())
@@ -254,6 +263,8 @@ func _reiniciar_pelea() -> void:
 func _gano_pelea() -> void:
 	_gano = true
 	_enjambre.disolver()
+	_musica.sale = 4.0
+	_musica.salir()
 	var texto := "¡La Madre del Cárcamo cayó!"
 	# Llegaste por tu cuenta (EntradaJefe, sin mision): nadie te paga esto
 	if not PasoJefe.hay_premio():

@@ -8,7 +8,7 @@ extends Node3D
 # que te desmayas o rompen el tinaco: entonces el menu deja reintentar esa misma noche. Si
 # lo rompen se corta a negro, amanece y no se paga nada: con media paga convenia entrar y
 # dejarse perder. Desmayarte tambien acaba la noche sin paga (en coop, el desmayado
-# esperaria a los demas). Suena audio/musica/pt_tema.mp3 en bucle. Por ahora es una escena
+# esperaria a los demas). Cada noche suena en bucle una cancion al azar de soundtrack/ (MusicaPelea). Por ahora es una escena
 # sola: la flecha amarilla en el mapa, la zona al azar por colonia y el regreso van despues.
 #
 #   godot --path . scenes/defensa_tinaco.tscn [-- --semilla=N]
@@ -419,6 +419,8 @@ func _iniciar_noche() -> void:
 # Corre el ciclo (la noche) y entra la musica
 func _arrancar_reloj() -> void:
 	_ciclo.process_mode = Node.PROCESS_MODE_INHERIT
+	# Cada noche una cancion al azar de soundtrack/ (MusicaPelea)
+	_musica.stream = MusicaPelea.pista_al_azar()
 	_musica.play()
 	_musica.stream_paused = _musica_apagada
 	_volumen_musica(MUSICA_VOLUMEN, MUSICA_ENTRA)

@@ -126,6 +126,9 @@ var _ola_en := 0.0
 var _cazado: Zombie = null
 var _cazado_de: PasoMision = null
 var _marca_cazado: Label3D = null
+# La musica de pelea (MusicaPelea): una cancion al azar de soundtrack/ mientras el paso activo es de
+# matar zombis (_quiere_musica)
+var _musica: MusicaPelea
 # El mapa de las fortalezas es la campana: los especiales son los aprendidos (Misiones.ataques_de_campana)
 var _campana := false
 # Lo que se dice en pantalla al aprender un ataque (MisionData.ensena)
@@ -1445,6 +1448,10 @@ func _sobra(objeto: InventoryItemData) -> void:
 
 func _process(delta: float) -> void:
 	var paso := Misiones.paso()
+	if _quiere_musica(paso):
+		_musica.entrar()
+	else:
+		_musica.salir()
 	if paso == null:
 		_texto.text = ""
 		return
@@ -1484,6 +1491,20 @@ func _process(delta: float) -> void:
 			_voz_perro.play()
 
 
+# Pasos de matar zombis, ya en su hora: ESCOLTAR, DEFENDER y CAMIONETA desde que empiezan (hay
+# turbas en el camino); CAZAR desde que sale el zombi marcado (te acercaste a 70 m). Los jefes y la
+# defensa del tinaco son otra escena y ponen su propia cancion
+func _quiere_musica(paso: PasoMision) -> bool:
+	if paso == null or not Misiones.en_hora():
+		return false
+	match paso.tipo:
+		PasoMision.Tipo.ESCOLTAR, PasoMision.Tipo.DEFENDER, PasoMision.Tipo.CAMIONETA:
+			return true
+		PasoMision.Tipo.CAZAR:
+			return is_instance_valid(_cazado)
+	return false
+
+
 func _armar_pantalla() -> void:
 	var capa := CanvasLayer.new()
 	capa.layer = 9
@@ -1500,6 +1521,8 @@ func _armar_pantalla() -> void:
 	capa.add_child(_texto)
 	_voz = AudioStreamPlayer.new()
 	add_child(_voz)
+	_musica = MusicaPelea.new()
+	add_child(_musica)
 
 
 func _sonar(nombre: String) -> void:
