@@ -6,7 +6,7 @@ extends Node3D
 # de milimetros, asi que cada una lleva sus propias celdas, grandes y en pixeles gruesos, y brilla
 # mas. Mismos modelos que la cucarrata (rata.glb entera y cucaracha.glb con su cabeza).
 # Lo que hacen (JJ, 2026-11-17; numeros de primera, para el balance):
-# - Cucaracha: bomba kamikaze. Vuela horizontal, de frente, y te sigue en nube con las demas (y
+# - Cucaracha: bomba kamikaze. Vuela horizontal, de frente, como mosca alrededor del jugador (y
 #   atacan de una en una, tras ENJAMBRE_ESPERA s de turba); cuando le toca se frena, se para en
 #   vertical mostrando la panza y acelera a estrellarse con la panza, y truena en azul Serenol (dana a EXPLOTA_RADIO; rodando se
 #   esquiva, como cualquier golpe). Un machetazo o un balazo la revientan sin dano.
@@ -49,18 +49,22 @@ const CENTRO_CUCARACHA := Vector3(0.0, 0.7, 0.0)
 const PECHO := 0.35              # pecho del jugador sobre su origen
 const PIES := 1.0                # piso bajo el origen del jugador
 # Cucaracha kamikaze
-const VUELO_VEL := 6.0           # m/s volando horizontal hacia el jugador
-# Te siguen como una nube, todas juntas (JJ): el centro de la nube va a NUBE_DIST del jugador, del
-# lado donde estan ellas (su promedio), y cada una revolotea en su hueco dentro de la nube. Atacan
-# de una en una: a lo mas ATACAN_JUNTAS a la vez y ATAQUE_CADA s desde que truena (o muere) una
-# hasta que sale la siguiente
-const NUBE_DIST := 5.5
-const NUBE_ALTO := 2.2           # m sobre los pies del jugador
-const NUBE_RADIO := Vector3(2.0, 0.8, 2.0)
-# s que la nube te sigue, desde que nace cada una, antes de poder lanzarse (JJ: que se vea la
+# Vuelan como moscas alrededor del jugador (JJ: lo que da miedo es verlas venir hacia ti): cada una
+# va a un punto MOSCA_RADIO del otro lado del jugador, con giro limitado (hace curvas), y al
+# llegar escoge otro, asi pasan por enfrente, cruzandose en tu camino y viniendo hacia ti. Atacan de
+# una en una: a lo mas ATACAN_JUNTAS a la vez y ATAQUE_CADA s desde que truena (o muere) una hasta
+# que sale la siguiente
+const MOSCA_RADIO := Vector2(2.5, 6.5)
+const MOSCA_ALTO := Vector2(0.9, 3.0)   # m sobre los pies del jugador
+const MOSCA_ABRE := 1.3          # rad que se desvia del punto justo enfrente (del otro lado)
+const MOSCA_VEL := Vector2(5.5, 8.0)
+const MOSCA_GIRA := 4.0          # rad/s que puede torcer el rumbo
+const MOSCA_LLEGA := 1.2         # m: ya llego, escoge otro punto
+const MOSCA_CAMBIA := 2.5        # s: si no llega, escoge otro igual
+# s que vuelan alrededor tuyo, desde que nace cada una, antes de poder lanzarse (JJ: que se vea la
 # turba volando un rato antes del kamikaze)
 const ENJAMBRE_ESPERA := 4.0
-const NUBE_LISTA := 3.0          # m mas alla de NUBE_DIST: ya te alcanzo y puede atacar
+const TURNO_DESDE := Vector2(3.5, 8.0)   # m del jugador entre los que puede tomar su turno
 const ATACAN_JUNTAS := 1
 const ATAQUE_CADA := 1.6
 const APUNTA_DURA := 0.8         # s quieta en el aire acomodandose en vertical (el aviso para rodar)
@@ -96,7 +100,6 @@ static var _quito_en := -1       # cuadro del ultimo machetazo que ya quito una 
 static var pegadas: Array[CriaCucarrata] = []
 static var _atacando := 0        # cucarachas apuntando o en picada
 static var _ultimo_ataque := -100000
-static var _nube: Array[CriaCucarrata] = []   # cucarachas volando (para el centro de la nube)
 
 var anim: AnimationPlayer   # la cucaracha
 var _modelo: Node3D
@@ -112,7 +115,9 @@ var _salto_hasta := Vector3.ZERO
 var _en_jugador := Vector3.ZERO   # donde va pegada, en el espacio del cuerpo del jugador
 var _chupa := 0.0
 var _jugador: Node3D
-var _hueco := Vector3.ZERO       # su lugar dentro de la nube
+var _meta := Vector3.ZERO        # el punto al que vuela, alrededor del jugador
+var _meta_reloj := 0.0
+var _rapidez := 6.0
 var _turno := false              # esta cucaracha tiene uno de los ATACAN_JUNTAS
 
 
@@ -127,7 +132,6 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	_despegar()
 	_soltar_turno()
-	_nube.erase(self)
 
 
 func _soltar_turno() -> void:
@@ -154,9 +158,7 @@ func lanzar(velocidad: Vector3, piso_y: float) -> void:
 	if tipo == Tipo.CUCARACHA:
 		animar("vuela", 0.1)
 		_altura = piso_y + randf_range(ALTURA_VUELO.x, ALTURA_VUELO.y)
-		var r := Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)).limit_length(1.0)
-		_hueco = r * NUBE_RADIO
-		_nube.append(self)
+		_meta_reloj = 0.0   # escoge su primer punto al volar
 
 
 func _process(delta: float) -> void:
@@ -322,24 +324,31 @@ func _despegar() -> void:
 # Revolotea a su altura; con jugador, vuela horizontal a su lugar alrededor de el y, cuando le
 # toca el turno, apunta
 func _cucaracha_vuela(delta: float) -> void:
-	var meneo := Vector3(sin(_t * 2.3), sin(_t * 3.1) * 0.6, cos(_t * 1.9)) * 0.5
+	var meneo := Vector3(sin(_t * 7.3), sin(_t * 9.1) * 0.6, cos(_t * 6.7)) * 0.35
 	if _jugador == null:
 		_vel = _vel.lerp(Vector3.ZERO, delta * 2.0)
 		_vel.y = (_altura - global_position.y) * 2.0
 		global_position += (_vel + meneo) * delta
 		return
-	# Su hueco en la nube, que va a NUBE_DIST del jugador del lado donde esta la nube
-	var objetivo := _centro_nube() + _hueco
-	var hacia := objetivo - global_position
-	var quiere := hacia.normalized() * minf(VUELO_VEL, hacia.length() * 2.0)
-	_vel = _vel.lerp(quiere, delta * 2.5)
+	# Como mosca: a su punto del otro lado del jugador, torciendo el rumbo poco a poco
+	_meta_reloj -= delta
+	if _meta_reloj <= 0.0 or global_position.distance_to(_meta) < MOSCA_LLEGA:
+		_nueva_meta()
+	var rumbo := _vel.normalized() if _vel.length_squared() > 0.01 else -global_transform.basis.z
+	var quiere := (_meta - global_position).normalized()
+	var giro := minf(rumbo.angle_to(quiere), MOSCA_GIRA * delta)
+	var eje := rumbo.cross(quiere)
+	if eje.length_squared() > 0.000001:
+		rumbo = rumbo.rotated(eje.normalized(), giro)
+	_vel = rumbo * lerpf(_vel.length(), _rapidez, minf(delta * 3.0, 1.0))
 	global_position += (_vel + meneo) * delta
-	# Volando, la cabeza a donde va; ya en la nube, hacia el jugador
-	_mirar_plano(_vel if hacia.length() > 1.5 else _jugador.global_position - global_position)
+	# La cabeza a donde va
+	_mirar_plano(_vel)
 	# Horizontal: la pose de vuelo del glb ya va acostada, la cabeza al frente y la panza abajo
 	_modelo.rotation.x = lerp_angle(_modelo.rotation.x, 0.0, delta * 6.0)
-	# Ya te alcanzo la nube
-	var en_turba := global_position.distance_to(_jugador.global_position) < NUBE_DIST + NUBE_LISTA
+	# Ni encima ni lejos: desde ahi se acomoda y se lanza
+	var lejos := global_position.distance_to(_jugador.global_position)
+	var en_turba := lejos > TURNO_DESDE.x and lejos < TURNO_DESDE.y
 	if en_turba and _reloj > ENJAMBRE_ESPERA and _atacando < ATACAN_JUNTAS \
 			and Time.get_ticks_msec() - _ultimo_ataque > int(ATAQUE_CADA * 1000.0):
 		_atacando += 1
@@ -350,21 +359,16 @@ func _cucaracha_vuela(delta: float) -> void:
 		Sonidos.tocar(self, "chillido", -16.0, 2.2)
 
 
-# El centro de la nube: a NUBE_DIST del jugador, hacia el promedio de las que vuelan
-func _centro_nube() -> Vector3:
-	var suma := Vector3.ZERO
-	var n := 0
-	for c in _nube:
-		if is_instance_valid(c) and c._estado == Estado.VUELA:
-			suma += c.global_position
-			n += 1
-	var lado := (suma / n if n > 0 else global_position) - _jugador.global_position
-	lado.y = 0.0
-	if lado.length_squared() < 0.01:
-		lado = Vector3.FORWARD
-	var centro := _jugador.global_position + lado.normalized() * NUBE_DIST
-	centro.y = _jugador.global_position.y - PIES + NUBE_ALTO
-	return centro
+# Un punto del otro lado del jugador (desviado hasta MOSCA_ABRE), a su distancia y altura: para
+# llegar pasa por enfrente de el
+func _nueva_meta() -> void:
+	var desde := global_position - _jugador.global_position
+	var angulo := atan2(desde.z, desde.x) + PI + randf_range(-MOSCA_ABRE, MOSCA_ABRE)
+	var r := randf_range(MOSCA_RADIO.x, MOSCA_RADIO.y)
+	_meta = _jugador.global_position + Vector3(cos(angulo), 0, sin(angulo)) * r
+	_meta.y = _jugador.global_position.y - PIES + randf_range(MOSCA_ALTO.x, MOSCA_ALTO.y)
+	_meta_reloj = MOSCA_CAMBIA
+	_rapidez = randf_range(MOSCA_VEL.x, MOSCA_VEL.y)
 
 
 # Se frena y se queda fija en el aire mientras se para en vertical, mostrandote la panza (la
