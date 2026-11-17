@@ -36,7 +36,7 @@ const PIXELES := Vector2(64.0, 64.0)
 const BRILLO := 1.5
 const OJO_RADIO := 0.05   # en metros de la rata del glb, antes de escalar
 
-enum Estado { QUIETA, AIRE, SUELO, VUELA, PICADA, SALTA, PEGADA, MUERTA }
+enum Estado { QUIETA, AIRE, SUELO, VUELA, APUNTA, PICADA, SALTA, PEGADA, MUERTA }
 const GRAVEDAD := 9.8
 const RATA_CORRE := 0.9          # segundos que corre al caer, antes de ir por el jugador
 const ALTURA_VUELO := Vector2(1.5, 2.6)   # metros sobre el piso donde revolotean las cucarachas
@@ -49,7 +49,8 @@ const PECHO := 0.35              # pecho del jugador sobre su origen
 const PIES := 1.0                # piso bajo el origen del jugador
 # Cucaracha kamikaze
 const VUELO_VEL := 4.5           # m/s volando horizontal hacia el jugador
-const PICADA_DESDE := 4.5        # m: aqui se para en vertical y se lanza
+const PICADA_DESDE := 4.5        # m: aqui se frena, se para en vertical y luego se lanza
+const APUNTA_DURA := 0.8         # s quieta en el aire acomodandose en vertical (el aviso para rodar)
 const PICADA_VEL := 11.0         # m/s al final de la picada
 const PICADA_ACELERA := 18.0     # m/s2
 const PICADA_GIRA := 2.5         # que tanto corrige el rumbo en la picada (rad/s): rodar la esquiva
@@ -148,6 +149,8 @@ func _process(delta: float) -> void:
 			_rata_suelo(delta)
 		Estado.VUELA:
 			_cucaracha_vuela(delta)
+		Estado.APUNTA:
+			_cucaracha_apunta(delta)
 		Estado.PICADA:
 			_cucaracha_picada(delta)
 		Estado.SALTA:
@@ -303,15 +306,28 @@ func _cucaracha_vuela(delta: float) -> void:
 	# Horizontal: la pose de vuelo del glb es parada, se acuesta con la cabeza al frente
 	_modelo.rotation.x = lerp_angle(_modelo.rotation.x, -PI * 0.5, delta * 6.0)
 	if global_position.distance_to(_pecho()) <= PICADA_DESDE and _reloj > 0.6:
-		_estado = Estado.PICADA
+		_estado = Estado.APUNTA
 		_reloj = 0.0
-		_vel = (_pecho() - global_position).normalized() * _vel.length()
 		Sonidos.tocar(self, "chillido", -16.0, 2.2)
 
 
+# Se frena y se queda fija en el aire mientras se para en vertical, mirandote; despues se lanza
+func _cucaracha_apunta(delta: float) -> void:
+	_vel = _vel.lerp(Vector3.ZERO, minf(delta * 8.0, 1.0))
+	global_position += _vel * delta + Vector3(0, sin(_t * 18.0) * 0.15, 0) * delta
+	_modelo.rotation.x = lerp_angle(_modelo.rotation.x, 0.0, minf(delta * 6.0, 1.0))
+	if _jugador:
+		_mirar_plano(_pecho() - global_position)
+	if _reloj >= APUNTA_DURA:
+		_modelo.rotation.x = 0.0
+		_estado = Estado.PICADA
+		_reloj = 0.0
+		var hacia := (_pecho() - global_position) if _jugador else -global_transform.basis.z
+		_vel = hacia.normalized() * 2.0
+
+
+# Acelera en vertical hacia ti; corrige poco el rumbo, asi rodando la esquivas
 func _cucaracha_picada(delta: float) -> void:
-	# Se para en vertical y acelera; corrige poco el rumbo, asi rodando la esquivas
-	_modelo.rotation.x = lerp_angle(_modelo.rotation.x, 0.0, delta * 10.0)
 	var rapidez := minf(_vel.length() + PICADA_ACELERA * delta, PICADA_VEL)
 	var rumbo := _vel.normalized()
 	if _jugador:
