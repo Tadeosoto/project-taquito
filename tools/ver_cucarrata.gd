@@ -28,7 +28,7 @@ func _ready() -> void:
 	add_child(sol)
 	var piso := MeshInstance3D.new()
 	piso.mesh = PlaneMesh.new()
-	piso.mesh.size = Vector2(12, 12)
+	piso.mesh.size = Vector2(80, 80)
 	var concreto := StandardMaterial3D.new()
 	concreto.albedo_color = Color(0.3, 0.3, 0.32)
 	piso.material_override = concreto
@@ -51,6 +51,9 @@ func _ready() -> void:
 # Las crias junto a la cucarrata (para ver el tamano) y de cerca. Fotos y sale
 func _fotos_crias(carpeta: String) -> void:
 	set_process(false)
+	# Las tomas son de cuando media 0.58 m: asi se ven las crias junto a la vieja; la de 3 m las tapa
+	cuca.alto = Cucarrata.ALTO_MODELO
+	cuca.scale = Vector3.ONE
 	DirAccess.make_dir_recursive_absolute(carpeta)
 	cuca.animar("quieta", 0.0)
 	var rata := CriaCucarrata.new()
@@ -140,8 +143,10 @@ func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_RIGHT): angulo += delta * 1.5
 	if Input.is_key_pressed(KEY_UP): alto += delta
 	if Input.is_key_pressed(KEY_DOWN): alto -= delta
-	var centro := (Vector3(0, 0.3, -0.5) if cerca else Vector3(0, 0.4, -0.3)) * cuca.tamano
-	cam.position = centro + Vector3(sin(angulo), 0, cos(angulo)) * distancia + Vector3(0, alto, 0)
+	# Las distancias de las tomas son para la cucarrata de 0.58 m: crecen con su escala
+	var k := cuca.escala()
+	var centro := (Vector3(0, 0.3, -0.5) if cerca else Vector3(0, 0.4, -0.3)) * k
+	cam.position = centro + (Vector3(sin(angulo), 0, cos(angulo)) * distancia + Vector3(0, alto, 0)) * k
 	cam.look_at(centro)
 
 

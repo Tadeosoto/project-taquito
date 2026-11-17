@@ -41,6 +41,7 @@ const ANIMS := {
 	"vuela": "flying_straight", "agarra": "flying_kidnapping",
 }
 const EN_CICLO := ["quieta", "camina", "vuela", "agarra"]
+const ALTO_MODELO := 0.58   # m del glb en "quieta", del piso al lomo, sin antenas
 
 # Parir (parir()): la animacion "pare" la arma el codigo sobre "idle" (el glb no la trae). El
 # abdomen (hueso body_02.001_036; en su X local, negativo = arriba) se levanta y se hincha, y con
@@ -53,11 +54,12 @@ const PARE_HINCHA := 1.12     # escala del abdomen levantado
 const PARE_PUJA := 1.28       # escala en cada contraccion
 const PARE_PUJOS := [0.8, 1.2, 1.6, 2.0]   # segundos de cada contraccion (una cria cada una)
 const PUNTA_COLA := Vector3(0.0, 0.32, 1.0)   # en el modelo en reposo
-const CRIA_SALE := Vector2(2.2, 3.2)   # m/s hacia atras y hacia arriba al salir
+const CRIA_SALE := Vector2(3.5, 3.5)   # m/s hacia atras y hacia arriba al salir
 
 signal pario(cria: CriaCucarrata)
 
-@export var tamano := 1.0
+# Alto en metros sin las antenas (JJ: 3 m, gigante). El modelo mide ALTO_MODELO
+@export var alto := 3.0
 @export var animacion_inicial := "camina"
 @export var ojos_con_luz := true
 
@@ -74,7 +76,7 @@ var _punta_en_abdomen := Vector3.ZERO
 
 
 func _ready() -> void:
-	scale = Vector3.ONE * tamano
+	scale = Vector3.ONE * escala()
 	_modelo = CUCARACHA.instantiate()
 	add_child(_modelo)
 	esqueleto = _modelo.find_children("*", "Skeleton3D", true, false)[0]
@@ -95,6 +97,10 @@ func _ready() -> void:
 	_punta_en_abdomen = (esqueleto_modelo * esqueleto.get_bone_global_rest(abdomen)).affine_inverse() \
 			* PUNTA_COLA
 	animar(animacion_inicial)
+
+
+func escala() -> float:
+	return alto / ALTO_MODELO
 
 
 func animar(corto: String, mezcla := 0.15) -> void:
@@ -284,8 +290,8 @@ func _poner_cabeza() -> void:
 		if ojos_con_luz:
 			var luz := OmniLight3D.new()
 			luz.light_color = OJO_COLOR
-			luz.light_energy = 0.6
-			luz.omni_range = 1.2
+			luz.light_energy = 0.6 + escala() * 0.15
+			luz.omni_range = 1.2 * escala()   # el alcance de la luz no crece con la escala del nodo
 			luz.position = ojo.position + Vector3(0, 0, -0.15)
 			cabeza.add_child(luz)
 

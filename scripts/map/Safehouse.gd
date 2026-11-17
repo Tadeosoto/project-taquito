@@ -132,7 +132,7 @@ Chatarra junto al pedazo de mapa · L en el inventario: libreta"""},
 ]
 const PANEL_ANCHO := 380.0     # px de 640: deja libre la mira y al personaje
 const LOMBRICES_ENFRENTE := 8.0
-const CUCARRATA_ENFRENTE := 9.0
+const CUCARRATA_ENFRENTE := 18.0   # mide 3 m de alto y ~10 de largo
 const LOMBRICES_CAJA := Vector3(32.0, 5.0, 32.0)
 # Una tecla por lugar de EfectosPixel, en este orden
 const EFECTOS_TECLAS := [KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7]
@@ -791,7 +791,7 @@ func _cucarrata_pare() -> void:
 		frente.y = 0.0
 		frente = frente.normalized()
 		# Un poco de lado: justo enfrente la tapa tu cuerpo desde la camara
-		var donde := _jugador.global_position + frente * CUCARRATA_ENFRENTE + frente.cross(Vector3.UP) * 3.0
+		var donde := _jugador.global_position + frente * CUCARRATA_ENFRENTE + frente.cross(Vector3.UP) * 4.0
 		donde.y = 0.0
 		_cucarrata.global_position = donde
 		# La cabeza (-Z) para alla: la cola (+Z) te ve
