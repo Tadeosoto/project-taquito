@@ -39,7 +39,9 @@ const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar", "fuente", "bala"
 	# La Madre del Carcamo y sus crias (scripts/lombrices/), hojas con la paleta del Serenol
 	"madre_surge", "madre_tierra", "saco_golpe", "saco_revienta", "lodo_choque", "fase_onda", "madre_muere", "cria_corte", "cria_cabeza", "molotov_revienta", "torre_golpe", "pegada_mordida", "pegada_suelta",
 	# La Mojiganga (scripts/catrina/): las suyas, con la paleta del vestido, el carton y el cempasuchil
-	"catrina_pisada", "catrina_grito", "catrina_agarre", "catrina_fase", "catrina_golpe", "catrina_rompe", "catrina_muere", "catrina_flor_revienta"]
+	"catrina_pisada", "catrina_grito", "catrina_agarre", "catrina_fase", "catrina_golpe", "catrina_rompe", "catrina_muere", "catrina_flor_revienta",
+	# El Panzon de piedra (Panzon.gd): revienta en Serenol azul
+	"panzon_revienta"]
 
 # Cada lugar, sus variantes (la primera es la que queda por omision, salvo PREDETERMINADA). `hoja` vacia = nada.
 # `puno`: la hoja a mano limpia; `mata`: la del golpe que mata; `voltea`: la hoja ve a la
@@ -120,6 +122,11 @@ const LUGARES := {
 	"torre_golpe": [{ "nombre": "A", "hoja": "torre_golpe", "escala": 0.4, "suelo": true }],
 	"pegada_mordida": [{ "nombre": "A", "hoja": "pegada_mordida", "escala": 0.35 }],
 	"pegada_suelta": [{ "nombre": "A", "hoja": "pegada_suelta", "escala": 0.35 }],
+	# El Panzon (Panzon.gd, Pistola.gd): sangra Serenol, el azul de sus grietas. Son impacto_seco,
+	# impacto_critico y madre_muere pasadas por un degradado de azules (marino -> #2EC4FF -> blanco)
+	# panzon_revienta va a 28 fps (madre_muere a 12): el hongo duraba 7 s (JJ: demasiado), asi ~3
+	"panzon_impacto": [{ "nombre": "A", "hoja": "panzon_impacto", "mata": "panzon_critico", "escala": 0.8, "voltea": true }],
+	"panzon_revienta": [{ "nombre": "A", "hoja": "panzon_revienta", "escala": 0.3, "suelo": true }],
 	# La Mojiganga (Catrina.gd, Rompible.gd)
 	"catrina_pisada": [{ "nombre": "A", "hoja": "catrina_pisada", "escala": 0.45, "suelo": true }],
 	"catrina_grito": [{ "nombre": "A", "hoja": "catrina_grito", "escala": 0.45 }],

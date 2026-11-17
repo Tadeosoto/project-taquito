@@ -217,7 +217,9 @@ func disparar() -> void:
 		if pego and blanco == null and lombriz.is_empty():
 			efectos.lanzar("bala", punto - Vector3.UP * BALA_IMPACTO_ALTO, hacia)
 		# El Panzon y el Saltabardas son grandes: su impacto va donde pego la bala, no en un punto fijo del cuerpo
-		elif blanco is Panzon or blanco is Saltabardas:
+		elif blanco is Panzon:
+			efectos.lanzar("panzon_impacto", punto, hacia)   # sangra Serenol azul
+		elif blanco is Saltabardas:
 			efectos.lanzar("impacto", punto, hacia)
 	_expulsar_casquillo(camara)
 	if balas <= 0:

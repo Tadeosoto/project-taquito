@@ -12,6 +12,8 @@ extends CharacterBody3D
 # Con tinaco (la defensa) las losas van siempre al tinaco y a ti solo te toca lo de cerca
 # (embestida y martillazo) si te le acercas a PELEA_JUGADOR m. Su vida va en una barra sobre
 # la cabeza, como la de los zombis pero mas grande y sin limite de distancia.
+# Es de piedra gris con grietas de Serenol azul que respiran como la Madre del Carcamo
+# (shaders/panzon_serenol.gdshader, _vestir) y sangra ese mismo azul (golpes y reventon al morir).
 # Esta en el grupo "zombis" (machete y pistola) y "panzon"; `estado` 3
 # es MUERTO como en Zombie. No nombra autoloads (tools/ carga a Zombis).
 
@@ -24,16 +26,36 @@ const MODELO := preload("res://models/personajes/panzon/panzon.glb")
 const ROCA := preload("res://models/personajes/panzon/roca.glb")
 const RocaPanzon := preload("res://scripts/map/RocaPanzon.gd")
 const BUCLES := ["Idle", "Walk", "Run_Charge"]
+# Tamano (JJ, 2026-11-17: se veia muy chico): el modelo mide 2.3 m a 1x. Escala el modelo, la
+# capsula, los alcances, la barra y de donde sale la sangre; las velocidades no (camina igual de
+# lento, con pasos mas largos)
+const ESCALA := 1.5
+const SHADER_PIEL := preload("res://shaders/panzon_serenol.gdshader")
+# Ojos hundidos (_hundir_ojos): los discos de las cuencas entran y el anillo de la frente sale,
+# para que la ceja de piedra les haga sombra. La cabeza no tiene hueco: meterlos mas los esconde
+const HUNDE_OJOS := 0.004      # m
+const SALE_CEJA := 0.045       # m
+# Clips con la boca abierta: la garganta brilla (instance uniform boca_abierta)
+const BOCA_ABIERTA := ["Roar", "Run_Charge", "Ground_Slam", "Slam", "Throw", "Throw_Player"]
+# Su sangre es Serenol, el azul de sus grietas (#2EC4FF) y uno marino
+const SANGRE := Color(0.18, 0.77, 1.0)
+const SANGRE_OSCURA := Color(0.04, 0.25, 0.45)
+const PECHO := 1.3 * ESCALA    # m: de donde sale la sangre
+const CUERPO_RADIO := 0.5 * ESCALA
+const SALPICA := 12            # gotas por golpe
+const SALPICA_VELOCIDAD := Vector2(3.0, 7.0)
+const REVIENTA := 90           # gotas al morir
+const REVIENTA_VELOCIDAD := Vector2(3.0, 10.0)
 const VIDA := 400
 const GRAVEDAD := 30.0
 const CAMINA := 1.6            # m/s
-const PASO_CAMINA := 1.0       # m/s de Walk a 1x
+const PASO_CAMINA := 1.0 * ESCALA   # m/s de Walk a 1x (con pasos mas largos)
 const EMBISTE := 8.0           # m/s
-const PASO_CORRE := 5.1        # m/s de Run_Charge a 1x
+const PASO_CORRE := 5.1 * ESCALA    # m/s de Run_Charge a 1x
 const EMBISTE_MAX := 2.5       # s de carga como mucho
-const ALCANZA := 1.6           # m al jugador para agarrarlo
-const MARTILLO_DESDE := 2.2    # m: mas cerca, martillazo
-const MARTILLO_RADIO := 2.5
+const ALCANZA := 1.6 * ESCALA  # m al jugador para agarrarlo
+const MARTILLO_DESDE := 2.2 * ESCALA   # m: mas cerca, martillazo
+const MARTILLO_RADIO := 2.5 * ESCALA
 const EMBESTIDA := Vector2(6.0, 14.0)   # m entre los que embiste
 const ROCA_DESDE := 14.0       # m: mas lejos, avienta losa
 const EMBESTIDA_CADA := 7.0
@@ -50,18 +72,20 @@ const DANO_TINACO_MARTILLO := 30
 const PISOTONES := 3
 const ATARANTADO_DURA := 3.0
 const ATARANTADO_MULT := 2
-const DELANTE := 1.0           # m: la victima tirada con el pecho a esta distancia (los clips)
+const DELANTE := 1.0 * ESCALA  # m: la victima tirada con el pecho a esta distancia (los clips)
 const PESOS := Vector2i(15, 30)
 const BOTINES := 3
-const MUERTO_DURA := 10.0
+# Al morir revienta y el cuerpo desaparece en ese momento (JJ, 2026-11-17); el nodo vive estos s
+# mas, invisible, para que no se corte el sonido del reventon
+const MUERTO_DURA := 3.0
 const LEJOS := 90.0
 const ATORADO_SEG := 2.0       # s caminando sin avanzar para brincar a un hueco libre (_revisar_atorado)
 const BARRICADA_HASTA := 24.0  # m del tinaco: mas cerca puede ser la barricada (Barricada.ANILLOS llega a ~21)
 const DERECHO_HASTA := 4.0     # m al blanco: mas cerca va derecho; mas lejos, por el campo de flujo
 const CAPA_ZOMBIS := 2
-# La barra de vida sobre la cabeza (shaders/barra_vida.gdshader, la de Zombie). El modelo mide 2.3 m
-const BARRA := Vector2(1.4, 0.12)  # m
-const BARRA_ALTO := 2.75           # m sobre los pies
+# La barra de vida sobre la cabeza (shaders/barra_vida.gdshader, la de Zombie). El modelo mide 2.3 m x ESCALA
+const BARRA := Vector2(1.7, 0.14)  # m
+const BARRA_ALTO := 2.3 * ESCALA + 0.45   # m sobre los pies
 const BARRA_SHADER := preload("res://shaders/barra_vida.gdshader")
 const MEZCLA := 0.15
 const DECIDE_CADA := 0.3
@@ -107,6 +131,12 @@ var _atorado := 0.0
 var _capsula: CapsuleShape3D
 var _barra: MeshInstance3D
 var _blanco_roca: Node3D       # a quien va la losa: se fija al rugir, para que no cambie a medio tiro
+var _piel: MeshInstance3D      # la malla del cuerpo, con el material de piedra
+
+# Compartidos por todos los Panzones: la malla con su reposo en CUSTOM0 y un solo material
+# (un material por instancia se recompila y traba; lo de cada uno va en instance uniforms)
+static var _malla_serenol: ArrayMesh
+static var _material_piel: ShaderMaterial
 
 
 func _ready() -> void:
@@ -116,15 +146,17 @@ func _ready() -> void:
 	collision_mask = 1 | CAPA_ZOMBIS
 	var forma := CollisionShape3D.new()
 	_capsula = CapsuleShape3D.new()
-	_capsula.radius = 0.6
-	_capsula.height = 2.2
+	_capsula.radius = 0.6 * ESCALA
+	_capsula.height = 2.2 * ESCALA
 	forma.shape = _capsula
-	forma.position.y = 1.1
+	forma.position.y = 1.1 * ESCALA
 	add_child(forma)
 	_modelo = MODELO.instantiate()
 	_modelo.rotation.y = PI
+	_modelo.scale = Vector3.ONE * ESCALA
 	add_child(_modelo)
 	_anim = _modelo.find_children("*", "AnimationPlayer")[0]
+	_vestir()
 	for nombre in BUCLES:
 		if _anim.has_animation(nombre):
 			_anim.get_animation(nombre).loop_mode = Animation.LOOP_LINEAR
@@ -135,6 +167,7 @@ func _ready() -> void:
 	esqueleto.add_child(mano)
 	_roca_mano = ROCA.instantiate()
 	_roca_mano.visible = false
+	_roca_mano.scale = Vector3.ONE / ESCALA   # del tamano de la que vuela (RocaPanzon)
 	mano.add_child(_roca_mano)
 	_animar("Idle")
 	var ciclo := get_tree().get_first_node_in_group("ciclo")
@@ -177,6 +210,8 @@ func _animar(nombre: String, velocidad := 1.0, reiniciar := false) -> void:
 	if _clip != nombre or reiniciar:
 		_anim.play(nombre, MEZCLA)
 		_clip = nombre
+		if _piel:
+			_piel.set_instance_shader_parameter("boca_abierta", 1.0 if nombre in BOCA_ABIERTA else 0.0)
 		if reiniciar:
 			_anim.seek(0.0, true)
 	_anim.speed_scale = velocidad
@@ -256,7 +291,7 @@ func _frenar(delta: float) -> void:
 
 func _lo_ve(punto: Vector3) -> bool:
 	var excluir: Array[RID] = [get_rid(), jugador.get_rid()]
-	var rayo := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 1.6, punto + Vector3.UP * 1.0, 1, excluir)
+	var rayo := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 1.6 * ESCALA, punto + Vector3.UP * 1.0, 1, excluir)
 	return get_world_3d().direct_space_state.intersect_ray(rayo).is_empty()
 
 
@@ -321,7 +356,7 @@ func _revisar_atorado(delta: float, caminando: bool, rumbo: Vector3) -> void:
 			var suelo := espacio.intersect_ray(rayo)
 			if suelo.is_empty() or suelo.position.y > global_position.y + 0.6:
 				continue
-			consulta.transform = Transform3D(Basis.IDENTITY, suelo.position + Vector3.UP * 1.2)
+			consulta.transform = Transform3D(Basis.IDENTITY, suelo.position + Vector3.UP * (1.1 * ESCALA + 0.1))
 			if espacio.intersect_shape(consulta, 1).is_empty():
 				global_position = suelo.position + Vector3.UP * 0.05
 				return
@@ -414,7 +449,7 @@ func _cargar(delta: float) -> void:
 			continue
 		var d: Vector3 = z.global_position - global_position
 		d.y = 0.0
-		if d.length() < 1.4 and d.normalized().dot(_rumbo) > 0.2:
+		if d.length() < 1.4 * ESCALA and d.normalized().dot(_rumbo) > 0.2:
 			z.recibir_golpe(4, global_position, 2.5)
 	var al_jugador := jugador.global_position - global_position
 	al_jugador.y = 0.0
@@ -609,8 +644,15 @@ func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, 
 	_nota("pelear")
 	var zs = zombis
 	# El balazo pinta su impacto donde pego (Pistola.disparar); aqui solo el machete
+	var hacia := (global_position - desde)
+	hacia.y = 0.0
+	hacia = hacia.normalized()
 	if cuerpo_a_cuerpo and zs and zs.get("efectos"):
-		zs.efectos.lanzar("impacto", global_position + Vector3.UP * 1.3, (global_position - desde).normalized())
+		zs.efectos.lanzar("panzon_impacto", global_position + Vector3.UP * PECHO, hacia, ESCALA, "mata" if _vida <= 0 else "")
+	# Sangra Serenol hacia donde iba el golpe (el balazo tambien)
+	if zs and zs.get("liquido"):
+		zs.liquido.salpicar(global_position + Vector3.UP * PECHO, CUERPO_RADIO, global_position.y,
+			(hacia + Vector3.UP * 0.3).normalized(), SALPICA, SANGRE, SALPICA_VELOCIDAD, 0.5)
 	Sonidos.tocar(self, "whack", -6.0, 0.8)
 	if _vida <= 0:
 		_morir(true)
@@ -632,11 +674,11 @@ func _morir(pagado: bool) -> void:
 	collision_mask = 1
 	velocity = Vector3.ZERO
 	_roca_mano.visible = false
-	_animar("Death", 1.0, true)
 	Sonidos.tocar(self, "morir_zombi", 2.0, 0.6)
 	cambio.emit(0, VIDA)
 	murio.emit()
 	if not pagado:
+		_reventar()
 		return
 	_nota("matar")
 	var tazos := get_node_or_null("/root/Tazos")
@@ -651,10 +693,24 @@ func _morir(pagado: bool) -> void:
 		var uno := Materiales.botin(zona, de_noche, true)
 		for id: String in uno:
 			botin[id] = botin.get(id, 0) + uno[id]
-	CajaBotin.soltar(get_parent(), global_position + Vector3.UP * 1.4, botin, paga, 1.6)
+	CajaBotin.soltar(get_parent(), global_position + Vector3.UP * 1.4 * ESCALA, botin, paga, 1.6)
+	_reventar()
+
+
+# Revienta en Serenol: el hongo azul y un globo de gotas que dejan manchas, y el cuerpo desaparece.
+# Tambien al amanecer (sin paga)
+func _reventar() -> void:
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos:
-		efectos.lanzar("muerte", global_position, Vector3.ZERO, 2.0)
+		efectos.lanzar("panzon_revienta", global_position, Vector3.ZERO, ESCALA)
+	var zs = zombis
+	if zs and zs.get("liquido"):
+		var centro := global_position + Vector3.UP * PECHO
+		zs.liquido.reventar(centro, CUERPO_RADIO, global_position.y, REVIENTA * 2 / 3, SANGRE, REVIENTA_VELOCIDAD)
+		zs.liquido.reventar(centro, CUERPO_RADIO, global_position.y, REVIENTA / 3, SANGRE_OSCURA, REVIENTA_VELOCIDAD * 0.7)
+	Sonidos.tocar(self, "squelch", 0.0, 0.7)
+	_modelo.visible = false
+	_barra.visible = false
 
 
 func _muerto(delta: float) -> void:
@@ -679,3 +735,63 @@ func _quitar() -> void:
 
 func _exit_tree() -> void:
 	_soltar_jugador()
+
+
+# --- La piel de piedra ---
+
+# Le pone al cuerpo la malla con su reposo (las grietas no resbalan al animar) y los ojos hundidos,
+# y el material de piedra con Serenol. La textura del modelo solo dice que es ropa y que es piel
+func _vestir() -> void:
+	var mallas := _modelo.find_children("*", "MeshInstance3D")
+	if mallas.is_empty():
+		return
+	_piel = mallas[0] as MeshInstance3D
+	if _malla_serenol == null:
+		_malla_serenol = _malla_con_reposo(_piel.mesh)
+		_material_piel = ShaderMaterial.new()
+		_material_piel.shader = SHADER_PIEL
+		var original := _piel.mesh.surface_get_material(0)
+		if original == null:
+			original = _piel.get_active_material(0)
+		if original is BaseMaterial3D:
+			_material_piel.set_shader_parameter("textura", (original as BaseMaterial3D).albedo_texture)
+	_piel.mesh = _malla_serenol
+	_piel.material_override = _material_piel
+
+
+# Copia la posicion de reposo de cada vertice a CUSTOM0 (el shader dibuja las grietas y los ojos
+# con ella) y hunde los ojos en la malla que se anima
+static func _malla_con_reposo(malla: Mesh) -> ArrayMesh:
+	var nueva := ArrayMesh.new()
+	for s in malla.get_surface_count():
+		var arr := malla.surface_get_arrays(s)
+		var pos: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var reposo := PackedFloat32Array()
+		reposo.resize(pos.size() * 4)
+		for i in pos.size():
+			reposo[i * 4] = pos[i].x
+			reposo[i * 4 + 1] = pos[i].y
+			reposo[i * 4 + 2] = pos[i].z
+			reposo[i * 4 + 3] = 1.0
+		arr[Mesh.ARRAY_CUSTOM0] = reposo
+		arr[Mesh.ARRAY_VERTEX] = _hundir_ojos(pos.duplicate())
+		var formato := Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT
+		var huesos = arr[Mesh.ARRAY_BONES]
+		if huesos != null and (huesos as PackedInt32Array).size() == pos.size() * 8:
+			formato |= Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
+		nueva.add_surface_from_arrays(malla.surface_get_primitive_type(s), arr, [], {}, formato)
+		nueva.surface_set_material(s, malla.surface_get_material(s))
+	return nueva
+
+
+# Las medidas son del modelo (metros de reposo, mirando a +Z): discos de los ojos en x 0.02-0.08,
+# y 2.08-2.15, z 0.185-0.197; la frente es el anillo de vertices a 2.17 m
+static func _hundir_ojos(pos: PackedVector3Array) -> PackedVector3Array:
+	for i in pos.size():
+		var p := pos[i]
+		if p.y > 2.075 and p.y < 2.155 and absf(p.x) > 0.015 and absf(p.x) < 0.09 and p.z > 0.18 and p.z < 0.2:
+			p.z -= HUNDE_OJOS
+		elif absf(p.y - 2.17) < 0.005 and p.z > 0.1:
+			p.z += SALE_CEJA * (1.0 - absf(p.x) * 2.5)
+		pos[i] = p
+	return pos
