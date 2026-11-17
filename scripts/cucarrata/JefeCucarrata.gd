@@ -1,15 +1,16 @@
 class_name JefeCucarrata
 extends Cucarrata
 # La pelea contra la cucarrata (JJ, 2026-11-17). Tres fases por la vida que le queda:
-# 1. Camina alrededor del jugador. Si le disparas (o te le acercas) grune: alza la cabeza de rata
-#    y chilla, brinca y te da un mordidon, y se va corriendo. No pare.
-# 2. Con 2/3 de vida: lo mismo, y cada PARE_CADA s se para a parir (ratas o cucarachas, alterna).
-# 3. Con 1/3: vuela como mosca, mas lenta que las cucarachas. Cada AGUIJON_CADA s se acomoda en
-#    vertical (cabeza arriba, la cola con el aguijon abajo), hace una pausa y se lanza: aguijonazo.
-#    En el aire pare cucarachas voladoras. Las balas no le bajan vida: con TUMBAR_BALAS se cae boca
-#    arriba pataleando, como cucaracha (JJ). Asi tumbada es cuando el machete le baja vida (hasta
-#    TUMBADA_VIDA por tumbada: hay que tumbarla dos veces). Al rato se voltea, suelta ratas y vuelve
-#    a subir.
+# 1. En el piso: camina alrededor del jugador. Si le disparas (o te le acercas) grune: alza la
+#    cabeza de rata y chilla, brinca y te da un mordidon, y se va corriendo. Cada PARE_CADA s se
+#    para a parir ratas (JJ: las cucarachas voladoras solo salen cuando ella vuela).
+# 2. Con 2/3 de vida despega y vuela como mosca, mas lenta que las cucarachas. En el aire bombea
+#    cucarachas voladoras casi sin parar (AIRE_PARE_CADA) y las balas le bajan muy poco
+#    (DANO_BALA_AIRE), pero con TUMBAR_BALAS se cae boca arriba pataleando, como cucaracha. Asi
+#    tumbada el machete le baja vida de a de veras (hasta TUMBADA_VIDA por tumbada: dos por fase).
+#    Al rato se voltea, suelta ratas y vuelve a volar.
+# 3. Con 1/3: lo mismo, y ademas aguijonazos: cada AGUIJON_CADA s se acomoda en vertical (cabeza
+#    arriba, la cola con el aguijon abajo), hace una pausa y se lanza.
 # Esta en el grupo "lombrices": la pistola y el machete le preguntan como a las crias. Todos los
 # numeros son de primera, para docs/pruebas-balance.md.
 
@@ -18,6 +19,7 @@ signal cambio_fase(fase: int)
 
 const VIDA := 400.0
 const DANO_BALA := 10.0
+const DANO_BALA_AIRE := 2.0       # volando las balas casi no le hacen (JJ): sirven para tumbarla
 const DANO_EXPLOSION := 25.0
 # Esferas para pegarle, de la cabeza a la cola (x, y, z del modelo en reposo; w = radio). Escalan
 # con el nodo
@@ -46,7 +48,10 @@ const ENOJO_ENFRIA := 3.5         # s entre un mordidon y el siguiente
 const CERCA := 6.0                # m de la boca: si te le acercas tambien brinca
 # Parir (fases 2 y 3)
 const PARE_CADA := 14.0
+const PARE_PRIMERO := 6.0         # el primer parto en el piso, al empezar la pelea
 const CRIAS_MAX := 6              # si quedan mas vivas, espera
+const AIRE_PARE_CADA := 4.0       # volando: un pujo de cucarachas cada tanto, casi sin parar
+const AIRE_CRIAS_MAX := 10
 # Vuelo (fase 3)
 const VUELO_ALTO := Vector2(4.0, 6.0)
 const VUELO_RADIO := Vector2(7.0, 14.0)
@@ -125,6 +130,7 @@ func _ready() -> void:
 func _empezar() -> void:
 	_listo = true
 	_piso = global_position.y
+	_pare_reloj = PARE_PRIMERO
 	var frente := -global_transform.basis.z
 	_yaw = atan2(-frente.x, -frente.z)
 	_meta_reloj = 0.0
@@ -177,10 +183,9 @@ func _camina(delta: float) -> void:
 	if _boca().distance_to(_pecho()) < CERCA:
 		_enojar()
 		return
-	if fase >= 2:
-		_pare_reloj -= delta
-		if _pare_reloj <= 0.0 and _crias_vivas() < CRIAS_MAX:
-			_parir_quieta()
+	_pare_reloj -= delta
+	if _pare_reloj <= 0.0 and _crias_vivas() < CRIAS_MAX:
+		_parir_quieta()
 
 
 # Da vueltas alrededor del jugador: cada punto un poco mas alla en su sentido, a su distancia
@@ -205,7 +210,7 @@ func _caminar(delta: float) -> void:
 
 
 func _enojar() -> void:
-	if fase >= 3 or estado != Estado.CAMINA:
+	if fase >= 2 or estado != Estado.CAMINA:
 		return
 	if Time.get_ticks_msec() - _ultimo_enojo < int(ENOJO_ENFRIA * 1000.0):
 		return
@@ -279,14 +284,14 @@ func _parir_quieta() -> void:
 	estado = Estado.PARE
 	_pare_reloj = PARE_CADA
 	anim.speed_scale = 1.0
-	await parir()
+	await parir([CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.RATA])   # 15 ratas
 	if is_inside_tree() and estado == Estado.PARE:
 		estado = Estado.CAMINA
 		_meta_reloj = 0.0
 		animar("camina", 0.3)
 
 
-# --- Fase 3: vuela ---
+# --- Fases 2 y 3: vuela ---
 
 func _despega(delta: float) -> void:
 	var f := clampf(_reloj / DESPEGA_DURA, 0.0, 1.0)
@@ -297,7 +302,7 @@ func _despega(delta: float) -> void:
 		_vel = _frente() * VUELO_VEL.x
 		_meta_reloj = 0.0
 		_aguijon_reloj = AGUIJON_CADA * 0.6
-		_pare_reloj = PARE_CADA * 0.5
+		_pare_reloj = 1.0
 
 
 # Como mosca, mas lenta que las cucarachas: a un punto del otro lado del jugador, alto, con giro
@@ -316,14 +321,14 @@ func _vuela(delta: float) -> void:
 	_volar_a(_meta, _rapidez, VUELO_GIRA, delta)
 	_pitch = lerp_angle(_pitch, 0.0, minf(delta * 3.0, 1.0))
 	_pare_reloj -= delta
-	if _pare_reloj <= 0.0 and _crias_vivas() < CRIAS_MAX:
-		_pare_reloj = PARE_CADA
+	if _pare_reloj <= 0.0 and _crias_vivas() < AIRE_CRIAS_MAX:
+		_pare_reloj = AIRE_PARE_CADA
 		# En el aire, sin dejar de aletear: solo cucarachas voladoras (las ratas, al voltearse)
-		parir([CriaCucarrata.Tipo.CUCARACHA, CriaCucarrata.Tipo.CUCARACHA], false)
+		parir([CriaCucarrata.Tipo.CUCARACHA], false)
 	_aguijon_reloj -= delta
 	var plano := global_position - _jugador.global_position
 	plano.y = 0.0
-	if _aguijon_reloj <= 0.0 and plano.length() > 4.0 and plano.length() < 18.0:
+	if fase >= 3 and _aguijon_reloj <= 0.0 and plano.length() > 4.0 and plano.length() < 18.0:
 		estado = Estado.APUNTA
 		_reloj = 0.0
 		var lado := plano.normalized()
@@ -397,7 +402,7 @@ func _volar_a(meta: Vector3, rapidez: float, gira: float, delta: float) -> void:
 	_girar_a(_vel, gira * 2.0 * delta)
 
 
-# --- Tumbada (fase 3) ---
+# --- Tumbada (fases 2 y 3) ---
 
 func _tumbar() -> void:
 	estado = Estado.TUMBA
@@ -464,6 +469,7 @@ func _parir_y_despegar() -> void:
 
 
 func _despegar() -> void:
+	cancelar_parto()   # si estaba pariendo en el piso, ya no
 	estado = Estado.DESPEGA
 	_reloj = 0.0
 	_balazos_vuelo = 0
@@ -482,11 +488,13 @@ func _herir_tumbada(dano: float) -> void:
 		_voltear()
 
 
-# Un golpe en la fase 3: en el aire suma para tumbarla, tumbada baja vida, si no, nada
-func _golpe_fase3(balas: int, dano: float) -> void:
+# Un golpe en las fases 2 y 3: en el aire suma para tumbarla (y le baja poquito), tumbada baja vida, si no, nada
+func _golpe_aire(balas: int, dano: float) -> void:
 	if estado in EN_VUELO:
 		_balazos_vuelo += balas
-		if _balazos_vuelo >= TUMBAR_BALAS:
+		if balas > 0:
+			_herir(DANO_BALA_AIRE * balas)
+		if estado in EN_VUELO and _balazos_vuelo >= TUMBAR_BALAS:
 			_tumbar()
 	elif estado == Estado.PATAS and dano > 0.0:
 		_herir_tumbada(dano)
@@ -553,9 +561,9 @@ func _herir(dano: float) -> void:
 	cambio_fase.emit(fase)
 	Sonidos.tocar(self, "rugido", 0.0, 0.6)
 	if fase == 2:
-		_pare_reloj = 2.0   # en cuanto entra a la fase 2, pare
-	elif fase == 3:
 		_despegar()
+	elif fase == 3:
+		_aguijon_reloj = 2.5   # ya vuela (o esta tumbada): ahora tambien pica
 
 
 func _esferas() -> Array:
@@ -595,8 +603,8 @@ static func _esfera(origen: Vector3, dir: Vector3, centro: Vector3, r: float) ->
 func bullet_hit(_i: int, punto: Vector3, _dir: Vector3) -> void:
 	_fx("cria_corte", punto)
 	Sonidos.tocar(self, "squelch", -8.0, 0.8)
-	if fase >= 3:
-		_golpe_fase3(1, 0.0)   # las balas no le bajan vida en el aire: la tumban
+	if fase >= 2:
+		_golpe_aire(1, 0.0)   # en el aire casi no le bajan vida: la tumban
 		return
 	_herir(DANO_BALA)
 	_enojar()
@@ -615,8 +623,8 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 		if not giro and hacia.length() > 0.3 and hacia.normalized().dot(frente) < cono:
 			continue
 		_fx("cria_corte", e[0] - hacia.normalized() * e[1])
-		if fase >= 3:
-			_golpe_fase3(0, float(dano))   # solo tumbada le baja vida
+		if fase >= 2:
+			_golpe_aire(0, float(dano))   # solo tumbada le baja vida
 		else:
 			_herir(float(dano))
 		return true
@@ -626,8 +634,8 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 func apply_explosion_impulse(punto: Vector3, radio: float, _fuerza: float, _algo = null) -> void:
 	for e in _esferas():
 		if punto.distance_to(e[0]) < radio + e[1]:
-			if fase >= 3:
-				_golpe_fase3(TUMBAR_EXPLOSION, DANO_EXPLOSION)
+			if fase >= 2:
+				_golpe_aire(TUMBAR_EXPLOSION, DANO_EXPLOSION)
 			else:
 				_herir(DANO_EXPLOSION)
 			return

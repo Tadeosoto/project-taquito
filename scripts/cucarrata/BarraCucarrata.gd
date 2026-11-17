@@ -8,7 +8,7 @@ const ANCHO := 300.0
 const ALTO := 10.0
 const COLOR_VIDA := Color(0.18, 0.77, 1.0)   # el azul Serenol de las grietas
 const COLOR_VACIO := Color(0.08, 0.1, 0.12)
-const FASES := ["", "camina y muerde", "pare crías", "vuela: túmbala a balazos y dale machete"]
+const FASES := ["", "camina, muerde y pare ratas", "vuela: túmbala a balazos y dale machete", "igual, y pica con el aguijón"]
 
 var jefe: JefeCucarrata
 var _barra: Control

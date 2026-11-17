@@ -178,6 +178,8 @@ func parir(tipos: Array = [], con_animacion := true) -> void:
 			await get_tree().process_frame
 			if not is_inside_tree() or _parto != mio:
 				return
+		if _parto != mio:
+			return
 		animar("quieta", 0.3)
 
 
