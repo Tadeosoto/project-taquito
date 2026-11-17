@@ -117,6 +117,7 @@ G tablas · Shift+G Saltabardas · Shift+J Panzón · L -100 al tinaco (refugio 
 Shift+X La Mojiganga (catrina gigante, ya despierta)
 , soltar 80 lombrices enfrente (hornea unos segundos)
 Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
+. la cucarrata enfrente: pare ratas y cucarachas kamikaze (otra vez . = pare otra vez)
 3 sal / molotov (otra vez 3 cambia; botella vacía + gasolinera + trapo = molotov)"""},
 	{"titulo": "Efectos y tazos", "efectos": true, "texto": """F2-F7 efectos de pixel (propuestas, abajo)
 F9 efectos nuevos (tambos y chispas: a la derecha)
@@ -131,6 +132,7 @@ Chatarra junto al pedazo de mapa · L en el inventario: libreta"""},
 ]
 const PANEL_ANCHO := 380.0     # px de 640: deja libre la mira y al personaje
 const LOMBRICES_ENFRENTE := 8.0
+const CUCARRATA_ENFRENTE := 9.0
 const LOMBRICES_CAJA := Vector3(32.0, 5.0, 32.0)
 # Una tecla por lugar de EfectosPixel, en este orden
 const EFECTOS_TECLAS := [KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7]
@@ -139,6 +141,7 @@ const EFECTOS_LUGARES := ["golpe", "impacto", "herido", "muerte", "amanecer", "r
 var _jugador: Player
 var _lombrices: EnjambreLombrices
 var _madre: MadreCarcamo
+var _cucarrata: Cucarrata
 var _barra_madre: BarraMadre
 var _barra_catrina: BarraCatrina
 var _zombis: Zombis
@@ -740,6 +743,8 @@ func _unhandled_input(event: InputEvent) -> void:
 						Tazos.dar_tazo(tazo)
 			else:
 				Tazos.dar_puntos(PUNTOS_PRUEBA)
+		KEY_PERIOD:
+			_cucarrata_pare()
 		KEY_COMMA:
 			if event.shift_pressed:
 				EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())
@@ -773,6 +778,26 @@ func _crear_personaje() -> void:
 		_jugador.aplicar_personaje()
 	creador.connect("listo", cerrar)
 	creador.connect("volver", cerrar)
+
+
+# La cucarrata (scripts/cucarrata/) CUCARRATA_ENFRENTE m enfrente, con la cola hacia ti, y pare:
+# ratas que muerden y se pegan, y cucarachas kamikaze. Si ya esta, solo vuelve a parir
+func _cucarrata_pare() -> void:
+	if _cucarrata == null or not is_instance_valid(_cucarrata):
+		_cucarrata = Cucarrata.new()
+		_cucarrata.animacion_inicial = "quieta"
+		add_child(_cucarrata)
+		var frente := -_jugador.frijol.global_transform.basis.z
+		frente.y = 0.0
+		frente = frente.normalized()
+		# Un poco de lado: justo enfrente la tapa tu cuerpo desde la camara
+		var donde := _jugador.global_position + frente * CUCARRATA_ENFRENTE + frente.cross(Vector3.UP) * 3.0
+		donde.y = 0.0
+		_cucarrata.global_position = donde
+		# La cabeza (-Z) para alla: la cola (+Z) te ve
+		_cucarrata.look_at(donde + frente, Vector3.UP)
+	_cucarrata.parir([CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA, CriaCucarrata.Tipo.RATA,
+			CriaCucarrata.Tipo.CUCARACHA, CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA])
 
 
 # Un enjambre de lombrices (scripts/lombrices/) LOMBRICES_ENFRENTE m enfrente, en el piso

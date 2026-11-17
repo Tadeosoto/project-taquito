@@ -5,7 +5,16 @@ extends Node3D
 # (shaders/cucarrata.gdshader). No son la cucarrata escalada: con su escala las grietas quedarian
 # de milimetros, asi que cada una lleva sus propias celdas, grandes y en pixeles gruesos, y brilla
 # mas. Mismos modelos que la cucarrata (rata.glb entera y cucaracha.glb con su cabeza).
-# Solo el modelo por ahora: el diseno del jefe (que hacen, vida, dano) esta pendiente (JJ).
+# Lo que hacen (JJ, 2026-11-17; numeros de primera, para el balance):
+# - Cucaracha: bomba kamikaze. Vuela horizontal hacia el jugador; a PICADA_DESDE m se para en
+#   vertical y acelera a estrellarse, y truena en azul Serenol (dana a EXPLOTA_RADIO; rodando se
+#   esquiva, como cualquier golpe). Un machetazo o un balazo la revientan sin dano.
+# - Rata: corre hacia el jugador, salta y muerde, y se queda pegada (frena y chupa vida) hasta que
+#   un machetazo se la quita: cada golpe quita una pegada, sin importar hacia donde mires. Rodar
+#   no la suelta. Bloqueando de frente rebota.
+# Estan en el grupo "lombrices": asi el machete (Player._golpear, la estocada, el azote) y la
+# pistola (EnjambreLombrices.rayo) les pegan sin tocar player.gd, con las mismas funciones que el
+# enjambre (golpe_cuerpo, query_ray_hit, bullet_hit, apply_explosion_impulse).
 
 enum Tipo { RATA, CUCARACHA }
 
@@ -26,19 +35,47 @@ const PIXELES := Vector2(64.0, 64.0)
 const BRILLO := 1.5
 const OJO_RADIO := 0.05   # en metros de la rata del glb, antes de escalar
 
-enum Estado { QUIETA, AIRE, SUELO, VUELA }
+enum Estado { QUIETA, AIRE, SUELO, VUELA, PICADA, SALTA, PEGADA, MUERTA }
 const GRAVEDAD := 9.8
-const RATA_CORRE := 0.9          # segundos que corre al caer
-const RATA_VELOCIDAD := 2.6
+const RATA_CORRE := 0.9          # segundos que corre al caer, antes de ir por el jugador
 const ALTURA_VUELO := Vector2(1.0, 1.8)   # metros sobre el piso donde revolotean las cucarachas
+const RADIO := 0.25              # para el machete y las balas
+# El origen del jugador es el centro de su capsula, ~1 m sobre el piso: el pecho queda poco arriba
+const PECHO := 0.35              # pecho del jugador sobre su origen
+const PIES := 1.0                # piso bajo el origen del jugador
+# Cucaracha kamikaze
+const VUELO_VEL := 4.5           # m/s volando horizontal hacia el jugador
+const PICADA_DESDE := 4.5        # m: aqui se para en vertical y se lanza
+const PICADA_VEL := 11.0         # m/s al final de la picada
+const PICADA_ACELERA := 18.0     # m/s2
+const PICADA_GIRA := 2.5         # que tanto corrige el rumbo en la picada (rad/s): rodar la esquiva
+const PICADA_MAX := 1.6          # s: si no pego, truena igual
+const EXPLOTA_TOCA := 0.7        # m del pecho para tronar
+const EXPLOTA_RADIO := 2.2       # m: hasta donde dana
+const EXPLOTA_DANO := 15
+const AZUL := Color(0.18, 0.77, 1.0)   # #2EC4FF, el de las grietas
+# Rata
+const RATA_VEL := 4.2            # m/s corriendo hacia el jugador
+const SALTO_DESDE := 2.4         # m: desde aqui salta
+const SALTO_DURA := 0.42         # s en el aire
+const SALTO_ALTO := 0.7
+const MORDIDA := 5               # dano al pegarse
+const CHUPA := 1.5               # vida por segundo, cada rata pegada
+const FRENA := 0.12              # cada pegada te frena esto (minimo FRENA_MIN)
+const FRENA_MIN := 0.5
+const RATA_ENFRIA := 0.9         # s despues de fallar el salto
+const LASTRE := "cucarrata_ratas"
 
 @export var tipo := Tipo.RATA
 @export var animacion_inicial := "vuela"   # solo la cucaracha
+@export var persigue := true     # false: solo el vistazo (fotos)
 
 static var _malla_rata: ArrayMesh
 static var _malla_cucaracha: ArrayMesh
 static var _mat_rata: ShaderMaterial
 static var _mat_cucaracha: ShaderMaterial
+static var _quito_en := -1       # cuadro del ultimo machetazo que ya quito una rata pegada
+static var pegadas: Array[CriaCucarrata] = []
 
 var anim: AnimationPlayer   # la cucaracha
 var _modelo: Node3D
@@ -48,13 +85,24 @@ var _vel := Vector3.ZERO
 var _piso := 0.0
 var _altura := 0.0
 var _corre := 0.0
+var _reloj := 0.0
+var _salto_desde := Vector3.ZERO
+var _salto_hasta := Vector3.ZERO
+var _en_jugador := Vector3.ZERO   # donde va pegada, en el espacio del cuerpo del jugador
+var _chupa := 0.0
+var _jugador: Node3D
 
 
 func _ready() -> void:
+	add_to_group("lombrices")
 	if tipo == Tipo.RATA:
 		_armar_rata()
 	else:
 		_armar_cucaracha()
+
+
+func _exit_tree() -> void:
+	_despegar()
 
 
 func animar(corto: String, mezcla := 0.15) -> void:
@@ -65,8 +113,8 @@ func animar(corto: String, mezcla := 0.15) -> void:
 
 
 # Sale de la cola de la cucarrata (Cucarrata._soltar): vuela en arco hasta el piso (piso_y). La
-# rata cae y corre un rato hacia donde cayo; la cucaracha abre las alas en el aire y sube a
-# revolotear. Solo el vistazo: lo que hagan despues (perseguir, morder) es del diseno pendiente
+# rata cae y corre un rato hacia donde cayo y luego va por el jugador; la cucaracha abre las alas
+# en el aire, sube y sale a buscarlo
 func lanzar(velocidad: Vector3, piso_y: float) -> void:
 	_vel = velocidad
 	_piso = piso_y
@@ -78,6 +126,9 @@ func lanzar(velocidad: Vector3, piso_y: float) -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	_reloj += delta
+	if _jugador == null or not is_instance_valid(_jugador):
+		_jugador = get_tree().get_first_node_in_group("jugador") as Node3D if persigue else null
 	match _estado:
 		Estado.AIRE:
 			_vel.y -= GRAVEDAD * delta
@@ -85,29 +136,308 @@ func _process(delta: float) -> void:
 			if tipo == Tipo.RATA:
 				rotation.x -= delta * 9.0   # da vueltas en el aire
 				if global_position.y <= _piso and _vel.y < 0.0:
-					global_position.y = _piso
-					rotation.x = 0.0
-					var plano := Vector3(_vel.x, 0, _vel.z)
-					if plano.length() > 0.1:
-						look_at(global_position + plano, Vector3.UP)   # la nariz es -Z: sigue de frente
+					_caer_de_pie(Vector3(_vel.x, 0, _vel.z))
 					_corre = RATA_CORRE
-					_estado = Estado.SUELO
 			elif _vel.y < 0.0:
 				_estado = Estado.VUELA
 		Estado.SUELO:
-			if _corre > 0.0:
-				_corre -= delta
-				global_position += -global_transform.basis.z * RATA_VELOCIDAD * delta
+			_rata_suelo(delta)
 		Estado.VUELA:
-			# Sube a su altura y se queda revoloteando, frenando lo que traia
-			_vel = _vel.lerp(Vector3.ZERO, delta * 2.0)
-			_vel.y = (_altura - global_position.y) * 2.0
-			global_position += _vel * delta + Vector3(sin(_t * 2.3), sin(_t * 3.1) * 0.6, cos(_t * 1.9)) * 0.25 * delta
-	if tipo == Tipo.RATA and _estado != Estado.AIRE:
-		# La rata no tiene esqueleto: olfatea quieta y rebota rapido al correr
-		var rapido := 22.0 if _corre > 0.0 else 9.0
-		_modelo.rotation.x = sin(_t * rapido) * (0.08 if _corre > 0.0 else 0.04 * maxf(0.0, sin(_t * 1.3)))
-		_modelo.position.y = absf(sin(_t * rapido)) * (0.02 if _corre > 0.0 else 0.006)
+			_cucaracha_vuela(delta)
+		Estado.PICADA:
+			_cucaracha_picada(delta)
+		Estado.SALTA:
+			_rata_salta()
+		Estado.PEGADA:
+			_rata_pegada(delta)
+	if tipo == Tipo.RATA and _estado != Estado.AIRE and _estado != Estado.SALTA:
+		# La rata no tiene esqueleto: olfatea quieta, rebota rapido al correr y roe pegada
+		var corriendo := _corre > 0.0 or (_estado == Estado.SUELO and _jugador != null)
+		var rapido := 30.0 if _estado == Estado.PEGADA else (22.0 if corriendo else 9.0)
+		var cuanto := 0.15 if _estado == Estado.PEGADA else (0.08 if corriendo else 0.04 * maxf(0.0, sin(_t * 1.3)))
+		_modelo.rotation.x = sin(_t * rapido) * cuanto
+		_modelo.position.y = absf(sin(_t * rapido)) * (0.02 if corriendo else 0.006)
+
+
+func _pecho() -> Vector3:
+	return _jugador.global_position + Vector3.UP * PECHO
+
+
+func _mirar_plano(hacia: Vector3) -> void:
+	hacia.y = 0.0
+	if hacia.length_squared() > 0.0001:
+		look_at(global_position + hacia, Vector3.UP)   # la nariz es -Z
+
+
+# --- Rata ---
+
+func _caer_de_pie(rumbo: Vector3) -> void:
+	global_position.y = _piso
+	rotation = Vector3(0, rotation.y, 0)
+	_mirar_plano(rumbo)
+	_estado = Estado.SUELO
+	_reloj = 0.0
+
+
+func _rata_suelo(delta: float) -> void:
+	if _corre > 0.0:
+		_corre -= delta
+		global_position += -global_transform.basis.z * RATA_VEL * 0.6 * delta
+		return
+	if _jugador == null or _reloj < 0.0:
+		return
+	var hacia := _jugador.global_position - global_position
+	hacia.y = 0.0
+	_mirar_plano(hacia)
+	if hacia.length() <= SALTO_DESDE:
+		_estado = Estado.SALTA
+		_reloj = 0.0
+		_salto_desde = global_position
+		# Adelanta un poco a donde va el jugador
+		var va: Vector3 = _jugador.get("velocity") if _jugador.get("velocity") != null else Vector3.ZERO
+		_salto_hasta = _pecho() + Vector3(va.x, 0, va.z) * SALTO_DURA * 0.5
+		Sonidos.tocar(self, "squelch", -14.0, 1.6)
+	else:
+		global_position += hacia.normalized() * RATA_VEL * delta
+
+
+func _rata_salta() -> void:
+	var f := clampf(_reloj / SALTO_DURA, 0.0, 1.0)
+	var p := _salto_desde.lerp(_salto_hasta, f)
+	p.y += sin(f * PI) * SALTO_ALTO
+	global_position = p
+	if _jugador and global_position.distance_to(_pecho()) < 0.6:
+		_morder()
+		return
+	if f >= 1.0:
+		# Fallo (rodaste o te moviste): cae y espera tantito
+		_piso = _jugador.global_position.y - PIES if _jugador else _piso
+		_caer_de_pie(_salto_hasta - _salto_desde)
+		_reloj = -RATA_ENFRIA
+
+
+func _morder() -> void:
+	var esquiva: bool = _jugador.has_method("esquivando") and _jugador.esquivando()
+	if esquiva:
+		return   # sigue de largo; al acabar el salto cae
+	var bloquea: bool = _jugador.get("_bloqueando") == true
+	if _jugador.has_method("recibir_dano"):
+		_jugador.recibir_dano(MORDIDA, global_position, 0.3, self)
+	if bloquea:
+		# Rebota en el machete
+		_piso = _jugador.global_position.y - PIES
+		_caer_de_pie(global_position - _jugador.global_position)
+		global_position += (global_position - _jugador.global_position).normalized() * 0.8
+		_reloj = -RATA_ENFRIA
+		return
+	_estado = Estado.PEGADA
+	var a := randf() * TAU
+	_en_jugador = Vector3(cos(a) * 0.32, randf_range(-0.45, 0.5), sin(a) * 0.32)
+	pegadas.append(self)
+	_fx("pegada_mordida", global_position)
+	Sonidos.tocar(self, "squelch", -8.0, 1.3)
+
+
+func _cuerpo_jugador() -> Node3D:
+	var f = _jugador.get("frijol")
+	return f if f is Node3D else _jugador
+
+
+func _rata_pegada(delta: float) -> void:
+	if _jugador == null:
+		_despegar()
+		return
+	var cuerpo := _cuerpo_jugador()
+	var base := cuerpo.global_basis.orthonormalized()
+	global_position = _jugador.global_position + base * _en_jugador
+	# Con la cabeza hacia el jugador
+	var centro := _jugador.global_position + Vector3.UP * _en_jugador.y
+	_mirar_plano(centro - global_position)
+	if _jugador.get("lastres") != null:
+		_jugador.lastres[LASTRE] = maxf(1.0 - FRENA * pegadas.size(), FRENA_MIN)
+	_chupa += CHUPA * delta
+	if _chupa >= 1.0:
+		var salud := get_node_or_null("/root/Salud")
+		if salud:
+			salud.vida -= int(_chupa)
+		_chupa -= int(_chupa)
+
+
+func _despegar() -> void:
+	pegadas.erase(self)
+	if pegadas.is_empty() and _jugador and is_instance_valid(_jugador) and _jugador.get("lastres") != null:
+		_jugador.lastres.erase(LASTRE)
+
+
+# --- Cucaracha ---
+
+# Revolotea a su altura; con jugador, vuela horizontal hacia el y a PICADA_DESDE se lanza
+func _cucaracha_vuela(delta: float) -> void:
+	var meneo := Vector3(sin(_t * 2.3), sin(_t * 3.1) * 0.6, cos(_t * 1.9)) * 0.25
+	if _jugador == null:
+		_vel = _vel.lerp(Vector3.ZERO, delta * 2.0)
+		_vel.y = (_altura - global_position.y) * 2.0
+		global_position += (_vel + meneo) * delta
+		return
+	var objetivo := _jugador.global_position + Vector3.UP * (_altura - _piso - PIES)
+	var hacia := objetivo - global_position
+	var quiere := hacia.normalized() * VUELO_VEL
+	_vel = _vel.lerp(quiere, delta * 2.5)
+	global_position += (_vel + meneo) * delta
+	_mirar_plano(_vel)
+	# Horizontal: la pose de vuelo del glb es parada, se acuesta con la cabeza al frente
+	_modelo.rotation.x = lerp_angle(_modelo.rotation.x, -PI * 0.5, delta * 6.0)
+	if global_position.distance_to(_pecho()) <= PICADA_DESDE and _reloj > 0.6:
+		_estado = Estado.PICADA
+		_reloj = 0.0
+		_vel = (_pecho() - global_position).normalized() * _vel.length()
+		Sonidos.tocar(self, "chillido", -16.0, 2.2)
+
+
+func _cucaracha_picada(delta: float) -> void:
+	# Se para en vertical y acelera; corrige poco el rumbo, asi rodando la esquivas
+	_modelo.rotation.x = lerp_angle(_modelo.rotation.x, 0.0, delta * 10.0)
+	var rapidez := minf(_vel.length() + PICADA_ACELERA * delta, PICADA_VEL)
+	var rumbo := _vel.normalized()
+	if _jugador:
+		var quiere := (_pecho() - global_position).normalized()
+		var giro := minf(rumbo.angle_to(quiere), PICADA_GIRA * delta)
+		var eje := rumbo.cross(quiere)
+		if eje.length_squared() > 0.000001:
+			rumbo = rumbo.rotated(eje.normalized(), giro)
+	_vel = rumbo * rapidez
+	global_position += _vel * delta
+	_mirar_plano(_vel)
+	var toca := _jugador != null and global_position.distance_to(_pecho()) < EXPLOTA_TOCA
+	if toca or global_position.y <= _piso + 0.05 or _reloj > PICADA_MAX:
+		explotar()
+
+
+# Truena en azul Serenol: dana al jugador si esta cerca (rodando se esquiva en recibir_dano)
+func explotar(con_dano := true) -> void:
+	if _estado == Estado.MUERTA:
+		return
+	_estado = Estado.MUERTA
+	var donde := global_position
+	if con_dano and _jugador and _jugador.global_position.distance_to(donde) < EXPLOTA_RADIO + 0.5 \
+			and _pecho().distance_to(donde) < EXPLOTA_RADIO and _jugador.has_method("recibir_dano"):
+		_jugador.recibir_dano(EXPLOTA_DANO, donde, 1.6, self)
+	_estallido(get_parent(), donde, EXPLOTA_RADIO if con_dano else 0.8)
+	_fx("saco_revienta", donde)
+	Sonidos.tocar_suelto(self, "chapoteo", -4.0, 1.4)
+	Sonidos.tocar_suelto(self, "retumbo", -6.0, 1.3)
+	queue_free()
+
+
+# Una bola azul que crece y se apaga, con luz: se ve aunque no haya EfectosPixel en la escena
+static func _estallido(padre: Node, donde: Vector3, radio: float) -> void:
+	if padre == null:
+		return
+	var bola := MeshInstance3D.new()
+	var esfera := SphereMesh.new()
+	esfera.radial_segments = 8
+	esfera.rings = 4
+	bola.mesh = esfera
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.albedo_color = Color(AZUL.r, AZUL.g, AZUL.b, 0.55)
+	bola.material_override = mat
+	bola.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var luz := OmniLight3D.new()
+	luz.light_color = AZUL
+	luz.light_energy = 4.0
+	luz.omni_range = radio * 2.5
+	var nodo := Node3D.new()
+	padre.add_child(nodo)
+	nodo.global_position = donde
+	nodo.add_child(bola)
+	nodo.add_child(luz)
+	bola.scale = Vector3.ONE * 0.2
+	var t := nodo.create_tween().set_parallel()
+	t.tween_property(bola, "scale", Vector3.ONE * radio * 1.3, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	t.tween_property(mat, "albedo_color:a", 0.0, 0.3)
+	t.tween_property(luz, "light_energy", 0.0, 0.45)
+	t.chain().tween_callback(nodo.queue_free)
+
+
+func _fx(lugar: String, donde: Vector3) -> void:
+	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
+	if efectos and efectos.has_method("lanzar"):
+		efectos.lanzar(lugar, donde, Vector3.ZERO, 0.5)
+
+
+func _morir() -> void:
+	if tipo == Tipo.CUCARACHA:
+		explotar(false)   # reventada a machetazo o balazo: truena chico, sin dano
+		return
+	if _estado == Estado.MUERTA:
+		return
+	_estado = Estado.MUERTA
+	_despegar()
+	_fx("cria_corte", global_position)
+	_estallido(get_parent(), global_position, 0.35)
+	Sonidos.tocar_suelto(self, "squelch", -6.0, 1.2)
+	queue_free()
+
+
+# --- Lo que el machete y la pistola le preguntan al grupo "lombrices" ---
+
+# Un machetazo (Player._golpear, la estocada). A una rata pegada la quita cualquier golpe, pero
+# solo una por golpe (las demas esperan al siguiente)
+func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float, _dano: int, giro := false, _todas := false) -> bool:
+	if _estado == Estado.MUERTA:
+		return false
+	if _estado == Estado.PEGADA:
+		var cuadro := Engine.get_process_frames()
+		if _quito_en == cuadro:
+			return false
+		_quito_en = cuadro
+		_morir()
+		return true
+	var hacia := global_position - origen
+	if absf(hacia.y) > 2.2:
+		return false
+	hacia.y = 0.0
+	if hacia.length() - RADIO > alcance:
+		return false
+	if not giro and hacia.length() > 0.3 and hacia.normalized().dot(frente) < cono:
+		return false
+	_morir()
+	return true
+
+
+func query_ray_hit(origen: Vector3, dir: Vector3, max_dist: float, radio: float) -> Dictionary:
+	if _estado == Estado.MUERTA or _estado == Estado.PEGADA:
+		return {}   # pegada no: el tiro le daria al jugador
+	var centro := global_position + Vector3.UP * (0.12 if tipo == Tipo.RATA else 0.0)
+	var t := (centro - origen).dot(dir)
+	if t < 0.0 or t > max_dist:
+		return {}
+	if (origen + dir * t).distance_to(centro) > RADIO + radio:
+		return {}
+	return {"dot_index": 0, "position": origen + dir * t, "distance": t}
+
+
+func bullet_hit(_i: int, _punto: Vector3, _dir: Vector3) -> void:
+	_morir()
+
+
+# El azote del giro en el piso y las explosiones: las avienta (y suelta a las pegadas)
+func apply_explosion_impulse(punto: Vector3, radio: float, fuerza: float, _algo = null) -> void:
+	if _estado == Estado.MUERTA or global_position.distance_to(punto) > radio:
+		return
+	if tipo == Tipo.CUCARACHA:
+		_morir()
+		return
+	_despegar()
+	_piso = _jugador.global_position.y - PIES if _jugador else _piso
+	var fuera := global_position - punto
+	fuera.y = 0.0
+	_vel = fuera.normalized() * fuerza * 0.4 + Vector3.UP * 3.0
+	_estado = Estado.AIRE
+	_reloj = 0.0
 
 
 func _armar_rata() -> void:
