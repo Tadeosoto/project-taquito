@@ -1,7 +1,8 @@
 extends Node3D
 # Visor de la cucarrata: gira la camara alrededor y cambia de animacion.
-# godot --path . tools/ver_cucarrata.tscn            (1-6 animaciones, flechas giran, rueda acerca)
+# godot --path . tools/ver_cucarrata.tscn            (1-6 animaciones, 7 pare crias, flechas giran, rueda acerca)
 # godot --path . tools/ver_cucarrata.tscn -- --fotos <carpeta>   (guarda las vistas y sale)
+# godot --path . tools/ver_cucarrata.tscn -- --crias <carpeta>   (fotos de las crias y sale)
 
 var cuca: Cucarrata
 var cam: Camera3D
@@ -42,6 +43,46 @@ func _ready() -> void:
 		_fotos(args[i + 1])
 	if args.has("--video"):
 		_video()
+	var ic := args.find("--crias")
+	if ic >= 0:
+		_fotos_crias(args[ic + 1])
+
+
+# Las crias junto a la cucarrata (para ver el tamano) y de cerca. Fotos y sale
+func _fotos_crias(carpeta: String) -> void:
+	set_process(false)
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	cuca.animar("quieta", 0.0)
+	var rata := CriaCucarrata.new()
+	rata.position = Vector3(2.2, 0, 1.5)
+	rata.rotation.y = 0.6
+	add_child(rata)
+	var cuc := CriaCucarrata.new()
+	cuc.tipo = CriaCucarrata.Tipo.CUCARACHA
+	cuc.position = Vector3(-2.2, 0.8, 1.5)
+	cuc.rotation.y = -0.5
+	add_child(cuc)
+	var cuc2 := CriaCucarrata.new()
+	cuc2.tipo = CriaCucarrata.Tipo.CUCARACHA
+	cuc2.animacion_inicial = "quieta"
+	cuc2.position = Vector3(-1.2, 0, 2.4)
+	cuc2.rotation.y = 2.4
+	add_child(cuc2)
+	# [posicion de la camara, a donde mira]
+	var tomas := [
+		[Vector3(0.5, 2.2, 6.5), Vector3(0, 0.3, 1.0)],
+		[Vector3(2.95, 0.3, 1.0), Vector3(2.2, 0.1, 1.5)],
+		[Vector3(1.6, 0.35, 1.0), Vector3(2.2, 0.1, 1.5)],
+		[Vector3(-1.5, 1.0, 2.4), Vector3(-2.2, 0.8, 1.5)],
+		[Vector3(-2.9, 0.9, 2.2), Vector3(-2.2, 0.8, 1.5)],
+		[Vector3(-0.6, 0.45, 3.1), Vector3(-1.2, 0.05, 2.4)],
+	]
+	for k in tomas.size():
+		cam.position = tomas[k][0]
+		cam.look_at(tomas[k][1])
+		for f in 20: await get_tree().process_frame
+		get_viewport().get_texture().get_image().save_png("%s/cria_%d.png" % [carpeta, k])
+	get_tree().quit()
 
 
 # Recorre las 6 animaciones con la camara girando y el nombre en pantalla. Se graba con el
@@ -53,14 +94,28 @@ func _video() -> void:
 	var capa := CanvasLayer.new()
 	capa.add_child(letrero)
 	add_child(capa)
-	var tomas := [["quieta", 3.0], ["camina", 4.0], ["ataca", 3.0], ["vuela", 3.0], ["agarra", 3.0], ["muere", 2.5]]
+	var tomas := [["quieta", 3.0], ["camina", 4.0], ["ataca", 3.0], ["vuela", 3.0], ["agarra", 3.0],
+			["pare", 5.5], ["muere", 2.5]]
+	var girar := true
+	if OS.get_cmdline_user_args().has("--solo-pare"):
+		# Camara quieta de tres cuartos por detras, para ver la cola y a donde caen las crias
+		tomas = [["quieta", 1.0], ["pare", 6.0]]
+		girar = false
+		angulo = 0.7
+		alto = 1.6
+		distancia = 5.5
 	for toma in tomas:
-		letrero.text = "%s  (%s)" % [toma[0], Cucarrata.ANIMS[toma[0]]]
-		cuca.animar(toma[0], 0.2)
+		if toma[0] == "pare":
+			letrero.text = "pare  (suelta crias por la cola)"
+			cuca.parir()
+		else:
+			letrero.text = "%s  (%s)" % [toma[0], Cucarrata.ANIMS[toma[0]]]
+			cuca.animar(toma[0], 0.2)
 		var t := 0.0
 		while t < toma[1]:
 			t += get_process_delta_time()
-			angulo += get_process_delta_time() * 0.6
+			if girar:
+				angulo += get_process_delta_time() * 0.6
 			await get_tree().process_frame
 	get_tree().quit()
 
@@ -93,6 +148,8 @@ func _process(delta: float) -> void:
 func _unhandled_input(e: InputEvent) -> void:
 	if e is InputEventKey and e.pressed and e.keycode >= KEY_1 and e.keycode <= KEY_6:
 		cuca.animar(CORTOS[e.keycode - KEY_1])
+	elif e is InputEventKey and e.pressed and e.keycode == KEY_7:
+		cuca.parir()
 	elif e is InputEventMouseButton and e.pressed:
 		if e.button_index == MOUSE_BUTTON_WHEEL_UP: distancia = max(1.0, distancia - 0.3)
 		elif e.button_index == MOUSE_BUTTON_WHEEL_DOWN: distancia += 0.3

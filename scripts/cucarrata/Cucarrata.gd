@@ -42,6 +42,21 @@ const ANIMS := {
 }
 const EN_CICLO := ["quieta", "camina", "vuela", "agarra"]
 
+# Parir (parir()): la animacion "pare" la arma el codigo sobre "idle" (el glb no la trae). El
+# abdomen (hueso body_02.001_036; en su X local, negativo = arriba) se levanta y se hincha, y con
+# cada contraccion sale una cria por la punta de la cola con un arco hacia atras
+const HUESO_ABDOMEN := "body_02.001_036"
+const PARE_DURA := 2.6
+const PARE_SUBE := -0.55      # radianes que se levanta el abdomen
+const PARE_EMPUJA := -0.8     # en cada contraccion
+const PARE_HINCHA := 1.12     # escala del abdomen levantado
+const PARE_PUJA := 1.28       # escala en cada contraccion
+const PARE_PUJOS := [0.8, 1.2, 1.6, 2.0]   # segundos de cada contraccion (una cria cada una)
+const PUNTA_COLA := Vector3(0.0, 0.32, 1.0)   # en el modelo en reposo
+const CRIA_SALE := Vector2(2.2, 3.2)   # m/s hacia atras y hacia arriba al salir
+
+signal pario(cria: CriaCucarrata)
+
 @export var tamano := 1.0
 @export var animacion_inicial := "camina"
 @export var ojos_con_luz := true
@@ -55,6 +70,7 @@ static var _malla_rata: ArrayMesh     # la cabeza de rata, ya volteada y escalad
 var esqueleto: Skeleton3D
 var anim: AnimationPlayer
 var _modelo: Node3D
+var _punta_en_abdomen := Vector3.ZERO
 
 
 func _ready() -> void:
@@ -65,13 +81,19 @@ func _ready() -> void:
 	anim = _modelo.find_children("*", "AnimationPlayer", true, false)[0]
 	var cuerpo: MeshInstance3D = _modelo.find_children("*", "MeshInstance3D", true, false)[0]
 	if _malla_cuerpo == null:
-		_malla_cuerpo = _sin_cabeza(cuerpo.mesh, cuerpo.skin)
+		_malla_cuerpo = preparar_cucaracha(cuerpo.mesh, cuerpo.skin, esqueleto, true)
 	cuerpo.mesh = _malla_cuerpo
 	cuerpo.material_override = _material_cuerpo(cuerpo)
 	_poner_cabeza()
 	for corto in EN_CICLO:
 		var a := anim.get_animation(_nombre(corto))
 		if a: a.loop_mode = Animation.LOOP_LINEAR
+	_armar_pare()
+	# La punta de la cola en el espacio del hueso del abdomen, para seguirla cuando se mueve
+	var abdomen := esqueleto.find_bone(HUESO_ABDOMEN)
+	var esqueleto_modelo := _modelo.global_transform.affine_inverse() * esqueleto.global_transform
+	_punta_en_abdomen = (esqueleto_modelo * esqueleto.get_bone_global_rest(abdomen)).affine_inverse() \
+			* PUNTA_COLA
 	animar(animacion_inicial)
 
 
@@ -82,17 +104,91 @@ func animar(corto: String, mezcla := 0.15) -> void:
 
 
 func _nombre(corto: String) -> String:
+	if corto == "pare":
+		return "pare"
 	return "giant_cockroach_armature|" + ANIMS.get(corto, corto)
 
 
-# Quita los triangulos que tengan algun vertice pesado sobre todo al hueso de la cabeza
-func _sin_cabeza(malla: Mesh, skin: Skin) -> ArrayMesh:
+# Suelta crias por la cola, una por contraccion (tipos: CriaCucarrata.Tipo, se reparten en
+# orden). Las crias van al padre de la cucarrata (no se mueven con ella). Al acabar vuelve a
+# "quieta"
+func parir(tipos: Array = [CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA,
+		CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA]) -> void:
+	animar("pare", 0.2)
+	var inicio := Time.get_ticks_msec()
+	for k in tipos.size():
+		var n := k % PARE_PUJOS.size()
+		if n == 0 and k > 0:
+			anim.play("pare", 0.1)   # mas crias que pujos: otra vuelta
+			inicio = Time.get_ticks_msec()
+		while (Time.get_ticks_msec() - inicio) / 1000.0 < PARE_PUJOS[n]:
+			await get_tree().process_frame
+		_soltar(tipos[k])
+	await anim.animation_finished
+	animar("quieta", 0.3)
+
+
+func punta_cola() -> Vector3:
+	var abdomen := esqueleto.find_bone(HUESO_ABDOMEN)
+	return esqueleto.global_transform * esqueleto.get_bone_global_pose(abdomen) * _punta_en_abdomen
+
+
+func _soltar(tipo: int) -> void:
+	var cria := CriaCucarrata.new()
+	cria.tipo = tipo
+	cria.animacion_inicial = "quieta"
+	get_parent().add_child(cria)
+	cria.global_position = punta_cola()
+	var atras := global_transform.basis.z.normalized()
+	var lado := global_transform.basis.x.normalized() * randf_range(-1.2, 1.2)
+	cria.rotation.y = rotation.y + randf_range(-0.6, 0.6)
+	cria.lanzar(atras * CRIA_SALE.x + lado + Vector3.UP * CRIA_SALE.y, global_position.y)
+	pario.emit(cria)
+
+
+# "pare": "idle" con el abdomen levantado, hinchado y pujando. Se agrega a la libreria del glb
+# (compartida por todas las cucarratas), una sola vez
+func _armar_pare() -> void:
+	if anim.has_animation("pare"):
+		return
+	var a: Animation = anim.get_animation(_nombre("quieta")).duplicate(true)
+	a.loop_mode = Animation.LOOP_NONE
+	a.length = PARE_DURA
+	var ruta := ""
+	for t in range(a.get_track_count() - 1, -1, -1):
+		var p := str(a.track_get_path(t))
+		if p.ends_with(":" + HUESO_ABDOMEN):
+			ruta = p
+			if a.track_get_type(t) != Animation.TYPE_POSITION_3D:
+				a.remove_track(t)
+	var b := esqueleto.find_bone(HUESO_ABDOMEN)
+	var reposo := esqueleto.get_bone_rest(b).basis.get_rotation_quaternion()
+	var giro := a.add_track(Animation.TYPE_ROTATION_3D)
+	a.track_set_path(giro, ruta)
+	var escala := a.add_track(Animation.TYPE_SCALE_3D)
+	a.track_set_path(escala, ruta)
+	var claves := [[0.0, 0.0, 1.0], [0.5, PARE_SUBE, PARE_HINCHA]]
+	for puja in PARE_PUJOS:
+		claves.append([puja - 0.12, PARE_SUBE, PARE_HINCHA])
+		claves.append([puja, PARE_EMPUJA, PARE_PUJA])
+		claves.append([puja + 0.15, PARE_SUBE, PARE_HINCHA])
+	claves.append([PARE_DURA, 0.0, 1.0])
+	for c in claves:
+		a.rotation_track_insert_key(giro, c[0], reposo * Quaternion(Vector3.RIGHT, c[1]))
+		a.scale_track_insert_key(escala, c[0], Vector3.ONE * c[2])
+	anim.get_animation_library("").add_animation("pare", a)
+
+
+# Prepara la malla de la cucaracha para el shader: marca las antenas en el color de vertice y,
+# con quitar_cabeza, quita los triangulos que tengan algun vertice pesado sobre todo al hueso de
+# la cabeza. La usan la cucarrata (sin cabeza) y las cucarachas chicas (CriaCucarrata, con ella)
+static func preparar_cucaracha(malla: Mesh, skin: Skin, esq: Skeleton3D, quitar_cabeza: bool) -> ArrayMesh:
 	var arr := malla.surface_get_arrays(0)
 	var huesos: PackedInt32Array = arr[Mesh.ARRAY_BONES]
 	var pesos: PackedFloat32Array = arr[Mesh.ARRAY_WEIGHTS]
 	var n_v: int = (arr[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()
 	var por_vertice := huesos.size() / n_v
-	var cabeza := esqueleto.find_bone(HUESO_CABEZA)
+	var cabeza := esq.find_bone(HUESO_CABEZA)
 	var es_cabeza := PackedByteArray()
 	es_cabeza.resize(n_v)
 	var huesos_de := PackedInt32Array()   # el hueso que mas pesa en cada vertice
@@ -104,10 +200,10 @@ func _sin_cabeza(malla: Mesh, skin: Skin) -> ArrayMesh:
 				mejor_peso = pesos[i * por_vertice + k]
 				mejor = huesos[i * por_vertice + k]
 		var nombre := skin.get_bind_name(mejor) if mejor >= 0 else &""
-		var hueso := esqueleto.find_bone(nombre) if nombre != &"" else skin.get_bind_bone(mejor)
-		es_cabeza[i] = 1 if hueso == cabeza else 0
+		var hueso := esq.find_bone(nombre) if nombre != &"" else skin.get_bind_bone(mejor)
+		es_cabeza[i] = 1 if hueso == cabeza and quitar_cabeza else 0
 		huesos_de.append(hueso)
-	_marcar_antenas(arr, skin, huesos_de)
+	_marcar_antenas(arr, skin, esq, huesos_de)
 	var indices: PackedInt32Array = arr[Mesh.ARRAY_INDEX]
 	var quedan := PackedInt32Array()
 	for t in range(0, indices.size(), 3):
@@ -125,7 +221,7 @@ func _sin_cabeza(malla: Mesh, skin: Skin) -> ArrayMesh:
 
 # Las antenas (huesos horns_*) se marcan en el color de vertice para el shader: g = 1 en la
 # antena, r = que tan lejos de la base esta (0 base, 1 punta), medido en la pose de reposo
-func _marcar_antenas(arr: Array, skin: Skin, huesos_de: PackedInt32Array) -> void:
+static func _marcar_antenas(arr: Array, skin: Skin, esq: Skeleton3D, huesos_de: PackedInt32Array) -> void:
 	var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
 	var huesos: PackedInt32Array = arr[Mesh.ARRAY_BONES]
 	var pesos: PackedFloat32Array = arr[Mesh.ARRAY_WEIGHTS]
@@ -136,21 +232,21 @@ func _marcar_antenas(arr: Array, skin: Skin, huesos_de: PackedInt32Array) -> voi
 	var maximo := {}   # lado -> la distancia mas larga
 	for i in v.size():
 		colores[i] = Color(0, 0, 0, 1)
-		var nombre := esqueleto.get_bone_name(huesos_de[i]) if huesos_de[i] >= 0 else ""
+		var nombre := esq.get_bone_name(huesos_de[i]) if huesos_de[i] >= 0 else ""
 		if not nombre.begins_with("horns_"):
 			continue
 		var lado := "R" if ".R" in nombre else "L"
-		var base := esqueleto.get_bone_global_rest(esqueleto.find_bone(ANTENA_BASE[lado])).origin
+		var base := esq.get_bone_global_rest(esq.find_bone(ANTENA_BASE[lado])).origin
 		var p := Vector3.ZERO
 		for k in por_vertice:
 			var w := pesos[i * por_vertice + k]
 			if w <= 0.0:
 				continue
 			var b := huesos[i * por_vertice + k]
-			var hueso := esqueleto.find_bone(skin.get_bind_name(b))
+			var hueso := esq.find_bone(skin.get_bind_name(b))
 			if hueso < 0:
 				hueso = skin.get_bind_bone(b)
-			p += w * (esqueleto.get_bone_global_rest(hueso) * skin.get_bind_pose(b) * v[i])
+			p += w * (esq.get_bone_global_rest(hueso) * skin.get_bind_pose(b) * v[i])
 		lejos[i] = [p.distance_to(base), lado]
 		maximo[lado] = max(maximo.get(lado, 0.0), p.distance_to(base))
 	for i in lejos:
@@ -182,7 +278,7 @@ func _poner_cabeza() -> void:
 		esfera.radial_segments = 6
 		esfera.rings = 3
 		ojo.mesh = esfera
-		ojo.material_override = _material_ojo()
+		ojo.material_override = material_ojo()
 		ojo.position = _a_cucaracha(Vector3(OJO.x * lado, OJO.y, OJO.z))
 		cabeza.add_child(ojo)
 		if ojos_con_luz:
@@ -293,7 +389,7 @@ func _a_cucaracha_dir(d: Vector3) -> Vector3:
 # pasa a ese espacio para el shader
 func _material_cuerpo(cuerpo: MeshInstance3D) -> ShaderMaterial:
 	if _mat_cuerpo == null:
-		_mat_cuerpo = _material_piel(cuerpo.mesh.surface_get_material(0), 0.6, 1.0)
+		_mat_cuerpo = material_piel(cuerpo.mesh.surface_get_material(0), 0.6, 1.0)
 		var t := _modelo.global_transform.affine_inverse() * cuerpo.global_transform
 		var fila_z := Vector3(t.basis.x.z, t.basis.y.z, t.basis.z.z)
 		_mat_cuerpo.set_shader_parameter("eje_cola", fila_z)
@@ -307,13 +403,13 @@ func _material_cuerpo(cuerpo: MeshInstance3D) -> ShaderMaterial:
 # La cabeza: menos grietas y mas de la textura, para que se lea la cara de rata
 func _material_rata() -> ShaderMaterial:
 	if _mat_rata == null:
-		_mat_rata = _material_piel(_malla_rata.surface_get_material(0), 0.8, 0.7)
+		_mat_rata = material_piel(_malla_rata.surface_get_material(0), 0.8, 0.7)
 		_mat_rata.set_shader_parameter("escala_celdas", Vector2(18.0, 18.0))
 	return _mat_rata
 
 
 # La piel de la Madre del Carcamo (shaders/cucarrata.gdshader) sobre la textura del glb
-func _material_piel(original: Material, sombras: float, grietas: float) -> ShaderMaterial:
+static func material_piel(original: Material, sombras: float, grietas: float) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = SHADER_PIEL
 	if original is BaseMaterial3D:
@@ -323,7 +419,7 @@ func _material_piel(original: Material, sombras: float, grietas: float) -> Shade
 	return m
 
 
-func _material_ojo() -> StandardMaterial3D:
+static func material_ojo() -> StandardMaterial3D:
 	if _mat_ojo == null:
 		_mat_ojo = StandardMaterial3D.new()
 		_mat_ojo.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
