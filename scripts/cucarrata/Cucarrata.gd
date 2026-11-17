@@ -31,6 +31,9 @@ const OJO_COLOR := Color(0.18, 0.77, 1.0)   # el azul de las grietas de la Madre
 const SHADER_PIEL := preload("res://shaders/cucarrata.gdshader")
 const COLA_DESDE := -0.6
 const COLA_HASTA := 1.0
+# El cuerpo cafe de cucaracha de casa con las vetas azules; la cabeza de rata queda gris piedra
+# (el color_piel del shader)
+const CUERPO_COLOR := Color(0.66, 0.44, 0.28)
 
 # Nombres cortos de las animaciones (en el glb van con "giant_cockroach_armature|")
 const ANIMS := {
@@ -295,6 +298,7 @@ func _material_cuerpo(cuerpo: MeshInstance3D) -> ShaderMaterial:
 		var fila_z := Vector3(t.basis.x.z, t.basis.y.z, t.basis.z.z)
 		_mat_cuerpo.set_shader_parameter("eje_cola", fila_z)
 		_mat_cuerpo.set_shader_parameter("antenas", true)
+		_mat_cuerpo.set_shader_parameter("color_piel", CUERPO_COLOR)
 		_mat_cuerpo.set_shader_parameter("cola_desde", COLA_DESDE - t.origin.z)
 		_mat_cuerpo.set_shader_parameter("cola_hasta", COLA_HASTA - t.origin.z)
 	return _mat_cuerpo
