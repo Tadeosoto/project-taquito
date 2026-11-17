@@ -34,6 +34,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/caceria_noche.tres",
 	"res://resources/misiones/entrada_dia.tres",
 	"res://resources/misiones/defender_tinaco.tres",
+	"res://resources/misiones/cucarrata.tres",   # antes que la camioneta: Nacho la da primero (misma marca)
 	"res://resources/misiones/camioneta_noche.tres",
 	"res://resources/misiones/camioneta_gabriel.tres",
 	"res://resources/misiones/guardia_reja.tres",
@@ -54,6 +55,10 @@ const ARCHIVOS := [
 # "paso" con "requiere": "favela" de Colonia.gd); el tianguis de la avenida es de todos y sus rejas de la
 # muralla estan abiertas (FortalezasMapa)
 const MAFIA := "mafia_"
+# Los jefes sueltos en el mapa (JEFE_CALLE): muertos se guardan en _hechas_siempre como JEFE + id, y una
+# mision puede pedirlo con requiere (la cadena de la mafia pide "jefe_cucarrata": la cucarrata es el
+# checkpoint de Santa Mugre a La Gotera, JJ 2026-11-17)
+const JEFE := "jefe_"
 const FAVELA_ENTREGAS := 5
 const REVISAR_CADA := 0.25
 
@@ -305,6 +310,34 @@ func _entrar_paso(i: int) -> void:
 	salida_camioneta = ""
 	_ruta_hora = ruta_en_curso()
 	cambio.emit()
+	# El jefe ya cayo (lo mataste con la mision en el diario, sin ser la activa): sigue al siguiente
+	if paso().tipo == PasoMision.Tipo.JEFE_CALLE and jefe_muerto(paso().lugar):
+		_avanzar.call_deferred()
+
+
+# Un jefe suelto del mapa (CucarrataCalle) ya esta muerto: para siempre
+func jefe_muerto(id: String) -> bool:
+	return _hechas_siempre.has(JEFE + id)
+
+
+func matar_jefe(id: String) -> void:
+	_hechas_siempre[JEFE + id] = true
+	var p := paso()
+	if p != null and p.tipo == PasoMision.Tipo.JEFE_CALLE and p.lugar == id:
+		_avanzar()
+	else:
+		cambio.emit()
+
+
+# La de JEFE_CALLE con el jefe ya muerto antes de aceptarla: se cumple y se paga de una vez. Lo que te pagan
+func pagar_sin_aceptar(mision: MisionData) -> int:
+	_hechas[mision.id] = true
+	if mision.una_vez:
+		_hechas_siempre[mision.id] = true
+	var pago := _cobrar(mision)
+	cambio.emit()
+	termino.emit(mision, true, "%s: +$%d" % [mision.nombre, pago])
+	return pago
 
 
 func _avanzar() -> void:
@@ -457,10 +490,17 @@ func entregar() -> bool:
 func _completar() -> void:
 	var mision := activa
 	_quitar(mision)
-	var pago: int = pagos_especiales.get(mision.id, mision.pesos)
-	pagos_especiales.erase(mision.id)
 	if mision.una_vez:
 		_hechas_siempre[mision.id] = true
+	var pago := _cobrar(mision)
+	_siguiente()
+	termino.emit(mision, true, "%s: +$%d" % [mision.nombre, pago])
+
+
+# Lo que se gana al cumplirla (pesos, pieza de mapa, premios y sus banderas); lo que te pagaron
+func _cobrar(mision: MisionData) -> int:
+	var pago: int = pagos_especiales.get(mision.id, mision.pesos)
+	pagos_especiales.erase(mision.id)
 	if mision.id == "guardia_reja":
 		guardias_reja += 1
 	if mision.id == "antena_sofia":
@@ -481,8 +521,7 @@ func _completar() -> void:
 	for premio in mision.premios:
 		if not inventario.add_item(premio):
 			sobra.emit(premio)
-	_siguiente()
-	termino.emit(mision, true, "%s: +$%d" % [mision.nombre, pago])
+	return pago
 
 
 func fallar(texto: String) -> void:

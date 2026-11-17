@@ -15,6 +15,7 @@ extends Cucarrata
 # numeros son de primera, para docs/pruebas-balance.md.
 
 signal murio
+signal desperto   # deambulando, te vio (o le pegaste): empieza la pelea
 signal cambio_fase(fase: int)
 
 const VIDA := 400.0
@@ -83,8 +84,19 @@ const VOLTEA_DURA := 0.9
 const VOLTEA_BRINCO := 1.2
 
 enum Estado { CAMINA, GRITA, SALTA, CORRE, PARE, DESPEGA, VUELA, APUNTA, PICADA, SUBE, CAE, MUERTA,
-		TUMBA, PATAS, VOLTEA }
+		TUMBA, PATAS, VOLTEA, DEAMBULA }
 const EN_VUELO := [Estado.DESPEGA, Estado.VUELA, Estado.APUNTA, Estado.PICADA, Estado.SUBE]
+
+# Suelta en la calle (CucarrataCalle): deambula por `pedir_ruta` (de donde esta a otra calle) sin
+# hacerte caso hasta que te le acercas (DESPIERTA) o le pegas
+const DEAMBULA_VEL := 2.2
+const DEAMBULA_ANIM := 0.7        # velocidad de "camina" al deambular
+const DESPIERTA := 22.0           # m de la boca al jugador
+const DEAMBULA_LLEGA := 2.0
+var deambulando := false
+var pedir_ruta: Callable
+var _ruta := PackedVector3Array()
+var _ruta_i := 0
 
 var vida := VIDA
 var fase := 1
@@ -134,6 +146,9 @@ func _empezar() -> void:
 	var frente := -global_transform.basis.z
 	_yaw = atan2(-frente.x, -frente.z)
 	_meta_reloj = 0.0
+	if deambulando:
+		estado = Estado.DEAMBULA
+		anim.speed_scale = DEAMBULA_ANIM
 
 
 func _process(delta: float) -> void:
@@ -170,6 +185,8 @@ func _process(delta: float) -> void:
 			_patas(delta)
 		Estado.VOLTEA:
 			_voltea(delta)
+		Estado.DEAMBULA:
+			_deambula(delta)
 	_mover_cabeza(delta)
 	transform.basis = Basis.from_euler(Vector3(_pitch, _yaw, _roll)).scaled(Vector3.ONE * escala())
 
@@ -402,6 +419,42 @@ func _volar_a(meta: Vector3, rapidez: float, gira: float, delta: float) -> void:
 	_girar_a(_vel, gira * 2.0 * delta)
 
 
+# --- Suelta en la calle ---
+
+# Camina despacio por su ruta, sin hacerte caso; al acabarla pide otra
+func _deambula(delta: float) -> void:
+	if _jugador and _boca().distance_to(_pecho()) < DESPIERTA:
+		_despertar()
+		return
+	if _ruta_i >= _ruta.size():
+		_ruta = pedir_ruta.call(global_position) if pedir_ruta.is_valid() else PackedVector3Array()
+		_ruta_i = 0
+		if _ruta.is_empty():
+			return
+	var meta := _ruta[_ruta_i]
+	var plano := meta - global_position
+	plano.y = 0.0
+	if plano.length() < DEAMBULA_LLEGA:
+		_ruta_i += 1
+		return
+	_girar_a(plano, CAMINA_GIRA * delta)
+	global_position += _frente() * DEAMBULA_VEL * delta
+	global_position.y = _piso
+	anim.speed_scale = DEAMBULA_ANIM
+
+
+# Te vio o le pegaste: empieza la pelea (fase 1, en el piso)
+func _despertar() -> void:
+	if estado != Estado.DEAMBULA:
+		return
+	estado = Estado.CAMINA
+	_meta_reloj = 0.0
+	_pare_reloj = PARE_PRIMERO
+	anim.speed_scale = 1.0
+	Sonidos.tocar(self, "rugido", 0.0, 0.7)
+	desperto.emit()
+
+
 # --- Tumbada (fases 2 y 3) ---
 
 func _tumbar() -> void:
@@ -601,6 +654,7 @@ static func _esfera(origen: Vector3, dir: Vector3, centro: Vector3, r: float) ->
 
 
 func bullet_hit(_i: int, punto: Vector3, _dir: Vector3) -> void:
+	_despertar()
 	_fx("cria_corte", punto)
 	Sonidos.tocar(self, "squelch", -8.0, 0.8)
 	if fase >= 2:
@@ -622,6 +676,7 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 			continue
 		if not giro and hacia.length() > 0.3 and hacia.normalized().dot(frente) < cono:
 			continue
+		_despertar()
 		_fx("cria_corte", e[0] - hacia.normalized() * e[1])
 		if fase >= 2:
 			_golpe_aire(0, float(dano))   # solo tumbada le baja vida
@@ -634,6 +689,7 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 func apply_explosion_impulse(punto: Vector3, radio: float, _fuerza: float, _algo = null) -> void:
 	for e in _esferas():
 		if punto.distance_to(e[0]) < radio + e[1]:
+			_despertar()
 			if fase >= 2:
 				_golpe_aire(TUMBAR_EXPLOSION, DANO_EXPLOSION)
 			else:

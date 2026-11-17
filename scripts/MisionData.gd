@@ -17,6 +17,8 @@ extends Resource
 @export_multiline var recuerda := ""
 @export_multiline var gracias := ""
 @export_multiline var despedida := ""
+# Primer paso JEFE_CALLE y el jefe ya muerto antes de aceptarla: lo que dice al pagarte de una vez
+@export_multiline var gracias_antes := ""
 @export var pasos: Array[PasoMision] = []
 @export var pesos := 0
 @export var premios: Array[InventoryItemData] = []

@@ -68,6 +68,8 @@ const TEXTO_HORA := "%s: \"Esto me toca %s.\""
 const ENTREGA_AL_LADO := 3.5
 const PUNTERO_AL_LADO := 4.6
 const TEXTO_NO_TE_CONOZCO := "¿Y tú quién eres? Aquí no se vende nada, compa."
+# La cadena de la mafia pide la cucarrata muerta (el checkpoint de Santa Mugre a La Gotera, JJ)
+const TEXTO_JEFE_ANTES := "Don Nemesio no le da trabajo a cualquiera. Dicen que anda una cosa allá afuera, de noche: tú mátala y hablamos."
 const TEXTO_FALTA_CAJA := "Sin la caja no hay entrega. Ve por ella."
 const TEXTO_PUNTO_REJA := "Tengo trabajo, pero es allá afuera y la reja sigue cerrada. Cuando te dejen salir, regresas."
 const PUNTOS_MAPA := "res://resources/map/puntos_mapa.json"
@@ -155,6 +157,9 @@ func _ready() -> void:
 		_ciclo.anochecio.connect(_anochecio)
 		_ciclo.amanecio.connect(_amanecio)
 	_poner_vecinos()
+	# La cucarrata anda suelta de noche cerca de Santa Mugre: solo en el mapa grande (el de las fortalezas)
+	if get_tree().get_first_node_in_group("fortalezas") != null:
+		add_child(CucarrataCalle.new())
 	_cambio()
 	_resolver_jefe(PasoJefe.tomar_resultado())
 
@@ -321,11 +326,16 @@ func _puntos_conocidos() -> Array:
 
 
 # De las misiones que se dan en la misma marca, la que toca: la primera que no se ha cumplido para siempre
-# (MisionData.una_vez), o la ultima si ya se cumplieron todas
+# (MisionData.una_vez) y ya se puede (MisionData.requiere), o la ultima si ya se cumplieron todas. Nacho da
+# la cucarrata (tras la guardia de la reja) antes que su camioneta
 func _dador_de_su_marca(mision: MisionData) -> bool:
 	var toca: MisionData = null
 	for otra: MisionData in Misiones.todas:
 		if otra.donde != mision.donde:
+			continue
+		if not Misiones.requisito_cumplido(otra) and not Misiones.hecha_siempre(otra):
+			if toca == null:
+				toca = otra
 			continue
 		toca = otra
 		if not Misiones.hecha_siempre(otra):
@@ -401,10 +411,16 @@ func _hablar(i: int) -> String:
 		return TEXTO_TARDE
 	# La cadena de la mafia: sin la entrega de antes, este puntero no te conoce
 	if not Misiones.requisito_cumplido(mision):
-		return TEXTO_NO_TE_CONOZCO
+		return TEXTO_JEFE_ANTES if mision.requiere.begins_with(Misiones.JEFE) else TEXTO_NO_TE_CONOZCO
 	# El Punto de Santa Mugre manda la caja afuera: hasta que se abra la reja (la guardia del padre Chuy) no la da
 	if _entrega_afuera_de_la_colonia(mision) and not Misiones.reja_abierta():
 		return TEXTO_PUNTO_REJA
+	# El jefe de la mision ya cayo antes de que te la dieran: gracias y la paga completa (JJ)
+	var jefe := _jefe_de(mision)
+	if jefe != "" and Misiones.jefe_muerto(jefe):
+		Misiones.pagar_sin_aceptar(mision)
+		_actualizar_signos()
+		return ("%s %s" % [mision.gracias_antes, Personaje.linea("paga")]).strip_edges()
 	# Al medico se sale por la reja: hasta que se abra (la guardia del padre Chuy) no se ofrece
 	if not mision.pasos.is_empty() and mision.pasos[0].lugar == "clinica" and not Misiones.reja_abierta():
 		return TEXTO_REJA_ANTES
@@ -430,6 +446,13 @@ func _hablar(i: int) -> String:
 	if falta != "" and _supervivencia:
 		_supervivencia.avisar(TEXTO_HORA % [Personaje.nombre, falta])
 	return mision.aceptada
+
+
+# El id del jefe suelto si la mision empieza por matarlo (JEFE_CALLE), si no ""
+static func _jefe_de(mision: MisionData) -> String:
+	if mision.pasos.is_empty() or mision.pasos[0].tipo != PasoMision.Tipo.JEFE_CALLE:
+		return ""
+	return mision.pasos[0].lugar
 
 
 # Una entrega de la mafia que se acepta en la colonia y se entrega en el mapa grande
@@ -593,6 +616,8 @@ func _cambio() -> void:
 		PasoMision.Tipo.CAMIONETA:
 			if is_instance_valid(_camioneta):
 				_apuntar(_camioneta.global_position)
+		PasoMision.Tipo.JEFE_CALLE:
+			_apuntar_al_jefe()
 		PasoMision.Tipo.DEFENDER:
 			_apuntar(_meta_de_escolta(paso))
 			if _defensa_de != paso:
@@ -609,6 +634,20 @@ func _cambio() -> void:
 				_poner_cosa(paso)
 			else:
 				_poner_perro()
+
+
+# JEFE_CALLE: al jefe si anda afuera (la cucarrata, de noche y con el jugador cerca); si no, al area donde
+# deambula. En la colonia no hay a donde apuntar
+func _apuntar_al_jefe() -> void:
+	var calle := CucarrataCalle.instancia
+	if calle == null:
+		Misiones.hay_objetivo = false
+		_flecha.visible = false
+		return
+	if calle.jefe_suelto():
+		_apuntar(calle.jefe.global_position)
+	else:
+		_apuntar(calle.centro_zona(), calle.radio_zona())
 
 
 func _apuntar(donde: Vector3, radio := 0.0) -> void:
@@ -1419,6 +1458,8 @@ func _process(delta: float) -> void:
 		linea += _revisar_defensa(paso, delta)
 	elif paso.tipo == PasoMision.Tipo.CAZAR:
 		_revisar_caza(paso)
+	elif paso.tipo == PasoMision.Tipo.JEFE_CALLE:
+		_apuntar_al_jefe()
 	if paso.segundos > 0.0:
 		linea += " · %d s" % ceili(Misiones.tiempo_queda)
 	_texto.text = linea

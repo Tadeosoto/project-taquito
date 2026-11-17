@@ -21,6 +21,7 @@
 - [2. Los contratos de la noche](#2-los-contratos-de-la-noche)
 - [3. Las misiones de día](#3-las-misiones-de-día)
 - [Las misiones de fuera](#las-misiones-de-fuera-megaplan-noches-de-fuera-l9-2026-11-12)
+- [La cucarrata: el primer jefe](#la-cucarrata-el-primer-jefe-jj-2026-11-17)
 - [4. Las misiones de historia](#4-las-misiones-de-historia)
 - [5. El sistema de misiones](#5-el-sistema-de-misiones)
 - [6. Cómo se agrega una misión](#6-cómo-se-agrega-una-misión)
@@ -394,6 +395,22 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 | **La carrera de los chamacos** | Los niños de la cancha | Una carrera de la plaza al tinaco de la Plaza del Tinaco por donde quieras. Si ganas te enseñan atajos (un tablón escondido, una casa con dos puertas) que sirven en las otras misiones | Ninguno | `VISITAR` con tiempo; los atajos serían nuevos | S |
 
 ---
+
+## La cucarrata: el primer jefe (JJ, 2026-11-17)
+
+✅ **El orden de la campaña (JJ):** más o menos lineal. **Santa Mugre y sus misiones → La Gotera y las suyas → la fortaleza GelA y las suyas.** La cucarrata es el **primer jefe** y **matarla es el checkpoint** para pasar de Santa Mugre a La Gotera: la cadena de la mafia (`mafia_1`, la primera caja de El Punto) no se ofrece hasta que la cucarrata está muerta. Bestia en `lore.md`, "La cucarrata".
+
+| | |
+|---|---|
+| **Quién la da** | ✅ **Nacho Garrafón**, el chofer del gremio, junto al tinaco de la plaza de Santa Mugre (la marca `Chofer`, la misma de "El agua de afuera"). El gremio sale de noche con el agua y la vio |
+| **Desde cuándo** | ✅ Después de **la guardia de la reja** (el tutorial de la primera horda). Mientras está pendiente, Nacho ofrece esta antes que la camioneta |
+| **Qué dice** | ✅ Que es **"lo peor que ha visto"**, y que lo buscan para matar a eso antes de que ataque Santa Mugre: vuela, la barda no la para |
+| **Dónde está** | ✅ **De noche**, rondando el **baldío del norponiente** y sus calles (la avenida grande y las laterales) (La Florida Marchita, junto a la avenida grande, ~220 m de la barda de Santa Mugre; JJ lo escogió de cinco lugares abiertos, nunca entra a la fortaleza). Al aceptar, los mapas te dicen dónde anda; de día no está |
+| **Qué se hace** | Encontrarla y matarla (la pelea de tres fases de `scripts/cucarrata/`), y volver con Nacho a cobrar |
+| **Sin la misión** | ✅ Te la puedes topar en exploración libre. **Si la matas antes de aceptar**, al llegar con Nacho te da **las gracias por evitar que esa cosa atacara la colonia** y **la paga completa** |
+| **Si te desmayas** | 💡 Se va y vuelve otra noche con la vida llena; la misión no falla |
+| **Paga** | 💡 $300, se ajusta con el balance |
+| **Una vez** | Muerta, no vuelve a salir |
 
 ## 4. Las misiones de historia
 

@@ -37,11 +37,14 @@ extends Resource
 # los cuicos) o te desmayas, se pierde y la mision falla. Con `lugar` "punto:<origen>" la entrega es en
 # ese negocio "punto" (el `origen` de su JSON); con `cuando` CUALQUIERA no hay hora que se acabe.
 
+# JEFE_CALLE: matar al jefe que anda suelto en el mapa grande (`lugar`: su id; hoy "cucarrata",
+# CucarrataCalle). Los mapas apuntan a donde anda (o al area, si no ha salido). Si ya lo mataste,
+# el paso se cumple solo; si lo matas antes de aceptar, el dador paga con `gracias_antes`.
 # `cuando`: a que hora se puede cumplir este paso. Fuera de su hora la mision espera (no falla
 # y su tiempo no corre): una entrega de noche con un ENTREGAR de dia se acaba con el que te la
 # dio a la mañana siguiente.
 
-enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER, ESCOLTAR, LLEVAR_CARGA, DEFENDER, CAZAR, ENTRAR_A, CAMIONETA }
+enum Tipo { TENER_OBJETOS, ENTREGAR, VISITAR, RECOGER, ESCOLTAR, LLEVAR_CARGA, DEFENDER, CAZAR, ENTRAR_A, CAMIONETA, JEFE_CALLE }
 enum Cuando { DIA, NOCHE, CUALQUIERA }
 
 @export var tipo: Tipo = Tipo.ENTREGAR

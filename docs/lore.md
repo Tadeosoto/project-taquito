@@ -883,6 +883,19 @@ En el juego: `scripts/catrina/` (`Catrina.gd`, con un cuerpo provisional de figu
 
 ✅ **El cobalto no es una pista.** El expediente de la varilla del 84 es una misión aparte (la de Elena, [§16](#el-cobalto-la-varilla-del-84)), no parte de la revelación.
 
+### La cucarrata
+
+✅ (JJ, 2026-11-17) **El primer jefe del juego.** Una **cucaracha gigante con cabeza de rata**: unos 2 m de alto y 7 de largo, piel café con las grietas azules del Serenol (las de la Madre del Cárcamo) y **ojos azul Serenol**. **Pare**: por la cola le salen camadas de **ratas** que se te pegan y te chupan, y de **cucarachas voladoras** que se te avientan de kamikaze y truenan en azul. **Vuela**, y con el **aguijón** de la cola se clava desde el aire. Como toda cucaracha, **si la tumbas queda boca arriba pataleando**, y ahí es cuando se le puede entrar con el machete.
+
+- **Dónde anda.** ✅ **De noche**, en el **baldío del norponiente** (La Florida Marchita, junto a la avenida grande, a unos 220 m de la barda de Santa Mugre; JJ lo escogió de cinco lugares abiertos). No tiene guarida ni entrada: ronda el pasto y las calles de junto (la avenida grande y sus laterales), y te la puedes topar sin buscarla si pasas por tu zona.
+- **Quién la vio.** ✅ **El gremio**: los que salen de noche con el agua. **Nacho Garrafón**, desde la camioneta, dice que es **"lo peor que ha visto"**. Si se acerca a Santa Mugre, vuela: la barda no la para.
+- **Por qué importa.** ✅ Matarla es el **primer paso de la campaña**: con la colonia a salvo, la historia sigue hacia La Gotera (ver `misiones.md`, "La cucarrata").
+- **De dónde salió.** 💡 (propuesta de Claude) Lo mismo que la Madre del Cárcamo, del otro lado de la tubería: en los **drenajes** de afuera corre el agua blanca de GelA, y lo que vive ahí abajo se la toma. Las cucarachas y las ratas del drenaje llevan años bebiéndola; esta es lo que salió cuando se juntaron.
+
+**Por qué encaja.** Igual que las lombrices: no es gente, es lo que el Serenol le hace a todo lo demás (§8). Y por eso los zombis no la cuentan como suya.
+
+En el juego: `scripts/cucarrata/` (`JefeCucarrata.gd`, la pelea en tres fases; `CriaCucarrata.gd`, sus crías).
+
 ### Cómo cambia la ciudad (no hay final)
 
 ✅ **El juego es un sandbox y no se acaba** (spec §1.2, opción A). No hay pantalla de "fin" ni una partida que se gane: lo que hace el jugador **deja la ciudad distinta**, zona por zona, y GelA siempre contesta ("GelA no es tonta", regla 4). El único juego con victoria es el **modo reto** de 3 noches (`Partida.gd`), que va aparte.

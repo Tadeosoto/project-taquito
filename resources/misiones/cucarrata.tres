@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_jefe"]
+script = ExtResource("2_paso")
+tipo = 10
+cuando = 1
+texto = "Mata a la cucarrata: ronda de noche el baldío del norponiente y sus calles"
+lugar = "cucarrata"
+
+[sub_resource type="Resource" id="paso_cobrar"]
+script = ExtResource("2_paso")
+tipo = 1
+cuando = 2
+texto = "Vuelve con Nacho a la plaza"
+
+[resource]
+script = ExtResource("1_mision")
+id = "cucarrata"
+nombre = "Lo peor que he visto"
+modelo = "hombre_psx"
+donde = "marca:Chofer"
+oferta = "Anoche, con la camioneta, vi lo peor que he visto: una cucaracha enorme con cabeza de rata. Y vuela."
+aceptada = "Anda de noche por el baldío del norponiente y la avenida grande de junto. Mátala antes de que se le ocurra volar para acá."
+recuerda = "Sale de noche, cerca de la colonia. Si se nos mete volando, no hay reja que la pare."
+gracias = "¿De veras la mataste? Dios te lo pague, compa. Ya puede dormir tranquila la colonia."
+gracias_antes = "¿Tú mataste a esa cosa? Ya volaba para acá: nos salvaste la colonia, compa. Ten, te lo ganaste."
+despedida = "Desde que no está esa cosa, la camioneta sale más tranquila."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_jefe"), SubResource("paso_cobrar")])
+pesos = 300
+una_vez = true
+requiere = "guardia_reja"

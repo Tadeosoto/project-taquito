@@ -28,4 +28,5 @@ despedida = "Ya te conocen en La Palmira. Allá te dan la que sigue."
 pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar")])
 pesos = 60
 una_vez = true
+requiere = "jefe_cucarrata"
 abierto_de_noche = true
