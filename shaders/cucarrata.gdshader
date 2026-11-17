@@ -10,7 +10,10 @@ render_mode cull_disabled, diffuse_lambert, specular_schlick_ggx;   // las alas 
 #include "res://shaders/ps1_vertex.gdshaderinc"
 
 uniform sampler2D textura : source_color, filter_nearest;
-uniform vec3 color_piel : source_color = vec3(0.247, 0.267, 0.278);   // #3F4447, el de la Madre
+// Gris piedra como el Panzon con Serenol (panzon_serenol.gdshader), no el carbon de la Madre (JJ)
+uniform vec3 color_piel : source_color = vec3(0.62, 0.63, 0.63);
+// Lo mas oscuro de los keloides (las orillas hundidas): la Madre baja a 0.12, casi negro
+uniform float hundido : hint_range(0.0, 1.0) = 0.45;
 uniform vec3 color_grieta : source_color = vec3(0.18, 0.77, 1.0);     // #2EC4FF
 uniform vec3 color_nucleo : source_color = vec3(0.85, 0.98, 1.0);
 uniform float respiracion : hint_range(0.1, 2.0) = 0.25;
@@ -26,6 +29,13 @@ uniform vec2 pixeles = vec2(192.0, 192.0);
 uniform vec3 eje_cola = vec3(0.0, 0.0, 1.0);
 uniform float cola_desde = -0.6;
 uniform float cola_hasta = 1.0;
+// Antenas (solo el cuerpo; Cucarrata._marcar_antenas): COLOR.g = 1 en la antena, COLOR.r = 0 en la
+// base y 1 en la punta. Brillan azul por tramos (uno si y uno no), mas hacia la punta, sin llegar
+// a ser todas luz
+uniform bool antenas = false;
+uniform float antena_brillo : hint_range(0.0, 4.0) = 1.4;
+uniform float antena_tramos = 9.0;
+uniform float antena_desde : hint_range(0.0, 1.0) = 0.25;
 
 varying vec2 uv_afin;
 varying float hacia_cola;
@@ -81,7 +91,7 @@ void fragment() {
 	vec3 original = texture(textura, uv_afin).rgb;
 	// Sombras de la textura: 1 en lo claro, baja en lo oscuro (placas, ojos, hocico)
 	float valor = dot(original, vec3(0.299, 0.587, 0.114));
-	float sombra = mix(1.0, smoothstep(0.02, 0.55, valor) * 1.3, sombras_textura);
+	float sombra = mix(1.0, mix(0.4, 1.25, smoothstep(0.02, 0.55, valor)), sombras_textura);
 	vec2 q = (floor(UV * pixeles) + 0.5) / pixeles;
 	vec2 p = q * escala_celdas;
 	vec2 c = celdas(p);
@@ -89,7 +99,7 @@ void fragment() {
 	float alto = smoothstep(0.0, 0.35, c.y) * (1.0 - c.x * 0.6);
 	float rugoso = alto * 0.7 + smoothstep(0.0, 0.2, c2.y) * 0.3;
 	vec3 tinte = pow(color_piel, vec3(2.2));
-	vec3 carne = tinte * mix(0.12, 1.2, rugoso) * sombra;
+	vec3 carne = tinte * mix(hundido, 1.2, rugoso) * sombra;
 	carne = mix(carne, carne * vec3(1.15, 1.05, 0.95), smoothstep(0.55, 0.9, rugoso));
 	// Grietas en parches, mas hacia la cola
 	vec2 gran = celdas(q * escala_celdas * 0.45 + 5.0);
@@ -101,4 +111,14 @@ void fragment() {
 	EMISSION = luz * grieta * 3.0 * mix(0.35, 1.0, hacia_cola) * brillo * aliento();
 	ROUGHNESS = mix(0.95, 0.55, alto);
 	SPECULAR = 0.3;
+	if (antenas && COLOR.g > 0.5) {
+		float t = COLOR.r;
+		// Tramos: la parte de enfrente de cada uno se enciende y la de atras queda oscura
+		float tramo = step(0.55, fract(t * antena_tramos));
+		float sube = smoothstep(antena_desde, 1.0, t);
+		float punta = smoothstep(0.92, 1.0, t);
+		float luz_a = max(tramo * sube, punta) * mix(0.5, 1.0, aliento());
+		ALBEDO = mix(ALBEDO, color_grieta * 0.3, luz_a * 0.6);
+		EMISSION += mix(color_grieta, color_nucleo, punta * 0.5) * luz_a * antena_brillo * brillo;
+	}
 }

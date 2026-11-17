@@ -11,6 +11,7 @@ extends Node3D
 const CUCARACHA := preload("res://models/personajes/cucarrata/cucaracha.glb")
 const RATA := preload("res://models/personajes/cucarrata/rata.glb")
 const HUESO_CABEZA := "head_04"
+const ANTENA_BASE := { "R": "horns_01.R_05", "L": "horns_01.L_07" }
 
 # El corte de la rata, en las coordenadas del glb ya importado (nariz hacia +Z, cola hacia -Z)
 const RATA_CORTE_Z := -0.42     # de aqui hacia la nariz
@@ -91,6 +92,7 @@ func _sin_cabeza(malla: Mesh, skin: Skin) -> ArrayMesh:
 	var cabeza := esqueleto.find_bone(HUESO_CABEZA)
 	var es_cabeza := PackedByteArray()
 	es_cabeza.resize(n_v)
+	var huesos_de := PackedInt32Array()   # el hueso que mas pesa en cada vertice
 	for i in n_v:
 		var mejor := -1
 		var mejor_peso := 0.0
@@ -101,6 +103,8 @@ func _sin_cabeza(malla: Mesh, skin: Skin) -> ArrayMesh:
 		var nombre := skin.get_bind_name(mejor) if mejor >= 0 else &""
 		var hueso := esqueleto.find_bone(nombre) if nombre != &"" else skin.get_bind_bone(mejor)
 		es_cabeza[i] = 1 if hueso == cabeza else 0
+		huesos_de.append(hueso)
+	_marcar_antenas(arr, skin, huesos_de)
 	var indices: PackedInt32Array = arr[Mesh.ARRAY_INDEX]
 	var quedan := PackedInt32Array()
 	for t in range(0, indices.size(), 3):
@@ -109,10 +113,46 @@ func _sin_cabeza(malla: Mesh, skin: Skin) -> ArrayMesh:
 		quedan.append_array([indices[t], indices[t + 1], indices[t + 2]])
 	arr[Mesh.ARRAY_INDEX] = quedan
 	var nueva := ArrayMesh.new()
-	var formato: int = malla.surface_get_format(0) & ~Mesh.ARRAY_FLAG_COMPRESS_ATTRIBUTES
+	var formato: int = (malla.surface_get_format(0) & ~Mesh.ARRAY_FLAG_COMPRESS_ATTRIBUTES) \
+			| Mesh.ARRAY_FORMAT_COLOR
 	nueva.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr, [], {}, formato)
 	nueva.surface_set_material(0, malla.surface_get_material(0))
 	return nueva
+
+
+# Las antenas (huesos horns_*) se marcan en el color de vertice para el shader: g = 1 en la
+# antena, r = que tan lejos de la base esta (0 base, 1 punta), medido en la pose de reposo
+func _marcar_antenas(arr: Array, skin: Skin, huesos_de: PackedInt32Array) -> void:
+	var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+	var huesos: PackedInt32Array = arr[Mesh.ARRAY_BONES]
+	var pesos: PackedFloat32Array = arr[Mesh.ARRAY_WEIGHTS]
+	var por_vertice := huesos.size() / v.size()
+	var colores := PackedColorArray()
+	colores.resize(v.size())
+	var lejos := {}    # vertice -> distancia a la base de su antena
+	var maximo := {}   # lado -> la distancia mas larga
+	for i in v.size():
+		colores[i] = Color(0, 0, 0, 1)
+		var nombre := esqueleto.get_bone_name(huesos_de[i]) if huesos_de[i] >= 0 else ""
+		if not nombre.begins_with("horns_"):
+			continue
+		var lado := "R" if ".R" in nombre else "L"
+		var base := esqueleto.get_bone_global_rest(esqueleto.find_bone(ANTENA_BASE[lado])).origin
+		var p := Vector3.ZERO
+		for k in por_vertice:
+			var w := pesos[i * por_vertice + k]
+			if w <= 0.0:
+				continue
+			var b := huesos[i * por_vertice + k]
+			var hueso := esqueleto.find_bone(skin.get_bind_name(b))
+			if hueso < 0:
+				hueso = skin.get_bind_bone(b)
+			p += w * (esqueleto.get_bone_global_rest(hueso) * skin.get_bind_pose(b) * v[i])
+		lejos[i] = [p.distance_to(base), lado]
+		maximo[lado] = max(maximo.get(lado, 0.0), p.distance_to(base))
+	for i in lejos:
+		colores[i] = Color(lejos[i][0] / maxf(maximo[lejos[i][1]], 0.001), 1, 0, 1)
+	arr[Mesh.ARRAY_COLOR] = colores
 
 
 func _poner_cabeza() -> void:
@@ -254,6 +294,7 @@ func _material_cuerpo(cuerpo: MeshInstance3D) -> ShaderMaterial:
 		var t := _modelo.global_transform.affine_inverse() * cuerpo.global_transform
 		var fila_z := Vector3(t.basis.x.z, t.basis.y.z, t.basis.z.z)
 		_mat_cuerpo.set_shader_parameter("eje_cola", fila_z)
+		_mat_cuerpo.set_shader_parameter("antenas", true)
 		_mat_cuerpo.set_shader_parameter("cola_desde", COLA_DESDE - t.origin.z)
 		_mat_cuerpo.set_shader_parameter("cola_hasta", COLA_HASTA - t.origin.z)
 	return _mat_cuerpo
