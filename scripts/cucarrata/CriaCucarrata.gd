@@ -10,7 +10,7 @@ extends Node3D
 #   atacan de una en una, tras ENJAMBRE_ESPERA s de turba); cuando le toca se frena, se para en
 #   vertical mostrando la panza y acelera a estrellarse con la panza, y truena en azul Serenol (dana a EXPLOTA_RADIO; rodando se
 #   esquiva, como cualquier golpe). Un machetazo o un balazo la revientan sin dano.
-# - Rata: corre hacia el jugador, salta y muerde, y se queda pegada (frena y chupa vida) hasta que
+# - Rata: corre como mosca en el piso alrededor del jugador, brinca de una en una y muerde, y se queda pegada (frena y chupa vida) hasta que
 #   un machetazo se la quita: cada golpe quita una pegada, sin importar hacia donde mires. Rodar
 #   no la suelta. Bloqueando de frente rebota.
 # Estan en el grupo "lombrices": asi el machete (Player._golpear, la estocada, el azote) y la
@@ -78,7 +78,6 @@ const EXPLOTA_DANO := 15
 const AZUL := Color(0.18, 0.77, 1.0)   # #2EC4FF, el de las grietas
 # Rata
 const RATA_VEL := 4.2            # m/s corriendo hacia el jugador
-const SALTO_DESDE := 2.4         # m: desde aqui salta
 const SALTO_DURA := 0.42         # s en el aire
 const SALTO_ALTO := 0.7
 const MORDIDA := 5               # dano al pegarse
@@ -86,6 +85,17 @@ const CHUPA := 1.5               # vida por segundo, cada rata pegada
 const FRENA := 0.12              # cada pegada te frena esto (minimo FRENA_MIN)
 const FRENA_MIN := 0.5
 const RATA_ENFRIA := 0.9         # s despues de fallar el salto
+# Corren como moscas en el piso (JJ): cada una va a un punto del otro lado del jugador, con giro
+# limitado, y al llegar escoge otro, asi se te cruzan entre los pies. Brincan a morder de una en
+# una: tras RATA_ESPERA s de vida, desde RATA_TURNO m, con RATA_CADA s entre una y otra
+const RATA_RADIO := Vector2(1.5, 4.5)
+const RATA_RAPIDEZ := Vector2(4.0, 6.5)
+const RATA_GIRA := 6.0           # rad/s
+const RATA_LLEGA := 0.6
+const RATA_CAMBIA := 1.5
+const RATA_ESPERA := 2.5
+const RATA_TURNO := Vector2(1.2, 3.4)
+const RATA_CADA := 0.9
 const LASTRE := "cucarrata_ratas"
 
 @export var tipo := Tipo.RATA
@@ -100,6 +110,8 @@ static var _quito_en := -1       # cuadro del ultimo machetazo que ya quito una 
 static var pegadas: Array[CriaCucarrata] = []
 static var _atacando := 0        # cucarachas apuntando o en picada
 static var _ultimo_ataque := -100000
+static var _ratas_atacando := 0  # ratas brincando (una a la vez)
+static var _rata_ultima := -100000
 
 var anim: AnimationPlayer   # la cucaracha
 var _modelo: Node3D
@@ -135,8 +147,13 @@ func _exit_tree() -> void:
 
 
 func _soltar_turno() -> void:
-	if _turno:
-		_turno = false
+	if not _turno:
+		return
+	_turno = false
+	if tipo == Tipo.RATA:
+		_ratas_atacando = maxi(_ratas_atacando - 1, 0)
+		_rata_ultima = Time.get_ticks_msec()
+	else:
 		_atacando = maxi(_atacando - 1, 0)
 		_ultimo_ataque = Time.get_ticks_msec()   # la pausa cuenta desde que acaba
 
@@ -238,8 +255,12 @@ func _rata_suelo(delta: float) -> void:
 		return
 	var hacia := _jugador.global_position - global_position
 	hacia.y = 0.0
-	_mirar_plano(hacia)
-	if hacia.length() <= SALTO_DESDE:
+	var lejos := hacia.length()
+	if _t > RATA_ESPERA and lejos > RATA_TURNO.x and lejos < RATA_TURNO.y \
+			and _ratas_atacando == 0 and Time.get_ticks_msec() - _rata_ultima > int(RATA_CADA * 1000.0):
+		_ratas_atacando += 1
+		_turno = true
+		_mirar_plano(hacia)
 		_estado = Estado.SALTA
 		_reloj = 0.0
 		_salto_desde = global_position
@@ -247,8 +268,27 @@ func _rata_suelo(delta: float) -> void:
 		var va: Vector3 = _jugador.get("velocity") if _jugador.get("velocity") != null else Vector3.ZERO
 		_salto_hasta = _pecho() + Vector3(va.x, 0, va.z) * SALTO_DURA * 0.5
 		Sonidos.tocar(self, "squelch", -14.0, 1.6)
-	else:
-		global_position += hacia.normalized() * RATA_VEL * delta
+		return
+	# Como mosca en el piso: a su punto del otro lado del jugador, torciendo el rumbo
+	_meta_reloj -= delta
+	var plano := _meta - global_position
+	plano.y = 0.0
+	if _meta_reloj <= 0.0 or plano.length() < RATA_LLEGA:
+		var angulo := atan2(-hacia.z, -hacia.x) + PI + randf_range(-MOSCA_ABRE, MOSCA_ABRE)
+		_meta = _jugador.global_position + Vector3(cos(angulo), 0, sin(angulo)) * randf_range(RATA_RADIO.x, RATA_RADIO.y)
+		_meta_reloj = RATA_CAMBIA
+		_rapidez = randf_range(RATA_RAPIDEZ.x, RATA_RAPIDEZ.y)
+		plano = _meta - global_position
+		plano.y = 0.0
+	var rumbo := -global_transform.basis.z
+	rumbo.y = 0.0
+	rumbo = rumbo.normalized()
+	var quiere := plano.normalized()
+	var giro := clampf(rumbo.signed_angle_to(quiere, Vector3.UP), -RATA_GIRA * delta, RATA_GIRA * delta)
+	rumbo = rumbo.rotated(Vector3.UP, giro)
+	_mirar_plano(rumbo)
+	global_position += rumbo * _rapidez * delta
+	global_position.y = _piso
 
 
 func _rata_salta() -> void:
@@ -264,6 +304,7 @@ func _rata_salta() -> void:
 		_piso = _jugador.global_position.y - PIES if _jugador else _piso
 		_caer_de_pie(_salto_hasta - _salto_desde)
 		_reloj = -RATA_ENFRIA
+		_soltar_turno()
 
 
 func _morder() -> void:
@@ -279,7 +320,9 @@ func _morder() -> void:
 		_caer_de_pie(global_position - _jugador.global_position)
 		global_position += (global_position - _jugador.global_position).normalized() * 0.8
 		_reloj = -RATA_ENFRIA
+		_soltar_turno()
 		return
+	_soltar_turno()   # ya se pego: le toca a la siguiente
 	_estado = Estado.PEGADA
 	var a := randf() * TAU
 	_en_jugador = Vector3(cos(a) * 0.32, randf_range(-0.45, 0.5), sin(a) * 0.32)

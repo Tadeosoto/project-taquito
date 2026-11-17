@@ -57,7 +57,7 @@ const PUNTA_COLA := Vector3(0.0, 0.32, 1.0)   # en el modelo en reposo
 const CRIA_SALE := Vector2(3.5, 3.5)   # m/s hacia atras y hacia arriba al salir
 # Sale un enjambre (JJ): cada pujo suelta POR_PUJO[tipo] crias de ese tipo, una tras otra cada
 # ENJAMBRE_CADA s, abiertas hacia los lados y con velocidades distintas
-const POR_PUJO := { CriaCucarrata.Tipo.RATA: 3, CriaCucarrata.Tipo.CUCARACHA: 4 }   # JJ: cucarachas mas chicas pero el doble
+const POR_PUJO := { CriaCucarrata.Tipo.RATA: 5, CriaCucarrata.Tipo.CUCARACHA: 4 }   # JJ: cucarachas mas chicas pero el doble
 const ENJAMBRE_CADA := 0.06
 const ENJAMBRE_ABRE := 2.2     # m/s de lado, al azar a cada lado
 const ENJAMBRE_VARIA := Vector2(0.75, 1.3)   # la velocidad de salida se multiplica por esto
@@ -123,7 +123,7 @@ func _nombre(corto: String) -> String:
 
 # Cada parto es de un solo tipo y se alternan (JJ: no te puedes defender de las dos a la vez):
 # primero ratas, luego cucarachas. TANDA = cuantos pujos tiene el parto de cada tipo
-const TANDA := { CriaCucarrata.Tipo.RATA: 3, CriaCucarrata.Tipo.CUCARACHA: 2 }   # 9 ratas u 8 cucarachas
+const TANDA := { CriaCucarrata.Tipo.RATA: 3, CriaCucarrata.Tipo.CUCARACHA: 2 }   # 15 ratas u 8 cucarachas
 var siguiente_tipo := CriaCucarrata.Tipo.RATA
 
 
