@@ -796,7 +796,7 @@ func _cucarrata_pare() -> void:
 		_cucarrata.global_position = donde
 		# La cabeza (-Z) para alla: la cola (+Z) te ve
 		_cucarrata.look_at(donde + frente, Vector3.UP)
-	# Alterna: 9 ratas, luego 4 cucarachas (Cucarrata.TANDA)
+	# Alterna: 9 ratas, luego 8 cucarachas (Cucarrata.TANDA)
 	_cucarrata.parir()
 
 

@@ -25,14 +25,14 @@ const RATA_ESCALA := 0.145
 # El punto de la rata del glb que queda en el origen: entre las patas, a media panza
 const RATA_ORIGEN := Vector3(0.01, -0.95, -1.15)
 const RATA_COLOR := Color(0.8, 0.8, 0.82)   # mas claro que la cabeza de la cucarrata: chica se veia negra
-# Cucaracha: ~1.5 m de cuerpo en el glb; a 0.9 queda de ~1.35 m (JJ: el triple del chihuahua,
-# para darle con la pistola)
-const CUCARACHA_ESCALA := 0.9
+# Cucaracha: ~1.5 m de cuerpo en el glb; a 0.45 queda de ~0.7 m (JJ: primero el triple del
+# chihuahua para darle con la pistola, luego la mitad de eso pero el doble de cucarachas)
+const CUCARACHA_ESCALA := 0.45
 const CUCARACHA_COLOR := Color(0.66, 0.44, 0.28)
 # Celdas de la piel de las crias: pocas y grandes (la cucarrata lleva 12 en el cuerpo y 18 en la
 # cabeza), y pixeles mas gruesos, para que las grietas se lean a su tamano
 const CELDAS_RATA := Vector2(6.0, 6.0)
-const CELDAS_CUCARACHA := Vector2(10.0, 10.0)   # con el triple de tamano, mas celdas
+const CELDAS_CUCARACHA := Vector2(7.0, 7.0)   # mas grande, mas celdas (a 0.3 eran 5, a 0.9 10)
 const PIXELES := Vector2(64.0, 64.0)
 const BRILLO := 1.5
 const OJO_RADIO := 0.05   # en metros de la rata del glb, antes de escalar
@@ -42,7 +42,7 @@ const GRAVEDAD := 9.8
 const RATA_CORRE := 0.9          # segundos que corre al caer, antes de ir por el jugador
 const ALTURA_VUELO := Vector2(1.5, 2.6)   # metros sobre el piso donde revolotean las cucarachas
 const RADIO := 0.25              # para el machete y las balas (la rata)
-const RADIO_CUCARACHA := 0.6
+const RADIO_CUCARACHA := 0.35
 # El centro del cuerpo de la cucaracha en el glb (pose de vuelo, antes de escalar y pararla)
 const CENTRO_CUCARACHA := Vector3(0.0, 0.7, 0.0)
 # El origen del jugador es el centro de su capsula, ~1 m sobre el piso: el pecho queda poco arriba
@@ -68,7 +68,7 @@ const PICADA_VEL := 11.0         # m/s al final de la picada
 const PICADA_ACELERA := 18.0     # m/s2
 const PICADA_GIRA := 2.5         # que tanto corrige el rumbo en la picada (rad/s): rodar la esquiva
 const PICADA_MAX := 1.8          # s: si no pego, truena igual
-const EXPLOTA_TOCA := 1.0        # m del pecho (al centro de la cucaracha) para tronar
+const EXPLOTA_TOCA := 0.8        # m del pecho (al centro de la cucaracha) para tronar
 const EXPLOTA_RADIO := 2.2       # m: hasta donde dana
 const EXPLOTA_DANO := 15
 const AZUL := Color(0.18, 0.77, 1.0)   # #2EC4FF, el de las grietas
