@@ -117,7 +117,7 @@ G tablas · Shift+G Saltabardas · Shift+J Panzón · L -100 al tinaco (refugio 
 Shift+X La Mojiganga (catrina gigante, ya despierta)
 , soltar 80 lombrices enfrente (hornea unos segundos)
 Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
-. la cucarrata enfrente: pare ratas y cucarachas kamikaze (otra vez . = pare otra vez)
+. la cucarrata enfrente: pare ratas; otra vez . = cucarachas kamikaze, y asi alterna
 3 sal / molotov (otra vez 3 cambia; botella vacía + gasolinera + trapo = molotov)"""},
 	{"titulo": "Efectos y tazos", "efectos": true, "texto": """F2-F7 efectos de pixel (propuestas, abajo)
 F9 efectos nuevos (tambos y chispas: a la derecha)
@@ -781,7 +781,7 @@ func _crear_personaje() -> void:
 
 
 # La cucarrata (scripts/cucarrata/) CUCARRATA_ENFRENTE m enfrente, con la cola hacia ti, y pare:
-# ratas que muerden y se pegan, y cucarachas kamikaze. Si ya esta, solo vuelve a parir
+# ratas que muerden y se pegan, o cucarachas kamikaze (alterna). Si ya esta, solo vuelve a parir
 func _cucarrata_pare() -> void:
 	if _cucarrata == null or not is_instance_valid(_cucarrata):
 		_cucarrata = Cucarrata.new()
@@ -796,9 +796,8 @@ func _cucarrata_pare() -> void:
 		_cucarrata.global_position = donde
 		# La cabeza (-Z) para alla: la cola (+Z) te ve
 		_cucarrata.look_at(donde + frente, Vector3.UP)
-	# 9 ratas y 4 cucarachas (Cucarrata.POR_PUJO)
-	_cucarrata.parir([CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA, CriaCucarrata.Tipo.RATA,
-			CriaCucarrata.Tipo.CUCARACHA, CriaCucarrata.Tipo.RATA])
+	# Alterna: 9 ratas, luego 4 cucarachas (Cucarrata.TANDA)
+	_cucarrata.parir()
 
 
 # Un enjambre de lombrices (scripts/lombrices/) LOMBRICES_ENFRENTE m enfrente, en el piso

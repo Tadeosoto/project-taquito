@@ -121,11 +121,21 @@ func _nombre(corto: String) -> String:
 	return "giant_cockroach_armature|" + ANIMS.get(corto, corto)
 
 
+# Cada parto es de un solo tipo y se alternan (JJ: no te puedes defender de las dos a la vez):
+# primero ratas, luego cucarachas. TANDA = cuantos pujos tiene el parto de cada tipo
+const TANDA := { CriaCucarrata.Tipo.RATA: 3, CriaCucarrata.Tipo.CUCARACHA: 2 }   # 9 ratas o 4 cucarachas
+var siguiente_tipo := CriaCucarrata.Tipo.RATA
+
+
 # Suelta crias por la cola, POR_PUJO[tipo] por contraccion (tipos: CriaCucarrata.Tipo, uno
-# por pujo, en orden). Las crias van al padre de la cucarrata (no se mueven con ella). Al acabar vuelve a
-# "quieta"
-func parir(tipos: Array = [CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA,
-		CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.CUCARACHA]) -> void:
+# por pujo, en orden). Sin tipos, pare una tanda de siguiente_tipo y alterna. Las crias van al
+# padre de la cucarrata (no se mueven con ella). Al acabar vuelve a "quieta"
+func parir(tipos: Array = []) -> void:
+	if tipos.is_empty():
+		for i in TANDA[siguiente_tipo]:
+			tipos.append(siguiente_tipo)
+		siguiente_tipo = CriaCucarrata.Tipo.CUCARACHA if siguiente_tipo == CriaCucarrata.Tipo.RATA \
+				else CriaCucarrata.Tipo.RATA
 	animar("pare", 0.2)
 	var inicio := Time.get_ticks_msec()
 	for k in tipos.size():
