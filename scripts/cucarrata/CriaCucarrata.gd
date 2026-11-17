@@ -37,7 +37,7 @@ const PIXELES := Vector2(64.0, 64.0)
 const BRILLO := 1.5
 const OJO_RADIO := 0.05   # en metros de la rata del glb, antes de escalar
 
-enum Estado { QUIETA, AIRE, SUELO, VUELA, APUNTA, PICADA, SALTA, PEGADA, MUERTA }
+enum Estado { QUIETA, AIRE, SUELO, VUELA, VA, APUNTA, PICADA, SALTA, PEGADA, MUERTA }
 const GRAVEDAD := 9.8
 const RATA_CORRE := 0.9          # segundos que corre al caer, antes de ir por el jugador
 const ALTURA_VUELO := Vector2(1.5, 2.6)   # metros sobre el piso donde revolotean las cucarachas
@@ -53,11 +53,23 @@ const VUELO_VEL := 4.5           # m/s volando horizontal hacia el jugador
 # Se reparten alrededor del jugador, cada una en su lugar (angulo por el angulo aureo, a su
 # distancia y altura), girando despacio; y atacan de una en una: a lo mas ATACAN_JUNTAS a la vez
 # y ATAQUE_CADA s entre que empieza una y la siguiente
+# (sin madre; con madre hacen guardia alrededor de ella, abajo)
 const RONDA_RADIO := Vector2(5.0, 8.0)
 const RONDA_GIRA := 0.25         # rad/s que gira cada lugar alrededor del jugador
 const RONDA_LISTA := 1.2         # m de su lugar para poder atacar
 const ATACAN_JUNTAS := 1
-const ATAQUE_CADA := 1.4
+const ATAQUE_CADA := 1.2         # s desde que acaba un ataque (o empieza) hasta el siguiente
+# Guardia (JJ): como drones que protegen a la cucarrata, giran alrededor de ella y por encima, y
+# por turnos una se despega, vuela hacia ti (VA) y se lanza
+const GUARDIA_RADIO := Vector2(6.5, 9.5)
+const GUARDIA_ALTO := Vector2(3.0, 5.5)   # m sobre el piso de la cucarrata
+const GUARDIA_GIRA := 0.5        # rad/s
+const GUARDIA_LISTA := 2.5       # m de su lugar para que le pueda tocar el turno
+const GUARDIA_ESPERA := 2.0      # s volando de guardia antes de poder atacar
+const GUARDIA_ALCANCE := 35.0    # m: mas lejos el jugador, nadie sale
+const VA_VEL := 7.0              # m/s de la guardia hacia el jugador
+const VA_ALTO := 1.8             # m sobre los pies del jugador a los que llega
+const PICADA_DESDE := 5.0        # m del jugador: la guardia se frena aqui, se para en vertical y se lanza
 const APUNTA_DURA := 0.8         # s quieta en el aire acomodandose en vertical (el aviso para rodar)
 const PICADA_VEL := 11.0         # m/s al final de la picada
 const PICADA_ACELERA := 18.0     # m/s2
@@ -110,6 +122,7 @@ var _jugador: Node3D
 var _lugar_angulo := 0.0
 var _lugar_radio := 0.0
 var _turno := false              # esta cucaracha tiene uno de los ATACAN_JUNTAS
+var madre: Node3D                # la cucarrata que la parió (Cucarrata._soltar): le hace guardia
 
 
 func _ready() -> void:
@@ -129,6 +142,7 @@ func _soltar_turno() -> void:
 	if _turno:
 		_turno = false
 		_atacando = maxi(_atacando - 1, 0)
+		_ultimo_ataque = Time.get_ticks_msec()
 
 
 func animar(corto: String, mezcla := 0.15) -> void:
@@ -151,6 +165,9 @@ func lanzar(velocidad: Vector3, piso_y: float) -> void:
 		_lugar_angulo = _lugares * 2.39996   # angulo aureo: ninguna cae junto a otra
 		_lugares += 1
 		_lugar_radio = randf_range(RONDA_RADIO.x, RONDA_RADIO.y)
+		if madre:
+			_lugar_radio = randf_range(GUARDIA_RADIO.x, GUARDIA_RADIO.y)
+			_altura = piso_y + randf_range(GUARDIA_ALTO.x, GUARDIA_ALTO.y)
 
 
 func _process(delta: float) -> void:
@@ -173,6 +190,8 @@ func _process(delta: float) -> void:
 			_rata_suelo(delta)
 		Estado.VUELA:
 			_cucaracha_vuela(delta)
+		Estado.VA:
+			_cucaracha_va(delta)
 		Estado.APUNTA:
 			_cucaracha_apunta(delta)
 		Estado.PICADA:
@@ -322,26 +341,52 @@ func _cucaracha_vuela(delta: float) -> void:
 		_vel.y = (_altura - global_position.y) * 2.0
 		global_position += (_vel + meneo) * delta
 		return
-	# Su lugar alrededor del jugador, girando
-	_lugar_angulo += RONDA_GIRA * delta
-	var objetivo := _jugador.global_position + Vector3(cos(_lugar_angulo), 0, sin(_lugar_angulo)) * _lugar_radio
-	objetivo.y = _altura + (_jugador.global_position.y - PIES - _piso)
+	# Su lugar girando alrededor de la madre (guardia) o, sin madre, del jugador
+	var guardia := is_instance_valid(madre)
+	_lugar_angulo += (GUARDIA_GIRA if guardia else RONDA_GIRA) * delta
+	var centro_ronda := madre.global_position if guardia else _jugador.global_position
+	var objetivo := centro_ronda + Vector3(cos(_lugar_angulo), 0, sin(_lugar_angulo)) * _lugar_radio
+	objetivo.y = _altura + (0.0 if guardia else _jugador.global_position.y - PIES - _piso)
 	var hacia := objetivo - global_position
 	var quiere := hacia.normalized() * minf(VUELO_VEL, hacia.length() * 2.0)
 	_vel = _vel.lerp(quiere, delta * 2.5)
 	global_position += (_vel + meneo) * delta
-	# Volando, la cabeza a donde va; ya en su lugar, hacia el jugador
-	_mirar_plano(_vel if hacia.length() > 1.5 else _jugador.global_position - global_position)
+	# Volando, la cabeza a donde va; ya en su lugar, hacia el jugador (de guardia, a donde gira)
+	_mirar_plano(_vel if hacia.length() > 1.5 or guardia else _jugador.global_position - global_position)
 	# Horizontal: la pose de vuelo del glb es parada, se acuesta con la cabeza al frente
 	_modelo.rotation.x = lerp_angle(_modelo.rotation.x, -PI * 0.5, delta * 6.0)
-	if hacia.length() < RONDA_LISTA and _reloj > 0.6 and _atacando < ATACAN_JUNTAS \
+	var lista := hacia.length() < GUARDIA_LISTA and _reloj > GUARDIA_ESPERA \
+			and global_position.distance_to(_jugador.global_position) < GUARDIA_ALCANCE if guardia \
+			else hacia.length() < RONDA_LISTA and _reloj > 0.6
+	if lista and _atacando < ATACAN_JUNTAS \
 			and Time.get_ticks_msec() - _ultimo_ataque > int(ATAQUE_CADA * 1000.0):
 		_atacando += 1
 		_turno = true
 		_ultimo_ataque = Time.get_ticks_msec()
-		_estado = Estado.APUNTA
+		_estado = Estado.VA if guardia else Estado.APUNTA
 		_reloj = 0.0
 		Sonidos.tocar(self, "chillido", -16.0, 2.2)
+
+
+# Le toco el turno: se despega de la guardia y vuela acostada hacia el jugador; a PICADA_DESDE
+# se frena y apunta
+func _cucaracha_va(delta: float) -> void:
+	if _jugador == null:
+		_estado = Estado.VUELA
+		_soltar_turno()
+		return
+	var objetivo := _jugador.global_position + Vector3.UP * (VA_ALTO - PIES)
+	var hacia := objetivo - global_position
+	_vel = _vel.lerp(hacia.normalized() * VA_VEL, minf(delta * 3.0, 1.0))
+	global_position += _vel * delta
+	_mirar_plano(_vel)
+	_modelo.rotation.x = lerp_angle(_modelo.rotation.x, -PI * 0.5, delta * 6.0)
+	if hacia.length() <= PICADA_DESDE:
+		_estado = Estado.APUNTA
+		_reloj = 0.0
+	elif _reloj > 8.0:   # no te alcanza: regresa a la guardia y cede el turno
+		_estado = Estado.VUELA
+		_soltar_turno()
 
 
 # Se frena y se queda fija en el aire mientras se para en vertical, mirandote; despues se lanza
