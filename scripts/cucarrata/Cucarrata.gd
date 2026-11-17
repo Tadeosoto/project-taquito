@@ -87,6 +87,7 @@ var esqueleto: Skeleton3D
 var anim: AnimationPlayer
 var _modelo: Node3D
 var _punta_en_abdomen := Vector3.ZERO
+var _parto := 0   # cuenta los partos: uno nuevo o cancelar_parto() corta el anterior
 
 
 func _ready() -> void:
@@ -145,6 +146,8 @@ func parir(tipos: Array = [], con_animacion := true) -> void:
 			tipos.append(siguiente_tipo)
 		siguiente_tipo = CriaCucarrata.Tipo.CUCARACHA if siguiente_tipo == CriaCucarrata.Tipo.RATA \
 				else CriaCucarrata.Tipo.RATA
+	_parto += 1
+	var mio := _parto
 	if con_animacion:
 		animar("pare", 0.2)
 	var inicio := Time.get_ticks_msec()
@@ -155,17 +158,17 @@ func parir(tipos: Array = [], con_animacion := true) -> void:
 				anim.play("pare", 0.1)   # mas crias que pujos: otra vuelta
 			inicio = Time.get_ticks_msec()
 		while (Time.get_ticks_msec() - inicio) / 1000.0 < PARE_PUJOS[n]:
-			if not is_inside_tree():
+			if not is_inside_tree() or _parto != mio:
 				return
 			await get_tree().process_frame
 		for j in POR_PUJO[tipos[k]]:
 			if j > 0:
 				var desde := Time.get_ticks_msec()
 				while (Time.get_ticks_msec() - desde) / 1000.0 < ENJAMBRE_CADA:
-					if not is_inside_tree():
+					if not is_inside_tree() or _parto != mio:
 						return
 					await get_tree().process_frame
-			if not is_inside_tree():
+			if not is_inside_tree() or _parto != mio:
 				return
 			_soltar(tipos[k])
 	if con_animacion:
@@ -173,9 +176,14 @@ func parir(tipos: Array = [], con_animacion := true) -> void:
 		# el reloj real), la senal ya paso y se quedaba parada para siempre
 		while anim.is_playing() and anim.current_animation == "pare":
 			await get_tree().process_frame
-			if not is_inside_tree():
+			if not is_inside_tree() or _parto != mio:
 				return
 		animar("quieta", 0.3)
+
+
+# Corta el parto que vaya a medias (la tumbaron o se murio): ya no salen las que faltaban
+func cancelar_parto() -> void:
+	_parto += 1
 
 
 func punta_cola() -> Vector3:

@@ -6,7 +6,10 @@ extends Cucarrata
 # 2. Con 2/3 de vida: lo mismo, y cada PARE_CADA s se para a parir (ratas o cucarachas, alterna).
 # 3. Con 1/3: vuela como mosca, mas lenta que las cucarachas. Cada AGUIJON_CADA s se acomoda en
 #    vertical (cabeza arriba, la cola con el aguijon abajo), hace una pausa y se lanza: aguijonazo.
-#    Sigue pariendo, ahora en el aire.
+#    En el aire pare cucarachas voladoras. Las balas no le bajan vida: con TUMBAR_BALAS se cae boca
+#    arriba pataleando, como cucaracha (JJ). Asi tumbada es cuando el machete le baja vida (hasta
+#    TUMBADA_VIDA por tumbada: hay que tumbarla dos veces). Al rato se voltea, suelta ratas y vuelve
+#    a subir.
 # Esta en el grupo "lombrices": la pistola y el machete le preguntan como a las crias. Todos los
 # numeros son de primera, para docs/pruebas-balance.md.
 
@@ -64,8 +67,19 @@ const AGUIJON_ALCANCE := 1.8
 const AGUIJON_EMPUJA := 3.5
 const SUBE_DURA := 1.4
 const GRAVEDAD := 14.0
+# Tumbada (fase 3, JJ): a balazos se cae boca arriba y patalea; ahi el machete le baja vida
+const TUMBAR_BALAS := 6
+const TUMBAR_EXPLOSION := 3       # una explosion cuenta como tantas balas
+const TUMBADA_DURA := 7.0         # s pataleando antes de voltearse
+const TUMBADA_VIDA := VIDA / 6.0 + 0.5   # lo que le baja una tumbada: la fase 3 (1/3) son dos
+const TUMBADA_ALTO := 0.62        # m del modelo del piso al lomo: boca arriba, el origen sube eso
+const PATALEA := 3.0              # velocidad de "camina" con las patas al aire
+const VOLTEA_DURA := 0.9
+const VOLTEA_BRINCO := 1.2
 
-enum Estado { CAMINA, GRITA, SALTA, CORRE, PARE, DESPEGA, VUELA, APUNTA, PICADA, SUBE, CAE, MUERTA }
+enum Estado { CAMINA, GRITA, SALTA, CORRE, PARE, DESPEGA, VUELA, APUNTA, PICADA, SUBE, CAE, MUERTA,
+		TUMBA, PATAS, VOLTEA }
+const EN_VUELO := [Estado.DESPEGA, Estado.VUELA, Estado.APUNTA, Estado.PICADA, Estado.SUBE]
 
 var vida := VIDA
 var fase := 1
@@ -75,6 +89,9 @@ var _listo := false
 var _piso := 0.0
 var _yaw := 0.0
 var _pitch := 0.0
+var _roll := 0.0                  # PI = boca arriba
+var _balazos_vuelo := 0
+var _tumbada_queda := 0.0
 var _reloj := 0.0
 var _t := 0.0
 var _meta := Vector3.ZERO
@@ -141,8 +158,14 @@ func _process(delta: float) -> void:
 			_sube(delta)
 		Estado.CAE:
 			_cae(delta)
+		Estado.TUMBA:
+			_tumba(delta)
+		Estado.PATAS:
+			_patas(delta)
+		Estado.VOLTEA:
+			_voltea(delta)
 	_mover_cabeza(delta)
-	transform.basis = Basis.from_euler(Vector3(_pitch, _yaw, 0.0)).scaled(Vector3.ONE * escala())
+	transform.basis = Basis.from_euler(Vector3(_pitch, _yaw, _roll)).scaled(Vector3.ONE * escala())
 
 
 # --- Fases 1 y 2: en el piso ---
@@ -295,7 +318,8 @@ func _vuela(delta: float) -> void:
 	_pare_reloj -= delta
 	if _pare_reloj <= 0.0 and _crias_vivas() < CRIAS_MAX:
 		_pare_reloj = PARE_CADA
-		parir([], false)   # en el aire, sin dejar de aletear
+		# En el aire, sin dejar de aletear: solo cucarachas voladoras (las ratas, al voltearse)
+		parir([CriaCucarrata.Tipo.CUCARACHA, CriaCucarrata.Tipo.CUCARACHA], false)
 	_aguijon_reloj -= delta
 	var plano := global_position - _jugador.global_position
 	plano.y = 0.0
@@ -373,6 +397,101 @@ func _volar_a(meta: Vector3, rapidez: float, gira: float, delta: float) -> void:
 	_girar_a(_vel, gira * 2.0 * delta)
 
 
+# --- Tumbada (fase 3) ---
+
+func _tumbar() -> void:
+	estado = Estado.TUMBA
+	_reloj = 0.0
+	_balazos_vuelo = 0
+	_tumbada_queda = TUMBADA_VIDA
+	cancelar_parto()   # boca arriba no pare nada (JJ): solo patalea
+	_vel = Vector3(_vel.x, 0.0, _vel.z) * 0.3
+	animar("camina", 0.2)
+	anim.speed_scale = PATALEA
+	Sonidos.tocar(self, "chillido", 0.0, 0.6)
+	Sonidos.tocar(self, "chillido_muerte", -4.0, 0.8)
+
+
+# Cae dandose la vuelta en el aire
+func _tumba(delta: float) -> void:
+	_vel.y -= GRAVEDAD * delta
+	global_position += _vel * delta
+	_pitch = lerp_angle(_pitch, 0.0, minf(delta * 5.0, 1.0))
+	_roll = lerpf(_roll, PI, minf(delta * 4.0, 1.0))
+	var suelo := _piso + TUMBADA_ALTO * escala()
+	if global_position.y <= suelo:
+		global_position.y = suelo
+		_pitch = 0.0
+		_roll = PI
+		estado = Estado.PATAS
+		_reloj = 0.0
+		Sonidos.tocar(self, "retumbo", 0.0, 0.8)
+
+
+# Boca arriba, pataleando y meciendose; el machete le baja vida
+func _patas(_delta: float) -> void:
+	_roll = PI + sin(_t * 7.0) * 0.07
+	anim.speed_scale = PATALEA
+	if _reloj >= TUMBADA_DURA:
+		_voltear()
+
+
+func _voltear() -> void:
+	estado = Estado.VOLTEA
+	_reloj = 0.0
+	anim.speed_scale = 1.0
+	Sonidos.tocar(self, "rugido", -2.0, 0.7)
+
+
+# Un brinquito dandose la vuelta (sigue girando para el mismo lado) y cae parada
+func _voltea(_delta: float) -> void:
+	var f := clampf(_reloj / VOLTEA_DURA, 0.0, 1.0)
+	_roll = lerpf(PI, TAU, f)
+	global_position.y = lerpf(_piso + TUMBADA_ALTO * escala(), _piso, f) + sin(f * PI) * VOLTEA_BRINCO
+	if f >= 1.0:
+		_roll = 0.0
+		global_position.y = _piso
+		Sonidos.tocar(self, "retumbo", -4.0, 0.9)
+		_parir_y_despegar()
+
+
+# Ya parada suelta su camada de ratas y vuelve a subir
+func _parir_y_despegar() -> void:
+	estado = Estado.PARE
+	await parir([CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.RATA, CriaCucarrata.Tipo.RATA])
+	if is_inside_tree() and estado == Estado.PARE:
+		_despegar()
+
+
+func _despegar() -> void:
+	estado = Estado.DESPEGA
+	_reloj = 0.0
+	_balazos_vuelo = 0
+	anim.speed_scale = 1.0
+	animar("vuela", 0.3)
+
+
+# Lo que le baja el machete (o una explosion) tumbada, hasta TUMBADA_VIDA; acabandosela se voltea
+func _herir_tumbada(dano: float) -> void:
+	var d := minf(dano, _tumbada_queda)
+	if d <= 0.0:
+		return
+	_tumbada_queda -= d
+	_herir(d)
+	if _tumbada_queda <= 0.0 and estado == Estado.PATAS:
+		_voltear()
+
+
+# Un golpe en la fase 3: en el aire suma para tumbarla, tumbada baja vida, si no, nada
+func _golpe_fase3(balas: int, dano: float) -> void:
+	if estado in EN_VUELO:
+		_balazos_vuelo += balas
+		if _balazos_vuelo >= TUMBAR_BALAS:
+			_tumbar()
+	elif estado == Estado.PATAS and dano > 0.0:
+		_herir_tumbada(dano)
+
+
 # --- Muerte ---
 
 func _cae(delta: float) -> void:
@@ -389,6 +508,7 @@ func _morir() -> void:
 	if estado == Estado.CAE or estado == Estado.MUERTA:
 		return
 	remove_from_group("lombrices")
+	cancelar_parto()
 	anim.speed_scale = 1.0
 	Sonidos.tocar(self, "chillido_muerte", 0.0, 0.6)
 	Sonidos.tocar(self, "rugido", 0.0, 0.5)
@@ -396,7 +516,15 @@ func _morir() -> void:
 		if cria is CriaCucarrata:
 			cria._morir()
 	murio.emit()
-	if global_position.y > _piso + 0.3:
+	if estado in [Estado.TUMBA, Estado.PATAS, Estado.VOLTEA]:
+		# Ya esta boca arriba: se queda asi, y deja de patalear
+		estado = Estado.MUERTA
+		_roll = PI
+		global_position.y = _piso + TUMBADA_ALTO * escala()
+		anim.speed_scale = 1.0
+		animar("quieta", 0.6)
+		Sonidos.tocar(self, "retumbo", 0.0, 0.7)
+	elif global_position.y > _piso + 0.3:
 		estado = Estado.CAE
 		_vel = Vector3.ZERO
 	else:
@@ -427,10 +555,7 @@ func _herir(dano: float) -> void:
 	if fase == 2:
 		_pare_reloj = 2.0   # en cuanto entra a la fase 2, pare
 	elif fase == 3:
-		estado = Estado.DESPEGA
-		_reloj = 0.0
-		anim.speed_scale = 1.0
-		animar("vuela", 0.3)
+		_despegar()
 
 
 func _esferas() -> Array:
@@ -470,6 +595,9 @@ static func _esfera(origen: Vector3, dir: Vector3, centro: Vector3, r: float) ->
 func bullet_hit(_i: int, punto: Vector3, _dir: Vector3) -> void:
 	_fx("cria_corte", punto)
 	Sonidos.tocar(self, "squelch", -8.0, 0.8)
+	if fase >= 3:
+		_golpe_fase3(1, 0.0)   # las balas no le bajan vida en el aire: la tumban
+		return
 	_herir(DANO_BALA)
 	_enojar()
 
@@ -487,7 +615,10 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 		if not giro and hacia.length() > 0.3 and hacia.normalized().dot(frente) < cono:
 			continue
 		_fx("cria_corte", e[0] - hacia.normalized() * e[1])
-		_herir(float(dano))
+		if fase >= 3:
+			_golpe_fase3(0, float(dano))   # solo tumbada le baja vida
+		else:
+			_herir(float(dano))
 		return true
 	return false
 
@@ -495,7 +626,10 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 func apply_explosion_impulse(punto: Vector3, radio: float, _fuerza: float, _algo = null) -> void:
 	for e in _esferas():
 		if punto.distance_to(e[0]) < radio + e[1]:
-			_herir(DANO_EXPLOSION)
+			if fase >= 3:
+				_golpe_fase3(TUMBAR_EXPLOSION, DANO_EXPLOSION)
+			else:
+				_herir(DANO_EXPLOSION)
 			return
 
 
