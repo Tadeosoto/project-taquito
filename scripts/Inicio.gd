@@ -456,3 +456,13 @@ func _texto(texto: String, tamano: int, color: Color) -> Label:
 	label.add_theme_color_override("font_outline_color", Color.BLACK)
 	label.add_theme_constant_override("outline_size", 5)
 	return label
+
+
+# Al cerrar el juego con el rugido o el ambiente sonando, sus reproducciones quedaban vivas en el
+# AudioServer y Godot avisaba de fugas al salir
+func _exit_tree() -> void:
+	if is_instance_valid(_voz_zombi):
+		_voz_zombi.stop()
+	if is_instance_valid(_ambiente):
+		_ambiente.stop()
+		_ambiente.stream = null

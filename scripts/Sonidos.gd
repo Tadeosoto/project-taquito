@@ -372,6 +372,9 @@ static func tocar(donde: Node, nombre: String, volumen_db := 0.0, tono := 1.0) -
 	voz.pitch_scale = tono
 	voz.process_mode = Node.PROCESS_MODE_ALWAYS
 	voz.finished.connect(voz.queue_free)
+	# Si se cierra el juego mientras suena, su reproduccion quedaba viva en el AudioServer y Godot
+	# avisaba de fugas al salir (AudioStreamPlayback... "leaked at exit")
+	voz.tree_exiting.connect(voz.stop)
 	donde.add_child(voz)
 	voz.play()
 

@@ -129,6 +129,16 @@ func bajar(id: String) -> bool:
 	return true
 
 
+# Para pruebas (la defensa con --habilidades): todas desbloqueadas y al maximo, con los puntos
+# justos para que no queden libres en negativo
+func todas_al_maximo() -> void:
+	for id: String in Habilidades.LISTA:
+		desbloqueadas[id] = true
+		niveles[id] = Habilidades.LISTA[id]["niveles"]
+	puntos = gastados()
+	cambio.emit()
+
+
 func dar_puntos(cuantos: int) -> void:
 	puntos += cuantos
 	cambio.emit()

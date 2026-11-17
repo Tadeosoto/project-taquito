@@ -81,6 +81,15 @@ func _process(delta: float) -> void:
 			_loaded.erase(archivo)
 
 
+# Un pedido en hilo que nadie recoge se queda vivo (Godot lo cuenta como fuga al cerrar): al irse
+# de la escena se recogen los que estaban cargando
+func _exit_tree() -> void:
+	for archivo: String in _requested.keys():
+		if ResourceLoader.load_threaded_get_status(archivo) != ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+			ResourceLoader.load_threaded_get(archivo)
+	_requested.clear()
+
+
 # Los cuadros que ya terminaron de cargar se meten al arbol dentro del presupuesto
 # del cuadro (CargaCuadro); los demas esperan cargados al siguiente
 func _poll_requests() -> void:

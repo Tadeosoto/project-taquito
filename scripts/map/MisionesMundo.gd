@@ -176,6 +176,19 @@ func _resolver_jefe(resultado: PasoJefe.Resultado) -> void:
 		_supervivencia.avisar("Te sacaron de ahí. Ya habrá otra.")
 
 
+# Los dadores (y el nino de los tazos) que la noche saco del arbol no se liberan con la escena:
+# sin esto quedaban huerfanos al cerrar de noche (Godot: "ObjectDB instances were leaked")
+func _notification(que: int) -> void:
+	if que != NOTIFICATION_PREDELETE:
+		return
+	for v: Dictionary in vecinos:
+		var npc: Node = v["nodo"]
+		if is_instance_valid(npc) and not npc.is_inside_tree():
+			npc.free()
+	if is_instance_valid(nino) and not nino.is_inside_tree():
+		nino.free()
+
+
 func _exit_tree() -> void:
 	Misiones.dadores.clear()
 	if Misiones.cambio.is_connected(_cambio):

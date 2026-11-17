@@ -49,6 +49,17 @@ static func calentar() -> void:
 			ResourceLoader.load_threaded_request(CARPETA % [nombre, nombre])
 
 
+# Recoge lo que calentar() pidio y nadie llego a usar: un pedido en hilo sin load_threaded_get
+# se queda vivo, y al cerrar Godot contaba cada uno como fuga ("RefCounted ... leaked at exit").
+# Cartera lo llama al salir del juego
+static func soltar() -> void:
+	for nombre: String in MODELOS:
+		var ruta := CARPETA % [nombre, nombre]
+		if not _escenas.has(nombre) and ResourceLoader.load_threaded_get_status(ruta) != ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+			ResourceLoader.load_threaded_get(ruta)
+	_escenas.clear()
+
+
 static func _escena(nombre: String) -> PackedScene:
 	if not _escenas.has(nombre):
 		var ruta := CARPETA % [nombre, nombre]

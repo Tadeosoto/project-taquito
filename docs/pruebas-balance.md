@@ -4,7 +4,7 @@ Rama: `main-testing` (el trabajo de `testing-juanjo`, antes `golpe-direccion` y 
 
 > **Nuevo (2026-11): dos escenarios de prueba con datos.** Ya no hay que correr comandos para probar. En el menú principal, **Inicio → Menú test** abre un menú alternativo con las tres entradas visibles: **Map test**, **Test de mecánicas (godmode)** y **Test de economía (carrera)** (ahí mismo se cambian dificultad y duración). **Inicio → Pruebas** sigue siendo el lanzador detallado, con la config de enemigos y el botón para abrir la carpeta de datos. Los dos tests usan **la misma defensa** (arena, zombis, Hordas, tinaco, ítems y estética): lo que cambies allí entra en los dos.
 >
-> - **Mecánicas (godmode):** una sola noche de la defensa directa, todo el catálogo de mejoras al máximo e **ítems infinitos**. El reporte principal es **por oleada**: qué ataques, mecánicas e ítems se usaron y qué rindieron en **calma / medio / estrés**.
+> - **Mecánicas (godmode):** una sola noche de la defensa directa, el machete normal, solo los movimientos de espada (golpe cargado, giratorio y estela; sin stats ni buffs, JJ 2026-11-16) e **ítems infinitos**. El reporte principal es **por oleada**: qué ataques, mecánicas e ítems se usaron y qué rindieron en **calma / medio / estrés**.
 > - **Economía (carrera):** el refugio (safehouse en modo carrera) con **todas las tiendas físicas** y el **punto de mejoras**; compras con pesos, corres la noche y vuelves al refugio. Ganar paga $150; perder da $75 más de lo que tenías al empezar esa noche y reintentas la misma. Vida llena al empezar cada noche; sin drops de zombis.
 >
 > El log se escribe solo en `user://pruebas/<fecha_hora>/` (o en la carpeta de `--monitor=<carpeta>`). Abajo están los archivos y qué mide cada uno.

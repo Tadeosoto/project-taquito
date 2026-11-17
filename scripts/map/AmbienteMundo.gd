@@ -118,3 +118,11 @@ func _zombis_cerca() -> int:
 		if zombi is Node3D and (zombi as Node3D).global_position.distance_squared_to(_jugador.global_position) < MISTERIO_RADIO * MISTERIO_RADIO:
 			cuantos += 1
 	return cuantos
+
+
+# Al cerrar el juego con los loops sonando, sus reproducciones quedaban vivas en el AudioServer
+# y Godot avisaba de fugas al salir (AudioStreamPlaybackOggVorbis y los ogg "still in use")
+func _exit_tree() -> void:
+	for voz in [_voz_dia, _voz_noche, _voz_zombis]:
+		if voz:
+			voz.stop()

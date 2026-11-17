@@ -16,6 +16,7 @@ extends Node3D
 #   godot --path . scenes/defensa_tinaco.tscn -- --monitor=<carpeta>   (MonitorDefensa.gd)
 #   godot --path . scenes/defensa_tinaco.tscn -- --noche=<segundos> --modo=facil|medio|dificil
 #   godot --path . scenes/defensa_tinaco.tscn -- --estela   (la mejora de estela del protagonista)
+#   godot --path . scenes/defensa_tinaco.tscn -- --habilidades   (las de los tazos, todas al maximo)
 #
 # El mapa se arma con los mismos sistemas de map_test alrededor del nodo Centro, con
 # radios chicos; los negocios salen cerrados (sin flecha). La barricada se genera hasta
@@ -136,9 +137,6 @@ var _hora: Label
 var _amanecer: ColorRect
 var _vida_tinaco: ColorRect
 # La barra del Panzon (Panzon.gd), arriba al centro, solo mientras hay uno vivo
-var _jefe: Control
-var _jefe_barra: ColorRect
-const JEFE_ANCHO := 300.0
 var _listo := false
 var _terminado := false
 var _noche_cerrada := false
@@ -248,6 +246,9 @@ func _ready() -> void:
 		elif arg == "--estela":
 			get_node("/root/Personaje").mejora_estela = true
 			_jugador.aplicar_personaje()
+		elif arg == "--habilidades":
+			get_node("/root/Tazos").todas_al_maximo()
+			_jugador.aplicar_personaje()
 		elif arg.begins_with("--monitor="):
 			monitor_pedido = true
 	# Un tinaco del mapa trae su modo (SitiosTinaco: los cercanos a Santa Mugre, faciles)
@@ -341,10 +342,6 @@ func _process(_delta: float) -> void:
 	_hora.text = "Noche %d · %s" % [noche, Hordas.texto_hora(hora)]
 	_amanecer.scale.x = (hora - Hordas.HORA_EMPIEZA) / Hordas.HORAS
 	_vida_tinaco.scale.x = _tinaco.fraccion()
-	var panzon := get_tree().get_first_node_in_group("panzon")
-	_jefe.visible = panzon != null
-	if panzon:
-		_jefe_barra.scale.x = clampf(float(panzon.vida()) / Panzon.VIDA, 0.0, 1.0)
 
 
 # Lo de alrededor ya cargo: CargaCuadro lleva un rato sin que nadie arme nada
@@ -439,8 +436,10 @@ func _arrancar_reloj() -> void:
 func _aplicar_godmode() -> void:
 	var mejoras := get_node_or_null("/root/Mejoras")
 	if mejoras:
+		# Solo los movimientos de espada (cargado, giratorio, estela), sin stats ni buffs (JJ,
+		# 2026-11-16): con todo el catalogo el machete pegaba de mas
 		mejoras.reiniciar()
-		mejoras.maximo()
+		mejoras.maximo(mejoras.Cat.MOVIMIENTOS)
 		mejoras.activo = true
 		mejoras.aplicar_en_jugador(_jugador)
 	var inventario := get_node_or_null("/root/Inventory")
@@ -449,6 +448,13 @@ func _aplicar_godmode() -> void:
 		inventario.items.clear()
 		inventario.mochila = null
 		inventario.dar_todos_los_productos()
+		# Con el machete normal (JJ, 2026-11-16): con todo el catalogo peleabas con el de mas dano
+		# (el femur de la Mojiganga) y matabas a todos de un golpe. Se asigna, no equipar_arma(),
+		# que lo suelta si ya era el equipado (Otra vez)
+		var machete := load("res://resources/productos/machete.tres") as InventoryItemData
+		if machete and inventario.items.has(machete):
+			inventario.equipada = machete
+			inventario.inventory_changed.emit()
 	var salud := get_node_or_null("/root/Salud")
 	if salud:
 		salud.reiniciar()
@@ -875,24 +881,6 @@ func _armar_hud() -> void:
 	capa.add_child(_hora)
 	_amanecer = _barra(capa, Vector2(10.0, 48.0), AMARILLO, "amanecer")
 	_vida_tinaco = _barra(capa, Vector2(10.0, 62.0), AGUA, "tinaco")
-	_jefe = Control.new()
-	_jefe.visible = false
-	_jefe.position = Vector2((640.0 - JEFE_ANCHO) / 2.0, 14.0)
-	capa.add_child(_jefe)
-	var nombre := _etiqueta("EL PANZÓN", 16, ROJO)
-	nombre.size = Vector2(JEFE_ANCHO, 18.0)
-	nombre.position = Vector2(0.0, -2.0)
-	_jefe.add_child(nombre)
-	var fondo := ColorRect.new()
-	fondo.color = Color(0.0, 0.0, 0.0, 0.6)
-	fondo.position = Vector2(-1.0, 17.0)
-	fondo.size = Vector2(JEFE_ANCHO + 2.0, 9.0)
-	_jefe.add_child(fondo)
-	_jefe_barra = ColorRect.new()
-	_jefe_barra.color = ROJO
-	_jefe_barra.position = Vector2(0.0, 18.0)
-	_jefe_barra.size = Vector2(JEFE_ANCHO, 7.0)
-	_jefe.add_child(_jefe_barra)
 
 
 # El negro del cambio de noche. Va arriba de todo (el menu y el creador usan 20 y 21) y

@@ -41,3 +41,10 @@ func _process(delta: float) -> void:
 		_voz.play()
 	elif not de_dia and _voz.playing:
 		_voz.stop()
+
+
+# Al cerrar el juego con el loop sonando, su reproduccion quedaba viva en el AudioServer y
+# Godot avisaba de fugas al salir (AudioStreamPlaybackOggVorbis y el ogg "still in use")
+func _exit_tree() -> void:
+	if _voz:
+		_voz.stop()

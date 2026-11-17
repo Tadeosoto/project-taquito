@@ -52,9 +52,12 @@ func reiniciar() -> void:
 	cambio.emit()
 
 
-# El godmode: todo el catalogo al maximo, buffs incluidos, para medir el kit completo.
-func maximo() -> void:
+# Todo el catalogo al maximo, buffs incluidos; con `categoria`, solo esa (el godmode de la
+# defensa usa Cat.MOVIMIENTOS).
+func maximo(categoria := -1) -> void:
 	for dato: Dictionary in CATALOGO:
+		if categoria >= 0 and dato["categoria"] != categoria:
+			continue
 		if dato["tipo"] == "buff":
 			buffs[dato["id"]] = true
 		else:

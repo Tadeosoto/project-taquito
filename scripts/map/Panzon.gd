@@ -9,7 +9,10 @@ extends CharacterBody3D
 #     azota, te pisa tres veces y te avienta (Player.atrapar); si choca con una pared o la
 #     barricada se queda atarantado y recibe el doble.
 #   - Pegado a ti, martillazo con los dos punos.
-# Esta en el grupo "zombis" (machete y pistola) y "panzon" (la barra de la defensa); `estado` 3
+# Con tinaco (la defensa) las losas van siempre al tinaco y a ti solo te toca lo de cerca
+# (embestida y martillazo) si te le acercas a PELEA_JUGADOR m. Su vida va en una barra sobre
+# la cabeza, como la de los zombis pero mas grande y sin limite de distancia.
+# Esta en el grupo "zombis" (machete y pistola) y "panzon"; `estado` 3
 # es MUERTO como en Zombie. No nombra autoloads (tools/ carga a Zombis).
 
 signal murio
@@ -36,7 +39,7 @@ const ROCA_DESDE := 14.0       # m: mas lejos, avienta losa
 const EMBESTIDA_CADA := 7.0
 const ROCA_CADA := 6.0
 const MARTILLO_CADA := 2.5
-const LEJOS_TINACO := 25.0     # m del jugador al tinaco: mas lejos, el Panzon va por el tinaco
+const PELEA_JUGADOR := 12.0    # m: con tinaco, mas cerca va por ti (embestida, martillazo); mas lejos, por el tinaco
 const TINACO_ROCA := Vector2(9.0, 20.0) # m del tinaco donde le avienta losas
 const DANO_MARTILLO := 20
 const DANO_AZOTON := 10
@@ -52,7 +55,14 @@ const PESOS := Vector2i(15, 30)
 const BOTINES := 3
 const MUERTO_DURA := 10.0
 const LEJOS := 90.0
+const ATORADO_SEG := 2.0       # s caminando sin avanzar para brincar a un hueco libre (_revisar_atorado)
+const BARRICADA_HASTA := 24.0  # m del tinaco: mas cerca puede ser la barricada (Barricada.ANILLOS llega a ~21)
+const DERECHO_HASTA := 4.0     # m al blanco: mas cerca va derecho; mas lejos, por el campo de flujo
 const CAPA_ZOMBIS := 2
+# La barra de vida sobre la cabeza (shaders/barra_vida.gdshader, la de Zombie). El modelo mide 2.3 m
+const BARRA := Vector2(1.4, 0.12)  # m
+const BARRA_ALTO := 2.75           # m sobre los pies
+const BARRA_SHADER := preload("res://shaders/barra_vida.gdshader")
 const MEZCLA := 0.15
 const DECIDE_CADA := 0.3
 # Tiempos de los clips (cuadro / 30)
@@ -93,6 +103,10 @@ var _espera_martillo := 0.0
 var _pego := false
 var _pisadas := 0
 var _soltada := false
+var _atorado := 0.0
+var _capsula: CapsuleShape3D
+var _barra: MeshInstance3D
+var _blanco_roca: Node3D       # a quien va la losa: se fija al rugir, para que no cambie a medio tiro
 
 
 func _ready() -> void:
@@ -101,10 +115,10 @@ func _ready() -> void:
 	collision_layer = CAPA_ZOMBIS
 	collision_mask = 1 | CAPA_ZOMBIS
 	var forma := CollisionShape3D.new()
-	var capsula := CapsuleShape3D.new()
-	capsula.radius = 0.6
-	capsula.height = 2.2
-	forma.shape = capsula
+	_capsula = CapsuleShape3D.new()
+	_capsula.radius = 0.6
+	_capsula.height = 2.2
+	forma.shape = _capsula
 	forma.position.y = 1.1
 	add_child(forma)
 	_modelo = MODELO.instantiate()
@@ -128,7 +142,31 @@ func _ready() -> void:
 		ciclo.amanecio.connect(func() -> void: _morir(false))
 	if jugador == null:
 		jugador = get_tree().get_first_node_in_group("jugador") as Player
+	_armar_barra()
+	cambio.connect(_poner_barra)
 	cambio.emit(_vida, VIDA)
+
+
+# Antes era una barra grande arriba al centro de la pantalla y no decia donde estaba (JJ,
+# 2026-11-16). Se ve de cualquier distancia: es para encontrarlo
+func _armar_barra() -> void:
+	var material := ShaderMaterial.new()
+	material.shader = BARRA_SHADER
+	var cuadro := QuadMesh.new()
+	cuadro.size = BARRA
+	_barra = MeshInstance3D.new()
+	_barra.mesh = cuadro
+	_barra.material_override = material
+	_barra.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Gira hacia la camara en el shader: la caja del cuadro plano no alcanzaba
+	_barra.custom_aabb = AABB(-Vector3.ONE * BARRA.x / 2.0, Vector3.ONE * BARRA.x)
+	_barra.position.y = BARRA_ALTO
+	add_child(_barra)
+
+
+func _poner_barra(cuanta: int, maxima: int) -> void:
+	_barra.visible = cuanta > 0
+	_barra.set_instance_shader_parameter("vida", clampf(float(cuanta) / maxima, 0.0, 1.0))
 
 
 func vida() -> int:
@@ -168,12 +206,15 @@ func _tinaco() -> Node3D:
 	return get_tree().get_first_node_in_group("tinaco_defensa") as Node3D
 
 
-# El jugador; el tinaco si el jugador anda lejos de el (castiga dejarlo solo)
+# Sin tinaco, el jugador. Con tinaco va por el tinaco, y por el jugador solo si se le acerca:
+# las losas son para el tinaco y lo de cuerpo a cuerpo para ti (JJ, 2026-11-16)
 func _objetivo() -> Node3D:
 	var tinaco := _tinaco()
-	if tinaco and jugador and jugador.global_position.distance_to(tinaco.global_position) > LEJOS_TINACO:
-		return tinaco
-	return jugador
+	if tinaco == null or jugador == null:
+		return jugador
+	var al_jugador := jugador.global_position - global_position
+	al_jugador.y = 0.0
+	return jugador if al_jugador.length() < PELEA_JUGADOR else tinaco
 
 
 func _physics_process(delta: float) -> void:
@@ -233,13 +274,15 @@ func _acechar(delta: float) -> void:
 		_decide = DECIDE_CADA
 		if _decidir(blanco, lejos):
 			return
-	# Por el campo de flujo de los zombis si lo hay; derecho si no
+	# Por el campo de flujo de los zombis si lo hay; derecho de cerca o si el campo no llega. Antes iba
+	# derecho mientras viera al blanco, y una barda o banca mas baja que sus ojos (el rayo de _lo_ve
+	# sale a 1.6 m) lo dejaba caminando en su lugar lejos, con su barra arriba y sin verse
 	var rumbo := hacia.normalized()
 	if zombis:
 		var campo = zombis.get("campo_tinaco") if blanco != jugador else zombis.get("campo_jugador")
 		if campo and campo.has_method("direccion_suave"):
 			var d: Vector3 = campo.direccion_suave(global_position)
-			if d != Vector3.ZERO and not _lo_ve(blanco.global_position):
+			if d != Vector3.ZERO and (lejos > DERECHO_HASTA or not _lo_ve(blanco.global_position)):
 				rumbo = d
 	var cerca := (blanco == jugador and lejos < MARTILLO_DESDE) or (blanco != jugador and lejos < _radio_tinaco(blanco) + 1.5)
 	var vel := 0.0 if cerca else CAMINA
@@ -248,6 +291,53 @@ func _acechar(delta: float) -> void:
 	_mirar(rumbo if vel > 0.0 else hacia)
 	move_and_slide()
 	_animar("Walk" if vel > 0.0 else "Idle", vel / PASO_CAMINA if vel > 0.0 else 1.0)
+	_revisar_atorado(delta, vel > 0.0, rumbo)
+
+
+# A veces salia encimado en algo bajo (una banca, una jardinera: Hordas._lugar acepta hasta
+# ALTO_CALLE) y se quedaba caminando en su lugar. Si camina ATORADO_SEG sin avanzar, brinca al
+# primer hueco libre hacia donde iba; casi siempre esta lejos y fuera de camara
+func _revisar_atorado(delta: float, caminando: bool, rumbo: Vector3) -> void:
+	var avance := Vector2(get_real_velocity().x, get_real_velocity().z).length()
+	if not caminando or avance > CAMINA * 0.25:
+		_atorado = 0.0
+		return
+	_atorado += delta
+	if _atorado < ATORADO_SEG:
+		return
+	_atorado = 0.0
+	# Contra la barricada no: esa la tiene que romper (rocas, martillazo), no brincarla
+	if _contra_barricada():
+		return
+	var espacio := get_world_3d().direct_space_state
+	var consulta := PhysicsShapeQueryParameters3D.new()
+	consulta.shape = _capsula
+	consulta.collision_mask = 1
+	consulta.exclude = [get_rid()]
+	for distancia in [1.5, 3.0, 4.5, 6.0]:
+		for giro in [0.0, 0.7, -0.7, 1.4, -1.4]:
+			var punto: Vector3 = global_position + rumbo.rotated(Vector3.UP, giro) * distancia
+			var rayo := PhysicsRayQueryParameters3D.create(punto + Vector3.UP * 3.0, punto + Vector3.DOWN * 2.0, 1, [get_rid()])
+			var suelo := espacio.intersect_ray(rayo)
+			if suelo.is_empty() or suelo.position.y > global_position.y + 0.6:
+				continue
+			consulta.transform = Transform3D(Basis.IDENTITY, suelo.position + Vector3.UP * 1.2)
+			if espacio.intersect_shape(consulta, 1).is_empty():
+				global_position = suelo.position + Vector3.UP * 0.05
+				return
+
+
+func _contra_barricada() -> bool:
+	var tinaco := _tinaco()
+	if tinaco and tinaco.global_position.distance_to(global_position) < BARRICADA_HASTA:
+		return true
+	for i in get_slide_collision_count():
+		var nodo := get_slide_collision(i).get_collider() as Node
+		while nodo:
+			if nodo.is_in_group("barricada"):
+				return true
+			nodo = nodo.get_parent()
+	return false
 
 
 func _radio_tinaco(tinaco: Node3D) -> float:
@@ -265,7 +355,7 @@ func _decidir(blanco: Node3D, lejos: float) -> bool:
 		if lejos >= EMBESTIDA.x and lejos <= EMBESTIDA.y and _espera_embestida <= 0.0 and is_on_floor() and _lo_ve(blanco.global_position):
 			_rugir_para("carga")
 			return true
-		if lejos > ROCA_DESDE and _espera_roca <= 0.0 and _lo_ve(blanco.global_position):
+		if lejos > ROCA_DESDE and _espera_roca <= 0.0 and _tinaco() == null and _lo_ve(blanco.global_position):
 			_rugir_para("roca")
 			return true
 	else:
@@ -282,7 +372,8 @@ func _decidir(blanco: Node3D, lejos: float) -> bool:
 func _rugir_para(que: String) -> void:
 	velocity = Vector3.ZERO
 	_tras_rugido = que
-	_mirar(_objetivo().global_position - global_position)
+	_blanco_roca = _objetivo()
+	_mirar(_blanco_roca.global_position - global_position)
 	_cambiar(Estado.RUGE)
 	_animar("Roar", 1.0, true)
 	Sonidos.tocar(self, "rugido", 2.0, 0.55)
@@ -291,7 +382,7 @@ func _rugir_para(que: String) -> void:
 
 func _rugir(delta: float) -> void:
 	_frenar(delta)
-	_mirar(_objetivo().global_position - global_position)
+	_mirar(_blanco().global_position - global_position)
 	if _t >= RUGE_DURA:
 		if _tras_rugido == "carga":
 			_empezar_carga()
@@ -425,9 +516,14 @@ func _soltar_jugador() -> void:
 
 # --- Losas ---
 
+# A quien va la losa (o la embestida) que ya rugio; si ya no esta, el de ahorita
+func _blanco() -> Node3D:
+	return _blanco_roca if is_instance_valid(_blanco_roca) else _objetivo()
+
+
 func _arrancar(delta: float) -> void:
 	_frenar(delta)
-	_mirar(_objetivo().global_position - global_position)
+	_mirar(_blanco().global_position - global_position)
 	if not _roca_mano.visible and _t >= ARRANCA_SALE:
 		_roca_mano.visible = true
 		Sonidos.tocar(self, "golpe", -4.0, 0.5)
@@ -440,7 +536,7 @@ func _arrancar(delta: float) -> void:
 
 func _aventar(delta: float) -> void:
 	_frenar(delta)
-	var blanco := _objetivo()
+	var blanco := _blanco()
 	_mirar(blanco.global_position - global_position)
 	if not _soltada and _t >= AVIENTA_SUELTA:
 		_soltada = true
@@ -450,7 +546,7 @@ func _aventar(delta: float) -> void:
 			adonde += jugador.velocity * 0.6
 		var roca: Node3D = RocaPanzon.new()
 		get_parent().add_child(roca)
-		roca.lanzar(_roca_mano.global_transform, adonde, self)
+		roca.lanzar(_roca_mano.global_transform, adonde, self, blanco != jugador)
 		_espera_roca = ROCA_CADA
 	if _t >= AVIENTA_DURA:
 		_cambiar(Estado.ACECHA)

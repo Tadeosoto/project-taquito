@@ -8,7 +8,9 @@ extends Node
 # seguidos y parado no suena. Corres cuando pasas de la mitad entre caminar y sprint
 const ZANCADA_CAMINA := 1.3   # m entre paso y paso
 const ZANCADA_CORRE := 2.1
-const PASO_DB := Vector2(-6.0, -1.0)   # caminando, corriendo
+const PASO_DB := Vector2(-21.0, -16.0)   # caminando, corriendo (JJ 2026-11-16: -15 dB, sonaban muy fuerte)
+# Los samples vienen normalizados distinto (tierra suena 4 dB mas que asfalto): esto los empata
+const PASO_AJUSTE := {"paso_asfalto": 0.0, "paso_interior": -2.0, "paso_tierra": -4.0}
 const PASO_TONO := Vector2(0.93, 1.07)
 const VELOCIDAD_MIN := 0.6   # m/s: abajo de esto no suena
 
@@ -105,13 +107,14 @@ func _pasos(_delta: float) -> void:
 	if _recorrido < (ZANCADA_CORRE if corre else ZANCADA_CAMINA):
 		return
 	_recorrido = 0.0
-	var stream := Sonidos.sonido(_suelo())
+	var suelo := _suelo()
+	var stream := Sonidos.sonido(suelo)
 	if stream == null:
 		return
 	var voz := _voz_paso[_lado]
 	_lado = 1 - _lado
 	voz.stream = stream
-	voz.volume_db = PASO_DB.y if corre else PASO_DB.x
+	voz.volume_db = (PASO_DB.y if corre else PASO_DB.x) + PASO_AJUSTE.get(suelo, 0.0)
 	voz.pitch_scale = randf_range(PASO_TONO.x, PASO_TONO.y) * (1.05 if corre else 1.0)
 	voz.play()
 
