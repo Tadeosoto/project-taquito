@@ -253,7 +253,7 @@ func soltar_molotov() -> void:
 	var tiro := _tiro(_desde_mano(), _destino)
 	var padre := jugador.get_tree().current_scene
 	_solto = true
-	Sonidos.tocar(jugador, "lanzar", -4.0, randf_range(0.95, 1.05))
+	Sonidos.tocar(jugador, "lanzar", -9.0, randf_range(0.95, 1.05))
 	if tipo != 3:
 		Arrojadizo.lanzar(padre, tiro.desde, tiro.vel, ARROJADIZOS[tipo], [jugador.get_rid()])
 		return
@@ -383,7 +383,7 @@ func salar_tramo(antes: Vector3, ahora: Vector3) -> void:
 
 # La mano pasa al frente: suena la sal
 func sonar_punado() -> void:
-	Sonidos.tocar(self, "fizz", -4.0, 1.3)
+	Sonidos.tocar(self, "fizz", -10.0, 1.3)
 
 
 func _process(delta: float) -> void:

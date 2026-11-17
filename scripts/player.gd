@@ -70,8 +70,16 @@ const DANO_MACHETE := 12.0
 const FUERZA_MIN := 0.5
 const FUERZA_MAX := 1.5
 const DOLOR_ESPERA_MS := 1300   # entre un quejido de dolor y el siguiente
-const SWING_VOLUMEN := -14.0  # dB: para que resalte el whack (JJ lo bajo a la mitad: -6 dB)
-const WHACK_VOLUMEN := -6.0   # dB: a la mitad, como el swing
+# dB: para que resalte el whack. JJ lo bajo a la mitad dos veces (-6 dB cada vez; la ultima el
+# 2026-11-17, ya normalizados: "suenan todos muy fuerte"), y el whack igual
+const SWING_VOLUMEN := -20.0
+# La mezcla de la pelea (2026-11-17, docs/sistemas/pelea.md "Volumen"): en el juego el espadazo
+# suena a ~-24 dB, el whack a ~-20, el quejido a ~-21 y los especiales a ~-15, lo mas fuerte del
+# jugador. Antes el whack iba 14 dB arriba del espadazo y tapaba a los especiales, y el quejido
+# sonaba al tope del 3D (~-5 dB), mas que todo lo demas
+const WHACK_VOLUMEN := -20.0
+const ESPECIAL_VOLUMEN := -12.0  # JJ: "los espadazos especiales suenan muy poco"
+const DOLOR_VOLUMEN := -17.0     # JJ: "los quejidos del jugador bajales el volumen"
 # m/s que rebotas hacia atras al pegarle a algo. En 0 a peticion de JJ: tu no te mueves con
 # el golpe (el zombi si retrocede un poco, Zombie.EMPUJON)
 const RETROCESO := 0.0
@@ -227,12 +235,15 @@ static var pelea_a_tiempo := true
 # cabeza (la pose de carga) y a los CARGA_DURA s brilla; al soltar, el tajo pesado de arriba abajo
 # con avance (TAJO_*, abajo). Antes salia la estocada, que ya no tenia sentido: el giro y la
 # estocada aerea pegan a varios con el dano del espadazo. El tajo es el que pega fuerte (TAJO_DANO).
-# Lo prenden el safehouse (tecla 7) y la defensa del tinaco
-static var golpe_cargado := false
-# PRUEBA (JJ): golpe con brinco. Pegar en el aire con el machete: espadazo giratorio
-# (Sword_Regular_C, la cadera da la vuelta entre 0 y 0.7 s) que pega en redondo al caer.
-# Solo lo prende el safehouse (tecla 6)
-static var giro_aereo := false
+# Los especiales son globales y en el juego se iran desbloqueando (Mejoras); mientras
+# ESPECIALES_DE_PRUEBA, todos prendidos en todas las escenas (JJ, 2026-11-16: en el mapa no
+# cargaba porque estaba apagado). El safehouse los alterna (tecla 7)
+const ESPECIALES_DE_PRUEBA := true
+static var golpe_cargado := ESPECIALES_DE_PRUEBA
+# Golpe con brinco (JJ). Pegar en el aire con el machete: espadazo giratorio (Sword_Regular_C,
+# la cadera da la vuelta entre 0 y 0.7 s) que pega en redondo al caer; con Shift, la estocada.
+# El safehouse lo alterna (tecla 6). Los tres especiales gastan aguante (EstaminaEspecial)
+static var giro_aereo := ESPECIALES_DE_PRUEBA
 # El giro con la estela de agua: pensada como mejora que se gana (JJ). false = la estela normal
 const CARGA_DURA := 0.4       # s con el boton apretado (JJ: 0.7 era mucho)
 # Apretado al menos esto cuando toca el siguiente golpe = lo estas sosteniendo: en vez del golpe
@@ -443,6 +454,17 @@ var _congelado_hasta := 0
 var _escala_antes := 1.0
 var _camara: Camera3D
 var _voz: AudioStreamPlayer3D
+# El aguante de los especiales (EstaminaEspecial.gd): su barra va bajo la de vida
+var estamina: EstaminaEspecial
+var _negado := false   # ya parpadeo el aguante en este apreton (sostener sin aguante)
+# Un giro o una estocada aerea salio con el clic apretado: si lo sigues sosteniendo al terminar,
+# entra la pose de carga (_toca_pose_tras_especial; JJ, 2026-11-17)
+var _tras_especial := false
+var _quejido: AudioStreamPlayer3D   # el dolor va aparte: el machetazo y el whack de _voz lo cortaban
+# Los especiales (giro, tajo, estocada) van aparte tambien: en _voz el whack los cortaba en cuanto
+# pegaban (el tajo pega 0.07 s despues de soltarlo), y en la defensa casi no se oian
+var _voz_especial: AudioStreamPlayer3D
+var _voz_swing := false   # lo que suena en _voz es un machetazo (un especial lo calla)
 var _mano: BoneAttachment3D
 var _estela: Node            # EstelaBarrido.gd
 var _punta: Node3D           # la punta de lo que traes en la mano, para la estela
@@ -495,6 +517,14 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_voz = AudioStreamPlayer3D.new()
 	add_child(_voz)
+	_quejido = AudioStreamPlayer3D.new()
+	add_child(_quejido)
+	_voz_especial = AudioStreamPlayer3D.new()
+	add_child(_voz_especial)
+	estamina = EstaminaEspecial.new()
+	estamina.name = "EstaminaEspecial"
+	estamina.jugador = self
+	add_child(estamina)
 	_armar_mano()
 	_armar_estela()
 	_pistola = PISTOLA.new()
@@ -614,6 +644,7 @@ func _atacar() -> void:
 		return
 	_golpe_guardado = false
 	_combo_roto = false
+	_tras_especial = false
 	_enfriar = ATAQUE_ENFRIAR
 	_pega_en = ATAQUE_PEGA_EN
 	# Combo: mientras sigas pegando a tiempo, cada golpe va al reves del anterior; si tardas,
@@ -751,6 +782,9 @@ func _golpear(giro := false) -> void:
 	if pego:
 		golpes_pegaron += 1
 		_sentir_golpe(frente, fuerza, mato, not pego_zombi)
+		# El combo normal devuelve aguante; el giro no (EstaminaEspecial.POR_ACIERTO)
+		if not giro:
+			estamina.acierto()
 		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
 
 
@@ -774,6 +808,7 @@ func _revisar_carga(delta: float) -> void:
 		elif not Input.is_action_pressed("attack"):
 			var soltar := _cargado
 			var en_pose := _pose_carga
+			var tras := _tras_especial
 			_cancelar_carga(false)
 			if _ocupado():
 				# Lo soltaste rodando o a media estocada o giro: cargado, la estocada espera en el
@@ -783,15 +818,29 @@ func _revisar_carga(delta: float) -> void:
 				elif _buffer == "golpe":
 					_buffer_edad = 0.0
 			elif soltar:
-				_estocar(CARGA_POSE_EN if en_pose else 0.0)
+				# El tajo cobra al salir; si el aguante se fue mientras cargabas (un giro en el
+				# aire), sale el espadazo normal
+				if estamina.gastar():
+					_estocar(CARGA_POSE_EN if en_pose else 0.0)
+				else:
+					_atacar()
 			elif en_pose:
 				# Soltaste antes de cargar: sale el golpe que habias pedido
 				_atacar()
+			elif tras:
+				# Sostuviste tras un giro o estocada aerea pero sin aguante no entro la pose (ya
+				# parpadeo y sono): sale el espadazo normal (JJ, 2026-11-17)
+				_atacar()
+		elif not _cargado and not estamina.alcanza():
+			# Sin aguante: el apreton cuenta, pero ni brilla ni se carga (no habra tajo)
+			_apretado += delta
+			if _luz_carga:
+				_luz_carga.visible = false
 		else:
 			_apretado += delta
 			if not _cargado and _apretado >= CARGA_DURA:
 				_cargado = true
-				Sonidos.tocar(self, "machetazo", SWING_VOLUMEN - 4.0, 1.6)
+				Sonidos.tocar(self, "machetazo", SWING_VOLUMEN + 4.0, 1.6)   # el aviso de "ya cargo": a -34 dB no se oia
 				if _estela:
 					_estela.estallar(_punta_arma(), CARGA_ESTALLIDO, Vector3.UP, CARGA_LLAMA_ESCALA)
 					_fogonazo(_punta_arma())
@@ -828,6 +877,8 @@ func _revisar_carga(delta: float) -> void:
 
 func _cancelar_carga(soltar_pose := true) -> void:
 	_apretado = -1.0
+	_negado = false
+	_tras_especial = false
 	if _pose_carga:
 		_pose_carga = false
 		if soltar_pose and figura.has_method("soltar_golpe"):
@@ -841,9 +892,31 @@ func _cancelar_carga(soltar_pose := true) -> void:
 # la pose de carga. Asi clic, clic, sostener es golpe, golpe, carga, y lo que llevabas apretado
 # ya cuenta
 func _toca_pose_carga() -> bool:
-	return golpe_cargado and not _pose_carga and _apretado >= CARGA_DECIDE and _especiales() \
+	var toca := golpe_cargado and not _pose_carga and _apretado >= CARGA_DECIDE and _especiales() \
 			and _enfriar > 0.0 and not _combo_roto and _giro < 0.0 and _estocada_t < 0.0 \
 			and ATAQUE_ENFRIAR - _enfriar >= _combo_desde() and figura.has_method("pose_carga")
+	return toca and _alcanza_carga()
+
+
+# Terminaste un giro o una estocada aerea con el clic apretado desde que salio: la pose de carga
+# (antes solo entraba a media barrida de un espadazo normal: tras el especial el combo ya va roto).
+# Espera a que el especial acabe del todo: al acabar, _soltar_combo quitaba la pose y la carga
+func _toca_pose_tras_especial() -> bool:
+	var toca := _tras_especial and golpe_cargado and not _pose_carga and _apretado >= CARGA_DECIDE \
+			and _especiales() and not _ocupado() and Input.is_action_pressed("attack") \
+			and _giro < 0.0 and _estocada_t < 0.0 \
+			and figura.has_method("pose_carga")
+	return toca and _alcanza_carga()
+
+
+# Sin aguante no entra la pose (sigue el combo normal); la barra parpadea una vez por apreton
+func _alcanza_carga() -> bool:
+	if estamina.alcanza():
+		return true
+	if not _negado:
+		_negado = true
+		estamina.negar()
+	return false
 
 
 # s del golpe que va en que ya puede salir el siguiente: al terminar de barrer, segun el clip
@@ -855,6 +928,7 @@ func _combo_desde() -> float:
 
 func _empezar_pose_carga() -> void:
 	_pose_carga = true
+	_tras_especial = false
 	_golpe_guardado = false
 	var registro = get_node_or_null("/root/Registro")
 	if registro:
@@ -902,10 +976,11 @@ func _girar(aire := false) -> void:
 	_combo_hasta = 0.0
 	_puno = -1
 	_enfriar = (GIRO_DURA - _giro) / velocidad
+	_tras_especial = true
 	figura.golpe_giro(velocidad, _giro)
 	_estela_antes = []
 	_mariposa_pendiente = true
-	Sonidos.tocar(self, "golpe_giratorio", SWING_VOLUMEN, 0.95)
+	_sonar_especial("golpe_giratorio")
 
 
 # Para que el azote del giro (o la estocada desde el aire) caiga justo al tocar el piso: el clip
@@ -963,6 +1038,10 @@ func _estocar(desde := 0.0, aire := false) -> void:
 	if aire:
 		_cancelar_carga(false)
 		desde = ESTOCADA_AIRE_DESDE
+		# El clic que la lanzo sigue contando: sostenido al caer, entra la pose de carga
+		if golpe_cargado and Input.is_action_pressed("attack"):
+			_apretado = 0.0
+		_tras_especial = true
 	_estocada_t = desde
 	_estocada_pegados.clear()
 	_estocada_lombrices = false
@@ -993,7 +1072,7 @@ func _estocar(desde := 0.0, aire := false) -> void:
 	_estela_antes = []
 	_mariposa_pendiente = true
 	# El tajo cargado suena como el giro; el dash aereo (estocada) tiene el suyo
-	Sonidos.tocar(self, "golpe_giratorio" if _tajo else "espadazo_dash", SWING_VOLUMEN, 0.85 if _tajo else 1.0)
+	_sonar_especial("espadazo_tajo" if _tajo else "espadazo_dash")
 
 
 # Esquivar rodando: corta lo que estuvieras haciendo con el machete (combo, carga)
@@ -1113,15 +1192,17 @@ func _hacer(accion: String) -> void:
 		_cortar_estocada(accion == "brinco")
 	match accion:
 		"golpe":
-			if giro_aereo and not is_on_floor() and _especiales():
-				# En el aire sale de una vez el espadazo giratorio; con Shift, la estocada que te
-				# lanza hacia adelante y cae con ella (JJ)
+			# En el aire sale de una vez el espadazo giratorio; con Shift, la estocada que te
+			# lanza hacia adelante y cae con ella (JJ). Sin aguante, EstaminaEspecial.gastar
+			# parpadea y suena el error, y sale el espadazo normal (JJ, 2026-11-17: antes no salia nada)
+			var especial_aire := giro_aereo and not is_on_floor() and _especiales()
+			if especial_aire and estamina.gastar():
 				if Input.is_action_pressed("sprint"):
 					_estocar(0.0, true)
 				else:
 					_girar(true)
-			elif golpe_cargado and Input.is_action_pressed("attack") and _apretado >= CARGA_DECIDE \
-					and figura.has_method("pose_carga") and _especiales():
+			elif not especial_aire and golpe_cargado and Input.is_action_pressed("attack") and _apretado >= CARGA_DECIDE \
+					and figura.has_method("pose_carga") and _especiales() and _alcanza_carga():
 				# Lo sigues sosteniendo desde antes: de una vez a la pose de carga
 				_soltar_combo()
 				_combo_roto = false
@@ -1139,7 +1220,11 @@ func _hacer(accion: String) -> void:
 				_golpe_tras_brinco = false
 				_guardar("golpe")
 		"estocada":
-			_estocar()
+			# El tajo cargado que esperaba en el buffer: cobra al salir
+			if estamina.gastar():
+				_estocar()
+			else:
+				_atacar()
 
 
 func _teclas_mover() -> Vector2:
@@ -1284,8 +1369,7 @@ func _velocidad_estocada(delta: float) -> Vector3:
 # Una vez por golpe, aunque le pegue a varios: el whack, el rebote, la sacudida y la congelada
 # `lombriz`: solo le pego a lombrices (crias, Madre): suena mojado, no el whack de un zombi
 func _sentir_golpe(frente: Vector3, fuerza: float, mato: bool, lombriz := false) -> void:
-	_voz.pitch_scale = randf_range(0.9, 1.12)
-	_sonar("squelch" if lombriz else "whack", WHACK_VOLUMEN)
+	_sonar("squelch" if lombriz else "whack", WHACK_VOLUMEN, randf_range(0.9, 1.12))
 	_retroceso = -frente * RETROCESO * fuerza
 	_retroceso_freno = RETROCESO * RETROCESO_CAIDA
 	_sacude_fuerza = SACUDE * fuerza * (SACUDE_MATA if mato else 1.0)
@@ -1429,7 +1513,7 @@ func _parar_golpe(dano: int, hacia: Vector3, empuja: float) -> void:
 	_agachado = BLOQUEO_DESLIZA + 0.1
 	if figura.has_method("bloqueo_golpe"):
 		figura.bloqueo_golpe()
-	Sonidos.tocar(self, "bloqueo", 0.0, randf_range(0.92, 1.08))
+	Sonidos.tocar(self, "bloqueo", -6.0, randf_range(0.92, 1.08))
 	_sacude_fuerza = BLOQUEO_SACUDE
 	_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	_congelar(CONGELA)
@@ -1906,13 +1990,32 @@ func _sonar_dolor() -> void:
 	if ahora < _dolor_hasta:
 		return
 	_dolor_hasta = ahora + DOLOR_ESPERA_MS
-	_sonar("dolor")
+	_quejido.stream = Sonidos.sonido("dolor")
+	_quejido.volume_db = DOLOR_VOLUMEN
+	_quejido.pitch_scale = randf_range(0.95, 1.05)
+	_quejido.play()
 
 
-func _sonar(nombre: String, volumen := 0.0) -> void:
+# El espadazo normal y el whack, por la misma voz 3D: uno nuevo corta al anterior (los especiales van
+# en _voz_especial, abajo). El tono se pone
+# siempre (antes el swing se quedaba con el tono al azar del ultimo whack)
+func _sonar(nombre: String, volumen := 0.0, tono := 1.0) -> void:
+	_voz_swing = nombre == "machetazo"
 	_voz.stream = Sonidos.sonido(nombre)
 	_voz.volume_db = volumen
+	_voz.pitch_scale = tono
 	_voz.play()
+
+
+# El swing de un especial, en su propia voz 3D (como _voz: mismo refuerzo de cerca), a
+# ESPECIAL_VOLUMEN. Calla el espadazo normal que todavia sonara, para no encimarse, pero el
+# whack de un golpe ya no lo corta
+func _sonar_especial(nombre: String) -> void:
+	if _voz_swing and _voz.playing:
+		_voz.stop()
+	_voz_especial.stream = Sonidos.sonido(nombre)
+	_voz_especial.volume_db = ESPECIAL_VOLUMEN
+	_voz_especial.play()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -2279,7 +2382,7 @@ func _physics_process(delta: float) -> void:
 	_revisar_estocada(delta)
 	_revisar_rodada(delta)
 	_revisar_bloqueo(delta)
-	if _toca_pose_carga():
+	if _toca_pose_carga() or _toca_pose_tras_especial():
 		_empezar_pose_carga()
 	elif _golpe_guardado and ATAQUE_ENFRIAR - _enfriar >= _combo_desde():
 		# Un brinco o rodada pedidos a media barrida le ganan al espadazo guardado (JJ): machacando,

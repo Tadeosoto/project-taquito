@@ -113,6 +113,8 @@ Y si puedes, juega la carrera completa hasta perder: anota en qué noche te desm
 | Aturdir al pegar | Apagado (`ATURDIR` false). Encendido: 20 % por golpe cuerpo a cuerpo, además del golpe a tiempo | `Zombie.gd` `ATURDIR`, `ATURDE_PROB` | Lo pidió Alan, pero en la 8ª prueba los zombis casi no pegaban y JJ lo quitó. Nunca al jefe ni con la pistola |
 | Curarse con Q | 0.8 s quieto; 5 curaciones (y la mochila escolar) al empezar la defensa | `player.gd` `CURAR_DURA`; `DefensaTinaco.gd` `PROVISIONES` | ¿Se puede curar a media pelea o te matan? |
 | Vida del zombi | 30 | `scripts/map/Zombie.gd` `VIDA` | |
+| Aguante de los especiales | 3 segmentos; cada especial (tajo, giro, estocada) gasta 1; se llena en 10 s tras 1 s sin gastar; +0.04 por golpe normal que pega | `scripts/EstaminaEspecial.gd` `SEGMENTOS`, `LLENA_EN`, `ESPERA`, `POR_ACIERTO` | ¿Ya no conviene machacar el giro? ¿Se siente lento esperar? |
+| Vida del Panzón | 2.5 × la de un zombi (75) | `scripts/map/Panzon.gd` `VIDA_ZOMBIS` | ¿Matarlo ya no deja caer el tinaco? |
 | Velocidad del zombi | 3-5 m/s (corredores más rápidos) | `Zombie.gd` `VELOCIDAD`; `cazador` | El jugador camina a 10 m/s en el mapa, más rápido que todos |
 | Daño del zombi al jugador | 12 en el mapa; 6 en la defensa, +1 por noche hasta 12 | `Zombie.gd` `DANO`; en la defensa `dano_jugador` del nodo Zombis y `DefensaTinaco.gd` `DANO_POR_NOCHE`/`DANO_TOPE` | Con 12 te desmayabas antes de la 1:00 (ver Resultados) |
 | Dificultad de cada noche | grupos ×1.25 por noche; daño +1 hasta 12 | `DefensaTinaco.gd` `DIFICULTAD_POR_NOCHE`, `DANO_POR_NOCHE`, `DANO_TOPE` | ¿Se llega a la noche 5-6 con vida? ¿La derrota se siente justa o llega de golpe? |

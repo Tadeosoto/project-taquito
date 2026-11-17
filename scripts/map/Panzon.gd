@@ -46,7 +46,9 @@ const SALPICA := 12            # gotas por golpe
 const SALPICA_VELOCIDAD := Vector2(3.0, 7.0)
 const REVIENTA := 90           # gotas al morir
 const REVIENTA_VELOCIDAD := Vector2(3.0, 10.0)
-const VIDA := 400
+# Su vida es VIDA_ZOMBIS veces la de un zombi comun (ConfigZombis.vida, o Zombie.VIDA): con 400
+# entretenerse matandolo dejaba que los demas tumbaran el tinaco (JJ, 2026-11-16)
+const VIDA_ZOMBIS := 2.5
 const GRAVEDAD := 30.0
 const CAMINA := 1.6            # m/s
 const PASO_CAMINA := 1.0 * ESCALA   # m/s de Walk a 1x (con pasos mas largos)
@@ -112,7 +114,8 @@ var jugador: Player
 var zombis: Node
 var estado := Estado.ACECHA
 
-var _vida := VIDA
+var _vida_max := 75   # VIDA_ZOMBIS x la vida de un zombi; se calcula en _ready
+var _vida := _vida_max
 var _t := 0.0
 var _decide := 0.0
 var _modelo: Node3D
@@ -142,6 +145,10 @@ static var _material_piel: ShaderMaterial
 func _ready() -> void:
 	add_to_group("zombis")
 	add_to_group("panzon")
+	var config: Resource = zombis.get("config") if zombis else null
+	var vida_zombi: Variant = config.get("vida") if config else null
+	_vida_max = roundi(VIDA_ZOMBIS * (float(vida_zombi) if vida_zombi != null else float(Zombie.VIDA)))
+	_vida = _vida_max
 	collision_layer = CAPA_ZOMBIS
 	collision_mask = 1 | CAPA_ZOMBIS
 	var forma := CollisionShape3D.new()
@@ -177,7 +184,7 @@ func _ready() -> void:
 		jugador = get_tree().get_first_node_in_group("jugador") as Player
 	_armar_barra()
 	cambio.connect(_poner_barra)
-	cambio.emit(_vida, VIDA)
+	cambio.emit(_vida, _vida_max)
 
 
 # Antes era una barra grande arriba al centro de la pantalla y no decia donde estaba (JJ,
@@ -640,7 +647,7 @@ func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, 
 		return 0
 	var mult := (ATARANTADO_MULT if estado == Estado.ATARANTADO else 1) * (2 if cabeza else 1)
 	_vida -= dano * mult
-	cambio.emit(maxi(_vida, 0), VIDA)
+	cambio.emit(maxi(_vida, 0), _vida_max)
 	_nota("pelear")
 	var zs = zombis
 	# El balazo pinta su impacto donde pego (Pistola.disparar); aqui solo el machete
@@ -653,7 +660,7 @@ func recibir_golpe(dano: int, desde: Vector3, _fuerza := 1.0, _truena_en := 80, 
 	if zs and zs.get("liquido"):
 		zs.liquido.salpicar(global_position + Vector3.UP * PECHO, CUERPO_RADIO, global_position.y,
 			(hacia + Vector3.UP * 0.3).normalized(), SALPICA, SANGRE, SALPICA_VELOCIDAD, 0.5)
-	Sonidos.tocar(self, "whack", -6.0, 0.8)
+	Sonidos.tocar(self, "whack", -11.0, 0.8)   # 2 dB sobre el whack del jugador (mezcla 2026-11-17)
 	if _vida <= 0:
 		_morir(true)
 		return 2
@@ -674,8 +681,8 @@ func _morir(pagado: bool) -> void:
 	collision_mask = 1
 	velocity = Vector3.ZERO
 	_roca_mano.visible = false
-	Sonidos.tocar(self, "morir_zombi", 2.0, 0.6)
-	cambio.emit(0, VIDA)
+	Sonidos.tocar(self, "morir_zombi", -2.0, 0.6)
+	cambio.emit(0, _vida_max)
 	murio.emit()
 	if not pagado:
 		_reventar()
@@ -708,7 +715,7 @@ func _reventar() -> void:
 		var centro := global_position + Vector3.UP * PECHO
 		zs.liquido.reventar(centro, CUERPO_RADIO, global_position.y, REVIENTA * 2 / 3, SANGRE, REVIENTA_VELOCIDAD)
 		zs.liquido.reventar(centro, CUERPO_RADIO, global_position.y, REVIENTA / 3, SANGRE_OSCURA, REVIENTA_VELOCIDAD * 0.7)
-	Sonidos.tocar(self, "squelch", 0.0, 0.7)
+	Sonidos.tocar(self, "squelch", -5.0, 0.7)
 	_modelo.visible = false
 	_barra.visible = false
 

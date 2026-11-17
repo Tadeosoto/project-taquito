@@ -218,7 +218,7 @@ func _reventar(donde: Vector3) -> void:
 		pass
 	elif tipo == BOCINA or tipo == BOCINA_AGUA:
 		Senuelo.crear(padre, donde, tipo == BOCINA_AGUA)
-		Sonidos.tocar(padre, "golpe", -10.0, 1.3)
+		Sonidos.tocar(padre, "golpe", -7.0, 1.3)
 		queue_free()
 		return
 	elif tipo == PALOMITA:
@@ -247,7 +247,7 @@ func _reventar(donde: Vector3) -> void:
 # zombis de alrededor (lo regresa: el Lanzador aturde con eso al jugador si le trono en la mano).
 # Los sonidos van en `padre`: la palomita se borra ya
 static func tronar(padre: Node, donde: Vector3) -> float:
-	Sonidos.tocar(padre, "disparo_pistola", 2.0, TRUENO_TONO)
+	Sonidos.tocar(padre, "disparo_pistola", -8.0, TRUENO_TONO)
 	var zumbido := Sonidos.sonido("zumbido_oidos")
 	var jugador := padre.get_tree().get_first_node_in_group("jugador") as Node3D
 	var lejos := donde.distance_to(jugador.global_position) if jugador else OYEN_TRUENO

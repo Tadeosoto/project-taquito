@@ -98,8 +98,8 @@ func romper(desde: Vector3) -> void:
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos and efectos.has_method("lanzar"):
 		efectos.lanzar("catrina_rompe", Vector3(_centro.x, _centro.y - _medida.y * 0.5, _centro.z), Vector3.ZERO, 1.0)
-	Sonidos.tocar(self, "carton", 4.0, 0.7)
-	Sonidos.tocar(self, "pisoton", 0.0, 1.2)
+	Sonidos.tocar(self, "carton", 2.0, 0.7)
+	Sonidos.tocar(self, "pisoton", -7.0, 1.2)
 
 
 func _tumbar(arbol: MeshInstance3D, hacia: Vector3) -> void:

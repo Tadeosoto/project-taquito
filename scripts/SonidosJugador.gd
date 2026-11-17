@@ -21,7 +21,7 @@ const LATIDO_HASTA := 0.05
 const LATIDO_LENTO := 1.15
 const LATIDO_RAPIDO := 0.5
 const LATIDO_TONO_MAX := 1.15
-const LATIDO_DB := Vector2(-8.0, -1.0)   # al arrancar, y casi muerto
+const LATIDO_DB := Vector2(-14.0, -10.0)   # al arrancar, y casi muerto (antes -8 a -1: casi muerto tapaba todo)
 
 # La respiracion cansada (S-053): un loop que entra con poca vida o despues de correr mucho sin
 # parar, y se va suave cuando te recuperas
@@ -72,7 +72,7 @@ func _process(delta: float) -> void:
 func _salto() -> void:
 	var en_suelo := _jugador.is_on_floor()
 	if _estaba_en_suelo and not en_suelo and _jugador.velocity.y > 4.0:
-		Sonidos.tocar(self, "salto", -6.0, randf_range(0.95, 1.05))
+		Sonidos.tocar(self, "salto", -9.0, randf_range(0.95, 1.05))
 	_estaba_en_suelo = en_suelo
 
 

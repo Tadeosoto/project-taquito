@@ -107,7 +107,8 @@ F12 reiniciar todo · F10 ir al mapa · F11 giro WASD (favela)"""},
 9 golpe a tiempo (córtalo cuando gruñe) / sin aturdir
 8 estela del protagonista (su mejora) / la de siempre
 7 cargado: deja apretado y suelta = tajo, 2.5x
-6 en el aire: giro; con Shift, clavado (prueba)
+6 en el aire: giro; con Shift, clavado
+Cada especial gasta 1/3 de aguante · Shift+7 aguante infinito
 Shift+1 2 3 maquinita: normal, sin monedas, segura"""},
 	{"titulo": "Zombis", "efectos": true, "texto": """Z zombi · B turba (Ctrl+B: llenar la libreta, Shift+B: borrarla) · X quitar · F8 jefe
 T zombis solos de noche
@@ -584,8 +585,6 @@ func _poner_objetos() -> void:
 func _exit_tree() -> void:
 	ESTELA.estilo = ESTELA.Estilo.NORMAL
 	get_node("/root/Personaje").mejora_estela = false
-	Player.golpe_cargado = false
-	Player.giro_aereo = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -722,7 +721,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			Player.giro_aereo = not Player.giro_aereo
 			_mostrar_efectos()
 		KEY_7:
-			Player.golpe_cargado = not Player.golpe_cargado
+			# Shift+7: aguante infinito, para probar los especiales sin la barra (EstaminaEspecial)
+			if event.shift_pressed:
+				_jugador.estamina.infinita = not _jugador.estamina.infinita
+			else:
+				Player.golpe_cargado = not Player.golpe_cargado
 			_mostrar_efectos()
 		KEY_O:
 			if event.shift_pressed:
@@ -943,6 +946,7 @@ func _mostrar_efectos() -> void:
 			renglones.append("9 pelea: " + ("golpe a tiempo" if Player.pelea_a_tiempo else "sin aturdir"))
 			renglones.append("8 estela: %d %s" % [ESTELA.estilo, ESTELA.NOMBRES[ESTELA.estilo]])
 			renglones.append("7 cargado: %s · 6 giro: %s" % ["sí" if Player.golpe_cargado else "no", "sí" if Player.giro_aereo else "no"])
+			renglones.append("Shift+7 aguante: " + ("infinito" if _jugador.estamina.infinita else "se gasta"))
 		2:
 			renglones.append("0 zombis: " + ("enjambre" if Zombie.enjambre else "en fila (como antes)"))
 		3:

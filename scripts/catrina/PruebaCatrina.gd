@@ -120,6 +120,10 @@ func _ready() -> void:
 	_jugador = $Player
 	_zombis = $Zombis
 	_salud = get_node_or_null("/root/Salud")
+	# Pasos, latido y respiracion del jugador, como en el mapa (Partida): los sonidos son globales
+	var cuerpo := SonidosJugador.new()
+	cuerpo.name = "SonidosJugador"
+	add_child(cuerpo)
 	# Siempre de noche y sin amanecer: la pelea no tiene reloj
 	var ciclo := $Ciclo as Ciclo
 	ciclo.retener_noche = true

@@ -55,7 +55,7 @@ Overview:
 Read the file before changing that system, and keep it in sync with the code. Files inside `scripts/<folder>/` are `CLAUDE.md`s that Claude Code loads on its own when it touches that folder; the `docs/sistemas/` ones must be opened.
 
 - `docs/sistemas/noche-zombis.md`: day/night (`Ciclo`), `Zombis`, `Director`, night rhythm, `CampoFlujo`, `Zombie` (types, skins, wandering, swarm walking, hit feel, gore), `EfectosPixel`, the Saltabardas and the Panzón, `Supervivencia` (fainting), `Refugio`, `Partida`, store shutters, `Sonidos`.
-- `docs/sistemas/pelea.md`: getting hit, the melee combo, charged slash, roll, block, action buffer, aerial attacks, walk vs jog, and the `Pistola` (reload, recoil, shoulder camera, two-handed grip). JJ's code: see Conventions.
+- `docs/sistemas/pelea.md`: getting hit, the melee combo, charged slash, special-move stamina, roll, block, action buffer, aerial attacks, walk vs jog, and the `Pistola` (reload, recoil, shoulder camera, two-handed grip). JJ's code: see Conventions.
 - `docs/sistemas/arrojables.md`: salt, the `Lanzador`, Molotov chain and fire, palomita, bocina and `Senuelo`, the gasolinera.
 - `docs/sistemas/personaje.md`: `Personaje` (protagonists, skin tone, build, trails, hats, fist fighting) and the protagonist model with its retargeting (bone maps, clip library, `character_animation.gd`'s `AnimationTree`, civilians).
 - `docs/sistemas/inventario.md`: inventory, items, `InventoryUI`, paper map, `WorldItem`.
@@ -108,7 +108,7 @@ By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night
   - Skeletons are retargeted to `%GeneralSkeleton` with profile bone names (`Hips`, `RightHand`...): find them by class (`find_children("*", "Skeleton3D")`), not with `find_child("Skeleton3D")`.
   - A `SkeletonModifier3D`'s result only exists after the modifiers run: measure it in `Skeleton3D.skeleton_updated`, not in `_physics_process`.
   - Timing under the hit freeze uses `Time.get_ticks_msec()`: a `SceneTreeTimer` stayed stuck for seconds at that time scale, even with `ignore_time_scale`.
-  - A new sound name must also go into `DefensaTinaco.SONIDOS`, or that scene plays nothing for it (`Sonidos.solo`).
+  - Sounds are global (JJ, 2026-11-16): no per-scene whitelist or mute list.
   - A node re-enables `_physics_process` when it becomes ready if its script defines it: call `set_physics_process(false)` after `add_child`.
   - **When you add a mechanic, add it to the safehouse too.**
 

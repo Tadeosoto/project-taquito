@@ -63,6 +63,9 @@ const CONTAGIA := 8.0
 const RUGIDO_CADA := Vector2(14.0, 28.0)
 const RUGIDO_REINTENTA := Vector2(3.0, 7.0)
 const RUGIDO_VOLUMEN := -4.0        # dB sobre el archivo, que ya viene bajo
+# El quejido al recibir un golpe (zombi_quejido): a 0 dB saturaba la mezcla (+1.5 dB medido,
+# 2026-11-17); con -12 su pico queda en ~-10.5 dB, un poco abajo del whack del jugador
+const QUEJIDO_VOLUMEN := -12.0
 const RUGIDO_CORTO_VOLUMEN := -2.0
 const RUGIDO_TONO := Vector2(0.88, 1.12)
 const RUGIDO_HASTA := 30.0          # m: mas lejos no se oye
@@ -461,7 +464,7 @@ func alertar(contagia := true) -> void:
 		# que te ve junta no grite entera. Sin turno, o si lo alerto otra cosa (ruido, golpe), el
 		# rugido de siempre (que tiene el suyo)
 		if te_ve and Sonidos.turno("zombi_alerta"):
-			_sonar("zombi_alerta")
+			_sonar("zombi_alerta", -5.0)
 		else:
 			_rugir("rugido")
 		for zombi in activos:
@@ -1121,7 +1124,7 @@ func _atacar() -> void:
 			hacia.y = 0.0
 			if hacia.length() <= _alcance_golpe and absf(jugador.global_position.y - global_position.y) <= _alcance_golpe:
 				jugador.recibir_dano(_dano, global_position, JEFE_EMPUJA if es_jefe else 1.0, self)
-				_sonar("zombi_mordida")
+				_sonar("zombi_mordida", -2.0)
 				_nota("pelear")
 				acerto = true
 		elif is_instance_valid(_blanco) and _blanco.has_method("recibir_golpe"):
@@ -1191,7 +1194,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 		_al_morir = atras
 		_sin_cabeza = cabeza and not es_jefe
 		if _sin_cabeza:
-			Sonidos.tocar(self, "headshot_zombi", -2.0, randf_range(0.95, 1.05))
+			Sonidos.tocar(self, "headshot_zombi", -4.0, randf_range(0.95, 1.05))
 		# Solo el zombi se congela con un balazo; el machete ya congela todo (Player._congelar)
 		var espera := FUENTE_MS if _sin_cabeza else (0 if cuerpo_a_cuerpo or es_jefe else CONGELA_PISTOLA_MS)
 		_nota("matar")
@@ -1205,7 +1208,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 		_retroceso = atras * EMPUJON * fuerza
 	# Quejido corto al recibir un golpe sin morir (S-050), sin cortar el que ya esta sonando
 	if not _voz.playing:
-		_sonar("zombi_quejido")
+		_sonar("zombi_quejido", QUEJIDO_VOLUMEN)
 	if not ATURDIR or (not _en_corte() and not (cuerpo_a_cuerpo and randf() < ATURDE_PROB)):
 		return GOLPE_PEGO
 	estado = Estado.HERIDO
@@ -1250,7 +1253,7 @@ func _morir(pagado: bool, truena_en := 0, espera := 0) -> void:
 		set_process(true)
 	else:
 		_animar("die", 1.0, true)
-		_sonar("morir_zombi")
+		_sonar("morir_zombi", -6.0)
 		_ceniza = true
 	murio.emit()
 	var _reg = get_node_or_null("/root/Registro")
@@ -1491,9 +1494,9 @@ func _animar(nombre: String, velocidad: float, reiniciar := false) -> void:
 		_animacion.play(nombre)
 
 
-func _sonar(nombre: String) -> void:
+func _sonar(nombre: String, volumen := 0.0) -> void:
 	_voz.stream = Sonidos.sonido(nombre)
-	_voz.volume_db = 0.0
+	_voz.volume_db = volumen
 	_voz.pitch_scale = 1.0
 	_voz.play()
 

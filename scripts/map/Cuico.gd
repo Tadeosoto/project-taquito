@@ -247,7 +247,7 @@ func _disparar(lejos: float) -> void:
 	get_tree().create_timer(0.06).timeout.connect(func() -> void:
 		if is_instance_valid(_destello):
 			_destello.visible = false)
-	Sonidos.tocar(self, "disparo_pistola", -4.0 - lejos * 0.4, randf_range(0.92, 1.05))
+	Sonidos.tocar(self, "disparo_pistola", -10.0 - lejos * 0.4, randf_range(0.92, 1.05))
 	var atina := lerpf(ATINA.x, ATINA.y, clampf((lejos - 4.0) / (DISPARO_ALCANCE - 4.0), 0.0, 1.0))
 	if randf() < atina and _jugador.has_method("recibir_dano"):
 		_jugador.recibir_dano(DANO, global_position, 0.4, self)

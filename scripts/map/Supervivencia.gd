@@ -260,7 +260,7 @@ func _segundo_aire() -> bool:
 
 func _desmayarse() -> void:
 	_desmayado = true
-	Sonidos.tocar(self, "muerte", -2.0)
+	Sonidos.tocar(self, "muerte", -9.0)
 	Misiones.desmayo()
 	_jugador.detener()
 	_jugador.caer()

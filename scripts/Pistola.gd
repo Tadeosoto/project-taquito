@@ -143,7 +143,7 @@ func _ready() -> void:
 
 func cambiar() -> void:
 	activa = not activa
-	Sonidos.tocar(self, "boton", -6.0)
+	Sonidos.tocar(self, "boton", -9.0)
 
 
 func disparar() -> void:
@@ -203,7 +203,7 @@ func disparar() -> void:
 		aciertos += 1
 		Sonidos.tocar(self, "squelch", -10.0)
 	var balazo := "disparo_pistola" if Sonidos.sonido("disparo_pistola") else "disparo_%d" % randi_range(1, DISPAROS)
-	Sonidos.tocar(self, balazo, -4.0, randf_range(TONO_MIN, TONO_MAX))
+	Sonidos.tocar(self, balazo, -10.0, randf_range(TONO_MIN, TONO_MAX))  # -6 dB = mitad: sonaba muy fuerte
 	jugador._sacude_fuerza = sacude
 	jugador._sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	jugador.pose_tiro()

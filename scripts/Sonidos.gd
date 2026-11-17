@@ -7,9 +7,7 @@ extends RefCounted
 const MUESTRAS := 22050
 
 static var _sonidos := {}
-# Si no esta vacio, solo suenan estos: los demas regresan null y su reproductor no toca
-# nada. La defensa del tinaco deja solo los machetazos y los balazos, con su musica
-static var solo: Array[String] = []
+# Los sonidos son globales: cada escena toca los que le tocan, sin listas por escena
 
 # Los que vienen de archivo (se piden por nombre, como los armados). Casi todos son de Splice,
 # comprimidos a ogg mono 44.1 kHz; la lista con origen y licencia esta en docs/sonidos.csv.
@@ -68,8 +66,10 @@ const ARCHIVOS := {
 	"bloqueo": "res://audio/weapons/bloqueo.ogg",   # S-061: golpe mientras bloqueas con la espada (Player.recibir_dano)
 	"casquillo": "res://audio/weapons/casquillo.ogg",   # S-059 (Casquillo.gd)
 	"recarga": "res://audio/weapons/recarga.ogg",   # S-005: la recarga suelta, sin conectar todavia (la pistola usa recarga_suelta/mete/cierra)
-	"golpe_giratorio": "res://audio/weapons/swing_1.ogg",   # el giro aereo y el tajo cargado usan el mismo que el primer espadazo
-	"espadazo_dash": "res://audio/weapons/espadazo_dash.ogg",   # el dash aereo (estocada)
+	# Los especiales de la espada, escogidos por JJ en Splice (2026-11-17, Epic Stock Media):
+	"golpe_giratorio": "res://audio/weapons/espadazo_giro.ogg",   # el giro aereo (trebuchet_swing_complex_large_airy_07)
+	"espadazo_tajo": "res://audio/weapons/espadazo_tajo.ogg",   # el tajo cargado (longsword_medium_attack_slash_scrape_05)
+	"espadazo_dash": "res://audio/weapons/espadazo_estocada.ogg",   # la estocada aerea, Shift (longsword_..._scrape_06)
 	"muerte": "res://audio/jugador/muerte.ogg",   # S-055: te desmayas (Supervivencia._desmayarse)
 	"logro": "res://audio/arcade/logro.ogg",   # un logro (hazana) da un trofeo (Hazanas._trofeo)
 	"comprar": "res://audio/items/comprar.ogg",   # S-071: compras algo en una tienda (Interior._comprar)
@@ -85,10 +85,11 @@ const LOOPS := ["ambiente_dia", "ambiente_noche", "ambiente_tianguis", "ambiente
 # Sonidos con varias tomas: `sonido()` elige una al azar cada vez que lo piden (los que
 # llaman solo pasan el nombre). Cada archivo se carga una vez.
 const VARIANTES := {
-	"whack": [   # el golpe que acierta en un zombi (3 tomas)
+	# El golpe que acierta en un zombi. golpe_3.ogg se quito (2026-11-16): su cuerpo esta 9 dB
+	# abajo de los otros y un chasquido llega al pico, asi que no se puede igualar sin saturarlo
+	"whack": [
 		"res://audio/weapons/golpe_1.ogg",
 		"res://audio/weapons/golpe_2.ogg",
-		"res://audio/weapons/golpe_3.ogg",
 	],
 	"tinaco_golpe": [   # S-064: un zombi le pega al tinaco (TinacoDefensa.recibir_golpe)
 		"res://audio/defensa/tinaco_golpe_1.ogg",
@@ -97,6 +98,7 @@ const VARIANTES := {
 	"machetazo": [   # el swing de la espada y del puño (S-057), suena tambien al pegar
 		"res://audio/weapons/swing_1.ogg",
 		"res://audio/weapons/swing_2.ogg",
+		"res://audio/weapons/swing_3.ogg",   # el que era de la estocada (2026-11-17)
 	],
 	"dolor": [   # S-006 y S-056: el quejido del jugador al recibir dano
 		"res://audio/jugador/dolor_1.ogg",
@@ -147,8 +149,6 @@ static func turno(nombre: String, tono := 1.0) -> bool:
 
 
 static func sonido(nombre: String) -> AudioStream:
-	if not solo.is_empty() and not solo.has(nombre):
-		return null
 	if VARIANTES.has(nombre):
 		var tomas: Array = VARIANTES[nombre]
 		var ruta: String = tomas[randi() % tomas.size()]
@@ -325,7 +325,7 @@ static func _botin() -> AudioStreamWAV:
 # Toca `nombre` una vez colgado de `donde` y se borra al terminar. Suena aunque el
 # juego este en pausa (el inventario pausa el arbol).
 # Un loop de ambiente que acompana a `donde` mientras exista (la arena de la Madre, una cueva).
-# Devuelve el reproductor, o null si ese sonido no suena (Sonidos.solo)
+# Devuelve el reproductor, o null si ese sonido no existe
 static func ambiente(donde: Node, nombre: String, volumen_db := -14.0) -> AudioStreamPlayer:
 	var stream := sonido(nombre)
 	if donde == null or stream == null:
@@ -341,15 +341,20 @@ static func ambiente(donde: Node, nombre: String, volumen_db := -14.0) -> AudioS
 
 # Usar algo de la mochila (comer, beber o curar segun el item) y, si de veras subio la vida
 # (`subio` > 0), al terminar suena el aviso de que sube (vida_sube)
+# beber.ogg y curar.ogg vienen 7 dB mas fuertes que comer.ogg (mezcla 2026-11-17)
+const USO_AJUSTE := {"beber": -5.0, "curar": -4.0}
+
+
 static func usar_item(donde: Node, item: InventoryItemData, subio: int, volumen_db := -4.0) -> void:
 	if donde == null or not donde.is_inside_tree() or item == null:
 		return
-	var stream := sonido(item.sonido_de_uso())
+	var uso := item.sonido_de_uso()
+	var stream := sonido(uso)
 	if stream == null:
 		return
 	var voz := AudioStreamPlayer.new()
 	voz.stream = stream
-	voz.volume_db = volumen_db
+	voz.volume_db = volumen_db + USO_AJUSTE.get(uso, 0.0)
 	voz.process_mode = Node.PROCESS_MODE_ALWAYS
 	voz.finished.connect(func() -> void:
 		if subio > 0 and is_instance_valid(donde) and donde.is_inside_tree():
@@ -363,7 +368,7 @@ static func tocar(donde: Node, nombre: String, volumen_db := 0.0, tono := 1.0) -
 	if donde == null or not donde.is_inside_tree():
 		return
 	var stream := sonido(nombre)
-	# Sin sonido (filtrado por `solo`) el reproductor nunca acaba y se quedaria colgado
+	# Sin sonido (nombre que no existe) el reproductor nunca acaba y se quedaria colgado
 	if stream == null:
 		return
 	var voz := AudioStreamPlayer.new()
@@ -414,7 +419,7 @@ static func _ui_error() -> AudioStreamWAV:
 		f2 += 117.0 / MUESTRAS
 		var golpe := 1.0 if t < 0.09 or (t > 0.13 and t < 0.22) else 0.0
 		var cuadrada := (1.0 if fmod(f1, 1.0) < 0.5 else -1.0) + (1.0 if fmod(f2, 1.0) < 0.5 else -1.0)
-		b[i] = cuadrada * 0.24 * golpe
+		b[i] = cuadrada * 0.15 * golpe   # 0.24 sonaba 7 dB sobre los demas de la UI (mezcla 2026-11-17)
 	return _a_wav(_eco(b, [31], 0.2, 0.06, 0.2))
 
 

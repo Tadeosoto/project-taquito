@@ -66,7 +66,7 @@ func _ready() -> void:
 		Tipo.SAL:
 			_disco(COLOR_SAL, 0.85)
 			_bucles("sal_burbujas", 3, 0.25)
-			Sonidos.tocar(self, "fizz", -8.0)
+			Sonidos.tocar(self, "fizz", -10.0)
 		Tipo.LODO:
 			if ver:
 				_disco(COLOR_LODO, 0.9)

@@ -141,7 +141,7 @@ func _abrir() -> void:
 	_letrero.visible = false
 	Misiones.bodega_gela_abierta = true
 	_mostrar(true)
-	Sonidos.tocar(self, "bloqueo", 0.0)
+	Sonidos.tocar(self, "bloqueo", -6.0)
 	var i := [0]
 	_sacar(ADENTRO_ZOMBIS, func() -> Vector3:
 		i[0] += 1

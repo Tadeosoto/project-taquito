@@ -70,6 +70,10 @@ func _ready() -> void:
 		add_child(Liquido.new())
 	if get_tree().get_first_node_in_group("efectos_pixel") == null:
 		add_child(EfectosPixel.new())
+	# Pasos, latido y respiracion del jugador, como en el mapa (Partida): los sonidos son globales
+	var cuerpo := SonidosJugador.new()
+	cuerpo.name = "SonidosJugador"
+	add_child(cuerpo)
 	var nivel := CarcamoNivel.new()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--ambiente="):
@@ -114,6 +118,8 @@ func _ready() -> void:
 	_letrero.add_theme_constant_override("outline_size", 4)
 	capa.add_child(_letrero)
 	_armar_vida(capa)
+	# El aguante va bajo esta caja de vida (texto + barra), no bajo la de Supervivencia
+	_jugador.estamina.lugar = Vector2(10.0, 40.0)
 	_aviso = Label.new()
 	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -364,8 +370,6 @@ const INVENTARIO := preload("res://scripts/Inventory.gd")
 func _exit_tree() -> void:
 	Lanzador.infinitos = false
 	INVENTARIO.curas_infinitas = false
-	Player.golpe_cargado = false
-	Player.giro_aereo = false
 	get_node("/root/Personaje").mejora_estela = false
 	ESTELA.estilo = ESTELA.Estilo.NORMAL
 

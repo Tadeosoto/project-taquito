@@ -92,16 +92,11 @@ const ROJO := Color(0.9, 0.15, 0.1)
 const TEMA := preload("res://resources/ui/tema_pixel.tres")
 
 const MUSICA := preload("res://audio/musica/pt_tema.mp3")
-# Lo unico que suena ademas de la musica (Sonidos.solo): el machete al cortar el aire y al
-# pegar, y la pistola
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 # Matando a tantos con la espada en la noche se enciende la estela del protagonista (solo
 # estetica, no da dano). Mitad de los ~55 zombis que caen por noche en modo medio
 # (docs/pruebas-balance.md: machete 774 + pistola 870 de dano, vida 30)
 const ESTELA_MUERTES := 27
-# golpe y morir_zombi: el Panzon (azotones, pisotones, losas) y su muerte; zumbido_oidos y
-# bocina_*: la palomita y la bocina senuelo
-const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto", "casquillo", "disparo_pistola", "recarga_suelta", "recarga_mete", "recarga_cierra", "golpe", "morir_zombi", "zombi_alerta", "zombi_mordida", "zombi_quejido", "headshot_zombi", "impacto_bala_zombi", "tinaco_golpe", "molotov_vidrio", "fuego_loop", "golpe_giratorio", "espadazo_dash", "muerte", "logro", "mejora_compra", "mejora_maxima", "comprar", "casquillo", "ronda_inicia", "ronda_gana", "comer", "beber", "curar", "vida_sube", "zumbido_oidos", "lanzar", "salto", "juntar", "ui_mover", "campana", "bocina_musica", "bocina_apaga"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
 const MUSICA_ENTRA := 2.0      # s
@@ -136,7 +131,6 @@ var _decoracion: DecoracionDefensa   # bocinas y camionetas que se van (visual)
 var _hora: Label
 var _amanecer: ColorRect
 var _vida_tinaco: ColorRect
-# La barra del Panzon (Panzon.gd), arriba al centro, solo mientras hay uno vivo
 var _listo := false
 var _terminado := false
 var _noche_cerrada := false
@@ -194,7 +188,6 @@ func _elegir_sitio() -> void:
 
 func _ready() -> void:
 	_tinaco = _barricada.get_node("Tinaco") as TinacoDefensa
-	Sonidos.solo.assign(SONIDOS)
 	_ciclo.process_mode = Node.PROCESS_MODE_DISABLED
 	_jugador.collision_mask |= PARED_CAPA
 	_jugador.mato_con_espada.connect(_revisar_estela)
@@ -213,6 +206,10 @@ func _ready() -> void:
 	_tinaco.aviso.connect(_supervivencia.avisar)
 	_tinaco.cayo.connect(_tinaco_roto)
 	_supervivencia.desmayo_final = _desmayado
+	# Pasos, latido y respiracion del jugador, como en el mapa (Partida): los sonidos son globales
+	var cuerpo := SonidosJugador.new()
+	cuerpo.name = "SonidosJugador"
+	add_child(cuerpo)
 	_musica = AudioStreamPlayer.new()
 	_musica.stream = MUSICA
 	(_musica.stream as AudioStreamMP3).loop = true
@@ -311,11 +308,7 @@ func _revisar_estela() -> void:
 	ESTELA.estilo = personaje.estela()
 
 
-# Al salir (Salir) los demas sonidos vuelven
 func _exit_tree() -> void:
-	Sonidos.solo.clear()
-	Player.golpe_cargado = false
-	Player.giro_aereo = false
 	ESTELA.estilo = ESTELA.Estilo.NORMAL
 	get_node("/root/Personaje").mejora_estela = false
 
@@ -772,8 +765,8 @@ func _pantalla_noche(gano: bool, desmayo: bool) -> void:
 		tween.tween_property(titulo, "modulate:a", 1.0, 0.15)
 		tween.parallel().tween_property(titulo, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_callback(func() -> void:
-			Sonidos.tocar(capa, "boom", -6.0)
-			Sonidos.tocar(capa, "ronda_gana", -4.0))
+			Sonidos.tocar(capa, "boom", -9.0)
+			Sonidos.tocar(capa, "ronda_gana", -6.0))
 		tween.tween_property(titulo, "rotation", 0.05, 0.06)
 		tween.tween_property(titulo, "rotation", -0.04, 0.06)
 		tween.tween_property(titulo, "rotation", 0.0, 0.06)
@@ -783,7 +776,7 @@ func _pantalla_noche(gano: bool, desmayo: bool) -> void:
 		if izquierda:
 			izquierda.flip_h = true
 		titulo.modulate = Color.WHITE
-		tween.tween_callback(func() -> void: Sonidos.tocar(capa, "perder", -2.0))
+		tween.tween_callback(func() -> void: Sonidos.tocar(capa, "perder", -7.0))
 		tween.tween_property(titulo, "rotation", -0.12, 0.08)
 		tween.tween_property(titulo, "rotation", 0.08, 0.08)
 		tween.tween_property(titulo, "rotation", -0.04, 0.08)

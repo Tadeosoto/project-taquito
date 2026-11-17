@@ -59,7 +59,7 @@ func recibir_golpe(dano: int) -> void:
 	var ahora := Time.get_ticks_msec()
 	if ahora - _ultimo_golpe_ms >= int(TINACO_GOLPE_S * 1000.0):
 		_ultimo_golpe_ms = ahora
-		Sonidos.tocar(self, "tinaco_golpe", -4.0, randf_range(0.92, 1.08))
+		Sonidos.tocar(self, "tinaco_golpe", -6.0, randf_range(0.92, 1.08))
 	_goteras()
 	cambio.emit()
 	if vida <= 0:

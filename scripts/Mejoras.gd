@@ -161,7 +161,8 @@ func aplicar_en_jugador(jugador: Node) -> void:
 	if personaje:
 		personaje.mejora_estela = tiene("estela")
 	ESTELA.estilo = personaje.estela() if (personaje and personaje.mejora_estela) else ESTELA.Estilo.NORMAL
-	Player.golpe_cargado = tiene("cargado")
-	Player.giro_aereo = tiene("giro")
+	# Mientras los especiales esten de prueba (Player.ESPECIALES_DE_PRUEBA) la carrera no los apaga
+	Player.golpe_cargado = tiene("cargado") or Player.ESPECIALES_DE_PRUEBA
+	Player.giro_aereo = tiene("giro") or Player.ESPECIALES_DE_PRUEBA
 	if jugador.has_method("aplicar_habilidades"):
 		jugador.aplicar_habilidades()

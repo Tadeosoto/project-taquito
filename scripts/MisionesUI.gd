@@ -143,7 +143,7 @@ func manejar(event: InputEvent) -> bool:
 	else:
 		return false
 	_aviso.text = ""
-	Sonidos.tocar(self, "lapiz", -14.0, 1.4)
+	Sonidos.tocar(self, "lapiz", -8.0, 1.4)
 	_actualizar()
 	return true
 
