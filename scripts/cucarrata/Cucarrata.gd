@@ -163,7 +163,6 @@ func punta_cola() -> Vector3:
 func _soltar(tipo: int) -> void:
 	var cria := CriaCucarrata.new()
 	cria.tipo = tipo
-	cria.madre = self   # las cucarachas le hacen guardia
 	cria.animacion_inicial = "quieta"
 	get_parent().add_child(cria)
 	cria.global_position = punta_cola()
