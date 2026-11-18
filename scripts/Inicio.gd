@@ -295,7 +295,7 @@ func _escena() -> void:
 	tinaco.position = Vector3(3.4, 0.9, -2.6)
 	add_child(tinaco)
 
-	# Uno de los zombis normales, al azar (Zombie.SKINS)
+	# Uno de los zombis normales, al azar (ZombiSerenol)
 	var zombi := Zombie.modelo_skin()
 	zombi.position = Vector3(-0.8, 0.0, -0.6)
 	zombi.rotation.y = 0.3

@@ -8,7 +8,7 @@ extends CharacterBody3D
 # (las turbas) corre mas y siempre va por el jugador. Si se atora se hace a un lado un rato.
 # No hace nada si el jugador esta congelado (volando en el safehouse, desmayado). Con
 # `es_jefe` es el garrafonero de la ultima noche (Partida.gd).
-# Dos tipos: los normales (un skin al azar de SKINS con las animaciones de Quaternius) y el
+# Dos tipos: los normales (el monstruo_02 de piedra en un aspecto de ZombiSerenol, con las animaciones de Quaternius) y el
 # gordo (zombie_gordo con las suyas; sus ataques y numeros los define JJ despues, por ahora no
 # sale en ningun lado). El jefe es el gordo grande. Los normales salen deambulando y se arrancan
 # a correr cuando te detectan (alerta): te ven, te oyen, oyen un balazo o les avisa otro.
@@ -17,16 +17,10 @@ signal murio
 signal termino
 
 const MODELO := preload("res://models/personajes/zombie_gordo/zombie_gordo.scn")
-# Los normales: el zombi PSX (Sketchfab) y los monstruos 0-3 del pack PSX (CC-BY, Elbolillo),
-# con el retarget a SkeletonProfileHumanoid en su .import (tools/personajes/retarget_civiles.gd,
-# mapas_huesos.gd). Ruta -> escala para que la cabeza quede a ~1.62 m (medida por huesos)
-const SKINS := {
-	"res://models/personajes/zombie_psx/zombie_psx.scn": 0.61,
-	"res://models/personajes/pack_psx/monstruo_00/monstruo_00.fbx": 0.33,
-	"res://models/personajes/pack_psx/monstruo_01/monstruo_01.fbx": 0.38,
-	"res://models/personajes/pack_psx/monstruo_02/monstruo_02.fbx": 0.47,
-	"res://models/personajes/pack_psx/monstruo_03/monstruo_03.fbx": 0.39,
-}
+# Los normales: todos son el monstruo_02 del pack PSX (CC-BY, Elbolillo) con la piel de piedra y
+# Serenol en uno de sus aspectos (ZombiSerenol: hombres con o sin camisa, mujeres con pelo). JJ,
+# 2026-11-17: ya no salen el zombi PSX ni los otros monstruos. El retarget a SkeletonProfileHumanoid
+# va en su .import (tools/personajes/retarget_civiles.gd, mapas_huesos.gd)
 # Cada normal sale de su propia altura (JJ, 2026-11-17: hordas, defensas y apariciones). Va en
 # _tamano, asi la capsula, la cabeza de la pistola, la barra y los efectos crecen con el
 const ALTO_VARIA := Vector2(0.82, 1.18)
@@ -258,7 +252,7 @@ var _herido_dura := HERIDO_DURA   # lo que dura el HERIDO de ahora: mas con la p
 var tipo := Tipo.NORMAL
 # Murio porque amanecio, no a golpes (las misiones de CAZAR no lo cuentan)
 var cayo_al_amanecer := false
-var skin := -1              # indice en SKINS; -1 = al azar (antes de entrar al arbol)
+var skin := -1              # aspecto de ZombiSerenol.ASPECTOS; -1 = al azar (antes de entrar al arbol)
 var cazador := false
 # Zombi raro (Zombis.gd): "gela" (uniforme de GelA) o "cobalto" (brilla, en zonas de obra negra)
 var variante := ""
@@ -281,6 +275,7 @@ var _escala := 1.0          # la del modelo (el skin trae la suya)
 var _deambula_a := Vector3.INF
 var _deambula_espera := 0.0
 var _mallas: Array[MeshInstance3D] = []
+var _materiales_base: Array[Material] = []   # el de cada malla (la piel de ZombiSerenol), para volver a el
 var _flash_hasta := 0       # ms de reloj real
 var _reventar_en := 0       # ms de reloj real; 0 = no va a tronar
 var _hinchar_en := 0        # ms de reloj real en que se hincha antes de tronar
@@ -362,6 +357,7 @@ func _ready() -> void:
 			_animacion.get_animation(nombre).loop_mode = Animation.LOOP_LINEAR
 	else:
 		_modelo = modelo_skin(skin, tamano)
+		skin = _modelo.get_meta("aspecto", skin)
 		_escala = _modelo.scale.x
 		add_child(_modelo)
 		_animacion = _modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
@@ -372,8 +368,9 @@ func _ready() -> void:
 		# El tubo que el gordo trae flotando
 		if String(malla.name).contains("Tube"):
 			malla.visible = false
-		else:
+		elif not malla is PeloZombi:
 			_mallas.append(malla)
+			_materiales_base.append(malla.material_override)
 	_voz = AudioStreamPlayer3D.new()
 	_voz.position.y = 1.5
 	_voz.max_distance = RUGIDO_HASTA
@@ -396,16 +393,20 @@ func gordo() -> bool:
 	return es_jefe or tipo == Tipo.GORDO
 
 
-# Un zombi normal, ya escalado y con las animaciones de Quaternius en la biblioteca "h" de su
-# AnimationPlayer (lo usa tambien la pantalla de inicio). `indice` en SKINS; -1 = al azar.
-# `alto`: por cuanto se escala (el _tamano del zombi); sin el, uno al azar de ALTO_VARIA
-static func modelo_skin(indice := -1, alto := -1.0) -> Node3D:
-	var rutas := SKINS.keys()
-	var ruta: String = rutas[indice] if indice >= 0 and indice < rutas.size() else rutas.pick_random()
+# Un zombi normal, ya escalado, vestido (ZombiSerenol) y con las animaciones de Quaternius en la
+# biblioteca "h" de su AnimationPlayer (lo usa tambien la pantalla de inicio). `aspecto` en
+# ZombiSerenol.ASPECTOS (-1 = al azar; queda en la meta "aspecto"). `alto`: por cuanto se escala (el
+# _tamano del zombi); sin el, uno al azar de ALTO_VARIA
+static func modelo_skin(aspecto := -1, alto := -1.0) -> Node3D:
+	var ruta := ZombiSerenol.RUTA
 	if not _escenas.has(ruta):
 		_escenas[ruta] = load(ruta)
 	var modelo := (_escenas[ruta] as PackedScene).instantiate() as Node3D
-	modelo.scale = Vector3.ONE * float(SKINS[ruta]) * (alto if alto > 0.0 else randf_range(ALTO_VARIA.x, ALTO_VARIA.y))
+	modelo.scale = Vector3.ONE * ZombiSerenol.ESCALA * (alto if alto > 0.0 else randf_range(ALTO_VARIA.x, ALTO_VARIA.y))
+	if aspecto < 0 or aspecto >= ZombiSerenol.ASPECTOS.size():
+		aspecto = ZombiSerenol.al_azar()
+	ZombiSerenol.vestir(modelo, aspecto)
+	modelo.set_meta("aspecto", aspecto)
 	var animacion := modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	if animacion == null:
 		animacion = AnimationPlayer.new()
@@ -682,8 +683,8 @@ func poner_variante(cual: String) -> void:
 			_materiales_variante[variante] = m
 		material = _materiales_variante[variante]
 		_vida = roundi(VIDA * VARIANTES[variante]["vida"])
-	for malla in _mallas:
-		malla.material_override = material
+	for i in _mallas.size():
+		_mallas[i].material_override = material if material else _materiales_base[i]
 
 
 # Prendido por la antorcha de thinner (InventoryItemData.quema): pierde vida unos segundos con

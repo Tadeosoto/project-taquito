@@ -137,8 +137,8 @@ func _ready() -> void:
 	campo_tinaco.excluir(_jugador.get_rid())
 	# Se dibuja uno diminuto al cargar: si no, su shader con esqueleto se compilaba en el
 	# cuadro del primer zombi de la primera noche
-	# Uno de cada skin, que cada uno trae su textura
-	for i in Zombie.SKINS.size():
+	# Uno de cada aspecto (ZombiSerenol), que cada uno trae su material (y la mujer su pelo)
+	for i in ZombiSerenol.ASPECTOS.size():
 		var zombi := Zombie.new()
 		zombi.skin = i
 		zombi.scale = Vector3.ONE * 0.002
