@@ -27,7 +27,9 @@ const SKINS := {
 	"res://models/personajes/pack_psx/monstruo_02/monstruo_02.fbx": 0.47,
 	"res://models/personajes/pack_psx/monstruo_03/monstruo_03.fbx": 0.39,
 }
-const ALTO_VARIA := Vector2(0.94, 1.06)
+# Cada normal sale de su propia altura (JJ, 2026-11-17: hordas, defensas y apariciones). Va en
+# _tamano, asi la capsula, la cabeza de la pistola, la barra y los efectos crecen con el
+const ALTO_VARIA := Vector2(0.82, 1.18)
 # Nombre de siempre -> clip de Quaternius. Quaternius no trae corrida de zombi: trotan
 # (Jog_Fwd) y los muy rapidos (cazadores) esprintan
 const CLIPS_SKIN := {
@@ -329,6 +331,8 @@ func _ready() -> void:
 	var tamano := 1.0
 	set_process(false)
 	_tick = randi() % TICKS_SEPARAR
+	if not gordo():
+		tamano = randf_range(ALTO_VARIA.x, ALTO_VARIA.y)
 	if es_jefe:
 		tamano = JEFE_TAMANO
 		_dano = JEFE_DANO
@@ -357,7 +361,7 @@ func _ready() -> void:
 		for nombre in ["run", "idle"]:
 			_animacion.get_animation(nombre).loop_mode = Animation.LOOP_LINEAR
 	else:
-		_modelo = modelo_skin(skin)
+		_modelo = modelo_skin(skin, tamano)
 		_escala = _modelo.scale.x
 		add_child(_modelo)
 		_animacion = _modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
@@ -393,14 +397,15 @@ func gordo() -> bool:
 
 
 # Un zombi normal, ya escalado y con las animaciones de Quaternius en la biblioteca "h" de su
-# AnimationPlayer (lo usa tambien la pantalla de inicio). `indice` en SKINS; -1 = al azar
-static func modelo_skin(indice := -1) -> Node3D:
+# AnimationPlayer (lo usa tambien la pantalla de inicio). `indice` en SKINS; -1 = al azar.
+# `alto`: por cuanto se escala (el _tamano del zombi); sin el, uno al azar de ALTO_VARIA
+static func modelo_skin(indice := -1, alto := -1.0) -> Node3D:
 	var rutas := SKINS.keys()
 	var ruta: String = rutas[indice] if indice >= 0 and indice < rutas.size() else rutas.pick_random()
 	if not _escenas.has(ruta):
 		_escenas[ruta] = load(ruta)
 	var modelo := (_escenas[ruta] as PackedScene).instantiate() as Node3D
-	modelo.scale = Vector3.ONE * float(SKINS[ruta]) * randf_range(ALTO_VARIA.x, ALTO_VARIA.y)
+	modelo.scale = Vector3.ONE * float(SKINS[ruta]) * (alto if alto > 0.0 else randf_range(ALTO_VARIA.x, ALTO_VARIA.y))
 	var animacion := modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	if animacion == null:
 		animacion = AnimationPlayer.new()
@@ -807,7 +812,7 @@ func _deambular(delta: float) -> Vector3:
 	if _rumbo.length() > DEAMBULA_VEL * 0.5 and get_real_velocity().length() < DEAMBULA_VEL * 0.3:
 		_atorado += delta
 	_rumbo = _rumbo.move_toward(hacia.normalized() * DEAMBULA_VEL, DEAMBULA_GIRA * delta)
-	_animar("camina", maxf(_rumbo.length(), 0.3) / float(PASO_SKIN[CLIPS_SKIN["camina"]]))
+	_animar("camina", maxf(_rumbo.length(), 0.3) / (float(PASO_SKIN[CLIPS_SKIN["camina"]]) * _tamano))
 	_mirar(_rumbo)
 	return _rumbo
 
@@ -1452,7 +1457,7 @@ func _correr(velocidad: float, reiniciar := false) -> void:
 		_animar("idle", 1.0)
 		return
 	var nombre := "sprint" if _velocidad >= CORRE_DESDE else "run"
-	_animar(nombre, maxf(velocidad, _velocidad * 0.5) / float(PASO_SKIN[CLIPS_SKIN[nombre]]), reiniciar)
+	_animar(nombre, maxf(velocidad, _velocidad * 0.5) / (float(PASO_SKIN[CLIPS_SKIN[nombre]]) * _tamano), reiniciar)
 
 
 func _vida_max() -> int:
