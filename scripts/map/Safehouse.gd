@@ -143,6 +143,7 @@ var _lombrices: EnjambreLombrices
 var _madre: MadreCarcamo
 var _cucarrata: JefeCucarrata
 var _barra_cucarrata: BarraCucarrata
+var _musica_cucarrata: MusicaPelea   # su cancion (MusicaPelea.CUCARRATA)
 var _barra_madre: BarraMadre
 var _barra_catrina: BarraCatrina
 var _zombis: Zombis
@@ -806,6 +807,12 @@ func _cucarrata_pare() -> void:
 		_barra_cucarrata = BarraCucarrata.new()
 		add_child(_barra_cucarrata)
 	_barra_cucarrata.jefe = _cucarrata
+	if _musica_cucarrata == null:
+		_musica_cucarrata = MusicaPelea.new()
+		add_child(_musica_cucarrata)
+	_musica_cucarrata.cortar()
+	_musica_cucarrata.entrar(MusicaPelea.CUCARRATA)
+	_cucarrata.murio.connect(_musica_cucarrata.salir)
 
 
 # Un enjambre de lombrices (scripts/lombrices/) LOMBRICES_ENFRENTE m enfrente, en el piso

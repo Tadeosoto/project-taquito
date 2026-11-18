@@ -37,11 +37,15 @@ var jefe: JefeCucarrata
 var _barra: BarraCucarrata
 var _jugador: Node3D
 var _reloj := 0.0
+# Su cancion (MusicaPelea.CUCARRATA, JJ 2026-11-18): entra al despertarla, sale al morir o irse
+var _musica: MusicaPelea
 
 
 func _ready() -> void:
 	instancia = self
 	_jugador = get_tree().get_first_node_in_group("jugador")
+	_musica = MusicaPelea.new()
+	add_child(_musica)
 	if not _cargar():
 		set_process(false)
 
@@ -174,6 +178,7 @@ static func _cargar() -> bool:
 
 
 func _desperto() -> void:
+	_musica.entrar(MusicaPelea.CUCARRATA)
 	if is_instance_valid(_barra):
 		return
 	_barra = BarraCucarrata.new()
@@ -182,11 +187,13 @@ func _desperto() -> void:
 
 
 func _murio() -> void:
+	_musica.salir()
 	Misiones.matar_jefe(ID)
 
 
 # Se va (o se recoge el cadaver) con sus crias y su barra
 func _quitar() -> void:
+	_musica.salir()
 	for hijo in get_children():
 		if hijo is CriaCucarrata or hijo == jefe or hijo == _barra:
 			hijo.queue_free()

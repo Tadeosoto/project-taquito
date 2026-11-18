@@ -3,9 +3,9 @@ extends AudioStreamPlayer
 # La musica de pelea (JJ): cada vez que entra toca una cancion al azar de res://soundtrack/, en
 # bucle, distinta de la anterior si hay mas de una. Para quitar una cancion basta con borrar (o
 # sacar de la carpeta) su .mp3; para agregar otra, ponerla ahi. Si la carpeta queda vacia suena
-# pt_tema.
+# pt_tema. Las peleas con cancion propia (JJ, 2026-11-18) la piden por su ruta: TINACO, CUCARRATA.
 #
-# Uso: var m := MusicaPelea.new(); add_child(m); m.entrar() ... m.salir()
+# Uso: var m := MusicaPelea.new(); add_child(m); m.entrar() ... m.salir()   (m.entrar(CUCARRATA): esa)
 # Quien ya tiene su propio AudioStreamPlayer puede pedir solo la pista: MusicaPelea.pista_al_azar()
 # Sigue sonando con el arbol en pausa (el inventario abierto).
 
@@ -13,6 +13,9 @@ const CARPETA := "res://soundtrack/"
 const RESPALDO := "res://audio/musica/pt_tema.mp3"
 const EXTENSIONES := ["mp3", "ogg", "wav"]
 const SILENCIO := -40.0   # dB
+# Las que no van al azar (JJ, 2026-11-18)
+const TINACO := "res://soundtrack/PT tema.mp3"      # la defensa del tinaco
+const CUCARRATA := "res://soundtrack/pefd.mp3"      # la pelea de la cucarrata
 
 static var _ultima := ""
 
@@ -38,10 +41,25 @@ static func pistas() -> PackedStringArray:
 # Una cancion al azar, que no repite la ultima, ya en bucle
 static func pista_al_azar() -> AudioStream:
 	var lista := pistas()
+	# Para oir una sola: godot --path . <escena> -- --pista=notprfect (parte del nombre basta)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--pista="):
+			var busca := arg.trim_prefix("--pista=").to_lower()
+			for ruta in lista:
+				if busca in ruta.get_file().to_lower():
+					lista = PackedStringArray([ruta])
+					break
 	if lista.size() > 1 and _ultima in lista:
 		lista.remove_at(lista.find(_ultima))
 	var ruta := RESPALDO if lista.is_empty() else lista[randi() % lista.size()]
 	_ultima = ruta
+	return pista(ruta)
+
+
+# Esa cancion, ya en bucle; si no esta (la borraron de soundtrack/), la de respaldo
+static func pista(ruta: String) -> AudioStream:
+	if not ResourceLoader.exists(ruta):
+		ruta = RESPALDO
 	var pista := load(ruta) as AudioStream
 	if pista is AudioStreamMP3:
 		(pista as AudioStreamMP3).loop = true
@@ -63,12 +81,12 @@ func sonando() -> bool:
 	return playing and not _saliendo
 
 
-# Entra una cancion nueva al azar; si ya sonaba una, la deja
-func entrar() -> void:
+# Entra una cancion nueva: `ruta` si se da, si no una al azar; si ya sonaba una, la deja
+func entrar(ruta := "") -> void:
 	if sonando():
 		return
 	if not playing:
-		stream = pista_al_azar()
+		stream = pista(ruta) if ruta != "" else pista_al_azar()
 		volume_db = SILENCIO
 		play()
 	_saliendo = false
