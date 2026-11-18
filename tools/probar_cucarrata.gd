@@ -1,16 +1,19 @@
 extends Node
-# Prueba de la pelea contra la cucarrata donde ocurre: map_test, de noche (no amanece), junto al
-# baldio del norponiente que ronda (CucarrataCalle). Con la mision "Lo peor que he visto" aceptada,
-# asi los mapas la marcan y al matarla avanza el paso. El jugador juega de verdad (1 machete, 2 pistola).
+# Prueba de la pelea contra la cucarrata donde ocurre: map_test, de noche (no amanece), frente a
+# su bodega de La Gigantera (CucarrataCalle). Con la mision "Lo peor que he visto" aceptada,
+# asi los mapas la marcan y al matarla avanza el paso. El jugador juega de verdad (1 machete, 2 pistola),
+# con solo el giro de los especiales, como en la campana.
 # godot --path . tools/probar_cucarrata.tscn
-#   F2 empezar de nuevo (cucarrata viva y a vida llena, tu otra vez en la orilla del baldio)
+#   F2 empezar de nuevo (cucarrata viva y a vida llena, tu otra vez en la boca del callejon)
 #   F3 / F4 saltar a la fase 2 / 3 (la despierta si estaba rondando)
 #   F5 vida llena
-#   F6 traerla frente a ti (si no la encuentras)
+#   F6 llevarte a la puerta de la bodega, adentro
 #   F7 esconder o mostrar esta ayuda
 
 const MISION := "res://resources/misiones/cucarrata.tres"
-const SALIDA := Vector3(-640.0, 1.0, 150.0)   # en el pasto, al poniente del baldio: sale a 35 m o mas
+# En el callejon (6 m) entre su frente y la espalda de la bodega de junto, a 3 m de los vanos y hacia
+# la punta norte: afuera (no la despierta: CucarrataCalle.PUERTA) y a unos pasos de entrar
+const SALIDA := Vector3(20.0, 1.0, 3.0)
 
 var _jugador: Player
 var _ayuda: Label
@@ -40,7 +43,7 @@ func _process(_delta: float) -> void:
 			_empezar()
 		return
 	var jefe := CucarrataCalle.instancia.jefe if CucarrataCalle.instancia else null
-	var estado := "no ha salido (acercate al baldio)"
+	var estado := "no ha salido (acercate a la bodega)"
 	if is_instance_valid(jefe):
 		if jefe.vida <= 0.0:
 			estado = "muerta"
@@ -51,7 +54,7 @@ func _process(_delta: float) -> void:
 	elif Misiones.jefe_muerto(CucarrataCalle.ID):
 		estado = "muerta (F2 para otra vez)"
 	if _ayuda.visible:
-		_ayuda.text = "PRUEBA CUCARRATA · %s\n1 machete · 2 pistola · R recargar\nF2 de nuevo · F3/F4 fase 2/3 · F5 vida · F6 traerla · F7 ayuda" % estado
+		_ayuda.text = "PRUEBA CUCARRATA · %s\n1 machete · 2 pistola · R recargar · brinca y pega: giro\nF2 de nuevo · F3/F4 fase 2/3 · F5 vida · F6 a la bodega · F7 ayuda" % estado
 
 
 # Machete y todo el catalogo infinito, como el modo godmode de la defensa del tinaco
@@ -72,13 +75,15 @@ func _empezar() -> void:
 		CucarrataCalle.instancia._quitar()
 	Misiones.reiniciar()
 	Misiones._hechas_siempre["guardia_reja"] = true   # la cucarrata se ofrece tras la guardia
+	# Como en la campana: de los especiales solo el giro, que enseña la guardia (JJ, 2026-11-18)
+	Misiones.ataques_de_campana()
 	var mision := load(MISION) as MisionData
 	Misiones.aceptar(mision)
 	Misiones.elegir(mision)
 	var ciclo := get_tree().get_first_node_in_group("ciclo")
 	ciclo.reiniciar_noche()
 	ciclo.retener_noche = true
-	_jugador.global_position = SALIDA
+	_jugador.global_position = CucarrataCalle.en_bodega(SALIDA)
 	_jugador.velocity = Vector3.ZERO
 	get_node("/root/Salud").reiniciar()
 
@@ -100,12 +105,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		KEY_F5:
 			get_node("/root/Salud").reiniciar()
 		KEY_F6:
-			if vivo and jefe.estado == JefeCucarrata.Estado.DEAMBULA:
-				var frente: Vector3 = -(_jugador.get_node("CameraPivot") as Node3D).global_basis.z
-				frente.y = 0.0
-				jefe.global_position = _jugador.global_position + frente.normalized() * 28.0
-				jefe.global_position.y = 0.0
-				jefe._ruta = PackedVector3Array()
+			_jugador.global_position = CucarrataCalle.frente(-3.0) + Vector3.UP
+			_jugador.velocity = Vector3.ZERO
 		KEY_F7:
 			_ayuda.visible = not _ayuda.visible
 		_:

@@ -1,42 +1,37 @@
 class_name CucarrataCalle
 extends Node3D
 # La cucarrata suelta en el mapa grande (JJ, 2026-11-17; docs/misiones.md "La cucarrata"): de noche
-# ronda un lugar abierto fuera de Santa Mugre, el baldio del norponiente (La Florida Marchita, ~220 m
-# de la barda; JJ lo escogio de cinco) y las calles de junto (la avenida grande y sus laterales; JJ:
-# que si camine en calles), y te la topas con o sin la mision. Nunca entra a la
-# fortaleza. Solo existe mientras andas cerca (APARECE): de lejos no hace falta. Te le acercas o le
-# disparas y se arma la pelea (JefeCucarrata), con su barra. Si te alejas mucho (o te desmayas y
-# amaneces en el refugio) se va y vuelve otra noche con la vida llena. Muerta, Misiones.matar_jefe():
-# no vuelve a salir, cumple el paso JEFE_CALLE y abre la cadena de la mafia. Lo pone MisionesMundo en
-# map_test.
+# vive en una bodega de La Gigantera, la #34 de bodegas_mapa.json, frente a la reja poniente de Santa
+# Mugre (JJ, 2026-11-18: la pelea es adentro, en el piso de concreto; antes rondaba un baldio de pasto
+# donde no se veian las ratas y atravesaba las casas). MapBodegas la deja vacia (es_guarida) y
+# JefeCucarrata no sale de sus muros (encerrar). Te la topas con o sin la mision, aunque no hayas
+# hecho la guardia de la reja. Los zombis de la noche entran por los vanos abiertos. Solo existe
+# mientras andas cerca (APARECE). Entras o le disparas y se arma la pelea, con su barra. Si te alejas
+# mucho (o te desmayas y amaneces en el refugio) se va y vuelve otra noche con la vida llena. Muerta,
+# Misiones.matar_jefe(): no vuelve a salir, cumple el paso JEFE_CALLE y abre la cadena de la mafia.
+# Despierta al verte adentro (adentro) o si le disparas. Lo pone MisionesMundo en map_test.
 
 const ID := "cucarrata"
-# Un circulo del minimapa: el baldio y, al oriente, la avenida grande (x ~ -551) con sus calles laterales
-const CENTRO := Vector2(-575.0, 100.0)
-const RADIO := 85.0
-const LIBRE := 10.0            # m sin edificio alrededor de cada punto del pasto por donde camina (mide 7 de largo)
-const LIBRE_CALLE := 4.0       # en la calle basta menos: va por en medio, las casas estan a la orilla
-const A_LA_CALLE := 0.5        # parte de sus destinos que son calle (el pasto es mas grande: sin esto casi no pisa calle)
-const PASO_REVISA := 3.0       # m entre puntos revisados en cada tramo
-const APARECE := 260.0         # m del jugador al centro para que salga
+# La bodega: el centro de su frente en bodegas_mapa.json (como BodegaGela.CENTRO)
+const BODEGA := Vector2(-438.47, 643.39)
+const BODEGAS := "res://resources/map/bodegas_mapa.json"
+const PUERTA := -0.5           # m del frente hacia afuera que cuentan como adentro: negativo, ya pasaste el vano
+const MARGEN := 4.0            # m de su centro a los muros: mide ~7 de largo y gira en su lugar
+const CABEZA := 3.5            # m del origen a la cabeza parada (APUNTA): lo que le queda bajo el techo
+const ARCO_FLECHA := 0.1       # el de MapBodegas: el arco del techo sube eso por metro de ancho
+const APARECE := 260.0         # m del jugador a la bodega para que salga
 const SE_VA := 340.0           # m: tranquila y mas lejos que esto, se va
 const OLVIDA := 160.0          # m: en pelea y mas lejos que esto (huiste, te desmayaste), se va
-const SALE_LEJOS := 35.0       # m del jugador, como minimo, a donde sale (que no aparezca en tu cara)
+const SALE_LEJOS := 20.0       # m del jugador, como minimo, a donde sale (que no aparezca en tu cara)
 const REVISAR_CADA := 0.5
 const INTENTOS := 24
-const MINIMAPA := "res://textures/map/minimapa.png"
-const MINIMAPA_DATOS := "res://resources/map/minimapa.json"
-const EDIFICIO := Color8(104, 106, 112)
-const EDIFICIO_ORILLA := Color8(14, 14, 12)
-const CALLE := Color8(196, 192, 180)
-const AVENIDA := Color8(226, 222, 206)
-const EDIFICIOS := [EDIFICIO, EDIFICIO_ORILLA]
-const CALLES := [CALLE, AVENIDA]
 
 static var instancia: CucarrataCalle
-static var _mapa: Image
-static var _origen := Vector2.ZERO
-static var _m_por_pixel := 1.0
+# La bodega: de su frente hacia adentro es -Z, de lado a lado X (como en MapBodegas)
+static var _lote := Transform3D.IDENTITY
+static var _ancho := 0.0
+static var _fondo := 0.0
+static var _alto := 0.0
 
 var jefe: JefeCucarrata
 var _barra: BarraCucarrata
@@ -58,11 +53,27 @@ func _exit_tree() -> void:
 
 # Para los mapas: el centro de donde ronda y su radio
 func centro_zona() -> Vector3:
-	return Vector3(CENTRO.x, 0.0, CENTRO.y)
+	return _lote * Vector3(0.0, 0.0, -_fondo / 2.0)
 
 
 func radio_zona() -> float:
-	return RADIO
+	return minf(_ancho, _fondo) / 2.0
+
+
+# Un punto en el eje de la bodega a tantos metros de su frente (+ afuera, - adentro), en el piso
+static func frente(metros: float) -> Vector3:
+	return en_bodega(Vector3(0.0, 0.0, metros))
+
+
+# Un punto del marco de la bodega (x de lado a lado, +x al norte; z hacia afuera del frente) en el mundo
+static func en_bodega(local: Vector3) -> Vector3:
+	_cargar()
+	return _lote * local
+
+
+# MapBodegas no le pone racks ni cajas (se llama desde su hilo: solo constantes)
+static func es_guarida(bodega: Dictionary) -> bool:
+	return Vector2(bodega["x"], bodega["z"]).distance_to(BODEGA) < 1.0
 
 
 # Esta afuera, viva y a la vista (para apuntarle en la mision)
@@ -87,7 +98,8 @@ func _process(delta: float) -> void:
 		return
 	if Misiones.jefe_muerto(ID) or not Misiones.es_noche:
 		return
-	if yo.distance_to(CENTRO) < APARECE:
+	var centro := centro_zona()
+	if yo.distance_to(Vector2(centro.x, centro.z)) < APARECE:
 		_sacar(yo)
 
 
@@ -103,6 +115,8 @@ func _sacar(yo: Vector2) -> void:
 	jefe = JefeCucarrata.new()
 	jefe.deambulando = true
 	jefe.pedir_ruta = _ruta_desde
+	jefe.encerrar = encerrar
+	jefe.te_ve = adentro
 	jefe.position = donde
 	jefe.rotation.y = randf() * TAU
 	add_child(jefe)
@@ -110,79 +124,53 @@ func _sacar(yo: Vector2) -> void:
 	jefe.murio.connect(_murio)
 
 
-# Un punto del baldio o de sus calles que se pueda pisar (solo calle con `calle`)
-func _punto_libre(calle := false) -> Vector3:
-	for i in INTENTOS * (3 if calle else 1):
-		var p := CENTRO + Vector2.from_angle(randf() * TAU) * sqrt(randf()) * RADIO
-		if (not calle or _es(p, CALLES)) and _libre(p):
-			return Vector3(p.x, 0.0, p.y)
-	return Vector3.INF
+# Un punto del piso de la bodega, lejos de los muros
+func _punto_libre() -> Vector3:
+	var x := randf_range(-_ancho / 2.0 + MARGEN, _ancho / 2.0 - MARGEN)
+	var z := randf_range(-_fondo + MARGEN, -MARGEN)
+	return _lote * Vector3(x, 0.0, z)
 
 
-# JefeCucarrata la pide al acabar la anterior: a otro punto del baldio o de sus calles, en linea
-# recta si todo el tramo se puede pisar (no atraviesa casas ni las construcciones del parque)
-func _ruta_desde(desde: Vector3) -> PackedVector3Array:
-	var a := Vector2(desde.x, desde.z)
-	var calle := randf() < A_LA_CALLE
-	for i in INTENTOS:
-		var meta := _punto_libre(calle and i < INTENTOS / 2)
-		if meta == Vector3.INF:
-			continue
-		if _tramo_libre(a, Vector2(meta.x, meta.z)):
-			return PackedVector3Array([meta])
-	return PackedVector3Array()
+# JefeCucarrata la pide al acabar la anterior: otro punto de la bodega, en linea recta (adentro no
+# hay nada: MapBodegas la deja vacia)
+func _ruta_desde(_desde: Vector3) -> PackedVector3Array:
+	return PackedVector3Array([_punto_libre()])
 
 
-func _tramo_libre(a: Vector2, b: Vector2) -> bool:
-	var pasos := maxi(1, ceili(a.distance_to(b) / PASO_REVISA))
-	for k in range(1, pasos + 1):
-		if not _libre(a.lerp(b, float(k) / pasos)):
-			return false
-	return true
+# JefeCucarrata se pasa por aqui cada cuadro: no atraviesa los muros (MARGEN) ni el techo de arco
+# (la cabeza parada, CABEZA, cabe bajo el techo de ese lado)
+static func encerrar(p: Vector3) -> Vector3:
+	var l := _lote.affine_inverse() * p
+	l.x = clampf(l.x, -_ancho / 2.0 + MARGEN, _ancho / 2.0 - MARGEN)
+	l.z = clampf(l.z, -_fondo + MARGEN, -MARGEN)
+	var t := 2.0 * l.x / _ancho
+	var techo := _alto + ARCO_FLECHA * _ancho * (1.0 - t * t)
+	l.y = minf(l.y, techo - CABEZA)
+	return _lote * l
 
 
-# Se puede pisar: sin edificio del minimapa en el centro ni en dos anillos alrededor, de LIBRE m en
-# el pasto o LIBRE_CALLE m si el punto es calle
-static func _libre(p: Vector2) -> bool:
-	if _edificio(p):
-		return false
-	var radio := LIBRE_CALLE if _es(p, CALLES) else LIBRE
-	for anillo in [radio * 0.5, radio]:
-		for k in 12:
-			if _edificio(p + Vector2.from_angle(k * TAU / 12.0) * anillo):
-				return false
-	return true
-
-
-static func _edificio(p: Vector2) -> bool:
-	return _es(p, EDIFICIOS, true)
-
-
-# El pixel del minimapa en p es de alguno de esos colores (fuera del minimapa: `afuera`)
-static func _es(p: Vector2, colores: Array, afuera := false) -> bool:
-	var px := int((p.x - _origen.x) / _m_por_pixel)
-	var pz := int((p.y - _origen.y) / _m_por_pixel)
-	if px < 0 or pz < 0 or px >= _mapa.get_width() or pz >= _mapa.get_height():
-		return afuera
-	var c := _mapa.get_pixel(px, pz)
-	for e: Color in colores:
-		if absf(c.r - e.r) + absf(c.g - e.g) + absf(c.b - e.b) < 0.09:
-			return true
-	return false
+# Estas dentro de la bodega (medio metro pasando los vanos): solo asi te ve la cucarrata, no a traves del muro
+# (en el callejon, pegado al frente, aun no)
+static func adentro(p: Vector3) -> bool:
+	var l := _lote.affine_inverse() * p
+	return absf(l.x) < _ancho / 2.0 and l.z > -_fondo and l.z < PUERTA
 
 
 static func _cargar() -> bool:
-	if _mapa != null:
+	if _ancho > 0.0:
 		return true
-	var datos = JSON.parse_string(FileAccess.get_file_as_string(MINIMAPA_DATOS))
+	var datos = JSON.parse_string(FileAccess.get_file_as_string(BODEGAS))
 	if not datos is Dictionary:
 		return false
-	_mapa = (load(MINIMAPA) as Texture2D).get_image()
-	if _mapa.is_compressed():
-		_mapa.decompress()
-	_origen = Vector2(datos["x0"], datos["z0"])
-	_m_por_pixel = float(datos["metros_por_pixel"])
-	return true
+	for b: Dictionary in datos["bodegas"]:
+		if es_guarida(b):
+			_lote = Transform3D(Basis(Vector3.UP, b["rotacion_y"]), Vector3(b["x"], 0.0, b["z"]))
+			_ancho = b["ancho"]
+			_fondo = b["fondo"]
+			_alto = b["alto"]
+			return true
+	push_warning("CucarrataCalle: no esta su bodega en " + BODEGAS)
+	return false
 
 
 func _desperto() -> void:

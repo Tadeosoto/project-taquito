@@ -164,5 +164,6 @@ func aplicar_en_jugador(jugador: Node) -> void:
 	# Mientras los especiales esten de prueba (Player.ESPECIALES_DE_PRUEBA) la carrera no los apaga
 	Player.golpe_cargado = tiene("cargado") or Player.ESPECIALES_DE_PRUEBA
 	Player.giro_aereo = tiene("giro") or Player.ESPECIALES_DE_PRUEBA
+	Player.estocada_aerea = Player.giro_aereo   # en la carrera la mejora del giro trae las dos
 	if jugador.has_method("aplicar_habilidades"):
 		jugador.aplicar_habilidades()

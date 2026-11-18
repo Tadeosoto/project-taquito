@@ -126,6 +126,14 @@ var _ola_en := 0.0
 var _cazado: Zombie = null
 var _cazado_de: PasoMision = null
 var _marca_cazado: Label3D = null
+# El mapa de las fortalezas es la campana: los especiales son los aprendidos (Misiones.ataques_de_campana)
+var _campana := false
+# Lo que se dice en pantalla al aprender un ataque (MisionData.ensena)
+const APRENDISTE := {
+	"giro": "Aprendiste el golpe giratorio: brinca y pega para barrer todo alrededor.",
+	"estocada": "Aprendiste la estocada en el aire: brinca y pega con Shift.",
+	"cargado": "Aprendiste el tajo cargado: deja apretado pegar y suelta.",
+}
 # La caja de la mafia en el piso (PasoMision.soltable): de que paso es; levantarla la vuelve a la mano
 var _caja_suelo: Node3D = null
 var _caja_de: PasoMision = null
@@ -158,8 +166,10 @@ func _ready() -> void:
 		_ciclo.amanecio.connect(_amanecio)
 	_poner_vecinos()
 	# La cucarrata anda suelta de noche cerca de Santa Mugre: solo en el mapa grande (el de las fortalezas)
-	if get_tree().get_first_node_in_group("fortalezas") != null:
+	_campana = get_tree().get_first_node_in_group("fortalezas") != null
+	if _campana:
 		add_child(CucarrataCalle.new())
+		Misiones.ataques_de_campana()
 	_cambio()
 	_resolver_jefe(PasoJefe.tomar_resultado())
 
@@ -1411,6 +1421,9 @@ func _termino(mision: MisionData, exito: bool, texto: String) -> void:
 	# Al llegar con la caja, el del punto te dice algo y te paga
 	if exito and mision.id.begins_with(Misiones.MAFIA) and mision.gracias != "":
 		texto = "%s %s" % [mision.gracias, texto]
+	if exito and mision.ensena != "" and _campana:
+		Misiones.ataques_de_campana()
+		texto = "%s\n%s" % [texto, APRENDISTE.get(mision.ensena, "")]
 	if _supervivencia:
 		_supervivencia.avisar(texto)
 

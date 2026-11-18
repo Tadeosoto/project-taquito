@@ -320,7 +320,9 @@ func _armar_bodega(b: Dictionary, tools: Dictionary, vanos: Dictionary, props: D
 	_quad(st_piso, lote, [Vector3(-ancho / 2.0, 0.04, 0.0), Vector3(ancho / 2.0, 0.04, 0.0),
 		Vector3(ancho / 2.0, 0.04, -fondo), Vector3(-ancho / 2.0, 0.04, -fondo)], Vector3.UP, Color.WHITE, false)
 
-	_acomodar_adentro(lote, ancho, fondo, alto, zona, rng, props, cajas)
+	# La guarida de la cucarrata (CucarrataCalle.es_guarida) va vacia: ahi es la pelea
+	if not CucarrataCalle.es_guarida(b):
+		_acomodar_adentro(lote, ancho, fondo, alto, zona, rng, props, cajas)
 
 
 # La cortina que se fuerza (BodegaGela): sus dos versiones, cerrada y abierta, con su colision, van aparte en

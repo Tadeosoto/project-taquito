@@ -7,7 +7,7 @@
 script = ExtResource("2_paso")
 tipo = 10
 cuando = 1
-texto = "Mata a la cucarrata: ronda de noche el baldío del norponiente y sus calles"
+texto = "Mata a la cucarrata: de noche está en la bodega de La Gigantera, saliendo por la reja poniente"
 lugar = "cucarrata"
 
 [sub_resource type="Resource" id="paso_cobrar"]
@@ -23,7 +23,7 @@ nombre = "Lo peor que he visto"
 modelo = "hombre_psx"
 donde = "marca:Chofer"
 oferta = "Anoche, con la camioneta, vi lo peor que he visto: una cucaracha enorme con cabeza de rata. Y vuela."
-aceptada = "Anda de noche por el baldío del norponiente y la avenida grande de junto. Mátala antes de que se le ocurra volar para acá."
+aceptada = "De noche se mete a una bodega de La Gigantera, la primera saliendo por la reja poniente: entra por el callejón de atrás de la otra. Mátala antes de que se le ocurra volar para acá."
 recuerda = "Sale de noche, cerca de la colonia. Si se nos mete volando, no hay reja que la pare."
 gracias = "¿De veras la mataste? Dios te lo pague, compa. Ya puede dormir tranquila la colonia."
 gracias_antes = "¿Tú mataste a esa cosa? Ya volaba para acá: nos salvaste la colonia, compa. Ten, te lo ganaste."

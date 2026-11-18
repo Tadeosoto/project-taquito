@@ -34,6 +34,10 @@ extends Resource
 @export var requiere := ""
 # Tambien ofrece de noche y no se va al oscurecer (los puntos de la mafia: el negocio no cierra)
 @export var abierto_de_noche := false
+# El ataque especial que enseña al cumplirla, para la campana (Misiones.ataques_de_campana): "giro"
+# (el golpe giratorio del brinco), "estocada" (el dash en el aire, Shift) o "cargado" (el tajo). Va en
+# misiones `una_vez`, que se recuerdan siempre. La guardia de la reja enseña el giro (JJ, 2026-11-18)
+@export var ensena := ""
 # DADOR: te la da alguien de dia y queda en el diario. LUGAR: se acepta al acercarte a un sitio
 # (la reja, el tinaco), no entra al diario y se juega en el momento (Misiones.empezar_en_lugar)
 enum Inicio { DADOR, LUGAR }

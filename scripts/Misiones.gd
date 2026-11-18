@@ -151,6 +151,23 @@ func hecha_siempre(mision: MisionData) -> bool:
 	return _hechas_siempre.has(mision.id)
 
 
+# Ya cumpliste para siempre una mision que enseña ese ataque (MisionData.ensena)
+func aprendio(ataque: String) -> bool:
+	for mision: MisionData in todas:
+		if mision.ensena == ataque and _hechas_siempre.has(mision.id):
+			return true
+	return false
+
+
+# En la campana los especiales son los que ya aprendiste (JJ, 2026-11-18): la cucarrata, el final de
+# las misiones iniciales, se pelea solo con el giro, que enseña la guardia de la reja. El bloqueo
+# siempre esta. Lo llama MisionesMundo en el mapa de las fortalezas y al cumplir una que enseña
+func ataques_de_campana() -> void:
+	Player.golpe_cargado = aprendio("cargado")
+	Player.giro_aereo = aprendio("giro")
+	Player.estocada_aerea = aprendio("estocada")
+
+
 func disponible(mision: MisionData) -> bool:
 	return (ofreciendo or mision.abierto_de_noche) and not aceptada(mision) and not hecha_hoy(mision) \
 			and not ya_tienes_el_premio(mision) and requisito_cumplido(mision)
@@ -611,4 +628,8 @@ func reiniciar() -> void:
 	puntos_vistos.clear()
 	_hechas.clear()
 	_hechas_siempre.clear()
+	# Fuera de la campana los especiales vuelven a los de prueba (la campana los vuelve a poner)
+	Player.golpe_cargado = Player.ESPECIALES_DE_PRUEBA
+	Player.giro_aereo = Player.ESPECIALES_DE_PRUEBA
+	Player.estocada_aerea = Player.ESPECIALES_DE_PRUEBA
 	cambio.emit()

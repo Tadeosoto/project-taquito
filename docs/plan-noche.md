@@ -91,7 +91,7 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 
 **La campaña y el primer jefe (2026-11-17)**
 - **Orden más o menos lineal:** Santa Mugre y sus misiones → La Gotera y las suyas → la fortaleza GelA y las suyas.
-- **La cucarrata es el primer jefe** y matarla es el checkpoint de Santa Mugre a La Gotera: la cadena de la mafia (`mafia_1`) la pide. Ronda **de noche** el baldío del norponiente y sus calles, fuera de Santa Mugre (te la topas sin misión); la misión la da **Nacho Garrafón** después de la guardia de la reja y al aceptar te dice dónde anda. Si la matas antes, Nacho te da las gracias y la paga completa. Ver `misiones.md`, "La cucarrata".
+- **La cucarrata es el primer jefe** y matarla es el checkpoint de Santa Mugre a La Gotera: la cadena de la mafia (`mafia_1`) la pide. Vive **de noche** en una bodega vacía de La Gigantera, frente a la reja poniente, fuera de Santa Mugre (JJ, 2026-11-18; antes rondaba el baldío del norponiente; te la topas sin misión); la misión la da **Nacho Garrafón** después de la guardia de la reja y al aceptar te dice dónde anda. Si la matas antes, Nacho te da las gracias y la paga completa. Ver `misiones.md`, "La cucarrata".
 
 **Personajes (L7, 2026-11-12)**
 - **Gerardo = el hijo rebelde de GelA**: medio hermano de Georgina (hijo menor de Germán), siempre vivió en la fortaleza, **supo del Serenol hace poco**. Doble cara: heredero modelo de cara a todos, infiltrado que filtra a la resistencia. Germán se hace el ciego.

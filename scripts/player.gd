@@ -244,6 +244,9 @@ static var golpe_cargado := ESPECIALES_DE_PRUEBA
 # la cadera da la vuelta entre 0 y 0.7 s) que pega en redondo al caer; con Shift, la estocada.
 # El safehouse lo alterna (tecla 6). Los tres especiales gastan aguante (EstaminaEspecial)
 static var giro_aereo := ESPECIALES_DE_PRUEBA
+# La estocada en el aire (el dash: Shift + pegar brincando) va aparte del giro (JJ, 2026-11-18): en la
+# campana se desbloquean por separado (Misiones.ataques_de_campana). Sin ella, con Shift sale el giro
+static var estocada_aerea := ESPECIALES_DE_PRUEBA
 # El giro con la estela de agua: pensada como mejora que se gana (JJ). false = la estela normal
 const CARGA_DURA := 0.4       # s con el boton apretado (JJ: 0.7 era mucho)
 # Apretado al menos esto cuando toca el siguiente golpe = lo estas sosteniendo: en vez del golpe
@@ -1195,9 +1198,11 @@ func _hacer(accion: String) -> void:
 			# En el aire sale de una vez el espadazo giratorio; con Shift, la estocada que te
 			# lanza hacia adelante y cae con ella (JJ). Sin aguante, EstaminaEspecial.gastar
 			# parpadea y suena el error, y sale el espadazo normal (JJ, 2026-11-17: antes no salia nada)
-			var especial_aire := giro_aereo and not is_on_floor() and _especiales()
+			var aire := not is_on_floor() and _especiales()
+			var dash := aire and estocada_aerea and Input.is_action_pressed("sprint")
+			var especial_aire := dash or (aire and giro_aereo)
 			if especial_aire and estamina.gastar():
-				if Input.is_action_pressed("sprint"):
+				if dash:
 					_estocar(0.0, true)
 				else:
 					_girar(true)
@@ -2391,7 +2396,7 @@ func _physics_process(delta: float) -> void:
 		# clavado con Shift) para encadenar sin pausa
 		if (_buffer == "brinco" or _buffer == "rodar") and _puede(_buffer):
 			_golpe_guardado = false
-			_golpe_tras_brinco = _buffer == "brinco" and giro_aereo and _especiales()
+			_golpe_tras_brinco = _buffer == "brinco" and (giro_aereo or estocada_aerea) and _especiales()
 		else:
 			_atacar()
 	_invulnerable = maxf(_invulnerable - delta, 0.0)

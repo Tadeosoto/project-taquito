@@ -124,7 +124,7 @@ func _pintar() -> void:
 	if _caja == null:
 		return
 	# Sin especiales desbloqueados, o en la casa propia (sin pelea), no hay barra
-	var hay := (Player.golpe_cargado or Player.giro_aereo) and (jugador == null or not jugador.sin_combate)
+	var hay := (Player.golpe_cargado or Player.giro_aereo or Player.estocada_aerea) and (jugador == null or not jugador.sin_combate)
 	_caja.visible = hay
 	if not hay:
 		return

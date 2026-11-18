@@ -161,6 +161,9 @@ func parir(tipos: Array = [], con_animacion := true) -> void:
 			if not is_inside_tree() or _parto != mio:
 				return
 			await get_tree().process_frame
+		# El pujo (S-111): solo con la animacion; volando suelta cucarachas sin pujar
+		if con_animacion:
+			Sonidos.tocar(self, "cucarrata_pare", -4.0, randf_range(0.85, 1.0))
 		for j in POR_PUJO[tipos[k]]:
 			if j > 0:
 				var desde := Time.get_ticks_msec()
@@ -171,6 +174,7 @@ func parir(tipos: Array = [], con_animacion := true) -> void:
 			if not is_inside_tree() or _parto != mio:
 				return
 			_soltar(tipos[k])
+			Sonidos.tocar(self, "cucarrata_cria_sale", -12.0, randf_range(1.3, 1.8))   # S-112
 	if con_animacion:
 		# No await animation_finished: si "pare" acabo antes que la ultima cria (los pujos van con
 		# el reloj real), la senal ya paso y se quedaba parada para siempre
@@ -204,8 +208,14 @@ func _soltar(tipo: int) -> void:
 	cria.rotation.y = rotation.y + randf_range(-0.8, 0.8)
 	var sale := atras * CRIA_SALE.x * randf_range(ENJAMBRE_VARIA.x, ENJAMBRE_VARIA.y) \
 			+ Vector3.UP * CRIA_SALE.y * randf_range(ENJAMBRE_VARIA.x, ENJAMBRE_VARIA.y)
-	cria.lanzar(sale + lado, global_position.y)
+	cria.lanzar(sale + lado, piso_y())
 	pario.emit(cria)
+
+
+# La altura del piso para las crias. Aqui la del origen; JefeCucarrata da su _piso, porque parir
+# volando les pasaba su altura de vuelo y las cucarachas tronaban solas al bajar de ella
+func piso_y() -> float:
+	return global_position.y
 
 
 # "pare": "idle" con el abdomen levantado, hinchado y pujando. Se agrega a la libreria del glb

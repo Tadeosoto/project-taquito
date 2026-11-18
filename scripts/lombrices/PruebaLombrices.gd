@@ -91,9 +91,12 @@ func _ready() -> void:
 	(_jugador as CollisionObject3D).collision_mask |= 2
 	# Los ataques especiales de golpe-direccion, como en la safehouse y la defensa (JJ): tajo cargado,
 	# giro aereo (y la estocada en el aire con Shift) y la estela del protagonista. Les pegan a las
-	# crias y a la Madre (Player los manda al grupo "lombrices"). Se apagan en _exit_tree
-	Player.golpe_cargado = true
-	Player.giro_aereo = true
+	# crias y a la Madre (Player los manda al grupo "lombrices"). Se apagan en _exit_tree.
+	# Desde la campana (PasoJefe.desde_juego) se queda con los que ya aprendiste
+	if not PasoJefe.desde_juego:
+		Player.golpe_cargado = true
+		Player.giro_aereo = true
+		Player.estocada_aerea = true
 	get_node("/root/Personaje").mejora_estela = true
 	_jugador.aplicar_personaje()
 	# Curas infinitas para probar (JJ): con al menos un botiquin, Q cura sin gastarlo

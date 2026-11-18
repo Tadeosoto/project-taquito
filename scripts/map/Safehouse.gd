@@ -220,6 +220,7 @@ func _guardar(path: String, data: Dictionary) -> void:
 func _ready() -> void:
 	Player.golpe_cargado = true
 	Player.giro_aereo = true
+	Player.estocada_aerea = true
 	_jugador = get_node("Player")
 	# Para probar sin cambiar el personaje guardado: -- --protagonista=N (Personaje.PROTAGONISTAS)
 	# y --estela=N (EstelaBarrido.Estilo)
@@ -722,7 +723,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			ESTELA.estilo = personaje.estela()
 			_mostrar_efectos()
 		KEY_6:
+			# El giro y la estocada en el aire juntos (en la campana van por separado)
 			Player.giro_aereo = not Player.giro_aereo
+			Player.estocada_aerea = Player.giro_aereo
 			_mostrar_efectos()
 		KEY_7:
 			# Shift+7: aguante infinito, para probar los especiales sin la barra (EstaminaEspecial)

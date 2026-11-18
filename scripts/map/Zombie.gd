@@ -202,10 +202,18 @@ const JEFE_EMPUJA := 1.41   # velocidad del empujon al jugador: el doble de dist
 const JEFE_TAMANO := 1.7
 const JEFE_VELOCIDAD := 3.0
 const JEFE_COLOR := Color(0.35, 0.5, 0.95)
-# Los raros (poner_variante): uniforme claro de GelA, y el de cobalto que brilla y aguanta mas
+# Los raros (poner_variante): uniforme claro de GelA, y el de cobalto que brilla y aguanta mas.
+# `piel`: lo que cambian sobre la piel de piedra de su aspecto (zombi_serenol.gdshader): el de GelA
+# trae el uniforme como camisa y el de cobalto brilla verde azulado. `color` es el tinte liso de
+# antes, solo para una malla sin esa piel. Antes cambiaban toda la piel por el color liso y el de
+# GelA salia blanco, sin textura (JJ, 2026-11-17)
 const VARIANTES := {
-	"gela": { "color": Color(0.82, 0.88, 0.95), "vida": 1.0 },
-	"cobalto": { "color": Color(0.35, 1.25, 1.15), "vida": 1.5 },
+	"gela": { "color": Color(0.82, 0.88, 0.95), "vida": 1.0, "piel": {
+		"camisa": true, "diseno": 1, "desgarre": 0.2,
+		"color_base": Color(0.82, 0.88, 0.95), "color_detalle": Color(0.16, 0.24, 0.4) } },
+	"cobalto": { "color": Color(0.35, 1.25, 1.15), "vida": 1.5, "piel": {
+		"color_grieta": Color(0.25, 1.0, 0.85), "color_nucleo": Color(0.85, 1.0, 0.95),
+		"brillo": 2.4, "resplandor": 0.35, "alcance": 4.0, "tupido": 0.7 } },
 }
 const JEFE_SHADER := preload("res://shaders/ps1_combined.gdshader")
 # El gordo, un tipo aparte: sus ataques y numeros los define JJ despues. Por ahora son los de
@@ -228,7 +236,7 @@ const GOLPE_PEGO := 1
 const GOLPE_MATO := 2
 
 static var _material_jefe: ShaderMaterial
-static var _materiales_variante := {}   # variante -> ShaderMaterial
+static var _materiales_variante := {}   # "variante:id del material base" -> ShaderMaterial
 static var _material_blanco: StandardMaterial3D
 static var _material_barra: ShaderMaterial
 static var _material_charco: StandardMaterial3D
@@ -668,23 +676,36 @@ func dormir() -> void:
 	process_mode = Node.PROCESS_MODE_DISABLED
 
 
-# Zombi raro (Zombis.sacar): pinta el modelo de su color y le ajusta la vida; "" = normal.
+# Zombi raro (Zombis.sacar): lo viste de su variante y le ajusta la vida; "" = normal.
 # Los trofeos que dan los cuenta Hazanas.gd
 func poner_variante(cual: String) -> void:
 	if es_jefe:
 		return
 	variante = cual if VARIANTES.has(cual) else ""
-	var material: ShaderMaterial = null
 	if variante != "":
-		if not _materiales_variante.has(variante):
-			var m := ShaderMaterial.new()
-			m.shader = JEFE_SHADER
-			m.set_shader_parameter("tint", VARIANTES[variante]["color"])
-			_materiales_variante[variante] = m
-		material = _materiales_variante[variante]
 		_vida = roundi(VIDA * VARIANTES[variante]["vida"])
 	for i in _mallas.size():
-		_mallas[i].material_override = material if material else _materiales_base[i]
+		var base := _materiales_base[i]
+		_mallas[i].material_override = _material_variante(base, variante) if variante != "" else base
+
+
+# El material de una variante sobre la piel de piedra de su aspecto: una copia con los `piel` de
+# VARIANTES (mismo shader, no recompila), compartida por aspecto. Sin esa piel, el tinte liso
+static func _material_variante(base: Material, cual: String) -> Material:
+	var clave := "%s:%d" % [cual, base.get_instance_id() if base else 0]
+	if not _materiales_variante.has(clave):
+		var m: ShaderMaterial
+		if base is ShaderMaterial and (base as ShaderMaterial).shader == ZombiSerenol.SHADER:
+			m = base.duplicate() as ShaderMaterial
+			var piel: Dictionary = VARIANTES[cual]["piel"]
+			for k in piel:
+				m.set_shader_parameter(k, piel[k])
+		else:
+			m = ShaderMaterial.new()
+			m.shader = JEFE_SHADER
+			m.set_shader_parameter("tint", VARIANTES[cual]["color"])
+		_materiales_variante[clave] = m
+	return _materiales_variante[clave]
 
 
 # Prendido por la antorcha de thinner (InventoryItemData.quema): pierde vida unos segundos con

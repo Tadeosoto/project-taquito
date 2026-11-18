@@ -1230,7 +1230,8 @@ func _sacar_muebles(nodo: Node, distancia := INTERIOR_VISTA) -> void:
 func _meter_pendiente() -> void:
 	while not _pendientes.is_empty():
 		var pendiente: Array = _pendientes.pop_front()
-		var padre: Node = pendiente[0]
+		# Sin tipo: si el local ya se borro, asignarlo a un `Node` truena antes de revisarlo
+		var padre = pendiente[0]
 		var mueble: Node = pendiente[1]
 		if is_instance_valid(padre) and padre.is_inside_tree() and not padre.is_queued_for_deletion() \
 				and not String(padre.get_path()).contains("Detalle_quitado"):

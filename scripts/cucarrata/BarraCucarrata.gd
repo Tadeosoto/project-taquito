@@ -53,6 +53,8 @@ func _process(_delta: float) -> void:
 
 
 func _dibujar() -> void:
+	if not is_instance_valid(jefe):
+		return   # el cuadro en que se va (CucarrataCalle._quitar) aun se dibuja
 	_barra.draw_rect(Rect2(-2, -2, ANCHO + 4, ALTO + 4), Color.BLACK)
 	_barra.draw_rect(Rect2(0, 0, ANCHO, ALTO), COLOR_VACIO)
 	_barra.draw_rect(Rect2(0, 0, ANCHO * jefe.vida / JefeCucarrata.VIDA, ALTO), COLOR_VIDA)

@@ -76,11 +76,41 @@ const ARCHIVOS := {
 	"mejora_maxima": "res://audio/arcade/mejora_maxima.ogg",   # S-069: la mejora llega a su nivel maximo (MejorasUI.comprar)
 	"mejora_compra": "res://audio/arcade/mejora_compra.ogg",   # S-069: compras una mejora (MejorasUI.comprar)
 	"ambiente_cancha": "res://audio/ambiente/ambiente_cancha.ogg",   # la cancha de Santa Mugre y la plaza de la favela, de dia
+	# La cucarrata y sus crias (Splice, 2026-11-18; audio/cucarrata/, docs/sonidos.csv S-106 a S-136)
+	"cucarrata_ronda": "res://audio/cucarrata/cucarrata_ronda.ogg",   # S-106: sus patas rondando la bodega, loop (JefeCucarrata._sonar_loop)
+	"cucarrata_despierta": "res://audio/cucarrata/cucarrata_despierta.ogg",   # S-107: te ve y despierta (JefeCucarrata._despertar)
+	"cucarrata_grita": "res://audio/cucarrata/cucarrata_grita.ogg",   # S-108/S-125: el aviso antes del salto, y al voltearse
+	"cucarrata_mordida": "res://audio/cucarrata/cucarrata_mordida.ogg",   # S-109: el salto te muerde
+	"cucarrata_aterriza": "res://audio/cucarrata/cucarrata_aterriza.ogg",   # S-110: cae del salto, el aguijon pega en el piso, se voltea
+	"cucarrata_pare": "res://audio/cucarrata/cucarrata_pare.ogg",   # S-111: cada pujo pariendo (Cucarrata.parir)
+	"cucarrata_cria_sale": "res://audio/cucarrata/cucarrata_cria_sale.ogg",   # S-112: sale cada cria (Cucarrata.parir)
+	"cucarrata_despega": "res://audio/cucarrata/cucarrata_despega.ogg",   # S-113: despega en la fase 2
+	"cucarrata_alas": "res://audio/cucarrata/cucarrata_alas.ogg",   # S-114: las alas volando, loop
+	"cucarrata_vuela_grito": "res://audio/cucarrata/cucarrata_vuela_grito.ogg",   # S-115: chillido cada tanto volando
+	"cucarrata_aguijon_aviso": "res://audio/cucarrata/cucarrata_aguijon_aviso.ogg",   # S-116: se para en vertical para picar (el aviso para rodar)
+	"cucarrata_picada": "res://audio/cucarrata/cucarrata_picada.ogg",   # S-117: se lanza con el aguijon
+	"cucarrata_aguijonazo": "res://audio/cucarrata/cucarrata_aguijonazo.ogg",   # S-118: el aguijon te pega
+	"cucarrata_bala_caparazon": "res://audio/cucarrata/cucarrata_bala_caparazon.ogg",   # S-120: balazo en el caparazon volando
+	"cucarrata_cambio_fase": "res://audio/cucarrata/cucarrata_cambio_fase.ogg",   # S-121: cambia de fase
+	"cucarrata_patalea": "res://audio/cucarrata/cucarrata_patalea.ogg",   # S-123: boca arriba pataleando, loop
+	"cucarrata_machete_panza": "res://audio/cucarrata/cucarrata_machete_panza.ogg",   # S-124: machetazo en la panza tumbada
+	"cucarrata_muere": "res://audio/cucarrata/cucarrata_muere.ogg",   # S-126: se muere
+	"cucarrata_cae_muerta": "res://audio/cucarrata/cucarrata_cae_muerta.ogg",   # S-122/S-127: el caparazon pega en el piso (tumbada o muerta)
+	"rata_corretea": "res://audio/cucarrata/rata_corretea.ogg",   # S-128: chillido de la rata cria corriendo (CriaCucarrata)
+	"rata_brinca": "res://audio/cucarrata/rata_brinca.ogg",   # S-129: la rata brinca a morder
+	"rata_mordida": "res://audio/cucarrata/rata_mordida.ogg",   # S-130: la rata te muerde
+	"rata_muere": "res://audio/cucarrata/rata_muere.ogg",   # S-131: muere la rata
+	"cucaracha_zumbido": "res://audio/cucarrata/cucaracha_zumbido.ogg",   # S-132: zumbido de la cucaracha cria volando
+	"cucaracha_aviso": "res://audio/cucarrata/cucaracha_aviso.ogg",   # S-133: la cucaracha se prepara para picar
+	"cucaracha_picada": "res://audio/cucarrata/cucaracha_picada.ogg",   # S-134: la cucaracha se lanza
+	"cucaracha_explota": "res://audio/cucarrata/cucaracha_explota.ogg",   # S-135: revienta (chapoteo + chispa de Serenol)
+	"cucaracha_muere": "res://audio/cucarrata/cucaracha_muere.ogg",   # S-136: muere aplastada
 }
 
 # Los que se repiten solos (ya vienen con el final empalmado con el principio)
 const LOOPS := ["ambiente_dia", "ambiente_noche", "ambiente_tianguis", "ambiente_cancha", "ambiente_multitud",
-	"ambiente_cueva", "noche_zombis", "agua_fluyendo", "fuego_loop", "respiracion_cansada"]
+	"ambiente_cueva", "noche_zombis", "agua_fluyendo", "fuego_loop", "respiracion_cansada",
+	"cucarrata_ronda", "cucarrata_alas", "cucarrata_patalea"]
 
 # Sonidos con varias tomas: `sonido()` elige una al azar cada vez que lo piden (los que
 # llaman solo pasan el nombre). Cada archivo se carga una vez.
@@ -105,6 +135,12 @@ const VARIANTES := {
 		"res://audio/jugador/dolor_2.ogg",
 		"res://audio/jugador/dolor_3.ogg",
 		"res://audio/jugador/dolor_4.ogg",
+	],
+	# S-119: la cucarrata herida (JefeCucarrata._herir, no mas de uno cada DOLOR_CADA_MS)
+	"cucarrata_herida": [
+		"res://audio/cucarrata/cucarrata_herida_1.ogg",
+		"res://audio/cucarrata/cucarrata_herida_2.ogg",
+		"res://audio/cucarrata/cucarrata_herida_3.ogg",
 	],
 }
 

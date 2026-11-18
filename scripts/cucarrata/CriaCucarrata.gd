@@ -9,9 +9,9 @@ extends Node3D
 # - Cucaracha: bomba kamikaze. Vuela horizontal, de frente, como mosca alrededor del jugador (y
 #   atacan de una en una, tras ENJAMBRE_ESPERA s de turba); cuando le toca se frena, se para en
 #   vertical mostrando la panza y acelera a estrellarse con la panza, y truena en azul Serenol (dana a EXPLOTA_RADIO; rodando se
-#   esquiva, como cualquier golpe). Un machetazo o un balazo la revientan sin dano.
+#   esquiva, como cualquier golpe). GOLPES machetazos o balazos la revientan sin dano.
 # - Rata: corre como mosca en el piso alrededor del jugador, brinca de una en una y muerde, y se queda pegada (frena y chupa vida) hasta que
-#   un machetazo se la quita: cada golpe quita una pegada, sin importar hacia donde mires. Rodar
+#   la matas a machetazos (GOLPES): cada golpe le da a una pegada, sin importar hacia donde mires. Rodar
 #   no la suelta. Bloqueando de frente rebota.
 # Estan en el grupo "lombrices": asi el machete (Player._golpear, la estocada, el azote) y la
 # pistola (EnjambreLombrices.rayo) les pegan sin tocar player.gd, con las mismas funciones que el
@@ -43,7 +43,9 @@ const RATA_CORRE := 0.9          # segundos que corre al caer, antes de ir por e
 const ALTURA_VUELO := Vector2(1.5, 2.6)   # metros sobre el piso donde revolotean las cucarachas
 const RADIO := 0.25              # para el machete y las balas (la rata)
 const RADIO_CUCARACHA := 0.35
-const BALAZOS_CUCARACHA := 2
+# Golpes (machetazo o balazo, cuentan igual) para matar a una cria (JJ, 2026-11-17: de un
+# toque no eran amenaza). Una rata pegada tambien: cada machetazo le quita uno
+const GOLPES := 3
 # El centro del cuerpo de la cucaracha en el glb (pose de vuelo, antes de escalar y pararla)
 const CENTRO_CUCARACHA := Vector3(0.0, 0.7, 0.0)
 # El origen del jugador es el centro de su capsula, ~1 m sobre el piso: el pecho queda poco arriba
@@ -113,6 +115,8 @@ static var _atacando := 0        # cucarachas apuntando o en picada
 static var _ultimo_ataque := -100000
 static var _ratas_atacando := 0  # ratas brincando (una a la vez)
 static var _rata_ultima := -100000
+static var _ruido_ultimo := -100000   # el chillido o zumbido de fondo, uno para todo el enjambre
+const RUIDO_CADA_MS := 700
 
 var anim: AnimationPlayer   # la cucaracha
 var _modelo: Node3D
@@ -130,7 +134,7 @@ var _chupa := 0.0
 var _jugador: Node3D
 var _meta := Vector3.ZERO        # el punto al que vuela, alrededor del jugador
 var _meta_reloj := 0.0
-var _balazos := 0
+var _golpes := 0
 var _rapidez := 6.0
 var _turno := false              # esta cucaracha tiene uno de los ATACAN_JUNTAS
 
@@ -255,6 +259,7 @@ func _rata_suelo(delta: float) -> void:
 		return
 	if _jugador == null or _reloj < 0.0:
 		return
+	_ruido("rata_corretea", -14.0)   # S-128
 	var hacia := _jugador.global_position - global_position
 	hacia.y = 0.0
 	var lejos := hacia.length()
@@ -269,7 +274,7 @@ func _rata_suelo(delta: float) -> void:
 		# Adelanta un poco a donde va el jugador
 		var va: Vector3 = _jugador.get("velocity") if _jugador.get("velocity") != null else Vector3.ZERO
 		_salto_hasta = _pecho() + Vector3(va.x, 0, va.z) * SALTO_DURA * 0.5
-		Sonidos.tocar(self, "squelch", -14.0, 1.6)
+		Sonidos.tocar(self, "rata_brinca", -8.0, randf_range(0.95, 1.15))   # S-129
 		return
 	# Como mosca en el piso: a su punto del otro lado del jugador, torciendo el rumbo
 	_meta_reloj -= delta
@@ -330,7 +335,7 @@ func _morder() -> void:
 	_en_jugador = Vector3(cos(a) * 0.32, randf_range(-0.45, 0.5), sin(a) * 0.32)
 	pegadas.append(self)
 	_fx("pegada_mordida", global_position)
-	Sonidos.tocar(self, "squelch", -8.0, 1.3)
+	Sonidos.tocar(self, "rata_mordida", -8.0, randf_range(0.95, 1.1))   # S-130
 
 
 func _cuerpo_jugador() -> Node3D:
@@ -375,6 +380,7 @@ func _cucaracha_vuela(delta: float) -> void:
 		_vel.y = (_altura - global_position.y) * 2.0
 		global_position += (_vel + meneo) * delta
 		return
+	_ruido("cucaracha_zumbido", -16.0)   # S-132
 	# Como mosca: a su punto del otro lado del jugador, torciendo el rumbo poco a poco
 	_meta_reloj -= delta
 	if _meta_reloj <= 0.0 or global_position.distance_to(_meta) < MOSCA_LLEGA:
@@ -401,7 +407,7 @@ func _cucaracha_vuela(delta: float) -> void:
 		_ultimo_ataque = Time.get_ticks_msec()
 		_estado = Estado.APUNTA
 		_reloj = 0.0
-		Sonidos.tocar(self, "chillido", -16.0, 2.2)
+		Sonidos.tocar(self, "cucaracha_aviso", -8.0, randf_range(1.0, 1.2))   # S-133
 
 
 # Un punto del otro lado del jugador (desviado hasta MOSCA_ABRE), a su distancia y altura: para
@@ -431,6 +437,7 @@ func _cucaracha_apunta(delta: float) -> void:
 		_reloj = 0.0
 		var hacia := (_pecho() - global_position) if _jugador else -global_transform.basis.z
 		_vel = hacia.normalized() * 2.0
+		Sonidos.tocar(self, "cucaracha_picada", -8.0, randf_range(1.1, 1.3))   # S-134
 
 
 # Acelera en vertical hacia ti; corrige poco el rumbo, asi rodando la esquivas
@@ -463,8 +470,7 @@ func explotar(con_dano := true) -> void:
 		_jugador.recibir_dano(EXPLOTA_DANO, donde, 1.6, self)
 	_estallido(get_parent(), donde, EXPLOTA_RADIO if con_dano else 0.8)
 	_fx("saco_revienta", donde)
-	Sonidos.tocar_suelto(self, "chapoteo", -4.0, 1.4)
-	Sonidos.tocar_suelto(self, "retumbo", -6.0, 1.3)
+	Sonidos.tocar_suelto(self, "cucaracha_explota", -2.0, randf_range(0.95, 1.1))   # S-135
 	queue_free()
 
 
@@ -542,6 +548,16 @@ static func _bola_brillante(color: Color, energia: float, alfa: float) -> MeshIn
 	return bola
 
 
+# Un ruido de fondo del enjambre (chillido corriendo, zumbido volando): sale de una cria al azar y
+# no mas de uno cada RUIDO_CADA_MS entre todas, si no con 12 crias era un solo ruido parejo
+func _ruido(nombre: String, volumen_db: float) -> void:
+	var ahora := Time.get_ticks_msec()
+	if ahora - _ruido_ultimo < RUIDO_CADA_MS or randf() > 0.05:
+		return
+	_ruido_ultimo = ahora
+	Sonidos.tocar(self, nombre, volumen_db, randf_range(0.9, 1.2))
+
+
 func _fx(lugar: String, donde: Vector3) -> void:
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos and efectos.has_method("lanzar"):
@@ -558,14 +574,17 @@ func _morir() -> void:
 	_despegar()
 	_fx("cria_corte", global_position)
 	_estallido(get_parent(), global_position, 0.35)
-	Sonidos.tocar_suelto(self, "squelch", -6.0, 1.2)
+	if tipo == Tipo.RATA:
+		Sonidos.tocar_suelto(self, "rata_muere", -6.0, randf_range(0.95, 1.15))   # S-131
+	else:
+		Sonidos.tocar_suelto(self, "cucaracha_muere", -6.0, randf_range(0.95, 1.15))   # S-136
 	queue_free()
 
 
 # --- Lo que el machete y la pistola le preguntan al grupo "lombrices" ---
 
-# Un machetazo (Player._golpear, la estocada). A una rata pegada la quita cualquier golpe, pero
-# solo una por golpe (las demas esperan al siguiente)
+# Un machetazo (Player._golpear, la estocada). A una rata pegada le da cualquier golpe, pero
+# solo a una por golpe (las demas esperan al siguiente)
 func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float, _dano: int, giro := false, _todas := false) -> bool:
 	if _estado == Estado.MUERTA:
 		return false
@@ -574,7 +593,7 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 		if _quito_en == cuadro:
 			return false
 		_quito_en = cuadro
-		_morir()
+		_golpe(centro())
 		return true
 	var hacia := centro() - origen
 	if absf(hacia.y) > 2.2 + _radio():
@@ -584,7 +603,7 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 		return false
 	if not giro and hacia.length() > 0.3 and hacia.normalized().dot(frente) < cono:
 		return false
-	_morir()
+	_golpe(centro())
 	return true
 
 
@@ -600,10 +619,14 @@ func query_ray_hit(origen: Vector3, dir: Vector3, max_dist: float, radio: float)
 	return {"dot_index": 0, "position": origen + dir * t, "distance": t}
 
 
-# La rata muere de un balazo; la cucaracha de BALAZOS_CUCARACHA (JJ: 2)
 func bullet_hit(_i: int, punto: Vector3, _dir: Vector3) -> void:
-	_balazos += 1
-	if tipo == Tipo.CUCARACHA and _balazos < BALAZOS_CUCARACHA:
+	_golpe(punto)
+
+
+# Un machetazo o un balazo: al GOLPES muere; antes solo el corte y el squelch
+func _golpe(punto: Vector3) -> void:
+	_golpes += 1
+	if _golpes < GOLPES:
 		_fx("cria_corte", punto)
 		Sonidos.tocar(self, "squelch", -10.0, 1.5)
 		return

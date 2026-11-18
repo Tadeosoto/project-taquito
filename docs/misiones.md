@@ -173,7 +173,7 @@ flowchart TD
 |---|---|---|
 | Defender el tinaco | 150-250 | 1 galón + la ficha sellada + mejoras; si cae el tinaco, nada |
 | Defender la camioneta | 60-100 por entrega | Mejoras; sube la cura de la zona; si cae Nacho, la misión falla |
-| Guardia de la reja | 120 | Una sola vez: abre la salida de Santa Mugre |
+| Guardia de la reja | 120 | Una sola vez: abre la salida de Santa Mugre y enseña el golpe giratorio |
 | Reparto clandestino | 60-100 por entrega | Sube la cura de la zona |
 | Recolección | 30-50 + lo que encuentres | — |
 | Encargo | 40-80 | Sube la confianza |
@@ -195,7 +195,7 @@ El contrato de siempre, ya con su lugar en el mundo: [el piloto](#0-el-piloto-de
 
 ✅ (2026-11-12, M3, con JJ) **Es el tutorial de la primera horda y se hace una sola vez**, una de las primeras misiones del juego: **abre la salida de Santa Mugre**. Hasta cumplirla, las flechas "Salir de Santa Mugre" de las dos rejas no sacan ("La reja está cerrada. Antes habla con el padre Chuy, en el atrio."). Ya no es recurrente (antes lo era): el susto repetido de que los zombis entren a Santa Mugre es **el evento de la reja**, que ocurre **al azar** (abajo).
 
-**Quién da:** el padre Chuy, parado en el atrio de la parroquia (marca `Chuy_Atrio`). **Cómo va:** de día la aceptas con él y **se corta a la noche**: la colonia se recarga de noche y apareces adentro de una de las dos rejas al azar, la poniente o la oriente (marcas `Guardia_poniente`/`Guardia_oriente`, paso `DEFENDER` con `lugar = "reja_guardia"`). Aguantas **3 minutos** sin alejarte más de 20 m de la reja mientras llegan **turbas de 3 zombis cada 15 s** (más suaves que las del tinaco; es el tutorial). **Paga $120.** Al acabar, la reja queda abierta para siempre (`Misiones.reja_abierta()`) y el padre ya no vuelve a ofrecerla (`MisionData.una_vez`). Si te desmayas o te alejas, falla y la puedes volver a tomar. `Misiones.guardias_reja` cuenta las guardias hechas (hoy solo 0 o 1).
+**Quién da:** el padre Chuy, parado en el atrio de la parroquia (marca `Chuy_Atrio`). **Cómo va:** de día la aceptas con él y **se corta a la noche**: la colonia se recarga de noche y apareces adentro de una de las dos rejas al azar, la poniente o la oriente (marcas `Guardia_poniente`/`Guardia_oriente`, paso `DEFENDER` con `lugar = "reja_guardia"`). Aguantas **3 minutos** sin alejarte más de 20 m de la reja mientras llegan **turbas de 3 zombis cada 15 s** (más suaves que las del tinaco; es el tutorial). **Paga $120** y **te enseña el golpe giratorio** (✅ JJ, 2026-11-18: `ensena = "giro"`): el giro en área del brinco, que es lo que te salva de las crías de la cucarrata, porque esa pelea, el final de las misiones iniciales, va sin el golpe cargado ni la estocada en el aire. Al acabar, la reja queda abierta para siempre (`Misiones.reja_abierta()`) y el padre ya no vuelve a ofrecerla (`MisionData.una_vez`). Si te desmayas o te alejas, falla y la puedes volver a tomar. `Misiones.guardias_reja` cuenta las guardias hechas (hoy solo 0 o 1).
 
 ### El evento de la reja (no es misión)
 
@@ -405,7 +405,7 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 | **Quién la da** | ✅ **Nacho Garrafón**, el chofer del gremio, junto al tinaco de la plaza de Santa Mugre (la marca `Chofer`, la misma de "El agua de afuera"). El gremio sale de noche con el agua y la vio |
 | **Desde cuándo** | ✅ Después de **la guardia de la reja** (el tutorial de la primera horda). Mientras está pendiente, Nacho ofrece esta antes que la camioneta |
 | **Qué dice** | ✅ Que es **"lo peor que ha visto"**, y que lo buscan para matar a eso antes de que ataque Santa Mugre: vuela, la barda no la para |
-| **Dónde está** | ✅ **De noche**, rondando el **baldío del norponiente** y sus calles (la avenida grande y las laterales) (La Florida Marchita, junto a la avenida grande, ~220 m de la barda de Santa Mugre; JJ lo escogió de cinco lugares abiertos, nunca entra a la fortaleza). Al aceptar, los mapas te dicen dónde anda; de día no está |
+| **Dónde está** | ✅ **De noche, dentro de una bodega de La Gigantera** (JJ, 2026-11-18): la primera saliendo por la reja poniente de Santa Mugre (~190 m), la #34 de las bodegas del mapa, vacía (sin racks ni cajas), con piso de concreto donde sí se ven las ratas. Se entra por el callejón que queda entre su frente y la espalda de la bodega de junto. Está ahí cada noche aunque no hayas hecho la guardia de la reja ni aceptado la misión; despierta en cuanto entras o le disparas, y no sale de los muros. Los zombis de la noche entran por los portones abiertos. Antes rondaba el baldío del norponiente (en el pasto no se veían las ratas y atravesaba las casas). Al aceptar, los mapas te dicen dónde anda; de día no está |
 | **Qué se hace** | Encontrarla y matarla (la pelea de tres fases de `scripts/cucarrata/`), y volver con Nacho a cobrar |
 | **Sin la misión** | ✅ Te la puedes topar en exploración libre. **Si la matas antes de aceptar**, al llegar con Nacho te da **las gracias por evitar que esa cosa atacara la colonia** y **la paga completa** |
 | **Si te desmayas** | 💡 Se va y vuelve otra noche con la vida llena; la misión no falla |

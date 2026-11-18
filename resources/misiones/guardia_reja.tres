@@ -26,3 +26,4 @@ despedida = "Ya cuidaste la reja, hijo. Ve con Dios."
 pasos = Array[ExtResource("2_paso")]([SubResource("paso_guardia")])
 pesos = 120
 una_vez = true
+ensena = "giro"
