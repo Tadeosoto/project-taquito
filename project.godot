@@ -33,6 +33,7 @@ Fichas="*res://scripts/sotano/Fichas.gd"
 Pruebas="*res://scripts/Pruebas.gd"
 Mejoras="*res://scripts/Mejoras.gd"
 Registro="*res://scripts/Registro.gd"
+ModoAlta="*res://scripts/ModoAlta.gd"
 
 [display]
 
@@ -283,6 +284,10 @@ lights_and_shadows/directional_shadow/size=2048
 
 [shader_globals]
 
+pixel_bloque={
+"type": "float",
+"value": 1.0
+}
 cortina={
 "type": "float",
 "value": 0.0
