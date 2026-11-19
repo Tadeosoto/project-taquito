@@ -37,6 +37,10 @@ const TEXTURAS := {
 	"ruleta": ["res://textures/sotano/ruleta.png", Color.WHITE, 0.0],
 	"baccarat": ["res://textures/sotano/baccarat.png", Color.WHITE, 0.0],
 	"blackjack_vip": ["res://textures/sotano/blackjack_vip.png", Color.WHITE, 0.0],
+	# El desague de la Desaguadora (desague.py, arte.py desague())
+	"oxido": ["res://textures/sotano/oxido.png", Color.WHITE, 0.6],
+	"carne": ["res://textures/sotano/carne.png", Color(0.9, 0.85, 0.85), 1.2],
+	"reja": ["res://textures/sotano/reja.png", Color.WHITE, 0.0],
 }
 # Con textura pero brillan solos (la marquesina luminosa del refri)
 const BRILLAN_TEXTURA := ["refri_letrero"]
@@ -49,6 +53,8 @@ const BRILLAN := {
 	"boton_grande": Color(1.0, 0.85, 0.15),
 	"foco_frutas": Color(1.0, 0.92, 0.6),
 	"foco_bano": Color(1.0, 0.85, 0.55),
+	"foco_rojo": Color(1.0, 0.2, 0.12),
+	"corazon_luz": Color(0.3, 1.0, 0.85),
 }
 const PANTALLA := "res://textures/sotano/pantalla.png"
 # Los neones de tubo (neones.py): el tubo brilla casi blanco al centro de su color; el halo es una
@@ -133,6 +139,16 @@ func _material(original: Material) -> Material:
 	if nombre == "marmol_negro":
 		m.roughness = 0.12
 		m.metallic_specular = 0.9
+	# La reja ciclonica deja ver a traves; el agua negra y la piel de la Desaguadora brillan mojadas
+	if nombre == "reja":
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+		m.alpha_scissor_threshold = 0.5
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	if nombre == "agua_negra" or nombre == "piel_ahogada" or nombre == "pelo_mojado":
+		m.roughness = 0.12 if nombre == "agua_negra" else 0.35
+		m.metallic_specular = 0.9
+	if nombre == "carne":
+		m.roughness = 0.4
 	if nombre == "terciopelo":
 		m.roughness = 1.0
 	if nombre == "cromo" or nombre.begins_with("tapa_dorada") or nombre == "oro" or nombre == "ficha_4":

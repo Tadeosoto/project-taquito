@@ -25,6 +25,7 @@ var permiso := 0:
 		cambio.emit()
 
 
+var desaguadora := false            # si ya venciste a La Desaguadora (el premio es una vez)
 var vip := false:
 	set(valor):
 		vip = valor
@@ -35,6 +36,7 @@ func reiniciar() -> void:
 	fichas = 0
 	permiso = 0
 	vip = false
+	desaguadora = false
 
 
 # Pesos -> fichas: cuantas compraste (las que alcance)

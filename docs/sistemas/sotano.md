@@ -274,6 +274,36 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - Odds 2/3/5/8/12, with chances proportional to 1/odds.
   - A bet of 5+ halves your horse's luck, and the house's horse trembles first (`Sotano.temblar`).
 
+## La Desaguadora (the secret boss, AG 2026-11-19)
+
+Knock three times on the closed bathroom stall (`Sotano._tocar_caseta`, `TOQUES_SECRETO`). The door swings open by itself (`Bano_caseta_bisagra`) and reveals a rusty hatch on the floor (`Bano_escotilla`). "Bajar por la escotilla" builds the drain room far below the bathroom (`DESAGUE_EN`) and puts you on its ladder with combat on.
+
+- **The arena** (`tools/blender/sotano/desague.py` → `models/sotano/desague.glb`): Silent Hill 2 mood, but our own.
+  - Rusty sheet walls (`oxido.png`) with flesh growing on them (`carne.png`), and a rusted grating floor.
+  - A black water pool in the middle, ringed by chain-link fences (`reja.png`, alpha) with two gaps.
+  - Five drains (`Coladera_*`), thick pipes with valves, hanging chains with hooks and caged red lamps.
+  - A big wall fan that turns, a rusty gurney and an overturned wheelchair.
+  - The ladder up (`Entrada`/`Salida`). Textures come from `arte.py desague()`.
+- **The arena logic** (`Desague.gd`):
+  - Volumetric fog: it turns it on in the Environment and adds a `FogVolume`, then restores the Environment on leaving. The fog thickens and reddens per phase.
+  - On arrival a procedural siren plays, followed by a low drone.
+  - The boss bar.
+  - You can't faint here: a blow that would kill you sends you back up to the bathroom with `VIDA_RESCATE` (`herir_jugador`).
+  - Win: `PREMIO_FICHAS` 300 and `resources/productos/varilla_desague.tres` (24 damage; `models/armas/varilla/varilla.glb`), once per run (`Fichas.desaguadora`).
+  - "Subir por la escalera" goes back up at any time (she resets).
+- **The boss** (`Desaguadora.gd`, `models/sotano/desaguadora.glb`): a bloated faceless woman of drain hair and black water, 3.2 m tall.
+  - **Model:** a skirt of wet hair strands, a hunched grey-blue torso, a hair curtain over the face and chest, and very long arms with extra fingers. There is no rig: the code moves the empties `Hombro_L/R`, `Cabeza`, `Pelo`.
+  - **Damage:** she is in the `zombis` group with `recibir_golpe` and `radio_golpe`, so the machete reaches her. The pistol reaches her through `PuntoDebil` (body ×1, heart ×2.5 while exposed).
+  - **Attacks, all telegraphed:**
+    - zarpazo: the right arm rises, then sweeps a cone in front;
+    - charcos: red circles grow where you stand, then burst into black water;
+    - pelo (phase 2+): a red line, then the hair whip along it;
+    - gotas (phase 3): black water falls from the ceiling over you;
+    - hundirse: she sinks into a drain and rises from the one farthest from you.
+  - **Opening:** after the zarpazo her chest opens for `EXPUESTA_DURA` s: the heart glows and melee does ×2.
+  - **Life and phases:** `VIDA` 650, phases at 0.6 and 0.25 (she screams and gets faster).
+- **Test scene:** `-- --desague=<dir>` knocks, goes down, saves frames, stands you next to her and prints your life.
+
 ## Tests
 
 - `godot --path . tools/sotano/probar_sotano.tscn -- --capturas=<dir>` (needs a window; the folder must exist) ends with `RESULTADO: BIEN`. Steps:
@@ -286,6 +316,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   7. Buy beers at the freezer, the bar and from the waitress.
   8. Play a simple fruit spin.
   9. Cash out and leave.
+  10. Also: the VIP pass and a gold-blackjack hand, the secret door (three knocks, the hatch), going down to the drain, beating La Desaguadora through her phases, the reward, and climbing back up.
 - `godot --path . --headless -s tools/sotano/probar_holdem.gd` runs known hands plus 2000 AI hands and checks there are no stalls and no lost chips.
 - `godot --path . --headless -s tools/sotano/probar_mesas.gd` checks the blackjack, roulette and baccarat rules, payouts and cheats (thousands of rounds).
 - `probar_sotano` also plays one hand of blackjack, one of baccarat, and a roulette spin (with the doblete if it wins).

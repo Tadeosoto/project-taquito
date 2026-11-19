@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="InventoryItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="1_item"]
+[ext_resource type="PackedScene" path="res://models/armas/varilla/varilla.glb" id="2_modelo"]
+
+[resource]
+script = ExtResource("1_item")
+item_name = "Varilla del desagüe"
+description = "Una varilla oxidada que salió de la coladera, con cadena enredada. Sigue escurriendo agua negra aunque la seques."
+inspection_model = ExtResource("2_modelo")
+efecto = "24 de daño, empuja, golpe un poco lento"
+dano = 24
+empujon = 1.6
+velocidad = 0.85

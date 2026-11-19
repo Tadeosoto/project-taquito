@@ -433,7 +433,19 @@ def banho(col):
         caja("Bano_excusado_base_%d" % k, tx - 0.12, tx + 0.12, y, y + 0.3, tz - 0.14, tz + 0.14, porcelana, col)
         girar("Bano_taza_%d" % k, [(0, 0.28), (0.17, 0.3), (0.2, 0.4), (0.16, 0.42), (0, 0.36)], porcelana, col, lados=10).location = _b(tx - 0.08, y, tz)
         caja("Bano_tanque_%d" % k, x1 - 0.18, x1 - 0.02, y + 0.42, y + 0.8, tz - 0.2, tz + 0.2, porcelana, col, choca=False)
-    caja("Bano_caseta_puerta_0", cx0 - 0.02, cx0 + 0.01, y + 0.2, y + 1.6, z0 + 0.12, z0 + 1.08, lamina, col)
+    # La caseta cerrada: su puerta en una bisagra (si tocas tres veces, Sotano.gd la abre) y adentro,
+    # en el piso, la escotilla oxidada que baja al desague (desague.py, la Desaguadora)
+    bis = bpy.data.objects.new("Bano_caseta_bisagra", None)
+    bis.location = _b(cx0 - 0.005, y + 0.2, z0 + 0.12)
+    col.objects.link(bis)
+    hoja = caja("Bano_caseta_puerta_0", -0.015, 0.015, 0.0, 1.4, 0.0, 0.96, lamina, col, choca=False)
+    hoja.parent = bis
+    hoja.location = _b(0.0, 0.7, 0.48)
+    esc = girar("Bano_escotilla", [(0, 0.0), (0.26, 0.0), (0.26, 0.015), (0, 0.015)], material("tubo_oxidado", (0.4, 0.22, 0.12)), col, lados=16)
+    esc.location = _b(cx0 + 0.45, y, z0 + 0.6)
+    for j in range(4):
+        caja("Bano_escotilla_barra_%d" % j, cx0 + 0.22, cx0 + 0.68, y + 0.015, y + 0.025, z0 + 0.45 + j * 0.1, z0 + 0.47 + j * 0.1, material("cadena", (0.2, 0.18, 0.17)), col, choca=False)
+    marca("Bano_escotilla", cx0 + 0.45, y, z0 + 0.6, col, 90)
     colgada = caja("Bano_caseta_puerta_1", -0.015, 0.015, 0.0, 1.4, 0.0, 0.96, lamina, col, choca=False)
     colgada.location = _b(cx0 - 0.45, y + 0.9, z0 + 1.55)
     colgada.rotation_euler = (math.radians(9), 0, math.radians(-62))     # abierta y caida de una bisagra
