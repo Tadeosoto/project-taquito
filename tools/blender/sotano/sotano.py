@@ -885,7 +885,8 @@ def cuarto_vip(col):
     marca("VIP_cordon", a1 - 0.35, y, (v0 + v1) / 2, col, 0)
     marca("VIP_guardia", a1 - 0.6, y, v1 + 0.45, col, -90)
     marca("VIP_pase", a1 - 0.9, y, (v0 + v1) / 2, col, -90)
-    marca("Neon_vip", a1 - 0.03, y + 2.29, (v0 + v1) / 2, col, -90)     # chico (escala 0.4): arriba de la puerta no hay mas
+    # A un lado de la puerta, a la altura de los ojos (arriba solo quedan 12 cm al techo y se salia)
+    marca("Neon_vip", a1 - 0.03, y + 1.7, v0 - 0.6, col, -90)
     # El candil: aros dorados con focos
     cx_, cz_ = (x0 + x1) / 2 - 0.5, (z0 + z1) / 2
     cable_recto("VIP_candil_cadena", Vector((cx_, TECHO, cz_)), Vector((cx_, TECHO - 0.35, cz_)), oro, col, r=0.01)

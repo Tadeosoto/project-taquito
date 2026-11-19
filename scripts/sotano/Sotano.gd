@@ -40,7 +40,7 @@ const NEONES := [
 	["Neon_barra", "barra", Color(1.0, 0.25, 0.15), false, 0.6],
 	["Neon_bano", "bano", Color(0.3, 0.85, 1.0), true, 1.0],
 	["Neon_dados", "dados", Color(0.7, 0.3, 1.0), false, 0.9],
-	["Neon_vip", "vip", Color(1.0, 0.8, 0.3), false, 0.4],
+	["Neon_vip", "vip", Color(1.0, 0.8, 0.3), false, 0.6],
 	["Neon_club", "club", Color(1.0, 0.3, 0.75), false, 0.9],
 ]
 const FOCOS := 0.35

@@ -94,7 +94,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - One stool, and a lamp.
   - The marks `Baccarat_banca` / `_empate` / `_punto` (due south on each band) hold your chip stack; the cards are dealt in a row near the dealer.
 - The walkers' route goes around the blackjack table by the east wall (`Camino_10`, `Camino_12`) and around the baccarat table on the west (`Camino_13`). The bar-corner deal moved by the arch.
-- **VIP room** (`cuarto_vip()`, `VIP`): behind the east wall of hall 2, north of the bathroom, through a second doorway (`VIP_PUERTA`). It has a gold frame, a velvet rope on gold posts and a small gold VIP neon.
+- **VIP room** (`cuarto_vip()`, `VIP`): behind the east wall of hall 2, north of the bathroom, through a second doorway (`VIP_PUERTA`). It has a gold frame, a velvet rope on gold posts and a gold VIP neon beside the door, at eye level.
   - Inside: red velvet walls with gold mouldings, black marble floor and a gold chandelier.
   - A round stage with a pink neon edge and a chrome pole (`VIP_tubo`).
   - The gold blackjack table: black felt `blackjack_vip.png` with gold letters, a gold rail and gold chips.
