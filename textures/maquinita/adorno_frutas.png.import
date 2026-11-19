@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c607nfidqi2hq"
-path="res://.godot/imported/gabinete_olpley_calcomanias.png-42f2e729957888d41912b80929240730.ctex"
+uid="uid://scj6w2ieruwb"
+path="res://.godot/imported/adorno_frutas.png-c492bf09f8f6b016fd51ca2dde252aa0.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "657d80b7faa9296eacb9216d0a6e74a3"
 }
 
 [deps]
 
-source_file="res://models/sotano/gabinete_olpley_calcomanias.png"
-dest_files=["res://.godot/imported/gabinete_olpley_calcomanias.png-42f2e729957888d41912b80929240730.ctex"]
+source_file="res://textures/maquinita/adorno_frutas.png"
+dest_files=["res://.godot/imported/adorno_frutas.png-c492bf09f8f6b016fd51ca2dde252aa0.ctex"]
 
 [params]
 
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

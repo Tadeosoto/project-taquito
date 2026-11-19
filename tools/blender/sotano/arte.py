@@ -245,6 +245,57 @@ def pantalla():
     _render(sc, "pantalla.png")
 
 
+def frutas():
+    """512 x 512 para el adorno de la maquinita de frutas (tools/blender/sotano/maquinita.py):
+    copete (arriba, 512 x 128), costado alto (izq) y costado bajo (der) de 256 x 256, y abajo tres
+    etiquetas de 128 x 128 y los colores lisos (rojo, verde, cromo, negro) en la ultima. Sale a
+    textures/maquinita/adorno_frutas.png."""
+    u = 64
+    sc = _escena("Frutas", 512, 512, u)
+    emoji = _fuente("seguiemj.ttf")
+    negra = _fuente("ariblk.ttf")
+    impacto = _fuente("impact.ttf")
+    rnd = random.Random(11)
+    rojo, azul, amarillo, naranja = (0.8, 0.1, 0.1), (0.12, 0.35, 0.85), (1.0, 0.85, 0.1), (0.95, 0.5, 0.1)
+    frutas = ("\U0001F352", "\U0001F353", "\U0001F34B", "\U0001F349", "\U0001F34A", "\U0001F514", "\U0001F347")
+    # Copete: el letrero con sus frutas
+    _rect(sc, 0, 0, 8, 2, azul, -0.03)
+    _rect(sc, 0, 1.75, 8, 2, rojo, -0.025)
+    _texto(sc, "CÓCTEL DE FRUTAS", 4.0, 0.85, 0.9, amarillo, impacto, contorno=(0.05, rojo), ancho_max=6.6)
+    for k, g in enumerate(frutas[:4]):
+        _texto(sc, g, 0.45 if k < 2 else 7.55, 0.55 + (k % 2) * 0.75, 0.55, amarillo, emoji)
+    # Costado alto: frutas regadas sobre naranja
+    _rect(sc, 0, 2, 4, 6, naranja, -0.03)
+    for _ in range(12):
+        x, y = rnd.uniform(0.4, 3.6), rnd.uniform(2.4, 5.6)
+        _circulo(sc, x, y, 0.42, (1.0, 0.95, 0.85), -0.02)
+        _texto(sc, rnd.choice(frutas), x, y, 0.55, (0.15, 0.08, 0.05), emoji)
+    _texto(sc, "7", 2.0, 4.0, 1.4, rojo, impacto, z=0.01, contorno=(0.05, amarillo))
+    # Costado bajo: la fresa grande y "¡GANA!"
+    _rect(sc, 4, 2, 8, 6, (0.95, 0.2, 0.35), -0.03)
+    for _ in range(10):
+        r = rnd.uniform(0.15, 0.4)
+        _circulo(sc, rnd.uniform(4 + r, 8 - r), rnd.uniform(2 + r, 6 - r), r, rnd.choice((amarillo, naranja, (1.0, 0.6, 0.7))), -0.025)
+    _circulo(sc, 6.0, 3.7, 1.2, (1.0, 0.95, 0.85), -0.02)
+    _texto(sc, "\U0001F353", 6.0, 3.7, 1.7, rojo, emoji)
+    _texto(sc, "¡GANA!", 6.0, 5.35, 0.75, amarillo, impacto, contorno=(0.04, (0.3, 0.05, 0.1)))
+    # Etiquetas
+    etiquetas = [("ACEPTA\nMONEDAS\nDE $1", amarillo, (0.1, 0.08, 0.06)), ("NO LE\nPEGUE", rojo, (1, 1, 1)),
+                 ("SE PAGA\nEN EL\nMOSTRADOR", (0.95, 0.95, 0.9), (0.1, 0.08, 0.06))]
+    for k, (texto, fondo, tinta) in enumerate(etiquetas):
+        _rect(sc, k * 2.0 + 0.08, 6.08, k * 2.0 + 1.92, 7.92, fondo, -0.02)
+        _texto(sc, texto, k * 2.0 + 1.0, 7.0, 0.3, tinta, negra)
+    # Colores lisos: rojo, verde, cromo, negro (2 x 2 en la ultima casilla)
+    for k, c in enumerate(((0.85, 0.1, 0.12), (0.2, 0.65, 0.2), (0.78, 0.8, 0.84), (0.06, 0.06, 0.07))):
+        x0, y0 = 6.0 + (k % 2), 6.0 + (k // 2)
+        _rect(sc, x0, y0, x0 + 1, y0 + 1, c, -0.02)
+    global SALIDA
+    anterior = SALIDA
+    SALIDA = os.path.join(RAIZ, "textures", "maquinita")
+    _render(sc, "adorno_frutas.png")
+    SALIDA = anterior
+
+
 if __name__ == "arte":
     for hacer in (globals().get("SOLO") or ("cartas", "calcomanias", "pantalla")):
         globals()[hacer]()

@@ -71,6 +71,12 @@ const APRETAR := 0.12
 # Luz de la maquina sin monedas
 const ENERGIA_SIN_MONEDAS := 0.3
 
+# El adorno hecho en Blender (copete con focos, fresa, cromo, calcomanias de los costados;
+# tools/blender/sotano/maquinita.py): se pega encima de la malla que juega, que no cambia porque el
+# shader lee sus UV y colores. Una escena para todas; de lejos no se dibuja
+const ADORNO := preload("res://models/maquinita/adorno_frutas.glb")
+const ADORNO_HASTA := 40.0          # m
+
 signal giro_terminado
 
 static var _malla: ArrayMesh
@@ -106,6 +112,13 @@ func _ready() -> void:
 	var color: Color = COLORES[absi(hash(id)) % COLORES.size()]
 	_malla_instancia.set_instance_shader_parameter("color_gabinete", Vector3(color.r, color.g, color.b))
 	add_child(_malla_instancia)
+
+	var adorno := ADORNO.instantiate()
+	adorno.name = "Adorno"
+	add_child(adorno)
+	for parte: GeometryInstance3D in adorno.find_children("*", "GeometryInstance3D", true, false):
+		parte.visibility_range_end = ADORNO_HASTA
+		parte.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 	_monedas = MeshInstance3D.new()
 	_monedas.mesh = malla_monedas()

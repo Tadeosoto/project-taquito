@@ -2,7 +2,8 @@
 extends EditorScenePostImport
 
 # Al importar los .glb del Sotano (models/sotano/sotano.glb y gabinete_olpley.glb, de
-# tools/blender/sotano/sotano.py) cada material de Blender se cambia por el del juego por su
+# tools/blender/sotano/sotano.py) y el adorno de la maquinita de frutas
+# (models/maquinita/adorno_frutas.glb, de tools/blender/sotano/maquinita.py) cada material de Blender se cambia por el del juego por su
 # nombre: texturas del proyecto con filtro nearest, como el templo (tools/construir_templo.gd).
 # Los UV de las cajas ya vienen en metros, asi que "escala" es cuantas veces se repite por metro.
 # Un material por nombre para todo el archivo. Lo que no esta en TEXTURAS ni en COLORES se queda
@@ -21,6 +22,7 @@ const TEXTURAS := {
 	"lamina_puerta": ["res://textures/mapa/lamina_verde.png", Color(0.8, 0.85, 0.8), 1.0],
 	"estampa_virgen": ["res://textures/map/virgen/virgen_nos_cuida.png", Color.WHITE, 0.0],
 	"calcomanias": ["res://textures/sotano/calcomanias.png", Color.WHITE, 0.0],
+	"adorno_frutas": ["res://textures/maquinita/adorno_frutas.png", Color.WHITE, 0.0],
 }
 # Los que brillan solos (sin luz): tubos, neon, veladoras, la pantalla y los botones
 const BRILLAN := {
@@ -29,6 +31,7 @@ const BRILLAN := {
 	"neon_verde": Color(0.3, 1.0, 0.45),
 	"veladora": Color(1.0, 0.75, 0.35),
 	"boton_grande": Color(1.0, 0.85, 0.15),
+	"foco_frutas": Color(1.0, 0.92, 0.6),
 }
 const PANTALLA := "res://textures/sotano/pantalla.png"
 

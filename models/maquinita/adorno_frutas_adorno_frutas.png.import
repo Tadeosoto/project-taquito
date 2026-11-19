@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://k2ni1febeedl"
-path="res://.godot/imported/gabinete_olpley_pantalla.png-302f41c3f0f8f968177868da6ec5838d.ctex"
+uid="uid://dtb2b8ldc563y"
+path="res://.godot/imported/adorno_frutas_adorno_frutas.png-11b5fcb51ec9dc0640690196aa79d05d.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "c711b4e330db834688d64bec9de01016"
+"md5": "0162d075b825ab18a59314cc2154dcb9"
 }
 
 [deps]
 
-source_file="res://models/sotano/gabinete_olpley_pantalla.png"
-dest_files=["res://.godot/imported/gabinete_olpley_pantalla.png-302f41c3f0f8f968177868da6ec5838d.ctex"]
+source_file="res://models/maquinita/adorno_frutas_adorno_frutas.png"
+dest_files=["res://.godot/imported/adorno_frutas_adorno_frutas.png-11b5fcb51ec9dc0640690196aa79d05d.ctex"]
 
 [params]
 

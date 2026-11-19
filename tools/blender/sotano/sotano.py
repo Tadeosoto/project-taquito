@@ -43,6 +43,9 @@ def limpiar():
     for me in list(bpy.data.meshes):
         if me.users == 0:
             bpy.data.meshes.remove(me)
+    # Los materiales tambien: uno con una textura de vista previa la metia al .glb
+    for m in list(bpy.data.materials):
+        bpy.data.materials.remove(m)
 
 
 def coleccion(nombre):
