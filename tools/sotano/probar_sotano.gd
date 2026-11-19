@@ -132,10 +132,10 @@ func _probar() -> void:
 	ui.empezar()
 	_ver(fichas.fichas == antes - 3, "la tabla cuesta 3 fichas")
 	Engine.time_scale = 8.0
-	var vueltas := 0
-	while ui.get("_jugando") and vueltas < 400:
+	# Por tiempo y no por cuadros: a muchos FPS 400 cuadros no alcanzaban a que alguien gritara
+	var desde := Time.get_ticks_msec()
+	while ui.get("_jugando") and Time.get_ticks_msec() - desde < 30000:
 		await get_tree().process_frame
-		vueltas += 1
 		for i in 16:
 			if ui.get("_salidas").has(ui.get("_tablas")[0][i]):
 				ui.marcar(i)
