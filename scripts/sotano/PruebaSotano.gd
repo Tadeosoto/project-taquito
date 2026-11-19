@@ -39,6 +39,7 @@ const FOTOS := {
 	"salon2": [Vector3(21.5, -0.8, 6.5), Vector3(30.0, -2.4, 0.0)],
 	"poker": [Vector3(30.0, -1.0, 7.0), Vector3(27.5, -2.0, 3.6)],
 	"mesera": [Vector3.ZERO, Vector3.FORWARD],
+	"dulcero": [Vector3(37.4, -1.4, 5.0), Vector3(36.0, -1.95, 6.0)],
 	"rocola_diana": [Vector3(25.5, -1.4, 5.2), Vector3(25.6, -1.4, 8.0)],
 	"barriles": [Vector3(31.6, -1.3, 5.6), Vector3(34.3, -2.0, 7.3)],
 	"poker_redonda": [Vector3(30.2, -0.9, 6.0), Vector3(27.5, -1.9, 3.6)],

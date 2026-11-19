@@ -174,6 +174,9 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - The door opens and closes (`_puerta_bano`); a `StaticBody3D` blocks the doorway while it is shut.
     - The bulb flickers, a soft fog drifts (`CPUParticles3D` with a radial gradient), a broken radio loops procedural static (`_estatica`, 3D), and it drips while you're inside.
     - The mirror and the stall say unsettling things (`LINEAS_ESPEJO`, `LINEAS_CASETA`).
+    - **The candy man** sits on his stool by the entrance (`Marca_Bano_dulcero`, smoking).
+      - His stand (`Bano_puesto`) carries sweets, lollipops, cigarettes and little bags.
+      - `DulceroUI` ("¿Algo pa' la fiesta, joven?") sells for chips: mazapán, gansito, cigarettes and "algo pa' la fiesta" (the tachas, 16 chips).
   - The window (`VentanillaUI`), the poker (`PokerUI`), the races (`CarrerasUI`).
   - The freezer (a caguama for 3 chips), the bar (a Tecatl from the bartender for 2 chips; the same caguama item), the altar.
 - **People:**

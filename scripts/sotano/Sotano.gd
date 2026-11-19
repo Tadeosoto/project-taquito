@@ -78,7 +78,7 @@ const PUERTA_BANO_ABIERTA := -95.0   # grados en y de la bisagra
 # Lo que trae en la mano cada sentado (por su marca): "cigarro" (con humo) o "cerveza"
 const VICIOS := {"Poker_0": "cigarro", "Poker_1": "cigarro", "Poker_2": "cerveza", "Silla_2": "cigarro",
 	"Silla_7": "cerveza", "Silla_0": "cigarro", "Blackjack_0": "cigarro", "Blackjack_1": "cerveza",
-	"Baccarat_0": "cigarro"}
+	"Baccarat_0": "cigarro", "Bano_dulcero": "cigarro"}
 # Los de pie, cada quien en lo suyo (nada limpio): nombre, modelo, donde (x, z), hacia donde ve
 # (x, z), clip, lo que trae en la mano y lo que dice. Sin marca: van en metros del cuarto
 const TURBIOS := [
@@ -378,6 +378,9 @@ func _armar_bano() -> void:
 		add_child(_puerta_tope)
 	if not _marcas.has("Marca_Bano_centro"):
 		return
+	# El de los dulces: "¿Algo pa' la fiesta, joven?"
+	if _marcas.has("Marca_Bano_dulces"):
+		add_child(MuebleCasa.crear("Ver qué vende el de los dulces", marca("Bano_dulces").origin, _abrir.bind("res://scripts/sotano/DulceroUI.gd", {}), 0.8))
 	add_child(MuebleCasa.crear("Mirarte en el espejo", marca("Bano_espejo").origin, func() -> void:
 		avisar(LINEAS_ESPEJO[_espejo_linea % LINEAS_ESPEJO.size()])
 		_espejo_linea += 1, 0.8))
@@ -510,7 +513,8 @@ func _armar_gente() -> void:
 	var mesa := marca("Poker").origin - Vector3(0, 0, 1.8)
 	var sentados := [["Silla_0", "mujer_07"], ["Silla_2", "hombre_03"], ["Silla_5", "mujer_12"], ["Silla_7", "hombre_14"],
 		["Poker_0", "hombre_15"], ["Poker_1", "hombre_31"], ["Poker_2", "mujer_29"],
-		["Blackjack_0", "mujer_15"], ["Blackjack_1", "hombre_01"], ["Baccarat_0", "mujer_16"]]
+		["Blackjack_0", "mujer_15"], ["Blackjack_1", "hombre_01"], ["Baccarat_0", "mujer_16"],
+		["Bano_dulcero", "hombre_29"]]
 	for k in sentados.size():
 		var nombre: String = sentados[k][0]
 		var t := marca(nombre)
@@ -526,6 +530,8 @@ func _armar_gente() -> void:
 			mira = marca("Crupier_bj").origin
 		elif nombre.begins_with("Baccarat"):
 			mira = marca("Crupier_baccarat").origin
+		elif nombre == "Bano_dulcero":
+			mira = marca("Bano_puesto").origin
 		nodo.look_at(to_global(Vector3(mira.x, nodo.position.y, mira.z)), Vector3.UP)
 		# Sitting_Idle deja la cadera CADERA atras del origen: se adelanta para que caiga en el asiento
 		nodo.position -= nodo.transform.basis.z.normalized() * CADERA
