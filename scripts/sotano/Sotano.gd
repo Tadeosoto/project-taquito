@@ -23,7 +23,8 @@ const LUZ_COLOR := Color(0.85, 0.95, 1.0)
 const LUZ_ENERGIA := 1.3
 const LUZ_ALCANCE := 6.0
 const PARPADEAN := [1, 5]           # los tubos que fallan
-const PISTA_META := 28.9            # x (del cuarto) donde llegan los caballitos
+const CADERA := 0.38                # m que Sitting_Idle deja la cadera atras de los pies (medir_sentado.gd)
+const PISTA_META := 16.5            # x (del cuarto) donde llegan los caballitos (sotano.py PISTA_META)
 const CARRERA := 5.5                # s que dura una carrera
 const VENTILADOR := 4.0             # rad/s
 const ANUNCIO := Vector2(0.8, 1.2)  # m de un cartel (escena)
@@ -290,6 +291,8 @@ func _armar_gente() -> void:
 		Civiles.poner(nodo, sentados[k][1], "Sitting_Idle")
 		var mira := mesa if nombre.begins_with("Poker") else marca("OlPley_%s" % nombre.trim_prefix("Silla_")).origin
 		nodo.look_at(to_global(Vector3(mira.x, nodo.position.y, mira.z)), Vector3.UP)
+		# Sitting_Idle deja la cadera CADERA atras del origen: se adelanta para que caiga en el asiento
+		nodo.position -= nodo.transform.basis.z.normalized() * CADERA
 	# Uno que platica de pie, junto a la columna
 	var miron := _hablador("Miron", "hombre_09", Transform3D(Basis(), Vector3(15.4, -2.6, 3.6)), _linea_miron)
 	miron.look_at(to_global(Vector3(15.4, miron.position.y, 0.0)), Vector3.UP)

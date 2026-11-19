@@ -1,7 +1,7 @@
 @tool
 extends EditorScenePostImport
 
-# Al importar los .glb del Sotano (models/sotano/sotano.glb y gabinete_olpley.glb, de
+# Al importar los .glb del Sotano (models/sotano/sotano.glb, gabinete_olpley.glb y botellas.glb, de
 # tools/blender/sotano/sotano.py) y el adorno de la maquinita de frutas
 # (models/maquinita/adorno_frutas.glb, de tools/blender/sotano/maquinita.py) cada material de Blender se cambia por el del juego por su
 # nombre: texturas del proyecto con filtro nearest, como el templo (tools/construir_templo.gd).
@@ -23,6 +23,7 @@ const TEXTURAS := {
 	"estampa_virgen": ["res://textures/map/virgen/virgen_nos_cuida.png", Color.WHITE, 0.0],
 	"calcomanias": ["res://textures/sotano/calcomanias.png", Color.WHITE, 0.0],
 	"adorno_frutas": ["res://textures/maquinita/adorno_frutas.png", Color.WHITE, 0.0],
+	"anuncios": ["res://textures/sotano/anuncios.png", Color.WHITE, 0.0],
 }
 # Los que brillan solos (sin luz): tubos, neon, veladoras, la pantalla y los botones
 const BRILLAN := {
@@ -73,6 +74,16 @@ func _material(original: Material) -> Material:
 		m.albedo_texture = load(PANTALLA)
 	elif original is BaseMaterial3D:
 		m.albedo_color = (original as BaseMaterial3D).albedo_color
+	# Vidrio de las botellas: liso y con brillo; el del mezcal deja ver el gusano. Cromo de los bancos
+	if nombre.begins_with("vidrio_"):
+		m.roughness = 0.15
+		m.metallic_specular = 0.9
+		if nombre == "vidrio_mezcal":
+			m.albedo_color.a = 0.45
+			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	elif nombre == "cromo" or nombre.begins_with("tapa_dorada"):
+		m.metallic = 0.85
+		m.roughness = 0.3
 	if nombre == "humedad":
 		m.albedo_color = Color(0.12, 0.14, 0.11, 0.55)
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
