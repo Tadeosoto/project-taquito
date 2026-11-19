@@ -73,6 +73,23 @@ const LINEAS_JUGADORES := [
 const TEXTO_ALTAR := "La Virgen del Tinaco con billetes pegados alrededor. Al pie, en plumón: \"Para que no me mire. El Primo.\""
 # El bano: la puerta se abre (Bano_bisagra de sotano.py) y adentro todo esta mal, como en Silent Hill
 const PUERTA_BANO_ABIERTA := -95.0   # grados en y de la bisagra
+# Lo que trae en la mano cada sentado (por su marca): "cigarro" (con humo) o "cerveza"
+const VICIOS := {"Poker_0": "cigarro", "Poker_1": "cigarro", "Poker_2": "cerveza", "Silla_2": "cigarro",
+	"Silla_7": "cerveza", "Silla_0": "cigarro"}
+# Los de pie, cada quien en lo suyo (nada limpio): nombre, modelo, donde (x, z), hacia donde ve
+# (x, z), clip, lo que trae en la mano y lo que dice. Sin marca: van en metros del cuarto
+const TURBIOS := [
+	["Halcon", "hombre_05", Vector2(7.7, 4.9), Vector2(5.0, 3.1), "Idle", "",
+		["Yo no vi nada. Tú tampoco.", "Si baja alguien de uniforme, chiflo dos veces."]],
+	["Vendedor", "hombre_06", Vector2(33.3, -0.9), Vector2(34.1, -0.2), "Interact", "paquete",
+		["Circule, circule. Aquí nomás estamos platicando.", "¿Qué me ves? Esto es de la casa."]],
+	["Cliente", "mujer_02", Vector2(34.1, -0.2), Vector2(33.3, -0.9), "Idle_Talking", "billetes",
+		["Ya te pagué, ¿no? Dame lo mío.", "No me hables, que nos ven."]],
+	["Contador", "hombre_08", Vector2(19.9, 6.4), Vector2(17.0, 6.4), "Interact", "billetes",
+		["...ochocientos, novecientos... ¿Qué? Me desconcentras.", "La lana de las maquinitas no se cuenta sola."]],
+	["Borracho", "hombre_10", Vector2(28.1, 0.75), Vector2(28.1, -1.0), "Drink", "cerveza",
+		["Una más y me voy. Llevo diciendo eso desde el martes.", "El de la gorra... ese no pierde nunca, compa. Nunca."]],
+]
 const LINEAS_ESPEJO := [
 	"Te ves cansado. Detrás de ti, en el espejo, la puerta de la caseta está abierta. Volteas: está cerrada.",
 	"El espejo está estrellado justo donde va tu cara.",
@@ -134,6 +151,10 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	# El halcon voltea de la escalera al salon y de regreso, vigilando
+	if _halcon:
+		_halcon_t += delta
+		_halcon.rotation.y = _halcon_base + sin(_halcon_t * 0.7) * 0.9
 	# Los focos de los neones se prenden por turnos, como en las ferias
 	_focos_t += delta
 	if _focos_t >= FOCOS and not _focos.is_empty():
@@ -466,9 +487,158 @@ func _armar_gente() -> void:
 		nodo.look_at(to_global(Vector3(mira.x, nodo.position.y, mira.z)), Vector3.UP)
 		# Sitting_Idle deja la cadera CADERA atras del origen: se adelanta para que caiga en el asiento
 		nodo.position -= nodo.transform.basis.z.normalized() * CADERA
+		# Todos en algo: fuman o tienen su cerveza en la mano (VICIOS)
+		if VICIOS.has(nombre):
+			_dar(nodo, VICIOS[nombre])
+	_armar_turbios()
 	# Uno que platica de pie, junto a la columna
 	var miron := _hablador("Miron", "hombre_09", Transform3D(Basis(), Vector3(15.4, -2.6, 3.6)), _linea_miron)
 	miron.look_at(to_global(Vector3(15.4, miron.position.y, 0.0)), Vector3.UP)
+
+
+# --- La gente turbia y lo que trae en la mano ---
+
+func _armar_turbios() -> void:
+	for t: Array in TURBIOS:
+		var lineas: Array = t[6]
+		var contador := {"n": 0}
+		var nodo := _hablador(t[0], t[1], Transform3D(Basis(), Vector3(t[2].x, -2.6, t[2].y)), func() -> String:
+			contador.n += 1
+			return "\"%s\"" % lineas[(contador.n - 1) % lineas.size()])
+		nodo.look_at(to_global(Vector3(t[3].x, nodo.position.y, t[3].y)), Vector3.UP)
+		# (el npc ya puso su modelo al entrar al arbol)
+		var clip: String = t[4]
+		var cosa: String = t[5]
+		var anim := nodo.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		if anim and anim.has_animation(Civiles.LIB + "/" + clip):
+			anim.get_animation(Civiles.LIB + "/" + clip).loop_mode = Animation.LOOP_LINEAR
+			anim.play(Civiles.LIB + "/" + clip)
+		if cosa != "":
+			_dar(nodo, cosa)
+		if t[0] == "Halcon":
+			_halcon = nodo
+			_halcon_base = nodo.rotation.y
+
+
+var _halcon: Node3D
+var _halcon_t := 0.0
+var _halcon_base := 0.0
+
+
+# Una cosa en la mano derecha (cigarro, cerveza, paquete o billetes): un BoneAttachment3D en el
+# hueso RightHand; la cosa se agranda 1/Civiles.ESCALA porque el modelo va a esa escala
+func _dar(nodo: Node3D, cosa: String) -> void:
+	var esqueletos := nodo.find_children("*", "Skeleton3D", true, false)
+	if esqueletos.is_empty():
+		return
+	var esq := esqueletos[0] as Skeleton3D
+	var mano := BoneAttachment3D.new()
+	mano.bone_name = "LeftHand" if cosa == "billetes" else "RightHand"
+	esq.add_child(mano)
+	var objeto := _cosa(cosa)
+	# (el cigarro un poco mas grande que de verdad: a 640 x 480 no se veia)
+	objeto.scale = Vector3.ONE / Civiles.ESCALA * (1.7 if cosa == "cigarro" else 1.0)
+	mano.add_child(objeto)
+
+
+static func _cosa(cosa: String) -> Node3D:
+	var raiz := Node3D.new()
+	match cosa:
+		"cerveza":
+			var botellas := (load("res://models/sotano/botellas.glb") as PackedScene).instantiate()
+			var b := botellas.find_child("Botella_cerveza", true, false) as Node3D
+			if b:
+				var copia := b.duplicate() as Node3D
+				copia.position = Vector3(0.0, -0.06, 0.03)
+				raiz.add_child(copia)
+			botellas.free()
+		"cigarro":
+			var palo := MeshInstance3D.new()
+			var c := CylinderMesh.new()
+			c.top_radius = 0.004
+			c.bottom_radius = 0.004
+			c.height = 0.06
+			c.radial_segments = 5
+			palo.mesh = c
+			palo.material_override = _material_liso(Color(0.95, 0.93, 0.88))
+			palo.rotation_degrees = Vector3(0, 0, 80)
+			palo.position = Vector3(0.03, 0.0, 0.02)
+			raiz.add_child(palo)
+			var brasa := MeshInstance3D.new()
+			var b2 := SphereMesh.new()
+			b2.radius = 0.006
+			b2.height = 0.012
+			brasa.mesh = b2
+			var m := _material_liso(Color(1.0, 0.45, 0.1))
+			m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+			brasa.material_override = m
+			brasa.position = Vector3(0.06, 0.005, 0.02)
+			raiz.add_child(brasa)
+			brasa.add_child(_humo())
+		"paquete":
+			var caja := MeshInstance3D.new()
+			var bm := BoxMesh.new()
+			bm.size = Vector3(0.07, 0.05, 0.1)
+			caja.mesh = bm
+			caja.material_override = _material_liso(Color(0.45, 0.32, 0.18))
+			caja.position = Vector3(0.0, -0.03, 0.04)
+			raiz.add_child(caja)
+		"billetes":
+			for k in 4:
+				var billete := MeshInstance3D.new()
+				var bm := BoxMesh.new()
+				bm.size = Vector3(0.12, 0.002, 0.055)
+				billete.mesh = bm
+				billete.material_override = _material_liso(Color(0.5, 0.72, 0.5) if k % 2 == 0 else Color(0.85, 0.6, 0.65))
+				billete.position = Vector3(0.0, -0.02 - k * 0.003, 0.03)
+				billete.rotation_degrees = Vector3(0, -20 + k * 14, 0)
+				raiz.add_child(billete)
+	return raiz
+
+
+static var _lisos := {}
+
+
+static func _material_liso(c: Color) -> StandardMaterial3D:
+	if not _lisos.has(c):
+		var m := StandardMaterial3D.new()
+		m.albedo_color = c
+		_lisos[c] = m
+	return _lisos[c]
+
+
+# El humo del cigarro: sube despacio en el mundo (no sigue a la mano), gris y suave
+static func _humo() -> CPUParticles3D:
+	var humo := CPUParticles3D.new()
+	var cuadro := QuadMesh.new()
+	cuadro.size = Vector2(0.05, 0.05)
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	m.albedo_color = Color(0.75, 0.75, 0.75, 0.35)
+	m.vertex_color_use_as_albedo = true
+	cuadro.material = m
+	humo.mesh = cuadro
+	humo.local_coords = false
+	humo.amount = 10
+	humo.lifetime = 2.2
+	humo.direction = Vector3.UP
+	humo.spread = 12.0
+	humo.gravity = Vector3(0.02, 0.06, 0.0)
+	humo.initial_velocity_min = 0.04
+	humo.initial_velocity_max = 0.09
+	humo.scale_amount_min = 0.6
+	humo.scale_amount_max = 1.0
+	var curva := Curve.new()
+	curva.add_point(Vector2(0, 0.4))
+	curva.add_point(Vector2(1, 2.5))
+	humo.scale_amount_curve = curva
+	var desvanece := Gradient.new()
+	desvanece.set_color(0, Color(1, 1, 1, 0.8))
+	desvanece.set_color(1, Color(1, 1, 1, 0.0))
+	humo.color_ramp = desvanece
+	return humo
 
 
 func _rotar(lineas: Array, contador: String) -> String:
