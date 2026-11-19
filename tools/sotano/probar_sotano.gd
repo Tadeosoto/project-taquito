@@ -161,6 +161,16 @@ func _probar() -> void:
 		"%s, fichas %d -> %d" % [ui.get("_bj").resultado, antes_bj, fichas.fichas])
 	ui.cerrar()
 	await _esperar(0.5)
+	# Baccarat: una mano a la banca
+	sotano._abrir("res://scripts/sotano/BaccaratUI.gd", {"sotano": sotano})
+	await _esperar(0.8)
+	ui = arbol.get_first_node_in_group("juego_sotano")
+	ui.tecla(KEY_DOWN)
+	ui.repartir()
+	await _esperar(3.0)
+	_ver(ui.get("_bac").ganador != "" and not ui.get("_ocupado"), "se juega una mano de baccarat", "gana %s" % ui.get("_bac").ganador)
+	ui.cerrar()
+	await _esperar(0.5)
 	# Ruleta: al rojo; si gana, dobletea
 	sotano._abrir("res://scripts/sotano/RuletaUI.gd", {"sotano": sotano})
 	await _esperar(0.8)

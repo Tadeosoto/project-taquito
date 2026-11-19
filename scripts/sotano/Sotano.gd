@@ -77,7 +77,8 @@ const TEXTO_ALTAR := "La Virgen del Tinaco con billetes pegados alrededor. Al pi
 const PUERTA_BANO_ABIERTA := -95.0   # grados en y de la bisagra
 # Lo que trae en la mano cada sentado (por su marca): "cigarro" (con humo) o "cerveza"
 const VICIOS := {"Poker_0": "cigarro", "Poker_1": "cigarro", "Poker_2": "cerveza", "Silla_2": "cigarro",
-	"Silla_7": "cerveza", "Silla_0": "cigarro", "Blackjack_0": "cigarro", "Blackjack_1": "cerveza"}
+	"Silla_7": "cerveza", "Silla_0": "cigarro", "Blackjack_0": "cigarro", "Blackjack_1": "cerveza",
+	"Baccarat_0": "cigarro"}
 # Los de pie, cada quien en lo suyo (nada limpio): nombre, modelo, donde (x, z), hacia donde ve
 # (x, z), clip, lo que trae en la mano y lo que dice. Sin marca: van en metros del cuarto
 const TURBIOS := [
@@ -203,6 +204,8 @@ func _armar_luces() -> void:
 	# Un foco sobre la rueda de la ruleta (las casillas se pierden en lo oscuro)
 	if _marcas.has("Marca_Ruleta"):
 		_luz(marca("Ruleta").origin + Vector3(-0.35, 1.5, -1.1), Color(1.0, 0.92, 0.75), 1.6, 2.4)
+	if _marcas.has("Marca_Luz_baccarat"):
+		_luz(marca("Luz_baccarat").origin, Color(1.0, 0.9, 0.7), 1.6, 3.2)
 	if _marcas.has("Marca_Luz_blackjack"):
 		_luz(marca("Luz_blackjack").origin, Color(1.0, 0.9, 0.7), 1.8, 3.5)
 	# Las luces de color de la barra (con sus tiras de neon): rosa, cian, morado y la de abajo, azul
@@ -334,6 +337,8 @@ func _armar_juegos() -> void:
 	add_child(MuebleCasa.crear("Sentarte al póker", marca("Poker").origin, _abrir_poker, 1.0))
 	if _marcas.has("Marca_Blackjack"):
 		add_child(MuebleCasa.crear("Jugar blackjack", marca("Blackjack").origin, _abrir.bind("res://scripts/sotano/BlackjackUI.gd", {"sotano": self}), 0.9))
+	if _marcas.has("Marca_Baccarat"):
+		add_child(MuebleCasa.crear("Jugar baccarat", marca("Baccarat").origin, _abrir.bind("res://scripts/sotano/BaccaratUI.gd", {"sotano": self}), 0.9))
 	if _marcas.has("Marca_Ruleta"):
 		add_child(MuebleCasa.crear("Jugar a la ruleta", marca("Ruleta").origin, _abrir.bind("res://scripts/sotano/RuletaUI.gd", {"sotano": self}), 0.9))
 	add_child(MuebleCasa.crear("Apostar a los caballitos", marca("Pista").origin, _abrir.bind("res://scripts/sotano/CarrerasUI.gd", {"sotano": self}), 1.0))
@@ -489,6 +494,10 @@ func _armar_gente() -> void:
 		var guera := _hablador("Guera", "mujer_13", marca("Crupier_bj"), func() -> String:
 			return "\"Siéntate, mijo. La casa paga 3 a 2... cuando paga.\"")
 		guera.look_at(to_global(marca("Blackjack").origin), Vector3.UP)
+	if _marcas.has("Marca_Crupier_baccarat"):
+		var chepe := _hablador("Chepe", "hombre_02", marca("Crupier_baccarat"), func() -> String:
+			return "\"Punto o banca, joven. El empate es para los soñadores.\"")
+		chepe.look_at(to_global(marca("Baccarat").origin), Vector3.UP)
 	if _marcas.has("Marca_Crupier_ruleta"):
 		var ruletero := _hablador("Ruletero", "hombre_13", marca("Crupier_ruleta"), func() -> String:
 			return "\"Rojo, negro o verde. Y si ganas, ¿le dobleteas?\"")
@@ -497,7 +506,7 @@ func _armar_gente() -> void:
 	var mesa := marca("Poker").origin - Vector3(0, 0, 1.8)
 	var sentados := [["Silla_0", "mujer_07"], ["Silla_2", "hombre_03"], ["Silla_5", "mujer_12"], ["Silla_7", "hombre_14"],
 		["Poker_0", "hombre_15"], ["Poker_1", "hombre_31"], ["Poker_2", "mujer_29"],
-		["Blackjack_0", "mujer_15"], ["Blackjack_1", "hombre_01"]]
+		["Blackjack_0", "mujer_15"], ["Blackjack_1", "hombre_01"], ["Baccarat_0", "mujer_16"]]
 	for k in sentados.size():
 		var nombre: String = sentados[k][0]
 		var t := marca(nombre)
@@ -511,6 +520,8 @@ func _armar_gente() -> void:
 		var mira := mesa if nombre.begins_with("Poker") else marca("OlPley_%s" % nombre.trim_prefix("Silla_")).origin
 		if nombre.begins_with("Blackjack"):
 			mira = marca("Crupier_bj").origin
+		elif nombre.begins_with("Baccarat"):
+			mira = marca("Crupier_baccarat").origin
 		nodo.look_at(to_global(Vector3(mira.x, nodo.position.y, mira.z)), Vector3.UP)
 		# Sitting_Idle deja la cadera CADERA atras del origen: se adelanta para que caiga en el asiento
 		nodo.position -= nodo.transform.basis.z.normalized() * CADERA

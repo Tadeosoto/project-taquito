@@ -421,6 +421,22 @@ def mesas():
         _texto(sc, nombre, 4.47, y0 + 0.42, 0.42, letra, impacto)
         _texto(sc, paga, 4.47, y0 + 0.8, 0.13, letra, negra)
     _render(sc, "ruleta.png")
+    # El baccarat (384 x 192 para una mesa de 1.88 x 0.88): BANCA arriba (del lado del crupier),
+    # PUNTO abajo (de tu lado) y el EMPATE en medio
+    sc = _escena("Baccarat", 384, 192, u)
+    _rect(sc, 0, 0, 6, 3, verde, -0.05)
+    _rect(sc, 0.08, 0.08, 5.92, 2.92, blanco, -0.045)
+    _rect(sc, 0.12, 0.12, 5.88, 2.88, verde, -0.04)
+    for nombre, y0, fondo, letra, paga in (("BANCA", 0.3, (0.7, 0.08, 0.06), blanco, "PAGA 1 A 1 MENOS 5%"),
+                                           ("EMPATE", 1.15, (0.95, 0.75, 0.15), (0.2, 0.08, 0.02), "PAGA 8 A 1"),
+                                           ("PUNTO", 1.95, (0.1, 0.25, 0.7), blanco, "PAGA 1 A 1")):
+        _rect(sc, 1.2, y0, 4.8, y0 + 0.72, blanco, -0.03)
+        _rect(sc, 1.25, y0 + 0.05, 4.75, y0 + 0.67, fondo, -0.025)
+        _texto(sc, nombre, 3.0, y0 + 0.3, 0.34, letra, impacto)
+        _texto(sc, paga, 3.0, y0 + 0.58, 0.11, letra, negra)
+    _texto(sc, "BACCARAT", 0.62, 1.5, 0.2, amarillo, impacto)
+    _texto(sc, "EL SÓTANO", 5.38, 1.5, 0.13, blanco, negra)
+    _render(sc, "baccarat.png")
 
 
 def pantalla_juego():

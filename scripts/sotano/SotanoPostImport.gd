@@ -35,6 +35,7 @@ const TEXTURAS := {
 	# Los panos de las mesas de blackjack y ruleta (arte.py mesas())
 	"blackjack": ["res://textures/sotano/blackjack.png", Color.WHITE, 0.0],
 	"ruleta": ["res://textures/sotano/ruleta.png", Color.WHITE, 0.0],
+	"baccarat": ["res://textures/sotano/baccarat.png", Color.WHITE, 0.0],
 }
 # Con textura pero brillan solos (la marquesina luminosa del refri)
 const BRILLAN_TEXTURA := ["refri_letrero"]

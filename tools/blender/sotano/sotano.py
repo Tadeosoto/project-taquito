@@ -38,6 +38,7 @@ BANO_PUERTA = (4.6, 5.5)          # z del hueco de la puerta del bano en el muro
 BANO = (35.4, 39.4, 3.0, 7.4)     # el bano: x0, x1, z0, z1 (detras del muro este)
 BANO_ALTO = 2.2
 BLACKJACK = (32.4, 2.4, 0.95)    # la mesa de blackjack: x del centro, z de la orilla recta (el crupier, al norte) y radio
+BACCARAT = (22.4, 24.4, 4.6, 5.6)  # la mesa de baccarat (esquina suroeste del salon 2): x0, x1, z0, z1
 RULETA = (32.6, 34.0, -0.9, 0.1)  # la mesa de la ruleta (esquina noreste del salon 2): x0, x1, z0, z1
 RUEDA = (32.95, -0.4, 0.3)        # la rueda: x, z del centro y radio
 RUEDA_DENTRO = 0.18               # donde empiezan las casillas (adentro, el plato de madera)
@@ -522,6 +523,35 @@ def mesa_blackjack(col):
     marca("Luz_blackjack", cx, TECHO - 0.7, cz + 0.4, col, 0)
 
 
+def mesa_baccarat(col):
+    """La mesa de baccarat: mesa larga de madera con su pano (textures/sotano/baccarat.png: PUNTO,
+    BANCA y EMPATE), borde acolchado, la charola de fichas y el zapato del lado del crupier (norte),
+    un banco con su jugador en la punta este y su lampara."""
+    x0, x1, z0, z1 = BACCARAT
+    y = PISO
+    madera = material("madera", (0.45, 0.32, 0.2))
+    cuero = material("cuero_negro", (0.08, 0.06, 0.06))
+    caja("Baccarat_pata", x0 + 0.3, x1 - 0.3, y, y + 0.74, z0 + 0.3, z1 - 0.3, madera, col, choca=False)
+    caja("Baccarat_mesa", x0, x1, y + 0.74, y + 0.8, z0, z1, madera, col, choca=False)
+    plano("Baccarat_pano", ((x0 + x1) / 2, y + 0.802, (z0 + z1) / 2), x1 - x0 - 0.12, z1 - z0 - 0.12, (0, 1, 0), material("baccarat", (1, 1, 1)), col)
+    for nombre, a, b, c, d in (("n", x0, x1, z0, z0 + 0.06), ("s", x0, x1, z1 - 0.06, z1), ("o", x0, x0 + 0.06, z0, z1), ("e", x1 - 0.06, x1, z0, z1)):
+        caja("Baccarat_borde_" + nombre, a, b, y + 0.8, y + 0.85, c, d, cuero, col, choca=False)
+    caja("Baccarat_choque", x0, x1, y, y + 0.85, z0, z1, madera, col, choca=False).name = "Baccarat_choque-colonly"
+    caja("Baccarat_charola", (x0 + x1) / 2 - 0.3, (x0 + x1) / 2 + 0.3, y + 0.8, y + 0.83, z0 + 0.08, z0 + 0.2, cuero, col, choca=False)
+    for k in range(7):
+        for n in range(5):
+            cilindro("Baccarat_ficha_%d_%d" % (k, n), (x0 + x1) / 2 - 0.25 + k * 0.083, y + 0.8 + 0.012 * n, y + 0.812 + 0.012 * n, z0 + 0.14, 0.028,
+                     material("ficha_%d" % (k % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[k % 3]), col, lados=8)
+    caja("Baccarat_zapato", x1 - 0.42, x1 - 0.22, y + 0.8, y + 0.9, z0 + 0.1, z0 + 0.32, material("mazo", (0.45, 0.08, 0.1)), col, choca=False)
+    marca("Crupier_baccarat", (x0 + x1) / 2, y, z0 - 0.45, col, 0)
+    marca("Baccarat", (x0 + x1) / 2, y, z1 + 0.55, col, 180)
+    banco("Banco_baccarat", x1 + 0.45, y, (z0 + z1) / 2, ASIENTO, col)
+    marca("Baccarat_0", x1 + 0.45, y, (z0 + z1) / 2, col, 0)
+    cilindro("Baccarat_lampara_cable", (x0 + x1) / 2, TECHO - 0.45, TECHO, (z0 + z1) / 2, 0.01, material("cable", (0.05, 0.05, 0.05)), col, lados=4)
+    cilindro("Baccarat_lampara", (x0 + x1) / 2, TECHO - 0.6, TECHO - 0.45, (z0 + z1) / 2, 0.3, material("lampara_verde", (0.15, 0.45, 0.25)), col, lados=12)
+    marca("Luz_baccarat", (x0 + x1) / 2, TECHO - 0.7, (z0 + z1) / 2, col, 0)
+
+
 def mesa_ruleta(col):
     """La ruleta: mesa con su pano (textures/sotano/ruleta.png: ROJO, NEGRO y VERDE, nada mas), el
     plato de madera y la rueda (Ruleta_rueda, 37 casillas de colores en el orden de la ruleta, la gira
@@ -858,6 +888,7 @@ def utileria(col):
     marca("Luz_poker", mx, TECHO - 0.7, mz, col, 0)
     mesa_blackjack(col)
     mesa_ruleta(col)
+    mesa_baccarat(col)
     # El congelador de las caguamas (esquina suroeste del salon 2) y la puerta del bano (este)
     caja("Congelador", a0 + 0.3, a0 + 1.7, y, y + 0.9, b1 - 1.1, b1 - 0.4, material("congelador", (0.85, 0.85, 0.88)), col)
     caja("Congelador_tapa", a0 + 0.35, a0 + 1.65, y + 0.9, y + 0.93, b1 - 1.07, b1 - 0.43, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
@@ -923,7 +954,7 @@ def utileria(col):
             aspa.rotation_euler = (0, 0, -a)
     # Puntos por donde camina la gente (GenteSotano.gd): rodean la pista y la mesa del poker
     for k, (px, pz) in enumerate(((8.0, 3.1), (12.0, 2.0), (15.0, 2.2), (18.5, 2.6), (19.0, 5.6), (14.5, 7.0), (10.0, 6.4),
-                                  (22.4, 3.2), (24.0, b0 + 3.2), (31.0, b0 + 3.2), (34.3, b0 + 3.0), (24.0, b1 - 1.2), (34.3, b1 - 1.6))):
+                                  (22.4, 3.2), (24.0, b0 + 3.2), (31.0, b0 + 3.2), (34.3, b0 + 3.0), (24.0, b1 - 1.2), (34.3, b1 - 1.6), (21.5, 6.0))):
         marca("Camino_%d" % k, px, y, pz, col, 0)
 
 

@@ -7,8 +7,9 @@ extends Node
 # Se cruzan entre ellos y contigo sin chocar (son de adorno). En metros de la escena del Sotano.
 
 const RUTA_SALON := [0, 1, 2, 3, 4, 5, 6]               # el salon de las maquinitas, en vuelta
-# Pasa por el arco a la barra y rodea el blackjack por el muro este (10 al norte, 12 al sur)
-const RUTA_LARGA := [0, 1, 2, 3, 7, 8, 9, 10, 12, 11, 7, 3, 4, 5, 6]
+# Pasa por el arco a la barra, rodea el blackjack por el muro este (10 al norte, 12 al sur) y el
+# baccarat por el oeste (13)
+const RUTA_LARGA := [0, 1, 2, 3, 7, 8, 9, 10, 12, 11, 13, 7, 3, 4, 5, 6]
 const CAMINANTES := [["hombre_04", RUTA_SALON, 0], ["mujer_09", RUTA_LARGA, 3], ["hombre_11", RUTA_LARGA, 9],
 	["mujer_14", RUTA_SALON, 4], ["hombre_32", RUTA_LARGA, 12]]
 const MESERA := ["mujer_31", RUTA_LARGA, 6]

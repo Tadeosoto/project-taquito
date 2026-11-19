@@ -84,5 +84,43 @@ func _initialize() -> void:
 	_ver(frenos_chicos == 0, "con poco en juego no hay trampa")
 	_ver(absf(rojos_chico / 20000.0 - 18.0 / 37.0) < 0.02, "rojo sale 18 de 37", "%.3f" % (rojos_chico / 20000.0))
 	_ver(rojos_fuerte < rojos_chico * 0.85, "con mucho en juego la casa frena", "%d contra %d" % [rojos_fuerte, rojos_chico])
+	# Baccarat: valores, la tabla de la banca, pagos y la trampa
+	var BA = load("res://scripts/sotano/Baccarat.gd")
+	_ver(BA.valor([12, 7]) == 0 and BA.valor([3, 4]) == 1 and BA.valor([11, 6]) == 8, "baccarat: as 1, figuras 0, sin decenas",
+		"%d %d %d" % [BA.valor([12, 7]), BA.valor([3, 4]), BA.valor([11, 6])])
+	# (la tercera va como carta: la de valor v es la v - 2 de picas)
+	_ver(BA.banca_pide(3, 4) and not BA.banca_pide(3, 6) and not BA.banca_pide(6, 0) and BA.banca_pide(6, 4) and not BA.banca_pide(7, -1)
+		and BA.banca_pide(5, -1), "la banca pide segun su tabla")
+	var ba = BA.new(5)
+	var ganados := {"punto": 0, "banca": 0, "empate": 0}
+	var puesto_b := 0
+	var regreso_b := 0
+	var arreglos_chicos := 0
+	var naturales_bien := true
+	for i in 6000:
+		ba.jugar("banca", 1)
+		ganados[ba.ganador] += 1
+		puesto_b += 1
+		regreso_b += ba.pago("banca", 1)
+		if ba.arreglo:
+			arreglos_chicos += 1
+		if (BA.valor(ba.punto.slice(0, 2)) >= 8 or BA.valor(ba.banca.slice(0, 2)) >= 8) and (ba.punto.size() > 2 or ba.banca.size() > 2):
+			naturales_bien = false
+	_ver(naturales_bien, "con natural nadie pide")
+	_ver(arreglos_chicos == 0, "con apuesta chica no hay arreglo")
+	var p_banca: float = ganados.banca / 6000.0
+	var p_punto: float = ganados.punto / 6000.0
+	_ver(p_banca > p_punto and absf(p_banca - 0.458) < 0.03 and absf(ganados.empate / 6000.0 - 0.095) < 0.025, "banca gana un poco mas que punto, empate ~9.5 %",
+		"banca %.3f punto %.3f empate %.3f" % [p_banca, p_punto, ganados.empate / 6000.0])
+	ba.ganador = "banca"
+	_ver(ba.pago("banca", 10) == 19 and ba.pago("punto", 10) == 0, "la banca paga menos el 5 %")
+	ba.ganador = "empate"
+	_ver(ba.pago("empate", 2) == 18 and ba.pago("punto", 3) == 3, "empate: 8 a 1, y a punto y banca se les regresa")
+	var gana_fuerte := 0
+	for i in 6000:
+		ba.jugar("punto", 10)
+		if ba.ganador == "punto":
+			gana_fuerte += 1
+	_ver(gana_fuerte / 6000.0 < p_punto - 0.05, "con apuesta fuerte la casa vuelve a barajar", "punto %.3f" % (gana_fuerte / 6000.0))
 	print("RESULTADO: " + ("BIEN" if _mal == 0 else "MAL (%d)" % _mal))
 	quit()

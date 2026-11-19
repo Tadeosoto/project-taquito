@@ -41,6 +41,7 @@ const FOTOS := {
 	"mesera": [Vector3.ZERO, Vector3.FORWARD],
 	"barra_neon": [Vector3(26.0, -1.5, 2.8), Vector3(26.0, -1.6, -2.0)],
 	"dados_ruleta": [Vector3(31.0, -1.3, 2.0), Vector3(33.2, -1.5, -1.8)],
+	"baccarat": [Vector3(25.6, -1.3, 7.4), Vector3(23.4, -1.9, 5.0)],
 	"blackjack": [Vector3(30.6, -1.2, 5.4), Vector3(32.4, -1.9, 2.9)],
 	"turbios_trato": [Vector3(31.8, -1.3, 0.9), Vector3(33.7, -1.6, -0.6)],
 	"turbios_borracho": [Vector3(27.0, -1.4, 2.2), Vector3(28.1, -1.6, 0.7)],
@@ -117,6 +118,16 @@ func _fotos_mesas(carpeta: String) -> void:
 	await get_tree().create_timer(1.5).timeout
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(carpeta.path_join("bj_final.png"))
+	ui.call("cerrar")
+	await get_tree().create_timer(0.5).timeout
+	_sotano.call("_abrir", "res://scripts/sotano/BaccaratUI.gd", {"sotano": _sotano})
+	await get_tree().create_timer(0.9).timeout
+	ui = get_tree().get_first_node_in_group("juego_sotano")
+	ui.call("repartir")
+	for k in 8:
+		await get_tree().create_timer(0.3).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("baccarat_%02d.png" % k))
 	ui.call("cerrar")
 	await get_tree().create_timer(0.5).timeout
 	_sotano.call("_abrir", "res://scripts/sotano/RuletaUI.gd", {"sotano": _sotano})
