@@ -10,6 +10,7 @@ AG, 2026-11-18 (branch `sotano-casino`). The story is in `docs/lore.md` §11 "El
   - It holds `permiso` and `fichas`.
   - With no permission, a chain at the foot of the stairs blocks the way (`CadenaChoque-colonly`). The guard asks for the one-time `CUOTA` ($300), paid at the `MuebleCasa` beside him; `_quitar_cadena` frees the chain's static body and hides it.
   - The Gotera missions will grant `permiso = 1` (escalón 1, `docs/misiones.md`).
+- **Standalone test scene:** `godot --path . scenes/sotano_prueba.tscn` (`scripts/sotano/PruebaSotano.gd`) puts you on the last stretch of the stairs, before the chain, with $1000 and combat off. Keys on screen: `.` permission and +50 chips, `P` +$500, `K` remove the permission (back to the chain and the cuota), `H` makes all six OL PLEY hot, `R` back to the stairs, `F12` from scratch, `F1` hides the help. The exit arrow brings you back down. `-- --foto=<file.png>` saves a screenshot after 2 s and quits.
 - **Safehouse:** a second arrow `Sotano` at (-15, 0, 40.2), always open; `.` grants permission and +50 chips.
 
 ## The room (Blender)

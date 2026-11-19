@@ -282,7 +282,8 @@ func _puerta() -> void:
 		_quitar_cadena()
 		return
 	var guardia := get_node_or_null("Guardia") as Node3D
-	var donde := guardia.position + Vector3(-0.8, 0, 0) if guardia else Vector3(6.2, -2.6, 3.1)
+	# A un lado del de la puerta: su letrero no se encima con el de hablar con el
+	var donde := guardia.position + Vector3(-0.8, 0, 0.9) if guardia else Vector3(6.2, -2.6, 3.1)
 	_cuota = MuebleCasa.crear("Pagarle la cuota ($%d)" % (f.CUOTA if f else 300), donde, _pagar_cuota, 1.1)
 	add_child(_cuota)
 
