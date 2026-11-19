@@ -54,6 +54,9 @@ TRAZOS = {
     "2": (0.56, [[(0.02, 0.8), (0.14, 0.96), (0.32, 1), (0.5, 0.92), (0.56, 0.74), (0.48, 0.55), (0, 0), (0.58, 0)]]),
     "4": (0.6, [[(0.46, 0), (0.46, 1), (0, 0.3), (0.6, 0.3)]]),
     "!": (0.12, [[(0.06, 1), (0.06, 0.3)], _ovalo(0.06, 0.06, 0.04, 0.04, 6)]),
+    "V": (0.6, [[(0, 1), (0.3, 0), (0.6, 1)]]),
+    "C": (0.56, [_ovalo(0.32, 0.5, 0.32, 0.5, 14, 50, 310)]),
+    "U": (0.56, [[(0, 1), (0, 0.3)] + _ovalo(0.28, 0.3, 0.28, 0.3, 8, 180, 360)[1:] + [(0.56, 1)]]),
 }
 FOCO = 0.018          # radio de un foco
 
@@ -309,6 +312,23 @@ def letreros():
         s.rayas(rayas, color)
         s.rayas([arco(px, pz, 0.028, 0, 360, 8) for px, pz in puntos], "blanco", grueso=TUBO * 0.8, halo_veces=HALO_TEXTO)
     s.soportes(1.1, -0.2, 0.2)
+    s.cerrar()
+
+    # VIP: dorado, con su corona, marco y focos (sobre la puerta del cuarto VIP)
+    s = Letrero("vip")
+    s.marco(0, 0, 0.9, 0.42, 0.1, "amarillo")
+    s.trazo("VIP", 0, -0.02, 0.24, "amarillo", separa=0.35)
+    s.linea([(-0.18, 0.28), (-0.18, 0.4), (-0.09, 0.32), (0, 0.44), (0.09, 0.32), (0.18, 0.4), (0.18, 0.28)], "amarillo", cerrada=True)
+    for k in range(7):
+        s.foco(-0.36 + k * 0.12, -0.27)
+    s.soportes(0.7, -0.2, 0.2)
+    s.cerrar()
+
+    # CLUB, rosa, adentro del VIP junto al escenario
+    s = Letrero("club")
+    s.trazo("CLUB", 0, 0.05, 0.26, "rosa", separa=0.3)
+    s.mano("noche", 0, -0.24, 0.36, "morado", mano)
+    s.soportes(0.8, -0.25, 0.25)
     s.cerrar()
 
     s = Letrero("bano")

@@ -6,14 +6,18 @@ extends JuegoSotano
 # acomoda el arete (la sena).
 
 const POKER := preload("res://scripts/sotano/PokerUI.gd")   # su textura(c) de la baraja
-const APUESTA_MAX := 10
+# La mesa: la del salon 2 o la de oro del VIP (Sotano.gd pasa prefijo "VIP_bj", 10 a 100 y su crupier)
+var prefijo := "Blackjack"           # sus marcas: <prefijo>_tu (tu lugar)
+var apuesta_min := 1
+var apuesta_max := 10
+var crupier := "La Güera"
 const VOLTEA := 0.2
 const REPARTE := 0.25
 const CAMARA_DESDE := Vector3(0.0, 1.45, 0.25)   # desde la marca Blackjack_tu (m de la escena)
 const CAMARA_MIRA := Vector3(0.0, 0.8, -0.85)
 const LINEAS_ARETE := [
-	"La Güera se acomoda el arete antes de repartir.",
-	"La Güera se toca el arete y no te ve a los ojos.",
+	"%s se acomoda el arete antes de repartir.",
+	"%s se toca el arete y no te ve a los ojos.",
 ]
 
 var sotano: Node3D
@@ -54,10 +58,11 @@ func _armar() -> void:
 	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_aviso.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	if sotano:
-		var tu: Vector3 = sotano.call("marca", "Blackjack_tu").origin
+		var tu: Vector3 = sotano.call("marca", prefijo + "_tu").origin
 		acercar_camara(sotano.to_global(tu + CAMARA_DESDE), sotano.to_global(tu + CAMARA_MIRA), 56.0)
 	_mostrar()
-	avisar("\"Apuéstale, mijo\", dice La Güera. ←/→ la apuesta, Espacio reparte.", 5.0)
+	_apuesta = apuesta_min
+	avisar("\"Apuéstale, mijo\", dice %s. ←/→ la apuesta (%d a %d), Espacio reparte." % [crupier, apuesta_min, apuesta_max], 5.0)
 
 
 func _fila(desde: float, arriba: bool) -> HBoxContainer:
@@ -80,11 +85,11 @@ func _tecla(codigo: int) -> void:
 	match codigo:
 		KEY_LEFT:
 			if _bj.fase != Blackjack.Fase.JUGANDO:
-				_apuesta = maxi(_apuesta - 1, 1)
+				_apuesta = maxi(_apuesta - (10 if apuesta_max > 10 else 1), apuesta_min)
 				Sonidos.tocar(self, "apuesta_sube", -8.0, 0.9)
 		KEY_RIGHT:
 			if _bj.fase != Blackjack.Fase.JUGANDO:
-				_apuesta = mini(_apuesta + 1, APUESTA_MAX)
+				_apuesta = mini(_apuesta + (10 if apuesta_max > 10 else 1), apuesta_max)
 				Sonidos.tocar(self, "apuesta_sube", -8.0)
 		KEY_D:
 			doblar()
@@ -106,7 +111,7 @@ func repartir() -> void:
 	Sonidos.tocar(self, "ficha_mesa", -5.0)
 	_bj.empezar(_apuesta)
 	if _bj.cargado:
-		avisar(LINEAS_ARETE[randi() % LINEAS_ARETE.size()], 3.0)
+		avisar(LINEAS_ARETE[randi() % LINEAS_ARETE.size()] % crupier, 3.0)
 	_limpiar()
 	_ocupado = true
 	# Una a ti, una a ella, una a ti, la tapada a ella
@@ -198,7 +203,7 @@ func _final() -> void:
 		"ganas": "Ganas. Te pagan %d fichas." % _bj.pago,
 		"empate": "Empate: te regresan tus %d." % _bj.pago,
 		"pierdes": "Gana la casa. \"Otra, mijo, que ahorita se compone.\"",
-		"te pasaste": "Te pasaste de 21. La Güera ni sonríe.",
+		"te pasaste": "Te pasaste de 21. %s ni sonríe." % crupier,
 	}.get(_bj.resultado, "")
 	avisar(texto + "  (Espacio otra mano)", 30.0)
 
@@ -239,10 +244,10 @@ static func _carta_textura(c: int) -> AtlasTexture:
 func _mostrar() -> void:
 	var jugando := _bj.fase == Blackjack.Fase.JUGANDO
 	if _bj.crupier.is_empty():
-		_total_crupier.text = "La Güera"
+		_total_crupier.text = crupier
 	elif jugando:
-		_total_crupier.text = "La Güera: %d + ?" % Blackjack.puntos(_bj.crupier[0])
+		_total_crupier.text = "%s: %d + ?" % [crupier, Blackjack.puntos(_bj.crupier[0])]
 	else:
-		_total_crupier.text = "La Güera: %d" % Blackjack.valor(_bj.crupier)
+		_total_crupier.text = "%s: %d" % [crupier, Blackjack.valor(_bj.crupier)]
 	_total_tuyo.text = ("Tú: %d" % Blackjack.valor(_bj.tuyas)) if not _bj.tuyas.is_empty() else "Tú"
 	_estado.text = "Apuesta %d · Fichas %d" % [_bj.apuesta if jugando else _apuesta, fichas()]

@@ -94,6 +94,13 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - One stool, and a lamp.
   - The marks `Baccarat_banca` / `_empate` / `_punto` (due south on each band) hold your chip stack; the cards are dealt in a row near the dealer.
 - The walkers' route goes around the blackjack table by the east wall (`Camino_10`, `Camino_12`) and around the baccarat table on the west (`Camino_13`). The bar-corner deal moved by the arch.
+- **VIP room** (`cuarto_vip()`, `VIP`): behind the east wall of hall 2, north of the bathroom, through a second doorway (`VIP_PUERTA`). It has a gold frame, a velvet rope on gold posts and a small gold VIP neon.
+  - Inside: red velvet walls with gold mouldings, black marble floor and a gold chandelier.
+  - A round stage with a pink neon edge and a chrome pole (`VIP_tubo`).
+  - The gold blackjack table: black felt `blackjack_vip.png` with gold letters, a gold rail and gold chips.
+  - Two velvet booths with gold side tables and champagne buckets.
+  - A display case of gold bars, and a pink CLUB neon.
+  - Gold chips are `FICHA_COLORES[4]`.
 - **Bathroom** (`banho()`, behind the east wall of hall 2, `BANO`): the door hangs on `Bano_bisagra` and opens into hall 2.
   - Inside: dirty tiles (`azulejo.png`), a green-and-black floor (`azulejo_piso.png`), two stalls (one door hanging off), toilets, a urinal, two sinks with the shattered mirror and an empty mirror frame.
   - Also: the drain with a stain (`banho_mancha`, multiply blend), graffiti ("NO ESTAS SOLO"), rusty pipes and a bare bulb (`Luz_bano`).
@@ -227,6 +234,12 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - Your two cards on screen enter face down and flip.
   - **Keys:** C check/call, R raise, F fold, Space next hand, Esc stand up. You play with your chips.
   - The NPCs' stacks persist between hands, and they rebuy at the window when broke.
+- **VIP** (`Sotano._armar_vip`):
+  - **Getting in:** the bouncer outside charges the pass (`Fichas.CUOTA_VIP` $500, once; `Fichas.vip`, reset per run). Until you pay, a body blocks the rope (`_cordon`); paying hides the rope.
+  - **Gold blackjack:** `BlackjackUI` with `prefijo` `VIP_bj`, bets from 10 to 100 in steps of 10, dealer "Doña Oro".
+  - **People:** the dancer turns slowly round the pole (`Idle_Talking`), and rich players smoke cigars (`puro`) at the gold table and in the booths.
+  - **Light:** gold, pink and violet (`LUCES_VIP`).
+  - In the test scene, V gives the pass.
 - **Table camera:** `JuegoSotano.acercar_camara` / `regresar_camara` (blackjack, roulette, baccarat).
 - **Chips on the felt** (`PilaFichas`, roulette and baccarat): one chip per chip you bet; the stack moves to the spot you pick.
   - On a win the dealer slides the payout next to it and pushes both to you (on cash-out in the roulette).

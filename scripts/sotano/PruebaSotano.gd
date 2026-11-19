@@ -25,7 +25,7 @@ const PESOS := 1000
 const TEXTO := """El Sótano (prueba)
 . permiso y +50 fichas · P +$500
 K quitar permiso (probar la cuota)
-H EL GORDO calientes · R al pie de la escalera
+H EL GORDO calientes · R al pie de la escalera · V pase VIP
 F12 de cero · F1 esconder"""
 
 # Camaras para --fotos: nombre -> [desde, hacia], en metros del cuarto (antes de la escala)
@@ -39,6 +39,10 @@ const FOTOS := {
 	"salon2": [Vector3(21.5, -0.8, 6.5), Vector3(30.0, -2.4, 0.0)],
 	"poker": [Vector3(30.0, -1.0, 7.0), Vector3(27.5, -2.0, 3.6)],
 	"mesera": [Vector3.ZERO, Vector3.FORWARD],
+	"vip_puerta": [Vector3(31.8, -1.2, 2.6), Vector3(35.2, -1.4, 1.9)],
+	"vip": [Vector3(36.0, -0.9, 2.3), Vector3(40.0, -2.0, -0.4)],
+	"vip_tubo": [Vector3(39.4, -1.5, 1.2), Vector3(41.0, -1.6, -0.6)],
+	"vip_sillones": [Vector3(38.0, -1.2, 0.0), Vector3(40.2, -2.0, 2.4)],
 	"dulcero": [Vector3(37.4, -1.4, 5.0), Vector3(36.0, -1.95, 6.0)],
 	"rocola_diana": [Vector3(25.5, -1.4, 5.2), Vector3(25.6, -1.4, 8.0)],
 	"barriles": [Vector3(31.6, -1.3, 5.6), Vector3(34.3, -2.0, 7.3)],
@@ -189,9 +193,11 @@ func _fotos(carpeta: String) -> void:
 	cam.fov = 70.0
 	add_child(cam)
 	cam.make_current()
-	# La puerta del bano abierta, para ver adentro
+	# La puerta del bano abierta y el pase VIP, para ver adentro
 	if _sotano.has_method("_puerta_bano"):
 		_sotano.call("_puerta_bano")
+	get_node("/root/Fichas").vip = true
+	_sotano.call("_quitar_cordon")
 	await get_tree().create_timer(1.5).timeout
 	for nombre: String in FOTOS:
 		var v: Array = FOTOS[nombre]
@@ -253,6 +259,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_sotano.call("_quitar_cadena")
 		KEY_P:
 			get_node("/root/Cartera").pesos += 500
+		KEY_V:
+			f.vip = true
+			_sotano.call("_quitar_cordon")
 		KEY_K:
 			_armar(true)
 		KEY_H:

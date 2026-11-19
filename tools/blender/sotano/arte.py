@@ -406,6 +406,22 @@ def mesas():
     _texto(sc, "EL CRUPIER SE PLANTA EN 17", 4.0, 1.95, 0.17, blanco, negra, ancho_max=3.4)
     _texto(sc, "EL SÓTANO", 4.0, 0.55, 0.16, blanco, negra)
     _render(sc, "blackjack.png")
+    # El del VIP: negro con letras y circulos dorados
+    sc = _escena("BlackjackVip", 512, 256, u)
+    negro_ = (0.05, 0.05, 0.06)
+    oro_ = (0.95, 0.72, 0.2)
+    _rect(sc, 0, 0, 8, 4, (0.3, 0.2, 0.12), -0.05)
+    _circulo(sc, 4.0, 0.0, 4.0, negro_, -0.04, lados=48)
+    _circulo(sc, 4.0, 0.0, 2.2, oro_, -0.035, lados=40)
+    _circulo(sc, 4.0, 0.0, 2.14, negro_, -0.03, lados=40)
+    for a in (140, 90, 40):
+        x, y = 4.0 + math.cos(math.radians(a)) * 3.1, math.sin(math.radians(a)) * 3.1
+        _circulo(sc, x, y, 0.36, oro_, -0.025, lados=20)
+        _circulo(sc, x, y, 0.3, negro_, -0.02, lados=20)
+    _texto(sc, "V I P", 4.0, 0.7, 0.4, oro_, impacto)
+    _texto(sc, "APUESTAS DE 10 A 100", 4.0, 1.4, 0.24, oro_, negra, ancho_max=3.6)
+    _texto(sc, "BLACKJACK PAGA 3 A 2", 4.0, 1.85, 0.2, (0.9, 0.88, 0.8), negra, ancho_max=3.4)
+    _render(sc, "blackjack_vip.png")
     # La ruleta: la franja de las apuestas junto a la rueda (que va hundida a la izquierda), 1.4 x 1.76
     # de mesa: las tres casillas apiladas, VERDE arriba (del lado del crupier); a la izquierda de cada
     # letrero queda lugar para tu pila de fichas

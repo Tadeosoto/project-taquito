@@ -40,6 +40,8 @@ const NEONES := [
 	["Neon_barra", "barra", Color(1.0, 0.25, 0.15), false, 0.6],
 	["Neon_bano", "bano", Color(0.3, 0.85, 1.0), true, 1.0],
 	["Neon_dados", "dados", Color(0.7, 0.3, 1.0), false, 0.9],
+	["Neon_vip", "vip", Color(1.0, 0.8, 0.3), false, 0.4],
+	["Neon_club", "club", Color(1.0, 0.3, 0.75), false, 0.9],
 ]
 const FOCOS := 0.35
 const LUCES_BARRA := [Color(1.0, 0.3, 0.75), Color(0.3, 0.85, 1.0), Color(0.65, 0.3, 1.0), Color(0.35, 0.45, 1.0)]
@@ -78,7 +80,7 @@ const PUERTA_BANO_ABIERTA := -95.0   # grados en y de la bisagra
 # Lo que trae en la mano cada sentado (por su marca): "cigarro" (con humo) o "cerveza"
 const VICIOS := {"Poker_0": "cigarro", "Poker_1": "cigarro", "Poker_2": "cerveza", "Silla_2": "cigarro",
 	"Silla_7": "cerveza", "Silla_0": "cigarro", "Blackjack_0": "cigarro", "Blackjack_1": "cerveza",
-	"Baccarat_0": "cigarro", "Bano_dulcero": "cigarro"}
+	"Baccarat_0": "cigarro", "Bano_dulcero": "cigarro", "VIP_bj_0": "puro", "VIP_sillon_0": "puro", "VIP_sillon_1": "cerveza"}
 # Los de pie, cada quien en lo suyo (nada limpio): nombre, modelo, donde (x, z), hacia donde ve
 # (x, z), clip, lo que trae en la mano y lo que dice. Sin marca: van en metros del cuarto
 const TURBIOS := [
@@ -154,6 +156,12 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	# La bailarina da vueltas al tubo, viendo hacia afuera
+	if _bailarina and _marcas.has("Marca_VIP_tubo"):
+		_baile_t += delta * BAILE_VELOCIDAD
+		var tubo := marca("VIP_tubo").origin
+		_bailarina.position = tubo + Vector3(cos(_baile_t) * BAILE_RADIO, 0, sin(_baile_t) * BAILE_RADIO)
+		_bailarina.look_at(to_global(tubo + (_bailarina.position - tubo) * 3.0), Vector3.UP)
 	# El halcon voltea de la escalera al salon y de regreso, vigilando
 	if _halcon:
 		_halcon_t += delta
@@ -514,7 +522,8 @@ func _armar_gente() -> void:
 	var sentados := [["Silla_0", "mujer_07"], ["Silla_2", "hombre_03"], ["Silla_5", "mujer_12"], ["Silla_7", "hombre_14"],
 		["Poker_0", "hombre_15"], ["Poker_1", "hombre_31"], ["Poker_2", "mujer_29"],
 		["Blackjack_0", "mujer_15"], ["Blackjack_1", "hombre_01"], ["Baccarat_0", "mujer_16"],
-		["Bano_dulcero", "hombre_29"]]
+		["Bano_dulcero", "hombre_29"], ["VIP_bj_0", "hombre_30"], ["VIP_bj_1", "mujer_33"], ["VIP_sillon_0", "hombre_16"],
+		["VIP_sillon_1", "mujer_32"]]
 	for k in sentados.size():
 		var nombre: String = sentados[k][0]
 		var t := marca(nombre)
@@ -532,6 +541,10 @@ func _armar_gente() -> void:
 			mira = marca("Crupier_baccarat").origin
 		elif nombre == "Bano_dulcero":
 			mira = marca("Bano_puesto").origin
+		elif nombre.begins_with("VIP_bj"):
+			mira = marca("Crupier_VIP_bj").origin
+		elif nombre.begins_with("VIP_sillon"):
+			mira = marca(nombre).origin + Vector3(0, 0, -1.0)
 		nodo.look_at(to_global(Vector3(mira.x, nodo.position.y, mira.z)), Vector3.UP)
 		# Sitting_Idle deja la cadera CADERA atras del origen: se adelanta para que caiga en el asiento
 		nodo.position -= nodo.transform.basis.z.normalized() * CADERA
@@ -539,6 +552,7 @@ func _armar_gente() -> void:
 		if VICIOS.has(nombre):
 			_dar(nodo, VICIOS[nombre])
 	_armar_turbios()
+	_armar_vip()
 	# Uno que platica de pie, junto a la columna
 	var miron := _hablador("Miron", "hombre_09", Transform3D(Basis(), Vector3(15.4, -2.6, 3.6)), _linea_miron)
 	miron.look_at(to_global(Vector3(15.4, miron.position.y, 0.0)), Vector3.UP)
@@ -600,15 +614,16 @@ static func _cosa(cosa: String) -> Node3D:
 				copia.position = Vector3(0.0, -0.06, 0.03)
 				raiz.add_child(copia)
 			botellas.free()
-		"cigarro":
+		"cigarro", "puro":
+			var puro := cosa == "puro"
 			var palo := MeshInstance3D.new()
 			var c := CylinderMesh.new()
-			c.top_radius = 0.004
-			c.bottom_radius = 0.004
-			c.height = 0.06
+			c.top_radius = 0.008 if puro else 0.004
+			c.bottom_radius = 0.008 if puro else 0.004
+			c.height = 0.1 if puro else 0.06
 			c.radial_segments = 5
 			palo.mesh = c
-			palo.material_override = _material_liso(Color(0.95, 0.93, 0.88))
+			palo.material_override = _material_liso(Color(0.4, 0.22, 0.1) if puro else Color(0.95, 0.93, 0.88))
 			palo.rotation_degrees = Vector3(0, 0, 80)
 			palo.position = Vector3(0.03, 0.0, 0.02)
 			raiz.add_child(palo)
@@ -620,7 +635,7 @@ static func _cosa(cosa: String) -> Node3D:
 			var m := _material_liso(Color(1.0, 0.45, 0.1))
 			m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 			brasa.material_override = m
-			brasa.position = Vector3(0.06, 0.005, 0.02)
+			brasa.position = Vector3(0.08 if puro else 0.06, 0.005, 0.02)
 			raiz.add_child(brasa)
 			brasa.add_child(_humo())
 		"paquete":
@@ -687,6 +702,94 @@ static func _humo() -> CPUParticles3D:
 	desvanece.set_color(1, Color(1, 1, 1, 0.0))
 	humo.color_ramp = desvanece
 	return humo
+
+
+# --- El cuarto VIP ---
+# El guarura de afuera cobra el pase (Fichas.CUOTA_VIP, una vez); mientras no lo pagues el cordon de
+# terciopelo tapa la puerta. Adentro: el blackjack de oro (10 a 100 fichas, "Doña Oro"), el escenario
+# con su bailarina que da vueltas al tubo, los ricos fumando puro y las luces doradas y rosas.
+
+const LUCES_VIP := [Color(1.0, 0.85, 0.5), Color(1.0, 0.3, 0.75), Color(0.75, 0.3, 1.0), Color(1.0, 0.85, 0.55), Color(1.0, 0.8, 0.4)]
+const BAILE_RADIO := 0.38            # m (escena) de la vuelta de la bailarina al tubo
+const BAILE_VELOCIDAD := 0.6         # rad/s
+
+var _cordon: StaticBody3D
+var _bailarina: Node3D
+var _baile_t := 0.0
+
+
+func _armar_vip() -> void:
+	if not _marcas.has("Marca_VIP_cordon"):
+		return
+	var f := get_node_or_null("/root/Fichas")
+	var guarura := _hablador("Guarura", "hombre_31", marca("VIP_guardia"), func() -> String:
+		var ff := get_node_or_null("/root/Fichas")
+		if ff and ff.vip:
+			return "\"Pásele, patrón. Adentro todo es de oro.\""
+		return "\"El VIP es para los que apuestan en serio. %d pesos el pase, una vez.\"" % Fichas.CUOTA_VIP)
+	guarura.look_at(to_global(marca("VIP_pase").origin), Vector3.UP)
+	# El cordon tapa hasta que pagas
+	_cordon = StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var caja := BoxShape3D.new()
+	caja.size = Vector3(0.2, 1.6, 1.0)
+	forma.shape = caja
+	_cordon.add_child(forma)
+	_cordon.position = marca("VIP_cordon").origin + Vector3(0, 0.8, 0)
+	add_child(_cordon)
+	if f and f.vip:
+		_quitar_cordon()
+	else:
+		add_child(MuebleCasa.crear("Pagarle el pase VIP al guarura ($%d)" % Fichas.CUOTA_VIP, marca("VIP_pase").origin, _pagar_vip, 0.9))
+	# El blackjack de oro
+	add_child(MuebleCasa.crear("Jugar blackjack de oro (10 a 100)", marca("VIP_bj").origin,
+		_abrir.bind("res://scripts/sotano/BlackjackUI.gd", {"sotano": self, "prefijo": "VIP_bj", "apuesta_min": 10, "apuesta_max": 100, "crupier": "Doña Oro"}), 0.9))
+	var dona := _hablador("Dona_Oro", "mujer_30", marca("Crupier_VIP_bj"), func() -> String:
+		return "\"Aquí se apuesta en serio, mi amor. De diez para arriba.\"")
+	dona.look_at(to_global(marca("VIP_bj").origin), Vector3.UP)
+	# La bailarina da vueltas al tubo
+	var tubo := marca("VIP_tubo").origin
+	_bailarina = Node3D.new()
+	_bailarina.name = "Bailarina"
+	add_child(_bailarina)
+	_bailarina.position = tubo + Vector3(BAILE_RADIO, 0, 0)
+	var anim := Civiles.poner(_bailarina, "mujer_11", "Idle_Talking")
+	if anim:
+		anim.speed_scale = 0.8
+	# Luces doradas, rosas y moradas
+	var k := 0
+	while _marcas.has("Marca_Luz_vip_%d" % k):
+		var luz := _luz(marca("Luz_vip_%d" % k).origin, LUCES_VIP[k % LUCES_VIP.size()], 1.3, 3.2)
+		if k == 2:
+			_parpadear(luz, 1.3)
+		k += 1
+
+
+func _pagar_vip() -> void:
+	var f := get_node_or_null("/root/Fichas")
+	var cartera := get_node_or_null("/root/Cartera")
+	if f == null or cartera == null or f.vip:
+		return
+	if cartera.pesos < Fichas.CUOTA_VIP:
+		avisar("\"Sin lana no hay VIP, joven.\"")
+		return
+	cartera.pesos -= Fichas.CUOTA_VIP
+	f.vip = true
+	Sonidos.tocar(self, "monedas_caen", -5.0)
+	avisar("\"Pásele, patrón.\" El guarura quita el cordón.")
+	_quitar_cordon()
+
+
+func _quitar_cordon() -> void:
+	if _cordon:
+		_cordon.queue_free()
+		_cordon = null
+	var cuarto := get_node_or_null("Cuarto")
+	if cuarto:
+		for nombre in ["VIP_cordon", "VIP_poste_0", "VIP_poste_1"]:
+			var n := cuarto.find_child(nombre, true, false)
+			if n is Node3D:
+				(n as Node3D).visible = false
 
 
 func _rotar(lineas: Array, contador: String) -> String:
