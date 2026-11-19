@@ -132,6 +132,12 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - BAÑO: with an arrow.
 - **Art:** `tools/blender/sotano/arte.py` renders with flat Workbench and no AA (`SOLO=(...)` renders only some):
   - `textures/sotano/cartas.png`: 24 lotería card frames, 96 × 144 each (the size they show on the screen), with only the colour field: no picture, no name.
+  - `textures/sotano/baraja.png`: the playing cards for poker, blackjack and baccarat, crisp pixel art drawn by code in `tools/sotano/dibujar_baraja.gd`. The Blender version looked pencilled by hand.
+    - 14 × 4 cards of 128 × 192 (`PokerUI.CARTA_PX`).
+    - Ranks use a pixel font (`LETRAS`); suits are 9 × 9 bitmaps (`PALOS`), scaled up.
+    - Pips follow the classic layout, with the bottom ones upside down; from the 7 up they are smaller.
+    - The faces are cartoon portraits (J with a feathered cap, Q with long hair, K with a beard and crown).
+    - The back is El Tinaco on a wine-red lattice.
   - `textures/sotano/cartas_dibujos.png`: the card pictures, cartoon pixel art drawn by code in `tools/sotano/dibujar_cartas.gd` (`godot --path . --headless -s tools/sotano/dibujar_cartas.gd`).
     - Shaded balls with a highlight, polygons with a drop shade, big eyes and faces, a 1 px dark outline.
     - Transparent 8 × 3 atlas of 80 × 80.
@@ -139,7 +145,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - The 3D renders (`cartas3d.py`) were dropped.
   - `calcomanias.png` and `pantalla.png`: the EL GORDO cabinet and its idle screen.
   - `pantalla_juego.png`: the 384 × 288 game screen background.
-  - `baraja.png`: 52 cards plus the El Tinaco back.
+  - The deck (`baraja.png`) is no longer made here: see `tools/sotano/dibujar_baraja.gd` below.
   - `anuncios.png`: six beer posters (`CERVEZAS`): Tecatl, Indita, Coronela, Modelito, Pacífica and the caguama deal.
   - `textures/maquinita/adorno_frutas.png`.
 - **Materials:** `scripts/sotano/SotanoPostImport.gd` is the import script of every Sótano `.glb`. It swaps Blender materials by name for the game's:
