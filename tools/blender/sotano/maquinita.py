@@ -252,5 +252,8 @@ if __name__ == "maquinita":
         raise RuntimeError("maquinita.py borraria " + bpy.data.filepath + ": abre un archivo nuevo primero")
     for ob in list(bpy.data.objects):
         bpy.data.objects.remove(ob, do_unlink=True)
+    # Los materiales tambien: uno con una textura de vista previa la metia al .glb
+    for mat in list(bpy.data.materials):
+        bpy.data.materials.remove(mat)
     exportar(adorno())
     print("adorno de la maquinita listo")
