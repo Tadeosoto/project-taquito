@@ -112,9 +112,10 @@ func _probar() -> void:
 	ui = arbol.get_first_node_in_group("juego_sotano")
 	var antes: int = fichas.fichas
 	var tiros := 0
+	await _esperar(0.7)
 	for k in 20:
 		ui.jalar()
-		await _esperar(1.6)
+		await _esperar(2.2)
 		tiros += 1
 		if k == 0:
 			await _foto("3_olpley")

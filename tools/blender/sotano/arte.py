@@ -276,6 +276,38 @@ def anuncios():
     _render(sc, "anuncios.png")
 
 
+def pantalla_juego():
+    """256 x 192: el fondo del juego en la pantalla de la OL PLEY (scripts/sotano/OlPleyUI.gd encima
+    pone los carretes y los numeros). Marco de neon con focos, el logo, tres ventanas de carrete de
+    64 x 112 en x = 24, 96, 168 (y de 34 a 146) con sus flechas de la linea de premio, y abajo
+    tres recuadros (APUESTA, FICHAS, PREMIO) de 64 x 18 en x = 16, 96, 176, y = 166."""
+    u = 32
+    sc = _escena("PantallaJuego", 256, 192, u)
+    emoji = _fuente("seguiemj.ttf")
+    impacto = _fuente("impact.ttf")
+    negra = _fuente("ariblk.ttf")
+    morado, rosa, amarillo, oscuro = (0.18, 0.04, 0.3), (1.0, 0.3, 0.75), (1.0, 0.85, 0.1), (0.04, 0.02, 0.08)
+    _rect(sc, 0, 0, 8, 6, rosa, -0.04)
+    _rect(sc, 0.12, 0.12, 7.88, 5.88, morado, -0.035)
+    for k in range(20):    # focos del marco
+        for (x, y) in ((0.2 + k * 0.4, 0.06), (0.2 + k * 0.4, 5.94)):
+            _circulo(sc, x, y, 0.09, amarillo if k % 2 == 0 else (1, 1, 1), -0.03, lados=6)
+    _texto(sc, "LOTERÍA DE CARRETES", 4.0, 0.55, 0.62, amarillo, impacto, contorno=(0.04, (0.6, 0.05, 0.1)), ancho_max=6.2)
+    for x in (0.55, 7.45):
+        _texto(sc, "\U0001F6E2", x, 0.55, 0.6, amarillo, emoji)
+    for k in range(3):
+        x0 = (24 + k * 72) / u
+        _rect(sc, x0 - 0.1, 34 / u - 0.1, x0 + 2 + 0.1, 146 / u + 0.1, amarillo, -0.03)
+        _rect(sc, x0, 34 / u, x0 + 2, 146 / u, oscuro, -0.025)
+    for x, g in ((0.35, "▶"), (7.65, "◀")):
+        _texto(sc, g, x, 90 / u, 0.9, rosa, _fuente("seguisym.ttf"))
+    for k, nombre in enumerate(("APUESTA", "FICHAS", "PREMIO")):
+        x0 = (16 + k * 80) / u
+        _texto(sc, nombre, x0 + 1.0, 156 / u, 0.3, amarillo, negra)
+        _rect(sc, x0, 166 / u, x0 + 2, 184 / u, oscuro, -0.03)
+    _render(sc, "pantalla_juego.png")
+
+
 def baraja():
     """896 x 384: la baraja del poker, 13 columnas (2..10, J, Q, K, A) x 4 filas (picas, corazones,
     diamantes, treboles) de 64 x 96, y en la columna 14 el reverso (El Tinaco sobre rojo vino) arriba.
