@@ -62,7 +62,12 @@ func _probar() -> void:
 		_fin()
 		return
 	entrada._entrar()
-	await _esperar(1.2)
+	# Hasta que la casa exista y el fundido acabe (la primera vez tras importar compila shaders)
+	var espera := 0.0
+	while (entrada.get("_casa") == null or entrada.get("_ocupado")) and espera < 10.0:
+		await _esperar(0.2)
+		espera += 0.2
+	await _esperar(0.3)
 	var sotano: Node3D = entrada.get("_casa")
 	_ver(sotano != null and jugador.global_position.y > 400.0, "se entra al Sotano", "jugador en %s" % jugador.global_position)
 	if sotano == null:
@@ -188,7 +193,11 @@ func _probar() -> void:
 	ui.cerrar()
 	await _esperar(0.3)
 	entrada._salir()
-	await _esperar(1.2)
+	espera = 0.0
+	while entrada.get("_casa") != null and espera < 10.0:
+		await _esperar(0.2)
+		espera += 0.2
+	await _esperar(0.5)
 	_ver(jugador.global_position.y < 50.0 and entrada.get("_casa") == null, "se sale por la puerta", "jugador en %s" % jugador.global_position)
 	_fin()
 
