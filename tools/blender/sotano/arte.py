@@ -167,8 +167,8 @@ def cartas():
         _rect(sc, cx, cy, cx + 1, cy + 1.5, (0.55, 0.12, 0.1) if not tinaco else (0.85, 0.7, 0.2), -0.02)   # el marco
         _rect(sc, cx + 0.05, cy + 0.05, cx + 0.95, cy + 1.45, CREMA, -0.015)
         _rect(sc, cx + 0.09, cy + 0.09, cx + 0.91, cy + 1.16, color, -0.01)
-        oscuro = sum(color) < 1.0
-        _texto(sc, glifo, cx + 0.5, cy + 0.63, 0.78, CREMA if oscuro else TINTA, emoji)
+        # El dibujo ya no va aqui: es el render 3D de cartas3d.py (cartas_dibujos.png), que
+        # OlPleyUI pone encima del campo de color
     _render(sc, "cartas.png")
 
 

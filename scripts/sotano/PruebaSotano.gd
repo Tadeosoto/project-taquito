@@ -12,6 +12,7 @@ extends Node3D
 # Con -- --foto=<archivo.png> guarda una captura a los 2 s y sale (para revisarla sin jugar).
 # Con -- --fotos=<carpeta> guarda una captura desde cada camara de FOTOS (bajas y de lado, para
 # ver si algo flota o se ve hueco) y sale.
+# Con -- --gordo=<carpeta> abre una EL GORDO, jala la palanca y guarda cuadros, y sale.
 # Con -- --poker=<carpeta> se sienta al poker y guarda un cuadro cada 0.15 s mientras reparte y
 # juega (para ver las cartas moverse), y sale.
 
@@ -81,12 +82,37 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png(arg.trim_prefix("--foto="))
 			get_tree().quit()
+		elif arg.begins_with("--gordo="):
+			await _fotos_gordo(arg.trim_prefix("--gordo="))
+			get_tree().quit()
 		elif arg.begins_with("--poker="):
 			await _fotos_poker(arg.trim_prefix("--poker="))
 			get_tree().quit()
 		elif arg.begins_with("--fotos="):
 			await _fotos(arg.trim_prefix("--fotos="))
 			get_tree().quit()
+
+
+# Abre la primera EL GORDO, jala la palanca unas veces y guarda cuadros (la palanca, los carretes,
+# el letrero del premio)
+func _fotos_gordo(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	get_node("/root/Fichas").permiso = 1
+	get_node("/root/Fichas").fichas = 40
+	var g := _sotano.get_node_or_null("OlPley_0") as GabineteOlPley
+	if g == null:
+		return
+	g.placa.estado = Carretes.Estado.CALIENTE
+	await get_tree().create_timer(1.0).timeout
+	_sotano.call("_abrir_olpley", g)
+	await get_tree().create_timer(0.9).timeout
+	var ui := get_tree().get_first_node_in_group("juego_sotano")
+	for k in 36:
+		if k % 12 == 0 and ui and not ui.get("_ocupado"):
+			ui.call("jalar")
+		await get_tree().create_timer(0.1).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("gordo_%02d.png" % k))
 
 
 func _fotos_poker(carpeta: String) -> void:
