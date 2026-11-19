@@ -17,12 +17,25 @@ const TONO_MAX := 1.3
 const GRACIA := 0.05          # s tras soltarlo en que ningun choque suena (sale de junto a la pistola)
 const SHADER := preload("res://shaders/ps1_combined.gdshader")
 
+# Los de las otras armas (Pistola.ARMAS "casquillo"; AG, 2026-11-18): el cartucho rojo de la
+# Tinaquera (con su base de laton, suena mas sordo) y el laton chico de la Matraca y la Chicharra.
+# tipo -> [largo, radio, color, tono]; "laton" es el de la pistola, con las constantes de arriba
+const TIPOS := {
+	"cartucho": [0.065, 0.0105, Color(0.75, 0.12, 0.1), 0.75],
+	"chico": [0.018, 0.0045, Color(0.85, 0.65, 0.25), 1.35],
+}
+
 static var _malla: CylinderMesh
 static var _forma: CylinderShape3D
+static var _mallas := {}      # tipo -> [CylinderMesh, CylinderShape3D]
 
 var _voz: AudioStreamPlayer3D
 var _sono := false
 var _desde := 0
+var _tipo := "laton"
+var _vista: MeshInstance3D
+var _choque: CollisionShape3D
+var _tono := 1.0
 
 
 static func _preparar() -> void:
@@ -56,13 +69,13 @@ func _init() -> void:
 	fisica.bounce = 0.35
 	fisica.friction = 0.6
 	physics_material_override = fisica
-	var malla := MeshInstance3D.new()
-	malla.mesh = _malla
-	malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(malla)
-	var choque := CollisionShape3D.new()
-	choque.shape = _forma
-	add_child(choque)
+	_vista = MeshInstance3D.new()
+	_vista.mesh = _malla
+	_vista.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_vista)
+	_choque = CollisionShape3D.new()
+	_choque.shape = _forma
+	add_child(_choque)
 	_voz = AudioStreamPlayer3D.new()
 	_voz.unit_size = 3.0
 	_voz.max_distance = 25.0
@@ -73,6 +86,38 @@ func _init() -> void:
 # Al estar listo Godot vuelve a prender _physics_process: se apaga aqui
 func _ready() -> void:
 	_guardar()
+
+
+# Cambia a otro tipo (TIPOS, o "laton"): la malla y la forma son una por tipo para todos
+func vestir(tipo: String) -> void:
+	if tipo == _tipo:
+		return
+	_tipo = tipo
+	if not TIPOS.has(tipo):
+		_vista.mesh = _malla
+		_choque.shape = _forma
+		_tono = 1.0
+		return
+	if not _mallas.has(tipo):
+		var t: Array = TIPOS[tipo]
+		var malla := CylinderMesh.new()
+		malla.top_radius = t[1]
+		malla.bottom_radius = t[1]
+		malla.height = t[0]
+		malla.radial_segments = 6
+		malla.rings = 1
+		var material := ShaderMaterial.new()
+		material.shader = SHADER
+		material.set_shader_parameter("tint", t[2])
+		material.set_shader_parameter("affine_enabled", false)
+		malla.surface_set_material(0, material)
+		var forma := CylinderShape3D.new()
+		forma.radius = t[1]
+		forma.height = t[0]
+		_mallas[tipo] = [malla, forma]
+	_vista.mesh = _mallas[tipo][0]
+	_choque.shape = _mallas[tipo][1]
+	_tono = TIPOS[tipo][3]
 
 
 # Sale de `donde` con el empujon `impulso` (m/s) y un giro al azar
@@ -117,5 +162,5 @@ func _al_chocar(cuerpo: Node) -> void:
 	_voz.stream = Sonidos.sonido("casquillo")
 	if _voz.stream == null:
 		return
-	_voz.pitch_scale = randf_range(TONO_MIN, TONO_MAX)
+	_voz.pitch_scale = randf_range(TONO_MIN, TONO_MAX) * _tono
 	_voz.play()

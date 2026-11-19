@@ -99,7 +99,10 @@ const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 const ESTELA_MUERTES := 27
 # golpe y morir_zombi: el Panzon (azotones, pisotones, losas) y su muerte; zumbido_oidos y
 # bocina_*: la palomita y la bocina senuelo
-const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto", "casquillo", "disparo_pistola", "recarga_suelta", "recarga_mete", "recarga_cierra", "golpe", "morir_zombi", "zumbido_oidos", "bocina_musica", "bocina_apaga"]
+const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto", "casquillo", "disparo_pistola", "recarga_suelta", "recarga_mete", "recarga_cierra", "golpe", "morir_zombi", "zumbido_oidos", "bocina_musica", "bocina_apaga",
+	# Las armas de fuego nuevas (Pistola.ARMAS "sonidos"; los archivos los elige JJ)
+	"disparo_tinaquera", "bomba_tinaquera", "cartucho_mete", "disparo_matraca", "giro_matraca", "sobrecalienta_matraca",
+	"tambor_saca", "tambor_mete", "tambor_cierra", "disparo_chicharra", "cargador_chicharra"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
 const MUSICA_ENTRA := 2.0      # s

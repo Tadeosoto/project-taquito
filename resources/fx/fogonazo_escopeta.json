@@ -1,0 +1,16 @@
+{
+ "id": "taquito/fogonazo-escopeta",
+ "fps": 30,
+ "loop": false,
+ "frames": 16,
+ "frameSize": [
+  128,
+  76
+ ],
+ "pivot": [
+  12,
+  36
+ ],
+ "columns": 4,
+ "golpe_en": 0
+}

@@ -105,6 +105,18 @@ Y si puedes, juega la carrera completa hasta perder: anota en qué noche te desm
 | Cadencia, cargador y recarga | 0.22 s, 12, 1.5 s, balas infinitas | `Pistola.gd` `CADENCIA`, `CARGADOR`, `RECARGA` | ¿Las balas deben acabarse (spec §1.4)? |
 | Recarga temprana contra en seco | Temprana (R con balas): 12+1 en 1.5 s. En seco (se vació): 12 en ~1.78 s, con la corredera | `Pistola.gd` `_recargar`, `RACK_ACERCA`, largo de `pistol_cock.wav` | ¿Se nota que conviene recargar antes de vaciar? ¿Pesa demasiado la corredera en plena pelea? |
 | Ayuda al apuntar | 2.5° (antes 4°) | `Pistola.gd` `AYUDA` | ¿Demasiado fácil o difícil con el mouse? |
+| La Tinaquera (escopeta) | 6 de daño × 8 perdigones, 0.85 s entre tiros, 6 cartuchos, recarga 2.2 s, alcance 22 m | `Pistola.gd` `ARMAS["escopeta"]` | A ojo (AG, 2026-11-11), sin probar. ¿Mata de un tiro de cerca como debe? |
+| La Matraca (ametralladora) | 7 de daño, 0.09 s (automática), cinta de 100, recarga 3.5 s, alcance 70 m | `Pistola.gd` `ARMAS["ametralladora"]` | A ojo, sin probar. Es ~2× el daño por segundo de la pistola: ¿rompe la defensa del tinaco? |
+| La Chicharra (subfusil) | 4 de daño, 0.07 s (automática), cargador de 30, recarga 1.6 s, alcance 40 m | `Pistola.gd` `ARMAS["subfusil"]` | A ojo, sin probar. |
+| Precio de las tres | $900, $2500, $1200 | `resources/productos/la_*.tres` | A ojo; todavía no las vende ninguna tienda (irán en el mercado ilegal de la mafia, S7). |
+| Tinaquera de cerca | A 7 m o menos empuja 7 m/s y aturde; si mata, 35 % de volarle la cabeza | `Pistola.gd` `ARMAS["escopeta"].zombi_empuje` | ¿Se siente el escopetazo? ¿Empuja tanto que ya no hay peligro? |
+| Tinaquera: recarga y bomba | Un cartucho cada 0.4 s (disparar la corta), bombea a los 0.3 s del tiro | `ARMAS["escopeta"].por_cartucho`, `bomba` | ¿Se puede pelear recargando de a uno? |
+| Patada y empujón por arma | Pantalla ×3.5 / ×1.3 / ×0.6; empujón ×4 / ×0.5 / ×0.35; modelo 8 cm y 14° en la escopeta | `ARMAS[...].sacude`, `empuje`, `retroceso_modelo` | ¿La escopeta marea? |
+| Subida de mira (automáticas) | Matraca 0.22° arriba y ±0.12° de lado por tiro; Chicharra 0.12° y ±0.18°; la mitad apuntando | `ARMAS[...].sube`, `deriva` | ¿Se puede controlar jalando el mouse? |
+| Matraca: giro y calor | Gira 0.35 s antes del primer tiro; se calienta en ~50 tiros seguidos; enfría 0.4/s tras 0.3 s sin disparar; vuelve a disparar en 0.35 | `ARMAS["ametralladora"].giro_previo`, `calor`, `enfria`, `listo` | ¿Obliga a soltar el clic sin ser molesta? |
+| Matraca: peso | Caminas a 0.75, sin correr disparando, sin rodar | `ARMAS["ametralladora"].peso` | ¿Pesa lo justo para lo que pega? |
+| Automáticas frenan | Matraca: el zombi va a 0.6 durante 0.35 s por tiro; Chicharra: 0.75 durante 0.25 s | `ARMAS[...].zombi_lento` | ¿Detienen una turba demasiado bien? |
+| Chicharra desde la cadera | Dispersión ×1.8 sin apuntar | `ARMAS["subfusil"].cadera` | ¿Se nota que conviene apuntar? |
 | Tiro a la cabeza | ×3 (24: un zombi de 30 cae con 2 tiros) desde 1.4 m de alto | `Pistola.gd` `CABEZA_MULT`, `CABEZA_DESDE` | ¿Se le atina o es pura suerte con la dispersión? |
 | Dispersión de la pistola | 0.012 rad (0.004 apuntando) | `Pistola.gd` `DISPERSION`, `APUNTA_DISPERSION` | ¿Se siente que falla sin razón? |
 | Empujón atrás al disparar | 0.6 m/s | `player.gd` `RETROCESO_TIRO` (0 lo quita) | ¿Estorba al disparar en grupo? |
