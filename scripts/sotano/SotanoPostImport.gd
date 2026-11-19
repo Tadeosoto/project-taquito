@@ -32,6 +32,10 @@ const TEXTURAS := {
 	"azulejo_piso": ["res://textures/sotano/azulejo_piso.png", Color(0.8, 0.8, 0.8), 1.5],
 	"banho": ["res://textures/sotano/banho.png", Color.WHITE, 0.0],
 	"banho_mancha": ["res://textures/sotano/banho.png", Color.WHITE, 0.0],
+	# Los panos de las mesas de blackjack y ruleta (arte.py mesas())
+	"blackjack": ["res://textures/sotano/blackjack.png", Color.WHITE, 0.0],
+	"ruleta": ["res://textures/sotano/ruleta.png", Color.WHITE, 0.0],
+	"baccarat": ["res://textures/sotano/baccarat.png", Color.WHITE, 0.0],
 }
 # Con textura pero brillan solos (la marquesina luminosa del refri)
 const BRILLAN_TEXTURA := ["refri_letrero"]
@@ -51,7 +55,7 @@ const PANTALLA := "res://textures/sotano/pantalla.png"
 const NEON := {
 	"rosa": Color(1.0, 0.25, 0.75), "amarillo": Color(1.0, 0.85, 0.2), "morado": Color(0.6, 0.3, 1.0),
 	"cian": Color(0.3, 0.9, 1.0), "rojo": Color(1.0, 0.2, 0.15), "verde": Color(0.3, 1.0, 0.45),
-	"blanco": Color(1.0, 0.95, 0.9),
+	"blanco": Color(1.0, 0.95, 0.9), "azul": Color(0.3, 0.4, 1.0),
 }
 const HALO_ALFA := 0.28
 

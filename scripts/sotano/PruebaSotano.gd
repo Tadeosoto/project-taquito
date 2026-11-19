@@ -39,6 +39,10 @@ const FOTOS := {
 	"salon2": [Vector3(21.5, -0.8, 6.5), Vector3(30.0, -2.4, 0.0)],
 	"poker": [Vector3(30.0, -1.0, 7.0), Vector3(27.5, -2.0, 3.6)],
 	"mesera": [Vector3.ZERO, Vector3.FORWARD],
+	"barra_neon": [Vector3(26.0, -1.5, 2.8), Vector3(26.0, -1.6, -2.0)],
+	"dados_ruleta": [Vector3(31.0, -1.3, 2.0), Vector3(33.2, -1.5, -1.8)],
+	"baccarat": [Vector3(25.6, -1.3, 7.4), Vector3(23.4, -1.9, 5.0)],
+	"blackjack": [Vector3(30.6, -1.2, 5.4), Vector3(32.4, -1.9, 2.9)],
 	"turbios_trato": [Vector3(31.8, -1.3, 0.9), Vector3(33.7, -1.6, -0.6)],
 	"turbios_borracho": [Vector3(27.0, -1.4, 2.2), Vector3(28.1, -1.6, 0.7)],
 	"vicio_cerca": [Vector3(26.4, -1.6, 4.3), Vector3(25.9, -1.95, 3.6)],
@@ -82,6 +86,9 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png(arg.trim_prefix("--foto="))
 			get_tree().quit()
+		elif arg.begins_with("--mesas="):
+			await _fotos_mesas(arg.trim_prefix("--mesas="))
+			get_tree().quit()
 		elif arg.begins_with("--gordo="):
 			await _fotos_gordo(arg.trim_prefix("--gordo="))
 			get_tree().quit()
@@ -91,6 +98,46 @@ func _ready() -> void:
 		elif arg.begins_with("--fotos="):
 			await _fotos(arg.trim_prefix("--fotos="))
 			get_tree().quit()
+
+
+# Una mano de blackjack y una tirada de ruleta, con cuadros de cada una
+func _fotos_mesas(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	get_node("/root/Fichas").permiso = 1
+	get_node("/root/Fichas").fichas = 60
+	await get_tree().create_timer(1.0).timeout
+	_sotano.call("_abrir", "res://scripts/sotano/BlackjackUI.gd", {"sotano": _sotano})
+	await get_tree().create_timer(0.9).timeout
+	var ui := get_tree().get_first_node_in_group("juego_sotano")
+	ui.call("repartir")
+	for k in 12:
+		await get_tree().create_timer(0.15).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("bj_%02d.png" % k))
+	ui.call("plantarte")
+	await get_tree().create_timer(1.5).timeout
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(carpeta.path_join("bj_final.png"))
+	ui.call("cerrar")
+	await get_tree().create_timer(0.5).timeout
+	_sotano.call("_abrir", "res://scripts/sotano/BaccaratUI.gd", {"sotano": _sotano})
+	await get_tree().create_timer(0.9).timeout
+	ui = get_tree().get_first_node_in_group("juego_sotano")
+	ui.call("repartir")
+	for k in 8:
+		await get_tree().create_timer(0.3).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("baccarat_%02d.png" % k))
+	ui.call("cerrar")
+	await get_tree().create_timer(0.5).timeout
+	_sotano.call("_abrir", "res://scripts/sotano/RuletaUI.gd", {"sotano": _sotano})
+	await get_tree().create_timer(0.9).timeout
+	ui = get_tree().get_first_node_in_group("juego_sotano")
+	ui.call("girar")
+	for k in 24:
+		await get_tree().create_timer(0.2).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("ruleta_%02d.png" % k))
 
 
 # Abre la primera EL GORDO, jala la palanca unas veces y guarda cuadros (la palanca, los carretes,

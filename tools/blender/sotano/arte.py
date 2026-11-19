@@ -167,8 +167,8 @@ def cartas():
         _rect(sc, cx, cy, cx + 1, cy + 1.5, (0.55, 0.12, 0.1) if not tinaco else (0.85, 0.7, 0.2), -0.02)   # el marco
         _rect(sc, cx + 0.05, cy + 0.05, cx + 0.95, cy + 1.45, CREMA, -0.015)
         _rect(sc, cx + 0.09, cy + 0.09, cx + 0.91, cy + 1.16, color, -0.01)
-        # El dibujo ya no va aqui: es el render 3D de cartas3d.py (cartas_dibujos.png), que
-        # OlPleyUI pone encima del campo de color
+        # El dibujo ya no va aqui: es el pixel art de tools/sotano/dibujar_cartas.gd
+        # (cartas_dibujos.png), que OlPleyUI pone encima del campo de color
     _render(sc, "cartas.png")
 
 
@@ -377,6 +377,68 @@ def banho():
     for k in range(5):
         _rect(sc, 6.4, 2.55 + k * 0.2, 7.6, 2.62 + k * 0.2, (0.05, 0.05, 0.05), -0.02)
     _render(sc, "banho.png")
+
+
+def mesas():
+    """Los panos de las mesas nuevas (sotano.py mesa_blackjack y mesa_ruleta):
+    blackjack.png (512 x 256): la media luna vista desde arriba con la orilla recta arriba (el
+    crupier): verde, "BLACKJACK PAGA 3 A 2" en arco, "EL CRUPIER SE PLANTA EN 17", tres circulos de
+    apuesta; la parte fuera del arco va del color de la madera.
+    ruleta.png (384 x 256): el pano de la ruleta (la rueda a la izquierda, sobre un circulo oscuro)
+    con tres casillas grandes: ROJO, NEGRO y VERDE, y lo que pagan."""
+    import math
+    negra = _fuente("ariblk.ttf")
+    impacto = _fuente("impact.ttf")
+    verde, verde_osc = (0.08, 0.38, 0.16), (0.05, 0.25, 0.1)
+    blanco, amarillo, madera = (0.95, 0.93, 0.85), (1.0, 0.82, 0.2), (0.45, 0.32, 0.2)
+    u = 64
+    sc = _escena("Blackjack", 512, 256, u)
+    _rect(sc, 0, 0, 8, 4, madera, -0.05)
+    # La media luna: centro arriba al medio (4, 0), radio 4 (la textura mide 2r x r)
+    _circulo(sc, 4.0, 0.0, 4.0, verde, -0.04, lados=48)
+    _circulo(sc, 4.0, 0.0, 2.2, verde_osc, -0.035, lados=40)
+    _circulo(sc, 4.0, 0.0, 2.12, verde, -0.03, lados=40)
+    for k, a in enumerate((140, 90, 40)):
+        x, y = 4.0 + math.cos(math.radians(a)) * 3.1, math.sin(math.radians(a)) * 3.1
+        _circulo(sc, x, y, 0.36, blanco, -0.025, lados=20)
+        _circulo(sc, x, y, 0.3, verde, -0.02, lados=20)
+    _texto(sc, "BLACKJACK PAGA 3 A 2", 4.0, 1.45, 0.34, amarillo, impacto, ancho_max=3.8)
+    _texto(sc, "EL CRUPIER SE PLANTA EN 17", 4.0, 1.95, 0.17, blanco, negra, ancho_max=3.4)
+    _texto(sc, "EL SÓTANO", 4.0, 0.55, 0.16, blanco, negra)
+    _render(sc, "blackjack.png")
+    # La ruleta: la franja de las apuestas junto a la rueda (que va hundida a la izquierda), 0.6 x 1.0
+    # de mesa: las tres casillas apiladas, VERDE arriba (del lado del crupier)
+    sc = _escena("Ruleta", 192, 320, u)
+    _rect(sc, 0, 0, 3, 5, verde, -0.05)
+    _rect(sc, 0.06, 0.06, 2.94, 4.94, blanco, -0.045)
+    _rect(sc, 0.1, 0.1, 2.9, 4.9, verde, -0.04)
+    for k, (nombre, fondo, letra, paga) in enumerate((("VERDE", (0.05, 0.5, 0.15), amarillo, "PAGA 35 A 1"),
+                                                       ("NEGRO", (0.06, 0.06, 0.06), blanco, "PAGA 1 A 1"),
+                                                       ("ROJO", (0.75, 0.06, 0.05), blanco, "PAGA 1 A 1"))):
+        y0 = 0.3 + k * 1.55
+        _rect(sc, 0.3, y0, 2.7, y0 + 1.35, blanco, -0.03)
+        _rect(sc, 0.35, y0 + 0.05, 2.65, y0 + 1.3, fondo, -0.025)
+        _texto(sc, nombre, 1.5, y0 + 0.6, 0.48, letra, impacto, ancho_max=2.1)
+        _texto(sc, paga, 1.5, y0 + 1.05, 0.16, letra, negra)
+    _render(sc, "ruleta.png")
+    # El baccarat (384 x 192 para una mesa de 1.88 x 0.88): BANCA arriba (del lado del crupier),
+    # PUNTO abajo (de tu lado) y el EMPATE en medio
+    # (a 128 px por unidad, el doble: a 64 no se leia)
+    sc = _escena("Baccarat", 768, 384, 128)
+    _rect(sc, 0, 0, 6, 3, verde, -0.05)
+    _rect(sc, 0.08, 0.08, 5.92, 2.92, blanco, -0.045)
+    _rect(sc, 0.12, 0.12, 5.88, 2.88, verde, -0.04)
+    for nombre, y0, fondo, letra, paga in (("BANCA", 0.25, (0.7, 0.08, 0.06), blanco, "1 A 1 MENOS 5%"),
+                                           ("EMPATE", 1.12, (0.95, 0.75, 0.15), (0.2, 0.08, 0.02), "PAGA 8 A 1"),
+                                           ("PUNTO", 1.99, (0.1, 0.25, 0.7), blanco, "PAGA 1 A 1")):
+        _rect(sc, 0.9, y0, 5.1, y0 + 0.78, blanco, -0.03)
+        _rect(sc, 0.95, y0 + 0.05, 5.05, y0 + 0.73, fondo, -0.025)
+        sombra = (0.05, 0.03, 0.03) if letra == blanco else (1.0, 0.95, 0.7)
+        _texto(sc, nombre, 2.35, y0 + 0.4, 0.5, letra, impacto, contorno=(0.025, sombra))
+        _texto(sc, paga, 4.0, y0 + 0.42, 0.2, letra, negra, ancho_max=1.8)
+    _texto(sc, "BACCARAT", 0.48, 1.5, 0.22, amarillo, impacto)
+    _texto(sc, "SÓTANO", 5.52, 1.5, 0.18, blanco, negra)
+    _render(sc, "baccarat.png")
 
 
 def pantalla_juego():

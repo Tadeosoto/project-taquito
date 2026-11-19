@@ -146,6 +146,44 @@ func _probar() -> void:
 	_ver(fichas.fichas == h.jugadores[0].fichas, "tus fichas son las de la mesa", str(fichas.fichas))
 	ui.cerrar()
 	await _esperar(0.8)
+	# Blackjack: una mano, plantado
+	fichas.fichas = maxi(fichas.fichas, 20)
+	sotano._abrir("res://scripts/sotano/BlackjackUI.gd", {"sotano": sotano})
+	await _esperar(0.8)
+	ui = arbol.get_first_node_in_group("juego_sotano")
+	var antes_bj: int = fichas.fichas
+	ui.repartir()
+	await _esperar(1.6)
+	if ui.get("_bj").fase == Blackjack.Fase.JUGANDO:
+		ui.plantarte()
+		await _esperar(2.0)
+	_ver(ui.get("_bj").fase == Blackjack.Fase.FIN and ui.get("_bj").resultado != "", "se juega una mano de blackjack",
+		"%s, fichas %d -> %d" % [ui.get("_bj").resultado, antes_bj, fichas.fichas])
+	ui.cerrar()
+	await _esperar(0.5)
+	# Baccarat: una mano a la banca
+	sotano._abrir("res://scripts/sotano/BaccaratUI.gd", {"sotano": sotano})
+	await _esperar(0.8)
+	ui = arbol.get_first_node_in_group("juego_sotano")
+	ui.tecla(KEY_DOWN)
+	ui.repartir()
+	await _esperar(3.0)
+	_ver(ui.get("_bac").ganador != "" and not ui.get("_ocupado"), "se juega una mano de baccarat", "gana %s" % ui.get("_bac").ganador)
+	ui.cerrar()
+	await _esperar(0.5)
+	# Ruleta: al rojo; si gana, dobletea
+	sotano._abrir("res://scripts/sotano/RuletaUI.gd", {"sotano": sotano})
+	await _esperar(0.8)
+	ui = arbol.get_first_node_in_group("juego_sotano")
+	ui.girar()
+	await _esperar(5.0)
+	var tras_giro: int = ui.get("_estado")
+	if tras_giro == 2:    # GANASTE
+		ui.dobletear()
+		await _esperar(5.0)
+	_ver(ui.get("_estado") == 3 or ui.get("_estado") == 2, "gira la ruleta (y el doblete)", "sale %s" % ui.get("_sale").text)
+	ui.cerrar()
+	await _esperar(0.5)
 	# Carreras: al rojo, 2 fichas
 	jugador.global_position = sotano.to_global(Vector3(14.25, -2.0, 4.0))
 	sotano._abrir("res://scripts/sotano/CarrerasUI.gd", {"sotano": sotano})

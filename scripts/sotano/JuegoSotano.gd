@@ -1,7 +1,8 @@
 class_name JuegoSotano
 extends CanvasLayer
 
-# La base de las pantallas del Sotano (EL GORDO, el poker, las carreras, la ventanilla): un
+# La base de las pantallas del Sotano (EL GORDO, el poker, el blackjack, la ruleta, las carreras, la
+# ventanilla): un
 # recuadro al centro con su titulo, las fichas que traes, un aviso y la ayuda. Mientras esta
 # abierta el jugador no se mueve (process_mode DISABLED) y el raton se suelta para la loteria;
 # Esc sale. Cada juego pone lo suyo en `contenido` (_armar) y su teclado en _tecla.
@@ -113,6 +114,7 @@ func tecla(codigo: int) -> void:
 
 
 func cerrar() -> void:
+	regresar_camara()
 	if _player:
 		_player.process_mode = Node.PROCESS_MODE_INHERIT
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -152,6 +154,33 @@ func fichas() -> int:
 
 func _contar() -> void:
 	_fichas.text = "Fichas: %d" % fichas()
+
+
+# La camara vuela de la del jugador a ver la mesa (ojos y mira en global) y regresa al cerrar.
+# La usan el blackjack y la ruleta (el poker y las carreras traen la suya)
+var _camara_mesa: Camera3D
+var _camara_antes: Camera3D
+
+
+func acercar_camara(ojos: Vector3, mira: Vector3, fov := 56.0, tiempo := 0.6) -> void:
+	_camara_antes = get_viewport().get_camera_3d()
+	_camara_mesa = Camera3D.new()
+	add_child(_camara_mesa)
+	if _camara_antes:
+		_camara_mesa.global_transform = _camara_antes.global_transform
+		_camara_mesa.fov = _camara_antes.fov
+	_camara_mesa.make_current()
+	var tween := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(_camara_mesa, "global_transform", Transform3D(Basis.looking_at(mira - ojos), ojos), tiempo)
+	tween.tween_property(_camara_mesa, "fov", fov, tiempo)
+
+
+func regresar_camara() -> void:
+	if _camara_antes and is_instance_valid(_camara_antes):
+		_camara_antes.make_current()
+	if _camara_mesa:
+		_camara_mesa.queue_free()
+		_camara_mesa = null
 
 
 # Para los hijos

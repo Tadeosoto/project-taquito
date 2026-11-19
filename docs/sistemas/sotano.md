@@ -4,6 +4,7 @@ AG, 2026-11-18.
 - **v2** (2026-11-19, branch `sotano-v2`): two halls, Texas Hold'em instead of the lotería, the game on the cabinet screen, simpler fruit machines, people.
 - **v3** (2026-11-19, branch `sotano-v3`): solid boxes (nothing floats any more), real seats and bottles, readable reel cards, the machines renamed **EL GORDO**, tube neon from Blender, a roomier hall 2, poker card animations.
 - **v4** (2026-11-19, branch `sotano-v4`): EL GORDO as a real slot machine (a lever you pull, casino sounds, 3D-rendered card art, a livelier screen), a branded fridge, a readable single-stroke neon, the waitress carries her tray, shady people everywhere, the race camera, a readable poker board, and a walkable Silent Hill bathroom.
+- **v5** (2026-11-19, branch `sotano-v5`): blackjack, roulette (red/black/green, with a double-or-nothing doblete), baccarat, the red-and-blue dice neon by the fridge, colour neon strips and lights on the bar, and EL GORDO cards back to 2D: cartoon pixel art drawn by code (AG didn't like the 3D renders).
 
 The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with the code.
 
@@ -26,6 +27,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - `-- --fotos=<dir>` saves a screenshot from each camera in `FOTOS` and quits. The cameras are low and side views (machines, window, bar, poker, every neon), to catch floating or hollow things.
   - `-- --poker=<dir>` sits at the poker table and saves a frame every 0.15 s, to see the cards move.
   - `-- --gordo=<dir>` opens the first EL GORDO, pulls the lever three times and saves frames.
+  - `-- --mesas=<dir>` plays a blackjack hand, a baccarat hand and a roulette spin, saving frames of each.
   - `--fotos` opens the bathroom door first and also covers the fridge, the lever, the waitress (the camera follows her), the shady people and the bathroom.
 
 ## The rooms (Blender)
@@ -65,6 +67,16 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - three wire shelves full of beers and caguamas, a white inner light (`Luz_refri`), feet and a compressor grille.
   - The chest freezer got stickers and a lid handle.
 - **Back bar:** three shelves from `REPISA_Y` 1.15, `REPISA_SEPARA` 0.34 apart. The tallest bottle stays under the beams, and bottles stop at the shelf edge.
+- **Bar neon:** emissive strips: pink under the counter edge, cyan and violet under the shelves, violet and blue along the base and the back bar. Coloured lights sit at `Luz_barra_*` (`Sotano.LUCES_BARRA`).
+- **Blackjack** (`mesa_blackjack`, `BLACKJACK`): a half-moon table, built by `media_luna`.
+  - The felt is printed (`blackjack.png`); a padded rail runs along the arc; the chip tray and shoe sit on the dealer side.
+  - Two stools with players, and a lamp.
+- **Roulette** (`mesa_ruleta`, `RULETA`, `RUEDA`): the wheel is sunk flush into the table (`HUECO`).
+  - `Ruleta_rueda`: a ring of 37 pockets in European order with chrome separators (`Ruleta_separa_*`), a wooden hub with gold spokes and the turret.
+  - The ball `Ruleta_bola`; the sloped outer track lives in the bowl.
+  - The felt strip (`ruleta.png`) shows VERDE, NEGRO and ROJO only.
+- **Baccarat** (`mesa_baccarat`, `BACCARAT`): a long table in the south-west corner of hall 2, with a printed felt (`baccarat.png`, 128 px per unit so it reads), the chip tray and shoe, one stool and a lamp.
+- The walkers' route goes around the blackjack table by the east wall (`Camino_10`, `Camino_12`) and around the baccarat table on the west (`Camino_13`). The bar-corner deal moved by the arch.
 - **Bathroom** (`banho()`, behind the east wall of hall 2, `BANO`): the door hangs on `Bano_bisagra` and opens into hall 2.
   - Inside: dirty tiles (`azulejo.png`), a green-and-black floor (`azulejo_piso.png`), two stalls (one door hanging off), toilets, a urinal, two sinks with the shattered mirror and an empty mirror frame.
   - Also: the drain with a stain (`banho_mancha`, multiply blend), graffiti ("NO ESTAS SOLO"), rusty pipes and a bare bulb (`Luz_bano`).
@@ -77,6 +89,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - `-colonly`: collision only. Must be unique, or Godot renames the body.
 - **Empties `Marca_*`** place everything else: lights, neons, posters, cabinets, NPCs, seats, the walking route `Camino_*`.
 - **Neon:** `tools/blender/sotano/neones.py` exports `models/sotano/neones.glb`, one `Neon_<name>` empty per sign, facing +Z.
+  - **Dice** (`dado()`, sign `dados`): two corner-view cubes, red and blue, with white pips, beside the fridge.
   - **Block letters** use `TRAZOS`, a hand-made single-stroke alphabet: one tube per stroke, like real neon, with wider spacing. Glyph outlines gave two tubes per stroke and read as mush at 640 × 480.
   - **Script words** (Pacifico) are filled, thin glyphs. The text halo is thinner (`HALO_TEXTO` 2.0).
   - **Shapes:** curves with a bevel, turned into meshes.
@@ -93,10 +106,11 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - BAÑO: with an arrow.
 - **Art:** `tools/blender/sotano/arte.py` renders with flat Workbench and no AA (`SOLO=(...)` renders only some):
   - `textures/sotano/cartas.png`: 24 lotería card frames, 96 × 144 each (the size they show on the screen), with only the colour field: no picture, no name.
-  - `textures/sotano/cartas_dibujos.png`: the card pictures, from `tools/blender/sotano/cartas3d.py`.
-    - One low-poly object per card, built from primitives with flat colours: rooster, devil, mermaid… El Apagado, La Pipa, El Tinaco.
-    - Rendered in Workbench (studio light, black outline, no AA) on a transparent 8 × 3 atlas of 80 × 80.
+  - `textures/sotano/cartas_dibujos.png`: the card pictures, cartoon pixel art drawn by code in `tools/sotano/dibujar_cartas.gd` (`godot --path . --headless -s tools/sotano/dibujar_cartas.gd`).
+    - Shaded balls with a highlight, polygons with a drop shade, big eyes and faces, a 1 px dark outline.
+    - Transparent 8 × 3 atlas of 80 × 80.
     - `CartasLoteria.dibujo(i)` returns one; `OlPleyUI` puts it over the colour field and writes the name below.
+    - The 3D renders (`cartas3d.py`) were dropped.
   - `calcomanias.png` and `pantalla.png`: the EL GORDO cabinet and its idle screen.
   - `pantalla_juego.png`: the 384 × 288 game screen background.
   - `baraja.png`: 52 cards plus the El Tinaco back.
@@ -178,6 +192,21 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - Your two cards on screen enter face down and flip.
   - **Keys:** C check/call, R raise, F fold, Space next hand, Esc stand up. You play with your chips.
   - The NPCs' stacks persist between hands, and they rebuy at the window when broke.
+- **Table camera:** `JuegoSotano.acercar_camara` / `regresar_camara` (blackjack, roulette, baccarat).
+- **Blackjack** (`Blackjack.gd`, `BlackjackUI.gd`):
+  - The dealer is La Güera. She stands on all 17s; a natural blackjack pays 3 to 2; you can double on two cards.
+  - Keys: ←/→ bet, Space deal, H hit, S stand, D double.
+  - The cheat: with bets of `CARGADO_DESDE` (5) or more she sometimes stacks the shoe, so her hole card puts her on 20 or 21. Tell: she adjusts her earring.
+- **Roulette** (`Ruleta.gd`, `RuletaUI.gd`):
+  - Bets are red or black (1 to 1) or green (35 to 1) only. ↑/↓ colour, ←/→ bet, Space spin.
+  - After a win, C cashes out or D doubles (`dobletear`): everything goes back on a colour, once. If the doblete loses, it's all gone; if it wins, it cashes out by itself.
+  - The wheel slows to a stop; the ball runs the outer track the other way, drops into the pockets and bounces between separators, ticking.
+  - The cheat: with `FRENO_DESDE` (10) or more at stake the ball sometimes jumps to the next pocket, which is always another colour. Tell: the dealer taps the table.
+- **Baccarat** (`Baccarat.gd`, `BaccaratUI.gd`):
+  - Bets are on punto, banca or empate.
+  - Player 1 to 1, banker 1 to 1 minus 5 %, tie 8 to 1 (punto and banca get their bet back on a tie).
+  - The drawing rules: natural 8 or 9, the player draws on 0 to 5, and the banker's third-card table (`banca_pide`).
+  - The cheat: with bets of `ARREGLO_DESDE` (5) or more, if you were going to win, Don Chepe sometimes reshuffles and deals again. Tell: he blows on the cards.
 - **Races** (`CarrerasUI`): the camera flies to watch the track from the north while the horses run (`_ver_pista`), then returns.
   - Odds 2/3/5/8/12, with chances proportional to 1/odds.
   - A bet of 5+ halves your horse's luck, and the house's horse trembles first (`Sotano.temblar`).
@@ -195,6 +224,8 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   8. Play a simple fruit spin.
   9. Cash out and leave.
 - `godot --path . --headless -s tools/sotano/probar_holdem.gd` runs known hands plus 2000 AI hands and checks there are no stalls and no lost chips.
+- `godot --path . --headless -s tools/sotano/probar_mesas.gd` checks the blackjack, roulette and baccarat rules, payouts and cheats (thousands of rounds).
+- `probar_sotano` also plays one hand of blackjack, one of baccarat, and a roulette spin (with the doblete if it wins).
 
 ## Pending
 
