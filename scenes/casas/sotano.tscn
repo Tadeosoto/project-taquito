@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/sotano/Sotano.gd" id="1_sotano"]
+[ext_resource type="PackedScene" path="res://models/sotano/sotano.glb" id="2_cuarto"]
+
+[node name="Sotano" type="Node3D"]
+script = ExtResource("1_sotano")
+
+[node name="Cuarto" parent="." instance=ExtResource("2_cuarto")]

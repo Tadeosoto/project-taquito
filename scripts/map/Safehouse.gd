@@ -98,7 +98,8 @@ F12 reiniciar todo · F10 ir al mapa"""},
 8 estela del protagonista (su mejora) / la de siempre
 7 cargado: deja apretado y suelta = tajo, 2.5x
 6 en el aire: giro; con Shift, clavado (prueba)
-Shift+1 2 3 maquinita: normal, sin monedas, segura"""},
+Shift+1 2 3 maquinita: normal, sin monedas, segura
+. El Sótano: permiso y +50 fichas (flecha junto a tu casa)"""},
 	{"titulo": "Zombis", "efectos": true, "texto": """Z zombi · B turba (Ctrl+B: llenar la libreta, Shift+B: borrarla) · X quitar · F8 jefe
 T zombis solos de noche
 0 caminan en enjambre / en fila como antes
@@ -705,6 +706,12 @@ func _unhandled_input(event: InputEvent) -> void:
 						Tazos.dar_tazo(tazo)
 			else:
 				Tazos.dar_puntos(PUNTOS_PRUEBA)
+		KEY_PERIOD:
+			# El Sotano (scripts/sotano/): el permiso de los Gotera y fichas para probar
+			var fichas := get_node_or_null("/root/Fichas")
+			if fichas:
+				fichas.permiso = 1
+				fichas.fichas += 50
 		KEY_COMMA:
 			if event.shift_pressed:
 				EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())

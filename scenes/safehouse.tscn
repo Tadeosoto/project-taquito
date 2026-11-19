@@ -31,6 +31,7 @@
 [ext_resource type="Script" path="res://scripts/interiores/CasaPropia.gd" id="25_casa_propia"]
 [ext_resource type="PackedScene" path="res://scenes/casa_personaje.tscn" id="26_casa_personaje"]
 [ext_resource type="PackedScene" path="res://scenes/interiores/punto_mejoras.tscn" id="27_mejoras"]
+[ext_resource type="PackedScene" path="res://scenes/casas/sotano.tscn" id="28_sotano"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -202,6 +203,15 @@ player_path = NodePath("../Player")
 zombis_path = NodePath("../Zombis")
 flecha_en = Vector3(-21, 0, 40.2)
 calle_giro = 3.1415927
+
+[node name="Sotano" type="Node" parent="."]
+script = ExtResource("25_casa_propia")
+escena = ExtResource("28_sotano")
+player_path = NodePath("../Player")
+zombis_path = NodePath("../Zombis")
+flecha_en = Vector3(-15, 0, 40.2)
+calle_giro = 3.1415927
+nombre = "El Sótano"
 
 [node name="InventoryUI" parent="." instance=ExtResource("8_inventario")]
 

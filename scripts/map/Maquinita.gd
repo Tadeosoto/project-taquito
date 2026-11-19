@@ -81,6 +81,9 @@ static var _material: ShaderMaterial
 # Quien es en el mapa (`origen` del negocio): la placa y su caja no se pierden al alejarte
 var id := ""
 var placa: Tragamonedas
+# Con que se juega: "pesos" (la Cartera, las de afuera de las tienditas) o "fichas" (las del Sotano,
+# Fichas.gd). Las de fichas estan bajo tierra: abren de noche (docs/sistemas/sotano.md)
+var moneda := "pesos"
 # Sigue el festejo de mostrar_premio
 var mostrando_premio := false
 
@@ -284,8 +287,10 @@ func is_player_inside() -> bool:
 	return _player_inside and not _ocupada and not _cerrada()
 
 
-# De noche no se juega (docs/especificaciones.md 4.6)
+# De noche no se juega (docs/especificaciones.md 4.6), salvo las del Sotano
 func _cerrada() -> bool:
+	if moneda == "fichas":
+		return false
 	var ciclo := get_tree().get_first_node_in_group("ciclo")
 	return ciclo != null and ciclo.es_noche()
 

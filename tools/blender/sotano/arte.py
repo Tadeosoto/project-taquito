@@ -1,0 +1,250 @@
+# El arte del Sotano (docs/sistemas/sotano.md), renderizado en Blender con Workbench plano y sin
+# suavizado (pixeles duros, como todo el juego):
+#   textures/sotano/cartas.png        las cartas de la loteria (CARTAS, 8 x 3 de 128 x 192 px)
+#   textures/sotano/calcomanias.png   el gabinete OL PLEY (marquesina, puerta, costado, etiquetas)
+#   textures/sotano/pantalla.png      lo que la maquinita muestra sola ("inserte ficha")
+# Los dibujos son los glifos de linea de Segoe UI Emoji (Windows) sobre fondos de color; los
+# nombres, en Arial Black / Impact. Corre en el archivo que sea (usa escenas propias y las borra):
+#   R = r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\sotano"
+#   exec(open(R + r"\arte.py", encoding="utf-8").read(), {"__name__": "arte"})
+# Si cambia CARTAS, cambia tambien scripts/sotano/Cartas.gd (mismo orden).
+
+import bpy
+import os
+import random
+
+RAIZ = os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito")
+SALIDA = os.path.join(RAIZ, "textures", "sotano")
+FUENTES = r"C:\Windows\Fonts"
+
+# nombre, glifo (Segoe UI Emoji), color del fondo. Las ultimas son de este mundo.
+CARTAS = [
+    ("El Gallo", "\U0001F413", (0.95, 0.55, 0.15)),
+    ("El Diablito", "\U0001F608", (0.85, 0.15, 0.15)),
+    ("La Sirena", "\U0001F9DC", (0.2, 0.6, 0.75)),
+    ("El Paraguas", "\u2602", (0.55, 0.35, 0.75)),
+    ("La Calavera", "\U0001F480", (0.9, 0.85, 0.7)),
+    ("El Nopal", "\U0001F335", (0.35, 0.7, 0.3)),
+    ("La Luna", "\U0001F319", (0.15, 0.2, 0.45)),
+    ("El Sol", "\u2600", (1.0, 0.8, 0.2)),
+    ("El Corazón", "\u2764", (0.9, 0.3, 0.4)),
+    ("La Campana", "\U0001F514", (0.95, 0.75, 0.3)),
+    ("La Estrella", "\u2B50", (0.25, 0.35, 0.7)),
+    ("El Venado", "\U0001F98C", (0.7, 0.5, 0.3)),
+    ("La Rana", "\U0001F438", (0.45, 0.75, 0.35)),
+    ("El Pescado", "\U0001F41F", (0.3, 0.55, 0.85)),
+    ("La Araña", "\U0001F577", (0.6, 0.6, 0.55)),
+    ("La Rosa", "\U0001F339", (0.95, 0.6, 0.7)),
+    ("El Cotorro", "\U0001F99C", (0.3, 0.8, 0.45)),
+    ("La Corona", "\U0001F451", (0.95, 0.8, 0.35)),
+    ("El Apagado", "\U0001F9DF", (0.45, 0.55, 0.65)),
+    ("La Pipa", "\U0001F69A", (0.25, 0.65, 0.85)),
+    ("El Machete", "\U0001F5E1", (0.7, 0.7, 0.72)),
+    ("La Garrafa", "\U0001FAD9", (0.55, 0.8, 0.95)),
+    ("El Camión", "\U0001F68C", (0.95, 0.65, 0.2)),
+    ("El Tinaco", "\U0001F6E2", (0.1, 0.1, 0.12)),
+]
+COLUMNAS = 8
+CARTA = (128, 192)
+CREMA = (0.95, 0.9, 0.78)
+TINTA = (0.08, 0.06, 0.06)
+
+
+def _mat(nombre, color):
+    m = bpy.data.materials.get(nombre) or bpy.data.materials.new(nombre)
+    m.diffuse_color = (*color, 1.0)
+    return m
+
+
+def _fuente(archivo):
+    return bpy.data.fonts.load(os.path.join(FUENTES, archivo), check_existing=True)
+
+
+def _escena(nombre, ancho_px, alto_px, unidad_px):
+    vieja = bpy.data.scenes.get(nombre)
+    if vieja:
+        bpy.data.scenes.remove(vieja)
+    sc = bpy.data.scenes.new(nombre)
+    sc.render.engine = "BLENDER_WORKBENCH"
+    sc.display.shading.light = "FLAT"
+    sc.display.shading.color_type = "MATERIAL"
+    sc.display.render_aa = "OFF"
+    sc.render.resolution_x = ancho_px
+    sc.render.resolution_y = alto_px
+    sc.render.resolution_percentage = 100
+    sc.render.film_transparent = False
+    sc.view_settings.view_transform = "Standard"
+    sc.render.image_settings.file_format = "PNG"
+    sc.render.image_settings.color_mode = "RGB"
+    cam = bpy.data.cameras.new(nombre + "_cam")
+    cam.type = "ORTHO"
+    cam.ortho_scale = max(ancho_px, alto_px) / unidad_px
+    ob = bpy.data.objects.new(nombre + "_cam", cam)
+    ob.location = (ancho_px / unidad_px / 2, -alto_px / unidad_px / 2, 10)
+    sc.collection.objects.link(ob)
+    sc.camera = ob
+    return sc
+
+
+def _rect(sc, x0, y0, x1, y1, color, z=0.0, nombre="r"):
+    """Rectangulo en unidades (y hacia abajo: 0 arriba)."""
+    me = bpy.data.meshes.new(nombre)
+    me.from_pydata([(x0, -y0, z), (x1, -y0, z), (x1, -y1, z), (x0, -y1, z)], [], [(0, 1, 2, 3)])
+    me.materials.append(_mat("m_%.2f_%.2f_%.2f" % color, color))
+    ob = bpy.data.objects.new(nombre, me)
+    sc.collection.objects.link(ob)
+    return ob
+
+
+def _circulo(sc, cx, cy, r, color, z=0.0, lados=24, nombre="c"):
+    import math
+    me = bpy.data.meshes.new(nombre)
+    v = [(cx, -cy, z)] + [(cx + r * math.cos(a * math.tau / lados), -cy + r * math.sin(a * math.tau / lados), z) for a in range(lados)]
+    caras = [(0, i + 1, (i + 1) % lados + 1) for i in range(lados)]
+    me.from_pydata(v, [], caras)
+    me.materials.append(_mat("m_%.2f_%.2f_%.2f" % color, color))
+    ob = bpy.data.objects.new(nombre, me)
+    sc.collection.objects.link(ob)
+    return ob
+
+
+def _texto(sc, cuerpo, x, y, tam, color, fuente, z=0.01, centro=True, contorno=None, ancho_max=None):
+    cu = bpy.data.curves.new("t", "FONT")
+    cu.body = cuerpo
+    cu.font = fuente
+    cu.size = tam
+    cu.align_x = "CENTER" if centro else "LEFT"
+    cu.align_y = "CENTER"
+    ob = bpy.data.objects.new("t", cu)
+    ob.location = (x, -y, z)
+    cu.materials.append(_mat("m_%.2f_%.2f_%.2f" % color, color))
+    sc.collection.objects.link(ob)
+    if ancho_max:
+        bpy.context.view_layer.update() if bpy.context.scene == sc else None
+        dims = ob.evaluated_get(bpy.context.evaluated_depsgraph_get()).dimensions
+        if dims.x > ancho_max:
+            cu.size = tam * ancho_max / dims.x
+    if contorno:
+        # El contorno: la misma letra corrida en 8 direcciones (curve.offset dejaba picos)
+        import math
+        grueso, color_c = contorno
+        c2 = cu.copy()
+        c2.materials.clear()
+        c2.materials.append(_mat("m_%.2f_%.2f_%.2f" % color_c, color_c))
+        for k in range(8):
+            a = k * math.tau / 8
+            ob2 = bpy.data.objects.new("t_borde", c2)
+            ob2.location = (x + math.cos(a) * grueso, -y + math.sin(a) * grueso, z - 0.005)
+            sc.collection.objects.link(ob2)
+    return ob
+
+
+def _render(sc, archivo):
+    os.makedirs(SALIDA, exist_ok=True)
+    sc.render.filepath = os.path.join(SALIDA, archivo)
+    ventana = bpy.context.window
+    anterior = ventana.scene
+    ventana.scene = sc
+    bpy.ops.render.render(write_still=True, scene=sc.name)
+    ventana.scene = anterior
+    for ob in list(sc.objects):
+        bpy.data.objects.remove(ob, do_unlink=True)
+    bpy.data.scenes.remove(sc)
+    print("arte:", archivo)
+
+
+def cartas():
+    u = 128  # px por unidad: una carta mide 1 x 1.5
+    filas = (len(CARTAS) + COLUMNAS - 1) // COLUMNAS
+    sc = _escena("Cartas", COLUMNAS * CARTA[0], filas * CARTA[1], u)
+    emoji = _fuente("seguiemj.ttf")
+    negra = _fuente("ariblk.ttf")
+    for i, (nombre, glifo, color) in enumerate(CARTAS):
+        cx, cy = (i % COLUMNAS) * 1.0, (i // COLUMNAS) * 1.5
+        tinaco = nombre == "El Tinaco"
+        _rect(sc, cx, cy, cx + 1, cy + 1.5, (0.55, 0.12, 0.1) if not tinaco else (0.85, 0.7, 0.2), -0.02)   # el marco
+        _rect(sc, cx + 0.05, cy + 0.05, cx + 0.95, cy + 1.45, CREMA, -0.015)
+        _rect(sc, cx + 0.1, cy + 0.22, cx + 0.9, cy + 1.18, color, -0.01)
+        oscuro = sum(color) < 1.0
+        _texto(sc, glifo, cx + 0.5, cy + 0.72, 0.72, CREMA if oscuro else TINTA, emoji)
+        _texto(sc, str(i + 1), cx + 0.1, cy + 0.13, 0.13, TINTA, negra, centro=False)
+        _texto(sc, nombre, cx + 0.5, cy + 1.32, 0.13, TINTA, negra, ancho_max=0.84)
+    _render(sc, "cartas.png")
+
+
+def calcomanias():
+    """1024 x 1024: marquesina (arriba, 1024 x 256), puerta (512 x 512, izq), costado (512 x 512,
+    der) y la tira de etiquetas (abajo, 1024 x 256). Las coordenadas UV salen de estas regiones
+    (construir_sotano.gd / sotano.py, gabinete)."""
+    u = 128
+    sc = _escena("Calcomanias", 1024, 1024, u)
+    emoji = _fuente("seguiemj.ttf")
+    negra = _fuente("ariblk.ttf")
+    impacto = _fuente("impact.ttf")
+    rnd = random.Random(7)
+    morado, verde, amarillo, rosa = (0.4, 0.1, 0.55), (0.2, 0.75, 0.2), (1.0, 0.85, 0.1), (0.95, 0.3, 0.6)
+    # Marquesina: OL PLEY con contorno sobre manchas de colores
+    _rect(sc, 0, 0, 8, 2, morado, -0.03)
+    for _ in range(26):
+        r = rnd.uniform(0.15, 0.55)
+        _circulo(sc, rnd.uniform(r, 8 - r), rnd.uniform(r, 2 - r), r, rnd.choice((verde, rosa, (0.2, 0.5, 0.95), (0.95, 0.5, 0.1))), -0.025)
+    for g, x in (("\U0001F352", 0.7), ("\U0001F3B2", 7.3)):
+        _texto(sc, g, x, 1.0, 1.0, amarillo, emoji)
+    _texto(sc, "OL PLEY", 4.0, 1.05, 1.45, amarillo, impacto, contorno=(0.06, (0.1, 0.02, 0.1)))
+    # Puerta de abajo: OL PLEY chico, una ruleta y las cartas
+    _rect(sc, 0, 2, 4, 6, (0.15, 0.1, 0.35), -0.03)
+    for _ in range(18):
+        r = rnd.uniform(0.15, 0.45)
+        _circulo(sc, rnd.uniform(r, 4 - r), rnd.uniform(2 + r, 6 - r), r, rnd.choice((verde, rosa, morado, (0.95, 0.5, 0.1))), -0.025)
+    import math
+    for k in range(12):
+        a0, a1 = k * math.tau / 12, (k + 1) * math.tau / 12
+        me = bpy.data.meshes.new("ruleta")
+        cx, cy, r = 2.0, 4.6, 1.05
+        me.from_pydata([(cx, -cy, 0), (cx + r * math.cos(a0), -cy + r * math.sin(a0), 0), (cx + r * math.cos(a1), -cy + r * math.sin(a1), 0)], [], [(0, 1, 2)])
+        col = (0.85, 0.1, 0.1) if k % 2 else (0.05, 0.05, 0.05)
+        me.materials.append(_mat("m_%.2f_%.2f_%.2f" % col, col))
+        ob = bpy.data.objects.new("ruleta", me)
+        sc.collection.objects.link(ob)
+    _circulo(sc, 2.0, 4.6, 0.25, (0.95, 0.8, 0.3), 0.005)
+    _texto(sc, "OL PLEY", 2.0, 2.75, 0.85, amarillo, impacto, contorno=(0.05, (0.1, 0.02, 0.1)))
+    # Costado: un revoltijo de cartas, sietes y cerezas
+    _rect(sc, 4, 2, 8, 6, (0.1, 0.45, 0.25), -0.03)
+    for _ in range(14):
+        x, y = rnd.uniform(4.3, 7.7), rnd.uniform(2.3, 5.7)
+        _rect(sc, x - 0.3, y - 0.42, x + 0.3, y + 0.42, CREMA, rnd.uniform(-0.02, -0.005))
+        g = rnd.choice(("\U0001F413", "\U0001F335", "\U0001F480", "\U0001F514", "\U0001F608", "\u2764"))
+        _texto(sc, g, x, y, 0.45, TINTA, emoji, z=0.0)
+    for _ in range(5):
+        _texto(sc, "7", rnd.uniform(4.4, 7.6), rnd.uniform(2.4, 5.6), 0.7, (0.9, 0.1, 0.1), impacto, z=0.01, contorno=(0.03, amarillo))
+    # Etiquetas (abajo): "ACEPTA FICHAS", "PREMIOS EN FICHAS", "NO GOLPEAR", la del tinaco
+    _rect(sc, 0, 6, 8, 8, (0.12, 0.12, 0.12), -0.03)
+    etiquetas = [("ACEPTA\nFICHAS", amarillo, TINTA), ("PREMIOS\nEN FICHAS", amarillo, TINTA),
+                 ("NO LE\nPEGUE", (0.9, 0.15, 0.1), CREMA), ("EL TINACO\nPAGA DOBLE", (0.2, 0.6, 0.9), CREMA)]
+    for k, (texto, fondo, tinta) in enumerate(etiquetas):
+        x0 = k * 2.0
+        _rect(sc, x0 + 0.1, 6.1, x0 + 1.9, 7.9, fondo, -0.02)
+        _texto(sc, texto, x0 + 1.0, 7.0, 0.32, tinta, negra)
+    _render(sc, "calcomanias.png")
+
+
+def pantalla():
+    """256 x 192: la pantalla cuando nadie juega."""
+    u = 64
+    sc = _escena("Pantalla", 256, 192, u)
+    emoji = _fuente("seguiemj.ttf")
+    impacto = _fuente("impact.ttf")
+    negra = _fuente("ariblk.ttf")
+    _rect(sc, 0, 0, 4, 3, (0.05, 0.06, 0.25), -0.03)
+    _texto(sc, "LOTERÍA DE CARRETES", 2.0, 0.35, 0.32, (1.0, 0.85, 0.1), impacto, contorno=(0.02, (0.6, 0.1, 0.1)), ancho_max=3.7)
+    for k, g in enumerate(("\U0001F413", "\U0001F6E2", "\U0001F335")):
+        x = 0.75 + k * 1.25
+        _rect(sc, x - 0.5, 0.8, x + 0.5, 2.2, CREMA, -0.02)
+        _texto(sc, g, x, 1.5, 0.7, TINTA, emoji)
+    _texto(sc, "INSERTE FICHA", 2.0, 2.65, 0.28, (0.95, 0.95, 0.95), negra)
+    _render(sc, "pantalla.png")
+
+
+if __name__ == "arte":
+    for hacer in (globals().get("SOLO") or ("cartas", "calcomanias", "pantalla")):
+        globals()[hacer]()
