@@ -195,16 +195,25 @@ func _armar_gente() -> void:
 		# El clip de sentado ya trae la altura de la silla: el civil va al piso
 		nodo.position = t.origin
 		add_child(nodo)
-		Civiles.poner(nodo, sentados[k][1], "Sitting_Idle_Loop")
+		Civiles.poner(nodo, sentados[k][1], "Sitting_Idle")
 		var mira := marca("OlPley_%d" % int(String(sentados[k][0]).right(1))).origin if String(sentados[k][0]).begins_with("Silla") \
 			else Vector3(10.9, nodo.position.y, 5.3)
 		nodo.look_at(to_global(Vector3(mira.x, nodo.position.y, mira.z)), Vector3.UP)
 	# Uno que platica de pie, junto a la pista
-	var miron := _hablador("Miron", "hombre_09", Transform3D(Basis(), Vector3(14.6, -2.6, 6.4)), func() -> String:
-		var l: String = LINEAS_JUGADORES[_jugadores_linea % LINEAS_JUGADORES.size()]
-		_jugadores_linea += 1
-		return l)
+	var miron := _hablador("Miron", "hombre_09", Transform3D(Basis(), Vector3(14.6, -2.6, 6.4)), _linea_miron)
 	miron.look_at(to_global(Vector3(16.0, miron.position.y, 3.5)), Vector3.UP)
+
+
+# El miron sabe leer las senas: si una OL PLEY esta caliente te dice cual (contando desde la
+# escalera); si no, platica
+func _linea_miron() -> String:
+	for i in 6:
+		var g := get_node_or_null("OlPley_%d" % i) as GabineteOlPley
+		if g and g.placa.estado == Carretes.Estado.CALIENTE:
+			return "Fíjate en la %s de la izquierda: le parpadea el foco de arriba. Esa ya va a pagar." % ["primera", "segunda", "tercera", "cuarta", "quinta", "sexta"][i]
+	var l: String = LINEAS_JUGADORES[_jugadores_linea % LINEAS_JUGADORES.size()]
+	_jugadores_linea += 1
+	return l
 
 
 func _hablador(nombre: String, modelo: String, t: Transform3D, al_hablar: Callable) -> Node3D:

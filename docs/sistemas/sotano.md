@@ -34,7 +34,7 @@ AG, 2026-11-18 (branch `sotano-casino`). The story is in `docs/lore.md` §11 "El
 - The Primo's window (`VentanillaUI`).
 - The lotería table (`LoteriaUI`) and the track (`CarrerasUI`).
 - The freezer: a caguama for 3 chips. The altar, with text.
-- People: the guard, the Primo, the caller and an onlooker, all talkers on `npc.tscn` with lines. Six seated players (`Civiles` with `Sitting_Idle_Loop`, at floor level: the clip already has the chair height).
+- People: the guard, the Primo, the caller and an onlooker, all talkers on `npc.tscn` with lines. Six seated players (`Civiles` with `Sitting_Idle`, at floor level: the clip already has the chair height).
 - Ambience: six tube lights (two fail), the OL PLEY neon as a `Label3D` with a pink light, the speaker playing `bocina_musica` on a loop, and the fan (its blades reparented to a pivot).
 - If you go up the stairs carrying chips, the Primo shouts once that they're worthless outside.
 - **Games share `JuegoSotano`:** a full-screen panel with title, chips, a notice and help. The player is disabled while it's open and the mouse is freed. Esc closes it. `tecla()` lets the test play it. Opened through `Sotano._abrir` (group `juego_sotano`, one at a time).
