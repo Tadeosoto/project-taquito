@@ -38,7 +38,8 @@ BANO_PUERTA = (4.6, 5.5)          # z del hueco de la puerta del bano en el muro
 BANO = (35.4, 39.4, 3.0, 7.4)     # el bano: x0, x1, z0, z1 (detras del muro este)
 BANO_ALTO = 2.2
 BLACKJACK = (32.4, 2.4, 0.95)    # la mesa de blackjack: x del centro, z de la orilla recta (el crupier, al norte) y radio
-BACCARAT = (22.4, 24.4, 4.6, 5.6)  # la mesa de baccarat (esquina suroeste del salon 2): x0, x1, z0, z1
+BACCARAT_MESA = (23.4, 4.4, 1.0)  # la mesa de baccarat (esquina suroeste del salon 2): x del centro, z de la orilla recta (crupier) y radio
+BACCARAT_BANDAS = (0.84, 0.64, 0.47)  # radio (fraccion) del centro de cada banda: PUNTO afuera, BANCA, EMPATE adentro
 RULETA = (32.0, 34.6, -1.3, 0.5)  # (mas grande: la rueda no cabia)  # la mesa de la ruleta (esquina noreste del salon 2): x0, x1, z0, z1
 RUEDA = (32.75, -0.4, 0.3)        # la rueda: x, z del centro y radio
 RUEDA_DENTRO = 0.18               # donde empiezan las casillas (adentro, el plato de madera)
@@ -48,6 +49,7 @@ REPISA_SEPARA = 0.34
 PISTA = (11.5, 17.0, 4.8, 6.0)    # la isla de los caballitos en el salon 1: x0, x1, z0, z1
 PISTA_META = 16.5                 # x de la meta (Sotano.PISTA_META)
 MESA = (27.5, 3.6)                # centro de la mesa del poker
+MESA_R = 0.95                     # radio del pano (la mesa es redonda; el borde de madera agrega 0.24)
 ASIENTO = 0.5                     # alto del banquito y la silla: los muslos de Sitting_Idle van a 0.52 (tools/sotano/medir_sentado.gd)
 BANCO_BARRA = 0.75                # los bancos altos de la barra (nadie se sienta ahi)
 # Botellas: perfil (radio, alto) de abajo arriba que se gira, vidrio, etiqueta, de donde a donde
@@ -278,9 +280,11 @@ def botella(nombre, tipo, x, y, z, col):
     perfil, vidrio, etiqueta, (e0, e1), tapa, (tr, ta) = BOTELLAS[tipo]
     r = max(p[0] for p in perfil if p[1] <= e1)
     alto = perfil[-1][1]
-    piezas = [girar(nombre + "_v", perfil, material(vidrio, COLORES_BOTELLA[vidrio]), col),
-              girar(nombre + "_e", [(0, e0), (r + 0.003, e0), (r + 0.003, e1), (0, e1)], material(etiqueta, COLORES_BOTELLA[etiqueta]), col),
-              girar(nombre + "_t", [(0, alto - 0.004), (tr, alto - 0.004), (tr, alto + ta), (0, alto + ta)], material(tapa, COLORES_BOTELLA[tapa]), col, lados=8)]
+    # 16 lados y el perfil suavizado (chaikin): con 10 lados y esquinas se veian de pocos poligonos
+    piezas = [girar(nombre + "_v", suavizar(perfil), material(vidrio, COLORES_BOTELLA[vidrio]), col, lados=16),
+              girar(nombre + "_e", [(0, e0), (r + 0.003, e0), (r + 0.003, e1), (0, e1)], material(etiqueta, COLORES_BOTELLA[etiqueta]), col, lados=16),
+              girar(nombre + "_t", [(0, alto - 0.004), (tr, alto - 0.004), (tr, alto + ta * 0.8), (tr * 0.85, alto + ta), (0, alto + ta)],
+                    material(tapa, COLORES_BOTELLA[tapa]), col, lados=12)]
     if tipo == "mezcal":
         piezas.append(girar(nombre + "_g", [(0, 0.012), (0.008, 0.016), (0.006, 0.05), (0, 0.055)], material("gusano", (0.85, 0.55, 0.25)), col, lados=5))
     return juntar(nombre, piezas, col, Matrix.Translation(_b(x, y, z)))
@@ -499,18 +503,14 @@ def mesa_blackjack(col):
     madera = material("madera", (0.45, 0.32, 0.2))
     caja("Blackjack_pata", cx - 0.2, cx + 0.2, y, y + 0.74, cz + 0.2, cz + 0.6, madera, col, choca=False)
     media_luna("Blackjack_mesa", cx, y + 0.74, y + 0.8, cz, r, pano, madera, col)
-    for k in range(12):
-        a0, a1 = math.radians(180 - 15 * k), math.radians(180 - 15 * (k + 1))
-        cable_recto("Blackjack_borde_%d" % k, Vector((cx + math.cos(a0) * (r + 0.03), y + 0.82, cz + math.sin(a0) * (r + 0.03))),
-                    Vector((cx + math.cos(a1) * (r + 0.03), y + 0.82, cz + math.sin(a1) * (r + 0.03))), cuero, col, r=0.045)
+    tubo_curva("Blackjack_borde", [Vector((cx + math.cos(math.radians(180 - 6 * k)) * (r + 0.03), y + 0.82, cz + math.sin(math.radians(180 - 6 * k)) * (r + 0.03)))
+                                   for k in range(31)], 0.045, cuero, col, lados=10)
     choque = caja("Blackjack_choque", cx - r - 0.05, cx + r + 0.05, y, y + 0.85, cz - 0.05, cz + r + 0.05, madera, col, choca=False)
     choque.name = "Blackjack_choque-colonly"
     # La charola de fichas y el zapato, del lado del crupier
     caja("Blackjack_charola", cx - 0.32, cx + 0.32, y + 0.8, y + 0.83, cz + 0.04, cz + 0.16, cuero, col, choca=False)
     for k in range(8):
-        for n in range(6):
-            cilindro("Blackjack_ficha_%d_%d" % (k, n), cx - 0.28 + k * 0.08, y + 0.8 + 0.012 * n, y + 0.812 + 0.012 * n, cz + 0.1, 0.028,
-                     material("ficha_%d" % (k % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[k % 3]), col, lados=8)
+        torre_fichas("Blackjack_fichas_%d" % k, cx - 0.28 + k * 0.08, y + 0.8, cz + 0.1, 6, col, color=k % 4, cambia=6)
     caja("Blackjack_zapato", cx + 0.45, cx + 0.62, y + 0.8, y + 0.9, cz + 0.05, cz + 0.28, material("mazo", (0.45, 0.08, 0.1)), col, choca=False)
     marca("Crupier_bj", cx, y, cz - 0.45, col, 0)
     marca("Blackjack", cx, y, cz + r + 0.55, col, 180)
@@ -525,33 +525,42 @@ def mesa_blackjack(col):
 
 
 def mesa_baccarat(col):
-    """La mesa de baccarat: mesa larga de madera con su pano (textures/sotano/baccarat.png: PUNTO,
-    BANCA y EMPATE), borde acolchado, la charola de fichas y el zapato del lado del crupier (norte),
-    un banco con su jugador en la punta este y su lampara."""
-    x0, x1, z0, z1 = BACCARAT
+    """La mesa de baccarat como la foto de AG: media luna con el pano negro (textures/sotano/baccarat.png:
+    picas tenues, arcos blancos, PUNTO afuera, BANCA en medio y EMPATE 8 A 1 adentro), borde rojo
+    acolchado todo alrededor, la charola de fichas metida en la orilla del crupier (norte) y el zapato
+    rojo. Un banco con su jugador al lado este y su lampara."""
+    cx, cz, r = BACCARAT_MESA
     y = PISO
-    madera = material("madera", (0.45, 0.32, 0.2))
-    cuero = material("cuero_negro", (0.08, 0.06, 0.06))
-    caja("Baccarat_pata", x0 + 0.3, x1 - 0.3, y, y + 0.74, z0 + 0.3, z1 - 0.3, madera, col, choca=False)
-    caja("Baccarat_mesa", x0, x1, y + 0.74, y + 0.8, z0, z1, madera, col, choca=False)
-    plano("Baccarat_pano", ((x0 + x1) / 2, y + 0.802, (z0 + z1) / 2), x1 - x0 - 0.12, z1 - z0 - 0.12, (0, 1, 0), material("baccarat", (1, 1, 1)), col)
-    for nombre, a, b, c, d in (("n", x0, x1, z0, z0 + 0.06), ("s", x0, x1, z1 - 0.06, z1), ("o", x0, x0 + 0.06, z0, z1), ("e", x1 - 0.06, x1, z0, z1)):
-        caja("Baccarat_borde_" + nombre, a, b, y + 0.8, y + 0.85, c, d, cuero, col, choca=False)
-    caja("Baccarat_choque", x0, x1, y, y + 0.85, z0, z1, madera, col, choca=False).name = "Baccarat_choque-colonly"
-    # La charola ya no va sobre el pano (tapaba la BANCA): las fichas que se juegan las pone
-    # BaccaratUI en cada casilla (Marca_Baccarat_banca / _empate / _punto). El zapato, en la punta
-    caja("Baccarat_zapato", x1 - 0.3, x1 - 0.1, y + 0.8, y + 0.9, z0 + 0.08, z0 + 0.3, material("mazo", (0.45, 0.08, 0.1)), col, choca=False)
-    # Donde va tu pila en cada casilla (a la izquierda de cada letrero de baccarat.png)
-    ancho, fondo_ = x1 - x0 - 0.12, z1 - z0 - 0.12
-    for nombre, v in (("banca", 0.2133), ("empate", 0.5033), ("punto", 0.7933)):
-        marca("Baccarat_" + nombre, x0 + 0.06 + 0.2 * ancho, y + 0.802, z0 + 0.06 + v * fondo_, col, 0)
-    marca("Crupier_baccarat", (x0 + x1) / 2, y, z0 - 0.45, col, 0)
-    marca("Baccarat", (x0 + x1) / 2, y, z1 + 0.55, col, 180)
-    banco("Banco_baccarat", x1 + 0.45, y, (z0 + z1) / 2, ASIENTO, col)
-    marca("Baccarat_0", x1 + 0.45, y, (z0 + z1) / 2, col, 0)
-    cilindro("Baccarat_lampara_cable", (x0 + x1) / 2, TECHO - 0.45, TECHO, (z0 + z1) / 2, 0.01, material("cable", (0.05, 0.05, 0.05)), col, lados=4)
-    cilindro("Baccarat_lampara", (x0 + x1) / 2, TECHO - 0.6, TECHO - 0.45, (z0 + z1) / 2, 0.3, material("lampara_verde", (0.15, 0.45, 0.25)), col, lados=12)
-    marca("Luz_baccarat", (x0 + x1) / 2, TECHO - 0.7, (z0 + z1) / 2, col, 0)
+    madera = material("madera_oscura", (0.3, 0.2, 0.12))
+    rojo = material("vinil_rojo", (0.65, 0.06, 0.06))
+    girar("Baccarat_pie", [(0, 0), (0.4, 0), (0.4, 0.04), (0.15, 0.08), (0.13, 0.74), (0, 0.74)], madera, col, lados=16).location = _b(cx, y, cz + r * 0.45)
+    media_luna("Baccarat_mesa", cx, y + 0.74, y + 0.8, cz, r, material("baccarat", (1, 1, 1)), madera, col, pasos=24)
+    # El borde rojo acolchado: por el arco y por la orilla recta (partido por la charola)
+    # Un solo tubo redondo: de la charola por la orilla recta, todo el arco y de regreso
+    rb = r + 0.04
+    arco_pts = [Vector((cx - 0.36, y + 0.83, cz - 0.03)), Vector((cx - rb, y + 0.83, cz - 0.03))]
+    arco_pts += [Vector((cx + math.cos(math.radians(180 - 6 * k)) * rb, y + 0.83, cz + math.sin(math.radians(180 - 6 * k)) * rb)) for k in range(1, 30)]
+    arco_pts += [Vector((cx + rb, y + 0.83, cz - 0.03)), Vector((cx + 0.36, y + 0.83, cz - 0.03))]
+    tubo_curva("Baccarat_borde", arco_pts, 0.055, rojo, col, lados=12)
+    choque = caja("Baccarat_choque", cx - r - 0.06, cx + r + 0.06, y, y + 0.88, cz - 0.08, cz + r + 0.06, madera, col, choca=False)
+    choque.name = "Baccarat_choque-colonly"
+    # La charola del crupier, metida en la orilla recta, con sus torres de fichas
+    caja("Baccarat_charola", cx - 0.34, cx + 0.34, y + 0.79, y + 0.81, cz - 0.08, cz + 0.06, material("cuero_negro", (0.08, 0.06, 0.06)), col, choca=False)
+    for k in range(8):
+        torre_fichas("Baccarat_fichas_%d" % k, cx - 0.28 + k * 0.08, y + 0.81, cz - 0.01, 5, col, color=k % 4, cambia=5)
+    caja("Baccarat_zapato", cx + 0.55, cx + 0.75, y + 0.8, y + 0.9, cz + 0.06, cz + 0.28, material("refri", (0.85, 0.1, 0.1)), col, choca=False)
+    caja("Baccarat_zapato_boca", cx + 0.55, cx + 0.57, y + 0.82, y + 0.88, cz + 0.08, cz + 0.26, material("cuero_negro"), col, choca=False)
+    # Donde va tu pila en cada banda, derecho al sur del centro (BaccaratUI)
+    for nombre, f in (("banca", BACCARAT_BANDAS[1]), ("empate", BACCARAT_BANDAS[2]), ("punto", BACCARAT_BANDAS[0])):
+        marca("Baccarat_" + nombre, cx + 0.22, y + 0.802, cz + f * r, col, 0)
+    marca("Crupier_baccarat", cx, y, cz - 0.45, col, 0)
+    marca("Baccarat", cx, y, cz + r + 0.55, col, 180)
+    bx, bz = cx + math.cos(math.radians(25)) * (r + 0.45), cz + math.sin(math.radians(25)) * (r + 0.45)
+    banco("Banco_baccarat", bx, y, bz, ASIENTO, col)
+    marca("Baccarat_0", bx, y, bz, col, 0)
+    cilindro("Baccarat_lampara_cable", cx, TECHO - 0.45, TECHO, cz + 0.45, 0.01, material("cable", (0.05, 0.05, 0.05)), col, lados=4)
+    cilindro("Baccarat_lampara", cx, TECHO - 0.6, TECHO - 0.45, cz + 0.45, 0.3, material("lampara_verde", (0.15, 0.45, 0.25)), col, lados=12)
+    marca("Luz_baccarat", cx, TECHO - 0.7, cz + 0.45, col, 0)
 
 
 def mesa_ruleta(col):
@@ -623,10 +632,183 @@ def mesa_ruleta(col):
     bola.location = _b(rx + rr - 0.03, y + 0.85 - HUECO + 0.08, rz)
     # Donde va tu pila en cada casilla del pano (a la izquierda de cada letrero de ruleta.png)
     ancho, fondo_ = x1 - rx - h - 0.04, z1 - z0 - 0.04
-    for nombre, v in (("verde", 0.195), ("negro", 0.505), ("rojo", 0.815)):
-        marca("Ruleta_" + nombre, rx + h + 0.02 + 0.15 * ancho, tapa + 0.002, z0 + 0.02 + v * fondo_, col, 0)
+    # Los tres cuadros van en fila junto a la rueda (ruleta.png): verde, negro y rojo
+    for k, nombre in enumerate(("verde", "negro", "rojo")):
+        marca("Ruleta_" + nombre, rx + h + 0.02 + (0.75 + k * 1.25) / 4.0 * ancho, tapa + 0.002, z0 + 0.02 + 0.5 * fondo_, col, 0)
+    # El marco de madera levantado alrededor de la mesa
+    oscura = material("madera_oscura", (0.3, 0.2, 0.12))
+    for nombre, a, b, c, d in (("n", x0, x1, z0, z0 + 0.06), ("s", x0, x1, z1 - 0.06, z1), ("o", x0, x0 + 0.06, z0, z1), ("e", x1 - 0.06, x1, z0, z1)):
+        caja("Ruleta_marco_" + nombre, a, b, tapa, tapa + 0.05, c, d, oscura, col, choca=False)
     marca("Crupier_ruleta", (x0 + x1) / 2, y, z0 - 0.45, col, 0)
     marca("Ruleta", (x0 + x1) / 2, y, z1 + 0.6, col, 180)
+
+
+def suavizar(perfil, veces=2):
+    """Chaikin sobre un perfil de torno: redondea las esquinas (hombros, cuello) y deja fijos el
+    primero y el ultimo punto (los polos)."""
+    for _ in range(veces):
+        nuevo = [perfil[0]]
+        for a, b in zip(perfil[1:-2], perfil[2:-1]):
+            nuevo.append((a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25))
+            nuevo.append((a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75))
+        nuevo = [perfil[0], perfil[1]] + nuevo[1:] + [perfil[-2], perfil[-1]]
+        perfil = nuevo
+    return perfil
+
+
+FICHA_COLORES = ((0.8, 0.08, 0.08), (0.1, 0.25, 0.8), (0.92, 0.92, 0.88), (0.08, 0.5, 0.18))
+FICHA_R = 0.028
+FICHA_ALTO = 0.012
+
+
+def ficha_piezas(nombre, color, y, col):
+    """Una ficha de casino con detalle: canto redondeado de 24 lados, seis incrustaciones blancas en
+    la orilla y el centro de otro tono. Regresa las piezas (sin juntar), paradas en `y`."""
+    c = FICHA_COLORES[color % len(FICHA_COLORES)]
+    base = material("ficha_%d" % (color % len(FICHA_COLORES)), c)
+    blanco = material("ficha_franja", (0.97, 0.96, 0.92))
+    centro = material("ficha_centro_%d" % (color % len(FICHA_COLORES)), tuple(min(1.0, v * 0.7 + 0.3) for v in c))
+    r, h = FICHA_R, FICHA_ALTO
+    piezas = [girar(nombre + "_b", [(0, 0), (r - 0.002, 0), (r, 0.002), (r, h - 0.002), (r - 0.002, h), (0, h)], base, col, lados=24)]
+    piezas[0].location.z = y
+    for k in range(6):
+        a = k * math.tau / 6
+        f = caja(nombre + "_f%d" % k, -0.0012, 0.0012, 0.0015, h - 0.0015, -0.0045, 0.0045, blanco, col, choca=False)
+        f.location = Vector((math.cos(a) * (r - 0.0009), math.sin(a) * (r - 0.0009), y + h / 2))
+        f.rotation_euler = (0, 0, a)
+        piezas.append(f)
+    tapa = girar(nombre + "_c", [(0, h), (r * 0.62, h), (r * 0.62, h + 0.0006), (0, h + 0.0006)], centro, col, lados=20)
+    tapa.location.z = y
+    piezas.append(tapa)
+    return piezas
+
+
+def torre_fichas(nombre, x, y, z, n, col, color=0, cambia=3):
+    """Una torre de `n` fichas (una sola malla), cambiando de color cada `cambia`."""
+    piezas = []
+    for k in range(n):
+        piezas += ficha_piezas("%s_%02d" % (nombre, k), color + k // cambia, k * FICHA_ALTO, col)
+    return juntar(nombre, piezas, col, Matrix.Translation(_b(x, y, z)) @ Matrix.Rotation(k * 0.4, 4, "Z"))
+
+
+def silla_madera(nombre, x, y, z, hacia, col):
+    """Silla de madera con cojin rojo acolchado y respaldo de barrotes (como la foto de AG), con el
+    frente hacia `hacia` (x, z)."""
+    madera = material("madera_oscura", (0.3, 0.2, 0.12))
+    cojin = material("vinil_rojo", (0.65, 0.06, 0.06))
+    a = ASIENTO
+    piezas = [caja(nombre + "_asiento", -0.21, 0.21, a - 0.06, a - 0.03, -0.21, 0.21, madera, col, choca=False),
+              girar(nombre + "_cojin", [(0, 0), (0.17, 0), (0.2, 0.012), (0.2, 0.03), (0.17, 0.045), (0, 0.045)], cojin, col, lados=16)]
+    piezas[1].location.z = a - 0.035
+    for px, pz in ((0.18, 0.18), (0.18, -0.18), (-0.18, 0.18), (-0.18, -0.18)):
+        alto = a + 0.5 if px < 0 else a - 0.04
+        piezas.append(cable_recto(nombre + "_pata_%d_%d" % (px > 0, pz > 0), Vector((px, 0.0, pz)), Vector((px * 1.02, alto, pz)), madera, col, r=0.02))
+    piezas.append(caja(nombre + "_copete", -0.215, -0.17, a + 0.42, a + 0.52, -0.21, 0.21, madera, col, choca=False))
+    piezas.append(caja(nombre + "_travesano", -0.2, -0.17, a + 0.12, a + 0.16, -0.18, 0.18, madera, col, choca=False))
+    for k in range(3):
+        zb = -0.1 + k * 0.1
+        piezas.append(cable_recto(nombre + "_barrote_%d" % k, Vector((-0.185, a + 0.16, zb)), Vector((-0.19, a + 0.42, zb)), madera, col, r=0.012))
+    angulo = math.atan2(-(hacia[1] - z), hacia[0] - x)
+    return juntar(nombre, piezas, col, Matrix.Translation(_b(x, y, z)) @ Matrix.Rotation(angulo, 4, "Z"))
+
+
+def decoracion(col):
+    """Lo de la foto de AG: la rocola con su arco de neon (muro sur del salon 2), la diana con dardos,
+    barriles en la esquina sureste y focos pelones colgando sobre la barra."""
+    y = PISO
+    a0, a1, b0, b1 = SALON2
+    madera = material("madera_oscura", (0.3, 0.2, 0.12))
+    metal = material("metal", (0.35, 0.36, 0.38))
+    rosa = material("neon_rosa", (1.0, 0.25, 0.75))
+    morado = material("neon_morado", (0.6, 0.3, 1.0))
+    # La rocola: cuerpo, arco escalonado arriba, la ventana iluminada, la bocina y el neon del arco
+    rx, rz = 26.9, b1 - 0.25
+    caja("Rocola", rx - 0.35, rx + 0.35, y, y + 1.0, rz - 0.2, rz + 0.2, madera, col)
+    for k in range(9):
+        dx = -0.35 + (k + 0.5) * 0.7 / 9
+        h = math.sqrt(max(0.35 * 0.35 - dx * dx, 0.0))
+        caja("Rocola_arco_%d" % k, rx + dx - 0.04, rx + dx + 0.04, y + 1.0, y + 1.0 + h, rz - 0.18, rz + 0.18, madera, col, choca=False)
+    caja("Rocola_ventana", rx - 0.25, rx + 0.25, y + 0.62, y + 0.92, rz - 0.21, rz - 0.2, material("refri_luz", (0.85, 0.95, 1.0), emision=1.5), col, choca=False)
+    caja("Rocola_bocina", rx - 0.25, rx + 0.25, y + 0.12, y + 0.5, rz - 0.205, rz - 0.2, material("cuero_negro", (0.08, 0.06, 0.06)), col, choca=False)
+    for k in range(6):
+        caja("Rocola_rejilla_%d" % k, rx - 0.22 + k * 0.088, rx - 0.2 + k * 0.088, y + 0.14, y + 0.48, rz - 0.215, rz - 0.205, metal, col, choca=False)
+    for anillo, (mat, rr) in enumerate(((rosa, 0.33), (morado, 0.27))):
+        antes = None
+        for k in range(13):
+            ang = math.radians(180 - k * 15)
+            q = Vector((rx + math.cos(ang) * rr, y + 1.0 + math.sin(ang) * rr, rz - 0.21))
+            if antes is not None:
+                cable_recto("Rocola_neon_%d_%d" % (anillo, k), antes, q, mat, col, r=0.012)
+            antes = q
+        for lado in (-1, 1):
+            cable_recto("Rocola_neon_lado_%d_%d" % (anillo, lado), Vector((rx + lado * rr, y + 0.1, rz - 0.21)), Vector((rx + lado * rr, y + 1.0, rz - 0.21)), mat, col, r=0.012)
+    marca("Luz_rocola", rx, y + 1.1, rz - 0.6, col, 0)
+    # La diana con tres dardos, en el muro sur
+    dx_, dy_ = 23.9, y + 1.65
+    for k, (r0, r1, c) in enumerate(((0.0, 0.24, (0.08, 0.08, 0.08)), (0.0, 0.2, (0.92, 0.88, 0.72)), (0.0, 0.17, (0.75, 0.08, 0.08)),
+                                     (0.0, 0.13, (0.92, 0.88, 0.72)), (0.0, 0.1, (0.1, 0.45, 0.15)), (0.0, 0.035, (0.75, 0.08, 0.08)),
+                                     (0.0, 0.015, (0.1, 0.45, 0.15)))):
+        d = girar("Diana_%d" % k, [(0, 0), (r1, 0), (r1, 0.02 + k * 0.002), (0, 0.02 + k * 0.002)], material("diana_%d" % k, c), col, lados=24)
+        d.location = _b(dx_, dy_, b1 - 0.005)
+        d.rotation_euler = (math.radians(-90), 0, 0)
+    for k, (ox, oy) in enumerate(((0.05, 0.06), (-0.08, -0.02), (0.02, -0.11))):
+        cable_recto("Dardo_%d" % k, Vector((dx_ + ox, dy_ + oy, b1 - 0.03)), Vector((dx_ + ox + 0.01, dy_ + oy + 0.02, b1 - 0.15)), metal, col, r=0.005)
+        cable_recto("Dardo_pluma_%d" % k, Vector((dx_ + ox + 0.01, dy_ + oy + 0.02, b1 - 0.13)), Vector((dx_ + ox + 0.012, dy_ + oy + 0.022, b1 - 0.17)),
+                    material("neon_rosa", (1.0, 0.25, 0.75)), col, r=0.012)
+    # Barriles de tequila en la esquina sureste (tres parados y uno chico arriba)
+    duela = material("barril", (0.5, 0.3, 0.14))
+    aro = material("tubo_oxidado", (0.4, 0.22, 0.12))
+    perfil = [(0, 0), (0.24, 0), (0.28, 0.2), (0.29, 0.4), (0.28, 0.6), (0.24, 0.8), (0, 0.8)]
+    for k, (bx, bz, by, esc) in enumerate(((34.4, b1 - 0.4, 0.0, 1.0), (33.8, b1 - 0.35, 0.0, 1.0), (34.45, b1 - 1.0, 0.0, 1.0), (34.1, b1 - 0.4, 0.8, 0.7))):
+        perf = [(r_ * esc, h_ * esc) for r_, h_ in perfil]
+        barril = girar("Barril_%d" % k, suavizar(perf, 1), duela, col, lados=16)
+        barril.location = _b(bx, y + by, bz)
+        for hh in (0.12, 0.68):
+            r_ = 0.255 * esc + 0.006
+            girar("Barril_%d_aro_%d" % (k, int(hh * 100)), [(r_, hh * esc), (r_, hh * esc + 0.03)], aro, col, lados=16).location = _b(bx, y + by, bz)
+    caja("Barriles_choque", 33.45, 34.8, y, y + 0.8, b1 - 1.35, b1 - 0.05, duela, col, choca=False).name = "Barriles_choque-colonly"
+    # Focos pelones colgando sobre la barra
+    for k in range(5):
+        fx = 23.6 + k * 1.2
+        cable_recto("Foco_barra_cable_%d" % k, Vector((fx, TECHO, b0 + 1.45)), Vector((fx, TECHO - 0.5, b0 + 1.45)), material("cable", (0.05, 0.05, 0.05)), col, r=0.005)
+        girar("Foco_barra_casquillo_%d" % k, [(0, 0), (0.014, 0), (0.014, 0.03), (0, 0.03)], metal, col, lados=8).location = _b(fx, TECHO - 0.53, b0 + 1.45)
+        esfera("Foco_barra_%d" % k, 0.035, material("foco_bano", (1.0, 0.85, 0.5), emision=2.0), col).location = _b(fx, TECHO - 0.56, b0 + 1.45)
+
+
+def tubo_curva(nombre, puntos, r, mat, col, lados=10, cerrado=False):
+    """Un tubo redondo (acolchado de mesa, neon) que sigue los `puntos` (Vector, coordenadas de
+    Godot): un anillo de `lados` en cada punto, perpendicular al camino."""
+    import bmesh
+    me = bpy.data.meshes.new(nombre)
+    bm = bmesh.new()
+    pts = [_b(*p) for p in puntos]
+    anillos = []
+    for i, p in enumerate(pts):
+        a = pts[i - 1] if i > 0 else (pts[-1] if cerrado else p)
+        b = pts[i + 1] if i < len(pts) - 1 else (pts[0] if cerrado else p)
+        t = (b - a).normalized()
+        n = t.cross(Vector((0, 0, 1)))
+        if n.length < 0.01:
+            n = t.cross(Vector((1, 0, 0)))
+        n.normalize()
+        m = t.cross(n).normalized()
+        anillos.append([bm.verts.new(p + (n * math.cos(k * math.tau / lados) + m * math.sin(k * math.tau / lados)) * r) for k in range(lados)])
+    tramos = len(anillos) if cerrado else len(anillos) - 1
+    for i in range(tramos):
+        a, b = anillos[i], anillos[(i + 1) % len(anillos)]
+        for k in range(lados):
+            j = (k + 1) % lados
+            bm.faces.new((a[k], a[j], b[j], b[k]))
+    if not cerrado:
+        bm.faces.new(anillos[0])
+        bm.faces.new(list(reversed(anillos[-1])))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    ob = bpy.data.objects.new(nombre, me)
+    col.objects.link(ob)
+    return ob
 
 
 def cuarto():
@@ -861,41 +1043,49 @@ def utileria(col):
     marca("Neon_barra", 26.0, y + 0.55, b0 + 1.68, col, 0)     # en el frente de la barra
     # La mesa del poker, al centro con espacio alrededor: pano verde, borde acolchado, fichas
     mx, mz = MESA
-    caja("Poker_pata", mx - 0.25, mx + 0.25, y, y + 0.72, mz - 0.25, mz + 0.25, madera, col, choca=False)
-    caja("Poker_pano", mx - 1.3, mx + 1.3, y + 0.72, y + 0.78, mz - 0.75, mz + 0.75, material("fieltro_verde"), col, choca=False)
-    for nombre, xa, xb, za_, zb_ in (("n", mx - 1.4, mx + 1.4, mz - 0.85, mz - 0.75), ("s", mx - 1.4, mx + 1.4, mz + 0.75, mz + 0.85),
-                                     ("o", mx - 1.4, mx - 1.3, mz - 0.75, mz + 0.75), ("e", mx + 1.3, mx + 1.4, mz - 0.75, mz + 0.75)):
-        caja("Poker_borde_%s" % nombre, xa, xb, y + 0.72, y + 0.84, za_, zb_, material("cuero_negro", (0.08, 0.06, 0.06)), col, choca=False)
-    caja("Poker_choque", mx - 1.4, mx + 1.4, y, y + 0.84, mz - 0.85, mz + 0.85, madera, col, choca=False).name = "Poker_choque-colonly"
-    for k, (fx, fz) in enumerate(((mx - 0.9, mz - 0.3), (mx + 0.9, mz - 0.3), (mx - 0.6, mz + 0.4), (mx + 0.6, mz + 0.4))):
-        for n in range(4):
-            cilindro("Ficha_%d_%d" % (k, n), fx, y + 0.78 + n * 0.012, y + 0.79 + n * 0.012, fz, 0.03, material("ficha_%d" % (n % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[n % 3]), col, lados=8)
-    botella("Botella_poker", "tequila", mx + 1.0, y + 0.78, mz + 0.5, col)
+    # Redonda, como la foto de AG: pedestal, pano verde con su linea, y un borde de madera ancho con
+    # portavasos
+    girar("Poker_pie", [(0, 0), (0.45, 0), (0.45, 0.04), (0.14, 0.08), (0.12, 0.7), (0.3, 0.74), (0, 0.74)], madera, col, lados=20).location = _b(mx, y, mz)
+    girar("Poker_pano", [(0, 0.74), (MESA_R, 0.74), (MESA_R, 0.775), (0, 0.775)], material("fieltro_verde", (0.1, 0.35, 0.15)), col, lados=40).location = _b(mx, y, mz)
+    girar("Poker_linea", [(MESA_R * 0.62, 0.776), (MESA_R * 0.65, 0.776), (MESA_R * 0.65, 0.778), (MESA_R * 0.62, 0.778)],
+          material("fieltro_linea", (0.3, 0.6, 0.35)), col, lados=40).location = _b(mx, y, mz)
+    girar("Poker_borde", [(MESA_R, 0.72), (MESA_R + 0.22, 0.72), (MESA_R + 0.24, 0.76), (MESA_R + 0.22, 0.8), (MESA_R + 0.1, 0.81),
+                          (MESA_R, 0.79), (MESA_R - 0.01, 0.775), (MESA_R, 0.72)], material("madera_oscura", (0.3, 0.2, 0.12)), col, lados=40).location = _b(mx, y, mz)
+    for k in range(8):
+        ang = math.radians(22.5 + k * 45)
+        girar("Poker_portavaso_%d" % k, [(0, 0.795), (0.035, 0.795), (0.035, 0.812), (0, 0.812)], material("cuero_negro", (0.08, 0.06, 0.06)),
+              col, lados=12).location = _b(mx + math.cos(ang) * (MESA_R + 0.12), y, mz + math.sin(ang) * (MESA_R + 0.12))
+    choque = girar("Poker_choque", [(0, 0), (MESA_R + 0.24, 0), (MESA_R + 0.24, 0.84), (0, 0.84)], madera, col, lados=12)
+    choque.location = _b(mx, y, mz)
+    choque.name = "Poker_choque-colonly"
+    for k, (fx, fz) in enumerate(((mx - 0.75, mz - 0.25), (mx + 0.75, mz - 0.25), (mx - 0.5, mz + 0.45), (mx + 0.5, mz + 0.45))):
+        torre_fichas("Fichas_poker_%d" % k, fx, y + 0.775, fz, 4, col, color=k, cambia=2)
+    botella("Botella_poker", "tequila", mx + 0.85, y + 0.775, mz + 0.35, col)
     # Mas cosas en la mesa: torres de fichas frente a cada lugar, cervezas, una caguama, el
     # cenicero con colillas y el mazo del crupier
-    torres = ((mx - 1.0, mz + 0.15, 9), (mx - 1.05, mz - 0.1, 6), (mx - 0.7, mz - 0.55, 8), (mx - 0.45, mz - 0.6, 5),
-              (mx + 1.0, mz + 0.15, 10), (mx + 1.05, mz - 0.12, 7), (mx + 0.15, mz + 0.6, 6), (mx - 0.1, mz + 0.62, 4),
+    torres = ((mx - 0.82, mz + 0.12, 9), (mx - 0.86, mz - 0.06, 6), (mx - 0.45, mz - 0.7, 8), (mx - 0.28, mz - 0.75, 5),
+              (mx + 0.82, mz + 0.12, 10), (mx + 0.86, mz - 0.08, 7), (mx + 0.15, mz + 0.72, 6), (mx - 0.08, mz + 0.74, 4),
               (mx - 0.05, mz - 0.33, 12), (mx + 0.05, mz - 0.27, 8))   # las dos ultimas: el bote, arriba de las de en medio
     for k, (fx, fz, alto) in enumerate(torres):
-        for n in range(alto):
-            cilindro("Torre_%d_%02d" % (k, n), fx, y + 0.78 + n * 0.012, y + 0.79 + n * 0.012, fz, 0.03,
-                     material("ficha_%d" % ((n + k) % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[(n + k) % 3]), col, lados=8)
-    for k, (tipo, bx, bz) in enumerate((("cerveza", mx - 1.15, mz + 0.45), ("cerveza", mx + 1.18, mz - 0.45),
-                                         ("caguama", mx - 1.0, mz - 0.62), ("cerveza", mx + 0.6, mz - 0.66))):
-        botella("Botella_mesa_poker_%d" % k, tipo, bx, y + 0.78, bz, col)
+        torre_fichas("Torre_%d" % k, fx, y + 0.775, fz, alto, col, color=k)
+    # Las cervezas en los portavasos del borde
+    for k, (tipo, ang) in enumerate((("cerveza", 157.5), ("cerveza", 22.5), ("caguama", 247.5), ("cerveza", 292.5))):
+        botella("Botella_mesa_poker_%d" % k, tipo, mx + math.cos(math.radians(ang)) * (MESA_R + 0.12), y + 0.812,
+                mz + math.sin(math.radians(ang)) * (MESA_R + 0.12), col)
     girar("Cenicero", [(0, 0), (0.07, 0), (0.075, 0.025), (0.06, 0.025), (0.06, 0.01), (0, 0.01)],
-          material("vidrio_ambar", (0.45, 0.22, 0.05)), col, lados=10).location = _b(mx + 0.55, y + 0.78, mz - 0.4)
+          material("vidrio_ambar", (0.45, 0.22, 0.05)), col, lados=16).location = _b(mx + 0.55, y + 0.775, mz - 0.4)
     for k in range(3):
         a_ = k * 2.1
         cable_recto("Colilla_%d" % k, Vector((mx + 0.55 + math.cos(a_) * 0.02, y + 0.8, mz - 0.4 + math.sin(a_) * 0.02)),
                     Vector((mx + 0.55 + math.cos(a_) * 0.06, y + 0.81, mz - 0.4 + math.sin(a_) * 0.06)), material("colilla", (0.9, 0.85, 0.75)), col, r=0.005)
-    caja("Mazo", mx + 0.62, mx + 0.7, y + 0.78, y + 0.81, mz - 0.75 + 0.2, mz - 0.75 + 0.32, material("mazo", (0.45, 0.08, 0.1)), col, choca=False)
-    lugares = {"Poker_tu": (mx, mz + 1.35, 180), "Poker_0": (mx - 1.9, mz, 90), "Poker_1": (mx - 0.9, mz - 1.35, 0), "Poker_2": (mx + 1.9, mz, -90)}
+    caja("Mazo", mx + 0.55, mx + 0.63, y + 0.775, y + 0.805, mz - 0.7, mz - 0.58, material("mazo", (0.45, 0.08, 0.1)), col, choca=False)
+    # Los lugares alrededor (el tuyo al sur), con sillas de madera; el crupier al noreste
+    d = MESA_R + 0.55
+    lugares = {"Poker_tu": (mx, mz + d, 180), "Poker_0": (mx - d, mz, 90), "Poker_1": (mx - d * 0.72, mz - d * 0.72, 0), "Poker_2": (mx + d, mz, -90)}
     for nombre, (px, pz, giro) in lugares.items():
         marca(nombre, px, y, pz, col, giro)
-        if nombre != "Poker_tu":
-            silla_plegable("Silla_" + nombre, px, y, pz, MESA, col)
-    marca("Crupier", mx + 0.9, y, mz - 1.3, col, 0)
+        silla_madera("Silla_" + nombre, px, y, pz, MESA, col)
+    marca("Crupier", mx + d * 0.72, y, mz - d * 0.72, col, 0)
     marca("Poker", mx, y, mz + 1.8, col, 180)
     # La lampara alta: la camara del poker (PokerUI) ve la mesa por debajo de ella
     cilindro("Poker_lampara_cable", mx, TECHO - 0.45, TECHO, mz, 0.01, cable, col, lados=4)
@@ -904,6 +1094,7 @@ def utileria(col):
     mesa_blackjack(col)
     mesa_ruleta(col)
     mesa_baccarat(col)
+    decoracion(col)
     # El congelador de las caguamas (esquina suroeste del salon 2) y la puerta del bano (este)
     caja("Congelador", a0 + 0.3, a0 + 1.7, y, y + 0.9, b1 - 1.1, b1 - 0.4, material("congelador", (0.85, 0.85, 0.88)), col)
     caja("Congelador_tapa", a0 + 0.35, a0 + 1.65, y + 0.9, y + 0.93, b1 - 1.07, b1 - 0.43, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
@@ -1087,6 +1278,18 @@ def exportar_gabinete():
                               export_apply=True, export_yup=True, export_materials="EXPORT")
 
 
+def exportar_fichas():
+    """Una ficha de cada color en el origen (models/sotano/ficha.glb: Ficha_0..3) para PilaFichas."""
+    col = coleccion("Fichas")
+    for k in range(len(FICHA_COLORES)):
+        juntar("Ficha_%d" % k, ficha_piezas("Ficha_%d_p" % k, k, 0.0, col), col)
+    bpy.ops.object.select_all(action="DESELECT")
+    for ob in col.all_objects:
+        ob.select_set(True)
+    bpy.ops.export_scene.gltf(filepath=os.path.join(SALIDA, "ficha.glb"), export_format="GLB", use_selection=True,
+                              export_apply=True, export_yup=True, export_materials="EXPORT")
+
+
 def exportar_botellas():
     """Una botella de cada tipo en el origen (models/sotano/botellas.glb): la charola de la mesera
     y lo que haga falta en el juego las toma de ahi por nombre (Botella_cerveza...)."""
@@ -1124,5 +1327,6 @@ if __name__ == "sotano":
     os.makedirs(SALIDA, exist_ok=True)
     exportar_gabinete()
     exportar_botellas()
+    exportar_fichas()
     exportar()
     print("sotano: %d objetos" % len(bpy.data.collections["Sotano"].all_objects))

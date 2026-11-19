@@ -205,6 +205,9 @@ func _armar_luces() -> void:
 	if _marcas.has("Marca_Ruleta"):
 		_luz(marca("Ruleta").origin + Vector3(-0.55, 1.5, -1.5), Color(1.0, 0.92, 0.75), 1.6, 2.4)
 		_luz(marca("Ruleta").origin + Vector3(0.6, 1.5, -0.9), Color(1.0, 0.92, 0.75), 1.0, 2.2)
+	# La rocola, rosa
+	if _marcas.has("Marca_Luz_rocola"):
+		_luz(marca("Luz_rocola").origin, Color(1.0, 0.35, 0.8), 1.2, 2.8)
 	if _marcas.has("Marca_Luz_baccarat"):
 		_luz(marca("Luz_baccarat").origin, Color(1.0, 0.9, 0.7), 1.6, 3.2)
 	if _marcas.has("Marca_Luz_blackjack"):
