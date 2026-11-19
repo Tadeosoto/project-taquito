@@ -15,6 +15,12 @@ var _carpeta := ""
 var _cuadro := -1
 var _jugador: Player
 var _zombi: Zombie
+var _medir_mano := Callable()
+var _mano_dist := -1.0
+var _mano_info := ""
+# El centro de abajo del guardamanos de cada larga, en el modelo de la mano (Player._modelo_arma),
+# medido en models/armas/fuente/armas_caricatura.blend
+const GUARDAMANOS := {"escopeta": Vector3(-0.392, 0.025, 0.028), "ametralladora": Vector3(-0.437, 0.044, 0.028), "subfusil": Vector3(-0.339, 0.062, 0.029)}
 
 
 func _ready() -> void:
@@ -100,14 +106,63 @@ func _physics_process(_delta: float) -> void:
 	if (paso == 51 or paso == 66) and _carpeta != "":
 		var imagen := get_viewport().get_texture().get_image()
 		imagen.save_png(_carpeta.path_join("arma_%d_%s_%d.png" % [cual, pistola.arma, paso]))
+		if paso == 66:
+			_guardar_cerca(imagen, "arma_%d_%s_manos.png" % [cual, pistola.arma])
+	# La mano izquierda en el guardamanos: la muneca (hueso LeftHand, ya con el IK de AgarrePistola,
+	# por eso se lee en skeleton_updated) contra el punto de abajo del guardamanos medido en el .blend
+	if paso == 60 and GUARDAMANOS.has(pistola.arma):
+		var esqueleto := _jugador.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+		_medir_mano = func() -> void:
+			var modelo: Node3D = _jugador._modelo_arma
+			if modelo == null or not is_instance_valid(modelo):
+				return
+			var muneca := esqueleto.global_transform * esqueleto.get_bone_global_pose(esqueleto.find_bone("LeftHand")).origin
+			var guarda: Vector3 = modelo.global_transform * GUARDAMANOS[pistola.arma]
+			_mano_dist = muneca.distance_to(guarda)
+			var g := esqueleto.global_transform
+			var der: Vector3 = g * esqueleto.get_bone_global_pose(esqueleto.find_bone("RightHand")).origin
+			if _jugador._guardamanos and is_instance_valid(_jugador._guardamanos):
+				guarda = _jugador._guardamanos.global_position
+			var hombro: Vector3 = g * esqueleto.get_bone_global_pose(esqueleto.find_bone("LeftUpperArm")).origin
+			var codo: Vector3 = g * esqueleto.get_bone_global_pose(esqueleto.find_bone("LeftLowerArm")).origin
+			var frente := (modelo.global_basis * Vector3.LEFT).normalized()
+			var derecha := frente.cross(Vector3.UP).normalized()
+			var arriba := derecha.cross(frente).normalized()
+			var rel := guarda - der
+			_mano_info = "guardamanos desde la muneca derecha (der, arr, frente) %s; brazo %.2f m, hombro a meta %.2f m; muneca desde la derecha %s; escala modelo %s" % [
+				Vector3(rel.dot(derecha), rel.dot(arriba), rel.dot(frente)).snapped(Vector3.ONE * 0.001),
+				hombro.distance_to(codo) + codo.distance_to(muneca), hombro.distance_to(guarda),
+				Vector3((muneca - der).dot(derecha), (muneca - der).dot(arriba), (muneca - der).dot(frente)).snapped(Vector3.ONE * 0.001),
+				modelo.global_basis.get_scale().snapped(Vector3.ONE * 0.01)]
+		esqueleto.skeleton_updated.connect(_medir_mano)
+	if paso == 66 and _medir_mano.is_valid() and _mano_dist >= 0.0:
+		print("  mano izquierda a %.3f m del guardamanos (la muneca va ~0.07 m de la palma)" % _mano_dist)
+		print("    ", _mano_info)
+		var esqueleto := _jugador.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+		esqueleto.skeleton_updated.disconnect(_medir_mano)
+		_medir_mano = Callable()
+		_mano_dist = -1.0
+	# Que el zombi no tumbe al jugador antes de acabar (se lleva el inventario): lejos tras la rafaga
+	if paso == 335 and _zombi and is_instance_valid(_zombi):
+		_zombi.global_position = _jugador.global_position + Vector3(40.0, 0.0, 40.0)
 	if paso == 150 or paso == 330:
 		print("  cuadro %d: balas %d, tiros %d, recargando %s, calor %.2f, caliente %s" % [paso, pistola.balas, pistola.tiros,
 			pistola.recargando(), pistola.calor(), pistola._sobrecalentada])
 	if paso == 340:
 		pistola.balas = mini(pistola.balas, 2)
 		pistola.recargar()
-	if paso == 345 and _carpeta != "":
+	if paso == 380 and _carpeta != "":
 		var imagen := get_viewport().get_texture().get_image()
+		_guardar_cerca(imagen, "arma_%d_%s_suelta.png" % [cual, pistola.arma])
 		imagen.save_png(_carpeta.path_join("arma_%d_%s_recarga.png" % [cual, pistola.arma]))
 	if paso == 410:
 		print("  tras recargar: balas ", pistola.balas, ", recargando ", pistola.recargando())
+
+
+# El jugador de cerca (las manos, el arma, lo que cae): un recorte de la captura al triple
+func _guardar_cerca(imagen: Image, archivo: String, centro := false) -> void:
+	var tam := imagen.get_size()
+	var x0 := 0.3 if centro else 0.25
+	var recorte := imagen.get_region(Rect2i(int(tam.x * x0), int(tam.y * 0.4), int(tam.x * 0.4), int(tam.y * 0.45)))
+	recorte.resize(recorte.get_width() * 3, recorte.get_height() * 3, Image.INTERPOLATE_NEAREST)
+	recorte.save_png(_carpeta.path_join(archivo))

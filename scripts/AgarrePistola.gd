@@ -12,7 +12,12 @@ extends SkeletonModifier3D
 # En la corredera (recarga en seco, Pistola.rack) la izquierda va a `corredera` (un Marker3D
 # atras y arriba de la corredera, que se mueve con ella) con la palma sobre ella, los dedos
 # envolviendo a la derecha y el pulgar hacia atras; `apunta` 0 deja el arma como la pone el clip.
+# 0. Con un arma larga (`retrae` > 0, Player.ARMAS_FUEGO "retrae"; AG, 2026-11-18) antes de todo
+#    la muneca derecha se recoge `retrae` m hacia el pecho con otro IK de dos huesos: con el brazo
+#    estirado de la pistola el guardamanos quedaba a 0.87 m del hombro izquierdo (el brazo mide
+#    0.56) y la izquierda no llegaba. Asi la culata queda cerca del hombro, como se carga un rifle.
 
+const HOMBRO_DER := "RightUpperArm"
 const BRAZO_DER := "RightLowerArm"
 const MANO_DER := "RightHand"
 const BRAZO := "LeftUpperArm"
@@ -37,7 +42,14 @@ var rapidez := 8.0              # por segundo (~0.12 s)
 var apunta := 1.0               # cuanto endereza el canon a la mira
 var corredera: Node3D           # el punto de la corredera (Player._agarre_corredera)
 var corredera_peso := 0.0       # 0-1: cuanto va la izquierda en la corredera
-var agarre := AGARRE            # el de la larga en la mano (character_animation.agarre_punto)
+var retrae := 0.0               # m que se recoge la muneca derecha (0 con la pistola)
+# El guardamanos de la larga (un Marker3D en su modelo, Player._guardamanos): si esta, la izquierda
+# va a el (mas PALMA, en el marco de la mira) en lugar de a AGARRE, siguiendo el arma aunque la
+# patada o el giro de la mano la muevan
+var guardamanos: Node3D
+# La muneca izquierda desde el punto de abajo del guardamanos (derecha, arriba, frente): la mano
+# va en taza con los dedos a la derecha, asi que la muneca queda a la izquierda y abajo
+const PALMA := Vector3(-0.06, -0.04, 0.0)
 var _actual := 0.0
 
 
@@ -59,6 +71,15 @@ func _process_modification_with_delta(delta: float) -> void:
 	var mira := al_esqueleto * apunta_a
 	var escala := esqueleto.global_transform.basis.get_scale().x
 
+	# 0. La derecha hacia el pecho con una larga
+	var hombro_der := esqueleto.find_bone(HOMBRO_DER)
+	if retrae > 0.0 and hombro_der >= 0:
+		var muneca := esqueleto.get_bone_global_pose(mano_der).origin
+		var hacia_mira := mira - muneca
+		hacia_mira.y = 0.0
+		if hacia_mira.length_squared() > 0.000001:
+			_ik(esqueleto, hombro_der, brazo_der, mano_der, muneca - hacia_mira.normalized() * retrae / escala)
+
 	# 1. El canon hacia la mira: primero el antebrazo, luego la muneca
 	for paso: Array in [[brazo_der, GIRO_ANTEBRAZO], [mano_der, 1.0]]:
 		var pose := esqueleto.get_bone_global_pose(mano_der)
@@ -77,7 +98,9 @@ func _process_modification_with_delta(delta: float) -> void:
 	var arriba_mundo := (al_esqueleto.basis * Vector3.UP).normalized()
 	var derecha := frente.cross(arriba_mundo).normalized()
 	var arriba := derecha.cross(frente).normalized()
-	var meta := der.origin + (derecha * agarre.x + arriba * agarre.y + frente * agarre.z) / escala
+	var meta := der.origin + (derecha * AGARRE.x + arriba * AGARRE.y + frente * AGARRE.z) / escala
+	if guardamanos and is_instance_valid(guardamanos) and guardamanos.is_inside_tree():
+		meta = al_esqueleto * guardamanos.global_position + (derecha * PALMA.x + arriba * PALMA.y + frente * PALMA.z) / escala
 	var en_corredera := corredera_peso if corredera and is_instance_valid(corredera) and corredera.is_inside_tree() else 0.0
 	if en_corredera > 0.0:
 		var punto := al_esqueleto * corredera.global_position
@@ -121,6 +144,33 @@ func _process_modification_with_delta(delta: float) -> void:
 	var padre := esqueleto.get_bone_parent(mano)
 	var base := esqueleto.get_bone_global_pose(padre).basis if padre >= 0 else Basis()
 	esqueleto.set_bone_pose_rotation(mano, (base.orthonormalized().inverse() * nueva).get_rotation_quaternion())
+
+
+# IK de dos huesos (brazo, antebrazo) para llevar la muneca `mano` a `meta` (espacio del esqueleto),
+# con el codo en el plano en que lo dejo la animacion, jalado tantito hacia abajo
+func _ik(esqueleto: Skeleton3D, brazo: int, antebrazo: int, mano: int, meta: Vector3) -> void:
+	var a := esqueleto.get_bone_global_pose(brazo).origin
+	var b := esqueleto.get_bone_global_pose(antebrazo).origin
+	var c := esqueleto.get_bone_global_pose(mano).origin
+	meta = c.lerp(meta, _actual)
+	var l1 := a.distance_to(b)
+	var l2 := b.distance_to(c)
+	if l1 < 0.0001 or l2 < 0.0001:
+		return
+	var hacia := meta - a
+	var d := clampf(hacia.length(), absf(l1 - l2) + 0.001, l1 + l2 - 0.001)
+	var u := hacia.normalized()
+	var polo := (b - a) + Vector3.DOWN * l1 * CODO_ABAJO
+	var v := polo - u * polo.dot(u)
+	if v.length_squared() < 0.000001:
+		v = Vector3.DOWN - u * u.y
+	v = v.normalized()
+	var cos_a := clampf((l1 * l1 + d * d - l2 * l2) / (2.0 * l1 * d), -1.0, 1.0)
+	var codo := a + u * l1 * cos_a + v * l1 * sqrt(1.0 - cos_a * cos_a)
+	_apuntar(esqueleto, brazo, b - a, codo - a)
+	var b2 := esqueleto.get_bone_global_pose(antebrazo).origin
+	var c2 := esqueleto.get_bone_global_pose(mano).origin
+	_apuntar(esqueleto, antebrazo, c2 - b2, (a + u * d) - b2)
 
 
 # Gira el hueso `i` por `giro` (en el espacio del esqueleto)

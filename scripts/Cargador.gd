@@ -94,12 +94,15 @@ func _ready() -> void:
 
 
 # Se suelta en `donde` y cae al piso justo cuando suena el golpe del archivo. `medida` estira
-# solo lo que se ve (el tambor de la Matraca, el cargador largo de la Chicharra; Pistola.ARMAS
-# "cargador_medida"): Jolt no acepta formas escaladas, el choque se queda del cargador
-func soltar(donde: Transform3D, excluir: Array[RID], medida := Vector3.ONE) -> void:
+# solo lo que se ve (Pistola.ARMAS "cargador_medida"): Jolt no acepta formas escaladas, el
+# choque se queda del cargador. `otra_malla` y `material`: otro modelo en su lugar (el tambor de la
+# Matraca, el cargador de la Chicharra; Pistola.ARMAS "cargador_modelo"); null = el de la pistola
+func soltar(donde: Transform3D, excluir: Array[RID], medida := Vector3.ONE, otra_malla: Mesh = null, material: Material = null) -> void:
 	freeze = false
 	visible = true
 	_vista.scale = medida
+	_vista.mesh = otra_malla if otra_malla else malla()
+	_vista.material_override = material if otra_malla else null
 	# Sin la escala del modelo de la pistola: Jolt no acepta cuerpos escalados disparejo
 	global_transform = Transform3D(donde.basis.orthonormalized(), donde.origin)
 	angular_velocity = Vector3.ZERO

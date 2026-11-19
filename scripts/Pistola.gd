@@ -106,7 +106,9 @@ const MIRA_COLOR := Color(1.0, 0.95, 0.8, 0.9)
 #   casquillo              Casquillo.TIPOS ("laton" = el de la pistola)
 #   recarga_modo           "pistola" (cargador y corredera), "cargador" (suelta uno, mete otro),
 #                          "cartucho" (uno por uno cada por_cartucho s; disparar la corta) o
-#                          "tambor" (el de la Matraca, largo); cargador_medida estira lo que suelta
+#                          "tambor" (el de la Matraca, largo); cargador_modelo es la escena de lo
+#                          que suelta (models/armas/<arma>/, recortada del arma en Blender) y
+#                          cargador_medida estira el de la pistola si no hay modelo
 #   bomba                  s tras el tiro en que se bombea (suena y sale el cartucho); 0 = no
 #   giro_previo / giro_baja  s que tarda en girar antes del primer tiro / en pararse al soltar
 #   calor / enfria / listo  calor por tiro (1 = se sobrecalienta), por s sin disparar, y hasta
@@ -122,7 +124,7 @@ const MIRA_COLOR := Color(1.0, 0.95, 0.8, 0.9)
 const POR_OMISION := {
 	"sacude": 1.0, "empuje": 1.0, "sube": 0.0, "deriva": 0.0, "retroceso_modelo": Vector2.ZERO,
 	"destello": {"tamano": 1.0, "chispas": FOGONAZO_CHISPAS, "abre": 25.0, "luz": 1.0}, "fogonazo_fx": "",
-	"casquillo": "laton", "recarga_modo": "pistola", "por_cartucho": 0.0, "cargador_medida": Vector3.ONE,
+	"casquillo": "laton", "recarga_modo": "pistola", "por_cartucho": 0.0, "cargador_medida": Vector3.ONE, "cargador_modelo": "",
 	"bomba": 0.0, "giro_previo": 0.0, "giro_baja": 0.6, "calor": 0.0, "enfria": 0.0, "listo": 0.0,
 	"cadera": 1.0, "zombi_empuje": {}, "zombi_lento": {}, "peso": {}, "mira": "cruz", "municion": "texto",
 	"sonidos": {},
@@ -142,7 +144,7 @@ const ARMAS := {
 		"perdigones": 1, "dispersion": 0.03, "apunta": 0.016, "auto": true, "alcance": 70.0, "tono": 0.8, "patada": 0.5,
 		"sacude": 1.3, "empuje": 0.5, "sube": 0.22, "deriva": 0.12, "retroceso_modelo": Vector2(0.02, 3.0),
 		"destello": {"tamano": 1.6, "chispas": 8, "abre": 15.0, "luz": 1.4}, "fogonazo_fx": "fogonazo_auto",
-		"casquillo": "chico", "recarga_modo": "tambor", "cargador_medida": Vector3(3.0, 0.8, 3.0),
+		"casquillo": "chico", "recarga_modo": "tambor", "cargador_modelo": "res://models/armas/la_matraca/tambor_matraca.scn",
 		"giro_previo": 0.35, "giro_baja": 0.7, "calor": 0.02, "enfria": 0.4, "listo": 0.35,
 		"zombi_lento": {"factor": 0.6, "ms": 350},
 		"peso": {"velocidad": 0.75, "sin_correr": true, "sin_rodar": true}, "municion": "banda",
@@ -152,7 +154,7 @@ const ARMAS := {
 		"perdigones": 1, "dispersion": 0.028, "apunta": 0.012, "auto": true, "alcance": 40.0, "tono": 1.25, "patada": 0.35,
 		"sacude": 0.6, "empuje": 0.35, "sube": 0.12, "deriva": 0.18, "retroceso_modelo": Vector2(0.015, 4.0),
 		"destello": {"tamano": 0.8, "chispas": 5, "abre": 20.0, "luz": 0.9}, "fogonazo_fx": "fogonazo_auto",
-		"casquillo": "chico", "recarga_modo": "cargador", "cargador_medida": Vector3(1.0, 1.8, 1.0), "cadera": 1.8,
+		"casquillo": "chico", "recarga_modo": "cargador", "cargador_modelo": "res://models/armas/la_chicharra/cargador_chicharra.scn", "cadera": 1.8,
 		"zombi_lento": {"factor": 0.75, "ms": 250},
 		"sonidos": {"tiro": "disparo_chicharra", "cierra": "cargador_chicharra"}},
 }
@@ -217,6 +219,7 @@ var _boca: MeshInstance3D     # el fogonazo de pixelfx (fogonazo_fx), un cuadro 
 var _boca_materiales := {}    # hoja -> ShaderMaterial (uno por hoja, no por tiro)
 var _boca_hoja := {}
 var _boca_t := -1.0
+var _modelos_cargador := {}   # ruta -> [Mesh, Material] (cargador_modelo), uno para todos
 var _hueco := MIRA_HUECO
 var _floracion := 0.0
 var _mira: Control
@@ -863,7 +866,27 @@ func _soltar_cargador() -> void:
 	var cargador := _cargadores[_cargador_sig]
 	_cargador_sig += 1
 	var excluir: Array[RID] = [jugador.get_rid()]
-	cargador.soltar(jugador.cargador(), excluir, _d("cargador_medida"))
+	var modelo := _modelo_cargador(_d("cargador_modelo"))
+	cargador.soltar(jugador.cargador(), excluir, _d("cargador_medida"), modelo[0], modelo[1])
+
+
+# La malla y el material de la escena de cargador_modelo (tools/armas/caricatura.gd la arma con un
+# solo MeshInstance3D); [null, null] = el cargador de la pistola
+func _modelo_cargador(ruta: String) -> Array:
+	if ruta == "":
+		return [null, null]
+	if not _modelos_cargador.has(ruta):
+		var escena := load(ruta) as PackedScene
+		var par := [null, null]
+		if escena:
+			var raiz := escena.instantiate()
+			var mallas := raiz.find_children("*", "MeshInstance3D", true, false)
+			if not mallas.is_empty():
+				var malla := mallas[0] as MeshInstance3D
+				par = [malla.mesh, malla.get_surface_override_material(0)]
+			raiz.free()
+		_modelos_cargador[ruta] = par
+	return _modelos_cargador[ruta]
 
 
 # El arma (1/2 la cambian) y cuantas curaciones traes (Q, Player._curarse)

@@ -8,12 +8,16 @@ extends SceneTree
 #   godot --path . --headless --import
 
 const SHADER := preload("res://shaders/ps1_combined.gdshader")
-const ARMAS := ["la_tinaquera", "la_matraca", "la_chicharra"]
+# carpeta/nombre: las tres armas, y lo que sueltan al recargar (Pistola.ARMAS "cargador_modelo": el
+# tambor de la Matraca y el cargador de la Chicharra, recortados de su arma en Blender, centrados)
+const ARMAS := ["la_tinaquera/la_tinaquera", "la_matraca/la_matraca", "la_chicharra/la_chicharra",
+	"la_matraca/tambor_matraca", "la_chicharra/cargador_chicharra"]
 
 
 func _init() -> void:
-	for nombre: String in ARMAS:
-		var base := "res://models/armas/%s/%s" % [nombre, nombre]
+	for ruta: String in ARMAS:
+		var base := "res://models/armas/%s" % ruta
+		var nombre := ruta.get_file()
 		var escena := load(base + ".glb") as PackedScene
 		if escena == null:
 			push_error("falta " + base + ".glb (corre --import primero)")

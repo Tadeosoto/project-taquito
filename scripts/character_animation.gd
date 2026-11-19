@@ -436,11 +436,12 @@ func agarre(activo: bool, mira: Vector3, canon_local: Vector3, apunta := 1.0) ->
 		_agarre.apunta = apunta
 
 
-# Donde va la izquierda: el guardamanos de una larga (Player.ARMAS_FUEGO "agarre"), o
-# Vector3.INF para el de la pistola (AgarrePistola.AGARRE)
-func agarre_punto(punto: Vector3) -> void:
+# Donde va la izquierda con una larga: `marcador` es su guardamanos (Player._guardamanos, null con
+# la pistola, que usa AgarrePistola.AGARRE); `retrae`: m que se recoge la derecha
+func agarre_guardamanos(marcador: Node3D, retrae := 0.0) -> void:
 	if _agarre:
-		_agarre.agarre = _agarre.AGARRE if punto == Vector3.INF else punto
+		_agarre.guardamanos = marcador
+		_agarre.retrae = retrae if marcador else 0.0
 
 
 # La izquierda en la corredera (`objetivo`, un Marker3D que se mueve con ella), `peso` 0-1
