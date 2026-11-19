@@ -525,6 +525,19 @@ Y los Gotera se ríen: **les conviene la fama.** Un pueblo asustado paga mejor.
 - **Peligro**: si te metes a La Gotera sin permiso, no sales. ✅ (2026-11-12) **El permiso se gana con sus misiones**: las entregas de punto a punto suben cuatro escalones (afuera, mandadero, de confianza, de la casa); ver `misiones.md`.
 - **Información**: saben más del agua de lo que dicen, porque necesitan saber qué le pasa a la gente antes de tratarla.
 
+### El Sótano
+
+✅ (AG, 2026-11-18) **El casino clandestino de los Gotera, debajo de Santa Mugre.** Nadie le dice casino: es "bajar al Sótano". Se entra por la bodega del fondo de unos abarrotes de la colonia (una cortina de plástico, huacales de refresco y una escalera de concreto) y abajo hay un cuarto de block húmedo, de techo bajo, con tubos de neón que parpadean y extensiones por el piso.
+
+- **Qué se juega:** las maquinitas **OL PLEY** (gabinetes piratas multijuego, de lámina antiderrapante y calcomanías despintadas, con su "Lotería de carretes": El Gallo, La Sirena, El Nopal, La Calavera, El Diablito... y El Tinaco de comodín), unas de frutas como las de afuera de las tienditas, la **lotería cantada** en una mesa y las **carreras de caballitos** de lámina en su riel, como de feria.
+- **Es de los Gotera, en medio de la fortaleza de la Virgen.** Ellos cobran cuota a la colonia; la colonia hace como que no sabe del Sótano. El padre Chuy lo sabe y calla (el dinero de la cuota es el que no le cobran al templo). Los fieles que bajan, bajan de noche y no lo cuentan en misa.
+- **El Primo atiende la ventanilla**, detrás de una reja: cambia pesos por **fichas** y fichas por pesos (con su comisión). Le tiene miedo a la Virgen, así que en la pared del fondo hay un **altar de la Virgen del Tinaco con billetes pegados**, "para que no lo mire". En el altar no se apuesta.
+- **La casa hace trampa**, como toda la vida: las máquinas están arregladas, en la lotería hay un palero que gana cuando le conviene a la casa, y las carreras tienen su placa. Pero hay señas para el que se fija.
+- **Abre de noche.** De día, "ahorita no, mijo". Bajo tierra no llegan los zombis: es un lugar seguro para pasar la noche, que cobra lo suyo.
+- **Para entrar hay que ser de confianza.** El primer escalón con los Gotera (mandadero; ver `misiones.md`) abre la puerta; mientras, el de la puerta te deja pasar si le das **una cuota grande**, una sola vez.
+
+> **El Primo, desde la ventanilla.** *"Aquí nadie pierde, mijo. Nomás se le olvida ganar. ¿Cuántas fichas?"*
+
 ---
 
 ## 12. La ciudad
@@ -657,7 +670,7 @@ El barrio viejo del suroeste. Calles angostas, casas de adobe, el **pozo de los 
 
 ✅ (2026-11-11) **El refugio religioso de la Virgen del Tinaco**, amurallado, con dos rejas en la avenida. Vecindades, tinacos en cada azotea, el tianguis, la escuela (el edificio que era el palacio, ahora una escuela), la parroquia con su pozo y, en la plaza, el **tinaco de la Virgen**. Viven los que salieron de Serenol, pocos y fieles. No hay inspectores adentro, no entra la policía; la colonia cree que los de fuera están poseídos. *(Antes: "aquí vive la mayoría de la ciudad", con el palacio y el peso del régimen.)*
 
-**De noche:** seguro dentro de la barda, hasta la noche que **falla la reja**. **Gancho:** el templo y su pozo, la reja, el tinaco de la plaza, la salida de noche. **Se oye:** *"Allá afuera andan poseídos, mijo. Aquí tomamos de la Virgen."*
+**De noche:** seguro dentro de la barda, hasta la noche que **falla la reja**. **Gancho:** el templo y su pozo, la reja, el tinaco de la plaza, la salida de noche, y ✅ (2026-11-18) **El Sótano**, el casino de los Gotera bajo unos abarrotes (ver [§11](#el-sótano)). **Se oye:** *"Allá afuera andan poseídos, mijo. Aquí tomamos de la Virgen."*
 
 ### Parques del Mosco
 
