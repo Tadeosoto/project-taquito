@@ -423,19 +423,21 @@ def mesas():
     _render(sc, "ruleta.png")
     # El baccarat (384 x 192 para una mesa de 1.88 x 0.88): BANCA arriba (del lado del crupier),
     # PUNTO abajo (de tu lado) y el EMPATE en medio
-    sc = _escena("Baccarat", 384, 192, u)
+    # (a 128 px por unidad, el doble: a 64 no se leia)
+    sc = _escena("Baccarat", 768, 384, 128)
     _rect(sc, 0, 0, 6, 3, verde, -0.05)
     _rect(sc, 0.08, 0.08, 5.92, 2.92, blanco, -0.045)
     _rect(sc, 0.12, 0.12, 5.88, 2.88, verde, -0.04)
-    for nombre, y0, fondo, letra, paga in (("BANCA", 0.3, (0.7, 0.08, 0.06), blanco, "PAGA 1 A 1 MENOS 5%"),
-                                           ("EMPATE", 1.15, (0.95, 0.75, 0.15), (0.2, 0.08, 0.02), "PAGA 8 A 1"),
-                                           ("PUNTO", 1.95, (0.1, 0.25, 0.7), blanco, "PAGA 1 A 1")):
-        _rect(sc, 1.2, y0, 4.8, y0 + 0.72, blanco, -0.03)
-        _rect(sc, 1.25, y0 + 0.05, 4.75, y0 + 0.67, fondo, -0.025)
-        _texto(sc, nombre, 3.0, y0 + 0.3, 0.34, letra, impacto)
-        _texto(sc, paga, 3.0, y0 + 0.58, 0.11, letra, negra)
-    _texto(sc, "BACCARAT", 0.62, 1.5, 0.2, amarillo, impacto)
-    _texto(sc, "EL SÓTANO", 5.38, 1.5, 0.13, blanco, negra)
+    for nombre, y0, fondo, letra, paga in (("BANCA", 0.25, (0.7, 0.08, 0.06), blanco, "1 A 1 MENOS 5%"),
+                                           ("EMPATE", 1.12, (0.95, 0.75, 0.15), (0.2, 0.08, 0.02), "PAGA 8 A 1"),
+                                           ("PUNTO", 1.99, (0.1, 0.25, 0.7), blanco, "PAGA 1 A 1")):
+        _rect(sc, 0.9, y0, 5.1, y0 + 0.78, blanco, -0.03)
+        _rect(sc, 0.95, y0 + 0.05, 5.05, y0 + 0.73, fondo, -0.025)
+        sombra = (0.05, 0.03, 0.03) if letra == blanco else (1.0, 0.95, 0.7)
+        _texto(sc, nombre, 2.35, y0 + 0.4, 0.5, letra, impacto, contorno=(0.025, sombra))
+        _texto(sc, paga, 4.0, y0 + 0.42, 0.2, letra, negra, ancho_max=1.8)
+    _texto(sc, "BACCARAT", 0.48, 1.5, 0.22, amarillo, impacto)
+    _texto(sc, "SÓTANO", 5.52, 1.5, 0.18, blanco, negra)
     _render(sc, "baccarat.png")
 
 

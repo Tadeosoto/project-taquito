@@ -8,8 +8,8 @@ const POKER := preload("res://scripts/sotano/PokerUI.gd")   # su textura(c) de l
 const APUESTA_MAX := 10
 const VOLTEA := 0.2
 const REPARTE := 0.35
-const CAMARA_DESDE := Vector3(0.0, 1.4, 0.3)   # desde la marca Baccarat (m de la escena)
-const CAMARA_MIRA := Vector3(0.0, 0.8, -0.9)
+const CAMARA_DESDE := Vector3(0.0, 1.75, 0.1)  # desde la marca Baccarat (m de la escena): casi desde arriba, que se lea el pano
+const CAMARA_MIRA := Vector3(0.0, 0.85, -1.05)
 const NOMBRES := {"punto": "PUNTO", "banca": "BANCA", "empate": "EMPATE"}
 const COLOR_UI := {"punto": Color(0.45, 0.65, 1.0), "banca": Color(1.0, 0.35, 0.3), "empate": Color(1.0, 0.85, 0.2)}
 
@@ -62,8 +62,10 @@ func _armar() -> void:
 	a.position = Vector2(8, 330)
 	add_child(a)
 	_aviso.reparent(self)
-	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	_aviso.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_aviso.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_aviso.offset_bottom = -64.0
 	if sotano:
 		var m: Vector3 = sotano.call("marca", "Baccarat").origin
 		acercar_camara(sotano.to_global(m + CAMARA_DESDE), sotano.to_global(m + CAMARA_MIRA), 56.0)
