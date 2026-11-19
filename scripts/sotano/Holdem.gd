@@ -4,7 +4,7 @@ extends RefCounted
 # Texas Hold'em de limite fijo para la mesa del Sotano (PokerUI.gd la muestra). Solo reglas,
 # cuentas y la IA de los vecinos; nada de nodos.
 # Cartas: 0..51 = palo * 13 + (rango - 2), rango 2..14 (14 = as), palos picas, corazones,
-# diamantes, treboles; el mismo orden que textures/sotano/baraja.png (tools/blender/sotano/arte.py).
+# diamantes, treboles; el mismo orden que textures/sotano/baraja.png (tools/sotano/dibujar_baraja.gd).
 # Limite fijo: las subidas son de CIEGA_GRANDE antes del turn y del doble despues, con TOPE subidas
 # por ronda. Sin botes laterales: el que va todo por menos tambien puede ganar el bote entero (la
 # casa lo arregla a su favor como todo lo demas). La casa se queda RAKE del bote (hasta RAKE_MAX).

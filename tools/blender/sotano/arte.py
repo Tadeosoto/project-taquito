@@ -479,40 +479,6 @@ def pantalla_juego():
     _render(sc, "pantalla_juego.png")
 
 
-def baraja():
-    """896 x 384: la baraja del poker, 13 columnas (2..10, J, Q, K, A) x 4 filas (picas, corazones,
-    diamantes, treboles) de 64 x 96, y en la columna 14 el reverso (El Tinaco sobre rojo vino) arriba.
-    Sale a textures/sotano/baraja.png; scripts/sotano/Holdem.gd usa el mismo orden."""
-    u = 64
-    sc = _escena("Baraja", 896, 384, u)
-    simbolos = _fuente("seguisym.ttf")
-    negra = _fuente("ariblk.ttf")
-    emoji = _fuente("seguiemj.ttf")
-    rangos = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
-    palos = [("♠", TINTA), ("♥", (0.8, 0.08, 0.1)), ("♦", (0.8, 0.08, 0.1)), ("♣", TINTA)]
-    caras = {"J": "\U0001F934", "Q": "\U0001F478", "K": "\U0001F451", "A": None}
-    for fila, (palo, color) in enumerate(palos):
-        for col, r in enumerate(rangos):
-            x0, y0 = col * 1.0, fila * 1.5
-            _rect(sc, x0, y0, x0 + 1, y0 + 1.5, (0.2, 0.2, 0.2), -0.02)
-            _rect(sc, x0 + 0.04, y0 + 0.04, x0 + 0.96, y0 + 1.46, CREMA, -0.015)
-            _texto(sc, r, x0 + 0.22, y0 + 0.2, 0.26 if r != "10" else 0.2, color, negra)
-            _texto(sc, palo, x0 + 0.22, y0 + 0.47, 0.5, color, simbolos)
-            _texto(sc, r, x0 + 0.78, y0 + 1.3, 0.26 if r != "10" else 0.2, color, negra)
-            if caras.get(r):
-                _texto(sc, caras[r], x0 + 0.55, y0 + 0.82, 0.55, color, emoji)
-            else:
-                _texto(sc, palo, x0 + 0.55, y0 + 0.85, 1.5 if r == "A" else 1.1, color, simbolos)
-    # El reverso
-    x0 = 13.0
-    _rect(sc, x0, 0, x0 + 1, 1.5, (0.2, 0.2, 0.2), -0.02)
-    _rect(sc, x0 + 0.04, 0.04, x0 + 0.96, 1.46, (0.45, 0.05, 0.12), -0.015)
-    _rect(sc, x0 + 0.1, 0.1, x0 + 0.9, 1.4, (0.95, 0.75, 0.25), -0.012)
-    _rect(sc, x0 + 0.14, 0.14, x0 + 0.86, 1.36, (0.45, 0.05, 0.12), -0.01)
-    _texto(sc, "\U0001F6E2", x0 + 0.5, 0.75, 0.55, (0.95, 0.75, 0.25), emoji)
-    _render(sc, "baraja.png")
-
-
 def frutas():
     """512 x 512 para el adorno de la maquinita de frutas (tools/blender/sotano/maquinita.py):
     copete (arriba, 512 x 128), costado alto (izq) y costado bajo (der) de 256 x 256, y abajo tres

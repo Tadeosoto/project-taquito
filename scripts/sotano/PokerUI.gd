@@ -8,7 +8,8 @@ extends JuegoSotano
 # las de en medio salen boca abajo y se voltean, el que se retira avienta las suyas al mazo, al
 # final se voltean las de los vecinos y las tuyas entran a la pantalla volteandose.
 
-const BARAJA := preload("res://textures/sotano/baraja.png")
+const BARAJA := preload("res://textures/sotano/baraja.png")   # tools/sotano/dibujar_baraja.gd
+const CARTA_PX := Vector2(128, 192)   # una carta en baraja.png (14 x 4)
 const VECINOS := [["Doña Cuca", "cerrado"], ["El de la gorra", "tramposo"], ["Tacho", "farol"]]
 const FICHAS_VECINO := 60
 const PIENSA := 0.8                  # s que tarda un vecino en hablar
@@ -270,7 +271,7 @@ static func textura(c: int) -> AtlasTexture:
 	t.atlas = BARAJA
 	var col := 13 if c < 0 else c % 13
 	var fila := 0 if c < 0 else c / 13
-	t.region = Rect2(col * 64, fila * 96, 64, 96)
+	t.region = Rect2(col * CARTA_PX.x, fila * CARTA_PX.y, CARTA_PX.x, CARTA_PX.y)
 	return t
 
 
