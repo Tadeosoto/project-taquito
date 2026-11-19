@@ -23,11 +23,11 @@ const LETRA := preload("res://fonts/PixelifySans.ttf")
 const NOMBRE := Rect2(4, 111, 88, 28)   # donde va el nombre en la carta (la banda crema)
 const GIRO := [0.8, 1.15, 1.5]      # s que gira cada carrete antes de parar
 const VELOCIDAD := 1350.0           # px/s de los carretes girando
-const OJOS := Vector3(0.0, 1.33, 0.62)   # la camara, en el gabinete
-const MIRA := Vector3(0.0, 1.26, 0.1)
-const FOV := 42.0
+const OJOS := Vector3(0.1, 1.36, 0.74)   # la camara, en el gabinete: se ve la pantalla y la palanca
+const MIRA := Vector3(0.06, 1.22, 0.1)
+const FOV := 46.0
 const TIEMPO_CAMARA := 0.6
-const AYUDA := "←/→ apuesta  ·  Espacio jalar  ·  Esc salir"
+const AYUDA := "←/→ apuesta  ·  Espacio o ↓ jalar la palanca  ·  Esc salir"
 
 var placa: Carretes
 var gabinete: GabineteOlPley
@@ -89,11 +89,11 @@ func _tecla(codigo: int) -> void:
 	match codigo:
 		KEY_LEFT, KEY_A:
 			_apuesta = maxi(_apuesta - 1, 1)
-			_apretar("Boton_0")
+			_apretar("Boton_0", "apuesta_sube")
 		KEY_RIGHT, KEY_D:
 			_apuesta = mini(_apuesta + 1, Carretes.APUESTA_MAX)
-			_apretar("Boton_1")
-		KEY_SPACE, KEY_ENTER:
+			_apretar("Boton_1", "apuesta_sube")
+		KEY_SPACE, KEY_ENTER, KEY_DOWN, KEY_S:
 			jalar()
 	_contar_pantalla()
 
@@ -111,10 +111,10 @@ func _contar_pantalla() -> void:
 	_contadores[2].text = str(_premio)
 
 
-func _apretar(boton: String) -> void:
+func _apretar(boton: String, sonido := "slot_boton") -> void:
 	if gabinete:
 		gabinete.apretar(boton)
-	Sonidos.tocar(self, "boton", -10.0)
+	Sonidos.tocar(self, sonido, -8.0)
 
 
 func jalar() -> void:
@@ -126,8 +126,13 @@ func jalar() -> void:
 		return
 	_ocupado = true
 	_premio = 0
-	_apretar("Boton_grande")
+	Sonidos.tocar(self, "ficha_cae", -6.0)
 	_contar_pantalla()
+	# La palanca baja y ahi arrancan los carretes
+	if gabinete:
+		await gabinete.jalar_palanca()
+		if not is_inside_tree():
+			return
 	for l in _linea:
 		l.visible = false
 	var tiro := placa.tirar(_apuesta)
@@ -149,9 +154,13 @@ func jalar() -> void:
 	if pago > 0:
 		f.fichas += pago
 		_premio = pago
-		Sonidos.tocar(self, "moneda", -4.0)
 		var tinaco: bool = final.has(CartasLoteria.TINACO) and pago > _apuesta
 		var grande: bool = final.count(CartasLoteria.TINACO) == 3 or pago >= _apuesta * 20
+		if final.count(CartasLoteria.TINACO) == 3:
+			Sonidos.tocar(self, "slot_premio_mayor", -2.0)
+		else:
+			Sonidos.tocar(self, "slot_gana_grande" if grande else "slot_gana", -3.0)
+		Sonidos.tocar(self, "monedas_caen", -6.0)
 		_lanzar_fx("olpley_confeti" if grande or tinaco else "olpley_monedas")
 		_parpadear_linea()
 		avisar(("¡%d fichas! El Tinaco paga doble." if tinaco else "¡Ganaste %d fichas!") % pago)
@@ -278,7 +287,7 @@ func _parar(k: int, final: int) -> void:
 	tween.tween_method(func(v: float) -> void:
 		_corrimiento[k] = v
 		_acomodar(k), 21.0, 0.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	Sonidos.tocar(self, "paso", -8.0)
+	Sonidos.tocar(self, "slot_carrete", -6.0)
 
 
 func _parpadear_linea() -> void:

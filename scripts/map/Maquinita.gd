@@ -195,6 +195,7 @@ func mostrar_premio(premio: int, gano: bool, cohetes: int) -> void:
 		var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 		if efectos:
 			efectos.lanzar("premio", global_transform * Vector3(0.0, 0.0, FONDO * 0.5 + 0.35), global_basis.x)
+		_sonar("slot_gana")
 		const CAIDAS := 25
 		var caidas := mini(premio, CAIDAS)
 		for i in caidas:
@@ -245,7 +246,7 @@ func elegir_boton(boton: int) -> void:
 # Se hunde y brilla un momento
 func apretar_boton(boton: int) -> void:
 	_malla_instancia.set_instance_shader_parameter("boton_apretado", boton)
-	_sonar("boton")
+	_sonar("slot_boton")
 	if _apretado_tween and _apretado_tween.is_valid():
 		_apretado_tween.kill()
 	_apretado_tween = create_tween()

@@ -22,6 +22,20 @@ const ARCHIVOS := {
 	"recarga_suelta": "res://audio/weapons/pistol_mag_drop.wav",  # sale con el cargador (Cargador.gd)
 	"recarga_mete": "res://audio/weapons/pistol_clip_insert.wav",
 	"recarga_cierra": "res://audio/weapons/pistol_cock.wav",
+	# El Sotano (Raw Signal: Casino & Slots LITE, libres para juegos, sin atribucion; no se
+	# redistribuyen sueltos). Los MP3 de la misma carpeta llevan .gdignore
+	"slot_palanca": "res://audio/casino-effects/RawSignalCasinoLite/WAV/slot_lever_pull_01.wav",
+	"slot_carrete": "res://audio/casino-effects/RawSignalCasinoLite/WAV/slot_reel_stop_01.wav",
+	"slot_boton": "res://audio/casino-effects/RawSignalCasinoLite/WAV/slot_spin_button_01.wav",
+	"slot_gana": "res://audio/casino-effects/RawSignalCasinoLite/WAV/slot_win_small_01.wav",
+	"slot_gana_grande": "res://audio/casino-effects/RawSignalCasinoLite/WAV/slot_win_big_01.wav",
+	"slot_premio_mayor": "res://audio/casino-effects/RawSignalCasinoLite/WAV/slot_jackpot_alarm_01.wav",
+	"monedas_caen": "res://audio/casino-effects/RawSignalCasinoLite/WAV/coin_payout_pour_01.wav",
+	"ficha_cae": "res://audio/casino-effects/RawSignalCasinoLite/WAV/coin_single_drop_01.wav",
+	"apuesta_sube": "res://audio/casino-effects/RawSignalCasinoLite/WAV/ui_bet_up_01.wav",
+	"carta": "res://audio/casino-effects/RawSignalCasinoLite/WAV/card_deal_01.wav",
+	"ficha_mesa": "res://audio/casino-effects/RawSignalCasinoLite/WAV/chip_single_place_01.wav",
+	"caballitos": "res://audio/casino-effects/RawSignalCasinoLite/WAV/dice_roll_table_01.wav",
 }
 
 # Cupo de rugidos: con una horda de 15 todos querian rugir a la vez y tapaban todo.

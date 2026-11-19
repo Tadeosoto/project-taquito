@@ -71,13 +71,14 @@ func arrancar() -> void:
 	if sotano and sotano.has_method("correr"):
 		if trampa:
 			await sotano.temblar(ganador)
+		Sonidos.tocar(self, "caballitos", -6.0)
 		await sotano.correr(ganador)
 	_panel.visible = true
 	_oscuro.visible = true
 	if ganador == _caballo:
 		var pago: int = _apuesta * MOMIOS[_caballo]
 		f.fichas += pago
-		Sonidos.tocar(self, "moneda", -4.0)
+		Sonidos.tocar(self, "monedas_caen", -5.0)
 		avisar("¡Llegó el %s! Te pagan %d fichas." % [COLORES[_caballo], pago])
 	else:
 		avisar("Ganó el %s. \"Ese caballito siempre arranca dormido\", dice el de junto." % COLORES[ganador])

@@ -53,7 +53,7 @@ func _tecla(codigo: int) -> void:
 			if compradas <= 0:
 				avisar("\"Sin lana no hay fichas, mijo.\"")
 			else:
-				Sonidos.tocar(self, "moneda", -6.0)
+				Sonidos.tocar(self, "ficha_mesa", -4.0)
 				avisar("%d fichas. \"%s\"" % [compradas, LINEAS_COMPRA[_linea % LINEAS_COMPRA.size()]], 4.0)
 				_linea += 1
 		KEY_C:
@@ -61,7 +61,7 @@ func _tecla(codigo: int) -> void:
 			if pesos <= 0:
 				avisar("\"¿Qué me vas a cobrar si no traes nada?\"")
 			else:
-				Sonidos.tocar(self, "moneda", -4.0)
+				Sonidos.tocar(self, "monedas_caen", -5.0)
 				avisar("$%d. \"%s\"" % [pesos, LINEAS_COBRO[_linea % LINEAS_COBRO.size()]], 4.0)
 				_linea += 1
 

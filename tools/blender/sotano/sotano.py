@@ -33,6 +33,8 @@ PASILLO = (2.3, 3.9)              # z del descanso y la escalera
 ESCALERA = (2.8, 6.6)             # x donde baja
 PELDANOS = 13
 GRUESO = 0.4
+REPISA_Y = 1.15                   # la primera repisa de la contrabarra (sobre el piso)
+REPISA_SEPARA = 0.34
 PISTA = (11.5, 17.0, 4.8, 6.0)    # la isla de los caballitos en el salon 1: x0, x1, z0, z1
 PISTA_META = 16.5                 # x de la meta (Sotano.PISTA_META)
 MESA = (27.5, 3.6)                # centro de la mesa del poker
@@ -316,6 +318,68 @@ def silla_plegable(nombre, x, y, z, hacia, col):
     return juntar(nombre, piezas, col, Matrix.Translation(_b(x, y, z)) @ Matrix.Rotation(angulo, 4, "Z"))
 
 
+def refri(x0, x1, y, z0, col):
+    """El refri de la Tecatl en la barra: caja roja abierta al frente, marquesina luminosa con el
+    logo (textures/sotano/refri.png, arriba), puerta de vidrio que se transparenta con su marco y
+    jaladera, adentro luz blanca y tres parrillas llenas de cervezas y caguamas, patas, rejilla del
+    motor y calcomanias. Frente en z0 + 0.7."""
+    rojo = material("refri", (0.85, 0.1, 0.1))
+    luz = material("refri_luz", (0.85, 0.95, 1.0), emision=1.5)
+    cromo = material("cromo", (0.75, 0.77, 0.8))
+    marca_m = material("refri_marca", (1, 1, 1))
+    z1 = z0 + 0.7
+    g = 0.05
+    caja("Refri_choque", x0, x1, y, y + 2.05, z0, z1, rojo, col, choca=False).name = "Refri-colonly"
+    for k, (xa, xb) in enumerate(((0.04, 0.1), (0.9, 0.96))):
+        caja("Refri_pata_%d" % k, x0 + xa, x0 + xb, y, y + 0.05, z0 + 0.05, z0 + 0.11, cromo, col, choca=False)
+        caja("Refri_pata_f%d" % k, x0 + xa, x0 + xb, y, y + 0.05, z1 - 0.11, z1 - 0.05, cromo, col, choca=False)
+    # La caja: base con la rejilla, costados, fondo con luz, techo y la marquesina
+    caja("Refri_base", x0, x1, y + 0.05, y + 0.22, z0, z1, rojo, col, choca=False)
+    plano("Refri_rejilla", ((x0 + x1) / 2, y + 0.135, z1 + 0.003), x1 - x0 - 0.12, 0.12, (0, 0, 1), marca_m, col, uv=(0.5, 0.0, 1.0, 0.5))
+    caja("Refri_lado_o", x0, x0 + g, y + 0.22, y + 1.8, z0, z1, rojo, col, choca=False)
+    caja("Refri_lado_e", x1 - g, x1, y + 0.22, y + 1.8, z0, z1, rojo, col, choca=False)
+    caja("Refri_fondo", x0 + g, x1 - g, y + 0.22, y + 1.8, z0, z0 + g, luz, col, choca=False)
+    caja("Refri_techo", x0, x1, y + 1.8, y + 1.85, z0, z1, rojo, col, choca=False)
+    caja("Refri_marquesina", x0, x1, y + 1.85, y + 2.05, z0 + 0.1, z1 + 0.02, rojo, col, choca=False)
+    plano("Refri_marquesina_luz", ((x0 + x1) / 2, y + 1.95, z1 + 0.025), x1 - x0 - 0.04, 0.18, (0, 0, 1), material("refri_letrero", (1, 1, 1)), col, uv=(0.0, 0.5, 1.0, 1.0))
+    # Tres parrillas de alambre con las botellas paradas en dos filas
+    for n, py in enumerate((0.3, 0.82, 1.32)):
+        caja("Refri_parrilla_%d" % n, x0 + g, x1 - g, y + py - 0.015, y + py, z0 + g, z1 - 0.08, cromo, col, choca=False)
+        for fila, pz in enumerate((z0 + 0.22, z0 + 0.45)):
+            bx = x0 + g + 0.05
+            k = 0
+            tipo = "caguama" if n == 0 else "cerveza"
+            radio = BOTELLAS[tipo][0][1][0]
+            while bx + radio * 2 < x1 - g - 0.02:
+                botella("Refri_botella_%d_%d_%d" % (n, fila, k), tipo, bx + radio, y + py, pz, col)
+                bx += radio * 2 + 0.015
+                k += 1
+    # La puerta: vidrio que se ve a traves, marco rojo y la jaladera cromada
+    plano("Refri_vidrio", ((x0 + x1) / 2, y + 1.01, z1 + 0.01), x1 - x0 - 0.1, 1.5, (0, 0, 1), material("vidrio_refri", (0.75, 0.9, 1.0)), col)
+    for nombre, a, b, c, d in (("o", x0, x0 + 0.06, y + 0.22, y + 1.8), ("e", x1 - 0.06, x1, y + 0.22, y + 1.8),
+                               ("ab", x0, x1, y + 0.22, y + 0.27), ("ar", x0, x1, y + 1.75, y + 1.8)):
+        caja("Refri_marco_" + nombre, a, b, c, d, z1, z1 + 0.03, rojo, col, choca=False)
+    caja("Refri_jaladera", x1 - 0.1, x1 - 0.08, y + 0.75, y + 1.3, z1 + 0.03, z1 + 0.06, cromo, col, choca=False)
+    # Calcomanias en el costado que se ve
+    plano("Refri_calco_0", (x0 - 0.003, y + 1.3, z0 + 0.35), 0.3, 0.3, (-1, 0, 0), marca_m, col, uv=(0.0, 0.0, 0.25, 0.5))
+    plano("Refri_calco_1", (x0 - 0.003, y + 0.85, z0 + 0.4), 0.25, 0.25, (-1, 0, 0), marca_m, col, uv=(0.25, 0.0, 0.5, 0.5))
+    marca("Luz_refri", (x0 + x1) / 2, y + 1.0, z1 + 0.3, col, 0)
+
+
+def esfera(nombre, radio, mat, col):
+    """Una bola (sin operadores)."""
+    import bmesh
+    me = bpy.data.meshes.new(nombre)
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=10, v_segments=6, radius=radio)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    ob = bpy.data.objects.new(nombre, me)
+    col.objects.link(ob)
+    return ob
+
+
 def cuarto():
     """Los muros (GRUESO, 0.4), el descanso, la escalera con zancas y barandal, el salon de las
     maquinitas (SALON) y, por un arco en su muro este, el salon del poker y la barra (SALON2)."""
@@ -499,20 +563,24 @@ def utileria(col):
     caja("Contrabarra_tapa", 22.95, 30.05, y + 0.9, y + 0.94, b0, b0 + 0.5, material("madera_oscura", (0.3, 0.2, 0.12)), col, choca=False)
     rnd = random.Random(11)
     tipos = list(BOTELLAS)
+    # Tres repisas; la de arriba en y + 1.83: la botella mas alta (ron, 0.28) llega a y + 2.11, abajo
+    # de las vigas (TECHO - 0.25 = y + 2.15). Las botellas no pasan de la orilla de la repisa
     for nivel in range(3):
-        ry = y + 1.25 + nivel * 0.42
+        ry = y + REPISA_Y + nivel * REPISA_SEPARA
         caja("Repisa_%d" % nivel, 23.0, 29.0, ry - 0.03, ry, b0, b0 + 0.3, madera, col, choca=False)
-        bx = 23.15
+        bx = 23.08
         k = 0
-        while bx < 28.85:
+        while True:
             tipo = rnd.choice(tipos)
-            botella("Botella_%d_%02d" % (nivel, k), tipo, bx, ry, b0 + 0.15 + rnd.uniform(-0.04, 0.04), col)
-            bx += BOTELLAS[tipo][0][1][0] * 2 + rnd.choice((0.03, 0.05, 0.05, 0.12))
+            radio = BOTELLAS[tipo][0][1][0]
+            if bx + radio * 2 > 28.94:
+                break
+            botella("Botella_%d_%02d" % (nivel, k), tipo, bx + radio, ry, b0 + 0.15 + rnd.uniform(-0.04, 0.04), col)
+            bx += radio * 2 + rnd.choice((0.02, 0.04, 0.04, 0.1))
             k += 1
     for k, (tipo, bx) in enumerate((("tequila", 23.4), ("cerveza", 23.6), ("ron", 29.5), ("whisky", 29.7))):
         botella("Botella_contra_%d" % k, tipo, bx, y + 0.94, b0 + 0.25, col)
-    caja("Refri", 30.2, 31.2, y, y + 1.9, b0, b0 + 0.7, material("refri", (0.85, 0.1, 0.1)), col)
-    caja("Refri_vidrio", 30.28, 31.12, y + 0.15, y + 1.75, b0 + 0.7, b0 + 0.72, material("refri_luz", (0.85, 0.95, 1.0), emision=1.5), col, choca=False)
+    refri(30.2, 31.2, y, b0, col)
     caja("Barra", 23.0, 29.0, y, y + 1.05, b0 + 1.2, b0 + 1.65, madera, col)
     caja("Barra_tapa", 22.95, 29.05, y + 1.05, y + 1.1, b0 + 1.15, b0 + 1.75, material("madera_oscura"), col, choca=False)
     for k in range(3):
@@ -551,6 +619,9 @@ def utileria(col):
     # El congelador de las caguamas (esquina suroeste del salon 2) y la puerta del bano (este)
     caja("Congelador", a0 + 0.3, a0 + 1.7, y, y + 0.9, b1 - 1.1, b1 - 0.4, material("congelador", (0.85, 0.85, 0.88)), col)
     caja("Congelador_tapa", a0 + 0.35, a0 + 1.65, y + 0.9, y + 0.93, b1 - 1.07, b1 - 0.43, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
+    plano("Congelador_calco", (a0 + 0.75, y + 0.5, b1 - 1.115), 0.36, 0.36, (0, 0, -1), material("refri_marca", (1, 1, 1)), col, uv=(0.0, 0.0, 0.25, 0.5))
+    plano("Congelador_calco_2", (a0 + 1.3, y + 0.55, b1 - 1.115), 0.3, 0.3, (0, 0, -1), material("refri_marca"), col, uv=(0.25, 0.0, 0.5, 0.5))
+    caja("Congelador_jaladera", a0 + 0.8, a0 + 1.2, y + 0.86, y + 0.9, b1 - 1.14, b1 - 1.1, material("cromo", (0.75, 0.77, 0.8)), col, choca=False)
     marca("Congelador", a0 + 1.0, y, b1 - 1.7, col, 180)
     caja("Bano_puerta", a1 - 0.06, a1, y, y + 2.0, b1 - 3.4, b1 - 2.5, material("lamina_puerta", (0.25, 0.3, 0.28)), col, choca=False)
     marca("Bano", a1 - 0.6, y, b1 - 2.95, col, -90)
@@ -677,6 +748,22 @@ def gabinete():
     plano("Pantalla", (0.0, 1.275, 0.114), 0.42, 0.33, (0, 0, 1), pantalla, col)
     caja("Monedero", 0.21, 0.28, 1.2, 1.38, 0.1, 0.14, metal, col, choca=False)
     caja("Billetero", 0.1, 0.24, 0.6, 0.72, 0.25, 0.29, metal, col, choca=False)
+    # La palanca, al lado derecho: placa cromada, brazo que gira en el vacio "Palanca" (rotacion en x
+    # de Godot: positivo la jala hacia ti) y la bola roja. GabineteOlPley.jalar_palanca la mueve
+    caja("Palanca_placa", 0.3, 0.33, 0.95, 1.2, -0.08, 0.1, metal, col, choca=False)
+    cilindro("Palanca_eje", 0.0, 0.0, 0.06, 0.0, 0.03, metal, col, lados=8).rotation_euler = (0, math.radians(90), 0)
+    eje = bpy.data.objects["Palanca_eje"]
+    eje.location = _b(0.36, 1.07, 0.01)
+    pivote = bpy.data.objects.new("Palanca", None)
+    pivote.empty_display_size = 0.05
+    pivote.location = _b(0.37, 1.07, 0.01)
+    col.objects.link(pivote)
+    brazo = cilindro("Palanca_brazo", 0.0, 0.0, 0.36, 0.0, 0.011, material("cromo", (0.75, 0.77, 0.8)), col, lados=6)
+    brazo.parent = pivote
+    brazo.location = _b(0.0, 0.18, 0.0)
+    bola = esfera("Palanca_bola", 0.042, material("boton_0", (0.9, 0.1, 0.1), emision=0.6), col)
+    bola.parent = pivote
+    bola.location = _b(0.0, 0.38, 0.0)
     caja("Marquesina", -0.31, 0.31, 1.6, 1.8, -0.27, 0.14, cuerpo, col, choca=False)
     caja("Marquesina_tapa", -0.32, 0.32, 1.8, 1.83, -0.28, 0.15, lamina, col, choca=False)
     # Calcomanias (UV en el atlas: v hacia arriba)

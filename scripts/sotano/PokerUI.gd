@@ -115,9 +115,17 @@ func jugar(accion: String) -> void:
 	if not _esperando:
 		return
 	_esperando = false
-	_h.actuar(0, accion)
-	_mostrar()
+	_actuar(0, accion)
 	_seguir()
+
+
+# Una accion en la mesa; si entraron fichas al bote suenan en el pano
+func _actuar(i: int, accion: String) -> void:
+	var antes := _h.bote
+	_h.actuar(i, accion)
+	if _h.bote > antes:
+		Sonidos.tocar(self, "ficha_mesa", -6.0)
+	_mostrar()
 
 
 # Hablan los vecinos hasta que te toque a ti o acabe la mano
@@ -128,8 +136,7 @@ func _seguir() -> void:
 		if not is_inside_tree():
 			return
 		var i := _h.turno
-		_h.actuar(i, _h.decidir(i))
-		_mostrar()
+		_actuar(i, _h.decidir(i))
 	_ocupado = false
 	if _h.fase == Holdem.Fase.FIN:
 		_fin_de_mano()
@@ -150,7 +157,7 @@ func _fin_de_mano() -> void:
 		texto += " con %s" % _h.mano_ganadora.to_lower()
 	texto += ". La casa se queda %d." % _h.rake if _h.rake > 0 else "."
 	if _h.ganadores.has(0):
-		Sonidos.tocar(self, "moneda", -4.0)
+		Sonidos.tocar(self, "monedas_caen", -5.0)
 	_guardar_fichas()
 	avisar(texto + "  (Espacio otra mano)", 30.0)
 
@@ -307,7 +314,7 @@ func _volar(m: MeshInstance3D, espera: float) -> Tween:
 	t.tween_interval(espera)
 	t.tween_callback(func() -> void:
 		m.visible = true
-		Sonidos.tocar(self, "paso", -16.0))
+		Sonidos.tocar(self, "carta", -8.0))
 	t.tween_method(func(f: float) -> void:
 		m.position = _mazo.lerp(casa, f) + Vector3.UP * sin(f * PI) * ARCO
 		m.rotation.y = giro + PI * (1.0 - f), 0.0, 1.0, VUELA).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -324,7 +331,7 @@ func _voltear(m: MeshInstance3D, cara: Material, espera := 0.0) -> void:
 		m.position = casa + Vector3.UP * f * 0.03, 0.0, 1.0, VOLTEA / 2.0)
 	t.tween_callback(func() -> void:
 		m.material_override = cara
-		Sonidos.tocar(self, "paso", -18.0))
+		Sonidos.tocar(self, "carta", -12.0, 1.2))
 	t.tween_method(func(f: float) -> void:
 		m.rotation.z = (1.0 - f) * PI / 2.0
 		m.position = casa + Vector3.UP * (1.0 - f) * 0.03, 0.0, 1.0, VOLTEA / 2.0)

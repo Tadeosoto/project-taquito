@@ -38,6 +38,8 @@ const FOTOS := {
 	"salon2": [Vector3(21.5, -0.8, 6.5), Vector3(30.0, -2.4, 0.0)],
 	"poker": [Vector3(30.0, -1.0, 7.0), Vector3(27.5, -2.0, 3.6)],
 	"mesera": [Vector3.ZERO, Vector3.FORWARD],
+	"refri": [Vector3(28.6, -1.5, 1.4), Vector3(30.7, -1.6, -1.6)],
+	"palanca": [Vector3(12.0, -1.3, 0.1), Vector3(11.2, -1.45, -1.6)],
 	"neon_gordo": [Vector3(9.0, -1.4, 3.2), Vector3(13.6, -0.9, 3.0)],
 	"neon_sur": [Vector3(13.0, -1.4, 1.6), Vector3(13.0, -1.1, 8.0)],
 	"neon_poker_bano": [Vector3(29.5, -1.4, 3.0), Vector3(35.0, -1.1, 4.2)],

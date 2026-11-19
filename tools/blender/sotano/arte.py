@@ -276,6 +276,38 @@ def anuncios():
     _render(sc, "anuncios.png")
 
 
+def refri():
+    """256 x 128: la marquesina luminosa del refri de la barra (arriba, 256 x 64: TECATL "BIEN
+    HELADA" con el aguila) y abajo dos calcomanias de 64 x 64 (Indita y "SOLO BOTELLA CERRADA") y la
+    tira de la rejilla del motor (128 x 64). La usa sotano.py (refri y congelador)."""
+    u = 64
+    sc = _escena("Refri", 256, 128, u)
+    emoji = _fuente("seguiemj.ttf")
+    impacto = _fuente("impact.ttf")
+    negra = _fuente("ariblk.ttf")
+    rojo, crema, oro = (0.78, 0.06, 0.06), (1.0, 0.92, 0.78), (0.95, 0.75, 0.2)
+    # Marquesina
+    _rect(sc, 0, 0, 4, 1, oro, -0.03)
+    _rect(sc, 0.05, 0.05, 3.95, 0.95, rojo, -0.025)
+    _circulo(sc, 0.5, 0.5, 0.36, crema, -0.02)
+    _texto(sc, "\U0001F985", 0.5, 0.5, 0.48, rojo, emoji)
+    _texto(sc, "TECATL", 2.25, 0.4, 0.5, crema, impacto, contorno=(0.025, (0.3, 0.02, 0.02)), ancho_max=2.6)
+    _texto(sc, "BIEN HELADA", 2.25, 0.8, 0.17, oro, negra)
+    # Calcomania Indita
+    _rect(sc, 0, 1, 1, 2, (0.95, 0.75, 0.1), -0.03)
+    _circulo(sc, 0.5, 1.45, 0.3, (0.35, 0.12, 0.05), -0.02)
+    _texto(sc, "\U0001F33D", 0.5, 1.45, 0.36, (0.95, 0.75, 0.1), emoji)
+    _texto(sc, "INDITA", 0.5, 1.88, 0.17, (0.35, 0.12, 0.05), impacto)
+    # Calcomania "solo botella cerrada"
+    _rect(sc, 1, 1, 2, 2, (0.95, 0.95, 0.9), -0.03)
+    _texto(sc, "SOLO\nBOTELLA\nCERRADA", 1.5, 1.5, 0.15, rojo, negra)
+    # Rejilla del motor: rayas negras sobre gris
+    _rect(sc, 2, 1, 4, 2, (0.25, 0.25, 0.27), -0.03)
+    for k in range(9):
+        _rect(sc, 2.05, 1.07 + k * 0.1, 3.95, 1.12 + k * 0.1, (0.05, 0.05, 0.06), -0.02)
+    _render(sc, "refri.png")
+
+
 def pantalla_juego():
     """384 x 288: el fondo del juego en la pantalla de EL GORDO (scripts/sotano/OlPleyUI.gd encima
     pone los carretes y los numeros). Marco de neon con focos, el logo, tres ventanas de carrete de

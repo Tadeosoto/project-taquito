@@ -158,6 +158,9 @@ func _armar_luces() -> void:
 	# La lampara verde de la ventanilla (el Primo se ve) y la de la mesa de poker
 	_luz(marca("Luz_ventanilla").origin, Color(1.0, 0.85, 0.6), 1.6, 3.0)
 	_luz(marca("Luz_poker").origin, Color(1.0, 0.9, 0.7), 2.2, 4.0)
+	# La luz blanca del refri de la Tecatl, que sale por el vidrio
+	if _marcas.has("Marca_Luz_refri"):
+		_luz(marca("Luz_refri").origin, Color(0.8, 0.92, 1.0), 0.9, 2.2)
 
 
 func _luz(donde: Vector3, color: Color, energia: float, alcance: float) -> OmniLight3D:
