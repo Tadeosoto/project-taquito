@@ -30,7 +30,7 @@ const ANUNCIO := Vector2(0.8, 1.2)  # m de un cartel (escena)
 # Los neones: marca, texto, color, tamano (pixel_size) y si falla
 const NEONES := [
 	["Neon", "OL PLEY", Color(1.0, 0.3, 0.75), 0.007, false],
-	["Neon_abierto", "ABIERTO 24 HRS", Color(0.3, 1.0, 0.45), 0.0045, true],
+	["Neon_abierto", "ABIERTO 24 HRS", Color(0.3, 1.0, 0.45), 0.0032, true],
 	["Neon_poker", "PÓKER", Color(1.0, 0.25, 0.2), 0.007, false],
 	["Neon_barra", "TECATL", Color(1.0, 0.2, 0.15), 0.006, false],
 	["Neon_bano", "BAÑO", Color(0.3, 0.85, 1.0), 0.004, true],

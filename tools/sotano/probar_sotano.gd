@@ -171,6 +171,30 @@ func _probar() -> void:
 	# Las de frutas: en fichas y abiertas aunque sea de noche
 	var frutas := sotano.find_children("Frutas_*", "", false, false)
 	_ver(frutas.size() == 2 and frutas[0].moneda == "fichas" and not frutas[0]._cerrada(), "dos de frutas en fichas, abiertas de noche")
+	# La de frutas simple: una fruta, sus monedas, y la apuesta se va con la fruta
+	fichas.fichas = maxi(fichas.fichas, 10)
+	frutas[0].interact()
+	await _esperar(1.0)
+	var tui: Node = null
+	for n in arbol.current_scene.get_children():
+		if n is TragamonedasUI:
+			tui = n
+	_ver(tui != null, "se juega la de frutas")
+	if tui:
+		var antes_f: int = fichas.fichas
+		tui._apostar(1)
+		tui._apostar(1)
+		tui._elegir(1)
+		var ap: Dictionary = tui.get("_apuestas")
+		_ver(ap.size() == 1 and ap.values()[0] == 2 and fichas.fichas == antes_f - 2, "una sola fruta: 2 monedas que se pasan de fruta", str(ap))
+		await _foto("5b_frutas")
+		tui._tirar()
+		var desde_f := Time.get_ticks_msec()
+		while tui.get("_ocupado") and Time.get_ticks_msec() - desde_f < 20000:
+			await _esperar(0.2)
+		_ver(tui.get("_apuestas").is_empty(), "tira y cobra", "fichas %d -> %d" % [antes_f, fichas.fichas])
+		tui._salir()
+		await _esperar(1.0)
 	# Fotos de adentro
 	if _carpeta != "":
 		# yaw 0 = al norte (las OL PLEY), PI/2 = al oeste (ventanilla), -PI/2 = al este (pista)

@@ -386,7 +386,7 @@ def utileria(col):
         marca("Luz_%d" % k, tx, TECHO - 0.4, tz, col, 0)
     # Neones del salon 1 (los arma Sotano.gd en los vacios)
     marca("Neon", 15.2, TECHO - 0.55, z0 + 0.25, col, 0)
-    marca("Neon_abierto", x0 + 0.25, TECHO - 0.6, 5.2, col, 90)
+    marca("Neon_abierto", 8.6, TECHO - 0.6, z1 - 0.25, col, 180)
     marca("Neon_poker", a1 - 0.03, TECHO - 0.55, b0 + 4.6, col, -90)
     # Anuncios de cerveza (Sotano.gd pone el cartel en cada vacio)
     for k, (ax, ay, az, giro) in enumerate(((x0 + 0.03, y + 1.5, 0.9, 90), (11.6, y + 1.6, z1 - 0.03, 180), (15.4, y + 1.6, z1 - 0.03, 180),

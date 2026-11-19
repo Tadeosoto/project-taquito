@@ -2,12 +2,16 @@ class_name TragamonedasUI
 extends CanvasLayer
 
 # Jugar en una maquinita (Maquinita.gd): la camara se acerca y se juega con la maquina,
-# con sus botones y contadores; en pantalla solo la ayuda y un aviso. Las monedas son
+# con sus botones y contadores; en pantalla solo la ayuda y un aviso.
+# Simple (AG, 2026-11-19): UNA fruta y sus monedas. ←/→ cambian de fruta (la apuesta se va con
+# ella), ↑/↓ ponen de 1 a MAX_POR_FRUTA monedas, Espacio tira; sin apuesta, Espacio pone una moneda,
+# y despues de tirar repite la ultima apuesta si te alcanza. Los botones de quitar y salir del
+# mueble quedan de adorno. Las monedas son
 # pesos de la Cartera (o fichas del Sotano si la maquinita es de fichas: Maquinita.moneda) y se
 # regresan si te vas sin tirar. Pantalla de 640x480.
 
 const AMARILLO := Color(1.0, 0.85, 0.1)
-const AYUDA := "←/→ fruta  ·  ↑ apostar  ·  ↓ quitar  ·  Espacio tirar  ·  S/Esc salir"
+const AYUDA := "←/→ fruta  ·  ↑/↓ monedas  ·  Espacio tirar  ·  S/Esc salir"
 const MAX_POR_FRUTA := 9
 const TIEMPO_CAMARA := 0.6
 # Camara de cerca, respecto a la maquinita (m): del nombre a los botones
@@ -22,6 +26,7 @@ var maquinita: Maquinita
 
 var _apuestas := {}
 var _elegida := 0
+var _ultima := 1                    # las monedas del ultimo tiro, para repetirlo
 var _ocupado := true
 var _player: Player
 var _camara: Camera3D
@@ -82,7 +87,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _ocupado:
 		return
 	if event.is_action_pressed("inspect_down"):
-		maquinita.apretar_boton(Maquinita.BOTON_QUITAR)
+		maquinita.apretar_boton(_elegida)
 		_apostar(-1)
 	elif event.is_action_pressed("inspect_up"):
 		maquinita.apretar_boton(_elegida)
@@ -104,9 +109,24 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # --- Apostar y tirar ---
 
+# Otra fruta: las monedas que ya le pusiste se pasan a la nueva
 func _elegir(paso: int) -> void:
+	var monedas := _total()
+	_apuestas.clear()
 	_elegida = wrapi(_elegida + paso, 0, Tragamonedas.FRUTAS.size())
+	if monedas > 0:
+		_apuestas[Tragamonedas.FRUTAS[_elegida]] = monedas
 	maquinita.elegir_boton(_elegida)
+	maquinita.mostrar_apuestas(_apuestas)
+	_decir_apuesta()
+
+
+# Lo que llevas: a que fruta, cuantas monedas y cuanto paga
+func _decir_apuesta() -> void:
+	var fruta: String = Tragamonedas.FRUTAS[_elegida]
+	var monedas := _total()
+	_decir("%s paga x%d%s" % [fruta.capitalize(), Tragamonedas.MULTIPLICADORES[fruta],
+		("  ·  le vas con %s" % _dinero(monedas)) if monedas > 0 else "  ·  ↑ para apostarle"])
 
 
 func _apostar(paso: int) -> void:
@@ -121,8 +141,11 @@ func _apostar(paso: int) -> void:
 	elif actual == 0:
 		return
 	_sumar(-paso)
-	_apuestas[fruta] = actual + paso
+	_apuestas.clear()
+	if actual + paso > 0:
+		_apuestas[fruta] = actual + paso
 	maquinita.mostrar_apuestas(_apuestas)
+	_decir_apuesta()
 
 
 func _total() -> int:
@@ -133,10 +156,17 @@ func _total() -> int:
 
 
 func _tirar() -> void:
+	# Sin apuesta: la ultima (o una moneda) a la fruta que tengas
+	if _total() == 0:
+		var monedas := mini(_ultima, _saldo())
+		if monedas <= 0:
+			_decir("No traes fichas." if _fichas() else "No traes dinero.")
+			return
+		_sumar(-monedas)
+		_apuestas[Tragamonedas.FRUTAS[_elegida]] = monedas
+		maquinita.mostrar_apuestas(_apuestas)
 	var total := _total()
-	if total == 0:
-		_decir("Primero apuéstale a una fruta.")
-		return
+	_ultima = total
 	_ocupado = true
 	_decir("")
 	maquinita.elegir_boton(-1)
@@ -216,6 +246,7 @@ func _entrar() -> void:
 	tween.tween_property(_camara, "fov", FOV, TIEMPO_CAMARA)
 	await tween.finished
 	_ocupado = false
+	_decir_apuesta()
 
 
 func _salir() -> void:
