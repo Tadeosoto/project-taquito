@@ -161,6 +161,16 @@ func _probar() -> void:
 		"%s, fichas %d -> %d" % [ui.get("_bj").resultado, antes_bj, fichas.fichas])
 	ui.cerrar()
 	await _esperar(0.5)
+	# El de los dulces del bano: un mazapan
+	fichas.fichas = maxi(fichas.fichas, 10)
+	var antes_d: int = inventario.items.size()
+	sotano._abrir("res://scripts/sotano/DulceroUI.gd", {})
+	await _esperar(0.4)
+	ui = arbol.get_first_node_in_group("juego_sotano")
+	ui.comprar(0)
+	_ver(inventario.items.size() == antes_d + 1 or ui.get("_aviso").text.contains("cabe"), "el de los dulces te vende un mazapan")
+	ui.cerrar()
+	await _esperar(0.4)
 	# Baccarat: una mano a la banca
 	sotano._abrir("res://scripts/sotano/BaccaratUI.gd", {"sotano": sotano})
 	await _esperar(0.8)

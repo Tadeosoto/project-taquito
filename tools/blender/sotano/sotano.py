@@ -456,6 +456,38 @@ def banho(col):
     cable_recto("Bano_foco_cable", Vector((x0 + 1.6, alto, (z0 + z1) / 2)), Vector((x0 + 1.6, alto - 0.45, (z0 + z1) / 2)), material("cable", (0.05, 0.05, 0.05)), col, r=0.006)
     esfera("Bano_foco", 0.045, material("foco_bano", (1.0, 0.85, 0.5), emision=2.0), col).location = _b(x0 + 1.6, alto - 0.5, (z0 + z1) / 2)
     marca("Luz_bano", x0 + 1.6, alto - 0.55, (z0 + z1) / 2, col, 0)
+    # El de los dulces: su banquito junto a la entrada y su puestito (mesita con dulces, paletas,
+    # cigarros y bolsitas); Sotano.gd lo sienta y DulceroUI le compra
+    dx, dz = x0 + 0.35, z1 - 1.4
+    banco("Bano_dulcero_banco", dx, y, dz, ASIENTO, col)
+    marca("Bano_dulcero", dx, y, dz, col, 0)
+    px_, pz_ = dx + 0.55, dz
+    lamina_ = material("lamina_silla", (0.7, 0.12, 0.1))
+    caja("Bano_puesto_tabla", px_ - 0.22, px_ + 0.22, y + 0.68, y + 0.71, pz_ - 0.18, pz_ + 0.18, material("madera", (0.45, 0.32, 0.2)), col, choca=False)
+    caja("Bano_puesto_mantel", px_ - 0.23, px_ + 0.23, y + 0.71, y + 0.712, pz_ - 0.19, pz_ + 0.19, lamina_, col, choca=False)
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            cable_recto("Bano_puesto_pata_%d_%d" % (sx > 0, sz > 0), Vector((px_ + sx * 0.19, y, pz_ + sz * 0.15)), Vector((px_ + sx * 0.19, y + 0.68, pz_ + sz * 0.15)),
+                        material("metal", (0.35, 0.36, 0.38)), col, r=0.01)
+    caja("Bano_puesto_choque", px_ - 0.24, px_ + 0.24, y, y + 0.75, pz_ - 0.2, pz_ + 0.2, lamina_, col, choca=False).name = "Bano_puesto-colonly"
+    # Lo que vende, regado en la mesita: chicles y cajitas de colores, paletas, cigarros y bolsitas
+    import random as _r
+    rnd = _r.Random(21)
+    colores = ((0.95, 0.3, 0.6), (0.3, 0.75, 0.95), (1.0, 0.8, 0.15), (0.35, 0.8, 0.3), (0.95, 0.45, 0.1))
+    for k in range(9):
+        cx_, cz_ = px_ - 0.17 + (k % 3) * 0.12 + rnd.uniform(-0.02, 0.02), pz_ - 0.12 + (k // 3) * 0.1 + rnd.uniform(-0.015, 0.015)
+        c = colores[k % len(colores)]
+        if k % 3 == 0:
+            caja("Bano_dulce_%d" % k, cx_ - 0.035, cx_ + 0.035, y + 0.712, y + 0.732, cz_ - 0.025, cz_ + 0.025, material("dulce_%d" % (k % 5), c), col, choca=False)
+        elif k % 3 == 1:
+            cable_recto("Bano_paleta_palo_%d" % k, Vector((cx_, y + 0.712, cz_)), Vector((cx_, y + 0.8, cz_)), material("plastico_blanco", (0.9, 0.9, 0.86)), col, r=0.003)
+            esfera("Bano_paleta_%d" % k, 0.017, material("dulce_%d" % (k % 5), c), col).location = _b(cx_, y + 0.81, cz_)
+        else:
+            caja("Bano_bolsita_%d" % k, cx_ - 0.018, cx_ + 0.018, y + 0.712, y + 0.718, cz_ - 0.025, cz_ + 0.025, material("bolsita", (0.92, 0.92, 0.95)), col, choca=False)
+    caja("Bano_cigarros", px_ + 0.1, px_ + 0.16, y + 0.712, y + 0.75, pz_ + 0.08, pz_ + 0.12, material("cajetilla", (0.85, 0.85, 0.82)), col, choca=False)
+    caja("Bano_cigarros_franja", px_ + 0.1, px_ + 0.16, y + 0.73, y + 0.742, pz_ + 0.079, pz_ + 0.121, material("ruleta_rojo", (0.75, 0.06, 0.05)), col, choca=False)
+    marca("Bano_puesto", px_, y, pz_, col, 0)
+    marca("Bano_dulces", px_ + 0.5, y, pz_, col, -90)
     marca("Bano_espejo", x0 + 0.8, y, z1 - 0.7, col, 180)
     marca("Bano_caseta", cx0 - 0.5, y, z0 + 0.6, col, 90)
     marca("Bano_centro", (x0 + cx0) / 2, y, (z0 + z1) / 2, col, 0)
