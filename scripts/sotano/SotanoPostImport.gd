@@ -27,6 +27,11 @@ const TEXTURAS := {
 	"anuncios": ["res://textures/sotano/anuncios.png", Color.WHITE, 0.0],
 	"refri_marca": ["res://textures/sotano/refri.png", Color.WHITE, 0.0],
 	"refri_letrero": ["res://textures/sotano/refri.png", Color.WHITE, 0.0],
+	# El bano (sotano.py banho(), arte.py banho())
+	"azulejo": ["res://textures/sotano/azulejo.png", Color(0.85, 0.85, 0.8), 2.0],
+	"azulejo_piso": ["res://textures/sotano/azulejo_piso.png", Color(0.8, 0.8, 0.8), 1.5],
+	"banho": ["res://textures/sotano/banho.png", Color.WHITE, 0.0],
+	"banho_mancha": ["res://textures/sotano/banho.png", Color.WHITE, 0.0],
 }
 # Con textura pero brillan solos (la marquesina luminosa del refri)
 const BRILLAN_TEXTURA := ["refri_letrero"]
@@ -38,6 +43,7 @@ const BRILLAN := {
 	"veladora": Color(1.0, 0.75, 0.35),
 	"boton_grande": Color(1.0, 0.85, 0.15),
 	"foco_frutas": Color(1.0, 0.92, 0.6),
+	"foco_bano": Color(1.0, 0.85, 0.55),
 }
 const PANTALLA := "res://textures/sotano/pantalla.png"
 # Los neones de tubo (neones.py): el tubo brilla casi blanco al centro de su color; el halo es una
@@ -118,6 +124,11 @@ func _material(original: Material) -> Material:
 	elif nombre == "cromo" or nombre.begins_with("tapa_dorada"):
 		m.metallic = 0.85
 		m.roughness = 0.3
+	# La mancha del bano oscurece lo de abajo (fondo blanco = no cambia nada)
+	if nombre == "banho_mancha":
+		m.blend_mode = BaseMaterial3D.BLEND_MODE_MUL
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	if nombre == "humedad":
 		m.albedo_color = Color(0.12, 0.14, 0.11, 0.55)
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA

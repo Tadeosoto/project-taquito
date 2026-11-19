@@ -15,7 +15,15 @@ const FRENO := 0.5
 
 var sotano: Node                     # el cuarto (Sotano.gd): mueve los caballitos
 
+# La camara vuela a ver la pista mientras corren (desde el norte, alto) y regresa
+const CAMARA_DESDE := Vector3(0.0, 1.85, -1.9)   # desde la marca "Pista", en metros de la escena
+const CAMARA_MIRA := Vector3(0.3, 0.9, 1.3)
+const CAMARA_FOV := 64.0
+const CAMARA_TIEMPO := 0.6
+
 var _caballo := 0
+var _camara: Camera3D
+var _camara_jugador: Camera3D
 var _apuesta := 1
 var _elegido: Label
 var _rng := RandomNumberGenerator.new()
@@ -34,6 +42,37 @@ func _armar() -> void:
 	_elegido.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	contenido.add_child(_elegido)
 	_mostrar()
+
+
+func _ver_pista() -> void:
+	var pista: Vector3 = sotano.call("marca", "Pista").origin
+	_camara_jugador = get_viewport().get_camera_3d()
+	_camara = Camera3D.new()
+	add_child(_camara)
+	if _camara_jugador:
+		_camara.global_transform = _camara_jugador.global_transform
+		_camara.fov = _camara_jugador.fov
+	_camara.make_current()
+	var s := sotano as Node3D
+	var ojos := s.to_global(pista + CAMARA_DESDE)
+	var mira := s.to_global(pista + CAMARA_MIRA)
+	var tween := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(_camara, "global_transform", Transform3D(Basis.looking_at(mira - ojos), ojos), CAMARA_TIEMPO)
+	tween.tween_property(_camara, "fov", CAMARA_FOV, CAMARA_TIEMPO)
+	await tween.finished
+
+
+func _regresar_camara() -> void:
+	if _camara_jugador:
+		_camara_jugador.make_current()
+	if _camara:
+		_camara.queue_free()
+		_camara = null
+
+
+func cerrar() -> void:
+	_regresar_camara()
+	super.cerrar()
 
 
 func _tecla(codigo: int) -> void:
@@ -69,10 +108,13 @@ func arrancar() -> void:
 	_panel.visible = false
 	_oscuro.visible = false
 	if sotano and sotano.has_method("correr"):
+		await _ver_pista()
 		if trampa:
 			await sotano.temblar(ganador)
 		Sonidos.tocar(self, "caballitos", -6.0)
 		await sotano.correr(ganador)
+		await get_tree().create_timer(0.6).timeout
+		_regresar_camara()
 	_panel.visible = true
 	_oscuro.visible = true
 	if ganador == _caballo:

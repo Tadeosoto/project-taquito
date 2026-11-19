@@ -38,6 +38,9 @@ const FOTOS := {
 	"salon2": [Vector3(21.5, -0.8, 6.5), Vector3(30.0, -2.4, 0.0)],
 	"poker": [Vector3(30.0, -1.0, 7.0), Vector3(27.5, -2.0, 3.6)],
 	"mesera": [Vector3.ZERO, Vector3.FORWARD],
+	"bano_puerta": [Vector3(31.5, -1.3, 5.6), Vector3(35.5, -1.7, 5.0)],
+	"bano": [Vector3(35.7, -1.15, 4.4), Vector3(38.6, -2.1, 4.9)],
+	"bano_espejo": [Vector3(36.6, -1.2, 5.6), Vector3(36.3, -1.4, 7.4)],
 	"refri": [Vector3(28.6, -1.5, 1.4), Vector3(30.7, -1.6, -1.6)],
 	"palanca": [Vector3(12.0, -1.3, 0.1), Vector3(11.2, -1.45, -1.6)],
 	"neon_gordo": [Vector3(8.6, -1.3, 3.6), Vector3(12.9, -0.8, 3.0)],
@@ -102,6 +105,9 @@ func _fotos(carpeta: String) -> void:
 	cam.fov = 70.0
 	add_child(cam)
 	cam.make_current()
+	# La puerta del bano abierta, para ver adentro
+	if _sotano.has_method("_puerta_bano"):
+		_sotano.call("_puerta_bano")
 	await get_tree().create_timer(1.5).timeout
 	for nombre: String in FOTOS:
 		var v: Array = FOTOS[nombre]

@@ -71,7 +71,19 @@ const LINEAS_JUGADORES := [
 	"El de la gorra en el poker nunca se va antes del río. Raro, ¿no?",
 ]
 const TEXTO_ALTAR := "La Virgen del Tinaco con billetes pegados alrededor. Al pie, en plumón: \"Para que no me mire. El Primo.\""
-const TEXTO_BANO := "\"¡Ocupado!\", gritan desde adentro. Huele a lo que huele."
+# El bano: la puerta se abre (Bano_bisagra de sotano.py) y adentro todo esta mal, como en Silent Hill
+const PUERTA_BANO_ABIERTA := -95.0   # grados en y de la bisagra
+const LINEAS_ESPEJO := [
+	"Te ves cansado. Detrás de ti, en el espejo, la puerta de la caseta está abierta. Volteas: está cerrada.",
+	"El espejo está estrellado justo donde va tu cara.",
+	"Alguien escribió con el dedo en el vapor: \"ya viene\". No hay vapor.",
+	"Por un segundo tu reflejo parpadea después que tú.",
+]
+const LINEAS_CASETA := [
+	"Toc, toc. Desde adentro alguien toca de vuelta. Tres veces.",
+	"\"Ocupado\", dice una voz que suena como la tuya.",
+	"La caseta está cerrada por dentro. Abajo de la puerta no se ven pies.",
+]
 const TEXTO_FICHAS_AFUERA := "\"¡Oye! Allá afuera tus fichas no valen nada\", grita el Primo. \"Cámbialas aquí.\""
 
 var _marcas := {}                   # "Marca_X" -> Transform3D en la escena
@@ -133,6 +145,13 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	# En el bano gotea, a ratos
+	if _player and _marcas.has("Marca_Bano_centro"):
+		var en_bano := to_local(_player.global_position).x > marca("Bano_centro").origin.x - 1.8
+		_gota_t -= delta
+		if en_bano and _gota_t <= 0.0:
+			_gota_t = randf_range(0.8, 3.0)
+			Sonidos.tocar(self, "paso", -16.0, randf_range(0.45, 0.6))
 	for aspas in _aspas:
 		aspas.rotate_y(VENTILADOR * delta)
 	# Subiendo la escalera con fichas: el Primo te grita una vez
@@ -285,7 +304,129 @@ func _armar_juegos() -> void:
 	add_child(MuebleCasa.crear("Comprar una caguama (%d fichas)" % CAGUAMA_FICHAS, marca("Congelador").origin, _caguama.bind(CAGUAMA_FICHAS, "Una caguama bien helada."), 1.0))
 	add_child(MuebleCasa.crear("Pedir una Tecatl (%d fichas)" % CERVEZA_FICHAS, marca("Barra").origin, _caguama.bind(CERVEZA_FICHAS, "\"Ahí va, bien helada.\""), 1.0))
 	add_child(MuebleCasa.crear("Mirar el altar", marca("Altar").origin, avisar.bind(TEXTO_ALTAR), 1.0))
-	add_child(MuebleCasa.crear("Tocar la puerta del baño", marca("Bano").origin, avisar.bind(TEXTO_BANO), 0.9))
+	_armar_bano()
+
+
+# --- El bano ---
+
+var _bisagra: Node3D
+var _puerta_tope: StaticBody3D
+var _bano_abierto := false
+var _espejo_linea := 0
+var _caseta_linea := 0
+var _gota_t := 0.0
+
+
+func _armar_bano() -> void:
+	var cuarto := get_node_or_null("Cuarto")
+	_bisagra = cuarto.find_child("Bano_bisagra", true, false) as Node3D if cuarto else null
+	add_child(MuebleCasa.crear("Abrir la puerta del baño", marca("Bano").origin, _puerta_bano, 0.9))
+	# Mientras esta cerrada la puerta tapa (la malla no choca)
+	if _bisagra:
+		_puerta_tope = StaticBody3D.new()
+		var forma := CollisionShape3D.new()
+		var caja := BoxShape3D.new()
+		caja.size = Vector3(0.1, 2.0, 0.9)
+		forma.shape = caja
+		_puerta_tope.add_child(forma)
+		_puerta_tope.position = to_local(_bisagra.global_position) + Vector3(0.0, 1.0, 0.45)
+		add_child(_puerta_tope)
+	if not _marcas.has("Marca_Bano_centro"):
+		return
+	add_child(MuebleCasa.crear("Mirarte en el espejo", marca("Bano_espejo").origin, func() -> void:
+		avisar(LINEAS_ESPEJO[_espejo_linea % LINEAS_ESPEJO.size()])
+		_espejo_linea += 1, 0.8))
+	add_child(MuebleCasa.crear("Tocar la caseta", marca("Bano_caseta").origin, func() -> void:
+		avisar(LINEAS_CASETA[_caseta_linea % LINEAS_CASETA.size()])
+		_caseta_linea += 1
+		Sonidos.tocar(self, "golpe", -12.0, 0.7), 0.8))
+	# El foco pelon que parpadea seguido, de color enfermo
+	var foco := _luz(marca("Luz_bano").origin, Color(1.0, 0.82, 0.55), 0.9, 3.6)
+	_parpadear(foco, 0.9)
+	_parpadear(foco, 0.9)
+	# La niebla: cuadros grandes casi transparentes que flotan despacio
+	var niebla := CPUParticles3D.new()
+	var cuadro := QuadMesh.new()
+	cuadro.size = Vector2(1.4, 1.4)
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.albedo_color = Color(0.42, 0.45, 0.38, 0.09)
+	# Suave en las orillas (un cuadro con orilla dura se veia como vidrio)
+	var gradiente := Gradient.new()
+	gradiente.set_color(0, Color(1, 1, 1, 1))
+	gradiente.set_color(1, Color(1, 1, 1, 0))
+	var mancha := GradientTexture2D.new()
+	mancha.gradient = gradiente
+	mancha.fill = GradientTexture2D.FILL_RADIAL
+	mancha.fill_from = Vector2(0.5, 0.5)
+	mancha.fill_to = Vector2(0.5, 0.0)
+	mancha.width = 64
+	mancha.height = 64
+	m.albedo_texture = mancha
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	m.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+	cuadro.material = m
+	niebla.mesh = cuadro
+	niebla.amount = 16
+	niebla.lifetime = 9.0
+	niebla.preprocess = 9.0
+	niebla.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	niebla.emission_box_extents = Vector3(1.5, 0.7, 1.9)
+	niebla.direction = Vector3(0.3, 0.1, 0.2)
+	niebla.spread = 180.0
+	niebla.gravity = Vector3.ZERO
+	niebla.initial_velocity_min = 0.03
+	niebla.initial_velocity_max = 0.08
+	niebla.position = marca("Bano_centro").origin + Vector3(0.0, 0.9, 0.0)
+	add_child(niebla)
+	# La radio con estatica (en algun lado del bano) y las gotas
+	var radio := AudioStreamPlayer3D.new()
+	radio.stream = _estatica()
+	radio.volume_db = -10.0
+	radio.unit_size = 1.5
+	radio.max_distance = 7.0
+	radio.position = marca("Bano_caseta").origin + Vector3(0.0, 1.0, 0.0)
+	add_child(radio)
+	radio.play()
+
+
+func _puerta_bano() -> void:
+	if _bisagra == null:
+		return
+	_bano_abierto = not _bano_abierto
+	var tween := create_tween()
+	tween.tween_property(_bisagra, "rotation:y", deg_to_rad(PUERTA_BANO_ABIERTA) if _bano_abierto else 0.0, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	Sonidos.tocar(self, "boton", -6.0, 0.35)
+	if _puerta_tope:
+		_puerta_tope.process_mode = Node.PROCESS_MODE_DISABLED if _bano_abierto else Node.PROCESS_MODE_INHERIT
+		(_puerta_tope.get_child(0) as CollisionShape3D).disabled = _bano_abierto
+
+
+# Ruido de radio que no agarra estacion, en vuelta: soplido con chasquidos y un tono que va y viene
+static func _estatica() -> AudioStreamWAV:
+	var muestras := 22050
+	var segundos := 3.0
+	var datos := PackedByteArray()
+	datos.resize(int(muestras * segundos) * 2)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 66
+	var fase := 0.0
+	for i in int(muestras * segundos):
+		var t := float(i) / muestras
+		var ruido := azar.randf_range(-1.0, 1.0) * (0.25 + 0.15 * sin(t * 2.3))
+		if azar.randf() < 0.0015:
+			ruido += azar.randf_range(-1.0, 1.0)
+		fase += (180.0 + 40.0 * sin(t * 1.7)) / muestras
+		ruido += sin(fase * TAU) * 0.05 * (0.5 + 0.5 * sin(t * 0.9))
+		datos.encode_s16(i * 2, int(clampf(ruido, -1.0, 1.0) * 12000.0))
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = muestras
+	wav.data = datos
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wav.loop_end = int(muestras * segundos)
+	return wav
 
 
 func _abrir_poker() -> void:

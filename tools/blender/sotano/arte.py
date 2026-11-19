@@ -308,6 +308,77 @@ def refri():
     _render(sc, "refri.png")
 
 
+def banho():
+    """El bano del Sotano, a lo Silent Hill (sotano.py banho()):
+    textures/sotano/azulejo.png (128 x 128, se repite): azulejo blanco sucio con junta negra,
+    manchas de humo y oxido escurrido; azulejo_piso.png (128 x 128): cuadros verde y negro gastados;
+    banho.png (512 x 256): el espejo estrellado (0-256), el grafiti (256-512 arriba), la mancha
+    (256-384 abajo) y la coladera (384-512 abajo)."""
+    rnd = random.Random(13)
+    negra = _fuente("ariblk.ttf")
+    # Azulejo de pared: 4 x 4 cuadros con junta, cada uno un poco distinto, y lo sucio encima
+    u = 32
+    sc = _escena("Azulejo", 128, 128, u)
+    _rect(sc, 0, 0, 4, 4, (0.12, 0.12, 0.1), -0.04)
+    for i in range(4):
+        for j in range(4):
+            t = rnd.uniform(0.62, 0.78)
+            _rect(sc, i + 0.06, j + 0.06, i + 0.94, j + 0.94, (t, t * 0.98, t * 0.9), -0.03)
+            if rnd.random() < 0.25:    # azulejo estrellado
+                _rect(sc, i + rnd.uniform(0.2, 0.6), j + 0.06, i + rnd.uniform(0.62, 0.7), j + 0.94, (0.2, 0.2, 0.18), -0.025)
+    for _ in range(10):                # humo y mugre
+        _circulo(sc, rnd.uniform(0, 4), rnd.uniform(0, 4), rnd.uniform(0.2, 0.6), (0.32, 0.3, 0.24), -0.02, lados=10)
+    for _ in range(5):                 # oxido que escurre
+        x = rnd.uniform(0.2, 3.8)
+        _rect(sc, x, rnd.uniform(0, 1.5), x + rnd.uniform(0.06, 0.14), 4, (0.45, 0.22, 0.08), -0.015)
+    _render(sc, "azulejo.png")
+    # Piso: cuadros verde y negro gastados
+    sc = _escena("AzulejoPiso", 128, 128, u)
+    for i in range(4):
+        for j in range(4):
+            c = (0.18, 0.28, 0.2) if (i + j) % 2 == 0 else (0.06, 0.07, 0.06)
+            _rect(sc, i, j, i + 1, j + 1, c, -0.03)
+    for _ in range(14):
+        _circulo(sc, rnd.uniform(0, 4), rnd.uniform(0, 4), rnd.uniform(0.15, 0.5), (0.22, 0.2, 0.14), -0.02, lados=9)
+    _render(sc, "azulejo_piso.png")
+    # Espejo, grafiti, mancha y coladera
+    u = 64
+    sc = _escena("Banho", 512, 256, u)
+    import math
+    _rect(sc, 0, 0, 4, 4, (0.35, 0.38, 0.38), -0.04)          # el marco
+    _rect(sc, 0.15, 0.15, 3.85, 3.85, (0.42, 0.5, 0.52), -0.035)
+    for _ in range(14):                                        # manchas del azogue
+        _circulo(sc, rnd.uniform(0.3, 3.7), rnd.uniform(0.3, 3.7), rnd.uniform(0.1, 0.45), (0.2, 0.22, 0.2), -0.03, lados=8)
+    cx, cy = 2.6, 1.4                                          # el golpe y sus grietas
+    for k in range(11):
+        a = k * math.tau / 11 + rnd.uniform(-0.2, 0.2)
+        largo = rnd.uniform(1.2, 2.6)
+        me = bpy.data.meshes.new("grieta")
+        ancho = 0.035
+        x1, y1 = cx + math.cos(a) * largo, cy + math.sin(a) * largo
+        nx, ny = -math.sin(a) * ancho, math.cos(a) * ancho
+        me.from_pydata([(cx + nx, -(cy + ny), -0.02), (cx - nx, -(cy - ny), -0.02), (x1, -y1, -0.02)], [], [(0, 1, 2)])
+        me.materials.append(_mat("m_grieta", (0.9, 0.95, 0.95)))
+        ob = bpy.data.objects.new("grieta", me)
+        sc.collection.objects.link(ob)
+    _circulo(sc, cx, cy, 0.25, (0.85, 0.9, 0.9), -0.015, lados=7)
+    # Grafiti (arriba a la derecha)
+    _rect(sc, 4, 0, 8, 2, (0.62, 0.6, 0.52), -0.04)
+    _texto(sc, "NO ESTAS SOLO", 6.0, 0.6, 0.42, (0.45, 0.04, 0.04), negra, ancho_max=3.7)
+    _texto(sc, "la virgen del tinaco\nte esta viendo", 6.0, 1.4, 0.22, (0.08, 0.08, 0.08), negra, ancho_max=3.6)
+    # Mancha (abajo, 256-384): oscura, escurrida
+    _rect(sc, 4, 2, 6, 4, (1, 1, 1), -0.04)
+    _circulo(sc, 5.0, 3.0, 0.75, (0.22, 0.04, 0.03), -0.03, lados=12)
+    for _ in range(9):
+        _circulo(sc, 5.0 + rnd.uniform(-0.9, 0.9), 3.0 + rnd.uniform(-0.9, 0.9), rnd.uniform(0.1, 0.3), (0.25, 0.05, 0.03), -0.025, lados=8)
+    # Coladera (384-512)
+    _rect(sc, 6, 2, 8, 4, (0.1, 0.1, 0.1), -0.04)
+    _circulo(sc, 7.0, 3.0, 0.8, (0.35, 0.33, 0.3), -0.03, lados=16)
+    for k in range(5):
+        _rect(sc, 6.4, 2.55 + k * 0.2, 7.6, 2.62 + k * 0.2, (0.05, 0.05, 0.05), -0.02)
+    _render(sc, "banho.png")
+
+
 def pantalla_juego():
     """384 x 288: el fondo del juego en la pantalla de EL GORDO (scripts/sotano/OlPleyUI.gd encima
     pone los carretes y los numeros). Marco de neon con focos, el logo, tres ventanas de carrete de
