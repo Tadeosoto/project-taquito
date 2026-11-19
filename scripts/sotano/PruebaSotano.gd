@@ -10,6 +10,8 @@ extends Node3D
 #   R  de vuelta al pie de la escalera          F12 empezar de cero
 # La flecha de arriba de la escalera (la de salir) aqui te regresa abajo.
 # Con -- --foto=<archivo.png> guarda una captura a los 2 s y sale (para revisarla sin jugar).
+# Con -- --fotos=<carpeta> guarda una captura desde cada camara de FOTOS (bajas y de lado, para
+# ver si algo flota o se ve hueco) y sale.
 
 const SOTANO := preload("res://scenes/casas/sotano.tscn")
 const ESCALA := 1.25                 # la de CasaPropia
@@ -22,6 +24,18 @@ const TEXTO := """El Sótano (prueba)
 K quitar permiso (probar la cuota)
 H OL PLEY calientes · R al pie de la escalera
 F12 de cero · F1 esconder"""
+
+# Camaras para --fotos: nombre -> [desde, hacia], en metros del cuarto (antes de la escala)
+const FOTOS := {
+	"escalera": [Vector3(9.0, -1.2, 3.1), Vector3(5.0, -1.6, 3.1)],
+	"maquinitas": [Vector3(14.5, -1.2, 4.6), Vector3(12.5, -2.0, -1.5)],
+	"gabinete_lado": [Vector3(12.2, -2.2, 1.2), Vector3(11.0, -2.0, -1.6)],
+	"ventanilla_baja": [Vector3(8.4, -2.35, 2.6), Vector3(8.2, -2.2, -0.4)],
+	"salon1_sur": [Vector3(12.0, -1.2, 1.0), Vector3(15.0, -2.2, 7.5)],
+	"barra": [Vector3(26.0, -1.3, 5.0), Vector3(25.0, -1.8, -1.8)],
+	"salon2": [Vector3(21.5, -0.8, 6.5), Vector3(30.0, -2.4, 0.0)],
+	"poker": [Vector3(28.5, -1.0, 6.6), Vector3(26.0, -2.0, 2.6)],
+}
 
 var _sotano: Node3D
 var _player: Player
@@ -50,6 +64,25 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png(arg.trim_prefix("--foto="))
 			get_tree().quit()
+		elif arg.begins_with("--fotos="):
+			await _fotos(arg.trim_prefix("--fotos="))
+			get_tree().quit()
+
+
+func _fotos(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	var cam := Camera3D.new()
+	cam.fov = 70.0
+	add_child(cam)
+	cam.make_current()
+	await get_tree().create_timer(1.5).timeout
+	for nombre: String in FOTOS:
+		var v: Array = FOTOS[nombre]
+		cam.global_position = _sotano.to_global(v[0])
+		cam.look_at(_sotano.to_global(v[1]), Vector3.UP)
+		await get_tree().create_timer(0.3).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join(nombre + ".png"))
 
 
 # El Sotano ya viene en la escena (para verlo en el editor); K y F12 lo arman otra vez

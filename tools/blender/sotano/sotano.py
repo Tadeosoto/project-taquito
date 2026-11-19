@@ -73,6 +73,17 @@ def material(nombre, color=(0.6, 0.6, 0.6), emision=0.0):
     return m
 
 
+def _afuera(me):
+    """Las caras viendo hacia afuera (las cajas salian al reves: se veian huecas y el piso visible
+    quedaba 0.4 abajo del de verdad, todo parecia flotar)."""
+    import bmesh
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(me)
+    bm.free()
+
+
 def caja(nombre, x0, x1, y0, y1, z0, z1, mat, col, choca=True, giro=None):
     """Una caja de x0..x1, y0..y1, z0..z1 (Godot). `giro`: (eje, grados, pivote) opcional."""
     me = bpy.data.meshes.new(nombre)
@@ -84,6 +95,7 @@ def caja(nombre, x0, x1, y0, y1, z0, z1, mat, col, choca=True, giro=None):
     caras = [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
     me.from_pydata(verts, [], caras)
     me.update()
+    _afuera(me)
     _uv_caja(me)
     me.materials.append(mat)
     ob = bpy.data.objects.new(nombre + ("-convcol" if choca else ""), me)
@@ -429,6 +441,7 @@ def cable_recto(nombre, a, b, mat, col, r=0.012):
         caras.append((i, j, j + 4, i + 4))
     me.from_pydata(verts, [], caras)
     me.update()
+    _afuera(me)
     me.materials.append(mat)
     ob = bpy.data.objects.new(nombre, me)
     col.objects.link(ob)
