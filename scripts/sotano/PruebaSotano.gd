@@ -52,14 +52,20 @@ func _ready() -> void:
 			get_tree().quit()
 
 
+# El Sotano ya viene en la escena (para verlo en el editor); K y F12 lo arman otra vez
 func _armar(con_permiso_quitado: bool) -> void:
-	if _sotano:
-		_sotano.free()
 	if con_permiso_quitado:
 		get_node("/root/Fichas").permiso = 0
-	_sotano = SOTANO.instantiate() as Node3D
-	_sotano.scale = Vector3.ONE * ESCALA
-	add_child(_sotano)
+	if _sotano == null:
+		_sotano = get_node_or_null("Sotano") as Node3D
+	else:
+		_sotano.free()
+		_sotano = null
+	if _sotano == null:
+		_sotano = SOTANO.instantiate() as Node3D
+		_sotano.name = "Sotano"
+		_sotano.scale = Vector3.ONE * ESCALA
+		add_child(_sotano)
 	var salida := MuebleCasa.crear("Subir (aquí te regresa abajo)", PUERTA + Vector3(0.6, 0.0, 0.0), _al_pie, 0.8)
 	_sotano.add_child(salida)
 	_player.poner_sin_combate(true)
