@@ -25,6 +25,18 @@ const OLVIDA := 160.0          # m: en pelea y mas lejos que esto (huiste, te de
 const SALE_LEJOS := 20.0       # m del jugador, como minimo, a donde sale (que no aparezca en tu cara)
 const REVISAR_CADA := 0.5
 const INTENTOS := 24
+# Focos blancos colgados del techo (JJ, 2026-11-18: que la pelea se vea). Una reja de FOCOS_X x FOCOS_Z
+# lamparas de nave industrial apuntando al piso; FOCO_ENERGIA es la perilla para subir o bajar la luz
+const FOCOS_X := 3             # de lado a lado
+const FOCOS_Z := 3             # del frente al fondo
+const FOCO_ENERGIA := 6.0
+const FOCO_ANGULO := 82.0      # grados del cono: casi plano, el circulo lo corta FOCO_ALCANCE
+# m de alcance mas alla del techo: con 12 cada foco alumbra ~17 m de radio en el piso y se
+# enciman con los de junto (JJ, 2026-11-18: con 65 grados y +4 m quedaban manchas oscuras entre focos)
+const FOCO_ALCANCE := 12.0
+const FOCO_COLOR := Color(0.95, 0.97, 1.0)
+const FOCO_BAJA := 0.6         # m bajo el arranque del techo (las cerchas van a alto - 0.15)
+const FOCO_APAGA := 140.0      # m a la camara: mas lejos se apagan (no cuestan nada desde afuera)
 
 static var instancia: CucarrataCalle
 # La bodega: de su frente hacia adentro es -Z, de lado a lado X (como en MapBodegas)
@@ -44,6 +56,8 @@ func _ready() -> void:
 	_jugador = get_tree().get_first_node_in_group("jugador")
 	if not _cargar():
 		set_process(false)
+		return
+	_poner_focos()
 
 
 func _exit_tree() -> void:
@@ -171,6 +185,46 @@ static func _cargar() -> bool:
 			return true
 	push_warning("CucarrataCalle: no esta su bodega en " + BODEGAS)
 	return false
+
+
+# Las lamparas: una caja blanca que brilla (un solo material sin sombra para todas) y un SpotLight3D
+# hacia abajo, sin sombras. Viven siempre que este CucarrataCalle (de dia tambien: la bodega
+# sigue techada)
+func _poner_focos() -> void:
+	var focos := Node3D.new()
+	focos.name = "Focos"
+	focos.top_level = true
+	add_child(focos)
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = FOCO_COLOR
+	var caja := BoxMesh.new()
+	caja.size = Vector3(1.4, 0.12, 0.45)
+	caja.material = material
+	var y := _alto - FOCO_BAJA
+	for i in FOCOS_X:
+		for j in FOCOS_Z:
+			var x := (i + 0.5) / FOCOS_X * _ancho - _ancho / 2.0
+			var z := -(j + 0.5) / FOCOS_Z * _fondo
+			var lampara := MeshInstance3D.new()
+			lampara.mesh = caja
+			lampara.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			focos.add_child(lampara)
+			lampara.global_transform = _lote * Transform3D(Basis(), Vector3(x, y, z))
+			var luz := SpotLight3D.new()
+			luz.light_color = FOCO_COLOR
+			luz.light_energy = FOCO_ENERGIA
+			luz.light_specular = 0.2
+			luz.shadow_enabled = false
+			luz.spot_range = _alto + FOCO_ALCANCE
+			luz.spot_angle = FOCO_ANGULO
+			luz.spot_attenuation = 0.35   # orilla del cono suave, sin borde marcado
+			luz.distance_fade_enabled = true
+			luz.distance_fade_begin = FOCO_APAGA
+			luz.distance_fade_length = 20.0
+			lampara.add_child(luz)
+			luz.position = Vector3(0.0, -0.1, 0.0)
+			luz.rotation.x = -PI / 2.0   # el cono (-Z) hacia el piso
 
 
 func _desperto() -> void:
