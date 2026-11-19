@@ -200,6 +200,9 @@ func _armar_luces() -> void:
 	# La lampara verde de la ventanilla (el Primo se ve) y la de la mesa de poker
 	_luz(marca("Luz_ventanilla").origin, Color(1.0, 0.85, 0.6), 1.6, 3.0)
 	_luz(marca("Luz_poker").origin, Color(1.0, 0.9, 0.7), 2.2, 4.0)
+	# Un foco sobre la rueda de la ruleta (las casillas se pierden en lo oscuro)
+	if _marcas.has("Marca_Ruleta"):
+		_luz(marca("Ruleta").origin + Vector3(-0.35, 1.5, -1.1), Color(1.0, 0.92, 0.75), 1.6, 2.4)
 	if _marcas.has("Marca_Luz_blackjack"):
 		_luz(marca("Luz_blackjack").origin, Color(1.0, 0.9, 0.7), 1.8, 3.5)
 	# Las luces de color de la barra (con sus tiras de neon): rosa, cian, morado y la de abajo, azul

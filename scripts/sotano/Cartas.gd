@@ -11,7 +11,7 @@ extends RefCounted
 const ATLAS := preload("res://textures/sotano/cartas.png")
 const COLUMNAS := 8
 const TAMANO := Vector2(96, 144)
-# Los dibujos (renders 3D de tools/blender/sotano/cartas3d.py, fondo transparente): 8 x 3 de 80 x 80
+# Los dibujos (pixel art de caricatura de tools/sotano/dibujar_cartas.gd, fondo transparente): 8 x 3 de 80 x 80
 const DIBUJOS := preload("res://textures/sotano/cartas_dibujos.png")
 const DIBUJO := Vector2(80, 80)
 

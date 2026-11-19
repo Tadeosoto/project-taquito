@@ -11,8 +11,12 @@ const APUESTA_MAX := 10
 const GIRO := 4.2                    # s que gira
 const VUELTAS_RUEDA := 2.2           # vueltas que da la rueda
 const VUELTAS_BOLA := 5.0            # vueltas de la bola (al reves)
-const CAMARA_DESDE := Vector3(-0.2, 1.5, 0.35)  # desde la marca Ruleta (m de la escena)
-const CAMARA_MIRA := Vector3(-0.3, 0.85, -1.05)
+const RUEDA_RADIO := 0.3             # sotano.py RUEDA (radio) y RUEDA_DENTRO: el anillo de casillas
+const RUEDA_DENTRO := 0.18
+const PISTA := 0.35                  # radio de la pista de afuera por donde corre la bola
+const CAE := Vector2(0.55, 0.72)     # cuando cae de la pista a las casillas (fraccion del giro)
+const CAMARA_DESDE := Vector3(-0.35, 1.3, -0.3)  # desde la marca Ruleta (m de la escena): casi encima de la rueda
+const CAMARA_MIRA := Vector3(-0.3, 0.85, -1.08)
 const NOMBRES := {"rojo": "ROJO", "negro": "NEGRO", "verde": "VERDE"}
 const COLOR_UI := {"rojo": Color(1.0, 0.3, 0.25), "negro": Color(0.85, 0.85, 0.85), "verde": Color(0.3, 1.0, 0.45)}
 
@@ -27,7 +31,7 @@ var _premio := 0                     # lo que llevas ganado (sin cobrar)
 var _doblete := false                # si esta tirada es el doblete
 var _rueda: Node3D
 var _bola: Node3D
-var _radio := 0.3
+var _brinco := 0.0                   # lo que sube la bola al pegar en un separador
 var _info: Label
 var _sale: Label
 
@@ -173,18 +177,21 @@ func _tirar() -> void:
 	_mostrar()
 
 
-# La rueda gira frenandose; la bola da VUELTAS_BOLA al reves, baja hacia el centro y queda en la
-# casilla de `n`. Angulos en el plano de la rueda como en Blender: un punto local (cos a, -sin a) en
-# x, z queda en el angulo a + giro de la rueda
+# La rueda gira frenandose. La bola corre al reves por la pista de afuera (PISTA), al frenarse cae
+# al anillo de casillas y ahi brinca de separador en separador (cada brinco suena) hasta quedar en
+# la casilla de `n`. Angulos en el plano de la rueda como en Blender: un punto local (cos a, -sin a)
+# en x, z queda en el angulo a + giro de la rueda
 func _animar(n: int) -> void:
 	if _rueda == null or _bola == null:
 		await get_tree().create_timer(1.0).timeout
 		return
+	var total := Ruleta.ORDEN.size()
 	var casilla := Ruleta.ORDEN.find(n)
-	var a := (casilla + 0.5) * TAU / Ruleta.ORDEN.size()
+	var a := (casilla + 0.5) * TAU / total
 	var inicio := _rueda.rotation.y
 	var vuelta_rueda := VUELTAS_RUEDA * TAU
 	var t := 0.0
+	var casilla_antes := -1
 	while t < GIRO:
 		await get_tree().process_frame
 		if not is_inside_tree():
@@ -193,11 +200,24 @@ func _animar(n: int) -> void:
 		var f := t / GIRO
 		var giro := inicio + vuelta_rueda * (f - f * f / 2.0) * 2.0    # se frena hasta parar en f = 1
 		_rueda.rotation.y = giro
+		# Cae de la pista a las casillas entre CAE.x y CAE.y
+		var cae := clampf((f - CAE.x) / (CAE.y - CAE.x), 0.0, 1.0)
+		# En las casillas va brincando: se pasa de su casilla y regresa, cada vez menos
+		var rebote := sin(f * 55.0) * (TAU / total) * 1.6 * cae * pow(1.0 - f, 1.3) * 3.0
 		var atraso := -VUELTAS_BOLA * TAU * pow(1.0 - f, 2.0)           # al reves; llega a la casilla
-		var fi := giro + a + atraso
-		var r := lerpf(_radio - 0.03, _radio * 0.62, clampf((f - 0.6) / 0.4, 0.0, 1.0))
-		var brinco := absf(sin(f * 40.0)) * 0.012 * clampf((f - 0.6) / 0.4, 0.0, 1.0) * (1.0 - f)
-		_bola.position = _rueda.position + Vector3(cos(fi) * r, 0.05 + brinco, -sin(fi) * r)
+		var fi := giro + a + atraso + rebote
+		var r := lerpf(PISTA, (RUEDA_DENTRO + RUEDA_RADIO) / 2.0, ease(cae, 0.6))
+		var alto := lerpf(0.075, 0.053, cae)
+		# Cada separador que cruza ya adentro: un brinquito y su tic
+		var en := posmod(int(floor((fi - giro) / (TAU / total))), total)
+		if cae > 0.0 and en != casilla_antes:
+			if casilla_antes >= 0:
+				Sonidos.tocar(self, "paso", -14.0 + (1.0 - f) * 4.0, randf_range(1.3, 1.7))
+				_brinco = 0.018 * (1.0 - f) + 0.004
+			casilla_antes = en
+		_brinco = maxf(_brinco - get_process_delta_time() * 0.12, 0.0)
+		_bola.position = _rueda.position + Vector3(cos(fi) * r, alto + _brinco, -sin(fi) * r)
+	_bola.position.y = _rueda.position.y + 0.053
 
 
 func _mostrar() -> void:

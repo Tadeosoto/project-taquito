@@ -40,6 +40,7 @@ BANO_ALTO = 2.2
 BLACKJACK = (32.4, 2.4, 0.95)    # la mesa de blackjack: x del centro, z de la orilla recta (el crupier, al norte) y radio
 RULETA = (32.6, 34.0, -0.9, 0.1)  # la mesa de la ruleta (esquina noreste del salon 2): x0, x1, z0, z1
 RUEDA = (32.95, -0.4, 0.3)        # la rueda: x, z del centro y radio
+RUEDA_DENTRO = 0.18               # donde empiezan las casillas (adentro, el plato de madera)
 REPISA_Y = 1.15                   # la primera repisa de la contrabarra (sobre el piso)
 REPISA_SEPARA = 0.34
 PISTA = (11.5, 17.0, 4.8, 6.0)    # la isla de los caballitos en el salon 1: x0, x1, z0, z1
@@ -532,28 +533,50 @@ def mesa_ruleta(col):
     caja("Ruleta_mesa", x0, x1, y, y + 0.85, z0, z1, madera, col)
     plano("Ruleta_pano", ((x0 + x1) / 2, y + 0.852, (z0 + z1) / 2), x1 - x0 - 0.04, z1 - z0 - 0.04, (0, 1, 0), material("ruleta", (1, 1, 1)), col)
     # El plato de madera: un aro que levanta la rueda
-    girar("Ruleta_plato", [(0, 0), (rr + 0.08, 0), (rr + 0.08, 0.06), (rr + 0.02, 0.06), (rr + 0.02, 0.03), (0, 0.03)],
+    girar("Ruleta_plato", [(0, 0), (rr + 0.1, 0), (rr + 0.1, 0.1), (rr + 0.08, 0.1), (rr + 0.02, 0.05), (rr + 0.01, 0.03), (0, 0.03)],
           material("madera_oscura", (0.3, 0.2, 0.12)), col, lados=24).location = _b(rx, y + 0.852, rz)
-    # La rueda: casillas en el orden europeo, rojo, negro y la verde (el cero)
+    # La rueda: un anillo de casillas en el orden europeo (rojo, negro y la verde del cero), con
+    # separadores de metal entre una y otra (ahi rebota la bola, RuletaUI), y al centro el plato de
+    # madera con sus rayos dorados y la torre
     rojos = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36}
     orden = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26]
+    r_in = RUEDA_DENTRO
     me = bpy.data.meshes.new("Ruleta_rueda")
     bm = bmesh.new()
-    centro = bm.verts.new((0, 0, 0.035))
     n = len(orden)
+    dentro = [bm.verts.new((math.cos(k * math.tau / n) * r_in, math.sin(k * math.tau / n) * r_in, 0.035)) for k in range(n)]
     borde = [bm.verts.new((math.cos(k * math.tau / n) * rr, math.sin(k * math.tau / n) * rr, 0.035)) for k in range(n)]
     for k, numero in enumerate(orden):
-        f = bm.faces.new((centro, borde[k], borde[(k + 1) % n]))
+        f = bm.faces.new((dentro[k], borde[k], borde[(k + 1) % n], dentro[(k + 1) % n]))
         f.material_index = 2 if numero == 0 else (0 if numero in rojos else 1)
+    # El plato de en medio (madera) un poco mas alto que las casillas
+    centro_alto = bm.verts.new((0, 0, 0.055))
+    anillo = [bm.verts.new((math.cos(k * math.tau / n) * r_in, math.sin(k * math.tau / n) * r_in, 0.05)) for k in range(n)]
+    for k in range(n):
+        bm.faces.new((centro_alto, anillo[k], anillo[(k + 1) % n])).material_index = 3
+        bm.faces.new((anillo[k], dentro[k], dentro[(k + 1) % n], anillo[(k + 1) % n])).material_index = 3
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     bm.to_mesh(me)
     bm.free()
-    for nombre, c in (("ruleta_rojo", (0.75, 0.06, 0.05)), ("ruleta_negro", (0.05, 0.05, 0.05)), ("ruleta_verde", (0.05, 0.5, 0.15))):
+    for nombre, c in (("ruleta_rojo", (0.75, 0.06, 0.05)), ("ruleta_negro", (0.05, 0.05, 0.05)), ("ruleta_verde", (0.05, 0.5, 0.15)),
+                      ("madera_oscura", (0.3, 0.2, 0.12))):
         me.materials.append(material(nombre, c))
     rueda = bpy.data.objects.new("Ruleta_rueda", me)
     rueda.location = _b(rx, y + 0.852, rz)
     col.objects.link(rueda)
-    torre = girar("Ruleta_torre", [(0, 0.035), (0.06, 0.035), (0.03, 0.08), (0.012, 0.13), (0.03, 0.15), (0, 0.16)], material("tapa_dorada", (0.85, 0.7, 0.25)), col, lados=8)
+    cromo = material("cromo", (0.75, 0.77, 0.8))
+    for k in range(n):
+        a = k * math.tau / n
+        sep = caja("Ruleta_separa_%02d" % k, -(rr - r_in) / 2, (rr - r_in) / 2, 0.0, 0.016, -0.003, 0.003, cromo, col, choca=False)
+        sep.parent = rueda
+        sep.location = Vector((math.cos(a) * (r_in + rr) / 2, math.sin(a) * (r_in + rr) / 2, 0.043))
+        sep.rotation_euler = (0, 0, a)
+    for k in range(4):
+        rayo = caja("Ruleta_rayo_%d" % k, -r_in * 0.9, r_in * 0.9, 0.0, 0.01, -0.006, 0.006, material("tapa_dorada", (0.85, 0.7, 0.25)), col, choca=False)
+        rayo.parent = rueda
+        rayo.location = Vector((0, 0, 0.06))
+        rayo.rotation_euler = (0, 0, k * math.pi / 4)
+    torre = girar("Ruleta_torre", [(0, 0.05), (0.06, 0.05), (0.03, 0.09), (0.012, 0.14), (0.03, 0.16), (0, 0.17)], material("tapa_dorada", (0.85, 0.7, 0.25)), col, lados=8)
     torre.parent = rueda
     bola = esfera("Ruleta_bola", 0.018, material("plastico_blanco", (0.9, 0.9, 0.86)), col)
     bola.location = _b(rx + rr - 0.03, y + 0.852 + 0.05, rz)
