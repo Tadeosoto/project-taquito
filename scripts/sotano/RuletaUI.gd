@@ -11,13 +11,15 @@ extends JuegoSotano
 enum Estado { APOSTAR, GIRANDO, GANASTE, FIN }
 
 const APUESTA_MAX := 10
-const GIRO := 4.6                    # s que gira
-const VUELTAS_RUEDA := 2.2           # vueltas que da la rueda
-const VUELTAS_BOLA := 5.0            # vueltas de la bola (al reves)
+# Despacio y largo: con 2.2 vueltas en 4.6 s cada cuadro brincaba casi dos casillas y a 640 x 480
+# la rueda se veia cortada (parpadeaban los separadores)
+const GIRO := 6.5                    # s que gira
+const VUELTAS_RUEDA := 1.1           # vueltas que da la rueda
+const VUELTAS_BOLA := 3.4            # vueltas de la bola (al reves)
 const RUEDA_RADIO := 0.3             # sotano.py RUEDA (radio) y RUEDA_DENTRO: el anillo de casillas
 const RUEDA_DENTRO := 0.18
 const PISTA := 0.35                  # radio de la pista de afuera por donde corre la bola
-const CAE := Vector2(0.5, 0.7)       # cuando cae de la pista a las casillas (fraccion del giro)
+const CAE := Vector2(0.55, 0.75)     # cuando cae de la pista a las casillas (fraccion del giro)
 const BOLA_RADIO := 0.018
 const ALTO_PISTA := 0.07             # alto de la bola sobre la rueda: en la pista y en una casilla
 const ALTO_CASILLA := 0.053
@@ -41,6 +43,8 @@ var _bola: MeshInstance3D
 var _bola_cuarto: Node3D
 var _alto := ALTO_PISTA              # la bola: alto y velocidad vertical (brincos)
 var _vy := 0.0
+var _barrido: MeshInstance3D        # el "desenfoque" de la rueda mientras gira rapido
+var _barrido_mat: StandardMaterial3D
 var _pila: PilaFichas
 var _pago: PilaFichas
 var _info: Label
@@ -109,6 +113,24 @@ func _armar_bola() -> void:
 	_bola.position = _rueda.position + Vector3(PISTA, ALTO_PISTA, 0.0)
 	if _bola_cuarto:
 		_bola_cuarto.visible = false
+	# El barrido: un anillo semitransparente, rojinegro, sobre las casillas. Girando rapido, a 640 x 480
+	# las 37 casillas y sus separadores parpadeaban (se veia cortado); el barrido las funde y se va
+	# apagando conforme se frena la rueda
+	var anillo := CylinderMesh.new()
+	anillo.top_radius = RUEDA_RADIO
+	anillo.bottom_radius = RUEDA_RADIO
+	anillo.height = 0.002
+	anillo.radial_segments = 32
+	_barrido_mat = StandardMaterial3D.new()
+	_barrido_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_barrido_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_barrido_mat.albedo_color = Color(0.28, 0.05, 0.05, 0.0)
+	anillo.material = _barrido_mat
+	_barrido = MeshInstance3D.new()
+	_barrido.mesh = anillo
+	_barrido.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_rueda.get_parent().add_child(_barrido)
+	_barrido.position = _rueda.position + Vector3(0, 0.053, 0)
 
 
 func cerrar() -> void:
@@ -122,6 +144,8 @@ func cerrar() -> void:
 		_bola_cuarto.visible = true
 	if _bola:
 		_bola.queue_free()
+	if _barrido:
+		_barrido.queue_free()
 	super.cerrar()
 
 
@@ -303,22 +327,25 @@ func _animar(n: int) -> void:
 		var f := t / GIRO
 		var giro := inicio + vuelta_rueda * (f - f * f / 2.0) * 2.0    # se frena hasta parar en f = 1
 		_rueda.rotation.y = giro
+		# El barrido, segun lo rapido que gira (al empezar casi tapa las casillas)
+		if _barrido_mat:
+			_barrido_mat.albedo_color.a = 0.7 * clampf((1.0 - f) * 1.6 - 0.25, 0.0, 1.0)
 		var cae := clampf((f - CAE.x) / (CAE.y - CAE.x), 0.0, 1.0)
-		# En las casillas se pasa de su casilla y regresa, cada vez menos
-		var rebote := sin(f * 48.0) * (TAU / total) * 3.5 * cae * pow(1.0 - f, 1.4)
+		# En las casillas se pasa de su casilla y regresa, cada vez menos (pocas veces y suave)
+		var rebote := sin(f * 20.0) * (TAU / total) * 2.2 * smoothstep(0.0, 1.0, cae) * pow(1.0 - f, 1.6)
 		var atraso := -VUELTAS_BOLA * TAU * pow(1.0 - f, 2.0)           # al reves; llega a la casilla
 		var fi := giro + a + atraso + rebote
 		var r := lerpf(PISTA, (RUEDA_DENTRO + RUEDA_RADIO) / 2.0, ease(cae, 0.5))
 		var piso := lerpf(ALTO_PISTA, ALTO_CASILLA, cae)
 		if cae > 0.0 and not cayo:
 			cayo = true
-			_vy = 0.35                                                  # sale de la pista de un brinco
+			_vy = 0.22                                                  # sale de la pista de un brinco
 		# Cada separador que cruza ya adentro: un brinco y su tic
 		var en := posmod(int(floor((fi - giro) / (TAU / total))), total)
 		if cae > 0.3 and en != casilla_antes:
 			if casilla_antes >= 0 and _alto - piso < 0.004:
 				Sonidos.tocar(self, "paso", -14.0 + (1.0 - f) * 4.0, randf_range(1.3, 1.7))
-				_vy = 0.28 * (1.0 - f) + 0.04
+				_vy = 0.16 * (1.0 - f) + 0.03
 			casilla_antes = en
 		# Gravedad y rebote contra el piso (pista o casilla)
 		_vy -= GRAVEDAD * dt
@@ -330,6 +357,8 @@ func _animar(n: int) -> void:
 		_bola.position = _rueda.position + Vector3(cos(fi) * r, _alto, -sin(fi) * r)
 		_rodar(_bola.position - antes)
 	_bola.position.y = _rueda.position.y + ALTO_CASILLA
+	if _barrido_mat:
+		_barrido_mat.albedo_color.a = 0.0
 
 
 # Rueda lo que avanzo: gira sobre el eje acostado que es perpendicular al camino

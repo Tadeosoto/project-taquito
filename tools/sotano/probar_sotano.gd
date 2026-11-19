@@ -176,11 +176,11 @@ func _probar() -> void:
 	await _esperar(0.8)
 	ui = arbol.get_first_node_in_group("juego_sotano")
 	ui.girar()
-	await _esperar(5.0)
+	await _esperar(7.5)
 	var tras_giro: int = ui.get("_estado")
 	if tras_giro == 2:    # GANASTE
 		ui.dobletear()
-		await _esperar(5.0)
+		await _esperar(7.5)
 	_ver(ui.get("_estado") == 3 or ui.get("_estado") == 2, "gira la ruleta (y el doblete)", "sale %s" % ui.get("_sale").text)
 	ui.cerrar()
 	await _esperar(0.5)
