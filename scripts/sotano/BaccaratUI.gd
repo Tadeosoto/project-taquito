@@ -1,7 +1,8 @@
 extends JuegoSotano
 
 # La mesa de baccarat del Sotano (Baccarat.gd decide): le vas al PUNTO, a la BANCA o al EMPATE y el
-# crupier ("Don Chepe") reparte las dos manos en la pantalla, carta por carta, volteandolas. Juegas
+# crupier ("Don Chepe") reparte las dos manos carta por carta, volteandolas: sobre el pano (salen del
+# zapato en arco y se voltean; el punto a la izquierda, la banca a la derecha) y en la pantalla. Juegas
 # con tus fichas. La sena de la trampa: Don Chepe le sopla a las cartas y vuelve a barajar.
 
 const POKER := preload("res://scripts/sotano/PokerUI.gd")   # su textura(c) de la baraja
@@ -11,6 +12,12 @@ const REPARTE := 0.35
 const CAMARA_DESDE := Vector3(0.0, 1.75, 0.1)  # desde la marca Baccarat (m de la escena): casi desde arriba, que se lea el pano
 const CAMARA_MIRA := Vector3(0.0, 0.85, -1.05)
 const NOMBRES := {"punto": "PUNTO", "banca": "BANCA", "empate": "EMPATE"}
+# Las cartas en el pano (metros de la escena; la mesa mide 2.0 x 1.0, sotano.py BACCARAT)
+const CARTA := Vector2(0.12, 0.18)
+const MANO_X := 0.4                 # cuanto se separa cada mano del centro (punto a la izquierda)
+const CARTA_SEPARA := 0.135
+const ZAPATO := Vector2(0.8, 0.19)   # el zapato: x desde el centro, z desde la orilla del crupier
+const VUELA := 0.3
 const COLOR_UI := {"punto": Color(0.45, 0.65, 1.0), "banca": Color(1.0, 0.35, 0.3), "empate": Color(1.0, 0.85, 0.2)}
 
 var sotano: Node3D
@@ -24,6 +31,7 @@ var _total_punto: Label
 var _total_banca: Label
 var _info: Label
 var _cartas: Array[TextureRect] = []
+var _mesa: Array[MeshInstance3D] = []   # las cartas sobre el pano
 var _pila: PilaFichas                # tu apuesta, sobre la casilla (Marca_Baccarat_banca / _empate / _punto)
 var _pago: PilaFichas
 
@@ -111,6 +119,7 @@ func repartir() -> void:
 	for r in _cartas:
 		r.queue_free()
 	_cartas.clear()
+	_recoger_mesa()
 	_total_punto.text = "PUNTO"
 	_total_banca.text = "BANCA"
 	# Como en la mesa: punto, banca, punto, banca, y las terceras si las hay
@@ -158,7 +167,72 @@ func repartir() -> void:
 	_mostrar()
 
 
+# --- Las cartas sobre el pano ---
+
+func _centro_mesa() -> Vector3:
+	var crupier: Vector3 = _lugar("Crupier_baccarat")
+	var empate: Vector3 = _lugar("Baccarat_empate")
+	return Vector3(crupier.x, empate.y + 0.003, empate.z)
+
+
+func _zapato() -> Vector3:
+	var crupier: Vector3 = _lugar("Crupier_baccarat")
+	return Vector3(crupier.x + ZAPATO.x, _centro_mesa().y + 0.1, crupier.z + 0.45 + ZAPATO.y)
+
+
+# Una carta sale del zapato boca abajo, vuela en arco a su lugar (punto a la izquierda, banca a la
+# derecha, una junto a otra; la tercera de lado, como en las mesas de verdad) y se voltea
+func _carta_mesa(es_punto: bool, k: int, carta: int) -> void:
+	if sotano == null:
+		return
+	var quad := QuadMesh.new()
+	quad.size = CARTA
+	quad.orientation = PlaneMesh.FACE_Y
+	var m := MeshInstance3D.new()
+	m.mesh = quad
+	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	m.material_override = POKER.material(-1)
+	sotano.add_child(m)
+	_mesa.append(m)
+	var centro := _centro_mesa()
+	var lado := -1.0 if es_punto else 1.0
+	var destino := centro + Vector3(lado * (MANO_X + 0.07) - lado * k * CARTA_SEPARA * (1.0 if k < 2 else 0.0), 0.0, 0.0)
+	var giro := 0.0
+	if k == 2:
+		# La tercera, acostada de lado junto a las otras dos
+		destino = centro + Vector3(lado * (MANO_X - CARTA_SEPARA - 0.08), 0.0, 0.0)
+		giro = PI / 2.0
+	var desde := _zapato()
+	m.position = desde
+	var t := create_tween()
+	t.tween_method(func(f: float) -> void:
+		m.position = desde.lerp(destino, f) + Vector3.UP * sin(f * PI) * 0.08
+		m.rotation.y = lerpf(PI, giro, f), 0.0, 1.0, VUELA).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_method(func(f: float) -> void:
+		m.rotation.z = f * PI / 2.0
+		m.position.y = destino.y + f * 0.03, 0.0, 1.0, 0.08)
+	t.tween_callback(func() -> void: m.material_override = POKER.material(carta))
+	t.tween_method(func(f: float) -> void:
+		m.rotation.z = (1.0 - f) * PI / 2.0
+		m.position.y = destino.y + (1.0 - f) * 0.03, 0.0, 1.0, 0.08)
+
+
+# Don Chepe junta las cartas de la mano pasada y las echa de su lado
+func _recoger_mesa() -> void:
+	var crupier: Vector3 = _lugar("Crupier_baccarat") + Vector3(0, 0.85, 0.3)
+	for m in _mesa:
+		if not is_instance_valid(m):
+			continue
+		var desde := m.position
+		var t := create_tween()
+		t.tween_method(func(f: float) -> void: m.position = desde.lerp(crupier, f), 0.0, 1.0, 0.3)
+		t.tween_callback(m.queue_free)
+	_mesa.clear()
+
+
 func _entrar(es_punto: bool, carta: int) -> void:
+	var k := (_bac.punto if es_punto else _bac.banca).find(carta)
+	_carta_mesa(es_punto, maxi(k, 0), carta)
 	var r := TextureRect.new()
 	r.custom_minimum_size = Vector2(56, 84)
 	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -208,6 +282,9 @@ func _acomodar_pila() -> void:
 
 
 func cerrar() -> void:
+	for m in _mesa:
+		if is_instance_valid(m):
+			m.queue_free()
 	for p in [_pila, _pago]:
 		if p and is_instance_valid(p):
 			p.queue_free()
