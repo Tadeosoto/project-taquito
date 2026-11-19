@@ -153,76 +153,146 @@ def arena():
     return col
 
 
+def curva(pts, pasos=4):
+    """Catmull-Rom por los puntos: mas puntos en medio, para que los mechones y los brazos se
+    vean redondos y no quebrados."""
+    if len(pts) < 3:
+        return pts
+    salida = []
+    ext = [pts[0]] + list(pts) + [pts[-1]]
+    for i in range(1, len(ext) - 2):
+        p0, p1, p2, p3 = ext[i - 1], ext[i], ext[i + 1], ext[i + 2]
+        for k in range(pasos):
+            t = k / pasos
+            t2, t3 = t * t, t * t * t
+            salida.append(0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3))
+    salida.append(pts[-1])
+    return salida
+
+
+# El perfil del torso (radio, alto) de abajo arriba, suavizado: la cintura en 1.15
+PERFIL_TORSO = suavizar([(0, 1.15), (0.4, 1.15), (0.62, 1.5), (0.58, 1.8), (0.48, 2.05), (0.46, 2.2), (0.2, 2.4), (0.13, 2.5), (0, 2.55)], 3)
+
+
 def desaguadora():
     """La jefa (3.2 m de la escena): de la cintura para abajo una falda de pelo mojado que cae al
-    agua, el torso hinchado, gris y azul, jorobado, la cabeza agachada sin cara tapada de pelo, y
-    dos brazos larguisimos con dedos de mas (en Hombro_L/R, que el codigo mueve). Corazon: el punto
-    debil, que brilla cuando se le abre el pecho."""
+    agua, el torso hinchado, gris y azul, jorobado (con las costillas y el espinazo marcados), la
+    cabeza agachada sin cara tapada de pelo, y dos brazos larguisimos y huesudos con dedos de mas
+    (en Hombro_L/R, que el codigo mueve). Corazon: el punto debil, que brilla cuando se le abre el
+    pecho. En alta (AG 2026-11-19, mas resolucion): torso de 40 lados, mechones y brazos curvos de
+    6 a 12 lados, el doble de pelo."""
     col = coleccion("Desaguadora")
     piel = material("piel_ahogada", (0.5, 0.56, 0.6))
+    piel_osc = material("piel_ahogada_sombra", (0.36, 0.42, 0.47))
     pelo = material("pelo_mojado", (0.03, 0.03, 0.035))
     agua = material("agua_negra", (0.02, 0.025, 0.03))
     raiz = bpy.data.objects.new("Desaguadora", None)
     col.objects.link(raiz)
     rnd = random.Random(4)
+    cintura, inclina, ancho, hondo = 1.15, math.radians(-16), 1.15, 0.9
+
+    def cuerpo(x, y, z):
+        """Un punto del cuerpo (coordenadas de Godot, como si estuviera derecha) llevado a donde
+        queda con el torso ensanchado e inclinado desde la cintura: asi la falda, los hombros, la
+        cabeza y el corazon quedan pegados al torso."""
+        dx, dy, dz = x * ancho, y - cintura, z * hondo
+        return Vector((dx, cintura + dy * math.cos(inclina) - dz * math.sin(inclina), dy * math.sin(inclina) + dz * math.cos(inclina)))
+
+    def radio_torso(y):
+        """El radio del torso (antes de ensancharlo) a la altura y, del perfil suavizado."""
+        for (r0, y0), (r1, y1) in zip(PERFIL_TORSO, PERFIL_TORSO[1:]):
+            if y0 <= y <= y1 and y1 > y0:
+                return r0 + (r1 - r0) * (y - y0) / (y1 - y0)
+        return 0.0
 
     def hijo(ob, padre=raiz):
         ob.parent = padre
         return ob
 
-    # El charco a sus pies
-    hijo(girar("Des_charco", [(0, 0.0), (1.1, 0.0), (1.15, 0.02), (0, 0.03)], agua, col, lados=24))
-    # La falda de pelo: mechones de la cintura al agua
-    for k in range(34):
-        a = k * math.tau / 34 + rnd.uniform(-0.05, 0.05)
-        r0, r1 = 0.42, 0.62 + rnd.uniform(-0.05, 0.15)
+    # El charco a sus pies, con onditas
+    hijo(girar("Des_charco", [(0, 0.0), (1.1, 0.0), (1.15, 0.02), (0, 0.03)], agua, col, lados=48))
+    for k, r in enumerate((0.75, 0.95, 1.25)):
+        hijo(girar("Des_onda_%d" % k, [(r, 0.031), (r + 0.025, 0.031), (r + 0.025, 0.036), (r, 0.036)], agua, col, lados=48))
+    # La falda de pelo: mechones curvos que salen de la orilla del torso (un poco arriba de la
+    # cintura, para que no quede hueco) y caen al agua abriendose (el doble que antes)
+    for k in range(72):
+        a = k * math.tau / 72 + rnd.uniform(-0.03, 0.03)
+        arriba = cuerpo(math.cos(a) * radio_torso(1.32) * 0.96, 1.32, math.sin(a) * radio_torso(1.32) * 0.96)
+        r1 = 0.66 + rnd.uniform(-0.05, 0.18)
+        abajo = Vector((math.cos(a) * r1, 0.0, math.sin(a) * r1))
         pts = []
         for j in range(6):
             t = j / 5.0
-            rr = r0 + (r1 - r0) * t + math.sin(t * 5.0 + k) * 0.03
-            pts.append(Vector((math.cos(a) * rr, 1.35 * (1.0 - t), math.sin(a) * rr)))
-        hijo(tubo_curva("Des_mechon_%d" % k, pts, 0.035 * (1.2 - 0.0), pelo, col, lados=4))
-    # El torso hinchado y jorobado
-    torso = girar("Des_torso", suavizar([(0, 1.15), (0.4, 1.15), (0.62, 1.5), (0.58, 1.8), (0.48, 2.05), (0.46, 2.2), (0.2, 2.4), (0.13, 2.5), (0, 2.55)]), piel, col, lados=16)
-    torso.rotation_euler = (math.radians(-16), 0, 0)
-    torso.scale = (1.15, 0.9, 1.0)
+            q = arriba.lerp(abajo, t)
+            q += Vector((math.cos(a), 0, math.sin(a))) * (math.sin(t * math.pi) * 0.06 + math.sin(t * 5.0 + k) * 0.03)
+            pts.append(q + Vector((0, rnd.uniform(-0.02, 0.02) if 0 < j < 5 else 0.0, 0)))
+        hijo(tubo_curva("Des_mechon_%d" % k, curva(pts, 3), 0.026 + rnd.uniform(0.0, 0.012), pelo, col, lados=6))
+    # El torso hinchado y jorobado, suave
+    # (girado desde la cintura, no desde el piso: si no, arriba quedaba 60 cm adelante de los hombros)
+    torso = girar("Des_torso", [(r, y - cintura) for r, y in PERFIL_TORSO], piel, col, lados=40)
+    torso.location = _b(0.0, cintura, 0.0)
+    torso.rotation_euler = (inclina, 0, 0)
+    torso.scale = (ancho, hondo, 1.0)
     hijo(torso)
+    # Costillas marcadas a los lados y el espinazo de nudos por la espalda
+    for lado in (-1, 1):
+        for k in range(5):
+            yk = 1.72 + k * 0.1
+            r = radio_torso(yk) * 1.02
+            pts = [cuerpo(lado * r * math.cos(math.radians(a)), yk, -r * math.sin(math.radians(a))) for a in (60, 30, 0, -30)]
+            hijo(tubo_curva("Des_costilla_%d_%d" % (lado > 0, k), curva(pts, 4), 0.02, piel_osc, col, lados=6))
+    for k in range(9):
+        yk = 1.4 + k * 0.12
+        nudo = hijo(esfera("Des_espinazo_%d" % k, 0.045 - k * 0.002, piel_osc, col, lados=12, anillos=8))
+        nudo.location = _b(*cuerpo(0.0, yk, radio_torso(yk) * 1.0))
     # La cabeza agachada y el pelo que la tapa (Cabeza y Pelo los mece el codigo)
     cabeza = bpy.data.objects.new("Cabeza", None)
-    cabeza.location = _b(0.0, 2.55, -0.3)
+    cabeza.location = _b(*(cuerpo(0.0, 2.5, -0.1) + Vector((0, 0.05, -0.12))))
     hijo(cabeza)
-    hijo(esfera("Des_craneo", 0.3, piel, col), cabeza).location = Vector((0, -0.05, 0.12))
+    hijo(esfera("Des_craneo", 0.3, piel, col, lados=24, anillos=16), cabeza).location = Vector((0, -0.05, 0.12))
     pelo_v = bpy.data.objects.new("Pelo", None)
     pelo_v.location = Vector((0, 0, 0))
     hijo(pelo_v, cabeza)
     # Mucho pelo y largo por delante (su frente es -Z de Godot, sin(a) < 0): cae hacia afuera,
-    # sobre la cara y el pecho (por dentro se perdia en el torso)
-    for k in range(64):
-        a = k * math.tau / 64
+    # sobre la cara y el pecho
+    for k in range(120):
+        a = k * math.tau / 120 + rnd.uniform(-0.02, 0.02)
         frente = max(-math.sin(a), 0.0)
-        largo = rnd.uniform(1.3, 2.0) if frente > 0.2 else rnd.uniform(0.7, 1.1)
-        pts = [Vector((math.cos(a) * 0.24, 0.2, math.sin(a) * 0.24))]
-        for j in range(1, 6):
-            t = j / 5.0
-            pts.append(Vector((math.cos(a) * (0.3 + t * 0.12), 0.2 - largo * t, math.sin(a) * (0.3 + t * 0.12) - math.sin(t * math.pi * 0.8) * 0.55 * frente)))
-        m = tubo_curva("Des_pelo_%d" % k, pts, 0.036, pelo, col, lados=4)
+        largo = rnd.uniform(1.3, 2.1) if frente > 0.2 else rnd.uniform(0.7, 1.15)
+        pts = [Vector((math.cos(a) * 0.26, 0.22, math.sin(a) * 0.26))]
+        for j in range(1, 7):
+            t = j / 6.0
+            pts.append(Vector((math.cos(a) * (0.3 + t * 0.12) + rnd.uniform(-0.015, 0.015), 0.22 - largo * t,
+                               math.sin(a) * (0.3 + t * 0.12) - math.sin(t * math.pi * 0.8) * 0.55 * frente)))
+        m = tubo_curva("Des_pelo_%d" % k, curva(pts, 3), 0.026 + rnd.uniform(0.0, 0.014), pelo, col, lados=6)
         hijo(m, pelo_v)
-    # Los brazos larguisimos, colgando hasta el agua (Hombro_L/R los levanta el codigo)
+    # Los brazos larguisimos y huesudos (Hombro_L/R los levanta el codigo): hombro, codo marcado,
+    # antebrazo flaco, muneca y seis dedos largos con nudillos
     for lado, nombre in ((-1, "Hombro_L"), (1, "Hombro_R")):
         hombro = bpy.data.objects.new(nombre, None)
-        hombro.location = _b(lado * 0.55, 2.15, -0.15)
+        hombro.location = _b(*cuerpo(lado * radio_torso(2.12) * 0.92, 2.12, 0.0))
         hijo(hombro)
-        pts = [Vector((0, 0, 0)), Vector((lado * 0.1, -0.7, -0.05)), Vector((lado * 0.12, -1.3, -0.15)), Vector((lado * 0.08, -1.9, -0.2))]
-        hijo(tubo_curva("Des_brazo_%s" % nombre, pts, 0.07, piel, col, lados=8), hombro)
+        hijo(esfera("Des_hombro_%s" % nombre, 0.11, piel, col, lados=16, anillos=10), hombro).location = Vector((0, 0, 0))
+        brazo = [Vector((0, 0, 0)), Vector((lado * 0.08, -0.45, -0.02)), Vector((lado * 0.12, -0.9, -0.08)), Vector((lado * 0.11, -1.4, -0.14)),
+                 Vector((lado * 0.08, -1.9, -0.2))]
+        # Largo a la altura del hombro: las puntas de los dedos rozan el agua, no atraviesan el piso
+        f = (hombro.location.z - 0.06) / 2.44
+        brazo = [Vector((v.x, v.y * f, v.z)) for v in brazo]
+        hijo(tubo_curva("Des_brazo_%s" % nombre, curva(brazo, 5), 0.065, piel, col, lados=12), hombro)
+        hijo(esfera("Des_codo_%s" % nombre, 0.08, piel_osc, col, lados=14, anillos=10), hombro).location = _b(lado * 0.12, -0.9 * f, -0.08)
+        hijo(esfera("Des_muneca_%s" % nombre, 0.06, piel, col, lados=12, anillos=8), hombro).location = _b(lado * 0.08, -1.9 * f, -0.2)
         for d in range(6):
             dd = (d - 2.5) * 0.04
-            dedo = [Vector((lado * 0.08 + dd, -1.9, -0.2)), Vector((lado * 0.08 + dd * 1.8, -2.2, -0.28)), Vector((lado * 0.08 + dd * 2.2, -2.42, -0.22))]
-            hijo(tubo_curva("Des_dedo_%s_%d" % (nombre, d), dedo, 0.018, piel, col, lados=4), hombro)
+            dedo = [Vector((lado * 0.08 + dd, -1.92, -0.2)), Vector((lado * 0.08 + dd * 1.6, -2.1, -0.26)), Vector((lado * 0.08 + dd * 2.0, -2.28, -0.28)),
+                    Vector((lado * 0.08 + dd * 2.2, -2.44, -0.22))]
+            dedo = [Vector((v.x, v.y * f, v.z)) for v in dedo]
+            hijo(tubo_curva("Des_dedo_%s_%d" % (nombre, d), curva(dedo, 4), 0.016, piel, col, lados=6), hombro)
+            hijo(esfera("Des_nudillo_%s_%d" % (nombre, d), 0.02, piel_osc, col, lados=8, anillos=6), hombro).location = _b(lado * 0.08 + dd * 1.6, -2.1 * f, -0.26)
     # El corazon: punto debil (el codigo pone su PuntoDebil aqui y prende Corazon_luz)
     corazon = bpy.data.objects.new("Corazon", None)
-    corazon.location = _b(0.0, 1.9, -0.55)
+    corazon.location = _b(*cuerpo(0.0, 1.88, -radio_torso(1.88) * 1.0))
     hijo(corazon)
-    hijo(esfera("Corazon_luz", 0.13, material("corazon_luz", (0.3, 1.0, 0.85), emision=3.0), col), corazon).location = Vector((0, 0, 0))
+    hijo(esfera("Corazon_luz", 0.13, material("corazon_luz", (0.3, 1.0, 0.85), emision=3.0), col, lados=16, anillos=12), corazon).location = Vector((0, 0, 0))
     return col
 
 
