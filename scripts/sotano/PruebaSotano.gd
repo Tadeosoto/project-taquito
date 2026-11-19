@@ -37,6 +37,7 @@ const FOTOS := {
 	"barra": [Vector3(26.0, -1.3, 5.0), Vector3(25.0, -1.8, -1.8)],
 	"salon2": [Vector3(21.5, -0.8, 6.5), Vector3(30.0, -2.4, 0.0)],
 	"poker": [Vector3(30.0, -1.0, 7.0), Vector3(27.5, -2.0, 3.6)],
+	"mesera": [Vector3.ZERO, Vector3.FORWARD],
 	"neon_gordo": [Vector3(9.0, -1.4, 3.2), Vector3(13.6, -0.9, 3.0)],
 	"neon_sur": [Vector3(13.0, -1.4, 1.6), Vector3(13.0, -1.1, 8.0)],
 	"neon_poker_bano": [Vector3(29.5, -1.4, 3.0), Vector3(35.0, -1.1, 4.2)],
@@ -104,6 +105,12 @@ func _fotos(carpeta: String) -> void:
 		var v: Array = FOTOS[nombre]
 		cam.global_position = _sotano.to_global(v[0])
 		cam.look_at(_sotano.to_global(v[1]), Vector3.UP)
+		# "mesera": la camara la sigue (va caminando), de frente y un poco de lado
+		var mesera := _sotano.get_node_or_null("Mesera") as Node3D
+		if nombre == "mesera" and mesera:
+			var frente := -mesera.global_basis.z.normalized()
+			cam.global_position = mesera.global_position + frente * 2.2 + mesera.global_basis.x.normalized() * 0.8 + Vector3.UP * 1.9
+			cam.look_at(mesera.global_position + Vector3.UP * 1.4, Vector3.UP)
 		await get_tree().create_timer(0.3).timeout
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(carpeta.path_join(nombre + ".png"))

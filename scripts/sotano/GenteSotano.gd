@@ -16,8 +16,14 @@ const PAUSA := Vector2(0.0, 2.5)     # s que se detienen en cada punto, al azar
 const TECATL_FICHAS := 2
 const BOTELLAS := preload("res://models/sotano/botellas.glb")
 
+const CHAROLA_ARRIBA := 0.05        # m de la charola arriba de las manos (escena)
+
 var sotano: Node3D
-var _gente: Array = []               # por persona: [Node3D, ruta, indice, pausa, AnimationPlayer]
+var _gente: Array = []               # por persona: [Node3D, ruta, indice, pausa, AnimationPlayer, mesera]
+# La mesera camina con Walk_Carry (los brazos al frente) y la charola va, nivelada, entre sus manos
+var _charola_nodo: Node3D
+var _esqueleto: Skeleton3D
+var _manos := Vector2i(-1, -1)
 
 
 func _ready() -> void:
@@ -33,12 +39,18 @@ func _poner(modelo: String, ruta: Array, desde: int, mesera: bool) -> void:
 	nodo.name = "Mesera" if mesera else "Caminante_%d" % _gente.size()
 	sotano.add_child(nodo)
 	nodo.position = _punto(ruta[desde % ruta.size()])
-	var anim := Civiles.poner(nodo, modelo, "Walk")
+	var anim := Civiles.poner(nodo, modelo, "Walk_Carry" if mesera else "Walk")
 	if mesera:
-		nodo.add_child(_charola())
+		_charola_nodo = _charola()
+		_charola_nodo.top_level = true
+		nodo.add_child(_charola_nodo)
+		var esqueletos := nodo.find_children("*", "Skeleton3D", true, false)
+		if not esqueletos.is_empty():
+			_esqueleto = esqueletos[0]
+			_manos = Vector2i(_esqueleto.find_bone("LeftHand"), _esqueleto.find_bone("RightHand"))
 		var vender := MuebleCasa.crear("Pedirle una Tecatl a la mesera (%d fichas)" % TECATL_FICHAS, Vector3(0, 0, 0), _vender, 1.0)
 		nodo.add_child(vender)
-	_gente.append([nodo, ruta, (desde + 1) % ruta.size(), 0.0, anim])
+	_gente.append([nodo, ruta, (desde + 1) % ruta.size(), 0.0, anim, mesera])
 
 
 func _physics_process(delta: float) -> void:
@@ -68,18 +80,36 @@ func _physics_process(delta: float) -> void:
 
 func _animar(p: Array, clip: String) -> void:
 	var anim: AnimationPlayer = p[4]
-	if anim and anim.has_animation(Civiles.LIB + "/" + clip):
+	if anim == null:
+		return
+	# La mesera no suelta la charola: camina con Walk_Carry y para con ese mismo cuadro congelado
+	if p[5]:
+		anim.speed_scale = 0.0 if clip == "Idle" else 1.0
+		return
+	if anim.has_animation(Civiles.LIB + "/" + clip):
 		anim.play(Civiles.LIB + "/" + clip)
+
+
+# La charola entre las manos de la mesera, nivelada y viendo a donde ella ve (despues de que la
+# animacion movio los huesos: en _process)
+func _process(_delta: float) -> void:
+	if _charola_nodo == null or _esqueleto == null or _manos.x < 0 or _manos.y < 0:
+		return
+	var izq := _esqueleto.to_global(_esqueleto.get_bone_global_pose(_manos.x).origin)
+	var der := _esqueleto.to_global(_esqueleto.get_bone_global_pose(_manos.y).origin)
+	var escala := sotano.global_transform.basis.get_scale()
+	var mesera := _charola_nodo.get_parent() as Node3D
+	var giro := Basis(Vector3.UP, mesera.global_rotation.y).scaled(escala)
+	_charola_nodo.global_transform = Transform3D(giro, (izq + der) / 2.0 + Vector3.UP * CHAROLA_ARRIBA * escala.y)
 
 
 func _punto(k: int) -> Vector3:
 	return sotano.call("marca", "Camino_%d" % k).origin
 
 
-# La charola de la mesera: una bandeja con dos cervezas, en su mano derecha mas o menos
+# La charola de la mesera: una bandeja con dos cervezas (la pone entre sus manos _process)
 func _charola() -> Node3D:
 	var charola := Node3D.new()
-	charola.position = Vector3(0.25, 1.05, -0.15)
 	var bandeja := MeshInstance3D.new()
 	var disco := CylinderMesh.new()
 	disco.top_radius = 0.18
