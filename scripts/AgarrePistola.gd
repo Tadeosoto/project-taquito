@@ -37,6 +37,7 @@ var rapidez := 8.0              # por segundo (~0.12 s)
 var apunta := 1.0               # cuanto endereza el canon a la mira
 var corredera: Node3D           # el punto de la corredera (Player._agarre_corredera)
 var corredera_peso := 0.0       # 0-1: cuanto va la izquierda en la corredera
+var agarre := AGARRE            # el de la larga en la mano (character_animation.agarre_punto)
 var _actual := 0.0
 
 
@@ -76,7 +77,7 @@ func _process_modification_with_delta(delta: float) -> void:
 	var arriba_mundo := (al_esqueleto.basis * Vector3.UP).normalized()
 	var derecha := frente.cross(arriba_mundo).normalized()
 	var arriba := derecha.cross(frente).normalized()
-	var meta := der.origin + (derecha * AGARRE.x + arriba * AGARRE.y + frente * AGARRE.z) / escala
+	var meta := der.origin + (derecha * agarre.x + arriba * agarre.y + frente * agarre.z) / escala
 	var en_corredera := corredera_peso if corredera and is_instance_valid(corredera) and corredera.is_inside_tree() else 0.0
 	if en_corredera > 0.0:
 		var punto := al_esqueleto * corredera.global_position

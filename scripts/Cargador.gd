@@ -25,6 +25,7 @@ static var _forma: BoxShape3D
 
 var _voz: AudioStreamPlayer3D
 var _desde := 0
+var _vista: MeshInstance3D
 
 
 # La malla del cargador: el cuerpo oscuro y la punta de laton (los tiros) arriba. La usa
@@ -73,10 +74,10 @@ func _init() -> void:
 	fisica.bounce = 0.25
 	fisica.friction = 0.7
 	physics_material_override = fisica
-	var vista := MeshInstance3D.new()
-	vista.mesh = malla()
-	vista.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(vista)
+	_vista = MeshInstance3D.new()
+	_vista.mesh = malla()
+	_vista.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_vista)
 	var choque := CollisionShape3D.new()
 	choque.shape = _forma
 	add_child(choque)
@@ -92,10 +93,13 @@ func _ready() -> void:
 	_guardar()
 
 
-# Se suelta en `donde` y cae al piso justo cuando suena el golpe del archivo
-func soltar(donde: Transform3D, excluir: Array[RID]) -> void:
+# Se suelta en `donde` y cae al piso justo cuando suena el golpe del archivo. `medida` estira
+# solo lo que se ve (el tambor de la Matraca, el cargador largo de la Chicharra; Pistola.ARMAS
+# "cargador_medida"): Jolt no acepta formas escaladas, el choque se queda del cargador
+func soltar(donde: Transform3D, excluir: Array[RID], medida := Vector3.ONE) -> void:
 	freeze = false
 	visible = true
+	_vista.scale = medida
 	# Sin la escala del modelo de la pistola: Jolt no acepta cuerpos escalados disparejo
 	global_transform = Transform3D(donde.basis.orthonormalized(), donde.origin)
 	angular_velocity = Vector3.ZERO

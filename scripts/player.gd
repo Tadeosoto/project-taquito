@@ -338,12 +338,20 @@ const ARRIBA_TRAS_TIRO := 0.8 # s que sigue apuntando despues de disparar desde 
 # del modelo. tamano = lo que miden de largo (m); mango mueve el modelo para que la cacha quede en
 # el puno, canon y expulsion son la boca y el puerto ya con ese corrimiento. En metros, medidos de
 # la malla al exportarla de Blender (models/armas/fuente/armas_caricatura.blend). No tienen
-# corredera que se corte ni sueltan cargador
+# corredera que se corte. agarre = la muneca izquierda en el guardamanos, como AgarrePistola.AGARRE
+# (m desde la muneca derecha: derecha, arriba, frente): las tres van a dos manos (AG, 2026-11-18).
+# cargador = donde sale el cargador o el tambor que sueltan (Pistola.ARMAS "recarga_modo")
 const ARMAS_FUEGO := {
-	"escopeta": {"tamano": 0.888, "mango": Vector3(-0.204, 0.015, 0.042), "canon": Vector3(-0.648, 0.096, 0.028), "expulsion": Vector3(-0.179, 0.088, 0.0)},
-	"ametralladora": {"tamano": 0.914, "mango": Vector3(-0.273, -0.011, 0.028), "canon": Vector3(-0.730, 0.118, 0.028), "expulsion": Vector3(-0.240, 0.068, -0.013)},
-	"subfusil": {"tamano": 0.592, "mango": Vector3(-0.130, 0.004, 0.042), "canon": Vector3(-0.426, 0.105, 0.028), "expulsion": Vector3(-0.199, 0.119, -0.002)},
+	"escopeta": {"tamano": 0.888, "mango": Vector3(-0.204, 0.015, 0.042), "canon": Vector3(-0.648, 0.096, 0.028), "expulsion": Vector3(-0.179, 0.088, 0.0),
+		"agarre": Vector3(-0.04, -0.03, 0.30), "cargador": Vector3(-0.30, 0.02, 0.028)},
+	"ametralladora": {"tamano": 0.914, "mango": Vector3(-0.273, -0.011, 0.028), "canon": Vector3(-0.730, 0.118, 0.028), "expulsion": Vector3(-0.240, 0.068, -0.013),
+		"agarre": Vector3(-0.05, -0.02, 0.33), "cargador": Vector3(-0.20, -0.06, 0.028)},
+	"subfusil": {"tamano": 0.592, "mango": Vector3(-0.130, 0.004, 0.042), "canon": Vector3(-0.426, 0.105, 0.028), "expulsion": Vector3(-0.199, 0.119, -0.002),
+		"agarre": Vector3(-0.04, -0.04, 0.18), "cargador": Vector3(-0.17, -0.05, 0.028)},
 }
+# La patada del modelo en la mano por tiro (patear_arma): se va para atras y la boca sube, y
+# regresa como resorte en unos PATADA_ARMA_VUELVE s
+const PATADA_ARMA_VUELVE := 0.12
 const MIRA_LEJOS := 20.0      # m: a donde apuntan los brazos sobre el rayo de la mira
 const PECHO := 0.5            # m sobre el centro del cuerpo: de ahi se mide a que altura apunta
 # Con la pistola, camara al hombro como Fortnite: mas cerca y mas alta, a la derecha (con el
@@ -428,6 +436,11 @@ var _flash_hasta := 0
 var _sacude_fuerza := 0.0
 var _sacude_hasta := 0
 var _patada := 0.0            # grados de patada que la camara aun debe regresar
+var _modelo_arma: Node3D      # el arma de fuego en la mano, para su patada (patear_arma)
+var _modelo_base := Transform3D()
+var _arma_atras := 0.0        # m que va para atras ahora
+var _arma_sube := 0.0         # grados que va la boca para arriba
+var _agarre_punto := Vector3.INF  # ARMAS_FUEGO.agarre del arma en la mano; INF = el de la pistola
 var _patada_vel := 0.0
 var _sangre_arma: MeshInstance3D
 var _sangre_hasta := 0        # ms de reloj real
@@ -1090,7 +1103,9 @@ func _puede(accion: String) -> bool:
 			# en el aire
 			return is_on_floor() or _especiales()
 		"rodar":
-			return is_on_floor() and _rodar_espera <= 0.0 and not _barriendo()
+			# Con la Matraca en la mano no se rueda (Pistola.ARMAS "peso")
+			return is_on_floor() and _rodar_espera <= 0.0 and not _barriendo() \
+				and not (_pistola.activa and _pistola.sin_rodar())
 		"brinco":
 			return is_on_floor() and not _barriendo()
 		"estocada":
@@ -1833,6 +1848,8 @@ func _mostrar_arma() -> void:
 	_corredera = null
 	_agarre_corredera = null
 	_punta = null
+	_modelo_arma = null
+	_agarre_punto = Vector3.INF
 	for hijo in _mano.get_children():
 		hijo.queue_free()
 	if arma == null:
@@ -1860,7 +1877,11 @@ func _mostrar_arma() -> void:
 			_expulsion = Marker3D.new()
 			_expulsion.position = fuego.expulsion
 			modelo.add_child(_expulsion)
+			_salida_cargador = Marker3D.new()
+			_salida_cargador.position = fuego.cargador
+			modelo.add_child(_salida_cargador)
 			_canon_local = (modelo.basis * Vector3.LEFT).normalized()
+			_agarre_punto = fuego.agarre
 		elif pistola:
 			(modelo.get_child(0) as Node3D).position += PISTOLA_MANGO * PISTOLA_TAMANO
 			_canon = Marker3D.new()
@@ -1881,6 +1902,9 @@ func _mostrar_arma() -> void:
 			_punta = Marker3D.new()
 			_punta.position = Vector3(-(ARMA_TAMANO * 0.5 + ARMA_MANGO), 0.0, 0.0)
 			modelo.add_child(_punta)
+		if pistola:
+			_modelo_arma = modelo
+			_modelo_base = modelo.transform
 		modelo.visible = true
 
 
@@ -1977,6 +2001,7 @@ func _process(_delta: float) -> void:
 	_sacudir()
 	_posar()
 	_regresar_patada(_delta)
+	_regresar_arma(_delta)
 	_gotear_sangre()
 	_estela_golpe()
 
@@ -1990,7 +2015,10 @@ func _posar() -> void:
 	var blanco := _camara.project_ray_origin(centro) + _camara.project_ray_normal(centro) * MIRA_LEJOS
 	var hacia := blanco - (frijol.global_position + Vector3.UP * PECHO)
 	var inclinacion := rad_to_deg(atan2(hacia.y, Vector2(hacia.x, hacia.z).length()))
-	var arriba := _apuntando or Time.get_ticks_msec() < _tiro_hasta
+	# Las largas (ARMAS_FUEGO, con agarre) van siempre arriba y a dos manos: la pose de sostener la
+	# pistola las dejaba apuntando al cielo
+	var larga := _agarre_punto != Vector3.INF
+	var arriba := _apuntando or Time.get_ticks_msec() < _tiro_hasta or larga
 	figura.pistola(_pistola.activa and is_physics_processing(), arriba, inclinacion)
 	# Las dos manos solo apuntando o recien disparado; recargando, rodando o tirado, suelta. En la
 	# corredera de la recarga en seco la izquierda va a ella, sin enderezar el canon
@@ -2004,6 +2032,8 @@ func _posar() -> void:
 			figura.agarre(_pistola.activa and arriba and is_physics_processing()
 				and not _pistola.recargando() and _rodada_t < 0.0, blanco, _canon_local)
 			figura.corredera(null, 0.0)
+		if figura.has_method("agarre_punto"):
+			figura.agarre_punto(_agarre_punto)
 
 
 # Pistola.gd en cada tiro: sube el arma a la mira un rato y la patea
@@ -2027,6 +2057,41 @@ func patear_mira(grados: float) -> void:
 	spring_arm.rotation_degrees.x = camera_pitch
 	_patada += grados
 	_patada_vel = _patada / PATADA_VUELVE
+
+
+# Pistola.gd en cada tiro: el arma se va `atras` m para atras y la boca sube `grados` (se suman,
+# hasta el doble), y regresa sola (_regresar_arma)
+func patear_arma(atras: float, grados: float) -> void:
+	if atras <= 0.0 and grados <= 0.0:
+		return
+	_arma_atras = minf(_arma_atras + atras, atras * 2.0)
+	_arma_sube = minf(_arma_sube + grados, grados * 2.0)
+
+
+func _regresar_arma(delta: float) -> void:
+	if _modelo_arma == null or not is_instance_valid(_modelo_arma):
+		return
+	if _arma_atras <= 0.0 and _arma_sube <= 0.0:
+		return
+	var k := minf(delta / PATADA_ARMA_VUELVE * 3.0, 1.0)
+	_arma_atras = lerpf(_arma_atras, 0.0, k)
+	_arma_sube = lerpf(_arma_sube, 0.0, k)
+	if _arma_atras < 0.0005 and _arma_sube < 0.05:
+		_arma_atras = 0.0
+		_arma_sube = 0.0
+	# La boca es -X del modelo: atras es +X y subir la boca es girar en -Z, en su propio espacio
+	var t := _modelo_base
+	t.basis = t.basis * Basis(Vector3.BACK, -deg_to_rad(_arma_sube))
+	t.origin += t.basis * Vector3.RIGHT * _arma_atras
+	_modelo_arma.transform = t
+
+
+# Las automaticas al sostener el clic (Pistola.ARMAS "sube"/"deriva"): la mira sube y se va de
+# lado y NO regresa sola: hay que jalar el raton para abajo
+func subir_mira(grados: float, lado: float) -> void:
+	camera_pitch = clampf(camera_pitch + grados, -60.0, 30.0)
+	spring_arm.rotation_degrees.x = camera_pitch
+	camera_pivot.rotation.y += deg_to_rad(lado)
 
 
 func _regresar_patada(delta: float) -> void:
@@ -2123,12 +2188,13 @@ func puede_disparar() -> bool:
 
 
 # Cada tiro te recorre tantito para atras de a donde apuntas
-func empujar_tiro(hacia: Vector3) -> void:
+# (`cuanto` x RETROCESO_TIRO: la Tinaquera te recorre un paso, Pistola.ARMAS "empuje")
+func empujar_tiro(hacia: Vector3, cuanto := 1.0) -> void:
 	hacia.y = 0.0
 	if RETROCESO_TIRO <= 0.0 or hacia.length_squared() < 0.0001:
 		return
-	_retroceso = -hacia.normalized() * RETROCESO_TIRO
-	_retroceso_freno = RETROCESO_TIRO * RETROCESO_TIRO_FRENO
+	_retroceso = -hacia.normalized() * RETROCESO_TIRO * cuanto
+	_retroceso_freno = RETROCESO_TIRO * cuanto * RETROCESO_TIRO_FRENO
 
 
 # Parte la malla de la pistola en la corredera y lo demas (una vez por malla) y pone la
@@ -2330,7 +2396,7 @@ func _physics_process(delta: float) -> void:
 	# (clic derecho), a medio machetazo o bloqueando (JJ)
 	var camina: bool = (_apuntando or machetazo or _bloqueando or _curando > 0.0) and not corre_pegando
 	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint") and not machete_lento and not camina \
-			and not corre_pegando
+			and not corre_pegando and not (_pistola.activa and _pistola.sin_correr())
 	var move_speed: float = sprint_speed if is_sprinting else speed
 	if _apuntando:
 		move_speed = speed * APUNTA_VELOCIDAD

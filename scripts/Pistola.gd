@@ -29,7 +29,7 @@ const TRAZO_DURA := 50        # ms del destello
 const TRAZO_COLOR := Color(1.0, 0.85, 0.35)
 # La bala que se ve (pixelfx bala_trazo, shaders/sprite_eje.gdshader): el tiro ya pego al
 # disparar (rayo); esto solo la dibuja volando hasta ahi
-const BALAS_TRAZO := 6        # se reusan, la mas vieja primero
+const BALAS_TRAZO := 16       # se reusan, la mas vieja primero (la Tinaquera tira 8 de un jalon)
 const BALA_VELOCIDAD := 150.0 # m/s
 const BALA_LARGO := 1.2       # m de la estela
 const BALA_LARGO_PX := 120.0  # px de la estela en la hoja
@@ -93,18 +93,82 @@ const MIRA_COLOR := Color(1.0, 0.95, 0.8, 0.9)
 # Las demas armas de fuego (AG, 2026-11-11): la misma pistola con otros numeros. Se traen como
 # objeto del inventario (InventoryItemData.arma_fuego) y la tecla 2, ya con la de fuego en la mano,
 # pasa a la siguiente (siguiente()). perdigones = rayos por tiro; auto = dispara mientras
-# sostengas el clic; tono = pitch del balazo; patada = x la de la pistola. Solo la pistola suelta
-# cargador y corre corredera. Numeros a ojo: docs/pruebas-balance.md
+# sostengas el clic; tono = pitch del balazo; patada = x la de la pistola. Solo la pistola corre
+# corredera. Numeros a ojo: docs/pruebas-balance.md
+# Lo que hace sentir distinta a cada una (AG, 2026-11-18; lo que no traiga sale de POR_OMISION, que
+# es la pistola de siempre):
+#   sacude / empuje        x SACUDE_TIRO y x Player.RETROCESO_TIRO por tiro
+#   sube / deriva          grados que la mira sube y se va de lado por tiro automatico, sin regresar
+#   retroceso_modelo       (m para atras, grados que sube la boca) del modelo en la mano
+#   destello               tamano del fogonazo, chispas, abertura (grados) y luz, x los de la pistola
+#   fogonazo_fx            hoja de pixelfx (resources/fx/) que sale en la boca, estirada a lo
+#                          largo del canon con shaders/sprite_eje ("" = solo las chispas)
+#   casquillo              Casquillo.TIPOS ("laton" = el de la pistola)
+#   recarga_modo           "pistola" (cargador y corredera), "cargador" (suelta uno, mete otro),
+#                          "cartucho" (uno por uno cada por_cartucho s; disparar la corta) o
+#                          "tambor" (el de la Matraca, largo); cargador_medida estira lo que suelta
+#   bomba                  s tras el tiro en que se bombea (suena y sale el cartucho); 0 = no
+#   giro_previo / giro_baja  s que tarda en girar antes del primer tiro / en pararse al soltar
+#   calor / enfria / listo  calor por tiro (1 = se sobrecalienta), por s sin disparar, y hasta
+#                          cuanto baja antes de volver a disparar
+#   cadera                 x la dispersion sin apuntar
+#   zombi_empuje           de cerca (distancia m): lo recorre fuerza m/s, lo aturde, y si lo
+#                          mata le vuela la cabeza con prob revienta (Zombie.empujar_bala)
+#   zombi_lento            mientras le llegan tiros camina a factor de su velocidad (Zombie.frenar)
+#   peso                   velocidad (x al caminar con ella), sin_correr (disparando), sin_rodar
+#   mira / municion        "cruz" o "circulo"; "texto", "cartuchos" o "banda"
+#   sonidos                clave -> nombre en Sonidos (los elige JJ, docs/sonidos.csv S-138...);
+#                          si el archivo no esta, suena el balazo de la pistola con su tono
+const POR_OMISION := {
+	"sacude": 1.0, "empuje": 1.0, "sube": 0.0, "deriva": 0.0, "retroceso_modelo": Vector2.ZERO,
+	"destello": {"tamano": 1.0, "chispas": FOGONAZO_CHISPAS, "abre": 25.0, "luz": 1.0}, "fogonazo_fx": "",
+	"casquillo": "laton", "recarga_modo": "pistola", "por_cartucho": 0.0, "cargador_medida": Vector3.ONE,
+	"bomba": 0.0, "giro_previo": 0.0, "giro_baja": 0.6, "calor": 0.0, "enfria": 0.0, "listo": 0.0,
+	"cadera": 1.0, "zombi_empuje": {}, "zombi_lento": {}, "peso": {}, "mira": "cruz", "municion": "texto",
+	"sonidos": {},
+}
 const ARMAS := {
 	"pistola": {"nombre": "Pistola", "dano": DANO, "cadencia": CADENCIA, "cargador": CARGADOR, "recarga": RECARGA,
 		"perdigones": 1, "dispersion": DISPERSION, "apunta": APUNTA_DISPERSION, "auto": false, "alcance": ALCANCE, "tono": 1.0, "patada": 1.0},
 	"escopeta": {"nombre": "La Tinaquera", "dano": 6, "cadencia": 0.85, "cargador": 6, "recarga": 2.2,
-		"perdigones": 8, "dispersion": 0.06, "apunta": 0.04, "auto": false, "alcance": 22.0, "tono": 0.62, "patada": 3.0},
+		"perdigones": 8, "dispersion": 0.06, "apunta": 0.04, "auto": false, "alcance": 22.0, "tono": 0.62, "patada": 3.0,
+		"sacude": 3.5, "empuje": 4.0, "retroceso_modelo": Vector2(0.08, 14.0),
+		"destello": {"tamano": 2.2, "chispas": 16, "abre": 40.0, "luz": 1.8}, "fogonazo_fx": "fogonazo_escopeta",
+		"casquillo": "cartucho", "recarga_modo": "cartucho", "por_cartucho": 0.4, "bomba": 0.3,
+		"zombi_empuje": {"distancia": 7.0, "fuerza": 7.0, "aturde": true, "revienta": 0.35},
+		"mira": "circulo", "municion": "cartuchos",
+		"sonidos": {"tiro": "disparo_tinaquera", "bomba": "bomba_tinaquera", "cartucho": "cartucho_mete", "cierra": "bomba_tinaquera"}},
 	"ametralladora": {"nombre": "La Matraca", "dano": 7, "cadencia": 0.09, "cargador": 100, "recarga": 3.5,
-		"perdigones": 1, "dispersion": 0.03, "apunta": 0.016, "auto": true, "alcance": 70.0, "tono": 0.8, "patada": 0.5},
+		"perdigones": 1, "dispersion": 0.03, "apunta": 0.016, "auto": true, "alcance": 70.0, "tono": 0.8, "patada": 0.5,
+		"sacude": 1.3, "empuje": 0.5, "sube": 0.22, "deriva": 0.12, "retroceso_modelo": Vector2(0.02, 3.0),
+		"destello": {"tamano": 1.6, "chispas": 8, "abre": 15.0, "luz": 1.4}, "fogonazo_fx": "fogonazo_auto",
+		"casquillo": "chico", "recarga_modo": "tambor", "cargador_medida": Vector3(3.0, 0.8, 3.0),
+		"giro_previo": 0.35, "giro_baja": 0.7, "calor": 0.02, "enfria": 0.4, "listo": 0.35,
+		"zombi_lento": {"factor": 0.6, "ms": 350},
+		"peso": {"velocidad": 0.75, "sin_correr": true, "sin_rodar": true}, "municion": "banda",
+		"sonidos": {"tiro": "disparo_matraca", "giro": "giro_matraca", "sobrecalienta": "sobrecalienta_matraca",
+			"saca": "tambor_saca", "mete": "tambor_mete", "cierra": "tambor_cierra"}},
 	"subfusil": {"nombre": "La Chicharra", "dano": 4, "cadencia": 0.07, "cargador": 30, "recarga": 1.6,
-		"perdigones": 1, "dispersion": 0.028, "apunta": 0.012, "auto": true, "alcance": 40.0, "tono": 1.25, "patada": 0.35},
+		"perdigones": 1, "dispersion": 0.028, "apunta": 0.012, "auto": true, "alcance": 40.0, "tono": 1.25, "patada": 0.35,
+		"sacude": 0.6, "empuje": 0.35, "sube": 0.12, "deriva": 0.18, "retroceso_modelo": Vector2(0.015, 4.0),
+		"destello": {"tamano": 0.8, "chispas": 5, "abre": 20.0, "luz": 0.9}, "fogonazo_fx": "fogonazo_auto",
+		"casquillo": "chico", "recarga_modo": "cargador", "cargador_medida": Vector3(1.0, 1.8, 1.0), "cadera": 1.8,
+		"zombi_lento": {"factor": 0.75, "ms": 250},
+		"sonidos": {"tiro": "disparo_chicharra", "cierra": "cargador_chicharra"}},
 }
+# Cuando la Matraca se calienta la boca brilla rojo (desde CALOR_BRILLA)
+const CALOR_BRILLA := 0.4
+const CALOR_COLOR := Color(1.0, 0.25, 0.08)
+const CALOR_LUZ := 2.5
+const QUIETO_ENFRIA := 0.3    # s sin disparar antes de que empiece a enfriarse
+const DISPARANDO := 0.3       # s tras un tiro en que cuenta como "disparando" (peso.sin_correr)
+# El fogonazo de pixelfx: m por px de la hoja (x EfectosPixel.PIXEL), con destello.tamano 1.6
+const BOCA_ESCALA := 0.3
+const AVISO_DURA := 1.4       # s que se ve el nombre del arma al cambiarla
+const AVISO_FUNDE := 0.4
+# Los momentos de las recargas que no son la de la pistola, en fraccion de la recarga
+const SACA_EN := 0.12
+const METE_FRAC := 0.7
 const TEXTO_COLOR := Color(1.0, 0.85, 0.1)
 
 var jugador: Player
@@ -138,6 +202,21 @@ var _rack_sono := false
 var _rack_sono_en := 0.0      # _rack_t en que de veras empezo a sonar (cae en un cuadro)
 var _casquillo_sig := 0
 var _nervios := 0.0
+var _giro := 0.0              # 0-1: que tan rapido gira la Matraca (giro_previo)
+var _calor := 0.0             # 0-1 (calor)
+var _sobrecalentada := false
+var _quieto := 0.0            # s desde el ultimo tiro
+var _bomba_t := -1.0          # s que faltan para bombear; -1 = nada
+var _cartucho_t := 0.0        # s para el siguiente cartucho (recarga_modo "cartucho")
+var _parcial := false         # la recarga se corto: no se llena el cargador
+var _calor_luz: OmniLight3D
+var _aviso: Label
+var _aviso_t := -1.0
+var _municion: Control
+var _boca: MeshInstance3D     # el fogonazo de pixelfx (fogonazo_fx), un cuadro a la vez
+var _boca_materiales := {}    # hoja -> ShaderMaterial (uno por hoja, no por tiro)
+var _boca_hoja := {}
+var _boca_t := -1.0
 var _hueco := MIRA_HUECO
 var _floracion := 0.0
 var _mira: Control
@@ -153,6 +232,13 @@ func _ready() -> void:
 	_destello.top_level = true
 	_destello.visible = false
 	add_child(_destello)
+	_calor_luz = OmniLight3D.new()
+	_calor_luz.light_color = CALOR_COLOR
+	_calor_luz.omni_range = 1.5
+	_calor_luz.shadow_enabled = false
+	_calor_luz.top_level = true
+	_calor_luz.visible = false
+	add_child(_calor_luz)
 	_armar_fogonazo()
 	_armar_balas()
 	_armar_pantalla()
@@ -167,7 +253,11 @@ func cambiar() -> void:
 
 
 func disparar() -> void:
-	if _espera > 0.0 or _recargando > 0.0:
+	# La Tinaquera recarga cartucho por cartucho: si ya trae alguno, disparar corta la recarga
+	if _recargando > 0.0 and _d("recarga_modo") == "cartucho" and balas > 0:
+		_recargando = 0.0
+		_terminar_recarga()
+	if _espera > 0.0 or _recargando > 0.0 or _sobrecalentada:
 		return
 	if balas <= 0:
 		_recargar()
@@ -187,13 +277,16 @@ func disparar() -> void:
 	var centro := get_viewport().get_visible_rect().size / 2.0
 	var origen := camara.project_ray_origin(centro)
 	var mira := camara.project_ray_normal(centro)
-	var desvio: float = (d.apunta if jugador._apuntando else d.dispersion) * (1.0 + NERVIOS_DISPERSION * _nervios)
+	var desvio: float = (d.apunta if jugador._apuntando else d.dispersion * _d("cadera")) * (1.0 + NERVIOS_DISPERSION * _nervios)
 	var alcance: float = d.alcance
 	var espacio := jugador.get_world_3d().direct_space_state
 	var excluir: Array[RID] = [jugador.get_rid()]
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel") as EfectosPixel
-	var sacude := SACUDE_TIRO
+	var sacude: float = SACUDE_TIRO * _d("sacude")
 	var pego_alguno := false
+	var empuje: Dictionary = _d("zombi_empuje")
+	var lento: Dictionary = _d("zombi_lento")
+	var empujados := {}       # zombi -> true: la Tinaquera empuja una vez aunque le den 8 perdigones
 	# Un rayo por perdigon (la pistola, uno): cada quien su desvio, su blanco y su trazo
 	for perdigon in int(d.perdigones):
 		var hacia := mira.rotated(camara.global_basis.y, randf_range(-desvio, desvio)) \
@@ -221,14 +314,26 @@ func disparar() -> void:
 			if blanco:
 				punto = blanco.global_position + Vector3.UP * PECHO
 		var dano := maxi(roundi(d.dano * jugador._factor_dano), 1) * (CABEZA_MULT if cabeza else 1)
-		if blanco and blanco.recibir_golpe(dano, jugador.global_position, FUERZA, 80, false, cabeza, arma + ("_cabeza" if cabeza else "")) != 0:
-			sacude = SACUDE_PEGA
+		var fuente := arma + ("_cabeza" if cabeza else "")
+		var cerca: bool = blanco is Zombie and not empuje.is_empty() \
+			and jugador.global_position.distance_to(blanco.global_position) <= float(empuje.distancia)
+		var golpe := 0
+		if blanco is Zombie:
+			golpe = blanco.recibir_golpe(dano, jugador.global_position, FUERZA, 80, false, cabeza, fuente, cerca and randf() < float(empuje.revienta))
+		elif blanco:
+			golpe = blanco.recibir_golpe(dano, jugador.global_position, FUERZA, 80, false, cabeza, fuente)
+		if golpe != 0:
+			if cerca:
+				empujados[blanco] = true
+			if blanco is Zombie and not lento.is_empty():
+				blanco.frenar(float(lento.factor), int(lento.ms))
+			sacude = maxf(SACUDE_PEGA, sacude)
 			if not pego_alguno:
 				Sonidos.tocar(self, "whack", -4.0 if cabeza else -10.0)
 			pego_alguno = true
 		if not lombriz.is_empty():
 			lombriz.enjambre.bullet_hit(lombriz.dot_index, lombriz.position, hacia)
-			sacude = SACUDE_PEGA
+			sacude = maxf(SACUDE_PEGA, sacude)
 			if not pego_alguno:
 				Sonidos.tocar(self, "whack", -10.0)
 			pego_alguno = true
@@ -242,17 +347,136 @@ func disparar() -> void:
 				efectos.lanzar("impacto", punto, hacia)
 	if pego_alguno:
 		aciertos += 1
-	var balazo := "disparo_pistola" if Sonidos.sonido("disparo_pistola") else "disparo_%d" % randi_range(1, DISPAROS)
-	Sonidos.tocar(self, balazo, -4.0, randf_range(TONO_MIN, TONO_MAX) * d.tono)
+	for zombi: Zombie in empujados:
+		if is_instance_valid(zombi):
+			zombi.empujar_bala(zombi.global_position - jugador.global_position, float(empuje.fuerza), bool(empuje.aturde))
+	_fogonazo_tiro(mira, efectos)
+	if not _sonido("tiro", -4.0, randf_range(TONO_MIN, TONO_MAX)):
+		var balazo := "disparo_pistola" if Sonidos.sonido("disparo_pistola") else "disparo_%d" % randi_range(1, DISPAROS)
+		Sonidos.tocar(self, balazo, -4.0, randf_range(TONO_MIN, TONO_MAX) * d.tono)
 	jugador._sacude_fuerza = sacude
 	jugador._sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	jugador.pose_tiro()
-	jugador.empujar_tiro(mira)
+	jugador.empujar_tiro(mira, _d("empuje"))
 	jugador.patear_mira((APUNTA_PATADA if jugador._apuntando else MIRA_PATADA) * d.patada)
-	_floracion += MIRA_FLORECE
-	_expulsar_casquillo(camara)
+	var sube: float = _d("sube")
+	if sube > 0.0:
+		var deriva: float = _d("deriva")
+		var mitad := 0.5 if jugador._apuntando else 1.0
+		jugador.subir_mira(sube * mitad, randf_range(-deriva, deriva) * mitad)
+	var patada: Vector2 = _d("retroceso_modelo")
+	jugador.patear_arma(patada.x, patada.y)
+	_floracion += MIRA_FLORECE * (2.0 if int(d.perdigones) > 1 else 1.0)
+	# La Tinaquera saca el cartucho al bombear (_bombear), las demas al tirar
+	if _d("bomba") > 0.0:
+		_bomba_t = _d("bomba")
+	else:
+		_expulsar_casquillo(camara)
+	_quieto = 0.0
+	if _d("calor") > 0.0:
+		_calor = minf(_calor + _d("calor"), 1.0)
+		if _calor >= 1.0:
+			_sobrecalentada = true
+			if not _sonido("sobrecalienta", -4.0):
+				Sonidos.tocar(self, "recarga_cierra", -6.0, 0.6)
 	if balas <= 0:
 		_recargar()
+
+
+# Un dato del arma en la mano; si no lo trae, el de la pistola (POR_OMISION)
+func _d(clave: String) -> Variant:
+	return ARMAS[arma].get(clave, POR_OMISION[clave])
+
+
+# El sonido `clave` del arma en la mano (ARMAS "sonidos"), si su archivo ya esta; si no, false y
+# quien llama pone el de respaldo (el de la pistola)
+func _sonido(clave: String, volumen := 0.0, tono := 1.0) -> bool:
+	var nombre: String = _d("sonidos").get(clave, "")
+	# Solo los que ya son archivo (Sonidos.ARCHIVOS): Sonidos.sonido truena con un nombre que no conoce
+	if nombre == "" or not Sonidos.ARCHIVOS.has(nombre) or Sonidos.sonido(nombre) == null:
+		return false
+	Sonidos.tocar(self, nombre, volumen, tono)
+	return true
+
+
+# El fogonazo de la boca, uno por tiro (no por perdigon): chispas, luz y la hoja de pixelfx
+func _fogonazo_tiro(hacia: Vector3, _efectos: EfectosPixel) -> void:
+	var canon := jugador.canon()
+	var f: Dictionary = _d("destello")
+	_destello.global_position = canon
+	_destello.light_energy = DESTELLO_ENERGIA * float(f.luz)
+	_destello.omni_range = DESTELLO_RANGO * sqrt(float(f.luz))
+	_destello.visible = true
+	_destello_hasta = Time.get_ticks_msec() + TRAZO_DURA
+	if _fogonazo.amount != int(f.chispas):
+		_fogonazo.amount = int(f.chispas)
+	_fogonazo.spread = float(f.abre)
+	_fogonazo.scale_amount_min = 0.5 * float(f.tamano)
+	_fogonazo.scale_amount_max = 1.0 * float(f.tamano)
+	_fogonazo.initial_velocity_max = 6.0 * sqrt(float(f.tamano))
+	_fogonazo.global_transform = Transform3D(Basis.looking_at(hacia), canon)
+	_fogonazo.restart()
+	var fx: String = _d("fogonazo_fx")
+	if fx != "":
+		_prender_boca(fx, canon, hacia, float(f.tamano))
+
+
+# La hoja de pixelfx del fogonazo a lo largo del canon, viendo a la camara (shaders/sprite_eje,
+# como el trazo de la bala), desde su primer cuadro; _volar_boca la avanza y la esconde
+func _prender_boca(fx: String, canon: Vector3, hacia: Vector3, tamano: float) -> void:
+	var hoja := EfectosPixel.hoja_de(fx)
+	if hoja.is_empty():
+		return
+	var escala := BOCA_ESCALA * sqrt(tamano / 1.6)
+	var clave := "%s|%s" % [fx, escala]
+	if not _boca_materiales.has(clave):
+		var base := EfectosPixel.material_eje(fx, hoja["tamano"].x)
+		if base == null:
+			return
+		var material := base.duplicate() as ShaderMaterial
+		material.set_shader_parameter("pixel", EfectosPixel.PIXEL * escala)
+		_boca_materiales[clave] = material
+	if _boca == null:
+		_boca = MeshInstance3D.new()
+		_boca.mesh = EfectosPixel.malla_quad()
+		_boca.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_boca.custom_aabb = AABB(Vector3(-3.0, -3.0, -3.0), Vector3(6.0, 6.0, 6.0))
+		_boca.top_level = true
+		add_child(_boca)
+	_boca.material_override = _boca_materiales[clave]
+	_boca.set_instance_shader_parameter("eje", hacia.normalized())
+	_boca.set_instance_shader_parameter("largo", hoja["tamano"].x * EfectosPixel.PIXEL * escala)
+	_boca.set_instance_shader_parameter("cuadro_fijo", 0.0)
+	_boca.global_position = canon
+	_boca.visible = true
+	_boca_hoja = hoja
+	_boca_t = 0.0
+
+
+func _volar_boca(delta: float) -> void:
+	if _boca_t < 0.0:
+		return
+	_boca_t += delta
+	var cuadro := floorf(_boca_t * float(_boca_hoja["fps"]))
+	if cuadro >= float(_boca_hoja["cuadros"]) or not activa:
+		_boca_t = -1.0
+		_boca.visible = false
+		return
+	_boca.set_instance_shader_parameter("cuadro_fijo", cuadro)
+	_boca.global_position = jugador.canon()
+
+
+# Peso del arma (Player: no corres disparando la Matraca, ni ruedas con ella)
+func sin_correr() -> bool:
+	return _d("peso").get("sin_correr", false) and (_quieto < DISPARANDO or _giro > 0.0)
+
+
+func sin_rodar() -> bool:
+	return _d("peso").get("sin_rodar", false)
+
+
+func calor() -> float:
+	return _calor
 
 
 # --- Cual arma de fuego ---
@@ -296,7 +520,20 @@ func poner(id: String) -> void:
 	arma = id
 	balas = _balas_de.get(id, int(ARMAS[id].cargador))
 	_espera = 0.3
+	_giro = 0.0
+	_bomba_t = -1.0
 	Sonidos.tocar(self, "boton", -6.0)
+	avisar(ARMAS[id].nombre)
+	if _mira:
+		_mira.queue_redraw()
+
+
+# El nombre del arma un rato al centro de la pantalla (al cambiarla con 2)
+func avisar(texto: String) -> void:
+	if _aviso == null:
+		return
+	_aviso.text = texto
+	_aviso_t = AVISO_DURA
 
 
 # Soltaste o vendiste la que traias en la mano: de vuelta a la pistola
@@ -330,6 +567,7 @@ func _expulsar_casquillo(camara: Camera3D) -> void:
 	_casquillo_sig %= _casquillos.size()
 	var casquillo := _casquillos[_casquillo_sig]
 	_casquillo_sig += 1
+	casquillo.vestir(_d("casquillo"))
 	var b := camara.global_basis
 	var azar := Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * CASQUILLO_AZAR
 	casquillo.soltar(jugador.expulsion(), b.x * CASQUILLO_DERECHA + Vector3.UP * CASQUILLO_ARRIBA + b.z * CASQUILLO_ATRAS + azar)
@@ -364,6 +602,17 @@ func recargar() -> void:
 func _recargar() -> void:
 	if _recargando > 0.0:
 		return
+	_parcial = false
+	_bomba_t = -1.0
+	if _d("recarga_modo") == "cartucho":
+		# La acaba el ultimo cartucho (_seguir_recarga), no el reloj
+		_recargando = INF
+		_recarga_t = 0.0
+		_recarga_paso = 0
+		_cartucho_t = _d("por_cartucho") * 0.6
+		if jugador.has_method("pose_recarga"):
+			jugador.pose_recarga()
+		return
 	_vacia = balas <= 0 and arma == "pistola"
 	var recarga: float = ARMAS[arma].recarga
 	var cock := Sonidos.sonido("recarga_cierra")
@@ -397,7 +646,7 @@ func rack() -> Dictionary:
 	return {"peso": peso, "d": d}
 
 
-# De la boca de la pistola a donde pego
+# La bala de la boca a donde pego (una por perdigon; el fogonazo va aparte, _fogonazo_tiro)
 func _dibujar_tiro(punto: Vector3) -> void:
 	var canon := jugador.canon()
 	if canon.distance_to(punto) > 0.05 and not _balas.is_empty():
@@ -410,15 +659,6 @@ func _dibujar_tiro(punto: Vector3) -> void:
 		_balas[i].set_instance_shader_parameter("largo", 0.01)
 		_balas[i].global_position = canon
 		_balas[i].visible = true
-	_destello.global_position = canon
-	_destello.visible = true
-	_destello_hasta = Time.get_ticks_msec() + TRAZO_DURA
-	var hacia := punto - canon
-	if hacia.length_squared() > 0.0025:
-		_fogonazo.global_transform = Transform3D(Basis.looking_at(hacia), canon)
-	else:
-		_fogonazo.global_position = canon
-	_fogonazo.restart()
 
 
 func _process(delta: float) -> void:
@@ -426,11 +666,35 @@ func _process(delta: float) -> void:
 		_destello_hasta = 0
 		_destello.visible = false
 	_volar_balas(delta)
+	_volar_boca(delta)
 	_sentir_nervios(delta)
 	var libre := jugador.is_physics_processing() and jugador.can_process()
 	_mira.visible = activa and libre
 	_texto.visible = libre
 	_texto.text = _texto_arma()
+	_municion.visible = activa and libre and _d("municion") != "texto"
+	if _municion.visible:
+		_municion.queue_redraw()
+	if _aviso_t > 0.0:
+		_aviso_t -= delta
+		_aviso.visible = libre
+		_aviso.modulate.a = clampf(_aviso_t / AVISO_FUNDE, 0.0, 1.0)
+	elif _aviso.visible:
+		_aviso.visible = false
+	# La boca roja de la Matraca caliente
+	var brilla := activa and _calor > CALOR_BRILLA
+	_calor_luz.visible = brilla
+	if brilla:
+		_calor_luz.global_position = jugador.canon()
+		_calor_luz.light_energy = CALOR_LUZ * (_calor - CALOR_BRILLA) / (1.0 - CALOR_BRILLA)
+		if _d("calor") > 0.0:
+			_mira.queue_redraw()
+	# Lo pesado de la que traes (Player.lastres)
+	var velocidad: float = _d("peso").get("velocidad", 1.0) if activa else 1.0
+	if velocidad < 1.0:
+		jugador.lastres["arma"] = velocidad
+	elif jugador.lastres.has("arma"):
+		jugador.lastres.erase("arma")
 
 
 func _physics_process(delta: float) -> void:
@@ -440,13 +704,54 @@ func _physics_process(delta: float) -> void:
 		_seguir_recarga(delta)
 		if _recargando <= 0.0:
 			_recargando = 0.0
-			balas = _cargador() if (_vacia or arma != "pistola") else _cargador() + 1
-			if arma != "pistola" and activa:
+			if not _parcial:
+				balas = _cargador() if (_vacia or arma != "pistola") else _cargador() + 1
+			if arma != "pistola" and activa and not _parcial and not _sonido("cierra", CIERRA_VOLUMEN + 6.0):
 				Sonidos.tocar(self, "recarga_cierra", CIERRA_VOLUMEN + 6.0)
+			_parcial = false
 			_terminar_recarga()
+	_quieto += delta
+	_enfriar(delta)
+	if _bomba_t >= 0.0:
+		_bomba_t -= delta
+		if _bomba_t < 0.0:
+			_bombear()
 	# Las automaticas disparan mientras sostengas el clic (la pistola, un tiro por clic: Player._unhandled_input)
-	if activa and ARMAS[arma].auto and Input.is_action_pressed("attack") and jugador.puede_disparar():
+	var quiere: bool = activa and ARMAS[arma].auto and Input.is_action_pressed("attack") and jugador.puede_disparar()
+	var previo: float = _d("giro_previo")
+	if previo > 0.0:
+		# La Matraca gira antes del primer tiro y sigue girando un rato al soltar
+		if quiere and _recargando <= 0.0 and not _sobrecalentada and balas > 0:
+			if _giro <= 0.0 and not _sonido("giro", -8.0):
+				Sonidos.tocar(self, "recarga_cierra", -14.0, 0.5)
+			_giro = minf(_giro + delta / previo, 1.0)
+		else:
+			_giro = maxf(_giro - delta / float(_d("giro_baja")), 0.0)
+		quiere = quiere and _giro >= 1.0
+	if quiere:
 		disparar()
+
+
+# El calor de la Matraca baja si no disparas; sobrecalentada no dispara hasta bajar a `listo`
+func _enfriar(delta: float) -> void:
+	if _calor <= 0.0:
+		return
+	if _quieto > QUIETO_ENFRIA or _sobrecalentada:
+		_calor = maxf(_calor - float(_d("enfria")) * delta, 0.0)
+	if _sobrecalentada and _calor <= float(_d("listo")):
+		_sobrecalentada = false
+
+
+# La Tinaquera tras el tiro: bombea (suena, patea tantito) y sale el cartucho rojo
+func _bombear() -> void:
+	if not activa:
+		return
+	if not _sonido("bomba", -6.0):
+		Sonidos.tocar(self, "recarga_cierra", CIERRA_VOLUMEN + 4.0, 0.85)
+	jugador.patear_arma(0.03, 0.0)
+	var camara := get_viewport().get_camera_3d()
+	if camara:
+		_expulsar_casquillo(camara)
 
 
 # Cada momento de la recarga una vez, cuando su tiempo (en s del clip) ya paso
@@ -459,9 +764,20 @@ func _seguir_recarga(delta: float) -> void:
 		return
 	_recarga_t += delta
 	if not activa:
-		# Cambiaste de arma a media recarga: termina sin ruido ni cargadores
+		# Cambiaste de arma a media recarga: termina sin ruido ni cargadores (cartucho por cartucho
+		# se queda con los que ya metio)
+		if _d("recarga_modo") == "cartucho":
+			_parcial = true
+			_recargando = 0.0
 		_terminar_recarga()
 		return
+	match _d("recarga_modo"):
+		"cartucho":
+			_seguir_cartuchos(delta)
+			return
+		"cargador", "tambor":
+			_seguir_cargador()
+			return
 	# El cargador que cae, el nuevo en la mano y la corredera son de la pistola
 	if arma != "pistola":
 		return
@@ -498,6 +814,33 @@ func _seguir_recarga(delta: float) -> void:
 			_recargando = 0.0
 
 
+# La Tinaquera: un cartucho cada por_cartucho s, hasta llenar (disparar la corta: disparar())
+func _seguir_cartuchos(delta: float) -> void:
+	_cartucho_t -= delta
+	if _cartucho_t > 0.0:
+		return
+	balas = mini(balas + 1, _cargador())
+	if not _sonido("cartucho", -4.0):
+		Sonidos.tocar(self, "recarga_mete", -8.0, 1.25)
+	jugador.patear_arma(0.01, 2.0)
+	_cartucho_t = _d("por_cartucho")
+	if balas >= _cargador():
+		_recargando = 0.0
+
+
+# La Chicharra y la Matraca: sale el cargador o el tambor (Cargador.gd, estirado) y entra otro
+func _seguir_cargador() -> void:
+	var frac := _recarga_t / maxf(float(ARMAS[arma].recarga), 0.01)
+	if _recarga_paso == 0 and frac >= SACA_EN:
+		_recarga_paso = 1
+		_sonido("saca", -4.0)
+		_soltar_cargador()
+	if _recarga_paso == 1 and frac >= METE_FRAC:
+		_recarga_paso = 2
+		if not _sonido("mete", -4.0):
+			Sonidos.tocar(self, "recarga_mete", -4.0, 0.85 if arma == "ametralladora" else 1.1)
+
+
 func _terminar_recarga() -> void:
 	_recarga_t = -1.0
 	_rack_t = -1.0
@@ -520,7 +863,7 @@ func _soltar_cargador() -> void:
 	var cargador := _cargadores[_cargador_sig]
 	_cargador_sig += 1
 	var excluir: Array[RID] = [jugador.get_rid()]
-	cargador.soltar(jugador.cargador(), excluir)
+	cargador.soltar(jugador.cargador(), excluir, _d("cargador_medida"))
 
 
 # El arma (1/2 la cambian) y cuantas curaciones traes (Q, Player._curarse)
@@ -531,7 +874,8 @@ func _texto_arma() -> String:
 		var nombre: String = ARMAS[arma].nombre
 		var cuantas := "%d+1" % _cargador() if balas > _cargador() else "%d/%d" % [balas, _cargador()]
 		var otra := "\n2 cambia de arma" if armas().size() > 1 else ""
-		return (nombre + "  recargando..." if _recargando > 0.0 else nombre + "  " + cuantas) + otra + curar
+		var estado := "  recargando..." if _recargando > 0.0 else ("  ¡caliente!" if _sobrecalentada else "  " + cuantas)
+		return nombre + estado + otra + curar
 	var arma: InventoryItemData = inventario.arma() if inventario else null
 	return (arma.item_name if arma else "Puño") + curar
 
@@ -635,6 +979,48 @@ func _sentir_nervios(delta: float) -> void:
 
 # --- La mira y el arma en pantalla ---
 
+# La cruz de la pistola y las automaticas, o el circulo de la Tinaquera (lo que abre su rafaga).
+# Con calor, una barra bajo la mira
+func _dibujar_mira() -> void:
+	var hueco := float(roundi(_hueco))
+	if _d("mira") == "circulo":
+		var radio := hueco * 2.0 + 10.0
+		_mira.draw_arc(Vector2.ZERO, radio, 0.0, TAU, 24, Color.BLACK, 3.0)
+		_mira.draw_arc(Vector2.ZERO, radio, 0.0, TAU, 24, MIRA_COLOR, 1.0)
+		_mira.draw_rect(Rect2(-1.0, -1.0, 2.0, 2.0), MIRA_COLOR)
+	else:
+		for lado: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+			_mira.draw_line(lado * hueco, lado * (hueco + MIRA_RAYA), Color.BLACK, 3.0)
+			_mira.draw_line(lado * hueco, lado * (hueco + MIRA_RAYA), MIRA_COLOR, 1.0)
+	if _d("calor") > 0.0 and _calor > 0.0:
+		var ancho := 30.0
+		var y := hueco + MIRA_RAYA + 6.0
+		_mira.draw_rect(Rect2(-ancho / 2.0 - 1.0, y - 1.0, ancho + 2.0, 5.0), Color.BLACK)
+		var color := CALOR_COLOR if _sobrecalentada else MIRA_COLOR.lerp(CALOR_COLOR, _calor)
+		_mira.draw_rect(Rect2(-ancho / 2.0, y, ancho * _calor, 3.0), color)
+
+
+# Abajo a la derecha, sobre el texto: un cartucho por bala (Tinaquera) o la banda (Matraca)
+func _dibujar_municion() -> void:
+	var total := _cargador()
+	match _d("municion"):
+		"cartuchos":
+			for i in total:
+				var x := -float(total - i) * 9.0
+				var lleno := i < balas
+				_municion.draw_rect(Rect2(x - 1.0, -15.0, 8.0, 16.0), Color.BLACK)
+				_municion.draw_rect(Rect2(x, -14.0, 6.0, 10.0), Color(0.8, 0.15, 0.1) if lleno else Color(0.25, 0.1, 0.1))
+				_municion.draw_rect(Rect2(x, -4.0, 6.0, 4.0), Color(0.85, 0.65, 0.25) if lleno else Color(0.3, 0.25, 0.15))
+		"banda":
+			var ancho := 110.0
+			_municion.draw_rect(Rect2(-ancho - 1.0, -9.0, ancho + 2.0, 10.0), Color.BLACK)
+			var parte := float(balas) / maxf(float(total), 1.0)
+			_municion.draw_rect(Rect2(-ancho, -8.0, ancho * parte, 8.0), Color(0.85, 0.65, 0.25))
+			# Las rayitas de la banda, una cada 10 balas
+			for i in range(1, total / 10):
+				var x := -ancho + ancho * float(i * 10) / float(total)
+				_municion.draw_line(Vector2(x, -8.0), Vector2(x, 0.0), Color(0, 0, 0, 0.6), 1.0)
+
 func _armar_pantalla() -> void:
 	_capa = CanvasLayer.new()
 	_capa.layer = 4
@@ -642,12 +1028,26 @@ func _armar_pantalla() -> void:
 	_mira = Control.new()
 	_mira.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_mira.set_anchors_preset(Control.PRESET_CENTER)
-	_mira.draw.connect(func() -> void:
-		var hueco := float(roundi(_hueco))
-		for lado: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
-			_mira.draw_line(lado * hueco, lado * (hueco + MIRA_RAYA), Color.BLACK, 3.0)
-			_mira.draw_line(lado * hueco, lado * (hueco + MIRA_RAYA), MIRA_COLOR, 1.0))
+	_mira.draw.connect(_dibujar_mira)
 	_capa.add_child(_mira)
+	# Las balas que quedan, segun el arma (ARMAS "municion"): cartuchos rojos o la banda
+	_municion = Control.new()
+	_municion.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_municion.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_municion.position = Vector2(-10.0, -76.0)
+	_municion.draw.connect(_dibujar_municion)
+	_capa.add_child(_municion)
+	_aviso = Label.new()
+	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_aviso.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_aviso.offset_top = 70.0
+	_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_aviso.add_theme_font_size_override("font_size", 22)
+	_aviso.add_theme_color_override("font_color", TEXTO_COLOR)
+	_aviso.add_theme_color_override("font_outline_color", Color.BLACK)
+	_aviso.add_theme_constant_override("outline_size", 6)
+	_aviso.visible = false
+	_capa.add_child(_aviso)
 	_texto = Label.new()
 	_texto.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 	_texto.grow_horizontal = Control.GROW_DIRECTION_BEGIN

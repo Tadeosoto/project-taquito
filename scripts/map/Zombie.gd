@@ -306,6 +306,8 @@ var _atorado := 0.0
 var _rodeo := 0.0
 var _lado := 1.0
 var _retroceso := Vector3.ZERO   # el empujon del ultimo golpe, se va frenando
+var _lento := 1.0                # x la velocidad mientras lo frena la rafaga (frenar)
+var _lento_hasta := 0            # ms (Time.get_ticks_msec)
 var _hueco := -1                 # el hueco de la barricada al que va (defensa); -1 = ninguno
 var _rumbo := Vector3.ZERO       # la velocidad con la que va; gira hacia _deseado
 var _deseado := Vector3.ZERO     # hacia donde quiere ir (unitario)
@@ -946,12 +948,13 @@ func _se_ve(punto: Vector3) -> bool:
 
 # La velocidad de este momento: sube y baja, y a ratos un arrancon (el jefe, pareja)
 func _velocidad_ahora(delta: float) -> float:
+	var lento := _lento if Time.get_ticks_msec() < _lento_hasta else 1.0
 	if es_jefe or not enjambre:
-		return _velocidad
+		return _velocidad * lento
 	_arranque -= delta
 	if _arranque <= 0.0 and randf() < delta / ARRANQUE_CADA:
 		_arranque = ARRANQUE_DURA
-	return _velocidad * (1.0 + VEL_VAIVEN * sin(_vivo * _vel_rapidez + _fase * 1.7)) * (1.0 + ARRANQUE if _arranque > 0.0 else 1.0)
+	return _velocidad * lento * (1.0 + VEL_VAIVEN * sin(_vivo * _vel_rapidez + _fase * 1.7)) * (1.0 + ARRANQUE if _arranque > 0.0 else 1.0)
 
 
 func radio() -> float:
@@ -1140,8 +1143,9 @@ func _seguir_caminando() -> void:
 # El golpe del jugador (Player._golpear). `fuerza`: 1 con un machete, menos a puño limpio.
 # `truena_en`: ms que dura la congelada si este golpe lo mata, para tronar justo al soltar.
 # `cuerpo_a_cuerpo`: false con la pistola, que ni empuja ni aturde.
+# `revienta`: si lo mata, le vuela la cabeza aunque no fuera a la cabeza (la Tinaquera de cerca).
 # Regresa GOLPE_NADA, GOLPE_PEGO o GOLPE_MATO.
-func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cuerpo_a_cuerpo := true, cabeza := false, fuente := "") -> int:
+func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cuerpo_a_cuerpo := true, cabeza := false, fuente := "", revienta := false) -> int:
 	if estado == Estado.MUERTO:
 		return GOLPE_NADA
 	alertar()
@@ -1171,7 +1175,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 	if _vida <= 0:
 		velocity = Vector3.ZERO
 		_al_morir = atras
-		_sin_cabeza = cabeza and not es_jefe
+		_sin_cabeza = (cabeza or revienta) and not es_jefe
 		# Solo el zombi se congela con un balazo; el machete ya congela todo (Player._congelar)
 		var espera := FUENTE_MS if _sin_cabeza else (0 if cuerpo_a_cuerpo or es_jefe else CONGELA_PISTOLA_MS)
 		_nota("matar")
@@ -1189,6 +1193,36 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 	_tiempo = 0.0
 	_animar("hit", 2.0, true)
 	return GOLPE_PEGO
+
+
+# La Tinaquera de cerca (Pistola.ARMAS "zombi_empuje"; AG, 2026-11-18): lo recorre `fuerza` m/s
+# para atras (se frena con EMPUJON_FRENA) y, si `aturdir`, lo deja HERIDO un momento. Va aparte
+# de recibir_golpe porque ahi el empujon y el aturdido del machete estan apagados (EMPUJON 0,
+# ATURDIR false, JJ). Al jefe solo lo recorre poquito
+func empujar_bala(atras: Vector3, fuerza: float, aturdir: bool) -> void:
+	if estado == Estado.MUERTO:
+		return
+	atras.y = 0.0
+	if atras.length_squared() < 0.0001:
+		return
+	atras = atras.normalized()
+	if es_jefe:
+		move_and_collide(atras * JEFE_ARRASTRE * 0.5)
+		return
+	_retroceso = atras * fuerza
+	if aturdir and not _en_corte():
+		estado = Estado.HERIDO
+		_tiempo = 0.0
+		_animar("hit", 2.0, true)
+
+
+# La rafaga de la Matraca o la Chicharra (Pistola.ARMAS "zombi_lento"): camina a `factor` de su
+# velocidad mientras le sigan llegando tiros (cada uno renueva los `ms`)
+func frenar(factor: float, ms: int) -> void:
+	if estado == Estado.MUERTO:
+		return
+	_lento = factor
+	_lento_hasta = Time.get_ticks_msec() + ms
 
 
 # `truena_en`: lo mato el jugador, trae unos pesos y revienta como globo de agua sucia. Sin

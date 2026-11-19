@@ -1,0 +1,16 @@
+{
+ "id": "taquito/fogonazo-auto",
+ "fps": 30,
+ "loop": false,
+ "frames": 7,
+ "frameSize": [
+  64,
+  40
+ ],
+ "pivot": [
+  10,
+  20
+ ],
+ "columns": 3,
+ "golpe_en": 0
+}

@@ -135,6 +135,8 @@
     {"nombre": "catrina_golpe", "id": "impacts/hit-spark", "opts": {"palette": ["#160c06", "#4a2c14", "#8e5c2c", "#b89f78", "#dcc8a2", "#f0e6d0", "#ffffff"], "light": 0.3}},
     {"nombre": "catrina_rompe", "id": "impacts/heavy-landing", "opts": {"palette": ["#160c06", "#2e1a0c", "#4a2c14", "#6a421e", "#8e5c2c", "#b47c40", "#d8a464"], "stone": "#4a2c14", "light": 0.2}},
     {"nombre": "catrina_muere", "id": "explosions/big-explosion", "fps": 12, "opts": {"palette": ["#140406", "#3a0a2a", "#6a1a4a", "#25907e", "#33c2a8", "#f0982e", "#ffcf72", "#ffffff"], "stone": "#2a2030", "light": 0.5}},
-    {"nombre": "catrina_flor_revienta", "id": "explosions/firework-burst", "fps": 15, "opts": {"palette": ["#2a1006", "#5a2a0c", "#8a4a12", "#d8781a", "#f0982e", "#ffcf72", "#fff0c4"], "core": ["#140406", "#3a0a2a", "#6a1a4a", "#25907e", "#33c2a8", "#7ef0d6", "#ffffff"], "light": 0.3}}
+    {"nombre": "catrina_flor_revienta", "id": "explosions/firework-burst", "fps": 15, "opts": {"palette": ["#2a1006", "#5a2a0c", "#8a4a12", "#d8781a", "#f0982e", "#ffcf72", "#fff0c4"], "core": ["#140406", "#3a0a2a", "#6a1a4a", "#25907e", "#33c2a8", "#7ef0d6", "#ffffff"], "light": 0.3}},
+    {"nombre": "fogonazo_escopeta", "id": "taquito/fogonazo-escopeta", "opts": {"light": 0.4}},
+    {"nombre": "fogonazo_auto", "id": "taquito/fogonazo-auto", "opts": {"light": 0.4}}
 ]
 }

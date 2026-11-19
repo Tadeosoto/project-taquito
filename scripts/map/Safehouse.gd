@@ -91,6 +91,7 @@ Y vaciar inventario (sin machete pegas a puñetazos)
 C crear personaje · K deterioro
 F12 reiniciar todo · F10 ir al mapa"""},
 	{"titulo": "Pelea", "efectos": true, "texto": """1 2 machete / pistola · R recargar
+2 otra vez: Tinaquera, Matraca, Chicharra (recógelas del piso)
 9 golpe a tiempo (córtalo cuando gruñe) / sin aturdir
 8 estela del protagonista (su mejora) / la de siempre
 7 cargado: deja apretado y suelta = tajo, 2.5x

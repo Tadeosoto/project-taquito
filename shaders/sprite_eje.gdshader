@@ -22,12 +22,15 @@ uniform float brillo = 1.0;          // multiplica el color: el trazo de la bala
 instance uniform float fase = 0.0;
 instance uniform vec3 eje = vec3(1.0, 0.0, 0.0);   // hacia donde va la punta, en el mundo
 instance uniform float largo = 1.0;                // m
+// >= 0: ese cuadro fijo, lo pone el script (el fogonazo de las armas, Pistola._volar_boca, se ve
+// una vez por tiro); -1: se repite solo con TIME (el trazo de la bala)
+instance uniform float cuadro_fijo = -1.0;
 
 varying flat float v_oculto;
 
 void vertex() {
 	float t = mod(TIME + fase, periodo);
-	float cuadro = floor(t * fps);
+	float cuadro = cuadro_fijo >= 0.0 ? floor(cuadro_fijo) : floor(t * fps);
 	v_oculto = cuadro >= float(cuadros) ? 1.0 : 0.0;
 	cuadro = min(cuadro, float(cuadros - 1));
 	vec2 esquina = VERTEX.xy + 0.5;   // 0..1, y hacia arriba
