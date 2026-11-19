@@ -22,13 +22,16 @@ from mathutils import Vector
 RAIZ = os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito")
 SALIDA = os.path.join(RAIZ, "models", "sotano")
 
-PISO = -2.6           # el piso del cuarto
-TECHO = -0.5          # 2.1 de alto (2.6 m en el juego)
-CUARTO = (6.6, 17.0, -1.5, 7.7)   # x0, x1, z0, z1
+PISO = -2.6           # el piso de los salones
+TECHO = -0.2          # 2.4 de alto (3 m en el juego)
+SALON = (6.6, 20.6, -2.0, 8.0)    # salon 1, las maquinitas: x0, x1, z0, z1
+SALON2 = (21.0, 31.0, -1.0, 7.0)  # salon 2, poker y barra: x0, x1, z0, z1 (el muro de en medio va de 20.6 a 21.0)
+ARCO = (2.0, 4.4, -0.6)           # el arco entre salones: z de las jambas y su alto
+COLUMNAS = ((11.0, 3.0), (16.0, 3.0))
 PASILLO = (2.3, 3.9)              # z del descanso y la escalera
 ESCALERA = (2.8, 6.6)             # x donde baja
 PELDANOS = 13
-GRUESO = 0.2
+GRUESO = 0.4
 
 
 def _b(x, y, z):
@@ -155,58 +158,106 @@ def cilindro(nombre, x, y0, y1, z, radio, mat, col, lados=8):
 
 
 def cuarto():
+    """Los muros (GRUESO, 0.4), el descanso, la escalera con zancas y barandal, el salon de las
+    maquinitas (SALON) y, por un arco en su muro este, el salon del poker y la barra (SALON2)."""
     col = coleccion("Sotano")
     piso = material("concreto_piso", (0.42, 0.40, 0.37))
     muro = material("block", (0.55, 0.53, 0.5))
     techo = material("concreto_techo", (0.35, 0.34, 0.33))
     humedad = material("humedad", (0.18, 0.2, 0.17))
-    x0, x1, z0, z1 = CUARTO
+    viga = material("concreto_columna", (0.5, 0.49, 0.46))
+    metal = material("metal", (0.35, 0.36, 0.38))
+    g = GRUESO
     za, zb = PASILLO
-    # El descanso, a nivel de la calle, con la puerta en la pared oeste
-    caja("Descanso_piso", 0.0, ESCALERA[0], -GRUESO, 0.0, za, zb, piso, col)
-    caja("Descanso_techo", -0.2, ESCALERA[0], 2.3, 2.3 + GRUESO, za - 0.2, zb + 0.2, techo, col)
-    caja("Descanso_muro_oeste_n", -0.2, 0.0, -0.2, 2.5, za - 0.2, 2.61, muro, col)
-    caja("Descanso_muro_oeste_s", -0.2, 0.0, -0.2, 2.5, 3.61, zb + 0.2, muro, col)
-    caja("Descanso_dintel", -0.2, 0.0, 2.0, 2.5, 2.61, 3.61, muro, col)
-    # La puerta de lamina, cerrada detras de ti
+    x0, x1, z0, z1 = SALON
+    a0, a1, b0, b1 = SALON2
+    # El descanso, a nivel de la calle, con la puerta en la pared oeste (CasaPropia.PUERTA)
+    caja("Descanso_piso", 0.0, ESCALERA[0], -g, 0.0, za, zb, piso, col)
+    caja("Descanso_techo", -g, ESCALERA[0], 2.3, 2.3 + g, za - g, zb + g, techo, col)
+    caja("Descanso_muro_oeste_n", -g, 0.0, -g, 2.5, za - g, 2.61, muro, col)
+    caja("Descanso_muro_oeste_s", -g, 0.0, -g, 2.5, 3.61, zb + g, muro, col)
+    caja("Descanso_dintel", -g, 0.0, 2.0, 2.5, 2.61, 3.61, muro, col)
     caja("Puerta", -0.25, -0.2, 0.0, 2.0, 2.61, 3.61, material("lamina_puerta", (0.25, 0.3, 0.28)), col)
-    # Pasillo de la escalera: muros a los lados, de la puerta al cuarto
-    for nombre, za0, zb0 in (("Pasillo_muro_n", za - GRUESO, za), ("Pasillo_muro_s", zb, zb + GRUESO)):
-        caja(nombre, 0.0, x0, PISO, 2.3, za0, zb0, muro, col)
-    # Los peldanos (se ven) y la rampa que se camina (no se ve)
+    caja("Puerta_marco_n", -0.05, 0.05, 0.0, 2.08, 2.53, 2.61, metal, col, choca=False)
+    caja("Puerta_marco_s", -0.05, 0.05, 0.0, 2.08, 3.61, 3.69, metal, col, choca=False)
+    caja("Puerta_marco_arriba", -0.05, 0.05, 2.0, 2.08, 2.53, 3.69, metal, col, choca=False)
+    # Pasillo de la escalera: muros gruesos a los lados, de la puerta al salon
+    caja("Pasillo_muro_n", 0.0, x0, PISO, 2.3, za - g, za, muro, col)
+    caja("Pasillo_muro_s", 0.0, x0, PISO, 2.3, zb, zb + g, muro, col)
+    # Los peldanos: cada uno macizo hasta el piso, con su nariz mas oscura (se ven) y la rampa
+    # que se camina (no se ve)
     paso = (ESCALERA[1] - ESCALERA[0]) / PELDANOS
     alto = (0.0 - PISO) / PELDANOS
     concreto = material("concreto_escalon", (0.5, 0.48, 0.44))
+    nariz = material("concreto_nariz", (0.3, 0.29, 0.27))
+    zancas = 0.12
     for i in range(PELDANOS):
         xa = ESCALERA[0] + i * paso
         ya = -alto * (i + 1)
-        caja("Escalon_%02d" % i, xa, xa + paso, PISO, ya, za, zb, concreto, col, choca=False)
+        caja("Escalon_%02d" % i, xa, xa + paso, PISO, ya, za + zancas, zb - zancas, concreto, col, choca=False)
+        caja("Escalon_nariz_%02d" % i, xa - 0.02, xa + 0.04, ya - 0.04, ya + 0.005, za + zancas, zb - zancas, nariz, col, choca=False)
+    # Zancas: el concreto de los lados, que sube con la escalera (en tres tramos escalonados)
+    for i in range(PELDANOS):
+        xa = ESCALERA[0] + i * paso
+        ya = -alto * (i + 1)
+        for nombre, c0, c1 in (("n", za, za + zancas), ("s", zb - zancas, zb)):
+            caja("Zanca_%s_%02d" % (nombre, i), xa, xa + paso, PISO, ya + 0.12, c0, c1, viga, col, choca=False)
     largo = math.hypot(ESCALERA[1] - ESCALERA[0], -PISO)
     ang = math.atan2(-PISO, ESCALERA[1] - ESCALERA[0])
     rampa = caja("Rampa", 0.0, largo, -0.1, 0.0, za, zb, piso, col, choca=False)
     rampa.name = "Rampa-colonly"
-    # la caja se armo centrada: se pone a media escalera y se inclina (baja hacia +x)
     rampa.location = _b((ESCALERA[0] + ESCALERA[1]) / 2, PISO / 2 - 0.05, (za + zb) / 2)
     rampa.rotation_euler = (0, ang, 0)
-    # El techo del pasillo baja con la escalera, en tres tramos
-    for i, (xa, xb, y) in enumerate(((ESCALERA[0], 4.1, 1.6), (4.1, 5.4, 0.7), (5.4, x0, -0.2))):
-        caja("Pasillo_techo_%d" % i, xa, xb, y, y + GRUESO, za - GRUESO, zb + GRUESO, techo, col)
-    # El cuarto
-    caja("Piso", x0, x1, PISO - GRUESO, PISO, z0, z1, piso, col)
-    caja("Techo", x0, x1, TECHO, TECHO + GRUESO, z0, z1, techo, col)
-    caja("Muro_norte", x0 - GRUESO, x1 + GRUESO, PISO, TECHO, z0 - GRUESO, z0, muro, col)
-    caja("Muro_sur", x0 - GRUESO, x1 + GRUESO, PISO, TECHO, z1, z1 + GRUESO, muro, col)
-    caja("Muro_este", x1, x1 + GRUESO, PISO, TECHO, z0, z1, muro, col)
-    caja("Muro_oeste_n", x0 - GRUESO, x0, PISO, TECHO, z0, za - GRUESO, muro, col)
-    caja("Muro_oeste_s", x0 - GRUESO, x0, PISO, TECHO, zb + GRUESO, z1, muro, col)
-    caja("Muro_oeste_dintel", x0 - GRUESO, x0, -0.2, TECHO, za - GRUESO, zb + GRUESO, muro, col)
-    # Manchas de humedad al pie de los muros (tiras oscuras)
-    for nombre, a, b, c, d in (("Humedad_n", x0, x1, z0, z0 + 0.01), ("Humedad_s", x0, x1, z1 - 0.01, z1)):
+    # El barandal: un tubo en la pared norte, con sus soportes
+    ya, yb = 0.9, PISO + 0.9
+    cable_recto("Barandal", Vector((ESCALERA[0], ya, za + 0.08)), Vector((ESCALERA[1], yb, za + 0.08)), metal, col, r=0.025)
+    for k in range(4):
+        t = (k + 0.5) / 4
+        xs = ESCALERA[0] + (ESCALERA[1] - ESCALERA[0]) * t
+        ys = ya + (yb - ya) * t
+        cable_recto("Barandal_soporte_%d" % k, Vector((xs, ys, za + 0.08)), Vector((xs, ys, za + 0.0)), metal, col, r=0.015)
+    # El techo del pasillo baja con la escalera, en tramos
+    for i, (xa, xb, y) in enumerate(((ESCALERA[0], 4.1, 1.6), (4.1, 5.4, 0.7), (5.4, x0, TECHO + 0.3))):
+        caja("Pasillo_techo_%d" % i, xa, xb, y, y + g, za - g, zb + g, techo, col)
+    # Salon 1 (maquinitas)
+    caja("Piso", x0, x1, PISO - g, PISO, z0, z1, piso, col)
+    caja("Techo", x0 - g, x1 + g, TECHO, TECHO + g, z0 - g, z1 + g, techo, col)
+    caja("Muro_norte", x0 - g, x1 + g, PISO, TECHO, z0 - g, z0, muro, col)
+    caja("Muro_sur", x0 - g, x1 + g, PISO, TECHO, z1, z1 + g, muro, col)
+    caja("Muro_oeste_n", x0 - g, x0, PISO, TECHO, z0, za - g, muro, col)
+    caja("Muro_oeste_s", x0 - g, x0, PISO, TECHO, zb + g, z1, muro, col)
+    caja("Muro_oeste_dintel", x0 - g, x0, TECHO + 0.3, TECHO, za - g, zb + g, muro, col)
+    # El muro entre los salones, con el arco (ARCO: z de las jambas, y el alto)
+    c0, c1, arco_y = ARCO
+    caja("Muro_medio_n", x1, a0, PISO, TECHO, z0, c0, muro, col)
+    caja("Muro_medio_s", x1, a0, PISO, TECHO, c1, z1, muro, col)
+    caja("Muro_medio_arco", x1, a0, arco_y, TECHO, c0, c1, muro, col)
+    for nombre, ca, cb in (("Jamba_n", c0 - 0.06, c0 + 0.06), ("Jamba_s", c1 - 0.06, c1 + 0.06)):
+        caja(nombre, x1 - 0.06, a0 + 0.06, PISO, arco_y, ca, cb, viga, col, choca=False)
+    caja("Arco_dintel", x1 - 0.06, a0 + 0.06, arco_y - 0.12, arco_y, c0 - 0.06, c1 + 0.06, viga, col, choca=False)
+    # Salon 2 (poker y barra)
+    caja("Piso2", x1, a1, PISO - g, PISO, b0, b1, piso, col)
+    caja("Techo2", a0, a1 + g, TECHO, TECHO + g, b0 - g, b1 + g, techo, col)
+    caja("Muro2_norte", a0, a1 + g, PISO, TECHO, b0 - g, b0, muro, col)
+    caja("Muro2_sur", a0, a1 + g, PISO, TECHO, b1, b1 + g, muro, col)
+    caja("Muro2_este", a1, a1 + g, PISO, TECHO, b0, b1, muro, col)
+    # Lo que tapa el hueco entre los salones donde sus muros no coinciden (arriba y abajo del salon 2)
+    if b0 > z0:
+        caja("Muro_medio_tapa_n", a0, a0 + g, PISO, TECHO, z0, b0, muro, col)
+    if b1 < z1:
+        caja("Muro_medio_tapa_s", a0, a0 + g, PISO, TECHO, b1, z1, muro, col)
+    # Vigas del techo
+    for i, xv in enumerate((9.6, 13.6, 17.6)):
+        caja("Viga_%d" % i, xv - 0.15, xv + 0.15, TECHO - 0.25, TECHO, z0, z1, viga, col, choca=False)
+    for i, xv in enumerate((24.0, 28.0)):
+        caja("Viga2_%d" % i, xv - 0.15, xv + 0.15, TECHO - 0.25, TECHO, b0, b1, viga, col, choca=False)
+    # Rodapie de humedad
+    for nombre, a, b, c, d in (("Humedad_n", x0, x1, z0, z0 + 0.01), ("Humedad_s", x0, x1, z1 - 0.01, z1),
+                               ("Humedad2_n", a0, a1, b0, b0 + 0.01), ("Humedad2_s", a0, a1, b1 - 0.01, b1)):
         caja(nombre, a, b, PISO, PISO + 0.35, c, d, humedad, col, choca=False)
-    caja("Humedad_e", x1 - 0.01, x1, PISO, PISO + 0.45, z0, z1, humedad, col, choca=False)
-    # Columnas que cargan la colonia de arriba
-    for i, (cx, cz) in enumerate(((10.0, 2.6), (13.4, 2.6))):
-        caja("Columna_%d" % i, cx - 0.18, cx + 0.18, PISO, TECHO, cz - 0.18, cz + 0.18, material("concreto_columna", (0.5, 0.49, 0.46)), col)
+    # Columnas del salon 1
+    for i, (cx, cz) in enumerate(COLUMNAS):
+        caja("Columna_%d" % i, cx - 0.2, cx + 0.2, PISO, TECHO, cz - 0.2, cz + 0.2, viga, col)
     return col
 
 
@@ -215,105 +266,156 @@ def utileria(col):
     madera = material("madera", (0.45, 0.32, 0.2))
     reja = material("reja", (0.15, 0.15, 0.16))
     tubo = material("tubo", (0.95, 0.97, 1.0), emision=3.0)
-    neon_rosa = material("neon_rosa", (1.0, 0.2, 0.7), emision=6.0)
-    neon_verde = material("neon_verde", (0.2, 1.0, 0.35), emision=6.0)
     cable = material("cable", (0.05, 0.05, 0.05))
-    x0, x1, z0, z1 = CUARTO
+    x0, x1, z0, z1 = SALON
+    a0, a1, b0, b1 = SALON2
     y = PISO
-    # La ventanilla del Primo: un cuartito de block con reja al sur, en la esquina noroeste
-    caja("Ventanilla_muro_e", 9.4, 9.6, y, TECHO, z0, 0.4, material("block"), col)
-    caja("Ventanilla_mostrador", 6.6, 9.6, y, y + 1.0, 0.2, 0.45, madera, col)
-    for i in range(14):
-        xi = 6.75 + i * 0.2
-        caja("Ventanilla_barrote_%02d" % i, xi - 0.012, xi + 0.012, y + 1.0, TECHO, 0.31, 0.34, reja, col, choca=False)
-    caja("Ventanilla_reja_choque", 6.6, 9.4, y + 1.0, TECHO, 0.3, 0.35, reja, col)
-    caja("Ventanilla_hueco", 7.7, 8.5, y + 1.0, y + 1.25, 0.28, 0.37, material("madera"), col, choca=False)
-    marca("Primo", 8.1, y, -0.4, col, 0)
-    marca("Ventanilla", 8.1, y, 0.9, col, 0)
-    # El guardia al pie de la escalera y su cadena (la cadena choca hasta que lo dejas pasar)
-    marca("Guardia", 7.3, y, 1.7, col, 180)
+    # La ventanilla del Primo, esquina noroeste: mostrador a 1 m y reja de barrotes separados
+    # (se le ve de la cintura para arriba), su lampara, la caja del dinero y un ventilador de mesa
+    caja("Ventanilla_muro_e", 9.8, 10.2, y, TECHO, z0, 0.0, material("block"), col)
+    caja("Ventanilla_mostrador", x0, 9.8, y, y + 1.0, -0.25, 0.1, madera, col)
+    caja("Ventanilla_mostrador_tapa", x0, 9.85, y + 1.0, y + 1.05, -0.3, 0.16, material("madera_oscura", (0.3, 0.2, 0.12)), col, choca=False)
+    xs = x0 + 0.1
+    i = 0
+    while xs < 9.75:
+        caja("Ventanilla_barrote_%02d" % i, xs - 0.012, xs + 0.012, y + 1.05, TECHO, -0.07, -0.04, reja, col, choca=False)
+        xs += 0.2
+        i += 1
+    caja("Ventanilla_travesano", x0, 9.8, y + 1.85, y + 1.9, -0.08, -0.03, reja, col, choca=False)
+    caja("Ventanilla_reja_choque", x0, 9.8, y + 1.05, TECHO, -0.08, -0.03, reja, col, choca=False).name = "Ventanilla_reja-colonly"
+    caja("Ventanilla_caja_dinero", 8.6, 9.0, y + 1.05, y + 1.15, -0.25, 0.0, material("metal_verde", (0.2, 0.35, 0.25)), col, choca=False)
+    caja("Ventanilla_ventilador", 7.2, 7.4, y + 1.05, y + 1.35, -0.25, -0.1, material("plastico_blanco", (0.9, 0.9, 0.86)), col, choca=False)
+    cilindro("Ventanilla_lampara_cable", 8.2, TECHO - 0.5, TECHO, -0.9, 0.01, cable, col, lados=4)
+    cilindro("Ventanilla_lampara", 8.2, TECHO - 0.62, TECHO - 0.5, -0.9, 0.16, material("lampara_verde", (0.15, 0.45, 0.25)), col, lados=10)
+    marca("Primo", 8.2, y, -0.85, col, 0)
+    marca("Ventanilla", 8.2, y, 0.9, col, 0)
+    marca("Luz_ventanilla", 8.2, TECHO - 0.7, -0.9, col, 0)
+    # El de la puerta y su cadena al pie de la escalera
+    marca("Guardia", 7.3, y, 1.6, col, 180)
     caja("CadenaChoque-colonly", 6.5, 6.7, y, y + 2.0, PASILLO[0], PASILLO[1], reja, col, choca=False)
-    for i in range(2):
-        cilindro("Poste_cadena_%d" % i, 6.75, y, y + 0.9, PASILLO[0] + 0.1 + i * 1.4, 0.04, metal, col)
-    caja("Cadena", 6.73, 6.77, y + 0.78, y + 0.82, PASILLO[0] + 0.1, PASILLO[1] - 0.1, reja, col, choca=False)
-    # Las maquinitas OL PLEY: seis contra el muro norte (los gabinetes son otro .glb)
-    for i in range(6):
-        marca("OlPley_%d" % i, 10.4 + i * 1.05, y, z0 + 0.45, col, 0)
-    # Dos de frutas en el muro oeste, al sur del pasillo
-    marca("Frutas_0", x0 + 0.45, y, 5.3, col, -90)
-    marca("Frutas_1", x0 + 0.45, y, 6.6, col, -90)
-    # La mesa de la loteria con sus bancos y el griton
-    caja("Loteria_mesa", 9.6, 12.2, y + 0.72, y + 0.78, 4.6, 6.0, madera, col)
-    for i, (px, pz) in enumerate(((9.8, 4.8), (12.0, 4.8), (9.8, 5.8), (12.0, 5.8))):
-        caja("Loteria_pata_%d" % i, px - 0.04, px + 0.04, y, y + 0.72, pz - 0.04, pz + 0.04, metal, col, choca=False)
-    caja("Loteria_choque", 9.6, 12.2, y, y + 0.78, 4.6, 6.0, madera, col, choca=False).name = "Loteria_choque-colonly"
-    for i, (px, pz) in enumerate(((10.2, 4.1), (11.6, 4.1), (10.2, 6.5), (11.6, 6.5))):
-        cilindro("Banco_%d" % i, px, y, y + 0.45, pz, 0.17, material("plastico_rojo", (0.75, 0.1, 0.1)), col)
-        marca("Banco_%d" % i, px, y, pz, col, 0 if pz > 5 else 180)
-    marca("Griton", 12.75, y, 5.3, col, 90)
-    marca("Loteria", 10.9, y, 3.6, col, 180)
-    # La pista de los caballitos contra el muro este: una mesa larga con cinco rieles
-    caja("Pista_mesa", 15.4, 16.9, y + 0.85, y + 0.92, 1.0, 6.6, material("fieltro_verde", (0.1, 0.35, 0.15)), col)
-    caja("Pista_choque", 15.4, 16.9, y, y + 0.92, 1.0, 6.6, madera, col, choca=False).name = "Pista_choque-colonly"
-    caja("Pista_faldon", 15.38, 15.42, y, y + 0.85, 1.0, 6.6, madera, col, choca=False)
-    caja("Pista_meta", 15.4, 16.9, y + 0.92, y + 0.93, 6.2, 6.25, material("pintura_blanca", (0.95, 0.95, 0.9)), col, choca=False)
+    for k in range(2):
+        cilindro("Poste_cadena_%d" % k, 6.75, y, y + 0.9, PASILLO[0] + 0.15 + k * 1.3, 0.04, metal, col)
+    caja("Cadena", 6.73, 6.77, y + 0.78, y + 0.82, PASILLO[0] + 0.15, PASILLO[1] - 0.15, reja, col, choca=False)
+    # Las OL PLEY: ocho en el muro norte y dos en el sur, viendo al salon
+    for k in range(8):
+        marca("OlPley_%d" % k, 11.0 + k * 1.2, y, z0 + 0.45, col, 0)
+        cilindro("Silla_%d" % k, 11.0 + k * 1.2, y, y + 0.45, z0 + 1.25, 0.18, material("plastico_blanco"), col)
+        marca("Silla_%d" % k, 11.0 + k * 1.2, y, z0 + 1.25, col, 0)
+    for k in range(2):
+        marca("OlPley_%d" % (8 + k), 17.2 + k * 1.2, y, z1 - 0.45, col, 180)
+    # Dos de frutas en el muro oeste, al sur del pasillo, viendo al este (al salon)
+    marca("Frutas_0", x0 + 0.45, y, 5.6, col, 90)
+    marca("Frutas_1", x0 + 0.45, y, 6.9, col, 90)
+    # El altar de la Virgen del Tinaco, muro sur
+    caja("Altar_repisa", 12.6, 13.8, y + 1.0, y + 1.06, z1 - 0.35, z1, madera, col, choca=False)
+    plano("Altar_estampa", (13.2, y + 1.5, z1 - 0.02), 0.7, 0.9, (0, 0, -1), material("estampa_virgen", (0.3, 0.5, 0.8)), col)
+    for k in range(9):
+        plano("Billete_%d" % k, (12.75 + (k % 3) * 0.45, y + 1.2 + (k // 3) * 0.4, z1 - 0.015), 0.16, 0.07, (0, 0, -1), material("billete", (0.55, 0.75, 0.55)), col)
+    for k in range(5):
+        cilindro("Veladora_%d" % k, 12.75 + k * 0.22, y + 1.06, y + 1.18, z1 - 0.15, 0.03, material("veladora", (1.0, 0.75, 0.3), emision=2.0), col, lados=6)
+    marca("Altar", 13.2, y, z1 - 0.9, col, 180)
+    # Huacales y la bocina
+    caja("Huacal_bocina", 9.6, 10.1, y, y + 0.35, z1 - 0.6, z1 - 0.1, material("plastico_amarillo", (0.9, 0.75, 0.1)), col)
+    caja("Bocina", 9.65, 10.05, y + 0.35, y + 1.0, z1 - 0.55, z1 - 0.15, material("bocina", (0.08, 0.08, 0.09)), col)
+    marca("Bocina", 9.85, y + 0.7, z1 - 0.35, col, 0)
+    for k, (hx, hy, hz) in enumerate(((x1 - 0.4, 0, z1 - 0.3), (x1 - 0.4, 0.3, z1 - 0.3), (x1 - 0.95, 0, z1 - 0.3), (x0 + 0.4, 0, z0 + 2.6), (x0 + 0.4, 0.3, z0 + 2.6))):
+        caja("Huacal_%d" % k, hx - 0.25, hx + 0.25, y + hy, y + hy + 0.3, hz - 0.18, hz + 0.18, material("plastico_rojo", (0.75, 0.1, 0.1)), col)
+    # Salon 2: la barra en el muro norte (contrabarra con botellas, refri con luz, barra, bancos)
+    caja("Contrabarra", 22.6, 29.4, y, y + 0.9, b0, b0 + 0.45, madera, col)
+    for nivel in range(2):
+        caja("Repisa_%d" % nivel, 22.6, 28.4, y + 1.3 + nivel * 0.4, y + 1.33 + nivel * 0.4, b0, b0 + 0.3, madera, col, choca=False)
+        for k in range(16):
+            bx = 22.75 + k * 0.35
+            color = ((0.25, 0.45, 0.15), (0.45, 0.25, 0.1), (0.85, 0.75, 0.6), (0.2, 0.2, 0.55))[(k + nivel) % 4]
+            cilindro("Botella_%d_%02d" % (nivel, k), bx, y + 1.33 + nivel * 0.4, y + 1.55 + nivel * 0.4, b0 + 0.15, 0.035, material("botella_%d" % ((k + nivel) % 4), color), col, lados=6)
+    caja("Refri", 28.6, 29.6, y, y + 1.9, b0, b0 + 0.7, material("refri", (0.85, 0.1, 0.1)), col)
+    caja("Refri_vidrio", 28.68, 29.52, y + 0.15, y + 1.75, b0 + 0.7, b0 + 0.72, material("refri_luz", (0.85, 0.95, 1.0), emision=1.5), col, choca=False)
+    caja("Barra", 22.6, 28.4, y, y + 1.05, b0 + 1.2, b0 + 1.65, madera, col)
+    caja("Barra_tapa", 22.55, 28.45, y + 1.05, y + 1.1, b0 + 1.15, b0 + 1.75, material("madera_oscura"), col, choca=False)
+    for k in range(3):
+        cilindro("Grifo_%d" % k, 24.6 + k * 0.3, y + 1.1, y + 1.4, b0 + 1.35, 0.025, metal, col, lados=6)
+    for k in range(5):
+        cilindro("Banco_barra_%d" % k, 23.2 + k * 1.1, y, y + 0.75, b0 + 2.25, 0.17, material("plastico_rojo"), col)
+        marca("Banco_barra_%d" % k, 23.2 + k * 1.1, y, b0 + 2.25, col, 0)
+    marca("Cantinero", 25.6, y, b0 + 0.85, col, 0)
+    marca("Barra", 25.6, y, b0 + 2.6, col, 0)
+    marca("Neon_barra", 25.5, y + 1.95, b0 + 0.05, col, 0)
+    # La mesa del poker al centro: pano verde, borde acolchado, fichas y los lugares
+    mx, mz = 26.0, b0 + 4.6
+    caja("Poker_pata", mx - 0.25, mx + 0.25, y, y + 0.72, mz - 0.25, mz + 0.25, madera, col, choca=False)
+    caja("Poker_pano", mx - 1.3, mx + 1.3, y + 0.72, y + 0.78, mz - 0.75, mz + 0.75, material("fieltro_verde", (0.1, 0.35, 0.15)), col, choca=False)
+    for nombre, xa, xb, za_, zb_ in (("n", mx - 1.4, mx + 1.4, mz - 0.85, mz - 0.75), ("s", mx - 1.4, mx + 1.4, mz + 0.75, mz + 0.85),
+                                     ("o", mx - 1.4, mx - 1.3, mz - 0.75, mz + 0.75), ("e", mx + 1.3, mx + 1.4, mz - 0.75, mz + 0.75)):
+        caja("Poker_borde_%s" % nombre, xa, xb, y + 0.72, y + 0.84, za_, zb_, material("cuero_negro", (0.08, 0.06, 0.06)), col, choca=False)
+    caja("Poker_choque", mx - 1.4, mx + 1.4, y, y + 0.84, mz - 0.85, mz + 0.85, madera, col, choca=False).name = "Poker_choque-colonly"
+    for k, (fx, fz) in enumerate(((mx - 0.9, mz - 0.3), (mx + 0.9, mz - 0.3), (mx - 0.6, mz + 0.4), (mx + 0.6, mz + 0.4))):
+        for n in range(4):
+            cilindro("Ficha_%d_%d" % (k, n), fx, y + 0.78 + n * 0.012, y + 0.79 + n * 0.012, fz, 0.03, material("ficha_%d" % (n % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[n % 3]), col, lados=8)
+    lugares = {"Poker_tu": (mx, mz + 1.35, 180), "Poker_0": (mx - 1.9, mz, 90), "Poker_1": (mx - 0.9, mz - 1.35, 0), "Poker_2": (mx + 1.9, mz, -90)}
+    for nombre, (px, pz, giro) in lugares.items():
+        marca(nombre, px, y, pz, col, giro)
+        if nombre != "Poker_tu":
+            cilindro("Silla_" + nombre, px, y, y + 0.45, pz, 0.2, material("plastico_blanco"), col)
+    marca("Crupier", mx + 0.9, y, mz - 1.3, col, 0)
+    marca("Poker", mx, y, mz + 1.8, col, 180)
+    cilindro("Poker_lampara_cable", mx, TECHO - 0.7, TECHO, mz, 0.01, cable, col, lados=4)
+    cilindro("Poker_lampara", mx, TECHO - 0.85, TECHO - 0.7, mz, 0.4, material("lampara_verde"), col, lados=12)
+    marca("Luz_poker", mx, TECHO - 0.95, mz, col, 0)
+    # La pista de los caballitos en el muro sur del salon 2: corren a lo largo de x
+    caja("Pista_mesa", 22.0, 29.6, y + 0.85, y + 0.92, b1 - 1.5, b1 - 0.1, material("fieltro_verde"), col)
+    caja("Pista_choque", 22.0, 29.6, y, y + 0.92, b1 - 1.5, b1 - 0.1, madera, col, choca=False).name = "Pista_choque-colonly"
+    caja("Pista_faldon", 22.0, 29.6, y, y + 0.85, b1 - 1.52, b1 - 1.48, madera, col, choca=False)
+    caja("Pista_meta", 28.9, 28.95, y + 0.92, y + 0.93, b1 - 1.5, b1 - 0.1, material("pintura_blanca", (0.95, 0.95, 0.9)), col, choca=False)
     colores = ((0.85, 0.15, 0.1), (0.1, 0.35, 0.85), (0.95, 0.8, 0.1), (0.1, 0.7, 0.25), (0.8, 0.4, 0.9))
-    for i in range(5):
-        xr = 15.6 + i * 0.27
-        caja("Riel_%d" % i, xr - 0.01, xr + 0.01, y + 0.92, y + 0.95, 1.1, 6.5, metal, col, choca=False)
-        caballo(i, xr, y + 0.95, 1.4, material("caballo_%d" % (i + 1), colores[i]), col)
-    marca("Pista", 14.8, y, 3.8, col, 90)
-    # El altar de la Virgen del Tinaco con billetes, en el muro sur
-    caja("Altar_repisa", 13.6, 14.8, y + 1.0, y + 1.06, z1 - 0.35, z1, madera, col, choca=False)
-    plano("Altar_estampa", (14.2, y + 1.5, z1 - 0.02), 0.7, 0.9, (0, 0, -1), material("estampa_virgen", (0.3, 0.5, 0.8)), col)
-    for i in range(9):
-        bx = 13.75 + (i % 3) * 0.45
-        by = y + 1.2 + (i // 3) * 0.4
-        plano("Billete_%d" % i, (bx, by, z1 - 0.015), 0.16, 0.07, (0, 0, -1), material("billete", (0.55, 0.75, 0.55)), col)
-    for i in range(5):
-        cilindro("Veladora_%d" % i, 13.75 + i * 0.22, y + 1.06, y + 1.18, z1 - 0.15, 0.03, material("veladora", (1.0, 0.75, 0.3), emision=2.0), col, lados=6)
-    marca("Altar", 14.2, y, z1 - 0.9, col, 180)
-    # El congelador de las caguamas, en el muro sur al oeste
-    caja("Congelador", 7.0, 8.4, y, y + 0.9, z1 - 0.75, z1 - 0.05, material("congelador", (0.85, 0.85, 0.88)), col)
-    caja("Congelador_tapa", 7.05, 8.35, y + 0.9, y + 0.93, z1 - 0.72, z1 - 0.08, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
-    marca("Congelador", 7.7, y, z1 - 1.3, col, 180)
-    # La bocina sobre un huacal, junto a la columna
-    caja("Huacal_bocina", 13.1, 13.6, y, y + 0.35, 6.7, 7.2, material("plastico_amarillo", (0.9, 0.75, 0.1)), col)
-    caja("Bocina", 13.15, 13.55, y + 0.35, y + 1.0, 6.75, 7.15, material("bocina", (0.08, 0.08, 0.09)), col)
-    marca("Bocina", 13.35, y + 0.7, 6.95, col, 0)
-    # Huacales de refresco apilados en el pasillo de abajo y en las esquinas
-    for i, (hx, hy, hz) in enumerate(((16.4, 0, 7.1), (16.4, 0.3, 7.1), (16.0, 0, 7.2), (6.9, 0, -1.1), (6.9, 0.3, -1.1))):
-        caja("Huacal_%d" % i, hx - 0.25, hx + 0.25, y + hy, y + hy + 0.3, hz - 0.18, hz + 0.18, material("plastico_rojo"), col)
-    # Tubos de luz (fluorescentes) colgados del techo y el neon OL PLEY sobre las maquinitas
-    for i, (tx, tz) in enumerate(((8.2, 3.0), (11.0, 1.0), (13.8, 1.0), (11.0, 5.3), (15.2, 3.8), (8.2, 6.2))):
-        caja("Tubo_%d" % i, tx - 0.6, tx + 0.6, TECHO - 0.08, TECHO - 0.04, tz - 0.03, tz + 0.03, tubo, col, choca=False)
-        marca("Luz_%d" % i, tx, TECHO - 0.15, tz, col, 0)
-    plano("Neon_marco", (13.0, TECHO - 0.45, z0 + 0.02), 3.2, 0.5, (0, 0, 1), neon_rosa, col)
-    marca("Neon", 13.0, TECHO - 0.45, z0 + 0.3, col, 0)
-    # Cables: por el techo de tubo a tubo y extensiones por el piso
-    for i, (a, b) in enumerate((((8.2, 3.0), (11.0, 1.0)), ((11.0, 1.0), (13.8, 1.0)), ((11.0, 1.0), (11.0, 5.3)), ((13.8, 1.0), (15.2, 3.8)))):
-        cable_recto("Cable_techo_%d" % i, Vector((a[0], TECHO - 0.02, a[1])), Vector((b[0], TECHO - 0.02, b[1])), cable, col)
-    for i, (a, b) in enumerate((((10.4, z0 + 0.3), (16.0, z0 + 0.3)), ((16.0, z0 + 0.3), (16.2, 1.0)), ((13.35, 6.95), (15.0, 6.9)), ((x0 + 0.3, 5.3), (x0 + 0.3, 6.6)))):
-        cable_recto("Extension_%d" % i, Vector((a[0], y + 0.01, a[1])), Vector((b[0], y + 0.01, b[1])), cable, col)
-    # El ventilador de techo, al centro
-    cilindro("Ventilador_eje", 11.7, TECHO - 0.3, TECHO, 2.6, 0.03, metal, col)
-    for i in range(3):
-        a = math.radians(i * 120)
-        aspa = caja("Ventilador_aspa_%d" % i, -0.05, 0.55, TECHO - 0.32, TECHO - 0.3, -0.07, 0.07, madera, col, choca=False)
-        aspa.location = _b(11.7 + math.cos(a) * 0.3, TECHO - 0.31, 2.6 + math.sin(a) * 0.3)
-        aspa.rotation_euler = (0, 0, -a)
-    # Sillas de plastico frente a las maquinitas
-    for i in range(6):
-        cilindro("Silla_%d" % i, 10.4 + i * 1.05, y, y + 0.45, z0 + 1.25, 0.18, material("plastico_blanco", (0.9, 0.9, 0.86)), col)
-        marca("Silla_%d" % i, 10.4 + i * 1.05, y, z0 + 1.25, col, 0)
+    for k in range(5):
+        zr = b1 - 1.3 + k * 0.27
+        caja("Riel_%d" % k, 22.2, 29.4, y + 0.92, y + 0.95, zr - 0.01, zr + 0.01, metal, col, choca=False)
+        caballo(k, 22.5, y + 0.95, zr, material("caballo_%d" % (k + 1), colores[k]), col)
+    marca("Pista", 25.8, y, b1 - 2.2, col, 0)
+    # El congelador de las caguamas y la puerta del bano
+    caja("Congelador", a0 + 0.3, a0 + 1.7, y, y + 0.9, b0 + 2.6, b0 + 3.3, material("congelador", (0.85, 0.85, 0.88)), col)
+    caja("Congelador_tapa", a0 + 0.35, a0 + 1.65, y + 0.9, y + 0.93, b0 + 2.63, b0 + 3.27, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
+    marca("Congelador", a0 + 1.0, y, b0 + 3.9, col, 180)
+    caja("Bano_puerta", a1 - 0.06, a1, y, y + 2.0, b1 - 3.4, b1 - 2.5, material("lamina_puerta"), col, choca=False)
+    marca("Bano", a1 - 0.6, y, b1 - 2.95, col, -90)
+    marca("Neon_bano", a1 - 0.02, y + 2.15, b1 - 2.95, col, -90)
+    # Tubos de luz en los dos salones
+    tubos = [(9.0, 3.0), (12.6, 0.6), (16.6, 0.6), (12.6, 5.4), (16.6, 5.4), (19.6, 3.0), (23.6, b0 + 1.0), (28.4, b1 - 1.0)]
+    for k, (tx, tz) in enumerate(tubos):
+        caja("Tubo_%d" % k, tx - 0.6, tx + 0.6, TECHO - 0.33, TECHO - 0.29, tz - 0.03, tz + 0.03, tubo, col, choca=False)
+        marca("Luz_%d" % k, tx, TECHO - 0.4, tz, col, 0)
+    # Neones del salon 1 (los arma Sotano.gd en los vacios)
+    marca("Neon", 15.2, TECHO - 0.55, z0 + 0.25, col, 0)
+    marca("Neon_abierto", x0 + 0.25, TECHO - 0.6, 5.2, col, 90)
+    marca("Neon_poker", a1 - 0.03, TECHO - 0.55, b0 + 4.6, col, -90)
+    # Anuncios de cerveza (Sotano.gd pone el cartel en cada vacio)
+    for k, (ax, ay, az, giro) in enumerate(((x0 + 0.03, y + 1.5, 0.9, 90), (11.6, y + 1.6, z1 - 0.03, 180), (15.4, y + 1.6, z1 - 0.03, 180),
+                                             (a0 + 0.23, y + 1.6, b0 + 1.0, 90), (a1 - 0.03, y + 1.6, b0 + 1.6, -90), (24.2, y + 1.7, b1 - 0.03, 180))):
+        marca("Anuncio_%d" % k, ax, ay, az, col, giro)
+    # Cables por el techo y extensiones
+    for k, (pa, pb) in enumerate((((9.0, 3.0), (12.6, 0.6)), ((12.6, 0.6), (16.6, 0.6)), ((12.6, 0.6), (12.6, 5.4)), ((16.6, 0.6), (19.6, 3.0)))):
+        cable_recto("Cable_techo_%d" % k, Vector((pa[0], TECHO - 0.27, pa[1])), Vector((pb[0], TECHO - 0.27, pb[1])), cable, col)
+    for k, (pa, pb) in enumerate((((10.6, z0 + 0.3), (20.2, z0 + 0.3)), ((x0 + 0.3, 5.3), (x0 + 0.3, 6.9)), ((22.8, b1 - 1.6), (29.0, b1 - 1.6)))):
+        cable_recto("Extension_%d" % k, Vector((pa[0], y + 0.01, pa[1])), Vector((pb[0], y + 0.01, pb[1])), cable, col)
+    # Ventiladores de techo (uno por salon)
+    for v, (vx, vz) in enumerate(((14.6, 3.0), (26.0, b0 + 2.4))):
+        cilindro("Ventilador_%d_eje" % v, vx, TECHO - 0.5, TECHO - 0.25, vz, 0.03, metal, col)
+        for k in range(3):
+            a = math.radians(k * 120)
+            aspa = caja("Ventilador_%d_aspa_%d" % (v, k), -0.05, 0.55, TECHO - 0.52, TECHO - 0.5, -0.07, 0.07, madera, col, choca=False)
+            aspa.location = _b(vx + math.cos(a) * 0.3, TECHO - 0.51, vz + math.sin(a) * 0.3)
+            aspa.rotation_euler = (0, 0, -a)
+    # Puntos por donde camina la gente (Sotano.gd: Gente del sotano)
+    for k, (px, pz) in enumerate(((8.0, 3.1), (12.0, 2.0), (15.0, 2.2), (18.5, 2.6), (19.0, 5.6), (14.0, 6.2), (10.0, 5.0),
+                                  (22.4, 3.2), (24.0, b0 + 2.9), (27.5, b0 + 2.9), (29.6, b1 - 2.4), (23.0, b1 - 2.0))):
+        marca("Camino_%d" % k, px, y, pz, col, 0)
 
 
-def cable_recto(nombre, a, b, mat, col):
+def cable_recto(nombre, a, b, mat, col, r=0.012):
     """Un cable delgado de a a b (Godot)."""
     d = b - a
     largo = d.length
     me = bpy.data.meshes.new(nombre)
-    r = 0.012
     verts, caras = [], []
     lado = d.cross(Vector((0, 1, 0)))
     if lado.length < 0.001:
@@ -338,6 +440,8 @@ def caballo(i, x, y, z, mat, col):
     nombre = "Caballo_%d" % (i + 1)
     padre = bpy.data.objects.new(nombre, None)
     padre.location = _b(x, y, z)
+    # Corre hacia +x (la pista va a lo largo del muro sur del salon 2): girado 90 grados
+    padre.rotation_euler = (0, 0, math.radians(90))
     col.objects.link(padre)
     piezas = [
         ("cuerpo", -0.02, 0.02, 0.06, 0.13, -0.08, 0.08),

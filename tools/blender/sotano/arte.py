@@ -245,6 +245,37 @@ def pantalla():
     _render(sc, "pantalla.png")
 
 
+# Las cervezas de este mundo (parodias), para los carteles del Sotano: nombre, lema, glifo, fondo,
+# letra. El orden es el de textures/sotano/anuncios.png (6 de 256 x 384, en fila) y el de
+# Sotano.ANUNCIOS.
+CERVEZAS = [
+    ("TECATL", "La que aguanta\nla noche", "\U0001F985", (0.75, 0.08, 0.08), (1.0, 0.9, 0.75)),
+    ("INDITA", "Bien fría,\nbien nuestra", "\U0001F33D", (0.95, 0.75, 0.1), (0.35, 0.12, 0.05)),
+    ("CORONELA", "La que manda\nen la mesa", "\U0001F451", (0.1, 0.2, 0.55), (1.0, 0.85, 0.2)),
+    ("MODELITO", "Para los de\nconfianza", "\U0001F37A", (0.85, 0.6, 0.15), (0.15, 0.08, 0.03)),
+    ("PACÍFICA", "Oscura, del puerto\na tu sótano", "⚓", (0.08, 0.1, 0.12), (0.95, 0.75, 0.3)),
+    ("3 CAGUAMAS", "por 10 fichas\nsolo aquí abajo", "\U0001F37E", (0.95, 0.95, 0.9), (0.7, 0.05, 0.05)),
+]
+
+
+def anuncios():
+    """1536 x 384: seis carteles de cerveza de 256 x 384 (CERVEZAS)."""
+    u = 128
+    sc = _escena("Anuncios", 1536, 384, u)
+    emoji = _fuente("seguiemj.ttf")
+    impacto = _fuente("impact.ttf")
+    negra = _fuente("ariblk.ttf")
+    for k, (marca, lema, glifo, fondo, letra) in enumerate(CERVEZAS):
+        x0 = k * 2.0
+        _rect(sc, x0, 0, x0 + 2, 3, letra, -0.03)                    # el marco
+        _rect(sc, x0 + 0.08, 0.08, x0 + 1.92, 2.92, fondo, -0.025)
+        _circulo(sc, x0 + 1.0, 1.2, 0.62, letra, -0.02)
+        _texto(sc, glifo, x0 + 1.0, 1.2, 0.85, fondo, emoji)
+        _texto(sc, marca, x0 + 1.0, 0.42, 0.36, letra, impacto, ancho_max=1.75)
+        _texto(sc, lema, x0 + 1.0, 2.35, 0.2, letra, negra, ancho_max=1.75)
+    _render(sc, "anuncios.png")
+
+
 def frutas():
     """512 x 512 para el adorno de la maquinita de frutas (tools/blender/sotano/maquinita.py):
     copete (arriba, 512 x 128), costado alto (izq) y costado bajo (der) de 256 x 256, y abajo tres

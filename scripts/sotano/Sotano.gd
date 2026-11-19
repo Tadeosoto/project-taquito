@@ -3,26 +3,40 @@ extends Node3D
 # Raiz del Sotano, el casino clandestino de los Gotera bajo unos abarrotes de Santa Mugre
 # (scenes/casas/sotano.tscn; docs/lore.md 11 y docs/sistemas/sotano.md). Se entra caminando como
 # las casas de los vecinos (CasaPropia.gd, marca "casa_vecino" con "abierto": "noche").
-# El cuarto es el .glb de Blender (Cuarto, de tools/blender/sotano/sotano.py): sus vacios
-# "Marca_*" dicen donde va cada cosa, y aqui se pone lo que se juega y quien esta:
-#   el de la puerta y su cadena (Cadena-colonly): sin permiso (Fichas.permiso) no pasas, salvo que
-#   le pagues la cuota; la ventanilla del Primo (VentanillaUI), seis OL PLEY (GabineteOlPley +
-#   OlPleyUI), dos de frutas (Maquinita en fichas), la loteria (LoteriaUI), las carreras
-#   (CarrerasUI, que mueve los caballitos con correr()), el congelador de caguamas, el altar, la
-#   bocina, los tubos de luz (dos parpadean) y jugadores sentados.
+# El cuarto es el .glb de Blender (Cuarto, de tools/blender/sotano/sotano.py): dos salones (las
+# maquinitas; y, por un arco, el poker, la barra, el bano y la pista). Sus vacios "Marca_*" dicen
+# donde va cada cosa, y aqui se pone lo que se juega y quien esta:
+#   el de la puerta y su cadena (CadenaChoque-colonly): sin permiso (Fichas.permiso) no pasas,
+#   salvo que le pagues la cuota; la ventanilla del Primo (VentanillaUI), diez OL PLEY
+#   (GabineteOlPley + OlPleyUI), dos de frutas (Maquinita en fichas), la mesa de poker (PokerUI),
+#   las carreras (CarrerasUI, que mueve los caballitos con correr()), la barra del cantinero, el
+#   congelador, el altar, la bocina, los tubos de luz (dos fallan), neones, carteles de cerveza,
+#   jugadores sentados y la gente que camina (GenteSotano).
 # Todo en metros de la escena: CasaPropia la agranda x1.25.
 
 const NPC := preload("res://scenes/npc.tscn")
+const ANUNCIOS := preload("res://textures/sotano/anuncios.png")
 const CAGUAMA := "res://resources/productos/caguama.tres"
 const CAGUAMA_FICHAS := 3
+const CERVEZA_FICHAS := 2           # en la barra, una Tecatl
 const LUZ_COLOR := Color(0.85, 0.95, 1.0)
-const LUZ_ENERGIA := 1.4
-const LUZ_ALCANCE := 5.5
-const PARPADEAN := [1, 4]           # los tubos que fallan
-const NEON := Color(1.0, 0.3, 0.75)
-const PISTA_META := 6.0             # z (del cuarto) donde llegan los caballitos
+const LUZ_ENERGIA := 1.3
+const LUZ_ALCANCE := 6.0
+const PARPADEAN := [1, 5]           # los tubos que fallan
+const PISTA_META := 28.9            # x (del cuarto) donde llegan los caballitos
 const CARRERA := 5.5                # s que dura una carrera
 const VENTILADOR := 4.0             # rad/s
+const ANUNCIO := Vector2(0.8, 1.2)  # m de un cartel (escena)
+# Los neones: marca, texto, color, tamano (pixel_size) y si falla
+const NEONES := [
+	["Neon", "OL PLEY", Color(1.0, 0.3, 0.75), 0.007, false],
+	["Neon_abierto", "ABIERTO 24 HRS", Color(0.3, 1.0, 0.45), 0.0045, true],
+	["Neon_poker", "PÓKER", Color(1.0, 0.25, 0.2), 0.007, false],
+	["Neon_barra", "TECATL", Color(1.0, 0.2, 0.15), 0.006, false],
+	["Neon_bano", "BAÑO", Color(0.3, 0.85, 1.0), 0.004, true],
+]
+# Que cartel va en cada Marca_Anuncio_k (indice en textures/sotano/anuncios.png, arte.CERVEZAS)
+const CARTELES := [0, 1, 2, 5, 3, 4]
 
 const LINEAS_GUARDIA := [
 	"¿Y tú quién eres? Aquí abajo no hay nada, mijo. Nomás refrescos.",
@@ -33,31 +47,35 @@ const LINEAS_GUARDIA_PASA := [
 	"Pásale. Ya te conocen.",
 	"Nada de fotos, nada de pleitos, nada de contarle al padre.",
 ]
-const LINEAS_GRITON := [
-	"¡Tablas a tres fichas! ¡Corre y se va corriendo!",
-	"Aquí se canta derecho, mijo. Lo que salga, salió.",
-	"Tacho siempre se sienta junto a mí. Es de la suerte.",
+const LINEAS_CANTINERO := [
+	"¿Una Tecatl? Dos fichas, y va bien helada.",
+	"Aquí abajo no hay ley seca, mijo. Ni de ninguna.",
+	"El del poker de la gorra cuenta las cartas. Yo no te dije.",
+	"Si ves al padre, no me viste.",
+]
+const LINEAS_CRUPIER := [
+	"Ciegas de una y dos. La casa se queda el diez del bote.",
+	"Siéntate, que la mesa no espera.",
 ]
 const LINEAS_JUGADORES := [
 	"Esta maquinita me debe una casa.",
-	"La de en medio está caliente. ¿Ves cómo parpadea? Ahorita paga.",
 	"Mi vieja cree que ando en el rosario.",
 	"El Tinaco paga doble. Eso sí es milagro.",
 	"Allá afuera andan los poseídos; aquí abajo nomás andamos los perdidos.",
-	"Ese Tacho gana mucho, ¿no? Nomás digo.",
+	"El de la gorra en el poker nunca se va antes del río. Raro, ¿no?",
 ]
 const TEXTO_ALTAR := "La Virgen del Tinaco con billetes pegados alrededor. Al pie, en plumón: \"Para que no me mire. El Primo.\""
+const TEXTO_BANO := "\"¡Ocupado!\", gritan desde adentro. Huele a lo que huele."
 const TEXTO_FICHAS_AFUERA := "\"¡Oye! Allá afuera tus fichas no valen nada\", grita el Primo. \"Cámbialas aquí.\""
 
 var _marcas := {}                   # "Marca_X" -> Transform3D en la escena
 var _caballos: Array[Node3D] = []
-var _caballos_z0: Array[float] = []
-var _cadena: Node3D
+var _caballos_x0: Array[float] = []
 var _luces: Array[OmniLight3D] = []
-var _aspas: Node3D
+var _aspas: Array[Node3D] = []
 var _texto: Label
 var _guardia_linea := 0
-var _griton_linea := 0
+var _cantinero_linea := 0
 var _jugadores_linea := 0
 var _aviso_fichas := false
 var _cuota: MuebleCasa
@@ -74,20 +92,28 @@ func _ready() -> void:
 			var c := cuarto.find_child("Caballo_%d" % (i + 1), true, false) as Node3D
 			if c:
 				_caballos.append(c)
-				_caballos_z0.append(c.position.z)
-		_cadena = cuarto.find_child("Cadena", true, false) as Node3D
-		_armar_ventilador(cuarto)
+				_caballos_x0.append(c.position.x)
+		for v in 2:
+			_armar_ventilador(cuarto, v)
 	_armar_texto()
 	_armar_luces()
+	_armar_neones()
+	_armar_anuncios()
 	_armar_juegos()
 	_armar_gente()
 	_armar_bocina()
 	_puerta()
+	var gente := load("res://scripts/sotano/GenteSotano.gd") if ResourceLoader.exists("res://scripts/sotano/GenteSotano.gd") else null
+	if gente:
+		var g: Node = gente.new()
+		g.name = "Gente"
+		g.set("sotano", self)
+		add_child(g)
 
 
-func _physics_process(_delta: float) -> void:
-	if _aspas:
-		_aspas.rotate_y(VENTILADOR * _delta)
+func _physics_process(delta: float) -> void:
+	for aspas in _aspas:
+		aspas.rotate_y(VENTILADOR * delta)
 	# Subiendo la escalera con fichas: el Primo te grita una vez
 	if _player and not _aviso_fichas:
 		var aqui := to_local(_player.global_position)
@@ -97,68 +123,121 @@ func _physics_process(_delta: float) -> void:
 			avisar(TEXTO_FICHAS_AFUERA)
 
 
-# --- Lo que se arma ---
+# --- Luz, neon y carteles ---
 
 func _armar_luces() -> void:
-	for i in 6:
-		var t := marca("Luz_%d" % i)
-		var luz := OmniLight3D.new()
-		luz.light_color = LUZ_COLOR
-		luz.light_energy = LUZ_ENERGIA
-		luz.omni_range = LUZ_ALCANCE
-		luz.shadow_enabled = false
-		luz.position = t.origin
-		add_child(luz)
+	var k := 0
+	while _marcas.has("Marca_Luz_%d" % k):
+		var luz := _luz(marca("Luz_%d" % k).origin, LUZ_COLOR, LUZ_ENERGIA, LUZ_ALCANCE)
 		_luces.append(luz)
+		k += 1
 	for i in PARPADEAN:
-		_parpadear(_luces[i])
-	var neon := marca("Neon")
-	var letrero := Label3D.new()
-	letrero.text = "OL PLEY"
-	letrero.font_size = 96
-	letrero.pixel_size = 0.006
-	letrero.modulate = NEON
-	letrero.outline_modulate = Color(0.4, 0.0, 0.25)
-	letrero.outline_size = 18
-	letrero.shaded = false
-	letrero.position = neon.origin - Vector3(0, 0, 0.27)
-	add_child(letrero)
+		if i < _luces.size():
+			_parpadear(_luces[i], LUZ_ENERGIA)
+	# La lampara verde de la ventanilla (el Primo se ve) y la de la mesa de poker
+	_luz(marca("Luz_ventanilla").origin, Color(1.0, 0.85, 0.6), 1.6, 3.0)
+	_luz(marca("Luz_poker").origin, Color(1.0, 0.9, 0.7), 2.2, 4.0)
+
+
+func _luz(donde: Vector3, color: Color, energia: float, alcance: float) -> OmniLight3D:
 	var luz := OmniLight3D.new()
-	luz.light_color = NEON
-	luz.light_energy = 1.2
-	luz.omni_range = 3.5
-	luz.position = neon.origin + Vector3(0, -0.2, 0.3)
+	luz.light_color = color
+	luz.light_energy = energia
+	luz.omni_range = alcance
+	luz.shadow_enabled = false
+	luz.position = donde
 	add_child(luz)
+	return luz
 
 
-# Un tubo que falla: se apaga a ratos, de a parpadeos
-func _parpadear(luz: OmniLight3D) -> void:
+# Un tubo o un neon que falla: se apaga a ratos, de a parpadeos
+func _parpadear(luz: Node, energia: float) -> void:
 	while is_inside_tree():
 		await get_tree().create_timer(randf_range(1.5, 6.0)).timeout
-		if not is_inside_tree():
-			return
 		for k in randi_range(2, 5):
-			luz.light_energy = 0.1
+			if not is_inside_tree():
+				return
+			_prender(luz, energia, false)
 			await get_tree().create_timer(randf_range(0.04, 0.12)).timeout
 			if not is_inside_tree():
 				return
-			luz.light_energy = LUZ_ENERGIA
+			_prender(luz, energia, true)
 			await get_tree().create_timer(randf_range(0.03, 0.1)).timeout
-			if not is_inside_tree():
-				return
 
+
+func _prender(luz: Node, energia: float, si: bool) -> void:
+	if luz is OmniLight3D:
+		(luz as OmniLight3D).light_energy = energia if si else energia * 0.08
+	elif luz is Label3D:
+		(luz as Label3D).modulate.a = 1.0 if si else 0.15
+
+
+func _armar_neones() -> void:
+	for n: Array in NEONES:
+		var t := marca(n[0])
+		if t == Transform3D():
+			continue
+		var letrero := Label3D.new()
+		letrero.text = n[1]
+		letrero.font_size = 96
+		letrero.pixel_size = n[3]
+		letrero.modulate = n[2]
+		letrero.outline_modulate = (n[2] as Color).darkened(0.7)
+		letrero.outline_size = 18
+		letrero.shaded = false
+		letrero.double_sided = false
+		letrero.transform = t
+		add_child(letrero)
+		var luz := _luz(t.origin + t.basis.z * 0.35, n[2], 1.0, 3.0)
+		if n[4]:
+			_parpadear(letrero, 1.0)
+			_parpadear(luz, 1.0)
+
+
+# Los carteles de cerveza (textures/sotano/anuncios.png, de arte.py): un cuadro por cartel, con su
+# parte del atlas; uno por cartel distinto, compartido
+func _armar_anuncios() -> void:
+	var k := 0
+	while _marcas.has("Marca_Anuncio_%d" % k):
+		var t := marca("Anuncio_%d" % k)
+		var cartel := MeshInstance3D.new()
+		var quad := QuadMesh.new()
+		quad.size = ANUNCIO
+		cartel.mesh = quad
+		cartel.material_override = _material_cartel(CARTELES[k % CARTELES.size()])
+		cartel.transform = t
+		cartel.position += t.basis.z * 0.01
+		add_child(cartel)
+		k += 1
+
+
+static var _carteles := {}
+
+static func _material_cartel(i: int) -> StandardMaterial3D:
+	if not _carteles.has(i):
+		var m := StandardMaterial3D.new()
+		m.albedo_texture = ANUNCIOS
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		m.uv1_scale = Vector3(1.0 / 6.0, 1.0, 1.0)
+		m.uv1_offset = Vector3(i / 6.0, 0.0, 0.0)
+		m.roughness = 0.9
+		_carteles[i] = m
+	return _carteles[i]
+
+
+# --- Lo que se juega ---
 
 func _armar_juegos() -> void:
-	# Las seis OL PLEY: rojas, negras y moradas revueltas
-	for i in 6:
-		var t := marca("OlPley_%d" % i)
+	var k := 0
+	while _marcas.has("Marca_OlPley_%d" % k):
+		var t := marca("OlPley_%d" % k)
 		var g := GabineteOlPley.new()
-		g.name = "OlPley_%d" % i
-		g.color = [0, 1, 2, 0, 2, 1][i]
+		g.name = "OlPley_%d" % k
+		g.color = [0, 1, 2, 0, 2, 1, 0, 2, 1, 0][k % 10]
 		g.transform = t
 		add_child(g)
 		add_child(MuebleCasa.crear("Jugar OL PLEY", t.origin + t.basis.z * 0.7, _abrir_olpley.bind(g), 0.6))
-	# Dos de frutas, en fichas y abiertas de noche
+		k += 1
 	for i in 2:
 		var t := marca("Frutas_%d" % i)
 		var m := Maquinita.new()
@@ -168,11 +247,22 @@ func _armar_juegos() -> void:
 		m.transform = t
 		add_child(m)
 	add_child(MuebleCasa.crear("Cambiar fichas", marca("Ventanilla").origin, _abrir.bind("res://scripts/sotano/VentanillaUI.gd", {}), 0.9))
-	add_child(MuebleCasa.crear("Jugar a la lotería", marca("Loteria").origin, _abrir.bind("res://scripts/sotano/LoteriaUI.gd", {}), 1.0))
+	add_child(MuebleCasa.crear("Sentarte al póker", marca("Poker").origin, _abrir_poker, 1.0))
 	add_child(MuebleCasa.crear("Apostar a los caballitos", marca("Pista").origin, _abrir.bind("res://scripts/sotano/CarrerasUI.gd", {"sotano": self}), 1.0))
-	add_child(MuebleCasa.crear("Comprar una caguama (%d fichas)" % CAGUAMA_FICHAS, marca("Congelador").origin, _caguama, 1.0))
+	add_child(MuebleCasa.crear("Comprar una caguama (%d fichas)" % CAGUAMA_FICHAS, marca("Congelador").origin, _caguama.bind(CAGUAMA_FICHAS, "Una caguama bien helada."), 1.0))
+	add_child(MuebleCasa.crear("Pedir una Tecatl (%d fichas)" % CERVEZA_FICHAS, marca("Barra").origin, _caguama.bind(CERVEZA_FICHAS, "\"Ahí va, bien helada.\""), 1.0))
 	add_child(MuebleCasa.crear("Mirar el altar", marca("Altar").origin, avisar.bind(TEXTO_ALTAR), 1.0))
+	add_child(MuebleCasa.crear("Tocar la puerta del baño", marca("Bano").origin, avisar.bind(TEXTO_BANO), 0.9))
 
+
+func _abrir_poker() -> void:
+	if ResourceLoader.exists("res://scripts/sotano/PokerUI.gd"):
+		_abrir("res://scripts/sotano/PokerUI.gd", {"sotano": self})
+	else:
+		avisar("\"La mesa se arma más noche, mijo.\"")
+
+
+# --- La gente fija ---
 
 func _armar_gente() -> void:
 	var primo := _hablador("Primo", "hombre_12", marca("Primo"), func() -> String:
@@ -180,40 +270,47 @@ func _armar_gente() -> void:
 	primo.look_at(to_global(marca("Ventanilla").origin), Vector3.UP)
 	var guardia := _hablador("Guardia", "hombre_07", marca("Guardia"), _linea_guardia)
 	guardia.look_at(to_global(Vector3(5.5, guardia.position.y, 3.1)), Vector3.UP)
-	var griton := _hablador("Griton", "hombre_30", marca("Griton"), func() -> String:
-		var l: String = LINEAS_GRITON[_griton_linea % LINEAS_GRITON.size()]
-		_griton_linea += 1
-		return l)
-	griton.look_at(to_global(Vector3(10.9, griton.position.y, 5.3)), Vector3.UP)
-	# Jugadores sentados: en tres OL PLEY y en tres bancos de la loteria (Tacho, el palero, junto al griton)
-	var sentados := [["Silla_0", "mujer_07"], ["Silla_2", "hombre_03"], ["Silla_5", "mujer_12"],
-		["Banco_0", "mujer_29"], ["Banco_1", "hombre_15"], ["Banco_3", "hombre_31"]]
+	var cantinero := _hablador("Cantinero", "hombre_30", marca("Cantinero"), _rotar.bind(LINEAS_CANTINERO, "_cantinero_linea"))
+	cantinero.look_at(to_global(marca("Barra").origin), Vector3.UP)
+	var crupier := _hablador("Crupier", "hombre_16", marca("Crupier"), _rotar.bind(LINEAS_CRUPIER, "_jugadores_linea"))
+	crupier.look_at(to_global(marca("Poker").origin), Vector3.UP)
+	# Sentados: en cuatro OL PLEY y los tres del poker
+	var mesa := marca("Poker").origin - Vector3(0, 0, 1.8)
+	var sentados := [["Silla_0", "mujer_07"], ["Silla_2", "hombre_03"], ["Silla_5", "mujer_12"], ["Silla_7", "hombre_14"],
+		["Poker_0", "hombre_15"], ["Poker_1", "hombre_31"], ["Poker_2", "mujer_29"]]
 	for k in sentados.size():
-		var t := marca(sentados[k][0])
+		var nombre: String = sentados[k][0]
+		var t := marca(nombre)
+		if t == Transform3D():
+			continue
 		var nodo := Node3D.new()
 		nodo.name = "Jugador_%d" % k
-		# El clip de sentado ya trae la altura de la silla: el civil va al piso
 		nodo.position = t.origin
 		add_child(nodo)
 		Civiles.poner(nodo, sentados[k][1], "Sitting_Idle")
-		var mira := marca("OlPley_%d" % int(String(sentados[k][0]).right(1))).origin if String(sentados[k][0]).begins_with("Silla") \
-			else Vector3(10.9, nodo.position.y, 5.3)
+		var mira := mesa if nombre.begins_with("Poker") else marca("OlPley_%s" % nombre.trim_prefix("Silla_")).origin
 		nodo.look_at(to_global(Vector3(mira.x, nodo.position.y, mira.z)), Vector3.UP)
-	# Uno que platica de pie, junto a la pista
-	var miron := _hablador("Miron", "hombre_09", Transform3D(Basis(), Vector3(14.6, -2.6, 6.4)), _linea_miron)
-	miron.look_at(to_global(Vector3(16.0, miron.position.y, 3.5)), Vector3.UP)
+	# Uno que platica de pie, junto a la columna
+	var miron := _hablador("Miron", "hombre_09", Transform3D(Basis(), Vector3(15.4, -2.6, 3.6)), _linea_miron)
+	miron.look_at(to_global(Vector3(15.4, miron.position.y, 0.0)), Vector3.UP)
+
+
+func _rotar(lineas: Array, contador: String) -> String:
+	var n: int = get(contador)
+	set(contador, n + 1)
+	return lineas[n % lineas.size()]
 
 
 # El miron sabe leer las senas: si una OL PLEY esta caliente te dice cual (contando desde la
 # escalera); si no, platica
 func _linea_miron() -> String:
-	for i in 6:
-		var g := get_node_or_null("OlPley_%d" % i) as GabineteOlPley
-		if g and g.placa.estado == Carretes.Estado.CALIENTE:
-			return "Fíjate en la %s de la izquierda: le parpadea el foco de arriba. Esa ya va a pagar." % ["primera", "segunda", "tercera", "cuarta", "quinta", "sexta"][i]
-	var l: String = LINEAS_JUGADORES[_jugadores_linea % LINEAS_JUGADORES.size()]
-	_jugadores_linea += 1
-	return l
+	var k := 0
+	while get_node_or_null("OlPley_%d" % k):
+		var g := get_node("OlPley_%d" % k) as GabineteOlPley
+		if g.placa.estado == Carretes.Estado.CALIENTE:
+			return "Fíjate en la OL PLEY número %d, contando desde la escalera: le parpadea el foco. Esa ya va a pagar." % (k + 1)
+		k += 1
+	return _rotar(LINEAS_JUGADORES, "_jugadores_linea")
 
 
 func _hablador(nombre: String, modelo: String, t: Transform3D, al_hablar: Callable) -> Node3D:
@@ -242,18 +339,19 @@ func _armar_bocina() -> void:
 	voz.play()
 
 
-func _armar_ventilador(cuarto: Node) -> void:
-	var eje := cuarto.find_child("Ventilador_eje", true, false) as Node3D
+func _armar_ventilador(cuarto: Node, v: int) -> void:
+	var eje := cuarto.find_child("Ventilador_%d_eje" % v, true, false) as Node3D
 	if eje == null:
 		return
-	_aspas = Node3D.new()
-	_aspas.name = "Aspas"
-	add_child(_aspas)
-	_aspas.global_position = eje.global_position
+	var aspas := Node3D.new()
+	aspas.name = "Aspas_%d" % v
+	add_child(aspas)
+	aspas.global_position = eje.global_position
 	for i in 3:
-		var aspa := cuarto.find_child("Ventilador_aspa_%d" % i, true, false) as Node3D
+		var aspa := cuarto.find_child("Ventilador_%d_aspa_%d" % [v, i], true, false) as Node3D
 		if aspa:
-			aspa.reparent(_aspas, true)
+			aspa.reparent(aspas, true)
+	_aspas.append(aspas)
 
 
 func _armar_texto() -> void:
@@ -311,7 +409,7 @@ func _quitar_cadena() -> void:
 		var n := cuarto.find_child(nombre, true, false)
 		if n is Node3D:
 			(n as Node3D).visible = false
-	# El choque: el cuerpo que el importador armo de "Cadena-colonly"
+	# El choque: el cuerpo que el importador armo de "CadenaChoque-colonly"
 	for cuerpo in cuarto.find_children("*", "StaticBody3D", true, false):
 		if String(cuerpo.name).begins_with("Cadena"):
 			cuerpo.queue_free()
@@ -328,7 +426,7 @@ func _linea_guardia() -> String:
 	return linea % (f.CUOTA if f else 300) if "%d" in linea else linea
 
 
-# --- Juegos ---
+# --- Abrir juegos ---
 
 func _abrir_olpley(g: GabineteOlPley) -> void:
 	_abrir("res://scripts/sotano/OlPleyUI.gd", {"placa": g.placa, "gabinete": g})
@@ -344,18 +442,19 @@ func _abrir(ruta: String, datos: Dictionary) -> void:
 	get_tree().current_scene.add_child(ui)
 
 
-func _caguama() -> void:
+# Una caguama del congelador o una Tecatl de la barra (las dos son la caguama del inventario)
+func _caguama(fichas := CAGUAMA_FICHAS, texto := "Una caguama bien helada.") -> void:
 	var f := get_node_or_null("/root/Fichas")
 	var inventario := get_node_or_null("/root/Inventory")
 	if f == null or inventario == null:
 		return
-	if not f.gastar(CAGUAMA_FICHAS):
-		avisar("\"Son %d fichas, compa.\"" % CAGUAMA_FICHAS)
+	if not f.gastar(fichas):
+		avisar("\"Son %d fichas, compa.\"" % fichas)
 		return
 	if inventario.add_item(load(CAGUAMA)):
-		avisar("Una caguama bien helada.")
+		avisar(texto)
 	else:
-		f.fichas += CAGUAMA_FICHAS
+		f.fichas += fichas
 		avisar("Ya no te cabe nada.")
 
 
@@ -364,21 +463,21 @@ func temblar(i: int) -> void:
 	if i >= _caballos.size():
 		return
 	var c := _caballos[i]
-	var x0 := c.position.x
+	var z0 := c.position.z
 	for k in 10:
-		c.position.x = x0 + (0.01 if k % 2 == 0 else -0.01)
+		c.position.z = z0 + (0.01 if k % 2 == 0 else -0.01)
 		await get_tree().create_timer(0.05).timeout
-	c.position.x = x0
+	c.position.z = z0
 
 
-# La carrera: todos al arrancadero, salen a tirones y `ganador` llega primero a la meta
+# La carrera: todos al arrancadero, salen a tirones y `ganador` llega primero a la meta (en x)
 func correr(ganador: int) -> void:
 	if _caballos.is_empty():
 		return
 	var n := _caballos.size()
 	var llegan: Array[float] = []
 	for i in n:
-		_caballos[i].position.z = _caballos_z0[i]
+		_caballos[i].position.x = _caballos_x0[i]
 		llegan.append(CARRERA * (1.0 if i == ganador else randf_range(1.06, 1.3)))
 	var t := 0.0
 	while t < CARRERA * 1.3:
@@ -386,14 +485,13 @@ func correr(ganador: int) -> void:
 		t += get_process_delta_time()
 		for i in n:
 			var avance := clampf(t / llegan[i], 0.0, 1.0)
-			# a tirones, como los de la feria
 			avance = clampf(avance + sin(t * 9.0 + i * 1.7) * 0.012 * (1.0 - avance), 0.0, 1.0)
-			_caballos[i].position.z = lerpf(_caballos_z0[i], PISTA_META, avance)
+			_caballos[i].position.x = lerpf(_caballos_x0[i], PISTA_META, avance)
 		if t > llegan.min() + 0.6 and t > CARRERA:
 			break
 	await get_tree().create_timer(0.8).timeout
 	for i in n:
-		_caballos[i].position.z = _caballos_z0[i]
+		_caballos[i].position.x = _caballos_x0[i]
 
 
 # --- Ayudas ---
