@@ -175,7 +175,7 @@ def cartas():
 def calcomanias():
     """1024 x 1024: marquesina (arriba, 1024 x 256), puerta (512 x 512, izq), costado (512 x 512,
     der) y la tira de etiquetas (abajo, 1024 x 256). Las coordenadas UV salen de estas regiones
-    (construir_sotano.gd / sotano.py, gabinete)."""
+    (sotano.py, gabinete)."""
     u = 128
     sc = _escena("Calcomanias", 1024, 1024, u)
     emoji = _fuente("seguiemj.ttf")

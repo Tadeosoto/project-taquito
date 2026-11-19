@@ -1,6 +1,6 @@
 # El Sotano: el casino clandestino de los Gotera bajo Santa Mugre (docs/lore.md 11, docs/sistemas/sotano.md).
-# Arma en Blender el cuarto y lo exporta a models/sotano/sotano.glb; tools/construir_sotano.gd lo
-# vuelve scenes/casas/sotano.tscn (materiales del juego, luces, lo que se juega).
+# Arma en Blender el cuarto y lo exporta a models/sotano/sotano.glb (scenes/casas/sotano.tscn lo usa;
+# scripts/sotano/SotanoPostImport.gd le pone los materiales del juego y Sotano.gd las luces y los juegos).
 #
 #   R = r"C:\Users\Big Boss\Documents\GitHub\project-taquito\tools\blender\sotano"
 #   exec(open(R + r"\sotano.py", encoding="utf-8").read(), {"__name__": "sotano"})
@@ -10,7 +10,7 @@
 # (CasaPropia.PUERTA, x = 0, z = 3.11): un descanso a nivel de la calle, una escalera que baja al
 # este y el cuarto 2.6 abajo.
 #
-# Nombres: el material de cada pieza es su nombre en el juego (construir_sotano.gd los cambia por
+# Nombres: el material de cada pieza es su nombre en el juego (SotanoPostImport.gd los cambia por
 # los suyos). Sufijo "-convcol": la pieza choca (caja convexa); "-colonly": solo choca, no se ve.
 # Los caballitos (Caballo_1..5) y los objetos "Marca_*" (vacios) los usa scripts/sotano/Sotano.gd.
 
