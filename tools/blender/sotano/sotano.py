@@ -382,12 +382,12 @@ def refri(x0, x1, y, z0, col):
     marca("Luz_refri", (x0 + x1) / 2, y + 1.0, z1 + 0.3, col, 0)
 
 
-def esfera(nombre, radio, mat, col):
+def esfera(nombre, radio, mat, col, lados=10, anillos=6):
     """Una bola (sin operadores)."""
     import bmesh
     me = bpy.data.meshes.new(nombre)
     bm = bmesh.new()
-    bmesh.ops.create_uvsphere(bm, u_segments=10, v_segments=6, radius=radio)
+    bmesh.ops.create_uvsphere(bm, u_segments=lados, v_segments=anillos, radius=radio)
     bm.to_mesh(me)
     bm.free()
     me.materials.append(mat)
