@@ -16,6 +16,7 @@ godot --path .                     # run the main scene (scenes/inicio.tscn, the
 godot --path . scenes/InventoryUI.tscn   # run a single scene in isolation
 godot --path . --headless --import # (re)import assets / regenerate .godot cache
 godot --path . --headless --check-only --script res://scripts/player.gd  # parse-check one script
+godot --path . -- --alta           # 1080p test: crisp UI, 3D still 480 px tall in hard blocks (scripts/ModoAlta.gd)
 ```
 
 ## Work in progress (tell the user when a session starts)
@@ -63,7 +64,7 @@ Read the file before changing that system, and keep it in sync with the code. Fi
 - `docs/sistemas/taller.md`: crafting, `Tiliches` and the cangurera, loot boxes, trophies, recipes, El Yonke.
 - `docs/sistemas/libreta.md`: the bestiary (`Libreta`, entries, page, drawings, unlock hooks).
 - `docs/sistemas/casa.md`: the protagonist's house and the neighbours' houses.
-- `docs/sistemas/sotano.md`: El Sótano, the Gotera's underground casino under Santa Mugre (`Fichas` autoload, EL GORDO machines (`OlPley*` in code) on the cabinet screen, Texas Hold'em, races, bar, walkers, the Primo's window, Blender room and art) and the Blender adorno on every fruit machine (`Maquinita.moneda` for chips).
+- `docs/sistemas/sotano.md`: El Sótano, the Gotera's underground casino under Santa Mugre (`Fichas` autoload, EL GORDO machines (`OlPley*` in code) on the cabinet screen, Texas Hold'em with moving cards, races, bar, walkers, the Primo's window, Blender room, seats, bottles, tube neon and art) and the Blender adorno on every fruit machine (`Maquinita.moneda` for chips).
 - `scripts/lombrices/CLAUDE.md`: La Madre del Cárcamo, the worm swarm and its arena.
 - `scripts/catrina/CLAUDE.md`: La Mojiganga and its plaza.
 - `scripts/defensa/CLAUDE.md`: the tinaco defence test (barricade, hordes, HUD, chained nights) and JJ's two test modes on it: godmode (mechanics) and career (economy, `escena_carrera.tscn`), with the `Pruebas`, `Mejoras` and `Registro` autoloads, `ConfigZombis` and the `Menú test`/`Pruebas` launchers on the start screen.

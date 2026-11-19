@@ -124,7 +124,7 @@ func _probar() -> void:
 	await _esperar(0.3)
 	# Poker: una mano entera, siempre pasar o ir
 	fichas.fichas = maxi(fichas.fichas, 30)
-	jugador.global_position = sotano.to_global(Vector3(26.0, -2.0, 5.3))
+	jugador.global_position = sotano.to_global(Vector3(27.5, -2.0, 5.4))
 	sotano._abrir_poker()
 	await _esperar(1.0)
 	ui = arbol.get_first_node_in_group("juego_sotano")
@@ -147,7 +147,7 @@ func _probar() -> void:
 	ui.cerrar()
 	await _esperar(0.8)
 	# Carreras: al rojo, 2 fichas
-	jugador.global_position = sotano.to_global(Vector3(25.8, -2.0, 4.9))
+	jugador.global_position = sotano.to_global(Vector3(14.25, -2.0, 4.0))
 	sotano._abrir("res://scripts/sotano/CarrerasUI.gd", {"sotano": sotano})
 	await _esperar(0.3)
 	ui = arbol.get_first_node_in_group("juego_sotano")
@@ -173,6 +173,43 @@ func _probar() -> void:
 	var gente := sotano.get_node_or_null("Gente")
 	_ver(gente != null and sotano.get_node_or_null("Mesera") != null and sotano.find_children("Caminante_*", "", false, false).size() == 5,
 		"camina la gente: cinco y la mesera")
+	# Nadie flota: los pies de los que caminan (su origen) a menos de 5 cm del piso que se ve.
+	# Antes las cajas del cuarto salian al reves y el piso visible quedaba medio metro abajo
+	var piso_bien := true
+	var detalle_piso := ""
+	var espacio := sotano.get_world_3d().direct_space_state
+	for c: Node3D in sotano.find_children("Caminante_*", "", false, false):
+		var q := PhysicsRayQueryParameters3D.create(c.global_position + Vector3.UP, c.global_position + Vector3.DOWN * 2.0)
+		var hit := espacio.intersect_ray(q)
+		var dif: float = absf(c.global_position.y - hit.position.y) if hit else 99.0
+		if dif > 0.05:
+			piso_bien = false
+			detalle_piso += "%s %.2f m " % [c.name, dif]
+	# ...y el choque no basta (siempre estuvo bien): la cara de arriba del piso que se ve debe
+	# apuntar hacia arriba (si sale al reves no se dibuja y se ve la de abajo)
+	var piso := sotano.find_child("Piso", true, false) as MeshInstance3D
+	if piso == null:
+		piso = sotano.find_child("Piso-convcol", true, false) as MeshInstance3D
+	if piso and piso.mesh:
+		var arr := piso.mesh.surface_get_arrays(0)
+		var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var normales: PackedVector3Array = arr[Mesh.ARRAY_NORMAL]
+		var arriba := -INF
+		for v in verts:
+			arriba = maxf(arriba, v.y)
+		# Las esquinas de arriba son de la tapa y de los lados (vertices separados por cara): basta
+		# con que alguna vea hacia arriba
+		var ve_arriba := false
+		for i in verts.size():
+			if absf(verts[i].y - arriba) < 0.001 and normales[i].y > 0.5:
+				ve_arriba = true
+		if not ve_arriba:
+			piso_bien = false
+			detalle_piso += "la cara de arriba del piso ve hacia abajo "
+	else:
+		piso_bien = false
+		detalle_piso += "no hay malla Piso "
+	_ver(piso_bien, "la gente pisa el piso que se ve", detalle_piso)
 	if gente:
 		var antes_m: int = fichas.fichas
 		gente._vender()
