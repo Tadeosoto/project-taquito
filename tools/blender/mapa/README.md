@@ -42,6 +42,8 @@ Los scripts leen la raiz del proyecto de la variable de entorno `TAQUITO_RAIZ` (
 
 **Arboles de Sketchfab.** `fetch_sketchfab.py arboles/arce arboles/realista arboles/roble` los baja, `extraer_arboles.gd` saca sus mallas y texturas a `resources/mapa/arboles_modelos.json` y `reducir_arboles.py` (en Blender, ruta absoluta) los baja de 12k/20k/7k caras a ~5.6k/7.2k/4k (corteza decimada, hojas con menos tarjetas y mas grandes). `exportar.py` escribe sus lugares en `resources/mapa/<colonia>/arboles_modelo.json` y `scripts/mapa/ArbolesModelo.gd` los dibuja con un MultiMesh por tipo (no van en el `.glb`). Si se vuelve a correr el extractor, hay que volver a correr el reductor.
 
+**Casas de Parques de Santa Maria.** `python -I tools/blender/mapa/sustituir_psm.py <colonia>` (Python solo, sin Blender; `bloqueo.py` la corre al final) cambia algunas `casa` por `casa_psm` sobre la misma huella, con cochera donde cabe. Antes de exportar hace falta `tools/blender/cache/tinaco.glb` (`godot --path . --headless -s tools/blender/mapa/exportar_tinaco.gd`); sin el, el tinaco sale como prisma. `"deterioro"` en el `.json` de la colonia cambia el deterioro de esa colonia en el juego.
+
 **Arboles.** La pieza `ficus` usa los arboles de *Tacos_ Props*: `godot --headless --path . -s tools/blender/mapa/extraer_arbol_tacos.gd` escribe `modelos/arbol_tacos.json` y las dos texturas (hay que correrlo una vez, o si cambia el modelo).
 
 `comun.py` tiene lo compartido: conversión de coordenadas, cajas, cajas de choque, vacíos, materiales y el guardado del `.json`.

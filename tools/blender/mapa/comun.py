@@ -16,6 +16,7 @@ import os
 import re
 from mathutils import Vector
 
+# TAQUITO_RAIZ: la raiz del repo en otra maquina (en la de Alan no hace falta)
 RAIZ = os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito")
 MAPA = os.path.join(RAIZ, "tools", "blender", "mapa")
 COLONIAS = os.path.join(MAPA, "colonias")

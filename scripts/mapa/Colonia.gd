@@ -94,6 +94,10 @@ func _enter_tree() -> void:
 	_marcas = datos.get("marcas", [])
 	puntos_mision.clear()
 	puertas.clear()
+	# El deterioro de la colonia ("deterioro" de su .json), en lugar del de project.godot: aqui, antes
+	# de los _ready de los que lo leen (Deterioro.zona: alumbrado, casas, zombis)
+	if datos.has("deterioro"):
+		Deterioro.configurar(float(datos["deterioro"]), Deterioro._setting("deterioro_escala", 150.0))
 	for marca: Dictionary in _marcas:
 		if marca.get("tipo") == "puerta":
 			puertas.append({"giro": String(marca.get("giro", "")), "frente": lugar(marca) * Vector3(0.0, 0.0, 1.5)})
@@ -122,6 +126,10 @@ func _quitar_carros_omitidos(raiz: Node) -> void:
 		for nodo in raiz.find_children(nombre + "*", "", true, false):
 			if is_instance_valid(nodo):
 				nodo.free()
+
+
+func _exit_tree() -> void:
+	Deterioro.configurar(Deterioro._setting("deterioro", 0.8), Deterioro._setting("deterioro_escala", 150.0))
 
 
 func _ready() -> void:

@@ -29,7 +29,7 @@ def casas_juego(datos):
     visitar; Partida: las de obra negra), con su frente hacia la calle."""
     casas = []
     for p in datos.get("piezas", []):
-        if p["tipo"] != "casa":
+        if p["tipo"] not in ("casa", "casa_psm"):
             continue
         a, b, (cx, cz), (nx, nz), fondo = frente_de(p)
         casas.append({"modelo": "blender", "x": round(cx, 2), "z": round(cz, 2), "rotacion_y": round(math.atan2(nx, nz), 4),
@@ -132,7 +132,10 @@ def exportar(nombre):
     placas = [dict(pl, nombre="Placa_%d" % i, tipo="placa") for i, pl in enumerate(placas_calles(datos))]
     # Y los tramos de tianguis como marcas "tianguis"
     tianguis = tianguis_marcas(datos)
-    guardar_json(os.path.join(datos_dir, "marcas.json"), {"colonia": nombre, "marcas": datos.get("marcas", []) + focos + botin + placas + tianguis})
+    marcas = {"colonia": nombre, "marcas": datos.get("marcas", []) + focos + botin + placas + tianguis}
+    if "deterioro" in datos:
+        marcas["deterioro"] = datos["deterioro"]
+    guardar_json(os.path.join(datos_dir, "marcas.json"), marcas)
     guardar_json(os.path.join(datos_dir, "puntos.json"), {"puntos": datos.get("negocios", []) + datos.get("puestos_calle", [])})
     # Los arboles de Sketchfab (tipos 1 a 3 de kit.arbol_tipo): [x, z, altura, ancho de copa, nombre]
     arbol_tipo, extra = _kit()["arbol_tipo"], _kit()["ARBOLES_EXTRA"]
