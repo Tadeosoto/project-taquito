@@ -71,6 +71,12 @@ const APRETAR := 0.12
 # Luz de la maquina sin monedas
 const ENERGIA_SIN_MONEDAS := 0.3
 
+# El adorno hecho en Blender (copete con focos, fresa, cromo, calcomanias de los costados;
+# tools/blender/sotano/maquinita.py): se pega encima de la malla que juega, que no cambia porque el
+# shader lee sus UV y colores. Una escena para todas; de lejos no se dibuja
+const ADORNO := preload("res://models/maquinita/adorno_frutas.glb")
+const ADORNO_HASTA := 40.0          # m
+
 signal giro_terminado
 
 static var _malla: ArrayMesh
@@ -81,6 +87,9 @@ static var _material: ShaderMaterial
 # Quien es en el mapa (`origen` del negocio): la placa y su caja no se pierden al alejarte
 var id := ""
 var placa: Tragamonedas
+# Con que se juega: "pesos" (la Cartera, las de afuera de las tienditas) o "fichas" (las del Sotano,
+# Fichas.gd). Las de fichas estan bajo tierra: abren de noche (docs/sistemas/sotano.md)
+var moneda := "pesos"
 # Sigue el festejo de mostrar_premio
 var mostrando_premio := false
 
@@ -103,6 +112,13 @@ func _ready() -> void:
 	var color: Color = COLORES[absi(hash(id)) % COLORES.size()]
 	_malla_instancia.set_instance_shader_parameter("color_gabinete", Vector3(color.r, color.g, color.b))
 	add_child(_malla_instancia)
+
+	var adorno := ADORNO.instantiate()
+	adorno.name = "Adorno"
+	add_child(adorno)
+	for parte: GeometryInstance3D in adorno.find_children("*", "GeometryInstance3D", true, false):
+		parte.visibility_range_end = ADORNO_HASTA
+		parte.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 	_monedas = MeshInstance3D.new()
 	_monedas.mesh = malla_monedas()
@@ -284,8 +300,10 @@ func is_player_inside() -> bool:
 	return _player_inside and not _ocupada and not _cerrada()
 
 
-# De noche no se juega (docs/especificaciones.md 4.6)
+# De noche no se juega (docs/especificaciones.md 4.6), salvo las del Sotano
 func _cerrada() -> bool:
+	if moneda == "fichas":
+		return false
 	var ciclo := get_tree().get_first_node_in_group("ciclo")
 	return ciclo != null and ciclo.es_noche()
 

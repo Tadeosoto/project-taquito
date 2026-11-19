@@ -316,7 +316,7 @@ La colonia o la iglesia pagan por un zombi concreto: el que se comió a alguien,
 | Escalón | Cómo se llega | Qué abre | Si lo fuerzas |
 |---|---|---|---|
 | **0. Afuera** | Al empezar | Nada: la puerta te la cierran con una advertencia ("Aquí no, jefe") y el **Primo** (el cobrador) te habla afuera | Si te metes a la fuerza, **no sales**: pierdes el botín, reapareces en el refugio y la mafia deja de darte trabajo un tiempo |
-| **1. Mandadero** | 3 entregas de punto a punto de las cercanas | **La puerta de día**: calles, agua limpia a precio justo, el cuarto del gremio | — |
+| **1. Mandadero** | 3 entregas de punto a punto de las cercanas | **La puerta de día**: calles, agua limpia a precio justo, el cuarto del gremio. ✅ (2026-11-18) Y **El Sótano**, el casino de los Gotera bajo Santa Mugre (`lore.md` §11), que antes solo se abre pagando una cuota grande una vez | — |
 | **2. De confianza** | 6 entregas más (puntos medianos) | El mercado ilegal (×2 a ×3), de noche también, y **hablar con Nemesio** | — |
 | **3. De la casa** | 7 entregas lejanas + **Las cuentas claras** | Los **túneles** (entrada a la Madre), su cacería y las misiones de la válvula | — |
 

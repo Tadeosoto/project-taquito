@@ -3,7 +3,8 @@ extends CanvasLayer
 
 # Jugar en una maquinita (Maquinita.gd): la camara se acerca y se juega con la maquina,
 # con sus botones y contadores; en pantalla solo la ayuda y un aviso. Las monedas son
-# pesos de la Cartera y se regresan si te vas sin tirar. Pantalla de 640x480.
+# pesos de la Cartera (o fichas del Sotano si la maquinita es de fichas: Maquinita.moneda) y se
+# regresan si te vas sin tirar. Pantalla de 640x480.
 
 const AMARILLO := Color(1.0, 0.85, 0.1)
 const AYUDA := "←/→ fruta  ·  ↑ apostar  ·  ↓ quitar  ·  Espacio tirar  ·  S/Esc salir"
@@ -32,11 +33,11 @@ func _ready() -> void:
 	layer = 9
 	_player = get_tree().get_first_node_in_group("jugador") as Player
 	_armar_pantalla()
-	Cartera.cambio.connect(_contadores)
+	_bolsa().cambio.connect(_contadores)
 	_contadores()
 	maquinita.elegir_boton(_elegida)
 	var ciclo := get_tree().get_first_node_in_group("ciclo")
-	if ciclo:
+	if ciclo and not _fichas():
 		ciclo.anochecio.connect(_echar)
 	_entrar()
 
@@ -49,8 +50,32 @@ func _echar() -> void:
 
 
 func _exit_tree() -> void:
-	if Cartera.cambio.is_connected(_contadores):
-		Cartera.cambio.disconnect(_contadores)
+	if _bolsa().cambio.is_connected(_contadores):
+		_bolsa().cambio.disconnect(_contadores)
+
+
+# De donde sale y a donde va lo que se juega: la Cartera (pesos) o Fichas (el Sotano)
+func _fichas() -> bool:
+	return maquinita.moneda == "fichas"
+
+
+func _bolsa() -> Node:
+	return get_node("/root/Fichas") if _fichas() else Cartera
+
+
+func _saldo() -> int:
+	return _bolsa().fichas if _fichas() else Cartera.pesos
+
+
+func _sumar(cuanto: int) -> void:
+	if _fichas():
+		_bolsa().fichas += cuanto
+	else:
+		Cartera.pesos += cuanto
+
+
+func _dinero(cuanto: int) -> String:
+	return ("%d ficha%s" % [cuanto, "" if cuanto == 1 else "s"]) if _fichas() else "$%d" % cuanto
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -90,12 +115,12 @@ func _apostar(paso: int) -> void:
 	if paso > 0:
 		if actual >= MAX_POR_FRUTA:
 			return
-		if Cartera.pesos <= 0:
-			_decir("No traes dinero.")
+		if _saldo() <= 0:
+			_decir("No traes fichas." if _fichas() else "No traes dinero.")
 			return
 	elif actual == 0:
 		return
-	Cartera.pesos -= paso
+	_sumar(-paso)
 	_apuestas[fruta] = actual + paso
 	maquinita.mostrar_apuestas(_apuestas)
 
@@ -121,13 +146,13 @@ func _tirar() -> void:
 	var premio: int = resultado["premio"]
 	# Ganar es sacar mas de lo que metiste: con una moneda a cada fruta siempre cae algo
 	var gano := premio > total
-	Cartera.pesos += premio
+	_sumar(premio)
 	_apuestas.clear()
 	maquinita.mostrar_apuestas(_apuestas)
 	if gano:
-		_decir("¡Ganaste $%d!" % premio)
+		_decir("¡Ganaste %s!" % _dinero(premio))
 	elif premio > 0:
-		_decir("Te regresa $%d." % premio)
+		_decir("Te regresa %s." % _dinero(premio))
 	else:
 		_decir("Casi. Otra vez será.")
 	# Sin await: los cohetes salen ya y la camara tiene que irse con ellos
@@ -196,7 +221,7 @@ func _entrar() -> void:
 func _salir() -> void:
 	_ocupado = true
 	# Lo que no se tiro se regresa
-	Cartera.pesos += _total()
+	_sumar(_total())
 	_apuestas.clear()
 	maquinita.descansar()
 	if _camara_jugador:
@@ -237,7 +262,7 @@ func _armar_pantalla() -> void:
 
 # CREDITOS es tu dinero: se ve bajar al apostar y subir al ganar
 func _contadores() -> void:
-	maquinita.mostrar_contador_creditos(Cartera.pesos)
+	maquinita.mostrar_contador_creditos(_saldo())
 
 
 func _decir(texto: String) -> void:

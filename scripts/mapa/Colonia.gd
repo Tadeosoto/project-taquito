@@ -566,6 +566,70 @@ func _casa_vecino(marca: Dictionary) -> void:
 	if zombis:
 		casa.set("zombis_path", zombis.get_path())
 	add_child(casa)
+	if marca.get("bodega", false):
+		_bodega(marca)
+
+
+# La puerta de la bodega por donde se baja al Sotano (marca casa_vecino con "bodega": true;
+# docs/sistemas/sotano.md): una cortina de tiras de plastico pegada a la fachada, huacales de
+# refresco apilados y un foco rojo. La marca esta frente a la fachada, viendo a la calle (+Z)
+const BODEGA_TIRAS := 7
+const BODEGA_FACHADA := 0.65         # m de la marca a la fachada
+static var _bodega_mats := {}
+
+func _bodega(marca: Dictionary) -> void:
+	if _bodega_mats.is_empty():
+		var tira := StandardMaterial3D.new()
+		tira.albedo_color = Color(0.85, 0.9, 0.95, 0.55)
+		tira.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		tira.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_bodega_mats["tira"] = tira
+		for nombre: String in ["rojo", "amarillo"]:
+			var m := StandardMaterial3D.new()
+			m.albedo_color = Color(0.75, 0.1, 0.1) if nombre == "rojo" else Color(0.9, 0.75, 0.1)
+			_bodega_mats[nombre] = m
+		var foco := StandardMaterial3D.new()
+		foco.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		foco.albedo_color = Color(1.0, 0.15, 0.1)
+		_bodega_mats["foco"] = foco
+	var raiz := Node3D.new()
+	raiz.name = "Bodega_" + String(marca.get("nombre", ""))
+	raiz.transform = lugar(marca)
+	add_child(raiz)
+	for i in BODEGA_TIRAS:
+		var tira := MeshInstance3D.new()
+		var caja := BoxMesh.new()
+		caja.size = Vector3(0.14, 2.0, 0.01)
+		tira.mesh = caja
+		tira.material_override = _bodega_mats["tira"]
+		tira.position = Vector3(-0.48 + i * 0.16, 1.0, -BODEGA_FACHADA)
+		tira.rotation.y = randf_range(-0.15, 0.15)
+		tira.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		raiz.add_child(tira)
+	for k in 5:
+		var huacal := MeshInstance3D.new()
+		var caja := BoxMesh.new()
+		caja.size = Vector3(0.45, 0.3, 0.32)
+		huacal.mesh = caja
+		huacal.material_override = _bodega_mats["rojo" if k % 2 == 0 else "amarillo"]
+		# tres apilados y dos al lado
+		huacal.position = Vector3(0.95, 0.15 + k * 0.3, -BODEGA_FACHADA + 0.25) if k < 3 \
+			else Vector3(1.45, 0.15 + (k - 3) * 0.3, -BODEGA_FACHADA + 0.25)
+		raiz.add_child(huacal)
+	var bulbo := MeshInstance3D.new()
+	var esfera := SphereMesh.new()
+	esfera.radius = 0.06
+	esfera.height = 0.12
+	bulbo.mesh = esfera
+	bulbo.material_override = _bodega_mats["foco"]
+	bulbo.position = Vector3(0.0, 2.35, -BODEGA_FACHADA + 0.1)
+	raiz.add_child(bulbo)
+	var luz := OmniLight3D.new()
+	luz.light_color = Color(1.0, 0.2, 0.15)
+	luz.light_energy = 1.2
+	luz.omni_range = 3.0
+	luz.position = bulbo.position + Vector3(0, -0.1, 0.2)
+	raiz.add_child(luz)
 
 
 # El tinaco comunitario de la plaza con la Virgen del Tinaco (marca "tinaco", "litros" lo que le cabe): lo arma

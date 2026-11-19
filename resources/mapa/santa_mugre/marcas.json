@@ -981,6 +981,18 @@
 			"rot": -1.5708
 		},
 		{
+			"nombre": "Sotano",
+			"tipo": "casa_vecino",
+			"escena": "res://scenes/casas/sotano.tscn",
+			"texto": "La bodega",
+			"abierto": "noche",
+			"cerrado": "\"Ahorita no, mijo. Bajamos ya que oscurezca.\"",
+			"bodega": true,
+			"x": -283.3,
+			"z": 394.4,
+			"rot": 1.6084
+		},
+		{
 			"nombre": "Procesion_Atardecer",
 			"tipo": "procesion",
 			"x": -323.6,

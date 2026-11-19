@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tools/sotano/probar_sotano.gd" id="1"]
+
+[node name="ProbarSotano" type="Node"]
+script = ExtResource("1")

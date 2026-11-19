@@ -554,6 +554,8 @@ La **resistencia** (✅ 2026-11-12) la forman **gente de servicio** (jardineros,
 
 **Rol.** Es el **cobrador**: el que conecta la capilla con el crimen y el que se puede sobornar, engañar o usar para llegar al Gotera.
 
+✅ (AG, 2026-11-18) **De noche atiende la ventanilla del Sótano**, el casino de los Gotera bajo Santa Mugre (ver `lore.md` §11): cambia pesos por fichas detrás de una reja y se queda su comisión al cobrarlas. Le puso al fondo un altar de la Virgen del Tinaco con billetes pegados, "para que no lo mire". Es lo más cerca que va a estar de mandar algo.
+
 ---
 
 ## 6. Las facciones
