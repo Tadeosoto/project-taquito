@@ -3,6 +3,7 @@
 AG, 2026-11-18.
 - **v2** (2026-11-19, branch `sotano-v2`): two halls, Texas Hold'em instead of the lotería, the game on the cabinet screen, simpler fruit machines, people.
 - **v3** (2026-11-19, branch `sotano-v3`): solid boxes (nothing floats any more), real seats and bottles, readable reel cards, the machines renamed **EL GORDO**, tube neon from Blender, a roomier hall 2, poker card animations.
+- **v4** (2026-11-19, branch `sotano-v4`): EL GORDO as a real slot machine (a lever you pull, casino sounds, 3D-rendered card art, a livelier screen), a branded fridge, a readable single-stroke neon, the waitress carries her tray, shady people everywhere, the race camera, a readable poker board, and a walkable Silent Hill bathroom.
 
 The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with the code.
 
@@ -24,6 +25,8 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - `-- --foto=<file.png>` saves one screenshot and quits.
   - `-- --fotos=<dir>` saves a screenshot from each camera in `FOTOS` and quits. The cameras are low and side views (machines, window, bar, poker, every neon), to catch floating or hollow things.
   - `-- --poker=<dir>` sits at the poker table and saves a frame every 0.15 s, to see the cards move.
+  - `-- --gordo=<dir>` opens the first EL GORDO, pulls the lever three times and saves frames.
+  - `--fotos` opens the bathroom door first and also covers the fridge, the lever, the waitress (the camera follows her), the shady people and the bathroom.
 
 ## The rooms (Blender)
 
@@ -56,6 +59,16 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
 - **Seats:** `banco()` is a cantina stool (chrome post, foot ring, red vinyl cushion). `silla_plegable()` is a brewery folding chair with the Coronela logo on its back, taken from the poster atlas.
   - Seat height `ASIENTO` 0.5: the `Sitting_Idle` thighs sit at 0.52.
   - That clip leaves the hips 0.38 behind the feet, so `Sotano.CADERA` moves each seated NPC forward. `tools/sotano/medir_sentado.gd` measures it.
+- **Fridge:** `refri()` builds a branded Tecatl cooler:
+  - a lit marquee and stickers from `textures/sotano/refri.png` (`arte.py refri()`);
+  - a see-through glass door (`vidrio_refri`) with a frame and handle;
+  - three wire shelves full of beers and caguamas, a white inner light (`Luz_refri`), feet and a compressor grille.
+  - The chest freezer got stickers and a lid handle.
+- **Back bar:** three shelves from `REPISA_Y` 1.15, `REPISA_SEPARA` 0.34 apart. The tallest bottle stays under the beams, and bottles stop at the shelf edge.
+- **Bathroom** (`banho()`, behind the east wall of hall 2, `BANO`): the door hangs on `Bano_bisagra` and opens into hall 2.
+  - Inside: dirty tiles (`azulejo.png`), a green-and-black floor (`azulejo_piso.png`), two stalls (one door hanging off), toilets, a urinal, two sinks with the shattered mirror and an empty mirror frame.
+  - Also: the drain with a stain (`banho_mancha`, multiply blend), graffiti ("NO ESTAS SOLO"), rusty pipes and a bare bulb (`Luz_bano`).
+  - Textures come from `arte.py banho()`.
 - **Bottles:** `botella()` turns a profile on the lathe (`girar()`) and joins glass, label and cap into one mesh (`juntar()`).
   - Types in `BOTELLAS`: tequila, mezcal (with its worm), whisky, rum, beer, caguama.
   - `botellas.glb` has one of each at the origin (`Botella_<tipo>`), for the waitress's tray.
@@ -64,7 +77,9 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - `-colonly`: collision only. Must be unique, or Godot renames the body.
 - **Empties `Marca_*`** place everything else: lights, neons, posters, cabinets, NPCs, seats, the walking route `Camino_*`.
 - **Neon:** `tools/blender/sotano/neones.py` exports `models/sotano/neones.glb`, one `Neon_<name>` empty per sign, facing +Z.
-  - **Tubes:** text and shape curves with a bevel (fonts with no fill give outline tubes), turned into meshes.
+  - **Block letters** use `TRAZOS`, a hand-made single-stroke alphabet: one tube per stroke, like real neon, with wider spacing. Glyph outlines gave two tubes per stroke and read as mush at 640 × 480.
+  - **Script words** (Pacifico) are filled, thin glyphs. The text halo is thinner (`HALO_TEXTO` 2.0).
+  - **Shapes:** curves with a bevel, turned into meshes.
   - **Halo:** a thicker copy of each tube in an additive material. It glows without environment glow.
   - **Bulbs:** two meshes per sign (`_focos_a`, `_focos_b`) that take turns.
   - **Brackets:** black rails behind each sign.
@@ -77,7 +92,11 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - Tecatl with a beer mug: on the bar front.
     - BAÑO: with an arrow.
 - **Art:** `tools/blender/sotano/arte.py` renders with flat Workbench and no AA (`SOLO=(...)` renders only some):
-  - `textures/sotano/cartas.png`: 24 lotería cards, 96 × 144 each (the size they show on the screen) and with no name. `OlPleyUI` writes the names.
+  - `textures/sotano/cartas.png`: 24 lotería card frames, 96 × 144 each (the size they show on the screen), with only the colour field: no picture, no name.
+  - `textures/sotano/cartas_dibujos.png`: the card pictures, from `tools/blender/sotano/cartas3d.py`.
+    - One low-poly object per card, built from primitives with flat colours: rooster, devil, mermaid… El Apagado, La Pipa, El Tinaco.
+    - Rendered in Workbench (studio light, black outline, no AA) on a transparent 8 × 3 atlas of 80 × 80.
+    - `CartasLoteria.dibujo(i)` returns one; `OlPleyUI` puts it over the colour field and writes the name below.
   - `calcomanias.png` and `pantalla.png`: the EL GORDO cabinet and its idle screen.
   - `pantalla_juego.png`: the 384 × 288 game screen background.
   - `baraja.png`: 52 cards plus the El Tinaco back.
@@ -105,21 +124,33 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
 - **Beer posters** (`CARTELES`): one shared material per poster.
 - **Games and things to use:**
   - The ten EL GORDO (`GabineteOlPley`) and the two fruit machines in chip mode.
+  - **The bathroom:** `_armar_bano`.
+    - The door opens and closes (`_puerta_bano`); a `StaticBody3D` blocks the doorway while it is shut.
+    - The bulb flickers, a soft fog drifts (`CPUParticles3D` with a radial gradient), a broken radio loops procedural static (`_estatica`, 3D), and it drips while you're inside.
+    - The mirror and the stall say unsettling things (`LINEAS_ESPEJO`, `LINEAS_CASETA`).
   - The window (`VentanillaUI`), the poker (`PokerUI`), the races (`CarrerasUI`).
-  - The freezer (a caguama for 3 chips), the bar (a Tecatl from the bartender for 2 chips; the same caguama item), the altar, the bathroom door (text only).
+  - The freezer (a caguama for 3 chips), the bar (a Tecatl from the bartender for 2 chips; the same caguama item), the altar.
 - **People:**
   - Talkers on `npc.tscn`: guard, Primo, bartender, dealer, onlooker. The onlooker points out the hot EL GORDO.
   - Seated: four at EL GORDO stools and three on the poker chairs (`Civiles` with `Sitting_Idle`, moved forward by `CADERA`).
+  - Seated vices (`VICIOS`): some smoke (a cigarette with a smoke puff) or hold a beer. `_dar` attaches the object to the hand bone with a `BoneAttachment3D`, scaled by 1 / `Civiles.ESCALA`.
+  - Shady people standing (`TURBIOS`, talkers with their own clip and lines):
+    - the lookout by the stairs, who sweeps his head;
+    - a deal in the bar corner (packet and bills);
+    - the one counting the machines' money;
+    - the drunk at the bar (`Drink`).
   - `GenteSotano`: five walkers on fixed routes of `Camino_*` and the waitress.
     - Some walkers stay in hall 1, around the track; others go through the arch to the bar.
-    - The waitress carries a tray with two real Tecatl bottles. Her `MuebleCasa` follows her and sells a Tecatl.
+    - The waitress walks with `Walk_Carry`, and her tray (two real Tecatl bottles) sits level between her hands every frame (`_process`). When she stops, the clip freezes. Her `MuebleCasa` follows her and sells a Tecatl.
 - **Ambience:** the speaker loops `bocina_musica`, and the two fans spin.
 - **Leaving with chips:** the Primo shouts once if you go up the stairs carrying chips.
 
 ## The games (the house cheats, with tells)
 
 - **Chips:** $5 each (`Fichas.PRECIO`). Cashing out leaves 10% with the Primo.
-- **EL GORDO** (`OlPleyUI`): the camera flies to the cabinet, and the game runs in a 384 × 288 `SubViewport` that the cabinet shows on its screen (`GabineteOlPley.mostrar_en_pantalla`).
+- **EL GORDO** (`OlPleyUI`): the camera flies to the cabinet, framing the screen with the lever on the right. The game runs in a 384 × 288 `SubViewport` that the cabinet shows on its screen (`GabineteOlPley.mostrar_en_pantalla`).
+  - **The lever:** the `Palanca` empty of `gabinete()`. Space or ↓ pulls it: `GabineteOlPley.jalar_palanca` swings it down 55° and springs it back, and the reels start at the bottom of the pull.
+  - **The screen:** cylinder shading over the reels, marquee bulbs that chase (faster while spinning), 7-segment counters, and a banner that scrolls the prize (`_cruzar_letrero`).
   - **Reels:** lotería cards that scroll and stop one by one with a bounce. Each card shows its name in caps, in `PixelifySans` with no antialiasing (`_poner_carta`).
   - **On a win:** the pay line blinks, the counters show bet, chips and prize, and pixelfx plays: coins (`resources/fx/olpley_monedas`) or confetti (`olpley_confeti`).
   - **The board** is `Carretes`: about 89% return, a win one spin in four, El Tinaco is wild and pays double. `SIN_CAJA`; when it is `CALIENTE`, the marquee light blinks.
@@ -127,10 +158,18 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - One fruit at a time: ←/→ moves the bet to another fruit, ↑/↓ sets 1–9 coins, Space spins.
   - The TIRAR and SALIR labels sit on the front panel above their button groups (`tools/map_import/make_maquinita.gd`).
   - `Maquinita.moneda = "fichas"` charges chips and keeps them open at night.
+- **Sounds:** Raw Signal Casino LITE (`audio/casino-effects/`, from AG; the MP3 copies carry a `.gdignore`). Registered in `Sonidos.ARCHIVOS` and `DefensaTinaco.SONIDOS`:
+  - `slot_palanca`, `slot_carrete`, `slot_boton`, `slot_gana`, `slot_gana_grande`, `slot_premio_mayor`;
+  - `monedas_caen`, `ficha_cae`, `apuesta_sube`, `carta`, `ficha_mesa`, `caballitos`.
+  - They are also used by the fruit machine (spin button, win) and the window.
 - **Texas Hold'em:**
   - **Rules** (`Holdem.gd`): fixed limit (blinds 1/2, raises of 2 then 4, 3 raises per round), best 5 of 7 with Spanish names, no side pots. The house takes 10% of each pot (up to 5).
   - **AI:** Doña Cuca is tight and Tacho bluffs. "El de la gorra" is the house's player: from the turn on he knows whether he beats you. The bartender and the onlooker drop hints.
-  - **Table** (`PokerUI`): the camera flies to your seat and looks under the lamp. The board and the neighbours' cards lie on the felt in 3D.
+  - **Table** (`PokerUI`): the camera flies to your seat and looks under the lamp.
+    - The board and the neighbours' cards lie on the felt in 3D. The neighbours' cards sit 0.5 m from the centre, so the far ones don't clip the rail.
+    - The 5 board cards are also shown on screen, top centre, flipping as they land.
+    - On the table: chip towers, beers, an ashtray, the deck.
+    - Chips entering the pot play `ficha_mesa`.
   - **Cards move:**
     - The dealer deals one card at a time from his deck, in an arc and spinning (`_repartir`, `_volar`).
     - Board cards come out face down and flip (`_voltear`).
@@ -139,7 +178,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - Your two cards on screen enter face down and flip.
   - **Keys:** C check/call, R raise, F fold, Space next hand, Esc stand up. You play with your chips.
   - The NPCs' stacks persist between hands, and they rebuy at the window when broke.
-- **Races** (`CarrerasUI`):
+- **Races** (`CarrerasUI`): the camera flies to watch the track from the north while the horses run (`_ver_pista`), then returns.
   - Odds 2/3/5/8/12, with chances proportional to 1/odds.
   - A bet of 5+ halves your horse's luck, and the house's horse trembles first (`Sotano.temblar`).
 
