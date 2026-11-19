@@ -34,7 +34,11 @@ const FOTOS := {
 	"salon1_sur": [Vector3(12.0, -1.2, 1.0), Vector3(15.0, -2.2, 7.5)],
 	"barra": [Vector3(26.0, -1.3, 5.0), Vector3(25.0, -1.8, -1.8)],
 	"salon2": [Vector3(21.5, -0.8, 6.5), Vector3(30.0, -2.4, 0.0)],
-	"poker": [Vector3(28.5, -1.0, 6.6), Vector3(26.0, -2.0, 2.6)],
+	"poker": [Vector3(30.0, -1.0, 7.0), Vector3(27.5, -2.0, 3.6)],
+	"neon_gordo": [Vector3(9.0, -1.4, 3.2), Vector3(13.6, -0.9, 3.0)],
+	"neon_sur": [Vector3(13.0, -1.4, 1.6), Vector3(13.0, -1.1, 8.0)],
+	"neon_poker_bano": [Vector3(29.5, -1.4, 3.0), Vector3(35.0, -1.1, 4.2)],
+	"neon_barra": [Vector3(26.0, -1.6, 3.6), Vector3(26.0, -2.0, -0.3)],
 }
 
 var _sotano: Node3D

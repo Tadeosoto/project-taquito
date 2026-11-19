@@ -524,7 +524,7 @@ def utileria(col):
         marca("Banco_barra_%d" % k, 23.6 + k * 1.2, y, b0 + 2.25, col, 0)
     marca("Cantinero", 26.2, y, b0 + 0.85, col, 0)
     marca("Barra", 26.2, y, b0 + 2.6, col, 0)
-    marca("Neon_barra", 26.0, y + 1.95, b0 + 0.05, col, 0)
+    marca("Neon_barra", 26.0, y + 0.55, b0 + 1.68, col, 0)     # en el frente de la barra
     # La mesa del poker, al centro con espacio alrededor: pano verde, borde acolchado, fichas
     mx, mz = MESA
     caja("Poker_pata", mx - 0.25, mx + 0.25, y, y + 0.72, mz - 0.25, mz + 0.25, madera, col, choca=False)
@@ -567,8 +567,12 @@ def utileria(col):
         caja("Tubo_%d" % k, tx - 0.6, tx + 0.6, TECHO - 0.33, TECHO - 0.29, tz - 0.03, tz + 0.03, tubo, col, choca=False)
         marca("Luz_%d" % k, tx, TECHO - 0.4, tz, col, 0)
     # Neones (los arma Sotano.gd con models/sotano/neones.glb en los vacios)
-    marca("Neon", 15.2, TECHO - 0.75, z0 + 0.05, col, 0)
-    marca("Neon_premio", 18.0, TECHO - 0.65, z1 - 0.05, col, 180)
+    # EL GORDO cuelga de la viga de en medio, viendo a la entrada (en el muro lo tapaban los gabinetes)
+    marca("Neon", 13.52, TECHO - 0.6, 3.0, col, -90)
+    marca("Neon_atras", 13.68, TECHO - 0.6, 3.0, col, 90)      # el mismo, espalda con espalda
+    for k, zc in enumerate((2.45, 3.55)):
+        cable_recto("Cadena_neon_%d" % k, Vector((13.6, TECHO - 0.25, zc)), Vector((13.6, TECHO - 0.3, zc)), metal, col, r=0.01)
+    marca("Neon_premio", 17.8, TECHO - 0.5, z1 - 0.05, col, 180)
     marca("Neon_abierto", 8.6, TECHO - 0.75, z1 - 0.05, col, 180)
     marca("Neon_poker", a1 - 0.05, TECHO - 0.8, MESA[1], col, -90)
     # Anuncios de cerveza (Sotano.gd pone el cartel en cada vacio)

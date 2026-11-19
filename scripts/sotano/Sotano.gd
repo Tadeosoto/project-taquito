@@ -28,14 +28,19 @@ const PISTA_META := 16.5            # x (del cuarto) donde llegan los caballitos
 const CARRERA := 5.5                # s que dura una carrera
 const VENTILADOR := 4.0             # rad/s
 const ANUNCIO := Vector2(0.8, 1.2)  # m de un cartel (escena)
-# Los neones: marca, texto, color, tamano (pixel_size) y si falla
+# Los neones de tubo (models/sotano/neones.glb, de tools/blender/sotano/neones.py): marca, letrero
+# del .glb (Neon_<nombre>), color de su luz, si falla y su escala. Los focos van por turnos (FOCOS s).
+const NEONES_GLB := preload("res://models/sotano/neones.glb")
 const NEONES := [
-	["Neon", "EL GORDO", Color(1.0, 0.3, 0.75), 0.007, false],
-	["Neon_abierto", "ABIERTO 24 HRS", Color(0.3, 1.0, 0.45), 0.0032, true],
-	["Neon_poker", "PÓKER", Color(1.0, 0.25, 0.2), 0.007, false],
-	["Neon_barra", "TECATL", Color(1.0, 0.2, 0.15), 0.006, false],
-	["Neon_bano", "BAÑO", Color(0.3, 0.85, 1.0), 0.004, true],
+	["Neon", "gordo", Color(0.8, 0.4, 1.0), false, 0.75],
+	["Neon_atras", "gordo", Color(0.8, 0.4, 1.0), false, 0.75],
+	["Neon_premio", "premio", Color(1.0, 0.3, 0.75), false, 0.7],
+	["Neon_abierto", "abierto", Color(0.3, 1.0, 0.6), true, 1.0],
+	["Neon_poker", "poker", Color(1.0, 0.75, 0.3), false, 1.0],
+	["Neon_barra", "barra", Color(1.0, 0.25, 0.15), false, 0.6],
+	["Neon_bano", "bano", Color(0.3, 0.85, 1.0), true, 1.0],
 ]
+const FOCOS := 0.35
 # Que cartel va en cada Marca_Anuncio_k (indice en textures/sotano/anuncios.png, arte.CERVEZAS)
 const CARTELES := [0, 1, 2, 5, 3, 4]
 
@@ -73,6 +78,10 @@ var _marcas := {}                   # "Marca_X" -> Transform3D en la escena
 var _caballos: Array[Node3D] = []
 var _caballos_x0: Array[float] = []
 var _luces: Array[OmniLight3D] = []
+var _focos: Array = []               # por turno ("a", "b"): las mallas de focos de los neones
+var _focos_t := 0.0
+static var _foco_prendido: StandardMaterial3D
+static var _foco_apagado: StandardMaterial3D
 var _aspas: Array[Node3D] = []
 var _texto: Label
 var _guardia_linea := 0
@@ -110,6 +119,17 @@ func _ready() -> void:
 		g.name = "Gente"
 		g.set("sotano", self)
 		add_child(g)
+
+
+func _process(delta: float) -> void:
+	# Los focos de los neones se prenden por turnos, como en las ferias
+	_focos_t += delta
+	if _focos_t >= FOCOS and not _focos.is_empty():
+		_focos_t = 0.0
+		var turno := int(Time.get_ticks_msec() / int(FOCOS * 1000.0)) % 2
+		for k in 2:
+			for m: MeshInstance3D in _focos[k]:
+				m.material_override = _foco_prendido if k == turno else _foco_apagado
 
 
 func _physics_process(delta: float) -> void:
@@ -171,28 +191,37 @@ func _prender(luz: Node, energia: float, si: bool) -> void:
 		(luz as OmniLight3D).light_energy = energia if si else energia * 0.08
 	elif luz is Label3D:
 		(luz as Label3D).modulate.a = 1.0 if si else 0.15
+	elif luz is Node3D:
+		(luz as Node3D).visible = si
 
 
 func _armar_neones() -> void:
+	_foco_prendido = _foco_material(Color(1.0, 0.92, 0.6))
+	_foco_apagado = _foco_material(Color(0.35, 0.28, 0.15))
+	_focos = [[], []]
+	var glb := NEONES_GLB.instantiate()
 	for n: Array in NEONES:
 		var t := marca(n[0])
-		if t == Transform3D():
+		var modelo := glb.find_child("Neon_" + n[1], true, false) as Node3D
+		if t == Transform3D() or modelo == null:
 			continue
-		var letrero := Label3D.new()
-		letrero.text = n[1]
-		letrero.font_size = 96
-		letrero.pixel_size = n[3]
-		letrero.modulate = n[2]
-		letrero.outline_modulate = (n[2] as Color).darkened(0.7)
-		letrero.outline_size = 18
-		letrero.shaded = false
-		letrero.double_sided = false
-		letrero.transform = t
+		var letrero := modelo.duplicate() as Node3D
+		letrero.transform = t.scaled_local(Vector3.ONE * float(n[4]))
 		add_child(letrero)
-		var luz := _luz(t.origin + t.basis.z * 0.35, n[2], 1.0, 3.0)
-		if n[4]:
+		for m: MeshInstance3D in letrero.find_children("*_focos_*", "MeshInstance3D", true, false):
+			_focos[0 if m.name.ends_with("_a") else 1].append(m)
+		var luz := _luz(t.origin + t.basis.z * 0.4, n[2], 1.2, 3.5)
+		if n[3]:
 			_parpadear(letrero, 1.0)
-			_parpadear(luz, 1.0)
+			_parpadear(luz, 1.2)
+	glb.free()
+
+
+static func _foco_material(color: Color) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.albedo_color = color
+	return m
 
 
 # Los carteles de cerveza (textures/sotano/anuncios.png, de arte.py): un cuadro por cartel, con su
