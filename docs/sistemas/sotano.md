@@ -5,6 +5,7 @@ AG, 2026-11-18.
 - **v3** (2026-11-19, branch `sotano-v3`): solid boxes (nothing floats any more), real seats and bottles, readable reel cards, the machines renamed **EL GORDO**, tube neon from Blender, a roomier hall 2, poker card animations.
 - **v4** (2026-11-19, branch `sotano-v4`): EL GORDO as a real slot machine (a lever you pull, casino sounds, 3D-rendered card art, a livelier screen), a branded fridge, a readable single-stroke neon, the waitress carries her tray, shady people everywhere, the race camera, a readable poker board, and a walkable Silent Hill bathroom.
 - **v5** (2026-11-19, branch `sotano-v5`): blackjack, roulette (red/black/green, with a double-or-nothing doblete), baccarat, the red-and-blue dice neon by the fridge, colour neon strips and lights on the bar, and EL GORDO cards back to 2D: cartoon pixel art drawn by code (AG didn't like the 3D renders).
+- **v6** (2026-11-19, branch `sotano-v6`): a bigger roulette table, a ball that really rolls and bounces, 3D chip stacks on the felt (roulette and baccarat), and celebrations for winning, win streaks and losing.
 
 The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with the code.
 
@@ -71,11 +72,13 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
 - **Blackjack** (`mesa_blackjack`, `BLACKJACK`): a half-moon table, built by `media_luna`.
   - The felt is printed (`blackjack.png`); a padded rail runs along the arc; the chip tray and shoe sit on the dealer side.
   - Two stools with players, and a lamp.
-- **Roulette** (`mesa_ruleta`, `RULETA`, `RUEDA`): the wheel is sunk flush into the table (`HUECO`).
+- **Roulette** (`mesa_ruleta`, `RULETA` 2.6 × 1.8, `RUEDA`): the wheel is sunk flush into the table (`HUECO`). The marks `Ruleta_rojo` / `_negro` / `_verde` sit beside each felt label and hold your chip stack.
   - `Ruleta_rueda`: a ring of 37 pockets in European order with chrome separators (`Ruleta_separa_*`), a wooden hub with gold spokes and the turret.
   - The ball `Ruleta_bola`; the sloped outer track lives in the bowl.
   - The felt strip (`ruleta.png`) shows VERDE, NEGRO and ROJO only.
-- **Baccarat** (`mesa_baccarat`, `BACCARAT`): a long table in the south-west corner of hall 2, with a printed felt (`baccarat.png`, 128 px per unit so it reads), the chip tray and shoe, one stool and a lamp.
+- **Baccarat** (`mesa_baccarat`, `BACCARAT`): a long table in the south-west corner of hall 2, with a printed felt (`baccarat.png`, 128 px per unit so it reads), the shoe, one stool and a lamp.
+  - No chip tray: it covered BANCA.
+  - The marks `Baccarat_banca` / `_empate` / `_punto` hold your chip stack.
 - The walkers' route goes around the blackjack table by the east wall (`Camino_10`, `Camino_12`) and around the baccarat table on the west (`Camino_13`). The bar-corner deal moved by the arch.
 - **Bathroom** (`banho()`, behind the east wall of hall 2, `BANO`): the door hangs on `Bano_bisagra` and opens into hall 2.
   - Inside: dirty tiles (`azulejo.png`), a green-and-black floor (`azulejo_piso.png`), two stalls (one door hanging off), toilets, a urinal, two sinks with the shattered mirror and an empty mirror frame.
@@ -193,6 +196,13 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - **Keys:** C check/call, R raise, F fold, Space next hand, Esc stand up. You play with your chips.
   - The NPCs' stacks persist between hands, and they rebuy at the window when broke.
 - **Table camera:** `JuegoSotano.acercar_camara` / `regresar_camara` (blackjack, roulette, baccarat).
+- **Chips on the felt** (`PilaFichas`, roulette and baccarat): one chip per chip you bet; the stack moves to the spot you pick.
+  - On a win the dealer slides the payout next to it and pushes both to you (on cash-out in the roulette).
+  - On a loss the stack slides to the dealer.
+- **Celebrations** (`JuegoSotano.festejar`, roulette, blackjack, baccarat; the streak is kept per game for the whole run):
+  - A win shows "¡GANASTE!" with coins.
+  - A second win in a row shows "¡OTRA VEZ!" with confetti; three or more show "¡RACHA DE n!" with confetti, rays and the jackpot sound.
+  - A loss shows "CHALE..." with smoke and a dark flash; after three losses in a row, "¡QUÉ SALADO!".
 - **Blackjack** (`Blackjack.gd`, `BlackjackUI.gd`):
   - The dealer is La Güera. She stands on all 17s; a natural blackjack pays 3 to 2; you can double on two cards.
   - Keys: ←/→ bet, Space deal, H hit, S stand, D double.
@@ -200,7 +210,11 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
 - **Roulette** (`Ruleta.gd`, `RuletaUI.gd`):
   - Bets are red or black (1 to 1) or green (35 to 1) only. ↑/↓ colour, ←/→ bet, Space spin.
   - After a win, C cashes out or D doubles (`dobletear`): everything goes back on a colour, once. If the doblete loses, it's all gone; if it wins, it cashes out by itself.
-  - The wheel slows to a stop; the ball runs the outer track the other way, drops into the pockets and bounces between separators, ticking.
+  - The wheel slows to a stop.
+  - The ball runs the outer track the other way, drops into the pockets and bounces between separators, ticking.
+    - The bounces use gravity.
+    - It rolls by the distance it travels.
+    - It is the UI's own smooth sphere with a few grey specks, so the roll shows; the room's ball is hidden while you play.
   - The cheat: with `FRENO_DESDE` (10) or more at stake the ball sometimes jumps to the next pocket, which is always another colour. Tell: the dealer taps the table.
 - **Baccarat** (`Baccarat.gd`, `BaccaratUI.gd`):
   - Bets are on punto, banca or empate.
