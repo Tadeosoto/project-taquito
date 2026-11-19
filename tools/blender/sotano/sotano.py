@@ -39,8 +39,8 @@ BANO = (35.4, 39.4, 3.0, 7.4)     # el bano: x0, x1, z0, z1 (detras del muro est
 BANO_ALTO = 2.2
 BLACKJACK = (32.4, 2.4, 0.95)    # la mesa de blackjack: x del centro, z de la orilla recta (el crupier, al norte) y radio
 BACCARAT = (22.4, 24.4, 4.6, 5.6)  # la mesa de baccarat (esquina suroeste del salon 2): x0, x1, z0, z1
-RULETA = (32.4, 34.0, -0.9, 0.1)  # la mesa de la ruleta (esquina noreste del salon 2): x0, x1, z0, z1
-RUEDA = (32.95, -0.4, 0.3)        # la rueda: x, z del centro y radio
+RULETA = (32.0, 34.6, -1.3, 0.5)  # (mas grande: la rueda no cabia)  # la mesa de la ruleta (esquina noreste del salon 2): x0, x1, z0, z1
+RUEDA = (32.75, -0.4, 0.3)        # la rueda: x, z del centro y radio
 RUEDA_DENTRO = 0.18               # donde empiezan las casillas (adentro, el plato de madera)
 HUECO = 0.1                       # lo que se hunde la rueda en la mesa (su plato llega al ras)
 REPISA_Y = 1.15                   # la primera repisa de la contrabarra (sobre el piso)
@@ -538,12 +538,13 @@ def mesa_baccarat(col):
     for nombre, a, b, c, d in (("n", x0, x1, z0, z0 + 0.06), ("s", x0, x1, z1 - 0.06, z1), ("o", x0, x0 + 0.06, z0, z1), ("e", x1 - 0.06, x1, z0, z1)):
         caja("Baccarat_borde_" + nombre, a, b, y + 0.8, y + 0.85, c, d, cuero, col, choca=False)
     caja("Baccarat_choque", x0, x1, y, y + 0.85, z0, z1, madera, col, choca=False).name = "Baccarat_choque-colonly"
-    caja("Baccarat_charola", (x0 + x1) / 2 - 0.3, (x0 + x1) / 2 + 0.3, y + 0.8, y + 0.83, z0 + 0.08, z0 + 0.2, cuero, col, choca=False)
-    for k in range(7):
-        for n in range(5):
-            cilindro("Baccarat_ficha_%d_%d" % (k, n), (x0 + x1) / 2 - 0.25 + k * 0.083, y + 0.8 + 0.012 * n, y + 0.812 + 0.012 * n, z0 + 0.14, 0.028,
-                     material("ficha_%d" % (k % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[k % 3]), col, lados=8)
-    caja("Baccarat_zapato", x1 - 0.42, x1 - 0.22, y + 0.8, y + 0.9, z0 + 0.1, z0 + 0.32, material("mazo", (0.45, 0.08, 0.1)), col, choca=False)
+    # La charola ya no va sobre el pano (tapaba la BANCA): las fichas que se juegan las pone
+    # BaccaratUI en cada casilla (Marca_Baccarat_banca / _empate / _punto). El zapato, en la punta
+    caja("Baccarat_zapato", x1 - 0.3, x1 - 0.1, y + 0.8, y + 0.9, z0 + 0.08, z0 + 0.3, material("mazo", (0.45, 0.08, 0.1)), col, choca=False)
+    # Donde va tu pila en cada casilla (a la izquierda de cada letrero de baccarat.png)
+    ancho, fondo_ = x1 - x0 - 0.12, z1 - z0 - 0.12
+    for nombre, v in (("banca", 0.2133), ("empate", 0.5033), ("punto", 0.7933)):
+        marca("Baccarat_" + nombre, x0 + 0.06 + 0.2 * ancho, y + 0.802, z0 + 0.06 + v * fondo_, col, 0)
     marca("Crupier_baccarat", (x0 + x1) / 2, y, z0 - 0.45, col, 0)
     marca("Baccarat", (x0 + x1) / 2, y, z1 + 0.55, col, 180)
     banco("Banco_baccarat", x1 + 0.45, y, (z0 + z1) / 2, ASIENTO, col)
@@ -620,6 +621,10 @@ def mesa_ruleta(col):
     torre.parent = rueda
     bola = esfera("Ruleta_bola", 0.018, material("plastico_blanco", (0.9, 0.9, 0.86)), col)
     bola.location = _b(rx + rr - 0.03, y + 0.85 - HUECO + 0.08, rz)
+    # Donde va tu pila en cada casilla del pano (a la izquierda de cada letrero de ruleta.png)
+    ancho, fondo_ = x1 - rx - h - 0.04, z1 - z0 - 0.04
+    for nombre, v in (("verde", 0.195), ("negro", 0.505), ("rojo", 0.815)):
+        marca("Ruleta_" + nombre, rx + h + 0.02 + 0.15 * ancho, tapa + 0.002, z0 + 0.02 + v * fondo_, col, 0)
     marca("Crupier_ruleta", (x0 + x1) / 2, y, z0 - 0.45, col, 0)
     marca("Ruleta", (x0 + x1) / 2, y, z1 + 0.6, col, 180)
 

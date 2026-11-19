@@ -189,6 +189,10 @@ func _final() -> void:
 	if f and _bj.pago > 0:
 		f.fichas += _bj.pago
 		Sonidos.tocar(self, "monedas_caen", -5.0)
+	if _bj.pago > _bj.apuesta:
+		festejar(true, _bj.pago)
+	elif _bj.pago == 0:
+		festejar(false)
 	var texto: String = {
 		"blackjack": "¡Blackjack! Te pagan %d fichas." % _bj.pago,
 		"ganas": "Ganas. Te pagan %d fichas." % _bj.pago,

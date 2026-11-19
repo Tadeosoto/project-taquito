@@ -24,6 +24,8 @@ var _total_punto: Label
 var _total_banca: Label
 var _info: Label
 var _cartas: Array[TextureRect] = []
+var _pila: PilaFichas                # tu apuesta, sobre la casilla (Marca_Baccarat_banca / _empate / _punto)
+var _pago: PilaFichas
 
 
 func _init() -> void:
@@ -101,6 +103,7 @@ func repartir() -> void:
 		return
 	var apostado: String = Baccarat.APUESTAS[_tipo]
 	Sonidos.tocar(self, "ficha_mesa", -5.0)
+	_acomodar_pila()
 	_ocupado = true
 	_bac.jugar(apostado, _apuesta)
 	if _bac.arreglo:
@@ -129,6 +132,20 @@ func repartir() -> void:
 	if gana > 0:
 		f.fichas += gana
 		Sonidos.tocar(self, "monedas_caen", -5.0)
+	# Las fichas: el crupier paga junto a tu pila y te las acerca, o se las lleva
+	var empate_regresa := _bac.ganador == "empate" and apostado != "empate"
+	if gana > _apuesta:
+		festejar(true, gana)
+		_pago = _nueva_pila(gana - _apuesta, _lugar("Crupier_baccarat") + Vector3(0, 0.82, 0))
+		_pago.ir_a(_lugar("Baccarat_" + apostado) + Vector3(0.075, 0, 0), 0.4)
+		await get_tree().create_timer(0.9).timeout
+		_llevar_pilas(_lugar("Baccarat") + Vector3(0, 0.82, -0.3))
+	elif empate_regresa:
+		await get_tree().create_timer(0.5).timeout
+		_llevar_pilas(_lugar("Baccarat") + Vector3(0, 0.82, -0.3))
+	else:
+		festejar(false)
+		_llevar_pilas(_lugar("Crupier_baccarat") + Vector3(0, 0.82, 0))
 	var texto := "Gana %s. " % NOMBRES[_bac.ganador]
 	if _bac.ganador == "empate" and apostado != "empate":
 		texto += "Te regresan tus %d." % gana
@@ -157,7 +174,48 @@ func _entrar(es_punto: bool, carta: int) -> void:
 	t.tween_property(r, "scale:x", 1.0, VOLTEA / 2.0)
 
 
+func _lugar(marca: String) -> Vector3:
+	return sotano.call("marca", marca).origin if sotano else Vector3.ZERO
+
+
+func _nueva_pila(n: int, donde: Vector3) -> PilaFichas:
+	var p := PilaFichas.new()
+	sotano.add_child(p)
+	p.position = donde
+	p.poner(n)
+	return p
+
+
+func _llevar_pilas(destino: Vector3) -> void:
+	for p in [_pila, _pago]:
+		if p and is_instance_valid(p):
+			p.llevar(destino + Vector3(randf_range(-0.05, 0.05), 0, 0))
+	_pila = null
+	_pago = null
+
+
+# Tu pila (lo que vas a jugar) en la casilla que escogiste; se mueve cuando cambias
+func _acomodar_pila() -> void:
+	if sotano == null or _ocupado:
+		return
+	var destino := _lugar("Baccarat_" + Baccarat.APUESTAS[_tipo])
+	if _pila == null or not is_instance_valid(_pila):
+		_pila = _nueva_pila(_apuesta, destino)
+	elif _pila.cantidad != _apuesta:
+		_pila.poner(_apuesta)
+	if _pila.position.distance_to(destino) > 0.01:
+		_pila.ir_a(destino)
+
+
+func cerrar() -> void:
+	for p in [_pila, _pago]:
+		if p and is_instance_valid(p):
+			p.queue_free()
+	super.cerrar()
+
+
 func _mostrar() -> void:
+	_acomodar_pila()
 	var tipo: String = Baccarat.APUESTAS[_tipo]
 	_info.text = "Al %s · apuesta %d · fichas %d" % [NOMBRES[tipo], _apuesta, fichas()]
 	_info.add_theme_color_override("font_color", COLOR_UI[tipo])
