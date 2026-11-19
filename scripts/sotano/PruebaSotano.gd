@@ -6,7 +6,7 @@ extends Node3D
 # entrar) y la misma escala x1.25. Teclas (en pantalla, F1 las esconde):
 #   .  permiso de los Gotera y +50 fichas      P  +$500
 #   K  quitar el permiso (para probar la cuota del de la puerta; vuelve a poner la cadena)
-#   H  las seis OL PLEY "calientes" (la sena: el foco de la marquesina parpadea)
+#   H  todas las EL GORDO "calientes" (la sena: el foco de la marquesina parpadea)
 #   R  de vuelta al pie de la escalera          F12 empezar de cero
 # La flecha de arriba de la escalera (la de salir) aqui te regresa abajo.
 # Con -- --foto=<archivo.png> guarda una captura a los 2 s y sale (para revisarla sin jugar).
@@ -22,7 +22,7 @@ const PESOS := 1000
 const TEXTO := """El Sótano (prueba)
 . permiso y +50 fichas · P +$500
 K quitar permiso (probar la cuota)
-H OL PLEY calientes · R al pie de la escalera
+H EL GORDO calientes · R al pie de la escalera
 F12 de cero · F1 esconder"""
 
 # Camaras para --fotos: nombre -> [desde, hacia], en metros del cuarto (antes de la escala)

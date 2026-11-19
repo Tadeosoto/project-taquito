@@ -646,7 +646,7 @@ def caballo(i, x, y, z, mat, col):
 
 
 def gabinete():
-    """La maquinita OL PLEY, como las de la foto de AG: base de lamina antiderrapante, cuerpo,
+    """La maquinita EL GORDO (antes OL PLEY), como las de la foto de AG: base de lamina antiderrapante, cuerpo,
     tablero con botones, monitor con bisel y monedero, marquesina, y las calcomanias de
     textures/sotano/calcomanias.png (marquesina arriba, puerta a la izquierda, costado a la derecha,
     etiquetas abajo). Origen al centro de la base, viendo a +Z. Se exporta aparte

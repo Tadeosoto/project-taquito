@@ -7,7 +7,7 @@ extends Node3D
 # maquinitas; y, por un arco, el poker, la barra, el bano y la pista). Sus vacios "Marca_*" dicen
 # donde va cada cosa, y aqui se pone lo que se juega y quien esta:
 #   el de la puerta y su cadena (CadenaChoque-colonly): sin permiso (Fichas.permiso) no pasas,
-#   salvo que le pagues la cuota; la ventanilla del Primo (VentanillaUI), diez OL PLEY
+#   salvo que le pagues la cuota; la ventanilla del Primo (VentanillaUI), diez EL GORDO
 #   (GabineteOlPley + OlPleyUI), dos de frutas (Maquinita en fichas), la mesa de poker (PokerUI),
 #   las carreras (CarrerasUI, que mueve los caballitos con correr()), la barra del cantinero, el
 #   congelador, el altar, la bocina, los tubos de luz (dos fallan), neones, carteles de cerveza,
@@ -30,7 +30,7 @@ const VENTILADOR := 4.0             # rad/s
 const ANUNCIO := Vector2(0.8, 1.2)  # m de un cartel (escena)
 # Los neones: marca, texto, color, tamano (pixel_size) y si falla
 const NEONES := [
-	["Neon", "OL PLEY", Color(1.0, 0.3, 0.75), 0.007, false],
+	["Neon", "EL GORDO", Color(1.0, 0.3, 0.75), 0.007, false],
 	["Neon_abierto", "ABIERTO 24 HRS", Color(0.3, 1.0, 0.45), 0.0032, true],
 	["Neon_poker", "PÓKER", Color(1.0, 0.25, 0.2), 0.007, false],
 	["Neon_barra", "TECATL", Color(1.0, 0.2, 0.15), 0.006, false],
@@ -237,7 +237,7 @@ func _armar_juegos() -> void:
 		g.color = [0, 1, 2, 0, 2, 1, 0, 2, 1, 0][k % 10]
 		g.transform = t
 		add_child(g)
-		add_child(MuebleCasa.crear("Jugar OL PLEY", t.origin + t.basis.z * 0.7, _abrir_olpley.bind(g), 0.6))
+		add_child(MuebleCasa.crear("Jugar al Gordo", t.origin + t.basis.z * 0.7, _abrir_olpley.bind(g), 0.6))
 		k += 1
 	for i in 2:
 		var t := marca("Frutas_%d" % i)
@@ -275,7 +275,7 @@ func _armar_gente() -> void:
 	cantinero.look_at(to_global(marca("Barra").origin), Vector3.UP)
 	var crupier := _hablador("Crupier", "hombre_16", marca("Crupier"), _rotar.bind(LINEAS_CRUPIER, "_jugadores_linea"))
 	crupier.look_at(to_global(marca("Poker").origin), Vector3.UP)
-	# Sentados: en cuatro OL PLEY y los tres del poker
+	# Sentados: en cuatro EL GORDO y los tres del poker
 	var mesa := marca("Poker").origin - Vector3(0, 0, 1.8)
 	var sentados := [["Silla_0", "mujer_07"], ["Silla_2", "hombre_03"], ["Silla_5", "mujer_12"], ["Silla_7", "hombre_14"],
 		["Poker_0", "hombre_15"], ["Poker_1", "hombre_31"], ["Poker_2", "mujer_29"]]
@@ -304,14 +304,14 @@ func _rotar(lineas: Array, contador: String) -> String:
 	return lineas[n % lineas.size()]
 
 
-# El miron sabe leer las senas: si una OL PLEY esta caliente te dice cual (contando desde la
+# El miron sabe leer las senas: si una EL GORDO esta caliente te dice cual (contando desde la
 # escalera); si no, platica
 func _linea_miron() -> String:
 	var k := 0
 	while get_node_or_null("OlPley_%d" % k):
 		var g := get_node("OlPley_%d" % k) as GabineteOlPley
 		if g.placa.estado == Carretes.Estado.CALIENTE:
-			return "Fíjate en la OL PLEY número %d, contando desde la escalera: le parpadea el foco. Esa ya va a pagar." % (k + 1)
+			return "Fíjate en el Gordo número %d, contando desde la escalera: le parpadea el foco. Esa ya va a pagar." % (k + 1)
 		k += 1
 	return _rotar(LINEAS_JUGADORES, "_jugadores_linea")
 

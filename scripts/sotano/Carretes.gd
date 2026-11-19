@@ -1,7 +1,7 @@
 class_name Carretes
 extends RefCounted
 
-# La placa de una maquinita OL PLEY (la "Loteria de carretes" del Sotano): tres carretes con
+# La placa de una maquinita EL GORDO (OlPley en el codigo) (la "Loteria de carretes" del Sotano): tres carretes con
 # cartas de la loteria y El Tinaco de comodin. Solo decide y lleva las cuentas, como
 # scripts/tragamonedas.gd con las de frutas; OlPleyUI la muestra. Una por gabinete.
 # La casa hace trampa, como toda la vida (docs/lore.md 11, El Sotano):

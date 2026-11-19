@@ -2,7 +2,7 @@ extends Node
 # Prueba del Sotano (docs/sistemas/sotano.md) en la safehouse, con el jugador de verdad:
 #   godot --path . tools/sotano/probar_sotano.tscn -- --capturas=<carpeta>
 # Necesita ventana (las capturas; sin --capturas igual corre). Entra por la flecha de la safehouse,
-# revisa la cadena del de la puerta, paga la cuota, compra fichas, juega OL PLEY, la loteria y las
+# revisa la cadena del de la puerta, paga la cuota, compra fichas, juega EL GORDO, el poker y las
 # carreras (a tiempo acelerado), compra una caguama, cobra y sale. Imprime "ok"/"MAL" por paso y
 # al final RESULTADO.
 
@@ -103,9 +103,9 @@ func _probar() -> void:
 	await _foto("2_ventanilla")
 	ui.cerrar()
 	await _esperar(0.3)
-	# OL PLEY: 20 tiros de 1 ficha
+	# EL GORDO: 20 tiros de 1 ficha
 	var gabinetes := sotano.find_children("OlPley_*", "StaticBody3D", false, false)
-	_ver(gabinetes.size() == 10, "hay diez OL PLEY", str(gabinetes.size()))
+	_ver(gabinetes.size() == 10, "hay diez EL GORDO", str(gabinetes.size()))
 	jugador.global_position = sotano.to_global(Vector3(13.4, -2.0, 0.2))
 	sotano._abrir_olpley(gabinetes[2])
 	await _esperar(0.3)
@@ -119,7 +119,7 @@ func _probar() -> void:
 		tiros += 1
 		if k == 0:
 			await _foto("3_olpley")
-	_ver(tiros == 20 and fichas.fichas != antes - 0, "20 tiros en OL PLEY", "fichas %d -> %d, caja %d" % [antes, fichas.fichas, gabinetes[2].placa.caja])
+	_ver(tiros == 20 and fichas.fichas != antes - 0, "20 tiros en EL GORDO", "fichas %d -> %d, caja %d" % [antes, fichas.fichas, gabinetes[2].placa.caja])
 	ui.cerrar()
 	await _esperar(0.3)
 	# Poker: una mano entera, siempre pasar o ir
@@ -206,7 +206,7 @@ func _probar() -> void:
 		await _esperar(1.0)
 	# Fotos de adentro
 	if _carpeta != "":
-		# yaw 0 = al norte (las OL PLEY), PI/2 = al oeste (ventanilla), -PI/2 = al este (pista)
+		# yaw 0 = al norte (las EL GORDO), PI/2 = al oeste (ventanilla), -PI/2 = al este (pista)
 		for vista: Array in [[Vector3(14.0, -2.0, 6.0), 0.0, "6_maquinitas"], [Vector3(12.0, -2.0, 2.0), PI / 2.0, "7_ventanilla"],
 				[Vector3(23.0, -2.0, 4.6), -PI / 2.0, "8_salon2"], [Vector3(14.0, -2.0, 1.0), PI, "9_altar"],
 				[Vector3(26.0, -2.0, 5.2), 0.0, "10_barra"], [Vector3(9.0, -2.0, 3.0), -PI / 2.0, "11_arco"],
