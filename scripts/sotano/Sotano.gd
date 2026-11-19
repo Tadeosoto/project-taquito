@@ -203,7 +203,7 @@ func _armar_luces() -> void:
 	_luz(marca("Luz_poker").origin, Color(1.0, 0.9, 0.7), 2.2, 4.0)
 	# Un foco sobre la rueda de la ruleta (las casillas se pierden en lo oscuro)
 	if _marcas.has("Marca_Ruleta"):
-		_luz(marca("Ruleta").origin + Vector3(-0.35, 1.5, -1.1), Color(1.0, 0.92, 0.75), 1.6, 2.4)
+		_luz(marca("Ruleta").origin + Vector3(-0.25, 1.5, -1.1), Color(1.0, 0.92, 0.75), 1.6, 2.4)
 	if _marcas.has("Marca_Luz_baccarat"):
 		_luz(marca("Luz_baccarat").origin, Color(1.0, 0.9, 0.7), 1.6, 3.2)
 	if _marcas.has("Marca_Luz_blackjack"):

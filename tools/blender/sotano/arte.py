@@ -406,20 +406,20 @@ def mesas():
     _texto(sc, "EL CRUPIER SE PLANTA EN 17", 4.0, 1.95, 0.17, blanco, negra, ancho_max=3.4)
     _texto(sc, "EL SÓTANO", 4.0, 0.55, 0.16, blanco, negra)
     _render(sc, "blackjack.png")
-    # La ruleta
-    sc = _escena("Ruleta", 384, 256, u)
-    _rect(sc, 0, 0, 6, 4, verde, -0.05)
-    _rect(sc, 0.06, 0.06, 5.94, 3.94, blanco, -0.045)
-    _rect(sc, 0.1, 0.1, 5.9, 3.9, verde, -0.04)
-    _circulo(sc, 1.6, 2.0, 1.45, verde_osc, -0.035, lados=40)
-    for k, (nombre, fondo, letra, paga) in enumerate((("ROJO", (0.75, 0.06, 0.05), blanco, "PAGA 1 A 1"),
+    # La ruleta: la franja de las apuestas junto a la rueda (que va hundida a la izquierda), 0.6 x 1.0
+    # de mesa: las tres casillas apiladas, VERDE arriba (del lado del crupier)
+    sc = _escena("Ruleta", 192, 320, u)
+    _rect(sc, 0, 0, 3, 5, verde, -0.05)
+    _rect(sc, 0.06, 0.06, 2.94, 4.94, blanco, -0.045)
+    _rect(sc, 0.1, 0.1, 2.9, 4.9, verde, -0.04)
+    for k, (nombre, fondo, letra, paga) in enumerate((("VERDE", (0.05, 0.5, 0.15), amarillo, "PAGA 35 A 1"),
                                                        ("NEGRO", (0.06, 0.06, 0.06), blanco, "PAGA 1 A 1"),
-                                                       ("VERDE", (0.05, 0.5, 0.15), amarillo, "PAGA 35 A 1"))):
-        y0 = 0.35 + k * 1.15
-        _rect(sc, 3.25, y0, 5.7, y0 + 1.0, blanco, -0.03)
-        _rect(sc, 3.3, y0 + 0.05, 5.65, y0 + 0.95, fondo, -0.025)
-        _texto(sc, nombre, 4.47, y0 + 0.42, 0.42, letra, impacto)
-        _texto(sc, paga, 4.47, y0 + 0.8, 0.13, letra, negra)
+                                                       ("ROJO", (0.75, 0.06, 0.05), blanco, "PAGA 1 A 1"))):
+        y0 = 0.3 + k * 1.55
+        _rect(sc, 0.3, y0, 2.7, y0 + 1.35, blanco, -0.03)
+        _rect(sc, 0.35, y0 + 0.05, 2.65, y0 + 1.3, fondo, -0.025)
+        _texto(sc, nombre, 1.5, y0 + 0.6, 0.48, letra, impacto, ancho_max=2.1)
+        _texto(sc, paga, 1.5, y0 + 1.05, 0.16, letra, negra)
     _render(sc, "ruleta.png")
     # El baccarat (384 x 192 para una mesa de 1.88 x 0.88): BANCA arriba (del lado del crupier),
     # PUNTO abajo (de tu lado) y el EMPATE en medio

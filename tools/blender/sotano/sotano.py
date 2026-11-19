@@ -39,9 +39,10 @@ BANO = (35.4, 39.4, 3.0, 7.4)     # el bano: x0, x1, z0, z1 (detras del muro est
 BANO_ALTO = 2.2
 BLACKJACK = (32.4, 2.4, 0.95)    # la mesa de blackjack: x del centro, z de la orilla recta (el crupier, al norte) y radio
 BACCARAT = (22.4, 24.4, 4.6, 5.6)  # la mesa de baccarat (esquina suroeste del salon 2): x0, x1, z0, z1
-RULETA = (32.6, 34.0, -0.9, 0.1)  # la mesa de la ruleta (esquina noreste del salon 2): x0, x1, z0, z1
+RULETA = (32.4, 34.0, -0.9, 0.1)  # la mesa de la ruleta (esquina noreste del salon 2): x0, x1, z0, z1
 RUEDA = (32.95, -0.4, 0.3)        # la rueda: x, z del centro y radio
 RUEDA_DENTRO = 0.18               # donde empiezan las casillas (adentro, el plato de madera)
+HUECO = 0.1                       # lo que se hunde la rueda en la mesa (su plato llega al ras)
 REPISA_Y = 1.15                   # la primera repisa de la contrabarra (sobre el piso)
 REPISA_SEPARA = 0.34
 PISTA = (11.5, 17.0, 4.8, 6.0)    # la isla de los caballitos en el salon 1: x0, x1, z0, z1
@@ -560,11 +561,20 @@ def mesa_ruleta(col):
     rx, rz, rr = RUEDA
     y = PISO
     madera = material("madera", (0.45, 0.32, 0.2))
-    caja("Ruleta_mesa", x0, x1, y, y + 0.85, z0, z1, madera, col)
-    plano("Ruleta_pano", ((x0 + x1) / 2, y + 0.852, (z0 + z1) / 2), x1 - x0 - 0.04, z1 - z0 - 0.04, (0, 1, 0), material("ruleta", (1, 1, 1)), col)
-    # El plato de madera: un aro que levanta la rueda
-    girar("Ruleta_plato", [(0, 0), (rr + 0.1, 0), (rr + 0.1, 0.1), (rr + 0.08, 0.1), (rr + 0.02, 0.05), (rr + 0.01, 0.03), (0, 0.03)],
-          material("madera_oscura", (0.3, 0.2, 0.12)), col, lados=24).location = _b(rx, y + 0.852, rz)
+    # La rueda va hundida en la mesa, al ras (encima parecia pastel): el cuerpo hasta HUECO, la cubierta
+    # de madera alrededor de un hueco cuadrado y el pano solo del lado de las apuestas
+    tapa = y + 0.85
+    fondo = tapa - HUECO
+    h = rr + 0.1
+    caja("Ruleta_mesa", x0, x1, y, fondo, z0, z1, madera, col, choca=False)
+    caja("Ruleta_choque", x0, x1, y, tapa, z0, z1, madera, col, choca=False).name = "Ruleta_choque-colonly"
+    for nombre, a, b, c, d in (("o", x0, rx - h, z0, z1), ("e", rx + h, x1, z0, z1), ("n", rx - h, rx + h, z0, rz - h), ("s", rx - h, rx + h, rz + h, z1)):
+        if b - a > 0.001 and d - c > 0.001:
+            caja("Ruleta_cubierta_" + nombre, a, b, fondo, tapa, c, d, madera, col, choca=False)
+    plano("Ruleta_pano", ((rx + h + x1) / 2, tapa + 0.002, (z0 + z1) / 2), x1 - rx - h - 0.04, z1 - z0 - 0.04, (0, 1, 0), material("ruleta", (1, 1, 1)), col)
+    # El plato de madera hundido: su orilla al ras de la mesa, la pista inclinada y el fondo
+    girar("Ruleta_plato", [(0, 0), (rr + 0.1, 0), (rr + 0.1, HUECO), (rr + 0.08, HUECO), (rr + 0.02, HUECO - 0.05), (rr + 0.01, 0.03), (0, 0.03)],
+          material("madera_oscura", (0.3, 0.2, 0.12)), col, lados=24).location = _b(rx, fondo, rz)
     # La rueda: un anillo de casillas en el orden europeo (rojo, negro y la verde del cero), con
     # separadores de metal entre una y otra (ahi rebota la bola, RuletaUI), y al centro el plato de
     # madera con sus rayos dorados y la torre
@@ -592,7 +602,7 @@ def mesa_ruleta(col):
                       ("madera_oscura", (0.3, 0.2, 0.12))):
         me.materials.append(material(nombre, c))
     rueda = bpy.data.objects.new("Ruleta_rueda", me)
-    rueda.location = _b(rx, y + 0.852, rz)
+    rueda.location = _b(rx, y + 0.85 - HUECO + 0.03, rz)
     col.objects.link(rueda)
     cromo = material("cromo", (0.75, 0.77, 0.8))
     for k in range(n):
@@ -609,7 +619,7 @@ def mesa_ruleta(col):
     torre = girar("Ruleta_torre", [(0, 0.05), (0.06, 0.05), (0.03, 0.09), (0.012, 0.14), (0.03, 0.16), (0, 0.17)], material("tapa_dorada", (0.85, 0.7, 0.25)), col, lados=8)
     torre.parent = rueda
     bola = esfera("Ruleta_bola", 0.018, material("plastico_blanco", (0.9, 0.9, 0.86)), col)
-    bola.location = _b(rx + rr - 0.03, y + 0.852 + 0.05, rz)
+    bola.location = _b(rx + rr - 0.03, y + 0.85 - HUECO + 0.08, rz)
     marca("Crupier_ruleta", (x0 + x1) / 2, y, z0 - 0.45, col, 0)
     marca("Ruleta", (x0 + x1) / 2, y, z1 + 0.6, col, 180)
 

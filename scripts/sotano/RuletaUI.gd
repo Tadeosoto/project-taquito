@@ -15,8 +15,8 @@ const RUEDA_RADIO := 0.3             # sotano.py RUEDA (radio) y RUEDA_DENTRO: e
 const RUEDA_DENTRO := 0.18
 const PISTA := 0.35                  # radio de la pista de afuera por donde corre la bola
 const CAE := Vector2(0.55, 0.72)     # cuando cae de la pista a las casillas (fraccion del giro)
-const CAMARA_DESDE := Vector3(-0.35, 1.3, -0.3)  # desde la marca Ruleta (m de la escena): casi encima de la rueda
-const CAMARA_MIRA := Vector3(-0.3, 0.85, -1.08)
+const CAMARA_DESDE := Vector3(-0.25, 1.25, -0.3)  # desde la marca Ruleta (m de la escena): casi encima de la rueda
+const CAMARA_MIRA := Vector3(-0.22, 0.75, -1.08)
 const NOMBRES := {"rojo": "ROJO", "negro": "NEGRO", "verde": "VERDE"}
 const COLOR_UI := {"rojo": Color(1.0, 0.3, 0.25), "negro": Color(0.85, 0.85, 0.85), "verde": Color(0.3, 1.0, 0.45)}
 
@@ -207,7 +207,7 @@ func _animar(n: int) -> void:
 		var atraso := -VUELTAS_BOLA * TAU * pow(1.0 - f, 2.0)           # al reves; llega a la casilla
 		var fi := giro + a + atraso + rebote
 		var r := lerpf(PISTA, (RUEDA_DENTRO + RUEDA_RADIO) / 2.0, ease(cae, 0.6))
-		var alto := lerpf(0.075, 0.053, cae)
+		var alto := lerpf(0.07, 0.053, cae)
 		# Cada separador que cruza ya adentro: un brinquito y su tic
 		var en := posmod(int(floor((fi - giro) / (TAU / total))), total)
 		if cae > 0.0 and en != casilla_antes:
