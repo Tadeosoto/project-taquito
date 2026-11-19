@@ -121,6 +121,30 @@ func _probar() -> void:
 	_ver(tiros == 20 and fichas.fichas != antes - 0, "20 tiros en OL PLEY", "fichas %d -> %d, caja %d" % [antes, fichas.fichas, gabinetes[2].placa.caja])
 	ui.cerrar()
 	await _esperar(0.3)
+	# Poker: una mano entera, siempre pasar o ir
+	fichas.fichas = maxi(fichas.fichas, 30)
+	jugador.global_position = sotano.to_global(Vector3(26.0, -2.0, 5.3))
+	sotano._abrir_poker()
+	await _esperar(1.0)
+	ui = arbol.get_first_node_in_group("juego_sotano")
+	_ver(ui != null and ui.get("_h") != null, "se sienta al poker")
+	var limite := Time.get_ticks_msec()
+	var foto_poker := false
+	while ui.get("_h").fase != Holdem.Fase.FIN and Time.get_ticks_msec() - limite < 60000:
+		await _esperar(0.2)
+		if ui.get("_esperando"):
+			if not foto_poker and ui.get("_h").mesa.size() >= 3:
+				foto_poker = true
+				await _foto("4_poker")
+			ui.jugar("pasar")
+	var h: Holdem = ui.get("_h")
+	_ver(h.fase == Holdem.Fase.FIN and not h.ganadores.is_empty(), "se juega una mano de poker", "%s, mesa %d cartas, la casa %d" % [h.mano_ganadora, h.mesa.size(), h.rake])
+	await _esperar(0.3)
+	if not foto_poker:
+		await _foto("4_poker")
+	_ver(fichas.fichas == h.jugadores[0].fichas, "tus fichas son las de la mesa", str(fichas.fichas))
+	ui.cerrar()
+	await _esperar(0.8)
 	# Carreras: al rojo, 2 fichas
 	jugador.global_position = sotano.to_global(Vector3(25.8, -2.0, 4.9))
 	sotano._abrir("res://scripts/sotano/CarrerasUI.gd", {"sotano": sotano})
