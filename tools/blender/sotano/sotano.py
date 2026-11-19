@@ -34,6 +34,8 @@ PASILLO = (2.3, 3.9)              # z del descanso y la escalera
 ESCALERA = (2.8, 6.6)             # x donde baja
 PELDANOS = 13
 GRUESO = 0.4
+VIP_PUERTA = (1.4, 2.4)           # z del hueco de la puerta del cuarto VIP en el muro este del salon 2
+VIP = (35.4, 42.4, -2.0, 2.8)     # el cuarto VIP: x0, x1, z0, z1 (al norte del bano)
 BANO_PUERTA = (4.6, 5.5)          # z del hueco de la puerta del bano en el muro este del salon 2
 BANO = (35.4, 39.4, 3.0, 7.4)     # el bano: x0, x1, z0, z1 (detras del muro este)
 BANO_ALTO = 2.2
@@ -688,7 +690,7 @@ def suavizar(perfil, veces=2):
     return perfil
 
 
-FICHA_COLORES = ((0.8, 0.08, 0.08), (0.1, 0.25, 0.8), (0.92, 0.92, 0.88), (0.08, 0.5, 0.18))
+FICHA_COLORES = ((0.8, 0.08, 0.08), (0.1, 0.25, 0.8), (0.92, 0.92, 0.88), (0.08, 0.5, 0.18), (0.95, 0.72, 0.15))   # la 4: de oro (VIP)
 FICHA_R = 0.028
 FICHA_ALTO = 0.012
 
@@ -843,6 +845,114 @@ def tubo_curva(nombre, puntos, r, mat, col, lados=10, cerrado=False):
     return ob
 
 
+def cuarto_vip(col):
+    """El cuarto VIP, detras del muro este del salon 2 (al norte del bano): para los que apuestan
+    fuerte. Paredes de terciopelo rojo con molduras doradas, piso de marmol negro, un candil, el
+    escenario redondo con su tubo y su aro de neon, el blackjack de oro (paño negro con letras
+    doradas, borde dorado), gabinetes de terciopelo con hieleras de champaña, lingotes de oro en su
+    vitrina. Afuera la puerta tiene marco dorado y cordon de terciopelo (el guarura cobra el pase:
+    Sotano.gd)."""
+    x0, x1, z0, z1 = VIP
+    y = PISO
+    g = 0.2
+    a1 = SALON2[1]
+    v0, v1 = VIP_PUERTA
+    marmol = material("marmol_negro", (0.06, 0.06, 0.07))
+    terciopelo = material("terciopelo", (0.38, 0.03, 0.06))
+    oro = material("oro", (0.95, 0.72, 0.2))
+    muro = material("block", (0.55, 0.53, 0.5))
+    caja("VIP_piso", x0, x1 + g, y - g, y, z0 - g, z1 + g, marmol, col)
+    caja("VIP_techo", x0, x1 + g, TECHO, TECHO + g, z0 - g, z1 + g, material("concreto_techo", (0.35, 0.34, 0.33)), col)
+    caja("VIP_muro_n", x0, x1 + g, y, TECHO, z0 - g, z0, muro, col)
+    caja("VIP_muro_e", x1, x1 + g, y, TECHO, z0, z1, muro, col)
+    caja("VIP_muro_s", BANO[1] + g, x1 + g, y, TECHO, z1, z1 + g, muro, col)
+    # Terciopelo con molduras doradas en los muros de adentro
+    for nombre, a, b, c, d in (("n", x0, x1, z0, z0 + 0.03), ("e", x1 - 0.03, x1, z0, z1), ("s", x0, x1, z1 - 0.03, z1),
+                               ("o_n", x0, x0 + 0.03, z0, v0), ("o_s", x0, x0 + 0.03, v1, z1)):
+        caja("VIP_terciopelo_" + nombre, a, b, y + 0.12, TECHO - 0.1, c, d, terciopelo, col, choca=False)
+        for alto in (0.0, 1.0, TECHO - y - 0.12):
+            ax = 0.012 if nombre in ("e",) else 0.0
+            caja("VIP_moldura_%s_%d" % (nombre, int(alto * 100)), a - ax, b + ax, y + alto, y + alto + 0.12 if alto == 0.0 else y + alto + 0.04,
+                 c - (0.012 if nombre == "s" else 0.0), d + (0.012 if nombre == "n" else 0.0), oro, col, choca=False)
+    # La puerta: marco dorado del lado del salon 2 y el cordon de terciopelo (Sotano.gd lo quita con el pase)
+    for nombre, za, zb in (("n", v0 - 0.08, v0), ("s", v1, v1 + 0.08)):
+        caja("VIP_marco_" + nombre, a1 - 0.04, a1, y, y + 2.28, za, zb, oro, col, choca=False)
+    caja("VIP_marco_arriba", a1 - 0.04, a1, y + 2.2, y + 2.28, v0 - 0.08, v1 + 0.08, oro, col, choca=False)
+    for k, zp in enumerate((v0 + 0.08, v1 - 0.08)):
+        girar("VIP_poste_%d" % k, [(0, 0), (0.12, 0), (0.12, 0.03), (0.03, 0.05), (0.025, 0.9), (0.05, 0.94), (0, 0.97)], oro, col, lados=16).location = _b(a1 - 0.35, y, zp)
+    tubo_curva("VIP_cordon", [Vector((a1 - 0.35, y + 0.88, v0 + 0.08 + (v1 - v0 - 0.16) * t / 8.0 * 1.0)) - Vector((0, 0.18 * math.sin(math.pi * t / 8.0), 0))
+                              for t in range(9)], 0.022, terciopelo, col, lados=8)
+    marca("VIP_cordon", a1 - 0.35, y, (v0 + v1) / 2, col, 0)
+    marca("VIP_guardia", a1 - 0.6, y, v1 + 0.45, col, -90)
+    marca("VIP_pase", a1 - 0.9, y, (v0 + v1) / 2, col, -90)
+    marca("Neon_vip", a1 - 0.03, y + 2.29, (v0 + v1) / 2, col, -90)     # chico (escala 0.4): arriba de la puerta no hay mas
+    # El candil: aros dorados con focos
+    cx_, cz_ = (x0 + x1) / 2 - 0.5, (z0 + z1) / 2
+    cable_recto("VIP_candil_cadena", Vector((cx_, TECHO, cz_)), Vector((cx_, TECHO - 0.35, cz_)), oro, col, r=0.01)
+    for k, (rr, hh) in enumerate(((0.35, 0.45), (0.22, 0.55))):
+        girar("VIP_candil_aro_%d" % k, [(rr, -hh), (rr + 0.02, -hh), (rr + 0.02, -hh + 0.03), (rr, -hh + 0.03)], oro, col, lados=24).location = _b(cx_, TECHO, cz_)
+        for j in range(8 if k == 0 else 6):
+            ang = j * math.tau / (8 if k == 0 else 6)
+            esfera("VIP_candil_foco_%d_%d" % (k, j), 0.025, material("foco_bano", (1.0, 0.85, 0.5), emision=2.0), col).location = \
+                _b(cx_ + math.cos(ang) * rr, TECHO - hh + 0.05, cz_ + math.sin(ang) * rr)
+    marca("Luz_vip_0", cx_, TECHO - 0.6, cz_, col, 0)
+    # El escenario redondo con su tubo y su aro de neon rosa
+    ex, ez = x1 - 1.4, z0 + 1.4
+    girar("VIP_escenario", [(0, 0), (0.95, 0), (0.95, 0.22), (0.9, 0.25), (0, 0.25)], marmol, col, lados=32).location = _b(ex, y, ez)
+    girar("VIP_escenario_orilla", [(0.93, 0.2), (0.97, 0.2), (0.97, 0.24), (0.93, 0.24)], material("neon_rosa", (1.0, 0.25, 0.75)), col, lados=32).location = _b(ex, y, ez)
+    choque = girar("VIP_escenario_choque", [(0, 0), (0.96, 0), (0.96, 0.25), (0, 0.25)], marmol, col, lados=12)
+    choque.location = _b(ex, y, ez)
+    choque.name = "VIP_escenario-colonly"
+    girar("VIP_tubo", [(0, 0.25), (0.03, 0.25), (0.03, TECHO - y), (0, TECHO - y)], material("cromo", (0.75, 0.77, 0.8)), col, lados=16).location = _b(ex, y, ez)
+    girar("VIP_tubo_base", [(0, 0.25), (0.09, 0.25), (0.09, 0.29), (0, 0.29)], material("cromo"), col, lados=16).location = _b(ex, y, ez)
+    marca("VIP_tubo", ex, y + 0.25, ez, col, 0)
+    marca("Luz_vip_1", ex, TECHO - 0.3, ez, col, 0)
+    marca("Luz_vip_2", ex - 1.0, y + 0.5, ez + 1.0, col, 0)
+    # El blackjack de oro (altas apuestas): media luna negra con letras doradas y el borde dorado
+    bx, bz, br = x0 + 2.2, z0 + 0.45, 0.9
+    girar("VIP_bj_pie", [(0, 0), (0.35, 0), (0.35, 0.04), (0.12, 0.08), (0.11, 0.74), (0, 0.74)], oro, col, lados=16).location = _b(bx, y, bz + br * 0.45)
+    media_luna("VIP_bj_mesa", bx, y + 0.74, y + 0.8, bz, br, material("blackjack_vip", (1, 1, 1)), material("madera_oscura", (0.3, 0.2, 0.12)), col, pasos=24)
+    tubo_curva("VIP_bj_borde", [Vector((bx + math.cos(math.radians(180 - 6 * k)) * (br + 0.03), y + 0.82, bz + math.sin(math.radians(180 - 6 * k)) * (br + 0.03)))
+                                for k in range(31)], 0.045, oro, col, lados=12)
+    caja("VIP_bj_choque", bx - br - 0.05, bx + br + 0.05, y, y + 0.85, bz - 0.05, bz + br + 0.05, marmol, col, choca=False).name = "VIP_bj_choque-colonly"
+    for k in range(6):
+        torre_fichas("VIP_bj_fichas_%d" % k, bx - 0.2 + k * 0.08, y + 0.8, bz + 0.1, 8, col, color=4, cambia=8)
+    marca("Crupier_VIP_bj", bx, y, bz - 0.4, col, 0)
+    marca("VIP_bj", bx, y, bz + br + 0.5, col, 180)
+    marca("VIP_bj_tu", bx, y, bz + br + 0.35, col, 180)
+    for k, ang in enumerate((150, 30)):
+        sx, sz = bx + math.cos(math.radians(ang)) * (br + 0.45), bz + math.sin(math.radians(ang)) * (br + 0.45)
+        banco("VIP_banco_%d" % k, sx, y, sz, ASIENTO, col)
+        marca("VIP_bj_%d" % k, sx, y, sz, col, 0)
+    marca("Luz_vip_3", bx, TECHO - 0.7, bz + 0.4, col, 0)
+    # Gabinetes de terciopelo contra el muro sur, con su mesita y la hielera de champaña
+    for k, gx in enumerate((x1 - 3.2, x1 - 1.3)):
+        gz = z1 - 0.35
+        caja("VIP_sillon_%d" % k, gx - 0.75, gx + 0.75, y, y + 0.42, gz - 0.3, gz + 0.3, terciopelo, col)
+        caja("VIP_sillon_resp_%d" % k, gx - 0.75, gx + 0.75, y + 0.42, y + 0.95, gz + 0.15, gz + 0.3, terciopelo, col, choca=False)
+        for lado in (-1, 1):
+            tubo_curva("VIP_sillon_brazo_%d_%d" % (k, lado), [Vector((gx + lado * 0.72, y + 0.55, gz - 0.28)), Vector((gx + lado * 0.72, y + 0.55, gz + 0.28))],
+                       0.08, terciopelo, col, lados=12)
+        for j in range(4):
+            esfera("VIP_boton_%d_%d" % (k, j), 0.015, oro, col).location = _b(gx - 0.5 + j * 0.33, y + 0.72, gz + 0.145)
+        mx_, mz_ = gx, gz - 0.75
+        girar("VIP_mesita_%d" % k, [(0, 0), (0.18, 0), (0.18, 0.02), (0.04, 0.04), (0.04, 0.48), (0.32, 0.48), (0.32, 0.52), (0, 0.52)], oro, col, lados=20).location = _b(mx_, y, mz_)
+        girar("VIP_hielera_%d" % k, [(0, 0.52), (0.08, 0.52), (0.1, 0.7), (0.105, 0.72), (0.09, 0.72), (0.08, 0.56), (0, 0.56)], material("cromo"), col, lados=16).location = _b(mx_ + 0.08, y, mz_)
+        for j in range(2):
+            botella("VIP_champana_%d_%d" % (k, j), "whisky" if j else "tequila", mx_ + 0.06 + j * 0.05, y + 0.56, mz_ - 0.02 + j * 0.04, col)
+        torre_fichas("VIP_mesita_fichas_%d" % k, mx_ - 0.15, y + 0.52, mz_, 6, col, color=4, cambia=6)
+        marca("VIP_sillon_%d" % k, gx, y, gz - 0.12, col, 0)
+    # La vitrina de los lingotes, en el muro este
+    vx, vz = x1 - 0.45, z1 - 1.5
+    caja("VIP_vitrina", vx - 0.3, vx + 0.3, y, y + 0.9, vz - 0.35, vz + 0.35, material("madera_oscura"), col)
+    for k in range(6):
+        lx_, lz_, ly_ = vx - 0.1 + (k % 2) * 0.2, vz - 0.15 + ((k // 2) % 2) * 0.3, y + 0.9 + (k // 4) * 0.06
+        caja("VIP_lingote_%d" % k, lx_ - 0.07, lx_ + 0.07, ly_, ly_ + 0.05, lz_ - 0.035, lz_ + 0.035, oro, col, choca=False)
+    caja("VIP_vitrina_vidrio", vx - 0.3, vx + 0.3, y + 0.9, y + 1.25, vz - 0.35, vz + 0.35, material("vidrio_refri", (0.75, 0.9, 1.0)), col, choca=False)
+    marca("Neon_club", x1 - 0.03, TECHO - 0.7, z0 + 1.4, col, -90)
+    marca("Luz_vip_4", vx - 0.4, y + 1.4, vz, col, 0)
+
+
 def cuarto():
     """Los muros (GRUESO, 0.4), el descanso, la escalera con zancas y barandal, el salon de las
     maquinitas (SALON) y, por un arco en su muro este, el salon del poker y la barra (SALON2)."""
@@ -927,10 +1037,14 @@ def cuarto():
     caja("Muro2_norte", a0, a1 + g, PISO, TECHO, b0 - g, b0, muro, col)
     caja("Muro2_sur", a0, a1 + g, PISO, TECHO, b1, b1 + g, muro, col)
     # El muro este, con el hueco de la puerta del bano (BANO_PUERTA: z de las jambas)
+    # (y el del cuarto VIP, VIP_PUERTA, mas al norte)
     p0, p1 = BANO_PUERTA
-    caja("Muro2_este_n", a1, a1 + g, PISO, TECHO, b0, p0, muro, col)
+    v0, v1 = VIP_PUERTA
+    caja("Muro2_este_n", a1, a1 + g, PISO, TECHO, b0, v0, muro, col)
+    caja("Muro2_este_m", a1, a1 + g, PISO, TECHO, v1, p0, muro, col)
     caja("Muro2_este_s", a1, a1 + g, PISO, TECHO, p1, b1, muro, col)
     caja("Muro2_este_dintel", a1, a1 + g, PISO + 2.0, TECHO, p0, p1, muro, col)
+    caja("Muro2_este_dintel_vip", a1, a1 + g, PISO + 2.2, TECHO, v0, v1, muro, col)
     # Lo que tapa el hueco entre los salones donde sus muros no coinciden (arriba y abajo del salon 2)
     if b0 > z0:
         caja("Muro_medio_tapa_n", a0, a0 + g, PISO, TECHO, z0, b0, muro, col)
@@ -1148,6 +1262,7 @@ def utileria(col):
     jaladera.location = _b(-0.05, 1.0, p1 - p0 - 0.1)
     marca("Bano", a1 - 0.6, y, b1 - 2.95, col, -90)
     banho(col)
+    cuarto_vip(col)
     marca("Neon_bano", a1 - 0.02, y + 2.15, b1 - 2.95, col, -90)
     # Una mesa alta para los que esperan, junto al muro sur
     cilindro("Mesa_alta_pata", 29.0, y, y + 1.0, b1 - 0.9, 0.04, metal, col, lados=6)

@@ -161,6 +161,25 @@ func _probar() -> void:
 		"%s, fichas %d -> %d" % [ui.get("_bj").resultado, antes_bj, fichas.fichas])
 	ui.cerrar()
 	await _esperar(0.5)
+	# El VIP: el pase con el guarura y una mano de blackjack de oro
+	cartera.pesos = maxi(cartera.pesos, 600)
+	fichas.vip = false
+	sotano._pagar_vip()
+	_ver(fichas.vip and sotano.get("_cordon") == null, "el guarura cobra el pase VIP y quita el cordon")
+	fichas.fichas = maxi(fichas.fichas, 40)
+	sotano._abrir("res://scripts/sotano/BlackjackUI.gd", {"sotano": sotano, "prefijo": "VIP_bj", "apuesta_min": 10, "apuesta_max": 100, "crupier": "Doña Oro"})
+	await _esperar(0.8)
+	ui = arbol.get_first_node_in_group("juego_sotano")
+	var antes_vip: int = fichas.fichas
+	ui.repartir()
+	await _esperar(1.6)
+	if ui.get("_bj").fase == Blackjack.Fase.JUGANDO:
+		ui.plantarte()
+		await _esperar(2.0)
+	_ver(ui.get("_bj").apuesta >= 10 and ui.get("_bj").fase == Blackjack.Fase.FIN, "blackjack de oro: apuesta de 10 para arriba",
+		"%s, fichas %d -> %d" % [ui.get("_bj").resultado, antes_vip, fichas.fichas])
+	ui.cerrar()
+	await _esperar(0.4)
 	# El de los dulces del bano: un mazapan
 	fichas.fichas = maxi(fichas.fichas, 10)
 	var antes_d: int = inventario.items.size()

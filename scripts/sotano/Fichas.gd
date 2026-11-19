@@ -13,6 +13,7 @@ signal cambio
 const PRECIO := 5            # pesos por ficha (las maquinitas de la foto aceptan monedas de $5)
 const COMISION := 0.1        # lo que se queda el Primo al cobrar tus fichas
 const CUOTA := 300           # pesos, una sola vez, para que el de la puerta te deje pasar
+const CUOTA_VIP := 500       # pesos, una sola vez, el pase al cuarto VIP (lo cobra el guarura)
 
 var fichas := 0:
 	set(valor):
@@ -24,9 +25,16 @@ var permiso := 0:
 		cambio.emit()
 
 
+var vip := false:
+	set(valor):
+		vip = valor
+		cambio.emit()
+
+
 func reiniciar() -> void:
 	fichas = 0
 	permiso = 0
+	vip = false
 
 
 # Pesos -> fichas: cuantas compraste (las que alcance)

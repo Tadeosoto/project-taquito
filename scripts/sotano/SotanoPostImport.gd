@@ -36,6 +36,7 @@ const TEXTURAS := {
 	"blackjack": ["res://textures/sotano/blackjack.png", Color.WHITE, 0.0],
 	"ruleta": ["res://textures/sotano/ruleta.png", Color.WHITE, 0.0],
 	"baccarat": ["res://textures/sotano/baccarat.png", Color.WHITE, 0.0],
+	"blackjack_vip": ["res://textures/sotano/blackjack_vip.png", Color.WHITE, 0.0],
 }
 # Con textura pero brillan solos (la marquesina luminosa del refri)
 const BRILLAN_TEXTURA := ["refri_letrero"]
@@ -125,7 +126,16 @@ func _material(original: Material) -> Material:
 		if nombre == "vidrio_mezcal":
 			m.albedo_color.a = 0.45
 			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	elif nombre == "cromo" or nombre.begins_with("tapa_dorada"):
+	elif nombre == "cromo" or nombre.begins_with("tapa_dorada") or nombre == "oro" or nombre == "ficha_4":
+		if nombre == "oro" or nombre == "ficha_4":
+			m.albedo_color = Color(0.95, 0.72, 0.2)
+			m.metallic_specular = 1.0
+	if nombre == "marmol_negro":
+		m.roughness = 0.12
+		m.metallic_specular = 0.9
+	if nombre == "terciopelo":
+		m.roughness = 1.0
+	if nombre == "cromo" or nombre.begins_with("tapa_dorada") or nombre == "oro" or nombre == "ficha_4":
 		m.metallic = 0.85
 		m.roughness = 0.3
 	# La mancha del bano oscurece lo de abajo (fondo blanco = no cambia nada)
