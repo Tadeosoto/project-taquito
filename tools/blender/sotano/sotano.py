@@ -15,6 +15,7 @@
 # Los caballitos (Caballo_1..5) y los objetos "Marca_*" (vacios) los usa scripts/sotano/Sotano.gd.
 
 import bpy
+import bmesh
 import math
 import os
 import random
@@ -36,6 +37,9 @@ GRUESO = 0.4
 BANO_PUERTA = (4.6, 5.5)          # z del hueco de la puerta del bano en el muro este del salon 2
 BANO = (35.4, 39.4, 3.0, 7.4)     # el bano: x0, x1, z0, z1 (detras del muro este)
 BANO_ALTO = 2.2
+BLACKJACK = (32.4, 2.4, 0.95)    # la mesa de blackjack: x del centro, z de la orilla recta (el crupier, al norte) y radio
+RULETA = (32.6, 34.0, -0.9, 0.1)  # la mesa de la ruleta (esquina noreste del salon 2): x0, x1, z0, z1
+RUEDA = (32.95, -0.4, 0.3)        # la rueda: x, z del centro y radio
 REPISA_Y = 1.15                   # la primera repisa de la contrabarra (sobre el piso)
 REPISA_SEPARA = 0.34
 PISTA = (11.5, 17.0, 4.8, 6.0)    # la isla de los caballitos en el salon 1: x0, x1, z0, z1
@@ -450,6 +454,113 @@ def banho(col):
     marca("Bano_centro", (x0 + cx0) / 2, y, (z0 + z1) / 2, col, 0)
 
 
+def media_luna(nombre, cx, y0, y1, cz, r, arriba, lados, col, pasos=16):
+    """La mesa de media luna: la orilla recta en z = cz (al norte) y el arco hacia +z. La cara de
+    arriba lleva el material `arriba` con UV en planta (la orilla recta arriba de la textura); los
+    lados, `lados`."""
+    me = bpy.data.meshes.new(nombre)
+    bm = bmesh.new()
+    uv = bm.loops.layers.uv.new("UV")
+    pts = [(cx + math.cos(math.radians(180 - 180 * k / pasos)) * r, cz + math.sin(math.radians(180 - 180 * k / pasos)) * r) for k in range(pasos + 1)]
+    abajo = [bm.verts.new(_b(x, y0, z)) for x, z in pts]
+    alto = [bm.verts.new(_b(x, y1, z)) for x, z in pts]
+    tapa = bm.faces.new(alto)
+    tapa.material_index = 0
+    for loop, (x, z) in zip(tapa.loops, pts):
+        loop[uv].uv = ((x - (cx - r)) / (2 * r), 1.0 - (z - cz) / r)
+    bm.faces.new(list(reversed(abajo))).material_index = 1
+    n = len(pts)
+    for k in range(n):
+        j = (k + 1) % n
+        bm.faces.new((abajo[k], abajo[j], alto[j], alto[k])).material_index = 1
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(arriba)
+    me.materials.append(lados)
+    ob = bpy.data.objects.new(nombre, me)
+    col.objects.link(ob)
+    return ob
+
+
+def mesa_blackjack(col):
+    """La mesa de blackjack: media luna con su pano impreso (textures/sotano/blackjack.png: "PAGA 3 A
+    2", "EL CRUPIER SE PLANTA EN 17", los circulos de apuesta), el borde acolchado por el arco, la
+    charola de fichas y el zapato de cartas del lado del crupier, dos bancos con jugadores y el tuyo
+    al centro, y su lampara."""
+    import bmesh as _bm
+    cx, cz, r = BLACKJACK
+    y = PISO
+    pano = material("blackjack", (1, 1, 1))
+    cuero = material("cuero_negro", (0.08, 0.06, 0.06))
+    madera = material("madera", (0.45, 0.32, 0.2))
+    caja("Blackjack_pata", cx - 0.2, cx + 0.2, y, y + 0.74, cz + 0.2, cz + 0.6, madera, col, choca=False)
+    media_luna("Blackjack_mesa", cx, y + 0.74, y + 0.8, cz, r, pano, madera, col)
+    for k in range(12):
+        a0, a1 = math.radians(180 - 15 * k), math.radians(180 - 15 * (k + 1))
+        cable_recto("Blackjack_borde_%d" % k, Vector((cx + math.cos(a0) * (r + 0.03), y + 0.82, cz + math.sin(a0) * (r + 0.03))),
+                    Vector((cx + math.cos(a1) * (r + 0.03), y + 0.82, cz + math.sin(a1) * (r + 0.03))), cuero, col, r=0.045)
+    choque = caja("Blackjack_choque", cx - r - 0.05, cx + r + 0.05, y, y + 0.85, cz - 0.05, cz + r + 0.05, madera, col, choca=False)
+    choque.name = "Blackjack_choque-colonly"
+    # La charola de fichas y el zapato, del lado del crupier
+    caja("Blackjack_charola", cx - 0.32, cx + 0.32, y + 0.8, y + 0.83, cz + 0.04, cz + 0.16, cuero, col, choca=False)
+    for k in range(8):
+        for n in range(6):
+            cilindro("Blackjack_ficha_%d_%d" % (k, n), cx - 0.28 + k * 0.08, y + 0.8 + 0.012 * n, y + 0.812 + 0.012 * n, cz + 0.1, 0.028,
+                     material("ficha_%d" % (k % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[k % 3]), col, lados=8)
+    caja("Blackjack_zapato", cx + 0.45, cx + 0.62, y + 0.8, y + 0.9, cz + 0.05, cz + 0.28, material("mazo", (0.45, 0.08, 0.1)), col, choca=False)
+    marca("Crupier_bj", cx, y, cz - 0.45, col, 0)
+    marca("Blackjack", cx, y, cz + r + 0.55, col, 180)
+    marca("Blackjack_tu", cx, y, cz + r + 0.35, col, 180)
+    for k, a in enumerate((140, 40)):
+        bx, bz = cx + math.cos(math.radians(a)) * (r + 0.45), cz + math.sin(math.radians(a)) * (r + 0.45)
+        banco("Banco_bj_%d" % k, bx, y, bz, ASIENTO, col)
+        marca("Blackjack_%d" % k, bx, y, bz, col, 0)
+    cilindro("Blackjack_lampara_cable", cx, TECHO - 0.45, TECHO, cz + 0.4, 0.01, material("cable", (0.05, 0.05, 0.05)), col, lados=4)
+    cilindro("Blackjack_lampara", cx, TECHO - 0.6, TECHO - 0.45, cz + 0.4, 0.32, material("lampara_verde", (0.15, 0.45, 0.25)), col, lados=12)
+    marca("Luz_blackjack", cx, TECHO - 0.7, cz + 0.4, col, 0)
+
+
+def mesa_ruleta(col):
+    """La ruleta: mesa con su pano (textures/sotano/ruleta.png: ROJO, NEGRO y VERDE, nada mas), el
+    plato de madera y la rueda (Ruleta_rueda, 37 casillas de colores en el orden de la ruleta, la gira
+    Sotano.gd) con la bola (Ruleta_bola). El crupier al norte; tu al sur."""
+    x0, x1, z0, z1 = RULETA
+    rx, rz, rr = RUEDA
+    y = PISO
+    madera = material("madera", (0.45, 0.32, 0.2))
+    caja("Ruleta_mesa", x0, x1, y, y + 0.85, z0, z1, madera, col)
+    plano("Ruleta_pano", ((x0 + x1) / 2, y + 0.852, (z0 + z1) / 2), x1 - x0 - 0.04, z1 - z0 - 0.04, (0, 1, 0), material("ruleta", (1, 1, 1)), col)
+    # El plato de madera: un aro que levanta la rueda
+    girar("Ruleta_plato", [(0, 0), (rr + 0.08, 0), (rr + 0.08, 0.06), (rr + 0.02, 0.06), (rr + 0.02, 0.03), (0, 0.03)],
+          material("madera_oscura", (0.3, 0.2, 0.12)), col, lados=24).location = _b(rx, y + 0.852, rz)
+    # La rueda: casillas en el orden europeo, rojo, negro y la verde (el cero)
+    rojos = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36}
+    orden = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26]
+    me = bpy.data.meshes.new("Ruleta_rueda")
+    bm = bmesh.new()
+    centro = bm.verts.new((0, 0, 0.035))
+    n = len(orden)
+    borde = [bm.verts.new((math.cos(k * math.tau / n) * rr, math.sin(k * math.tau / n) * rr, 0.035)) for k in range(n)]
+    for k, numero in enumerate(orden):
+        f = bm.faces.new((centro, borde[k], borde[(k + 1) % n]))
+        f.material_index = 2 if numero == 0 else (0 if numero in rojos else 1)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(me)
+    bm.free()
+    for nombre, c in (("ruleta_rojo", (0.75, 0.06, 0.05)), ("ruleta_negro", (0.05, 0.05, 0.05)), ("ruleta_verde", (0.05, 0.5, 0.15))):
+        me.materials.append(material(nombre, c))
+    rueda = bpy.data.objects.new("Ruleta_rueda", me)
+    rueda.location = _b(rx, y + 0.852, rz)
+    col.objects.link(rueda)
+    torre = girar("Ruleta_torre", [(0, 0.035), (0.06, 0.035), (0.03, 0.08), (0.012, 0.13), (0.03, 0.15), (0, 0.16)], material("tapa_dorada", (0.85, 0.7, 0.25)), col, lados=8)
+    torre.parent = rueda
+    bola = esfera("Ruleta_bola", 0.018, material("plastico_blanco", (0.9, 0.9, 0.86)), col)
+    bola.location = _b(rx + rr - 0.03, y + 0.852 + 0.05, rz)
+    marca("Crupier_ruleta", (x0 + x1) / 2, y, z0 - 0.45, col, 0)
+    marca("Ruleta", (x0 + x1) / 2, y, z1 + 0.6, col, 180)
+
+
 def cuarto():
     """Los muros (GRUESO, 0.4), el descanso, la escalera con zancas y barandal, el salon de las
     maquinitas (SALON) y, por un arco en su muro este, el salon del poker y la barra (SALON2)."""
@@ -664,6 +775,19 @@ def utileria(col):
     for k in range(5):
         banco("Banco_barra_%d" % k, 23.6 + k * 1.2, y, b0 + 2.25, BANCO_BARRA, col)
         marca("Banco_barra_%d" % k, 23.6 + k * 1.2, y, b0 + 2.25, col, 0)
+    # Tiras de neon de colores en la barra: debajo de la orilla de la barra (rosa), debajo de cada
+    # repisa (cian y morado), al pie de la contrabarra (azul) y por la orilla del refri. Brillan solas
+    # (SotanoPostImport: neon_*) y Sotano.gd pone luces de color en Luz_barra_*
+    caja("Led_barra", 22.95, 29.05, y + 1.03, y + 1.05, b0 + 1.76, b0 + 1.78, material("neon_rosa", (1.0, 0.25, 0.75)), col, choca=False)
+    caja("Led_barra_pie", 23.0, 29.0, y + 0.08, y + 0.1, b0 + 1.66, b0 + 1.68, material("neon_morado", (0.6, 0.3, 1.0)), col, choca=False)
+    for nivel in range(3):
+        ry = y + REPISA_Y + nivel * REPISA_SEPARA
+        caja("Led_repisa_%d" % nivel, 23.0, 29.0, ry - 0.045, ry - 0.03, b0 + 0.29, b0 + 0.3,
+             material("neon_cian" if nivel % 2 == 0 else "neon_morado", (0.3, 0.9, 1.0) if nivel % 2 == 0 else (0.6, 0.3, 1.0)), col, choca=False)
+    caja("Led_contrabarra", 23.0, 30.0, y + 0.92, y + 0.935, b0 + 0.49, b0 + 0.5, material("neon_azul", (0.3, 0.4, 1.0)), col, choca=False)
+    for k, (lx, lz) in enumerate(((24.0, b0 + 0.6), (26.5, b0 + 0.6), (28.8, b0 + 0.6), (26.0, b0 + 2.0))):
+        marca("Luz_barra_%d" % k, lx, y + 1.0 + (k == 3) * -0.7, lz, col, 0)
+    marca("Neon_dados", 32.6, y + 1.55, b0 + 0.05, col, 0)
     marca("Cantinero", 26.2, y, b0 + 0.85, col, 0)
     marca("Barra", 26.2, y, b0 + 2.6, col, 0)
     marca("Neon_barra", 26.0, y + 0.55, b0 + 1.68, col, 0)     # en el frente de la barra
@@ -709,6 +833,8 @@ def utileria(col):
     cilindro("Poker_lampara_cable", mx, TECHO - 0.45, TECHO, mz, 0.01, cable, col, lados=4)
     cilindro("Poker_lampara", mx, TECHO - 0.6, TECHO - 0.45, mz, 0.4, material("lampara_verde", (0.15, 0.45, 0.25)), col, lados=12)
     marca("Luz_poker", mx, TECHO - 0.7, mz, col, 0)
+    mesa_blackjack(col)
+    mesa_ruleta(col)
     # El congelador de las caguamas (esquina suroeste del salon 2) y la puerta del bano (este)
     caja("Congelador", a0 + 0.3, a0 + 1.7, y, y + 0.9, b1 - 1.1, b1 - 0.4, material("congelador", (0.85, 0.85, 0.88)), col)
     caja("Congelador_tapa", a0 + 0.35, a0 + 1.65, y + 0.9, y + 0.93, b1 - 1.07, b1 - 0.43, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
@@ -774,7 +900,7 @@ def utileria(col):
             aspa.rotation_euler = (0, 0, -a)
     # Puntos por donde camina la gente (GenteSotano.gd): rodean la pista y la mesa del poker
     for k, (px, pz) in enumerate(((8.0, 3.1), (12.0, 2.0), (15.0, 2.2), (18.5, 2.6), (19.0, 5.6), (14.5, 7.0), (10.0, 6.4),
-                                  (22.4, 3.2), (24.0, b0 + 3.2), (31.0, b0 + 3.2), (33.0, b1 - 1.4), (24.0, b1 - 1.2))):
+                                  (22.4, 3.2), (24.0, b0 + 3.2), (31.0, b0 + 3.2), (34.3, b0 + 3.0), (24.0, b1 - 1.2), (34.3, b1 - 1.6))):
         marca("Camino_%d" % k, px, y, pz, col, 0)
 
 

@@ -60,7 +60,24 @@ FOCO = 0.018          # radio de un foco
 COLORES = {
     "rosa": (1.0, 0.25, 0.75), "amarillo": (1.0, 0.85, 0.2), "morado": (0.6, 0.3, 1.0),
     "cian": (0.3, 0.9, 1.0), "rojo": (1.0, 0.2, 0.15), "verde": (0.3, 1.0, 0.45), "blanco": (1.0, 0.95, 0.9),
+    "azul": (0.3, 0.4, 1.0),
 }
+
+
+def dado(cx, cz, r, giro=0.0):
+    """Un dado de neon visto de esquina (como el letrero de AG): el contorno de seis lados, las tres
+    aristas de en medio y los puntos de sus tres caras. Regresa (rayas, puntos)."""
+    v = [(cx + r * math.cos(math.radians(30 + 60 * k + giro)), cz + r * math.sin(math.radians(30 + 60 * k + giro))) for k in range(6)]
+    rayas = [v + [v[0]], [(cx, cz), v[1]], [(cx, cz), v[3]], [(cx, cz), v[5]]]
+    def cara(a, b, c, d, puntos):
+        # puntos en coordenadas (u, w) de 0 a 1 dentro del rombo a-b-c-d
+        return [(a[0] + (b[0] - a[0]) * u + (d[0] - a[0]) * w, a[1] + (b[1] - a[1]) * u + (d[1] - a[1]) * w) for u, w in puntos]
+    centro = (cx, cz)
+    cinco = [(0.25, 0.25), (0.75, 0.25), (0.5, 0.5), (0.25, 0.75), (0.75, 0.75)]
+    tres = [(0.25, 0.25), (0.5, 0.5), (0.75, 0.75)]
+    seis = [(0.27, 0.22), (0.27, 0.5), (0.27, 0.78), (0.73, 0.22), (0.73, 0.5), (0.73, 0.78)]
+    puntos = cara(centro, v[5], v[0], v[1], tres) + cara(centro, v[1], v[2], v[3], cinco) + cara(centro, v[3], v[4], v[5], seis)
+    return rayas, puntos
 
 
 def material(nombre, color):
@@ -285,6 +302,15 @@ def letreros():
     s.cerrar()
 
     # BAÑO con su flecha hacia la puerta (abajo)
+    # Dos dados, uno rojo y uno azul, junto al refri (la foto de AG)
+    s = Letrero("dados")
+    for color, cx, cz, giro in (("rojo", -0.32, 0.02, 8.0), ("azul", 0.33, -0.04, -12.0)):
+        rayas, puntos = dado(cx, cz, 0.3, giro)
+        s.rayas(rayas, color)
+        s.rayas([arco(px, pz, 0.028, 0, 360, 8) for px, pz in puntos], "blanco", grueso=TUBO * 0.8, halo_veces=HALO_TEXTO)
+    s.soportes(1.1, -0.2, 0.2)
+    s.cerrar()
+
     s = Letrero("bano")
     s.trazo("BAÑO", 0, 0.12, 0.16, "cian")
     s.linea([(0, -0.02), (0, -0.28)], "cian")
