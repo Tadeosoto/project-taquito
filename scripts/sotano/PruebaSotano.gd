@@ -134,10 +134,11 @@ func _fotos_mesas(carpeta: String) -> void:
 	await get_tree().create_timer(0.9).timeout
 	ui = get_tree().get_first_node_in_group("juego_sotano")
 	ui.call("girar")
-	for k in 24:
+	for k in 36:
 		await get_tree().create_timer(0.2).timeout
 		await RenderingServer.frame_post_draw
-		get_viewport().get_texture().get_image().save_png(carpeta.path_join("ruleta_%02d.png" % k))
+		if k % 6 == 0:
+			get_viewport().get_texture().get_image().save_png(carpeta.path_join("ruleta_%02d.png" % k))
 
 
 # Abre la primera EL GORDO, jala la palanca unas veces y guarda cuadros (la palanca, los carretes,

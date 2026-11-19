@@ -215,6 +215,9 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - The bounces use gravity.
     - It rolls by the distance it travels.
     - It is the UI's own smooth sphere with a few grey specks, so the roll shows; the room's ball is hidden while you play.
+  - The spin is slow and long (`GIRO` 6.5 s, 1.1 wheel turns, 3.4 ball turns).
+    - Faster, each frame skipped almost two pockets, and at 640 × 480 the separators strobed.
+    - A translucent red-black blur ring (`_barrido`) covers the pockets while the wheel is fast and fades out as it slows.
   - The cheat: with `FRENO_DESDE` (10) or more at stake the ball sometimes jumps to the next pocket, which is always another colour. Tell: the dealer taps the table.
 - **Baccarat** (`Baccarat.gd`, `BaccaratUI.gd`):
   - Bets are on punto, banca or empate.
