@@ -221,6 +221,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - Player 1 to 1, banker 1 to 1 minus 5 %, tie 8 to 1 (punto and banca get their bet back on a tie).
   - The drawing rules: natural 8 or 9, the player draws on 0 to 5, and the banker's third-card table (`banca_pide`).
   - The cheat: with bets of `ARREGLO_DESDE` (5) or more, if you were going to win, Don Chepe sometimes reshuffles and deals again. Tell: he blows on the cards.
+  - The cards are also dealt on the felt: each flies from the shoe in an arc and flips, the player hand on the left and the banker hand on the right over the EMPATE strip, with the third card turned sideways (`_carta_mesa`). Don Chepe sweeps them away on the next hand.
 - **Races** (`CarrerasUI`): the camera flies to watch the track from the north while the horses run (`_ver_pista`), then returns.
   - Odds 2/3/5/8/12, with chances proportional to 1/odds.
   - A bet of 5+ halves your horse's luck, and the house's horse trembles first (`Sotano.temblar`).
