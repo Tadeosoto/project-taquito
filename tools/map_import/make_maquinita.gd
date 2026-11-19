@@ -114,10 +114,17 @@ func _botones(frutas: Image) -> void:
 	for i in 8:
 		var centro := _px_boton(r, Maquinita.boton_centro(i))
 		img.blend_rect(frutas, Rect2i(i * 32, 0, 32, 32), Vector2i(centro.x - 16, r.end.y - 36))
-	for par in [[Maquinita.BOTON_TIRAR, "TIRAR"], [Maquinita.BOTON_QUITAR, "QUITAR"], [Maquinita.BOTON_SALIR, "SALIR"]]:
-		var centro := _px_boton(r, Maquinita.boton_centro(par[0]))
-		var texto: String = par[1]
-		_texto(texto, centro.x - texto.length() * 6, r.position.y + 6, 2, Color.WHITE)
+	# Un letrero por grupo de botones de arriba (verdes: tirar; naranjas: salir). Van al pie del
+	# panel de enfrente, justo arriba de la rampa: en la rampa la orilla de arriba los tapaba y la
+	# inclinacion los aplastaba. El panel y el tablero miden lo mismo a lo ancho
+	for par in [[Maquinita.BOTON_TIRAR, Maquinita.BOTON_TIRAR + 2, "TIRAR"], [Maquinita.BOTON_QUITAR, Maquinita.BOTON_QUITAR + 2, "SALIR"]]:
+		var a := _px_boton(r, Maquinita.boton_centro(par[0]))
+		var b := _px_boton(r, Maquinita.boton_centro(par[1]))
+		var cx := (a.x + b.x) / 2 - r.position.x
+		var texto: String = par[2]
+		var ancho := texto.length() * 21 - 6
+		_rect(Rect2i(cx - ancho / 2 - 8, 598, ancho + 16, 25), Color(0.03, 0.05, 0.15))
+		_texto(texto, cx - ancho / 2, 600, 3, Color(1.0, 0.92, 0.3), 3, 2)
 
 
 # Del centro de un boton en el tablero (m a lo ancho, m hacia arriba de la rampa) a px
@@ -287,11 +294,14 @@ func _degradado(r: Rect2i, arriba: Color, abajo: Color) -> void:
 		_rect(Rect2i(r.position.x, r.position.y + y, r.size.x, 1), arriba.lerp(abajo, float(y) / r.size.y))
 
 
-func _texto(texto: String, x: int, y: int, escala: int, c: Color) -> void:
+# `alto`: la escala a lo alto, si es distinta (letras estiradas para el tablero inclinado)
+# `hueco`: columnas vacias entre letras (1 de siempre; 2 donde se amontonaban)
+func _texto(texto: String, x: int, y: int, escala: int, c: Color, alto := 0, hueco := 1) -> void:
+	var ey := alto if alto > 0 else escala
 	for letra in texto:
 		var filas: Array = LETRAS.get(letra, [])
 		for fy in filas.size():
 			for fx in 5:
 				if filas[fy][fx] == "1":
-					_rect(Rect2i(x + fx * escala, y + fy * escala, escala, escala), c)
-		x += 6 * escala
+					_rect(Rect2i(x + fx * escala, y + fy * ey, escala, ey), c)
+		x += (5 + hueco) * escala

@@ -2,15 +2,15 @@ class_name CartasLoteria
 extends RefCounted
 
 # Las cartas de la loteria del Sotano (textures/sotano/cartas.png, las renderiza
-# tools/blender/sotano/arte.py en este mismo orden: 8 columnas de 128 x 192 px). Las ultimas son
-# de este mundo: El Apagado (el zombi), La Pipa (la de GelA), La Garrafa, El Camion y El Tinaco,
-# el comodin de la maquinita OL PLEY.
+# tools/blender/sotano/arte.py en este mismo orden: 8 columnas de 96 x 144 px, sin el nombre: lo
+# escribe OlPleyUI con letra de pixel, que si se lee). Las ultimas son de este mundo: El Apagado
+# (el zombi), La Pipa (la de GelA), La Garrafa, El Camion y El Tinaco, el comodin de EL GORDO.
 # VERSOS: lo que canta el griton (scripts/sotano/LoteriaUI.gd). Escritos para el juego, en el tono
 # de los de siempre, sin copiarlos.
 
 const ATLAS := preload("res://textures/sotano/cartas.png")
 const COLUMNAS := 8
-const TAMANO := Vector2(128, 192)
+const TAMANO := Vector2(96, 144)
 
 const NOMBRES := ["El Gallo", "El Diablito", "La Sirena", "El Paraguas", "La Calavera", "El Nopal",
 	"La Luna", "El Sol", "El Corazón", "La Campana", "La Estrella", "El Venado", "La Rana",

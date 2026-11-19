@@ -1,24 +1,28 @@
 extends JuegoSotano
 
-# Jugar en una maquinita OL PLEY del Sotano, como en las de frutas (TragamonedasUI): la camara se
-# acerca al gabinete y el juego corre EN SU PANTALLA (un SubViewport de 256 x 192 que el gabinete
+# Jugar en una maquinita EL GORDO del Sotano (OlPley en el codigo), como en las de frutas
+# (TragamonedasUI): la camara se acerca al gabinete y el juego corre EN SU PANTALLA (un SubViewport
+# de 384 x 288 que el gabinete
 # enseña: GabineteOlPley.mostrar_en_pantalla). Carretes.gd decide; aqui solo se muestra.
 # La "Loteria de carretes": tres carretes con cartas de la loteria (CartasLoteria) que ruedan de
-# verdad y paran uno tras otro, la linea de premio que parpadea, los contadores, y al ganar monedas
+# verdad y paran uno tras otro (cada carta con su nombre en letra de pixel, LETRA, para que se
+# lea), la linea de premio que parpadea, los contadores, y al ganar monedas
 # o (con El Tinaco) confeti de pixelfx (resources/fx/olpley_*). Los botones del gabinete se hunden.
 # El fondo de la pantalla es textures/sotano/pantalla_juego.png (tools/blender/sotano/arte.py).
 
 const FONDO_PANTALLA := preload("res://textures/sotano/pantalla_juego.png")
-const PANTALLA := Vector2i(256, 192)
-const CARRETE_X := [24, 96, 168]
-const CARRETE_Y := 34
-const CARRETE := Vector2(64, 112)
-const CARTA_ALTO := 96.0
-const LINEA_Y := 90                 # la linea de premio, a media ventana
-const CONTADOR_X := [16, 96, 176]
-const CONTADOR_Y := 166
+const PANTALLA := Vector2i(384, 288)
+const CARRETE_X := [36, 144, 252]
+const CARRETE_Y := 51
+const CARRETE := Vector2(96, 168)
+const CARTA_ALTO := 144.0
+const LINEA_Y := 135                # la linea de premio, a media ventana
+const CONTADOR_X := [24, 144, 264]
+const CONTADOR_Y := 249
+const LETRA := preload("res://fonts/PixelifySans.ttf")
+const NOMBRE := Rect2(4, 111, 88, 28)   # donde va el nombre en la carta (la banda crema)
 const GIRO := [0.8, 1.15, 1.5]      # s que gira cada carrete antes de parar
-const VELOCIDAD := 900.0            # px/s de los carretes girando
+const VELOCIDAD := 1350.0           # px/s de los carretes girando
 const OJOS := Vector3(0.0, 1.33, 0.62)   # la camara, en el gabinete
 const MIRA := Vector3(0.0, 1.26, 0.1)
 const FOV := 42.0
@@ -41,10 +45,11 @@ var _fx_t := -1.0
 var _camara: Camera3D
 var _camara_jugador: Camera3D
 var _premio := 0
+var _letra: FontFile
 
 
 func _init() -> void:
-	titulo = "OL PLEY"
+	titulo = "EL GORDO"
 	ayuda = AYUDA
 
 
@@ -169,6 +174,9 @@ func _armar_vista() -> void:
 	var fondo := TextureRect.new()
 	fondo.texture = FONDO_PANTALLA
 	_vista.add_child(fondo)
+	# La letra sin suavizar: en la pantalla de pixeles se ve dura, como el resto
+	_letra = LETRA.duplicate() as FontFile
+	_letra.antialiasing = TextServer.FONT_ANTIALIASING_NONE
 	var arranque := [0, CartasLoteria.TINACO, 5]
 	for k in 3:
 		var recorte := Control.new()
@@ -180,34 +188,45 @@ func _armar_vista() -> void:
 		for n in 3:
 			var c := TextureRect.new()
 			c.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			c.size = Vector2(64, CARTA_ALTO)
-			c.texture = CartasLoteria.textura(arranque[k] if n == 1 else _al_azar())
+			c.size = Vector2(CARRETE.x, CARTA_ALTO)
+			var nombre := Label.new()
+			nombre.name = "Nombre"
+			nombre.position = NOMBRE.position
+			nombre.size = NOMBRE.size
+			nombre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			nombre.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			nombre.add_theme_font_override("font", _letra)
+			nombre.add_theme_font_size_override("font_size", 13)
+			nombre.add_theme_color_override("font_color", Color(0.12, 0.07, 0.06))
+			c.add_child(nombre)
+			_poner_carta(c, arranque[k] if n == 1 else _al_azar())
 			recorte.add_child(c)
 			cartas.append(c)
 		_carretes.append([recorte, cartas])
 		_acomodar(k)
 	# La linea de premio: dos rayas que parpadean al ganar
-	for y in [LINEA_Y - 49, LINEA_Y + 48]:
+	for y in [LINEA_Y - 74, LINEA_Y + 72]:
 		var l := ColorRect.new()
 		l.color = Color(1.0, 0.95, 0.3)
-		l.position = Vector2(16, y)
-		l.size = Vector2(224, 2)
+		l.position = Vector2(24, y)
+		l.size = Vector2(336, 3)
 		l.visible = false
 		_vista.add_child(l)
 		_linea.append(l)
 	for k in 3:
 		var c := Label.new()
 		c.position = Vector2(CONTADOR_X[k], CONTADOR_Y)
-		c.size = Vector2(64, 18)
+		c.size = Vector2(96, 27)
 		c.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		c.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		c.add_theme_font_size_override("font_size", 14)
+		c.add_theme_font_override("font", _letra)
+		c.add_theme_font_size_override("font_size", 22)
 		c.add_theme_color_override("font_color", Color(1.0, 0.25, 0.2))
 		_vista.add_child(c)
 		_contadores.append(c)
 	_fx = TextureRect.new()
-	_fx.position = Vector2(48, 30)
-	_fx.size = Vector2(160, 88)
+	_fx.position = Vector2(72, 45)
+	_fx.size = Vector2(240, 132)
 	_fx.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_fx.visible = false
 	_vista.add_child(_fx)
@@ -221,9 +240,9 @@ func _process(delta: float) -> void:
 			while _corrimiento[k] >= CARTA_ALTO:
 				_corrimiento[k] -= CARTA_ALTO
 				var cartas: Array = _carretes[k][1]
-				cartas[2].texture = cartas[1].texture
-				cartas[1].texture = cartas[0].texture
-				cartas[0].texture = CartasLoteria.textura(_al_azar())
+				_copiar_carta(cartas[2], cartas[1])
+				_copiar_carta(cartas[1], cartas[0])
+				_poner_carta(cartas[0], _al_azar())
 			_acomodar(k)
 	if _fx_t >= 0.0:
 		_fx_t += delta
@@ -250,15 +269,15 @@ func _acomodar(k: int) -> void:
 func _parar(k: int, final: int) -> void:
 	_girando[k] = false
 	var cartas: Array = _carretes[k][1]
-	cartas[0].texture = CartasLoteria.textura(_al_azar())
-	cartas[1].texture = CartasLoteria.textura(final)
-	cartas[2].texture = CartasLoteria.textura(_al_azar())
-	_corrimiento[k] = 14.0
+	_poner_carta(cartas[0], _al_azar())
+	_poner_carta(cartas[1], final)
+	_poner_carta(cartas[2], _al_azar())
+	_corrimiento[k] = 21.0
 	_acomodar(k)
 	var tween := create_tween()
 	tween.tween_method(func(v: float) -> void:
 		_corrimiento[k] = v
-		_acomodar(k), 14.0, 0.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_acomodar(k), 21.0, 0.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	Sonidos.tocar(self, "paso", -8.0)
 
 
@@ -282,10 +301,21 @@ func _lanzar_fx(nombre: String) -> void:
 	t.atlas = hoja["textura"]
 	t.region = Rect2(Vector2.ZERO, hoja["tamano"])
 	_fx.texture = t
-	_fx.size = hoja["tamano"]
-	_fx.position = Vector2((PANTALLA.x - _fx.size.x) / 2.0, 60.0 - _fx.size.y / 2.0 + 40.0)
+	_fx.size = hoja["tamano"] * 1.5
+	_fx.position = Vector2((PANTALLA.x - _fx.size.x) / 2.0, 150.0 - _fx.size.y / 2.0)
 	_fx.visible = true
 	_fx_t = 0.0
+
+
+# La carta `i` en un TextureRect del carrete: su dibujo y su nombre (EL GALLO) en la banda
+func _poner_carta(c: TextureRect, i: int) -> void:
+	c.texture = CartasLoteria.textura(i)
+	c.set_meta("carta", i)
+	(c.get_node("Nombre") as Label).text = (CartasLoteria.NOMBRES[i] as String).to_upper()
+
+
+func _copiar_carta(a: TextureRect, b: TextureRect) -> void:
+	_poner_carta(a, int(b.get_meta("carta", 0)))
 
 
 func _al_azar() -> int:
