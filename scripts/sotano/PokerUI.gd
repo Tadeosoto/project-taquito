@@ -28,6 +28,7 @@ var _h: Holdem
 var _camara: Camera3D
 var _camara_jugador: Camera3D
 var _tuyas: Array[TextureRect] = []
+var _mesa_pantalla: Array[TextureRect] = []   # las de en medio tambien arriba en la pantalla (en 3D se ven chicas)
 var _bote: Label
 var _lineas: Array[Label] = []
 var _cartas_mesa: Array[MeshInstance3D] = []
@@ -115,9 +116,17 @@ func jugar(accion: String) -> void:
 	if not _esperando:
 		return
 	_esperando = false
-	_h.actuar(0, accion)
-	_mostrar()
+	_actuar(0, accion)
 	_seguir()
+
+
+# Una accion en la mesa; si entraron fichas al bote suenan en el pano
+func _actuar(i: int, accion: String) -> void:
+	var antes := _h.bote
+	_h.actuar(i, accion)
+	if _h.bote > antes:
+		Sonidos.tocar(self, "ficha_mesa", -6.0)
+	_mostrar()
 
 
 # Hablan los vecinos hasta que te toque a ti o acabe la mano
@@ -128,8 +137,7 @@ func _seguir() -> void:
 		if not is_inside_tree():
 			return
 		var i := _h.turno
-		_h.actuar(i, _h.decidir(i))
-		_mostrar()
+		_actuar(i, _h.decidir(i))
 	_ocupado = false
 	if _h.fase == Holdem.Fase.FIN:
 		_fin_de_mano()
@@ -150,7 +158,7 @@ func _fin_de_mano() -> void:
 		texto += " con %s" % _h.mano_ganadora.to_lower()
 	texto += ". La casa se queda %d." % _h.rake if _h.rake > 0 else "."
 	if _h.ganadores.has(0):
-		Sonidos.tocar(self, "moneda", -4.0)
+		Sonidos.tocar(self, "monedas_caen", -5.0)
 	_guardar_fichas()
 	avisar(texto + "  (Espacio otra mano)", 30.0)
 
@@ -197,7 +205,22 @@ func _armar_pantalla() -> void:
 	_aviso.reparent(self)
 	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_aviso.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_aviso.offset_top = 132.0
+	_aviso.offset_top = 104.0
+	# Las de en medio, arriba al centro: aparecen cuando la de la mesa se voltea
+	var arriba := HBoxContainer.new()
+	arriba.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	arriba.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	arriba.offset_top = 8.0
+	arriba.add_theme_constant_override("separation", 4)
+	add_child(arriba)
+	for k in 5:
+		var r := TextureRect.new()
+		r.custom_minimum_size = Vector2(56, 84)
+		r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		r.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		r.modulate.a = 0.0
+		arriba.add_child(r)
+		_mesa_pantalla.append(r)
 
 
 func _mostrar(al_final := false) -> void:
@@ -281,6 +304,8 @@ func _repartir() -> void:
 	for r in _tuyas:
 		r.texture = null
 		r.modulate.a = 0.0
+	for r in _mesa_pantalla:
+		r.modulate.a = 0.0
 	var tu: Dictionary = _h.jugadores[0]
 	var espera := 0.0
 	for vuelta in 2:
@@ -307,7 +332,7 @@ func _volar(m: MeshInstance3D, espera: float) -> Tween:
 	t.tween_interval(espera)
 	t.tween_callback(func() -> void:
 		m.visible = true
-		Sonidos.tocar(self, "paso", -16.0))
+		Sonidos.tocar(self, "carta", -8.0))
 	t.tween_method(func(f: float) -> void:
 		m.position = _mazo.lerp(casa, f) + Vector3.UP * sin(f * PI) * ARCO
 		m.rotation.y = giro + PI * (1.0 - f), 0.0, 1.0, VUELA).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -324,7 +349,7 @@ func _voltear(m: MeshInstance3D, cara: Material, espera := 0.0) -> void:
 		m.position = casa + Vector3.UP * f * 0.03, 0.0, 1.0, VOLTEA / 2.0)
 	t.tween_callback(func() -> void:
 		m.material_override = cara
-		Sonidos.tocar(self, "paso", -18.0))
+		Sonidos.tocar(self, "carta", -12.0, 1.2))
 	t.tween_method(func(f: float) -> void:
 		m.rotation.z = (1.0 - f) * PI / 2.0
 		m.position = casa + Vector3.UP * (1.0 - f) * 0.03, 0.0, 1.0, VOLTEA / 2.0)
@@ -336,7 +361,23 @@ func _sacar_de_mesa(k: int, espera: float) -> void:
 	m.material_override = material(-1)
 	var t := _volar(m, espera)
 	var cara := material(_h.mesa[k])
-	t.tween_callback(func() -> void: _voltear(m, cara))
+	var carta: int = _h.mesa[k]
+	t.tween_callback(func() -> void:
+		_voltear(m, cara)
+		_entrar_arriba(k, carta))
+
+
+# La de en medio en la pantalla: se voltea igual que tus cartas
+func _entrar_arriba(k: int, carta: int) -> void:
+	var r := _mesa_pantalla[k]
+	r.pivot_offset = r.custom_minimum_size / 2.0
+	r.texture = textura(-1)
+	r.modulate.a = 1.0
+	r.scale = Vector2(1.0, 1.0)
+	var t := create_tween()
+	t.tween_property(r, "scale:x", 0.0, VOLTEA / 2.0)
+	t.tween_callback(func() -> void: r.texture = textura(carta))
+	t.tween_property(r, "scale:x", 1.0, VOLTEA / 2.0)
 
 
 # Al mazo y se esconde (el que se retira)
@@ -384,7 +425,8 @@ func _armar_cartas_3d() -> void:
 	for v in VECINOS.size():
 		var silla: Vector3 = sotano.call("marca", "Poker_%d" % v).origin
 		var hacia := (_centro - Vector3(silla.x, _centro.y, silla.z)).normalized()
-		var p := Vector3(silla.x, _centro.y, silla.z) + hacia * 0.75
+		# A medio metro del centro (con 0.75 desde la silla, las del de enfrente se metian al borde)
+		var p := _centro - hacia * 0.5
 		var lado := hacia.cross(Vector3.UP).normalized()
 		var giro := atan2(hacia.x, hacia.z)
 		var par := [_carta_3d(quad, p + lado * 0.068), _carta_3d(quad, p - lado * 0.068)]

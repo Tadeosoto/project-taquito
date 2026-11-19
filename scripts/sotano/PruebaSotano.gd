@@ -12,6 +12,7 @@ extends Node3D
 # Con -- --foto=<archivo.png> guarda una captura a los 2 s y sale (para revisarla sin jugar).
 # Con -- --fotos=<carpeta> guarda una captura desde cada camara de FOTOS (bajas y de lado, para
 # ver si algo flota o se ve hueco) y sale.
+# Con -- --gordo=<carpeta> abre una EL GORDO, jala la palanca y guarda cuadros, y sale.
 # Con -- --poker=<carpeta> se sienta al poker y guarda un cuadro cada 0.15 s mientras reparte y
 # juega (para ver las cartas moverse), y sale.
 
@@ -37,7 +38,18 @@ const FOTOS := {
 	"barra": [Vector3(26.0, -1.3, 5.0), Vector3(25.0, -1.8, -1.8)],
 	"salon2": [Vector3(21.5, -0.8, 6.5), Vector3(30.0, -2.4, 0.0)],
 	"poker": [Vector3(30.0, -1.0, 7.0), Vector3(27.5, -2.0, 3.6)],
-	"neon_gordo": [Vector3(9.0, -1.4, 3.2), Vector3(13.6, -0.9, 3.0)],
+	"mesera": [Vector3.ZERO, Vector3.FORWARD],
+	"turbios_trato": [Vector3(31.8, -1.3, 0.9), Vector3(33.7, -1.6, -0.6)],
+	"turbios_borracho": [Vector3(27.0, -1.4, 2.2), Vector3(28.1, -1.6, 0.7)],
+	"vicio_cerca": [Vector3(26.4, -1.6, 4.3), Vector3(25.9, -1.95, 3.6)],
+	"borracho_cerca": [Vector3(28.6, -1.3, 1.6), Vector3(28.1, -1.35, 0.75)],
+	"poker_vicios": [Vector3(27.5, -1.2, 5.6), Vector3(27.5, -1.9, 3.0)],
+	"bano_puerta": [Vector3(31.5, -1.3, 5.6), Vector3(35.5, -1.7, 5.0)],
+	"bano": [Vector3(35.7, -1.15, 4.4), Vector3(38.6, -2.1, 4.9)],
+	"bano_espejo": [Vector3(36.6, -1.2, 5.6), Vector3(36.3, -1.4, 7.4)],
+	"refri": [Vector3(28.6, -1.5, 1.4), Vector3(30.7, -1.6, -1.6)],
+	"palanca": [Vector3(12.0, -1.3, 0.1), Vector3(11.2, -1.45, -1.6)],
+	"neon_gordo": [Vector3(8.6, -1.3, 3.6), Vector3(12.9, -0.8, 3.0)],
 	"neon_sur": [Vector3(13.0, -1.4, 1.6), Vector3(13.0, -1.1, 8.0)],
 	"neon_poker_bano": [Vector3(29.5, -1.4, 3.0), Vector3(35.0, -1.1, 4.2)],
 	"neon_barra": [Vector3(26.0, -1.6, 3.6), Vector3(26.0, -2.0, -0.3)],
@@ -70,12 +82,37 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png(arg.trim_prefix("--foto="))
 			get_tree().quit()
+		elif arg.begins_with("--gordo="):
+			await _fotos_gordo(arg.trim_prefix("--gordo="))
+			get_tree().quit()
 		elif arg.begins_with("--poker="):
 			await _fotos_poker(arg.trim_prefix("--poker="))
 			get_tree().quit()
 		elif arg.begins_with("--fotos="):
 			await _fotos(arg.trim_prefix("--fotos="))
 			get_tree().quit()
+
+
+# Abre la primera EL GORDO, jala la palanca unas veces y guarda cuadros (la palanca, los carretes,
+# el letrero del premio)
+func _fotos_gordo(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	get_node("/root/Fichas").permiso = 1
+	get_node("/root/Fichas").fichas = 40
+	var g := _sotano.get_node_or_null("OlPley_0") as GabineteOlPley
+	if g == null:
+		return
+	g.placa.estado = Carretes.Estado.CALIENTE
+	await get_tree().create_timer(1.0).timeout
+	_sotano.call("_abrir_olpley", g)
+	await get_tree().create_timer(0.9).timeout
+	var ui := get_tree().get_first_node_in_group("juego_sotano")
+	for k in 36:
+		if k % 12 == 0 and ui and not ui.get("_ocupado"):
+			ui.call("jalar")
+		await get_tree().create_timer(0.1).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("gordo_%02d.png" % k))
 
 
 func _fotos_poker(carpeta: String) -> void:
@@ -99,11 +136,20 @@ func _fotos(carpeta: String) -> void:
 	cam.fov = 70.0
 	add_child(cam)
 	cam.make_current()
+	# La puerta del bano abierta, para ver adentro
+	if _sotano.has_method("_puerta_bano"):
+		_sotano.call("_puerta_bano")
 	await get_tree().create_timer(1.5).timeout
 	for nombre: String in FOTOS:
 		var v: Array = FOTOS[nombre]
 		cam.global_position = _sotano.to_global(v[0])
 		cam.look_at(_sotano.to_global(v[1]), Vector3.UP)
+		# "mesera": la camara la sigue (va caminando), de frente y un poco de lado
+		var mesera := _sotano.get_node_or_null("Mesera") as Node3D
+		if nombre == "mesera" and mesera:
+			var frente := -mesera.global_basis.z.normalized()
+			cam.global_position = mesera.global_position + frente * 2.2 + mesera.global_basis.x.normalized() * 0.8 + Vector3.UP * 1.9
+			cam.look_at(mesera.global_position + Vector3.UP * 1.4, Vector3.UP)
 		await get_tree().create_timer(0.3).timeout
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(carpeta.path_join(nombre + ".png"))

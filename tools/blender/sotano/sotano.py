@@ -33,6 +33,11 @@ PASILLO = (2.3, 3.9)              # z del descanso y la escalera
 ESCALERA = (2.8, 6.6)             # x donde baja
 PELDANOS = 13
 GRUESO = 0.4
+BANO_PUERTA = (4.6, 5.5)          # z del hueco de la puerta del bano en el muro este del salon 2
+BANO = (35.4, 39.4, 3.0, 7.4)     # el bano: x0, x1, z0, z1 (detras del muro este)
+BANO_ALTO = 2.2
+REPISA_Y = 1.15                   # la primera repisa de la contrabarra (sobre el piso)
+REPISA_SEPARA = 0.34
 PISTA = (11.5, 17.0, 4.8, 6.0)    # la isla de los caballitos en el salon 1: x0, x1, z0, z1
 PISTA_META = 16.5                 # x de la meta (Sotano.PISTA_META)
 MESA = (27.5, 3.6)                # centro de la mesa del poker
@@ -316,6 +321,135 @@ def silla_plegable(nombre, x, y, z, hacia, col):
     return juntar(nombre, piezas, col, Matrix.Translation(_b(x, y, z)) @ Matrix.Rotation(angulo, 4, "Z"))
 
 
+def refri(x0, x1, y, z0, col):
+    """El refri de la Tecatl en la barra: caja roja abierta al frente, marquesina luminosa con el
+    logo (textures/sotano/refri.png, arriba), puerta de vidrio que se transparenta con su marco y
+    jaladera, adentro luz blanca y tres parrillas llenas de cervezas y caguamas, patas, rejilla del
+    motor y calcomanias. Frente en z0 + 0.7."""
+    rojo = material("refri", (0.85, 0.1, 0.1))
+    luz = material("refri_luz", (0.85, 0.95, 1.0), emision=1.5)
+    cromo = material("cromo", (0.75, 0.77, 0.8))
+    marca_m = material("refri_marca", (1, 1, 1))
+    z1 = z0 + 0.7
+    g = 0.05
+    caja("Refri_choque", x0, x1, y, y + 2.05, z0, z1, rojo, col, choca=False).name = "Refri-colonly"
+    for k, (xa, xb) in enumerate(((0.04, 0.1), (0.9, 0.96))):
+        caja("Refri_pata_%d" % k, x0 + xa, x0 + xb, y, y + 0.05, z0 + 0.05, z0 + 0.11, cromo, col, choca=False)
+        caja("Refri_pata_f%d" % k, x0 + xa, x0 + xb, y, y + 0.05, z1 - 0.11, z1 - 0.05, cromo, col, choca=False)
+    # La caja: base con la rejilla, costados, fondo con luz, techo y la marquesina
+    caja("Refri_base", x0, x1, y + 0.05, y + 0.22, z0, z1, rojo, col, choca=False)
+    plano("Refri_rejilla", ((x0 + x1) / 2, y + 0.135, z1 + 0.003), x1 - x0 - 0.12, 0.12, (0, 0, 1), marca_m, col, uv=(0.5, 0.0, 1.0, 0.5))
+    caja("Refri_lado_o", x0, x0 + g, y + 0.22, y + 1.8, z0, z1, rojo, col, choca=False)
+    caja("Refri_lado_e", x1 - g, x1, y + 0.22, y + 1.8, z0, z1, rojo, col, choca=False)
+    caja("Refri_fondo", x0 + g, x1 - g, y + 0.22, y + 1.8, z0, z0 + g, luz, col, choca=False)
+    caja("Refri_techo", x0, x1, y + 1.8, y + 1.85, z0, z1, rojo, col, choca=False)
+    caja("Refri_marquesina", x0, x1, y + 1.85, y + 2.05, z0 + 0.1, z1 + 0.02, rojo, col, choca=False)
+    plano("Refri_marquesina_luz", ((x0 + x1) / 2, y + 1.95, z1 + 0.025), x1 - x0 - 0.04, 0.18, (0, 0, 1), material("refri_letrero", (1, 1, 1)), col, uv=(0.0, 0.5, 1.0, 1.0))
+    # Tres parrillas de alambre con las botellas paradas en dos filas
+    for n, py in enumerate((0.3, 0.82, 1.32)):
+        caja("Refri_parrilla_%d" % n, x0 + g, x1 - g, y + py - 0.015, y + py, z0 + g, z1 - 0.08, cromo, col, choca=False)
+        for fila, pz in enumerate((z0 + 0.22, z0 + 0.45)):
+            bx = x0 + g + 0.05
+            k = 0
+            tipo = "caguama" if n == 0 else "cerveza"
+            radio = BOTELLAS[tipo][0][1][0]
+            while bx + radio * 2 < x1 - g - 0.02:
+                botella("Refri_botella_%d_%d_%d" % (n, fila, k), tipo, bx + radio, y + py, pz, col)
+                bx += radio * 2 + 0.015
+                k += 1
+    # La puerta: vidrio que se ve a traves, marco rojo y la jaladera cromada
+    plano("Refri_vidrio", ((x0 + x1) / 2, y + 1.01, z1 + 0.01), x1 - x0 - 0.1, 1.5, (0, 0, 1), material("vidrio_refri", (0.75, 0.9, 1.0)), col)
+    for nombre, a, b, c, d in (("o", x0, x0 + 0.06, y + 0.22, y + 1.8), ("e", x1 - 0.06, x1, y + 0.22, y + 1.8),
+                               ("ab", x0, x1, y + 0.22, y + 0.27), ("ar", x0, x1, y + 1.75, y + 1.8)):
+        caja("Refri_marco_" + nombre, a, b, c, d, z1, z1 + 0.03, rojo, col, choca=False)
+    caja("Refri_jaladera", x1 - 0.1, x1 - 0.08, y + 0.75, y + 1.3, z1 + 0.03, z1 + 0.06, cromo, col, choca=False)
+    # Calcomanias en el costado que se ve
+    plano("Refri_calco_0", (x0 - 0.003, y + 1.3, z0 + 0.35), 0.3, 0.3, (-1, 0, 0), marca_m, col, uv=(0.0, 0.0, 0.25, 0.5))
+    plano("Refri_calco_1", (x0 - 0.003, y + 0.85, z0 + 0.4), 0.25, 0.25, (-1, 0, 0), marca_m, col, uv=(0.25, 0.0, 0.5, 0.5))
+    marca("Luz_refri", (x0 + x1) / 2, y + 1.0, z1 + 0.3, col, 0)
+
+
+def esfera(nombre, radio, mat, col):
+    """Una bola (sin operadores)."""
+    import bmesh
+    me = bpy.data.meshes.new(nombre)
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=10, v_segments=6, radius=radio)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    ob = bpy.data.objects.new(nombre, me)
+    col.objects.link(ob)
+    return ob
+
+
+def banho(col):
+    """El bano, detras del muro este del salon 2: azulejo sucio, piso de cuadros, dos casetas (una
+    cerrada, una con la puerta colgando), excusados, un mingitorio, dos lavabos con el espejo
+    estrellado y un hueco donde estuvo el otro, tubos oxidados, la coladera con su mancha, el grafiti
+    y un foco pelon que parpadea (Sotano.gd). Como en Silent Hill: sucio, chico y con algo raro."""
+    x0, x1, z0, z1 = BANO
+    y = PISO
+    alto = y + BANO_ALTO
+    g = 0.2
+    azulejo = material("azulejo", (0.7, 0.7, 0.65))
+    piso = material("azulejo_piso", (0.15, 0.2, 0.15))
+    sucio = material("pintura_sucia", (0.35, 0.36, 0.3))
+    lamina = material("lamina_bano", (0.25, 0.35, 0.28))
+    porcelana = material("porcelana", (0.85, 0.85, 0.8))
+    oxido = material("tubo_oxidado", (0.4, 0.22, 0.12))
+    atlas = material("banho", (1, 1, 1))
+    caja("Bano_piso", x0 - g, x1 + g, y - g, y, z0 - g, z1 + g, piso, col)
+    caja("Bano_techo", x0 - g, x1 + g, alto, alto + g, z0 - g, z1 + g, sucio, col)
+    caja("Bano_muro_n", x0, x1 + g, y, alto, z0 - g, z0, sucio, col)
+    caja("Bano_muro_s", x0, x1 + g, y, alto, z1, z1 + g, sucio, col)
+    caja("Bano_muro_e", x1, x1 + g, y, alto, z0, z1, sucio, col)
+    # Azulejo hasta 1.4 en los tres muros de adentro (y el del lado de la puerta)
+    for nombre, a, b, c, d in (("n", x0, x1, z0, z0 + 0.02), ("s", x0, x1, z1 - 0.02, z1), ("e", x1 - 0.02, x1, z0, z1),
+                               ("o_n", x0, x0 + 0.02, z0, BANO_PUERTA[0]), ("o_s", x0, x0 + 0.02, BANO_PUERTA[1], z1)):
+        caja("Bano_azulejo_" + nombre, a, b, y, y + 1.4, c, d, azulejo, col, choca=False)
+    # Dos casetas contra el muro este: mamparas, frentes y puertas (la segunda cuelga de una bisagra)
+    cx0 = x1 - 1.3
+    for k, zc in enumerate((z0 + 0.1, z0 + 1.1, z0 + 2.1)):
+        caja("Bano_mampara_%d" % k, cx0, x1, y + 0.15, y + 1.85, zc - 0.015, zc + 0.015, lamina, col)
+    for k in range(2):
+        za = z0 + 0.1 + k
+        caja("Bano_frente_%d" % k, cx0 - 0.015, cx0 + 0.015, y + 1.6, y + 1.85, za, za + 1.0, lamina, col, choca=False)
+        # El excusado: base, taza de torno y tanque
+        tx, tz = x1 - 0.35, za + 0.5
+        caja("Bano_excusado_base_%d" % k, tx - 0.12, tx + 0.12, y, y + 0.3, tz - 0.14, tz + 0.14, porcelana, col)
+        girar("Bano_taza_%d" % k, [(0, 0.28), (0.17, 0.3), (0.2, 0.4), (0.16, 0.42), (0, 0.36)], porcelana, col, lados=10).location = _b(tx - 0.08, y, tz)
+        caja("Bano_tanque_%d" % k, x1 - 0.18, x1 - 0.02, y + 0.42, y + 0.8, tz - 0.2, tz + 0.2, porcelana, col, choca=False)
+    caja("Bano_caseta_puerta_0", cx0 - 0.02, cx0 + 0.01, y + 0.2, y + 1.6, z0 + 0.12, z0 + 1.08, lamina, col)
+    colgada = caja("Bano_caseta_puerta_1", -0.015, 0.015, 0.0, 1.4, 0.0, 0.96, lamina, col, choca=False)
+    colgada.location = _b(cx0 - 0.45, y + 0.9, z0 + 1.55)
+    colgada.rotation_euler = (math.radians(9), 0, math.radians(-62))     # abierta y caida de una bisagra
+    # Mingitorio en el muro norte y los dos lavabos en el sur, con el espejo estrellado y el hueco
+    caja("Bano_mingitorio", x0 + 0.9, x0 + 1.3, y + 0.5, y + 1.2, z0 + 0.02, z0 + 0.3, porcelana, col)
+    for k, lx in enumerate((x0 + 0.8, x0 + 1.9)):
+        caja("Bano_lavabo_pie_%d" % k, lx - 0.06, lx + 0.06, y, y + 0.75, z1 - 0.25, z1 - 0.13, porcelana, col)
+        girar("Bano_lavabo_%d" % k, [(0, 0.72), (0.2, 0.74), (0.24, 0.86), (0.2, 0.86), (0, 0.78)], porcelana, col, lados=10).location = _b(lx, y, z1 - 0.22)
+        cable_recto("Bano_llave_%d" % k, Vector((lx, y + 0.86, z1 - 0.05)), Vector((lx, y + 1.0, z1 - 0.12)), oxido, col, r=0.012)
+    plano("Bano_espejo", (x0 + 0.8, y + 1.45, z1 - 0.025), 0.5, 0.6, (0, 0, -1), atlas, col, uv=(0.0, 0.0, 0.5, 1.0))
+    caja("Bano_espejo_hueco", x0 + 1.65, x0 + 2.15, y + 1.15, y + 1.75, z1 - 0.025, z1 - 0.02, material("concreto_techo", (0.35, 0.34, 0.33)), col, choca=False)
+    plano("Bano_grafiti", (x0 + 1.25, y + 1.75, z0 + 0.025), 1.1, 0.55, (0, 0, 1), atlas, col, uv=(0.5, 0.5, 1.0, 1.0))
+    # La coladera y la mancha que sale de ella; una mancha mas bajo el lavabo
+    plano("Bano_coladera", ((x0 + cx0) / 2, y + 0.004, (z0 + z1) / 2), 0.3, 0.3, (0, 1, 0), atlas, col, uv=(0.75, 0.0, 1.0, 0.5))
+    plano("Bano_mancha_0", ((x0 + cx0) / 2 + 0.2, y + 0.003, (z0 + z1) / 2 + 0.25), 1.1, 1.0, (0, 1, 0), material("banho_mancha", (1, 1, 1)), col, uv=(0.5, 0.0, 0.75, 0.5))
+    plano("Bano_mancha_1", (x0 + 1.9, y + 0.003, z1 - 0.6), 0.7, 0.6, (0, 1, 0), material("banho_mancha"), col, uv=(0.5, 0.0, 0.75, 0.5))
+    # Tubos oxidados por el techo y uno que baja al lavabo
+    for k, (pa, pb) in enumerate((((x0 + 0.1, z0 + 0.2), (x1 - 0.1, z0 + 0.2)), ((x0 + 0.3, z0 + 0.2), (x0 + 0.3, z1 - 0.1)))):
+        cable_recto("Bano_tubo_%d" % k, Vector((pa[0], alto - 0.12, pa[1])), Vector((pb[0], alto - 0.12, pb[1])), oxido, col, r=0.03)
+    cable_recto("Bano_tubo_baja", Vector((x0 + 0.3, alto - 0.12, z1 - 0.1)), Vector((x0 + 0.3, y + 0.6, z1 - 0.1)), oxido, col, r=0.025)
+    # El foco pelon colgando de su cable
+    cable_recto("Bano_foco_cable", Vector((x0 + 1.6, alto, (z0 + z1) / 2)), Vector((x0 + 1.6, alto - 0.45, (z0 + z1) / 2)), material("cable", (0.05, 0.05, 0.05)), col, r=0.006)
+    esfera("Bano_foco", 0.045, material("foco_bano", (1.0, 0.85, 0.5), emision=2.0), col).location = _b(x0 + 1.6, alto - 0.5, (z0 + z1) / 2)
+    marca("Luz_bano", x0 + 1.6, alto - 0.55, (z0 + z1) / 2, col, 0)
+    marca("Bano_espejo", x0 + 0.8, y, z1 - 0.7, col, 180)
+    marca("Bano_caseta", cx0 - 0.5, y, z0 + 0.6, col, 90)
+    marca("Bano_centro", (x0 + cx0) / 2, y, (z0 + z1) / 2, col, 0)
+
+
 def cuarto():
     """Los muros (GRUESO, 0.4), el descanso, la escalera con zancas y barandal, el salon de las
     maquinitas (SALON) y, por un arco en su muro este, el salon del poker y la barra (SALON2)."""
@@ -399,7 +533,11 @@ def cuarto():
     caja("Techo2", a0, a1 + g, TECHO, TECHO + g, b0 - g, b1 + g, techo, col)
     caja("Muro2_norte", a0, a1 + g, PISO, TECHO, b0 - g, b0, muro, col)
     caja("Muro2_sur", a0, a1 + g, PISO, TECHO, b1, b1 + g, muro, col)
-    caja("Muro2_este", a1, a1 + g, PISO, TECHO, b0, b1, muro, col)
+    # El muro este, con el hueco de la puerta del bano (BANO_PUERTA: z de las jambas)
+    p0, p1 = BANO_PUERTA
+    caja("Muro2_este_n", a1, a1 + g, PISO, TECHO, b0, p0, muro, col)
+    caja("Muro2_este_s", a1, a1 + g, PISO, TECHO, p1, b1, muro, col)
+    caja("Muro2_este_dintel", a1, a1 + g, PISO + 2.0, TECHO, p0, p1, muro, col)
     # Lo que tapa el hueco entre los salones donde sus muros no coinciden (arriba y abajo del salon 2)
     if b0 > z0:
         caja("Muro_medio_tapa_n", a0, a0 + g, PISO, TECHO, z0, b0, muro, col)
@@ -499,20 +637,24 @@ def utileria(col):
     caja("Contrabarra_tapa", 22.95, 30.05, y + 0.9, y + 0.94, b0, b0 + 0.5, material("madera_oscura", (0.3, 0.2, 0.12)), col, choca=False)
     rnd = random.Random(11)
     tipos = list(BOTELLAS)
+    # Tres repisas; la de arriba en y + 1.83: la botella mas alta (ron, 0.28) llega a y + 2.11, abajo
+    # de las vigas (TECHO - 0.25 = y + 2.15). Las botellas no pasan de la orilla de la repisa
     for nivel in range(3):
-        ry = y + 1.25 + nivel * 0.42
+        ry = y + REPISA_Y + nivel * REPISA_SEPARA
         caja("Repisa_%d" % nivel, 23.0, 29.0, ry - 0.03, ry, b0, b0 + 0.3, madera, col, choca=False)
-        bx = 23.15
+        bx = 23.08
         k = 0
-        while bx < 28.85:
+        while True:
             tipo = rnd.choice(tipos)
-            botella("Botella_%d_%02d" % (nivel, k), tipo, bx, ry, b0 + 0.15 + rnd.uniform(-0.04, 0.04), col)
-            bx += BOTELLAS[tipo][0][1][0] * 2 + rnd.choice((0.03, 0.05, 0.05, 0.12))
+            radio = BOTELLAS[tipo][0][1][0]
+            if bx + radio * 2 > 28.94:
+                break
+            botella("Botella_%d_%02d" % (nivel, k), tipo, bx + radio, ry, b0 + 0.15 + rnd.uniform(-0.04, 0.04), col)
+            bx += radio * 2 + rnd.choice((0.02, 0.04, 0.04, 0.1))
             k += 1
     for k, (tipo, bx) in enumerate((("tequila", 23.4), ("cerveza", 23.6), ("ron", 29.5), ("whisky", 29.7))):
         botella("Botella_contra_%d" % k, tipo, bx, y + 0.94, b0 + 0.25, col)
-    caja("Refri", 30.2, 31.2, y, y + 1.9, b0, b0 + 0.7, material("refri", (0.85, 0.1, 0.1)), col)
-    caja("Refri_vidrio", 30.28, 31.12, y + 0.15, y + 1.75, b0 + 0.7, b0 + 0.72, material("refri_luz", (0.85, 0.95, 1.0), emision=1.5), col, choca=False)
+    refri(30.2, 31.2, y, b0, col)
     caja("Barra", 23.0, 29.0, y, y + 1.05, b0 + 1.2, b0 + 1.65, madera, col)
     caja("Barra_tapa", 22.95, 29.05, y + 1.05, y + 1.1, b0 + 1.15, b0 + 1.75, material("madera_oscura"), col, choca=False)
     for k in range(3):
@@ -537,6 +679,25 @@ def utileria(col):
         for n in range(4):
             cilindro("Ficha_%d_%d" % (k, n), fx, y + 0.78 + n * 0.012, y + 0.79 + n * 0.012, fz, 0.03, material("ficha_%d" % (n % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[n % 3]), col, lados=8)
     botella("Botella_poker", "tequila", mx + 1.0, y + 0.78, mz + 0.5, col)
+    # Mas cosas en la mesa: torres de fichas frente a cada lugar, cervezas, una caguama, el
+    # cenicero con colillas y el mazo del crupier
+    torres = ((mx - 1.0, mz + 0.15, 9), (mx - 1.05, mz - 0.1, 6), (mx - 0.7, mz - 0.55, 8), (mx - 0.45, mz - 0.6, 5),
+              (mx + 1.0, mz + 0.15, 10), (mx + 1.05, mz - 0.12, 7), (mx + 0.15, mz + 0.6, 6), (mx - 0.1, mz + 0.62, 4),
+              (mx - 0.05, mz - 0.33, 12), (mx + 0.05, mz - 0.27, 8))   # las dos ultimas: el bote, arriba de las de en medio
+    for k, (fx, fz, alto) in enumerate(torres):
+        for n in range(alto):
+            cilindro("Torre_%d_%02d" % (k, n), fx, y + 0.78 + n * 0.012, y + 0.79 + n * 0.012, fz, 0.03,
+                     material("ficha_%d" % ((n + k) % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[(n + k) % 3]), col, lados=8)
+    for k, (tipo, bx, bz) in enumerate((("cerveza", mx - 1.15, mz + 0.45), ("cerveza", mx + 1.18, mz - 0.45),
+                                         ("caguama", mx - 1.0, mz - 0.62), ("cerveza", mx + 0.6, mz - 0.66))):
+        botella("Botella_mesa_poker_%d" % k, tipo, bx, y + 0.78, bz, col)
+    girar("Cenicero", [(0, 0), (0.07, 0), (0.075, 0.025), (0.06, 0.025), (0.06, 0.01), (0, 0.01)],
+          material("vidrio_ambar", (0.45, 0.22, 0.05)), col, lados=10).location = _b(mx + 0.55, y + 0.78, mz - 0.4)
+    for k in range(3):
+        a_ = k * 2.1
+        cable_recto("Colilla_%d" % k, Vector((mx + 0.55 + math.cos(a_) * 0.02, y + 0.8, mz - 0.4 + math.sin(a_) * 0.02)),
+                    Vector((mx + 0.55 + math.cos(a_) * 0.06, y + 0.81, mz - 0.4 + math.sin(a_) * 0.06)), material("colilla", (0.9, 0.85, 0.75)), col, r=0.005)
+    caja("Mazo", mx + 0.62, mx + 0.7, y + 0.78, y + 0.81, mz - 0.75 + 0.2, mz - 0.75 + 0.32, material("mazo", (0.45, 0.08, 0.1)), col, choca=False)
     lugares = {"Poker_tu": (mx, mz + 1.35, 180), "Poker_0": (mx - 1.9, mz, 90), "Poker_1": (mx - 0.9, mz - 1.35, 0), "Poker_2": (mx + 1.9, mz, -90)}
     for nombre, (px, pz, giro) in lugares.items():
         marca(nombre, px, y, pz, col, giro)
@@ -551,9 +712,24 @@ def utileria(col):
     # El congelador de las caguamas (esquina suroeste del salon 2) y la puerta del bano (este)
     caja("Congelador", a0 + 0.3, a0 + 1.7, y, y + 0.9, b1 - 1.1, b1 - 0.4, material("congelador", (0.85, 0.85, 0.88)), col)
     caja("Congelador_tapa", a0 + 0.35, a0 + 1.65, y + 0.9, y + 0.93, b1 - 1.07, b1 - 0.43, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
+    plano("Congelador_calco", (a0 + 0.75, y + 0.5, b1 - 1.115), 0.36, 0.36, (0, 0, -1), material("refri_marca", (1, 1, 1)), col, uv=(0.0, 0.0, 0.25, 0.5))
+    plano("Congelador_calco_2", (a0 + 1.3, y + 0.55, b1 - 1.115), 0.3, 0.3, (0, 0, -1), material("refri_marca"), col, uv=(0.25, 0.0, 0.5, 0.5))
+    caja("Congelador_jaladera", a0 + 0.8, a0 + 1.2, y + 0.86, y + 0.9, b1 - 1.14, b1 - 1.1, material("cromo", (0.75, 0.77, 0.8)), col, choca=False)
     marca("Congelador", a0 + 1.0, y, b1 - 1.7, col, 180)
-    caja("Bano_puerta", a1 - 0.06, a1, y, y + 2.0, b1 - 3.4, b1 - 2.5, material("lamina_puerta", (0.25, 0.3, 0.28)), col, choca=False)
+    # La puerta del bano en su bisagra (orilla norte): Sotano.gd la gira para abrirla hacia el salon
+    p0, p1 = BANO_PUERTA
+    bisagra = bpy.data.objects.new("Bano_bisagra", None)
+    bisagra.empty_display_size = 0.1
+    bisagra.location = _b(a1 - 0.03, y, p0)
+    col.objects.link(bisagra)
+    puerta = caja("Bano_puerta", -0.03, 0.03, 0.0, 2.0, 0.0, p1 - p0, material("lamina_puerta", (0.25, 0.3, 0.28)), col, choca=False)
+    puerta.parent = bisagra
+    puerta.location = _b(0.0, 1.0, (p1 - p0) / 2)
+    jaladera = caja("Bano_puerta_jaladera", -0.07, -0.03, 0.95, 1.05, 0.0, 0.03, material("cromo", (0.75, 0.77, 0.8)), col, choca=False)
+    jaladera.parent = bisagra
+    jaladera.location = _b(-0.05, 1.0, p1 - p0 - 0.1)
     marca("Bano", a1 - 0.6, y, b1 - 2.95, col, -90)
+    banho(col)
     marca("Neon_bano", a1 - 0.02, y + 2.15, b1 - 2.95, col, -90)
     # Una mesa alta para los que esperan, junto al muro sur
     cilindro("Mesa_alta_pata", 29.0, y, y + 1.0, b1 - 0.9, 0.04, metal, col, lados=6)
@@ -569,10 +745,11 @@ def utileria(col):
         marca("Luz_%d" % k, tx, TECHO - 0.4, tz, col, 0)
     # Neones (los arma Sotano.gd con models/sotano/neones.glb en los vacios)
     # EL GORDO cuelga de la viga de en medio, viendo a la entrada (en el muro lo tapaban los gabinetes)
-    marca("Neon", 13.52, TECHO - 0.6, 3.0, col, -90)
-    marca("Neon_atras", 13.68, TECHO - 0.6, 3.0, col, 90)      # el mismo, espalda con espalda
-    for k, zc in enumerate((2.45, 3.55)):
-        cable_recto("Cadena_neon_%d" % k, Vector((13.6, TECHO - 0.25, zc)), Vector((13.6, TECHO - 0.3, zc)), metal, col, r=0.01)
+    # (junto a la viga, no en ella: el letrero llega casi al techo y la pasaba)
+    marca("Neon", 12.92, TECHO - 0.5, 3.0, col, -90)
+    marca("Neon_atras", 13.08, TECHO - 0.5, 3.0, col, 90)      # el mismo, espalda con espalda
+    for k, zc in enumerate((2.3, 3.7)):
+        cable_recto("Cadena_neon_%d" % k, Vector((13.0, TECHO, zc)), Vector((13.0, TECHO - 0.07, zc)), metal, col, r=0.01)
     marca("Neon_premio", 17.8, TECHO - 0.5, z1 - 0.05, col, 180)
     marca("Neon_abierto", 8.6, TECHO - 0.75, z1 - 0.05, col, 180)
     marca("Neon_poker", a1 - 0.05, TECHO - 0.8, MESA[1], col, -90)
@@ -677,6 +854,22 @@ def gabinete():
     plano("Pantalla", (0.0, 1.275, 0.114), 0.42, 0.33, (0, 0, 1), pantalla, col)
     caja("Monedero", 0.21, 0.28, 1.2, 1.38, 0.1, 0.14, metal, col, choca=False)
     caja("Billetero", 0.1, 0.24, 0.6, 0.72, 0.25, 0.29, metal, col, choca=False)
+    # La palanca, al lado derecho: placa cromada, brazo que gira en el vacio "Palanca" (rotacion en x
+    # de Godot: positivo la jala hacia ti) y la bola roja. GabineteOlPley.jalar_palanca la mueve
+    caja("Palanca_placa", 0.3, 0.33, 0.95, 1.2, -0.08, 0.1, metal, col, choca=False)
+    cilindro("Palanca_eje", 0.0, 0.0, 0.06, 0.0, 0.03, metal, col, lados=8).rotation_euler = (0, math.radians(90), 0)
+    eje = bpy.data.objects["Palanca_eje"]
+    eje.location = _b(0.36, 1.07, 0.01)
+    pivote = bpy.data.objects.new("Palanca", None)
+    pivote.empty_display_size = 0.05
+    pivote.location = _b(0.37, 1.07, 0.01)
+    col.objects.link(pivote)
+    brazo = cilindro("Palanca_brazo", 0.0, 0.0, 0.36, 0.0, 0.011, material("cromo", (0.75, 0.77, 0.8)), col, lados=6)
+    brazo.parent = pivote
+    brazo.location = _b(0.0, 0.18, 0.0)
+    bola = esfera("Palanca_bola", 0.042, material("boton_0", (0.9, 0.1, 0.1), emision=0.6), col)
+    bola.parent = pivote
+    bola.location = _b(0.0, 0.38, 0.0)
     caja("Marquesina", -0.31, 0.31, 1.6, 1.8, -0.27, 0.14, cuerpo, col, choca=False)
     caja("Marquesina_tapa", -0.32, 0.32, 1.8, 1.83, -0.28, 0.15, lamina, col, choca=False)
     # Calcomanias (UV en el atlas: v hacia arriba)

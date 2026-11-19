@@ -11,6 +11,9 @@ extends RefCounted
 const ATLAS := preload("res://textures/sotano/cartas.png")
 const COLUMNAS := 8
 const TAMANO := Vector2(96, 144)
+# Los dibujos (renders 3D de tools/blender/sotano/cartas3d.py, fondo transparente): 8 x 3 de 80 x 80
+const DIBUJOS := preload("res://textures/sotano/cartas_dibujos.png")
+const DIBUJO := Vector2(80, 80)
 
 const NOMBRES := ["El Gallo", "El Diablito", "La Sirena", "El Paraguas", "La Calavera", "El Nopal",
 	"La Luna", "El Sol", "El Corazón", "La Campana", "La Estrella", "El Venado", "La Rana",
@@ -47,6 +50,17 @@ const VERSOS := [
 const TINACO := 23
 
 static var _texturas := {}
+static var _dibujos := {}
+
+
+# El dibujo 3D de la carta `i` (va encima del campo de color de su carta)
+static func dibujo(i: int) -> AtlasTexture:
+	if not _dibujos.has(i):
+		var t := AtlasTexture.new()
+		t.atlas = DIBUJOS
+		t.region = Rect2(Vector2(i % COLUMNAS, i / COLUMNAS) * DIBUJO, DIBUJO)
+		_dibujos[i] = t
+	return _dibujos[i]
 
 
 static func cuantas() -> int:

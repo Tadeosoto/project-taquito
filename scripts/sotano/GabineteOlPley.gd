@@ -12,6 +12,9 @@ const MODELO := preload("res://models/sotano/gabinete_olpley.glb")
 const COLORES := [Color(0.7, 0.1, 0.1), Color(0.12, 0.12, 0.13), Color(0.4, 0.15, 0.55)]
 const MEDIDA := Vector3(0.66, 1.83, 0.6)
 const PARPADEO := 0.18               # s entre prendido y apagado de la sena
+const PALANCA_ANGULO := 55.0         # grados que baja la palanca al jalarla (hacia ti)
+const PALANCA_BAJA := 0.22           # s
+const PALANCA_SUBE := 0.45           # s, con rebote
 
 static var _cuerpos := {}            # color -> StandardMaterial3D
 
@@ -61,6 +64,19 @@ func mostrar_en_pantalla(textura: Texture2D) -> void:
 	m.albedo_texture = textura
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	pantalla.set_surface_override_material(0, m)
+
+
+# La palanca del lado derecho (el vacio "Palanca" de sotano.py gabinete()): baja hacia ti y regresa
+# con rebote. Es una corrutina: vuelve cuando la palanca llego abajo (ahi arrancan los carretes)
+func jalar_palanca() -> void:
+	var palanca := find_child("Palanca", true, false) as Node3D
+	Sonidos.tocar(self, "slot_palanca", -4.0)
+	if palanca == null:
+		return
+	var tween := create_tween()
+	tween.tween_property(palanca, "rotation:x", deg_to_rad(PALANCA_ANGULO), PALANCA_BAJA).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(palanca, "rotation:x", 0.0, PALANCA_SUBE).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	await get_tree().create_timer(PALANCA_BAJA).timeout
 
 
 # Un boton del tablero se hunde y regresa ("Boton_0".."Boton_5" o "Boton_grande")
