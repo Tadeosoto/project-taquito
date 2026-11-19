@@ -21,6 +21,40 @@ RAIZ = os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\proje
 SALIDA = os.path.join(RAIZ, "models", "sotano")
 TUBO = 0.009          # radio del tubo (m de la escena)
 HALO = 2.8            # el halo: tantas veces el tubo
+HALO_TEXTO = 2.0      # en las letras, mas delgado: con 2.8 los colores se encimaban entre letras
+
+
+def _ovalo(cx, cz, rx, rz, pasos=16, a0=0.0, a1=360.0):
+    return [(cx + math.cos(math.radians(a0 + (a1 - a0) * k / pasos)) * rx, cz + math.sin(math.radians(a0 + (a1 - a0) * k / pasos)) * rz) for k in range(pasos + 1)]
+
+
+# Letras de un trazo, en una caja de 1 de alto: letra -> (ancho, [rayas de (x, z)]). Solo las que
+# usan los letreros; una que falte sale como espacio
+TRAZOS = {
+    "A": (0.62, [[(0, 0), (0.31, 1), (0.62, 0)], [(0.12, 0.38), (0.5, 0.38)]]),
+    "B": (0.56, [[(0, 0), (0, 1), (0.36, 1), (0.5, 0.92), (0.52, 0.76), (0.44, 0.6), (0.3, 0.54), (0, 0.54)],
+                 [(0.3, 0.54), (0.5, 0.46), (0.56, 0.28), (0.5, 0.08), (0.36, 0), (0, 0)]]),
+    "D": (0.6, [[(0, 0), (0, 1), (0.3, 1), (0.5, 0.88), (0.6, 0.64), (0.6, 0.36), (0.5, 0.12), (0.3, 0), (0, 0)]]),
+    "E": (0.52, [[(0.52, 1), (0, 1), (0, 0), (0.52, 0)], [(0, 0.52), (0.4, 0.52)]]),
+    "G": (0.62, [[(0.6, 0.84), (0.46, 0.98), (0.3, 1), (0.12, 0.92), (0.02, 0.72), (0, 0.5), (0.02, 0.28), (0.12, 0.08),
+                  (0.3, 0), (0.48, 0.04), (0.62, 0.18), (0.62, 0.45), (0.36, 0.45)]]),
+    "H": (0.58, [[(0, 0), (0, 1)], [(0.58, 0), (0.58, 1)], [(0, 0.52), (0.58, 0.52)]]),
+    "I": (0.12, [[(0.06, 0), (0.06, 1)]]),
+    "K": (0.56, [[(0, 0), (0, 1)], [(0.56, 1), (0, 0.4)], [(0.2, 0.62), (0.58, 0)]]),
+    "L": (0.5, [[(0, 1), (0, 0), (0.5, 0)]]),
+    "N": (0.6, [[(0, 0), (0, 1), (0.6, 0), (0.6, 1)]]),
+    "Ñ": (0.6, [[(0, 0), (0, 1), (0.6, 0), (0.6, 1)], [(0.04, 1.14), (0.18, 1.22), (0.4, 1.12), (0.56, 1.2)]]),
+    "O": (0.64, [_ovalo(0.32, 0.5, 0.32, 0.5)]),
+    "Ó": (0.64, [_ovalo(0.32, 0.5, 0.32, 0.5), [(0.26, 1.1), (0.42, 1.26)]]),
+    "P": (0.56, [[(0, 0), (0, 1), (0.36, 1), (0.52, 0.9), (0.56, 0.74), (0.52, 0.6), (0.36, 0.5), (0, 0.5)]]),
+    "R": (0.58, [[(0, 0), (0, 1), (0.36, 1), (0.52, 0.9), (0.56, 0.74), (0.52, 0.6), (0.36, 0.5), (0, 0.5)], [(0.3, 0.5), (0.58, 0)]]),
+    "S": (0.56, [[(0.56, 0.85), (0.42, 0.98), (0.2, 0.98), (0.04, 0.86), (0.04, 0.66), (0.2, 0.54), (0.4, 0.47),
+                  (0.56, 0.35), (0.56, 0.14), (0.4, 0.01), (0.16, 0.01), (0, 0.14)]]),
+    "T": (0.6, [[(0, 1), (0.6, 1)], [(0.3, 1), (0.3, 0)]]),
+    "2": (0.56, [[(0.02, 0.8), (0.14, 0.96), (0.32, 1), (0.5, 0.92), (0.56, 0.74), (0.48, 0.55), (0, 0), (0.58, 0)]]),
+    "4": (0.6, [[(0.46, 0), (0.46, 1), (0, 0.3), (0.6, 0.3)]]),
+    "!": (0.12, [[(0.06, 1), (0.06, 0.3)], _ovalo(0.06, 0.06, 0.04, 0.04, 6)]),
+}
 FOCO = 0.018          # radio de un foco
 
 COLORES = {
@@ -44,11 +78,16 @@ class Letrero:
         self.n = 0
         self.focos = {"a": [], "b": []}
 
-    def _poner(self, curva, color, grueso=TUBO):
+    def _poner(self, curva, color, grueso=TUBO, halo_veces=HALO, lleno=False):
         """La curva (en el plano XY de la curva) se para en XZ, se vuelve malla (tubo y halo) y se
-        borra."""
+        borra. `lleno`: letra rellena (de mano) en vez de tubo; su halo es un tubo por la orilla."""
         for halo in (False, True):
-            curva.bevel_depth = grueso * (HALO if halo else 1.0)
+            if lleno and not halo:
+                curva.bevel_depth = 0.0
+                curva.extrude = 0.003
+            else:
+                curva.extrude = 0.0
+                curva.bevel_depth = grueso * (halo_veces if halo else 1.0)
             curva.bevel_resolution = 0 if halo else 1
             ob = bpy.data.objects.new("tmp", curva)
             ob.rotation_euler = (math.radians(90), 0, 0)
@@ -65,7 +104,7 @@ class Letrero:
         bpy.data.curves.remove(curva)
         self.n += 1
 
-    def texto(self, cuerpo, x, z, tam, color, fuente=None, grueso=TUBO):
+    def texto(self, cuerpo, x, z, tam, color, fuente=None, grueso=TUBO, lleno=False):
         cu = bpy.data.curves.new("t", "FONT")
         cu.body = cuerpo
         if fuente:
@@ -76,7 +115,36 @@ class Letrero:
         cu.resolution_u = 2
         cu.offset_x = x
         cu.offset_y = z
-        self._poner(cu, color, grueso)
+        self._poner(cu, color, grueso, HALO_TEXTO if lleno else HALO, lleno)
+
+    def mano(self, cuerpo, x, z, tam, color, fuente):
+        """Palabra de mano (Pacifico) rellena: se lee como una sola linea de tubo."""
+        self.texto(cuerpo, x, z, tam, color, fuente, TUBO * 0.8, lleno=True)
+
+    def trazo(self, texto, cx, cz, alto, color, separa=0.22, grueso=TUBO):
+        """Letras de bloque de un solo trazo (TRAZOS), como el neon de verdad: un tubo por raya,
+        centradas en (cx, cz), de `alto`; `separa` es el espacio entre letras (en altos)."""
+        anchos = [TRAZOS[c][0] if c in TRAZOS else 0.35 for c in texto]
+        total = (sum(anchos) + separa * (len(texto) - 1)) * alto
+        x = cx - total / 2
+        polis = []
+        for c, ancho in zip(texto, anchos):
+            for raya in (TRAZOS[c][1] if c in TRAZOS else []):
+                polis.append([(x + px * alto, cz - alto / 2 + pz * alto) for px, pz in raya])
+            x += (ancho + separa) * alto
+        self.rayas(polis, color, grueso, HALO_TEXTO)
+
+    def rayas(self, polis, color, grueso=TUBO, halo_veces=HALO):
+        """Varias polilineas (x, z) en una sola malla de tubo (una curva con varias rayas)."""
+        cu = bpy.data.curves.new("r", "CURVE")
+        cu.dimensions = "3D"
+        for puntos in polis:
+            sp = cu.splines.new("POLY")
+            sp.points.add(len(puntos) - 1)
+            for q, (px, pz) in zip(sp.points, puntos):
+                q.co = (px, pz, 0.0, 1.0)
+            sp.use_cyclic_u = len(puntos) > 2 and puntos[0] == puntos[-1]
+        self._poner(cu, color, grueso, halo_veces)
 
     def linea(self, puntos, color, cerrada=False, grueso=TUBO):
         """Un tubo por los puntos (x, z)."""
@@ -162,26 +230,26 @@ def letreros():
 
     # EL GORDO, sobre las maquinitas: marco morado con focos arriba y abajo, flechas a los lados
     s = Letrero("gordo")
-    s.marco(0, 0, 1.9, 0.82, 0.14, "morado")
-    s.texto("EL GORDO", 0, 0.08, 0.34, "amarillo")
-    s.texto("¡Suerte!", 0, -0.2, 0.5, "rosa", mano)
+    s.marco(0, 0, 2.0, 0.86, 0.14, "morado")
+    s.trazo("EL GORDO", 0, 0.1, 0.3, "amarillo")
+    s.mano("¡Suerte!", 0, -0.21, 0.42, "rosa", mano)
     for k in range(13):
         x = -0.84 + k * 0.14
         s.foco(x, 0.5)
         s.foco(x, -0.5)
     for lado in (-1, 1):
         s.linea([(lado * 1.02, 0.22), (lado * 1.16, 0.0), (lado * 1.02, -0.22)], "rosa")
-    s.soportes(1.7, -0.3, 0.3)
+    s.soportes(1.7, -0.43, 0.43)
     s.cerrar()
 
     # ¡PREMIO! en su liston, con un arco de focos encima (sobre las dos del muro sur)
     s = Letrero("premio")
     s.linea([(-0.78, 0.15), (0.78, 0.15), (0.64, 0.0), (0.78, -0.15), (-0.78, -0.15), (-0.64, 0.0)], "morado", cerrada=True)
-    s.texto("¡Premio!", 0, 0.01, 0.46, "rosa", mano)
+    s.mano("¡Premio!", 0, 0.0, 0.4, "rosa", mano)
     s.linea(arco(0, 0.05, 0.62, 15, 165), "rosa")
     for a in range(20, 165, 13):
         s.foco(math.cos(math.radians(a)) * 0.54, 0.05 + math.sin(math.radians(a)) * 0.54)
-    s.soportes(1.3, -0.1, 0.3)
+    s.soportes(1.3, -0.15, 0.15)
     s.cerrar()
 
     # PÓKER: los cuatro palos arriba, la palabra en su marco y "Texas" de mano abajo
@@ -189,23 +257,23 @@ def letreros():
     for k, (palo, color) in enumerate((("♠", "morado"), ("♥", "rosa"), ("♦", "rosa"), ("♣", "morado"))):
         s.texto(palo, -0.45 + k * 0.3, 0.42, 0.22, color)
     s.marco(0, 0.06, 1.3, 0.42, 0.12, "amarillo")
-    s.texto("PÓKER", 0, 0.06, 0.27, "amarillo")
-    s.texto("Texas", 0, -0.3, 0.5, "rosa", mano)
+    s.trazo("PÓKER", 0, 0.05, 0.24, "amarillo")
+    s.mano("Texas", 0, -0.31, 0.42, "rosa", mano)
     s.linea([(-0.65, -0.52), (0.65, -0.52)], "morado")
-    s.soportes(1.1, -0.3, 0.3)
+    s.soportes(1.1, -0.15, 0.27)
     s.cerrar()
 
     # ABIERTO 24 HRS
     s = Letrero("abierto")
     s.marco(0, 0, 1.4, 0.6, 0.1, "cian")
-    s.texto("ABIERTO", 0, 0.1, 0.22, "verde")
-    s.texto("24 HRS", 0, -0.16, 0.2, "rojo")
-    s.soportes(1.2, -0.2, 0.2)
+    s.trazo("ABIERTO", 0, 0.11, 0.18, "verde")
+    s.trazo("24 HRS", 0, -0.15, 0.16, "rojo")
+    s.soportes(1.2, -0.3, 0.3)
     s.cerrar()
 
     # Tecatl de mano con su tarro espumoso
     s = Letrero("barra")
-    s.texto("Tecatl", 0.2, 0.02, 0.62, "rojo", mano)
+    s.mano("Tecatl", 0.2, 0.02, 0.6, "rojo", mano)
     s.linea(rectangulo(-0.6, -0.04, 0.3, 0.42, 0.04), "amarillo", cerrada=True)
     s.linea(arco(-0.45, -0.04, 0.11, -80, 80, 8), "amarillo")
     for k in range(3):
@@ -213,15 +281,15 @@ def letreros():
     s.linea([(-0.7, -0.15), (-0.7, 0.08)], "amarillo")
     s.linea([(-0.6, -0.15), (-0.6, 0.08)], "amarillo")
     s.linea([(-0.85, -0.38), (0.75, -0.38)], "rojo")
-    s.soportes(1.4, -0.25, 0.25)
+    s.soportes(1.4, -0.38, 0.26)
     s.cerrar()
 
     # BAÑO con su flecha hacia la puerta (abajo)
     s = Letrero("bano")
-    s.texto("BAÑO", 0, 0.12, 0.2, "cian")
+    s.trazo("BAÑO", 0, 0.12, 0.16, "cian")
     s.linea([(0, -0.02), (0, -0.28)], "cian")
     s.linea([(-0.08, -0.19), (0, -0.28), (0.08, -0.19)], "cian")
-    s.soportes(0.5, -0.1, 0.12)
+    s.soportes(0.5, -0.28, 0.24)
     s.cerrar()
 
 

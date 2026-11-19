@@ -640,10 +640,11 @@ def utileria(col):
         marca("Luz_%d" % k, tx, TECHO - 0.4, tz, col, 0)
     # Neones (los arma Sotano.gd con models/sotano/neones.glb en los vacios)
     # EL GORDO cuelga de la viga de en medio, viendo a la entrada (en el muro lo tapaban los gabinetes)
-    marca("Neon", 13.52, TECHO - 0.6, 3.0, col, -90)
-    marca("Neon_atras", 13.68, TECHO - 0.6, 3.0, col, 90)      # el mismo, espalda con espalda
-    for k, zc in enumerate((2.45, 3.55)):
-        cable_recto("Cadena_neon_%d" % k, Vector((13.6, TECHO - 0.25, zc)), Vector((13.6, TECHO - 0.3, zc)), metal, col, r=0.01)
+    # (junto a la viga, no en ella: el letrero llega casi al techo y la pasaba)
+    marca("Neon", 12.92, TECHO - 0.5, 3.0, col, -90)
+    marca("Neon_atras", 13.08, TECHO - 0.5, 3.0, col, 90)      # el mismo, espalda con espalda
+    for k, zc in enumerate((2.3, 3.7)):
+        cable_recto("Cadena_neon_%d" % k, Vector((13.0, TECHO, zc)), Vector((13.0, TECHO - 0.07, zc)), metal, col, r=0.01)
     marca("Neon_premio", 17.8, TECHO - 0.5, z1 - 0.05, col, 180)
     marca("Neon_abierto", 8.6, TECHO - 0.75, z1 - 0.05, col, 180)
     marca("Neon_poker", a1 - 0.05, TECHO - 0.8, MESA[1], col, -90)

@@ -32,8 +32,8 @@ const ANUNCIO := Vector2(0.8, 1.2)  # m de un cartel (escena)
 # del .glb (Neon_<nombre>), color de su luz, si falla y su escala. Los focos van por turnos (FOCOS s).
 const NEONES_GLB := preload("res://models/sotano/neones.glb")
 const NEONES := [
-	["Neon", "gordo", Color(0.8, 0.4, 1.0), false, 0.75],
-	["Neon_atras", "gordo", Color(0.8, 0.4, 1.0), false, 0.75],
+	["Neon", "gordo", Color(0.8, 0.4, 1.0), false, 0.85],
+	["Neon_atras", "gordo", Color(0.8, 0.4, 1.0), false, 0.85],
 	["Neon_premio", "premio", Color(1.0, 0.3, 0.75), false, 0.7],
 	["Neon_abierto", "abierto", Color(0.3, 1.0, 0.6), true, 1.0],
 	["Neon_poker", "poker", Color(1.0, 0.75, 0.3), false, 1.0],
