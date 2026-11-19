@@ -368,6 +368,17 @@ var _bano_abierto := false
 var _espejo_linea := 0
 var _caseta_linea := 0
 var _gota_t := 0.0
+# La puerta secreta (AG 2026-11-19): tocar tres veces la caseta cerrada la abre, y adentro una
+# escotilla baja al desague de LA DESAGUADORA (Desague.gd)
+const TOQUES_SECRETO := 3
+const DESAGUE_EN := Vector3(37.0, -16.0, 4.0)   # donde se pone el desague, muy abajo del bano
+var _toques := 0
+var _toque_caseta: MuebleCasa
+var _caseta_bisagra: Node3D
+var _caseta_tope: StaticBody3D
+var _escotilla: MuebleCasa
+var _desague: Node3D
+var _subir: MuebleCasa
 
 
 func _armar_bano() -> void:
@@ -392,10 +403,19 @@ func _armar_bano() -> void:
 	add_child(MuebleCasa.crear("Mirarte en el espejo", marca("Bano_espejo").origin, func() -> void:
 		avisar(LINEAS_ESPEJO[_espejo_linea % LINEAS_ESPEJO.size()])
 		_espejo_linea += 1, 0.8))
-	add_child(MuebleCasa.crear("Tocar la caseta", marca("Bano_caseta").origin, func() -> void:
-		avisar(LINEAS_CASETA[_caseta_linea % LINEAS_CASETA.size()])
-		_caseta_linea += 1
-		Sonidos.tocar(self, "golpe", -12.0, 0.7), 0.8))
+	_toque_caseta = MuebleCasa.crear("Tocar la caseta", marca("Bano_caseta").origin, _tocar_caseta, 0.8)
+	add_child(_toque_caseta)
+	var cuarto_b := get_node_or_null("Cuarto")
+	_caseta_bisagra = cuarto_b.find_child("Bano_caseta_bisagra", true, false) as Node3D if cuarto_b else null
+	if _caseta_bisagra:
+		_caseta_tope = StaticBody3D.new()
+		var forma_c := CollisionShape3D.new()
+		var caja_c := BoxShape3D.new()
+		caja_c.size = Vector3(0.06, 1.6, 0.96)
+		forma_c.shape = caja_c
+		_caseta_tope.add_child(forma_c)
+		_caseta_tope.position = to_local(_caseta_bisagra.global_position) + Vector3(0.0, 0.7, 0.48)
+		add_child(_caseta_tope)
 	# El foco pelon que parpadea seguido, de color enfermo
 	var foco := _luz(marca("Luz_bano").origin, Color(1.0, 0.82, 0.55), 0.9, 3.6)
 	_parpadear(foco, 0.9)
@@ -445,6 +465,66 @@ func _armar_bano() -> void:
 	radio.position = marca("Bano_caseta").origin + Vector3(0.0, 1.0, 0.0)
 	add_child(radio)
 	radio.play()
+
+
+func _tocar_caseta() -> void:
+	_toques += 1
+	Sonidos.tocar(self, "golpe", -12.0, 0.7)
+	if _toques < TOQUES_SECRETO:
+		avisar(LINEAS_CASETA[(_toques - 1) % LINEAS_CASETA.size()])
+		return
+	if _escotilla:
+		return
+	# Al tercer toque la caseta se abre sola: adentro, en el piso, la escotilla oxidada
+	avisar("Toc, toc, toc. La puerta de la caseta se abre sola. En el piso hay una escotilla oxidada y abajo se oye agua.")
+	Sonidos.tocar(self, "boton", -4.0, 0.3)
+	if _caseta_bisagra:
+		create_tween().tween_property(_caseta_bisagra, "rotation:y", deg_to_rad(-100.0), 1.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	if _caseta_tope:
+		_caseta_tope.queue_free()
+		_caseta_tope = null
+	if _marcas.has("Marca_Bano_escotilla"):
+		_escotilla = MuebleCasa.crear("Bajar por la escotilla", marca("Bano_escotilla").origin, _bajar_al_desague, 0.7)
+		add_child(_escotilla)
+
+
+# Abajo: el desague se arma (Desague.gd) muy abajo del bano y te pone en su escalera, con combate
+func _bajar_al_desague() -> void:
+	if _player == null:
+		_player = get_tree().get_first_node_in_group("jugador") as Node3D
+	if _desague or _player == null:
+		return
+	_desague = load("res://scripts/sotano/Desague.gd").new()
+	_desague.name = "Desague"
+	_desague.set("sotano", self)
+	add_child(_desague)
+	_desague.position = DESAGUE_EN
+	_player.global_position = _desague.call("entrada")
+	if _player is CharacterBody3D:
+		(_player as CharacterBody3D).velocity = Vector3.ZERO
+	if _player.has_method("poner_sin_combate"):
+		_player.poner_sin_combate(false)
+	var salida := _desague.find_child("Marca_Salida", true, false) as Node3D
+	if salida:
+		_subir = MuebleCasa.crear("Subir por la escalera", to_local(salida.global_position), _subir_del_desague, 0.8)
+		add_child(_subir)
+	avisar("Bajas por la escotilla. Abajo huele a óxido y a algo vivo.")
+
+
+func _subir_del_desague() -> void:
+	if _desague == null:
+		return
+	if _subir:
+		_subir.queue_free()
+		_subir = null
+	_desague.queue_free()
+	_desague = null
+	if _player:
+		_player.global_position = to_global(marca("Bano_escotilla").origin + Vector3(-0.6, 0.1, 0.0))
+		if _player is CharacterBody3D:
+			(_player as CharacterBody3D).velocity = Vector3.ZERO
+		if _player.has_method("poner_sin_combate"):
+			_player.poner_sin_combate(true)
 
 
 func _puerta_bano() -> void:

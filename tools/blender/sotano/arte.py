@@ -461,6 +461,54 @@ def mesas():
     _render(sc, "baccarat.png")
 
 
+def desague():
+    """El desague de abajo del bano (la pelea con La Desaguadora, desague.py), a lo Silent Hill 2:
+    oxido.png (128, se repite): lamina oxidada con manchas y escurrimientos; reja.png (128, con
+    transparencia): malla ciclonica oxidada; carne.png (128, se repite): carne viva con venas, la
+    que le crece a los muros."""
+    rnd = random.Random(31)
+    u = 32
+    sc = _escena("Oxido", 128, 128, u)
+    _rect(sc, 0, 0, 4, 4, (0.32, 0.16, 0.08), -0.05)
+    for _ in range(40):
+        _circulo(sc, rnd.uniform(0, 4), rnd.uniform(0, 4), rnd.uniform(0.1, 0.5),
+                 rnd.choice(((0.45, 0.22, 0.09), (0.22, 0.1, 0.05), (0.38, 0.28, 0.2), (0.15, 0.07, 0.04))), -0.04 + rnd.uniform(0, 0.01), lados=8)
+    for _ in range(9):
+        x = rnd.uniform(0, 4)
+        _rect(sc, x, rnd.uniform(0, 2), x + rnd.uniform(0.05, 0.12), 4, (0.12, 0.05, 0.03), -0.02)
+    for k in range(4):
+        _rect(sc, 0, k + 0.96, 4, k + 1.0, (0.1, 0.05, 0.03), -0.015)
+    _render(sc, "oxido.png")
+    sc = _escena("Carne", 128, 128, u)
+    _rect(sc, 0, 0, 4, 4, (0.45, 0.12, 0.12), -0.05)
+    for _ in range(30):
+        _circulo(sc, rnd.uniform(0, 4), rnd.uniform(0, 4), rnd.uniform(0.15, 0.6), rnd.choice(((0.6, 0.2, 0.2), (0.35, 0.08, 0.1), (0.7, 0.35, 0.3))), -0.04, lados=10)
+    for _ in range(14):
+        x, y = rnd.uniform(0, 4), rnd.uniform(0, 4)
+        for k in range(6):
+            _rect(sc, x, y, x + 0.04, y + 0.3, (0.2, 0.03, 0.08), -0.02)
+            x += rnd.uniform(-0.15, 0.15)
+            y += 0.28
+    _render(sc, "carne.png")
+    # La reja con transparencia: rombos de alambre oxidado
+    sc = _escena("Reja", 128, 128, u)
+    sc.render.film_transparent = True
+    sc.render.image_settings.color_mode = "RGBA"
+    import math
+    for k in range(-4, 9):
+        for signo in (1, -1):
+            me = bpy.data.meshes.new("alambre")
+            x0 = k * 0.5
+            a = (x0, 0.0)
+            b = (x0 + signo * 4.0, 4.0)
+            nx, ny = 0.035, 0.0
+            me.from_pydata([(a[0] - nx, -a[1], -0.02), (a[0] + nx, -a[1], -0.02), (b[0] + nx, -b[1], -0.02), (b[0] - nx, -b[1], -0.02)], [], [(0, 1, 2, 3)])
+            me.materials.append(_mat("m_alambre", (0.4, 0.25, 0.15)))
+            ob = bpy.data.objects.new("alambre", me)
+            sc.collection.objects.link(ob)
+    _render(sc, "reja.png")
+
+
 def pantalla_juego():
     """384 x 288: el fondo del juego en la pantalla de EL GORDO (scripts/sotano/OlPleyUI.gd encima
     pone los carretes y los numeros). Marco de neon con focos, el logo, tres ventanas de carrete de

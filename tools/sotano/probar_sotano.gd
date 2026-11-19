@@ -180,6 +180,38 @@ func _probar() -> void:
 		"%s, fichas %d -> %d" % [ui.get("_bj").resultado, antes_vip, fichas.fichas])
 	ui.cerrar()
 	await _esperar(0.4)
+	# La puerta secreta: tres toques a la caseta, la escotilla, el desague y La Desaguadora
+	for k in 3:
+		sotano._tocar_caseta()
+	await _esperar(0.3)
+	_ver(sotano.get("_escotilla") != null, "tres toques abren la caseta y aparece la escotilla")
+	var fichas_antes_jefa: int = fichas.fichas
+	var cosas_antes: int = inventario.items.size()
+	sotano._bajar_al_desague()
+	await _esperar(2.5)
+	var des: Node = sotano.get_node_or_null("Desague")
+	var jefa: Node = null
+	if des:
+		for n in des.get_children():
+			if n is Desaguadora:
+				jefa = n
+	_ver(des != null and jefa != null and jugador.global_position.distance_to(des.call("entrada")) < 3.0, "bajas al desague y ahi esta La Desaguadora")
+	if jefa:
+		# El machete le pega (grupo zombis); a golpes hasta que se hunde
+		var vueltas := 0
+		while jefa.vida > 0 and vueltas < 200:
+			jefa._t = 99.0 if jefa.estado == Desaguadora.Estado.SALE else jefa._t
+			jefa.recibir_golpe(40, jefa.global_position, 1.0, 80, true)
+			vueltas += 1
+			await _esperar(0.02)
+		_ver(jefa.vida <= 0 and jefa.fase == 3, "La Desaguadora pasa por sus tres fases y cae")
+		await _esperar(3.6)
+		_ver(fichas.desaguadora and fichas.fichas >= fichas_antes_jefa + 300 and inventario.items.size() == cosas_antes + 1,
+			"premio: 300 fichas y la varilla del desague", "fichas %d -> %d" % [fichas_antes_jefa, fichas.fichas])
+	sotano._subir_del_desague()
+	await _esperar(0.5)
+	_ver(sotano.get_node_or_null("Desague") == null and jugador.global_position.distance_to(sotano.to_global(sotano.marca("Bano_escotilla").origin)) < 2.0,
+		"subes por la escalera al bano")
 	# El de los dulces del bano: un mazapan
 	fichas.fichas = maxi(fichas.fichas, 10)
 	var antes_d: int = inventario.items.size()

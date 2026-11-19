@@ -95,6 +95,9 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png(arg.trim_prefix("--foto="))
 			get_tree().quit()
+		elif arg.begins_with("--desague="):
+			await _fotos_desague(arg.trim_prefix("--desague="))
+			get_tree().quit()
 		elif arg.begins_with("--mesas="):
 			await _fotos_mesas(arg.trim_prefix("--mesas="))
 			get_tree().quit()
@@ -107,6 +110,55 @@ func _ready() -> void:
 		elif arg.begins_with("--fotos="):
 			await _fotos(arg.trim_prefix("--fotos="))
 			get_tree().quit()
+
+
+# La puerta secreta y La Desaguadora: toca tres veces la caseta, baja y guarda cuadros desde una
+# camara arriba (ella sale, ataca, se hunde), y luego una de cerca
+func _fotos_desague(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	await get_tree().create_timer(1.0).timeout
+	for k in 3:
+		_sotano.call("_tocar_caseta")
+	await get_tree().create_timer(1.6).timeout
+	var cam := Camera3D.new()
+	cam.fov = 70.0
+	add_child(cam)
+	cam.make_current()
+	cam.global_position = _sotano.to_global(Vector3(37.3, -1.2, 5.0))
+	cam.look_at(_sotano.to_global(Vector3(38.4, -2.5, 3.6)), Vector3.UP)
+	await get_tree().create_timer(0.3).timeout
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(carpeta.path_join("caseta_abierta.png"))
+	_sotano.call("_bajar_al_desague")
+	var des := _sotano.get_node_or_null("Desague") as Node3D
+	for k in 30:
+		await get_tree().create_timer(0.3).timeout
+		var jefa := des.find_child("*", false, false) if des else null
+		if des:
+			cam.global_position = des.to_global(Vector3(-5.0, 2.6, 6.5))
+			cam.look_at(des.to_global(Vector3(0, 1.0, 0)), Vector3.UP)
+		await RenderingServer.frame_post_draw
+		if k % 3 == 0:
+			get_viewport().get_texture().get_image().save_png(carpeta.path_join("desague_%02d.png" % k))
+	# Cerca de ella un rato, para ver que pega (la vida del jugador baja o el agua lo escupe)
+	if des:
+		var salud := get_node("/root/Salud")
+		salud.vida = 100
+		_player.global_position = des.to_global(Vector3(0.0, 0.1, 2.2))
+		for k in 20:
+			await get_tree().create_timer(0.5).timeout
+			if not is_instance_valid(des):
+				print("desague: el agua te escupio al bano (vida %d)" % salud.vida)
+				des = null
+				break
+		if des:
+			print("desague: vida del jugador tras 10 s junto a ella: %d" % salud.vida)
+	if des:
+		cam.global_position = des.to_global(Vector3(0.0, 1.6, 3.4))
+		cam.look_at(des.to_global(Vector3(0, 1.9, 0)), Vector3.UP)
+		await get_tree().create_timer(0.3).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("desaguadora_cerca.png"))
 
 
 # Una mano de blackjack y una tirada de ruleta, con cuadros de cada una
