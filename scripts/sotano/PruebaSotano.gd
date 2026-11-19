@@ -12,6 +12,8 @@ extends Node3D
 # Con -- --foto=<archivo.png> guarda una captura a los 2 s y sale (para revisarla sin jugar).
 # Con -- --fotos=<carpeta> guarda una captura desde cada camara de FOTOS (bajas y de lado, para
 # ver si algo flota o se ve hueco) y sale.
+# Con -- --poker=<carpeta> se sienta al poker y guarda un cuadro cada 0.15 s mientras reparte y
+# juega (para ver las cartas moverse), y sale.
 
 const SOTANO := preload("res://scenes/casas/sotano.tscn")
 const ESCALA := 1.25                 # la de CasaPropia
@@ -68,9 +70,27 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png(arg.trim_prefix("--foto="))
 			get_tree().quit()
+		elif arg.begins_with("--poker="):
+			await _fotos_poker(arg.trim_prefix("--poker="))
+			get_tree().quit()
 		elif arg.begins_with("--fotos="):
 			await _fotos(arg.trim_prefix("--fotos="))
 			get_tree().quit()
+
+
+func _fotos_poker(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	get_node("/root/Fichas").permiso = 1
+	get_node("/root/Fichas").fichas = 40
+	await get_tree().create_timer(1.0).timeout
+	_sotano.call("_abrir_poker")
+	for k in 40:
+		await get_tree().create_timer(0.15).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("poker_%02d.png" % k))
+		var ui := get_tree().get_first_node_in_group("juego_sotano")
+		if ui and ui.get("_esperando"):
+			ui.call("jugar", "pasar")
 
 
 func _fotos(carpeta: String) -> void:

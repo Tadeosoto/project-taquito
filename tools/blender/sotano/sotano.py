@@ -544,9 +544,10 @@ def utileria(col):
             silla_plegable("Silla_" + nombre, px, y, pz, MESA, col)
     marca("Crupier", mx + 0.9, y, mz - 1.3, col, 0)
     marca("Poker", mx, y, mz + 1.8, col, 180)
-    cilindro("Poker_lampara_cable", mx, TECHO - 0.7, TECHO, mz, 0.01, cable, col, lados=4)
-    cilindro("Poker_lampara", mx, TECHO - 0.85, TECHO - 0.7, mz, 0.4, material("lampara_verde", (0.15, 0.45, 0.25)), col, lados=12)
-    marca("Luz_poker", mx, TECHO - 0.95, mz, col, 0)
+    # La lampara alta: la camara del poker (PokerUI) ve la mesa por debajo de ella
+    cilindro("Poker_lampara_cable", mx, TECHO - 0.45, TECHO, mz, 0.01, cable, col, lados=4)
+    cilindro("Poker_lampara", mx, TECHO - 0.6, TECHO - 0.45, mz, 0.4, material("lampara_verde", (0.15, 0.45, 0.25)), col, lados=12)
+    marca("Luz_poker", mx, TECHO - 0.7, mz, col, 0)
     # El congelador de las caguamas (esquina suroeste del salon 2) y la puerta del bano (este)
     caja("Congelador", a0 + 0.3, a0 + 1.7, y, y + 0.9, b1 - 1.1, b1 - 0.4, material("congelador", (0.85, 0.85, 0.88)), col)
     caja("Congelador_tapa", a0 + 0.35, a0 + 1.65, y + 0.9, y + 0.93, b1 - 1.07, b1 - 0.43, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
