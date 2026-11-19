@@ -245,6 +245,103 @@ def pantalla():
     _render(sc, "pantalla.png")
 
 
+# Las cervezas de este mundo (parodias), para los carteles del Sotano: nombre, lema, glifo, fondo,
+# letra. El orden es el de textures/sotano/anuncios.png (6 de 256 x 384, en fila) y el de
+# Sotano.ANUNCIOS.
+CERVEZAS = [
+    ("TECATL", "La que aguanta\nla noche", "\U0001F985", (0.75, 0.08, 0.08), (1.0, 0.9, 0.75)),
+    ("INDITA", "Bien fría,\nbien nuestra", "\U0001F33D", (0.95, 0.75, 0.1), (0.35, 0.12, 0.05)),
+    ("CORONELA", "La que manda\nen la mesa", "\U0001F451", (0.1, 0.2, 0.55), (1.0, 0.85, 0.2)),
+    ("MODELITO", "Para los de\nconfianza", "\U0001F37A", (0.85, 0.6, 0.15), (0.15, 0.08, 0.03)),
+    ("PACÍFICA", "Oscura, del puerto\na tu sótano", "⚓", (0.08, 0.1, 0.12), (0.95, 0.75, 0.3)),
+    ("3 CAGUAMAS", "por 10 fichas\nsolo aquí abajo", "\U0001F37E", (0.95, 0.95, 0.9), (0.7, 0.05, 0.05)),
+]
+
+
+def anuncios():
+    """1536 x 384: seis carteles de cerveza de 256 x 384 (CERVEZAS)."""
+    u = 128
+    sc = _escena("Anuncios", 1536, 384, u)
+    emoji = _fuente("seguiemj.ttf")
+    impacto = _fuente("impact.ttf")
+    negra = _fuente("ariblk.ttf")
+    for k, (marca, lema, glifo, fondo, letra) in enumerate(CERVEZAS):
+        x0 = k * 2.0
+        _rect(sc, x0, 0, x0 + 2, 3, letra, -0.03)                    # el marco
+        _rect(sc, x0 + 0.08, 0.08, x0 + 1.92, 2.92, fondo, -0.025)
+        _circulo(sc, x0 + 1.0, 1.2, 0.62, letra, -0.02)
+        _texto(sc, glifo, x0 + 1.0, 1.2, 0.85, fondo, emoji)
+        _texto(sc, marca, x0 + 1.0, 0.42, 0.36, letra, impacto, ancho_max=1.75)
+        _texto(sc, lema, x0 + 1.0, 2.35, 0.2, letra, negra, ancho_max=1.75)
+    _render(sc, "anuncios.png")
+
+
+def pantalla_juego():
+    """256 x 192: el fondo del juego en la pantalla de la OL PLEY (scripts/sotano/OlPleyUI.gd encima
+    pone los carretes y los numeros). Marco de neon con focos, el logo, tres ventanas de carrete de
+    64 x 112 en x = 24, 96, 168 (y de 34 a 146) con sus flechas de la linea de premio, y abajo
+    tres recuadros (APUESTA, FICHAS, PREMIO) de 64 x 18 en x = 16, 96, 176, y = 166."""
+    u = 32
+    sc = _escena("PantallaJuego", 256, 192, u)
+    emoji = _fuente("seguiemj.ttf")
+    impacto = _fuente("impact.ttf")
+    negra = _fuente("ariblk.ttf")
+    morado, rosa, amarillo, oscuro = (0.18, 0.04, 0.3), (1.0, 0.3, 0.75), (1.0, 0.85, 0.1), (0.04, 0.02, 0.08)
+    _rect(sc, 0, 0, 8, 6, rosa, -0.04)
+    _rect(sc, 0.12, 0.12, 7.88, 5.88, morado, -0.035)
+    for k in range(20):    # focos del marco
+        for (x, y) in ((0.2 + k * 0.4, 0.06), (0.2 + k * 0.4, 5.94)):
+            _circulo(sc, x, y, 0.09, amarillo if k % 2 == 0 else (1, 1, 1), -0.03, lados=6)
+    _texto(sc, "LOTERÍA DE CARRETES", 4.0, 0.55, 0.62, amarillo, impacto, contorno=(0.04, (0.6, 0.05, 0.1)), ancho_max=6.2)
+    for x in (0.55, 7.45):
+        _texto(sc, "\U0001F6E2", x, 0.55, 0.6, amarillo, emoji)
+    for k in range(3):
+        x0 = (24 + k * 72) / u
+        _rect(sc, x0 - 0.1, 34 / u - 0.1, x0 + 2 + 0.1, 146 / u + 0.1, amarillo, -0.03)
+        _rect(sc, x0, 34 / u, x0 + 2, 146 / u, oscuro, -0.025)
+    for x, g in ((0.35, "▶"), (7.65, "◀")):
+        _texto(sc, g, x, 90 / u, 0.9, rosa, _fuente("seguisym.ttf"))
+    for k, nombre in enumerate(("APUESTA", "FICHAS", "PREMIO")):
+        x0 = (16 + k * 80) / u
+        _texto(sc, nombre, x0 + 1.0, 156 / u, 0.3, amarillo, negra)
+        _rect(sc, x0, 166 / u, x0 + 2, 184 / u, oscuro, -0.03)
+    _render(sc, "pantalla_juego.png")
+
+
+def baraja():
+    """896 x 384: la baraja del poker, 13 columnas (2..10, J, Q, K, A) x 4 filas (picas, corazones,
+    diamantes, treboles) de 64 x 96, y en la columna 14 el reverso (El Tinaco sobre rojo vino) arriba.
+    Sale a textures/sotano/baraja.png; scripts/sotano/Holdem.gd usa el mismo orden."""
+    u = 64
+    sc = _escena("Baraja", 896, 384, u)
+    simbolos = _fuente("seguisym.ttf")
+    negra = _fuente("ariblk.ttf")
+    emoji = _fuente("seguiemj.ttf")
+    rangos = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+    palos = [("♠", TINTA), ("♥", (0.8, 0.08, 0.1)), ("♦", (0.8, 0.08, 0.1)), ("♣", TINTA)]
+    caras = {"J": "\U0001F934", "Q": "\U0001F478", "K": "\U0001F451", "A": None}
+    for fila, (palo, color) in enumerate(palos):
+        for col, r in enumerate(rangos):
+            x0, y0 = col * 1.0, fila * 1.5
+            _rect(sc, x0, y0, x0 + 1, y0 + 1.5, (0.2, 0.2, 0.2), -0.02)
+            _rect(sc, x0 + 0.04, y0 + 0.04, x0 + 0.96, y0 + 1.46, CREMA, -0.015)
+            _texto(sc, r, x0 + 0.22, y0 + 0.2, 0.26 if r != "10" else 0.2, color, negra)
+            _texto(sc, palo, x0 + 0.22, y0 + 0.47, 0.5, color, simbolos)
+            _texto(sc, r, x0 + 0.78, y0 + 1.3, 0.26 if r != "10" else 0.2, color, negra)
+            if caras.get(r):
+                _texto(sc, caras[r], x0 + 0.55, y0 + 0.82, 0.55, color, emoji)
+            else:
+                _texto(sc, palo, x0 + 0.55, y0 + 0.85, 1.5 if r == "A" else 1.1, color, simbolos)
+    # El reverso
+    x0 = 13.0
+    _rect(sc, x0, 0, x0 + 1, 1.5, (0.2, 0.2, 0.2), -0.02)
+    _rect(sc, x0 + 0.04, 0.04, x0 + 0.96, 1.46, (0.45, 0.05, 0.12), -0.015)
+    _rect(sc, x0 + 0.1, 0.1, x0 + 0.9, 1.4, (0.95, 0.75, 0.25), -0.012)
+    _rect(sc, x0 + 0.14, 0.14, x0 + 0.86, 1.36, (0.45, 0.05, 0.12), -0.01)
+    _texto(sc, "\U0001F6E2", x0 + 0.5, 0.75, 0.55, (0.95, 0.75, 0.25), emoji)
+    _render(sc, "baraja.png")
+
+
 def frutas():
     """512 x 512 para el adorno de la maquinita de frutas (tools/blender/sotano/maquinita.py):
     copete (arriba, 512 x 128), costado alto (izq) y costado bajo (der) de 256 x 256, y abajo tres

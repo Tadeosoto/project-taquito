@@ -1,70 +1,102 @@
 # El Sótano (the Gotera's underground casino)
 
-AG, 2026-11-18 (branch `sotano-casino`). The story is in `docs/lore.md` §11 "El Sótano": the Gotera's casino under a grocery in Santa Mugre, which nobody calls a casino. Keep this file in sync with the code.
+AG, 2026-11-18; v2 on 2026-11-19 (branch `sotano-v2`): two halls, Texas Hold'em instead of the lotería, OL PLEY played on the cabinet screen, simpler fruit machines, neon, beer ads and people. The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with the code.
 
 ## Getting in
 
-- **Door:** the `casa_vecino` marker `Sotano` in the Santa Mugre colonia JSON (and `resources/mapa/santa_mugre/marcas.json`), beside the door of the Mini Super Santa Mugre on the tianguis street. `"abierto": "noche"`: by day it says "Ahorita no, mijo". `"bodega": true` makes `Colonia._bodega` put a plastic strip curtain, soda crates and a red bulb on the facade (shared static materials).
-- It's a walkable `CasaPropia` like the neighbours' houses, so combat is off inside and the entry and exit points are the usual ones (door on the west wall at z 3.11). The scene is `scenes/casas/sotano.tscn`: root `scripts/sotano/Sotano.gd` plus the Blender room `Cuarto` (`models/sotano/sotano.glb`).
-- **Permission:** the `Fichas` autoload (`scripts/sotano/Fichas.gd`, reset with the run in `Partida._otra_vez`):
-  - It holds `permiso` and `fichas`.
-  - With no permission, a chain at the foot of the stairs blocks the way (`CadenaChoque-colonly`). The guard asks for the one-time `CUOTA` ($300), paid at the `MuebleCasa` beside him; `_quitar_cadena` frees the chain's static body and hides it.
+- **Door:** the `casa_vecino` marker `Sotano` in the Santa Mugre colonia JSON (and `resources/mapa/santa_mugre/marcas.json`), beside the door of the Mini Super Santa Mugre on the tianguis street.
+  - `"abierto": "noche"`.
+  - `"bodega": true` makes `Colonia._bodega` add a plastic strip curtain, crates and a red bulb.
+- **Walkable house:** a `CasaPropia` like the neighbours' houses (combat off; the door on the west wall at z 3.11). The scene is `scenes/casas/sotano.tscn`: root `scripts/sotano/Sotano.gd` plus the Blender room `Cuarto` (`models/sotano/sotano.glb`).
+- **Permission:** the `Fichas` autoload (`scripts/sotano/Fichas.gd`, reset per run in `Partida._otra_vez`) holds `permiso` and `fichas`.
+  - With no permission, a chain at the foot of the stairs blocks the way (`CadenaChoque-colonly`). The guard takes the one-time `CUOTA` ($300) at the `MuebleCasa` beside him.
   - The Gotera missions will grant `permiso = 1` (escalón 1, `docs/misiones.md`).
-- **Standalone test scene:** `godot --path . scenes/sotano_prueba.tscn` (`scripts/sotano/PruebaSotano.gd`) puts you on the last stretch of the stairs, before the chain, with $1000 and combat off. Keys on screen: `.` permission and +50 chips, `P` +$500, `K` remove the permission (back to the chain and the cuota), `H` makes all six OL PLEY hot, `R` back to the stairs, `F12` from scratch, `F1` hides the help. The exit arrow brings you back down. `-- --foto=<file.png>` saves a screenshot after 2 s and quits.
-- **Safehouse:** a second arrow `Sotano` at (-15, 0, 40.2), always open; `.` grants permission and +50 chips.
+- **Safehouse:** an arrow `Sotano` at (-15, 0, 40.2), always open. `.` grants permission and +50 chips.
+- **Standalone test scene:** `godot --path . scenes/sotano_prueba.tscn` (`scripts/sotano/PruebaSotano.gd`; the casino is in the `.tscn`, so it shows in the editor).
+  - Puts you before the chain with $1000.
+  - Keys: `.` permission and chips, `P` +$500, `K` remove the permission, `H` all OL PLEY hot, `R` back to the stairs, `F12` from scratch, `F1` hides the help.
+  - `-- --foto=<file.png>` saves a screenshot and quits.
 
-## The room (Blender)
+## The rooms (Blender)
 
-- `tools/blender/sotano/sotano.py` builds the room and the OL PLEY cabinet in Godot coordinates (scene metres; `CasaPropia` scales by 1.25). Run it in an empty file or in `models/sotano/fuente/sotano.blend`. It exports `sotano.glb` and `gabinete_olpley.glb`.
-  - Name suffixes `-convcol` (solid box) and `-colonly` (collision only). Collision-only names must be unique, or Godot renames the body (`@StaticBody3D@…`).
-  - The stairs are visible steps plus a hidden ramp, `Rampa-colonly`.
-  - Empties `Marca_*` place everything else: lights, cabinets, NPCs, seats, the lotería table, the track, the altar, the freezer, the speaker.
-  - The tin horses are `Caballo_1..5`.
-- `tools/blender/sotano/arte.py` renders, with flat Workbench and no AA:
-  - `textures/sotano/cartas.png`: 24 lotería cards. The drawings are Segoe UI Emoji line glyphs. The last ones belong to this world: El Apagado, La Pipa, El Machete, La Garrafa, El Camión and El Tinaco (gold frame, the wild).
-  - `calcomanias.png`: the OL PLEY marquee, door, side and labels.
-  - `pantalla.png`: the attract screen.
-  - `textures/maquinita/adorno_frutas.png`, used by the fruit-machine adorno below.
+`tools/blender/sotano/sotano.py` builds everything in Godot coordinates (scene metres; `CasaPropia` scales by 1.25). Run it in an empty file or in `models/sotano/fuente/sotano.blend`. It exports `sotano.glb` and `gabinete_olpley.glb`.
 
-  `SOLO=(...)` renders just some of them. If the card list changes, change `CartasLoteria.NOMBRES`/`VERSOS` too.
-- `scripts/sotano/SotanoPostImport.gd` (import script of those `.glb`) swaps each Blender material by name for the game's: textures with nearest filtering, unshaded tubes, neon and screen. `sotano.py` and `maquinita.py` delete the materials when they clean up, because a preview texture left in Blender got embedded in the `.glb`.
+- **Shell:**
+  - Walls 0.4 thick (`GRUESO`), ceiling at 3 m, beams.
+  - Stairs: solid steps with nosing, side stringers, a handrail, and a hidden walking ramp (`Rampa-colonly`).
+  - Hall 1 (`SALON`, 14 × 10): the machines.
+  - The arch (`ARCO`, with jambs and lintel) leads to hall 2 (`SALON2`, 10 × 8): the poker table, the bar, the bathroom door and the race track.
+- **Hall 1:**
+  - The Primo's window: counter at 1 m, bars 0.2 apart, a green lamp, cash box and fan, so you see him.
+  - The guard and his chain.
+  - Ten OL PLEY: eight on the north wall, two on the south.
+  - Two fruit machines facing the room (`giro` 90).
+  - The altar, the speaker, crates, two columns.
+- **Hall 2:**
+  - Bar: back bar with bottles, a red fridge with a lit glass door, the counter with taps, and five stools.
+  - Poker table: felt, padded rail, chip stacks, a hanging lamp, three NPC chairs (`Poker_0..2`), your spot (`Poker_tu`), the dealer (`Crupier`).
+  - Race track along the south wall: the horses run along +x.
+  - Bathroom door; caguama freezer.
+- **Name suffixes:**
+  - `-convcol`: solid box.
+  - `-colonly`: collision only. Must be unique, or Godot renames the body.
+- **Empties `Marca_*`** place everything else: lights, neons, ads, cabinets, NPCs, seats, the walking route `Camino_*`.
+- **Art:** `tools/blender/sotano/arte.py` renders, with flat Workbench and no AA (`SOLO=(...)` renders some):
+  - `textures/sotano/cartas.png`: 24 lotería cards (OL PLEY reels).
+  - `calcomanias.png` and `pantalla.png`: the cabinet and its idle screen.
+  - `pantalla_juego.png`: the game screen background.
+  - `baraja.png`: 52 cards and the El Tinaco back.
+  - `anuncios.png`: six beer posters, `CERVEZAS`: Tecatl, Indita, Coronela, Modelito, Pacífica and the caguama deal.
+  - `textures/maquinita/adorno_frutas.png`.
+- **Materials:** `scripts/sotano/SotanoPostImport.gd` (the `.glb` import script) swaps Blender materials by name for the game's. The Blender scripts delete materials when cleaning up, because a preview texture got embedded once.
 
 ## What's inside (`Sotano.gd`)
 
-- Six OL PLEY (`GabineteOlPley`: model, collision box, a material per body colour) and two fruit machines in chip mode.
-- The Primo's window (`VentanillaUI`).
-- The lotería table (`LoteriaUI`) and the track (`CarrerasUI`).
-- The freezer: a caguama for 3 chips. The altar, with text.
-- People: the guard, the Primo, the caller and an onlooker, all talkers on `npc.tscn` with lines. Six seated players (`Civiles` with `Sitting_Idle`, at floor level: the clip already has the chair height).
-- Ambience: six tube lights (two fail), the OL PLEY neon as a `Label3D` with a pink light, the speaker playing `bocina_musica` on a loop, and the fan (its blades reparented to a pivot).
-- If you go up the stairs carrying chips, the Primo shouts once that they're worthless outside.
-- **Games share `JuegoSotano`:** a full-screen panel with title, chips, a notice and help. The player is disabled while it's open and the mouse is freed. Esc closes it. `tecla()` lets the test play it. Opened through `Sotano._abrir` (group `juego_sotano`, one at a time).
+- **Light:** eight tube lights (two fail: `PARPADEAN`), the window lamp, the poker lamp.
+- **Neon signs** (`NEONES`, `Label3D` with a light; some fail): OL PLEY, ABIERTO 24 HRS, PÓKER, TECATL, BAÑO.
+- **Beer posters** (`CARTELES`, one shared material per poster).
+- **Games and things to use:**
+  - The ten OL PLEY (`GabineteOlPley`) and the two fruit machines in chip mode.
+  - The window (`VentanillaUI`), the poker (`PokerUI`), the races (`CarrerasUI`).
+  - The freezer (caguama, 3 chips), the bar (a Tecatl from the bartender, 2 chips; same caguama item), the altar, the bathroom door (text).
+- **People:**
+  - Talkers on `npc.tscn`: guard, Primo, bartender, dealer, onlooker. The onlooker points out the hot OL PLEY.
+  - Seated: four at OL PLEY and three at the poker table (`Civiles` with `Sitting_Idle`, at floor level).
+  - `GenteSotano`: five walkers on fixed routes of `Camino_*` (some stay in hall 1, some go through the arch to the bar; they pause now and then) and the waitress with a tray, whose `MuebleCasa` follows her and sells a Tecatl.
+- **Ambience:** the speaker loops `bocina_musica`, and the two fans spin.
+- **Leaving with chips:** the Primo shouts once if you go up the stairs carrying chips.
 
 ## The games (the house cheats, with tells)
 
-- **Chips:** `Fichas.PRECIO` is $5 a chip; cashing out leaves `COMISION` (10%) with the Primo. They don't expire.
-- **OL PLEY, "Lotería de carretes":**
-  - `Carretes` is the board (one per cabinet), with three reels, `PESOS` and `PAGOS`. A three-of-a-kind pays per the table, and El Tinaco as wild pays double. Two equal on the first reels, or a lone Tinaco, returns the bet. That's ~89% return and a win one spin in four (computed over every combination).
-  - House states: `SIN_CAJA` blocks prizes the box can't cover. `CALIENTE` (4% when the box is over 300) wins the next spin for sure, and the cabinet's marquee light blinks (`GabineteOlPley.mostrar_estado`).
-  - `OlPleyUI`: bet 1 to 5, the reels stop one by one.
-- **Fruit machines:** `Maquinita.moneda = "fichas"` makes them charge and pay chips (`TragamonedasUI._saldo/_sumar/_bolsa`) and stay open at night. Outside they're the same as always.
-- **Lotería:** `LoteriaUI`, 3 chips a board, 4 players. The caller calls a card every 2.4 s with its verse (written for the game). Patterns are a line, a column, a diagonal or the four corners. The pot minus 2 chips goes to the winner. Tacho is the plant: with probability 0.3 the deck is stacked so his first row comes out early, and he shouts faster. He never loses twice in a row.
-- **Races:** `CarrerasUI`, odds 2/3/5/8/12, with chances proportional to 1/odds (~20% for the house). A bet of 5 or more halves your horse's luck. The tell: the horse the house wants trembles before the start (`Sotano.temblar`). `Sotano.correr` moves the horses in jerks; the panel hides during the race.
+- **Chips:** $5 each (`Fichas.PRECIO`). Cashing out leaves 10% with the Primo.
+- **OL PLEY:**
+  - `OlPleyUI`, like the fruit machine: the camera flies to the cabinet and the game runs in a 256 × 192 `SubViewport` that the cabinet shows on its screen (`GabineteOlPley.mostrar_en_pantalla`).
+  - Reels of lotería cards scroll for real and stop one by one with a bounce. The pay line blinks, the counters show bet, chips and prize, and wins play pixelfx coins (`resources/fx/olpley_monedas`, `ui/coin-collect`) or confetti for big and Tinaco wins (`olpley_confeti`). The cabinet buttons sink (`apretar`).
+  - `Carretes` is the board: ~89% return, a win one spin in four, El Tinaco wild pays double. `SIN_CAJA`; `CALIENTE` makes the marquee light blink.
+- **Fruit machines (everywhere):** simpler play in `TragamonedasUI`. One fruit at a time; ←/→ move the bet to another fruit, ↑/↓ coins 1–9, Space spins (with no bet it bets the last amount). The notice says which fruit and its multiplier. `Maquinita.moneda = "fichas"` charges chips and keeps them open at night.
+- **Texas Hold'em:**
+  - `Holdem.gd`: fixed limit (blinds 1/2, raises of 2 then 4, 3 raises per round), best 5 of 7 with Spanish names, no side pots, and the house takes 10% of each pot (up to 5).
+  - AI: Doña Cuca is tight, Tacho bluffs. "El de la gorra" is the house's: from the turn on he knows whether he beats you; he raises if so and folds if not. The bartender and the onlooker drop hints.
+  - `PokerUI`: the camera flies to the table. The board and the NPCs' cards (face down until showdown) sit on the felt in 3D; your two cards, the pot and everyone's last action are on screen. C check/call, R raise, F fold, Space next hand, Esc stand up. You play with your chips.
+  - The NPCs' stacks persist between hands (`_fichas_vecinos`), and they rebuy at the window when broke.
+- **Races:** `CarrerasUI`, odds 2/3/5/8/12, chances proportional to 1/odds. A bet of 5+ halves your horse's luck, and the house's horse trembles first (`Sotano.temblar`). `Sotano.correr` moves the horses along x.
 
-## Fruit-machine adorno (all machines)
+## Tests
 
-- **What it is:** `tools/blender/sotano/maquinita.py` builds `models/maquinita/adorno_frutas.glb`, a dressing that `Maquinita._ready` hangs on every machine: an arched topper with bulbs and "CÓCTEL DE FRUTAS", a strawberry on top, chrome trim, a non-slip kick plate, side stickers, labels, lock, coin box and cable.
-- **Why the playing mesh stays:** the playing mesh doesn't change, because `ps1_maquinita.gdshader` reads its atlas UVs and vertex colours.
-- **Cost:** one atlas material plus one for the bulbs, and `visibility_range_end` 40 m. `medir_colonia`: within noise (+0.3 ms at the worst spot).
-- **Gotcha:** the side gold rail of the upper body covers the side at x 0.338, so the upper stickers sit outside it (`RIEL`).
-- **Photo tool:** `godot --path . tools/sotano/foto_maquinita.tscn -- --carpeta=<dir>` photographs one machine alone.
-
-## Test
-
-`godot --path . tools/sotano/probar_sotano.tscn -- --capturas=<dir>` (needs a window) loads the safehouse and enters the Sótano. It checks the chain and the cuota, buys chips, plays OL PLEY 20 times, a full lotería (accelerated time) and a race, buys a caguama, checks the fruit machines, cashes out and leaves. It ends with `RESULTADO: BIEN`.
+- `godot --path . tools/sotano/probar_sotano.tscn -- --capturas=<dir>` (needs a window) ends with `RESULTADO: BIEN`. Steps:
+  - Enter the Sótano and check the people.
+  - Check the chain and the cuota.
+  - Buy chips at the window.
+  - Play 20 OL PLEY spins on the screen.
+  - Play a poker hand.
+  - Run a race.
+  - Buy beers at the freezer, the bar and from the waitress.
+  - Play a simple fruit spin.
+  - Cash out and leave.
+- `godot --path . --headless -s tools/sotano/probar_holdem.gd` runs known hands plus 2000 AI hands, with no stalls and no lost chips.
 
 ## Pending
 
-- Real sounds (JJ picks): the speaker uses `bocina_musica`, and the games reuse `boton`, `paso` and `moneda`.
+- Real sounds (JJ picks); the games reuse `boton`, `paso`, `moneda`, and the speaker uses `bocina_musica`.
 - The Gotera missions that grant `permiso`.
-- The onlooker's lines could point at the tells (which OL PLEY is hot, Tacho).
+- Walkers pass through the player and each other (no navigation).

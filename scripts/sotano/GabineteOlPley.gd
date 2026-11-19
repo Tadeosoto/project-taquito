@@ -46,6 +46,33 @@ func _ready() -> void:
 	set_process(false)
 
 
+# La pantalla del gabinete enseña `textura` (el SubViewport del juego, OlPleyUI); null la regresa a
+# la de "inserte ficha"
+func mostrar_en_pantalla(textura: Texture2D) -> void:
+	var pantalla := find_child("Pantalla", true, false) as MeshInstance3D
+	if pantalla == null:
+		return
+	if textura == null:
+		pantalla.set_surface_override_material(0, null)
+		return
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.albedo_texture = textura
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	pantalla.set_surface_override_material(0, m)
+
+
+# Un boton del tablero se hunde y regresa ("Boton_0".."Boton_5" o "Boton_grande")
+func apretar(boton: String) -> void:
+	var b := find_child(boton, true, false) as Node3D
+	if b == null:
+		return
+	var y0 := b.position.y
+	var tween := create_tween()
+	tween.tween_property(b, "position:y", y0 - 0.008, 0.06)
+	tween.tween_property(b, "position:y", y0, 0.1)
+
+
 func mostrar_estado(estado: int) -> void:
 	set_process(estado == Carretes.Estado.CALIENTE)
 	if estado != Carretes.Estado.CALIENTE:

@@ -77,8 +77,7 @@ func _probar() -> void:
 	# La cadena: sin permiso, el jugador no pasa del pie de la escalera
 	var cadena := sotano.get_node("Cuarto").find_children("Cadena*", "StaticBody3D", true, false)
 	_ver(not cadena.is_empty(), "sin permiso la cadena del de la puerta tapa el paso")
-	_ver(sotano.get_node_or_null("Guardia") != null and sotano.get_node_or_null("Primo") != null and sotano.get_node_or_null("Griton") != null,
-		"estan el de la puerta, el Primo y el griton")
+	_ver(sotano.get_node_or_null("Guardia") != null and sotano.get_node_or_null("Primo") != null and sotano.get_node_or_null("Cantinero") != null 		and sotano.get_node_or_null("Crupier") != null, "estan el de la puerta, el Primo, el cantinero y el crupier")
 	cartera.pesos = 100
 	sotano._pagar_cuota()
 	_ver(fichas.permiso == 0 and cartera.pesos == 100, "sin los $%d de la cuota no te deja pasar" % fichas.CUOTA)
@@ -106,76 +105,112 @@ func _probar() -> void:
 	await _esperar(0.3)
 	# OL PLEY: 20 tiros de 1 ficha
 	var gabinetes := sotano.find_children("OlPley_*", "StaticBody3D", false, false)
-	_ver(gabinetes.size() == 6, "hay seis OL PLEY", str(gabinetes.size()))
-	jugador.global_position = sotano.to_global(Vector3(12.5, -2.0, 1.4))
+	_ver(gabinetes.size() == 10, "hay diez OL PLEY", str(gabinetes.size()))
+	jugador.global_position = sotano.to_global(Vector3(13.4, -2.0, 0.2))
 	sotano._abrir_olpley(gabinetes[2])
 	await _esperar(0.3)
 	ui = arbol.get_first_node_in_group("juego_sotano")
 	var antes: int = fichas.fichas
 	var tiros := 0
+	await _esperar(0.7)
 	for k in 20:
 		ui.jalar()
-		await _esperar(1.6)
+		await _esperar(2.2)
 		tiros += 1
 		if k == 0:
 			await _foto("3_olpley")
 	_ver(tiros == 20 and fichas.fichas != antes - 0, "20 tiros en OL PLEY", "fichas %d -> %d, caja %d" % [antes, fichas.fichas, gabinetes[2].placa.caja])
 	ui.cerrar()
 	await _esperar(0.3)
-	# Loteria, a tiempo acelerado: marca todo lo que sale y grita cuando se llena
-	fichas.fichas = maxi(fichas.fichas, 20)
-	jugador.global_position = sotano.to_global(Vector3(10.9, -2.0, 3.6))
-	sotano._abrir("res://scripts/sotano/LoteriaUI.gd", {})
-	await _esperar(0.3)
+	# Poker: una mano entera, siempre pasar o ir
+	fichas.fichas = maxi(fichas.fichas, 30)
+	jugador.global_position = sotano.to_global(Vector3(26.0, -2.0, 5.3))
+	sotano._abrir_poker()
+	await _esperar(1.0)
 	ui = arbol.get_first_node_in_group("juego_sotano")
-	antes = fichas.fichas
-	ui.empezar()
-	_ver(fichas.fichas == antes - 3, "la tabla cuesta 3 fichas")
-	Engine.time_scale = 8.0
-	# Por tiempo y no por cuadros: a muchos FPS 400 cuadros no alcanzaban a que alguien gritara
-	var desde := Time.get_ticks_msec()
-	while ui.get("_jugando") and Time.get_ticks_msec() - desde < 30000:
-		await get_tree().process_frame
-		for i in 16:
-			if ui.get("_salidas").has(ui.get("_tablas")[0][i]):
-				ui.marcar(i)
-		if ui._completa(0):
-			ui.gritar()
-	Engine.time_scale = 1.0
-	_ver(not ui.get("_jugando"), "la loteria termina", "salieron %d cartas, fichas %d -> %d" % [ui.get("_salidas").size(), antes, fichas.fichas])
-	await _foto("4_loteria")
-	ui.cerrar()
+	_ver(ui != null and ui.get("_h") != null, "se sienta al poker")
+	var limite := Time.get_ticks_msec()
+	var foto_poker := false
+	while ui.get("_h").fase != Holdem.Fase.FIN and Time.get_ticks_msec() - limite < 60000:
+		await _esperar(0.2)
+		if ui.get("_esperando"):
+			if not foto_poker and ui.get("_h").mesa.size() >= 3:
+				foto_poker = true
+				await _foto("4_poker")
+			ui.jugar("pasar")
+	var h: Holdem = ui.get("_h")
+	_ver(h.fase == Holdem.Fase.FIN and not h.ganadores.is_empty(), "se juega una mano de poker", "%s, mesa %d cartas, la casa %d" % [h.mano_ganadora, h.mesa.size(), h.rake])
 	await _esperar(0.3)
+	if not foto_poker:
+		await _foto("4_poker")
+	_ver(fichas.fichas == h.jugadores[0].fichas, "tus fichas son las de la mesa", str(fichas.fichas))
+	ui.cerrar()
+	await _esperar(0.8)
 	# Carreras: al rojo, 2 fichas
-	jugador.global_position = sotano.to_global(Vector3(14.8, -2.0, 3.8))
+	jugador.global_position = sotano.to_global(Vector3(25.8, -2.0, 4.9))
 	sotano._abrir("res://scripts/sotano/CarrerasUI.gd", {"sotano": sotano})
 	await _esperar(0.3)
 	ui = arbol.get_first_node_in_group("juego_sotano")
 	ui.tecla(KEY_RIGHT)
 	antes = fichas.fichas
 	var caballo := sotano.get("_caballos")[0] as Node3D
-	var z0 := caballo.position.z
+	var x0 := caballo.position.x
 	ui.arrancar()
 	await _esperar(2.5)
 	await _foto("5_carrera")
-	var corrio := absf(caballo.position.z - z0) > 0.5
+	var corrio := absf(caballo.position.x - x0) > 0.5
 	while ui.get("_ocupado"):
 		await _esperar(0.2)
-	_ver(corrio and caballo.position.z == z0, "corren los caballitos y regresan", "fichas %d -> %d" % [antes, fichas.fichas])
+	_ver(corrio and caballo.position.x == x0, "corren los caballitos y regresan", "fichas %d -> %d" % [antes, fichas.fichas])
 	ui.cerrar()
 	await _esperar(0.3)
-	# Caguama
+	# Caguama en el congelador, Tecatl en la barra y con la mesera
 	var cuantos: int = inventario.items.size()
 	sotano._caguama()
 	_ver(inventario.items.size() == cuantos + 1, "compras una caguama en el congelador")
+	fichas.fichas = maxi(fichas.fichas, 10)
+	sotano._caguama(2, "barra")
+	var gente := sotano.get_node_or_null("Gente")
+	_ver(gente != null and sotano.get_node_or_null("Mesera") != null and sotano.find_children("Caminante_*", "", false, false).size() == 5,
+		"camina la gente: cinco y la mesera")
+	if gente:
+		var antes_m: int = fichas.fichas
+		gente._vender()
+		_ver(fichas.fichas == antes_m - 2, "la mesera te vende una Tecatl")
 	# Las de frutas: en fichas y abiertas aunque sea de noche
 	var frutas := sotano.find_children("Frutas_*", "", false, false)
 	_ver(frutas.size() == 2 and frutas[0].moneda == "fichas" and not frutas[0]._cerrada(), "dos de frutas en fichas, abiertas de noche")
+	# La de frutas simple: una fruta, sus monedas, y la apuesta se va con la fruta
+	fichas.fichas = maxi(fichas.fichas, 10)
+	frutas[0].interact()
+	await _esperar(1.0)
+	var tui: Node = null
+	for n in arbol.current_scene.get_children():
+		if n is TragamonedasUI:
+			tui = n
+	_ver(tui != null, "se juega la de frutas")
+	if tui:
+		var antes_f: int = fichas.fichas
+		tui._apostar(1)
+		tui._apostar(1)
+		tui._elegir(1)
+		var ap: Dictionary = tui.get("_apuestas")
+		_ver(ap.size() == 1 and ap.values()[0] == 2 and fichas.fichas == antes_f - 2, "una sola fruta: 2 monedas que se pasan de fruta", str(ap))
+		await _foto("5b_frutas")
+		tui._tirar()
+		var desde_f := Time.get_ticks_msec()
+		while tui.get("_ocupado") and Time.get_ticks_msec() - desde_f < 20000:
+			await _esperar(0.2)
+		_ver(tui.get("_apuestas").is_empty(), "tira y cobra", "fichas %d -> %d" % [antes_f, fichas.fichas])
+		tui._salir()
+		await _esperar(1.0)
 	# Fotos de adentro
 	if _carpeta != "":
 		# yaw 0 = al norte (las OL PLEY), PI/2 = al oeste (ventanilla), -PI/2 = al este (pista)
-		for vista: Array in [[Vector3(12.5, -2.0, 5.0), 0.0, "6_maquinitas"], [Vector3(12.5, -2.0, 3.0), PI / 2.0, "7_ventanilla"],
-				[Vector3(11.0, -2.0, 3.8), -PI / 2.0, "8_pista"], [Vector3(11.0, -2.0, 2.0), PI, "9_altar"]]:
+		for vista: Array in [[Vector3(14.0, -2.0, 6.0), 0.0, "6_maquinitas"], [Vector3(12.0, -2.0, 2.0), PI / 2.0, "7_ventanilla"],
+				[Vector3(23.0, -2.0, 4.6), -PI / 2.0, "8_salon2"], [Vector3(14.0, -2.0, 1.0), PI, "9_altar"],
+				[Vector3(26.0, -2.0, 5.2), 0.0, "10_barra"], [Vector3(9.0, -2.0, 3.0), -PI / 2.0, "11_arco"],
+				[Vector3(8.2, -2.0, 2.4), 0.0, "12_primo"]]:
 			jugador.global_position = sotano.to_global(vista[0])
 			jugador.camera_pivot.global_rotation.y = vista[1]
 			jugador.frijol.global_rotation.y = vista[1]

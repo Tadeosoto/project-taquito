@@ -1,0 +1,16 @@
+{
+ "id": "ui/coin-collect",
+ "fps": 15,
+ "loop": false,
+ "frames": 38,
+ "frameSize": [
+  176,
+  116
+ ],
+ "pivot": [
+  60,
+  102
+ ],
+ "columns": 6,
+ "golpe_en": 0
+}

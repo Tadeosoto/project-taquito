@@ -1,4 +1,7 @@
 shader_type spatial;
+// Las dos caras: hay caras de la malla (los lados y la tapa) que vistas de atras o de lado
+// dejaban ver a traves del mueble
+render_mode cull_disabled;
 // La maquinita de frutas (scripts/map/Maquinita.gd): un solo material para todas, con lo
 // que muestra cada una por instancia. El atlas lo dibuja tools/map_import/make_maquinita.gd.
 // Las medidas en px son las de Maquinita.gd: si cambian alla, cambiarlas aqui.
