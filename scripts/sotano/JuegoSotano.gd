@@ -183,6 +183,104 @@ func regresar_camara() -> void:
 		_camara_mesa = null
 
 
+# --- El festejo (y el chale) de las mesas ---
+# Cada juego lleva su racha (por titulo, para toda la partida): ganar seguido sube la racha y el
+# festejo crece (de monedas a confeti y rayos, con el premio mayor sonando); perder la corta y,
+# perdiendo seguido, el chale tambien crece. festejar(true, premio) o festejar(false).
+
+static var _rachas := {}             # titulo -> racha (positiva ganando, negativa perdiendo)
+
+
+func racha() -> int:
+	return int(_rachas.get(titulo, 0))
+
+
+func festejar(gano: bool, premio := 0) -> void:
+	var r := racha()
+	r = (maxi(r, 0) + 1) if gano else (mini(r, 0) - 1)
+	_rachas[titulo] = r
+	var letrero := etiqueta("", 34, AMARILLO)
+	letrero.add_theme_constant_override("outline_size", 10)
+	var destello := ColorRect.new()
+	destello.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	destello.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if gano:
+		if r >= 3:
+			letrero.text = "¡RACHA DE %d!
++%d" % [r, premio]
+			letrero.add_theme_color_override("font_color", Color(1.0, 0.45, 0.9))
+			_efecto("tazo_rayos", 2.0)
+			_efecto("olpley_confeti", 2.2)
+			Sonidos.tocar(self, "slot_premio_mayor", -4.0)
+		elif r == 2:
+			letrero.text = "¡OTRA VEZ!
++%d" % premio
+			_efecto("olpley_confeti", 1.8)
+			Sonidos.tocar(self, "slot_gana_grande", -4.0)
+		else:
+			letrero.text = "¡GANASTE!
++%d" % premio
+			_efecto("premio_monedas", 1.6)
+		destello.color = Color(1.0, 0.85, 0.3, 0.3)
+	else:
+		letrero.text = "¡QUÉ SALADO!" if r <= -3 else "CHALE..."
+		letrero.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
+		letrero.add_theme_font_size_override("font_size", 30 if r <= -3 else 26)
+		_efecto("muerte_humo", 1.4 if r <= -3 else 1.0)
+		Sonidos.tocar(self, "perder", -8.0)
+		destello.color = Color(0.15, 0.0, 0.05, 0.35 if r <= -3 else 0.22)
+	add_child(destello)
+	var tw := create_tween()
+	tw.tween_property(destello, "color:a", 0.0, 0.6)
+	tw.tween_callback(destello.queue_free)
+	letrero.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	add_child(letrero)
+	letrero.reset_size()
+	letrero.pivot_offset = letrero.size / 2.0
+	letrero.position = Vector2(320.0 - letrero.size.x / 2.0, 150.0 - letrero.size.y / 2.0)
+	letrero.scale = Vector2(0.3, 0.3)
+	var t := create_tween()
+	if gano:
+		t.tween_property(letrero, "scale", Vector2(1.2, 1.2), 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		t.tween_property(letrero, "scale", Vector2.ONE, 0.12)
+		t.tween_interval(1.0)
+		t.tween_property(letrero, "position:y", letrero.position.y - 30.0, 0.5)
+		t.parallel().tween_property(letrero, "modulate:a", 0.0, 0.5)
+	else:
+		letrero.scale = Vector2.ONE
+		letrero.position.y -= 30.0
+		t.tween_property(letrero, "position:y", letrero.position.y + 40.0, 0.7).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+		t.tween_interval(0.7)
+		t.tween_property(letrero, "modulate:a", 0.0, 0.5)
+	t.tween_callback(letrero.queue_free)
+
+
+# Una hoja de pixelfx (resources/fx) que se reproduce una vez al centro de la pantalla
+func _efecto(nombre: String, escala := 1.5) -> void:
+	var hoja := EfectosPixel.hoja_de(nombre)
+	if hoja.is_empty():
+		return
+	var cuadro := TextureRect.new()
+	var atlas := AtlasTexture.new()
+	atlas.atlas = hoja["textura"]
+	var tam: Vector2 = hoja["tamano"]
+	atlas.region = Rect2(Vector2.ZERO, tam)
+	cuadro.texture = atlas
+	cuadro.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	cuadro.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	cuadro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cuadro.size = tam * escala
+	cuadro.position = Vector2(320.0, 170.0) - cuadro.size / 2.0
+	add_child(cuadro)
+	var cuadros := int(hoja["cuadros"])
+	var columnas := int(hoja["columnas"])
+	var t := create_tween()
+	t.tween_method(func(f: float) -> void:
+		var i := mini(int(f), cuadros - 1)
+		atlas.region = Rect2(Vector2(i % columnas, i / columnas) * tam, tam), 0.0, float(cuadros), cuadros / float(hoja["fps"]))
+	t.tween_callback(cuadro.queue_free)
+
+
 # Para los hijos
 func _armar() -> void:
 	pass
