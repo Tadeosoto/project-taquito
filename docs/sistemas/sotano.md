@@ -6,6 +6,12 @@ AG, 2026-11-18.
 - **v4** (2026-11-19, branch `sotano-v4`): EL GORDO as a real slot machine (a lever you pull, casino sounds, 3D-rendered card art, a livelier screen), a branded fridge, a readable single-stroke neon, the waitress carries her tray, shady people everywhere, the race camera, a readable poker board, and a walkable Silent Hill bathroom.
 - **v5** (2026-11-19, branch `sotano-v5`): blackjack, roulette (red/black/green, with a double-or-nothing doblete), baccarat, the red-and-blue dice neon by the fridge, colour neon strips and lights on the bar, and EL GORDO cards back to 2D: cartoon pixel art drawn by code (AG didn't like the 3D renders).
 - **v6** (2026-11-19, branch `sotano-v6`): a bigger roulette table, a ball that really rolls and bounces, 3D chip stacks on the felt (roulette and baccarat), and celebrations for winning, win streaks and losing.
+- **v9** (2026-11-19, branch `sotano-v9`), after AG's reference photos:
+  - baccarat as a half-moon with a red padded rail and a black felt;
+  - roulette with three squares in a row next to the wheel;
+  - a round poker table with cup holders and padded wooden chairs;
+  - a jukebox, a dartboard, barrels and hanging bulbs;
+  - detailed chips and smoother bottles.
 
 The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with the code.
 
@@ -57,7 +63,10 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - The altar, the speaker, crates, two columns.
 - **Hall 2:**
   - Bar on the north wall: back bar with three shelves of bottles, a red fridge with a lit glass door, the counter with taps and bottles, and five tall stools.
-  - Poker table in the middle (`MESA`), with room around it: felt, padded rail, chip stacks, a high lamp, three folding chairs (`Poker_0..2`), your spot (`Poker_tu`), the dealer (`Crupier`).
+  - Round poker table in the middle (`MESA`, `MESA_R`), like AG's photo.
+    - A pedestal, green felt with a ring line, and a wide wooden rail with eight cup holders (beers sit in some).
+    - Chip towers, and a high lamp.
+    - Padded wooden chairs (`silla_madera()`) at `Poker_0..2` and your spot `Poker_tu`; the dealer (`Crupier`) stands to the north-east.
   - Caguama freezer in the south-west corner, the bathroom door on the east wall, a high table with beers.
 - **Seats:** `banco()` is a cantina stool (chrome post, foot ring, red vinyl cushion). `silla_plegable()` is a brewery folding chair with the Coronela logo on its back, taken from the poster atlas.
   - Seat height `ASIENTO` 0.5: the `Sitting_Idle` thighs sit at 0.52.
@@ -72,18 +81,32 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
 - **Blackjack** (`mesa_blackjack`, `BLACKJACK`): a half-moon table, built by `media_luna`.
   - The felt is printed (`blackjack.png`); a padded rail runs along the arc; the chip tray and shoe sit on the dealer side.
   - Two stools with players, and a lamp.
-- **Roulette** (`mesa_ruleta`, `RULETA` 2.6 × 1.8, `RUEDA`): the wheel is sunk flush into the table (`HUECO`). The marks `Ruleta_rojo` / `_negro` / `_verde` sit beside each felt label and hold your chip stack.
+- **Roulette** (`mesa_ruleta`, `RULETA` 2.6 × 1.8, `RUEDA`): the wheel is sunk flush into the table (`HUECO`), and a raised wooden frame runs round the table.
+  - Like AG's photo, the felt has three squares in a row next to the wheel: green, black, red.
+  - The marks `Ruleta_verde` / `_negro` / `_rojo` sit on the squares and hold your chip stack.
   - `Ruleta_rueda`: a ring of 37 pockets in European order with chrome separators (`Ruleta_separa_*`), a wooden hub with gold spokes and the turret.
   - The ball `Ruleta_bola`; the sloped outer track lives in the bowl.
   - The felt strip (`ruleta.png`) shows VERDE, NEGRO and ROJO only.
-- **Baccarat** (`mesa_baccarat`, `BACCARAT`): a long table in the south-west corner of hall 2, with a printed felt (`baccarat.png`, 128 px per unit so it reads), the shoe, one stool and a lamp.
-  - No chip tray: it covered BANCA.
-  - The marks `Baccarat_banca` / `_empate` / `_punto` hold your chip stack.
+- **Baccarat** (`mesa_baccarat`, `BACCARAT_MESA`): a half-moon table in the south-west corner of hall 2, like AG's photo.
+  - A red padded rail runs all round.
+  - The black felt (`baccarat.png`, 1024 × 512) has faint spades, white arcs and three bands: PUNTO outside, BANCA in the middle, EMPATE 8 A 1 inside (`BACCARAT_BANDAS`).
+  - The dealer's chip tray is set into the straight edge; the shoe is red.
+  - One stool, and a lamp.
+  - The marks `Baccarat_banca` / `_empate` / `_punto` (due south on each band) hold your chip stack; the cards are dealt in a row near the dealer.
 - The walkers' route goes around the blackjack table by the east wall (`Camino_10`, `Camino_12`) and around the baccarat table on the west (`Camino_13`). The bar-corner deal moved by the arch.
 - **Bathroom** (`banho()`, behind the east wall of hall 2, `BANO`): the door hangs on `Bano_bisagra` and opens into hall 2.
   - Inside: dirty tiles (`azulejo.png`), a green-and-black floor (`azulejo_piso.png`), two stalls (one door hanging off), toilets, a urinal, two sinks with the shattered mirror and an empty mirror frame.
   - Also: the drain with a stain (`banho_mancha`, multiply blend), graffiti ("NO ESTAS SOLO"), rusty pipes and a bare bulb (`Luz_bano`).
   - Textures come from `arte.py banho()`.
+- **Chips:** `ficha_piezas()` builds a casino chip: rounded 24-sided edge, six white edge inserts and a lighter centre inlay.
+  - Table stacks are one mesh each (`torre_fichas()`).
+  - `models/sotano/ficha.glb` (`Ficha_0..3`, one per colour) feeds `PilaFichas`.
+- **Round tubes:** `tubo_curva()` sweeps a round tube along points, used for the padded rails of the baccarat and blackjack tables.
+- **Decoration** (`decoracion()`, after AG's photo):
+  - a jukebox with a pink and violet neon arch on the south wall of hall 2 (`Luz_rocola`);
+  - a dartboard with three darts;
+  - four tequila barrels with hoops in the south-east corner;
+  - five bare bulbs hanging over the bar.
 - **Bottles:** `botella()` turns a profile on the lathe (`girar()`) and joins glass, label and cap into one mesh (`juntar()`).
   - Types in `BOTELLAS`: tequila, mezcal (with its worm), whisky, rum, beer, caguama.
   - `botellas.glb` has one of each at the origin (`Botella_<tipo>`), for the waitress's tray.

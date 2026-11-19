@@ -12,11 +12,12 @@ const REPARTE := 0.35
 const CAMARA_DESDE := Vector3(0.0, 1.75, 0.1)  # desde la marca Baccarat (m de la escena): casi desde arriba, que se lea el pano
 const CAMARA_MIRA := Vector3(0.0, 0.85, -1.05)
 const NOMBRES := {"punto": "PUNTO", "banca": "BANCA", "empate": "EMPATE"}
-# Las cartas en el pano (metros de la escena; la mesa mide 2.0 x 1.0, sotano.py BACCARAT)
+# Las cartas en el pano (metros de la escena; media luna de radio 1.0, sotano.py BACCARAT_MESA)
 const CARTA := Vector2(0.12, 0.18)
 const MANO_X := 0.4                 # cuanto se separa cada mano del centro (punto a la izquierda)
 const CARTA_SEPARA := 0.135
-const ZAPATO := Vector2(0.8, 0.19)   # el zapato: x desde el centro, z desde la orilla del crupier
+const ZAPATO := Vector2(0.65, 0.17)  # el zapato: x desde el centro, z desde la orilla del crupier
+const FILA := 0.2                    # las cartas van en una fila a FILA de la orilla del crupier
 const VUELA := 0.3
 const COLOR_UI := {"punto": Color(0.45, 0.65, 1.0), "banca": Color(1.0, 0.35, 0.3), "empate": Color(1.0, 0.85, 0.2)}
 
@@ -172,7 +173,7 @@ func repartir() -> void:
 func _centro_mesa() -> Vector3:
 	var crupier: Vector3 = _lugar("Crupier_baccarat")
 	var empate: Vector3 = _lugar("Baccarat_empate")
-	return Vector3(crupier.x, empate.y + 0.003, empate.z)
+	return Vector3(crupier.x, empate.y + 0.003, crupier.z + 0.45 + FILA)
 
 
 func _zapato() -> Vector3:

@@ -411,34 +411,37 @@ def mesas():
     # letrero queda lugar para tu pila de fichas
     sc = _escena("Ruleta", 256, 320, u)
     _rect(sc, 0, 0, 4, 5, verde, -0.05)
-    _rect(sc, 0.06, 0.06, 3.94, 4.94, blanco, -0.045)
-    _rect(sc, 0.1, 0.1, 3.9, 4.9, verde, -0.04)
-    for k, (nombre, fondo, letra, paga) in enumerate((("VERDE", (0.05, 0.5, 0.15), amarillo, "PAGA 35 A 1"),
-                                                       ("NEGRO", (0.06, 0.06, 0.06), blanco, "PAGA 1 A 1"),
-                                                       ("ROJO", (0.75, 0.06, 0.05), blanco, "PAGA 1 A 1"))):
-        y0 = 0.3 + k * 1.55
-        _rect(sc, 0.3, y0, 3.7, y0 + 1.35, blanco, -0.03)
-        _rect(sc, 0.35, y0 + 0.05, 3.65, y0 + 1.3, fondo, -0.025)
-        _texto(sc, nombre, 2.25, y0 + 0.6, 0.5, letra, impacto, ancho_max=2.4)
-        _texto(sc, paga, 2.25, y0 + 1.05, 0.17, letra, negra)
+    _texto(sc, "HAGAN SUS APUESTAS", 2.0, 0.9, 0.24, amarillo, impacto, ancho_max=3.5)
+    for k, (fondo, paga) in enumerate((((0.05, 0.55, 0.15), "35 A 1"), ((0.06, 0.06, 0.06), "1 A 1"), ((0.75, 0.06, 0.05), "1 A 1"))):
+        x0 = 0.2 + k * 1.25
+        _rect(sc, x0, 1.95, x0 + 1.1, 3.05, (0.85, 0.85, 0.8), -0.03)
+        _rect(sc, x0 + 0.06, 2.01, x0 + 1.04, 2.99, fondo, -0.025)
+        _texto(sc, paga, x0 + 0.55, 3.4, 0.2, blanco, negra)
     _render(sc, "ruleta.png")
     # El baccarat (384 x 192 para una mesa de 1.88 x 0.88): BANCA arriba (del lado del crupier),
     # PUNTO abajo (de tu lado) y el EMPATE en medio
-    # (a 128 px por unidad, el doble: a 64 no se leia)
-    sc = _escena("Baccarat", 768, 384, 128)
-    _rect(sc, 0, 0, 6, 3, verde, -0.05)
-    _rect(sc, 0.08, 0.08, 5.92, 2.92, blanco, -0.045)
-    _rect(sc, 0.12, 0.12, 5.88, 2.88, verde, -0.04)
-    for nombre, y0, fondo, letra, paga in (("BANCA", 0.25, (0.7, 0.08, 0.06), blanco, "1 A 1 MENOS 5%"),
-                                           ("EMPATE", 1.12, (0.95, 0.75, 0.15), (0.2, 0.08, 0.02), "PAGA 8 A 1"),
-                                           ("PUNTO", 1.99, (0.1, 0.25, 0.7), blanco, "PAGA 1 A 1")):
-        _rect(sc, 0.9, y0, 5.1, y0 + 0.78, blanco, -0.03)
-        _rect(sc, 0.95, y0 + 0.05, 5.05, y0 + 0.73, fondo, -0.025)
-        sombra = (0.05, 0.03, 0.03) if letra == blanco else (1.0, 0.95, 0.7)
-        _texto(sc, nombre, 2.35, y0 + 0.4, 0.5, letra, impacto, contorno=(0.025, sombra))
-        _texto(sc, paga, 4.0, y0 + 0.42, 0.2, letra, negra, ancho_max=1.8)
-    _texto(sc, "BACCARAT", 0.48, 1.5, 0.22, amarillo, impacto)
-    _texto(sc, "SÓTANO", 5.52, 1.5, 0.18, blanco, negra)
+    # Como la foto de AG: pano negro con picas tenues, la media luna con la orilla recta arriba (el
+    # crupier), arcos blancos y tres bandas: PUNTO afuera, BANCA en medio, EMPATE 8 A 1 adentro.
+    # 1024 x 512 = 2r x r (sotano.py media_luna), centro arriba al medio
+    sc = _escena("Baccarat", 1024, 512, 128)
+    simbolos = _fuente("seguisym.ttf")
+    negro_pano = (0.07, 0.07, 0.08)
+    _rect(sc, 0, 0, 8, 4, negro_pano, -0.05)
+    # Los arcos: de afuera hacia adentro, cada uno encima del anterior; las picas tenues al final
+    for k, frac in enumerate((0.92, 0.74, 0.55, 0.39)):
+        _circulo(sc, 4.0, 0.0, 4.0 * frac + 0.03, blanco, -0.04 + k * 0.004, lados=72)
+        _circulo(sc, 4.0, 0.0, 4.0 * frac - 0.03, negro_pano, -0.038 + k * 0.004, lados=72)
+    for i in range(9):
+        for j in range(4):
+            _texto(sc, "♠", 0.45 + i * 0.9 + (j % 2) * 0.45, 0.45 + j * 0.95, 0.42, (0.16, 0.16, 0.19), simbolos, z=-0.02)
+    import math as _m
+    for nombre, frac, color, tam in (("PUNTO", 0.83, amarillo, 0.3), ("BANCA", 0.645, blanco, 0.28), ("EMPATE 8 A 1", 0.47, amarillo, 0.18)):
+        for ang in ((40, 90, 140) if nombre != "EMPATE 8 A 1" else (90,)):
+            x = 4.0 + _m.cos(_m.radians(ang)) * 4.0 * frac
+            yy = _m.sin(_m.radians(ang)) * 4.0 * frac
+            t = _texto(sc, nombre, x, yy, tam, color, impacto)
+            t.rotation_euler = (0, 0, _m.radians(90 - ang))
+    _texto(sc, "1 A 1 MENOS 5% A LA BANCA", 4.0, 0.62, 0.13, blanco, negra)
     _render(sc, "baccarat.png")
 
 

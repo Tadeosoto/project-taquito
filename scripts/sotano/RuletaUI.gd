@@ -24,8 +24,8 @@ const BOLA_RADIO := 0.018
 const ALTO_PISTA := 0.07             # alto de la bola sobre la rueda: en la pista y en una casilla
 const ALTO_CASILLA := 0.053
 const GRAVEDAD := 3.2                # m/s2 (escena): para los brincos
-const CAMARA_DESDE := Vector3(-0.2, 1.6, -0.5)   # desde la marca Ruleta (m de la escena)
-const CAMARA_MIRA := Vector3(-0.2, 0.8, -1.5)
+const CAMARA_DESDE := Vector3(0.0, 1.75, -0.15)  # desde la marca Ruleta (m de la escena): la rueda y los tres cuadros
+const CAMARA_MIRA := Vector3(0.2, 0.8, -1.5)
 const NOMBRES := {"rojo": "ROJO", "negro": "NEGRO", "verde": "VERDE"}
 const COLOR_UI := {"rojo": Color(1.0, 0.3, 0.25), "negro": Color(0.85, 0.85, 0.85), "verde": Color(0.3, 1.0, 0.45)}
 
@@ -83,7 +83,7 @@ func _armar() -> void:
 		if _rueda:
 			_armar_bola()
 		var m: Vector3 = sotano.call("marca", "Ruleta").origin
-		acercar_camara(sotano.to_global(m + CAMARA_DESDE), sotano.to_global(m + CAMARA_MIRA), 58.0)
+		acercar_camara(sotano.to_global(m + CAMARA_DESDE), sotano.to_global(m + CAMARA_MIRA), 62.0)
 	_mostrar()
 	avisar("\"Rojo, negro o verde. Nada más\", dice el crupier.", 4.0)
 
