@@ -14,6 +14,7 @@ const MESERA := ["mujer_31", RUTA_LARGA, 6]
 const VELOCIDAD := 1.0               # m/s (escena)
 const PAUSA := Vector2(0.0, 2.5)     # s que se detienen en cada punto, al azar
 const TECATL_FICHAS := 2
+const BOTELLAS := preload("res://models/sotano/botellas.glb")
 
 var sotano: Node3D
 var _gente: Array = []               # por persona: [Node3D, ruta, indice, pausa, AnimationPlayer]
@@ -91,19 +92,15 @@ func _charola() -> Node3D:
 	metal.metallic = 0.6
 	bandeja.material_override = metal
 	charola.add_child(bandeja)
-	var vidrio := StandardMaterial3D.new()
-	vidrio.albedo_color = Color(0.45, 0.25, 0.08)
+	# Dos Tecatl de verdad (models/sotano/botellas.glb, de sotano.py)
+	var botellas := BOTELLAS.instantiate()
+	var cerveza := botellas.find_child("Botella_cerveza", true, false) as Node3D
 	for k in 2:
-		var botella := MeshInstance3D.new()
-		var cilindro := CylinderMesh.new()
-		cilindro.top_radius = 0.022
-		cilindro.bottom_radius = 0.03
-		cilindro.height = 0.2
-		cilindro.radial_segments = 6
-		botella.mesh = cilindro
-		botella.material_override = vidrio
-		botella.position = Vector3(-0.06 + k * 0.12, 0.1, 0.0)
-		charola.add_child(botella)
+		if cerveza:
+			var b := cerveza.duplicate() as Node3D
+			b.transform = Transform3D(Basis(), Vector3(-0.06 + k * 0.12, 0.008, 0.0))
+			charola.add_child(b)
+	botellas.free()
 	return charola
 
 

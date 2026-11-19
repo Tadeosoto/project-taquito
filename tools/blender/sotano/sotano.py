@@ -17,7 +17,8 @@
 import bpy
 import math
 import os
-from mathutils import Vector
+import random
+from mathutils import Matrix, Vector
 
 RAIZ = os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito")
 SALIDA = os.path.join(RAIZ, "models", "sotano")
@@ -25,13 +26,34 @@ SALIDA = os.path.join(RAIZ, "models", "sotano")
 PISO = -2.6           # el piso de los salones
 TECHO = -0.2          # 2.4 de alto (3 m en el juego)
 SALON = (6.6, 20.6, -2.0, 8.0)    # salon 1, las maquinitas: x0, x1, z0, z1
-SALON2 = (21.0, 31.0, -1.0, 7.0)  # salon 2, poker y barra: x0, x1, z0, z1 (el muro de en medio va de 20.6 a 21.0)
+SALON2 = (21.0, 35.0, -2.0, 8.0)  # salon 2, poker y barra: x0, x1, z0, z1 (el muro de en medio va de 20.6 a 21.0)
 ARCO = (2.0, 4.4, -0.6)           # el arco entre salones: z de las jambas y su alto
 COLUMNAS = ((11.0, 3.0), (16.0, 3.0))
 PASILLO = (2.3, 3.9)              # z del descanso y la escalera
 ESCALERA = (2.8, 6.6)             # x donde baja
 PELDANOS = 13
 GRUESO = 0.4
+PISTA = (11.5, 17.0, 4.8, 6.0)    # la isla de los caballitos en el salon 1: x0, x1, z0, z1
+PISTA_META = 16.5                 # x de la meta (Sotano.PISTA_META)
+MESA = (27.5, 3.6)                # centro de la mesa del poker
+ASIENTO = 0.5                     # alto del banquito y la silla: los muslos de Sitting_Idle van a 0.52 (tools/sotano/medir_sentado.gd)
+BANCO_BARRA = 0.75                # los bancos altos de la barra (nadie se sienta ahi)
+# Botellas: perfil (radio, alto) de abajo arriba que se gira, vidrio, etiqueta, de donde a donde
+# va la etiqueta y la tapa (radio, alto)
+BOTELLAS = {
+    "tequila": ([(0, 0), (0.034, 0), (0.036, 0.008), (0.036, 0.16), (0.03, 0.18), (0.013, 0.2), (0.012, 0.245), (0, 0.245)],
+                "vidrio_claro", "etiqueta_crema", (0.04, 0.12), "tapa_negra", (0.015, 0.025)),
+    "mezcal": ([(0, 0), (0.04, 0), (0.042, 0.01), (0.042, 0.11), (0.035, 0.13), (0.014, 0.15), (0.013, 0.18), (0, 0.18)],
+               "vidrio_mezcal", "etiqueta_roja", (0.03, 0.08), "tapa_corcho", (0.014, 0.02)),
+    "whisky": ([(0, 0), (0.038, 0), (0.04, 0.01), (0.04, 0.15), (0.036, 0.165), (0.013, 0.185), (0.012, 0.225), (0, 0.225)],
+               "vidrio_ambar", "etiqueta_negra", (0.04, 0.11), "tapa_dorada", (0.015, 0.02)),
+    "ron": ([(0, 0), (0.033, 0), (0.035, 0.01), (0.035, 0.17), (0.022, 0.2), (0.012, 0.215), (0.011, 0.26), (0, 0.26)],
+            "vidrio_cafe", "etiqueta_amarilla", (0.05, 0.13), "tapa_negra", (0.013, 0.02)),
+    "cerveza": ([(0, 0), (0.026, 0), (0.028, 0.006), (0.028, 0.09), (0.022, 0.115), (0.011, 0.145), (0.01, 0.17), (0, 0.17)],
+                "vidrio_ambar", "etiqueta_roja", (0.03, 0.075), "tapa_dorada", (0.012, 0.007)),
+    "caguama": ([(0, 0), (0.038, 0), (0.04, 0.008), (0.04, 0.13), (0.032, 0.165), (0.015, 0.21), (0.014, 0.245), (0, 0.245)],
+                "vidrio_ambar", "etiqueta_amarilla", (0.04, 0.11), "tapa_dorada", (0.016, 0.009)),
+}
 
 
 def _b(x, y, z):
@@ -73,6 +95,17 @@ def material(nombre, color=(0.6, 0.6, 0.6), emision=0.0):
     return m
 
 
+def _afuera(me):
+    """Las caras viendo hacia afuera (las cajas salian al reves: se veian huecas y el piso visible
+    quedaba 0.4 abajo del de verdad, todo parecia flotar)."""
+    import bmesh
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(me)
+    bm.free()
+
+
 def caja(nombre, x0, x1, y0, y1, z0, z1, mat, col, choca=True, giro=None):
     """Una caja de x0..x1, y0..y1, z0..z1 (Godot). `giro`: (eje, grados, pivote) opcional."""
     me = bpy.data.meshes.new(nombre)
@@ -84,6 +117,7 @@ def caja(nombre, x0, x1, y0, y1, z0, z1, mat, col, choca=True, giro=None):
     caras = [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
     me.from_pydata(verts, [], caras)
     me.update()
+    _afuera(me)
     _uv_caja(me)
     me.materials.append(mat)
     ob = bpy.data.objects.new(nombre + ("-convcol" if choca else ""), me)
@@ -155,6 +189,131 @@ def cilindro(nombre, x, y0, y1, z, radio, mat, col, lados=8):
     ob.location = _b(x, (y0 + y1) / 2, z)
     col.objects.link(ob)
     return ob
+
+
+def girar(nombre, perfil, mat, col, lados=10):
+    """Una pieza de revolucion (torno): `perfil` es [(radio, alto)] de abajo arriba; un radio 0 es
+    un polo (cierra la pieza)."""
+    import bmesh
+    me = bpy.data.meshes.new(nombre)
+    bm = bmesh.new()
+    anillos = []
+    for r, h in perfil:
+        if r <= 0.0:
+            anillos.append([bm.verts.new((0.0, 0.0, h))])
+        else:
+            anillos.append([bm.verts.new((r * math.cos(k * math.tau / lados), r * math.sin(k * math.tau / lados), h)) for k in range(lados)])
+    for a, b in zip(anillos, anillos[1:]):
+        for k in range(lados):
+            j = (k + 1) % lados
+            if len(a) == 1 and len(b) == 1:
+                continue
+            if len(a) == 1:
+                bm.faces.new((a[0], b[k], b[j]))
+            elif len(b) == 1:
+                bm.faces.new((a[k], a[j], b[0]))
+            else:
+                bm.faces.new((a[k], a[j], b[j], b[k]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    ob = bpy.data.objects.new(nombre, me)
+    col.objects.link(ob)
+    return ob
+
+
+def juntar(nombre, piezas, col, matriz=None):
+    """Junta varias piezas (con su posicion) en un solo objeto con varios materiales, movido por
+    `matriz` (Blender); asi un banco o una botella es una sola malla, no cinco."""
+    import bmesh
+    bm = bmesh.new()
+    mats = []
+    for ob in piezas:
+        tmp = bmesh.new()
+        tmp.from_mesh(ob.data)
+        bmesh.ops.transform(tmp, matrix=ob.matrix_basis, verts=tmp.verts)
+        for f in tmp.faces:
+            m = ob.data.materials[f.material_index] if ob.data.materials else None
+            if m not in mats:
+                mats.append(m)
+            f.material_index = mats.index(m)
+        me_tmp = bpy.data.meshes.new("tmp")
+        tmp.to_mesh(me_tmp)
+        tmp.free()
+        bm.from_mesh(me_tmp)
+        bpy.data.meshes.remove(me_tmp)
+    me = bpy.data.meshes.new(nombre)
+    bm.to_mesh(me)
+    bm.free()
+    for m in mats:
+        me.materials.append(m)
+    for ob in piezas:
+        viejo = ob.data
+        bpy.data.objects.remove(ob, do_unlink=True)
+        if viejo.users == 0:
+            bpy.data.meshes.remove(viejo)
+    ob = bpy.data.objects.new(nombre, me)
+    if matriz is not None:
+        ob.matrix_basis = matriz
+    col.objects.link(ob)
+    return ob
+
+
+def botella(nombre, tipo, x, y, z, col):
+    """Una botella de BOTELLAS parada en (x, y, z): vidrio de revolucion, etiqueta y tapa; el
+    mezcal trae su gusano (su vidrio se transparenta en el juego)."""
+    perfil, vidrio, etiqueta, (e0, e1), tapa, (tr, ta) = BOTELLAS[tipo]
+    r = max(p[0] for p in perfil if p[1] <= e1)
+    alto = perfil[-1][1]
+    piezas = [girar(nombre + "_v", perfil, material(vidrio, COLORES_BOTELLA[vidrio]), col),
+              girar(nombre + "_e", [(0, e0), (r + 0.003, e0), (r + 0.003, e1), (0, e1)], material(etiqueta, COLORES_BOTELLA[etiqueta]), col),
+              girar(nombre + "_t", [(0, alto - 0.004), (tr, alto - 0.004), (tr, alto + ta), (0, alto + ta)], material(tapa, COLORES_BOTELLA[tapa]), col, lados=8)]
+    if tipo == "mezcal":
+        piezas.append(girar(nombre + "_g", [(0, 0.012), (0.008, 0.016), (0.006, 0.05), (0, 0.055)], material("gusano", (0.85, 0.55, 0.25)), col, lados=5))
+    return juntar(nombre, piezas, col, Matrix.Translation(_b(x, y, z)))
+
+
+COLORES_BOTELLA = {
+    "vidrio_claro": (0.8, 0.85, 0.82), "vidrio_mezcal": (0.75, 0.8, 0.6), "vidrio_ambar": (0.45, 0.22, 0.05),
+    "vidrio_cafe": (0.25, 0.12, 0.05), "etiqueta_crema": (0.92, 0.86, 0.68), "etiqueta_roja": (0.8, 0.1, 0.1),
+    "etiqueta_negra": (0.08, 0.07, 0.07), "etiqueta_amarilla": (0.95, 0.8, 0.15), "tapa_negra": (0.05, 0.05, 0.05),
+    "tapa_corcho": (0.6, 0.45, 0.28), "tapa_dorada": (0.85, 0.7, 0.25),
+}
+
+
+def banco(nombre, x, y, z, alto, col):
+    """Un banquito de cantina: base redonda, poste cromado, aro para los pies y cojin de vinil rojo."""
+    cromo = material("cromo", (0.75, 0.77, 0.8))
+    vinil = material("vinil_rojo", (0.65, 0.06, 0.06))
+    piezas = [girar(nombre + "_base", [(0, 0), (0.17, 0), (0.17, 0.015), (0.06, 0.03), (0, 0.03)], cromo, col, lados=10),
+              girar(nombre + "_poste", [(0, 0.03), (0.022, 0.03), (0.022, alto - 0.06), (0, alto - 0.06)], cromo, col, lados=6),
+              girar(nombre + "_aro", [(0.13, alto * 0.42 - 0.012), (0.15, alto * 0.42 - 0.012), (0.15, alto * 0.42 + 0.012), (0.13, alto * 0.42 + 0.012)], cromo, col, lados=10),
+              girar(nombre + "_cojin", [(0, alto - 0.07), (0.17, alto - 0.07), (0.19, alto - 0.05), (0.19, alto - 0.015), (0.17, alto), (0, alto)], vinil, col, lados=12)]
+    for k in range(3):
+        a = k * math.tau / 3
+        piezas.append(cable_recto(nombre + "_rayo_%d" % k, Vector((0, alto * 0.42, 0)), Vector((math.cos(a) * 0.14, alto * 0.42, math.sin(a) * 0.14)), cromo, col, r=0.008))
+    # girar() arma en Blender (z arriba); los cables en Godot: todo queda en el mismo origen
+    return juntar(nombre, piezas, col, Matrix.Translation(_b(x, y, z)))
+
+
+def silla_plegable(nombre, x, y, z, hacia, col):
+    """Una silla plegable de lamina de las que regala la cerveceria, con el logo de la Coronela en
+    el respaldo (del atlas de los carteles), con el frente hacia `hacia` (x, z: la mesa)."""
+    lamina = material("lamina_silla", (0.7, 0.12, 0.1))
+    tubo = material("tubo_silla", (0.3, 0.3, 0.32))
+    logo = material("anuncios", (1, 1, 1))
+    a = ASIENTO
+    piezas = [caja(nombre + "_asiento", -0.2, 0.2, a - 0.035, a, -0.2, 0.2, lamina, col, choca=False),
+              caja(nombre + "_respaldo", -0.25, -0.22, a + 0.15, a + 0.45, -0.2, 0.2, lamina, col, choca=False)]
+    for lado in (-1, 1):
+        piezas.append(cable_recto(nombre + "_pata_d%d" % lado, Vector((0.19, 0.0, lado * 0.19)), Vector((0.16, a - 0.03, lado * 0.19)), tubo, col, r=0.012))
+        piezas.append(cable_recto(nombre + "_pata_t%d" % lado, Vector((-0.2, 0.0, lado * 0.19)), Vector((-0.26, a + 0.46, lado * 0.19)), tubo, col, r=0.012))
+    piezas.append(cable_recto(nombre + "_travesano", Vector((0.17, 0.12, -0.19)), Vector((0.17, 0.12, 0.19)), tubo, col, r=0.01))
+    piezas.append(plano(nombre + "_logo", (-0.255, a + 0.3, 0.0), 0.3, 0.26, (-1, 0, 0), logo, col, uv=(2 / 6 + 0.01, 0.42, 3 / 6 - 0.01, 0.82)))
+    # Hecha con el frente a +x; girar en y de Godot es girar en z de Blender
+    angulo = math.atan2(-(hacia[1] - z), hacia[0] - x)
+    return juntar(nombre, piezas, col, Matrix.Translation(_b(x, y, z)) @ Matrix.Rotation(angulo, 4, "Z"))
 
 
 def cuarto():
@@ -296,10 +455,11 @@ def utileria(col):
     for k in range(2):
         cilindro("Poste_cadena_%d" % k, 6.75, y, y + 0.9, PASILLO[0] + 0.15 + k * 1.3, 0.04, metal, col)
     caja("Cadena", 6.73, 6.77, y + 0.78, y + 0.82, PASILLO[0] + 0.15, PASILLO[1] - 0.15, reja, col, choca=False)
-    # Las OL PLEY: ocho en el muro norte y dos en el sur, viendo al salon
+    # Las EL GORDO (OlPley en el codigo): ocho en el muro norte y dos en el sur, viendo al salon,
+    # cada una con su banquito
     for k in range(8):
         marca("OlPley_%d" % k, 11.0 + k * 1.2, y, z0 + 0.45, col, 0)
-        cilindro("Silla_%d" % k, 11.0 + k * 1.2, y, y + 0.45, z0 + 1.25, 0.18, material("plastico_blanco"), col)
+        banco("Silla_%d" % k, 11.0 + k * 1.2, y, z0 + 1.25, ASIENTO, col)
         marca("Silla_%d" % k, 11.0 + k * 1.2, y, z0 + 1.25, col, 0)
     for k in range(2):
         marca("OlPley_%d" % (8 + k), 17.2 + k * 1.2, y, z1 - 0.45, col, 180)
@@ -320,30 +480,55 @@ def utileria(col):
     marca("Bocina", 9.85, y + 0.7, z1 - 0.35, col, 0)
     for k, (hx, hy, hz) in enumerate(((x1 - 0.4, 0, z1 - 0.3), (x1 - 0.4, 0.3, z1 - 0.3), (x1 - 0.95, 0, z1 - 0.3), (x0 + 0.4, 0, z0 + 2.6), (x0 + 0.4, 0.3, z0 + 2.6))):
         caja("Huacal_%d" % k, hx - 0.25, hx + 0.25, y + hy, y + hy + 0.3, hz - 0.18, hz + 0.18, material("plastico_rojo", (0.75, 0.1, 0.1)), col)
-    # Salon 2: la barra en el muro norte (contrabarra con botellas, refri con luz, barra, bancos)
-    caja("Contrabarra", 22.6, 29.4, y, y + 0.9, b0, b0 + 0.45, madera, col)
-    for nivel in range(2):
-        caja("Repisa_%d" % nivel, 22.6, 28.4, y + 1.3 + nivel * 0.4, y + 1.33 + nivel * 0.4, b0, b0 + 0.3, madera, col, choca=False)
-        for k in range(16):
-            bx = 22.75 + k * 0.35
-            color = ((0.25, 0.45, 0.15), (0.45, 0.25, 0.1), (0.85, 0.75, 0.6), (0.2, 0.2, 0.55))[(k + nivel) % 4]
-            cilindro("Botella_%d_%02d" % (nivel, k), bx, y + 1.33 + nivel * 0.4, y + 1.55 + nivel * 0.4, b0 + 0.15, 0.035, material("botella_%d" % ((k + nivel) % 4), color), col, lados=6)
-    caja("Refri", 28.6, 29.6, y, y + 1.9, b0, b0 + 0.7, material("refri", (0.85, 0.1, 0.1)), col)
-    caja("Refri_vidrio", 28.68, 29.52, y + 0.15, y + 1.75, b0 + 0.7, b0 + 0.72, material("refri_luz", (0.85, 0.95, 1.0), emision=1.5), col, choca=False)
-    caja("Barra", 22.6, 28.4, y, y + 1.05, b0 + 1.2, b0 + 1.65, madera, col)
-    caja("Barra_tapa", 22.55, 28.45, y + 1.05, y + 1.1, b0 + 1.15, b0 + 1.75, material("madera_oscura"), col, choca=False)
-    for k in range(3):
-        cilindro("Grifo_%d" % k, 24.6 + k * 0.3, y + 1.1, y + 1.4, b0 + 1.35, 0.025, metal, col, lados=6)
+    # La pista de los caballitos: una isla en la mitad sur del salon 1 (entre las columnas y el
+    # altar), se mira desde el norte; los caballitos corren a lo largo de x
+    px0, px1, pz0, pz1 = PISTA
+    caja("Pista_mesa", px0, px1, y + 0.85, y + 0.92, pz0, pz1, material("fieltro_verde", (0.1, 0.35, 0.15)), col)
+    caja("Pista_choque", px0, px1, y, y + 0.92, pz0, pz1, madera, col, choca=False).name = "Pista_choque-colonly"
+    caja("Pista_faldon", px0 + 0.05, px1 - 0.05, y, y + 0.85, pz0 + 0.05, pz1 - 0.05, madera, col, choca=False)
+    caja("Pista_meta", PISTA_META, PISTA_META + 0.05, y + 0.92, y + 0.93, pz0, pz1, material("pintura_blanca", (0.95, 0.95, 0.9)), col, choca=False)
+    caja("Pista_salida", px0 + 0.2, px0 + 0.25, y + 0.92, y + 0.93, pz0, pz1, material("pintura_blanca"), col, choca=False)
+    colores = ((0.85, 0.15, 0.1), (0.1, 0.35, 0.85), (0.95, 0.8, 0.1), (0.1, 0.7, 0.25), (0.8, 0.4, 0.9))
     for k in range(5):
-        cilindro("Banco_barra_%d" % k, 23.2 + k * 1.1, y, y + 0.75, b0 + 2.25, 0.17, material("plastico_rojo"), col)
-        marca("Banco_barra_%d" % k, 23.2 + k * 1.1, y, b0 + 2.25, col, 0)
-    marca("Cantinero", 25.6, y, b0 + 0.85, col, 0)
-    marca("Barra", 25.6, y, b0 + 2.6, col, 0)
-    marca("Neon_barra", 25.5, y + 1.95, b0 + 0.05, col, 0)
-    # La mesa del poker al centro: pano verde, borde acolchado, fichas y los lugares
-    mx, mz = 26.0, b0 + 4.6
+        zr = pz0 + 0.2 + k * 0.2
+        caja("Riel_%d" % k, px0 + 0.2, px1 - 0.2, y + 0.92, y + 0.95, zr - 0.01, zr + 0.01, metal, col, choca=False)
+        caballo(k, px0 + 0.5, y + 0.95, zr, material("caballo_%d" % (k + 1), colores[k]), col)
+    marca("Pista", (px0 + px1) / 2, y, pz0 - 0.8, col, 0)
+    # Salon 2: la barra en el muro norte (contrabarra con botellas, refri con luz, barra, bancos)
+    caja("Contrabarra", 23.0, 30.0, y, y + 0.9, b0, b0 + 0.45, madera, col)
+    caja("Contrabarra_tapa", 22.95, 30.05, y + 0.9, y + 0.94, b0, b0 + 0.5, material("madera_oscura", (0.3, 0.2, 0.12)), col, choca=False)
+    rnd = random.Random(11)
+    tipos = list(BOTELLAS)
+    for nivel in range(3):
+        ry = y + 1.25 + nivel * 0.42
+        caja("Repisa_%d" % nivel, 23.0, 29.0, ry - 0.03, ry, b0, b0 + 0.3, madera, col, choca=False)
+        bx = 23.15
+        k = 0
+        while bx < 28.85:
+            tipo = rnd.choice(tipos)
+            botella("Botella_%d_%02d" % (nivel, k), tipo, bx, ry, b0 + 0.15 + rnd.uniform(-0.04, 0.04), col)
+            bx += BOTELLAS[tipo][0][1][0] * 2 + rnd.choice((0.03, 0.05, 0.05, 0.12))
+            k += 1
+    for k, (tipo, bx) in enumerate((("tequila", 23.4), ("cerveza", 23.6), ("ron", 29.5), ("whisky", 29.7))):
+        botella("Botella_contra_%d" % k, tipo, bx, y + 0.94, b0 + 0.25, col)
+    caja("Refri", 30.2, 31.2, y, y + 1.9, b0, b0 + 0.7, material("refri", (0.85, 0.1, 0.1)), col)
+    caja("Refri_vidrio", 30.28, 31.12, y + 0.15, y + 1.75, b0 + 0.7, b0 + 0.72, material("refri_luz", (0.85, 0.95, 1.0), emision=1.5), col, choca=False)
+    caja("Barra", 23.0, 29.0, y, y + 1.05, b0 + 1.2, b0 + 1.65, madera, col)
+    caja("Barra_tapa", 22.95, 29.05, y + 1.05, y + 1.1, b0 + 1.15, b0 + 1.75, material("madera_oscura"), col, choca=False)
+    for k in range(3):
+        cilindro("Grifo_%d" % k, 25.2 + k * 0.3, y + 1.1, y + 1.4, b0 + 1.35, 0.025, metal, col, lados=6)
+    for k, (tipo, bx) in enumerate((("cerveza", 23.8), ("cerveza", 23.95), ("tequila", 27.4), ("caguama", 28.3))):
+        botella("Botella_barra_%d" % k, tipo, bx, y + 1.1, b0 + 1.45, col)
+    for k in range(5):
+        banco("Banco_barra_%d" % k, 23.6 + k * 1.2, y, b0 + 2.25, BANCO_BARRA, col)
+        marca("Banco_barra_%d" % k, 23.6 + k * 1.2, y, b0 + 2.25, col, 0)
+    marca("Cantinero", 26.2, y, b0 + 0.85, col, 0)
+    marca("Barra", 26.2, y, b0 + 2.6, col, 0)
+    marca("Neon_barra", 26.0, y + 0.55, b0 + 1.68, col, 0)     # en el frente de la barra
+    # La mesa del poker, al centro con espacio alrededor: pano verde, borde acolchado, fichas
+    mx, mz = MESA
     caja("Poker_pata", mx - 0.25, mx + 0.25, y, y + 0.72, mz - 0.25, mz + 0.25, madera, col, choca=False)
-    caja("Poker_pano", mx - 1.3, mx + 1.3, y + 0.72, y + 0.78, mz - 0.75, mz + 0.75, material("fieltro_verde", (0.1, 0.35, 0.15)), col, choca=False)
+    caja("Poker_pano", mx - 1.3, mx + 1.3, y + 0.72, y + 0.78, mz - 0.75, mz + 0.75, material("fieltro_verde"), col, choca=False)
     for nombre, xa, xb, za_, zb_ in (("n", mx - 1.4, mx + 1.4, mz - 0.85, mz - 0.75), ("s", mx - 1.4, mx + 1.4, mz + 0.75, mz + 0.85),
                                      ("o", mx - 1.4, mx - 1.3, mz - 0.75, mz + 0.75), ("e", mx + 1.3, mx + 1.4, mz - 0.75, mz + 0.75)):
         caja("Poker_borde_%s" % nombre, xa, xb, y + 0.72, y + 0.84, za_, zb_, material("cuero_negro", (0.08, 0.06, 0.06)), col, choca=False)
@@ -351,63 +536,68 @@ def utileria(col):
     for k, (fx, fz) in enumerate(((mx - 0.9, mz - 0.3), (mx + 0.9, mz - 0.3), (mx - 0.6, mz + 0.4), (mx + 0.6, mz + 0.4))):
         for n in range(4):
             cilindro("Ficha_%d_%d" % (k, n), fx, y + 0.78 + n * 0.012, y + 0.79 + n * 0.012, fz, 0.03, material("ficha_%d" % (n % 3), ((0.85, 0.1, 0.1), (0.1, 0.3, 0.85), (0.95, 0.95, 0.9))[n % 3]), col, lados=8)
+    botella("Botella_poker", "tequila", mx + 1.0, y + 0.78, mz + 0.5, col)
     lugares = {"Poker_tu": (mx, mz + 1.35, 180), "Poker_0": (mx - 1.9, mz, 90), "Poker_1": (mx - 0.9, mz - 1.35, 0), "Poker_2": (mx + 1.9, mz, -90)}
     for nombre, (px, pz, giro) in lugares.items():
         marca(nombre, px, y, pz, col, giro)
         if nombre != "Poker_tu":
-            cilindro("Silla_" + nombre, px, y, y + 0.45, pz, 0.2, material("plastico_blanco"), col)
+            silla_plegable("Silla_" + nombre, px, y, pz, MESA, col)
     marca("Crupier", mx + 0.9, y, mz - 1.3, col, 0)
     marca("Poker", mx, y, mz + 1.8, col, 180)
-    cilindro("Poker_lampara_cable", mx, TECHO - 0.7, TECHO, mz, 0.01, cable, col, lados=4)
-    cilindro("Poker_lampara", mx, TECHO - 0.85, TECHO - 0.7, mz, 0.4, material("lampara_verde"), col, lados=12)
-    marca("Luz_poker", mx, TECHO - 0.95, mz, col, 0)
-    # La pista de los caballitos en el muro sur del salon 2: corren a lo largo de x
-    caja("Pista_mesa", 22.0, 29.6, y + 0.85, y + 0.92, b1 - 1.5, b1 - 0.1, material("fieltro_verde"), col)
-    caja("Pista_choque", 22.0, 29.6, y, y + 0.92, b1 - 1.5, b1 - 0.1, madera, col, choca=False).name = "Pista_choque-colonly"
-    caja("Pista_faldon", 22.0, 29.6, y, y + 0.85, b1 - 1.52, b1 - 1.48, madera, col, choca=False)
-    caja("Pista_meta", 28.9, 28.95, y + 0.92, y + 0.93, b1 - 1.5, b1 - 0.1, material("pintura_blanca", (0.95, 0.95, 0.9)), col, choca=False)
-    colores = ((0.85, 0.15, 0.1), (0.1, 0.35, 0.85), (0.95, 0.8, 0.1), (0.1, 0.7, 0.25), (0.8, 0.4, 0.9))
-    for k in range(5):
-        zr = b1 - 1.3 + k * 0.27
-        caja("Riel_%d" % k, 22.2, 29.4, y + 0.92, y + 0.95, zr - 0.01, zr + 0.01, metal, col, choca=False)
-        caballo(k, 22.5, y + 0.95, zr, material("caballo_%d" % (k + 1), colores[k]), col)
-    marca("Pista", 25.8, y, b1 - 2.2, col, 0)
-    # El congelador de las caguamas y la puerta del bano
-    caja("Congelador", a0 + 0.3, a0 + 1.7, y, y + 0.9, b0 + 2.6, b0 + 3.3, material("congelador", (0.85, 0.85, 0.88)), col)
-    caja("Congelador_tapa", a0 + 0.35, a0 + 1.65, y + 0.9, y + 0.93, b0 + 2.63, b0 + 3.27, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
-    marca("Congelador", a0 + 1.0, y, b0 + 3.9, col, 180)
-    caja("Bano_puerta", a1 - 0.06, a1, y, y + 2.0, b1 - 3.4, b1 - 2.5, material("lamina_puerta"), col, choca=False)
+    # La lampara alta: la camara del poker (PokerUI) ve la mesa por debajo de ella
+    cilindro("Poker_lampara_cable", mx, TECHO - 0.45, TECHO, mz, 0.01, cable, col, lados=4)
+    cilindro("Poker_lampara", mx, TECHO - 0.6, TECHO - 0.45, mz, 0.4, material("lampara_verde", (0.15, 0.45, 0.25)), col, lados=12)
+    marca("Luz_poker", mx, TECHO - 0.7, mz, col, 0)
+    # El congelador de las caguamas (esquina suroeste del salon 2) y la puerta del bano (este)
+    caja("Congelador", a0 + 0.3, a0 + 1.7, y, y + 0.9, b1 - 1.1, b1 - 0.4, material("congelador", (0.85, 0.85, 0.88)), col)
+    caja("Congelador_tapa", a0 + 0.35, a0 + 1.65, y + 0.9, y + 0.93, b1 - 1.07, b1 - 0.43, material("vidrio", (0.4, 0.55, 0.6)), col, choca=False)
+    marca("Congelador", a0 + 1.0, y, b1 - 1.7, col, 180)
+    caja("Bano_puerta", a1 - 0.06, a1, y, y + 2.0, b1 - 3.4, b1 - 2.5, material("lamina_puerta", (0.25, 0.3, 0.28)), col, choca=False)
     marca("Bano", a1 - 0.6, y, b1 - 2.95, col, -90)
     marca("Neon_bano", a1 - 0.02, y + 2.15, b1 - 2.95, col, -90)
+    # Una mesa alta para los que esperan, junto al muro sur
+    cilindro("Mesa_alta_pata", 29.0, y, y + 1.0, b1 - 0.9, 0.04, metal, col, lados=6)
+    cilindro("Mesa_alta_base", 29.0, y, y + 0.03, b1 - 0.9, 0.22, metal, col, lados=8)
+    cilindro("Mesa_alta", 29.0, y + 1.0, y + 1.04, b1 - 0.9, 0.35, material("madera_oscura"), col, lados=10)
+    for k, tipo in enumerate(("cerveza", "cerveza", "caguama")):
+        botella("Botella_mesa_%d" % k, tipo, 28.85 + k * 0.14, y + 1.04, b1 - 0.95 + (k % 2) * 0.1, col)
     # Tubos de luz en los dos salones
-    tubos = [(9.0, 3.0), (12.6, 0.6), (16.6, 0.6), (12.6, 5.4), (16.6, 5.4), (19.6, 3.0), (23.6, b0 + 1.0), (28.4, b1 - 1.0)]
+    tubos = [(9.0, 3.0), (12.6, 0.6), (16.6, 0.6), (12.6, 5.4), (16.6, 5.4), (19.6, 3.0),
+             (24.4, b0 + 1.0), (30.4, b0 + 1.0), (24.4, b1 - 2.0), (32.4, b1 - 2.0)]
     for k, (tx, tz) in enumerate(tubos):
         caja("Tubo_%d" % k, tx - 0.6, tx + 0.6, TECHO - 0.33, TECHO - 0.29, tz - 0.03, tz + 0.03, tubo, col, choca=False)
         marca("Luz_%d" % k, tx, TECHO - 0.4, tz, col, 0)
-    # Neones del salon 1 (los arma Sotano.gd en los vacios)
-    marca("Neon", 15.2, TECHO - 0.55, z0 + 0.25, col, 0)
-    marca("Neon_abierto", 8.6, TECHO - 0.6, z1 - 0.25, col, 180)
-    marca("Neon_poker", a1 - 0.03, TECHO - 0.55, b0 + 4.6, col, -90)
+    # Neones (los arma Sotano.gd con models/sotano/neones.glb en los vacios)
+    # EL GORDO cuelga de la viga de en medio, viendo a la entrada (en el muro lo tapaban los gabinetes)
+    marca("Neon", 13.52, TECHO - 0.6, 3.0, col, -90)
+    marca("Neon_atras", 13.68, TECHO - 0.6, 3.0, col, 90)      # el mismo, espalda con espalda
+    for k, zc in enumerate((2.45, 3.55)):
+        cable_recto("Cadena_neon_%d" % k, Vector((13.6, TECHO - 0.25, zc)), Vector((13.6, TECHO - 0.3, zc)), metal, col, r=0.01)
+    marca("Neon_premio", 17.8, TECHO - 0.5, z1 - 0.05, col, 180)
+    marca("Neon_abierto", 8.6, TECHO - 0.75, z1 - 0.05, col, 180)
+    marca("Neon_poker", a1 - 0.05, TECHO - 0.8, MESA[1], col, -90)
     # Anuncios de cerveza (Sotano.gd pone el cartel en cada vacio)
     for k, (ax, ay, az, giro) in enumerate(((x0 + 0.03, y + 1.5, 0.9, 90), (11.6, y + 1.6, z1 - 0.03, 180), (15.4, y + 1.6, z1 - 0.03, 180),
-                                             (a0 + 0.23, y + 1.6, b0 + 1.0, 90), (a1 - 0.03, y + 1.6, b0 + 1.6, -90), (24.2, y + 1.7, b1 - 0.03, 180))):
+                                             (a0 + 0.03, y + 1.6, b0 + 1.0, 90), (a1 - 0.03, y + 1.6, b0 + 1.6, -90), (25.2, y + 1.7, b1 - 0.03, 180),
+                                             (28.6, y + 1.7, b1 - 0.03, 180))):
         marca("Anuncio_%d" % k, ax, ay, az, col, giro)
     # Cables por el techo y extensiones
-    for k, (pa, pb) in enumerate((((9.0, 3.0), (12.6, 0.6)), ((12.6, 0.6), (16.6, 0.6)), ((12.6, 0.6), (12.6, 5.4)), ((16.6, 0.6), (19.6, 3.0)))):
+    for k, (pa, pb) in enumerate((((9.0, 3.0), (12.6, 0.6)), ((12.6, 0.6), (16.6, 0.6)), ((12.6, 0.6), (12.6, 5.4)), ((16.6, 0.6), (19.6, 3.0)),
+                                  ((24.4, b0 + 1.0), (30.4, b0 + 1.0)), ((24.4, b0 + 1.0), (24.4, b1 - 2.0)))):
         cable_recto("Cable_techo_%d" % k, Vector((pa[0], TECHO - 0.27, pa[1])), Vector((pb[0], TECHO - 0.27, pb[1])), cable, col)
-    for k, (pa, pb) in enumerate((((10.6, z0 + 0.3), (20.2, z0 + 0.3)), ((x0 + 0.3, 5.3), (x0 + 0.3, 6.9)), ((22.8, b1 - 1.6), (29.0, b1 - 1.6)))):
+    for k, (pa, pb) in enumerate((((10.6, z0 + 0.3), (20.2, z0 + 0.3)), ((x0 + 0.3, 5.3), (x0 + 0.3, 6.9)), ((PISTA[0], PISTA[2] + 0.6), (12.0, z1 - 0.3)))):
         cable_recto("Extension_%d" % k, Vector((pa[0], y + 0.01, pa[1])), Vector((pb[0], y + 0.01, pb[1])), cable, col)
     # Ventiladores de techo (uno por salon)
-    for v, (vx, vz) in enumerate(((14.6, 3.0), (26.0, b0 + 2.4))):
+    for v, (vx, vz) in enumerate(((14.6, 3.0), (24.4, MESA[1]))):
         cilindro("Ventilador_%d_eje" % v, vx, TECHO - 0.5, TECHO - 0.25, vz, 0.03, metal, col)
         for k in range(3):
             a = math.radians(k * 120)
             aspa = caja("Ventilador_%d_aspa_%d" % (v, k), -0.05, 0.55, TECHO - 0.52, TECHO - 0.5, -0.07, 0.07, madera, col, choca=False)
             aspa.location = _b(vx + math.cos(a) * 0.3, TECHO - 0.51, vz + math.sin(a) * 0.3)
             aspa.rotation_euler = (0, 0, -a)
-    # Puntos por donde camina la gente (Sotano.gd: Gente del sotano)
-    for k, (px, pz) in enumerate(((8.0, 3.1), (12.0, 2.0), (15.0, 2.2), (18.5, 2.6), (19.0, 5.6), (14.0, 6.2), (10.0, 5.0),
-                                  (22.4, 3.2), (24.0, b0 + 2.9), (27.5, b0 + 2.9), (29.6, b1 - 2.4), (23.0, b1 - 2.0))):
+    # Puntos por donde camina la gente (GenteSotano.gd): rodean la pista y la mesa del poker
+    for k, (px, pz) in enumerate(((8.0, 3.1), (12.0, 2.0), (15.0, 2.2), (18.5, 2.6), (19.0, 5.6), (14.5, 7.0), (10.0, 6.4),
+                                  (22.4, 3.2), (24.0, b0 + 3.2), (31.0, b0 + 3.2), (33.0, b1 - 1.4), (24.0, b1 - 1.2))):
         marca("Camino_%d" % k, px, y, pz, col, 0)
 
 
@@ -429,6 +619,7 @@ def cable_recto(nombre, a, b, mat, col, r=0.012):
         caras.append((i, j, j + 4, i + 4))
     me.from_pydata(verts, [], caras)
     me.update()
+    _afuera(me)
     me.materials.append(mat)
     ob = bpy.data.objects.new(nombre, me)
     col.objects.link(ob)
@@ -460,7 +651,7 @@ def caballo(i, x, y, z, mat, col):
 
 
 def gabinete():
-    """La maquinita OL PLEY, como las de la foto de AG: base de lamina antiderrapante, cuerpo,
+    """La maquinita EL GORDO (antes OL PLEY), como las de la foto de AG: base de lamina antiderrapante, cuerpo,
     tablero con botones, monitor con bisel y monedero, marquesina, y las calcomanias de
     textures/sotano/calcomanias.png (marquesina arriba, puerta a la izquierda, costado a la derecha,
     etiquetas abajo). Origen al centro de la base, viendo a +Z. Se exporta aparte
@@ -508,6 +699,19 @@ def exportar_gabinete():
                               export_apply=True, export_yup=True, export_materials="EXPORT")
 
 
+def exportar_botellas():
+    """Una botella de cada tipo en el origen (models/sotano/botellas.glb): la charola de la mesera
+    y lo que haga falta en el juego las toma de ahi por nombre (Botella_cerveza...)."""
+    col = coleccion("Botellas")
+    for tipo in BOTELLAS:
+        botella("Botella_" + tipo, tipo, 0.0, 0.0, 0.0, col)
+    bpy.ops.object.select_all(action="DESELECT")
+    for ob in col.all_objects:
+        ob.select_set(True)
+    bpy.ops.export_scene.gltf(filepath=os.path.join(SALIDA, "botellas.glb"), export_format="GLB", use_selection=True,
+                              export_apply=True, export_yup=True, export_materials="EXPORT")
+
+
 def exportar():
     os.makedirs(SALIDA, exist_ok=True)
     bpy.ops.object.select_all(action="DESELECT")
@@ -531,5 +735,6 @@ if __name__ == "sotano":
     gabinete()
     os.makedirs(SALIDA, exist_ok=True)
     exportar_gabinete()
+    exportar_botellas()
     exportar()
     print("sotano: %d objetos" % len(bpy.data.collections["Sotano"].all_objects))

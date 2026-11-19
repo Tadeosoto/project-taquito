@@ -15,6 +15,9 @@ uniform vec3 tinte : source_color = vec3(1.0);
 uniform float contraste : hint_range(0.5, 2.0, 0.05) = 1.0;
 // Oscurece las orillas de la pantalla
 uniform float vineta : hint_range(0.0, 1.0, 0.05) = 0.0;
+// Cuantos pixeles de pantalla mide un pixel del juego (1 a 640 x 480; ~2.25 en el modo alta de
+// scripts/ModoAlta.gd): el patron del dither se agranda igual
+global uniform float pixel_bloque;
 
 const mat4 bayer = mat4(
 	vec4(0.0, 8.0, 2.0, 10.0),
@@ -31,7 +34,7 @@ void fragment() {
 	vec2 centro = SCREEN_UV - 0.5;
 	color *= 1.0 - vineta * smoothstep(0.25, 0.75, length(centro * vec2(1.2, 1.0)));
 	
-	vec2 pixel = vec2(FRAGCOORD.xy);
+	vec2 pixel = floor(FRAGCOORD.xy / max(pixel_bloque, 1.0));
 	int x = int(mod(pixel.x, 4.0));
 	int y = int(mod(pixel.y, 4.0));
 	

@@ -144,6 +144,7 @@
 
 ## Fuente (`fonts/`, OFL)
 - [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), © 2021 The Pixelify Sans Project Authors, licencia SIL Open Font License 1.1 (`fonts/PixelifySans-OFL.txt`).
+- [Pacifico](https://github.com/googlefonts/Pacifico), © 2018 The Pacifico Project Authors, licencia SIL Open Font License 1.1 (`fonts/Pacifico-OFL.txt`). Solo para dar forma a los neones del Sótano en Blender.
 
 ## Sonidos (`audio/weapons/`)
 - `pistol_shot.wav`: balazo de la pistola, dominio público (CC0). Fuente: pendiente.

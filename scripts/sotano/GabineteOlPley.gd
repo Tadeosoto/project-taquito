@@ -1,7 +1,8 @@
 class_name GabineteOlPley
 extends StaticBody3D
 
-# Una maquinita OL PLEY del Sotano: el modelo de Blender (models/sotano/gabinete_olpley.glb, de
+# Una maquinita EL GORDO del Sotano (antes OL PLEY; el codigo sigue diciendo OlPley): el modelo
+# de Blender (models/sotano/gabinete_olpley.glb, de
 # tools/blender/sotano/sotano.py), su caja de choque, su placa (Carretes.gd) y la sena de la casa:
 # cuando la placa esta CALIENTE (el siguiente tiro gana) la marquesina parpadea con su foco.
 # El color del cuerpo es uno de COLORES (como en la foto: rojas, negras y moradas); un material

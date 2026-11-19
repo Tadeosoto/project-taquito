@@ -1,7 +1,8 @@
 # El arte del Sotano (docs/sistemas/sotano.md), renderizado en Blender con Workbench plano y sin
 # suavizado (pixeles duros, como todo el juego):
-#   textures/sotano/cartas.png        las cartas de la loteria (CARTAS, 8 x 3 de 128 x 192 px)
-#   textures/sotano/calcomanias.png   el gabinete OL PLEY (marquesina, puerta, costado, etiquetas)
+#   textures/sotano/cartas.png        las cartas de la loteria (CARTAS, 8 x 3 de 96 x 144 px, sin
+#                                     nombre: OlPleyUI lo escribe encima con letra de pixel)
+#   textures/sotano/calcomanias.png   el gabinete EL GORDO (marquesina, puerta, costado, etiquetas)
 #   textures/sotano/pantalla.png      lo que la maquinita muestra sola ("inserte ficha")
 # Los dibujos son los glifos de linea de Segoe UI Emoji (Windows) sobre fondos de color; los
 # nombres, en Arial Black / Impact. Corre en el archivo que sea (usa escenas propias y las borra):
@@ -45,7 +46,7 @@ CARTAS = [
     ("El Tinaco", "\U0001F6E2", (0.1, 0.1, 0.12)),
 ]
 COLUMNAS = 8
-CARTA = (128, 192)
+CARTA = (96, 144)     # del tamano en que se ve en la pantalla (384 x 288): sin escalar, se lee
 CREMA = (0.95, 0.9, 0.78)
 TINTA = (0.08, 0.06, 0.06)
 
@@ -154,21 +155,20 @@ def _render(sc, archivo):
 
 
 def cartas():
-    u = 128  # px por unidad: una carta mide 1 x 1.5
+    """Las cartas del tamano en que se ven: marco, el dibujo grande y abajo una banda crema donde
+    OlPleyUI escribe el nombre con fonts/PixelifySans.ttf (texto de Blender a 96 px no se leia)."""
+    u = 96  # px por unidad: una carta mide 1 x 1.5
     filas = (len(CARTAS) + COLUMNAS - 1) // COLUMNAS
     sc = _escena("Cartas", COLUMNAS * CARTA[0], filas * CARTA[1], u)
     emoji = _fuente("seguiemj.ttf")
-    negra = _fuente("ariblk.ttf")
     for i, (nombre, glifo, color) in enumerate(CARTAS):
         cx, cy = (i % COLUMNAS) * 1.0, (i // COLUMNAS) * 1.5
         tinaco = nombre == "El Tinaco"
         _rect(sc, cx, cy, cx + 1, cy + 1.5, (0.55, 0.12, 0.1) if not tinaco else (0.85, 0.7, 0.2), -0.02)   # el marco
         _rect(sc, cx + 0.05, cy + 0.05, cx + 0.95, cy + 1.45, CREMA, -0.015)
-        _rect(sc, cx + 0.1, cy + 0.22, cx + 0.9, cy + 1.18, color, -0.01)
+        _rect(sc, cx + 0.09, cy + 0.09, cx + 0.91, cy + 1.16, color, -0.01)
         oscuro = sum(color) < 1.0
-        _texto(sc, glifo, cx + 0.5, cy + 0.72, 0.72, CREMA if oscuro else TINTA, emoji)
-        _texto(sc, str(i + 1), cx + 0.1, cy + 0.13, 0.13, TINTA, negra, centro=False)
-        _texto(sc, nombre, cx + 0.5, cy + 1.32, 0.13, TINTA, negra, ancho_max=0.84)
+        _texto(sc, glifo, cx + 0.5, cy + 0.63, 0.78, CREMA if oscuro else TINTA, emoji)
     _render(sc, "cartas.png")
 
 
@@ -183,15 +183,15 @@ def calcomanias():
     impacto = _fuente("impact.ttf")
     rnd = random.Random(7)
     morado, verde, amarillo, rosa = (0.4, 0.1, 0.55), (0.2, 0.75, 0.2), (1.0, 0.85, 0.1), (0.95, 0.3, 0.6)
-    # Marquesina: OL PLEY con contorno sobre manchas de colores
+    # Marquesina: EL GORDO con contorno sobre manchas de colores
     _rect(sc, 0, 0, 8, 2, morado, -0.03)
     for _ in range(26):
         r = rnd.uniform(0.15, 0.55)
         _circulo(sc, rnd.uniform(r, 8 - r), rnd.uniform(r, 2 - r), r, rnd.choice((verde, rosa, (0.2, 0.5, 0.95), (0.95, 0.5, 0.1))), -0.025)
     for g, x in (("\U0001F352", 0.7), ("\U0001F3B2", 7.3)):
         _texto(sc, g, x, 1.0, 1.0, amarillo, emoji)
-    _texto(sc, "OL PLEY", 4.0, 1.05, 1.45, amarillo, impacto, contorno=(0.06, (0.1, 0.02, 0.1)))
-    # Puerta de abajo: OL PLEY chico, una ruleta y las cartas
+    _texto(sc, "EL GORDO", 4.0, 1.05, 1.45, amarillo, impacto, contorno=(0.06, (0.1, 0.02, 0.1)), ancho_max=5.6)
+    # Puerta de abajo: EL GORDO chico, una ruleta y las cartas
     _rect(sc, 0, 2, 4, 6, (0.15, 0.1, 0.35), -0.03)
     for _ in range(18):
         r = rnd.uniform(0.15, 0.45)
@@ -207,7 +207,7 @@ def calcomanias():
         ob = bpy.data.objects.new("ruleta", me)
         sc.collection.objects.link(ob)
     _circulo(sc, 2.0, 4.6, 0.25, (0.95, 0.8, 0.3), 0.005)
-    _texto(sc, "OL PLEY", 2.0, 2.75, 0.85, amarillo, impacto, contorno=(0.05, (0.1, 0.02, 0.1)))
+    _texto(sc, "EL GORDO", 2.0, 2.75, 0.85, amarillo, impacto, contorno=(0.05, (0.1, 0.02, 0.1)), ancho_max=3.4)
     # Costado: un revoltijo de cartas, sietes y cerezas
     _rect(sc, 4, 2, 8, 6, (0.1, 0.45, 0.25), -0.03)
     for _ in range(14):
@@ -236,7 +236,7 @@ def pantalla():
     impacto = _fuente("impact.ttf")
     negra = _fuente("ariblk.ttf")
     _rect(sc, 0, 0, 4, 3, (0.05, 0.06, 0.25), -0.03)
-    _texto(sc, "LOTERÍA DE CARRETES", 2.0, 0.35, 0.32, (1.0, 0.85, 0.1), impacto, contorno=(0.02, (0.6, 0.1, 0.1)), ancho_max=3.7)
+    _texto(sc, "EL GORDO", 2.0, 0.35, 0.36, (1.0, 0.85, 0.1), impacto, contorno=(0.02, (0.6, 0.1, 0.1)), ancho_max=3.7)
     for k, g in enumerate(("\U0001F413", "\U0001F6E2", "\U0001F335")):
         x = 0.75 + k * 1.25
         _rect(sc, x - 0.5, 0.8, x + 0.5, 2.2, CREMA, -0.02)
@@ -277,12 +277,14 @@ def anuncios():
 
 
 def pantalla_juego():
-    """256 x 192: el fondo del juego en la pantalla de la OL PLEY (scripts/sotano/OlPleyUI.gd encima
+    """384 x 288: el fondo del juego en la pantalla de EL GORDO (scripts/sotano/OlPleyUI.gd encima
     pone los carretes y los numeros). Marco de neon con focos, el logo, tres ventanas de carrete de
-    64 x 112 en x = 24, 96, 168 (y de 34 a 146) con sus flechas de la linea de premio, y abajo
-    tres recuadros (APUESTA, FICHAS, PREMIO) de 64 x 18 en x = 16, 96, 176, y = 166."""
-    u = 32
-    sc = _escena("PantallaJuego", 256, 192, u)
+    96 x 168 en x = 36, 144, 252 (y de 51 a 219) con sus flechas de la linea de premio, y abajo
+    tres recuadros (APUESTA, FICHAS, PREMIO) de 96 x 27 en x = 24, 144, 264, y = 249. Las medidas
+    de abajo van en los px de la version de 256 x 192 (/ V): todo x1.5."""
+    u = 48
+    V = 32.0
+    sc = _escena("PantallaJuego", 384, 288, u)
     emoji = _fuente("seguiemj.ttf")
     impacto = _fuente("impact.ttf")
     negra = _fuente("ariblk.ttf")
@@ -292,19 +294,19 @@ def pantalla_juego():
     for k in range(20):    # focos del marco
         for (x, y) in ((0.2 + k * 0.4, 0.06), (0.2 + k * 0.4, 5.94)):
             _circulo(sc, x, y, 0.09, amarillo if k % 2 == 0 else (1, 1, 1), -0.03, lados=6)
-    _texto(sc, "LOTERÍA DE CARRETES", 4.0, 0.55, 0.62, amarillo, impacto, contorno=(0.04, (0.6, 0.05, 0.1)), ancho_max=6.2)
+    _texto(sc, "EL GORDO", 4.0, 0.55, 0.7, amarillo, impacto, contorno=(0.04, (0.6, 0.05, 0.1)), ancho_max=6.2)
     for x in (0.55, 7.45):
         _texto(sc, "\U0001F6E2", x, 0.55, 0.6, amarillo, emoji)
     for k in range(3):
-        x0 = (24 + k * 72) / u
-        _rect(sc, x0 - 0.1, 34 / u - 0.1, x0 + 2 + 0.1, 146 / u + 0.1, amarillo, -0.03)
-        _rect(sc, x0, 34 / u, x0 + 2, 146 / u, oscuro, -0.025)
+        x0 = (24 + k * 72) / V
+        _rect(sc, x0 - 0.1, 34 / V - 0.1, x0 + 2 + 0.1, 146 / V + 0.1, amarillo, -0.03)
+        _rect(sc, x0, 34 / V, x0 + 2, 146 / V, oscuro, -0.025)
     for x, g in ((0.35, "▶"), (7.65, "◀")):
-        _texto(sc, g, x, 90 / u, 0.9, rosa, _fuente("seguisym.ttf"))
+        _texto(sc, g, x, 90 / V, 0.9, rosa, _fuente("seguisym.ttf"))
     for k, nombre in enumerate(("APUESTA", "FICHAS", "PREMIO")):
-        x0 = (16 + k * 80) / u
-        _texto(sc, nombre, x0 + 1.0, 156 / u, 0.3, amarillo, negra)
-        _rect(sc, x0, 166 / u, x0 + 2, 184 / u, oscuro, -0.03)
+        x0 = (16 + k * 80) / V
+        _texto(sc, nombre, x0 + 1.0, 156 / V, 0.3, amarillo, negra)
+        _rect(sc, x0, 166 / V, x0 + 2, 184 / V, oscuro, -0.03)
     _render(sc, "pantalla_juego.png")
 
 

@@ -1,7 +1,7 @@
 class_name JuegoSotano
 extends CanvasLayer
 
-# La base de las pantallas del Sotano (OL PLEY, la loteria, las carreras, la ventanilla): un
+# La base de las pantallas del Sotano (EL GORDO, el poker, las carreras, la ventanilla): un
 # recuadro al centro con su titulo, las fichas que traes, un aviso y la ayuda. Mientras esta
 # abierta el jugador no se mueve (process_mode DISABLED) y el raton se suelta para la loteria;
 # Esc sale. Cada juego pone lo suyo en `contenido` (_armar) y su teclado en _tecla.
