@@ -164,10 +164,19 @@ func _probar() -> void:
 	_ver(corrio and caballo.position.x == x0, "corren los caballitos y regresan", "fichas %d -> %d" % [antes, fichas.fichas])
 	ui.cerrar()
 	await _esperar(0.3)
-	# Caguama
+	# Caguama en el congelador, Tecatl en la barra y con la mesera
 	var cuantos: int = inventario.items.size()
 	sotano._caguama()
 	_ver(inventario.items.size() == cuantos + 1, "compras una caguama en el congelador")
+	fichas.fichas = maxi(fichas.fichas, 10)
+	sotano._caguama(2, "barra")
+	var gente := sotano.get_node_or_null("Gente")
+	_ver(gente != null and sotano.get_node_or_null("Mesera") != null and sotano.find_children("Caminante_*", "", false, false).size() == 5,
+		"camina la gente: cinco y la mesera")
+	if gente:
+		var antes_m: int = fichas.fichas
+		gente._vender()
+		_ver(fichas.fichas == antes_m - 2, "la mesera te vende una Tecatl")
 	# Las de frutas: en fichas y abiertas aunque sea de noche
 	var frutas := sotano.find_children("Frutas_*", "", false, false)
 	_ver(frutas.size() == 2 and frutas[0].moneda == "fichas" and not frutas[0]._cerrada(), "dos de frutas en fichas, abiertas de noche")
@@ -200,7 +209,8 @@ func _probar() -> void:
 		# yaw 0 = al norte (las OL PLEY), PI/2 = al oeste (ventanilla), -PI/2 = al este (pista)
 		for vista: Array in [[Vector3(14.0, -2.0, 6.0), 0.0, "6_maquinitas"], [Vector3(12.0, -2.0, 2.0), PI / 2.0, "7_ventanilla"],
 				[Vector3(23.0, -2.0, 4.6), -PI / 2.0, "8_salon2"], [Vector3(14.0, -2.0, 1.0), PI, "9_altar"],
-				[Vector3(26.0, -2.0, 5.2), 0.0, "10_barra"], [Vector3(9.0, -2.0, 3.0), -PI / 2.0, "11_arco"]]:
+				[Vector3(26.0, -2.0, 5.2), 0.0, "10_barra"], [Vector3(9.0, -2.0, 3.0), -PI / 2.0, "11_arco"],
+				[Vector3(8.2, -2.0, 2.4), 0.0, "12_primo"]]:
 			jugador.global_position = sotano.to_global(vista[0])
 			jugador.camera_pivot.global_rotation.y = vista[1]
 			jugador.frijol.global_rotation.y = vista[1]
