@@ -146,6 +146,7 @@ func _ready() -> void:
 	_armar_juegos()
 	_armar_gente()
 	_armar_bocina()
+	_armar_ambiente()
 	_puerta()
 	var gente := load("res://scripts/sotano/GenteSotano.gd") if ResourceLoader.exists("res://scripts/sotano/GenteSotano.gd") else null
 	if gente:
@@ -177,13 +178,12 @@ func _process(delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	# En el bano gotea, a ratos
-	if _player and _marcas.has("Marca_Bano_centro"):
-		var en_bano := to_local(_player.global_position).x > marca("Bano_centro").origin.x - 1.8
-		_gota_t -= delta
-		if en_bano and _gota_t <= 0.0:
-			_gota_t = randf_range(0.8, 3.0)
-			Sonidos.tocar(self, "paso", -16.0, randf_range(0.45, 0.6))
+	# En la barra chocan botellas, a ratos (el goteo del bano ya es un bucle: _armar_ambiente)
+	_botellas_t -= delta
+	if _botellas_t <= 0.0 and _marcas.has("Marca_Barra"):
+		_botellas_t = randf_range(BOTELLAS_CADA.x, BOTELLAS_CADA.y)
+		var donde := marca("Barra").origin + Vector3(randf_range(-1.0, 1.0), 1.0, 0.0)
+		_tocar_en("botellas_chocan", donde, -3.0, randf_range(0.9, 1.15))
 	for aspas in _aspas:
 		aspas.rotate_y(VENTILADOR * delta)
 	# Subiendo la escalera con fichas: el Primo te grita una vez
@@ -367,7 +367,6 @@ var _puerta_tope: StaticBody3D
 var _bano_abierto := false
 var _espejo_linea := 0
 var _caseta_linea := 0
-var _gota_t := 0.0
 # La puerta secreta (AG 2026-11-19): tocar tres veces la caseta cerrada la abre, y adentro una
 # escotilla baja al desague de LA DESAGUADORA (Desague.gd)
 const TOQUES_SECRETO := 3
@@ -901,18 +900,78 @@ func _hablador(nombre: String, modelo: String, t: Transform3D, al_hablar: Callab
 	return npc
 
 
+# La bocina toca la cumbia del stack de Splice "Cumbia del Sotano" (Alan, 2026-11-19): la cumbia,
+# su bajo y la bateria "aguita coco" estirada de 100 a 83 BPM, mezcladas en un bucle de 4 compases
 func _armar_bocina() -> void:
-	var musica := Sonidos.sonido("bocina_musica")
+	var musica := Sonidos.sonido("musica_cumbia")
 	if musica == null:
 		return
+	if musica is AudioStreamOggVorbis:
+		(musica as AudioStreamOggVorbis).loop = true
 	var voz := AudioStreamPlayer3D.new()
 	voz.stream = musica
-	voz.volume_db = -14.0
+	voz.volume_db = -12.0
 	voz.unit_size = 3.0
 	voz.max_distance = 30.0
 	voz.position = marca("Bocina").origin
 	add_child(voz)
 	voz.finished.connect(voz.play)
+	voz.play()
+
+
+# --- Ambiente (sonidos de Splice, Alan 2026-11-19) ---
+# Todo en 3D: el Sotano tambien vive en el patio del safehouse, y un sonido sin posicion se oiria
+# en todo el patio. [sonido, marca, dB, unit_size, max_distance]
+const AMBIENTES := [
+	["ambiente_casino", "Neon", -10.0, 6.0, 20.0],        # el murmullo, en el salon de EL GORDO
+	["ambiente_casino", "Neon_poker", -8.0, 6.0, 18.0],  # y en el del poker, desfasado
+	["platica_barra", "Barra", -2.0, 4.0, 12.0],
+	["goteo_bano", "Bano_centro", 0.0, 1.5, 6.0],
+]
+const BOTELLAS_CADA := Vector2(5.0, 14.0)   # s entre choques de botellas en la barra
+var _botellas_t := 3.0
+
+
+func _armar_ambiente() -> void:
+	for a: Array in AMBIENTES:
+		if _marcas.has("Marca_" + a[1]):
+			_bucle(a[0], marca(a[1]).origin + Vector3(0.0, 1.5, 0.0), a[2], a[3], a[4])
+	# Cada neon zumba, solo de cerca
+	for n: Array in NEONES:
+		if _marcas.has("Marca_" + n[0]):
+			_bucle("zumbido_neon", marca(n[0]).origin, -22.0, 0.8, 3.5)
+
+
+# Un bucle 3D que empieza en un punto al azar, para que dos copias del mismo no suenen en fase
+func _bucle(nombre: String, donde: Vector3, volumen_db: float, unidad: float, alcance: float) -> void:
+	var stream := Sonidos.sonido(nombre)
+	if stream == null:
+		return
+	if stream is AudioStreamOggVorbis:
+		(stream as AudioStreamOggVorbis).loop = true
+	var voz := AudioStreamPlayer3D.new()
+	voz.stream = stream
+	voz.volume_db = volumen_db
+	voz.unit_size = unidad
+	voz.max_distance = alcance
+	voz.position = donde
+	add_child(voz)
+	voz.play(randf() * stream.get_length())
+
+
+func _tocar_en(nombre: String, donde: Vector3, volumen_db: float, tono := 1.0) -> void:
+	var stream := Sonidos.sonido(nombre)
+	if stream == null:
+		return
+	var voz := AudioStreamPlayer3D.new()
+	voz.stream = stream
+	voz.volume_db = volumen_db
+	voz.pitch_scale = tono
+	voz.unit_size = 2.0
+	voz.max_distance = 10.0
+	voz.position = donde
+	voz.finished.connect(voz.queue_free)
+	add_child(voz)
 	voz.play()
 
 

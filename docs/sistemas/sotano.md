@@ -218,6 +218,19 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - `slot_palanca`, `slot_carrete`, `slot_boton`, `slot_gana`, `slot_gana_grande`, `slot_premio_mayor`;
   - `monedas_caen`, `ficha_cae`, `apuesta_sube`, `carta`, `ficha_mesa`, `caballitos`.
   - They are also used by the fruit machine (spin button, win) and the window.
+- **Ambience** (Splice, chosen by Alan on 2026-11-19; `audio/sotano/`, converted with `tools/audio/a_ogg.sh`, also in `Sonidos.ARCHIVOS` and `DefensaTinaco.SONIDOS`):
+  - `Sotano._armar_ambiente` sets 3D loops (`_bucle`, which starts each one at a random point) from `AMBIENTES`:
+    - `ambiente_casino` (casino walla) twice, once at the `Neon` marker and once at `Neon_poker`, out of phase;
+    - `platica_barra` (bar chatter) at `Barra`;
+    - `goteo_bano` at `Bano_centro`. It replaced the old synth drip made from `paso`.
+  - `zumbido_neon` hums at each of the `NEONES`, audible only within 3.5 m.
+  - `botellas_chocan` plays at the bar every 5–14 s (`BOTELLAS_CADA`, `_tocar_en`).
+  - `festejo_1..3` are three 3 s cuts of a drunk indoor crowd cheering. `JuegoSotano.festejar` plays one on every win, on top of the slot sounds.
+  - Everything is 3D, because the Sótano also sits in the safehouse yard: a non-positional loop would be heard across the yard.
+  - `musica_cumbia` plays on the `Bocina` (`_armar_bocina`, a looping 3D player). It replaced the synth `bocina_musica`, which the `Senuelo` still uses.
+    - It is the Splice stack "Cumbia del Sotano" (`f8cf105c-864c-4084-ba81-869cd6bc9bde`, edited by Alan), mixed with ffmpeg into one loop of 4 bars (11.57 s).
+    - Layers: DIASPORA full cumbia 83 Am at 0 dB, its electric bass at −3 dB, and the drums "SO_CT_100 aguita coco" stretched from 100 to 83 BPM with `rubberband` at −2 dB. A limiter caps the mix at −1 dB.
+    - To change it, remix the layers and run `tools/audio/a_ogg.sh <mix> audio/sotano/musica_cumbia.ogg --estereo --sin-recorte`.
 - **Texas Hold'em:**
   - **Rules** (`Holdem.gd`): fixed limit (blinds 1/2, raises of 2 then 4, 3 raises per round), best 5 of 7 with Spanish names, no side pots. The house takes 10% of each pot (up to 5).
   - **AI:** Doña Cuca is tight and Tacho bluffs. "El de la gorra" is the house's player: from the turn on he knows whether he beats you. The bartender and the onlooker drop hints.

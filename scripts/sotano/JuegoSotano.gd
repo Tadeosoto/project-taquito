@@ -221,6 +221,8 @@ func festejar(gano: bool, premio := 0) -> void:
 			letrero.text = "¡GANASTE!
 +%d" % premio
 			_efecto("premio_monedas", 1.6)
+		# La gente del Sotano te echa porras (uno de tres pedazos, al azar)
+		Sonidos.tocar(self, "festejo_%d" % randi_range(1, 3), -10.0, randf_range(0.95, 1.05))
 		destello.color = Color(1.0, 0.85, 0.3, 0.3)
 	else:
 		letrero.text = "¡QUÉ SALADO!" if r <= -3 else "CHALE..."

@@ -36,6 +36,17 @@ const ARCHIVOS := {
 	"carta": "res://audio/casino-effects/RawSignalCasinoLite/WAV/card_deal_01.wav",
 	"ficha_mesa": "res://audio/casino-effects/RawSignalCasinoLite/WAV/chip_single_place_01.wav",
 	"caballitos": "res://audio/casino-effects/RawSignalCasinoLite/WAV/dice_roll_table_01.wav",
+	# El ambiente del Sotano (Splice, Alan 2026-11-19; tools/audio/a_ogg.sh). Los bucles los arma
+	# Sotano._armar_ambiente; los festejos son tres pedazos de "BRS Crowd Cheers The Boat Drunk"
+	"ambiente_casino": "res://audio/sotano/ambiente_casino.ogg",   # CasinoCrowdWalla_SFXB.20
+	"platica_barra": "res://audio/sotano/platica_barra.ogg",       # ESM interior bar chatter walla
+	"botellas_chocan": "res://audio/sotano/botellas_chocan.ogg",   # ESM glass clink bottle cheers 05
+	"zumbido_neon": "res://audio/sotano/zumbido_neon.ogg",         # SPLC-4472 fluorescent hum
+	"goteo_bano": "res://audio/sotano/goteo_bano.ogg",             # ASO foley dripping water 02
+	"festejo_1": "res://audio/sotano/festejo_1.ogg",
+	"festejo_2": "res://audio/sotano/festejo_2.ogg",
+	"festejo_3": "res://audio/sotano/festejo_3.ogg",
+	"musica_cumbia": "res://audio/sotano/musica_cumbia.ogg",       # stack "Cumbia del Sotano" mezclado
 }
 
 # Cupo de rugidos: con una horda de 15 todos querian rugir a la vez y tapaban todo.

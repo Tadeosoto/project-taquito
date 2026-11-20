@@ -105,7 +105,8 @@ const SONIDOS := ["machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disp
 	"tambor_saca", "tambor_mete", "tambor_cierra", "disparo_chicharra", "cargador_chicharra",
 	# El Sotano (Sonidos.ARCHIVOS)
 	"slot_palanca", "slot_carrete", "slot_boton", "slot_gana", "slot_gana_grande", "slot_premio_mayor",
-	"monedas_caen", "ficha_cae", "apuesta_sube", "carta", "ficha_mesa", "caballitos"]
+	"monedas_caen", "ficha_cae", "apuesta_sube", "carta", "ficha_mesa", "caballitos",
+	"ambiente_casino", "platica_barra", "botellas_chocan", "zumbido_neon", "goteo_bano", "festejo_1", "festejo_2", "festejo_3", "musica_cumbia"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
 const MUSICA_ENTRA := 2.0      # s

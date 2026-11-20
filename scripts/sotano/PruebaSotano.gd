@@ -15,6 +15,8 @@ extends Node3D
 # Con -- --gordo=<carpeta> abre una EL GORDO, jala la palanca y guarda cuadros, y sale.
 # Con -- --poker=<carpeta> se sienta al poker y guarda un cuadro cada 0.15 s mientras reparte y
 # juega (para ver las cartas moverse), y sale.
+# Con -- --video una camara recorre cada sonido del ambiente con su letrero, y sale. Para grabarlo:
+#   godot --path . scenes/sotano_prueba.tscn --write-movie sonidos.avi --fixed-fps 30 -- --video
 
 const SOTANO := preload("res://scenes/casas/sotano.tscn")
 const ESCALA := 1.25                 # la de CasaPropia
@@ -110,6 +112,72 @@ func _ready() -> void:
 		elif arg.begins_with("--fotos="):
 			await _fotos(arg.trim_prefix("--fotos="))
 			get_tree().quit()
+		elif arg == "--video":
+			await _video()
+			get_tree().quit()
+
+
+# El recorrido de --video: la camara va de un sonido a otro (la camara activa es la que oye)
+func _video() -> void:
+	if _ayuda:
+		_ayuda.visible = false
+	var cam := Camera3D.new()
+	cam.fov = 70.0
+	add_child(cam)
+	cam.make_current()
+	var capa := CanvasLayer.new()
+	capa.layer = 50
+	add_child(capa)
+	var letrero := Label.new()
+	letrero.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	letrero.offset_top = 14.0
+	letrero.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	letrero.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	letrero.add_theme_font_size_override("font_size", 20)
+	letrero.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
+	letrero.add_theme_color_override("font_outline_color", Color.BLACK)
+	letrero.add_theme_constant_override("outline_size", 8)
+	capa.add_child(letrero)
+	var s := _sotano
+	var neon: Transform3D = s.call("marca", "Neon")
+	var bocina: Vector3 = (s.call("marca", "Bocina") as Transform3D).origin
+	# [letrero, desde, hasta, hacia, segundos] en metros del cuarto
+	var tomas := [
+		["Murmullo de casino\n(salón de EL GORDO)", FOTOS.escalera[0], FOTOS.salon1_sur[0], FOTOS.salon1_sur[1], 7.0],
+		["Zumbido del neón\n(solo se oye de cerca)", neon.origin + neon.basis.z * 4.0, neon.origin + neon.basis.z * 0.8, neon.origin, 7.0],
+		["Cumbia de la bocina\n(el stack de Splice)", bocina + Vector3(0.0, 0.3, -6.0), bocina + Vector3(0.0, 0.1, -1.4), bocina, 10.0],
+		["Murmullo del salón del póker", FOTOS.salon2[0], FOTOS.poker[0], FOTOS.poker[1], 7.0],
+		["Plática de la barra\ny botellas que chocan", FOTOS.barra[0], FOTOS.barra_neon[0], FOTOS.barra_neon[1], 9.0],
+		["Porras al ganar en una mesa\n(tres variantes)", FOTOS.poker_vicios[0], FOTOS.fichas_cerca[0], FOTOS.fichas_cerca[1], 10.0],
+		["Goteo del baño", FOTOS.bano_puerta[0], FOTOS.bano[0], FOTOS.bano[1], 9.0],
+	]
+	if s.has_method("_puerta_bano"):
+		s.call("_puerta_bano")
+	for i in tomas.size():
+		var t: Array = tomas[i]
+		letrero.text = t[0]
+		var hacia: Vector3 = s.to_global(t[3])
+		var tw := create_tween()
+		tw.tween_method(func(f: float) -> void:
+			cam.global_position = s.to_global((t[1] as Vector3).lerp(t[2], f))
+			cam.look_at(hacia, Vector3.UP), 0.0, 1.0, t[4]).set_trans(Tween.TRANS_SINE)
+		if i == 4:   # dos choques de botellas seguros
+			_botellas_en(1.5)
+			_botellas_en(5.5)
+		if i == 5:
+			for k in 3:
+				_festejo_en(0.5 + k * 3.2, k + 1)
+		await tw.finished
+
+
+func _botellas_en(segundos: float) -> void:
+	await get_tree().create_timer(segundos).timeout
+	_sotano.set("_botellas_t", 0.0)
+
+
+func _festejo_en(segundos: float, cual: int) -> void:
+	await get_tree().create_timer(segundos).timeout
+	Sonidos.tocar(self, "festejo_%d" % cual, -10.0)
 
 
 # La puerta secreta y La Desaguadora: toca tres veces la caseta, baja y guarda cuadros desde una
