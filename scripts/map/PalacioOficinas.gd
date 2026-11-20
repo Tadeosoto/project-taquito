@@ -103,6 +103,8 @@ var _azar := RandomNumberGenerator.new()
 var _tramos: Array = []                 # las paredes [a, b], para la mugre
 var _parpadeo: Array[Dictionary] = []   # las lamparas que parpadean (_parpadear)
 var _zumbidos: Array[AudioStreamPlayer3D] = []
+var _despegados: Array[Vector3] = []     # donde quedo el papel despegado y hacia donde ve (para las fotos)
+var _despegados_n: Array[Vector3] = []
 
 
 ## Afuera, en metros del juego: frente a la puerta (a donde apunta la flecha de la mision)
@@ -382,8 +384,8 @@ func _avisar(texto: String) -> void:
 
 # --- Las oficinas (arriba): backrooms en ruinas ---
 # Papel tapiz amarillo, alfombra humeda, plafon con placas que faltan y lamparas de tubo casi todas muertas: unas
-# apagadas, unas tenues y otras que parpadean con su zumbido. Humedad que escurre del techo, boquetes en la
-# tablaroca, sangre, muebles volcados, papeles por todos lados. Lo que estorba al caminar (escritorios, archiveros,
+# apagadas, unas tenues y otras que parpadean con su zumbido. Humedad que escurre del techo, papel tapiz
+# despegado y grietas, sangre, muebles volcados, papeles por todos lados. Lo que estorba al caminar (escritorios, archiveros,
 # estantes) choca; el cascajo, los papeles y las placas tiradas no, para que el pasillo y el archivo queden libres
 # (los zombis de adentro van derecho, Zombis.sin_campo). Todo sale de SEMILLA: siempre igual.
 
@@ -685,14 +687,17 @@ func _hoja(en: Vector3) -> Array:
 		Basis(Vector3.UP, _azar.randf() * TAU) * Basis(Vector3.RIGHT, _azar.randf_range(-0.08, 0.08))]
 
 
-# La mugre: en cada tramo de pared humedad que escurre del techo, manchas, a veces sangre o un boquete en la
-# tablaroca (con su cascajo abajo); manchas en el plafon y la alfombra, y un rastro de sangre por el pasillo
+# La mugre: en cada tramo de pared humedad que escurre del techo, manchas, grietas, a veces sangre o el papel tapiz
+# despegado (la tablaroca a la vista y una tira de papel que se sale de la pared); manchas en el plafon y la
+# alfombra, y un rastro de sangre por el pasillo. Nada de hoyos pintados: en una pared plana se veian calcomania
 func _mugre(piso: Node3D) -> void:
 	var mancha := _material_calco("mancha", "mancha.png")
 	var escurrido := _material_calco("escurrido", "escurrido.png")
 	var sangre := _material_calco("sangre", "sangre.png")
-	var boquete := _material_calco("boquete", "boquete.png")
-	var cascajo: Array = []
+	var despegado := _material_calco("despegado", "despegado.png")
+	var grieta := _material_calco("grieta", "grieta.png")
+	var tiras: Array = []
+	var despegues := _despegados
 	for t: Array in _tramos:
 		var a: Vector2 = t[0]
 		var b: Vector2 = t[1]
@@ -703,6 +708,10 @@ func _mugre(piso: Node3D) -> void:
 		var normal := Vector3(-eje.y, 0.0, eje.x)
 		for lado in [-1.0, 1.0]:
 			var n: Vector3 = normal * lado
+			# Solo las caras de adentro: la de fuera de una pared de orilla no la ve nadie
+			var medio := (a + b) / 2.0
+			if not _adentro_de_planta(Vector2(medio.x + n.x * 0.5, medio.y + n.z * 0.5)):
+				continue
 			var cara := func(u: float, y: float) -> Vector3:
 				var p := a + eje * u
 				return Vector3(p.x, y, p.y) + n * (GRUESO / 2.0 + 0.012)
@@ -715,16 +724,22 @@ func _mugre(piso: Node3D) -> void:
 					_calco(piso, cara.call(_azar.randf_range(0.6, largo - 0.6), _azar.randf_range(0.6, ALTO - 0.8)), n, Vector2.ONE * tam, mancha, _azar.randf() * TAU)
 				if _azar.randf() < 0.12:
 					_calco(piso, cara.call(_azar.randf_range(0.4, largo - 0.4), _azar.randf_range(0.8, 1.5)), n, Vector2.ONE * 0.6, sangre, _azar.randf_range(-0.3, 0.3))
-				if largo > 2.4 and _azar.randf() < 0.1:
-					var u := _azar.randf_range(0.8, largo - 0.8)
-					var y := _azar.randf_range(0.5, 1.4)
-					var tam := _azar.randf_range(0.6, 1.1)
-					_calco(piso, cara.call(u, y), n, Vector2.ONE * tam, boquete, _azar.randf() * TAU)
-					var abajo: Vector3 = cara.call(u, 0.0)
-					for c in 6:
-						var g := _azar.randf_range(0.03, 0.12)
-						cascajo.append([abajo + n * _azar.randf_range(0.05, 0.5) + Vector3(_azar.randf_range(-0.4, 0.4), g / 2.0, 0.0), Vector3(g * 1.5, g, g), Basis(Vector3.UP, _azar.randf() * TAU)])
-	_juntar(piso, cascajo, _material("yeso", Color(0.82, 0.8, 0.72)))
+				if _azar.randf() < 0.22:
+					var tam := _azar.randf_range(0.6, 1.2)
+					_calco(piso, cara.call(_azar.randf_range(0.5, largo - 0.5), _azar.randf_range(ALTO - 1.6, ALTO - 0.5)), n, Vector2.ONE * tam, grieta, _azar.randf_range(-0.4, 0.4))
+				if largo > 1.6 and _azar.randf() < 0.2:
+					var ancho := _azar.randf_range(0.35, 0.6)
+					var alto := _azar.randf_range(0.8, 1.5)
+					var u := _azar.randf_range(ancho, largo - ancho)
+					var y := _azar.randf_range(alto / 2.0 + 0.3, ALTO - alto / 2.0 - 0.2)
+					var en: Vector3 = cara.call(u, y)
+					if despegues.any(func(otro: Vector3) -> bool: return otro.distance_to(en) < 1.5):
+						continue
+					despegues.append(en)
+					_despegados_n.append(n)
+					_calco(piso, cara.call(u, y), n, Vector2(ancho * 1.3, alto), despegado)
+					_tira(tiras, cara.call(u, y - alto * 0.5 + 0.05) + n * 0.004, n, Vector3(eje.x, 0.0, eje.y), ancho, alto)
+	_juntar(piso, tiras, _material("reverso", Color(0.86, 0.83, 0.72)))
 	# Plafon y alfombra
 	for i in 16:
 		_calco(piso, Vector3(_azar.randf_range(-7.5, 7.5), ALTO - 0.006, _azar.randf_range(-31.0, -1.0)), Vector3.DOWN, Vector2.ONE * _azar.randf_range(0.6, 1.6), mancha, _azar.randf() * TAU)
@@ -737,6 +752,27 @@ func _mugre(piso: Node3D) -> void:
 		_calco(piso, Vector3(x, 0.01, z), Vector3.UP, Vector2(0.55, 0.9), sangre, PI + _azar.randf_range(-0.25, 0.25))
 		z -= 0.8
 		x = move_toward(x, 0.4, 0.35)
+
+
+func _adentro_de_planta(p: Vector2) -> bool:
+	if p.y > 0.0 or p.y < ARCHIVO_HASTA or absf(p.x) > LADO:
+		return false
+	return p.y > PASILLO_HASTA or absf(p.x) < ARCHIVO_MEDIO
+
+
+# La tira de papel que se despego: se solto de arriba y cayo hacia fuera; sigue pegada del borde de abajo (`pie`, en
+# la cara de la pared) y cuelga enrollandose en cuatro tramos (se ve su reverso blanco, y arriba la tablaroca)
+func _tira(tiras: Array, pie: Vector3, n: Vector3, e: Vector3, ancho: float, alto: float) -> void:
+	var largo := alto * _azar.randf_range(0.6, 0.8) / 4.0
+	var punto := pie
+	var desde := _azar.randf_range(18.0, 30.0)
+	var abre := _azar.randf_range(24.0, 32.0)
+	for tramo in 4:
+		var angulo := deg_to_rad(desde + abre * tramo)
+		var d := Vector3.DOWN * cos(angulo) + n * sin(angulo)
+		var y := d.cross(e).normalized()
+		tiras.append([punto + d * largo / 2.0, Vector3(ancho * 1.15, 0.006, largo + 0.01), Basis(e, y, d)])
+		punto += d * largo
 
 
 # --- Piezas ---
@@ -758,7 +794,7 @@ func _material(clave: String, base: Color, textura := "", cada := TEXTURA_CADA) 
 	return material
 
 
-# Para las calcomanias (manchas, sangre, boquetes): textura con alfa sobre un cuadro
+# Para las calcomanias (manchas, sangre, papel despegado, grietas): textura con alfa sobre un cuadro
 func _material_calco(clave: String, archivo: String) -> StandardMaterial3D:
 	if _materiales.has(clave):
 		return _materiales[clave]

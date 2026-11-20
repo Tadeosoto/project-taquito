@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://nbta8pdf7qw0"
-path="res://.godot/imported/boquete.png-9b51e4283796ce01be11485c421efeb2.ctex"
+uid="uid://d2py1k1rxrfpu"
+path="res://.godot/imported/grieta.png-965d482ad7beb93e2b2d7a24e3ff92fa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://textures/palacio_oficinas/boquete.png"
-dest_files=["res://.godot/imported/boquete.png-9b51e4283796ce01be11485c421efeb2.ctex"]
+source_file="res://textures/palacio_oficinas/grieta.png"
+dest_files=["res://.godot/imported/grieta.png-965d482ad7beb93e2b2d7a24e3ff92fa.ctex"]
 
 [params]
 

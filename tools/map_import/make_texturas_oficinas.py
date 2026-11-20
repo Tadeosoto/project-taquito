@@ -9,7 +9,8 @@ Escribe en textures/palacio_oficinas/:
   mancha.png        alfa: mancha de humedad cafe con aro mas oscuro (paredes, techo, alfombra)
   escurrido.png     alfa: escurrimiento de humedad que baja del techo por la pared
   sangre.png        alfa: embarrado de sangre seca, de mano o arrastre
-  boquete.png       alfa: hoyo en el muro de tablaroca: orilla rota, carton y hueco negro
+  despegado.png     alfa: donde se cayo el papel tapiz: tablaroca gris y la orilla rota del papel
+  grieta.png        alfa: grietas finas que bajan y se ramifican
 Todo con semilla fija: se puede regenerar igual.
 """
 
@@ -150,20 +151,63 @@ def sangre():
     return img
 
 
-def boquete():
+def despegado():
+    """Donde se cayo el papel tapiz: tablaroca gris con la orilla del papel rota (blanca, el reverso) alrededor."""
     azar = random.Random(4707)
-    tam = 128
-    img = Image.new("RGBA", (tam, tam), (0, 0, 0, 0))
+    w, h = 96, 160
+    c = (w / 2, h / 2)
+    def contorno(escala, vari):
+        puntos = []
+        for k in range(40):
+            ang = k / 40 * math.tau
+            r = escala * azar.uniform(1 - vari, 1.0)
+            x = c[0] + math.cos(ang) * r * w * 0.46
+            y = c[1] + math.sin(ang) * r * h * 0.46
+            if y < h * 0.12:
+                y = h * 0.12 + azar.uniform(0, 3)       # arriba casi recto: de ahi cuelga la tira
+            puntos.append((x, y))
+        return puntos
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    c = tam / 2
-    def contorno(radio, vari):
-        return [(c + math.cos(k / 20 * math.tau) * radio * azar.uniform(1 - vari, 1.0),
-                 c + math.sin(k / 20 * math.tau) * radio * azar.uniform(1 - vari, 1.0)) for k in range(20)]
-    d.polygon(contorno(60, 0.3), fill=(214, 206, 180, 255))      # el yeso del canto, roto
-    d.polygon(contorno(50, 0.35), fill=(150, 130, 90, 255))      # el carton de la tablaroca
-    d.polygon(contorno(42, 0.4), fill=(8, 7, 6, 255))            # el hueco
-    # Un poste de lamina adentro
-    d.rectangle([c + 8, 20, c + 14, tam - 20], fill=(40, 40, 42, 255))
+    d.polygon(contorno(1.0, 0.22), fill=(232, 226, 205, 255))   # el reverso del papel, en la orilla
+    d.polygon(contorno(0.9, 0.25), fill=(186, 182, 170, 255))   # la tablaroca
+    px = img.load()
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            if a and r < 210:
+                v = azar.randint(-10, 10)
+                px[x, y] = (r + v, g + v, b + v, a)
+    # Restos de pegamento y humedad sobre la tablaroca
+    capa = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    dc = ImageDraw.Draw(capa)
+    for _ in range(6):
+        x, y, r = azar.uniform(10, w - 10), azar.uniform(20, h - 10), azar.uniform(5, 14)
+        dc.ellipse([x - r, y - r, x + r, y + r], fill=(110, 92, 50, 90))
+    capa = capa.filter(ImageFilter.GaussianBlur(4))
+    capa.putalpha(Image.composite(capa.getchannel("A"), Image.new("L", (w, h), 0), img.getchannel("A")))
+    return Image.alpha_composite(img, capa)
+
+
+def grieta():
+    """Grietas finas que se ramifican, gris oscuro."""
+    azar = random.Random(4708)
+    tam = 128
+    alfa = Image.new("L", (tam, tam), 0)
+    d = ImageDraw.Draw(alfa)
+    def rama(x, y, ang, largo, ancho):
+        while largo > 0 and 0 < x < tam and 0 < y < tam:
+            paso = azar.uniform(3, 7)
+            ang += azar.uniform(-0.5, 0.5)
+            nx, ny = x + math.cos(ang) * paso, y + math.sin(ang) * paso
+            d.line([(x, y), (nx, ny)], fill=220, width=max(1, int(ancho)))
+            x, y, largo = nx, ny, largo - paso
+            ancho *= 0.97
+            if azar.random() < 0.12:
+                rama(x, y, ang + azar.choice([-1, 1]) * azar.uniform(0.5, 1.1), largo * 0.5, ancho * 0.7)
+    rama(tam / 2, 4, math.pi / 2, 120, 2.6)
+    img = Image.new("RGBA", (tam, tam), (40, 36, 28, 0))
+    img.putalpha(alfa)
     return img
 
 
@@ -175,7 +219,8 @@ def main():
     mancha_alfa(4704, (88, 70, 34), True).save(os.path.join(SALIDA, "mancha.png"))
     escurrido().save(os.path.join(SALIDA, "escurrido.png"))
     sangre().save(os.path.join(SALIDA, "sangre.png"))
-    boquete().save(os.path.join(SALIDA, "boquete.png"))
+    despegado().save(os.path.join(SALIDA, "despegado.png"))
+    grieta().save(os.path.join(SALIDA, "grieta.png"))
     print("listo:", os.path.abspath(SALIDA))
 
 
