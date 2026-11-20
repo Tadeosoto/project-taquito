@@ -60,6 +60,7 @@ const PAPELES_NOMBRES := ["el expediente del Decreto 47", "la hoja de conteo"]
 const PIEZAS_ZOMBIS := 2          # zombis sueltos que salen junto a cada pieza al acercarte
 const PIEZAS_AVISO := 60.0        # m de la pieza a los que salen
 const TEXTO_REJA_ANTES := "Hay un herido, pero de noche se sale por la reja y sigue cerrada. Antes habla con el padre Chuy."
+const TEXTO_REJA_REPARTO := "Hay casas allá afuera sin agua limpia, pero la reja sigue cerrada. Antes habla con el padre Chuy."
 const TINACO_CORTE := 1.4         # s entre aceptar con Chava y el corte a la defensa
 const CAZA_APARECE := 70.0        # m del lugar a los que sale el zombi marcado
 const TEXTO_HORA := "%s: \"Esto me toca %s.\""
@@ -447,10 +448,11 @@ func _hablar(i: int) -> String:
 		Misiones.pagar_sin_aceptar(mision)
 		_actualizar_signos()
 		return ("%s %s" % [mision.gracias_antes, Personaje.linea("paga")]).strip_edges()
-	# Al medico se sale por la reja: hasta que se abra (la guardia del padre Chuy) no se ofrece
-	if not mision.pasos.is_empty() and mision.pasos[0].lugar == "clinica" and _colonia_actual() == "santa_mugre" \
+	# Al medico y el reparto de agua se salen por la reja: hasta que se abra (la guardia del padre Chuy) no se ofrecen
+	if not mision.pasos.is_empty() and (mision.pasos[0].lugar == "clinica" or _reparto_afuera(mision.pasos[0])) \
+			and _colonia_actual() == "santa_mugre" \
 			and not Misiones.reja_abierta():
-		return TEXTO_REJA_ANTES
+		return TEXTO_REJA_ANTES if mision.pasos[0].lugar == "clinica" else TEXTO_REJA_REPARTO
 	if not v["visto"]:
 		v["visto"] = true
 		var saludo: String = "" if mision.abierto_de_noche else Personaje.linea("vecino")
@@ -740,6 +742,12 @@ func _poner_puntos(paso: PasoMision) -> void:
 	if paso.lugar.begins_with("punto:"):
 		_poner_punto_mafia(paso)
 		return
+	# El agua del reparto va a casas de fuera de las fortalezas (P4): adentro de una colonia, la flecha va a la salida
+	# mas cercana y las casas se escogen ya afuera, cerca de la reja por donde salgas
+	if _reparto_afuera(paso) and get_tree().get_first_node_in_group("colonia") != null and not Colonia.salidas.is_empty():
+		Misiones.meta_visitas = paso.cuantos
+		_apuntar(_salida_cercana())
+		return
 	var desde := _lugar_de_vecino(Misiones.activa)
 	# Al volver de otra escena, solo las que faltan
 	var lugares := _lugares_de_casas(desde, paso.cuantos - Misiones.visitados)
@@ -766,7 +774,24 @@ func _poner_punto_mafia(paso: PasoMision) -> void:
 	_apuntar_al_punto_cercano()
 
 
-# `faltan` frentes de casa a `distancia` (min, max) de `desde`, lejos entre si
+# El reparto de agua a pie (cargando, a casas al azar): siempre afuera. Garrafones y la medicina (VISITAR) no
+func _reparto_afuera(paso: PasoMision) -> bool:
+	return paso.tipo == PasoMision.Tipo.LLEVAR_CARGA and paso.lugar == "casas"
+
+
+func _salida_cercana() -> Vector3:
+	var mejor := _jugador.global_position
+	var cerca := INF
+	for lado: String in Colonia.salidas:
+		var salida: Vector3 = Colonia.salidas[lado]
+		var d := salida.distance_to(_jugador.global_position)
+		if d < cerca:
+			cerca = d
+			mejor = salida
+	return mejor
+
+
+# `faltan` frentes de casa a `distancia` (min, max) de `desde`, lejos entre si y ninguna adentro de una fortaleza ni con el frente adentro
 func _lugares_de_casas(desde: Vector3, faltan: int, distancia := CASAS_DISTANCIA) -> Array[Vector3]:
 	var opciones := []
 	for c: Dictionary in _casas:
@@ -778,11 +803,12 @@ func _lugares_de_casas(desde: Vector3, faltan: int, distancia := CASAS_DISTANCIA
 	for c: Dictionary in opciones:
 		var ry := float(c["rotacion_y"])
 		var punto := Vector3(c["x"] + sin(ry) * CASA_FRENTE, desde.y, c["z"] + cos(ry) * CASA_FRENTE)
-		var lejos := true
+		# Ni las de adentro ni las de afuera que dan la cara a la barda
+		var sirve := not MuroColonia.adentro(get_tree(), punto) and not MuroColonia.adentro(get_tree(), Vector3(c["x"], 0.0, c["z"]))
 		for otro in lugares:
 			if otro.distance_to(punto) < CASAS_ENTRE:
-				lejos = false
-		if lejos:
+				sirve = false
+		if sirve:
 			lugares.append(punto)
 		if lugares.size() >= faltan:
 			break
