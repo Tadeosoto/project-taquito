@@ -15,11 +15,17 @@ const FRENO := 0.5
 
 var sotano: Node                     # el cuarto (Sotano.gd): mueve los caballitos
 
-# La camara vuela a ver la pista mientras corren (desde el norte, alto) y regresa
-const CAMARA_DESDE := Vector3(0.0, 1.85, -1.9)   # desde la marca "Pista", en metros de la escena
-const CAMARA_MIRA := Vector3(0.3, 0.9, 1.3)
-const CAMARA_FOV := 64.0
+# La camara de la tele (AG 2026-11-19: la de antes la tapaban el jugador o la gente): alta, sobre el
+# lado sur de la isla, entre los tubos de luz y la cabeza de los que pasan, viendo hacia abajo y
+# siguiendo al que va adelante. En metros del cuarto, desde los caballitos
+const CAMARA_ALTO := 1.15            # sobre los caballitos (el techo esta a ~1.5; los tubos, a ~1.2 pero en z 5.4)
+const CAMARA_SUR := 1.0              # hacia el sur de la fila de caballitos
+const CAMARA_ATRAS := 0.9            # detras del puntero
+const CAMARA_FOV := 62.0
 const CAMARA_TIEMPO := 0.6
+# Los efectos (resources/fx): polvo atras de cada uno, brillo sobre el tuyo, confeti en la meta
+const POLVO_CADA := 0.12
+const BRILLO_CADA := 0.35
 
 var _caballo := 0
 var _camara: Camera3D
@@ -27,6 +33,12 @@ var _camara_jugador: Camera3D
 var _apuesta := 1
 var _elegido: Label
 var _rng := RandomNumberGenerator.new()
+var _corriendo := false
+var _polvo_t := 0.0
+var _brillo_t := 0.0
+var _tele: Control                   # lo de la tele: EN VIVO, quien va adelante
+var _lugares: Label
+var _vivo: Label
 
 
 func _init() -> void:
@@ -44,8 +56,32 @@ func _armar() -> void:
 	_mostrar()
 
 
+func _caballos() -> Array:
+	return sotano.get("_caballos") if sotano else []
+
+
+# Donde va la camara para ver al puntero (en global): alta al sur, un poco atras, viendo hacia abajo
+func _toma() -> Transform3D:
+	var cs := _caballos()
+	if cs.is_empty():
+		return Transform3D()
+	var s := sotano as Node3D
+	var x := -INF
+	var z := 0.0
+	var y := 0.0
+	for c: Node3D in cs:
+		x = maxf(x, c.position.x)
+		z += c.position.z
+		y += c.position.y
+	z /= cs.size()
+	y /= cs.size()
+	x = minf(x, float(sotano.get("PISTA_META")) - 0.4)    # en la meta se queda
+	var ojos := s.to_global(Vector3(x - CAMARA_ATRAS, y + CAMARA_ALTO, z + CAMARA_SUR))
+	var mira := s.to_global(Vector3(x + 0.5, y, z))
+	return Transform3D(Basis.looking_at(mira - ojos), ojos)
+
+
 func _ver_pista() -> void:
-	var pista: Vector3 = sotano.call("marca", "Pista").origin
 	_camara_jugador = get_viewport().get_camera_3d()
 	_camara = Camera3D.new()
 	add_child(_camara)
@@ -53,16 +89,21 @@ func _ver_pista() -> void:
 		_camara.global_transform = _camara_jugador.global_transform
 		_camara.fov = _camara_jugador.fov
 	_camara.make_current()
-	var s := sotano as Node3D
-	var ojos := s.to_global(pista + CAMARA_DESDE)
-	var mira := s.to_global(pista + CAMARA_MIRA)
+	if _player is Node3D:
+		(_player as Node3D).visible = false
 	var tween := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(_camara, "global_transform", Transform3D(Basis.looking_at(mira - ojos), ojos), CAMARA_TIEMPO)
+	tween.tween_property(_camara, "global_transform", _toma(), CAMARA_TIEMPO)
 	tween.tween_property(_camara, "fov", CAMARA_FOV, CAMARA_TIEMPO)
 	await tween.finished
+	_armar_tele()
 
 
 func _regresar_camara() -> void:
+	if _player is Node3D:
+		(_player as Node3D).visible = true
+	if _tele:
+		_tele.queue_free()
+		_tele = null
 	if _camara_jugador:
 		_camara_jugador.make_current()
 	if _camara:
@@ -107,16 +148,21 @@ func arrancar() -> void:
 	var ganador := elegir_ganador(_caballo, trampa)
 	_panel.visible = false
 	_oscuro.visible = false
+	_fila_botones.visible = false
 	if sotano and sotano.has_method("correr"):
 		await _ver_pista()
 		if trampa:
 			await sotano.temblar(ganador)
+		await _cuenta()
 		Sonidos.tocar(self, "caballitos", -6.0)
+		_corriendo = true
 		await sotano.correr(ganador)
-		await get_tree().create_timer(0.6).timeout
+		_corriendo = false
+		await _meta(ganador)
 		_regresar_camara()
 	_panel.visible = true
 	_oscuro.visible = true
+	_fila_botones.visible = true
 	if ganador == _caballo:
 		var pago: int = _apuesta * MOMIOS[_caballo]
 		f.fichas += pago
@@ -125,6 +171,131 @@ func arrancar() -> void:
 	else:
 		avisar("Ganó el %s. \"Ese caballito siempre arranca dormido\", dice el de junto." % COLORES[ganador])
 	_ocupado = false
+
+
+# --- La tele de la carrera ---
+
+func _process(delta: float) -> void:
+	super._process(delta)
+	if not _corriendo or _camara == null:
+		return
+	_camara.global_transform = _camara.global_transform.interpolate_with(_toma(), minf(delta * 5.0, 1.0))
+	var cs := _caballos()
+	_polvo_t += delta
+	if _polvo_t >= POLVO_CADA:
+		_polvo_t = 0.0
+		for c: Node3D in cs:
+			_efecto_en("lodo_choque" if _rng.randf() < 0.5 else "impacto_seco", c.global_position, 0.5)
+	_brillo_t += delta
+	if _brillo_t >= BRILLO_CADA and _caballo < cs.size():
+		_brillo_t = 0.0
+		_efecto_en("recoger_brillo", (cs[_caballo] as Node3D).global_position + Vector3.UP * 0.35, 0.8)
+	if _vivo:
+		_vivo.visible = fmod(Time.get_ticks_msec() / 500.0, 2.0) < 1.3
+	# Quien va adelante, como en la tele
+	if _lugares:
+		var orden := range(cs.size())
+		orden.sort_custom(func(a: int, b: int) -> bool: return (cs[a] as Node3D).position.x > (cs[b] as Node3D).position.x)
+		var lineas := PackedStringArray()
+		for k in orden.size():
+			var i: int = orden[k]
+			lineas.append("%d. %s%s" % [k + 1, COLORES[i], "  ◀ tú" if i == _caballo else ""])
+		_lugares.text = "\n".join(lineas)
+
+
+func _armar_tele() -> void:
+	_tele = Control.new()
+	_tele.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_tele.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_tele)
+	_vivo = etiqueta("● EN VIVO", 16, Color(1.0, 0.2, 0.2))
+	_vivo.position = Vector2(10, 8)
+	_tele.add_child(_vivo)
+	var nombre := etiqueta("HIPÓDROMO DEL SÓTANO", 14, AMARILLO)
+	nombre.position = Vector2(10, 28)
+	_tele.add_child(nombre)
+	_lugares = etiqueta("", 14)
+	_lugares.position = Vector2(10, 52)
+	_tele.add_child(_lugares)
+	# Bandas de cine arriba y abajo
+	for arriba in [true, false]:
+		var banda := ColorRect.new()
+		banda.color = Color(0, 0, 0, 0.85)
+		banda.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		banda.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE if arriba else Control.PRESET_BOTTOM_WIDE)
+		banda.custom_minimum_size = Vector2(0, 6)
+		_tele.add_child(banda)
+
+
+# 3, 2, 1, ¡ARRANCAN! con su onda en pantalla
+func _cuenta() -> void:
+	for texto in ["3", "2", "1", "¡ARRANCAN!"]:
+		var l := etiqueta(texto, 40 if texto.length() == 1 else 32, AMARILLO)
+		l.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+		l.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		l.grow_vertical = Control.GROW_DIRECTION_BOTH
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.pivot_offset = l.get_combined_minimum_size() / 2.0
+		add_child(l)
+		var t := create_tween()
+		t.tween_property(l, "scale", Vector2.ONE * 1.6, 0.35).from(Vector2.ONE * 0.6).set_trans(Tween.TRANS_BACK)
+		t.parallel().tween_property(l, "modulate:a", 0.0, 0.35).set_delay(0.25)
+		t.tween_callback(l.queue_free)
+		Sonidos.tocar(self, "boton", -6.0, 1.6 if texto.length() > 1 else 1.0)
+		_efecto("fase_onda" if texto.length() > 1 else "fogonazo_auto", 1.2)
+		await get_tree().create_timer(0.45).timeout
+		if not is_inside_tree():
+			return
+
+
+# La foto final: un flashazo, confeti en la meta y lo tuyo (monedas o humo)
+func _meta(ganador: int) -> void:
+	var flash := ColorRect.new()
+	flash.color = Color(1, 1, 1, 0.9)
+	flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(flash)
+	create_tween().tween_property(flash, "color:a", 0.0, 0.5)
+	get_tree().create_timer(0.6).timeout.connect(flash.queue_free)
+	Sonidos.tocar(self, "boton", -2.0, 0.5)
+	var cs := _caballos()
+	if ganador < cs.size():
+		var donde := (cs[ganador] as Node3D).global_position
+		_efecto_en("olpley_confeti", donde + Vector3.UP * 0.3, 1.3)
+		_efecto_en("tazo_rayos", donde, 1.0)
+		if ganador == _caballo:
+			_efecto_en("premio_monedas", donde + Vector3.UP * 0.2, 1.2)
+		elif _caballo < cs.size():
+			_efecto_en("muerte_humo", (cs[_caballo] as Node3D).global_position, 0.8)
+	await get_tree().create_timer(1.2).timeout
+
+
+# Un efecto de resources/fx dibujado en pantalla sobre un punto del mundo (lo ve la camara de la tele)
+func _efecto_en(nombre: String, donde: Vector3, escala := 1.0) -> void:
+	if _camara == null or _camara.is_position_behind(donde):
+		return
+	var hoja := EfectosPixel.hoja_de(nombre)
+	if hoja.is_empty():
+		return
+	var cuadro := TextureRect.new()
+	var atlas := AtlasTexture.new()
+	atlas.atlas = hoja["textura"]
+	var tam: Vector2 = hoja["tamano"]
+	atlas.region = Rect2(Vector2.ZERO, tam)
+	cuadro.texture = atlas
+	cuadro.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	cuadro.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	cuadro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cuadro.size = tam * escala
+	cuadro.position = _camara.unproject_position(donde) - cuadro.size / 2.0
+	add_child(cuadro)
+	var cuadros := int(hoja["cuadros"])
+	var columnas := int(hoja["columnas"])
+	var t := create_tween()
+	t.tween_method(func(f: float) -> void:
+		var i := mini(int(f), cuadros - 1)
+		atlas.region = Rect2(Vector2(i % columnas, i / columnas) * tam, tam), 0.0, float(cuadros), cuadros / float(hoja["fps"]))
+	t.tween_callback(cuadro.queue_free)
 
 
 # El que gana: al azar con 1/momio, y con trampa tu caballo pierde FRENO de su suerte
@@ -153,7 +324,7 @@ func _mostrar() -> void:
 func _armar_botones() -> void:
 	var lista := []
 	for k in COLORES.size():
-		lista.append({"texto": "%s x%d" % [str(COLORES[k]).capitalize(), MOMIOS[k]], "hacer": func() -> void:
+		lista.append({"texto": str(COLORES[k]).capitalize(), "hacer": func() -> void:
 				_caballo = k
 				_mostrar(),
 			"marcado": func() -> bool: return _caballo == k})

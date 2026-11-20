@@ -279,7 +279,7 @@ func _probar() -> void:
 	var caballo := sotano.get("_caballos")[0] as Node3D
 	var x0 := caballo.position.x
 	ui.arrancar()
-	await _esperar(2.5)
+	await _esperar(4.5)          # (la camara vuela y cuenta 3, 2, 1 antes de que arranquen)
 	await _foto("5_carrera")
 	var corrio := absf(caballo.position.x - x0) > 0.5
 	while ui.get("_ocupado"):

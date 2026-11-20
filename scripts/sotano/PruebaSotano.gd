@@ -100,6 +100,12 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png(arg.trim_prefix("--foto="))
 			get_tree().quit()
+		elif arg.begins_with("--fichas_ruleta="):
+			await _fotos_fichas_ruleta(arg.trim_prefix("--fichas_ruleta="))
+			get_tree().quit()
+		elif arg.begins_with("--carrera="):
+			await _fotos_carrera(arg.trim_prefix("--carrera="))
+			get_tree().quit()
 		elif arg.begins_with("--desague="):
 			await _fotos_desague(arg.trim_prefix("--desague="))
 			get_tree().quit()
@@ -181,6 +187,47 @@ func _botellas_en(segundos: float) -> void:
 func _festejo_en(segundos: float, cual: int) -> void:
 	await get_tree().create_timer(segundos).timeout
 	Sonidos.tocar(self, "festejo_%d" % cual, -10.0)
+
+
+# Las tres pilas de la ruleta: normal (grande), en monton (ganando) y en llamas (ganando de mas)
+func _fotos_fichas_ruleta(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	await get_tree().create_timer(1.0).timeout
+	var cosas := [["rojo", false, false, 5], ["negro", true, false, 18], ["verde", true, true, 40]]
+	for c: Array in cosas:
+		var p := PilaFichas.new()
+		p.tamano = 1.6
+		p.monton = c[1]
+		p.fuego = c[2]
+		_sotano.add_child(p)
+		p.position = _sotano.call("marca", "Ruleta_" + c[0]).origin
+		p.poner(c[3])
+	var cam := Camera3D.new()
+	cam.fov = 50.0
+	add_child(cam)
+	cam.make_current()
+	var r: Vector3 = _sotano.call("marca", "Ruleta").origin
+	cam.global_position = _sotano.to_global(r + Vector3(0.0, 1.3, -0.3))
+	cam.look_at(_sotano.to_global(r + Vector3(0.3, 0.8, -1.3)), Vector3.UP)
+	for k in 3:
+		await get_tree().create_timer(0.4).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("fichas_%d.png" % k))
+
+
+# Una carrera de caballitos: cuadros de la camara de la tele, con sus efectos
+func _fotos_carrera(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	await get_tree().create_timer(1.0).timeout
+	get_node("/root/Fichas").fichas += 20
+	_sotano.call("_abrir", "res://scripts/sotano/CarrerasUI.gd", {"sotano": _sotano})
+	await get_tree().create_timer(0.5).timeout
+	var ui := get_tree().get_first_node_in_group("juego_sotano")
+	ui.call("arrancar")
+	for k in 40:
+		await get_tree().create_timer(0.25).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("carrera_%02d.png" % k))
 
 
 # La puerta secreta y La Desaguadora: toca tres veces la caseta, baja y guarda cuadros desde una

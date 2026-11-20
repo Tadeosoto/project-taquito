@@ -246,9 +246,14 @@ func _tirar() -> void:
 	if gana > 0:
 		_premio = gana
 		festejar(true, gana)
-		# El crupier pone tu premio junto a tu pila
-		_pago = _nueva_pila(gana - _en_juego, _lugar("Crupier_ruleta") + Vector3(0, 0.85, 0))
-		_pago.ir_a(_lugar("Ruleta_" + apostado) + Vector3(0.075, 0, 0), 0.4)
+		# El crupier pone tu premio junto a tu pila: ganando, todo en monton; ganando de mas, ardiendo
+		var arde := gana >= MUCHO or racha() >= 3
+		_pago = _nueva_pila(gana - _en_juego, _lugar("Crupier_ruleta") + Vector3(0, 0.85, 0), true, arde)
+		_pago.ir_a(_lugar("Ruleta_" + apostado) + Vector3(SEPARA_PAGO, 0, 0), 0.4)
+		if _pila and is_instance_valid(_pila):
+			_pila.monton = true
+			_pila.fuego = arde
+			_pila.poner(_pila.cantidad)
 		_estado = Estado.GANASTE
 		if _doblete:
 			# El doblete ganado se cobra solo (solo se puede una vez)
@@ -272,8 +277,17 @@ func _lugar(marca: String) -> Vector3:
 	return sotano.call("marca", marca).origin if sotano else Vector3.ZERO
 
 
-func _nueva_pila(n: int, donde: Vector3) -> PilaFichas:
+# Las fichas de esta mesa van mas grandes (FICHA_TAMANO); ganando, en monton; ganando de mas, en llamas
+const FICHA_TAMANO := 1.6
+const SEPARA_PAGO := 0.11            # el premio junto a tu pila
+const MUCHO := 20                    # premio desde el que arde (o tres seguidas)
+
+
+func _nueva_pila(n: int, donde: Vector3, monton := false, fuego := false) -> PilaFichas:
 	var p := PilaFichas.new()
+	p.tamano = FICHA_TAMANO
+	p.monton = monton
+	p.fuego = fuego
 	sotano.add_child(p)
 	p.position = donde
 	p.poner(n)
@@ -300,7 +314,7 @@ func _acomodar_pila() -> void:
 	if _pila.position.distance_to(destino) > 0.01:
 		_pila.ir_a(destino)
 		if _pago and is_instance_valid(_pago):
-			_pago.ir_a(destino + Vector3(0.075, 0, 0))
+			_pago.ir_a(destino + Vector3(SEPARA_PAGO, 0, 0))
 
 
 # --- La bola ---
