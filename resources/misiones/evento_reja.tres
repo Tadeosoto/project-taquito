@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_tinaco"]
+script = ExtResource("2_paso")
+tipo = 6
+cuando = 1
+texto = "Se metieron por la reja: defiende el tinaco de la Virgen"
+lugar = "tinaco_plaza"
+cuantos = 4
+segundos = 240.0
+acompanante = "tinaco"
+vida_acompanante = 300
+ola_cada = 12.0
+
+[resource]
+script = ExtResource("1_mision")
+id = "evento_reja"
+nombre = "El tinaco de la Virgen"
+modelo = "hombre_psx"
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_tinaco")])
+pesos = 200
+inicio = 1

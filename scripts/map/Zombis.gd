@@ -358,9 +358,10 @@ func maximo() -> int:
 
 
 # Una turba: `cuantos` que salen del mismo lado, de a poco, y corren hacia el jugador
-func aparecer_turba(cuantos: int) -> void:
+# `angulo` (rad, x = cos, z = sin, desde el jugador): de que lado llegan; INF al azar (el evento de la reja: de la reja)
+func aparecer_turba(cuantos: int, angulo := INF) -> void:
 	_turba_pendiente = mini(cuantos, max_total - _vivos())
-	_turba_angulo = randf() * TAU
+	_turba_angulo = randf() * TAU if angulo == INF else angulo
 	if _turba_pendiente > 0:
 		turba_cerca.emit()
 

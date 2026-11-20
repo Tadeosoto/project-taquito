@@ -51,6 +51,7 @@ var _flamas_base: Array[Transform3D] = []
 var _luz: OmniLight3D
 var _luz_base := 0.0
 var _t := 0.0
+var _de_virgen: Array[Node] = []   # la mancha, la ofrenda, los petalos y la luz de las veladoras
 
 
 func armar(litros: float, con_virgen := true, comunitario := true) -> void:
@@ -72,9 +73,9 @@ func armar(litros: float, con_virgen := true, comunitario := true) -> void:
 	forma.position.y = alto / 2.0
 	add_child(forma)
 	if con_virgen:
-		add_child(_mancha())
-		add_child(_ofrenda(factor))
-		add_child(_petalos(factor))
+		_de_virgen = [_mancha(), _ofrenda(factor), _petalos(factor)]
+		for nodo in _de_virgen:
+			add_child(nodo)
 		# La luz de las veladoras, al pie de la mancha; titila
 		_luz = OmniLight3D.new()
 		_luz.name = "LuzVeladoras"
@@ -84,6 +85,18 @@ func armar(litros: float, con_virgen := true, comunitario := true) -> void:
 		_luz.omni_range = 4.0 * factor
 		_luz.position = _al_frente(radio + 0.45 * factor, 0.0) + Vector3(0.0, 0.6, 0.0)
 		add_child(_luz)
+		_de_virgen.append(_luz)
+
+
+## El evento de la reja se perdio (Misiones.tinaco_perdido): lo sustituyen por uno nuevo, sin la mancha de la Virgen ni
+## lo que la gente le dejaba. El tinaco (y su choque) se queda
+func quitar_virgen() -> void:
+	for nodo in _de_virgen:
+		if is_instance_valid(nodo):
+			nodo.queue_free()
+	_de_virgen.clear()
+	_luz = null
+	_flamas = null
 
 
 func _process(delta: float) -> void:

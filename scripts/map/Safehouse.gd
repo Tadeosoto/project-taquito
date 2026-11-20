@@ -102,7 +102,8 @@ V dron · N siguiente atardecer/amanecer
 H curar · J -%d de vida · P +$100
 Y vaciar inventario (sin machete pegas a puñetazos)
 C crear personaje · K deterioro
-F12 reiniciar todo · F10 ir al mapa · F11 giro WASD (favela)"""},
+F12 reiniciar todo · F10 ir al mapa · F11 giro WASD (favela)
+Shift+F10 Santa Mugre: la reja falla al anochecer (evento)"""},
 	{"titulo": "Pelea", "efectos": true, "texto": """1 2 machete / pistola · R recargar
 9 golpe a tiempo (córtalo cuando gruñe) / sin aturdir
 8 estela del protagonista (su mejora) / la de siempre
@@ -130,6 +131,10 @@ Yonke a la izquierda (V adentro: vitrina) · niño de los tazos junto
 Shift+K rango · Ctrl+L trofeos y planos · Shift+Y olvidar el taller
 Chatarra junto al pedazo de mapa · L en el inventario: libreta"""},
 ]
+# Shift+F10: llegas a Santa Mugre EVENTO_ANTES s antes del fin del dia (oscurece a la mitad de la transicion de 30 s:
+# unos 15 s despues de llegar); COLONIA_CICLO es el dia y la noche del Ciclo de scenes/mapa.tscn
+const EVENTO_ANTES := 30.0
+const COLONIA_CICLO := [480.0, 360.0]
 const PANEL_ANCHO := 380.0     # px de 640: deja libre la mira y al personaje
 const LOMBRICES_ENFRENTE := 8.0
 const CUCARRATA_ENFRENTE := 15.0   # mide 2 m de alto y ~7 de largo
@@ -754,6 +759,15 @@ func _unhandled_input(event: InputEvent) -> void:
 				EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())
 			else:
 				_soltar_lombrices()
+		KEY_F10 when event.shift_pressed:
+			# El evento de la reja (F1): a Santa Mugre poco antes de anochecer, con la reja ya abierta y que falle seguro
+			get_viewport().set_input_as_handled()
+			Misiones.guardias_reja = maxi(Misiones.guardias_reja, 1)
+			Misiones.reja_enfriamiento = 0
+			Misiones.reja_forzar = true
+			var hora: float = (COLONIA_CICLO[0] - EVENTO_ANTES) / (COLONIA_CICLO[0] + COLONIA_CICLO[1])
+			PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, "poniente", hora, "santa_mugre")
+			return
 		KEY_F10:
 			# Al cambiar de escena este nodo ya no tiene viewport
 			get_viewport().set_input_as_handled()

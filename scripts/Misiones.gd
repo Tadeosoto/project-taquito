@@ -62,6 +62,14 @@ const MAFIA := "mafia_"
 const JEFE := "jefe_"
 const FAVELA_ENTREGAS := 5
 const REVISAR_CADA := 0.25
+# El evento de la reja (F1, JJ 2026-11-20; docs/misiones.md "El evento de la reja"): no se acepta, una noche al azar
+# la reja de Santa Mugre falla y hay que defender el tinaco de la Virgen. No esta en ARCHIVOS: nadie la da
+const EVENTO_REJA := "res://resources/misiones/evento_reja.tres"
+const DESGASTE_NOCHE := 0.05    # cuanto se gasta la reja cada noche que cae (en cualquier escena, ya abierta la reja)
+const DESGASTE_ENTRE := 3.0     # probabilidad de que falle = desgaste / esto...
+const FALLA_MINIMA := 0.02      # ...pero nunca menos
+const ENFRIAMIENTO := 3         # noches sin evento despues de uno (nunca dos seguidas)
+const REINTENTOS := 3           # si cae el tinaco, cuantas veces se puede volver a intentar
 
 var todas: Array[MisionData] = []
 # Las del diario, en el orden en que se aceptaron (la activa incluida si es de DADOR)
@@ -102,6 +110,17 @@ var antena_instalada := false
 # llevaste el expediente y la hoja de conteo (Buenrostro empieza a buscar al Guero)
 var bodega_gela_abierta := false
 var decreto_47 := false
+# El evento de la reja: desgaste de la reja (0-1), noches que faltan para que pueda volver a fallar, por cual reja se
+# metieron ("poniente", "oriente"; "" sin evento), reintentos ya usados esta vez y si el tinaco de la Virgen se perdio
+# (lo sustituyeron por uno sin mancha ni ofrenda: para siempre)
+var evento_reja: MisionData = null
+var reja_desgaste := 0.0
+var reja_enfriamiento := 0
+var reja_falla := ""
+var evento_reintentos := 0
+var tinaco_perdido := false
+# Pruebas (safehouse): la siguiente noche que caiga en Santa Mugre, falla seguro
+var reja_forzar := false
 var visitados := 0
 var meta_visitas := 1
 # Lo pone MisionesMundo: a donde apuntan los mapas
@@ -131,6 +150,7 @@ func _ready() -> void:
 		var mision := load(ruta) as MisionData
 		if mision:
 			todas.append(mision)
+	evento_reja = load(EVENTO_REJA) as MisionData
 
 
 func paso() -> PasoMision:
@@ -203,6 +223,50 @@ func ya_tienes_el_premio(mision: MisionData) -> bool:
 		if premio.cangurera and inventario.cangurera != null:
 			return true
 	return false
+
+
+# --- El evento de la reja ---
+
+# Cae la noche de verdad (no al cargar una escena ya de noche). La reja se gasta y, si `puede` (estas dentro de Santa
+# Mugre y sin otra cosa en curso), se tira si falla esta noche. Verdadero si empieza el evento
+func cae_la_noche(puede: bool) -> bool:
+	if not reja_abierta():
+		return false   # antes de la guardia (el tutorial) la reja ni se gasta
+	reja_desgaste = minf(reja_desgaste + DESGASTE_NOCHE, 1.0)
+	if reja_enfriamiento > 0:
+		reja_enfriamiento -= 1
+		if not reja_forzar:
+			return false
+	if not puede:
+		return false
+	if not reja_forzar and randf() >= maxf(reja_desgaste / DESGASTE_ENTRE, FALLA_MINIMA):
+		return false
+	reja_forzar = false
+	reja_desgaste = 0.0
+	reja_enfriamiento = ENFRIAMIENTO
+	evento_reintentos = 0
+	return true
+
+
+func en_evento_reja() -> bool:
+	return activa != null and activa == evento_reja
+
+
+# Otra vez, tras perder el tinaco: con un poco menos de zombis (MisionesMundo lee evento_reintentos)
+func reintentar_evento() -> bool:
+	if evento_reintentos >= REINTENTOS:
+		return false
+	evento_reintentos += 1
+	_hechas.erase(evento_reja.id)
+	return empezar_en_lugar(evento_reja)
+
+
+# Ya no se reintenta: lo sustituyen por uno nuevo, sin la Virgen
+func perder_tinaco() -> void:
+	tinaco_perdido = true
+	reja_falla = ""
+	evento_reintentos = 0
+	cambio.emit()
 
 
 # --- La hora ---
@@ -621,6 +685,12 @@ func reiniciar() -> void:
 	antena_instalada = false
 	bodega_gela_abierta = false
 	decreto_47 = false
+	reja_desgaste = 0.0
+	reja_enfriamiento = 0
+	reja_falla = ""
+	evento_reintentos = 0
+	tinaco_perdido = false
+	reja_forzar = false
 	SitiosTinaco.elegido = -1
 	_ruta_hora = false
 	sigue_de_dia = false

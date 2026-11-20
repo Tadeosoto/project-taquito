@@ -10,8 +10,8 @@ cuando = 1
 texto = "Aguanta en la reja hasta que se calmen"
 lugar = "reja_guardia"
 segundos = 180.0
+cuantos = 3
 ola_cada = 15.0
-turba = 3
 
 [resource]
 script = ExtResource("1_mision")

@@ -169,6 +169,7 @@ const HUECO_ADENTRO := 2.0
 const DANO_RECINTO := 3
 const JEFE_DANO_RECINTO := 8
 const PERSIGUE := 12.0     # m: mas cerca deja el refugio y va por el jugador
+const QUIETO_DERECHO_A := 8.0   # m de un Acompanante quieto (mas su radio) desde los que va derecho a el
 const PASA_ENTRADA := 2.0   # m adentro del patio a los que apunta al cruzar una entrada
 const CAZADOR_VELOCIDAD := 1.4
 const DERECHO := 4.0        # m: tan cerca del blanco ya va derecho, sin campo
@@ -865,6 +866,8 @@ func _decidir(delta: float) -> bool:
 	var distancia := hacia.length()
 	# Al tinaco se le pega desde su orilla, no desde su centro
 	var alcance := _alcance + (_tinaco.radio if _blanco and _blanco == _tinaco else 0.0)
+	if _blanco is Acompanante:
+		alcance += (_blanco as Acompanante).radio
 	if _blanco and distancia <= alcance:
 		_mirar(hacia)
 		_empezar_ataque()
@@ -1056,7 +1059,10 @@ func _destino() -> Vector3:
 		var escoltado := Acompanante.el_mas_cercano(global_position, _persigue(), al_jugador)
 		if escoltado:
 			_blanco = escoltado
-			_guia = null
+			# Uno quieto y lejos (el tinaco de la Virgen, Sofia en la torre): por las calles hacia el jugador, que lo
+			# cuida cerca; ya cerca, derecho
+			var lejos := global_position.distance_to(escoltado.global_position) > QUIETO_DERECHO_A + escoltado.radio
+			_guia = zombis.campo_jugador if zombis and escoltado.quieto and lejos else null
 			return escoltado.global_position
 	if is_instance_valid(_tinaco) and _tinaco.vida > 0 and not (emboscada or por_jugador) and (al_jugador > _persigue() or al_jugador > global_position.distance_to(_tinaco.global_position) - _tinaco.radio):
 		# Primero a su hueco, de paso; ya pasandolo, al tinaco

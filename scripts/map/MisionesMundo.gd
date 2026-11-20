@@ -60,6 +60,18 @@ const PAPELES_NOMBRES := ["el expediente del Decreto 47", "la hoja de conteo"]
 const PIEZAS_ZOMBIS := 2          # zombis sueltos que salen junto a cada pieza al acercarte
 const PIEZAS_AVISO := 60.0        # m de la pieza a los que salen
 const TEXTO_REJA_ANTES := "Hay un herido, pero de noche se sale por la reja y sigue cerrada. Antes habla con el padre Chuy."
+# El evento de la reja (F1): lo que se dice, cuanto se espera tras perder para preguntar si otra vez (s; tras desmayarte
+# mas, hasta que despiertas), cuanto alivia cada reintento (zombis menos por turba, segundos mas entre turbas) y a cuantos
+# metros del tinaco te pone al reintentar
+const NOCHE_DE_ESCENA_MS := 1500
+const TEXTO_EVENTO := "¡Se metieron los zombis por la reja %s! Corre al tinaco de la Virgen."
+const TEXTO_EVENTO_GANO := "Aguantó el tinaco. Los fieles ya cerraron la reja."
+const TEXTO_TINACO_PERDIDO := "Se perdió el tinaco de la Virgen. Pondrán uno nuevo, pero la mancha ya no va a estar."
+const EVENTO_PREGUNTA_EN := 2.5
+const EVENTO_PREGUNTA_DESMAYO := 7.0
+const EVENTO_MENOS := 1          # zombis menos por turba en cada reintento
+const EVENTO_ESPACIO := 2.0      # s mas entre turbas en cada reintento
+const EVENTO_REINTENTO_A := 5.0
 const TEXTO_REJA_REPARTO := "Hay casas allá afuera sin agua limpia, pero la reja sigue cerrada. Antes habla con el padre Chuy."
 const TINACO_CORTE := 1.4         # s entre aceptar con Chava y el corte a la defensa
 const CAZA_APARECE := 70.0        # m del lugar a los que sale el zombi marcado
@@ -97,6 +109,8 @@ var _postes: Array = []
 var _jugador: Node3D
 var _ciclo: Node
 var _supervivencia: Node
+# Cuando se armo esta escena (ms): el `anochecio` de su primer cuadro no es que caiga la noche (evento de la reja)
+var _listo_en := 0
 var _flecha: Node3D
 var _puntos: Array[Area3D] = []
 var _perro: Node3D
@@ -145,6 +159,7 @@ static var _puntos_del_mapa := {}
 func _ready() -> void:
 	_jugador = get_tree().get_first_node_in_group("jugador")
 	_ciclo = get_tree().get_first_node_in_group("ciclo")
+	_listo_en = Time.get_ticks_msec()
 	_armar_pantalla()
 	_cargar_datos()
 	_flecha = MapPuntos.flecha()
@@ -585,6 +600,11 @@ func _actualizar_signos() -> void:
 # De noche no estan: se quitan del arbol y regresan al amanecer
 func _anochecio() -> void:
 	Misiones.anochecer()
+	# Cae la noche de verdad (no la escena que empieza de noche): la reja de Santa Mugre se gasta y puede fallar
+	if Time.get_ticks_msec() - _listo_en > NOCHE_DE_ESCENA_MS:
+		var adentro := _colonia_actual() == "santa_mugre" and not Misiones.en_lugar() and not Misiones.ruta_en_curso()
+		if Misiones.cae_la_noche(adentro):
+			_empezar_evento_reja.call_deferred()
 	for v: Dictionary in vecinos:
 		var npc: Node3D = v["nodo"]
 		# Los puntos de la mafia no cierran
@@ -947,7 +967,12 @@ func _ajustar_acompanante(paso: PasoMision) -> void:
 	if not se_queda and donde.distance_to(_jugador.global_position) > ACOMPANANTE_SALE_A:
 		donde = _jugador.global_position + Vector3(1.5, 0.0, 0.0)
 	var vida := Misiones.vida_acompanante if Misiones.vida_acompanante >= 0 else paso.vida_acompanante
-	if paso.acompanante.begins_with("carretilla"):
+	if paso.acompanante == "tinaco":
+		var tinaco := get_tree().get_first_node_in_group("tinaco_comunitario") as Node3D
+		if tinaco == null:
+			return
+		_acomp = TinacoVida.crear_tinaco(self, tinaco, vida, paso.vida_acompanante)
+	elif paso.acompanante.begins_with("carretilla"):
 		# El herido de "Al medico": en una carretilla que jalas (`carretilla` o `carretilla:<modelo del herido>`)
 		var partes := paso.acompanante.split(":")
 		_acomp = Carretilla.crear_carretilla(self, donde, partes[1] if partes.size() > 1 else "", vida, paso.vida_acompanante)
@@ -1105,6 +1130,10 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 		# La enfermeria que toco al aceptar (Misiones.clinica); sin ella, la mas cercana a donde estas
 		var jugador := get_tree().get_first_node_in_group("jugador") as Node3D
 		_escolta_meta = FortalezasMapa.llegada_clinica(jugador.global_position if jugador else desde, Misiones.clinica)
+	elif paso.lugar == "tinaco_plaza":
+		# El tinaco de la Virgen (evento de la reja): la flecha a su lado, no encima
+		var tinaco := get_tree().get_first_node_in_group("tinaco_comunitario") as Node3D
+		_escolta_meta = tinaco.global_position + Vector3(float(tinaco.get("radio")) + 1.5, 0.0, 0.0) if tinaco else desde
 	elif paso.lugar == "torre_antena":
 		_escolta_meta = Vector3(FortalezasMapa.TORRE_ANTENA.x + 3.0, 0.0, FortalezasMapa.TORRE_ANTENA.y)
 	elif paso.lugar == "reja_guardia":
@@ -1129,18 +1158,30 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 func _revisar_defensa(paso: PasoMision, delta: float) -> String:
 	if is_instance_valid(_acomp) and _acomp_de == paso:
 		Misiones.vida_acompanante = _acomp.vida
+	var vida := ""
+	if _acomp is TinacoVida and _acomp_de == paso:
+		vida = " · tinaco %d%%" % ceili(100.0 * _acomp.vida / maxf(_acomp.vida_max, 1.0))
 	var meta := _meta_de_escolta(paso)
 	var lejos := Vector2(_jugador.global_position.x, _jugador.global_position.z).distance_to(Vector2(meta.x, meta.z)) > DEFENDER_RADIO
 	if lejos:
-		return " · vuelve al lugar"
+		return vida + " · vuelve al lugar"
 	Misiones.defendiendo(delta)
 	_ola_en -= delta
 	if _ola_en <= 0.0:
+		var cuantos := paso.cuantos
 		_ola_en = paso.ola_cada
+		var angulo := INF
+		if Misiones.en_evento_reja():
+			# Cada reintento, un poco mas facil; y llegan del lado de la reja que fallo
+			cuantos = maxi(cuantos - Misiones.evento_reintentos * EVENTO_MENOS, 2)
+			_ola_en += Misiones.evento_reintentos * EVENTO_ESPACIO
+			if Colonia.salidas.has(Misiones.reja_falla):
+				var reja: Vector3 = Colonia.salidas[Misiones.reja_falla]
+				angulo = atan2(reja.z - _jugador.global_position.z, reja.x - _jugador.global_position.x)
 		var mando := get_tree().get_first_node_in_group("zombis_mando") as Zombis
 		if mando:
-			mando.aparecer_turba(paso.cuantos)
-	return ""
+			mando.aparecer_turba(cuantos, angulo)
+	return vida
 
 
 # Llegaron los dos a la meta
@@ -1480,6 +1521,9 @@ func _termino(mision: MisionData, exito: bool, texto: String) -> void:
 	_escolta_de = null
 	_defensa_de = null
 	_sonar("moneda" if exito else "perder")
+	if mision == Misiones.evento_reja:
+		_acabo_evento_reja(exito, texto)
+		return
 	# Al llegar con la caja, el del punto te dice algo y te paga
 	if exito and mision.id.begins_with(Misiones.MAFIA) and mision.gracias != "":
 		texto = "%s %s" % [mision.gracias, texto]
@@ -1501,6 +1545,82 @@ func _sobra(objeto: InventoryItemData) -> void:
 	tirado.set("item_data", objeto)
 	add_child(tirado)
 	tirado.global_position = _jugador.global_position + Vector3.DOWN * 0.5
+
+
+# --- El evento de la reja (F1) ---
+
+# Cayo la noche y la reja de Santa Mugre fallo: por una de sus dos rejas se meten y hay que cuidar el tinaco de la
+# Virgen. La campana del templo toca a rebato
+func _empezar_evento_reja() -> void:
+	if not is_inside_tree() or get_tree().get_first_node_in_group("tinaco_comunitario") == null:
+		return
+	Misiones.reja_falla = (REJAS_DE["santa_mugre"] as Array).pick_random()
+	if not Misiones.empezar_en_lugar(Misiones.evento_reja):
+		Misiones.reja_falla = ""
+		return
+	for campana: Node in get_tree().get_nodes_in_group("campanas"):
+		if campana.get("de") == "templo":
+			campana.call("repicar")
+	if _supervivencia:
+		_supervivencia.avisar(TEXTO_EVENTO % Misiones.reja_falla)
+
+
+func _acabo_evento_reja(gano: bool, texto: String) -> void:
+	_quitar_acompanante()
+	if gano:
+		Misiones.reja_falla = ""
+		Misiones.evento_reintentos = 0
+		_limpiar_zombis()
+		if _supervivencia:
+			_supervivencia.avisar("%s %s" % [TEXTO_EVENTO_GANO, texto])
+		return
+	# Perdiste (cayo el tinaco o te desmayaste): ¿otra vez?
+	if _supervivencia:
+		_supervivencia.avisar(texto)
+	var desmayo := _supervivencia != null and bool(_supervivencia.get("_desmayado"))
+	await get_tree().create_timer(EVENTO_PREGUNTA_DESMAYO if desmayo else EVENTO_PREGUNTA_EN).timeout
+	if not is_inside_tree():
+		return
+	var quedan := Misiones.REINTENTOS - Misiones.evento_reintentos
+	if quedan <= 0:
+		_perder_tinaco()
+		return
+	var pregunta := PreguntaReja.new()
+	pregunta.quedan = quedan
+	add_child(pregunta)
+	var otra_vez: bool = await pregunta.respondio
+	if not is_inside_tree():
+		return
+	if otra_vez:
+		_reintentar_evento()
+	else:
+		_perder_tinaco()
+
+
+func _reintentar_evento() -> void:
+	_limpiar_zombis()
+	var tinaco := get_tree().get_first_node_in_group("tinaco_comunitario") as Node3D
+	if tinaco:
+		var a := tinaco.global_position + Vector3(float(tinaco.get("radio")) + EVENTO_REINTENTO_A, 0.0, 0.0)
+		_jugador.global_position = a + Vector3.UP * 0.5
+		_jugador.velocity = Vector3.ZERO
+	Misiones.reintentar_evento()
+
+
+func _perder_tinaco() -> void:
+	Misiones.perder_tinaco()
+	_limpiar_zombis()
+	var tinaco := get_tree().get_first_node_in_group("tinaco_comunitario")
+	if tinaco and tinaco.has_method("quitar_virgen"):
+		tinaco.quitar_virgen()
+	if _supervivencia:
+		_supervivencia.avisar(TEXTO_TINACO_PERDIDO)
+
+
+func _limpiar_zombis() -> void:
+	var mando := get_tree().get_first_node_in_group("zombis_mando") as Zombis
+	if mando:
+		mando.limpiar()
 
 
 # --- En pantalla ---

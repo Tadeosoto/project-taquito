@@ -834,8 +834,12 @@ func _casa_vecino(marca: Dictionary) -> void:
 func _tinaco_comunitario(marca: Dictionary) -> void:
 	var tinaco := TinacoComunitario.new()
 	# La favela estrena su tinaco de 50 mil litros sin la Virgen y sin defensa (sin_virgen/sin_defensa)
+	# Si se perdio en el evento de la reja (F1) ya es uno nuevo, sin la Virgen (Misiones por ruta, y puede no estar:
+	# las herramientas con -s cargan esta escena antes de los autoloads)
+	var misiones := get_node_or_null("/root/Misiones")
+	var perdido: bool = not marca.get("sin_defensa", false) and misiones != null and misiones.tinaco_perdido
 	tinaco.armar(float(marca.get("litros", 10000.0)),
-			not marca.get("sin_virgen", false), not marca.get("sin_defensa", false))
+			not marca.get("sin_virgen", false) and not perdido, not marca.get("sin_defensa", false))
 	tinaco.transform = lugar(marca)
 	add_child(tinaco)
 

@@ -27,6 +27,8 @@ var vida := 60
 var vida_max := 60
 var quieto := false
 var atrae := 0.0
+# m del centro a su orilla: los zombis le pegan desde ahi (el tinaco de la Virgen, TinacoVida)
+var radio := 0.0
 
 var _jugador: Node3D
 var _campo: CampoFlujo

@@ -135,6 +135,9 @@ Y si puedes, juega la carrera completa hasta perder: anota en qué noche te desm
 | Paga del amanecer | 150 pesos y un galón (nada si cae el tinaco) | `DefensaTinaco.gd` `PAGA` | ¿Compensa la noche comparada con las misiones? |
 | Jefe (mapa, última noche) | vida 400, daño 25, 3 m/s | `Zombie.gd` `JEFE_*` | |
 | Golpes a tiempo | ventana 0.3 s | `Zombie.gd` `CORTE`; tecla 9 en el safehouse | ¿Se entiende sin explicarlo? |
+| Evento de la reja: cuándo falla | el desgaste sube 0.05 cada noche (ya abierta la reja); probabilidad desgaste ÷ 3, mínimo 2 %, solo si caes la noche dentro de Santa Mugre; luego 3 noches sin evento (sale ~1 de cada 10 noches) | `Misiones.gd` `DESGASTE_NOCHE`, `DESGASTE_ENTRE`, `FALLA_MINIMA`, `ENFRIAMIENTO` | ¿Es un susto raro o se siente rutina? |
+| Evento de la reja: la defensa | 4 min; turbas de 4 cada 12 s del lado de la reja; tinaco con 300 de vida (3 por golpe de zombi). Solo, cae en ~40 s; cada reintento (3) quita 1 zombi por turba y suma 2 s entre turbas | `resources/misiones/evento_reja.tres`; `MisionesMundo.gd` `EVENTO_MENOS`, `EVENTO_ESPACIO` | ¿Se gana con el machete de las primeras noches? No sube con tu progreso todavía |
+| Evento de la reja: paga | $200 (del padre Chuy, con el factor de paga) | `evento_reja.tres` `pesos` | ¿Compensa? |
 
 Las habilidades de los tazos y el cuerpo del personaje (complexión y altura) multiplican la vida, el daño y la velocidad. Prueba primero con el personaje normal y sin tazos (F12 en el safehouse los borra).
 

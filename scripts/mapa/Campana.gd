@@ -25,6 +25,7 @@ var _hora_antes := -1.0
 
 
 func _ready() -> void:
+	add_to_group("campanas")   # la del templo toca a rebato en el evento de la reja (MisionesMundo)
 	if not TOQUES.has(de):
 		de = "templo"
 	_voz = AudioStreamPlayer3D.new()
