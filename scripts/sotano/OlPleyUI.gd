@@ -31,7 +31,7 @@ const OJOS := Vector3(0.15, 1.37, 0.78)  # la camara, en el gabinete: la pantall
 const MIRA := Vector3(0.075, 1.3, 0.1)   # a la orilla derecha
 const FOV := 46.0
 const TIEMPO_CAMARA := 0.6
-const AYUDA := "←/→ apuesta  ·  Espacio o ↓ jalar la palanca  ·  Esc salir"
+const AYUDA := AYUDA_FILA
 
 var placa: Carretes
 var gabinete: GabineteOlPley
@@ -431,3 +431,10 @@ func _acercar_camara() -> void:
 	var tween := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(_camara, "global_transform", Transform3D(Basis.looking_at(mira - ojos), ojos), TIEMPO_CAMARA)
 	tween.tween_property(_camara, "fov", FOV, TIEMPO_CAMARA)
+
+
+# La fila: la apuesta y jalar la palanca
+func _armar_botones() -> void:
+	botones(botones_apuesta(func() -> String: return "Apuesta %d" % _apuesta,
+			func(paso: int) -> void: _tecla(KEY_RIGHT if paso > 0 else KEY_LEFT), func() -> bool: return true) + [
+		{"texto": "Jalar la palanca", "hacer": _tecla.bind(KEY_SPACE), "principal": true}])

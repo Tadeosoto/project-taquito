@@ -13,6 +13,16 @@ var apuesta_max := 10
 var crupier := "La Güera"
 const VOLTEA := 0.2
 const REPARTE := 0.25
+# Las cartas tambien sobre el pano (AG 2026-11-19): salen del zapato, vuelan y se voltean, como en
+# el baccarat; la de la crupier tapada hasta que la destapa. En metros de la escena del Sotano
+const CARTA_3D := Vector2(0.12, 0.18)
+const CARTA_SEPARA := 0.135
+const FILA_CRUPIER := 0.9            # desde la crupier hacia ti: su fila (debajo de "PAGA 3 A 2" se encimaba)
+const FILA_TUYA := 1.2
+const PANO := 0.803                  # alto del pano sobre el piso
+const ZAPATO_LADO := 0.53            # el zapato (sotano.py Blackjack_zapato): a la derecha de la crupier
+const ZAPATO_FONDO := 0.62
+const VUELA := 0.3
 const CAMARA_DESDE := Vector3(0.0, 1.45, 0.25)   # desde la marca Blackjack_tu (m de la escena)
 const CAMARA_MIRA := Vector3(0.0, 0.8, -0.85)
 const LINEAS_ARETE := [
@@ -31,11 +41,13 @@ var _total_tuyo: Label
 var _estado: Label
 var _cartas_crupier: Array[TextureRect] = []
 var _cartas_tuyas: Array[TextureRect] = []
+var _mesa_crupier: Array[MeshInstance3D] = []
+var _mesa_tuyas: Array[MeshInstance3D] = []
 
 
 func _init() -> void:
 	titulo = "Blackjack"
-	ayuda = "←/→ apuesta  ·  Espacio repartir  ·  H pedir  ·  S plantarte  ·  D doblar  ·  Esc levantarte"
+	ayuda = AYUDA_FILA
 
 
 func _armar() -> void:
@@ -62,7 +74,7 @@ func _armar() -> void:
 		acercar_camara(sotano.to_global(tu + CAMARA_DESDE), sotano.to_global(tu + CAMARA_MIRA), 56.0)
 	_mostrar()
 	_apuesta = apuesta_min
-	avisar("\"Apuéstale, mijo\", dice %s. ←/→ la apuesta (%d a %d), Espacio reparte." % [crupier, apuesta_min, apuesta_max], 5.0)
+	avisar("\"Apuéstale, mijo\", dice %s. Apuesta de %d a %d y reparte." % [crupier, apuesta_min, apuesta_max], 5.0)
 
 
 func _fila(desde: float, arriba: bool) -> HBoxContainer:
@@ -181,6 +193,8 @@ func doblar() -> void:
 func _destapar() -> void:
 	if _cartas_crupier.size() > 1:
 		_voltear(_cartas_crupier[1], _bj.crupier[1])
+		if _mesa_crupier.size() > 1:
+			_voltear_3d(_mesa_crupier[1], _bj.crupier[1])
 		await get_tree().create_timer(REPARTE).timeout
 	for k in range(_cartas_crupier.size(), _bj.crupier.size()):
 		if not is_inside_tree():
@@ -205,7 +219,7 @@ func _final() -> void:
 		"pierdes": "Gana la casa. \"Otra, mijo, que ahorita se compone.\"",
 		"te pasaste": "Te pasaste de 21. %s ni sonríe." % crupier,
 	}.get(_bj.resultado, "")
-	avisar(texto + "  (Espacio otra mano)", 30.0)
+	avisar(texto, 30.0)
 
 
 func _limpiar() -> void:
@@ -213,6 +227,7 @@ func _limpiar() -> void:
 		r.queue_free()
 	_cartas_crupier.clear()
 	_cartas_tuyas.clear()
+	_recoger_mesa()
 
 
 # Una carta entra a su fila: de reverso y se voltea (si no va tapada)
@@ -226,6 +241,7 @@ func _entrar(tuya: bool, carta: int, tapada: bool) -> void:
 	(_abajo if tuya else _arriba).add_child(r)
 	(_cartas_tuyas if tuya else _cartas_crupier).append(r)
 	Sonidos.tocar(self, "carta", -8.0)
+	_carta_mesa(tuya, carta, tapada)
 	if not tapada:
 		_voltear(r, carta)
 
@@ -235,6 +251,88 @@ func _voltear(r: TextureRect, carta: int) -> void:
 	t.tween_property(r, "scale:x", 0.0, VOLTEA / 2.0)
 	t.tween_callback(func() -> void: r.texture = _carta_textura(carta))
 	t.tween_property(r, "scale:x", 1.0, VOLTEA / 2.0)
+
+
+# --- Las cartas sobre el pano ---
+
+# La crupier, hacia donde ves tu (plano) y su derecha, de las marcas de la mesa
+func _marco() -> Array:
+	var de_crupier: String = "Crupier_bj" if prefijo == "Blackjack" else "Crupier_" + prefijo
+	var c: Vector3 = sotano.call("marca", de_crupier).origin
+	var tu: Vector3 = sotano.call("marca", prefijo + "_tu").origin
+	var frente := tu - c
+	frente.y = 0.0
+	frente = frente.normalized() if frente.length() > 0.01 else Vector3.BACK
+	return [c, frente, Vector3.UP.cross(frente)]
+
+
+func _carta_mesa(tuya: bool, carta: int, tapada: bool) -> void:
+	if sotano == null:
+		return
+	var marco := _marco()
+	var c: Vector3 = marco[0]
+	var frente: Vector3 = marco[1]
+	var lado: Vector3 = marco[2]
+	var lista := _mesa_tuyas if tuya else _mesa_crupier
+	var k := lista.size()
+	var quad := QuadMesh.new()
+	quad.size = CARTA_3D
+	quad.orientation = PlaneMesh.FACE_Y
+	var m := MeshInstance3D.new()
+	m.mesh = quad
+	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	m.material_override = POKER.material(-1)
+	sotano.add_child(m)
+	lista.append(m)
+	var giro := atan2(frente.x, frente.z)
+	var destino := c + frente * (FILA_TUYA if tuya else FILA_CRUPIER) + lado * ((k - 0.5) * CARTA_SEPARA) + Vector3.UP * (PANO + k * 0.001)
+	var desde := c + lado * ZAPATO_LADO + frente * ZAPATO_FONDO + Vector3.UP * (PANO + 0.1)
+	m.position = desde
+	m.rotation.y = giro + PI
+	var t := create_tween()
+	t.tween_method(func(f: float) -> void:
+		m.position = desde.lerp(destino, f) + Vector3.UP * sin(f * PI) * 0.08
+		m.rotation.y = lerp_angle(giro + PI, giro, f), 0.0, 1.0, VUELA).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if not tapada:
+		t.tween_callback(_voltear_3d.bind(m, carta))
+
+
+# Se levanta, gira de canto y cae boca arriba
+func _voltear_3d(m: MeshInstance3D, carta: int) -> void:
+	if not is_instance_valid(m):
+		return
+	var y := m.position.y
+	var t := create_tween()
+	t.tween_method(func(f: float) -> void:
+		m.rotation.z = f * PI / 2.0
+		m.position.y = y + f * 0.03, 0.0, 1.0, 0.08)
+	t.tween_callback(func() -> void: m.material_override = POKER.material(carta))
+	t.tween_method(func(f: float) -> void:
+		m.rotation.z = (1.0 - f) * PI / 2.0
+		m.position.y = y + (1.0 - f) * 0.03, 0.0, 1.0, 0.08)
+
+
+# La crupier junta las cartas de la mano pasada y las echa de su lado
+func _recoger_mesa() -> void:
+	if sotano == null:
+		return
+	var a := (_marco()[0] as Vector3) + Vector3.UP * (PANO + 0.05)
+	for m in _mesa_crupier + _mesa_tuyas:
+		if not is_instance_valid(m):
+			continue
+		var desde := m.position
+		var t := create_tween()
+		t.tween_method(func(f: float) -> void: m.position = desde.lerp(a, f), 0.0, 1.0, 0.3)
+		t.tween_callback(m.queue_free)
+	_mesa_crupier.clear()
+	_mesa_tuyas.clear()
+
+
+func cerrar() -> void:
+	for m in _mesa_crupier + _mesa_tuyas:
+		if is_instance_valid(m):
+			m.queue_free()
+	super.cerrar()
 
 
 static func _carta_textura(c: int) -> AtlasTexture:
@@ -251,3 +349,15 @@ func _mostrar() -> void:
 		_total_crupier.text = "%s: %d" % [crupier, Blackjack.valor(_bj.crupier)]
 	_total_tuyo.text = ("Tú: %d" % Blackjack.valor(_bj.tuyas)) if not _bj.tuyas.is_empty() else "Tú"
 	_estado.text = "Apuesta %d · Fichas %d" % [_bj.apuesta if jugando else _apuesta, fichas()]
+
+
+# La fila: la apuesta y Repartir entre manos; Pedir, Plantarte y Doblar en la mano
+func _armar_botones() -> void:
+	var libre := func() -> bool: return _bj.fase != Blackjack.Fase.JUGANDO
+	var jugando := func() -> bool: return _bj.fase == Blackjack.Fase.JUGANDO
+	botones(botones_apuesta(func() -> String: return "Apuesta %d" % _apuesta,
+			func(paso: int) -> void: _tecla(KEY_RIGHT if paso > 0 else KEY_LEFT), libre) + [
+		{"texto": "Repartir", "hacer": _tecla.bind(KEY_SPACE), "principal": true, "visible": libre},
+		{"texto": "Pedir", "hacer": _tecla.bind(KEY_H), "principal": true, "visible": jugando},
+		{"texto": "Plantarte", "hacer": _tecla.bind(KEY_S), "visible": jugando},
+		{"texto": "Doblar", "hacer": _tecla.bind(KEY_D), "visible": jugando}])

@@ -20,7 +20,7 @@ var _linea := 0
 
 func _init() -> void:
 	titulo = "La ventanilla del Primo"
-	ayuda = "1/2/3 comprar  ·  C cobrar todo  ·  Esc salir"
+	ayuda = AYUDA_FILA
 
 
 func _armar() -> void:
@@ -80,3 +80,11 @@ func Fichas_precio() -> int:
 func Fichas_comision() -> float:
 	var f := get_node_or_null("/root/Fichas")
 	return f.COMISION if f else 0.1
+
+
+# La fila: los tres paquetes y cobrar todo
+func _armar_botones() -> void:
+	var lista := []
+	for k in PAQUETES.size():
+		lista.append({"texto": "%d fichas" % PAQUETES[k], "hacer": _tecla.bind(KEY_1 + k)})
+	botones(lista + [{"texto": "Cobrar todo", "hacer": _tecla.bind(KEY_C)}])

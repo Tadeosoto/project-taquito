@@ -33,6 +33,8 @@ F12 de cero · F1 esconder"""
 # Camaras para --fotos: nombre -> [desde, hacia], en metros del cuarto (antes de la escala)
 const FOTOS := {
 	"escalera": [Vector3(9.0, -1.2, 3.1), Vector3(5.0, -1.6, 3.1)],
+	"neon_entrada": [Vector3(7.6, -1.5, 4.2), Vector3(13.0, -0.8, 3.0)],
+	"ruleta_crupier": [Vector3(30.6, -1.2, 1.2), Vector3(33.3, -1.9, -1.7)],
 	"maquinitas": [Vector3(14.5, -1.2, 4.6), Vector3(12.5, -2.0, -1.5)],
 	"gabinete_lado": [Vector3(12.2, -2.2, 1.2), Vector3(11.0, -2.0, -1.6)],
 	"ventanilla_baja": [Vector3(8.4, -2.35, 2.6), Vector3(8.2, -2.2, -0.4)],
@@ -73,6 +75,7 @@ const FOTOS := {
 var _sotano: Node3D
 var _player: Player
 var _ayuda: Label
+var _ayuda_visible := true
 var _estado: Label
 
 
@@ -97,6 +100,23 @@ func _ready() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png(arg.trim_prefix("--foto="))
 			get_tree().quit()
+		elif arg.begins_with("--fichas_ruleta="):
+			await _fotos_fichas_ruleta(arg.trim_prefix("--fichas_ruleta="))
+			get_tree().quit()
+		elif arg == "--fps":
+			_player.global_position = _sotano.to_global(Vector3(21.5, -2.5, 3.0))
+			if "--sin-vida" in OS.get_cmdline_user_args() and _sotano.get_node_or_null("Vida"):
+				_sotano.get_node("Vida").queue_free()
+			for k in 6:
+				await get_tree().create_timer(2.0).timeout
+				print("FPS ", Engine.get_frames_per_second())
+			get_tree().quit()
+		elif arg.begins_with("--vida="):
+			await _fotos_vida(arg.trim_prefix("--vida="))
+			get_tree().quit()
+		elif arg.begins_with("--carrera="):
+			await _fotos_carrera(arg.trim_prefix("--carrera="))
+			get_tree().quit()
 		elif arg.begins_with("--desague="):
 			await _fotos_desague(arg.trim_prefix("--desague="))
 			get_tree().quit()
@@ -120,7 +140,7 @@ func _ready() -> void:
 # El recorrido de --video: la camara va de un sonido a otro (la camara activa es la que oye)
 func _video() -> void:
 	if _ayuda:
-		_ayuda.visible = false
+		_ayuda_visible = false
 	var cam := Camera3D.new()
 	cam.fov = 70.0
 	add_child(cam)
@@ -180,6 +200,89 @@ func _festejo_en(segundos: float, cual: int) -> void:
 	Sonidos.tocar(self, "festejo_%d" % cual, -10.0)
 
 
+# Las tres pilas de la ruleta: normal (grande), en monton (ganando) y en llamas (ganando de mas)
+func _fotos_fichas_ruleta(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	await get_tree().create_timer(1.0).timeout
+	var cosas := [["rojo", false, false, 5], ["negro", true, false, 18], ["verde", true, true, 40]]
+	for c: Array in cosas:
+		var p := PilaFichas.new()
+		p.tamano = 1.6
+		p.monton = c[1]
+		p.fuego = c[2]
+		_sotano.add_child(p)
+		p.position = _sotano.call("marca", "Ruleta_" + c[0]).origin
+		p.poner(c[3])
+	var cam := Camera3D.new()
+	cam.fov = 50.0
+	add_child(cam)
+	cam.make_current()
+	var r: Vector3 = _sotano.call("marca", "Ruleta").origin
+	cam.global_position = _sotano.to_global(r + Vector3(0.0, 1.3, -0.3))
+	cam.look_at(_sotano.to_global(r + Vector3(0.3, 0.8, -1.3)), Vector3.UP)
+	for k in 3:
+		await get_tree().create_timer(0.4).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("fichas_%d.png" % k))
+
+
+# La vida del Sotano: las mesas juegan solas y los de las maquinitas jalan; cuadros de tres vistas
+func _fotos_vida(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	await get_tree().create_timer(1.0).timeout
+	_player.global_position = _sotano.to_global(Vector3(21.5, -2.5, 3.0))
+	var vida := _sotano.get_node_or_null("Vida")
+	if vida:
+		for mesa in vida.get("_t"):
+			vida.get("_t")[mesa] = 0.5
+		for m: Array in vida.get("_maquinas"):
+			m[3] = randf_range(0.2, 3.0)
+	var vistas := {
+		"maquinas": [Vector3(14.0, -1.3, 2.4), Vector3(11.5, -2.0, -1.4)],
+		"ruleta": [Vector3(31.0, -1.2, 2.0), Vector3(33.2, -1.9, -0.6)],
+		"poker": [Vector3(29.6, -1.0, 6.2), Vector3(27.5, -1.9, 3.4)],
+		"blackjack": [Vector3(31.0, -1.2, 5.0), Vector3(32.4, -1.9, 2.8)],
+	}
+	var cam := Camera3D.new()
+	cam.fov = 70.0
+	add_child(cam)
+	cam.make_current()
+	# De cerca: uno de las maquinitas jala la palanca y grita
+	if vida and not vida.get("_maquinas").is_empty():
+		var m: Array = vida.get("_maquinas")[0]
+		var npc := m[0] as Node3D
+		cam.global_position = npc.global_position + npc.global_basis.x * 1.6 + Vector3.UP * 1.6 + npc.global_basis.z * 0.8
+		cam.look_at(npc.global_position + Vector3.UP * 1.1 - npc.global_basis.z * 0.4, Vector3.UP)
+		vida.call("_jalar", m)
+		vida.call("_globo", npc, "¡Vamos, vamos!", 3.0)
+		for k in 8:
+			await get_tree().create_timer(0.15).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(carpeta.path_join("jala_%02d.png" % k))
+	for k in 24:
+		var nombre: String = vistas.keys()[k % vistas.size()]
+		cam.global_position = _sotano.to_global(vistas[nombre][0])
+		cam.look_at(_sotano.to_global(vistas[nombre][1]), Vector3.UP)
+		await get_tree().create_timer(0.6).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("%s_%02d.png" % [nombre, k]))
+
+
+# Una carrera de caballitos: cuadros de la camara de la tele, con sus efectos
+func _fotos_carrera(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	await get_tree().create_timer(1.0).timeout
+	get_node("/root/Fichas").fichas += 20
+	_sotano.call("_abrir", "res://scripts/sotano/CarrerasUI.gd", {"sotano": _sotano})
+	await get_tree().create_timer(0.5).timeout
+	var ui := get_tree().get_first_node_in_group("juego_sotano")
+	ui.call("arrancar")
+	for k in 40:
+		await get_tree().create_timer(0.25).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("carrera_%02d.png" % k))
+
+
 # La puerta secreta y La Desaguadora: toca tres veces la caseta, baja y guarda cuadros desde una
 # camara arriba (ella sale, ataca, se hunde), y luego una de cerca
 func _fotos_desague(carpeta: String) -> void:
@@ -200,6 +303,7 @@ func _fotos_desague(carpeta: String) -> void:
 	_sotano.call("_bajar_al_desague")
 	var des := _sotano.get_node_or_null("Desague") as Node3D
 	for k in 30:
+		get_node("/root/Salud").vida = 100      # (si no, te tumba y te saca antes de las fotos)
 		await get_tree().create_timer(0.3).timeout
 		var jefa := des.find_child("*", false, false) if des else null
 		if des:
@@ -208,6 +312,21 @@ func _fotos_desague(carpeta: String) -> void:
 		await RenderingServer.frame_post_draw
 		if k % 3 == 0:
 			get_viewport().get_texture().get_image().save_png(carpeta.path_join("desague_%02d.png" % k))
+	# De cerca, de frente (antes de poner al jugador junto a ella)
+	if des:
+		var jefa_n: Node3D = null
+		for n in des.get_children():
+			if n is Desaguadora:
+				jefa_n = n
+		if jefa_n:
+			for k in 6:
+				get_node("/root/Salud").vida = 100
+				var frente := -jefa_n.global_basis.z.normalized()
+				cam.global_position = jefa_n.global_position + frente * 4.2 + Vector3.UP * 2.6
+				cam.look_at(jefa_n.global_position + Vector3.UP * 2.0, Vector3.UP)
+				await get_tree().create_timer(0.5).timeout
+				await RenderingServer.frame_post_draw
+				get_viewport().get_texture().get_image().save_png(carpeta.path_join("jefa_frente_%d.png" % k))
 	# Cerca de ella un rato, para ver que pega (la vida del jugador baja o el agua lo escupe)
 	if des:
 		var salud := get_node("/root/Salud")
@@ -319,7 +438,14 @@ func _fotos(carpeta: String) -> void:
 	get_node("/root/Fichas").vip = true
 	_sotano.call("_quitar_cordon")
 	await get_tree().create_timer(1.5).timeout
+	# -- --solo=a,b: solo esas vistas
+	var solo := PackedStringArray()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--solo="):
+			solo = arg.trim_prefix("--solo=").split(",")
 	for nombre: String in FOTOS:
+		if not solo.is_empty() and not nombre in solo:
+			continue
 		var v: Array = FOTOS[nombre]
 		cam.global_position = _sotano.to_global(v[0])
 		cam.look_at(_sotano.to_global(v[1]), Vector3.UP)
@@ -364,6 +490,9 @@ func _al_pie() -> void:
 func _process(_delta: float) -> void:
 	var f := get_node("/root/Fichas")
 	_estado.text = "Fichas %d · $%d · permiso %d" % [f.fichas, get_node("/root/Cartera").pesos, f.permiso]
+	# Con un juego abierto se esconden las teclas de la prueba (se encimaban con las del juego)
+	if _ayuda:
+		_ayuda.visible = _ayuda_visible and get_tree().get_first_node_in_group("juego_sotano") == null
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -391,7 +520,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_R:
 			_al_pie()
 		KEY_F1:
-			_ayuda.visible = not _ayuda.visible
+			_ayuda_visible = not _ayuda_visible
 		KEY_F12:
 			f.reiniciar()
 			get_node("/root/Cartera").pesos = PESOS

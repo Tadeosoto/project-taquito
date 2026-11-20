@@ -41,6 +41,9 @@ const TEXTURAS := {
 	"oxido": ["res://textures/sotano/oxido.png", Color.WHITE, 0.6],
 	"carne": ["res://textures/sotano/carne.png", Color(0.9, 0.85, 0.85), 1.2],
 	"reja": ["res://textures/sotano/reja.png", Color.WHITE, 0.0],
+	# La Desaguadora con rig (desaguadora_rig.py pinta las dos)
+	"piel_ahogada": ["res://textures/sotano/piel_desaguadora.png", Color.WHITE, 0.0],
+	"pelo_mojado": ["res://textures/sotano/pelo_desaguadora.png", Color.WHITE, 0.0],
 }
 # Con textura pero brillan solos (la marquesina luminosa del refri)
 const BRILLAN_TEXTURA := ["refri_letrero"]
@@ -140,6 +143,10 @@ func _material(original: Material) -> Material:
 		m.roughness = 0.12
 		m.metallic_specular = 0.9
 	# La reja ciclonica deja ver a traves; el agua negra y la piel de la Desaguadora brillan mojadas
+	if nombre == "pelo_mojado":
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+		m.alpha_scissor_threshold = 0.4
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	if nombre == "reja":
 		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
 		m.alpha_scissor_threshold = 0.5

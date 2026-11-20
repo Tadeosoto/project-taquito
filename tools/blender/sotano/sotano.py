@@ -685,7 +685,7 @@ def mesa_ruleta(col):
     oscura = material("madera_oscura", (0.3, 0.2, 0.12))
     for nombre, a, b, c, d in (("n", x0, x1, z0, z0 + 0.06), ("s", x0, x1, z1 - 0.06, z1), ("o", x0, x0 + 0.06, z0, z1), ("e", x1 - 0.06, x1, z0, z1)):
         caja("Ruleta_marco_" + nombre, a, b, tapa, tapa + 0.05, c, d, oscura, col, choca=False)
-    marca("Crupier_ruleta", (x0 + x1) / 2, y, z0 - 0.45, col, 0)
+    marca("Crupier_ruleta", (x0 + x1) / 2, y, z0 - 0.3, col, 0)    # (a z0 - 0.45 se metia en el muro)
     marca("Ruleta", (x0 + x1) / 2, y, z1 + 0.6, col, 180)
 
 

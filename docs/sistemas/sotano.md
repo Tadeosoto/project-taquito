@@ -203,8 +203,28 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
 
 ## The games (the house cheats, with tells)
 
+- **One control scheme for every game** (AG 2026-11-19: "arrows to move, one button to choose"):
+  - `JuegoSotano.botones()` puts a row of buttons at the bottom: ←/→ (or ↑/↓, or the D-pad) move the highlight, Space/Enter/A press, Esc/B leave.
+  - The bet is a label plus `-` and `+` buttons (`botones_apuesta`). Disabled buttons are greyed and skipped. A `principal` button (Repartir, Girar, Otra mano...) gets the highlight back when the chosen one disappears.
+  - Every game builds its row in `_armar_botones`, and a "Salir" button is added at the end. The old letter keys still work as silent shortcuts (`_tecla`), and the tests use them.
+  - With a game open, the weapon label (`Pistola._capa`, found by script path) and the test scene's key panel hide. At a table camera the player hides too: the camera sits almost in their head.
+- **Live casino** (`VidaSotano.gd`, created by `Sotano._armar_gente`; `-- --sin-vida` turns it off). All of it is decoration: it never touches your chips.
+  - **Slot players:** each seated EL GORDO player pulls the lever every 4–9 s. Their right arm reaches out: `Pistol_Aim_Neutral` on the right arm only, a filtered `Blend2` over `Sitting_Idle`. The `AnimationPlayer` is turned off, otherwise it wins over the tree.
+    - The screen flashes colours while it spins. 13 % win (gold blink, coins), and some losers slap the machine.
+  - **Tables play by themselves** when you are near (`LEJOS`) and not seated:
+    - the roulette spins with other people's chips;
+    - poker deals, bets into a pot, and someone folds or takes the pot;
+    - blackjack and baccarat deal to the people seated there;
+    - the horses race.
+    - Sitting down mid-game cuts it and cleans up its cards and chips (`_espera`, `_cortar`). Your race waits for theirs (`Sotano.corriendo`).
+  - **Onlookers** (`MIRONES`) stand at the roulette, the races and the poker, and shout at results. All speech is `Label3D` bubbles (`_globo`).
+  - **Reactions to you:** `JuegoSotano.festejar` calls `reaccionar`.
+    - A big win (10+ or three in a row): people nearby turn to look and say something.
+    - Three losses in a row: they mock you.
+    - With 100+ chips won in the night, the guard follows you with his eyes (`vigilar`).
+
 - **Chips:** $5 each (`Fichas.PRECIO`). Cashing out leaves 10% with the Primo.
-- **EL GORDO** (`OlPleyUI`): the camera flies to the cabinet, framing the screen with the lever on the right. The game runs in a 384 × 288 `SubViewport` that the cabinet shows on its screen (`GabineteOlPley.mostrar_en_pantalla`).
+- **EL GORDO** (`OlPleyUI`, button row: bet, Jalar la palanca): the camera flies to the cabinet, framing the screen with the lever on the right. The game runs in a 384 × 288 `SubViewport` that the cabinet shows on its screen (`GabineteOlPley.mostrar_en_pantalla`).
   - **The lever:** the `Palanca` empty of `gabinete()`. Space or ↓ pulls it: `GabineteOlPley.jalar_palanca` swings it down 55° and springs it back, and the reels start at the bottom of the pull.
   - **The screen:** cylinder shading over the reels, marquee bulbs that chase (faster while spinning), 7-segment counters, and a banner that scrolls the prize (`_cruzar_letrero`).
   - **Reels:** lotería cards that scroll and stop one by one with a bounce. Each card shows its name in caps, in `PixelifySans` with no antialiasing (`_poner_carta`).
@@ -245,7 +265,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - A player who folds tosses his cards to the deck (`_tirar_al_mazo`).
     - At showdown the neighbours' cards flip one by one.
     - Your two cards on screen enter face down and flip.
-  - **Keys:** C check/call, R raise, F fold, Space next hand, Esc stand up. You play with your chips.
+  - **Buttons:** Pasar / Ir con n, Subir, Retirarte, then Otra mano. You play with your chips.
   - The NPCs' stacks persist between hands, and they rebuy at the window when broke.
 - **VIP** (`Sotano._armar_vip`):
   - **Getting in:** the bouncer outside charges the pass (`Fichas.CUOTA_VIP` $500, once; `Fichas.vip`, reset per run). Until you pay, a body blocks the rope (`_cordon`); paying hides the rope.
@@ -263,11 +283,14 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - A loss shows "CHALE..." with smoke and a dark flash; after three losses in a row, "¡QUÉ SALADO!".
 - **Blackjack** (`Blackjack.gd`, `BlackjackUI.gd`):
   - The dealer is La Güera. She stands on all 17s; a natural blackjack pays 3 to 2; you can double on two cards.
-  - Keys: ←/→ bet, Space deal, H hit, S stand, D double.
+  - Buttons: bet, Repartir, then Pedir, Plantarte, Doblar.
+  - The cards are also dealt on the felt (`_carta_mesa`, the same flight and flip as baccarat). The dealer's hole card stays face down until she turns it, and she sweeps them all on the next hand.
   - The cheat: with bets of `CARGADO_DESDE` (5) or more she sometimes stacks the shoe, so her hole card puts her on 20 or 21. Tell: she adjusts her earring.
 - **Roulette** (`Ruleta.gd`, `RuletaUI.gd`):
-  - Bets are red or black (1 to 1) or green (35 to 1) only. ↑/↓ colour, ←/→ bet, Space spin.
-  - After a win, C cashes out or D doubles (`dobletear`): everything goes back on a colour, once. If the doblete loses, it's all gone; if it wins, it cashes out by itself.
+  - Bets are red or black (1 to 1) or green (35 to 1) only. Buttons: the three colours, bet, Girar.
+  - **Chips** are 1.6× bigger at this table (`FICHA_TAMANO`). Winning, your stack and the payout pile up into a messy heap (`PilaFichas.monton`). Winning big (20+ or three in a row), they burn (`PilaFichas.fuego`: `fuego_tambo` plus a flickering light).
+  - The ball hits each separator it crosses: a tick, a small hop and a backward nudge on a spring (`_golpe`). The nudge stays under half a pocket, and the ball is set exactly in its pocket at the end, so the result never changes.
+  - After a win, Cobrar cashes out or Dobletear doubles (`dobletear`): everything goes back on a colour, once. If the doblete loses, it's all gone; if it wins, it cashes out by itself.
   - The wheel slows to a stop.
   - The ball runs the outer track the other way, drops into the pockets and bounces between separators, ticking.
     - The bounces use gravity.
@@ -283,7 +306,10 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - The drawing rules: natural 8 or 9, the player draws on 0 to 5, and the banker's third-card table (`banca_pide`).
   - The cheat: with bets of `ARREGLO_DESDE` (5) or more, if you were going to win, Don Chepe sometimes reshuffles and deals again. Tell: he blows on the cards.
   - The cards are also dealt on the felt: each flies from the shoe in an arc and flips, the player hand on the left and the banker hand on the right over the EMPATE strip, with the third card turned sideways (`_carta_mesa`). Don Chepe sweeps them away on the next hand.
-- **Races** (`CarrerasUI`): the camera flies to watch the track from the north while the horses run (`_ver_pista`), then returns.
+- **Races** (`CarrerasUI`): a TV camera, high over the south side of the track, follows the leader and stops at the finish (`_toma`). The old one was blocked by the player and people.
+  - On screen: "● EN VIVO", the positions with your horse marked, and a 3-2-1 count.
+  - Pixel effects: dust behind every horse, a sparkle over yours, and a photo finish with a flash, confetti, rays and coins (or smoke on yours).
+  - The button row hides while they run.
   - Odds 2/3/5/8/12, with chances proportional to 1/odds.
   - A bet of 5+ halves your horse's luck, and the house's horse trembles first (`Sotano.temblar`).
 
@@ -305,17 +331,32 @@ Knock three times on the closed bathroom stall (`Sotano._tocar_caseta`, `TOQUES_
   - Win: `PREMIO_FICHAS` 300 and `resources/productos/varilla_desague.tres` (24 damage; `models/armas/varilla/varilla.glb`), once per run (`Fichas.desaguadora`).
   - "Subir por la escalera" goes back up at any time (she resets).
 - **The boss** (`Desaguadora.gd`, `models/sotano/desaguadora.glb`): a bloated faceless woman of drain hair and black water, 3.2 m tall.
-  - **Model:** a skirt of wet hair strands, a hunched grey-blue torso, a hair curtain over the face and chest, and very long arms with extra fingers. There is no rig: the code moves the empties `Hombro_L/R`, `Cabeza`, `Pelo`.
+  - **Model** (`tools/blender/sotano/desaguadora_rig.py`, AG 2026-11-19: "too basic"): one mesh skinned to a 71-bone skeleton by nearest bone (`pesar`).
+    - **Body:** a sculpted torso (sagging belly, lumps), shoulder blades, collarbones, ribs and spine knobs, and very long arms with elbows, wrists, knuckles and six fingers.
+    - **Mouth:** vertical, with teeth, that opens with the `Jaw` bone under the hair.
+    - **Hair:** a curtain of alpha cards over the face. The skirt is cards too.
+    - **What the drains swallowed:** a drain grate in her back, a pipe through her shoulder, chains with hooks, a shower-curtain scrap, and chips, rings and cards tangled in her hair.
+    - **Textures:** painted with numpy in the same script: `piel_desaguadora.png` (bruises, veins) and `pelo_desaguadora.png`.
+    - **Clips:** idle, emerge, hundir, zarpazo_d/i, grito, charcos, latigo, atras, expuesta, golpeada, muerte. `Desaguadora.gd` plays one per state (`CLIPS`), sped up so the clip's tell lands on the state's tell.
+    - **Spring:** a `SpringBoneSimulator3D` swings the 8 hair chains and the 8 skirt chains (`_resortes`).
+    - The old model in `desague.py` is no longer exported.
   - **Damage:** she is in the `zombis` group with `recibir_golpe` and `radio_golpe`, so the machete reaches her. The pistol reaches her through `PuntoDebil` (body ×1, heart ×2.5 while exposed).
-  - **Attacks, all telegraphed:**
-    - zarpazo: the right arm rises, then sweeps a cone in front;
+  - **Attacks, all telegraphed** (harder since AG's "way too easy"):
+    - zarpazo: a combo of 2 swipes (3 from phase 2), alternating arms;
+    - grito (phase 2+): a red ring, then a blast that pushes you back;
+    - atras: stay behind her and her hair whips you backwards;
     - charcos: red circles grow where you stand, then burst into black water;
     - pelo (phase 2+): a red line, then the hair whip along it;
     - gotas (phase 3): black water falls from the ceiling over you;
     - hundirse: she sinks into a drain and rises from the one farthest from you.
-  - **Opening:** after the zarpazo her chest opens for `EXPUESTA_DURA` s: the heart glows and melee does ×2.
-  - **Life and phases:** `VIDA` 650, phases at 0.6 and 0.25 (she screams and gets faster).
-- **Test scene:** `-- --desague=<dir>` knocks, goes down, saves frames, stands you next to her and prints your life.
+  - **Opening:** only after the combo or the grito, her chest opens for `EXPUESTA_DURA` (1.1) s: the heart glows and melee does ×2.
+  - **Life and phases:** `VIDA` 1800, phases at 0.6 and 0.25 (she screams and gets faster). Damage is about double the first version.
+  - **Phases 2 and 3:** drowned zombies crawl out of the drains (`Desague.soltar_ahogados`). They are the real `Zombie`, tinted grey-blue, at most 4, freed when she dies or you leave.
+  - **Phase 3:** the black water rises (`subir_agua`) and burns 4 per second. Two rusty platforms (`TARIMAS`) stay dry. It does not slow you: that would be in `player.gd` (JJ's code).
+  - **Losing** costs half your chips.
+  - **Death** runs on real time (`_muerte_ms`). The hit freeze lowers the time scale, and a tween got stuck there and never sent `murio`.
+- **Test scene:** `-- --desague=<dir>` knocks, goes down, saves frames (front close-ups too), stands you next to her and prints your life.
+  - Other options: `--carrera` (the race camera), `--fichas_ruleta` (the three chip piles), `--vida` (the live casino and a lever close-up), `--fps` (with `--sin-vida` to compare), and `--solo=a,b` with `--fotos`.
 
 ## Tests
 
@@ -332,7 +373,12 @@ Knock three times on the closed bathroom stall (`Sotano._tocar_caseta`, `TOQUES_
   10. Also: the VIP pass and a gold-blackjack hand, the secret door (three knocks, the hatch), going down to the drain, beating La Desaguadora through her phases, the reward, and climbing back up.
 - `godot --path . --headless -s tools/sotano/probar_holdem.gd` runs known hands plus 2000 AI hands and checks there are no stalls and no lost chips.
 - `godot --path . --headless -s tools/sotano/probar_mesas.gd` checks the blackjack, roulette and baccarat rules, payouts and cheats (thousands of rounds).
-- `probar_sotano` also plays one hand of blackjack, one of baccarat, and a roulette spin (with the doblete if it wins).
+- `probar_sotano` also plays:
+  - one hand of blackjack through the button row (arrows and Space);
+  - one hand of baccarat;
+  - a roulette spin (with the doblete if it wins);
+  - the boss fight with drowned zombies and the rising water, and losing to her (half your chips).
+- Its waits poll the state instead of fixed times (`_hasta`). With the machine loaded (the editor open, about 6 FPS) the fixed waits failed at random.
 
 ## Pending
 

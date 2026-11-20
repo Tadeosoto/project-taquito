@@ -39,7 +39,7 @@ var _pago: PilaFichas
 
 func _init() -> void:
 	titulo = "Baccarat"
-	ayuda = "↑/↓ punto, banca o empate  ·  ←/→ apuesta  ·  Espacio repartir  ·  Esc levantarte"
+	ayuda = AYUDA_FILA
 
 
 func _armar() -> void:
@@ -163,7 +163,7 @@ func repartir() -> void:
 		texto += "Te pagan %d fichas." % gana
 	else:
 		texto += "Se la lleva la casa."
-	avisar(texto + "  (Espacio otra)", 30.0)
+	avisar(texto, 30.0)
 	_ocupado = false
 	_mostrar()
 
@@ -297,3 +297,16 @@ func _mostrar() -> void:
 	var tipo: String = Baccarat.APUESTAS[_tipo]
 	_info.text = "Al %s · apuesta %d · fichas %d" % [NOMBRES[tipo], _apuesta, fichas()]
 	_info.add_theme_color_override("font_color", COLOR_UI[tipo])
+
+
+# La fila: punto, banca o empate (el tuyo marcado), la apuesta y Repartir
+func _armar_botones() -> void:
+	var lista := []
+	for k in 3:
+		lista.append({"texto": NOMBRES[Baccarat.APUESTAS[k]], "hacer": func() -> void:
+				_tipo = k
+				_mostrar(),
+			"marcado": func() -> bool: return _tipo == k})
+	botones(lista + botones_apuesta(func() -> String: return "Apuesta %d" % _apuesta,
+			func(paso: int) -> void: _tecla(KEY_RIGHT if paso > 0 else KEY_LEFT), func() -> bool: return true) + [
+		{"texto": "Repartir", "hacer": _tecla.bind(KEY_SPACE), "principal": true}])
