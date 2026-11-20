@@ -4,7 +4,9 @@ extends Node3D
 # LA DESAGUADORA: la jefa del desague de abajo del bano del Sotano (Desague.gd la pone; el modelo
 # es models/sotano/desaguadora.glb de tools/blender/sotano/desague.py). Una mujer hinchada sin cara,
 # de pelo de coladera y agua negra, que se hunde en una coladera y sale por otra.
-# Sin rig: el codigo mueve sus vacios (Hombro_L/R, Cabeza, Pelo) y avisa cada ataque antes:
+# Con rig (tools/blender/sotano/desaguadora_rig.py, AG 2026-11-19): cada estado toca su clip del
+# AnimationPlayer (CLIPS), acelerado para que el aviso del clip caiga en el aviso del estado; el pelo
+# y la falda se mecen con un SpringBoneSimulator3D (_resortes). Avisa cada ataque antes:
 #   ZARPAZO  levanta el brazo derecho (AVISO_ZARPAZO s) y barre enfrente (cono, ZARPAZO_RADIO).
 #   CHARCOS  marca circulos rojos donde estas (y dos mas cerca); al rato revientan de agua negra.
 #   PELO     (fase 2+) una raya roja hacia ti y luego el latigo de pelo por esa raya.
@@ -79,6 +81,13 @@ var _ataques := 0
 var _jugador: Node3D
 var _avisos: Array[Node3D] = []
 var _atras_t := 0.0
+var _anim: AnimationPlayer
+# Estado -> [clip, segundos del clip hasta su golpe (para acelerarlo)]
+const CLIPS := {
+	Estado.SALE: ["emerge", 1.6], Estado.ESPERA: ["idle", 0.0], Estado.CHARCOS: ["charcos", 0.0],
+	Estado.PELO: ["latigo", 0.5], Estado.HUNDE: ["hundir", 1.1], Estado.EXPUESTA: ["expuesta", 0.0],
+	Estado.GRITO: ["grito", 0.9], Estado.ATRAS: ["atras", 0.3],
+}
 var _muerte_ms := -1
 var _modelo_y := 0.0
 const HUNDE_MUERTA := 3.0
@@ -89,6 +98,10 @@ func _ready() -> void:
 	add_to_group("zombis")
 	_modelo = MODELO.instantiate()
 	add_child(_modelo)
+	_anim = _modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if _anim and _anim.has_animation("idle"):
+		_anim.get_animation("idle").loop_mode = Animation.LOOP_LINEAR
+	_resortes()
 	for nombre in ["Hombro_L", "Hombro_R"]:
 		_hombros.append(_modelo.find_child(nombre, true, false) as Node3D)
 	_cabeza = _modelo.find_child("Cabeza", true, false) as Node3D
@@ -172,6 +185,64 @@ func _process(delta: float) -> void:
 func _cambiar(nuevo: Estado) -> void:
 	estado = nuevo
 	_t = 0.0
+	if CLIPS.has(nuevo):
+		var c: Array = CLIPS[nuevo]
+		var aviso := 0.0
+		match nuevo:
+			Estado.SALE:
+				aviso = SALE_DURA
+			Estado.HUNDE:
+				aviso = HUNDE_DURA
+			Estado.PELO:
+				aviso = AVISO_PELO
+			Estado.GRITO:
+				aviso = AVISO_GRITO * (0.8 if fase == 3 else 1.0)
+			Estado.ATRAS:
+				aviso = 0.35
+			Estado.EXPUESTA:
+				aviso = EXPUESTA_DURA
+		_clip(c[0], c[1] / aviso if aviso > 0.0 and c[1] > 0.0 else 1.0)
+	elif nuevo == Estado.ZARPAZO:
+		_clip_zarpazo(0)
+
+
+# Toca un clip (con un fundido corto); velocidad 1 = como en Blender
+func _clip(nombre: String, velocidad := 1.0) -> void:
+	if _anim == null or not _anim.has_animation(nombre):
+		return
+	_anim.play(nombre, 0.12, velocidad)
+
+
+# Un zarpazo del combo: derecho los pares, izquierdo los nones; el clip sube el brazo en 0.5 s
+func _clip_zarpazo(k: int) -> void:
+	var aviso := (AVISO_ZARPAZO if k == 0 else AVISO_SEGUIDO) * (0.8 if fase == 3 else 1.0)
+	_clip("zarpazo_d" if k % 2 == 0 else "zarpazo_i", 0.5 / aviso)
+
+
+# El pelo y la falda se mecen: una cadena de resorte por cada Pelo_k_* y Falda_k_* del esqueleto
+func _resortes() -> void:
+	var esqueletos := _modelo.find_children("*", "Skeleton3D", true, false)
+	if esqueletos.is_empty() or not ClassDB.class_exists("SpringBoneSimulator3D"):
+		return
+	var esq := esqueletos[0] as Skeleton3D
+	var resorte: Node = ClassDB.instantiate("SpringBoneSimulator3D")
+	esq.add_child(resorte)
+	var cadenas := []
+	for prefijo in ["Pelo", "Falda"]:
+		var k := 0
+		while esq.find_bone("%s_%d_0" % [prefijo, k]) >= 0:
+			var fin := 3 if prefijo == "Pelo" else 2
+			cadenas.append(["%s_%d_0" % [prefijo, k], "%s_%d_%d" % [prefijo, k, fin], prefijo == "Pelo"])
+			k += 1
+	resorte.set("setting_count", cadenas.size())
+	for i in cadenas.size():
+		resorte.call("set_root_bone_name", i, cadenas[i][0])
+		resorte.call("set_end_bone_name", i, cadenas[i][1])
+		if resorte.has_method("set_extend_end_bone"):
+			resorte.call("set_extend_end_bone", i, true)
+		resorte.call("set_stiffness", i, 1.6 if cadenas[i][2] else 2.2)
+		resorte.call("set_drag", i, 0.5)
+		resorte.call("set_gravity", i, 0.6)
 
 
 func _esperar(delta: float) -> void:
@@ -237,6 +308,7 @@ func _zarpazo() -> void:
 		if k + 1 < total:
 			set_meta("golpe_k", k + 1)
 			_t = 0.0
+			_clip_zarpazo(k + 1)
 			return
 		remove_meta("golpe_k")
 		_exponer(true)
@@ -375,6 +447,10 @@ func _herir(dano: int, _desde: Vector3) -> int:
 	vida = maxi(vida - dano, 0)
 	vida_cambio.emit(float(vida) / VIDA)
 	_parpadeo()
+	# Se encoge del golpe si estaba esperando
+	if estado == Estado.ESPERA and _anim and _anim.current_animation == "idle":
+		_clip("golpeada")
+		_anim.queue("idle")
 	if vida <= 0:
 		_morir()
 		return 2
@@ -404,6 +480,7 @@ func _morir() -> void:
 	# atorado: nunca avisaba que murio)
 	_muerte_ms = Time.get_ticks_msec()
 	_modelo_y = _modelo.position.y
+	_clip("muerte")
 
 
 # --- Movimiento y poses ---

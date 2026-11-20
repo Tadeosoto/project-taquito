@@ -303,6 +303,7 @@ func _fotos_desague(carpeta: String) -> void:
 	_sotano.call("_bajar_al_desague")
 	var des := _sotano.get_node_or_null("Desague") as Node3D
 	for k in 30:
+		get_node("/root/Salud").vida = 100      # (si no, te tumba y te saca antes de las fotos)
 		await get_tree().create_timer(0.3).timeout
 		var jefa := des.find_child("*", false, false) if des else null
 		if des:
@@ -311,6 +312,21 @@ func _fotos_desague(carpeta: String) -> void:
 		await RenderingServer.frame_post_draw
 		if k % 3 == 0:
 			get_viewport().get_texture().get_image().save_png(carpeta.path_join("desague_%02d.png" % k))
+	# De cerca, de frente (antes de poner al jugador junto a ella)
+	if des:
+		var jefa_n: Node3D = null
+		for n in des.get_children():
+			if n is Desaguadora:
+				jefa_n = n
+		if jefa_n:
+			for k in 6:
+				get_node("/root/Salud").vida = 100
+				var frente := -jefa_n.global_basis.z.normalized()
+				cam.global_position = jefa_n.global_position + frente * 4.2 + Vector3.UP * 2.6
+				cam.look_at(jefa_n.global_position + Vector3.UP * 2.0, Vector3.UP)
+				await get_tree().create_timer(0.5).timeout
+				await RenderingServer.frame_post_draw
+				get_viewport().get_texture().get_image().save_png(carpeta.path_join("jefa_frente_%d.png" % k))
 	# Cerca de ella un rato, para ver que pega (la vida del jugador baja o el agua lo escupe)
 	if des:
 		var salud := get_node("/root/Salud")

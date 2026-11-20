@@ -3,7 +3,7 @@
 # enjaulados, agua negra en medio y cuatro coladeras por donde ella se hunde y sale.
 # Exporta:
 #   models/sotano/desague.glb       la arena (16 x 16 m de la escena, centro en el origen, piso en 0)
-#   models/sotano/desaguadora.glb   la jefa: mujer hinchada sin cara, de pelo de coladera y agua
+#   models/sotano/desaguadora.glb   la jefa (ya no: la exporta desaguadora_rig.py con rig): mujer hinchada sin cara, de pelo de coladera y agua
 #                                   negra; vacios Hombro_L/R (brazos), Cabeza, Pelo, Corazon
 #   models/armas/varilla/varilla.glb el premio: la varilla oxidada con cadena (Desague.gd)
 # Usa las funciones de sotano.py (caja, girar, tubo_curva...). Corre en un archivo nuevo y vacio:
@@ -329,9 +329,8 @@ if __name__ == "desague":
     limpiar()
     raiz_ = os.environ.get("TAQUITO_RAIZ", r"C:\Users\Big Boss\Documents\GitHub\project-taquito")
     arena()
-    desaguadora()
     varilla()
     exportar_coleccion("Desague", os.path.join(raiz_, "models", "sotano", "desague.glb"))
-    exportar_coleccion("Desaguadora", os.path.join(raiz_, "models", "sotano", "desaguadora.glb"))
+    # (la jefa la exporta desaguadora_rig.py, con rig y animaciones: esta ya no)
     exportar_coleccion("Varilla", os.path.join(raiz_, "models", "armas", "varilla", "varilla.glb"))
     print("desague: %d objetos" % len(bpy.data.objects))
