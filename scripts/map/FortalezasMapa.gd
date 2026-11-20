@@ -22,13 +22,17 @@ const TORRE_PUNTA := 0.7          # medio ancho arriba
 const TORRE_NIVELES := 6
 const TORRE_COLOR := Color(0.55, 0.57, 0.6)
 
-## La enfermeria de "Al medico" (M5): una casa de la calle de abajo de Santa Mugre, a ~150 m de las dos rejas, con una cruz
-## verde luminosa en la fachada (la casa es de casas_mapa.json; aqui solo se marca). `CLINICA_LLEGADA` es donde termina la
-## escolta, en la banqueta frente a la casa
-const CLINICA_CASA := Vector2(-297.6, 560.1)
-const CLINICA_GIRO := 3.0        # rotacion_y de la casa: su frente mira hacia (sin, cos)
-const CLINICA_FONDO := 12.0
-const CLINICA_LLEGADA := Vector2(-296.3, 551.0)
+## Las enfermerias (P3, JJ 2026-11-19): una por reja de fortaleza, cada una a ~145-160 m afuera de su reja, en una casa
+## de casas_mapa.json con una cruz verde luminosa en la fachada (aqui solo se marca). La primera es la de "Al medico" (M5),
+## en la calle de abajo de Santa Mugre. casa: centro de la casa; giro: su rotacion_y (el frente mira hacia (sin, cos));
+## fondo: su fondo. La escolta termina en la banqueta de enfrente de la mas cercana (`llegada_clinica`)
+const CLINICAS := [
+	{"reja": "santa_mugre/oriente", "casa": Vector2(-297.6, 560.1), "giro": 3.0, "fondo": 12.0},
+	{"reja": "santa_mugre/poniente", "casa": Vector2(-527.7, 548.4), "giro": -1.54, "fondo": 12.0},
+	{"reja": "la_gotera/norte", "casa": Vector2(690.6, -484.4), "giro": 1.51, "fondo": 12.0},
+	{"reja": "la_gotera/sur", "casa": Vector2(773.3, 13.8), "giro": 1.47, "fondo": 12.0},
+]
+const CLINICA_BANQUETA := 3.2    # m del frente de la casa a donde termina la escolta
 const CRUZ_VERDE := Color(0.1, 0.9, 0.35)
 
 ## El palacio de gobierno y la plaza de la Catrina (P0 y la entrada de P5, JJ 2026-11-19): afuera de las fortalezas,
@@ -108,7 +112,8 @@ func _exit_tree() -> void:
 func _ready() -> void:
 	add_to_group("fortalezas")
 	_torre()
-	_clinica()
+	for clinica: Dictionary in CLINICAS:
+		_clinica(clinica)
 	_palacio()
 	_plaza()
 	for sitio: Dictionary in SitiosTinaco.SITIOS:
@@ -144,13 +149,26 @@ func _tinaco(donde: Vector2) -> void:
 	cuerpo.add_child(forma)
 
 
-# --- La enfermeria ---
+# --- Las enfermerias ---
 
-func _clinica() -> void:
-	var frente := Vector2(sin(CLINICA_GIRO), cos(CLINICA_GIRO))
-	var punto := CLINICA_CASA + frente * (CLINICA_FONDO / 2.0 + 0.45)
+## Donde termina la escolta de "Al medico": la banqueta frente a la enfermeria mas cercana a `desde`
+static func llegada_clinica(desde: Vector3) -> Vector3:
+	var mejor := Vector3.ZERO
+	for clinica: Dictionary in CLINICAS:
+		var giro: float = clinica["giro"]
+		var punto: Vector2 = clinica["casa"] + Vector2(sin(giro), cos(giro)) * (clinica["fondo"] / 2.0 + CLINICA_BANQUETA)
+		var aqui := Vector3(punto.x, 0.0, punto.y)
+		if mejor == Vector3.ZERO or desde.distance_to(aqui) < desde.distance_to(mejor):
+			mejor = aqui
+	return mejor
+
+
+func _clinica(clinica: Dictionary) -> void:
+	var giro: float = clinica["giro"]
+	var frente := Vector2(sin(giro), cos(giro))
+	var punto: Vector2 = clinica["casa"] + frente * (clinica["fondo"] / 2.0 + 0.45)
 	var nodo := Node3D.new()
-	nodo.name = "Enfermeria"
+	nodo.name = "Enfermeria_" + (clinica["reja"] as String).replace("/", "_")
 	nodo.position = Vector3(punto.x, 0.0, punto.y)
 	nodo.rotation.y = atan2(frente.x, frente.y)   # +Z hacia la calle
 	add_child(nodo)

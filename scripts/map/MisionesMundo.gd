@@ -1042,7 +1042,9 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 			if entrada.id == paso.lugar.trim_prefix("entrada:"):
 				_escolta_meta = entrada.global_position
 	elif paso.lugar == "clinica":
-		_escolta_meta = Vector3(FortalezasMapa.CLINICA_LLEGADA.x, 0.0, FortalezasMapa.CLINICA_LLEGADA.y)
+		# La enfermeria mas cercana a donde estas al salir (hay una por reja)
+		var jugador := get_tree().get_first_node_in_group("jugador") as Node3D
+		_escolta_meta = FortalezasMapa.llegada_clinica(jugador.global_position if jugador else desde)
 	elif paso.lugar == "torre_antena":
 		_escolta_meta = Vector3(FortalezasMapa.TORRE_ANTENA.x + 3.0, 0.0, FortalezasMapa.TORRE_ANTENA.y)
 	elif paso.lugar == "reja_guardia":
