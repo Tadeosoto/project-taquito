@@ -220,6 +220,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
     - blackjack and baccarat deal to the people seated there;
     - the horses race.
     - Sitting down mid-game cuts it and cleans up its cards and chips (`_espera`, `_cortar`). Your race waits for theirs (`Sotano.corriendo`).
+  - **At the bar:** two people sit on the tall stools (`Banco_barra_1` and `_3`, raised `Sotano.BANCO_ALTO` over a table seat) with a beer. Every 6–12 s they take a sip: a `OneShot` of `Drink` on the right arm, neck and head over `Sitting_Idle` (`VidaSotano._trago`). There is still nobody dancing: the clip library has no dance.
   - **Onlookers** (`MIRONES`) stand at the roulette, the races and the poker, and shout at results. All speech is `Label3D` bubbles (`_globo`).
   - **Reactions to you:** `JuegoSotano.festejar` calls `reaccionar`.
     - A big win (10+ or three in a row): people nearby turn to look and say something.

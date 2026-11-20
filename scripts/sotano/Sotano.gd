@@ -24,6 +24,7 @@ const LUZ_ENERGIA := 1.3
 const LUZ_ALCANCE := 6.0
 const PARPADEAN := [1, 5]           # los tubos que fallan
 const CADERA := 0.38                # m que Sitting_Idle deja la cadera atras de los pies (medir_sentado.gd)
+const BANCO_ALTO := 0.25            # m que el banco de la barra (BANCO_BARRA 0.75) pasa al de las mesas (ASIENTO 0.5)
 const PISTA_META := 16.5            # x (del cuarto) donde llegan los caballitos (sotano.py PISTA_META)
 const CARRERA := 5.5                # s que dura una carrera
 const VENTILADOR := 4.0             # rad/s
@@ -79,7 +80,7 @@ const TEXTO_ALTAR := "La Virgen del Tinaco con billetes pegados alrededor. Al pi
 const PUERTA_BANO_ABIERTA := -95.0   # grados en y de la bisagra
 # Lo que trae en la mano cada sentado (por su marca): "cigarro" (con humo) o "cerveza"
 const VICIOS := {"Poker_0": "cigarro", "Poker_1": "cigarro", "Poker_2": "cerveza", "Silla_2": "cigarro",
-	"Silla_7": "cerveza", "Silla_0": "cigarro", "Blackjack_0": "cigarro", "Blackjack_1": "cerveza",
+	"Silla_7": "cerveza", "Silla_0": "cigarro", "Banco_barra_1": "cerveza", "Banco_barra_3": "cerveza", "Blackjack_0": "cigarro", "Blackjack_1": "cerveza",
 	"Baccarat_0": "cigarro", "Bano_dulcero": "cigarro", "VIP_bj_0": "puro", "VIP_sillon_0": "puro", "VIP_sillon_1": "cerveza"}
 # Los de pie, cada quien en lo suyo (nada limpio): nombre, modelo, donde (x, z), hacia donde ve
 # (x, z), clip, lo que trae en la mano y lo que dice. Sin marca: van en metros del cuarto
@@ -633,7 +634,9 @@ func _armar_gente() -> void:
 		["Poker_0", "hombre_15"], ["Poker_1", "hombre_31"], ["Poker_2", "mujer_29"],
 		["Blackjack_0", "mujer_15"], ["Blackjack_1", "hombre_01"], ["Baccarat_0", "mujer_16"],
 		["Bano_dulcero", "hombre_29"], ["VIP_bj_0", "hombre_30"], ["VIP_bj_1", "mujer_33"], ["VIP_sillon_0", "hombre_16"],
-		["VIP_sillon_1", "mujer_32"]]
+		["VIP_sillon_1", "mujer_32"],
+		# Dos en la barra con su cerveza (VidaSotano les da tragos)
+		["Banco_barra_1", "hombre_04"], ["Banco_barra_3", "mujer_09"]]
 	for k in sentados.size():
 		var nombre: String = sentados[k][0]
 		var t := marca(nombre)
@@ -654,11 +657,13 @@ func _armar_gente() -> void:
 			mira = marca("Bano_puesto").origin
 		elif nombre.begins_with("VIP_bj"):
 			mira = marca("Crupier_VIP_bj").origin
-		elif nombre.begins_with("VIP_sillon"):
+		elif nombre.begins_with("VIP_sillon") or nombre.begins_with("Banco_barra"):
 			mira = marca(nombre).origin + Vector3(0, 0, -1.0)
 		nodo.look_at(to_global(Vector3(mira.x, nodo.position.y, mira.z)), Vector3.UP)
 		# Sitting_Idle deja la cadera CADERA atras del origen: se adelanta para que caiga en el asiento
 		nodo.position -= nodo.transform.basis.z.normalized() * CADERA
+		if nombre.begins_with("Banco_barra"):
+			nodo.position.y += BANCO_ALTO
 		# Todos en algo: fuman o tienen su cerveza en la mano (VICIOS)
 		if VICIOS.has(nombre):
 			_dar(nodo, VICIOS[nombre])

@@ -69,6 +69,11 @@ func _ready() -> void:
 		if not n.has_meta("asiento"):
 			continue
 		var asiento: String = n.get_meta("asiento")
+		if asiento.begins_with("Banco_barra"):
+			var trago := _trago(n)
+			if trago:
+				_barra.append([trago, _rng.randf_range(2.0, TRAGO_CADA.y)])
+			continue
 		if not asiento.begins_with("Silla_"):
 			continue
 		var g := sotano.get_node_or_null("OlPley_%s" % asiento.trim_prefix("Silla_"))
@@ -99,6 +104,11 @@ func _process(delta: float) -> void:
 			m[3] = _rng.randf_range(MAQUINA_CADA.x, MAQUINA_CADA.y)
 			if _cerca((m[0] as Node3D).global_position) and not _en_uso("OlPleyUI", m[1]):
 				_jalar(m)
+	for b: Array in _barra:
+		b[1] -= delta
+		if b[1] <= 0.0:
+			b[1] = _rng.randf_range(TRAGO_CADA.x, TRAGO_CADA.y)
+			(b[0] as AnimationTree).set("parameters/trago/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 	for mesa: String in _t:
 		if _ocupada[mesa]:
 			continue
@@ -161,6 +171,47 @@ func _centro_de(mesa: String) -> Vector3:
 
 func _marca(nombre: String) -> Vector3:
 	return sotano.call("marca", nombre).origin
+
+
+# --- La barra ---
+
+# Los de la barra (Banco_barra_*) le dan un trago a su cerveza cada TRAGO_CADA s: un OneShot de Drink
+# solo en el brazo derecho, el cuello y la cabeza, encima de Sitting_Idle
+const TRAGO_CADA := Vector2(6.0, 12.0)
+var _barra: Array = []    # [AnimationTree, s para el siguiente trago]
+
+
+func _trago(npc: Node3D) -> AnimationTree:
+	var ap := npc.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if ap == null or not ap.has_animation(Civiles.LIB + "/Drink"):
+		return null
+	var arbol := AnimationTree.new()
+	var bt := AnimationNodeBlendTree.new()
+	var sentado := AnimationNodeAnimation.new()
+	sentado.animation = Civiles.LIB + "/Sitting_Idle"
+	var bebe := AnimationNodeAnimation.new()
+	bebe.animation = Civiles.LIB + "/Drink"
+	var trago := AnimationNodeOneShot.new()
+	trago.filter_enabled = true
+	trago.fadein_time = 0.3
+	trago.fadeout_time = 0.4
+	var anim := ap.get_animation(Civiles.LIB + "/Drink")
+	for i in anim.get_track_count():
+		var hueso := String(anim.track_get_path(i)).get_slice(":", 1)
+		if (hueso.begins_with("Right") and not hueso.contains("Leg") and not hueso.contains("Foot") and not hueso.contains("Toe")) 				or hueso == "Neck" or hueso == "Head":
+			trago.set_filter_path(anim.track_get_path(i), true)
+	bt.add_node("sentado", sentado)
+	bt.add_node("bebe", bebe)
+	bt.add_node("trago", trago)
+	bt.connect_node("trago", 0, "sentado")
+	bt.connect_node("trago", 1, "bebe")
+	bt.connect_node("output", 0, "trago")
+	arbol.tree_root = bt
+	ap.get_parent().add_child(arbol)
+	arbol.anim_player = arbol.get_path_to(ap)
+	arbol.active = true
+	ap.active = false
+	return arbol
 
 
 # --- Las maquinitas ---

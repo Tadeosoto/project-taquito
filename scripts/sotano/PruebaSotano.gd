@@ -239,11 +239,14 @@ func _fotos_vida(carpeta: String) -> void:
 			vida.get("_t")[mesa] = 0.5
 		for m: Array in vida.get("_maquinas"):
 			m[3] = randf_range(0.2, 3.0)
+		for b: Array in vida.get("_barra"):
+			b[1] = randf_range(0.5, 4.0)
 	var vistas := {
 		"maquinas": [Vector3(14.0, -1.3, 2.4), Vector3(11.5, -2.0, -1.4)],
 		"ruleta": [Vector3(31.0, -1.2, 2.0), Vector3(33.2, -1.9, -0.6)],
 		"poker": [Vector3(29.6, -1.0, 6.2), Vector3(27.5, -1.9, 3.4)],
 		"blackjack": [Vector3(31.0, -1.2, 5.0), Vector3(32.4, -1.9, 2.8)],
+		"barra": [Vector3(26.0, -1.5, 2.2), Vector3(26.0, -1.8, -0.4)],
 	}
 	var cam := Camera3D.new()
 	cam.fov = 70.0
