@@ -12,6 +12,10 @@ extends Node3D
 # - No te desmayas aqui: si un golpe te mataria, el agua te escupe de regreso al bano con poca vida
 #   (herir_jugador) y ella te espera de nuevo.
 # - Premio (una vez por partida, Fichas.desaguadora): PREMIO_FICHAS y la varilla (VARILLA).
+# - Mas dura (AG 2026-11-19): perder cuesta la mitad de tus fichas; en fase 2 y 3 salen ahogados
+#   (Zombie de verdad, gris azulados, AHOGADOS_MAX a la vez) por las coladeras; en la 3 sube el agua
+#   negra (AGUA_ALTO en AGUA_TARDA s) y quema DANO_AGUA por segundo si estas en ella: dos tarimas
+#   (TARIMAS) y la camilla quedan secas. (Sin frenarte en el agua: eso seria en player.gd, de JJ.)
 
 const CUARTO := preload("res://models/sotano/desague.glb")
 const JEFA := preload("res://scripts/sotano/Desaguadora.gd")
@@ -21,6 +25,14 @@ const VIDA_RESCATE := 30
 const NIEBLA_COLOR := Color(0.35, 0.33, 0.3)
 const NIEBLA_DENSIDAD := 0.09
 const LUZ_ROJA := Color(1.0, 0.18, 0.1)
+const AHOGADOS_MAX := 4
+const AHOGADO_TINTE := Color(0.55, 0.68, 0.78)
+const AGUA_DESDE := -0.15            # m (escena) del agua al empezar a subir, y hasta donde llega
+const AGUA_ALTO := 0.45
+const AGUA_TARDA := 20.0
+const DANO_AGUA := 4
+const TARIMAS := [Vector3(-4.2, 0.0, 2.6), Vector3(4.0, 0.0, -2.8)]
+const TARIMA := Vector3(1.4, 0.6, 1.4)
 
 var sotano: Node3D                   # para avisar y para regresar
 var _cuarto: Node3D
@@ -37,6 +49,12 @@ var _zumbido: AudioStreamPlayer
 var _aspas: Node3D
 var _salida: Node3D
 var _termino := false
+var _ahogados: Array[Node] = []
+var _agua: MeshInstance3D
+var _agua_t := 0.0
+var _agua_sube := false
+var _agua_dano_t := 0.0
+static var _mat_ahogado: ShaderMaterial
 
 
 func _ready() -> void:
@@ -75,6 +93,7 @@ func _ready() -> void:
 	_jefa.vida_cambio.connect(func(f: float) -> void: _barra.value = f * 100.0)
 	_jefa.fase_cambio.connect(_fase)
 	_jefa.murio.connect(_vencida)
+	_armar_tarimas()
 	_sirena()
 	for i in [1, 4]:
 		if i < _luces.size():
@@ -84,6 +103,19 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _aspas:
 		_aspas.rotate_x(delta * 0.8)
+	# El agua negra de la fase 3: sube y quema si estas en ella
+	if _agua and _agua_sube:
+		_agua_t = minf(_agua_t + delta, AGUA_TARDA)
+		_agua.position.y = lerpf(AGUA_DESDE, AGUA_ALTO, ease(_agua_t / AGUA_TARDA, 0.6))
+		if _player and not _termino:
+			var pies := to_local(_player.global_position).y
+			if pies < _agua.position.y - 0.05:
+				_agua_dano_t += delta
+				if _agua_dano_t >= 1.0:
+					_agua_dano_t = 0.0
+					herir_jugador(DANO_AGUA, _player.global_position + Vector3.DOWN, 0.0)
+			else:
+				_agua_dano_t = 0.0
 
 
 # Las coladeras por donde sale (en global)
@@ -112,19 +144,29 @@ func herir_jugador(dano: int, desde: Vector3, empuje: float) -> void:
 		_player.recibir_dano(dano, desde, empuje, _jefa)
 
 
-# El agua te escupe al bano con poca vida; ella se queda esperando (vuelve a llena)
+# El agua te escupe al bano con poca vida y se queda con la mitad de tus fichas; ella se queda
+# esperando (vuelve a llena)
 func _rescate() -> void:
 	var salud := get_node_or_null("/root/Salud")
 	if salud:
 		salud.vida = VIDA_RESCATE
+	var f := get_node_or_null("/root/Fichas")
+	var perdidas := 0
+	if f:
+		perdidas = int(f.fichas) / 2 + int(f.fichas) % 2
+		f.fichas -= perdidas
 	if sotano:
-		sotano.call("avisar", "El agua negra te escupe de regreso al baño. Abajo, algo se ríe.")
+		sotano.call("avisar", "El agua negra te escupe de regreso al baño... y se queda con %d de tus fichas. Abajo, algo se ríe." % perdidas)
 		sotano.call("_subir_del_desague")
 
 
 func _vencida() -> void:
 	_termino = true
 	_hud.visible = false
+	_matar_ahogados()
+	_agua_sube = false
+	if _agua:
+		create_tween().tween_property(_agua, "position:y", AGUA_DESDE - 0.3, 3.0)
 	var f := get_node_or_null("/root/Fichas")
 	var primera: bool = f != null and not f.desaguadora
 	if f:
@@ -183,7 +225,95 @@ func _armar_niebla() -> void:
 	_niebla.position = Vector3(0, 1.6, 0)
 
 
+# --- Los ahogados y el agua ---
+
+# Salen `n` ahogados por coladeras al azar (sin pasar de AHOGADOS_MAX vivos): Zombie de verdad, en
+# la escena (sin la escala del Sotano), alertas y tras de ti
+func soltar_ahogados(n: int) -> void:
+	if _termino or _player == null:
+		return
+	_ahogados = _ahogados.filter(func(z: Node) -> bool: return is_instance_valid(z))
+	var lugares := coladeras()
+	lugares.shuffle()
+	for k in mini(n, AHOGADOS_MAX - _ahogados.size()):
+		if lugares.is_empty():
+			break
+		var z := Zombie.new()
+		z.jugador = _player as Player
+		get_tree().current_scene.add_child(z)
+		z.termino.connect(z.queue_free)
+		z.despertar(lugares[k % lugares.size()], true)
+		z.alerta = true
+		_tenir(z)
+		_ahogados.append(z)
+	if not _ahogados.is_empty():
+		Sonidos.tocar(self, "rugido", -10.0, 0.7)
+
+
+# Gris azulado, mojado (el mismo shader que las variantes de Zombie)
+func _tenir(z: Zombie) -> void:
+	if _mat_ahogado == null:
+		_mat_ahogado = ShaderMaterial.new()
+		_mat_ahogado.shader = Zombie.JEFE_SHADER
+		_mat_ahogado.set_shader_parameter("tint", AHOGADO_TINTE)
+	for m in z.get("_mallas"):
+		(m as MeshInstance3D).material_override = _mat_ahogado
+
+
+func _matar_ahogados() -> void:
+	for z in _ahogados:
+		if is_instance_valid(z):
+			z.queue_free()
+	_ahogados.clear()
+
+
+func subir_agua() -> void:
+	if _agua == null:
+		_agua = MeshInstance3D.new()
+		var plano := PlaneMesh.new()
+		plano.size = Vector2(16.0, 16.0)
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.02, 0.025, 0.03, 0.92)
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.roughness = 0.08
+		mat.metallic_specular = 1.0
+		plano.material = mat
+		_agua.mesh = plano
+		add_child(_agua)
+		_agua.position = Vector3(0, AGUA_DESDE, 0)
+	_agua_sube = true
+	if sotano:
+		sotano.call("avisar", "¡Sube el agua negra! Busca dónde subirte.")
+
+
+# Dos tarimas de lamina oxidada para escapar del agua
+func _armar_tarimas() -> void:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.4, 0.25, 0.15)
+	mat.roughness = 0.8
+	if ResourceLoader.exists("res://textures/sotano/oxido.png"):
+		mat.albedo_texture = load("res://textures/sotano/oxido.png")
+		mat.albedo_color = Color.WHITE
+		mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	for p: Vector3 in TARIMAS:
+		var cuerpo := StaticBody3D.new()
+		var forma := CollisionShape3D.new()
+		var caja := BoxShape3D.new()
+		caja.size = TARIMA
+		forma.shape = caja
+		cuerpo.add_child(forma)
+		var malla := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = TARIMA
+		bm.material = mat
+		malla.mesh = bm
+		cuerpo.add_child(malla)
+		add_child(cuerpo)
+		cuerpo.position = p + Vector3.UP * TARIMA.y * 0.5
+
+
 func _exit_tree() -> void:
+	_matar_ahogados()
 	if _env and not _env_antes.is_empty():
 		_env.volumetric_fog_enabled = _env_antes["vf"]
 		_env.volumetric_fog_density = _env_antes["vfd"]

@@ -15,31 +15,42 @@ extends Node3D
 # por el PuntoDebil "cuerpo" (x1). El machete le llega porque esta en el grupo "zombis" con
 # recibir_golpe y radio_golpe (como La Mojiganga).
 # Fases por vida: FASE_2 y FASE_3 (grita, mas rapida). Te avisa Desague.gd con las senales.
+# Mas dura (AG 2026-11-19, "muy facil para jefa"): el zarpazo es un combo de 2 o 3 (alterna brazos),
+# GRITO (fase 2+) avienta con un anillo, ATRAS: si te quedas a su espalda te azota con el pelo, el
+# pecho solo se abre tras el combo o el grito y menos tiempo; en fase 2 y 3 salen ahogados por las
+# coladeras (Desague.soltar_ahogados) y en la 3 sube el agua negra (Desague.subir_agua).
 
 signal vida_cambio(fraccion: float)
 signal fase_cambio(fase: int)
 signal murio
 
-enum Estado { SALE, ESPERA, ZARPAZO, CHARCOS, PELO, HUNDE, EXPUESTA, MUERTA }
+enum Estado { SALE, ESPERA, ZARPAZO, CHARCOS, PELO, HUNDE, EXPUESTA, MUERTA, GRITO, ATRAS }
 
 const MODELO := preload("res://models/sotano/desaguadora.glb")
-const VIDA := 650
+const VIDA := 1800
 const FASE_2 := 0.6
 const FASE_3 := 0.25
-const AVISO_ZARPAZO := 0.75
+const AVISO_ZARPAZO := 0.5           # el primero del combo; los siguientes, AVISO_SEGUIDO
+const AVISO_SEGUIDO := 0.3
 const ZARPAZO_RADIO := 3.2
 const ZARPAZO_CONO := 0.35           # dot minimo (unos 70 grados de cada lado)
-const DANO_ZARPAZO := 20
-const AVISO_CHARCO := 1.15
+const DANO_ZARPAZO := 35
+const AVISO_CHARCO := 0.85
 const CHARCO_RADIO := 1.0
-const DANO_CHARCO := 14
-const AVISO_PELO := 0.8
+const DANO_CHARCO := 22
+const AVISO_PELO := 0.55
 const PELO_LARGO := 7.0
 const PELO_ANCHO := 0.7
-const DANO_PELO := 16
-const GOTAS_CADA := 2.6
-const DANO_GOTA := 8
-const EXPUESTA_DURA := 1.7
+const DANO_PELO := 28
+const GOTAS_CADA := 2.0
+const DANO_GOTA := 14
+const AVISO_GRITO := 0.9
+const GRITO_RADIO := 3.5
+const DANO_GRITO := 18
+const ATRAS_TARDA := 0.8             # s a su espalda antes de que te azote
+const DANO_ATRAS := 22
+const AHOGADOS_CADA := 12.0          # s entre tandas de ahogados (fase 2 y 3)
+const EXPUESTA_DURA := 1.1
 const EXPUESTA_MULT := 2.0
 const CORAZON_MULT := 2.5
 const VELOCIDAD := 0.7               # m/s (escena) cuando se te acerca
@@ -67,6 +78,11 @@ var _gotas_t := 0.0
 var _ataques := 0
 var _jugador: Node3D
 var _avisos: Array[Node3D] = []
+var _atras_t := 0.0
+var _muerte_ms := -1
+var _modelo_y := 0.0
+const HUNDE_MUERTA := 3.0
+var _ahogados_t := 0.0
 
 
 func _ready() -> void:
@@ -106,6 +122,12 @@ func _process(delta: float) -> void:
 	_t += delta
 	_mecer()
 	if estado == Estado.MUERTA:
+		if _muerte_ms >= 0:
+			var f := clampf((Time.get_ticks_msec() - _muerte_ms) / (HUNDE_MUERTA * 1000.0), 0.0, 1.0)
+			_modelo.position.y = lerpf(_modelo_y, -PROFUNDO, f * f)
+			if f >= 1.0:
+				_muerte_ms = -1
+				murio.emit()
 		return
 	match estado:
 		Estado.SALE:
@@ -122,11 +144,21 @@ func _process(delta: float) -> void:
 			_latigo()
 		Estado.HUNDE:
 			_hundir()
+		Estado.GRITO:
+			_grito()
+		Estado.ATRAS:
+			_atras()
 		Estado.EXPUESTA:
 			_inclinar(-0.25)
 			if _t >= EXPUESTA_DURA * (0.8 if fase == 3 else 1.0):
 				_exponer(false)
 				_cambiar(Estado.ESPERA)
+	# Fase 2 y 3: ahogados por las coladeras cada rato
+	if fase >= 2 and arena and arena.has_method("soltar_ahogados"):
+		_ahogados_t += delta
+		if _ahogados_t >= AHOGADOS_CADA:
+			_ahogados_t = 0.0
+			arena.call("soltar_ahogados", 2 if fase == 2 else 3)
 	# Fase 3: le llueve agua negra del techo encima de ti
 	if fase >= 3 and estado != Estado.SALE:
 		_gotas_t += delta
@@ -151,12 +183,23 @@ func _esperar(delta: float) -> void:
 		hacia.y = 0.0
 		if hacia.length() > 0.01:
 			global_position += hacia.normalized() * VELOCIDAD * (1.4 if fase == 3 else 1.0) * delta * global_basis.get_scale().x
-	var pausa := 1.1 if fase == 1 else (0.8 if fase == 2 else 0.55)
+	# A su espalda mucho rato: te azota con el pelo
+	if _a_su_espalda() and lejos < ZARPAZO_RADIO:
+		_atras_t += delta
+		if _atras_t >= ATRAS_TARDA:
+			_atras_t = 0.0
+			_cambiar(Estado.ATRAS)
+			return
+	else:
+		_atras_t = 0.0
+	var pausa := 0.6 if fase == 1 else (0.4 if fase == 2 else 0.25)
 	if _t < pausa:
 		return
 	_ataques += 1
-	if _ataques % 5 == 0 or lejos > 7.0:
+	if _ataques % 6 == 0 or lejos > 7.0:
 		_cambiar(Estado.HUNDE)
+	elif fase >= 2 and randf() < 0.25:
+		_cambiar(Estado.GRITO)
 	elif lejos <= ZARPAZO_RADIO:
 		_cambiar(Estado.ZARPAZO)
 	elif fase >= 2 and randf() < 0.5:
@@ -165,14 +208,20 @@ func _esperar(delta: float) -> void:
 		_cambiar(Estado.CHARCOS)
 
 
+# El combo: 2 zarpazos (3 desde la fase 2), alternando brazos; el pecho se abre al final
 func _zarpazo() -> void:
-	var aviso := AVISO_ZARPAZO * (0.8 if fase == 3 else 1.0)
+	var k: int = get_meta("golpe_k", 0)
+	var total := 2 if fase == 1 else 3
+	var aviso := (AVISO_ZARPAZO if k == 0 else AVISO_SEGUIDO) * (0.8 if fase == 3 else 1.0)
+	var der := k % 2 == 0
 	if _t < aviso:
-		_mirar_al_jugador(get_process_delta_time(), 3.0)
-		_brazos(0.0, lerpf(0.0, 2.4, _t / aviso), get_process_delta_time(), true)
+		_mirar_al_jugador(get_process_delta_time(), 4.0)
+		var alto := lerpf(0.0, 2.4, _t / aviso)
+		_brazos(0.0 if der else alto, alto if der else 0.0, get_process_delta_time(), true)
 		return
-	var golpe := (_t - aviso) / 0.25
-	_brazos(0.0, lerpf(2.4, 0.6, clampf(golpe, 0.0, 1.0)), get_process_delta_time(), true)
+	var golpe := (_t - aviso) / 0.22
+	var baja := lerpf(2.4, 0.6, clampf(golpe, 0.0, 1.0))
+	_brazos(0.0 if der else baja, baja if der else 0.0, get_process_delta_time(), true)
 	if golpe >= 0.5 and not get_meta("pego", false):
 		set_meta("pego", true)
 		Sonidos.tocar(self, "golpe", -2.0, 0.6)
@@ -185,8 +234,65 @@ func _zarpazo() -> void:
 				_herir_jugador(DANO_ZARPAZO, 1.6)
 	if golpe >= 1.0:
 		remove_meta("pego")
+		if k + 1 < total:
+			set_meta("golpe_k", k + 1)
+			_t = 0.0
+			return
+		remove_meta("golpe_k")
 		_exponer(true)
 		_cambiar(Estado.EXPUESTA)
+
+
+# El grito: levanta la cabeza y abre los brazos; un anillo rojo avisa y luego revienta y avienta
+func _grito() -> void:
+	var aviso := AVISO_GRITO * (0.8 if fase == 3 else 1.0)
+	if not has_meta("anillo"):
+		set_meta("anillo", true)
+		_aviso_circulo(global_position, GRITO_RADIO, aviso, 0, false, true)
+		Sonidos.tocar(self, "rugido", -6.0, 0.35)
+	if _t < aviso:
+		_brazos(lerpf(0.0, 1.6, _t / aviso), lerpf(0.0, 1.6, _t / aviso), get_process_delta_time(), true)
+		if _cabeza:
+			_cabeza.rotation.x = lerpf(0.15, -0.6, _t / aviso)
+		return
+	if not get_meta("pego", false):
+		set_meta("pego", true)
+		Sonidos.tocar(self, "rugido", 2.0, 0.3)
+		if _jugador and _distancia() <= GRITO_RADIO:
+			_herir_jugador(DANO_GRITO, 2.5)
+	if _t >= aviso + 0.5:
+		remove_meta("pego")
+		remove_meta("anillo")
+		_exponer(true)
+		_cambiar(Estado.EXPUESTA)
+
+
+# Si te quedas a su espalda: la cabeza se voltea y el pelo te azota de reversa (aviso corto)
+func _atras() -> void:
+	if _t < 0.35:
+		if _pelo:
+			_pelo.rotation.x = lerpf(0.0, 0.6, _t / 0.35)
+		return
+	if not get_meta("pego", false):
+		set_meta("pego", true)
+		Sonidos.tocar(self, "golpe", -2.0, 1.1)
+		if _jugador and _distancia() <= ZARPAZO_RADIO and _a_su_espalda():
+			_herir_jugador(DANO_ATRAS, 2.0)
+	if _pelo:
+		_pelo.rotation.x = lerpf(0.6, 0.0, clampf((_t - 0.35) / 0.3, 0.0, 1.0))
+	if _t >= 0.8:
+		remove_meta("pego")
+		_cambiar(Estado.ESPERA)
+
+
+func _a_su_espalda() -> bool:
+	if _jugador == null:
+		return false
+	var frente := -global_basis.z
+	frente.y = 0.0
+	var hacia := _jugador.global_position - global_position
+	hacia.y = 0.0
+	return hacia.length() > 0.3 and frente.normalized().dot(hacia.normalized()) < -0.4
 
 
 func _charcos() -> void:
@@ -278,6 +384,11 @@ func _herir(dano: int, _desde: Vector3) -> int:
 		fase = nueva
 		fase_cambio.emit(fase)
 		Sonidos.tocar(self, "rugido", 0.0, 0.45)
+		if arena:
+			if arena.has_method("soltar_ahogados"):
+				arena.call("soltar_ahogados", 2 if fase == 2 else 3)
+			if fase == 3 and arena.has_method("subir_agua"):
+				arena.call("subir_agua")
 	return 1
 
 
@@ -289,9 +400,10 @@ func _morir() -> void:
 		if is_instance_valid(a):
 			a.queue_free()
 	Sonidos.tocar(self, "rugido", 2.0, 0.4)
-	var t := create_tween()
-	t.tween_property(_modelo, "position:y", -PROFUNDO, 3.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	t.tween_callback(func() -> void: murio.emit())
+	# Se hunde en tiempo real (la congelada de los golpes baja el time_scale y un tween se quedaba
+	# atorado: nunca avisaba que murio)
+	_muerte_ms = Time.get_ticks_msec()
+	_modelo_y = _modelo.position.y
 
 
 # --- Movimiento y poses ---
@@ -370,7 +482,7 @@ func _herir_jugador(dano: int, empuje: float) -> void:
 # --- Avisos en el piso (rojos) y lo que revienta ---
 
 # Un circulo rojo que crece en `donde`; al acabar revienta de agua negra y hiere si sigues adentro
-func _aviso_circulo(donde: Vector3, radio: float, espera: float, dano: int, del_techo: bool) -> void:
+func _aviso_circulo(donde: Vector3, radio: float, espera: float, dano: int, del_techo: bool, solo_aviso := false) -> void:
 	var escala := global_basis.get_scale().x
 	var disco := MeshInstance3D.new()
 	var m := CylinderMesh.new()
@@ -391,7 +503,9 @@ func _aviso_circulo(donde: Vector3, radio: float, espera: float, dano: int, del_
 	var t := create_tween()
 	t.tween_property(disco, "scale", Vector3(1, 1, 1) * escala, espera).set_trans(Tween.TRANS_SINE)
 	t.tween_callback(func() -> void:
-		if estado == Estado.MUERTA:
+		if not is_instance_valid(disco):
+			return
+		if estado == Estado.MUERTA or solo_aviso:
 			disco.queue_free()
 			return
 		_chorro(disco.global_position, radio * escala, del_techo)

@@ -34,6 +34,13 @@ func _ver(cond: bool, que: String, detalle := "") -> void:
 		_bien = false
 
 
+# Espera hasta que `listo` sea cierto (o se acabe el tiempo): no depende de los cuadros por segundo
+func _hasta(listo: Callable, maximo: float) -> void:
+	var desde := Time.get_ticks_msec()
+	while not listo.call() and Time.get_ticks_msec() - desde < maximo * 1000.0:
+		await _esperar(0.2)
+
+
 # Una accion de entrada (como si la apretaras y soltaras)
 func _accion(nombre: String) -> void:
 	for apretada in [true, false]:
@@ -223,19 +230,42 @@ func _probar() -> void:
 	if jefa:
 		# El machete le pega (grupo zombis); a golpes hasta que se hunde
 		var vueltas := 0
-		while jefa.vida > 0 and vueltas < 200:
+		var ahogados_max := 0
+		var hubo_agua := false
+		while jefa.vida > 0 and vueltas < 400:
 			jefa._t = 99.0 if jefa.estado == Desaguadora.Estado.SALE else jefa._t
 			jefa.recibir_golpe(40, jefa.global_position, 1.0, 80, true)
+			get_node("/root/Salud").vida = 100      # (si no, ella o los ahogados te tumban y te saca)
 			vueltas += 1
+			var vivos: Array = des.get("_ahogados").filter(func(z: Node) -> bool: return is_instance_valid(z))
+			ahogados_max = maxi(ahogados_max, vivos.size())
+			hubo_agua = hubo_agua or des.get("_agua_sube")
 			await _esperar(0.02)
-		_ver(jefa.vida <= 0 and jefa.fase == 3, "La Desaguadora pasa por sus tres fases y cae")
-		await _esperar(3.6)
+		_ver(jefa.vida <= 0 and jefa.fase == 3, "La Desaguadora pasa por sus tres fases y cae", "%d golpes de 40" % vueltas)
+		_ver(ahogados_max > 0 and ahogados_max <= 4, "salen ahogados por las coladeras", "hasta %d" % ahogados_max)
+		_ver(hubo_agua, "en la fase 3 sube el agua negra")
+		for k in 10:
+			get_node("/root/Salud").vida = 100
+			await _esperar(0.4)
 		_ver(fichas.desaguadora and fichas.fichas >= fichas_antes_jefa + 300 and inventario.items.size() == cosas_antes + 1,
-			"premio: 300 fichas y la varilla del desague", "fichas %d -> %d" % [fichas_antes_jefa, fichas.fichas])
+			"premio: 300 fichas y la varilla del desague", "fichas %d -> %d, vencida %s, desague %s, jefa %s, cosas %d -> %d" % [fichas_antes_jefa, fichas.fichas,
+			fichas.desaguadora, is_instance_valid(des), is_instance_valid(jefa) and jefa.estado == Desaguadora.Estado.MUERTA, cosas_antes, inventario.items.size()])
 	sotano._subir_del_desague()
 	await _esperar(0.5)
 	_ver(sotano.get_node_or_null("Desague") == null and jugador.global_position.distance_to(sotano.to_global(sotano.marca("Bano_escotilla").origin)) < 2.0,
 		"subes por la escalera al bano")
+	# Si te tumba, el agua te escupe al bano y se queda con la mitad de tus fichas
+	fichas.fichas = 40
+	sotano._bajar_al_desague()
+	await _esperar(1.0)
+	var des2: Node = sotano.get_node_or_null("Desague")
+	if des2:
+		get_node("/root/Salud").vida = 5
+		des2.herir_jugador(30, jugador.global_position, 1.0)
+		await _esperar(0.5)
+	_ver(sotano.get_node_or_null("Desague") == null and fichas.fichas == 20, "si te tumba te escupe al bano con la mitad de tus fichas",
+		"fichas %d" % fichas.fichas)
+	get_node("/root/Salud").vida = 100
 	# El de los dulces del bano: un mazapan
 	fichas.fichas = maxi(fichas.fichas, 10)
 	var antes_d: int = inventario.items.size()
@@ -252,7 +282,7 @@ func _probar() -> void:
 	ui = arbol.get_first_node_in_group("juego_sotano")
 	ui.tecla(KEY_DOWN)
 	ui.repartir()
-	await _esperar(3.0)
+	await _hasta(func() -> bool: return ui.get("_bac").ganador != "" and not ui.get("_ocupado"), 20.0)
 	_ver(ui.get("_bac").ganador != "" and not ui.get("_ocupado"), "se juega una mano de baccarat", "gana %s" % ui.get("_bac").ganador)
 	ui.cerrar()
 	await _esperar(0.5)
@@ -261,11 +291,12 @@ func _probar() -> void:
 	await _esperar(0.8)
 	ui = arbol.get_first_node_in_group("juego_sotano")
 	ui.girar()
-	await _esperar(7.5)
+	await _hasta(func() -> bool: return ui.get("_estado") != 1, 30.0)        # 1 = GIRANDO
 	var tras_giro: int = ui.get("_estado")
 	if tras_giro == 2:    # GANASTE
 		ui.dobletear()
-		await _esperar(7.5)
+		await _esperar(0.5)
+		await _hasta(func() -> bool: return ui.get("_estado") != 1, 30.0)
 	_ver(ui.get("_estado") == 3 or ui.get("_estado") == 2, "gira la ruleta (y el doblete)", "sale %s" % ui.get("_sale").text)
 	ui.cerrar()
 	await _esperar(0.5)
@@ -279,7 +310,8 @@ func _probar() -> void:
 	var caballo := sotano.get("_caballos")[0] as Node3D
 	var x0 := caballo.position.x
 	ui.arrancar()
-	await _esperar(4.5)          # (la camara vuela y cuenta 3, 2, 1 antes de que arranquen)
+	# (la camara vuela y cuenta 3, 2, 1 antes de que arranquen)
+	await _hasta(func() -> bool: return absf(caballo.position.x - x0) > 0.5, 30.0)
 	await _foto("5_carrera")
 	var corrio := absf(caballo.position.x - x0) > 0.5
 	while ui.get("_ocupado"):
@@ -359,7 +391,7 @@ func _probar() -> void:
 		await _foto("5b_frutas")
 		tui._tirar()
 		var desde_f := Time.get_ticks_msec()
-		while tui.get("_ocupado") and Time.get_ticks_msec() - desde_f < 20000:
+		while tui.get("_ocupado") and Time.get_ticks_msec() - desde_f < 45000:
 			await _esperar(0.2)
 		_ver(tui.get("_apuestas").is_empty(), "tira y cobra", "fichas %d -> %d" % [antes_f, fichas.fichas])
 		tui._salir()
