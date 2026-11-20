@@ -186,6 +186,9 @@ func _crear_celda(bodegas: Array) -> Array:
 	var vanos := {"cerrado": [], "abierto": []}
 	var props := {}            # nombre -> [Transform3D]
 	for bodega: Dictionary in bodegas:
+		# En su terreno va el palacio de gobierno (FortalezasMapa)
+		if FortalezasMapa.bodega_quitada(bodega):
+			continue
 		_armar_bodega(bodega, tools, vanos, props, cajas)
 
 	var mesh := ArrayMesh.new()

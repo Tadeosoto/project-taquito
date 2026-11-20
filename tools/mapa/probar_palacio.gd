@@ -5,7 +5,8 @@ extends SceneTree
 #   godot --path . -s tools/mapa/probar_palacio.gd -- --capturas   # ademas guarda capturas de dia y de noche
 #
 # Que revisa:
-#   - el palacio esta, con colision, y su fachada queda donde se espera (un rayo desde la plaza le pega);
+#   - el palacio esta, con colision, y su fachada queda donde se espera (un rayo desde enfrente le pega);
+#   - la bodega que estaba en su terreno ya no esta (ni sus bardas);
 #   - bajo el portal se puede pasar (un rayo a 1 m de alto entra entre los arcos);
 #   - el piso de la plaza queda apenas arriba del suelo del mapa;
 #   - en la plaza no hay arboles ni matas, y los pasos no suenan a pasto (MapPasto.hay_pasto); afuera si;
@@ -13,6 +14,7 @@ extends SceneTree
 
 const MAPA := "res://scenes/map_test.tscn"
 const CAPTURAS := "user://palacio_"
+const LEJOS_PASTO := [Vector2(215.0, 605.0), Vector2(225.0, 620.0), Vector2(320.0, 600.0)]   # jardines de alrededor
 # Por load() al correr, no por su class_name: con -s este script se compila antes que los autoloads, y nombrar
 # FortalezasMapa o EntradaJefe (que usan Misiones) dejaba esas clases rotas para todo el mapa
 var F: GDScript
@@ -33,7 +35,7 @@ func _probar() -> void:
 	await _cuadros(2)
 	var jugador := escena.get_node("Player") as CharacterBody3D
 	var plaza: Vector2 = F.PLAZA_CENTRO
-	jugador.global_position = Vector3(plaza.x, 1.0, plaza.y + 30.0)
+	jugador.global_position = Vector3(plaza.x, 1.0, plaza.y)
 	# Que carguen los cuadros, los arboles y el pasto de alrededor
 	await _cuadros(240)
 	var espacio := jugador.get_world_3d().direct_space_state
@@ -43,15 +45,37 @@ func _probar() -> void:
 	if palacio:
 		var formas := palacio.find_children("*", "CollisionShape3D", false, false).size()
 		_revisar("el palacio choca", formas > 0, "%d formas" % formas)
-		var pega := _rayo(espacio, Vector3(-606.0, 3.0, -90.0), Vector3(-606.0, 3.0, -170.0))
-		_revisar("la fachada (o el muro detras del portal) queda en z -105 a -125", not pega.is_empty() and pega["position"].z < -105.0 and pega["position"].z > -125.0
-			and pega["collider"] == palacio, str(pega.get("position")))
-		var pasa := _rayo(espacio, Vector3(-604.5, 1.0, -100.0), Vector3(-604.5, 1.0, -116.0))
-		_revisar("bajo el portal se pasa (1 m de alto)", pasa.is_empty() or pasa["position"].z < -113.0, str(pasa.get("position")))
+		# En los ejes del palacio: su origen esta al pie del portal y el frente mira a su +Z
+		var xf := palacio.global_transform
+		var pega := _rayo(espacio, xf * Vector3(-6.0, 3.0, 30.0), xf * Vector3(-6.0, 3.0, -50.0))
+		var z_pega: float = (xf.affine_inverse() * pega["position"]).z if not pega.is_empty() else 99.0
+		_revisar("la fachada (o el muro detras del portal) queda a +15..-5 m del origen", z_pega < 15.0 and z_pega > -5.0
+			and pega["collider"] == palacio, "%.1f" % z_pega)
+		var pasa := _rayo(espacio, xf * Vector3(-4.5, 1.0, 20.0), xf * Vector3(-4.5, 1.0, 4.0))
+		var z_pasa: float = (xf.affine_inverse() * pasa["position"]).z if not pasa.is_empty() else -99.0
+		_revisar("bajo el portal se pasa (1 m de alto)", z_pasa < 7.0, "%.1f" % z_pasa)
+		var centro: Vector2 = F.PALACIO_CENTRO
+		var arriba := _rayo(espacio, Vector3(centro.x, 40.0, centro.y), Vector3(centro.x, -5.0, centro.y))
+		_revisar("el palacio queda centrado en su terreno", not arriba.is_empty() and arriba["collider"] == palacio, str(arriba.get("position")))
+	var bodegas := 0
+	var bardas := 0
+	for nodo: Node3D in escena.find_children("*", "Node3D", true, false):
+		var guion: Script = nodo.get_script()
+		if guion == null or not guion.resource_path.ends_with("MapBodegas.gd") and not guion.resource_path.ends_with("MapBardas.gd"):
+			continue
+		for malla: MeshInstance3D in nodo.find_children("*", "MeshInstance3D", true, false):
+			var caja := malla.global_transform * malla.get_aabb()
+			var c := caja.get_center()
+			if F.en_lote(c.x, c.z) and caja.size.x < 60.0 and caja.size.z < 60.0:
+				if guion.resource_path.ends_with("MapBodegas.gd"):
+					bodegas += 1
+				else:
+					bardas += 1
+	_revisar("ya no esta la bodega del terreno (ni sus bardas)", bodegas == 0 and bardas == 0, "%d mallas de bodega, %d de barda" % [bodegas, bardas])
 
-	var suelo := _rayo(espacio, Vector3(plaza.x, 30.0, plaza.y + 10.0), Vector3(plaza.x, -30.0, plaza.y + 10.0))
+	var suelo := _rayo(espacio, Vector3(plaza.x + 8.0, 30.0, plaza.y), Vector3(plaza.x + 8.0, -30.0, plaza.y))
 	var piso := escena.find_child("PlazaCatrina", true, false)
-	_revisar("el suelo del mapa bajo la plaza esta a ~0 m", not suelo.is_empty() and absf(suelo["position"].y) < 0.05, str(suelo.get("position")))
+	_revisar("el piso de la plaza queda encima del suelo y la banqueta (0..0.17 m)", not suelo.is_empty() and suelo["position"].y > -0.05 and suelo["position"].y < 0.15, str(suelo.get("position")))
 	_revisar("hay piso de plaza", piso != null and piso.get_node_or_null("Piso") != null, "")
 
 	var arboles := 0
@@ -61,7 +85,7 @@ func _probar() -> void:
 			continue
 		for i in mmi.multimesh.instance_count:
 			var p := mmi.global_transform * mmi.multimesh.get_instance_transform(i).origin
-			if (F.SIN_VEGETACION as Rect2).grow(-1.0).has_point(Vector2(p.x, p.z)):
+			if F.sin_vegetacion(p.x, p.z):
 				arboles += 1
 	_revisar("ningun arbol ni mata en el palacio y la plaza", arboles == 0, "%d" % arboles)
 	var pasto := escena.find_child("Pasto*", true, false)
@@ -70,14 +94,17 @@ func _probar() -> void:
 			pasto = nodo
 	if pasto:
 		_revisar("en la plaza los pasos no suenan a pasto", not pasto.hay_pasto(Vector3(plaza.x, 0.0, plaza.y)), "")
-		_revisar("en el llano de junto si", pasto.hay_pasto(Vector3(-680.0, 0.0, -110.0)), "")
+		var afuera := 0
+		for punto: Vector2 in LEJOS_PASTO:
+			afuera += 1 if pasto.hay_pasto(Vector3(punto.x, 0.0, punto.y)) else 0
+		_revisar("en los jardines de alrededor si", afuera > 0, "%d de %d" % [afuera, LEJOS_PASTO.size()])
 
 	var entrada: Node3D = null
 	for e: Node3D in get_nodes_in_group("entradas_jefe"):
 		if e.get("id") == "mojiganga":
 			entrada = e
 	_revisar("la entrada de la Mojiganga esta en la plaza", entrada != null and entrada.get("escena") == "res://scenes/catrina.tscn"
-		and F.SIN_VEGETACION.has_point(Vector2(entrada.global_position.x, entrada.global_position.z)), "")
+		and F.sin_vegetacion(entrada.global_position.x, entrada.global_position.z), "")
 
 	if _capturas:
 		await _fotos(escena, jugador)
@@ -90,12 +117,15 @@ func _fotos(escena: Node, jugador: CharacterBody3D) -> void:
 	camara.far = 600.0
 	escena.add_child(camara)
 	camara.make_current()
-	var plaza: Vector2 = F.PLAZA_CENTRO
+	var palacio := escena.find_child("Palacio", true, false) as Node3D
+	var plaza := escena.find_child("PlazaCatrina", true, false) as Node3D
+	var p := palacio.global_transform
+	var q := plaza.global_transform
 	var tomas := [
-		["frente", Vector3(plaza.x + 6.0, 2.0, plaza.y + 34.0), Vector3(-600.0, 7.0, -125.0)],
-		["avenida", Vector3(-548.0, 3.0, -40.0), Vector3(-600.0, 6.0, -115.0)],
-		["arriba", Vector3(-520.0, 70.0, -20.0), Vector3(-600.0, 0.0, -110.0)],
-		["portal", Vector3(-596.0, 1.7, -100.0), Vector3(-601.0, 3.0, -118.0)],
+		["frente", q * Vector3(14.0, 2.0, 4.0), p * Vector3(0.0, 7.0, 0.0)],
+		["avenida", q * Vector3(-4.0, 2.5, 26.0), q * Vector3(0.0, 5.0, -25.0)],
+		["arriba", q * Vector3(30.0, 55.0, 70.0), p * Vector3(0.0, 0.0, 0.0)],
+		["portal", p * Vector3(4.0, 1.7, 14.0), p * Vector3(-1.0, 3.0, 0.0)],
 	]
 	for noche in [false, true]:
 		if noche:

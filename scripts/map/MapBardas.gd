@@ -236,6 +236,10 @@ func _crear_celda(celda_data: Dictionary) -> Array:
 	var cajas := []            # [Transform3D del centro, tamano]
 	var tools := {}            # nombre del material -> SurfaceTool
 	for panel: Dictionary in celda_data["paneles"]:
+		# Las bardas de la bodega que se quito para el palacio de gobierno (FortalezasMapa)
+		var medio: Vector2 = (panel["a"] + panel["b"]) / 2.0
+		if FortalezasMapa.en_lote(medio.x, medio.y):
+			continue
 		if panel["malla"]:
 			_malla(panel, tools, cajas)
 		else:

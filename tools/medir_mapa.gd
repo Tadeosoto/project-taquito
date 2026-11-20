@@ -21,7 +21,7 @@ const LUGARES := {
 	"refugio": Vector3(206.0, 1.2, 665.0),
 	"parques": Vector3(12.0, 1.2, -104.0),
 	# En la plaza de la Catrina, frente al palacio (FortalezasMapa, P0): su modelo, la plaza y los 4 faroles
-	"palacio": Vector3(-598.0, 1.2, -78.0),
+	"palacio": Vector3(296.0, 1.2, 590.0),
 }
 
 var _capturas := ""

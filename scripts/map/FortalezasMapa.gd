@@ -32,33 +32,69 @@ const CLINICA_LLEGADA := Vector2(-296.3, 551.0)
 const CRUZ_VERDE := Color(0.1, 0.9, 0.35)
 
 ## El palacio de gobierno y la plaza de la Catrina (P0 y la entrada de P5, JJ 2026-11-19): afuera de las fortalezas,
-## en el llano del oeste junto a la avenida, ~600 m al norte de la reja poniente de Santa Mugre (de noche se cruzan
-## hordas). El modelo es el Antiguo Palacio de Gobierno de Pachuca (Sketchfab, CC-BY, reducido a ~6k triangulos):
-## solo trae detalle al frente (el portal de arcos y el reloj, su +Z) y en su costado +X, asi que el frente mira al
-## sur (hacia Santa Mugre) y el costado a la avenida; los lados lisos dan al llano. Enfrente, la plaza de cantera
-## con la entrada a la pelea de la Mojiganga (EntradaJefe "mojiganga", catrina.tscn).
+## en el cruce de Av. Colon (aqui Antiguo Camino Real a Colima) y Bahia de Todos los Santos, donde de verdad hay una
+## plaza con una Farmacia Guadalajara (a ~100 m de donde empieza la partida). El modelo es el Antiguo Palacio de
+## Gobierno de Pachuca (Sketchfab, CC-BY, reducido a ~6k triangulos): solo trae detalle al frente (el portal de arcos
+## y el reloj, su +Z) y en su costado +X. Va en el terreno de la bodega 68 (que se quita, con sus bardas), alineado
+## con ella: el portal mira a la plaza y la avenida, el costado +X a la calle del OXO y el liso a las bardas traseras
+## de las casas de Bahia; atras le quedan ~4 m hasta la barda del baldio. La plaza es la franja de la
+## farmacia, entre la calle de atras y la lateral de la avenida, con la entrada a la pelea de la Mojiganga
+## (EntradaJefe "mojiganga", catrina.tscn). El modelo viene casi sin textura: se le ponen aplanado y cantera con UV
+## proyectadas por cara (`_texturizar`), y sus 119 mallas se juntan en una por material (eran ~330 llamadas de dibujo).
 const MODELO_PALACIO := "res://models/props/palacio/palacio.scn"
-const PALACIO_EN := Vector2(-600.0, -120.0)   # el origen del modelo, al pie del portal
+const PALACIO_CENTRO := Vector2(276.1, 522.2)  # el centro de su planta: el portal 2 m detras del frente de la bodega
+## El giro de las calles de ahi (la avenida y la calle de servicio de enfrente, del OSM): el palacio y la plaza van
+## paralelos a ellas (la bodega giraba 0.6)
+const GIRO_CALLES := 0.65
+const PALACIO_GIRO := GIRO_CALLES              # su +Z (el portal) a la calle de la plaza
 const PALACIO_ESCALA := 0.8                    # trae 29 m de alto con el reloj: asi el portal queda de ~7 m
-const PALACIO_TINTE := Color(0.93, 0.86, 0.76) # el modelo viene blanco: cantera clara
-const PLAZA_CENTRO := Vector2(-598.0, -92.0)
-const PLAZA_TAM := Vector2(64.0, 40.0)         # de la fachada (z -112) a 4 m antes de la calle de abajo
+## La bodega que se quita (como CucarrataCalle.BODEGA: el centro de su frente en bodegas_mapa.json) y su terreno
+## (centro, giro y medio tamano: de la calle de enfrente a antes de la barda del baldio), donde no van sus bardas
+const BODEGA_QUITADA := Vector2(288.4, 540.1)
+const LOTE_CENTRO := Vector2(277.3, 523.8)
+const LOTE_GIRO := 0.6
+const LOTE_MEDIO := Vector2(34.0, 23.5)
+## Texturas: [archivo, m por repeticion]. El horneado pierde los nombres de los materiales: se reconocen por su
+## textura (Base, Pilar, Madera) o por su tinte (el grueso del modelo, sin textura, trae 0.9; el aguila 0.19)
+const TEX_MURO := ["res://textures/mapa/aplanado_palacio.png", 2.5]
+const TEX_CANTERA := ["res://textures/mapa/cantera.png", 1.6]
+const COLOR_MADERA := Color(0.3, 0.18, 0.1)
+const COLOR_AGUILA := Color(0.1, 0.09, 0.08)
+const PLAZA_CENTRO := Vector2(288.0, 573.7)
+const PLAZA_GIRO := GIRO_CALLES               # a lo largo de la avenida; su +Z mira a la avenida
+const PLAZA_TAM := Vector2(44.0, 12.0)
 const PLAZA_TEXTURA := "res://textures/mapa/cantera_rosa.png"
 const PLAZA_LOSA := 3.0                        # m que mide cada repeticion de la textura
-const ENTRADA_MOJIGANGA := Vector2(-600.0, -86.0)
-const ASTA_EN := Vector2(-600.0, -103.0)
+const ENTRADA_MOJIGANGA := Vector2(11.3, 0.0)  # en la plaza (sus ejes), del lado contrario a la farmacia
+const ASTA_EN := Vector2(2.0, -3.0)            # en la plaza (sus ejes)
 const FAROL_COLOR := Color(1.0, 0.82, 0.55)
-## Donde no salen arboles ni matas de pasto (MapArboles, MapPasto): el palacio y la plaza con orilla
-const SIN_VEGETACION := Rect2(-636.0, -158.0, 74.0, 92.0)
 
 
 ## Solo en map_test: el safehouse y el mapa de Blender no tienen FortalezasMapa y sus coordenadas son otras
 static var _en_escena := false
 
 
-## Para MapArboles y MapPasto (y por ellos los pasos sobre pasto): aqui no hay arboles ni matas
+## Para MapArboles y MapPasto (y por ellos los pasos sobre pasto): en el terreno del palacio y en la plaza no hay
+## arboles ni matas
 static func sin_vegetacion(x: float, z: float) -> bool:
-	return _en_escena and SIN_VEGETACION.has_point(Vector2(x, z))
+	return _en_escena and (en_lote(x, z) or _dentro(Vector2(x, z), PLAZA_CENTRO, PLAZA_GIRO, PLAZA_TAM / 2.0 + Vector2.ONE))
+
+
+## El terreno del palacio: MapBardas no pone ahi las bardas de la bodega
+static func en_lote(x: float, z: float) -> bool:
+	return _en_escena and _dentro(Vector2(x, z), LOTE_CENTRO, LOTE_GIRO, LOTE_MEDIO)
+
+
+## MapBodegas no arma la bodega 68: ahi va el palacio. Solo constantes y una variable static (corre en su hilo)
+static func bodega_quitada(bodega: Dictionary) -> bool:
+	return _en_escena and Vector2(bodega["x"], bodega["z"]).distance_to(BODEGA_QUITADA) < 1.0
+
+
+## Si `p` cae en el rectangulo de centro `centro`, girado `giro` (como rotation.y) y de medio tamano `medio`
+static func _dentro(p: Vector2, centro: Vector2, giro: float, medio: Vector2) -> bool:
+	var d := p - centro
+	var local := Vector2(d.x * cos(giro) - d.y * sin(giro), d.x * sin(giro) + d.y * cos(giro))
+	return absf(local.x) <= medio.x and absf(local.y) <= medio.y
 
 
 func _enter_tree() -> void:
@@ -159,25 +195,22 @@ func _palacio() -> void:
 		return
 	var cuerpo := StaticBody3D.new()
 	cuerpo.name = "Palacio"
-	cuerpo.position = Vector3(PALACIO_EN.x, 0.0, PALACIO_EN.y)
+	cuerpo.rotation.y = PALACIO_GIRO
 	add_child(cuerpo)
 	var modelo := (load(MODELO_PALACIO) as PackedScene).instantiate() as Node3D
 	modelo.scale = Vector3.ONE * PALACIO_ESCALA
 	cuerpo.add_child(modelo)
-	# Es edificio: sin el brinco de vertices de los personajes (como MapStreamer._quitar_brinco) y teñido de cantera.
-	# Los materiales son del .scn y solo el palacio los usa
-	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):
-		for i in malla.mesh.get_surface_count():
-			var material := malla.get_active_material(i) as ShaderMaterial
-			if material:
-				material.set_shader_parameter("jitter_enabled", false)
-				material.set_shader_parameter("wobble_enabled", false)
-				material.set_shader_parameter("tint", PALACIO_TINTE)
-		# Choca con su forma real: se puede caminar bajo el portal
-		var forma := CollisionShape3D.new()
-		forma.shape = malla.mesh.create_trimesh_shape()
-		forma.transform = cuerpo.global_transform.affine_inverse() * malla.global_transform
-		cuerpo.add_child(forma)
+	# El origen del modelo esta al pie del portal: se corre para que el centro de su planta quede en PALACIO_CENTRO
+	var caja := AABB()
+	var mallas := modelo.find_children("*", "MeshInstance3D", true, false)
+	for k in mallas.size():
+		var malla := mallas[k] as MeshInstance3D
+		var en_modelo := modelo.transform * _relativo(modelo, malla) * malla.get_aabb()
+		caja = en_modelo if k == 0 else caja.merge(en_modelo)
+	var centro_local := caja.get_center()
+	var corrido := Basis(Vector3.UP, PALACIO_GIRO) * Vector3(centro_local.x, 0.0, centro_local.z)
+	cuerpo.position = Vector3(PALACIO_CENTRO.x - corrido.x, 0.0, PALACIO_CENTRO.y - corrido.z)
+	_texturizar(cuerpo, modelo)
 	var letrero := Label3D.new()
 	letrero.text = "PALACIO DE GOBIERNO"
 	letrero.pixel_size = 0.02
@@ -190,10 +223,102 @@ func _palacio() -> void:
 	cuerpo.add_child(letrero)
 
 
+## La transformacion de `nodo` relativa a `ancestro` (sin depender de global_transform)
+func _relativo(ancestro: Node3D, nodo: Node3D) -> Transform3D:
+	var t := Transform3D.IDENTITY
+	var n := nodo
+	while n != ancestro:
+		t = n.transform * t
+		n = n.get_parent() as Node3D
+	return t
+
+
+## Junta las mallas del modelo en una por material (en ejes del cuerpo), con UV proyectadas por cara en metros para
+## que la textura repita igual en todo el edificio, y le pone a cada una su colision. Luego quita el modelo original
+func _texturizar(cuerpo: StaticBody3D, modelo: Node3D) -> void:
+	var grupos := {}  # tipo -> [vertices, normales, uv, indices]
+	for malla: MeshInstance3D in modelo.find_children("*", "MeshInstance3D", true, false):
+		var xf := modelo.transform * _relativo(modelo, malla)
+		var giro := xf.basis.orthonormalized()
+		for i in malla.mesh.get_surface_count():
+			var tipo := _tipo_material(malla.mesh.surface_get_material(i) as ShaderMaterial)
+			if not grupos.has(tipo):
+				grupos[tipo] = [PackedVector3Array(), PackedVector3Array(), PackedVector2Array(), PackedInt32Array()]
+			var g: Array = grupos[tipo]
+			var arreglos := malla.mesh.surface_get_arrays(i)
+			var vs: PackedVector3Array = arreglos[Mesh.ARRAY_VERTEX]
+			var ns: PackedVector3Array = arreglos[Mesh.ARRAY_NORMAL]
+			var idx = arreglos[Mesh.ARRAY_INDEX]
+			var base: int = g[0].size()
+			var repite: float = TEX_MURO[1] if tipo == "muro" else TEX_CANTERA[1]
+			for v in vs.size():
+				var p := xf * vs[v]
+				var n := (giro * ns[v]).normalized() if v < ns.size() else Vector3.UP
+				var a := n.abs()
+				var uv := Vector2(p.x, p.z) if a.y >= a.x and a.y >= a.z else (Vector2(p.z, -p.y) if a.x >= a.z else Vector2(p.x, -p.y))
+				g[0].append(p)
+				g[1].append(n)
+				g[2].append(uv / repite)
+			if idx is PackedInt32Array and not idx.is_empty():
+				for k: int in idx:
+					g[3].append(base + k)
+			else:
+				for k in vs.size():
+					g[3].append(base + k)
+	for tipo: String in grupos:
+		var g: Array = grupos[tipo]
+		var arreglos := []
+		arreglos.resize(Mesh.ARRAY_MAX)
+		arreglos[Mesh.ARRAY_VERTEX] = g[0]
+		arreglos[Mesh.ARRAY_NORMAL] = g[1]
+		arreglos[Mesh.ARRAY_TEX_UV] = g[2]
+		arreglos[Mesh.ARRAY_INDEX] = g[3]
+		var malla := ArrayMesh.new()
+		malla.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arreglos)
+		var nodo := MeshInstance3D.new()
+		nodo.name = "Palacio_" + tipo
+		nodo.mesh = malla
+		nodo.material_override = _material_palacio(tipo)
+		cuerpo.add_child(nodo)
+		# Choca con su forma real: se puede caminar bajo el portal
+		var forma := CollisionShape3D.new()
+		forma.shape = malla.create_trimesh_shape()
+		cuerpo.add_child(forma)
+	modelo.queue_free()
+
+
+func _tipo_material(material: ShaderMaterial) -> String:
+	if material == null:
+		return "cantera"
+	var tex := material.get_shader_parameter("albedo_texture") as Texture2D
+	var archivo := tex.resource_path.get_file() if tex else ""
+	if archivo.begins_with("Base"):
+		return "muro"
+	if archivo.begins_with("Madera"):
+		return "madera"
+	var tinte = material.get_shader_parameter("tint")
+	if tinte is Color and (tinte as Color).r < 0.5:
+		return "aguila"
+	return "cantera"
+
+
+func _material_palacio(tipo: String) -> ShaderMaterial:
+	match tipo:
+		"muro", "cantera":
+			var material := _material(Color.WHITE)
+			material.set_shader_parameter("albedo_texture", load(TEX_MURO[0] if tipo == "muro" else TEX_CANTERA[0]))
+			material.set_shader_parameter("deterioro_modo", 0)
+			return material
+		"madera":
+			return _material(COLOR_MADERA)
+	return _material(COLOR_AGUILA)
+
+
 func _plaza() -> void:
 	var plaza := Node3D.new()
 	plaza.name = "PlazaCatrina"
 	plaza.position = Vector3(PLAZA_CENTRO.x, 0.0, PLAZA_CENTRO.y)
+	plaza.rotation.y = PLAZA_GIRO
 	add_child(plaza)
 	# El piso: un cuadro con la textura repetida cada PLAZA_LOSA m, apenas arriba del pasto
 	var medio := PLAZA_TAM / 2.0
@@ -213,22 +338,22 @@ func _plaza() -> void:
 	material.set_shader_parameter("albedo_texture", load(PLAZA_TEXTURA))
 	material.set_shader_parameter("deterioro_modo", 0)
 	piso.material_override = material
-	piso.position.y = 0.06
+	piso.position.y = 0.17                         # parte de la franja es banqueta (0.12 m)
 	piso.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	plaza.add_child(piso)
 	# Faroles en las cuatro esquinas: de noche aqui hay que pelear con lo que llegue antes de entrar
 	for sx in [-1.0, 1.0]:
 		for sz in [-1.0, 1.0]:
 			_farol(plaza, Vector3(sx * (medio.x - 4.0), 0.0, sz * (medio.y - 4.0)))
-	_asta(Vector3(ASTA_EN.x, 0.0, ASTA_EN.y))
-	# La entrada a la pelea de la Mojiganga: su +Z (por donde sales al volver) mira a la calle de abajo
+	_asta(plaza, Vector3(ASTA_EN.x, 0.0, ASTA_EN.y))
+	# La entrada a la pelea de la Mojiganga: su +Z (por donde sales al volver) mira a la avenida
 	var entrada := EntradaJefe.new()
 	entrada.name = "EntradaMojiganga"
 	entrada.id = "mojiganga"
 	entrada.escena = "res://scenes/catrina.tscn"
 	entrada.nombre = "la Mojiganga"
 	entrada.position = Vector3(ENTRADA_MOJIGANGA.x, 0.0, ENTRADA_MOJIGANGA.y)
-	add_child(entrada)
+	plaza.add_child(entrada)
 	var nombre := Label3D.new()
 	nombre.text = "Plaza de la Catrina"
 	nombre.pixel_size = 0.012
@@ -237,7 +362,7 @@ func _plaza() -> void:
 	nombre.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
 	nombre.position = Vector3(ENTRADA_MOJIGANGA.x, 4.2, ENTRADA_MOJIGANGA.y)
 	nombre.visibility_range_end = 60.0
-	add_child(nombre)
+	plaza.add_child(nombre)
 
 
 func _farol(padre: Node3D, donde: Vector3) -> void:
@@ -278,11 +403,11 @@ func _farol(padre: Node3D, donde: Vector3) -> void:
 	_choque(padre, donde + Vector3(0.0, 2.1, 0.0), Vector3(0.25, 4.2, 0.25))
 
 
-func _asta(donde: Vector3) -> void:
+func _asta(padre: Node3D, donde: Vector3) -> void:
 	var nodo := Node3D.new()
 	nodo.name = "Asta"
 	nodo.position = donde
-	add_child(nodo)
+	padre.add_child(nodo)
 	var poste := MeshInstance3D.new()
 	var cilindro := CylinderMesh.new()
 	cilindro.top_radius = 0.06
