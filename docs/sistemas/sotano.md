@@ -357,6 +357,7 @@ Knock three times on the closed bathroom stall (`Sotano._tocar_caseta`, `TOQUES_
   - **Life and phases:** `VIDA` 1800, phases at 0.6 and 0.25 (she screams and gets faster). Damage is about double the first version.
   - **Phases 2 and 3:** drowned zombies crawl out of the drains (`Desague.soltar_ahogados`). They are the real `Zombie`, tinted grey-blue, at most 4, freed when she dies or you leave.
   - **Phase 3:** the black water rises (`subir_agua`) and burns 4 per second. Two rusty platforms (`TARIMAS`) stay dry. It does not slow you: that would be in `player.gd` (JJ's code).
+  - **Sinking:** every sixth attack she sinks and comes up at the drain farthest from you. If she sinks because you ran more than 7 m away, she comes up at the drain about `SALIR_CERCA` (3 m) from you instead. Before, she always came up at the farthest drain: standing far away, she sank and rose forever and never hit you. With `--desague`, standing next to her for 10 s now takes you from 97 to about 40.
   - **Losing** costs half your chips.
   - **Death** runs on real time (`_muerte_ms`). The hit freeze lowers the time scale, and a tween got stuck there and never sent `murio`.
 - **Test scene:** `-- --desague=<dir>` knocks, goes down, saves frames (front close-ups too), stands you next to her and prints your life.
