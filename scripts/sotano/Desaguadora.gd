@@ -81,6 +81,8 @@ var _ataques := 0
 var _jugador: Node3D
 var _avisos: Array[Node3D] = []
 var _atras_t := 0.0
+var _salir_cerca := false            # se hundio porque estabas lejos: sale junto a ti (SALIR_CERCA)
+const SALIR_CERCA := 3.0             # m de ti a los que busca salir cuando te le alejas
 var _anim: AnimationPlayer
 # Estado -> [clip, segundos del clip hasta su golpe (para acelerarlo)]
 const CLIPS := {
@@ -268,6 +270,7 @@ func _esperar(delta: float) -> void:
 		return
 	_ataques += 1
 	if _ataques % 6 == 0 or lejos > 7.0:
+		_salir_cerca = lejos > 7.0
 		_cambiar(Estado.HUNDE)
 	elif fase >= 2 and randf() < 0.25:
 		_cambiar(Estado.GRITO)
@@ -415,14 +418,18 @@ func _hundir() -> void:
 	if _t < HUNDE_DURA:
 		_modelo.position.y = lerpf(0.0, -PROFUNDO, ease(_t / HUNDE_DURA, 2.0))
 		return
-	# Sale por la coladera mas lejos de ti
+	# Cada tanto sale por la coladera mas lejos de ti; si se hundio porque te alejaste, por la que
+	# quede a unos SALIR_CERCA m de ti (antes salia tambien por la mas lejana: si te quedabas lejos se
+	# hundia y salia sin fin y nunca te pegaba)
 	if arena:
 		var mejor: Vector3 = global_position
-		var lejos := -1.0
+		var puntos := -INF
+		var escala := global_basis.get_scale().x
 		for p: Vector3 in arena.call("coladeras"):
-			var d := p.distance_to(_jugador.global_position) if _jugador else 0.0
-			if d > lejos:
-				lejos = d
+			var d := p.distance_to(_jugador.global_position) / escala if _jugador else 0.0
+			var vale := -absf(d - SALIR_CERCA) if _salir_cerca else d
+			if vale > puntos:
+				puntos = vale
 				mejor = p
 		global_position = mejor
 	Sonidos.tocar(self, "rugido", -8.0, 0.5)
@@ -577,7 +584,9 @@ func _aviso_circulo(donde: Vector3, radio: float, espera: float, dano: int, del_
 	disco.global_position = Vector3(donde.x, global_position.y + 0.03, donde.z)
 	disco.scale = Vector3(0.2, 1, 0.2) * escala
 	_avisos.append(disco)
-	var t := create_tween()
+	# (el tween es del disco: si lo borran antes, al morir ella, muere con el; del de ella, la lambda
+	# llamaba con el disco ya liberado)
+	var t := disco.create_tween()
 	t.tween_property(disco, "scale", Vector3(1, 1, 1) * escala, espera).set_trans(Tween.TRANS_SINE)
 	t.tween_callback(func() -> void:
 		if not is_instance_valid(disco):
