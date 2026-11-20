@@ -322,6 +322,12 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _retumbo()
 			"zumbido":
 				_sonidos[nombre] = _zumbido()
+			# Las lamparas de tubo de las oficinas del palacio (PalacioOficinas): su zumbido en bucle y el
+			# chispazo cuando una que parpadea vuelve a prender
+			"fluorescente":
+				_sonidos[nombre] = _fluorescente()
+			"chispa":
+				_sonidos[nombre] = _chispa()
 			# Recoger una cajita de botin o una moneda (CajaBotin.gd)
 			"botin":
 				_sonidos[nombre] = _botin()
@@ -654,6 +660,41 @@ static func _zumbido() -> AudioStreamWAV:
 		b[i] = ruido * sin(PI * t) * 0.8
 	return _a_wav(b)
 
+
+
+# El zumbido de una lampara de tubo vieja: 120 Hz con armonicos asperos (el balastro) y un siseo debajo. Medio
+# segundo exacto (60 vueltas de 120 Hz) para que el bucle no truene
+static func _fluorescente() -> AudioStreamWAV:
+	var b := _vacio(0.5)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 121
+	var siseo := 0.0
+	for i in b.size():
+		var t := float(i) / MUESTRAS
+		var base := sin(TAU * 120.0 * t)
+		var aspero := clampf(base * 3.0, -1.0, 1.0) * 0.35 + sin(TAU * 240.0 * t) * 0.3 + sin(TAU * 360.0 * t) * 0.15
+		siseo = lerpf(siseo, azar.randf_range(-1.0, 1.0), 0.5)
+		b[i] = (base * 0.25 + aspero) * 0.45 + siseo * 0.05
+	var wav := _a_wav(b)
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wav.loop_begin = 0
+	wav.loop_end = b.size()
+	return wav
+
+
+# Chispazo electrico: unos tronidos secos y desparejos en una decima de segundo
+static func _chispa() -> AudioStreamWAV:
+	var b := _vacio(0.14)
+	var azar := RandomNumberGenerator.new()
+	azar.seed = 131
+	var golpe := 0.0
+	for i in b.size():
+		var t := float(i) / b.size()
+		if azar.randf() < 0.004:
+			golpe = azar.randf_range(0.6, 1.0)
+		golpe *= 0.993
+		b[i] = azar.randf_range(-1.0, 1.0) * golpe * (1.0 - t) * 0.8
+	return _a_wav(b)
 
 
 # Pistola (Pistola.gd): un estallido seco de ruido con un golpe grave abajo y un poco de

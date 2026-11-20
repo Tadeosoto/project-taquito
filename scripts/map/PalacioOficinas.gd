@@ -34,7 +34,7 @@ const SALES_EN := Vector3(0.0, 0.0, 3.6)     # donde te deja al salir, viendo a 
 const APARECES := Vector3(0.0, 0.0, -2.6)
 const SALIR_EN := Vector3(0.0, 0.0, -0.9)
 const PAPELES := [Vector3(-5.6, 0.0, -31.2), Vector3(5.6, 0.0, -31.2)]   # sobre las mesas del fondo (0.76 m)
-const ZOMBIS_EN := [Vector3(-3.0, 0.0, -27.0), Vector3(3.0, 0.0, -27.5), Vector3(0.0, 0.0, -18.0), Vector3(5.5, 0.0, -16.0)]
+const ZOMBIS_EN := [Vector3(-3.0, 0.0, -26.0), Vector3(3.0, 0.0, -29.5), Vector3(0.0, 0.0, -18.0), Vector3(1.5, 0.0, -21.0)]
 
 ## La planta (m): pasillo, oficinas a los lados y archivo al fondo
 const PASILLO := 2.5           # medio ancho
@@ -48,16 +48,36 @@ const CORTE_OFICINAS := -11.0  # la pared entre las dos oficinas de cada lado
 const VANOS := [-5.75, -16.25] # centro de la puerta de cada oficina, en la pared del pasillo
 const VANO := 1.8
 
-const COLOR_PARED := Color(0.8, 0.75, 0.62)    # crema de oficina de gobierno, con zoclo de madera
-const ZOCLO := 0.9
-const TEX_PISO := "res://textures/casa_personaje/piso.png"
-const TEX_TECHO := "res://textures/casa_personaje/techo.png"
+## Adentro: backrooms en ruinas (JJ, 2026-11-20). Texturas de tools/map_import/make_texturas_oficinas.py
+const DIR_TEX := "res://textures/palacio_oficinas/"
 const TEXTURA_CADA := 2.0
+const COLOR_ZOCLO := Color(0.28, 0.22, 0.13)
+const ZOCLO := 0.12
+const PLAFON := 0.6            # placas del plafon
+const SEMILLA := 4747          # todo lo revuelto sale de aqui: siempre igual
 const COLOR_MADERA := Color(0.36, 0.22, 0.12)
 const COLOR_METAL := Color(0.45, 0.47, 0.48)
 const COLOR_CARTON := Color(0.62, 0.5, 0.33)
 const COLOR_PAPEL := Color(0.9, 0.88, 0.8)
-const COLOR_LUZ := Color(0.85, 0.95, 1.0)
+const COLOR_LUZ := Color(1.0, 0.92, 0.68)
+const COLOR_AMBIENTE := Color(0.07, 0.06, 0.035)
+const LUZ_TENUE := 0.55
+const LUZ_PARPADEA := 0.95
+const LUZ_ALCANCE := 6.5
+## Las lamparas de tubo (x, z del centro del panel de 0.6 x 1.2 m, en la reja del plafon) y como estan. Casi todas
+## muertas: la oficina de atras a la derecha queda a oscuras y de ahi sale el rastro de sangre
+const LAMPARAS := [
+	[0.0, -1.8, "apagada"], [0.0, -4.2, "tenue"], [0.0, -6.6, "apagada"], [0.0, -9.0, "parpadea"],
+	[0.0, -11.4, "apagada"], [0.0, -13.8, "rota"], [0.0, -16.2, "parpadea"], [0.0, -18.6, "apagada"], [0.0, -21.0, "tenue"],
+	[5.4, -3.6, "parpadea"], [5.4, -7.2, "apagada"], [5.4, -13.8, "apagada"], [5.4, -19.2, "apagada"],
+	[-5.4, -3.6, "tenue"], [-5.4, -7.2, "apagada"], [-5.4, -13.8, "parpadea"], [-5.4, -19.2, "rota"],
+	[0.0, -26.4, "parpadea"], [0.0, -30.0, "tenue"], [-5.4, -30.0, "apagada"], [5.4, -30.0, "parpadea"],
+]
+## Placas del plafon que faltan (centro de su celda): hoyo negro, la placa colgando o tirada, cascajo y a veces un
+## cable; abajo de las de CHARCOS gotea y hay charco
+const HOYOS := [[0.6, -2.7], [-1.2, -8.1], [0.0, -12.3], [1.2, -14.7], [-0.6, -19.5], [6.0, -5.1], [-4.2, -9.3],
+	[4.8, -17.1], [-6.6, -15.9], [-1.8, -25.5], [2.4, -29.1], [-4.2, -31.5]]
+const CHARCOS := [1, 4, 9]
 
 ## Lo que leen MisionesMundo y la prueba: el marco del palacio (listo cuando se arma) y si estas adentro
 static var listo := false
@@ -78,8 +98,11 @@ var _golpe_en := 0.0
 var _ocupado := false
 var _armada := false   # la flecha cuenta hasta que te bajas de ella una vez (al abrir, al entrar o al salir estabas encima)
 var _espontaneos := true
-var _luces_titilan: Array[OmniLight3D] = []
-var _t := 0.0
+var _piso: Node3D
+var _azar := RandomNumberGenerator.new()
+var _tramos: Array = []                 # las paredes [a, b], para la mugre
+var _parpadeo: Array[Dictionary] = []   # las lamparas que parpadean (_parpadear)
+var _zumbidos: Array[AudioStreamPlayer3D] = []
 
 
 ## Afuera, en metros del juego: frente a la puerta (a donde apunta la flecha de la mision)
@@ -215,9 +238,8 @@ func interact() -> void:
 
 
 func _process(delta: float) -> void:
-	_t += delta
-	for luz in _luces_titilan:
-		luz.visible = fmod(_t * 7.3 + luz.position.z, 5.0) > 0.35
+	if _piso.visible:
+		_parpadear(delta)
 	if not _forzando:
 		return
 	if not Input.is_action_pressed("jump") or not _cerca():
@@ -273,6 +295,7 @@ func _al_entrar() -> void:
 	jugador.process_mode = Node.PROCESS_MODE_DISABLED
 	await _fundir(1.0)
 	adentro = true
+	ver_piso(true)
 	var mando := get_tree().get_first_node_in_group("zombis_mando") as Zombis
 	if mando:
 		_espontaneos = mando.espontaneos
@@ -305,6 +328,7 @@ func _al_salir() -> void:
 
 func _ya_afuera() -> void:
 	adentro = false
+	ver_piso(false)
 	var mando := get_tree().get_first_node_in_group("zombis_mando") as Zombis
 	if mando:
 		mando.espontaneos = _espontaneos
@@ -356,18 +380,38 @@ func _avisar(texto: String) -> void:
 	tween.tween_property(_aviso, "modulate:a", 0.0, 0.8)
 
 
-# --- Las oficinas (arriba) ---
+# --- Las oficinas (arriba): backrooms en ruinas ---
+# Papel tapiz amarillo, alfombra humeda, plafon con placas que faltan y lamparas de tubo casi todas muertas: unas
+# apagadas, unas tenues y otras que parpadean con su zumbido. Humedad que escurre del techo, boquetes en la
+# tablaroca, sangre, muebles volcados, papeles por todos lados. Lo que estorba al caminar (escritorios, archiveros,
+# estantes) choca; el cascajo, los papeles y las placas tiradas no, para que el pasillo y el archivo queden libres
+# (los zombis de adentro van derecho, Zombis.sin_campo). Todo sale de SEMILLA: siempre igual.
 
 func _oficinas() -> void:
-	var piso := Node3D.new()
-	piso.name = "Oficinas"
-	piso.position.y = ALTURA
-	add_child(piso)
-	var pared := _material("pared", COLOR_PARED)
+	_azar.seed = SEMILLA
+	_piso = Node3D.new()
+	_piso.name = "Oficinas"
+	_piso.position.y = ALTURA
+	_piso.visible = false
+	add_child(_piso)
+	var piso := _piso
+	var pared := _material("pared", Color.WHITE, DIR_TEX + "papel_tapiz.png")
 	var fondo := ARCHIVO_HASTA
-	# Piso y techo
-	_bloque(piso, Vector3(0.0, -0.1, fondo / 2.0), Vector3(LADO * 2.0, 0.2, -fondo), _material("piso", Color.WHITE, TEX_PISO))
-	_bloque(piso, Vector3(0.0, ALTO + 0.1, fondo / 2.0), Vector3(LADO * 2.0, 0.2, -fondo), _material("techo", Color.WHITE, TEX_TECHO))
+	# Piso (alfombra) y techo (plafon); el techo un poco mas ancho que la planta, que no se asome nada
+	_bloque(piso, Vector3(0.0, -0.1, fondo / 2.0), Vector3(LADO * 2.0, 0.2, -fondo), _material("alfombra", Color.WHITE, DIR_TEX + "alfombra.png"))
+	var techo := _bloque(piso, Vector3(0.0, ALTO + 0.1, fondo / 2.0), Vector3(LADO * 2.0 + 0.6, 0.2, -fondo + 0.6), _material("plafon", Color.WHITE, DIR_TEX + "plafon.png", 1.2))
+	techo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	# Que adentro no alumbre el cielo: el techo y las paredes tapan el sol (que tiene sombras) y el ambiente es casi
+	# negro (una sonda de interior manda sobre el ambiente del Environment, que Ciclo cambia con la hora)
+	var sonda := ReflectionProbe.new()
+	sonda.size = Vector3(LADO * 2.0 + 1.0, ALTO + 1.0, -fondo + 1.0)
+	sonda.position = Vector3(0.0, ALTO / 2.0, fondo / 2.0)
+	sonda.interior = true
+	sonda.ambient_mode = ReflectionProbe.AMBIENT_COLOR
+	sonda.ambient_color = COLOR_AMBIENTE
+	sonda.ambient_color_energy = 1.0
+	sonda.update_mode = ReflectionProbe.UPDATE_ONCE
+	piso.add_child(sonda)
 	# Las de afuera: el frente (con la puerta pintada por dentro), los costados, el escalon al archivo y el fondo
 	_pared(piso, Vector2(-LADO, 0.0), Vector2(LADO, 0.0), pared)
 	for s in [-1.0, 1.0]:
@@ -383,91 +427,323 @@ func _oficinas() -> void:
 			desde = vano - VANO / 2.0
 		_pared(piso, Vector2(s * PASILLO, desde), Vector2(s * PASILLO, PASILLO_HASTA), pared)
 	_pared(piso, Vector2(-ARCHIVO_MEDIO, fondo), Vector2(ARCHIVO_MEDIO, fondo), pared)
-	# La puerta por dentro
+	# La puerta por dentro y el letrero verde de salida encima (lo unico que siempre se ve)
 	_caja(piso, Vector3(0.0, PUERTA_TAM.y / 2.0, -GRUESO / 2.0 - 0.03), Vector3(PUERTA_TAM.x, PUERTA_TAM.y, 0.06), _material("madera", COLOR_MADERA))
+	_salida(piso)
+	_plafon(piso)
+	_lamparas(piso)
 	_muebles(piso)
-	_luces(piso)
+	_mugre(piso)
+
+
+## Mostrar el piso solo con alguien adentro (y la prueba de fotos): ahorra sus luces y su zumbido afuera
+func ver_piso(si: bool) -> void:
+	_piso.visible = si
+	for p: Dictionary in _parpadeo:
+		var voz := p["voz"] as AudioStreamPlayer3D
+		if voz:
+			voz.playing = si
+			voz.stream_paused = not p["prendida"]
+	for voz: AudioStreamPlayer3D in _zumbidos:
+		voz.playing = si
+
+
+func _salida(piso: Node3D) -> void:
+	var letrero := Label3D.new()
+	letrero.text = "SALIDA"
+	letrero.font_size = 40
+	letrero.pixel_size = 0.006
+	letrero.outline_size = 6
+	letrero.modulate = Color(0.3, 1.0, 0.45)
+	letrero.outline_modulate = Color(0.0, 0.15, 0.05)
+	letrero.shaded = false
+	letrero.position = Vector3(0.0, PUERTA_TAM.y + 0.3, -GRUESO / 2.0 - 0.08)
+	letrero.rotation.y = PI
+	piso.add_child(letrero)
+	var luz := OmniLight3D.new()
+	luz.light_color = Color(0.3, 1.0, 0.45)
+	luz.light_energy = 0.35
+	luz.omni_range = 3.5
+	luz.position = letrero.position + Vector3(0.0, 0.0, -0.3)
+	piso.add_child(luz)
+
+
+# La reja de aluminio del plafon (cada PLAFON m, una sola malla) y las placas que faltan (HOYOS)
+func _plafon(piso: Node3D) -> void:
+	var rieles: Array = []
+	var y := ALTO - 0.012
+	var x := -LADO + 0.2
+	while x < LADO:
+		var linea := snappedf(x - PLAFON / 2.0, PLAFON) + PLAFON / 2.0
+		rieles.append([Vector3(linea, y, ARCHIVO_HASTA / 2.0), Vector3(0.035, 0.024, -ARCHIVO_HASTA), Basis()])
+		x += PLAFON
+	var z := 0.0
+	while z > ARCHIVO_HASTA:
+		rieles.append([Vector3(0.0, y, z), Vector3(LADO * 2.0, 0.024, 0.035), Basis()])
+		z -= PLAFON
+	_juntar(piso, rieles, _material("riel", Color(0.55, 0.53, 0.47)))
+	var negro := _material("hueco", Color(0.01, 0.01, 0.01))
+	negro.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	var placas: Array = []
+	var cascajo: Array = []
+	var cables: Array = []
+	for i in HOYOS.size():
+		var h: Array = HOYOS[i]
+		var centro := Vector3(h[0], ALTO - 0.004, h[1])
+		_calco(piso, centro, Vector3.DOWN, Vector2(PLAFON - 0.03, PLAFON - 0.03), negro)
+		if i % 3 == 0:
+			# La placa colgando de una orilla
+			var colgada := Basis(Vector3.RIGHT, deg_to_rad(_azar.randf_range(45.0, 70.0)))
+			placas.append([centro + Vector3(0.0, -0.22, 0.17), Vector3(PLAFON - 0.04, 0.015, PLAFON - 0.04), colgada])
+		else:
+			placas.append([Vector3(h[0] + _azar.randf_range(-0.6, 0.6), 0.02, h[1] + _azar.randf_range(-0.6, 0.6)),
+				Vector3(PLAFON - 0.04, 0.015, PLAFON - 0.04), Basis(Vector3.UP, _azar.randf() * TAU) * Basis(Vector3.RIGHT, _azar.randf_range(-0.12, 0.12))])
+		if i % 2 == 1:
+			cables.append([centro + Vector3(0.1, -0.45, 0.0), Vector3(0.018, 0.9, 0.018), Basis(Vector3.FORWARD, _azar.randf_range(-0.3, 0.3))])
+		for k in 5:
+			var t := _azar.randf_range(0.04, 0.16)
+			cascajo.append([Vector3(h[0] + _azar.randf_range(-0.5, 0.5), t / 2.0, h[1] + _azar.randf_range(-0.5, 0.5)),
+				Vector3(t * 1.4, t, t), Basis(Vector3.UP, _azar.randf() * TAU)])
+		if i in CHARCOS:
+			_calco(piso, Vector3(h[0], 0.008, h[1]), Vector3.UP, Vector2.ONE * _azar.randf_range(1.2, 1.8), _charco(), _azar.randf() * TAU)
+	_juntar(piso, placas, _material("plafon", Color.WHITE, DIR_TEX + "plafon.png", 1.2))
+	_juntar(piso, cascajo, _material("cascajo", Color(0.72, 0.7, 0.64)))
+	_juntar(piso, cables, _material("cable", Color(0.08, 0.08, 0.08)))
+
+
+func _lamparas(piso: Node3D) -> void:
+	var apagada := _material("tubo_apagado", Color(0.42, 0.42, 0.38))
+	var marco_lampara := _material("lampara", Color(0.6, 0.58, 0.52))
+	for l: Array in LAMPARAS:
+		var en := Vector3(l[0], ALTO - 0.02, l[1])
+		var estado: String = l[2]
+		_caja(piso, en + Vector3.UP * 0.005, Vector3(0.62, 0.02, 1.22), marco_lampara)
+		if estado == "apagada":
+			_caja(piso, en, Vector3(0.56, 0.03, 1.16), apagada)
+			continue
+		if estado == "rota":
+			# Sin rejilla: un tubo colgando de un lado y el otro tirado
+			var tubo_roto := _caja(piso, en + Vector3(0.12, -0.3, 0.2), Vector3(0.04, 0.04, 1.1), apagada)
+			tubo_roto.rotation.x = deg_to_rad(28.0)
+			_caja(piso, Vector3(l[0] + 0.5, 0.03, l[1] - 0.4), Vector3(0.04, 0.04, 1.1), apagada).rotation.y = 0.7
+			_calco(piso, en + Vector3.DOWN * 0.012, Vector3.DOWN, Vector2(0.5, 1.1), _material("hueco", Color.BLACK))
+			continue
+		var material := _material("tubo", COLOR_LUZ).duplicate() as StandardMaterial3D
+		material.emission_enabled = true
+		material.emission = COLOR_LUZ
+		material.emission_energy_multiplier = 0.6 if estado == "tenue" else 1.0
+		_caja(piso, en, Vector3(0.56, 0.03, 1.16), material)
+		var luz := OmniLight3D.new()
+		luz.position = en + Vector3.DOWN * 0.25
+		luz.light_color = COLOR_LUZ
+		luz.light_energy = LUZ_TENUE if estado == "tenue" else LUZ_PARPADEA
+		luz.omni_range = LUZ_ALCANCE
+		luz.omni_attenuation = 1.4
+		luz.shadow_enabled = false
+		piso.add_child(luz)
+		var voz := AudioStreamPlayer3D.new()
+		voz.stream = Sonidos.sonido("fluorescente")
+		voz.volume_db = -16.0 if estado == "tenue" else -12.0
+		voz.unit_size = 1.5
+		voz.max_distance = 9.0
+		voz.pitch_scale = _azar.randf_range(0.97, 1.03)
+		voz.position = en
+		piso.add_child(voz)
+		if estado == "tenue":
+			_zumbidos.append(voz)
+			continue
+		var chispa := AudioStreamPlayer3D.new()
+		chispa.stream = Sonidos.sonido("chispa")
+		chispa.volume_db = -8.0
+		chispa.unit_size = 2.0
+		chispa.max_distance = 14.0
+		chispa.position = en
+		piso.add_child(chispa)
+		_parpadeo.append({"luz": luz, "material": material, "voz": voz, "chispa": chispa, "prendida": true,
+			"cambia_en": _azar.randf_range(0.1, 2.0), "muriendo": _parpadeo.size() % 2 == 1, "energia": luz.light_energy})
+
+
+# Las que parpadean: unas casi siempre prendidas con apagones cortos, otras ("muriendo") casi siempre apagadas con
+# chispazos. Al prender a veces truena (chispa) y el zumbido solo suena prendida.
+func _parpadear(delta: float) -> void:
+	for p: Dictionary in _parpadeo:
+		p["cambia_en"] -= delta
+		if p["cambia_en"] > 0.0:
+			continue
+		var prendida: bool = not p["prendida"]
+		p["prendida"] = prendida
+		var muriendo: bool = p["muriendo"]
+		if prendida:
+			p["cambia_en"] = randf_range(0.03, 0.14) if muriendo else (randf_range(0.04, 0.12) if randf() < 0.5 else randf_range(0.8, 4.0))
+		else:
+			p["cambia_en"] = randf_range(0.3, 2.6) if muriendo else randf_range(0.03, 0.2)
+		var fuerza := randf_range(0.55, 1.0) if prendida else 0.0
+		(p["luz"] as OmniLight3D).light_energy = p["energia"] * fuerza
+		(p["luz"] as OmniLight3D).visible = prendida
+		(p["material"] as StandardMaterial3D).emission_energy_multiplier = fuerza
+		(p["voz"] as AudioStreamPlayer3D).stream_paused = not prendida
+		if prendida and randf() < (0.5 if muriendo else 0.12):
+			(p["chispa"] as AudioStreamPlayer3D).pitch_scale = randf_range(0.8, 1.25)
+			(p["chispa"] as AudioStreamPlayer3D).play()
 
 
 func _muebles(piso: Node3D) -> void:
 	var madera := _material("madera", COLOR_MADERA)
 	var metal := _material("metal", COLOR_METAL)
 	var carton := _material("carton", COLOR_CARTON)
-	var papel := _material("papel", COLOR_PAPEL)
-	# Cada oficina: un escritorio contra la pared de afuera, su silla, un archivero y papeles tirados
+	var hojas: Array = []
+	# Las cuatro oficinas, cada una revuelta a su modo (centro: la de enfrente y la de atras de cada lado)
+	var k := 0
 	for s in [-1.0, 1.0]:
 		for centro_z: float in [(0.0 + CORTE_OFICINAS) / 2.0, (CORTE_OFICINAS + PASILLO_HASTA) / 2.0]:
 			var x: float = s * (LADO - 1.3)
-			_bloque(piso, Vector3(x, 0.38, centro_z), Vector3(0.8, 0.76, 1.8), madera)
-			_caja(piso, Vector3(x - s * 0.9, 0.25, centro_z + 0.3), Vector3(0.5, 0.5, 0.5), metal)
-			_bloque(piso, Vector3(s * (PASILLO + 0.5), 0.65, centro_z - 3.2), Vector3(0.6, 1.3, 0.5), metal)
-			for k in 4:
-				var hoja := _caja(piso, Vector3(s * (PASILLO + 1.5 + randf() * 3.0), 0.01, centro_z + randf_range(-3.0, 3.0)), Vector3(0.22, 0.01, 0.3), papel)
-				hoja.rotation.y = randf() * TAU
-			_caja(piso, Vector3(x, 0.79, centro_z - 0.4), Vector3(0.3, 0.06, 0.4), papel)
-	# El pasillo: bancas de espera y el retrato oficial con el lema
-	for z: float in [-3.0, -9.0, -14.0]:
-		_bloque(piso, Vector3(-PASILLO + 0.35, 0.23, z), Vector3(0.45, 0.46, 1.6), madera)
-	var cuadro := _caja(piso, Vector3(PASILLO - 0.18, 1.9, -9.0), Vector3(0.05, 1.0, 0.8), madera)
+			var forma := k
+			k += 1
+			match forma:
+				0:
+					# Escritorio de pie, su silla tirada, archivero con los cajones de fuera
+					_bloque(piso, Vector3(x, 0.38, centro_z), Vector3(0.8, 0.76, 1.8), madera)
+					_caja(piso, Vector3(x - s * 1.1, 0.25, centro_z + 0.9), Vector3(0.5, 0.5, 0.5), metal).rotation = Vector3(0.0, 0.5, PI / 2.0)
+					_archivero(piso, Vector3(s * (LADO - 0.45), 0.0, centro_z - 3.6), s, true)
+				1:
+					# Escritorio volcado de lado y el archivero tirado
+					_bloque(piso, Vector3(x - s * 0.5, 0.4, centro_z + 0.4), Vector3(0.76, 0.8, 1.8), madera, Basis(Vector3.UP, 0.35))
+					_bloque(piso, Vector3(s * (LADO - 1.6), 0.25, centro_z - 3.2), Vector3(1.3, 0.5, 0.6), metal, Basis(Vector3.UP, 0.2))
+				2:
+					# Escritorio partido: la cubierta caida de un lado
+					_bloque(piso, Vector3(x, 0.38, centro_z - 0.6), Vector3(0.8, 0.76, 0.6), madera)
+					_caja(piso, Vector3(x, 0.4, centro_z + 0.45), Vector3(0.8, 0.05, 1.3), madera).rotation.x = deg_to_rad(-32.0)
+					_archivero(piso, Vector3(s * (LADO - 0.45), 0.0, centro_z + 3.6), s, false)
+				3:
+					# Escritorio arrastrado contra la pared de en medio y cajas de archivo reventadas
+					_bloque(piso, Vector3(s * 5.0, 0.38, CORTE_OFICINAS - 0.6), Vector3(1.8, 0.76, 0.8), madera, Basis(Vector3.UP, 0.15))
+					for c in 4:
+						var caja := _caja(piso, Vector3(x - s * _azar.randf_range(0.2, 1.4), 0.17, centro_z + _azar.randf_range(-2.0, 2.0)), Vector3(0.45, 0.33, 0.35), carton)
+						caja.rotation = Vector3(0.0, _azar.randf() * TAU, PI / 2.0 if c % 2 == 0 else 0.0)
+			for h in 26:
+				hojas.append(_hoja(Vector3(s * _azar.randf_range(PASILLO + 0.3, LADO - 0.3), 0.0, centro_z + _azar.randf_range(-5.0, 5.0))))
+	# El pasillo: las bancas de espera (una volcada) y el retrato oficial caido, recargado en la pared
+	_bloque(piso, Vector3(-PASILLO + 0.35, 0.23, -3.0), Vector3(0.45, 0.46, 1.6), madera)
+	_caja(piso, Vector3(-PASILLO + 0.45, 0.23, -9.0), Vector3(0.45, 0.46, 1.6), madera).rotation.z = PI / 2.0
+	_bloque(piso, Vector3(-PASILLO + 0.35, 0.23, -14.0), Vector3(0.45, 0.46, 1.6), madera, Basis(Vector3.UP, 0.18))
+	var cuadro := _caja(piso, Vector3(PASILLO - 0.3, 0.5, -9.0), Vector3(0.05, 1.0, 0.8), madera)
 	cuadro.name = "Retrato"
+	cuadro.rotation.z = deg_to_rad(-16.0)
 	var lema := Label3D.new()
 	lema.text = "GOBIERNO DEL ESTADO\nGelA · Agua segura para todos"
 	lema.font_size = 36
 	lema.pixel_size = 0.006
 	lema.outline_size = 6
+	lema.modulate = Color(0.75, 0.7, 0.55)
 	lema.rotation.y = -PI / 2.0
-	lema.position = Vector3(PASILLO - 0.2, 2.65, -9.0)
+	lema.position = Vector3(PASILLO - 0.17, 2.65, -9.0)
 	piso.add_child(lema)
 	var archivo := Label3D.new()
 	archivo.text = "ARCHIVO"
 	archivo.font_size = 48
 	archivo.pixel_size = 0.008
 	archivo.outline_size = 8
+	archivo.modulate = Color(0.75, 0.7, 0.55)
 	archivo.position = Vector3(0.0, ALTO - 0.4, PASILLO_HASTA - 0.2)
 	piso.add_child(archivo)
-	# El archivo: dos hileras de estantes de metal a cada lado del pasillo del centro, llenos de cajas
+	for h in 30:
+		hojas.append(_hoja(Vector3(_azar.randf_range(-PASILLO + 0.2, PASILLO - 0.2), 0.0, _azar.randf_range(-21.5, -1.5))))
+	# El archivo: dos hileras de estantes a cada lado del pasillo del centro; faltan cajas, que estan tiradas
+	# atras de su estante (nunca en el pasillo del centro)
 	for z: float in [-24.5, -27.5]:
 		for s in [-1.0, 1.0]:
 			var x: float = s * 3.6
 			_estante(piso, Vector3(x, 0.0, z), Vector3(4.6, 2.0, 0.5), metal)
 			for nivel in 3:
-				for k in 5:
-					if randf() < 0.85:
-						_caja(piso, Vector3(x - 1.8 + k * 0.9, 0.35 + nivel * 0.65, z), Vector3(0.7, 0.4, 0.45), carton)
+				for c in 5:
+					var r := _azar.randf()
+					if r < 0.6:
+						_caja(piso, Vector3(x - 1.8 + c * 0.9, 0.35 + nivel * 0.65, z), Vector3(0.7, 0.4, 0.45), carton)
+					elif r < 0.85:
+						var tirada := _caja(piso, Vector3(x - 1.8 + c * 0.9 + _azar.randf_range(-0.3, 0.3), 0.2, z + _azar.randf_range(0.6, 1.1)), Vector3(0.7, 0.4, 0.45), carton)
+						tirada.rotation = Vector3(_azar.randf_range(-0.2, 0.2), _azar.randf() * TAU, PI / 2.0 if _azar.randf() < 0.3 else 0.0)
+	for h in 40:
+		hojas.append(_hoja(Vector3(_azar.randf_range(-6.6, 6.6), 0.0, _azar.randf_range(-31.6, -22.5))))
+	_juntar(piso, hojas, _material("papel", COLOR_PAPEL))
 	# Las dos mesas del fondo, donde estan los papeles (MisionesMundo pone el expediente y la hoja encima)
 	for p: Vector3 in PAPELES:
 		_bloque(piso, Vector3(p.x, 0.38, p.z), Vector3(1.6, 0.76, 0.8), madera)
 		_caja(piso, Vector3(p.x + 0.55, 0.94, p.z), Vector3(0.45, 0.35, 0.4), carton)
 
 
-func _luces(piso: Node3D) -> void:
-	# Lamparas de tubo: dos en el pasillo (una titila), una en el archivo y una por oficina, bajitas
-	var en := [[Vector3(0.0, ALTO - 0.15, -5.0), 1.1, false], [Vector3(0.0, ALTO - 0.15, -16.0), 1.0, true],
-		[Vector3(0.0, ALTO - 0.15, -27.0), 1.2, false]]
-	for s in [-1.0, 1.0]:
-		en.append([Vector3(s * 5.5, ALTO - 0.15, -5.5), 0.6, false])
-		en.append([Vector3(s * 5.5, ALTO - 0.15, -16.5), 0.5, s > 0.0])
-	var tubo := _material("tubo", Color(1.0, 1.0, 1.0))
-	tubo.emission_enabled = true
-	tubo.emission = COLOR_LUZ
-	for l: Array in en:
-		var luz := OmniLight3D.new()
-		luz.position = l[0]
-		luz.light_color = COLOR_LUZ
-		luz.light_energy = l[1]
-		luz.omni_range = 8.0
-		luz.shadow_enabled = false
-		piso.add_child(luz)
-		_caja(piso, l[0] + Vector3.UP * 0.08, Vector3(0.25, 0.06, 1.4), tubo)
-		if l[2]:
-			_luces_titilan.append(luz)
+# Un archivero de metal contra la pared (`s` el lado), de pie; `abierto` con dos cajones de fuera
+func _archivero(piso: Node3D, pie: Vector3, s: float, abierto: bool) -> void:
+	var metal := _material("metal", COLOR_METAL)
+	_bloque(piso, pie + Vector3(0.0, 0.65, 0.0), Vector3(0.5, 1.3, 0.6), metal)
+	if abierto:
+		for n in 2:
+			_caja(piso, pie + Vector3(-s * 0.4, 0.95 - n * 0.55, 0.0), Vector3(0.35, 0.25, 0.5), metal)
+
+
+func _hoja(en: Vector3) -> Array:
+	return [en + Vector3.UP * _azar.randf_range(0.006, 0.02), Vector3(0.22, 0.004, 0.3),
+		Basis(Vector3.UP, _azar.randf() * TAU) * Basis(Vector3.RIGHT, _azar.randf_range(-0.08, 0.08))]
+
+
+# La mugre: en cada tramo de pared humedad que escurre del techo, manchas, a veces sangre o un boquete en la
+# tablaroca (con su cascajo abajo); manchas en el plafon y la alfombra, y un rastro de sangre por el pasillo
+func _mugre(piso: Node3D) -> void:
+	var mancha := _material_calco("mancha", "mancha.png")
+	var escurrido := _material_calco("escurrido", "escurrido.png")
+	var sangre := _material_calco("sangre", "sangre.png")
+	var boquete := _material_calco("boquete", "boquete.png")
+	var cascajo: Array = []
+	for t: Array in _tramos:
+		var a: Vector2 = t[0]
+		var b: Vector2 = t[1]
+		var largo := a.distance_to(b)
+		if largo < 1.2:
+			continue
+		var eje := (b - a) / largo
+		var normal := Vector3(-eje.y, 0.0, eje.x)
+		for lado in [-1.0, 1.0]:
+			var n: Vector3 = normal * lado
+			var cara := func(u: float, y: float) -> Vector3:
+				var p := a + eje * u
+				return Vector3(p.x, y, p.y) + n * (GRUESO / 2.0 + 0.012)
+			var cuantas := ceili(largo / 3.0)
+			for i in cuantas:
+				if _azar.randf() < 0.55:
+					_calco(piso, cara.call(_azar.randf_range(0.4, largo - 0.4), ALTO - 1.0), n, Vector2(_azar.randf_range(0.5, 0.9), 2.0), escurrido)
+				if _azar.randf() < 0.5:
+					var tam := _azar.randf_range(0.7, 1.8)
+					_calco(piso, cara.call(_azar.randf_range(0.6, largo - 0.6), _azar.randf_range(0.6, ALTO - 0.8)), n, Vector2.ONE * tam, mancha, _azar.randf() * TAU)
+				if _azar.randf() < 0.12:
+					_calco(piso, cara.call(_azar.randf_range(0.4, largo - 0.4), _azar.randf_range(0.8, 1.5)), n, Vector2.ONE * 0.6, sangre, _azar.randf_range(-0.3, 0.3))
+				if largo > 2.4 and _azar.randf() < 0.1:
+					var u := _azar.randf_range(0.8, largo - 0.8)
+					var y := _azar.randf_range(0.5, 1.4)
+					var tam := _azar.randf_range(0.6, 1.1)
+					_calco(piso, cara.call(u, y), n, Vector2.ONE * tam, boquete, _azar.randf() * TAU)
+					var abajo: Vector3 = cara.call(u, 0.0)
+					for c in 6:
+						var g := _azar.randf_range(0.03, 0.12)
+						cascajo.append([abajo + n * _azar.randf_range(0.05, 0.5) + Vector3(_azar.randf_range(-0.4, 0.4), g / 2.0, 0.0), Vector3(g * 1.5, g, g), Basis(Vector3.UP, _azar.randf() * TAU)])
+	_juntar(piso, cascajo, _material("yeso", Color(0.82, 0.8, 0.72)))
+	# Plafon y alfombra
+	for i in 16:
+		_calco(piso, Vector3(_azar.randf_range(-7.5, 7.5), ALTO - 0.006, _azar.randf_range(-31.0, -1.0)), Vector3.DOWN, Vector2.ONE * _azar.randf_range(0.6, 1.6), mancha, _azar.randf() * TAU)
+	for i in 18:
+		_calco(piso, Vector3(_azar.randf_range(-7.5, 7.5), 0.006, _azar.randf_range(-31.0, -1.0)), Vector3.UP, Vector2.ONE * _azar.randf_range(0.8, 2.2), mancha, _azar.randf() * TAU)
+	# El rastro: de la oficina oscura (la de atras a la derecha) por el pasillo hasta el archivo
+	var z := -16.0
+	var x := 2.0
+	while z > -23.5:
+		_calco(piso, Vector3(x, 0.01, z), Vector3.UP, Vector2(0.55, 0.9), sangre, PI + _azar.randf_range(-0.25, 0.25))
+		z -= 0.8
+		x = move_toward(x, 0.4, 0.35)
 
 
 # --- Piezas ---
 
-# Pocos y compartidos (uno por clave): las texturas se proyectan en metros (triplanar, una repeticion cada
-# TEXTURA_CADA m) para que las paredes largas no se estiren
-func _material(clave: String, base: Color, textura := "") -> StandardMaterial3D:
+# Pocos y compartidos (uno por clave). Las texturas se proyectan en los ejes de cada caja (triplanar local, una
+# repeticion cada `cada` m): las paredes largas no se estiran y siguen al palacio aunque este girado
+func _material(clave: String, base: Color, textura := "", cada := TEXTURA_CADA) -> StandardMaterial3D:
 	if _materiales.has(clave):
 		return _materiales[clave]
 	var material := StandardMaterial3D.new()
@@ -477,10 +753,67 @@ func _material(clave: String, base: Color, textura := "") -> StandardMaterial3D:
 	if textura != "":
 		material.albedo_texture = load(textura)
 		material.uv1_triplanar = true
-		material.uv1_world_triplanar = true
-		material.uv1_scale = Vector3.ONE / TEXTURA_CADA
+		material.uv1_scale = Vector3.ONE / cada
 	_materiales[clave] = material
 	return material
+
+
+# Para las calcomanias (manchas, sangre, boquetes): textura con alfa sobre un cuadro
+func _material_calco(clave: String, archivo: String) -> StandardMaterial3D:
+	if _materiales.has(clave):
+		return _materiales[clave]
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = load(DIR_TEX + archivo)
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.roughness = 1.0
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	material.disable_receive_shadows = true
+	_materiales[clave] = material
+	return material
+
+
+# Un charco: la forma de la mancha, oscuro y brilloso (refleja las lamparas)
+func _charco() -> StandardMaterial3D:
+	if _materiales.has("charco"):
+		return _materiales["charco"]
+	var material := _material_calco("charco_base", "mancha.png").duplicate() as StandardMaterial3D
+	material.albedo_color = Color(0.25, 0.22, 0.16, 0.9)
+	material.roughness = 0.05
+	material.metallic = 0.4
+	material.metallic_specular = 1.0
+	_materiales["charco"] = material
+	return material
+
+
+# Un cuadro plano en `centro`, de cara hacia `normal`, girado `giro` sobre ella
+func _calco(padre: Node3D, centro: Vector3, normal: Vector3, tam: Vector2, material: Material, giro := 0.0) -> MeshInstance3D:
+	var malla := MeshInstance3D.new()
+	var cuadro := QuadMesh.new()
+	cuadro.size = tam
+	malla.mesh = cuadro
+	malla.material_override = material
+	malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var arriba := Vector3.FORWARD if absf(normal.y) > 0.9 else Vector3.UP
+	malla.transform = Transform3D(Basis.looking_at(-normal, arriba) * Basis(Vector3.BACK, giro), centro)
+	padre.add_child(malla)
+	return malla
+
+
+# Muchas cajas chicas en una sola malla (papeles, cascajo, rieles): [centro, tam, basis] cada una, sin choque
+func _juntar(padre: Node3D, piezas: Array, material: Material) -> void:
+	if piezas.is_empty():
+		return
+	var caja := BoxMesh.new()
+	caja.size = Vector3.ONE
+	var st := SurfaceTool.new()
+	for p: Array in piezas:
+		var tam: Vector3 = p[1]
+		st.append_from(caja, 0, Transform3D((p[2] as Basis) * Basis.from_scale(tam), p[0]))
+	var malla := MeshInstance3D.new()
+	malla.mesh = st.commit()
+	malla.material_override = material
+	malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	padre.add_child(malla)
 
 
 # Una caja que se ve (sin choque)
@@ -496,29 +829,32 @@ func _caja(padre: Node3D, centro: Vector3, tam: Vector3, material: Material) -> 
 	return malla
 
 
-# Una caja que se ve y choca
-func _bloque(padre: Node3D, centro: Vector3, tam: Vector3, material: Material) -> void:
-	_caja(padre, centro, tam, material)
+# Una caja que se ve y choca (girada con `base`)
+func _bloque(padre: Node3D, centro: Vector3, tam: Vector3, material: Material, base := Basis()) -> MeshInstance3D:
+	var malla := _caja(padre, centro, tam, material)
+	malla.basis = base
 	var cuerpo := StaticBody3D.new()
-	cuerpo.position = centro
+	cuerpo.transform = Transform3D(base, centro)
 	var forma := CollisionShape3D.new()
 	var caja := BoxShape3D.new()
 	caja.size = tam
 	forma.shape = caja
 	cuerpo.add_child(forma)
 	padre.add_child(cuerpo)
+	return malla
 
 
-# Una pared de `a` a `b` (x, z en el piso), alineada a un eje, con su zoclo de madera (un poco mas gruesa, abajo)
+# Una pared de `a` a `b` (x, z en el piso), alineada a un eje, con un zoclo delgado oscuro; se anota en _tramos
+# para la mugre
 func _pared(padre: Node3D, a: Vector2, b: Vector2, material: Material) -> void:
 	var centro := (a + b) / 2.0
 	var largo := a.distance_to(b)
 	if largo < 0.05:
 		return
+	_tramos.append([a, b])
 	var tam := Vector3(largo + GRUESO, ALTO, GRUESO) if absf(a.y - b.y) < 0.01 else Vector3(GRUESO, ALTO, largo + GRUESO)
-	_bloque(padre, Vector3(centro.x, ALTO / 2.0, centro.y), tam, material)
-	var zoclo := Vector3(tam.x + 0.04 if tam.x > tam.z else tam.x + 0.04, ZOCLO, tam.z + 0.04 if tam.x > tam.z else tam.z + 0.04)
-	_caja(padre, Vector3(centro.x, ZOCLO / 2.0, centro.y), zoclo, _material("madera", COLOR_MADERA))
+	_bloque(padre, Vector3(centro.x, ALTO / 2.0, centro.y), tam, material).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	_caja(padre, Vector3(centro.x, ZOCLO / 2.0, centro.y), Vector3(tam.x + 0.03, ZOCLO, tam.z + 0.03), _material("zoclo", COLOR_ZOCLO))
 
 
 # Un estante de metal que se ve por dentro (cuatro postes y tres repisas) y choca como una caja
