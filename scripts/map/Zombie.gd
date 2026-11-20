@@ -1042,7 +1042,7 @@ func _zombi_que_estorba() -> Zombie:
 
 # A donde camina; deja en _blanco a quien le pegaria al llegar y en _guia su camino
 func _destino() -> Vector3:
-	_guia = zombis.campo_jugador if zombis else null
+	_guia = zombis.campo_jugador if zombis and not zombis.sin_campo else null
 	# Una bocina sonando que lo alcanza (Senuelo) le gana a todo, a ti y al tinaco; va derecho
 	# y la rasguña al llegar. Al jefe no lo jala
 	if not es_jefe:

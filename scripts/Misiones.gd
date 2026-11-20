@@ -109,6 +109,8 @@ var antena_instalada := false
 # El Decreto 47 (Sofia): la cortina de la bodega de GelA ya se forzo (se queda abierta; BodegaGela) y ya le
 # llevaste el expediente y la hoja de conteo (Buenrostro empieza a buscar al Guero)
 var bodega_gela_abierta := false
+# El Decreto 47 (JJ, 2026-11-20): los papeles estan en las oficinas del palacio; su puerta ya se forzo (PalacioOficinas)
+var palacio_abierto := false
 var decreto_47 := false
 # El evento de la reja: desgaste de la reja (0-1), noches que faltan para que pueda volver a fallar, por cual reja se
 # metieron ("poniente", "oriente"; "" sin evento), reintentos ya usados esta vez y si el tinaco de la Virgen se perdio
@@ -684,6 +686,7 @@ func reiniciar() -> void:
 	clinica = ""
 	antena_instalada = false
 	bodega_gela_abierta = false
+	palacio_abierto = false
 	decreto_47 = false
 	reja_desgaste = 0.0
 	reja_enfriamiento = 0

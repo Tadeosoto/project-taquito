@@ -251,6 +251,11 @@ func _palacio() -> void:
 	letrero.position = Vector3(0.0, 8.6, 8.0)
 	letrero.visibility_range_end = 160.0
 	cuerpo.add_child(letrero)
+	# La puerta del portal y las oficinas de GelA de adentro (El Decreto 47), en los ejes del palacio
+	var oficinas := PalacioOficinas.new()
+	oficinas.name = "PalacioOficinas"
+	oficinas.transform = cuerpo.transform
+	add_child(oficinas)
 
 
 ## La transformacion de `nodo` relativa a `ancestro` (sin depender de global_transform)

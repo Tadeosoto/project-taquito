@@ -55,7 +55,7 @@ const GABRIEL_SITIOS := [
 ## junto a un poste de avenida, una al norte y otra al sur (M4)
 const PIEZAS_ANTENA := [Vector2(-415.9, 125.7), Vector2(-102.3, 578.1)]
 const PIEZAS_NOMBRES := ["los tubos", "el repetidor"]
-# Los papeles del Decreto 47 (M6), al fondo de la bodega de GelA (BodegaGela.PAPELES): RECOGER como las piezas
+# Los papeles del Decreto 47 (M6), en el archivo de las oficinas del palacio (PalacioOficinas.PAPELES): RECOGER como las piezas
 const PAPELES_NOMBRES := ["el expediente del Decreto 47", "la hoja de conteo"]
 const PIEZAS_ZOMBIS := 2          # zombis sueltos que salen junto a cada pieza al acercarte
 const PIEZAS_AVISO := 60.0        # m de la pieza a los que salen
@@ -1230,15 +1230,17 @@ func _marca(lugar: String) -> Variant:
 # Las piezas de la antena: en el mapa grande y de a una por lugar (en la colonia de Blender no estan); al
 # acercarte salen unos zombis sueltos. Cada una recogida cuenta y paga (Misiones.pieza_recogida)
 func _poner_piezas(paso: PasoMision) -> void:
-	if not _piezas.is_empty() or get_tree().get_first_node_in_group("colonia") != null:
+	var papeles := paso.lugar == "papeles_decreto"
+	# Los papeles necesitan el palacio armado (FortalezasMapa); si aun no, los pone _apuntar_a_pieza en cuanto este
+	if not _piezas.is_empty() or get_tree().get_first_node_in_group("colonia") != null \
+			or (papeles and not PalacioOficinas.listo):
 		_apuntar_a_pieza()
 		return
 	_piezas_de = Misiones.activa
 	_piezas_zombis.clear()
 	var piso := _jugador.global_position.y - 1.0
-	var papeles := paso.lugar == "papeles_decreto"
-	for i in mini(paso.cuantos, (BodegaGela.PAPELES if papeles else PIEZAS_ANTENA).size()):
-		var donde := BodegaGela.punto(BodegaGela.PAPELES[i]) if papeles \
+	for i in mini(paso.cuantos, (PalacioOficinas.PAPELES if papeles else PIEZAS_ANTENA).size()):
+		var donde := PalacioOficinas.papel(i) + Vector3.UP * 0.76 if papeles \
 				else Vector3(PIEZAS_ANTENA[i].x, piso, PIEZAS_ANTENA[i].y)
 		var pieza: Node3D = load("res://scripts/map/CosaMision.gd").new()
 		pieza.set("que", PAPELES_NOMBRES[i] if papeles else PIEZAS_NOMBRES[i])
@@ -1273,11 +1275,18 @@ func _de_piezas(lugar: String) -> bool:
 
 
 func _apuntar_a_pieza() -> void:
-	# Los papeles: mientras la bodega siga cerrada (o no la veas aun, desde la colonia), a su cortina
+	# Los papeles: afuera de las oficinas, a la puerta del palacio (cerrada o abierta); adentro, al papel mas cercano.
+	# Desde la colonia (sin palacio) no hay a donde
 	var paso := Misiones.paso()
-	if paso and paso.lugar == "papeles_decreto" and (not Misiones.bodega_gela_abierta or _piezas.is_empty()):
-		_apuntar(BodegaGela.frente_cortina if BodegaGela.frente_cortina != Vector3.INF else BodegaGela.punto(Vector3(0.0, 0.0, 2.0)))
-		return
+	if paso and paso.lugar == "papeles_decreto":
+		if not PalacioOficinas.listo:
+			return
+		if _piezas.is_empty() and _piezas_de != Misiones.activa:
+			_poner_piezas(paso)
+			return
+		if not PalacioOficinas.adentro or _piezas.is_empty():
+			_apuntar(PalacioOficinas.frente_puerta())
+			return
 	var mas_cerca := INF
 	for pieza in _piezas:
 		var d := pieza.global_position.distance_to(_jugador.global_position)

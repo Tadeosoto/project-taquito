@@ -1,8 +1,9 @@
 class_name BodegaGela
 extends Node3D
 
-## La bodega de GelA cerca de la reja poniente (M6, "El Decreto 47", Sofia): la oficina de GelA de fuera, donde
-## estan el expediente del Decreto 47 y la hoja de conteo. Es una de las bodegas huecas de MapBodegas
+## La bodega de GelA cerca de la reja poniente: la oficina de GelA de fuera. Fue de "El Decreto 47" (M6) hasta que
+## JJ (2026-11-20) paso esos papeles al palacio (PalacioOficinas); se queda cerrada, con su cortina, para otra mision
+## (un paso con `lugar = "papeles_bodega"`; hoy ninguna). Es una de las bodegas huecas de MapBodegas
 ## (bodegas_mapa.json), pero toda cerrada: sin vanos abiertos ni hoyos. Uno de sus vanos es esta cortina, que
 ## se FUERZA de noche (JJ: no hay llave) manteniendo Espacio FORZAR s: el ruido trae zombis de la calle y al
 ## abrirse salen los de adentro. Ya forzada se queda abierta (Misiones.bodega_gela_abierta). Los papeles
@@ -21,7 +22,7 @@ const RUIDO_A := 35.0          # m de la cortina a los que salen
 const ADENTRO_ZOMBIS := 4      # los que salen de adentro al abrirla
 ## Los papeles, en el marco de la bodega (x a lo ancho, z hacia adentro negativa): al fondo, detras de los racks
 const PAPELES := [Vector3(-14.0, 0.0, -FONDO + 0.8), Vector3(14.0, 0.0, -FONDO + 0.8)]
-const TEXTO_DIA := "De día hay blancos cuidando la bodega. Vuelve de noche."
+const TEXTO_DIA := "De día hay cuicos cuidando la bodega. Vuelve de noche."
 
 ## Donde quedo la cortina (al armarse la celda; Vector3.INF si aun no): a donde apunta la flecha de la mision
 static var frente_cortina := Vector3.INF
@@ -87,8 +88,7 @@ func _jugador() -> Node3D:
 
 
 func _de_la_mision() -> bool:
-	return Misiones.activa != null and Misiones.activa.id == "decreto_47" and Misiones.paso() != null \
-			and Misiones.paso().lugar == "papeles_decreto"
+	return Misiones.activa != null and Misiones.paso() != null and Misiones.paso().lugar == "papeles_bodega"
 
 
 func _cerca() -> bool:

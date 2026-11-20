@@ -57,6 +57,9 @@ const SALTABARDAS_CADA := Vector2(70.0, 140.0)
 @export var saltabardas := true
 # Cuantos puede haber a la vez (y cuantos se arman en la reserva); la defensa trae mas
 @export var max_total := MAX_TOTAL
+# Adentro de las oficinas del palacio (PalacioOficinas): el campo de flujo mide en el suelo de abajo y no ve esas
+# paredes, asi que ahi los zombis van derecho al jugador
+var sin_campo := false
 # Lo que le quita cada golpe al jugador (Zombie.DANO); la defensa le baja. El jefe no cambia
 @export var dano_jugador := Zombie.DANO
 # Mandos de diseno de los enemigos (vida, dano base, velocidad, cadencia, alcance). Si no se

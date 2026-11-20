@@ -98,6 +98,10 @@ Both are one-hour steps:
   - Losing asks "¿Otra vez?" (`PreguntaReja`, 3 retries, each easier). Without retries, `Misiones.tinaco_perdido` is set and `TinacoComunitario.quitar_virgen` runs; `Colonia` builds it without the Virgen from then on.
   - Safehouse: Shift+F10. Test: `tools/mapa/probar_evento_reja.gd`.
 
+## The Decreto 47 papers
+
+`lugar = "papeles_decreto"` (RECOGER ×2) places the two papers on the archive tables of the palace offices (`PalacioOficinas.papel(i)`), once `PalacioOficinas.listo`; from a Blender colony (no palace) there's no pointer. The arrow goes to the palace door (`frente_puerta()`) while you're outside the offices, and to the nearest paper inside. Forcing the door, entering and the zombies inside are `PalacioOficinas`'s (see `docs/mapa/tecnico.md`, palace). `BodegaGela` no longer belongs to this mission: it opens for a step with `lugar = "papeles_bodega"` (none yet). Test: `tools/mapa/probar_decreto.gd`.
+
 ## Mafia (M7) and police
 
 - **The chain:** `mafia_1`..`8` chain via `MisionData.requiere`/`abierto_de_noche`.
@@ -120,5 +124,6 @@ Both are one-hour steps:
 | `tools/mapa/probar_al_medico.gd` | clinics in both fortresses |
 | `tools/mapa/probar_reparto.gd` | house deliveries outside fortresses |
 | `tools/mapa/probar_evento_reja.gd` | F1 |
+| `tools/mapa/probar_decreto.gd` | the Decreto 47 in the palace offices |
 | `tools/mapa/probar_fortalezas.gd` | — |
 | `tools/mapa/probar_palacio.gd` | — |

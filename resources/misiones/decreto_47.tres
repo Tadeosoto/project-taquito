@@ -7,7 +7,7 @@
 script = ExtResource("2_paso")
 tipo = 3
 cuando = 1
-texto = "Fuerza la bodega de GelA y saca el expediente y la hoja de conteo"
+texto = "Fuerza la puerta del palacio y saca el expediente y la hoja de conteo"
 lugar = "papeles_decreto"
 cuantos = 2
 
@@ -23,9 +23,9 @@ id = "decreto_47"
 nombre = "El Decreto 47"
 modelo = "mujer_psx"
 donde = "marca:Sofia_Taller"
-oferta = "Con la antena ya me oyen lejos, pero sin pruebas nadie me cree. GelA tiene una bodega afuera, cerca de la reja poniente: ahí guardan el expediente del Decreto 47 y la hoja de conteo de los que se llevan de noche. No hay llave. Hay que forzar la cortina, de noche, cuando se van los blancos."
-aceptada = "Espera a que oscurezca. La cortina hace ruido al forzarla y adentro hay zombis. Los papeles están al fondo."
-recuerda = "La bodega de GelA, cerca de la reja poniente. De noche, forzando la cortina. Los papeles están al fondo."
+oferta = "Con la antena ya me oyen lejos, pero sin pruebas nadie me cree. En el palacio, en las oficinas de GelA, guardan el expediente del Decreto 47 y la hoja de conteo de los que se llevan de noche. No hay llave. Hay que forzar la puerta del portal, de noche, cuando se van los cuicos."
+aceptada = "Espera a que oscurezca. La puerta hace ruido al forzarla y adentro hay zombis. Los papeles están en el archivo, al fondo."
+recuerda = "El palacio, en la avenida Colón. De noche, forzando la puerta del portal. Los papeles están en el archivo, al fondo."
 gracias = "Esto es. Los nombres de la hoja… son los de la lista de Marisol. Esta noche lo leo al aire."
 despedida = "Ya lo leí al aire. Dicen que Buenrostro anda buscando al Güero."
 pasos = Array[ExtResource("2_paso")]([SubResource("paso_papeles"), SubResource("paso_entregar")])
