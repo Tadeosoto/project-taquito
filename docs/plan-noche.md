@@ -198,7 +198,7 @@ Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.no
 ### Fase P: lugares en `map_test`
 
 - [x] **P0** (✅ 2026-11-19: en el cruce de Av. Colón y Bahía de Todos los Santos, donde está la plaza de la Farmacia Guadalajara, el palacio de Pachuca de Sketchfab con textura y la plaza de la Catrina enfrente; ver el registro) Palacio nuevo afuera de Santa Mugre, en o cerca de la plaza de la Catrina. ✅ La mitad de adentro ya está (AG, 2026-11-12, rama `santa-mugre-fortaleza`): el palacio del mapa de Blender es la Escuela Primaria Santa Mugre (`"uso": "escuela"`; falta votar el nombre)
-- [ ] **P1** Bodega de GelA (oficina) · **P2** torres de luz como antenas (✅ M4 puso una, junto a la reja poniente) · **P3** varias clínicas (casa con cruz verde) (✅ M5 puso una sola) · **P4** puntos y casas de entrega · **P5** plaza de la Catrina (✅ con P0: la plaza y su entrada a la Mojiganga; falta decorarla) · **P6** entrada a los túneles · **P7** sitios de la defensa externa
+- [ ] **P1** Bodega de GelA (oficina) · ~~**P2** torres de luz como antenas~~ (✅ cerrado, JJ 2026-11-19: la misión de la antena es una sola, `una_vez`, y M4 ya puso su torre junto a la reja poniente; más antenas no harían nada) · **P3** varias clínicas (casa con cruz verde) (✅ M5 puso una sola) · **P4** puntos y casas de entrega · **P5** plaza de la Catrina (✅ con P0: la plaza y su entrada a la Mojiganga; falta decorarla) · **P6** entrada a los túneles · **P7** sitios de la defensa externa
 
 ### Fase F: fortalezas
 
