@@ -206,7 +206,7 @@ Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.no
 
 ### Fase F: fortalezas
 
-- [ ] ~~**F1** Evento de la reja + defensa del tinaco de Santa Mugre (no voluntaria)~~ (✅ 2026-11-20: en la colonia con el tinaco real, ver el registro) · **F2** guardia de la reja · **F3** templo interior con pozo · **F4** fortaleza de la mafia (favela, tienda ilegal; túneles después) · **F5** fortaleza GelA en las canchas del ITESO
+- [ ] ~~**F1** Evento de la reja + defensa del tinaco de Santa Mugre (no voluntaria)~~ (✅ 2026-11-20: en la colonia con el tinaco real, ver el registro) · ~~**F2** guardia de la reja~~ (✅ con M3: la del padre Chuy, una sola vez, abre la salida) · **F3** templo interior con pozo (✅ el lugar: AG, 2026-11-12, commit 798695b, `scenes/casas/templo.tscn`, se entra de día desde el atrio y detrás del retablo se baja al cuarto del pozo; faltan las misiones y el agua del pozo) · **F4** fortaleza de la mafia (favela, tienda ilegal; túneles después) · **F5** fortaleza GelA en las canchas del ITESO
 
 ### Fase M: misiones una por una (primero el núcleo del dinero)
 
