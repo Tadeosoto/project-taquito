@@ -121,6 +121,7 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - `-convcol`: solid box.
   - `-colonly`: collision only. Must be unique, or Godot renames the body.
 - **Empties `Marca_*`** place everything else: lights, neons, posters, cabinets, NPCs, seats, the walking route `Camino_*`.
+- **EL GORDO neon** hangs back to back from the middle beam (`Neon` and `Neon_atras`). Each one has a black board behind its letters (`Sotano._tablero`) and sits 8 cm further toward its front. Without the board the back sign's reversed letters showed through the front one. AG asked for more space between them, so they were also moved apart.
 - **Neon:** `tools/blender/sotano/neones.py` exports `models/sotano/neones.glb`, one `Neon_<name>` empty per sign, facing +Z.
   - **Dice** (`dado()`, sign `dados`): two corner-view cubes, red and blue, with white pips, beside the fridge.
   - **Block letters** use `TRAZOS`, a hand-made single-stroke alphabet: one tube per stroke, like real neon, with wider spacing. Glyph outlines gave two tubes per stroke and read as mush at 640 × 480.
@@ -210,6 +211,8 @@ The story is in `docs/lore.md` §11 "El Sótano". Keep this file in sync with th
   - With a game open, the weapon label (`Pistola._capa`, found by script path) and the test scene's key panel hide. At a table camera the player hides too: the camera sits almost in their head.
 - **Live casino** (`VidaSotano.gd`, created by `Sotano._armar_gente`; `-- --sin-vida` turns it off). All of it is decoration: it never touches your chips.
   - **Slot players:** each seated EL GORDO player pulls the lever every 4–9 s. Their right arm reaches out: `Pistol_Aim_Neutral` on the right arm only, a filtered `Blend2` over `Sitting_Idle`. The `AnimationPlayer` is turned off, otherwise it wins over the tree.
+    - The hand really grabs the red ball: a `FABRIK3D` from `UpperChest` to `RightHand` aims at a node hung from the cabinet's `Palanca` empty, so the hand goes down with the lever (`_mano_a_palanca`). From the stool the ball is two arm lengths away, so the chain starts at the chest and they lean in. From `Spine` they folded like a rag, and from `Chest` with `set_deterministic` the hand fell to the lap.
+    - `--vida` saves `alcanza_lado.png` and `alcanza_atras.png` with the chain at full influence.
     - The screen flashes colours while it spins. 13 % win (gold blink, coins), and some losers slap the machine.
   - **Tables play by themselves** when you are near (`LEJOS`) and not seated:
     - the roulette spins with other people's chips;
@@ -378,6 +381,7 @@ Knock three times on the closed bathroom stall (`Sotano._tocar_caseta`, `TOQUES_
   - one hand of baccarat;
   - a roulette spin (with the doblete if it wins);
   - the boss fight with drowned zombies and the rising water, and losing to her (half your chips).
+- Tweens that move a node someone else may free (cards of the tables that play alone, the boss's warning discs) belong to that node (`nodo.create_tween()`). Owned by `VidaSotano` or `Desaguadora`, their lambdas ran on a freed node: "Lambda capture at index 0 was freed".
 - Its waits poll the state instead of fixed times (`_hasta`). With the machine loaded (the editor open, about 6 FPS) the fixed waits failed at random.
 
 ## Pending

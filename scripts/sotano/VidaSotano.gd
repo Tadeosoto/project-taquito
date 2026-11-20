@@ -75,7 +75,7 @@ func _ready() -> void:
 		if g == null:
 			continue
 		var arbol := _brazo(n)
-		_maquinas.append([n, g, arbol, _rng.randf_range(1.0, MAQUINA_CADA.y)])
+		_maquinas.append([n, g, arbol, _rng.randf_range(1.0, MAQUINA_CADA.y), _mano_a_palanca(n, g)])
 	# Los mirones
 	for m: Array in MIRONES:
 		var nodo := Node3D.new()
@@ -204,10 +204,46 @@ func _brazo(npc: Node3D) -> AnimationTree:
 	return arbol
 
 
+# La mano llega a la bola de verdad: un FABRIK3D del pecho (UpperChest) a la mano derecha con el objetivo
+# colgado del vacio "Palanca" del gabinete (asi la mano baja con la palanca). Desde la espalda y no
+# solo el brazo: sentados en el banco la bola queda a dos brazos del hombro y tienen que inclinarse
+# (desde Spine se doblaban como trapo; desde Chest con set_deterministic la mano caia al regazo).
+# Empieza sin influencia; _jalar la sube y la baja junto con la mezcla del arbol
+const _RAIZ_BRAZO := "UpperChest"
+func _mano_a_palanca(npc: Node3D, g: Node) -> SkeletonModifier3D:
+	var palanca := g.find_child("Palanca", true, false) as Node3D
+	var esqueletos := npc.find_children("*", "Skeleton3D", true, false)
+	if palanca == null or esqueletos.is_empty() or not ClassDB.class_exists("TwoBoneIK3D"):
+		return null
+	var esq := esqueletos[0] as Skeleton3D
+	if esq.find_bone("RightUpperArm") < 0 or esq.find_bone("RightLowerArm") < 0 or esq.find_bone("RightHand") < 0:
+		print("VidaSotano: sin huesos del brazo en ", npc.name)
+		return null
+	var bola := Node3D.new()
+	bola.name = "Mano_objetivo"
+	palanca.add_child(bola)
+	bola.position = Vector3(0.0, 0.36, 0.03)
+	var ik := ClassDB.instantiate("FABRIK3D") as SkeletonModifier3D
+	esq.add_child(ik)
+	ik.set("setting_count", 1)
+	ik.call("set_root_bone_name", 0, _RAIZ_BRAZO if esq.find_bone(_RAIZ_BRAZO) >= 0 else "RightUpperArm")
+	ik.call("set_end_bone_name", 0, "RightHand")
+	ik.call("set_target_node", 0, ik.get_path_to(bola))
+	ik.influence = 0.0
+	return ik
+
+
 func _jalar(m: Array) -> void:
 	var npc := m[0] as Node3D
 	var g := m[1] as Node3D
 	var arbol := m[2] as AnimationTree
+	var ik: SkeletonModifier3D = m[4] if m.size() > 4 else null
+	if ik:
+		# Alcanza la bola (0.4 s), la acompana mientras baja y la suelta cuando la palanca regresa
+		var ti := create_tween()
+		ti.tween_property(ik, "influence", 1.0, 0.4).set_trans(Tween.TRANS_SINE)
+		ti.tween_interval(0.1 + 0.22 + 0.15)
+		ti.tween_property(ik, "influence", 0.0, 0.45).set_trans(Tween.TRANS_SINE)
 	if arbol:
 		var t := create_tween()
 		t.tween_property(arbol, "parameters/disparo/blend_amount", 1.0, 0.35).set_trans(Tween.TRANS_SINE)
@@ -348,7 +384,7 @@ func _poker_solo() -> void:
 			bote.poner(bote.cantidad + _rng.randi_range(2, 6))
 	var retira := _rng.randi_range(0, 2)
 	for c: MeshInstance3D in manos[retira]:
-		var t := create_tween()
+		var t := c.create_tween()
 		t.tween_property(c, "position", centro + Vector3(_rng.randf_range(-0.1, 0.1), 0.004, -0.3), 0.25)
 	var ganador := (retira + _rng.randi_range(1, 2)) % 3
 	if await _espera("poker", 1.0): return
@@ -468,7 +504,9 @@ func _carta(desde: Vector3, donde: Vector3, giro: float, carta: int) -> MeshInst
 	sotano.add_child(m)
 	m.position = desde + Vector3.UP * 0.05
 	m.rotation.y = giro
-	var t := create_tween()
+	# (los tweens son de la carta, no de Vida: si _cortar la borra a medio vuelo, mueren con ella; si
+	# no, la lambda llamaba a una carta ya liberada)
+	var t := m.create_tween()
 	t.tween_method(func(f: float) -> void:
 		m.position = (desde + Vector3.UP * 0.05).lerp(donde + Vector3.UP * 0.003, f) + Vector3.UP * sin(f * PI) * 0.06, 0.0, 1.0, 0.25)
 	if carta >= 0:
@@ -481,7 +519,7 @@ func _voltear(m: MeshInstance3D, carta: int) -> void:
 	if not is_instance_valid(m):
 		return
 	var y := m.position.y
-	var t := create_tween()
+	var t := m.create_tween()
 	t.tween_method(func(f: float) -> void:
 		m.rotation.z = f * PI / 2.0
 		m.position.y = y + f * 0.03, 0.0, 1.0, 0.08)
@@ -497,7 +535,7 @@ func _recoger(cosas: Array, a: Vector3) -> void:
 			continue
 		var nodo := c as Node3D
 		var desde := nodo.position
-		var t := create_tween()
+		var t := nodo.create_tween()
 		t.tween_method(func(f: float) -> void: nodo.position = desde.lerp(a, f), 0.0, 1.0, 0.3)
 		t.tween_callback(nodo.queue_free)
 
@@ -535,7 +573,7 @@ func _globo(quien: Node3D, texto: String, segundos := 2.0) -> void:
 	quien.set_meta("globo", true)
 	var alto := 1.25 if String(quien.get_meta("asiento", "")) != "" else 1.85
 	l.position = Vector3(0, alto, 0)
-	var t := create_tween()
+	var t := l.create_tween()
 	t.tween_property(l, "position:y", alto + 0.15, segundos)
 	t.parallel().tween_property(l, "modulate:a", 0.0, 0.4).set_delay(segundos - 0.4)
 	t.tween_callback(func() -> void:

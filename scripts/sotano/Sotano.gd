@@ -284,7 +284,9 @@ func _armar_neones() -> void:
 		var luz := _luz(t.origin + t.basis.z * 0.4, n[2], 1.2, 3.5)
 		# EL GORDO cuelga espalda con espalda: sin un tablero negro en medio se veian los dos
 		# letreros encimados (las letras de atras al reves, por entre las de adelante)
+		# (y cada uno 8 cm mas hacia su frente: AG queria verlos mas separados)
 		if n[0] == "Neon" or n[0] == "Neon_atras":
+			letrero.position += t.basis.z.normalized() * 0.08
 			_tablero(letrero)
 		if n[3]:
 			_parpadear(letrero, 1.0)

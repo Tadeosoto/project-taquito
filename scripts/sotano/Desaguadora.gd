@@ -577,7 +577,9 @@ func _aviso_circulo(donde: Vector3, radio: float, espera: float, dano: int, del_
 	disco.global_position = Vector3(donde.x, global_position.y + 0.03, donde.z)
 	disco.scale = Vector3(0.2, 1, 0.2) * escala
 	_avisos.append(disco)
-	var t := create_tween()
+	# (el tween es del disco: si lo borran antes, al morir ella, muere con el; del de ella, la lambda
+	# llamaba con el disco ya liberado)
+	var t := disco.create_tween()
 	t.tween_property(disco, "scale", Vector3(1, 1, 1) * escala, espera).set_trans(Tween.TRANS_SINE)
 	t.tween_callback(func() -> void:
 		if not is_instance_valid(disco):

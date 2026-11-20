@@ -68,6 +68,8 @@ const FOTOS := {
 	"palanca": [Vector3(12.0, -1.3, 0.1), Vector3(11.2, -1.45, -1.6)],
 	"neon_gordo": [Vector3(8.6, -1.3, 3.6), Vector3(12.9, -0.8, 3.0)],
 	"neon_sur": [Vector3(13.0, -1.4, 1.6), Vector3(13.0, -1.1, 8.0)],
+	"neon_este": [Vector3(19.6, -1.4, 1.0), Vector3(13.0, -0.8, 4.0)],
+	"neon_premio": [Vector3(15.0, -1.4, 2.0), Vector3(17.8, -0.8, 8.0)],
 	"neon_poker_bano": [Vector3(29.5, -1.4, 3.0), Vector3(35.0, -1.1, 4.2)],
 	"neon_barra": [Vector3(26.0, -1.6, 3.6), Vector3(26.0, -2.0, -0.3)],
 }
@@ -253,6 +255,19 @@ func _fotos_vida(carpeta: String) -> void:
 		var npc := m[0] as Node3D
 		cam.global_position = npc.global_position + npc.global_basis.x * 1.6 + Vector3.UP * 1.6 + npc.global_basis.z * 0.8
 		cam.look_at(npc.global_position + Vector3.UP * 1.1 - npc.global_basis.z * 0.4, Vector3.UP)
+		# Quieto con la mano en la bola (la cadena IK a toda influencia), de lado y de frente
+		var ik: Node = m[4] if m.size() > 4 else null
+		if ik:
+			ik.set("influence", 1.0)
+			for lado in [["alcanza_lado", npc.global_basis.x * 1.6], ["alcanza_atras", npc.global_basis.z * 1.4 + npc.global_basis.x * 0.5]]:
+				cam.global_position = npc.global_position + lado[1] + Vector3.UP * 1.5
+				cam.look_at(npc.global_position + Vector3.UP * 1.1 - npc.global_basis.z * 0.4, Vector3.UP)
+				await get_tree().create_timer(0.3).timeout
+				await RenderingServer.frame_post_draw
+				get_viewport().get_texture().get_image().save_png(carpeta.path_join(lado[0] + ".png"))
+			ik.set("influence", 0.0)
+			cam.global_position = npc.global_position + npc.global_basis.x * 1.6 + Vector3.UP * 1.6 + npc.global_basis.z * 0.8
+			cam.look_at(npc.global_position + Vector3.UP * 1.1 - npc.global_basis.z * 0.4, Vector3.UP)
 		vida.call("_jalar", m)
 		vida.call("_globo", npc, "¡Vamos, vamos!", 3.0)
 		for k in 8:
