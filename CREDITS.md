@@ -51,6 +51,7 @@
 - [Speaker Stage](https://sketchfab.com/3d-models/39289063695d42f5a67b0a33318badb4) de Eveston - Elite Big Speakerman - Hugo, licencia CC Attribution (`models/props/bocina_escenario/`).
 - [Garden hose Reel](https://sketchfab.com/3d-models/33a5089d9dd1438386d80bdf31a46a55) de Cliffcographics, licencia CC Attribution (`models/props/rollo_manguera/`).
 - [lowpoly wheelbarrow](https://sketchfab.com/3d-models/fdce753e4dc147fcbfa18e809dde7bf9) de creosine, licencia CC Attribution (`models/props/carretilla/`).
+- [Antiguo Palacio de Gobierno de Pachuca](https://sketchfab.com/3d-models/3e0b792b4c884606b1e7056a195fad85) de muvipa, licencia CC Attribution (`models/props/palacio/`).
 
 ## Objetos (`models/objetos/`, Sketchfab)
 

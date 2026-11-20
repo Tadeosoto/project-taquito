@@ -129,6 +129,7 @@ MODELS = {
 	"props/carretilla": "fdce753e4dc147fcbfa18e809dde7bf9",         # Lowpoly Wheelbarrow (la carretilla de Al medico)
 	"props/tinaco": "fb34a8ff0a04447e91a9ef1d793a192a",             # Rtp Tinaco, 424k (reducido)
 	"props/bano_portatil": "8083b3d2134f4e98a34d891fa7915dcc",      # Abandoned Toilet Cabin, 3.9k
+	"props/palacio": "3e0b792b4c884606b1e7056a195fad85",           # Antiguo Palacio de Gobierno de Pachuca, 151k (reducido): el palacio de afuera (P0)
 	# Defensa del tinaco (scripts/defensa/DecoracionDefensa.gd)
 	"props/bocina_escenario": "39289063695d42f5a67b0a33318badb4",   # Speaker Stage
 	"props/rollo_manguera": "33a5089d9dd1438386d80bdf31a46a55",     # Garden Hose Reel

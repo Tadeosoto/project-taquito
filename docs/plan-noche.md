@@ -53,6 +53,7 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 
 | 2026-11-14 | F4c | Con JJ, frente (a) de la ficha de La Gotera: **orientarse en el laberinto** sin depender de misiones. Cada boca lleva nombre (La Fuga, Roble Quebrado, La Parota, Caobilla, Sin Número) pintado sobre su reja por dentro; el callejón más corto de cada boca a la Plaza del Tinaco sale más claro en el minimapa (las 44 placas pintadas en sus cruces se hicieron y JJ las quitó); "Plaza del Tinaco" en su pared; el minimapa pinta más claros los principales y pone la inicial de cada boca. **Props:** fuera los cubos de colores sin textura (pack `cajas`, silla de cajas de los patios, colchón y bloque de los baldíos, mesas y carrito de cajas de las fondas); las fondas llevan las mesas de la taquería (`exportar.mesas_fondas`, para todas las colonias); 31 tambos con fuego y luz en las casas abandonadas y los callejones techados; el garrafón de 50 L mide 60 cm en todos lados. Pruebas `probar_gotera.gd -- --favela` 48/48 y `atorones.gd` 0. **Pendiente:** jugar en ventana, medir FPS con las luces de los tambos, rehacer Santa Mugre y el tianguis para que sus fondas cambien. **Después, en la misma sesión:** bolsas de basura y llantas de Poly Haven (`fetch_polyhaven.py`) amontonadas contra la pared; garrafones, cubetas, tinacos de patio y veladoras de la librería; fuera la manguera y el tinaco chico; los tambos con fuego pasaron a los callejones abiertos (59); los props sin wobble y en MultiMesh (`PropsColonia`). 48/48 y 0 atorones | M7b |
 | 2026-11-17 | M11 | Con JJ: la **cucarrata** (jefe nuevo, `scripts/cucarrata/`) queda como **primer jefe y checkpoint** de Santa Mugre a La Gotera. Texto: `lore.md` "La cucarrata", `misiones.md` "La cucarrata: el primer jefe", decisiones arriba. Código: `CucarrataCalle` (de noche ronda el baldío del norponiente y sus calles en `map_test`, lugar que JJ escogió de cinco abiertos, despierta si te acercas o le pegas, se va si te alejas), paso `JEFE_CALLE`, `Misiones.matar_jefe`/`jefe_muerto`/`pagar_sin_aceptar`, misión `cucarrata.tres` de Nacho tras la guardia, `mafia_1` pide `jefe_cucarrata`. Prueba en `map_test` (sale, ronda el pasto y la avenida (18 de 70 muestras en calle) sin pisar casas, despierta, la barra, muerte → paso a ENTREGAR y `mafia_1` abierta; pago sin aceptar $300). **Pendiente:** jugarla en ventana con pistola y machete de verdad; peleando te sigue y puede atravesar casas; el grafo narrativo no se consultó (graphify no está instalado en esta PC) | S7 o P0 |
+| 2026-11-19 | L12 | Tachado al abrir sesión: el grafo narrativo ya se había reconstruido el 2026-11-18 (`13f982e`, los seis docs de historia, 523 nodos y 20 comunidades). En esta sesión, fuera del plan: sonidos de Splice para el Sótano, la Madre del Cárcamo, la pelea y la Mojiganga | S7 o P0 |
 
 ## Para la siguiente sesión (dejado el 2026-11-12, cambio de PC)
 
@@ -141,6 +142,7 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 - Nombre del hijo rebelde de GelA, del chofer/camioneta, de la escuela de Santa Mugre y del nuevo palacio.
 - Cuándo se amuralla cada fortaleza (línea de tiempo §3). (✅ Resuelto el 2026-11-12: la reja falla por **desgaste**, que sube cada noche y baja con cada guardia de la reja; ver `misiones.md` "El evento de la reja".)
 - Cuánto cuesta el agua limpia en cada fortaleza (economía, ligar con `mejoras.md`).
+- JJ (2026-11-19): el **Palacio de Gobierno del Estado de México** de Sketchfab (el detallado, 71k caras, uid `5400907383d043d7899adbb06c611aa0`, CC-BY) "podría usarse para la plaza de la Mojiganga": de fondo en la escena de la pelea (`catrina.tscn`). Sin hacer.
 
 ## Sitios medidos en `map_test` (coordenadas del juego)
 
@@ -152,6 +154,7 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 | Bodega para la oficina de GelA | (-333, 645) | a ~209 m de la reja poniente (-420, ~455) |
 | Negocios "punto" | 19 en el mapa; el más cercano a la reja poniente en (-656, 609), a ~282 m | para las entregas de la mafia |
 | Torres de luz | 32 (`power=tower` del OSM) | antenas |
+| Palacio y plaza de la Catrina (P0) | palacio en (-600, -120), frente al sur; plaza 64 × 40 m centrada en (-598, -92); entrada de la Mojiganga en (-600, -86) | llano del oeste junto a la avenida, ~600 m de la reja poniente; claro libre de 114 m sin tinaco |
 | Rejas de Santa Mugre | poniente (-420, ~455), oriente (-185, ~473) | código de las rejas en la rama `rejas-avenida-santa-mugre` |
 
 Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.noche_duracion`), pero antes de la transición del amanecer quedan unos 450 s. Todo lo de la primera tanda debe quedar a ≤ ~250 m de una reja.
@@ -172,7 +175,7 @@ Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.no
 - [x] **L9** `misiones.md`: misiones de fuera (al médico, antena de Sofía, Decreto 47, reparto) con quién da, dónde, objetivo, riesgo y paga, y pasada de coherencia (M)
 - [x] **L10** `misiones.md`: mafia punto a punto (19 puntos, desbloquea compras ilegales), cacerías (Mojiganga, Madre), GelA e hijo rebelde (M)
 - [x] **L11** `especificaciones.md` §2, §4.8 y §6, y `revision-historia.md` "Lo decidido" (S)
-- [ ] **L12** Reconstruir el grafo: `/graphify docs --update` desde `docs/`, revisar aristas sueltas, commit aparte de `docs/graphify-out/` (la extracción completa costó ~750k tokens de entrada; puede posponerse) (M)
+- [x] **L12** (✅ 2026-11-18, commit 13f982e: 523 nodos, 20 comunidades) Reconstruir el grafo: `/graphify docs --update` desde `docs/`, revisar aristas sueltas, commit aparte de `docs/graphify-out/` (la extracción completa costó ~750k tokens de entrada; puede posponerse) (M)
 - [x] **L12b** Revisión final de coherencia: grep de las frases viejas que contradicen los 10 choques (§8 "no te reconocen", §13 "la mayoría de la ciudad", "palacio" en Santa Mugre, "Haciendas" con gobernadora, "aquí el agua no se vende", Chuy inocente, "noche sin ley") (S)
 - [x] **L13** Grafo del código: hecho por AG el 2026-11-12 (`scripts/graphify-out/`, 2726 nodos). graphify no lee GDScript, así que lo arma `tools/graphify_gdscript.py` (ver `CLAUDE.md`, "graphify") (S)
 
@@ -193,8 +196,8 @@ Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.no
 
 ### Fase P: lugares en `map_test`
 
-- [ ] **P0** Palacio nuevo afuera de Santa Mugre, en o cerca de la plaza de la Catrina. ✅ La mitad de adentro ya está (AG, 2026-11-12, rama `santa-mugre-fortaleza`): el palacio del mapa de Blender es la Escuela Primaria Santa Mugre (`"uso": "escuela"`; falta votar el nombre)
-- [ ] **P1** Bodega de GelA (oficina) · **P2** torres de luz como antenas (✅ M4 puso una, junto a la reja poniente) · **P3** varias clínicas (casa con cruz verde) (✅ M5 puso una sola) · **P4** puntos y casas de entrega · **P5** plaza de la Catrina · **P6** entrada a los túneles · **P7** sitios de la defensa externa
+- [x] **P0** (✅ 2026-11-19: en el llano del oeste junto a la avenida, el palacio de Pachuca de Sketchfab con la plaza de la Catrina enfrente; ver el registro) Palacio nuevo afuera de Santa Mugre, en o cerca de la plaza de la Catrina. ✅ La mitad de adentro ya está (AG, 2026-11-12, rama `santa-mugre-fortaleza`): el palacio del mapa de Blender es la Escuela Primaria Santa Mugre (`"uso": "escuela"`; falta votar el nombre)
+- [ ] **P1** Bodega de GelA (oficina) · **P2** torres de luz como antenas (✅ M4 puso una, junto a la reja poniente) · **P3** varias clínicas (casa con cruz verde) (✅ M5 puso una sola) · **P4** puntos y casas de entrega · **P5** plaza de la Catrina (✅ con P0: la plaza y su entrada a la Mojiganga; falta decorarla) · **P6** entrada a los túneles · **P7** sitios de la defensa externa
 
 ### Fase F: fortalezas
 

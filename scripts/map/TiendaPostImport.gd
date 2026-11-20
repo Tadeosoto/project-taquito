@@ -37,6 +37,7 @@ const MAX_TRIANGULOS := {
 	# Barricada de la defensa del tinaco (scenes/defensa_tinaco.tscn)
 	"tinaco": 6000,   # trae tres tinacos y se usa uno
 	"bano_portatil": 1500,
+	"palacio": 20000,   # el palacio de afuera de Santa Mugre (FortalezasMapa, P0): se ve de lejos y hay uno solo
 	"bocina_escenario": 3000,
 	"rollo_manguera": 1500,
 	# Basura de la favela de La Gotera (Poly Haven, fetch_polyhaven.py): se repiten cientos de veces

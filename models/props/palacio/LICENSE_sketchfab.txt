@@ -1,0 +1,11 @@
+Model Information:
+* title:	Antiguo Palacio de Gobierno de Pachuca
+* source:	https://sketchfab.com/3d-models/antiguo-palacio-de-gobierno-de-pachuca-3e0b792b4c884606b1e7056a195fad85
+* author:	muvipa (https://sketchfab.com/muvipa)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Antiguo Palacio de Gobierno de Pachuca" (https://sketchfab.com/3d-models/antiguo-palacio-de-gobierno-de-pachuca-3e0b792b4c884606b1e7056a195fad85) by muvipa (https://sketchfab.com/muvipa) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

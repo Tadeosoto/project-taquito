@@ -129,6 +129,8 @@ func _crear_celda(arboles: Array) -> Node3D:
 	for arbol: Array in arboles:
 		var x: float = arbol[0]
 		var z: float = arbol[1]
+		if FortalezasMapa.sin_vegetacion(x, z):
+			continue   # el palacio y la plaza de la Catrina
 		var altura: float = arbol[2]
 		var radio: float = arbol[3]
 		var variante := clampi(int(arbol[4]), 0, COPAS.size() - 1)
