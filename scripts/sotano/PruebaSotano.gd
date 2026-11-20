@@ -103,6 +103,17 @@ func _ready() -> void:
 		elif arg.begins_with("--fichas_ruleta="):
 			await _fotos_fichas_ruleta(arg.trim_prefix("--fichas_ruleta="))
 			get_tree().quit()
+		elif arg == "--fps":
+			_player.global_position = _sotano.to_global(Vector3(21.5, -2.5, 3.0))
+			if "--sin-vida" in OS.get_cmdline_user_args() and _sotano.get_node_or_null("Vida"):
+				_sotano.get_node("Vida").queue_free()
+			for k in 6:
+				await get_tree().create_timer(2.0).timeout
+				print("FPS ", Engine.get_frames_per_second())
+			get_tree().quit()
+		elif arg.begins_with("--vida="):
+			await _fotos_vida(arg.trim_prefix("--vida="))
+			get_tree().quit()
 		elif arg.begins_with("--carrera="):
 			await _fotos_carrera(arg.trim_prefix("--carrera="))
 			get_tree().quit()
@@ -213,6 +224,48 @@ func _fotos_fichas_ruleta(carpeta: String) -> void:
 		await get_tree().create_timer(0.4).timeout
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(carpeta.path_join("fichas_%d.png" % k))
+
+
+# La vida del Sotano: las mesas juegan solas y los de las maquinitas jalan; cuadros de tres vistas
+func _fotos_vida(carpeta: String) -> void:
+	DirAccess.make_dir_recursive_absolute(carpeta)
+	await get_tree().create_timer(1.0).timeout
+	_player.global_position = _sotano.to_global(Vector3(21.5, -2.5, 3.0))
+	var vida := _sotano.get_node_or_null("Vida")
+	if vida:
+		for mesa in vida.get("_t"):
+			vida.get("_t")[mesa] = 0.5
+		for m: Array in vida.get("_maquinas"):
+			m[3] = randf_range(0.2, 3.0)
+	var vistas := {
+		"maquinas": [Vector3(14.0, -1.3, 2.4), Vector3(11.5, -2.0, -1.4)],
+		"ruleta": [Vector3(31.0, -1.2, 2.0), Vector3(33.2, -1.9, -0.6)],
+		"poker": [Vector3(29.6, -1.0, 6.2), Vector3(27.5, -1.9, 3.4)],
+		"blackjack": [Vector3(31.0, -1.2, 5.0), Vector3(32.4, -1.9, 2.8)],
+	}
+	var cam := Camera3D.new()
+	cam.fov = 70.0
+	add_child(cam)
+	cam.make_current()
+	# De cerca: uno de las maquinitas jala la palanca y grita
+	if vida and not vida.get("_maquinas").is_empty():
+		var m: Array = vida.get("_maquinas")[0]
+		var npc := m[0] as Node3D
+		cam.global_position = npc.global_position + npc.global_basis.x * 1.6 + Vector3.UP * 1.6 + npc.global_basis.z * 0.8
+		cam.look_at(npc.global_position + Vector3.UP * 1.1 - npc.global_basis.z * 0.4, Vector3.UP)
+		vida.call("_jalar", m)
+		vida.call("_globo", npc, "¡Vamos, vamos!", 3.0)
+		for k in 8:
+			await get_tree().create_timer(0.15).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(carpeta.path_join("jala_%02d.png" % k))
+	for k in 24:
+		var nombre: String = vistas.keys()[k % vistas.size()]
+		cam.global_position = _sotano.to_global(vistas[nombre][0])
+		cam.look_at(_sotano.to_global(vistas[nombre][1]), Vector3.UP)
+		await get_tree().create_timer(0.6).timeout
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("%s_%02d.png" % [nombre, k]))
 
 
 # Una carrera de caballitos: cuadros de la camara de la tele, con sus efectos

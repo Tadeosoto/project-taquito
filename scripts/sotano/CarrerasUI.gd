@@ -150,6 +150,9 @@ func arrancar() -> void:
 	_oscuro.visible = false
 	_fila_botones.visible = false
 	if sotano and sotano.has_method("correr"):
+		# Si estan corriendo los de afuera (VidaSotano), espera a que acaben
+		while sotano.get("corriendo"):
+			await get_tree().create_timer(0.1).timeout
 		await _ver_pista()
 		if trampa:
 			await sotano.temblar(ganador)

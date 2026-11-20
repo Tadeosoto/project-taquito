@@ -157,6 +157,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if _vida:
+		_vida.call("vigilar", _guardia)
 	# La bailarina da vueltas al tubo, viendo hacia afuera
 	if _bailarina and _marcas.has("Marca_VIP_tubo"):
 		_baile_t += delta * BAILE_VELOCIDAD
@@ -604,6 +606,7 @@ func _armar_gente() -> void:
 		return "\"¿Cuántas fichas, mijo? Pásate a la ventanilla.\"")
 	primo.look_at(to_global(marca("Ventanilla").origin), Vector3.UP)
 	var guardia := _hablador("Guardia", "hombre_07", marca("Guardia"), _linea_guardia)
+	_guardia = guardia
 	guardia.look_at(to_global(Vector3(5.5, guardia.position.y, 3.1)), Vector3.UP)
 	var cantinero := _hablador("Cantinero", "hombre_30", marca("Cantinero"), _rotar.bind(LINEAS_CANTINERO, "_cantinero_linea"))
 	cantinero.look_at(to_global(marca("Barra").origin), Vector3.UP)
@@ -638,6 +641,7 @@ func _armar_gente() -> void:
 		nodo.name = "Jugador_%d" % k
 		nodo.position = t.origin
 		add_child(nodo)
+		nodo.set_meta("asiento", nombre)
 		Civiles.poner(nodo, sentados[k][1], "Sitting_Idle")
 		var mira := mesa if nombre.begins_with("Poker") else marca("OlPley_%s" % nombre.trim_prefix("Silla_")).origin
 		if nombre.begins_with("Blackjack"):
@@ -658,6 +662,13 @@ func _armar_gente() -> void:
 			_dar(nodo, VICIOS[nombre])
 	_armar_turbios()
 	_armar_vip()
+	# La vida: los de las maquinitas jalan, las mesas juegan solas, mirones y reacciones (VidaSotano)
+	# (-- --sin-vida la apaga, para comparar)
+	if not "--sin-vida" in OS.get_cmdline_user_args():
+		_vida = load("res://scripts/sotano/VidaSotano.gd").new()
+		_vida.name = "Vida"
+		_vida.set("sotano", self)
+		add_child(_vida)
 	# Uno que platica de pie, junto a la columna
 	var miron := _hablador("Miron", "hombre_09", Transform3D(Basis(), Vector3(15.4, -2.6, 3.6)), _linea_miron)
 	miron.look_at(to_global(Vector3(15.4, miron.position.y, 0.0)), Vector3.UP)
@@ -690,6 +701,8 @@ func _armar_turbios() -> void:
 var _halcon: Node3D
 var _halcon_t := 0.0
 var _halcon_base := 0.0
+var _vida: Node
+var _guardia: Node3D
 
 
 # Una cosa en la mano derecha (cigarro, cerveza, paquete o billetes): un BoneAttachment3D en el
@@ -1133,9 +1146,13 @@ func temblar(i: int) -> void:
 
 
 # La carrera: todos al arrancadero, salen a tirones y `ganador` llega primero a la meta (en x)
+var corriendo := false               # una carrera en curso (la tuya o la de VidaSotano)
+
+
 func correr(ganador: int) -> void:
 	if _caballos.is_empty():
 		return
+	corriendo = true
 	var n := _caballos.size()
 	var llegan: Array[float] = []
 	for i in n:
@@ -1154,6 +1171,7 @@ func correr(ganador: int) -> void:
 	await get_tree().create_timer(0.8).timeout
 	for i in n:
 		_caballos[i].position.x = _caballos_x0[i]
+	corriendo = false
 
 
 # --- Ayudas ---

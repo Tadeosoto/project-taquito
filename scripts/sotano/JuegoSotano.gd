@@ -423,6 +423,10 @@ func festejar(gano: bool, premio := 0) -> void:
 	var r := racha()
 	r = (maxi(r, 0) + 1) if gano else (mini(r, 0) - 1)
 	_rachas[titulo] = r
+	# Los de cerca reaccionan (VidaSotano): ganando en grande te voltean a ver, perdiendo se burlan
+	var vida := get_tree().get_first_node_in_group("vida_sotano")
+	if vida:
+		vida.call("reaccionar", gano, premio, r)
 	var letrero := etiqueta("", 34, AMARILLO)
 	letrero.add_theme_constant_override("outline_size", 10)
 	var destello := ColorRect.new()

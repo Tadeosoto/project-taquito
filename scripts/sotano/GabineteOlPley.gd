@@ -68,9 +68,9 @@ func mostrar_en_pantalla(textura: Texture2D) -> void:
 
 # La palanca del lado derecho (el vacio "Palanca" de sotano.py gabinete()): baja hacia ti y regresa
 # con rebote. Es una corrutina: vuelve cuando la palanca llego abajo (ahi arrancan los carretes)
-func jalar_palanca() -> void:
+func jalar_palanca(volumen := -4.0) -> void:
 	var palanca := find_child("Palanca", true, false) as Node3D
-	Sonidos.tocar(self, "slot_palanca", -4.0)
+	Sonidos.tocar(self, "slot_palanca", volumen)
 	if palanca == null:
 		return
 	var tween := create_tween()
