@@ -1,6 +1,6 @@
 extends SceneTree
 
-# Prueba del palacio de gobierno y la plaza de la Catrina en map_test (P0, F._palacio y _plaza).
+# Prueba del palacio de gobierno y su plaza en map_test (P0, F._palacio y _plaza).
 #   godot --path . --headless -s tools/mapa/probar_palacio.gd
 #   godot --path . -s tools/mapa/probar_palacio.gd -- --capturas   # ademas guarda capturas de dia y de noche
 #
@@ -10,7 +10,7 @@ extends SceneTree
 #   - bajo el portal se puede pasar (un rayo a 1 m de alto entra entre los arcos);
 #   - el piso de la plaza queda apenas arriba del suelo del mapa;
 #   - en la plaza no hay arboles ni matas, y los pasos no suenan a pasto (MapPasto.hay_pasto); afuera si;
-#   - la entrada a la pelea de la Mojiganga (EntradaJefe "mojiganga", catrina.tscn) esta en la plaza.
+#   - la entrada a la pelea de la Mojiganga ya no esta ahi (JJ, 2026-11-20: va en otro lado, por decidir).
 
 const MAPA := "res://scenes/map_test.tscn"
 const CAPTURAS := "user://palacio_"
@@ -74,7 +74,7 @@ func _probar() -> void:
 	_revisar("ya no esta la bodega del terreno (ni sus bardas)", bodegas == 0 and bardas == 0, "%d mallas de bodega, %d de barda" % [bodegas, bardas])
 
 	var suelo := _rayo(espacio, Vector3(plaza.x + 8.0, 30.0, plaza.y), Vector3(plaza.x + 8.0, -30.0, plaza.y))
-	var piso := escena.find_child("PlazaCatrina", true, false)
+	var piso := escena.find_child("PlazaPalacio", true, false)
 	_revisar("el piso de la plaza queda encima del suelo y la banqueta (0..0.17 m)", not suelo.is_empty() and suelo["position"].y > -0.05 and suelo["position"].y < 0.15, str(suelo.get("position")))
 	_revisar("hay piso de plaza", piso != null and piso.get_node_or_null("Piso") != null, "")
 
@@ -103,8 +103,7 @@ func _probar() -> void:
 	for e: Node3D in get_nodes_in_group("entradas_jefe"):
 		if e.get("id") == "mojiganga":
 			entrada = e
-	_revisar("la entrada de la Mojiganga esta en la plaza", entrada != null and entrada.get("escena") == "res://scenes/catrina.tscn"
-		and F.sin_vegetacion(entrada.global_position.x, entrada.global_position.z), "")
+	_revisar("la entrada de la Mojiganga ya no esta en la plaza del palacio", entrada == null, "")
 
 	if _capturas:
 		await _fotos(escena, jugador)
@@ -118,7 +117,7 @@ func _fotos(escena: Node, jugador: CharacterBody3D) -> void:
 	escena.add_child(camara)
 	camara.make_current()
 	var palacio := escena.find_child("Palacio", true, false) as Node3D
-	var plaza := escena.find_child("PlazaCatrina", true, false) as Node3D
+	var plaza := escena.find_child("PlazaPalacio", true, false) as Node3D
 	var p := palacio.global_transform
 	var q := plaza.global_transform
 	var tomas := [

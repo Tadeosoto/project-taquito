@@ -35,15 +35,16 @@ const CLINICAS := [
 const CLINICA_BANQUETA := 3.2    # m del frente de la casa a donde termina la escolta
 const CRUZ_VERDE := Color(0.1, 0.9, 0.35)
 
-## El palacio de gobierno y la plaza de la Catrina (P0 y la entrada de P5, JJ 2026-11-19): afuera de las fortalezas,
+## El palacio de gobierno y su plaza (P0, JJ 2026-11-19): afuera de las fortalezas,
 ## en el cruce de Av. Colon (aqui Antiguo Camino Real a Colima) y Bahia de Todos los Santos, donde de verdad hay una
 ## plaza con una Farmacia Guadalajara (a ~100 m de donde empieza la partida). El modelo es el Antiguo Palacio de
 ## Gobierno de Pachuca (Sketchfab, CC-BY, reducido a ~6k triangulos): solo trae detalle al frente (el portal de arcos
 ## y el reloj, su +Z) y en su costado +X. Va en el terreno de la bodega 68 (que se quita, con sus bardas), alineado
 ## con ella: el portal mira a la plaza y la avenida, el costado +X a la calle del OXO y el liso a las bardas traseras
 ## de las casas de Bahia; atras le quedan ~4 m hasta la barda del baldio. La plaza es la franja de la
-## farmacia, entre la calle de atras y la lateral de la avenida, con la entrada a la pelea de la Mojiganga
-## (EntradaJefe "mojiganga", catrina.tscn). El modelo viene casi sin textura: se le ponen aplanado y cantera con UV
+## farmacia, entre la calle de atras y la lateral de la avenida. (Ya no lleva la entrada a la pelea de la Mojiganga:
+## JJ, 2026-11-20, la Mojiganga va en otro lado, por decidir; el palacio es para buscar papeles.) El modelo viene
+## casi sin textura: se le ponen aplanado y cantera con UV
 ## proyectadas por cara (`_texturizar`), y sus 119 mallas se juntan en una por material (eran ~330 llamadas de dibujo).
 const MODELO_PALACIO := "res://models/props/palacio/palacio.scn"
 const PALACIO_CENTRO := Vector2(276.1, 522.2)  # el centro de su planta: el portal 2 m detras del frente de la bodega
@@ -69,7 +70,6 @@ const PLAZA_GIRO := GIRO_CALLES               # a lo largo de la avenida; su +Z 
 const PLAZA_TAM := Vector2(44.0, 12.0)
 const PLAZA_TEXTURA := "res://textures/mapa/cantera_rosa.png"
 const PLAZA_LOSA := 3.0                        # m que mide cada repeticion de la textura
-const ENTRADA_MOJIGANGA := Vector2(11.3, 0.0)  # en la plaza (sus ejes), del lado contrario a la farmacia
 const ASTA_EN := Vector2(2.0, -3.0)            # en la plaza (sus ejes)
 const FAROL_COLOR := Color(1.0, 0.82, 0.55)
 
@@ -217,7 +217,7 @@ func _clinica(clinica: Dictionary) -> void:
 	nodo.add_child(luz)
 
 
-# --- El palacio y la plaza de la Catrina ---
+# --- El palacio y su plaza ---
 
 func _palacio() -> void:
 	if not ResourceLoader.exists(MODELO_PALACIO):
@@ -346,7 +346,7 @@ func _material_palacio(tipo: String) -> ShaderMaterial:
 
 func _plaza() -> void:
 	var plaza := Node3D.new()
-	plaza.name = "PlazaCatrina"
+	plaza.name = "PlazaPalacio"
 	plaza.position = Vector3(PLAZA_CENTRO.x, 0.0, PLAZA_CENTRO.y)
 	plaza.rotation.y = PLAZA_GIRO
 	add_child(plaza)
@@ -371,28 +371,11 @@ func _plaza() -> void:
 	piso.position.y = 0.17                         # parte de la franja es banqueta (0.12 m)
 	piso.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	plaza.add_child(piso)
-	# Faroles en las cuatro esquinas: de noche aqui hay que pelear con lo que llegue antes de entrar
+	# Faroles en las cuatro esquinas
 	for sx in [-1.0, 1.0]:
 		for sz in [-1.0, 1.0]:
 			_farol(plaza, Vector3(sx * (medio.x - 4.0), 0.0, sz * (medio.y - 4.0)))
 	_asta(plaza, Vector3(ASTA_EN.x, 0.0, ASTA_EN.y))
-	# La entrada a la pelea de la Mojiganga: su +Z (por donde sales al volver) mira a la avenida
-	var entrada := EntradaJefe.new()
-	entrada.name = "EntradaMojiganga"
-	entrada.id = "mojiganga"
-	entrada.escena = "res://scenes/catrina.tscn"
-	entrada.nombre = "la Mojiganga"
-	entrada.position = Vector3(ENTRADA_MOJIGANGA.x, 0.0, ENTRADA_MOJIGANGA.y)
-	plaza.add_child(entrada)
-	var nombre := Label3D.new()
-	nombre.text = "Plaza de la Catrina"
-	nombre.pixel_size = 0.012
-	nombre.font_size = 64
-	nombre.outline_size = 14
-	nombre.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
-	nombre.position = Vector3(ENTRADA_MOJIGANGA.x, 4.2, ENTRADA_MOJIGANGA.y)
-	nombre.visibility_range_end = 60.0
-	plaza.add_child(nombre)
 
 
 func _farol(padre: Node3D, donde: Vector3) -> void:

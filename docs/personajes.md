@@ -117,7 +117,7 @@ La familia que tiene el agua y el gobierno. No son monstruos de caricatura: son 
 
 | | |
 |---|---|
-| **Zona** | Palacio (afuera, cerca de la plaza de la Catrina) y la fortaleza GelA (donde vive) |
+| **Zona** | Palacio (afuera, en Av. Colón) y la fortaleza GelA (donde vive) |
 | **Horario** | Día; de noche manda, no sale |
 | **Oficio** | Gobernadora; la cara de GelA |
 | **Te da** | Nada: te quita (el agua, el voto, la calle) |
