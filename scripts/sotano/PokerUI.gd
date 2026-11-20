@@ -46,7 +46,7 @@ static var _materiales := {}
 
 func _init() -> void:
 	titulo = "Póker"
-	ayuda = "C pasar / ir  ·  R subir  ·  F retirarte  ·  Espacio otra mano  ·  Esc levantarte"
+	ayuda = AYUDA_FILA
 
 
 func _armar() -> void:
@@ -145,8 +145,8 @@ func _seguir() -> void:
 	else:
 		_esperando = true
 		var debe := _h.por_igualar(0)
-		avisar(("Te toca: van %d. C para ir, R para subir a %d, F para irte." % [debe, debe + _h.tamano_subida()]) if debe > 0
-			else "Te toca: C para pasar, R para subir %d." % _h.tamano_subida(), 30.0)
+		avisar(("Te toca: van %d. ¿vas, subes a %d o te retiras?" % [debe, debe + _h.tamano_subida()]) if debe > 0
+			else "Te toca: ¿pasas o subes %d?" % _h.tamano_subida(), 30.0)
 
 
 func _fin_de_mano() -> void:
@@ -161,7 +161,7 @@ func _fin_de_mano() -> void:
 	if _h.ganadores.has(0):
 		Sonidos.tocar(self, "monedas_caen", -5.0)
 	_guardar_fichas()
-	avisar(texto + "  (Espacio otra mano)", 30.0)
+	avisar(texto, 30.0)
 
 
 func _guardar_fichas() -> void:
@@ -464,3 +464,15 @@ func _acercar_camara() -> void:
 	var tween := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(_camara, "global_transform", destino, TIEMPO_CAMARA)
 	tween.tween_property(_camara, "fov", FOV, TIEMPO_CAMARA)
+
+
+# La fila: pasar o ir, subir y retirarte cuando te toca; otra mano al acabar
+func _armar_botones() -> void:
+	var en_mano := func() -> bool: return _h.fase != Holdem.Fase.FIN
+	var te_toca := func() -> bool: return _esperando
+	botones([
+		{"texto": func() -> String: return ("Ir con %d" % _h.por_igualar(0)) if _h.por_igualar(0) > 0 else "Pasar",
+			"hacer": jugar.bind("pasar"), "principal": true, "activo": te_toca, "visible": en_mano},
+		{"texto": "Subir", "hacer": jugar.bind("subir"), "activo": te_toca, "visible": en_mano},
+		{"texto": "Retirarte", "hacer": jugar.bind("retirarse"), "activo": te_toca, "visible": en_mano},
+		{"texto": "Otra mano", "hacer": nueva_mano, "principal": true, "visible": func() -> bool: return not en_mano.call()}])

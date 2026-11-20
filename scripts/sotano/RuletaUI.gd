@@ -42,6 +42,12 @@ var _rueda: Node3D
 var _bola: MeshInstance3D
 var _bola_cuarto: Node3D
 var _alto := ALTO_PISTA              # la bola: alto y velocidad vertical (brincos)
+# El golpe contra los separadores (AG 2026-11-19: "que interactue un poco, sin influir mucho"): un
+# empujon de angulo hacia atras con resorte que regresa a cero; no cambia la casilla donde cae
+var _golpe := 0.0
+var _golpe_v := 0.0
+const GOLPE_MAX := 0.45              # en anchos de casilla
+const GOLPE_EMPUJE := 1.6            # rad/s por choque (al empezar; se apaga con el giro)
 var _vy := 0.0
 var _barrido: MeshInstance3D        # el "desenfoque" de la rueda mientras gira rapido
 var _barrido_mat: StandardMaterial3D
@@ -53,7 +59,7 @@ var _sale: Label
 
 func _init() -> void:
 	titulo = "Ruleta"
-	ayuda = "↑/↓ color  ·  ←/→ apuesta  ·  Espacio girar  ·  C cobrar  ·  D dobletear  ·  Esc levantarte"
+	ayuda = AYUDA_FILA
 
 
 func _armar() -> void:
@@ -250,13 +256,13 @@ func _tirar() -> void:
 			await get_tree().create_timer(0.6).timeout
 			cobrar()
 		else:
-			avisar("¡Ganas %d! C cobras o D dobleteas (todo o nada)." % gana, 30.0)
+			avisar("¡Ganas %d! ¿Cobras o dobleteas (todo o nada)?" % gana, 30.0)
 	else:
 		_premio = 0
 		_estado = Estado.FIN
 		festejar(false)
 		_llevar_pilas(_lugar("Crupier_ruleta") + Vector3(0, 0.85, 0))
-		avisar("Se va todo al doblete. \"Así es esto, mijo.\"" if _doblete else "Gana la casa. Otra, Espacio.", 30.0)
+		avisar("Se va todo al doblete. \"Así es esto, mijo.\"" if _doblete else "Gana la casa. ¿Otra?", 30.0)
 	_mostrar()
 
 
@@ -318,6 +324,9 @@ func _animar(n: int) -> void:
 	var cayo := false
 	_alto = ALTO_PISTA
 	_vy = 0.0
+	_golpe = 0.0
+	_golpe_v = 0.0
+	var ancho := TAU / total
 	while t < GIRO:
 		await get_tree().process_frame
 		if not is_inside_tree():
@@ -334,19 +343,25 @@ func _animar(n: int) -> void:
 		# En las casillas se pasa de su casilla y regresa, cada vez menos (pocas veces y suave)
 		var rebote := sin(f * 20.0) * (TAU / total) * 2.2 * smoothstep(0.0, 1.0, cae) * pow(1.0 - f, 1.6)
 		var atraso := -VUELTAS_BOLA * TAU * pow(1.0 - f, 2.0)           # al reves; llega a la casilla
-		var fi := giro + a + atraso + rebote
-		var r := lerpf(PISTA, (RUEDA_DENTRO + RUEDA_RADIO) / 2.0, ease(cae, 0.5))
+		var fi := giro + a + atraso + rebote + _golpe
+		var r := lerpf(PISTA, (RUEDA_DENTRO + RUEDA_RADIO) / 2.0, ease(cae, 0.5)) + absf(_golpe) * 0.12
 		var piso := lerpf(ALTO_PISTA, ALTO_CASILLA, cae)
 		if cae > 0.0 and not cayo:
 			cayo = true
 			_vy = 0.22                                                  # sale de la pista de un brinco
 		# Cada separador que cruza ya adentro: un brinco y su tic
-		var en := posmod(int(floor((fi - giro) / (TAU / total))), total)
-		if cae > 0.3 and en != casilla_antes:
-			if casilla_antes >= 0 and _alto - piso < 0.004:
+		var en := posmod(int(floor((fi - giro) / ancho)), total)
+		if cae > 0.15 and en != casilla_antes:
+			if casilla_antes >= 0:
+				# Pega en el separador: tic, un brinquito (si va abajo) y un empujon hacia atras
 				Sonidos.tocar(self, "paso", -14.0 + (1.0 - f) * 4.0, randf_range(1.3, 1.7))
-				_vy = 0.16 * (1.0 - f) + 0.03
+				if _alto - piso < 0.012:
+					_vy = maxf(_vy, 0.16 * (1.0 - f) + 0.03)
+				_golpe_v -= GOLPE_EMPUJE * (1.0 - f) * randf_range(0.6, 1.0)
 			casilla_antes = en
+		# El resorte del golpe: regresa a cero y nunca se aleja mas de GOLPE_MAX casillas
+		_golpe_v += (-_golpe * 90.0 - _golpe_v * 11.0) * dt
+		_golpe = clampf(_golpe + _golpe_v * dt, -GOLPE_MAX * ancho, GOLPE_MAX * ancho)
 		# Gravedad y rebote contra el piso (pista o casilla)
 		_vy -= GRAVEDAD * dt
 		_alto += _vy * dt
@@ -356,7 +371,10 @@ func _animar(n: int) -> void:
 		var antes := _bola.position
 		_bola.position = _rueda.position + Vector3(cos(fi) * r, _alto, -sin(fi) * r)
 		_rodar(_bola.position - antes)
-	_bola.position.y = _rueda.position.y + ALTO_CASILLA
+	# Al final, justo en su casilla (sin lo que quedara del golpe)
+	var fin := _rueda.rotation.y + a
+	var rc := (RUEDA_DENTRO + RUEDA_RADIO) / 2.0
+	_bola.position = _rueda.position + Vector3(cos(fin) * rc, ALTO_CASILLA, -sin(fin) * rc)
 	if _barrido_mat:
 		_barrido_mat.albedo_color.a = 0.0
 
@@ -382,3 +400,22 @@ func _mostrar() -> void:
 	_info.text = linea
 	_info.add_theme_color_override("font_color", COLOR_UI[c])
 	_acomodar_pila()
+
+
+# La fila: los tres colores (el tuyo marcado), la apuesta y Girar; si ganaste, Cobrar o Dobletear
+func _armar_botones() -> void:
+	var lista := []
+	for k in 3:
+		lista.append({"texto": NOMBRES[Ruleta.COLORES[k]], "hacer": func() -> void:
+				_color = k
+				Sonidos.tocar(self, "ficha_mesa", -12.0, 1.3)
+				_mostrar(),
+			"activo": func() -> bool: return _estado != Estado.GIRANDO,
+			"marcado": func() -> bool: return _color == k})
+	var apostar := func() -> bool: return _estado == Estado.APOSTAR or _estado == Estado.FIN
+	var gano := func() -> bool: return _estado == Estado.GANASTE
+	botones(lista + botones_apuesta(func() -> String: return "Apuesta %d" % _apuesta,
+			func(paso: int) -> void: _tecla(KEY_RIGHT if paso > 0 else KEY_LEFT), apostar) + [
+		{"texto": "Girar", "hacer": _tecla.bind(KEY_SPACE), "principal": true, "activo": apostar, "visible": func() -> bool: return not gano.call()},
+		{"texto": "Cobrar", "hacer": _tecla.bind(KEY_C), "principal": true, "visible": gano},
+		{"texto": "Dobletear", "hacer": _tecla.bind(KEY_D), "visible": gano}])

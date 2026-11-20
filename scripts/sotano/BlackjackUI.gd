@@ -35,7 +35,7 @@ var _cartas_tuyas: Array[TextureRect] = []
 
 func _init() -> void:
 	titulo = "Blackjack"
-	ayuda = "←/→ apuesta  ·  Espacio repartir  ·  H pedir  ·  S plantarte  ·  D doblar  ·  Esc levantarte"
+	ayuda = AYUDA_FILA
 
 
 func _armar() -> void:
@@ -62,7 +62,7 @@ func _armar() -> void:
 		acercar_camara(sotano.to_global(tu + CAMARA_DESDE), sotano.to_global(tu + CAMARA_MIRA), 56.0)
 	_mostrar()
 	_apuesta = apuesta_min
-	avisar("\"Apuéstale, mijo\", dice %s. ←/→ la apuesta (%d a %d), Espacio reparte." % [crupier, apuesta_min, apuesta_max], 5.0)
+	avisar("\"Apuéstale, mijo\", dice %s. Apuesta de %d a %d y reparte." % [crupier, apuesta_min, apuesta_max], 5.0)
 
 
 func _fila(desde: float, arriba: bool) -> HBoxContainer:
@@ -205,7 +205,7 @@ func _final() -> void:
 		"pierdes": "Gana la casa. \"Otra, mijo, que ahorita se compone.\"",
 		"te pasaste": "Te pasaste de 21. %s ni sonríe." % crupier,
 	}.get(_bj.resultado, "")
-	avisar(texto + "  (Espacio otra mano)", 30.0)
+	avisar(texto, 30.0)
 
 
 func _limpiar() -> void:
@@ -251,3 +251,15 @@ func _mostrar() -> void:
 		_total_crupier.text = "%s: %d" % [crupier, Blackjack.valor(_bj.crupier)]
 	_total_tuyo.text = ("Tú: %d" % Blackjack.valor(_bj.tuyas)) if not _bj.tuyas.is_empty() else "Tú"
 	_estado.text = "Apuesta %d · Fichas %d" % [_bj.apuesta if jugando else _apuesta, fichas()]
+
+
+# La fila: la apuesta y Repartir entre manos; Pedir, Plantarte y Doblar en la mano
+func _armar_botones() -> void:
+	var libre := func() -> bool: return _bj.fase != Blackjack.Fase.JUGANDO
+	var jugando := func() -> bool: return _bj.fase == Blackjack.Fase.JUGANDO
+	botones(botones_apuesta(func() -> String: return "Apuesta %d" % _apuesta,
+			func(paso: int) -> void: _tecla(KEY_RIGHT if paso > 0 else KEY_LEFT), libre) + [
+		{"texto": "Repartir", "hacer": _tecla.bind(KEY_SPACE), "principal": true, "visible": libre},
+		{"texto": "Pedir", "hacer": _tecla.bind(KEY_H), "principal": true, "visible": jugando},
+		{"texto": "Plantarte", "hacer": _tecla.bind(KEY_S), "visible": jugando},
+		{"texto": "Doblar", "hacer": _tecla.bind(KEY_D), "visible": jugando}])

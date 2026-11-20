@@ -33,6 +33,8 @@ F12 de cero · F1 esconder"""
 # Camaras para --fotos: nombre -> [desde, hacia], en metros del cuarto (antes de la escala)
 const FOTOS := {
 	"escalera": [Vector3(9.0, -1.2, 3.1), Vector3(5.0, -1.6, 3.1)],
+	"neon_entrada": [Vector3(7.6, -1.5, 4.2), Vector3(13.0, -0.8, 3.0)],
+	"ruleta_crupier": [Vector3(30.6, -1.2, 1.2), Vector3(33.3, -1.9, -1.7)],
 	"maquinitas": [Vector3(14.5, -1.2, 4.6), Vector3(12.5, -2.0, -1.5)],
 	"gabinete_lado": [Vector3(12.2, -2.2, 1.2), Vector3(11.0, -2.0, -1.6)],
 	"ventanilla_baja": [Vector3(8.4, -2.35, 2.6), Vector3(8.2, -2.2, -0.4)],
@@ -73,6 +75,7 @@ const FOTOS := {
 var _sotano: Node3D
 var _player: Player
 var _ayuda: Label
+var _ayuda_visible := true
 var _estado: Label
 
 
@@ -120,7 +123,7 @@ func _ready() -> void:
 # El recorrido de --video: la camara va de un sonido a otro (la camara activa es la que oye)
 func _video() -> void:
 	if _ayuda:
-		_ayuda.visible = false
+		_ayuda_visible = false
 	var cam := Camera3D.new()
 	cam.fov = 70.0
 	add_child(cam)
@@ -319,7 +322,14 @@ func _fotos(carpeta: String) -> void:
 	get_node("/root/Fichas").vip = true
 	_sotano.call("_quitar_cordon")
 	await get_tree().create_timer(1.5).timeout
+	# -- --solo=a,b: solo esas vistas
+	var solo := PackedStringArray()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--solo="):
+			solo = arg.trim_prefix("--solo=").split(",")
 	for nombre: String in FOTOS:
+		if not solo.is_empty() and not nombre in solo:
+			continue
 		var v: Array = FOTOS[nombre]
 		cam.global_position = _sotano.to_global(v[0])
 		cam.look_at(_sotano.to_global(v[1]), Vector3.UP)
@@ -364,6 +374,9 @@ func _al_pie() -> void:
 func _process(_delta: float) -> void:
 	var f := get_node("/root/Fichas")
 	_estado.text = "Fichas %d · $%d · permiso %d" % [f.fichas, get_node("/root/Cartera").pesos, f.permiso]
+	# Con un juego abierto se esconden las teclas de la prueba (se encimaban con las del juego)
+	if _ayuda:
+		_ayuda.visible = _ayuda_visible and get_tree().get_first_node_in_group("juego_sotano") == null
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -391,7 +404,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_R:
 			_al_pie()
 		KEY_F1:
-			_ayuda.visible = not _ayuda.visible
+			_ayuda_visible = not _ayuda_visible
 		KEY_F12:
 			f.reiniciar()
 			get_node("/root/Cartera").pesos = PESOS

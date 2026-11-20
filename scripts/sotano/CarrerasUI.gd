@@ -31,7 +31,7 @@ var _rng := RandomNumberGenerator.new()
 
 func _init() -> void:
 	titulo = "Las carreras de caballitos"
-	ayuda = "↑/↓ caballito  ·  ←/→ apuesta  ·  Espacio ¡arrancan!  ·  Esc salir"
+	ayuda = AYUDA_FILA
 
 
 func _armar() -> void:
@@ -147,3 +147,16 @@ func elegir_ganador(tuyo: int, trampa: bool) -> int:
 
 func _mostrar() -> void:
 	_elegido.text = "Al %s (%d)  ·  %d ficha%s" % [COLORES[_caballo], _caballo + 1, _apuesta, "" if _apuesta == 1 else "s"]
+
+
+# La fila: un boton por caballito (el tuyo marcado), la apuesta y a correr
+func _armar_botones() -> void:
+	var lista := []
+	for k in COLORES.size():
+		lista.append({"texto": "%s x%d" % [str(COLORES[k]).capitalize(), MOMIOS[k]], "hacer": func() -> void:
+				_caballo = k
+				_mostrar(),
+			"marcado": func() -> bool: return _caballo == k})
+	botones(lista + botones_apuesta(func() -> String: return "%d fichas" % _apuesta,
+			func(paso: int) -> void: _tecla(KEY_RIGHT if paso > 0 else KEY_LEFT), func() -> bool: return true) + [
+		{"texto": "¡Arrancan!", "hacer": _tecla.bind(KEY_SPACE), "principal": true}])

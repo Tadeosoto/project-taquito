@@ -21,7 +21,7 @@ static var _saludo := 0
 
 func _init() -> void:
 	titulo = "El de los dulces"
-	ayuda = "1-4 comprar  ·  Esc irte"
+	ayuda = AYUDA_FILA
 
 
 func _armar() -> void:
@@ -52,3 +52,11 @@ func comprar(k: int) -> void:
 	else:
 		f.fichas += int(m[2])
 		avisar("\"Ya no le cabe nada, joven.\"")
+
+
+# La fila: un boton por cosa, con su precio
+func _armar_botones() -> void:
+	var lista := []
+	for k in MERCANCIA.size():
+		lista.append({"texto": "%s (%d)" % [str(MERCANCIA[k][0]).replace("\"", ""), MERCANCIA[k][2]], "hacer": comprar.bind(k)})
+	botones(lista)

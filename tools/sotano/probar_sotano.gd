@@ -34,6 +34,17 @@ func _ver(cond: bool, que: String, detalle := "") -> void:
 		_bien = false
 
 
+# Una accion de entrada (como si la apretaras y soltaras)
+func _accion(nombre: String) -> void:
+	for apretada in [true, false]:
+		var ev := InputEventAction.new()
+		ev.action = nombre
+		ev.pressed = apretada
+		Input.parse_input_event(ev)
+		await get_tree().process_frame
+		await get_tree().process_frame
+
+
 func _esperar(s: float) -> void:
 	await get_tree().create_timer(s, true, false, true).timeout
 
@@ -152,11 +163,24 @@ func _probar() -> void:
 	await _esperar(0.8)
 	ui = arbol.get_first_node_in_group("juego_sotano")
 	var antes_bj: int = fichas.fichas
-	ui.repartir()
+	# Con la fila de botones, como el jugador: flechas hasta Repartir, Espacio; luego Plantarte
+	var vistos := []
+	for k in 6:
+		if ui.escogido().strip_edges() == "Repartir":
+			break
+		await _accion("ui_right")
+	vistos.append(ui.escogido().strip_edges())
+	await _accion("ui_accept")
 	await _esperar(1.6)
 	if ui.get("_bj").fase == Blackjack.Fase.JUGANDO:
-		ui.plantarte()
+		for k in 6:
+			if ui.escogido().strip_edges() == "Plantarte":
+				break
+			await _accion("ui_right")
+		vistos.append(ui.escogido().strip_edges())
+		await _accion("ui_accept")
 		await _esperar(2.0)
+	_ver(vistos[0] == "Repartir", "la fila de botones: flechas y Espacio en el blackjack", ", ".join(vistos))
 	_ver(ui.get("_bj").fase == Blackjack.Fase.FIN and ui.get("_bj").resultado != "", "se juega una mano de blackjack",
 		"%s, fichas %d -> %d" % [ui.get("_bj").resultado, antes_bj, fichas.fichas])
 	ui.cerrar()

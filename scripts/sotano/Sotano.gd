@@ -280,10 +280,36 @@ func _armar_neones() -> void:
 		for m: MeshInstance3D in letrero.find_children("*_focos_*", "MeshInstance3D", true, false):
 			_focos[0 if m.name.ends_with("_a") else 1].append(m)
 		var luz := _luz(t.origin + t.basis.z * 0.4, n[2], 1.2, 3.5)
+		# EL GORDO cuelga espalda con espalda: sin un tablero negro en medio se veian los dos
+		# letreros encimados (las letras de atras al reves, por entre las de adelante)
+		if n[0] == "Neon" or n[0] == "Neon_atras":
+			_tablero(letrero)
 		if n[3]:
 			_parpadear(letrero, 1.0)
 			_parpadear(luz, 1.2)
 	glb.free()
+
+
+# Un tablero negro detras de las letras de un neon (del tamano de todas sus mallas juntas)
+func _tablero(letrero: Node3D) -> void:
+	var caja := AABB()
+	var primera := true
+	for m: MeshInstance3D in letrero.find_children("*", "MeshInstance3D", true, false):
+		var a: AABB = (letrero.global_transform.affine_inverse() * m.global_transform) * m.get_aabb()
+		caja = a if primera else caja.merge(a)
+		primera = false
+	if primera:
+		return
+	var tabla := MeshInstance3D.new()
+	var malla := BoxMesh.new()
+	malla.size = Vector3(caja.size.x + 0.1, caja.size.y + 0.1, 0.02)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.03, 0.025, 0.035)
+	mat.roughness = 0.9
+	malla.material = mat
+	tabla.mesh = malla
+	letrero.add_child(tabla)
+	tabla.position = Vector3(caja.get_center().x, caja.get_center().y, caja.position.z - 0.02)
 
 
 static func _foco_material(color: Color) -> StandardMaterial3D:
