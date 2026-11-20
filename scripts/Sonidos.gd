@@ -42,6 +42,28 @@ const ARCHIVOS := {
 	"chillido_muerte": "res://audio/lombrices/chillido_muerte.ogg",   # S-090: la Madre muere (dragon, 3.2 s)
 	"madre_rugido": "res://audio/lombrices/madre_rugido.ogg",   # el rugido (resoplido) ocasional de la Madre
 	"madre_escupe": "res://audio/lombrices/madre_escupe.ogg",   # la Madre escupe baba o pare crias
+	# La Madre, segunda tanda (Splice, 2026-11-19, docs/sonidos.csv S-091 y S-138 a S-144). "chapoteo" era
+	# sintetico; solo lo usa ella, asi que el archivo lo reemplaza en sus seis llamadas
+	"chapoteo": "res://audio/lombrices/madre_chapoteo.ogg",   # S-091: entra, sale, surge del charco
+	"madre_retumbo": "res://audio/lombrices/madre_retumbo.ogg",   # S-138: el aviso bajo tierra (mordida y embestida)
+	"madre_mordida": "res://audio/lombrices/madre_mordida.ogg",   # S-139: la mordida que sale del piso
+	"madre_embiste": "res://audio/lombrices/madre_embiste.ogg",   # S-140: arranca cada pasada de la embestida
+	"madre_carne": "res://audio/lombrices/madre_carne.ogg",   # S-141: le pegas a un saco o a su carne
+	"madre_saco_revienta": "res://audio/lombrices/madre_saco_revienta.ogg",   # S-142: revienta un saco
+	"madre_desploma": "res://audio/lombrices/madre_desploma.ogg",   # S-143: cae tirada o aturdida
+	"madre_deshace": "res://audio/lombrices/madre_deshace.ogg",   # S-144: se deshace al morir
+	# Pelea y jefes: antes generados en código, ahora de Splice (2026-11-19, docs/sonidos.csv S-145 a S-155).
+	# Los nombres no cambian, así que todos los que los usaban suenan con el archivo sin tocar su código
+	"golpe": "res://audio/zombis/golpe.ogg",   # S-145: puñetazo del Panzón, la Catrina, el pompón, la puerta del refugio
+	"squelch": "res://audio/zombis/squelch.ogg",   # S-146: espadazo a lombrices, sal, Panzón
+	"reventar": "res://audio/zombis/reventar.ogg",   # S-147: el zombi revienta; la Catrina
+	"gemido": "res://audio/zombis/gemido.ogg",   # S-148: el Saltabardas
+	"boom": "res://audio/ui/boom.ogg",   # S-149: título de la defensa ganada, revelación del tazo
+	"fizz": "res://audio/items/fizz.ogg",   # S-150: la sal quema lombrices; la Catrina
+	"carton": "res://audio/catrina/carton.ogg",   # S-152: la Mojiganga y sus rompibles
+	"carrizo": "res://audio/catrina/carrizo.ogg",   # S-153
+	"grito_catrina": "res://audio/catrina/grito_catrina.ogg",   # S-154: sirena agresiva + rugido grave, 2.7 s
+	"pisoton": "res://audio/catrina/pisoton.ogg",   # S-155
 	"crias_enjambre": "res://audio/lombrices/crias_enjambre.ogg",   # 10 o mas crias yendo hacia ti (EnjambreLombrices._rumor)
 	"ronda_gana": "res://audio/arcade/ronda_gana.ogg",   # S-067
 	"ronda_inicia": "res://audio/arcade/ronda_inicia.ogg",   # S-067: DefensaTinaco._aplicar_noche
@@ -213,8 +235,6 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _ruido(0.8, 0.35, 3.0)
 			"machetazo":
 				_sonidos[nombre] = _ruido(0.14, 0.8, 1.5)
-			"golpe":
-				_sonidos[nombre] = _ruido(0.18, 0.2, 2.0)
 			"ladrido":
 				_sonidos[nombre] = _tono(420.0, 0.11, -200.0, 0.7)
 			# El golpe seco de antes, para lo que no es carne: forzar la cortina de la bodega,
@@ -238,33 +258,17 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _campana(196.0, 3.2, 0.5)
 			"campana_escuela":
 				_sonidos[nombre] = _campana(880.0, 0.9, 0.4)
-			"reventar":
-				_sonidos[nombre] = _reventar()
 			# La Madre del Carcamo y sus crias (scripts/lombrices/)
-			"squelch":
-				_sonidos[nombre] = _squelch()
-			"fizz":
-				_sonidos[nombre] = _ruido(0.6, 0.92, 1.4)
 			"chillido":
 				_sonidos[nombre] = _chillido()
 			"chapoteo":
 				_sonidos[nombre] = _chapoteo()
 			# La Mojiganga (scripts/catrina/): carton que cruje, carrizo que rechina, su grito y el pisoton
-			"carton":
-				_sonidos[nombre] = _ruido(0.2, 0.55, 2.5)
-			"carrizo":
-				_sonidos[nombre] = _carrizo()
-			"grito_catrina":
-				_sonidos[nombre] = _grito_catrina()
-			"pisoton":
-				_sonidos[nombre] = _pisoton()
 			# La libreta del Nocturno: un lapiz que raya papel
 			"lapiz":
 				_sonidos[nombre] = _lapiz()
 			"dolor":
 				_sonidos[nombre] = _tono(190.0, 0.22, -70.0, 0.6)
-			"gemido":
-				_sonidos[nombre] = _gemido()
 			"morir_zombi":
 				_sonidos[nombre] = _tono(120.0, 0.6, -80.0, 0.6)
 			"campana":
@@ -318,8 +322,6 @@ static func sonido(nombre: String) -> AudioStream:
 				_sonidos[nombre] = _retumbo()
 			"zumbido":
 				_sonidos[nombre] = _zumbido()
-			"boom":
-				_sonidos[nombre] = _boom()
 			# Recoger una cajita de botin o una moneda (CajaBotin.gd)
 			"botin":
 				_sonidos[nombre] = _botin()
@@ -653,22 +655,6 @@ static func _zumbido() -> AudioStreamWAV:
 	return _a_wav(b)
 
 
-# Boom: un golpe grave que cae con estallido de ruido y cola larga
-static func _boom() -> AudioStreamWAV:
-	var b := _vacio(1.1)
-	var azar := RandomNumberGenerator.new()
-	azar.seed = 99
-	var fase := 0.0
-	var ruido := 0.0
-	for i in b.size():
-		var t := float(i) / MUESTRAS
-		fase += lerpf(90.0, 32.0, minf(t / 0.5, 1.0)) / MUESTRAS
-		ruido = lerpf(ruido, azar.randf_range(-1.0, 1.0), 0.25)
-		var golpe := sin(fase * TAU) * exp(-t * 4.0)
-		var estallido := ruido * exp(-t * 14.0) * 1.4
-		b[i] = clampf(golpe * 0.85 + estallido, -1.0, 1.0)
-	return _a_wav(_eco(b, [71, 113], 0.35, 0.5, 0.3))
-
 
 # Pistola (Pistola.gd): un estallido seco de ruido con un golpe grave abajo y un poco de
 # eco de calle, mas corto que el cohete
@@ -867,6 +853,7 @@ static func _casquillo() -> AudioStreamWAV:
 	return _a_wav(b)
 
 
+
 # El pitido de oidos de cuando te truena algo cerca: un tono muy agudo que entra mientras se
 # apaga el trueno, se queda y se va apagando. Dos tonos casi iguales para que lata tantito.
 # Lo que dura es lo que quedan aturdidos los zombis (Arrojadizo.PALOMITA)
@@ -937,51 +924,6 @@ static func _bloqueo() -> AudioStreamWAV:
 	return _a_wav(_eco(b, [23, 37], 0.3, 0.15, 0.25))
 
 
-# Un zombi que gime: una garganta (diente de sierra apagado) que sube y luego se cae,
-# "uuurgh", con dos resonancias de boca entre "o" y "u", carraspeo irregular, aire y un poco
-# de eco. Antes era un tono cuadrado que bajaba y sonaba a globo desinflandose.
-static func _gemido() -> AudioStreamWAV:
-	const DURA := 1.4
-	var cuantas := int(DURA * MUESTRAS)
-	var seco := PackedFloat32Array()
-	seco.resize(cuantas)
-	var azar := RandomNumberGenerator.new()
-	azar.seed = 41
-	var fase := 0.0
-	var garganta := 0.0
-	var carraspeo := 0.0
-	var aire := 0.0
-	# Dos resonadores de dos polos: [y1, y2] de cada uno
-	var r1 := [0.0, 0.0]
-	var r2 := [0.0, 0.0]
-	var pico := 0.0
-	for i in cuantas:
-		var t := float(i) / cuantas
-		# Tono: 72 Hz, sube a 92 al primer tercio y se cae a 58, con temblor
-		var tono := lerpf(72.0, 92.0, smoothstep(0.0, 0.3, t)) - 34.0 * smoothstep(0.35, 1.0, t)
-		tono *= 1.0 + 0.035 * sin(t * DURA * TAU * 5.5) + 0.02 * azar.randf_range(-1.0, 1.0)
-		fase += tono / MUESTRAS
-		var sierra := fmod(fase, 1.0) * 2.0 - 1.0
-		garganta = lerpf(garganta, sierra, 0.35)
-		# Carraspeo: ruido lento que abre y cierra la garganta, mas al final
-		carraspeo = lerpf(carraspeo, azar.randf_range(0.0, 1.0), 0.004)
-		var voz := garganta * (0.55 + 0.9 * carraspeo * (0.5 + t))
-		aire = lerpf(aire, azar.randf_range(-1.0, 1.0), 0.12)
-		var fuente := voz + aire * 0.25
-		# Boca: de "o" (520 / 880 Hz) a "u" (380 / 700 Hz)
-		var f1 := _resonar(fuente, lerpf(520.0, 380.0, t), 0.985, r1)
-		var f2 := _resonar(fuente, lerpf(880.0, 700.0, t), 0.98, r2)
-		var envolvente := smoothstep(0.0, 0.12, t) * (1.0 - smoothstep(0.65, 1.0, t))
-		# Lo que mas se oye es la boca; la garganta sola da el cuerpo grave
-		var valor := (garganta * 0.15 + f1 * 0.35 + f2 * 0.2) * envolvente
-		seco[i] = valor
-		pico = maxf(pico, absf(valor))
-	# Que no truene fuerte: mas quedito que el tono de antes
-	var escala := 0.5 / maxf(pico, 0.001)
-	for i in cuantas:
-		seco[i] *= escala
-	return _a_wav(_eco(seco, [83, 131] as Array[int], 0.3, 0.45, 0.35))
-
 
 # Un resonador de dos polos en `frecuencia` Hz; `radio` cerca de 1 = mas angosto
 static func _resonar(entrada: float, frecuencia: float, radio: float, estado: Array) -> float:
@@ -991,38 +933,6 @@ static func _resonar(entrada: float, frecuencia: float, radio: float, estado: Ar
 	return y
 
 
-# Un globo de agua que truena: un pop agudo que cae y luego el agua que se riega
-static func _reventar() -> AudioStreamWAV:
-	var datos := PackedByteArray()
-	var cuantas := int(0.42 * MUESTRAS)
-	datos.resize(cuantas * 2)
-	var azar := RandomNumberGenerator.new()
-	azar.seed = 37
-	var fase := 0.0
-	var agua := 0.0
-	for i in cuantas:
-		var t := float(i) / cuantas
-		fase += lerpf(1100.0, 160.0, minf(t * 7.0, 1.0)) / MUESTRAS
-		var pop := sin(fase * TAU) * pow(1.0 - minf(t * 6.0, 1.0), 2.0)
-		agua = lerpf(agua, azar.randf_range(-1.0, 1.0), 0.28)
-		var riego := agua * 1.8 * minf(t * 12.0, 1.0) * pow(1.0 - t, 2.5)
-		datos.encode_s16(i * 2, int(clampf(pop * 0.8 + riego, -1.0, 1.0) * 32000.0))
-	return _wav(datos)
-
-
-# Algo blando que se aplasta: un golpe grave corto y ruido mojado que se apaga rapido
-static func _squelch() -> AudioStreamWAV:
-	var b := _vacio(0.22)
-	var azar := RandomNumberGenerator.new()
-	azar.seed = 61
-	var agua := 0.0
-	var fase := 0.0
-	for i in b.size():
-		var t := float(i) / b.size()
-		fase += lerpf(180.0, 70.0, t) / MUESTRAS
-		agua = lerpf(agua, azar.randf_range(-1.0, 1.0), 0.35 + 0.4 * sin(t * 40.0) * sin(t * 40.0))
-		b[i] = sin(fase * TAU) * pow(1.0 - t, 3.0) * 0.7 + agua * 1.6 * pow(1.0 - t, 2.0)
-	return _a_wav(b)
 
 
 # El chillido de la Madre: un barrido agudo que se quiebra, con un temblor
@@ -1038,52 +948,7 @@ static func _chillido() -> AudioStreamWAV:
 	return _a_wav(b)
 
 
-# Carrizo que rechina al doblarse: un tono que tiembla con clics de madera
-static func _carrizo() -> AudioStreamWAV:
-	var b := _vacio(0.5)
-	var azar := RandomNumberGenerator.new()
-	azar.seed = 37
-	var fase := 0.0
-	for i in b.size():
-		var t := float(i) / b.size()
-		fase += (lerpf(260.0, 190.0, t) + sin(t * 90.0) * 30.0) / MUESTRAS
-		var clic := azar.randf_range(-1.0, 1.0) if azar.randf() < 0.01 else 0.0
-		b[i] = (sin(fase * TAU) * 0.25 + sin(fase * TAU * 3.1) * 0.1) * sin(t * PI) + clic * 0.8
-	return _a_wav(b)
 
-
-# El grito de La Mojiganga: una voz grave y otra aguda que se separan, ronca, como desde adentro
-# de algo hueco
-static func _grito_catrina() -> AudioStreamWAV:
-	var b := _vacio(1.6)
-	var azar := RandomNumberGenerator.new()
-	azar.seed = 19
-	var grave := 0.0
-	var aguda := 0.0
-	var ronco := 0.0
-	for i in b.size():
-		var t := float(i) / b.size()
-		grave += lerpf(140.0, 95.0, t) / MUESTRAS
-		aguda += (lerpf(520.0, 760.0, t) + sin(t * 70.0) * 25.0) / MUESTRAS
-		ronco = lerpf(ronco, azar.randf_range(-1.0, 1.0), 0.3)
-		var voz := sin(grave * TAU) * 0.45 + sin(aguda * TAU) * 0.2 + ronco * 0.25
-		b[i] = voz * minf(t * 6.0, 1.0) * pow(1.0 - t, 1.2) * (0.8 + 0.2 * sin(t * 40.0))
-	return _a_wav(b)
-
-
-# Un pie gigante contra el piso: golpe muy grave y polvo
-static func _pisoton() -> AudioStreamWAV:
-	var b := _vacio(0.7)
-	var azar := RandomNumberGenerator.new()
-	azar.seed = 5
-	var fase := 0.0
-	var polvo := 0.0
-	for i in b.size():
-		var t := float(i) / b.size()
-		fase += lerpf(70.0, 30.0, t) / MUESTRAS
-		polvo = lerpf(polvo, azar.randf_range(-1.0, 1.0), 0.25)
-		b[i] = sin(fase * TAU) * pow(1.0 - t, 2.5) * 0.9 + polvo * 0.9 * pow(1.0 - t, 3.0)
-	return _a_wav(b)
 
 
 # Un lapiz rayando: tres trazos cortos de ruido agudo que suben y bajan

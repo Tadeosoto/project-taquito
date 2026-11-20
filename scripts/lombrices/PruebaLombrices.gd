@@ -12,6 +12,7 @@ extends Node3D
 # proposito, para ver que el juego no se traba aunque el hilo no alcance.
 # Con -- --medir=<s> corre sola esos segundos (prueba balazo, machetazo, sal, molotov y sacos),
 # imprime lo que paso y sale. Con -- --fotos=<dir> guarda las VISTAS del cuarto en <dir> y sale.
+# Con -- --sonidos (y Movie Maker) recorre los sonidos de la Madre con un letrero y sale.
 
 const ENTRADA := CarcamoNivel.ENTRADA
 const PAGA := 400
@@ -62,6 +63,7 @@ var _fotos := ""
 # Vida infinita para probar la pelea (-- --inmortal, o F4): los golpes pegan pero la vida se rellena
 var inmortal := false
 var _retratando := false
+var _sonidos := false   # -- --sonidos: recorrido de los sonidos de la Madre para Movie Maker (_video_sonidos)
 
 
 func _ready() -> void:
@@ -145,6 +147,9 @@ func _ready() -> void:
 		elif arg == "--inmortal":
 			inmortal = true
 			print("Lombrices: vida infinita (F4 la quita)")
+		elif arg == "--sonidos":
+			_sonidos = true
+			inmortal = true
 		elif arg == "--perfil":
 			_perfil = true
 		elif arg.begins_with("--lento="):
@@ -228,6 +233,88 @@ func _empezar() -> void:
 	_avisar("LA MADRE DEL CÁRCAMO", 2.5)
 	if not _fotos.is_empty():
 		_tomar_fotos()
+	if _sonidos:
+		_sonidos = false
+		_video_sonidos()
+
+
+# --- Video de los sonidos de la Madre (-- --sonidos, con Movie Maker) ---
+#   godot --path . scenes/lombrices.tscn --write-movie madre.avi --fixed-fps 30 -- --sonidos
+# Sus primeros cuatro ataques van en orden (MadreCarcamo._siguiente: mordida, embestida, vomito,
+# escupe); luego le pega, le revienta los sacos uno por uno y la mata. El letrero sigue su estado.
+const LETREROS_MADRE := {
+	"CHARCO": "En el charco (de vez en cuando, madre_rugido)",
+	"VA": "Nada hacia ti bajo el Serenol",
+	"AVISA": "Aviso bajo tierra: madre_retumbo",
+	"MUERDE": "Mordida desde abajo: chapoteo + madre_mordida",
+	"TIRADA": "Se queda tirada: madre_desploma",
+	"SALTA": "Salta de la orilla: chapoteo",
+	"BARRE": "Embestida: madre_retumbo de aviso y madre_embiste en cada pasada",
+	"VOMITA": "Vomita crías: madre_escupe grave",
+	"ESCUPE": "Escupe: madre_escupe",
+	"REGRESA": "Se arrastra a la alberca: chapoteo al zambullirse",
+	"ATURDIDA": "Saco reventado: madre_saco_revienta + madre_desploma\n(cada dos sacos, chillido de cambio de fase)",
+	"MUERE": "Muere: chillido_muerte + madre_deshace",
+}
+
+func _video_sonidos() -> void:
+	_letrero.visible = false
+	var camara := Camera3D.new()
+	camara.fov = 70.0
+	add_child(camara)
+	camara.look_at_from_position(Vector3(-8.5, 5.5, -8.5), Vector3(0.5, -0.8, 0.5))
+	camara.current = true
+	var capa := CanvasLayer.new()
+	capa.layer = 60
+	add_child(capa)
+	var texto := Label.new()
+	texto.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	texto.offset_top = 40.0
+	texto.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	texto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	texto.add_theme_font_size_override("font_size", 18)
+	texto.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
+	texto.add_theme_color_override("font_outline_color", Color.BLACK)
+	texto.add_theme_constant_override("outline_size", 8)
+	capa.add_child(texto)
+	_texto_video = texto
+	# Sin crias al principio, para oirla a ella (las del vomito si salen)
+	_enjambre.disolver()
+	# 1) En la alberca: la mordida sale desde abajo
+	_jugador.global_position = Vector3(1.5, 0.2, 1.5)
+	var t := 0.0
+	while _madre.cuenta.get("mordidas", 0) < 1 or _madre.estado != MadreCarcamo.Estado.CHARCO:
+		_seguir_madre()
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		if t > 20.0:
+			break
+	# 2) Al cemento, de frente a la camara: embestida, vomito y escupe
+	_jugador.global_position = Vector3(-6.5, 0.3, -2.0)
+	t = 0.0
+	while _madre.cuenta.get("escupidas", 0) < 1 or _madre.estado != MadreCarcamo.Estado.CHARCO:
+		_seguir_madre()
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		if t > 35.0:
+			break
+	# 3) Golpes a la carne, sacos reventados y la muerte
+	_madre._cambiar(MadreCarcamo.Estado.TIRADA)
+	_fijo = "Golpes a su carne: madre_carne"
+	for i in 4:
+		_seguir_madre()
+		_madre._herir(0, 6.0, Vector3(randf_range(-1, 1), 0.3, randf_range(-1, 1)))
+		await get_tree().create_timer(0.6).timeout
+	_fijo = ""
+	for n in MadreCarcamo.SACOS:
+		_madre._herir(n, MadreCarcamo.SACO_VIDA)
+		var espera := 2.6 if n < MadreCarcamo.SACOS - 1 else 7.0
+		t = 0.0
+		while t < espera:
+			_seguir_madre()
+			await get_tree().process_frame
+			t += get_process_delta_time()
+	get_tree().quit()
 
 
 func _reiniciar_pelea() -> void:
@@ -454,6 +541,13 @@ func _tomar_fotos() -> void:
 		await get_tree().physics_frame
 	get_viewport().get_texture().get_image().save_png(dir.path_join("carcamo_escupitajo.png"))
 	get_tree().quit()
+
+
+var _texto_video: Label
+var _fijo := ""   # letrero de lo que hace la prueba (los golpes), encima del estado
+
+func _seguir_madre() -> void:
+	_texto_video.text = _fijo if _fijo != "" else LETREROS_MADRE.get(MadreCarcamo.Estado.keys()[_madre.estado], "")
 
 
 # --- Prueba sola (-- --medir=<s>) ---

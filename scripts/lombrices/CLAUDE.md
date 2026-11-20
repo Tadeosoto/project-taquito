@@ -95,3 +95,20 @@ A boss built on the Hitman ragdoll trick: Verlet dots joined by distance constra
 ## Sounds from files (Splice, 2026-11-15)
 
 Sound details live in `docs/sonidos.csv` (S-090, S-094..096). `Sonidos.ARCHIVOS` has them: `chillido` (sac popped / phase change), `chillido_muerte` (her death), `madre_rugido` (`MadreCarcamo._rugir`, every 9-16 s while alive), `madre_escupe` (each spit ball, lower pitch when she vomits crias), `crias_enjambre` (`EnjambreLombrices._rumor`: 3D at the centre of the crias in RODEA/SUBE within 30 m, only when 10 or more; volume rises up to 40). A sword hit that only lands on worms plays `squelch`, not the zombie `whack` (`Player._sentir_golpe(..., lombriz)`). The player's `dolor` has a 1.3 s cooldown (`Player._sonar_dolor`) so bites don't stack the voice.
+
+**Second batch (Splice, chosen by Claude 2026-11-19; JJ may swap any: replace the `.ogg` in `audio/lombrices/` with the same name; `docs/sonidos.csv` S-091, S-138..144).** All are hers alone, so the shared `squelch`, `reventar` and `retumbo` stay as they were for zombies, crías, the cucarrata and the Catrina.
+- `chapoteo` is now a file: an `ARCHIVOS` entry, which wins over the generated one in all six of her calls.
+- Warnings: `madre_retumbo` is the underground warning in AVISA and in `_apuntar_embestida`.
+- Attacks:
+  - `madre_mordida` plays on entering MUERDE.
+  - `madre_embiste` plays when each BARRE pass starts its dash, once the `EMBISTE_APUNTA` tell is over.
+- Hits:
+  - `madre_carne` plays on a hit in `_herir`, with the same 90 ms gap as before.
+  - `madre_saco_revienta` plays when a sac pops.
+- Falls: `madre_desploma` plays when she lands TIRADA after MUERDE or SALTA, and when she goes ATURDIDA.
+- Death: `madre_deshace` plays with `chillido_muerte`.
+- **Video:** `godot --path . scenes/lombrices.tscn --write-movie x.avi --fixed-fps 30 -- --sonidos` (`PruebaLombrices._video_sonidos`).
+  - You are immortal, with no crías at the start.
+  - She bites you from below while you stand in the pool, then you move to the concrete for her charge, vomit and spit.
+  - Then she takes 4 hits, all 6 sacs pop one by one and she dies.
+  - A caption follows her state (`LETREROS_MADRE`).
