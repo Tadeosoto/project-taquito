@@ -40,6 +40,7 @@ const ARCHIVOS := [
 	"res://resources/misiones/guardia_reja.tres",
 	"res://resources/misiones/antena_sofia.tres",
 	"res://resources/misiones/al_medico.tres",
+	"res://resources/misiones/al_medico_gotera.tres",
 	"res://resources/misiones/decreto_47.tres",
 	"res://resources/misiones/mafia_1.tres",
 	"res://resources/misiones/mafia_2.tres",
@@ -92,6 +93,9 @@ var arranque_camioneta := Vector3.INF
 # colonia deja salir (`reja_abierta`: Colonia, las flechas de salida)
 var reja_guardia := ""
 var guardias_reja := 0
+# Al medico: la enfermeria que toco ("<fortaleza>/<reja>" de FortalezasMapa.CLINICAS), una de las dos de la fortaleza
+# donde se acepto, al azar; la escoge MisionesMundo al aceptar ("" = la mas cercana)
+var clinica := ""
 # La antena de Sofia ya esta puesta (mision `antena_sofia` cumplida): su radio llega mas lejos (A3, "La verdad")
 var antena_instalada := false
 # El Decreto 47 (Sofia): la cortina de la bodega de GelA ya se forzo (se queda abierta; BodegaGela) y ya le
@@ -613,6 +617,7 @@ func reiniciar() -> void:
 	arranque_camioneta = Vector3.INF
 	reja_guardia = ""
 	guardias_reja = 0
+	clinica = ""
 	antena_instalada = false
 	bodega_gela_abierta = false
 	decreto_47 = false

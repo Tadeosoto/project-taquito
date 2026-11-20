@@ -4857,6 +4857,13 @@
 			],
 			"texto": "Salir de La Gotera",
 			"libre": true
+		},
+		{
+			"nombre": "Farmacia_Tianguis",
+			"tipo": "mision",
+			"x": 713.5,
+			"z": -213.0,
+			"rot": 1.4866
 		}
 	],
 	"tiendas": [

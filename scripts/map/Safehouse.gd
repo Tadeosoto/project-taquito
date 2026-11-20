@@ -271,7 +271,7 @@ func _ready() -> void:
 	_partida.refugio_path = _refugio.get_path()
 	_partida.piezas_en_el_mapa = false
 	# Uno por mision (Misiones.ARCHIVOS) y el ultimo para el nino de los tazos
-	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(10.0, 0.0, 2.0), Vector3(16.0, 0.0, 2.0), Vector3(22.0, 0.0, 2.0), Vector3(28.0, 0.0, 2.0), Vector3(34.0, 0.0, 2.0), Vector3(-22.0, 0.0, 10.0), Vector3(-14.0, 0.0, 10.0), Vector3(-6.0, 0.0, 10.0), Vector3(2.0, 0.0, 10.0), Vector3(10.0, 0.0, 10.0), Vector3(18.0, 0.0, 10.0), Vector3(-38.0, 0.0, 10.0), Vector3(-30.0, 0.0, 10.0), Vector3(26.0, 0.0, 10.0), Vector3(34.0, 0.0, 10.0), Vector3(-22.0, 0.0, 2.0), Vector3(-30.0, 0.0, 2.0), Vector3(-38.0, 0.0, 2.0), Vector3(-46.0, 0.0, 10.0)]
+	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(10.0, 0.0, 2.0), Vector3(16.0, 0.0, 2.0), Vector3(22.0, 0.0, 2.0), Vector3(28.0, 0.0, 2.0), Vector3(34.0, 0.0, 2.0), Vector3(-22.0, 0.0, 10.0), Vector3(-14.0, 0.0, 10.0), Vector3(-6.0, 0.0, 10.0), Vector3(2.0, 0.0, 10.0), Vector3(10.0, 0.0, 10.0), Vector3(18.0, 0.0, 10.0), Vector3(-38.0, 0.0, 10.0), Vector3(-30.0, 0.0, 10.0), Vector3(26.0, 0.0, 10.0), Vector3(34.0, 0.0, 10.0), Vector3(-22.0, 0.0, 2.0), Vector3(-30.0, 0.0, 2.0), Vector3(-38.0, 0.0, 2.0), Vector3(-46.0, 0.0, 10.0), Vector3(-46.0, 0.0, 2.0)]
 	var puntos_mafia := {}
 	for i in PUNTOS_MAFIA.size():
 		puntos_mafia[PUNTOS_MAFIA[i]] = Vector3(PUNTOS_MAFIA_X, 0.0, PUNTOS_MAFIA_Z + i * PUNTOS_MAFIA_PASO)

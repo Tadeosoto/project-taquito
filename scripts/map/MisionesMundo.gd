@@ -261,11 +261,23 @@ func _poner_vecinos() -> void:
 		if mision.donde.begins_with("marca:") and not _dador_de_su_marca(mision):
 			continue
 		var marca: Variant = _marca(mision.donde)
+		# Al medico hay una por fortaleza (Karla en Santa Mugre, la de la farmacia en La Gotera): en una colonia solo
+		# sale la que tiene ahi su marca, no la otra en un poste al azar
+		if marca == null and _es_al_medico(mision) and _colonia_actual() != "":
+			continue
 		if marca != null:
 			# Parado en su marca de la colonia, viendo a donde ve la marca
 			lugares[i] = (marca as Transform3D).origin
 		var hacia := _jugador.global_position - lugares[i]
 		vecinos.append(_nuevo_dador(mision, lugares[i], hacia, marca if marca != null else null))
+	# Las que se quedaron sin lugar pero tienen su marca en esta colonia salen ahi de todos modos (en La Gotera hay
+	# menos postes que misiones, y la de la farmacia del tianguis quedaba fuera)
+	for i in range(cuantos, normales.size()):
+		var mision := normales[i]
+		var marca: Variant = _marca(mision.donde)
+		if marca != null and _dador_de_su_marca(mision):
+			var origen := (marca as Transform3D).origin
+			vecinos.append(_nuevo_dador(mision, origen, _jugador.global_position - origen, marca))
 	if lugares.size() > cuantos:
 		_nino_lugar = lugares[cuantos]
 		nino = NinoTazos.new()
@@ -274,6 +286,10 @@ func _poner_vecinos() -> void:
 		var hacia := _jugador.global_position - _nino_lugar
 		nino.rotation.y = atan2(hacia.x, hacia.z)
 	_actualizar_signos()
+
+
+func _es_al_medico(mision: MisionData) -> bool:
+	return not mision.pasos.is_empty() and mision.pasos[0].lugar == "clinica"
 
 
 # Las que da un vecino (todas menos las de los puntos de la mafia, que tienen su lugar fijo)
@@ -432,7 +448,8 @@ func _hablar(i: int) -> String:
 		_actualizar_signos()
 		return ("%s %s" % [mision.gracias_antes, Personaje.linea("paga")]).strip_edges()
 	# Al medico se sale por la reja: hasta que se abra (la guardia del padre Chuy) no se ofrece
-	if not mision.pasos.is_empty() and mision.pasos[0].lugar == "clinica" and not Misiones.reja_abierta():
+	if not mision.pasos.is_empty() and mision.pasos[0].lugar == "clinica" and _colonia_actual() == "santa_mugre" \
+			and not Misiones.reja_abierta():
 		return TEXTO_REJA_ANTES
 	if not v["visto"]:
 		v["visto"] = true
@@ -494,18 +511,35 @@ func _empieza_en_la_reja(mision: MisionData) -> bool:
 
 
 # Una de las dos rejas al azar: se corta la pantalla y se recarga la colonia de noche con el jugador adentro de
-# esa reja (PasoColonia, igual que al volver de afuera) y el paso DEFENDER la toma de lugar (`_meta_de_escolta`)
+# esa reja (PasoColonia, igual que al volver de afuera) y el paso DEFENDER la toma de lugar (`_meta_de_escolta`).
+# Al medico tambien escoge al azar a cual de las dos enfermerias de esa fortaleza va (Misiones.clinica)
 func _ir_a_la_reja(mision: MisionData) -> void:
 	if not Misiones.elegir(mision):
 		return
-	Misiones.reja_guardia = ["poniente", "oriente"].pick_random()
+	var colonia := _colonia_actual()
+	Misiones.reja_guardia = (REJAS_DE.get(colonia, REJAS_DE["santa_mugre"]) as Array).pick_random()
+	if mision.pasos[0].lugar == "clinica":
+		var clinicas := FortalezasMapa.clinicas_de(colonia)
+		Misiones.clinica = clinicas.pick_random() if not clinicas.is_empty() else ""
 	await get_tree().create_timer(CAMIONETA_CORTE).timeout
 	if not is_inside_tree() or Misiones.activa != mision:
 		return
 	var hora := -2.0
 	if _ciclo:
 		hora = _ciclo.dia_duracion / (_ciclo.dia_duracion + _ciclo.noche_duracion)
-	PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, Misiones.reja_guardia, hora)
+	PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, Misiones.reja_guardia, hora, colonia)
+
+
+## Las rejas de cada fortaleza que tiene colonia de Blender (los `lado` de sus marcas salida_colonia)
+const REJAS_DE := {"santa_mugre": ["poniente", "oriente"], "la_gotera": ["norte", "sur"]}
+
+
+# La colonia de Blender en la que estas ("santa_mugre", "la_gotera"...), o "" en el mapa grande
+func _colonia_actual() -> String:
+	var colonia := get_tree().get_first_node_in_group("colonia")
+	if colonia == null:
+		return ""
+	return PasoColonia.colonia if PasoColonia.colonia != "" else "santa_mugre"
 
 
 # La camioneta de Gabriel, aceptada donde para: se corta la pantalla y se recarga el mapa de noche, con
@@ -1042,9 +1076,9 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 			if entrada.id == paso.lugar.trim_prefix("entrada:"):
 				_escolta_meta = entrada.global_position
 	elif paso.lugar == "clinica":
-		# La enfermeria mas cercana a donde estas al salir (hay una por reja)
+		# La enfermeria que toco al aceptar (Misiones.clinica); sin ella, la mas cercana a donde estas
 		var jugador := get_tree().get_first_node_in_group("jugador") as Node3D
-		_escolta_meta = FortalezasMapa.llegada_clinica(jugador.global_position if jugador else desde)
+		_escolta_meta = FortalezasMapa.llegada_clinica(jugador.global_position if jugador else desde, Misiones.clinica)
 	elif paso.lugar == "torre_antena":
 		_escolta_meta = Vector3(FortalezasMapa.TORRE_ANTENA.x + 3.0, 0.0, FortalezasMapa.TORRE_ANTENA.y)
 	elif paso.lugar == "reja_guardia":

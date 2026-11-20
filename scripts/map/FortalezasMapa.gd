@@ -151,16 +151,28 @@ func _tinaco(donde: Vector2) -> void:
 
 # --- Las enfermerias ---
 
-## Donde termina la escolta de "Al medico": la banqueta frente a la enfermeria mas cercana a `desde`
-static func llegada_clinica(desde: Vector3) -> Vector3:
+## Donde termina la escolta de "Al medico": la banqueta frente a la enfermeria `reja` ("<fortaleza>/<reja>") o, si no
+## hay una con ese nombre, frente a la mas cercana a `desde`
+static func llegada_clinica(desde: Vector3, reja := "") -> Vector3:
 	var mejor := Vector3.ZERO
 	for clinica: Dictionary in CLINICAS:
 		var giro: float = clinica["giro"]
 		var punto: Vector2 = clinica["casa"] + Vector2(sin(giro), cos(giro)) * (clinica["fondo"] / 2.0 + CLINICA_BANQUETA)
 		var aqui := Vector3(punto.x, 0.0, punto.y)
+		if clinica["reja"] == reja:
+			return aqui
 		if mejor == Vector3.ZERO or desde.distance_to(aqui) < desde.distance_to(mejor):
 			mejor = aqui
 	return mejor
+
+
+## Las enfermerias de una fortaleza ("santa_mugre", "la_gotera"): sus "<fortaleza>/<reja>"
+static func clinicas_de(fortaleza: String) -> Array[String]:
+	var cuales: Array[String] = []
+	for clinica: Dictionary in CLINICAS:
+		if (clinica["reja"] as String).begins_with(fortaleza + "/"):
+			cuales.append(clinica["reja"])
+	return cuales
 
 
 func _clinica(clinica: Dictionary) -> void:
