@@ -35,6 +35,7 @@ const ALUMBRADO := preload("res://scripts/map/MapAlumbrado.gd")
 const GOTA := "res://textures/logos-negocios/gela-gota.svg"
 const COLOR_GELA := Color(0.12, 0.5, 0.78)
 const COLOR_AGUA := Color(0.15, 0.45, 1.0)
+const DRENAJE := preload("res://shaders/drenaje_serenol.gdshader")
 
 ## Donde aparece el jugador (pasillo derecho), la flecha de salida (el mismo pasillo, en el hueco de la reja) y
 ## la puerta del fondo (al carcamo, pasillo derecho)
@@ -149,7 +150,7 @@ static func _textura_ladrillo(semilla: int) -> ImageTexture:
 # --- Geometria ---
 
 # Los dos pasillos son bloques macizos de concreto a nivel 0; entre ellos el canal, con su fondo,
-# el agua azul (sin choque) y los dos tubos blancos acostados en el fondo
+# el drenaje con Serenol (sin choque) y los dos tubos blancos acostados en el fondo
 func _pasillos_y_canal() -> void:
 	var medio := -largo / 2.0
 	for lado in [-1.0, 1.0]:
@@ -158,14 +159,9 @@ func _pasillos_y_canal() -> void:
 		var borde := _malla(Vector3(0.12, 0.04, largo), _concreto)
 		borde.position = Vector3(lado * (CANAL / 2.0 + 0.06), 0.02, medio)
 	_caja(Vector3(CANAL, GRUESO, largo), Vector3(0.0, -HONDO - GRUESO / 2.0, medio), _concreto)
-	var agua := StandardMaterial3D.new()
-	agua.albedo_color = Color(0.05, 0.25, 0.55, 0.75)
-	agua.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	agua.emission_enabled = true
-	agua.emission = COLOR_AGUA
-	agua.emission_energy_multiplier = 0.4
-	agua.roughness = 0.05
-	agua.metallic = 0.2
+	# Drenaje revuelto con Serenol (JJ): manchas cafes y azul brillante que corren hacia el carcamo
+	var agua := ShaderMaterial.new()
+	agua.shader = DRENAJE
 	var superficie := _malla(Vector3(CANAL, 0.02, largo), agua)
 	superficie.position = Vector3(0.0, AGUA, medio)
 	for x in [-0.32, 0.3]:
