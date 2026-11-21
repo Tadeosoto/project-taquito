@@ -66,7 +66,9 @@ Campaña de varias sesiones: Santa Mugre como fortaleza, el afuera bajo Serenol,
 
 **Hecho en la sesión del 2026-11-12:** L10, L11 y L12b (texto: mafia y puerta de La Gotera por escalones, cacerías, GelA; spec y revisión al día; grep de coherencia), S1a y S1b (código: misiones de día o de noche, diario). Ver las filas del registro de arriba.
 
-**Hoy toca: S7 o P0** (S3 a S6 y S9 hechos el 2026-11-13; M7c en revisión y M8/M9 pendientes por JJ: no programarlos hasta que diga). M7a y M7b hechos el 2026-11-13; S2, S8, S10, S11 y M1 a M6 el 2026-11-12.
+**Al cerrar la sesión del 2026-11-21:** hechos P0, P1, P3, P4, P7, F1, F2 y M6 pasado al palacio (oficinas de GelA como backrooms en ruinas, sin hoyos en las paredes por decisión de JJ). La plaza de la Catrina (P5) se quitó del palacio y falta escoger su lugar. **Por probar en ventana:** el evento de la reja (Shift+F10 en la safehouse), el reparto fuera de las fortalezas y el Decreto 47 en el palacio (F10 a `map_test`, de noche; ver el parpadeo y oír el zumbido). Las oficinas no están en la safehouse. **Siguiente:** P5 (el lugar de la plaza, con JJ), P6 (entrada a los túneles), F3 (misiones y agua del pozo del templo) o F4; S7 es M7c, pausado por JJ. Los huecos del plafón quedan como están salvo que JJ diga.
+
+**Antes (2026-11-13): Hoy toca: S7 o P0** (S3 a S6 y S9 hechos el 2026-11-13; M7c en revisión y M8/M9 pendientes por JJ: no programarlos hasta que diga). M7a y M7b hechos el 2026-11-13; S2, S8, S10, S11 y M1 a M6 el 2026-11-12.
 
 **M7 en tres partes (JJ, 2026-11-13):**
 - [x] **M7a** La cadena de entregas: El Punto y los 8 puntos, la caja que se suelta, la P en los mapas y la reja de La Gotera con 5.
