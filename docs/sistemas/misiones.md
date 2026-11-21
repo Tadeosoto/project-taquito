@@ -71,7 +71,7 @@ Both are one-hour steps:
 - Winning completes the step (`MisionesMundo._resolver_jefe`).
 - `MuroColonia` puts the player back where they entered.
 
-**Boss entrances** are fixed `EntradaJefe` nodes (`scripts/mapa/EntradaJefe.gd`: a yellow arrow like a shop, `id`/`escena`/`nombre`, always open). Missions point to them with `lugar = "entrada:<id>"`.
+**Boss entrances** are fixed `EntradaJefe` nodes (`scripts/mapa/EntradaJefe.gd`: a yellow arrow like a shop, `id`/`escena`/`nombre`, always open). Missions point to them with `lugar = "entrada:<id>"`. `map_test` has `EntradaTuneles` (`id` "tuneles", `scenes/tuneles.tscn`): the cañerías, whose far door goes on to `lombrices.tscn` with `PasoJefe.seguir` (same visit, same mission), so a mission to the Madre should be an ENTRAR_A with `escena` = the tunnels scene.
 - Without the matching ENTRAR_A mission, winning gives no prize, advances nothing and only marks the boss beaten (`PasoJefe.hay_premio()`, which the boss scenes check).
 - A beaten boss shows a "repetir la pelea" legend and needs the interact key to re-enter.
 - You reappear 4 m in front of the arrow (its +Z).

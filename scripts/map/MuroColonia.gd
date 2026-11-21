@@ -10,6 +10,9 @@ extends Node3D
 ## - la_gotera: por las calles de Haciendas de San Jodido (docs/mapa/colonias/la_gotera.md), con sus dos
 ##   rejas abiertas en la Av. del Cedro hacia el tianguis.
 ## - gela: Los Reservorios, la barda del ITESO con su caseta y la pluma cerrada (sin colonia todavia).
+## - arroyo: el corredor verde del arroyo, de la entrada de los tuneles (P6, al sur de la cancha de la
+##   Unidad Deportiva Parques del Bosque) al Camino Real a Colima. Sin rejas: la entrada es la boca de
+##   ladrillo de las cañerías (`boca`) en la tapa norte, la misma boveda que se ve adentro de tuneles.tscn.
 ## Todo choca en la capa 1, como las casas: jugador, zombis y CampoFlujo la ven sin cambios.
 
 const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
@@ -24,6 +27,15 @@ const COLOR_FIERRO := Color(0.12, 0.12, 0.13)
 ## De la reja a la flecha de entrada, y a donde aparece el jugador al salir de la colonia de Blender
 const FLECHA_FUERA := 2.2
 const LLEGADA_FUERA := 5.4
+## La boca de las cañerías (`boca` en el .json, JJ): una escalera de ladrillo que baja BAJADA m hacia adentro
+## del arroyo, con sus muros a la altura de la barda (no se brincan), y abajo el arco del colector con su reja. El suelo del mapa no
+## se dibuja sobre el hueco (los globales `hoyo_*`, shaders/ps1_hoyo.gdshaderinc)
+const BAJADA := 4.8            # del suelo al pasillo del tunel: la clave queda 0.8 m bajo tierra
+const PELDANO := Vector2(0.3, 0.2)   # huella y peralte
+const DESCANSO := 1.0          # el rellano de abajo, frente al arco
+const PARED := 0.4             # grueso de los muros del pozo
+const ABERTURA := 1.6          # el paso del pretil del frente, donde esta la flecha
+const CABEZAL := 0.8           # grueso del muro del arco
 
 ## Lo leido del .json
 var nombre := ""
@@ -39,6 +51,7 @@ var rect := Rect2()
 
 var _datos: Dictionary = {}
 var _calles := Rect2()
+var _con_hoyo := false
 var _material_muro: ShaderMaterial
 var _material_fierro: ShaderMaterial
 var _material_lamina: ShaderMaterial
@@ -114,6 +127,8 @@ func _enter_tree() -> void:
 
 
 func _exit_tree() -> void:
+	if _con_hoyo:
+		RenderingServer.global_shader_parameter_set("hoyo_medida", Vector4.ZERO)
 	if _calles.has_area():
 		CallesRuta.abrir(_calles)
 
@@ -165,6 +180,9 @@ func _ready() -> void:
 	var caseta: Dictionary = _datos.get("caseta", {})
 	if not caseta.is_empty():
 		huecos.append([Vector2(caseta["centro"][0], caseta["centro"][1]), float(caseta["hueco"])])
+	var boca: Dictionary = _datos.get("boca", {})
+	if not boca.is_empty():
+		huecos.append([Vector2(boca["centro"][0], boca["centro"][1]), float(boca["ancho"])])
 	_barda(huecos)
 	for reja in rejas:
 		_reja(reja)
@@ -172,6 +190,9 @@ func _ready() -> void:
 			_flecha_de_entrada(reja["lado"])
 	if not caseta.is_empty():
 		_caseta(Vector2(caseta["centro"][0], caseta["centro"][1]), float(caseta["hueco"]))
+	if not boca.is_empty():
+		_boca(Vector2(boca["centro"][0], boca["centro"][1]), Vector2(boca["rumbo"][0], boca["rumbo"][1]).normalized(),
+				float(boca["ancho"]))
 
 
 func _material(base: Color) -> ShaderMaterial:
@@ -402,6 +423,127 @@ func _caseta(donde: Vector2, hueco: float) -> void:
 		var color := Color(0.8, 0.12, 0.1) if i % 2 == 0 else Color(0.92, 0.92, 0.9)
 		_caja(nodo, Vector3(0.1, 0.1, (hueco - 0.6) / tramos), Vector3(0.0, 1.0, z), _material(color))
 	_choque(nodo, Vector3(0.0, 1.0, 0.0), Vector3(GRUESO, 3.0, hueco))
+
+
+# --- La boca de las cañerías (la entrada de los tuneles del arroyo) ---
+
+# La escalera que baja a las cañerías, en el hueco de la barda y hacia adentro del arroyo: muros de
+# ladrillo viejo a los lados y al frente, a la altura de la barda, (con el paso de ABERTURA donde esta la flecha EntradaJefe), los
+# peldaños de concreto, un barandal oxidado a cada lado, el rellano, una losa de techo y, al fondo, el muro con el arco del
+# colector y detras los primeros TunelesNivel.BOCA_LARGO m del mismo tunel de tuneles.tscn (TunelesNivel
+# con `boca`: pasillos, canal, boveda y la reja con el hueco forzado). Lo de abajo no se pisa: la flecha te
+# mete antes: solo se pasa por el paso, que la flecha tapa (el suelo del mapa sigue chocando encima, solo
+# deja de verse)
+func _boca(centro: Vector2, rumbo: Vector2, _ancho: float) -> void:
+	var adentro := Vector2(-rumbo.y, rumbo.x)
+	if adentro.dot(_centro() - centro) < 0.0:
+		adentro = -adentro
+	var nodo := Node3D.new()
+	nodo.name = "Boca"
+	nodo.position = Vector3(centro.x, 0.0, centro.y)
+	nodo.rotation.y = atan2(adentro.x, adentro.y)   # su +Z hacia adentro, su X a lo largo de la barda
+	add_child(nodo)
+	var medio := TunelesNivel.ANCHO / 2.0
+	var PRETIL := alto   # los muros del pozo salen del suelo lo mismo que la barda: no se brincan
+	var peldanos := roundi(BAJADA / PELDANO.y)
+	var arco_z := PELDANO.x + peldanos * PELDANO.x + DESCANSO   # la cara del muro del arco
+	var fondo := -BAJADA - 0.5
+	# El tramo de tunel: su -Z hacia adentro (media vuelta), su boca en la cara del muro del arco
+	var tramo := TunelesNivel.new()
+	tramo.name = "Tramo"
+	tramo.boca = true
+	tramo.largo = TunelesNivel.BOCA_LARGO
+	tramo.position = Vector3(0.0, -BAJADA, arco_z)
+	tramo.rotation.y = PI
+	nodo.add_child(tramo)
+	var ladrillo := TunelesNivel.material_ladrillo(tramo.global_transform, false)
+	# Los muros del pozo, de abajo hasta el pretil (chocan)
+	var largo := arco_z + CABEZAL + PELDANO.x
+	for lado in [-1.0, 1.0]:
+		_cuerpo(nodo, Vector3(lado * (medio + PARED / 2.0), (fondo + PRETIL) / 2.0, largo / 2.0 - PELDANO.x),
+				Vector3(PARED, PRETIL - fondo, largo), ladrillo)
+	# El pretil del frente, con el paso en medio
+	var tramo_pretil := medio - ABERTURA / 2.0
+	for lado in [-1.0, 1.0]:
+		_cuerpo(nodo, Vector3(lado * (ABERTURA / 2.0 + tramo_pretil / 2.0), PRETIL / 2.0, -PELDANO.x / 2.0),
+				Vector3(tramo_pretil, PRETIL, PELDANO.x), ladrillo)
+	# El muro del arco: de abajo hasta el pretil, menos el hueco del colector (CSG, choca)
+	var csg := CSGCombiner3D.new()
+	csg.use_collision = true
+	nodo.add_child(csg)
+	var muro := CSGBox3D.new()
+	muro.size = Vector3(TunelesNivel.ANCHO + 2.0 * PARED, PRETIL - fondo, CABEZAL)
+	muro.position = Vector3(0.0, (fondo + PRETIL) / 2.0, arco_z + CABEZAL / 2.0)
+	muro.material = ladrillo
+	csg.add_child(muro)
+	var arranque := -BAJADA + TunelesNivel.MURO
+	var recto := CSGBox3D.new()
+	recto.size = Vector3(TunelesNivel.ANCHO, arranque - fondo + 0.01, CABEZAL + 0.2)
+	recto.position = Vector3(0.0, (fondo + arranque) / 2.0, arco_z + CABEZAL / 2.0)
+	recto.operation = CSGShape3D.OPERATION_SUBTRACTION
+	recto.material = ladrillo   # las caras del hueco toman el material de lo que resta
+	csg.add_child(recto)
+	var arco := CSGCylinder3D.new()
+	arco.radius = TunelesNivel.RADIO
+	arco.height = CABEZAL + 0.2
+	arco.sides = TunelesNivel.SEGMENTOS * 2
+	arco.smooth_faces = false
+	arco.rotation.x = PI / 2.0
+	arco.position = Vector3(0.0, arranque, arco_z + CABEZAL / 2.0)
+	arco.operation = CSGShape3D.OPERATION_SUBTRACTION
+	arco.material = ladrillo
+	csg.add_child(arco)
+	# Los peldaños (macizos hasta abajo), la guarnicion de arriba y el rellano, de concreto
+	var concreto := StandardMaterial3D.new()
+	concreto.albedo_texture = CarcamoNivel._textura_ruido(128, 0.4, 0.07, 0.04, true, 31)
+	concreto.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	concreto.uv1_triplanar = true
+	concreto.uv1_scale = Vector3.ONE / 2.4
+	concreto.albedo_color = Color(0.7, 0.68, 0.62)
+	concreto.roughness = 0.9
+	_cuerpo(nodo, Vector3(0.0, -0.1, 0.0), Vector3(TunelesNivel.ANCHO, 0.2, PELDANO.x * 2.0), concreto)
+	# Cada peldaño un poco distinto de sucio, con la nariz gastada mas oscura: si no, la bajada se veia lisa
+	var sucio := concreto.duplicate() as StandardMaterial3D
+	sucio.albedo_color = Color(0.5, 0.48, 0.43)
+	var nariz := concreto.duplicate() as StandardMaterial3D
+	nariz.albedo_color = Color(0.25, 0.24, 0.22)
+	for i in range(1, peldanos + 1):
+		var arriba := -PELDANO.y * i
+		_cuerpo(nodo, Vector3(0.0, (arriba + fondo) / 2.0, PELDANO.x * (i + 0.5)),
+				Vector3(TunelesNivel.ANCHO, arriba - fondo, PELDANO.x), concreto if i % 2 == 0 else sucio)
+		_caja(nodo, Vector3(TunelesNivel.ANCHO - 0.02, 0.04, 0.05), Vector3(0.0, arriba - 0.015, PELDANO.x * i + 0.02), nariz)
+	_cuerpo(nodo, Vector3(0.0, (-BAJADA + fondo) / 2.0, arco_z - DESCANSO / 2.0),
+			Vector3(TunelesNivel.ANCHO, -BAJADA - fondo, DESCANSO), concreto)
+	# El barandal oxidado de cada lado, a lo largo de la bajada (solo se ve)
+	var oxido := StandardMaterial3D.new()
+	oxido.albedo_color = TunelesNivel.COLOR_OXIDO
+	oxido.metallic = 0.3
+	oxido.roughness = 0.8
+	var corrido := peldanos * PELDANO.x
+	var inclinado := sqrt(corrido * corrido + BAJADA * BAJADA)
+	for lado in [-1.0, 1.0]:
+		var x: float = lado * (medio - 0.12)
+		var tubo := MeshInstance3D.new()
+		var caja := BoxMesh.new()
+		caja.size = Vector3(0.05, 0.05, inclinado)
+		tubo.mesh = caja
+		tubo.material_override = oxido
+		tubo.position = Vector3(x, 0.9 - BAJADA / 2.0, PELDANO.x + corrido / 2.0)
+		tubo.rotation.x = atan2(BAJADA, corrido)
+		nodo.add_child(tubo)
+		for k in 5:
+			var f := (k + 0.5) / 5.0
+			_caja(nodo, Vector3(0.04, 0.9, 0.04), Vector3(x, 0.45 - BAJADA * f, PELDANO.x + corrido * f), oxido)
+	# El techo: una losa de concreto sobre los muros, que sobresale un poco (choca)
+	var losa := concreto.duplicate() as StandardMaterial3D
+	losa.albedo_color = Color(0.55, 0.53, 0.49)
+	_cuerpo(nodo, Vector3(0.0, PRETIL + 0.1, (largo - 2.0 * PELDANO.x) / 2.0),
+			Vector3(TunelesNivel.ANCHO + 2.0 * PARED + 0.4, 0.2, largo + 0.4), losa)
+	# El suelo del mapa no se dibuja dentro del pozo
+	var eje := Vector4(centro.x, centro.y, adentro.x, adentro.y)
+	RenderingServer.global_shader_parameter_set("hoyo_eje", eje)
+	RenderingServer.global_shader_parameter_set("hoyo_medida", Vector4(-medio - 0.05, medio + 0.05, -0.02, arco_z + 0.05))
+	_con_hoyo = true
 
 
 # --- Piezas ---

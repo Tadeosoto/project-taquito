@@ -34,6 +34,7 @@
 [ext_resource type="Texture2D" path="res://textures/map/banqueta.png" id="36_banqueta"]
 [ext_resource type="Script" path="res://scripts/map/MapBardas.gd" id="37_bardas"]
 [ext_resource type="Script" path="res://scripts/map/MuroColonia.gd" id="muro_colonia_gd"]
+[ext_resource type="Script" uid="uid://dxyuy7hagjc0q" path="res://scripts/mapa/EntradaJefe.gd" id="entrada_jefe_gd"]
 [ext_resource type="Script" path="res://scripts/map/FortalezasMapa.gd" id="fortalezas_gd"]
 [ext_resource type="Texture2D" path="res://textures/map/barda.png" id="38_barda"]
 [ext_resource type="Texture2D" path="res://textures/map/malla.png" id="39_malla"]
@@ -302,6 +303,19 @@ jugador_path = NodePath("../Player")
 script = ExtResource("muro_colonia_gd")
 id = "gela"
 jugador_path = NodePath("../Player")
+
+[node name="MuroArroyo" type="Node3D" parent="."]
+script = ExtResource("muro_colonia_gd")
+id = "arroyo"
+jugador_path = NodePath("../Player")
+
+[node name="EntradaTuneles" type="Area3D" parent="."]
+transform = Transform3D(-0.894, 0, -0.447, 0, 1, 0, 0.447, 0, -0.894, -193.78, 0, -369.06)
+script = ExtResource("entrada_jefe_gd")
+id = "tuneles"
+escena = "res://scenes/tuneles.tscn"
+nombre = "las cañerías"
+texto = "Entrar a las cañerías"
 
 [node name="Fortalezas" type="Node3D" parent="."]
 script = ExtResource("fortalezas_gd")

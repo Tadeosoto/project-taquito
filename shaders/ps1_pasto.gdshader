@@ -7,6 +7,7 @@ render_mode cull_disabled;
 
 #define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
+#include "res://shaders/ps1_hoyo.gdshaderinc"
 
 uniform sampler2D albedo_texture : source_color, filter_nearest;
 uniform float viento = 0.08;
@@ -15,9 +16,11 @@ uniform float distancia_fin = 38.0;
 
 varying vec2 tuft_uv;
 varying float distancia;
+varying float hoyo;
 
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+	hoyo = en_hoyo(world) ? 1.0 : 0.0;
 	// UV.y = 0 arriba: la punta se mueve, la base no
 	float punta = 1.0 - UV.y;
 	VERTEX.x += sin(TIME * 1.7 + world.x * 0.6 + world.z * 0.4) * viento * punta;
@@ -34,6 +37,9 @@ void vertex() {
 }
 
 void fragment() {
+	if (hoyo > 0.5) {
+		discard;
+	}
 	vec4 texel = texture(albedo_texture, tuft_uv);
 	// Tramado de 4x4 que se va comiendo la mata entre distancia_inicio y _fin
 	const float bayer[16] = float[](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0);

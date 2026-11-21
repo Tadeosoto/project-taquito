@@ -288,6 +288,14 @@ lights_and_shadows/directional_shadow/size=2048
 
 [shader_globals]
 
+hoyo_eje={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 1)
+}
+hoyo_medida={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
 cortina={
 "type": "float",
 "value": 0.0

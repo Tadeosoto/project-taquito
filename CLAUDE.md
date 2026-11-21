@@ -64,7 +64,7 @@ Read the file before changing that system, and keep it in sync with the code. Fi
 - `docs/sistemas/taller.md`: crafting, `Tiliches` and the cangurera, loot boxes, trophies, recipes, El Yonke.
 - `docs/sistemas/libreta.md`: the bestiary (`Libreta`, entries, page, drawings, unlock hooks).
 - `docs/sistemas/casa.md`: the protagonist's house and the neighbours' houses.
-- `scripts/lombrices/CLAUDE.md`: La Madre del Cárcamo, the worm swarm and its arena.
+- `scripts/lombrices/CLAUDE.md`: La Madre del Cárcamo, the worm swarm, its arena and the cañerías before it (`tuneles.tscn`, entered from the fenced arroyo in `map_test`).
 - `scripts/catrina/CLAUDE.md`: La Mojiganga and its plaza.
 - `scripts/cucarrata/CLAUDE.md`: la cucarrata, the first boss: roams `map_test` at night (`CucarrataCalle`), step `JEFE_CALLE`, `mafia_1` requires it.
 - `scripts/defensa/CLAUDE.md`: the tinaco defence test (barricade, hordes, HUD, chained nights) and JJ's two test modes on it: godmode (mechanics) and career (economy, `escena_carrera.tscn`), with the `Pruebas`, `Mejoras` and `Registro` autoloads, `ConfigZombis` and the `Menú test`/`Pruebas` launchers on the start screen.

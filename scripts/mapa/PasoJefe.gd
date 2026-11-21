@@ -78,6 +78,21 @@ static func entrar(desde: Node, escena: String, con_la_mision := false, regreso_
 	_yendo = false
 
 
+## De una escena de la visita a la siguiente sin volver al mapa (las cañerías al carcamo de la Madre):
+## sigue siendo la misma visita (origen, regreso, hora y mision), ahora con el jefe de `escena`. Si la
+## escena se abrio sola, como prueba, solo cambia de escena
+static func seguir(desde: Node, escena: String) -> void:
+	if _yendo:
+		return
+	if not desde_juego:
+		desde.get_tree().change_scene_to_file(escena)
+		return
+	_jefe = jefe_de(escena)
+	_yendo = true
+	await PasoColonia.ir_a(desde, escena, "")
+	_yendo = false
+
+
 ## Vuelve a la escena de origen. Las de jefe lo llaman al ganar (`gano`) o al desmayarse; si no se
 ## abrio desde el juego no hace nada y devuelve false (la escena sigue con su reinicio de prueba)
 static func volver(desde: Node, gano: bool) -> bool:

@@ -5,6 +5,8 @@ extends SceneTree
 #   godot --path . -s tools/mapa/captura_colonia.gd -- --captura=C:/x/foto.png --desde=-380,12,470 --hacia=-345,2,404
 # Varias fotos de una vez: --vistas=plaza,tianguis,vecindad,avenida (y --carpeta=C:/x); --vistas=todas
 # toma todas. --hora=noche las toma de noche (con --carpeta, el archivo lleva _noche).
+# --escena=res://scenes/map_test.tscn fotografia otra escena; el jugador se pone en --hacia para que los
+# cuadros del mapa carguen ahi.
 
 const ESCENA := "res://scenes/mapa.tscn"
 const ESPERA := 45                  # cuadros para que todo se arme y compile
@@ -47,7 +49,9 @@ func _tomar() -> void:
 	if args.has("colonia"):
 		PasoColonia.colonia = String(args["colonia"])
 		PasoColonia.sin_candados = true
-	var escena: Node = (load(ESCENA) as PackedScene).instantiate()
+	var escena: Node = (load(String(args.get("escena", ESCENA))) as PackedScene).instantiate()
+	if args.has("escena") and escena.get_node_or_null("Player") is Node3D:
+		(escena.get_node("Player") as Node3D).position = _vec(args.get("hacia", "0,0,0")) + Vector3.UP
 	root.add_child(escena)
 	# Sin jugador ni interfaz encima: solo el mundo
 	for nombre in ["Player", "Minimapa", "InventoryUI"]:

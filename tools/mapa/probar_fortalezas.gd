@@ -6,10 +6,11 @@ extends SceneTree
 #
 # Que revisa:
 #   - fortalezas.json y santa_mugre.json dicen lo mismo del recorte y las rejas de Santa Mugre;
-#   - en map_test hay tres muros (santa_mugre, la_gotera, gela) que se encuentran con MuroColonia.de;
+#   - en map_test hay cuatro muros (santa_mugre, la_gotera, gela, arroyo) que se encuentran con MuroColonia.de;
 #   - Santa Mugre: dos rejas cerradas con flecha, la lamina encima del block, hacia afuera al poniente y
-#     al oriente; La Gotera: dos rejas abiertas con flecha; GelA: caseta, sin rejas ni flechas;
-#   - MuroColonia.adentro con los tres poligonos (y fuera del poligono de GelA aunque dentro de su caja);
+#     al oriente; La Gotera: dos rejas abiertas con flecha; GelA: caseta, sin rejas ni flechas; el arroyo:
+#     la boca de ladrillo de las cañerias con su tramo de tunel hacia adentro, sin barda en ella;
+#   - MuroColonia.adentro con los poligonos (y fuera del poligono de GelA aunque dentro de su caja);
 #   - las dos zonas cerradas a los carros (CallesRuta) se abren al salir de la escena;
 #   - volver de la colonia de Santa Mugre por la reja oriente te deja afuera de ella, y pisar la flecha
 #     poniente manda a santa_mugre por ese lado.
@@ -66,7 +67,9 @@ func _mapa_grande() -> void:
 	var sm := MuroColonia.de(self, "santa_mugre")
 	var gotera := MuroColonia.de(self, "la_gotera")
 	var gela := MuroColonia.de(self, "gela")
-	_revisar("tres muros en map_test", sm != null and gotera != null and gela != null and get_nodes_in_group("muro_colonia").size() == 3, "")
+	var arroyo := MuroColonia.de(self, "arroyo")
+	_revisar("cuatro muros en map_test", sm != null and gotera != null and gela != null and arroyo != null
+		and get_nodes_in_group("muro_colonia").size() == 4, "")
 	if sm == null or gotera == null or gela == null:
 		return
 	var oriente: Vector2 = sm.rejas[1]["centro"]
@@ -86,10 +89,21 @@ func _mapa_grande() -> void:
 	_revisar("La Gotera: dos rejas abiertas", _rejas(gotera) == Vector2i(0, 2), str(_rejas(gotera)))
 	_revisar("GelA: caseta, sin rejas ni flechas", gela.get_node_or_null("Caseta") != null and gela.rejas.is_empty()
 		and gela.find_children("Entrada_*", "Area3D", false, false).is_empty(), "")
+	var tubo := arroyo.get_node_or_null("Boca") as Node3D
+	_revisar("arroyo: boca de las cañerias, sin rejas ni flechas", tubo != null and arroyo.rejas.is_empty()
+		and arroyo.find_children("Entrada_*", "Area3D", false, false).is_empty(), "")
+	if tubo:
+		# El tramo de tunel corre hacia adentro del arroyo y la boca queda en el hueco de la barda
+		var boca := Vector2(tubo.global_position.x, tubo.global_position.z)
+		var fondo3 := tubo.global_transform * Vector3(0.0, 0.0, TunelesNivel.BOCA_LARGO - 1.0)
+		_revisar("arroyo: el tunel de la boca va hacia adentro", arroyo.contiene(Vector2(fondo3.x, fondo3.z)), str(fondo3))
+		var paredes := arroyo.find_children("*", "StaticBody3D", true, false).filter(func(c: StaticBody3D) -> bool:
+			return not tubo.is_ancestor_of(c) and Vector2(c.global_position.x, c.global_position.z).distance_to(boca) < 2.0)
+		_revisar("arroyo: no hay barda en la boca", paredes.is_empty(), str(paredes.size()))
 
 	for prueba: Array in [[Vector2(-300, 370), true, "Santa Mugre"], [Vector2(850, -200), true, "La Gotera"],
 			[Vector2(100, -800), true, "GelA"], [Vector2(250, -655), false, "caja de GelA, fuera de la barda"],
-			[Vector2(0, 0), false, "afuera"]]:
+			[Vector2(0, 0), false, "afuera"], [Vector2(-60, 0), true, "el arroyo"], [Vector2(-200, -390), false, "la cancha"]]:
 		var p: Vector2 = prueba[0]
 		_revisar("adentro: %s" % prueba[2], MuroColonia.adentro(self, Vector3(p.x, 0.0, p.y)) == prueba[1], str(p))
 	_revisar("a 10 m de la barda de Santa Mugre cuenta con margen", sm.contiene(Vector2(-430, 370), 15.0) and not sm.contiene(Vector2(-430, 370)), "")

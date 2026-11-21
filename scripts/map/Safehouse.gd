@@ -103,7 +103,8 @@ H curar · J -%d de vida · P +$100
 Y vaciar inventario (sin machete pegas a puñetazos)
 C crear personaje · K deterioro
 F12 reiniciar todo · F10 ir al mapa · F11 giro WASD (favela)
-Shift+F10 Santa Mugre: la reja falla al anochecer (evento)"""},
+Shift+F10 Santa Mugre: la reja falla al anochecer (evento)
+Ctrl+F10 las cañerías del arroyo (crías: solo sal o fuego)"""},
 	{"titulo": "Pelea", "efectos": true, "texto": """1 2 machete / pistola · R recargar
 9 golpe a tiempo (córtalo cuando gruñe) / sin aturdir
 8 estela del protagonista (su mejora) / la de siempre
@@ -759,6 +760,11 @@ func _unhandled_input(event: InputEvent) -> void:
 				EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())
 			else:
 				_soltar_lombrices()
+		KEY_F10 when event.ctrl_pressed:
+			# Las cañerías del arroyo como desde el mapa (PasoJefe): al salir o desmayarte vuelves aqui
+			get_viewport().set_input_as_handled()
+			PasoJefe.entrar(self, "res://scenes/tuneles.tscn")
+			return
 		KEY_F10 when event.shift_pressed:
 			# El evento de la reja (F1): a Santa Mugre poco antes de anochecer, con la reja ya abierta y que falle seguro
 			get_viewport().set_input_as_handled()

@@ -691,7 +691,7 @@ func _gota_azul() -> Texture2D:
 
 
 # Ruido sin costuras en escala de grises, para los shaders
-func _ruido_tex(lado: int, frecuencia: float, octavas: int, semilla: int) -> ImageTexture:
+static func _ruido_tex(lado: int, frecuencia: float, octavas: int, semilla: int) -> ImageTexture:
 	var ruido := FastNoiseLite.new()
 	ruido.seed = semilla
 	ruido.frequency = frecuencia
@@ -701,7 +701,7 @@ func _ruido_tex(lado: int, frecuencia: float, octavas: int, semilla: int) -> Ima
 
 # Ruido sin costuras de `lado` px alrededor de `tono` (+- `varia`), con `piedras` de piedritas
 # oscuras y claras y, si `junta`, una raya oscura en los bordes (la junta del colado)
-func _textura_ruido(lado: int, tono: float, varia: float, piedras: float, junta: bool, semilla: int) -> ImageTexture:
+static func _textura_ruido(lado: int, tono: float, varia: float, piedras: float, junta: bool, semilla: int) -> ImageTexture:
 	var ruido := FastNoiseLite.new()
 	ruido.seed = semilla
 	ruido.frequency = 0.035

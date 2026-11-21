@@ -13,6 +13,7 @@ shader_type spatial;
 #define PS1_MUNDO
 #include "res://shaders/ps1_vertex.gdshaderinc"
 #include "res://shaders/ps1_deterioro.gdshaderinc"
+#include "res://shaders/ps1_hoyo.gdshaderinc"
 
 // Con mipmaps: a ras de piso, sin ellos la textura brilla y hace moire a lo lejos
 uniform sampler2D albedo_texture : source_color, filter_nearest_mipmap, repeat_enable;
@@ -110,6 +111,9 @@ float charco(vec2 xz, float zona) {
 }
 
 void fragment() {
+	if (en_hoyo(world_pos)) {
+		discard;
+	}
 	float zona = zona_deterioro(world_pos.xz);
 	vec3 color = piso_roto(texture(albedo_texture, world_pos.xz / tile_size).rgb, world_pos.xz, zona, piso_tipo);
 	if (modo == 2) {

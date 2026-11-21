@@ -33,7 +33,7 @@ SOLO = 10.0                 # m: una punta de banqueta sin otra banqueta asi de 
 DETRAS = 2.0                # m detras de la pared de la bodega
 FORTALEZA_MARGEN = 40.0
 
-# Las barda de las fortalezas de map_test (MuroColonia): Santa Mugre, La Gotera y Los Reservorios
+# Las barda de las fortalezas de map_test (MuroColonia): Santa Mugre, La Gotera, Los Reservorios y el arroyo
 FORTALEZAS = [[tuple(v) for v in f["poligono"]]
               for k, f in json.loads((RAIZ / "resources/map/fortalezas.json").read_text()).items()
               if not k.startswith("_")]

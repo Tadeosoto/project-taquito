@@ -39,6 +39,8 @@ extends Node3D
 # muchas cerca, arrancan todas juntas (una oleada).
 
 signal horneado
+## En `solo_sal_y_fuego`: un golpe o una bala les dio y no les hizo nada (la escena avisa)
+signal rebote
 signal fase_cambio(fase: int)
 
 const SOLVER := preload("res://scripts/lombrices/SolverLombrices.gd")
@@ -177,6 +179,13 @@ const GOTAS_CHORRO := 24
 @export var lento_ms := 0       # para probar: el paso tarda al menos esto (simula una PC lenta)
 # 1: rodean y saltan; 2: + se entierran y se funden en latigo; 3: + torre y crecen mas rapido.
 # Sola (sin Madre) va en 3, para ver todo
+# Las cañerías (Tuneles): ni el machete, ni las balas, ni las explosiones las matan, solo las avientan;
+# mueren con la sal (salar_cono, zonas SAL) y el fuego (zonas FUEGO). La sal se compra al avanzar en la
+# historia (JJ, 2026-11-21)
+@export var solo_sal_y_fuego := false
+# Donde nacen al armarse (x, z del piso; y se ignora): si esta vacio, al azar alrededor del centro.
+# En un lugar con muros (las cañerías) al azar caen adentro de ellos
+@export var nidos := PackedVector3Array()
 @export var fase := 3:
 	set(valor):
 		if valor != fase:
@@ -421,6 +430,9 @@ func _armar(centro: Vector3) -> void:
 	var radio := minf(caja.x, caja.z) * 0.3
 	for w in lombrices:
 		var donde := centro + Vector3(randf_range(-radio, radio), 0.4 + randf() * 0.6, randf_range(-radio, radio))
+		if not nidos.is_empty():
+			var nido := nidos[w % nidos.size()]
+			donde = Vector3(nido.x + randf_range(-0.8, 0.8), centro.y + 0.4 + randf() * 0.6, nido.z + randf_range(-0.8, 0.8))
 		var rumbo := Vector3.FORWARD.rotated(Vector3.UP, randf() * TAU)
 		for k in puntos:
 			var i := w * puntos + k
@@ -1807,6 +1819,9 @@ func bullet_hit(dot_index: int, hit_point: Vector3, dir: Vector3) -> void:
 	if _es_bola(dot_index):
 		_herir_bola(5.0, hit_point)
 		return
+	if solo_sal_y_fuego:
+		rebote.emit()
+		return
 	sangrar(hit_point, -hacia + Vector3.UP * 0.5)
 	_fx("cria_corte", hit_point, -hacia, 0.5)
 	if _cabeza_de[dot_index] == dot_index:
@@ -1821,6 +1836,8 @@ func apply_explosion_impulse(origin: Vector3, radius: float, force: float, mata 
 	if _ocupado():
 		_ordenes.append(apply_explosion_impulse.bind(origin, radius, force, mata))
 		return
+	if solo_sal_y_fuego:
+		mata = false
 	var dt := 1.0 / hz
 	var tocadas := {}
 	for i in vivos.size():
@@ -1890,6 +1907,11 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 	alcanzados.sort()
 	var quema := ESTELA.estilo == ESTELA.Estilo.FUEGO or ESTELA.estilo == ESTELA.Estilo.FLAMAS_FELIPE
 	var cortes := CORTES_TAJO if todas else clampi(roundi(dano * CORTES_POR_DANO), 2, CORTES_MAX)
+	if solo_sal_y_fuego:
+		# Solo las avienta (_cortar con 0 cortes empuja a todas las del cono)
+		cortes = 0
+		quema = false
+		rebote.emit()
 	if _ocupado():
 		_ordenes.append(_cortar.bind(alcanzados, salidas, frente, cortes, quema))
 	else:
