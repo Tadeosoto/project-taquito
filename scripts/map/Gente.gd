@@ -10,6 +10,7 @@ extends Node3D
 # LINEAS_SERENOL (aman a GelA, trabajan mucho) y unos pocos (SABEN_FRACCION) saben que el agua trae
 # algo y piden agua limpia (LINEAS_SABEN). No dan misiones. Adentro de una fortaleza (`afuera` en
 # false, como en el mapa de Blender de Santa Mugre, o MuroColonia.adentro) dicen LINEAS.
+# Los de afuera, ademas, llevan las venas azules del Serenol en la piel (VenasSerenol.gd).
 #
 # Los que caminan son civiles del pack PSX al azar (Civiles.gd), con el Walk de Quaternius;
 # el garrafonero, con Walk_Carry y su garrafon. Los que platican usan los otros modelos, con
@@ -218,6 +219,8 @@ func _sacar_caminante() -> void:
 		nodo.visible = true
 		nodo.process_mode = Node.PROCESS_MODE_INHERIT
 		nodo.global_position = Vector3(donde.x, y, donde.y)
+		# Se reusan: el mismo civil puede salir afuera (con venas) o adentro de una barda (sin ellas)
+		VenasSerenol.poner(nodo, afuera and VenasSerenol.de_afuera(get_tree(), nodo.global_position))
 		var animacion: AnimationPlayer = c["animacion"]
 		animacion.play(c["clip"])
 		animacion.seek(randf() * animacion.current_animation_length, true)
@@ -404,6 +407,7 @@ func _poner_platicante(i: int) -> void:
 	npc.rotation.y = lugar["mira"]
 	var nombre: String = lugar["modelo"]
 	poner_modelo(npc, load("res://models/personajes/%s/%s.scn" % [nombre, nombre]), ALTO_PERSONA)
+	VenasSerenol.poner(npc, afuera and VenasSerenol.de_afuera(get_tree(), npc.global_position))
 	platicando[i] = npc
 
 

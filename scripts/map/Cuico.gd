@@ -80,6 +80,8 @@ func armar(modelo: String) -> void:
 	cuerpo.name = "Cuerpo"
 	add_child(cuerpo)
 	_animacion = Civiles.poner(cuerpo, modelo, "Walk")
+	# Toman Serenol como la gente de afuera (JJ, 2026-11-21): a las fortalezas no entran nunca
+	VenasSerenol.poner(cuerpo, true)
 	_grito = Label3D.new()
 	_grito.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_grito.no_depth_test = true

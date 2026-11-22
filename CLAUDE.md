@@ -92,7 +92,7 @@ Summary:
 
 ## People (`scripts/map/Gente.gd`)
 
-By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night nobody's there, and they return at dawn. Up to 12 walkers on `resources/map/banquetas_mapa.json` (from OSM, `godot --path . --headless -s tools/map_import/banquetas.gd`), including a blue garrafonero with a jug. Walkers are random PSX civilians (`Civiles.al_azar()`) with Quaternius `Walk`/`Walk_Carry`, sped up to match their speed (`Gente.PASO`, capped at `PASO_MAX`). Up to 6 people outside stores use the other models with `npc.tscn` for speech, and up to 3 sitting dogs; each model is scaled by measuring its bones. `npc.gd` only renders its two SubViewports while its text shows.
+By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night nobody's there, and they return at dawn. Up to 12 walkers on `resources/map/banquetas_mapa.json` (from OSM, `godot --path . --headless -s tools/map_import/banquetas.gd`), including a blue garrafonero with a jug. Walkers are random PSX civilians (`Civiles.al_azar()`) with Quaternius `Walk`/`Walk_Carry`, sped up to match their speed (`Gente.PASO`, capped at `PASO_MAX`). Up to 6 people outside stores use the other models with `npc.tscn` for speech, and up to 3 sitting dogs; outside the fortresses walkers, talkers and sellers wear Serenol veins (`VenasSerenol`, see `docs/sistemas/personaje.md`); each model is scaled by measuring its bones. `npc.gd` only renders its two SubViewports while its text shows.
 
 ## Dev safehouse (`scenes/safehouse.tscn`, `scripts/map/Safehouse.gd`)
 

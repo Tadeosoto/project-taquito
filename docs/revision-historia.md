@@ -28,6 +28,7 @@ Nada de esto cambia el canon por sí solo. Cuando el equipo decida, se corrige e
 | 1.5b | El pozo de doña Refugio **es real**; los Gotera quieren comprárselo | lore §16; personajes (Refugio, leyenda) |
 | 2.1 | La idea que controla la historia y su contraria | lore §18 |
 | 2.2 | El régimen **responde en escalones**, hasta contratarte | personajes §2 (Gela) |
+| V1 | (JJ, 2026-11-21) **El Serenol deja venas en la piel**: como várices, muy sutiles ("no se nota"), afuera de las fortalezas; nada adentro; en las cañerías, gente a medio camino con grietas que brillan, que no ataca. Matiza "a las personas no se les nota / la cara no": se ve si te fijas | lore §6 (Lo que casi no se ve: las venas), §7 (regla para el equipo), §8 (dóciles; Los de en medio) |
 | 2.3 | La mentira y la verdad del Nocturno | lore §15 |
 | 3.3, 3.4 | Chuy vio a su gente **apagarse**; Yolanda teme **amanecer mansa** | personajes §4, §5 |
 | §4 | Los diez detalles (fechas, "los dejamos salir" como giro, GelA Total sin Serenol, botarga, regla 7, Botarga de la Gota, Sofía, el jefe que era alguien) | lore §0, §5, §6, §8, §9, §19, §20; misiones §0, §3, §4 |

@@ -260,6 +260,8 @@ Cada seis años hay elecciones de verdad: urnas, spots, debates, casillas. Gana 
 
 **Lo que sí se ve: el culto a la empresa.** No es una religión: es una **devoción de marca**. La Gota en las bardas, "don Germán" en los altares caseros, el "gracias a GelA" en cada conversación, la señora que reza por la empresa y el vecino que defiende el monopolio como si fuera su equipo. El jugador puede pensar "están lavados del cerebro". Y sí: pero no es la tele, es el agua.
 
+**Lo que casi no se ve: las venas.** ✅ (JJ, 2026-11-21) El que toma Serenol todos los días trae en la piel que se ve (la cara, el cuello, los brazos, las manos) unas **venas azul morado, como várices**: finas, torcidas, apenas más oscuras que la piel. **Son muy sutiles, por eso "no se nota"**: no brillan, no son azules de neón; hay que fijarse, y nadie se fija. **Afuera de las fortalezas casi todos las traen** y **adentro nadie**: en Santa Mugre, La Gotera y la fortaleza de GelA se toma agua limpia (o GelA Total), y la gente se ve tal cual. 💡 Con semanas de agua limpia se van borrando (es la misma cura de abajo). 💡 El que las nota dice que son **várices**, "de tanto estar parado", "de la edad", "de la presión": todos las ven y nadie las junta con el agua. **Los que te acompañan no las traen** ✅ (JJ, 2026-11-21): la gente con Serenol no tiene voluntad propia, y el que se arriesga a salir contigo de noche, a defender su casa o a manejar la camioneta es justo porque todavía la tiene. **Los policías sí las traen** ✅ (JJ, 2026-11-21): toman el agua de GelA como todos los de afuera, y obedecen sin preguntar. 💡 Por eso no dudan en disparar.
+
 **Fue indeseado.** ✅ El plan era la docilidad; los zombis fueron el **defecto de fábrica**. Cuando GelA los vio, en vez de retirar el compuesto, hizo lo que hace una empresa: **los escondió** y les sacó provecho. El programa interno se llama **"Contención"** y su regla es: *"no los matamos: los guardamos"*.
 
 **A quién se le da.** A los que no pueden pagar la suscripción: los segregados. El que paga toma **GelA Total** y no la toca: GelA Total no trae Serenol. El que no paga, la toma todos los días.
@@ -300,9 +302,9 @@ Así que el deterioro visual y la infección no son la misma cosa, pero **son el
 | 0.65-0.80 | **Podrida** | Casi todos infectados; de día son amables, de noche ni salgas |
 | 0.80-1.00 | **Perdida** | Solo si suben el ajuste. Ahí no vive nadie; ahí se queda lo que sobra |
 
-**El umbral jugable: 0.45.** Arriba de 0.45, la zona se siente tomada; abajo, limpia. A las **personas** no se les nota: el que te vende un taco puede ser uno de ellos.
+**El umbral jugable: 0.45.** Arriba de 0.45, la zona se siente tomada; abajo, limpia. Afuera de las fortalezas casi todos traen **las venas del Serenol** (§6), pero son tan sutiles, como várices, que **no se nota**: el que te vende un taco puede ser uno de ellos, y solo si te fijas en su cuello lo ves.
 
-> **Regla para el equipo:** a una persona nunca se la identifica por el índice. Solo por lo que dice, por cómo defiende a GelA y por lo que evita contar. La cuadra te avisa, la cara no.
+> **Regla para el equipo:** ✅ (JJ, 2026-11-21; antes decía "la cara no") el Serenol deja **venas como várices, muy sutiles, afuera de las fortalezas, y nada adentro** (`VenasSerenol.gd`). Son un detalle para el que se fija, nunca una marca que grite: nadie en el juego señala a alguien por ellas. Y no dicen **quién se va a levantar**: dicen que toma el agua, no que sea el uno de cada diez.
 
 ---
 
@@ -312,7 +314,7 @@ Así que el deterioro visual y la infección no son la misma cosa, pero **son el
 
 ### Los dóciles (nueve de cada diez)
 
-Son **la gente normal**: el taquero, la maestra, el de la tienda, tu vecino. Tienen diálogo, opiniones, familia. Quieren a la empresa, la defienden, no protestan, no se organizan, no actúan en su contra. **No se esconden, no forman un bando, no lo saben.** Y **no se distinguen** del que no la toma: el dócil y el no dócil viven juntos, se casan, trabajan en la misma bodega y se pelean por el mismo tinaco.
+Son **la gente normal**: el taquero, la maestra, el de la tienda, tu vecino. Tienen diálogo, opiniones, familia. Quieren a la empresa, la defienden, no protestan, no se organizan, no actúan en su contra. **No se esconden, no forman un bando, no lo saben.** Traen **venas como várices** (§6, ✅ JJ 2026-11-21), tan sutiles que no se nota: el dócil y el no dócil viven juntos, se casan, trabajan en la misma bodega y se pelean por el mismo tinaco, y las venas son "de tanto estar parado".
 
 ### El culto a la empresa
 
@@ -336,6 +338,12 @@ Son los que se murieron en la madrugada y se levantaron. Tienen **dos hambres**:
 **De noche.** Salen a caminar en bola. **La caminata** no es una turba: es una procesión de muertos con hambre. La ciudad se encierra; el que sale, sale a trabajar.
 
 **La puerta cerrada.** El zombi empuja, no abre. Una puerta cerrada lo detiene; una ventana abierta o un portón sin llave, no. Por eso la ciudad se esconde con llave y no con barricadas: **la barricada es del refugio**, no de la casa.
+
+### Los de en medio (las cañerías)
+
+✅ (JJ, 2026-11-21) En las **cañerías del arroyo** (el colector viejo que baja al cárcamo de la Madre) deambula gente **a medio camino entre persona y zombi**: la piel todavía es la suya (cada quien su tono), la **ropa desgarrada** y, en vez de venas, **grietas que brillan** del azul del Serenol, como las de la Madre y la cucarrata. **No te atacan**: están ahí, caminando sin rumbo entre el agua y los nichos. Serán **cinco distintos** (por programar después de los de afuera).
+
+💡 **Quiénes son.** Del uno de cada diez que se va a levantar, no todos se mueren en la cama: a algunos la sed de agua limpia los saca de su casa en la madrugada de la fiebre y los jala para abajo, a los drenajes, buscando el agua que corre. Allá abajo se les acaba de ir el cuerpo despacio: las venas se abren en grietas, ya no hablan, todavía no comen. Son **los que se están yendo**: el paso entre el dócil de la calle (venas) y el zombi de la noche. 💡 Las crías de la Madre no los tocan: todavía traen Serenol en el cuerpo, y lo que atrae a las crías es lo limpio, como a los zombis. 💡 Nombre en la calle: **"los que se fueron pa' abajo"**.
 
 ### Qué traen y qué sueltan
 

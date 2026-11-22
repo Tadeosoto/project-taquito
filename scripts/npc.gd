@@ -5,6 +5,9 @@ extends Node3D
 # Un civil del pack PSX (scripts/personajes/Civiles.gd) en vez del ninja; vacio = el ninja,
 # con su `tint`. Se pone antes de meterlo al arbol
 @export var modelo := ""
+# Venas de Serenol en la piel del civil (VenasSerenol.gd): -1 segun donde esta (afuera de las
+# fortalezas si), 0 nunca, 1 siempre. El ninja no las lleva
+@export var serenol := -1
 # Si lo tiene, regresa lo que dice en cada plática (MisionesMundo.gd); si no, `dialogue`
 var al_hablar := Callable()
 
@@ -27,6 +30,8 @@ func _ready() -> void:
 			remove_child(ninja)
 			ninja.free()
 		Civiles.poner(self, modelo)
+		if serenol == 1 or (serenol == -1 and VenasSerenol.de_afuera(get_tree(), global_position)):
+			VenasSerenol.poner(self, true)
 	else:
 		_apply_tint(tint)
 	_dialogue_label.text = dialogue
