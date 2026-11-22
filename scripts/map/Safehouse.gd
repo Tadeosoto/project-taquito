@@ -120,6 +120,7 @@ Shift+X La Mojiganga (catrina gigante, ya despierta)
 , soltar 80 lombrices enfrente (hornea unos segundos)
 Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
 . pelea contra la cucarrata (3 fases; otra vez . = de nuevo)
+Shift+. el pterodáctilo de Juárez (8 m; aire y piso)
 3 sal / molotov (otra vez 3 cambia; botella vacía + gasolinera + trapo = molotov)"""},
 	{"titulo": "Efectos y tazos", "efectos": true, "texto": """F2-F7 efectos de pixel (propuestas, abajo)
 F9 efectos nuevos (tambos y chispas: a la derecha)
@@ -149,6 +150,8 @@ var _lombrices: EnjambreLombrices
 var _madre: MadreCarcamo
 var _cucarrata: JefeCucarrata
 var _barra_cucarrata: BarraCucarrata
+var _ptero: JefePtero
+var _barra_ptero: BarraPtero
 var _barra_madre: BarraMadre
 var _barra_catrina: BarraCatrina
 var _zombis: Zombis
@@ -754,7 +757,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				Tazos.dar_puntos(PUNTOS_PRUEBA)
 		KEY_PERIOD:
-			_cucarrata_pare()
+			if event.shift_pressed:
+				_pterodactilo()
+			else:
+				_cucarrata_pare()
 		KEY_COMMA:
 			if event.shift_pressed:
 				EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())
@@ -826,6 +832,29 @@ func _cucarrata_pare() -> void:
 		_barra_cucarrata = BarraCucarrata.new()
 		add_child(_barra_cucarrata)
 	_barra_cucarrata.jefe = _cucarrata
+
+
+# El pterodactilo de Juarez (scripts/ptero/JefePtero.gd) 25 m enfrente, ya despierto: despega y empieza
+# en el aire. Anda en un circulo de 40 m alrededor de donde estabas. Otra vez Shift+. = de nuevo
+func _pterodactilo() -> void:
+	if _ptero != null and is_instance_valid(_ptero):
+		_ptero.queue_free()
+	var frente := -_jugador.frijol.global_transform.basis.z
+	frente.y = 0.0
+	frente = frente.normalized()
+	_ptero = JefePtero.new()
+	_ptero.centro = Vector3(_jugador.global_position.x, 0.0, _jugador.global_position.z)
+	_ptero.radio = 40.0
+	_ptero.piso = 0.0
+	add_child(_ptero)
+	var donde := _jugador.global_position + frente * 25.0
+	_ptero.global_position = Vector3(donde.x, _ptero.piso, donde.z)
+	_ptero.look_at(_ptero.global_position - frente, Vector3.UP)
+	if _barra_ptero == null:
+		_barra_ptero = BarraPtero.new()
+		add_child(_barra_ptero)
+	_barra_ptero.jefe = _ptero
+	_ptero.despertar()
 
 
 # Un enjambre de lombrices (scripts/lombrices/) LOMBRICES_ENFRENTE m enfrente, en el piso

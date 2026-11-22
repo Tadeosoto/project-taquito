@@ -138,6 +138,8 @@ MODELS = {
 	"panteon/mexicana_1918": "b1f0b87a03cf4e46940ffe3773ba0df5",     # Centenary Mexican Tombstone (1918), 12k
 	"panteon/lapidas_pack": "915174119a454fa7b2573a9e3bddac8b",      # gravestone pack, 8.2k
 	"panteon/props": "ae35b6086e0b45d3941a61086b5e3d10",             # Graveyard props, 2.3k
+	# El jefe pterodactilo (JJ, 2026-11-22)
+	"personajes/ptero_picky": "568b841d8774488c8b25f5b74bffdc76",     # Picky the Pterodactyl, 520, 26 clips
 	# Defensa del tinaco (scripts/defensa/DecoracionDefensa.gd)
 	"props/bocina_escenario": "39289063695d42f5a67b0a33318badb4",   # Speaker Stage
 	"props/rollo_manguera": "33a5089d9dd1438386d80bdf31a46a55",     # Garden Hose Reel

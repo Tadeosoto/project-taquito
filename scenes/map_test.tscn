@@ -64,6 +64,7 @@
 [ext_resource type="Resource" path="res://resources/productos/mochila_verde.tres" id="52_mochila_verde"]
 [ext_resource type="Resource" path="res://resources/productos/mochilon.tres" id="53_mochilon"]
 [ext_resource type="Resource" path="res://resources/zombis/noche_afuera.tres" id="54_ritmo"]
+[ext_resource type="Script" path="res://scripts/ptero/PteroClaro.gd" id="ptero_claro_gd"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -328,6 +329,9 @@ script = ExtResource("fortalezas_gd")
 
 [node name="Panteon" type="Node3D" parent="."]
 script = ExtResource("panteon_mapa_gd")
+
+[node name="Pterodactilo" type="Node3D" parent="."]
+script = ExtResource("ptero_claro_gd")
 
 [node name="EntradaMojiganga" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 530, 0.16, -688)

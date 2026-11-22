@@ -240,6 +240,21 @@ Historia: AG la jugó el 2026-11-10 dos veces. La primera: "no te agarra, la ani
 
 Anotar aquí cuánto duró, cuántas veces te desmayaste y en qué fase, a machete y con pistola.
 
+## El pterodáctilo de Juárez (Claude, 2026-11-22; sin probar en ventana)
+
+Se prueba en el claro del centro-oeste de `map_test` (`godot --path . tools/probar_ptero.tscn`, te deja a 60 m) o con Shift+. en la safehouse. Todos los números están al principio de `scripts/ptero/JefePtero.gd`; el video de la pelea es `-- --video` (ver `scripts/ptero/CLAUDE.md`).
+
+| Qué | Número | Dónde |
+|---|---|---|
+| Vida | 1500; a la mitad se cae y pelea en el piso | `VIDA`, `FASE_2` |
+| Picada | cada 5-8 s, aviso de 1.1 s, a 24 m/s; garras 25 | `PICADA_CADA`, `AVISO_DURA`, `PICADA_VEL`, `GARRAS` |
+| Rasante (ventana del machete) | 1.8 s a 1.8 m del piso | `RASANTE_DURA`, `PICADA_ALTO` |
+| Picotazo / aletazo | 20 / 15, a 7 m empieza a atacar | `PICOTAZO`, `ALETAZO`, `ATAQUE_DIST` |
+| Embestida | cada 9-14 s de lejos, 13 m/s por 1.6 s; 30 | `CARGA_CADA`, `CARGA_VEL`, `CARGA_DURA`, `CARGA_DANO` |
+| Vuelve a volar | cada 22-30 s, 2 picadas y aterriza | `VUELO_CADA`, `PICADAS_POR_VUELO` |
+| Tambaleo | 160 de daño junto en el piso | `HERIDO_CADA` |
+| Armas | bala 12 (15 % de que esquive dando vueltas), explosión 90 | `DANO_BALA`, `ESQUIVA`, `DANO_EXPLOSION` |
+
 ## Verificaciones pendientes: zombis PSX y detección
 
 Solo se probó con escenas de prueba y capturas: el visor de los cinco skins, una noche de 70 s de la defensa sin nadie defendiendo (sin errores, 57-61 FPS), y `map_test` y la pantalla de inicio sin errores. Falta probarlo jugando:
