@@ -41,6 +41,10 @@ func _ready() -> void:
 	add_child(cuerpo)
 	_nivel = TunelesNivel.new()
 	add_child(_nivel)
+	# Los de en medio: al azar en los pasillos, parados, caminando o en posicion fetal (no atacan)
+	var de_en_medio := DeEnMedio.new()
+	de_en_medio.name = "DeEnMedio"
+	add_child(de_en_medio)
 	_jugador = $Player
 	_jugador.global_position = TunelesNivel.ENTRADA - Vector3(0.0, 0.0, 1.5)
 	_jugador.aplicar_personaje()

@@ -47,7 +47,9 @@ const FONDO := Vector3(LADO_PASILLO, 0.0, -LARGO + 1.4)
 var largo := LARGO
 var boca := false
 ## Luz ambiente (como CarcamoNivel.ambiente)
-var ambiente := 0.1
+const FIJOS := 0.25              # parte de los focos prendidos fijos (JJ 2026-11-21)
+const FUNDIDOS := 0.25           # parte apagados; los demas (la mitad) titilan
+var ambiente := 0.3   # JJ 2026-11-21: de 0.1, para que se vea la humanidad de los de en medio
 ## De donde salen las crias: frente a cada nicho, en el pasillo
 var nidos := PackedVector3Array()
 
@@ -446,14 +448,27 @@ func _luces() -> void:
 		z -= 6.0
 	var fundido := StandardMaterial3D.new()
 	fundido.albedo_color = Color(0.22, 0.21, 0.19)
-	var titilan := {-14.0: 23, -38.0: 57}   # z de los focos (cada 8 m desde -6) que titilan
+	# Los focos (cada 8 m desde -6), repartidos al azar en cada visita (JJ 2026-11-21): FIJOS prendidos,
+	# FUNDIDOS apagados y el resto titila (Alumbrado.parpadeo, cada uno con su semilla)
+	var lugares: Array[float] = []
+	z = -6.0
+	while z > -largo + 2.0:
+		lugares.append(z)
+		z -= 8.0
+	lugares.shuffle()
+	var n_fijos := roundi(lugares.size() * FIJOS)
+	var n_fundidos := roundi(lugares.size() * FUNDIDOS)
+	var fijos := lugares.slice(0, n_fijos)
+	var titilan := {}
+	for k in range(n_fijos + n_fundidos, lugares.size()):
+		titilan[lugares[k]] = randi() % 1000
 	var chispas: Array[Vector3] = []
 	var clave := MURO + RADIO
 	z = -6.0
 	while z > -largo + 2.0:
 		var cable := _malla(Vector3(0.02, 0.5, 0.02), _metal)
 		cable.position = Vector3(0.0, clave - 0.25, z)
-		var prende := titilan.has(z)
+		var prende := titilan.has(z) or z in fijos
 		var foco: StandardMaterial3D = fundido
 		if prende:
 			foco = StandardMaterial3D.new()
@@ -470,8 +485,11 @@ func _luces() -> void:
 			luz.omni_range = 8.0
 			luz.position = Vector3(0.0, clave - 0.7, z)
 			add_child(luz)
-			_titilan.append([luz, foco, titilan[z], luz.light_energy])
-			chispas.append(Vector3(0.0, clave - 0.6, z))
+			if titilan.has(z):
+				_titilan.append([luz, foco, titilan[z], luz.light_energy])
+				chispas.append(Vector3(0.0, clave - 0.6, z))
+			else:
+				luz.light_energy = 0.9
 		z -= 8.0
 	if not chispas.is_empty():
 		var nodo: Node3D = ALUMBRADO.armar_chispas(chispas, 0.0)
@@ -488,11 +506,11 @@ func _luces() -> void:
 	entorno.background_mode = Environment.BG_COLOR
 	entorno.background_color = Color(0.0, 0.0, 0.02)
 	entorno.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	entorno.ambient_light_color = Color(0.35, 0.38, 0.6)
+	entorno.ambient_light_color = Color(0.5, 0.5, 0.56)   # casi neutra: con azul la piel se veia morada
 	entorno.ambient_light_energy = ambiente
 	entorno.fog_enabled = true
 	entorno.fog_light_color = Color(0.02, 0.03, 0.08)
-	entorno.fog_density = 0.045
+	entorno.fog_density = 0.03
 	mundo.environment = entorno
 	add_child(mundo)
 
