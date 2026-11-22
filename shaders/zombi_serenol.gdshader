@@ -59,10 +59,6 @@ uniform vec2 centro_ojo = vec2(0.052, 2.115);   // x (cada lado) y altura del ce
 uniform float iris : hint_range(0.005, 0.03) = 0.016;
 uniform float ceno : hint_range(-1.0, 1.0) = 0.3;   // cuanto baja el parpado hacia la nariz (enojo)
 uniform float cara_hasta = 2.26;
-// Los de en medio de las cañerías (prototipo, JJ 2026-11-21): 0 = piedra (el zombi de siempre),
-// 1 = piel de carne con pocas placas, ojos casi humanos. Las grietas siguen (alcance, tupido)
-uniform float carne : hint_range(0.0, 1.0) = 0.0;
-uniform vec3 color_carne : source_color = vec3(0.70, 0.50, 0.38);
 const float PIXEL = 0.018;   // los pixeles duros del juego, en metros de reposo
 
 varying vec3 reposo;
@@ -202,12 +198,6 @@ void fragment() {
 		vec3 roca = tinte * mix(0.55, 1.25, alto);
 		// Pecas de piedra: unos pixeles mas claros y otros mas oscuros
 		roca *= 1.0 + step(0.93, grano) * 0.35 - step(grano, 0.06) * 0.3;
-		// Carne: la piel de una persona, palida y manchada, apenas con relieve de placa
-		vec3 piel_h = pow(color_carne, vec3(2.2)) * mix(0.82, 1.08, c.z * 0.5 + grano * 0.5) * mix(0.92, 1.03, bulto);
-		piel_h = mix(piel_h, vec3(dot(piel_h, vec3(0.33))) * vec3(0.9, 0.97, 1.05), 0.45);
-		// Moretones y manchas de enfermo, de placa en placa
-		piel_h *= mix(vec3(1.0), vec3(0.62, 0.6, 0.72), step(0.78, c.z) * 0.7);
-		roca = mix(roca, piel_h, carne);
 
 		// Grietas: gruesas en la panza, finas y en ramas sueltas hacia las puntas. El ancho va en
 		// metros y nunca baja de un pixel, o se rompen en puntitos (c.y mide desde un lado: x 0.5)
@@ -221,10 +211,10 @@ void fragment() {
 		roca *= mix(1.0, 0.7, orilla);
 		// La cuenca: la piedra alrededor de cada ojo se oscurece, para que se vean hundidos
 		// Toda orilla de placa es una juntura honda, aunque no brille
-		roca *= mix(mix(0.55, 1.0, smoothstep(0.0, 0.04, c.y)), 1.0, carne);
+		roca *= mix(0.55, 1.0, smoothstep(0.0, 0.04, c.y));
 
 		// Relieve: la luz sigue los bultos de las placas (gradiente de la altura en pantalla)
-		float h = alto * piel * relieve * 0.03 * (1.0 - tela) * (1.0 - carne * 0.85);
+		float h = alto * piel * relieve * 0.03 * (1.0 - tela);
 		vec3 dpx = dFdx(VERTEX);
 		vec3 dpy = dFdy(VERTEX);
 		vec3 r1 = cross(dpy, NORMAL);
@@ -297,18 +287,17 @@ void fragment() {
 		float en_iris2 = step(d_ojo, iris_px);
 		float pupila2 = step(d_ojo, iris_px * 0.4);
 		float brillo_p = step(length(rel - vec2(-1.0, -1.0)), 0.8);
-		vec3 esclera_c = mix(vec3(0.30, 0.29, 0.25), vec3(0.62, 0.58, 0.52), carne);
-		vec3 ojo_c = mix(esclera_c * mix(0.7, 1.1, lum), color_grieta * 0.35, en_iris2);
+		vec3 ojo_c = mix(vec3(0.30, 0.29, 0.25) * mix(0.7, 1.1, lum), color_grieta * 0.35, en_iris2);
 		ojo_c = mix(ojo_c, vec3(0.01), pupila2);
 		ALBEDO = mix(ALBEDO, ojo_c, esclera_m);
 		ROUGHNESS = mix(ROUGHNESS, 0.35, esclera_m);
 		float anillo2 = step(d_ojo, iris_px * 0.7);
 		vec3 luz_iris2 = mix(color_grieta, mix(color_grieta, color_nucleo, 0.5), anillo2);
-		EMISSION += luz_iris2 * en_iris2 * (1.0 - pupila2) * mix(2.2, 0.8, carne) * brillo * mix(0.55, 1.0, latido);
+		EMISSION += luz_iris2 * en_iris2 * (1.0 - pupila2) * 2.2 * brillo * mix(0.55, 1.0, latido);
 		EMISSION += vec3(0.9) * brillo_p * en_iris2;
 		EMISSION += color_grieta * esclera_m * (1.0 - en_iris2) * 0.08 * brillo * latido;
 		// La cuenca: la piedra alrededor del ojo, mas oscura
-		ALBEDO *= mix(mix(0.35, 0.75, carne), 1.0, smoothstep(ojo_radio, ojo_radio + 4.0, d_ojo) + esclera_m);
+		ALBEDO *= mix(0.35, 1.0, smoothstep(ojo_radio, ojo_radio + 4.0, d_ojo) + esclera_m);
 		EMISSION *= vivo;
 	}
 }

@@ -2,13 +2,10 @@ class_name Transicion
 extends RefCounted
 
 # Los de en medio de las cañerías (JJ, 2026-11-21; lore §8 "Los de en medio"): ni persona ni zombi,
-# no atacan, deambulan. Prototipo con dos caminos para que JJ escoja:
-#   humano(): un civil del pack PSX con shaders/transicion_humano.gdshader (su piel de siempre, ropa
-#             desgarrada, grietas que brillan a manchones), ojos azules que brillan pegados al
-#             hueso Head y pose de zombi de Quaternius (Zombie_Idle). JJ escogio este (2026-11-21);
-#   zombi():  el zombi de siempre (Zombie.modelo_skin) con zombi_serenol en `carne` 1: piel de
-#             persona en vez de piedra, pocas grietas, ojos casi humanos.
-# Se ven juntos en godot --path . tools/probar_transicion.tscn
+# no atacan, deambulan. humano() pone un civil del pack PSX con shaders/transicion_humano.gdshader (su
+# piel de siempre, ropa desgarrada, grietas que brillan a manchones), ojos que brillan pegados al hueso
+# Head y pose de zombi de Quaternius (Zombie_Idle) o la fetal hecha aqui. Los pone DeEnMedio.gd.
+# Se ven en godot --path . tools/probar_transicion.tscn
 
 const HUMANO := preload("res://shaders/transicion_humano.gdshader")
 
@@ -22,7 +19,6 @@ const MODELOS := [
 ]
 
 static var _piel_de := {}      # textura -> su color de piel medido
-static var _carne := {}        # [aspecto, tono] -> material
 static var _con_cabeza := {}   # malla original -> copia con COLOR.r = cuanto es de la cabeza
 
 
@@ -333,27 +329,6 @@ static func _medir_ojos(malla: MeshInstance3D, sk: Skeleton3D, reposo: Transform
 		return []
 	return [Vector3(cx - OJO_SEPARA, alto, frente - 0.003), Vector3(cx + OJO_SEPARA, alto, frente - 0.003),
 		Vector3(cx, alto, frente - 0.15)]
-
-
-# Tonos de piel para el zombi humanizado (no es la piel del jugador: solo para que no salgan iguales)
-const TONOS := [Color(0.80, 0.62, 0.50), Color(0.70, 0.50, 0.38), Color(0.55, 0.38, 0.27), Color(0.42, 0.29, 0.21)]
-
-
-static func zombi(aspecto: int, tono := 1, alto := 1.0) -> Node3D:
-	var modelo := Zombie.modelo_skin(aspecto, alto)
-	var piel := modelo.find_children("*", "MeshInstance3D", true, false)[0] as MeshInstance3D
-	var clave := [aspecto, tono]
-	if not _carne.has(clave):
-		var m := (piel.material_override as ShaderMaterial).duplicate() as ShaderMaterial
-		m.set_shader_parameter("carne", 1.0)
-		m.set_shader_parameter("color_carne", TONOS[tono % TONOS.size()])
-		m.set_shader_parameter("alcance", 1.5)      # las grietas solo de la panza al pecho
-		m.set_shader_parameter("tupido", 0.25)
-		m.set_shader_parameter("resplandor", 0.03)
-		m.set_shader_parameter("infla", 0.012)
-		_carne[clave] = m
-	piel.material_override = _carne[clave]
-	return modelo
 
 
 # El color promedio de lo que parece piel en la textura (los mismos rangos YCbCr del shader)
