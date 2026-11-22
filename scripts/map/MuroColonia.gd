@@ -10,6 +10,8 @@ extends Node3D
 ## - la_gotera: por las calles de Haciendas de San Jodido (docs/mapa/colonias/la_gotera.md), con sus dos
 ##   rejas abiertas en la Av. del Cedro hacia el tianguis.
 ## - gela: Los Reservorios, la barda del ITESO con su caseta y la pluma cerrada (sin colonia todavia).
+## - industrias_gela: Industrias GelA, el parque industrial triangular de Bahia de Huatulco e Independencia
+##   (JJ 2026-11-22), con una reja cerrada en Huatulco que despues se abrira con llave.
 ## - arroyo: el corredor verde del arroyo, de la entrada de los tuneles (P6, al sur de la cancha de la
 ##   Unidad Deportiva Parques del Bosque) al Camino Real a Colima. Sin rejas: la entrada es la boca de
 ##   ladrillo de las cañerías (`boca`) en la tapa norte, la misma boveda que se ve adentro de tuneles.tscn.
@@ -129,6 +131,7 @@ func _enter_tree() -> void:
 func _exit_tree() -> void:
 	if _con_hoyo:
 		RenderingServer.global_shader_parameter_set("hoyo_medida", Vector4.ZERO)
+		RenderingServer.global_shader_parameter_set("hoyo2_medida", Vector4.ZERO)
 	if _calles.has_area():
 		CallesRuta.abrir(_calles)
 
@@ -183,6 +186,9 @@ func _ready() -> void:
 	var boca: Dictionary = _datos.get("boca", {})
 	if not boca.is_empty():
 		huecos.append([Vector2(boca["centro"][0], boca["centro"][1]), float(boca["ancho"])])
+	var salida: Dictionary = _datos.get("salida", {})
+	if not salida.is_empty():
+		huecos.append([Vector2(salida["centro"][0], salida["centro"][1]), float(salida["ancho"])])
 	_barda(huecos)
 	for reja in rejas:
 		_reja(reja)
@@ -193,6 +199,11 @@ func _ready() -> void:
 	if not boca.is_empty():
 		_boca(Vector2(boca["centro"][0], boca["centro"][1]), Vector2(boca["rumbo"][0], boca["rumbo"][1]).normalized(),
 				float(boca["ancho"]))
+	# La salida del carcamo (JJ 2026-11-22): la misma escalera, donde estaba la entrada; por ahi sales
+	# al ganarle a la Madre, y su paso tiene la reja cerrada (no se entra por aqui)
+	if not salida.is_empty():
+		_boca(Vector2(salida["centro"][0], salida["centro"][1]), Vector2(salida["rumbo"][0], salida["rumbo"][1]).normalized(),
+				float(salida["ancho"]), true)
 
 
 func _material(base: Color) -> ShaderMaterial:
@@ -434,12 +445,18 @@ func _caseta(donde: Vector2, hueco: float) -> void:
 # con `boca`: pasillos, canal, boveda y la reja con el hueco forzado). Lo de abajo no se pisa: la flecha te
 # mete antes: solo se pasa por el paso, que la flecha tapa (el suelo del mapa sigue chocando encima, solo
 # deja de verse)
-func _boca(centro: Vector2, rumbo: Vector2, _ancho: float) -> void:
+func _boca(centro: Vector2, rumbo: Vector2, _ancho: float, es_salida := false) -> void:
+	# Adentro es el lado de la barda que cae dentro del poligono (el arroyo es largo y curvo: su centro
+	# puede quedar del otro lado de la barda); si no se sabe asi, hacia el centro
 	var adentro := Vector2(-rumbo.y, rumbo.x)
-	if adentro.dot(_centro() - centro) < 0.0:
+	var de_aqui := contiene(centro + adentro * 3.0)
+	if de_aqui != contiene(centro - adentro * 3.0):
+		if not de_aqui:
+			adentro = -adentro
+	elif adentro.dot(_centro() - centro) < 0.0:
 		adentro = -adentro
 	var nodo := Node3D.new()
-	nodo.name = "Boca"
+	nodo.name = "Salida" if es_salida else "Boca"
 	nodo.position = Vector3(centro.x, 0.0, centro.y)
 	nodo.rotation.y = atan2(adentro.x, adentro.y)   # su +Z hacia adentro, su X a lo largo de la barda
 	add_child(nodo)
@@ -539,11 +556,31 @@ func _boca(centro: Vector2, rumbo: Vector2, _ancho: float) -> void:
 	losa.albedo_color = Color(0.55, 0.53, 0.49)
 	_cuerpo(nodo, Vector3(0.0, PRETIL + 0.1, (largo - 2.0 * PELDANO.x) / 2.0),
 			Vector3(TunelesNivel.ANCHO + 2.0 * PARED + 0.4, 0.2, largo + 0.4), losa)
-	# El suelo del mapa no se dibuja dentro del pozo
+	if es_salida:
+		_reja_salida(nodo, PRETIL)
+	# El suelo del mapa no se dibuja dentro del pozo (la entrada en `hoyo_*`, la salida en `hoyo2_*`)
 	var eje := Vector4(centro.x, centro.y, adentro.x, adentro.y)
-	RenderingServer.global_shader_parameter_set("hoyo_eje", eje)
-	RenderingServer.global_shader_parameter_set("hoyo_medida", Vector4(-medio - 0.05, medio + 0.05, -0.02, arco_z + 0.05))
+	var cual := "hoyo2_" if es_salida else "hoyo_"
+	RenderingServer.global_shader_parameter_set(cual + "eje", eje)
+	RenderingServer.global_shader_parameter_set(cual + "medida", Vector4(-medio - 0.05, medio + 0.05, -0.02, arco_z + 0.05))
 	_con_hoyo = true
+
+
+# La reja cerrada en el paso de la salida: barrotes de fierro oxidado con su marco, a la altura del
+# pretil (choca: por aqui solo se sale)
+func _reja_salida(nodo: Node3D, alto_reja: float) -> void:
+	var oxido := StandardMaterial3D.new()
+	oxido.albedo_color = TunelesNivel.COLOR_OXIDO
+	oxido.metallic = 0.3
+	oxido.roughness = 0.8
+	var z := -PELDANO.x / 2.0
+	_choque(nodo, Vector3(0.0, alto_reja / 2.0, z), Vector3(ABERTURA, alto_reja, 0.06))
+	for y in [0.15, alto_reja - 0.15]:
+		_caja(nodo, Vector3(ABERTURA, 0.06, 0.06), Vector3(0.0, y, z), oxido)
+	var barrotes := 9
+	for i in barrotes:
+		var x := -ABERTURA / 2.0 + ABERTURA * (i + 0.5) / barrotes
+		_caja(nodo, Vector3(0.035, alto_reja, 0.035), Vector3(x, alto_reja / 2.0, z), oxido)
 
 
 # --- Piezas ---

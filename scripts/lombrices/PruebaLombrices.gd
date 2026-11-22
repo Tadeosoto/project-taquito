@@ -361,6 +361,10 @@ func _gano_pelea() -> void:
 	if PasoJefe.desde_juego:
 		_avisar(texto, 6.0)
 		await get_tree().create_timer(6.0).timeout
+		# Sales por el carcamo, en la punta norte del arroyo (JJ 2026-11-22); desmayado, sigues
+		# regresando a donde entraste. Solo en map_test: desde el safehouse vuelves a donde estabas
+		if PasoJefe.escena_origen.ends_with("map_test.tscn"):
+			PasoJefe.regreso = TunelesNivel.CARCAMO_EN_MAPA
 		PasoJefe.volver(self, true)
 		return
 	_avisar(texto + "\n( , otra vez )", 10.0)

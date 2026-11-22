@@ -9,7 +9,8 @@ extends SceneTree
 #   - machetazos, balas y explosiones no matan ninguna cria (solo_sal_y_fuego) y avisan con `rebote`;
 #   - un puñado de sal y una zona de fuego si las matan;
 #   - sin sal ni molotov, quieto al principio del tunel, las crias llegan y te bajan la vida;
-#   - en map_test esta la EntradaJefe "tuneles" frente a la boca de ladrillo del arroyo, apuntando a esta escena.
+#   - en map_test esta la EntradaJefe "tuneles" frente a la boca de ladrillo del arroyo, apuntando a esta escena;
+#   - al ganarle a la Madre sales por el carcamo (TunelesNivel.CARCAMO_EN_MAPA), afuera de la punta norte.
 
 const TUNELES := "res://scenes/tuneles.tscn"
 const MAPA := "res://scenes/map_test.tscn"
@@ -118,6 +119,12 @@ func _entrada_en_el_mapa() -> void:
 		var tubo := arroyo.get_node("Boca") as Node3D
 		var donde := Vector2(entrada.global_position.x, entrada.global_position.z)
 		var frente := entrada.global_transform.basis.z
+		var salida := Vector2(TunelesNivel.CARCAMO_EN_MAPA.x, TunelesNivel.CARCAMO_EN_MAPA.z)
+		var escalera := arroyo.get_node_or_null("Salida") as Node3D
+		_revisar("al ganarle a la Madre sales afuera del arroyo, frente a la escalera de la punta norte",
+			escalera != null and not arroyo.contiene(salida) and salida.distance_to(donde) > 300.0
+			and salida.distance_to(Vector2(escalera.global_position.x, escalera.global_position.z)) < 4.0
+			and (Vector3(salida.x, 0.0, salida.y) - escalera.global_position).dot(escalera.global_transform.basis.z) < -2.0, str(salida))
 		_revisar("la flecha queda afuera, frente a la boca",
 			not arroyo.contiene(donde) and donde.distance_to(Vector2(tubo.global_position.x, tubo.global_position.z)) < 3.0
 			and frente.dot(tubo.global_transform.basis.z) < -0.9, str(donde))

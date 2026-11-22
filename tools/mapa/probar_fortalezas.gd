@@ -68,8 +68,9 @@ func _mapa_grande() -> void:
 	var gotera := MuroColonia.de(self, "la_gotera")
 	var gela := MuroColonia.de(self, "gela")
 	var arroyo := MuroColonia.de(self, "arroyo")
-	_revisar("cuatro muros en map_test", sm != null and gotera != null and gela != null and arroyo != null
-		and get_nodes_in_group("muro_colonia").size() == 4, "")
+	var industrias := MuroColonia.de(self, "industrias_gela")
+	_revisar("cinco muros en map_test", sm != null and gotera != null and gela != null and arroyo != null
+		and industrias != null and get_nodes_in_group("muro_colonia").size() == 5, "")
 	if sm == null or gotera == null or gela == null:
 		return
 	var oriente: Vector2 = sm.rejas[1]["centro"]
@@ -89,6 +90,10 @@ func _mapa_grande() -> void:
 	_revisar("La Gotera: dos rejas abiertas", _rejas(gotera) == Vector2i(0, 2), str(_rejas(gotera)))
 	_revisar("GelA: caseta, sin rejas ni flechas", gela.get_node_or_null("Caseta") != null and gela.rejas.is_empty()
 		and gela.find_children("Entrada_*", "Area3D", false, false).is_empty(), "")
+	if industrias:
+		_revisar("Industrias GelA: una reja cerrada en Huatulco, sin flecha", _rejas(industrias) == Vector2i(1, 0)
+			and industrias.find_children("Entrada_*", "Area3D", false, false).is_empty()
+			and industrias.hacia_afuera("poniente").x < -0.9, str(_rejas(industrias)))
 	var tubo := arroyo.get_node_or_null("Boca") as Node3D
 	_revisar("arroyo: boca de las cañerias, sin rejas ni flechas", tubo != null and arroyo.rejas.is_empty()
 		and arroyo.find_children("Entrada_*", "Area3D", false, false).is_empty(), "")
@@ -103,7 +108,8 @@ func _mapa_grande() -> void:
 
 	for prueba: Array in [[Vector2(-300, 370), true, "Santa Mugre"], [Vector2(850, -200), true, "La Gotera"],
 			[Vector2(100, -800), true, "GelA"], [Vector2(250, -655), false, "caja de GelA, fuera de la barda"],
-			[Vector2(0, 0), false, "afuera"], [Vector2(-60, 0), true, "el arroyo"], [Vector2(-200, -390), false, "la cancha"]]:
+			[Vector2(0, 0), false, "afuera"], [Vector2(-60, 0), true, "el arroyo"], [Vector2(-200, -390), false, "la cancha"],
+			[Vector2(-380, -640), true, "Industrias GelA"], [Vector2(-470, -680), false, "la Av. Bahia de Huatulco"]]:
 		var p: Vector2 = prueba[0]
 		_revisar("adentro: %s" % prueba[2], MuroColonia.adentro(self, Vector3(p.x, 0.0, p.y)) == prueba[1], str(p))
 	_revisar("a 10 m de la barda de Santa Mugre cuenta con margen", sm.contiene(Vector2(-430, 370), 15.0) and not sm.contiene(Vector2(-430, 370)), "")

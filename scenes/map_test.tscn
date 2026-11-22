@@ -304,13 +304,18 @@ script = ExtResource("muro_colonia_gd")
 id = "gela"
 jugador_path = NodePath("../Player")
 
+[node name="MuroIndustriasGela" type="Node3D" parent="."]
+script = ExtResource("muro_colonia_gd")
+id = "industrias_gela"
+jugador_path = NodePath("../Player")
+
 [node name="MuroArroyo" type="Node3D" parent="."]
 script = ExtResource("muro_colonia_gd")
 id = "arroyo"
 jugador_path = NodePath("../Player")
 
 [node name="EntradaTuneles" type="Area3D" parent="."]
-transform = Transform3D(-0.894, 0, -0.447, 0, 1, 0, 0.447, 0, -0.894, -193.78, 0, -369.06)
+transform = Transform3D(-0.816, 0, 0.578, 0, 1, 0, -0.578, 0, -0.816, 90.23, 0, 318.77)
 script = ExtResource("entrada_jefe_gd")
 id = "tuneles"
 escena = "res://scenes/tuneles.tscn"

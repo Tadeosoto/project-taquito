@@ -43,6 +43,10 @@ const LADO_PASILLO := CANAL / 2.0 + PASILLO / 2.0
 const ENTRADA := Vector3(LADO_PASILLO, 1.0, -2.0)
 const SALIDA := Vector3(LADO_PASILLO, 0.0, -1.3)   # frente al hueco forzado de la reja
 const FONDO := Vector3(LADO_PASILLO, 0.0, -LARGO + 1.4)
+# Donde sales al mapa (map_test) al ganarle a la Madre: el carcamo esta bajo la punta norte del arroyo,
+# junto a la cancha de Parques del Bosque, y sales por ahi, no por la escalera de la Av. Scheifler por
+# donde entraste (JJ 2026-11-22). 3 m afuera de donde estaba la boca, del lado de la cancha
+const CARCAMO_EN_MAPA := Vector3(-194.9, 1.5, -371.4)
 ## Cuanto mide este tramo y si es la boca de afuera (ver arriba); se ponen antes de add_child
 var largo := LARGO
 var boca := false

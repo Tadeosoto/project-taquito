@@ -1,5 +1,5 @@
 {
-	"_nota": "Fortalezas amuralladas del mapa grande (map_test), una por nodo MuroColonia (su `id`). poligono: vertices (x, z) de la barda en metros del juego; cerrada false deja abierto el tramo del ultimo al primero. rejas: centro (x, z), rumbo (a lo largo de la barda), largo, lado (PasoColonia.lado) y abierta (hojas abiertas contra el muro; si no, cerradas al centro); hacia afuera se calcula. Con colonia, cada reja tiene una flecha por fuera a scenes/mapa.tscn con esa colonia de Blender. alto_muralla: lamina de los fieles encima del block. calles: rectangulo x0, z0, x1, z1 cerrado a los carros (CallesRuta). caseta: centro (x, z) y hueco de una caseta con pluma cerrada. Santa Mugre debe coincidir con recorte y rejas de tools/blender/mapa/colonias/santa_mugre.json (Barda_*: 2.6 m de block, 0.3 m de grueso). boca: la escalera que baja a las cañerias, en un hueco de la barda (centro sobre la linea, rumbo a lo largo de la barda, ancho del hueco = el pozo con sus muros); baja hacia adentro. arroyo: el corredor verde del arroyo de la entrada de los tuneles (P6) al Camino Real a Colima, cerrado; se entra por la boca de las cañerias.",
+	"_nota": "Fortalezas amuralladas del mapa grande (map_test), una por nodo MuroColonia (su `id`). poligono: vertices (x, z) de la barda en metros del juego; cerrada false deja abierto el tramo del ultimo al primero. rejas: centro (x, z), rumbo (a lo largo de la barda), largo, lado (PasoColonia.lado) y abierta (hojas abiertas contra el muro; si no, cerradas al centro); hacia afuera se calcula. Con colonia, cada reja tiene una flecha por fuera a scenes/mapa.tscn con esa colonia de Blender. alto_muralla: lamina de los fieles encima del block. calles: rectangulo x0, z0, x1, z1 cerrado a los carros (CallesRuta). caseta: centro (x, z) y hueco de una caseta con pluma cerrada. Santa Mugre debe coincidir con recorte y rejas de tools/blender/mapa/colonias/santa_mugre.json (Barda_*: 2.6 m de block, 0.3 m de grueso). boca: la escalera que baja a las cañerias, en un hueco de la barda (centro sobre la linea, rumbo a lo largo de la barda, ancho del hueco = el pozo con sus muros); baja hacia adentro. arroyo: el corredor verde del arroyo, de la cancha de Parques del Bosque (arriba de ahi, el carcamo de la Madre) al Camino Real a Colima, cerrado; se entra por la boca de las cañerias, al fondo de la Av. Padre Xavier Scheifler (JJ 2026-11-22).",
 	"santa_mugre": {
 		"nombre": "Parques de Santa Mugre",
 		"colonia": "santa_mugre",
@@ -44,6 +44,14 @@
 		"color": [0.86, 0.87, 0.88],
 		"caseta": {"centro": [-50.0, -742.9], "hueco": 7.0}
 	},
+	"industrias_gela": {
+		"_nota": "Industrias GelA (JJ 2026-11-22): el parque industrial triangular de la esquina sureste de Bahia de Huatulco e Independencia (en la vida real, Pipsa Montacargas), con sus cinco bodegas huecas y las casas que hacen de bodega (la barda va 1 m adentro de la banqueta de Huatulco, al ras de sus fachadas). Una reja cerrada en la Av. Bahia de Huatulco, para abrirla despues con llave (mision: entrar a la bodega y matar zombis).",
+		"nombre": "Industrias GelA",
+		"poligono": [[-427.5, -762.0], [-398.0, -752.0], [-372.0, -712.0], [-252.0, -574.0], [-298.0, -508.0], [-455.5, -592.0], [-454.6, -605.6], [-451.1, -623.8], [-441.3, -678.8], [-439.4, -689.7], [-430.4, -740.7]],
+		"alto": 3.2,
+		"color": [0.78, 0.79, 0.8],
+		"rejas": [{"lado": "poniente", "centro": [-439.0, -692.0], "rumbo": [-0.1737, 0.9848], "largo": 7.0}]
+	},
 	"arroyo": {
 		"nombre": "El arroyo",
 		"poligono": [
@@ -85,6 +93,7 @@
 		],
 		"alto": 2.6,
 		"color": [0.58, 0.57, 0.54],
-		"boca": {"centro": [-193.6, -368.7], "rumbo": [-0.894, 0.447], "ancho": 5.8}
+		"boca": {"centro": [90.0, 319.1], "rumbo": [-0.816, -0.578], "ancho": 5.8},
+		"salida": {"centro": [-193.6, -368.7], "rumbo": [-0.894, 0.447], "ancho": 5.8}
 	}
 }
