@@ -81,7 +81,8 @@ static var _en_escena := false
 ## Para MapArboles y MapPasto (y por ellos los pasos sobre pasto): en el terreno del palacio y en la plaza no hay
 ## arboles ni matas
 static func sin_vegetacion(x: float, z: float) -> bool:
-	return _en_escena and (en_lote(x, z) or _dentro(Vector2(x, z), PLAZA_CENTRO, PLAZA_GIRO, PLAZA_TAM / 2.0 + Vector2.ONE))
+	return _en_escena and (en_lote(x, z) or _dentro(Vector2(x, z), PLAZA_CENTRO, PLAZA_GIRO, PLAZA_TAM / 2.0 + Vector2.ONE)
+			or PanteonMapa.en_plaza(x, z))
 
 
 ## El terreno del palacio: MapBardas no pone ahi las bardas de la bodega
@@ -91,7 +92,8 @@ static func en_lote(x: float, z: float) -> bool:
 
 ## MapBodegas no arma la bodega 68: ahi va el palacio. Solo constantes y una variable static (corre en su hilo)
 static func bodega_quitada(bodega: Dictionary) -> bool:
-	return _en_escena and Vector2(bodega["x"], bodega["z"]).distance_to(BODEGA_QUITADA) < 1.0
+	return _en_escena and (Vector2(bodega["x"], bodega["z"]).distance_to(BODEGA_QUITADA) < 1.0
+			or PanteonMapa.bodega_quitada(bodega))
 
 
 ## Si `p` cae en el rectangulo de centro `centro`, girado `giro` (como rotation.y) y de medio tamano `medio`

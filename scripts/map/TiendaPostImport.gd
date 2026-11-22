@@ -15,6 +15,10 @@ const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 
 # Carpeta del modelo -> maximo de triangulos de todo el modelo
 const MAX_TRIANGULOS := {
+	# El panteon: se repiten miles de veces (MultiMesh)
+	"mexicana_1918": 700,
+	"lapidas_pack": 2500,
+	"palacio_edomex": 15000,
 	# Se repite cientos de veces adentro de las bodegas (MapBodegas)
 	"rack": 300,
 	"takis": 4000,

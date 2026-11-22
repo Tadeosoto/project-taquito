@@ -1,0 +1,11 @@
+Model Information:
+* title:	Centenary Mexican Tombstone (1918)
+* source:	https://sketchfab.com/3d-models/centenary-mexican-tombstone-1918-b1f0b87a03cf4e46940ffe3773ba0df5
+* author:	Paul (https://sketchfab.com/nathan.d1563)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Centenary Mexican Tombstone (1918)" (https://sketchfab.com/3d-models/centenary-mexican-tombstone-1918-b1f0b87a03cf4e46940ffe3773ba0df5) by Paul (https://sketchfab.com/nathan.d1563) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

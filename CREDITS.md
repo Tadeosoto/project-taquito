@@ -52,6 +52,7 @@
 - [Garden hose Reel](https://sketchfab.com/3d-models/33a5089d9dd1438386d80bdf31a46a55) de Cliffcographics, licencia CC Attribution (`models/props/rollo_manguera/`).
 - [lowpoly wheelbarrow](https://sketchfab.com/3d-models/fdce753e4dc147fcbfa18e809dde7bf9) de creosine, licencia CC Attribution (`models/props/carretilla/`).
 - [Antiguo Palacio de Gobierno de Pachuca](https://sketchfab.com/3d-models/3e0b792b4c884606b1e7056a195fad85) de muvipa, licencia CC Attribution (`models/props/palacio/`).
+- [PALACIO GOBIERNO EDOMEX](https://sketchfab.com/3d-models/5400907383d043d7899adbb06c611aa0) de adugarev, licencia CC Attribution (`models/props/palacio_edomex/`).
 
 ## Objetos (`models/objetos/`, Sketchfab)
 
@@ -180,3 +181,11 @@
 - [1967 Volkswagen Beetle](https://sketchfab.com/3d-models/769ada1c8d2c4cddb33a8c66b93e1099) de zairiq-zairiq-123-pixar-cars-bfdi, licencia CC Attribution (`models/vehiculos/vocho/`).
 - [White Van - PS1 Low Poly](https://sketchfab.com/3d-models/1cac40905d494bae8108a556d870e23e) de Wersaus33, licencia CC Attribution (`models/vehiculos/van_blanca/`).
 - [PS1 Ford F150 Pickup truck](https://sketchfab.com/3d-models/e9be0ceddd344ca2871e1b84621bdf66) de Blue3D, licencia CC Attribution (`models/vehiculos/pickup/`).
+
+## Panteon (`models/panteon/`, Sketchfab)
+- [Low Poly PS1 Tombstone](https://sketchfab.com/3d-models/2e4ecda5e9df487099affe2a4d45eba0) de Macky, licencia CC Attribution (`models/panteon/ps1_lapida/`).
+- [PS1/Lowpoly Gravestone](https://sketchfab.com/3d-models/acab7d41a2254cf9bde83bdff2f74890) de dro, licencia CC Attribution (`models/panteon/ps1_lapida2/`).
+- [PS1 Style / Lowpoly Mausoleum](https://sketchfab.com/3d-models/a547e313cce0481baa1909dc530691ce) de dro, licencia CC Attribution (`models/panteon/ps1_mausoleo/`).
+- [Centenary Mexican Tombstone (1918)](https://sketchfab.com/3d-models/b1f0b87a03cf4e46940ffe3773ba0df5) de Paul, licencia CC Attribution (`models/panteon/mexicana_1918/`).
+- [gravestone pack](https://sketchfab.com/3d-models/915174119a454fa7b2573a9e3bddac8b) de Tardis121, licencia CC Attribution (`models/panteon/lapidas_pack/`).
+- [Graveyard props](https://sketchfab.com/3d-models/ae35b6086e0b45d3941a61086b5e3d10) de max_imum, licencia CC Attribution (`models/panteon/props/`).

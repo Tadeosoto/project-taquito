@@ -1,0 +1,11 @@
+Model Information:
+* title:	Graveyard props
+* source:	https://sketchfab.com/3d-models/graveyard-props-ae35b6086e0b45d3941a61086b5e3d10
+* author:	Max Wittig (https://sketchfab.com/WittigMax)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Graveyard props" (https://sketchfab.com/3d-models/graveyard-props-ae35b6086e0b45d3941a61086b5e3d10) by Max Wittig (https://sketchfab.com/WittigMax) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

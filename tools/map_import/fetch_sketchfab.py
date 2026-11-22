@@ -130,6 +130,14 @@ MODELS = {
 	"props/tinaco": "fb34a8ff0a04447e91a9ef1d793a192a",             # Rtp Tinaco, 424k (reducido)
 	"props/bano_portatil": "8083b3d2134f4e98a34d891fa7915dcc",      # Abandoned Toilet Cabin, 3.9k
 	"props/palacio": "3e0b792b4c884606b1e7056a195fad85",           # Antiguo Palacio de Gobierno de Pachuca, 151k (reducido): el palacio de afuera (P0)
+	"props/palacio_edomex": "5400907383d043d7899adbb06c611aa0",    # Palacio de Gobierno del Estado de Mexico, 71k: en medio del panteon (plaza de la Mojiganga)
+	# Las tumbas del panteon (Panteon.gd, JJ 2026-11-22)
+	"panteon/ps1_lapida": "2e4ecda5e9df487099affe2a4d45eba0",        # Low Poly PS1 Tombstone, 84
+	"panteon/ps1_lapida2": "acab7d41a2254cf9bde83bdff2f74890",       # PS1/Lowpoly Gravestone, 76
+	"panteon/ps1_mausoleo": "a547e313cce0481baa1909dc530691ce",      # PS1 Style / Lowpoly Mausoleum, 350
+	"panteon/mexicana_1918": "b1f0b87a03cf4e46940ffe3773ba0df5",     # Centenary Mexican Tombstone (1918), 12k
+	"panteon/lapidas_pack": "915174119a454fa7b2573a9e3bddac8b",      # gravestone pack, 8.2k
+	"panteon/props": "ae35b6086e0b45d3941a61086b5e3d10",             # Graveyard props, 2.3k
 	# Defensa del tinaco (scripts/defensa/DecoracionDefensa.gd)
 	"props/bocina_escenario": "39289063695d42f5a67b0a33318badb4",   # Speaker Stage
 	"props/rollo_manguera": "33a5089d9dd1438386d80bdf31a46a55",     # Garden Hose Reel
@@ -177,6 +185,7 @@ CREDIT_HEADERS = {
 	"interiores": "## Interiores (`models/interiores/`, Sketchfab)",
 	"bodegas": "## Bodegas (`models/bodegas/`, Sketchfab)",
 	"vehiculos": "## Vehiculos (`models/vehiculos/`, Sketchfab)",
+	"panteon": "## Panteon (`models/panteon/`, Sketchfab)",
 }
 
 

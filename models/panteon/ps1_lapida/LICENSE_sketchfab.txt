@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low Poly PS1 Tombstone
+* source:	https://sketchfab.com/3d-models/low-poly-ps1-tombstone-2e4ecda5e9df487099affe2a4d45eba0
+* author:	Macky (https://sketchfab.com/CourvoisZ)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low Poly PS1 Tombstone" (https://sketchfab.com/3d-models/low-poly-ps1-tombstone-2e4ecda5e9df487099affe2a4d45eba0) by Macky (https://sketchfab.com/CourvoisZ) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

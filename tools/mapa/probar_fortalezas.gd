@@ -94,6 +94,31 @@ func _mapa_grande() -> void:
 		_revisar("Industrias GelA: una reja cerrada en Huatulco, sin flecha", _rejas(industrias) == Vector2i(1, 0)
 			and industrias.find_children("Entrada_*", "Area3D", false, false).is_empty()
 			and industrias.hacia_afuera("poniente").x < -0.9, str(_rejas(industrias)))
+	# El panteon del Club Bancario: la flecha de la Mojiganga en la plaza, viendo al sur, y tumbas fuera de
+	# la plaza y los andadores
+	var mojiganga := escena.get_node_or_null("EntradaMojiganga") as Area3D
+	var plaza: Rect2 = PanteonMapa.libres()[0]
+	_revisar("panteon: la flecha de la Mojiganga en la plaza, viendo al sur", mojiganga != null
+		and mojiganga.get("escena") == "res://scenes/catrina.tscn"
+		and plaza.has_point(Vector2(mojiganga.global_position.x, mojiganga.global_position.z))
+		and mojiganga.global_transform.basis.z.dot(Vector3.BACK) > 0.99, "")
+	var panteon := escena.get_node_or_null("Panteon") as Node3D
+	_revisar("panteon: tiene palacio", panteon != null and panteon.get_node_or_null("Palacio") != null, "")
+	await _cuadros(60)
+	var tumbas := 0
+	var en_libre := 0
+	if panteon:
+		for mmi: MultiMeshInstance3D in panteon.find_children("*", "MultiMeshInstance3D", true, false):
+			if mmi.multimesh.mesh != Panteon._cajon:
+				continue
+			for i in mmi.multimesh.instance_count:
+				var o := mmi.multimesh.get_instance_transform(i).origin
+				tumbas += 1
+				for r: Rect2 in PanteonMapa.libres():
+					if r.has_point(Vector2(o.x, o.z)):
+						en_libre += 1
+	_revisar("panteon: miles de tumbas, ninguna en la plaza ni los andadores", tumbas > 3000 and en_libre == 0, "%d tumbas, %d en lo libre" % [tumbas, en_libre])
+	_revisar("panteon: sin la bodega hueca de adentro", load("res://scripts/map/FortalezasMapa.gd").bodega_quitada({"x": 511.84, "z": -632.45}), "")
 	var tubo := arroyo.get_node_or_null("Boca") as Node3D
 	_revisar("arroyo: boca de las cañerias, sin rejas ni flechas", tubo != null and arroyo.rejas.is_empty()
 		and arroyo.find_children("Entrada_*", "Area3D", false, false).is_empty(), "")

@@ -8,7 +8,7 @@ extends Node
 #
 # Corre 2-3 min y escribe una linea MEDIR por prueba. --far cambia el alcance de la camara
 # del jugador solo para esta corrida; --capturas guarda una imagen por lugar; --rapido mide
-# solo dos lugares de dia; --apagar=Nodo,Nodo quita nodos del mapa para ver cuanto pesan.
+# solo dos lugares de dia; --lugar=<nombre> mide solo ese lugar de dia; --apagar=Nodo,Nodo quita nodos del mapa para ver cuanto pesan.
 
 const CARGA := 8.0       # s para que el mapa termine de armarse al llegar a un lugar
 const MEDICION := 5.0    # s de medicion
@@ -22,6 +22,8 @@ const LUGARES := {
 	"parques": Vector3(12.0, 1.2, -104.0),
 	# En la plaza de la Catrina, frente al palacio (FortalezasMapa, P0): su modelo, la plaza y los 4 faroles
 	"palacio": Vector3(296.0, 1.2, 590.0),
+	# En el andador sur del panteon (PanteonMapa, JJ 2026-11-22): las tumbas alrededor y el palacio del Edomex
+	"panteon": Vector3(530.0, 1.2, -640.0),
 }
 
 var _capturas := ""
@@ -57,6 +59,7 @@ func _ready() -> void:
 	RenderingServer.viewport_set_measure_render_time(_rid, true)
 	var rapido := false
 	var movimiento := false
+	var solo := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--rapido":
 			rapido = true
@@ -71,12 +74,20 @@ func _ready() -> void:
 			(_jugador.find_child("Camera3D", true, false) as Camera3D).far = arg.get_slice("=", 1).to_float()
 		elif arg.begins_with("--capturas="):
 			_capturas = arg.get_slice("=", 1)
+		elif arg.begins_with("--lugar="):
+			solo = arg.get_slice("=", 1)
 	print("MEDIR camara far=%.0f" % (_jugador.find_child("Camera3D", true, false) as Camera3D).far)
 	_hora = _ciclo.inicio
 	await get_tree().create_timer(CARGA).timeout
 	if movimiento:
 		_hora = 100.0
 		await _movimiento()
+		get_tree().quit()
+		return
+	# `--lugar=panteon`: solo ese lugar, de dia
+	if solo != "":
+		_hora = 100.0
+		await _en_lugar(solo, "dia")
 		get_tree().quit()
 		return
 	if rapido:
