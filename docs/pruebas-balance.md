@@ -240,6 +240,21 @@ Historia: AG la jugó el 2026-11-10 dos veces. La primera: "no te agarra, la ani
 
 Anotar aquí cuánto duró, cuántas veces te desmayaste y en qué fase, a machete y con pistola.
 
+## El Simi bailador (Claude, 2026-11-22; sin probar en ventana)
+
+Se prueba de noche en la planicie del sureste de `map_test` (`godot --path . tools/probar_simi_jefe.tscn`, te deja a 90 m) o con Ctrl+. en la safehouse (con Z o T para que haya zombis). Todos los números están al principio de `scripts/simi/JefeSimi.gd`; las reglas, en `scripts/simi/CLAUDE.md`.
+
+| Qué | Número | Dónde |
+|---|---|---|
+| Vida | 1000; a la mitad se le cae la bata | `VIDA`, `FASE_2` |
+| Zombis para soltarlos | 12 (8 en la fase 2); matas la mitad y se enoja | `JUNTA`, `JUNTA_2` |
+| Zombis que van con él | a 90 m; sueltos no regresan en 25 s y van 1.35× más rápido | `RECLUTA`, `SUELTA_DURA`, `SUELTA_PRISA` |
+| Aura de baile | 8 m | `AURA` |
+| Ola sónica | cada 6-9 s, a 14 m/s hasta 35 m, ancho 1.3 m (doble en fase 2) | `ONDA_CADA`, `ONDA_VEL`, `ONDA_RADIO`, `ONDA_ANCHO` |
+| Zafarse | 0.07 por apretón, baja 0.12/s, tope 0.8 hasta que te peguen; 2.5 s sin que te agarre | `ZAFARSE_POR`, `ZAFARSE_BAJA`, `ZAFARSE_TOPE`, `INMUNE` |
+| Patada | si bailas 1.5 s sin zombi a 12 m; corre a 9 m/s; 30 de daño | `PATEA_ESPERA`, `PATEA_ZOMBI`, `CORRE_VEL`, `PATADA` |
+| Daño que recibe | bailando ×0.5, señalando y jadeando (3 s) ×2; bala 12, explosión 80 | `DANO_BAILANDO`, `DANO_JADEA`, `JADEA_DURA`, `DANO_BALA`, `DANO_EXPLOSION` |
+
 ## El pterodáctilo de Juárez (Claude, 2026-11-22; sin probar en ventana)
 
 Se prueba en el claro del centro-oeste de `map_test` (`godot --path . tools/probar_ptero.tscn`, te deja a 60 m) o con Shift+. en la safehouse. Todos los números están al principio de `scripts/ptero/JefePtero.gd`; el video de la pelea es `-- --video` (ver `scripts/ptero/CLAUDE.md`).

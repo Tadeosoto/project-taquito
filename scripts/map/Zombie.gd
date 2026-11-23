@@ -30,6 +30,8 @@ const CLIPS_SKIN := {
 	"idle": "h/Zombie_Idle", "camina": "h/Zombie_Walk_Fwd", "run": "h/Jog_Fwd", "sprint": "h/Sprint",
 	"attack1": "h/Zombie_Scratch", "attack2": "h/Zombie_Scratch", "hit": "h/Hit_Chest", "die": "h/Death01",
 	"trueno": "h/Hit_Head", "aturdido": "h/Crying",
+	# Bailando con el Simi jefe (scripts/simi/JefeSimi.gd), al compas de el
+	"baile": "h/Simi_Baile",
 }
 const BUCLES_SKIN := ["h/Zombie_Idle", "h/Zombie_Walk_Fwd", "h/Jog_Fwd", "h/Sprint"]
 # m/s a los que cada clip se ve a su velocidad, para que no patinen (como Gente.PASO)
@@ -271,6 +273,10 @@ var _fuego: MeshInstance3D
 var emboscada := false      # de las emboscadas de la defensa (Hordas.gd): va por el jugador, no por el tinaco
 var por_jugador := false    # se paso del cupo del tinaco (Zombis.cupo_tinaco): va por el jugador
 var despierto := false
+# El Simi jefe (JefeSimi): en vez de ir por ti, va a su puesto alrededor del Simi y baila con el
+# hasta que te señala y los suelta; ya suelto no vuelve a bailar hasta _suelto_hasta (ms)
+var bailando := false
+var _suelto_hasta := 0
 var alerta := true          # ya te detecto: corre hacia su blanco. Sin ella, deambula
 var infectado := false      # trae una lombriz encima (EnjambreLombrices): corre mas y te caza
 
@@ -591,6 +597,8 @@ func calentar() -> void:
 # Sale de la reserva, como nuevo. `con_prisa`: de turba
 func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	despierto = true
+	bailando = false
+	_suelto_hasta = 0
 	cayo_al_amanecer = false
 	infectado = false
 	cazador = con_prisa
@@ -788,6 +796,9 @@ func _caminar(delta: float) -> Vector3:
 		_animar("idle", 1.0)
 		_rumbo = Vector3.ZERO
 		return Vector3.ZERO
+	var baile := _ir_a_bailar(delta)
+	if baile != Vector3.INF:
+		return baile
 	_vivo += delta
 	_gemido -= delta
 	if _gemido <= 0.0:
@@ -807,6 +818,46 @@ func _caminar(delta: float) -> Vector3:
 	_mirar(_rumbo)
 	_ultimo = _rumbo
 	return _rumbo
+
+
+# Con un Simi jefe bailando cerca (JefeSimi.activo), va a su puesto alrededor de el y baila: regresa
+# su movimiento, o Vector3.INF si no le toca (gordo, jefe, recien soltado, lejos o sin Simi)
+func _ir_a_bailar(delta: float) -> Vector3:
+	var simi := JefeSimi.activo
+	if simi == null or gordo() or es_jefe or Time.get_ticks_msec() < _suelto_hasta:
+		bailando = false
+		return Vector3.INF
+	var puesto := simi.puesto(self)
+	if puesto == Vector3.INF:
+		bailando = false
+		return Vector3.INF
+	var hacia := puesto - global_position
+	hacia.y = 0.0
+	# Ya en su puesto (o casi, si lo empujaron un poco bailando): baila al compas del Simi
+	if hacia.length() < (1.5 if bailando else 0.8):
+		if not bailando or _animacion.current_animation != CLIPS_SKIN["baile"]:
+			bailando = true
+			_animar("baile", 1.0, true)
+			_animacion.seek(simi.baile_desde(), true)
+			simi.llego(self)
+		_mirar(simi.global_position - global_position)
+		_rumbo = Vector3.ZERO
+		return Vector3.ZERO
+	bailando = false
+	var velocidad := _velocidad_ahora(delta)
+	_rumbo = _rumbo.move_toward(_rozar_pared(hacia.normalized()) * velocidad, ACELERA * delta)
+	_correr(_rumbo.length())
+	_mirar(_rumbo)
+	return _rumbo
+
+
+# El Simi te señalo (JefeSimi): deja de bailar y va por ti con prisa; no vuelve a bailar en `segundos`
+func soltar_del_baile(segundos: float, prisa: float) -> void:
+	bailando = false
+	_suelto_hasta = Time.get_ticks_msec() + int(segundos * 1000.0)
+	_velocidad *= prisa
+	alertar(false)
+	_rugir("rugido")
 
 
 # Sin rumbo, despacio, hasta que te detecta

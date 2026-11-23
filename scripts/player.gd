@@ -1753,7 +1753,8 @@ func caer() -> void:
 var atrapado_por: Node = null
 
 
-# colgado: te alza en vez de tumbarte (La Mojiganga): piernas al aire y te sacudes en sus apretones
+# colgado: te alza en vez de tumbarte (La Mojiganga): piernas al aire y te sacudes en sus apretones.
+# Si `quien` tiene baile_desde() (el Simi jefe), bailas su baile en vez de caer
 var _colgado := false
 
 
@@ -1769,6 +1770,9 @@ func atrapar(quien: Node, colgado := false) -> bool:
 	_colgado = colgado and figura.has_method("colgar")
 	if _colgado:
 		figura.colgar()
+	elif quien.has_method("baile_desde") and figura.has_method("bailar"):
+		# El baile del Simi jefe (JefeSimi): bailas en vez de caer, al compas del Simi
+		figura.bailar(quien.baile_desde())
 	else:
 		caer()
 	return true

@@ -24,6 +24,7 @@ godot --path . --headless --check-only --script res://scripts/player.gd  # parse
 
 - **Protagonist swap** (in `main-testing`): the ninja protagonist is now `el_compa` with retargeted Quaternius clips (see `docs/sistemas/personaje.md`): the swing is the sword clips, the trail follows the weapon tip, and the pistol uses the pistol clips. Store sellers and street walkers are PSX-pack civilians too (see NPC and People); other NPCs stay ninja. Clothes colour for the new model is pending.
 - **Pending fight work (JJ, 2026-11-04)**, listed in Spanish in `docs/pruebas-balance.md` ("Pendientes de la pelea"): a new healing animation (Q, `Player._curarse`; Quaternius has `Consume`), a 10 % chance that a zombie blocks a melee hit (the machete bounces back with a little lag), and a better fight HUD, and a better block sound.
+- **New bosses pending (2026-11-22)**: the pterodactyl (`scripts/ptero/`) and the Simi bailador (`scripts/simi/`) work in their tests but nobody has played them in a window. Pending: their sounds (JJ picks them in Splice; register `ptero_<evento>` / `simi_<evento>` in `Sonidos.ARCHIVOS`, lists in each folder's `CLAUDE.md`), balancing their numbers (`docs/pruebas-balance.md`), JJ reviewing the Simi's small additions to `player.gd` (`atrapar` dances) and `character_animation.gd` (the `baila` state), and recording the Simi fight video (`tools/probar_simi_jefe.tscn -- --video`, mp4 to `~/capturas`).
 - **Balance pending**: weapon damage, zombie life/speed, tinaco life, hordes and pay are first guesses. `docs/pruebas-balance.md` (Spanish) lists every number, where it lives and how Alan should run the test; record results there.
 
 ## Architecture
@@ -68,6 +69,7 @@ Read the file before changing that system, and keep it in sync with the code. Fi
 - `scripts/catrina/CLAUDE.md`: La Mojiganga and its plaza.
 - `scripts/cucarrata/CLAUDE.md`: la cucarrata, the first boss: roams `map_test` at night (`CucarrataCalle`), step `JEFE_CALLE`, `mafia_1` requires it.
 - `scripts/ptero/CLAUDE.md`: the pterodactyl from Juárez, an 8 m boss in the centre-west clearing of `map_test`, day and night (air and ground phases).
+- `scripts/simi/CLAUDE.md`: the Simi bailador, a 7 m Serenol Simi boss dancing at night in the south-east grass plain of `map_test`: zombies dance with him in sync and he sends them at you; his dance and sonic wave make you dance (mash to escape).
 - `scripts/defensa/CLAUDE.md`: the tinaco defence test (barricade, hordes, HUD, chained nights) and JJ's two test modes on it: godmode (mechanics) and career (economy, `escena_carrera.tscn`), with the `Pruebas`, `Mejoras` and `Registro` autoloads, `ConfigZombis` and the `Menú test`/`Pruebas` launchers on the start screen.
 
 ## CLAUDE.md layout (split on 2026-11-11, commit 52a3103)

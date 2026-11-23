@@ -121,6 +121,7 @@ Shift+X La Mojiganga (catrina gigante, ya despierta)
 Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
 . pelea contra la cucarrata (3 fases; otra vez . = de nuevo)
 Shift+. el pterodáctilo de Juárez (8 m; aire y piso)
+Ctrl+. el Simi bailador (7 m; sus zombis bailan con él: Z o T para traerle)
 3 sal / molotov (otra vez 3 cambia; botella vacía + gasolinera + trapo = molotov)"""},
 	{"titulo": "Efectos y tazos", "efectos": true, "texto": """F2-F7 efectos de pixel (propuestas, abajo)
 F9 efectos nuevos (tambos y chispas: a la derecha)
@@ -152,6 +153,8 @@ var _cucarrata: JefeCucarrata
 var _barra_cucarrata: BarraCucarrata
 var _ptero: JefePtero
 var _barra_ptero: BarraPtero
+var _simi: JefeSimi
+var _barra_simi: BarraSimi
 var _barra_madre: BarraMadre
 var _barra_catrina: BarraCatrina
 var _zombis: Zombis
@@ -757,7 +760,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				Tazos.dar_puntos(PUNTOS_PRUEBA)
 		KEY_PERIOD:
-			if event.shift_pressed:
+			if event.ctrl_pressed:
+				_simi_bailador()
+			elif event.shift_pressed:
 				_pterodactilo()
 			else:
 				_cucarrata_pare()
@@ -855,6 +860,29 @@ func _pterodactilo() -> void:
 		add_child(_barra_ptero)
 	_barra_ptero.jefe = _ptero
 	_ptero.despertar()
+
+
+# El Simi bailador (scripts/simi/JefeSimi.gd) 30 m enfrente, ya peleando: los zombis que haya (Z, o
+# T para que salgan solos de noche) van a bailar con el. Otra vez Ctrl+. = de nuevo
+func _simi_bailador() -> void:
+	if _simi != null and is_instance_valid(_simi):
+		_simi.queue_free()
+	var frente := -_jugador.frijol.global_transform.basis.z
+	frente.y = 0.0
+	frente = frente.normalized()
+	var donde := _jugador.global_position + frente * 30.0
+	_simi = JefeSimi.new()
+	_simi.centro = Vector3(donde.x, 0.0, donde.z)
+	_simi.radio = 40.0
+	_simi.piso = 0.0
+	add_child(_simi)
+	_simi.global_position = _simi.centro
+	_simi.rotation.y = atan2(-frente.x, -frente.z)
+	if _barra_simi == null:
+		_barra_simi = BarraSimi.new()
+		add_child(_barra_simi)
+	_barra_simi.jefe = _simi
+	_simi.empezar()
 
 
 # Un enjambre de lombrices (scripts/lombrices/) LOMBRICES_ENFRENTE m enfrente, en el piso

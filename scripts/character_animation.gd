@@ -247,12 +247,19 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	estado.add_input("vivo")
 	estado.add_input("caido")
 	estado.add_input("colgado")
+	estado.add_input("baila")
 	raiz.add_node("estado", estado)
 	raiz.connect_node("estado", 0, "accion")
 	_clip(raiz, "c_caido", "Death01", "estado", 1)
 	# Colgado de la mano de La Mojiganga (Catrina.gd): las piernas al aire (el Jump en bucle) y
 	# encima una sacudida (Hit_Chest) en cada apreton y un pataleo (Hit_Head) al forcejear
 	_clip(raiz, "c_colgado", "Jump", "estado", 2)
+	# Bailando con el Simi jefe (scripts/simi/, Player.atrapar con quien tiene baile_desde): su mismo
+	# baile, brincando al segundo en que va el Simi para que todos bailen al compas
+	var baila_seek := AnimationNodeTimeSeek.new()
+	raiz.add_node("baila_seek", baila_seek)
+	raiz.connect_node("estado", 3, "baila_seek")
+	_clip(raiz, "c_baila", "Simi_Baile", "baila_seek", 0)
 	var sacude := AnimationNodeOneShot.new()
 	sacude.fadein_time = 0.05
 	sacude.fadeout_time = 0.15
@@ -574,6 +581,16 @@ func colgar() -> void:
 	_golpe_t = -1.0
 	_abortar_accion()
 	_pedir("estado", "colgado")
+
+
+# Te agarro el baile del Simi (JefeSimi): bailas su clip desde el segundo `desde`
+func bailar(desde: float) -> void:
+	if _arbol == null:
+		return
+	_golpe_t = -1.0
+	_abortar_accion()
+	_arbol.set("parameters/baila_seek/seek_request", desde)
+	_pedir("estado", "baila")
 
 
 func colgar_sacudida() -> void:
