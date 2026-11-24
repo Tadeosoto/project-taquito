@@ -2,7 +2,7 @@
 
 > Documento vivo para ponernos de acuerdo en qué juego estamos haciendo. **Todos pueden editarlo**: abre un PR o comenta en el PR que lo cambie.
 >
-> Última actualización: 2026-11-02
+> Última actualización: 2026-11-23 (sandbox sin fin, hitos de noche, muerte tipo Dark Souls, guardado)
 
 ## Cómo usar este documento
 
@@ -74,6 +74,46 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 >
 > 🧪 **La partida de 3 noches y el jefe son un piloto de prueba**: no definen la mecánica final del juego.
 
+✅ **Decidido (equipo, 2026-11-23): A, sandbox sin fin.** Se quitó la partida de 3 noches (`Partida.NOCHES`) y su pantalla final: el juego no se acaba. Lo programado (`scripts/Noches.gd`, `scripts/map/Partida.gd`):
+
+- **Cuenta de noches sin fin.** Al amanecer sale *"Sobreviviste la noche N"*. La mejor noche sobrevivida (el **récord**) se guarda en `user://noches.cfg` y se ve en la pantalla de inicio y en el HUD. Desmayarte **no** reinicia la cuenta.
+- **Hitos de noche** (la tabla está en `resources/noches/hitos.tres`, se ajusta sin tocar código). Las turbas crecen ~**15 % por noche** (first guess) y cada hito da un **tazo holográfico** al sobrevivir esa noche:
+
+  | Noche | Qué pasa | Tazo de premio |
+  |---|---|---|
+  | 3 | Sale **el garrafonero** cerca de ti. Ya no detiene la noche: si no lo matas, cae al amanecer con todos. | El Jefe (abre el Tajo cargado) |
+  | 5 | Los **Saltabardas** salen más seguido (espera × 0.6) y 25 % de los grupitos salen **cazadores** (first guess). | un holo que te falte |
+  | 7 | **El Panzón** se mete a las turbas (35 % por turba, first guess). | Luna roja (abre el Giro en el aire) |
+  | 10 | **La Madre del Cárcamo** se puede cazar: flecha amarilla de noche a su arena (`lombrices.tscn`). | un holo que te falte |
+  | 15 | **El desfile de La Mojiganga**: aviso y flecha de noche a su plaza (`catrina.tscn`). | un holo que te falte |
+  | 18, 21, 24… | Los jefes se repiten por turnos (garrafonero, Madre, Mojiganga) cada 3 noches, con ×1.25 de aguante por vuelta (first guess). | — |
+
+  El tazo de "El tinaco que no se vacía" nunca sale de premio (esa leyenda se quitó del canon).
+- **Las arenas regresan al mapa.** Al ganar o al desmayarte en la arena de un jefe (`PasoArena.gd`) vuelves al mapa, junto a la flecha, con la misma noche y la hora a la que te fuiste más lo que tardaste. Si te desmayas, tus cosas se quedan en una bolsa junto a la flecha. Las teclas y trampas de prueba de las arenas solo funcionan cuando se abren solas (no desde el mapa); sus modos de consola (`--bot`, `--medir`, capturas) siguen cerrando el juego al terminar.
+- 🔍 **needs review:** dónde van las flechas. Por ahora, la del cárcamo está en el baldío sur junto a La Gigantera (-300, 630) y la de la Mojiganga en la cancha grande (-244, -721): no hay plaza de la Catrina medida todavía. Un desfile de verdad por las calles queda pendiente.
+- Con refugio (el safehouse), si tumban el tinaco ya no se pierde: se avisa y se arregla al amanecer (first guess).
+
+#### 1.2.1 Qué se guarda ahora que no hay partidas ✅ (AG, 2026-11-23: guardar todo en disco)
+
+Ya no hay "reiniciar la partida": **todo se guarda** en `user://partida.cfg` (`scripts/Guardado.gd`) al amanecer, al entrar y salir de una arena, al cruzar una reja de Santa Mugre y al cerrar la ventana. La pantalla de inicio tiene **Continuar** (aparece donde ibas, con la hora) y **Partida nueva** (pide confirmar y borra lo guardado). El safehouse y las escenas de prueba no guardan solos.
+
+| Sistema | Antes | Ahora |
+|---|---|---|
+| Inventario, mochila, arma, cangurera | se reiniciaba por partida | se guarda (si te desmayaste, está en la bolsa) |
+| Cartera (pesos y agua), vida, pedazos de mapa | por partida | se guardan |
+| Tiliches (materiales) | por partida; los trofeos ya en disco | se guardan todos |
+| Bonos: amuletos puestos | por partida | se guardan |
+| Bonos: estampitas usadas | "duran la partida" | se guardan y **se acaban al desmayarte** (first guess) |
+| Fichas, permiso, VIP, Desaguadora | por partida | se guardan |
+| Tazos: álbum, puntos, niveles | por partida | se guardan; Segundo aire sigue siendo una vez por noche |
+| Baúl y casas saqueadas | por partida | se guardan; las casas saqueadas se vuelven a llenar cada 7 noches (first guess) |
+| Trofeos (una vez por noche, `Hazanas`) | por noche | igual |
+| Misiones | por día | la activa se suelta al cargar |
+| La noche, los hitos dados, la bolsa del desmayo | — (nuevo) | se guardan |
+| Taller, Libreta, Personaje, récord | ya en disco | igual |
+
+No se guardan: los zombis, lo tirado en el piso, las balas en el cargador y el deterioro.
+
 ### 1.3 🗳️ Qué pasa de noche
 
 | Opción | Referencia | Votos |
@@ -110,6 +150,14 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
 > ✅ **C ahora sí es canon**: el Serenol mata a uno de cada diez y lo levanta; si se te llena la sed, **te mueres y te levantas**. La "cura" del agua limpia sirve para el dócil, no para el zombi. Se puede programar como muerte especial.
 
 > 💡 **Propuesta de trabajo de AG (2026-10-31), falta que el equipo la confirme**: A. Tus objetos se quedan en una bolsa donde caíste (si vuelves a caer antes de recogerla, la anterior se pierde); el dinero y la mochila puesta se quedan contigo. Reapareces en el refugio con 50 de vida. Morir no termina la partida.
+
+✅ **Decidido (equipo, 2026-11-23): como Dark Souls**, sobre la A. Lo programado (`Supervivencia.gd`, `Noches.bolsa`, `GuardiaBolsa.gd`):
+
+- Desmayarte deja tus cosas en una bolsa y **la noche no se reinicia**. Si te vuelves a desmayar antes de recogerla, la vieja se pierde con todo.
+- **De noche la bolsa está cuidada.** Un **zombi líder** la carga en la espalda (se ve la mochila) y se toma el agua que traía adentro: cada 8-12 s, si anda tranquilo, se toma un objeto de agua de tu bolsa y lo pierdes. Lo cuidan **3 a 5** zombis más (más en zonas feas, +1 cada 5 noches) y un **cazador** desde la noche 6. Salen al acercarte a 45 m, te dejan si te alejas 15 m de la bolsa y se van si te alejas 70 m (se acuerda de cuántos mataste). Solo matando al líder la suelta, y desde ahí se queda en el piso. Todos los números son first guess.
+- **De día la bolsa está tirada sin cuidar** y la recoge quien sea (AG, 2026-11-23). Si sigue ahí al anochecer, el líder (si vive) la vuelve a cargar.
+- Adentro de Santa Mugre (el muro o el mapa de la colonia) no hay guardias: ahí no entran zombis de noche.
+- Se marca en el minimapa. Reapareces en el refugio (o donde empieza el mapa) con 50 de vida.
 
 ### 1.6 🗳️ Alcance de la primera versión jugable
 
@@ -162,6 +210,7 @@ AMANECER ◄── sobrevivir ◄── usar armas/consumibles ◄── NOCHE: 
 - 💡 Atardecer con aviso (campana de iglesia, sirena, el radio) 1 min antes de que salgan los zombis, como en *7 Days to Die*.
 - 💡 De día los zombis se esconden del sol en bodegas y drenajes; de noche salen a caminar.
 - 💡 Cada noche es un poco más difícil (más zombis, zombis especiales), estilo *7 Days to Die*. En sandbox sin fin se puede reiniciar la dificultad cada N noches o depender de cuántos jugadores hay.
+- ✅ 🧱 (2026-11-23) Las turbas y los sueltos vivos que caben crecen ~15 % por noche (`TablaHitos.crecer_turbas`, first guess) y los especiales entran por hitos (ver 1.2). 🔍 **needs review:** el tope de `Zombis.max_total` (30) para el crecimiento hacia la noche 8.
 
 ---
 
@@ -183,7 +232,7 @@ Tercera persona, cámara relativa, correr con Shift, saltar. Ya existe en `scrip
 
 ### 4.3 Salud y estados 💡
 
-- **Vida** (se cura con comida/medicina). 🧱 Ya existe lo mínimo (`scripts/Salud.gd`, autoload `Salud`, empieza en 60 de 100 de prueba): se cura desde el inventario y ahí se ve el estado (Bien / Herido / Grave). Todavía nada hace daño.
+- **Vida** (se cura con comida/medicina). 🧱 Ya existe lo mínimo (`scripts/Salud.gd`, autoload `Salud`): se cura desde el inventario y ahí se ve el estado (Bien / Herido / Grave). ✅ (2026-11-23) **Empieza en 60 de 100** (`Salud.VIDA_INICIO`); las escenas de prueba empiezan llenas. Al despertar de un desmayo quedas en 50.
 - **Estamina** (correr, golpear).
 - 💡 **La sed** (lo que antes se llamaba "infección"): se llena **tomando agua de la llave**, no por una mordida. El agua limpia la baja; la capilla del tinaco es la única que es gratis (con cupo). Si se llena, **te mueres y te levantas como zombi**: es la única muerte que no se deshace. Une la mecánica con el tema del agua. Ver `docs/lore.md` §6 y §9. (El **1 de cada 10** es la estadística de la ciudad; si tú te llenas, es seguro.)
 - 💡 **La tentación**: poder tomar agua de la llave para ahorrar, a cambio de subir la sed y perder el control de noche. Es la decisión central del juego; falta balancearla (ver `docs/lore.md` §15).
@@ -207,6 +256,16 @@ Ya existe un inventario circular con inspección 3D de objetos (`scripts/Invento
 ### 4.5 Economía ✅
 
 **Una moneda: pesos.** El agua limpia no es dinero: es un **recurso caro**.
+
+> ✅ **(Equipo, 2026-11-23) El agua se queda como segunda moneda por ahora, sin cambiarle el papel.** Esto choca con lo de arriba ("una moneda") y con el pendiente de quitarla. Dónde está hoy en el código:
+>
+> | | Dónde |
+> |---|---|
+> | **Se gana** | Solo `Cartera.AGUA_INICIO = 3` al empezar. **No hay ninguna fuente en el juego.** |
+> | **Se gasta** | Los productos con `moneda = 1`: el Machete y el Vaporub (2 de agua cada uno), en `Interior.gd` (`_comprar`). En la carrera de prueba se cobran en pesos (`AGUA_A_PESOS`). |
+> | **Se ve** | `TiendaUI.gd` ("AGUA %d"). |
+>
+> 🔍 **needs review: el agua necesita una fuente real** (contratos, el reparto de noche, la capilla) o quitarla.
 
 | Qué | Cómo se consigue | Para qué |
 |---|---|---|
@@ -352,7 +411,9 @@ Presupuesto 💡: ~30 zombis completos cerca + ~200 "baratos" lejos (hay que med
 
 Con el inventario abierto, **M** (Select en el control) muestra el mapa, en 9 pedazos con nombre: El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera. Empiezas con el de donde apareces y los demás se encuentran tirados frente a una tienda de cada zona; los que faltan salen en negro con un signo. No ocupan lugar, no se pierden al desmayarte y se acaban con la partida. Al cruzar a otra zona sale su nombre. 💡 Después podrían venderse o darse en misiones.
 
-### 4.12 Tazos y habilidades 💡🧱 (propuesta de AG, falta que el equipo la confirme)
+### 4.12 Tazos y habilidades 💡🧱 (propuesta de AG; ✅ el 2026-11-23 el equipo decidió que es la **única progresión**)
+
+✅ **(2026-11-23) Los tazos son la única progresión.** La tienda de Mejoras (`Mejoras.gd`, `MejorasUI.gd`) solo existe en las escenas de prueba (la carrera de economía). El **Tajo cargado** y el **Giro en el aire** (los ataques de JJ) ya no se prenden solos en el mapa: son dos habilidades nuevas de Cuerpo, bloqueadas, de 2 puntos cada una (first guess). Las abren los tazos holo **El Jefe** (Tajo cargado, premio de la noche 3) y **Luna roja** (Giro en el aire, premio de la noche 7). Para que el álbum completo siga pagando todo el árbol (ahora **44**), los comunes dan 1 punto por cada **2** nuevos (antes 3). El safehouse y las arenas de prueba siguen prendiendo los dos ataques con sus teclas.
 
 Progresión al estilo Kingdom Hearts: repartes **puntos de habilidad** en un menú. Los puntos salen de **tazos**, que venían en las bolsas de papitas.
 
@@ -377,10 +438,10 @@ Progresión al estilo Kingdom Hearts: repartes **puntos de habilidad** en un men
   - las series son **La colonia**, **La noche**, **Los vecinos** (el reparto de `personajes.md`) y **GelA**;
   - cada una trae 6 comunes, 4 raros y 2 holo.
 
-  **Solo los tazos nuevos dan puntos:** un raro da 1, un holo 2, y cada **3 comunes nuevos** dan 1. El álbum completo da justo **40**, lo que cuesta todo el árbol. Algunos además **desbloquean** una habilidad. Completar una serie sale con confeti, pero ya no da puntos. Tampoco hay puntos por noche.
-- **Los repetidos se cambian** con el **niño de los tazos**, que anda de día junto a los que dan misiones: 3 repetidos de una rareza por uno de esa rareza que te falte (ese sí da sus puntos). Todo se queda al desmayarte y se borra al reiniciar la partida.
+  **Solo los tazos nuevos dan puntos:** un raro da 1, un holo 2, y cada **2 comunes nuevos** dan 1 (antes 3). El álbum completo da justo **44**, lo que cuesta todo el árbol. Algunos además **desbloquean** una habilidad. Completar una serie sale con confeti, pero ya no da puntos. Tampoco hay puntos por noche.
+- **Los repetidos se cambian** con el **niño de los tazos**, que anda de día junto a los que dan misiones: 3 repetidos de una rareza por uno de esa rareza que te falte (ese sí da sus puntos). Todo se queda al desmayarte y se guarda con la partida (1.2.1); solo Partida nueva lo borra.
 - **Página de habilidades** (H en el inventario, Y en el control). Cada nivel cuesta puntos y bajarlo te los regresa, cuando quieras:
-  - **Cuerpo:** Aguante, Fuerza, Patas, Brazo largo;
+  - **Cuerpo:** Aguante, Fuerza, Patas, Brazo largo, Tajo cargado (tazo holo El Jefe), Giro en el aire (tazo holo Luna roja);
   - **Sobrevivir:** Segundo aire (tazo holo), Buen diente, Piel dura, Pies de gato (tazo raro: los zombis te notan más tarde);
   - **Negocio:** Bolsillos, Regateo, Mochilero (+1 lugar por nivel), Buena racha (más bolsas especiales al comprar Takis), Imán (tazo raro), Ojo de halcón (tazo raro).
   
@@ -389,7 +450,7 @@ Progresión al estilo Kingdom Hearts: repartes **puntos de habilidad** en un men
 - Al abrir un tazo que desbloquea algo o completa una serie, **H lleva directo** a la habilidad.
 - Con puntos sin gastar, la pestaña de Habilidades del inventario lo avisa en amarillo.
 - **El tono de piel no se toca:** las habilidades no leen al `Personaje`.
-- 💡 Una partida da unas 10–15 bolsas y todo el árbol cuesta 40 puntos, lo mismo que da el álbum completo: en una partida no se sube todo. Si se cambia un costo hay que cambiar también lo que dan los tazos (el juego avisa si no cuadran). Los números están en `scripts/Habilidades.gd` y `scripts/Tazos.gd`.
+- 💡 Una partida da unas 10–15 bolsas y todo el árbol cuesta 44 puntos, lo mismo que da el álbum completo: en una partida no se sube todo. Si se cambia un costo hay que cambiar también lo que dan los tazos (el juego avisa si no cuadran). Los números están en `scripts/Habilidades.gd` y `scripts/Tazos.gd`.
 
 ### 4.13 El taller: El Yonke de Don Chava 💡🧱 (propuesta de AG, falta que el equipo la confirme)
 
@@ -639,6 +700,9 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-11-02 | **Propuesta, falta que el equipo la confirme**: tazos en bolsas especiales de Takis con revelación por rareza, puntos de habilidad y una página de habilidades en el inventario (4.12). | AG |
 | 2026-11-03 | **Propuesta, falta que el equipo la confirme**: los tazos solo dan puntos nuevos (comunes 3 por punto, raro 1, holo 2) y el álbum completo cuadra con el árbol (40); los repetidos se cambian con el niño de los tazos; lo que se gasta se apila hasta 5 en un lugar; el morral ahora se llama **tiliches** y va en una **cangurera** que da una misión; los trofeos se ven en la vitrina de La Chava; Equipo enseña el arma, la mochila con sus lugares, los amuletos y la cangurera, y la foto de Estado se tiñe según la vida (4.12, 4.13). | AG |
 | 2026-11-03 | **Propuesta, falta que el equipo la confirme**: el taller de La Chava (4.13), crafteo al estilo Kingdom Hearts con materiales aparte (los tiliches), trofeos de hazañas, 39 recetas en seis juegos, un arma por juego, amuletos y Equipar. El rango, los planos y los trofeos se quedan entre partidas. | AG |
+| 2026-11-23 | **Sandbox sin fin (1.2 A)**: sin partida de 3 noches; cuenta de noches con récord; hitos en `resources/noches/hitos.tres` (garrafonero 3, Saltabardas y cazadores 5, Panzón 7, Madre 10, Mojiganga 15, jefes que se repiten más fuertes), un tazo holo por hito; las arenas regresan al mapa. | Equipo |
+| 2026-11-23 | **Muerte tipo Dark Souls (1.5)**: bolsa cuidada de noche por un líder que la carga y se toma tu agua, y 3-5 guardias (más un cazador desde la noche 6); de día tirada sin cuidar; la noche no se reinicia. | Equipo (lo de día: AG) |
+| 2026-11-23 | **Tazos = única progresión (4.12)**; Mejoras solo en pruebas; Tajo cargado y Giro en el aire como habilidades de tazo. **Vida inicial 60 de 100.** **El agua se queda de segunda moneda** por ahora (necesita fuente). **Se guarda todo en disco** con Continuar y Partida nueva (1.2.1). | Equipo (guardado: AG) |
 
 ## La libreta del Nocturno (propuesta de AG, 2026-11-07)
 

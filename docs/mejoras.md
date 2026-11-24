@@ -6,6 +6,14 @@ Leyenda (la misma de `especificaciones.md`): ✅ decidido · 💡 propuesta · �
 
 Pedido de JJ (2026-11-06): el jugador empieza solo con el combo de dos machetazos; el golpe cargado, el golpe giratorio, bloquear y rodar se aprenden; la velocidad de ataque se mejora. Las mejoras de la pistola y las pastillas con *buffs* se discuten después.
 
+> ✅ **Decisiones del equipo (2026-11-23)**, que cierran parte de este documento:
+>
+> - **Los tazos son la única progresión del juego.** La tienda de Mejoras (`scripts/Mejoras.gd`, `MejorasUI.gd`, el "punto" de mejoras) se queda **solo en las escenas de prueba**: la carrera de economía (`escena_carrera.tscn`) y el godmode. En el mapa ya no existe (de hecho solo salía en la carrera, `Safehouse.modo_carrera`).
+> - **El golpe cargado y el giro en el aire se ganan con tazos**: son las habilidades **Tajo cargado** y **Giro en el aire** (Cuerpo, 1 nivel, 2 puntos cada una, first guess), bloqueadas hasta sacar el tazo holo **El Jefe** (premio de la noche 3) y **Luna roja** (premio de la noche 7). `Partida._aplicar_habilidades` prende `Player.golpe_cargado` y `Player.giro_aereo` con ellas; el código de JJ no cambia. Con eso el árbol cuesta **44** y los comunes dan 1 punto por cada 2 nuevos para que el álbum lo siga pagando.
+> - **La vida inicial es 60 de 100** (`Salud.VIDA_INICIO`).
+> - **El juego no se acaba** (sandbox sin fin, `especificaciones.md` §1.2) y se guarda todo en disco (§1.2.1): las mejoras de tazo ya no "se pierden al reiniciar la partida".
+> - **El agua se queda de segunda moneda** sin cambiar su papel; solo se gana al empezar (3) y se gasta en el Machete y el Vaporub. Necesita una fuente real (`especificaciones.md` §4.5).
+
 > **🧪 Ya hay un banco de pruebas para esta economía (2026-11).** `scenes/escena_carrera.tscn` es el refugio mini (safehouse en modo carrera) con todas las tiendas físicas y una tienda de mejoras tipo **"punto"**; se compra **solo con pesos** y cada noche se mide con `Registro` (ataques, mecánicas, ítems, enemigos y oleadas) en `user://pruebas/`. El catálogo de mejoras está en `scripts/Mejoras.gd` y se probó contra la defensa compartida; el **godmode** (`scenes/defensa_tinaco.tscn` directo) pone el mismo catálogo al máximo con ítems infinitos. Los movimientos que hoy son gratis (rodar/bloquear) siguen gratis; el punto vende cargado, giratorio, estela, stats y buffs. Lo de complexión/altura queda para después. Ver `docs/pruebas-balance.md`.
 
 ---
@@ -29,7 +37,7 @@ Todos los números están en el código; aquí van para tener la referencia junt
 |---|---|---|---|
 | Machetazo A / B (combo en X) | arma (machete 12, reforzado 18) | el zombi más cercano en un cono al frente, alcance 2.4 m | `Player._atacar`, `ATAQUE_*` |
 | Puñetazos (jab, cruzado, gancho) | 5, 5 y 8 (gancho ×1.6) | igual | `Player.PUNOS`, `DANO_PUNO` |
-| Golpe cargado: estocada | arma ×1.5 | hasta 6 en 2 m al frente mientras avanzas 3.5 m | `ESTOCADA_*`, `CARGA_DURA` 0.4 s |
+| Golpe cargado: estocada | arma ×1.5 | hasta 6 en 2 m al frente mientras avanzas 3.5 m | `ESTOCADA_*`, `CARGA_DURA` 0.4 s. 🔍 **needs review:** el código ya hace un tajo pesado ×2.5 hasta 4 (`TAJO_*`), no esta estocada |
 | Golpe giratorio (en el aire) | arma ×1.5 | hasta 6 alrededor, alcance ×1.3 | `GIRO_*` |
 | Bloquear | recibes 25 % | golpes de frente; te desliza según el daño | `BLOQUEO_*` |
 | Rodar | — | invulnerable ~0.32 s, avanza 3 m | `RODAR_*` |
@@ -72,7 +80,7 @@ Precios de referencia: gansito $15, tacos $45, botiquín $120, tablas $35, bate 
 
 ### 2.4 Lo que ya mejora al jugador
 
-Los tazos (`especificaciones.md` §4.12, `scripts/Habilidades.gd`): Fuerza +10 % de daño por nivel, Aguante +10 % de vida, Patas +10 % de velocidad, Brazo largo +10 % de alcance, Piel dura −15 % de daño de noche, y las de Negocio. Una partida da ~10–15 bolsas y el árbol cuesta ~58 puntos.
+Los tazos (`especificaciones.md` §4.12, `scripts/Habilidades.gd`): Fuerza +10 % de daño por nivel, Aguante +10 % de vida, Patas +10 % de velocidad, Brazo largo +10 % de alcance, Piel dura −15 % de daño de noche, Tajo cargado y Giro en el aire (2026-11-23), y las de Negocio. Una partida da ~10–15 bolsas y el árbol cuesta **44** puntos (antes 40; el "~58" que decía aquí no cuadraba con el código). Los hitos de noche dan además un tazo holo cada uno (`resources/noches/hitos.tres`).
 
 ---
 
@@ -87,7 +95,7 @@ Los tazos (`especificaciones.md` §4.12, `scripts/Habilidades.gd`): Fuerza +10 %
 | | Velocidad de ataque (niveles) |
 | | Estela del protagonista (agua para el compa, monarca para Homero): mejora de daño |
 
-🧱 Hoy el cargado y el giro solo se prenden en el safehouse (teclas 7 y 6) y en la defensa del tinaco. Bloquear y rodar están siempre. Para el kit inicial hace falta un lugar que diga qué movimientos tienes (§6).
+🧱 ✅ (2026-11-23) En el mapa el cargado y el giro salen de sus habilidades de tazo (Tajo cargado, Giro en el aire); en el safehouse siguen con las teclas 7 y 6, y la defensa del tinaco los maneja con su catálogo de prueba. Bloquear y rodar están siempre.
 
 ---
 
@@ -169,19 +177,21 @@ Hay que cuidar que comprar curación (tacos $45, botiquín $120) no se coma todo
 
 Recomendación de trabajo: **D**. Los movimientos cambian cómo juegas y conviene que lleguen en orden, así que van por misión o con el maestro. Los niveles son números y encajan en la página de habilidades de los tazos, que ya enseña "Ahora / Siguiente".
 
+✅ **Decidido (equipo, 2026-11-23): B, con tazos**, sin suerte para los dos primeros: los tazos de El Jefe y Luna roja son el premio fijo de los hitos de las noches 3 y 7, así que el cargado y el giro llegan en orden. Rodar y bloquear siguen gratis.
+
 Para programarlo, un solo lugar que diga qué movimientos tienes (por ejemplo `Tazos.desbloqueadas` o un autoload `Mejoras`) y que `Player` lo lea antes de dejar salir cada movimiento, como hoy lee `golpe_cargado` y `giro_aereo`. El safehouse seguiría dando todo para probar.
 
 ---
 
 ## 7. Preguntas abiertas 🗳️
 
-- ¿Cuántas noches dura una partida? Define cuánto dinero hay en total.
+- ~~¿Cuántas noches dura una partida?~~ ✅ No se acaba (2026-11-23). El dinero total ya no tiene tope: hay que ver qué lo gasta noche tras noche.
 - ¿Se empieza con la pistola?
-- ¿Cómo se aprende cada cosa (§6)?
+- ~~¿Cómo se aprende cada cosa (§6)?~~ ✅ Con tazos (2026-11-23).
 - ¿Cuánto daño extra da la estela y cómo se gana?
 - ¿La vida de los zombis sube por noche?
-- ¿Las mejoras se pierden al reiniciar la partida (como los tazos) o hay algo que se quede entre partidas?
-- ¿Los costos van en pesos aunque el agua sea lo caro? ¿Alguna mejora cuesta agua?
+- ~~¿Las mejoras se pierden al reiniciar la partida (como los tazos) o hay algo que se quede entre partidas?~~ ✅ Ya no hay partidas: todo se guarda (`especificaciones.md` §1.2.1).
+- ¿Los costos van en pesos aunque el agua sea lo caro? ¿Alguna mejora cuesta agua? (El agua se quedó de segunda moneda el 2026-11-23, sin fuente todavía.)
 
 ## 8. Dónde se cambian los números
 

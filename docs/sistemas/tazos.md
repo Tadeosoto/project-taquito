@@ -1,15 +1,17 @@
-# Tazos and skills (AG's proposal, spec §4.12; the team hasn't voted on it)
+# Tazos and skills (AG's proposal, spec §4.12; on 2026-11-23 the team made it the only progression)
 
 > Moved from the root `CLAUDE.md` on 2026-11-11, word for word. Keep it in sync with the code; the root keeps only a pointer here.
 
 - **`Tazos` autoload** (`scripts/Tazos.gd`) holds the run's progression:
   - `puntos` earned, `niveles` per skill, `desbloqueadas`, `coleccion` (with repeats), and signal `cambio`.
-  - Kept when you faint; `Partida._otra_vez` and the safehouse's F12 call `reiniciar()`.
-  - **Points come only from new tazos**: a rare gives 1, a holo 2, and every `COMUNES_POR_PUNTO` (3) new commons give 1 (`comunes_nuevos`). The 48 add up to exactly the full skill tree, 40 (`Tazos.puntos_coleccion()` = `Habilidades.costo_total()`; `_ready` warns if they drift, so change costs and tazo points together). No start, night or series points; completing a series still shows confetti (`series_premiadas`, `ultima_serie`). The craftable "punto" estampita (`Bonos.usar_estampita`) is the only extra. `ultimos_puntos` is what the last tazo gave (for the reveal text, `TazoRevelacion.texto_puntos`).
+  - Kept when you faint and saved with the game (`Guardado`); Partida nueva (`Guardado.nueva`) and the safehouse's F12 call `reiniciar()`.
+  - **Points come only from new tazos**: a rare gives 1, a holo 2, and every `COMUNES_POR_PUNTO` (2 since 2026-11-23, was 3) new commons give 1 (`comunes_nuevos`). The 48 add up to exactly the full skill tree, 44 (`Tazos.puntos_coleccion()` = `Habilidades.costo_total()`; `_ready` warns if they drift, so change costs and tazo points together).
+  - **The only progression (2026-11-23).** Two skills turn on JJ's attacks: `tajo_cargado` (Tajo cargado) and `giro_aereo` (Giro en el aire), CUERPO, 1 level, cost 2, locked. The holo tazos `jefe` and `luna_roja` unlock them (also in `caras.gd` `FICHAS`); they are the fixed rewards of the night 3 and night 7 milestones (`Noches.dar_premio`, `resources/noches/hitos.tres`). `Partida._aplicar_habilidades` sets `Player.golpe_cargado`/`giro_aereo` from `Tazos.tiene(...)` on `cambio` (off in the safehouse with `habilidades_de_tazos`; arenas force them only when opened on their own). The Mejoras shop stays in the career test only.
+  - **Milestone tazos:** each night milestone gives one holo when you survive it: its `tazo_id` if you don't have it, otherwise a missing holo, never one in `tazos_excluidos` (`tinaco_eterno`, the removed legend). No start, night or series points; completing a series still shows confetti (`series_premiadas`, `ultima_serie`). The craftable "punto" estampita (`Bonos.usar_estampita`) is the only extra. `ultimos_puntos` is what the last tazo gave (for the reveal text, `TazoRevelacion.texto_puntos`).
   - **Repeats give nothing**: trade them with the tazo kid (`scripts/map/NinoTazos.gd`, by day at the extra spot `MisionesMundo` asks for after the mission givers): `REPETIDOS_POR_CAMBIO` (3) spare copies of one rarity → a random missing one of that rarity (`repetidos`, `faltantes`, `puede_cambiar`, `cambiar`), shown with its reveal while the tree is paused.
   - Gameplay reads it through the `factor_*` helpers, `pesos_extra()`, `factor_precio()`, `espacio_extra()`, `factor_persigue()`, `extra_aparicion()` and `probabilidad_bolsa()`.
 - **Data:**
-  - `scripts/Habilidades.gd` is the static skill table (14 skills), with every number at the top. Categories are CUERPO, SOBREVIVIR and NEGOCIO. `efecto_texto(id, nivel, base)` writes the real numbers the page shows; `base` comes from `Player.valores_sin_tazos()`.
+  - `scripts/Habilidades.gd` is the static skill table (16 skills), with every number at the top. Categories are CUERPO, SOBREVIVIR and NEGOCIO. `efecto_texto(id, nivel, base)` writes the real numbers the page shows; `base` comes from `Player.valores_sin_tazos()`.
   - `scripts/TazoData.gd` is the tazo resource: series, rarity COMUN/RARO/HOLO, points, the skill it unlocks, face and silhouette.
   - **48 tazos in 4 series of 12** (6 common, 4 rare, 2 holo each: La colonia, La noche, Los vecinos, GelA). `tools/tazos/caras.gd` holds them all as 16×16 ASCII art plus `FICHAS` (name, series, unlock). Running `godot --path . --headless -s tools/tazos/caras.gd`, then `--import`, writes the faces (`textures/tazos/`), silhouettes (`textures/tazos/silueta/`), skill icons (`textures/habilidades/`) **and** the `.tres` files. It checks every drawing is 16 wide and the numbers are consecutive. `Tazos` lists `resources/tazos/`, so a new tazo needs no code: add it to the tool and rerun.
 - **Bags:**
@@ -18,7 +20,8 @@
   - Sources:
     - `Interior._comprar`: 1 in 8 Takis (`Tazos.probabilidad_bolsa()`, raised by Buena racha);
     - the `premios` of two missions;
-    - `Partida._poner_bolsas`: 4 `WorldItem`s beside map-piece spots, with a beam.
+    - `Partida._poner_bolsas`: 4 `WorldItem`s beside map-piece spots, with a beam;
+    - the night milestones (a holo each, see above) and the Madre del Cárcamo's win (a random holo).
 - **Reveal:** `scripts/TazoRevelacion.gd` (`TazoRevelacion.abrir`, signal `termino`).
   - A CanvasLayer on layer 12 that always processes, so it works under the paused inventory.
   - It has an opaque background and its own SubViewport world: the disc is built with SurfaceTool (face, back, rim) and uses `shaders/tazo.gdshader` for the face and the holo foil.
