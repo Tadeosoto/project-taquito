@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Script" path="res://scripts/InventoryItemData.gd" id="4_item"]
+[ext_resource type="Resource" path="res://resources/productos/galon_agua.tres" id="3_galon"]
+
+[sub_resource type="Resource" id="paso_defender"]
+script = ExtResource("2_paso")
+tipo = 8
+cuando = 2
+texto = "Aguanta con el tinaco hasta el amanecer"
+lugar = "sitio_tinaco"
+escena = "res://scenes/defensa_tinaco.tscn"
+
+[resource]
+script = ExtResource("1_mision")
+id = "defender_tinaco"
+nombre = "Defender el tinaco"
+modelo = "hombre_psx"
+donde = "tinacos"
+oferta = "Aquí armamos la barricada con el tinaco y las bocinas, y la horda viene toda la noche por el agua. Si la aguanta hasta el amanecer, se le paga. Entre más lejos de Santa Mugre, más fuerte viene y más pagan."
+aceptada = "Pues ya es de noche, vámonos. Que no se rompa el tinaco."
+recuerda = "Vuelva a la barricada. Que no se rompa el tinaco."
+despedida = "Hoy ya aguantó uno. Mañana hay otro tinaco."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_defender")])
+pesos = 150
+premios = Array[ExtResource("4_item")]([ExtResource("3_galon")])

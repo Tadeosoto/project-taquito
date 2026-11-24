@@ -26,6 +26,9 @@ signal saco_reventado(quedan: int)
 const SOLVER := preload("res://scripts/lombrices/SolverLombrices.gd")
 const S := preload("res://scripts/lombrices/SolverLombrices.gd")
 
+# El rugido de ambiente: suena solo mientras esta viva, cada tanto
+const RUGIDO_CADA := Vector2(9.0, 16.0)
+
 enum Estado { CHARCO, VA, AVISA, MUERDE, TIRADA, BARRE, VOMITA, ESCUPE, MUERE, ATURDIDA, SALTA, REGRESA }
 
 const PUNTOS := 18
@@ -115,7 +118,7 @@ var links := PackedByteArray()
 var vivos := PackedByteArray()
 var modo := PackedByteArray()
 var meta := PackedVector3Array()
-# Las repeticiones de la noche sin fin la traen mas dura (PasoArena.fuerza): el dano se divide
+# Las repeticiones de la noche sin fin la traen mas dura (Noches.fuerza_jefe, al entrar desde el mapa con PasoJefe): el dano se divide
 # entre esto, que es como multiplicarle la vida a cada saco
 var aguante := 1.0
 var sacos := PackedFloat32Array()
@@ -147,6 +150,7 @@ var _materiales: Array[ShaderMaterial] = []
 var _goteo := PackedFloat32Array()
 var _rastro := 0.0
 var _squelch := 0
+var _rugido := 6.0               # s para su proximo rugido de ambiente
 var _chapoteo := 0.0
 var _niebla: Node3D
 var _anillo: MeshInstance3D
@@ -155,6 +159,9 @@ var _t := 0.0
 
 func _ready() -> void:
 	add_to_group("lombrices")
+	# El cuarto del carcamo es una cueva: su ambiente y el agua que corre, bajitos
+	Sonidos.ambiente(self, "ambiente_cueva", -14.0)
+	Sonidos.ambiente(self, "agua_fluyendo", -22.0)
 	_solver = SOLVER.new()
 	_solver.radio = RADIO
 	_solver.largo = LARGO
@@ -313,6 +320,7 @@ func _physics_process(delta: float) -> void:
 	_t += delta
 	_reloj += delta
 	_choque -= delta
+	_rugir(delta)
 	_ver_arriba()
 	_solver.velocidad = VELOCIDAD
 	_pensar(delta)
@@ -386,6 +394,16 @@ func _ver_arriba() -> void:
 		Sonidos.tocar(self, "chapoteo", -6.0)
 
 
+func _rugir(delta: float) -> void:
+	if estado == Estado.MUERE:
+		return
+	_rugido -= delta
+	if _rugido > 0.0:
+		return
+	_rugido = randf_range(RUGIDO_CADA.x, RUGIDO_CADA.y)
+	Sonidos.tocar(self, "madre_rugido", -3.0, randf_range(0.9, 1.05))
+
+
 func _pensar(delta: float) -> void:
 	var yo := _jugador.global_position
 	var pies := Vector3(yo.x, charco.y, yo.z)
@@ -408,7 +426,7 @@ func _pensar(delta: float) -> void:
 					_blanco = _desde
 				_cambiar(Estado.AVISA)
 				# El unico aviso: un retumbo grave y quedito
-				Sonidos.tocar(self, "retumbo", -12.0, 0.8)
+				Sonidos.tocar(self, "madre_retumbo", -8.0, 0.9)
 		Estado.AVISA:
 			_cabeza_a(S.BAJO_TIERRA, _hondo(_blanco))
 			_cada -= delta
@@ -423,6 +441,7 @@ func _pensar(delta: float) -> void:
 				cuenta.mordidas += 1
 				_fx("madre_tierra", _blanco, Vector3.ZERO, 1.2)
 				Sonidos.tocar(self, "chapoteo", -4.0, 0.7)
+				Sonidos.tocar(self, "madre_mordida", -2.0, 0.8)
 				var dt := 1.0 / Engine.physics_ticks_per_second
 				for i in 6:
 					pos[i] = Vector3(_blanco.x, charco.y - 0.3 - i * 0.3, _blanco.z)
@@ -438,6 +457,7 @@ func _pensar(delta: float) -> void:
 					meta[i] = pos[i - 1] if i > 0 else pos[i]
 			if _reloj >= MUERDE_DURA:
 				_cambiar(Estado.TIRADA)
+				Sonidos.tocar(self, "madre_desploma", -4.0, 0.9)
 				for i in PUNTOS:
 					modo[i] = S.LIBRE
 		Estado.TIRADA:
@@ -457,6 +477,8 @@ func _pensar(delta: float) -> void:
 					modo[i] = S.AIRE | S.CABEZA if i == 0 else 0
 					meta[i] = pos[0] + hacia.normalized() * 0.3 + Vector3.UP * 0.9 if i == 0 else pos[i]
 			else:
+				if _cada - delta < EMBISTE_APUNTA:   # arranca la pasada
+					Sonidos.tocar(self, "madre_embiste", -2.0, 0.75)
 				_solver.velocidad = VELOCIDAD * EMBISTE_VEL
 				_cabeza_a(S.RAPIDO, _blanco)
 				_trepar()
@@ -484,6 +506,7 @@ func _pensar(delta: float) -> void:
 				var boca := pos[0] + (pos[0] - pos[1]).normalized() * 0.4 * ESCALA
 				if estado == Estado.VOMITA:
 					_cada = VOMITA_CADA
+					Sonidos.tocar(self, "madre_escupe", -3.0, randf_range(0.8, 0.95))
 					enjambre.parir(boca, (yo - boca).normalized() + Vector3.UP * 0.4, VOMITA_CRIAS + f)
 				else:
 					_cada = ESCUPE_CADA
@@ -506,6 +529,7 @@ func _pensar(delta: float) -> void:
 			if _reloj >= SALTA_DURA + 0.15:
 				_fx("madre_tierra", _blanco, Vector3.ZERO, 1.0)
 				Sonidos.tocar(self, "chapoteo", -4.0, 0.6)
+				Sonidos.tocar(self, "madre_desploma", -4.0, 0.9)
 				_cambiar(Estado.TIRADA)
 				for i in PUNTOS:
 					modo[i] = S.LIBRE
@@ -599,7 +623,7 @@ func _apuntar_embestida(pies: Vector3) -> void:
 		meta_.z = clampf(meta_.z, charco.z - EMBISTE_HASTA, charco.z + EMBISTE_HASTA)
 	_blanco = Vector3(meta_.x, charco.y + RADIO, meta_.z)
 	_cada = 0.0
-	Sonidos.tocar(self, "retumbo", -10.0, 1.1)
+	Sonidos.tocar(self, "madre_retumbo", -8.0, 1.1)
 
 
 # Sale de la orilla en arco hacia `pies`: lo de la alberca sube al piso de un jalon, como al barrer
@@ -658,6 +682,7 @@ func _escupir(boca: Vector3, yo: Vector3) -> void:
 	var tarda := boca.distance_to(pecho) / ESCUPE_VEL
 	var blanco := pecho + vel_jugador * tarda * ESCUPE_ADELANTA \
 		+ Vector3(randf_range(-1, 1), randf_range(-0.5, 0.5), randf_range(-1, 1)) * ESCUPE_ERROR
+	Sonidos.tocar(self, "madre_escupe", -2.0, randf_range(0.95, 1.1))
 	var bala := Arrojadizo.lanzar(get_parent(), boca, (blanco - boca).normalized() * ESCUPE_VEL, 3, [])
 	bala.dano = ESCUPE_DANO
 
@@ -759,12 +784,12 @@ func _herir(n: int, dano: float, hacia := Vector3.UP, chorro := true) -> void:
 		_fx("saco_golpe", donde, hacia, 0.8)
 		if Time.get_ticks_msec() - _squelch > 90:
 			_squelch = Time.get_ticks_msec()
-			Sonidos.tocar(self, "squelch", -6.0, randf_range(0.9, 1.15))
+			Sonidos.tocar(self, "madre_carne", -6.0, randf_range(0.85, 1.1))
 	if sacos[n] > 0.0:
 		return
 	# Revienta: un chorro grande, mancha en el piso, se desploma y la fase sube cada dos
 	_fx("saco_revienta", Vector3(donde.x, charco.y, donde.z), Vector3.ZERO, 1.2)
-	Sonidos.tocar(self, "reventar", -2.0, 0.8)
+	Sonidos.tocar(self, "madre_saco_revienta", 0.0, 0.8)
 	var liquido := _liquido()
 	if liquido:
 		liquido.reventar(donde, SACO_RADIO, charco.y + 0.01, 24, COLOR_SACO_SANGRE, Vector2(2.5, 6.0))
@@ -779,13 +804,15 @@ func _herir(n: int, dano: float, hacia := Vector3.UP, chorro := true) -> void:
 	if q == 0:
 		_cambiar(Estado.MUERE)
 		_anillo.visible = false
-		Sonidos.tocar(self, "chillido", 0.0, 0.7)
+		Sonidos.tocar(self, "chillido_muerte")
+		Sonidos.tocar(self, "madre_deshace", -2.0, 0.8)
 		return
 	if enjambre.fase != antes:
 		_fx("fase_onda", Vector3(pos[0].x, charco.y, pos[0].z), Vector3.ZERO, 1.4)
 		Sonidos.tocar(self, "chillido", -2.0)
 	# Se desploma: la ventana para ir por el siguiente
 	_cambiar(Estado.ATURDIDA)
+	Sonidos.tocar(self, "madre_desploma", -2.0, 0.85)
 	cuenta.aturdidas += 1
 
 

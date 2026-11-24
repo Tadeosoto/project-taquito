@@ -1,5 +1,7 @@
 # Guadalajaja — Game Design Document
 
+> **Note (2026-11-23):** `testing-juanjo` was merged after this snapshot (116 commits: the cañerías and tunnels, cuicos, carretilla, stamina, the cucarrata, pterodactyl and Simi bosses, the palace offices, La Gotera in Blender, mission system S1-S11...). Only the parts that touch the sandbox are updated here; the rest of this document does not describe his content yet (**needs review**).
+
 *Snapshot of the project as implemented on branch `sandbox-sin-fin` (from `santa-mugre-fortaleza` `f635557`), 2026-11-23. Updated the same day with the team's design decisions: endless sandbox, night milestones, tazos as the only progression, starting life 60, Dark Souls death with a guarded bag, and saving.*
 
 This document describes what the code, data files and assets actually do. The design docs in `docs/` were read too, and where they disagree with the code, **the code is reported** and the clash is flagged **needs review**. Numbers marked *(first guess)* are labelled as untuned in the code or in `docs/pruebas-balance.md`.
@@ -137,9 +139,9 @@ inicio ──Jugar / Partida nueva──► creator ──► map_test (outside)
 inicio ──Continuar──► saved scene and spot          │                                     │
                      yellow arrows: shops, own house             casa_vecino markers: temple,
                      F10 from safehouse                          neighbours, El Sótano ──► drain arena
-                     boss arrows at night (EntradaJefe, PasoArena) ◄──► lombrices (night 10+), catrina (night 15+)
+                     Juanjo's boss entrances (EntradaJefe, PasoJefe): cañerías ──► tuneles ──► lombrices; panteón ──► catrina
 inicio ──Menú test / Pruebas──► defensa_tinaco, escena_carrera, map_test
-safehouse (by path) ── Shift+L / Shift+X ──► bosses in the yard; Ctrl+X / Ctrl+Shift+X ──► arena arrows
+safehouse (by path) ── Shift+L / Shift+X ──► bosses in the yard
 ```
 
 Inventory, money, life and the night count persist across scene changes (they are autoloads; the night lives in `Noches`). Clock and zombies are per-scene nodes; the gates and arena trips pass the time of day along, and a scene that starts at night continues the same night instead of counting a new one.
@@ -754,7 +756,7 @@ An endless sandbox: there is no last night and no end screen.
 - At dawn: *"Sobreviviste la noche N"*, the milestone tazo, and an autosave.
 - With a refuge (safehouse), losing the tinaco only warns you; it is repaired at dawn *(first guess)*.
 - The neighbours' looted houses refill every 7 nights *(first guess)*.
-- Boss arenas return to the map (`PasoArena`): after a win, at the arrow with the same night and hour; after a faint, with your bag beside the arrow.
+- Boss fights use Juanjo's `EntradaJefe`/`PasoJefe`. Without a mission they open on their milestone night (Madre 10, Mojiganga 15). Fainting in one leaves your bag at its entrance.
 
 ### 8.5 Saving (`Guardado.gd`)
 
@@ -817,7 +819,7 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 
 | Tool | Purpose |
 |---|---|
-| Safehouse | Every mechanic in a 100 m yard; key pages (F1); $500 start; Shift+G/J/L/X spawn Saltabardas, Panzón, Madre, Mojiganga; F12 restart. Page "Noches sin fin": Ctrl+H eve of the next milestone, Ctrl+O milestone tazo, Ctrl+Y drop a guarded bag, Ctrl+X / Ctrl+Shift+X arena arrows, Ctrl+G / Ctrl+Shift+G save / load |
+| Safehouse | Every mechanic in a 100 m yard; key pages (F1); $500 start; Shift+G/J/L/X spawn Saltabardas, Panzón, Madre, Mojiganga; F12 restart. Page "Noches sin fin": Ctrl+H eve of the next milestone, Ctrl+O milestone tazo, Ctrl+Y drop a guarded bag, Ctrl+G / Ctrl+Shift+G save / load |
 | Godmode defence | Full upgrade catalogue, infinite items, one night |
 | Career test | Economy with the upgrade shop; `Registro` CSV logs per night |
 | Bot fights | `--bot` for La Mojiganga; `--medir`, `--cheese` |
@@ -948,7 +950,7 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 | Upgrades (tests) | `scripts/Mejoras.gd`, `scripts/MejorasUI.gd`, `scripts/Pruebas.gd`, `scripts/PruebasUI.gd`, `scripts/Registro.gd`, `scripts/MenuTest.gd` |
 | Bestiary | `scripts/Libreta.gd`, `scripts/LibretaEntradas.gd`, `scripts/LibretaUI.gd`, `tools/libreta/` |
 | Day/night, structure, survival | `scripts/map/Ciclo.gd`, `scripts/map/Partida.gd`, `scripts/Noches.gd`, `scripts/HitoNoche.gd`, `scripts/TablaHitos.gd`, `resources/noches/hitos.tres`, `scripts/map/Supervivencia.gd`, `scripts/map/BolsaMuerte.gd`, `scripts/map/GuardiaBolsa.gd`, `scripts/map/Refugio.gd`, `scripts/map/EntradaRefugio.gd` |
-| Save, arena trips | `scripts/Guardado.gd`, `scripts/map/PasoArena.gd`, `scripts/map/EntradaJefe.gd` |
+| Save, boss trips | `scripts/Guardado.gd`, `scripts/mapa/PasoJefe.gd`, `scripts/mapa/EntradaJefe.gd` (Juanjo's) |
 | Zombies | `scripts/map/Zombie.gd`, `Zombis.gd`, `Director.gd`, `RitmoNoche.gd`, `ConfigZombis.gd`, `CampoFlujo.gd`, `Deterioro.gd`, `resources/zombis/` |
 | Special enemies | `scripts/map/Saltabardas.gd`, `scripts/map/Panzon.gd`, `scripts/map/RocaPanzon.gd` |
 | Bosses | `scripts/lombrices/` (Madre, swarm, solver), `scripts/catrina/` (Mojiganga), `scripts/sotano/Desaguadora.gd`, `Desague.gd` |

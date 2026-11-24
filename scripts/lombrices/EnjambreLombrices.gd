@@ -39,6 +39,8 @@ extends Node3D
 # muchas cerca, arrancan todas juntas (una oleada).
 
 signal horneado
+## En `solo_sal_y_fuego`: un golpe o una bala les dio y no les hizo nada (la escena avisa)
+signal rebote
 signal fase_cambio(fase: int)
 
 const SOLVER := preload("res://scripts/lombrices/SolverLombrices.gd")
@@ -149,6 +151,12 @@ const FX_ESPERA := {"cria_corte": 80, "cria_cabeza": 100, "pegada_mordida": 200,
 	"pegada_suelta": 300, "madre_tierra": 300, "torre_golpe": 500}
 # Rendimiento
 const PASO_MAX := 0.05          # s: si el hilo tardo, el siguiente paso no avanza mas que esto
+# El rumor de las crias yendo hacia ti (crias_enjambre): suena cuando RUMOR_DESDE o mas de las
+# que rodean (o suben por) a menos de RUMOR_RADIO m se mueven; mas fuerte con RUMOR_LLENO
+const RUMOR_DESDE := 10
+const RUMOR_LLENO := 40
+const RUMOR_RADIO := 30.0
+const RUMOR_VOLUMEN := Vector2(-12.0, -2.0)   # dB, con RUMOR_DESDE y con RUMOR_LLENO
 const LEJOS_DESDE := 14.0       # m: mas lejos, una lombriz que solo rodea duerme 2 de cada 3 pasos
 const CALIDAD_ALTA := 22.0      # ms del paso (de 33 a 30/s): arriba de esto por CALIDAD_ESPERA s quita lombrices
 const CALIDAD_ESPERA := 2.0
@@ -171,6 +179,13 @@ const GOTAS_CHORRO := 24
 @export var lento_ms := 0       # para probar: el paso tarda al menos esto (simula una PC lenta)
 # 1: rodean y saltan; 2: + se entierran y se funden en latigo; 3: + torre y crecen mas rapido.
 # Sola (sin Madre) va en 3, para ver todo
+# Las cañerías (Tuneles): ni el machete, ni las balas, ni las explosiones las matan, solo las avientan;
+# mueren con la sal (salar_cono, zonas SAL) y el fuego (zonas FUEGO). La sal se compra al avanzar en la
+# historia (JJ, 2026-11-21)
+@export var solo_sal_y_fuego := false
+# Donde nacen al armarse (x, z del piso; y se ignora): si esta vacio, al azar alrededor del centro.
+# En un lugar con muros (las cañerías) al azar caen adentro de ellos
+@export var nidos := PackedVector3Array()
 @export var fase := 3:
 	set(valor):
 		if valor != fase:
@@ -221,6 +236,7 @@ var _intervalo := 1.0 / 30.0    # s entre las dos ultimas fotos
 var _acumulado := 0.0
 var _ordenes: Array[Callable] = []
 var _paso_n := 0
+var _voz_rumor: AudioStreamPlayer3D
 var _ema := 0.0
 var _calidad_t := 0.0
 var _ciclo: Node
@@ -414,6 +430,9 @@ func _armar(centro: Vector3) -> void:
 	var radio := minf(caja.x, caja.z) * 0.3
 	for w in lombrices:
 		var donde := centro + Vector3(randf_range(-radio, radio), 0.4 + randf() * 0.6, randf_range(-radio, radio))
+		if not nidos.is_empty():
+			var nido := nidos[w % nidos.size()]
+			donde = Vector3(nido.x + randf_range(-0.8, 0.8), centro.y + 0.4 + randf() * 0.6, nido.z + randf_range(-0.8, 0.8))
 		var rumbo := Vector3.FORWARD.rotated(Vector3.UP, randf() * TAU)
 		for k in puntos:
 			var i := w * puntos + k
@@ -491,6 +510,7 @@ func _physics_process(delta: float) -> void:
 			_matar_tramo(h, "")
 		_tramos()
 	_pensar(delta)
+	_rumor()
 	_zonas(delta)
 	_crecer(delta)
 	_morder(delta)
@@ -593,6 +613,37 @@ func biomasa() -> float:
 
 
 # --- Lo que piensa cada lombriz ---
+
+# Cuando hay muchas yendo hacia ti suena su rumor, en medio de ellas y mas fuerte con mas
+func _rumor() -> void:
+	if _jugador == null:
+		return
+	if _voz_rumor == null:
+		_voz_rumor = AudioStreamPlayer3D.new()
+		_voz_rumor.max_distance = 45.0
+		_voz_rumor.unit_size = 12.0
+		add_child(_voz_rumor)
+	if _voz_rumor.playing:
+		return
+	var yo := _jugador.global_position
+	var cuantas := 0
+	var centro := Vector3.ZERO
+	for h in _cabezas:
+		var e := _estado[h]
+		if (e == Estado.RODEA or e == Estado.SUBE) and pos[h].distance_squared_to(yo) < RUMOR_RADIO * RUMOR_RADIO:
+			cuantas += 1
+			centro += pos[h]
+	if cuantas < RUMOR_DESDE:
+		return
+	var stream := Sonidos.sonido("crias_enjambre")
+	if stream == null:
+		return
+	_voz_rumor.stream = stream
+	_voz_rumor.global_position = centro / cuantas
+	_voz_rumor.volume_db = lerpf(RUMOR_VOLUMEN.x, RUMOR_VOLUMEN.y, clampf(float(cuantas - RUMOR_DESDE) / (RUMOR_LLENO - RUMOR_DESDE), 0.0, 1.0))
+	_voz_rumor.pitch_scale = randf_range(0.95, 1.05)
+	_voz_rumor.play()
+
 
 func _pensar(delta: float) -> void:
 	if _jugador == null:
@@ -1768,6 +1819,9 @@ func bullet_hit(dot_index: int, hit_point: Vector3, dir: Vector3) -> void:
 	if _es_bola(dot_index):
 		_herir_bola(5.0, hit_point)
 		return
+	if solo_sal_y_fuego:
+		rebote.emit()
+		return
 	sangrar(hit_point, -hacia + Vector3.UP * 0.5)
 	_fx("cria_corte", hit_point, -hacia, 0.5)
 	if _cabeza_de[dot_index] == dot_index:
@@ -1782,6 +1836,8 @@ func apply_explosion_impulse(origin: Vector3, radius: float, force: float, mata 
 	if _ocupado():
 		_ordenes.append(apply_explosion_impulse.bind(origin, radius, force, mata))
 		return
+	if solo_sal_y_fuego:
+		mata = false
 	var dt := 1.0 / hz
 	var tocadas := {}
 	for i in vivos.size():
@@ -1851,6 +1907,11 @@ func golpe_cuerpo(origen: Vector3, frente: Vector3, alcance: float, cono: float,
 	alcanzados.sort()
 	var quema := ESTELA.estilo == ESTELA.Estilo.FUEGO or ESTELA.estilo == ESTELA.Estilo.FLAMAS_FELIPE
 	var cortes := CORTES_TAJO if todas else clampi(roundi(dano * CORTES_POR_DANO), 2, CORTES_MAX)
+	if solo_sal_y_fuego:
+		# Solo las avienta (_cortar con 0 cortes empuja a todas las del cono)
+		cortes = 0
+		quema = false
+		rebote.emit()
 	if _ocupado():
 		_ordenes.append(_cortar.bind(alcanzados, salidas, frente, cortes, quema))
 	else:

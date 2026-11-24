@@ -44,6 +44,10 @@ const NEGOCIOS := [
 	["taqueria", "tortilleria", "Tortilleria", 6.0, 10.0, false],
 	# Abarrotes Doña Mary, la tiendita de cochera de Santa Mugre: local de abarrotes, interior de dona_mary
 	["abarrotes", "tiendita", "Doña Mary", 6.0, 10.0, false],
+	# Las tiendas de los tuneles de La Gotera (la_gotera_favela): un local angosto (la fila llega a la
+	# barda del patio) con el interior del tunel
+	["abarrotes", "fayuca_tunel", "Fayuca del Túnel", 2.0, 3.0, false],
+	["abarrotes", "armas_tunel", "Balas y Veladoras", 2.0, 3.0, false],
 ]
 # Frente y fondo de las casas Urbi (huellas_tiendas.json)
 const CASAS := {"urbi_1p_a": Vector2(6.79, 7.37), "urbi_1p_b": Vector2(6.8, 7.37), "urbi_1p_c": Vector2(7.59, 7.37),
@@ -72,6 +76,13 @@ const TABLAS_PRUEBA := "res://resources/productos/tablas.tres"
 const DANO_TINACO := 100
 const TURBA_PRUEBA := 12
 const PIEZA_PRUEBA_EN := Vector3(14.0, 0.0, 6.0)
+## Los puntos de la mafia (M7) en fila junto a la barda oriente, en el orden de la cadena: el de cada uno da la caja
+## para el siguiente
+const PUNTOS_MAFIA := ["El Punto", "punto LA PALMIRA", "punto ARROYO SECO", "punto ARROYUELO", "punto REAL DEL MONTE",
+		"punto HACIENDAS DE SAN JOSE", "punto PARQUES DEL BOSQUE", "punto BAHIA DE BANDERA 2575", "punto EL MANTE"]
+const PUNTOS_MAFIA_X := 46.0
+const PUNTOS_MAFIA_Z := -36.0
+const PUNTOS_MAFIA_PASO := 9.0
 const CHATARRA_EN := [Vector3(17.0, 0.0, 6.0), Vector3(19.5, 0.0, 6.0)]
 const MATERIALES_PRUEBA := 5   # de cada material comun y especial con Shift+P
 const CANGURERA := "res://resources/productos/cangurera.tres"
@@ -92,15 +103,18 @@ V dron · N siguiente atardecer/amanecer
 H curar · J -%d de vida · P +$100 · Shift+8 caja de diálogo de prueba
 Y vaciar inventario (sin machete pegas a puñetazos)
 C crear personaje · K deterioro
-F12 reiniciar todo · F10 ir al mapa"""},
+F12 reiniciar todo · F10 ir al mapa · F11 giro WASD (favela)
+Shift+F10 Santa Mugre: la reja falla al anochecer (evento)
+Ctrl+F10 las cañerías del arroyo (crías: solo sal o fuego)"""},
 	{"titulo": "Pelea", "efectos": true, "texto": """1 2 machete / pistola · R recargar
 2 otra vez: Tinaquera, Matraca, Chicharra (recógelas del piso)
 9 golpe a tiempo (córtalo cuando gruñe) / sin aturdir
 8 estela del protagonista (su mejora) / la de siempre
 7 cargado: deja apretado y suelta = tajo, 2.5x
-6 en el aire: giro; con Shift, clavado (prueba)
+6 en el aire: giro; con Shift, clavado
+Cada especial gasta 1/3 de aguante · Shift+7 aguante infinito
 Shift+1 2 3 maquinita: normal, sin monedas, segura
-. El Sótano: permiso y +50 fichas (flecha junto a tu casa)"""},
+Alt+. El Sótano: permiso y +50 fichas (flecha junto a tu casa)"""},
 	{"titulo": "Zombis", "efectos": true, "texto": """Z zombi · B turba (Ctrl+B: llenar la libreta, Shift+B: borrarla) · X quitar · F8 jefe
 T zombis solos de noche
 0 caminan en enjambre / en fila como antes
@@ -108,6 +122,9 @@ G tablas · Shift+G Saltabardas · Shift+J Panzón · L -100 al tinaco (refugio 
 Shift+X La Mojiganga (catrina gigante, ya despierta)
 , soltar 80 lombrices enfrente (hornea unos segundos)
 Shift+L la Madre del Cárcamo con sus crías · Shift+, explosión
+. pelea contra la cucarrata (3 fases; otra vez . = de nuevo)
+Shift+. el pterodáctilo de Juárez (8 m; aire y piso)
+Ctrl+. el Simi bailador (7 m; sus zombis bailan con él: Z o T para traerle)
 3 sal / molotov (otra vez 3 cambia; botella vacía + gasolinera + trapo = molotov)"""},
 	{"titulo": "Efectos y tazos", "efectos": true, "texto": """F2-F7 efectos de pixel (propuestas, abajo)
 F9 efectos nuevos (tambos y chispas: a la derecha)
@@ -122,12 +139,16 @@ Chatarra junto al pedazo de mapa · L en el inventario: libreta"""},
 	{"titulo": "Noches sin fin", "efectos": false, "texto": """Ctrl+H ir a la víspera del siguiente hito (luego N)
 Ctrl+O el tazo holo del siguiente hito, con su show
 Ctrl+Y tirar tu bolsa enfrente (de noche: lider y guardias)
-Ctrl+X flecha a la Madre · Ctrl+Shift+X a la Mojiganga
 Ctrl+G guardar · Ctrl+Shift+G cargar lo guardado
 6 / 7 giro y tajo (en el mapa los dan los tazos)"""},
 ]
+# Shift+F10: llegas a Santa Mugre EVENTO_ANTES s antes del fin del dia (oscurece a la mitad de la transicion de 30 s:
+# unos 15 s despues de llegar); COLONIA_CICLO es el dia y la noche del Ciclo de scenes/mapa.tscn
+const EVENTO_ANTES := 30.0
+const COLONIA_CICLO := [480.0, 360.0]
 const PANEL_ANCHO := 380.0     # px de 640: deja libre la mira y al personaje
 const LOMBRICES_ENFRENTE := 8.0
+const CUCARRATA_ENFRENTE := 15.0   # mide 2 m de alto y ~7 de largo
 const LOMBRICES_CAJA := Vector3(32.0, 5.0, 32.0)
 # Una tecla por lugar de EfectosPixel, en este orden
 const EFECTOS_TECLAS := [KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7]
@@ -136,6 +157,12 @@ const EFECTOS_LUGARES := ["golpe", "impacto", "herido", "muerte", "amanecer", "r
 var _jugador: Player
 var _lombrices: EnjambreLombrices
 var _madre: MadreCarcamo
+var _cucarrata: JefeCucarrata
+var _barra_cucarrata: BarraCucarrata
+var _ptero: JefePtero
+var _barra_ptero: BarraPtero
+var _simi: JefeSimi
+var _barra_simi: BarraSimi
 var _barra_madre: BarraMadre
 var _barra_catrina: BarraCatrina
 var _zombis: Zombis
@@ -180,9 +207,14 @@ func _puntos() -> Array:
 				lista[i][1] = "mejoras"
 	for i in lista.size():
 		var n: Array = lista[i]
-		puntos.append({"tipo": n[0], "giro": n[1], "nombre": n[2], "x": x + n[3] / 2.0, "z": FACHADAS_Z - n[4] / 2.0,
+		var p := {"tipo": n[0], "giro": n[1], "nombre": n[2], "x": x + n[3] / 2.0, "z": FACHADAS_Z - n[4] / 2.0,
 			"rotacion_y": 0.0, "ancho": n[3], "fondo": n[4], "pisos": 1, "interactivo": true, "aire_libre": n[5],
-			"origen": "safehouse/%d" % i})
+			"origen": "safehouse/%d" % i}
+		# La tienda de abarrotes se ve con el estilo de la favela (cortina de lona, letrero pintado)
+		if n[1] == "abarrotes":
+			p["favela"] = true
+			p["sin_gente"] = true
+		puntos.append(p)
 		x += n[3] + SEPARACION
 	return puntos
 
@@ -209,6 +241,7 @@ func _guardar(path: String, data: Dictionary) -> void:
 func _ready() -> void:
 	Player.golpe_cargado = true
 	Player.giro_aereo = true
+	Player.estocada_aerea = true
 	_jugador = get_node("Player")
 	# Para probar sin cambiar el personaje guardado: -- --protagonista=N (Personaje.PROTAGONISTAS)
 	# y --estela=N (EstelaBarrido.Estilo)
@@ -261,8 +294,12 @@ func _ready() -> void:
 	_partida.piezas_en_el_mapa = false
 	_partida.habilidades_de_tazos = false
 	# Uno por mision (Misiones.ARCHIVOS) y el ultimo para el nino de los tazos
-	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(10.0, 0.0, 2.0), Vector3(16.0, 0.0, 2.0), Vector3(22.0, 0.0, 2.0), Vector3(28.0, 0.0, 2.0), Vector3(-30.0, 0.0, 10.0)]
-	_partida.misiones_config = {"puntos_path": PUNTOS_JSON, "casas_path": CASAS_JSON, "vecinos_fijos": vecinos, "perro_fijo": Vector3(38.0, 0.0, 20.0)}
+	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(10.0, 0.0, 2.0), Vector3(16.0, 0.0, 2.0), Vector3(22.0, 0.0, 2.0), Vector3(28.0, 0.0, 2.0), Vector3(34.0, 0.0, 2.0), Vector3(-22.0, 0.0, 10.0), Vector3(-14.0, 0.0, 10.0), Vector3(-6.0, 0.0, 10.0), Vector3(2.0, 0.0, 10.0), Vector3(10.0, 0.0, 10.0), Vector3(18.0, 0.0, 10.0), Vector3(-38.0, 0.0, 10.0), Vector3(-30.0, 0.0, 10.0), Vector3(26.0, 0.0, 10.0), Vector3(34.0, 0.0, 10.0), Vector3(-22.0, 0.0, 2.0), Vector3(-30.0, 0.0, 2.0), Vector3(-38.0, 0.0, 2.0), Vector3(-46.0, 0.0, 10.0), Vector3(-46.0, 0.0, 2.0)]
+	var puntos_mafia := {}
+	for i in PUNTOS_MAFIA.size():
+		puntos_mafia[PUNTOS_MAFIA[i]] = Vector3(PUNTOS_MAFIA_X, 0.0, PUNTOS_MAFIA_Z + i * PUNTOS_MAFIA_PASO)
+	_partida.misiones_config = {"puntos_path": PUNTOS_JSON, "casas_path": CASAS_JSON, "vecinos_fijos": vecinos,
+			"perro_fijo": Vector3(38.0, 0.0, 20.0), "puntos_fijos": puntos_mafia}
 	add_child(_partida)
 	_poner_pieza_prueba()
 	var gente := Gente.new()
@@ -270,6 +307,17 @@ func _ready() -> void:
 	gente.banquetas_path = BANQUETAS_JSON
 	gente.puntos_path = PUNTOS_JSON
 	add_child(gente)
+	# Los cuicos de dia (M7b): con la caja de la mafia te disparan
+	var cuicos := Cuicos.new()
+	cuicos.name = "Cuicos"
+	cuicos.banquetas_path = BANQUETAS_JSON
+	add_child(cuicos)
+	# Drops raros (S5): tres escondites en las orillas del patio, dos con algo cada dia
+	var drops := DropsRaros.new()
+	drops.name = "DropsRaros"
+	drops.fijos = [Vector2(-40.0, 38.0), Vector2(40.0, 38.0), Vector2(46.0, 20.0)] as Array[Vector2]
+	drops.por_dia = 2
+	add_child(drops)
 	_letrero("NEGOCIOS", Vector3(-10.0, 6.0, FACHADAS_Z))
 	_letrero("MAQUINITAS", Vector3(MAQUINAS_X, 4.5, -9.0))
 	_letrero("OBJETOS", Vector3(0.0, 3.0, OBJETOS_ORIGEN.y - 3.0))
@@ -565,8 +613,6 @@ func _poner_objetos() -> void:
 func _exit_tree() -> void:
 	ESTELA.estilo = ESTELA.Estilo.NORMAL
 	get_node("/root/Personaje").mejora_estela = false
-	Player.golpe_cargado = false
-	Player.giro_aereo = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -681,6 +727,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7:
 			_zombis.efectos.cambiar(EFECTOS_LUGARES[EFECTOS_TECLAS.find(tecla)])
 			_mostrar_efectos()
+		KEY_F11:
+			_jugador.giro_con_wasd = not _jugador.giro_con_wasd
 		KEY_F8:
 			var frente := -_jugador.frijol.global_transform.basis.z
 			frente.y = 0.0
@@ -707,10 +755,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			ESTELA.estilo = personaje.estela()
 			_mostrar_efectos()
 		KEY_6:
+			# El giro y la estocada en el aire juntos (en la campana van por separado)
 			Player.giro_aereo = not Player.giro_aereo
+			Player.estocada_aerea = Player.giro_aereo
 			_mostrar_efectos()
 		KEY_7:
-			Player.golpe_cargado = not Player.golpe_cargado
+			# Shift+7: aguante infinito, para probar los especiales sin la barra (EstaminaEspecial)
+			if event.shift_pressed:
+				_jugador.estamina.infinita = not _jugador.estamina.infinita
+			else:
+				Player.golpe_cargado = not Player.golpe_cargado
 			_mostrar_efectos()
 		KEY_O:
 			if event.shift_pressed:
@@ -726,16 +780,37 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				Tazos.dar_puntos(PUNTOS_PRUEBA)
 		KEY_PERIOD:
-			# El Sotano (scripts/sotano/): el permiso de los Gotera y fichas para probar
-			var fichas := get_node_or_null("/root/Fichas")
-			if fichas:
-				fichas.permiso = 1
-				fichas.fichas += 50
+			if event.alt_pressed:
+				# El Sotano (scripts/sotano/): el permiso de los Gotera y fichas para probar
+				var fichas := get_node_or_null("/root/Fichas")
+				if fichas:
+					fichas.permiso = 1
+					fichas.fichas += 50
+			elif event.ctrl_pressed:
+				_simi_bailador()
+			elif event.shift_pressed:
+				_pterodactilo()
+			else:
+				_cucarrata_pare()
 		KEY_COMMA:
 			if event.shift_pressed:
 				EnjambreLombrices.explotar_en_mira(get_tree(), get_viewport())
 			else:
 				_soltar_lombrices()
+		KEY_F10 when event.ctrl_pressed:
+			# Las cañerías del arroyo como desde el mapa (PasoJefe): al salir o desmayarte vuelves aqui
+			get_viewport().set_input_as_handled()
+			PasoJefe.entrar(self, "res://scenes/tuneles.tscn")
+			return
+		KEY_F10 when event.shift_pressed:
+			# El evento de la reja (F1): a Santa Mugre poco antes de anochecer, con la reja ya abierta y que falle seguro
+			get_viewport().set_input_as_handled()
+			Misiones.guardias_reja = maxi(Misiones.guardias_reja, 1)
+			Misiones.reja_enfriamiento = 0
+			Misiones.reja_forzar = true
+			var hora: float = (COLONIA_CICLO[0] - EVENTO_ANTES) / (COLONIA_CICLO[0] + COLONIA_CICLO[1])
+			PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, "poniente", hora, "santa_mugre")
+			return
 		KEY_F10:
 			# Al cambiar de escena este nodo ya no tiene viewport
 			get_viewport().set_input_as_handled()
@@ -749,9 +824,6 @@ func _unhandled_input(event: InputEvent) -> void:
 # Las teclas de la noche sin fin (con Ctrl; pagina "Noches sin fin"). Regresa si la uso
 func _tecla_noches(tecla: int, shift: bool) -> bool:
 	var noches := get_node("/root/Noches")
-	var frente := -_jugador.frijol.global_transform.basis.z
-	frente.y = 0.0
-	frente = frente.normalized()
 	match tecla:
 		KEY_H:
 			# La noche antes del siguiente hito: la N lleva a esa noche
@@ -773,9 +845,6 @@ func _tecla_noches(tecla: int, shift: bool) -> bool:
 					return true
 		KEY_Y:
 			_partida.soltar_bolsa_aqui()
-		KEY_X:
-			var tipo := HitoNoche.Tipo.MOJIGANGA if shift else HitoNoche.Tipo.MADRE_CARCAMO
-			_partida.entrada_aqui(tipo, _jugador.global_position + frente * 6.0 + Vector3.DOWN)
 		KEY_G:
 			var guardado := get_node("/root/Guardado")
 			if shift:
@@ -814,6 +883,76 @@ func _crear_personaje() -> void:
 		_jugador.aplicar_personaje()
 	creador.connect("listo", cerrar)
 	creador.connect("volver", cerrar)
+
+
+# La pelea contra la cucarrata (scripts/cucarrata/JefeCucarrata.gd) CUCARRATA_ENFRENTE m enfrente,
+# con su barra: tres fases (camina y muerde, pare crias, vuela y pica). Otra vez . la empieza de nuevo
+func _cucarrata_pare() -> void:
+	if _cucarrata != null and is_instance_valid(_cucarrata):
+		_cucarrata.queue_free()
+	for cria in get_tree().get_nodes_in_group("lombrices"):
+		if cria is CriaCucarrata:
+			cria.queue_free()
+	_cucarrata = JefeCucarrata.new()
+	add_child(_cucarrata)
+	var frente := -_jugador.frijol.global_transform.basis.z
+	frente.y = 0.0
+	frente = frente.normalized()
+	# Un poco de lado: justo enfrente la tapa tu cuerpo desde la camara
+	var donde := _jugador.global_position + frente * CUCARRATA_ENFRENTE + frente.cross(Vector3.UP) * 4.0
+	donde.y = 0.0
+	_cucarrata.global_position = donde
+	_cucarrata.look_at(donde - frente, Vector3.UP)   # la cabeza (-Z) hacia ti
+	if _barra_cucarrata == null:
+		_barra_cucarrata = BarraCucarrata.new()
+		add_child(_barra_cucarrata)
+	_barra_cucarrata.jefe = _cucarrata
+
+
+# El pterodactilo de Juarez (scripts/ptero/JefePtero.gd) 25 m enfrente, ya despierto: despega y empieza
+# en el aire. Anda en un circulo de 40 m alrededor de donde estabas. Otra vez Shift+. = de nuevo
+func _pterodactilo() -> void:
+	if _ptero != null and is_instance_valid(_ptero):
+		_ptero.queue_free()
+	var frente := -_jugador.frijol.global_transform.basis.z
+	frente.y = 0.0
+	frente = frente.normalized()
+	_ptero = JefePtero.new()
+	_ptero.centro = Vector3(_jugador.global_position.x, 0.0, _jugador.global_position.z)
+	_ptero.radio = 40.0
+	_ptero.piso = 0.0
+	add_child(_ptero)
+	var donde := _jugador.global_position + frente * 25.0
+	_ptero.global_position = Vector3(donde.x, _ptero.piso, donde.z)
+	_ptero.look_at(_ptero.global_position - frente, Vector3.UP)
+	if _barra_ptero == null:
+		_barra_ptero = BarraPtero.new()
+		add_child(_barra_ptero)
+	_barra_ptero.jefe = _ptero
+	_ptero.despertar()
+
+
+# El Simi bailador (scripts/simi/JefeSimi.gd) 30 m enfrente, ya peleando: los zombis que haya (Z, o
+# T para que salgan solos de noche) van a bailar con el. Otra vez Ctrl+. = de nuevo
+func _simi_bailador() -> void:
+	if _simi != null and is_instance_valid(_simi):
+		_simi.queue_free()
+	var frente := -_jugador.frijol.global_transform.basis.z
+	frente.y = 0.0
+	frente = frente.normalized()
+	var donde := _jugador.global_position + frente * 30.0
+	_simi = JefeSimi.new()
+	_simi.centro = Vector3(donde.x, 0.0, donde.z)
+	_simi.radio = 40.0
+	_simi.piso = 0.0
+	add_child(_simi)
+	_simi.global_position = _simi.centro
+	_simi.rotation.y = atan2(-frente.x, -frente.z)
+	if _barra_simi == null:
+		_barra_simi = BarraSimi.new()
+		add_child(_barra_simi)
+	_barra_simi.jefe = _simi
+	_simi.empezar()
 
 
 # Un enjambre de lombrices (scripts/lombrices/) LOMBRICES_ENFRENTE m enfrente, en el piso
@@ -987,6 +1126,7 @@ func _mostrar_efectos() -> void:
 			renglones.append("9 pelea: " + ("golpe a tiempo" if Player.pelea_a_tiempo else "sin aturdir"))
 			renglones.append("8 estela: %d %s" % [ESTELA.estilo, ESTELA.NOMBRES[ESTELA.estilo]])
 			renglones.append("7 cargado: %s · 6 giro: %s" % ["sí" if Player.golpe_cargado else "no", "sí" if Player.giro_aereo else "no"])
+			renglones.append("Shift+7 aguante: " + ("infinito" if _jugador.estamina.infinita else "se gasta"))
 		2:
 			renglones.append("0 zombis: " + ("enjambre" if Zombie.enjambre else "en fila (como antes)"))
 		3:

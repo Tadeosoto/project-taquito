@@ -83,7 +83,7 @@ func _adentro_de_muralla(punto: Vector3) -> bool:
 	if get_tree().current_scene.scene_file_path == MAPA_COLONIA:
 		return true
 	for muro in get_tree().get_nodes_in_group("muro_colonia"):
-		if muro.has_method("adentro") and muro.adentro(punto):
+		if muro.has_method("contiene") and muro.contiene(Vector2(punto.x, punto.z)):
 			return true
 	return false
 

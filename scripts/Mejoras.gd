@@ -52,9 +52,12 @@ func reiniciar() -> void:
 	cambio.emit()
 
 
-# El godmode: todo el catalogo al maximo, buffs incluidos, para medir el kit completo.
-func maximo() -> void:
+# Todo el catalogo al maximo, buffs incluidos; con `categoria`, solo esa (el godmode de la
+# defensa usa Cat.MOVIMIENTOS).
+func maximo(categoria := -1) -> void:
 	for dato: Dictionary in CATALOGO:
+		if categoria >= 0 and dato["categoria"] != categoria:
+			continue
 		if dato["tipo"] == "buff":
 			buffs[dato["id"]] = true
 		else:
@@ -158,7 +161,9 @@ func aplicar_en_jugador(jugador: Node) -> void:
 	if personaje:
 		personaje.mejora_estela = tiene("estela")
 	ESTELA.estilo = personaje.estela() if (personaje and personaje.mejora_estela) else ESTELA.Estilo.NORMAL
-	Player.golpe_cargado = tiene("cargado")
-	Player.giro_aereo = tiene("giro")
+	# Mientras los especiales esten de prueba (Player.ESPECIALES_DE_PRUEBA) la carrera no los apaga
+	Player.golpe_cargado = tiene("cargado") or Player.ESPECIALES_DE_PRUEBA
+	Player.giro_aereo = tiene("giro") or Player.ESPECIALES_DE_PRUEBA
+	Player.estocada_aerea = Player.giro_aereo   # en la carrera la mejora del giro trae las dos
 	if jugador.has_method("aplicar_habilidades"):
 		jugador.aplicar_habilidades()

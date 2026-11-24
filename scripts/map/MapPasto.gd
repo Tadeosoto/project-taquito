@@ -43,6 +43,7 @@ var _timer := 0.0
 
 
 func _ready() -> void:
+	add_to_group("mapa_pasto")   # SonidosJugador: los pasos suenan a tierra donde hay pasto
 	var textura := load(mascara_path) as Texture2D
 	var info = JSON.parse_string(FileAccess.get_file_as_string(mascara_json)) if FileAccess.file_exists(mascara_json) else null
 	if textura == null or not info is Dictionary:
@@ -110,6 +111,11 @@ func _distancia(key: Vector2i, p: Vector3) -> float:
 	return Vector2(dx, dz).length()
 
 
+# Si en `donde` hay pasto (lo mismo que decide donde salen las matas)
+func hay_pasto(donde: Vector3) -> bool:
+	return _mascara != null and _valor(donde.x, donde.z) >= MASCARA_MIN and not FortalezasMapa.sin_vegetacion(donde.x, donde.z)
+
+
 func _valor(x: float, z: float) -> float:
 	var px := floori((x - _origen.x) / _metros_por_pixel)
 	var pz := floori((z - _origen.y) / _metros_por_pixel)
@@ -133,7 +139,7 @@ func _crear_celda(key: Vector2i) -> MultiMeshInstance3D:
 		var tinte := rng.randf()
 		var quedarse := rng.randf()
 		var m := _valor(x, z)
-		if m < MASCARA_MIN or sorteo > m:
+		if m < MASCARA_MIN or sorteo > m or FortalezasMapa.sin_vegetacion(x, z):
 			continue
 		var color: Color
 		match Deterioro.tipo_pasto(x, z):

@@ -74,6 +74,12 @@ static func de(id: String) -> Tragamonedas:
 	return _placas[id]
 
 
+# Las placas viven en un static var, que Godot vacia despues de revisar fugas: al cerrar el juego
+# avisaba "ObjectDB instances were leaked" por cada maquina. Cartera lo llama al salir
+static func olvidar_placas() -> void:
+	_placas.clear()
+
+
 func estado() -> Estado:
 	if segura:
 		return Estado.SEGURA

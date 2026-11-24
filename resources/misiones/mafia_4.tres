@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/misiones/caja_misteriosa.tres" id="3_caja"]
+
+[sub_resource type="Resource" id="paso_llevar"]
+script = ExtResource("2_paso")
+tipo = 5
+cuando = 2
+texto = "Lleva la caja a Real del Monte"
+lugar = "punto:punto REAL DEL MONTE"
+cuantos = 1
+carga = ExtResource("3_caja")
+soltable = true
+
+[resource]
+script = ExtResource("1_mision")
+id = "mafia_4"
+nombre = "Entrega a Real del Monte"
+modelo = "indian_gangster"
+donde = "punto:punto ARROYUELO"
+oferta = "Esta va a Real del Monte, donde se juntan los Real. Ya casi llegas a la puerta de la casa."
+aceptada = "Por las calles del sureste. Allá hay mucho zombi de noche y mucho cuico de día."
+recuerda = "A Real del Monte con la caja."
+gracias = "Llegaste. Una más y te abren en La Gotera."
+despedida = "Ya te esperan en Haciendas."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar")])
+pesos = 90
+una_vez = true
+requiere = "mafia_3"
+abierto_de_noche = true

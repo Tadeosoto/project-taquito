@@ -528,12 +528,7 @@ func _tipo(z: Zombie) -> String:
 		return "jefe"
 	if z.tipo == Zombie.Tipo.GORDO:
 		return "gordo"
-	var indice := z.skin
-	var claves := Zombie.SKINS.keys()
-	var nombre := "normal"
-	if indice >= 0 and indice < claves.size():
-		nombre = String(claves[indice]).get_file().get_basename()
-	return nombre
+	return ZombiSerenol.nombre(z.skin)
 
 
 func _rol(z: Zombie) -> String:

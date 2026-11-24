@@ -7,7 +7,8 @@ extends CanvasLayer
 #   - Al amanecer "Sobreviviste la noche N" y, si fue la noche de un hito, su tazo holografico.
 #   - En la noche del garrafonero (la 3 y sus repeticiones) sale cerca de ti; ya no detiene la
 #     noche: si no lo matas, cae al amanecer con todos.
-#   - Las flechas a las arenas de los jefes (EntradaJefe) y tu bolsa del desmayo (GuardiaBolsa).
+#   - Tu bolsa del desmayo (GuardiaBolsa). Las peleas de jefe son las de Juanjo (EntradaJefe y
+#     PasoJefe, scripts/mapa/): Noches solo decide desde que noche se entra sin mision.
 # Con Refugio (el safehouse) se defiende su tinaco; si lo tumban ya no se pierde: se avisa y se
 # repara al amanecer. Morir no la termina ni reinicia la noche (Supervivencia.gd). Guarda la
 # partida al amanecer (Guardado). En coop la lleva el servidor.
@@ -54,13 +55,6 @@ var misiones_config := {}
 @export var supervivencia_path: NodePath
 # Vacio: sin refugio (ver arriba)
 @export var refugio_path: NodePath
-# Las flechas a las arenas de los jefes (EntradaJefe), en coordenadas de map_test. Lugares de
-# primera propuesta (needs review): el carcamo en el baldio sur junto a La Gigantera, cerca de
-# donde iria la fortaleza GelA, y la Mojiganga en la cancha grande (no hay plaza de la Catrina
-# medida todavia). Apagadas en las otras escenas
-@export var entradas_jefes := false
-@export var entrada_madre := Vector3(-300.0, 0.0, 630.0)
-@export var entrada_mojiganga := Vector3(-244.0, 0.0, -721.0)
 # El tajo cargado y el giro en el aire (de JJ, Player.golpe_cargado / giro_aereo) se prenden con
 # sus habilidades de tazo (Habilidades "tajo_cargado", "giro_aereo"). El safehouse lo apaga: ahi
 # los prende siempre, con sus teclas 6 y 7
@@ -95,9 +89,9 @@ func _ready() -> void:
 	_refugio = get_node_or_null(refugio_path) as Refugio if not refugio_path.is_empty() else null
 	_ciclo = get_tree().get_first_node_in_group("ciclo")
 	_jugador = get_tree().get_first_node_in_group("jugador") as Player
-	# Llegando de la arena de un jefe o de Continuar (PasoArena): donde estabas. Supervivencia ya
-	# tomo donde empieza la escena como punto de regreso; ese se queda
-	var llegada: Variant = PasoArena.tomar_llegada()
+	# Llegando de Continuar (Guardado): donde estabas. Supervivencia ya tomo donde empieza la escena
+	# como punto de regreso; ese se queda. (De una pelea de jefe te pone MuroColonia, PasoJefe)
+	var llegada: Variant = get_node("/root/Guardado").tomar_llegada()
 	if llegada is Transform3D:
 		_jugador.global_transform = llegada
 		_jugador.velocity = Vector3.ZERO
@@ -111,21 +105,25 @@ func _ready() -> void:
 	_ciclo.amanecio.connect(_amanecio)
 	_armar_pantalla()
 	PiezasMapa.recogida.connect(func(zona: int) -> void:
-		_supervivencia.avisar(TEXTO_PIEZA % ZonasMapa.nombre(zona)))
+		_supervivencia.avisar(TEXTO_PIEZA % ZonasMapa.etiqueta(zona)))
 	# Las hazanas que dan trofeos para el taller (Hazanas.gd)
 	var hazanas := Hazanas.new()
 	hazanas.name = "Hazanas"
 	hazanas.refugio = _refugio
 	add_child(hazanas)
+	# Pasos y latido del jugador (SonidosJugador.gd)
+	var cuerpo := SonidosJugador.new()
+	cuerpo.name = "SonidosJugador"
+	add_child(cuerpo)
+	var ambiente := AmbienteMundo.new()
+	ambiente.name = "AmbienteMundo"
+	add_child(ambiente)
 	if piezas_en_el_mapa:
 		_poner_piezas()
 		_poner_bolsas()
 		_poner_chatarra()
 		_poner_obras()
 	_poner_misiones()
-	if entradas_jefes:
-		_poner_entrada(HitoNoche.Tipo.MADRE_CARCAMO, "La Madre del Cárcamo", entrada_madre)
-		_poner_entrada(HitoNoche.Tipo.MOJIGANGA, "La Mojiganga", entrada_mojiganga)
 	if habilidades_de_tazos:
 		Tazos.cambio.connect(_aplicar_habilidades)
 		_aplicar_habilidades()
@@ -139,9 +137,9 @@ func _ready() -> void:
 
 
 # Los tazos son la unica progresion (2026-11-23): las Mejoras ya solo estan en las pruebas
+# Lo que abren tanto la campana (misiones que enseñan) como los tazos: Misiones.ataques_de_campana
 func _aplicar_habilidades() -> void:
-	Player.golpe_cargado = Tazos.tiene("tajo_cargado")
-	Player.giro_aereo = Tazos.tiene("giro_aereo")
+	Misiones.ataques_de_campana()
 
 
 func _exit_tree() -> void:
@@ -149,27 +147,9 @@ func _exit_tree() -> void:
 		Tazos.cambio.disconnect(_aplicar_habilidades)
 
 
-func _poner_entrada(tipo: HitoNoche.Tipo, texto: String, donde: Vector3) -> EntradaJefe:
-	var entrada := EntradaJefe.new()
-	entrada.tipo = tipo
-	entrada.texto = texto
-	entrada.name = "Entrada%d" % tipo
-	entrada.process_mode = Node.PROCESS_MODE_PAUSABLE
-	add_child(entrada)
-	entrada.global_position = donde
-	return entrada
-
-
 # Prueba del safehouse: tu bolsa con guardias aqui mismo
 func soltar_bolsa_aqui() -> void:
 	_guardia_bolsa.soltar_aqui()
-
-
-# Prueba del safehouse: la flecha a la arena de un jefe frente a ti, abierta siempre
-func entrada_aqui(tipo: HitoNoche.Tipo, donde: Vector3) -> void:
-	var nombre := "La Madre del Cárcamo" if tipo == HitoNoche.Tipo.MADRE_CARCAMO else "La Mojiganga"
-	var entrada := _poner_entrada(tipo, nombre, donde)
-	entrada.siempre = true
 
 
 # "Sobreviviste la noche N" con el resumen (RitmoNoche), el record (Noches) y, si fue la noche
@@ -352,7 +332,7 @@ func _anochecio() -> void:
 	if jefe == HitoNoche.Tipo.GARRAFONERO:
 		_jefe_pendiente = true
 	elif jefe >= 0 and not hito:
-		# Repeticion de la Madre o la Mojiganga: su flecha ya esta abierta, solo se avisa
+		# Repeticion de la Madre o la Mojiganga: su entrada (EntradaJefe) ya deja pasar, solo se avisa
 		_avisar_luego(TEXTO_JEFE_SUELTO)
 
 
@@ -402,7 +382,8 @@ func _revisar_zona(delta: float) -> void:
 	var zona := ZonasMapa.zona_en(_jugador.global_position.x, _jugador.global_position.z)
 	if zona >= 0 and zona != _zona_actual:
 		_zona_actual = zona
-		_supervivencia.avisar(TEXTO_ZONA % ZonasMapa.nombre(zona))
+		if ZonasMapa.nombre(zona) != "":   # las zonas sin nombre (el sureste) no avisan
+			_supervivencia.avisar(TEXTO_ZONA % ZonasMapa.nombre(zona))
 
 
 # Ya no termina nada: se dice y sigue la noche. Al amanecer cae solo (Zombis._amanecer): eso es

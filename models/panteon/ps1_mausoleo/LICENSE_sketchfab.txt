@@ -1,0 +1,11 @@
+Model Information:
+* title:	PS1 Style / Lowpoly Mausoleum
+* source:	https://sketchfab.com/3d-models/ps1-style-lowpoly-mausoleum-a547e313cce0481baa1909dc530691ce
+* author:	dro (https://sketchfab.com/drolavellan)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "PS1 Style / Lowpoly Mausoleum" (https://sketchfab.com/3d-models/ps1-style-lowpoly-mausoleum-a547e313cce0481baa1909dc530691ce) by dro (https://sketchfab.com/drolavellan) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

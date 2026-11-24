@@ -1,0 +1,99 @@
+{
+	"_nota": "Fortalezas amuralladas del mapa grande (map_test), una por nodo MuroColonia (su `id`). poligono: vertices (x, z) de la barda en metros del juego; cerrada false deja abierto el tramo del ultimo al primero. rejas: centro (x, z), rumbo (a lo largo de la barda), largo, lado (PasoColonia.lado) y abierta (hojas abiertas contra el muro; si no, cerradas al centro); hacia afuera se calcula. Con colonia, cada reja tiene una flecha por fuera a scenes/mapa.tscn con esa colonia de Blender. alto_muralla: lamina de los fieles encima del block. calles: rectangulo x0, z0, x1, z1 cerrado a los carros (CallesRuta). caseta: centro (x, z) y hueco de una caseta con pluma cerrada. Santa Mugre debe coincidir con recorte y rejas de tools/blender/mapa/colonias/santa_mugre.json (Barda_*: 2.6 m de block, 0.3 m de grueso). boca: la escalera que baja a las cañerias, en un hueco de la barda (centro sobre la linea, rumbo a lo largo de la barda, ancho del hueco = el pozo con sus muros); baja hacia adentro. arroyo: el corredor verde del arroyo, de la cancha de Parques del Bosque (arriba de ahi, el carcamo de la Madre) al Camino Real a Colima, cerrado; se entra por la boca de las cañerias, al fondo de la Av. Padre Xavier Scheifler (JJ 2026-11-22).",
+	"santa_mugre": {
+		"nombre": "Parques de Santa Mugre",
+		"colonia": "santa_mugre",
+		"entrar": "Entrar a Santa Mugre",
+		"poligono": [[-420.0, 258.0], [-185.0, 258.0], [-185.0, 482.0], [-420.0, 482.0]],
+		"alto": 2.6,
+		"alto_muralla": 4.5,
+		"color": [0.62, 0.6, 0.57],
+		"color_lamina": [0.3, 0.36, 0.3],
+		"calles": [-420.0, 258.0, -185.0, 482.0],
+		"rejas": [
+			{"lado": "poniente", "centro": [-420.0, 454.5], "rumbo": [0.0, 1.0], "largo": 19.0},
+			{"lado": "oriente", "centro": [-185.0, 472.6], "rumbo": [0.0, 1.0], "largo": 17.6}
+		]
+	},
+	"la_gotera": {
+		"nombre": "La Gotera",
+		"colonia": "la_gotera",
+		"entrar": "Entrar a La Gotera",
+		"poligono": [
+			[722.9, -341.5], [720.4, -309.9], [717.4, -273.0], [714.3, -235.2],
+			[713.4, -224.0], [710.0, -182.8], [707.1, -146.9], [704.4, -113.9],
+			[709.9, -113.4], [790.8, -106.4], [914.0, -95.7], [914.0, -324.1],
+			[811.5, -333.4], [728.4, -341.0]
+		],
+		"alto": 3.2,
+		"color": [0.5, 0.5, 0.47],
+		"calles": [704.0, -324.0, 914.0, -114.0],
+		"rejas": [
+			{"lado": "norte", "centro": [728.4, -341.0], "rumbo": [0.9959, 0.0909], "largo": 11.0, "abierta": true},
+			{"lado": "sur", "centro": [709.9, -113.5], "rumbo": [0.996, 0.0895], "largo": 11.0, "abierta": true}
+		]
+	},
+	"gela": {
+		"nombre": "Los Reservorios",
+		"poligono": [
+			[279.0, -897.5], [278.4, -651.4], [-75.1, -749.9], [-103.8, -760.3],
+			[-166.9, -777.5], [-318.3, -828.1], [-432.8, -787.1], [-459.9, -846.9],
+			[-473.7, -897.5]
+		],
+		"alto": 3.6,
+		"color": [0.86, 0.87, 0.88],
+		"caseta": {"centro": [-50.0, -742.9], "hueco": 7.0}
+	},
+	"industrias_gela": {
+		"_nota": "Industrias GelA (JJ 2026-11-22): el parque industrial triangular de la esquina sureste de Bahia de Huatulco e Independencia (en la vida real, Pipsa Montacargas), con sus cinco bodegas huecas y las casas que hacen de bodega (la barda va 1 m adentro de la banqueta de Huatulco, al ras de sus fachadas). Una reja cerrada en la Av. Bahia de Huatulco, para abrirla despues con llave (mision: entrar a la bodega y matar zombis).",
+		"nombre": "Industrias GelA",
+		"poligono": [[-427.5, -762.0], [-398.0, -752.0], [-372.0, -712.0], [-252.0, -574.0], [-298.0, -508.0], [-455.5, -592.0], [-454.6, -605.6], [-451.1, -623.8], [-441.3, -678.8], [-439.4, -689.7], [-430.4, -740.7]],
+		"alto": 3.2,
+		"color": [0.78, 0.79, 0.8],
+		"rejas": [{"lado": "poniente", "centro": [-439.0, -692.0], "rumbo": [-0.1737, 0.9848], "largo": 7.0}]
+	},
+	"arroyo": {
+		"nombre": "El arroyo",
+		"poligono": [
+			[-220.0, -355.5],
+			[-82.0, -96.5],
+			[-74.0, -11.5],
+			[-141.0, 131.5],
+			[-124.0, 198.5],
+			[-87.0, 244.5],
+			[-45.0, 283.5],
+			[9.0, 308.5],
+			[58.0, 341.5],
+			[109.0, 370.5],
+			[164.0, 393.5],
+			[217.0, 420.5],
+			[266.0, 434.5],
+			[318.0, 462.5],
+			[373.0, 483.5],
+			[396.0, 497.5],
+			[425.0, 469.5],
+			[367.0, 456.5],
+			[336.0, 418.5],
+			[289.0, 394.5],
+			[230.0, 396.5],
+			[176.0, 370.5],
+			[123.0, 342.5],
+			[75.0, 308.5],
+			[26.0, 275.5],
+			[0.0, 249.5],
+			[-30.0, 209.5],
+			[-82.0, 181.5],
+			[-101.0, 143.5],
+			[-77.0, 59.5],
+			[-32.0, -55.5],
+			[-58.0, -133.5],
+			[-119.0, -209.5],
+			[-143.0, -273.5],
+			[-190.0, -370.5]
+		],
+		"alto": 2.6,
+		"color": [0.58, 0.57, 0.54],
+		"boca": {"centro": [90.0, 319.1], "rumbo": [-0.816, -0.578], "ancho": 5.8},
+		"salida": {"centro": [-193.6, -368.7], "rumbo": [-0.894, 0.447], "ancho": 5.8}
+	}
+}

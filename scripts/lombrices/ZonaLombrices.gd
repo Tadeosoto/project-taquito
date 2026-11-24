@@ -66,7 +66,7 @@ func _ready() -> void:
 		Tipo.SAL:
 			_disco(COLOR_SAL, 0.85)
 			_bucles("sal_burbujas", 3, 0.25)
-			Sonidos.tocar(self, "fizz", -8.0)
+			Sonidos.tocar(self, "fizz", -10.0)
 		Tipo.LODO:
 			if ver:
 				_disco(COLOR_LODO, 0.9)
@@ -75,6 +75,9 @@ func _ready() -> void:
 				_bucles("lodo_charco", 1, radio * 0.35)
 		Tipo.FUEGO:
 			_llamas()
+			_crepitar(-4.0)
+		Tipo.REPELE:
+			_crepitar(-10.0)   # el tambo prendido
 
 
 func _disco(color: Color, alfa: float) -> void:
@@ -364,3 +367,18 @@ func patear(hacia: Vector3) -> void:
 			(hijo as Node3D).rotation.z = deg_to_rad(80.0)
 	radio = 0.0
 	remove_from_group("zonas_lombriz")
+
+
+# El crepitar del fuego (molotov y botes prendidos): un loop 3D en la zona, hasta que se acaba
+func _crepitar(volumen_db: float) -> void:
+	var stream := Sonidos.sonido("fuego_loop")
+	if stream == null:
+		return
+	var voz := AudioStreamPlayer3D.new()
+	voz.stream = stream
+	voz.volume_db = volumen_db
+	voz.max_distance = 30.0
+	voz.unit_size = maxf(radio, 2.0)
+	voz.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(voz)
+	voz.play(randf() * stream.get_length())

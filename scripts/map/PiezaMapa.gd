@@ -85,6 +85,7 @@ func is_player_inside() -> bool:
 func interact() -> void:
 	var cual: int = zona if zona >= 0 else get_node("/root/PiezasMapa").siguiente_faltante()
 	get_node("/root/PiezasMapa").recoger(cual)
+	Sonidos.tocar_suelto(self, "juntar", -6.0)
 	var efectos := get_tree().get_first_node_in_group("efectos_pixel")
 	if efectos:
 		efectos.lanzar("recoger", global_position)

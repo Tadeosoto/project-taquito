@@ -77,7 +77,7 @@ func _ready() -> void:
 func _armar_chorros() -> void:
 	for datos: Array in CHORROS:
 		var hacia := Vector3(cos(datos[0]), 0.0, sin(datos[0]))
-		var chorro := EfectosPixel.cuadro_bucle("tinaco_chorro", CHORRO_ESCALA, 1.0, 0.0, true)
+		var chorro := EfectosPixel.cuadro_bucle("tinaco_chorro", CHORRO_ESCALA, 1.0, 0.0, false, false, true)
 		if chorro == null:
 			return
 		chorro.position = hacia * TINACO_RADIO * 0.95 + Vector3.UP * datos[1]

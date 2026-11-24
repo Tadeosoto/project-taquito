@@ -135,6 +135,7 @@ func comprar() -> void:
 		return
 	var dato: Dictionary = _entradas[_elegido]
 	if _mejoras and _mejoras.comprar(dato["id"]):
+		Sonidos.tocar(self, "mejora_maxima" if _mejoras.al_maximo(dato["id"]) else "mejora_compra", -5.0)
 		_mensaje.text = "Compraste: %s" % dato["nombre"]
 		_mensaje.add_theme_color_override("font_color", VERDE)
 		var jugador := get_tree().get_first_node_in_group("jugador")

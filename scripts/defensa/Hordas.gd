@@ -57,9 +57,9 @@ const GRUPOS_MEDIO := [
 # mas cercano (llegan todos a la vez); dificultad: multiplica los grupos
 # emboscadas: grupitos aparte que salen de tu lado y van por ti (no en facil)
 const MODOS := {
-	"facil": {"grupos": GRUPOS_FACIL, "tope": true, "corredores_cercano": false, "dificultad": 1.0, "emboscadas": false, "panzon": 0.0},
-	"medio": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.25, "emboscadas": true, "panzon": 0.35},
-	"dificil": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.6, "emboscadas": true, "panzon": 0.6},
+	"facil": {"grupos": GRUPOS_FACIL, "tope": true, "corredores_cercano": false, "dificultad": 1.0, "emboscadas": false, "panzon": 0.0, "panzon_max": 0, "panzon_juntos": 1},
+	"medio": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.25, "emboscadas": true, "panzon": 0.35, "panzon_max": 1, "panzon_juntos": 1},
+	"dificil": {"grupos": GRUPOS_MEDIO, "tope": false, "corredores_cercano": true, "dificultad": 1.6, "emboscadas": true, "panzon": 0.6, "panzon_max": 3, "panzon_juntos": 2},
 }
 const ULTIMA := 29.5       # nada despues: lo que quede se cae al amanecer
 # Emboscadas: fuera de las oleadas, 2-3 cazadores que salen del lado donde andas (fuera de la
@@ -70,7 +70,8 @@ const EMBOSCADA_GRUPO := Vector2i(2, 3)
 const EMBOSCADA_DESDE := 23.0                # la primera, no antes de esta hora
 const QUEDAN := 1          # con cuantos vivos sale el siguiente grupo
 # El Panzon (Panzon.gd, propuesta de AG): desde medianoche, cada hora se tira el dado
-# (MODOS["panzon"]); nunca dos vivos; si a las 3:00 no ha salido y el modo lo trae, sale
+# (MODOS["panzon"]); si a las 3:00 no ha salido y el modo lo trae, sale. Cuando toca llegan de 1 a
+# `panzon_juntos` a la vez, sin pasar de `panzon_max` vivos (medio 1; dificil hasta 3, de dos en dos)
 const PANZON_DESDE := 24.0
 const PANZON_SEGURO := 27.0
 const ESPERA_MIN := 5.0    # s entre grupo y grupo, aunque los acabes rapido
@@ -118,7 +119,9 @@ var _emboscados: Array[Zombie] = []
 var panzon_prob := 0.0
 var panzones := 0            # cuantos salieron esta noche
 var _panzon_hora := -1        # la ultima hora en que se tiro el dado
-var _panzon_pendiente := false # ya toco, falta un lugar libre
+var panzon_max := 0           # cuantos vivos a la vez (MODOS)
+var panzon_juntos := 1        # cuantos llegan, como mucho, cada vez que toca
+var _panzon_pendiente := 0     # ya tocaron, falta un lugar libre para estos
 
 
 # 22.0 a 30.0: llega a las 6 justo al amanecer (Ciclo.amanecio, a media transicion)
@@ -146,7 +149,7 @@ func reiniciar() -> void:
 	emboscados_muertos = 0
 	panzones = 0
 	_panzon_hora = -1
-	_panzon_pendiente = false
+	_panzon_pendiente = 0
 
 
 # Cuantos trae el grupo que sale a esta hora
@@ -175,6 +178,8 @@ func usar_modo(nombre: String) -> void:
 	zombis.corredores_al_cercano = modo["corredores_cercano"]
 	emboscadas = modo["emboscadas"]
 	panzon_prob = modo["panzon"]
+	panzon_max = modo["panzon_max"]
+	panzon_juntos = modo["panzon_juntos"]
 
 
 func _physics_process(delta: float) -> void:
@@ -218,21 +223,20 @@ func _physics_process(delta: float) -> void:
 func _panzon(h: float) -> void:
 	if panzon_prob <= 0.0 or h < PANZON_DESDE or h >= ULTIMA:
 		return
-	if get_tree().get_first_node_in_group("panzon") != null:
-		return
+	var vivos := get_tree().get_nodes_in_group("panzon").size()
 	var hora_entera := int(floor(h))
 	if hora_entera != _panzon_hora:
 		_panzon_hora = hora_entera
-		if randf() < panzon_prob:
-			_panzon_pendiente = true
-	if panzones == 0 and h >= PANZON_SEGURO:
-		_panzon_pendiente = true
-	if not _panzon_pendiente:
+		if _panzon_pendiente == 0 and vivos < panzon_max and randf() < panzon_prob:
+			_panzon_pendiente = randi_range(1, mini(panzon_juntos, panzon_max - vivos))
+	if panzones == 0 and h >= PANZON_SEGURO and _panzon_pendiente == 0:
+		_panzon_pendiente = 1
+	if _panzon_pendiente == 0 or vivos >= panzon_max:
 		return
 	var lugar := _lugar(randf() * TAU)
 	if lugar == Vector3.INF:
 		return   # todo ese lado se ve o esta tapado: otro lado en el siguiente cuadro
-	_panzon_pendiente = false
+	_panzon_pendiente -= 1
 	var panzon := zombis.aparecer_panzon(lugar)
 	panzon.murio.connect(_murio)
 	panzones += 1

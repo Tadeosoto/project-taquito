@@ -388,6 +388,7 @@ func _comprar() -> void:
 	var registro := get_node_or_null("/root/Registro")
 	if registro:
 		registro.compra(giro if giro != "" else nombre, producto.item_name, precio)
+	Sonidos.tocar(self, "comprar", -4.0)
 	var dicho := "Compraste: %s" % producto.item_name
 	if hueco >= 0:
 		dicho = "Te llenaron la botella: %s" % producto.item_name.to_lower()

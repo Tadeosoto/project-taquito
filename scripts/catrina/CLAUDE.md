@@ -56,17 +56,16 @@ A Dark Souls-style boss: the colonia's 6 m cartonería parade catrina, soaked wi
   - It has a `Ciclo` held at night and a `Zombis` node (no spontaneous spawns) for the adds, and two Molotov crates refilled on each phase change.
   - She stands still until you come within `DESPIERTA_A` 14 m, then the bar and `pt_tema` start.
   - Fainting resets the fight. Winning gives `femur_catrina.tres` (22 damage, slow) and `corona_flores.tres` (amulet `petalos` 0.25: `Bonos.petalos()`, healed in `Zombie._morir`). `,` restarts.
-  - **From the map (2026-11-23, endless sandbox):** from night 15 ("the parade") an `EntradaJefe` arrow on `map_test` loads this plaza through `PasoArena`. With `PasoArena.desde_mapa`:
-    - `Catrina.aguante` = `PasoArena.fuerza` divides incoming damage (boss repeats).
-    - Winning shows the reward for ~4 s and returns to the map at the arrow, same night. Rewards that didn't fit stay on this plaza's floor.
-    - Fainting returns to the map with your items in a bag beside the arrow.
-    - `,` does nothing.
-    - The command-line modes keep their `quit()`.
-    - A real parade walking the streets is not done.
+  - **Endless sandbox additions (2026-11-23)** on top of Juanjo's trip (`PasoJefe`):
+    - `Catrina.aguante` = `Noches.fuerza_jefe()` when `PasoJefe.desde_juego`.
+    - `,` does nothing then.
+    - Without a mission his `EntradaJefe` (the panteón plaza) only lets you in from night 15 ("the parade": a warning only, no street parade).
+    - Fainting drops your items in a bag at the entrance.
   - `-- --medir=<s>` runs alone: flower, wet and dry Molotov, grab and escape, every phase, the knot. It prints and quits; it needs a window.
   - `-- --bot=<s>`: a test player fights her in attempts, like the game (a faint resets the fight; 5 tacos each attempt), and reports each attempt and the damage per attack (results in `docs/pruebas-balance.md`). `--modo=machete|mixto` (mixto also fires scripted shots: flowers while exposed, body from range), `--bueno` (0.9 roll timing instead of 0.75), `--intentos=N`. It kills adds within 3 m first.
   - `-- --cheese`: the player hides behind a float ~10 m away shooting; passes if she breaks it or reaches the player within 6 s.
   - `-- --captura=<png> --agarre`: a shot of the player hanging in her fist.
 - **Safehouse**: Shift+X brings her in awake 18 m ahead (plain X still clears). `-- --catrina` spawns her on load, and `-- --salir=<s>` prints her state and quits.
+- **From the game (S8):** if `PasoJefe.desde_juego` is true the scene was opened by a mission (ENTRAR_A with `escena`): a win shows the prize for 6 s and calls `PasoJefe.volver(self, true)`, a faint calls `volver(self, false)`, both back to the map. Without the flag (launched alone, captures, `--medir`, `--bot`) nothing changes: it restarts with `,`.
 
 > Moved from the root `CLAUDE.md` on 2026-11-11, word for word. Keep it in sync with the code; the root keeps only a pointer here.

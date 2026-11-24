@@ -4,12 +4,13 @@ extends Node
 # (docs/especificaciones.md 1.2, "Qué se guarda"). Sin class_name: el autoload ya se llama asi.
 #
 # Guarda lo de todos los autoloads de la partida (inventario, dinero, vida, pedazos de mapa,
-# tazos, tiliches, amuletos, baul, fichas, la noche y la bolsa del desmayo), la escena del mapa,
+# tazos, tiliches, amuletos, baul, fichas, la noche y la bolsa del desmayo, lo de la campana de
+# Misiones y los jefes vencidos de PasoJefe), la escena del mapa,
 # donde estas y la hora. Lo que ya se guardaba solo (Personaje, Libreta, Taller, la vitrina y el
 # record de Noches) sigue en sus archivos. No se guardan: los zombis, lo tirado en el piso, las
 # balas en el cargador ni el deterioro.
 #
-# Cuando: al amanecer (Partida), al entrar o salir de la arena de un jefe (PasoArena), al cruzar
+# Cuando: al amanecer (Partida), al volver de una pelea de jefe (PasoJefe), al cruzar
 # una reja (PasoColonia) y al cerrar la ventana. Partida nueva (pantalla de inicio) lo borra.
 #
 # Los objetos se guardan por su ruta (resource_path): nadie modifica los InventoryItemData.
@@ -19,6 +20,15 @@ const VERSION := 1
 # Lo que Partida nueva regresa a como empieza el juego (antes Partida._otra_vez)
 const REINICIAR := ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones", "Tazos", "Tiliches", "Bonos", "Baul", "Fichas", "Noches"]
 const MAPA := "res://scenes/map_test.tscn"
+
+# Lo de la campana (Misiones) que se guarda tal cual: misiones hechas para siempre (las que enseñan
+# ataques, los jefes), la guardia de la reja, la antena, el Decreto 47, el desgaste de la reja...
+const CAMPANA := ["_hechas_siempre", "puntos_vistos", "guardias_reja", "reja_guardia", "antena_instalada",
+	"bodega_gela_abierta", "palacio_abierto", "decreto_47", "reja_desgaste", "reja_enfriamiento", "tinaco_perdido",
+	"pagos_especiales"]
+
+var _llegada := Transform3D()
+var _hay_llegada := false
 # Las escenas de juego: solo en estas se guarda solo (el safehouse y las pruebas no pisan la
 # partida de verdad; su tecla de prueba pasa `forzar`)
 const ESCENAS := ["res://scenes/map_test.tscn", "res://scenes/mapa.tscn"]
@@ -54,11 +64,11 @@ func guardar(forzar := false) -> bool:
 	var escena := arbol.current_scene.scene_file_path
 	var donde: Transform3D
 	var hora := -1.0
-	if PasoArena.desde_mapa:
-		# En la arena: se guarda como si estuvieras en la flecha del mapa
-		escena = PasoArena.mapa
-		donde = PasoArena.regreso
-		hora = PasoArena.hora
+	if PasoJefe.desde_juego:
+		# En una pelea de jefe: se guarda como si estuvieras en su entrada del mapa
+		escena = PasoJefe.escena_origen
+		donde = Transform3D(Basis(), PasoJefe.regreso if PasoJefe.regreso != Vector3.INF else Vector3.ZERO)
+		hora = PasoJefe.hora_origen
 	else:
 		if arbol.get_first_node_in_group("partida") == null:
 			return false
@@ -117,12 +127,19 @@ func _guardar_autoloads(cfg: ConfigFile) -> void:
 	cfg.set_value("fichas", "vip", fichas.vip)
 	cfg.set_value("fichas", "desaguadora", fichas.desaguadora)
 	get_node("/root/Noches").guardar_en(cfg)
+	# La campana (Misiones de Juanjo): lo que ya se hizo para siempre y lo que cambio en el mundo. La
+	# activa se suelta (reiniciar); las aceptadas del diario si se quedan
+	var misiones := get_node("/root/Misiones")
+	cfg.set_value("misiones", "aceptadas", misiones.aceptadas.map(func(m) -> String: return m.id))
+	for campo: String in CAMPANA:
+		cfg.set_value("misiones", campo, misiones.get(campo))
+	cfg.set_value("misiones", "jefes_vencidos", PasoJefe.vencidos.keys())
 
 
 # --- Cargar ---
 
 # Continuar (pantalla de inicio): pone todo en los autoloads y deja listo donde aparecer y la
-# hora para la escena (PasoArena.llegar_a, Ciclo). Regresa la escena a cargar, o "" si no hay
+# hora para la escena (`tomar_llegada`, que lee Partida; Ciclo). Regresa la escena a cargar, o "" si no hay
 func cargar() -> String:
 	var cfg := ConfigFile.new()
 	if cfg.load(ARCHIVO) != OK:
@@ -135,8 +152,18 @@ func cargar() -> String:
 	var escena: String = cfg.get_value("partida", "escena", MAPA)
 	if not ResourceLoader.exists(escena):
 		escena = MAPA
-	PasoArena.llegar_a(cfg.get_value("partida", "donde", Transform3D()), float(cfg.get_value("partida", "hora", -1.0)))
+	_llegada = cfg.get_value("partida", "donde", Transform3D())
+	_hay_llegada = _llegada != Transform3D()
+	PasoColonia.fraccion_del_dia = float(cfg.get_value("partida", "hora", -1.0))
 	return escena
+
+
+# Donde aparecer al Continuar, una sola vez (Partida._ready); null si no hay
+func tomar_llegada() -> Variant:
+	if not _hay_llegada:
+		return null
+	_hay_llegada = false
+	return _llegada
 
 
 func _cargar_autoloads(cfg: ConfigFile) -> void:
@@ -202,6 +229,20 @@ func _cargar_autoloads(cfg: ConfigFile) -> void:
 	fichas.vip = bool(cfg.get_value("fichas", "vip", false))
 	fichas.desaguadora = bool(cfg.get_value("fichas", "desaguadora", false))
 	get_node("/root/Noches").cargar_de(cfg)
+	var misiones := get_node("/root/Misiones")
+	for campo: String in CAMPANA:
+		if cfg.has_section_key("misiones", campo):
+			var valor = cfg.get_value("misiones", campo)
+			misiones.set(campo, valor.duplicate() if valor is Dictionary or valor is Array else valor)
+	var ids: Array = cfg.get_value("misiones", "aceptadas", [])
+	misiones.aceptadas.clear()
+	for mision: MisionData in misiones.todas:
+		if mision.id in ids:
+			misiones.aceptadas.append(mision)
+	PasoJefe.vencidos.clear()
+	for jefe in cfg.get_value("misiones", "jefes_vencidos", []):
+		PasoJefe.vencidos[String(jefe)] = true
+	misiones.cambio.emit()
 
 
 # --- Objetos <-> rutas ---

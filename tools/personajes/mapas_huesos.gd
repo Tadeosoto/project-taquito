@@ -52,6 +52,9 @@ const MAPAS := [
 	# El zombi PSX de Sketchfab: huesos de Mixamo, pero el gltf les pega un numero a cada uno
 	# (mixamorig_Hips_01, mixamorig_RightArm_00...). Se buscan en el modelo (quinto campo)
 	["huesos_zombie_psx.tres", 1, ["Left", "Right"], "res://models/personajes/zombie_psx/zombie_psx.scn"],
+	# La botarga del Simi (models/personajes/dr_simi, Sketchfab): igual, Mixamo numerado. La usa la
+	# copia con retarget del jefe (models/personajes/simi_jefe), no la de las farmacias
+	["huesos_simi.tres", 1, ["Left", "Right"], "res://models/personajes/dr_simi/simi_botarga.scn"],
 ]
 
 

@@ -40,6 +40,8 @@ const COLORES := [Color("#e8e2d0"), Color("#d9cdb0"), Color("#e6d3c3"), Color("#
 	Color("#e9dfb8"), Color("#d7d2cc"), Color("#c9b9a6")]
 
 @export_file("*.json") var bardas_path := "res://resources/map/bardas_mapa.json"
+const FORTALEZAS := "res://resources/map/fortalezas.json"
+const LIBRE_BOCA := 9.0          # m alrededor de una boca de las cañerias sin paneles de OSM
 @export var barda_textura: Texture2D
 @export var malla_textura: Texture2D
 @export_dir var grafitis_dir := "res://textures/map/grafitis"
@@ -69,9 +71,13 @@ func _ready() -> void:
 		push_warning("MapBardas: no se pudo leer %s" % bardas_path)
 		return
 	Calcomanias.cargar(grafitis_dir, propaganda_dir)
+	var bocas := _bocas()
 	for barda: Dictionary in data["bardas"]:
 		for panel: Dictionary in _paneles(barda):
-			_celda((panel["a"] + panel["b"]) / 2.0)["paneles"].append(panel)
+			var medio: Vector2 = (panel["a"] + panel["b"]) / 2.0
+			if bocas.any(func(b: Vector2) -> bool: return b.distance_to(medio) < LIBRE_BOCA):
+				continue
+			_celda(medio)["paneles"].append(panel)
 	for pluma: Dictionary in data["plumas"]:
 		_celda(Vector2(pluma["x"], pluma["z"]))["plumas"].append(pluma)
 	for caseta: Dictionary in data.get("casetas", []):
@@ -84,6 +90,19 @@ func _ready() -> void:
 		_materiales["calcomania"] = Calcomanias.material
 	_target = get_node_or_null(target_path) as Node3D
 	_update_nearby(true)
+
+
+# Los centros de las bocas de las cañerias (fortalezas.json `boca`): ahi no va malla ni barda de OSM,
+# o tapaba la entrada (la del fondo de la Av. Scheifler tenia la malla de un baldio enfrente)
+func _bocas() -> Array[Vector2]:
+	var bocas: Array[Vector2] = []
+	var datos = JSON.parse_string(FileAccess.get_file_as_string(FORTALEZAS)) if FileAccess.file_exists(FORTALEZAS) else null
+	if datos is Dictionary:
+		for f in (datos as Dictionary).values():
+			if f is Dictionary and f.has("boca"):
+				var c: Array = f["boca"]["centro"]
+				bocas.append(Vector2(c[0], c[1]))
+	return bocas
 
 
 func _celda(p: Vector2) -> Dictionary:
@@ -236,6 +255,10 @@ func _crear_celda(celda_data: Dictionary) -> Array:
 	var cajas := []            # [Transform3D del centro, tamano]
 	var tools := {}            # nombre del material -> SurfaceTool
 	for panel: Dictionary in celda_data["paneles"]:
+		# Las bardas de la bodega que se quito para el palacio de gobierno (FortalezasMapa)
+		var medio: Vector2 = (panel["a"] + panel["b"]) / 2.0
+		if FortalezasMapa.en_lote(medio.x, medio.y) or PanteonMapa.sin_barda(medio.x, medio.y):
+			continue
 		if panel["malla"]:
 			_malla(panel, tools, cajas)
 		else:

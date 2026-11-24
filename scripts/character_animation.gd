@@ -116,6 +116,7 @@ var _rec_en := -1.0          # s para que acabe el golpe y siga su _Rec (REC); -
 var _moviendo := false       # lo ultimo que dijo update_animation
 var _inclinar: SkeletonModifier3D   # InclinarCuerpo.gd: la columna hacia adelante (inclinar)
 var _agarre: SkeletonModifier3D     # AgarrePistola.gd: canon a la mira y la izquierda en la cacha (agarre)
+var _mangos: SkeletonModifier3D     # ManosMangos.gd: las dos manos en los mangos de la carretilla (mangos)
 
 
 func _ready() -> void:
@@ -148,6 +149,9 @@ func _ready() -> void:
 		_agarre = preload("res://scripts/AgarrePistola.gd").new()
 		_agarre.name = "AgarrePistola"
 		esqueletos[0].add_child(_agarre)
+		_mangos = preload("res://scripts/ManosMangos.gd").new()
+		_mangos.name = "ManosMangos"
+		esqueletos[0].add_child(_mangos)
 
 
 func _armar_arbol() -> AnimationNodeBlendTree:
@@ -243,12 +247,19 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	estado.add_input("vivo")
 	estado.add_input("caido")
 	estado.add_input("colgado")
+	estado.add_input("baila")
 	raiz.add_node("estado", estado)
 	raiz.connect_node("estado", 0, "accion")
 	_clip(raiz, "c_caido", "Death01", "estado", 1)
 	# Colgado de la mano de La Mojiganga (Catrina.gd): las piernas al aire (el Jump en bucle) y
 	# encima una sacudida (Hit_Chest) en cada apreton y un pataleo (Hit_Head) al forcejear
 	_clip(raiz, "c_colgado", "Jump", "estado", 2)
+	# Bailando con el Simi jefe (scripts/simi/, Player.atrapar con quien tiene baile_desde): su mismo
+	# baile, brincando al segundo en que va el Simi para que todos bailen al compas
+	var baila_seek := AnimationNodeTimeSeek.new()
+	raiz.add_node("baila_seek", baila_seek)
+	raiz.connect_node("estado", 3, "baila_seek")
+	_clip(raiz, "c_baila", "Simi_Baile", "baila_seek", 0)
 	var sacude := AnimationNodeOneShot.new()
 	sacude.fadein_time = 0.05
 	sacude.fadeout_time = 0.15
@@ -444,6 +455,14 @@ func agarre_guardamanos(marcador: Node3D, retrae := 0.0) -> void:
 		_agarre.retrae = retrae if marcador else 0.0
 
 
+# Llevando la carretilla (Player.carretilla): las manos en sus mangos `izq` y `der` (globales)
+func mangos(activo: bool, izq := Vector3.ZERO, der := Vector3.ZERO) -> void:
+	if _mangos:
+		_mangos.peso = 1.0 if activo else 0.0
+		if activo:
+			_mangos.mangos = [izq, der]
+
+
 # La izquierda en la corredera (`objetivo`, un Marker3D que se mueve con ella), `peso` 0-1
 func corredera(objetivo: Node3D, peso: float) -> void:
 	if _agarre:
@@ -570,6 +589,16 @@ func colgar() -> void:
 	_golpe_t = -1.0
 	_abortar_accion()
 	_pedir("estado", "colgado")
+
+
+# Te agarro el baile del Simi (JefeSimi): bailas su clip desde el segundo `desde`
+func bailar(desde: float) -> void:
+	if _arbol == null:
+		return
+	_golpe_t = -1.0
+	_abortar_accion()
+	_arbol.set("parameters/baila_seek/seek_request", desde)
+	_pedir("estado", "baila")
 
 
 func colgar_sacudida() -> void:

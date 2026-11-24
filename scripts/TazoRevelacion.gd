@@ -133,7 +133,7 @@ func _correr() -> void:
 			var r := clampf((e - RETUMBO_DESDE) / (1.0 - RETUMBO_DESDE), 0.0, 1.0)
 			if r > 0.0 and not sono["retumbo"]:
 				sono["retumbo"] = true
-				_sonar("retumbo")
+				_sonar("retumbo", -3.0)   # el retumbo y el boom tapaban todo (mezcla 2026-11-17)
 			_camara.h_offset = randf_range(-1.0, 1.0) * 0.035 * r
 			_camara.v_offset = randf_range(-1.0, 1.0) * 0.035 * r
 			_pivote.rotation.z += sin(t * 90.0) * 0.04 * r
@@ -165,7 +165,7 @@ func _correr() -> void:
 		_pivote.position.z = ACERCA * e * e
 		_camara.h_offset = randf_range(-1.0, 1.0) * 0.035
 		_camara.v_offset = randf_range(-1.0, 1.0) * 0.035)
-	_sonar("boom")
+	_sonar("boom", -5.0)
 	_lanzar(_chispas, _chispas.get("en", Vector2.ZERO))
 	if holo:
 		_cara.set_shader_parameter("foil", 1.0)
@@ -332,9 +332,9 @@ func _suave(e: float) -> float:
 	return e * e * (3.0 - 2.0 * e)
 
 
-func _sonar(nombre: String) -> void:
+func _sonar(nombre: String, extra := 0.0) -> void:
 	if not _saltar:
-		Sonidos.tocar(self, nombre, VOLUMEN)
+		Sonidos.tocar(self, nombre, VOLUMEN + extra)
 
 
 # --- Armado ---

@@ -15,6 +15,10 @@ const PS1_SHADER := preload("res://shaders/ps1_combined.gdshader")
 
 # Carpeta del modelo -> maximo de triangulos de todo el modelo
 const MAX_TRIANGULOS := {
+	# El panteon: se repiten miles de veces (MultiMesh)
+	"mexicana_1918": 700,
+	"lapidas_pack": 2500,
+	"palacio_edomex": 15000,
 	# Se repite cientos de veces adentro de las bodegas (MapBodegas)
 	"rack": 300,
 	"takis": 4000,
@@ -37,6 +41,12 @@ const MAX_TRIANGULOS := {
 	# Barricada de la defensa del tinaco (scenes/defensa_tinaco.tscn)
 	"tinaco": 6000,   # trae tres tinacos y se usa uno
 	"bano_portatil": 1500,
+	"palacio": 20000,   # el palacio de afuera de Santa Mugre (FortalezasMapa, P0): se ve de lejos y hay uno solo
+	"bocina_escenario": 3000,
+	"rollo_manguera": 1500,
+	# Basura de la favela de La Gotera (Poly Haven, fetch_polyhaven.py): se repiten cientos de veces
+	"llanta": 400,
+	"bolsa_basura": 500,
 }
 
 # Carpeta -> caja (coordenadas del glTF) de lo que se queda: mallas con centro

@@ -39,6 +39,8 @@
 
 ## Props de calle (`models/props/`, Sketchfab)
 
+- [Old Tyre](https://polyhaven.com/a/old_tyre) de MP y [Trashbag](https://polyhaven.com/a/trashbag) de Benny Weimer, de [Poly Haven](https://polyhaven.com) (CC0), reducidos y con la textura a 256 px (`models/props/llanta/`, `models/props/bolsa_basura/`, `tools/map_import/fetch_polyhaven.py`).
+
 - [Señal Alto](https://sketchfab.com/3d-models/d2de3788e5f24c3e8189001d2a1f6e92) de VictorGram, licencia CC Attribution (`models/props/alto/`).
 - [water dispenser](https://sketchfab.com/3d-models/25bdfe807c8e437885ed3be6ec0d11d8) de ChoboiAssets, licencia CC Attribution (`models/props/despachador_agua/`).
 - [Manhole](https://sketchfab.com/3d-models/bbf5c9aa04c24fbaba328728d955777d) de DJMaesen, licencia CC Attribution (`models/props/coladera/`).
@@ -46,6 +48,11 @@
 - [Abandoned Toilet Cabin (Low Poly)](https://sketchfab.com/3d-models/8083b3d2134f4e98a34d891fa7915dcc) de Berk Gedik, licencia CC Attribution (`models/props/bano_portatil/`).
 - [Jar with candle](https://sketchfab.com/3d-models/4c9e6738b88f4160a76c9d9fc497de78) de Marcin.Kwiatkowski, licencia CC Attribution (`models/props/veladora/`).
 - [Calendula flower](https://sketchfab.com/3d-models/d813ac09f52849a3a8c57e14076e4b83) de Maf'j Alvarez, licencia CC Attribution (`models/props/calendula/`).
+- [Speaker Stage](https://sketchfab.com/3d-models/39289063695d42f5a67b0a33318badb4) de Eveston - Elite Big Speakerman - Hugo, licencia CC Attribution (`models/props/bocina_escenario/`).
+- [Garden hose Reel](https://sketchfab.com/3d-models/33a5089d9dd1438386d80bdf31a46a55) de Cliffcographics, licencia CC Attribution (`models/props/rollo_manguera/`).
+- [lowpoly wheelbarrow](https://sketchfab.com/3d-models/fdce753e4dc147fcbfa18e809dde7bf9) de creosine, licencia CC Attribution (`models/props/carretilla/`).
+- [Antiguo Palacio de Gobierno de Pachuca](https://sketchfab.com/3d-models/3e0b792b4c884606b1e7056a195fad85) de muvipa, licencia CC Attribution (`models/props/palacio/`).
+- [PALACIO GOBIERNO EDOMEX](https://sketchfab.com/3d-models/5400907383d043d7899adbb06c611aa0) de adugarev, licencia CC Attribution (`models/props/palacio_edomex/`).
 
 ## Objetos (`models/objetos/`, Sketchfab)
 
@@ -97,9 +104,11 @@
 - [Construction Worker In A Blue Jacket](https://sketchfab.com/3d-models/a9eff8aee05e48d8b1f31cafd408215f) de restore50, licencia CC Attribution (`models/personajes/garrafonero/`).
 - [Characters_psx](https://sketchfab.com/3d-models/d940162487c3493b9e203d624fdd763a) de Elbolillo (Elbolilloduro), licencia CC Attribution: 79 personajes (`models/personajes/pack_psx/`).
   - El protagonista `models/personajes/protagonistas/el_compa/` es `hombre_04` de ese pack con la textura repintada (modificado; `tools/personajes/el_compa.gd`).
+- La cucarrata (`models/personajes/cucarrata/`, modificada: el cuerpo de una con la cabeza de la otra, en `scripts/cucarrata/Cucarrata.gd`): [Giant cockroach](https://sketchfab.com/3d-models/giant-cockroach-4b19ed8851f74c278eef835250a82896) de Drillimpact y [Low Poly Rat](https://sketchfab.com/3d-models/low-poly-rat-bc142f713e3e46599e4b4974eebfa846) de Tsar Games (borymaster3), las dos con licencia CC Attribution.
 - El Saltabardas (`models/personajes/saltabardas/`) y El Panzón (`models/personajes/panzon/`): modelos, texturas y animaciones propios, hechos en Blender (`docs/prompts/`). Los shorts y el cinturón del Panzón llevan horneadas las texturas denim_fabric_05 (Rico Cilliers, colormass) y brown_leather (Rob Tuytel) de [Poly Haven](https://polyhaven.com) (CC0).
 - La Mojiganga (`models/personajes/catrina/`) y su plaza (`models/escenarios/plaza_catrina/`): modelos, texturas y animaciones propios, hechos en Blender por script (`tools/blender/`, `docs/prompts/blender_catrina.md`). Llevan texturas CC0 de [Poly Haven](https://polyhaven.com): en la Catrina, horneadas, velour_velvet, rough_linen y hessian_230 (Rico Cilliers, colormass), decrepit_wallpaper (Rob Tuytel), clay_plaster (Amal Kumar) y bamboo_veneer (Jenelle van Heerden); en la plaza, cobblestone_floor_01, blue_painted_planks y green_metal_rust (Rob Tuytel), red_plaster_weathered y clay_roof_tiles (Amal Kumar) y old_sandstone_02 (Dimitrios Savva).
 - El mapa hecho en Blender (`models/mapa/`, `textures/mapa/`, `tools/blender/mapa/`): geometría propia por script sobre las calles de OpenStreetMap (ODbL) y las huellas de Google Open Buildings. Texturas CC0 de [Poly Haven](https://polyhaven.com) reducidas a 128 px: old_sandstone_02 (Dimitrios Savva), clay_plaster (Amal Kumar), clay_roof_tiles y red_plaster_weathered (Amal Kumar), green_metal_rust, blue_painted_planks y cobblestone_floor_01 (Rob Tuytel). La mampostería, el azulejo, el ladrillo y el block son dibujos propios (`kit.py`); las fachadas reusan `textures/map/fachadas.png`.
+- [Picky the Pterodactyl](https://sketchfab.com/3d-models/568b841d8774488c8b25f5b74bffdc76) de Calditojohngabriel2013, licencia CC Attribution (`models/personajes/ptero_picky/`).
 
 ## Armas (`models/armas/`, Sketchfab)
 - [PS1 Style Machete](https://sketchfab.com/3d-models/bec7ee80bac24cc19b1e79cf8b57c50a) de Falxxx, licencia CC Attribution (`models/armas/machete/`).
@@ -174,3 +183,12 @@
 - [Retro Lowpoly Nissan Tsuru](https://sketchfab.com/3d-models/94faafff28ce4bb3b3ab338da0b24eec) de jomalon, licencia CC Attribution (`models/vehiculos/tsuru/`).
 - [1967 Volkswagen Beetle](https://sketchfab.com/3d-models/769ada1c8d2c4cddb33a8c66b93e1099) de zairiq-zairiq-123-pixar-cars-bfdi, licencia CC Attribution (`models/vehiculos/vocho/`).
 - [White Van - PS1 Low Poly](https://sketchfab.com/3d-models/1cac40905d494bae8108a556d870e23e) de Wersaus33, licencia CC Attribution (`models/vehiculos/van_blanca/`).
+- [PS1 Ford F150 Pickup truck](https://sketchfab.com/3d-models/e9be0ceddd344ca2871e1b84621bdf66) de Blue3D, licencia CC Attribution (`models/vehiculos/pickup/`).
+
+## Panteon (`models/panteon/`, Sketchfab)
+- [Low Poly PS1 Tombstone](https://sketchfab.com/3d-models/2e4ecda5e9df487099affe2a4d45eba0) de Macky, licencia CC Attribution (`models/panteon/ps1_lapida/`).
+- [PS1/Lowpoly Gravestone](https://sketchfab.com/3d-models/acab7d41a2254cf9bde83bdff2f74890) de dro, licencia CC Attribution (`models/panteon/ps1_lapida2/`).
+- [PS1 Style / Lowpoly Mausoleum](https://sketchfab.com/3d-models/a547e313cce0481baa1909dc530691ce) de dro, licencia CC Attribution (`models/panteon/ps1_mausoleo/`).
+- [Centenary Mexican Tombstone (1918)](https://sketchfab.com/3d-models/b1f0b87a03cf4e46940ffe3773ba0df5) de Paul, licencia CC Attribution (`models/panteon/mexicana_1918/`).
+- [gravestone pack](https://sketchfab.com/3d-models/915174119a454fa7b2573a9e3bddac8b) de Tardis121, licencia CC Attribution (`models/panteon/lapidas_pack/`).
+- [Graveyard props](https://sketchfab.com/3d-models/ae35b6086e0b45d3941a61086b5e3d10) de max_imum, licencia CC Attribution (`models/panteon/props/`).

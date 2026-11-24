@@ -99,10 +99,30 @@ func _draw() -> void:
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	for i in _rasgados.size():
 		_nombre_en_mapa(i)
+	_puntos_en_mapa()
+	_dadores_en_mapa()
 	_objetivo_en_mapa()
 	_tapar_fuera_del_marco()
 	_jugador_en_mapa()
 	_columna(aqui)
+
+
+# Los negocios "punto" de la mafia que ya conoces (Misiones.puntos_vistos): una P blanca en un cuadro negro
+func _puntos_en_mapa() -> void:
+	for punto: Array in Misiones.puntos_vistos:
+		var p := _en_pantalla(ZonasMapa.a_mapa(punto[0].x, punto[0].y))
+		draw_rect(Rect2(p - Vector2(7.0, 7.0), Vector2(14.0, 14.0)), Color.WHITE)
+		draw_rect(Rect2(p - Vector2(5.5, 5.5), Vector2(11.0, 11.0)), Color.BLACK)
+		_texto("P", p + Vector2(0.0, 4.0), 11, Color.WHITE, HORIZONTAL_ALIGNMENT_CENTER, 20.0)
+
+
+# Los dadores importantes con trabajo (Misiones.dadores): su inicial en un circulo, como en RDR2
+func _dadores_en_mapa() -> void:
+	for dador: Array in Misiones.dadores:
+		var p := _en_pantalla(ZonasMapa.a_mapa(dador[0].x, dador[0].y))
+		draw_circle(p, 8.0, Color.BLACK)
+		draw_circle(p, 6.5, Color.WHITE)
+		_texto(dador[1], p + Vector2(0.0, 4.0), 11, Color.BLACK, HORIZONTAL_ALIGNMENT_CENTER, 20.0)
 
 
 # A donde va la mision: un rombo, aunque ese pedazo todavia no se tenga
@@ -134,6 +154,8 @@ func _nombre_en_mapa(zona: int) -> void:
 		_texto("?", donde + Vector2(0.0, 9.0), 26, FALTA_TEXTO, HORIZONTAL_ALIGNMENT_CENTER)
 		return
 	var nombre := ZonasMapa.nombre(zona)
+	if nombre == "":
+		return
 	var partes := nombre.split(" ")
 	var mitad := ceili(partes.size() / 2.0)
 	if partes.size() <= 2:
@@ -184,9 +206,9 @@ func _columna(aqui: int) -> void:
 	_texto("Piezas: %d de %d" % [PiezasMapa.cuantas(), ZonasMapa.cuantas()], Vector2(LISTA_X, 24.0), 14, Color.WHITE, HORIZONTAL_ALIGNMENT_LEFT, 180.0)
 	if aqui >= 0 and PiezasMapa.tiene(aqui):
 		_texto("Estás en:", Vector2(LISTA_X, 46.0), 11, Color(0.75, 0.75, 0.75), HORIZONTAL_ALIGNMENT_LEFT, 180.0)
-		_texto(ZonasMapa.nombre(aqui), Vector2(LISTA_X, 62.0), 11, AMARILLO, HORIZONTAL_ALIGNMENT_LEFT, 180.0)
+		_texto(ZonasMapa.etiqueta(aqui), Vector2(LISTA_X, 62.0), 11, AMARILLO, HORIZONTAL_ALIGNMENT_LEFT, 180.0)
 	for i in ZonasMapa.cuantas():
-		var nombre := ZonasMapa.nombre(i) if PiezasMapa.tiene(i) else "? ? ?"
+		var nombre := ZonasMapa.etiqueta(i) if PiezasMapa.tiene(i) else "? ? ?"
 		var color := Color.WHITE if PiezasMapa.tiene(i) else FALTA_TEXTO
 		if i == aqui and PiezasMapa.tiene(i):
 			color = AMARILLO

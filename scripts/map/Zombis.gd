@@ -57,6 +57,9 @@ const SALTABARDAS_CADA := Vector2(70.0, 140.0)
 @export var saltabardas := true
 # Cuantos puede haber a la vez (y cuantos se arman en la reserva); la defensa trae mas
 @export var max_total := MAX_TOTAL
+# Adentro de las oficinas del palacio (PalacioOficinas): el campo de flujo mide en el suelo de abajo y no ve esas
+# paredes, asi que ahi los zombis van derecho al jugador
+var sin_campo := false
 # Lo que le quita cada golpe al jugador (Zombie.DANO); la defensa le baja. El jefe no cambia
 @export var dano_jugador := Zombie.DANO
 # Mandos de diseno de los enemigos (vida, dano base, velocidad, cadencia, alcance). Si no se
@@ -120,6 +123,11 @@ func _ready() -> void:
 	add_to_group("zombis_mando")
 	_jugador = get_node(jugador_path) as Player
 	_ciclo = get_node(ciclo_path) as Ciclo
+	# Colonia abierta las 24 horas (La Gotera, MapaColonia.abierto_24h): sin sueltos ni Saltabardas.
+	# Las turbas que pide una mision (aparecer_turba) si salen.
+	if MapaColonia.abierto_24h:
+		espontaneos = false
+		saltabardas = false
 	process_physics_priority = 10
 	liquido = Liquido.new()
 	add_child(liquido)
@@ -136,8 +144,8 @@ func _ready() -> void:
 	campo_tinaco.excluir(_jugador.get_rid())
 	# Se dibuja uno diminuto al cargar: si no, su shader con esqueleto se compilaba en el
 	# cuadro del primer zombi de la primera noche
-	# Uno de cada skin, que cada uno trae su textura
-	for i in Zombie.SKINS.size():
+	# Uno de cada aspecto (ZombiSerenol), que cada uno trae su material (y la mujer su pelo)
+	for i in ZombiSerenol.ASPECTOS.size():
 		var zombi := Zombie.new()
 		zombi.skin = i
 		zombi.scale = Vector3.ONE * 0.002
@@ -211,7 +219,8 @@ func _armar() -> Zombie:
 
 # De noche, y un poco antes para tenerlos listos
 func _campos(delta: float) -> void:
-	if not _ciclo.es_noche() and _ciclo.valor() <= 0.0:
+	# De dia solo si alguien te sigue (Acompanante usa el campo del jugador)
+	if not _ciclo.es_noche() and _ciclo.valor() <= 0.0 and Acompanante.activos.is_empty():
 		return
 	var espacio := get_world_3d().direct_space_state
 	var metas: Array[Vector3] = [_jugador.global_position]
@@ -302,6 +311,9 @@ func _separar_encimados() -> void:
 func _physics_process(delta: float) -> void:
 	_no_encimar()
 	_quitar_lejanos()
+	# Una turba pedida (el Director, o una mision DEFENDER) sale aunque no haya sueltos
+	if _turba_pendiente > 0 and _jugador.can_process() and _jugador.is_physics_processing():
+		_sacar_de_turba()
 	if not espontaneos:
 		return
 	if not _ciclo.es_noche() or not _jugador.can_process() or not _jugador.is_physics_processing():
@@ -310,8 +322,6 @@ func _physics_process(delta: float) -> void:
 	if turba > 0 and turbas and ritmo == null:
 		aparecer_turba(turba)
 	_revisar_panzon()
-	if _turba_pendiente > 0:
-		_sacar_de_turba()
 	_revisar_saltabardas(delta)
 	if ritmo:
 		_seguir_ritmo(delta)
@@ -366,9 +376,10 @@ func maximo() -> int:
 
 
 # Una turba: `cuantos` que salen del mismo lado, de a poco, y corren hacia el jugador
-func aparecer_turba(cuantos: int) -> void:
+# `angulo` (rad, x = cos, z = sin, desde el jugador): de que lado llegan; INF al azar (el evento de la reja: de la reja)
+func aparecer_turba(cuantos: int, angulo := INF) -> void:
 	_turba_pendiente = mini(cuantos, max_total - _vivos())
-	_turba_angulo = randf() * TAU
+	_turba_angulo = randf() * TAU if angulo == INF else angulo
 	if _turba_pendiente > 0:
 		turba_cerca.emit()
 		# Desde el hito del Panzon (Noches) a veces viene uno con la turba
@@ -562,6 +573,9 @@ func _lugar_libre(centro: Vector3, angulo := INF, separado := SEPARADO) -> Vecto
 		if a_la_vista(camara, punto):
 			continue
 		if refugio and refugio.adentro(punto, MARGEN_REFUGIO):
+			continue
+		# Dentro de las fortalezas no hay zombis de noche (lore §13, S4)
+		if MuroColonia.adentro(get_tree(), punto):
 			continue
 		if _encima_de_otro(punto, separado):
 			continue

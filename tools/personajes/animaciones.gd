@@ -15,6 +15,8 @@ const FUENTES := [
 	"res://models/animaciones/quaternius_ual2_source/UAL2_Source.glb",
 	# La Source de UAL1 (CC0, de nooneisreal): trae Drink, que usa Player._curarse
 	"res://models/animaciones/quaternius_ual1_source/UAL1_Source.glb",
+	# El baile del Simi jefe (tools/simi/separar_simi_jefe.gd): lo bailan el, los zombis y tu
+	"res://models/personajes/simi_jefe/simi_jefe.scn",
 ]
 const CLIPS := [
 	# Andar
@@ -39,6 +41,8 @@ const CLIPS := [
 	"Drink",
 	# Zombi aturdido por la palomita (Zombie.aturdir): se tapa la cara, de UAL1 Source
 	"Crying",
+	# El Simi jefe (scripts/simi/): su baile y su patada (UAL1 Source)
+	"Simi_Baile", "Kick",
 ]
 
 

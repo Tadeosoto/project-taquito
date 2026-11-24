@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_cazar"]
+script = ExtResource("2_paso")
+tipo = 7
+cuando = 1
+texto = "Baja al zombi que se comió a la vecina"
+lugar = "casas"
+
+[resource]
+script = ExtResource("1_mision")
+id = "caceria_noche"
+nombre = "El que se comió a la vecina"
+modelo = "hombre_psx"
+oferta = "Hay uno que se comió a mi vecina y ronda por las casas. ¿Lo baja, de noche?"
+aceptada = "Sale de noche. Lo reconoce porque no se mueve como los demás."
+recuerda = "Búsquelo de noche por las casas. Tiene que caer."
+despedida = "Ya descansa mi vecina. Dios se lo pague."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_cazar")])
+pesos = 150

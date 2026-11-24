@@ -3,6 +3,12 @@ class_name Player
 
 @export var camera_sensitivity: float = 2.5
 @export var mouse_sensitivity: float = 0.0025
+# En el laberinto de la favela (GiroFavela.gd): con W apretado, A/D giran la camara en vez de
+# hacer strafe. En azoteas, tianguis y demas colonias queda false y A/D vuelven a ser strafe.
+@export var giro_con_wasd := false
+# Largo del brazo de la camara adentro de una casa abandonada o un callejon techado (lo pone
+# Colonia._camara_interior); 0 = el de siempre
+var brazo_interior := 0.0
 @export var rotation_speed: float = 16.0
 @export var speed: float = 5.0
 @export var sprint_speed: float = 9.0
@@ -21,6 +27,7 @@ var camera_pitch: float = -4.6
 # Con que le pega a los zombis (Zombie.gd): el mejor `dano` del inventario, o a puño limpio.
 # Inventario y Salud se piden por su ruta: los scripts de tools/ cargan esta clase antes
 # de que existan los autoloads
+const GIRO_WASD := 2.4        # rad/s del timon A/D en el laberinto
 const DANO_PUNO := 5
 const ATAQUE_ENFRIAR := 0.6
 # Medido (tools/_combo_tmp): la hoja pasa por enfrente entre 0.233 y 0.25 s del clip, con la mano
@@ -62,8 +69,17 @@ const ARMA_MANGO := ARMA_TAMANO * 0.4
 const DANO_MACHETE := 12.0
 const FUERZA_MIN := 0.5
 const FUERZA_MAX := 1.5
-const SWING_VOLUMEN := -14.0  # dB: para que resalte el whack (JJ lo bajo a la mitad: -6 dB)
-const WHACK_VOLUMEN := -6.0   # dB: a la mitad, como el swing
+const DOLOR_ESPERA_MS := 1300   # entre un quejido de dolor y el siguiente
+# dB: para que resalte el whack. JJ lo bajo a la mitad dos veces (-6 dB cada vez; la ultima el
+# 2026-11-17, ya normalizados: "suenan todos muy fuerte"), y el whack igual
+const SWING_VOLUMEN := -20.0
+# La mezcla de la pelea (2026-11-17, docs/sistemas/pelea.md "Volumen"): en el juego el espadazo
+# suena a ~-24 dB, el whack a ~-20, el quejido a ~-21 y los especiales a ~-15, lo mas fuerte del
+# jugador. Antes el whack iba 14 dB arriba del espadazo y tapaba a los especiales, y el quejido
+# sonaba al tope del 3D (~-5 dB), mas que todo lo demas
+const WHACK_VOLUMEN := -20.0
+const ESPECIAL_VOLUMEN := -12.0  # JJ: "los espadazos especiales suenan muy poco"
+const DOLOR_VOLUMEN := -17.0     # JJ: "los quejidos del jugador bajales el volumen"
 # m/s que rebotas hacia atras al pegarle a algo. En 0 a peticion de JJ: tu no te mueves con
 # el golpe (el zombi si retrocede un poco, Zombie.EMPUJON)
 const RETROCESO := 0.0
@@ -97,6 +113,8 @@ const COLOR_SANGRE := Color(0.62, 0.02, 0.03)
 signal golpeado
 # Un zombi cayo a filo de espada (el machete, no a punos): la defensa del tinaco cuenta para la estela
 signal mato_con_espada
+# Con una carga que se puede soltar en brazos (la caja de la mafia), el clic de ataque pide dejarla en el piso
+signal pidio_soltar_carga
 
 const CARGA_LUGAR := Vector3(0.0, -0.35, -0.55)
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
@@ -217,12 +235,18 @@ static var pelea_a_tiempo := true
 # cabeza (la pose de carga) y a los CARGA_DURA s brilla; al soltar, el tajo pesado de arriba abajo
 # con avance (TAJO_*, abajo). Antes salia la estocada, que ya no tenia sentido: el giro y la
 # estocada aerea pegan a varios con el dano del espadazo. El tajo es el que pega fuerte (TAJO_DANO).
-# Lo prenden el safehouse (tecla 7) y la defensa del tinaco
-static var golpe_cargado := false
-# PRUEBA (JJ): golpe con brinco. Pegar en el aire con el machete: espadazo giratorio
-# (Sword_Regular_C, la cadera da la vuelta entre 0 y 0.7 s) que pega en redondo al caer.
-# Solo lo prende el safehouse (tecla 6)
-static var giro_aereo := false
+# Los especiales son globales y en el juego se iran desbloqueando (Mejoras); mientras
+# ESPECIALES_DE_PRUEBA, todos prendidos en todas las escenas (JJ, 2026-11-16: en el mapa no
+# cargaba porque estaba apagado). El safehouse los alterna (tecla 7)
+const ESPECIALES_DE_PRUEBA := true
+static var golpe_cargado := ESPECIALES_DE_PRUEBA
+# Golpe con brinco (JJ). Pegar en el aire con el machete: espadazo giratorio (Sword_Regular_C,
+# la cadera da la vuelta entre 0 y 0.7 s) que pega en redondo al caer; con Shift, la estocada.
+# El safehouse lo alterna (tecla 6). Los tres especiales gastan aguante (EstaminaEspecial)
+static var giro_aereo := ESPECIALES_DE_PRUEBA
+# La estocada en el aire (el dash: Shift + pegar brincando) va aparte del giro (JJ, 2026-11-18): en la
+# campana se desbloquean por separado (Misiones.ataques_de_campana). Sin ella, con Shift sale el giro
+static var estocada_aerea := ESPECIALES_DE_PRUEBA
 # El giro con la estela de agua: pensada como mejora que se gana (JJ). false = la estela normal
 const CARGA_DURA := 0.4       # s con el boton apretado (JJ: 0.7 era mucho)
 # Apretado al menos esto cuando toca el siguiente golpe = lo estas sosteniendo: en vez del golpe
@@ -411,12 +435,18 @@ var _rodada_dir := Vector3.ZERO
 var _rodar_espera := 0.0
 var _bloqueando := false
 var _agachado := 0.0        # s que le quedan al agachado del arrastre por un golpe parado
+var _dolor_hasta := 0
 var _buffer := ""            # "golpe", "brinco", "rodar" o "estocada"; "" = nada
 var _buffer_edad := 0.0       # s de juego desde que se pidio (la congelada tambien la frena)
 var _buffer_dir := Vector2.ZERO   # las teclas de direccion al pedir la rodada
 var _invulnerable := 0.0
 var _curando := 0.0
 var sin_combate := false       # la casa propia (CasaPropia.gd): sin armas, rodadas ni curarse, y nada te hace daño
+# La carretilla que llevas de los mangos (Carretilla.gd, M5): Espacio la agarra y la suelta; con ella
+# solo avanzas (W) y giras despacio (A/D), sin armas, brincos ni rodadas (JJ)
+var carretilla: Node3D = null
+const CARRETILLA_GIRO := 1.4        # rad/s que giras con A/D
+const CARRETILLA_VELOCIDAD := 0.8   # x la velocidad de trote
 var _aturdido := 0.0           # s que quedan aturdido: te tronó la palomita en la mano (aturdirte)
 var _aventando := -1.0          # s del punado de sal; -1 = no
 var _avienta_dir := Vector3.FORWARD
@@ -433,6 +463,8 @@ var _pos_ahora := Vector3.ZERO
 var _frijol_base := Vector3.ZERO
 var _pivote_base := Vector3.ZERO
 var _carga: Node3D
+# La carga de ahora se suelta con el clic de ataque en vez de pegar (MisionesMundo, PasoMision.soltable)
+var carga_soltable := false
 var _retroceso := Vector3.ZERO
 var _retroceso_freno := 42.0
 var _flash_hasta := 0
@@ -452,6 +484,17 @@ var _congelado_hasta := 0
 var _escala_antes := 1.0
 var _camara: Camera3D
 var _voz: AudioStreamPlayer3D
+# El aguante de los especiales (EstaminaEspecial.gd): su barra va bajo la de vida
+var estamina: EstaminaEspecial
+var _negado := false   # ya parpadeo el aguante en este apreton (sostener sin aguante)
+# Un giro o una estocada aerea salio con el clic apretado: si lo sigues sosteniendo al terminar,
+# entra la pose de carga (_toca_pose_tras_especial; JJ, 2026-11-17)
+var _tras_especial := false
+var _quejido: AudioStreamPlayer3D   # el dolor va aparte: el machetazo y el whack de _voz lo cortaban
+# Los especiales (giro, tajo, estocada) van aparte tambien: en _voz el whack los cortaba en cuanto
+# pegaban (el tajo pega 0.07 s despues de soltarlo), y en la defensa casi no se oian
+var _voz_especial: AudioStreamPlayer3D
+var _voz_swing := false   # lo que suena en _voz es un machetazo (un especial lo calla)
 var _mano: BoneAttachment3D
 var _estela: Node            # EstelaBarrido.gd
 var _punta: Node3D           # la punta de lo que traes en la mano, para la estela
@@ -504,6 +547,14 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_voz = AudioStreamPlayer3D.new()
 	add_child(_voz)
+	_quejido = AudioStreamPlayer3D.new()
+	add_child(_quejido)
+	_voz_especial = AudioStreamPlayer3D.new()
+	add_child(_voz_especial)
+	estamina = EstaminaEspecial.new()
+	estamina.name = "EstaminaEspecial"
+	estamina.jugador = self
+	add_child(estamina)
 	_armar_mano()
 	_armar_estela()
 	_pistola = PISTOLA.new()
@@ -623,6 +674,7 @@ func _atacar() -> void:
 		return
 	_golpe_guardado = false
 	_combo_roto = false
+	_tras_especial = false
 	_enfriar = ATAQUE_ENFRIAR
 	_pega_en = ATAQUE_PEGA_EN
 	# Combo: mientras sigas pegando a tiempo, cada golpe va al reves del anterior; si tardas,
@@ -746,6 +798,7 @@ func _golpear(giro := false) -> void:
 			_conto_espada()
 	# Las lombrices (EnjambreLombrices, MadreCarcamo) no estan en "zombis": el golpe les corta los
 	# hilos aparte
+	var pego_zombi := pego
 	for enjambre in get_tree().get_nodes_in_group("lombrices"):
 		if enjambre.golpe_cuerpo(global_position, frente, _alcance * (GIRO_ALCANCE if giro else 1.0), ATAQUE_ANGULO, dano, giro):
 			pego = true
@@ -758,7 +811,10 @@ func _golpear(giro := false) -> void:
 	golpes += 1
 	if pego:
 		golpes_pegaron += 1
-		_sentir_golpe(frente, fuerza, mato)
+		_sentir_golpe(frente, fuerza, mato, not pego_zombi)
+		# El combo normal devuelve aguante; el giro no (EstaminaEspecial.POR_ACIERTO)
+		if not giro:
+			estamina.acierto()
 		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
 
 
@@ -782,6 +838,7 @@ func _revisar_carga(delta: float) -> void:
 		elif not Input.is_action_pressed("attack"):
 			var soltar := _cargado
 			var en_pose := _pose_carga
+			var tras := _tras_especial
 			_cancelar_carga(false)
 			if _ocupado():
 				# Lo soltaste rodando o a media estocada o giro: cargado, la estocada espera en el
@@ -791,15 +848,29 @@ func _revisar_carga(delta: float) -> void:
 				elif _buffer == "golpe":
 					_buffer_edad = 0.0
 			elif soltar:
-				_estocar(CARGA_POSE_EN if en_pose else 0.0)
+				# El tajo cobra al salir; si el aguante se fue mientras cargabas (un giro en el
+				# aire), sale el espadazo normal
+				if estamina.gastar():
+					_estocar(CARGA_POSE_EN if en_pose else 0.0)
+				else:
+					_atacar()
 			elif en_pose:
 				# Soltaste antes de cargar: sale el golpe que habias pedido
 				_atacar()
+			elif tras:
+				# Sostuviste tras un giro o estocada aerea pero sin aguante no entro la pose (ya
+				# parpadeo y sono): sale el espadazo normal (JJ, 2026-11-17)
+				_atacar()
+		elif not _cargado and not estamina.alcanza():
+			# Sin aguante: el apreton cuenta, pero ni brilla ni se carga (no habra tajo)
+			_apretado += delta
+			if _luz_carga:
+				_luz_carga.visible = false
 		else:
 			_apretado += delta
 			if not _cargado and _apretado >= CARGA_DURA:
 				_cargado = true
-				Sonidos.tocar(self, "machetazo", SWING_VOLUMEN - 4.0, 1.6)
+				Sonidos.tocar(self, "machetazo", SWING_VOLUMEN + 4.0, 1.6)   # el aviso de "ya cargo": a -34 dB no se oia
 				if _estela:
 					_estela.estallar(_punta_arma(), CARGA_ESTALLIDO, Vector3.UP, CARGA_LLAMA_ESCALA)
 					_fogonazo(_punta_arma())
@@ -836,6 +907,8 @@ func _revisar_carga(delta: float) -> void:
 
 func _cancelar_carga(soltar_pose := true) -> void:
 	_apretado = -1.0
+	_negado = false
+	_tras_especial = false
 	if _pose_carga:
 		_pose_carga = false
 		if soltar_pose and figura.has_method("soltar_golpe"):
@@ -849,9 +922,31 @@ func _cancelar_carga(soltar_pose := true) -> void:
 # la pose de carga. Asi clic, clic, sostener es golpe, golpe, carga, y lo que llevabas apretado
 # ya cuenta
 func _toca_pose_carga() -> bool:
-	return golpe_cargado and not _pose_carga and _apretado >= CARGA_DECIDE and _especiales() \
+	var toca := golpe_cargado and not _pose_carga and _apretado >= CARGA_DECIDE and _especiales() \
 			and _enfriar > 0.0 and not _combo_roto and _giro < 0.0 and _estocada_t < 0.0 \
 			and ATAQUE_ENFRIAR - _enfriar >= _combo_desde() and figura.has_method("pose_carga")
+	return toca and _alcanza_carga()
+
+
+# Terminaste un giro o una estocada aerea con el clic apretado desde que salio: la pose de carga
+# (antes solo entraba a media barrida de un espadazo normal: tras el especial el combo ya va roto).
+# Espera a que el especial acabe del todo: al acabar, _soltar_combo quitaba la pose y la carga
+func _toca_pose_tras_especial() -> bool:
+	var toca := _tras_especial and golpe_cargado and not _pose_carga and _apretado >= CARGA_DECIDE \
+			and _especiales() and not _ocupado() and Input.is_action_pressed("attack") \
+			and _giro < 0.0 and _estocada_t < 0.0 \
+			and figura.has_method("pose_carga")
+	return toca and _alcanza_carga()
+
+
+# Sin aguante no entra la pose (sigue el combo normal); la barra parpadea una vez por apreton
+func _alcanza_carga() -> bool:
+	if estamina.alcanza():
+		return true
+	if not _negado:
+		_negado = true
+		estamina.negar()
+	return false
 
 
 # s del golpe que va en que ya puede salir el siguiente: al terminar de barrer, segun el clip
@@ -863,6 +958,7 @@ func _combo_desde() -> float:
 
 func _empezar_pose_carga() -> void:
 	_pose_carga = true
+	_tras_especial = false
 	_golpe_guardado = false
 	var registro = get_node_or_null("/root/Registro")
 	if registro:
@@ -910,10 +1006,11 @@ func _girar(aire := false) -> void:
 	_combo_hasta = 0.0
 	_puno = -1
 	_enfriar = (GIRO_DURA - _giro) / velocidad
+	_tras_especial = true
 	figura.golpe_giro(velocidad, _giro)
 	_estela_antes = []
 	_mariposa_pendiente = true
-	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.8)
+	_sonar_especial("golpe_giratorio")
 
 
 # Para que el azote del giro (o la estocada desde el aire) caiga justo al tocar el piso: el clip
@@ -971,6 +1068,10 @@ func _estocar(desde := 0.0, aire := false) -> void:
 	if aire:
 		_cancelar_carga(false)
 		desde = ESTOCADA_AIRE_DESDE
+		# El clic que la lanzo sigue contando: sostenido al caer, entra la pose de carga
+		if golpe_cargado and Input.is_action_pressed("attack"):
+			_apretado = 0.0
+		_tras_especial = true
 	_estocada_t = desde
 	_estocada_pegados.clear()
 	_estocada_lombrices = false
@@ -1000,7 +1101,8 @@ func _estocar(desde := 0.0, aire := false) -> void:
 		figura.golpe_tajo(desde)
 	_estela_antes = []
 	_mariposa_pendiente = true
-	Sonidos.tocar(self, "machetazo", SWING_VOLUMEN, 0.55 if _tajo else 0.7)
+	# El tajo cargado suena como el giro; el dash aereo (estocada) tiene el suyo
+	_sonar_especial("espadazo_tajo" if _tajo else "espadazo_dash")
 
 
 # Esquivar rodando: corta lo que estuvieras haciendo con el machete (combo, carga)
@@ -1122,15 +1224,19 @@ func _hacer(accion: String) -> void:
 		_cortar_estocada(accion == "brinco")
 	match accion:
 		"golpe":
-			if giro_aereo and not is_on_floor() and _especiales():
-				# En el aire sale de una vez el espadazo giratorio; con Shift, la estocada que te
-				# lanza hacia adelante y cae con ella (JJ)
-				if Input.is_action_pressed("sprint"):
+			# En el aire sale de una vez el espadazo giratorio; con Shift, la estocada que te
+			# lanza hacia adelante y cae con ella (JJ). Sin aguante, EstaminaEspecial.gastar
+			# parpadea y suena el error, y sale el espadazo normal (JJ, 2026-11-17: antes no salia nada)
+			var aire := not is_on_floor() and _especiales()
+			var dash := aire and estocada_aerea and Input.is_action_pressed("sprint")
+			var especial_aire := dash or (aire and giro_aereo)
+			if especial_aire and estamina.gastar():
+				if dash:
 					_estocar(0.0, true)
 				else:
 					_girar(true)
-			elif golpe_cargado and Input.is_action_pressed("attack") and _apretado >= CARGA_DECIDE \
-					and figura.has_method("pose_carga") and _especiales():
+			elif not especial_aire and golpe_cargado and Input.is_action_pressed("attack") and _apretado >= CARGA_DECIDE \
+					and figura.has_method("pose_carga") and _especiales() and _alcanza_carga():
 				# Lo sigues sosteniendo desde antes: de una vez a la pose de carga
 				_soltar_combo()
 				_combo_roto = false
@@ -1148,7 +1254,11 @@ func _hacer(accion: String) -> void:
 				_golpe_tras_brinco = false
 				_guardar("golpe")
 		"estocada":
-			_estocar()
+			# El tajo cargado que esperaba en el buffer: cobra al salir
+			if estamina.gastar():
+				_estocar()
+			else:
+				_atacar()
 
 
 func _teclas_mover() -> Vector2:
@@ -1268,6 +1378,7 @@ func _pegar_estocada() -> void:
 			if resultado == 2 and not _sin_arma():
 				_conto_espada()
 	# Lombrices: una vez por estocada o tajo, en cuanto alcanza alguna
+	var pego_zombi := pego
 	if not _estocada_lombrices:
 		for enjambre in get_tree().get_nodes_in_group("lombrices"):
 			# El tajo cargado corta todo lo que alcanza
@@ -1276,7 +1387,7 @@ func _pegar_estocada() -> void:
 				pego = true
 	if pego:
 		golpes_pegaron += 1
-		_sentir_golpe(_estocada_dir, fuerza, mato)
+		_sentir_golpe(_estocada_dir, fuerza, mato, not pego_zombi)
 		_sangre_hasta = Time.get_ticks_msec() + SANGRE_DURA_MS
 
 
@@ -1290,9 +1401,9 @@ func _velocidad_estocada(delta: float) -> Vector3:
 
 
 # Una vez por golpe, aunque le pegue a varios: el whack, el rebote, la sacudida y la congelada
-func _sentir_golpe(frente: Vector3, fuerza: float, mato: bool) -> void:
-	_voz.pitch_scale = randf_range(0.9, 1.12)
-	_sonar("whack", WHACK_VOLUMEN)
+# `lombriz`: solo le pego a lombrices (crias, Madre): suena mojado, no el whack de un zombi
+func _sentir_golpe(frente: Vector3, fuerza: float, mato: bool, lombriz := false) -> void:
+	_sonar("squelch" if lombriz else "whack", WHACK_VOLUMEN, randf_range(0.9, 1.12))
 	_retroceso = -frente * RETROCESO * fuerza
 	_retroceso_freno = RETROCESO * RETROCESO_CAIDA
 	_sacude_fuerza = SACUDE * fuerza * (SACUDE_MATA if mato else 1.0)
@@ -1359,7 +1470,7 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0, de: Node = null) -> 
 	# Aventando sal no se interrumpe: el arco y la sal siguen a la mano, y el golpe la tapaba
 	if figura.has_method("accion") and _aventando < 0.0:
 		figura.accion("RecieveHit")
-	_sonar("dolor")
+	_sonar_dolor()
 	var hacia := global_position - desde
 	hacia.y = 0.0
 	hacia = hacia.normalized() if hacia.length_squared() > 0.001 else frijol.global_basis.z
@@ -1409,7 +1520,7 @@ func aturdirte(segundos: float, dano: int) -> void:
 	_aturdido = segundos
 	if figura.has_method("accion"):
 		figura.accion("aturdido")
-	_sonar("dolor")
+	_sonar_dolor()
 	_flash_hasta = Time.get_ticks_msec() + FLASH_MS
 	_pintar_blanco(true)
 	_sacude_fuerza = SACUDE_GOLPEADO
@@ -1436,7 +1547,7 @@ func _parar_golpe(dano: int, hacia: Vector3, empuja: float) -> void:
 	_agachado = BLOQUEO_DESLIZA + 0.1
 	if figura.has_method("bloqueo_golpe"):
 		figura.bloqueo_golpe()
-	Sonidos.tocar(self, "bloqueo", 0.0, randf_range(0.92, 1.08))
+	Sonidos.tocar(self, "bloqueo", -6.0, randf_range(0.92, 1.08))
 	_sacude_fuerza = BLOQUEO_SACUDE
 	_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	_congelar(CONGELA)
@@ -1447,7 +1558,7 @@ func _parar_golpe(dano: int, hacia: Vector3, empuja: float) -> void:
 # ocupe. Un espadazo, la rodada o la estocada la tapan; al terminar, si sigues apretando, vuelve
 func _revisar_bloqueo(delta: float) -> void:
 	_agachado = maxf(_agachado - delta, 0.0)
-	var quiere: bool = Input.is_action_pressed("bloquear") and not _pistola.activa and not _ocupado() \
+	var quiere: bool = Input.is_action_pressed("bloquear") and not _pistola.activa and not _ocupado() and carretilla == null \
 			and not _barriendo() and is_on_floor() and not sin_combate
 	if quiere == _bloqueando:
 		return
@@ -1494,6 +1605,24 @@ func _pintar_blanco(prendido: bool) -> void:
 		malla.material_overlay = _material_blanco if prendido else null
 
 
+# Carretilla.interact: las manos a los mangos. Se guarda la pistola o lo que traigas para aventar
+func agarrar_carretilla(cual: Node3D) -> void:
+	carretilla = cual
+	if _pistola.activa:
+		_pistola.cambiar()
+	_lanzador.soltar()
+	_soltar_combo()
+	_mostrar_arma()
+
+
+# Carretilla.soltar (Espacio otra vez, se cayo el herido o se acabo la mision)
+func soltar_carretilla() -> void:
+	carretilla = null
+	if figura.has_method("mangos"):
+		figura.mangos(false)
+	_mostrar_arma()
+
+
 # Algo en las manos, enfrente: una mision (MisionesMundo.gd)
 func cargar(cosa: Node3D) -> void:
 	soltar_carga()
@@ -1505,6 +1634,7 @@ func cargar(cosa: Node3D) -> void:
 
 
 func soltar_carga() -> void:
+	carga_soltable = false
 	if _carga:
 		_carga.queue_free()
 		_carga = null
@@ -1523,8 +1653,9 @@ func _curarse() -> void:
 	if salud.llena() or cual < 0:
 		Sonidos.tocar(self, "ui_error", -6.0)
 		return
-	inventario.usar_curacion(cual)
-	Sonidos.tocar(self, "inv_usar", -4.0)
+	var que: InventoryItemData = inventario.get_item(cual)
+	var subio: int = inventario.usar_curacion(cual)
+	Sonidos.usar_item(self, que, subio)
 	beber()
 
 
@@ -1651,7 +1782,8 @@ func caer() -> void:
 var atrapado_por: Node = null
 
 
-# colgado: te alza en vez de tumbarte (La Mojiganga): piernas al aire y te sacudes en sus apretones
+# colgado: te alza en vez de tumbarte (La Mojiganga): piernas al aire y te sacudes en sus apretones.
+# Si `quien` tiene baile_desde() (el Simi jefe), bailas su baile en vez de caer
 var _colgado := false
 
 
@@ -1667,6 +1799,9 @@ func atrapar(quien: Node, colgado := false) -> bool:
 	_colgado = colgado and figura.has_method("colgar")
 	if _colgado:
 		figura.colgar()
+	elif quien.has_method("baile_desde") and figura.has_method("bailar"):
+		# El baile del Simi jefe (JefeSimi): bailas en vez de caer, al compas del Simi
+		figura.bailar(quien.baile_desde())
 	else:
 		caer()
 	return true
@@ -1841,7 +1976,7 @@ func _mostrar_arma() -> void:
 	elif _a_punos() or (_lanzador and _lanzador.activo):
 		# Con la sal o la molotov en la mano no se ve el machete
 		arma = null
-	if sin_combate:
+	if sin_combate or carretilla != null:
 		arma = null
 	if arma == _arma_visible:
 		return
@@ -1915,10 +2050,38 @@ func _mostrar_arma() -> void:
 		modelo.visible = true
 
 
-func _sonar(nombre: String, volumen := 0.0) -> void:
+# El quejido no se repite hasta que acaba el anterior: las crias muerden cada tanto y se encimaban
+func _sonar_dolor() -> void:
+	var ahora := Time.get_ticks_msec()
+	if ahora < _dolor_hasta:
+		return
+	_dolor_hasta = ahora + DOLOR_ESPERA_MS
+	_quejido.stream = Sonidos.sonido("dolor")
+	_quejido.volume_db = DOLOR_VOLUMEN
+	_quejido.pitch_scale = randf_range(0.95, 1.05)
+	_quejido.play()
+
+
+# El espadazo normal y el whack, por la misma voz 3D: uno nuevo corta al anterior (los especiales van
+# en _voz_especial, abajo). El tono se pone
+# siempre (antes el swing se quedaba con el tono al azar del ultimo whack)
+func _sonar(nombre: String, volumen := 0.0, tono := 1.0) -> void:
+	_voz_swing = nombre == "machetazo"
 	_voz.stream = Sonidos.sonido(nombre)
 	_voz.volume_db = volumen
+	_voz.pitch_scale = tono
 	_voz.play()
+
+
+# El swing de un especial, en su propia voz 3D (como _voz: mismo refuerzo de cerca), a
+# ESPECIAL_VOLUMEN. Calla el espadazo normal que todavia sonara, para no encimarse, pero el
+# whack de un golpe ya no lo corta
+func _sonar_especial(nombre: String) -> void:
+	if _voz_swing and _voz.playing:
+		_voz.stop()
+	_voz_especial.stream = Sonidos.sonido(nombre)
+	_voz_especial.volume_db = ESPECIAL_VOLUMEN
+	_voz_especial.play()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -1937,6 +2100,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif _aturdido > 0.0:
 		# Aturdido solo puedes voltear la camara
 		pass
+	elif carretilla != null and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not event.is_action("ui_cancel"):
+		# Con las manos en la carretilla: ni armas, ni rodadas, ni curarse (Espacio la suelta, en _physics_process)
+		pass
+	elif _carga != null and carga_soltable and event.is_action_pressed("attack") \
+			and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and is_physics_processing():
+		# La caja de la mafia: el primer clic la deja a tus pies para pelear (Espacio la levanta)
+		pidio_soltar_carga.emit()
 	elif event.is_action_pressed("cambiar_arma") and is_physics_processing() and not sin_combate:
 		_lanzador.soltar()
 		_pistola.cambiar()
@@ -2016,6 +2186,8 @@ func _process(_delta: float) -> void:
 # Los brazos con la pistola (clips Pistol_* de Quaternius, character_animation.gd): sosteniendola,
 # o apuntando a la mira al apuntar o recien disparado desde la cadera, a la altura de la mira
 func _posar() -> void:
+	if carretilla and is_instance_valid(carretilla) and figura.has_method("mangos"):
+		figura.mangos(true, carretilla.mango(0), carretilla.mango(1))
 	if not figura.has_method("pistola"):
 		return
 	var centro := get_viewport().get_visible_rect().size / 2.0
@@ -2301,10 +2473,10 @@ func canon() -> Vector3:
 func _camara_al_hombro() -> void:
 	var paso := clampf(CAMARA_CAMBIA * get_process_delta_time() / maxf(Engine.time_scale, 0.001), 0.0, 1.0)
 	var pistola: bool = _pistola.activa
-	_apuntando = pistola and is_physics_processing() and Input.is_action_pressed("apuntar")
+	_apuntando = pistola and is_physics_processing() and Input.is_action_pressed("apuntar") and carretilla == null
 	_hombro = lerpf(_hombro, (APUNTA_HOMBRO if _apuntando else HOMBRO) if pistola else 0.0, paso)
 	_alzar = lerpf(_alzar, HOMBRO_ALTO if pistola else 0.0, paso)
-	spring_arm.spring_length = lerpf(spring_arm.spring_length, (APUNTA_BRAZO if _apuntando else HOMBRO_BRAZO) if pistola else _brazo_base, paso)
+	spring_arm.spring_length = lerpf(spring_arm.spring_length, (APUNTA_BRAZO if _apuntando else HOMBRO_BRAZO) if pistola else (brazo_interior if brazo_interior > 0.0 else _brazo_base), paso)
 	_camara.fov = lerpf(_camara.fov, APUNTA_FOV if _apuntando else _fov_base, paso)
 
 
@@ -2331,7 +2503,7 @@ func _physics_process(delta: float) -> void:
 	_revisar_estocada(delta)
 	_revisar_rodada(delta)
 	_revisar_bloqueo(delta)
-	if _toca_pose_carga():
+	if _toca_pose_carga() or _toca_pose_tras_especial():
 		_empezar_pose_carga()
 	elif _golpe_guardado and ATAQUE_ENFRIAR - _enfriar >= _combo_desde():
 		# Un brinco o rodada pedidos a media barrida le ganan al espadazo guardado (JJ): machacando,
@@ -2340,7 +2512,7 @@ func _physics_process(delta: float) -> void:
 		# clavado con Shift) para encadenar sin pausa
 		if (_buffer == "brinco" or _buffer == "rodar") and _puede(_buffer):
 			_golpe_guardado = false
-			_golpe_tras_brinco = _buffer == "brinco" and giro_aereo and _especiales()
+			_golpe_tras_brinco = _buffer == "brinco" and (giro_aereo or estocada_aerea) and _especiales()
 		else:
 			_atacar()
 	_invulnerable = maxf(_invulnerable - delta, 0.0)
@@ -2361,6 +2533,10 @@ func _physics_process(delta: float) -> void:
 		"move_forward",
 		"move_backward"
 	)
+	# Laberinto de la favela: caminando hacia adelante, A/D son el timon de la camara (no strafe).
+	if giro_con_wasd and input_direction.y < -0.2:
+		camera_pivot.rotation.y -= Input.get_axis("move_left", "move_right") * GIRO_WASD * delta
+		input_direction.x = 0.0
 	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
 	var golpeando := (_enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento) or _pose_carga
 	# Girando en el aire sigues tu salto (y lo puedes dirigir); en el suelo te quedas en tu lugar
@@ -2377,6 +2553,12 @@ func _physics_process(delta: float) -> void:
 	right = right.normalized()
 
 	var direction: Vector3 = right * input_direction.x + forward * -input_direction.y
+	# Con la carretilla: W avanza hacia donde ves y A/D giran despacio; no hay reversa ni de lado
+	if carretilla:
+		frijol.rotate_y(-input_direction.x * CARRETILLA_GIRO * delta)
+		var frente := -frijol.global_transform.basis.z
+		frente.y = 0.0
+		direction = frente.normalized() * maxf(-input_direction.y, 0.0)
 
 	var is_moving: bool = direction.length_squared() > 0.01
 	# Haciendo otra cosa a la vez, caminas (Walk, sin correr). Todo el enfriamiento del golpe, no
@@ -2403,7 +2585,7 @@ func _physics_process(delta: float) -> void:
 	# (clic derecho), a medio machetazo o bloqueando (JJ)
 	var camina: bool = (_apuntando or machetazo or _bloqueando or _curando > 0.0) and not corre_pegando
 	var is_sprinting: bool = is_moving and Input.is_action_pressed("sprint") and not machete_lento and not camina \
-			and not corre_pegando and not (_pistola.activa and _pistola.sin_correr())
+			and not corre_pegando and not (_pistola.activa and _pistola.sin_correr()) and carretilla == null
 	var move_speed: float = sprint_speed if is_sprinting else speed
 	if _apuntando:
 		move_speed = speed * APUNTA_VELOCIDAD
@@ -2415,6 +2597,8 @@ func _physics_process(delta: float) -> void:
 		move_speed = minf(move_speed, CAMINA_PISTOLA if _apuntando or (_bloqueando and _punos()) else CAMINA_MAXIMO)
 	if _bloqueando:
 		move_speed = minf(move_speed, speed * BLOQUEO_VELOCIDAD)
+	if carretilla:
+		move_speed *= CARRETILLA_VELOCIDAD
 	for factor: float in lastres.values():
 		move_speed *= factor
 	# Caminando, el barrido va solo arriba: las piernas siguen trotando
@@ -2495,7 +2679,9 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("jump") and is_on_floor() and not atrapado():
 		var cercano := _nearby_interactable()
-		if cercano != null:
+		if carretilla:
+			carretilla.soltar()
+		elif cercano != null:
 			cercano.interact()
 		else:
 			_pedir_accion("brinco")

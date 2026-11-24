@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_escoltar"]
+script = ExtResource("2_paso")
+tipo = 4
+cuando = 1
+texto = "Lleva a Don Chuy a su casa, sin que lo muerdan"
+lugar = "casas"
+acompanante = "hombre_05"
+vida_acompanante = 60
+
+[resource]
+script = ExtResource("1_mision")
+id = "escolta_noche"
+nombre = "Don Chuy a su casa"
+modelo = "hombre_psx"
+oferta = "Mi tío se quedó fuera y ya no ve bien. ¿Lo acompaña a su casa, de noche?"
+aceptada = "Cuando oscurezca, venga por él. No lo suelte."
+recuerda = "Venga de noche por mi tío. Y que no le pase nada."
+despedida = "Mi tío llegó sano. Dios se lo pague."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_escoltar")])
+pesos = 90

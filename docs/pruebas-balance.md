@@ -4,7 +4,7 @@ Rama: `main-testing` (el trabajo de `testing-juanjo`, antes `golpe-direccion` y 
 
 > **Nuevo (2026-11): dos escenarios de prueba con datos.** Ya no hay que correr comandos para probar. En el menú principal, **Inicio → Menú test** abre un menú alternativo con las tres entradas visibles: **Map test**, **Test de mecánicas (godmode)** y **Test de economía (carrera)** (ahí mismo se cambian dificultad y duración). **Inicio → Pruebas** sigue siendo el lanzador detallado, con la config de enemigos y el botón para abrir la carpeta de datos. Los dos tests usan **la misma defensa** (arena, zombis, Hordas, tinaco, ítems y estética): lo que cambies allí entra en los dos.
 >
-> - **Mecánicas (godmode):** una sola noche de la defensa directa, todo el catálogo de mejoras al máximo e **ítems infinitos**. El reporte principal es **por oleada**: qué ataques, mecánicas e ítems se usaron y qué rindieron en **calma / medio / estrés**.
+> - **Mecánicas (godmode):** una sola noche de la defensa directa, el machete normal, solo los movimientos de espada (golpe cargado, giratorio y estela; sin stats ni buffs, JJ 2026-11-16) e **ítems infinitos**. El reporte principal es **por oleada**: qué ataques, mecánicas e ítems se usaron y qué rindieron en **calma / medio / estrés**.
 > - **Economía (carrera):** el refugio (safehouse en modo carrera) con **todas las tiendas físicas** y el **punto de mejoras**; compras con pesos, corres la noche y vuelves al refugio. Ganar paga $150; perder da $75 más de lo que tenías al empezar esa noche y reintentas la misma. Vida llena al empezar cada noche; sin drops de zombis.
 >
 > El log se escribe solo en `user://pruebas/<fecha_hora>/` (o en la carpeta de `--monitor=<carpeta>`). Abajo están los archivos y qué mide cada uno.
@@ -125,6 +125,8 @@ Y si puedes, juega la carrera completa hasta perder: anota en qué noche te desm
 | Aturdir al pegar | Apagado (`ATURDIR` false). Encendido: 20 % por golpe cuerpo a cuerpo, además del golpe a tiempo | `Zombie.gd` `ATURDIR`, `ATURDE_PROB` | Lo pidió Alan, pero en la 8ª prueba los zombis casi no pegaban y JJ lo quitó. Nunca al jefe ni con la pistola |
 | Curarse con Q | 0.8 s quieto; 5 curaciones (y la mochila escolar) al empezar la defensa | `player.gd` `CURAR_DURA`; `DefensaTinaco.gd` `PROVISIONES` | ¿Se puede curar a media pelea o te matan? |
 | Vida del zombi | 30 | `scripts/map/Zombie.gd` `VIDA` | |
+| Aguante de los especiales | 3 segmentos; cada especial (tajo, giro, estocada) gasta 1; se llena en 10 s tras 1 s sin gastar; +0.04 por golpe normal que pega | `scripts/EstaminaEspecial.gd` `SEGMENTOS`, `LLENA_EN`, `ESPERA`, `POR_ACIERTO` | ¿Ya no conviene machacar el giro? ¿Se siente lento esperar? |
+| Vida del Panzón | 2.5 × la de un zombi (75) | `scripts/map/Panzon.gd` `VIDA_ZOMBIS` | ¿Matarlo ya no deja caer el tinaco? |
 | Velocidad del zombi | 3-5 m/s (corredores más rápidos) | `Zombie.gd` `VELOCIDAD`; `cazador` | El jugador camina a 10 m/s en el mapa, más rápido que todos |
 | Daño del zombi al jugador | 12 en el mapa; 6 en la defensa, +1 por noche hasta 12 | `Zombie.gd` `DANO`; en la defensa `dano_jugador` del nodo Zombis y `DefensaTinaco.gd` `DANO_POR_NOCHE`/`DANO_TOPE` | Con 12 te desmayabas antes de la 1:00 (ver Resultados) |
 | Dificultad de cada noche | grupos ×1.25 por noche; daño +1 hasta 12 | `DefensaTinaco.gd` `DIFICULTAD_POR_NOCHE`, `DANO_POR_NOCHE`, `DANO_TOPE` | ¿Se llega a la noche 5-6 con vida? ¿La derrota se siente justa o llega de golpe? |
@@ -145,6 +147,9 @@ Y si puedes, juega la carrera completa hasta perder: anota en qué noche te desm
 | Paga del amanecer | 150 pesos y un galón (nada si cae el tinaco) | `DefensaTinaco.gd` `PAGA` | ¿Compensa la noche comparada con las misiones? |
 | Jefe (mapa, última noche) | vida 400, daño 25, 3 m/s | `Zombie.gd` `JEFE_*` | |
 | Golpes a tiempo | ventana 0.3 s | `Zombie.gd` `CORTE`; tecla 9 en el safehouse | ¿Se entiende sin explicarlo? |
+| Evento de la reja: cuándo falla | el desgaste sube 0.05 cada noche (ya abierta la reja); probabilidad desgaste ÷ 3, mínimo 2 %, solo si caes la noche dentro de Santa Mugre; luego 3 noches sin evento (sale ~1 de cada 10 noches) | `Misiones.gd` `DESGASTE_NOCHE`, `DESGASTE_ENTRE`, `FALLA_MINIMA`, `ENFRIAMIENTO` | ¿Es un susto raro o se siente rutina? |
+| Evento de la reja: la defensa | 4 min; turbas de 4 cada 12 s del lado de la reja; tinaco con 300 de vida (3 por golpe de zombi). Solo, cae en ~40 s; cada reintento (3) quita 1 zombi por turba y suma 2 s entre turbas | `resources/misiones/evento_reja.tres`; `MisionesMundo.gd` `EVENTO_MENOS`, `EVENTO_ESPACIO` | ¿Se gana con el machete de las primeras noches? No sube con tu progreso todavía |
+| Evento de la reja: paga | $200 (del padre Chuy, con el factor de paga) | `evento_reja.tres` `pesos` | ¿Compensa? |
 
 Las habilidades de los tazos y el cuerpo del personaje (complexión y altura) multiplican la vida, el daño y la velocidad. Prueba primero con el personaje normal y sin tazos (F12 en el safehouse los borra).
 
@@ -246,6 +251,36 @@ Historia: AG la jugó el 2026-11-10 dos veces. La primera: "no te agarra, la ani
 - `--cheese`: revienta el carro a los 3.4 s (pasa).
 
 Anotar aquí cuánto duró, cuántas veces te desmayaste y en qué fase, a machete y con pistola.
+
+## El Simi bailador (Claude, 2026-11-22; sin probar en ventana)
+
+Se prueba de noche en la planicie del sureste de `map_test` (`godot --path . tools/probar_simi_jefe.tscn`, te deja a 90 m) o con Ctrl+. en la safehouse (con Z o T para que haya zombis). Todos los números están al principio de `scripts/simi/JefeSimi.gd`; las reglas, en `scripts/simi/CLAUDE.md`.
+
+| Qué | Número | Dónde |
+|---|---|---|
+| Vida | 1000; a la mitad se le cae la bata | `VIDA`, `FASE_2` |
+| Zombis para soltarlos | 12 (8 en la fase 2); matas la mitad y se enoja | `JUNTA`, `JUNTA_2` |
+| Zombis que van con él | a 90 m; sueltos no regresan en 25 s y van 1.35× más rápido | `RECLUTA`, `SUELTA_DURA`, `SUELTA_PRISA` |
+| Aura de baile | 8 m | `AURA` |
+| Ola sónica | cada 6-9 s, a 14 m/s hasta 35 m, ancho 1.3 m (doble en fase 2) | `ONDA_CADA`, `ONDA_VEL`, `ONDA_RADIO`, `ONDA_ANCHO` |
+| Zafarse | 0.07 por apretón, baja 0.12/s, tope 0.8 hasta que te peguen; 2.5 s sin que te agarre | `ZAFARSE_POR`, `ZAFARSE_BAJA`, `ZAFARSE_TOPE`, `INMUNE` |
+| Patada | si bailas 1.5 s sin zombi a 12 m; corre a 9 m/s; 30 de daño | `PATEA_ESPERA`, `PATEA_ZOMBI`, `CORRE_VEL`, `PATADA` |
+| Daño que recibe | bailando ×0.5, señalando y jadeando (3 s) ×2; bala 12, explosión 80 | `DANO_BAILANDO`, `DANO_JADEA`, `JADEA_DURA`, `DANO_BALA`, `DANO_EXPLOSION` |
+
+## El pterodáctilo de Juárez (Claude, 2026-11-22; sin probar en ventana)
+
+Se prueba en el claro del centro-oeste de `map_test` (`godot --path . tools/probar_ptero.tscn`, te deja a 60 m) o con Shift+. en la safehouse. Todos los números están al principio de `scripts/ptero/JefePtero.gd`; el video de la pelea es `-- --video` (ver `scripts/ptero/CLAUDE.md`).
+
+| Qué | Número | Dónde |
+|---|---|---|
+| Vida | 1500; a la mitad se cae y pelea en el piso | `VIDA`, `FASE_2` |
+| Picada | cada 5-8 s, aviso de 1.1 s, a 24 m/s; garras 25 | `PICADA_CADA`, `AVISO_DURA`, `PICADA_VEL`, `GARRAS` |
+| Rasante (ventana del machete) | 1.8 s a 1.8 m del piso | `RASANTE_DURA`, `PICADA_ALTO` |
+| Picotazo / aletazo | 20 / 15, a 7 m empieza a atacar | `PICOTAZO`, `ALETAZO`, `ATAQUE_DIST` |
+| Embestida | cada 9-14 s de lejos, 13 m/s por 1.6 s; 30 | `CARGA_CADA`, `CARGA_VEL`, `CARGA_DURA`, `CARGA_DANO` |
+| Vuelve a volar | cada 22-30 s, 2 picadas y aterriza | `VUELO_CADA`, `PICADAS_POR_VUELO` |
+| Tambaleo | 160 de daño junto en el piso | `HERIDO_CADA` |
+| Armas | bala 12 (15 % de que esquive dando vueltas), explosión 90 | `DANO_BALA`, `ESQUIVA`, `DANO_EXPLOSION` |
 
 ## Verificaciones pendientes: zombis PSX y detección
 

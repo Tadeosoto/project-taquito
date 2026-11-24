@@ -39,7 +39,9 @@ const EXTRAS := ["tablas", "pisada", "jefe", "premio", "curar", "fuente", "bala"
 	# La Madre del Carcamo y sus crias (scripts/lombrices/), hojas con la paleta del Serenol
 	"madre_surge", "madre_tierra", "saco_golpe", "saco_revienta", "lodo_choque", "fase_onda", "madre_muere", "cria_corte", "cria_cabeza", "molotov_revienta", "torre_golpe", "pegada_mordida", "pegada_suelta",
 	# La Mojiganga (scripts/catrina/): las suyas, con la paleta del vestido, el carton y el cempasuchil
-	"catrina_pisada", "catrina_grito", "catrina_agarre", "catrina_fase", "catrina_golpe", "catrina_rompe", "catrina_muere", "catrina_flor_revienta"]
+	"catrina_pisada", "catrina_grito", "catrina_agarre", "catrina_fase", "catrina_golpe", "catrina_rompe", "catrina_muere", "catrina_flor_revienta",
+	# El Panzon de piedra (Panzon.gd): revienta en Serenol azul
+	"panzon_revienta"]
 
 # Cada lugar, sus variantes (la primera es la que queda por omision, salvo PREDETERMINADA). `hoja` vacia = nada.
 # `puno`: la hoja a mano limpia; `mata`: la del golpe que mata; `voltea`: la hoja ve a la
@@ -120,6 +122,11 @@ const LUGARES := {
 	"torre_golpe": [{ "nombre": "A", "hoja": "torre_golpe", "escala": 0.4, "suelo": true }],
 	"pegada_mordida": [{ "nombre": "A", "hoja": "pegada_mordida", "escala": 0.35 }],
 	"pegada_suelta": [{ "nombre": "A", "hoja": "pegada_suelta", "escala": 0.35 }],
+	# El Panzon (Panzon.gd, Pistola.gd): sangra Serenol, el azul de sus grietas. Son impacto_seco,
+	# impacto_critico y madre_muere pasadas por un degradado de azules (marino -> #2EC4FF -> blanco)
+	# panzon_revienta va a 28 fps (madre_muere a 12): el hongo duraba 7 s (JJ: demasiado), asi ~3
+	"panzon_impacto": [{ "nombre": "A", "hoja": "panzon_impacto", "mata": "panzon_critico", "escala": 0.8, "voltea": true }],
+	"panzon_revienta": [{ "nombre": "A", "hoja": "panzon_revienta", "escala": 0.3, "suelo": true }],
 	# La Mojiganga (Catrina.gd, Rompible.gd)
 	"catrina_pisada": [{ "nombre": "A", "hoja": "catrina_pisada", "escala": 0.45, "suelo": true }],
 	"catrina_grito": [{ "nombre": "A", "hoja": "catrina_grito", "escala": 0.45 }],
@@ -319,7 +326,8 @@ func pantalla(nombre: String, desde: float, hasta: float, aditivo := false, alfa
 	var tamano: Vector2 = hoja["tamano"]
 	var dura: float = hoja["cuadros"] / hoja["fps"]
 	var t := desde
-	while t < hasta and is_instance_valid(cuadro):
+	# Si la escena se cierra a media animacion (un jefe o la defensa que vuelven al mapa) se acaba
+	while t < hasta and is_instance_valid(cuadro) and is_inside_tree():
 		var i := mini(int(fmod(t, dura) * hoja["fps"]) if hoja["loop"] else int(t * hoja["fps"]), hoja["cuadros"] - 1)
 		region.region = Rect2(Vector2(i % hoja["columnas"], i / hoja["columnas"]) * tamano, tamano - Vector2(0.0, recorte))
 		var k := alfa
@@ -338,8 +346,8 @@ func pantalla(nombre: String, desde: float, hasta: float, aditivo := false, alfa
 # dura la hoja; mas = un hueco sin nada entre vuelta y vuelta. `con_direccion`: la hoja ve a la
 # derecha y cada cuadro se voltea segun su instance uniform `hacia`
 # `de_pie`: de pie en el piso (solo gira en vertical), para charcos, burbujas y lo que sale del suelo
-static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false) -> ShaderMaterial:
-	var clave := "%s|%s|%s|%s|%s" % [nombre, alfa, periodo, con_direccion, de_pie]
+static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false, eje_mundo := false) -> ShaderMaterial:
+	var clave := "%s|%s|%s|%s|%s|%s" % [nombre, alfa, periodo, con_direccion, de_pie, eje_mundo]
 	if _materiales.has(clave):
 		return _materiales[clave]
 	var hoja := hoja_de(nombre)
@@ -358,6 +366,7 @@ static func material_bucle(nombre: String, alfa := 1.0, periodo := 0.0, con_dire
 	material.set_shader_parameter("pixel", PIXEL)
 	material.set_shader_parameter("con_direccion", con_direccion)
 	material.set_shader_parameter("de_pie", de_pie)
+	material.set_shader_parameter("eje_mundo", eje_mundo)
 	material.set_meta("alfa", alfa)
 	material.set_shader_parameter("alfa", alfa if extras else 0.0)
 	_materiales[clave] = material
@@ -400,8 +409,8 @@ static func malla_quad() -> QuadMesh:
 
 # Uno solo que se repite, para colgarlo de algo (el pivote de la hoja queda en su origen).
 # `escala` multiplica el tamano a escala de personaje; cada uno arranca en otra fase
-static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false) -> MeshInstance3D:
-	var material := material_bucle(nombre, alfa, periodo, con_direccion, de_pie)
+static func cuadro_bucle(nombre: String, escala := 1.0, alfa := 1.0, periodo := 0.0, con_direccion := false, de_pie := false, eje_mundo := false) -> MeshInstance3D:
+	var material := material_bucle(nombre, alfa, periodo, con_direccion, de_pie, eje_mundo)
 	if material == null:
 		return null
 	var cuadro := MeshInstance3D.new()

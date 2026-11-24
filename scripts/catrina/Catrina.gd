@@ -225,7 +225,7 @@ var humedad := {Parte.FALDA: 1.0, Parte.BLUSA: 1.0, Parte.CABEZA: 1.0}
 var cuenta := {}               # lo que paso, para -- --medir
 
 var _vida := VIDA
-# Las repeticiones de la noche sin fin la traen mas dura (PasoArena.fuerza): el dano se divide
+# Las repeticiones de la noche sin fin la traen mas dura (Noches.fuerza_jefe, al entrar desde el mapa con PasoJefe): el dano se divide
 # entre esto, que es como multiplicarle la vida
 var aguante := 1.0
 var _siguiente := ""           # el ataque que sigue sin volver a caminar (combo)
@@ -1006,7 +1006,7 @@ func _pisar(delta: float) -> void:
 		_pego = true
 		var pie := global_position + _frente() * 1.0 + global_basis.x * 0.45
 		pie.y = global_position.y
-		Sonidos.tocar(self, "pisoton", 2.0, 0.9)
+		Sonidos.tocar(self, "pisoton", -6.0, 0.9)
 		_sacudir(0.8)
 		_fx("catrina_pisada", pie, Vector3.ZERO, 1.0)
 		var al := jugador.global_position - pie
@@ -1339,7 +1339,7 @@ func _gritar() -> void:
 	_pose({"inclinar": -0.3 if _t < GRITO_AVISA else 0.2, "brazo_r": 0.4, "brazo_l": 0.4})
 	if not _soltada and _t >= GRITO_AVISA:
 		_soltada = true
-		Sonidos.tocar(self, "grito_catrina", 4.0, 1.0)
+		Sonidos.tocar(self, "grito_catrina", 0.0, 1.0)
 		_sacudir(0.5)
 		var cabeza := _marca("Cabeza").global_position
 		_fx("catrina_grito", cabeza, Vector3.ZERO, 1.0)
@@ -1407,7 +1407,7 @@ func _manotazo() -> void:
 	if not _pego:
 		_pego = true
 		var donde := global_position + _frente() * 2.5
-		Sonidos.tocar(self, "pisoton", 0.0, 1.1)
+		Sonidos.tocar(self, "pisoton", -7.0, 1.1)
 		_sacudir(0.6)
 		_fx("catrina_pisada", donde, Vector3.ZERO, 0.75)
 		var al := jugador.global_position - donde
@@ -1481,7 +1481,7 @@ func _entrar_fase(nueva: int) -> void:
 	_cambiar(Estado.TRANSICION)
 	_contar("fase_%d" % nueva)
 	fase_cambio.emit(nueva)
-	Sonidos.tocar(self, "grito_catrina", 5.0, 0.9 if nueva == 2 else 0.7)
+	Sonidos.tocar(self, "grito_catrina", 1.0, 0.9 if nueva == 2 else 0.7)
 	_sacudir(0.9)
 	_fx("catrina_grito", global_position + Vector3.UP * 3.0, Vector3.ZERO, 1.2)
 	_fx("catrina_fase", _marca("Cabeza").global_position, Vector3.ZERO, 1.2)
@@ -1494,7 +1494,7 @@ func _entrar_fase(nueva: int) -> void:
 			_mostrar("Vestido", false)
 			_mostrar("Vestido_Roto", true)
 			_mostrar("Carrizo", true)
-		Sonidos.tocar(self, "carton", 4.0, 0.8)
+		Sonidos.tocar(self, "carton", 2.0, 0.8)
 		var liquido := _liquido()
 		if liquido:
 			liquido.reventar(global_position + Vector3.UP * 3.5, 1.0, global_position.y, 50, Zombie.COLOR_AGUA, Vector2(3.0, 7.0))
@@ -1574,7 +1574,7 @@ func _tirar_cabeza() -> void:
 	tween.tween_property(_cabeza_caida, "global_position", hasta, 0.6).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	tween.parallel().tween_property(_cabeza_caida, "rotation", Vector3(0.6, randf() * TAU, 0.3), 0.6)
 	tween.tween_callback(func() -> void:
-		Sonidos.tocar(_cabeza_caida, "pisoton", 4.0, 0.7)
+		Sonidos.tocar(_cabeza_caida, "pisoton", -5.0, 0.7)
 		_sacudir(0.9)
 		_fx("catrina_rompe", hasta - Vector3.UP * 0.8, Vector3.ZERO, 1.0)
 		if jugador.global_position.distance_to(hasta) < 1.8:
@@ -1625,7 +1625,7 @@ func _quemar(delta: float) -> void:
 			_arde[parte] = ARDE_DURA
 			humedad[parte] = -1.0    # ya no vuelve a arder
 			_contar("arde")
-			Sonidos.tocar(self, "fizz", 0.0, 0.7)
+			Sonidos.tocar(self, "fizz", -4.0, 0.7)
 	for parte: Parte in _arde.keys():
 		_arde[parte] -= FUEGO_CADA
 		_herir(DANO_ARDE, _parte_donde(parte), false, true)
@@ -1819,7 +1819,7 @@ func _herir(dano: int, desde: Vector3, cuerpo_a_cuerpo: bool, fuego := false) ->
 		hacia.y = 0.0
 		var donde := global_position + Vector3.UP * (1.6 if fase == 3 else 2.2) - hacia.normalized() * radio_golpe
 		_fx("catrina_golpe", donde, hacia.normalized())
-		Sonidos.tocar(self, "whack", -6.0, 0.7)
+		Sonidos.tocar(self, "whack", -11.0, 0.7)   # 2 dB sobre el whack del jugador (mezcla 2026-11-17)
 		Sonidos.tocar(self, "carton", -10.0, randf_range(0.9, 1.2))
 	# No se salta fases: se queda en el borde de la siguiente
 	if fase == 1 and _vida <= FASE_2:
@@ -1837,7 +1837,7 @@ func _herir(dano: int, desde: Vector3, cuerpo_a_cuerpo: bool, fuego := false) ->
 		_frenesi = true
 		_poner_corona("rojo")
 		_contar("frenesi")
-		Sonidos.tocar(self, "grito_catrina", 6.0, 0.6)
+		Sonidos.tocar(self, "grito_catrina", 2.0, 0.6)
 		_sacudir(0.8)
 		frenesi.emit()
 	if _vida <= 0:
@@ -1879,7 +1879,7 @@ func _morir(pagado: bool, desde := Vector3.ZERO) -> void:
 		_llamas[parte].visible = false
 	_animar("Death", 1.0, true)
 	Sonidos.tocar(self, "grito_catrina", 2.0, 0.5)
-	Sonidos.tocar(self, "reventar", 4.0, 0.6)
+	Sonidos.tocar(self, "reventar", -2.0, 0.6)
 	_sacudir(1.0)
 	cambio.emit(0, VIDA)
 	# Revienta el nudo: agua sucia y pedazos para todos lados

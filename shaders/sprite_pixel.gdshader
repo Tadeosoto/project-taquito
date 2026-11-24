@@ -23,6 +23,10 @@ uniform bool con_direccion = false;
 // que la base de un charco o de algo que sale del suelo no flote
 uniform bool de_pie = false;
 
+// Sobre un eje del mundo: el eje X del cuadro va por `hacia` (horizontal, ya no se voltea) y solo
+// gira sobre ese eje para ver a la camara. Asi un chorro sale siempre perpendicular a su pared
+uniform bool eje_mundo = false;
+
 instance uniform float fase = 0.0;
 instance uniform vec3 hacia = vec3(1.0, 0.0, 0.0);
 
@@ -41,7 +45,14 @@ void vertex() {
 	float escala = length(MODEL_MATRIX[0].xyz);
 	vec2 esquina = VERTEX.xy + 0.5;   // 0..1, y hacia arriba
 	vec2 px = vec2(esquina.x * tamano.x - pivote.x, (1.0 - esquina.y) * tamano.y - pivote.y);
-	if (de_pie) {
+	if (eje_mundo) {
+		vec3 derecha = normalize(hacia + vec3(0.0001, 0.0, 0.0));
+		vec3 a_camara = INV_VIEW_MATRIX[3].xyz - MODEL_MATRIX[3].xyz;
+		vec3 n = a_camara - derecha * dot(a_camara, derecha);
+		n = length(n) < 0.001 ? vec3(0.0, 1.0, 0.0) : normalize(n);
+		MODELVIEW_MATRIX = VIEW_MATRIX * mat4(vec4(derecha, 0.0), vec4(cross(n, derecha), 0.0), vec4(n, 0.0), MODEL_MATRIX[3]);
+		voltea = 1.0;
+	} else if (de_pie) {
 		vec3 derecha = INV_VIEW_MATRIX[0].xyz;
 		derecha = normalize(vec3(derecha.x, 0.0, derecha.z) + vec3(0.0001, 0.0, 0.0));
 		vec3 frente = cross(derecha, vec3(0.0, 1.0, 0.0));

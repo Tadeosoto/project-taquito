@@ -3,7 +3,8 @@ extends Node3D
 # La losa que avienta el Panzon (Panzon.gd): sale de sus manos, vuela en arco a donde vas a
 # estar con su sombra en el piso donde va a caer, y al caer (o al chocar con algo) revienta:
 # 25 al jugador, 30 al tinaco de la defensa, y tumba las piezas de la barricada que alcanza
-# (Barricada.romper_cerca). No nombra autoloads.
+# (Barricada.romper_cerca). La que va al tinaco (`al_tinaco`) atraviesa la barricada en el aire:
+# va directo al tinaco, y solo tumba las piezas de donde cae. No nombra autoloads.
 
 const ROCA := preload("res://models/personajes/panzon/roca.glb")
 const GRAVEDAD := 22.0
@@ -22,10 +23,15 @@ var _de: Node = null
 var _sombra: MeshInstance3D
 var _destino := Vector3.ZERO
 var _lista := false
+var _al_tinaco := false
+var _excluir: Array[RID] = []
 
 
-func lanzar(desde: Transform3D, adonde: Vector3, de: Node) -> void:
+func lanzar(desde: Transform3D, adonde: Vector3, de: Node, al_tinaco := false) -> void:
 	_de = de
+	_al_tinaco = al_tinaco
+	if _de and _de is CollisionObject3D:
+		_excluir.append(_de.get_rid())
 	var modelo := ROCA.instantiate()
 	add_child(modelo)
 	global_transform = desde
@@ -67,11 +73,13 @@ func _physics_process(delta: float) -> void:
 	if _sombra:
 		_sombra.scale = Vector3.ONE * clampf(0.3 + _t, 0.3, 1.2)
 	# Choca con lo que se atraviese (paredes, barricada, el piso)
-	var excluir: Array[RID] = []
-	if _de and _de is CollisionObject3D:
-		excluir.append(_de.get_rid())
-	var rayo := PhysicsRayQueryParameters3D.create(antes, despues, 1, excluir)
-	var pego := get_world_3d().direct_space_state.intersect_ray(rayo)
+	var espacio := get_world_3d().direct_space_state
+	var rayo := PhysicsRayQueryParameters3D.create(antes, despues, 1, _excluir)
+	var pego := espacio.intersect_ray(rayo)
+	while pego and _al_tinaco and _de_barricada(pego.collider):
+		_excluir.append(pego.rid)
+		rayo.exclude = _excluir
+		pego = espacio.intersect_ray(rayo)
 	if pego:
 		_reventar(pego.position)
 		return
@@ -81,6 +89,18 @@ func _physics_process(delta: float) -> void:
 		return
 	if _t > VIDA_MAX:
 		_reventar(global_position)
+
+
+# Una pieza de la barricada; el tinaco no (es hijo de la Barricada)
+func _de_barricada(cuerpo: Object) -> bool:
+	var nodo := cuerpo as Node
+	while nodo:
+		if nodo.is_in_group("tinaco_defensa"):
+			return false
+		if nodo.is_in_group("barricada"):
+			return true
+		nodo = nodo.get_parent()
+	return false
 
 
 func _reventar(donde: Vector3) -> void:

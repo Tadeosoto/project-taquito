@@ -26,6 +26,7 @@
 [ext_resource type="Script" path="res://scripts/map/Zombis.gd" id="24_zombis"]
 [ext_resource type="Script" path="res://scripts/map/Supervivencia.gd" id="25_supervivencia"]
 [ext_resource type="PackedScene" uid="uid://copf6g6b47r4d" path="res://scenes/InventoryUI.tscn" id="26_inventario"]
+[ext_resource type="PackedScene" uid="uid://b74kx60rek6fq" path="res://models/casas/psm/casas_psm.glb" id="27_psm"]
 
 [sub_resource type="Environment" id="Environment_mapa"]
 background_mode = 1
@@ -137,7 +138,19 @@ modelos = Dictionary[String, PackedScene]({
 "urbi_1p_c": ExtResource("14_urbi"),
 "urbi_2p_a": ExtResource("14_urbi"),
 "urbi_2p_b": ExtResource("14_urbi"),
-"urbi_2p_c": ExtResource("14_urbi")
+"urbi_2p_c": ExtResource("14_urbi"),
+"psm_1p_a": ExtResource("27_psm"),
+"psm_1p_b": ExtResource("27_psm"),
+"psm_1p_c": ExtResource("27_psm"),
+"psm_1p_tablones": ExtResource("27_psm"),
+"psm_1p_barrotes": ExtResource("27_psm"),
+"psm_1p_persiana": ExtResource("27_psm"),
+"psm_2p_a": ExtResource("27_psm"),
+"psm_2p_b": ExtResource("27_psm"),
+"psm_2p_c": ExtResource("27_psm"),
+"psm_2p_tablones": ExtResource("27_psm"),
+"psm_2p_barrotes": ExtResource("27_psm"),
+"psm_2p_persiana": ExtResource("27_psm")
 })
 modelo_rango_x = Dictionary[String, Vector2]({
 "urbi_1p_a": Vector2(-22.3, -14.75),
@@ -145,7 +158,19 @@ modelo_rango_x = Dictionary[String, Vector2]({
 "urbi_1p_c": Vector2(-7.75, -0.25),
 "urbi_2p_a": Vector2(-0.25, 7),
 "urbi_2p_b": Vector2(7, 14.5),
-"urbi_2p_c": Vector2(14.5, 22.7)
+"urbi_2p_c": Vector2(14.5, 22.7),
+"psm_1p_a": Vector2(-5, 5),
+"psm_1p_b": Vector2(5, 15),
+"psm_1p_c": Vector2(15, 25),
+"psm_1p_tablones": Vector2(25, 35),
+"psm_1p_barrotes": Vector2(35, 45),
+"psm_1p_persiana": Vector2(45, 55),
+"psm_2p_a": Vector2(55, 65),
+"psm_2p_b": Vector2(65, 75),
+"psm_2p_c": Vector2(75, 85),
+"psm_2p_tablones": Vector2(85, 95),
+"psm_2p_barrotes": Vector2(95, 105),
+"psm_2p_persiana": Vector2(105, 115)
 })
 nucleo = Dictionary[String, float]({
 "urbi_1p_a": 0.62,
@@ -174,10 +199,36 @@ muro_key = Dictionary[String, Color]({
 "urbi_1p_c": Color(0.88, 0.88, 0.86, 1),
 "urbi_2p_a": Color(0.88, 0.88, 0.86, 1),
 "urbi_2p_b": Color(0.88, 0.88, 0.86, 1),
-"urbi_2p_c": Color(0.88, 0.88, 0.86, 1)
+"urbi_2p_c": Color(0.88, 0.88, 0.86, 1),
+"psm_1p_a": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_b": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_c": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_tablones": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_barrotes": Color(0.88, 0.88, 0.88, 1),
+"psm_1p_persiana": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_a": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_b": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_c": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_tablones": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_barrotes": Color(0.88, 0.88, 0.88, 1),
+"psm_2p_persiana": Color(0.88, 0.88, 0.88, 1)
 })
 muro_tol = Dictionary[String, float]({
 "mexican_house_3": 0.3
+})
+recolor_materiales = Dictionary[String, PackedStringArray]({
+"psm_1p_a": PackedStringArray("muro", "arco"),
+"psm_1p_b": PackedStringArray("muro", "arco"),
+"psm_1p_c": PackedStringArray("muro", "arco"),
+"psm_1p_tablones": PackedStringArray("muro", "arco"),
+"psm_1p_barrotes": PackedStringArray("muro", "arco"),
+"psm_1p_persiana": PackedStringArray("muro", "arco"),
+"psm_2p_a": PackedStringArray("muro", "arco"),
+"psm_2p_b": PackedStringArray("muro", "arco"),
+"psm_2p_c": PackedStringArray("muro", "arco"),
+"psm_2p_tablones": PackedStringArray("muro", "arco"),
+"psm_2p_barrotes": PackedStringArray("muro", "arco"),
+"psm_2p_persiana": PackedStringArray("muro", "arco")
 })
 ventanas_uv = Dictionary[String, PackedVector4Array]({
 "semi_residencial": PackedVector4Array(0.255, 0.27, 0.345, 0.42, 0.37, 0.24, 0.48, 0.44, 0.37, 0.82, 0.47, 0.98, 0.495, 0.49, 0.735, 0.98, 0.75, 0.5, 0.98, 0.98),

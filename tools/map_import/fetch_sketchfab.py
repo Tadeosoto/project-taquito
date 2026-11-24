@@ -126,8 +126,23 @@ MODELS = {
 	"armas/resortera": "7c00a1667b2c4413b4dcb24500f05892",          # Slingshot, 6k
 	"props/despachador_agua": "25bdfe807c8e437885ed3be6ec0d11d8",   # water dispenser, 724
 	"props/coladera": "bbf5c9aa04c24fbaba328728d955777d",           # Manhole, 72
+	"props/carretilla": "fdce753e4dc147fcbfa18e809dde7bf9",         # Lowpoly Wheelbarrow (la carretilla de Al medico)
 	"props/tinaco": "fb34a8ff0a04447e91a9ef1d793a192a",             # Rtp Tinaco, 424k (reducido)
 	"props/bano_portatil": "8083b3d2134f4e98a34d891fa7915dcc",      # Abandoned Toilet Cabin, 3.9k
+	"props/palacio": "3e0b792b4c884606b1e7056a195fad85",           # Antiguo Palacio de Gobierno de Pachuca, 151k (reducido): el palacio de afuera (P0)
+	"props/palacio_edomex": "5400907383d043d7899adbb06c611aa0",    # Palacio de Gobierno del Estado de Mexico, 71k: en medio del panteon (plaza de la Mojiganga)
+	# Las tumbas del panteon (Panteon.gd, JJ 2026-11-22)
+	"panteon/ps1_lapida": "2e4ecda5e9df487099affe2a4d45eba0",        # Low Poly PS1 Tombstone, 84
+	"panteon/ps1_lapida2": "acab7d41a2254cf9bde83bdff2f74890",       # PS1/Lowpoly Gravestone, 76
+	"panteon/ps1_mausoleo": "a547e313cce0481baa1909dc530691ce",      # PS1 Style / Lowpoly Mausoleum, 350
+	"panteon/mexicana_1918": "b1f0b87a03cf4e46940ffe3773ba0df5",     # Centenary Mexican Tombstone (1918), 12k
+	"panteon/lapidas_pack": "915174119a454fa7b2573a9e3bddac8b",      # gravestone pack, 8.2k
+	"panteon/props": "ae35b6086e0b45d3941a61086b5e3d10",             # Graveyard props, 2.3k
+	# El jefe pterodactilo (JJ, 2026-11-22)
+	"personajes/ptero_picky": "568b841d8774488c8b25f5b74bffdc76",     # Picky the Pterodactyl, 520, 26 clips
+	# Defensa del tinaco (scripts/defensa/DecoracionDefensa.gd)
+	"props/bocina_escenario": "39289063695d42f5a67b0a33318badb4",   # Speaker Stage
+	"props/rollo_manguera": "33a5089d9dd1438386d80bdf31a46a55",     # Garden Hose Reel
 	"personajes/perro": "647fa9e3f53b4898826ef398f0a9f6dd",         # French Bulldog PSX, 770, 1 animacion
 	"personajes/taquero": "452927fd544d476eaf2c00a11e18965c",       # Chef Erik (Walking), 2.7k, 1 animacion
 	"personajes/encargada": "8898a87225604a1fb335b47efff9c088",     # Female Secretary Character PSX, 932
@@ -157,6 +172,7 @@ MODELS = {
 	"vehiculos/tsuru": "94faafff28ce4bb3b3ab338da0b24eec",          # Retro Lowpoly Nissan Tsuru, 1.4k
 	"vehiculos/vocho": "769ada1c8d2c4cddb33a8c66b93e1099",          # 1967 Volkswagen Beetle, 1.8k
 	"vehiculos/van_blanca": "1cac40905d494bae8108a556d870e23e",     # White Van - PS1 Low Poly, 140
+	"vehiculos/pickup": "e9be0ceddd344ca2871e1b84621bdf66",         # PS1 Ford F150 Pickup truck, 1.4k (defensa del tinaco)
 }
 
 # Titulo de la seccion de CREDITS.md para cada carpeta de primer nivel
@@ -171,6 +187,7 @@ CREDIT_HEADERS = {
 	"interiores": "## Interiores (`models/interiores/`, Sketchfab)",
 	"bodegas": "## Bodegas (`models/bodegas/`, Sketchfab)",
 	"vehiculos": "## Vehiculos (`models/vehiculos/`, Sketchfab)",
+	"panteon": "## Panteon (`models/panteon/`, Sketchfab)",
 }
 
 

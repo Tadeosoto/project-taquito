@@ -136,7 +136,7 @@ Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Re
 | **2** (3 hechas) | Suero oral (+40) | Lámpara de pilas (alumbra), Escapulario (−10 %), Pulsera de San Benito (+25 vida), Cadena gruesa (+10 % fuerza, −5 %), Coderas (−10 %, +5 % alcance) | Antorcha de thinner (10, quema), Bate con alambre de púas (17, empuja más) |
 | **3** (9) | Estampita de San Expedito (+1 punto de habilidad), Varilla armada (material) | Rosario de semillas (−20 % de noche), Medalla de la Virgen (más tazos raros y holo), Faja de cargador (+40 vida), Cadena de oro (+20 % fuerza) | Coa afilada (20, más alcance) |
 | **4** (15) | Té de la Virgen (cura todo), Estampita del Santo Niño (−5 % daño la partida) | Ojo de venado (−20 % de cazadores y jefe, +15 vida), Herradura (−20 % de turbas), Brazalete de cobre (arrojables, todavía sin uso), Corona de lata (de todo un poco) | Machete de cañero (24, golpe rápido) |
-| **5** (21) | Milagro del tinaco (cura todo y recarga Segundo aire), Estampita de San Miguel (+5 % fuerza la partida), Varilla del 84 (material) | Chamarra del Nocturno (+30 vida, −10 %, +10 % pesos), Medalla de GelA (+30 % pesos, −5 %), Listón de la Virgen (−20 % de todo) | Marro (30, empuja mucho, golpe lento) |
+| **5** (21) | Milagro del tinaco (cura todo y recarga Segundo aire), Estampita de San Miguel (+5 % fuerza la partida), Varilla del 84 (material) | Chamarra del Machetes (+30 vida, −10 %, +10 % pesos), Medalla de GelA (+30 % pesos, −5 %), Listón de la Virgen (−20 % de todo) | Marro (30, empuja mucho, golpe lento) |
 | **6** (las 36 anteriores y su plano) | — | — | Machetón del 84 (40, rápido), Lanza de varilla (30, mucho alcance), Bate con clavos de cobalto (32, empuja muchísimo) |
 
 ---
@@ -177,6 +177,18 @@ Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Re
 ---
 
 ## 8. Objetos que faltan o están pendientes
+
+### Drops raros (S5, 2026-11-13) ⏸️ lista por llenar
+
+✅ **Dónde:** 36 escondites fijos en `map_test` (`resources/map/escondites.json`: atrás de bodegas y en callejones; 24 en las orillas del mapa y 12 dentro del cuadro del contenido; nunca en las fortalezas). **No hay drop en todos:** cada amanecer se sortean 6 y solo esos tienen algo; lo que recoges ya no sale hasta el siguiente sorteo. No salen en los mapas.
+
+⏸️ **Qué sale: pendiente (JJ).** Mientras la lista esté vacía sale **"Algo raro"**, un paquete morado de relleno (`resources/drops_raros/pendiente.tres`). Para agregar uno: su `.tres` en `resources/` y su ruta en `DropsRaros.LISTA`.
+
+| Drop | Qué es | Qué tan raro | `.tres` |
+|---|---|---|---|
+| _(por llenar)_ | | | |
+
+💡 Ideas que ya están en los docs: el **papel raro** (§6, recibos y hojas del lore), un **tazo raro**, piezas del taller.
 
 - ❌ **Botella de agua** y **garrafón**: los modelos bajados salían mal. Se usan el galón y el `despachador_agua` como referencia.
 - ❌ **Agua sucia**: sin modelo; es un material de crafteo.

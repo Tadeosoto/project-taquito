@@ -1,8 +1,8 @@
-# La libreta del Nocturno (bestiary, AG's proposal)
+# La libreta del Machetes (bestiary, AG's proposal; was "del Nocturno")
 
 > Moved from the root `CLAUDE.md` on 2026-11-11, word for word. Keep it in sync with the code; the root keeps only a pointer here.
 
-An in-game guidebook in El Nocturno's own voice (informal Spanish, a bit of dark humor). Opened from the open inventory with **L** / gamepad **R3** (`inventory_guide`; it was B/RB on `lombriciento`, moved when merged because Tiliches has B; `InventoryUI` state `LIBRETA`; the Libreta tab of the bottom strip shows "!" with unread notes).
+An in-game guidebook in the protagonist's own voice (Marcial, "el Machetes") (informal Spanish, a bit of dark humor). Opened from the open inventory with **L** / gamepad **R3** (`inventory_guide`; it was B/RB on `lombriciento`, moved when merged because Tiliches has B; `InventoryUI` state `LIBRETA`; the Libreta tab of the bottom strip shows "!" with unread notes).
 - **`Libreta` autoload** (`scripts/Libreta.gd`): per entry a level, 0 unknown / 1 seen / 2 fought / 3 killed (`ver`/`pelear`/`matar`), plus kill counts and unread flags.
   - Saved forever in `user://libreta.cfg`; not cleared on restart. In the safehouse Ctrl+B fills every page (`llenar`) and Shift+B forgets it.
   - A level-up shows a paper toast ("Nueva nota en la libreta...") with the generated `lapiz` sound.

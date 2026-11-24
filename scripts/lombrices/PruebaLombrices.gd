@@ -12,6 +12,7 @@ extends Node3D
 # proposito, para ver que el juego no se traba aunque el hilo no alcance.
 # Con -- --medir=<s> corre sola esos segundos (prueba balazo, machetazo, sal, molotov y sacos),
 # imprime lo que paso y sale. Con -- --fotos=<dir> guarda las VISTAS del cuarto en <dir> y sale.
+# Con -- --sonidos (y Movie Maker) recorre los sonidos de la Madre con un letrero y sale.
 
 const ENTRADA := CarcamoNivel.ENTRADA
 const PAGA := 400
@@ -62,6 +63,7 @@ var _fotos := ""
 # Vida infinita para probar la pelea (-- --inmortal, o F4): los golpes pegan pero la vida se rellena
 var inmortal := false
 var _retratando := false
+var _sonidos := false   # -- --sonidos: recorrido de los sonidos de la Madre para Movie Maker (_video_sonidos)
 
 
 func _ready() -> void:
@@ -70,6 +72,10 @@ func _ready() -> void:
 		add_child(Liquido.new())
 	if get_tree().get_first_node_in_group("efectos_pixel") == null:
 		add_child(EfectosPixel.new())
+	# Pasos, latido y respiracion del jugador, como en el mapa (Partida): los sonidos son globales
+	var cuerpo := SonidosJugador.new()
+	cuerpo.name = "SonidosJugador"
+	add_child(cuerpo)
 	var nivel := CarcamoNivel.new()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--ambiente="):
@@ -87,14 +93,15 @@ func _ready() -> void:
 	(_jugador as CollisionObject3D).collision_mask |= 2
 	# Los ataques especiales de golpe-direccion, como en la safehouse y la defensa (JJ): tajo cargado,
 	# giro aereo (y la estocada en el aire con Shift) y la estela del protagonista. Les pegan a las
-	# crias y a la Madre (Player los manda al grupo "lombrices"). Se apagan en _exit_tree
-	# Llegando del mapa (PasoArena, la noche 10 en adelante) es la pelea de verdad: sin nada de
-	# esto, con lo que traes y los ataques que te dieron los tazos (Partida)
-	var de_prueba := not PasoArena.desde_mapa
+	# crias y a la Madre (Player los manda al grupo "lombrices"). Se apagan en _exit_tree.
+	# Desde la campana (PasoJefe.desde_juego) es la pelea de verdad: se queda con los que ya
+	# aprendiste (los tazos, Partida) y sin las trampas de prueba de abajo
+	var de_prueba := not PasoJefe.desde_juego
 	if de_prueba:
 		Player.golpe_cargado = true
 		Player.giro_aereo = true
-		get_node("/root/Personaje").mejora_estela = true
+		Player.estocada_aerea = true
+	get_node("/root/Personaje").mejora_estela = true
 	_jugador.aplicar_personaje()
 	# Curas infinitas para probar (JJ): con al menos un botiquin, Q cura sin gastarlo
 	INVENTARIO.curas_infinitas = de_prueba
@@ -118,6 +125,8 @@ func _ready() -> void:
 	_letrero.add_theme_constant_override("outline_size", 4)
 	capa.add_child(_letrero)
 	_armar_vida(capa)
+	# El aguante va bajo esta caja de vida (texto + barra), no bajo la de Supervivencia
+	_jugador.estamina.lugar = Vector2(10.0, 40.0)
 	_aviso = Label.new()
 	_aviso.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -140,6 +149,9 @@ func _ready() -> void:
 		elif arg == "--inmortal":
 			inmortal = true
 			print("Lombrices: vida infinita (F4 la quita)")
+		elif arg == "--sonidos":
+			_sonidos = true
+			inmortal = true
 		elif arg == "--perfil":
 			_perfil = true
 		elif arg.begins_with("--lento="):
@@ -209,7 +221,7 @@ func _empezar() -> void:
 		_madre.barandal = CarcamoNivel.BARANDAL
 		_madre.barandal_a = CarcamoNivel.BARANDAL_ALBERCA
 		# Mas aguante en sus repeticiones de la noche sin fin (Noches.fuerza_jefe)
-		_madre.aguante = PasoArena.fuerza if PasoArena.desde_mapa else 1.0
+		_madre.aguante = Noches.fuerza_jefe() if PasoJefe.desde_juego else 1.0
 		add_child(_madre)
 		_madre.muerta.connect(_gano_pelea)
 		_madre.saco_reventado.connect(func(q: int) -> void:
@@ -225,6 +237,88 @@ func _empezar() -> void:
 	_avisar("LA MADRE DEL CÁRCAMO", 2.5)
 	if not _fotos.is_empty():
 		_tomar_fotos()
+	if _sonidos:
+		_sonidos = false
+		_video_sonidos()
+
+
+# --- Video de los sonidos de la Madre (-- --sonidos, con Movie Maker) ---
+#   godot --path . scenes/lombrices.tscn --write-movie madre.avi --fixed-fps 30 -- --sonidos
+# Sus primeros cuatro ataques van en orden (MadreCarcamo._siguiente: mordida, embestida, vomito,
+# escupe); luego le pega, le revienta los sacos uno por uno y la mata. El letrero sigue su estado.
+const LETREROS_MADRE := {
+	"CHARCO": "En el charco (de vez en cuando, madre_rugido)",
+	"VA": "Nada hacia ti bajo el Serenol",
+	"AVISA": "Aviso bajo tierra: madre_retumbo",
+	"MUERDE": "Mordida desde abajo: chapoteo + madre_mordida",
+	"TIRADA": "Se queda tirada: madre_desploma",
+	"SALTA": "Salta de la orilla: chapoteo",
+	"BARRE": "Embestida: madre_retumbo de aviso y madre_embiste en cada pasada",
+	"VOMITA": "Vomita crías: madre_escupe grave",
+	"ESCUPE": "Escupe: madre_escupe",
+	"REGRESA": "Se arrastra a la alberca: chapoteo al zambullirse",
+	"ATURDIDA": "Saco reventado: madre_saco_revienta + madre_desploma\n(cada dos sacos, chillido de cambio de fase)",
+	"MUERE": "Muere: chillido_muerte + madre_deshace",
+}
+
+func _video_sonidos() -> void:
+	_letrero.visible = false
+	var camara := Camera3D.new()
+	camara.fov = 70.0
+	add_child(camara)
+	camara.look_at_from_position(Vector3(-8.5, 5.5, -8.5), Vector3(0.5, -0.8, 0.5))
+	camara.current = true
+	var capa := CanvasLayer.new()
+	capa.layer = 60
+	add_child(capa)
+	var texto := Label.new()
+	texto.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	texto.offset_top = 40.0
+	texto.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	texto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	texto.add_theme_font_size_override("font_size", 18)
+	texto.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
+	texto.add_theme_color_override("font_outline_color", Color.BLACK)
+	texto.add_theme_constant_override("outline_size", 8)
+	capa.add_child(texto)
+	_texto_video = texto
+	# Sin crias al principio, para oirla a ella (las del vomito si salen)
+	_enjambre.disolver()
+	# 1) En la alberca: la mordida sale desde abajo
+	_jugador.global_position = Vector3(1.5, 0.2, 1.5)
+	var t := 0.0
+	while _madre.cuenta.get("mordidas", 0) < 1 or _madre.estado != MadreCarcamo.Estado.CHARCO:
+		_seguir_madre()
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		if t > 20.0:
+			break
+	# 2) Al cemento, de frente a la camara: embestida, vomito y escupe
+	_jugador.global_position = Vector3(-6.5, 0.3, -2.0)
+	t = 0.0
+	while _madre.cuenta.get("escupidas", 0) < 1 or _madre.estado != MadreCarcamo.Estado.CHARCO:
+		_seguir_madre()
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		if t > 35.0:
+			break
+	# 3) Golpes a la carne, sacos reventados y la muerte
+	_madre._cambiar(MadreCarcamo.Estado.TIRADA)
+	_fijo = "Golpes a su carne: madre_carne"
+	for i in 4:
+		_seguir_madre()
+		_madre._herir(0, 6.0, Vector3(randf_range(-1, 1), 0.3, randf_range(-1, 1)))
+		await get_tree().create_timer(0.6).timeout
+	_fijo = ""
+	for n in MadreCarcamo.SACOS:
+		_madre._herir(n, MadreCarcamo.SACO_VIDA)
+		var espera := 2.6 if n < MadreCarcamo.SACOS - 1 else 7.0
+		t = 0.0
+		while t < espera:
+			_seguir_madre()
+			await get_tree().process_frame
+			t += get_process_delta_time()
+	get_tree().quit()
 
 
 func _reiniciar_pelea() -> void:
@@ -251,23 +345,31 @@ func _reiniciar_pelea() -> void:
 func _gano_pelea() -> void:
 	_gano = true
 	_enjambre.disolver()
-	var cartera := get_node_or_null("/root/Cartera")
-	if cartera:
-		cartera.pesos += PAGA
-	var texto := "¡La Madre del Cárcamo cayó!\n+$%d" % PAGA
-	var tazos := get_node_or_null("/root/Tazos")
-	if tazos:
-		var tazo: TazoData = tazos.abrir_bolsa(TazoData.Rareza.HOLO)
-		if tazo:
-			texto += " · tazo holo: %s" % tazo.nombre
-	var inventario := get_node_or_null("/root/Inventory")
-	if inventario and inventario.add_item(load(DIENTE)):
-		texto += " · Diente de la Madre"
-	if PasoArena.desde_mapa:
-		# De regreso al mapa, junto a la flecha, con la misma noche
-		_avisar(texto, 4.0)
-		await get_tree().create_timer(4.5).timeout
-		PasoArena.volver(get_tree(), false)
+	var texto := "¡La Madre del Cárcamo cayó!"
+	# Llegaste por tu cuenta (EntradaJefe, sin mision): nadie te paga esto
+	if not PasoJefe.hay_premio():
+		texto += "\nNadie te encargó esto: no hay quien te pague."
+	else:
+		var cartera := get_node_or_null("/root/Cartera")
+		if cartera:
+			cartera.pesos += PAGA
+		texto += "\n+$%d" % PAGA
+		var tazos := get_node_or_null("/root/Tazos")
+		if tazos:
+			var tazo: TazoData = tazos.abrir_bolsa(TazoData.Rareza.HOLO)
+			if tazo:
+				texto += " · tazo holo: %s" % tazo.nombre
+		var inventario := get_node_or_null("/root/Inventory")
+		if inventario and inventario.add_item(load(DIENTE)):
+			texto += " · Diente de la Madre"
+	if PasoJefe.desde_juego:
+		_avisar(texto, 6.0)
+		await get_tree().create_timer(6.0).timeout
+		# Sales por el carcamo, en la punta norte del arroyo (JJ 2026-11-22); desmayado, sigues
+		# regresando a donde entraste. Solo en map_test: desde el safehouse vuelves a donde estabas
+		if PasoJefe.escena_origen.ends_with("map_test.tscn"):
+			PasoJefe.regreso = TunelesNivel.CARCAMO_EN_MAPA
+		PasoJefe.volver(self, true)
 		return
 	_avisar(texto + "\n( , otra vez )", 10.0)
 
@@ -350,10 +452,10 @@ func _process(delta: float) -> void:
 	if inmortal and _salud and _salud.vida < _salud.vida_max:
 		_salud.vida = _salud.vida_max
 	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0:
-		if PasoArena.desde_mapa:
-			# Desmayo de verdad: al mapa, y tus cosas en una bolsa junto a la flecha
+		# Desde una mision (PasoJefe) te saca al mapa; como prueba suelta, reinicia
+		if PasoJefe.desde_juego:
 			_reiniciando = true
-			PasoArena.volver(get_tree(), true)
+			PasoJefe.volver(self, false)
 		else:
 			_reiniciar_pelea()
 	if _medir > 0.0:
@@ -366,15 +468,13 @@ const INVENTARIO := preload("res://scripts/Inventory.gd")
 func _exit_tree() -> void:
 	Lanzador.infinitos = false
 	INVENTARIO.curas_infinitas = false
-	Player.golpe_cargado = false
-	Player.giro_aereo = false
 	get_node("/root/Personaje").mejora_estela = false
 	ESTELA.estilo = ESTELA.Estilo.NORMAL
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# La pelea de verdad (desde el mapa) no tiene teclas de prueba
-	if PasoArena.desde_mapa:
+	# La pelea de verdad (desde el mapa, PasoJefe) no tiene teclas de prueba
+	if PasoJefe.desde_juego:
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F3:
 		_perfil = not _perfil
@@ -452,6 +552,13 @@ func _tomar_fotos() -> void:
 		await get_tree().physics_frame
 	get_viewport().get_texture().get_image().save_png(dir.path_join("carcamo_escupitajo.png"))
 	get_tree().quit()
+
+
+var _texto_video: Label
+var _fijo := ""   # letrero de lo que hace la prueba (los golpes), encima del estado
+
+func _seguir_madre() -> void:
+	_texto_video.text = _fijo if _fijo != "" else LETREROS_MADRE.get(MadreCarcamo.Estado.keys()[_madre.estado], "")
 
 
 # --- Prueba sola (-- --medir=<s>) ---

@@ -25,6 +25,7 @@ godot --path . -- --alta           # 1080p test: crisp UI, 3D still 480 px tall 
 
 - **Protagonist swap** (in `main-testing`): the ninja protagonist is now `el_compa` with retargeted Quaternius clips (see `docs/sistemas/personaje.md`): the swing is the sword clips, the trail follows the weapon tip, and the pistol uses the pistol clips. Store sellers and street walkers are PSX-pack civilians too (see NPC and People); other NPCs stay ninja. Clothes colour for the new model is pending.
 - **Pending fight work (JJ, 2026-11-04)**, listed in Spanish in `docs/pruebas-balance.md` ("Pendientes de la pelea"): a new healing animation (Q, `Player._curarse`; Quaternius has `Consume`), a 10 % chance that a zombie blocks a melee hit (the machete bounces back with a little lag), and a better fight HUD, and a better block sound.
+- **New bosses pending (2026-11-22)**: the pterodactyl (`scripts/ptero/`) and the Simi bailador (`scripts/simi/`) work in their tests but nobody has played them in a window. Pending: their sounds (JJ picks them in Splice; register `ptero_<evento>` / `simi_<evento>` in `Sonidos.ARCHIVOS`, lists in each folder's `CLAUDE.md`), balancing their numbers (`docs/pruebas-balance.md`), JJ reviewing the Simi's small additions to `player.gd` (`atrapar` dances) and `character_animation.gd` (the `baila` state), and recording the Simi fight video (`tools/probar_simi_jefe.tscn -- --video`, mp4 to `~/capturas`).
 - **Balance pending**: weapon damage, zombie life/speed, tinaco life, hordes and pay are first guesses. `docs/pruebas-balance.md` (Spanish) lists every number, where it lives and how Alan should run the test; record results there.
 
 ## Architecture
@@ -44,7 +45,7 @@ godot --path . -- --alta           # 1080p test: crisp UI, 3D still 480 px tall 
 
 Overview:
 - A real area of Zapopan built from OpenStreetMap with OSM2World by `tools/map_import/` (Python and Godot scripts), streamed from `resources/map/cuadros/`. `models/zona_mapa.glb` is gitignored; only rebuild it when changing the map.
-- `scripts/map/`: `MapStreamer` (chunks), `MapPuntos` (stores), `MapCasas`, `MapBodegas`, `MapBardas`, `MapArboles`, `MapPasto`, `MapAlumbrado`, `MapDron` (V toggles the drone), `MapMinimapa`, `Maquinita`/`TragamonedasUI`/`Cohetes` (fruit machines). `scripts/tragamonedas.gd` is the machine's logic.
+- `scripts/map/`: `MapStreamer` (chunks), `MapPuntos` (stores), `MapCasas`, `MapBodegas`, `MapBardas`, `MapArboles`, `MapPasto`, `MapAlumbrado`, `MapDron` (V toggles the drone), `MapMinimapa`, `PanteonMapa`/`Panteon` (the cemetery with the Mojiganga arrow), `Maquinita`/`TragamonedasUI`/`Cohetes` (fruit machines). `scripts/tragamonedas.gd` is the machine's logic.
 - `scripts/interiores/`: fixed first-person shop scenes, entered through the yellow arrows (`Interiores.gd`).
 - `godot --path . tools/medir_mapa.tscn` measures FPS, frame times and draw calls at fixed spots (needs a window): run it before and after anything that might cost frames.
 - New streaming systems must use the per-frame load budget in `scripts/map/CargaCuadro.gd`, and its `carga()`/`descarga()` so they load less on foot than in the drone. Don't add per-instance `StandardMaterial3D`s in builders: recompiling them caused stutter.
@@ -55,10 +56,11 @@ Overview:
 
 Read the file before changing that system, and keep it in sync with the code. Files inside `scripts/<folder>/` are `CLAUDE.md`s that Claude Code loads on its own when it touches that folder; the `docs/sistemas/` ones must be opened.
 
-- `docs/sistemas/noche-zombis.md`: day/night (`Ciclo`), `Zombis`, `Director`, night rhythm, `CampoFlujo`, `Zombie` (types, skins, wandering, swarm walking, hit feel, gore), `EfectosPixel`, the Saltabardas and the Panzón, `Supervivencia` (fainting), `Refugio`, `Partida`, store shutters, `Sonidos`. Also the endless sandbox (2026-11-23): the `Noches` autoload (night count, record, milestones in `resources/noches/hitos.tres`), the guarded death bag (`GuardiaBolsa`, the leader zombie), boss arena trips (`EntradaJefe`, `PasoArena`) and the save (`Guardado` autoload, Continuar).
-- `docs/sistemas/pelea.md`: getting hit, the melee combo, charged slash, roll, block, action buffer, aerial attacks, walk vs jog, and the `Pistola` (reload, recoil, shoulder camera, two-handed grip). JJ's code: see Conventions.
+- `docs/sistemas/noche-zombis.md`: day/night (`Ciclo`), `Zombis`, `Director`, night rhythm, `CampoFlujo`, `Zombie` (types, skins, wandering, swarm walking, hit feel, gore), `EfectosPixel`, the Saltabardas and the Panzón, `Supervivencia` (fainting), `Refugio`, `Partida`, store shutters, `Sonidos`. Also the endless sandbox (2026-11-23): the `Noches` autoload (night count, record, milestones in `resources/noches/hitos.tres`), the guarded death bag (`GuardiaBolsa`, the leader zombie), boss trips are Juanjo's (`EntradaJefe`, `PasoJefe`; free entry gated by the milestones) and the save (`Guardado` autoload, Continuar).
+- `docs/sistemas/pelea.md`: getting hit, the melee combo, charged slash, special-move stamina, roll, block, action buffer, aerial attacks, walk vs jog, and the `Pistola` (reload, recoil, shoulder camera, two-handed grip). JJ's code: see Conventions.
 - `docs/sistemas/arrojables.md`: salt, the `Lanzador`, Molotov chain and fire, palomita, bocina and `Senuelo`, the gasolinera.
 - `docs/sistemas/personaje.md`: `Personaje` (protagonists, skin tone, build, trails, hats, fist fighting) and the protagonist model with its retargeting (bone maps, clip library, `character_animation.gd`'s `AnimationTree`, civilians).
+- `docs/sistemas/misiones.md`: missions in code: `Misiones`, the journal, `MisionesMundo`, every step type, route steps and `Acompanante`, boss entrances, `CallesRuta`/`ConductorCarro`, the gate event, the mafia chain, test missions and scripts.
 - `docs/sistemas/inventario.md`: inventory, items, `InventoryUI`, paper map, `WorldItem`.
 - `docs/sistemas/dialogo.md`: the `DialogueBox` every NPC talks through (typewriter, blips, `[feliz]`/`[enojo]`/`[clave]`, pixelfx via `EfectosPixel.hoja_ui`; pauses the tree), from branch `dialogos-test`.
 - `docs/sistemas/tazos.md`: `Tazos`, skills, bags, the reveal, the album.
@@ -67,7 +69,11 @@ Read the file before changing that system, and keep it in sync with the code. Fi
 - `docs/sistemas/casa.md`: the protagonist's house and the neighbours' houses.
 - `docs/sistemas/sotano.md`: El Sótano, the Gotera's underground casino under Santa Mugre (`Fichas` autoload, EL GORDO machines (`OlPley*` in code) on the cabinet screen, Texas Hold'em with moving cards, blackjack, roulette, baccarat, races, bar, walkers and shady people, the Primo's window, the Silent Hill bathroom with its secret boss (La Desaguadora), the VIP room, Blender room, seats, bottles, tube neon, the lever, casino sounds, 3D card art) and the Blender adorno on every fruit machine (`Maquinita.moneda` for chips).
 - `scripts/lombrices/CLAUDE.md`: La Madre del Cárcamo, the worm swarm and its arena.
+- `scripts/lombrices/CLAUDE.md`: La Madre del Cárcamo, the worm swarm, its arena and the cañerías before it (`tuneles.tscn`, entered from the fenced arroyo in `map_test`).
 - `scripts/catrina/CLAUDE.md`: La Mojiganga and its plaza.
+- `scripts/cucarrata/CLAUDE.md`: la cucarrata, the first boss: roams `map_test` at night (`CucarrataCalle`), step `JEFE_CALLE`, `mafia_1` requires it.
+- `scripts/ptero/CLAUDE.md`: the pterodactyl from Juárez, an 8 m boss in the centre-west clearing of `map_test`, day and night (air and ground phases).
+- `scripts/simi/CLAUDE.md`: the Simi bailador, a 7 m Serenol Simi boss dancing at night in the south-east grass plain of `map_test`: zombies dance with him in sync and he sends them at you; his dance and sonic wave make you dance (mash to escape).
 - `scripts/defensa/CLAUDE.md`: the tinaco defence test (barricade, hordes, HUD, chained nights) and JJ's two test modes on it: godmode (mechanics) and career (economy, `escena_carrera.tscn`), with the `Pruebas`, `Mejoras` and `Registro` autoloads, `ConfigZombis` and the `Menú test`/`Pruebas` launchers on the start screen.
 
 ## CLAUDE.md layout (split on 2026-11-11, commit 52a3103)
@@ -79,11 +85,21 @@ Read the file before changing that system, and keep it in sync with the code. Fi
 
 ## Missions
 
-`Misiones` autoload (`scripts/Misiones.gd`): one active at a time, each once per day; it fails at nightfall or when its timer ends, and can be retried the next day. Offers stop at the dusk warning. `scripts/map/MisionesMundo.gd`, created by `Partida`, holds what's in the world: givers (`npc.tscn` using `al_hablar`, a callable returning the line for each press), the objective arrow, delivery spots, the dog (`CosaMision.gd`), the objective line, and the minimap and paper-map targets. **To add a mission without code:** copy a `.tres` in `resources/misiones/` (`MisionData` with `PasoMision` steps: `TENER_OBJETOS`, `ENTREGAR`, `VISITAR`, `RECOGER`) and add it to `Misiones.ARCHIVOS`. Each needs a giver spot, and a new `lugar` keyword or step type needs code in `MisionesMundo`. `Player.cargar`/`soltar_carga` show something held, with `Walk_Carry`. Stepping onto a store's yellow arrow enters the store, so tests must stand beside it.
+**Read `docs/sistemas/misiones.md` before changing `Misiones`, `MisionesMundo`, a step type or a `lugar` keyword.** Design (givers, lines, pay) is in `docs/misiones.md`.
+
+Summary:
+- **Offers and the journal:** the `Misiones` autoload (`scripts/Misiones.gd`) holds the journal. People offer missions by day. Only `activa` advances, and each step has its hour (`PasoMision.cuando`).
+- **LUGAR missions** start at a place and stay out of the journal.
+- **Across scenes:** the state survives scene changes; only `Inicio` and the safehouse call `reiniciar()`.
+- **In the world:** `scripts/map/MisionesMundo.gd`, created by `Partida`, holds givers, arrow, delivery spots and map targets.
+- **To add a mission without code:** copy a `.tres` in `resources/misiones/`, add it to `Misiones.ARCHIVOS` and give it a giver spot.
+- **Step types:** ESCOLTAR, LLEVAR_CARGA, DEFENDER, CAZAR, ENTRAR_A, CAMIONETA, JEFE_CALLE; the mafia chain and the gate event (F1) are described in the file above.
+- **Police slang:** cuicos, cerdos, marranos (not "blancos").
+- **Tests and store arrows:** stepping onto a store's yellow arrow enters the store, so tests must stand beside it.
 
 ## People (`scripts/map/Gente.gd`)
 
-By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night nobody's there, and they return at dawn. Up to 12 walkers on `resources/map/banquetas_mapa.json` (from OSM, `godot --path . --headless -s tools/map_import/banquetas.gd`), including a blue garrafonero with a jug. Walkers are random PSX civilians (`Civiles.al_azar()`) with Quaternius `Walk`/`Walk_Carry`, sped up to match their speed (`Gente.PASO`, capped at `PASO_MAX`). Up to 6 people outside stores use the other models with `npc.tscn` for speech, and up to 3 sitting dogs; each model is scaled by measuring its bones. `npc.gd` only renders its prompt SubViewport while it shows; talking opens the `DialogueBox`.
+By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night nobody's there, and they return at dawn. Up to 12 walkers on `resources/map/banquetas_mapa.json` (from OSM, `godot --path . --headless -s tools/map_import/banquetas.gd`), including a blue garrafonero with a jug. Walkers are random PSX civilians (`Civiles.al_azar()`) with Quaternius `Walk`/`Walk_Carry`, sped up to match their speed (`Gente.PASO`, capped at `PASO_MAX`). Up to 6 people outside stores use the other models with `npc.tscn` for speech, and up to 3 sitting dogs; outside the fortresses walkers, talkers and sellers wear Serenol veins (`VenasSerenol`, see `docs/sistemas/personaje.md`); each model is scaled by measuring its bones. `npc.gd` only renders its prompt SubViewport while it shows; talking opens the `DialogueBox`.
 
 ## Dev safehouse (`scenes/safehouse.tscn`, `scripts/map/Safehouse.gd`)
 
@@ -111,14 +127,14 @@ By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night
   - Skeletons are retargeted to `%GeneralSkeleton` with profile bone names (`Hips`, `RightHand`...): find them by class (`find_children("*", "Skeleton3D")`), not with `find_child("Skeleton3D")`.
   - A `SkeletonModifier3D`'s result only exists after the modifiers run: measure it in `Skeleton3D.skeleton_updated`, not in `_physics_process`.
   - Timing under the hit freeze uses `Time.get_ticks_msec()`: a `SceneTreeTimer` stayed stuck for seconds at that time scale, even with `ignore_time_scale`.
-  - A new sound name must also go into `DefensaTinaco.SONIDOS`, or that scene plays nothing for it (`Sonidos.solo`).
+  - Sounds are global (JJ, 2026-11-16): no per-scene whitelist or mute list.
   - A node re-enables `_physics_process` when it becomes ready if its script defines it: call `set_physics_process(false)` after `add_child`.
   - **When you add a mechanic, add it to the safehouse too.**
   - **The game never ends and saves everything** (`Guardado`, `user://partida.cfg`): new run state in an autoload must be added to `Guardado._guardar_autoloads`/`_cargar_autoloads` (and its `reiniciar()` to `Guardado.REINICIAR`), or Continuar loses it. State that must survive a scene change (the night, the death bag) lives in an autoload, not in `Partida`.
 
 ## graphify (narrative graph)
 
-`docs/graphify-out/` holds a knowledge graph of the six narrative docs (`lore`, `personajes`, `misiones`, `items`, `especificaciones`, `revision-historia`): 458 nodes, 22 communities (rebuilt 2026-11-11), built by `/graphify`. `docs/graphify-out/.graphify_build.json` excludes the rest of `docs/` (mapa, prompts, pruebas, notes, `mejoras.md`) so an update stays on those six (the skill is in `.claude/skills/graphify/`). Install with `uv tool install graphifyy`.
+`docs/graphify-out/` holds a knowledge graph of the six narrative docs (`lore`, `personajes`, `misiones`, `items`, `especificaciones`, `revision-historia`): 523 nodes, 20 communities (rebuilt 2026-11-18), built by `/graphify`. `docs/graphify-out/.graphify_build.json` excludes the rest of `docs/` (mapa, prompts, pruebas, notes, `mejoras.md`) so an update stays on those six (the skill is in `.claude/skills/graphify/`). Install with `uv tool install graphifyy`.
 
 **Code graph** (`scripts/graphify-out/`, 2026-11-12): graphify has no GDScript parser, so `tools/graphify_gdscript.py` extracts `scripts/**/*.gd` and the `.tscn` that use them with regexes (files, functions, signals, `class_name`/autoload calls, preload/load, extends) and runs graphify's build/cluster/report. No LLM, ~7 s. Rebuild with `"$(cat docs/graphify-out/.graphify_python)" tools/graphify_gdscript.py` (not `graphify update`). Query with `--graph scripts/graphify-out/graph.json`. It misses calls through variables, `call()`/groups and editor-connected signals. A `.gdignore` keeps Godot from importing it.
 

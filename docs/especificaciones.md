@@ -89,8 +89,12 @@ Propuesta de Juanjo: **juego de navegador multijugador**: quien entra a la pági
   | 18, 21, 24… | Los jefes se repiten por turnos (garrafonero, Madre, Mojiganga) cada 3 noches, con ×1.25 de aguante por vuelta (first guess). | — |
 
   El tazo de "El tinaco que no se vacía" nunca sale de premio (esa leyenda se quitó del canon).
-- **Las arenas regresan al mapa.** Al ganar o al desmayarte en la arena de un jefe (`PasoArena.gd`) vuelves al mapa, junto a la flecha, con la misma noche y la hora a la que te fuiste más lo que tardaste. Si te desmayas, tus cosas se quedan en una bolsa junto a la flecha. Las teclas y trampas de prueba de las arenas solo funcionan cuando se abren solas (no desde el mapa); sus modos de consola (`--bot`, `--medir`, capturas) siguen cerrando el juego al terminar.
-- 🔍 **needs review:** dónde van las flechas. Por ahora, la del cárcamo está en el baldío sur junto a La Gigantera (-300, 630) y la de la Mojiganga en la cancha grande (-244, -721): no hay plaza de la Catrina medida todavía. Un desfile de verdad por las calles queda pendiente.
+- **Las peleas de jefe son las de Juanjo** (`EntradaJefe` y `PasoJefe`, en `testing-juanjo`, mezclado el 2026-11-23): las cañerías del arroyo llevan a la Madre del Cárcamo y la plaza del panteón a la Mojiganga, con misión o sin ella; al ganar o desmayarte vuelves al mapa. La noche sin fin solo agrega tres cosas:
+  - **sin misión** no se entra hasta la noche del hito (Madre 10, Mojiganga 15);
+  - **desmayarte en la pelea** deja tus cosas en una bolsa en la entrada y despiertas donde empieza el mapa;
+  - los jefes se repiten **más duros** (×1.25 por vuelta).
+
+  Con misión se entra siempre. Ya no hay flechas propias del sandbox.
 - Con refugio (el safehouse), si tumban el tinaco ya no se pierde: se avisa y se arregla al amanecer (first guess).
 
 #### 1.2.1 Qué se guarda ahora que no hay partidas ✅ (AG, 2026-11-23: guardar todo en disco)
@@ -184,12 +188,12 @@ Lo que hay que saber:
 - **El agua es el centro de todo.** Es cara, es medicina (la cura de la "sed" es agua limpia) y es poder (quien la controla controla el voto).
 - **La familia Lazcano tiene dos tronos**: **Germán** es dueño de GelA; su hija **Georgina "Gela"** es la gobernadora. Los dóciles votan por ella: es el **voto de la llave**.
 - **El crimen organizado** (los Gotera: drogas, armas y agua limpia del yacimiento) amuralló su propia fortaleza, **La Gotera**, y no toma de la llave. La ciudad le echa la culpa a "las pandillas", que es justo lo que el régimen necesita. ✅ (2026-11-12) **Sus misiones desbloquean la entrada a su fortaleza** (`misiones.md`).
-- ✅ **Tres fortalezas (2026-11-11):** **Santa Mugre** (refugio de la Virgen del Tinaco, donde empiezas), **La Gotera** (la mafia, favela amurallada) y **los Reservorios** (GelA, en las canchas del ITESO). Dentro no entra la policía y hay agua sin Serenol. **Afuera** casi todos están bajo Serenol y no dan misiones; la policía (los blancos) solo sale de día y dispara a quien reparte agua, por eso el reparto es **de noche** (`lore.md` §13, §14).
+- ✅ **Tres fortalezas (2026-11-11):** **Santa Mugre** (refugio de la Virgen del Tinaco, donde empiezas), **La Gotera** (la mafia, favela amurallada en Haciendas de San Jodido, con un tianguis lineal en la avenida) y **los Reservorios** (GelA, sobre el ITESO, al norte del mapa). Dentro no entra la policía y hay agua sin Serenol. **Afuera** casi todos están bajo Serenol y no dan misiones; la policía (los blancos) solo sale de día y dispara a quien reparte agua, por eso el reparto es **de noche** (`lore.md` §13, §14).
 - **El culto de la Virgen del Tinaco**: un tinaco manchado en la plaza de Santa Mugre; se llena de agua "bendita" que **el padre Chuy** saca de un pozo bajo el templo y filtra. El milagro sí cura (es agua limpia) y Chuy sospecha por qué, pero calla. ✅ (2026-11-12) No hay Doña Refugio ni leyenda del tinaco que no se vacía; el pozo del reparto es otro, el de **Chava** en La Palmada.
 - **Subhistorias**: el **cobalto** de la varilla del 84 (las casas en obra negra y unas lámparas que bajan vida) y las **cruces de caca** de un vecino loco. Se cuentan hablando con la gente, no en cinemáticas.
 - **El lore no bloquea nada**: el sandbox se juega sin saberlo (ver `docs/lore.md` §1).
 - **Facciones** (para misiones): la **cuadrilla/gremio** de contratos, el culto del tinaco, los cotos de San Jodido, los Gotera, los blancos de GelA (la policía, anónima), la resistencia de GelA (Arturo, Gerardo) y la propia gobernadora.
-- **El mapa** 🧱: ~1.7 × 1.7 km reales de Zapopan, con nueve zonas de nombre parodia (El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera). Ver `docs/mapa/README.md` y `docs/lore.md` §13.
+- **El mapa** 🧱: ~1.7 × 1.7 km reales de Zapopan, con nueve zonas en el mapa de papel: ocho de nombre parodia (El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido y El Último Trago) y el sureste, sin nombre ni lore (✅ 2026-11-12; la fortaleza La Gotera está en Haciendas de San Jodido). Ver `docs/mapa/README.md` y `docs/lore.md` §13.
 
 
 ## 3. Ciclo principal (core loop)
@@ -242,7 +246,7 @@ Tercera persona, cámara relativa, correr con Shift, saltar. Ya existe en `scrip
 
 Ya existe un inventario circular con inspección 3D de objetos (`scripts/Inventory.gd`, `scenes/InventoryUI.tscn`), en `map_test.tscn`: Tab lo abre y pausa el juego, y tiene los comandos Examinar, Utilizar (cura) y Combinar (recetas). Los objetos del mapa se recogen con Espacio. El menú está **inspirado en Silent Hill 2**, sin copiarlo (hilera de objetos que se pierde en lo oscuro, solo los comandos que aplican, y en Estado el juego pausado para ver dónde estás y cómo andas de vida), no en Resident Evil como decía el registro de decisiones: hay que confirmarlo con el equipo.
 
-🧱 **Mochilas**: sin mochila caben 6 objetos, cada objeto ocupa 1 lugar (o sea, la opción A de abajo sin armas de 2) y lo que no cabe se queda tirado. Recoger una mochila más grande la equipa para siempre, no ocupa lugar y se ve en Equipo; una más chica se queda tirada. Por ahora: mochila escolar (8), del Partido Verde (10) y mochilón del Nocturno (14), las tres con el mismo modelo en distinto color. Números 💡 para discutir. Falta decidir:
+🧱 **Mochilas**: sin mochila caben 6 objetos, cada objeto ocupa 1 lugar (o sea, la opción A de abajo sin armas de 2) y lo que no cabe se queda tirado. Recoger una mochila más grande la equipa para siempre, no ocupa lugar y se ve en Equipo; una más chica se queda tirada. Por ahora: mochila escolar (8), del Partido Verde (10) y mochilón del Machetes (14), las tres con el mismo modelo en distinto color. Números 💡 para discutir. Falta decidir:
 
 | Opción | Referencia | Votos |
 |---|---|---|
@@ -409,7 +413,7 @@ Presupuesto 💡: ~30 zombis completos cerca + ~200 "baratos" lejos (hay que med
 
 ### 4.11 Mapa de papel 🧱
 
-Con el inventario abierto, **M** (Select en el control) muestra el mapa, en 9 pedazos con nombre: El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y La Gotera. Empiezas con el de donde apareces y los demás se encuentran tirados frente a una tienda de cada zona; los que faltan salen en negro con un signo. No ocupan lugar, no se pierden al desmayarte y se acaban con la partida. Al cruzar a otra zona sale su nombre. 💡 Después podrían venderse o darse en misiones.
+Con el inventario abierto, **M** (Select en el control) muestra el mapa, en 9 pedazos: El Mante Tieso, Los Garrafones, La Florida Marchita, La Palmada, Parques de Santa Mugre, Parques del Mosco, Haciendas de San Jodido, El Último Trago y el del sureste, que no tiene nombre (sale como "Sin nombre" en la lista y no avisa al entrar). Empiezas con el de donde apareces y los demás se encuentran tirados frente a una tienda de cada zona; los que faltan salen en negro con un signo. No ocupan lugar, no se pierden al desmayarte y se acaban con la partida. Al cruzar a otra zona sale su nombre. 💡 Después podrían venderse o darse en misiones.
 
 ### 4.12 Tazos y habilidades 💡🧱 (propuesta de AG; ✅ el 2026-11-23 el equipo decidió que es la **única progresión**)
 
@@ -593,7 +597,7 @@ Cada modelo trae una captura **`preview.png`** en su carpeta (y `<nombre>_previe
 
 | Prioridad | Modelo | Notas |
 |---|---|---|
-| Alta | **Personaje jugable** definitivo | ¿Quién es? ¿se puede personalizar (en multijugador ayuda distinguirse)? Candidatos: hombre_psx, mujer_psx, chava_psx + animaciones de Quaternius. ✅ Avatar silencioso, "el Nocturno" (`docs/lore.md` §15): cada jugador hace el suyo (propuesta de AG, 2026-10-31) con el ninja recoloreado (`scripts/CreadorPersonaje.gd`): nombre, complexión y talla con pros y contras, cabeza y ropa. El tono de piel es una sátira del colorismo, como en *South Park*: cambia precios, paga y lo que te dice la gente, y no toca el combate. Por decidir antes de publicar: si se queda este chiste y cómo se escriben esas líneas. |
+| Alta | **Personaje jugable** definitivo | ¿Quién es? ¿se puede personalizar (en multijugador ayuda distinguirse)? Candidatos: hombre_psx, mujer_psx, chava_psx + animaciones de Quaternius. ✅ (JJ, 2026-11-12) **Marcial López, "el Machetes"** (`docs/lore.md` §15), que habla poco; ~~avatar silencioso "el Nocturno"~~. Cada jugador lo arma (propuesta de AG, 2026-10-31) con el ninja recoloreado (`scripts/CreadorPersonaje.gd`): **un segundo apodo** (la gente le dice ese o "el Machetes", al azar), complexión y talla con pros y contras, cabeza y ropa. El tono de piel es una sátira del colorismo, como en *South Park*: cambia precios, paga y lo que te dice la gente, y no toca el combate. Por decidir antes de publicar: si se queda este chiste y cómo se escriben esas líneas. |
 | Alta | Juntar animaciones con personajes | Retarget de las de Quaternius al jugador, zombis y NPCs (hoy cada modelo trae solo las suyas). |
 | Media | Interiores: más muebles propios | Las escenas ya están armadas (`scenes/interiores/`) con mostrador, estantes oxidados, máquina, la tiendita m3_mart y objetos; faltan muebles de farmacia y anaqueles de ferretería. |
 | Media | Objetos que se quitaron porque salían mal: garrafón (para repartir garrafones; el del despachador `props/despachador_agua` sí sirve de referencia), botella de agua, agua sucia, lámpara, celular, máquina de tienda, tequila, paloma, veladora | Buscar otros en Sketchfab o modelar low-poly. |
@@ -662,7 +666,7 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 - [ ] ¿Cuántos somos y cuántas horas a la semana? ¿Hay fecha de entrega? (define 1.6)
 - [ ] ¿Qué hay que tomar del reel de Instagram de las hordas? ¿Cantidad, cómo se mueven, cómo se ven?
 - [ ] ¿Dónde está el baile del Simi? ¿Es una animación de Mixamo, una escena aparte, otra rama?
-- [x] **Personaje jugable**: avatar silencioso; cada jugador hace el suyo con el creador (`scripts/CreadorPersonaje.gd`) y el mundo le dice "el Nocturno" (`docs/lore.md` §15). Confirmar antes de publicar el tema del tono de piel.
+- [x] **Personaje jugable**: ✅ (2026-11-12) **Marcial López, "el Machetes"**, el brazo armado de la compañía de agua de Chava; habla poco. Con el creador (`scripts/CreadorPersonaje.gd`) cada jugador elige un segundo apodo y su cuerpo, y la gente le dice "el Machetes" o ese apodo, al azar (`docs/lore.md` §15). Confirmar antes de publicar el tema del tono de piel.
 - [ ] ¿Se puede pegar a otros jugadores (PvP)?
 - [x] **¿Las tiendas son zona segura de noche?** No: de noche cierran y te sacan (`docs/lore.md` §20).
 - [ ] **Antes de publicar**: una opción para apagar los destellos de pantalla completa (el cuadro de impacto) y la sacudida. A la gente con epilepsia fotosensible le puede hacer daño. Por ahora solo se apaga en código (`Supervivencia.IMPACTO_ACTIVO`).
@@ -704,6 +708,6 @@ Borrador; se ajusta cuando se cierren las decisiones de la sección 1.
 | 2026-11-23 | **Muerte tipo Dark Souls (1.5)**: bolsa cuidada de noche por un líder que la carga y se toma tu agua, y 3-5 guardias (más un cazador desde la noche 6); de día tirada sin cuidar; la noche no se reinicia. | Equipo (lo de día: AG) |
 | 2026-11-23 | **Tazos = única progresión (4.12)**; Mejoras solo en pruebas; Tajo cargado y Giro en el aire como habilidades de tazo. **Vida inicial 60 de 100.** **El agua se queda de segunda moneda** por ahora (necesita fuente). **Se guarda todo en disco** con Continuar y Partida nueva (1.2.1). | Equipo (guardado: AG) |
 
-## La libreta del Nocturno (propuesta de AG, 2026-11-07)
+## La libreta del Machetes (antes "del Nocturno") (propuesta de AG, 2026-11-07)
 
-💡 Un bestiario dentro del juego, escrito por el Nocturno en su cuaderno: se abre con L (R3, el clic del stick derecho, en control) desde el inventario. Cada bicho tiene su página, que se llena al verlo (qué es), pelearlo (por qué es así) y matarlo (cómo matarlo y sus números). Las páginas se guardan para siempre, aunque reinicies la partida. Detalle técnico en CLAUDE.md; las corazonadas que no son canon todavía, en `revision-historia.md` 4.13.
+💡 Un bestiario dentro del juego, escrito por el Machetes en su cuaderno: se abre con L (R3, el clic del stick derecho, en control) desde el inventario. Cada bicho tiene su página, que se llena al verlo (qué es), pelearlo (por qué es así) y matarlo (cómo matarlo y sus números). Las páginas se guardan para siempre, aunque reinicies la partida. Detalle técnico en CLAUDE.md; las corazonadas que no son canon todavía, en `revision-historia.md` 4.13.

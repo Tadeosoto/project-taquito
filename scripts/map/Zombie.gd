@@ -8,7 +8,7 @@ extends CharacterBody3D
 # (las turbas) corre mas y siempre va por el jugador. Si se atora se hace a un lado un rato.
 # No hace nada si el jugador esta congelado (volando en el safehouse, desmayado). Con
 # `es_jefe` es el garrafonero de la ultima noche (Partida.gd).
-# Dos tipos: los normales (un skin al azar de SKINS con las animaciones de Quaternius) y el
+# Dos tipos: los normales (el monstruo_02 de piedra en un aspecto de ZombiSerenol, con las animaciones de Quaternius) y el
 # gordo (zombie_gordo con las suyas; sus ataques y numeros los define JJ despues, por ahora no
 # sale en ningun lado). El jefe es el gordo grande. Los normales salen deambulando y se arrancan
 # a correr cuando te detectan (alerta): te ven, te oyen, oyen un balazo o les avisa otro.
@@ -17,23 +17,21 @@ signal murio
 signal termino
 
 const MODELO := preload("res://models/personajes/zombie_gordo/zombie_gordo.scn")
-# Los normales: el zombi PSX (Sketchfab) y los monstruos 0-3 del pack PSX (CC-BY, Elbolillo),
-# con el retarget a SkeletonProfileHumanoid en su .import (tools/personajes/retarget_civiles.gd,
-# mapas_huesos.gd). Ruta -> escala para que la cabeza quede a ~1.62 m (medida por huesos)
-const SKINS := {
-	"res://models/personajes/zombie_psx/zombie_psx.scn": 0.61,
-	"res://models/personajes/pack_psx/monstruo_00/monstruo_00.fbx": 0.33,
-	"res://models/personajes/pack_psx/monstruo_01/monstruo_01.fbx": 0.38,
-	"res://models/personajes/pack_psx/monstruo_02/monstruo_02.fbx": 0.47,
-	"res://models/personajes/pack_psx/monstruo_03/monstruo_03.fbx": 0.39,
-}
-const ALTO_VARIA := Vector2(0.94, 1.06)
+# Los normales: todos son el monstruo_02 del pack PSX (CC-BY, Elbolillo) con la piel de piedra y
+# Serenol en uno de sus aspectos (ZombiSerenol: hombres con o sin camisa, mujeres con pelo). JJ,
+# 2026-11-17: ya no salen el zombi PSX ni los otros monstruos. El retarget a SkeletonProfileHumanoid
+# va en su .import (tools/personajes/retarget_civiles.gd, mapas_huesos.gd)
+# Cada normal sale de su propia altura (JJ, 2026-11-17: hordas, defensas y apariciones). Va en
+# _tamano, asi la capsula, la cabeza de la pistola, la barra y los efectos crecen con el
+const ALTO_VARIA := Vector2(0.82, 1.18)
 # Nombre de siempre -> clip de Quaternius. Quaternius no trae corrida de zombi: trotan
 # (Jog_Fwd) y los muy rapidos (cazadores) esprintan
 const CLIPS_SKIN := {
 	"idle": "h/Zombie_Idle", "camina": "h/Zombie_Walk_Fwd", "run": "h/Jog_Fwd", "sprint": "h/Sprint",
 	"attack1": "h/Zombie_Scratch", "attack2": "h/Zombie_Scratch", "hit": "h/Hit_Chest", "die": "h/Death01",
 	"trueno": "h/Hit_Head", "aturdido": "h/Crying", "bebe": "h/Drink",
+	# Bailando con el Simi jefe (scripts/simi/JefeSimi.gd), al compas de el
+	"baile": "h/Simi_Baile",
 }
 const BUCLES_SKIN := ["h/Zombie_Idle", "h/Zombie_Walk_Fwd", "h/Jog_Fwd", "h/Sprint"]
 # m/s a los que cada clip se ve a su velocidad, para que no patinen (como Gente.PASO)
@@ -71,6 +69,9 @@ const CONTAGIA := 8.0
 const RUGIDO_CADA := Vector2(14.0, 28.0)
 const RUGIDO_REINTENTA := Vector2(3.0, 7.0)
 const RUGIDO_VOLUMEN := -4.0        # dB sobre el archivo, que ya viene bajo
+# El quejido al recibir un golpe (zombi_quejido): a 0 dB saturaba la mezcla (+1.5 dB medido,
+# 2026-11-17); con -12 su pico queda en ~-10.5 dB, un poco abajo del whack del jugador
+const QUEJIDO_VOLUMEN := -12.0
 const RUGIDO_CORTO_VOLUMEN := -2.0
 const RUGIDO_TONO := Vector2(0.88, 1.12)
 const RUGIDO_HASTA := 30.0          # m: mas lejos no se oye
@@ -178,6 +179,7 @@ const HUECO_ADENTRO := 2.0
 const DANO_RECINTO := 3
 const JEFE_DANO_RECINTO := 8
 const PERSIGUE := 12.0     # m: mas cerca deja el refugio y va por el jugador
+const QUIETO_DERECHO_A := 8.0   # m de un Acompanante quieto (mas su radio) desde los que va derecho a el
 const PASA_ENTRADA := 2.0   # m adentro del patio a los que apunta al cruzar una entrada
 const CAZADOR_VELOCIDAD := 1.4
 const DERECHO := 4.0        # m: tan cerca del blanco ya va derecho, sin campo
@@ -211,10 +213,18 @@ const JEFE_EMPUJA := 1.41   # velocidad del empujon al jugador: el doble de dist
 const JEFE_TAMANO := 1.7
 const JEFE_VELOCIDAD := 3.0
 const JEFE_COLOR := Color(0.35, 0.5, 0.95)
-# Los raros (poner_variante): uniforme claro de GelA, y el de cobalto que brilla y aguanta mas
+# Los raros (poner_variante): uniforme claro de GelA, y el de cobalto que brilla y aguanta mas.
+# `piel`: lo que cambian sobre la piel de piedra de su aspecto (zombi_serenol.gdshader): el de GelA
+# trae el uniforme como camisa y el de cobalto brilla verde azulado. `color` es el tinte liso de
+# antes, solo para una malla sin esa piel. Antes cambiaban toda la piel por el color liso y el de
+# GelA salia blanco, sin textura (JJ, 2026-11-17)
 const VARIANTES := {
-	"gela": { "color": Color(0.82, 0.88, 0.95), "vida": 1.0 },
-	"cobalto": { "color": Color(0.35, 1.25, 1.15), "vida": 1.5 },
+	"gela": { "color": Color(0.82, 0.88, 0.95), "vida": 1.0, "piel": {
+		"camisa": true, "diseno": 1, "desgarre": 0.2,
+		"color_base": Color(0.82, 0.88, 0.95), "color_detalle": Color(0.16, 0.24, 0.4) } },
+	"cobalto": { "color": Color(0.35, 1.25, 1.15), "vida": 1.5, "piel": {
+		"color_grieta": Color(0.25, 1.0, 0.85), "color_nucleo": Color(0.85, 1.0, 0.95),
+		"brillo": 2.4, "resplandor": 0.35, "alcance": 4.0, "tupido": 0.7 } },
 }
 const JEFE_SHADER := preload("res://shaders/ps1_combined.gdshader")
 # El gordo, un tipo aparte: sus ataques y numeros los define JJ despues. Por ahora son los de
@@ -237,7 +247,7 @@ const GOLPE_PEGO := 1
 const GOLPE_MATO := 2
 
 static var _material_jefe: ShaderMaterial
-static var _materiales_variante := {}   # variante -> ShaderMaterial
+static var _materiales_variante := {}   # "variante:id del material base" -> ShaderMaterial
 static var _material_blanco: StandardMaterial3D
 static var _material_barra: ShaderMaterial
 static var _material_charco: StandardMaterial3D
@@ -259,7 +269,9 @@ var zombis: Zombis
 var es_jefe := false
 var _herido_dura := HERIDO_DURA   # lo que dura el HERIDO de ahora: mas con la palomita (aturdir)
 var tipo := Tipo.NORMAL
-var skin := -1              # indice en SKINS; -1 = al azar (antes de entrar al arbol)
+# Murio porque amanecio, no a golpes (las misiones de CAZAR no lo cuentan)
+var cayo_al_amanecer := false
+var skin := -1              # aspecto de ZombiSerenol.ASPECTOS; -1 = al azar (antes de entrar al arbol)
 var cazador := false
 # Zombi raro (Zombis.gd): "gela" (uniforme de GelA) o "cobalto" (brilla, en zonas de obra negra)
 var variante := ""
@@ -275,6 +287,10 @@ var ancla := Vector3.INF
 # El lider de los guardias: se pone antes de add_child (no sale de la reserva, como el jefe)
 var lider := false
 var _bebiendo := 0.0
+# El Simi jefe (JefeSimi): en vez de ir por ti, va a su puesto alrededor del Simi y baila con el
+# hasta que te señala y los suelta; ya suelto no vuelve a bailar hasta _suelto_hasta (ms)
+var bailando := false
+var _suelto_hasta := 0
 var alerta := true          # ya te detecto: corre hacia su blanco. Sin ella, deambula
 var infectado := false      # trae una lombriz encima (EnjambreLombrices): corre mas y te caza
 
@@ -288,6 +304,7 @@ var _escala := 1.0          # la del modelo (el skin trae la suya)
 var _deambula_a := Vector3.INF
 var _deambula_espera := 0.0
 var _mallas: Array[MeshInstance3D] = []
+var _materiales_base: Array[Material] = []   # el de cada malla (la piel de ZombiSerenol), para volver a el
 var _flash_hasta := 0       # ms de reloj real
 var _reventar_en := 0       # ms de reloj real; 0 = no va a tronar
 var _hinchar_en := 0        # ms de reloj real en que se hincha antes de tronar
@@ -340,6 +357,8 @@ func _ready() -> void:
 	var tamano := 1.0
 	set_process(false)
 	_tick = randi() % TICKS_SEPARAR
+	if not gordo():
+		tamano = randf_range(ALTO_VARIA.x, ALTO_VARIA.y)
 	if es_jefe:
 		tamano = JEFE_TAMANO
 		_dano = JEFE_DANO
@@ -370,7 +389,8 @@ func _ready() -> void:
 		for nombre in ["run", "idle"]:
 			_animacion.get_animation(nombre).loop_mode = Animation.LOOP_LINEAR
 	else:
-		_modelo = modelo_skin(skin)
+		_modelo = modelo_skin(skin, tamano)
+		skin = _modelo.get_meta("aspecto", skin)
 		_escala = _modelo.scale.x
 		add_child(_modelo)
 		_animacion = _modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
@@ -381,8 +401,9 @@ func _ready() -> void:
 		# El tubo que el gordo trae flotando
 		if String(malla.name).contains("Tube"):
 			malla.visible = false
-		else:
+		elif not malla is PeloZombi:
 			_mallas.append(malla)
+			_materiales_base.append(malla.material_override)
 	_voz = AudioStreamPlayer3D.new()
 	_voz.position.y = 1.5
 	_voz.max_distance = RUGIDO_HASTA
@@ -407,15 +428,20 @@ func gordo() -> bool:
 	return es_jefe or tipo == Tipo.GORDO
 
 
-# Un zombi normal, ya escalado y con las animaciones de Quaternius en la biblioteca "h" de su
-# AnimationPlayer (lo usa tambien la pantalla de inicio). `indice` en SKINS; -1 = al azar
-static func modelo_skin(indice := -1) -> Node3D:
-	var rutas := SKINS.keys()
-	var ruta: String = rutas[indice] if indice >= 0 and indice < rutas.size() else rutas.pick_random()
+# Un zombi normal, ya escalado, vestido (ZombiSerenol) y con las animaciones de Quaternius en la
+# biblioteca "h" de su AnimationPlayer (lo usa tambien la pantalla de inicio). `aspecto` en
+# ZombiSerenol.ASPECTOS (-1 = al azar; queda en la meta "aspecto"). `alto`: por cuanto se escala (el
+# _tamano del zombi); sin el, uno al azar de ALTO_VARIA
+static func modelo_skin(aspecto := -1, alto := -1.0) -> Node3D:
+	var ruta := ZombiSerenol.RUTA
 	if not _escenas.has(ruta):
 		_escenas[ruta] = load(ruta)
 	var modelo := (_escenas[ruta] as PackedScene).instantiate() as Node3D
-	modelo.scale = Vector3.ONE * float(SKINS[ruta]) * randf_range(ALTO_VARIA.x, ALTO_VARIA.y)
+	modelo.scale = Vector3.ONE * ZombiSerenol.ESCALA * (alto if alto > 0.0 else randf_range(ALTO_VARIA.x, ALTO_VARIA.y))
+	if aspecto < 0 or aspecto >= ZombiSerenol.ASPECTOS.size():
+		aspecto = ZombiSerenol.al_azar()
+	ZombiSerenol.vestir(modelo, aspecto)
+	modelo.set_meta("aspecto", aspecto)
 	var animacion := modelo.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	if animacion == null:
 		animacion = AnimationPlayer.new()
@@ -469,12 +495,19 @@ func alertar(contagia := true) -> void:
 	if alerta or not despierto or estado == Estado.MUERTO:
 		return
 	alerta = true
-	if jugador and is_instance_valid(jugador) and jugador.global_position.distance_to(global_position) < VE_DESDE:
+	var te_ve: bool = jugador and is_instance_valid(jugador) and jugador.global_position.distance_to(global_position) < VE_DESDE
+	if te_ve:
 		_nota("ver")
 	_rumbo = Vector3.ZERO
 	_atorado = 0.0
 	if contagia:
-		_rugir("rugido")
+		# Te vio de verdad: el grito de aviso (S-045), con su cupo (Sonidos.turno) para que una horda
+		# que te ve junta no grite entera. Sin turno, o si lo alerto otra cosa (ruido, golpe), el
+		# rugido de siempre (que tiene el suyo)
+		if te_ve and Sonidos.turno("zombi_alerta"):
+			_sonar("zombi_alerta", -5.0)
+		else:
+			_rugir("rugido")
 		for zombi in activos:
 			if zombi != self and not zombi.alerta and zombi.global_position.distance_squared_to(global_position) <= CONTAGIA * CONTAGIA:
 				zombi.alertar(false)
@@ -584,6 +617,9 @@ func calentar() -> void:
 # Sale de la reserva, como nuevo. `con_prisa`: de turba
 func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	despierto = true
+	bailando = false
+	_suelto_hasta = 0
+	cayo_al_amanecer = false
 	infectado = false
 	cazador = con_prisa
 	guardia = false
@@ -672,23 +708,36 @@ func dormir() -> void:
 	process_mode = Node.PROCESS_MODE_DISABLED
 
 
-# Zombi raro (Zombis.sacar): pinta el modelo de su color y le ajusta la vida; "" = normal.
+# Zombi raro (Zombis.sacar): lo viste de su variante y le ajusta la vida; "" = normal.
 # Los trofeos que dan los cuenta Hazanas.gd
 func poner_variante(cual: String) -> void:
 	if es_jefe:
 		return
 	variante = cual if VARIANTES.has(cual) else ""
-	var material: ShaderMaterial = null
 	if variante != "":
-		if not _materiales_variante.has(variante):
-			var m := ShaderMaterial.new()
-			m.shader = JEFE_SHADER
-			m.set_shader_parameter("tint", VARIANTES[variante]["color"])
-			_materiales_variante[variante] = m
-		material = _materiales_variante[variante]
 		_vida = roundi(VIDA * VARIANTES[variante]["vida"])
-	for malla in _mallas:
-		malla.material_override = material
+	for i in _mallas.size():
+		var base := _materiales_base[i]
+		_mallas[i].material_override = _material_variante(base, variante) if variante != "" else base
+
+
+# El material de una variante sobre la piel de piedra de su aspecto: una copia con los `piel` de
+# VARIANTES (mismo shader, no recompila), compartida por aspecto. Sin esa piel, el tinte liso
+static func _material_variante(base: Material, cual: String) -> Material:
+	var clave := "%s:%d" % [cual, base.get_instance_id() if base else 0]
+	if not _materiales_variante.has(clave):
+		var m: ShaderMaterial
+		if base is ShaderMaterial and (base as ShaderMaterial).shader == ZombiSerenol.SHADER:
+			m = base.duplicate() as ShaderMaterial
+			var piel: Dictionary = VARIANTES[cual]["piel"]
+			for k in piel:
+				m.set_shader_parameter(k, piel[k])
+		else:
+			m = ShaderMaterial.new()
+			m.shader = JEFE_SHADER
+			m.set_shader_parameter("tint", VARIANTES[cual]["color"])
+		_materiales_variante[clave] = m
+	return _materiales_variante[clave]
 
 
 # El lider de la bolsa se toma un trago (GuardiaBolsa.gd). Solo deambulando: si ya te vio, no
@@ -820,6 +869,9 @@ func _caminar(delta: float) -> Vector3:
 		_animar("idle", 1.0)
 		_rumbo = Vector3.ZERO
 		return Vector3.ZERO
+	var baile := _ir_a_bailar(delta)
+	if baile != Vector3.INF:
+		return baile
 	_vivo += delta
 	_gemido -= delta
 	if _gemido <= 0.0:
@@ -839,6 +891,46 @@ func _caminar(delta: float) -> Vector3:
 	_mirar(_rumbo)
 	_ultimo = _rumbo
 	return _rumbo
+
+
+# Con un Simi jefe bailando cerca (JefeSimi.activo), va a su puesto alrededor de el y baila: regresa
+# su movimiento, o Vector3.INF si no le toca (gordo, jefe, recien soltado, lejos o sin Simi)
+func _ir_a_bailar(delta: float) -> Vector3:
+	var simi := JefeSimi.activo
+	if simi == null or gordo() or es_jefe or Time.get_ticks_msec() < _suelto_hasta:
+		bailando = false
+		return Vector3.INF
+	var puesto := simi.puesto(self)
+	if puesto == Vector3.INF:
+		bailando = false
+		return Vector3.INF
+	var hacia := puesto - global_position
+	hacia.y = 0.0
+	# Ya en su puesto (o casi, si lo empujaron un poco bailando): baila al compas del Simi
+	if hacia.length() < (1.5 if bailando else 0.8):
+		if not bailando or _animacion.current_animation != CLIPS_SKIN["baile"]:
+			bailando = true
+			_animar("baile", 1.0, true)
+			_animacion.seek(simi.baile_desde(), true)
+			simi.llego(self)
+		_mirar(simi.global_position - global_position)
+		_rumbo = Vector3.ZERO
+		return Vector3.ZERO
+	bailando = false
+	var velocidad := _velocidad_ahora(delta)
+	_rumbo = _rumbo.move_toward(_rozar_pared(hacia.normalized()) * velocidad, ACELERA * delta)
+	_correr(_rumbo.length())
+	_mirar(_rumbo)
+	return _rumbo
+
+
+# El Simi te señalo (JefeSimi): deja de bailar y va por ti con prisa; no vuelve a bailar en `segundos`
+func soltar_del_baile(segundos: float, prisa: float) -> void:
+	bailando = false
+	_suelto_hasta = Time.get_ticks_msec() + int(segundos * 1000.0)
+	_velocidad *= prisa
+	alertar(false)
+	_rugir("rugido")
 
 
 # Sin rumbo, despacio, hasta que te detecta
@@ -877,7 +969,7 @@ func _deambular(delta: float) -> Vector3:
 	if _rumbo.length() > DEAMBULA_VEL * 0.5 and get_real_velocity().length() < DEAMBULA_VEL * 0.3:
 		_atorado += delta
 	_rumbo = _rumbo.move_toward(hacia.normalized() * DEAMBULA_VEL, DEAMBULA_GIRA * delta)
-	_animar("camina", maxf(_rumbo.length(), 0.3) / float(PASO_SKIN[CLIPS_SKIN["camina"]]))
+	_animar("camina", maxf(_rumbo.length(), 0.3) / (float(PASO_SKIN[CLIPS_SKIN["camina"]]) * _tamano))
 	_mirar(_rumbo)
 	return _rumbo
 
@@ -908,6 +1000,8 @@ func _decidir(delta: float) -> bool:
 	var distancia := hacia.length()
 	# Al tinaco se le pega desde su orilla, no desde su centro
 	var alcance := _alcance + (_tinaco.radio if _blanco and _blanco == _tinaco else 0.0)
+	if _blanco is Acompanante:
+		alcance += (_blanco as Acompanante).radio
 	if _blanco and distancia <= alcance:
 		_mirar(hacia)
 		_empezar_ataque()
@@ -1083,7 +1177,7 @@ func _zombi_que_estorba() -> Zombie:
 
 # A donde camina; deja en _blanco a quien le pegaria al llegar y en _guia su camino
 func _destino() -> Vector3:
-	_guia = zombis.campo_jugador if zombis else null
+	_guia = zombis.campo_jugador if zombis and not zombis.sin_campo else null
 	# Una bocina sonando que lo alcanza (Senuelo) le gana a todo, a ti y al tinaco; va derecho
 	# y la rasguña al llegar. Al jefe no lo jala
 	if not es_jefe:
@@ -1095,6 +1189,16 @@ func _destino() -> Vector3:
 	# Defensa del tinaco: van por el tinaco, y por el jugador solo si lo tienen cerca y mas
 	# que al tinaco (pararse junto al tinaco no lo protege). Ya roto, por el jugador
 	var al_jugador := global_position.distance_to(jugador.global_position)
+	# Alguien a quien escoltas (Acompanante), si lo tiene a la vista y mas cerca que a ti
+	if not es_jefe:
+		var escoltado := Acompanante.el_mas_cercano(global_position, _persigue(), al_jugador)
+		if escoltado:
+			_blanco = escoltado
+			# Uno quieto y lejos (el tinaco de la Virgen, Sofia en la torre): por las calles hacia el jugador, que lo
+			# cuida cerca; ya cerca, derecho
+			var lejos := global_position.distance_to(escoltado.global_position) > QUIETO_DERECHO_A + escoltado.radio
+			_guia = zombis.campo_jugador if zombis and escoltado.quieto and lejos else null
+			return escoltado.global_position
 	if is_instance_valid(_tinaco) and _tinaco.vida > 0 and not (emboscada or por_jugador) and (al_jugador > _persigue() or al_jugador > global_position.distance_to(_tinaco.global_position) - _tinaco.radio):
 		# Primero a su hueco, de paso; ya pasandolo, al tinaco
 		if _hueco >= 0 and _hueco < zombis.huecos.size():
@@ -1188,6 +1292,7 @@ func _atacar() -> void:
 			hacia.y = 0.0
 			if hacia.length() <= _alcance_golpe and absf(jugador.global_position.y - global_position.y) <= _alcance_golpe:
 				jugador.recibir_dano(_dano, global_position, JEFE_EMPUJA if es_jefe else 1.0, self)
+				_sonar("zombi_mordida", -2.0)
 				_nota("pelear")
 				acerto = true
 		elif is_instance_valid(_blanco) and _blanco.has_method("recibir_golpe"):
@@ -1257,6 +1362,8 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 		velocity = Vector3.ZERO
 		_al_morir = atras
 		_sin_cabeza = (cabeza or revienta) and not es_jefe
+		if _sin_cabeza:
+			Sonidos.tocar(self, "headshot_zombi", -4.0, randf_range(0.95, 1.05))
 		# Solo el zombi se congela con un balazo; el machete ya congela todo (Player._congelar)
 		var espera := FUENTE_MS if _sin_cabeza else (0 if cuerpo_a_cuerpo or es_jefe else CONGELA_PISTOLA_MS)
 		_nota("matar")
@@ -1268,6 +1375,9 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, truena_en := 80, cu
 		return GOLPE_PEGO
 	if cuerpo_a_cuerpo:
 		_retroceso = atras * EMPUJON * fuerza
+	# Quejido corto al recibir un golpe sin morir (S-050), sin cortar el que ya esta sonando
+	if not _voz.playing:
+		_sonar("zombi_quejido", QUEJIDO_VOLUMEN)
 	if not ATURDIR or (not _en_corte() and not (cuerpo_a_cuerpo and randf() < ATURDE_PROB)):
 		return GOLPE_PEGO
 	estado = Estado.HERIDO
@@ -1342,7 +1452,7 @@ func _morir(pagado: bool, truena_en := 0, espera := 0) -> void:
 		set_process(true)
 	else:
 		_animar("die", 1.0, true)
-		_sonar("morir_zombi")
+		_sonar("morir_zombi", -6.0)
 		_ceniza = true
 	murio.emit()
 	var _reg = get_node_or_null("/root/Registro")
@@ -1374,6 +1484,7 @@ func _morir(pagado: bool, truena_en := 0, espera := 0) -> void:
 
 func caer_al_amanecer() -> void:
 	if estado != Estado.MUERTO:
+		cayo_al_amanecer = true
 		_morir(false)
 
 
@@ -1540,7 +1651,7 @@ func _correr(velocidad: float, reiniciar := false) -> void:
 		_animar("idle", 1.0)
 		return
 	var nombre := "sprint" if _velocidad >= CORRE_DESDE else "run"
-	_animar(nombre, maxf(velocidad, _velocidad * 0.5) / float(PASO_SKIN[CLIPS_SKIN[nombre]]), reiniciar)
+	_animar(nombre, maxf(velocidad, _velocidad * 0.5) / (float(PASO_SKIN[CLIPS_SKIN[nombre]]) * _tamano), reiniciar)
 
 
 func _vida_max() -> int:
@@ -1584,9 +1695,9 @@ func _animar(nombre: String, velocidad: float, reiniciar := false) -> void:
 		_animacion.play(nombre)
 
 
-func _sonar(nombre: String) -> void:
+func _sonar(nombre: String, volumen := 0.0) -> void:
 	_voz.stream = Sonidos.sonido(nombre)
-	_voz.volume_db = 0.0
+	_voz.volume_db = volumen
 	_voz.pitch_scale = 1.0
 	_voz.play()
 

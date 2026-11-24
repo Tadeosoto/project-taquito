@@ -5,6 +5,7 @@ Una ficha por colonia, escrita y aprobada por AG antes de modelar nada (paso 1 d
 | Colonia | Ficha | Estado |
 |---|---|---|
 | Parques de Santa Mugre | [`santa_mugre.md`](santa_mugre.md) | Ficha aprobada; sigue la tubería de Blender |
+| La Gotera (fortaleza de la mafia) | [`la_gotera.md`](la_gotera.md) | Borrador de JJ (2026-11-12), por aprobar |
 
 ## Reglas para todas las colonias
 

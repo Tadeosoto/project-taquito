@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/misiones/caja_misteriosa.tres" id="3_caja"]
+
+[sub_resource type="Resource" id="paso_llevar"]
+script = ExtResource("2_paso")
+tipo = 5
+cuando = 2
+texto = "Lleva la caja a Haciendas de San José"
+lugar = "punto:punto HACIENDAS DE SAN JOSE"
+cuantos = 1
+carga = ExtResource("3_caja")
+soltable = true
+
+[resource]
+script = ExtResource("1_mision")
+id = "mafia_5"
+nombre = "Entrega a Haciendas de San José"
+modelo = "gangster_dealer"
+donde = "punto:punto REAL DEL MONTE"
+oferta = "La última de las cercanas: a Haciendas de San José, junto a la reja de La Gotera. Entrégala y el Primo le avisa a la puerta."
+aceptada = "Haciendas, en la Av. del Cedro. Llega con la caja cerrada y ya eres de la casa."
+recuerda = "La caja va a Haciendas, junto a la reja de La Gotera."
+gracias = "Ya se le avisó a la puerta. La Gotera te abre, mandadero."
+despedida = "Pásale a La Gotera. Aquí tenemos más trabajo si quieres."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar")])
+pesos = 100
+una_vez = true
+requiere = "mafia_4"
+abierto_de_noche = true

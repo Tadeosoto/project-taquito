@@ -27,9 +27,12 @@ signal amanecio
 @export var ambiente_energia := 0.75
 @export var niebla_color := Color(0.13, 0.15, 0.22)
 @export var fondo_color := Color(0.09, 0.1, 0.16)
+## Densidad de niebla de noche. Negativo = la misma del dia. Una colonia cerrada y con niebla
+## espesa (la favela de La Gotera) la baja de noche para no quedarse a oscuras (MapaColonia._ambiente)
+@export var niebla_densidad := -1.0
 
 var retener_noche := false
-# La escena empezo ya de noche con la hora que trajo de otra (PasoColonia, PasoArena, Continuar):
+# La escena empezo ya de noche con la hora que trajo de otra (PasoColonia, PasoJefe, Continuar):
 # el primer `anochecio` es la misma noche que sigue, no una nueva (Partida no la cuenta)
 var noche_continuada := false
 var _sol: DirectionalLight3D
@@ -54,6 +57,7 @@ func _ready() -> void:
 		_dia["ambiente_energia"] = _env.ambient_light_energy
 		_dia["niebla"] = _env.fog_light_color
 		_dia["fondo"] = _env.background_color
+		_dia["niebla_densidad"] = _env.fog_density
 	_tiempo = inicio
 	# Si se llego por la reja de Santa Mugre (PasoColonia) sigue la hora de la escena de la que se vino
 	var traida := PasoColonia.tomar_hora()
@@ -134,6 +138,14 @@ static func texto_hora(h: float) -> String:
 	return "%d:%02d" % [minutos / 60, minutos % 60]
 
 
+# Segundos de juego que faltan para que amanezca (la hora de Hordas llega a las 6:00 a media
+# transicion); 0 de dia
+func segundos_para_amanecer() -> float:
+	if not _es_noche:
+		return 0.0
+	return maxf(dia_duracion + noche_duracion - transicion / 2.0 - _tiempo, 0.0)
+
+
 # Segundos desde que empezo el dia (de 0 a dia_duracion + noche_duracion)
 func tiempo() -> float:
 	return _tiempo
@@ -179,6 +191,8 @@ func _aplicar(nuevo: float) -> void:
 		_env.ambient_light_energy = lerpf(_dia["ambiente_energia"], ambiente_energia, _valor)
 		_env.fog_light_color = _dia["niebla"].lerp(niebla_color, _valor)
 		_env.background_color = _dia["fondo"].lerp(fondo_color, _valor)
+		if niebla_densidad >= 0.0:
+			_env.fog_density = lerpf(_dia["niebla_densidad"], niebla_densidad, _valor)
 		# Con cielo de shader (shaders/cielo_ps1.gdshader, el mapa de Blender) el fondo no es un
 		# color: se le pasa la hora y el color de la niebla, que es el de su horizonte
 		var cielo := (_env.sky.sky_material as ShaderMaterial) if _env.sky else null

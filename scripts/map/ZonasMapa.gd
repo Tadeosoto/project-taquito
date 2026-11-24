@@ -39,7 +39,7 @@ const ZONAS := [
 	{"nombre": "Parques del Mosco", "borde": ["a1", "t1", "t2", "e1", "e2", "e3", "f4", "f3", "r7", "r6", "r5", "r4", "r3", "r2", "r1"]},
 	{"nombre": "Haciendas de San Jodido", "borde": ["e1", "t3", "t4", "t5", "f6", "f5", "f4", "e3", "e2"]},
 	{"nombre": "El Último Trago", "borde": ["a4", "b1", "b2", "f2", "f1", "f0", "a5"]},
-	{"nombre": "La Gotera", "borde": ["f0", "f1", "f2", "f3", "f4", "f5", "f6", "se"]},
+	{"nombre": "", "borde": ["f0", "f1", "f2", "f3", "f4", "f5", "f6", "se"]},   # el sureste: sin nombre ni lore (JJ, 2026-11-12), la fortaleza La Gotera esta en Haciendas
 ]
 
 static var _poligonos: Array[PackedVector2Array] = []
@@ -52,6 +52,12 @@ static func cuantas() -> int:
 
 static func nombre(zona: int) -> String:
 	return ZONAS[zona]["nombre"]
+
+
+# Para listas y avisos: las zonas sin nombre (el sureste) salen como "Sin nombre"
+static func etiqueta(zona: int) -> String:
+	var n: String = ZONAS[zona]["nombre"]
+	return n if n != "" else "Sin nombre"
 
 
 # En pixeles del minimapa (1 px = 1 m)

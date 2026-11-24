@@ -1,0 +1,61 @@
+# El Simi bailador (`scripts/simi/`, JJ 2026-11-22)
+
+A comic boss in `map_test`: a 7 m Simi with Serenol skin that dances at night in the big grass plain in the south-east of the map. He never hits you in the normal fight: he makes you dance and sends the zombies. No story behind him yet.
+
+- **Model** (`SimiSerenol.gd`): the dancing botarga from the pharmacies (Sketchfab "Farmica Similares Dr Simi", CC-BY, already in `CREDITS.md`) in its own copy retargeted to the humanoid profile, so his dance is in the shared clip library and the player and the zombies can dance it too.
+  - `tools/simi/simi_jefe_gltf.py` writes `models/personajes/simi_jefe/simi_jefe.gltf`: the same `dr_simi/scene.gltf`, pointing at its `scene.bin` and textures. Its `.import` has `retarget/bone_map` = `resources/personajes/huesos_simi.tres` (Mixamo numbered, from `tools/personajes/mapas_huesos.gd`) plus `fix_silhouette`. The pharmacies' `simi_botarga.scn` is untouched.
+  - `tools/simi/separar_simi_jefe.gd` strips the kiosk (meshes without skin) into `simi_jefe.scn` and renames his dance `Simi_Baile` (looping).
+  - `tools/personajes/animaciones.gd` adds `Simi_Baile` and `Kick` (UAL1 Source) to `animaciones_humanas.res` (library `"h"`).
+  - Rebuild order: fetch `personajes/dr_simi` → `simi_jefe_gltf.py` → `--import` → `separar_simi_jefe.gd` → `animaciones.gd` → `--import`.
+  - `SimiSerenol.modelo(alto)` scales him to `ALTO` 7 m (rest height), feet at 0, facing +Z, and plays `h/Simi_Baile`. It swaps the four meshes for copies with the rest pose in `CUSTOM0` (in metres of a 1.75 m Simi, centred on the eyes; `ZombiSerenol.reposo`) and removes the spiky hair: the dark triangles above `PELO_DESDE` of the rest height (JJ: so he isn't the real Simi). Meshes and the three `ShaderMaterial`s (`parte` 0 body, 1 beard, 2 eyes) are shared static caches.
+  - Skin: `shaders/simi_serenol.gdshader`. The Panzón/zombie stone plates with Serenol cracks under the white coat:
+    - The cracks glow through the cloth as thin vein lines (`venas_bata`), thick at the belly (`centro_panza`, just under the tie) and fading out (`alcance`, `tupido`).
+    - The face and hands (pink texels) are stone with one-pixel cracks.
+    - Few small coat holes, mostly at the belly, with burnt dark edges and no glow.
+    - The tie stays blue.
+    - The eyes are a glowing blue iris that breathes like the others'.
+    - JJ asked for lines, not round blue patches, and fewer cracks overall: there are no dried-Serenol stains, no glow between plates and no blue hole rims.
+    - Instance uniform `con_bata` 0 removes the coat (phase 2).
+  - `godot --path . tools/probar_simi.tscn` turns the model around in a lot; `-- --fotos=<dir>` takes day/night shots and `-- --original` shows the old texture.
+- **`JefeSimi.gd`** (the fight; the header has every rule):
+  - **The beat.**
+    - `_reloj` is the second of `Simi_Baile` he's on, and it keeps running even while he isn't dancing.
+    - Everyone who starts dancing jumps to `baile_desde()`, so they all move the same: zombies via `AnimationPlayer.seek`, the player via a `TimeSeek` in front of the new `baila` state of `character_animation.gd`.
+  - **Zombies dance with him instead of attacking.**
+    - While `activa`, `JefeSimi.activo` is set. `Zombie._ir_a_bailar` (first thing in `_caminar`) asks `puesto(z)`: a slot in rings around `centro` (`PUESTO_DESDE` 10 m, `PUESTO_SEP` 2.6 m) for any zombie within `RECLUTA` 90 m.
+    - The zombie walks there, dances (`CLIPS_SKIN["baile"]`) and calls `llego`. Gordos and boss zombies don't take part.
+  - **Release.**
+    - At `JUNTA` 12 dancing (`JUNTA_2` 8 in phase 2) he stops, points (`SENALA`, `h/Pistol_Aim_Neutral` is the outstretched arm) for `SENALA_DURA`.
+    - Then he releases every slotted zombie (`Zombie.soltar_del_baile`: alert, `SUELTA_PRISA` faster, no dancing again for `SUELTA_DURA` s), whether you're dancing or not.
+    - If you kill half of `JUNTA` of the dancers before that (`_zombi_murio`), he gets angry and releases them at once. Killing dancers also lowers the count.
+  - **You dance** within `AURA` 8 m, or when the sonic wave catches you standing on the floor.
+    - The wave comes every `ONDA_CADA` s, twice in phase 2. It is a ring on the floor up to `ONDA_RADIO` 35 m (`shaders/onda_simi.gdshader`, one plane per wave). Jumping clears it, and rolling dodges it because `Player.atrapar` refuses while `esquivando`.
+    - Dancing reuses the Saltabardas grab: `Player.atrapar(jefe)` → `figura.bailar(baile_desde())`, and you face him (`cara`).
+    - Attack/jump presses call `forcejear`, which fills `zafarse` (`ZAFARSE_POR`); it drains by `ZAFARSE_BAJA`/s. It caps at `ZAFARSE_TOPE` 0.8 until something hits you (`golpeado` signal → `golpeado_bailando`), so mashing always lets a zombie or the kick land. Without mashing you never get out.
+    - Free again, he can't grab you for `INMUNE` s.
+  - **The kick.** Dancing `PATEA_ESPERA` s with no released zombie within `PATEA_ZOMBI` m of you, he runs (`CORRE`, `h/Sprint`) and kicks (`h/Kick` at `PATADA_EN`). The kick releases you, deals `PATADA` and pushes you `PATADA_EMPUJA`. Then he pants (`JADEA`) and walks back (`REGRESA`).
+  - **Damage.**
+    - Dancing he takes `DANO_BAILANDO` 0.5×; pointing and panting `DANO_JADEA` 2×. `HERIDO_CADA` of damage taken while dancing staggers him.
+    - At `FASE_2` half life the coat falls off (`con_bata`).
+    - Hit spheres on profile bones (`ESFERAS`), answering the `"lombrices"` calls like the pterodactyl.
+    - Dead: he releases the dancers and lets you go.
+  - **Sounds: pending, JJ will pick them in Splice.** `_sonar(evento)` plays `simi_<evento>` only if it's in `Sonidos.ARCHIVOS`. Events: `musica` (the cumbia), `onda`, `atrapa`, `senala`, `enojo`, `corre`, `patada`, `jadea`, `herido`, `bata`, `muere`.
+- **Player side** (JJ's code, three small additions):
+  - `Player.atrapar` dances instead of falling when `quien.has_method("baile_desde")`.
+  - `character_animation.gd` has the `baila` state (input 3 of `estado`, `baila_seek` → `c_baila`) and `bailar(desde)`.
+  - Release goes through the usual `soltar_atrapado`.
+- **`SimiPlanicie.gd`** (node `SimiBailador` in `map_test.tscn`):
+  - The plain spans x 642–898, z 469–787 in the grass mask. `CENTRO` (821, 650) is its most open point (110 m free around).
+  - Only at night (`Misiones.es_noche`): within `APARECE` 250 m he dances in the middle; within `PELEA` 70 m the fight starts (`empezar`).
+  - At dawn he leaves. Fighting and farther than `OLVIDA` 160 m, he leaves and comes back at full life.
+  - Dead: `Misiones.matar_jefe("simi")`.
+- **`BarraSimi.gd`**: top-centre bar showing life with the half mark and "Bailando con él: n/12". While you dance, a bottom-centre "¡TE AGARRÓ EL BAILE!" with the escape bar and its cap mark.
+- **Safehouse**: Ctrl+`.` puts him 30 m ahead, already fighting, in a 40 m circle. Zombies come from Z or T (night spawns).
+- **Test**:
+  - `godot --path . --headless tools/probar_simi_jefe.tscn -- --prueba` runs 22 checks in `map_test`:
+    - day/night presence and his height;
+    - zombies dancing in sync, release at 12, the anger at half killed;
+    - the wave, the cap without a hit, the kick, the aura, escaping after a hit;
+    - half damage while dancing, the ray, phase 2, death.
+  - Without flags you play it at night 90 m away.
+  - `-- --video` with Movie Maker records the fight with captions (convert with `uv run --with imageio-ffmpeg`). It forces the `Ciclo` into the night and never waits without a time limit (a stuck zombie once kept the first recording going for 13 min). **Pending (2026-11-22):** record it and put the mp4 in `~/capturas`.

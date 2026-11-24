@@ -1,0 +1,248 @@
+{
+ "escondites": [
+  {
+   "x": -605.7,
+   "z": 665.3,
+   "tipo": "bodega",
+   "colonia": "LA PALMIRA",
+   "orilla": true
+  },
+  {
+   "x": 8.0,
+   "z": 856.0,
+   "tipo": "callejon",
+   "orilla": true
+  },
+  {
+   "x": -671.2,
+   "z": -536.3,
+   "tipo": "bodega",
+   "colonia": "EL MANTE",
+   "orilla": true
+  },
+  {
+   "x": -871.7,
+   "z": 769.8,
+   "tipo": "callejon",
+   "orilla": true
+  },
+  {
+   "x": -871.7,
+   "z": -381.0,
+   "tipo": "callejon",
+   "orilla": true
+  },
+  {
+   "x": -266.6,
+   "z": 635.6,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": true
+  },
+  {
+   "x": -844.9,
+   "z": -856.6,
+   "tipo": "callejon",
+   "orilla": true
+  },
+  {
+   "x": -193.0,
+   "z": 740.2,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": true
+  },
+  {
+   "x": -689.6,
+   "z": -362.9,
+   "tipo": "bodega",
+   "colonia": "AGUA BLANCA",
+   "orilla": true
+  },
+  {
+   "x": -469.3,
+   "z": 640.5,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": true
+  },
+  {
+   "x": -760.3,
+   "z": -730.6,
+   "tipo": "bodega",
+   "colonia": "EL MANTE",
+   "orilla": true
+  },
+  {
+   "x": 484.6,
+   "z": 852.6,
+   "tipo": "callejon",
+   "orilla": true
+  },
+  {
+   "x": -56.8,
+   "z": 686.5,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": true
+  },
+  {
+   "x": -718.4,
+   "z": 854.4,
+   "tipo": "callejon",
+   "orilla": true
+  },
+  {
+   "x": 675.3,
+   "z": 818.1,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": true
+  },
+  {
+   "x": 99.6,
+   "z": 696.9,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": true
+  },
+  {
+   "x": 600.2,
+   "z": 627.9,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": true
+  },
+  {
+   "x": -641.5,
+   "z": 207.9,
+   "tipo": "bodega",
+   "colonia": "LA PALMIRA",
+   "orilla": true
+  },
+  {
+   "x": -805.2,
+   "z": -566.6,
+   "tipo": "bodega",
+   "colonia": "AGUA BLANCA",
+   "orilla": true
+  },
+  {
+   "x": -841.7,
+   "z": 438.7,
+   "tipo": "bodega",
+   "colonia": "LA PALMIRA",
+   "orilla": true
+  },
+  {
+   "x": 233.6,
+   "z": 825.2,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": true
+  },
+  {
+   "x": -621.9,
+   "z": -698.9,
+   "tipo": "bodega",
+   "colonia": "EL MANTE",
+   "orilla": true
+  },
+  {
+   "x": -619.6,
+   "z": 377.5,
+   "tipo": "bodega",
+   "colonia": "LA PALMIRA",
+   "orilla": true
+  },
+  {
+   "x": -324.1,
+   "z": 730.5,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": true
+  },
+  {
+   "x": 660.4,
+   "z": 397.0,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": false
+  },
+  {
+   "x": 877.7,
+   "z": -461.3,
+   "tipo": "bodega",
+   "colonia": "EL MANTE",
+   "orilla": false
+  },
+  {
+   "x": 872.8,
+   "z": 217.8,
+   "tipo": "callejon",
+   "orilla": false
+  },
+  {
+   "x": 317.2,
+   "z": -232.1,
+   "tipo": "callejon",
+   "orilla": false
+  },
+  {
+   "x": 124.6,
+   "z": 14.0,
+   "tipo": "bodega",
+   "colonia": "PARQUES DEL BOSQUE",
+   "orilla": false
+  },
+  {
+   "x": -310.0,
+   "z": -539.9,
+   "tipo": "bodega",
+   "colonia": "PARQUES DE SANTA MARIA",
+   "orilla": false
+  },
+  {
+   "x": 446.1,
+   "z": 610.8,
+   "tipo": "bodega",
+   "colonia": "LA GIGANTERA",
+   "orilla": false
+  },
+  {
+   "x": 39.9,
+   "z": 531.0,
+   "tipo": "bodega",
+   "colonia": "PARQUES DE SANTA MARIA",
+   "orilla": false
+  },
+  {
+   "x": 745.5,
+   "z": -569.9,
+   "tipo": "bodega",
+   "colonia": "EL MANTE",
+   "orilla": false
+  },
+  {
+   "x": -99.1,
+   "z": -649.9,
+   "tipo": "bodega",
+   "colonia": "PARQUES DEL BOSQUE",
+   "orilla": false
+  },
+  {
+   "x": -436.2,
+   "z": -562.7,
+   "tipo": "bodega",
+   "colonia": "PARQUES DE SANTA MARIA",
+   "orilla": false
+  },
+  {
+   "x": 384.7,
+   "z": -387.5,
+   "tipo": "bodega",
+   "colonia": "PARQUES DEL BOSQUE",
+   "orilla": false
+  }
+ ]
+}

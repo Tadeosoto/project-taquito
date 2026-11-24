@@ -16,6 +16,7 @@ extends Node3D
 #   godot --path . scenes/defensa_tinaco.tscn -- --monitor=<carpeta>   (MonitorDefensa.gd)
 #   godot --path . scenes/defensa_tinaco.tscn -- --noche=<segundos> --modo=facil|medio|dificil
 #   godot --path . scenes/defensa_tinaco.tscn -- --estela   (la mejora de estela del protagonista)
+#   godot --path . scenes/defensa_tinaco.tscn -- --habilidades   (las de los tazos, todas al maximo)
 #
 # El mapa se arma con los mismos sistemas de map_test alrededor del nodo Centro, con
 # radios chicos; los negocios salen cerrados (sin flecha). La barricada se genera hasta
@@ -26,7 +27,7 @@ extends Node3D
 const MapAlumbrado := preload("res://scripts/map/MapAlumbrado.gd")
 const CargaCuadro := preload("res://scripts/map/CargaCuadro.gd")
 
-const CENTRO := Vector3(163.0, 0.0, -515.0)
+const CENTRO := Vector3(163.0, 0.0, -515.0)   # el Jardin Imperial: donde se juega la escena de prueba
 const LADO := 50.0                     # medio lado de donde se puede andar
 const JUGADOR_SALE := Vector3(2.5, 1.2, 2.5)   # junto al tinaco (Barricada.JUGADOR_SALE)
 const PARED_CAPA := 16                 # capa 5: solo la tiene el jugador en su mascara
@@ -56,6 +57,7 @@ const DIFICULTAD_POR_NOCHE := 1.25
 const DANO_POR_NOCHE := 1
 const DANO_TOPE := 12
 const FUNDIDO_SALE := 0.25             # s a negro antes de rearmar la noche
+const SALIDA_ESPERA := 4.0               # s de aviso antes de volver al mapa (desde el juego)
 const MODO_CARRERA := 1                  # Pruebas.Modo.CARRERA
 const MODO_GODMODE := 2                  # Pruebas.Modo.GODMODE
 const FUNDIDO_ENTRA := 0.6             # s de regreso desde negro
@@ -90,23 +92,11 @@ const ROJO := Color(0.9, 0.15, 0.1)
 const TEMA := preload("res://resources/ui/tema_pixel.tres")
 
 const MUSICA := preload("res://audio/musica/pt_tema.mp3")
-# Lo unico que suena ademas de la musica (Sonidos.solo): el machete al cortar el aire y al
-# pegar, y la pistola
 const ESTELA := preload("res://scripts/EstelaBarrido.gd")
 # Matando a tantos con la espada en la noche se enciende la estela del protagonista (solo
 # estetica, no da dano). Mitad de los ~55 zombis que caen por noche en modo medio
 # (docs/pruebas-balance.md: machete 774 + pistola 870 de dano, vida 30)
 const ESTELA_MUERTES := 27
-# golpe y morir_zombi: el Panzon (azotones, pisotones, losas) y su muerte; zumbido_oidos y
-# bocina_*: la palomita y la bocina senuelo
-const SONIDOS := ["blip", "machetazo", "whack", "bloqueo", "disparo", "disparo_1", "disparo_2", "disparo_3", "disparo_4", "rugido", "rugido_corto", "casquillo", "disparo_pistola", "recarga_suelta", "recarga_mete", "recarga_cierra", "golpe", "morir_zombi", "zumbido_oidos", "bocina_musica", "bocina_apaga",
-	# Las armas de fuego nuevas (Pistola.ARMAS "sonidos"; los archivos los elige JJ)
-	"disparo_tinaquera", "bomba_tinaquera", "cartucho_mete", "disparo_matraca", "giro_matraca", "sobrecalienta_matraca",
-	"tambor_saca", "tambor_mete", "tambor_cierra", "disparo_chicharra", "cargador_chicharra",
-	# El Sotano (Sonidos.ARCHIVOS)
-	"slot_palanca", "slot_carrete", "slot_boton", "slot_gana", "slot_gana_grande", "slot_premio_mayor",
-	"monedas_caen", "ficha_cae", "apuesta_sube", "carta", "ficha_mesa", "caballitos",
-	"ambiente_casino", "platica_barra", "botellas_chocan", "zumbido_neon", "goteo_bano", "festejo_1", "festejo_2", "festejo_3", "musica_cumbia"]
 const MUSICA_VOLUMEN := -8.0   # dB
 const MUSICA_SILENCIO := -40.0
 const MUSICA_ENTRA := 2.0      # s
@@ -137,13 +127,10 @@ const CIERRES_DESMAYO := ["El tinaco no se cuida solo.", "Mañana la colonia te 
 @onready var _jugador := $Player as Player
 var _tinaco: TinacoDefensa
 var _hordas: Hordas
+var _decoracion: DecoracionDefensa   # bocinas y camionetas que se van (visual)
 var _hora: Label
 var _amanecer: ColorRect
 var _vida_tinaco: ColorRect
-# La barra del Panzon (Panzon.gd), arriba al centro, solo mientras hay uno vivo
-var _jefe: Control
-var _jefe_barra: ColorRect
-const JEFE_ANCHO := 300.0
 var _listo := false
 var _terminado := false
 var _noche_cerrada := false
@@ -152,6 +139,7 @@ var _musica_apagada := false
 var _hora_fin := 0.0          # a que hora se perdio
 # La noche de la carrera (1, 2, 3...). Sube con Siguiente y NO baja al reintentar la misma
 var noche := 1
+var _centro := CENTRO          # donde se arma esta defensa (uno de SitiosTinaco si se entra desde el mapa)
 var _dificultad_base := 1.0   # la del modo (Hordas.MODOS) antes de la escalada
 var _dano_base := 6           # Zombis.dano_jugador de la escena antes de la escalada
 var _menu_capa: CanvasLayer   # el menu de entre noches, si esta abierto
@@ -164,11 +152,12 @@ var _creador_abierto := false
 
 
 func _enter_tree() -> void:
+	_elegir_sitio()
 	# Antes del _ready de Puntos
 	var todos: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://resources/map/puntos_mapa.json"))
 	var cerca := []
 	for punto: Dictionary in todos["puntos"]:
-		if Vector2(punto["x"] - CENTRO.x, punto["z"] - CENTRO.z).length() <= PUNTOS_RADIO:
+		if Vector2(punto["x"] - _centro.x, punto["z"] - _centro.z).length() <= PUNTOS_RADIO:
 			punto["interactivo"] = false
 			cerca.append(punto)
 	var archivo := FileAccess.open(PUNTOS_JSON, FileAccess.WRITE)
@@ -176,9 +165,29 @@ func _enter_tree() -> void:
 	archivo.close()
 
 
+# El tinaco del mapa donde se juega: el de la mision (PasoJefe.desde_juego) o `-- --sitio=N` (pruebas);
+# sin ninguno, el parque de siempre. Se corre la escena entera (Centro, barricada, jugador, minimapa)
+# antes de que cualquier nodo lea su lugar
+func _elegir_sitio() -> void:
+	var pedido := -1
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--sitio="):
+			pedido = int(arg.trim_prefix("--sitio="))
+	if pedido >= 0:
+		SitiosTinaco.elegido = pedido
+	if not (PasoJefe.desde_juego or pedido >= 0) or SitiosTinaco.sitio().is_empty():
+		return
+	_centro = SitiosTinaco.centro()
+	var movido := _centro - CENTRO
+	for ruta in ["Centro", "Barricada", "Player"]:
+		var nodo := get_node(ruta) as Node3D
+		nodo.position += movido
+	var minimapa := get_node("Minimapa")
+	minimapa.set("centro_mundo", Vector2(_centro.x, _centro.z))
+
+
 func _ready() -> void:
 	_tinaco = _barricada.get_node("Tinaco") as TinacoDefensa
-	Sonidos.solo.assign(SONIDOS)
 	_ciclo.process_mode = Node.PROCESS_MODE_DISABLED
 	_jugador.collision_mask |= PARED_CAPA
 	_jugador.mato_con_espada.connect(_revisar_estela)
@@ -187,13 +196,20 @@ func _ready() -> void:
 	_armar_fundido()
 	_hordas = Hordas.new()
 	_hordas.name = "Hordas"
-	_hordas.centro = CENTRO
+	_hordas.centro = _centro
 	_hordas.zombis = _zombis
 	_hordas.ciclo = _ciclo
 	add_child(_hordas)
+	_decoracion = DecoracionDefensa.new()
+	_decoracion.name = "Decoracion"
+	add_child(_decoracion)
 	_tinaco.aviso.connect(_supervivencia.avisar)
 	_tinaco.cayo.connect(_tinaco_roto)
 	_supervivencia.desmayo_final = _desmayado
+	# Pasos, latido y respiracion del jugador, como en el mapa (Partida): los sonidos son globales
+	var cuerpo := SonidosJugador.new()
+	cuerpo.name = "SonidosJugador"
+	add_child(cuerpo)
 	_musica = AudioStreamPlayer.new()
 	_musica.stream = MUSICA
 	(_musica.stream as AudioStreamMP3).loop = true
@@ -204,7 +220,9 @@ func _ready() -> void:
 	# Si se lanza directo (sin lanzador), es el godmode de mecanicas. El refugio pone CARRERA
 	# antes de cargar esta escena.
 	var pruebas = _pruebas()
-	if pruebas and pruebas.modo == 0:
+	# Desde el juego (PasoJefe, una mision ENTRAR_A a esta escena) no es un test: tu equipo, sin
+	# godmode, sin carrera ni registro, y al acabar vuelves al mapa
+	if pruebas and pruebas.modo == 0 and not PasoJefe.desde_juego:
 		pruebas.preparar_test(pruebas.Modo.GODMODE, pruebas.dificultad, pruebas.duracion_noche)
 	var semilla := 0
 	var capturas := ""
@@ -225,8 +243,16 @@ func _ready() -> void:
 		elif arg == "--estela":
 			get_node("/root/Personaje").mejora_estela = true
 			_jugador.aplicar_personaje()
+		elif arg == "--habilidades":
+			get_node("/root/Tazos").todas_al_maximo()
+			_jugador.aplicar_personaje()
 		elif arg.begins_with("--monitor="):
 			monitor_pedido = true
+	# Un tinaco del mapa trae su modo (SitiosTinaco: los cercanos a Santa Mugre, faciles)
+	var sitio := SitiosTinaco.sitio() if _centro != CENTRO else {}
+	if not sitio.is_empty():
+		modo = sitio["modo"]
+		modo_arg = true
 	if pruebas:
 		if not modo_arg:
 			modo = pruebas.dificultad
@@ -236,9 +262,11 @@ func _ready() -> void:
 		pruebas.duracion_noche = duracion_noche
 	_ciclo.noche_duracion = duracion_noche
 	_hordas.usar_modo(modo)
+	if not sitio.is_empty():
+		_hordas.dificultad *= sitio["factor"]
 	_dificultad_base = _hordas.dificultad
 	_dano_base = _zombis.dano_jugador
-	print("Defensa: modo %s, noche de %.0f s" % [modo, duracion_noche])
+	print("Defensa: modo %s, noche de %.0f s%s" % [modo, duracion_noche, "" if sitio.is_empty() else ", %s (nivel %d)" % [sitio["nombre"], sitio["nivel"]]])
 	await _esperar_mapa()
 	_al_suelo()
 	_generar(semilla)
@@ -280,11 +308,7 @@ func _revisar_estela() -> void:
 	ESTELA.estilo = personaje.estela()
 
 
-# Al salir (Salir) los demas sonidos vuelven
 func _exit_tree() -> void:
-	Sonidos.solo.clear()
-	Player.golpe_cargado = false
-	Player.giro_aereo = false
 	ESTELA.estilo = ESTELA.Estilo.NORMAL
 	get_node("/root/Personaje").mejora_estela = false
 
@@ -292,7 +316,7 @@ func _exit_tree() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
-	if _listo and event.physical_keycode == KEY_C and not (_pruebas() and _pruebas().es_carrera()):
+	if _listo and event.physical_keycode == KEY_C and not PasoJefe.desde_juego and not (_pruebas() and _pruebas().es_carrera()):
 		_cambiar_personaje()
 		return
 	if _listo and event.physical_keycode == KEY_G:
@@ -311,10 +335,6 @@ func _process(_delta: float) -> void:
 	_hora.text = "Noche %d · %s" % [noche, Hordas.texto_hora(hora)]
 	_amanecer.scale.x = (hora - Hordas.HORA_EMPIEZA) / Hordas.HORAS
 	_vida_tinaco.scale.x = _tinaco.fraccion()
-	var panzon := get_tree().get_first_node_in_group("panzon")
-	_jefe.visible = panzon != null
-	if panzon:
-		_jefe_barra.scale.x = clampf(float(panzon.vida()) / Panzon.VIDA, 0.0, 1.0)
 
 
 # Lo de alrededor ya cargo: CargaCuadro lleva un rato sin que nadie arme nada
@@ -331,7 +351,7 @@ func _esperar_mapa() -> void:
 
 # El tinaco y el jugador a la altura del suelo del parque
 func _al_suelo() -> void:
-	var rayo := PhysicsRayQueryParameters3D.create(CENTRO + Vector3.UP * 5.0, CENTRO + Vector3.DOWN * 5.0, 1, [_jugador.get_rid(), _tinaco.get_rid()])
+	var rayo := PhysicsRayQueryParameters3D.create(_centro + Vector3.UP * 5.0, _centro + Vector3.DOWN * 5.0, 1, [_jugador.get_rid(), _tinaco.get_rid()])
 	var pego := get_world_3d().direct_space_state.intersect_ray(rayo)
 	if pego:
 		_barricada.global_position = pego.position
@@ -343,7 +363,8 @@ func _generar(semilla: int) -> void:
 	_barricada.generar(semilla)
 	_zombis.olvidar_paredes()
 	_zombis.usar_huecos(_barricada.huecos_mundo)
-	_minimapa.usar_mapa(_dibujar_mapa(), Vector2(CENTRO.x - MAPA_LADO, CENTRO.z - MAPA_LADO), Vector2.ONE * MAPA_LADO * 2.0)
+	_decoracion.armar(_barricada, _hordas)
+	_minimapa.usar_mapa(_dibujar_mapa(), Vector2(_centro.x - MAPA_LADO, _centro.z - MAPA_LADO), Vector2.ONE * MAPA_LADO * 2.0)
 	print("Barricada: semilla %d, %d piezas no cupieron" % [_barricada.semilla_usada, _barricada.quitadas])
 
 
@@ -352,6 +373,7 @@ func _generar(semilla: int) -> void:
 # La dificultad de la noche que va: los grupos del modo crecen y el zombi pega mas. Los
 # grupos los limita Zombis.max_total (40), asi que en algun momento ya no se puede ganar.
 func _aplicar_noche() -> void:
+	Sonidos.tocar(self, "ronda_inicia", -6.0)
 	_hordas.dificultad = _dificultad_base * pow(DIFICULTAD_POR_NOCHE, maxi(noche, 1) - 1)
 	_zombis.dano_jugador = mini(_dano_base + (maxi(noche, 1) - 1) * DANO_POR_NOCHE, DANO_TOPE)
 	print("Noche %d: grupos x%.2f, zombi pega %d" % [noche, _hordas.dificultad, _zombis.dano_jugador])
@@ -368,16 +390,21 @@ func _dar_provisiones() -> void:
 # Arranque de la noche (las dos ramas del test): estado, dificultad, registro y musica.
 func _iniciar_noche() -> void:
 	var pruebas = _pruebas()
-	var godmode: bool = pruebas == null or pruebas.modo == MODO_GODMODE
+	var godmode: bool = not PasoJefe.desde_juego and (pruebas == null or pruebas.modo == MODO_GODMODE)
 	noche = pruebas.noche if (pruebas and pruebas.modo == MODO_CARRERA) else 1
 	# En los tests no hay drops de zombis: todo se compra con la paga
-	_zombis.paga_muertes = false
-	if godmode:
+	_zombis.paga_muertes = PasoJefe.desde_juego
+	if PasoJefe.desde_juego:
+		pass
+	elif godmode:
 		_aplicar_godmode()
 	else:
 		_aplicar_mejoras()
 	_aplicar_noche()
 	_preparar_noche()
+	if PasoJefe.desde_juego:
+		_arrancar_reloj()
+		return
 	if pruebas:
 		pruebas.empezar_noche()
 	_registro_inicio()
@@ -386,6 +413,11 @@ func _iniciar_noche() -> void:
 			_hordas.ola_empezada.connect(_registro_ola)
 		if not _hordas.emboscada_empezada.is_connected(_registro_emboscada):
 			_hordas.emboscada_empezada.connect(_registro_emboscada)
+	_arrancar_reloj()
+
+
+# Corre el ciclo (la noche) y entra la musica
+func _arrancar_reloj() -> void:
 	_ciclo.process_mode = Node.PROCESS_MODE_INHERIT
 	_musica.play()
 	_musica.stream_paused = _musica_apagada
@@ -397,8 +429,10 @@ func _iniciar_noche() -> void:
 func _aplicar_godmode() -> void:
 	var mejoras := get_node_or_null("/root/Mejoras")
 	if mejoras:
+		# Solo los movimientos de espada (cargado, giratorio, estela), sin stats ni buffs (JJ,
+		# 2026-11-16): con todo el catalogo el machete pegaba de mas
 		mejoras.reiniciar()
-		mejoras.maximo()
+		mejoras.maximo(mejoras.Cat.MOVIMIENTOS)
 		mejoras.activo = true
 		mejoras.aplicar_en_jugador(_jugador)
 	var inventario := get_node_or_null("/root/Inventory")
@@ -407,6 +441,13 @@ func _aplicar_godmode() -> void:
 		inventario.items.clear()
 		inventario.mochila = null
 		inventario.dar_todos_los_productos()
+		# Con el machete normal (JJ, 2026-11-16): con todo el catalogo peleabas con el de mas dano
+		# (el femur de la Mojiganga) y matabas a todos de un golpe. Se asigna, no equipar_arma(),
+		# que lo suelta si ya era el equipado (Otra vez)
+		var machete := load("res://resources/productos/machete.tres") as InventoryItemData
+		if machete and inventario.items.has(machete):
+			inventario.equipada = machete
+			inventario.inventory_changed.emit()
 	var salud := get_node_or_null("/root/Salud")
 	if salud:
 		salud.llenar()
@@ -594,10 +635,23 @@ func _cerrar_noche(gano: bool, desmayo: bool) -> void:
 	if _noche_cerrada:
 		return
 	_noche_cerrada = true
+	if PasoJefe.desde_juego:
+		_volver_al_mapa(gano, desmayo)
+		return
 	var pruebas = _pruebas()
 	if pruebas:
 		pruebas.terminar_noche(gano)
 	_pantalla_noche(gano, desmayo)
+
+
+# Desde el juego (PasoJefe): un aviso y de regreso al mapa. Aguantar hasta el amanecer cumple el
+# paso de la mision (que es la que paga); perder no
+func _volver_al_mapa(gano: bool, desmayo: bool) -> void:
+	var texto := "Amaneció y el tinaco aguantó." if gano \
+			else ("Te desmayaste. El tinaco quedó solo." if desmayo else "El tinaco no aguantó.")
+	_supervivencia.avisar(texto)
+	await get_tree().create_timer(SALIDA_ESPERA).timeout
+	PasoJefe.volver(self, gano)
 
 
 # Gano: paga y deja seguir con la noche siguiente (carrera) o repetir (godmode). Perdio:
@@ -710,7 +764,9 @@ func _pantalla_noche(gano: bool, desmayo: bool) -> void:
 		titulo.modulate.a = 0.0
 		tween.tween_property(titulo, "modulate:a", 1.0, 0.15)
 		tween.parallel().tween_property(titulo, "scale", Vector2.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tween.tween_callback(func() -> void: Sonidos.tocar(capa, "boom", -6.0))
+		tween.tween_callback(func() -> void:
+			Sonidos.tocar(capa, "boom", -9.0)
+			Sonidos.tocar(capa, "ronda_gana", -6.0))
 		tween.tween_property(titulo, "rotation", 0.05, 0.06)
 		tween.tween_property(titulo, "rotation", -0.04, 0.06)
 		tween.tween_property(titulo, "rotation", 0.0, 0.06)
@@ -720,7 +776,7 @@ func _pantalla_noche(gano: bool, desmayo: bool) -> void:
 		if izquierda:
 			izquierda.flip_h = true
 		titulo.modulate = Color.WHITE
-		tween.tween_callback(func() -> void: Sonidos.tocar(capa, "perder", -2.0))
+		tween.tween_callback(func() -> void: Sonidos.tocar(capa, "perder", -7.0))
 		tween.tween_property(titulo, "rotation", -0.12, 0.08)
 		tween.tween_property(titulo, "rotation", 0.08, 0.08)
 		tween.tween_property(titulo, "rotation", -0.04, 0.08)
@@ -782,24 +838,6 @@ func _armar_hud() -> void:
 	capa.add_child(_hora)
 	_amanecer = _barra(capa, Vector2(10.0, 48.0), AMARILLO, "amanecer")
 	_vida_tinaco = _barra(capa, Vector2(10.0, 62.0), AGUA, "tinaco")
-	_jefe = Control.new()
-	_jefe.visible = false
-	_jefe.position = Vector2((640.0 - JEFE_ANCHO) / 2.0, 14.0)
-	capa.add_child(_jefe)
-	var nombre := _etiqueta("EL PANZÓN", 16, ROJO)
-	nombre.size = Vector2(JEFE_ANCHO, 18.0)
-	nombre.position = Vector2(0.0, -2.0)
-	_jefe.add_child(nombre)
-	var fondo := ColorRect.new()
-	fondo.color = Color(0.0, 0.0, 0.0, 0.6)
-	fondo.position = Vector2(-1.0, 17.0)
-	fondo.size = Vector2(JEFE_ANCHO + 2.0, 9.0)
-	_jefe.add_child(fondo)
-	_jefe_barra = ColorRect.new()
-	_jefe_barra.color = ROJO
-	_jefe_barra.position = Vector2(0.0, 18.0)
-	_jefe_barra.size = Vector2(JEFE_ANCHO, 7.0)
-	_jefe.add_child(_jefe_barra)
 
 
 # El negro del cambio de noche. Va arriba de todo (el menu y el creador usan 20 y 21) y
@@ -860,7 +898,7 @@ func _armar_paredes() -> void:
 		caja.size = Vector3(LADO * 2.0 + 2.0, PARED_ALTO, 1.0)
 		forma.shape = caja
 		var hacia := Vector3(sin(i * PI / 2.0), 0.0, -cos(i * PI / 2.0))
-		forma.transform = Transform3D(Basis(Vector3.UP, i * PI / 2.0), CENTRO + hacia * (LADO + 0.5) + Vector3.UP * PARED_ALTO / 4.0)
+		forma.transform = Transform3D(Basis(Vector3.UP, i * PI / 2.0), _centro + hacia * (LADO + 0.5) + Vector3.UP * PARED_ALTO / 4.0)
 		paredes.add_child(forma)
 
 
@@ -872,14 +910,14 @@ func _dibujar_mapa() -> ImageTexture:
 	var completo := (load(MINIMAPA) as Texture2D).get_image()
 	completo.decompress()
 	var lado := int(MAPA_LADO * 2.0 / por_pixel)
-	var desde := Vector2i(int((CENTRO.x - MAPA_LADO - datos["x0"]) / por_pixel), int((CENTRO.z - MAPA_LADO - datos["z0"]) / por_pixel))
+	var desde := Vector2i(int((_centro.x - MAPA_LADO - datos["x0"]) / por_pixel), int((_centro.z - MAPA_LADO - datos["z0"]) / por_pixel))
 	var imagen := completo.get_region(Rect2i(desde, Vector2i(lado, lado)))
 	imagen.convert(Image.FORMAT_RGB8)
 	var final := int(MAPA_LADO * 2.0 / MAPA_M_POR_PIXEL)
 	imagen.resize(final, final, Image.INTERPOLATE_NEAREST)
 	# Fuera de las paredes, oscuro
-	var adentro := _pixel(Vector3(CENTRO.x - LADO, 0.0, CENTRO.z - LADO))
-	var hasta := _pixel(Vector3(CENTRO.x + LADO, 0.0, CENTRO.z + LADO))
+	var adentro := _pixel(Vector3(_centro.x - LADO, 0.0, _centro.z - LADO))
+	var hasta := _pixel(Vector3(_centro.x + LADO, 0.0, _centro.z + LADO))
 	for px in final:
 		for pz in final:
 			if px < adentro.x or pz < adentro.y or px >= hasta.x or pz >= hasta.y:
@@ -895,11 +933,11 @@ func _dibujar_mapa() -> ImageTexture:
 
 # Del mundo al pixel del minimapa: columna = x, fila = z, desde la esquina de menor valor
 func _pixel(mundo: Vector3) -> Vector2i:
-	return Vector2i(int((mundo.x - CENTRO.x + MAPA_LADO) / MAPA_M_POR_PIXEL), int((mundo.z - CENTRO.z + MAPA_LADO) / MAPA_M_POR_PIXEL))
+	return Vector2i(int((mundo.x - _centro.x + MAPA_LADO) / MAPA_M_POR_PIXEL), int((mundo.z - _centro.z + MAPA_LADO) / MAPA_M_POR_PIXEL))
 
 
 func _mundo(px: int, pz: int) -> Vector3:
-	return Vector3(CENTRO.x - MAPA_LADO + (px + 0.5) * MAPA_M_POR_PIXEL, 0.0, CENTRO.z - MAPA_LADO + (pz + 0.5) * MAPA_M_POR_PIXEL)
+	return Vector3(_centro.x - MAPA_LADO + (px + 0.5) * MAPA_M_POR_PIXEL, 0.0, _centro.z - MAPA_LADO + (pz + 0.5) * MAPA_M_POR_PIXEL)
 
 
 # Solo recorre los pixeles de la caja que la encierra
@@ -951,6 +989,16 @@ func _capturas(carpeta: String) -> void:
 			await get_tree().process_frame
 		var imagen := get_viewport().get_texture().get_image()
 		imagen.save_png(carpeta.path_join("%s.png" % vista[0]))
+	# De cerca: las bocinas y las camionetas (DecoracionDefensa.vistas)
+	ambiente.ambient_light_energy = LUZ_REVISION
+	ambiente.fog_enabled = false
+	_jugador.visible = false
+	_decoracion.dibujar_rutas()
+	for vista: Array in _decoracion.vistas():
+		camara.look_at_from_position(vista[1], vista[2], Vector3.UP)
+		for i in 8:
+			await get_tree().process_frame
+		get_viewport().get_texture().get_image().save_png(carpeta.path_join("%s.png" % vista[0]))
 	# Y el minimapa solo, para ver la barricada sobre las calles
 	var minimapa := _minimapa.mapa as Texture2D
 	minimapa.get_image().save_png(carpeta.path_join("minimapa.png"))

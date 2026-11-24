@@ -14,7 +14,7 @@
 - **Typewriter:**
   - It runs on the real clock (`Time.get_ticks_msec`) and reads letters from `get_parsed_text()`.
   - It pauses after `. ? ! …` and `, ; :`, but only when a space follows.
-  - Each letter plays a `blip` (`Sonidos`, also in `DefensaTinaco.SONIDOS`).
+  - Each letter plays a `blip` (`Sonidos`).
 - **Writer tags:** `[feliz]`, `[enojo]` and `[clave]` expand to wave, shake and yellow (`ETIQUETAS`). `MisionesMundo.TEXTO_ACEPTAR` uses `[clave]` ("Háblale otra vez para aceptar.").
 - **Portrait:** a 3-frame sheet (closed, open, blink). A code-drawn placeholder is used until there is art (`_retrato_prueba`).
 - **pixelfx:** through `EfectosPixel.hoja_ui`, which moved there from the tinaco defence's private `_hoja` and is now shared by both.

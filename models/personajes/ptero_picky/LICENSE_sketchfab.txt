@@ -1,0 +1,11 @@
+Model Information:
+* title:	Picky the Pterodactyl
+* source:	https://sketchfab.com/3d-models/picky-the-pterodactyl-568b841d8774488c8b25f5b74bffdc76
+* author:	Calditojohngabriel2013 (https://sketchfab.com/Calditojohngabriel2013)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Picky the Pterodactyl" (https://sketchfab.com/3d-models/picky-the-pterodactyl-568b841d8774488c8b25f5b74bffdc76) by Calditojohngabriel2013 (https://sketchfab.com/Calditojohngabriel2013) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

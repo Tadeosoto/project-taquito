@@ -71,6 +71,11 @@ const GIROS_LOCAL := {
 	"taqueria": {"muro": LOCAL_BLANCO, "acento": ROJO, "letrero": "", "interior": ""},
 }
 const RODAPIE := 0.9
+# Casita de tienda de la favela (La Gotera): obra negra, sin banda de color ni botarga, con su
+# letrero pintado y la cortina de lona. La paleta se elige por el origen, siempre la misma tienda.
+const FAVELA_MUROS := [Color(0.52, 0.51, 0.48), Color(0.55, 0.33, 0.25), Color(0.58, 0.50, 0.34),
+	Color(0.30, 0.45, 0.43), Color(0.55, 0.32, 0.36), Color(0.60, 0.57, 0.50)]
+const FAVELA_ACENTO := Color(0.34, 0.34, 0.32)
 # Alturas (m) para quedar como las casas Urbi de 1 y 2 pisos (3.9 y 7.4 m con el pretil)
 const PLANTA_BAJA := 3.2
 const PISO_ALTO := 3.0
@@ -260,6 +265,7 @@ var _timer_interiores := 0.0
 static var _material_tubo: StandardMaterial3D
 # La cortina que baja de noche: una malla y un material para todas (shaders/cortina.gdshader)
 static var _malla_cortina: BoxMesh
+static var _material_lona: ShaderMaterial
 static var _material_vidrio: StandardMaterial3D
 # Muebles de un interior que faltan de meter al arbol, uno por cuadro: [padre, mueble]
 var _pendientes: Array = []
@@ -273,6 +279,7 @@ var _aviso_tween: Tween
 var _cierre := -1.0
 var _ciclo: Node
 var _voz_cortina: AudioStreamPlayer3D
+var _cortina_sono := false   # traqueteo esta bajada o subida: al llegar suena el tope
 
 
 func _ready() -> void:
@@ -415,7 +422,7 @@ func _crear_pendientes(de_una := false) -> void:
 			continue
 		var punto: Dictionary = _puntos[i]
 		var node := _make_punto(punto)
-		node.position = Vector3(punto["x"], 0.0, punto["z"])
+		node.position = Vector3(punto["x"], float(punto.get("y", 0.0)), punto["z"])
 		node.rotation.y = punto["rotacion_y"]
 		add_child(node)
 		_nodes[i] = node
@@ -530,7 +537,7 @@ static func _flecha_mesh() -> Mesh:
 
 # La cortina de lamina del vano, colgada del rollo de arriba: de dia enrollada (el shader la
 # junta en su orilla de arriba) y de noche hasta el piso
-func _cortina(ancho: float, z: float) -> MeshInstance3D:
+func _cortina(ancho: float, z: float, favela := false) -> MeshInstance3D:
 	if _malla_cortina == null:
 		_malla_cortina = BoxMesh.new()
 		_malla_cortina.size = Vector3(1.0, CORTINA_ALTO, 0.04)
@@ -545,6 +552,14 @@ func _cortina(ancho: float, z: float) -> MeshInstance3D:
 	malla.position = Vector3(0.0, CORTINA_ALTO / 2.0, z)
 	malla.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	malla.visibility_range_end = PREFAB_VISIBILITY_RANGE
+	if favela:
+		if _material_lona == null:
+			_material_lona = ShaderMaterial.new()
+			_material_lona.shader = CORTINA_SHADER
+			_material_lona.set_shader_parameter("alto", CORTINA_ALTO)
+			_material_lona.set_shader_parameter("lona", 1.0)
+			_material_lona.set_shader_parameter("color", Color(0.55, 0.38, 0.24))
+		malla.material_override = _material_lona
 	return malla
 
 
@@ -554,6 +569,9 @@ func _cortinas() -> void:
 	if _ciclo == null or not is_instance_valid(_ciclo):
 		_ciclo = get_tree().get_first_node_in_group("ciclo")
 	var cierre: float = _ciclo.cierre_negocios() if _ciclo else 0.0
+	# Colonia abierta las 24 horas (MapaColonia.abierto_24h): las cortinas no bajan
+	if MapaColonia.abierto_24h:
+		cierre = 0.0
 	if is_equal_approx(cierre, _cierre):
 		return
 	var antes := _cierre
@@ -568,7 +586,9 @@ func _cortinas() -> void:
 	var moviendo := cierre > 0.0 and cierre < 1.0
 	if moviendo and (antes <= 0.0 or antes >= 1.0):
 		_traquetear()
-	elif not moviendo and _voz_cortina and _voz_cortina.playing:
+	elif not moviendo and _voz_cortina and _cortina_sono:
+		# El tope suena aunque el traqueteo ya haya acabado: la cortina tarda mas que el sample
+		_cortina_sono = false
 		_voz_cortina.stop()
 		_voz_cortina.stream = Sonidos.sonido("cortina_tope")
 		_voz_cortina.play()
@@ -598,6 +618,7 @@ func _traquetear() -> void:
 	_voz_cortina.global_position = (cerca.get_node("Cortina") as Node3D).global_position
 	_voz_cortina.stream = sonido
 	_voz_cortina.play()
+	_cortina_sono = true
 
 
 func _mostrar_flecha(node: Node3D) -> void:
@@ -1007,7 +1028,16 @@ func _make_placeholder(punto: Dictionary) -> Node3D:
 # en la orilla del lote; la flecha va frente al vano (o donde diga `puerta_x`).
 func _make_local_giro(punto: Dictionary) -> Node3D:
 	var tipo: String = punto["tipo"]
-	var info: Dictionary = GIROS_LOCAL[tipo]
+	var favela: bool = punto.get("favela", false)
+	var info: Dictionary = GIROS_LOCAL[tipo].duplicate()
+	if favela:
+		var tiro := absi(String(punto.get("origen", punto.get("nombre", ""))).hash())
+		info["muro"] = FAVELA_MUROS[tiro % FAVELA_MUROS.size()]
+		info["acento"] = FAVELA_ACENTO
+		info.erase("banda")
+		info.erase("cruz")
+		info.erase("botarga")
+		info.erase("maquinita")
 	var nombre: String = punto.get("nombre", "")
 	var m := _medidas(punto)
 	var w: float = m["w"]
@@ -1040,6 +1070,24 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 		_fachada_tramo(body, Vector2(minf(tramo.x, tramo.y), maxf(tramo.x, tramo.y)), 0.0, dintel_arriba, z, LOCAL_MURO, acento, muro)
 	_fachada_tramo(body, Vector2(-puerta / 2.0, puerta / 2.0), VANO_ALTO, dintel_arriba, z, LOCAL_MURO, acento, muro)
 	_marco(body, puerta, z, info.get("marco", acento))
+	# Tienda de favela: juntas de block sobre la fachada (no es una pared lisa de color)
+	if favela:
+		for y in [0.9, 1.7, 2.5]:
+			if y >= dintel_arriba:
+				continue
+			for lado in [-1.0, 1.0]:
+				var x0: float = puerta / 2.0 + 0.12
+				var x1: float = w / 2.0 - 0.05
+				if x1 > x0:
+					_local_box(body, Vector3(x1 - x0, 0.022, 0.022),
+						Vector3(lado * (x0 + x1) / 2.0, y, front + 0.012), Color(0.34, 0.33, 0.31), false)
+		var alto_junta: float = minf(dintel_arriba - 0.2, 2.6)
+		for lado in [-1.0, 1.0]:
+			var x: float = puerta / 2.0 + 0.5
+			while x < w / 2.0 - 0.2:
+				_local_box(body, Vector3(0.022, alto_junta, 0.022),
+					Vector3(lado * x, 0.2 + alto_junta / 2.0, front + 0.012), Color(0.34, 0.33, 0.31), false)
+				x += 0.85
 	if pisos > 1:
 		_piso_alto(body, w, sala, cuarto, front, alto, planta, m["pretil"], muro, acento)
 	# Techo y piso del cuarto, tubo de luz y la cortina enrollada (por dentro, arriba
@@ -1053,7 +1101,18 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 		_material_tubo.albedo_color = Color(0.95, 0.97, 1.0)
 	tubo.material_override = _material_tubo
 	_local_box(body, Vector3(puerta + 0.1, 0.25, 0.25), Vector3(0.0, VANO_ALTO - 0.13, front - LOCAL_MURO - 0.13), Color(0.55, 0.57, 0.6), false)
-	body.add_child(_cortina(puerta + 0.1, front - LOCAL_MURO - 0.03))
+	body.add_child(_cortina(puerta + 0.1, front - LOCAL_MURO - 0.03, favela))
+	# Letrero pintado de la tienda de favela, arriba del vano y contra la fachada
+	if favela and nombre != "":
+		var letrero := Label3D.new()
+		letrero.text = nombre.to_upper()
+		letrero.font_size = 56
+		letrero.pixel_size = 0.0085
+		letrero.modulate = Color(1.0, 0.88, 0.55)
+		letrero.outline_size = 12
+		letrero.position = Vector3(0.0, alto - 0.55, front + 0.02)
+		letrero.visibility_range_end = 25.0
+		body.add_child(letrero)
 	# Franja de color sin letras (OXO)
 	if info.has("banda"):
 		var abajo := VANO_ALTO + 0.3 if pisos == 1 else planta + 0.15
@@ -1071,7 +1130,7 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 	var banqueta := Node3D.new()
 	banqueta.name = "Banqueta"
 	body.add_child(banqueta)
-	if tipo == "taqueria":
+	if tipo == "taqueria" and not favela:
 		_taqueria_puesto(body, banqueta, punto, sala, puerta, front)
 	if info.get("botarga", false) and botarga:
 		# Junto al pilar izquierdo, bailando, lejos de la flecha
@@ -1080,7 +1139,8 @@ func _make_local_giro(punto: Dictionary) -> Node3D:
 		simi.scale = Vector3.ONE * botarga_escala
 		simi.position = Vector3(-w / 2.0 + 0.45, 0.0, front + 0.9)
 		banqueta.add_child(simi)
-	_maquinita(banqueta, punto, w, puerta, front)
+	if not favela:
+		_maquinita(banqueta, punto, w, puerta, front)
 	# Los muebles se arman al entrar al arbol: hasta entonces no tienen mallas. En el
 	# juego entran de uno por cuadro, como los del interior
 	if _target:
@@ -1170,7 +1230,8 @@ func _sacar_muebles(nodo: Node, distancia := INTERIOR_VISTA) -> void:
 func _meter_pendiente() -> void:
 	while not _pendientes.is_empty():
 		var pendiente: Array = _pendientes.pop_front()
-		var padre: Node = pendiente[0]
+		# Sin tipo: si el local ya se borro, asignarlo a un `Node` truena antes de revisarlo
+		var padre = pendiente[0]
 		var mueble: Node = pendiente[1]
 		if is_instance_valid(padre) and padre.is_inside_tree() and not padre.is_queued_for_deletion() \
 				and not String(padre.get_path()).contains("Detalle_quitado"):

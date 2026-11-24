@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/misiones/caja_misteriosa.tres" id="3_caja"]
+
+[sub_resource type="Resource" id="paso_llevar"]
+script = ExtResource("2_paso")
+tipo = 5
+cuando = 2
+texto = "Lleva la caja a Parques del Bosque"
+lugar = "punto:punto PARQUES DEL BOSQUE"
+cuantos = 1
+carga = ExtResource("3_caja")
+soltable = true
+
+[resource]
+script = ExtResource("1_mision")
+id = "mafia_6"
+nombre = "Entrega a Parques del Bosque"
+modelo = "cholo"
+donde = "punto:punto HACIENDAS DE SAN JOSE"
+oferta = "Ya eres de la casa, pero el trabajo sigue. Esta va a Parques del Bosque."
+aceptada = "Parques del Bosque, al poniente de aquí. Cuidado con lo que lleva."
+recuerda = "A Parques del Bosque."
+gracias = "Bien hecho. Allá en el Bosque ya te conocen."
+despedida = "En el Bosque te dan la que sigue."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_llevar")])
+pesos = 120
+una_vez = true
+requiere = "mafia_5"
+abierto_de_noche = true

@@ -75,6 +75,8 @@ var _ambiente_tween: Tween
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# La prueba de La Gotera (scenes/prueba_gotera.tscn) quita los candados de las bocas: aqui vuelven
+	PasoColonia.sin_candados = false
 	_lista.assign(OPCIONES)
 	if Guardado.hay_partida():
 		_lista[0] = NUEVA
@@ -245,6 +247,8 @@ func _jugar() -> void:
 	_cargando.visible = true
 	# Suena desde aqui y no desde el creador, que ya se borro al emitir listo
 	_sonar("inicio_partida")
+	# Las misiones sobreviven al cambio de escena: aqui empieza la partida
+	Misiones.reiniciar()
 	_fundir_ambiente(-60.0, AMBIENTE_SALE)
 	ResourceLoader.load_threaded_request(_a_cargar)
 
@@ -331,7 +335,7 @@ func _escena() -> void:
 	tinaco.position = Vector3(3.4, 0.9, -2.6)
 	add_child(tinaco)
 
-	# Uno de los zombis normales, al azar (Zombie.SKINS)
+	# Uno de los zombis normales, al azar (ZombiSerenol)
 	var zombi := Zombie.modelo_skin()
 	zombi.position = Vector3(-0.8, 0.0, -0.6)
 	zombi.rotation.y = 0.3
@@ -499,3 +503,13 @@ func _texto(texto: String, tamano: int, color: Color) -> Label:
 	label.add_theme_color_override("font_outline_color", Color.BLACK)
 	label.add_theme_constant_override("outline_size", 5)
 	return label
+
+
+# Al cerrar el juego con el rugido o el ambiente sonando, sus reproducciones quedaban vivas en el
+# AudioServer y Godot avisaba de fugas al salir
+func _exit_tree() -> void:
+	if is_instance_valid(_voz_zombi):
+		_voz_zombi.stop()
+	if is_instance_valid(_ambiente):
+		_ambiente.stop()
+		_ambiente.stream = null

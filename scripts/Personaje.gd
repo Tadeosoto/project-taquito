@@ -8,7 +8,11 @@ extends Node
 
 const RUTA := "user://personaje.cfg"
 const NOMBRE_MAX := 12
-const NOMBRES := ["Chuy", "Lupe", "Beto", "Toño", "Memo", "Nacho", "Paco", "Güicho", "Chema", "Goyo", "Paty", "Chayo"]
+# `nombre` es tu segundo apodo: el protagonista es Marcial López (docs/lore.md 15), pero nadie
+# lo sabe y la gente le dice el Machetes o el apodo que elijas, al azar (apodo()). Sin apodo,
+# solo el Machetes; "Al azar" toma otro de la lista
+const APODO := "Machetes"
+const NOMBRES := ["Tlacuache", "Gallo", "Chacal", "Cuervo", "Tigre", "Charro", "Coyote", "Lechuzo", "Alacrán"]
 const CUERPO := preload("res://scripts/CuerpoPersonaje.gd")
 
 # Valores en [0 del deslizador, en medio, 1 del deslizador]. En medio es el juego sin cambios
@@ -43,6 +47,8 @@ const MASCARA_PIEL := "piel.png"
 # Emiliano (homenaje de JJ a Zapata): saco cafe, chaleco olivo, paliacate rojo (-- --emiliano) y
 # sombrero charro (scripts/personajes/SombreroCharro.gd)
 # Felipe: chamarra de cuadros abierta con forro naranja, playera amarilla y mezclilla (-- --felipe)
+# Son solo looks del mismo protagonista (Marcial, el Machetes): en el creador salen sin nombre,
+# "Look 1 de 5". Los nombres de arriba quedan para el codigo y las carpetas
 const PROTAGONISTAS := ["Genaro", "Homero", "Ramón", "Emiliano", "Felipe"]
 const TEXTURA_COMPA := "res://models/personajes/protagonistas/el_compa/Character_04.png"
 const TEXTURAS := ["", "res://models/personajes/protagonistas/homero/Character_04.png",
@@ -110,7 +116,7 @@ func _ready() -> void:
 func cargar() -> void:
 	var archivo := ConfigFile.new()
 	if archivo.load(ruta) != OK:
-		nombre = NOMBRES.pick_random()
+		nombre = APODO
 		return
 	nombre = limpiar_nombre(str(archivo.get_value("personaje", "nombre", "")))
 	tono = clampf(float(archivo.get_value("personaje", "tono", 0.5)), 0.0, 1.0)
@@ -134,10 +140,10 @@ func guardar() -> void:
 	archivo.save(ruta)
 
 
-# Sin nombre te toca uno
+# Sin apodo te toca el de fabrica
 func limpiar_nombre(texto: String) -> String:
 	var limpio := texto.strip_edges().left(NOMBRE_MAX)
-	return limpio if limpio != "" else NOMBRES.pick_random()
+	return limpio if limpio != "" else APODO
 
 
 func al_azar() -> void:
@@ -211,7 +217,12 @@ static func _por_ciento(factor: float) -> String:
 func linea(lugar: String) -> String:
 	var banda := 0 if tono < TONO_CLARO else (2 if tono > TONO_OSCURO else 1)
 	var texto: String = (LINEAS[lugar][banda] as Array).pick_random()
-	return texto % nombre if texto.contains("%s") else texto
+	return texto % apodo() if texto.contains("%s") else texto
+
+
+# Como te dice la gente: el Machetes o el apodo que elegiste, al azar
+func apodo() -> String:
+	return [APODO, nombre].pick_random()
 
 
 # --- Como se ve ---

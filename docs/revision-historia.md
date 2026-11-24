@@ -28,6 +28,7 @@ Nada de esto cambia el canon por sí solo. Cuando el equipo decida, se corrige e
 | 1.5b | El pozo de doña Refugio **es real**; los Gotera quieren comprárselo | lore §16; personajes (Refugio, leyenda) |
 | 2.1 | La idea que controla la historia y su contraria | lore §18 |
 | 2.2 | El régimen **responde en escalones**, hasta contratarte | personajes §2 (Gela) |
+| V1 | (JJ, 2026-11-21) **El Serenol deja venas en la piel**: como várices, muy sutiles ("no se nota"), afuera de las fortalezas; nada adentro; en las cañerías, gente a medio camino con grietas que brillan, que no ataca. Matiza "a las personas no se les nota / la cara no": se ve si te fijas | lore §6 (Lo que casi no se ve: las venas), §7 (regla para el equipo), §8 (dóciles; Los de en medio) |
 | 2.3 | La mentira y la verdad del Nocturno | lore §15 |
 | 3.3, 3.4 | Chuy vio a su gente **apagarse**; Yolanda teme **amanecer mansa** | personajes §4, §5 |
 | §4 | Los diez detalles (fechas, "los dejamos salir" como giro, GelA Total sin Serenol, botarga, regla 7, Botarga de la Gota, Sofía, el jefe que era alguien) | lore §0, §5, §6, §8, §9, §19, §20; misiones §0, §3, §4 |
@@ -47,6 +48,7 @@ Nada de esto cambia el canon por sí solo. Cuando el equipo decida, se corrige e
 | 3.3 | **Chuy nunca habla**: su silencio es su pecado | personajes |
 | — | **Tres fortalezas**; Haciendas queda como colonia común y los Lazcano viven en los Reservorios; el palacio está afuera y el de Santa Mugre pasa a escuela | lore §13 |
 | — | Reja de Santa Mugre falla por **desgaste**; defender el tinaco de la fortaleza es muy esporádico | misiones (L8) |
+| 1.5c | ✅ (JJ, 2026-11-12) **El protagonista ya no es "el Nocturno"**: es **Marcial López**, pero nadie lo sabe: le dicen **"el Machetes"** o el apodo que elige el jugador, al azar; famoso por matar zombis, no por pelear con los vivos; brazo armado y socio de la compañía de agua con Chava y Gabriel, vive en Santa Mugre, habla poco, tiene sus cosas con Sofía, es pariente del Dr. López y, sin saberlo, **hijo de Germán Lazcano**, que abusó de su madre (hermana del Dr. López) y la calló con la primera versión del Serenol: ella es **la Mojiganga**; él creció en una familia de Santa Mugre creyéndose huérfano. Toda la tragedia sale del rechazo de ella a Germán. Reemplaza "sin nombre fijo" y "sin historia" de 1.5 | lore §0, §3, §6, §15, §16, §19; personajes §1, §2, §3, §6 |
 
 **Sigue pendiente:** 2.4 (los tres motivos, 💡 en lore §18), 3.1 (los secretos repetidos), 3.2 (resuelto: Gerardo sabe y filtra). Y un detalle que salió después: en `docs/items.md` el **Botiquín del Simi** también lleva una marca real (lore §18).
 

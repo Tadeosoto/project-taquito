@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+
+[sub_resource type="Resource" id="paso_defender"]
+script = ExtResource("2_paso")
+tipo = 6
+cuando = 1
+texto = "Cuida a Sofía mientras sube la antena"
+lugar = "casas"
+cuantos = 2
+segundos = 20.0
+acompanante = "mujer_05"
+vida_acompanante = 80
+ola_cada = 8.0
+
+[resource]
+script = ExtResource("1_mision")
+id = "antena_noche"
+nombre = "La antena de Sofía"
+modelo = "mujer_psx"
+oferta = "Voy a subir una antena de noche. ¿Me cuida el pie de la torre un rato?"
+aceptada = "Cuando oscurezca, vamos. Hará ruido y vendrán. No me deje sola."
+recuerda = "De noche, y no se me despegue de la torre."
+despedida = "La antena quedó. Ya se oye mi radio más lejos."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_defender")])
+pesos = 120

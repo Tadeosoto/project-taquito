@@ -3,7 +3,7 @@ extends Node
 # Autoload `Noches`: la noche sin fin (docs/especificaciones.md 1.2). Ya no hay partida de 3
 # noches: el juego no se acaba y esto lleva la cuenta. Es autoload porque Partida, Zombis y
 # Ciclo son nodos de cada escena y arrancan de cero al cruzar una reja (PasoColonia) o al ir a
-# la arena de un jefe (PasoArena); la cuenta tiene que seguir.
+# una pelea de jefe (PasoJefe); la cuenta tiene que seguir.
 #
 # - `noche`: cuantas noches han caido. Desmayarte NO la reinicia (como Dark Souls).
 # - `record`: la mejor noche sobrevivida, en user://noches.cfg (la pantalla de inicio la dice).

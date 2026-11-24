@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("1_tazo")
 id = "nocturno"
-nombre = "El Nocturno"
+nombre = "El Machetes"
 numero = 36
 serie = 2
 rareza = 2

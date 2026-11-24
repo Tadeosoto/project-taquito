@@ -252,7 +252,7 @@ func _ready() -> void:
 
 func cambiar() -> void:
 	activa = not activa
-	Sonidos.tocar(self, "boton", -6.0)
+	Sonidos.tocar(self, "boton", -9.0)
 
 
 func disparar() -> void:
@@ -298,9 +298,9 @@ func disparar() -> void:
 		var pego := espacio.intersect_ray(rayo)
 		var punto: Vector3 = pego.position if pego else origen + hacia * alcance
 		# Un zombi o un Saltabardas (no es Zombie, pero contesta igual a recibir_golpe). La Mojiganga
-		# (Catrina) y sus flores y nudo (PuntoDebil) tambien
+		# (Catrina) y sus flores y nudo (PuntoDebil) tambien, y los cuicos (Cuico)
 		var blanco: Node3D = pego.collider if pego and (pego.collider is Zombie or pego.collider is Saltabardas or pego.collider is Panzon \
-			or pego.collider is Catrina or pego.collider is PuntoDebil) else null
+			or pego.collider is Catrina or pego.collider is PuntoDebil or pego.collider is Cuico) else null
 		# Lombrices (EnjambreLombrices): no tienen colliders, se les pregunta aparte. Si un punto
 		# esta mas cerca que la pared o el zombi, el tiro es suyo
 		var lombriz := EnjambreLombrices.rayo(get_tree(), origen, hacia, origen.distance_to(punto), RADIO_LOMBRIZ)
@@ -332,13 +332,13 @@ func disparar() -> void:
 				blanco.frenar(float(lento.factor), int(lento.ms))
 			sacude = maxf(SACUDE_PEGA, sacude)
 			if not pego_alguno:
-				Sonidos.tocar(self, "whack", -4.0 if cabeza else -10.0)
+				Sonidos.tocar(self, "impacto_bala_zombi", -3.0, randf_range(0.92, 1.08))
 			pego_alguno = true
 		if not lombriz.is_empty():
 			lombriz.enjambre.bullet_hit(lombriz.dot_index, lombriz.position, hacia)
 			sacude = maxf(SACUDE_PEGA, sacude)
 			if not pego_alguno:
-				Sonidos.tocar(self, "whack", -10.0)
+				Sonidos.tocar(self, "squelch", -10.0)
 			pego_alguno = true
 		_dibujar_tiro(punto)
 		if efectos:
@@ -346,7 +346,9 @@ func disparar() -> void:
 			if pego and blanco == null and lombriz.is_empty():
 				efectos.lanzar("bala", punto - Vector3.UP * BALA_IMPACTO_ALTO, hacia)
 			# El Panzon y el Saltabardas son grandes: su impacto va donde pego la bala, no en un punto fijo del cuerpo
-			elif blanco is Panzon or blanco is Saltabardas:
+			elif blanco is Panzon:
+				efectos.lanzar("panzon_impacto", punto, hacia)   # sangra Serenol azul
+			elif blanco is Saltabardas:
 				efectos.lanzar("impacto", punto, hacia)
 	if pego_alguno:
 		aciertos += 1
@@ -356,7 +358,7 @@ func disparar() -> void:
 	_fogonazo_tiro(mira, efectos)
 	if not _sonido("tiro", -4.0, randf_range(TONO_MIN, TONO_MAX)):
 		var balazo := "disparo_pistola" if Sonidos.sonido("disparo_pistola") else "disparo_%d" % randi_range(1, DISPAROS)
-		Sonidos.tocar(self, balazo, -4.0, randf_range(TONO_MIN, TONO_MAX) * d.tono)
+		Sonidos.tocar(self, balazo, -10.0, randf_range(TONO_MIN, TONO_MAX) * d.tono)  # -6 dB = mitad: sonaba muy fuerte (JJ)
 	jugador._sacude_fuerza = sacude
 	jugador._sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	jugador.pose_tiro()

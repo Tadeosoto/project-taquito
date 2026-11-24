@@ -359,7 +359,7 @@ func recibir_golpe(dano: int, desde: Vector3, fuerza := 1.0, _truena_en := 80, c
 	# El balazo pinta su impacto donde pego (Pistola.disparar); aqui solo el machete
 	if cuerpo_a_cuerpo and zombis and zombis.get("efectos"):
 		zombis.efectos.lanzar("impacto", global_position + Vector3.UP * 0.6, (global_position - desde).normalized())
-	Sonidos.tocar(self, "whack", -8.0)
+	Sonidos.tocar(self, "whack", -11.0)   # 2 dB sobre el whack del jugador (mezcla 2026-11-17)
 	if _vida <= 0:
 		_morir(true)
 		return 2

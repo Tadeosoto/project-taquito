@@ -120,6 +120,10 @@ func _ready() -> void:
 	_jugador = $Player
 	_zombis = $Zombis
 	_salud = get_node_or_null("/root/Salud")
+	# Pasos, latido y respiracion del jugador, como en el mapa (Partida): los sonidos son globales
+	var cuerpo := SonidosJugador.new()
+	cuerpo.name = "SonidosJugador"
+	add_child(cuerpo)
 	# Siempre de noche y sin amanecer: la pelea no tiene reloj
 	var ciclo := $Ciclo as Ciclo
 	ciclo.retener_noche = true
@@ -626,7 +630,7 @@ func _empezar() -> void:
 		_catrina.queue_free()
 	_catrina = Catrina.new()
 	# Mas aguante en sus repeticiones de la noche sin fin (Noches.fuerza_jefe)
-	_catrina.aguante = PasoArena.fuerza if PasoArena.desde_mapa else 1.0
+	_catrina.aguante = Noches.fuerza_jefe() if PasoJefe.desde_juego else 1.0
 	_catrina.jugador = _jugador as Player
 	_catrina.zombis = _zombis
 	_catrina.position = CATRINA_EN
@@ -695,7 +699,11 @@ func _gano_pelea() -> void:
 	create_tween().tween_property(_musica, "volume_db", -60.0, 4.0)
 	var texto := "¡La Mojiganga cayó!"
 	var inventario := get_node_or_null("/root/Inventory")
-	for ruta: String in [FEMUR, CORONA]:
+	# Llegaste por tu cuenta (EntradaJefe, sin mision): nadie te paga esto
+	var premios: Array = [FEMUR, CORONA] if PasoJefe.hay_premio() else []
+	if premios.is_empty():
+		texto += "\nNadie te encargó esto: no hay quien te pague."
+	for ruta: String in premios:
 		var cosa: InventoryItemData = load(ruta)
 		if inventario and inventario.add_item(cosa):
 			texto += "\n+ %s" % cosa.item_name
@@ -706,11 +714,10 @@ func _gano_pelea() -> void:
 			add_child(objeto)
 			objeto.global_position = _jugador.global_position + Vector3(randf_range(-1.0, 1.0), -0.6, -1.5)
 			texto += "\n%s (en el piso)" % cosa.item_name
-	if PasoArena.desde_mapa:
-		# De regreso al mapa, junto a la flecha, con la misma noche (lo del piso se queda aqui)
-		_avisar(texto, 4.0)
-		await get_tree().create_timer(4.5).timeout
-		PasoArena.volver(get_tree(), false)
+	if PasoJefe.desde_juego:
+		_avisar(texto, 6.0)
+		await get_tree().create_timer(6.0).timeout
+		PasoJefe.volver(self, true)
 		return
 	_avisar(texto + "\n( , otra vez )", 10.0)
 
@@ -727,10 +734,10 @@ func _process(delta: float) -> void:
 	_adornos(delta)
 	_letrero.text = "vida %d · %d FPS" % [_salud.vida if _salud else 0, Engine.get_frames_per_second()]
 	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0 and _bot < 0.0:
-		if PasoArena.desde_mapa:
-			# Desmayo de verdad: al mapa, y tus cosas en una bolsa junto a la flecha
+		# Desde una mision (PasoJefe) te saca al mapa; como prueba suelta, reinicia
+		if PasoJefe.desde_juego:
 			_reiniciando = true
-			PasoArena.volver(get_tree(), true)
+			PasoJefe.volver(self, false)
 		else:
 			_reiniciar_pelea()
 	if _medir > 0.0:
@@ -742,8 +749,8 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# La pelea de verdad (desde el mapa) no se reinicia con la tecla de prueba
-	if PasoArena.desde_mapa:
+	# La pelea de verdad (desde el mapa, PasoJefe) no se reinicia con la tecla de prueba
+	if PasoJefe.desde_juego:
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_COMMA and not _reiniciando:
 		_reiniciar_pelea()
