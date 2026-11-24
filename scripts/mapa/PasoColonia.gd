@@ -52,6 +52,10 @@ static func ir_a(desde: Node, escena: String, por: String) -> void:
 	arbol.change_scene_to_file(escena)
 	for i in ESPERA_FRAMES:
 		await arbol.process_frame
+	# La partida se guarda al cruzar (Guardado), ya en la escena nueva
+	var guardado := arbol.root.get_node_or_null("Guardado")
+	if guardado:
+		guardado.guardar()
 	var sale := capa.create_tween()
 	sale.tween_property(negro, "modulate:a", 0.0, FUNDIDO)
 	await sale.finished

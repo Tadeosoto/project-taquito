@@ -101,7 +101,7 @@ func nueva_carrera() -> void:
 		tazos.cambio.emit()
 	var salud := get_node_or_null("/root/Salud")
 	if salud:
-		salud.reiniciar()
+		salud.llenar()
 	var registro := get_node_or_null("/root/Registro")
 	if registro:
 		registro.sesion(carpeta, "carrera")
@@ -197,7 +197,7 @@ func cerrar() -> void:
 		cartera.reiniciar()
 	var salud := get_node_or_null("/root/Salud")
 	if salud:
-		salud.reiniciar()
+		salud.llenar()
 	cambio.emit()
 
 

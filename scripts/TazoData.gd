@@ -10,7 +10,7 @@ enum Rareza { COMUN, RARO, HOLO }
 const RAREZAS := ["Común", "Raro", "Holográfico"]
 const COLORES_RAREZA := [Color(0.75, 0.75, 0.72), Color(0.35, 0.65, 1.0), Color(1.0, 0.85, 0.1)]
 const SERIES := ["La colonia", "La noche", "Los vecinos", "GelA"]
-const TEXTO_PUNTOS := ["1 punto por cada 3 nuevos", "1 punto", "2 puntos"]
+const TEXTO_PUNTOS := ["1 punto por cada 2 nuevos", "1 punto", "2 puntos"]
 
 
 static func texto_puntos(rareza: int) -> String:

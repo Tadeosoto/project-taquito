@@ -38,6 +38,12 @@ const LISTA := {
 		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 1, 2], "bloqueada": false },
 	"alcance": { "nombre": "Brazo largo", "descripcion": "Tu golpe llega más lejos: +10 % por nivel.",
 		"categoria": Categoria.CUERPO, "niveles": 3, "costo": [1, 1, 1], "bloqueada": false },
+	# Los dos ataques de JJ que antes daban las Mejoras (2026-11-23: los tazos son la unica
+	# progresion). Partida prende Player.golpe_cargado / giro_aereo con estas. Costos first guess
+	"tajo_cargado": { "nombre": "Tajo cargado", "descripcion": "Deja apretado pegar con el machete: el arma sube, brilla y al soltar cae un tajo pesado.",
+		"categoria": Categoria.CUERPO, "niveles": 1, "costo": [2], "bloqueada": true },
+	"giro_aereo": { "nombre": "Giro en el aire", "descripcion": "Pega en el aire con el machete: un espadazo giratorio que pega en redondo al caer.",
+		"categoria": Categoria.CUERPO, "niveles": 1, "costo": [2], "bloqueada": true },
 	"segundo_aire": { "nombre": "Segundo aire", "descripcion": "Una vez por noche, en vez de desmayarte te levantas con 30 % de vida.",
 		"categoria": Categoria.SOBREVIVIR, "niveles": 1, "costo": [3], "bloqueada": true },
 	"buen_diente": { "nombre": "Buen diente", "descripcion": "La comida y las medicinas te curan más: +25 % por nivel.",
@@ -110,6 +116,8 @@ static func efecto_texto(id: String, nivel: int, base: Dictionary) -> String:
 			if base.has("alcance"):
 				return "Alcance: %.2f m" % (base["alcance"] * (1.0 + nivel * ALCANCE_POR_NIVEL))
 			return "Alcance: +%d %%" % roundi(nivel * ALCANCE_POR_NIVEL * 100.0)
+		"tajo_cargado", "giro_aereo":
+			return "Prendida" if nivel > 0 else "Apagada"
 		"segundo_aire":
 			return "Te levantas con %d %% de vida" % roundi(SEGUNDO_AIRE_VIDA * 100.0) if nivel > 0 else "Apagada"
 		"buen_diente":

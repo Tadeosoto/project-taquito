@@ -88,18 +88,22 @@ func _ready() -> void:
 	# Los ataques especiales de golpe-direccion, como en la safehouse y la defensa (JJ): tajo cargado,
 	# giro aereo (y la estocada en el aire con Shift) y la estela del protagonista. Les pegan a las
 	# crias y a la Madre (Player los manda al grupo "lombrices"). Se apagan en _exit_tree
-	Player.golpe_cargado = true
-	Player.giro_aereo = true
-	get_node("/root/Personaje").mejora_estela = true
+	# Llegando del mapa (PasoArena, la noche 10 en adelante) es la pelea de verdad: sin nada de
+	# esto, con lo que traes y los ataques que te dieron los tazos (Partida)
+	var de_prueba := not PasoArena.desde_mapa
+	if de_prueba:
+		Player.golpe_cargado = true
+		Player.giro_aereo = true
+		get_node("/root/Personaje").mejora_estela = true
 	_jugador.aplicar_personaje()
 	# Curas infinitas para probar (JJ): con al menos un botiquin, Q cura sin gastarlo
-	INVENTARIO.curas_infinitas = true
+	INVENTARIO.curas_infinitas = de_prueba
 	var inventario := get_node_or_null("/root/Inventory")
-	if inventario and inventario.curaciones() == 0:
+	if de_prueba and inventario and inventario.curaciones() == 0:
 		inventario.add_item(load("res://resources/productos/botiquin.tres"))
 	# Sal y molotov desde el principio, infinitas (JJ): con una de cada en el inventario basta
-	Lanzador.infinitos = true
-	for ruta: String in [SAL, MOLOTOV]:
+	Lanzador.infinitos = de_prueba
+	for ruta: String in [SAL, MOLOTOV] if de_prueba else []:
 		var cosa := load(ruta) as InventoryItemData
 		if inventario and _jugador.get_node("Lanzador").cuantos(cosa.arrojar) == 0 and not inventario.add_item(cosa):
 			push_warning("Lombrices: no cupo %s en el inventario" % cosa.item_name)
@@ -204,6 +208,8 @@ func _empezar() -> void:
 		_madre.alberca = CarcamoNivel.ALBERCA
 		_madre.barandal = CarcamoNivel.BARANDAL
 		_madre.barandal_a = CarcamoNivel.BARANDAL_ALBERCA
+		# Mas aguante en sus repeticiones de la noche sin fin (Noches.fuerza_jefe)
+		_madre.aguante = PasoArena.fuerza if PasoArena.desde_mapa else 1.0
 		add_child(_madre)
 		_madre.muerta.connect(_gano_pelea)
 		_madre.saco_reventado.connect(func(q: int) -> void:
@@ -257,6 +263,12 @@ func _gano_pelea() -> void:
 	var inventario := get_node_or_null("/root/Inventory")
 	if inventario and inventario.add_item(load(DIENTE)):
 		texto += " · Diente de la Madre"
+	if PasoArena.desde_mapa:
+		# De regreso al mapa, junto a la flecha, con la misma noche
+		_avisar(texto, 4.0)
+		await get_tree().create_timer(4.5).timeout
+		PasoArena.volver(get_tree(), false)
+		return
 	_avisar(texto + "\n( , otra vez )", 10.0)
 
 
@@ -338,7 +350,12 @@ func _process(delta: float) -> void:
 	if inmortal and _salud and _salud.vida < _salud.vida_max:
 		_salud.vida = _salud.vida_max
 	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0:
-		_reiniciar_pelea()
+		if PasoArena.desde_mapa:
+			# Desmayo de verdad: al mapa, y tus cosas en una bolsa junto a la flecha
+			_reiniciando = true
+			PasoArena.volver(get_tree(), true)
+		else:
+			_reiniciar_pelea()
 	if _medir > 0.0:
 		_seguir_medida(delta)
 
@@ -356,6 +373,9 @@ func _exit_tree() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# La pelea de verdad (desde el mapa) no tiene teclas de prueba
+	if PasoArena.desde_mapa:
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F3:
 		_perfil = not _perfil
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_F4:

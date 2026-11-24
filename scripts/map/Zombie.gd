@@ -33,7 +33,7 @@ const ALTO_VARIA := Vector2(0.94, 1.06)
 const CLIPS_SKIN := {
 	"idle": "h/Zombie_Idle", "camina": "h/Zombie_Walk_Fwd", "run": "h/Jog_Fwd", "sprint": "h/Sprint",
 	"attack1": "h/Zombie_Scratch", "attack2": "h/Zombie_Scratch", "hit": "h/Hit_Chest", "die": "h/Death01",
-	"trueno": "h/Hit_Head", "aturdido": "h/Crying",
+	"trueno": "h/Hit_Head", "aturdido": "h/Crying", "bebe": "h/Drink",
 }
 const BUCLES_SKIN := ["h/Zombie_Idle", "h/Zombie_Walk_Fwd", "h/Jog_Fwd", "h/Sprint"]
 # m/s a los que cada clip se ve a su velocidad, para que no patinen (como Gente.PASO)
@@ -48,6 +48,14 @@ const DEAMBULA_VEL := 0.8   # m/s
 const DEAMBULA_LEJOS := Vector2(3.0, 8.0)   # m
 const DEAMBULA_ESPERA := Vector2(1.0, 4.0)  # s parado
 const DEAMBULA_GIRA := 3.0  # m/s por segundo
+# Los que cuidan la bolsa de tu desmayo (GuardiaBolsa.gd): deambulan sin alejarse de `ancla`
+const ANCLA_RADIO := 4.0    # m (first guess)
+# El lider de esos: mas grande, con mas vida y tu bolsa en la espalda (first guess)
+const LIDER_TAMANO := 1.2
+const LIDER_VIDA := 3.0
+const LIDER_MOCHILA := preload("res://resources/productos/mochila_escolar.tres")
+const LIDER_MOCHILA_TAMANO := 0.45
+const LIDER_MOCHILA_EN := Vector3(0.0, -0.02, -0.2)   # m del pecho, hacia la espalda
 # Te detectan (JJ): te ven a VE_DESDE si estas al frente y nada tapa, te oyen a OYE_DESDE aunque
 # esten de espaldas, y un balazo los despierta a OYE_DISPARO (ruido(); para eso la ballesta,
 # que no hace ruido). El que se alerta avisa a los que tiene a CONTAGIA
@@ -261,6 +269,12 @@ var _fuego: MeshInstance3D
 var emboscada := false      # de las emboscadas de la defensa (Hordas.gd): va por el jugador, no por el tinaco
 var por_jugador := false    # se paso del cupo del tinaco (Zombis.cupo_tinaco): va por el jugador
 var despierto := false
+# GuardiaBolsa.gd: cuida tu bolsa (Zombis no lo quita por lejos) y deambula junto a `ancla`
+var guardia := false
+var ancla := Vector3.INF
+# El lider de los guardias: se pone antes de add_child (no sale de la reserva, como el jefe)
+var lider := false
+var _bebiendo := 0.0
 var alerta := true          # ya te detecto: corre hacia su blanco. Sin ella, deambula
 var infectado := false      # trae una lombriz encima (EnjambreLombrices): corre mas y te caza
 
@@ -335,6 +349,8 @@ func _ready() -> void:
 			_material_jefe = ShaderMaterial.new()
 			_material_jefe.shader = JEFE_SHADER
 			_material_jefe.set_shader_parameter("tint", JEFE_COLOR)
+	elif lider:
+		tamano = LIDER_TAMANO
 	_gemido = randf_range(RUGIDO_CADA.x * 0.3, RUGIDO_CADA.y)
 	_lado = 1.0 if randf() < 0.5 else -1.0
 	var forma := CollisionShape3D.new()
@@ -373,6 +389,8 @@ func _ready() -> void:
 	_voz.unit_size = RUGIDO_UNIDAD
 	add_child(_voz)
 	_armar_barra()
+	if lider:
+		_poner_mochila()
 	if not es_jefe:
 		_rabia = EfectosPixel.cuadro_bucle("rabia", RABIA_ESCALA * tamano)
 		if _rabia:
@@ -568,6 +586,9 @@ func despertar(lugar: Vector3, con_prisa: bool) -> void:
 	despierto = true
 	infectado = false
 	cazador = con_prisa
+	guardia = false
+	ancla = Vector3.INF
+	_bebiendo = 0.0
 	emboscada = false
 	por_jugador = false
 	if _rabia:
@@ -668,6 +689,56 @@ func poner_variante(cual: String) -> void:
 		_vida = roundi(VIDA * VARIANTES[variante]["vida"])
 	for malla in _mallas:
 		malla.material_override = material
+
+
+# El lider de la bolsa se toma un trago (GuardiaBolsa.gd). Solo deambulando: si ya te vio, no
+func beber(dura: float) -> bool:
+	if alerta or estado != Estado.CAMINA or not despierto:
+		return false
+	_bebiendo = dura
+	_deambula_espera = 0.0
+	return true
+
+
+# Se le olvida el jugador y regresa a deambular (junto a su `ancla`, los guardias de la bolsa)
+func calmar() -> void:
+	if estado == Estado.MUERTO or not despierto:
+		return
+	alerta = false
+	cazador = false
+	if _rabia:
+		_rabia.visible = false
+	_deambula_a = Vector3.INF
+	_deambula_espera = 0.0
+	_rumbo = Vector3.ZERO
+
+
+# Tu bolsa amarrada a la espalda del lider, pegada al pecho del esqueleto (por clase: CLAUDE.md)
+func _poner_mochila() -> void:
+	var mochila: Node3D = LIDER_MOCHILA.crear_modelo(LIDER_MOCHILA_TAMANO)
+	if mochila == null or _modelo == null:
+		return
+	var esqueletos := _modelo.find_children("*", "Skeleton3D", true, false)
+	var esqueleto := esqueletos[0] as Skeleton3D if not esqueletos.is_empty() else null
+	var hueso := ""
+	if esqueleto:
+		for nombre: String in ["Chest", "Spine2", "Spine1", "Spine", "UpperChest"]:
+			if esqueleto.find_bone(nombre) >= 0:
+				hueso = nombre
+				break
+	if hueso == "":
+		# Sin esqueleto conocido: en la espalda del cuerpo, a la altura del pecho
+		mochila.position = Vector3(0.0, PECHO * _tamano, -RADIO * _tamano)
+		add_child(mochila)
+		return
+	var pegado := BoneAttachment3D.new()
+	pegado.bone_name = hueso
+	esqueleto.add_child(pegado)
+	# El esqueleto va escalado con el modelo: se deshace para que la mochila mida lo mismo
+	mochila.scale = Vector3.ONE / maxf(_escala, 0.001)
+	mochila.position = LIDER_MOCHILA_EN / maxf(_escala, 0.001)
+	mochila.rotation.y = PI / 2.0
+	pegado.add_child(mochila)
 
 
 # Prendido por la antorcha de thinner (InventoryItemData.quema): pierde vida unos segundos con
@@ -775,6 +846,12 @@ func _deambular(delta: float) -> Vector3:
 	if _tick % TICKS_DETECTA == 0 and _detecta():
 		alertar()
 		return Vector3.ZERO
+	# El lider de la bolsa tomandose tu agua (GuardiaBolsa.gd, `beber`)
+	if _bebiendo > 0.0:
+		_bebiendo -= delta
+		_animar("bebe", 1.0)
+		_rumbo = Vector3.ZERO
+		return Vector3.ZERO
 	if _deambula_espera > 0.0:
 		_deambula_espera -= delta
 		_animar("idle", 1.0)
@@ -786,7 +863,11 @@ func _deambular(delta: float) -> Vector3:
 	if _deambula_a == Vector3.INF or hacia.length() < 0.6 or _atorado > ATORADO_EN:
 		_atorado = 0.0
 		var angulo := randf() * TAU
-		_deambula_a = global_position + Vector3(sin(angulo), 0.0, cos(angulo)) * randf_range(DEAMBULA_LEJOS.x, DEAMBULA_LEJOS.y)
+		if ancla != Vector3.INF:
+			# Los guardias de la bolsa no se alejan de ella
+			_deambula_a = ancla + Vector3(sin(angulo), 0.0, cos(angulo)) * randf_range(0.8, ANCLA_RADIO)
+		else:
+			_deambula_a = global_position + Vector3(sin(angulo), 0.0, cos(angulo)) * randf_range(DEAMBULA_LEJOS.x, DEAMBULA_LEJOS.y)
 		if hacia.length() < 0.6 or _rumbo != Vector3.ZERO:
 			_deambula_espera = randf_range(DEAMBULA_ESPERA.x, DEAMBULA_ESPERA.y)
 			_rumbo = Vector3.ZERO
@@ -1468,6 +1549,8 @@ func _vida_max() -> int:
 		return int(_conf_num(c, "jefe_vida", JEFE_VIDA))
 	if tipo == Tipo.GORDO:
 		return int(_conf_num(c, "gordo_vida", GORDO_VIDA))
+	if lider:
+		return roundi(_conf_num(c, "vida", VIDA) * LIDER_VIDA)
 	return int(_conf_num(c, "vida", VIDA))
 
 

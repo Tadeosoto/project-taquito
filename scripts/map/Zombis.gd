@@ -108,6 +108,9 @@ var _saltabardas_en := INF
 var salieron_noche := 0
 var muertos_noche := 0
 var turbas_noche := 0
+# La noche sin fin (autoload Noches, si hay): las turbas crecen y los hitos traen cosas
+var _noches: Node
+var _panzon_pendiente := false
 
 
 func _ready() -> void:
@@ -123,6 +126,7 @@ func _ready() -> void:
 	efectos = EfectosPixel.new()
 	add_child(efectos)
 	_salud = get_node("/root/Salud")
+	_noches = get_node_or_null("/root/Noches")
 	_vida_antes = _salud.vida
 	_salud.cambio.connect(_cambio_vida)
 	_ciclo.anochecio.connect(_anochecio)
@@ -147,14 +151,20 @@ func _ready() -> void:
 
 
 func _anochecio() -> void:
-	noches += 1
+	# La cuenta de la noche sin fin (Noches) si hay: Partida la sube despues de esto, salvo si es
+	# la misma noche que siguio de otra escena (Ciclo.noche_continuada)
+	if _noches:
+		noches = _noches.noche + (0 if _ciclo.noche_continuada else 1)
+	else:
+		noches += 1
 	director.reiniciar()
 	_turba_pendiente = 0
 	salieron_noche = 0
 	muertos_noche = 0
 	turbas_noche = 0
 	_noche_t = 0.0
-	_saltabardas_en = randf_range(SALTABARDAS_PRIMERO.x, SALTABARDAS_PRIMERO.y)
+	_panzon_pendiente = false
+	_saltabardas_en = randf_range(SALTABARDAS_PRIMERO.x, SALTABARDAS_PRIMERO.y) * _factor_saltabardas()
 	if ritmo:
 		_siguiente_grupo = ritmo.calma_inicial
 		_horas_turbas = ritmo.horas_turbas(_ciclo.noche_duracion)
@@ -296,9 +306,10 @@ func _physics_process(delta: float) -> void:
 		return
 	if not _ciclo.es_noche() or not _jugador.can_process() or not _jugador.is_physics_processing():
 		return
-	var turba := director.avanzar(delta, _atacado(), _jugador.velocity.length() > MOVIENDOSE, noches)
+	var turba := director.avanzar(delta, _atacado(), _jugador.velocity.length() > MOVIENDOSE, noches, factor_turba())
 	if turba > 0 and turbas and ritmo == null:
 		aparecer_turba(turba)
+	_revisar_panzon()
 	if _turba_pendiente > 0:
 		_sacar_de_turba()
 	_revisar_saltabardas(delta)
@@ -321,24 +332,28 @@ func _seguir_ritmo(delta: float) -> void:
 	if not _horas_turbas.is_empty() and _noche_t >= _horas_turbas[0] and _turba_pendiente == 0:
 		_horas_turbas.pop_front()
 		turbas_noche += 1
-		aparecer_turba(randi_range(ritmo.turba.x, ritmo.turba.y))
+		aparecer_turba(roundi(randi_range(ritmo.turba.x, ritmo.turba.y) * factor_turba()))
 	if _noche_t < _siguiente_grupo:
 		return
 	if ritmo.respetar_director and not director.puede_sueltos():
 		return
 	var p := _jugador.global_position
 	var deterioro := Deterioro.relativo(p.x, p.z)
-	var caben := mini(ritmo.vivos_max(deterioro) - _sueltos(), max_total - _vivos())
+	var caben := mini(roundi(ritmo.vivos_max(deterioro) * factor_turba()) - _sueltos(), max_total - _vivos())
 	if caben <= 0:
 		_siguiente_grupo = _noche_t + ENTRE_ZOMBIS
 		return
 	# Del mismo lado, juntitos
 	var lado := randf() * TAU
 	var salio := 0
+	# Desde el hito de los Saltabardas (Noches) unos grupitos salen de cazadores
+	var de_cazadores: bool = _hay_hito(HitoNoche.Tipo.SALTABARDAS_SEGUIDO) and randf() < _noches.tabla.cazadores_sueltos
 	for i in mini(randi_range(ritmo.grupo.x, ritmo.grupo.y), caben):
 		var lugar := _lugar_libre(p, lado)
 		if lugar != Vector3.INF:
-			sacar(lugar, false)
+			var zombi := sacar(lugar, de_cazadores)
+			if de_cazadores:
+				zombi.alertar(false)
 			salio += 1
 	# Ese lado se veia o no habia calle: otro intento pronto
 	_siguiente_grupo = _noche_t + (ritmo.cada(deterioro, noches) if salio > 0 else 1.0)
@@ -356,6 +371,35 @@ func aparecer_turba(cuantos: int) -> void:
 	_turba_angulo = randf() * TAU
 	if _turba_pendiente > 0:
 		turba_cerca.emit()
+		# Desde el hito del Panzon (Noches) a veces viene uno con la turba
+		var panzon_libre := get_tree().get_first_node_in_group("panzon") == null
+		if panzon_libre and _hay_hito(HitoNoche.Tipo.PANZON_EN_TURBAS) and randf() < _noches.tabla.panzon_en_turba:
+			_panzon_pendiente = true
+
+
+# Lo que crecen las turbas esta noche (Noches.factor_turba); 1 sin la noche sin fin
+func factor_turba() -> float:
+	return _noches.factor_turba() if _noches else 1.0
+
+
+func _hay_hito(tipo: int) -> bool:
+	return _noches != null and _noches.hay(tipo)
+
+
+func _factor_saltabardas() -> float:
+	return _noches.tabla.saltabardas_factor if _hay_hito(HitoNoche.Tipo.SALTABARDAS_SEGUIDO) else 1.0
+
+
+# El Panzon de la turba sale del lado de la turba, en cuanto haya lugar
+func _revisar_panzon() -> void:
+	if not _panzon_pendiente:
+		return
+	var lugar := _lugar_libre(_jugador.global_position, _turba_angulo)
+	if lugar == Vector3.INF:
+		return
+	_panzon_pendiente = false
+	aparecer_panzon(lugar)
+	print("Noche %d: el Panzon viene con la turba" % noches)
 
 
 func _sacar_de_turba() -> void:
@@ -434,7 +478,7 @@ func _revisar_saltabardas(delta: float) -> void:
 	_saltabardas_en -= delta
 	if _saltabardas_en > 0.0:
 		return
-	_saltabardas_en = randf_range(SALTABARDAS_CADA.x, SALTABARDAS_CADA.y)
+	_saltabardas_en = randf_range(SALTABARDAS_CADA.x, SALTABARDAS_CADA.y) * _factor_saltabardas()
 	if get_tree().get_first_node_in_group("saltabardas") != null:
 		return
 	var lugar := _lugar_libre(_jugador.global_position)
@@ -537,7 +581,8 @@ func _encima_de_otro(punto: Vector3, separado: float) -> bool:
 
 func _quitar_lejanos() -> void:
 	for z: Zombie in Zombie.activos.duplicate():
-		if not z.es_jefe and z.global_position.distance_to(_jugador.global_position) > lejos:
+		# Los guardias de la bolsa los quita GuardiaBolsa.gd, que se acuerda de cuantos quedan
+		if not z.es_jefe and not z.guardia and z.global_position.distance_to(_jugador.global_position) > lejos:
 			_devolver(z)
 
 
@@ -551,8 +596,13 @@ func _amanecer() -> void:
 		print("Noche %d: salieron %d, mataste %d, turbas %d" % [noches, salieron_noche, muertos_noche, turbas_noche])
 
 
+# Lo regresa a la reserva sin matarlo (GuardiaBolsa.gd, al alejarte de la bolsa)
+func devolver(zombi: Zombie) -> void:
+	_devolver(zombi)
+
+
 func _devolver(zombi: Zombie) -> void:
-	if zombi.es_jefe:
+	if zombi.es_jefe or zombi.lider:
 		zombi.queue_free()
 		return
 	if not zombi.despierto:

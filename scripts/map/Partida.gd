@@ -1,25 +1,32 @@
 class_name Partida
 extends CanvasLayer
 
-# Una partida (docs/especificaciones.md 1.2): aguantar NOCHES noches. La ultima sale el
-# garrafonero y no amanece hasta matarlo. Con Refugio (el safehouse) se defiende su tinaco y
-# se pierde si lo tumban; sin el (map_test, mientras la defensa del tinaco llega al mapa) no
-# hay derrota y el jefe sale cerca de ti. Morir no la termina (Supervivencia.gd). En coop la
-# lleva el servidor.
+# La partida sin fin (docs/especificaciones.md 1.2): ya no hay 3 noches ni pantalla final, el
+# juego no se acaba. La cuenta de noches, el record y los hitos los lleva el autoload Noches
+# (sobrevive a cambiar de escena); aqui se dicen y se arma lo de cada noche:
+#   - Al amanecer "Sobreviviste la noche N" y, si fue la noche de un hito, su tazo holografico.
+#   - En la noche del garrafonero (la 3 y sus repeticiones) sale cerca de ti; ya no detiene la
+#     noche: si no lo matas, cae al amanecer con todos.
+#   - Las flechas a las arenas de los jefes (EntradaJefe) y tu bolsa del desmayo (GuardiaBolsa).
+# Con Refugio (el safehouse) se defiende su tinaco; si lo tumban ya no se pierde: se avisa y se
+# repara al amanecer. Morir no la termina ni reinicia la noche (Supervivencia.gd). Guarda la
+# partida al amanecer (Guardado). En coop la lleva el servidor.
 
-const NOCHES := 3
 const JEFE_CERCA := 70.0     # Zombis.LEJOS: mas lejos puede no estar cargado el mapa ahi
 const JEFE_REINTENTO := 1.0
-const TEXTO_PERDISTE := "Tumbaron el tinaco.\nSe acabó el agua."
-const TEXTO_GANASTE := "%s mató al garrafonero.\nAmaneció y sigue habiendo agua."
-const TEXTO_OTRA := "Espacio: otra vez"
+const TEXTO_TUMBARON := "Tumbaron el tinaco. Se arregla al amanecer."
 const TEXTO_JEFE := "¡Ahí viene el garrafonero!"
+const TEXTO_JEFE_MUERTO := "%s mató al garrafonero."
+const TEXTO_JEFE_SE_FUE := "El garrafonero se fue con la luz."
+const TEXTO_JEFE_SUELTO := "Esta noche anda suelto un jefe. Búscalo en el mapa."
+const TEXTO_HITO := "Premio de la noche %d"
 const TEXTO_PIEZA := "Pedazo de mapa: %s"
 const TEXTO_ZONA := "Entrando a: %s"
 const ZONA_CADA := 0.5
-const GANAR_ESPERA := 1.3    # s de reloj real entre matar al jefe y la pantalla final
 const PIEZA_FRENTE := 3.0    # m frente a la fachada
 const PIEZA_POSTE := 1.5     # m junto al poste
+# Cada tantas noches las casas saqueadas de los vecinos (Baul.saqueadas) se vuelven a llenar (first guess)
+const SAQUEO_CADA := 7
 # Bolsas especiales de Takis escondidas (Tazos.gd): en estas zonas, junto a donde va su pieza
 const BOLSAS_ZONAS := [1, 3, 5, 7]
 const BOLSA_LADO := Vector2(4.0, 0.0)  # m de la pieza, para que no se encimen
@@ -36,7 +43,7 @@ const PLANOS_EN_OBRAS := ["lanza_varilla", "bate_cobalto"]
 @export_file("*.json") var casas_json := "res://resources/map/casas_mapa.json"
 const MAP_CASAS := preload("res://scripts/map/MapCasas.gd")   # sin class_name: su es_obra_negra es estatica
 # Para ajustar RitmoNoche jugando. Ya no da punto de habilidad: los puntos solo salen de tazos nuevos (Tazos.gd)
-const TEXTO_NOCHE := "Noche %d: salieron %d zombis, mataste %d (turbas: %d)"
+const TEXTO_NOCHE := "Salieron %d zombis, mataste %d (turbas: %d)"
 @export_file("*.json") var puntos_json := "res://resources/map/puntos_mapa.json"
 @export_file("*.json") var postes_json := "res://resources/map/alumbrado_mapa.json"
 
@@ -47,7 +54,19 @@ var misiones_config := {}
 @export var supervivencia_path: NodePath
 # Vacio: sin refugio (ver arriba)
 @export var refugio_path: NodePath
+# Las flechas a las arenas de los jefes (EntradaJefe), en coordenadas de map_test. Lugares de
+# primera propuesta (needs review): el carcamo en el baldio sur junto a La Gigantera, cerca de
+# donde iria la fortaleza GelA, y la Mojiganga en la cancha grande (no hay plaza de la Catrina
+# medida todavia). Apagadas en las otras escenas
+@export var entradas_jefes := false
+@export var entrada_madre := Vector3(-300.0, 0.0, 630.0)
+@export var entrada_mojiganga := Vector3(-244.0, 0.0, -721.0)
+# El tajo cargado y el giro en el aire (de JJ, Player.golpe_cargado / giro_aereo) se prenden con
+# sus habilidades de tazo (Habilidades "tajo_cargado", "giro_aereo"). El safehouse lo apaga: ahi
+# los prende siempre, con sus teclas 6 y 7
+@export var habilidades_de_tazos := true
 
+# La noche que va (la lleva Noches; esta copia es para quien la leia de aqui)
 var noche := 0
 
 var _zombis: Zombis
@@ -55,30 +74,39 @@ var _supervivencia: Node
 var _refugio: Refugio
 var _ciclo: Node
 var _jugador: Player
+var _noches: Node
 var _jefe_pendiente := false
 var _espera_jefe := 0.0
-var _ganando := false
+var _tinaco_caido := false
 var _zona_actual := -1
 var _espera_zona := 0.0
-var _terminada := false
 var _estado: Label
-var _final: Control
-var _final_texto: Label
+var _guardia_bolsa: GuardiaBolsa
 
 
 func _ready() -> void:
 	layer = 9
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group("partida")
+	_noches = get_node("/root/Noches")
+	noche = _noches.noche
 	_zombis = get_node(zombis_path) as Zombis
 	_supervivencia = get_node(supervivencia_path)
 	_refugio = get_node_or_null(refugio_path) as Refugio if not refugio_path.is_empty() else null
 	_ciclo = get_tree().get_first_node_in_group("ciclo")
 	_jugador = get_tree().get_first_node_in_group("jugador") as Player
+	# Llegando de la arena de un jefe o de Continuar (PasoArena): donde estabas. Supervivencia ya
+	# tomo donde empieza la escena como punto de regreso; ese se queda
+	var llegada: Variant = PasoArena.tomar_llegada()
+	if llegada is Transform3D:
+		_jugador.global_transform = llegada
+		_jugador.velocity = Vector3.ZERO
 	# Sin refugio regresas a donde empezaste (Supervivencia ya lo tiene)
 	if _refugio:
 		_supervivencia.punto_regreso = _refugio.punto_regreso()
-		_refugio.cayo.connect(_perder)
+		_refugio.cayo.connect(_tumbaron)
 		_refugio.aviso.connect(_supervivencia.avisar)
+		_refugio.noche = noche
 	_ciclo.anochecio.connect(_anochecio)
 	_ciclo.amanecio.connect(_amanecio)
 	_armar_pantalla()
@@ -95,14 +123,86 @@ func _ready() -> void:
 		_poner_chatarra()
 		_poner_obras()
 	_poner_misiones()
+	if entradas_jefes:
+		_poner_entrada(HitoNoche.Tipo.MADRE_CARCAMO, "La Madre del Cárcamo", entrada_madre)
+		_poner_entrada(HitoNoche.Tipo.MOJIGANGA, "La Mojiganga", entrada_mojiganga)
+	if habilidades_de_tazos:
+		Tazos.cambio.connect(_aplicar_habilidades)
+		_aplicar_habilidades()
+	_guardia_bolsa = GuardiaBolsa.new()
+	_guardia_bolsa.name = "GuardiaBolsa"
+	_guardia_bolsa.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(_guardia_bolsa)
+	# Se llego de noche (Continuar, regreso de una arena): que el jefe de esta noche salga igual
+	if _ciclo.es_noche() and _noches.jefe_de() == HitoNoche.Tipo.GARRAFONERO:
+		_jefe_pendiente = true
 
 
-# Ya no da puntos por noche: solo los tazos nuevos (Tazos.gd), para que el album completo
-# cuadre con el arbol de habilidades. Solo el resumen de la noche (RitmoNoche)
+# Los tazos son la unica progresion (2026-11-23): las Mejoras ya solo estan en las pruebas
+func _aplicar_habilidades() -> void:
+	Player.golpe_cargado = Tazos.tiene("tajo_cargado")
+	Player.giro_aereo = Tazos.tiene("giro_aereo")
+
+
+func _exit_tree() -> void:
+	if habilidades_de_tazos and Tazos.cambio.is_connected(_aplicar_habilidades):
+		Tazos.cambio.disconnect(_aplicar_habilidades)
+
+
+func _poner_entrada(tipo: HitoNoche.Tipo, texto: String, donde: Vector3) -> EntradaJefe:
+	var entrada := EntradaJefe.new()
+	entrada.tipo = tipo
+	entrada.texto = texto
+	entrada.name = "Entrada%d" % tipo
+	entrada.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(entrada)
+	entrada.global_position = donde
+	return entrada
+
+
+# Prueba del safehouse: tu bolsa con guardias aqui mismo
+func soltar_bolsa_aqui() -> void:
+	_guardia_bolsa.soltar_aqui()
+
+
+# Prueba del safehouse: la flecha a la arena de un jefe frente a ti, abierta siempre
+func entrada_aqui(tipo: HitoNoche.Tipo, donde: Vector3) -> void:
+	var nombre := "La Madre del Cárcamo" if tipo == HitoNoche.Tipo.MADRE_CARCAMO else "La Mojiganga"
+	var entrada := _poner_entrada(tipo, nombre, donde)
+	entrada.siempre = true
+
+
+# "Sobreviviste la noche N" con el resumen (RitmoNoche), el record (Noches) y, si fue la noche
+# de un hito, su tazo. Ya no da puntos por noche: solo los tazos nuevos (Tazos.gd). Guarda
 func _amanecio() -> void:
+	_jefe_pendiente = false
+	if _refugio and _tinaco_caido:
+		_tinaco_caido = false
+		_refugio.reiniciar()
+		_refugio.noche = noche
 	if noche <= 0:
 		return
-	_supervivencia.avisar(TEXTO_NOCHE % [noche, _zombis.salieron_noche, _zombis.muertos_noche, _zombis.turbas_noche])
+	_supervivencia.avisar("%s\n%s" % [_noches.texto_sobreviviste(), TEXTO_NOCHE % [_zombis.salieron_noche, _zombis.muertos_noche, _zombis.turbas_noche]])
+	var hito: HitoNoche = _noches.amanecio()
+	if hito:
+		_premio(hito)
+	var guardado := get_node_or_null("/root/Guardado")
+	if guardado:
+		guardado.guardar.call_deferred()
+
+
+# El tazo holografico del hito, con su show (como el nino de los tazos), en pausa
+func _premio(hito: HitoNoche) -> void:
+	var tazo: TazoData = _noches.dar_premio(hito)
+	if tazo == null:
+		return
+	await get_tree().create_timer(2.0).timeout
+	var arbol := get_tree()
+	arbol.paused = true
+	var show := TazoRevelacion.abrir(arbol.root, tazo, false, get_node("/root/Tazos").ultima_serie)
+	await show.termino
+	arbol.paused = false
+	_supervivencia.avisar(TEXTO_HITO % hito.noche)
 
 
 # Unas bolsas especiales tiradas, con su haz (WorldItem): junto a donde va la pieza de su
@@ -172,7 +272,7 @@ func _poner_obras() -> void:
 func _poner_misiones() -> void:
 	var mundo := MisionesMundo.new()
 	mundo.name = "MisionesMundo"
-	# Partida corre siempre, por su pantalla final; esto no debe seguir en la pausa
+	# Partida corre siempre, por su HUD; esto no debe seguir en la pausa
 	mundo.process_mode = Node.PROCESS_MODE_PAUSABLE
 	mundo.puntos_path = puntos_json
 	mundo.casas_path = casas_json
@@ -232,23 +332,46 @@ func _lugares_de_piezas() -> Dictionary:
 
 
 func _anochecio() -> void:
-	noche += 1
+	# Se llego de otra escena a media noche: es la misma noche, no se cuenta otra vez
+	if _ciclo.get("noche_continuada"):
+		_ciclo.noche_continuada = false
+		if _refugio:
+			_refugio.noche = noche
+		return
+	_noches.anochecio()
+	noche = _noches.noche
 	get_node("/root/Tazos").nueva_noche()
 	if _refugio:
 		_refugio.noche = noche
-	if noche >= NOCHES:
-		_ciclo.retener_noche = true
+	if noche % SAQUEO_CADA == 0:
+		get_node("/root/Baul").saqueadas.clear()
+	var hito: HitoNoche = _noches.hito_de(noche)
+	if hito and hito.texto != "":
+		_avisar_luego(hito.texto)
+	var jefe: int = _noches.jefe_de()
+	if jefe == HitoNoche.Tipo.GARRAFONERO:
 		_jefe_pendiente = true
+	elif jefe >= 0 and not hito:
+		# Repeticion de la Madre o la Mojiganga: su flecha ya esta abierta, solo se avisa
+		_avisar_luego(TEXTO_JEFE_SUELTO)
+
+
+# Despues del "Ya salieron." de Supervivencia, para que no lo tape
+func _avisar_luego(texto: String) -> void:
+	await get_tree().create_timer(4.5).timeout
+	_supervivencia.avisar(texto)
 
 
 func _process(delta: float) -> void:
-	# El reloj (Ciclo.hora) y en que dia o noche vas
-	var cual := "Noche %d/%d" % [noche, NOCHES] if _ciclo.es_noche() else "Día %d" % (noche + 1)
+	# El reloj (Ciclo.hora) y en que dia o noche vas; el record si ya hay
+	var cual := "Noche %d" % noche if _ciclo.es_noche() else "Día %d" % (noche + 1)
 	_estado.text = "%s · %s" % [Ciclo.texto_hora(_ciclo.hora()), cual]
+	if _noches.record > 0:
+		_estado.text += " · Récord %d" % _noches.record
 	if _refugio:
 		_estado.text += " · Tinaco %d/%d" % [_refugio.vida, Refugio.TINACO_VIDA]
 	_revisar_zona(delta)
-	if not _jefe_pendiente or _terminada or get_tree().paused:
+	if not _jefe_pendiente or get_tree().paused or not _ciclo.es_noche():
 		return
 	_espera_jefe -= delta
 	if _espera_jefe > 0.0:
@@ -260,7 +383,11 @@ func _process(delta: float) -> void:
 	var jefe := _zombis.aparecer_jefe(centro)
 	if jefe:
 		_jefe_pendiente = false
-		jefe.murio.connect(_ganar)
+		# Mas vida en sus repeticiones (Noches.fuerza_jefe)
+		var fuerza: float = _noches.fuerza_jefe()
+		if fuerza > 1.0:
+			jefe.set("_vida", roundi(int(jefe.get("_vida")) * fuerza))
+		jefe.murio.connect(_jefe_murio)
 		_supervivencia.avisar(TEXTO_JEFE)
 
 
@@ -278,51 +405,27 @@ func _revisar_zona(delta: float) -> void:
 		_supervivencia.avisar(TEXTO_ZONA % ZonasMapa.nombre(zona))
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if _terminada and event.is_action_pressed("jump"):
-		get_viewport().set_input_as_handled()
-		_otra_vez()
+# Ya no termina nada: se dice y sigue la noche. Al amanecer cae solo (Zombis._amanecer): eso es
+# que se fue
+func _jefe_murio() -> void:
+	if _ciclo.es_noche():
+		_supervivencia.avisar(TEXTO_JEFE_MUERTO % Personaje.nombre)
+	else:
+		_supervivencia.avisar(TEXTO_JEFE_SE_FUE)
 
 
-func _ganar() -> void:
-	if _terminada:
-		return
-	_ciclo.amanecer_ya()
-	# Que se vea tronar al garrafonero antes de pausar. Nada lo puede cambiar en este rato
-	_ganando = true
-	await get_tree().create_timer(GANAR_ESPERA, true, false, true).timeout
-	_terminar(TEXTO_GANASTE % Personaje.nombre)
+# Antes perdias la partida; ahora se avisa y el tinaco se arregla al amanecer (first guess)
+func _tumbaron() -> void:
+	_tinaco_caido = true
+	_supervivencia.avisar(TEXTO_TUMBARON)
 
 
-func _perder() -> void:
-	if not _terminada and not _ganando:
-		_terminar(TEXTO_PERDISTE)
-
-
-func _terminar(texto: String) -> void:
-	_terminada = true
-	_jugador.detener()
-	_final_texto.text = "%s\n\n%s" % [texto, TEXTO_OTRA]
-	_final.visible = true
-	get_tree().paused = true
-
-
-# Todo desde cero: los autoloads no se recargan con la escena
-func _otra_vez() -> void:
-	Engine.time_scale = 1.0
-	# Taller no: el rango, los planos y la vitrina se quedan entre partidas
-	for autoload in ["Inventory", "Salud", "Cartera", "PiezasMapa", "Misiones", "Tazos", "Tiliches", "Bonos", "Baul", "Fichas"]:
-		get_node("/root/" + autoload).reiniciar()
-	get_tree().paused = false
-	get_tree().reload_current_scene()
-
-
-# Las teclas de prueba del safehouse
+# Las teclas de prueba del safehouse: la cuenta de noches vuelve a cero (el record no)
 func reiniciar() -> void:
-	_ganando = false
+	_noches.noche = 0
 	noche = 0
 	_jefe_pendiente = false
-	_terminada = false
+	_tinaco_caido = false
 	_ciclo.retener_noche = false
 	if _refugio:
 		_refugio.reiniciar()
@@ -340,15 +443,3 @@ func _armar_pantalla() -> void:
 	_estado.add_theme_color_override("font_outline_color", Color.BLACK)
 	_estado.add_theme_constant_override("outline_size", 4)
 	add_child(_estado)
-	var fondo := ColorRect.new()
-	fondo.color = Color(0.0, 0.0, 0.0, 0.85)
-	fondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	fondo.visible = false
-	add_child(fondo)
-	_final = fondo
-	_final_texto = Label.new()
-	_final_texto.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_final_texto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_final_texto.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_final_texto.add_theme_font_size_override("font_size", 22)
-	fondo.add_child(_final_texto)

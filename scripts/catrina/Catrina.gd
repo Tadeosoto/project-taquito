@@ -225,6 +225,9 @@ var humedad := {Parte.FALDA: 1.0, Parte.BLUSA: 1.0, Parte.CABEZA: 1.0}
 var cuenta := {}               # lo que paso, para -- --medir
 
 var _vida := VIDA
+# Las repeticiones de la noche sin fin la traen mas dura (PasoArena.fuerza): el dano se divide
+# entre esto, que es como multiplicarle la vida
+var aguante := 1.0
 var _siguiente := ""           # el ataque que sigue sin volver a caminar (combo)
 var _retraso := 0.0            # s de amago en el ataque que va
 var _recupera := false         # ya paso lo peligroso del ataque: las flores quedan al descubierto
@@ -1802,6 +1805,8 @@ func golpe_punto(id: String, dano: int, desde: Vector3, cuerpo_a_cuerpo: bool) -
 func _herir(dano: int, desde: Vector3, cuerpo_a_cuerpo: bool, fuego := false) -> int:
 	if estado == Estado.TRANSICION or estado == Estado.MUERTA:
 		return 0
+	if aguante != 1.0:
+		dano = maxi(roundi(dano / aguante), 1)
 	var mult := pow(QUEMADA_MULT, _quemadas)
 	if estado == Estado.POSE or estado == Estado.ZAFADA:
 		mult *= ABIERTA_MULT

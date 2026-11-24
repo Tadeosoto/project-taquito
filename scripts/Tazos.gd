@@ -21,7 +21,9 @@ const CARPETA := "res://resources/tazos/"
 # Que tan seguido sale cada rareza en una bolsa (comun, raro, holo)
 const PESOS_RAREZA := [65, 28, 7]
 const PUNTOS_INICIO := 0
-const COMUNES_POR_PUNTO := 3   # comunes nuevos por cada punto
+# Comunes nuevos por cada punto. Era 3; con 2 el album completo da 4 puntos mas, lo que cuestan
+# el Tajo cargado y el Giro en el aire (2026-11-23, first guess)
+const COMUNES_POR_PUNTO := 2
 const REPETIDOS_POR_CAMBIO := 3  # repetidos de una rareza que pide el nino por uno que te falte
 
 var todos: Array[TazoData] = []

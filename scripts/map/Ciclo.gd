@@ -29,6 +29,9 @@ signal amanecio
 @export var fondo_color := Color(0.09, 0.1, 0.16)
 
 var retener_noche := false
+# La escena empezo ya de noche con la hora que trajo de otra (PasoColonia, PasoArena, Continuar):
+# el primer `anochecio` es la misma noche que sigue, no una nueva (Partida no la cuenta)
+var noche_continuada := false
 var _sol: DirectionalLight3D
 var _env: Environment
 var _dia := {}
@@ -56,6 +59,7 @@ func _ready() -> void:
 	var traida := PasoColonia.tomar_hora()
 	if traida >= 0.0:
 		_tiempo = traida * (dia_duracion + noche_duracion)
+		noche_continuada = valor() >= 0.5
 	_aplicar(valor())
 
 

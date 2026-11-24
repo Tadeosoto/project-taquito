@@ -1,15 +1,21 @@
 extends Node3D
 
 # Lo que traias cuando caiste (docs/especificaciones.md 1.5): se queda donde caiste hasta
-# que vuelvas por ello. La crea Supervivencia.gd, que quita la anterior si caes otra vez.
+# que vuelvas por ello. Lo que hay adentro vive en Noches.bolsa (sobrevive a cambiar de escena
+# y al guardado); esta es solo la que se ve tirada en el piso, y la pone GuardiaBolsa.gd: de
+# dia, o de noche ya muerto el lider que la carga. Caer otra vez antes de recogerla la pierde.
 # Se recoge como un WorldItem; si no te cabe todo, lo demas se queda en la bolsa.
 
 const MODELO := preload("res://resources/productos/mochila_escolar.tres")
 const TAMANO := 0.8
 const RADIO := 1.8
 
+## Al recoger: lo que quedo adentro (vacio = ya no hay bolsa)
+signal recogida(quedan: Array[InventoryItemData])
+
 var items: Array[InventoryItemData] = []
 
+var marca_color := Color(1.0, 0.85, 0.1)   # el minimapa la marca (MapMinimapa)
 var _player_inside := false
 var _aviso: Label3D
 
@@ -17,6 +23,7 @@ var _aviso: Label3D
 func _ready() -> void:
 	add_to_group("interactuable")
 	add_to_group("bolsa_muerte")
+	add_to_group("marca_minimapa")
 	var modelo: Node3D = MODELO.crear_modelo(TAMANO)
 	if modelo:
 		modelo.position.y = TAMANO / 2.0
@@ -64,6 +71,7 @@ func interact() -> void:
 		if not inventario.add_item(item):
 			sobran.append(item)
 	items = sobran
+	recogida.emit(items)
 	if items.is_empty():
 		queue_free()
 	else:

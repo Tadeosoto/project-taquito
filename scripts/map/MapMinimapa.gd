@@ -172,6 +172,20 @@ func _dibujar_zombis(centro: Vector2, limite: float) -> void:
 			_marcas.draw_circle(centro + p, 1.6, ZOMBI_COLOR)
 
 
+# Lo que se marca solo (grupo "marca_minimapa", con `marca_color`): la flecha a la arena de un
+# jefe (EntradaJefe) y tu bolsa del desmayo (GuardiaBolsa). Lejos, se queda en la orilla
+func _dibujar_grupo(centro: Vector2, limite: float) -> void:
+	for nodo in get_tree().get_nodes_in_group("marca_minimapa"):
+		if not (nodo is Node3D) or not nodo.is_visible_in_tree():
+			continue
+		var p := _a_pantalla(Vector2(nodo.global_position.x, nodo.global_position.z))
+		if p.length() > limite:
+			p = p.normalized() * limite
+		var color: Color = nodo.get("marca_color") if nodo.get("marca_color") != null else OBJETIVO_COLOR
+		_marcas.draw_circle(centro + p, 4.0, NEGRO)
+		_marcas.draw_circle(centro + p, 2.8, color)
+
+
 func _dibujar_marcas() -> void:
 	var centro := Vector2(tamano, tamano) / 2.0
 	var limite := tamano / 2.0 - 6.0
@@ -183,6 +197,7 @@ func _dibujar_marcas() -> void:
 
 	_dibujar_objetivo(centro, limite)
 	_dibujar_zombis(centro, limite)
+	_dibujar_grupo(centro, limite)
 	# Flecha del jugador (al centro, salvo con centro_fijo)
 	var donde := centro
 	if centro_fijo:

@@ -118,6 +118,12 @@ Shift+Z cajitas de botín y monedas enfrente
 Yonke a la izquierda (V adentro: vitrina) · niño de los tazos junto
 Shift+K rango · Ctrl+L trofeos y planos · Shift+Y olvidar el taller
 Chatarra junto al pedazo de mapa · L en el inventario: libreta"""},
+	{"titulo": "Noches sin fin", "efectos": false, "texto": """Ctrl+H ir a la víspera del siguiente hito (luego N)
+Ctrl+O el tazo holo del siguiente hito, con su show
+Ctrl+Y tirar tu bolsa enfrente (de noche: lider y guardias)
+Ctrl+X flecha a la Madre · Ctrl+Shift+X a la Mojiganga
+Ctrl+G guardar · Ctrl+Shift+G cargar lo guardado
+6 / 7 giro y tajo (en el mapa los dan los tazos)"""},
 ]
 const PANEL_ANCHO := 380.0     # px de 640: deja libre la mira y al personaje
 const LOMBRICES_ENFRENTE := 8.0
@@ -250,6 +256,7 @@ func _ready() -> void:
 	_partida.supervivencia_path = get_node("Supervivencia").get_path()
 	_partida.refugio_path = _refugio.get_path()
 	_partida.piezas_en_el_mapa = false
+	_partida.habilidades_de_tazos = false
 	# Uno por mision (Misiones.ARCHIVOS) y el ultimo para el nino de los tazos
 	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(10.0, 0.0, 2.0), Vector3(16.0, 0.0, 2.0), Vector3(22.0, 0.0, 2.0), Vector3(28.0, 0.0, 2.0), Vector3(-30.0, 0.0, 10.0)]
 	_partida.misiones_config = {"puntos_path": PUNTOS_JSON, "casas_path": CASAS_JSON, "vecinos_fijos": vecinos, "perro_fijo": Vector3(38.0, 0.0, 20.0)}
@@ -578,6 +585,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	# En una tienda, en una maquinita o volando estas teclas son de ellos
 	if not (_jugador.can_process() and _jugador.is_physics_processing()):
 		return
+	if event.ctrl_pressed and _tecla_noches(tecla, event.shift_pressed):
+		get_viewport().set_input_as_handled()
+		return
 	match tecla:
 		KEY_Z when event.shift_pressed:
 			# Una cajita de cada color y monedas, enfrente (CajaBotin.gd)
@@ -725,6 +735,56 @@ func _unhandled_input(event: InputEvent) -> void:
 		_:
 			return
 	get_viewport().set_input_as_handled()
+
+
+# Las teclas de la noche sin fin (con Ctrl; pagina "Noches sin fin"). Regresa si la uso
+func _tecla_noches(tecla: int, shift: bool) -> bool:
+	var noches := get_node("/root/Noches")
+	var frente := -_jugador.frijol.global_transform.basis.z
+	frente.y = 0.0
+	frente = frente.normalized()
+	match tecla:
+		KEY_H:
+			# La noche antes del siguiente hito: la N lleva a esa noche
+			for hito: HitoNoche in noches.tabla.hitos:
+				if hito.noche > noches.noche + 1:
+					noches.noche = hito.noche - 1
+					_partida.noche = noches.noche
+					print("Safehouse: noche %d, el siguiente anochecer es el hito de la %d" % [noches.noche, hito.noche])
+					return true
+			noches.noche += 1
+			_partida.noche = noches.noche
+		KEY_O:
+			for hito: HitoNoche in noches.tabla.hitos:
+				if not noches.hitos_dados.has(hito.noche):
+					noches.hitos_dados[hito.noche] = true
+					var tazo: TazoData = noches.dar_premio(hito)
+					if tazo:
+						_revelar_tazo(tazo)
+					return true
+		KEY_Y:
+			_partida.soltar_bolsa_aqui()
+		KEY_X:
+			var tipo := HitoNoche.Tipo.MOJIGANGA if shift else HitoNoche.Tipo.MADRE_CARCAMO
+			_partida.entrada_aqui(tipo, _jugador.global_position + frente * 6.0 + Vector3.DOWN)
+		KEY_G:
+			var guardado := get_node("/root/Guardado")
+			if shift:
+				var escena: String = guardado.cargar()
+				if escena != "":
+					get_tree().change_scene_to_file(escena)
+			else:
+				print("Safehouse: guardado %s" % guardado.guardar(true))
+		_:
+			return false
+	return true
+
+
+func _revelar_tazo(tazo: TazoData) -> void:
+	get_tree().paused = true
+	var show := TazoRevelacion.abrir(get_tree().root, tazo, false, Tazos.ultima_serie)
+	await show.termino
+	get_tree().paused = false
 
 
 # La misma pantalla de Jugar, con el juego en pausa; al cerrarla ya eres el nuevo

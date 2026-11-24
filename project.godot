@@ -33,6 +33,8 @@ Fichas="*res://scripts/sotano/Fichas.gd"
 Pruebas="*res://scripts/Pruebas.gd"
 Mejoras="*res://scripts/Mejoras.gd"
 Registro="*res://scripts/Registro.gd"
+Noches="*res://scripts/Noches.gd"
+Guardado="*res://scripts/Guardado.gd"
 ModoAlta="*res://scripts/ModoAlta.gd"
 
 [display]

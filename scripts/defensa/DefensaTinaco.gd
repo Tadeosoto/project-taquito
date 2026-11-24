@@ -409,7 +409,7 @@ func _aplicar_godmode() -> void:
 		inventario.dar_todos_los_productos()
 	var salud := get_node_or_null("/root/Salud")
 	if salud:
-		salud.reiniciar()
+		salud.llenar()
 
 
 # La carrera: solo aplica lo comprado en el refugio; no reinicia el catalogo.

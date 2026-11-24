@@ -3,9 +3,10 @@ extends CanvasLayer
 # Lo que se siente del peligro: la barra de vida arriba a la izquierda (tambien se ve en el
 # inventario), flash rojo al recibir un golpe, orillas rojas con poca vida, el aviso del
 # atardecer y desmayarse. Al llegar a 0 de vida: tus objetos se quedan en una bolsa donde caiste
-# (BolsaMuerte.gd; el dinero y la mochila puesta no), pantalla negra y reapareces en
-# `punto_regreso` con algo de vida (el refugio, lo pone Partida.gd). Propuesta de
-# docs/especificaciones.md 1.5.
+# (Noches.bolsa, que GuardiaBolsa.gd pone en el mundo: de noche la carga un zombi lider; el
+# dinero y la mochila puesta no), pantalla negra y reapareces en `punto_regreso` con algo de
+# vida (el refugio, lo pone Partida.gd). La noche NO se reinicia (como Dark Souls). Las
+# estampitas usadas (Bonos) se acaban al desmayarte. Propuesta de docs/especificaciones.md 1.5.
 
 const VIDA_AL_DESPERTAR := 50
 const FUNDIDO := 1.0
@@ -58,7 +59,6 @@ var punto_regreso: Transform3D
 # Si esta puesto, desmayarse acaba la mision (la defensa del tinaco): se apaga la tele, se
 # queda en negro y se llama esto en vez de reaparecer. Sin bolsa: no hay a donde regresar
 var desmayo_final: Callable
-var _bolsa: Node3D
 var _ciclo: Ciclo
 var _impacto: ColorRect
 var _impacto_material: ShaderMaterial
@@ -317,20 +317,23 @@ func _apagar() -> void:
 		await tween.finished
 
 
-# Sin nada encima no hay bolsa nueva, y la que dejaste sigue ahi
+# Sin nada encima no hay bolsa nueva, y la que dejaste sigue ahi. Con algo, la nueva reemplaza
+# a la vieja (se pierde con todo). Las estampitas usadas se acaban aqui (first guess)
 func _soltar_bolsa() -> void:
+	var bonos := get_node_or_null("/root/Bonos")
+	if bonos:
+		for k in bonos.estampitas:
+			bonos.estampitas[k] = 0
+		bonos.cambio.emit()
 	var inventario := get_node("/root/Inventory")
 	if inventario.items.is_empty():
 		return
-	if is_instance_valid(_bolsa):
-		_bolsa.queue_free()
-	_bolsa = load("res://scripts/map/BolsaMuerte.gd").new()
-	# Uno por unidad: al recogerlos se vuelven a apilar
-	_bolsa.items = inventario.unidades()
+	var noches := get_node_or_null("/root/Noches")
+	if noches == null:
+		return
+	# Uno por unidad: al recogerlos se vuelven a apilar. El origen del jugador esta a 1 m del piso
+	noches.nueva_bolsa(inventario.unidades(), _jugador.global_position + Vector3.DOWN, get_tree().current_scene.scene_file_path)
 	inventario.vaciar()
-	get_parent().add_child(_bolsa)
-	# El origen del jugador esta a 1 m del piso
-	_bolsa.global_position = _jugador.global_position + Vector3.DOWN
 
 
 func avisar(texto: String) -> void:

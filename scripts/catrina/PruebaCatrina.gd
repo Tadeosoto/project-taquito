@@ -625,6 +625,8 @@ func _empezar() -> void:
 		_catrina.quitar_cabeza_caida()
 		_catrina.queue_free()
 	_catrina = Catrina.new()
+	# Mas aguante en sus repeticiones de la noche sin fin (Noches.fuerza_jefe)
+	_catrina.aguante = PasoArena.fuerza if PasoArena.desde_mapa else 1.0
 	_catrina.jugador = _jugador as Player
 	_catrina.zombis = _zombis
 	_catrina.position = CATRINA_EN
@@ -704,6 +706,12 @@ func _gano_pelea() -> void:
 			add_child(objeto)
 			objeto.global_position = _jugador.global_position + Vector3(randf_range(-1.0, 1.0), -0.6, -1.5)
 			texto += "\n%s (en el piso)" % cosa.item_name
+	if PasoArena.desde_mapa:
+		# De regreso al mapa, junto a la flecha, con la misma noche (lo del piso se queda aqui)
+		_avisar(texto, 4.0)
+		await get_tree().create_timer(4.5).timeout
+		PasoArena.volver(get_tree(), false)
+		return
 	_avisar(texto + "\n( , otra vez )", 10.0)
 
 
@@ -719,7 +727,12 @@ func _process(delta: float) -> void:
 	_adornos(delta)
 	_letrero.text = "vida %d · %d FPS" % [_salud.vida if _salud else 0, Engine.get_frames_per_second()]
 	if _salud and _salud.vida <= 0 and not _reiniciando and not _gano and _medir < 0.0 and _bot < 0.0:
-		_reiniciar_pelea()
+		if PasoArena.desde_mapa:
+			# Desmayo de verdad: al mapa, y tus cosas en una bolsa junto a la flecha
+			_reiniciando = true
+			PasoArena.volver(get_tree(), true)
+		else:
+			_reiniciar_pelea()
 	if _medir > 0.0:
 		_seguir_medida(delta)
 	if _bot > 0.0:
@@ -729,6 +742,9 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# La pelea de verdad (desde el mapa) no se reinicia con la tecla de prueba
+	if PasoArena.desde_mapa:
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_COMMA and not _reiniciando:
 		_reiniciar_pelea()
 

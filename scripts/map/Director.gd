@@ -64,7 +64,9 @@ func puede_sueltos() -> bool:
 
 
 # Avanza; regresa cuantos zombis debe traer una turba ahora (0 casi siempre)
-func avanzar(delta: float, atacado: bool, moviendose: bool, noche: int) -> int:
+# `crece`: lo que crecen las turbas esta noche (Noches.factor_turba, ~15 % por noche); 1 sin
+# la noche sin fin, y entonces crecen de a TURBA_POR_NOCHE como antes
+func avanzar(delta: float, atacado: bool, moviendose: bool, noche: int, crece := 1.0) -> int:
 	if not atacado:
 		intensidad = maxf(intensidad - BAJA_POR_SEGUNDO * delta, 0.0)
 	match fase:
@@ -75,6 +77,8 @@ func avanzar(delta: float, atacado: bool, moviendose: bool, noche: int) -> int:
 			_turba_en -= delta
 			if _turba_en <= 0.0:
 				_turba_en = randf_range(TURBA_CADA.x, TURBA_CADA.y)
+				if crece != 1.0:
+					return roundi((TURBA_BASE + TURBA_POR_NOCHE + randi_range(0, TURBA_AZAR)) * crece)
 				return TURBA_BASE + maxi(noche, 1) * TURBA_POR_NOCHE + randi_range(0, TURBA_AZAR)
 		Fase.SOSTENER:
 			_tiempo -= delta

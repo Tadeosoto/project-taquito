@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="TablaHitos" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/TablaHitos.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/HitoNoche.gd" id="2"]
+
+[sub_resource type="Resource" id="h3"]
+script = ExtResource("2")
+noche = 3
+tipo = 0
+tazo_id = "jefe"
+texto = "Dicen que el garrafonero anda suelto esta noche."
+
+[sub_resource type="Resource" id="h5"]
+script = ExtResource("2")
+noche = 5
+tipo = 1
+tazo_id = ""
+texto = "Se oyen bardas crujir. Esta noche cazan."
+
+[sub_resource type="Resource" id="h7"]
+script = ExtResource("2")
+noche = 7
+tipo = 2
+tazo_id = "luna_roja"
+texto = "Algo grande viene con las turbas."
+
+[sub_resource type="Resource" id="h10"]
+script = ExtResource("2")
+noche = 10
+tipo = 3
+tazo_id = ""
+texto = "El cárcamo hierve. La Madre despertó."
+
+[sub_resource type="Resource" id="h15"]
+script = ExtResource("2")
+noche = 15
+tipo = 4
+tazo_id = ""
+texto = "La Mojiganga salió a desfilar."
+
+[resource]
+script = ExtResource("1")
+hitos = Array[ExtResource("2")]([SubResource("h3"), SubResource("h5"), SubResource("h7"), SubResource("h10"), SubResource("h15")])
+crecer_turbas = 1.15
+repetir_cada = 3
+repetir_fuerza = 1.25
+saltabardas_factor = 0.6
+cazadores_sueltos = 0.25
+panzon_en_turba = 0.35
+tazos_excluidos = Array[String](["tinaco_eterno"])

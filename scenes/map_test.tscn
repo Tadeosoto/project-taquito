@@ -376,6 +376,7 @@ zombis_path = NodePath("../Zombis")
 script = ExtResource("partida_gd")
 zombis_path = NodePath("../Zombis")
 supervivencia_path = NodePath("../Supervivencia")
+entradas_jefes = true
 
 [node name="Gente" type="Node3D" parent="."]
 script = ExtResource("gente_gd")

@@ -12,6 +12,6 @@ numero = 12
 serie = 0
 rareza = 2
 puntos = 2
-desbloquea = ""
+desbloquea = "tajo_cargado"
 cara = ExtResource("2_cara")
 silueta = ExtResource("3_silueta")

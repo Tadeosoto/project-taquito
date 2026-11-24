@@ -115,6 +115,9 @@ var links := PackedByteArray()
 var vivos := PackedByteArray()
 var modo := PackedByteArray()
 var meta := PackedVector3Array()
+# Las repeticiones de la noche sin fin la traen mas dura (PasoArena.fuerza): el dano se divide
+# entre esto, que es como multiplicarle la vida a cada saco
+var aguante := 1.0
 var sacos := PackedFloat32Array()
 var cuenta := {"mordidas": 0, "barridos": 0, "vomitos": 0, "escupidas": 0, "aturdidas": 0, "zambullidas": 0, "saltos": 0}
 # Estas parado arriba (mezzanine, rampa): no sale entera, se zambulle si estaba afuera y sus sacos
@@ -744,7 +747,7 @@ func _siguiente_saco() -> int:
 func _herir(n: int, dano: float, hacia := Vector3.UP, chorro := true) -> void:
 	if sacos[n] <= 0.0:
 		return
-	sacos[n] -= dano
+	sacos[n] -= dano / maxf(aguante, 0.01)
 	_nota("pelear")
 	var donde := _saco(n)
 	if chorro:

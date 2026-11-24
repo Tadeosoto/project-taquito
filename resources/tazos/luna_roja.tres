@@ -12,6 +12,6 @@ numero = 23
 serie = 1
 rareza = 2
 puntos = 2
-desbloquea = ""
+desbloquea = "giro_aereo"
 cara = ExtResource("2_cara")
 silueta = ExtResource("3_silueta")

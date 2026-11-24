@@ -51,6 +51,8 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	# GuardiaBolsa.gd: adentro de la colonia amurallada no salen guardias
+	add_to_group("muro_colonia")
 	_material_muro = _material(color)
 	_material_fierro = _material(color_fierro)
 	_material_lamina = _material(color_lamina)
@@ -232,3 +234,8 @@ func _flecha_de_entrada(lado: String) -> void:
 		if cuerpo is Player:
 			PasoColonia.ir_a(self, PasoColonia.MAPA_COLONIA, lado))
 	add_child(area)
+
+
+## Si el punto (x, z del mundo) esta adentro del muro
+func adentro(punto: Vector3) -> bool:
+	return rect.has_point(Vector2(punto.x, punto.z))

@@ -4,6 +4,9 @@ extends Node3D
 # zombi en la niebla) con el menu encima. Jugar carga el mapa en otro hilo con "Cargando..."
 # en pantalla; Controles y Creditos son pantallas aqui mismo. Se mueve con flechas, control
 # o mouse. Pantalla de 640x480.
+# Con partida guardada (Guardado) sale Continuar (carga la escena donde ibas) y Jugar se vuelve
+# Partida nueva, que pide confirmar y borra lo guardado. Abajo del titulo, el record de noches
+# (Noches.record).
 
 const MAPA := "res://scenes/map_test.tscn"
 const CREDITOS := "res://CREDITS.md"
@@ -16,6 +19,10 @@ const TITULO := "GUADALAJAJA"
 const SUBTITULO := "No te tomes el agua."
 const FIRMA := "Vibe coded with love"
 const OPCIONES := ["Jugar", "Menú test", "Pruebas", "Controles", "Créditos", "Salir"]
+const CONTINUAR := "Continuar"
+const NUEVA := "Partida nueva"
+const NUEVA_CONFIRMA := "¿Borrar la guardada? (otra vez)"
+const TEXTO_RECORD := "Récord: %d noches"
 const TEXTO_CARGANDO := "Cargando..."
 const TEXTO_VOLVER := "Esc: volver"
 const TEXTO_CONTROLES := """Moverse:  WASD o flechas  ·  stick izquierdo
@@ -25,8 +32,8 @@ Saltar y usar:  Espacio  ·  A (Cruz)
 Pegar:  clic o F  ·  X (Cuadrado)
 Inventario:  Tab  ·  Start
 
-Sobrevive 3 noches y cuida el tinaco del refugio.
-De día compra tablas y atranca las entradas."""
+Las noches no se acaban: aguanta cuantas puedas.
+Si te desmayas, tus cosas se quedan en una bolsa: ve por ellas."""
 # Lo que la licencia de los datos del mapa pide que se vea, por si falta CREDITS.md
 const CREDITOS_MINIMOS := """Datos de mapa © colaboradores de OpenStreetMap, licencia ODbL.
 Huellas de edificios de Google Open Buildings v3, licencia CC BY 4.0.
@@ -46,6 +53,10 @@ enum Pantalla { MENU, PERSONAJE, CONTROLES, CREDITOS, CARGANDO }
 
 var _pantalla := Pantalla.MENU
 var _elegida := 0
+# Las opciones de este menu: OPCIONES, o con partida guardada Continuar + Partida nueva + el resto
+var _lista: Array[String] = []
+var _confirmar_nueva := false
+var _a_cargar := MAPA          # la que carga Jugar o Continuar
 var _opciones: Array[Label] = []
 var _capa_menu: CanvasLayer
 var _menu: Control
@@ -64,6 +75,10 @@ var _ambiente_tween: Tween
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_lista.assign(OPCIONES)
+	if Guardado.hay_partida():
+		_lista[0] = NUEVA
+		_lista.insert(0, CONTINUAR)
 	_escena()
 	_dither()
 	_interfaz()
@@ -127,7 +142,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _mover(paso: int) -> void:
-	_elegida = wrapi(_elegida + paso, 0, OPCIONES.size())
+	_elegida = wrapi(_elegida + paso, 0, _lista.size())
+	_confirmar_nueva = false
 	_sonar("ui_mover")
 	_marcar()
 
@@ -139,29 +155,53 @@ func _sonar(nombre: String) -> void:
 func _marcar() -> void:
 	for i in _opciones.size():
 		var elegida := i == _elegida
-		_opciones[i].text = ("> %s" if elegida else "%s") % OPCIONES[i]
+		var texto := NUEVA_CONFIRMA if _lista[i] == NUEVA and _confirmar_nueva else _lista[i]
+		_opciones[i].text = ("> %s" if elegida else "%s") % texto
 		_opciones[i].add_theme_color_override("font_color", AMARILLO if elegida else Color.WHITE)
 
 
 func _activar(opcion: int) -> void:
+	if _elegida != opcion:
+		_confirmar_nueva = false
 	_elegida = opcion
+	var cual := _lista[opcion]
+	# Partida nueva con una guardada: la primera vez pregunta
+	if cual == NUEVA and not _confirmar_nueva:
+		_confirmar_nueva = true
+		_sonar("ui_aceptar")
+		_marcar()
+		return
 	_marcar()
-	_sonar("ui_jugar" if opcion == 0 else "ui_aceptar")
-	match opcion:
-		0:
+	_sonar("ui_jugar" if cual in [CONTINUAR, NUEVA, "Jugar"] else "ui_aceptar")
+	match cual:
+		CONTINUAR:
+			_continuar()
+		"Jugar", NUEVA:
+			# Todo como al empezar y sin partida guardada (el record se queda)
+			Guardado.nueva()
+			_a_cargar = MAPA
 			_crear_personaje()
-		1:
+		"Menú test":
 			# Menú principal alternativo: map test, mecánicas y economía de una
 			get_tree().change_scene_to_file("res://scenes/menu_test.tscn")
-		2:
+		"Pruebas":
 			# Lanzador completo de los tests (dificultad, duración, config, carpeta)
 			get_tree().change_scene_to_file("res://scenes/escena_pruebas.tscn")
-		3:
+		"Controles":
 			_abrir(Pantalla.CONTROLES)
-		4:
+		"Créditos":
 			_abrir(Pantalla.CREDITOS)
-		5:
+		"Salir":
 			get_tree().quit()
+
+
+# Lo guardado a los autoloads y a cargar la escena donde ibas (sin el creador: ya eres tu)
+func _continuar() -> void:
+	var escena: String = Guardado.cargar()
+	if escena == "":
+		return
+	_a_cargar = escena
+	_jugar()
 
 
 func _abrir(pantalla: Pantalla) -> void:
@@ -206,19 +246,19 @@ func _jugar() -> void:
 	# Suena desde aqui y no desde el creador, que ya se borro al emitir listo
 	_sonar("inicio_partida")
 	_fundir_ambiente(-60.0, AMBIENTE_SALE)
-	ResourceLoader.load_threaded_request(MAPA)
+	ResourceLoader.load_threaded_request(_a_cargar)
 
 
 # Armar el mapa al entrar traba unos segundos: "Cargando..." ya se dibujo para entonces
 func _seguir_cargando() -> void:
-	match ResourceLoader.load_threaded_get_status(MAPA):
+	match ResourceLoader.load_threaded_get_status(_a_cargar):
 		ResourceLoader.THREAD_LOAD_LOADED:
 			set_process(false)
-			var escena := ResourceLoader.load_threaded_get(MAPA) as PackedScene
+			var escena := ResourceLoader.load_threaded_get(_a_cargar) as PackedScene
 			await get_tree().process_frame
 			get_tree().change_scene_to_packed(escena)
 		ResourceLoader.THREAD_LOAD_FAILED, ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
-			push_error("Inicio: no se pudo cargar %s" % MAPA)
+			push_error("Inicio: no se pudo cargar %s" % _a_cargar)
 			_cargando.visible = false
 			_volver()
 
@@ -367,6 +407,13 @@ func _interfaz() -> void:
 	subtitulo.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	subtitulo.offset_top = 96.0
 	_menu.add_child(subtitulo)
+	var record: int = get_node("/root/Noches").record
+	if record > 0:
+		var texto_record := _texto(TEXTO_RECORD % record, 14, AMARILLO)
+		texto_record.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+		texto_record.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		texto_record.offset_top = 124.0
+		_menu.add_child(texto_record)
 	var columna := VBoxContainer.new()
 	columna.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	columna.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -374,8 +421,8 @@ func _interfaz() -> void:
 	columna.offset_bottom = -44.0
 	columna.add_theme_constant_override("separation", 4)
 	_menu.add_child(columna)
-	for i in OPCIONES.size():
-		var opcion := _texto(OPCIONES[i], 22, Color.WHITE)
+	for i in _lista.size():
+		var opcion := _texto(_lista[i], 22, Color.WHITE)
 		opcion.custom_minimum_size.x = 200.0
 		opcion.mouse_filter = Control.MOUSE_FILTER_STOP
 		opcion.mouse_entered.connect(func() -> void:
