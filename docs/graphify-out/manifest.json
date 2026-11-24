@@ -1,38 +1,38 @@
 {
   "especificaciones.md": {
-    "mtime": 1794546522.0927157,
-    "seen": 1795014546.1257539,
-    "ast_hash": "d0f0bec462103c29c734f314e9c041f2",
-    "semantic_hash": "d0f0bec462103c29c734f314e9c041f2"
+    "mtime": 1795495726.6705196,
+    "seen": 1795496422.564304,
+    "ast_hash": "2d62c050750074cacaa7013202140089",
+    "semantic_hash": "2d62c050750074cacaa7013202140089"
   },
   "items.md": {
-    "mtime": 1794779408.3466787,
-    "seen": 1795014546.1257606,
-    "ast_hash": "c2a263df4e1677cced964c7e30ff3849",
-    "semantic_hash": "c2a263df4e1677cced964c7e30ff3849"
+    "mtime": 1795495726.6918254,
+    "seen": 1795496422.5643113,
+    "ast_hash": "61379730a14735c6645c1f5cc999fdde",
+    "semantic_hash": "61379730a14735c6645c1f5cc999fdde"
   },
   "lore.md": {
-    "mtime": 1795013475.0260842,
-    "seen": 1795014546.1257648,
-    "ast_hash": "275302bb63c87d141062f5b6163282e0",
-    "semantic_hash": "275302bb63c87d141062f5b6163282e0"
+    "mtime": 1795495726.6918254,
+    "seen": 1795496422.5643153,
+    "ast_hash": "3c6661f162d1eff44181876a242f3c0c",
+    "semantic_hash": "3c6661f162d1eff44181876a242f3c0c"
   },
   "misiones.md": {
-    "mtime": 1795013475.027084,
-    "seen": 1795014546.125769,
-    "ast_hash": "fe82ae2291fed9e3b8c44a71add3696e",
-    "semantic_hash": "fe82ae2291fed9e3b8c44a71add3696e"
+    "mtime": 1795495726.719666,
+    "seen": 1795496422.564318,
+    "ast_hash": "61dd8d3f1f27706811d6f6cd2647fcd1",
+    "semantic_hash": "61dd8d3f1f27706811d6f6cd2647fcd1"
   },
   "personajes.md": {
-    "mtime": 1794504519.9154193,
-    "seen": 1795014546.1257727,
-    "ast_hash": "25d0f9efbb59d0c1705b7b72a350f268",
-    "semantic_hash": "25d0f9efbb59d0c1705b7b72a350f268"
+    "mtime": 1795495726.721672,
+    "seen": 1795496422.564321,
+    "ast_hash": "de11adc1ac01ac6ea970d93f164d7f97",
+    "semantic_hash": "de11adc1ac01ac6ea970d93f164d7f97"
   },
   "revision-historia.md": {
-    "mtime": 1794504519.9164193,
-    "seen": 1795014546.1257765,
-    "ast_hash": "6037605937558eb75263b65c1474a36e",
-    "semantic_hash": "6037605937558eb75263b65c1474a36e"
+    "mtime": 1795495726.728198,
+    "seen": 1795496422.5643234,
+    "ast_hash": "ecb91037c3219c1afc36498842f52547",
+    "semantic_hash": "ecb91037c3219c1afc36498842f52547"
   }
 }

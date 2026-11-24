@@ -1,179 +1,208 @@
-# Graph Report - docs  (2026-11-18)
+# Graph Report - docs  (2026-11-23)
 
 ## Corpus Check
-- 6 files · ~87,609 words
+- 6 files · ~63,483 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 523 nodes · 1486 edges · 20 communities
-- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 212 edges (avg confidence: 0.85)
-- Token cost: 458,198 input · 0 output
+- 542 nodes · 1162 edges · 28 communities (27 shown, 1 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 56 edges (avg confidence: 0.84)
+- Token cost: 452,192 input · 0 output
 
 ## Community Hubs (Navigation)
-- Items, taller y crafteo
-- Canon: GelA, Serenol y premisa
-- La revelación y el cobalto
-- Contratos de noche y el pozo
-- La Gotera, la mafia y la válvula
-- Giros, consumibles y mandados
-- El régimen y el estado del mundo
-- Marcial y la sangre Lazcano
-- Revisión: lo decidido y pendiente
-- Santa Mugre, culto y fortalezas
-- Misiones de día
-- Ciclo, celular y economía
-- Decisiones grandes y plan
-- Tazos, mapa y sandbox
-- Tiendas, maquinitas y cruces
-- Reparto de NPCs
-- Especificaciones e interfaz
-- Zombis, hordas y director
-- Colorismo y creador de personaje
-- Modo reto y la libreta
+- Misiones y agua de noche
+- Premisa, sed y salud
+- Deterioro y estado del mundo
+- La Madre, cárcamos y Sótano
+- Tiendas e interiores
+- Tazos y personaje
+- Celular, HUD y récord
+- Culto del Tinaco y la reja
+- Fortalezas y zonas
+- Combate y armas
+- Taller de La Chava
+- Gente, NPCs y cruces
+- Las tres aguas
+- Visión del juego
+- Director y hordas
+- Objetos y agua en galón
+- Economía y segunda moneda
+- Arrojables
+- Giros de negocios
+- Consumibles
+- Fuentes del lore
+- Molotov y gasolinera
+- Drops, llaves y documentos
+- Sandbox sin fin y guardado
+- Inventario y mochilas
+- Muerte y bolsa cuidada
+- Ciclo e hitos de noche
+- Movimiento y cámara
 
 ## God Nodes (most connected - your core abstractions)
-1. `Guadalajaja — Lore` - 34 edges
-2. `Serenol (G-7)` - 31 edges
-3. `Defender el tinaco (antes Vela del tinaco, piloto P0)` - 29 edges
-4. `Los Gotera` - 26 edges
-5. `Marcial López, "el Machetes" (protagonista)` - 26 edges
-6. `Parques de Santa Mugre` - 24 edges
-7. `Guadalajaja — Misiones` - 23 edges
-8. `Los blancos (la policía, a las órdenes de Buenrostro)` - 22 edges
-9. `Nombres propios` - 22 edges
-10. `Germán Lazcano` - 21 edges
+1. `Guadalajaja — Lore` - 29 edges
+2. `Guadalajaja — Revisión de la historia` - 24 edges
+3. `Serenol (G-7)` - 23 edges
+4. `Los contratos de la noche` - 20 edges
+5. `Las misiones de día` - 20 edges
+6. `Georgina "Gela" Lazcano` - 19 edges
+7. `El culto a la Virgen del Tinaco` - 18 edges
+8. `Guadalajaja — Personajes` - 18 edges
+9. `Padre Jesús "Chuy" Arreola` - 18 edges
+10. `Guadalajaja — Misiones` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Repartir garrafones` --semantically_similar_to--> `Reparto (versión corta y repetible del reparto clandestino)`  [INFERRED] [semantically similar]
-  especificaciones.md → misiones.md
+- `Policías (solo de día)` --conceptually_related_to--> `Los blancos (la policía, a las órdenes de Buenrostro)`  [INFERRED]
+  especificaciones.md → lore.md
 - `Índice de deterioro = índice de infección` --semantically_similar_to--> `Índice de deterioro = índice de infección`  [INFERRED] [semantically similar]
   especificaciones.md → lore.md
-- `El pozo del templo (solo de Chuy)` --conceptually_related_to--> `1.5b El pozo de doña Refugio es real`  [AMBIGUOUS]
-  lore.md → revision-historia.md
-- `Puri-GelA (purificadoras)` --semantically_similar_to--> `Purificadora (Puri-GelA)`  [INFERRED] [semantically similar]
-  lore.md → especificaciones.md
-- `Cruces de caca (calcomanía y NPC)` --semantically_similar_to--> `Las cruces de caca`  [INFERRED] [semantically similar]
+- `Oficio y botín del zombi` --semantically_similar_to--> `El botín de los zombis (oficios)`  [INFERRED] [semantically similar]
   especificaciones.md → lore.md
+- `Defensa del tinaco (la antigua Vela, ahora afuera)` --semantically_similar_to--> `Defender el tinaco (antes Vela del tinaco, piloto P0)`  [INFERRED] [semantically similar]
+  lore.md → misiones.md
+- `La cuadrilla` --semantically_similar_to--> `La cuadrilla (el gremio del agua)`  [INFERRED] [semantically similar]
+  personajes.md → lore.md
 
 ## Hyperedges (group relationships)
-- **Las tres fortalezas (Santa Mugre, La Gotera, los Reservorios)** — lore_tres_fortalezas, lore_parques_de_santa_mugre, lore_la_gotera, lore_los_reservorios, lore_agua_en_fortalezas, lore_quien_sabe_que [EXTRACTED 1.00]
-- **Las palancas que cambian la ciudad (la cura, la válvula, la verdad)** — lore_cambio_ciudad, lore_capilla_del_tinaco, lore_la_valvula, lore_radio_pirata, lore_estado_del_mundo [EXTRACTED 1.00]
-- **Las tres aguas (Agua Cero, GelA Total, agua viva)** — lore_tres_aguas, lore_agua_cero, lore_gela_total, lore_agua_viva, lore_serenol [EXTRACTED 1.00]
-- **La compañía de agua: tres socios y su chofer** — personajes_el_nocturno, personajes_chava, personajes_gabriel_hinojosa, personajes_nacho_garrafón, personajes_el_gremio [EXTRACTED 1.00]
-- **La sangre de Marcial (Germán, la Mojiganga, Dr. López, medios hermanos)** — personajes_el_nocturno, personajes_germán_lazcano, lore_la_mojiganga, personajes_dr_lópez, personajes_georgina_gela_lazcano, personajes_gerardo_lazcano [EXTRACTED 1.00]
-- **Los cinco choques del canon (§1)** — revision_historia_choque_gotera_venden_agua, revision_historia_choque_zombis_beben, revision_historia_choque_final_verdad, revision_historia_choque_pista_5, revision_historia_choque_nocturno_botín [EXTRACTED 1.00]
-- **Kit del piloto: lo que se lleva a defender el tinaco** — misiones_vela_del_tinaco, items_tablas, items_cinta_canela, items_machete, items_bomba_molotov, items_bocina_con_banda, items_lampara_celular, items_galon_de_agua [EXTRACTED 1.00]
-- **Cadena de desbloqueo: reja → cucarrata → mafia → La Gotera → cacerías** — misiones_guardia_de_la_reja, misiones_al_medico, misiones_la_cucarrata, misiones_entregas_punto_a_punto, misiones_puerta_de_la_gotera, misiones_cacerias_de_la_gotera [EXTRACTED 1.00]
-- **Molotov: gasolinera, botella y trapo** — items_receta_molotov, items_caguama_vacia, items_trapo, items_gasolina_limon_cereza, items_bomba_molotov, especificaciones_giro_gasolinera [EXTRACTED 1.00]
+- **Las tres fortalezas (sin policía, agua sin Serenol)** — lore_parques_de_santa_mugre, lore_la_gotera, lore_los_reservorios, lore_agua_en_fortalezas [EXTRACTED 1.00]
+- **El secreto de la sangre del Machetes** — personajes_el_nocturno, personajes_germán_lazcano, lore_la_mojiganga, personajes_dr_lópez, lore_origen_serenol [EXTRACTED 1.00]
+- **Lo que el Serenol le hace a todo lo demás (lombrices, cucarrata, los de en medio)** — lore_madre_del_cárcamo, lore_la_cucarrata, lore_los_de_en_medio, lore_serenol [INFERRED 0.85]
+- **La compañía de agua: Gabriel, Chava y el Machetes (con Nacho al volante)** — personajes_el_gremio, personajes_gabriel_hinojosa, personajes_chava, personajes_el_nocturno, personajes_nacho_garrafón [EXTRACTED 1.00]
+- **La sangre del Machetes: Germán, la Mojiganga, el Dr. López y los medios hermanos** — personajes_el_nocturno, personajes_germán_lazcano, lore_la_mojiganga, personajes_dr_lópez, personajes_georgina_gela_lazcano, personajes_gerardo_lazcano [EXTRACTED 1.00]
+- **Cadena agua, enojo, verdad (la verdad solo la oye el que no toma de la llave)** — revision_historia_choque_final_verdad, revision_historia_idea_que_controla, lore_agua_viva, personajes_sofía, lore_la_valvula [EXTRACTED 1.00]
+- **Defensa externa al servicio del reparto de agua de noche** — misiones_vela_del_tinaco, misiones_defender_la_camioneta, misiones_reparto, lore_agua_de_noche_gremio, personajes_chava [EXTRACTED 1.00]
+- **Decisiones del sandbox sin fin (2026-11-23)** — especificaciones_sandbox_sin_fin, especificaciones_hitos_de_noche, especificaciones_muerte_tipo_dark_souls, especificaciones_guardado_en_disco, especificaciones_tazos_unica_progresion [EXTRACTED 1.00]
+- **Receta del molotov (botella + gasolina + trapo)** — items_caguama_vacia, items_gasolina_limon_cereza, items_trapo, items_bomba_molotov [EXTRACTED 1.00]
 
-## Communities (20 total, 0 thin omitted)
+## Communities (28 total, 1 thin omitted)
 
-### Community 0 - "Items, taller y crafteo"
-Cohesion: 0.05
-Nodes (67): §1.4 Cómo se apunta y dispara, Amuletos y estampitas, Armas de fuego, Arrojables (lanzamiento en arco), Cartera (autoload: pesos y agua), Combate cuerpo a cuerpo, Crafteo mínimo, Ferretería (+59 more)
+### Community 0 - "Misiones y agua de noche"
+Cohesion: 0.06
+Nodes (54): Misiones (resumen §6), Sistema de misiones (MisionData, §6.3), El agua clandestina, El agua de noche (el negocio del gremio), El agua en las fortalezas (sin Serenol y sin sobreprecio), Las camadas (zombis dormidos en bodegas de día), Camioneta de reparto, La compañía de agua (tres socios: Chava, Gabriel y el Machetes) (+46 more)
 
-### Community 1 - "Canon: GelA, Serenol y premisa"
-Cohesion: 0.08
-Nodes (41): Agua limpia como recurso caro, Economía: una moneda, pesos, La idea en un párrafo (survival-shooter PS1 en Zapopan real), El mundo en dos capas, Premisa: Historia y mundo (§2), Credencial de GelA, Dinero y agua, Documentos y llaves (+33 more)
-
-### Community 2 - "La revelación y el cobalto"
-Cohesion: 0.08
-Nodes (47): Casas en obra negra (contaminadas), Acta de ausencia nocturna, Las camadas (zombis dormidos en bodegas de día), Casas en obra negra, Centro de Innovación Hídrica (planta vieja), El cobalto (la varilla del 84), Concesión de Rescate Hídrico (2028), Documento interno G-7 (Ensayo 4) (+39 more)
-
-### Community 3 - "Contratos de noche y el pozo"
-Cohesion: 0.10
-Nodes (44): Misiones (resumen §6), Oficio y botín del zombi, Refugio con barricadas y tinaco, Sistema de misiones (MisionData, §6.3), Tablas, El agua clandestina, El agua de noche (el negocio del gremio), El botín de los zombis (oficios) (+36 more)
-
-### Community 4 - "La Gotera, la mafia y la válvula"
-Cohesion: 0.10
-Nodes (43): Bolsa de sal (10 puñados), Diente de la Madre (trofeo), Los colmillos de la Madre (¿quién los compra? sin decidir), Las crías de lombriz (se parten y regeneran; sal, fuego, cabeza), Los cárcamos de GelA (lodo turquesa de Serenol), La diócesis, Entregas de la mafia (punto a punto), La cucarrata (primer jefe) (+35 more)
-
-### Community 5 - "Giros, consumibles y mandados"
+### Community 1 - "Premisa, sed y salud"
 Cohesion: 0.09
-Nodes (36): Abarrotes, El punto, Farmacia (Guadalaraja / Dr Simio), Gasolinera (Perez), OXO, Purificadora (Puri-GelA), Taquería, Tejuino (carrito) (+28 more)
+Nodes (47): Facciones para misiones, La sed, La tentación (tomar agua de la llave), Premisa: Historia y mundo (§2), Salud y estados, Vida inicial 60 de 100 (Salud.VIDA_INICIO), La casa Lazcano, Centro de Innovación Hídrica (planta vieja) (+39 more)
 
-### Community 6 - "El régimen y el estado del mundo"
-Cohesion: 0.11
-Nodes (32): La noche sin ley (Ley de Convivencia Nocturna), Policías (solo de día), Agua para Todos (movimiento), La casa de la gobernadora (dentro de los Reservorios), Programa Contención, El régimen, El estado del mundo (cura, enojo, escalón, confianza), Cómo se gobierna con una llave (agua según el voto) (+24 more)
-
-### Community 7 - "Marcial y la sangre Lazcano"
-Cohesion: 0.15
-Nodes (30): Facciones para misiones, La sed, La tentación (tomar agua de la llave), Salud y estados, La casa Lazcano, El desfile de Día de Muertos de la colonia, Fémur del armazón y flores que no se marchitan, Haciendas de San Jodido (+22 more)
-
-### Community 8 - "Revisión: lo decidido y pendiente"
-Cohesion: 0.12
-Nodes (27): Tipos de zombi (Flaco, Corredor, Hinchado, Escupidor, Cargador, Botarga), El culto a la empresa, Las dos hambres del zombi (carne y agua sin Serenol), La Gota, Motivos: el tinaco y la Gota, El panzón (propuesta de AG para el gordo), El saltabardas (propuesta de AG), Taxonomía del barrio (flaco, corredor, hinchado, cargador, escupidor, botarga) (+19 more)
-
-### Community 9 - "Santa Mugre, culto y fortalezas"
-Cohesion: 0.16
-Nodes (26): Tres fortalezas (Santa Mugre, La Gotera, los Reservorios), El agua en las fortalezas (sin Serenol y sin sobreprecio), El agua no siempre se deja tomar (voluntad de la Virgen), La capilla del Tinaco, La noche que falla la reja (defensa del tinaco de Santa Mugre), La gente de fuera (bajo Serenol, no dan misiones), Guardia de la reja (tutorial de la primera horda), Los Garrafones (+18 more)
-
-### Community 10 - "Misiones de día"
+### Community 2 - "Deterioro y estado del mundo"
 Cohesion: 0.10
-Nodes (23): Puesto de tacos, Misiones que ya hay (6.0), Comportamiento seguir al jugador, La caminata (procesión nocturna de muertos), Acompañar a alguien, Al médico (Karla, el herido en carretilla), Buscar al perro, Carrera (+15 more)
+Nodes (36): Índice de deterioro = índice de infección, Bandas del índice (Sana, Mixta, Tomada, Podrida, Perdida), El estado del mundo (cura, enojo, escalón, confianza), La Florida Marchita, Los blancos (la policía, a las órdenes de Buenrostro), La mentira y la verdad del Machetes, Las venas del Serenol (várices sutiles, afuera sí, adentro no), Hoja de conteo (+28 more)
 
-### Community 11 - "Ciclo, celular y economía"
-Cohesion: 0.17
-Nodes (14): El celular, Ciclo día/noche (12 min día + 8 min noche), Ciclo principal (core loop), Grupo del barrio, La IA del celular (Sofía), La economía de las dos ciudades, El Último Trago, El grupo del barrio (+6 more)
+### Community 3 - "La Madre, cárcamos y Sótano"
+Cohesion: 0.09
+Nodes (37): Diente de la Madre (trofeo), Los colmillos de la Madre (¿quién los compra? sin decidir), Cuarto VIP del Sótano, Los cárcamos de GelA (lodo turquesa de Serenol), El jefe (hinchado grande), El Sótano (casino clandestino de los Gotera bajo Santa Mugre), El giro político (la gobernadora fabricó el poder con el agua), La Desaguadora (jefa secreta del desagüe del Sótano, propuesta de AG) (+29 more)
 
-### Community 12 - "Decisiones grandes y plan"
-Cohesion: 0.20
-Nodes (10): §1.1 Plataforma y multijugador, §1.3 Qué pasa de noche, §1.5 Qué pasa al morir, §1.6 Alcance de la primera versión jugable, Bolsa recuperable al morir, Decisiones grandes (por votar), Multijugador en navegador: implicaciones técnicas, Plan de trabajo (hitos 0-7) (+2 more)
+### Community 4 - "Tiendas e interiores"
+Cohesion: 0.08
+Nodes (28): Puesto de tacos, Interiores armados (escena fija en primera persona), Maquinitas de frutas (Cóctel de Frutas), Marcador amarillo (flecha estilo GTA SA), Marcas parodia, Misiones que ya hay (6.0), De noche todo cierra y te sacan, Tiendas e interiores (+20 more)
 
-### Community 13 - "Tazos, mapa y sandbox"
+### Community 5 - "Tazos y personaje"
+Cohesion: 0.07
+Nodes (20): §1.3 Qué pasa de noche, Álbum de tazos, Bolsas especiales de Takis, Creador de personaje (Marcial López, el Machetes), Modelos 3D: qué hay y qué falta, El niño de los tazos (cambia 3 repetidos por uno que falte), Página de habilidades (Cuerpo, Sobrevivir, Negocio), Refugio con barricadas y tinaco (+12 more)
+
+### Community 6 - "Celular, HUD y récord"
+Cohesion: 0.09
+Nodes (26): El celular, Grupo del barrio, Interfaz (HUD), La IA del celular (Sofía), Cuenta de noches sin fin y récord (user://noches.cfg), Pantalla de inicio ('No te tomes el agua.'), Lámpara / celular, La economía de las dos ciudades (+18 more)
+
+### Community 7 - "Culto del Tinaco y la reja"
+Cohesion: 0.13
+Nodes (26): El agua no siempre se deja tomar (voluntad de la Virgen), La capilla del Tinaco, La cura: agua limpia durante semanas, La diócesis, La noche que falla la reja (defensa del tinaco de Santa Mugre), Los Garrafones, Parques de Santa Mugre, La política de la capilla (diócesis, GelA, Gotera, barrio, jugador) (+18 more)
+
+### Community 8 - "Fortalezas y zonas"
+Cohesion: 0.13
+Nodes (25): Mapa de papel (9 pedazos), Tres fortalezas (Santa Mugre, La Gotera, los Reservorios), La casa de la gobernadora (dentro de los Reservorios), El Último Trago, Haciendas de San Jodido, La Gotera (favela amurallada de la mafia), Los Reservorios (fortaleza de los Lazcano, sobre el ITESO), Las nueve zonas (+17 more)
+
+### Community 9 - "Combate y armas"
+Cohesion: 0.14
+Nodes (18): §1.4 Cómo se apunta y dispara, Armas de fuego, Combate cuerpo a cuerpo, Lock-on automático, Armas, Ballesta, Bate, Cuerno de chivo (+10 more)
+
+### Community 10 - "Taller de La Chava"
+Cohesion: 0.19
+Nodes (18): Amuletos y estampitas, Casas en obra negra (contaminadas), Recetas del taller (39 en seis juegos, planos), El taller: El Yonke de Don Chava, Tiliches (materiales) en la cangurera, Trofeos de hazañas y vitrina de La Chava, Juegos de recetas 1-6 (remedios, amuletos, armas), Materiales comunes (6 familias × 3 niveles) (+10 more)
+
+### Community 11 - "Gente, NPCs y cruces"
+Cohesion: 0.15
+Nodes (15): Cruces de caca (calcomanía y NPC), Gente de día, NPCs, Comportamiento seguir al jugador, Las cruces de caca, Barks, Guadalajaja — Personajes, El de las cruces (+7 more)
+
+### Community 12 - "Las tres aguas"
+Cohesion: 0.16
+Nodes (15): La libreta del Machetes (antes del Nocturno, bestiario), Agua Cero (el caldo), Agua viva, GelA Total, Las tres aguas, 4.5 Agua Cero: el caldo, la de la llave, 4.6 La botarga zombi: de día bailaba, 4. Detalles (los diez) (+7 more)
+
+### Community 13 - "Visión del juego"
+Cohesion: 0.15
+Nodes (14): §1.1 Plataforma y multijugador, Enemigos, Guadalajaja — Especificaciones del juego, Juegos de referencia, La idea en un párrafo (survival-shooter PS1 en Zapopan real), Look PS1, Multijugador en navegador: implicaciones técnicas, Música y sonidos (+6 more)
+
+### Community 14 - "Director y hordas"
+Cohesion: 0.15
+Nodes (13): Campo de flujo (flow field), Director (estilo Left 4 Dead), Niveles de detalle de zombis (MultiMesh), Ruido que atrae zombis, Los zombis y las hordas, El culto a la empresa, Defensa del tinaco (la antigua Vela, ahora afuera), Las dos hambres del zombi (carne y agua sin Serenol) (+5 more)
+
+### Community 15 - "Objetos y agua en galón"
 Cohesion: 0.18
-Nodes (10): §1.2 Estructura / meta del juego, Álbum de tazos, Bolsas especiales de Takis, Mapa de papel (9 pedazos), Página de habilidades (Cuerpo, Sobrevivir, Negocio), Registro de decisiones, Revelación del tazo por rareza, Sandbox sin fin (+2 more)
+Nodes (13): Tortillería, Objetos (resumen §5), Costal de chiles (objeto de misión), Dinero y agua, Galón de agua, Guadalajaja — Items, Kilo de tortillas (propuesta de AG), Moneda de peso (+5 more)
 
-### Community 14 - "Tiendas, maquinitas y cruces"
+### Community 16 - "Economía y segunda moneda"
+Cohesion: 0.23
+Nodes (11): Agua limpia como recurso caro, El agua se queda como segunda moneda (por ahora, sin fuente), Cartera (autoload: pesos y agua), Crafteo mínimo, Economía: una moneda, pesos, Purificadora (Puri-GelA), El agua no es moneda: es un recurso caro, Cómo funciona (inventario, mochilas, tipos, precios en pesos) (+3 more)
+
+### Community 17 - "Arrojables"
 Cohesion: 0.24
-Nodes (10): Cruces de caca (calcomanía y NPC), Interiores armados (escena fija en primera persona), Maquinitas de frutas (Cóctel de Frutas), De noche todo cierra y te sacan, Tiendas e interiores, Las cruces de caca, Enganches al diseño, Sacar dinero de máquinas (+2 more)
+Nodes (12): Arrojables (lanzamiento en arco), Balas, Bocina con banda, Bolsa de sal (10 puñados), Bomba molotov, Chancla, Cinta canela, Molotov de cereza (quema 1.5 veces más lejos) (+4 more)
 
-### Community 15 - "Reparto de NPCs"
-Cohesion: 0.31
-Nodes (8): Gente de día, NPCs, Barks, Guadalajaja — Personajes, Recurso Persona (.tres), El reparto en números (30 voces, ~600 líneas), Los tres niveles (voz, vendedor, habitante), El veredicto corto
+### Community 18 - "Giros de negocios"
+Cohesion: 0.17
+Nodes (12): Abarrotes, El punto, Farmacia (Guadalaraja / Dr Simio), Ferretería, OXO, Taquería, Tejuino (carrito), Giros de negocios (DENUE) (+4 more)
 
-### Community 16 - "Especificaciones e interfaz"
-Cohesion: 0.25
-Nodes (9): Enemigos, Guadalajaja — Especificaciones del juego, Interfaz (HUD), Look PS1, Música y sonidos, Opción para apagar destellos (epilepsia fotosensible), Pantalla de inicio ('No te tomes el agua.'), Preguntas abiertas (especificaciones §13) (+1 more)
+### Community 19 - "Consumibles"
+Cohesion: 0.17
+Nodes (12): Balance actual (datos de los .tres), Caguama, Cigarros, Consumibles, Gansito, Jarritos, Mazapán, Pendiente de código (machete y vaporub a pesos, sed, zombis, mochilón) (+4 more)
 
-### Community 17 - "Zombis, hordas y director"
+### Community 20 - "Fuentes del lore"
+Cohesion: 0.18
+Nodes (8): Guadalajaja — Lore, Enganches al diseño, El Heraldo de México (16 oct 2026): Lemus no privatizará el agua, La Tercera (2019): Yonke Fénix, el Chernobyl mexicano, Nombres propios, Nota de realidad (Chapala, El Zapotillo, CMRO, cobalto-60), Referencias (Dying Light, Snowpiercer, The Water Knife, Blade Runner, GTA SA, 7 Days to Die, RE/Silent Hill), Reglas del canon
+
+### Community 21 - "Molotov y gasolinera"
+Cohesion: 0.27
+Nodes (11): Gasolinera (Perez), Agua sucia, Alcohol del 96, Caguama vacía, Cloralex, Gasolina limón / cereza (la gasolinera llena la botella), Materiales y crafteo, Receta: Agua limpia = agua sucia + Cloralex (delito) (+3 more)
+
+### Community 22 - "Drops, llaves y documentos"
+Cohesion: 0.20
+Nodes (11): Oficio y botín del zombi, Credencial de GelA, Documentos y llaves, Drops raros (36 escondites, 6 sorteados al amanecer), Llave de un coto, Objetos que faltan o están pendientes, Papel raro, Acta de ausencia nocturna (+3 more)
+
+### Community 23 - "Sandbox sin fin y guardado"
+Cohesion: 0.24
+Nodes (6): Guardado en disco (user://partida.cfg, Continuar y Partida nueva), Jefes que se repiten cada 3 noches (×1.25 de aguante por vuelta), El mundo en dos capas, La noche sin ley (Ley de Convivencia Nocturna), Registro de decisiones, Ley de Convivencia Nocturna
+
+### Community 24 - "Inventario y mochilas"
+Cohesion: 0.28
+Nodes (9): Inventario estilo Resident Evil (inspirado en Silent Hill 2), Mochilas (6 base; 8/10/14), Voto: ranuras vs cuadrícula tipo Tetris, Equipo, Mochila del Partido Verde, Mochila escolar, Mochilón del nocturno, La regla de los items (1 lugar, 6 base) (+1 more)
+
+### Community 25 - "Muerte y bolsa cuidada"
 Cohesion: 0.29
-Nodes (7): Campo de flujo (flow field), Director (estilo Left 4 Dead), Índice de deterioro = índice de infección, Marcador amarillo (flecha estilo GTA SA), Movimiento y cámara, Niveles de detalle de zombis (MultiMesh), Los zombis y las hordas
+Nodes (7): §1.2 Estructura / meta del juego, §1.5 Qué pasa al morir, §1.6 Alcance de la primera versión jugable, Bolsa cuidada por el zombi líder (3-5 guardias, cazador desde la noche 6), Bolsa recuperable al morir, Decisiones grandes (por votar), Partida de 3 noches con jefe (modo reto / piloto de prueba)
 
-### Community 18 - "Colorismo y creador de personaje"
-Cohesion: 0.33
-Nodes (3): Creador de personaje (Marcial López, el Machetes), Modelos 3D: qué hay y qué falta, Tono de piel como sátira del colorismo
-
-### Community 19 - "Modo reto y la libreta"
-Cohesion: 0.47
-Nodes (6): La libreta del Machetes (antes del Nocturno, bestiario), Partida de 3 noches con jefe (modo reto / piloto de prueba), El jefe (hinchado grande), Modo reto de 3 noches, 4.10 El jefe de la partida es alguien, 4.13 Corazonadas de la libreta del Nocturno (por votar)
-
-## Ambiguous Edges - Review These
-- `El pozo del templo (solo de Chuy)` → `1.5b El pozo de doña Refugio es real`  [AMBIGUOUS]
-  lore.md · relation: conceptually_related_to
+### Community 26 - "Ciclo e hitos de noche"
+Cohesion: 0.29
+Nodes (8): Ciclo día/noche (12 min día + 8 min noche), Ciclo principal (core loop), Hitos de noche (resources/noches/hitos.tres: garrafonero 3, Saltabardas 5, Panzón 7, Madre 10, Mojiganga 15), Tipos de zombi (Flaco, Corredor, Hinchado, Escupidor, Cargador, Botarga), El desfile de Día de Muertos de la colonia, El panzón (propuesta de AG para el gordo), El saltabardas (propuesta de AG), Taxonomía del barrio (flaco, corredor, hinchado, cargador, escupidor, botarga)
 
 ## Knowledge Gaps
-- **31 isolated node(s):** `Referencias (Dying Light, Snowpiercer, The Water Knife, Blade Runner, GTA SA, 7 Days to Die, RE/Silent Hill)`, `Cómo se gobierna con una llave (agua según el voto)`, `Teoría: 'le echan algo al agua'`, `Bandas del índice (Sana, Mixta, Tomada, Podrida, Perdida)`, `El saltabardas (propuesta de AG)` (+26 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 32 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **105 isolated node(s):** `El chiste del título (Guadalajara + jaja)`, `Referencias (Dying Light, Snowpiercer, The Water Knife, Blade Runner, GTA SA, 7 Days to Die, RE/Silent Hill)`, `"Cuando el agua sabía a agua" (medida del tiempo)`, `La casa de la gobernadora (dentro de los Reservorios)`, `Bandas del índice (Sana, Mixta, Tomada, Podrida, Perdida)` (+100 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 109 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Guadalajaja — Lore` connect `Canon: GelA, Serenol y premisa` to `Items, taller y crafteo`, `La revelación y el cobalto`, `Contratos de noche y el pozo`, `La Gotera, la mafia y la válvula`, `El régimen y el estado del mundo`, `Marcial y la sangre Lazcano`, `Revisión: lo decidido y pendiente`, `Santa Mugre, culto y fortalezas`, `Ciclo, celular y economía`, `Tazos, mapa y sandbox`, `Tiendas, maquinitas y cruces`, `Reparto de NPCs`, `Especificaciones e interfaz`, `Colorismo y creador de personaje`?**
-  _High betweenness centrality (0.158) - this node is a cross-community bridge._
-- **Are the 2 inferred relationships involving `Serenol (G-7)` (e.g. with `H1 El agua sabe distinto` and `H3 El G-7`) actually correct?**
-  _`Serenol (G-7)` has 2 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `Referencias (Dying Light, Snowpiercer, The Water Knife, Blade Runner, GTA SA, 7 Days to Die, RE/Silent Hill)`, `Cómo se gobierna con una llave (agua según el voto)`, `Teoría: 'le echan algo al agua'` to the rest of the system?**
-  _31 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Items, taller y crafteo` be split into smaller, more focused modules?**
-  _Cohesion score 0.05004389815627744 - nodes in this community are weakly interconnected._
-- **Why does `Guadalajaja — Items` connect `Items, taller y crafteo` to `Especificaciones e interfaz`, `Canon: GelA, Serenol y premisa`, `Contratos de noche y el pozo`, `Giros, consumibles y mandados`?**
-  _High betweenness centrality (0.136) - this node is a cross-community bridge._
-- **Are the 5 inferred relationships involving `Defender el tinaco (antes Vela del tinaco, piloto P0)` (e.g. with `Defensa del tinaco (la antigua Vela, ahora afuera)` and `Director (estilo Left 4 Dead)`) actually correct?**
-  _`Defender el tinaco (antes Vela del tinaco, piloto P0)` has 5 INFERRED edges - model-reasoned connections that need verification._
-
-### Low-confidence Hints
-_AMBIGUOUS edges — the extractor was unsure. Verify before acting on these._
-
-- **What is the exact relationship between `El pozo del templo (solo de Chuy)` and `1.5b El pozo de doña Refugio es real`?**
-  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
+- **Why does `Guadalajaja — Lore` connect `Fuentes del lore` to `Misiones y agua de noche`, `Premisa, sed y salud`, `Deterioro y estado del mundo`, `La Madre, cárcamos y Sótano`, `Tazos y personaje`, `Celular, HUD y récord`, `Culto del Tinaco y la reja`, `Fortalezas y zonas`, `Gente, NPCs y cruces`, `Visión del juego`, `Director y hordas`, `Economía y segunda moneda`, `Sandbox sin fin y guardado`?**
+  _High betweenness centrality (0.198) - this node is a cross-community bridge._
+- **What connects `El chiste del título (Guadalajara + jaja)`, `Referencias (Dying Light, Snowpiercer, The Water Knife, Blade Runner, GTA SA, 7 Days to Die, RE/Silent Hill)`, `"Cuando el agua sabía a agua" (medida del tiempo)` to the rest of the system?**
+  _105 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Misiones y agua de noche` be split into smaller, more focused modules?**
+  _Cohesion score 0.06168831168831169 - nodes in this community are weakly interconnected._
+- **Why does `Guadalajaja — Misiones` connect `Misiones y agua de noche` to `La Madre, cárcamos y Sótano`, `Tiendas e interiores`, `Celular, HUD y récord`, `Objetos y agua en galón`, `Fuentes del lore`?**
+  _High betweenness centrality (0.118) - this node is a cross-community bridge._
+- **Should `Premisa, sed y salud` be split into smaller, more focused modules?**
+  _Cohesion score 0.08928571428571429 - nodes in this community are weakly interconnected._
+- **Why does `Guadalajaja — Especificaciones del juego` connect `Visión del juego` to `Misiones y agua de noche`, `Premisa, sed y salud`, `Tazos y personaje`, `Celular, HUD y récord`, `Las tres aguas`, `Objetos y agua en galón`, `Fuentes del lore`, `Sandbox sin fin y guardado`, `Muerte y bolsa cuidada`, `Ciclo e hitos de noche`?**
+  _High betweenness centrality (0.110) - this node is a cross-community bridge._
+- **Should `Deterioro y estado del mundo` be split into smaller, more focused modules?**
+  _Cohesion score 0.1039136302294197 - nodes in this community are weakly interconnected._
