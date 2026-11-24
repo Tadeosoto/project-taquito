@@ -791,6 +791,7 @@ Other files on disk:
 | Album | T | One series per screen, spinning 3D tazo |
 | Tiliches | B | Materials; V at the workshop opens the trophy case |
 | Libreta | L | Bestiary page drawn in code: entries *zombi, cazador, infectado, gordo, jefe, crías, madre, remedios*, each in 3 unlock levels |
+| Dialogue box | talk to an NPC (Space) | Pauses the game; typewriter text with blips, speaker name, a placeholder talking portrait, tags `[feliz]`/`[enojo]`/`[clave]` with pixelfx puffs, sparkles and an anger mark (`DialogueBox`, from branch `dialogos-test`). Replaced the 3D speech bubble. Covers the bottom HUD while open; real portraits pending |
 | Shop | arrow | Rotating product, name, effect, price, your money |
 | Fruit machine / casino | Space | Button rows: arrows + one button |
 
@@ -959,7 +960,7 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 | Houses | `scripts/interiores/CasaPropia.gd`, `CasaVecino.gd`, `MueblesCasa.gd`, `Templo.gd`, `scripts/CasaPersonaje.gd`, `scripts/Baul.gd`, `scripts/BaulUI.gd`, `scenes/casa_personaje.tscn`, `scenes/casas/` |
 | Fruit machines | `scripts/tragamonedas.gd`, `scripts/map/Maquinita.gd`, `TragamonedasUI.gd`, `Cohetes.gd` |
 | Casino | `scripts/sotano/` (`Sotano.gd`, `Fichas.gd`, `JuegoSotano.gd`, `OlPleyUI.gd`, `Holdem.gd`, `PokerUI.gd`, `Blackjack.gd`, `Ruleta.gd`, `Baccarat.gd`, `CarrerasUI.gd`, `VidaSotano.gd`), `tools/blender/sotano/` |
-| NPCs and people | `scripts/npc.gd`, `scripts/npc_bubble.gd`, `scenes/npc.tscn`, `scripts/map/Gente.gd` |
+| NPCs and people | `scripts/npc.gd`, `scenes/npc.tscn`, `scripts/dialogue_box.gd`, `scenes/dialogue_box.tscn`, `scripts/map/Gente.gd` |
 | Sound | `scripts/Sonidos.gd`, `audio/` |
 | Dev safehouse | `scripts/map/Safehouse.gd`, `scenes/safehouse.tscn` |
 | Design docs | `docs/especificaciones.md` (spec), `lore.md`, `personajes.md`, `misiones.md`, `items.md`, `mejoras.md`, `plan-noche.md`, `pruebas-balance.md`, `revision-historia.md`, `docs/sistemas/*.md`, `docs/mapa/` |

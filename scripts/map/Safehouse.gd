@@ -15,6 +15,7 @@ const CASAS_JSON := "user://casas_safehouse.json"
 const BANQUETAS_JSON := "user://banquetas_safehouse.json"
 const BANQUETAS := [[[-44.0, -24.0], [20.0, -24.0], [20.0, 12.0], [-44.0, 12.0], [-44.0, -24.0]]]
 const NPC := preload("res://scenes/npc.tscn")
+const CAJA_DIALOGO := preload("res://scenes/dialogue_box.tscn")
 const SUELO_SHADER := preload("res://shaders/ps1_suelo.gdshader")
 const MURO_SHADER := preload("res://shaders/ps1_combined.gdshader")
 const BANQUETA := preload("res://textures/map/banqueta.png")
@@ -88,7 +89,7 @@ Clic o F pegar · clic der. bloquear · Alt + WASD rodar
 S pegando o con pistola: retroceder
 Botón de en medio: verte de frente
 V dron · N siguiente atardecer/amanecer
-H curar · J -%d de vida · P +$100
+H curar · J -%d de vida · P +$100 · Shift+8 caja de diálogo de prueba
 Y vaciar inventario (sin machete pegas a puñetazos)
 C crear personaje · K deterioro
 F12 reiniciar todo · F10 ir al mapa"""},
@@ -146,6 +147,7 @@ var _maquinas: Array[Maquinita] = []
 var _objetos: Node3D
 var _panel: CanvasLayer
 var _pagina := -1               # -1 = panel escondido
+var _dialogo: DialogueBox
 var _titulo: Label
 var _ayuda: Label
 var _estado: Label
@@ -243,6 +245,7 @@ func _ready() -> void:
 	_poner_objetos()
 	var npc := NPC.instantiate()
 	npc.set("dialogue", "Aquí se prueba de todo, joven.")
+	npc.set("nombre", "Doña Chuy")
 	npc.set("modelo", Civiles.al_azar())
 	npc.position = Vector3(10.0, 0.0, -14.0)
 	add_child(npc)
@@ -691,6 +694,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_0:
 			Zombie.enjambre = not Zombie.enjambre
 			_mostrar_efectos()
+		KEY_8 when event.shift_pressed:
+			# La caja de dialogo sola (DialogueBox), con sus lineas de prueba
+			if _dialogo == null:
+				_dialogo = CAJA_DIALOGO.instantiate()
+				add_child(_dialogo)
+			_dialogo.decir(DialogueBox.PRUEBA, "Doña Chuy", null, 1.15)
 		KEY_8:
 			# Prende o apaga la estela del protagonista (su mejora, Personaje.ESTELAS)
 			var personaje := get_node("/root/Personaje")
