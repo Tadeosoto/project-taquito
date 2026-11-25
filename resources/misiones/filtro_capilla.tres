@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="MisionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/MisionData.gd" id="1_mision"]
+[ext_resource type="Script" path="res://scripts/PasoMision.gd" id="2_paso"]
+[ext_resource type="Resource" path="res://resources/productos/filtro_puri.tres" id="3_filtro"]
+
+[sub_resource type="Resource" id="paso_puri"]
+script = ExtResource("2_paso")
+tipo = 8
+cuando = 0
+texto = "Toma un filtro de una Puri-GelA de afuera"
+lugar = "giro_afuera:purificadora"
+
+[sub_resource type="Resource" id="paso_chuy"]
+script = ExtResource("2_paso")
+tipo = 1
+cuando = 0
+texto = "Llévale el filtro al padre Chuy sin que te vean los cuicos"
+carga = ExtResource("3_filtro")
+ilegal = true
+
+[resource]
+script = ExtResource("1_mision")
+id = "filtro_capilla"
+nombre = "Un filtro para la capilla"
+modelo = "hombre_psx"
+donde = "marca:Chuy_Atrio"
+oferta = "El agua se limpia despacio, hijo, y cada día llega más gente con su garrafón. En las Puri-GelA de afuera tienen filtros de sobra. No te digo que lo robes. Nomás te digo que Dios sabe para qué sirve cada cosa."
+aceptada = "Ve de día, que de noche cierran. Y escóndelo bien: si los cuicos te ven con eso en las manos, disparan."
+recuerda = "¿Y el filtro, hijo? Una Puri-GelA de afuera, de día."
+gracias = "Bendito sea. Con esto alcanza para más gente. Ya no tienes que preguntarme de dónde sale el agua, ¿verdad?"
+despedida = "La capilla está abierta, hijo. Trae tu agua."
+pasos = Array[ExtResource("2_paso")]([SubResource("paso_puri"), SubResource("paso_chuy")])
+pesos = 80
+una_vez = true
+requiere = "guardia_reja"

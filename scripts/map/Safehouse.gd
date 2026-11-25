@@ -140,6 +140,7 @@ Chatarra junto al pedazo de mapa · L en el inventario: libreta"""},
 Ctrl+O el tazo holo del siguiente hito, con su show
 Ctrl+Y tirar tu bolsa enfrente (de noche: lider y guardias)
 Ctrl+G guardar · Ctrl+Shift+G cargar lo guardado
+Ctrl+K dos botellas vacías para la capilla (la Parroquia, junto al Sótano)
 6 / 7 giro y tajo (en el mapa los dan los tazos)"""},
 ]
 # Shift+F10: llegas a Santa Mugre EVENTO_ANTES s antes del fin del dia (oscurece a la mitad de la transicion de 30 s:
@@ -302,6 +303,7 @@ func _ready() -> void:
 			"perro_fijo": Vector3(38.0, 0.0, 20.0), "puntos_fijos": puntos_mafia}
 	add_child(_partida)
 	_poner_pieza_prueba()
+	_poner_templo()
 	var gente := Gente.new()
 	gente.name = "Gente"
 	gente.banquetas_path = BANQUETAS_JSON
@@ -454,6 +456,22 @@ func _salir_carrera() -> void:
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file("res://scenes/inicio.tscn")
+
+
+# La parroquia de Santa Mugre (scenes/casas/templo.tscn) junto a la casa y el Sotano: el padre Chuy
+# y la capilla (F3, Templo.gd), de dia como en la colonia
+func _poner_templo() -> void:
+	var templo: Node = load("res://scripts/interiores/CasaPropia.gd").new()
+	templo.name = "Templo"
+	templo.set("escena", load("res://scenes/casas/templo.tscn"))
+	templo.set("player_path", _jugador.get_path())
+	templo.set("zombis_path", _zombis.get_path())
+	templo.set("flecha_en", Vector3(-9.0, 0.0, 40.2))
+	templo.set("calle_giro", PI)
+	templo.set("nombre", "Parroquia (capilla)")
+	templo.set("abierto", "dia")
+	templo.set("texto_cerrado", "El portón está cerrado. El padre abre al amanecer.")
+	add_child(templo)
 
 
 func _poner_pieza_prueba() -> void:
@@ -845,6 +863,10 @@ func _tecla_noches(tecla: int, shift: bool) -> bool:
 					return true
 		KEY_Y:
 			_partida.soltar_bolsa_aqui()
+		KEY_K:
+			# Para probar la capilla (Templo.gd): envases que el padre Chuy recibe
+			for i in 2:
+				_inventario.add_item(load("res://resources/productos/botella_vacia.tres"))
 		KEY_G:
 			var guardado := get_node("/root/Guardado")
 			if shift:

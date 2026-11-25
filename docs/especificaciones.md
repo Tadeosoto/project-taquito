@@ -265,11 +265,11 @@ Ya existe un inventario circular con inspección 3D de objetos (`scripts/Invento
 >
 > | | Dónde |
 > |---|---|
-> | **Se gana** | Solo `Cartera.AGUA_INICIO = 3` al empezar. **No hay ninguna fuente en el juego.** |
+> | **Se gana** | `Cartera.AGUA_INICIO = 3` al empezar y, desde el 2026-11-24 (F3), **la capilla del templo de Santa Mugre**: dejas tus envases con el padre Chuy (hasta el cupo, 2 al día; 3 con el filtro robado) y al amanecer cada uno es +1 de agua (`Templo.gd`, `Misiones.capilla_*`). |
 > | **Se gasta** | Los productos con `moneda = 1`: el Machete y el Vaporub (2 de agua cada uno), en `Interior.gd` (`_comprar`). En la carrera de prueba se cobran en pesos (`AGUA_A_PESOS`). |
 > | **Se ve** | `TiendaUI.gd` ("AGUA %d"). |
 >
-> 🔍 **needs review: el agua necesita una fuente real** (contratos, el reparto de noche, la capilla) o quitarla.
+> ✅ (2026-11-24) La capilla es su fuente (decisión de AG). 🔍 **needs review:** solo hay dos cosas que se compren con agua (Machete y Vaporub); falta decidir qué más vale agua.
 
 | Qué | Cómo se consigue | Para qué |
 |---|---|---|

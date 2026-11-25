@@ -127,3 +127,6 @@ Both are one-hour steps:
 | `tools/mapa/probar_decreto.gd` | the Decreto 47 in the palace offices |
 | `tools/mapa/probar_fortalezas.gd` | — |
 | `tools/mapa/probar_palacio.gd` | — |
+
+- **`lugar = "giro_afuera:<giro>"`** (2026-11-24, F3, `filtro_capilla`): like `giro:<giro>`, but only stores outside every fortress wall (`MuroColonia.adentro`). Inside a walled colony there is none, so `ENTRAR_A` points the arrow to the nearest exit (`_salida_cercana`) and places the store once you are on the big map. `MisionesMundo._tienda(lugar, afuera)`.
+- **The chapel** (F3): `Misiones.capilla_dejadas` / `capilla_listas` / `capilla_cupo` (saved through `Guardado.CAMPANA`). `amanecer()` turns the containers left into ready water; `_cobrar` raises the cupo by `CAPILLA_FILTRO` when `filtro_capilla` is completed. The exchange itself is Padre Chuy's `al_hablar` in `scripts/interiores/Templo.gd`.

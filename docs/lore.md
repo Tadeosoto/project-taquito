@@ -440,7 +440,7 @@ Y hay algo que lo vuelve más milagro todavía: **el agua no siempre se deja tom
 | **El barrio** | Que no la toquen | Duerme en la puerta, hace vigilia, le reza, la defiende |
 | **El jugador** | Agua limpia barata y una misión | Puede ayudar al cura o venderlo |
 
-✅ **Cómo se usa en el juego.** La capilla es el único lugar de la ciudad donde el agua limpia es **gratis**, con dos condiciones: **cupo** (lo que el filtro alcanza) y **traer la tuya** (dejas agua sucia, recoges limpia al amanecer). Es también el mejor lugar para enterarse de la historia: el cura sabe más de lo que dice, y la gente reza en voz alta.
+✅ **Cómo se usa en el juego.** La capilla es el único lugar de la ciudad donde el agua limpia es **gratis**, con dos condiciones: **cupo** (lo que el filtro alcanza) y **traer la tuya** (dejas agua sucia, recoges limpia al amanecer). Es también el mejor lugar para enterarse de la historia: el cura sabe más de lo que dice, y la gente reza en voz alta. 🧱 (2026-11-24, F3) Ya está en el juego: de día el padre Chuy recibe tus envases (botella vacía, agua mala) hasta el cupo del filtro (2 al día, first guess) y al amanecer te los devuelve como agua limpia (+1 de agua cada uno, `Cartera.agua`); con el filtro robado de una Puri-GelA (misión `filtro_capilla`) el cupo sube a 3. Nadie baja al pozo ni se habla de él (`scripts/interiores/Templo.gd`).
 
 > **El cura, en la puerta, al amanecer.** *"Aquí no se regala el agua, mijo. Se devuelve. La que traes sucia, te la llevas limpia. Nomás no le digas a nadie que soy yo el que la limpia, ¿eh? Déjalos que le den las gracias a ella."*
 

@@ -675,6 +675,9 @@ func _cambio() -> void:
 			if paso.lugar.begins_with("entrada:"):
 				# La entrada ya existe en el mapa: solo se apunta a ella
 				_apuntar(_meta_de_escolta(paso))
+			elif paso.lugar.begins_with("giro_afuera:") and get_tree().get_first_node_in_group("colonia") != null and not Colonia.salidas.is_empty():
+				# Adentro de una colonia amurallada no hay de esos: la flecha va a la salida, y ya afuera al negocio
+				_apuntar(_salida_cercana())
 			elif _puntos.is_empty():
 				_puntos_de = Misiones.activa
 				Misiones.meta_visitas = 1
@@ -733,12 +736,16 @@ func _lugar_de_vecino(mision: MisionData) -> Vector3:
 
 
 # "giro:farmacia": la mas cercana al que la pidio
-func _tienda(lugar: String) -> Vector3:
+# `afuera`: solo los de fuera de las fortalezas (MuroColonia.adentro): el filtro de la capilla sale de
+# una Puri-GelA de afuera, no de la purificadora de Santa Mugre (lugar "giro_afuera:<giro>")
+func _tienda(lugar: String, afuera := false) -> Vector3:
 	var giro := lugar.trim_prefix("giro:")
 	var desde := _lugar_de_vecino(Misiones.activa)
 	var mejor := desde
 	var cerca := INF
 	for p: Dictionary in _tiendas:
+		if afuera and MuroColonia.adentro(get_tree(), Vector3(float(p["x"]), 0.0, float(p["z"]))):
+			continue
 		if p.get("interactivo", false) and p.get("giro", "") == giro:
 			var frente := Vector2(sin(float(p["rotacion_y"])), cos(float(p["rotacion_y"])))
 			var en := Vector2(p["x"], p["z"]) + frente * (float(p.get("fondo", 8.0)) / 2.0 + 1.5)
@@ -747,7 +754,7 @@ func _tienda(lugar: String) -> Vector3:
 				cerca = d
 				mejor = Vector3(en.x, desde.y, en.y)
 	# Los negocios que solo son una flecha de la colonia del mapa en Blender (la tortilleria)
-	if cerca == INF:
+	if cerca == INF and not afuera:
 		for puerta: Dictionary in Colonia.puertas:
 			if puerta["giro"] == giro:
 				var en: Vector3 = puerta["frente"]
@@ -1146,6 +1153,8 @@ func _meta_de_escolta(paso: PasoMision) -> Vector3:
 		_escolta_meta = SitiosTinaco.centro() + Vector3(SitiosTinaco.CHAVA_A, 0.0, 0.0)
 	elif paso.lugar.begins_with("giro:"):
 		_escolta_meta = _tienda(paso.lugar)
+	elif paso.lugar.begins_with("giro_afuera:"):
+		_escolta_meta = _tienda("giro:" + paso.lugar.trim_prefix("giro_afuera:"), true)
 	elif _marca(paso.lugar) != null:
 		_escolta_meta = (_marca(paso.lugar) as Transform3D).origin
 	else:

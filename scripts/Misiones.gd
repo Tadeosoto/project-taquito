@@ -50,6 +50,8 @@ const ARCHIVOS := [
 	"res://resources/misiones/mafia_6.tres",
 	"res://resources/misiones/mafia_7.tres",
 	"res://resources/misiones/mafia_8.tres",
+	# La capilla del templo (F3): el padre Chuy, despues de la guardia de la reja
+	"res://resources/misiones/filtro_capilla.tres",
 ]
 # Las entregas de la mafia (M7): las `mafia_N` en cadena, de El Punto de Santa Mugre a los ocho puntos del
 # mapa. Con estas ya cumplidas los guardias de las bocas de la favela de La Gotera te dejan pasar (las marcas
@@ -121,6 +123,15 @@ var reja_enfriamiento := 0
 var reja_falla := ""
 var evento_reintentos := 0
 var tinaco_perdido := false
+# La capilla del templo (F3, "trae la tuya", docs/lore.md "Cómo se usa en el juego"): el padre Chuy
+# recibe de dia tus envases con agua sucia, hasta `capilla_cupo` por dia (lo que da el filtro), y al
+# amanecer quedan `capilla_listas`: cada una es +1 de agua (Cartera.agua) al ir por ella (Templo.gd).
+# El filtro nuevo (mision filtro_capilla) sube el cupo. Numeros first guess
+const CAPILLA_CUPO := 2
+const CAPILLA_FILTRO := 1    # lo que sube el cupo el filtro robado
+var capilla_dejadas := 0
+var capilla_listas := 0
+var capilla_cupo := CAPILLA_CUPO
 # Pruebas (safehouse): la siguiente noche que caiga en Santa Mugre, falla seguro
 var reja_forzar := false
 var visitados := 0
@@ -600,6 +611,9 @@ func _cobrar(mision: MisionData) -> int:
 		antena_instalada = true
 	if mision.id == "decreto_47":
 		decreto_47 = true
+	# El filtro robado de la Puri-GelA: el padre limpia mas agua al dia (F3)
+	if mision.id == "filtro_capilla":
+		capilla_cupo += CAPILLA_FILTRO
 	if mision.pieza_de_mapa:
 		var piezas := get_node("/root/PiezasMapa")
 		var falta: int = piezas.siguiente_faltante()
@@ -665,6 +679,9 @@ func amanecer() -> void:
 		sigue_de_dia = true
 	es_noche = false
 	_hechas.clear()
+	# Lo que dejaste en la capilla ya esta limpio
+	capilla_listas += capilla_dejadas
+	capilla_dejadas = 0
 	cambio.emit()
 
 
@@ -699,6 +716,9 @@ func reiniciar() -> void:
 	reja_falla = ""
 	evento_reintentos = 0
 	tinaco_perdido = false
+	capilla_dejadas = 0
+	capilla_listas = 0
+	capilla_cupo = CAPILLA_CUPO
 	reja_forzar = false
 	SitiosTinaco.elegido = -1
 	_ruta_hora = false

@@ -25,7 +25,7 @@ const MAPA := "res://scenes/map_test.tscn"
 # ataques, los jefes), la guardia de la reja, la antena, el Decreto 47, el desgaste de la reja...
 const CAMPANA := ["_hechas_siempre", "puntos_vistos", "guardias_reja", "reja_guardia", "antena_instalada",
 	"bodega_gela_abierta", "palacio_abierto", "decreto_47", "reja_desgaste", "reja_enfriamiento", "tinaco_perdido",
-	"pagos_especiales"]
+	"pagos_especiales", "capilla_dejadas", "capilla_listas", "capilla_cupo"]
 
 var _llegada := Transform3D()
 var _hay_llegada := false
