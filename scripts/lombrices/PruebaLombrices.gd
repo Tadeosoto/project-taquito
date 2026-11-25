@@ -417,11 +417,14 @@ func _arrojables() -> String:
 	var inventario := get_node_or_null("/root/Inventory")
 	if inventario == null:
 		return ""
-	var cuenta := [0, 0, 0]
+	# Por tipo de InventoryItemData.arrojar (ya hay mas que sal y molotov: palomita, bocinas...)
+	var cuenta := {}
 	for item: InventoryItemData in inventario.items:
 		if item and item.arrojar > 0:
-			cuenta[item.arrojar] += 1
-	return "Sal %d · Molotov %d · todo infinito (curas, sal y molotov)" % [cuenta[1], cuenta[2]]
+			cuenta[item.arrojar] = cuenta.get(item.arrojar, 0) + 1
+	var texto := "Sal %d · Molotov %d" % [cuenta.get(1, 0), cuenta.get(2, 0) + cuenta.get(6, 0)]
+	# La pelea de verdad (desde el mapa, PasoJefe) no trae lo infinito de la prueba
+	return texto if PasoJefe.desde_juego else texto + " · todo infinito (curas, sal y molotov)"
 
 
 func _process(delta: float) -> void:

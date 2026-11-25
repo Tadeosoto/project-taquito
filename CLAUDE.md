@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-"Guadalajaja" — a Godot 4.7 (Forward Plus, Jolt Physics) third-person 3D prototype with a PS1-style look. All gameplay code is GDScript; there is no build system, linter or test suite. Code comments and in-game UI text are in (informal) Spanish — keep new player-facing strings in Spanish.
+"Guadalajaja" — a Godot 4.7 (Forward Plus, Jolt Physics) third-person 3D prototype with a PS1-style look. All gameplay code is GDScript; there is no build system or linter; the headless test suite is `tools/comprobaciones/` (`docs/sistemas/comprobaciones.md`). Code comments and in-game UI text are in (informal) Spanish — keep new player-facing strings in Spanish.
 
 ## Commands
 
@@ -17,6 +17,7 @@ godot --path . scenes/InventoryUI.tscn   # run a single scene in isolation
 godot --path . --headless --import # (re)import assets / regenerate .godot cache
 godot --path . --headless --check-only --script res://scripts/player.gd  # parse-check one script
 godot --path . -- --alta           # 1080p test: crisp UI, 3D still 480 px tall in hard blocks (scripts/ModoAlta.gd)
+tools/comprobaciones/correr.sh     # the headless test suite (~90 s; exit 0 = all pass); `correr.sh capilla` runs one
 ```
 
 ## Work in progress (tell the user when a session starts)
@@ -62,6 +63,7 @@ Read the file before changing that system, and keep it in sync with the code. Fi
 - `docs/sistemas/personaje.md`: `Personaje` (protagonists, skin tone, build, trails, hats, fist fighting) and the protagonist model with its retargeting (bone maps, clip library, `character_animation.gd`'s `AnimationTree`, civilians).
 - `docs/sistemas/misiones.md`: missions in code: `Misiones`, the journal, `MisionesMundo`, every step type, route steps and `Acompanante`, boss entrances, `CallesRuta`/`ConductorCarro`, the gate event, the mafia chain, test missions and scripts.
 - `docs/sistemas/inventario.md`: inventory, items, `InventoryUI`, paper map, `WorldItem`.
+- `docs/sistemas/comprobaciones.md`: the headless test suite (`tools/comprobaciones/`): runner, `user://` backup, how to add a test, what each covers.
 - `docs/sistemas/dialogo.md`: the `DialogueBox` every NPC talks through (typewriter, blips, `[feliz]`/`[enojo]`/`[clave]`, pixelfx via `EfectosPixel.hoja_ui`; pauses the tree), from branch `dialogos-test`.
 - `docs/sistemas/tazos.md`: `Tazos`, skills, bags, the reveal, the album.
 - `docs/sistemas/taller.md`: crafting, `Tiliches` and the cangurera, loot boxes, trophies, recipes, El Yonke.
@@ -130,6 +132,7 @@ By day only: at dusk (`aviso_atardecer`) they hurry and no more appear, at night
   - Sounds are global (JJ, 2026-11-16): no per-scene whitelist or mute list.
   - A node re-enables `_physics_process` when it becomes ready if its script defines it: call `set_physics_process(false)` after `add_child`.
   - **When you add a mechanic, add it to the safehouse too.**
+  - **Run `tools/comprobaciones/correr.sh` before merging into `main-testing`**, and give a new system its test there (`docs/sistemas/comprobaciones.md`).
   - **The game never ends and saves everything** (`Guardado`, `user://partida.cfg`): new run state in an autoload must be added to `Guardado._guardar_autoloads`/`_cargar_autoloads` (and its `reiniciar()` to `Guardado.REINICIAR`), or Continuar loses it. State that must survive a scene change (the night, the death bag) lives in an autoload, not in `Partida`.
 
 ## graphify (narrative graph)
