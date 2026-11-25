@@ -188,6 +188,32 @@ Desde que el golpe empujaba (~0.5 m), el machete fallaba más y el combo perdía
 
 **Después de la 14: zombis en enjambre** (`docs/pruebas-enjambre.md`). Ya no caminan en fila: van por carriles, cortan camino y se rebasan. En las pruebas sin ventana llegan al tinaco ~1 s antes (13.5 s contra 14.3 s en grupos de 9) y ya no se atoran en los tambos. Las partidas de arriba son con el caminar de antes; la siguiente partida con el monitor dirá si el modo medio quedó más duro. En el safehouse, la tecla 0 regresa al caminar de antes para comparar.
 
+## Cuadros por segundo después de mezclar testing-juanjo (S12, AG con Claude, 2026-11-24)
+
+Medido con `godot --path . tools/medir_mapa.tscn` en la misma máquina, sin vsync. Para saber de dónde viene cada caída se midió cada commit en un `git worktree` aparte, con la caché de importación copiada, y se hicieron dos `git bisect`. Los scripts de la bisección eran temporales.
+
+| Lugar | Antes de la mezcla (`f635557`) | Punta de JJ (`6d3098e`) | Ahora (main-testing + sandbox + F3) |
+|---|---|---|---|
+| Inicio de día | 197 FPS | 113 | 113 |
+| Caminata de día | 188 | 109 | 109 |
+| Horda de 30 (llegando / encima) | 103 / 89 | 25-41 / 21-35 | 29 / 21 |
+| Llamadas de dibujo (inicio) | 899 | 1,252 | 1,256 |
+
+Todo es CPU: la GPU anda en ~2 ms. El sandbox sin fin, la bolsa cuidada, la caja de diálogo y la capilla **no cuestan nada medible** (la punta de JJ da lo mismo que ahora). La horda varía mucho entre corridas: la misma punta de JJ dio 21 y 41.
+
+**Las dos causas (bisección):**
+
+1. **La horda: `edf427e` "Zombis: todos los normales son el monstruo_02..."** (JJ, 2026-11-17). Con ese commit la horda baja de 103/86 a 27/30 FPS y la CPU sube de 12 a 27-37 ms.
+   - Con `ZombiSerenol.MUJERES = 0` (prueba temporal, sin mujeres y por lo tanto sin `PeloZombi`), la horda vuelve a **95 / 75 FPS** con ~1,010 llamadas en vez de ~1,380.
+   - El costo es **el pelo de las zombis** (`scripts/map/PeloZombi.gd`): Verlet en GDScript a 30 Hz y un `ImmediateMesh` que se redibuja, por cada mujer a menos de 30 m. En una horda de 30, unas 15.
+2. **El día: `0c0c1c4` "M7b Cuicos de dia"** (JJ). Baja el inicio de día de ~165 a ~126 FPS.
+   - Con `-- --apagar=Cuicos` el inicio sube de 113 a 136 y la caminata de 109 a 141 (+20 %).
+   - Hay otra caída más chica antes de esa (198 → 165, entre `d5bea78` y `07b5c55`) que no se bisecó.
+
+**Por decidir con JJ (no se tocó su código):**
+- Para el pelo: simularlo solo para las N más cercanas (p. ej. 4) y dejar a las demás con el pelo quieto, o hacerlo con un shader.
+- Para los cuicos: ver cuánto cuesta cada uno (patrulla, vista, `Cuico._trae_la_caja` por cuadro) y bajarles la frecuencia a los lejanos.
+
 ## Pendientes de la pelea
 
 Lo que pidió JJ después de la partida 15 (4 de noviembre de 2026):

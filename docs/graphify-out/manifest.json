@@ -1,9 +1,9 @@
 {
   "especificaciones.md": {
-    "mtime": 1795495726.6705196,
-    "seen": 1795496422.564304,
-    "ast_hash": "2d62c050750074cacaa7013202140089",
-    "semantic_hash": "2d62c050750074cacaa7013202140089"
+    "mtime": 1795582506.6147823,
+    "seen": 1795584415.354931,
+    "ast_hash": "cac5a0fea410f14528f7da4df3206fea",
+    "semantic_hash": "cac5a0fea410f14528f7da4df3206fea"
   },
   "items.md": {
     "mtime": 1795495726.6918254,
@@ -12,16 +12,16 @@
     "semantic_hash": "61379730a14735c6645c1f5cc999fdde"
   },
   "lore.md": {
-    "mtime": 1795495726.6918254,
-    "seen": 1795496422.5643153,
-    "ast_hash": "3c6661f162d1eff44181876a242f3c0c",
-    "semantic_hash": "3c6661f162d1eff44181876a242f3c0c"
+    "mtime": 1795582506.5870254,
+    "seen": 1795584415.3549383,
+    "ast_hash": "08d9ee61f90d60a8a95e77df7ed4bf75",
+    "semantic_hash": "08d9ee61f90d60a8a95e77df7ed4bf75"
   },
   "misiones.md": {
-    "mtime": 1795495726.719666,
-    "seen": 1795496422.564318,
-    "ast_hash": "61dd8d3f1f27706811d6f6cd2647fcd1",
-    "semantic_hash": "61dd8d3f1f27706811d6f6cd2647fcd1"
+    "mtime": 1795582506.596952,
+    "seen": 1795584415.3549426,
+    "ast_hash": "a4fb32a907ac6689b186e35a32188983",
+    "semantic_hash": "a4fb32a907ac6689b186e35a32188983"
   },
   "personajes.md": {
     "mtime": 1795495726.721672,

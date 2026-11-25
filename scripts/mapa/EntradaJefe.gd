@@ -74,7 +74,7 @@ func _entro(cuerpo: Node3D) -> void:
 	# desde la 10, la Mojiganga desde la 15). Con la mision se entra siempre
 	var falta := _noche_que_falta()
 	if falta > 0 and not con_mision():
-		_leyenda.text = "Todavía no. Dicen que %s sale hasta la noche %d." % [nombre if nombre != "" else "el jefe", falta]
+		_leyenda.text = "Todavía no. Dicen que a %s no se puede entrar hasta la noche %d." % [nombre if nombre != "" else "la guarida", falta]
 		_leyenda.visible = true
 		return
 	if PasoJefe.vencido(PasoJefe.jefe_de(escena)) and not con_mision():

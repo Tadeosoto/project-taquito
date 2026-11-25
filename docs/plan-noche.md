@@ -217,7 +217,7 @@ Viabilidad a pie: unos 10 m/s corriendo; la noche dura 480 s de reloj (`Ciclo.no
 - [x] **S9** `MuroColonia` a datos, para varias fortalezas: `resources/map/fortalezas.json` (Santa Mugre, La Gotera y GelA) (M)
 - [x] **S10** Defensa externa: la escena `defensa_tinaco.tscn` ya se juega desde el mapa (ENTRAR_A con `escena`, vía `PasoJefe`) con bocinas y dos camionetas que se van (L)
 - [x] **S11** Camioneta de reparto con ruta que los zombis atacan (L)
-- [ ] **S12** Medir FPS tras cada sistema (S)
+- [ ] **S12** Medir FPS tras cada sistema (S) · 2026-11-24: medido y bisecado (`docs/pruebas-balance.md` "Cuadros por segundo después de mezclar testing-juanjo"): la horda cae por el pelo de las zombis (`edf427e`, `PeloZombi`) y el día por los cuicos (`0c0c1c4`); falta decidir con JJ cómo aligerarlos
 
 ### Fase P: lugares en `map_test`
 

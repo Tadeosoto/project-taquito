@@ -1,8 +1,6 @@
 # Guadalajaja — Game Design Document
 
-> **Note (2026-11-23):** `testing-juanjo` was merged after this snapshot (116 commits: the cañerías and tunnels, cuicos, carretilla, stamina, the cucarrata, pterodactyl and Simi bosses, the palace offices, La Gotera in Blender, mission system S1-S11...). Only the parts that touch the sandbox are updated here; the rest of this document does not describe his content yet (**needs review**).
-
-*Snapshot of the project as implemented on branch `sandbox-sin-fin` (from `santa-mugre-fortaleza` `f635557`), 2026-11-23. Updated the same day with the team's design decisions: endless sandbox, night milestones, tazos as the only progression, starting life 60, Dark Souls death with a guarded bag, and saving.*
+*Snapshot of the project as implemented on `main-testing` plus branch `pruebas-y-capilla`, 2026-11-24. It covers the team's 2026-11-23 decisions (endless sandbox, night milestones, tazos as the only progression, starting life 60, Dark Souls death with a guarded bag, saving), JJ's `testing-juanjo` work merged the same day (walls from data, cañerías, cuicos, wheelbarrow, special-move stamina, the cucarrata, pterodactyl and Simi bosses, the palace offices, La Gotera in Blender, missions S1-S11 and M1-M11), and F3, the chapel (2026-11-24).*
 
 This document describes what the code, data files and assets actually do. The design docs in `docs/` were read too, and where they disagree with the code, **the code is reported** and the clash is flagged **needs review**. Numbers marked *(first guess)* are labelled as untuned in the code or in `docs/pruebas-balance.md`.
 
@@ -43,7 +41,8 @@ DAWN ◄── survive ◄── use weapons and consumables ◄── NIGHT: zo
 
 What exists today:
 
-- **Day:** walk the map, take one of 8 day missions, shop in 12 store types, play fruit machines, craft at El Yonke, open Takis tazo bags.
+- **Day:** walk the map, take missions from givers (about 30 `.tres`, kept in a journal, J; one active), shop in 12 store types, play fruit machines, craft at El Yonke, open Takis tazo bags, bring dirty water to the chapel. Police (*cuicos*) patrol outside the fortresses and shoot at an illegal load.
+- **Campaign (JJ):** a roughly linear path Santa Mugre → La Gotera → GelA: the gate guard teaches the spin, the cucarrata is the first boss and checkpoint, eight mafia deliveries open the favela. It sits on top of the endless sandbox (**needs review**, §9.5).
 - **Night:** shops close and kick you out; the Director spawns loose zombies and hunter mobs; zombies drop pesos and crafting materials. At 0 life you faint, drop your items in a bag that a leader zombie carries at night, and wake at the respawn point.
 - **Structure: endless sandbox** (team decision, 2026-11-23). The game never ends. An endless night counter shows *"Sobreviviste la noche N"* at each dawn and keeps a best record. Hordes grow each night and milestones add the garrafonero (3), more Saltabardas and hunters (5), the Panzón (7), La Madre del Cárcamo (10) and La Mojiganga (15); after that the bosses repeat, stronger. Each milestone gives a holo tazo. Everything is saved to disk (§8.5).
 
@@ -52,7 +51,7 @@ What exists today:
 | Item | Value |
 |---|---|
 | Engine | Godot 4.7, Forward Plus renderer, Jolt Physics |
-| Language | GDScript only; no build system, linter or test suite |
+| Language | GDScript only; no build system or linter. Headless test suite: `tools/comprobaciones/` (79 checks, ~90 s) |
 | Render | 640 × 480 internal resolution, `viewport` stretch, nearest filtering; `--alta` flag gives crisp 1080p UI with the 3D still at 480 px (`ModoAlta.gd`) |
 | PS1 look | Dither post-process, vertex snapping (characters and props only), affine UVs (`shaders/ps1_combined.gdshader`) |
 | Map pipeline | OpenStreetMap + OSM2World + Google Open Buildings (Python and Godot tools in `tools/map_import/`); a second, hand-built colonia map in Blender (`tools/blender/mapa/`) |
@@ -81,8 +80,10 @@ What exists today:
 | `scenes/safehouse.tscn` | Dev yard, 100 m, with one of every system and key pages (F1) | Run by path; F10 jumps to `map_test` | Done (dev only) |
 | `scenes/defensa_tinaco.tscn` | Tinaco defence: barricade, hordes, chained nights; godmode test | *Menú test* / *Pruebas*, or by path | Partial (test) |
 | `scenes/escena_carrera.tscn` | Career/economy test: mini refuge, all shops, upgrades shop | *Menú test* / *Pruebas* | Partial (test) |
-| `scenes/lombrices.tscn` | Boss arena: La Madre del Cárcamo (worm swarm) | By path or Shift+L in the safehouse | Partial: ends with `quit()`, no return |
-| `scenes/catrina.tscn` | Boss arena: La Mojiganga (parade catrina) | By path or Shift+X in the safehouse | Partial: ends with `quit()`, no return |
+| `scenes/lombrices.tscn` | Boss arena: La Madre del Cárcamo (worm swarm) | From the map: the cañerías (`tuneles.tscn`) end at her door (`PasoJefe.seguir`); by path or Shift+L in the safehouse | Done (AG proposal) |
+| `scenes/catrina.tscn` | Boss arena: La Mojiganga (parade catrina) | From the map: the arrow in the panteón plaza (`EntradaJefe`); by path or Shift+X in the safehouse | Done (AG proposal) |
+| `scenes/tuneles.tscn` | **Las cañerías** (P6, JJ): old brick sewer of drain water and Serenol, walkways, arches, flickering lights, worm larvae (salt or fire only), harmless "los de en medio" | Stairs at the end of Av. Scheifler (`EntradaTuneles`, an `EntradaJefe`); the far door leads to the Madre | Done |
+| `scenes/prueba_gotera.tscn` | La Gotera in Blender: the 24 h street market (`la_gotera`) and the favela maze (`la_gotera_favela`: alleys, rooftop stairs, caves, a brick tunnel network with shops, central tinaco) | Its gates on the big map | Partial (F4) |
 | `scenes/world.tscn` | Old prototype (ninja, two NPCs) | By path only | Legacy |
 | `scenes/sotano_prueba.tscn`, `locales_preview.tscn`, `tianguis_borrador.tscn`, `santa_mugre_psm.tscn` | Test and preview scenes | By path | Dev only |
 
@@ -102,7 +103,7 @@ The map is divided into nine parody-named zones (`scripts/map/ZonasMapa.gd`). En
 | Parques del Mosco | Parques del Bosque | 0.60-0.75 | The worst | The worst |
 | Haciendas de San Jodido | Haciendas de San José | 0.20-0.30 | Well and subscription | Safe for them |
 | El Último Trago | Invented (the cantinas) | 0.50-0.65 | Expensive jugs | The night market |
-| La Gotera | Invented | 0.70-0.80 | Their own aquifer | Fortress: no entry without permission |
+| La Gotera | Haciendas de San José east edge (JJ moved it, L13) | 0.70-0.80 | Their own aquifer | Fortress: the market is open to all; the favela opens after mafia delivery #5 |
 
 Zone 0.45+ counts as "taken" for zombie spawning (`Zombis.maximo()`).
 
@@ -111,15 +112,18 @@ Zone 0.45+ counts as "taken" for zombie spawning (`Zombis.maximo()`).
 | Fortress | Where | In the game | Entry / unlock |
 |---|---|---|---|
 | **Santa Mugre** (Virgen del Tinaco) | Parques de Santa Mugre | **Built** in `mapa.tscn`: 4.5 m wall (32 sections), two gates with guard posts, eight lookouts, street altars, the school (ex-palace), temple with the well room, plaza tinaco on the kiosk, night vigil, dusk procession. No spontaneous zombies inside (`Zombis.espontaneos` off) | Two gates on the avenue: west (-420, ~455) and east (-185, ~473) in `map_test` coordinates |
-| **La Gotera** (the mafia) | South-east, walled favela | Design only (plan block F4). Their casino, El Sótano, is built under Santa Mugre | Gotera missions raise a trust step (4 steps); none implemented. *needs review:* step names and count are 💡 proposals |
-| **Los Reservorios** (GelA) | Behind Haciendas, on the ITESO football pitches | Design only (plan block F5) | Hired as a guard (mission A4 / M10) |
+| **La Gotera** (the mafia) | East edge of Haciendas, along Av. del Cedro Seco | **Built in Blender** (`la_gotera`, `la_gotera_favela`): linear market open 24 h with no zombies, favela maze with 5 named entrances, tunnels and a central tinaco. Their casino, El Sótano, is under Santa Mugre | Market: free. Favela: the 5 entrance guards let you in after mafia delivery #5 (M7a). *needs review:* the old 4-step trust table is still in `misiones.md` next to the rule that replaced it |
+| **Los Reservorios** (GelA) | ITESO football pitches | Wall only (`fortalezas.json`, 3.6 m); inside is design (plan block F5) | Hired as a guard (mission A4 / M10) |
+| Industrias GelA, El arroyo | `map_test` | Walled areas from `fortalezas.json` (3.2 m, 2.6 m); the arroyo holds the cañerías entrance | — |
+
+All walls on the big map come from data (`resources/map/fortalezas.json`, `MuroColonia`, S9). No zombies spawn inside any of them, and cuicos and walkers use the same check. `FortalezasMapa` places what sits outside: the 5 tinaco sites, the antenna tower (-516, 348), 4 clinics (one per gate), the government palace (Colón × Bahía) and its GelA offices, and the panteón at the Club Bancario.
 
 ### 2.4 Places inside Santa Mugre (`mapa.tscn`)
 
 | Place | What's there | Status |
 |---|---|---|
-| Plaza de Santo Toribio | Tinaco on top of the kiosk, water queue, six walkways with low parapets and `Barricada_0..5` marks for the gate-failure defence | Done (defence not wired, block F1) |
-| Parroquia / Templo | Enterable by day: nave, Virgen del Tinaco, padre Chuy (talks, never admits what he suspects); behind the altarpiece, the well room | Done (no missions or water yet) |
+| Plaza de Santo Toribio | Tinaco on top of the kiosk, water queue, six walkways with low parapets and `Barricada_0..5` marks for the gate-failure defence | Done (the gate event F1 defends it) |
+| Parroquia / Templo | Enterable by day: nave, Virgen del Tinaco, padre Chuy (talks, never admits what he suspects); behind the altarpiece, the well room. **The chapel (F3):** Chuy takes your dirty containers (empty bottle, agua mala) up to the filter's cupo (2 a day) and at dawn gives +1 agua each; the stolen Puri-GelA filter raises the cupo to 3 | Done |
 | Escuela Primaria Santa Mugre | Ex-palace; plaque, bell, recess with five kids and a ball | Done (name pending vote) |
 | Tianguis | Coloured stalls, chile sack for a mission | Done |
 | Player's vecindad | Long patio with laundry and stairs | Done (exterior) |
@@ -157,7 +161,9 @@ Inventory, money, life and the night count persist across scene changes (they ar
 | Crafting recipe sets 2-5 | 3, 9, 15, 21 distinct items crafted | Done |
 | Crafting set 6 | All previous recipes plus that weapon's blueprint (two in obra-negra houses, one from the boss) | Done |
 | Collecting crafting materials | Requires the *cangurera* (reward of mission *La cangurera del tianguis*) | Done |
-| La Gotera, Los Reservorios | Mafia missions / guard job | Design |
+| La Gotera favela | Mafia delivery #5 (the market is open) | Done |
+| Los Reservorios | Guard job (M10) | Design |
+| Leaving Santa Mugre | The gate guard (`guardia_reja`, padre Chuy, once) opens the gates and teaches the spin | Done |
 | La Madre del Cárcamo's arena | Night 10 onward, at night: yellow arrow (needs review: placed at the south lot, (-300, 630)) | Done |
 | La Mojiganga's plaza | Night 15 onward, at night: yellow arrow (needs review: placed at the big court, (-244, -721)) | Done |
 | Tajo cargado / Giro en el aire | Holo tazos *El Jefe* / *Luna roja* (milestone rewards on nights 3 and 7) | Done |
@@ -184,9 +190,12 @@ Inventory, money, life and the night count persist across scene changes (they ar
 | Inventory slots | 6 (backpacks: 8, 10, 14) | `Inventory.CAPACIDAD_BASE` |
 | Starting money | $120 and 3 *agua* | `Cartera.PESOS_INICIO`, `AGUA_INICIO` |
 | Wake-up life after fainting | 50 | `Supervivencia.VIDA_AL_DESPERTAR` |
+| Special-move stamina (*aguante*) | 3 segments; heavy slash, aerial spin and air thrust cost 1 each; refills in 10 s after 1 s idle, +0.04 per normal hit that lands; orange bar under the life bar; empty = a normal swing | `scripts/EstaminaEspecial.gd` |
 | Life states | Bien (> 60 %), Herido (> 25 %), Grave | `Salud.estado()` |
 
-**needs review:** you wake from a faint with 50, less than the 60 you start with. The second currency *agua* stays for now (team decision) but has no source in the game (§6.1).
+**needs review:** you wake from a faint with 50, less than the 60 you start with. The protagonist in the lore is now **Marcial López, "el Machetes"** (son of Germán and the Mojiganga), not "El Nocturno"; the creator still offers five bodies.
+
+**Wheelbarrow** (`Carretilla.gd`, JJ): Space grabs or drops it; while holding it you can only go forward (W) and turn slowly (A/D), with no weapons, jump or roll; the hands hold the handles by IK. It carries the patient of *Al médico* (24 life).
 
 ### 3.3 Progression and leveling
 
@@ -200,7 +209,7 @@ There is **no XP or character level**. **Tazos are the only progression system**
 | **Upgrade shop** (`Mejoras`, §4.3) | Moves, stats, one-night buffs | Pesos | — | **Test scenes only** (career test); not in the game |
 | **Libreta** (bestiary) | Lore and combat tips per enemy | Seeing / fighting / killing | **Yes** | Done |
 
-The charged slash and the aerial spin are learned through the tazo skills *Tajo cargado* and *Giro en el aire* (`Partida._aplicar_habilidades` sets `Player.golpe_cargado` / `giro_aereo`; JJ's attack code is unchanged). The safehouse still turns them on with keys 7/6. Roll and block are always available.
+The charged slash and the aerial spin are learned through the campaign (a mission with `ensena`: the gate guard teaches the spin) **or** through the tazo skills *Tajo cargado* and *Giro en el aire*; either unlocks them (`Misiones.ataques_de_campana`, **needs review** with JJ) (`Partida._aplicar_habilidades` sets `Player.golpe_cargado` / `giro_aereo`; JJ's attack code is unchanged). The safehouse still turns them on with keys 7/6. Roll and block are always available.
 
 ### 3.4 Controls
 
@@ -337,7 +346,7 @@ Camera: Fortnite-style over the right shoulder with a gun; aiming zooms to 45° 
 | Remedio de la abuela, Té de la Virgen (craft) | Full | — | Done |
 | Milagro del tinaco (craft) | Full | Recharges Segundo aire | Done |
 | Takis Fuego | — | "+damage for 30 s" | **Not implemented** (text only); buying Takis rolls the tazo bag |
-| Tachas | — | "Speed and endless stamina 20 s, then a crash" | **Not implemented**; there is no stamina stat |
+| Tachas | — | "Speed and endless stamina 20 s, then a crash" | **Not implemented** (the only stamina is the special-move *aguante*) |
 | Cigarros | — | "Smoke hides you from zombies' smell" | **Not implemented** |
 | Galón de agua | — | "Baja la infección" (lowers thirst) | **Not implemented**: no thirst stat; used in missions |
 
@@ -357,7 +366,7 @@ Camera: Fortnite-style over the right shoulder with a gun; aiming zooms to 45° 
 | **Líder de la bolsa** (`Zombie.lider`) | 90 (× 3) *(first guess)* | Normal | 12 | Size × 1.2; carries your death bag on his back (backpack on the `Chest` bone); wanders within 4 m of the bag spot; every 8-12 s, if calm, plays the Drink clip and destroys one water item from your bag; drops the bag when killed | Night, where you fainted (not inside Santa Mugre) | Your bag + normal loot | Done |
 | **Guardias de la bolsa** (`Zombie.guardia`) | 30 | Normal | 12 | 3-5 (more in ruined zones, +1 per 5 nights) plus a hunter from night 6; spawn within 45 m, give up past 15 m from the bag, leave past 70 m (kills are remembered) | Same | Normal loot | Done |
 
-Skins: random from the PSX zombie and four PSX-pack monsters, heights ±6 %. Hit feel: white flash, whack, dirty-water spray, freeze frames, swelling and bursting on death, gibs that rot to a skeleton (≤ 16), headshot kills pop the head. All zombies collapse at dawn. Zombies do **not** attack people carrying Serenol (lore; *not modelled*: there are no outside NPCs at night).
+Look (JJ): every normal zombie is the stone-skinned `monstruo_02` with Serenol cracks, in 10 looks (5 shirts × man/woman: shirtless, Chivas, América, Selección, Conalep), heights 0.82-1.18 (`ZombiSerenol.gd`, `PeloZombi.gd`). Hit feel: white flash, whack, dirty-water spray, freeze frames, swelling and bursting on death, gibs that rot to a skeleton (≤ 16), headshot kills pop the head. All zombies collapse at dawn. Zombies do **not** attack people carrying Serenol: the people outside the fortresses wear blue Serenol veins (`VenasSerenol`, S6) and give no missions.
 
 **needs review:** the spec says each zombie has a trade (*oficio*: obrero, taquero, repartidor...) that sets its loot and pays 5-60 pesos; the code pays 1-3 and has no trades.
 
@@ -366,7 +375,10 @@ Skins: random from the PSX zombie and four PSX-pack monsters, heights ±6 %. Hit
 | Enemy | Life | Damage | Behaviour | Where | Drops | Status |
 |---|---|---|---|---|---|---|
 | **El Saltabardas** | 40 | Leap 10, claw 8 | Stalks on all fours, shrieks, leaps on a ballistic arc and pins you; mash attack/jump (7 presses, decaying) to throw it off. Roll dodges the leap, a frontal block parries, a hit in the air knocks it down | One at a time at night (`Zombis`, first after a delay, then periodically); from night 5 the wait is × 0.6 *(first guess)* | As a hunter | Done (AG proposal, not voted) |
-| **El Panzón** | 400 | Slam 20; charge combo 10 + 3 × 8, thrown ~6 m; rock 25 (30 to the tinaco) | Slams within 2.2 m; at 6-14 m roars and charges at 8 m/s (dazed 3 s and ×2 damage if it hits a wall); past 14 m rips and throws a slab; targets the tinaco if you are > 25 m away | Defence hordes from 24:00 (35 % chance on *medio*, 60 % *difícil*); map mobs from night 7 (35 % per mob, *first guess*); Shift+J in the safehouse | 3 hunter loot rolls + $15-30 | Partial (AG proposal for the gordo; JJ hasn't confirmed) |
+| **El Panzón** | 75 (2.5 × a zombie; JJ's rework, scale 1.5, stone skin, blue blood) | Slam 20; charge combo 10 + 3 × 8, thrown ~6 m; rock 25 (30 to the tinaco) | Slams within 2.2 m; at 6-14 m roars and charges at 8 m/s (dazed 3 s and ×2 damage if it hits a wall); past 14 m rips and throws a slab; targets the tinaco if you are > 25 m away | Defence hordes from 24:00 (35 % chance on *medio*, 60 % *difícil*); map mobs from night 7 (35 % per mob, *first guess*); Shift+J in the safehouse | 3 hunter loot rolls + $15-30 | Partial (AG proposal for the gordo; JJ hasn't confirmed) |
+
+| **Cuicos** (day police, M7b) | 60 | Shot 12 every 1.2 s | 35° sight cone; they shoot at an illegal load (the mafia box, the water, the chapel filter); 2 reinforcements per one knocked down; give up after 30 s unseen; never enter fortresses; a pink piglet on the minimap | Sidewalks outside the fortresses by day (4 near you) | — | Done (JJ) |
+| **Los de en medio** | — | Harmless | Half-human figures in the cañerías, walk at 0.35 m/s | `tuneles.tscn` | — | Done (JJ) |
 
 ### 5.3 Bosses
 
@@ -377,13 +389,17 @@ Skins: random from the PSX zombie and four PSX-pack monsters, heights ±6 %. Hit
 | **La Mojiganga** (parade catrina) | 1000 (phase 2 at 670, phase 3 at 340; frenzy < 150; damage ÷ `aguante` on repeats) | Stomp 26, shockwave 8, grab-squeeze 6, sweep 24, slap 26, braid 13, scream 10, thrown 8 (20 into a wall) | Dark Souls-style: combos, feints, grab (mash 6 to escape), phase 2 calls 3-5 zombies (max 8); flowers 4 × 70 take bullets only when exposed; machete × 1.25 to cardboard | `catrina.tscn`, reached by a night arrow from night 15 ("the parade"); win or faint returns to the map | *Corona de cempasúchil* (amulet: 25 % of kills drop healing petals, +4), *Fémur de la Mojiganga* (weapon, 22) | Done (AG proposal; a real street parade is not built) |
 | **La Desaguadora** (secret) | 1800 | Claw 35, puddle 22, hair 28, drop 14, scream 18, back attack 22; drain water 4 | Silent Hill 2-style drain room with volumetric fog that reddens per phase; you cannot faint here (rescued to the bathroom with 30 life); sinks and resurfaces beside you if you run | Below El Sótano's bathroom | 300 chips + *Varilla del desagüe* (weapon, 24), once per saved game | Done |
 
-**needs review:** `docs/pruebas-balance.md` calls all boss numbers first guesses; the Mojiganga is not yet beatable with the machete alone in bot runs.
+| **La Cucarrata** (first campaign boss, JJ) | 1200 in 3 phases (walks and bites; flies and drops cockroaches; adds a stinger) | Bite 20, explosion 25; bullets do 10 on the ground, 2 in the air | Gives birth to 15 rats or 8 cockroaches, alternating; young die in 3 hits | Warehouse #34 (La Gigantera), night only (`CucarrataCalle`, step `JEFE_CALLE`) | Mission *La cucarrata* $300 (Nacho, after the gate guard); checkpoint to La Gotera | Done |
+| **El Pterodáctilo de Juárez** (JJ) | 1500, 2 phases (air dives, then on the ground below half) | Claws 25 | Wingspan 8 m; never returns once dead | Clearing at (-736, -95), day and night | None (no mission or lore; sounds pending) | Done |
+| **El Simi bailador** (JJ) | 1000 (coat falls at half) | Kick 30; sound wave up to 35 m | Zombies within 90 m come to dance and are released at 12 (8 in phase 2); ×0.5 damage while dancing, ×2 while panting | South-east plain (821, 650), night only | None | Done |
+
+**needs review:** `docs/pruebas-balance.md` calls all boss numbers first guesses; the Mojiganga is not yet beatable with the machete alone in bot runs. The pterodactyl and the Simi have no mission, prize or lore.
 
 ### 5.4 Spawning (`Zombis.gd`, `Director.gd`, `RitmoNoche.gd`)
 
 Pool of 30 pre-built zombies (40 in the defence). They spawn 24-36 m away, off camera, on the street, and despawn beyond 70 m.
 
-**Map night rhythm** (`resources/zombis/noche_mapa.tres`, used by `map_test` and the safehouse):
+**Night rhythm.** `map_test` uses `resources/zombis/noche_afuera.tres` (JJ, S4): 12 s quiet start, groups of 1-3 every 20-30 s (12-18 s in ruined blocks), 4-7 loose alive, 2-3 mobs of 6-8 between 10 % and 90 % of the night, about 50 per night. The safehouse keeps `noche_mapa.tres`:
 
 | Parameter | Value |
 |---|---|
@@ -434,7 +450,7 @@ Chained nights multiply difficulty by 1.25 per night; zombie damage +1 per night
 
 | Currency | Start | Earned from | Spent on | Notes |
 |---|---|---|---|---|
-| **Pesos** | $120 | Zombies ($1-3), missions ($45-100), tinaco defence ($150), Madre ($400), fruit machines, cashing out chips | Shops, crafting, casino fee, upgrades (career) | The design's only currency |
+| **Pesos** | $120 | Zombies ($1-3), missions ($30-300: tinaco sites $150-250, cucarrata $300, mafia $60-150 per delivery), Madre ($400), fruit machines, cashing out chips | Shops, crafting, casino fee, upgrades (career) | The design's only currency |
 | *Agua* | 3 (`Cartera.AGUA_INICIO`) | **Nothing** | Machete and Vaporub (`moneda = 1`, 2 *agua* each, `Interior._comprar`); shown in `TiendaUI` | Kept as a second currency for now (team decision 2026-11-23). **needs review: needs a real source** |
 | **Fichas** (casino chips) | 0 | Buying at the Primo's window; La Desaguadora (300) | El Sótano games | 10 % commission when cashing out (`Fichas.COMISION`); saved with the game |
 | **Tazo points** | 0 | New tazos, milestone holos | Skills | 44 total |
@@ -668,51 +684,60 @@ Each machine has a coin box (starts at 100, never pays more than it holds) and a
 
 ### 7.1 Implemented missions (`resources/misiones/`, `Misiones.ARCHIVOS`)
 
-One active at a time, each once per day; it fails at nightfall or when its timer ends and can be retried the next day. Offers stop at the dusk warning. Tracked by an on-screen line, an arrow, the minimap and the paper map. Givers wear a yellow **!**.
+JJ's mission system (S1-S11, `docs/sistemas/misiones.md`):
 
-| Mission | Giver | Steps | Pay | Item rewards |
-|---|---|---|---|---|
-| Encargo de compras | Señora (`mujer_psx`) | Buy 2 galones at the farmacia → deliver | $100 | 2 tablas + Takis tazo bag |
-| Repartir garrafones | Repartidor (`psx_man`) | Carry water to 4 houses in 100 s | $90 | Takis tazo bag |
-| Buscar al perro | Chava (`chava_psx`) | Find Firulais by his barking → carry him back | $60 | Map piece (or $60 more if you have all) |
-| La cangurera del tianguis | Cholo | Buy 2 Jarritos at the abarrotes → deliver | — | Cangurera |
-| La pelota en la azotea | Profe de la cancha | Climb the lookout roof, get the ball → return | $50 | — |
-| Tortillas para la vecina | Vecina del lavadero | Buy 2 kg at La Lupita → deliver | $70 | — |
-| Agua para la fila | Abuelo de la fila | Get a galón at the purificadora → deliver | $60 | — |
-| Chiles para el mercado | Marchanta | Pick up the chile sack at the tianguis → deliver | $45 | — |
+- **Journal** (J, `MisionesUI`): any number accepted, one active.
+- Each step has an hour (`cuando`: day, night or any); outside it the mission waits instead of failing.
+- `LUGAR` missions start at a place and stay out of the journal. Missions survive scene changes.
+- **11 step types:** `TENER_OBJETOS`, `ENTREGAR`, `VISITAR`, `RECOGER`, `ESCOLTAR`, `LLEVAR_CARGA`, `DEFENDER`, `CAZAR`, `ENTRAR_A`, `CAMIONETA`, `JEFE_CALLE`.
+- Step flags: `soltable`, `ilegal` (cuicos shoot), `acompanante`, `escena` (boss fight), `pesos_por_entrega`.
+- Mission flags: `una_vez`, `requiere`, `ensena` (teaches a special), `inicio`, `inicial` (an initial on the maps).
+- New missions are `.tres` files; a new `lugar` keyword or step type needs code in `MisionesMundo` (F3 added `giro_afuera:`).
 
-Step types in code: `TENER_OBJETOS`, `ENTREGAR`, `VISITAR`, `RECOGER`. New missions can be added as `.tres` files without code.
+| Plan | Mission | Giver | Pay |
+|---|---|---|---|
+| M1 | Defender el tinaco (5 sites, levels 1-5) | Chava at each `SitiosTinaco` | $150-250 + galón |
+| M2 / S11 | La camioneta (`camioneta_gabriel`, `camioneta_noche`) | Gabriel (4 spots outside), Nacho in Santa Mugre | $80 per stop × 3 (+$40 base) |
+| M3 | La guardia de la reja (once; teaches the spin, opens the gate) | Padre Chuy | $120 |
+| M4 | La antena de Sofía (once; 2 parts, hold 75 s at the tower) | Sofía | 2 × $30 + $120 |
+| M5 | Al médico (wheelbarrow to a clinic) | Karla; La Gotera pharmacy stall | $100 |
+| M6 | El Decreto 47 (once; force the palace offices at night) | Sofía | $150 |
+| M7a | Mafia deliveries 1-8 (requires the cucarrata dead; #5 opens the favela) | Chain of 8 *punto* stores | $60-150 each |
+| M11 | La cucarrata (once) | Nacho | $300 |
+| F1 | El evento de la reja (LUGAR, random night; tinaco 300 life, mobs of 4 every 12 s, 3 retries) | — | $200 |
+| F3 | Un filtro para la capilla (once, after the gate guard): take a filter at a Puri-GelA outside, carry it back past the cuicos | Padre Chuy | $80; chapel cupo 2 → 3 |
+| Day | Encargo de compras, Repartir garrafones, Buscar al perro, La cangurera del tianguis, La pelota en la azotea, Tortillas para la vecina, Agua para la fila, Chiles para el mercado | Neighbours | $45-100 + items |
+| Tests | `escolta_noche`, `reparto_noche`, `antena_noche`, `caceria_noche`, `entrada_dia`, `medicina_noche` | — | $30-150 |
 
 ### 7.2 Designed but not implemented
 
 | Group | Missions | Source |
 |---|---|---|
-| Night contracts | Defender el tinaco (external defence, $150-250), Defender la camioneta ($60-100 per stop), Guardia de la reja, Reparto clandestino, Recolección, Encargo, Cacería | `docs/misiones.md` §2 |
-| Gate-failure event | Random night (wear rises +0.05/night, −0.25 per guard shift; chance = wear ÷ 3, min 2 %); defend the plaza tinaco; 3 retries | §2 (numbers 💡) |
-| Missions outside | Al médico, La antena de Sofía, El Decreto 47, Reparto, La hija de Nava | "Las misiones de fuera" |
-| Mafia | Point-to-point deliveries (19 *punto* stores), Las cuentas claras; unlock La Gotera | L10 section |
-| Hunts | La Mojiganga, La Madre | L10 |
-| GelA | Guard job, Arturo, Gerardo | L10 |
-| Story | H1-H5 (the five clues of *La revelación*), A1-A4 support missions, each with two paths | §4 |
-| Day ideas | ~19 (taco cooking, races, target practice, protest, escorts...) | §3 |
+| Mafia | M7c (what each *punto* sells, in review) | `misiones.md` L10 |
+| Hunts | M8 La Mojiganga, M9 La Madre (paused by JJ; the bosses can be fought from their entrances without a mission, no prize) | L10 |
+| GelA | M10 rebel son and resistance, guard job, Arturo, Gerardo | L10 |
+| Story | H1-H5 (the five clues of *La revelación*), A1-A4 support missions (A1 path A is F3) | §4 |
+| Day ideas | ~19 (taco cooking, races, target practice, protest...) | §3 |
 
-Campaign plan "Noches de fuera" (`docs/plan-noche.md`): phase L (text) is done except **L12** (rebuild the narrative graph) — that is the next unchecked block. Phases S (12 systems), P (8 places), F (5 fortress blocks) and M (10 missions) are all open.
+Campaign plan "Noches de fuera" (`docs/plan-noche.md`): phases L, P and most of S, F and M are done. Open: S7 (illegal market), F4 (La Gotera inside), F5 (Los Reservorios), M7c, M8, M9, M10. S12 was measured on 2026-11-24 (§9.3).
 
 ### 7.3 Story summary
 
-Five years ago the state gave Guadalajara's water to **GelA** (Germán Lazcano); his daughter **Georgina "Gela"** is governor, elected by the docile "tap vote". Serenol in tap water makes nine in ten docile and kills and raises one in ten. Clean water is illegal to filter (Decreto 47). Three walled fortresses hold out: **Santa Mugre** (the cult of the Virgen del Tinaco, a stained tinaco filled by padre Chuy from a well under the temple; Chuy suspects why it works and stays silent), **La Gotera** (the mafia, with its own aquifer; sells clean water at fair prices) and **Los Reservorios** (GelA, where everyone knows). Outside, most people are under Serenol, give no missions, and police shoot water carriers by day, so the water trade happens at night. The player is **El Nocturno**, a night contractor in the water guild. Sub-stories: the cobalt rebar of '84 (obra-negra houses, lamps that drain life) and the madman's crosses of excrement. The lore never blocks play: the sandbox works without it.
+Five years ago the state gave Guadalajara's water to **GelA** (Germán Lazcano); his daughter **Georgina "Gela"** is governor, elected by the docile "tap vote". Serenol in tap water makes nine in ten docile and kills and raises one in ten. Clean water is illegal to filter (Decreto 47). Three walled fortresses hold out: **Santa Mugre** (the cult of the Virgen del Tinaco, a stained tinaco filled by padre Chuy from a well under the temple; Chuy suspects why it works and stays silent), **La Gotera** (the mafia, with its own aquifer; sells clean water at fair prices) and **Los Reservorios** (GelA, where everyone knows). Outside, most people are under Serenol, give no missions, and police shoot water carriers by day, so the water trade happens at night. The player is **Marcial López, "el Machetes"**, a night contractor in the water guild (son of Germán Lazcano and the woman inside the Mojiganga). Sub-stories: the cobalt rebar of '84 (obra-negra houses, lamps that drain life) and the madman's crosses of excrement. The lore never blocks play: the sandbox works without it.
 
 ### 7.4 NPCs in the game
 
 | NPC | Where | What they do | Status |
 |---|---|---|---|
-| Mission givers (8) | Near the start / Santa Mugre marks | Offer, reminder, thanks and goodbye lines | Done |
+| Mission givers (~20) | Their marks in Santa Mugre and outside (Chava at 5 tinacos, Gabriel at 4 spots, Nacho, Karla, Sofía, padre Chuy, the *punto* stores) | Offer, reminder, thanks and goodbye in the dialogue box; initial on the maps for a few | Done |
 | Store sellers | Every shop (PSX civilian matching the door) | Sell; short line | Done |
 | Walkers (≤ 12), people outside stores (≤ 6), sitting dogs (≤ 3), garrafonero with jug | Map sidewalks, by day only | Ambience; some talk; hurry at dusk | Done |
 | Niño de los tazos | By day near givers | Trades duplicate tazos | Done |
 | La Chava | El Yonke | Crafting, trophy case | Done |
-| Padre Chuy | Temple | Talks, never confesses | Done (no missions) |
-| Güero, Sofía, Toño | Their houses | Dialogue lines | Partial (no missions; the Güero's lines still mention the palace) |
+| Padre Chuy | Temple and atrium | Gate guard, the chapel water, the filter mission; never confesses | Done |
+| Sofía | Her workshop | The antenna and the Decreto 47 | Done |
+| Güero, Toño | Their houses | Dialogue lines | Partial (no missions; the Güero's lines still mention the palace) |
+| Cuicos, people outside under Serenol | Outside the fortresses | Police by day; Serenol lines ("Yo amo a GelA"); 15 % know the water has something | Done |
 | Gate guards, lookouts, vigil, procession, school kids, teacher | Santa Mugre | Ambience | Done |
 | El Sótano staff and patrons | Casino | Guard (fee), Primo (chips), bartender, waitress, players | Done |
 
@@ -797,7 +822,21 @@ Other files on disk:
 | Shop | arrow | Rotating product, name, effect, price, your money |
 | Fruit machine / casino | Space | Button rows: arrows + one button |
 
-Planned: stamina bar, thirst meter, phone, hotbar, better fight HUD (JJ's pending list).
+| Mission journal | J | Accepted missions, the active one, what is missing, its hour |
+
+Planned: thirst meter, phone, hotbar, better fight HUD (JJ's pending list).
+
+### 8.6b Mission systems (JJ)
+
+| System | What it does |
+|---|---|
+| Escort (`Acompanante`) | Follows at 3.6 m/s through the flow field; 60 life by default; zombies target it when it is nearer than you |
+| Delivery truck (`CamionetaReparto`) | Drives a street route (`CallesRuta`, A*) at 5 m/s with a life bar; mobs at stops and while driving |
+| Tinaco defence from the map (S10) | `defensa_tinaco.tscn` played at the chosen `SitiosTinaco` site (speakers, pickups, trucks leaving at 26:00 and 29:00), back to the map with `PasoJefe` |
+| Gate event (F1) | Wear +0.05 per night, chance = wear ÷ 3 (min 2 %), 3-night cooldown; defend the plaza tinaco |
+| Palace offices / GelA warehouse | A door forced at night (hold Space 5 s); the noise brings 3 zombies, 4 wait inside; walkable ruined offices |
+| Rare drops (S5) | 36 hiding spots, 6 drawn each dawn; the drop list is pending (placeholder item) |
+| Boss trips (`PasoJefe`, `EntradaJefe`) | Fixed arrows to a boss scene and back. Without a mission there is no prize; the sandbox gates free entry by milestone night |
 
 ### 8.7 Map streaming and rendering
 
@@ -840,7 +879,11 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 - Inventory, backpacks, combine recipes, paper map, world pickups, death bag guarded by a leader zombie at night.
 - Endless sandbox: night counter with record, milestones from a `.tres`, boss repeats, arena trips back to the map, save/continue.
 - 12 shop types with first-person interiors; fruit machines.
-- 8 day missions with data-driven steps.
+- ~30 missions with 11 data-driven step types, the journal, escort, truck, tinaco sites, gate event (JJ); the chapel (F3).
+- Walls from data, clinics, palace offices, panteón, cañerías; La Gotera market and favela in Blender (JJ).
+- Cuicos, Serenol people outside, the zombie redesign, special-move stamina, wheelbarrow (JJ).
+- Bosses: cucarrata, pterodactyl, Simi bailador (JJ).
+- Headless test suite (`tools/comprobaciones/`, 79 checks).
 - Tazos (48), skills (16), reveal animation, album, trade kid.
 - Crafting: 39 recipes, materials, loot boxes, trophies, blueprints, amulets.
 - Libreta (bestiary).
@@ -853,20 +896,20 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 | Item | State |
 |---|---|
 | 3-night challenge mode | JJ wanted it as a challenge mode; removed with the sandbox, not rebuilt |
-| Tinaco defence | Standalone test scene; not in the map (plan S10) |
+| Tinaco defence | Played from the map at 5 sites (M1, S10); still also a test scene |
 | Upgrade shop | Test scenes only (by decision) |
-| Boss arena entrances | Placed at provisional spots (needs review); La Mojiganga's parade is a warning + arrow, not a street parade |
-| Panzón | Built, AG proposal, not confirmed for the gordo slot |
+| Boss entrances | JJ's fixed arrows (cañerías, panteón); the Mojiganga's "parade" is a warning, not a street parade |
+| Panzón | Reworked by JJ (75 life, stone skin); joins map mobs from night 7 |
 | Gordo type | Placeholder stats, never spawned |
 | Guns | Not sold; no illegal market (S7) |
 | Palomita | No shop or drop |
 | Consumable buffs (Takis, tachas, cigarros, caguama dizziness) | Text only |
-| Thirst, stamina | Not implemented |
+| Thirst | Not implemented (the special-move stamina exists) |
 | Neighbours Güero, Sofía, Toño | Lines only |
-| Temple well, water handouts | Visual only |
-| La Gotera, Los Reservorios | Not built |
-| Police | No code (S3) |
-| Outside NPCs under Serenol at night | Not built (S6) |
+| Temple well | Secret by design; the chapel water is the handout (F3) |
+| La Gotera inside, Los Reservorios | Market and favela built; quests inside and the GelA fortress not built (F4, F5) |
+| Police | Cuicos by day (done); no night police by design |
+| Outside NPCs | Serenol veins and lines by day (S6); nobody outside at night by design |
 | Seller characters | Generic civilians with short lines |
 | Sounds | Many generated placeholders; JJ picks the real files (block sound, guns, casino) |
 | Clothes colour for the new protagonist model | Pending |
@@ -886,6 +929,21 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 | Data bugs: Bate has no damage; Mochilón name; galón and cigarettes text | §6.4 |
 | `MenuTest`'s map test and the safehouse's F10 open `map_test`, which autosaves at dawn over the real save | `Guardado.ESCENAS` |
 
+**FPS (S12, measured 2026-11-24 with `tools/medir_mapa.tscn`, same machine):** the merge of `testing-juanjo` costs a lot, and the sandbox and F3 cost nothing measurable.
+
+| Spot | Before the merge (`f635557`) | JJ's tip (`6d3098e`) | Now |
+|---|---|---|---|
+| Spawn by day | 197 FPS | 113 | 113 |
+| Walk by day | 188 | 109 | 109 |
+| Horde of 30 | 89-103 | 21-41 | 20-32 |
+| Draw calls at spawn | 899 | 1,252 | 1,256 |
+
+It is CPU-bound (GPU about 2 ms). Two bisects over JJ's commits (`docs/pruebas-balance.md`) found the causes:
+- **The horde:** `edf427e`, the zombie redesign. With no female zombies (so no `PeloZombi` hair simulation) the horde returns to 95 / 75 FPS.
+- **Day:** `0c0c1c4`, the cuicos. Turning them off gives +20 % by day.
+
+How to lighten both is **needs review** with JJ.
+
 ### 9.4 Open TODOs (from `docs/pruebas-balance.md` "Pendientes de la pelea" and the plan)
 
 - New healing animation (Quaternius `Consume`) for Q.
@@ -895,9 +953,9 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 - Gordo zombie attacks and numbers.
 - Tune weapon damage, zombie life/speed, tinaco life, hordes and pay (all first guesses).
 - Playtest checks: PSX zombie skins, detection distances, the milestones and the guarded bag, FPS before/after (`tools/medir_mapa.tscn` was not rerun after this change).
-- Campaign plan: L12 graph rebuild; S1-S12 systems; P0-P7 places; F1-F5 fortresses; M1-M10 missions.
+- Campaign plan: S7, F4, F5, M7c, M8, M9, M10 (see §7.2).
 - Give *agua* a real source (or remove it); rename the mochilón; fix "infección" → "sed", "zombies" → "zombis".
-- Gotera missions that grant casino permission.
+- Wire El Sótano's permission to the mafia trust step 1 (`misiones.md`).
 - Real spots for the boss arrows; a real street parade for La Mojiganga.
 
 ### 9.5 Needs review (all flagged items in one place)
@@ -921,7 +979,7 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 | 15 | Brazalete de cobre | Docs say unused; item text says it works |
 | 16 | Skin tone affects prices | Rule stated; nothing reads it |
 | 17 | Gamepad overlaps | RB, R3, Q/E double bindings |
-| 18 | Gotera trust steps | Count and names are proposals |
+| 18 | ~~Gotera trust steps~~ | **Replaced:** five mafia deliveries open the favela (see #38) |
 | 19 | Lore canon in the code | Güero's lines mention the palace; La Palmada well; school and palace names pending |
 | 20 | Alcohol del 96, Tablas, Cloralex | Sold but no current use in the map |
 | 21 | Horde growth cap | 15 %/night growth stops at the 30-zombie pool (`Zombis.max_total`) around night 8 |
@@ -929,6 +987,20 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 | 23 | Leader drinks your water | Destroys the player's water items (fits lore: zombies want clean water); confirm the team wants item loss |
 | 24 | Tinaco defence vs sandbox | `plan-noche.md`: the Santa Mugre tinaco defence is forced; losing the tinaco used to end the run, now nothing ends. What losing it costs is undecided |
 | 25 | Many new numbers | Milestones, guard counts, leader stats, skill costs, refill and growth rates are all *first guess* |
+| 26 | Sandbox vs campaign | The endless sandbox (2026-11-23) sits next to JJ's roughly linear campaign (Santa Mugre → La Gotera → GelA, the cucarrata as checkpoint) |
+| 27 | Who unlocks the specials | Campaign (`ensena`) or tazos: today either one does |
+| 28 | FPS after the merge | 197 → 113 by day, horde 89-103 → 21-41 (§9.3) |
+| 29 | Cucarrata docs | Its CLAUDE.md header says "no lore, mission or arena yet" but all three exist; `plan-noche.md` M11 still says "baldío del norponiente", the code uses warehouse #34 |
+| 30 | Truck giver and pay | `misiones.md` §2: Chava and Nacho, $60-100 per stop; the game: Gabriel and Nacho, $80 per stop + $40 base |
+| 31 | Gate guard | §2 table says recurring and voluntary; the text and `guardia_reja.tres` say once only |
+| 32 | Gate wear | §2 still has "−0.25 per guard"; F1 and the code dropped it |
+| 33 | Police slang | `docs/sistemas/misiones.md`: "cuicos (not blancos)"; `misiones.md` §2 and L9/L10 still say "blancos" |
+| 34 | Decreto 47 pay | L9 table "200"; the text and the `.tres` say $150 |
+| 35 | Mafia store count | "19 punto stores" in L10 vs 8 in the game |
+| 36 | Santa Mugre wall height | 4.5 m in the Blender colony vs 2.6 m in `fortalezas.json` for the `map_test` wall (different walls?) |
+| 37 | Undocumented step | `JEFE_CALLE` has no section in `docs/sistemas/misiones.md` |
+| 38 | Gotera trust | The 4-step table (💡) is still shown next to "5 deliveries open the favela" |
+| 39 | Panzón tinaco rule | The GDD said it targets the tinaco past 25 m; the code now targets the player only within 12 m |
 
 ---
 
@@ -952,8 +1024,10 @@ Underground casino of the Gotera under a Santa Mugre store; open at night; one c
 | Day/night, structure, survival | `scripts/map/Ciclo.gd`, `scripts/map/Partida.gd`, `scripts/Noches.gd`, `scripts/HitoNoche.gd`, `scripts/TablaHitos.gd`, `resources/noches/hitos.tres`, `scripts/map/Supervivencia.gd`, `scripts/map/BolsaMuerte.gd`, `scripts/map/GuardiaBolsa.gd`, `scripts/map/Refugio.gd`, `scripts/map/EntradaRefugio.gd` |
 | Save, boss trips | `scripts/Guardado.gd`, `scripts/mapa/PasoJefe.gd`, `scripts/mapa/EntradaJefe.gd` (Juanjo's) |
 | Zombies | `scripts/map/Zombie.gd`, `Zombis.gd`, `Director.gd`, `RitmoNoche.gd`, `ConfigZombis.gd`, `CampoFlujo.gd`, `Deterioro.gd`, `resources/zombis/` |
-| Special enemies | `scripts/map/Saltabardas.gd`, `scripts/map/Panzon.gd`, `scripts/map/RocaPanzon.gd` |
-| Bosses | `scripts/lombrices/` (Madre, swarm, solver), `scripts/catrina/` (Mojiganga), `scripts/sotano/Desaguadora.gd`, `Desague.gd` |
+| Special enemies, police | `scripts/map/Saltabardas.gd`, `scripts/map/Panzon.gd`, `scripts/map/RocaPanzon.gd`, `scripts/map/Cuico.gd`, `Cuicos.gd`, `scripts/personajes/VenasSerenol.gd`, `scripts/map/ZombiSerenol.gd` |
+| Bosses | `scripts/lombrices/` (Madre, swarm, solver, cañerías: `Tuneles.gd`, `TunelesNivel.gd`), `scripts/catrina/` (Mojiganga), `scripts/cucarrata/`, `scripts/ptero/`, `scripts/simi/`, `scripts/sotano/Desaguadora.gd`, `Desague.gd` |
+| Mission systems (JJ) | `scripts/MisionesUI.gd`, `scripts/map/Acompanante.gd`, `CamionetaReparto.gd`, `scripts/mapa/CallesRuta.gd`, `scripts/defensa/SitiosTinaco.gd`, `scripts/map/FortalezasMapa.gd`, `PalacioOficinas.gd`, `BodegaGela.gd`, `PanteonMapa.gd`, `Panteon.gd`, `DropsRaros.gd`, `scripts/map/Carretilla.gd`, `scripts/EstaminaEspecial.gd` |
+| Tests | `tools/comprobaciones/` (`Correr.gd`, `correr.sh`, one file per test), `docs/sistemas/comprobaciones.md` |
 | Effects | `scripts/map/EfectosPixel.gd`, `Liquido.gd`, `RestosZombi.gd`, `resources/fx/`, `tools/pixelfx/`, `shaders/` |
 | Tinaco defence | `scripts/defensa/` (`DefensaTinaco.gd`, `Hordas.gd`, `Barricada.gd`, `TinacoDefensa.gd`, `MonitorDefensa.gd`), `scenes/defensa_tinaco.tscn`, `scenes/escena_carrera.tscn`, `scripts/refugio/RefugioCarrera.gd` |
 | Real map | `scripts/map/MapStreamer.gd`, `CargaCuadro.gd`, `MapPuntos.gd`, `MapCasas.gd`, `MapBodegas.gd`, `MapBardas.gd`, `MapArboles.gd`, `MapPasto.gd`, `MapAlumbrado.gd`, `Alumbrado.gd`, `MapDron.gd`, `MapMinimapa.gd`, `MuroColonia.gd`, `tools/map_import/`, `resources/map/` |
