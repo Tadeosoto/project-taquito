@@ -26,12 +26,19 @@ extends SceneTree
 # con forro naranja que asoma en la orilla y el cuello, playera amarilla, mezclilla azul, tenis
 # oscuros y bigote delgado. Va a protagonistas/felipe/.
 #   godot --path . --headless -s tools/personajes/el_compa.gd -- --felipe
+# Con -- --patron pinta al patron de El Punto (no es protagonista: es el que vende los fierros, sentado
+# en su oficina, scripts/interiores/Punto.gd): camisa de seda negra de manga larga con estampado
+# barroco dorado y gris, abierta al pecho con cadena gruesa y cruz de oro, cabeza rapada con sombra
+# de barba, candado (bigote y barba de chivo), pantalon negro y zapatos negros. Va a
+# models/personajes/patron/ (Character_04.png, para la malla de hombre_04 del pack PSX).
+#   godot --path . --headless -s tools/personajes/el_compa.gd -- --patron
 
 const CARPETA := "res://models/personajes/protagonistas/el_compa/"
 const CARPETA_HOMERO := "res://models/personajes/protagonistas/homero/"
 const CARPETA_RAMON := "res://models/personajes/protagonistas/ramon/"
 const CARPETA_EMILIANO := "res://models/personajes/protagonistas/emiliano/"
 const CARPETA_FELIPE := "res://models/personajes/protagonistas/felipe/"
+const CARPETA_PATRON := "res://models/personajes/patron/"
 const SEMILLA := 7
 
 # --- Colores ---
@@ -99,6 +106,7 @@ var homero := false
 var ramon := false
 var emiliano := false
 var felipe := false
+var patron := false
 
 # --- Felipe (en el espacio del modelo, como la guayabera) ---
 const AMARILLA := Color(0.93, 0.66, 0.12)        # la playera
@@ -150,6 +158,15 @@ const ALFORZAS_ATRAS := [0.0, 0.03, 0.2, 0.23]          # |z| de las de atras
 const BOTONES_Y := [2.55, 2.78, 3.01, 3.24, 3.47, 3.70, 3.90]
 const BOLSAS := [Rect2(0.15, 3.33, 0.15, 0.2), Rect2(0.15, 2.66, 0.17, 0.22)]  # z, y, ancho, alto (de un lado)
 const PUNO_Y := 2.42                             # la costura del puno de la manga
+# --- El patron ---
+const SEDA := Color(0.05, 0.05, 0.06)
+const BARROCO_ORO := Color(0.62, 0.48, 0.2)
+const BARROCO_GRIS := Color(0.34, 0.34, 0.37)
+const BARROCO := 34.0                            # que tan apretado va el estampado (vueltas por m de modelo)
+const RAPADO := Color(0.30, 0.22, 0.18)          # la sombra del pelo rapado, sobre la piel
+const CANDADO_Y := Vector2(4.03, 4.19)           # de la barbilla al bigote
+const CANDADO_MEDIO := 0.045                     # medio ancho de la barba de chivo
+const RAPADO_DESDE := 4.33                       # y arriba de las cejas
 
 
 func _init() -> void:
@@ -157,6 +174,7 @@ func _init() -> void:
 	ramon = "--ramon" in OS.get_cmdline_user_args()
 	emiliano = "--emiliano" in OS.get_cmdline_user_args()
 	felipe = "--felipe" in OS.get_cmdline_user_args()
+	patron = "--patron" in OS.get_cmdline_user_args()
 	rng.seed = SEMILLA
 	img = Image.load_from_file(ProjectSettings.globalize_path(CARPETA + "Character_04_original.png"))
 	img.convert(Image.FORMAT_RGBA8)
@@ -191,7 +209,30 @@ func _init() -> void:
 			var nuevo := c
 			var es_piel := false
 			var q: Variant = posiciones.get(Vector2i(x, y))
-			if homero and q != null and (e in CHAMARRA or e in ANTEBRAZOS or (e in PANTALON and q.y > GUAYABERA_HASTA)):
+			if patron and q != null and (e in CHAMARRA or e in ANTEBRAZOS):
+				nuevo = _seda(q, f)
+				if e == PECHO_ISLA:
+					var pecho := _pecho(p)
+					if pecho < 0.0 and CUELLO.has_point(p) and c.r - c.b > 0.12 and c.s > 0.3 and c.v > 0.45:
+						pecho = 0.9
+					if pecho >= 0.0:
+						nuevo = PIEL * pecho
+						es_piel = true
+					# La cadena gruesa: la misma de El Compa, mas ancha
+					var joya := maxf(_joya(p), _joya(p + Vector2(0, 0.6)))
+					if joya > 0.0:
+						nuevo = ORO if joya > 1.5 else ORO_OSCURO
+						es_piel = false
+			elif patron and (e in CHAMARRA or e in ANTEBRAZOS):
+				nuevo = SEDA
+			elif patron and k.ends_with("pelo") and (e in SOLO_PELO or _rapado(q)):
+				# Rapado: piel con la sombra del pelo que vuelve a salir
+				nuevo = RAPADO * clampf(f, 0.7, 1.3)
+			elif patron and (k.ends_with("piel") or e in MANOS) and e in CABEZA and _candado(Vector2i(x, y)):
+				nuevo = PELO * clampf(f, 0.7, 1.3)
+			elif patron and (e in ZAPATOS or e in SUELAS):
+				nuevo = ZAPATO * lerpf(1.0, f, 0.6)
+			elif homero and q != null and (e in CHAMARRA or e in ANTEBRAZOS or (e in PANTALON and q.y > GUAYABERA_HASTA)):
 				nuevo = _guayabera(e, q, f)
 			elif homero and (e in CHAMARRA or e in ANTEBRAZOS):
 				# Las orillas de la isla que no tocan la malla (no tienen punto 3D): se quedaban mostaza
@@ -287,7 +328,7 @@ func _init() -> void:
 			img.set_pixel(x, y, nuevo)
 			if es_piel:
 				mascara.set_pixel(x, y, Color.WHITE)
-	var destino := CARPETA_HOMERO if homero else (CARPETA_RAMON if ramon else (CARPETA_EMILIANO if emiliano else (CARPETA_FELIPE if felipe else CARPETA)))
+	var destino := CARPETA_PATRON if patron else CARPETA_HOMERO if homero else (CARPETA_RAMON if ramon else (CARPETA_EMILIANO if emiliano else (CARPETA_FELIPE if felipe else CARPETA)))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(destino))
 	img.save_png(ProjectSettings.globalize_path(destino + "Character_04.png"))
 	mascara.save_png(ProjectSettings.globalize_path(destino + "piel.png"))
@@ -490,6 +531,35 @@ func _hebilla(x: int, y: int) -> Color:
 	var d := absf(x - s.x * 0.5 + 0.5) + absf(y - s.y * 0.5 + 0.5)
 	if absi(int(d) - 6) == 0: return ORO_OSCURO
 	return ORO * (1.1 if (x + y) % 5 == 0 else 1.0)
+
+
+# La seda del patron en el punto q: negra con un estampado barroco (volutas que se repiten) dorado y
+# gris, y el brillo de la tela (mas contraste de la sombra original que en el algodon)
+func _seda(q: Vector3, f: float) -> Color:
+	var luz := clampf(lerpf(1.0, f, 0.7), 0.6, 1.5)
+	var u := q.y * BARROCO
+	var v := (q.z + q.x) * BARROCO
+	var voluta := sin(u) * sin(v) + 0.5 * sin(2.3 * u + 1.7 * v) + 0.35 * cos(3.1 * v - 0.7 * u)
+	if voluta > 0.95:
+		return BARROCO_ORO * luz
+	if voluta > 0.7:
+		return BARROCO_GRIS * luz
+	return SEDA * luz * 1.4
+
+
+# Donde la cabeza del patron va rapada aunque la isla mezcle pelo con ojos y cejas: arriba de las
+# cejas y todo lo de atras y los lados (los ojos y cejas solo estan en la cara de enfrente)
+func _rapado(q: Variant) -> bool:
+	return q != null and ((q as Vector3).y > RAPADO_DESDE or (q as Vector3).x < BIGOTE_FRENTE)
+
+
+# El candado del patron: bigote completo y la barba de chivo bajando a la barbilla
+func _candado(px: Vector2i) -> bool:
+	if _bigote(px):
+		return true
+	if not posiciones.has(px): return false
+	var q: Vector3 = posiciones[px]
+	return q.x > BIGOTE_FRENTE and absf(q.z) < CANDADO_MEDIO and q.y > CANDADO_Y.x and q.y < CANDADO_Y.y
 
 
 func _bigote(px: Vector2i) -> bool:

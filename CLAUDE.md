@@ -27,6 +27,7 @@ tools/comprobaciones/correr.sh     # the headless test suite (~90 s; exit 0 = al
 - **Protagonist swap** (in `main-testing`): the ninja protagonist is now `el_compa` with retargeted Quaternius clips (see `docs/sistemas/personaje.md`): the swing is the sword clips, the trail follows the weapon tip, and the pistol uses the pistol clips. Store sellers and street walkers are PSX-pack civilians too (see NPC and People); other NPCs stay ninja. Clothes colour for the new model is pending.
 - **Pending fight work (JJ, 2026-11-04)**, listed in Spanish in `docs/pruebas-balance.md` ("Pendientes de la pelea"): a new healing animation (Q, `Player._curarse`; Quaternius has `Consume`), a 10 % chance that a zombie blocks a melee hit (the machete bounces back with a little lag), and a better fight HUD, and a better block sound.
 - **New bosses pending (2026-11-22)**: the pterodactyl (`scripts/ptero/`) and the Simi bailador (`scripts/simi/`) work in their tests but nobody has played them in a window. Pending: their sounds (JJ picks them in Splice; register `ptero_<evento>` / `simi_<evento>` in `Sonidos.ARCHIVOS`, lists in each folder's `CLAUDE.md`), balancing their numbers (`docs/pruebas-balance.md`), JJ reviewing the Simi's small additions to `player.gd` (`atrapar` dances) and `character_animation.gd` (the `baila` state), and recording the Simi fight video (`tools/probar_simi_jefe.tscn -- --video`, mp4 to `~/capturas`).
+- **Yonke crusher sounds**: JJ picks `prensa_baja`/`prensa_sube` for `Sonidos.ARCHIVOS`.
 - **Balance pending**: weapon damage, zombie life/speed, tinaco life, hordes and pay are first guesses. `docs/pruebas-balance.md` (Spanish) lists every number, where it lives and how Alan should run the test; record results there.
 
 ## Architecture
@@ -67,6 +68,7 @@ Read the file before changing that system, and keep it in sync with the code. Fi
 - `docs/sistemas/dialogo.md`: the `DialogueBox` every NPC talks through (typewriter, blips, `[feliz]`/`[enojo]`/`[clave]`, pixelfx via `EfectosPixel.hoja_ui`; pauses the tree), from branch `dialogos-test`.
 - `docs/sistemas/tazos.md`: `Tazos`, skills, bags, the reveal, the album.
 - `docs/sistemas/taller.md`: crafting, `Tiliches` and the cangurera, loot boxes, trophies, recipes, El Yonke.
+- Yonke and El Punto are Blender models (`tools/blender/negocios/`): `docs/mapa/tecnico.md`.
 - `docs/sistemas/libreta.md`: the bestiary (`Libreta`, entries, page, drawings, unlock hooks).
 - `docs/sistemas/casa.md`: the protagonist's house and the neighbours' houses.
 - `docs/sistemas/sotano.md`: El Sótano, the Gotera's underground casino under Santa Mugre (`Fichas` autoload, EL GORDO machines (`OlPley*` in code) on the cabinet screen, Texas Hold'em with moving cards, blackjack, roulette, baccarat, races, bar, walkers and shady people, the Primo's window, the Silent Hill bathroom with its secret boss (La Desaguadora), the VIP room, Blender room, seats, bottles, tube neon, the lever, casino sounds, 3D card art) and the Blender adorno on every fruit machine (`Maquinita.moneda` for chips).

@@ -33,5 +33,6 @@ The exit code is failures plus script errors (0 = all good). A full run takes ab
   - `capilla`: the chapel (F3): the cupo, water at dawn, the filter mission after the gate guard, a Puri-GelA outside the walls, and that it saves.
   - `entrada_jefe`: Juanjo's `EntradaJefe` is gated by milestone without a mission; inside the fight there is `aguante`; a faint returns with the bag at the entrance.
   - `dialogo`: the `DialogueBox` opens, pauses and closes with Space.
+  - `negocios`: the Blender Yonke and El Punto: the yard with its piles, arrow and fence, the cantina with its wings (and without them in a 5 m lot), both interiors with their room and seller, and El Punto selling the three guns.
   - `escenas`: the main scenes load and keep running (`inicio`, `safehouse`, `map_test`, `mapa`, `defensa_tinaco`, `lombrices`, `catrina`, `tuneles`).
 - **What it doesn't see:** anything that needs a window or the eye (screenshots, FPS: `tools/medir_mapa.tscn`), and the `simi_jefe.gltf` import error (its `scene.bin` is gitignored, JJ has it locally).

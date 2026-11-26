@@ -43,6 +43,9 @@ const CLIPS := [
 	"Crying",
 	# El Simi jefe (scripts/simi/): su baile y su patada (UAL1 Source)
 	"Simi_Baile", "Kick",
+	# Los chalanes del Yonke (YonkeMapa.CHALANES): arreglando un carro hincado, al telefono, de brazos
+	# cruzados junto a la prensa, en cuclillas y recogiendo del suelo
+	"Fixing_Kneeling", "Idle_TalkingPhone", "Idle_FoldArms", "Crouch_Idle", "PickUp_Kneeling",
 ]
 
 

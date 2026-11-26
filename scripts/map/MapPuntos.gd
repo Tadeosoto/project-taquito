@@ -237,6 +237,8 @@ signal entrar_negocio(tipo: String, giro: String, nombre: String, aire_libre: bo
 # puesto de tacos. Solo los tipos que estan aqui llevan vendedor (el punto te mete a
 # su cuarto, scenes/interiores/punto.tscn)
 @export var vendedor_atras: Dictionary[String, float] = {}
+# Lote minimo (m de frente) para poner la cantina de El Punto (PuntoMapa encoge hasta 0.75)
+const PUNTO_ANCHO_MIN := 4.0
 
 # El nodo Interiores (scripts/interiores/Interiores.gd): de su `escenas` sale lo que
 # se ve adentro de cada local por la cortina abierta
@@ -434,9 +436,18 @@ func _make_punto(punto: Dictionary) -> Node3D:
 	var tipo: String = punto["tipo"]
 	var node: Node3D
 	if tipo == "punto":
-		# La casa ya la dibuja MapCasas; aqui solo va su marcador
+		# La cantina de El Punto (PuntoMapa, el .glb de Blender) con la fachada al frente del lote;
+		# la flecha va frente a su puerta. En las colonias de Blender ("sin_flecha": la puerta y la
+		# casa son de la colonia), en un lote de menos de PUNTO_ANCHO_MIN o con "casa_reemplazada"
+		# solo va el marcador
 		node = Node3D.new()
 		node.name = "punto_%s" % punto.get("origen", "")
+		if not punto.get("casa_reemplazada") and not punto.get("sin_flecha", false) 				and float(punto.get("ancho", 0.0)) >= PUNTO_ANCHO_MIN:
+			var cantina := PuntoMapa.new()
+			cantina.ancho = float(punto.get("ancho", 0.0))
+			cantina.position.z = float(punto.get("fondo", 0.0)) / 2.0
+			node.add_child(cantina)
+			punto["puerta_x"] = PuntoMapa.PUERTA_X * PuntoMapa.escala(cantina.ancho)
 	elif GIROS_LOCAL.has(tipo):
 		node = _make_local_giro(punto)
 	elif tipo == "puesto_tacos":

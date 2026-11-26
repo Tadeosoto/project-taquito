@@ -54,7 +54,7 @@ const CASAS := {"urbi_1p_a": Vector2(6.79, 7.37), "urbi_1p_b": Vector2(6.8, 7.37
 	"urbi_2p_a": Vector2(7.5, 6.94), "urbi_2p_b": Vector2(8.42, 6.94), "urbi_2p_c": Vector2(8.58, 6.94)}
 const CASAS_Z := 41.0
 const COLORES := ["#e05a47", "#f2994a", "#f2c94c", "#7cc06a", "#4aa3df", "#b07cc6"]
-const MAQUINAS_X := -46.0
+const MAQUINAS_X := -17.0     # junto al yonke grande (antes en -46, donde ahora esta su patio)
 const MAQUINAS_Z := [-14.0, -9.0, -4.0]
 const MAQUINAS_NOMBRES := ["Normal", "Sin monedas", "Segura"]
 const OBJETOS_ORIGEN := Vector2(-14.0, 18.0)
@@ -86,7 +86,10 @@ const PUNTOS_MAFIA_PASO := 9.0
 const CHATARRA_EN := [Vector3(17.0, 0.0, 6.0), Vector3(19.5, 0.0, 6.0)]
 const MATERIALES_PRUEBA := 5   # de cada material comun y especial con Shift+P
 const CANGURERA := "res://resources/productos/cangurera.tres"
-const YONKE_EN := Vector3(-36.0, 0.0, 14.0)
+# El yonke (28 x 40 m hacia -Z) con su porton en z = 14, y enfrente, cruzando la "calle", la cantina
+# de El Punto viendo hacia el (PuntoMapa, girada media vuelta: se mete hacia +Z)
+const YONKE_EN := Vector3(-35.4, 0.0, 14.0)
+const PUNTO_EN := Vector3(-37.0, 0.0, 24.0)
 const PANZON_DISTANCIA := 18.0   # m enfrente donde sale con Shift+J
 const SALTABARDAS_DISTANCIA := 16.0   # m enfrente donde sale con Shift+G
 const BOTIN_DISTANCIA := 5.0   # m enfrente a los que salen las cajitas con Shift+Z
@@ -295,7 +298,9 @@ func _ready() -> void:
 	_partida.piezas_en_el_mapa = false
 	_partida.habilidades_de_tazos = false
 	# Uno por mision (Misiones.ARCHIVOS) y el ultimo para el nino de los tazos
-	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(10.0, 0.0, 2.0), Vector3(16.0, 0.0, 2.0), Vector3(22.0, 0.0, 2.0), Vector3(28.0, 0.0, 2.0), Vector3(34.0, 0.0, 2.0), Vector3(-22.0, 0.0, 10.0), Vector3(-14.0, 0.0, 10.0), Vector3(-6.0, 0.0, 10.0), Vector3(2.0, 0.0, 10.0), Vector3(10.0, 0.0, 10.0), Vector3(18.0, 0.0, 10.0), Vector3(-38.0, 0.0, 10.0), Vector3(-30.0, 0.0, 10.0), Vector3(26.0, 0.0, 10.0), Vector3(34.0, 0.0, 10.0), Vector3(-22.0, 0.0, 2.0), Vector3(-30.0, 0.0, 2.0), Vector3(-38.0, 0.0, 2.0), Vector3(-46.0, 0.0, 10.0), Vector3(-46.0, 0.0, 2.0)]
+	# (los de x <= -22 estaban donde ahora va el patio del yonke: pasaron a la fila de z = -22; el nino
+	# de los tazos, el ultimo, sigue junto al yonke, en la calle entre el y la cantina)
+	var vecinos: Array[Vector3] = [Vector3(-14.0, 0.0, 2.0), Vector3(-8.0, 0.0, 2.0), Vector3(-2.0, 0.0, 2.0), Vector3(4.0, 0.0, 2.0), Vector3(10.0, 0.0, 2.0), Vector3(16.0, 0.0, 2.0), Vector3(22.0, 0.0, 2.0), Vector3(28.0, 0.0, 2.0), Vector3(34.0, 0.0, 2.0), Vector3(-10.0, 0.0, -22.0), Vector3(-14.0, 0.0, 10.0), Vector3(-6.0, 0.0, 10.0), Vector3(2.0, 0.0, 10.0), Vector3(10.0, 0.0, 10.0), Vector3(18.0, 0.0, 10.0), Vector3(-4.0, 0.0, -22.0), Vector3(2.0, 0.0, -22.0), Vector3(26.0, 0.0, 10.0), Vector3(34.0, 0.0, 10.0), Vector3(8.0, 0.0, -22.0), Vector3(14.0, 0.0, -22.0), Vector3(20.0, 0.0, -22.0), Vector3(26.0, 0.0, -22.0), Vector3(-27.0, 0.0, 19.0)]
 	var puntos_mafia := {}
 	for i in PUNTOS_MAFIA.size():
 		puntos_mafia[PUNTOS_MAFIA[i]] = Vector3(PUNTOS_MAFIA_X, 0.0, PUNTOS_MAFIA_Z + i * PUNTOS_MAFIA_PASO)
@@ -332,6 +337,13 @@ func _ready() -> void:
 	yonke.con_barda = true
 	yonke.puntos_path = get_node("Puntos").get_path()
 	add_child(yonke)
+	# La cantina de El Punto (PuntoMapa) completa, con su anexo y su lote, enfrente del yonke: en la
+	# fila de NEGOCIOS el punto es un lote de 3 m (solo la flecha), porque la fila ya llega a la barda
+	var cantina := PuntoMapa.new()
+	cantina.name = "CantinaPunto"
+	cantina.position = PUNTO_EN
+	cantina.rotation.y = PI
+	add_child(cantina)
 	# Palomas (scripts/mapa/Palomas.gd, las de la plaza de Santa Mugre): se espantan si pasas corriendo
 	var palomas := Palomas.new()
 	palomas.name = "Palomas"

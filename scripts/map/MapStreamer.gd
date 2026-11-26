@@ -111,6 +111,17 @@ func _add(archivo: String, scene: PackedScene) -> void:
 	var node := scene.instantiate() as Node3D
 	add_child(node)
 	_loaded[archivo] = node
+	# Un terreno apartado (ZonasLibres: el patio del Yonke) pierde los edificios de OSM horneados
+	var cuadro := _cuadro_de(archivo)
+	if not cuadro.is_empty():
+		ZonasLibres.cuadro_cargado(node, cuadro["min_x"], cuadro["max_x"], cuadro["min_z"], cuadro["max_z"])
+
+
+func _cuadro_de(archivo: String) -> Dictionary:
+	for cuadro: Dictionary in _cuadros:
+		if cuadro["archivo"] == archivo:
+			return cuadro
+	return {}
 
 
 # Distancia del jugador al rectangulo del cuadro (0 si esta adentro)

@@ -103,6 +103,9 @@ func _ready() -> void:
 	var faltan := {}
 	for casa: Dictionary in data["casas"]:
 		var modelo: String = casa["modelo"]
+		# Un terreno apartado (ZonasLibres: el patio del Yonke) no lleva casas
+		if ZonasLibres.pisa_lote(casa["x"], casa["z"], casa["rotacion_y"], casa["ancho"], casa["fondo"]):
+			continue
 		if not _mallas.has(modelo):
 			if not modelos.has(modelo) or modelos[modelo] == null:
 				faltan[modelo] = faltan.get(modelo, 0) + 1
@@ -186,6 +189,9 @@ func _crear_celda(casas: Array) -> Node3D:
 
 	for casa: Dictionary in casas:
 		var modelo: String = casa["modelo"]
+		# La casa de El Punto ya no se dibuja aqui: MapPuntos pone la cantina (PuntoMapa) en su lote
+		if casa.get("punto", false):
+			continue
 		if not _mallas.has(modelo):
 			continue
 		var info: Dictionary = _mallas[modelo]

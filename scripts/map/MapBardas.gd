@@ -77,6 +77,9 @@ func _ready() -> void:
 			var medio: Vector2 = (panel["a"] + panel["b"]) / 2.0
 			if bocas.any(func(b: Vector2) -> bool: return b.distance_to(medio) < LIBRE_BOCA):
 				continue
+			# Ni en un terreno apartado (ZonasLibres: el patio del Yonke trae su barda)
+			if ZonasLibres.ocupado(Vector3(medio.x, 0.0, medio.y)):
+				continue
 			_celda(medio)["paneles"].append(panel)
 	for pluma: Dictionary in data["plumas"]:
 		_celda(Vector2(pluma["x"], pluma["z"]))["plumas"].append(pluma)
