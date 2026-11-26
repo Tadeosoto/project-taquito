@@ -13,25 +13,6 @@ const OBJETOS := "res://models/objetos/%s/%s.scn"
 
 # id -> datos. modelo: ["arma"|"forma"|"objeto", nombre]. Lo que no se pone usa el default
 const TABLA := {
-	# --- Consumibles ---
-	"caldo_pollo": { "nombre": "Caldo de pollo", "descripcion": "Caliente, con su limón. Como el de tu abuela.",
-		"efecto": "+60 de vida", "modelo": ["objeto", "tejuino"], "tinte": Color(0.85, 0.6, 0.25), "curacion": 60 },
-	"remedio_abuela": { "nombre": "Remedio de la abuela", "descripcion": "Vaporub, té y un trapito en la frente. Te deja como nuevo.",
-		"efecto": "Cura toda la vida", "modelo": ["objeto", "vaporub"], "curacion": 999 },
-	"suero_oral": { "nombre": "Suero oral", "descripcion": "Del de sobre, preparado con agua de la llave. Sabe a lágrima.",
-		"efecto": "+40 de vida", "modelo": ["objeto", "botella"], "tinte": Color(0.6, 0.85, 1.0), "curacion": 40 },
-	"te_virgen": { "nombre": "Té de la Virgen", "descripcion": "Té de hierbas con agua bendita. Dicen que cura lo que sea.",
-		"efecto": "Cura toda la vida", "modelo": ["objeto", "tejuino"], "tinte": Color(0.4, 0.8, 0.4), "curacion": 999 },
-	"milagro_tinaco": { "nombre": "Milagro del tinaco", "descripcion": "Agua del tinaco que no se vacía. No preguntes.",
-		"efecto": "Cura toda la vida y vuelve a dejar usar Segundo aire esta noche", "modelo": ["objeto", "galon_agua"],
-		"tinte": Color(0.4, 0.9, 1.0), "curacion": 999, "recarga_segundo_aire": true },
-	# --- Estampitas: se usan una vez y duran la partida ---
-	"estampita_san_expedito": { "nombre": "Estampita de San Expedito", "descripcion": "El de las causas urgentes. Para ya.",
-		"efecto": "+1 punto de habilidad", "modelo": ["forma", "placa"], "tinte": Color(0.9, 0.3, 0.3), "estampita": "punto" },
-	"estampita_santo_nino": { "nombre": "Estampita del Santo Niño", "descripcion": "El Santo Niño de Atocha, con su canastita.",
-		"efecto": "-5 % de daño toda la partida", "modelo": ["forma", "placa"], "tinte": Color(0.95, 0.85, 0.5), "estampita": "defensa" },
-	"estampita_san_miguel": { "nombre": "Estampita de San Miguel", "descripcion": "San Miguel Arcángel pisando al chamuco.",
-		"efecto": "+5 % de fuerza toda la partida", "modelo": ["forma", "placa"], "tinte": Color(0.4, 0.5, 0.9), "estampita": "fuerza" },
 	# --- Amuletos (Bonos.gd): dos puestos a la vez ---
 	"pulsera_hilo_rojo": { "nombre": "Pulsera de hilo rojo", "descripcion": "Contra el mal de ojo. Y contra los zombis, quién sabe.",
 		"efecto": "Amuleto: +10 de vida máxima", "modelo": ["forma", "aro"], "tinte": Color(0.85, 0.1, 0.1), "amuleto": { "vida": 10 } },

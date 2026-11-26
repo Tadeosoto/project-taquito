@@ -479,12 +479,12 @@ Crafteo al estilo de la síntesis de Kingdom Hearts 1, con cosas de este mundo.
     - una noche sin que le peguen al tinaco;
     - matar al jefe;
     - dos zombis raros: el de GelA, de noche, y el de cobalto, en zonas con obra negra.
-- **Recetas:** 39 en seis juegos. La lista completa está en `docs/items.md`.
-  - **Cómo se abren:** el 2 al 5 con 3, 9, 15 y 21 cosas distintas hechas; el 6 pide todo lo anterior más su **plano**.
+- **Recetas:** 31 en seis juegos, solo cosas que se equipan (armas y amuletos) y dos materiales; los remedios y las estampitas se quitaron el 2026-11-25 porque eran demasiadas (JJ). La lista completa está en `docs/items.md`.
+  - **Cómo se abren:** el 2 al 5 con 3, 8, 13 y 16 cosas distintas hechas; el 6 pide todo lo anterior más su **plano**.
   - **Lo que se queda:** el **rango del taller y los planos** se quedan entre partidas.
   - **Planos:** dos están tirados frente a casas en obra negra y el tercero lo suelta el jefe.
   - **Precio:** cada receta pide materiales y unos pesos; Regateo los baja.
-  - **Qué hay:** remedios, **un arma por juego** (tubo, antorcha que quema, bate con púas, coa, machete de cañero, marro) y tres armas últimas (Machetón del 84, Lanza de varilla, Bate con clavos de cobalto). También **amuletos**, que se ponen en **dos lugares** y no ocupan inventario, y **estampitas**, que duran la partida (San Expedito da un punto de habilidad).
+  - **Qué hay:** **un arma por juego** (tubo, antorcha que quema, bate con púas, coa, machete de cañero, marro) y tres armas últimas (Machetón del 84, Lanza de varilla, Bate con clavos de cobalto). También **amuletos**, que se ponen en **dos lugares** y no ocupan inventario.
 - **Las armas** se escogen con **Equipar** en el inventario; sin elegir ninguna se pelea con la de más daño, como antes.
 - **Lo que falta:**
   - Arrojables: el Brazalete de cobre ya existe, pero no hay nada que aventar todavía.

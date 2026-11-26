@@ -99,6 +99,19 @@ const CONGELA_MATA := 0.08
 const CONGELA_ESCALA := 0.02
 # Cuando le pegan a el. El empujon va frenando: v * v / (2 * freno) = 1.5 m
 const GOLPEADO_EMPUJE := 7.0
+# Un golpe fuerte (empuja >= VUELA_DESDE: patada del Simi, cucarrata, pterodactilo, martillo del
+# Panzon, barridas de la Catrina...) te avienta: vuelas de espaldas, azotas y te levantas
+# (_salir_volando). Invulnerable todo el rato, sin control
+const VUELA_DESDE := 2.0
+const VUELA_SUBE := 11.0       # m/s hacia arriba con empuja 2 (gravedad 40: 1.5 m); crece con la fuerza
+const VUELA_LEJOS := 3.8       # m/s de lado por cada punto de empuja: la patada del Simi (3), unos 8 m
+const VUELA_FRENO_AIRE := 1.5  # en el aire casi no frena
+const VUELA_ARRASTRE := 18.0   # azotado, se arrastra poco en el piso
+const VUELA_IMPACTO := 0.67    # LiftAir_Fall_Impact
+const VUELA_TIRADO := 0.45     # tirado en el piso antes de levantarte
+const VUELA_LEVANTA := 1.53    # LayToIdle
+const VUELA_SUBE_DURA := 0.47  # LiftAir
+const VUELA_MAXIMO := 4.0      # s en el aire (atorado en una orilla): azota igual
 const GOLPEADO_FRENO := 16.3
 const CONGELA_GOLPEADO := 0.06
 const SACUDE_GOLPEADO := 0.09
@@ -147,7 +160,9 @@ const ESTALLIDO_ADELANTE := 0.3  # m frente al puno: revienta donde pega, no tap
 # al llevar el brazo atras ni al regresarlo
 const ESTELA_GOLPE := {"Sword_Regular_A": Vector2(0.10, 0.30), "Sword_Regular_B": Vector2(0.10, 0.32),
 	"Sword_Regular_C": Vector2(0.05, 0.75), "Sword_Dash_RM": Vector2(0.10, 0.60),
-	"Sword_Attack": Vector2(0.31, 0.50)}   # el tajo cargado: solo la bajada, no la subida ni el regreso
+	"Sword_Attack": Vector2(0.31, 0.50),   # el tajo cargado: solo la bajada, no la subida ni el regreso
+	# El combo pesado (PESADO): lo que la cabeza del marro va rapido
+	"Sword_Heavy_A": Vector2(0.35, 0.55), "Sword_Heavy_B": Vector2(0.32, 0.46), "Sword_Heavy_C": Vector2(0.43, 0.61)}
 const ESTELA_PASO := 6.0      # grados entre pedazos: con pocos cuadros salia en tiras rectas
 # Hacia donde corre el efecto de la barrida: de la derecha a la izquierda del personaje, un poco
 # al frente para que de lado a la camara no se voltee al azar
@@ -171,6 +186,26 @@ const COMBO_DESDE_B := 0.33
 # de COMBO_DESDE; uno mas temprano se ignora para pegar (machacar no adelanta el combo), aunque
 # si lo dejas apretado si cuenta para cargar
 const BUFFER_GOLPE := 0.15
+# Armas pesadas (InventoryItemData.pesada: el marro y su linea; JJ, 2026-11-25: "que sea lento
+# porque hace mas dano y que esos golpes tengan knockback"). Combo de tres golpes de UAL2 Source a
+# la `velocidad` del arma (0.7 el marro); el giro y el dash son los del machete. s del clip,
+# medidos con tools/taller/estelas_marro.tscn -- --medir (la cabeza del marro pasa de ~13 a
+# 52-63 m/s): pega = lo mas rapido del barrido, desde = ya puede salir el siguiente
+const PESADO := [
+	{"pega": 0.45, "desde": 0.55, "lado": 1.0, "remate": 1.0, "empuje": 0.45},
+	{"pega": 0.39, "desde": 0.46, "lado": -1.0, "remate": 1.0, "empuje": 0.45},
+	{"pega": 0.52, "desde": 0.61, "lado": 1.0, "remate": 1.5, "empuje": 1.5}]   # el tercero remata: pega y avienta mas
+const PESADO_QUEDA := 0.15     # s del clip despues de `desde` en que se acaba el golpe
+# Knockback: cada golpe pesado que no mata avienta al zombi (Zombie.empujar_bala, el de la
+# Tinaquera) PESADO_EMPUJE m/s por punto de `empujon` del arma por el `empuje` del paso, y lo
+# aturde. El marro no mata de un golpe (JJ): los golpes 1 y 2 lo recorren poquito (2.25 m/s,
+# ~0.4 m, frena a 6 m/s²) para que siga en alcance y entre el combo; el remate lo avienta ~4.7 m
+const PESADO_EMPUJE := 2.0
+# Dano en area (JJ: "que tenga eso de mas dano en area"): el machete le pega al mas cercano
+# (ATAQUE_MAXIMO); el golpe pesado, a los PESADO_MAXIMO mas cercanos en un arco mas ancho
+const PESADO_MAXIMO := 4
+const PESADO_ANGULO := 0.0     # coseno: media vuelta al frente (el machete, ATAQUE_ANGULO)
+const PESADO_TONO := 0.8       # el chiflido del golpe, mas grave
 # s desde que empieza un golpe en que caminas lento (GOLPE_VELOCIDAD), sin correr y viendo hacia
 # la camara, con el barrido solo en la parte de arriba del cuerpo. Antes (JJ) no se podia caminar
 # y con pelea_a_tiempo moverte cortaba el combo; AG lo cambio el 2026-11-04
@@ -448,6 +483,9 @@ var carretilla: Node3D = null
 const CARRETILLA_GIRO := 1.4        # rad/s que giras con A/D
 const CARRETILLA_VELOCIDAD := 0.8   # x la velocidad de trote
 var _aturdido := 0.0           # s que quedan aturdido: te tronó la palomita en la mano (aturdirte)
+var _vuelo := ""              # saliendo volando (_salir_volando): sube, aire, impacto, levanta
+var _vuelo_t := 0.0
+var _vuelo_sube := 0.0         # velocidad hacia arriba que se aplica en el siguiente _physics_process
 var _aventando := -1.0          # s del punado de sal; -1 = no
 var _avienta_dir := Vector3.FORWARD
 var _avienta_solto := false
@@ -505,6 +543,8 @@ var _estela_antes := []      # [mano, de la mano a la punta] del cuadro anterior
 var _lado_golpe := 1.0        # 1: de derecha a izquierda; -1: el de regreso del combo
 var _combo_hasta := 0.0       # s de juego en que se acaba la ventana del combo
 var _puno := -1               # paso del combo a mano limpia que va (PUNOS); -1 = con arma
+var _pesado := -1             # paso del combo pesado que va (PESADO); -1 = otro golpe
+var _golpe_dura := ATAQUE_ENFRIAR   # s que dura el golpe que va: el pesado dura mas
 var _golpe_guardado := false
 var _golpe_tras_brinco := false
 var _toque_accion := ""          # la ultima direccion que apretaste en el teclado (doble toque)
@@ -668,14 +708,15 @@ func _atacar() -> void:
 	var encadena := _enfriar > 0.0 and not _combo_roto
 	if _enfriar > 0.0 and not encadena:
 		return
-	if encadena and ATAQUE_ENFRIAR - _enfriar < _combo_desde():
-		if ATAQUE_ENFRIAR - _enfriar >= _combo_desde() - BUFFER_GOLPE:
+	if encadena and _transcurrido() < _combo_desde():
+		if _transcurrido() >= _combo_desde() - BUFFER_GOLPE:
 			_golpe_guardado = true
 		return
 	_golpe_guardado = false
 	_combo_roto = false
 	_tras_especial = false
 	_enfriar = ATAQUE_ENFRIAR
+	_golpe_dura = ATAQUE_ENFRIAR
 	_pega_en = ATAQUE_PEGA_EN
 	# Combo: mientras sigas pegando a tiempo, cada golpe va al reves del anterior; si tardas,
 	# empieza otra vez de derecha a izquierda
@@ -684,6 +725,22 @@ func _atacar() -> void:
 	_lado_golpe = -_lado_golpe if sigue else 1.0
 	_combo_hasta = ahora + ATAQUE_ENFRIAR + COMBO_VENTANA
 	# Sin arma (o si el protagonista pelea a punos), a punetazos: jab, cruzado, gancho (y vuelve)
+	if _pesada() and figura.has_method("golpe_pesado"):
+		_puno = -1
+		_pesado = (_pesado + 1) % PESADO.size() if sigue and _pesado >= 0 else 0
+		var paso: Dictionary = PESADO[_pesado]
+		var vel := _vel_arma()
+		_lado_golpe = paso["lado"]
+		_golpe_dura = (float(paso["desde"]) + PESADO_QUEDA) / vel
+		_enfriar = _golpe_dura
+		_pega_en = float(paso["pega"]) / vel
+		_combo_hasta = ahora + _golpe_dura + COMBO_VENTANA
+		figura.golpe_pesado(_pesado, vel)
+		_estela_antes = []
+		_mariposa_pendiente = true
+		_sonar("machetazo", SWING_VOLUMEN, PESADO_TONO)
+		return
+	_pesado = -1
 	if _punos() and figura.has_method("punetazo"):
 		_puno = (_puno + 1) % PUNOS.size() if sigue and _puno >= 0 else 0
 		_pega_en = PUNOS[_puno]["pega"]
@@ -726,6 +783,22 @@ func _arma() -> InventoryItemData:
 	return inventario.arma() if inventario else null
 
 
+# Traes un arma pesada (el marro): combo pesado, lento y con knockback (PESADO)
+func _pesada() -> bool:
+	var arma := _arma()
+	return arma != null and arma.pesada and not _a_punos()
+
+
+func _vel_arma() -> float:
+	var arma := _arma()
+	return maxf(arma.velocidad, 0.1) if arma else 1.0
+
+
+# s desde que salio el golpe que va (con _enfriar, que cuenta hacia atras desde _golpe_dura)
+func _transcurrido() -> float:
+	return _golpe_dura - _enfriar
+
+
 func _golpear(giro := false) -> void:
 	var dano := DANO_PUNO
 	var con_arma := false
@@ -739,6 +812,9 @@ func _golpear(giro := false) -> void:
 	var empujon := rasgos.empujon if rasgos else 1.0
 	var quema := rasgos != null and rasgos.quema
 	var remate: float = PUNOS[_puno]["dano"] if _puno >= 0 and not con_arma and not giro else 1.0
+	var pesado := _pesado >= 0 and con_arma and not giro
+	if pesado:
+		remate = PESADO[_pesado]["remate"]
 	dano = maxi(roundi(dano * _factor_dano * (GIRO_DANO if giro else 1.0) * remate), 1)
 	var frente := -frijol.global_transform.basis.z
 	frente.y = 0.0
@@ -783,13 +859,20 @@ func _golpear(giro := false) -> void:
 		if giro:
 			if lejos <= alcance * GIRO_ALCANCE:
 				alcanzados.append(zombi)
-		elif lejos <= alcance and hacia.normalized().dot(frente) >= ATAQUE_ANGULO:
+		elif lejos <= alcance and hacia.normalized().dot(frente) >= (PESADO_ANGULO if pesado else ATAQUE_ANGULO):
 			alcanzados.append(zombi)
 	# Solo a los ATAQUE_MAXIMO mas cercanos: amontonados, un combo mataba hasta 5
 	alcanzados.sort_custom(func(a: Node3D, b: Node3D) -> bool:
 		return a.global_position.distance_squared_to(global_position) < b.global_position.distance_squared_to(global_position))
-	for zombi in alcanzados.slice(0, GIRO_MAXIMO if giro else ATAQUE_MAXIMO):
+	var maximo := GIRO_MAXIMO if giro else (PESADO_MAXIMO if pesado else ATAQUE_MAXIMO)
+	for zombi in alcanzados.slice(0, maximo):
 		var resultado: int = zombi.recibir_golpe(dano, global_position, fuerza * empujon, truena_en, true, false, fuente)
+		# El knockback del arma pesada: lo avienta y lo aturde (el machete no empuja, Zombie.EMPUJON).
+		# Solo a los zombis chicos (JJ): a los jefes no, ni al garrafonero (un Zombie con es_jefe); el
+		# Panzon, el Saltabardas, los cuicos y los jefes de arena no tienen empujar_bala
+		if pesado and resultado == 1 and zombi is Zombie and not zombi.es_jefe:
+			zombi.empujar_bala(zombi.global_position - global_position,
+				PESADO_EMPUJE * empujon * PESADO[_pesado]["empuje"], true)
 		if quema and resultado == 1 and zombi.has_method("quemar"):
 			zombi.quemar()
 		pego = pego or resultado != 0
@@ -924,7 +1007,7 @@ func _cancelar_carga(soltar_pose := true) -> void:
 func _toca_pose_carga() -> bool:
 	var toca := golpe_cargado and not _pose_carga and _apretado >= CARGA_DECIDE and _especiales() \
 			and _enfriar > 0.0 and not _combo_roto and _giro < 0.0 and _estocada_t < 0.0 \
-			and ATAQUE_ENFRIAR - _enfriar >= _combo_desde() and figura.has_method("pose_carga")
+			and _transcurrido() >= _combo_desde() and figura.has_method("pose_carga")
 	return toca and _alcanza_carga()
 
 
@@ -951,6 +1034,8 @@ func _alcanza_carga() -> bool:
 
 # s del golpe que va en que ya puede salir el siguiente: al terminar de barrer, segun el clip
 func _combo_desde() -> float:
+	if _pesado >= 0:
+		return float(PESADO[_pesado]["desde"]) / _vel_arma()
 	if _puno >= 0:
 		return PUNOS[_puno]["desde"]
 	return COMBO_DESDE if _lado_golpe > 0.0 else COMBO_DESDE_B
@@ -1005,6 +1090,8 @@ func _girar(aire := false) -> void:
 	_combo_roto = true
 	_combo_hasta = 0.0
 	_puno = -1
+	_pesado = -1
+	_golpe_dura = ATAQUE_ENFRIAR
 	_enfriar = (GIRO_DURA - _giro) / velocidad
 	_tras_especial = true
 	figura.golpe_giro(velocidad, _giro)
@@ -1080,6 +1167,8 @@ func _estocar(desde := 0.0, aire := false) -> void:
 	_combo_roto = true
 	_combo_hasta = 0.0
 	_puno = -1
+	_pesado = -1
+	_golpe_dura = ATAQUE_ENFRIAR
 	_enfriar = (ESTOCADA_DURA + 1.0) if aire else (TAJO_DURA - desde)  # del aire se recalcula al caer
 	# Hacia donde ve el personaje (JJ): caminando a medio golpe ves al frente aunque vayas para
 	# atras con S, y sale al frente. Con Shift corres viendo hacia donde vas: sale hacia las
@@ -1176,7 +1265,7 @@ func _probar_buffer(delta: float) -> void:
 # Rodando, a media estocada o giro, o curandote: nada mas sale
 func _ocupado() -> bool:
 	return _rodada_t >= 0.0 or (_estocada_t >= 0.0 and _estocada_t < (TAJO_LIBRE if _tajo else ESTOCADA_LIBRE)) \
-			or _giro >= 0.0 or _curando > 0.0 or _aventando >= 0.0 or _aturdido > 0.0
+			or _giro >= 0.0 or _curando > 0.0 or _aventando >= 0.0 or _aturdido > 0.0 or _vuelo != ""
 
 
 # Lo que queda de la estocada (pasado ESTOCADA_LIBRE) se corta para que salga otra accion.
@@ -1197,7 +1286,7 @@ func _cortar_estocada(soltar: bool) -> void:
 # Un espadazo que todavia no termina de barrer
 func _barriendo() -> bool:
 	return _enfriar > 0.0 and not _combo_roto and not _pose_carga \
-			and ATAQUE_ENFRIAR - _enfriar < _combo_desde()
+			and _transcurrido() < _combo_desde()
 
 
 func _puede(accion: String) -> bool:
@@ -1463,21 +1552,26 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0, de: Node = null) -> 
 		if hacia_mi.length_squared() < 0.001 or frente.normalized().dot(-hacia_mi.normalized()) > BLOQUEO_FRENTE:
 			_parar_golpe(_dano_recibido(dano, de), hacia_mi, empuja)
 			return
-	_invulnerable = INVULNERABLE
+	# Volando solo llega un golpe forzado (la Mojiganga te estrella contra una pared): sigues intocable
+	_invulnerable = INF if _vuelo != "" else INVULNERABLE
 	# Te pegan cargando: se pierde la carga (el golpe que recibes tapa la pose)
 	if _pose_carga:
 		_cancelar_carga(false)
-	# Aventando sal no se interrumpe: el arco y la sal siguen a la mano, y el golpe la tapaba
-	if figura.has_method("accion") and _aventando < 0.0:
-		figura.accion("RecieveHit")
-	_sonar_dolor()
 	var hacia := global_position - desde
 	hacia.y = 0.0
 	hacia = hacia.normalized() if hacia.length_squared() > 0.001 else frijol.global_basis.z
+	var vuela := empuja >= VUELA_DESDE and not atrapado() and figura.has_method("vuelo")
+	# Aventando sal no se interrumpe: el arco y la sal siguen a la mano, y el golpe la tapaba
+	if figura.has_method("accion") and _aventando < 0.0 and not vuela:
+		figura.accion("RecieveHit")
+	_sonar_dolor()
 	_flash_hasta = Time.get_ticks_msec() + FLASH_MS
 	_pintar_blanco(true)
-	_retroceso = hacia * GOLPEADO_EMPUJE * empuja
-	_retroceso_freno = GOLPEADO_FRENO
+	if vuela:
+		_salir_volando(hacia, empuja)
+	else:
+		_retroceso = hacia * GOLPEADO_EMPUJE * empuja
+		_retroceso_freno = GOLPEADO_FRENO
 	_sacude_fuerza = SACUDE_GOLPEADO
 	_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
 	_congelar(CONGELA_GOLPEADO)
@@ -1485,6 +1579,62 @@ func recibir_dano(dano: int, desde: Vector3, empuja := 1.0, de: Node = null) -> 
 	efecto("herido", hacia)
 	golpeado.emit()
 	get_node("/root/Salud").vida -= _dano_recibido(dano, de)
+
+
+# Un golpe fuerte te avienta (recibir_dano con empuja >= VUELA_DESDE): ves a quien te pego y
+# vuelas de espaldas (LiftAir, luego LiftAir_Fall_Air hasta que pisas), azotas
+# (LiftAir_Fall_Impact), te quedas tirado VUELA_TIRADO y te levantas (LayToIdle)
+func _salir_volando(hacia: Vector3, empuja: float) -> void:
+	_soltar_combo()
+	_cortar_estocada(false)
+	_aventando = -1.0
+	_avienta_molotov = false
+	if _bloqueando:
+		_bloqueando = false
+		if figura.has_method("bloquear"):
+			figura.bloquear(false)
+	_vuelo = "sube"
+	_vuelo_t = 0.0
+	_vuelo_sube = VUELA_SUBE * sqrt(empuja / VUELA_DESDE)
+	_retroceso = hacia * VUELA_LEJOS * empuja
+	_retroceso_freno = VUELA_FRENO_AIRE
+	_invulnerable = INF
+	var cara := frijol.global_position - hacia
+	frijol.global_transform = frijol.global_transform.looking_at(cara, Vector3.UP)
+	figura.vuelo("sube")
+
+
+func _seguir_vuelo(delta: float) -> void:
+	_vuelo_t += delta
+	match _vuelo:
+		"sube", "aire":
+			if _vuelo == "sube" and _vuelo_t >= VUELA_SUBE_DURA and not is_on_floor():
+				_vuelo = "aire"
+				figura.vuelo("aire")
+			# Pisa (el primer cuadro del golpe todavia estaba en el piso)
+			if (is_on_floor() and _vuelo_t > 0.15 and _vuelo_sube <= 0.0) or _vuelo_t > VUELA_MAXIMO:
+				_vuelo = "impacto"
+				_vuelo_t = 0.0
+				_retroceso_freno = VUELA_ARRASTRE
+				_sacude_fuerza = SACUDE_GOLPEADO
+				_sacude_hasta = Time.get_ticks_msec() + int(SACUDE_DURA * 1000.0)
+				figura.vuelo("impacto")
+		"impacto":
+			if _vuelo_t >= VUELA_IMPACTO + VUELA_TIRADO:
+				_vuelo = "levanta"
+				_vuelo_t = 0.0
+				figura.vuelo("levanta")
+		"levanta":
+			if _vuelo_t >= VUELA_LEVANTA:
+				_vuelo = ""
+				_invulnerable = INVULNERABLE
+				if figura.has_method("terminar_accion"):
+					figura.terminar_accion()
+
+
+## Saliendo volando, tirado o levantandote de un golpe fuerte
+func volando() -> bool:
+	return _vuelo != ""
 
 
 # Piel dura (Tazos.gd): de noche duele menos. Y los amuletos y estampitas (Bonos.gd), segun
@@ -1788,7 +1938,7 @@ var _colgado := false
 
 
 func atrapar(quien: Node, colgado := false) -> bool:
-	if atrapado() or esquivando():
+	if atrapado() or esquivando() or _vuelo != "":
 		return false
 	atrapado_por = quien
 	_golpe_guardado = false
@@ -1849,6 +1999,8 @@ func _soltar_combo() -> void:
 	_golpe_guardado = false
 	_combo_hasta = 0.0
 	_puno = -1
+	_pesado = -1
+	_golpe_dura = ATAQUE_ENFRIAR
 	if figura.has_method("soltar_golpe"):
 		figura.soltar_golpe()
 
@@ -2097,8 +2249,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			atrapado_por.forcejear()
 			if _colgado and figura.has_method("colgar_patada"):
 				figura.colgar_patada()
-	elif _aturdido > 0.0:
-		# Aturdido solo puedes voltear la camara
+	elif _aturdido > 0.0 or _vuelo != "":
+		# Aturdido o volando solo puedes voltear la camara
 		pass
 	elif carretilla != null and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and not event.is_action("ui_cancel"):
 		# Con las manos en la carretilla: ni armas, ni rodadas, ni curarse (Espacio la suelta, en _physics_process)
@@ -2505,7 +2657,7 @@ func _physics_process(delta: float) -> void:
 	_revisar_bloqueo(delta)
 	if _toca_pose_carga() or _toca_pose_tras_especial():
 		_empezar_pose_carga()
-	elif _golpe_guardado and ATAQUE_ENFRIAR - _enfriar >= _combo_desde():
+	elif _golpe_guardado and _transcurrido() >= _combo_desde():
 		# Un brinco o rodada pedidos a media barrida le ganan al espadazo guardado (JJ): machacando,
 		# el golpe guardado salia primero, volvia a tapar el brinco y este caducaba, asi que habia
 		# que pausar para brincar. El espadazo guardado se vuelve el golpe en el aire (giro, o
@@ -2523,6 +2675,8 @@ func _physics_process(delta: float) -> void:
 			figura.terminar_accion()
 	if _aventando >= 0.0:
 		_seguir_aventada(delta)
+	if _vuelo != "":
+		_seguir_vuelo(delta)
 	if _pega_en >= 0.0:
 		_pega_en -= delta
 		if _pega_en < 0.0:
@@ -2538,11 +2692,13 @@ func _physics_process(delta: float) -> void:
 		camera_pivot.rotation.y -= Input.get_axis("move_left", "move_right") * GIRO_WASD * delta
 		input_direction.x = 0.0
 	var lento := ATAQUE_LENTO_A_TIEMPO if pelea_a_tiempo else ATAQUE_LENTO
-	var golpeando := (_enfriar > 0.0 and ATAQUE_ENFRIAR - _enfriar < lento) or _pose_carga
+	if _pesado >= 0:
+		lento = _combo_desde()
+	var golpeando := (_enfriar > 0.0 and _transcurrido() < lento) or _pose_carga
 	# Girando en el aire sigues tu salto (y lo puedes dirigir); en el suelo te quedas en tu lugar
 	# (curandote si caminas, despacio: camina, abajo)
 	if atrapado() or (_giro >= 0.0 and is_on_floor()) or _estocada_t >= 0.0 or _rodada_t >= 0.0 \
-			or _aventando >= 0.0 or _aturdido > 0.0:
+			or _aventando >= 0.0 or _aturdido > 0.0 or _vuelo != "":
 		input_direction = Vector2.ZERO
 
 	var forward: Vector3 = -camera_pivot.global_transform.basis.z
@@ -2611,7 +2767,7 @@ func _physics_process(delta: float) -> void:
 	var apunta: bool = (_apuntando or (_pistola.activa and not is_moving) or machete_lento \
 			or (golpeando and not is_moving) or _bloqueando) \
 			and _estocada_t < 0.0 \
-			and not corre_pegando and _rodada_t < 0.0
+			and not corre_pegando and _rodada_t < 0.0 and _vuelo == ""
 	if figura.has_method("inclinar"):
 		figura.inclinar(CARGA_INCLINA if corre_pegando else (BLOQUEO_AGACHA if _agachado > 0.0 else 0.0))
 	# A punetazos embistiendo, los punos al frente y no al piso (JJ)
@@ -2658,6 +2814,10 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 	else:
 		velocity.y -= gravity * delta
+	# El golpe que te avienta llega en cualquier momento; aqui, para que el piso no lo borre
+	if _vuelo_sube > 0.0:
+		velocity.y = _vuelo_sube
+		_vuelo_sube = 0.0
 	# El clavado: baja con la misma curva que el desliz, asi va en linea recta al piso
 	if _clavando:
 		velocity.y = -_clavado_baja * (smoothstep(ESTOCADA_DESDE, ESTOCADA_HASTA, _estocada_t) \
@@ -2677,7 +2837,7 @@ func _physics_process(delta: float) -> void:
 	camera_pitch = clampf(camera_pitch, -60.0, 30.0)
 	spring_arm.rotation_degrees.x = camera_pitch
 
-	if Input.is_action_just_pressed("jump") and is_on_floor() and not atrapado():
+	if Input.is_action_just_pressed("jump") and is_on_floor() and not atrapado() and _vuelo == "":
 		var cercano := _nearby_interactable()
 		if carretilla:
 			carretilla.soltar()

@@ -22,6 +22,8 @@ uniform float desgaste = 0.6;
 uniform bool metal = false;
 // Sin sombreado (luces, fondos iluminados, letreros) pero con su deterioro
 uniform bool sin_sombra = false;
+// Reflejo especular (0 = mate como siempre; la obsidiana del taller usa ~0.85). Baja la rugosidad
+uniform float brillo : hint_range(0.0, 1.0) = 0.0;
 
 varying vec2 affine_uv;
 varying vec3 world_pos;
@@ -56,5 +58,6 @@ void fragment() {
 		EMISSION = ALBEDO;
 		ALBEDO = vec3(0.0);
 	}
-	ROUGHNESS = 1.0;
+	ROUGHNESS = 1.0 - brillo * 0.9;
+	SPECULAR = 0.5 + brillo * 0.5;
 }

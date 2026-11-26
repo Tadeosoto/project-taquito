@@ -114,7 +114,9 @@ Ctrl+F10 las cañerías del arroyo (crías: solo sal o fuego)"""},
 6 en el aire: giro; con Shift, clavado
 Cada especial gasta 1/3 de aguante · Shift+7 aguante infinito
 Shift+1 2 3 maquinita: normal, sin monedas, segura
-Alt+. El Sótano: permiso y +50 fichas (flecha junto a tu casa)"""},
+Alt+. El Sótano: permiso y +50 fichas (flecha junto a tu casa)
+Ctrl+J un golpe fuerte te avienta (vuelas, azotas y te levantas)
+Alt+Y solo el marro: combo pesado, lento, avienta al zombi"""},
 	{"titulo": "Zombis", "efectos": true, "texto": """Z zombi · B turba (Ctrl+B: llenar la libreta, Shift+B: borrarla) · X quitar · F8 jefe
 T zombis solos de noche
 0 caminan en enjambre / en fila como antes
@@ -675,6 +677,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_zombis.set_physics_process(not _zombis.is_physics_processing())
 		KEY_H:
 			_salud.vida = _salud.vida_max
+		KEY_J when event.ctrl_pressed:
+			# Un golpe fuerte desde enfrente (como la patada del Simi): sales volando (Player._salir_volando)
+			var frente_g := -_jugador.frijol.global_transform.basis.z
+			_jugador.recibir_dano(1, _jugador.global_position + frente_g, 3.0)
 		KEY_J when event.shift_pressed:
 			# El Panzon a 18 m enfrente: ruge, embiste, avienta losas (Panzon.gd)
 			var enfrente_p := -_jugador.frijol.global_transform.basis.z
@@ -693,6 +699,10 @@ func _unhandled_input(event: InputEvent) -> void:
 						Tiliches.dar(id, MATERIALES_PRUEBA, false)
 			else:
 				_cartera.pesos += 100
+		KEY_Y when event.alt_pressed:
+			# Solo el marro: el combo pesado, lento y con knockback (Player.PESADO)
+			_inventario.vaciar()
+			_inventario.add_item(load("res://resources/taller/marro.tres"))
 		KEY_Y when event.shift_pressed:
 			# El taller se olvida de ti: rango, planos y vitrina
 			Taller.olvidar()

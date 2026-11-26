@@ -1,0 +1,8 @@
+Model Information:
+* title:	Knee Pad
+* source:	https://sketchfab.com/3d-models/knee-pad-109a37fa9a1a4fe5b08d615c592f574d
+* author:	WCG847 (https://sketchfab.com/WCG847)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

@@ -14,7 +14,7 @@ extends Node
 # Cada comprobacion es un archivo de esta carpeta (extends Comprobacion) con `correr(r)`; `r` es
 # este nodo, con los ayudantes de abajo. Para agregar una: el archivo y su nombre en LISTA.
 
-const LISTA := ["especiales", "noches", "bolsa", "guardado", "capilla", "entrada_jefe", "dialogo", "escenas"]
+const LISTA := ["especiales", "noches", "bolsa", "guardado", "capilla", "entrada_jefe", "dialogo", "marro", "escenas"]
 const CARPETA := "res://tools/comprobaciones/"
 const RESPALDO := "user://_respaldo_comprobaciones/"
 const ARCHIVOS := ["partida.cfg", "noches.cfg", "libreta.cfg", "taller.cfg", "personaje.cfg"]

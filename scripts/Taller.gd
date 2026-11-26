@@ -34,7 +34,12 @@ func _guardar() -> void:
 
 
 func rango() -> int:
-	return hechos.size()
+	# Solo las que siguen en la lista: las de los consumibles quitados (2026-11-25) ya no cuentan
+	var n := 0
+	for id: String in hechos:
+		if Recetas.LISTA.has(id):
+			n += 1
+	return n
 
 
 func abierto(juego: int) -> bool:

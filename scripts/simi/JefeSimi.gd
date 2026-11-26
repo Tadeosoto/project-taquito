@@ -16,6 +16,8 @@ extends Node3D
 #   machacando golpe o brinco (`forcejear`) se llena la barra `zafarse`, que se vacia sola; no pasa de
 #   ZAFARSE_TOPE hasta que algo te pega (un zombi o la patada), asi que siempre te alcanzan. Si bailas
 #   PATEA_ESPERA s sin que ningun zombi suelto venga por ti, el Simi corre y te patea (te saca del baile).
+#   Al agarrarte escoge `castigo`: la patada, que te avienta, o la horda (te señala y suelta a los que
+#   bailan, HORDA_MIN al menos).
 # - Le pegas: bailando le entra DANO_BAILANDO del dano; al señalar y jadeando tras la patada,
 #   DANO_JADEA. A media vida (FASE_2) se le cae la bata (instance uniform `con_bata` del shader).
 # - Responde a las llamadas del grupo "lombrices" (golpe_cuerpo, query_ray_hit, bullet_hit,
@@ -36,7 +38,8 @@ const JUNTA_2 := 8
 const AURA := 8.0              # m: mas cerca, bailas
 const RECLUTA := 90.0          # m: los zombis a esta distancia van a bailar con el
 const PUESTO_DESDE := 10.0     # el primer anillo de puestos
-const PUESTO_SEP := 2.6        # entre anillos y entre puestos de un anillo
+const PUESTO_SEP := 4.0        # entre puestos de un anillo: deja hueco para pasar entre dos que bailan
+const ANILLO_SEP := 5.0        # entre anillos (cada uno desfasado medio puesto); se llenan de adentro a afuera
 const SENALA_DURA := 1.4
 const SUELTA_DURA := 25.0      # s que los soltados no vuelven a bailar
 const SUELTA_PRISA := 1.35     # y van mas rapido
@@ -52,6 +55,11 @@ const ZAFARSE_BAJA := 0.12     # por segundo
 const ZAFARSE_TOPE := 0.8      # sin que te peguen no pasa de aqui
 const INMUNE := 2.5            # s tras zafarte en que no te vuelve a agarrar
 const PATEA_ESPERA := 1.5
+# Al agarrarte el baile escoge castigo: la patada (te avienta, Player._salir_volando) o la horda (te
+# señala y suelta a los que bailan con el, aunque no junte JUNTA). Sin HORDA_MIN bailando, patea
+const CASTIGO_PATADA := 0.5   # probabilidad de patada
+const HORDA_MIN := 4
+const HORDA_ESPERA := 1.2     # s bailando antes de soltarte la horda
 const PATEA_ZOMBI := 12.0      # un zombi suelto a esta distancia de ti cuenta como que ya viene
 const CORRE_VEL := 9.0
 const CAMINA_VEL := 3.0
@@ -82,6 +90,8 @@ var estado := Estado.BAILA
 var centro := Vector3.ZERO     # donde baila (los puestos van alrededor)
 var radio := 60.0              # no se sale de aqui
 var piso := 0.0
+# Cuanto te avienta la patada (el video de tools/probar_simi_jefe la pone en 0 para verlo de cerca)
+var patada_empuja := PATADA_EMPUJA
 var activa := false            # peleando (SimiPlanicie lo prende al acercarte); si no, nomas baila
 var zafarse := 0.0             # la barra para salir del baile (BarraSimi la dibuja)
 var golpeado_bailando := false
@@ -96,6 +106,8 @@ var _yaw := 0.0
 var _reloj := 0.0              # el compas: segundo del baile en que va
 var _largo_baile := 1.0
 var _puestos := {}             # Zombie -> indice de puesto
+var _aqui := {}                # Zombie -> donde se quedo bailando tras atorarse dos veces
+var _reasignados := {}         # Zombie -> true: ya se le cambio el puesto por atorado
 var _bailarines := {}          # Zombie -> true (ya llegaron y bailan)
 var _conectados := {}          # Zombie -> su Callable de murio
 var _muertos_ronda := 0
@@ -104,6 +116,7 @@ var _onda_doble := -1.0
 var _ondas: Array = []         # [MeshInstance3D, radio, ya_pego]
 var _mat_onda: ShaderMaterial
 var _bailando_t := 0.0
+var castigo := ""             # "patada" o "horda": lo que te toca esta vez que te agarro
 var _inmune_hasta := 0
 var _pego := false
 var _acumulado := 0.0
@@ -233,7 +246,13 @@ func _baila(delta: float) -> void:
 	if _bailarines.size() >= junta():
 		_senalar(false)
 		return
-	# Bailando y sin zombi que venga por ti: va a patearte
+	# Te toco la horda: te señala y te suelta a los que bailan con el
+	if jugador_bailando() and castigo == "horda" and _bailando_t >= HORDA_ESPERA:
+		if _bailarines.size() >= HORDA_MIN:
+			_senalar(false)
+			return
+		castigo = "patada"
+	# Te toco la patada (o ya soltó la horda y ningun zombi viene por ti): va a patearte
 	if jugador_bailando() and _bailando_t >= PATEA_ESPERA and not _viene_zombi():
 		_cambiar(Estado.CORRE)
 		_sonar("corre")
@@ -256,6 +275,8 @@ func _soltar_zombis() -> void:
 		_desconectar(z)
 	_puestos.clear()
 	_bailarines.clear()
+	_aqui.clear()
+	_reasignados.clear()
 	_muertos_ronda = 0
 	solto.emit(n)
 
@@ -278,17 +299,62 @@ func puesto(z: Zombie) -> Vector3:
 	if not _puestos.has(z):
 		if z.global_position.distance_to(centro) > RECLUTA:
 			return Vector3.INF
-		var usados := {}
-		for i: int in _puestos.values():
-			usados[i] = true
-		var i := 0
-		while usados.has(i):
-			i += 1
-		_puestos[z] = i
+		_puestos[z] = _puesto_libre(z.global_position)
 		if not _conectados.has(z):
 			_conectados[z] = _zombi_murio.bind(z)
 			z.murio.connect(_conectados[z])
+	if _aqui.has(z):
+		return _aqui[z]
 	return _lugar_puesto(_puestos[z])
+
+
+## Zombie._ir_a_bailar: no avanza hacia su puesto (otro bailarin o algo le estorba). La primera vez
+## le toca el puesto libre mas cercano de donde esta; la segunda baila ahi mismo.
+func atorado(z: Zombie) -> void:
+	if not _puestos.has(z):
+		return
+	if _reasignados.has(z):
+		_aqui[z] = Vector3(z.global_position.x, piso, z.global_position.z)
+	else:
+		_reasignados[z] = true
+		_puestos[z] = _puesto_libre(z.global_position, _puestos[z])
+
+
+# El puesto libre mas cercano a `desde` en el anillo mas cercano al Simi que tenga lugar: llega por
+# fuera, de frente a su puesto, sin cruzar entre los que ya bailan
+func _puesto_libre(desde: Vector3, salvo := -1) -> int:
+	var usados := {}
+	for i: int in _puestos.values():
+		usados[i] = true
+	usados[salvo] = true
+	var primero := 0
+	var anillo := 0
+	while true:
+		var mejor := -1
+		var mejor_d := INF
+		for i in range(primero, primero + _caben(anillo)):
+			if usados.has(i):
+				continue
+			var d := _lugar_puesto(i).distance_squared_to(desde)
+			if d < mejor_d:
+				mejor_d = d
+				mejor = i
+		if mejor >= 0:
+			return mejor
+		primero += _caben(anillo)
+		anillo += 1
+	return -1
+
+
+func _caben(anillo: int) -> int:
+	return floori(TAU * (PUESTO_DESDE + anillo * ANILLO_SEP) / PUESTO_SEP)
+
+
+func _olvidar(z: Variant) -> void:
+	_puestos.erase(z)
+	_bailarines.erase(z)
+	_aqui.erase(z)
+	_reasignados.erase(z)
 
 
 ## Zombie: ya llego a su puesto y baila
@@ -298,22 +364,18 @@ func llego(z: Zombie) -> void:
 
 func _lugar_puesto(i: int) -> Vector3:
 	var anillo := 0
-	var r := PUESTO_DESDE
-	var caben := floori(TAU * r / PUESTO_SEP)
-	while i >= caben:
-		i -= caben
+	while i >= _caben(anillo):
+		i -= _caben(anillo)
 		anillo += 1
-		r = PUESTO_DESDE + anillo * PUESTO_SEP
-		caben = floori(TAU * r / PUESTO_SEP)
-	var a := TAU * i / caben + anillo * 0.37
+	var r := PUESTO_DESDE + anillo * ANILLO_SEP
+	var a := TAU * (i + 0.5 * (anillo % 2)) / _caben(anillo)
 	return Vector3(centro.x + cos(a) * r, piso, centro.z + sin(a) * r)
 
 
 func _zombi_murio(z: Zombie) -> void:
 	_desconectar(z)
 	var bailaba := _bailarines.has(z)
-	_puestos.erase(z)
-	_bailarines.erase(z)
+	_olvidar(z)
 	if not bailaba or estado == Estado.MUERTA:
 		return
 	# Le matan a los que bailan: a la mitad del contador se enoja y te suelta a los que tiene
@@ -333,8 +395,7 @@ func _limpiar_puestos() -> void:
 	var ahora := Time.get_ticks_msec()
 	for z: Variant in _puestos.keys():
 		if not is_instance_valid(z) or not z.despierto or z.estado == Zombie.Estado.MUERTO or z._suelto_hasta > ahora:
-			_puestos.erase(z)
-			_bailarines.erase(z)
+			_olvidar(z)
 			_desconectar(z)
 		elif _bailarines.has(z) and not z.bailando:
 			_bailarines.erase(z)
@@ -351,6 +412,7 @@ func _atrapar() -> void:
 		zafarse = 0.0
 		golpeado_bailando = false
 		_bailando_t = 0.0
+		castigo = "patada" if randf() < CASTIGO_PATADA or _bailarines.size() < HORDA_MIN else "horda"
 		if not _jugador.golpeado.is_connected(_te_pegaron):
 			_jugador.golpeado.connect(_te_pegaron)
 		_sonar("atrapa")
@@ -451,7 +513,7 @@ func _patea() -> void:
 		if d <= PATEA_DIST + 2.0:
 			_soltar_jugador(true)
 			if _jugador.has_method("recibir_dano"):
-				_jugador.recibir_dano(PATADA, global_position, PATADA_EMPUJA, self)
+				_jugador.recibir_dano(PATADA, global_position, patada_empuja, self)
 			_sonar("patada")
 	if _t >= largo:
 		_cambiar(Estado.JADEA)

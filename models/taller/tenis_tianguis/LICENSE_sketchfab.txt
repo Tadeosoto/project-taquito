@@ -1,0 +1,11 @@
+Model Information:
+* title:	Worn-out shoes
+* source:	https://sketchfab.com/3d-models/worn-out-shoes-836e9f550eba40a086f0f5d17c17a2db
+* author:	Antoine Dresen (https://sketchfab.com/adresen)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Worn-out shoes" (https://sketchfab.com/3d-models/worn-out-shoes-836e9f550eba40a086f0f5d17c17a2db) by Antoine Dresen (https://sketchfab.com/adresen) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

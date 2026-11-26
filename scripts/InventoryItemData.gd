@@ -55,6 +55,9 @@ extends Resource
 @export var alcance : float = 1.0
 @export var empujon : float = 1.0
 @export var velocidad : float = 1.0
+# Arma pesada (el marro y su linea, JJ 2026-11-25): combo de tres golpes pesados (Player.PESADO), a
+# la `velocidad` del arma, y cada golpe avienta y aturde al zombi. El giro y el dash, los de siempre
+@export var pesada : bool = false
 @export var quema : bool = false
 
 # Si es amuleto: lo que da mientras lo traes puesto en uno de los dos lugares (Bonos.gd).

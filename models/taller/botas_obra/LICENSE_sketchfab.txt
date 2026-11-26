@@ -1,0 +1,11 @@
+Model Information:
+* title:	Worn Boots
+* source:	https://sketchfab.com/3d-models/worn-boots-d9b735d44e744998897cdcfc9ce0cbad
+* author:	AntonCla (https://sketchfab.com/antoncla)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Worn Boots" (https://sketchfab.com/3d-models/worn-boots-d9b735d44e744998897cdcfc9ce0cbad) by AntonCla (https://sketchfab.com/antoncla) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

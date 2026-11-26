@@ -1,0 +1,8 @@
+Model Information:
+* title:	Elbow pad
+* source:	https://sketchfab.com/3d-models/elbow-pad-db99ea62157d4d96abfa2e8ccadeeeee
+* author:	WCG847 (https://sketchfab.com/WCG847)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

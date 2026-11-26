@@ -55,6 +55,27 @@ func _revisar(que: String, ok: bool, nota := "") -> void:
 	print("%s %s %s" % ["ok   " if ok else "FALLA", que, nota])
 
 
+# Altura mas baja y mas alta de los pies del jugador (sobre su origen) durante `s` segundos
+func _pies(s: float) -> Vector2:
+	var sk := _jugador.figura.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var pies := [INF, -INF]
+	var medir := func() -> void:
+		for h in ["LeftFoot", "RightFoot", "LeftToes", "RightToes"]:
+			var i := sk.find_bone(h)
+			if i >= 0:
+				var y := (sk.global_transform * sk.get_bone_global_pose(i)).origin.y - _jugador.global_position.y
+				pies[0] = minf(pies[0], y)
+				pies[1] = maxf(pies[1], y)
+	sk.skeleton_updated.connect(medir)
+	await _esperar(s)
+	sk.skeleton_updated.disconnect(medir)
+	return Vector2(pies[0], pies[1])
+
+
+func _plano(v: Vector3) -> Vector3:
+	return Vector3(v.x, 0.0, v.z)
+
+
 func _esperar(s: float) -> void:
 	var hasta := Time.get_ticks_msec() + int(s * 1000.0)
 	while Time.get_ticks_msec() < hasta:
@@ -89,8 +110,9 @@ func _prueba() -> void:
 	if jefe == null:
 		print("RESULTADO %d/%d" % [_bien, _total])
 		return
-	# El hueso Head esta en la base de la cabezota (1.6 m de alto), y bailando va agachado
-	var alto := jefe._hueso("Head").y - jefe.piso
+	# El hueso Head esta en la base de la cabezota (1.6 m de alto). En reposo: bailando se agacha
+	var sk: Skeleton3D = jefe._sk
+	var alto := (sk.global_transform * sk.get_bone_global_rest(sk.find_bone("Head")).origin).y - jefe.piso
 	_revisar("mide unos 7 m", alto > 4.0 and alto < 6.5, "base de la cabeza a %.1f m" % alto)
 	# De dia se va; de noche otra vez esta
 	_forzar_dia = true
@@ -106,9 +128,9 @@ func _prueba() -> void:
 	_revisar("al acercarte empieza la pelea", jefe.activa and JefeSimi.activo == jefe)
 	# Los zombis van a bailar con el, al compas
 	var lista := _sacar(JefeSimi.JUNTA - 1, 35.0)
-	# (alguno se puede atorar en el camino: con casi todos basta)
+	# Todos llegan: ninguno se queda corriendo contra otro que ya baila
 	await _esperar_que(func(): return jefe.bailando_cuantos() >= JefeSimi.JUNTA - 1, 25.0)
-	_revisar("los zombis no van por ti: van a bailar con el", jefe.bailando_cuantos() >= JefeSimi.JUNTA - 3, "%d bailando" % jefe.bailando_cuantos())
+	_revisar("los zombis no van por ti: van a bailar con el, y llegan todos", jefe.bailando_cuantos() == JefeSimi.JUNTA - 1, "%d de %d bailando" % [jefe.bailando_cuantos(), JefeSimi.JUNTA - 1])
 	var desfase := 0.0
 	for z in lista:
 		if z.bailando:
@@ -130,6 +152,8 @@ func _prueba() -> void:
 	await _esperar_que(func(): return jefe.estado == JefeSimi.Estado.BAILA, 8.0)
 	# La ola te pone a bailar
 	_jugador.global_position = SimiPlanicie.CENTRO + Vector3(20.0, 1.2, 0.0)
+	await _esperar(0.5)
+	var parado := (await _pies(0.3)).x
 	jefe._inmune_hasta = 0
 	jefe._onda_reloj = 0.0
 	var atrapo := await _esperar_que(func(): return jefe.jugador_bailando(), 4.0)
@@ -138,11 +162,26 @@ func _prueba() -> void:
 		var fig: Node = _jugador.figura
 		var t: Variant = fig._arbol.get("parameters/estado/current_state") if fig.get("_arbol") else ""
 		_revisar("bailas su mismo baile", str(t) == "baila", str(t))
+		# Del segundo 4 al 11 el baile se agacha: antes de Simi_Baile_H te hundias hasta la cintura
+		fig.bailar(6.5)
+		await _esperar(0.3)
+		var pies := await _pies(2.5)
+		_revisar("agachado bailando pisas el piso (ni te hundes ni flotas)", absf(pies.x - parado) < 0.05,
+				"pies de %.2f a %.2f m de donde pisan parado" % [pies.x - parado, pies.y - parado])
 		for i in 40:
 			jefe.forcejear()
 		_revisar("machacando sin que te peguen no sales (tope)", jefe.jugador_bailando() and absf(jefe.zafarse - JefeSimi.ZAFARSE_TOPE) < 0.01, "%.2f" % jefe.zafarse)
 		var pateo := await _esperar_que(func(): return not jefe.jugador_bailando(), 12.0)
 		_revisar("sin zombis cerca corre y te patea: te saca del baile", pateo and jefe.estado in [JefeSimi.Estado.PATEA, JefeSimi.Estado.JADEA], JefeSimi.Estado.keys()[jefe.estado])
+		# La patada te avienta (Player._salir_volando): vuelas, azotas y te levantas
+		var desde := _jugador.global_position
+		var vuela := _jugador.volando()
+		var t0 := Time.get_ticks_msec()
+		await _esperar_que(func(): return not _jugador.volando(), 8.0)
+		var dura := (Time.get_ticks_msec() - t0) / 1000.0
+		var lejos := _plano(_jugador.global_position - desde).length()
+		_revisar("la patada te avienta: vuelas, azotas y te levantas", vuela and not _jugador.volando() and _jugador.is_on_floor() and lejos > 5.0 and dura > 1.5,
+				"%.1f m en %.1f s" % [lejos, dura])
 	await _esperar_que(func(): return jefe.estado == JefeSimi.Estado.BAILA, 15.0)
 	# Pegado a el bailas; con un golpe ya puedes zafarte
 	_jugador.global_position = jefe.global_position + Vector3(5.0, 1.2, 0.0)
@@ -154,6 +193,23 @@ func _prueba() -> void:
 		for i in 40:
 			jefe.forcejear()
 		_revisar("ya con un golpe, machacando sales", not jefe.jugador_bailando())
+	_jugador.global_position = SimiPlanicie.CENTRO + Vector3(45.0, 1.2, 0.0)
+	await _esperar_que(func(): return jefe.estado == JefeSimi.Estado.BAILA, 15.0)
+	# Otras veces, al agarrarte, en vez de patearte te manda la horda que baila con el
+	_sacar(6, 30.0)
+	await _esperar_que(func(): return jefe.bailando_cuantos() >= JefeSimi.HORDA_MIN + 1, 25.0)
+	await _esperar(JefeSimi.INMUNE)
+	_jugador.global_position = jefe.global_position + Vector3(5.0, 1.2, 0.0)
+	jefe._inmune_hasta = 0
+	await _esperar_que(func(): return jefe.jugador_bailando(), 2.0)
+	jefe.castigo = "horda"
+	var horda := await _esperar_que(func(): return jefe.estado == JefeSimi.Estado.SENALA, JefeSimi.HORDA_ESPERA + 1.0)
+	_revisar("o te manda la horda: te señala con menos de 12", horda and jefe.jugador_bailando(), "%d bailaban" % jefe.bailando_cuantos())
+	await _esperar(JefeSimi.SENALA_DURA + 0.3)
+	_zombis.limpiar()
+	jefe._te_pegaron()
+	for i in 40:
+		jefe.forcejear()
 	_jugador.global_position = SimiPlanicie.CENTRO + Vector3(45.0, 1.2, 0.0)
 	await _esperar_que(func(): return jefe.estado == JefeSimi.Estado.BAILA, 15.0)
 	# Matar a la mitad de los que bailan lo enoja
@@ -189,6 +245,7 @@ var _cam: Camera3D
 var _letrero: Label
 var _jefe_video: JefeSimi
 var _cam_lejos := 26.0
+var _vista_aerea := false     # desde arriba, para ver los anillos de bailarines
 
 
 func _seg(s: float) -> void:
@@ -199,17 +256,30 @@ func _decir(texto: String) -> void:
 	_letrero.text = texto
 
 
+# De lado a la linea Simi-jugador, tan lejos como haga falta para que quepan los dos (el Simi
+# mide 7 m), un poco del lado del jugador y sin cambiar de lado de golpe
 func _mover_camara(delta: float) -> void:
 	if _cam == null or not is_instance_valid(_jefe_video):
 		return
-	var c := _jefe_video.global_position + Vector3.UP * 3.0
+	if _vista_aerea:
+		var centro := _jefe_video.centro
+		_cam.global_position = _cam.global_position.lerp(centro + Vector3(0.0, 16.0, 19.0), minf(delta * 1.5, 1.0))
+		_cam.look_at(centro, Vector3.UP)
+		return
+	var c := _jefe_video.global_position
 	var j := _jugador.global_position
-	var atras := j - c
-	atras.y = 0.0
-	atras = atras.normalized() if atras.length() > 0.1 else Vector3.BACK
-	var desde := j + atras * _cam_lejos * 0.45 + atras.cross(Vector3.UP) * _cam_lejos * 0.3 + Vector3.UP * _cam_lejos * 0.32
-	_cam.global_position = _cam.global_position.lerp(desde, minf(delta * 2.5, 1.0))
-	_cam.look_at(c.lerp(j, 0.35), Vector3.UP)
+	var hacia := j - c
+	hacia.y = 0.0
+	var sep := hacia.length()
+	hacia = hacia / sep if sep > 0.1 else Vector3.BACK
+	var lado := hacia.cross(Vector3.UP)
+	var medio := (c + j) * 0.5
+	if lado.dot(_cam.global_position - medio) < 0.0:
+		lado = -lado
+	var lejos := maxf(_cam_lejos, (sep + 7.0) * 0.6)
+	var desde := medio + lado * lejos + hacia * sep * 0.3 + Vector3.UP * 3.0
+	_cam.global_position = _cam.global_position.lerp(desde, minf(delta * 2.0, 1.0))
+	_cam.look_at(medio + Vector3.UP * 3.2, Vector3.UP)
 
 
 # Espera (en tiempo del juego) a que `cond` se cumpla, `maximo` s a lo mas
@@ -243,7 +313,7 @@ func _video() -> void:
 	if ciclo:
 		ciclo.saltar(true)
 		ciclo.retener_noche = true
-	_cam_lejos = 15.0
+	_cam_lejos = 8.0
 	_cam = Camera3D.new()
 	add_child(_cam)
 	_cam.current = true
@@ -257,7 +327,7 @@ func _video() -> void:
 	_letrero.add_theme_color_override("font_outline_color", Color.BLACK)
 	_letrero.add_theme_constant_override("outline_size", 5)
 	capa.add_child(_letrero)
-	_jugador.global_position = SimiPlanicie.CENTRO + Vector3(26.0, 1.2, 8.0)
+	_jugador.global_position = SimiPlanicie.CENTRO + Vector3(15.0, 1.2, 5.0)
 	await _seg(3.0)
 	_jefe_video = _planicie.jefe
 	var jefe := _jefe_video
@@ -266,20 +336,27 @@ func _video() -> void:
 	await _seg(5.0)
 	_decir("Los zombis no van por ti: van a bailar con él, al compás")
 	_sacar(7, 30.0)
-	await _seg(9.0)
+	await _seg(4.0)
+	_vista_aerea = true
+	_decir("Cada uno toma el puesto libre más cercano; con huecos para pasar")
+	await _seg(5.0)
 	_sacar(5, 28.0)
 	await _hasta_que_senale(30.0)
+	_vista_aerea = false
 	_decir("Juntó %d: deja de bailar y te señala..." % jefe.junta())
 	await _seg(JefeSimi.SENALA_DURA)
 	_decir("...y te suelta a todos a la vez")
 	await _seg(3.5)
 	_zombis.limpiar()
 	await _hasta(func(): return jefe.estado == JefeSimi.Estado.BAILA, 10.0)
-	_jugador.global_position = SimiPlanicie.CENTRO + Vector3(18.0, 1.2, 6.0)
+	_jugador.global_position = SimiPlanicie.CENTRO + Vector3(12.0, 1.2, 4.0)
 	_decir("La ola sónica: si te alcanza parado, bailas (se brinca o se rueda)")
 	jefe._inmune_hasta = 0
 	jefe._onda_reloj = 0.3
 	await _hasta(func(): return jefe.jugador_bailando(), 6.0)
+	jefe.castigo = "patada"
+	# Patea a los PATEA_ESPERA s de agarrarte: en el video, 2.5 s despues, para que quepan los letreros
+	jefe._bailando_t = -2.5
 	_decir("Te agarró el baile: bailas lo mismo que él")
 	await _seg(2.0)
 	_decir("Machacas, pero sin que te peguen no pasas del tope...")
@@ -287,19 +364,29 @@ func _video() -> void:
 		jefe.forcejear()
 		await _seg(0.06)
 	_decir("...y si ningún zombi viene, corre a patearte")
-	await _hasta(func(): return not jefe.jugador_bailando(), 10.0)
-	_decir("La patada te saca del baile; jadeando le entra el doble")
-	await _seg(4.0)
+	# La patada en camara lenta, desde que lanza la pierna hasta que azotas
+	await _hasta(func(): return jefe.estado == JefeSimi.Estado.PATEA or _jugador.volando(), 10.0)
+	if jefe.estado == JefeSimi.Estado.PATEA:
+		Engine.time_scale = 0.3
+		_decir("La patada te avienta (en cámara lenta)")
+		await _hasta(func(): return _jugador.get("_vuelo") in ["impacto", "levanta"], 1.5)
+		await _hasta(func(): return false, 0.25)
+		Engine.time_scale = 1.0
+	_decir("Vuelas, azotas y te levantas")
+	await _hasta(func(): return not _jugador.volando(), 6.0)
+	_decir("Jadeando le entra el doble")
+	await _seg(2.0)
 	await _hasta(func(): return jefe.estado == JefeSimi.Estado.BAILA, 12.0)
-	_decir("Con zombis: te agarra el baile y sus bailarines te caen encima")
-	_jugador.global_position = SimiPlanicie.CENTRO + Vector3(18.0, 1.2, 6.0)
-	_sacar(10, 28.0)
-	await _seg(6.0)
+	_decir("Otras veces, al agarrarte, no te patea...")
+	_jugador.global_position = jefe.global_position + Vector3(12.0, 1.2, 4.0)
+	_sacar(8, 28.0)
+	await _hasta(func(): return jefe.bailando_cuantos() >= 7, 20.0)
 	jefe._inmune_hasta = 0
 	jefe._onda_reloj = 0.0
 	await _hasta(func(): return jefe.jugador_bailando(), 6.0)
-	_sacar(4, 26.0)
-	await _hasta_que_senale(25.0)
+	jefe.castigo = "horda"
+	_decir("...te manda su horda, aunque no junte 12")
+	await _hasta(func(): return jefe.estado == JefeSimi.Estado.SENALA, 4.0)
 	await _seg(JefeSimi.SENALA_DURA + 3.0)
 	_decir("Ya te pegaron: machacando te zafas")
 	for i in 30:
@@ -307,6 +394,10 @@ func _video() -> void:
 		await _seg(0.06)
 	await _seg(2.0)
 	_zombis.limpiar()
+	# Los golpes de los zombis te alejaron: de vuelta cerca para ver la fase 2
+	var lado := _jugador.global_position - jefe.global_position
+	lado.y = 0.0
+	_jugador.global_position = jefe.global_position + lado.normalized() * 11.0 + Vector3.UP * 1.2
 	_decir("A media vida se le cae la bata")
 	jefe._inmune_hasta = Time.get_ticks_msec() + 600000
 	jefe.vida = JefeSimi.VIDA * 0.52

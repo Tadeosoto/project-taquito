@@ -130,16 +130,98 @@ Los datos de verdad están en `scripts/Materiales.gd` (materiales) y `scripts/Re
 - **Casco de GelA:** del zombi de GelA.
 - **Cobalto:** del zombi que brilla.
 
-| Juego (se abre con) | Remedios y estampitas | Amuletos | Armas |
+Solo se hacen cosas que se equipan (amuletos y armas) y dos materiales; los remedios y las estampitas se quitaron del taller el 2026-11-25 porque eran demasiadas recetas (JJ).
+
+| Juego (se abre con) | Materiales | Amuletos | Armas |
 |---|---|---|---|
-| **1** (desde el inicio) | Caldo de pollo (+60), Remedio de la abuela (cura todo) | Pulsera de hilo rojo (+10 vida), Cadena de fantasía (+5 % fuerza), Rodilleras (−5 % daño), Medalla de San Judas (+20 % pesos; pide 4 trofeos) | Tubo de fierro (14, empuja más) |
-| **2** (3 hechas) | Suero oral (+40) | Lámpara de pilas (alumbra), Escapulario (−10 %), Pulsera de San Benito (+25 vida), Cadena gruesa (+10 % fuerza, −5 %), Coderas (−10 %, +5 % alcance) | Antorcha de thinner (10, quema), Bate con alambre de púas (17, empuja más) |
-| **3** (9) | Estampita de San Expedito (+1 punto de habilidad), Varilla armada (material) | Rosario de semillas (−20 % de noche), Medalla de la Virgen (más tazos raros y holo), Faja de cargador (+40 vida), Cadena de oro (+20 % fuerza) | Coa afilada (20, más alcance) |
-| **4** (15) | Té de la Virgen (cura todo), Estampita del Santo Niño (−5 % daño la partida) | Ojo de venado (−20 % de cazadores y jefe, +15 vida), Herradura (−20 % de turbas), Brazalete de cobre (arrojables, todavía sin uso), Corona de lata (de todo un poco) | Machete de cañero (24, golpe rápido) |
-| **5** (21) | Milagro del tinaco (cura todo y recarga Segundo aire), Estampita de San Miguel (+5 % fuerza la partida), Varilla del 84 (material) | Chamarra del Machetes (+30 vida, −10 %, +10 % pesos), Medalla de GelA (+30 % pesos, −5 %), Listón de la Virgen (−20 % de todo) | Marro (30, empuja mucho, golpe lento) |
-| **6** (las 36 anteriores y su plano) | — | — | Machetón del 84 (40, rápido), Lanza de varilla (30, mucho alcance), Bate con clavos de cobalto (32, empuja muchísimo) |
+| **1** (desde el inicio) | — | Pulsera de hilo rojo (+10 vida), Cadena de fantasía (+5 % fuerza), Rodilleras (−5 % daño), Medalla de San Judas (+20 % pesos; pide 4 trofeos) | Tubo de fierro (14, empuja más) |
+| **2** (3 hechas) | — | Lámpara de pilas (alumbra), Escapulario (−10 %), Pulsera de San Benito (+25 vida), Cadena gruesa (+10 % fuerza, −5 %), Coderas (−10 %, +5 % alcance) | Antorcha de thinner (10, quema), Bate con alambre de púas (17, empuja más) |
+| **3** (8) | Varilla armada | Rosario de semillas (−20 % de noche), Medalla de la Virgen (más tazos raros y holo), Faja de cargador (+40 vida), Cadena de oro (+20 % fuerza) | Coa afilada (20, más alcance) |
+| **4** (13) | — | Ojo de venado (−20 % de cazadores y jefe, +15 vida), Herradura (−20 % de turbas), Brazalete de cobre (arrojables, todavía sin uso), Corona de lata (de todo un poco) | Machete de cañero (24, golpe rápido) |
+| **5** (16) | Varilla del 84 | Chamarra del Machetes (+30 vida, −10 %, +10 % pesos), Medalla de GelA (+30 % pesos, −5 %), Listón de la Virgen (−20 % de todo) | Marro (20 a varios a la vez, golpe lento, el tercero avienta) |
+| **6** (las 28 anteriores y su plano) | — | — | Machetón del 84 (40, rápido), Lanza de varilla (30, mucho alcance), Bate con clavos de cobalto (32, empuja muchísimo) |
 
 ---
+
+### 4.2 Rediseño por tiers ✅ (JJ, 2026-11-25; falta programarlo, el 4.1 de arriba es lo que hay en el código)
+
+**Por qué:** eran demasiadas recetas, los materiales del inicio dejaban de servir al final y abrir los juegos contando "cosas distintas hechas" no se entendía. Ahora hay una sola regla.
+
+**Lo que equipas:** un arma, una armadura, unas botas y dos amuletos.
+
+**Materiales:** cuatro familias, una por espacio, en tres niveles. Se van Cable, Lumbre, Agua y Vela; entran Hule y la de los amuletos. La **Tela** es el tilich; el **Trapo** sigue siendo el objeto de la ferretería para el molotov (JJ, 2026-11-25).
+
+| Espacio | Suelto | Bueno | Fino |
+|---|---|---|---|
+| Arma (metal) | Lata | Varilla | Cobalto 84 |
+| Armadura | Hilacha | Tela | Cuero |
+| Botas | Liga | Hule | Llanta |
+| Amuletos | Frijol rojo | Obsidiana | Cuarzo |
+
+- Especial que queda: **Plata de Taxco** (se compra en el punto). Se quitan la varilla corta, el alambrón, la varilla armada, la Varilla del 84, la baba verde y el polvo de Serenol.
+- **Cobalto 84** es el drop del final: cae como los demás finos (y sale del cambalache); el zombi de cobalto (la variante que brilla en las obras negras) se quita.
+- **Cambalache de La Chava:** 3 sueltos = 1 bueno y 3 buenos = 1 fino de la misma familia. Así lo del inicio sirve hasta el final.
+- **Cómo caen (todo por cambalache):** el botín no cambia en todo el juego. Cada zombi suelta un material el 75 % de las veces, de una familia al azar: **90 % suelto, 9 % bueno, 1 % fino**. Lo bueno y lo fino se arman con el cambalache; el 1 % de fino directo es la sorpresa (un Cobalto 84 la primera noche).
+  - Los **cazadores** sueltan 2 materiales en vez de 1. El **Ojo de venado** pasa 10 puntos de suelto a bueno (80 / 19 / 1).
+  - El cambalache convierte **todo lo que alcance de un jalón**, no de 3 en 3.
+  - La chatarra de los postes sigue dando de 2 a 4 sueltos.
+  - Costo, en sueltos: una línea de I a IV ~123 (6 + 18 + 54 + 45); arma, armadura y botas ~370; los 8 amuletos ~250; todo ~620, unos 800 zombis. Medirlo jugando (`docs/pruebas-balance.md`).
+
+**Fórmula de las recetas:** mucho de la familia de la pieza (principal) y un poco de otra (secundaria, la del mango, la hebilla o el hilo).
+
+| Tier | Principal | Secundaria | Además | $ |
+|---|---|---|---|---|
+| I | 4 sueltos | 2 sueltos | — | 30 |
+| II | 4 buenos | 2 buenos | la pieza I | 80 |
+| III | 4 finos | 2 finos | la pieza II + 1 Plata de Taxco | 150 |
+| IV | 3 finos | 2 finos | la pieza III + su trofeo | 300 |
+
+- El tier anterior es la llave del siguiente: no hay juegos, umbrales ni planos.
+- Los amuletos no se mejoran: cada uno se hace solo, con la fórmula de su tier sin la pieza anterior.
+
+**Armas** (principal: metal). Números para afinar; el machete de hoy hace 12.
+
+| Tier | Filo (rápido) | Secundaria | Pesadas (empujan, lentas) | Secundaria |
+|---|---|---|---|---|
+| I | Machete oxidado: 10 | Tela | Tubo: 12, empuja | Hule |
+| II | Machete reforzado: 16 | Hule | Marro: 16, en área, muy lento (JJ: primero el tubo, luego el marro) | Tela |
+| III | Machete de cañero: 22, más rápido | Tela | Bate con clavos: 22, empuja más | Hule |
+| IV | Machetón del 84: 32, rápido, más alcance | Cuarzo + Escama de la Madre | Fémur de Mojiganga con púas de cobalto: 32, empuja muchísimo, el cargado tumba a todos alrededor | Cuarzo + Corona de flores |
+
+**Armadura** (principal: tela):
+
+| Tier | Pieza | Secundaria | Buff |
+|---|---|---|---|
+| I | Coderas y rodilleras | Hule | +10 vida, −5 % daño |
+| II | Faja de cargador | Metal | +25 vida, −10 % daño |
+| III | Chaleco de llanta | Hule | +40 vida, −15 % daño, al bloquear te arrastran 30 % menos |
+| IV | Chamarra del Machetes | Metal + Tapa del tinaco | +80 vida, −25 % daño |
+
+**Botas** (principal: hule):
+
+| Tier | Pieza | Secundaria | Buff |
+|---|---|---|---|
+| I | Tenis de tianguis | Tela | +5 % velocidad |
+| II | Botas de obra | Tela | +10 % velocidad, ruedas más seguido (0.3 s en vez de 0.4) |
+| III | Botas de casquillo | Metal | +10 % velocidad, cada especial gasta 1/4 de aguante en vez de 1/3 |
+| IV | Botas del 84 | Metal + Ojo de turba | +15 % velocidad, especiales a 1/4, la roda esquiva más tiempo |
+
+**Amuletos** (principal: frijol rojo, obsidiana o cuarzo según el tier). Los zombis solo salen de noche, así que no hay efectos "de noche".
+
+| Tier | Amuleto | Secundaria | Efecto |
+|---|---|---|---|
+| I | Escapulario | Tela | −10 % daño |
+| I | Ojo de venado | Tela | Mejores drops: +10 % de que un zombi suelte un material bueno |
+| II | Collar de obsidiana | Tela | Cada zombi que matas te cura 2 |
+| II | Medalla de la Virgen | Metal | Más tazos raros y holo |
+| III | Medalla de San Judas | Metal | +20 % pesos |
+| III | Pulsera de San Benito | Tela | +25 vida y regeneras de a poco fuera de pelea |
+| IV | Listón de la Virgen | Tela + Marca de cazador | Curarte (Q) cura 50 % más y tarda la mitad |
+| IV | Collar de la Santa Muerte | Metal + Casco de GelA | Si caes, te levantas con 30 % de vida una vez por noche (sin lore: solo amuleto) |
+
+**Trofeos que quedan:** Marca de cazador, Ojo de turba, Tapa del tinaco, Diente del jefe, Chancla de oro y Casco de GelA (la Ceniza se quita), más dos de jefe (JJ, 2026-11-25): la **Escama de la Madre** (una placa del lomo de la Madre del Cárcamo; reemplaza al Diente de la Madre de `diente_madre.tres`) y la **Corona de flores** (de la Mojiganga, al vencerla). Chancla de oro y Diente del jefe ya no los pide ninguna receta.
+
+**Lo que se va:** la combinación machete + cinta (el machete reforzado pasa al taller), la Lámpara, las cadenas, la Herradura, el Brazalete de cobre, la Corona de lata, el Rosario, la Medalla de GelA, el Ojo de venado viejo, la Lanza de varilla, la Coa, la Antorcha y los planos, el trofeo Ceniza y el zombi de cobalto.
 
 ## 5. Equipo
 

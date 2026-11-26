@@ -33,5 +33,6 @@ The exit code is failures plus script errors (0 = all good). A full run takes ab
   - `capilla`: the chapel (F3): the cupo, water at dawn, the filter mission after the gate guard, a Puri-GelA outside the walls, and that it saves.
   - `entrada_jefe`: Juanjo's `EntradaJefe` is gated by milestone without a mission; inside the fight there is `aguante`; a faint returns with the bag at the entrance.
   - `dialogo`: the `DialogueBox` opens, pauses and closes with Space.
+  - `marro`: the heavy combo (`Player.PESADO`): with the marro the swing is `Sword_Heavy_A`, it hasn't hit at 0.3 s (the machete hits at 0.24), it stuns, the first two swings nudge the zombie (it stays in reach) and land, the third (`Sword_Heavy_C`) throws it, one swing hits three zombies in front without killing any and misses the one behind, the garrafonero (a boss) is hit but not pushed, and with the machete the combo is unchanged.
   - `escenas`: the main scenes load and keep running (`inicio`, `safehouse`, `map_test`, `mapa`, `defensa_tinaco`, `lombrices`, `catrina`, `tuneles`).
 - **What it doesn't see:** anything that needs a window or the eye (screenshots, FPS: `tools/medir_mapa.tscn`), and the `simi_jefe.gltf` import error (its `scene.bin` is gitignored, JJ has it locally).

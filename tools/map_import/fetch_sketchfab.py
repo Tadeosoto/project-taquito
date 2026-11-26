@@ -173,6 +173,13 @@ MODELS = {
 	"vehiculos/vocho": "769ada1c8d2c4cddb33a8c66b93e1099",          # 1967 Volkswagen Beetle, 1.8k
 	"vehiculos/van_blanca": "1cac40905d494bae8108a556d870e23e",     # White Van - PS1 Low Poly, 140
 	"vehiculos/pickup": "e9be0ceddd344ca2871e1b84621bdf66",         # PS1 Ford F150 Pickup truck, 1.4k (defensa del tinaco)
+	# Fase T del megaplan (docs/plan-noche.md): tiliches y lo que se hace en el taller (docs/items.md 4.2)
+	"tiliches/lata": "5ad17d589a6a41fc8905a576871e77ba",           # Soda Can crushed trash Low-poly, 338 (aluminio: tools/taller/texturas_tiliches.py)
+	"taller/rodillera": "109a37fa9a1a4fe5b08d615c592f574d",        # Knee Pad (WCG847), 972: Coderas y rodilleras (T4, JJ)
+	"taller/codera": "db99ea62157d4d96abfa2e8ccadeeeee",           # Elbow pad (WCG847), 700
+	"taller/tenis_tianguis": "836e9f550eba40a086f0f5d17c17a2db",   # Worn-out shoes, 45k: Tenis de tianguis (T4, JJ)
+	"taller/botas_obra": "d9b735d44e744998897cdcfc9ce0cbad",       # Worn Boots, 13k: Botas de obra (T4, JJ)
+	"taller/botas_casquillo": "2a8cc88406b54f9cada2792def385c8b",  # Construction Boot, 24.6k: Botas de casquillo (T4, JJ; la etiqueta de la marca se tapa)
 }
 
 # Titulo de la seccion de CREDITS.md para cada carpeta de primer nivel
@@ -188,6 +195,8 @@ CREDIT_HEADERS = {
 	"bodegas": "## Bodegas (`models/bodegas/`, Sketchfab)",
 	"vehiculos": "## Vehiculos (`models/vehiculos/`, Sketchfab)",
 	"panteon": "## Panteon (`models/panteon/`, Sketchfab)",
+	"tiliches": "## Tiliches del taller (`models/tiliches/`, Sketchfab)",
+	"taller": "## Lo que se hace en el taller (`models/taller/`, Sketchfab)",
 }
 
 

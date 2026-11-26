@@ -1,0 +1,11 @@
+Model Information:
+* title:	Carhartt Construction Boot
+* source:	https://sketchfab.com/3d-models/carhartt-construction-boot-2a8cc88406b54f9cada2792def385c8b
+* author:	inciprocal (https://sketchfab.com/inciprocal.com)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Carhartt Construction Boot" (https://sketchfab.com/3d-models/carhartt-construction-boot-2a8cc88406b54f9cada2792def385c8b) by inciprocal (https://sketchfab.com/inciprocal.com) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

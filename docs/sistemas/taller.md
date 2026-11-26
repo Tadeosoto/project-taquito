@@ -3,6 +3,8 @@
 > Moved from the root `CLAUDE.md` on 2026-11-11, word for word. Keep it in sync with the code; the root keeps only a pointer here.
 
 Kingdom Hearts 1-style synthesis with this world's own items.
+
+> **Redesign decided, not yet coded (JJ, 2026-11-25):** upgrade tiers instead of the six sets: weapon, armour, boots and two amulets; four material families (metal Lata/Varilla/Cobalto 84, Hilacha/Trapo/Cuero, Liga/Hule/Llanta, Frijol rojo/Obsidiana/Cuarzo); each recipe = the previous tier's piece + 4 of its own family + 2 of a secondary one; a 3:1 exchange at La Chava's; no sets, thresholds or blueprints. The full design is `docs/items.md` §4.2. Everything below describes the code as it is now.
 - **Materials:**
   - `scripts/Materiales.gd` is the static table: 6 families × 3 tiers (COMUN), ESPECIAL and TROFEO, plus the drop rules (`botin`, `chatarra`).
   - The `Tiliches` autoload (`scripts/Tiliches.gd`, was Morral: a morral is a backpack) holds counts outside the inventory, so materials take no slots. It shows "+2 Rebaba" notices bottom right and resets on restart.
@@ -23,7 +25,9 @@ Kingdom Hearts 1-style synthesis with this world's own items.
   - Tapa del tinaco after a night with no tinaco damage;
   - Diente del jefe plus the first missing blueprint from the boss;
   - Casco de GelA and Cobalto from the rare variants (`Zombis._variante` → `Zombie.poner_variante`: a pale "gela" at night, a glowing tougher "cobalto" where `Deterioro.zona` ≥ 0.5).
-- **Recipes:** `scripts/Recetas.gd` lists 39: sets 1–5 open at 0/3/9/15/21 unique items made, and set 6 needs everything plus a blueprint.
+- **Recipes:** `scripts/Recetas.gd` lists 31, only equippables (weapons, amulets) plus the two crafted materials: the 8 consumables (5 healing items, 3 estampitas) were cut on 2026-11-25 (JJ: too many recipes). Sets 1–5 open at 0/3/8/13/16 unique items made, and set 6 needs everything plus a blueprint.
+  - `Taller.rango()` only counts ids still in `Recetas.LISTA`, so old saves with the cut recipes don't keep the extra rank.
+  - The estampita (`Bonos.usar_estampita`) and Milagro (`recarga_segundo_aire`) code paths stay, but nothing gives those items now.
   - The `Taller` autoload keeps the rank (`hechos`) and blueprints in `user://taller.cfg`; restarting a run does **not** reset it.
   - `hacer(id)` spends materials and pesos (`costo`, with Regateo, never the skin-tone factor).
   - Crafted items are `resources/taller/*.tres`, written by `tools/taller/objetos.gd`. Their models come from `tools/taller/modelos.gd`: the `melee_psx` pack split per weapon, plus simple shapes recoloured by `tinte`.
@@ -34,7 +38,7 @@ Kingdom Hearts 1-style synthesis with this world's own items.
   - **Weapons:** traits `alcance`, `empujon`, `velocidad`, `quema`, read in `Player._atacar`/`_golpear`. The torch calls `Zombie.quemar` (3 s of damage with the barrel-fire sheet).
   - **Equipar:** reuses the Utilizar slot (`InventoryUI._nombre_utilizar`); `Inventory.arma()` prefers the equipped weapon and otherwise picks the highest damage.
   - **Amulets:** an `amuleto` dict; "Ponerse" moves the amulet out of the inventory into one of 2 slots in the `Bonos` autoload (the oldest comes back when full).
-  - **Estampitas:** `estampita` lasts the run.
+  - **Estampitas:** `estampita` lasts the run (no recipe makes one since 2026-11-25).
   - **How the bonuses combine:** `Bonos` multiplies into life, strength, reach, damage taken (`Player.recibir_dano` now gets the attacker), pesos, tazo luck and the player's lamp.
   - **Resets:** `Bonos` resets with the run.
 - **Inventory keys:** **B / RB** (`inventory_tiliches`) opens `TilichesUI.gd`, the materials page (only with a cangurera).

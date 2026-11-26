@@ -7,10 +7,11 @@ extends SceneTree
 #
 #   godot --path . -s tools/map_import/capturas.gd             # solo las que faltan
 #   godot --path . -s tools/map_import/capturas.gd -- --todas  # todas otra vez
+#   godot --path . -s tools/map_import/capturas.gd -- --todas --solo=tiliches/lata  # solo ese modelo
 #
 # Necesita ventana (no --headless: el renderer dummy no dibuja).
 
-const GRUPOS := ["tiendas", "casas", "props", "objetos", "personajes", "armas", "interiores", "bodegas"]
+const GRUPOS := ["tiendas", "casas", "props", "objetos", "personajes", "armas", "interiores", "bodegas", "tiliches", "taller"]
 const FONDO := Color(0.5, 0.6, 0.7)
 const FOV := 40.0
 # Vista de 3/4 desde el frente (los glTF de Sketchfab miran a +Z)
@@ -24,6 +25,11 @@ func _initialize() -> void:
 	var todas := "--todas" in OS.get_cmdline_user_args()
 	_preparar_mundo()
 	var trabajos := _buscar_trabajos(todas)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--solo="):
+			var solo := arg.trim_prefix("--solo=")
+			# "lata" o "tiliches/lata" (cuando dos grupos tienen un modelo con el mismo nombre)
+			trabajos = trabajos.filter(func(t): return String(t[0]).get_base_dir().ends_with("/" + solo))
 	print("capturas: %d por hacer" % trabajos.size())
 	for trabajo in trabajos:
 		await _capturar(trabajo[0], trabajo[1])

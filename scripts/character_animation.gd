@@ -10,7 +10,7 @@ extends Node3D
 #   + la pistola solo de la cintura para arriba: sostenerla, o apuntar segun la camara
 #   + recargar (cintura para arriba)
 #   + una accion de todo el cuerpo: los machetazos, recibir un golpe
-#   + caido (Death01 se queda en el piso)
+#   + caido (Death01 se queda en el piso), colgado, bailando, o saliendo volando
 # Player.gd le habla por accion(), golpe(), pistola(), update_animation()...
 
 const BIBLIOTECA := preload("res://resources/personajes/animaciones_humanas.res")
@@ -37,6 +37,9 @@ const RECARGA_DURA := 1.5     # s (Pistola.RECARGA); el clip dura 1.67
 # saltaba de pose
 const MEZCLA_COMBO := 0.12
 const GOLPE_DERECHA := "Sword_Regular_A"
+# Salir volando (UAL2 Source): encadenan pose con pose; el aire va en bucle hasta que pisas
+const VUELO := {"sube": "LiftAir", "aire": "LiftAir_Fall_Air", "impacto": "LiftAir_Fall_Impact", "levanta": "LayToIdle"}
+const VUELO_MEZCLA := 0.25
 const GOLPE_IZQUIERDA := "Sword_Regular_B"
 const ACCIONES := {
 	"golpe_a": GOLPE_DERECHA,
@@ -62,14 +65,25 @@ const ACCIONES := {
 	"aventar": "Sword_Heavy_A",       # el punado de sal (Player.aventar_sal): el tajo pesado de UAL2 Source
 	"molotov": "OverhandThrow",        # la molotov (Player.aventar_molotov): por encima del hombro
 	"aturdido": "Crying",              # te tronó la palomita en la mano (Player.aturdirte): te tapas la cara
+	# El combo de las armas pesadas (Player.PESADO, el marro): UAL2 Source, cada uno con su _Rec.
+	# Pasan por su propia velocidad (pesado_*_vel), la del arma
+	"pesado_a": "Sword_Heavy_A",
+	"pesado_b": "Sword_Heavy_B",
+	"pesado_c": "Sword_Heavy_C",
+	"pesado_a_rec": "Sword_Heavy_A_Rec",
+	"pesado_b_rec": "Sword_Heavy_B_Rec",
+	"pesado_c_rec": "Sword_Heavy_C_Rec",
 }
+const PESADOS := ["pesado_a", "pesado_b", "pesado_c"]
 const PUNETAZOS := ["puno_jab", "puno_cruzado", "puno_gancho"]
 # Que sigue a cada golpe cuando nadie lo corta
-const REC := {"golpe_a": "golpe_a_rec", "golpe_b": "golpe_b_rec", "puno_gancho": "puno_gancho_rec"}
+const REC := {"golpe_a": "golpe_a_rec", "golpe_b": "golpe_b_rec", "puno_gancho": "puno_gancho_rec",
+	"pesado_a": "pesado_a_rec", "pesado_b": "pesado_b_rec", "pesado_c": "pesado_c_rec"}
 # Los golpes que se sueltan al caminar en cuanto se acaba el enfriamiento: con el filtro de arriba
 # apagado, sus piernas (paradas, en guardia) pisaban las de caminar
 const SUELTAN_CAMINANDO := ["golpe_a", "golpe_b", "golpe_a_rec", "golpe_b_rec", "puno_jab",
-	"puno_cruzado", "puno_gancho", "puno_gancho_rec"]
+	"puno_cruzado", "puno_gancho", "puno_gancho_rec", "pesado_a", "pesado_b", "pesado_c",
+	"pesado_a_rec", "pesado_b_rec", "pesado_c_rec"]
 # Lo que antes pedia Player con los nombres del ninja
 const PISTAS := {"RecieveHit": "herido", "Punch": "golpe_a", "PickUp": "recoger"}
 const BUCLES := ["Idle", "Jog_Fwd", "Walk", "Sprint", "Walk_Carry", "Jump", "Pistol_Idle",
@@ -104,6 +118,7 @@ var _mira := 0.0
 var _golpe_clip := ""
 var _golpe_t := -1.0
 var _golpe_vel := 1.0   # el giro en el aire va mas rapido (golpe_giro)
+var _vel_pesado := 1.0  # la del arma pesada que va (golpe_pesado): tambien para su _Rec
 # Sword_Block (medido con la mano): sube la espada 0-0.15 s, se queda en guardia 0.2-0.64 y la baja
 # 0.65-1.1. Bloqueando se queda quieto en GUARDIA_EN; al soltar sigue desde BAJA_DESDE
 const GUARDIA_EN := 0.3
@@ -229,6 +244,12 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 		raiz.add_node(entrada + "_vel", AnimationNodeTimeScale.new())
 		raiz.connect_node(entrada + "_vel", 0, entrada + "_salta")
 	var entra_por := {"golpe_giro": "giro_vel", "estocada": "estocada_vel", "tajo": "tajo_vel", "pose_carga": "pose_carga_vel", "rodar": "rodar_vel", "bloqueo": "bloqueo_vel", "curar": "curar_vel"}
+	# El combo pesado va a la velocidad del arma (golpe_pesado)
+	for entrada: String in ACCIONES:
+		if entrada.begins_with("pesado"):
+			raiz.add_node(entrada + "_vel", AnimationNodeTimeScale.new())
+			raiz.connect_node(entrada + "_vel", 0, "c_" + entrada)
+			entra_por[entrada] = entrada + "_vel"
 	i = 0
 	for entrada: String in ACCIONES:
 		raiz.connect_node("cual", i, entra_por.get(entrada, "c_" + entrada))
@@ -248,6 +269,7 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	estado.add_input("caido")
 	estado.add_input("colgado")
 	estado.add_input("baila")
+	estado.add_input("vuela")
 	raiz.add_node("estado", estado)
 	raiz.connect_node("estado", 0, "accion")
 	_clip(raiz, "c_caido", "Death01", "estado", 1)
@@ -259,7 +281,19 @@ func _armar_arbol() -> AnimationNodeBlendTree:
 	var baila_seek := AnimationNodeTimeSeek.new()
 	raiz.add_node("baila_seek", baila_seek)
 	raiz.connect_node("estado", 3, "baila_seek")
-	_clip(raiz, "c_baila", "Simi_Baile", "baila_seek", 0)
+	_clip(raiz, "c_baila", "Simi_Baile_H", "baila_seek", 0)
+	# Sales volando por un golpe fuerte (Player._salir_volando): cada fase empieza su clip desde 0
+	var vuelo := AnimationNodeTransition.new()
+	vuelo.xfade_time = VUELO_MEZCLA
+	raiz.add_node("vuelo", vuelo)
+	var f := 0
+	for fase: String in VUELO:
+		vuelo.add_input(fase)
+		raiz.add_node("vuelo_" + fase, AnimationNodeTimeSeek.new())
+		raiz.connect_node("vuelo", f, "vuelo_" + fase)
+		_clip(raiz, "c_vuelo_" + fase, VUELO[fase], "vuelo_" + fase, 0)
+		f += 1
+	raiz.connect_node("estado", 4, "vuelo")
 	var sacude := AnimationNodeOneShot.new()
 	sacude.fadein_time = 0.05
 	sacude.fadeout_time = 0.15
@@ -316,7 +350,7 @@ func _process(delta: float) -> void:
 		if _rec_en < 0.0 and REC.has(_ultima):
 			# Caminando no: el _Rec es de cuerpo entero y parado; el golpe se suelta como antes
 			if not _moviendo:
-				_lanzar(REC[_ultima], 0.0, 1.0, false)
+				_lanzar(REC[_ultima], 0.0, _vel_pesado if _ultima in PESADOS else 1.0, false)
 	_accion_resta = maxf(_accion_resta - delta, 0.0)
 	_accion_peso = minf(move_toward(_accion_peso, 1.0, delta / ACCION_ENTRA), _accion_resta / ACCION_SALE)
 	_arbol.set("parameters/accion/blend_amount", _accion_peso)
@@ -365,6 +399,20 @@ func golpe(lado: float) -> void:
 	_golpe_t = 0.0
 	_golpe_vel = 1.0
 	_lanzar(entrada)
+
+
+# Un golpe del combo pesado (Player.PESADO): paso 0, 1 o 2, a la velocidad del arma. Como el
+# machetazo, si ya va uno se mezcla de donde va el brazo
+func golpe_pesado(paso: int, velocidad := 1.0) -> void:
+	var entrada: String = PESADOS[clampi(paso, 0, PESADOS.size() - 1)]
+	_vel_pesado = velocidad
+	for nombre: String in ACCIONES:
+		if nombre.begins_with("pesado"):
+			_arbol.set("parameters/%s_vel/scale" % nombre, velocidad)
+	_golpe_clip = ACCIONES[entrada]
+	_golpe_t = 0.0
+	_golpe_vel = velocidad
+	_lanzar(entrada, 0.0, velocidad)
 
 
 # El ataque cargado: el espadazo giratorio, de todo el cuerpo
@@ -601,6 +649,17 @@ func bailar(desde: float) -> void:
 	_pedir("estado", "baila")
 
 
+# Una fase de salir volando (Player._salir_volando): "sube", "aire", "impacto" o "levanta"
+func vuelo(fase: String) -> void:
+	if _arbol == null:
+		return
+	_golpe_t = -1.0
+	_abortar_accion()
+	_arbol.set("parameters/vuelo_%s/seek_request" % fase, 0.0)
+	_pedir("vuelo", fase)
+	_pedir("estado", "vuela")
+
+
 func colgar_sacudida() -> void:
 	if _arbol:
 		_arbol.set("parameters/sacude/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
@@ -663,7 +722,7 @@ func _lanzar(entrada: String, desde := 0.0, vel := 1.0, mezcla := true) -> void:
 		_accion_resta = INF
 	else:
 		_accion_resta = (BIBLIOTECA.get_animation(ACCIONES[entrada]).length - desde) / vel + ACCION_SALE
-		if entrada == "golpe_a" or entrada == "golpe_b":
+		if entrada == "golpe_a" or entrada == "golpe_b" or entrada in PESADOS:
 			_accion_resta += ACCION_QUEDA
 
 

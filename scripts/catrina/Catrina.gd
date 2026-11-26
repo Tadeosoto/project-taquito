@@ -123,6 +123,7 @@ const LANZA_SUELTA := 0.3
 const LANZA_DURA := 1.0
 const LANZA_VEL := 16.0        # m/s frenando a LANZA_VEL m/s2: unos 8 m
 const DANO_LANZA := 8
+const LANZA_EMPUJA := 2.5      # te lanza volando (Player._salir_volando): unos 8 m
 const DANO_CHOCA := 20         # si te avienta contra una pared o un carro
 # Trenza
 const TRENZA_DE := Vector2(7.0, 14.0)
@@ -1211,9 +1212,12 @@ func _lanzar() -> void:
 		dir.y = 0.0
 		dir = dir.normalized()
 		jugador.set("_invulnerable", 0.0)
-		jugador.recibir_dano(DANO_LANZA, global_position, 0.0, self)
-		jugador.set("_retroceso", dir * LANZA_VEL)
-		jugador.set("_retroceso_freno", LANZA_VEL)
+		# Sales volando hacia `dir` (Player._salir_volando: vuelas, azotas y te levantas)
+		var vuela := jugador.has_method("volando")
+		jugador.recibir_dano(DANO_LANZA, jugador.global_position - dir, LANZA_EMPUJA if vuela else 0.0, self)
+		if not vuela:
+			jugador.set("_retroceso", dir * LANZA_VEL)
+			jugador.set("_retroceso_freno", LANZA_VEL)
 		_contar("lanzo")
 		Sonidos.tocar(self, "golpe", 0.0, 0.6)
 		# Si en el camino hay una pared o un carro, el choque duele (cuando llegue a el)
@@ -1225,7 +1229,11 @@ func _lanzar() -> void:
 		if not choque.is_empty():
 			# s(t) = v t - a t^2 / 2 con a = v: t = (v - sqrt(v^2 - 2 a s)) / a
 			var s := jugador.global_position.distance_to(choque.position) - 0.5
-			_choque_en = maxf((LANZA_VEL - sqrt(maxf(LANZA_VEL * LANZA_VEL - 2.0 * LANZA_VEL * s, 0.0))) / LANZA_VEL, 0.05)
+			if vuela:
+				# Volando casi no frena: llega a la velocidad del vuelo
+				_choque_en = maxf(s / (Player.VUELA_LEJOS * LANZA_EMPUJA), 0.05)
+			else:
+				_choque_en = maxf((LANZA_VEL - sqrt(maxf(LANZA_VEL * LANZA_VEL - 2.0 * LANZA_VEL * s, 0.0))) / LANZA_VEL, 0.05)
 	if _t >= LANZA_DURA:
 		_volver()
 

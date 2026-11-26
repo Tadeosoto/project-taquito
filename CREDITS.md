@@ -192,3 +192,13 @@
 - [Centenary Mexican Tombstone (1918)](https://sketchfab.com/3d-models/b1f0b87a03cf4e46940ffe3773ba0df5) de Paul, licencia CC Attribution (`models/panteon/mexicana_1918/`).
 - [gravestone pack](https://sketchfab.com/3d-models/915174119a454fa7b2573a9e3bddac8b) de Tardis121, licencia CC Attribution (`models/panteon/lapidas_pack/`).
 - [Graveyard props](https://sketchfab.com/3d-models/ae35b6086e0b45d3941a61086b5e3d10) de max_imum, licencia CC Attribution (`models/panteon/props/`).
+
+## Tiliches del taller (`models/tiliches/`, Sketchfab)
+- [Soda Can crushed trash Low-poly](https://sketchfab.com/3d-models/5ad17d589a6a41fc8905a576871e77ba) de rzaletskyy, licencia CC Attribution (`models/tiliches/lata/`).
+
+## Lo que se hace en el taller (`models/taller/`, Sketchfab)
+- [Knee Pad](https://sketchfab.com/3d-models/109a37fa9a1a4fe5b08d615c592f574d) de WCG847, licencia Free Standard (`models/taller/rodillera/`).
+- [Elbow pad](https://sketchfab.com/3d-models/db99ea62157d4d96abfa2e8ccadeeeee) de WCG847, licencia Free Standard (`models/taller/codera/`).
+- [Worn-out shoes](https://sketchfab.com/3d-models/836e9f550eba40a086f0f5d17c17a2db) de Antoine Dresen, licencia CC Attribution (`models/taller/tenis_tianguis/`).
+- [Worn Boots](https://sketchfab.com/3d-models/d9b735d44e744998897cdcfc9ce0cbad) de AntonCla, licencia CC Attribution (`models/taller/botas_obra/`).
+- [Carhartt Construction Boot](https://sketchfab.com/3d-models/2a8cc88406b54f9cada2792def385c8b) de inciprocal, licencia CC Attribution (`models/taller/botas_casquillo/`).

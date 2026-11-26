@@ -26,12 +26,13 @@ const MODELO := preload("res://models/personajes/zombie_gordo/zombie_gordo.scn")
 const ALTO_VARIA := Vector2(0.82, 1.18)
 # Nombre de siempre -> clip de Quaternius. Quaternius no trae corrida de zombi: trotan
 # (Jog_Fwd) y los muy rapidos (cazadores) esprintan
+const BAILE_ATORADO_MS := 2500   # sin acercarse a su puesto de baile (JefeSimi.atorado)
 const CLIPS_SKIN := {
 	"idle": "h/Zombie_Idle", "camina": "h/Zombie_Walk_Fwd", "run": "h/Jog_Fwd", "sprint": "h/Sprint",
 	"attack1": "h/Zombie_Scratch", "attack2": "h/Zombie_Scratch", "hit": "h/Hit_Chest", "die": "h/Death01",
 	"trueno": "h/Hit_Head", "aturdido": "h/Crying", "bebe": "h/Drink",
 	# Bailando con el Simi jefe (scripts/simi/JefeSimi.gd), al compas de el
-	"baile": "h/Simi_Baile",
+	"baile": "h/Simi_Baile_H",
 }
 const BUCLES_SKIN := ["h/Zombie_Idle", "h/Zombie_Walk_Fwd", "h/Jog_Fwd", "h/Sprint"]
 # m/s a los que cada clip se ve a su velocidad, para que no patinen (como Gente.PASO)
@@ -291,6 +292,8 @@ var _bebiendo := 0.0
 # hasta que te señala y los suelta; ya suelto no vuelve a bailar hasta _suelto_hasta (ms)
 var bailando := false
 var _suelto_hasta := 0
+var _baile_cerca := INF         # lo mas cerca que ha estado de su puesto de baile
+var _baile_avanzo := 0           # ms: la ultima vez que se acerco a el
 var alerta := true          # ya te detecto: corre hacia su blanco. Sin ella, deambula
 var infectado := false      # trae una lombriz encima (EnjambreLombrices): corre mas y te caza
 
@@ -908,6 +911,7 @@ func _ir_a_bailar(delta: float) -> Vector3:
 	hacia.y = 0.0
 	# Ya en su puesto (o casi, si lo empujaron un poco bailando): baila al compas del Simi
 	if hacia.length() < (1.5 if bailando else 0.8):
+		_baile_cerca = INF
 		if not bailando or _animacion.current_animation != CLIPS_SKIN["baile"]:
 			bailando = true
 			_animar("baile", 1.0, true)
@@ -917,6 +921,14 @@ func _ir_a_bailar(delta: float) -> Vector3:
 		_rumbo = Vector3.ZERO
 		return Vector3.ZERO
 	bailando = false
+	# Otro bailarin le estorba y se quedaba corriendo en su lugar: si no se acerca, el Simi le da otro
+	var ahora := Time.get_ticks_msec()
+	if hacia.length() < _baile_cerca - 0.3:
+		_baile_cerca = hacia.length()
+		_baile_avanzo = ahora
+	elif ahora - _baile_avanzo > BAILE_ATORADO_MS:
+		simi.atorado(self)
+		_baile_cerca = INF
 	var velocidad := _velocidad_ahora(delta)
 	_rumbo = _rumbo.move_toward(_rozar_pared(hacia.normalized()) * velocidad, ACELERA * delta)
 	_correr(_rumbo.length())
@@ -927,6 +939,7 @@ func _ir_a_bailar(delta: float) -> Vector3:
 # El Simi te señalo (JefeSimi): deja de bailar y va por ti con prisa; no vuelve a bailar en `segundos`
 func soltar_del_baile(segundos: float, prisa: float) -> void:
 	bailando = false
+	_baile_cerca = INF
 	_suelto_hasta = Time.get_ticks_msec() + int(segundos * 1000.0)
 	_velocidad *= prisa
 	alertar(false)

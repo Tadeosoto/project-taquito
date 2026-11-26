@@ -6,9 +6,10 @@
 [resource]
 script = ExtResource("1_item")
 item_name = "Marro"
-description = "Un marro de albañil. Pesa, pero tumba de un golpe."
+description = "Un marro de albañil. Pesa, pero le da a todos los que tengas enfrente."
 inspection_model = ExtResource("2_modelo")
-efecto = "30 de daño, empuja mucho, golpe lento"
-dano = 30
+efecto = "20 de daño a varios a la vez, golpe lento, el tercero avienta"
+dano = 20
 empujon = 2.5
-velocidad = 0.8
+velocidad = 0.7
+pesada = true

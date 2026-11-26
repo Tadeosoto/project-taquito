@@ -47,6 +47,9 @@ const MAX_TRIANGULOS := {
 	# Basura de la favela de La Gotera (Poly Haven, fetch_polyhaven.py): se repiten cientos de veces
 	"llanta": 400,
 	"bolsa_basura": 500,
+	"tenis_tianguis": 4000,   # los tenis del taller (T4): venian con 45k
+	"botas_obra": 4000,
+	"botas_casquillo": 4000,
 }
 
 # Carpeta -> caja (coordenadas del glTF) de lo que se queda: mallas con centro
@@ -56,7 +59,13 @@ const RECORTE_MAX := 5.0
 
 # Carpetas sin wobble: el wobble acomoda los vertices en una reticula de
 # 1/wobble_resolution (2.5 cm) y los objetos de 1-2 cm quedan hechos un triangulo
-const SIN_WOBBLE := ["tachas"]
+# El equipo que se hace en el taller (models/taller/) es chico: de 10 a 20 cm
+const SIN_WOBBLE := ["tachas", "rodillera", "codera", "tenis_tianguis", "botas_obra", "botas_casquillo"]
+
+# Carpetas de dos caras: escaneos de una sola capa que en el glTF traen doubleSided (el shader PS1
+# pinta solo la cara de enfrente). Se les agrega cada triangulo al reves; las Botas de obra se
+# veian huecas por atras (JJ, 2026-11-25)
+const DOBLE_CARA := ["botas_obra"]
 
 # Grupos (carpeta bajo models/) con los valores PS1 que pidio el equipo:
 # jitter mas grueso y wobble mas fino. El affine que tambien pedian se queda
@@ -75,8 +84,9 @@ const TINTES := {
 	# Vaso de Iced Coffee: el plastico es transparente y aqui saldria blanco
 	# opaco, asi que el vaso y la bebida se pintan cafe de tejuino
 	"tejuino": {"color_-1023739142": Color(0.62, 0.42, 0.24), "color_14860437": Color(0.5, 0.32, 0.17)},
-	# Toalla blanca -> trapo sucio de la molotov
-	"trapo": {"Scene_-_Root": Color(0.58, 0.5, 0.38)},
+	# Toalla blanca -> el trapo rojo de la ferreteria, el de la molotov (JJ, 2026-11-25; la Tela del
+	# taller es la misma toalla hecha franela amarilla: tools/taller/tiliches_codigo.gd)
+	"trapo": {"Scene_-_Root": Color(0.72, 0.13, 0.1)},
 }
 
 var _materials := {}
@@ -100,6 +110,8 @@ func _post_import(scene: Node) -> Object:
 		if total > MAX_TRIANGULOS[carpeta]:
 			_reducir(scene, float(MAX_TRIANGULOS[carpeta]) / total)
 			print("TiendaPostImport: %s de %d a %d triangulos" % [carpeta, total, _contar_triangulos(scene)])
+	if carpeta in DOBLE_CARA:
+		_doble_cara(scene)
 	_sin_wobble = carpeta in SIN_WOBBLE
 	_ps1_equipo = get_source_file().get_base_dir().get_base_dir().get_file() in GRUPOS_PS1_EQUIPO
 	_convert(scene)
@@ -169,6 +181,41 @@ func _reducir(node: Node, ratio: float) -> void:
 		(node as MeshInstance3D).mesh = result
 	for child in node.get_children():
 		_reducir(child, ratio)
+
+
+# Agrega a cada superficie sus triangulos al reves (orden invertido, normales volteadas), con el
+# mismo material: la cara de atras se ve aunque el shader no pinte las dos caras
+func _doble_cara(node: Node) -> void:
+	if node is MeshInstance3D and (node as MeshInstance3D).mesh is ArrayMesh:
+		var original := (node as MeshInstance3D).mesh as ArrayMesh
+		var result := ArrayMesh.new()
+		for surface in original.get_surface_count():
+			var arrays := original.surface_get_arrays(surface)
+			var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+			if indices.is_empty():
+				indices = PackedInt32Array(range((arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()))
+			var cantidad: int = (arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()
+			var doble := arrays.duplicate(true)
+			# Los vertices se duplican (las normales de la copia van al reves)
+			for campo in [Mesh.ARRAY_VERTEX, Mesh.ARRAY_NORMAL, Mesh.ARRAY_TANGENT, Mesh.ARRAY_COLOR, Mesh.ARRAY_TEX_UV, Mesh.ARRAY_TEX_UV2, Mesh.ARRAY_BONES, Mesh.ARRAY_WEIGHTS]:
+				if arrays[campo] != null:
+					doble[campo] = arrays[campo] + arrays[campo]
+			if arrays[Mesh.ARRAY_NORMAL] != null:
+				var normales: PackedVector3Array = doble[Mesh.ARRAY_NORMAL]
+				for i in range(cantidad, normales.size()):
+					normales[i] = -normales[i]
+				doble[Mesh.ARRAY_NORMAL] = normales
+			var nuevos := indices.duplicate()
+			for t in range(0, indices.size(), 3):
+				nuevos.append(indices[t] + cantidad)
+				nuevos.append(indices[t + 2] + cantidad)
+				nuevos.append(indices[t + 1] + cantidad)
+			doble[Mesh.ARRAY_INDEX] = nuevos
+			result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, doble)
+			result.surface_set_material(surface, original.surface_get_material(surface))
+		(node as MeshInstance3D).mesh = result
+	for child in node.get_children():
+		_doble_cara(child)
 
 
 # El material PS1 reemplaza al original dentro de la malla (no como override):
