@@ -48,7 +48,21 @@ CHALANES = [("Fixing_Kneeling_1", 0.89, -10.0, 0.36, -11.13),     # hincado en e
             ("Idle_TalkingPhone_1", 7.6, -2.0, 7.6, 2.0),          # al telefono en la puerta de la oficina
             ("Crouch_Idle_1", 2.6, -35.0, 2.2, -36.0),            # escogiendo llantas
             ("PickUp_Kneeling_1", 6.6, -20.3, 7.2, -21.0),        # juntando fierro
-            ("Idle_FoldArms_1", -1.0, -26.4, 0.0, -29.5)]         # viendo como aplasta la prensa
+            ("Idle_FoldArms_1", -1.0, -26.4, 0.0, -29.5),         # viendo como aplasta la prensa
+            ("Fixing_Kneeling_2", 2.6, -25.2, 2.6, -25.9)]        # el soldador, en la puerta de su burro         # viendo como aplasta la prensa
+# La grua de electroiman (grua_magneto): eje de la torre, alto de la pluma, radio hasta el iman y
+# alto del iman; va por un carro a la fila del este y lo suelta sobre la prensa (YonkeMapa)
+GRUA = (6.4, -24.6)
+GRUA_ALTO = 8.0
+GRUA_RADIO = 8.0
+GRUA_IMAN = 5.6
+GRUA_TOMA = (11.2, -18.3)        # sobre la fila de carros
+GRUA_SUELTA = (0.0, -29.5)       # sobre la prensa
+# La noche: el tambo con lumbre y el velador, los postes con reflector, el soldador
+FUEGO = (-10.0, -10.0)
+VELADOR = (-9.0, -10.6)
+LUCES = [(-4.0, -1.2), (3.8, -38.8), (-6.2, -31.0)]
+SOLDADOR = (2.6, -25.9)
 # Celdas del atlas de carteles (arte_yonke.py): (columna, fila desde arriba)
 CARTELES = {"precios": (0, 0), "refacciones": (1, 0), "robado": (0, 1), "rines": (1, 1), "hojalateria": (0, 2),
             "lucha": (1, 2), "virgen": (0, 3), "perro": (1, 3)}
@@ -91,6 +105,7 @@ def mats():
         "llanta_roja": material("llanta_roja", (0.8, 0.15, 0.1)),
         "llanta_azul": material("llanta_azul", (0.15, 0.35, 0.75)),
         "llanta_verde": material("llanta_verde", (0.2, 0.6, 0.25)),
+        "mata": mat_tex("mata", "res://textures/map/mata_pasto.png", (1, 1, 1), 0.0),
         "carteles_yonke": mat_tex("carteles_yonke", "res://textures/negocios/yonke_carteles.png", (1, 1, 1), 0.0),
     }
 
@@ -675,6 +690,169 @@ def chalanes():
     marca("Platica", 2.0, 0, -3.6, col, giro_y=ver(2.0, -3.6, 0, 0))
 
 
+def grua_magneto(col, M):
+    """La grua de electroiman junto a la prensa: torre de celosia, cabina, la pluma que gira con su
+    cable y el iman, y el carro colgado. La pluma (con cable e iman) y la carga son piezas aparte
+    con el origen en el eje de la torre ("Grua_mov_pluma", "Grua_mov_carga"): YonkeMapa las gira
+    con el ciclo de la prensa (va por un carro a la fila y lo suelta sobre la prensa)."""
+    gx, gz = GRUA
+    alto = GRUA_ALTO
+    am = M["amarillo_maquina"]
+    # La torre: cuatro patas y travesanos en zigzag
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            caja("Grua_pata", gx + sx * .4 - .05, gx + sx * .4 + .05, 0, alto, gz + sz * .4 - .05, gz + sz * .4 + .05, am, col, choca=False)
+    for k in range(int(alto / .8)):
+        y = .4 + k * .8
+        for lado in range(4):
+            a = lado * math.pi / 2
+            p0 = Vector((gx + math.cos(a) * .4 - math.sin(a) * .4, y, gz + math.sin(a) * .4 + math.cos(a) * .4))
+            p1 = Vector((gx + math.cos(a) * .4 + math.sin(a) * .4, y + .8, gz + math.sin(a) * .4 - math.cos(a) * .4))
+            cable_recto("Grua_reticula", p0, p1, am, col, r=.018)
+    caja("Grua_base", gx - .7, gx + .7, 0, .25, gz - .7, gz + .7, M["concreto"], col)
+    caja("Grua_choque", gx - .5, gx + .5, 0, alto, gz - .5, gz + .5, am, col, choca=False).name = "Grua_choque-colonly"
+    caja("Grua_cabina", gx - .5, gx + .5, alto - 1.6, alto - .4, gz + .45, gz + 1.3, am, col, choca=False)
+    plano("Grua_cabina_vidrio", (gx, alto - .9, gz + 1.305), .8, .6, (0, 0, 1), M["vidrio_sucio"], col)
+    # La pluma con su contrapeso, el carrito, el cable y el iman, armada viendo hacia +x
+    pluma = [caja("Grua_pluma", -2.0, GRUA_RADIO + .4, alto, alto + .35, -.25, .25, am, col, choca=False),
+             caja("Grua_contrapeso", -2.4, -1.4, alto - .5, alto + .1, -.45, .45, M["concreto"], col, choca=False),
+             caja("Grua_carrito", GRUA_RADIO - .25, GRUA_RADIO + .25, alto - .15, alto, -.3, .3, M["fierro"], col, choca=False),
+             caja("Grua_cable", GRUA_RADIO - .015, GRUA_RADIO + .015, GRUA_IMAN + .2, alto - .15, -.015, .015, M["cadena"], col, choca=False),
+             cilindro("Grua_iman", GRUA_RADIO, GRUA_IMAN, GRUA_IMAN + .2, 0, .6, M["hueco"], col, lados=12)]
+    for k in range(int((GRUA_RADIO + 2.4) / .6)):
+        x = -2.0 + k * .6
+        pluma.append(cable_recto("Grua_pluma_reticula%d" % k, Vector((x, alto + .35, -.25)), Vector((x + .6, alto + .35, .25)), am, col, r=.015))
+    # En reposo ve hacia la fila (YonkeMapa la gira; aqui solo para que en Blender no quede afuera)
+    reposo = Matrix.Translation(_b(gx, 0, gz)) @ Matrix.Rotation(math.atan2(-(GRUA_TOMA[1] - gz), GRUA_TOMA[0] - gx), 4, "Z")
+    juntar("Grua_mov_pluma", pluma, col, reposo)
+    # El carro colgado del iman (con el origen en el eje de la torre, como la pluma)
+    carga, alto_carga = carro("Grua_carga", GRUA_RADIO, GRUA_IMAN - 1.45, 0, 90, COLORES_CARRO[7], col, M, sin_llantas=False,
+                              vidrios_rotos=.5, abollado=1.0, semilla=31)
+    carga.name = "Grua_mov_carga"
+    carga.data.transform(carga.matrix_basis)
+    carga.matrix_basis = reposo
+
+
+def mata(nombre, x, z, alto, col, M):
+    """Una mata de hierba: dos planos cruzados con la textura de pasto (alfa)."""
+    p = [plano(nombre + "_a", (0, alto / 2, 0), alto * 1.2, alto, (0, 0, 1), M["mata"], col),
+         plano(nombre + "_b", (0, alto / 2, 0), alto * 1.2, alto, (1, 0, 0), M["mata"], col)]
+    return juntar(nombre, p, col, matriz(x, 0, z, random.uniform(0, 90)))
+
+
+def suelo_detalle(col, M):
+    """Hierba en las orillas y junto a las cosas, mas manchas de aceite y fierritos regados."""
+    x0, x1, z0, z1 = PATIO
+    for k in range(70):
+        lado = k % 4
+        if lado == 0:
+            x, z = random.uniform(x0 + .3, x1 - .3), z0 + random.uniform(.2, .8)
+        elif lado == 1:
+            x, z = x0 + random.uniform(.2, .8), random.uniform(z0 + .3, z1 - .3)
+        elif lado == 2:
+            x, z = x1 - random.uniform(.2, .8), random.uniform(z0 + .3, z1 - .3)
+        else:
+            x, z = random.uniform(x0 + 1, x1 - 1), random.uniform(z0 + 1, z1 - 4)
+        mata("Detalle_mata%d" % k, x, z, random.uniform(.3, .7), col, M)
+    for k in range(20):
+        ch = cilindro("Detalle_aceite%d" % k, random.uniform(x0 + 1, x1 - 1), .017, .019, random.uniform(z0 + 1, z1 - 2),
+                      random.uniform(.2, .6), M["charco"], col, lados=8)
+        ch.scale = (1.0, random.uniform(.4, .9), 1.0)
+    for k in range(40):
+        p = caja("Detalle_fierrito%d" % k, -.08, .08, 0, .03, -.02, .02, random.choice((M["fierro"], M["oxido"], M["rin"])), col, choca=False)
+        p.matrix_basis = matriz(random.uniform(x0 + 1, x1 - 1), .016, random.uniform(z0 + 1, z1 - 2), random.uniform(0, 180))
+
+
+def barda_detalle(col, M):
+    """Alambre de puas arriba de la barda (lados y fondo) y parches hechos con cofres de carro."""
+    x0, x1, z0, z1 = PATIO
+    for nombre, a, b in (("oeste", (x0, 2.55, z1 - 1), (x0, 2.55, z0)), ("fondo", (x0, 2.55, z0), (x1, 2.55, z0)),
+                         ("este", (x1, 2.55, z0), (x1, 2.55, z1 - 1))):
+        pa, pb = Vector(a), Vector(b)
+        largo = (pb - pa).length
+        n = int(largo / .25)
+        for fila, dy in enumerate((0.0, .12)):
+            pts = [pa.lerp(pb, i / n) + Vector((0, dy + (.03 if i % 2 else -.03), 0)) for i in range(n + 1)]
+            tubo_curva("Barda_puas_%s%d" % (nombre, fila), pts, .008, M["fierro"], col, lados=3)
+        for i in range(0, n, 8):
+            p = pa.lerp(pb, i / n)
+            cilindro("Barda_puas_poste_%s%d" % (nombre, i), p.x, 2.2, 2.75, p.z, .02, M["fierro"], col, lados=4)
+    for k, (x, z, normal) in enumerate(((x0 + .04, -18.0, (1, 0, 0)), (x1 - .04, -27.0, (-1, 0, 0)), (-6.0, z0 + .04, (0, 0, 1)))):
+        color = COLORES_CARRO[(k * 3 + 2) % len(COLORES_CARRO)]
+        plano("Barda_parche_cofre%d" % k, (x, 1.1, z), 1.5, 1.2, normal, _mat_carro(color, M), col)
+
+
+def noche_yonke(col, M):
+    """Lo de la noche (YonkeMapa lo prende al anochecer): el tambo con lumbre, la cubeta del velador,
+    los postes con reflector, y las marcas del perro, el radio, las chispas y las moscas."""
+    fx, fz = FUEGO
+    tambo("Fuego_tambo", fx, fz, M["oxido"], col)
+    for k in range(5):
+        caja("Fuego_lena%d" % k, -.25, .25, 0, .05, -.03, .03, M["madera"], col, choca=False).matrix_basis = matriz(fx, .88, fz, k * 36)
+    vx, vz = VELADOR
+    cilindro("Velador_cubeta", vx, 0, .42, vz, .17, M["tambo_azul"], col, lados=8)
+    marca("Fuego", fx, .9, fz, col)
+    marca("Velador", vx, 0, vz, col, giro_y=math.degrees(math.atan2(-(fx - vx), -(fz - vz))))
+    marca("Radio", vx + .4, .42, vz - .2, col)
+    marca("Perro", -10.6, 0, -6.7, col, giro_y=180)
+    for k, (lx, lz) in enumerate(LUCES):
+        cilindro("Luz_poste%d-convcol" % k, lx, 0, 5.0, lz, .07, M["fierro"], col, lados=6)
+        caja("Luz_brazo%d" % k, lx, lx + .6, 4.9, 4.98, lz - .04, lz + .04, M["fierro"], col, choca=False)
+        caja("Luz_reflector%d" % k, lx + .5, lx + .8, 4.7, 4.95, lz - .15, lz + .15, M["fierro"], col, choca=False)
+        marca("Luz_%d" % k, lx + .65, 4.6, lz, col)
+    # El soldador: una puerta en su burro de fierro, y donde salen las chispas
+    sx, sz = SOLDADOR
+    caja("Soldador_burro", sx - .5, sx + .5, 0, .75, sz - .1, sz + .1, M["fierro"], col)
+    puerta_auto("Soldador_puerta", COLORES_CARRO[2], col, M, sx, sz, 90, recarga=0.0).matrix_basis = matriz(sx - .55, .75, sz, 90)
+    marca("Chispas", sx, .9, sz + .1, col)
+    for k, (mx, mz) in enumerate(((3.8, -4.05), (fx, fz))):
+        marca("Moscas_%d" % k, mx, 1.0, mz, col)
+
+
+def la_chava_cosas(col, M):
+    """Lo de La Chava en su contenedor: altar, refri de GelA, planos, cajones de piezas, el machete
+    a medio hacer en la prensa, el gato en la llanta, radio, plantas en botes y foquitos de navidad."""
+    x0, x1, z0, z1 = DENTRO
+    a = DENTRO_ALTO
+    # Altar en el muro este, del lado de la camara
+    caja("D_altar", x1 - .3, x1, 1.35, 1.4, .6, 1.4, M["madera"], col, choca=False)
+    plano("D_altar_virgen", (x1 - .02, 1.7, 1.0), .3, .4, (-1, 0, 0), M["estampa_virgen"], col)
+    plano("D_altar_foto", (x1 - .02, 1.65, 1.3), .14, .18, (-1, 0, 0), M["calendario"], col)
+    for k in range(4):
+        cilindro("D_altar_veladora%d" % k, x1 - .15, 1.4, 1.5, .7 + k * .18, .025, material("foco_veladora", (1.0, 0.75, 0.35), emision=4.0), col, lados=6)
+    # El refri chico de GelA con estampas
+    caja("D_refri", x1 - .55, x1 - .05, 0, 1.0, 1.6, 2.2, M["letrero_blanco"], col)
+    caja("D_refri_logo", x1 - .56, x1 - .55, .6, .85, 1.7, 2.1, M["tambo_azul"], col, choca=False)
+    for k in range(4):
+        caja("D_refri_estampa%d" % k, x1 - .561, x1 - .56, .2 + k * .1, .28 + k * .1, 1.65 + (k % 2) * .25, 1.8 + (k % 2) * .25,
+             random.choice((M["letrero_rojo"], M["letrero_amarillo"], M["tambo_rojo"])), col, choca=False)
+    # Planos clavados arriba de la ventana
+    azul = material("plano_azul", (0.2, 0.35, 0.7))
+    for k in range(3):
+        plano("D_plano%d" % k, (x0 + .02, 2.05, -2.2 + k * .5), .42, .32, (1, 0, 0), azul, col)
+    # Cajones de piezas en la orilla del mostrador y el machete a medio hacer en la prensa
+    for k in range(4):
+        caja("D_cajon%d" % k, -1.1 + k * .14, -.98 + k * .14, .93, 1.01, -.72, -.6, random.choice((M["letrero_rojo"], M["tambo_azul"], M["letrero_amarillo"])), col, choca=False)
+    caja("D_machete_hoja", .32, .36, 1.1, 1.45, -.18, -.12, M["rin"], col, choca=False)
+    # El gato dormido en la llanta (bola con cabeza y cola)
+    gato = material("gato", (0.85, 0.55, 0.2))
+    esfera("D_gato", .16, gato, col, lados=8, anillos=5).location = _b(x0 + .4, .3, 1.3)
+    esfera("D_gato_cabeza", .08, gato, col, lados=6, anillos=4).location = _b(x0 + .52, .32, 1.4)
+    tubo_curva("D_gato_cola", [Vector((x0 + .28, .26, 1.2)), Vector((x0 + .3, .24, 1.05)), Vector((x0 + .45, .25, 1.0))], .02, gato, col, lados=4)
+    # Radio en el mostrador y plantas en botes en la ventana
+    caja("D_radio_mostrador", -.7, -.45, .93, 1.08, -.4, -.3, M["hueco"], col, choca=False)
+    for k in range(3):
+        cilindro("D_bote%d" % k, x0 + .08, 1.0, 1.12, -2.2 + k * .5, .05, M["rin"], col, lados=6)
+        esfera("D_planta%d" % k, .08, material("planta", (0.2, 0.55, 0.2)), col, lados=6, anillos=4).location = _b(x0 + .08, 1.18, -2.2 + k * .5)
+    # Foquitos de navidad por la orilla del techo
+    colores = [material("foco_rojo_navidad", (1, .2, .2), emision=4.0), material("foco_verde_navidad", (.2, 1, .3), emision=4.0),
+               material("foco_azul_navidad", (.3, .5, 1), emision=4.0), material("foco_amarillo_navidad", (1, .85, .2), emision=4.0)]
+    for lado, xx in enumerate((x0 + .05, x1 - .05)):
+        for k in range(16):
+            zz = z0 + .2 + k * (z1 - z0 - .4) / 15
+            esfera("D_foquito_%d_%d" % (lado, k), .025, colores[(k + lado) % 4], col, lados=5, anillos=3).location = _b(xx, a - .12 - .05 * math.sin(k), zz)
+
+
 def patio(col, M):
     x0, x1, z0, z1 = PATIO
     caja("Patio_tierra", x0, x1, -.02, .015, z0, z1, M["tierra"], col, choca=False)
@@ -690,7 +868,7 @@ def patio(col, M):
         for lugar, lz in enumerate(LUGARES):
             y = 0.0
             for nivel in range(rng.choice((1, 2, 2, 3))):
-                tipo = rng.choice(("sedan", "sedan", "vocho", "pickup")) if nivel == 0 else rng.choice(("sedan", "vocho"))
+                tipo = rng.choice(("sedan", "sedan", "vocho", "pickup", "combi", "van")) if nivel == 0 else rng.choice(("sedan", "vocho"))
                 aplastado = 1.0 if nivel == 0 else rng.uniform(.5, .65)
                 ob, alto = carro("Fila_%d_%d_%d" % (int(fx), lugar, nivel), fx + rng.uniform(-.08, .08), y, lz + rng.uniform(-.15, .15),
                                  90 + rng.uniform(-4, 4), rng.choice(COLORES_CARRO), col, M, tipo=tipo, aplastado=aplastado,
@@ -701,13 +879,15 @@ def patio(col, M):
                 y += alto + .02
     # Sueltos en medio: uno en blocks con el cofre abierto, un vocho, uno volteado, una pickup
     sueltos = [("Suelto_1", -1.0, -10.5, 25, "sedan", dict(sin_llantas=True, cofre_abierto=True)),
-               ("Suelto_2", 4.2, -16.0, -60, "vocho", dict(sin_puerta=True)),
-               ("Suelto_3", -2.5, -18.5, 80, "sedan", dict(volteado=True, abollado=1.5)),
+               ("Suelto_2", 4.2, -16.0, -60, "sedan", dict(sin_puerta=True, estilo="taxi")),
+               ("Suelto_3", -2.5, -18.5, 80, "sedan", dict(volteado=True, abollado=1.5, estilo="patrulla")),
                ("Suelto_4", 4.5, -10.0, 100, "sedan", dict(vidrios_rotos=.6, cofre_abierto=True)),
-               ("Suelto_5", -2.6, -24.6, 10, "sedan", dict(sin_llantas=True, sin_puerta=True, sin_defensa=True))]
+               ("Suelto_5", -2.6, -24.6, 10, "combi", dict(sin_llantas=True, sin_puerta=True, sin_defensa=True)),
+               ("Grua_vieja", -7.5, -4.5, 90, "pickup", dict(estilo="grua", vidrios_rotos=.2))]
     for nombre, sx, sz, giro, tipo, extra in sueltos:
         ob, _ = carro(nombre, sx, 0, sz, giro, rng.choice(COLORES_CARRO), col, M, tipo=tipo, semilla=rng.randint(0, 9999), **extra)
         carros.append(ob)
+    carros.append(camion_frente("Camion_ruta", -6.0, -38.2, 0, col, M))
     revisar(carros)
     montacargas(col, M, 1.5, -21.5, 30)
     # La montana de llantas, pilas sueltas y las pintadas de la entrada
@@ -729,7 +909,9 @@ def patio(col, M):
     # Montones de fierro (Chatarra.gd pone los que se recogen en las marcas)
     marca("Chatarra_1", -3.5, 0, -14.5, col)
     marca("Chatarra_2", 7.2, 0, -21.0, col)
-    marca("Chatarra_3", -3.0, 0, -36.5, col)
+    marca("Chatarra_3", -1.0, 0, -33.3, col)
+    marca("Grua_toma", GRUA_TOMA[0], 0, GRUA_TOMA[1], col)
+    marca("Grua_suelta", GRUA_SUELTA[0], 0, GRUA_SUELTA[1], col)
     marca("Flecha", 0, 0, 3.0, col)
     marca("Contenedor", (PUERTA_CONT[0] + PUERTA_CONT[1]) / 2, CONT_BASE, CONTENEDOR[3], col)
 
@@ -759,10 +941,11 @@ def juntar_por_material(col):
     """Para pocas llamadas de dibujo: todo lo que se ve se junta en dos mallas (la barda propia y el
     resto), con un material por superficie. Cada pieza que chocaba ("-convcol") deja antes su casco
     convexo como "-convcolonly" (solo choca); los vacios "Marca_*" y lo "-colonly" se quedan."""
-    barda, resto = [], []
+    barda, resto, detalle = [], [], []
+    bpy.context.view_layer.update()
     for ob in list(col.all_objects):
         # Lo que YonkeMapa mueve (la placa, los vastagos y el carro de la prensa) se queda aparte
-        if ob.type != "MESH" or ob.name.endswith(("-colonly", "-convcolonly")) or ob.name.startswith("Prensa_mov_"):
+        if ob.type != "MESH" or ob.name.endswith(("-colonly", "-convcolonly")) or ob.name.startswith(("Prensa_mov_", "Grua_mov_")):
             continue
         base = ob.name
         if base.endswith("-convcol"):
@@ -779,9 +962,16 @@ def juntar_por_material(col):
             choque = bpy.data.objects.new(base + "-convcolonly", me)
             col.objects.link(choque)
             ob.name = base
-        (barda if base.startswith("Barda_") else resto).append(ob)
+        if base.startswith("Barda_"):
+            barda.append(ob)
+        elif base.startswith("Detalle_") or (max(ob.dimensions) < .6 and not base.endswith("-convcol")):
+            detalle.append(ob)      # lo chico: solo se dibuja de cerca (YonkeMapa.DETALLE_LEJOS)
+        else:
+            resto.append(ob)
     juntar("Barda_todo", barda, col)
     juntar("Patio_todo", resto, col)
+    if detalle:
+        juntar("Patio_detalle", detalle, col)
 
 
 def carteles(col, M):
@@ -812,6 +1002,10 @@ def exterior():
     refaccionaria(col, M)
     prensa(col, M)
     carteles(col, M)
+    grua_magneto(col, M)
+    suelo_detalle(col, M)
+    barda_detalle(col, M)
+    noche_yonke(col, M)
     chalanes()
     juntar_por_material(col)
     return col
@@ -944,6 +1138,7 @@ def interior():
         r.location = _b(x0 + .05, .2, .5 + k * .3)
         r.rotation_euler.y = math.radians(10)
     # Lo que usa Yonke.gd (Interior.gd: Camara, Mostrador, Vendedor; y el Banco donde flota lo que haces)
+    la_chava_cosas(col, M)
     marca("Camara", .3, 1.6, 2.3, col)
     marca("Mostrador", -.3, 0, -.35, col)
     marca("Vendedor", -.4, 0, -1.25, col)

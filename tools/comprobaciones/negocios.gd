@@ -24,6 +24,24 @@ func correr(r: Node) -> void:
 			var abajo := placa.position.y < -0.3 and carro.scale.y < 0.8
 			yonke.call("_prensa", 0.5)
 			r.ok(abajo and is_equal_approx(carro.scale.y, 1.0) and is_zero_approx(placa.position.y), "la prensa baja, aplasta y vuelve")
+		# La grua va por un carro y lo trae con el ciclo de la prensa
+		var pluma := yonke.get("_pluma") as Node3D
+		r.ok(pluma != null, "la grua de electroiman")
+		if pluma:
+			yonke.call("_grua", 0.5)
+			var en_prensa := pluma.rotation.y
+			yonke.call("_grua", 5.2)
+			var en_fila := pluma.rotation.y
+			var carga := yonke.get("_carga") as Node3D
+			r.ok(absf(angle_difference(en_prensa, en_fila)) > 1.0 and carga and carga.visible == false,
+				"la grua gira de la prensa a la fila (sin carga todavia)")
+			yonke.call("_grua", 8.0)
+			r.ok(carga and carga.visible, "y regresa con el carro colgado")
+		# De noche: el velador, su lumbre, el perro y los reflectores
+		var noche := yonke.get_node_or_null("Noche") as Node3D
+		yonke.call("_de_noche", true)
+		r.ok(noche != null and noche.visible and noche.get_child_count() >= 5, "de noche el velador, la lumbre, el perro y las luces")
+		yonke.call("_de_noche", false)
 		var chalanes := yonke.get_node_or_null("Chalanes")
 		r.ok(chalanes != null and chalanes.get_child_count() >= 8, "los chalanes trabajando (de dia)")
 	var cantina := r.get_tree().current_scene.get_node_or_null("CantinaPunto") as Node3D

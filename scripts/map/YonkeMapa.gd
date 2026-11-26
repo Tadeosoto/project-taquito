@@ -35,6 +35,15 @@ const PRENSA_OIDO := 35.0                   # m: mas lejos no suena
 # Los chalanes
 const CHALAN_SEMILLA := "yonke_chalan_%d"
 const CARGADOR_VELOCIDAD := 1.1             # m/s
+const DETALLE_LEJOS := 60.0                 # m: lo chico (Patio_detalle) solo de cerca
+# La grua de electroiman, en el mismo ciclo que la prensa: segundos en que va a la fila, toma el
+# carro y lo trae; lo suelta al acabar el ciclo, cuando el carro de la prensa vuelve a estar entero
+const GRUA_VA := Vector2(1.0, 5.0)
+const GRUA_TOMA_EN := 5.5
+const GRUA_TRAE := Vector2(6.0, 11.0)
+const PERRO_LADRA := 14.0                   # m: mas cerca, el perro del velador ladra (de noche)
+const FUEGO_COLOR := Color(1.0, 0.55, 0.2)
+const LUZ_REFLECTOR := Color(1.0, 0.93, 0.8)
 const PLATICA := "¿Buscas a la Chava? Está en la oficina, en el contenedor. Yo nomás desarmo."
 
 @export var puntos_path: NodePath
@@ -57,6 +66,14 @@ var _chalanes: Node3D
 var _cargador: Node3D
 var _ruta: Array[Vector3] = []
 var _hacia := 1
+var _pluma: Node3D
+var _carga: Node3D
+var _angulo_toma := 0.0
+var _angulo_suelta := 0.0
+var _noche: Node3D
+var _perro: Node3D
+var _ladrido := 0.0
+var _fuego: OmniLight3D
 
 
 # El patio (con 1 m de orilla) se aparta antes de que MapCasas cargue: en map_test no cabia entre las
@@ -79,7 +96,7 @@ func _ready() -> void:
 		for nodo in patio.find_children("Barda_*", "", true, false):
 			nodo.queue_free()
 	for malla in patio.find_children("*", "GeometryInstance3D", true, false):
-		(malla as GeometryInstance3D).visibility_range_end = LEJOS
+		(malla as GeometryInstance3D).visibility_range_end = DETALLE_LEJOS if String(malla.name).begins_with("Patio_detalle") else LEJOS
 	var flecha_en := FLECHA_EN
 	for marca in patio.find_children("Marca_*", "", true, false):
 		var m := marca as Node3D
@@ -94,7 +111,9 @@ func _ready() -> void:
 			flecha_en = m.position
 	_marcador(flecha_en)
 	_preparar_prensa(patio)
+	_preparar_grua(patio)
 	_chalanes_poner(patio)
+	_vida(patio)
 
 
 # La flecha de las tiendas (MapPuntos.flecha) y su area: al pisarla se entra
@@ -163,6 +182,11 @@ func _process(delta: float) -> void:
 		elif antes < PRENSA_SUBE.x and _tiempo >= PRENSA_SUBE.x:
 			_sonar("prensa_sube")
 	_prensa(_tiempo)
+	_grua(_tiempo)
+	if _perro and _noche.visible and distancia < PERRO_LADRA and _ladrido <= 0.0:
+		_ladrido = randf_range(4.0, 8.0)
+		_sonar("perro_ladra")
+	_ladrido -= delta
 
 
 # Solo si ya esta en Sonidos.ARCHIVOS: un nombre que no esta truena en Sonidos (sus cupos)
@@ -278,3 +302,144 @@ func _caminar(delta: float) -> void:
 	_cargador.position += paso if paso.length() < falta.length() else falta
 	# Ve hacia donde camina (el modelo ve hacia -Z)
 	_cargador.rotation.y = atan2(-falta.x, -falta.z)
+
+
+# --- La grua de electroiman
+
+func _preparar_grua(patio: Node) -> void:
+	_pluma = patio.find_child("Grua_mov_pluma", true, false) as Node3D
+	_carga = patio.find_child("Grua_mov_carga", true, false) as Node3D
+	var toma := patio.find_child("Marca_Grua_toma", true, false) as Node3D
+	var suelta := patio.find_child("Marca_Grua_suelta", true, false) as Node3D
+	if _pluma == null or toma == null or suelta == null:
+		_pluma = null
+		return
+	# La pluma sale hacia +X de su eje: el angulo en Y que la apunta a cada lugar
+	_angulo_toma = _angulo_a(toma.position)
+	_angulo_suelta = _angulo_a(suelta.position)
+
+
+func _angulo_a(lugar: Vector3) -> float:
+	var d := lugar - _pluma.position
+	return atan2(-d.z, d.x)
+
+
+func _grua(t: float) -> void:
+	if _pluma == null:
+		return
+	var angulo := _angulo_suelta
+	if t >= GRUA_VA.x and t < GRUA_VA.y:
+		angulo = lerp_angle(_angulo_suelta, _angulo_toma, _suave(inverse_lerp(GRUA_VA.x, GRUA_VA.y, t)))
+	elif t >= GRUA_VA.y and t < GRUA_TRAE.x:
+		angulo = _angulo_toma
+	elif t >= GRUA_TRAE.x and t < GRUA_TRAE.y:
+		angulo = lerp_angle(_angulo_toma, _angulo_suelta, _suave(inverse_lerp(GRUA_TRAE.x, GRUA_TRAE.y, t)))
+	_pluma.rotation.y = angulo
+	if _carga:
+		_carga.rotation.y = angulo
+		_carga.visible = t >= GRUA_TOMA_EN
+
+
+# --- Vida: chispas del soldador y moscas (de dia), y de noche el velador con su lumbre y su
+# radio, el perro y los reflectores
+
+func _vida(patio: Node) -> void:
+	_noche = Node3D.new()
+	_noche.name = "Noche"
+	add_child(_noche)
+	for marca in patio.find_children("Marca_*", "", true, false):
+		var m := marca as Node3D
+		var nombre := String(m.name)
+		if nombre == "Marca_Chispas" and _chalanes:
+			var chispas := _particulas(Color(1.0, 0.8, 0.3), 24, 0.5, 2.5, 0.025, Vector3(0, -9.8, 0))
+			chispas.position = m.position
+			_chalanes.add_child(chispas)
+			_sonido_3d("soldadora", m.position, _chalanes)
+		elif nombre.begins_with("Marca_Moscas"):
+			var moscas := _particulas(Color(0.05, 0.05, 0.05), 8, 3.0, 0.3, 0.015, Vector3.ZERO)
+			moscas.position = m.position
+			add_child(moscas)
+		elif nombre == "Marca_Fuego":
+			var lumbre := _particulas(FUEGO_COLOR, 30, 0.8, 1.2, 0.08, Vector3(0, 1.5, 0))
+			lumbre.position = m.position
+			_noche.add_child(lumbre)
+			_fuego = OmniLight3D.new()
+			_fuego.light_color = FUEGO_COLOR
+			_fuego.light_energy = 2.0
+			_fuego.omni_range = 7.0
+			_fuego.position = m.position + Vector3.UP * 0.4
+			_noche.add_child(_fuego)
+		elif nombre == "Marca_Velador":
+			var asiento := Node3D.new()
+			asiento.transform = m.transform
+			asiento.position += -m.transform.basis.z * 0.38      # Sitting_Idle: la cadera sobre la cubeta
+			_noche.add_child(asiento)
+			Civiles.poner(asiento, _modelo_hombre(40), "Sitting_Idle")
+		elif nombre == "Marca_Radio":
+			_sonido_3d("yonke_radio", m.position, _noche)
+		elif nombre == "Marca_Perro":
+			_perro = Node3D.new()
+			_perro.transform = m.transform
+			_noche.add_child(_perro)
+			Gente.poner_modelo(_perro, Gente.PERRO, Gente.ALTO_PERRO)
+		elif nombre.begins_with("Marca_Luz_"):
+			var luz := SpotLight3D.new()
+			luz.light_color = LUZ_REFLECTOR
+			luz.light_energy = 3.0
+			luz.spot_range = 16.0
+			luz.spot_angle = 55.0
+			luz.position = m.position
+			luz.rotation_degrees = Vector3(-90, 0, 0)
+			_noche.add_child(luz)
+	var ciclo := get_tree().get_first_node_in_group("ciclo")
+	if ciclo:
+		ciclo.anochecio.connect(func() -> void: _de_noche(true))
+		ciclo.amanecio.connect(func() -> void: _de_noche(false))
+		_de_noche(ciclo.es_noche())
+	else:
+		_de_noche(false)
+
+
+func _de_noche(si: bool) -> void:
+	_noche.visible = si
+	_noche.process_mode = Node.PROCESS_MODE_INHERIT if si else Node.PROCESS_MODE_DISABLED
+
+
+# Particulas sencillas (chispas, moscas, lumbre): cuadritos sin luz que salen de un punto
+func _particulas(color: Color, cuantas: int, vida: float, velocidad: float, tamano: float, gravedad: Vector3) -> GPUParticles3D:
+	var p := GPUParticles3D.new()
+	p.amount = cuantas
+	p.lifetime = vida
+	var proceso := ParticleProcessMaterial.new()
+	proceso.direction = Vector3(0, 1, 0)
+	proceso.spread = 70.0 if gravedad.y < 0.0 else 180.0
+	proceso.initial_velocity_min = velocidad * 0.5
+	proceso.initial_velocity_max = velocidad
+	proceso.gravity = gravedad
+	proceso.color = color
+	p.process_material = proceso
+	var quad := QuadMesh.new()
+	quad.size = Vector2(tamano, tamano)
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	mat.vertex_color_use_as_albedo = true
+	quad.material = mat
+	p.draw_pass_1 = quad
+	p.visibility_aabb = AABB(Vector3(-2, -1, -2), Vector3(4, 4, 4))
+	return p
+
+
+# Un sonido que se oye de cerca y en su lugar (el radio con banda, la soldadora), en loop; solo si
+# JJ ya lo puso en Sonidos.ARCHIVOS (mientras, nada)
+func _sonido_3d(nombre: String, en: Vector3, padre: Node) -> void:
+	if not Sonidos.ARCHIVOS.has(nombre):
+		return
+	var voz := AudioStreamPlayer3D.new()
+	voz.stream = Sonidos.sonido(nombre)
+	voz.position = en
+	voz.unit_size = 4.0
+	voz.max_distance = 30.0
+	voz.autoplay = true
+	voz.finished.connect(voz.play)
+	padre.add_child(voz)

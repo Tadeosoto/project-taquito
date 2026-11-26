@@ -35,6 +35,21 @@ PERFILES = {
         (3.60, .74, .76, .66, .62, .82, "lamina"),
         (4.00, .55, .60, .55, .45, .66, None),
     ]),
+    # La combi (cuadrada, de techo alto) y la camioneta de reparto: frente plano
+    "combi": (4.3, [
+        (0.00, .82, .88, .95, .84, 1.85, "lamina"),
+        (0.15, .84, .90, 1.0, .82, 1.95, "toldo"),
+        (4.05, .84, .90, 1.0, .80, 1.95, "vidrio"),
+        (4.30, .82, .88, .95, .78, 1.75, None),
+    ]),
+    "van": (5.0, [
+        (0.00, .86, .92, 1.0, .86, 2.05, "lamina"),
+        (0.10, .88, .94, 1.05, .86, 2.1, "lamina"),
+        (3.70, .88, .94, 1.05, .84, 2.1, "toldo"),
+        (4.30, .88, .94, 1.0, .80, 1.95, "vidrio"),
+        (4.75, .86, .92, .95, .78, 1.15, "lamina"),
+        (5.00, .80, .86, .85, .72, .95, None),
+    ]),
     "pickup": (2.9, [                                  # solo la cabina y el frente; la caja va aparte
         (0.00, .82, .88, .86, .80, .95, "lamina"),
         (0.08, .82, .88, .88, .66, 1.55, "toldo"),
@@ -139,9 +154,11 @@ def rueda(nombre, M, col, lados=12):
 
 def carro(nombre, x, y, z, giro, color, col, M, tipo="sedan", aplastado=1.0, sin_llantas=False,
           cofre_abierto=False, sin_puerta=False, volteado=False, semilla=None, oxido=0.5, vidrios_rotos=0.25,
-          sin_defensa=False, abollado=0.6, apilado=False):
+          sin_defensa=False, abollado=0.6, apilado=False, estilo=""):
     """Un carro completo en (x, y, z) girado `giro` grados. Regresa (objeto, alto). `apilado`: va
-    encima de otro, sin llantas ni blocks y con el piso pegado al techo del de abajo."""
+    encima de otro, sin llantas ni blocks y con el piso pegado al techo del de abajo. `estilo`: "taxi"
+    (rojo y blanco con su copete), "patrulla" (de los cuicos: blanca y azul con torreta) o "grua"
+    (la pickup con su pluma y gancho)."""
     rng = random.Random(semilla if semilla is not None else hash(nombre) & 0xffff)
     if tipo == "pickup":
         largo_total = PERFILES["pickup"][0] + CAJA_PICKUP
@@ -214,6 +231,27 @@ def carro(nombre, x, y, z, giro, color, col, M, tipo="sedan", aplastado=1.0, sin
         s = rng.choice((-1, 1))
         piezas.append(plano(nombre + "_ox%d" % k, (rng.uniform(x0 + .3, x1 - .3), rng.uniform(.45, .8), s * (ancho + .012)),
                             rng.uniform(.25, .7), rng.uniform(.12, .3), (0, 0, s), M["oxido"], col))
+    amarillo = M.get("amarillo_maquina", pintura)
+    if estilo == "taxi":
+        blanco = material("pintura_8", COLORES_CARRO[8])
+        for s in (-1, 1):
+            piezas.append(plano(nombre + "_taxi_franja%d" % s, (0, .55, s * (ancho + .008)), largo_total - .4, .22, (0, 0, s), blanco, col))
+        piezas.append(caja(nombre + "_copete", -.25, .25, alto, alto + .16, -.12, .12, M["letrero_amarillo"], col, choca=False))
+    elif estilo == "patrulla":
+        azul = material("patrulla_azul", (0.1, 0.18, 0.5))
+        for s in (-1, 1):
+            piezas.append(plano(nombre + "_puerta_azul%d" % s, (-.1, .62, s * (ancho + .008)), 1.7, .45, (0, 0, s), azul, col))
+        piezas.append(caja(nombre + "_torreta_r", -.2, .2, alto, alto + .1, -.5, 0, M["letrero_rojo"], col, choca=False))
+        piezas.append(caja(nombre + "_torreta_a", -.2, .2, alto, alto + .1, 0, .5, azul, col, choca=False))
+    elif estilo == "grua" and tipo == "pickup":
+        cx0 = -largo_total / 2
+        piezas.append(caja(nombre + "_grua_base", cx0 + .2, cx0 + .7, PISO + .08, PISO + .5, -.4, .4, amarillo, col, choca=False))
+        pluma = caja(nombre + "_grua_pluma", 0, 2.2, -.07, .07, -.08, .08, amarillo, col, choca=False)
+        pluma.data.transform(Matrix.Rotation(math.radians(-150), 4, "Y"))
+        pluma.location = _b(cx0 + .45, PISO + .5, 0)
+        piezas.append(pluma)
+        piezas.append(caja(nombre + "_grua_cadena", cx0 - 1.45, cx0 - 1.43, .5, 1.6, -.01, .01, M.get("cadena", M["fierro"]), col, choca=False))
+        piezas.append(caja(nombre + "_grua_gancho", cx0 - 1.5, cx0 - 1.38, .4, .5, -.03, .03, M["fierro"], col, choca=False))
     if apilado:
         y -= PISO - .02
     ob = juntar(nombre + "-convcol", piezas, col, matriz(x, y, z, giro))
@@ -282,3 +320,28 @@ def llanta_rica(nombre, M, col, mat=None, lados=12, rin=False, gastada=0.0):
         b.location = Vector((math.cos(a) * .11, math.sin(a) * .11, 0))
         piezas.append(b)
     return juntar(nombre, piezas, col)
+
+
+def camion_frente(nombre, x, z, giro, col, M, color=(0.85, 0.75, 0.2)):
+    """La mitad de enfrente de un camion urbano: caja alta con parabrisas, letrero de ruta, puerta
+    plegable, defensa, faros y dos llantas; atras queda cortado (el hueco oscuro)."""
+    pintura = material("camion_ruta", color)
+    largo, ancho, alto = 5.0, 2.5, 2.9
+    p = [caja(nombre + "_caja", 0, largo, .45, alto, -ancho / 2, ancho / 2, pintura, col, choca=False),
+         caja(nombre + "_franja", 0, largo, .9, 1.1, -ancho / 2 - .01, ancho / 2 + .01, M["letrero_blanco"], col, choca=False),
+         plano(nombre + "_parabrisas", (largo + .005, 1.95, 0), 2.2, 1.3, (1, 0, 0), M["vidrio_sucio"], col),
+         caja(nombre + "_ruta", largo, largo + .02, 2.62, 2.85, -.9, .9, M["hueco"], col, choca=False),
+         caja(nombre + "_defensa", largo, largo + .12, .45, .7, -ancho / 2, ancho / 2, M["fierro"], col, choca=False),
+         plano(nombre + "_corte", (-.005, 1.6, 0), ancho - .1, 2.2, (-1, 0, 0), M["hueco"], col)]
+    t = letrero(nombre + "_ruta_txt", "RUTA 629", .16, M["letrero_amarillo"], col)
+    t.matrix_basis = Matrix.Translation(_b(largo + .025, 2.66, 0)) @ Matrix.Rotation(math.radians(90), 4, "Z")
+    p.append(t)
+    for s in (-1, 1):
+        p.append(caja(nombre + "_faro%d" % s, largo, largo + .03, .75, .9, s * 1.0 - .15, s * 1.0 + .15, M["faro"], col, choca=False))
+        for k in range(3):
+            p.append(plano(nombre + "_ventana%d%d" % (s, k), (1.0 + k * 1.2, 2.0, s * (ancho / 2 + .005)), 1.0, .8, (0, 0, s), M["vidrio_sucio"], col))
+        ll = cilindro_eje(nombre + "_llanta%d" % s, .5, .3, "z", M["llanta"], col, lados=12)
+        ll.location = _b(largo - 1.1, .5, s * (ancho / 2 - .15))
+        p.append(ll)
+    p.append(caja(nombre + "_puerta", largo - .9, largo - .2, .5, 2.4, ancho / 2, ancho / 2 + .01, M["vidrio_sucio"], col, choca=False))
+    return juntar(nombre + "-convcol", p, col, matriz(x, 0, z, giro))

@@ -25,6 +25,7 @@ const TEXTURAS := {
 	"concreto": ["res://textures/mapa/casa_psm_concreto.png", Color(0.62, 0.6, 0.56), 0.5],
 	"carton": ["res://textures/mapa/carton.png", Color(0.85, 0.75, 0.6), 1.0],
 	"carteles_yonke": ["res://textures/negocios/yonke_carteles.png", Color.WHITE, 0.0],
+	"mata": ["res://textures/map/mata_pasto.png", Color(0.85, 0.85, 0.75), 0.0],
 	# El Punto (punto.py; el mural y el rotulo los pinta arte_punto.py)
 	"aplanado": ["res://textures/mapa/aplanado_blanco.png", Color(0.86, 0.84, 0.78), 0.5],
 	"aplanado_sucio": ["res://textures/mapa/aplanado_blanco.png", Color(0.62, 0.6, 0.56), 0.5],
@@ -92,6 +93,10 @@ func _material(original: Material) -> Material:
 		m.albedo_color = t[1]
 		if float(t[2]) > 0.0:
 			m.uv1_scale = Vector3.ONE * float(t[2])
+		if nombre == "mata":
+			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+			m.alpha_scissor_threshold = 0.5
+			m.cull_mode = BaseMaterial3D.CULL_DISABLED
 		if nombre in SOTANO.BRILLAN_TEXTURA:
 			m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	elif nombre.begins_with("grafiti_"):

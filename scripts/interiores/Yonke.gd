@@ -27,7 +27,14 @@ const LINEAS_NO := {
 	"cangurera": "¿Y dónde lo vas a cargar? Consíguete una cangurera.",
 }
 
+# Mientras atiende, La Chava suelda el machete que trae en la prensa (yonke.py la_chava_cosas):
+# chispazos cada tanto en la prensa del mostrador
+const PRENSA_CHISPAS := Vector3(0.34, 1.12, -0.15)
+const SOLDA_CADA := Vector2(2.5, 6.0)
+
 var _taller: TallerUI
+var _solda: GPUParticles3D
+var _solda_espera := 3.0
 var _banco: Node3D
 var _objeto: Node3D
 
@@ -42,6 +49,9 @@ func _ready() -> void:
 	if vendedor:
 		Gente.poner_modelo(vendedor, CHAVA, CHAVA_ALTO)
 	_banco = get_node_or_null("Banco") as Node3D
+	_solda = _chispazo()
+	_solda.position = PRENSA_CHISPAS
+	add_child(_solda)
 
 
 # Lo que dice al llegar (el npc de las tiendas lo trae en `dialogue`; aqui no hay npc)
@@ -61,6 +71,11 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	if _objeto:
 		_objeto.rotation_degrees.y += GIRO * delta
+	if _solda:
+		_solda_espera -= delta
+		if _solda_espera <= 0.0:
+			_solda_espera = randf_range(SOLDA_CADA.x, SOLDA_CADA.y)
+			_solda.restart()
 
 
 # Lo elegido en la pantalla del taller, flotando en el banco
@@ -96,3 +111,30 @@ func chispas() -> void:
 
 static func linea_hecho() -> String:
 	return LINEAS_HECHO.pick_random()
+
+
+# Un chispazo de soldadura: chispas amarillas que saltan y caen
+func _chispazo() -> GPUParticles3D:
+	var p := GPUParticles3D.new()
+	p.amount = 20
+	p.lifetime = 0.6
+	p.one_shot = true
+	p.explosiveness = 0.85
+	p.emitting = false
+	var proceso := ParticleProcessMaterial.new()
+	proceso.direction = Vector3(0, 1, 0)
+	proceso.spread = 75.0
+	proceso.initial_velocity_min = 0.8
+	proceso.initial_velocity_max = 1.8
+	proceso.gravity = Vector3(0, -9.8, 0)
+	proceso.color = Color(1.0, 0.85, 0.35)
+	p.process_material = proceso
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.012, 0.012)
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	mat.vertex_color_use_as_albedo = true
+	quad.material = mat
+	p.draw_pass_1 = quad
+	return p
