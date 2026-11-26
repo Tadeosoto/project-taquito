@@ -447,7 +447,8 @@ func _make_punto(punto: Dictionary) -> Node3D:
 			cantina.ancho = float(punto.get("ancho", 0.0))
 			cantina.position.z = float(punto.get("fondo", 0.0)) / 2.0
 			node.add_child(cantina)
-			punto["puerta_x"] = PuntoMapa.PUERTA_X * PuntoMapa.escala(cantina.ancho)
+			# La flecha la pone la cantina (CasaPropia en su puerta: se entra caminando), no la tienda
+			punto["sin_flecha"] = true
 	elif GIROS_LOCAL.has(tipo):
 		node = _make_local_giro(punto)
 	elif tipo == "puesto_tacos":

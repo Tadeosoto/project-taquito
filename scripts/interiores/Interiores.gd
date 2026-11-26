@@ -12,6 +12,8 @@ extends Node
 # camara se acerca al que atiende ahi mismo, desde donde estas parado, y se aleja al salir.
 
 const ALTURA := 500.0
+# Los que no cierran de noche: El Punto (la oficina de Don Lalo) es de noche cuando mas se mueve
+const ABIERTOS_NOCHE := ["punto"]
 const FUNDIDO := 0.35
 # Que tan lejos de la flecha de la calle te deja al salir (su radio es 0.8 m)
 const SALIDA_DISTANCIA := 2.2
@@ -47,6 +49,9 @@ var _dialogo: Label
 var _zoom: Camera3D
 var _flecha: Node3D
 var _ciclo: Node
+# Se entro desde adentro de un lugar que se camina (la puerta de atras de la cantina, meta "adentro"
+# del marcador): al salir no se vuelve a mostrar lo de afuera (el dron, el minimapa)
+var _adentro := false
 
 
 func _ready() -> void:
@@ -107,7 +112,7 @@ func _entrar(_tipo: String, giro: String, nombre: String, aire_libre: bool, marc
 		return
 	# De noche todo cierra, si no serian un escondite gratis (docs/especificaciones.md 4.6). En una
 	# colonia abierta las 24 horas (La Gotera, MapaColonia.abierto_24h) no hay de que esconderse
-	if _ciclo and _ciclo.es_noche() and not MapaColonia.abierto_24h:
+	if _ciclo and _ciclo.es_noche() and not MapaColonia.abierto_24h and not giro in ABIERTOS_NOCHE:
 		_puntos.avisar("%s: cerrado. Ya salieron." % nombre)
 		return
 	# Con escena se entra aunque sea al aire libre (el punto te mete a su cuarto)
@@ -122,6 +127,7 @@ func _entrar(_tipo: String, giro: String, nombre: String, aire_libre: bool, marc
 		return
 	_ocupado = true
 	_salida = salida
+	_adentro = marcador.get_meta("adentro", false)
 	_player.process_mode = Node.PROCESS_MODE_DISABLED
 	await _fundir(1.0)
 	_interior = escena.instantiate() as Interior
@@ -131,7 +137,9 @@ func _entrar(_tipo: String, giro: String, nombre: String, aire_libre: bool, marc
 	var atiende := _interior.get_node_or_null("Vendedor")
 	if atiende and marcador.has_meta("civil"):
 		atiende.set("modelo", marcador.get_meta("civil"))
-	_interior.position = Vector3(salida.origin.x, ALTURA, salida.origin.z)
+	# Un marcador puede pedir otra altura (meta "altura"): la puerta de atras de la cantina ya esta a
+	# ALTURA (CasaPropia), y el interior se encimaria con ella
+	_interior.position = Vector3(salida.origin.x, float(marcador.get_meta("altura", ALTURA)), salida.origin.z)
 	add_child(_interior)
 	_interior.camara().make_current()
 	_interior.activar()
@@ -157,7 +165,8 @@ func _salir() -> void:
 	_player.frijol.global_rotation.y = giro
 	(_player.find_child("Camera3D", true, false) as Camera3D).make_current()
 	_player.process_mode = Node.PROCESS_MODE_INHERIT
-	mostrar_afuera(true)
+	if not _adentro:
+		mostrar_afuera(true)
 	await _fundir(0.0)
 	_ocupado = false
 
@@ -170,7 +179,7 @@ func _echar() -> void:
 		await get_tree().process_frame
 	if _zoom:
 		_alejar()
-	elif _interior:
+	elif _interior and not _interior.giro in ABIERTOS_NOCHE:
 		_salir()
 	else:
 		return

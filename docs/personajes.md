@@ -702,8 +702,9 @@ Un arquetipo por giro, reusado en todas las franquicias. No tienen nombre propio
 | **Gasolinera** | El despachador | *"¿Con gasolina?"* | Vende gasolina para molotov sin preguntar |
 | **Puesto** | El taquero de la banqueta | *"¿Con todo?"* | Es el que cierra más tarde y el que sabe dónde está la caminata |
 | **El punto** | El del colchón | *"Pasa, no hay nadie."* | Vende tachas y agua cara; tiene a alguien tirado en el piso |
+| **El punto (la oficina)** | Don Lalo Santacruz | *"Pase usted. Aquí se atiende con respeto, y se paga igual."* | Vende fierros (La Tinaquera, La Chicharra, La Matraca); reza más que nadie y le debe favores a medio Santa Mugre |
 
-**La purificadora** es el vendedor más triste: el franquiciatario es un vecino que puso su dinero y le compra el agua a GelA. No es el villano: es el que también se lleva su parte y también tiene miedo. **El punto** es el más oscuro: un cuarto en obra negra con un colchón, alguien tirado y el que te atiende a un lado.
+**La purificadora** es el vendedor más triste: el franquiciatario es un vecino que puso su dinero y le compra el agua a GelA. No es el villano: es el que también se lleva su parte y también tiene miedo. **El punto** es el más oscuro. Por fuera es la Cantina El Olvido (propuesta de AG, 2026-11-25): mural, sillas de plástico y, de noche, dos halcones en la puerta. Adentro, El del colchón atiende la barra (tachas, caguama, cigarros), con su colchón en la esquina y su compadre tirado encima, entre los de siempre que platican o toman sentados. La puerta de atrás, PRIVADO, es la oficina de **Don Lalo Santacruz**, el patrón: viejo, de usted, rezandero (tiene altar a la Virgen del Tinaco con veladoras), camisa de seda negra barroca, cadena y diente de oro, cicatriz en la mejilla, puro y lentes en la cabeza. Vende las armas de fuego, no fía y no cierra de noche: es cuando más se mueve. El del colchón trabaja para él.
 
 ---
 

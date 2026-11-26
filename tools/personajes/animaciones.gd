@@ -46,6 +46,8 @@ const CLIPS := [
 	# Los chalanes del Yonke (YonkeMapa.CHALANES): arreglando un carro hincado, al telefono, de brazos
 	# cruzados junto a la prensa, en cuclillas y recogiendo del suelo
 	"Fixing_Kneeling", "Idle_TalkingPhone", "Idle_FoldArms", "Crouch_Idle", "PickUp_Kneeling",
+	# Don Lalo sentado en su oficina (scripts/interiores/Punto.gd): platica, asiente y se acomoda
+	"Sitting_Talking", "Sitting_Nodding", "Sitting_Idle02", "Sitting_Idle03",
 ]
 
 

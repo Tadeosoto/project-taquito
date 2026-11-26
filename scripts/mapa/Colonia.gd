@@ -928,6 +928,14 @@ func _yonke(marca: Dictionary) -> void:
 
 func _puerta(marca: Dictionary) -> void:
 	var giro := String(marca.get("giro", ""))
+	# La puerta de El Punto lleva a la Cantina El Olvido, que se camina (scripts/punto/Cantina.gd);
+	# su puerta de atras es la oficina de Don Lalo (el interior del giro "punto")
+	if giro == "punto":
+		var cantina := marca.duplicate()
+		cantina["escena"] = PuntoMapa.CANTINA_ESCENA
+		cantina["texto"] = "Cantina El Olvido"
+		_casa_vecino(cantina)
+		return
 	var texto := String(marca.get("texto", giro.capitalize()))
 	var area := Area3D.new()
 	area.name = String(marca.get("nombre", "Puerta"))

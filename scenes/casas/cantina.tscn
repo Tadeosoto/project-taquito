@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/punto/Cantina.gd" id="1_cantina"]
+[ext_resource type="PackedScene" path="res://models/negocios/punto/cantina.glb" id="2_cuarto"]
+
+[node name="Cantina" type="Node3D"]
+script = ExtResource("1_cantina")
+
+[node name="Cuarto" parent="." instance=ExtResource("2_cuarto")]

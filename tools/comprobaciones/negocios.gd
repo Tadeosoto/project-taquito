@@ -56,4 +56,53 @@ func correr(r: Node) -> void:
 				todas = todas and arma in nombres
 			r.ok(todas, "El Punto vende las tres armas de fuego")
 			r.ok(interior.get_node_or_null("Lampara") != null, "la lampara del escritorio alumbra")
+			r.ok(not interior.find_children("Lentes", "", true, false).is_empty() and not interior.find_children("Puro", "", true, false).is_empty(),
+				"Don Lalo trae sus lentes y su puro")
 		interior.queue_free()
+	await _cantina(r, cantina)
+
+
+# La cantina se camina: la flecha de la puerta (CasaPropia) mete al jugador, adentro esta El del
+# colchon con lo que vende y la rocola, y la puerta de atras abre la oficina de Don Lalo a otra
+# altura; al salir de la oficina sigues en la cantina, y de la cantina a la calle
+func _cantina(r: Node, cantina: Node3D) -> void:
+	var entrada := cantina.get_node_or_null("EntradaCantina") if cantina else null
+	r.ok(entrada != null, "la cantina tiene su entrada (CasaPropia)")
+	r.ok(cantina != null and cantina.get_node_or_null("Noche") != null, "la cantina tiene su gente y luces de noche")
+	if entrada == null:
+		return
+	var jugador := r.get_tree().get_first_node_in_group("jugador") as Node3D
+	entrada.call("_entrar")
+	await r.segundos(1.2)
+	var adentro: Node = entrada.get("_casa")
+	r.ok(adentro != null and jugador.global_position.y > 400.0, "entras caminando a la cantina")
+	if adentro == null:
+		return
+	r.ok(adentro.find_child("ElDelColchon", true, false) != null or adentro.find_child("Colchonero", true, false) != null,
+		"El del colchon atiende la barra")
+	var ventas := 0
+	var rocola := false
+	var puerta: Area3D = null
+	for hijo in adentro.get_children():
+		if hijo is MuebleCasa and String(hijo.get("_letrero").text).contains("Comprar"):
+			ventas += 1
+		if hijo is MuebleCasa and String(hijo.get("_letrero").text).contains("canción"):
+			rocola = true
+		if hijo.name == "PuertaAtras":
+			puerta = hijo
+	r.ok(ventas == 3 and rocola, "en la barra se compra caguama, cigarros y tachas, y hay rocola")
+	r.ok(puerta != null, "la puerta de atras a la oficina")
+	if puerta == null:
+		return
+	var interiores := r.get_tree().get_first_node_in_group("interiores")
+	interiores.call("_entrar", "punto", "punto", "La oficina de Don Lalo", false, puerta)
+	await r.segundos(1.2)
+	var oficina: Node3D = interiores.get("_interior")
+	r.ok(oficina is Punto and oficina.global_position.y > 650.0, "la oficina de Don Lalo, aparte de la cantina")
+	interiores.call("_salir")
+	await r.segundos(1.2)
+	r.ok(interiores.get("_interior") == null and jugador.global_position.y > 400.0 and entrada.get("_casa") != null,
+		"de la oficina vuelves a la cantina")
+	entrada.call("_salir")
+	await r.segundos(1.2)
+	r.ok(entrada.get("_casa") == null and jugador.global_position.y < 50.0, "y de la cantina a la calle")

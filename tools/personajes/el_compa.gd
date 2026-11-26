@@ -165,7 +165,12 @@ const BARROCO_GRIS := Color(0.34, 0.34, 0.37)
 const BARROCO := 34.0                            # que tan apretado va el estampado (vueltas por m de modelo)
 const RAPADO := Color(0.30, 0.22, 0.18)          # la sombra del pelo rapado, sobre la piel
 const CANDADO_Y := Vector2(4.03, 4.19)           # de la barbilla al bigote
-const CANDADO_MEDIO := 0.045                     # medio ancho de la barba de chivo
+const CANDADO_MEDIO := 0.06                      # medio ancho de la barba de chivo (Don Lalo la trae tupida)
+const CEJAS_Y := Vector2(4.282, 4.308)           # cejas gruesas
+const CEJAS_Z := Vector2(0.018, 0.088)
+const CICATRIZ := Rect2(0.045, 4.17, 0.05, 0.09) # la mejilla derecha: z, y, ancho, alto (una raya chueca)
+const DIENTE_Y := Vector2(4.128, 4.146)          # el diente de oro, abajo del bigote
+const CICATRIZ_COLOR := Color(0.72, 0.42, 0.38)
 const RAPADO_DESDE := 4.33                       # y arriba de las cejas
 
 
@@ -230,6 +235,8 @@ func _init() -> void:
 				nuevo = RAPADO * clampf(f, 0.7, 1.3)
 			elif patron and (k.ends_with("piel") or e in MANOS) and e in CABEZA and _candado(Vector2i(x, y)):
 				nuevo = PELO * clampf(f, 0.7, 1.3)
+			elif patron and (k.ends_with("piel") or k.ends_with("pelo")) and e in CABEZA and _cara_patron(Vector2i(x, y)) != Color.TRANSPARENT:
+				nuevo = _cara_patron(Vector2i(x, y)) * clampf(f, 0.8, 1.2)
 			elif patron and (e in ZAPATOS or e in SUELAS):
 				nuevo = ZAPATO * lerpf(1.0, f, 0.6)
 			elif homero and q != null and (e in CHAMARRA or e in ANTEBRAZOS or (e in PANTALON and q.y > GUAYABERA_HASTA)):
@@ -560,6 +567,27 @@ func _candado(px: Vector2i) -> bool:
 	if not posiciones.has(px): return false
 	var q: Vector3 = posiciones[px]
 	return q.x > BIGOTE_FRENTE and absf(q.z) < CANDADO_MEDIO and q.y > CANDADO_Y.x and q.y < CANDADO_Y.y
+
+
+# La cara de Don Lalo encima de la del patron: cejas gruesas, la cicatriz de la mejilla y el
+# diente de oro. Color.TRANSPARENT donde no toca nada
+func _cara_patron(px: Vector2i) -> Color:
+	if not posiciones.has(px):
+		return Color.TRANSPARENT
+	var q: Vector3 = posiciones[px]
+	if q.x <= BIGOTE_FRENTE - 0.01:
+		return Color.TRANSPARENT
+	var z := absf(q.z)
+	if q.y > CEJAS_Y.x and q.y < CEJAS_Y.y and z > CEJAS_Z.x and z < CEJAS_Z.y:
+		return PELO
+	# La cicatriz solo del lado derecho (z negativo en el modelo): una raya diagonal
+	if q.z < 0.0 and CICATRIZ.has_point(Vector2(z, q.y)):
+		var t := (q.y - CICATRIZ.position.y) / CICATRIZ.size.y
+		if absf(z - (CICATRIZ.position.x + t * CICATRIZ.size.x * 0.8)) < 0.006:
+			return CICATRIZ_COLOR
+	if q.y > DIENTE_Y.x and q.y < DIENTE_Y.y and q.z > 0.004 and q.z < 0.018:
+		return ORO
+	return Color.TRANSPARENT
 
 
 func _bigote(px: Vector2i) -> bool:
