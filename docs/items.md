@@ -272,6 +272,29 @@ Solo se hacen cosas que se equipan (amuletos y armas) y dos materiales; los reme
 
 💡 Ideas que ya están en los docs: el **papel raro** (§6, recibos y hojas del lore), un **tazo raro**, piezas del taller.
 
+### Equipo escondido en el mapa 💡 (lista tentativa, 2026-11-26; JJ la va a trabajar en otra sesión)
+
+Viene de la maqueta de la pantalla de **Equipo**: filas por tipo (Filo, Pesadas, De fuego ×2, Armadura, Botas, Amuletos ×2), columnas de tier I-IV y **dos columnas ★ por fila** para lo que se encuentra en el mapa (16 en total; salen como "?" hasta encontrarlos y caen en la fila de su tipo). Te equipas **dos amuletos** (seis puestos: arma, de fuego, armadura, botas, amuleto 1 y 2). A diferencia de los drops raros de arriba, cada uno es único y tiene su lugar fijo. **Nada es canon:** nombres, efectos y lugares son propuestas; falta revisar choques con el lore (sobre todo el Llavero del Voto con "El voto de la llave" de `lore.md` §5, y la Pistolita de agua bendita con que el agua es ilegal, §10).
+
+| Fila | Nombre | Idea | Dónde |
+|---|---|---|---|
+| Filo | **El Cebollero** | Cuchillo de taquero, corto y rapidísimo | Una taquería cerrada |
+| Filo | **Machete del Velador** | El de Martín, con el mango gastado de tantas rondas | El Mante Tieso |
+| Pesadas | **La Stillson de Elena** | Llave de tubo de la drenajera; pesa como marro | Parques del Mosco, en las cañerías |
+| Pesadas | **La Coa del Jardinero** | La de Arturo; barre a los que tienes enfrente | Haciendas de San Jodido |
+| De fuego | **La Resortera de Tito** | Con canicas en vez de piedras | Parques del Mosco |
+| De fuego | **La Hechiza** | Escopeta de tubo armada a mano; truena feo | Las cañerías |
+| De fuego | **El Castillo** | Lanzacohetes hecho con un castillo de feria | El templo de Santa Mugre |
+| De fuego | **La Pistolita de agua bendita** | Pistola de agua del padre Chuy; aturde zombis (y el agua es ilegal: te puede meter en broncas) | La capilla |
+| Armadura | **Chaleco del Coto** | El de Sergio, el guardia de la fortaleza GelA | Fortaleza GelA |
+| Armadura | **La Sotana del Padre Chuy** | Tela gruesa con estampitas cosidas por dentro | El templo |
+| Botas | **Huaraches de llanta** | Ligeros, para correr | El tianguis de Toño |
+| Botas | **Botas del Garrafonero** | Las de Nacho; aguantan cargando | La purificadora |
+| Amuleto | **Rosario de tapitas** | Hecho por Doña Rosa con tapas de garrafón | Santa Mugre |
+| Amuleto | **La Ficha del Sótano** | Una ficha de EL GORDO que nunca pierde | El Sótano (La Gotera) |
+| Amuleto | **El Destapador de Don Silverio** | El de la cantina, colgado de un cordón | El Último Trago |
+| Amuleto | **Llavero del Voto** | Una copia de la llave, de cuando se votaba con ella | La Florida Marchita |
+
 - ❌ **Botella de agua** y **garrafón**: los modelos bajados salían mal. Se usan el galón y el `despachador_agua` como referencia.
 - ❌ **Agua sucia**: sin modelo; es un material de crafteo.
 - ❌ **Paloma (cohete)**, **veladora**, **lámpara/celular**, **torta ahogada**, **tequila**.
